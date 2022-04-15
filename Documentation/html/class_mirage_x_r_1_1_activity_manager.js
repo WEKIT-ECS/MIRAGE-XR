@@ -1,0 +1,28 @@
+var class_mirage_x_r_1_1_activity_manager =
+[
+    [ "ActivateActionByIndex", "class_mirage_x_r_1_1_activity_manager.html#adee925d8550aa00717c472893ecd9b7f", null ],
+    [ "ActivateNextAction", "class_mirage_x_r_1_1_activity_manager.html#a0d267275d37f6e278553c2f92ee59912", null ],
+    [ "ActivatePreviousAction", "class_mirage_x_r_1_1_activity_manager.html#a4bedd8983b676e4101ecf3238923bd8c", null ],
+    [ "AddAction", "class_mirage_x_r_1_1_activity_manager.html#a0077e47b7c2c4a22e97e8d0586846cd5", null ],
+    [ "AddAllAnnotationsBetweenSteps", "class_mirage_x_r_1_1_activity_manager.html#aca8f0e6ade273b6587b16a2c9d2c778b", null ],
+    [ "AddAnnotation", "class_mirage_x_r_1_1_activity_manager.html#a08ea3ca8260193bbbab826d0df4d0a28", null ],
+    [ "AddArlemTrigger", "class_mirage_x_r_1_1_activity_manager.html#a9a5a73f11b5512cd1bbd9e3c8ccba6f6", null ],
+    [ "DeleteAction", "class_mirage_x_r_1_1_activity_manager.html#a4bb2c4debf407a7eb61c013879b4fb4f", null ],
+    [ "DeleteAnnotation", "class_mirage_x_r_1_1_activity_manager.html#acde8ce011be2938e82e84a12f3c3a28c", null ],
+    [ "DoReplay", "class_mirage_x_r_1_1_activity_manager.html#ae0af623954386348c8abda5025d90baf", null ],
+    [ "GenerateNewId", "class_mirage_x_r_1_1_activity_manager.html#a5e7f681380392e68f9951d169e62fa61", null ],
+    [ "ParseActivity", "class_mirage_x_r_1_1_activity_manager.html#a87983c337c8983be50a1b5e6ca2ff616", null ],
+    [ "PlayerReset", "class_mirage_x_r_1_1_activity_manager.html#af6e748d809cb28d5837cd6451625f825", null ],
+    [ "SaveData", "class_mirage_x_r_1_1_activity_manager.html#a68bb1ce0ce1b79eadd4ffcd7280d4abb", null ],
+    [ "StartActivity", "class_mirage_x_r_1_1_activity_manager.html#a7dcec5193cc83d51982799ff48804aaa", null ],
+    [ "StartActivityTouch", "class_mirage_x_r_1_1_activity_manager.html#abb0bde4eebb418e9706a649a431cd287", null ],
+    [ "Activity", "class_mirage_x_r_1_1_activity_manager.html#a0334b4043c883de65ab0e57868a82604", null ],
+    [ "IsReady", "class_mirage_x_r_1_1_activity_manager.html#a7ae0de0734698242e7704fd4b9f5f077", null ],
+    [ "SessionId", "class_mirage_x_r_1_1_activity_manager.html#af2eb5c0f389057e7b7e0d22932a7d5fc", null ],
+    [ "AbsoluteURL", "class_mirage_x_r_1_1_activity_manager.html#a1aa8ff62440d1a869a8a5269e44beb9e", null ],
+    [ "ActionsOfTypeAction", "class_mirage_x_r_1_1_activity_manager.html#a6869b6294e74a1cab1188c31a143484c", null ],
+    [ "ActiveAction", "class_mirage_x_r_1_1_activity_manager.html#aa84685e3ea1d9237b72cf17606908b4f", null ],
+    [ "ActiveActionId", "class_mirage_x_r_1_1_activity_manager.html#ad52e474bce783e72c79e5e8e3065c6f6", null ],
+    [ "EditModeActive", "class_mirage_x_r_1_1_activity_manager.html#ac124aa490d79597c82645e5f7ee2bfbd", null ],
+    [ "Path", "class_mirage_x_r_1_1_activity_manager.html#af331ba015acf9191899985a835008b9d", null ]
+];

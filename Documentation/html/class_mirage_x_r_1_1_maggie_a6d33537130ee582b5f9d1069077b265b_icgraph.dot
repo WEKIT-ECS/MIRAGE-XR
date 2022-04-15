@@ -1,0 +1,17 @@
+digraph "Ok"
+{
+ // INTERACTIVE_SVG=YES
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="Ok",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="Speak out ok message."];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="MirageXR.UiManager.HideMenu\lVoice",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_ui_manager.html#ad3b5a8269d6664627b5105f62db34eb5",tooltip="Hide tasklist with voice command. Includes tts feedback."];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="MirageXR.UiManager.HideSelection\lPanelVoice",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_ui_manager.html#ab61127f6be09e5134d0a23408865692c",tooltip="Voice activated hide selection panel."];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="MirageXR.UiManager.ShowMenu\lVoice",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_ui_manager.html#a75fa7940e130c027da9db73e30dfe07d",tooltip="Show tasklist with voice command. Includes tts feedback."];
+  Node1 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="MirageXR.UiManager.ShowSelection\lPanelVoice",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_ui_manager.html#a2cb72881b8777e1a4b7f71af0c9dc805",tooltip="Voice activated show selection panel."];
+}

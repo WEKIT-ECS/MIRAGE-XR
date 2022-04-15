@@ -1,0 +1,35 @@
+digraph "Graphical Class Hierarchy"
+{
+ // INTERACTIVE_SVG=YES
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node270 [label="IMixedRealityPointerHandler",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_i_mixed_reality_pointer_handler.html",tooltip=" "];
+  Node270 -> Node9 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="TapRecognizerService",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_tap_recognizer_service.html",tooltip=" "];
+  Node0 [label="IService",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_i_service.html",tooltip=" "];
+  Node0 -> Node1 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node1 [label="ActivitySelectionSceneReference\lService",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_activity_selection_scene_reference_service.html",tooltip=" "];
+  Node0 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="EditorSceneService",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_editor_scene_service.html",tooltip=" "];
+  Node0 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="ActivityRecorderService",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_activity_recorder_service.html",tooltip=" "];
+  Node0 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="ExperienceService",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_experience_service.html",tooltip="Service that handles the connection to the xAPI"];
+  Node0 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="ITextToSpeechService",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$interface_mirage_x_r_1_1_i_text_to_speech_service.html",tooltip=" "];
+  Node5 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="HTKTextToSpeechService",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_h_t_k_text_to_speech_service.html",tooltip=" "];
+  Node0 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="KeywordService",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_keyword_service.html",tooltip="One keyword servcie to rule them all! SpeechService.cs from recorder modified to work with both recor..."];
+  Node0 -> Node8 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="SpeechService",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_speech_service.html",tooltip="class to handle speech commands as alternative input."];
+  Node0 -> Node9 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node0 -> Node10 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="VestService",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_vest_service.html",tooltip=" "];
+  Node0 -> Node11 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node11 [label="WorldAnchorService",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_world_anchor_service.html",tooltip="Service which makes the MRTK's WorldAnchorManager accessible"];
+  Node0 -> Node12 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node12 [label="VideoAudioTrackGlobalService",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_video_audio_track_global_service.html",tooltip=" "];
+}

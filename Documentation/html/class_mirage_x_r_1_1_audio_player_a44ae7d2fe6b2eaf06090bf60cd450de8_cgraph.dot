@@ -1,0 +1,13 @@
+digraph "Init"
+{
+ // INTERACTIVE_SVG=YES
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="Init",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="Initialization method."];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="CreateAudioPlayer",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_audio_player.html#a29deed9abfcf0d923b9bc1f82c05667a",tooltip="This method creates an audio player Destroys any already existing audio player in this GameObject...."];
+  Node1 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="MirageXR.MirageXRPrefab.\lSetParent",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_mirage_x_r_prefab.html#ac4ac60851167c1ba6255c2a58bb63865",tooltip="Set prefab parent."];
+}

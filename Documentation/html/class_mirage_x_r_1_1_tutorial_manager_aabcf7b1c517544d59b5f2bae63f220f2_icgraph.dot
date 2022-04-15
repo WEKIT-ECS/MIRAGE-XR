@@ -1,0 +1,21 @@
+digraph "CloseTutorial"
+{
+ // INTERACTIVE_SVG=YES
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="CloseTutorial",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="Tutorial is done and will not be shoen next time"];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="DeepLinkDefinition.NewActivity",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_deep_link_definition.html#a99ab8fd388d9645bfe8a81b6863cecd0",tooltip="Creates a new activity via a deep link, e.g. using wekit:/new"];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="NextStep",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_tutorial_manager.html#ae75ede018e2e9b705796071fd71ef05a",tooltip="Jump to the next step of the tutorial"];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="OpenTutorial",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_tutorial_manager.html#a18b7b390c0f5ab10eeef8b70b585a252",tooltip="Reset tutorial"];
+  Node4 -> Node1 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="PrevStep",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_tutorial_manager.html#af9a647da1d602aa4c146900215a4fb64",tooltip="Jump to the previous step of the tutorial"];
+  Node4 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="ToggleTutorial",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_tutorial_manager.html#a31f10ff4ae84b3fa83669e776d4c4e20",tooltip="change the activation state of tutorial"];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+}

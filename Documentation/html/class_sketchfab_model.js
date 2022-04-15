@@ -1,0 +1,28 @@
+var class_sketchfab_model =
+[
+    [ "animationCount", "class_sketchfab_model.html#a92c4c1647084cd89238f4486de5c8313", null ],
+    [ "categories", "class_sketchfab_model.html#aede385fd4d995e2a55b3da49ef06bfad", null ],
+    [ "commentCount", "class_sketchfab_model.html#aaabfe6744f220d91519eb07cd0ed9621", null ],
+    [ "createdAt", "class_sketchfab_model.html#a64c80bc95223ca231376afa0012c5013", null ],
+    [ "description", "class_sketchfab_model.html#a23af17c78302b71c14ef38ea40b8d1d7", null ],
+    [ "downloadCount", "class_sketchfab_model.html#a5f3e6f4d32c16521c26d269612313dce", null ],
+    [ "editorUrl", "class_sketchfab_model.html#a7db9ea3139c21d119c7f9df1bca213d1", null ],
+    [ "embedUrl", "class_sketchfab_model.html#a2c55835184df852c356260e07664d015", null ],
+    [ "faceCount", "class_sketchfab_model.html#a6e208e9deaf146b061f5441c27b01b17", null ],
+    [ "isAgeRestricted", "class_sketchfab_model.html#a84de80c32a311b2acaf322ec7c2e1070", null ],
+    [ "isDownloadable", "class_sketchfab_model.html#acaaa292450d03010f2ea0b7a400ba148", null ],
+    [ "license", "class_sketchfab_model.html#a3b0df2d8b18e862fa63bf6f4cc08a8cb", null ],
+    [ "likeCount", "class_sketchfab_model.html#aa3eda7cb4ca71fd120b14721eaa47db1", null ],
+    [ "name", "class_sketchfab_model.html#a8ccf841cb59e451791bcb2e1ac4f1edc", null ],
+    [ "publishedAt", "class_sketchfab_model.html#afc93147beae61f10815cc0b94ed6c55d", null ],
+    [ "soundCount", "class_sketchfab_model.html#a4b4b7dd11174a151125f926c67b1a5f4", null ],
+    [ "staffpickedAt", "class_sketchfab_model.html#a48115831ff487eb6d2f2922422c3bca2", null ],
+    [ "tags", "class_sketchfab_model.html#a9f8891daf5479b854c8bea225a11e882", null ],
+    [ "thumbnails", "class_sketchfab_model.html#ad67b943e22d9287ce81ad8ad8eb35954", null ],
+    [ "uid", "class_sketchfab_model.html#a60a7fda4936bcfee6269771126ea2e94", null ],
+    [ "uri", "class_sketchfab_model.html#a72144a640d990f7df4013e59f04f4dcb", null ],
+    [ "user", "class_sketchfab_model.html#a8f9f7f6a161818045103d7de5c43166b", null ],
+    [ "vertexCount", "class_sketchfab_model.html#aae7b565fe646068107606a7f455475e0", null ],
+    [ "viewCount", "class_sketchfab_model.html#acbf60d7b31ab376ffb14e979e17660ea", null ],
+    [ "viewerUrl", "class_sketchfab_model.html#aa6848636c2c9a611a3d5d4b66ac98b84", null ]
+];

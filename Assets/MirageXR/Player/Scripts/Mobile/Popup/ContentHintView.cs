@@ -1,0 +1,42 @@
+﻿using System;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class ContentHintView : PopupBase
+{
+    [SerializeField] private Image _image;
+    [SerializeField] private TMP_Text _txtLabel;
+    [SerializeField] private TMP_Text _txtHint;
+
+    private ContentType _type;
+    
+    public override void Init(Action<PopupBase> onClose, params object[] args)
+    {
+        base.Init(onClose, args);
+        
+        UpdateView();
+    }
+    
+    protected override bool TryToGetArguments(params object[] args)
+    {
+        try
+        {
+            _type = (ContentType)args[0];
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    private void UpdateView()
+    {
+        _image.sprite = _type.GetIcon();
+        _txtLabel.text = _type.GetName();
+        _txtHint.text = _type.GetHint();
+        
+        LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
+    }
+}

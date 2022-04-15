@@ -1,0 +1,19 @@
+digraph "HideMenu"
+{
+ // INTERACTIVE_SVG=YES
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="HideMenu",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="Hide tasklist."];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="HideMenuTouch",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_ui_manager.html#a100f0383544e910317aecd149f080d14",tooltip="Touch activated hide tasklist."];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="HideMenuVoice",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_ui_manager.html#ad3b5a8269d6664627b5105f62db34eb5",tooltip="Hide tasklist with voice command. Includes tts feedback."];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="ShowSelectionPanel",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_ui_manager.html#a595be74539f7ea03a6c4e8fa2cde255f",tooltip="Show selection panel."];
+  Node4 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="ShowSelectionPanelTouch",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_ui_manager.html#a8d5befc5247746c9534efc7065ae6091",tooltip="Touch activated show selection panel."];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="ToggleMenu",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_ui_manager.html#acb58d794a69e94a481cef70d77b64a30",tooltip="Changes tasklist visibility. Used with ui button."];
+}

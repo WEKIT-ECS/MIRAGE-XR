@@ -1,0 +1,28 @@
+var searchData=
+[
+  ['gazeguide_144',['GazeGuide',['../class_mirage_x_r_1_1_gaze_guide.html',1,'MirageXR']]],
+  ['gazespinner_145',['GazeSpinner',['../class_mirage_x_r_1_1_gaze_spinner.html',1,'MirageXR']]],
+  ['getarlemlist_146',['GetArlemList',['../class_mirage_x_r_1_1_moodle_manager.html#a2acefa2193e89755cfa07c7527d1b848',1,'MirageXR::MoodleManager']]],
+  ['getiso7010_147',['GetIso7010',['../class_mirage_x_r_1_1_workplace_manager.html#aa484568300a0766f00587800e02db0da',1,'MirageXR::WorkplaceManager']]],
+  ['getmodeldownloadinfo_148',['GetModelDownloadInfo',['../class_mirage_x_r_1_1_sketchfab_manager.html#a78934a8f14afc23eb9e2dfa234206cdb',1,'MirageXR::SketchfabManager']]],
+  ['getpoirotation_149',['GetPoiRotation',['../class_mirage_x_r_1_1_mirage_x_r_prefab.html#ae7130d792fc0166eb7ea7fb03434cdef',1,'MirageXR::MirageXRPrefab']]],
+  ['getpoiscale_150',['GetPoiScale',['../class_mirage_x_r_1_1_mirage_x_r_prefab.html#af39e1503d0039ba9360851f197cb10de',1,'MirageXR::MirageXRPrefab']]],
+  ['getpredicate_151',['GetPredicate',['../class_mirage_x_r_1_1_workplace_manager.html#a4337e84dbbc51a0491f1b524bd2f1d40',1,'MirageXR::WorkplaceManager']]],
+  ['getscene_152',['GetScene',['../class_mirage_x_r_1_1_keyword_service.html#a19a6badd90d62c043e92e7ede40b4250',1,'MirageXR::KeywordService']]],
+  ['getuser_153',['GetUser',['../class_mirage_x_r_1_1_workplace_manager.html#a1459aea832893a550166f4bea2e09380',1,'MirageXR::WorkplaceManager']]],
+  ['getuserid_154',['GetUserId',['../class_mirage_x_r_1_1_moodle_manager.html#aa95b05318cf99dd69aa2ddd4498bed16',1,'MirageXR::MoodleManager']]],
+  ['ghostdataframe_155',['GhostDataFrame',['../struct_mirage_x_r_1_1_ghost_data_frame.html',1,'MirageXR']]],
+  ['ghosteditorview_156',['GhostEditorView',['../class_ghost_editor_view.html',1,'']]],
+  ['ghosthandplayer_157',['GhostHandPlayer',['../class_mirage_x_r_1_1_ghost_hand_player.html',1,'MirageXR']]],
+  ['ghostrecorder_158',['GhostRecorder',['../class_ghost_recorder.html',1,'']]],
+  ['ghostrecordplayer_159',['GhostRecordPlayer',['../class_mirage_x_r_1_1_ghost_record_player.html',1,'MirageXR']]],
+  ['ghosttrackeditor_160',['GhosttrackEditor',['../class_ghosttrack_editor.html',1,'']]],
+  ['ghosttrackprefabplayer_161',['GhosttrackPrefabPlayer',['../class_mirage_x_r_1_1_ghosttrack_prefab_player.html',1,'MirageXR']]],
+  ['globalkeywords_162',['GlobalKeywords',['../class_global_keywords.html',1,'']]],
+  ['gltfarchive_163',['GltfArchive',['../class_gltf_archive.html',1,'']]],
+  ['glypheditor_164',['GlyphEditor',['../class_mirage_x_r_1_1_glyph_editor.html',1,'MirageXR']]],
+  ['glypheditorview_165',['GlyphEditorView',['../class_glyph_editor_view.html',1,'']]],
+  ['glyphitems_166',['GlyphItems',['../class_mirage_x_r_1_1_glyph_items.html',1,'MirageXR']]],
+  ['glyphlistitem_167',['GlyphListItem',['../class_glyph_list_item.html',1,'']]],
+  ['goback_168',['GoBack',['../class_mirage_x_r_1_1_event_manager.html#ac88d8337a1989b93f838e590a422d00f',1,'MirageXR::EventManager']]]
+];

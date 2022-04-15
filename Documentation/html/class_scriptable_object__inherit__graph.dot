@@ -1,0 +1,18 @@
+digraph "ScriptableObject"
+{
+ // INTERACTIVE_SVG=YES
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  Node1 [label="ScriptableObject",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip=" "];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="ActionObject",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_action_object.html",tooltip=" "];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="CharacterObject",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_character_object.html",tooltip=" "];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="ExperienceAPIClientCredentials",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_experience_a_p_i_client_credentials.html",tooltip="Scriptable object to store the client credentials for an xAPI client"];
+  Node1 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="PluginObject",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_plugin_object.html",tooltip=" "];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="VfxObject",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_vfx_object.html",tooltip=" "];
+}

@@ -1,0 +1,15 @@
+digraph "Init"
+{
+ // INTERACTIVE_SVG=YES
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="Init",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="All the prefabs has to implement an initialization method."];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="LoadRecording",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_ghost_hand_player.html#abf5bb2ed54285d8ff44c04a7cdf01c90",tooltip="Loads previously saved recorded data from a file into the temporary data from a specified file locati..."];
+  Node1 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="MirageXR.MirageXRPrefab.\lSetParent",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_mirage_x_r_prefab.html#ac4ac60851167c1ba6255c2a58bb63865",tooltip="Set prefab parent."];
+  Node1 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="StartPlaying",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_ghost_hand_player.html#a46de1c21ddf3ecc86be5e8825d4c1699",tooltip="This function sets the location for the ghost hand recording and starts playing it"];
+}

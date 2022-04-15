@@ -1,0 +1,21 @@
+digraph "PlayerReset"
+{
+ // INTERACTIVE_SVG=YES
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="PlayerReset",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="Reset MirageXR player."];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="DummyLogic.AltecTrialMode",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_dummy_logic.html#a5b08200951a7f3431e19a1ecb7f2b9a7",tooltip="Load ALTEC trial activity."];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="DummyLogic.EbitTrialMode",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_dummy_logic.html#ac0e0b97d765a001401bd36a72335a156",tooltip="Load Ebit trial activity."];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="DummyLogic.EsaDemoActivity",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_dummy_logic.html#a4a755a32933151a1899e95018e196294",tooltip="Load ESA Demo activity."];
+  Node1 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="DummyLogic.LuftTrialMode",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_dummy_logic.html#a49627eff571fcb7c4ff3568f19425cc9",tooltip="Load Lufttransport trial activity."];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="DummyLogic.UiTrialActivity",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_dummy_logic.html#a1c0f20e2a96f02db63b4ed949cdbb652",tooltip="Load UI trial activity."];
+  Node1 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="DummyLogic.VttDemoMode",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_dummy_logic.html#af6236e8e0767cdc78076723c2a47cb7d",tooltip="Load VTT Demo activity."];
+}

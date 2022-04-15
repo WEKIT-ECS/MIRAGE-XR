@@ -1,0 +1,15 @@
+digraph "Error"
+{
+ // INTERACTIVE_SVG=YES
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="Error",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="Speak out error message."];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="MirageXR.ActivityManager.\lStartActivity",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_activity_manager.html#a7dcec5193cc83d51982799ff48804aaa",tooltip="Starts the activity when workplace file parsing is completed."];
+  Node2 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="MirageXR.WorkplaceManager.\lCalibrateAnchors",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_workplace_manager.html#a6234a2339eac7edc6bc84d2edf3f5e8b",tooltip="Calibrate workplace anchors."];
+  Node3 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="MirageXR.CalibrationTool.\lCalibrate",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_calibration_tool.html#a24cd7cc4761bafa4563a80d9987951ac",tooltip="Calibrate workplace model anchors."];
+}

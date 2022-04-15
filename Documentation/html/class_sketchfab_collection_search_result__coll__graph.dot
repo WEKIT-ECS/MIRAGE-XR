@@ -1,0 +1,28 @@
+digraph "SketchfabCollectionSearchResult"
+{
+ // INTERACTIVE_SVG=YES
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  Node1 [label="SketchfabCollectionSearch\lResult",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip=" "];
+  Node2 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" cursors" ,fontname="Helvetica"];
+  Node2 [label="SearchCursor",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_search_cursor.html",tooltip=" "];
+  Node3 -> Node2 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" next\nprevious" ,fontname="Helvetica"];
+  Node3 [label="string",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node3 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" next\nprevious" ,fontname="Helvetica"];
+  Node4 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" results" ,fontname="Helvetica"];
+  Node4 [label="SketchfabCollection",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sketchfab_collection.html",tooltip=" "];
+  Node5 -> Node4 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" user" ,fontname="Helvetica"];
+  Node5 [label="SketchfabUser",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sketchfab_user.html",tooltip=" "];
+  Node3 -> Node5 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" account\ndisplayName\nprofileUrl\nuid\nurl\nusername" ,fontname="Helvetica"];
+  Node6 -> Node5 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" avatar" ,fontname="Helvetica"];
+  Node6 [label="UserAvatar",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_user_avatar.html",tooltip=" "];
+  Node3 -> Node6 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" uid\nurl" ,fontname="Helvetica"];
+  Node7 -> Node6 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" images" ,fontname="Helvetica"];
+  Node7 [label="UserAvatarImages",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_user_avatar_images.html",tooltip=" "];
+  Node3 -> Node7 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" uid\nurl" ,fontname="Helvetica"];
+  Node8 -> Node7 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" height\nwidth" ,fontname="Helvetica"];
+  Node8 [label="int",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node3 -> Node4 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" collectionUrl\ncreatedAt\nembedUrl\nname\nslug\nuid\nupdatedAt" ,fontname="Helvetica"];
+  Node8 -> Node4 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" modelCount" ,fontname="Helvetica"];
+}

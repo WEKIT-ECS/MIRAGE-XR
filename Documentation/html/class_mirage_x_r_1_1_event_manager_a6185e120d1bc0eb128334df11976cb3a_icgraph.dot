@@ -1,0 +1,15 @@
+digraph "ParseActivity"
+{
+ // INTERACTIVE_SVG=YES
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="ParseActivity",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="Tells Activity manager to parse the defined activity file file."];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="MirageXR.ActivitySelection.\lLoadActivity",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_activity_selection.html#a4b0b7edcc59a7820443a9abdd9ff76b0",tooltip="Load activity on button press."];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="DeepLinkDefinition.NewActivity",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_deep_link_definition.html#a99ab8fd388d9645bfe8a81b6863cecd0",tooltip="Creates a new activity via a deep link, e.g. using wekit:/new"];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="MirageXR.ActivityManager.\lPlayerReset",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_activity_manager.html#af6e748d809cb28d5837cd6451625f825",tooltip="Reset activity manager when OnPlayerReset event is triggered."];
+}

@@ -1,0 +1,15 @@
+digraph "ShowMenuVoice"
+{
+ // INTERACTIVE_SVG=YES
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="ShowMenuVoice",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="Show tasklist with voice command. Includes tts feedback."];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="MirageXR.Maggie.Ok",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_maggie.html#a6d33537130ee582b5f9d1069077b265b",tooltip="Speak out ok message."];
+  Node1 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="ShowMenu",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_ui_manager.html#a320076d5ec51536af9676b6ae5d38e7b",tooltip="Show tasklist. Called from Hololens keyword manager."];
+  Node1 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="MirageXR.Maggie.Speak",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_maggie.html#a6b7cce3128e898af11d75ef7f5202a56",tooltip="Speak out text."];
+}

@@ -1,0 +1,25 @@
+var searchData=
+[
+  ['data_100',['Data',['../class_mirage_x_r_1_1_data.html',1,'MirageXR']]],
+  ['deactivate_101',['Deactivate',['../class_mirage_x_r_1_1_deactivate.html',1,'MirageXR']]],
+  ['deactivateaction_102',['DeactivateAction',['../class_mirage_x_r_1_1_event_manager.html#a481b5cbfb66c48ef9fd7d335f3117bb0',1,'MirageXR::EventManager']]],
+  ['deactivateobject_103',['DeactivateObject',['../class_mirage_x_r_1_1_event_manager.html#a61a64d7deeeae8c8a36eec0f1c49624b',1,'MirageXR::EventManager']]],
+  ['debuglog_104',['DebugLog',['../class_mirage_x_r_1_1_event_manager.html#ac1632c3c1ea624d33ac079e9eee7f9b1',1,'MirageXR::EventManager']]],
+  ['debugmanager_105',['DebugManager',['../class_mirage_x_r_1_1_debug_manager.html',1,'MirageXR']]],
+  ['deeplinkdefinition_106',['DeepLinkDefinition',['../class_deep_link_definition.html',1,'']]],
+  ['delete_107',['Delete',['../class_mirage_x_r_1_1_image_marker_controller.html#a3410e40abb43d2e9de4813b76776279b',1,'MirageXR.ImageMarkerController.Delete()'],['../class_mirage_x_r_1_1_mirage_x_r_prefab.html#a54f7479a0783d691dd06980380e8ff87',1,'MirageXR.MirageXRPrefab.Delete()']]],
+  ['deleteaction_108',['DeleteAction',['../class_mirage_x_r_1_1_activity_manager.html#a4bb2c4debf407a7eb61c013879b4fb4f',1,'MirageXR::ActivityManager']]],
+  ['deleteactivity_109',['DeleteActivity',['../class_mirage_x_r_1_1_moodle_manager.html#a2b0edbbfae077f7b959df8316be1c792',1,'MirageXR::MoodleManager']]],
+  ['destination_110',['Destination',['../class_mirage_x_r_1_1_destination.html',1,'MirageXR']]],
+  ['destinationpoints_111',['DestinationPoints',['../class_mirage_x_r_1_1_destination_points.html',1,'MirageXR']]],
+  ['destroyaftersec_112',['DestroyAfterSec',['../class_destroy_after_sec.html',1,'']]],
+  ['detect_113',['Detect',['../class_mirage_x_r_1_1_detect.html',1,'MirageXR']]],
+  ['detectable_114',['Detectable',['../class_mirage_x_r_1_1_detectable.html',1,'MirageXR']]],
+  ['detectablebehaviour_115',['DetectableBehaviour',['../class_mirage_x_r_1_1_detectable_behaviour.html',1,'MirageXR']]],
+  ['device_116',['Device',['../class_mirage_x_r_1_1_device.html',1,'MirageXR']]],
+  ['devicemqttbehaviour_117',['DeviceMqttBehaviour',['../class_device_mqtt_behaviour.html',1,'']]],
+  ['dialogbuttoncontent_118',['DialogButtonContent',['../class_dialog_button_content.html',1,'']]],
+  ['dialogrecorder_119',['DialogRecorder',['../class_mirage_x_r_1_1_dialog_recorder.html',1,'MirageXR']]],
+  ['dialogwindow_120',['DialogWindow',['../class_dialog_window.html',1,'']]],
+  ['dummylogic_121',['DummyLogic',['../class_dummy_logic.html',1,'']]]
+];

@@ -1,0 +1,23 @@
+digraph "GetPoiScale"
+{
+ // INTERACTIVE_SVG=YES
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="GetPoiScale",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="Reads and convert the PoiEditor's scale factor, checking for null values and, in case of error,..."];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="MirageXR.FloatingVideoViewer.Init",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_floating_video_viewer.html#a9ec1aa4b9ce92d3f8dd9a065cbf47984",tooltip="Initialization method."];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="MirageXR.ImageMarkerController.Init",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_image_marker_controller.html#a44ae7d2fe6b2eaf06090bf60cd450de8",tooltip="All the prefabs has to implement an initialization method."];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="MirageXR.PickAndPlaceController.Init",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_pick_and_place_controller.html#a44ae7d2fe6b2eaf06090bf60cd450de8",tooltip="All the prefabs has to implement an initialization method."];
+  Node1 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="MirageXR.GlyphItems.Init",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_glyph_items.html#a44ae7d2fe6b2eaf06090bf60cd450de8",tooltip="All the prefabs has to implement an initialization method."];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="MirageXR.FloatingImageViewer.Init",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_floating_image_viewer.html#a44ae7d2fe6b2eaf06090bf60cd450de8",tooltip="Initialization method."];
+  Node1 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="MirageXR.Label.Init",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_label.html#a44ae7d2fe6b2eaf06090bf60cd450de8",tooltip="Initialization method."];
+  Node1 -> Node8 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="MirageXR.PluginController.Init",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_plugin_controller.html#a44ae7d2fe6b2eaf06090bf60cd450de8",tooltip="All the prefabs has to implement an initialization method."];
+}

@@ -1,0 +1,51 @@
+digraph "ActivitySelector"
+{
+ // INTERACTIVE_SVG=YES
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="ActivitySelector",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip=" "];
+  Node2 -> Node1 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="MonoBehaviour",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node3 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" InputTextField" ,fontname="Helvetica"];
+  Node3 [label="NonNativeKeyboard",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node4 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" Workplace" ,fontname="Helvetica"];
+  Node4 [label="Workplace",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_workplace.html",tooltip=" "];
+  Node5 -> Node4 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" apps" ,fontname="Helvetica"];
+  Node5 [label="List\< MirageXR.App \>",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node6 -> Node4 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" id\nname\nversion" ,fontname="Helvetica"];
+  Node6 [label="string",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node7 -> Node4 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" devices" ,fontname="Helvetica"];
+  Node7 [label="List\< MirageXR.Device \>",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node8 -> Node4 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" places" ,fontname="Helvetica"];
+  Node8 [label="List\< MirageXR.Place \>",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node9 -> Node4 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" persons" ,fontname="Helvetica"];
+  Node9 [label="List\< MirageXR.Person \>",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node10 -> Node4 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" hazards\npredicates\nwarnings" ,fontname="Helvetica"];
+  Node10 [label="List\< MirageXR.Primitive \>",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node11 -> Node4 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" things" ,fontname="Helvetica"];
+  Node11 [label="List\< MirageXR.Thing \>",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node12 -> Node4 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" sensors" ,fontname="Helvetica"];
+  Node12 [label="List\< MirageXR.Sensor \>",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node13 -> Node4 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" detectables" ,fontname="Helvetica"];
+  Node13 [label="List\< MirageXR.Detectable \>",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node6 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" Path" ,fontname="Helvetica"];
+  Node14 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" CloseButton" ,fontname="Helvetica"];
+  Node14 [label="GameObject",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node15 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" OverwriteToggle" ,fontname="Helvetica"];
+  Node15 [label="Toggle",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node16 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" InputText\nMessageText" ,fontname="Helvetica"];
+  Node16 [label="Text",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node17 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" ActionsList" ,fontname="Helvetica"];
+  Node17 [label="List\< string \>",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node18 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" ActivityObjectContainer" ,fontname="Helvetica"];
+  Node18 [label="Transform",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node19 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" Activity" ,fontname="Helvetica"];
+  Node19 [label="Activity",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mirage_x_r_1_1_activity.html",tooltip=" "];
+  Node20 -> Node19 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" actions" ,fontname="Helvetica"];
+  Node20 [label="List\< MirageXR.Action \>",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node6 -> Node19 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" description\nid\nlanguage\nmessage\nname\nstart\nworkplace" ,fontname="Helvetica"];
+  Node21 -> Node19 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" resumeable" ,fontname="Helvetica"];
+  Node21 [label="bool",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+}
