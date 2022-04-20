@@ -12,12 +12,7 @@ namespace MirageXR
     {
         private ToggleObject _obj;
 
-        public ToggleObject GetMyAnnotation()
-        {
-            return _obj;
-        }
-
-        public Tiltbrush tiltbrushPrefab;
+        [SerializeField] private Tiltbrush tiltbrushPrefab;
         private Tiltbrush tiltInstance;
         private SimpleSnapshot TiltSnapshot;
 

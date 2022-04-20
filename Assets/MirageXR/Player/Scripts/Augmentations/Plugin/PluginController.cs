@@ -5,7 +5,7 @@ namespace MirageXR
     public class PluginController : MirageXRPrefab
     {
         private GameObject plugin;
-        public Transform axis;
+        [SerializeField] private Transform axis;
 
         private void OnEnable()
         {
@@ -32,7 +32,6 @@ namespace MirageXR
             }
 
             loadPlugin(obj.url);
-
 
             // Set scaling
             gameObject.name = obj.predicate;

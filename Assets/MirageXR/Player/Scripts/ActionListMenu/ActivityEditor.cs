@@ -9,15 +9,11 @@ public class ActivityEditor : MonoBehaviour
     [SerializeField] private InputField activityTitleField;
     [SerializeField] private Button addButton;
     [SerializeField] private Button saveButton;
-    public Button GetSaveButton()
-    {
-        return this.saveButton;
-    }
+    public Button SaveButton => saveButton;
+
     [SerializeField] private Button uploadButon;
-    public Button GetUploadButton()
-    {
-        return this.uploadButon;
-    }
+    public Button UploadButton => uploadButon;
+
     [SerializeField] private Text loginNeedText;
 
     [SerializeField] private GameObject updateConfirmPanel;
@@ -25,7 +21,7 @@ public class ActivityEditor : MonoBehaviour
     [SerializeField] private Button ConfirmPanelYesButton;
     [SerializeField] private Dropdown optionsDropDown;
 
-    public static ActivityEditor Instance;
+    public static ActivityEditor Instance { get; private set; }
 
     private void Awake()
     {
@@ -169,19 +165,15 @@ public class ActivityEditor : MonoBehaviour
 
     private void SaveActivity()
     {
+        EventManager.ActivitySaved();
         ActivityManager.Instance.SaveData();
-
-        //Reload the activity selection list with the new saved activity
-        var sessionListView = Resources.FindObjectsOfTypeAll<SessionListView>()[0];
-        if (sessionListView)
-            sessionListView.ReloadActivityList();
     }
 
     public void OpenScreenShot()
     {
         var actionEditor = FindObjectOfType<ActionEditor>();
         var ie = (ImageEditor) actionEditor.CreateEditorView(ContentType.IMAGE);
-        var adv = actionEditor.GetDetailView();
+        var adv = actionEditor.DetailView;
         ie.IsThumbnail = true;
         ie.Open(adv.DisplayedAction,null);
     }

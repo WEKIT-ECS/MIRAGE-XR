@@ -130,7 +130,7 @@ namespace MirageXR
 
             //reload the activity list
             var sessionListView = FindObjectOfType<SessionListView>();
-            await sessionListView.CollectAvailableSessionsAsync();
+            sessionListView.RefreshActivityList();
         }
 
         private void EncryptAndSave()
@@ -247,7 +247,7 @@ namespace MirageXR
 
         public void RegisterMoodle()
         {
-            Application.OpenURL($"{DBManager.domain}/login/signup.php");
+            Application.OpenURL(DBManager.registerPage);
         }
 
 

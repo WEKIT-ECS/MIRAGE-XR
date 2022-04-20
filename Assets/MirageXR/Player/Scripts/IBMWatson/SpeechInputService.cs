@@ -37,7 +37,7 @@ public class SpeechInputService : MonoBehaviour
     //public string serviceUrl = "URL";
 
     [Tooltip("Text field to display the results of streaming.")]
-    public Text ResultsField;
+    [SerializeField] private Text ResultsField;
 
     //[Header("IAM Authentication")]
     //[Tooltip("The IAM apikey.")]
@@ -46,7 +46,7 @@ public class SpeechInputService : MonoBehaviour
     [Header("Parameters")]
     // https://www.ibm.com/watson/developercloud/speech-to-text/api/v1/curl.html?curl#get-model
     [Tooltip("The Model to use. This defaults to en-US_BroadbandModel")]
-    public string _recognizeModel;
+    [SerializeField] private string _recognizeModel;
 
 
     private SpeechOutputService myTTS;

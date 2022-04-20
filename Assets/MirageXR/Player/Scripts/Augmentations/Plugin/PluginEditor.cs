@@ -95,7 +95,7 @@ namespace MirageXR
                     originT.transform.position,
                     originT.transform.rotation);
 
-                _annotationToEdit = ActivityManager.Instance.AddAnnotation(_action, offset);
+                _annotationToEdit = ActivityManager.Instance.AddAugmentation(_action, offset);
             }
 
 

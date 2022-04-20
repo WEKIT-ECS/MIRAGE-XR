@@ -5,8 +5,8 @@ using UnityEditor;
 public class SelectObjectPannelHandler : MonoBehaviour
 {
 
-    public GameObject ObjectSlot;
-    public GameObject ob;
+    [SerializeField] private GameObject ObjectSlot;
+    [SerializeField] private GameObject ob;
 
     private UnityEngine.UI.Image icon;
     private Sprite Sprite;

@@ -687,6 +687,26 @@ namespace MirageXR
             OnActionDeleted?.Invoke(actionId);
         }
 
+
+        public delegate void AugmentationDeletedDelegate(ToggleObject toggleObject);
+
+        public static event AugmentationDeletedDelegate OnAugmentationDeleted;
+
+        public static void NotifyAugmentationDeleted(ToggleObject toggleObject)
+        {
+            OnAugmentationDeleted?.Invoke(toggleObject);
+        }
+
+
+        public delegate void ActivitySaveDelegate();
+
+        public static event ActivitySaveDelegate OnActivitySaved;
+
+        public static void ActivitySaved()
+        {
+            OnActivitySaved?.Invoke();
+        }
+
         public delegate void ActionCreatedDelegate(Action action);
 
         public static event ActionCreatedDelegate OnActionCreated;
@@ -817,6 +837,55 @@ namespace MirageXR
         public static void NotifyOnActionStepDescriptionInputChanged()
         {
             ActionStepDescriptionInputChanged?.Invoke();
+        }
+
+        public delegate void StepsSelectorClickedDelegate();
+        public static event StepsSelectorClickedDelegate StepsSelectorClicked;
+        public static void NotifyOnStepsSelectorClicked()
+        {
+            StepsSelectorClicked?.Invoke();
+        }
+
+        public delegate void ViewSelectorClickedDelegate();
+        public static event ViewSelectorClickedDelegate ViewSelectorClicked;
+        public static void NotifyOnViewSelectorClicked()
+        {
+            ViewSelectorClicked?.Invoke();
+        }
+
+        public delegate void MobilePageChangeFinishedDelegate();
+        public static event MobilePageChangeFinishedDelegate MobilePageChanged;
+        public static void NotifyOnMobilePageChanged()
+        {
+            MobilePageChanged?.Invoke();
+        }
+
+        public delegate void TutorialPopupCloseClickedDelegate();
+        public static event TutorialPopupCloseClickedDelegate TutorialPopupCloseClicked;
+        public static void NotifyOnTutorialPopupCloseClicked()
+        {
+            TutorialPopupCloseClicked?.Invoke();
+        }
+
+        public delegate void MobileStepContentExpandedDelegate();
+        public static event MobileStepContentExpandedDelegate MobileStepContentExpanded;
+        public static void NotifyOnMobileStepContentExpanded()
+        {
+            MobileStepContentExpanded?.Invoke();
+        }
+
+        public delegate void HighlightingButtonClickedDelegate();
+        public static event HighlightingButtonClickedDelegate HighlightingButtonClicked;
+        public static void NotifyOnHighlightingButtonClicked()
+        {
+            HighlightingButtonClicked?.Invoke();
+        }
+
+        public delegate void MobileAddStepContentPressedDelegate();
+        public static event MobileAddStepContentPressedDelegate MobileAddStepContentPressed;
+        public static void NotifyOnMobileAddStepContentPressed()
+        {
+            MobileAddStepContentPressed?.Invoke();
         }
     }
 }

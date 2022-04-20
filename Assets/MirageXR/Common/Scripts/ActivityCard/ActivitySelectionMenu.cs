@@ -9,10 +9,15 @@ namespace MirageXR
     {
         [SerializeField] private Text versionLabel;
 
-        public GameObject TutorialButton;
-        public GameObject Header;
-        public GameObject LockButton;
-        public GameObject ActivityCreationButton;
+        [SerializeField] private GameObject tutorialButton;
+        [SerializeField] private GameObject header;
+        [SerializeField] private GameObject lockButton;
+        [SerializeField] private GameObject activityCreationButton;
+
+        public GameObject TutorialButton => tutorialButton;
+        public GameObject Header => header;
+        public GameObject LockButton => lockButton;
+        public GameObject ActivityCreationButton => activityCreationButton;
 
         private void Start()
         {
@@ -36,44 +41,34 @@ namespace MirageXR
 
             versionLabel.text = Application.productName + " v" + Application.version.Replace("-$branch", "");
 
-            AssignGameObjects();
             SetupListeners();
-        }
-
-        private void AssignGameObjects()
-        {
-            try
-            {
-                this.LockButton = this.gameObject.transform.Find("Lock").gameObject;
-                this.Header = this.gameObject.transform.Find("Panel").Find("Header").gameObject;
-                this.ActivityCreationButton = this.gameObject.transform.Find("Panel").Find("ButtonAdd").gameObject;
-            }
-            catch
-            {
-                Debug.LogError("Could not find one or more children of ActivitySelectionMenu. Tutorial will not work.");
-            }
         }
 
         private void SetupListeners()
         {
-            LockButton.GetComponent<Button>().onClick.AddListener(EventManager.NotifyOnActivitySelectionMenuLockClicked);
-            Header.GetComponent<ObjectManipulator>().OnManipulationEnded.AddListener(delegate { EventManager.NotifyOnActivitySelectionMenuDragEnd(); });
-            ActivityCreationButton.GetComponent<Button>().onClick.AddListener(EventManager.NotifyOnNewActivityCreationButtonPressed);
-            //ActivityCreationButton.GetComponent<PressableButton>().ButtonPressed.AddListener(EventManager.NotifyOnNewActivityCreationButtonPressed);
+            lockButton.GetComponent<Button>().onClick.AddListener(EventManager.NotifyOnActivitySelectionMenuLockClicked);
+            header.GetComponent<ObjectManipulator>().OnManipulationEnded.AddListener(delegate { EventManager.NotifyOnActivitySelectionMenuDragEnd(); });
+            activityCreationButton.GetComponent<Button>().onClick.AddListener(EventManager.NotifyOnNewActivityCreationButtonPressed);
+            //activityCreationButton.GetComponent<PressableButton>().ButtonPressed.AddListener(EventManager.NotifyOnNewactivityCreationButtonPressed);
         }
 
         private void RemoveListeners()
         {
-            LockButton.GetComponent<Button>().onClick.RemoveListener(EventManager.NotifyOnActivitySelectionMenuLockClicked);
-            Header.GetComponent<ObjectManipulator>().OnManipulationEnded.RemoveListener(delegate { EventManager.NotifyOnActivitySelectionMenuDragEnd(); });
+            lockButton.GetComponent<Button>().onClick.RemoveListener(EventManager.NotifyOnActivitySelectionMenuLockClicked);
+            header.GetComponent<ObjectManipulator>().OnManipulationEnded.RemoveListener(delegate { EventManager.NotifyOnActivitySelectionMenuDragEnd(); });
             // TODO: Why are there two button components here? Different platforms?
-            ActivityCreationButton.GetComponent<Button>().onClick.RemoveListener(EventManager.NotifyOnNewActivityCreationButtonPressed);
-            //ActivityCreationButton.GetComponent<PressableButton>().ButtonPressed.RemoveListener(EventManager.NotifyOnNewActivityCreationButtonPressed);
+            activityCreationButton.GetComponent<Button>().onClick.RemoveListener(EventManager.NotifyOnNewActivityCreationButtonPressed);
+            //activityCreationButton.GetComponent<PressableButton>().ButtonPressed.RemoveListener(EventManager.NotifyOnNewactivityCreationButtonPressed);
         }
 
         private void ShowMenu()
         {
             gameObject.SetActive(true);
+
+            //Reload the activity selection list with the new saved activity
+            var sessionListView = FindObjectOfType<SessionListView>();
+            if (sessionListView)
+                sessionListView.RefreshActivityList();
         }
 
         private void HideMenu()

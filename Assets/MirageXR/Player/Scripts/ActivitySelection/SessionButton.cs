@@ -40,7 +40,6 @@ namespace MirageXR
 
             bool success;
             Session arlemFile = _selectedListViewItem.Content.Session;
-            arlemFile.filename = Uri.EscapeDataString(arlemFile.filename);
             Debug.Log($"Downloading from {arlemFile.contextid}/{arlemFile.component}/{arlemFile.filearea}/{arlemFile.itemid}/{arlemFile.filename}");
             using (SessionDownloader downloader = new SessionDownloader($"{DBManager.domain}/pluginfile.php/{arlemFile.contextid}/{arlemFile.component}/{arlemFile.filearea}/{arlemFile.itemid}/{arlemFile.filename}", arlemFile.sessionid + ".zip"))
             {

@@ -6,13 +6,13 @@ using UnityEngine;
 public class DaimonManager : MonoBehaviour
 {
 
-    public SpeechInputService mySpeechInputMgr;
+    public SpeechInputService mySpeechInputMgr { get; private set; }
     private SpeechOutputService mySpeechOutputMgr;
 
-	public GameObject myCharacter;
+	public GameObject myCharacter { get;  set; }
 	private Animator myAnimator;
 	
-    public GameObject[] lookTargets;
+    public GameObject[] lookTargets { get; private set; }
 
     private Dictionary<string, object> _context = null;
     private bool _waitingForResponse = true;

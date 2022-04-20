@@ -42,7 +42,7 @@ namespace MirageXR
             }
         }
         
-        public void Init(SessionContainer container)
+        public void Initialization(SessionContainer container)
         {
             _container = container;
             _btnMain.onClick.AddListener(OnBtnMain);
@@ -91,7 +91,7 @@ namespace MirageXR
             var result = await MoodleManager.Instance.DeleteArlem(_container.ItemID, _container.FileIdentifier);
             if (result)
             {
-                ActivityListView.Instance.UpdateListView();
+                RootView.Instance.activityListView.UpdateListView();
             }
         }
 
@@ -123,10 +123,12 @@ namespace MirageXR
 
         private async Task PlayActivityAsync()
         {
+            LoadView.Instance.Show();
             var activityJsonFileName = LocalFiles.GetActivityJsonFilename(_container.FileIdentifier);
             await ServiceManager.GetService<EditorSceneService>().LoadEditorAsync();
             await MoodleManager.Instance.UpdateViewsOfActivity(_container.ItemID);
             EventManager.ParseActivity(activityJsonFileName);
+            LoadView.Instance.Hide();
         }
 
         private async Task DownloadActivityAsync()

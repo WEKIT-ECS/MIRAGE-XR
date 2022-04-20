@@ -87,8 +87,8 @@ namespace MirageXR
             AddPromptsToKeyword("Register", () => EventManager.RegisterByVoice());
             AddPromptsToKeyword("Save", () => EventManager.SaveActivityByVoice());
             AddPromptsToKeyword("Upload", () => EventManager.UploadActivityByVoice());
-            AddPromptsToKeyword("Turn on Edit Mode", () => { EventManager.NotifyEditModeChanged(true); ActivityEditor.Instance.SetEditorState(true); });
-            AddPromptsToKeyword("Turn off Edit Mode", () => { EventManager.NotifyEditModeChanged(false); ActivityEditor.Instance.SetEditorState(false); });
+            AddPromptsToKeyword("Turn on Edit Mode", () => {  ActivityEditor.Instance.OnEditToggleChanged(true); });
+            AddPromptsToKeyword("Turn off Edit Mode", () => {  ActivityEditor.Instance.OnEditToggleChanged(false); });
             AddPromptsToKeyword("Add Image", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.IMAGE); });
             AddPromptsToKeyword("Add Act", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.ACT); });
             AddPromptsToKeyword("Add Glyph", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.ACT); });

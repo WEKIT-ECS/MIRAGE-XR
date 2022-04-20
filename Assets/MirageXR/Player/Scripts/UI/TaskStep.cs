@@ -22,8 +22,8 @@ namespace MirageXR
 
         public bool IsActive;
 
-        public Color32 ActiveColor;
-        public Color32 InactiveColor;
+        [SerializeField] private Color32 ActiveColor;
+        [SerializeField] private Color32 InactiveColor;
 
         public Action Get_actionObject()
         {

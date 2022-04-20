@@ -50,7 +50,7 @@ namespace MirageXR
 
         void ManipulationEnded()
         {
-            MyCharacter.AnyNodeMoving = false; 
+            MyCharacter.AnyNodeMoving = false;
             MyCharacter.AnimationClipPlaying(false);
 
         }
@@ -60,8 +60,8 @@ namespace MirageXR
         private void AvoidSpatialCover()
         {
             if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 1, LayerMask.NameToLayer("Spatial Awareness")))
-                if(Mathf.Abs(hit.point.y - transform.position.y) < 0.01f)
-                    gameObject.transform.localPosition += new Vector3(0,0.2f,0);
+                if (Mathf.Abs(hit.point.y - transform.position.y) < 0.01f)
+                    gameObject.transform.localPosition += new Vector3(0, 0.2f, 0);
 
         }
 
@@ -110,7 +110,7 @@ namespace MirageXR
 
         private void FixedUpdate()
         {
-            if (!MyCharacter || !MyCharacter.characterParsed) return;
+            if (!MyCharacter || !MyCharacter.CharacterParsed) return;
 
             if (MyCharacter.AnyNodeMoving)
                 AvoidSpatialCover();
@@ -123,7 +123,7 @@ namespace MirageXR
             if (MyCharacter.Destinations.Count == 1)
             {
                 //The character position when there is only one node
-                if(MyCharacter.MovementType != "followplayer")
+                if (MyCharacter.MovementType != "followplayer")
                 {
                     MyCharacter.GetComponent<NavMeshAgent>().updatePosition = false;
                     MyCharacter.transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y, transform.localPosition.z);
@@ -133,7 +133,7 @@ namespace MirageXR
             }
 
             //last node decides the rotation of the character
-            else if ( MyCharacter.Destinations[MyCharacter.Destinations.Count - 1] == gameObject &&
+            else if (MyCharacter.Destinations[MyCharacter.Destinations.Count - 1] == gameObject &&
                 Vector3.Distance(charPosXZ, MyPosXZ) <= MyCharacter.Agent.stoppingDistance &&
                 MyCharacter.transform.localRotation != transform.localRotation)
                 MyCharacter.transform.localRotation = Quaternion.Lerp(MyCharacter.transform.localRotation, transform.localRotation, 0.5f);
@@ -175,7 +175,7 @@ namespace MirageXR
             MyCharacter.FollowThePath(MyCharacter.Destinations.Count - 1, false);
 
             //activate bounding of the last node
-            MyCharacter.Destinations[MyCharacter.Destinations.Count-1].GetComponent<BoundsControl>().Active = true;
+            MyCharacter.Destinations[MyCharacter.Destinations.Count - 1].GetComponent<BoundsControl>().Active = true;
 
             //delete this node
             Destroy(gameObject);

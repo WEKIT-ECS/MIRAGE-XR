@@ -4,7 +4,6 @@ using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
 using Vuforia;
-using Action = System.Action;
 using Image = UnityEngine.UI.Image;
 
 public class ThumbnailEditorView : PopupBase
@@ -53,10 +52,21 @@ public class ThumbnailEditorView : PopupBase
 
     private void OnAccept()
     {
+        if (_texture2D == null)
+        {
+            Toast.Instance.Show("The image has not been taken.");
+            return;
+        }
         var path = Path.Combine(ActivityManager.Instance.Path, THUMBNAIL_FILE_NAME);
         File.WriteAllBytes(path, _texture2D.EncodeToJPG());
         _onAccept.Invoke(path);
         Close();
+    }
+
+    public override void Close()
+    {
+        if (_texture2D) Destroy(_texture2D);
+        base.Close();
     }
     
     private void OnCaptureImage()

@@ -8,13 +8,13 @@ namespace MirageXR
         private const long KB = 1024;
         private const long MB = KB * KB;
         private const long GB = KB * KB * KB;
-        
+
         private const string LESS_THAN_KB = "< 1KB";
-        
+
         private const string KB_FORMAT = "{0:F2}KB";
         private const string MB_FORMAT = "{0:F2}MB";
         private const string GB_FORMAT = "{0:F2}GB";
-        
+
         public Session Session { get; set; }
         public Activity Activity { get; set; }
 
@@ -23,7 +23,7 @@ namespace MirageXR
             get
             {
                 if (Session == null) return string.Empty;
-                
+
                 long size = Session.filesize;
                 string convertedSize;
                 if (size > GB)
@@ -65,13 +65,15 @@ namespace MirageXR
             {
                 if (Activity != null)
                 {
-                    return UnityWebRequest.UnEscapeURL(Activity.name); 
+                    return Activity.name;
                 }
 
                 if (Session != null)
                 {
-                    //Uri.UnescapeDataString() will print + instead of space
-                    return UnityWebRequest.UnEscapeURL(Session.filename.Replace(".zip", ""));
+                    if (string.IsNullOrEmpty(Session.title))
+                        return Session.filename.Replace(".zip", "");
+                    else
+                        return Session.title;
                 }
                 return string.Empty;
             }
@@ -107,7 +109,7 @@ namespace MirageXR
         {
             get
             {
-                if(DBManager.LoggedIn && Session != null && Session.userid == DBManager.userid)
+                if (DBManager.LoggedIn && Session != null && Session.userid == DBManager.userid)
                 {
                     return true;
                 }

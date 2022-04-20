@@ -1,9 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using HoloToolkit.Unity;
-using Microsoft.MixedReality.Toolkit;
-using Microsoft.MixedReality.Toolkit.Input;
-using Microsoft.MixedReality.Toolkit.UI;
+﻿using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,7 +9,7 @@ namespace MirageXR
     /// </summary>
     public class Label : MirageXRPrefab
     {
-        public GameObject TextLabelPrefab;
+        [SerializeField] private GameObject TextLabelPrefab;
         private GameObject textLabel;
         private static Text textbox; // the label textMesh
         private Image _triggerIcon;
@@ -45,19 +40,10 @@ namespace MirageXR
             _myAnnotation = obj;
 
             // Set name.
-            name = obj.predicate + "_" + obj.text.Split (' ') [0];
+            name = $"{obj.predicate}_{obj.text.Split(' ')[0]}";
 
-
-            // Set scale, if defined in the action step configuration.
-            //if (!obj.scale.Equals (0))
-            //    transform.localScale = new Vector3 (obj.scale, obj.scale, obj.scale);
-
-            // If scaling is not set, default to 10 cm height.
-            //else
-            //    transform.localScale = new Vector3 (0.1f, 0.1f, 0.1f);
-
-            InstantiateTxtLbl();
-            textLabel.transform.parent = gameObject.transform;
+            InstantiateTextLabel();
+            textLabel.transform.SetParent(transform);
             textLabel.transform.localPosition = Vector3.zero;
 
             // Set label text.
@@ -68,7 +54,9 @@ namespace MirageXR
             {
                 // Setup guide line feature.
                 if (!SetGuide(obj))
+                {
                     return false;
+                }
             }
 
             else
@@ -76,23 +64,24 @@ namespace MirageXR
                 gameObject.AddComponent<Billboard>();
             }
 
-
             // Set scaling if defined in action configuration.
-            PoiEditor myPoiEditor = transform.parent.gameObject.GetComponent<PoiEditor>();
+            var myPoiEditor = transform.parent.gameObject.GetComponent<PoiEditor>();
             transform.parent.localScale = GetPoiScale(myPoiEditor, Vector3.one);
 
             // If everything was ok, return base result.
             return base.Init(obj);
         }
 
-
-        public void InstantiateTxtLbl()
+        private void InstantiateTextLabel()
         {
             if (textLabel == null)
             {
                 textLabel = Instantiate(TextLabelPrefab);
-                _triggerIcon = textLabel.GetComponentsInChildren<Image>()[1]; //TriggerIcon
-                if (_triggerIcon && ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == _myAnnotation.poi) != null) _triggerIcon.enabled = true;
+                _triggerIcon = textLabel.GetComponentsInChildren<Image>()[1]; //TODO: possible NRE
+                if (_triggerIcon && ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == _myAnnotation.poi) != null)
+                {
+                    _triggerIcon.enabled = true;
+                }
             }
 
             textbox = textLabel.GetComponentInChildren<Text>();

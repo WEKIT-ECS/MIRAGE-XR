@@ -12,31 +12,31 @@ namespace MirageXR
 
         [SerializeField] private Renderer taskStationRenderer;
 
-        public System.Guid TaskStationId { get; set; }
-        public string TaskStationName { get; set; }
+        public System.Guid TaskStationId { get; private set; }
+        public string TaskStationName { get; private set; }
         //private TaskStationContextMenu myTSCM;
 
         public bool IsMenuOpen { get; private set; }
 
         // arlem related objects
-        public Action ThisAction { get; set; }
-        public int ThisActionIndex { get; set; }
+        public Action ThisAction { get; private set; }
+        public int ThisActionIndex { get; private set; }
         private int trigIndex;
 
         // workplace objects
-        public Place thisPlace;
+        public Place thisPlace { get; private set; }
         public bool hasMarker = false;
         private System.Guid markerId;
-        public Detectable thisDetectable;
+        public Detectable thisDetectable { get; private set; }
 
-        public int thisPlaceIndex;
-        public int thisDetectIndex;
+        public int thisPlaceIndex { get; private set; }
+        public int thisDetectIndex { get; private set; }
 
-        public List<GameObject> annotationList = new List<GameObject>();
+        public List<GameObject> annotationList { get; private set; } = new List<GameObject>();
         private GameObject currentAnnotation;
 
         [HideInInspector]
-        public GameObject highlighter;
+        public GameObject highlighter { get; private set; }
 
         public int ArlemAnnotationCounter { get; private set; }
 

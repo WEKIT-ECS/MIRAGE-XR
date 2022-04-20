@@ -61,7 +61,7 @@ public class EditorSceneService : IService
 
     private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if(BrandManager.Instance.Customizable)
+        if (BrandManager.Instance.Customizable)
             BrandManager.Instance.AddCustomColors();
 
         if (scene.name == PlatformManager.Instance.PlayerSceneName)

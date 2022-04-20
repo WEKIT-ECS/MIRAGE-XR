@@ -35,10 +35,7 @@ public class AudioEditor : MonoBehaviour
     private int timerSeconds = 0;
 
 
-    public AudioSource GetPlayerAudioSource()
-    {
-        return audioSource;
-    }
+    public AudioSource PlayerAudioSource => audioSource;
 
     public DialogRecorder DialogRecorderPanel
     {
@@ -84,7 +81,7 @@ public class AudioEditor : MonoBehaviour
             progress.value = audioSource.time / audioSource.clip.length;
             UpdatePlayBackTimer();
         }
-        else        
+        else
             timerText.text = SecToTimeFormat(timerSeconds);
     }
 
@@ -184,7 +181,7 @@ public class AudioEditor : MonoBehaviour
             }
 
             //check if the trigger for this audio is on
-             stepTrigger.isOn = ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == annotationToEdit.poi) != null;
+            stepTrigger.isOn = ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == annotationToEdit.poi) != null;
 
             //re-recording is not allowed
             startRecordingButton.interactable = false;
@@ -243,7 +240,7 @@ public class AudioEditor : MonoBehaviour
         }
         else
         {
-            if (capturedClip != null )
+            if (capturedClip != null)
             {
                 audioSource.clip = capturedClip;
                 audioSource.time = slideValue;
@@ -299,7 +296,7 @@ public class AudioEditor : MonoBehaviour
     {
         var audioName = annotationToEdit.url;
         const string httpPrefix = "http://";
-        
+
         string originalFileName = !audioName.StartsWith(httpPrefix) ? Path.Combine(Application.persistentDataPath, audioName)
             : Path.Combine(ActivityManager.Instance.Path, Path.GetFileName(audioName.Remove(0, httpPrefix.Length)));
 
@@ -317,7 +314,7 @@ public class AudioEditor : MonoBehaviour
                 break;
             }
         }
-        
+
         return originalFilePath;
     }
 
@@ -328,7 +325,7 @@ public class AudioEditor : MonoBehaviour
             if (audioPlayer.Loop)
             {
                 audioPlayer.PlayAudio();
-                audioPlayer.iconImage.sprite = audioPlayer.iconSprite;
+                audioPlayer.IconImage.sprite = audioPlayer.IconSprite;
             }
         }
     }
@@ -361,8 +358,8 @@ public class AudioEditor : MonoBehaviour
                 annotationStartingPoint.transform.rotation,
                 originT.transform.position,
                 originT.transform.rotation);
-            
-            annotationToEdit = ActivityManager.Instance.AddAnnotation(action, offset);
+
+            annotationToEdit = ActivityManager.Instance.AddAugmentation(action, offset);
             annotationToEdit.predicate = "audio";
 
             //save audio type , loop and radius as option
@@ -371,7 +368,7 @@ public class AudioEditor : MonoBehaviour
             annotationToEdit.scale = 0.5f;
         }
 
-        if(SaveFileName != string.Empty )
+        if (SaveFileName != string.Empty)
         {
             annotationToEdit.url = $"http://{SaveFileName}";
 

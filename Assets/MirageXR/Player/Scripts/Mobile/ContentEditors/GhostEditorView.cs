@@ -84,7 +84,7 @@ public class GhostEditorView : PopupEditorBase
             DeactivateContent(_content);
         }
         else {
-            _content = ActivityManager.Instance.AddAnnotation(_step, offset);
+            _content = ActivityManager.Instance.AddAugmentation(_step, offset);
             _content.predicate = editorForType.GetPredicate();
         }
         
@@ -115,7 +115,7 @@ public class GhostEditorView : PopupEditorBase
         var audioFilePath = Path.Combine(ActivityManager.Instance.Path, _audioFileName);
         SaveLoadAudioUtilities.Save(audioFilePath, _audioClip);
             
-        var audioContent = ActivityManager.Instance.AddAnnotation(_step, offset);
+        var audioContent = ActivityManager.Instance.AddAugmentation(_step, offset);
         audioContent.predicate = ContentType.AUDIO.GetPredicate();
         audioContent.scale = 0.5f;
         audioContent.url =  HTTP_PREFIX + _audioFileName;

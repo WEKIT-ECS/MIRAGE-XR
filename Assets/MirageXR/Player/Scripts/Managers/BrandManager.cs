@@ -17,8 +17,8 @@ namespace MirageXR
         [SerializeField] private Color defaultUIPathColor;
         [SerializeField] private Color defaultNextPathColor;
 
-        public static BrandManager Instance;
-    
+        public static BrandManager Instance { get; private set; }
+
         private Color newPrimaryColor;
         private Color newSecondaryColor;
         private Color newTextColor;
@@ -33,6 +33,16 @@ namespace MirageXR
 
         public Color DefaultSecondaryColor => defaultSecondaryColor;
 
+#if UNITY_ANDROID || UNITY_IOS
+
+        private readonly string[] spareListOfAugmentations = { "image", "video", "audio", "ghost", "label", "act", "vfx", "model", "character", "pick&place", "image marker", "plugin" };
+        private const string augmentationsListFile = "MobileAugmentationListFile";
+#else
+        private readonly string[] spareListOfAugmentations = { "image", "video", "audio", "ghost", "label", "act", "vfx", "model", "character", "pick&place", "image marker", "plugin", "drawing" };
+        private const string augmentationsListFile = "HololensAugmentationListFile";
+#endif
+
+        public string AugmentationsListFile => augmentationsListFile;
 
         private void Awake()
         {
@@ -63,6 +73,41 @@ namespace MirageXR
 
             WaitForActivityList();
         }
+
+
+        /// <summary>
+        /// Get the list of pois from json file depends on platform
+        /// </summary>
+        public string[] GetListOfAugmentations()
+        {
+            //If the file missing, use the spare array in this class
+            var listOfAugmentations = spareListOfAugmentations;
+
+            var augmentationListFile = Resources.Load<TextAsset>(augmentationsListFile);
+            if (augmentationListFile != null)
+            {
+                listOfAugmentations = augmentationListFile.ToString().Split('\n');
+            }
+            else
+            {
+                return spareListOfAugmentations;
+            }
+
+            //if the file is empty return the default array
+            if (listOfAugmentations.Length == 0 || (listOfAugmentations.Length == 1 && listOfAugmentations[0] == ""))
+            {
+                return spareListOfAugmentations;
+            }
+
+            string[] augFinalList = new string[listOfAugmentations.Length];
+            for (int i = 0; i < listOfAugmentations.Length; i++)
+            {
+                augFinalList[i] = listOfAugmentations[i].Replace("\r", string.Empty);
+            }
+
+            return augFinalList;
+        }
+
 
         async void WaitForActivityList()
         {
@@ -137,12 +182,12 @@ namespace MirageXR
 
         public Color GetSecondaryColor()
         {
-            return !prefabsOriginalColors ? newSecondaryColor: defaultSecondaryColor;
+            return !prefabsOriginalColors ? newSecondaryColor : defaultSecondaryColor;
         }
 
         public Color GetTextColor()
         {
-            return !prefabsOriginalColors ? newTextColor: defaultTextColor;
+            return !prefabsOriginalColors ? newTextColor : defaultTextColor;
         }
 
         public Color GetIconColor()
@@ -152,7 +197,7 @@ namespace MirageXR
 
         public Color GetTaskStationColor()
         {
-            return !prefabsOriginalColors ? newTaskStationColor: defaultSecondaryColor;
+            return !prefabsOriginalColors ? newTaskStationColor : defaultSecondaryColor;
         }
 
         public Color GetUIPathColor()

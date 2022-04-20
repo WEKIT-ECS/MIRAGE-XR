@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -31,12 +32,22 @@ public class BrandConfiguration : EditorWindow
     Color NextPathColor;
     #endregion
 
+#if UNITY_ANDROID || UNITY_IOS
+
+    private readonly string[] spareListOfAugmentations = { "image", "video", "audio", "ghost", "label", "act", "vfx",  "model", "character", "pick&place", "image marker", "plugin" };
+    private const string augmentationsListFile = "MobileAugmentationListFile";
+#else
+    private readonly string[] spareListOfAugmentations = { "image", "video", "audio", "ghost", "label", "act", "vfx", "model", "character", "pick&place", "image marker", "plugin", "drawing" };
+    private const string augmentationsListFile = "HololensAugmentationListFile";
+#endif
 
     //the foldout menus are open by default
     bool showAppSetting = true;
     bool showSplashAndIconSetting = true;
     bool infoSection = true;
     bool uiStyleSetting = true;
+
+    Dictionary<string, bool> augmentations = new Dictionary<string, bool>();
 
     ConfigEditor CFEditor = new ConfigEditor();
 
@@ -64,15 +75,15 @@ public class BrandConfiguration : EditorWindow
         //the height of each foldout menu
         int layoutStartY = 10;
         int infoY = 80;
-        int appSettingY = 370;
-        int splashSettingT = 280;
+        int appSettingY = 770;
+        int splashSettingT = 290;
 
         //create the foldout menu
         GUIStyle foldoutStyle = new GUIStyle(EditorStyles.foldout);
         foldoutStyle.fontStyle = FontStyle.Bold;
 
         windowScrollPosition = EditorGUILayout.BeginScrollView(windowScrollPosition, GUILayout.Width(position.width), GUILayout.Height(position.height));
-        EditorGUILayout.BeginVertical(GUILayout.Width(position.width), GUILayout.Height(1000));
+        EditorGUILayout.BeginVertical(GUILayout.Width(position.width), GUILayout.Height(1500));
 
 
         infoSection = EditorGUI.Foldout(new Rect(5, layoutStartY, position.width - windowRightOffset, 15), infoSection, "Info", foldoutStyle);
@@ -81,7 +92,7 @@ public class BrandConfiguration : EditorWindow
             //location labels
             GUIStyle labelStyle = new GUIStyle();
             labelStyle.alignment = TextAnchor.MiddleLeft;
-            labelStyle.normal.textColor = Color.blue;
+            labelStyle.normal.textColor = Color.white;
             EditorGUI.LabelField(new Rect(5, layoutStartY + 20, position.width, 40),
             "Files location:\nConfig File: " + CFEditor.ConfigFilePath() + "\nDefault terms of use: " + CFEditor.TermsOfUseDefaultFilePath(), labelStyle);
         }
@@ -96,6 +107,22 @@ public class BrandConfiguration : EditorWindow
             compName = EditorGUI.TextField(new Rect(3, myStartY + 20, position.width - windowRightOffset, 20), "Company Name", compName);
             prodName = EditorGUI.TextField(new Rect(3, myStartY + 45, position.width - windowRightOffset, 20), "Product Name", prodName);
             version = EditorGUI.TextField(new Rect(3, myStartY + 70, position.width - windowRightOffset, 20), "Version", version);
+
+            //Available augmentation
+            GUILayout.BeginArea(new Rect(3, myStartY + 100, position.width - windowRightOffset, 370));
+            GUILayout.Label("Available Augmentations");
+            var counter = 0;
+            foreach (var augmentation in spareListOfAugmentations)
+            {
+                bool toggleValue;
+                if (augmentations.TryGetValue(augmentation, out toggleValue))
+                {
+                }
+                augmentations[augmentation] = EditorGUI.Toggle(new Rect(5, 30 + (counter * 25), position.width - windowRightOffset, 15), augmentation, toggleValue);
+                counter++;
+            }
+            GUILayout.EndArea();
+
             ///terms of use
             //if user file not exist load default term of use file
             termOfUseData = string.Empty;
@@ -105,7 +132,7 @@ public class BrandConfiguration : EditorWindow
                 termOfUseData = File.ReadAllText(CFEditor.TermsOfUseDefaultFilePath());
 
             
-            GUILayout.BeginArea(new Rect(3, myStartY + 105, position.width - windowRightOffset, 245));
+            GUILayout.BeginArea(new Rect(3, myStartY + 490, position.width - windowRightOffset, 245));
 
             GUILayout.BeginHorizontal();
                 GUILayout.Label("Terms of use");
@@ -119,9 +146,9 @@ public class BrandConfiguration : EditorWindow
             EditorGUILayout.Space(45);
             textareaScrollPosition = GUILayout.BeginScrollView(textareaScrollPosition, false, true, GUILayout.Width(position.width - windowRightOffset), GUILayout.Height(180));
             termsOfUse = EditorGUILayout.TextArea(termOfUseData, GUILayout.ExpandHeight(true));
-            GUILayout.EndScrollView();
             //GUILayout.FlexibleSpace();
             GUILayout.EndArea();
+            GUILayout.EndScrollView();
             EditorGUILayout.Space(20);
         }
         else
@@ -168,6 +195,7 @@ public class BrandConfiguration : EditorWindow
             if (!File.Exists(configFilePath))
                 InitiateConfigFile();
 
+            SaveAugmentationSetting();
             AutoSave();
             AssetDatabase.Refresh();
         }
@@ -175,6 +203,68 @@ public class BrandConfiguration : EditorWindow
 
     }
 
+    private void SaveAugmentationSetting()
+    {
+        var path = $"{Application.dataPath}/MirageXR/Resources/{augmentationsListFile}.txt";
+
+        //Create the file if not exist
+        if (!File.Exists(path)) { File.Create(path).Dispose(); }
+
+        //Read the lines
+        var poiLists = File.ReadAllLines(path).ToList();
+
+        foreach (KeyValuePair<string, bool> augmentation in augmentations)
+        {
+            if (augmentation.Value && !poiLists.Contains(augmentation.Key))
+            {
+                poiLists.Add(augmentation.Key);
+            }
+            if (!augmentation.Value && poiLists.Contains(augmentation.Key))
+            {
+                poiLists.Remove(augmentation.Key);
+            }
+        }
+
+        WriteAllLinesWithoutBlank(path, poiLists.ToArray());
+    }
+
+
+    private void LoadAugmentationSetting()
+    {
+        var path = $"{Application.dataPath}/MirageXR/Resources/{augmentationsListFile}.txt";
+
+        if (File.Exists(path))
+        {
+            foreach (var augmentation in File.ReadAllLines(path))
+            {
+                augmentations[augmentation] = true;
+            }
+        }
+    }
+
+    public static void WriteAllLinesWithoutBlank(string path, params string[] lines)
+    {
+        if (path == null)
+            throw new ArgumentNullException("path");
+        if (lines == null)
+            throw new ArgumentNullException("lines");
+
+        using (var stream = File.OpenWrite(path))
+        {
+            stream.SetLength(0);
+            using (var writer = new StreamWriter(stream))
+            {
+                if (lines.Length > 0)
+                {
+                    for (var i = 0; i < lines.Length - 1; i++)
+                    {
+                        writer.WriteLine(lines[i]);
+                    }
+                    writer.Write(lines[lines.Length - 1]);
+                }
+            }
+        }
+    }
 
     public void InitiateConfigFile()
     {
@@ -311,6 +401,8 @@ public class BrandConfiguration : EditorWindow
 
         color = CFEditor.GetValue(ConfigItems.Find(x => x.StartsWith("nextPathColor")));
         NextPathColor = CFEditor.StringToColor(color);
+
+        LoadAugmentationSetting();
     }
 
     Texture2D CreateSplashTextureField(string name, Texture2D texture, int y)

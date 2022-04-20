@@ -12,11 +12,8 @@ namespace MirageXR
         [SerializeField] private StepTrigger stepTrigger;
         [SerializeField] private GameObject acceptButton;
 
-        public GameObject GetAcceptButton()
-        {
-            return acceptButton;
-        }
-
+        public GameObject AcceptButton => acceptButton;
+   
         private Action action;
         private ToggleObject annotationToEdit;
 
@@ -71,7 +68,7 @@ namespace MirageXR
                     originT.transform.position,
                     originT.transform.rotation);
 
-                annotationToEdit = ActivityManager.Instance.AddAnnotation(action, offset);
+                annotationToEdit = ActivityManager.Instance.AddAugmentation(action, offset);
                 annotationToEdit.predicate = "label";
             }
             annotationToEdit.text = textInputField.text;

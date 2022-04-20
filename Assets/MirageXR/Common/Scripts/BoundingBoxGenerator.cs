@@ -22,14 +22,13 @@ namespace MirageXR
         [Tooltip("Check this if you will disable only bounding box of some of the children of this object when editmode is disabled. Or if you do not want enable bounding box when edit mode is on. ")]
         [SerializeField] private bool manualEditModeHandling;
 
-
         public ScaleHandlesConfiguration CustomScaleHandlesConfiguration
         {
-            get;set;
+            get; set;
         }
         public RotationHandlesConfiguration CustomRotationHandlesConfiguration
         {
-            get;set;
+            get; set;
         }
 
 
@@ -48,12 +47,24 @@ namespace MirageXR
         private void Start()
         {
             EditModeState(ActivityManager.Instance.EditModeActive);
+
+            Invoke(nameof(ManipulationEvents), 0.2f);
         }
 
+        /// <summary>
+        /// add bounding box around the mesh of the toggleobject
+        /// </summary>
+        /// <param name="annotationToggleObject"></param>
+        /// <param name="boundsCalculationMethod"></param>
+        /// <param name="hasConstraintManager"></param>
+        /// <param name="addListeners"></param>
+        /// <param name="boundingRotationType"></param>
+        /// <param name="AddManipulator"></param>
+        /// <returns></returns>
         public async Task<BoundsControl> AddBoundingBox(ToggleObject annotationToggleObject, BoundsCalculationMethod boundsCalculationMethod, bool hasConstraintManager = false, bool addListeners = true, BoundingRotationType boundingRotationType = BoundingRotationType.ALL, bool AddManipulator = false)
         {
 
-            if(!hasConstraintManager && !GetComponent<ConstraintManager>())
+            if (!hasConstraintManager && !GetComponent<ConstraintManager>())
                 gameObject.AddComponent<ConstraintManager>();
 
             var elasticManager = GetComponent<ElasticsManager>();
@@ -61,8 +72,8 @@ namespace MirageXR
                 elasticManager = gameObject.AddComponent<ElasticsManager>();
 
             var boundsControl = gameObject.GetComponent<BoundsControl>();
-            if(!boundsControl)
-                 boundsControl = gameObject.AddComponent<BoundsControl>();
+            if (!boundsControl)
+                boundsControl = gameObject.AddComponent<BoundsControl>();
 
             boundsControl.Target = gameObject;
             boundsControl.ElasticsManager = elasticManager;
@@ -70,27 +81,24 @@ namespace MirageXR
             //if the transform changes should be apply to the target object, otherwise it should be added manually
             if (addListeners)
             {
-                boundsControl.ScaleStopped.AddListener(delegate { annotationToggleObject.scale = transform.localScale.x; });
-                boundsControl.RotateStopped.AddListener(delegate { annotationToggleObject.rotation = transform.localRotation.ToString(); });
+                boundsControl.ScaleStopped.AddListener(delegate { SaveTransform(annotationToggleObject); });
+                boundsControl.RotateStopped.AddListener(delegate { SaveTransform(annotationToggleObject); });
             }
 
             var minMaxScaleConstraint = GetComponent<MinMaxScaleConstraint>();
-            if(!minMaxScaleConstraint)
-                 minMaxScaleConstraint = gameObject.AddComponent<MinMaxScaleConstraint>();
+            if (!minMaxScaleConstraint)
+                minMaxScaleConstraint = gameObject.AddComponent<MinMaxScaleConstraint>();
 
             if (boundsControl != null && boundingRotationType != BoundingRotationType.ALL)
                 OnlyRotateAround(boundsControl, boundingRotationType);
 
             boundsControl.CalculationMethod = boundsCalculationMethod;
 
-            if(AddManipulator && !GetComponent<ObjectManipulator>())
-            {
-                var objectManipulator = gameObject.AddComponent<ObjectManipulator>();
-                objectManipulator.HostTransform = transform;
-                objectManipulator.TwoHandedManipulationType = Microsoft.MixedReality.Toolkit.Utilities.TransformFlags.Move;
-            }
+            if (AddManipulator && !GetComponent<ObjectManipulator>())
+                StartCoroutine(ManipulationEvents(annotationToggleObject));
 
-            if(CustomScaleHandlesConfiguration != null)
+
+            if (CustomScaleHandlesConfiguration != null)
                 boundsControl.ScaleHandlesConfig = CustomScaleHandlesConfiguration;
 
             if (CustomRotationHandlesConfiguration != null)
@@ -125,11 +133,40 @@ namespace MirageXR
 
         }
 
-     
+
         void EditModeState(bool editmode)
         {
-            if(!manualEditModeHandling)
+            if (!manualEditModeHandling)
                 GetComponent<BoundsControl>().Active = editmode;
+        }
+
+        /// <summary>
+        /// Add the event when every thing is parsed
+        /// </summary>
+        IEnumerator ManipulationEvents(ToggleObject annotaion)
+        {
+            yield return new WaitForSeconds(1);
+
+            //Disable the parent manipulator and use mine
+            var parentManipulator = transform.parent.gameObject.GetComponent<ObjectManipulator>();
+            if (parentManipulator)
+                parentManipulator.enabled = false;
+
+
+            var objectManipulator = gameObject.AddComponent<ObjectManipulator>();
+            objectManipulator.HostTransform = transform;
+            objectManipulator.TwoHandedManipulationType = Microsoft.MixedReality.Toolkit.Utilities.TransformFlags.Move;
+
+            objectManipulator.OnManipulationEnded.AddListener(delegate { SaveTransform(annotaion); });
+
+        }
+
+
+        private void SaveTransform(ToggleObject annotaion)
+        {
+            annotaion.position = transform.localPosition.ToString();
+            annotaion.rotation = transform.localRotation.ToString();
+            annotaion.scale = transform.localScale.x;
         }
     }
 

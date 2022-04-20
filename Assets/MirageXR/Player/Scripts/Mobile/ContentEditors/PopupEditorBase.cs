@@ -23,6 +23,8 @@ public abstract class PopupEditorBase : PopupBase
     {
         base.Init(onClose, args);
         canBeClosedByOutTap = false;
+        _btnAccept.onClick.AddListener(OnAccept);
+        _btnClose.onClick.AddListener(Close);
         UpdateBaseView();
     }
 
@@ -30,15 +32,12 @@ public abstract class PopupEditorBase : PopupBase
 
     protected virtual void UpdateBaseView()
     {
-        _btnAccept.onClick.AddListener(OnAccept);
-        _btnClose.onClick.AddListener(Close);
         _icon.sprite = editorForType.GetIcon();
         _txtLabel.text = editorForType.GetName();
     }
+    
     protected virtual Vector3 GetOffset()
     {
-        const string anchorName = "AnnotationSpawnPoint";
-        
         var detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(_step.id));
         var originT = GameObject.Find(detectable.id);   // TODO: replace by direct reference to the object
         var annotationStartingPoint = ActionEditor.Instance.GetDefaultAugmentationStartingPoint();

@@ -58,7 +58,7 @@ public class ModelListItem : MonoBehaviour
             _downloadAction(this);
         }
     }
-    
+
     public async Task LoadImage()
     {
         if (!_isImageDownloaded)
@@ -66,7 +66,7 @@ public class ModelListItem : MonoBehaviour
             var (result, sprite) = await MirageXR.Sketchfab.LoadSpriteAsync(_previewItem.resourceImage.url);
             if (result)
             {
-                _image.sprite = sprite;
+                if (_image) _image.sprite = sprite;
                 _isImageDownloaded = true;
             }
         }

@@ -7,9 +7,9 @@ using MirageXR;
 /// </summary>
 public class DummyLogic : MonoBehaviour
 {
-    private string _activityURL = "resources://altec_activity";
+    private const string _activityURL = "resources://altec_activity";
 
-    public GameObject SensorState;
+    [SerializeField] private GameObject SensorState;
 
     private void OnEnable ()
     {

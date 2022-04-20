@@ -9,7 +9,7 @@ namespace MirageXR
     /// </summary>
     public class DetectableBehaviour : MonoBehaviour
     {
-        public bool IsWorking;
+        [SerializeField] private bool IsWorking;
 
         // User position
         private Transform _userPosition;
@@ -18,10 +18,10 @@ namespace MirageXR
         private Transform _origin;
 
         // Has the detectable been located.
-        public bool IsLocated;
+        [SerializeField] private bool IsLocated;
 
         // Is this trackable currently detected or not
-        public bool IsDetected;
+        [SerializeField] private bool IsDetected;
 
         // For world anchors. Has the anchor been attached or not.
         private bool _isAttached;
@@ -30,16 +30,16 @@ namespace MirageXR
         private Renderer _rendererCheck;
 
         // Flag for checking preventing continuous transform updates in some tracking styles
-        public bool IsActive;
+        [SerializeField] private bool IsActive;
 
         private TrackableBehaviour _trackableComponent;
 
-        public DataSet Dataset;
+        public DataSet Dataset { get; set; }
 
         // Is detectable ready for action or not
         public bool IsDetectableReady { get; set; }
 
-        public bool ExtendedTrackingActive = true;
+        [SerializeField] private bool ExtendedTrackingActive = true;
 
         // Definitions of all the supported trackable types
         public enum TrackableType
@@ -58,19 +58,19 @@ namespace MirageXR
             Extended
         }
 
-        [Tooltip ("Trackable TrackableType of this trackable. Set by the workplace file through the WorkplaceParser.")]
+        [Tooltip("Trackable TrackableType of this trackable. Set by the workplace file through the WorkplaceParser.")]
         public TrackableType Type = TrackableType.Anchor;
 
-        [Tooltip ("Tracking style of this trackable. Set by the workplace file through the WorkplaceParser.")]
+        [Tooltip("Tracking style of this trackable. Set by the workplace file through the WorkplaceParser.")]
         public TrackingStyle Style = TrackingStyle.Raw;
 
-        [Tooltip ("The game object that should be moved by this trackable.")]
+        [Tooltip("The game object that should be moved by this trackable.")]
         public GameObject AttachedObject;
 
-        [Tooltip ("Radius for defining fixed and handheld object active area (in meters).")]
+        [Tooltip("Radius for defining fixed and handheld object active area (in meters).")]
         public float Radius = 1.5f;
 
-        [Tooltip ("Tolerance for handheld movements (in meters).")]
+        [Tooltip("Tolerance for handheld movements (in meters).")]
         public float Tolerance = 0.01f;
 
         private void Awake()
@@ -78,12 +78,12 @@ namespace MirageXR
             _trackableComponent = GetComponent<TrackableBehaviour>();
         }
 
-        private void OnEnable ()
+        private void OnEnable()
         {
             EventManager.OnPlayerReset += PlayerReset;
         }
 
-        private void OnDisable ()
+        private void OnDisable()
         {
             EventManager.OnPlayerReset -= PlayerReset;
 
@@ -106,29 +106,29 @@ namespace MirageXR
         }
 
         // Use this for initialization.
-        private void Start ()
+        private void Start()
         {
             // Hololens camera position is the same as user position.
             _userPosition = GameObject.FindGameObjectWithTag("MainCamera").transform;
 
             // Attach _origin object
-            if(transform.Find ("Origin") != null)
-                _origin = transform.Find ("Origin").transform;
+            if (transform.Find("Origin") != null)
+                _origin = transform.Find("Origin").transform;
 
             // Attach the renderer check
-            if (transform.Find ("RendererCheck") != null)
-                _rendererCheck = transform.Find ("RendererCheck").GetComponent<Renderer>();
+            if (transform.Find("RendererCheck") != null)
+                _rendererCheck = transform.Find("RendererCheck").GetComponent<Renderer>();
 
             IsDetectableReady = true;
         }
 
         private void Delete()
         {
-            if(!CompareTag("Permanent"))
+            if (!CompareTag("Permanent"))
                 Destroy(gameObject);
         }
 
-        private void PlayerReset ()
+        private void PlayerReset()
         {
             IsLocated = false;
             IsActive = false;
@@ -139,11 +139,11 @@ namespace MirageXR
             transform.localEulerAngles = Vector3.zero;
         }
 
-        
+
 
 
         // Attach anchor.
-        public void AttachAnchor ()
+        public void AttachAnchor()
         {
             AttachedObject.transform.position = transform.position;
             AttachedObject.transform.rotation = transform.rotation;
@@ -152,7 +152,7 @@ namespace MirageXR
         }
 
         // Update is called once per frame
-        private void Update ()
+        private void Update()
         {
             // Detectable behaviour can behave only if a tracker is attached...
             if (IsDetectableReady && AttachedObject != null)
@@ -193,31 +193,31 @@ namespace MirageXR
                                         // ...which means that we can safely enable the gaze guiding.
                                         IsLocated = true;
                                     }
-                                    
+
                                     // ... tell attached object to show content
-                                    AttachedObject.SendMessage ("ShowContent", SendMessageOptions.DontRequireReceiver);
+                                    AttachedObject.SendMessage("ShowContent", SendMessageOptions.DontRequireReceiver);
                                 }
 
                                 // ... and if detectable is lost
                                 else
                                 {
                                     // ... tell attached object to hide content
-                                    AttachedObject.SendMessage ("HideContent", SendMessageOptions.DontRequireReceiver);
+                                    AttachedObject.SendMessage("HideContent", SendMessageOptions.DontRequireReceiver);
                                 }
                                 break;
 
                             // If handheld tracking style is set...
                             case TrackingStyle.Handheld:
-                                
+
                                 // If not yet active and if the distance between the detectable position and the attached object position is greater than Tolerance...
-                                if (!IsActive && Mathf.Abs (Vector3.Distance (transform.position, AttachedObject.transform.position)) > Tolerance)
+                                if (!IsActive && Mathf.Abs(Vector3.Distance(transform.position, AttachedObject.transform.position)) > Tolerance)
                                 {
                                     // ...update the position of the attached object.
                                     AttachedObject.transform.localPosition = _origin.position;
                                     AttachedObject.transform.localRotation = _origin.rotation;
 
                                     // ... tell attached object to show content
-                                    AttachedObject.SendMessage ("ShowContent", SendMessageOptions.DontRequireReceiver);
+                                    AttachedObject.SendMessage("ShowContent", SendMessageOptions.DontRequireReceiver);
 
                                     // Set active flag
                                     IsActive = true;
@@ -225,8 +225,8 @@ namespace MirageXR
 
                                 // If active and within active area (arms length), update attached object transform if movement Tolerance is exceeded...
                                 if (IsActive &&
-                                    Mathf.Abs (Vector3.Distance (_userPosition.position, AttachedObject.transform.position)) < Radius &&
-                                    Mathf.Abs (Vector3.Distance (transform.position, AttachedObject.transform.position)) > Tolerance)
+                                    Mathf.Abs(Vector3.Distance(_userPosition.position, AttachedObject.transform.position)) < Radius &&
+                                    Mathf.Abs(Vector3.Distance(transform.position, AttachedObject.transform.position)) > Tolerance)
                                 {
                                     // ...update the position of the attached object.
                                     AttachedObject.transform.localPosition = _origin.position;
@@ -236,7 +236,7 @@ namespace MirageXR
                                 // If detectable is lost, tell attached object to hide content and set inactive flag
                                 if (!IsDetected)
                                 {
-                                    AttachedObject.SendMessage ("HideContent", SendMessageOptions.DontRequireReceiver);
+                                    AttachedObject.SendMessage("HideContent", SendMessageOptions.DontRequireReceiver);
                                     IsActive = false;
                                 }
 
@@ -252,14 +252,14 @@ namespace MirageXR
                                 }
 
                                 // If not yet active and if the distance between the detectable position and the attached object position is greater than Tolerance...
-                                if (!IsActive && Mathf.Abs (Vector3.Distance (transform.position, AttachedObject.transform.position)) > Tolerance)
+                                if (!IsActive && Mathf.Abs(Vector3.Distance(transform.position, AttachedObject.transform.position)) > Tolerance)
                                 {
                                     // ...update the position of the attached object.
                                     AttachedObject.transform.localPosition = _origin.position;
                                     AttachedObject.transform.localRotation = _origin.rotation;
 
                                     // ... tell attached object to show content
-                                    AttachedObject.SendMessage ("ShowContent", SendMessageOptions.DontRequireReceiver);
+                                    AttachedObject.SendMessage("ShowContent", SendMessageOptions.DontRequireReceiver);
 
                                     // Set active flag
                                     IsActive = true;
@@ -269,7 +269,7 @@ namespace MirageXR
                                 if (Mathf.Abs(Vector3.Distance(_userPosition.position, AttachedObject.transform.position)) > Radius)
                                 {
                                     // ... tell attached object to hide content
-                                    AttachedObject.SendMessage ("HideContent", SendMessageOptions.DontRequireReceiver);
+                                    AttachedObject.SendMessage("HideContent", SendMessageOptions.DontRequireReceiver);
 
                                     // Set inactive flag
                                     IsActive = false;
@@ -280,7 +280,7 @@ namespace MirageXR
 
                     // If the TrackableType is not supported...
                     default:
-                        EventManager.DebugLog ("Error: Detectable behaviour: " + name + ": Unknown sensor TrackableType");
+                        EventManager.DebugLog("Error: Detectable behaviour: " + name + ": Unknown sensor TrackableType");
                         break;
                 }
             }

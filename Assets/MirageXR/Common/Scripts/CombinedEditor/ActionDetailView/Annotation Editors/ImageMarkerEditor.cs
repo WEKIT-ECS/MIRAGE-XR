@@ -183,7 +183,7 @@ public class ImageMarkerEditor : MonoBehaviour
                 originT.transform.position,
                 originT.transform.rotation);
 
-            annotationToEdit = ActivityManager.Instance.AddAnnotation(action, offset);
+            annotationToEdit = ActivityManager.Instance.AddAugmentation(action, offset);
             annotationToEdit.predicate = "imagemarker";
         }
 

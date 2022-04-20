@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class MaterialTilingFromLineLength : MonoBehaviour {
 
-	public float scaleFactor = 16;
-	LineRenderer line;
+	[SerializeField] private float scaleFactor = 16;
+	private LineRenderer line;
 
 	// Use this for initialization
 	void Start () {

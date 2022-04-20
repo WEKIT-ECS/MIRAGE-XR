@@ -10,10 +10,15 @@ public class ImageEditorView : PopupEditorBase
 {
     public override ContentType editorForType => ContentType.IMAGE;
 
+    private const string LANDSCAPE = "L";
+    private const string PORTRAIT = "P";
+    private bool _orientation;
+
     [SerializeField] private Transform _imageHolder;
     [SerializeField] private Image _image;
     [SerializeField] private Button _btnCaptureImage;
-    
+    [SerializeField] private Toggle _toggleOrientation;
+
     private Texture2D _capturedImage;
 
     public override void Init(Action<PopupBase> onClose, params object[] args)
@@ -21,6 +26,9 @@ public class ImageEditorView : PopupEditorBase
         base.Init(onClose, args);
         UpdateView();
         _btnCaptureImage.onClick.AddListener(OnCaptureImage);
+
+        _toggleOrientation.onValueChanged.AddListener(OnToggleOrientationValueChanged);
+        _toggleOrientation.isOn = _orientation;
     }
 
     private void OnDestroy()
@@ -52,9 +60,12 @@ public class ImageEditorView : PopupEditorBase
         }
         else
         {
-            _content = ActivityManager.Instance.AddAnnotation(_step, GetOffset());
+            _content = ActivityManager.Instance.AddAugmentation(_step, GetOffset());
             _content.predicate = editorForType.GetPredicate();
         }
+
+        _content.key = _orientation ? LANDSCAPE : PORTRAIT;
+
 
         var saveFileName = $"MirageXR_Image_{DateTime.Now.ToFileTimeUtc()}.jpg";
         var outputPath = Path.Combine(ActivityManager.Instance.Path, saveFileName);
@@ -79,6 +90,12 @@ public class ImageEditorView : PopupEditorBase
             var texture2D = Utilities.LoadTexture(originalFilePath);
             SetPreview(texture2D);
         }
+    }
+
+
+    private void OnToggleOrientationValueChanged(bool value)
+    {
+        _orientation = value;
     }
 
     private void OnCaptureImage()
@@ -109,7 +126,7 @@ public class ImageEditorView : PopupEditorBase
 
         var rtImageHolder = (RectTransform) _imageHolder.transform;
         var rtImage = (RectTransform) _image.transform;
-        var height = rtImage.rect.width / _capturedImage.width * _capturedImage.height + (rtImage.sizeDelta.y * -1);
+        var height = rtImage.rect.width / _capturedImage.width * _capturedImage.height + (rtImage.sizeDelta.y * -1);     
         rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
         
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);

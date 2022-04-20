@@ -229,7 +229,7 @@ namespace MirageXR
         /// </summary>
         public virtual void Delete()
         {
-            if(gameObject != null)
+            if (gameObject != null)
                 Destroy(gameObject);
         }
 
@@ -265,7 +265,6 @@ namespace MirageXR
                     gameObject.AddComponent<Billboard>();
                 }
             }
-
             else
             {
                 // If poi not set, assume that default poi is meant to be used.
@@ -275,7 +274,7 @@ namespace MirageXR
                 }
 
                 // Check if target object + poi exist.
-                var temp = GameObject.Find(obj.id + "/" + obj.poi);
+                var temp = GameObject.Find($"{obj.id}/{obj.poi}");
 
                 // If the parenting object can't be found, terminate and return false.
                 if (temp == null)
@@ -291,22 +290,20 @@ namespace MirageXR
                 transform.localPosition = Vector3.zero;
 
                 // Set initial scale.
-                transform.localScale = Vector3.one;
-                
-
-                // Set initial rotation.
-                transform.localEulerAngles = Vector3.zero;
+                if (obj.scale == 0)
+                    transform.localScale = Vector3.one;
 
                 // Now set final position, if defined in the action configuration.
                 if (!string.IsNullOrEmpty(obj.position))
                     transform.localPosition = Utilities.ParseStringToVector3(obj.position);
 
                 // Now set final rotation, if defined in the action configuration.
-                if (!string.IsNullOrEmpty(obj.rotation))
-                    transform.rotation = Utilities.ParseStringToQuaternion(obj.rotation);
+                if (!string.IsNullOrEmpty(obj.rotation) && Utilities.TryParseStringToQuaternion(obj.rotation, out Quaternion myRotation))
+                    transform.localRotation = myRotation;
+                else
+                    // Set initial rotation.
+                    transform.localEulerAngles = Vector3.zero;
             }
-
-            // Scaling should be always set from the inheriting class, since setting a default scaling for everything makes no sense...
 
             // If everything was ok, return true.
             return true;
@@ -321,7 +318,7 @@ namespace MirageXR
         /// <param name="poiEditor"></param>
         /// <param name="defaultScale"></param>
         /// <returns>Returns the desired Vector3 scale.</returns>
-        protected Vector3 GetPoiScale(PoiEditor poiEditor, Vector3 defaultScale)
+        protected static Vector3 GetPoiScale(PoiEditor poiEditor, Vector3 defaultScale)
         {
             // since scaling is activated, allow the poi editor's object manipulator to set it.
             poiEditor.iCanScale = true;
@@ -333,19 +330,16 @@ namespace MirageXR
                 return defaultScale;
             }
 
-            Vector3 poiScale = Utilities.ParseStringToVector3(poi.scale);
+            var poiScale = Utilities.ParseStringToVector3(poi.scale);
 
             // check for zero-scale values
             if (poiScale.x == 0f || poiScale.y == 0f || poiScale.z == 0f)
             {
                 return defaultScale;
             }
-            else
-            {
-                return poiScale;
-            }
-        }
 
+            return poiScale;
+        }
 
         /// <summary>
         /// Reads and convert the PoiEditor's rotation factor, 
@@ -354,63 +348,41 @@ namespace MirageXR
         /// </summary>
         /// <param name="poiEditor"></param>
         /// <returns>Returns the desired rotation in euler angles.</returns>
-        protected Vector3 GetPoiRotation(PoiEditor poiEditor)
+        protected static Vector3 GetPoiRotation(PoiEditor poiEditor)
         {
             // since scaling is activated, allow the poi editor's object manipulator to set it.
             poiEditor.ICanRotate = true;
             Poi poi = poiEditor.GetMyPoi();
 
             // ensure relevant string has value
-            if (string.IsNullOrEmpty(poi.rotation))
-            {
-                return Quaternion.identity.eulerAngles;
-            }
-
-            return Utilities.ParseStringToVector3(poi.rotation);
+            return string.IsNullOrEmpty(poi.rotation) ? Quaternion.identity.eulerAngles : Utilities.ParseStringToVector3(poi.rotation);
         }
 
-
-        public bool IsGazeTrigger()
+        private bool IsGazeTrigger()
         {
-
-            if (ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == Annotation.poi) != null &&
-                Annotation.predicate != "video" && Annotation.predicate != "audio")
-                return true;
-
-
-            return false;
+            return ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == Annotation.poi) != null
+                   && Annotation.predicate != "video" && Annotation.predicate != "audio" && !Annotation.predicate.StartsWith("char");
         }
 
 
-        private bool IsContentTrigger()
-        {
-
-            if (ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == Annotation.poi) != null &&
-                (Annotation.predicate == "video" || Annotation.predicate == "audio"))
-                return true;
-
-
-            return false;
-        }
-
-
-        IEnumerator FindColliderChildren()
+        private IEnumerator FindColliderChildren()
         {
             myColliderChilren = new List<GameObject>();
 
             foreach (var child in GetComponentsInChildren<Collider>())
             {
-                if (child.GetComponent<MeshCollider>())
-                    child.GetComponent<MeshCollider>().convex = true;
+                var meshCollider = child.GetComponent<MeshCollider>();
+                if (meshCollider)
+                {
+                    meshCollider.convex = true;
+                }
                 myColliderChilren.Add(child.gameObject);
             }
-
             yield return null;
         }
 
-        void DetectLabelOnGaze()
+        private void DetectLabelOnGaze()
         {
-
             RaycastHit hit;
             if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
             {
@@ -424,7 +396,7 @@ namespace MirageXR
             if (hit.collider && myColliderChilren.Contains(hit.collider.gameObject))
             {
                 var trigger = ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == Annotation.poi);
-                Int32.TryParse(trigger.value ,out int triggerStepNumber);
+                int.TryParse(trigger.value, out int triggerStepNumber);
 
                 if (triggerStepNumber > 0)
                     triggerStepNumber -= 1;//-1 for converting to the correct index
@@ -434,18 +406,17 @@ namespace MirageXR
                     gazeCircle = Instantiate(Resources.Load<GameObject>("Prefabs/UI/GazeSpinner"), hit.collider.transform.position, transform.rotation);
                     gazeCircle.AddComponent<Billboard>();
                     gazeCircle.GetComponent<GazeSpinner>().Duration = trigger.duration;
-                    gazeCircle.GetComponent<GazeSpinner>().stepNumber = triggerStepNumber; 
+                    gazeCircle.GetComponent<GazeSpinner>().stepNumber = triggerStepNumber;
                     gazeCircle.transform.SetParent(transform);
                 }
             }
             else
             {
                 if (gazeCircle)
+                {
                     Destroy(gazeCircle);
-
+                }
             }
-
         }
-
     }
 }

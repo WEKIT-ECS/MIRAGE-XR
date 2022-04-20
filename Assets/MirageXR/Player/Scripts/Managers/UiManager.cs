@@ -9,16 +9,16 @@ namespace MirageXR
 {
     public class UiManager : MonoBehaviour
     {
-        public bool IsMenuVisible;
+        [SerializeField] private bool IsMenuVisible;
         private bool _inAction;
         public bool IsFindActive;
-        
+
         // Task list location is attached to Hololens main camera.
 
-        [Tooltip ("Drag and drop DebugConsole game object here.")]
+        [Tooltip("Drag and drop DebugConsole game object here.")]
         public GameObject DebugConsole;
 
-        [Tooltip ("Drag and drop Menu game object here.")]
+        [Tooltip("Drag and drop Menu game object here.")]
         public GameObject ActionList;
 
         public string WelcomeMessage = "";
@@ -32,7 +32,7 @@ namespace MirageXR
             Instance = this;
         }
 
-        private void OnEnable ()
+        private void OnEnable()
         {
             EventManager.OnPlayerReset += PlayerReset;
             EventManager.OnMoveActiovityList += MoveActivityList;
@@ -63,7 +63,7 @@ namespace MirageXR
             EventManager.OnParseActivity += ShowLoading;
         }
 
-        private void OnDisable ()
+        private void OnDisable()
         {
             EventManager.OnPlayerReset -= PlayerReset;
             EventManager.OnMoveActiovityList -= MoveActivityList;
@@ -96,10 +96,10 @@ namespace MirageXR
 
 
 
-        private void PlayerReset ()
+        private void PlayerReset()
         {
-            ClearDebug ();
-            HideDebug ();
+            ClearDebug();
+            HideDebug();
             HideMenu();
             WelcomeMessage = "";
             CalibrationTool.Instance.Reset();
@@ -148,10 +148,10 @@ namespace MirageXR
             HideMenu();
         }
 
-        private void Start ()
+        private void Start()
         {
             // Set default visibility to hidden.
-            DebugConsole.SetActive (false);
+            DebugConsole.SetActive(false);
             //Menu.GetComponent<CanvasGroup> ().alpha = 0;
             //Menu.GetComponent<GraphicRaycaster> ().enabled = false;
             ActionList.gameObject.SetActive(false);
@@ -160,25 +160,25 @@ namespace MirageXR
         /// <summary>
         /// Clear debug console. Called from Hololens keyword manager.
         /// </summary>
-        public void ClearDebug ()
+        public void ClearDebug()
         {
-            DebugConsole.transform.parent.SendMessage ("ClearDebug", SendMessageOptions.DontRequireReceiver);
+            DebugConsole.transform.parent.SendMessage("ClearDebug", SendMessageOptions.DontRequireReceiver);
         }
 
         /// <summary>
         /// Show debug console. Called from Hololens keyword manager.
         /// </summary>
-        public void ShowDebug ()
+        public void ShowDebug()
         {
-            DebugConsole.SetActive (true);
+            DebugConsole.SetActive(true);
         }
 
         /// <summary>
         /// Hide debug console. Called from Hololens keyword manager.
         /// </summary>
-        public void HideDebug ()
+        public void HideDebug()
         {
-            DebugConsole.SetActive (false);
+            DebugConsole.SetActive(false);
         }
 
         /// <summary>
@@ -207,7 +207,7 @@ namespace MirageXR
         public void HideSelectionPanel()
         {
             var ActivitySelectionPanel = FindObjectOfType<ActivitySelectionMenu>();
-            if(ActivitySelectionPanel != null)
+            if (ActivitySelectionPanel != null)
                 ActivitySelectionPanel.gameObject.SetActive(false);
         }
 
@@ -237,7 +237,7 @@ namespace MirageXR
             if (!PlatformManager.Instance.WorldSpaceUi || GameObject.Find("CalibrationGuide(Clone)") || GameObject.Find("CalibrationGuide"))
                 return;
 
-                //create the guild if activity is not calibrated.
+            //create the guild if activity is not calibrated.
             if (UiManager.Instance && !UiManager.Instance.IsCalibrated)
             {
                 var guildeObject = Instantiate(Resources.Load<GameObject>("Prefabs/Calibration/CalibrationGuide"), PlatformManager.Instance.GetTaskStationPosition() - Vector3.forward * 0.1f, Camera.main.transform.rotation);
@@ -258,7 +258,7 @@ namespace MirageXR
             IsFindActive = false;
             ShowMenu();
             ShowTasklist(false);
-           
+
             _inAction = false;
 
             // Stop any message so that the activity start message is surely played.
@@ -315,7 +315,7 @@ namespace MirageXR
         /// <summary>
         /// Show tasklist. Called from Hololens keyword manager.
         /// </summary>
-        public void ShowMenu ()
+        public void ShowMenu()
         {
             ActionList.gameObject.SetActive(true);
 
@@ -330,7 +330,7 @@ namespace MirageXR
             if (!_inAction) return;
 
             if (activated)
-               ShowMenu();
+                ShowMenu();
             else
                 HideMenu();
         }
@@ -338,7 +338,7 @@ namespace MirageXR
         /// <summary>
         /// Delete the active action
         /// </summary>
-        private void DeleteActionVoice() 
+        private void DeleteActionVoice()
         {
             if (ActivityManager.Instance.ActiveAction == null) return;
 
@@ -374,7 +374,7 @@ namespace MirageXR
         /// </summary>
         private void RegisterVoice()
         {
-            Application.OpenURL($"{DBManager.domain}/login/signup.php");
+            Application.OpenURL(DBManager.registerPage);
         }
 
 
@@ -405,7 +405,7 @@ namespace MirageXR
         /// <summary>
         /// Hide tasklist.
         /// </summary>
-        public void HideMenu ()
+        public void HideMenu()
         {
             ActionList.gameObject.SetActive(false);
 
@@ -428,7 +428,7 @@ namespace MirageXR
         /// </summary>
         public void ToggleMenu()
         {
-            if(!IsMenuVisible)
+            if (!IsMenuVisible)
                 ShowMenu();
             else
                 HideMenu();
@@ -437,7 +437,7 @@ namespace MirageXR
 
         public void ShowSensors()
         {
-            if(!IsMenuVisible)
+            if (!IsMenuVisible)
                 ShowMenu();
         }
 
@@ -479,7 +479,7 @@ namespace MirageXR
 
         public void ShowActivityCards()
         {
-            if(!IsMenuVisible)
+            if (!IsMenuVisible)
                 ShowMenu();
 
             PlayerPrefs.SetString("uistyle", "cards");
@@ -602,7 +602,7 @@ namespace MirageXR
             }
             else
             {
-                if(ActivityManager.Instance.IsReady)
+                if (ActivityManager.Instance.IsReady)
                     StartActivityVoice();
                 else
                     Maggie.Speak("Please start the activity first.");

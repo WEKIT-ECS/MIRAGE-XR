@@ -7,7 +7,7 @@ using UnityEngine;
 public class ExerciseController : MonoBehaviour
 {
     //list of exercises; we remove them bit by bit
-    public List<string> Exercises;
+    [SerializeField] private List<string> Exercises;
 
     public void Reset()
     {

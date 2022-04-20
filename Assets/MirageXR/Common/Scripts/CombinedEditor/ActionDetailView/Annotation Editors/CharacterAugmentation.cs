@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,11 +11,16 @@ namespace MirageXR
 
         [SerializeField] private GameObject thumbnailContainer;
 
+        private const float _distanceToTaskSTation = 0.6f;
+        private const float _distanceFromGround = 0.6f;  //Increase to move the character down
+        private const float _defaultScaleFactor = 0.8f;
+
         private Action action;
         private ToggleObject annotationToEdit;
 
         private GameObject character;
         private string modelname;
+
 
         private void Start()
         {
@@ -36,15 +42,18 @@ namespace MirageXR
         private void CreatePath()
         {
             var destinations = new List<GameObject>();
-            var taskStationPosition = TaskStationDetailMenu.Instance.ActiveTaskStation.transform.position;
-            var des = Instantiate(pointCont, taskStationPosition - Vector3.up, Quaternion.identity);
-            des.transform.rotation *= Quaternion.Euler(0, 180 , 0);
+            var taskStationPosition = TaskStationDetailMenu.Instance.ActiveTaskStation.transform;
+            var spawnPosition = taskStationPosition.position + taskStationPosition.transform.forward * _distanceToTaskSTation; // Behind the task station
+            var des = Instantiate(pointCont, spawnPosition - Vector3.up * _distanceFromGround, Quaternion.identity);
+            des.transform.rotation *= Quaternion.Euler(0, 180, 0);
             des.GetComponent<Destination>().MyCharacter = character.GetComponent<CharacterController>();
             des.transform.SetParent(character.transform.parent);
             destinations.Add(des);
 
-           // character.transform.position = des.transform.position + new Vector3(0.2f , 0, 0);
+            // character.transform.position = des.transform.position + new Vector3(0.2f , 0, 0);
             character.GetComponent<CharacterController>().Destinations = destinations;
+
+            character.gameObject.transform.localScale *= _defaultScaleFactor;
         }
 
         private void CreateCharacter(string modelname)
@@ -53,7 +62,7 @@ namespace MirageXR
             Create();
         }
 
-        public void Create()
+        public async void Create()
         {
             if (annotationToEdit != null)
             {
@@ -66,12 +75,12 @@ namespace MirageXR
                 Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(action.id));
                 GameObject originT = GameObject.Find(detectable.id);
 
-                Vector3 spawnPosition =  TaskStationDetailMenu.Instance.ActiveTaskStation.transform.position + Vector3.forward;
+                Vector3 spawnPosition = TaskStationDetailMenu.Instance.ActiveTaskStation.transform.position + Vector3.forward;
                 Quaternion spawnRot = Quaternion.identity;
 
                 Vector3 offset = Utilities.CalculateOffset(spawnPosition, spawnRot, originT.transform.position, originT.transform.rotation);
 
-                annotationToEdit = ActivityManager.Instance.AddAnnotation(action, offset);
+                annotationToEdit = ActivityManager.Instance.AddAugmentation(action, offset);
                 annotationToEdit.predicate = "char:" + modelname;
             }
 
@@ -79,7 +88,13 @@ namespace MirageXR
             EventManager.NotifyActionModified(action);
 
             var characterObjectName = $"{annotationToEdit.id}/{annotationToEdit.poi}/{annotationToEdit.predicate}";
-            character = GameObject.Find(characterObjectName);
+
+            while (character == null)
+            {
+                character = GameObject.Find(characterObjectName);
+                await Task.Delay(10);
+            }
+
             SetMovementType();
 
             var characterController = character.GetComponent<CharacterController>();

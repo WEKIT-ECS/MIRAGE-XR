@@ -11,9 +11,9 @@ public class AnnotationListItem : MonoBehaviour
 
     private Button button;
 
-    public ActionDetailView ParentView { get; set; }
+    public ActionDetailView ParentView { get; private set; }
 
-    public ToggleObject DisplayedAnnotation { get; set; }
+    public ToggleObject DisplayedAnnotation { get; private set; }
 
     public delegate void OnAnnotationItemClickedDelegate(ToggleObject annotation);
 
@@ -114,7 +114,7 @@ public class AnnotationListItem : MonoBehaviour
             startStepInput.text = startStepInput.text;
         }
 
-        ActivityManager.Instance.AddAllAnnotationsBetweenSteps(startIndex, endIndex, DisplayedAnnotation, Vector3.zero);
+        ActivityManager.Instance.AddAllAugmentationsBetweenSteps(startIndex, endIndex, DisplayedAnnotation, Vector3.zero);
 
         //On editing the keep alive of the character in each step, save the data (Can use for other augmentations also if needed
         if (DisplayedAnnotation.predicate.StartsWith("char"))

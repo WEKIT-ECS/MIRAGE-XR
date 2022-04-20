@@ -9,21 +9,21 @@ using UnityEngine;
 public class MirageXRModelManipulation : MonoBehaviour, IMixedRealityGestureHandler<Vector3>
 {
 
-    float RotateSpeed = 20f;
+    private float RotateSpeed = 20f;
     /// <summary>
     /// Speed of interactive rotation via navigation gestures
     /// </summary>
-    float RotationFactor = 25f;
+    private float RotationFactor = 25f;
 
     /// <summary>
     /// hold the last transform.rotation
     /// </summary>
-    Quaternion lastRotation;
+    private Quaternion lastRotation;
 
     /// <summary>
     /// value to turn off and on the rotation which didnt work!!
     /// </summary>
-    public bool rotatingEnabled = true;
+    [SerializeField] private bool rotatingEnabled = true;
 
     public void OnGestureStarted(InputEventData eventData)
     {

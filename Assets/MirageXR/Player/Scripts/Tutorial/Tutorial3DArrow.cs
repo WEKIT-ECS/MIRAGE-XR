@@ -15,9 +15,12 @@ namespace MirageXR
         public Vector3? PositionOffset;
         public Vector3? RotationOffset;
 
-        public override void PointTo(GameObject target, string instructionText)
+        public override void PointTo(GameObject target, string instructionText,
+            Vector3? positionOffset, Vector3? rotationOffset)
         {
             gameObject.SetActive(true);
+            PositionOffset = positionOffset;
+            RotationOffset = rotationOffset;
 
             this.target = target;
             if (PositionOffset != null)

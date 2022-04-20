@@ -9,7 +9,7 @@ namespace MirageXR
     public class ModelManager : MonoBehaviour
     {
         private const int ITEMS_PER_PAGE = 10;
-        
+
         private int _currentSearchPage = 0;
 
         private readonly List<ModelPreviewItem> _localModels = new List<ModelPreviewItem>();
@@ -99,7 +99,7 @@ namespace MirageXR
                     _localModels.Add(mpiFromZip);
                 }
             }
-            
+
             _currentModels = GetLocalItems(_currentSearchPage);
 
             var listPopulator = GetComponent<ScrollableListPopulator>();
@@ -120,16 +120,16 @@ namespace MirageXR
             {
                 maxPage++;
             }
-            
+
             page = Mathf.Clamp(page, minPage, maxPage);
-            
+
             var startIndex = page * ITEMS_PER_PAGE;
             var listSize = Math.Min(ITEMS_PER_PAGE, _localModels.Count - startIndex);
             var endIndex = startIndex + listSize;
 
             ResultsShownText.text = $"{startIndex + 1} - {endIndex}";
 
-            return _localModels.GetRange(startIndex , listSize);
+            return _localModels.GetRange(startIndex, listSize);
         }
 
         private ModelPreviewItem BuildLocalModelPreview(string modelDirectory)
@@ -177,7 +177,7 @@ namespace MirageXR
 
             return item;
         }
-        
+
         private string GetModelUrl(string modelDirectory)
         {
             string[] modelsInDir = Directory.GetFiles(modelDirectory, "*.gltf", SearchOption.TopDirectoryOnly);
@@ -223,7 +223,7 @@ namespace MirageXR
                 ThumbnailImage thumb = new ThumbnailImage();
 
                 byte[] imageBytes = File.ReadAllBytes(imageUrl);
-                Texture2D tex = new Texture2D(2,2);
+                Texture2D tex = new Texture2D(2, 2);
                 tex.LoadImage(imageBytes);
 
                 thumb.uid = tex.name;
@@ -289,18 +289,18 @@ namespace MirageXR
             SetLoaderFillAmount(0, 100);
             loader.SetActive(true);
         }
-        
+
         public void OnDownload(float progress)
         {
             SetLoaderFillAmount(progress * 100, 100);
         }
-        
+
         public void OnDownloadEnd(ModelPreviewItem modelPreview)
         {
             loader.SetActive(false);
             GetComponent<ScrollableListPopulator>().UpdatePreviewHandler(modelPreview);
         }
-        
+
         /// <summary>
         /// Writes json object preview information to a file in the model's folder, including a reference to the thumbnail, whose url should begin with either 'http' or 'file'.
         /// </summary>

@@ -92,7 +92,7 @@ public class ContentListItem : MonoBehaviour
 
     private void OnDeleteClick()
     {
-        ActivityManager.Instance.DeleteAnnotation(_content);
+        ActivityController.Instance.DeleteAugmentation(_content);
         if (_parentView.navigatorId == _content.poi)
         {
             TaskStationDetailMenu.Instance.NavigatorTarget = null;
@@ -133,7 +133,7 @@ public class ContentListItem : MonoBehaviour
 
     private void UpdateStep()
     {
-        ActivityManager.Instance.AddAllAnnotationsBetweenSteps(_from, _to, _content, Vector3.zero);
+        ActivityManager.Instance.AddAllAugmentationsBetweenSteps(_from, _to, _content, Vector3.zero);
         if (_type == ContentType.CHARACTER)
         {
             ActivityManager.Instance.SaveData();

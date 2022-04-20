@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 namespace MirageXR
 {
@@ -11,11 +12,11 @@ namespace MirageXR
         [SerializeField] private GameObject playButton;
         [SerializeField] private GameObject closeButton;
         [SerializeField] private GameObject openButton;
-        
-        public GameObject RecordButton { get { return recordButton; } }
-        public GameObject PlayButton { get { return playButton; } }
-        public GameObject CloseButton { get { return closeButton; } }
-        public GameObject OpenButton { get { return openButton; } }
+
+        public GameObject RecordButton => recordButton;
+        public GameObject PlayButton => playButton;
+        public GameObject CloseButton => closeButton;
+        public GameObject OpenButton => openButton;
 
         public Toggle LoopToggle;
 
@@ -28,7 +29,8 @@ namespace MirageXR
             return _audioSource.clip.length;
         }
 
-        public string DialogSaveName {
+        public string DialogSaveName
+        {
             get; set;
         }
 
@@ -37,8 +39,13 @@ namespace MirageXR
         bool isPlaying;
         public bool isRecording { get; private set; }
 
-        private void Start()
+        private IEnumerator Start()
         {
+            while (!MyCharacter || !MyCharacter.CharacterParsed)
+            {
+                yield return null;
+            }
+
             Init();
             SetEditorState(ActivityManager.Instance.EditModeActive);
         }
@@ -48,25 +55,41 @@ namespace MirageXR
             get; set;
         }
 
+
+
         private async void Init()
         {
-            DialogSaveName = $"characterinfo/{ActivityManager.Instance.ActiveActionId}_{MyCharacter.MyToggleObject().poi}.wav";
+            DialogSaveName = $"characterinfo/{ActivityManager.Instance.ActiveActionId}_{MyCharacter.ToggleObject.poi}.wav";
 
-            _audioSource = MyCharacter.GetComponentInChildren<ThreeLSControl>().GetComponent<AudioSource>();
+            //For character who has lipsync the audio source is added to the object with ThreeLSControl component
+            var threeLSControl = MyCharacter.GetComponentInChildren<ThreeLSControl>();
+            if (threeLSControl)
+            {
+                _audioSource = threeLSControl.GetComponent<AudioSource>();
+            }
+            else
+            {
+                _audioSource = MyCharacter.GetComponent<AudioSource>();
+            }
 
             MyCharacter.GetComponent<CharacterController>().AudioEditorCheck();
             _audioEditor = MyCharacter.MyAudioEditor;
-            _audioEditor.DialogRecorderPanel = this;
-            _audioSource.loop = LoopToggle.isOn;
 
-            _clipPath =  Path.Combine(ActivityManager.Instance.Path, DialogSaveName);
-
-            if (File.Exists(_clipPath))
+            if (_audioEditor != null)
             {
-                _audioSource.clip = await _audioEditor.LoadClipFromExistingFile(_clipPath);
-                _audioEditor.GetPlayerAudioSource().clip = _audioSource.clip;
+                _audioEditor.DialogRecorderPanel = this;
+                _audioSource.loop = LoopToggle.isOn;
+                _clipPath = Path.Combine(ActivityManager.Instance.Path, DialogSaveName);
+
+                if (File.Exists(_clipPath))
+                {
+                    _audioSource.clip = await _audioEditor.LoadClipFromExistingFile(_clipPath);
+                    _audioEditor.PlayerAudioSource.clip = _audioSource.clip;
+                }
             }
+
         }
+
 
         private void OnEnable()
         {
@@ -83,7 +106,7 @@ namespace MirageXR
             //Dialog recorder is closed manually dont open it 
             if (openButton.activeInHierarchy) return;
 
-            if (_audioSource.clip == null)
+            if (!_audioSource || _audioSource.clip == null)
             {
                 recordButton.SetActive(editModeActive);
                 stopButton.SetActive(!editModeActive);
@@ -99,7 +122,7 @@ namespace MirageXR
 
         public void UpdateLoopStatus()
         {
-            if(_audioSource)
+            if (_audioSource)
                 _audioSource.loop = LoopToggle.isOn;
         }
 
@@ -108,7 +131,7 @@ namespace MirageXR
             if (_audioSource == null) return;
 
             //if a dialog is already recorded
-            if(_audioSource.clip == null)
+            if (_audioSource.clip == null)
             {
                 recordButton.SetActive(ActivityManager.Instance.EditModeActive);
                 stopButton.SetActive(!ActivityManager.Instance.EditModeActive);
@@ -141,7 +164,7 @@ namespace MirageXR
             closeButton.SetActive(false);
             LoopToggle.gameObject.SetActive(false);
 
-            if(_audioEditor)
+            if (_audioEditor)
                 _audioEditor.Close();
         }
 
@@ -214,8 +237,8 @@ namespace MirageXR
             {
                 _audioSource.Stop();
                 isPlaying = false;
-            }                
-            else if(isRecording)
+            }
+            else if (isRecording)
             {
                 _audioEditor.StopRecording();
                 _audioEditor.OnAccept();
@@ -245,7 +268,7 @@ namespace MirageXR
 
         public void StopDialog()
         {
-            if(_audioSource)
+            if (_audioSource)
                 _audioSource.Stop();
         }
     }

@@ -6,7 +6,7 @@ namespace MirageXR
     {
         [SerializeField] private GameObject CalibrationModel;
 
-        public static CalibrationTool Instance;
+        public static CalibrationTool Instance { get; private set; }
 
         public void SetCalibrationModel(GameObject calibrationModel)
         {
@@ -15,7 +15,10 @@ namespace MirageXR
 
         private void Awake()
         {
-            Instance = this;
+            if (Instance == null)
+                Instance = this;
+            else if (Instance != this)
+                Destroy(gameObject);
         }
 
 

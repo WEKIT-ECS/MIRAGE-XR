@@ -100,7 +100,7 @@ public class PoiEditor : MonoBehaviour
         //rotation should be saved
         if (ICanRotate)
         {
-            poi.rotation = Math.Round(transform.localRotation.eulerAngles.x,2).ToString() + ", " + Math.Round(transform.localRotation.eulerAngles.y,2).ToString() + ", " + Math.Round(transform.localRotation.eulerAngles.z,2).ToString();
+            poi.rotation = Math.Round(transform.localRotation.eulerAngles.x, 2).ToString() + ", " + Math.Round(transform.localRotation.eulerAngles.y, 2).ToString() + ", " + Math.Round(transform.localRotation.eulerAngles.z, 2).ToString();
         }
 
         // also scale can be adjusted using the object manipulator
@@ -131,7 +131,7 @@ public class PoiEditor : MonoBehaviour
     }
 
 
-    
+
 
     private void SetAugmentationSpecificManipulation(GameObject prefabObject)
     {

@@ -12,7 +12,7 @@ public class CropHandeler : MonoBehaviour
     private bool takeScreenShotOnNextFrame;
     private static string screenShotName;
     private byte[] byteArray;
-    public Texture2D RR;
+    private Texture2D RR;
 
 
     private void Awake()

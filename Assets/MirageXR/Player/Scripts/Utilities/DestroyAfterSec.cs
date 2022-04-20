@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class DestroyAfterSec : MonoBehaviour
 {
-    public float time = 1;
+    [SerializeField] private float time = 1;
 
     private void Start()
     {

@@ -109,7 +109,7 @@ public class LabelEditorView : PopupEditorBase
         }
         else
         {
-            _content = ActivityManager.Instance.AddAnnotation(_step, GetOffset());
+            _content = ActivityManager.Instance.AddAugmentation(_step, GetOffset());
             _content.predicate = editorForType.GetPredicate();
         }
         _content.text = _inputField.text;

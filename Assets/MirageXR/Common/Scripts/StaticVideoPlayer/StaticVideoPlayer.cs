@@ -7,11 +7,11 @@ namespace MirageXR
 {
     public class StaticVideoPlayer : MonoBehaviour
     {
-        public GameObject VideoPlayer;
-        public GameObject ContentStorage;
-        public GameObject ContentToggle;
+        [SerializeField] private GameObject VideoPlayer;
+        [SerializeField] private GameObject ContentStorage;
+        [SerializeField] private GameObject ContentToggle;
 
-        public string VideoName;
+        [SerializeField] private string VideoName;
 
         public void ActivateVideoPlayer()
         {
