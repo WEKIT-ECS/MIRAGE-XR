@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Reflection;
 using MirageXR;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.TestTools;
 using UnityEngine.UI;
 
 namespace Tests
@@ -47,7 +45,7 @@ namespace Tests
             SetPrivateField(actionListItem, "deleteButton", deleteButton);
             SetPrivateField(actionListItem, "checkIcon", checkIcon);
 
-            activityManager = GenerateGameObjectWithComponent<ActivityManager>("Activity Manager");
+            activityManager = new ActivityManager();
 
             actionListItem.gameObject.SetActive(true);
         }
@@ -202,22 +200,21 @@ namespace Tests
             Assert.AreEqual(completedColor, backgroundImage.color);
         }
 
-        private T GenerateGameObjectWithComponent<T>(string name, bool activated = true) where T : MonoBehaviour
+        private static T GenerateGameObjectWithComponent<T>(string name, bool activated = true) where T : MonoBehaviour
         {
-            GameObject go = new GameObject(name);
+            var go = new GameObject(name);
             go.SetActive(activated);
             return go.AddComponent<T>();
         }
 
-        private void SetPrivateField<T>(object obj, string fieldName, T value)
+        private static void SetPrivateField<T>(object obj, string fieldName, T value)
         {
-            obj.GetType().GetField(fieldName, System.Reflection.BindingFlags.NonPublic
-    | System.Reflection.BindingFlags.Instance).SetValue(obj, value);
+            obj.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance)?.SetValue(obj, value);
         }
 
-        private void SetPrivateProperty<T>(object obj, string propertyName, T value)
+        private static void SetPrivateProperty<T>(object obj, string propertyName, T value)
         {
-            obj.GetType().GetProperty(propertyName).SetValue(obj, value);
+            obj.GetType().GetProperty(propertyName)?.SetValue(obj, value);
         }
     }
 }

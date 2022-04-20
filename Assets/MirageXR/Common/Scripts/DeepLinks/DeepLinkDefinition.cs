@@ -47,8 +47,8 @@ public class DeepLinkDefinition
     [DeepLink(path: "new")]
     public async void NewActivity()
     {
-        await ServiceManager.GetService<EditorSceneService>().LoadEditorAsync();
-        EventManager.ParseActivity("");
+        await RootObject.Instance.editorSceneService.LoadEditorAsync();
+        RootObject.Instance.activityManager.CreateNewActivity();
     }
 
     // opens the given activity
@@ -58,8 +58,8 @@ public class DeepLinkDefinition
         PlayerPrefs.SetString("activityUrl", fullActivityJson);
         PlayerPrefs.Save();
 
-        await ServiceManager.GetService<EditorSceneService>().LoadEditorAsync();
-        EventManager.ParseActivity(fullActivityJson);
+        await RootObject.Instance.editorSceneService.LoadEditorAsync();
+        RootObject.Instance.activityManager.LoadActivity(fullActivityJson);
     }
 
     // downloads the zip file of the activity from the given downloadPath and unzips the file

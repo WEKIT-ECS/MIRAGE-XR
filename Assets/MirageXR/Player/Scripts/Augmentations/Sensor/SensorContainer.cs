@@ -19,15 +19,11 @@ namespace MirageXR
         private void OnEnable()
         {
             EventManager.OnClearAll += Delete;
-            EventManager.OnShowSensors += ShowContent;
-            EventManager.OnHideSensors += HideContent;
         }
 
         private void OnDisable()
         {
             EventManager.OnClearAll -= Delete;
-            EventManager.OnShowSensors -= ShowContent;
-            EventManager.OnHideSensors -= HideContent;
         }
 
         // Use this for initialization

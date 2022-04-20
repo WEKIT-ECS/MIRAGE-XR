@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -40,7 +39,7 @@ namespace MirageXR
                 yield return null;
             }
 
-            var activityManager = ActivityManager.Instance;
+            var activityManager = RootObject.Instance.activityManager;
             if (activityManager.ActiveAction != null)
             {
                 activityManager.ActiveAction.isCompleted = true;

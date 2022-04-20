@@ -40,7 +40,9 @@ namespace Tests
         GameObject sensorContainer;
 
         // dummy manager objects
+        RootObject dummyRoot;
         ActivityManager dummyActivityManager;
+        WorkplaceController dummyWorkplaceController;
         WorkplaceManager dummyWorkplaceManager;
         ObjectFactory dummyObjectFactory;
         UiManager dummyUiManager;
@@ -73,7 +75,7 @@ namespace Tests
             SceneManager.LoadScene("TestScene", LoadSceneMode.Additive);
 
             SceneManager.sceneLoaded += OnSceneLoaded;
-            EventManager.OnWorkplaceParsed += OnWorkplaceParsed;
+            EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
 
             LoadTestArlemModels();
         }
@@ -83,7 +85,7 @@ namespace Tests
         public void Outit()
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
-            EventManager.OnWorkplaceParsed -= OnWorkplaceParsed;
+            EventManager.OnWorkplaceLoaded -= OnWorkplaceLoaded;
 
             if (ServiceManager.ServiceExists<ActivitySelectionSceneReferenceService>())
             {
@@ -132,7 +134,7 @@ namespace Tests
         public void TearDown()
         {
             readyToTest = false;
-            
+
         }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -191,13 +193,10 @@ namespace Tests
             {
                 ServiceManager.RegisterService(referenceService);
             }
-            
 
             // create arlem managers
-            dummyActivityManager = GenerateGameObjectWithComponent<ActivityManager>("Activity Manager");
-            dummyWorkplaceManager = GenerateGameObjectWithComponent<WorkplaceManager>("Workplace Manager");
+            dummyRoot = GenerateGameObjectWithComponent<RootObject>("Root");
 
-            //dummyObjectFactory = GenerateGameObjectWithComponent<ObjectFactory>("Object Factory");
 
             // audio listener cannot be added with helper function
             var audioListener = new GameObject("Audio Listener");
@@ -206,7 +205,6 @@ namespace Tests
             // create and configure content managers or UI elements needed to start an activity
             GenerateGameObjectWithComponent<Maggie>("Maggie");
             GenerateGameObjectWithComponent<BrandManager>("Brand Manager");
-            GenerateGameObjectWithComponent<MoodleManager>("Moodle Manager");
 
             dummyCalibrationTool = GenerateGameObjectWithComponent<CalibrationTool>("Calibration Tool");
             dummyCalibrationTool.SetCalibrationModel(new GameObject("Calibration Model"));
@@ -231,7 +229,7 @@ namespace Tests
 
             if (!Directory.Exists(sourcePath)) {
                 Debug.LogError("Calibration testing files not found");
-                return; 
+                return;
             }
 
             if (!Directory.Exists(targetPath)){
@@ -252,7 +250,7 @@ namespace Tests
             foreach (FileInfo fi in source.GetFiles())
             {
                 string targetFilePath = Path.Combine(target.FullName, fi.Name);
-                
+
                 // skip meta and existing files
                 if (!File.Exists(targetFilePath) && fi.Extension != ".meta")
                 {
@@ -303,42 +301,33 @@ namespace Tests
         private void StartDummyActivity(string activityId)
         {
             // parse activity model to begin startup process
-            dummyActivityManager.ParseActivity(activityId);
+            dummyActivityManager.LoadActivity(activityId);
         }
 
-        private void OnWorkplaceParsed()
+        private void OnWorkplaceLoaded()
         {
             workplaceReady = true;
         }
 
-
-
         private void PerformCalibration(bool isEditMode)
         {
             // set event for completed calibration
-            EventManager.OnPlayerCalibration += CalibrationComplete;
+            EventManager.OnWorkplaceCalibrated += CalibrationComplete;
 
             // put in to play mode
-            ActivityManager.Instance.EditModeActive = isEditMode;
+            dummyRoot.activityManager.EditModeActive = isEditMode;
 
             // then run the player calibration routine to move objects (as though the camera is the marker)
-            WorkplaceManager.Instance.CalibrateAnchors(WorldTestOrigin);
+            EventManager.CalibrateWorkplace(WorldTestOrigin);
         }
 
         private void CalibrationComplete()
         {
             isCalibrated = true;
         }
-
-
-        
-
         #endregion Act
 
-
         #region Assert
-
-
         /// <summary>
         /// A helper functions that checks that object have been initialised. It should be yielded at the start of each test.
         /// </summary>
@@ -383,7 +372,7 @@ namespace Tests
             Assert.IsTrue(isCalibrated);
         }
 
-        //[UnityTest, Order(1)] - this will be added later, needs more work 
+        //[UnityTest, Order(1)] - this will be added later, needs more work
         public IEnumerator Calibration_EditMode()
         {
             yield return EnsureTestReadiness();
@@ -507,9 +496,9 @@ namespace Tests
                 // examine test script for expected value
                 Vector3 testDetectableRotation = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_rotation);
 
-                // calculate the relative position of the detectable 
+                // calculate the relative position of the detectable
                 Quaternion objectInWorld = Quaternion.Inverse(WorldTestOrigin.rotation) * detectableContainer.transform.GetChild(d).rotation;
-                
+
                 // use the euler angle representation for comparison
                 Vector3 actualDetectableRotation = objectInWorld.eulerAngles;
 
@@ -532,13 +521,13 @@ namespace Tests
                 {
                     // find relevant value in test arlem script
                     float testPoiPosition = testWorkplace.places[place].pois[poi].x_offset;
-                    
+
                     // calculate actual local position
                     float actualLocalPoiComponent = placeObject.GetChild(poi).localPosition.x;
 
                     // check equality
                     Assert.AreEqual(testPoiPosition, actualLocalPoiComponent, 0.001f);
-                }       
+                }
             }
         }
 

@@ -9,6 +9,7 @@ namespace MirageXR
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public class FloatingVideoViewer : MirageXRPrefab
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         private float _width = 0.32f;
         private float _height = 0.18f;
 
@@ -105,7 +106,7 @@ namespace MirageXR
                 var url = videoName.Split('/');
                 var filename = url[url.Length - 1];
 
-                videoFilePath = Path.Combine(ActivityManager.Instance.Path, filename);
+                videoFilePath = Path.Combine(activityManager.ActivityPath, filename);
             }
             else
             {
@@ -114,9 +115,9 @@ namespace MirageXR
             }
 
             //Adjust the duration of the trigger
-            var myTrigger = ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == _obj.poi);
+            var myTrigger = activityManager.ActiveAction.triggers.Find(t => t.id == _obj.poi);
             if (myTrigger != null)
-                ActivityManager.Instance.ActiveAction.triggers.Find(t => t == myTrigger).duration = (float)_videoPlayer.length;
+                activityManager.ActiveAction.triggers.Find(t => t == myTrigger).duration = (float)_videoPlayer.length;
 
             Debug.Log($"Trying to load video: {videoFilePath}");
 
@@ -210,12 +211,12 @@ namespace MirageXR
 
         private IEnumerator ActivateTrigger()
         {
-            if (ActivityManager.Instance.EditModeActive) yield break;
+            if (activityManager.EditModeActive) yield break;
 
             while (_obj == null || _videoPlayer == null)
                 yield return null;
 
-            var myTrigger = ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == _obj.poi);
+            var myTrigger = activityManager.ActiveAction.triggers.Find(t => t.id == _obj.poi);
             if (myTrigger != null)
             {
                 _videoPlayer.isLooping = false;
@@ -228,14 +229,14 @@ namespace MirageXR
             var triggerDuration = myTrigger.duration;
             yield return new WaitForSeconds(triggerDuration);
             
-            if (!ActivityManager.Instance.IsLastAction(ActivityManager.Instance.ActiveAction))
+            if (!activityManager.IsLastAction(activityManager.ActiveAction))
             {
-                if (ActivityManager.Instance.ActiveAction != null)
+                if (activityManager.ActiveAction != null)
                 {
-                    ActivityManager.Instance.ActiveAction.isCompleted = true;
+                    activityManager.ActiveAction.isCompleted = true;
                 }
 
-                ActivityManager.Instance.ActivateNextAction();
+                activityManager.ActivateNextAction();
                 TaskStationDetailMenu.Instance.SelectedButton = null;
             }
         }
@@ -391,7 +392,7 @@ namespace MirageXR
                     var url = videoName.Split('/');
                     var filename = url[url.Length - 1];
 
-                    videoFilePath = $"file://{Path.Combine(ActivityManager.Instance.Path, filename)}";
+                    videoFilePath = $"file://{Path.Combine(activityManager.ActivityPath, filename)}";
                 }
                 else
                 {

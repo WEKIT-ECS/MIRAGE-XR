@@ -145,7 +145,7 @@ namespace Tests
         }
 
         [UnityTest]
-        public IEnumerator OnWorkplaceParsed_PositionUpdated()
+        public IEnumerator OnWorkplaceLoaded_PositionUpdated()
         {
             Vector3 targetPosition = new Vector3(1, 2, 3);
             Vector3 targetEulers = new Vector3(0, 90, 180);
@@ -166,13 +166,13 @@ namespace Tests
             target.transform.position = targetPosition;
             target.transform.eulerAngles = targetEulers;
 
-            EventManager.WorkplaceParsed();
+            EventManager.WorkplaceLoaded();
 
             Assert.AreEqual(targetPosition, go.transform.position);
         }
 
         [UnityTest]
-        public IEnumerator OnWorkplaceParsed_RotationUpdated()
+        public IEnumerator OnWorkplaceLoaded_RotationUpdated()
         {
             Vector3 targetPosition = new Vector3(1, 2, 3);
             Vector3 targetEulers = new Vector3(0, 90, 180);
@@ -193,7 +193,7 @@ namespace Tests
             target.transform.position = targetPosition;
             target.transform.eulerAngles = targetEulers;
 
-            EventManager.WorkplaceParsed();
+            EventManager.WorkplaceLoaded();
 
             Vector3 expectedEulers = new Vector3(targetEulers.x, targetEulers.y, 0);
             Assert.AreEqual(expectedEulers, go.transform.eulerAngles);

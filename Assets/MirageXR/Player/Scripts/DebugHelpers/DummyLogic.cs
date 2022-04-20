@@ -7,6 +7,7 @@ using MirageXR;
 /// </summary>
 public class DummyLogic : MonoBehaviour
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
     private const string _activityURL = "resources://altec_activity";
 
     [SerializeField] private GameObject SensorState;
@@ -57,13 +58,13 @@ public class DummyLogic : MonoBehaviour
                 break;
         }
 
-        EventManager.ParseActivity (PlayerPrefs.GetString ("activityUrl"));
+        activityManager.LoadActivity(PlayerPrefs.GetString ("activityUrl"));
     }
 
     // Use this for initialization
     private void Start ()
     {
-        EventManager.ParseActivity("http://192.168.0.1/activities/AltecTrialActivity.json");
+        activityManager.LoadActivity("http://192.168.0.1/activities/AltecTrialActivity.json");
 
         //LoadActivity ();
 

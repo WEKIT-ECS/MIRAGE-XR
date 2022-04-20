@@ -22,7 +22,7 @@ namespace MirageXR
         }
 
 
-        private void Start ()
+        private void Start()
         {
             Reset();
         }
@@ -36,19 +36,19 @@ namespace MirageXR
         {
             CalibrationModel.gameObject.SetActive(false);
         }
-        
+
         /// <summary>
         /// Calibrate workplace model anchors.
         /// </summary>
-        public void Calibrate ()
+        public void Calibrate()
         {
             // Calibrate only if the marker is visible.
             if (CalibrationModel.activeInHierarchy)
             {
                 EventManager.Click();
-                WorkplaceManager.Instance.CalibrateAnchors(transform);
+                //WorkplaceController.Instance.CalibrateAnchors(transform);
+                EventManager.CalibrateWorkplace(transform);
             }
-                
         }
     }
 }

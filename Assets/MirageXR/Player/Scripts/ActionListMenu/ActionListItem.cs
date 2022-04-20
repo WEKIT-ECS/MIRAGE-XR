@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 public class ActionListItem : MonoBehaviour
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
     [SerializeField] private Image backgroundImage;
     [SerializeField] private Text captionLabel;
     [SerializeField] private Text numberLabel;
@@ -24,9 +25,9 @@ public class ActionListItem : MonoBehaviour
     {
         EventManager.OnActivateAction += OnActivateAction;
         EventManager.OnEditModeChanged += SetEditModeState;
-        if (ActivityManager.Instance != null)
+        if (activityManager != null)
         {
-            SetEditModeState(ActivityManager.Instance.EditModeActive);
+            SetEditModeState(activityManager.EditModeActive);
         }
         UpdateView();
     }
@@ -66,7 +67,7 @@ public class ActionListItem : MonoBehaviour
             captionLabel.text = Content.instruction.title;
             int displayNumber = DataIndex + 1;
             numberLabel.text = displayNumber.ToString("00");
-            bool isActive = Content.id == ActivityManager.Instance.ActiveActionId;
+            bool isActive = Content.id == activityManager.ActiveActionId;
 
             if (isActive)
             {
@@ -85,23 +86,28 @@ public class ActionListItem : MonoBehaviour
             }
         }
 
-
         //enable/disable this as raycast target for empty or none empty rows
         foreach (var textComponent in gameObject.GetComponentsInChildren<Text>())
+        {
             textComponent.raycastTarget = Content != null;
+        }
+
         foreach (var imageComponent in gameObject.GetComponentsInChildren<Image>())
+        {
             imageComponent.raycastTarget = Content != null;
+        }
 
-
-        SetEditModeState(ActivityManager.Instance.EditModeActive);
+        SetEditModeState(activityManager.EditModeActive);
     }
 
     public void DeleteAction()
     {
-        if (ActivityManager.Instance.ActionsOfTypeAction.Count > 1)
+        if (activityManager.ActionsOfTypeAction.Count > 1)
         {    //unchild the task station menu before destroying the TS
             TaskStationDetailMenu.Instance.gameObject.transform.SetParent(null);
-            ActivityManager.Instance.DeleteAction(Content.id);
+            DialogWindow.Instance.Show("Warning!", "Are you sure you want to delete this step?",
+                new DialogButtonContent("Yes", () => activityManager.DeleteAction(Content.id)),
+                new DialogButtonContent("No"));
         }
     }
 }

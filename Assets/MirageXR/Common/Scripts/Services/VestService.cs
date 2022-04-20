@@ -14,10 +14,6 @@ namespace MirageXR
 
         public void Initialize(IServiceManager owner)
         {
-            EventManager.OnEnableVest += EnableVest;
-            EventManager.OnDisableVest += DisableVest;
-
-
             var filePath = Path.Combine(Application.persistentDataPath, "vestconfig.json");
 
             // If config file doesn't yet exist in the HoloLens folder...
@@ -45,8 +41,6 @@ namespace MirageXR
 
         public void Cleanup()
         {
-            EventManager.OnEnableVest -= EnableVest;
-            EventManager.OnDisableVest -= DisableVest;
         }
 
         private void EnableVest()

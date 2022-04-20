@@ -1,4 +1,3 @@
-using MirageXR;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -98,7 +97,7 @@ public class PageView : MonoBehaviour, IDragHandler, IEndDragHandler{
         return new Vector3(x, anchoredPosition.y, anchoredPosition.z);
     }
   
-    private static IEnumerator MoveToEnumerator(RectTransform rectTransform, Vector3 endPosition, float time, AnimationCurve curve = null, System.Action callback = null) 
+    private static IEnumerator MoveToEnumerator(RectTransform rectTransform, Vector3 endPosition, float time, AnimationCurve curve = null, Action callback = null) 
     {
         if (curve == null) curve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
         var startPosition = rectTransform.anchoredPosition;
@@ -110,7 +109,7 @@ public class PageView : MonoBehaviour, IDragHandler, IEndDragHandler{
 
             yield return null;
         }
-        EventManager.NotifyOnMobilePageChanged();
+
         callback?.Invoke();
     }
 }

@@ -46,7 +46,7 @@ namespace MirageXR
 
         private void Start()
         {
-            EditModeState(ActivityManager.Instance.EditModeActive);
+            EditModeState(RootObject.Instance.activityManager.EditModeActive);
 
             Invoke(nameof(ManipulationEvents), 0.2f);
         }
@@ -72,8 +72,8 @@ namespace MirageXR
                 elasticManager = gameObject.AddComponent<ElasticsManager>();
 
             var boundsControl = gameObject.GetComponent<BoundsControl>();
-            if (!boundsControl)
-                boundsControl = gameObject.AddComponent<BoundsControl>();
+            if(!boundsControl)
+                 boundsControl = gameObject.AddComponent<BoundsControl>();
 
             boundsControl.Target = gameObject;
             boundsControl.ElasticsManager = elasticManager;
@@ -86,19 +86,19 @@ namespace MirageXR
             }
 
             var minMaxScaleConstraint = GetComponent<MinMaxScaleConstraint>();
-            if (!minMaxScaleConstraint)
-                minMaxScaleConstraint = gameObject.AddComponent<MinMaxScaleConstraint>();
+            if(!minMaxScaleConstraint)
+                 minMaxScaleConstraint = gameObject.AddComponent<MinMaxScaleConstraint>();
 
             if (boundsControl != null && boundingRotationType != BoundingRotationType.ALL)
                 OnlyRotateAround(boundsControl, boundingRotationType);
 
             boundsControl.CalculationMethod = boundsCalculationMethod;
 
-            if (AddManipulator && !GetComponent<ObjectManipulator>())
+            if(AddManipulator && !GetComponent<ObjectManipulator>())
                 StartCoroutine(ManipulationEvents(annotationToggleObject));
 
 
-            if (CustomScaleHandlesConfiguration != null)
+            if(CustomScaleHandlesConfiguration != null)
                 boundsControl.ScaleHandlesConfig = CustomScaleHandlesConfiguration;
 
             if (CustomRotationHandlesConfiguration != null)
@@ -133,10 +133,10 @@ namespace MirageXR
 
         }
 
-
+     
         void EditModeState(bool editmode)
         {
-            if (!manualEditModeHandling)
+            if(!manualEditModeHandling)
                 GetComponent<BoundsControl>().Active = editmode;
         }
 
@@ -157,7 +157,7 @@ namespace MirageXR
             objectManipulator.HostTransform = transform;
             objectManipulator.TwoHandedManipulationType = Microsoft.MixedReality.Toolkit.Utilities.TransformFlags.Move;
 
-            objectManipulator.OnManipulationEnded.AddListener(delegate { SaveTransform(annotaion); });
+            objectManipulator.OnManipulationEnded.AddListener(delegate { SaveTransform(annotaion);  });
 
         }
 
@@ -166,7 +166,7 @@ namespace MirageXR
         {
             annotaion.position = transform.localPosition.ToString();
             annotaion.rotation = transform.localRotation.ToString();
-            annotaion.scale = transform.localScale.x;
+            annotaion.scale =  transform.localScale.x;
         }
     }
 

@@ -55,14 +55,14 @@ namespace MirageXR
         // MirageXR move activity list.
         public delegate void MoveActivityDelegate();
 
-        public static event MoveActivityDelegate OnMoveActiovityList;
+        public static event MoveActivityDelegate OnMoveActivityList;
 
         /// <summary>
         /// Move MirageXR activity list.
         /// </summary>
-        public static void MoveActiovityList()
+        public static void MoveActivityList()
         {
-            OnMoveActiovityList?.Invoke();
+            OnMoveActivityList?.Invoke();
         }
 
         // MirageXR move action list.
@@ -78,45 +78,17 @@ namespace MirageXR
             OnMoveActionList?.Invoke();
         }
 
-        // Parse activity file JSON.
-        public delegate void ParseActivityDelegate(string activity);
+        // Workplace has been set up event.
+        public delegate void WorkplaceLoadedDelegate();
 
-        public static event ParseActivityDelegate OnParseActivity;
-
-        /// <summary>
-        /// Tells Activity manager to parse the defined activity file file.
-        /// </summary>
-        /// <param name="activity">ID of the activity file file.</param>
-        public static void ParseActivity(string activity)
-        {
-            OnParseActivity?.Invoke(activity);
-        }
-
-        // Parse workplace file JSON.
-        public delegate void ParseWorkplaceDelegate(string workplace);
-
-        public static event ParseWorkplaceDelegate OnParseWorkplace;
+        public static event WorkplaceLoadedDelegate OnWorkplaceLoaded;
 
         /// <summary>
-        /// Tells Workplace manager to parse the defined workplace file file.
+        /// Signals that the data from the workplace data model has been applied to the scene.
         /// </summary>
-        /// <param name="workplace">ID of the workplace file file.</param>
-        public static void ParseWorkplace(string workplace)
+        public static void WorkplaceLoaded()
         {
-            OnParseWorkplace?.Invoke(workplace);
-        }
-
-        // Workplace file parsed event.
-        public delegate void WorkplaceParsedDelegate();
-
-        public static event WorkplaceParsedDelegate OnWorkplaceParsed;
-
-        /// <summary>
-        /// Tells all the components when workplace file is parsed.
-        /// </summary>
-        public static void WorkplaceParsed()
-        {
-            OnWorkplaceParsed?.Invoke();
+            OnWorkplaceLoaded?.Invoke();
         }
 
         // TODO: Is this the same as ActivityStarted? Duplicate removal?
@@ -138,19 +110,32 @@ namespace MirageXR
             OnActivityStarted?.Invoke();
         }
 
+        // Event to trigger adjusting workplace locations when a new world origin has been set.
+        public delegate void CalibrateWorkplaceDelegate(Transform origin);
 
-        // Calibration event.
-        public delegate void PlayerCalibrationDelegate();
+        public static event CalibrateWorkplaceDelegate OnCalibrateWorkplace;
 
-        public static event PlayerCalibrationDelegate OnPlayerCalibration;
+        /// <summary>
+        /// Triggers calibration methods.
+        /// </summary>
+        /// <param name="origin">New world origin.</param>
+        public static void CalibrateWorkplace(Transform origin)
+        {
+            OnCalibrateWorkplace?.Invoke(origin);
+        }
+
+        // Workplace has been calibrated event.
+        public delegate void WorkplaceCalibratedDelegate();
+
+        public static event WorkplaceCalibratedDelegate OnWorkplaceCalibrated;
 
         /// <summary>
         /// Reports that calibration has been performed
         /// </summary>
         /// <param name="action">Activity file action id of the activated action.</param>
-        public static void PlayerCalibration()
+        public static void WorkplaceCalibrated()
         {
-            OnPlayerCalibration?.Invoke();
+            OnWorkplaceCalibrated?.Invoke();
         }
 
         // Clear poi event.
@@ -191,20 +176,6 @@ namespace MirageXR
             OnDeactivateAction?.Invoke(action, doNotActivateNextStep);
         }
 
-        // Go back event.
-        public delegate void GoBackDelegate(string action);
-
-        public static event GoBackDelegate OnGoBack;
-
-        /// <summary>
-        /// Force activate an action.
-        /// </summary>
-        /// <param name="action">Activity file action id of the force activated action.</param>
-        public static void GoBack(string action)
-        {
-            OnGoBack?.Invoke(action);
-        }
-
         // Activate/Deactivate an object event.
         public delegate void ToggleObjectDelegate(ToggleObject obj, bool isActivating);
 
@@ -213,32 +184,19 @@ namespace MirageXR
         /// <summary>
         /// Activates an object.
         /// </summary>
-        /// <param name="act">Activate object of activity file action.</param>
-        public static void ActivateObject(ToggleObject act)
+        /// <param name="action">Activate object of activity file action.</param>
+        public static void ActivateObject(ToggleObject action)
         {
-            OnToggleObject?.Invoke(act, true);
+            OnToggleObject?.Invoke(action, true);
         }
 
         /// <summary>
         /// Deactivates an object.
         /// </summary>
-        /// <param name="deact">Deactivate object of activity file action.</param>
-        public static void DeactivateObject(ToggleObject deact)
+        /// <param name="action">Deactivate object of activity file action.</param>
+        public static void DeactivateObject(ToggleObject action)
         {
-            OnToggleObject?.Invoke(deact, false);
-        }
-
-        // Voice trigger event.
-        public delegate void VoiceTriggerDelegate();
-
-        public static event VoiceTriggerDelegate OnVoiceTrigger;
-
-        /// <summary>
-        /// Triggers a voice trigger.
-        /// </summary>
-        public static void VoiceTrigger()
-        {
-            OnVoiceTrigger?.Invoke();
+            OnToggleObject?.Invoke(action, false);
         }
 
         // Log debug event.
@@ -355,9 +313,11 @@ namespace MirageXR
             OnInitUi?.Invoke();
         }
 
-
         // Player UI related events. Needed for the unified KeywordManager.
+        
+#region Voice
 
+        //TODO: Replace "voice" events with a single event with an enum parameter 
         // For opening the augmentation list
         public delegate void OpenAnnotationByVoiceDelegate();
 
@@ -510,6 +470,8 @@ namespace MirageXR
         {
             OnStartByVoice?.Invoke();
         }
+        
+#endregion
 
         // Do click.
         public delegate void ClickDelegate();
@@ -521,65 +483,6 @@ namespace MirageXR
             OnClick?.Invoke();
         }
 
-        // Start extended tracking.
-        public delegate void StartExtendedTrackingDelegate();
-
-        public static event StartExtendedTrackingDelegate OnStartExtendedTracking;
-
-        public static void StartExtendedTracking()
-        {
-            OnStartExtendedTracking?.Invoke();
-        }
-
-        // Stop extended tracking.
-        public delegate void StopExtendedTrackingDelegate();
-
-        public static event StopExtendedTrackingDelegate OnStopExtendedTracking;
-
-        public static void StopExtendedTracking()
-        {
-            OnStopExtendedTracking?.Invoke();
-        }
-
-        // Show sensors.
-        public delegate void ShowSensorsDelegate();
-
-        public static event ShowSensorsDelegate OnShowSensors;
-
-        public static void ShowSensors()
-        {
-            OnShowSensors?.Invoke();
-        }
-
-        // Hide sensors.
-        public delegate void HideSensorsDelegate();
-
-        public static event HideSensorsDelegate OnHideSensors;
-
-        public static void HideSensors()
-        {
-            OnHideSensors?.Invoke();
-        }
-
-        public delegate void DestroyDetectablesDelegate();
-
-        public static event DestroyDetectablesDelegate OnDestroyDetectables;
-
-        public static void DestroyDetectables()
-        {
-            OnDestroyDetectables?.Invoke();
-        }
-
-        public delegate void MarkCompletedDelegate(string id);
-
-        public static event MarkCompletedDelegate OnMarkCompleted;
-
-        public static void MarkCompleted(string id)
-        {
-            OnMarkCompleted?.Invoke(id);
-        }
-
-
         // Player timestamping events.
         public delegate void ActivityLoadedStampDelegate(string deviceId, string activityId, string timestamp);
 
@@ -589,7 +492,7 @@ namespace MirageXR
         {
             OnActivityLoadedStamp?.Invoke(deviceId, activityId, timestamp);
 
-            Debug.Log("LOADED STAMP: " + deviceId + ", " + activityId + ", " + timestamp);
+            Debug.Log($"LOADED STAMP: {deviceId}, {activityId}, {timestamp}");
         }
 
         public delegate void ActivityCompletedStampDelegate(string deviceId, string activityId, string timestamp);
@@ -600,7 +503,7 @@ namespace MirageXR
         {
             OnActivityCompletedStamp?.Invoke(deviceId, activityId, timestamp);
 
-            Debug.Log("COMPLETED STAMP: " + deviceId + ", " + activityId + ", " + timestamp);
+            Debug.Log($"COMPLETED STAMP: {deviceId}, {activityId}, {timestamp}");
         }
 
         public delegate void StepActivatedStampDelegate(string deviceId, Action activatedAction, string timestamp);
@@ -611,7 +514,7 @@ namespace MirageXR
         {
             OnStepActivatedStamp?.Invoke(deviceId, activatedAction, timestamp);
 
-            Debug.Log("ACTIVATED STAMP: " + deviceId + ", " + activatedAction.id + ", " + timestamp);
+            Debug.Log($"ACTIVATED STAMP: {deviceId}, {activatedAction.id}, {timestamp}");
         }
 
         public delegate void StepDeactivatedStampDelegate(string deviceId, Action deactivatedAction, string timestamp);
@@ -623,24 +526,6 @@ namespace MirageXR
             OnStepDeactivatedStamp?.Invoke(deviceId, deactivatedAction, timestamp);
 
             Debug.Log("DEACTIVATED STAMP: " + deviceId + ", " + deactivatedAction.id + ", " + timestamp);
-        }
-
-        public delegate void EnableVestDelegate();
-
-        public static event EnableVestDelegate OnEnableVest;
-
-        public static void EnableVest()
-        {
-            OnEnableVest?.Invoke();
-        }
-
-        public delegate void DisableVestDelegate();
-
-        public static event DisableVestDelegate OnDisableVest;
-
-        public static void DisableVest()
-        {
-            OnDisableVest?.Invoke();
         }
 
         public delegate void ShowActivitySelectionMenuDelegate();
@@ -687,7 +572,6 @@ namespace MirageXR
             OnActionDeleted?.Invoke(actionId);
         }
 
-
         public delegate void AugmentationDeletedDelegate(ToggleObject toggleObject);
 
         public static event AugmentationDeletedDelegate OnAugmentationDeleted;
@@ -696,7 +580,6 @@ namespace MirageXR
         {
             OnAugmentationDeleted?.Invoke(toggleObject);
         }
-
 
         public delegate void ActivitySaveDelegate();
 
@@ -837,55 +720,6 @@ namespace MirageXR
         public static void NotifyOnActionStepDescriptionInputChanged()
         {
             ActionStepDescriptionInputChanged?.Invoke();
-        }
-
-        public delegate void StepsSelectorClickedDelegate();
-        public static event StepsSelectorClickedDelegate StepsSelectorClicked;
-        public static void NotifyOnStepsSelectorClicked()
-        {
-            StepsSelectorClicked?.Invoke();
-        }
-
-        public delegate void ViewSelectorClickedDelegate();
-        public static event ViewSelectorClickedDelegate ViewSelectorClicked;
-        public static void NotifyOnViewSelectorClicked()
-        {
-            ViewSelectorClicked?.Invoke();
-        }
-
-        public delegate void MobilePageChangeFinishedDelegate();
-        public static event MobilePageChangeFinishedDelegate MobilePageChanged;
-        public static void NotifyOnMobilePageChanged()
-        {
-            MobilePageChanged?.Invoke();
-        }
-
-        public delegate void TutorialPopupCloseClickedDelegate();
-        public static event TutorialPopupCloseClickedDelegate TutorialPopupCloseClicked;
-        public static void NotifyOnTutorialPopupCloseClicked()
-        {
-            TutorialPopupCloseClicked?.Invoke();
-        }
-
-        public delegate void MobileStepContentExpandedDelegate();
-        public static event MobileStepContentExpandedDelegate MobileStepContentExpanded;
-        public static void NotifyOnMobileStepContentExpanded()
-        {
-            MobileStepContentExpanded?.Invoke();
-        }
-
-        public delegate void HighlightingButtonClickedDelegate();
-        public static event HighlightingButtonClickedDelegate HighlightingButtonClicked;
-        public static void NotifyOnHighlightingButtonClicked()
-        {
-            HighlightingButtonClicked?.Invoke();
-        }
-
-        public delegate void MobileAddStepContentPressedDelegate();
-        public static event MobileAddStepContentPressedDelegate MobileAddStepContentPressed;
-        public static void NotifyOnMobileAddStepContentPressed()
-        {
-            MobileAddStepContentPressed?.Invoke();
         }
     }
 }
