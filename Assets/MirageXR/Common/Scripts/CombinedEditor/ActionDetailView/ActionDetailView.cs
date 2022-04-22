@@ -131,8 +131,8 @@ public class ActionDetailView : MonoBehaviour
                 }
             }
 
-            //Show Grid view if there is no augmentation yet
-            ActionEditor.Instance.AddMenuVisible = !ActivityManager.Instance.ActiveAction.enter.activates.Any();
+            if (displayedAction.enter.activates.Count == 0)
+                ActionEditor.Instance.AddMenuVisible = true;
 
             // disable all unused item labels
             for (int i = displayedAction.enter.activates.Count; i < poiPredicateItems.Count; i++)

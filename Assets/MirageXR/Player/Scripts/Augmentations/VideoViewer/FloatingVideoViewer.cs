@@ -13,28 +13,33 @@ namespace MirageXR
         private float _height = 0.18f;
 
         [Tooltip("H.264 encoded video file. .mp4 and .mov formats supported")]
-        [SerializeField] private string videoName = "video.mp4";
+        public string videoName = "video.mp4";
         [Tooltip("Audio file. Only .wav format supported for external sources. Internally, .mp3 are supported as well")]
-        [SerializeField] private string audioName = "audio.wav";
+        public string audioName = "audio.wav";
         [Tooltip("Set to false to read from project's 'Resources' folder; set to true to read from applications 'LocalState' folder on HoloLens, or online, if filename starts with 'http'")]
-        [SerializeField] private bool useExternalSource = false;
+        public bool useExternalSource = false;
 
         [Tooltip("The video texture component")]
         [SerializeField] private UnityEngine.UI.RawImage _renderTexture;
 
-        [SerializeField] private RectTransform cardRT;
-        [SerializeField] private RectTransform videoRT;
-        [SerializeField] private RectTransform slider;
-        [SerializeField] private RectTransform pause;
-        [SerializeField] private RectTransform stop;
-        [SerializeField] private RectTransform play;
+        [SerializeField] RectTransform cardRT;
+        [SerializeField] RectTransform videoRT;
+        [SerializeField] RectTransform slider;
+        [SerializeField] RectTransform pause;
+        [SerializeField] RectTransform stop;
+        [SerializeField] RectTransform play;
 
-        private bool isAudioReady = false;
-        private bool isVideoReady = false;
-        private bool isPlaying = false;
-        private bool isPaused = false;
 
-        [SerializeField] private bool InPanel;
+        [HideInInspector]
+        public bool isAudioReady = false;
+        [HideInInspector]
+        public bool isVideoReady = false;
+        [HideInInspector]
+        public bool isPlaying = false;
+        [HideInInspector]
+        public bool isPaused = false;
+
+        public bool InPanel;
         //private Transform _contentPanel;
         private Vector3 _originalPosition = Vector3.zero;
         private Quaternion _originalRotation = Quaternion.identity;

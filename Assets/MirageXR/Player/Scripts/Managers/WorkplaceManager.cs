@@ -59,13 +59,15 @@ namespace MirageXR
         [Tooltip("Instantiation of the workplace file.")]
         public Workplace Workplace;
 
-        [SerializeField] private GameObject MirageXRSensorManager;
+        public GameObject MirageXRSensorManager;
 
 
         private void Awake()
         {
             Instance = this;
         }
+
+        private Transform floorTarget;
 
         // On start...
         private void Start()
@@ -389,7 +391,8 @@ namespace MirageXR
                         }
 
                         // Add guide line.
-                        var guide = Instantiate(Resources.Load<GameObject>("Pathway"), Vector3.zero, Quaternion.identity);
+                        var guide = Instantiate(Resources.Load<GameObject>("Pathway"), Vector3.zero,
+                            Quaternion.identity);
 
                         // Make guide line a child of default poi object.
                         guide.transform.SetParent(temp.transform.FindDeepChild("default"));
@@ -902,12 +905,8 @@ namespace MirageXR
         {
             
             GameObject instance = Instantiate(Resources.Load("Prefabs/PlayerTaskStation") as GameObject, parent.transform);
-            
-            //only for the first taskstation in this step move it to the right of the player
-            var taskStationPos = ActivityManager.Instance.ActionsOfTypeAction.Count == 0 ? Camera.main.transform.right * 0.8f : Vector3.zero;
-
-            var IsfirstTaskStation = PlatformManager.Instance.WorldSpaceUi && ActivityManager.Instance.EditModeActive;
-            instance.transform.localPosition = IsfirstTaskStation ? taskStationPos : Vector3.zero;
+            //instance.transform.localPosition = PlatformManager.Instance.GetTSPosition();
+            instance.transform.localPosition = Vector3.zero + Camera.main.transform.right * 0.8f;
             instance.transform.localRotation = Quaternion.identity;
         }
 
@@ -984,7 +983,7 @@ namespace MirageXR
 
         }
 
-        public void DeleteAugmentation(Action action, ToggleObject toggleObject)
+        public void DeleteAnnotation(Action action, ToggleObject toggleObject)
         {
             Place place = GetPlaceFromTaskStationId(action.id);
 
@@ -1210,7 +1209,8 @@ namespace MirageXR
             }
 
             // Add guide line.
-            var guide = Instantiate(Resources.Load<GameObject>("Pathway"), Vector3.zero, Quaternion.identity);
+            var guide = Instantiate(Resources.Load<GameObject>("Pathway"), Vector3.zero,
+                Quaternion.identity);
 
             // Make guide line a child of default poi object.
             guide.transform.SetParent(temp.transform.FindDeepChild("default"));

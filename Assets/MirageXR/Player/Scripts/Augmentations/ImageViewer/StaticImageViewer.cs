@@ -7,13 +7,13 @@ namespace MirageXR
 {
     public class StaticImageViewer : MonoBehaviour
     {
-        [SerializeField] private GameObject ImageViewer;
-        [SerializeField] private GameObject ContentStorage;
-        [SerializeField] private GameObject ContentToggle;
+        public GameObject ImageViewer;
+        public GameObject ContentStorage;
+        public GameObject ContentToggle;
 
         private RawImage _image;
 
-        [SerializeField] private string ImageName;
+        public string ImageName;
 
         private void Start()
         {

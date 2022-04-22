@@ -28,11 +28,12 @@ namespace MirageXR
 
         //private VestSensor myVest;
 
-        private GameObject debugText { get; set; }
+        [HideInInspector]
+        public GameObject debugText;
         private Text txtDebug;
 
-        [SerializeField] private GameObject worldOriginMarkerPrefab;
-        [SerializeField] private GameObject taskStationPrefab;
+        public GameObject worldOriginMarkerPrefab;
+        public GameObject taskStationPrefab;
 
         private RaycastHit hitInfo;
         private TapRecognizerService tapRecognizer;
@@ -84,7 +85,7 @@ namespace MirageXR
 
             ServiceManager.GetService<WorldAnchorService>().Manager.AttachAnchor(worldOrigin, "worldOrigin");
 
-            if (AppSelection.ActivityToLoad != null)
+            if (AppSelection.activityToLoad != null)
             {
                 //myActivity = LoadModelFromJSON(AppSelection.activityToLoad);
 

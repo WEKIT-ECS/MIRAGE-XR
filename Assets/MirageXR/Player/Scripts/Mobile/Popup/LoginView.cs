@@ -11,7 +11,6 @@ public class LoginView : PopupBase
     [SerializeField] private ExtendedInputField _inputFieldUserName;
     [SerializeField] private ExtendedInputField _inputFieldPassword;
     [SerializeField] private Toggle _toggleRemember;
-    [SerializeField] private Button _btnRegister;
     [SerializeField] private Button _btnLogin;
     [SerializeField] private Button _btnLogout;
     [SerializeField] private TMP_Text _txtLogout;
@@ -24,7 +23,6 @@ public class LoginView : PopupBase
         
         _inputFieldUserName.SetValidator(IsValidUsername);
         _inputFieldPassword.SetValidator(IsValidPassword);
-        _btnRegister.onClick.AddListener(OnClickRegister);
         _btnLogin.onClick.AddListener(OnClickLogin);
         _btnLogout.onClick.AddListener(OnClickLogout);
         _toggleRemember.onValueChanged.AddListener(OnToggleRememberValueChanged);
@@ -68,7 +66,7 @@ public class LoginView : PopupBase
     private void OnLoginSucceed(string username, string password)
     {
         Toast.Instance.Show("Login succeeded");
-        RootView.Instance.activityListView.UpdateListView();
+        ActivityListView.Instance.UpdateListView();
         if (DBManager.rememberUser)
         {
             LocalFiles.SaveUsernameAndPassword(username, password);
@@ -109,11 +107,6 @@ public class LoginView : PopupBase
         _inputFieldPassword.ResetValidation();
     }
 
-    private void OnClickRegister()
-    {
-        Application.OpenURL(DBManager.registerPage);
-    }
-
     private async void OnClickLogin()
     {
         if (!_inputFieldUserName.Validate()) return;
@@ -125,21 +118,21 @@ public class LoginView : PopupBase
     private void OnClickLogout()
     {
         DBManager.LogOut();
-        RootView.Instance.activityListView.UpdateListView();
+        ActivityListView.Instance.UpdateListView();
         ShowLogin();
     }
 
-    private static bool IsValidUsername(string value)
+    private static bool IsValidUsername(string urlString)
     {
-        const string regexExpression = "^\\S{3,}$";
+        const string regexExpression = "^(?=[a-zA-Z0-9._@!#$%^&]{4,}$)(?!.*[_.]{2})[^_.].*[^_.]$";
         var regex = new Regex(regexExpression);
-        return regex.IsMatch(value);
+        return regex.IsMatch(urlString);
     }
 
-    private static bool IsValidPassword(string value)
+    private static bool IsValidPassword(string urlString)
     {
-        const string regexExpression = "^\\S{8,}$";
+        const string regexExpression = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*#?&]{8,}$";
         var regex = new Regex(regexExpression);
-        return regex.IsMatch(value);
+        return regex.IsMatch(urlString);
     }
 }

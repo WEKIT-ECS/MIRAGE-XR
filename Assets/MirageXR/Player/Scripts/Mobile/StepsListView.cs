@@ -8,9 +8,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using Action = MirageXR.Action;
 
-public class StepsListView : BaseView
+public class StepsListView : MonoBehaviour
 {
     private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg"; 
+    
+    public static StepsListView Instance { get; private set; }
     
     [SerializeField] private TMP_InputField _inputFieldName;
     [SerializeField] private RectTransform _listContent;
@@ -20,19 +22,24 @@ public class StepsListView : BaseView
     [SerializeField] private Button _btnSave;
     [SerializeField] private Button _btnUpload;
     [SerializeField] private Image _imgThumbnail;
-    [SerializeField] private Sprite _defaultThumbnail;
     [SerializeField] private StepsListItem _stepsListItemPrefab;
     [SerializeField] private ThumbnailEditorView _thumbnailEditorPrefab;
 
     private readonly List<StepsListItem> _stepsList = new List<StepsListItem>();
-    public RootView rootView => (RootView)_parentView;
-
-    public TMP_InputField ActivityNameField => _inputFieldName;
-    public Button BtnAddStep => _btnAddStep;
-
-    public override void Initialization(BaseView parentView)
+    
+    private void Awake()
     {
-        base.Initialization(parentView);
+        if (Instance != null)
+        {
+            Debug.LogError($"{Instance.GetType().FullName} must only be a single copy!");
+            return;
+        }
+        
+        Instance = this;
+    }
+
+    private void Start()
+    {
         _inputFieldName.onValueChanged.AddListener(OnStepNameChanged);
         _btnAddStep.onClick.AddListener(OnAddStepClick);
         _toggleEdit.onValueChanged.AddListener(OnEditValueChanged);
@@ -54,6 +61,7 @@ public class StepsListView : BaseView
         EventManager.OnActionDeleted -= OnActionDeleted;
         EventManager.OnActionModified -= OnActionChanged;
         EventManager.OnEditModeChanged -= OnEditModeChanged;
+        Instance = null;
     }
 
     private void OnStartActivity()
@@ -84,11 +92,7 @@ public class StepsListView : BaseView
     private void LoadThumbnail()
     {
         var path = Path.Combine(ActivityManager.Instance.Path, THUMBNAIL_FILE_NAME);
-        if (!File.Exists(path))
-        {
-            _imgThumbnail.sprite = _defaultThumbnail;
-            return;
-        }
+        if (!File.Exists(path)) return;
         
         var texture = Utilities.LoadTexture(path);
         var sprite = Utilities.TextureToSprite(texture);
@@ -98,7 +102,6 @@ public class StepsListView : BaseView
     private void OnStepNameChanged(string newTitle)
     {
         ActivityManager.Instance.Activity.name = newTitle;
-        EventManager.NotifyOnActivityRenamed();
     }
     
     public void OnDeleteStepClick(Action step)
@@ -116,7 +119,6 @@ public class StepsListView : BaseView
     private void OnAddStepClick()
     {
         AddStep();
-        
     }
 
     private void OnEditValueChanged(bool value)
@@ -165,7 +167,7 @@ public class StepsListView : BaseView
             ActivityManager.Instance.ActivatePreviousAction();
             UpdateView();
         }
-    }
+    }    
     
     private void OnActionCreated(Action action)
     {
@@ -187,7 +189,7 @@ public class StepsListView : BaseView
     {
         ActivityManager.Instance.SaveData();
         Toast.Instance.Show("Activity saved on your device");
-        rootView.activityListView.UpdateListView();
+        ActivityListView.Instance.UpdateListView();
     }
 
     public void OnUploadButtonPressed()
@@ -237,14 +239,14 @@ public class StepsListView : BaseView
         }
 
         if (result) Toast.Instance.Show("upload completed successfully");
-        rootView.activityListView.UpdateListView();
+        ActivityListView.Instance.UpdateListView();
     }
 
     private async void UploadAndUpdate()
     {
         var (result, response) = await MoodleManager.Instance.UploadFile(ActivityManager.Instance.Path, ActivityManager.Instance.Activity.name, 1);
         Toast.Instance.Show(result ? "upload completed successfully" : response);
-        if (result) rootView.activityListView.UpdateListView();
+        if (result) ActivityListView.Instance.UpdateListView();
     }
 
     private async void UploadAndCopy()
@@ -252,6 +254,6 @@ public class StepsListView : BaseView
         ActivityManager.Instance.GenerateNewId(true);
         var (result, response) = await MoodleManager.Instance.UploadFile(ActivityManager.Instance.Path, ActivityManager.Instance.Activity.name, 2);
         Toast.Instance.Show(result ? "upload completed successfully" : response);
-        if (result) rootView.activityListView.UpdateListView();
+        if (result) ActivityListView.Instance.UpdateListView();
     }
 }

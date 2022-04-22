@@ -74,7 +74,7 @@ public class Toast : MonoBehaviour
     private void UpdateWidth()
     {
         var rect = (RectTransform)_canvasGroup.transform;
-        var width = _message.margin.x + _message.margin.z + _message.preferredWidth;
+        var width = _message.margin.w + _message.margin.y + _message.preferredWidth;
         rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
     }
     

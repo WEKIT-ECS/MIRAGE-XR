@@ -13,16 +13,16 @@ using System;
 public class LangTransService : MonoBehaviour
 {
 
-    [SerializeField] private Text ResponseTextField; // inspector slot for drag & drop of the Canvas > Text gameobject
+    public Text ResponseTextField; // inspector slot for drag & drop of the Canvas > Text gameobject
 
     private LanguageTranslatorService languageTranslatorService;
 
-    [SerializeField] private string translationModel = "en-de";
-    [SerializeField] private string versionDate = "2018-12-19";
+    public string translationModel = "en-de";
+    public string versionDate = "2018-12-19";
     //public string apiKey = "";
     //public string serviceUrl = "https://gateway-lon.watsonplatform.net/language-translator/api";
 
-    [SerializeField] private string lastTranslationResult = null;
+    public string lastTranslationResult = null;
 
     // Start is called before the first frame update
     void Start()

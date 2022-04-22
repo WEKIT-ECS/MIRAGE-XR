@@ -13,7 +13,7 @@ namespace MirageXR
         [SerializeField]
         private ExperienceAPIClientCredentials xAPICredentials;
 
-        [SerializeField] private DeepLinkDefinition deepLinkAPI;
+        public DeepLinkDefinition deepLinkAPI;
 
         protected override void RegisterServices()
         {
@@ -29,7 +29,7 @@ namespace MirageXR
             {
                 ExperienceAPIClient xAPIClient = new ExperienceAPIClient()
                 {
-                    XApiEndpoint = new System.Uri("https://lrs.wekit-ecs.com/data/xAPI"),
+                    XApiEndpoint = new System.Uri("https://lrs.tech4comp.dbis.rwth-aachen.de/data/xAPI"),
                     AuthorizationToken = xAPICredentials.authToken,
                     Version = "1.0.3"
                 };

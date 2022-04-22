@@ -4,7 +4,7 @@ namespace MirageXR
 {
     public class WaitSpinner : MonoBehaviour
     {
-        [SerializeField] private float rotateSpeed = 200f;
+        public float rotateSpeed = 200f;
 
         private void Update()
         {

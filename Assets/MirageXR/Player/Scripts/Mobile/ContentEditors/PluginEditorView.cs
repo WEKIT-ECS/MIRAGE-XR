@@ -47,7 +47,7 @@ public class PluginEditorView : PopupEditorBase
         }
         else
         {
-            _content = ActivityManager.Instance.AddAugmentation(_step, GetOffset());
+            _content = ActivityManager.Instance.AddAnnotation(_step, GetOffset());
         }
 
         _content.predicate = $"plugin:{_app.name}";

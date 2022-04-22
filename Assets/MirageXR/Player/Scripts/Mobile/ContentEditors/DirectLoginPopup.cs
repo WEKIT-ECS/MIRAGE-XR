@@ -98,17 +98,17 @@ public class DirectLoginPopup : PopupBase
         base.Close();
     }
 
-    private static bool IsValidUsername(string value)
+    private static bool IsValidUsername(string urlString)
     {
-        const string regexExpression = "^\\S{3,}$";
+        const string regexExpression = "^(?=[a-zA-Z0-9._@!#$%^&]{4,}$)(?!.*[_.]{2})[^_.].*[^_.]$";
         var regex = new Regex(regexExpression);
-        return regex.IsMatch(value);
+        return regex.IsMatch(urlString);
     }
 
-    private static bool IsValidPassword(string value)
+    private static bool IsValidPassword(string urlString)
     {
-        const string regexExpression = "^\\S{8,}$";
+        const string regexExpression = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*#?&]{8,}$";
         var regex = new Regex(regexExpression);
-        return regex.IsMatch(value);
+        return regex.IsMatch(urlString);
     }
 }

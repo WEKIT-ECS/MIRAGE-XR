@@ -34,16 +34,13 @@ namespace MirageXR
         private GameObject _iotIcon;
 
         // Activity card manager.
-        [SerializeField] private ActivityCardManager Manager;
+        public ActivityCardManager Manager;
 
-        [SerializeField] private GameObject ContentPanel;
+        public GameObject ContentPanel;
 
-        [SerializeField] private bool voiceable;
-        [SerializeField] private bool clickable;
-        [SerializeField] private bool iotable;
-
-        public bool Voiceable => voiceable;
-        public bool Iotable => iotable;
+        public bool Voiceable;
+        public bool Clickable;
+        public bool Iotable;
 
         // Click behaviours
         [Serializable]
@@ -57,15 +54,13 @@ namespace MirageXR
         }
 
         // Click behaviour for this card.
-        [SerializeField] private ClickBehaviours ClickBehaviour = ClickBehaviours.ShowContent;
+        public ClickBehaviours ClickBehaviour = ClickBehaviours.ShowContent;
 
         // Action link.
-        [SerializeField] private Action actionObject;
-
-        public Action ActionObject => actionObject;
+        public Action ActionObject;
 
         // Is current card for the active step or not?
-        [SerializeField] private bool IsActiveStep;
+        public bool IsActiveStep;
 
 
         private void OnEnable()
@@ -105,7 +100,7 @@ namespace MirageXR
 
         private void ClearAll()
         {
-            actionObject = null;
+            ActionObject = null;
 
             Clear();
         }
@@ -121,9 +116,9 @@ namespace MirageXR
             _voiceableIcon.SetActive(false);
             _iotIcon.SetActive(false);
 
-            clickable = false;
-            voiceable = false;
-            iotable = false;
+            Clickable = false;
+            Voiceable = false;
+            Iotable = false;
         }
 
         /// <summary>
@@ -133,7 +128,7 @@ namespace MirageXR
         public void SetupCard(Action action)
         {
             // Link action.
-            actionObject = action;
+            ActionObject = action;
 
             // Clear out everything first.
             Clear();
@@ -159,7 +154,7 @@ namespace MirageXR
                 if (trigger.mode.Equals("click"))
                 {
                     _touchableIcon.SetActive(true);
-                    clickable = true;
+                    Clickable = true;
 
                     if (IsActiveStep)
                     {
@@ -172,13 +167,13 @@ namespace MirageXR
                 else if (trigger.mode.Equals("voice"))
                 {
                     _voiceableIcon.SetActive(true);
-                    voiceable = true;
+                    Voiceable = true;
                 }
 
                 else if (trigger.mode.Equals("sensor"))
                 {
                     _iotIcon.SetActive(true);
-                    iotable = true;
+                    Iotable = true;
                 }
 
             }
@@ -195,7 +190,7 @@ namespace MirageXR
                         break;
 
                     case "touch":
-                        if (clickable)
+                        if (Clickable)
                         {
                             EventManager.Click();
                             Manager.Next();
@@ -224,11 +219,11 @@ namespace MirageXR
                 switch (trigger)
                 {
                     case "voice":
-                        if (iotable)
+                        if (Iotable)
                             Maggie.Speak("Can't go back because of a smart trigger in previous step.");
                         break;
                     case "touch":
-                        if (iotable)
+                        if (Iotable)
                         {
                             EventManager.Click();
                             Maggie.Speak("Can't go back because of a smart trigger in previous step.");

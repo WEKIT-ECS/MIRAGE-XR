@@ -55,7 +55,7 @@ namespace MirageXR
     public static class DBManager //TODO: rename to Settings
     {
         private const string UPLOAD_PRIVACY_KEY = "UploadPrivacy";
-        public const bool PUBLIC_UPLOAD_PRIVACY_DEFAULT = false;
+        private const bool PUBLIC_UPLOAD_PRIVACY_DEFAULT = false;
         
         private const string REMEMBER_USER_KEY = "RememberUser";
         private const bool REMEMBER_USER_DEFAULT = false;
@@ -67,7 +67,7 @@ namespace MirageXR
         private const bool DONT_SHOW_CALIBRATION_GUIDE_DEFAULT = false;
         
         private const string MOODLE_URL_KEY = "MoodleURL";
-        public const string MOODLE_URL_DEFAULT = "https://learn.wekit-ecs.com";
+        private const string MOODLE_URL_DEFAULT = "https://arete.ucd.ie";
         
         private const string SKETCHFAB_TOKEN_RENEW_KEY = "Sketchfab_token_last_renew_date";
         private const string SKETCHFAB_TOKEN_RENEW_DEFAULT = "";
@@ -129,8 +129,6 @@ namespace MirageXR
             get => _domain.Value;
             set => _domain.Value = value;
         }
-        
-        public static string registerPage => $"{domain}/login/signup.php";
 
         //if user is logged into Moodle
         public static bool LoggedIn => username != null;

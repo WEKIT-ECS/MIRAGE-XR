@@ -12,30 +12,29 @@ namespace MirageXR
 {
     public class PickAndPlaceController : MirageXRPrefab
     {
-        private ToggleObject myObj;
-        [SerializeField] private Transform pickObject;
-        [SerializeField] private Transform targetObject;
+        ToggleObject myObj;
+        [SerializeField] private Transform pickOb;
+        [SerializeField] private Transform targetOb;
         [SerializeField] private Transform lockToggle;
-        [SerializeField] private SpriteToggle spriteToggle;
+        [SerializeField] private SpriteToggle st;
         [SerializeField] private Text textLabel;
-        private Pick pickComponent;
+        Pick place;
 
         private Vector3 defaultTargetSize = new Vector3(0.2f, 0.2f, 0.2f);
 
-        private  void Start()
+        private async void Start()
         {
-            pickComponent = pickObject.GetComponent<Pick>();
+            place = pickOb.GetComponent<Pick>();
             EditModeChanges(ActivityManager.Instance.EditModeActive);
+            await Load();
 
-            LoadPickAndPlacePositions();
+            st.IsSelected = !place.MoveMode;
             
-            spriteToggle.IsSelected = !pickComponent.MoveMode;
-
         }
 
         public ToggleObject MyPoi
         {
-            get
+            get 
             {
                 return myObj;
             }
@@ -43,31 +42,26 @@ namespace MirageXR
 
         public Transform Target
         {
-            get
-            {
-                return targetObject;
+            get {
+                return targetOb;
             }
         }
 
         private void OnEnable()
         {
             EventManager.OnEditModeChanged += EditModeChanges;
-            EventManager.OnAugmentationDeleted += DeletePickAndPlaceData;
-            EventManager.OnActivitySaved += SavePositions;
         }
 
         private void OnDisable()
         {
             EventManager.OnEditModeChanged -= EditModeChanges;
-            EventManager.OnAugmentationDeleted -= DeletePickAndPlaceData;
-            EventManager.OnActivitySaved -= SavePositions;
         }
 
-        private void EditModeChanges(bool editModeState)
+        private void EditModeChanges(bool EditModeState)
         {
-            lockToggle.gameObject.SetActive(editModeState);
-            targetObject.gameObject.SetActive(editModeState);
-            pickComponent.ChangeModelButton.gameObject.SetActive(editModeState);
+            lockToggle.gameObject.SetActive(EditModeState);
+            targetOb.gameObject.SetActive(EditModeState);
+            place.ChangeModelButton.gameObject.SetActive(EditModeState);
         }
 
 
@@ -88,55 +82,37 @@ namespace MirageXR
 
             // Set scaling
             PoiEditor myPoiEditor = transform.parent.gameObject.GetComponent<PoiEditor>();
-            Vector3 defaultScale = new Vector3(0.5f, 0.5f, 0.5f);  
+            Vector3 defaultScale = new Vector3(0.5f, 0.5f, 0.5f);
+            transform.parent.localScale = GetPoiScale(myPoiEditor, defaultScale);
 
             // If everything was ok, return base result.
             return base.Init(obj);
         }
 
-        private void LoadPickAndPlacePositions()
+
+        private async Task<bool> Load()
         {
-            var json = File.ReadAllText(Path.Combine(ActivityManager.Instance.Path, "pickandplaceinfo/" + myObj.poi + ".json"));
-
-            Positions positions = JsonUtility.FromJson<Positions>(json);
-
-            if (myObj.key == "1")
-            {
-                pickObject.localPosition = positions.resetPosition;
-            }
-            else
-            {
-                pickObject.localPosition = positions.pickObjectPosition;
-            }
-
-            pickObject.localRotation = positions.pickObjectRotation;
-            targetObject.localPosition = positions.targetObjectPosition;
-            targetObject.localScale = positions.targetObjectScale != null ? positions.targetObjectScale : defaultTargetSize;
-            pickComponent.MoveMode = positions.moveMode;
-            pickComponent.ResetPos = positions.resetPosition;
-            pickComponent.MyModelID = positions.modelID;
-
-            if (pickComponent.MyModelID != string.Empty)
-                StartCoroutine(LoadMyModel(pickComponent.MyModelID));
+            var loaded = await LoadPositions(Path.Combine(ActivityManager.Instance.Path, "pickandplaceinfo/" + myObj.poi + ".json"));
+            return loaded;
         }
 
-        public void SavePositions()
-        {
+
+        public void SavePositions() {
 
             if (myObj == null || myObj.poi == "") return;//only if the poi is instantiated not the prefab
 
             Positions positions = new Positions
             {
-                pickObjectPosition = pickObject.localPosition,
-                pickObjectRotation = pickObject.localRotation,
-                modelID = pickComponent.MyModelID,
-                targetObjectPosition = targetObject.localPosition,
-                targetObjectScale = targetObject.localScale,
-                resetPosition = pickComponent.ResetPos,
-                moveMode = pickComponent.MoveMode
+                pickObPos = pickOb.localPosition,
+                PickObRot = pickOb.localRotation,
+                modelID = place.MyModelID,
+                targetObPos = targetOb.localPosition,
+                targetObScale = targetOb.localScale,
+                resetPos = place.resetPos,
+                moveMode = place.MoveMode
             };
 
-            string pickAndPlaceData = JsonUtility.ToJson(positions);
+            string pandpjson = JsonUtility.ToJson(positions);
             if (!Directory.Exists(ActivityManager.Instance.Path + "/pickandplaceinfo "))
                 Directory.CreateDirectory(ActivityManager.Instance.Path + "/pickandplaceinfo");
 
@@ -147,11 +123,32 @@ namespace MirageXR
             if (File.Exists(jsonPath))
                 File.Delete(jsonPath);
 
-            File.WriteAllText(jsonPath, pickAndPlaceData);
+            File.WriteAllText(jsonPath, pandpjson);
         }
-     
 
-        private IEnumerator LoadMyModel(string MyModelID)
+        public async Task<bool> LoadPositions(string jsonPath)
+        {
+            if (!File.Exists(jsonPath)) return false;
+
+            Positions positions = JsonUtility.FromJson<Positions>(File.ReadAllText(jsonPath));
+
+            await Task.Delay(1);
+
+            pickOb.localPosition = positions.pickObPos;
+            pickOb.localRotation = positions.PickObRot;
+            targetOb.localPosition = positions.targetObPos;
+            targetOb.localScale = positions.targetObScale != null ? positions.targetObScale : defaultTargetSize;
+            place.MoveMode = positions.moveMode;
+            place.resetPos = positions.resetPos;
+            place.MyModelID = positions.modelID;
+
+            if (place.MyModelID != "")
+                StartCoroutine(LoadMyModel(place.MyModelID));
+
+            return true;
+        }
+
+        IEnumerator LoadMyModel(string MyModelID)
         {
             var newModel = GameObject.Find(MyModelID);
 
@@ -162,42 +159,22 @@ namespace MirageXR
                 yield return null;
             }
 
-            StartCoroutine(ActionEditor.Instance.SpawnNewPickModel(pickComponent, newModel));
+            StartCoroutine(ActionEditor.Instance.SpwanNewPickModel(place, newModel));
         }
 
-        private void DeletePickAndPlaceData(ToggleObject toggleObject)
-        {
-            if (toggleObject != MyPoi) return;
-            var arlemPath = ActivityManager.Instance.Path;
-            var jsonPath = Path.Combine(arlemPath, $"pickandplaceinfo/{MyPoi.poi}.json");
-
-            if (File.Exists(jsonPath))
-            {
-                //delete the json
-                File.Delete(jsonPath);
-            }
-        }
-
-        private void OnDestroy()
-        {
-            SavePositions();
-        }
 
     }
-
-
 
     [Serializable]
     public class Positions
     {
-        public Vector3 pickObjectPosition = Vector3.zero;
-        public Quaternion pickObjectRotation = Quaternion.identity;
-        public Vector3 targetObjectPosition = Vector3.zero;
-        public Vector3 targetObjectScale = Vector3.zero;
+        public Vector3 pickObPos = Vector3.zero;
+        public Quaternion PickObRot = Quaternion.identity;
+        public Vector3 targetObPos = Vector3.zero;
+        public Vector3 targetObScale = Vector3.zero;
 
-        public Vector3 resetPosition = Vector3.zero;
+        public Vector3 resetPos = Vector3.zero;
         public bool moveMode = false;
-        public bool reset = false;
         public string modelID;
     }
 }

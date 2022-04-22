@@ -94,7 +94,7 @@ public class PathRoleController : MonoBehaviour
                 else
                 {
                     gameObject.SetActive(false);
-                    positionCaption = string.Empty;
+                    positionCaption = "";
                     pathColor = Color.blue;
                 }
 
@@ -105,14 +105,14 @@ public class PathRoleController : MonoBehaviour
                 //After the new design (moving the annotation menu to taskstaion) we remove the caption on current diamond (Abbas)
                 if (IsCurrent())
                 {
-                    caption = string.Empty;
+                    caption = "";
                 }
 
                 break;
             default:
                 gameObject.SetActive(false);
                 icon = null;
-                caption = string.Empty;
+                caption = "";
                 pathColor = Color.cyan;
                 break;
         }

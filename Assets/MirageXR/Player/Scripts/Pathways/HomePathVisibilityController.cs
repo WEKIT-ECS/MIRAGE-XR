@@ -4,7 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(PathSegmentsController))]
 public class HomePathVisibilityController : MonoBehaviour
 {
-    public static HomePathVisibilityController Instance { get; private set; }
+    public static HomePathVisibilityController Instance;
 
     [SerializeField] private GameObject[] hideableObjects;
 
@@ -28,6 +28,7 @@ public class HomePathVisibilityController : MonoBehaviour
         
         EventManager.OnHideActivitySelectionMenu += OnHideActivitySelectionMenu;
         EventManager.OnEditorLoaded += OnHideActivitySelectionMenu;
+
         EventManager.OnShowActivitySelectionMenu += OnShowActivitySelectionMenu;
     }
 
@@ -35,6 +36,7 @@ public class HomePathVisibilityController : MonoBehaviour
     {
         EventManager.OnHideActivitySelectionMenu -= OnHideActivitySelectionMenu;
         EventManager.OnEditorLoaded -= OnHideActivitySelectionMenu;
+
         EventManager.OnShowActivitySelectionMenu -= OnShowActivitySelectionMenu;
     }
 
@@ -55,10 +57,12 @@ public class HomePathVisibilityController : MonoBehaviour
         SetVisibility(false);
     }
 
+
     private void OnShowActivitySelectionMenu()
     {
         SetVisibility(true);
     }
+
 
     private void SetVisibility(bool visibility)
     {
@@ -68,5 +72,6 @@ public class HomePathVisibilityController : MonoBehaviour
             hideableObjects[i].SetActive(visibility);
         }
     }
+
 }
 

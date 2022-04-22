@@ -15,7 +15,6 @@ public class SettingsView : PopupBase
     [SerializeField] private Toggle _togglePublicUpload;
     [SerializeField] private Toggle _toggleUiForKids;
     [SerializeField] private Button _btnSave;
-    [SerializeField] private Button _btnReset;
 
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
@@ -28,7 +27,6 @@ public class SettingsView : PopupBase
         _togglePublicUpload.onValueChanged.AddListener(OnValueChangedPublicUpload);
         _toggleUiForKids.onValueChanged.AddListener(OnValueChangedUiForKids);
         _btnSave.onClick.AddListener(OnClickSaveChanges);
-        _btnReset.onClick.AddListener(OnClickReset);
 
         ResetValues();
     }
@@ -81,25 +79,18 @@ public class SettingsView : PopupBase
     
     private void OnClickSaveChanges()
     {
-        if (!_inputFieldMoodleAddress.Validate()) return;
-        
-        if (DBManager.domain != _inputFieldMoodleAddress.text)
+        if (_inputFieldMoodleAddress.Validate())
         {
             DBManager.domain = _inputFieldMoodleAddress.text;
-            DBManager.LogOut();
-            RootView.Instance.activityListView.UpdateListView();
+        }
+        else
+        {
+            return;
         }
         
         DBManager.publicUploadPrivacy = _togglePublicUpload.isOn;
         ResetValues();
-        
         Close();
-    }
-
-    private void OnClickReset()
-    {
-        _inputFieldMoodleAddress.text = DBManager.MOODLE_URL_DEFAULT;
-        _togglePublicUpload.isOn = DBManager.PUBLIC_UPLOAD_PRIVACY_DEFAULT;
     }
 
     private static bool IsValidUrl(string urlString)

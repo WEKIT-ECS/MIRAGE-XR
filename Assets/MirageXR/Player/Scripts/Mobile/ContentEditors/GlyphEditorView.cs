@@ -121,15 +121,15 @@ public class GlyphEditorView : PopupEditorBase
         }
         else
         {
-            _content = ActivityManager.Instance.AddAugmentation(_step, GetOffset());
+            _content = ActivityManager.Instance.AddAnnotation(_step, GetOffset());
         }
 
         _content.predicate = $"act:{_prefabName}";
         
         if (_toggleTrigger.isOn)
         {
-            var triggerType = _content.predicate.Contains(":") ? _content.predicate.Split(':')[0] : _step.predicate;
-            _step.AddOrReplaceArlemTrigger("detect", triggerType, _content.poi, _gazeDuration, (_triggerStepIndex + 1).ToString());
+            var triggerTpye = _content.predicate.Contains(":") ? _content.predicate.Split(':')[0] : _step.predicate;
+            _step.AddOrReplaceArlemTrigger("detect", triggerTpye, _content.poi, _gazeDuration, (_triggerStepIndex + 1).ToString());
         }
         else
         {

@@ -23,7 +23,7 @@ namespace MirageXR
         private ObjectManipulator endObjectManipulator;
 
 
-        private bool _pointsMoving;
+        bool _pointsMoving;
 
         private void OnEnable()
         {

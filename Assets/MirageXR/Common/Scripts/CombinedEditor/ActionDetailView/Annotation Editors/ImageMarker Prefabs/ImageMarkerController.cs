@@ -230,7 +230,7 @@ namespace MirageXR
 
         }
 
-        public void PlatformOnDestroy()
+        public void platformOnDestroy()
         {
 #if UNITY_ANDROID || UNITY_IOS
             trackImageManager.referenceLibrary = trackImageManager.CreateRuntimeLibrary(serializedLibrary);

@@ -9,6 +9,11 @@ public class AnnotationEditor : MonoBehaviour
 
     private AnnotationListItem annotationListItem;
 
+    private void Awake()
+    {
+        annotationListItem = GetComponent<AnnotationListItem>();
+    }
+
     private void OnEnable()
     {
         EventManager.OnEditModeChanged += SetEditModeState;
@@ -25,7 +30,6 @@ public class AnnotationEditor : MonoBehaviour
 
     private void Start()
     {
-        annotationListItem = GetComponent<AnnotationListItem>();
         SetEditModeState(ActivityManager.Instance.EditModeActive);
     }
 
@@ -41,7 +45,7 @@ public class AnnotationEditor : MonoBehaviour
         if (TaskStationDetailMenu.Instance.SelectedButton == GetComponent<Button>())
             TaskStationDetailMenu.Instance.SelectedButton = null;
 
-        ActivityController.Instance.DeleteAugmentation( annotationListItem.DisplayedAnnotation);
+        ActivityManager.Instance.DeleteAnnotation( annotationListItem.DisplayedAnnotation);
         
     }
 }

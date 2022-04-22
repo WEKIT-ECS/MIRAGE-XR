@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,11 +8,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using Action = System.Action;
 
-public class ContentListView : BaseView
+public class ContentListView : MonoBehaviour
 {
     private const float HIDE_HEIGHT = 250f;
     private const float BASE_CONTROLS_COOLDOWN = 0.3f;
-
+    
     [SerializeField] private TMP_InputField _txtStepName;
     [SerializeField] private TMP_InputField _txtDescription;
     [SerializeField] private Button _btnShowHide;
@@ -26,18 +27,12 @@ public class ContentListView : BaseView
     [SerializeField] private ContentSelectorView _contentSelectorViewPrefab;
     [SerializeField] private AnimationCurve _animationCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
     [SerializeField] private float _animationTime = 0.3f;
-
+    
     [SerializeField] private PopupEditorBase[] _editors;
 
     public PopupEditorBase[] editors => _editors;
     public MirageXR.Action currentStep => _currentStep;
-    public RootView rootView => (RootView)_parentView;
 
-    public TMP_InputField TxtStepName => _txtStepName;
-    public TMP_InputField TxtStepDescription => _txtDescription;
-    public Button BtnShowHide => _btnShowHide;
-    public Button BtnAddContent => _btnAddContent;
-    
     public string navigatorId
     {
         get => _navigatorIds.ContainsKey(_currentStep.id) ? _navigatorIds[_currentStep.id] : null;
@@ -65,9 +60,8 @@ public class ContentListView : BaseView
     private float _showHeight;
     private MirageXR.Action _currentStep;
     
-    public override void Initialization(BaseView parentView)
+    private void Start()
     {
-        base.Initialization(parentView);
         _txtStepName.onValueChanged.AddListener(OnStepNameChanged);
         _txtDescription.onValueChanged.AddListener(OnStepDescriptionChanged);
         _btnShowHide.onClick.AddListener(OnShowHideClick);
@@ -101,14 +95,12 @@ public class ContentListView : BaseView
     private void OnStepNameChanged(string newTitle)
     {
         _currentStep.instruction.title = newTitle;
-        EventManager.NotifyOnActionStepTitleChanged();
         EventManager.NotifyActionModified(_currentStep);
     }
     
     private void OnStepDescriptionChanged(string newDescription)
     {
         _currentStep.instruction.description = newDescription;
-        EventManager.NotifyOnActionStepDescriptionInputChanged();
         EventManager.NotifyActionModified(_currentStep);
     }
     
@@ -167,7 +159,6 @@ public class ContentListView : BaseView
     private void OnAddContent()
     {
         PopupsViewer.Instance.Show(_contentSelectorViewPrefab, _editors, _currentStep);
-        EventManager.NotifyOnMobileAddStepContentPressed();
     }
 
     private void EnableBaseControl()
@@ -189,28 +180,28 @@ public class ContentListView : BaseView
     private void OnDeleteStep()
     {
         DisableBaseControl();
-        rootView.stepsListView.OnDeleteStepClick(_currentStep);
+        StepsListView.Instance.OnDeleteStepClick(_currentStep);
         Invoke(nameof(EnableBaseControl), BASE_CONTROLS_COOLDOWN);
     }
 
     private void OnAddStep()
     {
         DisableBaseControl();
-        rootView.stepsListView.AddStep();
+        StepsListView.Instance.AddStep();
         Invoke(nameof(EnableBaseControl), BASE_CONTROLS_COOLDOWN);
     }
     
     private void OnNextStep()
     {
         DisableBaseControl();
-        rootView.stepsListView.NextStep();
+        StepsListView.Instance.NextStep();
         Invoke(nameof(EnableBaseControl), BASE_CONTROLS_COOLDOWN);
     }
     
     private void OnPreviousStep()
     {
         DisableBaseControl();
-        rootView.stepsListView.PreviousStep();
+        StepsListView.Instance.PreviousStep();
         Invoke(nameof(EnableBaseControl), BASE_CONTROLS_COOLDOWN);
     }
     
@@ -288,7 +279,6 @@ public class ContentListView : BaseView
             yield return null;
         }
 
-        EventManager.NotifyOnMobileStepContentExpanded();
         callback?.Invoke();
     }
 

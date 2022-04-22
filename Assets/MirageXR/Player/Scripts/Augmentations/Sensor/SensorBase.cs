@@ -8,15 +8,15 @@ namespace MirageXR
         // streaming data: list of registered callback listeners (registered to get an update for each data frame captured)
         public delegate void CallbackStack(SensorDataFrame currentFrame);
         public CallbackStack OnSensorStreamUpdate;
-        [SerializeField] private float updateInterval = 0.04f; // 25x per second
-        [SerializeField] private float updateInitialDelay = 0.3f; // 300ms delay
+        public float updateInterval = 0.04f; // 25x per second
+        public float updateInitialDelay = 0.3f; // 300ms delay
 
         // current frame with the sensor data
-        public SensorDataFrame currentSensorDataFrame { get; set; }
+        public SensorDataFrame currentSensorDataFrame;
 
         // boolean: recording or not?
-        [SerializeField] private bool recording = false;
-        [SerializeField] private bool connected = false;
+        public bool recording = false;
+        public bool connected = false;
 
         // Use this for initialization
         private void Start()

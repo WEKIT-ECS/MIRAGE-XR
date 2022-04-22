@@ -10,11 +10,11 @@ namespace MirageXR
     {
 
         private Text _title;
-        public string Title { get; set; }
+        public string Title;
 
-        public Transform Container { get; private set; }
+        public Transform Container;
 
-        [SerializeField] private GameObject Button;
+        public GameObject Button;
 
         private void OnEnable()
         {

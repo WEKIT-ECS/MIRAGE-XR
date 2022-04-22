@@ -40,61 +40,77 @@ namespace MirageXR
             AddHoverGuide(animationMenu.gameObject, "Select an animation clip to be played by the character.");
             AddHoverGuide(assignImageButton.gameObject, "In case \"Image Display\" is selected as the animation type, you can assign an image annotation to it. Activate this button and then select the image annotation button from annotaiton list.");
             AddHoverGuide(resetImageButton.gameObject, "Reset the image augmentation which is assinged to this character.");
-            AddHoverGuide(aiToggle.gameObject, "Select for artificial intelligence mode. The dialogue can be set by changing the assistant ID in the character model JSON in the LMS. AI can be activated only for one of the existing characters in this action step.");
+            AddHoverGuide(aiToggle.gameObject, "When AI is activated an intelligent bot which uses IBM Watson service will response to the user question. In each step you can enable AI only for one of the characters.");
             AddHoverGuide(preRecordToggle.gameObject, "If enabled, you are able to record an audio and the character will play it as a dialogue.");
 
             animationMenu.onValueChanged.AddListener(delegate{ OnAnimationMenuOOptionChanged(); });
             trigger.onValueChanged.AddListener(delegate { OnTriggerValueChanged(); });
             aiToggle.onValueChanged.AddListener(delegate { OnAiToggleValueChanged(); });
             preRecordToggle.onValueChanged.AddListener(delegate { OnPreRecordToggleValueChanged(); });
+        }
 
+        public MovementManager MovementManager()
+        {
+            return movemenetManager;
+        }
 
+        public Dropdown AnimationMenu()
+        {
+            return animationMenu;
+        }
+
+        public DialogRecorder DialogRecorder()
+        {
+            return dialogRecorder;
+        }
+
+        public Toggle AnimationLoopToggle()
+        {
+            return animationLoopToggle;
         }
 
 
-        private void OnEnable()
+        public Button ResetImageButton()
         {
-            EventManager.OnEditModeChanged += SetEditMode;
+            return resetImageButton;
         }
 
 
-        private void OnDisable()
+        public Button AssignImageButton()
         {
-            EventManager.OnEditModeChanged -= SetEditMode;
+            return assignImageButton;
         }
 
-        public MovementManager MovementManager => movemenetManager;
 
-        public Dropdown AnimationMenu => animationMenu;
-
-        public DialogRecorder DialogRecorder => dialogRecorder;
-
-
-        public Toggle AnimationLoopToggle => animationLoopToggle;
-
-
-        public Button ResetImageButton => resetImageButton;
-
-
-        public Button AssignImageButton => assignImageButton;
-
-
-        public Toggle Trigger => trigger;
-
-        public Toggle AIToggle => aiToggle;
-
-
-        public Toggle PreRecordToggle => preRecordToggle;
-
-        public ToggleGroup AudioModeToggleGroup => audioModeToggleGroup;
-
-        /// <summary>
-        /// Change animation by animation name if needed (eg. IBM Watson assinstant)
-        /// </summary>
-        /// <param name="animationName"></param>
-        public void ChangeAnimation(string animationName)
+        public Toggle Trigger()
         {
-            animationMenu.value = animationMenu.options.FindIndex(option => option.text == animationName);
+            return trigger;
+        }
+
+        public Toggle AIToggle
+        {
+            get
+            {
+                return aiToggle;
+            }
+        }
+
+
+        public Toggle PreRecordToggle
+        {
+            get
+            {
+                return preRecordToggle;
+            }
+        }
+
+
+        public ToggleGroup AudioModeToggleGroup
+        {
+            get
+            {
+                return audioModeToggleGroup;
+            }
         }
 
         private void OnAnimationMenuOOptionChanged()
@@ -138,13 +154,6 @@ namespace MirageXR
             HoverGuilde.SetGuildText(hoverGuide);
             HoverGuilde.SetMessage(hoverMessage);
 
-        }
-
-
-        private void SetEditMode(bool editMode)
-        {
-            if (!editMode)
-                hoverGuide.transform.parent.gameObject.SetActive(false);
         }
     }
 

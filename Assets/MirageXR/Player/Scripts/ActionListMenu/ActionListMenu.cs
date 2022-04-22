@@ -12,15 +12,21 @@ public class ActionListMenu : MonoBehaviour
     [SerializeField] private Button nextStepButton;
     [SerializeField] private Text pageLabel;
     [SerializeField] private InputField titleText;
-    public InputField TitleText => titleText;
+    public InputField GetTitleText()
+    {
+        return this.titleText;
+    }
 
     [SerializeField] private GameObject addActionStepButton;
-    public GameObject AddActionStepButton => addActionStepButton;
+    public GameObject GetAddActionStepButton()
+    {
+        return this.addActionStepButton;
+    }
 
     [HideInInspector]
-    public GameObject uploadProgressText { get; private set; }
+    public GameObject uploadProgressText;
 
-    public static ActionListMenu Instance { get; private set; }
+    public static ActionListMenu Instance;
 
     private int page;
     private int totalNumberOfPages;

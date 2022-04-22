@@ -8,9 +8,10 @@ public class ActionListItem : MonoBehaviour
     [SerializeField] private Text captionLabel;
     [SerializeField] private Text numberLabel;
     [SerializeField] private Button deleteButton;
-
-    public Button DeleteButton => deleteButton;
-
+    public Button GetDeleteButton()
+    {
+        return this.deleteButton;
+    }
     [SerializeField] private Image checkIcon;
 
     [SerializeField] private Color standardColor;

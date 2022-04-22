@@ -49,7 +49,7 @@ namespace MirageXR
                     originT.transform.position,
                     originT.transform.rotation);
 
-                annotationToEdit = ActivityManager.Instance.AddAugmentation(action, offset);
+                annotationToEdit = ActivityManager.Instance.AddAnnotation(action, offset);
                 annotationToEdit.option = modelName;
                 annotationToEdit.predicate = "3d:" + modelName;
                 annotationToEdit.url = "3d:" + modelName;

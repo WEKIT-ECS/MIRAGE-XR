@@ -265,58 +265,22 @@ namespace MirageXR
             if (!sameRotation) { Debug.Log("Angles not the same, separated by " + difference + " degrees"); }
             return sameRotation;
         }
-
+        
         public static Texture2D LoadTexture(string filePath)
         {
             if (!File.Exists(filePath)) return null;
-
+        
             var fileData = File.ReadAllBytes(filePath);
             var texture2D = new Texture2D(2, 2);
             return texture2D.LoadImage(fileData) ? texture2D : null;
         }
-
+        
         public static Sprite TextureToSprite(Texture2D texture2d)
         {
             const float pixelsPerUnit = 100.0f;
             var pivot = new Vector2(0.5f, 0.5f);
-
+            
             return Sprite.Create(texture2d, new Rect(0, 0, texture2d.width, texture2d.height), pivot, pixelsPerUnit);
-        }
-
-
-        public static void DeleteAllFilesInDirectory(string directoryName)
-        {
-            DirectoryInfo dir = new DirectoryInfo(directoryName);
-
-            foreach (FileInfo f in dir.GetFiles())
-            {
-                f.Delete();
-            }
-
-            foreach (DirectoryInfo d in dir.GetDirectories())
-            {
-                DeleteAllFilesInDirectory(d.FullName);
-                d.Delete();
-            }
-        }
-
-
-        public static void CopyEntireFolder(string folderPath, string destinationPath)
-        {
-            try
-            {
-                //Now Create all of the directories
-                foreach (string dirPath in Directory.GetDirectories(folderPath, "*", SearchOption.AllDirectories))
-                    Directory.CreateDirectory(dirPath.Replace(folderPath, destinationPath));
-
-                //Copy all the files & Replaces any files with the same name
-                foreach (string newPath in Directory.GetFiles(folderPath, "*.*", SearchOption.AllDirectories))
-                    File.Copy(newPath, newPath.Replace(folderPath, destinationPath), true);
-            }
-            catch (IOException e)
-            {
-                Debug.LogError(e);
-            }
         }
     }
 }

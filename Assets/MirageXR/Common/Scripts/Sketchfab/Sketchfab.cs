@@ -187,11 +187,6 @@ namespace MirageXR
             const string refreshKey = "refresh_token";
             const string grantTypeValue = "refresh_token";
 
-            if (string.IsNullOrEmpty(renewToken) || string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(clientSecret))
-            {
-                return (false, null);
-            }
-
             using (var client = new HttpClient())
             {
                 var form = new MultipartFormDataContent

@@ -105,7 +105,7 @@ namespace MirageXR
             var workplaceJson = File.ReadAllText(ActivityManager.Instance.Path + "-workplace.json");
 
             var (result, response) = await Network.UploadRequestAsync(DBManager.token, DBManager.userid, ActivityManager.Instance.SessionId,
-                DBManager.publicUploadPrivacy, filename, ActivityManager.Instance.Activity.name, file, thumbnailName, thumbnail, DBManager.domain, activityJson, workplaceJson, updateMode);
+                DBManager.publicUploadPrivacy, filename, file, thumbnailName, thumbnail, DBManager.domain, activityJson, workplaceJson, updateMode);
 
             if (result && !response.Contains("Error"))
             {
@@ -185,56 +185,27 @@ namespace MirageXR
         /// <returns></returns>
         public async Task<List<Session>> GetArlemList()
         {
-            const string httpsPrefix = "https://";
-            const string httpPrefix = "http://";
+            var (result, response) = await Network.GetCustomDataFromDBRequestAsync(DBManager.userid, DBManager.domain, "arlemlist", DBManager.token);
 
-            var serverUrl = DBManager.domain;
-            var response = await GetArlemListJson(serverUrl);
-            if (response == null && !DBManager.domain.StartsWith(httpsPrefix))
+            //Return null if some error happened
+            if (!result || response.StartsWith("Error") || response == "[]")
             {
-                serverUrl = DBManager.domain.StartsWith(httpPrefix) ? serverUrl.Replace(httpPrefix, httpsPrefix) : httpsPrefix + serverUrl;
-                response = await GetArlemListJson(serverUrl);
-                if (response != null)
+                if (response == "[]")
                 {
-                    DBManager.domain = serverUrl;
+                    Debug.LogError("Probably the server is down or you are not connect to the internet.");
                 }
-            }
-            
-            Debug.Log(response);
-            
-            return ParseArlemListJson(response);
-        }
-        
-        private static async Task<string> GetArlemListJson(string serverUrl)
-        {
-            const string responseValue = "arlemlist";
-            
-            var (result, response) = await Network.GetCustomDataFromDBRequestAsync(DBManager.userid, serverUrl, responseValue, DBManager.token);
-            
-            if (!result || response.StartsWith("Error"))
-            {
-                Debug.LogError($"Network error\nmessage: {response}");
+                else
+                {
+                    Debug.LogError(response);
+                }
                 return null;
             }
 
-            return response;
-        }
-
-        private static List<Session> ParseArlemListJson(string json)
-        {
-            const string emptyJson = "[]";
-            
+            //parse json object from php json string
             try
             {
+                var parsed = JObject.Parse(response);
                 var arlemList = new List<Session>();
-                
-                if (json == emptyJson)
-                {
-                    Debug.Log("Probably there is no public activity on the server.");
-                    return arlemList;
-                }
-                
-                var parsed = JObject.Parse(json);
                 foreach (var pair in parsed)
                 {
                     if (pair.Value != null)
@@ -246,13 +217,13 @@ namespace MirageXR
 
                 return arlemList;
             }
-            catch (Exception e)
+            catch (JsonReaderException e)
             {
-                Debug.LogError($"ParseArlemListJson error\nmessage: {e}");
+                Debug.LogError(e);
                 return null;
             }
         }
-        
+
         public async Task<bool> DeleteArlem(string itemID, string sessionID)
         {
             var (result, response) = await Network.GetCustomDataFromDBRequestAsync(DBManager.userid, DBManager.domain, "deleteArlem", DBManager.token, itemID, sessionID);

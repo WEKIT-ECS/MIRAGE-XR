@@ -5,15 +5,15 @@ using UnityEngine;
 public class SetPoints : MonoBehaviour {
 
 	public Transform targetTransform;
-	[SerializeField] private float originOffset = 0.1f;
-	[SerializeField] private float targetOffset = 0.1f;
+	public float originOffset = 0.1f;
+	public float targetOffset = 0.1f;
 
 	[Space]
-	[SerializeField] private bool autoSetTarget = false;
-	[SerializeField] private string targetObjectName = "cursorTarget";
+	public bool autoSetTarget = false;
+	public string targetObjectName = "cursorTarget";
 
-	private Vector3 originPoint, targetPoint, middlePoint, directionVector;
-	private LineRenderer lineRenderer;
+	Vector3 originPoint, targetPoint, middlePoint, directionVector;
+	LineRenderer lineRenderer;
 
 	// Use this for initialization
 	void Start () {

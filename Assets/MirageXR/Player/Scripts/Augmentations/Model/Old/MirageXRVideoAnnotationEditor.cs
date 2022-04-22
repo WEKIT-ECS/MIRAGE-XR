@@ -16,7 +16,7 @@ public class MirageXRVideoAnnotationEditor : MonoBehaviour
 #endif
     private bool isRecording = false;
     private string SaveFileName = "VideoTest.mp4";
-    [SerializeField] private RawImage image;
+    public RawImage image;
     //public VideoClip videoToPlay;
     private VideoPlayer videoPlayer;
     private VideoSource videoSource;

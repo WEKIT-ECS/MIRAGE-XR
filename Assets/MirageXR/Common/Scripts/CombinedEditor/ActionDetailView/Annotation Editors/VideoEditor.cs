@@ -75,13 +75,13 @@ public class VideoEditor : MonoBehaviour
 
     public void OnAccept()
     {
-        if (IsRecording)
+        if(IsRecording)
             StopRecording();
 
 
 #if UNITY_EDITOR
 
-        if (annotationToEdit == null)
+        if(annotationToEdit == null)
         {
             // create dummy video clip so that the augmentation can be created in Unity (debugging only)
             newFileName = $"videoTest_MP4.mp4";
@@ -130,16 +130,16 @@ public class VideoEditor : MonoBehaviour
             GameObject originT = GameObject.Find(detectable.id);
 
             var startPointTr = annotationStartingPoint.transform;
-            var offset = Utilities.CalculateOffset(startPointTr.position, startPointTr.rotation,
+            var offset = Utilities.CalculateOffset(startPointTr.position, startPointTr.rotation, 
                 originT.transform.position, originT.transform.rotation);
 
-            annotationToEdit = ActivityManager.Instance.AddAugmentation(action, offset);
+            annotationToEdit = ActivityManager.Instance.AddAnnotation(action, offset);
             annotationToEdit.predicate = "video";
         }
-
+        
         // saving of the movie file has already happened since it has been written to file while recording
         annotationToEdit.url = httpPrefix + newFileName;
-
+        
         EventManager.ActivateObject(annotationToEdit);
         EventManager.NotifyActionModified(action);
 
@@ -177,16 +177,16 @@ public class VideoEditor : MonoBehaviour
         VuforiaBehaviour.Instance.enabled = false;
         IsRecording = true;
 
-        if (annotationToEdit != null)
+        if(annotationToEdit != null)
             await DeleteOldVideoFile();
 
         newFileName = $"MirageXR_Video_{System.DateTime.Now.ToFileTimeUtc()}.mp4";
         var filepath = Path.Combine(ActivityManager.Instance.Path, newFileName);
-
+        
         NativeCameraController.StartRecordingVideo(filepath, OnVideoRecordingStopped);
         Maggie.Speak("Recording");
     }
-
+    
     private void OnVideoRecordingStopped(bool result, string path)
     {
         Maggie.Speak("Stopped recording");
@@ -200,7 +200,7 @@ public class VideoEditor : MonoBehaviour
             previewImage.texture = NativeCameraController.GetVideoThumbnail(path);
         }
     }
-
+    
     /// <summary>
     /// User has intended to stop recording
     /// </summary>

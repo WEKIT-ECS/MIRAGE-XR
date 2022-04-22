@@ -1,4 +1,6 @@
-﻿using MirageXR;
+﻿using Microsoft.MixedReality.Toolkit.Input;
+using Microsoft.MixedReality.Toolkit.Utilities;
+using MirageXR;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -87,32 +89,32 @@ public class GhosttrackEditor : MonoBehaviour
                 File.Delete(xmlPath);
             }
             //delete old audio annotation before creating a new one
-            ActivityManager.Instance.ActionsOfTypeAction.ForEach(a => 
-            { 
-                if (a.enter.activates.Contains(_annotationToEdit) && _annotationToEdit.option.Contains(":")) 
-                {
+            ActivityManager.Instance.ActionsOfTypeAction.ForEach(a => { if (a.enter.activates.Contains(_annotationToEdit)) {
+
                     var myAudioPoi = _annotationToEdit.option.Split(':')[1];
-                    var myAudioToggleObject = a.enter.activates.Find(t => t.poi == myAudioPoi);
-                    if (myAudioToggleObject != null)
+                    if(myAudioPoi != null)
                     {
-                        a.enter.activates.Remove(myAudioToggleObject);
-                        var audioFilePath = Path.Combine(ActivityManager.Instance.Path,
-                            myAudioToggleObject.url.Replace("http://", ""));
-                        File.Delete(audioFilePath);
+                        var myAudioToggleObject = a.enter.activates.Find(t => t.poi == myAudioPoi);
+                        if (myAudioToggleObject != null)
+                        {
+                            a.enter.activates.Remove(myAudioToggleObject);
+                            var audioFilePath = Path.Combine(ActivityManager.Instance.Path, myAudioToggleObject.url.Replace("http://", ""));
+                            File.Delete(audioFilePath);
+                        }
+
                     }
-                } 
-            });
+                } });
 
             Debug.LogError(_annotationToEdit == null); 
         }
         else
         {
-            _annotationToEdit = ActivityManager.Instance.AddAugmentation(_action, offset);
+            _annotationToEdit = ActivityManager.Instance.AddAnnotation(_action, offset);
             _annotationToEdit.predicate = "ghosttracks";
             _annotationToEdit.scale = 1f;
         }
 
-        _ghostFileName = $"MirageXR_Ghost_{_annotationToEdit.poi}.xml";
+         _ghostFileName = $"MirageXR_Ghost_{_annotationToEdit.poi}.xml";
 
         var ghostFilePath = Path.Combine(ActivityManager.Instance.Path, _ghostFileName);
         GhostRecorder.ExportToFile(ghostFilePath, _ghostFrames);
@@ -124,7 +126,7 @@ public class GhosttrackEditor : MonoBehaviour
         _annotationToEdit.position = _augOrigin.position.ToString();
         _annotationToEdit.rotation = _augOrigin.rotation.ToString();
 
-        var audioAnnotation = ActivityManager.Instance.AddAugmentation(_action, offset);
+        var audioAnnotation = ActivityManager.Instance.AddAnnotation(_action, offset);
         audioAnnotation.predicate = "audio";
         audioAnnotation.scale = 0.5f;
         audioAnnotation.url = $"http://{_audioFileName}";

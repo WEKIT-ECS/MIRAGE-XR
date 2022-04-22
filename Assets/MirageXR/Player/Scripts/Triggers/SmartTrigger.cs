@@ -11,7 +11,7 @@ namespace MirageXR
         private bool _isActive;
 
         // Shoud we launch the trigger or not.
-        private bool _trigger = true;
+        bool _trigger = true;
 
         // Action id of the action using this trigger.
         private string _actionId;

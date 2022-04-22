@@ -137,7 +137,7 @@ namespace MirageXR
                 //Offset should always be 0. Positional data are store in the drawing strokes.
                 var offset = Vector3.zero;
 
-                annotationToEdit = ActivityManager.Instance.AddAugmentation(action, offset);
+                annotationToEdit = ActivityManager.Instance.AddAnnotation(action, offset);
                 annotationToEdit.predicate = "drawing";
             }
 

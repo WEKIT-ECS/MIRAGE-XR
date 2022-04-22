@@ -8,9 +8,7 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class AppSelection : MonoBehaviour
 {
-    private static string activityToLoad = null;
-
-    public static string ActivityToLoad => activityToLoad;
+    public static string activityToLoad = null;
 
     /// <summary>
     /// Start MirageXR Recorder

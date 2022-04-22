@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using Siccity.GLTFUtility;
@@ -11,28 +12,8 @@ namespace MirageXR
         private ToggleObject myToggleObject;
         private Animation animation;
 
+
         public ToggleObject MyToggleObject => myToggleObject;
-
-
-        private void Start()
-        {
-            Subscribe();
-        }
-
-        private void OnDestroy()
-        {
-            UnSubscribe();
-        }
-
-        private void Subscribe()
-        {
-            EventManager.OnAugmentationDeleted += DeleteModelData;
-        }
-
-        private void UnSubscribe()
-        {
-            EventManager.OnAugmentationDeleted -= DeleteModelData;
-        }
 
         public bool LoadingCompleted
         {
@@ -44,73 +25,120 @@ namespace MirageXR
         /// </summary>
         /// <param name="obj">Action toggle object.</param>
         /// <returns>Returns true if initialization successful.</returns>
-        public override bool Init(ToggleObject obj)
+        public override bool Init (ToggleObject obj)
         {
             myToggleObject = obj;
 
             // Check that url is not empty.
-            if (string.IsNullOrEmpty(obj.url))
+            if (string.IsNullOrEmpty (obj.url))
             {
-                Debug.Log("Content URL not provided.");
+                Debug.Log ("Content URL not provided.");
                 return false;
             }
-
+             
             // Try to set the parent and if it fails, terminate initialization.
-            if (!SetParent(obj))
+            if (!SetParent (obj))
             {
-                Debug.Log("Couldn't set the parent.");
+                Debug.Log ("Couldn't set the parent.");
                 return false;
             }
 
             // Set name.
             name = obj.predicate;
 
+            /* The following is commented out until there is a need to use local prefabs (from the resources folder)
+             * 
+            if (!Utilities.TryParseStringToVector3(obj.position, out var position)) 
+                Debug.LogWarning($"ParseStringToVector3 failed; value {obj.position}");
+            if (!Utilities.TryParseStringToQuaternion(obj.rotation, out var rotation))
+                Debug.LogWarning($"ParseStringToQuaternion failed; value {obj.rotation}");
+            
+            transform.localPosition = position;
+            transform.rotation = rotation;
+
+            // Load from resources.
+            if (obj.url.StartsWith("resources://"))
+            {
+                // Instantiate from resources.
+                var prefab = Resources.Load<GameObject>(obj.option);
+                if (prefab)
+                {
+                    var model = Instantiate(prefab, Vector3.zero, Quaternion.identity);
+
+                    // Set name.
+                    model.name = obj.option;
+
+                    // Set parent.
+                    model.transform.SetParent(transform);
+
+                    // Set transform.
+                    model.transform.localPosition = Vector3.zero;
+                    model.transform.localEulerAngles = Vector3.zero;
+                    model.transform.localScale = Vector3.one;
+                }
+                else
+                {
+                    Debug.LogError($"{obj.option} prefab doesn't exist");
+                }
+            }
+            else
+            {
+                LoadModel (obj);
+            }
+
+            */
+
+
             LoadModel(obj);
 
             if (!obj.id.Equals("UserViewport"))
             {
                 // Setup guide line feature.
-                if (!SetGuide(obj)) return false;
+                if (!SetGuide(obj))
+                    return false;
             }
+
+            
 
             // If all went well, return true.
             return true;
         }
 
+
         private void LoadModel(ToggleObject obj)
         {
             startLoadTime = Time.time;
-            var loadPath = Path.Combine(ActivityManager.Instance.Path, obj.option, "scene.gltf");
+            string loadPath = Path.Combine(ActivityManager.Instance.Path, obj.option, "scene.gltf");
 
             Debug.Log($"Loading model: {loadPath}");
 
             Importer.ImportGLTFAsync(loadPath, new ImportSettings(), OnFinishLoadingAsync);
         }
 
-        private void OnFinishLoadingAsync(GameObject model, AnimationClip[] clip)
+        private void OnFinishLoadingAsync(GameObject _model, AnimationClip[] clip)
         {
-            if (this == null)
+            if(this == null)
             {
-                Destroy(model);
+                Destroy(_model);
                 return;
             }
 
-            Debug.Log($"Imported {model.name} in {Time.time - startLoadTime} seconds");
+            Debug.Log("Imported " + _model.name + " in " + (Time.time - startLoadTime).ToString() + " seconds");
 
-            var startPos = transform.position + transform.forward * -0.5f + transform.up * -0.1f;
+            Vector3 startPos = transform.position + transform.forward * -0.5f + transform.up * -0.1f;
 
-            model.transform.SetParent(transform);
-            model.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
-            model.transform.position = startPos;
-            model.transform.localRotation = Quaternion.identity;
+            _model.transform.SetParent(transform);
+            _model.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+            _model.transform.position = startPos;
+            _model.transform.localRotation = Quaternion.identity;
 
-            model.name = myToggleObject.option;
-            model.transform.localRotation *= Quaternion.Euler(-90f, 0f, 0f);
+            _model.name = myToggleObject.option;
+            _model.transform.localRotation *= Quaternion.Euler(-90f, 0f, 0f);
 
-            ConfigureModel(model, clip);
-            MoveAndScaleModel(model);
+            ConfigureModel(_model, clip);
+            MoveAndScaleModel(_model);
 
-            var myPoiEditor = transform.parent.gameObject.GetComponent<PoiEditor>();
+            PoiEditor myPoiEditor = transform.parent.gameObject.GetComponent<PoiEditor>();
 
             transform.parent.localScale = GetPoiScale(myPoiEditor, Vector3.one);
             transform.parent.localRotation = Quaternion.Euler(GetPoiRotation(myPoiEditor));
@@ -121,9 +149,9 @@ namespace MirageXR
 
             if (clip.Length > 0)
             {
-                Debug.Log($"Animation(s) found ({clip.Length})...isLegacy? {clip[0].legacy}");
+                Debug.Log("Animation(s) found (" + clip.Length + ")...isLegacy? " + clip[0].legacy.ToString());
 
-                animation = model.AddComponent<Animation>();
+                animation = _model.AddComponent<Animation>();
                 animation.AddClip(clip[0], "leaning");
                 animation.playAutomatically = true;
                 animation.clip = clip[0];
@@ -140,13 +168,13 @@ namespace MirageXR
             _model.GetComponent<Rigidbody>().isKinematic = true;
             _model.SetActive(true);
 
-            var renderers = _model.GetComponentsInChildren<Renderer>();
+            Renderer[] renderers = _model.GetComponentsInChildren<Renderer>();
             colliders = new List<Bounds>();
 
             // add colliders to meshes
-            foreach (var r in renderers)
+            foreach (Renderer r in renderers)
             {
-                var g = r.gameObject;
+                GameObject g = r.gameObject;
 
                 if (!g.GetComponent<MeshCollider>())
                 {
@@ -167,20 +195,20 @@ namespace MirageXR
                         var newCollider = g.AddComponent<MeshCollider>();
                         colliders.Add(newCollider.bounds);
                     }
-
+                    
                 }
                 else
                 {
                     colliders.Add(g.GetComponent<MeshCollider>().bounds);
                 }
-            }
+            }  
         }
 
-        private static void AddCapsuleCollidersToPatient(Transform rootBone)
+        private void AddCapsuleCollidersToPatient(Transform rootBone)
         {
-            for (int child = 0; child < rootBone.childCount; child++)
+            for (int child = 0;  child < rootBone.childCount; child++)
             {
-                var childBone = rootBone.GetChild(child);
+                Transform childBone = rootBone.GetChild(child);
                 var capcoll = childBone.gameObject.AddComponent<CapsuleCollider>();
                 capcoll.center = new Vector3(0f, 0.75f, 0f);
                 capcoll.radius = 0.5f;
@@ -200,7 +228,7 @@ namespace MirageXR
         private void MoveAndScaleModel(GameObject modelToAdjust)
         {
             // get maximum extents
-            var colliderSize = new Vector3(0f, 0f, 0f);
+            Vector3 colliderSize = new Vector3(0f, 0f, 0f);
             int largestColliderIndex = 0;
             foreach (Bounds meshColl in colliders)
             {
@@ -211,7 +239,7 @@ namespace MirageXR
                 }
             }
 
-            Debug.Log($"largest collider: {largestColliderIndex} ({colliderSize.ToString("F4")})");
+            Debug.Log("largest collider: " + largestColliderIndex.ToString() + " (" + colliderSize.ToString("F4") + ")");
 
             // set magnification and translation factors based on gltf info.
             float magnificationFactor = 0.5f / colliderSize.magnitude;
@@ -222,9 +250,10 @@ namespace MirageXR
                 magnificationFactor = 0.5f;
             }
 
-            var myPoiEditor = GetComponentInParent<PoiEditor>();
+            PoiEditor myPoiEditor = GetComponentInParent<PoiEditor>();
 
-            if (Utilities.TryParseStringToVector3(myPoiEditor.GetMyPoi().scale, out var newPoiScale))
+
+            if (Utilities.TryParseStringToVector3(myPoiEditor.GetMyPoi().scale, out Vector3 newPoiScale))
             {
                 if (newPoiScale.x.Equals(newPoiScale.y) && newPoiScale.y.Equals(newPoiScale.z))
                 {
@@ -232,40 +261,14 @@ namespace MirageXR
                 }
             }
 
+
             myPoiEditor.ModelMagnification = magnificationFactor;
-            Debug.Log($"{modelToAdjust.name} has file mag. factor {magnificationFactor:F4}");
+            Debug.Log(modelToAdjust.name + " has file mag. factor " + magnificationFactor.ToString("F4"));
 
             modelToAdjust.transform.localScale *= myPoiEditor.ModelMagnification;
             modelToAdjust.transform.localPosition = Vector3.zero;
         }
 
-        private void DeleteModelData(ToggleObject augmentation)
-        {
-            if (augmentation != myToggleObject) return;
 
-            // check for existing model folder and delete if necessary
-            var arlemPath = ActivityManager.Instance.Path;
-            string folderName = augmentation.option;
-            string modelFolderPath = Path.Combine(arlemPath, folderName);
-
-            if (Directory.Exists(modelFolderPath))
-            {
-                Debug.Log("found model folder (" + modelFolderPath + "). Deleting...");
-                Utilities.DeleteAllFilesInDirectory(modelFolderPath);
-                Directory.Delete(modelFolderPath);
-            }
-
-            foreach (var pick in FindObjectsOfType<Pick>())
-            {
-                foreach (var child in pick.GetComponentsInChildren<Transform>())
-                {
-                    if (child.name.EndsWith(augmentation.poi))
-                    {
-                        Destroy(child.gameObject);
-                        pick.ArrowRenderer.enabled = true;
-                    }
-                }
-            }
-        }
     }
 }

@@ -297,7 +297,7 @@ namespace MirageXR
         }
 
         public static async Task<(bool, string)> UploadRequestAsync(string token, string userId, string sessionId,
-            bool isPublic, string fileName, string title, byte[] zipContent, string thumbnailFileName,
+            bool isPublic, string fileName, byte[] zipContent, string thumbnailFileName,
             byte[] thumbnailContent, string domain, string activityJson, string workplaceJson, int updateMode)
         {
             const string uriFormat = "{0}/mod/{1}/classes/webservice/getfile_from_unity.php";
@@ -306,7 +306,6 @@ namespace MirageXR
             const string sessionIdKey = "sessionid";
             const string publicKey = "public";
             const string fileKey = "myfile";
-            const string titleKey = "title";
             const string thumbnailKey = "thumbnail";
             const string zipMediaType = "application/x-zip-compressed";
             const string imageMediaType = "image/jpg";
@@ -341,7 +340,6 @@ namespace MirageXR
                 {new StringContent(userId), userIdKey},
                 {new StringContent(updateMode.ToString()), updateFileKey},
                 {new StringContent(sessionId), sessionIdKey},
-                {new StringContent(title), titleKey},
                 {new StringContent(activityJson), activityJsonKey},
                 {new StringContent(workplaceJson), workplaceJsonKey},
                 {new StringContent((isPublic ? 1 : 0).ToString()), publicKey},

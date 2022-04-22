@@ -9,36 +9,36 @@ namespace MirageXR
     public class ActivityCardManager : MonoBehaviour
     {
         // Variables.
-        [SerializeField] private GameObject FirstCard;
+        public GameObject FirstCard;
 
-        [SerializeField] private GameObject PreviousCard;
-        [SerializeField] private GameObject ActiveCard;
-        [SerializeField] private GameObject NextCard;
-        [SerializeField] private GameObject LastCard;
+        public GameObject PreviousCard;
+        public GameObject ActiveCard;
+        public GameObject NextCard;
+        public GameObject LastCard;
 
-        [SerializeField] private RectTransform ContentPanel;
-        [SerializeField] private GameObject ShowCardsToggle;
+        public RectTransform ContentPanel;
+        public GameObject ShowCardsToggle;
 
-        [SerializeField] private int _actionIndex;
+        private int _actionIndex;
 
-        [SerializeField] private RectTransform TimeLine;
-        [SerializeField] private List<GameObject> _timelineObjects = new List<GameObject>();
-        [SerializeField] private int _timelineIndex;
+        public RectTransform TimeLine;
+        private List<GameObject> _timelineObjects = new List<GameObject>();
+        private int _timelineIndex;
 
-        [SerializeField] private Text TasklistTitle;
-        [SerializeField] private RectTransform Tasklist;
-        [SerializeField] private List<GameObject> _tasklistObjects = new List<GameObject>();
+        public Text TasklistTitle;
+        public RectTransform Tasklist;
+        private List<GameObject> _tasklistObjects = new List<GameObject>();
 
-        [SerializeField] private bool _isFirstRun = true;
+        private bool _isFirstRun = true;
 
-        [SerializeField] private string ActivityId = "";
-        [SerializeField] private List<Action> OriginalActions = new List<Action>();
-        [SerializeField] private List<Action> Actions = new List<Action>();
+        public string ActivityId = "";
+        public List<Action> OriginalActions = new List<Action>();
+        public List<Action> Actions = new List<Action>();
 
-        [SerializeField] private GameObject FinishFlag;
-        [SerializeField] private GameObject ReplayButton;
+        public GameObject FinishFlag;
+        public GameObject ReplayButton;
 
-        [SerializeField] private bool IsResumeable;
+        public bool IsResumeable;
 
         private void OnEnable()
         {
@@ -180,7 +180,7 @@ namespace MirageXR
                 FinishFlag.SetActive(false);
                 ReplayButton.SetActive(false);
 
-                if (IsResumeable)
+                if(IsResumeable)
                     // Set restore state to active action.
                     PlayerPrefs.SetString(ActivityId, actionId);
                 else

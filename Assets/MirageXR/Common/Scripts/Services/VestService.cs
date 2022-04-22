@@ -8,9 +8,9 @@ namespace MirageXR
 {
     public class VestService : IService
     {
-        public bool VestEnabled { get; set; }
+        public bool VestEnabled;
 
-        public Sensor VestConfig { get; private set; }
+        public Sensor VestConfig;
 
         public void Initialize(IServiceManager owner)
         {

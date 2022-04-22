@@ -21,7 +21,7 @@ public class UIOrigin : MonoBehaviour
     /// <summary>
     /// Singleton instance of the placement script
     /// </summary>
-    public static UIOrigin Instance { get; private set; }
+    public static UIOrigin Instance;
 
     public float CurrentFloorYPosition() { return currentPosition.y; }
 

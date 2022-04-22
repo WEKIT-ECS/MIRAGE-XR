@@ -2,7 +2,7 @@
 
 public static class Encryption
 {
-    private const int key = 1364;
+    private static int key = 1364;
 
     public static string EncriptDecrypt(string txt)
     {

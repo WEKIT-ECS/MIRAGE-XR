@@ -6,8 +6,8 @@ namespace MirageXR
     public class CalibrationMarker : MonoBehaviour
     {
         private bool calibratorSpawned = false;
-        [SerializeField] private GameObject calibrator;
-        [SerializeField] private GameObject selectionMenu;
+        public GameObject calibrator;
+        public GameObject selectionMenu;
 
         private GameObject _actionList;
 

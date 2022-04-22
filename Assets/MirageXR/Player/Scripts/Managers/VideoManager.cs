@@ -13,7 +13,7 @@ public class VideoManager : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
     private VideoPlayer videoPlayer;
     private Slider progress;
 
-    private bool slide = false;
+    bool slide = false;
 
     // Start is called before the first frame update
     private void Awake()

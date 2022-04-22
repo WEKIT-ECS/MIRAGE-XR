@@ -1,11 +1,15 @@
 ﻿using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+
 
 namespace MirageXR
 {
     public class GlyphItems : MirageXRPrefab
     {
-        private ToggleObject myObj;
+        ToggleObject myObj;
         [SerializeField] private GameObject icon;
 
         private void OnEnable()
@@ -25,16 +29,12 @@ namespace MirageXR
 
         private void SetEditorState(bool editModeActive)
         {
-            if (icon)
-            {
+            if(icon)
                 icon.SetActive(editModeActive);
-            }
 
             var boundsControl = GetComponent<BoundsControl>();
             if (boundsControl != null)
-            {
                 boundsControl.Active = editModeActive;
-            }
         }
 
         public override bool Init(ToggleObject obj)
@@ -49,11 +49,20 @@ namespace MirageXR
             }
 
             name = obj.predicate;
+
             obj.text = name;
+
+            // load scaling
             transform.localScale = obj.scale != 0 ? new Vector3(obj.scale, obj.scale, obj.scale) : Vector3.one;
+            //load rotation
+            if (Utilities.TryParseStringToQuaternion(obj.rotation, out Quaternion myRotation))
+                transform.localRotation = myRotation;
 
             // If everything was ok, return base result.
             return base.Init(obj);
         }
+
+
+
     }
 }

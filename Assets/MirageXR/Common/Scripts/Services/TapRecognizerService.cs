@@ -10,7 +10,7 @@ namespace MirageXR
         public event EventHandler<TapEventArgs> TapRecognized;
         public event EventHandler<TapEventArgs> DoubleTapRecognized;
 
-        [SerializeField] private float doubleTapThreshold = 0.8f;
+        public float doubleTapThreshold = 0.8f;
 
         private float lastTapTime = -1f;
 

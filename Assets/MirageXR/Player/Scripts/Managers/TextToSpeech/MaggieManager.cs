@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class MaggieManager
 {
-    public ITextToSpeechService TTSService { get; private set; }
+    public ITextToSpeechService TTSService { get; set; }
 
     public readonly string[] okMessages = new string[]
     {

@@ -26,13 +26,9 @@ namespace MirageXR
                     var activity = await ReadActivityAsync(filePath);
 
                     if (activity == null)
-                    {
                         Debug.LogWarning($"Could not parse {fileInfos[i].Name}");
-                    }
                     else
-                    {
                         result.Add(activity);
-                    }
                 }
                 catch (Exception e)
                 {
@@ -155,24 +151,6 @@ namespace MirageXR
             username = array[0];
             password = Encryption.EncriptDecrypt(array[1]);
             return true;
-        }
-        
-        public static void RemoveKey(string key)
-        {
-            const string configFileName = "config.info";
-
-            var path = Path.Combine(Application.persistentDataPath, configFileName);
-
-            if (!File.Exists(path)) return;
-
-            var sb = new StringBuilder();
-            var configFileInfo = File.ReadAllLines(path);
-            foreach (var line in configFileInfo)
-            {
-                if (!line.StartsWith(key)) sb.AppendLine(line);
-            }
-
-            File.WriteAllText(path, sb.ToString());
         }
 
         public static bool TryToGetUsernameAndPassword(out string username, out string password)

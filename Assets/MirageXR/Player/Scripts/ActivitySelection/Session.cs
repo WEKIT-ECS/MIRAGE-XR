@@ -10,7 +10,6 @@ public class Session
     public string itemid;
     public string sessionid;
     public string filename;
-    public string title;
     public long filesize;
     public int upublic;
     public string timecreated;

@@ -5,21 +5,21 @@ using UnityEngine;
 public class UserProfile : MonoBehaviour
 {
 
-    [SerializeField] private SpeechInputService mySpeechInputMgr;
-    [SerializeField] private ExerciseController ExerciseController;
+    public SpeechInputService mySpeechInputMgr;
+    public ExerciseController ExerciseController;
 
     // -  -  -  -  -  -  -  -  -  -  -  -  -  -
 
-    [SerializeField] private string Name;
+    public string Name;
 
     public enum gender { male, female };
     public gender Gender;
-
+    
     public int Age;
 
     public double bmi;
-    public int Height { get; private set; }
-    public int Weight { get; private set; }
+    public int Height;
+    public int Weight;
 
     public enum cancers
     {

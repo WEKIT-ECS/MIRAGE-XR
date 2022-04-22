@@ -6,10 +6,10 @@ namespace MirageXR
     public class DebugManager : MonoBehaviour
     {
         [Tooltip ("Drag debug text object here.")]
-        [SerializeField] private Text DebugText;
+        public Text DebugText;
 
         [Tooltip ("Drag device info text here.")]
-        [SerializeField] private Text DeviceInfo;
+        public Text DeviceInfo;
 
         private void OnEnable ()
         {
