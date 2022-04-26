@@ -687,7 +687,7 @@ namespace MirageXR
         {
             // Setup initial values
             Transform calibrationOrigin = CalibrationTool.Instance.transform;
-            Transform originalParent = objectOfInterest.transform.parent; vv
+            Transform originalParent = objectOfInterest.transform.parent;
 
             // Create a temporary empty frame.
             var dummy = new GameObject("CalibrationDummy");     //TODO: it seems to be useless
@@ -709,7 +709,7 @@ namespace MirageXR
             objectOfInterest.transform.SetParent(originalParent);
 
             // Destroy dummy object
-            Destroy(dummy);
+            Object.Destroy(dummy);
             return (relativePosition, relativeOrientation);
         }
 
