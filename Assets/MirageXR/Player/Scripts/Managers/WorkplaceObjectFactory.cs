@@ -687,10 +687,10 @@ namespace MirageXR
         {
             // Setup initial values
             Transform calibrationOrigin = CalibrationTool.Instance.transform;
-            /*Transform originalParent = objectOfInterest.transform.parent;
+            Transform originalParent = objectOfInterest.transform.parent; vv
 
             // Create a temporary empty frame.
-            var dummy = new GameObject("CalibrationDummy");
+            var dummy = new GameObject("CalibrationDummy");     //TODO: it seems to be useless
 
             // Make sure that the scale is 1:1.
             dummy.transform.localScale = Vector3.one;
@@ -709,17 +709,8 @@ namespace MirageXR
             objectOfInterest.transform.SetParent(originalParent);
 
             // Destroy dummy object
-            GameObject.Destroy(dummy);
-
-            // Return relative position
-            Debug.Log("relativePosition: " + relativePosition + "; relativeOrientation: " + relativeOrientation);
-            Debug.Log("relativePosition2: " + calibrationOrigin.InverseTransformVector(objectOfInterest.transform.position) + "; relativeOrientation2: " + calibrationOrigin.InverseTransformVector(objectOfInterest.transform.eulerAngles));
+            Destroy(dummy);
             return (relativePosition, relativeOrientation);
-            */
-
-            //TODO check whether this implementation is indeed equivalent to the one above on all inputs
-            return (calibrationOrigin.InverseTransformVector(objectOfInterest.transform.position), 
-                calibrationOrigin.InverseTransformVector(objectOfInterest.transform.eulerAngles));
         }
 
         private static async Task PopulateTaskStation(GameObject parent)
