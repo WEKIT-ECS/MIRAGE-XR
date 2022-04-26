@@ -99,6 +99,7 @@ GameObject:
   - component: {fileID: 7660503526570385093}
   - component: {fileID: 5621112138685609860}
   - component: {fileID: 1390295355525193241}
+  - component: {fileID: 2371751934131809788}
   m_Layer: 0
   m_Name: Woman_C
   m_TagString: Untagged
@@ -132,7 +133,7 @@ Animator:
   m_GameObject: {fileID: 1424411196880948678}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 7956e7864e0b8d34694551e1db64b9fd, type: 3}
-  m_Controller: {fileID: 9100000, guid: 38f7a87b8f931ad46abfa5d71e1a100a, type: 2}
+  m_Controller: {fileID: 9100000, guid: 85cc5f90311d097498a919e7476389db, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -220,6 +221,28 @@ MonoBehaviour:
   focusEnabled: 1
   rightHandBone: {fileID: 0}
   handRotationOffset: {x: 0, y: 0, z: 0}
+--- !u!114 &2371751934131809788
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1424411196880948678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0babb4f7fbbe104987d87544531ad9e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  threshold: 0.5
+  smoothness: 0.6
+  vocalTractFactor: 1
+  kissBlendShapeNames: []
+  lipsClosedBlendShapeNames: []
+  mouthOpenBlendShapeNames: []
+  kissFactor: 1
+  lipsClosedFactor: 1
+  mouthOpenFactor: 1
+  spectrumVisualization: 0
 --- !u!1 &1717002325285655807
 GameObject:
   m_ObjectHideFlags: 0

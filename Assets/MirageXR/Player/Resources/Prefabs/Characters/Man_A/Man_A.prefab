@@ -518,6 +518,7 @@ GameObject:
   - component: {fileID: 6342134853988063309}
   - component: {fileID: 2545427158045605883}
   - component: {fileID: 5937244883670235570}
+  - component: {fileID: 3576143447681582338}
   m_Layer: 0
   m_Name: Man_A
   m_TagString: Untagged
@@ -551,7 +552,7 @@ Animator:
   m_GameObject: {fileID: 7241655569421825512}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 8138a35efccb4df429c8b4b6a2deb851, type: 3}
-  m_Controller: {fileID: 9100000, guid: 38f7a87b8f931ad46abfa5d71e1a100a, type: 2}
+  m_Controller: {fileID: 9100000, guid: 85cc5f90311d097498a919e7476389db, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -639,6 +640,28 @@ MonoBehaviour:
   focusEnabled: 1
   rightHandBone: {fileID: 0}
   handRotationOffset: {x: 0, y: 0, z: 0}
+--- !u!114 &3576143447681582338
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7241655569421825512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0babb4f7fbbe104987d87544531ad9e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  threshold: 0.5
+  smoothness: 0.6
+  vocalTractFactor: 1
+  kissBlendShapeNames: []
+  lipsClosedBlendShapeNames: []
+  mouthOpenBlendShapeNames: []
+  kissFactor: 1
+  lipsClosedFactor: 1
+  mouthOpenFactor: 1
+  spectrumVisualization: 0
 --- !u!1 &7308137200725761101
 GameObject:
   m_ObjectHideFlags: 0
