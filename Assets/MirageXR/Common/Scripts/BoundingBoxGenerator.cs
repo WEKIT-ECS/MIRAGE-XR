@@ -31,18 +31,15 @@ namespace MirageXR
             get; set;
         }
 
-
         private void OnEnable()
         {
             EventManager.OnEditModeChanged += EditModeState;
         }
 
-
         private void OnDisable()
         {
             EventManager.OnEditModeChanged -= EditModeState;
         }
-
 
         private void Start()
         {
@@ -63,7 +60,6 @@ namespace MirageXR
         /// <returns></returns>
         public async Task<BoundsControl> AddBoundingBox(ToggleObject annotationToggleObject, BoundsCalculationMethod boundsCalculationMethod, bool hasConstraintManager = false, bool addListeners = true, BoundingRotationType boundingRotationType = BoundingRotationType.ALL, bool AddManipulator = false)
         {
-
             if (!hasConstraintManager && !GetComponent<ConstraintManager>())
                 gameObject.AddComponent<ConstraintManager>();
 
@@ -133,11 +129,16 @@ namespace MirageXR
 
         }
 
-     
-        void EditModeState(bool editmode)
+        private void EditModeState(bool editMode)
         {
-            if(!manualEditModeHandling)
-                GetComponent<BoundsControl>().Active = editmode;
+            if (!manualEditModeHandling)
+            {
+                var boundsControl = GetComponent<BoundsControl>();
+                if (boundsControl)
+                {
+                    boundsControl.enabled = editMode;
+                }
+            }
         }
 
         /// <summary>
