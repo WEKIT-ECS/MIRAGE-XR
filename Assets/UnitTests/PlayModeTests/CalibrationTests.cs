@@ -318,7 +318,7 @@ namespace Tests
             dummyRoot.activityManager.EditModeActive = isEditMode;
 
             // then run the player calibration routine to move objects (as though the camera is the marker)
-            EventManager.CalibrateWorkplace(WorldTestOrigin);
+            dummyRoot.workplaceManager.CalibrateWorkplace(WorldTestOrigin);
         }
 
         private void CalibrationComplete()

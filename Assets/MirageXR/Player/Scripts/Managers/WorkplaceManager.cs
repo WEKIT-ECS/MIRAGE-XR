@@ -194,7 +194,7 @@ namespace MirageXR
             return userID;
         }
         
-        public async void PerformEditModeCalibration(Transform origin)
+        public async Task PerformEditModeCalibration()
         {
             Debug.Log("Edit Mode Calibration started.\n");
 
@@ -207,15 +207,11 @@ namespace MirageXR
                 Detectable detectable = pair.DetectableConfiguration;
 
                 // set detectable values
-                detectable.origin_position = $"{myPos.x.ToString(CultureInfo.InvariantCulture)}, " +
-                                            $"{myPos.y.ToString(CultureInfo.InvariantCulture)}, " +
-                                            $"{myPos.z.ToString(CultureInfo.InvariantCulture)}";
-                detectable.origin_rotation = $"{myRot.x.ToString(CultureInfo.InvariantCulture)}, " +
-                                            $"{myRot.y.ToString(CultureInfo.InvariantCulture)}, " +
-                                            $"{myRot.z.ToString(CultureInfo.InvariantCulture)}";
+                detectable.origin_position = $"{myPos.x.ToString(CultureInfo.InvariantCulture)}, {myPos.y.ToString(CultureInfo.InvariantCulture)}, {myPos.z.ToString(CultureInfo.InvariantCulture)}";
+                detectable.origin_rotation = $"{myRot.x.ToString(CultureInfo.InvariantCulture)}, {myRot.y.ToString(CultureInfo.InvariantCulture)}, {myRot.z.ToString(CultureInfo.InvariantCulture)}";
             }
 
-            await Task.Delay(1000);
+            await Task.Yield();
 
             UiManager.Instance.IsCalibrated = true;
             Maggie.Speak("Workplace configuration saved.");
@@ -258,11 +254,9 @@ namespace MirageXR
                 pair.AnchorFrame.transform.SetParent(dummy.transform);
 
                 // Set anchor frame to proper position and orientation.
-                pair.AnchorFrame.transform.localEulerAngles =
-                    Utilities.ParseStringToVector3(pair.DetectableConfiguration.origin_rotation);
+                pair.AnchorFrame.transform.localEulerAngles = Utilities.ParseStringToVector3(pair.DetectableConfiguration.origin_rotation);
 
-                pair.AnchorFrame.transform.localPosition =
-                    Utilities.ParseStringToVector3(pair.DetectableConfiguration.origin_position);
+                pair.AnchorFrame.transform.localPosition = Utilities.ParseStringToVector3(pair.DetectableConfiguration.origin_position);
 
                 // Update position to also the tangible attached to this anchor.
                 pair.AnchorFrame.GetComponent<DetectableBehaviour>().AttachAnchor();
@@ -271,7 +265,7 @@ namespace MirageXR
                 pair.AnchorFrame.transform.SetParent(detectableContainer);
 
                 // Now attach anchor to the detectable anchor frame.
-                Debug.Log("Anchor " + pair.AnchorFrame.name + " created at " + pair.AnchorFrame.transform.position + " || " + pair.AnchorFrame.transform.eulerAngles + ".");
+                Debug.Log($"Anchor {pair.AnchorFrame.name} created at {pair.AnchorFrame.transform.position} || {pair.AnchorFrame.transform.eulerAngles}.");
 
                 // Destroy dummy.
                 Object.Destroy(dummy);
@@ -279,7 +273,7 @@ namespace MirageXR
 
 
             // Add a small delay just to make sure all the anchors are stored...
-            await Task.Delay(1000);
+            await Task.Yield();
 
             EventManager.WorkplaceCalibrated();
             Maggie.Speak("Workplace is now calibrated.");
@@ -374,7 +368,7 @@ namespace MirageXR
             Poi poi = place.pois.Find((item) => item.id == toggleObject.poi);
             if (poi != null)
             {
-                GameObject.Destroy(GameObject.Find(poi.id));
+                Object.Destroy(GameObject.Find(poi.id));
                 place.pois.Remove(poi);
             }
 
@@ -388,6 +382,25 @@ namespace MirageXR
                 //as Vuforia dosent allow image markers to be destroyed at run time the detectable is moved instead leaving the marker still in the scene but removeing its content
                 detectableObj.transform.parent = detectableParentObj.transform;
             }
+        }
+
+        /// <summary>
+        /// Controller triggers the calibration of the workplace anchors and
+        /// performs changes to the model using the WorkplaceManager's functionality.
+        /// </summary>
+        /// <param name="origin">Origin transform from the calibration target.</param>
+        public async void CalibrateWorkplace(Transform origin)
+        {
+            if (activityManager.EditModeActive)
+            {
+                await PerformEditModeCalibration();
+            }
+            else
+            {
+                await PerformPlayModeCalibration(origin);
+            }
+
+            await activityManager.StartActivity();
         }
     }
 }

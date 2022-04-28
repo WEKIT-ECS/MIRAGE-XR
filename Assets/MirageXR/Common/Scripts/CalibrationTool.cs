@@ -46,8 +46,7 @@ namespace MirageXR
             if (CalibrationModel.activeInHierarchy)
             {
                 EventManager.Click();
-                //WorkplaceController.Instance.CalibrateAnchors(transform);
-                EventManager.CalibrateWorkplace(transform);
+                RootObject.Instance.workplaceManager.CalibrateWorkplace(transform);
             }
         }
     }

@@ -11,32 +11,24 @@ namespace MirageXR
     {
         private static WorkplaceManager workplaceManager => RootObject.Instance.workplaceManager;
 
-        void OnEnable()
+        private void OnEnable()
         {
             // Register to event manager events
             EventManager.OnPlayerReset += ClearPois;
             EventManager.OnClearAll += PlayerReset;
-            EventManager.OnCalibrateWorkplace += CalibrateWorkplace;
         }
 
-        void OnDisable()
+        private void OnDisable()
         {
             // Unregister from event manager events
             EventManager.OnPlayerReset -= ClearPois;
             EventManager.OnClearAll -= PlayerReset;
-            EventManager.OnCalibrateWorkplace -= CalibrateWorkplace;
         }
 
-        void Start()
+        private void Start()
         {
             // At least TRY to clear out the cache!
             Caching.ClearCache();
-        }
-
-        // Called from event manager
-        private async Task ParseWorkplace(string workplaceId)
-        {
-            await workplaceManager.ParseWorkplace(workplaceId);
         }
 
         // Called from event manager
@@ -50,26 +42,6 @@ namespace MirageXR
         private void PlayerReset()
         {
             workplaceManager.PlayerReset();
-        }
-
-        /// <summary>
-        /// Controller triggers the calibration of the workplace anchors and
-        /// performs changes to the model using the WorkplaceManager's functionality.
-        /// </summary>
-        /// <param name="origin">Origin transform from the calibration target.</param>
-        private void CalibrateWorkplace(Transform origin)
-        {
-            var activityManager = RootObject.Instance.activityManager;
-            if (activityManager.EditModeActive)
-            {
-                workplaceManager.PerformEditModeCalibration(origin);
-            }
-            else
-            {
-                workplaceManager.PerformPlayModeCalibration(origin);
-            }
-
-            activityManager.StartActivity();
         }
     }
 }

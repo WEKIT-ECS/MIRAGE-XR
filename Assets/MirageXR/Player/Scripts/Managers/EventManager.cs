@@ -110,20 +110,6 @@ namespace MirageXR
             OnActivityStarted?.Invoke();
         }
 
-        // Event to trigger adjusting workplace locations when a new world origin has been set.
-        public delegate void CalibrateWorkplaceDelegate(Transform origin);
-
-        public static event CalibrateWorkplaceDelegate OnCalibrateWorkplace;
-
-        /// <summary>
-        /// Triggers calibration methods.
-        /// </summary>
-        /// <param name="origin">New world origin.</param>
-        public static void CalibrateWorkplace(Transform origin)
-        {
-            OnCalibrateWorkplace?.Invoke(origin);
-        }
-
         // Workplace has been calibrated event.
         public delegate void WorkplaceCalibratedDelegate();
 
