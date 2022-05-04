@@ -18,6 +18,11 @@ namespace MirageXR
 			return activity;
 	    }
 
+	    public static string Serialize(Activity activity)
+	    {
+			return JsonConvert.SerializeObject(activity);
+	    }
+
 	    private static string GetActivityJson(string activityId)
 	    {
 		    if (activityId.StartsWith(RESOURCES_PREFIX))
