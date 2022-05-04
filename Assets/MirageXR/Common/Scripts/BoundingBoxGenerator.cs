@@ -83,7 +83,7 @@ namespace MirageXR
 
             var minMaxScaleConstraint = GetComponent<MinMaxScaleConstraint>();
             if(!minMaxScaleConstraint)
-                 minMaxScaleConstraint = gameObject.AddComponent<MinMaxScaleConstraint>();
+                minMaxScaleConstraint = gameObject.AddComponent<MinMaxScaleConstraint>();   //TODO: looks useless
 
             if (boundsControl != null && boundingRotationType != BoundingRotationType.ALL)
                 OnlyRotateAround(boundsControl, boundingRotationType);
@@ -134,9 +134,14 @@ namespace MirageXR
             if (!manualEditModeHandling)
             {
                 var boundsControl = GetComponent<BoundsControl>();
+                var objectManipulator = GetComponent<ObjectManipulator>();
                 if (boundsControl)
                 {
                     boundsControl.enabled = editMode;
+                }
+                if (objectManipulator)
+                {
+                    objectManipulator.enabled = editMode;
                 }
             }
         }
@@ -158,8 +163,7 @@ namespace MirageXR
             objectManipulator.HostTransform = transform;
             objectManipulator.TwoHandedManipulationType = Microsoft.MixedReality.Toolkit.Utilities.TransformFlags.Move;
 
-            objectManipulator.OnManipulationEnded.AddListener(delegate { SaveTransform(annotaion);  });
-
+            objectManipulator.OnManipulationEnded.AddListener(arg => SaveTransform(annotaion));
         }
 
 
@@ -167,7 +171,7 @@ namespace MirageXR
         {
             annotaion.position = transform.localPosition.ToString();
             annotaion.rotation = transform.localRotation.ToString();
-            annotaion.scale =  transform.localScale.x;
+            annotaion.scale = transform.localScale.x;
         }
     }
 
