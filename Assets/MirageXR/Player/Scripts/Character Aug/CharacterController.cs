@@ -251,14 +251,16 @@ namespace MirageXR
             //sometimes the character be destroyed by keep alive during the delay above
             if (this == null) return;
 
-            //wait for the character be setup by using JSON data
-            await ActivateCharacterOnEnable();
-            characterParsed = true;
+           
 
             //Remove animation clips which not exist for this character from the drobdown list
             for (int i = animationMenu.options.Count - 1 ; i > 0 ; i--)
                 if (_anim.parameters.ToList().Find(c => c.name == animationMenu.options[i].text) == null)
                     animationMenu.options.RemoveAt(i);
+
+            //wait for the character be setup by using JSON data
+            await ActivateCharacterOnEnable();
+            characterParsed = true;
 
 
             //if the movementtype was not found in the json file use followpath as default(with one node)
