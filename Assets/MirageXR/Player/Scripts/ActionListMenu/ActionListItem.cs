@@ -5,17 +5,16 @@ using UnityEngine.UI;
 public class ActionListItem : MonoBehaviour
 {
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
+
     [SerializeField] private Image backgroundImage;
     [SerializeField] private Text captionLabel;
     [SerializeField] private Text numberLabel;
     [SerializeField] private Button deleteButton;
-
-    public Button DeleteButton => deleteButton;
-
-    [SerializeField] private Image checkIcon;
-
     [SerializeField] private Color standardColor;
     [SerializeField] private Color completedColor;
+    [SerializeField] private Image checkIcon;
+
+    public Button DeleteButton => deleteButton;
 
     public Action Content { get; set; }
 
@@ -31,7 +30,6 @@ public class ActionListItem : MonoBehaviour
         }
         UpdateView();
     }
-
 
     private void OnDisable()
     {
@@ -54,12 +52,10 @@ public class ActionListItem : MonoBehaviour
         if (Content == null)
         {
             gameObject.name = "Unused Item";
-            captionLabel.text = "";
-            numberLabel.text = "";
+            captionLabel.text = string.Empty;
+            numberLabel.text = string.Empty;
             backgroundImage.color = standardColor;
             checkIcon.gameObject.SetActive(false);
-
-
         }
         else
         {

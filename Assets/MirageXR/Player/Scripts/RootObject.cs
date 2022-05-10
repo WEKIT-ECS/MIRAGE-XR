@@ -16,7 +16,10 @@ namespace MirageXR
         {
             if (Instance)
             {
-                Destroy(gameObject);
+                if (Instance != this)
+                {
+                    Destroy(gameObject);
+                }
                 return;
             }
             Instance = this;
