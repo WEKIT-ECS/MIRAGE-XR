@@ -143,6 +143,10 @@ namespace MirageXR
 		{
 			var activity = string.IsNullOrEmpty(activityId) ? CreateEmptyActivity() : ActivityParser.Parse(activityId);
 			_activityUrl = activityId;
+      
+			//Always load an existing activity in play mode
+			EditModeActive = false;
+
 			await ActivateActivity(activity);
 		}
 
