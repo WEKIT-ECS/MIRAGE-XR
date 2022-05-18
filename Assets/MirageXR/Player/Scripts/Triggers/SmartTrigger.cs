@@ -283,9 +283,9 @@ namespace MirageXR
         /// <summary>
         /// Launch the trigger;
         /// </summary>
-        private void DoTrigger ()
+        private async void DoTrigger ()
         {
-            EventManager.DeactivateAction(_actionId);
+            await RootObject.Instance.activityManager.DeactivateAction(_actionId);
             RootObject.Instance.activityManager.MarkCompleted(_actionId);
             GameObject.Find("SystemSounds").SendMessage("PlayIotTrigger", SendMessageOptions.DontRequireReceiver);
         }

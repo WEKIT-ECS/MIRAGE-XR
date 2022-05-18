@@ -25,7 +25,7 @@ namespace MirageXR
             StartCoroutine(Spin());
         }
 
-        IEnumerator Spin()
+        private IEnumerator Spin()
         {
             yield return new WaitForSeconds(0.1f);
 
@@ -45,7 +45,8 @@ namespace MirageXR
                 activityManager.ActiveAction.isCompleted = true;
             }
 
-            activityManager.ActivateActionByIndex(stepNumber);
+            var task = activityManager.ActivateActionByIndex(stepNumber);
+            yield return new WaitUntil(() => task.IsCompleted);
             TaskStationDetailMenu.Instance.SelectedButton = null;
         }
     }

@@ -93,7 +93,7 @@ namespace MirageXR
 
             //StartCoroutine(SwitchToPlayerScene(activityJsonFileName));
             await RootObject.Instance.editorSceneService.LoadEditorAsync();
-            activityManager.LoadActivity(activityJsonFileName);
+            await activityManager.LoadActivity(activityJsonFileName);
 
             //Set the activity URL
             activityManager.AbsoluteURL = _selectedListViewItem.Content.AbsoluteURL;

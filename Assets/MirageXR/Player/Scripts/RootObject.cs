@@ -12,6 +12,8 @@ namespace MirageXR
         
         public static RootObject Instance { get; private set; }
 
+        private bool _isInitialized;
+        
         private void Awake()
         {
             if (Instance)
@@ -23,12 +25,14 @@ namespace MirageXR
                 return;
             }
             Instance = this;
-            Init();
+            Initialization();
             DontDestroyOnLoad(gameObject);
         }
 
-        private void Init()
+        private void Initialization()
         {
+            if (_isInitialized) return;
+            
             activityManager = new ActivityManager();
             augmentationManager = new AugmentationManager();
             moodleManager = new MoodleManager();
@@ -36,6 +40,7 @@ namespace MirageXR
             workplaceManager = new WorkplaceManager();
             
             activityManager.Subscription();
+            _isInitialized = true;
         }
 
         private void OnDestroy()

@@ -123,11 +123,11 @@ namespace MirageXR
         /// <summary>
         /// Activate next action.
         /// </summary>
-        public void Next()
+        public async void Next()
         {
             var actionObject = ActiveCard.GetComponent<ActivityCard>().ActionObject;
             actionObject.isCompleted = true;
-            EventManager.DeactivateAction(actionObject.id);
+            await RootObject.Instance.activityManager.DeactivateAction(actionObject.id);
         }
         
         /// <summary>

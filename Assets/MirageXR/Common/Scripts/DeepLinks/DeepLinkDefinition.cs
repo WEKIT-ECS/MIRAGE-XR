@@ -59,7 +59,7 @@ public class DeepLinkDefinition
         PlayerPrefs.Save();
 
         await RootObject.Instance.editorSceneService.LoadEditorAsync();
-        RootObject.Instance.activityManager.LoadActivity(fullActivityJson);
+        await RootObject.Instance.activityManager.LoadActivity(fullActivityJson);
     }
 
     // downloads the zip file of the activity from the given downloadPath and unzips the file
