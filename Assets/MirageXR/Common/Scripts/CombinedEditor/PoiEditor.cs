@@ -142,9 +142,6 @@ public class PoiEditor : MonoBehaviour
         {
             Debug.Log("adding video prefab interaction options");
             GetOrAddComponent<ObjectManipulator>();
-            var bb = GetOrAddComponent<Billboard>();
-
-            bb.PivotAxis = Microsoft.MixedReality.Toolkit.Utilities.PivotAxis.Y;
         }
 
         // add other augmentation types here
