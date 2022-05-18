@@ -3,6 +3,8 @@ using MirageXR;
 using NUnit.Framework;
 using System.Collections;
 using System.IO;
+using System.Reflection;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
@@ -41,10 +43,6 @@ namespace Tests
 
         // dummy manager objects
         RootObject dummyRoot;
-        ActivityManager dummyActivityManager;
-        WorkplaceController dummyWorkplaceController;
-        WorkplaceManager dummyWorkplaceManager;
-        ObjectFactory dummyObjectFactory;
         UiManager dummyUiManager;
         PlatformManager dummyPlatformManager;
 
@@ -61,7 +59,7 @@ namespace Tests
 
         // number of seconds to wait for setup or tests
         private float testTimeOut = 5.0f;
-
+        private RootObject rootObject;
 
         #endregion Variables
 
@@ -74,6 +72,9 @@ namespace Tests
         {
             SceneManager.LoadScene("TestScene", LoadSceneMode.Additive);
 
+            rootObject = GenerateGameObjectWithComponent<RootObject>("root");
+            CallPrivateMethod(rootObject, "Awake");
+            CallPrivateMethod(rootObject, "Initialization");
             SceneManager.sceneLoaded += OnSceneLoaded;
             EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
 
@@ -114,7 +115,8 @@ namespace Tests
                 yield return new WaitWhile(() => resourcesArranged == false && Time.time - timeoutStart < testTimeOut);
 
                 // initialise activity parsing (first thing that needs to happen)
-                StartDummyActivity("resources://calibrationTest-activity");
+                var task = StartDummyActivity("resources://calibrationTest-activity");
+                yield return new WaitUntil(() => task.IsCompleted);
 
                 // wait for workplace parsing (last thing that happens)
                 timeoutStart = Time.time;
@@ -196,7 +198,7 @@ namespace Tests
 
             // create arlem managers
             dummyRoot = GenerateGameObjectWithComponent<RootObject>("Root");
-
+            CallPrivateMethod(dummyRoot, "Initialization");
 
             // audio listener cannot be added with helper function
             var audioListener = new GameObject("Audio Listener");
@@ -298,10 +300,10 @@ namespace Tests
         #region Act
 
 
-        private void StartDummyActivity(string activityId)
+        private Task StartDummyActivity(string activityId)
         {
             // parse activity model to begin startup process
-            dummyActivityManager.LoadActivity(activityId);
+            return rootObject.activityManager.LoadActivity(activityId);
         }
 
         private void OnWorkplaceLoaded()
@@ -338,9 +340,6 @@ namespace Tests
             float timeoutStart = Time.time;
             yield return new WaitWhile(() => readyToTest == false && Time.time - timeoutStart < timeout);
         }
-
-
-
 
         [UnityTest, Order(0)]
         public IEnumerator Activity_LoadResources()
@@ -391,7 +390,7 @@ namespace Tests
             yield return EnsureTestReadiness();
 
             int testFileLength_Activity = JsonUtility.ToJson(testActivity).Length;
-            int actlFileLength_Activity = JsonUtility.ToJson(dummyActivityManager.Activity).Length;
+            int actlFileLength_Activity = JsonUtility.ToJson(rootObject.activityManager.Activity).Length;
 
             Assert.AreEqual(testFileLength_Activity, actlFileLength_Activity);
         }
@@ -402,7 +401,7 @@ namespace Tests
             yield return EnsureTestReadiness();
 
             int testFileLength_Workplace = JsonUtility.ToJson(testWorkplace).Length;
-            int actlFileLength_Workplace = JsonUtility.ToJson(dummyWorkplaceManager.Workplace).Length;
+            int actlFileLength_Workplace = JsonUtility.ToJson(rootObject.workplaceManager.Workplace).Length;
 
             Assert.AreEqual(testFileLength_Workplace, actlFileLength_Workplace);
         }
@@ -446,7 +445,7 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int d = 0; d < dummyWorkplaceManager.Workplace.detectables.Count; d++)
+            for (int d = 0; d < rootObject.workplaceManager.Workplace.detectables.Count; d++)
             {
                 float testDetectablePosition = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).x;
                 Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).position);
@@ -461,7 +460,7 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int d = 0; d < dummyWorkplaceManager.Workplace.detectables.Count; d++)
+            for (int d = 0; d < rootObject.workplaceManager.Workplace.detectables.Count; d++)
             {
                 float testDetectablePosition = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).y;
                 Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).position);
@@ -476,7 +475,7 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int d = 0; d < dummyWorkplaceManager.Workplace.detectables.Count; d++)
+            for (int d = 0; d < rootObject.workplaceManager.Workplace.detectables.Count; d++)
             {
                 float testDetectablePosition = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).z;
                 Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).position);
@@ -491,7 +490,7 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int d = 0; d < dummyWorkplaceManager.Workplace.detectables.Count; d++)
+            for (int d = 0; d < rootObject.workplaceManager.Workplace.detectables.Count; d++)
             {
                 // examine test script for expected value
                 Vector3 testDetectableRotation = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_rotation);
@@ -512,12 +511,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < dummyWorkplaceManager.Workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.workplaceManager.Workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < dummyWorkplaceManager.Workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.workplaceManager.Workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiPosition = testWorkplace.places[place].pois[poi].x_offset;
@@ -537,12 +536,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < dummyWorkplaceManager.Workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.workplaceManager.Workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < dummyWorkplaceManager.Workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.workplaceManager.Workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiPosition = testWorkplace.places[place].pois[poi].y_offset;
@@ -561,12 +560,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < dummyWorkplaceManager.Workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.workplaceManager.Workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < dummyWorkplaceManager.Workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.workplaceManager.Workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiPosition = testWorkplace.places[place].pois[poi].z_offset;
@@ -586,11 +585,11 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < dummyWorkplaceManager.Workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.workplaceManager.Workplace.places.Count; place++)
             {
                 Transform placeTransform = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < dummyWorkplaceManager.Workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.workplaceManager.Workplace.places[place].pois.Count; poi++)
                 {
                     // set expected value
                     Poi poiObject = testWorkplace.places[place].pois[poi];
@@ -615,12 +614,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < dummyWorkplaceManager.Workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.workplaceManager.Workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < dummyWorkplaceManager.Workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.workplaceManager.Workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiScale = Utilities.ParseStringToVector3(testWorkplace.places[place].pois[poi].scale).x;
@@ -639,12 +638,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < dummyWorkplaceManager.Workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.workplaceManager.Workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < dummyWorkplaceManager.Workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.workplaceManager.Workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiScale = Utilities.ParseStringToVector3(testWorkplace.places[place].pois[poi].scale).y;
@@ -663,12 +662,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < dummyWorkplaceManager.Workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.workplaceManager.Workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < dummyWorkplaceManager.Workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.workplaceManager.Workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiScale = Utilities.ParseStringToVector3(testWorkplace.places[place].pois[poi].scale).z;
@@ -697,6 +696,11 @@ namespace Tests
 
         #endregion Assert
 
+        private static void CallPrivateMethod(object obj, string methodName, params object[] parameters)
+        {
+            var method = obj.GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
+            method?.Invoke(obj, parameters);
+        }
     }
 
 }

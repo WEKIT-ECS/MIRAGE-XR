@@ -1,5 +1,5 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
+using System.Reflection;
 using MirageXR;
 using NUnit.Framework;
 using UnityEngine;
@@ -10,9 +10,14 @@ namespace Tests
 {
     public class SetStartingPositionTests
     {
+        private RootObject rootObject;
+        
         [SetUp]
         public void SetUp()
         {
+            rootObject = GenerateGameObjectWithComponent<RootObject>("root");
+            CallPrivateMethod(rootObject, "Awake");
+            CallPrivateMethod(rootObject, "Initialization");
             SceneManager.LoadScene("TestScene", LoadSceneMode.Additive);
         }
 
@@ -111,7 +116,8 @@ namespace Tests
             target.transform.position = targetPosition;
             target.transform.eulerAngles = targetEulers;
 
-            EventManager.PlayerReset();
+            var task = rootObject.activityManager.PlayerReset();
+            yield return new WaitUntil(() => task.IsCompleted);
 
             Assert.AreEqual(targetPosition, go.transform.position);
         }
@@ -133,12 +139,13 @@ namespace Tests
             go.transform.rotation = Quaternion.identity;
 
             // let Unity initialization magic methods run, e.g. Start
-            yield return null;
+            yield return new WaitForSeconds(0.5f);
 
             target.transform.position = targetPosition;
             target.transform.eulerAngles = targetEulers;
 
-            EventManager.PlayerReset();
+            var task = rootObject.activityManager.PlayerReset();
+            yield return new WaitUntil(() => task.IsCompleted);
 
             Vector3 expectedEulers = new Vector3(targetEulers.x, targetEulers.y, 0);
             Assert.AreEqual(expectedEulers, go.transform.eulerAngles);
@@ -197,6 +204,19 @@ namespace Tests
 
             Vector3 expectedEulers = new Vector3(targetEulers.x, targetEulers.y, 0);
             Assert.AreEqual(expectedEulers, go.transform.eulerAngles);
+        }
+
+        private static void CallPrivateMethod(object obj, string methodName, params object[] parameters)
+        {
+            var method = obj.GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
+            method?.Invoke(obj, parameters);
+        }
+
+        private static T GenerateGameObjectWithComponent<T>(string name, bool activated = true) where T : MonoBehaviour
+        {
+            var go = new GameObject(name);
+            go.SetActive(activated);
+            return go.AddComponent<T>();
         }
     }
 }

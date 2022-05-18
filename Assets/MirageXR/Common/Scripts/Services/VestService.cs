@@ -1,7 +1,6 @@
 ﻿using i5.Toolkit.Core.ServiceCore;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
+using TiltBrush;
 using UnityEngine;
 
 namespace MirageXR
@@ -48,7 +47,7 @@ namespace MirageXR
             if (VestConfig != null)
             {
                 VestEnabled = true;
-                EventManager.PlayerReset();
+                RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
                 Maggie.Speak("Vest enabled.");
             }
             else 
@@ -60,7 +59,7 @@ namespace MirageXR
             if (VestConfig != null)
             {
                 VestEnabled = false;
-                EventManager.PlayerReset();
+                RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
                 Maggie.Speak("Vest disabled.");
             }
             else

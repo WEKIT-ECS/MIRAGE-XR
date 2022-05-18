@@ -1,5 +1,6 @@
 ﻿using Microsoft.MixedReality.Toolkit.UI;
 using System.Threading.Tasks;
+using TiltBrush;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -546,21 +547,16 @@ namespace MirageXR
                 Maggie.Speak("Please start the activity first.");
         }
 
-        public void RestartPlayer()
-        {
-            EventManager.PlayerReset();
-        }
-
         public void RestartPlayerTouch()
         {
             EventManager.Click();
-            RestartPlayer();
+            RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
         }
 
         public void RestartPlayerVoice()
         {
             Maggie.Ok();
-            RestartPlayer();
+            RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
         }
 
         public void ClearAllVoice()

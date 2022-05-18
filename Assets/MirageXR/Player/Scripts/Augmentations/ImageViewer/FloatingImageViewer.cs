@@ -98,7 +98,7 @@ namespace MirageXR
             }
 
 
-            // this ensures objectmanipulator and billboard components are set
+            // this ensures objectmanipulator component are set
             GetComponentInParent<PoiEditor>().UpdateManipulationOptions(gameObject);
 
             return base.Init(obj);
