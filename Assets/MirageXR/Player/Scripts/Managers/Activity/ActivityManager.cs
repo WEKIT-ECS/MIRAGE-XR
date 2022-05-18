@@ -68,15 +68,11 @@ namespace MirageXR
 
 		public void Subscription()
 		{
-			EventManager.OnPlayerReset += PlayerReset;
-			EventManager.OnDeactivateAction += DeactivateAction;
 			EventManager.OnClearAll += Clear;
 		}
 
 		public void Unsubscribe()
 		{
-			EventManager.OnPlayerReset -= PlayerReset;
-			EventManager.OnDeactivateAction -= DeactivateAction;
 			EventManager.OnClearAll -= Clear;
 		}
 
@@ -115,12 +111,12 @@ namespace MirageXR
 		/// <summary>
 		/// Reset activity manager when OnPlayerReset event is triggered.
 		/// </summary>
-		private void PlayerReset()
+		public async Task PlayerReset()
 		{
 			_isSwitching = true;
 			PlayerPrefs.SetString(_activity.id, "StartingAction");
 			Clear();
-			LoadActivity(_activityUrl);
+			await LoadActivity(_activityUrl);
 		}
 
 		public void CreateNewActivity()
@@ -143,20 +139,21 @@ namespace MirageXR
 			};
 		}
 
-		public void LoadActivity(string activityId)
+		public async Task LoadActivity(string activityId)
 		{
 			var activity = string.IsNullOrEmpty(activityId) ? CreateEmptyActivity() : ActivityParser.Parse(activityId);
 			_activityUrl = activityId;
-			ActivateActivity(activity).AsAsyncVoid();
-
+      
 			//Always load an existing activity in play mode
 			EditModeActive = false;
+
+			await ActivateActivity(activity);
 		}
 
 		private async Task ActivateActivity(Activity activity)
 		{
 			EventManager.ClearAll();
-			await Task.Yield();
+			await Task.Delay(100);
 
 			_activity = activity;
 			_actionsOfTypeAction = activity.actions.Where(t => t.type == ActionType.Action).ToList();
@@ -201,7 +198,7 @@ namespace MirageXR
 				_isSwitching = false;
 				EventManager.DebugLog($"Activity manager: Starting Activity: {_activity.id}");
 				EventManager.ActivityStarted();
-				ActivateAction(restoreId);
+				await ActivateAction(restoreId);
 			}
 			else
 			{
@@ -226,7 +223,7 @@ namespace MirageXR
 		                _isSwitching = false;
 		                EventManager.DebugLog($"Activity manager: Starting Activity: {_activity.id}");
 		                EventManager.ActivityStarted();
-		                ActivateAction(action.id);
+		                await ActivateAction(action.id);
 	                }
                 }
                 catch (Exception e)
@@ -258,7 +255,7 @@ namespace MirageXR
 		/// Activates an action.
 		/// </summary>
 		/// <param name="id">ID of the action to be activated.</param>
-		private void ActivateAction(string id)
+		private async Task ActivateAction(string id)
 		{
 			const string restartKey = "restart";
 			
@@ -267,13 +264,13 @@ namespace MirageXR
 				if (id == restartKey)
 				{
 					_isSwitching = true;
-					LoadActivity(_activityUrl);
+					await LoadActivity(_activityUrl);
 				}
 				else
 				{
 					var action = _activity.actions.FirstOrDefault(action => action.id == id);
 					if (action == null) return;
-					ActivateAction(action);
+					await ActivateAction(action);
 				}
 			}
 			catch (Exception e)
@@ -284,10 +281,10 @@ namespace MirageXR
 			}
 		}
 
-		private void ActivateAction(Action step)
+		private async Task ActivateAction(Action step)
 		{
 			const string jsonExtension = ".json";
-			
+
 			ActiveAction = step;
 			step.isActive = true;
 			Trigger.SetupTriggers(step);
@@ -302,11 +299,11 @@ namespace MirageXR
 						if (content.id.EndsWith(jsonExtension)) //External activity reference!
 						{
 							_isSwitching = true;
-							LoadActivity(content.id);
+							await LoadActivity(content.id);
 							break;
 						}
 
-						ActivateAction(step.id, content);
+						await ActivateAction(step.id, content);
 						break;
 					}
 					default:
@@ -328,7 +325,7 @@ namespace MirageXR
 					case ActionType.Action:
 					case ActionType.Reaction:
 					{
-						DeactivateAction(step.id, deactivate);
+						await DeactivateAction(step.id, deactivate);
 						break;
 					}
 					default:
@@ -350,15 +347,15 @@ namespace MirageXR
 		/// Deactivates an action.
 		/// <param name="id">ID of the action to be deactivated.</param>
 		/// </summary>
-		private void DeactivateAction(string id, bool doNotActivateNextStep = false)
+		public async Task DeactivateAction(string id, bool doNotActivateNextStep = false)
 		{
 			if (!_isSwitching)
 			{
-				ActivityDeactivator(id, doNotActivateNextStep);
+				await ActivityDeactivator(id, doNotActivateNextStep);
 			}
 		}
 
-		private async void ActivityDeactivator(string id, bool doNotActivateNextStep)
+		private async Task ActivityDeactivator(string id, bool doNotActivateNextStep)
 		{
 			const string restartKey = "restart";
 			const string jsonExtension = ".json";
@@ -389,7 +386,7 @@ namespace MirageXR
 					{
 						case ActionType.Action:
 						case ActionType.Reaction:
-							DeactivateAction(action.id, deactivate);
+							await DeactivateAction(action.id, deactivate);
 							break;
 
 						default:
@@ -417,18 +414,18 @@ namespace MirageXR
 							if (activate.id.Equals(restartKey))
 							{
 								_isSwitching = true;
-								LoadActivity(_activityUrl);
+								await LoadActivity(_activityUrl);
 								break;
 							}
 							// External activity reference!
 							if (activate.id.EndsWith(jsonExtension))
 							{
 								_isSwitching = true;
-								LoadActivity(activate.id);
+								await LoadActivity(activate.id);
 								break;
 							}
 
-							ActivateAction(action.id, activate);
+							await ActivateAction(action.id, activate);
 							break;
 
 						// All the others are handled outside.
@@ -462,7 +459,7 @@ namespace MirageXR
 		/// </summary>
 		/// <param name="caller">Id of the action calling this method.</param>
 		/// <param name="obj">Action toggle object.</param>
-		private void ActivateAction(string caller, ToggleObject obj)
+		private async Task ActivateAction(string caller, ToggleObject obj)
 		{
 			const string restartKey = "restart";
 			const string jsonExtension = ".json";
@@ -495,7 +492,7 @@ namespace MirageXR
 				// Activate if conditions are met.
 				if (obj.id != caller && user == WorkplaceManager.GetUser())
 				{
-					ActivateAction(obj.id);
+					await ActivateAction(obj.id);
 				}
 			}
 			// Normal activation.
@@ -504,7 +501,7 @@ namespace MirageXR
 				// Like never ending loops? I don't...
 				if (obj.id != caller)
 				{
-					ActivateAction(obj.id);
+					await ActivateAction(obj.id);
 				}
 			}
 		}
@@ -514,20 +511,22 @@ namespace MirageXR
 		/// </summary>
 		/// <param name="caller">Id of the action calling this method.</param>
 		/// <param name="obj">Action toggle object.</param>
-		private void DeactivateAction(string caller, ToggleObject obj)
+		private async Task DeactivateAction(string caller, ToggleObject obj)
 		{
 			// Like never ending loops? I don't...
 			if (obj.id != caller)
 			{
-				DeactivateAction(obj.id);
+				await DeactivateAction(obj.id);
 			}
+
+			EventManager.DeactivateAction(caller);
 		}
 
 		/// <summary>
 		/// Clears out the scene and activates a given action.
 		/// </summary>
 		/// <param name="id">Action id to be activated.</param>
-		private void BackAction(string id)
+		private async Task BackAction(string id)
 		{
             // First clear out the scene.
             try
@@ -566,7 +565,7 @@ namespace MirageXR
 				}
 
 				// Now activate the desired action on the empty slate.
-				ActivateAction(id);
+				await ActivateAction(id);
             }
             catch (Exception e)
             {
@@ -577,49 +576,49 @@ namespace MirageXR
             }
 		}
 
-		public void ActivateActionByIndex(int index)
+		public async Task ActivateActionByIndex(int index)
 		{
-			DeactivateAction(ActiveAction.id, true);
-			ActivateAction(ActionsOfTypeAction[index].id);
+			await DeactivateAction(ActiveAction.id, true);
+			await ActivateAction(ActionsOfTypeAction[index].id);
 		}
 
-		public void ActivateNextAction()
+		public async Task ActivateNextAction()
 		{
 			if (ActiveAction != null)
 			{
-				DeactivateAction(ActiveAction.id);
+				await DeactivateAction(ActiveAction.id);
 			}
 			else
 			{
-				ActivateAction(_activity.start);
+				await ActivateAction(_activity.start);
 			}
 		}
 
-		public void ActivatePreviousAction()
+		public async Task ActivatePreviousAction()
 		{
 			int indexOfActivated = ActionsOfTypeAction.IndexOf(ActiveAction);
 			if (indexOfActivated > 0)
 			{
-				BackAction(ActionsOfTypeAction[indexOfActivated - 1].id);
+				await BackAction(ActionsOfTypeAction[indexOfActivated - 1].id);
 			}
 		}
 
-		public void ActivateFirstAction()
+		public async Task ActivateFirstAction()
 		{
 			int indexOfActivated = ActionsOfTypeAction.IndexOf(ActiveAction);
 			if (indexOfActivated > 0)
 			{
-				ActivateActionByIndex(0);
+				await ActivateActionByIndex(0);
 			}
 		}
 
-		public void ActivateLastAction()
+		public async Task ActivateLastAction()
 		{
 			int indexOfActivated = ActionsOfTypeAction.IndexOf(ActiveAction);
 			int indexOfLastAction = Activity.actions.Count - 1;
 			if (indexOfActivated < indexOfLastAction)
 			{
-				ActivateActionByIndex(indexOfLastAction);
+				await ActivateActionByIndex(indexOfLastAction);
 			}
 		}
 
@@ -645,10 +644,7 @@ namespace MirageXR
 			if (_activity.actions.Count > 0)
 			{
 				// if no active action is set, use the last action as active action
-				if (ActiveAction == null)
-				{
-					ActiveAction = _activity.actions[_activity.actions.Count - 1];
-				}
+				ActiveAction ??= _activity.actions[_activity.actions.Count - 1];
 
 				indexOfActive = _activity.actions.IndexOf(ActiveAction);
 
@@ -690,8 +686,8 @@ namespace MirageXR
 			Debug.Log($"Added {newAction.id} to list of task stations");
 
 			RegenerateActionsList();
-			ActivateNextAction();
-			ActivateAction(newAction);
+			await ActivateNextAction();
+			await ActivateAction(newAction);
 			await Task.Yield();
 			EventManager.NotifyActionCreated(newAction);
 		}

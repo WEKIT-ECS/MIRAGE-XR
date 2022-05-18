@@ -1,6 +1,8 @@
 ﻿using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 using MirageXR;
+using TiltBrush;
 
 /// <summary>
 /// Just used for MirageXR player testing.
@@ -30,7 +32,7 @@ public class DummyLogic : MonoBehaviour
     /// <summary>
     /// Load activity file.
     /// </summary>
-    private void LoadActivity ()
+    private Task LoadActivity ()
     {
         // First load. Uses the default activity.
         if (string.IsNullOrEmpty (PlayerPrefs.GetString ("activityUrl")))
@@ -58,13 +60,13 @@ public class DummyLogic : MonoBehaviour
                 break;
         }
 
-        activityManager.LoadActivity(PlayerPrefs.GetString ("activityUrl"));
+        return activityManager.LoadActivity(PlayerPrefs.GetString ("activityUrl"));
     }
 
     // Use this for initialization
     private void Start ()
     {
-        activityManager.LoadActivity("http://192.168.0.1/activities/AltecTrialActivity.json");
+        activityManager.LoadActivity("http://192.168.0.1/activities/AltecTrialActivity.json").AsAsyncVoid();
 
         //LoadActivity ();
 
@@ -95,7 +97,7 @@ public class DummyLogic : MonoBehaviour
         PlayerPrefs.SetString ("activityUrl", "resources://vttdemoactivity");
         PlayerPrefs.Save ();
         Maggie.Speak ("Loading VTT Demo Activity");
-        EventManager.PlayerReset ();
+        RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
     }
 
     /// <summary>
@@ -107,7 +109,7 @@ public class DummyLogic : MonoBehaviour
         PlayerPrefs.SetString ("activityUrl", "resources://lt_activity");
         PlayerPrefs.Save ();
         Maggie.Speak ("Loading Lufttransport Trial Activity");
-        EventManager.PlayerReset ();
+        RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
     }
 
     /// <summary>
@@ -119,7 +121,7 @@ public class DummyLogic : MonoBehaviour
         PlayerPrefs.SetString ("activityUrl", "resources://altec_activity");
         PlayerPrefs.Save ();
         Maggie.Speak ("Loading ALTEC Trial Activity");
-        EventManager.PlayerReset ();
+        RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
     }
 
     /// <summary>
@@ -131,7 +133,7 @@ public class DummyLogic : MonoBehaviour
         PlayerPrefs.SetString ("activityUrl", "resources://ebit_activity");
         PlayerPrefs.Save ();
         Maggie.Speak ("Loading Ebit Trial Activity");
-        EventManager.PlayerReset ();
+        RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
     }
 
     /// <summary>
@@ -143,7 +145,7 @@ public class DummyLogic : MonoBehaviour
         PlayerPrefs.SetString ("activityUrl", "http://192.168.0.1/activities/new_activity.json");
         PlayerPrefs.Save ();
         Maggie.Speak ("Loading ESA Demo Activity");
-        EventManager.PlayerReset ();
+        RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
     }
 
     /// <summary>
@@ -155,6 +157,6 @@ public class DummyLogic : MonoBehaviour
         PlayerPrefs.SetString("activityUrl", "https://dropboxusercontent.com/s/hp0hnwq7p1nxz4y/wekitTrialActivity.json");
         PlayerPrefs.Save();
         Maggie.Speak("Loading ESA Demo Activity");
-        EventManager.PlayerReset();
+        RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
     }
 }

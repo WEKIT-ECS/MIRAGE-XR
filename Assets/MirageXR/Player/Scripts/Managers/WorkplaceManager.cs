@@ -271,7 +271,6 @@ namespace MirageXR
                 Object.Destroy(dummy);
             }
 
-
             // Add a small delay just to make sure all the anchors are stored...
             await Task.Yield();
 
@@ -281,7 +280,9 @@ namespace MirageXR
             //delete calibration animation guide
             var calibrationGuide = GameObject.Find("CalibrationGuide");
             if (calibrationGuide)
+            {
                 Object.Destroy(calibrationGuide);
+            }
 
             Debug.Log("Play mode calibration completed.");
         }
