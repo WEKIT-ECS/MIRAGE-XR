@@ -107,7 +107,7 @@ namespace MirageXR
                 // Check if user is gazing this symbol.
                 if (gazeProvider.GazeTarget)
                 {
-                    var hitObject = gazeProvider.GazeTarget;//_gazeManager.HitObject;
+                    var hitObject = gazeProvider.GazeTarget; //_gazeManager.HitObject;
 
                     if (hitObject.transform.parent != null)
                     {
