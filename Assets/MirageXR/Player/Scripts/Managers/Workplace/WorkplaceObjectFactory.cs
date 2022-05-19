@@ -51,7 +51,7 @@ namespace MirageXR
         /// <returns>Returns the number of errors that occured while creating the objects.</returns>
         public static async void CreateSensors()
         {
-            foreach (var sensor in workplaceManager.Workplace.sensors)
+            foreach (var sensor in workplaceManager.workplace.sensors)
             {
                 try
                 {
@@ -112,7 +112,7 @@ namespace MirageXR
         /// <returns>Returns the number of errors that occured while creating the objects.</returns>
         public static async Task CreateThings()
         {
-            foreach (var thing in workplaceManager.Workplace.things)
+            foreach (var thing in workplaceManager.workplace.things)
             {
                 try
                 {
@@ -253,7 +253,7 @@ namespace MirageXR
         /// <returns>Returns the number of errors that occured while creating the objects.</returns>
         public static async Task CreatePersons()
         {
-            foreach (var person in workplaceManager.Workplace.persons)
+            foreach (var person in workplaceManager.workplace.persons)
             {
                 try
                 {
@@ -364,7 +364,7 @@ namespace MirageXR
         /// <returns>Returns the number of errors that occured while creating the objects.</returns>
         public static void CreateDevices()
         {
-            foreach (var device in workplaceManager.Workplace.devices)
+            foreach (var device in workplaceManager.workplace.devices)
             {
                 try
                 {
@@ -455,7 +455,7 @@ namespace MirageXR
                 // Vuforia image targets.
                 case "image":
                     // Path to local storage.
-                    string[] paths = {Application.persistentDataPath, workplaceManager.Workplace.id, "/detectables/",
+                    string[] paths = {Application.persistentDataPath, workplaceManager.workplace.id, "/detectables/",
                                       detectable.id, detectable.id, ".xml"};
                     var path = Path.Combine(paths);
 

@@ -27,12 +27,6 @@ namespace MirageXR
         public Transform detectableContainer { get; private set; }
         public Transform sensorContainer { get; private set; }
 
-        // List of predicate symbols.
-        private static List<Sprite> _predicates = new List<Sprite>();
-
-        // List of ISO7010 symbols.
-        private static List<Sprite> _iso7010s = new List<Sprite>();
-
         // Device user id.
         public static string userID {get; set; }
 
@@ -51,16 +45,14 @@ namespace MirageXR
         public static float ScalingFactor = 0.25f;
 
         [Tooltip("Instantiation of the workplace file.")]
-        public Workplace Workplace;
-
-        [SerializeField] private GameObject MirageXRSensorManager;
+        public Workplace workplace;
 
         /// <summary>
         /// Reset workplace manager when OnPlayerReset event is triggered.
         /// </summary>
         public void PlayerReset()
         {
-            Workplace = null;
+            workplace = null;
             userID = null;
             calibrationPairs.Clear();
         }
@@ -70,116 +62,38 @@ namespace MirageXR
         /// Called from the event manager.
         /// </summary>
         /// <param name="workplaceId">ID of the workplace file JSON file.</param>
-        public async Task ParseWorkplace(string workplaceId)
+        public async Task LoadWorkplace(string workplaceId)
         {
-            var errorCount = 0;
+            InitContainers();
+            
+            // empty string => create new workplace
+            if (string.IsNullOrEmpty(workplaceId))
+            {
+                workplace = new Workplace();
+            }
+            // For loading from resources
+            else
+            {
+                try
+                {
+                    workplace = WorkplaceParser.Parse(workplaceId);
+                }
+                catch (Exception e)
+                {
+                    EventManager.DebugLog("Error: Workplace manager: Parsing: Couldn't parse the Workplace: " + e);
+                }
+            }
 
-            // Get the containers
+            await WorkplaceViewUpdater.CreateObjects();
+        }
+
+        private void InitContainers()
+        {
             thingContainer = GameObject.Find("Things").transform;
             placeContainer = GameObject.Find("Places").transform;
             personContainer = GameObject.Find("Persons").transform;
             detectableContainer = GameObject.Find("Detectables").transform;
             sensorContainer = GameObject.Find("Sensors").transform;
-
-            // Get the _predicates
-            _predicates = Resources.LoadAll<Sprite>("predicates").ToList();
-
-            // Get the ISO7010s
-            _iso7010s = Resources.LoadAll<Sprite>("iso7010").ToList();
-
-            // empty string => create new workplace
-            if (string.IsNullOrEmpty(workplaceId))
-            {
-                Workplace = new Workplace();
-            }
-            // For loading from resources
-            else if (workplaceId.StartsWith("resources://"))
-            {
-                var asset = Resources.Load(workplaceId.Replace("resources://", "")) as TextAsset;
-
-                // Create workplace file object from json
-                try
-                {
-                    // For loading from resources
-                    Workplace = JsonUtility.FromJson<Workplace>(asset.text);
-                }
-                catch (Exception e)
-                {
-                    EventManager.DebugLog("Error: Workplace manager: Parsing: Couldn't parse the Workplace json: " + e);
-                    errorCount++;
-                }
-            }
-
-            // For loading from application path.
-            else
-            {
-                if (workplaceId.StartsWith("http"))
-                {
-                    var fullname = workplaceId.Split('/');
-                    workplaceId = fullname[fullname.Length - 1];
-                }
-
-                if (!workplaceId.EndsWith(".json"))
-                    workplaceId += ".json";
-
-                var url = File.ReadAllText(Path.Combine(Application.persistentDataPath, workplaceId));
-
-                try
-                {
-                    Workplace = JsonUtility.FromJson<Workplace>(url);
-                }
-                catch (Exception e)
-                {
-                    EventManager.DebugLog("Error: Workplace manager: Couldn't load the workplace file: " + e);
-                    errorCount++;
-                }
-            }
-
-            // If all good...
-            if (errorCount.Equals(0))
-            {
-                // Fire the event that the workplace has been successfully parsed.
-                Debug.Log("********** EventManager.WorkplaceParsed");
-                await WorkplaceViewUpdater.CreateObjects();
-            }
-            else
-                EventManager.DebugLog("Error: Workplace manager: Couldn't load the workplace file.");
-        }
-
-        /// <summary>
-        /// Get predicate symbol sprite.
-        /// </summary>
-        /// <param name="id">Id of the predicate.</param>
-        /// <returns>Returns null if sprite not found.</returns>
-        //SUGGESTION Shall we put this object on a separate layer to reduce the scope of the search?
-        public static Sprite GetPredicate(string id)
-        {
-            Sprite output = null;
-
-            foreach (var predicate in _predicates)
-            {
-                if (id == predicate.name)
-                    output = predicate;
-            }
-
-            return output;
-        }
-
-        /// <summary>
-        /// Get ISO7010 symbol sprite.
-        /// </summary>
-        /// <param name="id">Id of the ISO7010 symbol.</param>
-        /// <returns>Returns null if sprite not found.</returns>
-        //SUGGESTION Shall we put this object on a separate layer to reduce the scope of the search?
-        public static Sprite GetIso7010(string id)
-        {
-            foreach (var symbol in _iso7010s)
-            {
-                if (id == symbol.name)
-                    return symbol;
-            }
-
-            return null;
         }
 
         /// <summary>
@@ -274,9 +188,6 @@ namespace MirageXR
             // Add a small delay just to make sure all the anchors are stored...
             await Task.Yield();
 
-            EventManager.WorkplaceCalibrated();
-            Maggie.Speak("Workplace is now calibrated.");
-
             //delete calibration animation guide
             var calibrationGuide = GameObject.Find("CalibrationGuide");
             if (calibrationGuide)
@@ -289,19 +200,19 @@ namespace MirageXR
 
         public Place GetPlaceFromTaskStationId(string id)
         {
-            return Workplace.places.Find(item => item.id == id);
+            return workplace.places.Find(item => item.id == id);
         }
 
         public Detectable GetDetectable(Place place)
         {
-            return Workplace.detectables.Find((item) => item.id == place.detectable);
+            return workplace.detectables.Find((item) => item.id == place.detectable);
         }
 
         public void SaveWorkplace()
         {
-            var recFilePath = Path.Combine(Application.persistentDataPath, Workplace.id);
+            var recFilePath = Path.Combine(Application.persistentDataPath, workplace.id);
 
-            var json = JsonUtility.ToJson(Workplace);
+            var json = WorkplaceParser.Serialize(workplace);
             File.WriteAllText(recFilePath, json);
         }
 
@@ -327,8 +238,8 @@ namespace MirageXR
                 return;
             }
 
-            Workplace.detectables.Add(detectable);
-            Workplace.places.Add(place);
+            workplace.detectables.Add(detectable);
+            workplace.places.Add(place);
 
             //TODO move this to the model
             WorkplaceObjectFactory.CreateDetectableObject(detectable, true);
@@ -390,7 +301,7 @@ namespace MirageXR
         /// performs changes to the model using the WorkplaceManager's functionality.
         /// </summary>
         /// <param name="origin">Origin transform from the calibration target.</param>
-        public async void CalibrateWorkplace(Transform origin)
+        public async Task CalibrateWorkplace(Transform origin)
         {
             if (activityManager.EditModeActive)
             {
@@ -402,6 +313,9 @@ namespace MirageXR
             }
 
             await activityManager.StartActivity();
+            
+            EventManager.WorkplaceCalibrated();
+            Maggie.Speak("Workplace is now calibrated.");
         }
     }
 }
