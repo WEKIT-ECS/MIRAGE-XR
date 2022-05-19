@@ -17,6 +17,7 @@ namespace MirageXR
 
         /// <summary>
         /// Reference to the TutorialManager handling the step.
+        /// Should never be null.
         /// </summary>
         public TutorialManager manager;
 
