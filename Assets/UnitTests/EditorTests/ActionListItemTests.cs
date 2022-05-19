@@ -20,7 +20,7 @@ namespace Tests
         private Color completedColor;
 
         private ActionListItem actionListItem;
-        private ActivityManager activityManager;
+        private RootObject rootObject;
 
         [SetUp]
         public void SetUp()
@@ -46,8 +46,16 @@ namespace Tests
             SetPrivateField(actionListItem, "deleteButton", deleteButton);
             SetPrivateField(actionListItem, "checkIcon", checkIcon);
 
-            activityManager = new ActivityManager();
-            activityManager.GetType().GetProperty("Instance").SetValue(null, activityManager);
+            if (!RootObject.Instance)
+            {
+                rootObject = GenerateGameObjectWithComponent<RootObject>("root");
+                CallPrivateMethod(rootObject, "Awake");
+                CallPrivateMethod(rootObject, "Initialization");
+            }
+            else
+            {
+                rootObject = RootObject.Instance;
+            }
         }
 
         [Test]
@@ -165,7 +173,7 @@ namespace Tests
                 id = "activeActionId"
             };
 
-            SetPrivateProperty(activityManager, "ActiveAction", activeAction);
+            SetPrivateProperty(rootObject.activityManager, "ActiveAction", activeAction);
 
             actionListItem.UpdateView();
 
@@ -193,7 +201,7 @@ namespace Tests
                 id = "activeActionId"
             };
 
-            SetPrivateProperty(activityManager, "ActiveAction", activeAction);
+            SetPrivateProperty(rootObject.activityManager, "ActiveAction", activeAction);
 
             actionListItem.UpdateView();
 
@@ -213,6 +221,12 @@ namespace Tests
         private static void SetPrivateProperty<T>(object obj, string propertyName, T value)
         {
             obj.GetType().GetProperty(propertyName)?.SetValue(obj, value);
+        }
+
+        private static void CallPrivateMethod(object obj, string methodName, params object[] parameters)
+        {
+            var method = obj.GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
+            method?.Invoke(obj, parameters);
         }
     }
 }

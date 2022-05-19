@@ -26,19 +26,22 @@ namespace MirageXR
             }
             Instance = this;
             Initialization();
-            DontDestroyOnLoad(gameObject);
+            if (Application.isPlaying)
+            {
+                DontDestroyOnLoad(gameObject);
+            }
         }
 
         private void Initialization()
         {
             if (_isInitialized) return;
-            
+
             activityManager = new ActivityManager();
             augmentationManager = new AugmentationManager();
             moodleManager = new MoodleManager();
             editorSceneService = new EditorSceneService();
             workplaceManager = new WorkplaceManager();
-            
+
             activityManager.Subscription();
             _isInitialized = true;
         }
