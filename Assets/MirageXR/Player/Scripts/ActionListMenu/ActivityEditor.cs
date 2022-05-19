@@ -172,7 +172,7 @@ public class ActivityEditor : MonoBehaviour
     public void OpenScreenShot()
     {
         var actionEditor = FindObjectOfType<ActionEditor>();
-        var ie = (ImageEditor) actionEditor.CreateEditorView(ContentType.IMAGE);
+        var ie = (ImageEditor)actionEditor.CreateEditorView(ContentType.IMAGE);
         var adv = actionEditor.DetailView;
         ie.IsThumbnail = true;
         ie.Open(adv.DisplayedAction, null);

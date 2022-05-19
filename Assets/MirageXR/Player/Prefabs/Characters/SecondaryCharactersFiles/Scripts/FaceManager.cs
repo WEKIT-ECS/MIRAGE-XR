@@ -35,7 +35,7 @@ public class FaceManager : MonoBehaviour
                
         skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
 
-        for (idx = 0; idx < skinnedMeshRenderer.materials.Length; idx++ )
+        for (idx = 0; idx < skinnedMeshRenderer.materials.Length; idx++)
             if ( skinnedMeshRenderer.materials[idx].name.Contains("AlienHead") ) { material = skinnedMeshRenderer.materials[idx]; break; }
 
         _blendValues = Shader.PropertyToID("_blendValues");
@@ -73,7 +73,7 @@ public class FaceManager : MonoBehaviour
 
     private void Update()
     {
-        for ( idx = 0; idx < blendVal.Length; idx++ ) blendVal[idx] = skinnedMeshRenderer.GetBlendShapeWeight(idx) * blendDiv;
+        for ( idx = 0; idx < blendVal.Length; idx++) blendVal[idx] = skinnedMeshRenderer.GetBlendShapeWeight(idx) * blendDiv;
         if ( material != null ) material.SetFloatArray(_blendValues, blendVal);
         else Debug.LogError("Alien does't have correct materials");
 
@@ -110,7 +110,7 @@ public class FaceManager : MonoBehaviour
 
         speedTime = Random.Range(5f, 6f);
 
-        for (i=0; i<=1f; i+=Time.deltaTime*speedTime )
+        for (i = 0; i <= 1f; i += Time.deltaTime * speedTime )
         {
             upRot.x = Mathf.Lerp(0, upperLidXRest, i);
             upperLid.localEulerAngles = upRot;

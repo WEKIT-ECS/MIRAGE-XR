@@ -158,7 +158,7 @@ public class ImageMarkerEditor : MonoBehaviour
         saveFileName = $"MirageXR_ImageMarker_{System.DateTime.Now.ToFileTimeUtc()}.jpg";
         string outputPath = Path.Combine(ActivityManager.Instance.Path, saveFileName);
 
-        Debug.Log("THIS IS THE OUTPATH: "+ ActivityManager.Instance.Path);
+        Debug.Log("THIS IS THE OUTPATH: " + ActivityManager.Instance.Path);
 
         byte[] jpgBytes = tex.EncodeToJPG();
         File.WriteAllBytes(outputPath, jpgBytes);
@@ -190,7 +190,7 @@ public class ImageMarkerEditor : MonoBehaviour
         Debug.Log("Annotation to edit: " + annotationToEdit.predicate);
 
         annotationToEdit.url = "resources://" + saveFileName;
-        float s = float.Parse(Size.text)/100;
+        float s = float.Parse(Size.text) / 100;
         annotationToEdit.scale = s;
 
         EventManager.ActivateObject(annotationToEdit);

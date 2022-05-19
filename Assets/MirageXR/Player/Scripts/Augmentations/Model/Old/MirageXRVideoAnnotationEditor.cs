@@ -160,7 +160,7 @@ public class MirageXRVideoAnnotationEditor : MonoBehaviour
         videoPlayer = GameObject.Find("VideoDisplay").AddComponent<VideoPlayer>();
         //videoPlayer = gameObject.transform.Find("VideoDisplay").
         
-        Debug.Log("Video Player Name: "+ videoPlayer.name);
+        Debug.Log("Video Player Name: " + videoPlayer.name);
 
         //Add AudioSource
         //audioSource = gameObject.AddComponent<AudioSource>();
@@ -200,7 +200,7 @@ public class MirageXRVideoAnnotationEditor : MonoBehaviour
             yield return null;
         }
 
-        Debug.Log("Done Preparing Video "+ videoPlayer.url);
+        Debug.Log("Done Preparing Video " + videoPlayer.url);
 
         //Assign the Texture from Video to RawImage to be displayed
         image.texture = videoPlayer.texture;

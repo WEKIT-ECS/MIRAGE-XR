@@ -72,7 +72,7 @@ public class MirageXRModelAnnotationEditor : MonoBehaviour
 
     public void Place3DModel(string modelResourceLocator, bool isLarge)
     {
-        Debug.Log("3d model Annotation changed: "+modelResourceLocator);
+        Debug.Log("3d model Annotation changed: " + modelResourceLocator);
         selectedModel = modelResourceLocator;
         DestroyChild();
         large = isLarge;
