@@ -24,14 +24,14 @@ namespace MirageXR
             
             // Instantiate detectables first, since they need to be there when others want to attach to them.
             //TODO further detatch the model from the WorkplaceManager
-            await WorkplaceObjectFactory.CreateDetectablesOrPlaces(workplaceManager.Workplace.detectables, "detectables");
+            await WorkplaceObjectFactory.CreateDetectablesOrPlaces(workplaceManager.workplace.detectables, "detectables");
 
             // Instantiate device sensors.
             WorkplaceObjectFactory.CreateSensors();
             // Instantiate thing objects
             await WorkplaceObjectFactory.CreateThings();
             // Instantiate place objects
-            await WorkplaceObjectFactory.CreateDetectablesOrPlaces(workplaceManager.Workplace.places, "places");
+            await WorkplaceObjectFactory.CreateDetectablesOrPlaces(workplaceManager.workplace.places, "places");
             // Instantiate person objects
             await WorkplaceObjectFactory.CreatePersons();
             // Attach user to current device.

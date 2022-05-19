@@ -54,7 +54,7 @@ public class PluginEditorView : PopupEditorBase
         _content.url = _app.manifest;
         _step.appIDs.Add(_app.id);
 
-        RootObject.Instance.workplaceManager.Workplace.apps.Add(_app);
+        RootObject.Instance.workplaceManager.workplace.apps.Add(_app);
 
         EventManager.ActivateObject(_content);
         EventManager.NotifyActionModified(_step);

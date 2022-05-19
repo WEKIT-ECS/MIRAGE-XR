@@ -3,30 +3,12 @@ using System.Reflection;
 using MirageXR;
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
 namespace Tests
 {
     public class SetStartingPositionTests
     {
-        private RootObject rootObject;
-        
-        [SetUp]
-        public void SetUp()
-        {
-            rootObject = GenerateGameObjectWithComponent<RootObject>("root");
-            CallPrivateMethod(rootObject, "Awake");
-            CallPrivateMethod(rootObject, "Initialization");
-            SceneManager.LoadScene("TestScene", LoadSceneMode.Additive);
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            SceneManager.UnloadSceneAsync("TestScene");
-        }
-
         [UnityTest]
         public IEnumerator Start_SetsPositionToUserViewport()
         {
@@ -111,14 +93,12 @@ namespace Tests
             go.transform.rotation = Quaternion.identity;
 
             // let Unity initialization magic methods run, e.g. Start
-            yield return null;
+            yield return new WaitForSeconds(0.5f);
 
             target.transform.position = targetPosition;
             target.transform.eulerAngles = targetEulers;
 
-            var task = rootObject.activityManager.PlayerReset();
-            yield return new WaitUntil(() => task.IsCompleted);
-
+            EventManager.PlayerReset();
             Assert.AreEqual(targetPosition, go.transform.position);
         }
 
@@ -144,9 +124,7 @@ namespace Tests
             target.transform.position = targetPosition;
             target.transform.eulerAngles = targetEulers;
 
-            var task = rootObject.activityManager.PlayerReset();
-            yield return new WaitUntil(() => task.IsCompleted);
-
+            EventManager.PlayerReset();
             Vector3 expectedEulers = new Vector3(targetEulers.x, targetEulers.y, 0);
             Assert.AreEqual(expectedEulers, go.transform.eulerAngles);
         }

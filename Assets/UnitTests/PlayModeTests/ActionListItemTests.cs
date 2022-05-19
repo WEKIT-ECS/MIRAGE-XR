@@ -45,11 +45,25 @@ namespace Tests
             SetPrivateField(actionListItem, "deleteButton", deleteButton);
             SetPrivateField(actionListItem, "checkIcon", checkIcon);
 
-            rootObject = GenerateGameObjectWithComponent<RootObject>("root");
-            CallPrivateMethod(rootObject, "Initialization");
+            if (!RootObject.Instance)
+            {
+                rootObject = GenerateGameObjectWithComponent<RootObject>("root");
+                CallPrivateMethod(rootObject, "Awake");
+                CallPrivateMethod(rootObject, "Initialization");
+            }
+            else
+            {
+                rootObject = RootObject.Instance;
+            }
             actionListItem.gameObject.SetActive(true);
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            SceneManager.UnloadSceneAsync("TestScene");
+        }
+        
         [Test]
         public void OnActivateAction_ContentNotSet_GameObjectNameSetToUnused()
         {

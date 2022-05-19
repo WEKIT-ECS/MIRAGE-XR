@@ -29,24 +29,30 @@ namespace MirageXR
 
         public void SetPlayer()
         {
-            CalibrationModel.gameObject.SetActive(true);
+            if (CalibrationModel)
+            {
+                CalibrationModel.SetActive(true);
+            }
         }
 
         public void Reset()
         {
-            CalibrationModel.gameObject.SetActive(false);
+            if (CalibrationModel)
+            {
+                CalibrationModel.SetActive(false);
+            }
         }
 
         /// <summary>
         /// Calibrate workplace model anchors.
         /// </summary>
-        public void Calibrate()
+        public async void Calibrate()
         {
             // Calibrate only if the marker is visible.
             if (CalibrationModel.activeInHierarchy)
             {
                 EventManager.Click();
-                RootObject.Instance.workplaceManager.CalibrateWorkplace(transform);
+                await RootObject.Instance.workplaceManager.CalibrateWorkplace(transform);
             }
         }
     }

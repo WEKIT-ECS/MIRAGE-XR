@@ -102,7 +102,7 @@ namespace MirageXR
             _annotationToEdit.predicate = "plugin:" + plugin.name;
             _annotationToEdit.url = plugin.manifest;
             
-            workplaceManager.Workplace.apps.Add(plugin);
+            workplaceManager.workplace.apps.Add(plugin);
 
             _action.appIDs.Add(plugin.id);
 

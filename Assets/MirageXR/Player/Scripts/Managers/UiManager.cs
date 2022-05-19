@@ -274,7 +274,7 @@ namespace MirageXR
                 Loading.Instance.LoadingVisibility(false);
             }
 
-            EventManager.ActivityLoadedStamp(SystemInfo.deviceUniqueIdentifier, activityManager.Activity.id, System.DateTime.UtcNow.ToUniversalTime().ToString());
+            //EventManager.ActivityLoadedStamp(SystemInfo.deviceUniqueIdentifier, activityManager.Activity.id, System.DateTime.UtcNow.ToUniversalTime().ToString());
         }
 
         private void ActivityStarted()

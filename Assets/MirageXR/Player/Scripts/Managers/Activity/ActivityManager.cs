@@ -117,6 +117,7 @@ namespace MirageXR
 			PlayerPrefs.SetString(_activity.id, "StartingAction");
 			Clear();
 			await LoadActivity(_activityUrl);
+			EventManager.PlayerReset();
 		}
 
 		public void CreateNewActivity()
@@ -168,7 +169,7 @@ namespace MirageXR
 				_activityRestorer.RestoreActions(activity, restoreId);
 			}
 
-			await RootObject.Instance.workplaceManager.ParseWorkplace(_activity.workplace);
+			await RootObject.Instance.workplaceManager.LoadWorkplace(_activity.workplace);
 
 			await StartActivity();
 			IsReady = true;
@@ -831,7 +832,7 @@ namespace MirageXR
 			}
 
 			var workplaceId = string.Format(WORKPLACE_ID_FORMAT, id);
-			RootObject.Instance.workplaceManager.Workplace.id = workplaceId;
+			RootObject.Instance.workplaceManager.workplace.id = workplaceId;
 			_activity.workplace = workplaceId;
 			_newIdGenerated = true;
 		}

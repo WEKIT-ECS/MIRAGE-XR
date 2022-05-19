@@ -58,7 +58,10 @@ namespace MirageXR
             {
                 gameObject.SetActive(true);
                 taskStationColor = BrandManager.Instance.GetTaskStationColor();
-                TaskStationDetailMenu.Instance.ResetTaskStationMenu(this);
+                if (TaskStationDetailMenu.Instance)
+                {
+                    TaskStationDetailMenu.Instance.ResetTaskStationMenu(this);
+                }
             }
             else if (IsNext())
             {
