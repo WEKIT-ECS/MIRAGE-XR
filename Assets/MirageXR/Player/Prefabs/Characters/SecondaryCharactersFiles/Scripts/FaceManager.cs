@@ -9,7 +9,7 @@ public class FaceManager : MonoBehaviour
     private const float defaultAntennaSpeed = 0.1f;
     private const int blendNumber = 4;
 
-    public Vector3 eyelidLocalPosition = new Vector3(0,0.1128434f,0.06117219f); //0.001174, 0.000564
+    public Vector3 eyelidLocalPosition = new Vector3(0, 0.1128434f, 0.06117219f); //0.001174, 0.000564
 
     private SkinnedMeshRenderer skinnedMeshRenderer;
     private Material material;
