@@ -145,7 +145,7 @@ namespace MirageXR
                 // Modified by Jake to get the calibration issue fixed.
                 // RecordingOrigin.Rotate(90f, 0f, 0f); // We need to have the rotation as it is detected in Unity!
 
-                GameObject.Instantiate(worldOriginMarkerPrefab, location, rotation);// can be removed - only for reference.
+                GameObject.Instantiate(worldOriginMarkerPrefab, location, rotation); // can be removed - only for reference.
 
                 calibrationMarkerFound = true;
                 Debug.Log("the origin's scale factor is " + RecordingOrigin.localScale.ToString());
