@@ -9,7 +9,7 @@ public static class Encryption
         StringBuilder sb = new StringBuilder(txt.Length);
         foreach (var ch in txt)
         {
-            char newChar = (char) (ch ^ key);
+            char newChar = (char)(ch ^ key);
             sb.Append(newChar);
         }
 

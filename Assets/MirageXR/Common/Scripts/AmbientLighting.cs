@@ -28,7 +28,7 @@ namespace MirageXR
                 {
                     Vector3 startPosition = transform.position + transform.forward * Random.Range(-5, 5) + transform.right * Random.Range(-5, 5);
                     var ambientLightPrefab = await ReferenceLoader.GetAssetReference("AmbientLight");
-                    if (ambientLightPrefab!= null)
+                    if (ambientLightPrefab != null)
                     {
                         Instantiate(ambientLightPrefab, startPosition, Quaternion.identity, transform);
                     }

@@ -280,7 +280,7 @@ public class ContentListView : BaseView
         var sizeStart = axis == RectTransform.Axis.Horizontal ? rect.width : rect.height;
         var timer = 0.0f;
         while (timer < 1.0f) {
-            timer = Mathf.Min(1.0f, timer + Time.deltaTime/time);
+            timer = Mathf.Min(1.0f, timer + Time.deltaTime / time);
             var value = curve.Evaluate(timer);
             var size = Mathf.Lerp(sizeStart, sizeEnd, value);
             rectTransform.SetSizeWithCurrentAnchors(axis, size);
@@ -297,7 +297,7 @@ public class ContentListView : BaseView
         var rotateStart = transform.localRotation;
         var timer = 0.0f;
         while (timer < 1.0f) {
-            timer = Mathf.Min(1.0f, timer + Time.deltaTime/time);
+            timer = Mathf.Min(1.0f, timer + Time.deltaTime / time);
             var value = curve.Evaluate(timer);
             transform.localRotation = Quaternion.Lerp(rotateStart, rotateEnd, value);
 

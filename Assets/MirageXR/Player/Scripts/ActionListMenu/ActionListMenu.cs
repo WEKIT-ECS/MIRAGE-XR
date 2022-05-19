@@ -110,7 +110,7 @@ public class ActionListMenu : MonoBehaviour
 
     private void UpdateUI()
     {
-        totalNumberOfPages = (actions.Count - 1) / itemsPerPage > 0 ? itemsPerPage: 1;
+        totalNumberOfPages = (actions.Count - 1) / itemsPerPage > 0 ? itemsPerPage : 1;
         DisplayList();
         CheckStepButtons();
         UpdatePageLabel();
@@ -148,10 +148,10 @@ public class ActionListMenu : MonoBehaviour
             ActivityManager.Instance.ActiveAction.isCompleted = true;
 
         bool isCompleted = ActivityManager.Instance.ActiveAction == null || ActivityManager.Instance.ActiveAction.isCompleted;
-        nextStepButton.interactable = (!isLastStep || !isCompleted) && activeIndex < actions.Count-1;
+        nextStepButton.interactable = (!isLastStep || !isCompleted) && activeIndex < actions.Count - 1;
 
         //automaticaly go to next page if step is on next page
-        if (activeIndex + 1 > itemsPerPage * (page +1))
+        if (activeIndex + 1 > itemsPerPage * (page + 1))
             NextPage();
         //automaticaly go to previous page if step is on previous page
         else if (activeIndex + 1 <= itemsPerPage * page)
