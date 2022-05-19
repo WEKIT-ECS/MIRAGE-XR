@@ -130,7 +130,7 @@ public class MirageXRModelAnnotationEditor : MonoBehaviour
     public void ExpandModel()
     {
         Debug.Log("3d model expanded");
-        gameObject.GetComponentInChildren<MirageXRModelExpander>().SendMessage("ExpandModel",SendMessageOptions.DontRequireReceiver);
+        gameObject.GetComponentInChildren<MirageXRModelExpander>().SendMessage("ExpandModel", SendMessageOptions.DontRequireReceiver);
     }
 
     public void CompressModel()
