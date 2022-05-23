@@ -62,7 +62,7 @@ namespace MirageXR
             var isDownloaded = _container.ExistsRemotely && _container.ExistsLocally && !_container.IsDownloading;
             var isOnClouds = _container.ExistsRemotely && !_container.ExistsLocally && !_container.IsDownloading;
             _btnDelete.gameObject.SetActive(isLocal || isDownloaded || _container.userIsOwner);
-            _btnEdit.gameObject.SetActive(false);//_container.IsEditable);
+            _btnEdit.gameObject.SetActive(false); //_container.IsEditable);
             _imgError.gameObject.SetActive(_container.HasError);
             _waitSpinner.gameObject.SetActive(_container.IsDownloading);
             if (isLocal) _imgStatus.sprite = _spriteLocal;

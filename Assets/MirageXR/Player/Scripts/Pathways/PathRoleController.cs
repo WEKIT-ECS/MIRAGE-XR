@@ -157,7 +157,7 @@ public class PathRoleController : MonoBehaviour
         List<Action> actions = activityManager.ActionsOfTypeAction;
 
         int index = actions.IndexOf(activityManager.ActiveAction);
-        if (index >= actions.Count-1)
+        if (index >= actions.Count - 1)
         {
             return false;
         }

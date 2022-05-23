@@ -30,7 +30,7 @@ public class SetPoints : MonoBehaviour {
 		targetPoint = targetTransform.position;
 		middlePoint = (originPoint + targetPoint) / 2;
 
-		directionVector = (targetPoint -originPoint).normalized;
+		directionVector = (targetPoint - originPoint).normalized;
 
 		lineRenderer.SetPosition (0, originPoint + directionVector * originOffset);
 		lineRenderer.SetPosition (1, middlePoint);

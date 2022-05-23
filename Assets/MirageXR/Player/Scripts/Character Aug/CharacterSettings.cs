@@ -29,7 +29,7 @@ namespace MirageXR
 
         private void Start()
         {
-            AddHoverGuide(trigger.gameObject , "Enable this to move to the next action step when the dialog or animation is fully played. The longest will be selected as the trigger.");
+            AddHoverGuide(trigger.gameObject, "Enable this to move to the next action step when the dialog or animation is fully played. The longest will be selected as the trigger.");
             AddHoverGuide(dialogRecorder.RecordButton.gameObject, "Record a voice to be played as the character speech.");
             AddHoverGuide(dialogRecorder.PlayButton.gameObject, "Play the recorded voice.");
             AddHoverGuide(dialogRecorder.LoopToggle.gameObject, "Replay the audio file while the character exist.");

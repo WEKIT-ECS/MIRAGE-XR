@@ -97,7 +97,7 @@ public class SaveLoadAudioUtilities
 
         for (int i = 0; i < samples.Length; i++)
         {
-            intData[i] = (short) (samples[i] * rescaleFactor);
+            intData[i] = (short)(samples[i] * rescaleFactor);
         }
 
         Buffer.BlockCopy(intData, 0, bytesData, 0, bytesData.Length);

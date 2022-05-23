@@ -24,7 +24,7 @@ public class EyeManager : MonoBehaviour
 
     private void Awake()
     {
-        row = (float) eyeColor;
+        row = (float)eyeColor;
         offset = new Vector2(col * tileSize, row * tileSize);
         skin = GetComponent<SkinnedMeshRenderer>();
         mat = skin.material;
@@ -44,11 +44,11 @@ public class EyeManager : MonoBehaviour
         mat.SetTextureOffset("_MainTex", offset);
         yield return new WaitForSeconds(0.01f);
 
-        for (float i = 0; i<5f; i++ )
+        for (float i = 0; i < 5f; i++)
         {
             offset.x = i * tileSize;
             mat.SetTextureOffset("_MainTex", offset);
-            if (i==0) yield return new WaitForSeconds(0.1f);
+            if (i == 0) yield return new WaitForSeconds(0.1f);
             else yield return new WaitForSeconds(0.05f);
         }
 

@@ -120,6 +120,20 @@ namespace MirageXR
             PopupsViewer.Instance.Show(_loginViewPrefab);
         }
 
+        private void OnHelpClick()
+        {
+            if (!TutorialManager.Instance.IsTutorialRunning)
+            {
+                TutorialDialog tDialog = RootView.Instance.TutorialDialog;
+                tDialog.Toggle();
+            }
+            else
+            {
+                TutorialManager.Instance.CloseTutorial();
+            }
+            
+        }
+
         private async void OnAddActivityClick()
         {
             LoadView.Instance.Show();
