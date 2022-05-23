@@ -36,7 +36,7 @@ namespace MirageXR
             stepStatusLabel.text = "Step " + counter.ToString()  + " of " + tasks.Length.ToString() + " is done!";
 
             //adjust the progress line if the task list is not empty
-            progressLine.GetComponent<RectTransform>().localScale = new Vector3( (1f / tasks.Length) * counter, 1f , 1f);
+            progressLine.GetComponent<RectTransform>().localScale = new Vector3( (1f / tasks.Length) * counter, 1f, 1f);
             print(counter);
         }
     }

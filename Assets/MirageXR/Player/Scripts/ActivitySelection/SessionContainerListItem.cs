@@ -92,7 +92,7 @@ namespace MirageXR
             if (result)
             {
                 var sessionListView = FindObjectOfType<SessionListView>();
-                if (sessionListView) {sessionListView.RefreshActivityList();}
+                if (sessionListView) {sessionListView.RefreshActivityList(); }
             }
         }
     }

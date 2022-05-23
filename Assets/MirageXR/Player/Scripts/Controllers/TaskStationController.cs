@@ -145,7 +145,7 @@ namespace MirageXR
             // add a trigger, give it an id
             ThisAction.triggers.Add(new Trigger());
             trigIndex = ThisAction.triggers.Count - 1;
-            ThisAction.triggers[trigIndex].id = "start";// ("TR-" + System.Guid.NewGuid().ToString());
+            ThisAction.triggers[trigIndex].id = "start"; // ("TR-" + System.Guid.NewGuid().ToString());
 
             // need a method to make this accessable to the user
             ThisAction.triggers[trigIndex].mode = mode;

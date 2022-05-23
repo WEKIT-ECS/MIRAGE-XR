@@ -260,7 +260,7 @@ namespace MirageXR
             using (var stream = new FileStream(file, FileMode.Open))
             {
                 bytes = new byte[stream.Length];
-                await stream.ReadAsync(bytes, 0, (int) stream.Length);
+                await stream.ReadAsync(bytes, 0, (int)stream.Length);
             }
 
             return (true, bytes);

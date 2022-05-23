@@ -126,7 +126,7 @@ namespace MirageXR
 
         private void OnHelpClick()
         {
-            if(!TutorialManager.Instance.IsTutorialRunning)
+            if (!TutorialManager.Instance.IsTutorialRunning)
             {
                 TutorialDialog tDialog = RootView.Instance.TutorialDialog;
                 tDialog.Toggle();

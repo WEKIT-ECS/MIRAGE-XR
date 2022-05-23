@@ -164,7 +164,7 @@ namespace MirageXR
             else
                 status.text = string.Empty;
 
-            transform.FindDeepChild("LoginButton").GetComponent<Button>().interactable = usernameField.text.Length >= usernameMinLength && passwordField.text.Length >= passwordMinLength;//TODO: possible NRE
+            transform.FindDeepChild("LoginButton").GetComponent<Button>().interactable = usernameField.text.Length >= usernameMinLength && passwordField.text.Length >= passwordMinLength; //TODO: possible NRE
 
             //remove space
             if (usernameField.text.Contains(" "))
