@@ -48,7 +48,7 @@ public abstract class PopupEditorBase : PopupBase
     {
         try
         {
-            _step = (MirageXR.Action) args[0];
+            _step = (MirageXR.Action)args[0];
         }
         catch (Exception)
         {

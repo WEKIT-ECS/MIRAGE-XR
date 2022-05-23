@@ -123,7 +123,7 @@ namespace MirageXR
         public void SavePositions()
         {
 
-            if (myObj == null || myObj.poi == "") return;//only if the poi is instantiated not the prefab
+            if (myObj == null || myObj.poi == "") return; //only if the poi is instantiated not the prefab
 
             Positions positions = new Positions
             {

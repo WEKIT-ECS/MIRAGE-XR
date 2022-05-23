@@ -51,7 +51,7 @@ namespace MirageXR
             // add a trigger, give it an id
             var trigger = new Trigger
             {
-                id = id,// ("TR-" + System.Guid.NewGuid().ToString());
+                id = id, // ("TR-" + System.Guid.NewGuid().ToString());
                 // need a method to make this accessable to the user
                 mode = mode,
                 type = type,

@@ -26,7 +26,7 @@ namespace MirageXR
         private const string modelButtonHelpText = "Click this button and select a 3D model from the augmentation list to change the pick and place object model";
 
         public Vector3 ResetPos {
-            get { return resetPos;}
+            get { return resetPos; }
             set { resetPos = value; }
         }
 

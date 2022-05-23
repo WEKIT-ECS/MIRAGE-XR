@@ -399,7 +399,7 @@ namespace MirageXR
                 int.TryParse(trigger.value, out int triggerStepNumber);
 
                 if (triggerStepNumber > 0)
-                    triggerStepNumber -= 1;//-1 for converting to the correct index
+                    triggerStepNumber -= 1; //-1 for converting to the correct index
 
                 if (!gazeCircle && !ActivityManager.Instance.EditModeActive && ActivityManager.Instance.ActionsOfTypeAction.Count > triggerStepNumber)
                 {

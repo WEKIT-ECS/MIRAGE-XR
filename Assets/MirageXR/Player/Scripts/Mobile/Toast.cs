@@ -85,7 +85,7 @@ public class Toast : MonoBehaviour
         var timer = 0.0f;
         while (timer < 1.0f) 
         {
-            timer = Mathf.Min(1.0f, timer + Time.deltaTime/time);
+            timer = Mathf.Min(1.0f, timer + Time.deltaTime / time);
             canvasGroup.alpha = Mathf.Lerp(alphaStart, alphaEnd, curve.Evaluate(timer));
             yield return null;
         }

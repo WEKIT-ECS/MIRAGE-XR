@@ -50,7 +50,7 @@ namespace MirageXR
         private AudioSource _audioSource;
 
         public bool VideoClipLoaded => _videoPlayer.clip != null;
-        public float VideoDuration => (float) _videoPlayer.length;
+        public float VideoDuration => (float)_videoPlayer.length;
 
         private void Awake()
         {
@@ -511,10 +511,10 @@ namespace MirageXR
             {
                 name = "PlaneMesh",
                 vertices = new Vector3[] {
-            new Vector3( _width/2f, -_height/2f, 0 ),
-            new Vector3( -_width/2f, -_height/2f, 0 ),
-            new Vector3( -_width/2f, _height/2f, 0 ),
-            new Vector3( _width/2f, _height/2f, 0 )
+            new Vector3( _width / 2f, -_height / 2f, 0 ),
+            new Vector3( -_width / 2f, -_height / 2f, 0 ),
+            new Vector3( -_width / 2f, _height / 2f, 0 ),
+            new Vector3( _width / 2f, _height / 2f, 0 )
         },
                 uv = new Vector2[] {
             new Vector2 (1, 0),
