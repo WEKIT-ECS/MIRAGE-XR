@@ -371,7 +371,7 @@ namespace MirageXR
                         if (File.Exists(charPrefabPath))
                         {
                             var loadedAssetBundle = AssetBundle.LoadFromFile(charPrefabPath);
-                            temp = Instantiate((GameObject) loadedAssetBundle.LoadAsset(obj.option), Vector3.zero, Quaternion.identity);
+                            temp = Instantiate((GameObject)loadedAssetBundle.LoadAsset(obj.option), Vector3.zero, Quaternion.identity);
                             loadedAssetBundle.Unload(false);
                         }
                     }

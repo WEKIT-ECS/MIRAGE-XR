@@ -125,7 +125,7 @@ public class RootView : BaseView
         var viewCamera = obj.AddComponent<Camera>();
         viewCamera.clearFlags = CameraClearFlags.Depth;
         viewCamera.cullingMask = LayerMask.GetMask(layerName);
-        var rectTransform = (RectTransform) transform;
+        var rectTransform = (RectTransform)transform;
         rectTransform.SetParent(viewCamera.transform);
         canvas.worldCamera = viewCamera;
         canvas.renderMode = RenderMode.WorldSpace;

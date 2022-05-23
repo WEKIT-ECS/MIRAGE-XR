@@ -107,8 +107,8 @@ public class ImageEditorView : PopupEditorBase
         var sprite = Utilities.TextureToSprite(_capturedImage);
         _image.sprite = sprite;
 
-        var rtImageHolder = (RectTransform) _imageHolder.transform;
-        var rtImage = (RectTransform) _image.transform;
+        var rtImageHolder = (RectTransform)_imageHolder.transform;
+        var rtImage = (RectTransform)_image.transform;
         var height = rtImage.rect.width / _capturedImage.width * _capturedImage.height + (rtImage.sizeDelta.y * -1);
         rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
         

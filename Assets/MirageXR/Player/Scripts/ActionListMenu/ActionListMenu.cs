@@ -112,7 +112,7 @@ public class ActionListMenu : MonoBehaviour
 
     private void UpdateUI()
     {
-        totalNumberOfPages = (activityManager.ActionsOfTypeAction.Count - 1) / itemsPerPage > 0 ? itemsPerPage: 1;
+        totalNumberOfPages = (activityManager.ActionsOfTypeAction.Count - 1) / itemsPerPage > 0 ? itemsPerPage : 1;
         DisplayList();
         CheckStepButtons();
         UpdatePageLabel();

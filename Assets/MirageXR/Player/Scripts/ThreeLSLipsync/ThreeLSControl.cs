@@ -201,7 +201,7 @@ public class ThreeLSControl : MonoBehaviour {
         {
             BSReference BSRef = BSToFind[i];
             float BSWeight = LS.LSbsw[i] * 100.0f * BSRef.influence;
-            for (int m = 0; m<BSRef.meshes.Count; m++)
+            for (int m = 0; m < BSRef.meshes.Count; m++)
             {
                 BSRef.meshes[m].SetBlendShapeWeight(BSRef.BSIndices[m], BSWeight);
             }
@@ -232,18 +232,18 @@ public class ThreeLSControl : MonoBehaviour {
         for (int i = 1; i < spectrum.Length - 1; i++)
         {
             float vv = threshold + (spectrum[i] + 20) / 140;
-            float vv_p = threshold + (spectrum[i-1] + 20) / 140;
+            float vv_p = threshold + (spectrum[i - 1] + 20) / 140;
 
-            Debug.DrawLine(new Vector3((i - 1)/200.0f+1.0f, vv_p, 0), new Vector3(i/200.0f+1.0f, vv, 0), Color.cyan);
+            Debug.DrawLine(new Vector3((i - 1) / 200.0f + 1.0f, vv_p, 0), new Vector3(i / 200.0f + 1.0f, vv, 0), Color.cyan);
         }
         // Draw threshold line
-        Debug.DrawLine(new Vector3(1.0f, 0, 0), new Vector3(spectrum.Length/200.0f+1.0f, 0, 0), Color.white);
+        Debug.DrawLine(new Vector3(1.0f, 0, 0), new Vector3(spectrum.Length / 200.0f + 1.0f, 0, 0), Color.white);
         // Draw FBins
         for (int bindInd = 0; bindInd < LS.freqBins.Length - 1; bindInd++)
         {
             int indxIn = Mathf.RoundToInt(LS.freqBins[bindInd] * (LS.fftSize / 2) / (LS.fs / 2));
             int indxEnd = Mathf.RoundToInt(LS.freqBins[bindInd + 1] * (LS.fftSize / 2) / (LS.fs / 2));
-            Debug.DrawLine(new Vector3(indxIn/200.0f + 1.0f, 0.5f, 0), new Vector3(indxIn / 200.0f + 1.0f, -0.5f, 0), Color.red);
+            Debug.DrawLine(new Vector3(indxIn / 200.0f + 1.0f, 0.5f, 0), new Vector3(indxIn / 200.0f + 1.0f, -0.5f, 0), Color.red);
             Debug.DrawLine(new Vector3(indxEnd / 200.0f + 1.0f, 0.5f, 0), new Vector3(indxEnd / 200.0f + 1.0f, -0.5f, 0), Color.red);
         }
         // Energies

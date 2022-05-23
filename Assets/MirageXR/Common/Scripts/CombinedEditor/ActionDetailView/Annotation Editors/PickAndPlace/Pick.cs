@@ -22,7 +22,7 @@ namespace MirageXR
         private Color originalArrowColor;
 
         public Vector3 ResetPos {
-            get { return resetPos;}
+            get { return resetPos; }
             set { resetPos = value; }
         }
 
