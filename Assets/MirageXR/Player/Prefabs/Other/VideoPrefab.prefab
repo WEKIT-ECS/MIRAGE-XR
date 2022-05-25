@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 23327845875941974}
   - component: {fileID: 114933801982481342}
   - component: {fileID: 5609042133830193683}
+  - component: {fileID: 6767295688619335865}
   m_Layer: 0
   m_Name: VideoPrefab
   m_TagString: Untagged
@@ -107,10 +108,6 @@ MonoBehaviour:
   pause: {fileID: 6032778384582154038}
   stop: {fileID: 6032778383644673925}
   play: {fileID: 5575754987389843026}
-  isAudioReady: 0
-  isVideoReady: 0
-  isPlaying: 0
-  isPaused: 0
   InPanel: 0
 --- !u!65 &5609042133830193683
 BoxCollider:
@@ -125,6 +122,20 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.4, y: 0.23, z: 0.005}
   m_Center: {x: 0, y: 0.01, z: 0}
+--- !u!114 &6767295688619335865
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1600943330793774}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2547b4dd088644d6aaf64f45df657c79, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pivotAxis: 1
+  targetTransform: {fileID: 0}
 --- !u!1 &3572178744976748102
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,5 +1,4 @@
-﻿using System;
-using MirageXR;
+﻿using MirageXR;
 using System.Collections;
 using System.IO;
 using System.Threading.Tasks;
@@ -10,6 +9,7 @@ using Action = MirageXR.Action;
 
 public class AudioEditor : MonoBehaviour
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
     [SerializeField] private Button startRecordingButton;
     [SerializeField] private Button stopRecordingButton;
     [SerializeField] private Button pauseButton;
@@ -81,7 +81,7 @@ public class AudioEditor : MonoBehaviour
             progress.value = audioSource.time / audioSource.clip.length;
             UpdatePlayBackTimer();
         }
-        else
+        else        
             timerText.text = SecToTimeFormat(timerSeconds);
     }
 
@@ -181,7 +181,7 @@ public class AudioEditor : MonoBehaviour
             }
 
             //check if the trigger for this audio is on
-            stepTrigger.isOn = ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == annotationToEdit.poi) != null;
+             stepTrigger.isOn = activityManager.ActiveAction.triggers.Find(t => t.id == annotationToEdit.poi) != null;
 
             //re-recording is not allowed
             startRecordingButton.interactable = false;
@@ -240,7 +240,7 @@ public class AudioEditor : MonoBehaviour
         }
         else
         {
-            if (capturedClip != null)
+            if (capturedClip != null )
             {
                 audioSource.clip = capturedClip;
                 audioSource.time = slideValue;
@@ -260,7 +260,7 @@ public class AudioEditor : MonoBehaviour
         if (stepTrigger.isOn) loop.isOn = false;
 
         if (stepTrigger.isOn &&
-            ActivityManager.Instance.ActionsOfTypeAction.IndexOf(action) == ActivityManager.Instance.ActionsOfTypeAction.Count - 1)
+            activityManager.ActionsOfTypeAction.IndexOf(action) == activityManager.ActionsOfTypeAction.Count - 1)
         {
             // give the info and close
             DialogWindow.Instance.Show("Info!",
@@ -276,7 +276,7 @@ public class AudioEditor : MonoBehaviour
         if (stepTrigger.isOn)
         {
             if (annotationToEdit == null) return;
-            action.AddOrReplaceArlemTrigger("audio", annotationToEdit.predicate, annotationToEdit.poi, audioSource.clip.length, string.Empty);
+            action.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, annotationToEdit.poi, audioSource.clip.length, string.Empty);
         }
         else
         {
@@ -296,11 +296,11 @@ public class AudioEditor : MonoBehaviour
     {
         var audioName = annotationToEdit.url;
         const string httpPrefix = "http://";
-
+        
         string originalFileName = !audioName.StartsWith(httpPrefix) ? Path.Combine(Application.persistentDataPath, audioName)
-            : Path.Combine(ActivityManager.Instance.Path, Path.GetFileName(audioName.Remove(0, httpPrefix.Length)));
+            : Path.Combine(activityManager.ActivityPath, Path.GetFileName(audioName.Remove(0, httpPrefix.Length)));
 
-        string originalFilePath = Path.Combine(ActivityManager.Instance.Path, originalFileName);
+        string originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
 
         //On character dialog recorder, use the custom dialog file path instead of annotationToEdit.url
         //set the correct dialog recorder(correct character) to the audio player
@@ -309,12 +309,12 @@ public class AudioEditor : MonoBehaviour
             if (character.MyAction == action && character.DialogRecorder.DialogSaveName != string.Empty)
             {
                 SaveFileName = character.DialogRecorder.DialogSaveName;
-                originalFilePath = Path.Combine(ActivityManager.Instance.Path, SaveFileName);
+                originalFilePath = Path.Combine(activityManager.ActivityPath, SaveFileName);
                 GameObject.Find(annotationToEdit.poi).GetComponentInChildren<AudioPlayer>().DialogRecorderPanel = character.transform.GetChild(0).GetComponentInChildren<DialogRecorder>(); //TODO: Possible NRE
                 break;
             }
         }
-
+        
         return originalFilePath;
     }
 
@@ -348,7 +348,8 @@ public class AudioEditor : MonoBehaviour
         }
         else
         {
-            Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(action.id));
+            var workplaceManager = RootObject.Instance.workplaceManager;
+            Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
             GameObject originT = GameObject.Find(detectable.id);
 
             //move the audio player to the spawn point
@@ -358,8 +359,8 @@ public class AudioEditor : MonoBehaviour
                 annotationStartingPoint.transform.rotation,
                 originT.transform.position,
                 originT.transform.rotation);
-
-            annotationToEdit = ActivityManager.Instance.AddAugmentation(action, offset);
+            
+            annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
             annotationToEdit.predicate = "audio";
 
             //save audio type , loop and radius as option
@@ -368,7 +369,7 @@ public class AudioEditor : MonoBehaviour
             annotationToEdit.scale = 0.5f;
         }
 
-        if (SaveFileName != string.Empty)
+        if(SaveFileName != string.Empty )
         {
             annotationToEdit.url = $"http://{SaveFileName}";
 
@@ -457,7 +458,7 @@ public class AudioEditor : MonoBehaviour
         {
             SaveFileName = SaveFileName.Remove(0, httpPrefix.Length);
         }
-        string fullFilePath = Path.Combine(ActivityManager.Instance.Path, SaveFileName);
+        string fullFilePath = Path.Combine(activityManager.ActivityPath, SaveFileName);
         SaveLoadAudioUtilities.Save(fullFilePath, capturedClip);
     }
 

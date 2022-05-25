@@ -9,6 +9,7 @@ using Action = MirageXR.Action;
 
 public class ImageEditor : MonoBehaviour
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
     [SerializeField] private Button captureButton;
     [SerializeField] private Button acceptButton;
     [SerializeField] private Button closeButton;
@@ -49,7 +50,7 @@ public class ImageEditor : MonoBehaviour
         if (IsThumbnail)
         {
             //show the last thumbnail on previewImage
-            var thumbnailPath = Path.Combine(ActivityManager.Instance.Path, "thumbnail.jpg");
+            var thumbnailPath = Path.Combine(activityManager.ActivityPath, "thumbnail.jpg");
             if (File.Exists(thumbnailPath))
             {
                 var spriteTexture = Utilities.LoadTexture(thumbnailPath);
@@ -66,7 +67,7 @@ public class ImageEditor : MonoBehaviour
         }
 
         //Check if any character will use this image
-        if (annotation != null)
+        if(annotation != null)
         {
             foreach (var character in FindObjectsOfType<MirageXR.CharacterController>())
             {
@@ -87,7 +88,7 @@ public class ImageEditor : MonoBehaviour
     public void OnAccept()
     {
         const string httpPrefix = "http://";
-
+        
         // close without saving if no image was taken
         if (_capturedImage == null)
         {
@@ -102,7 +103,7 @@ public class ImageEditor : MonoBehaviour
             // delete the previous image file
             var imageName = _annotationToEdit.url;
             var originalFileName = Path.GetFileName(imageName.Remove(0, httpPrefix.Length));
-            var originalFilePath = Path.Combine(ActivityManager.Instance.Path, originalFileName);
+            var originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
             if (File.Exists(originalFilePath))
             {
                 File.Delete(originalFilePath);
@@ -110,14 +111,15 @@ public class ImageEditor : MonoBehaviour
         }
         else if (!IsThumbnail)
         {
-            var detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(_action.id));
+            var workplaceManager = RootObject.Instance.workplaceManager;
+            Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
             var originT = GameObject.Find(detectable.id);
-
+            
             var startPointTr = annotationStartingPoint.transform;
             var offset = Utilities.CalculateOffset(startPointTr.position, startPointTr.rotation,
                 originT.transform.position, originT.transform.rotation);
 
-            _annotationToEdit = ActivityManager.Instance.AddAugmentation(_action, offset);
+            _annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(_action, offset);
             _annotationToEdit.predicate = "image";
         }
 
@@ -128,7 +130,6 @@ public class ImageEditor : MonoBehaviour
         {
             _annotationToEdit.url = httpPrefix + _saveFileName;
             _annotationToEdit.scale = 0.5f;
-            _annotationToEdit.key = "L";
             EventManager.ActivateObject(_annotationToEdit);
             EventManager.NotifyActionModified(_action);
         }
@@ -166,7 +167,7 @@ public class ImageEditor : MonoBehaviour
         if (_capturedImage) Destroy(_capturedImage);
         NativeCameraController.TakePicture(OnPictureTaken, IsThumbnail);
     }
-
+    
     private void OnPictureTaken(bool result, Texture2D texture2D)
     {
         PlayCameraSound();
@@ -186,7 +187,7 @@ public class ImageEditor : MonoBehaviour
         acceptButton.gameObject.SetActive(true);
         closeButton.gameObject.SetActive(true);
     }
-
+    
     private void PlayCameraSound()
     {
         shutterPlayer.Play();
@@ -195,7 +196,7 @@ public class ImageEditor : MonoBehaviour
     private void SaveImage()
     {
         _saveFileName = IsThumbnail ? "thumbnail.jpg" : $"MirageXR_Image_{DateTime.Now.ToFileTimeUtc()}.jpg";
-        var outputPath = Path.Combine(ActivityManager.Instance.Path, _saveFileName);
+        var outputPath = Path.Combine(activityManager.ActivityPath, _saveFileName);
         File.WriteAllBytes(outputPath, _capturedImage.EncodeToJPG());
     }
 }

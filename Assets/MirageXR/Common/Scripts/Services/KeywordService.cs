@@ -41,10 +41,7 @@ namespace MirageXR
         {
             foreach (var prompt in _prompts)
             {
-                keywords.Add($"{prompt} {keyword}", () =>
-                {
-                    callback();
-                });
+                keywords.Add($"{prompt} {keyword}", callback);
             }
         }
 
@@ -81,7 +78,7 @@ namespace MirageXR
             AddPromptsToKeyword("New Activity", () => EventManager.StartByVoice());// TODO this command not working
             AddPromptsToKeyword("Show Activity List", () => EventManager.ShowActivitySelectionMenu());
             AddPromptsToKeyword("Hide Activity List", () => EventManager.HideActivitySelectionMenu());
-            AddPromptsToKeyword("Move Activity List", () => EventManager.MoveActiovityList());
+            AddPromptsToKeyword("Move Activity List", () => EventManager.MoveActivityList());
             AddPromptsToKeyword("Open Annotation List", () => EventManager.OpenAnnotationByVoice());
             AddPromptsToKeyword("Login", () => EventManager.LoginByVoice());
             AddPromptsToKeyword("Register", () => EventManager.RegisterByVoice());

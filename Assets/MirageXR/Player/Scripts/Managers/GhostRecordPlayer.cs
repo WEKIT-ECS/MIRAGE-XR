@@ -7,6 +7,7 @@ namespace MirageXR
 {
     public class GhostRecordPlayer : MonoBehaviour
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         [SerializeField] private Transform _head;
         
         [SerializeField] private Transform _rightHand;
@@ -75,7 +76,7 @@ namespace MirageXR
             if (MyToggleObject.option.Contains(":")) 
             {               
                 var audioPoi = MyToggleObject.option.Split(':')[1];
-                var audioAnnotation = ActivityManager.Instance.ActiveAction.enter.activates.Find(a => a.poi == audioPoi);
+                var audioAnnotation = activityManager.ActiveAction.enter.activates.Find(a => a.poi == audioPoi);
                 if (audioAnnotation != null)
                 {
                     yield return new WaitForSeconds(0.5f);

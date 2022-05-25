@@ -21,7 +21,7 @@ public class Tappable : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     private void Tap()
     {
-        if (IsSelected)
+        if(IsSelected)
             GetComponent<Button>().onClick.Invoke();
     }
 

@@ -9,6 +9,7 @@ using System.Collections;
 
 public class ImageMarkerEditor : MonoBehaviour
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
     [SerializeField] private Button captureButton;
     [SerializeField] private Button acceptButton;
     [SerializeField] private Button closeButton;
@@ -156,9 +157,9 @@ public class ImageMarkerEditor : MonoBehaviour
     private void SaveImageMarker(Texture2D tex)
     {
         saveFileName = $"MirageXR_ImageMarker_{System.DateTime.Now.ToFileTimeUtc()}.jpg";
-        string outputPath = Path.Combine(ActivityManager.Instance.Path, saveFileName);
+        string outputPath = Path.Combine(activityManager.ActivityPath, saveFileName);
 
-        Debug.Log("THIS IS THE OUTPATH: " + ActivityManager.Instance.Path);
+        Debug.Log("THIS IS THE OUTPATH: " + activityManager.ActivityPath);
 
         byte[] jpgBytes = tex.EncodeToJPG();
         File.WriteAllBytes(outputPath, jpgBytes);
@@ -175,7 +176,8 @@ public class ImageMarkerEditor : MonoBehaviour
         }
         else
         {
-            Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(action.id));
+            var workplaceManager = RootObject.Instance.workplaceManager;
+            Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
             GameObject originT = GameObject.Find(detectable.id);
 
             var offset = Utilities.CalculateOffset(annotationStartingPoint.transform.position,
@@ -183,7 +185,7 @@ public class ImageMarkerEditor : MonoBehaviour
                 originT.transform.position,
                 originT.transform.rotation);
 
-            annotationToEdit = ActivityManager.Instance.AddAugmentation(action, offset);
+            annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
             annotationToEdit.predicate = "imagemarker";
         }
 

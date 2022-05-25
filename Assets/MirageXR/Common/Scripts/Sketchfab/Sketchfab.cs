@@ -354,7 +354,7 @@ namespace MirageXR
             var modelsFolderPath = Path.Combine(Application.persistentDataPath, FOLDER_NAME);
             var archiveUrl = Path.Combine(modelsFolderPath, $"{modelPreview.name}.zip");
             var modelFolder = Path.Combine(modelsFolderPath, modelPreview.name);
-            var targetDirectory = Path.Combine(ActivityManager.Instance.Path, modelPreview.name);
+            var targetDirectory = Path.Combine(RootObject.Instance.activityManager.ActivityPath, modelPreview.name);
             if (!Directory.Exists(targetDirectory)) Directory.CreateDirectory(targetDirectory);
 
             // build zip archive, if required (might be slow for big models)

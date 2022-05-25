@@ -1,4 +1,3 @@
-
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,17 +7,16 @@ using System;
 using Newtonsoft.Json.Linq;
 using ICSharpCode.SharpZipLib.Zip;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using System.Collections;
+using Object = UnityEngine.Object;
 
 namespace MirageXR
 {
-    public class MoodleManager : MonoBehaviour
+    public class MoodleManager
     {
         private const long MAX_FILE_SIZE_FOR_MEMORY = 150 * 1024 * 1024; //150 mb
-        public static MoodleManager Instance { get; private set; }
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
-        private GameObject _progressText;
+        private GameObject _progressText;   //TODO: remove ui logic 
 
         public string GetProgressText
         {
@@ -26,22 +24,7 @@ namespace MirageXR
             set => _progressText.GetComponent<Text>().text = value;
         }
 
-        private void Awake()
-        {
-            Init();
-        }
-
-        private void Init()
-        {
-            if (Instance == null)
-                Instance = this;
-            else if (Instance != this)
-                Destroy(gameObject);
-
-            DontDestroyOnLoad(gameObject);
-        }
-
-        private void Update()
+        private void Update()    //TODO: remove ui logic 
         {
             if (!DBManager.LoggedIn && _progressText)
                 _progressText.GetComponent<Text>().text = string.Empty;
@@ -65,9 +48,9 @@ namespace MirageXR
         /// <summary>
         /// Zip files and send them to upload as a zip file
         /// </summary>
-        public async Task<(bool, string)> UploadFile(string filepath, string recordingID, int updateFile)
+        public async Task<(bool, string)> UploadFile(string filepath, string recordingID, int updateFile)   //TODO: split it to two methods based on 'updateFile' value
         {
-            _progressText = FindObjectOfType<ActionListMenu>().uploadProgressText;
+            _progressText = Object.FindObjectOfType<ActionListMenu>().uploadProgressText;
 
             if (_progressText)
             {
@@ -75,7 +58,7 @@ namespace MirageXR
                 _progressText.SetActive(true);
             }
 
-            var file = await CompressRecord(filepath, ActivityManager.Instance.SessionId);
+            var file = await CompressRecord(filepath, activityManager.SessionId);
             if (_progressText) _progressText.GetComponent<Text>().text = "Uploading";
             return await StartUploading($"{recordingID}.zip", file, updateFile);
         }
@@ -98,14 +81,14 @@ namespace MirageXR
             }
 
             byte[] thumbnail = null;
-            var thumbnailExist = File.Exists(Path.Combine(ActivityManager.Instance.Path, thumbnailName));
-            if (thumbnailExist) thumbnail = File.ReadAllBytes(Path.Combine(ActivityManager.Instance.Path, thumbnailName));
+            var thumbnailExist = File.Exists(Path.Combine(activityManager.ActivityPath, thumbnailName));
+            if (thumbnailExist) thumbnail = File.ReadAllBytes(Path.Combine(activityManager.ActivityPath, thumbnailName));
 
-            var activityJson = File.ReadAllText(ActivityManager.Instance.Path + "-activity.json");
-            var workplaceJson = File.ReadAllText(ActivityManager.Instance.Path + "-workplace.json");
+            var activityJson = File.ReadAllText(activityManager.ActivityPath + "-activity.json");
+            var workplaceJson = File.ReadAllText(activityManager.ActivityPath + "-workplace.json");
 
-            var (result, response) = await Network.UploadRequestAsync(DBManager.token, DBManager.userid, ActivityManager.Instance.SessionId,
-                DBManager.publicUploadPrivacy, filename, ActivityManager.Instance.Activity.name, file, thumbnailName, thumbnail, DBManager.domain, activityJson, workplaceJson, updateMode);
+            var (result, response) = await Network.UploadRequestAsync(DBManager.token, DBManager.userid, activityManager.SessionId,
+                DBManager.publicUploadPrivacy, filename, activityManager.Activity.name, file, thumbnailName, thumbnail, DBManager.domain, activityJson, workplaceJson, updateMode);
 
             if (result && !response.Contains("Error"))
             {
@@ -130,15 +113,15 @@ namespace MirageXR
 
             if (_progressText) _progressText.GetComponent<Text>().text = "Error!";
 
-            var activityEditor = FindObjectOfType<ActivityEditor>();
+            var activityEditor = Object.FindObjectOfType<ActivityEditor>();
             //show update confirmation panel if file exist
             if (activityEditor && response == "Error: File exist, update")
             {
-                FindObjectOfType<ActivityEditor>().ShowUploadWarningPanel();
+                Object.FindObjectOfType<ActivityEditor>().ShowUploadWarningPanel();
             }
             if (activityEditor && response == "Error: File exist, clone")
             {
-                FindObjectOfType<ActivityEditor>().ShowCloneWarningPanel();
+                Object.FindObjectOfType<ActivityEditor>().ShowCloneWarningPanel();
             }
 
             return (false, response);

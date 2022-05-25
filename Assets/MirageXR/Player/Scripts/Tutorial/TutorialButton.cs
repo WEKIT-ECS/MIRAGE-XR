@@ -35,16 +35,16 @@ namespace MirageXR
 
         private void StartTutorial()
         {
-            TutorialManager tutorialManager = TutorialManager.Instance;
+            TutorialManager tutorialManager = TutorialManager.Instance();
             tutorialManager.TutorialButton = this;
-            tutorialManager.StartTutorial(TutorialManager.TutorialType.HOLOLENS);
+            tutorialManager.StartTutorial();
         }
 
         public void ToggleTutorial()
         {
-            TutorialManager tutorialManager = TutorialManager.Instance;
+            TutorialManager tutorialManager = TutorialManager.Instance();
             tutorialManager.TutorialButton = this;
-            tutorialManager.ToggleTutorial(TutorialManager.TutorialType.HOLOLENS);
+            tutorialManager.ToggleTutorial();
         }
 
         public void SetIconActive()
