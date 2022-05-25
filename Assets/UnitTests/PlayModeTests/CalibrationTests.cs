@@ -3,6 +3,8 @@ using MirageXR;
 using NUnit.Framework;
 using System.Collections;
 using System.IO;
+using System.Reflection;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
@@ -40,9 +42,6 @@ namespace Tests
         GameObject sensorContainer;
 
         // dummy manager objects
-        ActivityManager dummyActivityManager;
-        WorkplaceManager dummyWorkplaceManager;
-        ObjectFactory dummyObjectFactory;
         UiManager dummyUiManager;
         PlatformManager dummyPlatformManager;
 
@@ -59,7 +58,7 @@ namespace Tests
 
         // number of seconds to wait for setup or tests
         private float testTimeOut = 5.0f;
-
+        private RootObject rootObject;
 
         #endregion Variables
 
@@ -70,12 +69,7 @@ namespace Tests
         [OneTimeSetUp]
         public void Init()
         {
-            SceneManager.LoadScene("TestScene", LoadSceneMode.Additive);
-
-            SceneManager.sceneLoaded += OnSceneLoaded;
-            EventManager.OnWorkplaceParsed += OnWorkplaceParsed;
-
-            LoadTestArlemModels();
+            SceneManager.LoadScene("TestScene");
         }
 
 
@@ -83,7 +77,7 @@ namespace Tests
         public void Outit()
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
-            EventManager.OnWorkplaceParsed -= OnWorkplaceParsed;
+            EventManager.OnWorkplaceLoaded -= OnWorkplaceLoaded;
 
             if (ServiceManager.ServiceExists<ActivitySelectionSceneReferenceService>())
             {
@@ -112,7 +106,8 @@ namespace Tests
                 yield return new WaitWhile(() => resourcesArranged == false && Time.time - timeoutStart < testTimeOut);
 
                 // initialise activity parsing (first thing that needs to happen)
-                StartDummyActivity("resources://calibrationTest-activity");
+                var task = StartDummyActivity("resources://calibrationTest-activity");
+                yield return new WaitUntil(() => task.IsCompleted);
 
                 // wait for workplace parsing (last thing that happens)
                 timeoutStart = Time.time;
@@ -132,7 +127,7 @@ namespace Tests
         public void TearDown()
         {
             readyToTest = false;
-            
+
         }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -142,15 +137,9 @@ namespace Tests
 
         private void LoadTestArlemModels()
         {
-            string testActivityId = "calibrationTest-activity";
-            var assetAM = Resources.Load(testActivityId) as TextAsset;
-            testActivity = JsonUtility.FromJson<Activity>(assetAM.text);
-
-            string testWorkplaceId = "calibrationTest-workplace";
-            var assetWM = Resources.Load(testWorkplaceId) as TextAsset;
-            testWorkplace = JsonUtility.FromJson<Workplace>(assetWM.text);
+            testActivity = ActivityParser.Parse("resources://calibrationTest-activity");
+            testWorkplace = WorkplaceParser.Parse("resources://calibrationTest-workplace");
         }
-
 
         #endregion SetUp and TearDown
 
@@ -191,14 +180,23 @@ namespace Tests
             {
                 ServiceManager.RegisterService(referenceService);
             }
+
+            if (!RootObject.Instance)
+            {
+                rootObject = GenerateGameObjectWithComponent<RootObject>("root");
+                CallPrivateMethod(rootObject, "Awake");
+                CallPrivateMethod(rootObject, "Initialization");
+            }
+            else
+            {
+                rootObject = RootObject.Instance;
+            }
+
+            SceneManager.sceneLoaded += OnSceneLoaded;
+            EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
+
+            LoadTestArlemModels();
             
-
-            // create arlem managers
-            dummyActivityManager = GenerateGameObjectWithComponent<ActivityManager>("Activity Manager");
-            dummyWorkplaceManager = GenerateGameObjectWithComponent<WorkplaceManager>("Workplace Manager");
-
-            //dummyObjectFactory = GenerateGameObjectWithComponent<ObjectFactory>("Object Factory");
-
             // audio listener cannot be added with helper function
             var audioListener = new GameObject("Audio Listener");
             audioListener.AddComponent<AudioListener>();
@@ -206,7 +204,6 @@ namespace Tests
             // create and configure content managers or UI elements needed to start an activity
             GenerateGameObjectWithComponent<Maggie>("Maggie");
             GenerateGameObjectWithComponent<BrandManager>("Brand Manager");
-            GenerateGameObjectWithComponent<MoodleManager>("Moodle Manager");
 
             dummyCalibrationTool = GenerateGameObjectWithComponent<CalibrationTool>("Calibration Tool");
             dummyCalibrationTool.SetCalibrationModel(new GameObject("Calibration Model"));
@@ -231,7 +228,7 @@ namespace Tests
 
             if (!Directory.Exists(sourcePath)) {
                 Debug.LogError("Calibration testing files not found");
-                return; 
+                return;
             }
 
             if (!Directory.Exists(targetPath)){
@@ -252,7 +249,7 @@ namespace Tests
             foreach (FileInfo fi in source.GetFiles())
             {
                 string targetFilePath = Path.Combine(target.FullName, fi.Name);
-                
+
                 // skip meta and existing files
                 if (!File.Exists(targetFilePath) && fi.Extension != ".meta")
                 {
@@ -300,45 +297,37 @@ namespace Tests
         #region Act
 
 
-        private void StartDummyActivity(string activityId)
+        private Task StartDummyActivity(string activityId)
         {
             // parse activity model to begin startup process
-            dummyActivityManager.ParseActivity(activityId);
+            return rootObject.activityManager.LoadActivity(activityId);
         }
 
-        private void OnWorkplaceParsed()
+        private void OnWorkplaceLoaded()
         {
             workplaceReady = true;
         }
 
-
-
-        private void PerformCalibration(bool isEditMode)
+        private async Task PerformCalibration(bool isEditMode)
         {
             // set event for completed calibration
-            EventManager.OnPlayerCalibration += CalibrationComplete;
+            EventManager.OnWorkplaceCalibrated += CalibrationComplete;
 
             // put in to play mode
-            ActivityManager.Instance.EditModeActive = isEditMode;
+            rootObject.activityManager.EditModeActive = isEditMode;
 
             // then run the player calibration routine to move objects (as though the camera is the marker)
-            WorkplaceManager.Instance.CalibrateAnchors(WorldTestOrigin);
+            await rootObject.workplaceManager.CalibrateWorkplace(WorldTestOrigin);
         }
 
         private void CalibrationComplete()
         {
             isCalibrated = true;
+            EventManager.OnWorkplaceCalibrated -= CalibrationComplete;
         }
-
-
-        
-
         #endregion Act
 
-
         #region Assert
-
-
         /// <summary>
         /// A helper functions that checks that object have been initialised. It should be yielded at the start of each test.
         /// </summary>
@@ -349,9 +338,6 @@ namespace Tests
             float timeoutStart = Time.time;
             yield return new WaitWhile(() => readyToTest == false && Time.time - timeoutStart < timeout);
         }
-
-
-
 
         [UnityTest, Order(0)]
         public IEnumerator Activity_LoadResources()
@@ -373,7 +359,8 @@ namespace Tests
             yield return EnsureTestReadiness();
 
             // Run the player-mode calibration routine from the Workplace Manager
-            PerformCalibration(false);
+            var task = PerformCalibration(false);
+            yield return new WaitUntil(() => task.IsCompleted);
 
             // wait for calibration to finish
             float timeoutStart = Time.time;
@@ -383,12 +370,13 @@ namespace Tests
             Assert.IsTrue(isCalibrated);
         }
 
-        //[UnityTest, Order(1)] - this will be added later, needs more work 
+        //[UnityTest, Order(1)] - this will be added later, needs more work
         public IEnumerator Calibration_EditMode()
         {
             yield return EnsureTestReadiness();
 
-            PerformCalibration(true);
+            var task = PerformCalibration(true);
+            yield return new WaitUntil(() => task.IsCompleted);
 
             float timeoutStart = Time.time;
             yield return new WaitWhile(() => isCalibrated == false && Time.time - timeoutStart < testTimeOut);
@@ -401,21 +389,27 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            int testFileLength_Activity = JsonUtility.ToJson(testActivity).Length;
-            int actlFileLength_Activity = JsonUtility.ToJson(dummyActivityManager.Activity).Length;
+            var task = rootObject.activityManager.LoadActivity("resources://calibrationTest-activity");
+            yield return new WaitUntil(() => task.IsCompleted);
 
-            Assert.AreEqual(testFileLength_Activity, actlFileLength_Activity);
+            int testFileLengthActivity = ActivityParser.Serialize(testActivity).Length;
+            int actlFileLengthActivity = ActivityParser.Serialize(rootObject.activityManager.Activity).Length;
+
+            Assert.AreEqual(testFileLengthActivity, actlFileLengthActivity);
         }
 
         [UnityTest, Order(2)]
         public IEnumerator CheckArlemFileLength_Workplace()
         {
             yield return EnsureTestReadiness();
+            
+            var task = rootObject.activityManager.LoadActivity("resources://calibrationTest-activity");
+            yield return new WaitUntil(() => task.IsCompleted);
 
-            int testFileLength_Workplace = JsonUtility.ToJson(testWorkplace).Length;
-            int actlFileLength_Workplace = JsonUtility.ToJson(dummyWorkplaceManager.Workplace).Length;
+            int testFileLengthWorkplace = WorkplaceParser.Serialize(testWorkplace).Length;
+            int actlFileLengthWorkplace = WorkplaceParser.Serialize(rootObject.workplaceManager.workplace).Length;
 
-            Assert.AreEqual(testFileLength_Workplace, actlFileLength_Workplace);
+            Assert.AreEqual(testFileLengthWorkplace, actlFileLengthWorkplace);
         }
 
         [UnityTest, Order(3)]
@@ -457,7 +451,7 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int d = 0; d < dummyWorkplaceManager.Workplace.detectables.Count; d++)
+            for (int d = 0; d < rootObject.workplaceManager.workplace.detectables.Count; d++)
             {
                 float testDetectablePosition = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).x;
                 Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).position);
@@ -472,7 +466,7 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int d = 0; d < dummyWorkplaceManager.Workplace.detectables.Count; d++)
+            for (int d = 0; d < rootObject.workplaceManager.workplace.detectables.Count; d++)
             {
                 float testDetectablePosition = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).y;
                 Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).position);
@@ -487,7 +481,7 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int d = 0; d < dummyWorkplaceManager.Workplace.detectables.Count; d++)
+            for (int d = 0; d < rootObject.workplaceManager.workplace.detectables.Count; d++)
             {
                 float testDetectablePosition = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).z;
                 Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).position);
@@ -502,14 +496,14 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int d = 0; d < dummyWorkplaceManager.Workplace.detectables.Count; d++)
+            for (int d = 0; d < rootObject.workplaceManager.workplace.detectables.Count; d++)
             {
                 // examine test script for expected value
                 Vector3 testDetectableRotation = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_rotation);
 
-                // calculate the relative position of the detectable 
+                // calculate the relative position of the detectable
                 Quaternion objectInWorld = Quaternion.Inverse(WorldTestOrigin.rotation) * detectableContainer.transform.GetChild(d).rotation;
-                
+
                 // use the euler angle representation for comparison
                 Vector3 actualDetectableRotation = objectInWorld.eulerAngles;
 
@@ -523,22 +517,22 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < dummyWorkplaceManager.Workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.workplaceManager.workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < dummyWorkplaceManager.Workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.workplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiPosition = testWorkplace.places[place].pois[poi].x_offset;
-                    
+
                     // calculate actual local position
                     float actualLocalPoiComponent = placeObject.GetChild(poi).localPosition.x;
 
                     // check equality
                     Assert.AreEqual(testPoiPosition, actualLocalPoiComponent, 0.001f);
-                }       
+                }
             }
         }
 
@@ -548,12 +542,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < dummyWorkplaceManager.Workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.workplaceManager.workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < dummyWorkplaceManager.Workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.workplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiPosition = testWorkplace.places[place].pois[poi].y_offset;
@@ -572,12 +566,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < dummyWorkplaceManager.Workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.workplaceManager.workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < dummyWorkplaceManager.Workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.workplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiPosition = testWorkplace.places[place].pois[poi].z_offset;
@@ -597,11 +591,11 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < dummyWorkplaceManager.Workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.workplaceManager.workplace.places.Count; place++)
             {
                 Transform placeTransform = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < dummyWorkplaceManager.Workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.workplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // set expected value
                     Poi poiObject = testWorkplace.places[place].pois[poi];
@@ -626,12 +620,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < dummyWorkplaceManager.Workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.workplaceManager.workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < dummyWorkplaceManager.Workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.workplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiScale = Utilities.ParseStringToVector3(testWorkplace.places[place].pois[poi].scale).x;
@@ -650,12 +644,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < dummyWorkplaceManager.Workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.workplaceManager.workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < dummyWorkplaceManager.Workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.workplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiScale = Utilities.ParseStringToVector3(testWorkplace.places[place].pois[poi].scale).y;
@@ -674,12 +668,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < dummyWorkplaceManager.Workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.workplaceManager.workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < dummyWorkplaceManager.Workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.workplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiScale = Utilities.ParseStringToVector3(testWorkplace.places[place].pois[poi].scale).z;
@@ -708,6 +702,11 @@ namespace Tests
 
         #endregion Assert
 
+        private static void CallPrivateMethod(object obj, string methodName, params object[] parameters)
+        {
+            var method = obj.GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
+            method?.Invoke(obj, parameters);
+        }
     }
 
 }

@@ -7,11 +7,9 @@ public class PickAndPlaceEditor : MonoBehaviour
     [SerializeField] private Transform annotationStartingPoint;
     [SerializeField] private InputField textInputField;
     
-
     private Action action;
     private ToggleObject annotationToEdit;
-    private int resetOption = 0;
-  
+
     public void SetAnnotationStartingPoint(Transform startingPoint)
     {
         annotationStartingPoint = startingPoint;
@@ -26,7 +24,8 @@ public class PickAndPlaceEditor : MonoBehaviour
         }
         else
         {
-            Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(action.id));
+            var workplaceManager = RootObject.Instance.workplaceManager;
+            Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
             GameObject originT = GameObject.Find(detectable.id);
 
             var offset = Utilities.CalculateOffset(annotationStartingPoint.transform.position,
@@ -34,11 +33,10 @@ public class PickAndPlaceEditor : MonoBehaviour
                 originT.transform.position,
                 originT.transform.rotation);
 
-            annotationToEdit = ActivityManager.Instance.AddAugmentation(action, offset);
+            annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
             annotationToEdit.predicate = "pickandplace";
         }
         annotationToEdit.text = textInputField.text;
-        annotationToEdit.key = resetOption.ToString();
 
         EventManager.ActivateObject(annotationToEdit);
         EventManager.NotifyActionModified(action);
@@ -62,10 +60,4 @@ public class PickAndPlaceEditor : MonoBehaviour
         annotationToEdit = annotation;
         textInputField.text = annotation != null ? annotation.text : string.Empty;
     }
-
-    public void setResetOption(int option)
-    {
-        resetOption = option;
-    }
-
 }

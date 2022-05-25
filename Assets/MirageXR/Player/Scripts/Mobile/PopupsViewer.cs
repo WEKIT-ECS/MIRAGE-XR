@@ -31,15 +31,13 @@ public class PopupsViewer : MonoBehaviour
         _btnBackground.onClick.AddListener(OnOutTap);
     }
 
-    public PopupBase Show(PopupBase popupPrefab, params object[] args)
+    public void Show(PopupBase popupPrefab, params object[] args)
     {
         var popup = Instantiate(popupPrefab, transform);
         _stack.Push(popup);
         popup.gameObject.SetActive(false);
         popup.Init(OnClose, args);
         UpdateView();
-
-        return popup;
     }
 
     private void UpdateView()

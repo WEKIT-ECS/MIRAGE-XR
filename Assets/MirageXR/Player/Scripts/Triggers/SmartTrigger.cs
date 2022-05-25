@@ -50,6 +50,11 @@ namespace MirageXR
             Destroy (gameObject);
         }
 
+        public bool CreateTrigger(string actionId, Trigger trigger)
+        {
+            return CreateTrigger(actionId, trigger.id, trigger.data, trigger.option, trigger.value, trigger.duration);
+        }
+
         /// <summary>
         /// Create basic smart sensor that simply looks for value match.
         /// </summary>
@@ -278,10 +283,10 @@ namespace MirageXR
         /// <summary>
         /// Launch the trigger;
         /// </summary>
-        private void DoTrigger ()
+        private async void DoTrigger ()
         {
-            EventManager.DeactivateAction(_actionId);
-            EventManager.MarkCompleted(_actionId);
+            await RootObject.Instance.activityManager.DeactivateAction(_actionId);
+            RootObject.Instance.activityManager.MarkCompleted(_actionId);
             GameObject.Find("SystemSounds").SendMessage("PlayIotTrigger", SendMessageOptions.DontRequireReceiver);
         }
 

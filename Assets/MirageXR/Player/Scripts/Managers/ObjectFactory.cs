@@ -9,6 +9,7 @@ namespace MirageXR
     
     public class ObjectFactory : MonoBehaviour
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         private void OnEnable()
         {
             // Register to event manager events.
@@ -31,7 +32,7 @@ namespace MirageXR
             // Do magic based on the object type.
             switch (obj.type)
             {
-                case "tangible":
+                case ActionType.Tangible:
                 {
                     // Check predicate.
                     switch (obj.predicate)
@@ -333,12 +334,12 @@ namespace MirageXR
 
         private static async void ActivatePrefab(string prefab, ToggleObject obj)
         {
-            var actionList = ActivityManager.Instance.ActionsOfTypeAction;
+            var actionList = activityManager.ActionsOfTypeAction;
             GameObject temp = null;
-            var activeActionIndex = actionList.IndexOf(ActivityManager.Instance.ActiveAction);
+            var activeActionIndex = actionList.IndexOf(activityManager.ActiveAction);
 
             //if we are in the active step and the annotaiton exists in this step
-            if (actionList[activeActionIndex] == ActivityManager.Instance.ActiveAction
+            if (actionList[activeActionIndex] == activityManager.ActiveAction
                 && actionList[activeActionIndex].enter.activates.Find(p => p.poi == obj.poi) != null)
             {
                 var objIfExist = GameObject.Find(obj.poi);
@@ -355,7 +356,7 @@ namespace MirageXR
                 }
 
                 //Get the prefab from the references
-                var prefabInAddressable = await ReferenceLoader.GetAssetReference(prefab);
+                var prefabInAddressable = await ReferenceLoader.GetAssetReferenceAsync<GameObject>(prefab);
                 //if the prefab reference has been found successfully
                 if (prefabInAddressable != null)
                 {
@@ -366,7 +367,7 @@ namespace MirageXR
                 {
                     if (obj.predicate.StartsWith("char"))
                     {
-                        var charPrefabPath = $"{ActivityManager.Instance.Path}/characterinfo/{obj.option}";
+                        var charPrefabPath = $"{activityManager.ActivityPath}/characterinfo/{obj.option}";
                         if (File.Exists(charPrefabPath))
                         {
                             var loadedAssetBundle = AssetBundle.LoadFromFile(charPrefabPath);
@@ -448,7 +449,7 @@ namespace MirageXR
         {
             GameObject temp = null;
 
-            if (obj.type == "tangible")
+            if (obj.type == ActionType.Tangible)
             {
                 // Default path.
                 var path = $"{obj.id}/{obj.poi}/";

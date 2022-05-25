@@ -8,6 +8,8 @@ public abstract class PopupEditorBase : PopupBase
 {
     protected const string HTTP_PREFIX = "http://";
     protected const string RESOURCES_PREFIX = "resources://";
+    protected static ActivityManager activityManager => RootObject.Instance.activityManager;
+    protected static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
     
     [SerializeField] protected Image _icon;
     [SerializeField] protected TMP_Text _txtLabel;
@@ -38,7 +40,8 @@ public abstract class PopupEditorBase : PopupBase
     
     protected virtual Vector3 GetOffset()
     {
-        var detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(_step.id));
+        var workplaceManager = RootObject.Instance.workplaceManager;
+        var detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_step.id));
         var originT = GameObject.Find(detectable.id);   // TODO: replace by direct reference to the object
         var annotationStartingPoint = ActionEditor.Instance.GetDefaultAugmentationStartingPoint();
         return originT.transform.InverseTransformPoint(annotationStartingPoint.transform.position);

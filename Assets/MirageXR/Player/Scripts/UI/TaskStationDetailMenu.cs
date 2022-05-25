@@ -6,7 +6,7 @@ namespace MirageXR
     public class TaskStationDetailMenu : MonoBehaviour
     {
         public static TaskStationDetailMenu Instance;
-
+        
         [SerializeField] private GameObject TSMenuPanel;
         [SerializeField] private LineRenderer descriptionLineRenderer;
         [SerializeField] private LineRenderer poiLineRenderer;
@@ -33,9 +33,7 @@ namespace MirageXR
         private void OnDisable()
         {
             EventManager.OnEditModeChanged -= EditModeState;
-
         }
-
 
         private void Start()
         {
@@ -57,10 +55,14 @@ namespace MirageXR
             gameObject.SetActive(false);
 
             //instantiate the navigator arrow if does not exists in the scene
-            if (!navigatorArrowModel && navigatorArrowPrefab)
+            if(!navigatorArrowModel && navigatorArrowPrefab)
             {
-                navigatorArrowModel = Instantiate(navigatorArrowPrefab);
-                navigatorArrowModel.GetComponentInChildren<MeshRenderer>().enabled = false;
+                navigatorArrowModel = GameObject.Find("NavigatorArrow(Clone)");
+                if (!navigatorArrowModel)
+                {
+                    navigatorArrowModel = Instantiate(navigatorArrowPrefab);
+                    navigatorArrowModel.GetComponentInChildren<MeshRenderer>().enabled = false;
+                }
             }
         }
 
@@ -103,8 +105,15 @@ namespace MirageXR
                 Debug.LogError("Action Title Input Field not found on Task Station Menu. Tutorial will not work.");
             }
 
+            SetupActionDescriptionInputField();
+        }
+
+        private void SetupActionDescriptionInputField()
+        {
             try
             {
+                if (ActionDescriptionInputField) return;
+                
                 var obj = gameObject.transform.FindDeepChild("DescriptionInputField");
                 if (obj)
                 {
@@ -124,7 +133,7 @@ namespace MirageXR
         public void MoveNavigatorArrow()
         {
             var navigator = navigatorArrowModel;
-
+            
             if (navigator == null) return;
             if (NavigatorTarget == null)
             {
@@ -135,7 +144,7 @@ namespace MirageXR
             var mainCamera = Camera.main;
             navigator.GetComponentInChildren<MeshRenderer>().enabled = true;
             var cameraTransform = mainCamera.transform;
-            var fromPos = cameraTransform.position + cameraTransform.forward;
+            var fromPos =  cameraTransform.position + cameraTransform.forward;
             var toPos = mainCamera.WorldToViewportPoint(NavigatorTarget.position);
 
             // target is behind the camera
@@ -189,7 +198,7 @@ namespace MirageXR
                 {
                     BindPoiToTaskStation(currentTSTC.transform, SelectedButton.transform.Find("ButtonBinderConnector"));
                 }
-                else
+                else 
                 {
                     if (poiLineRenderer != null)
                     {
@@ -223,7 +232,7 @@ namespace MirageXR
         public void BindTaskStationToDescription(Transform taskStation)
         {
             if (taskStation == null) return;
-
+            
             Vector3 descriptionBinderConnector = taskStation.Find("FaceUser/DescriptionBinderConnector").position;
             Vector3 taskStationToDescription = descriptionBinderConnector - taskStation.position;
             if (descriptionLineRenderer != null)
@@ -251,10 +260,9 @@ namespace MirageXR
             poiLineRenderer.SetPosition(3, target.position);
         }
 
-
-
         private void EditModeState(bool editModeState)
         {
+            SetupActionDescriptionInputField();
             ActionDescriptionInputField.interactable = editModeState;
         }
     }

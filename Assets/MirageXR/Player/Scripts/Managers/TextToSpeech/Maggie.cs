@@ -1,5 +1,4 @@
-﻿using HoloToolkit.Unity;
-using i5.Toolkit.Core.ServiceCore;
+﻿using i5.Toolkit.Core.ServiceCore;
 using UnityEngine;
 
 namespace MirageXR

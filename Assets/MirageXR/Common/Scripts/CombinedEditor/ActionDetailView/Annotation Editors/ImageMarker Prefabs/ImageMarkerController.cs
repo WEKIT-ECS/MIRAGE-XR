@@ -54,7 +54,8 @@ namespace MirageXR
 
         private void Start()
         {
-            detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(_obj.id));
+            var workplaceManager = RootObject.Instance.workplaceManager;
+            detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_obj.id));
             detectableOB = GameObject.Find(detectable.id);
 #if UNITY_ANDROID || UNITY_IOS
             trackImageManager.trackedImagePrefab = detectableOB;
@@ -122,7 +123,7 @@ namespace MirageXR
 
         private IEnumerator LoadImage()
         {
-            byte[] byteArray = File.ReadAllBytes(Path.Combine(ActivityManager.Instance.Path, ImgMName));
+            byte[] byteArray = File.ReadAllBytes(Path.Combine(RootObject.Instance.activityManager.ActivityPath, ImgMName));
             //Find and load the image to be used for createing an image marker
 
             Texture2D loadTexture = new Texture2D(2, 2);
@@ -218,7 +219,8 @@ namespace MirageXR
             //IM.GetComponent<TrackableEventHandlerEvents>().augmentation = GameObject.Find(detectable.id); ;
 
             
-            Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(_obj.id));
+            var workplaceManager = RootObject.Instance.workplaceManager;
+            Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_obj.id));
 
             Debug.Log("Detecable ID: " + detectable.id);
 
@@ -237,7 +239,7 @@ namespace MirageXR
             Destroy(gameObject);
 #else
             // Get the last bit of the url.
-            Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(_obj.id));
+            Detectable detectable = RootObject.Instance.workplaceManager.GetDetectable(RootObject.Instance.workplaceManager.GetPlaceFromTaskStationId(_obj.id));
 
             GameObject detectableObj = GameObject.Find(detectable.id);
             GameObject detectableParentObj = GameObject.Find("Detectables");
