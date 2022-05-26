@@ -13,7 +13,7 @@ namespace MirageXR
             transform.position = Camera.main.transform.position;
 
             //create sun (with enabled shadow)
-            var sunPrefab = await ReferenceLoader.GetAssetReference("Sun");
+            var sunPrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("Sun");
 
             if (sunPrefab == null) return;
 
@@ -27,8 +27,8 @@ namespace MirageXR
                 for (int i = 0; i < numberOfLights; i++)
                 {
                     Vector3 startPosition = transform.position + transform.forward * Random.Range(-5, 5) + transform.right * Random.Range(-5, 5);
-                    var ambientLightPrefab = await ReferenceLoader.GetAssetReference("AmbientLight");
-                    if (ambientLightPrefab!= null)
+                    var ambientLightPrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("AmbientLight");
+                    if(ambientLightPrefab != null)
                     {
                         Instantiate(ambientLightPrefab, startPosition, Quaternion.identity, transform);
                     }

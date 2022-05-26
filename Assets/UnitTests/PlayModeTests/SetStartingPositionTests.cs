@@ -1,27 +1,14 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
+using System.Reflection;
 using MirageXR;
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
 namespace Tests
 {
     public class SetStartingPositionTests
     {
-        [SetUp]
-        public void SetUp()
-        {
-            SceneManager.LoadScene("TestScene", LoadSceneMode.Additive);
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            SceneManager.UnloadSceneAsync("TestScene");
-        }
-
         [UnityTest]
         public IEnumerator Start_SetsPositionToUserViewport()
         {
@@ -106,13 +93,12 @@ namespace Tests
             go.transform.rotation = Quaternion.identity;
 
             // let Unity initialization magic methods run, e.g. Start
-            yield return null;
+            yield return new WaitForSeconds(0.5f);
 
             target.transform.position = targetPosition;
             target.transform.eulerAngles = targetEulers;
 
             EventManager.PlayerReset();
-
             Assert.AreEqual(targetPosition, go.transform.position);
         }
 
@@ -133,19 +119,18 @@ namespace Tests
             go.transform.rotation = Quaternion.identity;
 
             // let Unity initialization magic methods run, e.g. Start
-            yield return null;
+            yield return new WaitForSeconds(0.5f);
 
             target.transform.position = targetPosition;
             target.transform.eulerAngles = targetEulers;
 
             EventManager.PlayerReset();
-
             Vector3 expectedEulers = new Vector3(targetEulers.x, targetEulers.y, 0);
             Assert.AreEqual(expectedEulers, go.transform.eulerAngles);
         }
 
         [UnityTest]
-        public IEnumerator OnWorkplaceParsed_PositionUpdated()
+        public IEnumerator OnWorkplaceLoaded_PositionUpdated()
         {
             Vector3 targetPosition = new Vector3(1, 2, 3);
             Vector3 targetEulers = new Vector3(0, 90, 180);
@@ -166,13 +151,13 @@ namespace Tests
             target.transform.position = targetPosition;
             target.transform.eulerAngles = targetEulers;
 
-            EventManager.WorkplaceParsed();
+            EventManager.WorkplaceLoaded();
 
             Assert.AreEqual(targetPosition, go.transform.position);
         }
 
         [UnityTest]
-        public IEnumerator OnWorkplaceParsed_RotationUpdated()
+        public IEnumerator OnWorkplaceLoaded_RotationUpdated()
         {
             Vector3 targetPosition = new Vector3(1, 2, 3);
             Vector3 targetEulers = new Vector3(0, 90, 180);
@@ -193,10 +178,23 @@ namespace Tests
             target.transform.position = targetPosition;
             target.transform.eulerAngles = targetEulers;
 
-            EventManager.WorkplaceParsed();
+            EventManager.WorkplaceLoaded();
 
             Vector3 expectedEulers = new Vector3(targetEulers.x, targetEulers.y, 0);
             Assert.AreEqual(expectedEulers, go.transform.eulerAngles);
+        }
+
+        private static void CallPrivateMethod(object obj, string methodName, params object[] parameters)
+        {
+            var method = obj.GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
+            method?.Invoke(obj, parameters);
+        }
+
+        private static T GenerateGameObjectWithComponent<T>(string name, bool activated = true) where T : MonoBehaviour
+        {
+            var go = new GameObject(name);
+            go.SetActive(activated);
+            return go.AddComponent<T>();
         }
     }
 }

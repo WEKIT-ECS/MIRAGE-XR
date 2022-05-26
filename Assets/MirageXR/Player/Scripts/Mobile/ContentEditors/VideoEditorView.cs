@@ -41,7 +41,7 @@ public class VideoEditorView : PopupEditorBase
         if (_content != null && !string.IsNullOrEmpty(_content.url))
         {
             var originalFileName = Path.GetFileName(_content.url.Remove(0, HTTP_PREFIX.Length));
-            var originalFilePath = Path.Combine(ActivityManager.Instance.Path, originalFileName);
+            var originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
             
             if (!File.Exists(originalFilePath)) return;
             
@@ -66,7 +66,7 @@ public class VideoEditorView : PopupEditorBase
         VuforiaBehaviour.Instance.enabled = false;
         
         _newFileName = $"MirageXR_Video_{DateTime.Now.ToFileTimeUtc()}.mp4";
-        var filepath = Path.Combine(ActivityManager.Instance.Path, _newFileName);
+        var filepath = Path.Combine(activityManager.ActivityPath, _newFileName);
         
         VuforiaBehaviour.Instance.enabled = false;
         NativeCameraController.StartRecordingVideo(filepath, StopRecordingVideo);
@@ -89,7 +89,7 @@ public class VideoEditorView : PopupEditorBase
     
     private void OnToggleTriggerValueChanged(bool value)
     {
-        if (!value || !ActivityManager.Instance.IsLastAction(_step)) return;
+        if (!value || !activityManager.IsLastAction(_step)) return;
         
         Toast.Instance.Show("This is the last step. The trigger is disabled!\n Add a new step and try again.");
         _toggleTrigger.onValueChanged.RemoveListener(OnToggleTriggerValueChanged);
@@ -111,7 +111,7 @@ public class VideoEditorView : PopupEditorBase
 
             // delete the previous video file
             var originalFileName = Path.GetFileName(_content.url.Remove(0, HTTP_PREFIX.Length));
-            var originalFilePath = Path.Combine(ActivityManager.Instance.Path, originalFileName);
+            var originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
             if (File.Exists(originalFilePath))
             {
                 File.Delete(originalFilePath);
@@ -119,7 +119,7 @@ public class VideoEditorView : PopupEditorBase
         }
         else
         {
-            _content = ActivityManager.Instance.AddAugmentation(_step, GetOffset());
+            _content = augmentationManager.AddAugmentation(_step, GetOffset());
             _content.predicate = editorForType.GetName().ToLower();
         }
         
@@ -129,7 +129,7 @@ public class VideoEditorView : PopupEditorBase
         
         if (_toggleTrigger.isOn)
         {
-            _step.AddOrReplaceArlemTrigger("video", _content.predicate, _content.poi, 0, string.Empty);
+            _step.AddOrReplaceArlemTrigger(TriggerMode.Video, ActionType.Video, _content.poi, 0, string.Empty);
         }
         else
         {
@@ -154,8 +154,8 @@ public class VideoEditorView : PopupEditorBase
         var sprite = Utilities.TextureToSprite(texture2D);
         _image.sprite = sprite;
 
-        var rtImageHolder = (RectTransform) _imageHolder.transform;
-        var rtImage = (RectTransform) _image.transform;
+        var rtImageHolder = (RectTransform)_imageHolder.transform;
+        var rtImage = (RectTransform)_image.transform;
         var height = rtImage.rect.width / texture2D.width * texture2D.height + (rtImage.sizeDelta.y * -1);
         rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
         

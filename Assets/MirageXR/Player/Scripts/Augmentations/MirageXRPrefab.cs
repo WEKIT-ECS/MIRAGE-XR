@@ -12,6 +12,7 @@ namespace MirageXR
     /// </summary>
     public abstract class MirageXRPrefab : BaseFocusHandler
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         private GameObject _center;
         private LineRenderer _lineRenderer;
         private Transform _centerOfView;
@@ -229,7 +230,7 @@ namespace MirageXR
         /// </summary>
         public virtual void Delete()
         {
-            if (gameObject != null)
+            if(gameObject != null)
                 Destroy(gameObject);
         }
 
@@ -360,7 +361,7 @@ namespace MirageXR
 
         private bool IsGazeTrigger()
         {
-            return ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == Annotation.poi) != null
+            return activityManager.ActiveAction.triggers.Find(t => t.id == Annotation.poi) != null 
                    && Annotation.predicate != "video" && Annotation.predicate != "audio" && !Annotation.predicate.StartsWith("char");
         }
 
@@ -395,18 +396,18 @@ namespace MirageXR
 
             if (hit.collider && myColliderChilren.Contains(hit.collider.gameObject))
             {
-                var trigger = ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == Annotation.poi);
+                var trigger = activityManager.ActiveAction.triggers.Find(t => t.id == Annotation.poi);
                 int.TryParse(trigger.value, out int triggerStepNumber);
 
                 if (triggerStepNumber > 0)
-                    triggerStepNumber -= 1;//-1 for converting to the correct index
+                    triggerStepNumber -= 1; //-1 for converting to the correct index
 
-                if (!gazeCircle && !ActivityManager.Instance.EditModeActive && ActivityManager.Instance.ActionsOfTypeAction.Count > triggerStepNumber)
+                if (!gazeCircle && !activityManager.EditModeActive && activityManager.ActionsOfTypeAction.Count > triggerStepNumber)
                 {
                     gazeCircle = Instantiate(Resources.Load<GameObject>("Prefabs/UI/GazeSpinner"), hit.collider.transform.position, transform.rotation);
                     gazeCircle.AddComponent<Billboard>();
                     gazeCircle.GetComponent<GazeSpinner>().Duration = trigger.duration;
-                    gazeCircle.GetComponent<GazeSpinner>().stepNumber = triggerStepNumber;
+                    gazeCircle.GetComponent<GazeSpinner>().stepNumber = triggerStepNumber; 
                     gazeCircle.transform.SetParent(transform);
                 }
             }

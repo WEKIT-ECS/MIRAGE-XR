@@ -113,6 +113,7 @@ namespace MirageXR
         /// <param name="token"></param>
         private async void LoginSucceed(string token)
         {
+            var moodleManager = RootObject.Instance.moodleManager;
             DBManager.token = token;
             DBManager.username = usernameField.text;
             welcomUserText.text = $"Welcome {DBManager.username}";
@@ -121,8 +122,8 @@ namespace MirageXR
             status.text = string.Empty;
             //close login menu
             ShowPanel(null);
-            await MoodleManager.Instance.GetUserId();
-            await MoodleManager.Instance.GetUserMail();
+            await moodleManager.GetUserId();
+            await moodleManager.GetUserMail();
             Maggie.Speak(welcomUserText.text);
 
             //encrypt and save the login info
@@ -164,7 +165,7 @@ namespace MirageXR
             else
                 status.text = string.Empty;
 
-            transform.FindDeepChild("LoginButton").GetComponent<Button>().interactable = usernameField.text.Length >= usernameMinLength && passwordField.text.Length >= passwordMinLength;//TODO: possible NRE
+            transform.FindDeepChild("LoginButton").GetComponent<Button>().interactable = usernameField.text.Length >= usernameMinLength && passwordField.text.Length >= passwordMinLength; //TODO: possible NRE
 
             //remove space
             if (usernameField.text.Contains(" "))

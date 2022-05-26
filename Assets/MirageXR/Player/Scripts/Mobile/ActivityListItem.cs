@@ -62,7 +62,7 @@ namespace MirageXR
             var isDownloaded = _container.ExistsRemotely && _container.ExistsLocally && !_container.IsDownloading;
             var isOnClouds = _container.ExistsRemotely && !_container.ExistsLocally && !_container.IsDownloading;
             _btnDelete.gameObject.SetActive(isLocal || isDownloaded || _container.userIsOwner);
-            _btnEdit.gameObject.SetActive(false);//_container.IsEditable);
+            _btnEdit.gameObject.SetActive(false); //_container.IsEditable);
             _imgError.gameObject.SetActive(_container.HasError);
             _waitSpinner.gameObject.SetActive(_container.IsDownloading);
             if (isLocal) _imgStatus.sprite = _spriteLocal;
@@ -88,7 +88,7 @@ namespace MirageXR
 
         private async void DeleteFromServer()
         {
-            var result = await MoodleManager.Instance.DeleteArlem(_container.ItemID, _container.FileIdentifier);
+            var result = await RootObject.Instance.moodleManager.DeleteArlem(_container.ItemID, _container.FileIdentifier);
             if (result)
             {
                 RootView.Instance.activityListView.UpdateListView();
@@ -125,9 +125,9 @@ namespace MirageXR
         {
             LoadView.Instance.Show();
             var activityJsonFileName = LocalFiles.GetActivityJsonFilename(_container.FileIdentifier);
-            await ServiceManager.GetService<EditorSceneService>().LoadEditorAsync();
-            await MoodleManager.Instance.UpdateViewsOfActivity(_container.ItemID);
-            EventManager.ParseActivity(activityJsonFileName);
+            await RootObject.Instance.editorSceneService.LoadEditorAsync();
+            await RootObject.Instance.moodleManager.UpdateViewsOfActivity(_container.ItemID);
+            await RootObject.Instance.activityManager.LoadActivity(activityJsonFileName);
             LoadView.Instance.Hide();
         }
 

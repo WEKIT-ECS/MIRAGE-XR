@@ -57,7 +57,7 @@ public class GhostRecorder
         using (TextReader textReader = new StreamReader(file))
         {
             var serializer = new XmlSerializer(typeof(List<GhostDataFrame>));
-            ghostDataFrames = (List<GhostDataFrame>) serializer.Deserialize(textReader);
+            ghostDataFrames = (List<GhostDataFrame>)serializer.Deserialize(textReader);
         }
 
         return ghostDataFrames != null && ghostDataFrames.Count != 0;

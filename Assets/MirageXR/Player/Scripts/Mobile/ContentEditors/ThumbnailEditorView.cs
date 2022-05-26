@@ -57,7 +57,7 @@ public class ThumbnailEditorView : PopupBase
             Toast.Instance.Show("The image has not been taken.");
             return;
         }
-        var path = Path.Combine(ActivityManager.Instance.Path, THUMBNAIL_FILE_NAME);
+        var path = Path.Combine(RootObject.Instance.activityManager.ActivityPath, THUMBNAIL_FILE_NAME);
         File.WriteAllBytes(path, _texture2D.EncodeToJPG());
         _onAccept.Invoke(path);
         Close();
@@ -95,8 +95,8 @@ public class ThumbnailEditorView : PopupBase
         var sprite = Utilities.TextureToSprite(_texture2D);
         _image.sprite = sprite;
 
-        var rtImageHolder = (RectTransform) _imageHolder.transform;
-        var rtImage = (RectTransform) _image.transform;
+        var rtImageHolder = (RectTransform)_imageHolder.transform;
+        var rtImage = (RectTransform)_image.transform;
         var height = rtImage.rect.width / _texture2D.width * _texture2D.height + (rtImage.sizeDelta.y * -1);
         rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
         

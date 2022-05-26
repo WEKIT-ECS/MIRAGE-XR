@@ -49,16 +49,16 @@ namespace MirageXR
             myToggleObject = obj;
 
             // Check that url is not empty.
-            if (string.IsNullOrEmpty(obj.url))
+            if (string.IsNullOrEmpty (obj.url))
             {
-                Debug.Log("Content URL not provided.");
+                Debug.Log ("Content URL not provided.");
                 return false;
             }
-
+             
             // Try to set the parent and if it fails, terminate initialization.
-            if (!SetParent(obj))
+            if (!SetParent (obj))
             {
-                Debug.Log("Couldn't set the parent.");
+                Debug.Log ("Couldn't set the parent.");
                 return false;
             }
 
@@ -72,7 +72,7 @@ namespace MirageXR
                 // Setup guide line feature.
                 if (!SetGuide(obj)) return false;
             }
-
+         
             // If all went well, return true.
             return true;
         }
@@ -80,7 +80,7 @@ namespace MirageXR
         private void LoadModel(ToggleObject obj)
         {
             startLoadTime = Time.time;
-            var loadPath = Path.Combine(ActivityManager.Instance.Path, obj.option, "scene.gltf");
+            var loadPath = Path.Combine(RootObject.Instance.activityManager.ActivityPath, obj.option, "scene.gltf");
 
             Debug.Log($"Loading model: {loadPath}");
 
@@ -89,7 +89,7 @@ namespace MirageXR
 
         private void OnFinishLoadingAsync(GameObject model, AnimationClip[] clip)
         {
-            if (this == null)
+            if(this == null)
             {
                 Destroy(model);
                 return;
@@ -167,18 +167,18 @@ namespace MirageXR
                         var newCollider = g.AddComponent<MeshCollider>();
                         colliders.Add(newCollider.bounds);
                     }
-
+                    
                 }
                 else
                 {
                     colliders.Add(g.GetComponent<MeshCollider>().bounds);
                 }
-            }
+            }  
         }
 
         private static void AddCapsuleCollidersToPatient(Transform rootBone)
         {
-            for (int child = 0; child < rootBone.childCount; child++)
+            for (int child = 0;  child < rootBone.childCount; child++)
             {
                 var childBone = rootBone.GetChild(child);
                 var capcoll = childBone.gameObject.AddComponent<CapsuleCollider>();
@@ -244,7 +244,7 @@ namespace MirageXR
             if (augmentation != myToggleObject) return;
 
             // check for existing model folder and delete if necessary
-            var arlemPath = ActivityManager.Instance.Path;
+            var arlemPath = RootObject.Instance.activityManager.ActivityPath;
             string folderName = augmentation.option;
             string modelFolderPath = Path.Combine(arlemPath, folderName);
 

@@ -20,7 +20,7 @@ namespace MirageXR
             ServiceManager.RegisterService(new WorldAnchorService());
             ServiceManager.RegisterService(new KeywordService());
 
-            ServiceManager.RegisterService(new VestService()
+            ServiceManager.RegisterService(new VestService
             {
                 VestEnabled = vestServiceConfiguration.vestEnabled
             });
@@ -41,7 +41,6 @@ namespace MirageXR
             }
 
             ServiceManager.RegisterService(new VideoAudioTrackGlobalService());
-            ServiceManager.RegisterService(new EditorSceneService());
 
             OpenIDConnectService oidc = new OpenIDConnectService
             {
@@ -53,7 +52,6 @@ namespace MirageXR
 #else
             // here could be the link to a nicer web page that tells the user to return to the app
 #endif
-
 
             ServiceManager.RegisterService(oidc);
 

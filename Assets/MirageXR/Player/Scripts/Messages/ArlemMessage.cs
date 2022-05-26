@@ -1,44 +1,38 @@
-﻿using System;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace MirageXR
 {
-    public class ArlemMessage
+    public static class ArlemMessage
     {
-        /// <summary>
-        /// Messages received from Arlem activity files.
-        /// </summary>
-        /// <param name="target">Target user id.</param>
-        /// <param name="message">Message content.</param>
-        public ArlemMessage (string target, string message)
+        public static void ReadMessages(Action action)
         {
-            try
+            foreach (var message in action.exit.messages)
             {
-                if (string.IsNullOrEmpty (target))
-                    throw new ArgumentException ("Message target not set.");
-
-                if (string.IsNullOrEmpty (message))
-                    throw new ArgumentException ("Message text not set.");
-
-                // If the message targeted for us...
-                if (target == "all" || target == WorkplaceManager.GetUser())
+                if (!string.IsNullOrEmpty(message.target) && !string.IsNullOrEmpty(message.text))
                 {
-                    SpeakMessage(message);
+                    Read(message.target, message.text);
                 }
-            }
-            catch (Exception e)
-            {
-                Debug.Log (e);
-                throw;
             }
         }
 
-        private async void SpeakMessage(string message)
+        private static void Read(string target, string message)
         {
-            await Task.Delay(1500);
-            // Send the message
-            Maggie.Speak(message);
+            if (string.IsNullOrEmpty(target))
+            {
+                Debug.Log("Message target not set.");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(message))
+            {
+                Debug.Log("Message text not set.");
+                return;
+            }
+
+            if (target == "all" || target == WorkplaceManager.GetUser())
+            {
+                Maggie.Speak(message);
+            }
         }
     }
 }

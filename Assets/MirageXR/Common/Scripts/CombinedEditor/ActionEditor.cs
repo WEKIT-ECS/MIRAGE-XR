@@ -8,6 +8,8 @@ using UnityEngine.UI;
 [RequireComponent(typeof(ActionDetailView))]
 public class ActionEditor : MonoBehaviour
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    
     [SerializeField] private GameObject TaskStationMenuPanel;
     [SerializeField] private GameObject TaskStationOpenButton;
     [SerializeField] private InputField titleField;
@@ -18,7 +20,7 @@ public class ActionEditor : MonoBehaviour
     [SerializeField] private GameObject annotationAddMenu;
     [SerializeField] private GameObject poiAddItemPrefab;
     [SerializeField] private Button thumbnailButton;
-    [SerializeField] private Text instructionText;
+    [SerializeField] private Text  instructionText;
     [SerializeField] private Text helpText;
 
     [SerializeField] private Transform DefaultAugmentationStartingPoint;
@@ -39,7 +41,7 @@ public class ActionEditor : MonoBehaviour
     [SerializeField] private GameObject imageMarkerPrefab;
     [SerializeField] private GameObject pluginPrefab;
     [SerializeField] private GameObject drawingEditorPrefab;
-
+    
     private LabelEditor labelEditor;
     private AudioEditor audioEditor;
     private ImageEditor imageEditor;
@@ -73,10 +75,10 @@ public class ActionEditor : MonoBehaviour
         }
         set
         {
-            annotationAddMenu.SetActive(value && ActivityManager.Instance.EditModeActive);
+            annotationAddMenu.SetActive(value && activityManager.EditModeActive);
             poiList.SetActive(!value);
 
-            if (TaskStationDetailMenu.Instance && value)
+            if(TaskStationDetailMenu.Instance && value)
             {
                 StepNavigationTargetCapturing = false;
                 TaskStationDetailMenu.Instance.SelectedButton = null;
@@ -104,14 +106,14 @@ public class ActionEditor : MonoBehaviour
     private void OnEnable()
     {
         EventManager.OnEditModeChanged += SetEditModeState;
-        titleField.onValueChanged.AddListener(OnTitleChanged);
-        descriptionField.onValueChanged.AddListener(OnDescriptionChanged);
+        titleField.onValueChanged.AddListener( OnTitleChanged);
+        descriptionField.onValueChanged.AddListener(OnDescriptionChanged) ;
 
-        if (ActivityManager.Instance != null)
+        if (activityManager != null)
         {
-            SetEditModeState(ActivityManager.Instance.EditModeActive);
+            SetEditModeState(activityManager.EditModeActive);
         }
-
+        
         if (!PlatformManager.Instance.WorldSpaceUi)
         {
             CloseTaskStationMenu();
@@ -120,7 +122,7 @@ public class ActionEditor : MonoBehaviour
 
     private void OnDisable()
     {
-        titleField.onValueChanged.RemoveListener(OnTitleChanged);
+        titleField.onValueChanged.RemoveListener( OnTitleChanged);
         descriptionField.onValueChanged.RemoveListener(OnDescriptionChanged);
         EventManager.OnEditModeChanged -= SetEditModeState;
     }
@@ -145,7 +147,7 @@ public class ActionEditor : MonoBehaviour
         {
             var augmentationCorrectTypeName = listOfAugmentations[i].Replace("&", "and").Replace(" ", string.Empty).ToUpper();
             var augmentationIndexOnEnum = (int)Enum.Parse(typeof(ContentType), augmentationCorrectTypeName);
-            var type = (ContentType)augmentationIndexOnEnum;
+            var type = (ContentType) augmentationIndexOnEnum;
             var addItemInstance = Instantiate(poiAddItemPrefab, annotationAddMenu.transform);
             var listItem = addItemInstance.GetComponent<PoiAddItem>();
             listItem.Initialize(type, i, listOfAugmentations[i], type.GetIcon());
@@ -157,7 +159,7 @@ public class ActionEditor : MonoBehaviour
 
             augmentationsButtons[i] = listItem.gameObject;
         }
-        SetEditModeState(ActivityManager.Instance.EditModeActive);
+        SetEditModeState(activityManager.EditModeActive);
 
         instructionText.gameObject.SetActive(false);
 
@@ -177,11 +179,11 @@ public class ActionEditor : MonoBehaviour
     {
         return DefaultAugmentationStartingPoint;
     }
-
+    
     private void OnToggleActionTargetCapture()
     {
         //if there is no annotations
-        if (ActivityManager.Instance.ActiveAction.enter.activates.Count == 0)
+        if (activityManager.ActiveAction.enter.activates.Count == 0)
         {
             StartCoroutine(NavigatorNotification("There is no annotation in this step yet", 5));
             return;
@@ -216,11 +218,11 @@ public class ActionEditor : MonoBehaviour
         if (StepNavigationTargetCapturing)
         {
             //remove target from other annotation's state
-            ActivityManager.Instance.ActiveAction.enter.activates.ForEach(b =>
+            activityManager.ActiveAction.enter.activates.ForEach(b =>
             {
                 b.state = string.Empty;
             });
-            ActivityManager.Instance.ActiveAction.exit.deactivates.ForEach(b =>
+            activityManager.ActiveAction.exit.deactivates.ForEach(b =>
             {
                 b.state = string.Empty;
             });
@@ -230,7 +232,7 @@ public class ActionEditor : MonoBehaviour
             navigationTargetButton.GetComponent<Image>().color = Color.white;
             navigationTargetButton.GetComponentInChildren<Text>().enabled = false;
             StepNavigationTargetCapturing = false;
-            TaskStationDetailMenu.Instance.NavigatorTarget = ActionListMenu.CorrectTargetObject(annotation);
+            TaskStationDetailMenu.Instance.NavigatorTarget = ActionListMenu.CorrectTargetObject(annotation);  
             TaskStationDetailMenu.Instance.TargetPredicate = annotation.predicate;
 
             //show the target icon if annotation is the target of this action
@@ -300,7 +302,7 @@ public class ActionEditor : MonoBehaviour
 
     public void OnTitleChanged(string newTitle)
     {
-        if (detailView.DisplayedAction != null)
+        if (detailView.DisplayedAction!= null)
         {
             detailView.DisplayedAction.instruction.title = newTitle;
             EventManager.NotifyActionModified(detailView.DisplayedAction);
@@ -356,7 +358,7 @@ public class ActionEditor : MonoBehaviour
             case ContentType.ACT:
                 glyphEditor = LoadEditorPanel<GlyphEditor>(GlyphSelectorPrefab);
                 glyphEditor.SetAnnotationStartingPoint(DefaultAugmentationStartingPoint);
-                glyphEditor.Open(detailView.DisplayedAction, null);
+                glyphEditor.Open(detailView.DisplayedAction,null);
                 break;
             case ContentType.VFX:
                 vfxEditor = LoadEditorPanel<VFXEditor>(VfxEditorPrefab);
@@ -398,7 +400,7 @@ public class ActionEditor : MonoBehaviour
         }
     }
 
-    /// <summary>
+/// <summary>
     /// This function instantiates the relevant prefab and, depending on the augmentation type,
     /// allows the controller component to be returned after configuration.
     /// </summary>
@@ -418,7 +420,7 @@ public class ActionEditor : MonoBehaviour
     }
 
     public object CreateEditorView(ContentType type)
-    {
+    { 
         switch (type)
         {
             case ContentType.IMAGE:
@@ -436,6 +438,8 @@ public class ActionEditor : MonoBehaviour
         instructionText.gameObject.SetActive(true);
 
         var taskStation = detailView.GetCurrentTaskStation();
+        if (!taskStation) return;
+        
         TaskStationDetailMenu.Instance.BindPoiToTaskStation(taskStation.transform, augmentationsButtons[index].transform);
 
         instructionText.text = type.GetHint();
@@ -454,12 +458,12 @@ public class ActionEditor : MonoBehaviour
         CaptureNavigationTarget(annotation);
 
         //pick and place can only use the model augmentation as it's arrow
-        if (annotation.predicate.StartsWith("3d"))
+        if(annotation.predicate.StartsWith("3d") )
             CapturePickArrowTarget(annotation, pickArrowModelCapturing.Item2);
 
         switch (annotation.predicate)
         {
-            case "label":
+            case "label":    
                 labelEditor = LoadEditorPanel<LabelEditor>(TextEditorPrefab);
                 labelEditor.Open(detailView.DisplayedAction, annotation);
                 break;
@@ -469,7 +473,7 @@ public class ActionEditor : MonoBehaviour
                 break;
             case "image":
                 imageEditor = LoadEditorPanel<ImageEditor>(ImageEditorPrefab);
-                imageEditor.Open(detailView.DisplayedAction, annotation);
+                    imageEditor.Open(detailView.DisplayedAction, annotation);
                 break;
             case "video":
                 videoEditor = LoadEditorPanel<VideoEditor>(VideoEditorPrefab);
@@ -540,7 +544,7 @@ public class ActionEditor : MonoBehaviour
             imageMarkerEditor.Close();
         if (pluginEditor)
             pluginEditor.Close();
-        if (drawingEditor)
+        if(drawingEditor)
             drawingEditor.Close();
 
 
@@ -563,7 +567,7 @@ public class ActionEditor : MonoBehaviour
         spawnPointVisualPart.SetActive(editModeActive);
 
         DisableAllPoiEditors();
-
+        
         if (!PlatformManager.Instance.WorldSpaceUi)
         {
             CloseTaskStationMenu();
@@ -572,7 +576,7 @@ public class ActionEditor : MonoBehaviour
 
     public void OpenTaskStationMenu()
     {
-        gameObject.GetComponent<Canvas>().enabled = ActivityManager.Instance.EditModeActive;
+        gameObject.GetComponent<Canvas>().enabled = activityManager.EditModeActive;
         detailView.MoveEditorNextToTaskSTation();
         TaskStationOpenButton.SetActive(false);
         TaskStationMenuPanel.SetActive(true);
@@ -585,17 +589,15 @@ public class ActionEditor : MonoBehaviour
         TaskStationOpenButton.SetActive(PlatformManager.Instance.WorldSpaceUi);
     }
 
-
-
     private bool InstanceOfAugmentationExist(ContentType type)
     {
-        var predicate = ContentTypeExtenstion.GetPredicate(type);
+        var predicate = type.GetPredicate();
 
-        foreach (var toggleObject in ActivityManager.Instance.ActiveAction.enter.activates)
+        foreach (var toggleObject in activityManager.ActiveAction.enter.activates)
         {
             if (toggleObject.predicate == predicate)
             {
-                /// give the info and close
+                // give the info and close
                 DialogWindow.Instance.Show("Info!",
                 $"There is already a {predicate} augmentation in this step. Please delete it before adding a new one!",
                 new DialogButtonContent("Ok"));

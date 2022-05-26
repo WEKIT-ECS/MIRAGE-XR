@@ -6,6 +6,7 @@ namespace MirageXR
 {
     public class StandHere : MonoBehaviour
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         [SerializeField] private GameObject eyeLens;
         [SerializeField] private GameObject lookingPoint;
 
@@ -30,8 +31,8 @@ namespace MirageXR
             if (onScreen && playerDistanceToEyeLens < 0.15f && !_triggerActivated)
             {
 
-                var activeAction = ActivityManager.Instance.ActiveAction;
-                if (ActivityManager.Instance.ActionsOfTypeAction.IndexOf(activeAction) == ActivityManager.Instance.ActionsOfTypeAction.Count - 1 && !notificationDisplayed)
+                var activeAction = activityManager.ActiveAction;
+                if (activityManager.ActionsOfTypeAction.IndexOf(activeAction) == activityManager.ActionsOfTypeAction.Count - 1 && !notificationDisplayed)
                 {
                     /// give the info and close
                     DialogWindow.Instance.Show("Info!",

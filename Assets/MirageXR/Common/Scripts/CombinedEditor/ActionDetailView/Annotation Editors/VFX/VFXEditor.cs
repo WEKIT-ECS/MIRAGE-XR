@@ -7,7 +7,7 @@ namespace MirageXR
         [SerializeField] private Transform _contentContainer;
         [SerializeField] private VfxListItem _vfxListItemPrefab;
         [SerializeField] private VfxObject[] _vfxObjects;
-
+        
         private Action _action;
         private ToggleObject _annotationToEdit;
         private Transform _annotationStartingPoint;
@@ -39,7 +39,7 @@ namespace MirageXR
         {
             foreach (var icon in _contentContainer.GetComponentsInChildren<RectTransform>())
             {
-                if (icon.gameObject != _contentContainer.gameObject)
+                if(icon.gameObject != _contentContainer.gameObject)
                     Destroy(icon.gameObject);
             }
         }
@@ -61,7 +61,8 @@ namespace MirageXR
             }
             else
             {
-                Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(_action.id));
+                var workplaceManager = RootObject.Instance.workplaceManager;
+                Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
                 GameObject originT = GameObject.Find(detectable.id);
 
                 var offset = Utilities.CalculateOffset(_annotationStartingPoint.transform.position,
@@ -69,7 +70,7 @@ namespace MirageXR
                     originT.transform.position,
                     originT.transform.rotation);
 
-                _annotationToEdit = ActivityManager.Instance.AddAugmentation(_action, offset);
+                _annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(_action, offset);
             }
 
             _annotationToEdit.predicate = "vfx:" + iconName;

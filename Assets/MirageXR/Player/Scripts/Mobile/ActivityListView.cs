@@ -13,7 +13,6 @@ namespace MirageXR
     {
         [SerializeField] private Button _btnLogin;
         [SerializeField] private Button _btnSettings;
-        [SerializeField] private Button _btnHelp;
         [SerializeField] private Button _btnAddActivity;
         [SerializeField] private TMP_InputField _inputFieldSearch;
         [SerializeField] private Transform _listTransform;
@@ -24,9 +23,7 @@ namespace MirageXR
         private List<SessionContainer> _content;
         private readonly List<ActivityListItem> _items = new List<ActivityListItem>();
         private bool _interactable = true;
-
-        public Button BtnAddActivity => _btnAddActivity;
-
+        
         public bool interactable
         {
             get
@@ -46,7 +43,6 @@ namespace MirageXR
             base.Initialization(parentView);
             _btnLogin.onClick.AddListener(OnLoginClick);
             _btnSettings.onClick.AddListener(OnSettingsClick);
-            _btnHelp.onClick.AddListener(OnHelpClick);
             _btnAddActivity.onClick.AddListener(OnAddActivityClick);
             _inputFieldSearch.onValueChanged.AddListener(OnInputFieldSearchChanged);
             if (!DBManager.LoggedIn && DBManager.rememberUser)
@@ -61,7 +57,7 @@ namespace MirageXR
             if (!LocalFiles.TryToGetUsernameAndPassword(out var username, out var password)) return;
         
             LoadView.Instance.Show();
-            await MoodleManager.Instance.Login(username, password);
+            await RootObject.Instance.moodleManager.Login(username, password);
             LoadView.Instance.Hide();
         }
 
@@ -82,7 +78,7 @@ namespace MirageXR
                 }
             });
             
-            var remoteList = await MoodleManager.Instance.GetArlemList();
+            var remoteList = await RootObject.Instance.moodleManager.GetArlemList();
             remoteList?.ForEach(t =>
             {
                 if (dictionary.ContainsKey(t.sessionid))
@@ -124,29 +120,14 @@ namespace MirageXR
             PopupsViewer.Instance.Show(_loginViewPrefab);
         }
 
-        private void OnHelpClick()
-        {
-            if(!TutorialManager.Instance.IsTutorialRunning)
-            {
-                TutorialDialog tDialog = RootView.Instance.TutorialDialog;
-                tDialog.Toggle();
-            }
-            else
-            {
-                TutorialManager.Instance.CloseTutorial();
-            }
-            
-        }
-
         private async void OnAddActivityClick()
         {
             LoadView.Instance.Show();
             interactable = false;
-            await ServiceManager.GetService<EditorSceneService>().LoadEditorAsync();
-            EventManager.ParseActivity(string.Empty);
+            await RootObject.Instance.editorSceneService.LoadEditorAsync();
+            RootObject.Instance.activityManager.CreateNewActivity();
             interactable = true;
             LoadView.Instance.Hide();
-            EventManager.NotifyOnNewActivityCreationButtonPressed();
         }
 
         private void OnInputFieldSearchChanged(string text)

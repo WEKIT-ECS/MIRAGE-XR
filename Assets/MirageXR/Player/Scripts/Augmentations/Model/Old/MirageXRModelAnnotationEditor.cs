@@ -72,7 +72,7 @@ public class MirageXRModelAnnotationEditor : MonoBehaviour
 
     public void Place3DModel(string modelResourceLocator, bool isLarge)
     {
-        Debug.Log("3d model Annotation changed: "+modelResourceLocator);
+        Debug.Log("3d model Annotation changed: " + modelResourceLocator);
         selectedModel = modelResourceLocator;
         DestroyChild();
         large = isLarge;
@@ -130,7 +130,7 @@ public class MirageXRModelAnnotationEditor : MonoBehaviour
     public void ExpandModel()
     {
         Debug.Log("3d model expanded");
-        gameObject.GetComponentInChildren<MirageXRModelExpander>().SendMessage("ExpandModel",SendMessageOptions.DontRequireReceiver);
+        gameObject.GetComponentInChildren<MirageXRModelExpander>().SendMessage("ExpandModel", SendMessageOptions.DontRequireReceiver);
     }
 
     public void CompressModel()

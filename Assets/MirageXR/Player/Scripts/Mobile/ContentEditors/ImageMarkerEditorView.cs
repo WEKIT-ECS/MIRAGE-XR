@@ -54,7 +54,7 @@ public class ImageMarkerEditorView : PopupEditorBase
             // delete the previous image file
             var imageName = _content.url;
             var originalFileName = Path.GetFileName(imageName.Remove(0, HTTP_PREFIX.Length));
-            var originalFilePath = Path.Combine(ActivityManager.Instance.Path, originalFileName);
+            var originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
             if (File.Exists(originalFilePath))
             {
                 File.Delete(originalFilePath);
@@ -62,12 +62,12 @@ public class ImageMarkerEditorView : PopupEditorBase
         }
         else
         {
-            _content = ActivityManager.Instance.AddAugmentation(_step, GetOffset());
+            _content = augmentationManager.AddAugmentation(_step, GetOffset());
             _content.predicate = editorForType.GetPredicate();
         }
 
         var saveFileName = $"MirageXR_Image_{DateTime.Now.ToFileTimeUtc()}.jpg";
-        var outputPath = Path.Combine(ActivityManager.Instance.Path, saveFileName);
+        var outputPath = Path.Combine(activityManager.ActivityPath, saveFileName);
         File.WriteAllBytes(outputPath, _capturedImage.EncodeToJPG());
         
         _content.url = RESOURCES_PREFIX + saveFileName;
@@ -83,7 +83,7 @@ public class ImageMarkerEditorView : PopupEditorBase
         if (_content != null && !string.IsNullOrEmpty(_content.url))
         {
             var originalFileName = Path.GetFileName(_content.url.Remove(0, RESOURCES_PREFIX.Length));
-            var originalFilePath = Path.Combine(ActivityManager.Instance.Path, originalFileName);
+            var originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
             
             if (!File.Exists(originalFilePath)) return;
 
@@ -120,8 +120,8 @@ public class ImageMarkerEditorView : PopupEditorBase
         var sprite = Utilities.TextureToSprite(_capturedImage);
         _image.sprite = sprite;
 
-        var rtImageHolder = (RectTransform) _imageHolder.transform;
-        var rtImage = (RectTransform) _image.transform;
+        var rtImageHolder = (RectTransform)_imageHolder.transform;
+        var rtImage = (RectTransform)_image.transform;
         var height = rtImage.rect.width / _capturedImage.width * _capturedImage.height + (rtImage.sizeDelta.y * -1);
         rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
         
