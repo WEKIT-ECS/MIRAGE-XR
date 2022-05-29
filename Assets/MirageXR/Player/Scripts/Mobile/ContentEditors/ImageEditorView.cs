@@ -8,12 +8,20 @@ using Image = UnityEngine.UI.Image;
 
 public class ImageEditorView : PopupEditorBase
 {
+    private static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
+    private string ArlemFolderPath = RootObject.Instance.activityManager.ActivityPath;
+
     public override ContentType editorForType => ContentType.IMAGE;
+
+    private const string LANDSCAPE = "L";
+    private const string PORTRAIT = "P";
+    private bool _orientation;
 
     [SerializeField] private Transform _imageHolder;
     [SerializeField] private Image _image;
     [SerializeField] private Button _btnCaptureImage;
-    
+    [SerializeField] private Toggle _toggleOrientation;
+
     private Texture2D _capturedImage;
 
     public override void Init(Action<PopupBase> onClose, params object[] args)
@@ -21,6 +29,9 @@ public class ImageEditorView : PopupEditorBase
         base.Init(onClose, args);
         UpdateView();
         _btnCaptureImage.onClick.AddListener(OnCaptureImage);
+
+        _toggleOrientation.onValueChanged.AddListener(OnToggleOrientationValueChanged);
+        _toggleOrientation.isOn = _orientation;
     }
 
     private void OnDestroy()
@@ -44,7 +55,7 @@ public class ImageEditorView : PopupEditorBase
             // delete the previous image file
             var imageName = _content.url;
             var originalFileName = Path.GetFileName(imageName.Remove(0, HTTP_PREFIX.Length));
-            var originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
+            var originalFilePath = Path.Combine(ArlemFolderPath, originalFileName);
             if (File.Exists(originalFilePath))
             {
                 File.Delete(originalFilePath);
@@ -56,10 +67,13 @@ public class ImageEditorView : PopupEditorBase
             _content.predicate = editorForType.GetPredicate();
         }
 
+        _content.key = _orientation ? LANDSCAPE : PORTRAIT;
+
+
         var saveFileName = $"MirageXR_Image_{DateTime.Now.ToFileTimeUtc()}.jpg";
-        var outputPath = Path.Combine(activityManager.ActivityPath, saveFileName);
+        var outputPath = Path.Combine(ArlemFolderPath, saveFileName);
         File.WriteAllBytes(outputPath, _capturedImage.EncodeToJPG());
-        
+
         _content.url = HTTP_PREFIX + saveFileName;
         _content.scale = 0.5f;
         EventManager.ActivateObject(_content);
@@ -72,13 +86,19 @@ public class ImageEditorView : PopupEditorBase
         if (_content != null && !string.IsNullOrEmpty(_content.url))
         {
             var originalFileName = Path.GetFileName(_content.url.Remove(0, HTTP_PREFIX.Length));
-            var originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
-            
+            var originalFilePath = Path.Combine(ArlemFolderPath, originalFileName);
+
             if (!File.Exists(originalFilePath)) return;
-        
+
             var texture2D = Utilities.LoadTexture(originalFilePath);
             SetPreview(texture2D);
         }
+    }
+
+
+    private void OnToggleOrientationValueChanged(bool value)
+    {
+        _orientation = value;
     }
 
     private void OnCaptureImage()
@@ -91,7 +111,7 @@ public class ImageEditorView : PopupEditorBase
         VuforiaBehaviour.Instance.enabled = false;
         NativeCameraController.TakePicture(OnPictureTaken);
     }
-    
+
     private void OnPictureTaken(bool result, Texture2D texture2D)
     {
         VuforiaBehaviour.Instance.enabled = true;
@@ -102,7 +122,7 @@ public class ImageEditorView : PopupEditorBase
     private void SetPreview(Texture2D texture2D)
     {
         if (_capturedImage) Destroy(_capturedImage);
-        
+
         _capturedImage = texture2D;
         var sprite = Utilities.TextureToSprite(_capturedImage);
         _image.sprite = sprite;
@@ -111,7 +131,7 @@ public class ImageEditorView : PopupEditorBase
         var rtImage = (RectTransform)_image.transform;
         var height = rtImage.rect.width / _capturedImage.width * _capturedImage.height + (rtImage.sizeDelta.y * -1);
         rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
-        
+
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
     }
 }
