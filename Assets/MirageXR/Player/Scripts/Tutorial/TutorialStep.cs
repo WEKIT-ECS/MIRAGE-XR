@@ -30,7 +30,7 @@ namespace MirageXR
 
         public TutorialStep()
         {
-            this.manager = TutorialManager.Instance();
+            this.manager = TutorialManager.Instance;
             this.IsActive = false;
         }
 
@@ -97,5 +97,15 @@ namespace MirageXR
 
         protected abstract void SecuredCloseStep();
 
+
+        /// <summary>
+        /// This function simply calles the ExitStep() of its step.
+        /// It is defined here as a separate action so it can be used
+        /// in concrete Steps to attach events to.
+        /// </summary>
+        protected void DefaultExitEventListener()
+        {
+            ExitStep();
+        }
     }
 }

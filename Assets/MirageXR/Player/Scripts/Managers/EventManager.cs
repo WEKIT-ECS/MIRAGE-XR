@@ -469,6 +469,65 @@ namespace MirageXR
             OnClick?.Invoke();
         }
 
+        // Start extended tracking.
+        public delegate void StartExtendedTrackingDelegate();
+
+        public static event StartExtendedTrackingDelegate OnStartExtendedTracking;
+
+        public static void StartExtendedTracking()
+        {
+            OnStartExtendedTracking?.Invoke();
+        }
+
+        // Stop extended tracking.
+        public delegate void StopExtendedTrackingDelegate();
+
+        public static event StopExtendedTrackingDelegate OnStopExtendedTracking;
+
+        public static void StopExtendedTracking()
+        {
+            OnStopExtendedTracking?.Invoke();
+        }
+
+        // Show sensors.
+        public delegate void ShowSensorsDelegate();
+
+        public static event ShowSensorsDelegate OnShowSensors;
+
+        public static void ShowSensors()
+        {
+            OnShowSensors?.Invoke();
+        }
+
+        // Hide sensors.
+        public delegate void HideSensorsDelegate();
+
+        public static event HideSensorsDelegate OnHideSensors;
+
+        public static void HideSensors()
+        {
+            OnHideSensors?.Invoke();
+        }
+
+        public delegate void DestroyDetectablesDelegate();
+
+        public static event DestroyDetectablesDelegate OnDestroyDetectables;
+
+        public static void DestroyDetectables()
+        {
+            OnDestroyDetectables?.Invoke();
+        }
+
+        public delegate void MarkCompletedDelegate(string id);
+
+        public static event MarkCompletedDelegate OnMarkCompleted;
+
+        public static void MarkCompleted(string id)
+        {
+            OnMarkCompleted?.Invoke(id);
+        }
+
+
         // Player timestamping events.
         public delegate void ActivityLoadedStampDelegate(string deviceId, string activityId, string timestamp);
 
@@ -558,6 +617,7 @@ namespace MirageXR
             OnActionDeleted?.Invoke(actionId);
         }
 
+
         public delegate void AugmentationDeletedDelegate(ToggleObject toggleObject);
 
         public static event AugmentationDeletedDelegate OnAugmentationDeleted;
@@ -566,6 +626,7 @@ namespace MirageXR
         {
             OnAugmentationDeleted?.Invoke(toggleObject);
         }
+
 
         public delegate void ActivitySaveDelegate();
 
@@ -706,6 +767,55 @@ namespace MirageXR
         public static void NotifyOnActionStepDescriptionInputChanged()
         {
             ActionStepDescriptionInputChanged?.Invoke();
+        }
+
+        public delegate void StepsSelectorClickedDelegate();
+        public static event StepsSelectorClickedDelegate StepsSelectorClicked;
+        public static void NotifyOnStepsSelectorClicked()
+        {
+            StepsSelectorClicked?.Invoke();
+        }
+
+        public delegate void ViewSelectorClickedDelegate();
+        public static event ViewSelectorClickedDelegate ViewSelectorClicked;
+        public static void NotifyOnViewSelectorClicked()
+        {
+            ViewSelectorClicked?.Invoke();
+        }
+
+        public delegate void MobilePageChangeFinishedDelegate();
+        public static event MobilePageChangeFinishedDelegate MobilePageChanged;
+        public static void NotifyOnMobilePageChanged()
+        {
+            MobilePageChanged?.Invoke();
+        }
+
+        public delegate void TutorialPopupCloseClickedDelegate();
+        public static event TutorialPopupCloseClickedDelegate TutorialPopupCloseClicked;
+        public static void NotifyOnTutorialPopupCloseClicked()
+        {
+            TutorialPopupCloseClicked?.Invoke();
+        }
+
+        public delegate void MobileStepContentExpandedDelegate();
+        public static event MobileStepContentExpandedDelegate MobileStepContentExpanded;
+        public static void NotifyOnMobileStepContentExpanded()
+        {
+            MobileStepContentExpanded?.Invoke();
+        }
+
+        public delegate void HighlightingButtonClickedDelegate();
+        public static event HighlightingButtonClickedDelegate HighlightingButtonClicked;
+        public static void NotifyOnHighlightingButtonClicked()
+        {
+            HighlightingButtonClicked?.Invoke();
+        }
+
+        public delegate void MobileAddStepContentPressedDelegate();
+        public static event MobileAddStepContentPressedDelegate MobileAddStepContentPressed;
+        public static void NotifyOnMobileAddStepContentPressed()
+        {
+            MobileAddStepContentPressed?.Invoke();
         }
     }
 }
