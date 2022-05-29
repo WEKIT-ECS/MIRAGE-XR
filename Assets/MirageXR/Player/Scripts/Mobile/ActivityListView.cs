@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using i5.Toolkit.Core.ServiceCore;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -13,17 +12,20 @@ namespace MirageXR
     {
         [SerializeField] private Button _btnLogin;
         [SerializeField] private Button _btnSettings;
+        [SerializeField] private Button _btnHelp;
         [SerializeField] private Button _btnAddActivity;
         [SerializeField] private TMP_InputField _inputFieldSearch;
         [SerializeField] private Transform _listTransform;
         [SerializeField] private ActivityListItem _listListItemPrefab;
         [SerializeField] private LoginView _loginViewPrefab;
         [SerializeField] private SettingsView _settingsViewPrefab;
-        
+
+        public Button BtnAddActivity => _btnAddActivity;
+
         private List<SessionContainer> _content;
         private readonly List<ActivityListItem> _items = new List<ActivityListItem>();
         private bool _interactable = true;
-        
+
         public bool interactable
         {
             get
@@ -43,6 +45,7 @@ namespace MirageXR
             base.Initialization(parentView);
             _btnLogin.onClick.AddListener(OnLoginClick);
             _btnSettings.onClick.AddListener(OnSettingsClick);
+            _btnHelp.onClick.AddListener(OnHelpClick);
             _btnAddActivity.onClick.AddListener(OnAddActivityClick);
             _inputFieldSearch.onValueChanged.AddListener(OnInputFieldSearchChanged);
             if (!DBManager.LoggedIn && DBManager.rememberUser)
@@ -55,7 +58,7 @@ namespace MirageXR
         private async Task AutoLogin()
         {
             if (!LocalFiles.TryToGetUsernameAndPassword(out var username, out var password)) return;
-        
+
             LoadView.Instance.Show();
             await RootObject.Instance.moodleManager.Login(username, password);
             LoadView.Instance.Hide();
@@ -64,8 +67,8 @@ namespace MirageXR
         private static async Task<List<SessionContainer>> GetContent()
         {
             var dictionary = new Dictionary<string, SessionContainer>();
-            
-            var localList = await LocalFiles.GetDownloadedActivities();    
+
+            var localList = await LocalFiles.GetDownloadedActivities();
             localList.ForEach(t =>
             {
                 if (dictionary.ContainsKey(t.id))
@@ -120,6 +123,20 @@ namespace MirageXR
             PopupsViewer.Instance.Show(_loginViewPrefab);
         }
 
+        private void OnHelpClick()
+        {
+            if(!TutorialManager.Instance.IsTutorialRunning)
+            {
+                TutorialDialog tDialog = RootView.Instance.TutorialDialog;
+                tDialog.Toggle();
+            }
+            else
+            {
+                TutorialManager.Instance.CloseTutorial();
+            }
+            
+        }
+
         private async void OnAddActivityClick()
         {
             LoadView.Instance.Show();
@@ -128,6 +145,7 @@ namespace MirageXR
             RootObject.Instance.activityManager.CreateNewActivity();
             interactable = true;
             LoadView.Instance.Hide();
+            EventManager.NotifyOnNewActivityCreationButtonPressed();
         }
 
         private void OnInputFieldSearchChanged(string text)
