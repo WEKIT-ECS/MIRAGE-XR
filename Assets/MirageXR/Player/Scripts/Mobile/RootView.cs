@@ -16,10 +16,15 @@ public class RootView : BaseView
     [SerializeField] private Toggle _toggleSteps;
     [SerializeField] private PageView _pageView;
     [SerializeField] private CalibrationGuideView _calibrationGuideViewPrefab;
+    [SerializeField] private TutorialDialog _tutorialDialog;
 
     public ActivityListView activityListView => _activityListView;
     public ContentListView contentListView => _contentListView;
     public StepsListView stepsListView => _stepsListView;
+    public TutorialDialog TutorialDialog => _tutorialDialog;
+    public PageView PageView => _pageView;
+    public Toggle ToggleSteps => _toggleSteps;
+    public Toggle ToggleView => _toggleView;
 
     private void Awake()
     {
@@ -47,14 +52,15 @@ public class RootView : BaseView
         EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
         _toggleView.interactable = false;
         _toggleSteps.interactable = false;
-        _toggleHome.onValueChanged.AddListener(OnStepsClick);
+        _toggleHome.onValueChanged.AddListener(OnHomeClick);
         _toggleView.onValueChanged.AddListener(OnViewClick);
-        _toggleSteps.onValueChanged.AddListener(OnHomeClick);
+        _toggleSteps.onValueChanged.AddListener(OnStepsClick);
         _pageView.OnPageChanged.AddListener(OnPageChanged);
 
         _activityListView.Initialization(this);
         _contentListView.Initialization(this);
         _stepsListView.Initialization(this);
+        _tutorialDialog.Init();
     }
 
     private void OnDestroy()
@@ -88,9 +94,11 @@ public class RootView : BaseView
                 _toggleSteps.isOn = true;
                 break;
         }
+
+        //EventManager.NotifyOnMobilePageChanged();
     }
 
-    private void OnStepsClick(bool value)
+    private void OnHomeClick(bool value)
     {
         if (value) _pageView.currentPageIndex = 0;
     }
@@ -98,11 +106,13 @@ public class RootView : BaseView
     private void OnViewClick(bool value)
     {
         if (value) _pageView.currentPageIndex = 1;
+        EventManager.NotifyOnViewSelectorClicked();
     }
 
-    private void OnHomeClick(bool value)
+    private void OnStepsClick(bool value)
     {
         if (value) _pageView.currentPageIndex = 2;
+        EventManager.NotifyOnStepsSelectorClicked();
     }
 
     private async Task SetupViewForTablet()

@@ -13,6 +13,7 @@ namespace MirageXR
         {
             this.instructionText = "A label can provide a short description for your students, let's add a short description by \"Tap\" and edit this text box.";
             this.arrowRotationOffset = Vector3.up * -30f;
+            this.arrowPositionOffset = Vector3.up * 0.02f;
 
             LabelEditor editor = Object.FindObjectOfType<LabelEditor>();
             this.highlightedObject = editor.gameObject;

@@ -29,6 +29,9 @@ public class StepsListView : BaseView
     private readonly List<StepsListItem> _stepsList = new List<StepsListItem>();
     public RootView rootView => (RootView)_parentView;
 
+    public TMP_InputField ActivityNameField => _inputFieldName;
+    public Button BtnAddStep => _btnAddStep;
+
     public override void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
@@ -97,6 +100,7 @@ public class StepsListView : BaseView
     private void OnStepNameChanged(string newTitle)
     {
         activityManager.Activity.name = newTitle;
+        EventManager.NotifyOnActivityRenamed();
     }
 
     public void OnDeleteStepClick(Action step)

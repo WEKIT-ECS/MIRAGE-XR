@@ -85,6 +85,7 @@ public class ActionListMenu : MonoBehaviour
         EventManager.OnActionModified += OnActionChanged;
         EventManager.OnNextByVoice += NextAction;
         EventManager.OnBackByVoice += PreviousAction;
+        titleText.onValueChanged.AddListener(delegate { EventManager.NotifyOnActivityRenamed(); });
     }
 
     private void OnDestroy()
@@ -103,7 +104,6 @@ public class ActionListMenu : MonoBehaviour
     {
         page = 0;
         titleText.text = activityManager.Activity.name;
-        titleText.onValueChanged.AddListener(delegate { EventManager.NotifyOnActivityRenamed(); });
         
         UpdateUI();
         addActionStepButton = gameObject.transform.Find("Panel").Find("ButtonAdd").gameObject;

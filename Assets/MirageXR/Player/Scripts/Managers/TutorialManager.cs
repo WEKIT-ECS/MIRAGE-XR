@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,26 +8,36 @@ namespace MirageXR
     /// which together represent a tutorial scenario. Steps are executed
     /// in a linear, discrete and disjunct manner.
     /// </summary>
-    public class TutorialManager
+    public class TutorialManager : MonoBehaviour
     {
-        public static readonly string PLAYER_PREFS_STATUS_KEY = "TutorialStatus";
-        public static readonly int STATUS_LOAD_ON_START = 0;
-        public static readonly int STATUS_DO_NOT_LOAD_ON_START = 1;
-
-        private static TutorialManager instance;
+        /// <summary>
+        /// Status key for PlayerPrefs whether the tutorial should be started automatically.
+        /// </summary>
+        public const string PLAYER_PREFS_STATUS_KEY = "TutorialStatus";
+        /// <summary>
+        /// Status value for PlayerPrefs that the Tutorial should be started automatically.
+        /// </summary>
+        public const int STATUS_LOAD_ON_START = 0;
+        /// <summary>
+        /// Status value for PlayerPrefs that the Tutorial should not start automatically.
+        /// </summary>
+        public const int STATUS_DO_NOT_LOAD_ON_START = 1;
 
         /// <summary>
-        /// The TutorialManager singleton.
+        /// Types of the Tutorial currently offered.
+        /// The type depends heavily on the platform.
         /// </summary>
-        /// <returns></returns>
-        public static TutorialManager Instance()
+        public enum TutorialType
         {
-            if (instance == null)
-            {
-                instance = new TutorialManager();
-            }
-            return instance;
+            HOLOLENS,
+            MOBILE_EDITING,
+            MOBILE_VIEWING
         }
+
+        /// <summary>
+        /// The TutorialManager singleton Instance.
+        /// </summary>
+        public static TutorialManager Instance { get; private set; }
 
         /// <summary>
         /// Status field showing if the tutorial is currently running.
@@ -39,6 +48,9 @@ namespace MirageXR
         private List<TutorialStep> steps;
         private int currentStepNumber;
 
+        /// <summary>
+        /// TutorialButton on the Hololens UI.
+        /// </summary>
         public TutorialButton TutorialButton;
 
         /// <summary>
@@ -47,43 +59,96 @@ namespace MirageXR
         /// </summary>
         public ToggleObject CreatedLabel;
 
-        private TutorialManager()
+        /// <summary>
+        /// Object Highlighter used in the mobile tutorial.
+        /// </summary>
+        public TutorialObjectHighlighter MobileHighlighter { get; private set; }
+
+        [SerializeField] private TutorialPopup mobilePopup;
+        /// <summary>
+        /// The Popup that states the instruction text of a mobile tutorial step.
+        /// Based on the PopupViewer subsystem.
+        /// </summary>
+        public TutorialPopup MobilePopup => mobilePopup;
+
+        private void Awake()
+        {
+            if (Instance != null)
+            {
+                Debug.LogError($"{Instance.GetType().FullName} must only be a single copy!");
+                return;
+            }
+
+            Instance = this;
+        }
+
+        private void Start()
         {
             IsTutorialRunning = false;
             steps = new List<TutorialStep>();
+            MobileHighlighter = new TutorialObjectHighlighter();
         }
-
 
         /// <summary>
         /// Method that sets up and starts the tutorial.
         /// Setup includes loading and ordering the list of steps.
         /// The tutorial starts from the first step.
         /// </summary>
-        public void StartTutorial()
+        /// <param name="type">The type of the tutorial.
+        /// Take care to give it the right type, based on the current platform
+        /// </param>
+        public void StartTutorial(TutorialType type)
         {
-            IsTutorialRunning = true;
-            if (TutorialButton != null)
+            if (type == TutorialType.HOLOLENS)
             {
-                TutorialButton.SetIconActive();
-            }
+                IsTutorialRunning = true;
+                if (TutorialButton != null)
+                {
+                    TutorialButton.SetIconActive();
+                }
 
-            PopulateStepList();
-            currentStepNumber = -1;
-            NextStep();            
+                PopulateStepListForHololens();
+                currentStepNumber = -1;
+
+                NextStep();
+            }
+            else if (type == TutorialType.MOBILE_EDITING)
+            {
+                IsTutorialRunning = true;
+
+                PopulateStepListForMobileEditing();
+                currentStepNumber = -1;
+
+                NextStep();
+            }
+            else if (type == TutorialType.MOBILE_VIEWING)
+            {
+                IsTutorialRunning = true;
+
+                PopulateStepListForMobileViewing();
+                currentStepNumber = -1;
+
+                NextStep();
+            }
+            else
+            {
+                Debug.LogError("Tried to start unknown tutorial type.");
+            }    
         }
 
-        private bool PopulateStepList()
+        private void PopulateStepListForHololens()
         {
             steps.Clear();
             steps.Add(new StepUnlockActivityMenu());
             steps.Add(new StepDragActivityMenu());
+            steps.Add(new StepLockActivityMenu());
             steps.Add(new StepCreateNewActivity());
             steps.Add(new StepDragActionEditor());
             steps.Add(new StepRenameActivity());
             steps.Add(new StepCreateNewActionStep());
             steps.Add(new StepAddActionStepTitle());
             steps.Add(new StepAddActionStepDescription());
-            steps.Add(new StepCreateNewAugmentation());
+            //steps.Add(new StepCreateNewAugmentation());
             steps.Add(new StepSelectLabelAugmentation());
             steps.Add(new StepEnterLabelText());
             steps.Add(new StepAddLabelToScene());
@@ -91,7 +156,32 @@ namespace MirageXR
             steps.Add(new StepDeleteActionStep());
             steps.Add(new StepSaveActivity());
             steps.Add(new StepUploadActivity());
-            return true;
+        }
+
+        private void PopulateStepListForMobileEditing()
+        {
+            steps.Clear();
+            steps.Add(new MobileStepCreateActivity());
+            steps.Add(new MobileStepClickActivityInfo());
+            steps.Add(new WaitForMobilePageChangeStep());
+            steps.Add(new MobileStepAddActivityName());
+            steps.Add(new MobileStepCreateActionStep());
+            steps.Add(new MobileStepClickActionStepDetails());
+            steps.Add(new WaitForMobilePageChangeStep());
+            steps.Add(new MobileStepAddActionStepTitle());
+            steps.Add(new MobileStepExpandStepDetails());
+            steps.Add(new MobileStepAddActionStepDescription());
+            steps.Add(new MobileStepClickAddStepContent());
+            string message = "This concludes the tutorial! From here " +
+                "you can choose and add different types of augmentations. " +
+                "Have fun trying them all out.";
+            steps.Add(new MobileOnlyDialogStep(message));
+        }
+
+        private void PopulateStepListForMobileViewing()
+        {
+            steps.Clear();
+            steps.Add(new MobileOnlyDialogStep("Coming soon!"));
         }
 
         /// <summary>
@@ -150,7 +240,7 @@ namespace MirageXR
         /// Starts the tutorial if it is currently not running and
         /// closes it otherwise.
         /// </summary>
-        public void ToggleTutorial()
+        public void ToggleTutorial(TutorialType type)
         {
             if (IsTutorialRunning)
             {
@@ -158,7 +248,7 @@ namespace MirageXR
             }
             else
             {
-                StartTutorial();
+                StartTutorial(type);
             }
 
         }
