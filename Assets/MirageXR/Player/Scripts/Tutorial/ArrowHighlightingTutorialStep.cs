@@ -61,7 +61,7 @@ namespace MirageXR
                     arrowScript3D.RotationOffset = arrowRotationOffset;
                 }
 
-                arrowScript.PointTo(highlightedObject, instructionText);
+                arrowScript.PointTo(highlightedObject, instructionText, arrowPositionOffset, arrowRotationOffset);
             }
             else
             {
@@ -87,16 +87,6 @@ namespace MirageXR
                 Object.Destroy(arrow);
             }
 
-        }
-        
-        /// <summary>
-        /// This function simply calles the ExitStep() of its step.
-        /// It is defined here as a separate action so it can be used
-        /// in concrete Steps to attach events to.
-        /// </summary>
-        protected void DefaultExitEventListener()
-        {
-            ExitStep();
         }
 
 

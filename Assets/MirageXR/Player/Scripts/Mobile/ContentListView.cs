@@ -34,6 +34,11 @@ public class ContentListView : BaseView
     public MirageXR.Action currentStep => _currentStep;
     public RootView rootView => (RootView)_parentView;
     
+    public TMP_InputField TxtStepName => _txtStepName;
+    public TMP_InputField TxtStepDescription => _txtDescription;
+    public Button BtnShowHide => _btnShowHide;
+    public Button BtnAddContent => _btnAddContent;
+    
     public string navigatorId
     {
         get => _navigatorIds.ContainsKey(_currentStep.id) ? _navigatorIds[_currentStep.id] : null;
@@ -50,6 +55,7 @@ public class ContentListView : BaseView
             UpdateView();
         }
     }
+
     private readonly Dictionary<string, string> _navigatorIds = new Dictionary<string, string>();
     private readonly List<ContentListItem> _list = new List<ContentListItem>();
     private RectTransform _imdShowHideRectTransform;
@@ -97,12 +103,14 @@ public class ContentListView : BaseView
     private void OnStepNameChanged(string newTitle)
     {
         _currentStep.instruction.title = newTitle;
+        EventManager.NotifyOnActionStepTitleChanged();
         EventManager.NotifyActionModified(_currentStep);
     }
 
     private void OnStepDescriptionChanged(string newDescription)
     {
         _currentStep.instruction.description = newDescription;
+        EventManager.NotifyOnActionStepDescriptionInputChanged();
         EventManager.NotifyActionModified(_currentStep);
     }
     
@@ -166,6 +174,7 @@ public class ContentListView : BaseView
     private void OnAddContent()
     {
         PopupsViewer.Instance.Show(_contentSelectorViewPrefab, _editors, _currentStep);
+        EventManager.NotifyOnMobileAddStepContentPressed();
     }
 
     private void EnableBaseControl()
@@ -286,6 +295,7 @@ public class ContentListView : BaseView
             yield return null;
         }
 
+        EventManager.NotifyOnMobileStepContentExpanded();
         callback?.Invoke();
     }
 
