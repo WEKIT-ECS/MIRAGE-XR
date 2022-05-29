@@ -4,11 +4,16 @@ using UnityEngine.UI;
 
 public class PickAndPlaceEditor : MonoBehaviour
 {
+    private static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
+    private static WorkplaceManager workplaceManager => RootObject.Instance.workplaceManager;
+
     [SerializeField] private Transform annotationStartingPoint;
     [SerializeField] private InputField textInputField;
-    
+
+
     private Action action;
     private ToggleObject annotationToEdit;
+    private int resetOption = 0;
 
     public void SetAnnotationStartingPoint(Transform startingPoint)
     {
@@ -24,7 +29,6 @@ public class PickAndPlaceEditor : MonoBehaviour
         }
         else
         {
-            var workplaceManager = RootObject.Instance.workplaceManager;
             Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
             GameObject originT = GameObject.Find(detectable.id);
 
@@ -33,10 +37,11 @@ public class PickAndPlaceEditor : MonoBehaviour
                 originT.transform.position,
                 originT.transform.rotation);
 
-            annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
+            annotationToEdit = augmentationManager.AddAugmentation(action, offset);
             annotationToEdit.predicate = "pickandplace";
         }
         annotationToEdit.text = textInputField.text;
+        annotationToEdit.key = resetOption.ToString();
 
         EventManager.ActivateObject(annotationToEdit);
         EventManager.NotifyActionModified(action);
@@ -60,4 +65,10 @@ public class PickAndPlaceEditor : MonoBehaviour
         annotationToEdit = annotation;
         textInputField.text = annotation != null ? annotation.text : string.Empty;
     }
+
+    public void setResetOption(int option)
+    {
+        resetOption = option;
+    }
+
 }
