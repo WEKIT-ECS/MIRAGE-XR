@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using HoloToolkit.Unity;
+﻿using HoloToolkit.Unity;
 using i5.Toolkit.Core.ServiceCore;
 using i5.Toolkit.Core.Utilities;
 using UnityEngine;
@@ -34,7 +32,7 @@ namespace MirageXR
 
         public void Initialize(IServiceManager owner)
         {
-            managerObj = ObjectPool<GameObject>.RequestResource(() => { return new GameObject(); });
+            managerObj = new GameObject();
             managerObj.name = "TextToSpeech Manager";
             textToSpeech = managerObj.AddComponent<TextToSpeech>();
             textToSpeech.Voice = voice;
@@ -46,7 +44,7 @@ namespace MirageXR
             GameObject.Destroy(textToSpeech);
             managerObj.name = "GameObject";
             PersistenceScene.UnmarkPersistent(managerObj);
-            ObjectPool<GameObject>.ReleaseResource(managerObj);
+            Object.Destroy(managerObj);
         }
 
         public bool IsSpeaking()
