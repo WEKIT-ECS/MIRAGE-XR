@@ -141,7 +141,7 @@ namespace MirageXR
 
                 MutableRuntimeReferenceImageLibrary mutableRuntimeReferenceImageLibrary = trackImageManager.referenceLibrary as MutableRuntimeReferenceImageLibrary;
 
-                var jobHandle = mutableRuntimeReferenceImageLibrary.ScheduleAddImageJob(loadTexture, ImgMName, 0.1f);
+                var jobHandle = mutableRuntimeReferenceImageLibrary.ScheduleAddImageJob(loadTexture, ImgMName, _obj.scale);
 
 #else
 
