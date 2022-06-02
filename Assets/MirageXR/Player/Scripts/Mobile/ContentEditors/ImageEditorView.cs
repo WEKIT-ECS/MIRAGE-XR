@@ -8,8 +8,8 @@ using Image = UnityEngine.UI.Image;
 
 public class ImageEditorView : PopupEditorBase
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
     private static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
-    private ActivityManager activityManager => RootObject.Instance.activityManager;
 
     public override ContentType editorForType => ContentType.IMAGE;
 
