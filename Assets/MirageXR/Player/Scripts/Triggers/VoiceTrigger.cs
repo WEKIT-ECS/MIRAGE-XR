@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+using TiltBrush;
 using UnityEngine;
 
 namespace MirageXR
@@ -56,7 +55,7 @@ namespace MirageXR
         /// </summary>
         private void DoVoiceTrigger ()
         {
-            EventManager.DeactivateAction (_actionId);
+            RootObject.Instance.activityManager.DeactivateAction(_actionId).AsAsyncVoid();
             //Maggie.Ok();
         }
     }

@@ -19,7 +19,7 @@ public class MixedRealityInputField : MonoBehaviour
 
     public event OnTextChangedDelegate OnTextUpdated;
 
-    public bool Interactable
+    public bool Interactable 
     {
         get
         {
@@ -43,7 +43,7 @@ public class MixedRealityInputField : MonoBehaviour
         set
         {
             if (_text == value) return;
-
+            
             _text = value;
             _textComponent.text = _text;
             OnTextChanged?.Invoke(_text);
@@ -56,7 +56,7 @@ public class MixedRealityInputField : MonoBehaviour
 
     private void EnsureButtonReference()
     {
-        if (_selectable != null)
+        if(_selectable != null)
         {
             return;
         }
@@ -90,7 +90,7 @@ public class MixedRealityInputField : MonoBehaviour
         if (!unityInput)
         {
             var selectable = gameObject.GetComponent<Selectable>();
-            var colors = selectable.colors;
+            var colors = selectable.colors; 
             DestroyImmediate(selectable);
             unityInput = gameObject.AddComponent<InputField>();
             unityInput.colors = colors;
@@ -107,7 +107,7 @@ public class MixedRealityInputField : MonoBehaviour
         if (touchableUI) touchableUI.enabled = false;
         enabled = false;
     }
-
+    
     public void OnTextFieldButtonPressed()
     {
         NonNativeKeyboard.Instance.PresentKeyboard(_text);

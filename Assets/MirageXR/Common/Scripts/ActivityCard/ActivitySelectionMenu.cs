@@ -93,8 +93,8 @@ namespace MirageXR
 
             Loading.Instance.LoadingVisibility(true);
 
-            await ServiceManager.GetService<EditorSceneService>().LoadEditorAsync();
-            EventManager.ParseActivity(string.Empty);
+            await RootObject.Instance.editorSceneService.LoadEditorAsync();
+            RootObject.Instance.activityManager.CreateNewActivity();
         }
     }
 }

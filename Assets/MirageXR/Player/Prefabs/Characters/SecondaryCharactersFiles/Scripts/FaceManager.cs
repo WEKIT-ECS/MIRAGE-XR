@@ -42,7 +42,7 @@ public class FaceManager : MonoBehaviour
         blendVal = new float[blendNumber];
         blendDiv = 1f / blendMult;
 
-        leafBoneL = baseBoneL.Find("rig:AntennaLeftTop");
+        leafBoneL = baseBoneL.Find("rig:AntennaLeft_end");
 
         capTrgtL = new GameObject("capTarget_L").transform;
         capTrgtL.SetParent(baseBoneL.parent);
@@ -50,7 +50,7 @@ public class FaceManager : MonoBehaviour
         capTrnL = new GameObject("capTransform_L").transform;
         capTrnL.position = leafBoneL.position;
 
-        leafBoneR = baseBoneR.Find("rig:AntennaRightTop");
+        leafBoneR = baseBoneR.Find("rig:AntennaRight_end");
 
         capTrgtR = new GameObject("capTarget_R").transform;
         capTrgtR.SetParent(baseBoneR.parent);

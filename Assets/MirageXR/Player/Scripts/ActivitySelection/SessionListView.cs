@@ -49,8 +49,8 @@ namespace MirageXR
             CollectedContainers = AddActivitiesToDictionary(CollectedContainers, activities);
 
             // the records on the server should be shown after the local records
-            List<Session> sessions = await MoodleManager.Instance.GetArlemList();
-            if (sessions != null)
+            List<Session> sessions = await RootObject.Instance.moodleManager.GetArlemList();
+            if(sessions != null)
                 CollectedContainers = AddSessionsToDictionary(CollectedContainers, sessions);
 
             AllItems = CollectedContainers.Values.ToList();
@@ -68,8 +68,8 @@ namespace MirageXR
         public void UpdateView(int sessions)
         {
             // if the number of the all items is less more than  sessions(number of items on each page)
-            if (itemListCount > sessions)
-                DisplayedItems = PageItems.GetRange(pageStart, sessions);
+            if (itemListCount > sessions) 
+                DisplayedItems = PageItems.GetRange(pageStart, sessions); 
             else
                 DisplayedItems = PageItems.GetRange(pageStart, itemListCount);
 
@@ -118,10 +118,9 @@ namespace MirageXR
         }
 
 
-        public void SetAllItems()
-        {
+        public void SetAllItems() {
             PageItems = AllItems;
-            itemListCount = PageItems.Count();
+            itemListCount = PageItems.Count();       
             UpdateView(sessionsOnPage);
             // resets the shown sessions to be all loaded sessions
         }
@@ -162,7 +161,7 @@ namespace MirageXR
             {
                 pageStart -= sessionsOnPage;
 
-                UpdateView(sessionsOnPage);
+                UpdateView(sessionsOnPage);              
             }
         }
         // moves to previous page

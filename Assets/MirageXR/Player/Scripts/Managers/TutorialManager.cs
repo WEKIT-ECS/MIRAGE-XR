@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -142,6 +141,7 @@ namespace MirageXR
             steps.Clear();
             steps.Add(new StepUnlockActivityMenu());
             steps.Add(new StepDragActivityMenu());
+            steps.Add(new StepLockActivityMenu());
             steps.Add(new StepCreateNewActivity());
             steps.Add(new StepDragActionEditor());
             steps.Add(new StepRenameActivity());

@@ -1,9 +1,10 @@
-using MirageXR;
 using System;
 using System.Collections;
+using MirageXR;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using Action = System.Action;
 
 public class PageView : MonoBehaviour, IDragHandler, IEndDragHandler{
     
@@ -14,7 +15,7 @@ public class PageView : MonoBehaviour, IDragHandler, IEndDragHandler{
     [SerializeField] private AnimationCurve _animationCurve = AnimationCurve.Linear(0, 0, 1, 1);
     [SerializeField] private bool _elastic;
     [SerializeField] private float _moveTime = 0.2f;
-    public bool interactable = true; 
+    public bool interactable = true;
     
     public IntUnityEvent OnPageChanged = new IntUnityEvent();
     
@@ -38,7 +39,7 @@ public class PageView : MonoBehaviour, IDragHandler, IEndDragHandler{
             }
         }
     }
-    
+
     private void Start()
     {
         _totalPages = _content.childCount;
@@ -47,14 +48,14 @@ public class PageView : MonoBehaviour, IDragHandler, IEndDragHandler{
     public void OnDrag(PointerEventData data)
     {
         if (!interactable) return;
-        
+
         _content.Translate(data.delta.x, 0, 0);
     }
 
     public void OnEndDrag(PointerEventData data)
     {
         if (!interactable) return;
-        
+
         var width = _content.rect.width;
         var position = -(_content.anchoredPosition.x - width * _content.pivot.x);
         var index = Mathf.RoundToInt(position / (width / _totalPages));
@@ -79,7 +80,7 @@ public class PageView : MonoBehaviour, IDragHandler, IEndDragHandler{
             OnPageChanged.Invoke(_currentPageIndex);
         }
     }
-    
+
     private void MoveTo(Vector3 newPosition)
     {
         if (_coroutine != null)
@@ -89,7 +90,7 @@ public class PageView : MonoBehaviour, IDragHandler, IEndDragHandler{
         }
         _coroutine = StartCoroutine(MoveToEnumerator(_content, newPosition, _moveTime, _animationCurve));
     }
-    
+
     private Vector3 CalculatePositionForPage(int index)
     {
         var anchoredPosition = _content.anchoredPosition3D;
@@ -97,8 +98,8 @@ public class PageView : MonoBehaviour, IDragHandler, IEndDragHandler{
         var x = -(index * width / _totalPages - width * _content.pivot.x);
         return new Vector3(x, anchoredPosition.y, anchoredPosition.z);
     }
-  
-    private static IEnumerator MoveToEnumerator(RectTransform rectTransform, Vector3 endPosition, float time, AnimationCurve curve = null, System.Action callback = null) 
+
+    private static IEnumerator MoveToEnumerator(RectTransform rectTransform, Vector3 endPosition, float time, AnimationCurve curve = null, Action callback = null) 
     {
         if (curve == null) curve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
         var startPosition = rectTransform.anchoredPosition;
@@ -110,6 +111,7 @@ public class PageView : MonoBehaviour, IDragHandler, IEndDragHandler{
 
             yield return null;
         }
+
         EventManager.NotifyOnMobilePageChanged();
         callback?.Invoke();
     }

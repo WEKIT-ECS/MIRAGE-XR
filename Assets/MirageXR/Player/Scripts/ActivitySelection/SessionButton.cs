@@ -9,6 +9,7 @@ namespace MirageXR
     [RequireComponent(typeof(SessionContainerListItem))]
     public class SessionButton : MonoBehaviour
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         [SerializeField] private SessionContainerListItem _selectedListViewItem;
 
         public async void OnActivitySelected()
@@ -88,14 +89,14 @@ namespace MirageXR
             PlayerPrefs.Save();
 
             // update the view of the activity on Moodle server after loading
-            await MoodleManager.Instance.UpdateViewsOfActivity(_selectedListViewItem.Content.ItemID);
+            await RootObject.Instance.moodleManager.UpdateViewsOfActivity(_selectedListViewItem.Content.ItemID);
 
             //StartCoroutine(SwitchToPlayerScene(activityJsonFileName));
-            await ServiceManager.GetService<EditorSceneService>().LoadEditorAsync();
-            EventManager.ParseActivity(activityJsonFileName);
+            await RootObject.Instance.editorSceneService.LoadEditorAsync();
+            await activityManager.LoadActivity(activityJsonFileName);
 
             // Set the activity URL
-            ActivityManager.Instance.AbsoluteURL = _selectedListViewItem.Content.AbsoluteURL;
+            activityManager.AbsoluteURL = _selectedListViewItem.Content.AbsoluteURL;
         }
 
         public async void OnDeleteButtonPressed()

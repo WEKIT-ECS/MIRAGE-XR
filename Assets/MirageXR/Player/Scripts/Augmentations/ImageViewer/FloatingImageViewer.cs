@@ -9,6 +9,8 @@ namespace MirageXR
         private float _width = 0.4f;
         private float _height = 0.3f;
 
+        private string ArlemFolderPath = RootObject.Instance.activityManager.ActivityPath;
+
         [Tooltip("Image file. .jpg and .png formats supported")]
 
         [SerializeField] private string imageName = "image.jpg";
@@ -72,7 +74,8 @@ namespace MirageXR
             {
                 setOrientation(FramePortrait, FrameLandscape, BackgroundPortrait);
             }
-            else {
+            else
+            {
                 setOrientation(FrameLandscape, FramePortrait, BackgroundLandscape);
             }
             // Get the last bit of the url.
@@ -180,7 +183,7 @@ namespace MirageXR
                 var url = imageName.Split('/');
                 var filename = url[url.Length - 1];
 
-                var completeImageName = "file://" + ActivityManager.Instance.Path + "/" + filename;
+                var completeImageName = "file://" + ArlemFolderPath + "/" + filename;
 
                 Debug.Log("Trying to load image from:" + completeImageName);
 
@@ -203,7 +206,8 @@ namespace MirageXR
         }
 
 
-        private void setOrientation(GameObject activeFrame, GameObject unusedFrame, GameObject background){
+        private void setOrientation(GameObject activeFrame, GameObject unusedFrame, GameObject background)
+        {
 
             activeFrame.SetActive(true);
             // set selected frame

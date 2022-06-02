@@ -9,7 +9,9 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "Once you finished creating your learning activity, \"Tap\" this button to upload your work to the Cloud.";
+            this.instructionText = "Well done, you are almost done with the tutorial! " +
+                "The only thing that remains to be done is to upload your activity to the cloud. " +
+                "To do this, Tap this button.";
 
             ActivityEditor editor = ActivityEditor.Instance;
             this.highlightedObject = editor.UploadButton.gameObject;

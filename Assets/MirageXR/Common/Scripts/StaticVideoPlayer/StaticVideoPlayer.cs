@@ -34,7 +34,7 @@ namespace MirageXR
                 var url = VideoName.Split('/');
                 var filename = url[url.Length - 1];
 
-                var completeVideoName = "file://" + ActivityManager.Instance.Path + "/" + filename;
+                var completeVideoName = $"file://{RootObject.Instance.activityManager.ActivityPath}/{filename}";
                 Debug.Log("Trying to load video: " + completeVideoName);
                 videoPlayer.url = completeVideoName;
             }

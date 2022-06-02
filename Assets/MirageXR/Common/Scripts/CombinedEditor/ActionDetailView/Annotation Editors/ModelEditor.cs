@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 
-
 namespace MirageXR
 {
     public class ModelEditor : MonoBehaviour
@@ -41,7 +40,8 @@ namespace MirageXR
             }
             else
             {
-                Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(action.id));
+                var workplaceManager = RootObject.Instance.workplaceManager;
+                Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
                 GameObject originT = GameObject.Find(detectable.id);
 
                 offset = Utilities.CalculateOffset(annotationStartingPoint.transform.position,
@@ -49,7 +49,7 @@ namespace MirageXR
                     originT.transform.position,
                     originT.transform.rotation);
 
-                annotationToEdit = ActivityManager.Instance.AddAugmentation(action, offset);
+                annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
                 annotationToEdit.option = modelName;
                 annotationToEdit.predicate = "3d:" + modelName;
                 annotationToEdit.url = "3d:" + modelName;

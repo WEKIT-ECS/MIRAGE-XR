@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class ProgressBarController : MonoBehaviour
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
     [SerializeField] private GameObject stepPrefab;
     [SerializeField] private Color completedColor;
     [SerializeField] private Color activeColor;
@@ -31,7 +32,7 @@ public class ProgressBarController : MonoBehaviour
 
     private void UpdateUI()
     {
-        int numberOfActions = ActivityManager.Instance.ActionsOfTypeAction.Count;
+        int numberOfActions = activityManager.ActionsOfTypeAction.Count;
 
         for (int i = 0; i < numberOfActions; i++)
         {
@@ -46,9 +47,9 @@ public class ProgressBarController : MonoBehaviour
                 stepInstances.Add(img);
             }
 
-            List<Action> actions = ActivityManager.Instance.ActionsOfTypeAction;
+            List<Action> actions = activityManager.ActionsOfTypeAction;
 
-            if (actions[i].id == ActivityManager.Instance.ActiveActionId)
+            if (actions[i].id == activityManager.ActiveActionId)
             {
                 stepInstances[i].color = BrandManager.Instance.GetSecondaryColor();
             }

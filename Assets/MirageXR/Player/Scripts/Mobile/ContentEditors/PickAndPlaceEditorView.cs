@@ -5,8 +5,11 @@ using UnityEngine;
 
 public class PickAndPlaceEditorView : PopupEditorBase
 {
+    private static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
+    private static WorkplaceManager workplaceManager => RootObject.Instance.workplaceManager;
+
     public override ContentType editorForType => ContentType.PICKANDPLACE;
-    
+
     [SerializeField] private TMP_InputField _inputField;
     private int resetOption = 0;
 
@@ -28,14 +31,14 @@ public class PickAndPlaceEditorView : PopupEditorBase
             Toast.Instance.Show("Input field is empty.");
             return;
         }
-        
+
         if (_content != null)
         {
             EventManager.DeactivateObject(_content);
         }
         else
         {
-            _content = ActivityManager.Instance.AddAugmentation(_step, GetOffset());
+            _content = augmentationManager.AddAugmentation(_step, GetOffset());
             _content.predicate = editorForType.GetPredicate();
         }
         _content.text = _inputField.text;

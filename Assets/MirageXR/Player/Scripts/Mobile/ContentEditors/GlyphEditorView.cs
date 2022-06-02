@@ -27,7 +27,7 @@ public class GlyphEditorView : PopupEditorBase
     private int _triggerStepIndex;
     private string _prefabName;
     
-    private int _maxStepIndex => ActivityManager.Instance.ActionsOfTypeAction.Count - 1;
+    private int _maxStepIndex => activityManager.ActionsOfTypeAction.Count - 1;
     
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
@@ -60,10 +60,10 @@ public class GlyphEditorView : PopupEditorBase
             item.Init(actionObject, OnAccept);
         }
         
-        _triggerStepIndex = ActivityManager.Instance.ActionsOfTypeAction.IndexOf(_step);
-        var isLastStep = ActivityManager.Instance.IsLastAction(_step);
+        _triggerStepIndex = activityManager.ActionsOfTypeAction.IndexOf(_step);
+        var isLastStep = activityManager.IsLastAction(_step);
 
-        if (ActivityManager.Instance.ActionsOfTypeAction.Count > 1)
+        if (activityManager.ActionsOfTypeAction.Count > 1)
         {
             _triggerStepIndex = isLastStep ? _triggerStepIndex - 1 : _triggerStepIndex + 1;
         }
@@ -121,15 +121,14 @@ public class GlyphEditorView : PopupEditorBase
         }
         else
         {
-            _content = ActivityManager.Instance.AddAugmentation(_step, GetOffset());
+            _content = augmentationManager.AddAugmentation(_step, GetOffset());
         }
 
         _content.predicate = $"act:{_prefabName}";
         
         if (_toggleTrigger.isOn)
         {
-            var triggerType = _content.predicate.Contains(":") ? _content.predicate.Split(':')[0] : _step.predicate;
-            _step.AddOrReplaceArlemTrigger("detect", triggerType, _content.poi, _gazeDuration, (_triggerStepIndex + 1).ToString());
+            _step.AddOrReplaceArlemTrigger(TriggerMode.Detect, ActionType.Act, _content.poi, _gazeDuration, (_triggerStepIndex + 1).ToString());
         }
         else
         {

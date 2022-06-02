@@ -377,7 +377,7 @@ public class ModelEditorView : PopupEditorBase
         }
         else
         {
-            _content = ActivityManager.Instance.AddAugmentation(_step, GetOffset());
+            _content = augmentationManager.AddAugmentation(_step, GetOffset());
             _content.option = _previewItem.name;
             _content.predicate = predicate;
             _content.url = predicate;
