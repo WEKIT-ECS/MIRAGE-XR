@@ -42,10 +42,10 @@ namespace MirageXR
         public ToggleObject ToggleObject => _obj;
 
 
-        //private void Awake()
-        //{
-        //    _contentPanel = GameObject.FindGameObjectWithTag("ContentPanel").transform;
-        //}
+        // private void Awake()
+        // {
+        //     _contentPanel = GameObject.FindGameObjectWithTag("ContentPanel").transform;
+        // }
 
         /// <summary>
         /// Initialization method.
@@ -142,7 +142,7 @@ namespace MirageXR
 
             // Create image viewer screen        
             MeshFilter meshFilter = Background.GetComponent<MeshFilter>();
-            //meshFilter.mesh = CreatePlaneMesh ();
+            // meshFilter.mesh = CreatePlaneMesh ();
             MeshRenderer renderer = Background.GetComponent<MeshRenderer>();
             renderer.material.shader = Shader.Find("Unlit/Texture");
 
@@ -210,40 +210,40 @@ namespace MirageXR
         {
 
             activeFrame.SetActive(true);
-            //set selected frame
+            // set selected frame
 
             unusedFrame.SetActive(false);
             unusedFrame.transform.localScale = new Vector3(0, 0, 0);
             unusedFrame.transform.localPosition = activeFrame.transform.localPosition;
-            //set unused frame to not active and resize/relocate as to not affect the object bounding box
+            // set unused frame to not active and resize/relocate as to not affect the object bounding box
 
             Background = background;
 
             BoundsControl boundsControl = gameObject.GetComponent<BoundsControl>();
             boundsControl.enabled = false;
             boundsControl.enabled = true;
-            //required to reset the bounding boxes of the frame used so that it displays correctly
+            // required to reset the bounding boxes of the frame used so that it displays correctly
         }
 
         /// <summary>
         /// Create a simple 2-triangle rectangle mesh in standing up position
         /// </summary>
-        //private Mesh CreatePlaneMesh ()
-        //{
-        //    Mesh m = new Mesh ();
-        //    m.name = "PlaneMesh";
-        //    m.vertices = new Vector3 [] {
-        //    new Vector3( _width/2f, -_height/2f, 0 ),
-        //    new Vector3( -_width/2f, -_height/2f, 0 ),
-        //    new Vector3( -_width/2f, _height/2f, 0 ),
-        //    new Vector3( _width/2f, _height/2f, 0 )
-        //};
-        //    m.uv = new Vector2 [] {
-        //    new Vector2 (1, 0),
-        //    new Vector2 (0, 0),
-        //    new Vector2 (0, 1),
-        //    new Vector2 (1, 1)
-        //};
+        // private Mesh CreatePlaneMesh ()
+        // {
+        //     Mesh m = new Mesh ();
+        //     m.name = "PlaneMesh";
+        //     m.vertices = new Vector3 [] {
+        //     new Vector3( _width/2f, -_height/2f, 0 ),
+        //     new Vector3( -_width/2f, -_height/2f, 0 ),
+        //     new Vector3( -_width/2f, _height/2f, 0 ),
+        //     new Vector3( _width/2f, _height/2f, 0 )
+        // };
+        //     m.uv = new Vector2 [] {
+        //     new Vector2 (1, 0),
+        //     new Vector2 (0, 0),
+        //     new Vector2 (0, 1),
+        //     new Vector2 (1, 1)
+        // };
         //    m.triangles = new int [] { 0, 1, 2, 0, 2, 3 };
         //    m.RecalculateNormals ();
 
@@ -288,14 +288,14 @@ namespace MirageXR
         {
             if (InPanel)
             {
-                //GetComponent<Billboard>().enabled = false;
-                //transform.position = _contentPanel.position;
-                //transform.rotation = _contentPanel.rotation;
+                // GetComponent<Billboard>().enabled = false;
+                // transform.position = _contentPanel.position;
+                // transform.rotation = _contentPanel.rotation;
                 transform.localScale = Vector3.one * 0.35f;
             }
 
-            //else
-            //GetComponent<Billboard>().enabled = true;
+            // else
+            // GetComponent<Billboard>().enabled = true;
         }
 
         private void OnDestroy()

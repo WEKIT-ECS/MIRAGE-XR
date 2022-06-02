@@ -139,7 +139,7 @@ namespace Sketchfab
 			return SketchfabPlugin.VERSION == _latestVersion;
 		}
 
-		//Setup callbacks
+		// Setup callbacks
 		public void SetUploadSuccessCb(Callback callback)
 		{
 			_uploadSuccess = callback;
@@ -494,7 +494,7 @@ namespace Sketchfab
                 { "username", user_name },
                 { "password", user_password }
             };
-            //requestSketchfabAPI(SketchfabPlugin.Urls.oauth, parameters);
+            // requestSketchfabAPI(SketchfabPlugin.Urls.oauth, parameters);
         }
 
 		public WWW GetResponse()

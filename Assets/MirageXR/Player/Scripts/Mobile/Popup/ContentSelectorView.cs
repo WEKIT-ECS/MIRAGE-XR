@@ -21,7 +21,7 @@ public class ContentSelectorView : PopupBase
 
     private void UpdateView()
     {
-        //Get the list of augmentations from txt file depends on platform
+        // Get the list of augmentations from txt file depends on platform
         var listOfAugmentations = BrandManager.Instance.GetListOfAugmentations();
         foreach (var type in _editors.Select(t => t.editorForType).Distinct())
         {

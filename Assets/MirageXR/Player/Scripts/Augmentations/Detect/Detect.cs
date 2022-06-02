@@ -11,7 +11,7 @@ namespace MirageXR
     {
         // Holotoolkit gaze manager.
         private GazeProvider gazeProvider;
-        //private GazeManager _gazeManager;
+        // private GazeManager _gazeManager;
         private bool _isDetected;
         private bool _isTrigger;
 

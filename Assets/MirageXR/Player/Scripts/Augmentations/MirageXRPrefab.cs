@@ -20,7 +20,7 @@ namespace MirageXR
         private bool _isFound;
 
 
-        //for gazing trigger
+        // for gazing trigger
         private GameObject gazeCircle;
         private List<GameObject> myColliderChilren;
 
@@ -151,9 +151,9 @@ namespace MirageXR
                 // If guide is forced by the activity, enable also the main direction line for the parent object.
                 if (obj.guide)
                 {
-                    //GameObject.Find(obj.id).transform.GetComponentInChildren<PathRoleController>(true).IsVisible = true;
+                    // GameObject.Find(obj.id).transform.GetComponentInChildren<PathRoleController>(true).IsVisible = true;
 
-                    //UIOrigin.Instance.ShowOrigin();
+                    // UIOrigin.Instance.ShowOrigin();
 
                     // Set tag.
                     transform.tag = "GuideActive";
@@ -280,7 +280,7 @@ namespace MirageXR
                 // If the parenting object can't be found, terminate and return false.
                 if (temp == null)
                 {
-                    //Debug.Log("Parent object not found. " + obj.id + "/" + obj.poi);
+                    // Debug.Log("Parent object not found. " + obj.id + "/" + obj.poi);
                     return false;
                 }
 
@@ -400,7 +400,7 @@ namespace MirageXR
                 int.TryParse(trigger.value, out int triggerStepNumber);
 
                 if (triggerStepNumber > 0)
-                    triggerStepNumber -= 1; //-1 for converting to the correct index
+                    triggerStepNumber -= 1; // -1 for converting to the correct index
 
                 if (!gazeCircle && !activityManager.EditModeActive && activityManager.ActionsOfTypeAction.Count > triggerStepNumber)
                 {

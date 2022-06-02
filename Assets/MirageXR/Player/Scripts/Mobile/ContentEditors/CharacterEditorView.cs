@@ -42,11 +42,11 @@ public class CharacterEditorView : PopupEditorBase
         const string movementType = "followpath";
         
         var characterObjectName = $"{_content.id}/{_content.poi}/{_content.predicate}";
-        var character = GameObject.Find(characterObjectName);   //TODO: possible NRE
+        var character = GameObject.Find(characterObjectName);   // TODO: possible NRE
 
         while(character == null)
         {
-            character = GameObject.Find(characterObjectName);   //TODO: possible NRE
+            character = GameObject.Find(characterObjectName);   // TODO: possible NRE
             await Task.Delay(10);
         }
 

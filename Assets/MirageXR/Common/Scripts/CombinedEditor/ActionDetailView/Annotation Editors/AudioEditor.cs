@@ -50,7 +50,7 @@ public class AudioEditor : MonoBehaviour
         private set
         {
             isRecording = value;
-            timerIcon.enabled = isRecording; //recorder circle shows only on recording
+            timerIcon.enabled = isRecording; // recorder circle shows only on recording
             startRecordingButton.interactable = !isRecording;
         }
     }
@@ -123,7 +123,7 @@ public class AudioEditor : MonoBehaviour
 
     public void Close()
     {
-        //when editor is closed play the spatial audio if it is exist
+        // when editor is closed play the spatial audio if it is exist
         if (annotationToEdit != null)
         {
             var audioPlayer = GameObject.Find(annotationToEdit.poi).GetComponentInChildren<AudioPlayer>();
@@ -141,10 +141,10 @@ public class AudioEditor : MonoBehaviour
         SaveFileName = string.Empty;
         IsPlaying = false;
 
-        //play the loop audio which were stopped on recording
+        // play the loop audio which were stopped on recording
         PlayAllLoopedVideo();
 
-        //destroy the editor
+        // destroy the editor
         foreach (var ae in FindObjectsOfType<AudioEditor>())
             Destroy(ae.gameObject);
     }
@@ -180,10 +180,10 @@ public class AudioEditor : MonoBehaviour
                 OnAudioTypeToggle();
             }
 
-            //check if the trigger for this audio is on
+            // check if the trigger for this audio is on
              stepTrigger.isOn = activityManager.ActiveAction.triggers.Find(t => t.id == annotationToEdit.poi) != null;
 
-            //re-recording is not allowed
+            // re-recording is not allowed
             startRecordingButton.interactable = false;
 
             PlayAudio();
@@ -302,8 +302,8 @@ public class AudioEditor : MonoBehaviour
 
         string originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
 
-        //On character dialog recorder, use the custom dialog file path instead of annotationToEdit.url
-        //set the correct dialog recorder(correct character) to the audio player
+        // On character dialog recorder, use the custom dialog file path instead of annotationToEdit.url
+        // set the correct dialog recorder(correct character) to the audio player
         foreach (var character in FindObjectsOfType<MirageXR.CharacterController>())
         {
             if (character.MyAction == action && character.DialogRecorder.DialogSaveName != string.Empty)
@@ -343,7 +343,7 @@ public class AudioEditor : MonoBehaviour
                 File.Delete(originalFilePath);
             }
 
-            //edit audio type , loop and radius as option
+            // edit audio type , loop and radius as option
             AudioOptionsAdjustment(annotationToEdit);
         }
         else
@@ -352,7 +352,7 @@ public class AudioEditor : MonoBehaviour
             Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
             GameObject originT = GameObject.Find(detectable.id);
 
-            //move the audio player to the spawn point
+            // move the audio player to the spawn point
             var annotationStartingPoint = GameObject.Find("AnnotationSpawnPoint");
 
             var offset = Utilities.CalculateOffset(annotationStartingPoint.transform.position,
