@@ -14,7 +14,7 @@ namespace MirageXR
 
         public System.Guid TaskStationId { get; private set; }
         public string TaskStationName { get; private set; }
-        //private TaskStationContextMenu myTSCM;
+        // private TaskStationContextMenu myTSCM;
 
         public bool IsMenuOpen { get; private set; }
 
@@ -64,7 +64,7 @@ namespace MirageXR
 
         private void Awake()
         {
-            //myTSCM = gameObject.GetComponent<TaskStationContextMenu>();
+            // myTSCM = gameObject.GetComponent<TaskStationContextMenu>();
 
             // name and link gameobject to arlem data model
             TaskStationId = System.Guid.NewGuid();
@@ -80,8 +80,8 @@ namespace MirageXR
             ThisAction.exit = new Exit();
             ThisAction.triggers = new List<Trigger>();
 
-            //thisAction.instruction.title = "Action Step " + thisActionIndex.ToString();
-            //thisAction.instruction.description = "Add task step description here...";
+            // thisAction.instruction.title = "Action Step " + thisActionIndex.ToString();
+            // thisAction.instruction.description = "Add task step description here...";
 
             // specify workplace values
             thisPlace = ServiceManager.GetService<ActivityRecorderService>().myWorkplace.places.Last();
@@ -273,12 +273,12 @@ namespace MirageXR
 
         public void SaveImagetarget(int markerId)
         {
-            //string filename = "WEKITCalibrationTool_scaled.jpg";
-            //thisDetectable.url = filename;
-
-            //byte[] image = File.ReadAllBytes("resources://ImageTargets/" + filename);
-            //string imagePath = Path.Combine(ServiceManager.GetService<ActivityService>().currentArlemFolder, filename); 
-            //File.WriteAllBytes(imagePath, image);
+            // string filename = "WEKITCalibrationTool_scaled.jpg";
+            // thisDetectable.url = filename;
+               
+            // byte[] image = File.ReadAllBytes("resources://ImageTargets/" + filename);
+            // string imagePath = Path.Combine(ServiceManager.GetService<ActivityService>().currentArlemFolder, filename); 
+            // File.WriteAllBytes(imagePath, image);
 
         }
 
@@ -319,10 +319,10 @@ namespace MirageXR
                 
                 if (antn.name != "Number")
                 {
-                    //if (antn.GetComponent<AnnotationController>().IsAnnotationMenuOpen)
-                    //{
-                    //    antn.GetComponent<AnnotationController>().ToggleAnnotationMenu();
-                    //}
+                    // if (antn.GetComponent<AnnotationController>().IsAnnotationMenuOpen)
+                    // {
+                    //     antn.GetComponent<AnnotationController>().ToggleAnnotationMenu();
+                    // }
                     antn.SetActive(false);
                 }
                 
@@ -333,7 +333,7 @@ namespace MirageXR
                 highlighter = null;
             }
 
-            //update ARLEM info (saving changes)
+            // update ARLEM info (saving changes)
             UpdateActionInfo();
             UpdateWorkplaceInfo();
 
@@ -346,7 +346,7 @@ namespace MirageXR
         /// </summary>
         public void RemoveTaskStation()
         {
-            //Update the lines
+            // Update the lines
             Debug.Log(TaskStationName + "Removed");
             Destroy(transform.parent.gameObject);
         }
@@ -360,11 +360,11 @@ namespace MirageXR
 
             if (IsMenuOpen)
             {
-                //myTSCM.CloseMenu();
+                // myTSCM.CloseMenu();
             }
             else
             {
-                //myTSCM.OpenMenu();
+                // myTSCM.OpenMenu();
             }
 
             IsMenuOpen = !IsMenuOpen;

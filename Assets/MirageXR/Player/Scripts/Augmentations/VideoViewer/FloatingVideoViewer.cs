@@ -35,7 +35,7 @@ namespace MirageXR
         private bool isPaused = false;
 
         [SerializeField] private bool InPanel;
-        //private Transform _contentPanel;
+        // private Transform _contentPanel;
         private Vector3 _originalPosition = Vector3.zero;
         private Quaternion _originalRotation = Quaternion.identity;
         private Vector3 _originalScale = Vector3.one;
@@ -54,7 +54,7 @@ namespace MirageXR
 
         private void Awake()
         {
-            //_contentPanel = GameObject.FindGameObjectWithTag("ContentPanel").transform;
+            // _contentPanel = GameObject.FindGameObjectWithTag("ContentPanel").transform;
             _videoPlayer = transform.Find("VideoCanvas").Find("Slider").GetComponent<VideoPlayer>();
             _audioSource = transform.Find("VideoCanvas").Find("Slider").GetComponent<AudioSource>();
 
@@ -113,7 +113,7 @@ namespace MirageXR
                 videoFilePath = Path.Combine(Application.persistentDataPath, videoName);
             }
 
-            //Adjust the duration of the trigger
+            // Adjust the duration of the trigger
             var myTrigger = ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == _obj.poi);
             if (myTrigger != null)
                 ActivityManager.Instance.ActiveAction.triggers.Find(t => t == myTrigger).duration = (float)_videoPlayer.length;
@@ -165,10 +165,10 @@ namespace MirageXR
                 _audioSource.Play();
             }
 
-            //Check if trigger is active
+            // Check if trigger is active
             StartCoroutine(ActivateTrigger());
             Debug.Log("KEY IS: " + content.key);
-            // If all went well, return true. 
+            // If all went well, return true.
             return base.Init(content);
         }
 

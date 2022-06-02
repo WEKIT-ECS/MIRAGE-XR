@@ -61,8 +61,8 @@ public class ActionDetailView : MonoBehaviour
         UpdateUI();
     }
 
-    //move the taskcard to the task station position
-    public void MoveEditorNextToTaskSTation() //TODO: fix method name
+    // move the taskcard to the task station position
+    public void MoveEditorNextToTaskSTation() // TODO: fix method name
     {
         GameObject activeTSdiamond = GetCurrentTaskStation();
         transform.SetParent(activeTSdiamond.transform);
@@ -84,13 +84,13 @@ public class ActionDetailView : MonoBehaviour
     public GameObject GetCurrentTaskStation()   
     {
         var actionId = ActivityManager.Instance.ActiveActionId;
-        var activeTSdiamond = GameObject.Find(actionId).transform.Find("default").transform.Find("PlayerTaskStation(Clone)").gameObject; //TODO: possible NRE 
+        var activeTSdiamond = GameObject.Find(actionId).transform.Find("default").transform.Find("PlayerTaskStation(Clone)").gameObject; // TODO: possible NRE 
         return activeTSdiamond;
     }
 
     public void UpdateUI()
     {
-        //If all action steps are deleted and only the last one exist, add it to displayedAction
+        // If all action steps are deleted and only the last one exist, add it to displayedAction
         if (ActivityManager.Instance.ActionsOfTypeAction.Count == 1)
             displayedAction = ActivityManager.Instance.ActionsOfTypeAction[0];
 
@@ -102,7 +102,7 @@ public class ActionDetailView : MonoBehaviour
         }
         else
         {
-            //move the taskcard to the task station position
+            // move the taskcard to the task station position
             MoveEditorNextToTaskSTation();
 
             titleLabel.text = DisplayedAction.instruction.title;
@@ -131,7 +131,7 @@ public class ActionDetailView : MonoBehaviour
                 }
             }
 
-            //Show Grid view if there is no augmentation yet
+            // Show Grid view if there is no augmentation yet
             ActionEditor.Instance.AddMenuVisible = !ActivityManager.Instance.ActiveAction.enter.activates.Any();
 
             // disable all unused item labels

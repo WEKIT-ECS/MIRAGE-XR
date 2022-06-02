@@ -40,17 +40,17 @@ public static class ContentTypeExtenstion
     private const string PREDICATE_LABEL = "label";
     private const string PREDICATE_IMAGE = "image";
     private const string PREDICATE_AUDIO = "audio";
-    private const string PREDICATE_AUDIO_V2 = "sound"; //TODO: we should leave only one option, but we have several different references in the code. ideally, we should use the index enum
+    private const string PREDICATE_AUDIO_V2 = "sound"; // TODO: we should leave only one option, but we have several different references in the code. ideally, we should use the index enum
     private const string PREDICATE_VIDEO = "video";
     private const string PREDICATE_GHOST = "ghosttracks"; 
-    private const string PREDICATE_GHOST_V2 = "ghost"; //TODO:^^^
+    private const string PREDICATE_GHOST_V2 = "ghost"; // TODO:^^^
     private const string PREDICATE_ACT = "act";
     private const string PREDICATE_VFX = "vfx";
     private const string PREDICATE_MODEL = "model";
-    private const string PREDICATE_MODEL_V2 = "3d"; //TODO: ^^^
+    private const string PREDICATE_MODEL_V2 = "3d"; // TODO: ^^^
     private const string PREDICATE_CHARACTER = "char";
     private const string PREDICATE_PICKANDPLACE = "pickandplace";
-    private const string PREDICATE_PICKANDPLACE_V2 = "pick&place"; //TODO: ^^^
+    private const string PREDICATE_PICKANDPLACE_V2 = "pick&place"; // TODO: ^^^
     private const string PREDICATE_IMAGEMARKER = "imagemarker";
     private const string PREDICATE_PLUGIN = "plugin";
     private const string PREDICATE_DRAWING = "drawing";
@@ -128,7 +128,7 @@ public static class ContentTypeExtenstion
             case ContentType.PICKANDPLACE: return PICKANDPLACE_IMAGE_PATH;
             case ContentType.IMAGEMARKER:  return IMAGEMARKER_IMAGE_PATH;
             case ContentType.PLUGIN:       return PLUGIN_IMAGE_PATH;
-            case ContentType.UNKNOWN:      return MODEL_IMAGE_PATH; //TODO: add icon for unknown content type
+            case ContentType.UNKNOWN:      return MODEL_IMAGE_PATH; // TODO: add icon for unknown content type
             case ContentType.DRAWING:      return DRAWING_IMAGE_PATH;
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);

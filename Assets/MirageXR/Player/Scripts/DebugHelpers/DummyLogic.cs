@@ -23,7 +23,7 @@ public class DummyLogic : MonoBehaviour
 
     private void PlayerReset ()
     {
-        //SensorState.SetActive (false);
+        // SensorState.SetActive (false);
     }
 
     /// <summary>
@@ -65,20 +65,20 @@ public class DummyLogic : MonoBehaviour
     {
         EventManager.ParseActivity("http://192.168.0.1/activities/AltecTrialActivity.json");
 
-        //LoadActivity ();
-
-        //EventManager.ParseActivity ("resources://scenario0_activity");
-
-        //EventManager.ParseActivity ("resources://vttdemoactivity");
-
+        // LoadActivity ();
+           
+        // EventManager.ParseActivity ("resources://scenario0_activity");
+           
+        // EventManager.ParseActivity ("resources://vttdemoactivity");
+           
         // Start the process by loading an activity file from server...
-        //EventManager.ParseActivity ("https://dl.dropboxusercontent.com/s/vuw23fi2v88wj33/altec_activity.json");
-
+        // EventManager.ParseActivity ("https://dl.dropboxusercontent.com/s/vuw23fi2v88wj33/altec_activity.json");
+           
         // ...or from the inbuilt resources folder.
-        //EventManager.ParseActivity ("resources://ebit_activity");
-        //EventManager.ParseActivity ("resources://altec_activity");
-        //EventManager.ParseActivity( "https://www.dropbox.com/s/lmhsb15m262xfkx/altec_activity.json?dl=0" );
-        //EventManager.ParseActivity ("http://192.168.0.1/activities/new_activity.json");
+        // EventManager.ParseActivity ("resources://ebit_activity");
+        // EventManager.ParseActivity ("resources://altec_activity");
+        // EventManager.ParseActivity( "https://www.dropbox.com/s/lmhsb15m262xfkx/altec_activity.json?dl=0" );
+        // EventManager.ParseActivity ("http://192.168.0.1/activities/new_activity.json");
 
 
         //EventManager.ParseActivity ("resources://lt_activity");

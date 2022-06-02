@@ -36,7 +36,7 @@ namespace MirageXR
             // Register to event manager events.
             EventManager.OnStartActivity += StartActivity; // launched
             EventManager.OnToggleObject += OnToggleObject; // true ? predicate : null
-            EventManager.OnStepActivatedStamp += StepActivatedStamp; //start
+            EventManager.OnStepActivatedStamp += StepActivatedStamp; // start
             EventManager.OnActivityLoadedStamp += ActivityLoadedStamp; // launch
             EventManager.OnStepDeactivatedStamp += StepDeactivatedStamp; // experienced
             EventManager.OnActivityCompletedStamp += ActivityCompletedStamp; // completd

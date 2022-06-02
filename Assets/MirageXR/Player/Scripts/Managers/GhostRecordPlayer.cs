@@ -79,14 +79,14 @@ namespace MirageXR
                 if (audioAnnotation != null)
                 {
                     yield return new WaitForSeconds(0.5f);
-                    //wait for half a second to give the audio object time to spawn 
+                    // wait for half a second to give the audio object time to spawn 
 
                     audioPlayer = GameObject.Find(audioAnnotation.poi).GetComponentInChildren<AudioPlayer>();
                     if (audioPlayer)
                     {
                         audioPlayer.PlayAudio();
                         framerate = audioPlayer.getAudioLength() / ghostFrames.Count;
-                        //Determine the desired framerate based on the length of the audio and the number of frames, preventing the ghost moving ahead of the audio
+                        // Determine the desired framerate based on the length of the audio and the number of frames, preventing the ghost moving ahead of the audio
                     }
                 }
             }
@@ -102,16 +102,16 @@ namespace MirageXR
                         {
                             SetFrame(ghostFrame, anchor);
                             yield return new WaitForSeconds(framerate);
-                            //if the ghost playback is not behind the audio playback, play the next frame. 
+                            // if the ghost playback is not behind the audio playback, play the next frame. 
                         }
                         ghostTime += framerate;
-                        //Update ghost playback time regardless of whether or not the a frame is played, allows frames to be skiped untill the loop catches up with the audio
+                        // Update ghost playback time regardless of whether or not the a frame is played, allows frames to be skiped untill the loop catches up with the audio
                     }
                     else
                     {
                         SetFrame(ghostFrame, anchor);
                         yield return new WaitForSeconds(framerate);
-                        //If there is no audio then play ghost back at fixedDeltaTime
+                        // If there is no audio then play ghost back at fixedDeltaTime
                     }
                 }
             } while (loop && !_forceStop);

@@ -184,24 +184,24 @@ public class ActivityEditor : MonoBehaviour
 
         SaveActivity();
 
-        //clear optionDropDown options if is not empty
+        // clear optionDropDown options if is not empty
         optionsDropDown.options.Clear();
 
-        //hide confirm panel
+        // hide confirm panel
         updateConfirmPanel.SetActive(false);
 
-        ////Thumbnail is mandatory
-        //string thumbnailPath = Path.Combine(ActivityManager.Instance.Path, "thumbnail.jpg");
-        //if (!File.Exists(thumbnailPath))
-        //{
-        //    loginNeedText.text = "Thumbnail not exist!";
-        //    return;
-        //}else
-        //{
-        //    loginNeedText.text = "";
-        //}
+        //// Thumbnail is mandatory
+        // string thumbnailPath = Path.Combine(ActivityManager.Instance.Path, "thumbnail.jpg");
+        // if (!File.Exists(thumbnailPath))
+        // {
+        //     loginNeedText.text = "Thumbnail not exist!";
+        //     return;
+        // }else
+        // {
+        //     loginNeedText.text = "";
+        // }
 
-        //login needed for uploading
+        // login needed for uploading
         if (DBManager.LoggedIn)
         {
             loginNeedText.text = string.Empty;

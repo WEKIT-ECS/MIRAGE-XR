@@ -119,7 +119,7 @@ namespace MirageXR
             string fullFilePath = Path.Combine(ActivityManager.Instance.Path, filename);
             await tiltSnapshot.WriteToFile(fullFilePath);
 
-            //Delete old file
+            // Delete old file
             if (annotationToEdit != null)
             {
                 var originalFilePath = GetExistingDrawing();
@@ -134,7 +134,7 @@ namespace MirageXR
                 Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(action.id));
                 GameObject originT = GameObject.Find(detectable.id);
 
-                //Offset should always be 0. Positional data are store in the drawing strokes.
+                // Offset should always be 0. Positional data are store in the drawing strokes.
                 var offset = Vector3.zero;
 
                 annotationToEdit = ActivityManager.Instance.AddAugmentation(action, offset);
@@ -205,7 +205,7 @@ namespace MirageXR
 
         public void Close()
         {
-            //when editor is closed play the spatial audio if it is exist
+            // when editor is closed play the spatial audio if it is exist
             if (annotationToEdit != null && GameObject.Find(annotationToEdit.poi).GetComponentInChildren<AudioPlayer>() != null)
             {
                 GameObject.Find(annotationToEdit.poi).GetComponentInChildren<AudioPlayer>().PlayAudio();

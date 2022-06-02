@@ -32,7 +32,7 @@ namespace MirageXR
             EventManager.OnEditorLoaded += HideMenu;
             EventManager.OnRecorderExit += ShowMenu;
 
-            //Hide the user welcome text if no one is logged into the Moodle
+            // Hide the user welcome text if no one is logged into the Moodle
             if (!DBManager.LoggedIn)
             {
                 var usernameWelcomeText = transform.FindDeepChild("WelcomeUsername");
@@ -49,7 +49,7 @@ namespace MirageXR
             lockButton.GetComponent<Button>().onClick.AddListener(EventManager.NotifyOnActivitySelectionMenuLockClicked);
             header.GetComponent<ObjectManipulator>().OnManipulationEnded.AddListener(delegate { EventManager.NotifyOnActivitySelectionMenuDragEnd(); });
             activityCreationButton.GetComponent<Button>().onClick.AddListener(EventManager.NotifyOnNewActivityCreationButtonPressed);
-            //activityCreationButton.GetComponent<PressableButton>().ButtonPressed.AddListener(EventManager.NotifyOnNewactivityCreationButtonPressed);
+            // activityCreationButton.GetComponent<PressableButton>().ButtonPressed.AddListener(EventManager.NotifyOnNewactivityCreationButtonPressed);
         }
 
         private void RemoveListeners()
@@ -58,14 +58,14 @@ namespace MirageXR
             header.GetComponent<ObjectManipulator>().OnManipulationEnded.RemoveListener(delegate { EventManager.NotifyOnActivitySelectionMenuDragEnd(); });
             // TODO: Why are there two button components here? Different platforms?
             activityCreationButton.GetComponent<Button>().onClick.RemoveListener(EventManager.NotifyOnNewActivityCreationButtonPressed);
-            //activityCreationButton.GetComponent<PressableButton>().ButtonPressed.RemoveListener(EventManager.NotifyOnNewactivityCreationButtonPressed);
+            // activityCreationButton.GetComponent<PressableButton>().ButtonPressed.RemoveListener(EventManager.NotifyOnNewactivityCreationButtonPressed);
         }
 
         private void ShowMenu()
         {
             gameObject.SetActive(true);
 
-            //Reload the activity selection list with the new saved activity
+            // Reload the activity selection list with the new saved activity
             var sessionListView = FindObjectOfType<SessionListView>();
             if (sessionListView)
                 sessionListView.RefreshActivityList();
@@ -88,8 +88,8 @@ namespace MirageXR
 
         public async void OpenRecorder()
         {
-            //Debug.Log("Open Recorder");
-            //await ServiceManager.GetService<EditorSceneService>().LoadRecorderAsync();
+            // Debug.Log("Open Recorder");
+            // await ServiceManager.GetService<EditorSceneService>().LoadRecorderAsync();
 
             Loading.Instance.LoadingVisibility(true);
 

@@ -61,7 +61,7 @@ namespace MirageXR
         {
             DialogSaveName = $"characterinfo/{ActivityManager.Instance.ActiveActionId}_{MyCharacter.ToggleObject.poi}.wav";
 
-            //For character who has lipsync the audio source is added to the object with ThreeLSControl component
+            // For character who has lipsync the audio source is added to the object with ThreeLSControl component
             var threeLSControl = MyCharacter.GetComponentInChildren<ThreeLSControl>();
             if (threeLSControl)
             {
@@ -103,7 +103,7 @@ namespace MirageXR
 
         private void SetEditorState(bool editModeActive)
         {
-            //Dialog recorder is closed manually dont open it 
+            // Dialog recorder is closed manually dont open it
             if (openButton.activeInHierarchy) return;
 
             if (!_audioSource || _audioSource.clip == null)
@@ -130,7 +130,7 @@ namespace MirageXR
         {
             if (_audioSource == null) return;
 
-            //if a dialog is already recorded
+            // if a dialog is already recorded
             if (_audioSource.clip == null)
             {
                 recordButton.SetActive(ActivityManager.Instance.EditModeActive);
@@ -171,7 +171,7 @@ namespace MirageXR
 
         private bool AllowToRecord()
         {
-            //Check AI or recording is active in this scene, if so send a nofication and disable recording
+            // Check AI or recording is active in this scene, if so send a nofication and disable recording
             var AIIsActiveInThisScene = false;
             var RecordingIsActiveInThisScene = false;
             foreach (var character in FindObjectsOfType<CharacterController>())

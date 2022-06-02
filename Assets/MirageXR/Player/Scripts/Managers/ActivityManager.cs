@@ -868,7 +868,7 @@ namespace MirageXR
                 // Wait a bit just to make sure everything is properly deactivated before doing anything else...
                 yield return new WaitForSeconds(0.5f);
 
-                //do not activate next step
+                // do not activate next step
                 if (doNotActivateNextStep)
                     yield break;
 
@@ -1111,7 +1111,7 @@ namespace MirageXR
                     Debug.LogError("Could not identify the active action", this);
                 }
 
-                //Save augmentations extra data(character, pick&place,...) for be carried over to the new action if the augmentation exists in that action
+                // Save augmentations extra data(character, pick&place,...) for be carried over to the new action if the augmentation exists in that action
                 SaveData();
             }
             else
@@ -1206,7 +1206,7 @@ namespace MirageXR
             }
 
             // Confirm and delete
-            DialogWindow.Instance.Show("Warning!",          //TODO: I don't think we should call ui functionality from core functions.
+            DialogWindow.Instance.Show("Warning!",          // TODO: I don't think we should call ui functionality from core functions.
             "Are you sure you want to delete this step?",
             new DialogButtonContent("Yes", delegate { DeleteConfirmed(indexToDelete, idToDelete); }),
             new DialogButtonContent("No"));
@@ -1215,7 +1215,7 @@ namespace MirageXR
 
         private void DeleteConfirmed(int indexToDelete, string idToDelete)
         {
-            //Create a new list of activate to avoid "Collection modified exception"
+            // Create a new list of activate to avoid "Collection modified exception"
             List<ToggleObject> enter_activate_temp_copy = new List<ToggleObject>();
             foreach (var item in Activity.actions[indexToDelete].enter.activates)
                 enter_activate_temp_copy.Add(item);
@@ -1223,11 +1223,11 @@ namespace MirageXR
             var actionToDelete = Activity.actions[indexToDelete];
 
             List<ToggleObject> commonToggleObjects = new List<ToggleObject>();
-            //find all common annotations which exist in action to delete and other actions
+            // find all common annotations which exist in action to delete and other actions
             foreach (var action in Activity.actions)
                 commonToggleObjects.AddRange(action.enter.activates.Intersect(actionToDelete.enter.activates).ToList());
 
-            //only delete the annotaitons which don't exist in other steps
+            // only delete the annotaitons which don't exist in other steps
             foreach (var toggleObject in enter_activate_temp_copy)
                 if (!commonToggleObjects.Contains(toggleObject))
                     ActivityController.Instance.DeleteAugmentation(toggleObject, Activity.actions[indexToDelete]);
@@ -1252,7 +1252,7 @@ namespace MirageXR
                 scale = 1
             };
 
-            //the current action index
+            // the current action index
             var currentActionIndex = ActionsOfTypeAction.IndexOf(ActionsOfTypeAction.Find(a => a.id == ActiveActionId));
             AddAllAugmentationsBetweenSteps(currentActionIndex, currentActionIndex, annotation, position);
 
@@ -1263,7 +1263,7 @@ namespace MirageXR
         public void AddAllAugmentationsBetweenSteps(int startIndex, int endIndex, ToggleObject annotation, Vector3 position)
         {
             var actionList = ActionsOfTypeAction;
-            //remove the annotation from out of the selected steps range
+            // remove the annotation from out of the selected steps range
             if (startIndex != 0)
             {
                 for (int i = 0; i < startIndex; i++)
@@ -1292,7 +1292,7 @@ namespace MirageXR
                 }
             }
 
-            //add the annotation to the selected steps range if already not exist
+            // add the annotation to the selected steps range if already not exist
             for (int i = startIndex; i <= endIndex; i++)
             {
                 if (actionList[i].enter.activates.Find(p => p.poi == annotation.poi) == null)
@@ -1303,8 +1303,8 @@ namespace MirageXR
                     actionList[i].exit.deactivates.Add(annotation);
             }
 
-            //the objects of the annotation will be created only for the original step not all steps.
-            WorkplaceManager.Instance.AddAnnotation(ActiveAction, annotation, position == Vector3.zero ? Vector3.zero : position); //TODO: I don't see the logic in this expression 'position == Vector3.zero ? Vector3.zero : position'
+            // the objects of the annotation will be created only for the original step not all steps.
+            WorkplaceManager.Instance.AddAnnotation(ActiveAction, annotation, position == Vector3.zero ? Vector3.zero : position); // TODO: I don't see the logic in this expression 'position == Vector3.zero ? Vector3.zero : position'
         }
 
 

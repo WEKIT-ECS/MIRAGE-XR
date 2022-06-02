@@ -233,11 +233,11 @@ namespace MirageXR
 
         private void CreateCalibrationGuide()
         {
-            //do not create if it is exist already
+            // do not create if it is exist already
             if (!PlatformManager.Instance.WorldSpaceUi || GameObject.Find("CalibrationGuide(Clone)") || GameObject.Find("CalibrationGuide"))
                 return;
 
-            //create the guild if activity is not calibrated.
+            // create the guild if activity is not calibrated.
             if (UiManager.Instance && !UiManager.Instance.IsCalibrated)
             {
                 var guildeObject = Instantiate(Resources.Load<GameObject>("Prefabs/Calibration/CalibrationGuide"), PlatformManager.Instance.GetTaskStationPosition() - Vector3.forward * 0.1f, Camera.main.transform.rotation);
@@ -282,7 +282,7 @@ namespace MirageXR
                 //Maggie.Speak("Workplace anchors have not been calibrated. Please run the calibration before starting the activity.");
                 CreateCalibrationGuide();
 
-                //Hile loading text
+                // Hile loading text
                 Loading.Instance.LoadingVisibility(false);
             }
 

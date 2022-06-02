@@ -48,7 +48,7 @@ namespace MirageXR
 
             // Set label text.
             textbox.text = obj.text;
-            //GetComponent<TextMesh> ().text = obj.text;
+            // GetComponent<TextMesh> ().text = obj.text;
 
             if (!obj.id.Equals("UserViewport"))
             {
@@ -77,7 +77,7 @@ namespace MirageXR
             if (textLabel == null)
             {
                 textLabel = Instantiate(TextLabelPrefab);
-                _triggerIcon = textLabel.GetComponentsInChildren<Image>()[1]; //TODO: possible NRE
+                _triggerIcon = textLabel.GetComponentsInChildren<Image>()[1]; // TODO: possible NRE
                 if (_triggerIcon && ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == _myAnnotation.poi) != null)
                 {
                     _triggerIcon.enabled = true;

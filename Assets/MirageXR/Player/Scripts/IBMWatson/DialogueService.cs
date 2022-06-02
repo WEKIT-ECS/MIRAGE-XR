@@ -23,12 +23,12 @@ public class DialogueService : MonoBehaviour
 
 
     [Space(10)]
-    //[Tooltip("The IAM apikey.")]
-    //[SerializeField]
-    //private string iamApikey = "X4udGLROceeDWMxy8aZ85p_AJLghkkwPtzYwF5IN5NVS";
-    //[Tooltip("The service URL (optional). This defaults to \"https://gateway.watsonplatform.net/assistant/api\"")]
-    //[SerializeField]
-    //private string serviceUrl = "https://gateway-lon.watsonplatform.net/assistant/api";
+    // [Tooltip("The IAM apikey.")]
+    // [SerializeField]
+    // private string iamApikey = "X4udGLROceeDWMxy8aZ85p_AJLghkkwPtzYwF5IN5NVS";
+    // [Tooltip("The service URL (optional). This defaults to \"https://gateway.watsonplatform.net/assistant/api\"")]
+    // [SerializeField]
+    // private string serviceUrl = "https://gateway-lon.watsonplatform.net/assistant/api";
 
     [Tooltip("The version date with which you would like to use the service in the form YYYY-MM-DD.")]
     [SerializeField]
@@ -100,14 +100,14 @@ public class DialogueService : MonoBehaviour
             yield return null;
 		*/
 
-        service = new AssistantService(versionDate); //, credentials);
+        service = new AssistantService(versionDate); // , credentials);
 
         while (!service.Authenticator.CanAuthenticate()) // .Credentials.HasIamTokenData()
             yield return null;
 
         Runnable.Run(CreateSession());
 
-        //Runnable.Run(Examples());
+        // Runnable.Run(Examples());
     }
 
     private IEnumerator CreateSession()
@@ -123,7 +123,7 @@ public class DialogueService : MonoBehaviour
 
     private void OnDeleteSession(DetailedResponse<object> response, IBMError error)
     {
-        //Log.Debug("ExampleAssistantV2.OnDeleteSession()", "Session deleted.");
+        // Log.Debug("ExampleAssistantV2.OnDeleteSession()", "Session deleted.");
         deleteSessionTested = true;
     }
 
@@ -223,7 +223,7 @@ public class DialogueService : MonoBehaviour
 
             if (response.Result.Output.Generic != null && response.Result.Output.Generic.Capacity > 0)
             {
-                //if the name is char:alla only take alla 
+                // if the name is char:alla only take alla 
                 try
                 {
                     var res = response.Result.Output.Generic[0].Text;
@@ -267,7 +267,7 @@ public class DialogueService : MonoBehaviour
     //myTTS.myVoice = "en-GB_KateV3Voice";
 
 
-    //  Convert resp to fsdata
+    // Convert resp to fsdata
     //fsData fsdata = null;
     //fsResult r = _serializer.TrySerialize(response.GetType(), response, out fsdata);
     //if (!r.Succeeded)

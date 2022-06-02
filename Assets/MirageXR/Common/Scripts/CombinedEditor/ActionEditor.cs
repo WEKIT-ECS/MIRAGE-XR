@@ -136,7 +136,7 @@ public class ActionEditor : MonoBehaviour
             Destroy(gameObject);
         }
 
-        //Get the list of augmentations from txt file depends on platform
+        // Get the list of augmentations from txt file depends on platform
         var listOfAugmentations = BrandManager.Instance.GetListOfAugmentations();
 
 
@@ -180,7 +180,7 @@ public class ActionEditor : MonoBehaviour
 
     private void OnToggleActionTargetCapture()
     {
-        //if there is no annotations
+        // if there is no annotations
         if (ActivityManager.Instance.ActiveAction.enter.activates.Count == 0)
         {
             StartCoroutine(NavigatorNotification("There is no annotation in this step yet", 5));
@@ -215,7 +215,7 @@ public class ActionEditor : MonoBehaviour
     {
         if (StepNavigationTargetCapturing)
         {
-            //remove target from other annotation's state
+            // remove target from other annotation's state
             ActivityManager.Instance.ActiveAction.enter.activates.ForEach(b =>
             {
                 b.state = string.Empty;
@@ -225,7 +225,7 @@ public class ActionEditor : MonoBehaviour
                 b.state = string.Empty;
             });
 
-            //set the new target
+            // set the new target
             annotation.state = "target";
             navigationTargetButton.GetComponent<Image>().color = Color.white;
             navigationTargetButton.GetComponentInChildren<Text>().enabled = false;
@@ -233,7 +233,7 @@ public class ActionEditor : MonoBehaviour
             TaskStationDetailMenu.Instance.NavigatorTarget = ActionListMenu.CorrectTargetObject(annotation);
             TaskStationDetailMenu.Instance.TargetPredicate = annotation.predicate;
 
-            //show the target icon if annotation is the target of this action
+            // show the target icon if annotation is the target of this action
             foreach (var listItem in FindObjectsOfType<AnnotationListItem>())
                 listItem.TargetIconVisibility(listItem.DisplayedAnnotation.state == "target");
         }
@@ -258,23 +258,23 @@ public class ActionEditor : MonoBehaviour
     {
         if (!newModel || !pick) yield break;
 
-        //Delete the old model if exist
-        var oldModel = GameObject.Find("ArrowModel_" + pick.GetComponentInParent<PickAndPlaceController>().MyPoi.poi); //TODO: possible NRE
+        // Delete the old model if exist
+        var oldModel = GameObject.Find("ArrowModel_" + pick.GetComponentInParent<PickAndPlaceController>().MyPoi.poi); // TODO: possible NRE
         if (oldModel) Destroy(oldModel);
 
-        //hide the original arrow mesh and colliders
+        // hide the original arrow mesh and colliders
         pick.ArrowRenderer.enabled = false;
         foreach (var collider in pick.GetComponents<Collider>())
         {
             collider.enabled = false;
         }
 
-        //clone the selected model
+        // clone the selected model
         var sketchfabModel = newModel.GetComponentInChildren<Model>();
 
         var modelLoadingCompleted = sketchfabModel.LoadingCompleted;
 
-        //wait until the model is loaded
+        // wait until the model is loaded
         while (!modelLoadingCompleted)
         {
             modelLoadingCompleted = sketchfabModel.LoadingCompleted;
@@ -285,10 +285,10 @@ public class ActionEditor : MonoBehaviour
         newModelClone.transform.SetParent(pick.transform);
         newModelClone.name = "ArrowModel_" + sketchfabModel.MyToggleObject.poi;
 
-        //move the model augmentation somewhere invisible(Cannot deactivate it)
+        // move the model augmentation somewhere invisible(Cannot deactivate it)
         newModel.transform.position = new Vector3(9999, 9999, 9999);
 
-        //destroy all component on the spawn object
+        // destroy all component on the spawn object
         foreach (var comp in newModelClone.GetComponents<Component>())
         {
             if (!(comp is Transform))
@@ -453,7 +453,7 @@ public class ActionEditor : MonoBehaviour
 
         CaptureNavigationTarget(annotation);
 
-        //pick and place can only use the model augmentation as it's arrow
+        // pick and place can only use the model augmentation as it's arrow
         if (annotation.predicate.StartsWith("3d"))
             CapturePickArrowTarget(annotation, pickArrowModelCapturing.Item2);
 
@@ -552,7 +552,7 @@ public class ActionEditor : MonoBehaviour
         titleField.interactable = editModeActive;
         titleField.GetComponent<Image>().enabled = editModeActive;
         descriptionField.readOnly = !editModeActive;
-        //active the editor views only if the edit mode is on
+        // active the editor views only if the edit mode is on
         gameObject.GetComponent<Canvas>().enabled = editModeActive;
         addButton.gameObject.SetActive(editModeActive);
         navigationTargetButton.gameObject.SetActive(editModeActive);

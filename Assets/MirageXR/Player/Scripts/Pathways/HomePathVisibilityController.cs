@@ -12,7 +12,7 @@ public class HomePathVisibilityController : MonoBehaviour
 
     private void Start()
     {
-        //create Singleton
+        // create Singleton
         if (Instance == null)
             Instance = this;
         else if (Instance != this)

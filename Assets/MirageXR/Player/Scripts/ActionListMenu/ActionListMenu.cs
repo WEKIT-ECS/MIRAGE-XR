@@ -51,7 +51,7 @@ public class ActionListMenu : MonoBehaviour
             return;
         }
         
-        //hide the upload progress number
+        // hide the upload progress number
         if (uploadProgressText == transform.FindDeepChild("UploadProgress").gameObject)
             uploadProgressText.SetActive(false);
 
@@ -66,7 +66,7 @@ public class ActionListMenu : MonoBehaviour
         {
             Init();
 
-            //activate the first step
+            // activate the first step
             //ActivityManager.Instance.ActivateByID(ActivityManager.Instance.ActionsOfTypeAction[0].id);
         }
         
@@ -150,10 +150,10 @@ public class ActionListMenu : MonoBehaviour
         bool isCompleted = ActivityManager.Instance.ActiveAction == null || ActivityManager.Instance.ActiveAction.isCompleted;
         nextStepButton.interactable = (!isLastStep || !isCompleted) && activeIndex < actions.Count - 1;
 
-        //automaticaly go to next page if step is on next page
+        // automaticaly go to next page if step is on next page
         if (activeIndex + 1 > itemsPerPage * (page + 1))
             NextPage();
-        //automaticaly go to previous page if step is on previous page
+        // automaticaly go to previous page if step is on previous page
         else if (activeIndex + 1 <= itemsPerPage * page)
             PreviousPage();
 
@@ -161,14 +161,14 @@ public class ActionListMenu : MonoBehaviour
 
         StartCoroutine(ButtonShortTimeDeactivation(previousStepButton.interactable, nextStepButton.interactable));
 
-        //if the last step is done, next time start again from the first step
+        // if the last step is done, next time start again from the first step
         if (isLastStep && isCompleted)
         {
             PlayerPrefs.SetString(ActivityManager.Instance.Activity.id, "StartingAction");
             PlayerPrefs.Save();
         }
 
-        //find the target annotation of this action
+        // find the target annotation of this action
         FindNavigatorTarget();
     }
 
@@ -248,7 +248,7 @@ public class ActionListMenu : MonoBehaviour
     {
         var actionList = ActivityManager.Instance.ActionsOfTypeAction;
 
-        //return if there is no next action
+        // return if there is no next action
         if (actionList.IndexOf(ActivityManager.Instance.ActiveAction) >= actionList.Count - 1) return;
 
         if (ActivityManager.Instance.ActiveAction != null)

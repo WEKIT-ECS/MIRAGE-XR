@@ -98,7 +98,7 @@ public class RootView : BaseView
     }
 
 
-    //TODO: Are the names of these 3 OnClicks an error? Should they be switched around?
+    // TODO: Are the names of these 3 OnClicks an error? Should they be switched around?
     private void OnStepsClick(bool value)
     {
         if (value) _pageView.currentPageIndex = 0;

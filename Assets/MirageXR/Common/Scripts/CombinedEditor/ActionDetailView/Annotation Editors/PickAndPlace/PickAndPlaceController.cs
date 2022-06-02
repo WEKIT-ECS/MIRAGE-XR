@@ -123,7 +123,7 @@ namespace MirageXR
         public void SavePositions()
         {
 
-            if (myObj == null || myObj.poi == "") return; //only if the poi is instantiated not the prefab
+            if (myObj == null || myObj.poi == "") return; // only if the poi is instantiated not the prefab
 
             Positions positions = new Positions
             {
@@ -143,7 +143,7 @@ namespace MirageXR
 
             string jsonPath = Path.Combine(ActivityManager.Instance.Path, "pickandplaceinfo/" + myObj.poi + ".json");
 
-            //delete the exsiting file first
+            // delete the exsiting file first
             if (File.Exists(jsonPath))
                 File.Delete(jsonPath);
 
@@ -155,7 +155,7 @@ namespace MirageXR
         {
             var newModel = GameObject.Find(MyModelID);
 
-            //wait until all model are loaded
+            // wait until all model are loaded
             while (newModel == null)
             {
                 newModel = GameObject.Find(MyModelID);
@@ -173,7 +173,7 @@ namespace MirageXR
 
             if (File.Exists(jsonPath))
             {
-                //delete the json
+                // delete the json
                 File.Delete(jsonPath);
             }
         }

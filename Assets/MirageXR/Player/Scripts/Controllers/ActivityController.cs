@@ -38,22 +38,22 @@ namespace MirageXR
         {
             var poi = annotation.poi;
 
-            //close all editor before deleting an annotation, some pois like audio throw exception if you delete the file but the editor is open
+            // close all editor before deleting an annotation, some pois like audio throw exception if you delete the file but the editor is open
             FindObjectOfType<ActionEditor>().DisableAllPoiEditors();
 
-            //delete the annotation form all steps which include the annotation
+            // delete the annotation form all steps which include the annotation
 
-            //annotation does not exist in other step, then delete it and it's files from anywhere
+            // annotation does not exist in other step, then delete it and it's files from anywhere
             if (step == null)
             {
                 foreach (var actionObj in ActionsOfTypeAction)
                 {
 
-                    //remove this from triggers
+                    // remove this from triggers
                     var trigger = actionObj.triggers.Find(t => t.id == poi);
                     actionObj.triggers.Remove(trigger);
 
-                    //remove this from activates
+                    // remove this from activates
                     foreach (var anno in actionObj.enter.activates.FindAll(p => p.poi == poi))
                     {
                         DeleteAugmentationFromStep(actionObj, anno);
@@ -64,10 +64,10 @@ namespace MirageXR
 
                     EventManager.NotifyActionModified(actionObj);
 
-                    //save data(annotations) after deleting additional files like character or models data
+                    // save data(annotations) after deleting additional files like character or models data
                     ActivityManager.Instance.SaveData();
 
-                    //All augmentations classes should do whatever should be done on augmentation deletion
+                    // All augmentations classes should do whatever should be done on augmentation deletion
                     EventManager.NotifyAugmentationDeleted(annotation);
                 }
             }
@@ -85,7 +85,7 @@ namespace MirageXR
                 }
                 EventManager.NotifyActionModified(step);
 
-                //save data(annotations) after deleting additional files like character or models data
+                // save data(annotations) after deleting additional files like character or models data
                 ActivityManager.Instance.SaveData();
             }
 

@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System;
 using UnityEditor.SceneManagement;
-//using UnityGLTF;
+// using UnityGLTF;
 
 public class SketchfabExporter : EditorWindow
 {
@@ -57,7 +57,7 @@ public class SketchfabExporter : EditorWindow
     private string status = "";
     Rect windowRect;
 
-    //private List<String> tagList;
+    // private List<String> tagList;
     void Awake()
     {
         zipPath = Application.temporaryCachePath + "/" + "Unity2Skfb.zip";
@@ -149,7 +149,7 @@ public class SketchfabExporter : EditorWindow
 
     void ResizeWindow(Vector2 size)
     {
-        //this.maxSize = size;
+        // this.maxSize = size;
         this.minSize = size;
     }
 
@@ -158,7 +158,7 @@ public class SketchfabExporter : EditorWindow
         if (user_name.Length == 0)
         {
             user_name = EditorPrefs.GetString(usernameEditorKey);
-            //user_password = EditorPrefs.GetString(passwordEditorKey);
+            // user_password = EditorPrefs.GetString(passwordEditorKey);
         }
 
         if (user_name.Length > 0 && user_password.Length > 0)
@@ -299,7 +299,7 @@ public class SketchfabExporter : EditorWindow
                     }
                     else
                     {
-                        //proceedToExportAndUpload();
+                        // proceedToExportAndUpload();
                     }
                 }
 
