@@ -32,7 +32,7 @@ namespace MirageXR
         {
             _ghost = gameObject.GetComponent<GhostRecordPlayer>();
             _ghost.MyToggleObject = content;
-            _anchor = GameObject.Find(content.id).transform;  //TODO: possible NRE. replace with direct ref
+            _anchor = GameObject.Find(content.id).transform;  // TODO: possible NRE. replace with direct ref
 
             if (string.IsNullOrEmpty(content.url))
             {

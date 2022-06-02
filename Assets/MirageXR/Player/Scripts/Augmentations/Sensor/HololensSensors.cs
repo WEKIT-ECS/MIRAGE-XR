@@ -7,9 +7,9 @@ using Microsoft.MixedReality.Toolkit.Utilities;
 namespace MirageXR
 {
 
-    public class HololensSensors : SensorBase //TODO: now is useless
+    public class HololensSensors : SensorBase // TODO: now is useless
     {
-        //Reference to the text that shall display the realtime data.
+        // Reference to the text that shall display the realtime data.
         private Text UIText;
         private RaycastHit hitInfo;
 
@@ -28,12 +28,12 @@ namespace MirageXR
             
             currentSensorDataFrame = new SensorDataFrame();
 
-            //Check if the raycast from the user's head in the direction of his gaze hit an object.
+            // Check if the raycast from the user's head in the direction of his gaze hit an object.
             currentSensorDataFrame.CastHit = Physics.Raycast(currentSensorDataFrame.HeadPosition, currentSensorDataFrame.GazeDirection, out hitInfo);
 
             // add timestamp
 
-            //Get user's head position
+            // Get user's head position
             currentSensorDataFrame.HeadPosition = cameraTransform.position;
 
             // Get user's gaze direction

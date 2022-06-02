@@ -30,18 +30,18 @@ namespace MirageXR
         private float animationLength;
         private float triggerDuration;
 
-        //Animation variables
+        // Animation variables
         private bool animationClipPlaying;
         private bool animationPlayedOnce;
         public bool CharacterParsed {
             get; private set;
         }
 
-        //Watson assistant
+        // Watson assistant
         private GameObject watsonService;
         public bool AIActivated { get; private set; }
 
-        //character settings
+        // character settings
         private CharacterSettings _characterSetting;
         private MovementManager movementManger;
         private Dropdown animationMenu;
@@ -70,7 +70,7 @@ namespace MirageXR
                 isImageAssignModeActive = value;
                 if (value)
                 {
-                    //turn of all other assign button if is on
+                    // turn of all other assign button if is on
                     foreach (var character in FindObjectsOfType<CharacterController>())
                         if (character != this && character.IsImageAssignModeActive)
                             character.IsImageAssignModeActive = false;
@@ -81,7 +81,7 @@ namespace MirageXR
             }
         }
 
-        //Check the character gender
+        // Check the character gender
         private List<string> _maleNames = new List<string>{ "Boy_A", "Boy_B", "Boy_C", "Fridolin", "Man_A", "Man_B", "Man_C", "Alien" };
         private bool IAmMale
         {
@@ -162,10 +162,10 @@ namespace MirageXR
         {
             Subscribe();
             
-            //The folder where character data will be saved in
+            // The folder where character data will be saved in
             characterDataFolder = Path.Combine(activityManager.ActivityPath, "characterinfo");
 
-            //generate a random color
+            // generate a random color
             _pathNodesColor = new Color(
                 UnityEngine.Random.Range(0f, 1f),
                 UnityEngine.Random.Range(0f, 1f),
@@ -175,15 +175,15 @@ namespace MirageXR
             var objectManipulator = transform.parent.GetComponent<ObjectManipulator>();
             if (objectManipulator)
             {
-                //disable fully one hand manipulation
+                // disable fully one hand manipulation
                 objectManipulator.ManipulationType = Microsoft.MixedReality.Toolkit.Utilities.ManipulationHandFlags.TwoHanded;
-                //only scale on two hand manipulation
+                // only scale on two hand manipulation
                 objectManipulator.TwoHandedManipulationType = Microsoft.MixedReality.Toolkit.Utilities.TransformFlags.Scale;
 
                 objectManipulator.OnManipulationEnded.AddListener(delegate { FitSpeedToSize(); });
             }
 
-            //add NavMeshObstacle to the camera to avoid collision between the camera and the character
+            // add NavMeshObstacle to the camera to avoid collision between the camera and the character
             var cam = Camera.main;
             if (cam.GetComponentInChildren<NavMeshObstacle>() == null)
             {
@@ -205,7 +205,7 @@ namespace MirageXR
             _anim = GetComponentInChildren<Animator>();
             _agent = GetComponent<NavMeshAgent>();
 
-            //create the character setting
+            // create the character setting
             var characterSettingPrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("Characters/CharacterSettingPanel"); 
             if(characterSettingPrefab != null)
             {
@@ -225,7 +225,7 @@ namespace MirageXR
                 animationMenu.onValueChanged.AddListener(delegate { OnAnimationClipChanged(); });
             }
 
-            //create image container
+            // create image container
             var imageContainerPrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("Characters/PictureContainer");
             if(imageContainerPrefab != null)
             {
@@ -233,7 +233,7 @@ namespace MirageXR
                 imageContainer.transform.SetParent(transform.Find("CharacterGroup").transform);
             }
 
-            //create the audio source which will be used by Watson and dialog player
+            // create the audio source which will be used by Watson and dialog player
             CreateAudioSource();
 
             MyAction = activityManager.ActiveAction;
@@ -247,14 +247,14 @@ namespace MirageXR
             _characterSetting.AIToggle.onValueChanged.AddListener(delegate { AddWatsonAssistant(); });
             _characterSetting.PreRecordToggle.onValueChanged.AddListener(delegate { DeactivateAI(); });
 
-            //Do not remove this
+            // Do not remove this
             await Task.Delay(200);
 
-            //sometimes the character be destroyed by keep alive during the delay above
+            // sometimes the character be destroyed by keep alive during the delay above
             if (this == null) return;
 
 
-            //Remove animation clips which not exist for this character from the drobdown list
+            // Remove animation clips which not exist for this character from the drobdown list
             for (int i = animationMenu.options.Count - 1; i > 0; i--)
             {
                 if (_anim.parameters.ToList().Find(c => c.name == animationMenu.options[i].text) == null)
@@ -263,28 +263,28 @@ namespace MirageXR
                 }
             }
 
-            //wait for the character be setup by using JSON data
+            // wait for the character be setup by using JSON data
             await ActivateCharacterOnEnable();
             CharacterParsed = true;
 
-            //if the movement type was not found in the json file use followpath as default(with one node)
+            // if the movement type was not found in the json file use followpath as default(with one node)
             if (MovementType == string.Empty)
             {
                 MovementType = "followPath";
             }
 
-            //sometime after enabling the character some script try to disable it again for any reason, we need to checkit here to avoid getting Coroutine exception
+            // sometime after enabling the character some script try to disable it again for any reason, we need to checkit here to avoid getting Coroutine exception
             if (gameObject.activeInHierarchy)
             {
                 StartCoroutine(WaitForMovementType());
             }
 
-            //If animation clip is display image, move the image annotation to the character poster
+            // If animation clip is display image, move the image annotation to the character poster
             MoveImageToHandPos();
 
             SetEditModeState(activityManager.EditModeActive);
 
-            //if movement is inplace play the audio at the start
+            // if movement is inplace play the audio at the start
             if (Destinations.Count == 1)
             {
                 DialogRecorder.PlayDialog();
@@ -369,7 +369,7 @@ namespace MirageXR
 
             if (!_anim || !_agent || MovementType == string.Empty || !CharacterParsed ) return;
 
-            //Deactivate the animation selector if movement is follow path and loop is on
+            // Deactivate the animation selector if movement is follow path and loop is on
             animationMenu.interactable = !(AgentReturnAtTheEnd && !movementManger.FollowPlayer.isOn);
 
             if (_agent.isActiveAndEnabled)
@@ -382,11 +382,11 @@ namespace MirageXR
                     _agent.updateRotation = true;
                     _agent.updatePosition = true;
 
-                    //start walking animation a bit after moving
+                    // start walking animation a bit after moving
                     if(Vector3.Distance(charPosXZ, destinationPosXZ) > _agent.stoppingDistance + 0.1f)
                         PlayClip("Walk");
 
-                    //if image display is playing stop the particles and hide the image
+                    // if image display is playing stop the particles and hide the image
                     if(animationClipPlaying)
                         StartCoroutine(OnImageDisplayIntro(false));
                 }
@@ -406,7 +406,7 @@ namespace MirageXR
         {
             if (AIActivated && CharacterParsed) return;
 
-            //stop dialog recording before activating AI
+            // stop dialog recording before activating AI
             if (DialogRecorder.isRecording)
             {
                 DialogRecorder.StopDialogRecording();
@@ -414,13 +414,13 @@ namespace MirageXR
 
             DialogRecorder.StopDialog();
 
-            //destroy all Watson services in the scene
+            // destroy all Watson services in the scene
             foreach (var dialogService in FindObjectsOfType<DialogueService>())
             {
                 Destroy(dialogService.transform.parent.gameObject);
             }
 
-            //Set back the audio mode for all characters to pre-record, except for me
+            // Set back the audio mode for all characters to pre-record, except for me
             foreach (var character in FindObjectsOfType<CharacterController>())
             {
                 if (character != this)
@@ -429,7 +429,7 @@ namespace MirageXR
                 }
             }
 
-            //Create a new Watson assistant for this character
+            // Create a new Watson assistant for this character
             var watsonServicePrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("Characters/IBMWatsonAssistant");  
             if (watsonServicePrefab != null)
             {
@@ -492,13 +492,13 @@ namespace MirageXR
 
         private IEnumerator WaitForMovementType()
         {
-            //wait until the movement type is set
+            // wait until the movement type is set
             while(MovementType == string.Empty)
             {
                 yield return null;
             }
 
-            //wait until the destination is set for followpath movement
+            // wait until the destination is set for followpath movement
             if (MovementType == "followpath")
             {
                 while (Destinations == null || Destinations.Count == 0)
@@ -507,7 +507,7 @@ namespace MirageXR
                 }
             }
 
-            //set the movement type
+            // set the movement type
             switch (MovementType)
             {
                 case "followpath":
@@ -523,7 +523,7 @@ namespace MirageXR
                     break;
             }
 
-            //set the color of my destinations nodes
+            // set the color of my destinations nodes
             if (Destinations != null && Destinations.Count > 0)
             {
                 foreach (var node in Destinations)
@@ -549,7 +549,7 @@ namespace MirageXR
 
         public async void FollowPlayer()
         {
-            //if after loading movement set to follow path but there is no nodes then create one
+            // if after loading movement set to follow path but there is no nodes then create one
             if (Destinations == null || Destinations.Count == 0)
             {
                 Destinations = new List<GameObject>();
@@ -570,7 +570,7 @@ namespace MirageXR
             }
 
             MovementType = movementManger.FollowPlayer.isOn ? "followplayer" : "followpath";
-            //sometime after enabling the character some script try to disable it again for any reason, we need to checkit here to avoid getting Coroutine exception
+            // sometime after enabling the character some script try to disable it again for any reason, we need to checkit here to avoid getting Coroutine exception
             if (gameObject.activeInHierarchy)
             {
                 StartCoroutine(WaitForMovementType());
@@ -581,7 +581,7 @@ namespace MirageXR
         {
             var destinationPoints = new DestinationPoints();
 
-            //prepare the movementType and the destination nodes
+            // prepare the movementType and the destination nodes
             switch (MovementType)
             {
                 case "followpath":
@@ -601,8 +601,8 @@ namespace MirageXR
                 case "followplayer":
                     break;
                 default:
-                    //This is because we only add moveType in the augmentationEditor at the beggining and might be null in other step
-                    //TODO: Later should in each step movementType be set seperately
+                    // This is because we only add moveType in the augmentationEditor at the beggining and might be null in other step
+                    // TODO: Later should in each step movementType be set seperately
                     var characterOriginalStep = stepsSettings.Find(a => a.actionId != string.Empty);
                     if (characterOriginalStep != null)
                     {
@@ -638,13 +638,13 @@ namespace MirageXR
             {
                 if (action.enter.activates.Find(p => p.poi == _myObj.poi) != null)
                 {
-                    //create a new step to keep current step settings for this character
+                    // create a new step to keep current step settings for this character
                     var step = new StepSettings
                     {
                         actionId = action.id
                     };
 
-                    //Each time we call this method the json file will be regenrated with all steps settings the:
+                    // Each time we call this method the json file will be regenrated with all steps settings the:
                     // save the active step settings for the character
                     if(step.actionId == activityManager.ActiveActionId)
                     {
@@ -1375,10 +1375,10 @@ namespace MirageXR
                 var dialogpath = audioPlayer.AudioName.Replace("http:/", arlemPath);
                 if (File.Exists(dialogpath))
                 {
-                    //reset the dialog recorder for recording again if needed
+                    // reset the dialog recorder for recording again if needed
                     DialogRecorder.ResetDialogRecorder();
 
-                    //delete the old dialog
+                    // delete the old dialog
                     File.Delete(dialogpath);
                 }
             }

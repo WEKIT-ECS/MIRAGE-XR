@@ -15,7 +15,7 @@ public class VideoEditorView : PopupEditorBase
     public override ContentType editorForType => ContentType.VIDEO;
 
     [SerializeField] private Transform _imageHolder;
-    [SerializeField] private Image _image;      //TODO: replace image preview with a video  
+    [SerializeField] private Image _image;      // TODO: replace image preview with a video  
     [SerializeField] private Button _btnCaptureVideo;
     [SerializeField] private Toggle _toggleTrigger;
     [SerializeField] private Toggle _toggleOrientation;

@@ -23,7 +23,7 @@ public class CropHandeler : MonoBehaviour
 
     private void OnPostRender()
     {
-        //take screenshot on the next fram in order to capture UI elements
+        // take screenshot on the next fram in order to capture UI elements
         if (takeScreenShotOnNextFrame)
         {
             Debug.Log("taking screenshot next frame");
@@ -31,7 +31,7 @@ public class CropHandeler : MonoBehaviour
             takeScreenShotOnNextFrame = false;
             RenderTexture renderTexture = myCamera.targetTexture;
 
-            //creates a texture from the camera view
+            // creates a texture from the camera view
             Texture2D renderResult = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.ARGB32, false);
             Rect rect = new Rect(0, 0, renderTexture.width, renderTexture.height);
             renderResult.ReadPixels(rect, 0, 0);
@@ -39,12 +39,12 @@ public class CropHandeler : MonoBehaviour
 
             RR = renderResult;
 
-            //converts the texture into a JPG
+            // converts the texture into a JPG
             byteArray = renderResult.EncodeToJPG();
 
             Console.Out.WriteLine(byteArray.Length);
 
-            //saves the JPG to the given file path
+            // saves the JPG to the given file path
             System.IO.File.WriteAllBytes(screenShotName, byteArray);
 
             RenderTexture.ReleaseTemporary(renderTexture);

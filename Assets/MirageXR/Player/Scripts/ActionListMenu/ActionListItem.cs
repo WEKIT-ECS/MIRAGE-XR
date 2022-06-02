@@ -82,7 +82,7 @@ public class ActionListItem : MonoBehaviour
             }
         }
 
-        //enable/disable this as raycast target for empty or none empty rows
+        // enable/disable this as raycast target for empty or none empty rows
         foreach (var textComponent in gameObject.GetComponentsInChildren<Text>())
         {
             textComponent.raycastTarget = Content != null;
@@ -99,7 +99,7 @@ public class ActionListItem : MonoBehaviour
     public void DeleteAction()
     {
         if (activityManager.ActionsOfTypeAction.Count > 1)
-        {    //unchild the task station menu before destroying the TS
+        {    // unchild the task station menu before destroying the TS
             TaskStationDetailMenu.Instance.gameObject.transform.SetParent(null);
             DialogWindow.Instance.Show("Warning!", "Are you sure you want to delete this step?",
                 new DialogButtonContent("Yes", () => activityManager.DeleteAction(Content.id)),

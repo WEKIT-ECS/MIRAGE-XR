@@ -130,8 +130,8 @@ namespace MirageXR
                                     {
                                         obj.option = obj.predicate.Replace("vfx:", "");
 
-                                        //obj.predicate = "glyph";
-                                        obj.url = "resources://" + obj.predicate;
+                                        // obj.predicate = "glyph";
+                                        obj.url = "resources:// " + obj.predicate;
 
                                         DestroyPrefab(obj);
                                     }
@@ -140,7 +140,7 @@ namespace MirageXR
                                         obj.option = obj.predicate.Replace("char:", "");
 
                                         //obj.predicate = "character";
-                                        obj.url = "resources://" + obj.predicate;
+                                        obj.url = "resources:// " + obj.predicate;
 
                                         DestroyPrefab(obj);
                                     }
@@ -242,9 +242,9 @@ namespace MirageXR
                         case "hands":
                             if (isActivating)
                                 Debug.Log("hands activated");
-                            //ActivatePrefab("HandsPrefab", obj);
-                            //else
-                            // DestroyPrefab(obj);
+                            // ActivatePrefab("HandsPrefab", obj);
+                            // else
+                            //  DestroyPrefab(obj);
                             break;
 
                         // Image type.
@@ -338,7 +338,7 @@ namespace MirageXR
             GameObject temp = null;
             var activeActionIndex = actionList.IndexOf(activityManager.ActiveAction);
 
-            //if we are in the active step and the annotaiton exists in this step
+            // if we are in the active step and the annotaiton exists in this step
             if (actionList[activeActionIndex] == activityManager.ActiveAction
                 && actionList[activeActionIndex].enter.activates.Find(p => p.poi == obj.poi) != null)
             {
@@ -348,16 +348,16 @@ namespace MirageXR
                 {
                     var annotationChildren = objIfExist.transform.childCount;
 
-                    //prevent duplication
+                    // prevent duplication
                     if (annotationChildren > 0)
                     {
                         DestroyPrefab(obj);
                     }
                 }
 
-                //Get the prefab from the references
+                // Get the prefab from the references
                 var prefabInAddressable = await ReferenceLoader.GetAssetReferenceAsync<GameObject>(prefab);
-                //if the prefab reference has been found successfully
+                // if the prefab reference has been found successfully
                 if (prefabInAddressable != null)
                 {
                     temp = Instantiate(prefabInAddressable, Vector3.zero, Quaternion.identity);
@@ -408,7 +408,7 @@ namespace MirageXR
                     boundingBox.CustomRotationHandlesConfiguration = Resources.Load<RotationHandlesConfiguration>("Prefabs/CustomBoundingRotationHandlesConfiguration");
                     await boundingBox.AddBoundingBox(annotationToggleObject, BoundsCalculationMethod.RendererOverCollider, false, true, BoundingRotationType.ALL, true);
 
-                    //disable rotation for image
+                    // disable rotation for image
                     if (DisableBoundingRotation(annotationToggleObject))
                     {
                         boundingBox.CustomRotationHandlesConfiguration.ShowHandleForX = false;
@@ -436,7 +436,7 @@ namespace MirageXR
             var boundingState = false;
             var annotationName = annotationToggleObject.predicate.ToLower();
 
-            //add any other augmentation which need bounding box be disabled for, in this statement.
+            // add any other augmentation which need bounding box be disabled for, in this statement.
             if (annotationName == "act:measure")
             {
                 boundingState = true;

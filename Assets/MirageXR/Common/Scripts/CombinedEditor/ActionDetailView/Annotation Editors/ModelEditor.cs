@@ -17,7 +17,7 @@ namespace MirageXR
         {
             action = null;
             annotationToEdit = null;
-            //gameObject.SetActive(false);
+            // gameObject.SetActive(false);
             Destroy(gameObject);
         }
 
