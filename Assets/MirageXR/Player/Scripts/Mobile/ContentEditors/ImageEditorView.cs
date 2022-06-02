@@ -9,7 +9,7 @@ using Image = UnityEngine.UI.Image;
 public class ImageEditorView : PopupEditorBase
 {
     private static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
-    private string ArlemFolderPath = RootObject.Instance.activityManager.ActivityPath;
+    private ActivityManager activityManager => RootObject.Instance.activityManager;
 
     public override ContentType editorForType => ContentType.IMAGE;
 
@@ -55,7 +55,7 @@ public class ImageEditorView : PopupEditorBase
             // delete the previous image file
             var imageName = _content.url;
             var originalFileName = Path.GetFileName(imageName.Remove(0, HTTP_PREFIX.Length));
-            var originalFilePath = Path.Combine(ArlemFolderPath, originalFileName);
+            var originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
             if (File.Exists(originalFilePath))
             {
                 File.Delete(originalFilePath);
@@ -71,7 +71,7 @@ public class ImageEditorView : PopupEditorBase
 
 
         var saveFileName = $"MirageXR_Image_{DateTime.Now.ToFileTimeUtc()}.jpg";
-        var outputPath = Path.Combine(ArlemFolderPath, saveFileName);
+        var outputPath = Path.Combine(activityManager.ActivityPath, saveFileName);
         File.WriteAllBytes(outputPath, _capturedImage.EncodeToJPG());
 
         _content.url = HTTP_PREFIX + saveFileName;
@@ -86,7 +86,7 @@ public class ImageEditorView : PopupEditorBase
         if (_content != null && !string.IsNullOrEmpty(_content.url))
         {
             var originalFileName = Path.GetFileName(_content.url.Remove(0, HTTP_PREFIX.Length));
-            var originalFilePath = Path.Combine(ArlemFolderPath, originalFileName);
+            var originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
 
             if (!File.Exists(originalFilePath)) return;
 
@@ -94,7 +94,6 @@ public class ImageEditorView : PopupEditorBase
             SetPreview(texture2D);
         }
     }
-
 
     private void OnToggleOrientationValueChanged(bool value)
     {
@@ -129,7 +128,7 @@ public class ImageEditorView : PopupEditorBase
 
         var rtImageHolder = (RectTransform)_imageHolder.transform;
         var rtImage = (RectTransform)_image.transform;
-        var height = rtImage.rect.width / _capturedImage.width * _capturedImage.height + (rtImage.sizeDelta.y * -1);
+        var height = (rtImage.rect.width / _capturedImage.width * _capturedImage.height) + (rtImage.sizeDelta.y * -1);
         rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
 
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);

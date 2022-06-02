@@ -6,20 +6,17 @@ namespace MirageXR
 {
     public class FloatingImageViewer : MirageXRPrefab
     {
+        private ActivityManager activityManager => RootObject.Instance.activityManager;
+
         private float _width = 0.4f;
         private float _height = 0.3f;
-
-        private string ArlemFolderPath = RootObject.Instance.activityManager.ActivityPath;
 
         [Tooltip("Image file. .jpg and .png formats supported")]
 
         [SerializeField] private string imageName = "image.jpg";
         [Tooltip("Set to false to read from project's 'Resources' folder; set to true to read from applications 'LocalState' folder on HoloLens, or online, if filename starts with 'http'")]
         [SerializeField] private bool useExternalSource = false;
-
         [SerializeField] private bool InPanel;
-
-
         [SerializeField] private GameObject BackgroundPortrait;
         [SerializeField] private GameObject BackgroundLandscape;
         [SerializeField] private GameObject FramePortrait;
@@ -183,7 +180,7 @@ namespace MirageXR
                 var url = imageName.Split('/');
                 var filename = url[url.Length - 1];
 
-                var completeImageName = "file://" + ArlemFolderPath + "/" + filename;
+                var completeImageName = $"file://{activityManager.ActivityPath}/{filename}";
 
                 Debug.Log("Trying to load image from:" + completeImageName);
 
