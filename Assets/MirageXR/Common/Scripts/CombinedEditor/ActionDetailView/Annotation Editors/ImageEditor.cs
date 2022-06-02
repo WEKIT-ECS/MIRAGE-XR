@@ -48,7 +48,7 @@ public class ImageEditor : MonoBehaviour
         _capturedImage = null;
         if (IsThumbnail)
         {
-            //show the last thumbnail on previewImage
+            // show the last thumbnail on previewImage
             var thumbnailPath = Path.Combine(ActivityManager.Instance.Path, "thumbnail.jpg");
             if (File.Exists(thumbnailPath))
             {
@@ -65,7 +65,7 @@ public class ImageEditor : MonoBehaviour
             label.text = "Edit Image";
         }
 
-        //Check if any character will use this image
+        // Check if any character will use this image
         if (annotation != null)
         {
             foreach (var character in FindObjectsOfType<MirageXR.CharacterController>())
@@ -123,7 +123,7 @@ public class ImageEditor : MonoBehaviour
 
         SaveImage();
 
-        //dont add the thumbnail to the activity
+        // don't add the thumbnail to the activity
         if (!IsThumbnail)
         {
             _annotationToEdit.url = httpPrefix + _saveFileName;

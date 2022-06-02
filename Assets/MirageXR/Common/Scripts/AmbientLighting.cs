@@ -12,18 +12,18 @@ namespace MirageXR
 
             transform.position = Camera.main.transform.position;
 
-            //create sun (with enabled shadow)
+            // create sun (with enabled shadow)
             var sunPrefab = await ReferenceLoader.GetAssetReference("Sun");
 
             if (sunPrefab == null) return;
 
             var sun = Instantiate(sunPrefab, transform.position * Random.Range(2, 5), Quaternion.Euler(50, -30, 0));
 
-            //disable shadow on Hololens
+            // disable shadow on Hololens
             if (PlatformManager.Instance.WorldSpaceUi)
                 sun.GetComponent<Light>().shadows = LightShadows.None;
 
-                //create 4 point lights 
+                // create 4 point lights 
                 for (int i = 0; i < numberOfLights; i++)
                 {
                     Vector3 startPosition = transform.position + transform.forward * Random.Range(-5, 5) + transform.right * Random.Range(-5, 5);

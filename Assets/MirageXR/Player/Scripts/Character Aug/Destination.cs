@@ -56,7 +56,7 @@ namespace MirageXR
         }
 
 
-        //bring the model a bit up to avoinding it to fall into the floor
+        // bring the model a bit up to avoinding it to fall into the floor
         private void AvoidSpatialCover()
         {
             if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 1, LayerMask.NameToLayer("Spatial Awareness")))
@@ -96,7 +96,7 @@ namespace MirageXR
         {
             MyCharacter.transform.localScale = transform.localScale * 5;
 
-            //resize all other nodes as this one
+            // resize all other nodes as this one
             MyCharacter.Destinations.ForEach(d => { if (d != gameObject) d.transform.localScale = transform.localScale; });
         }
 
@@ -119,10 +119,10 @@ namespace MirageXR
             var charPosXZ = new Vector3(MyCharacter.transform.position.x, 0, MyCharacter.transform.position.z);
             var MyPosXZ = new Vector3(transform.position.x, 0, transform.position.z);
 
-            //if there is only one node and it is me
+            // if there is only one node and it is me
             if (MyCharacter.Destinations.Count == 1)
             {
-                //The character position when there is only one node
+                // The character position when there is only one node
                 if (MyCharacter.MovementType != "followplayer")
                 {
                     MyCharacter.GetComponent<NavMeshAgent>().updatePosition = false;
@@ -132,13 +132,13 @@ namespace MirageXR
                 MyCharacter.SelectClip();
             }
 
-            //last node decides the rotation of the character
+            // last node decides the rotation of the character
             else if (MyCharacter.Destinations[MyCharacter.Destinations.Count - 1] == gameObject &&
                 Vector3.Distance(charPosXZ, MyPosXZ) <= MyCharacter.Agent.stoppingDistance &&
                 MyCharacter.transform.localRotation != transform.localRotation)
                 MyCharacter.transform.localRotation = Quaternion.Lerp(MyCharacter.transform.localRotation, transform.localRotation, 0.5f);
 
-            //show the pointer if this node is the last node
+            // show the pointer if this node is the last node
             pointer.gameObject.SetActive(MyCharacter.Destinations[MyCharacter.Destinations.Count - 1] == gameObject);
         }
 
@@ -153,7 +153,7 @@ namespace MirageXR
 
             DeactiveAllNodeBounding();
 
-            //remeke the destination list without this node
+            // remeke the destination list without this node
             List<GameObject> newDestinations = new List<GameObject>();
 
             foreach (GameObject des in MyCharacter.Destinations)
@@ -162,7 +162,7 @@ namespace MirageXR
                 {
                     newDestinations.Add(des);
 
-                    //refresh the numbers
+                    // refresh the numbers
                     des.GetComponent<Destination>().GetNumber().text = (newDestinations.FindIndex(x => x == des) + 1).ToString();
                 }
 
@@ -171,13 +171,13 @@ namespace MirageXR
             MyCharacter.Destinations = newDestinations;
             MyCharacter.SaveJson();
 
-            //follow next node
+            // follow next node
             MyCharacter.FollowThePath(MyCharacter.Destinations.Count - 1, false);
 
-            //activate bounding of the last node
+            // activate bounding of the last node
             MyCharacter.Destinations[MyCharacter.Destinations.Count - 1].GetComponent<BoundsControl>().Active = true;
 
-            //delete this node
+            // delete this node
             Destroy(gameObject);
 
         }
@@ -201,7 +201,7 @@ namespace MirageXR
 
             GameObject newDesNodeModel = Instantiate(gameObject, transform.position + new Vector3(0.1f, 0, 0), transform.rotation);
 
-            //activate the boundingbox of the new node
+            // activate the boundingbox of the new node
             newDesNodeModel.GetComponent<BoundsControl>().Active = true;
 
             Destination newDestination = newDesNodeModel.GetComponent<Destination>();
@@ -210,13 +210,13 @@ namespace MirageXR
             newDesNodeModel.transform.SetParent(transform.parent);
             MyCharacter.Destinations.Add(newDesNodeModel);
 
-            //update the index num
+            // update the index num
             newDestination.UpdateIndexNumber();
 
-            //follow the new node
+            // follow the new node
             MyCharacter.FollowThePath(MyCharacter.Destinations.Count - 1, false);
 
-            //save json file again
+            // save json file again
             MyCharacter.SaveJson();
         }
 

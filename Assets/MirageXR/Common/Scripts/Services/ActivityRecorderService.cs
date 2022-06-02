@@ -26,8 +26,7 @@ namespace MirageXR
 
         public TrialPartner CurrentTrialPartner;
 
-        //private VestSensor myVest;
-
+        // private VestSensor myVest;
         private GameObject debugText { get; set; }
         private Text txtDebug;
 
@@ -72,8 +71,8 @@ namespace MirageXR
             worldOrigin = ObjectPool<GameObject>.RequestResource(() => { return new GameObject(); });
             worldOrigin.name = "World Origin";
 
-            //myVest = new VestSensor();
-            //myVest.StartCapture();
+            // myVest = new VestSensor();
+            // myVest.StartCapture();
 
             debugText = GameObject.Find("HUD/Text");
             txtDebug = debugText.GetComponent<Text>();
@@ -86,7 +85,7 @@ namespace MirageXR
 
             if (AppSelection.ActivityToLoad != null)
             {
-                //myActivity = LoadModelFromJSON(AppSelection.activityToLoad);
+                // myActivity = LoadModelFromJSON(AppSelection.activityToLoad);
 
             } // if loading existing activity
 
@@ -151,7 +150,7 @@ namespace MirageXR
                 Debug.Log("the origin's scale factor is " + RecordingOrigin.localScale.ToString());
 
                 Maggie.Speak("Calibration complete. Double tap to place a task station.");
-                //taskStationList[0].GetComponent<TaskStationController>().SaveImagetarget(trackableID);
+                // taskStationList[0].GetComponent<TaskStationController>().SaveImagetarget(trackableID);
             }
         }
 
@@ -174,7 +173,7 @@ namespace MirageXR
 
         private void DrawLines()
         {
-            //only connects the last task station to allow editing
+            // only connects the last task station to allow editing
             if (taskStationList[0].GetComponent<LineRenderer>() == null)
             {
                 lineRenderer = taskStationList[0].AddComponent<LineRenderer>();
@@ -192,7 +191,7 @@ namespace MirageXR
 
             for (int i = taskStationList.Count - 1; i >= 0; i--)
             {
-                //since each positioncount in linerenderer only needs one point to draw one segment we do not store the point of the last
+                // since each positioncount in linerenderer only needs one point to draw one segment we do not store the point of the last
                 Points[i] = taskStationList[i].GetComponent<Renderer>().bounds.center;
             }
 
@@ -330,7 +329,7 @@ namespace MirageXR
             }
 
             // remove arlem action
-            //myActivity.actions.Remove(myActivity.actions[TS2delete]);
+            // myActivity.actions.Remove(myActivity.actions[TS2delete]);
 
             taskStationList.Remove(taskStationList[TS2delete]);
 
@@ -345,7 +344,7 @@ namespace MirageXR
                 ts.GetComponent<TaskStationController>().ToggleMenu();
 
             }
-            //myVest.StopCapture();
+            // myVest.StopCapture();
             UpdateDataModel();
 
             int idx = CurrentArlemFolder.LastIndexOf('/') + 1;
@@ -378,7 +377,7 @@ namespace MirageXR
 
             // add activity level ARLEM details
             myActivity.id = dirBase;
-            //myActivity.name = "WEKIT Trial - " + dirBase;
+            // myActivity.name = "WEKIT Trial - " + dirBase;
             myActivity.language = "English";
             myActivity.start = taskStationList.First().GetComponent<TaskStationController>().ThisAction.id;
 
@@ -426,7 +425,7 @@ namespace MirageXR
 
         private void TaskStationClicked(GameObject selectedObject)
         {
-            //in case the active task station has been deleted.
+            // in case the active task station has been deleted.
             if (ActiveTaskStation == null)
             {
                 ActiveTaskStation = taskStationList.Last();
@@ -474,7 +473,7 @@ namespace MirageXR
 
             if (ActiveTaskStation != null) // pass to task station controller for checking 
             {
-                //activeTaskStation.GetComponent<TaskStationController>().ReportInputClick(e.SelectedObject);
+                // activeTaskStation.GetComponent<TaskStationController>().ReportInputClick(e.SelectedObject);
             }
         }
         
@@ -495,37 +494,37 @@ namespace MirageXR
 
             if (ActiveTaskStation != null) // pass to task station controller for checking 
             {
-                //activeTaskStation.GetComponent<TaskStationController>().ReportInputClick(e.SelectedObject);
+                // activeTaskStation.GetComponent<TaskStationController>().ReportInputClick(e.SelectedObject);
             }
         }
 
-        //public void ActOnTaps(InteractionSourceKind source, int tapCount, Ray headRay)
-        //{
-        //    Debug.Log("Tap recognized");
-        //    if (Physics.Raycast(headRay, out hitInfo, 10.0f, Physics.DefaultRaycastLayers)) // the raycast hit an augmentation
-        //    {
-        //        focusedObject = hitInfo.collider.gameObject;
-        //        Debug.Log("Object hit: " + focusedObject.name);
-
-        //        if (focusedObject.transform.parent != null)
-        //        {
-        //            if (focusedObject.transform.parent.name == "SpatialMapping" && tapCount > 1) // the user double-tapped the spatial map
-        //            {
-        //                AddTaskStation(hitInfo.point);
-        //            }
-
-        //            else if (taskStationList.Contains(focusedObject)) // the user tapped a task station => open the menu
-        //            {
-        //                TaskStationClicked(focusedObject);
-        //            }
-        //        }
-
-        //        if (activeTaskStation != null) // pass to task station controller for checking 
-        //        {
-        //            activeTaskStation.GetComponent<TaskStationController>().ReportInputClick(focusedObject, tapCount, hitInfo);
-        //        }
-        //    }
-        //}
+        // public void ActOnTaps(InteractionSourceKind source, int tapCount, Ray headRay)
+        // {
+        //     Debug.Log("Tap recognized");
+        //     if (Physics.Raycast(headRay, out hitInfo, 10.0f, Physics.DefaultRaycastLayers)) // the raycast hit an augmentation
+        //     {
+        //         focusedObject = hitInfo.collider.gameObject;
+        //         Debug.Log("Object hit: " + focusedObject.name);
+           
+        //         if (focusedObject.transform.parent != null)
+        //         {
+        //             if (focusedObject.transform.parent.name == "SpatialMapping" && tapCount > 1) // the user double-tapped the spatial map
+        //             {
+        //                 AddTaskStation(hitInfo.point);
+        //             }
+           
+        //             else if (taskStationList.Contains(focusedObject)) // the user tapped a task station => open the menu
+        //             {
+        //                 TaskStationClicked(focusedObject);
+        //             }
+        //         }
+           
+        //         if (activeTaskStation != null) // pass to task station controller for checking 
+        //         {
+        //             activeTaskStation.GetComponent<TaskStationController>().ReportInputClick(focusedObject, tapCount, hitInfo);
+        //         }
+        //     }
+        // }
 
 
         public void ClearScene()
@@ -555,4 +554,4 @@ namespace MirageXR
         }
     }   // activityservice class
 
-}   //namespace
+}   // namespace

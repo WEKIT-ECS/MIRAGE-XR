@@ -152,7 +152,7 @@ public class DeviceMqttBehaviour : MonoBehaviour
         Debug.Log("Connection established.");
         // Instantiate a sensor container.
 
-        //_sensorDisplay.name = _sensor.id;
+        // _sensorDisplay.name = _sensor.id;
 
         // Set name & display title.
         _sensorContainer.gameObject.name = _sensor.id;

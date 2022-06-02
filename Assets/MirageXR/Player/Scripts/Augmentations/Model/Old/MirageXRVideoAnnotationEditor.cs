@@ -156,44 +156,44 @@ public class MirageXRVideoAnnotationEditor : MonoBehaviour
     IEnumerator PlayVideo()
     {
         videoDisplay.GetComponent<Renderer>().enabled = true;
-        //Add VideoPlayer to the GameObject
+        // Add VideoPlayer to the GameObject
         videoPlayer = GameObject.Find("VideoDisplay").AddComponent<VideoPlayer>();
-        //videoPlayer = gameObject.transform.Find("VideoDisplay").
+        // videoPlayer = gameObject.transform.Find("VideoDisplay").
         
         Debug.Log("Video Player Name: " + videoPlayer.name);
 
-        //Add AudioSource
-        //audioSource = gameObject.AddComponent<AudioSource>();
+        // Add AudioSource
+        // audioSource = gameObject.AddComponent<AudioSource>();
 
-        //Disable Play on Awake for both Video and Audio
+        // Disable Play on Awake for both Video and Audio
         videoPlayer.playOnAwake = true;
-        //audioSource.playOnAwake = false;
+        // audioSource.playOnAwake = false;
 
-//        string url = System.IO.Path.Combine(Application.persistentDataPath, SaveFileName);
+        // string url = System.IO.Path.Combine(Application.persistentDataPath, SaveFileName);
         string url = System.IO.Path.Combine(ServiceManager.GetService<ActivityRecorderService>().CurrentArlemFolder, SaveFileName);
 
 #if !UNITY_EDITOR && UNITY_ANDROID
             url = System.IO.Path.Combine(Application.persistentDataPath, SaveFileName);
 #endif
-        //We want to play from video clip not from url
+        // We want to play from video clip not from url
         videoPlayer.source = VideoSource.Url;
         videoPlayer.url = url;
 
         Debug.Log("Video Player URL: " + videoPlayer.url);
 
-        //Set Audio Output to AudioSource
-        //videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
-
-        //Assign the Audio from Video to AudioSource to be played
-        //videoPlayer.EnableAudioTrack(0, true);
-        //videoPlayer.SetTargetAudioSource(0, audioSource);
-
-        //Set video To Play then prepare Audio to prevent Buffering
-        //videoPlayer.clip = videoToPlay;
+        // Set Audio Output to AudioSource
+        // videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
+           
+        // Assign the Audio from Video to AudioSource to be played
+        // videoPlayer.EnableAudioTrack(0, true);
+        // videoPlayer.SetTargetAudioSource(0, audioSource);
+           
+        // Set video To Play then prepare Audio to prevent Buffering
+        // videoPlayer.clip = videoToPlay;
 
         videoPlayer.Prepare();
 
-        //Wait until video is prepared
+        // Wait until video is prepared
         while (!videoPlayer.isPrepared)
         {
             Debug.Log("Preparing Video");
@@ -202,14 +202,14 @@ public class MirageXRVideoAnnotationEditor : MonoBehaviour
 
         Debug.Log("Done Preparing Video " + videoPlayer.url);
 
-        //Assign the Texture from Video to RawImage to be displayed
+        // Assign the Texture from Video to RawImage to be displayed
         image.texture = videoPlayer.texture;
         videoDisplay.GetComponent<Renderer>().material.mainTexture = image.texture;
 
-         //Play Video
+         // Play Video
         videoPlayer.Play();
 
-        //Play Sound
+        // Play Sound
         //audioSource.Play();
 
         Debug.Log("Playing Video");

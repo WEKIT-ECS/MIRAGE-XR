@@ -80,13 +80,13 @@ public class GhosttrackEditor : MonoBehaviour
         {
             EventManager.DeactivateObject(_annotationToEdit);
 
-            //delete old xml file
+            // delete old xml file
             var xmlPath = $"{ActivityManager.Instance.Path}/MirageXR_Ghost_{_annotationToEdit.poi}.xml";
             if (File.Exists(xmlPath))
             {
                 File.Delete(xmlPath);
             }
-            //delete old audio annotation before creating a new one
+            // delete old audio annotation before creating a new one
             ActivityManager.Instance.ActionsOfTypeAction.ForEach(a => 
             { 
                 if (a.enter.activates.Contains(_annotationToEdit) && _annotationToEdit.option.Contains(":")) 
@@ -130,7 +130,7 @@ public class GhosttrackEditor : MonoBehaviour
         audioAnnotation.url = $"http://{_audioFileName}";
 
 
-        //Set the gender option
+        // Set the gender option
         if (_annotationToEdit.option.Contains(":"))
         {
             var temp = _annotationToEdit.option.Split(':')[0];
@@ -138,10 +138,10 @@ public class GhosttrackEditor : MonoBehaviour
         }
         else
         {
-            _annotationToEdit.option = _isFemaleGender ? "GhosttrackPrefabFemale" : "GhosttrackPrefab"; //TODO:It's not a good idea to send the name of the prefab.
+            _annotationToEdit.option = _isFemaleGender ? "GhosttrackPrefabFemale" : "GhosttrackPrefab"; // TODO:It's not a good idea to send the name of the prefab.
         }
 
-        //then add the audio poi to option after the gender
+        // then add the audio poi to option after the gender
         _annotationToEdit.option += ":" + audioAnnotation.poi;
 
         EventManager.ActivateObject(_annotationToEdit);
@@ -235,7 +235,7 @@ public class GhosttrackEditor : MonoBehaviour
             // call to setPoint must happen first to allow AugOrigin to be used in the FixedUpdate loop
             SetPoint();
 
-            _augOrigin = GameObject.Find(_action.id).transform;  //TODO: possible NRE. replace with direct ref
+            _augOrigin = GameObject.Find(_action.id).transform;  // TODO: possible NRE. replace with direct ref
                 
             var timeStamp = System.DateTime.Now.ToFileTimeUtc();
             _audioFileName =  $"MirageXR_Audio_{timeStamp}.wav";

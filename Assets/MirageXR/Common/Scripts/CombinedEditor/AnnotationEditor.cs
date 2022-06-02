@@ -37,7 +37,7 @@ public class AnnotationEditor : MonoBehaviour
 
     public void DeleteAnnotation()
     {
-        //hide the binder if is linked to deleted button
+        // hide the binder if is linked to deleted button
         if (TaskStationDetailMenu.Instance.SelectedButton == GetComponent<Button>())
             TaskStationDetailMenu.Instance.SelectedButton = null;
 

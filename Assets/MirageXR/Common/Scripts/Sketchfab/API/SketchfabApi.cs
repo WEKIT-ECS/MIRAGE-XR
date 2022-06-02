@@ -41,7 +41,7 @@ namespace Sketchfab
             IDLE,
             CHECK_VERSION,
             REQUEST_CODE,
-            //GET_CATEGORIES,
+            // GET_CATEGORIES,
             USER_ACCOUNT_TYPE,
             CAN_PRIVATE,
             PUBLISH_MODEL
@@ -94,8 +94,8 @@ namespace Sketchfab
         SketchfabRequest _publisher;
         public string _uploadSource = "Unity-exporter";
 
-        //Dictionary<string, string> categories = new Dictionary<string, string>();
-        //List<string> categoriesNames = new List<string>();
+        // Dictionary<string, string> categories = new Dictionary<string, string>();
+        // List<string> categoriesNames = new List<string>();
         private string _lastModelUrl;
 
         private bool _isUserPro;
@@ -139,7 +139,7 @@ namespace Sketchfab
             return SketchfabPlugin.VERSION == _latestVersion;
         }
 
-        //Setup callbacks
+        // Setup callbacks
         public void SetUploadSuccessCb(Callback callback)
         {
             _uploadSuccess = callback;
@@ -186,10 +186,10 @@ namespace Sketchfab
             _publisher.SaveAccessToken(_access_token);
         }
 
-        //public void AuthoriseUser(string client_id, string redirect_uri)
-        //{
-        //	string url = System.String.Format(apiURL + authorizeEndpoint + "?client_id={0}&redirect_uri={1}&response_type={2}",
-        //		client_id, redirect_uri, "code");
+        // public void AuthoriseUser(string client_id, string redirect_uri)
+        // {
+        // 	string url = System.String.Format(apiURL + authorizeEndpoint + "?client_id={0}&redirect_uri={1}&response_type={2}",
+        // 		client_id, redirect_uri, "code");
 
 
 
@@ -281,23 +281,23 @@ namespace Sketchfab
             return _userDisplayName;
         }
 
-        //void relog()
-        //{
-        //	if(publisher && publisher.getState() == ExporterState.REQUEST_CODE)
-        //	{
-        //		return;
-        //	}
-        //	if (user_name.Length == 0)
-        //	{
-        //		user_name = EditorPrefs.GetString(usernameEditorKey);
-        //		//user_password = EditorPrefs.GetString(passwordEditorKey);
-        //	}
-
-        //	if (publisher && user_name.Length > 0 && user_password.Length > 0)
-        //	{
-        //		publisher.oauth(user_name, user_password);
-        //	}
-        //}
+        // void relog()
+        // {
+        // 	if(publisher && publisher.getState() == ExporterState.REQUEST_CODE)
+        // 	{
+        // 		return;
+        // 	}
+        // 	if (user_name.Length == 0)
+        // 	{
+        // 		user_name = EditorPrefs.GetString(usernameEditorKey);
+        // 		//user_password = EditorPrefs.GetString(passwordEditorKey);
+        // 	}
+           
+        // 	if (publisher && user_name.Length > 0 && user_password.Length > 0)
+        // 	{
+        // 		publisher.oauth(user_name, user_password);
+        // 	}
+        // }
 
         private void CheckAccessTokenValidity()
         {
@@ -305,7 +305,7 @@ namespace Sketchfab
             if (_access_token.Length > 0 && currentTimeSecond - lastTokenTime > expiresIn)
             {
                 _access_token = "";
-                //relog();
+                // relog();
             }
         }
 
@@ -360,15 +360,15 @@ namespace Sketchfab
                         _uploadFailed?.Invoke();
                     }
                     break;
-                //case ExporterState.GET_CATEGORIES:
-                //	string jsonify = this.jsonify(www.text);
-                //	if (!jsonify.Contains("results"))
-                //	{
-                //		Debug.Log(jsonify);
-                //		Debug.Log("Failed to retrieve categories");
-                //		publisher.setIdle();
-                //		break;
-                //	}
+                // case ExporterState.GET_CATEGORIES:
+                // 	string jsonify = this.jsonify(www.text);
+                // 	if (!jsonify.Contains("results"))
+                // 	{
+                // 		Debug.Log(jsonify);
+                // 		Debug.Log("Failed to retrieve categories");
+                // 		publisher.setIdle();
+                // 		break;
+                // 	}
 
                 //	JSONArray categoriesArray = JSON.Parse(jsonify)["results"].AsArray;
                 //	foreach (JSONNode node in categoriesArray)
@@ -430,7 +430,7 @@ namespace Sketchfab
         // Update is called once per frame
         public void Update()
         {
-            //checkAccessTokenValidity();
+            // checkAccessTokenValidity();
             _publisher.Update();
         }
 
@@ -566,7 +566,7 @@ namespace Sketchfab
                 { "username", user_name },
                 { "password", user_password }
             };
-            //requestSketchfabAPI(SketchfabPlugin.Urls.oauth, parameters);
+            // requestSketchfabAPI(SketchfabPlugin.Urls.oauth, parameters);
         }
 
         public WWW GetResponse()
@@ -609,8 +609,8 @@ namespace Sketchfab
                 return;
             }
 
-            //byte[] data = File.ReadAllBytes(filePath);
-            //requestSketchfabAPI(SketchfabPlugin.Urls.postModel, parameters, data, filePath);
+            // byte[] data = File.ReadAllBytes(filePath);
+            // requestSketchfabAPI(SketchfabPlugin.Urls.postModel, parameters, data, filePath);
         }
 
         public void RequestSketchfabAPI(string url)

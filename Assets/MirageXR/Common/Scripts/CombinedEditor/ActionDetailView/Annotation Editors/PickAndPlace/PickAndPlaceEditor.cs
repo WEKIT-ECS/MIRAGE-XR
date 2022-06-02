@@ -21,7 +21,7 @@ public class PickAndPlaceEditor : MonoBehaviour
     {
         if (annotationToEdit != null)
         {
-            //annotationToEdit.predicate = "pickandplace";
+            // annotationToEdit.predicate = "pickandplace";
             EventManager.DeactivateObject(annotationToEdit);
         }
         else

@@ -58,7 +58,7 @@ namespace MirageXR
         private void Awake()
         {
             Instance = this;
-            //SensorButton.SetActive(false);
+            // SensorButton.SetActive(false);
         }
 
         private void OnEnable()
@@ -81,14 +81,14 @@ namespace MirageXR
             Connections.Clear();
             _sensorsConnected = false;
             _sensorsConnectedPrevious = false;
-            //SensorButton.SetActive(false);
+            // SensorButton.SetActive(false);
         }
 
         // Use this for initialization
         private void Start()
         {
             _audio = GetComponent<AudioSource>();
-            //SensorButton.SetActive(false);
+            // SensorButton.SetActive(false);
         }
 
         void SetColor(string category, string color)
@@ -162,9 +162,9 @@ namespace MirageXR
                 {
                     if (_sensorsConnected != _sensorsConnectedPrevious)
                     {
-                        //SensorButton.SetActive(true);
+                        // SensorButton.SetActive(true);
                         _audio.clip = Connected;
-                        //_audio.Play();
+                        // _audio.Play();
                     }
 
                     _redHuman = 0;
@@ -233,7 +233,7 @@ namespace MirageXR
                 {
                     if (_sensorsConnected != _sensorsConnectedPrevious)
                     {
-                        //SensorButton.SetActive(false);
+                        // SensorButton.SetActive(false);
                         _audio.clip = Disconnected;
                         _audio.Play();
                     }

@@ -46,8 +46,8 @@ namespace MirageXR
 
         private void OnActionDeleted(string actionId)
         {
-            //TODO: This will destroy all annotations too and any annotations which are created in this step and also exist in other step will be deleted. 
-            //Find a way to not destroy common annotations
+            // TODO: This will destroy all annotations too and any annotations which are created in this step and also exist in other step will be deleted. 
+            // Find a way to not destroy common annotations
             if (ActionId == actionId)
             {
                 Destroy(transform.parent.parent.gameObject);

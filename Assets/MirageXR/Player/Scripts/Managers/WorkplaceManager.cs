@@ -760,7 +760,7 @@ namespace MirageXR
             UiManager.Instance.IsCalibrated = true;
             Maggie.Speak("Workplace configuration saved.");
 
-            //delete calibration animation guide
+            // delete calibration animation guide
             var calibrationGuide = GameObject.Find("CalibrationGuide");
             if (calibrationGuide)
                 Destroy(calibrationGuide);
@@ -848,7 +848,7 @@ namespace MirageXR
             //UiManager.Instance.IsCalibrated = true;
             Maggie.Speak("Workplace is now calibrated.");
 
-            //delete calibration animation guide
+            // delete calibration animation guide
             var calibrationGuide = GameObject.Find("CalibrationGuide");
             if (calibrationGuide)
                 Destroy(calibrationGuide);
@@ -903,7 +903,7 @@ namespace MirageXR
             
             GameObject instance = Instantiate(Resources.Load("Prefabs/PlayerTaskStation") as GameObject, parent.transform);
             
-            //only for the first taskstation in this step move it to the right of the player
+            // only for the first taskstation in this step move it to the right of the player
             var taskStationPos = ActivityManager.Instance.ActionsOfTypeAction.Count == 0 ? Camera.main.transform.right * 0.8f : Vector3.zero;
 
             var IsfirstTaskStation = PlatformManager.Instance.WorldSpaceUi && ActivityManager.Instance.EditModeActive;
@@ -1003,7 +1003,7 @@ namespace MirageXR
                 GameObject detectableObj = GameObject.Find(detectable.id);
                 GameObject detectableParentObj = GameObject.Find("Detectables");
 
-                //as Vuforia dosent allow image markers to be destroyed at run time the detectable is moved instead leaving the marker still in the scene but removeing its content
+                // as Vuforia dosent allow image markers to be destroyed at run time the detectable is moved instead leaving the marker still in the scene but removeing its content
                 detectableObj.transform.parent = detectableParentObj.transform;
             }
         }

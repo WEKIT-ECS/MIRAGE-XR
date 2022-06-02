@@ -12,7 +12,7 @@ namespace MirageXR
         [SerializeField] private GameObject thumbnailContainer;
 
         private const float _distanceToTaskSTation = 0.6f;
-        private const float _distanceFromGround = 0.6f;  //Increase to move the character down
+        private const float _distanceFromGround = 0.6f;  // Increase to move the character down
         private const float _defaultScaleFactor = 0.8f;
 
         private Action action;
@@ -115,7 +115,7 @@ namespace MirageXR
 
         public void Open(Action action, ToggleObject annotation)
         {
-            //character = myCharacter;
+            // character = myCharacter;
             gameObject.SetActive(true);
             this.action = action;
             annotationToEdit = annotation;

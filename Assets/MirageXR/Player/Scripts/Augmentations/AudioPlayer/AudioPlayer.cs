@@ -80,21 +80,21 @@ namespace MirageXR
             // Set name.
             name = obj.predicate;
 
-            //check audio is 2d or 3d
+            // check audio is 2d or 3d
             audio3dMode = obj.option.Split('#')[0] == "3d";
 
             float radius = 0f;
 
-            //3d
+            // 3d
             if (audio3dMode)
             {
-                //loop is off for 2d and load the status of loop if it is 3d audio
+                // loop is off for 2d and load the status of loop if it is 3d audio
                 Loop = false;
                 if (audio3dMode)
                 {
                     Loop = obj.option.Split('#')[1] == "1";
                 }
-                //get the radius if it is 3d audio
+                // get the radius if it is 3d audio
                 if (audio3dMode)
                 {
                     radius = float.Parse(obj.option.Split('#')[2]);
@@ -352,7 +352,7 @@ namespace MirageXR
                 audioPlayer.playOnAwake = false;
                 isReady = true;
             }
-            //_contentObject = ActionContentStorageManager.Instance.CreateObject(gameObject, _obj);
+            // _contentObject = ActionContentStorageManager.Instance.CreateObject(gameObject, _obj);
         }
 
 

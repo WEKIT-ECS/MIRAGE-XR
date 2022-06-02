@@ -35,9 +35,9 @@ namespace MirageXR
             HandPosition1 = haP1;
             HandPosition2 = haP2;
 
-            //this.attentionLevel = attentionLevel;
-            //this.leftHand = leftHand;
-            //this.rightHand = rightHand;
+            // this.attentionLevel = attentionLevel;
+            // this.leftHand = leftHand;
+            // this.rightHand = rightHand;
 
             TimeStamp = tS;
 

@@ -40,7 +40,7 @@ public class SetStartingPosition : MonoBehaviour
 
     private void SetPosition()
     {
-        //if an offset is set for this window
+        // if an offset is set for this window
         if (offsetFromActivitySeceltor == Vector3.zero)
             transform.position = _userViewport.position;
         else

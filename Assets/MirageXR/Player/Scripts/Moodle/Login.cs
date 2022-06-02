@@ -33,7 +33,7 @@ namespace MirageXR
             publicUploadToggle.isOn = DBManager.publicUploadPrivacy;
 
             if (PlayerPrefs.HasKey("MoodleURL")) {
-                ShowPanel(null); //hide login panel
+                ShowPanel(null); // hide login panel
             }
             else
             {
@@ -43,7 +43,7 @@ namespace MirageXR
             EventManager.OnHideActivitySelectionMenu += HideLoginPanel;
             EventManager.OnEditorLoaded += HideLoginPanel;
 
-            //make tha login panel a child of the activity list
+            // make tha login panel a child of the activity list
             transform.position = loginPanelPosition.position;
             transform.rotation = loginPanelPosition.rotation;
             loginCanvas.transform.SetParent(FindObjectOfType<ActivitySelectionMenu>().transform);
@@ -95,7 +95,7 @@ namespace MirageXR
             var (result, response) = await Network.LoginRequestAsync(usernameField.text, passwordField.text, DBManager.domain);
             if (result && response.StartsWith("succeed"))
             {
-                //login succeed, send the token to be added into DBManager
+                // login succeed, send the token to be added into DBManager
                 LoginSucceed(response.Split(',')[1]);
             }
             else
@@ -119,16 +119,16 @@ namespace MirageXR
             welcomUserText.gameObject.SetActive(true);
             Debug.Log($"{DBManager.username} logged in successfully.");
             status.text = string.Empty;
-            //close login menu
+            // close login menu
             ShowPanel(null);
             await MoodleManager.Instance.GetUserId();
             await MoodleManager.Instance.GetUserMail();
             Maggie.Speak(welcomUserText.text);
 
-            //encrypt and save the login info
+            // encrypt and save the login info
             EncryptAndSave();
 
-            //reload the activity list
+            // reload the activity list
             var sessionListView = FindObjectOfType<SessionListView>();
             sessionListView.RefreshActivityList();
         }
@@ -164,9 +164,9 @@ namespace MirageXR
             else
                 status.text = string.Empty;
 
-            transform.FindDeepChild("LoginButton").GetComponent<Button>().interactable = usernameField.text.Length >= usernameMinLength && passwordField.text.Length >= passwordMinLength; //TODO: possible NRE
+            transform.FindDeepChild("LoginButton").GetComponent<Button>().interactable = usernameField.text.Length >= usernameMinLength && passwordField.text.Length >= passwordMinLength; // TODO: possible NRE
 
-            //remove space
+            // remove space
             if (usernameField.text.Contains(" "))
             {
                 usernameField.text = usernameField.text.Trim(' ');
@@ -182,7 +182,7 @@ namespace MirageXR
             PlayerPrefs.SetInt("guest", 0);
             welcomUserText.text = string.Empty;
 
-            //reload the activity list
+            // reload the activity list
             var sessionListView = FindObjectOfType<SessionListView>();
             await sessionListView.CollectAvailableSessionsAsync();
         }

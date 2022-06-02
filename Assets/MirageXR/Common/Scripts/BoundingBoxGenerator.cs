@@ -78,7 +78,7 @@ namespace MirageXR
             boundsControl.Target = gameObject;
             boundsControl.ElasticsManager = elasticManager;
 
-            //if the transform changes should be apply to the target object, otherwise it should be added manually
+            // if the transform changes should be apply to the target object, otherwise it should be added manually
             if (addListeners)
             {
                 boundsControl.ScaleStopped.AddListener(delegate { SaveTransform(annotationToggleObject); });
@@ -147,7 +147,7 @@ namespace MirageXR
         {
             yield return new WaitForSeconds(1);
 
-            //Disable the parent manipulator and use mine
+            // Disable the parent manipulator and use mine
             var parentManipulator = transform.parent.gameObject.GetComponent<ObjectManipulator>();
             if (parentManipulator)
                 parentManipulator.enabled = false;

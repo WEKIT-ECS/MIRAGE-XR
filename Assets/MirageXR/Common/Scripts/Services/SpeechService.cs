@@ -97,7 +97,7 @@ namespace MirageXR
                 System.DateTime nowDate = System.DateTime.Now;
                 string dirBase = "session-" + nowDate.ToString("yyyy-MM-dd_HH-mm-ss");
                 string folder = Application.persistentDataPath + "/" + dirBase;
-                //string folder = activityService.currentArlemFolder;
+                // string folder = activityService.currentArlemFolder;
                 int idx = folder.LastIndexOf('/') + 1;
                 string arlemId = folder.Substring(idx);
                 Debug.Log("Zipping and Uploading " + folder + " to " + arlemId);

@@ -97,7 +97,7 @@ public class PoiEditor : MonoBehaviour
         poi.y_offset = offset.y;
         poi.z_offset = offset.z;
 
-        //rotation should be saved
+        // rotation should be saved
         if (ICanRotate)
         {
             poi.rotation = Math.Round(transform.localRotation.eulerAngles.x, 2).ToString() + ", " + Math.Round(transform.localRotation.eulerAngles.y, 2).ToString() + ", " + Math.Round(transform.localRotation.eulerAngles.z, 2).ToString();
