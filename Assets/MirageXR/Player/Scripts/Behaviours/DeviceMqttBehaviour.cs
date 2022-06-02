@@ -66,7 +66,7 @@ public class DeviceMqttBehaviour : MonoBehaviour
     {
         _mqtt = new MqttConnection();
 
-        var sensorDisplayPrefab = await ReferenceLoader.GetAssetReference("SensorContainerPrefab");
+        var sensorDisplayPrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("SensorContainerPrefab");
 
         if (sensorDisplayPrefab)
         {
@@ -126,7 +126,7 @@ public class DeviceMqttBehaviour : MonoBehaviour
                 return false;
             }
         }
-
+        
         // All good!
         return true;
     }
@@ -183,7 +183,7 @@ public class DeviceMqttBehaviour : MonoBehaviour
             sensorVariable.Red = data.red;
             sensorVariable.Disabled = data.disabled;
 
-            var valuePrefab = await ReferenceLoader.GetAssetReference("ValuePrefab");
+            var valuePrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("ValuePrefab");
             if (valuePrefab == null) return;
             sensorVariable.ValueDisplay = Instantiate(valuePrefab.GetComponent<SensorValueDisplay>());
 
@@ -356,7 +356,7 @@ public class DeviceMqttBehaviour : MonoBehaviour
         _sensorDisplay.GetComponent<RadialView>().enabled = false;
     }
 
-    private void Delete()
+    private void Delete ()
     {
         _mqtt.Disconnect();
         Destroy(gameObject);
@@ -366,7 +366,7 @@ public class DeviceMqttBehaviour : MonoBehaviour
     {
         _sensorDisplay.name = _sensor.id;
 
-        if (_connectionEstablished && _connectionEstablished != _connectionEstablishedPrevious)
+        if(_connectionEstablished && _connectionEstablished != _connectionEstablishedPrevious)
             ConnectionEstablishedRoutine();
         _connectionEstablishedPrevious = _connectionEstablished;
     }

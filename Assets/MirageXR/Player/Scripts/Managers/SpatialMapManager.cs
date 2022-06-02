@@ -8,7 +8,7 @@ public class SpatialMapManager : MonoBehaviour
 #if UNITY_WSA
     private void Start()
     {
-        UpdateSpatialMapColliders(ActivityManager.Instance.EditModeActive);
+        UpdateSpatialMapColliders(RootObject.Instance.activityManager.EditModeActive);
         //set colliders when first loading an activity
     }
 

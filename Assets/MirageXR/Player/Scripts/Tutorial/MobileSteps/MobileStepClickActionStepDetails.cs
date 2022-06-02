@@ -1,4 +1,4 @@
-
+﻿
 namespace MirageXR
 {
     public class MobileStepClickActionStepDetails : MobileStep

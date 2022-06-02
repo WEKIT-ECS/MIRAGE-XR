@@ -1,3 +1,5 @@
+using System;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -5,6 +7,7 @@ namespace MirageXR
 {
     public class StepTrigger : MonoBehaviour
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         [SerializeField] private Toggle stepTriggerToggle;
         [SerializeField] private InputField durationInputField;
         [SerializeField] private InputField stepNumberInputField;
@@ -14,19 +17,18 @@ namespace MirageXR
         public void Initiate(ToggleObject annotation, float duration, string stepNumber)
         {
             MyPoi = annotation;
-            durationInputField.text = duration.ToString();
+            durationInputField.text = duration.ToString(CultureInfo.InvariantCulture);
             stepNumberInputField.text = stepNumber;
-            stepTriggerToggle.isOn = ActivityManager.Instance.ActionsOfTypeAction.Count != 1 && IsTrigger();
+            stepTriggerToggle.isOn =  activityManager.ActionsOfTypeAction.Count != 1 && IsTrigger();
             durationInputField.interactable = stepTriggerToggle.isOn;
             stepNumberInputField.interactable = stepTriggerToggle.isOn;
         }
 
-        private bool IsTrigger()
-        {
+        private bool IsTrigger() {
 
             if (MyPoi == null) return false;
 
-            return ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == MyPoi.poi) != null;
+            return activityManager.ActiveAction.triggers.Find(t => t.id == MyPoi.poi) != null;
         }
 
         private void Start()
@@ -46,7 +48,7 @@ namespace MirageXR
 
             if (stepTriggerToggle.isOn)
             {
-                if (ActivityManager.Instance.ActionsOfTypeAction.Count == 1)
+                if( activityManager.ActionsOfTypeAction.Count == 1)
                 {
                     // give the info and close
                     DialogWindow.Instance.Show("Info!",
@@ -64,25 +66,25 @@ namespace MirageXR
             }
             else
             {
-                ActivityManager.Instance.ActiveAction.RemoveArlemTrigger(MyPoi);
+                activityManager.ActiveAction.RemoveArlemTrigger(MyPoi);
             }
         }
 
         private void OnStepNumberValueChanged()
         {
             var stepNumber = int.Parse(stepNumberInputField.text);
-            if (stepNumber > ActivityManager.Instance.ActionsOfTypeAction.Count)
+            if (stepNumber > activityManager.ActionsOfTypeAction.Count)
             {
-                stepNumberInputField.text = ActivityManager.Instance.ActionsOfTypeAction.Count.ToString();
+                stepNumberInputField.text = activityManager.ActionsOfTypeAction.Count.ToString();
             }
-            else if (stepNumber < 1)
+            else if(stepNumber < 1)
             {
                 stepNumberInputField.text = "1";
             }
 
             if (MyPoi == null) return;
 
-            if (IsTrigger())
+            if (IsTrigger()) 
             {
                 SetupTrigger();
             }
@@ -92,7 +94,7 @@ namespace MirageXR
         {
             if (MyPoi == null) return;
 
-            if (IsTrigger())
+            if (IsTrigger()) 
             {
                 SetupTrigger();
             }
@@ -100,8 +102,8 @@ namespace MirageXR
 
         public void SetupTrigger()
         {
-            var triggerTpye = MyPoi.predicate.Contains(":") ? MyPoi.predicate.Split(':')[0] : MyPoi.predicate;
-            var activeAction = ActivityManager.Instance.ActiveAction;
+            var triggerType = MyPoi.predicate.Contains(":") ? MyPoi.predicate.Split(':')[0] : MyPoi.predicate;
+            var activeAction = activityManager.ActiveAction;
 
             if (stepTriggerToggle.isOn)
             {
@@ -109,11 +111,16 @@ namespace MirageXR
                 {
                     if (!IsTrigger())
                     {
-                        activeAction.AddArlemTrigger("detect", triggerTpye, MyPoi.poi, float.Parse(durationInputField.text), stepNumberInputField.text);
+                        if (!Enum.TryParse(triggerType, true, out ActionType type))
+                        {
+                            Debug.Log($"can't parse {triggerType} to ActionType");
+                            type = ActionType.Action;
+                        }
+                        activeAction.AddArlemTrigger(TriggerMode.Detect, type, MyPoi.poi, float.Parse(durationInputField.text), stepNumberInputField.text);
                     }
                     else
                     {
-                        var trigger = ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == MyPoi.poi);
+                        var trigger = activityManager.ActiveAction.triggers.Find(t => t.id == MyPoi.poi);
                         trigger.duration = float.Parse(durationInputField.text);
                         trigger.value = stepNumberInputField.text;
                     }

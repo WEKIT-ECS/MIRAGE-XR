@@ -59,7 +59,7 @@ namespace MirageXR
 
         private void DestroyToolTip()
         {
-            if (_tooltipObject)
+            if(_tooltipObject)
                 Destroy(_tooltipObject);
         }
 

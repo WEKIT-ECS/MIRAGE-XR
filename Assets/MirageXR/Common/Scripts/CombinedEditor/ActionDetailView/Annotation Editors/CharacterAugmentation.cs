@@ -45,12 +45,12 @@ namespace MirageXR
             var taskStationPosition = TaskStationDetailMenu.Instance.ActiveTaskStation.transform;
             var spawnPosition = taskStationPosition.position + taskStationPosition.transform.forward * _distanceToTaskSTation; // Behind the task station
             var des = Instantiate(pointCont, spawnPosition - Vector3.up * _distanceFromGround, Quaternion.identity);
-            des.transform.rotation *= Quaternion.Euler(0, 180, 0);
+            des.transform.rotation *= Quaternion.Euler(0, 180 , 0);
             des.GetComponent<Destination>().MyCharacter = character.GetComponent<CharacterController>();
             des.transform.SetParent(character.transform.parent);
             destinations.Add(des);
 
-            // character.transform.position = des.transform.position + new Vector3(0.2f , 0, 0);
+           // character.transform.position = des.transform.position + new Vector3(0.2f , 0, 0);
             character.GetComponent<CharacterController>().Destinations = destinations;
 
             character.gameObject.transform.localScale *= _defaultScaleFactor;
@@ -72,15 +72,16 @@ namespace MirageXR
             }
             else
             {
-                Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(action.id));
+                var workplaceManager = RootObject.Instance.workplaceManager;
+                Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
                 GameObject originT = GameObject.Find(detectable.id);
 
-                Vector3 spawnPosition = TaskStationDetailMenu.Instance.ActiveTaskStation.transform.position + Vector3.forward;
+                Vector3 spawnPosition =  TaskStationDetailMenu.Instance.ActiveTaskStation.transform.position + Vector3.forward;
                 Quaternion spawnRot = Quaternion.identity;
 
                 Vector3 offset = Utilities.CalculateOffset(spawnPosition, spawnRot, originT.transform.position, originT.transform.rotation);
 
-                annotationToEdit = ActivityManager.Instance.AddAugmentation(action, offset);
+                annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
                 annotationToEdit.predicate = "char:" + modelname;
             }
 

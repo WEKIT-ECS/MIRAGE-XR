@@ -99,7 +99,7 @@ namespace MirageXR
             var arlemName = string.Empty;
 
 
-            try { arlemName = ServiceManager.GetService<ActivityRecorderService>().myActivity.name; }
+            try { arlemName = RootObject.Instance.activityManager.Activity.name; }
             catch (Exception) { /*ignore*/ }
 
 

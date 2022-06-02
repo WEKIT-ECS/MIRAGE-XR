@@ -9,9 +9,10 @@ using Action = System.Action;
 
 public class ContentListView : BaseView
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
     private const float HIDE_HEIGHT = 250f;
     private const float BASE_CONTROLS_COOLDOWN = 0.3f;
-
+    
     [SerializeField] private TMP_InputField _txtStepName;
     [SerializeField] private TMP_InputField _txtDescription;
     [SerializeField] private Button _btnShowHide;
@@ -26,13 +27,13 @@ public class ContentListView : BaseView
     [SerializeField] private ContentSelectorView _contentSelectorViewPrefab;
     [SerializeField] private AnimationCurve _animationCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
     [SerializeField] private float _animationTime = 0.3f;
-
+    
     [SerializeField] private PopupEditorBase[] _editors;
 
     public PopupEditorBase[] editors => _editors;
     public MirageXR.Action currentStep => _currentStep;
     public RootView rootView => (RootView)_parentView;
-
+    
     public TMP_InputField TxtStepName => _txtStepName;
     public TMP_InputField TxtStepDescription => _txtDescription;
     public Button BtnShowHide => _btnShowHide;
@@ -54,6 +55,7 @@ public class ContentListView : BaseView
             UpdateView();
         }
     }
+
     private readonly Dictionary<string, string> _navigatorIds = new Dictionary<string, string>();
     private readonly List<ContentListItem> _list = new List<ContentListItem>();
     private RectTransform _imdShowHideRectTransform;
@@ -68,8 +70,8 @@ public class ContentListView : BaseView
     public override void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
-        _txtStepName.onValueChanged.AddListener(OnStepNameChanged);
-        _txtDescription.onValueChanged.AddListener(OnStepDescriptionChanged);
+        _txtStepName.onEndEdit.AddListener(OnStepNameChanged);
+        _txtDescription.onEndEdit.AddListener(OnStepDescriptionChanged);
         _btnShowHide.onClick.AddListener(OnShowHideClick);
         _btnAddContent.onClick.AddListener(OnAddContent);
         _btnDeleteStep.onClick.AddListener(OnDeleteStep);
@@ -104,7 +106,7 @@ public class ContentListView : BaseView
         EventManager.NotifyOnActionStepTitleChanged();
         EventManager.NotifyActionModified(_currentStep);
     }
-    
+
     private void OnStepDescriptionChanged(string newDescription)
     {
         _currentStep.instruction.description = newDescription;
@@ -114,7 +116,7 @@ public class ContentListView : BaseView
     
     private void OnActionActivated(string actionId)
     {
-        var action = ActivityManager.Instance.ActiveAction ?? ActivityManager.Instance.ActionsOfTypeAction.FirstOrDefault(t => t.id == actionId);
+        var action = activityManager.ActiveAction ?? activityManager.ActionsOfTypeAction.FirstOrDefault(t => t.id == actionId);
         if (action != null) _currentStep = action;
         UpdateView();
     }
@@ -147,7 +149,12 @@ public class ContentListView : BaseView
         
         var contents = _currentStep.enter.activates;
 
-        TaskStationDetailMenu.Instance.NavigatorTarget = null;
+        var detailMenu = TaskStationDetailMenu.Instance;
+        if (detailMenu)
+        {
+            detailMenu.NavigatorTarget = null;
+        }
+
         _list.ForEach(t => t.gameObject.SetActive(false));
         for (var i = 0; i < contents.Count; i++)
         {
@@ -161,7 +168,7 @@ public class ContentListView : BaseView
             _list[i].UpdateView(contents[i]);
         }
         
-        OnEditModeChanged(ActivityManager.Instance.EditModeActive);
+        OnEditModeChanged(activityManager.EditModeActive);
     }
     
     private void OnAddContent()

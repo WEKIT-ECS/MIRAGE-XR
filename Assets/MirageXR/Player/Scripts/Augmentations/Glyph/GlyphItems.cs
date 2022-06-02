@@ -5,6 +5,7 @@ namespace MirageXR
 {
     public class GlyphItems : MirageXRPrefab
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         private ToggleObject myObj;
         [SerializeField] private GameObject icon;
 
@@ -20,7 +21,7 @@ namespace MirageXR
 
         private void Start()
         {
-            SetEditorState(ActivityManager.Instance.EditModeActive);
+            SetEditorState(activityManager.EditModeActive);
         }
 
         private void SetEditorState(bool editModeActive)

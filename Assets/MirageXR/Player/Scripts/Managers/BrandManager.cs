@@ -18,7 +18,7 @@ namespace MirageXR
         [SerializeField] private Color defaultNextPathColor;
 
         public static BrandManager Instance { get; private set; }
-
+    
         private Color newPrimaryColor;
         private Color newSecondaryColor;
         private Color newTextColor;
@@ -35,8 +35,8 @@ namespace MirageXR
 
 #if UNITY_ANDROID || UNITY_IOS
 
-        private readonly string[] spareListOfAugmentations = { "image", "video", "audio", "ghost", "label", "act", "vfx", "model", "character", "pick&place", "image marker", "plugin" };
-        private const string augmentationsListFile = "MobileAugmentationListFile";
+    private readonly string[] spareListOfAugmentations = { "image", "video", "audio", "ghost", "label", "act", "vfx",  "model", "character", "pickandplace", "imagemarker", "plugin" };
+    private const string augmentationsListFile = "MobileAugmentationListFile";
 #else
         private readonly string[] spareListOfAugmentations = { "image", "video", "audio", "ghost", "label", "act", "vfx", "model", "character", "pick&place", "image marker", "plugin", "drawing" };
         private const string augmentationsListFile = "HololensAugmentationListFile";
@@ -94,7 +94,7 @@ namespace MirageXR
             }
 
             // if the file is empty return the default array
-            if (listOfAugmentations.Length == 0 || (listOfAugmentations.Length == 1 && listOfAugmentations[0] == ""))
+            if(listOfAugmentations.Length == 0 || (listOfAugmentations.Length == 1 && listOfAugmentations[0] == ""))
             {
                 return spareListOfAugmentations;
             }
@@ -113,7 +113,7 @@ namespace MirageXR
         {
             if (Customizable)
             {
-                await MoodleManager.Instance.GetArlemList();
+                await RootObject.Instance.moodleManager.GetArlemList();
 
                 AddCustomColors();
             }
@@ -182,12 +182,12 @@ namespace MirageXR
 
         public Color GetSecondaryColor()
         {
-            return !prefabsOriginalColors ? newSecondaryColor : defaultSecondaryColor;
+            return !prefabsOriginalColors ? newSecondaryColor: defaultSecondaryColor;
         }
 
         public Color GetTextColor()
         {
-            return !prefabsOriginalColors ? newTextColor : defaultTextColor;
+            return !prefabsOriginalColors ? newTextColor: defaultTextColor;
         }
 
         public Color GetIconColor()
@@ -197,7 +197,7 @@ namespace MirageXR
 
         public Color GetTaskStationColor()
         {
-            return !prefabsOriginalColors ? newTaskStationColor : defaultSecondaryColor;
+            return !prefabsOriginalColors ? newTaskStationColor: defaultSecondaryColor;
         }
 
         public Color GetUIPathColor()

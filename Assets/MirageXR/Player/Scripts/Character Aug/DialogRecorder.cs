@@ -7,6 +7,7 @@ namespace MirageXR
 {
     public class DialogRecorder : MonoBehaviour
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         [SerializeField] private GameObject recordButton;
         [SerializeField] private GameObject stopButton;
         [SerializeField] private GameObject playButton;
@@ -29,8 +30,7 @@ namespace MirageXR
             return _audioSource.clip.length;
         }
 
-        public string DialogSaveName
-        {
+        public string DialogSaveName {
             get; set;
         }
 
@@ -47,7 +47,7 @@ namespace MirageXR
             }
 
             Init();
-            SetEditorState(ActivityManager.Instance.EditModeActive);
+            SetEditorState(activityManager.EditModeActive);
         }
 
         public CharacterController MyCharacter
@@ -59,11 +59,11 @@ namespace MirageXR
 
         private async void Init()
         {
-            DialogSaveName = $"characterinfo/{ActivityManager.Instance.ActiveActionId}_{MyCharacter.ToggleObject.poi}.wav";
+            DialogSaveName = $"characterinfo/{activityManager.ActiveActionId}_{MyCharacter.ToggleObject.poi}.wav";
 
             // For character who has lipsync the audio source is added to the object with ThreeLSControl component
             var threeLSControl = MyCharacter.GetComponentInChildren<ThreeLSControl>();
-            if (threeLSControl)
+            if(threeLSControl)
             {
                 _audioSource = threeLSControl.GetComponent<AudioSource>();
             }
@@ -75,11 +75,11 @@ namespace MirageXR
             MyCharacter.GetComponent<CharacterController>().AudioEditorCheck();
             _audioEditor = MyCharacter.MyAudioEditor;
 
-            if (_audioEditor != null)
+            if(_audioEditor != null)
             {
                 _audioEditor.DialogRecorderPanel = this;
                 _audioSource.loop = LoopToggle.isOn;
-                _clipPath = Path.Combine(ActivityManager.Instance.Path, DialogSaveName);
+                _clipPath = Path.Combine(activityManager.ActivityPath, DialogSaveName);
 
                 if (File.Exists(_clipPath))
                 {
@@ -122,7 +122,7 @@ namespace MirageXR
 
         public void UpdateLoopStatus()
         {
-            if (_audioSource)
+            if(_audioSource)
                 _audioSource.loop = LoopToggle.isOn;
         }
 
@@ -131,10 +131,10 @@ namespace MirageXR
             if (_audioSource == null) return;
 
             // if a dialog is already recorded
-            if (_audioSource.clip == null)
+            if(_audioSource.clip == null)
             {
-                recordButton.SetActive(ActivityManager.Instance.EditModeActive);
-                stopButton.SetActive(!ActivityManager.Instance.EditModeActive);
+                recordButton.SetActive(activityManager.EditModeActive);
+                stopButton.SetActive(!activityManager.EditModeActive);
             }
             else
             {
@@ -145,7 +145,7 @@ namespace MirageXR
             playButton.SetActive(true);
             openButton.SetActive(false);
             closeButton.SetActive(true);
-            LoopToggle.gameObject.SetActive(ActivityManager.Instance.EditModeActive);
+            LoopToggle.gameObject.SetActive(activityManager.EditModeActive);
         }
 
         public void ResetDialogRecorder()
@@ -164,7 +164,7 @@ namespace MirageXR
             closeButton.SetActive(false);
             LoopToggle.gameObject.SetActive(false);
 
-            if (_audioEditor)
+            if(_audioEditor)
                 _audioEditor.Close();
         }
 
@@ -237,8 +237,8 @@ namespace MirageXR
             {
                 _audioSource.Stop();
                 isPlaying = false;
-            }
-            else if (isRecording)
+            }                
+            else if(isRecording)
             {
                 _audioEditor.StopRecording();
                 _audioEditor.OnAccept();
@@ -268,7 +268,7 @@ namespace MirageXR
 
         public void StopDialog()
         {
-            if (_audioSource)
+            if(_audioSource)
                 _audioSource.Stop();
         }
     }

@@ -12,6 +12,9 @@ namespace MirageXR
 {
     public class PickAndPlaceController : MirageXRPrefab
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private string ArlemFolderPath = RootObject.Instance.activityManager.ActivityPath;
+
         private ToggleObject myObj;
         [SerializeField] private Transform pickObject;
         [SerializeField] private Transform targetObject;
@@ -22,13 +25,13 @@ namespace MirageXR
 
         private Vector3 defaultTargetSize = new Vector3(0.2f, 0.2f, 0.2f);
 
-        private  void Start()
+        private void Start()
         {
             pickComponent = pickObject.GetComponent<Pick>();
-            EditModeChanges(ActivityManager.Instance.EditModeActive);
+            EditModeChanges(activityManager.EditModeActive);
 
             LoadPickAndPlacePositions();
-            
+
             spriteToggle.IsSelected = !pickComponent.MoveMode;
 
         }
@@ -88,7 +91,7 @@ namespace MirageXR
 
             // Set scaling
             PoiEditor myPoiEditor = transform.parent.gameObject.GetComponent<PoiEditor>();
-            Vector3 defaultScale = new Vector3(0.5f, 0.5f, 0.5f);  
+            Vector3 defaultScale = new Vector3(0.5f, 0.5f, 0.5f);
 
             // If everything was ok, return base result.
             return base.Init(obj);
@@ -96,7 +99,7 @@ namespace MirageXR
 
         private void LoadPickAndPlacePositions()
         {
-            var json = File.ReadAllText(Path.Combine(ActivityManager.Instance.Path, "pickandplaceinfo/" + myObj.poi + ".json"));
+            var json = File.ReadAllText(Path.Combine(ArlemFolderPath, "pickandplaceinfo/" + myObj.poi + ".json"));
 
             Positions positions = JsonUtility.FromJson<Positions>(json);
 
@@ -137,11 +140,11 @@ namespace MirageXR
             };
 
             string pickAndPlaceData = JsonUtility.ToJson(positions);
-            if (!Directory.Exists(ActivityManager.Instance.Path + "/pickandplaceinfo "))
-                Directory.CreateDirectory(ActivityManager.Instance.Path + "/pickandplaceinfo");
+            if (!Directory.Exists(ArlemFolderPath + "/pickandplaceinfo "))
+                Directory.CreateDirectory(ArlemFolderPath + "/pickandplaceinfo");
 
 
-            string jsonPath = Path.Combine(ActivityManager.Instance.Path, "pickandplaceinfo/" + myObj.poi + ".json");
+            string jsonPath = Path.Combine(ArlemFolderPath, "pickandplaceinfo/" + myObj.poi + ".json");
 
             // delete the exsiting file first
             if (File.Exists(jsonPath))
@@ -149,7 +152,7 @@ namespace MirageXR
 
             File.WriteAllText(jsonPath, pickAndPlaceData);
         }
-     
+
 
         private IEnumerator LoadMyModel(string MyModelID)
         {
@@ -168,7 +171,7 @@ namespace MirageXR
         private void DeletePickAndPlaceData(ToggleObject toggleObject)
         {
             if (toggleObject != MyPoi) return;
-            var arlemPath = ActivityManager.Instance.Path;
+            var arlemPath = ArlemFolderPath;
             var jsonPath = Path.Combine(arlemPath, $"pickandplaceinfo/{MyPoi.poi}.json");
 
             if (File.Exists(jsonPath))

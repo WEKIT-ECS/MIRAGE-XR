@@ -1,9 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using Object = UnityEngine.Object;
 
 namespace MirageXR
 {
@@ -14,23 +13,15 @@ namespace MirageXR
         /// </summary>
         /// <param name="prefabName">The prefab name in addressable</param>
         /// <returns>The prefab gameobject</returns>
-        public static async Task<GameObject> GetAssetReference(string prefabName)
+        public static async Task<T> GetAssetReferenceAsync<T>(string prefabName) where T : Object
         {
-            var prefabInAddressable = Addressables.LoadAssetAsync<GameObject>(prefabName);
-            await prefabInAddressable.Task;
+            var operation = Addressables.LoadAssetAsync<T>(prefabName);
+            await operation.Task;
 
-            //if the prefab reference has been found successfully
-            if (prefabInAddressable.Status == AsyncOperationStatus.Succeeded)
-            {
-                return prefabInAddressable.Result;
-            }
-            else
-            {
-                return null;
-            }
-
+            if (operation.Status != AsyncOperationStatus.Failed) return operation.Result;
+            
+            Debug.LogError(operation.OperationException);
+            return null;
         }
-
     }
-
 }

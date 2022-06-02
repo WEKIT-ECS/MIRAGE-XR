@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class RootView : BaseView
 {
     public static RootView Instance { get; private set; }
-    
+
     [SerializeField] private ActivityListView _activityListView;
     [SerializeField] private ContentListView _contentListView;
     [SerializeField] private StepsListView _stepsListView;
@@ -23,10 +23,9 @@ public class RootView : BaseView
     public StepsListView stepsListView => _stepsListView;
     public TutorialDialog TutorialDialog => _tutorialDialog;
     public PageView PageView => _pageView;
-
     public Toggle ToggleSteps => _toggleSteps;
     public Toggle ToggleView => _toggleView;
-    
+
     private void Awake()
     {
         if (Instance != null)
@@ -34,7 +33,7 @@ public class RootView : BaseView
             Debug.LogError($"{Instance.GetType().FullName} must only be a single copy!");
             return;
         }
-        
+
         Instance = this;
     }
 
@@ -46,18 +45,18 @@ public class RootView : BaseView
         }
         Initialization(null);
     }
-    
+
     public override void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
-        EventManager.OnWorkplaceParsed += OnWorkplaceParsed;
+        EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
         _toggleView.interactable = false;
         _toggleSteps.interactable = false;
-        _toggleHome.onValueChanged.AddListener(OnStepsClick);
+        _toggleHome.onValueChanged.AddListener(OnHomeClick);
         _toggleView.onValueChanged.AddListener(OnViewClick);
-        _toggleSteps.onValueChanged.AddListener(OnHomeClick);
+        _toggleSteps.onValueChanged.AddListener(OnStepsClick);
         _pageView.OnPageChanged.AddListener(OnPageChanged);
-        
+
         _activityListView.Initialization(this);
         _contentListView.Initialization(this);
         _stepsListView.Initialization(this);
@@ -66,15 +65,15 @@ public class RootView : BaseView
 
     private void OnDestroy()
     {
-        EventManager.OnWorkplaceParsed -= OnWorkplaceParsed;
+        EventManager.OnWorkplaceLoaded -= OnWorkplaceLoaded;
     }
 
-    private void OnWorkplaceParsed()
+    private void OnWorkplaceLoaded()
     {
         _toggleView.interactable = true;
         _toggleSteps.interactable = true;
         _toggleView.isOn = true;
-        
+
         if (!DBManager.dontShowCalibrationGuide)
         {
             PopupsViewer.Instance.Show(_calibrationGuideViewPrefab);
@@ -85,21 +84,21 @@ public class RootView : BaseView
     {
         switch (index)
         {
-            case 0: 
+            case 0:
                 _toggleHome.isOn = true;
                 break;
             case 1:
                 _toggleView.isOn = true;
                 break;
-            case 2: 
+            case 2:
                 _toggleSteps.isOn = true;
                 break;
         }
+
+        //EventManager.NotifyOnMobilePageChanged();
     }
 
-
-    // TODO: Are the names of these 3 OnClicks an error? Should they be switched around?
-    private void OnStepsClick(bool value)
+    private void OnHomeClick(bool value)
     {
         if (value) _pageView.currentPageIndex = 0;
     }
@@ -110,7 +109,7 @@ public class RootView : BaseView
         EventManager.NotifyOnViewSelectorClicked();
     }
 
-    private void OnHomeClick(bool value)
+    private void OnStepsClick(bool value)
     {
         if (value) _pageView.currentPageIndex = 2;
         EventManager.NotifyOnStepsSelectorClicked();
@@ -122,10 +121,10 @@ public class RootView : BaseView
         const float zPosition = 1.5f;
         const string layerName = "MobileUI";
         const string cameraName = "ViewCamera";
-        
+
         var mainCamera = Camera.main;
         if (!mainCamera) return;
-        
+
         var canvas = GetComponent<Canvas>();
         canvas.enabled = false;
         Screen.orientation = ScreenOrientation.Landscape;
@@ -148,7 +147,7 @@ public class RootView : BaseView
         rectTransform.localScale = new Vector3(scale, scale, scale);
         var position = viewCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height * 0.5f, zPosition));
         position.x -= size.x * 0.5f * scale;
-        rectTransform.position = position;        
+        rectTransform.position = position;
         canvas.enabled = true;
     }
 

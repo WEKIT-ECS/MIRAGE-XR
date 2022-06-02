@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using i5.Toolkit.Core.ServiceCore;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -20,12 +19,12 @@ namespace MirageXR
         [SerializeField] private ActivityListItem _listListItemPrefab;
         [SerializeField] private LoginView _loginViewPrefab;
         [SerializeField] private SettingsView _settingsViewPrefab;
-        
+
+        public Button BtnAddActivity => _btnAddActivity;
+
         private List<SessionContainer> _content;
         private readonly List<ActivityListItem> _items = new List<ActivityListItem>();
         private bool _interactable = true;
-
-        public Button BtnAddActivity => _btnAddActivity;
 
         public bool interactable
         {
@@ -59,17 +58,17 @@ namespace MirageXR
         private async Task AutoLogin()
         {
             if (!LocalFiles.TryToGetUsernameAndPassword(out var username, out var password)) return;
-        
+
             LoadView.Instance.Show();
-            await MoodleManager.Instance.Login(username, password);
+            await RootObject.Instance.moodleManager.Login(username, password);
             LoadView.Instance.Hide();
         }
 
         private static async Task<List<SessionContainer>> GetContent()
         {
             var dictionary = new Dictionary<string, SessionContainer>();
-            
-            var localList = await LocalFiles.GetDownloadedActivities();    
+
+            var localList = await LocalFiles.GetDownloadedActivities();
             localList.ForEach(t =>
             {
                 if (dictionary.ContainsKey(t.id))
@@ -82,7 +81,7 @@ namespace MirageXR
                 }
             });
             
-            var remoteList = await MoodleManager.Instance.GetArlemList();
+            var remoteList = await RootObject.Instance.moodleManager.GetArlemList();
             remoteList?.ForEach(t =>
             {
                 if (dictionary.ContainsKey(t.sessionid))
@@ -126,7 +125,7 @@ namespace MirageXR
 
         private void OnHelpClick()
         {
-            if (!TutorialManager.Instance.IsTutorialRunning)
+            if(!TutorialManager.Instance.IsTutorialRunning)
             {
                 TutorialDialog tDialog = RootView.Instance.TutorialDialog;
                 tDialog.Toggle();
@@ -142,8 +141,8 @@ namespace MirageXR
         {
             LoadView.Instance.Show();
             interactable = false;
-            await ServiceManager.GetService<EditorSceneService>().LoadEditorAsync();
-            EventManager.ParseActivity(string.Empty);
+            await RootObject.Instance.editorSceneService.LoadEditorAsync();
+            RootObject.Instance.activityManager.CreateNewActivity();
             interactable = true;
             LoadView.Instance.Hide();
             EventManager.NotifyOnNewActivityCreationButtonPressed();

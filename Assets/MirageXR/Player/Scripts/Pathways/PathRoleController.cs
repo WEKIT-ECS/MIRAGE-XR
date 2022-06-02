@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class PathRoleController : MonoBehaviour
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    
     [Header("Elements")]
     [SerializeField] private Renderer[] renderers;
     [SerializeField] private SpriteRenderer iconRenderer;
@@ -135,7 +137,7 @@ public class PathRoleController : MonoBehaviour
 
     private int GetTaskstationIndex()
     {
-        List<Action> actions = ActivityManager.Instance.ActionsOfTypeAction;
+        List<Action> actions = activityManager.ActionsOfTypeAction;
 
         int index = actions.IndexOf(actions.Where(p => p.id.Equals(ActionId)).FirstOrDefault());
         return index;
@@ -143,18 +145,18 @@ public class PathRoleController : MonoBehaviour
 
     private bool IsCurrent()
     {
-        if (string.IsNullOrEmpty(ActivityManager.Instance.ActiveActionId))
+        if (string.IsNullOrEmpty(activityManager.ActiveActionId))
         {
             return false;
         }
-        return ActivityManager.Instance.ActiveActionId.Equals(ActionId);
+        return activityManager.ActiveActionId.Equals(ActionId);
     }
 
     private bool IsNext()
     {
-        List<Action> actions = ActivityManager.Instance.ActionsOfTypeAction;
+        List<Action> actions = activityManager.ActionsOfTypeAction;
 
-        int index = actions.IndexOf(ActivityManager.Instance.ActiveAction);
+        int index = actions.IndexOf(activityManager.ActiveAction);
         if (index >= actions.Count - 1)
         {
             return false;

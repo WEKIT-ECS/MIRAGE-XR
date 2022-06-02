@@ -25,7 +25,8 @@ namespace MirageXR
         private const string lockHelpText = "When locked the arrow (or 3D model) will bounce back to this location if it is not correctly placed on the target";
         private const string modelButtonHelpText = "Click this button and select a 3D model from the augmentation list to change the pick and place object model";
 
-        public Vector3 ResetPos {
+        public Vector3 ResetPos
+        {
             get { return resetPos; }
             set { resetPos = value; }
         }
@@ -57,7 +58,7 @@ namespace MirageXR
 
         void Start()
         {
-            targetRadius = placeLocation.transform.localScale.x / 2; 
+            targetRadius = placeLocation.transform.localScale.x / 2;
             pickOb = this.gameObject;
             ChangeCorrectionDistance(targetRadius);
             SetResetPos(pickOb.transform.localPosition);
@@ -68,7 +69,7 @@ namespace MirageXR
 
             changeModelButton.onClick.AddListener(CapturePickModel);
 
-            
+
 
             AddHoverGuide(lockToggle.gameObject, lockHelpText);
             AddHoverGuide(changeModelButton.gameObject, modelButtonHelpText);

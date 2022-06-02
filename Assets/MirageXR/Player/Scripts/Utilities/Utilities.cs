@@ -58,6 +58,16 @@ namespace MirageXR
         }
 
         /// <summary>
+        /// Convert Vector3 to string.
+        /// </summary>
+        /// <param name="input">Vector3 string</param>
+        /// <returns>returns string  with Vector3 representation in format 0, 0, 0</returns>
+        public static string Vector3ToString(Vector3 vector3)
+        {
+            return $"{vector3.x.ToString(CultureInfo.InvariantCulture)}, {vector3.y.ToString(CultureInfo.InvariantCulture)}, {vector3.z.ToString(CultureInfo.InvariantCulture)}";
+        }
+
+        /// <summary>
         /// Convert string to Quaternion.
         /// </summary>
         /// <param name="input">Quaternion string.</param>
@@ -126,10 +136,12 @@ namespace MirageXR
         {
             try
             {
-                var parentObject = GameObject.Find(parent);
+                var parentObject = GameObject.Find(parent); //TODO: possible NRE
 
                 if (parentObject == null)
-                    throw new ArgumentException("Object " + parent + " not found.");
+                {
+                    throw new ArgumentException($"Object {parent} not found.");
+                }
 
                 // Create a new game object and name it after the id.
                 var temp = new GameObject(id);
@@ -216,7 +228,7 @@ namespace MirageXR
             return angle;
         }
 
-        public static Vector3 CalculateOffset(Vector3 anchorPosition, Quaternion anchorRotation, Vector3 originPosition, Quaternion originRotation) //TODO: Looks like it can be replaced by Transform.InverseTransformPoint(...) 
+        public static Vector3 CalculateOffset(Vector3 anchorPosition, Quaternion anchorRotation, Vector3 originPosition, Quaternion originRotation) //TODO: Looks like it can be replaced by Transform.InverseTransformPoint(...)
         {
             // Some black magic for getting the offset.
             var anchorDummy = new GameObject("AnchorDummy");
@@ -305,13 +317,15 @@ namespace MirageXR
         {
             try
             {
-                //Now Create all of the directories
-                foreach (string dirPath in Directory.GetDirectories(folderPath, "*", SearchOption.AllDirectories))
+                foreach (var dirPath in Directory.GetDirectories(folderPath, "*", SearchOption.AllDirectories))
+                {
                     Directory.CreateDirectory(dirPath.Replace(folderPath, destinationPath));
+                }
 
-                //Copy all the files & Replaces any files with the same name
-                foreach (string newPath in Directory.GetFiles(folderPath, "*.*", SearchOption.AllDirectories))
+                foreach (var newPath in Directory.GetFiles(folderPath, "*.*", SearchOption.AllDirectories))
+                {
                     File.Copy(newPath, newPath.Replace(folderPath, destinationPath), true);
+                }
             }
             catch (IOException e)
             {

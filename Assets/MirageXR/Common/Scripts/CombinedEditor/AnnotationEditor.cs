@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 public class AnnotationEditor : MonoBehaviour
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
     [SerializeField] private Button deleteAnnotation;
     [SerializeField] private GameObject lifeIcon;
 
@@ -12,9 +13,9 @@ public class AnnotationEditor : MonoBehaviour
     private void OnEnable()
     {
         EventManager.OnEditModeChanged += SetEditModeState;
-        if (ActivityManager.Instance != null)
+        if (activityManager != null)
         {
-            SetEditModeState(ActivityManager.Instance.EditModeActive);
+            SetEditModeState(activityManager.EditModeActive);
         }
     }
 
@@ -26,7 +27,7 @@ public class AnnotationEditor : MonoBehaviour
     private void Start()
     {
         annotationListItem = GetComponent<AnnotationListItem>();
-        SetEditModeState(ActivityManager.Instance.EditModeActive);
+        SetEditModeState(activityManager.EditModeActive);
     }
 
     private void SetEditModeState(bool editModeActive)
@@ -41,7 +42,7 @@ public class AnnotationEditor : MonoBehaviour
         if (TaskStationDetailMenu.Instance.SelectedButton == GetComponent<Button>())
             TaskStationDetailMenu.Instance.SelectedButton = null;
 
-        ActivityController.Instance.DeleteAugmentation( annotationListItem.DisplayedAnnotation);
+        RootObject.Instance.augmentationManager.DeleteAugmentation( annotationListItem.DisplayedAnnotation);
         
     }
 }

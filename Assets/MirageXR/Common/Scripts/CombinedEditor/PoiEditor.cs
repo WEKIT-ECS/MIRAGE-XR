@@ -52,7 +52,7 @@ public class PoiEditor : MonoBehaviour
         SetAllObjectManipulationOptions();
         objectManipulator.OnManipulationEnded.AddListener(OnChanged);
 
-        OnEditModeChanged(ActivityManager.Instance.EditModeActive);
+        OnEditModeChanged(RootObject.Instance.activityManager.EditModeActive);
         //SetPoiData();
     }
 
@@ -73,10 +73,7 @@ public class PoiEditor : MonoBehaviour
 
     private T GetOrAddComponent<T>() where T : Component
     {
-        if (gameObject.GetComponent<T>())
-            return gameObject.GetComponent<T>();
-        else
-            return gameObject.AddComponent<T>() as T;
+        return gameObject.GetComponent<T>() ? gameObject.GetComponent<T>() : gameObject.AddComponent<T>();
     }
 
     public void OnChanged(ManipulationEventData data)
@@ -88,7 +85,8 @@ public class PoiEditor : MonoBehaviour
     private void SetPoiData()
     {
         string taskStationId = transform.parent.name;
-        Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(taskStationId));
+        var workplaceManager = RootObject.Instance.workplaceManager;
+        Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(taskStationId));
         Transform originT = GameObject.Find(detectable.id).transform;
 
         Vector3 offset = Utilities.CalculateOffset(transform.position, transform.rotation, originT.position, originT.rotation);
@@ -100,7 +98,7 @@ public class PoiEditor : MonoBehaviour
         // rotation should be saved
         if (ICanRotate)
         {
-            poi.rotation = Math.Round(transform.localRotation.eulerAngles.x, 2).ToString() + ", " + Math.Round(transform.localRotation.eulerAngles.y, 2).ToString() + ", " + Math.Round(transform.localRotation.eulerAngles.z, 2).ToString();
+            poi.rotation = Math.Round(transform.localRotation.eulerAngles.x,2).ToString() + ", " + Math.Round(transform.localRotation.eulerAngles.y,2).ToString() + ", " + Math.Round(transform.localRotation.eulerAngles.z,2).ToString();
         }
 
         // also scale can be adjusted using the object manipulator
@@ -131,7 +129,7 @@ public class PoiEditor : MonoBehaviour
     }
 
 
-
+    
 
     private void SetAugmentationSpecificManipulation(GameObject prefabObject)
     {
@@ -144,9 +142,6 @@ public class PoiEditor : MonoBehaviour
         {
             Debug.Log("adding video prefab interaction options");
             GetOrAddComponent<ObjectManipulator>();
-            var bb = GetOrAddComponent<Billboard>();
-
-            bb.PivotAxis = Microsoft.MixedReality.Toolkit.Utilities.PivotAxis.Y;
         }
 
         // add other augmentation types here

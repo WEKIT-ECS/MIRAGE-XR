@@ -16,8 +16,8 @@ public class DialogueService : MonoBehaviour
     private SpeechOutputService dSpeechOutputMgr;
     private SpeechInputService dSpeechInputMgr;
 
-    private UserProfile dUser;
-    private ExerciseController dEC;
+	private UserProfile dUser;
+	private ExerciseController dEC;
 
     private MirageXR.CharacterController _character;
 
@@ -35,9 +35,9 @@ public class DialogueService : MonoBehaviour
     private string versionDate = "2019-02-28";
     [Tooltip("The assistantId to run the example.")]
     [SerializeField]
-    private string assistantId = "b392e763-cfde-44c4-b24a-275c92fc4f9b";
+	private string assistantId = "b392e763-cfde-44c4-b24a-275c92fc4f9b"; 
     private AssistantService service;
-    private DaimonManager dAImgr;
+	private DaimonManager dAImgr;
 
     private string username;
 
@@ -63,9 +63,9 @@ public class DialogueService : MonoBehaviour
         LogSystem.InstallDefaultReactors();
 
         dSpeechOutputMgr = GetComponent<SpeechOutputService>();
-        dAImgr = GetComponent<DaimonManager>();
-        dUser = GetComponent<UserProfile>();
-        dEC = GetComponent<ExerciseController>();
+		dAImgr = GetComponent<DaimonManager>();
+		dUser = GetComponent<UserProfile>();
+		dEC = GetComponent<ExerciseController>();
 
         dSpeechInputMgr = GetComponent<SpeechInputService>();
         dSpeechInputMgr.onInputReceived += OnInputReceived;
@@ -78,7 +78,7 @@ public class DialogueService : MonoBehaviour
 
     private IEnumerator CreateService()
     {
-        /*
+		/*
         if (string.IsNullOrEmpty(iamApikey))
         {
             throw new IBMException("Please provide IAM ApiKey for the service.");
@@ -102,9 +102,9 @@ public class DialogueService : MonoBehaviour
 
         service = new AssistantService(versionDate); // , credentials);
 
-        while (!service.Authenticator.CanAuthenticate()) // .Credentials.HasIamTokenData()
+		while (!service.Authenticator.CanAuthenticate()) // .Credentials.HasIamTokenData()
             yield return null;
-
+		
         Runnable.Run(CreateSession());
 
         // Runnable.Run(Examples());
@@ -112,7 +112,7 @@ public class DialogueService : MonoBehaviour
 
     private IEnumerator CreateSession()
     {
-        Debug.Log("CONNECTING TO ASSISTANT: " + assistantId);
+		Debug.Log("CONNECTING TO ASSISTANT: " + assistantId);
         service.CreateSession(OnCreateSession, assistantId);
 
         while (!createSessionTested)
@@ -160,11 +160,10 @@ public class DialogueService : MonoBehaviour
     private void OnResponseReceived(DetailedResponse<MessageResponse> response, IBMError error)
     {
 
-        if (response.Result.Output.Generic != null && response.Result.Output.Generic.Count > 0)
-        {
-            Debug.Log("DialogueService response: " + response.Result.Output.Generic[0].Text);
-            if (response.Result.Output.Intents.Capacity > 0) Debug.Log("    -> " + response.Result.Output.Intents[0].Intent.ToString());
-        }
+		if (response.Result.Output.Generic != null && response.Result.Output.Generic.Count > 0) {
+			Debug.Log("DialogueService response: " + response.Result.Output.Generic[0].Text);
+			if (response.Result.Output.Intents.Capacity > 0) Debug.Log("    -> " + response.Result.Output.Intents[0].Intent.ToString());
+		}
 
         // check if Watson was able to make sense of the user input, otherwise ask to repeat the input
         if (response.Result.Output.Intents == null && response.Result.Output.Actions == null)
@@ -172,9 +171,7 @@ public class DialogueService : MonoBehaviour
             Debug.Log("I did not understand");
             dSpeechOutputMgr.Speak("I don't understand, can you rephrase?");
 
-        }
-        else
-        {
+        } else {
 
             if (response.Result.Output.Intents != null && response.Result.Output.Intents.Count > 0)
             {
@@ -235,7 +232,7 @@ public class DialogueService : MonoBehaviour
                     else
                         dAImgr.check = true;
 
-                    if (string.IsNullOrEmpty(res))
+                    if(string.IsNullOrEmpty(res))
                         dSpeechOutputMgr.Speak("Sorry, I don't understand.");
 
                     dSpeechOutputMgr.Speak(res); // + ", " + username
@@ -247,83 +244,82 @@ public class DialogueService : MonoBehaviour
                     Debug.LogError($"Somthing went wrong but the conversiontion will be continued. The error is:\n {e}");
                 }
 
-            }
-            else // no Generic response coming back, so say something diplomatic
+            } else // no Generic response coming back, so say something diplomatic
             {
                 dSpeechOutputMgr.Speak("Sorry, I don't understand.");
             }
-
+            
             // now all data has been extracted, so we can run through the list of exclusions
             UpdateExercises();
 
-        } // Watson did understand the user
+            } // Watson did understand the user
 
-    } // end of method OnResponseReceived
+        } // end of method OnResponseReceived
 
-    //dSpeechInputMgr.Active = false;
+        //dSpeechInputMgr.Active = false;
 
-    //myTTS.myVoice = "de-DE_DieterV3Voice";
-    //myTTS.Speak(myTranslator.lastTranslationResult);
-    //myTTS.myVoice = "en-GB_KateV3Voice";
-
-
-    // Convert resp to fsdata
-    //fsData fsdata = null;
-    //fsResult r = _serializer.TrySerialize(response.GetType(), response, out fsdata);
-    //if (!r.Succeeded)
-    //    throw new IBMException(r.FormattedMessages);
-
-    ////  Convert fsdata to MessageResponse
-    //MessageResponse messageResponse = new MessageResponse();
-    //object obj = messageResponse;
-    //r = _serializer.TryDeserialize(fsdata, obj.GetType(), ref obj);
-    //if (!r.Succeeded)
-    //    throw new IBMException(r.FormattedMessages);
-
-    //object _tempContext = null;
-    //(resp as Dictionary<string, object>).TryGetValue("context", out _tempContext);
-    //if (_tempContext != null)
-    //{
-
-    //    _tempContext = _tempContext as Dictionary<string, object>;
-    //}
-    //else
-    //{
-    //    Log.Debug("ExampleConversation.Dialogue()", "Failed to get context");
-    //}
-
-    ////object tempIntentsObj = null;
-    ////(response as Dictionary<string, object>).TryGetValue("intents", out tempIntentsObj);
+        //myTTS.myVoice = "de-DE_DieterV3Voice";
+        //myTTS.Speak(myTranslator.lastTranslationResult);
+        //myTTS.myVoice = "en-GB_KateV3Voice";
 
 
-    //object _tempText = null;
-    //object _tempTextObj = (_tempText as List<object>)[0];
-    //string output = _tempTextObj.ToString();
-    //if (output != null)
-    //{
-    //    //replace any <waitX> tags with the value expected by the TTS service
-    //    string replaceActionTags = output.ToString();
-    //    int pos3 = replaceActionTags.IndexOf("<wait3>");
-    //    if (pos3 != -1)
-    //    {
-    //        replaceActionTags = output.Replace("<wait3>", "<break time='3s'/>");
-    //    }
-    //    int pos4 = replaceActionTags.IndexOf("<wait4>");
-    //    if (pos4 != -1)
-    //    {
-    //        replaceActionTags = output.Replace("<wait4>", "<break time='4s'/>");
-    //    }
-    //    int pos5 = replaceActionTags.IndexOf("<wait5>");
-    //    if (pos5 != -1)
-    //    {
-    //        replaceActionTags = output.Replace("<wait5>", "<break time='5s'/>");
-    //    }
-    //    output = replaceActionTags;
-    //}
-    //else
-    //{
-    //    Log.Debug("Extract outputText", "Failed to extract outputText and set for speaking");
-    //}
+        // Convert resp to fsdata
+        //fsData fsdata = null;
+        //fsResult r = _serializer.TrySerialize(response.GetType(), response, out fsdata);
+        //if (!r.Succeeded)
+        //    throw new IBMException(r.FormattedMessages);
+
+        ////  Convert fsdata to MessageResponse
+        //MessageResponse messageResponse = new MessageResponse();
+        //object obj = messageResponse;
+        //r = _serializer.TryDeserialize(fsdata, obj.GetType(), ref obj);
+        //if (!r.Succeeded)
+        //    throw new IBMException(r.FormattedMessages);
+
+        //object _tempContext = null;
+        //(resp as Dictionary<string, object>).TryGetValue("context", out _tempContext);
+        //if (_tempContext != null)
+        //{
+
+        //    _tempContext = _tempContext as Dictionary<string, object>;
+        //}
+        //else
+        //{
+        //    Log.Debug("ExampleConversation.Dialogue()", "Failed to get context");
+        //}
+
+        ////object tempIntentsObj = null;
+        ////(response as Dictionary<string, object>).TryGetValue("intents", out tempIntentsObj);
+
+
+        //object _tempText = null;
+        //object _tempTextObj = (_tempText as List<object>)[0];
+        //string output = _tempTextObj.ToString();
+        //if (output != null)
+        //{
+        //    //replace any <waitX> tags with the value expected by the TTS service
+        //    string replaceActionTags = output.ToString();
+        //    int pos3 = replaceActionTags.IndexOf("<wait3>");
+        //    if (pos3 != -1)
+        //    {
+        //        replaceActionTags = output.Replace("<wait3>", "<break time='3s'/>");
+        //    }
+        //    int pos4 = replaceActionTags.IndexOf("<wait4>");
+        //    if (pos4 != -1)
+        //    {
+        //        replaceActionTags = output.Replace("<wait4>", "<break time='4s'/>");
+        //    }
+        //    int pos5 = replaceActionTags.IndexOf("<wait5>");
+        //    if (pos5 != -1)
+        //    {
+        //        replaceActionTags = output.Replace("<wait5>", "<break time='5s'/>");
+        //    }
+        //    output = replaceActionTags;
+        //}
+        //else
+        //{
+        //    Log.Debug("Extract outputText", "Failed to extract outputText and set for speaking");
+        //}
 
     public void UpdateExercises()
     {
@@ -348,7 +344,7 @@ public class DialogueService : MonoBehaviour
 
     }
 
-    public void OnInputReceived(string text)
+    public void OnInputReceived(string text )
     {
         //Debug.Log("onInputReceived arrived in DialogueService: '" + text + "'");
         ResponseTextField.text = text;
