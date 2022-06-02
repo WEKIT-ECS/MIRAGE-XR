@@ -61,7 +61,6 @@ namespace MirageXR
             targetRadius = placeLocation.transform.localScale.x / 2;
             pickOb = this.gameObject;
             ChangeCorrectionDistance(targetRadius);
-            SetResetPos(pickOb.transform.localPosition);
             moveMode = false;
             lockToggle.IsSelected = true;
 
