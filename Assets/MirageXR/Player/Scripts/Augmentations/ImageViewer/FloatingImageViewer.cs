@@ -69,11 +69,11 @@ namespace MirageXR
 
             if (obj.key == "P")
             {
-                setOrientation(FramePortrait, FrameLandscape, BackgroundPortrait);
+                SetOrientation(FramePortrait, FrameLandscape, BackgroundPortrait);
             }
             else
             {
-                setOrientation(FrameLandscape, FramePortrait, BackgroundLandscape);
+                SetOrientation(FrameLandscape, FramePortrait, BackgroundLandscape);
             }
             // Get the last bit of the url.
             var id = obj.url.Split('/')[obj.url.Split('/').Length - 1];
@@ -202,10 +202,8 @@ namespace MirageXR
 
         }
 
-
-        private void setOrientation(GameObject activeFrame, GameObject unusedFrame, GameObject background)
+        private void SetOrientation(GameObject activeFrame, GameObject unusedFrame, GameObject background)
         {
-
             activeFrame.SetActive(true);
             // set selected frame
 
