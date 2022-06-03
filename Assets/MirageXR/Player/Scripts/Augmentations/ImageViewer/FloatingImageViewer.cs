@@ -6,20 +6,17 @@ namespace MirageXR
 {
     public class FloatingImageViewer : MirageXRPrefab
     {
+        private ActivityManager activityManager => RootObject.Instance.activityManager;
+
         private float _width = 0.4f;
         private float _height = 0.3f;
-
-        private string ArlemFolderPath = RootObject.Instance.activityManager.ActivityPath;
 
         [Tooltip("Image file. .jpg and .png formats supported")]
 
         [SerializeField] private string imageName = "image.jpg";
         [Tooltip("Set to false to read from project's 'Resources' folder; set to true to read from applications 'LocalState' folder on HoloLens, or online, if filename starts with 'http'")]
         [SerializeField] private bool useExternalSource = false;
-
         [SerializeField] private bool InPanel;
-
-
         [SerializeField] private GameObject BackgroundPortrait;
         [SerializeField] private GameObject BackgroundLandscape;
         [SerializeField] private GameObject FramePortrait;
@@ -72,11 +69,11 @@ namespace MirageXR
 
             if (obj.key == "P")
             {
-                setOrientation(FramePortrait, FrameLandscape, BackgroundPortrait);
+                SetOrientation(FramePortrait, FrameLandscape, BackgroundPortrait);
             }
             else
             {
-                setOrientation(FrameLandscape, FramePortrait, BackgroundLandscape);
+                SetOrientation(FrameLandscape, FramePortrait, BackgroundLandscape);
             }
             // Get the last bit of the url.
             var id = obj.url.Split('/')[obj.url.Split('/').Length - 1];
@@ -183,7 +180,7 @@ namespace MirageXR
                 var url = imageName.Split('/');
                 var filename = url[url.Length - 1];
 
-                var completeImageName = "file://" + ArlemFolderPath + "/" + filename;
+                var completeImageName = $"file://{activityManager.ActivityPath}/{filename}";
 
                 Debug.Log("Trying to load image from:" + completeImageName);
 
@@ -205,10 +202,8 @@ namespace MirageXR
 
         }
 
-
-        private void setOrientation(GameObject activeFrame, GameObject unusedFrame, GameObject background)
+        private void SetOrientation(GameObject activeFrame, GameObject unusedFrame, GameObject background)
         {
-
             activeFrame.SetActive(true);
             // set selected frame
 
