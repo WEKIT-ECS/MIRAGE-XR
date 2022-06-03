@@ -57,7 +57,7 @@ namespace MirageXR
 
 
 
-        private async void Init()
+        private void Init()
         {
             DialogSaveName = $"characterinfo/{activityManager.ActiveActionId}_{MyCharacter.ToggleObject.poi}.wav";
 
@@ -83,7 +83,7 @@ namespace MirageXR
 
                 if (File.Exists(_clipPath))
                 {
-                    _audioSource.clip = await _audioEditor.LoadClipFromExistingFile(_clipPath);
+                    _audioSource.clip = SaveLoadAudioUtilities.LoadAudioFile(_clipPath);
                     _audioEditor.PlayerAudioSource.clip = _audioSource.clip;
                 }
             }
@@ -250,12 +250,12 @@ namespace MirageXR
 
         }
 
-        public async void PlayDialog()
+        public void PlayDialog()
         {
             if (!File.Exists(_clipPath) || MyCharacter.AIActivated) return;
 
             MyCharacter.AudioEditorCheck();
-            var dialogClip = await _audioEditor.LoadClipFromExistingFile(_clipPath);
+            var dialogClip = SaveLoadAudioUtilities.LoadAudioFile(_clipPath);
             _audioSource.clip = dialogClip;
             _audioSource.loop = LoopToggle.isOn;
             _audioSource.Play();
