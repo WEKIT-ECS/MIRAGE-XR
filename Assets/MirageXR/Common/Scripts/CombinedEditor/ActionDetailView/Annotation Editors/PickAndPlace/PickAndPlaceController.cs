@@ -26,7 +26,10 @@ namespace MirageXR
             pickComponent = pickObject.GetComponent<Pick>();
             EditModeChanges(activityManager.EditModeActive);
 
-            LoadPickAndPlacePositions();
+            if (File.Exists(Path.Combine(activityManager.ActivityPath, "pickandplaceinfo/" + myObj.poi + ".json")))
+            {
+                LoadPickAndPlacePositions();
+            }
 
             spriteToggle.IsSelected = !pickComponent.MoveMode;
 
@@ -159,7 +162,7 @@ namespace MirageXR
         {
             var newModel = GameObject.Find(MyModelID);
 
-            //wait until all model are loaded
+            // wait until all model are loaded
             while (newModel == null)
             {
                 newModel = GameObject.Find(MyModelID);
@@ -177,7 +180,7 @@ namespace MirageXR
 
             if (File.Exists(jsonPath))
             {
-                //delete the json
+                // delete the json
                 File.Delete(jsonPath);
             }
         }

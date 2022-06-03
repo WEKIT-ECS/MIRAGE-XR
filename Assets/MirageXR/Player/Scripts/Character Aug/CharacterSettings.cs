@@ -106,14 +106,14 @@ namespace MirageXR
 
         private void OnTriggerValueChanged()
         {
-            //if trigger is on the aniamtion loop and audio loop should be disabled
+            // if trigger is on the aniamtion loop and audio loop should be disabled
             if (trigger.isOn)
             {
                 dialogRecorder.LoopToggle.isOn = false;
                 animationLoopToggle.isOn = false;
             }
 
-            //loops should be disable if trigger is on
+            // loops should be disable if trigger is on
             dialogRecorder.LoopToggle.interactable = !trigger.isOn;
             animationLoopToggle.interactable = !trigger.isOn;
         }

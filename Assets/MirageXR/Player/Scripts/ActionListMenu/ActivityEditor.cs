@@ -184,10 +184,10 @@ public class ActivityEditor : MonoBehaviour
 
         SaveActivity();
 
-        //clear optionDropDown options if is not empty
+        // clear optionDropDown options if is not empty
         optionsDropDown.options.Clear();
 
-        //hide confirm panel
+        // hide confirm panel
         updateConfirmPanel.SetActive(false);
 
         ////Thumbnail is mandatory
@@ -201,7 +201,7 @@ public class ActivityEditor : MonoBehaviour
         //    loginNeedText.text = "";
         //}
 
-        //login needed for uploading
+        // login needed for uploading
         if (DBManager.LoggedIn)
         {
             loginNeedText.text = string.Empty;

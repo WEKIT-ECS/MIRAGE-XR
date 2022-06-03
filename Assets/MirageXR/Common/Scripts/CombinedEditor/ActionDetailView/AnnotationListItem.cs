@@ -117,7 +117,7 @@ public class AnnotationListItem : MonoBehaviour
 
         RootObject.Instance.augmentationManager.AddAllAugmentationsBetweenSteps(startIndex, endIndex, DisplayedAnnotation, Vector3.zero);
 
-        //On editing the keep alive of the character in each step, save the data (Can use for other augmentations also if needed
+        // On editing the keep alive of the character in each step, save the data (Can use for other augmentations also if needed
         if (DisplayedAnnotation.predicate.StartsWith("char"))
         {
             activityManager.SaveData();

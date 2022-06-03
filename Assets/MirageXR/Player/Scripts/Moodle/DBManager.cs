@@ -52,7 +52,7 @@ namespace MirageXR
         } 
     }
     
-    public static class DBManager //TODO: rename to Settings
+    public static class DBManager // TODO: rename to Settings
     {
         private const string UPLOAD_PRIVACY_KEY = "UploadPrivacy";
         public const bool PUBLIC_UPLOAD_PRIVACY_DEFAULT = false;
@@ -132,7 +132,7 @@ namespace MirageXR
         
         public static string registerPage => $"{domain}/login/signup.php";
 
-        //if user is logged into Moodle
+        // if user is logged into Moodle
         public static bool LoggedIn => username != null;
 
         public static void LogOut()

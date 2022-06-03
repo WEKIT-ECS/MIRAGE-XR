@@ -13,7 +13,7 @@ namespace MirageXR
 {
     public class MoodleManager
     {
-        private const long MAX_FILE_SIZE_FOR_MEMORY = 150 * 1024 * 1024; //150 mb
+        private const long MAX_FILE_SIZE_FOR_MEMORY = 150 * 1024 * 1024; // 150 mb
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
         private GameObject _progressText;   //TODO: remove ui logic 
@@ -102,7 +102,7 @@ namespace MirageXR
                 return (true, response);
             }
 
-            //The file handling response should be displayed as Log, not LogError
+            // The file handling response should be displayed as Log, not LogError
             if (response.Contains("File exist"))
                 Debug.Log($"Error on uploading: {response}");
             else
@@ -114,7 +114,7 @@ namespace MirageXR
             if (_progressText) _progressText.GetComponent<Text>().text = "Error!";
 
             var activityEditor = Object.FindObjectOfType<ActivityEditor>();
-            //show update confirmation panel if file exist
+            // show update confirmation panel if file exist
             if (activityEditor && response == "Error: File exist, update")
             {
                 Object.FindObjectOfType<ActivityEditor>().ShowUploadWarningPanel();
@@ -141,7 +141,7 @@ namespace MirageXR
                 Debug.LogError($"Can't get UserId, error: {response}");
                 return null;
             }
-            DBManager.userid = Regex.Replace(response, "[^0-9]+", string.Empty); //only numbers
+            DBManager.userid = Regex.Replace(response, "[^0-9]+", string.Empty); // only numbers
 
             return DBManager.userid;
         }
@@ -261,7 +261,7 @@ namespace MirageXR
         {
             var (result, response) = await Network.GetCustomDataFromDBRequestAsync(DBManager.userid, DBManager.domain, "updateViews", DBManager.token, itemID);
 
-            //Return null if some error happened
+            // Return null if some error happened
             if (!result || response.StartsWith("Error"))
             {
                 Debug.LogError(response);

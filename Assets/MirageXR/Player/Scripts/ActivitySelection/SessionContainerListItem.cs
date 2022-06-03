@@ -48,7 +48,7 @@ namespace MirageXR
             iconDownloaded.SetActive(Content.ExistsRemotely && Content.ExistsLocally && !Content.IsDownloading);
 
             iconDelete.SetActive(iconDownloaded.activeInHierarchy || iconLocal.activeInHierarchy || Content.userIsOwner);
-            //set the event of the delete button
+            // set the event of the delete button
             DeleteButtonEvent();
 
             iconCloud.SetActive(Content.ExistsRemotely && !Content.ExistsLocally && !Content.IsDownloading);
