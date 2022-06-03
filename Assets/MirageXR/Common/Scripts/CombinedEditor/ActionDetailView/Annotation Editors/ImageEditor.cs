@@ -11,7 +11,7 @@ public class ImageEditor : MonoBehaviour
 {
     private static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
     private static WorkplaceManager workplaceManager => RootObject.Instance.workplaceManager;
-    private string ArlemFolderPath = RootObject.Instance.activityManager.ActivityPath;
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
     [SerializeField] private Button captureButton;
     [SerializeField] private Button acceptButton;
@@ -53,7 +53,7 @@ public class ImageEditor : MonoBehaviour
         if (IsThumbnail)
         {
             // show the last thumbnail on previewImage
-            var thumbnailPath = Path.Combine(ArlemFolderPath, "thumbnail.jpg");
+            var thumbnailPath = Path.Combine(activityManager.ActivityPath, "thumbnail.jpg");
             if (File.Exists(thumbnailPath))
             {
                 var spriteTexture = Utilities.LoadTexture(thumbnailPath);
@@ -106,7 +106,7 @@ public class ImageEditor : MonoBehaviour
             // delete the previous image file
             var imageName = _annotationToEdit.url;
             var originalFileName = Path.GetFileName(imageName.Remove(0, httpPrefix.Length));
-            var originalFilePath = Path.Combine(ArlemFolderPath, originalFileName);
+            var originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
             if (File.Exists(originalFilePath))
             {
                 File.Delete(originalFilePath);
@@ -199,7 +199,7 @@ public class ImageEditor : MonoBehaviour
     private void SaveImage()
     {
         _saveFileName = IsThumbnail ? "thumbnail.jpg" : $"MirageXR_Image_{DateTime.Now.ToFileTimeUtc()}.jpg";
-        var outputPath = Path.Combine(ArlemFolderPath, _saveFileName);
+        var outputPath = Path.Combine(activityManager.ActivityPath, _saveFileName);
         File.WriteAllBytes(outputPath, _capturedImage.EncodeToJPG());
     }
 }

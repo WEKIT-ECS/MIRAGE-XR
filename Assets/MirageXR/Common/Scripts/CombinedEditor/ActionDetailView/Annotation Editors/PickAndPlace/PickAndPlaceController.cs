@@ -1,10 +1,7 @@
-﻿using Microsoft.MixedReality.Toolkit.UI;
-using System;
+﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
-using System.Threading.Tasks;
 using UnityEngine.UI;
 
 
@@ -13,7 +10,6 @@ namespace MirageXR
     public class PickAndPlaceController : MirageXRPrefab
     {
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
-        private string ArlemFolderPath = RootObject.Instance.activityManager.ActivityPath;
 
         private ToggleObject myObj;
         [SerializeField] private Transform pickObject;
@@ -30,7 +26,7 @@ namespace MirageXR
             pickComponent = pickObject.GetComponent<Pick>();
             EditModeChanges(activityManager.EditModeActive);
 
-            if (File.Exists(Path.Combine(ArlemFolderPath, "pickandplaceinfo/" + myObj.poi + ".json")))
+            if (File.Exists(Path.Combine(activityManager.ActivityPath, "pickandplaceinfo/" + myObj.poi + ".json")))
             {
                 LoadPickAndPlacePositions();
             }
@@ -102,7 +98,7 @@ namespace MirageXR
 
         private void LoadPickAndPlacePositions()
         {
-            var json = File.ReadAllText(Path.Combine(ArlemFolderPath, "pickandplaceinfo/" + myObj.poi + ".json"));
+            var json = File.ReadAllText(Path.Combine(activityManager.ActivityPath, "pickandplaceinfo/" + myObj.poi + ".json"));
 
             Positions positions = JsonUtility.FromJson<Positions>(json);
 
@@ -129,7 +125,10 @@ namespace MirageXR
         public void SavePositions()
         {
 
-            if (myObj == null || myObj.poi == "") return; // only if the poi is instantiated not the prefab
+            if (myObj == null || myObj.poi == string.Empty)
+            {
+                return; // only if the poi is instantiated not the prefab
+            }
 
             Positions positions = new Positions
             {
@@ -143,19 +142,21 @@ namespace MirageXR
             };
 
             string pickAndPlaceData = JsonUtility.ToJson(positions);
-            if (!Directory.Exists(ArlemFolderPath + "/pickandplaceinfo "))
-                Directory.CreateDirectory(ArlemFolderPath + "/pickandplaceinfo");
+            if (!Directory.Exists($"{activityManager.ActivityPath}/pickandplaceinfo "))
+            {
+                Directory.CreateDirectory($"{activityManager.ActivityPath}/pickandplaceinfo");
+            }
 
-
-            string jsonPath = Path.Combine(ArlemFolderPath, "pickandplaceinfo/" + myObj.poi + ".json");
+            string jsonPath = Path.Combine(activityManager.ActivityPath, $"pickandplaceinfo/{myObj.poi}.json");
 
             // delete the exsiting file first
             if (File.Exists(jsonPath))
+            {
                 File.Delete(jsonPath);
+            }
 
             File.WriteAllText(jsonPath, pickAndPlaceData);
         }
-
 
         private IEnumerator LoadMyModel(string MyModelID)
         {
@@ -174,7 +175,7 @@ namespace MirageXR
         private void DeletePickAndPlaceData(ToggleObject toggleObject)
         {
             if (toggleObject != MyPoi) return;
-            var arlemPath = ArlemFolderPath;
+            var arlemPath = activityManager.ActivityPath;
             var jsonPath = Path.Combine(arlemPath, $"pickandplaceinfo/{MyPoi.poi}.json");
 
             if (File.Exists(jsonPath))
@@ -188,10 +189,7 @@ namespace MirageXR
         {
             SavePositions();
         }
-
     }
-
-
 
     [Serializable]
     public class Positions
