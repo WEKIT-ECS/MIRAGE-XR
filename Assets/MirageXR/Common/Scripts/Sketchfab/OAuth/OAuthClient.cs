@@ -10,11 +10,11 @@ using Debug = UnityEngine.Debug;
 using System.Net;
 using System.Threading.Tasks;
 
-//using Windows.Data.Json;
-//using Windows.Security.Authentication.Web;
-//using Windows.UI.Xaml;
-//using Windows.UI.Xaml.Controls;
-//using Windows.Web.Http;
+// using Windows.Data.Json;
+// using Windows.Security.Authentication.Web;
+// using Windows.UI.Xaml;
+// using Windows.UI.Xaml.Controls;
+// using Windows.Web.Http;
 
 
 public class OAuthClient : MonoBehaviour
@@ -148,12 +148,12 @@ public class OAuthClient : MonoBehaviour
 
 		Application.OpenURL(url);
 
-		//pp.StartInfo = new ProcessStartInfo(url);
-		//pp.OutputDataReceived += CheckCode;
-		//pp.EnableRaisingEvents = true;
-		//pp.Start();
-
-		//StartCoroutine(WaitForAuthButtonPressThenAuthenticate(callback));
+		// pp.StartInfo = new ProcessStartInfo(url);
+		// pp.OutputDataReceived += CheckCode;
+		// pp.EnableRaisingEvents = true;
+		// pp.Start();
+		   
+		// StartCoroutine(WaitForAuthButtonPressThenAuthenticate(callback));
 	}
 
 	public bool AuthButtonPressed = false;

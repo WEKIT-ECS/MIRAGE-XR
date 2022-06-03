@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEditor;
-//using UnityGLTF;
-//using Ionic.Zip;
+// using UnityGLTF;
+// using Ionic.Zip;
 
 class SketchfabImporter : EditorWindow
 {

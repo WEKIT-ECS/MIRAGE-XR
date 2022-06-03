@@ -77,7 +77,7 @@ namespace MirageXR
                 _annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(_action, offset);
             }
 
-            //change predicate on all steps
+            // change predicate on all steps
             activityManager.ActionsOfTypeAction.ForEach(a => {
                 var anno = a.enter.activates.Find(t => t.poi == _annotationToEdit.poi);
                 if (anno != null)

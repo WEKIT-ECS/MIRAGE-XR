@@ -90,12 +90,12 @@ namespace MirageXR
             fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/x-zip-compressed");
             form.Add(fileContent, "myFile", recordingId);
 
-            //fixed parameters
-            //string macAddress = NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up).Select(nic => nic.GetPhysicalAddress().ToString()).FirstOrDefault();
+            // fixed parameters
+            // string macAddress = NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up).Select(nic => nic.GetPhysicalAddress().ToString()).FirstOrDefault();
             var userName = await GetUserNameAsync();
             form.Add(new StringContent("Hololens"), "\"device\"");
             form.Add(new StringContent(userName), "\"author\"");
-            //ServiceManager.GetService<ActivityService>().UpdateSessionName(myTitle.text);
+            // ServiceManager.GetService<ActivityService>().UpdateSessionName(myTitle.text);
             var arlemName = string.Empty;
 
 
@@ -108,7 +108,7 @@ namespace MirageXR
                 arlemName = $"WEKIT ARLEM recorder session of {DateTime.Now.ToString(CultureInfo.InvariantCulture)}";
 
             form.Add(new StringContent(arlemName), "\"description\"");
-            //form.Add(new StringContent("WEKIT ARLEM recorder session of " + DateTime.Now.ToString()), "\"description\"");
+            // form.Add(new StringContent("WEKIT ARLEM recorder session of " + DateTime.Now.ToString()), "\"description\"");
             form.Add(new StringContent("ARLEM"), "\"category\"");
 
             var response = await _client.PostAsync(url, form);
@@ -197,25 +197,25 @@ namespace MirageXR
             {
                 var sessionJson = await response.Content.ReadAsStringAsync();
                 var node = SimpleJSON.JSON.Parse(sessionJson);
-                //Debug.Log("parsed sessions: " + node.Count);
-                // each entry in the JSONNode has the following structure:
-                /*
-                 * {
-                 *      "id":5746569068412928,
-                 *      "author":"User #1",
-                 *      "uploadingDevice":"Hololens",
-                 *      "description":"WEKIT ARLEM recorder session of 10/19/2018 6:05:05 AM",
-                 *      "category":"ARLEM",
-                 *      "size":56983,
-                 *      "filename":"session-2018-10-19_06-02-46.zip",
-                 *      "filetype":"application/x-zip-compressed",
-                 *      "key":"/gs/wekitproject.appspot.com/L2FwcGhvc3RpbmdfZ2xvYmFsL2Jsb2JzL0FFbkIyVXB5eDJqd1hiMXVOU3BISndsS1VoblZhMHdRdEFaeGZWVHFjUERqbkNXZTZjSXhFU0tmaVpuWEVkYUZoSzFxX0xRWFV6SHhpeTFJVXJxblFvUVotT2NoOHg3ZjVBLmlOdDdQYmZsTDRUd3JvVm8",
-                 *      "uploadingDate":"Oct 19, 2018 1:05:07 PM"
-                 * }
-                 * 
-                 * prepend the key attribute with "https://wekitproject.appspot.com/storage/serve" for download of that session
+                // Debug.Log("parsed sessions: " + node.Count);
+                //  each entry in the JSONNode has the following structure:
+                /* 
+                 *  {
+                 *       "id":5746569068412928,
+                 *       "author":"User #1",
+                 *       "uploadingDevice":"Hololens",
+                 *       "description":"WEKIT ARLEM recorder session of 10/19/2018 6:05:05 AM",
+                 *       "category":"ARLEM",
+                 *       "size":56983,
+                 *       "filename":"session-2018-10-19_06-02-46.zip",
+                 *       "filetype":"application/x-zip-compressed",
+                 *       "key":"/gs/wekitproject.appspot.com/L2FwcGhvc3RpbmdfZ2xvYmFsL2Jsb2JzL0FFbkIyVXB5eDJqd1hiMXVOU3BISndsS1VoblZhMHdRdEFaeGZWVHFjUERqbkNXZTZjSXhFU0tmaVpuWEVkYUZoSzFxX0xRWFV6SHhpeTFJVXJxblFvUVotT2NoOHg3ZjVBLmlOdDdQYmZsTDRUd3JvVm8",
+                 *       "uploadingDate":"Oct 19, 2018 1:05:07 PM"
+                 *  }
+                 *  
+                 *  prepend the key attribute with "https://wekitproject.appspot.com/storage/serve" for download of that session
                  */
-                //Debug.Log("node as array: " + node.AsArray.Count);
+                // Debug.Log("node as array: " + node.AsArray.Count);
                 return node;
             }
 
@@ -225,9 +225,10 @@ namespace MirageXR
         #endregion
 
         // timeout after which a ongoing request fails
-        private const int REQUEST_TIMEOUT_IN_SECONDS = 30; //0.5 minute
+        private const int REQUEST_TIMEOUT_IN_SECONDS = 30; // 0.5 minute
+
         // timeout after which an ongoing upload fails
-        private const int UPLOAD_TIMEOUT_IN_SECONDS = 600; //10 minutes
+        private const int UPLOAD_TIMEOUT_IN_SECONDS = 600; // 10 minutes
 
         /// <summary>
         /// Tries to log in the user on the Moodle backend.
@@ -287,8 +288,8 @@ namespace MirageXR
             if (userid != null) form.Add(new StringContent(userid), useridKey);
             if (tokenValue != null) form.Add(new StringContent(tokenValue), tokenKey);
 
-            //if you need to identify an arlem in moodle send its itemid to moodle and get back any info of that file
-            //you can only use either sessionid or itemid to identify a file, however recommend use both.
+            // if you need to identify an arlem in moodle send its itemid to moodle and get back any info of that file
+            // you can only use either sessionid or itemid to identify a file, however recommend use both.
             if (itemid != null) form.Add(new StringContent(itemid), itemidKey);
             if (sessionid != null) form.Add(new StringContent(sessionid), sessionIdKey);
 

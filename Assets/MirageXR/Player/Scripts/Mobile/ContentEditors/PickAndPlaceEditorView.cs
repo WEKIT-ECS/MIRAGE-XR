@@ -2,6 +2,7 @@
 using MirageXR;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PickAndPlaceEditorView : PopupEditorBase
 {
@@ -49,8 +50,8 @@ public class PickAndPlaceEditorView : PopupEditorBase
         Close();
     }
 
-    public void setResetOption(int option)
+    public void setResetOption(Dropdown option)
     {
-        resetOption = option;
+        resetOption = option.value;
     }
 }

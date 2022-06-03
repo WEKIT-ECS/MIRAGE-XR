@@ -104,7 +104,7 @@ public class PathRoleController : MonoBehaviour
                 caption = $"{taskStationIndex + 1:00}\n{positionCaption}";
                 icon = taskStationIcon;
 
-                //After the new design (moving the annotation menu to taskstaion) we remove the caption on current diamond (Abbas)
+                // After the new design (moving the annotation menu to taskstaion) we remove the caption on current diamond (Abbas)
                 if (IsCurrent())
                 {
                     caption = string.Empty;

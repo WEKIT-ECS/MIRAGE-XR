@@ -22,12 +22,12 @@ public class MirageXRModelAnnotationEditor : MonoBehaviour
     bool large = false;
 
 
-    //List<string> modelsCollection = new List<string>();
-    ///// <summary>
-    ///// Automatically genertate menu item by reading the names of the objects in resource folder
-    ///// </summary>
-    //void GenerateFileList()
-    //{
+    // List<string> modelsCollection = new List<string>();
+    // /// <summary>
+    // /// Automatically genertate menu item by reading the names of the objects in resource folder
+    // /// </summary>
+    // void GenerateFileList()
+    // {
 
     //    string myPath = "Assets/Resources/Medieval/Models";
     //    DirectoryInfo dir = new DirectoryInfo(myPath);
@@ -44,15 +44,15 @@ public class MirageXRModelAnnotationEditor : MonoBehaviour
     //    }
     //}
 
-    //void populateMenuItem()
-    //{
-    //    for (int i=0; i>=modelsCollection.Count;i++)
-    //    {
-    //        gameObject.GetComponent<MirageXRMenuBase>().menuItemTexts[i] = modelsCollection[i];
-    //        gameObject.GetComponent<MirageXRMenuBase>().menuItemNames[i]= "PlaceModel";
-    //    }
-
-    //}
+    // void populateMenuItem()
+    // {
+    //     for (int i=0; i>=modelsCollection.Count;i++)
+    //     {
+    //         gameObject.GetComponent<MirageXRMenuBase>().menuItemTexts[i] = modelsCollection[i];
+    //         gameObject.GetComponent<MirageXRMenuBase>().menuItemNames[i]= "PlaceModel";
+    //     }
+       
+    // }
 
 
     /// <summary>
@@ -142,14 +142,14 @@ public class MirageXRModelAnnotationEditor : MonoBehaviour
     public void RotateModel()
     {
         Destroy(gameObject.GetComponent<ObjectManipulator>());
-        //gameObject.GetComponent<HandDraggable>().IsDraggingEnabled = false
-        //gameObject.GetComponent<MirageXRModelManipulation>().rotatingEnabled = true;
+        // gameObject.GetComponent<HandDraggable>().IsDraggingEnabled = false
+        // gameObject.GetComponent<MirageXRModelManipulation>().rotatingEnabled = true;
         gameObject.AddComponent<MirageXRModelManipulation>();
     }
 
     public void Save(string filename)
     {
-        //Write the data in an .xml file and save it locally.
+        // Write the data in an .xml file and save it locally.
         FileStream file = File.Create(filename);
         TextWriter tW = new StreamWriter(file);
 

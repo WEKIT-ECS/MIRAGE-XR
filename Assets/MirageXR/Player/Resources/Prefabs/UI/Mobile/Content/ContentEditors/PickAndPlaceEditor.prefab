@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9087191929101748360}
   - component: {fileID: 3619110591353008368}
-  m_Layer: 5
+  m_Layer: 30
   m_Name: Item
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -96,7 +96,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6299314796393612996}
-  m_Layer: 5
+  m_Layer: 30
   m_Name: Content
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 5588078257215496218}
   - component: {fileID: 3839469067482135882}
   - component: {fileID: 7981533232187858653}
-  m_Layer: 5
+  m_Layer: 30
   m_Name: Template
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -242,7 +242,7 @@ GameObject:
   - component: {fileID: 9123477596043529847}
   - component: {fileID: 3108346699728930653}
   - component: {fileID: 6505103339466240844}
-  m_Layer: 5
+  m_Layer: 30
   m_Name: Arrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -317,7 +317,7 @@ GameObject:
   - component: {fileID: 795883299993005074}
   - component: {fileID: 1628221987493107753}
   - component: {fileID: 792676071574127841}
-  m_Layer: 5
+  m_Layer: 30
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -397,7 +397,7 @@ GameObject:
   - component: {fileID: 3468408068476371402}
   - component: {fileID: 8839526198298457314}
   - component: {fileID: 8845299955233272754}
-  m_Layer: 5
+  m_Layer: 30
   m_Name: Scrollbar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -522,7 +522,7 @@ GameObject:
   - component: {fileID: 8235607937534083786}
   - component: {fileID: 8411484913269382973}
   - component: {fileID: 6096277866095788320}
-  m_Layer: 5
+  m_Layer: 30
   m_Name: Item Checkmark
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -598,7 +598,7 @@ GameObject:
   - component: {fileID: 5092666141457837511}
   - component: {fileID: 6042799459325781010}
   - component: {fileID: 3946257441222230518}
-  m_Layer: 5
+  m_Layer: 30
   m_Name: Viewport
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -688,7 +688,7 @@ GameObject:
   - component: {fileID: 3343591964900836534}
   - component: {fileID: 6672196043917305349}
   - component: {fileID: 7319032454099497805}
-  m_Layer: 5
+  m_Layer: 30
   m_Name: Dropdown
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -813,11 +813,11 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: -2630882419118265004}
         m_TargetAssemblyTypeName: PickAndPlaceEditorView, MirageXR
-        m_MethodName: resetOption
-        m_Mode: 0
+        m_MethodName: setResetOption
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 7319032454099497805}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Dropdown, UnityEngine.UI
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -835,7 +835,7 @@ GameObject:
   - component: {fileID: 2118499887836498139}
   - component: {fileID: 4304402840034627392}
   - component: {fileID: 7266944402126534398}
-  m_Layer: 5
+  m_Layer: 30
   m_Name: Handle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -910,7 +910,7 @@ GameObject:
   - component: {fileID: 9149993730450374255}
   - component: {fileID: 8428428760013676793}
   - component: {fileID: 820902010159219138}
-  m_Layer: 5
+  m_Layer: 30
   m_Name: Item Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -989,7 +989,7 @@ GameObject:
   - component: {fileID: 849409876992254193}
   - component: {fileID: 3682208784115998063}
   - component: {fileID: 49266450035747871}
-  m_Layer: 5
+  m_Layer: 30
   m_Name: Item Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1201,7 +1201,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7681758401977209043}
-  m_Layer: 5
+  m_Layer: 30
   m_Name: Sliding Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1721,7 +1721,7 @@ PrefabInstance:
     - target: {fileID: 7767528828638322410, guid: 0da6c846047eb364684101b2e5e2abc4,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 360
       objectReference: {fileID: 0}
     - target: {fileID: 9179672252660428331, guid: 0da6c846047eb364684101b2e5e2abc4,
         type: 3}
