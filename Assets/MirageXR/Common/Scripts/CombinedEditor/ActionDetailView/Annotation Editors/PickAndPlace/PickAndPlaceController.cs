@@ -30,7 +30,10 @@ namespace MirageXR
             pickComponent = pickObject.GetComponent<Pick>();
             EditModeChanges(activityManager.EditModeActive);
 
-            LoadPickAndPlacePositions();
+            if (File.Exists(Path.Combine(ArlemFolderPath, "pickandplaceinfo/" + myObj.poi + ".json")))
+            {
+                LoadPickAndPlacePositions();
+            }
 
             spriteToggle.IsSelected = !pickComponent.MoveMode;
 
