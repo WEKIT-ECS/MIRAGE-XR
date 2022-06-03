@@ -149,7 +149,7 @@ public class AudioEditor : MonoBehaviour
             Destroy(ae.gameObject);
     }
 
-    public async void Open(Action action, ToggleObject annotation)
+    public void Open(Action action, ToggleObject annotation)
     {
         gameObject.SetActive(true);
         this.action = action;
@@ -169,8 +169,8 @@ public class AudioEditor : MonoBehaviour
         if (annotationToEdit != null)
         {
             SaveFileName = annotationToEdit.url;
-
-            capturedClip = await LoadClipFromExistingFile(GetExistingAudioFile());
+            
+            capturedClip = SaveLoadAudioUtilities.LoadAudioFile(GetExistingAudioFile());
 
             if (annotationToEdit.option.Contains("3d"))
             {
@@ -192,37 +192,6 @@ public class AudioEditor : MonoBehaviour
         {
             SaveFileName = string.Empty;
         }
-    }
-
-
-    public async Task<AudioClip> LoadClipFromExistingFile(string path)
-    {
-        AudioClip clip = null;
-        using (UnityWebRequest uwr = UnityWebRequestMultimedia.GetAudioClip(path, AudioType.WAV))
-        {
-            uwr.SendWebRequest();
-
-            // wrap tasks in try/catch, otherwise it'll fail silently
-            try
-            {
-                while (!uwr.isDone) await Task.Delay(5);
-
-                if (uwr.isNetworkError || uwr.isHttpError)
-                {
-                    Debug.Log($"{uwr.error}\n{path}");
-                }
-                else
-                {
-                    clip = DownloadHandlerAudioClip.GetContent(uwr);
-                }
-            }
-            catch (System.Exception err)
-            {
-                Debug.Log($"{err.Message}, {err.StackTrace}");
-            }
-        }
-
-        return clip;
     }
 
     public void PlayAudio()
