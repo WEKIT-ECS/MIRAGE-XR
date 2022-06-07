@@ -9,22 +9,22 @@ public class OnboardingView : UIBehaviour, ICanvasElement, IBeginDragHandler, IE
     protected RectTransform viewport;
     [SerializeField]
     protected RectTransform content;
-    
+
     [SerializeField]
     private float snapTime = 0.3f;
     public bool swipeEnabled;
-    
+
     private bool IsDragging { get; set; } //test
 
     private float _snapPosition;
 
     private float _velocity;
-  
+
     private float _prevPosition;
-    
+
     private float _viewportWidth;
     private float _contentWidth;
-    
+
     private DrivenRectTransformTracker _drivenRectTracker;
 
     private float ScrollPosition
@@ -41,7 +41,7 @@ public class OnboardingView : UIBehaviour, ICanvasElement, IBeginDragHandler, IE
     /// The number of tabs.
     /// </summary>
     private int Count => content.childCount;
-    
+
     private int _selectedTabIndex = 0;
 
     protected override void OnEnable()
@@ -49,11 +49,13 @@ public class OnboardingView : UIBehaviour, ICanvasElement, IBeginDragHandler, IE
         base.OnEnable();
         CanvasUpdateRegistry.RegisterCanvasElementForLayoutRebuild(this);
     }
+
     protected override void OnDisable()
     {
         base.OnDisable();
         CanvasUpdateRegistry.UnRegisterCanvasElementForRebuild(this);
     }
+
     public virtual void Rebuild(CanvasUpdate executing)
     {
         if (executing == CanvasUpdate.PostLayout)
@@ -61,8 +63,11 @@ public class OnboardingView : UIBehaviour, ICanvasElement, IBeginDragHandler, IE
             UpdateSelection();
         }
     }
+
     public virtual void LayoutComplete() { }
+
     public virtual void GraphicUpdateComplete() { }
+
     public void SetLayoutHorizontal()
     {
         _drivenRectTracker.Clear();
@@ -89,14 +94,14 @@ public class OnboardingView : UIBehaviour, ICanvasElement, IBeginDragHandler, IE
               childRect,
               DrivenTransformProperties.Anchors |
               DrivenTransformProperties.AnchoredPosition |
-              DrivenTransformProperties.SizeDelta
-            );
+              DrivenTransformProperties.SizeDelta);
             childRect.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, i * w, w);
             childRect.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 0, h);
             childRect.localScale = Vector3.one;
         }
         LayoutRebuilder.ForceRebuildLayoutImmediate(content);
     }
+
     public void SetLayoutVertical() { }
 
     public virtual void OnBeginDrag(PointerEventData eventData)
@@ -107,20 +112,18 @@ public class OnboardingView : UIBehaviour, ICanvasElement, IBeginDragHandler, IE
     public virtual void OnDrag(PointerEventData eventData)
     {
         if (swipeEnabled)
-        { 
+        {
             ScrollPosition -= eventData.delta.x;
         }
         UpdateSelection();
     }
+
     public virtual void OnEndDrag(PointerEventData eventData)
     {
-        // Calculate the position that the view should snap
         if (Count > 0)
         {
             var w = viewport.rect.size.x;
             var predictedPos = ScrollPosition + _velocity * snapTime;
-
-            // Snap to the predicted page.
             _snapPosition = Mathf.Round(predictedPos / w) * w;
         }
         IsDragging = false;
@@ -130,7 +133,7 @@ public class OnboardingView : UIBehaviour, ICanvasElement, IBeginDragHandler, IE
     {
         var notYetUpdated = true;
         float newPosition;
-        
+
         if (Mathf.Abs(_snapPosition - ScrollPosition) < 0.001f)
         {
             _velocity = 0f;
@@ -146,37 +149,31 @@ public class OnboardingView : UIBehaviour, ICanvasElement, IBeginDragHandler, IE
             UpdateSelection();
             notYetUpdated = false;
         }
-        
-        if (
-          notYetUpdated &&
-          (
-            _viewportWidth != viewport.rect.size.x ||
-            _contentWidth != content.rect.size.x
-          )
-        )
+
+        if (notYetUpdated && (_viewportWidth != viewport.rect.size.x || _contentWidth != content.rect.size.x))
         {
             UpdateSelection();
             _viewportWidth = viewport.rect.size.x;
             _contentWidth = content.rect.size.x;
         }
     }
-    
+
     private void UpdateSelection()
     {
         // Do something
     }
-    
+
     public void SkipBtnClicked()
     {
         prefab.SetActive(false); // temp
     }
-    
+
     public void NextBtnClicked()
     {
         _selectedTabIndex += 1;
         _snapPosition = viewport.rect.width * _selectedTabIndex;
     }
-    
+
     public void BackBtnClicked()
     {
         _selectedTabIndex -= 1;
