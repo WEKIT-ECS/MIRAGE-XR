@@ -157,7 +157,7 @@ public class RootView_v2 : BaseView
     {
         if (!panelMoving)
         {
-            StartCoroutine(LerpObject(_currentPanelPosition, new Vector3(0,-200,0)));
+            //StartCoroutine(LerpObject(_currentPanelPosition, new Vector3(0,-200,0)));
         }
     }
     
@@ -171,11 +171,11 @@ public class RootView_v2 : BaseView
         StartCoroutine(Delay(5f));
         if (!panelMoving)
         {
-            StartCoroutine(LerpObject(new Vector3(0,-200,0), _currentPanelPosition));
+            //StartCoroutine(LerpObject(new Vector3(0,-200,0), _currentPanelPosition));
         }
     }
 
-    IEnumerator LerpObject(Vector3 from, Vector3 to)
+    IEnumerator LerpObject(Vector3 from, Vector3 to) // TODO: update LerpObject
     {
         panelMoving = true;
         currentTime = 0;
