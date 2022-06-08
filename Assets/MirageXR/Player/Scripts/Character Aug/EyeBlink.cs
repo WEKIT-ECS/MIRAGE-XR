@@ -3,7 +3,7 @@ using System.Collections;
 
 public class EyeBlink : MonoBehaviour
 {
-    SkinnedMeshRenderer skinnedMeshRenderer;
+    private SkinnedMeshRenderer skinnedMeshRenderer;
     [Range (0,100)]
     [SerializeField] private int DefaultEyeOpenAmount = 10;
     [SerializeField] private int blinkingBlendIndex = 0;
@@ -11,7 +11,7 @@ public class EyeBlink : MonoBehaviour
     [SerializeField] private int blinkingFreq = 10;
     private float _blinking;
 
-    bool _eyesOpened = true;
+    private bool _eyesOpened = true;
 
     void Awake()
     {

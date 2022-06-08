@@ -1,5 +1,4 @@
-﻿using System;
-using MirageXR;
+﻿using MirageXR;
 using System.Collections;
 using System.IO;
 using System.Threading.Tasks;
@@ -10,6 +9,7 @@ using Action = MirageXR.Action;
 
 public class AudioEditor : MonoBehaviour
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
     [SerializeField] private Button startRecordingButton;
     [SerializeField] private Button stopRecordingButton;
     [SerializeField] private Button pauseButton;
@@ -35,10 +35,7 @@ public class AudioEditor : MonoBehaviour
     private int timerSeconds = 0;
 
 
-    public AudioSource GetPlayerAudioSource()
-    {
-        return audioSource;
-    }
+    public AudioSource PlayerAudioSource => audioSource;
 
     public DialogRecorder DialogRecorderPanel
     {
@@ -53,7 +50,7 @@ public class AudioEditor : MonoBehaviour
         private set
         {
             isRecording = value;
-            timerIcon.enabled = isRecording; //recorder circle shows only on recording
+            timerIcon.enabled = isRecording; // recorder circle shows only on recording
             startRecordingButton.interactable = !isRecording;
         }
     }
@@ -126,7 +123,7 @@ public class AudioEditor : MonoBehaviour
 
     public void Close()
     {
-        //when editor is closed play the spatial audio if it is exist
+        // when editor is closed play the spatial audio if it is exist
         if (annotationToEdit != null)
         {
             var audioPlayer = GameObject.Find(annotationToEdit.poi).GetComponentInChildren<AudioPlayer>();
@@ -144,15 +141,15 @@ public class AudioEditor : MonoBehaviour
         SaveFileName = string.Empty;
         IsPlaying = false;
 
-        //play the loop audio which were stopped on recording
+        // play the loop audio which were stopped on recording
         PlayAllLoopedVideo();
 
-        //destroy the editor
+        // destroy the editor
         foreach (var ae in FindObjectsOfType<AudioEditor>())
             Destroy(ae.gameObject);
     }
 
-    public async void Open(Action action, ToggleObject annotation)
+    public void Open(Action action, ToggleObject annotation)
     {
         gameObject.SetActive(true);
         this.action = action;
@@ -172,8 +169,8 @@ public class AudioEditor : MonoBehaviour
         if (annotationToEdit != null)
         {
             SaveFileName = annotationToEdit.url;
-
-            capturedClip = await LoadClipFromExistingFile(GetExistingAudioFile());
+            
+            capturedClip = SaveLoadAudioUtilities.LoadAudioFile(GetExistingAudioFile());
 
             if (annotationToEdit.option.Contains("3d"))
             {
@@ -183,10 +180,10 @@ public class AudioEditor : MonoBehaviour
                 OnAudioTypeToggle();
             }
 
-            //check if the trigger for this audio is on
-             stepTrigger.isOn = ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == annotationToEdit.poi) != null;
+            // check if the trigger for this audio is on
+             stepTrigger.isOn = activityManager.ActiveAction.triggers.Find(t => t.id == annotationToEdit.poi) != null;
 
-            //re-recording is not allowed
+            // re-recording is not allowed
             startRecordingButton.interactable = false;
 
             PlayAudio();
@@ -195,37 +192,6 @@ public class AudioEditor : MonoBehaviour
         {
             SaveFileName = string.Empty;
         }
-    }
-
-
-    public async Task<AudioClip> LoadClipFromExistingFile(string path)
-    {
-        AudioClip clip = null;
-        using (UnityWebRequest uwr = UnityWebRequestMultimedia.GetAudioClip(path, AudioType.WAV))
-        {
-            uwr.SendWebRequest();
-
-            // wrap tasks in try/catch, otherwise it'll fail silently
-            try
-            {
-                while (!uwr.isDone) await Task.Delay(5);
-
-                if (uwr.isNetworkError || uwr.isHttpError)
-                {
-                    Debug.Log($"{uwr.error}\n{path}");
-                }
-                else
-                {
-                    clip = DownloadHandlerAudioClip.GetContent(uwr);
-                }
-            }
-            catch (System.Exception err)
-            {
-                Debug.Log($"{err.Message}, {err.StackTrace}");
-            }
-        }
-
-        return clip;
     }
 
     public void PlayAudio()
@@ -263,7 +229,7 @@ public class AudioEditor : MonoBehaviour
         if (stepTrigger.isOn) loop.isOn = false;
 
         if (stepTrigger.isOn &&
-            ActivityManager.Instance.ActionsOfTypeAction.IndexOf(action) == ActivityManager.Instance.ActionsOfTypeAction.Count - 1)
+            activityManager.ActionsOfTypeAction.IndexOf(action) == activityManager.ActionsOfTypeAction.Count - 1)
         {
             // give the info and close
             DialogWindow.Instance.Show("Info!",
@@ -279,7 +245,7 @@ public class AudioEditor : MonoBehaviour
         if (stepTrigger.isOn)
         {
             if (annotationToEdit == null) return;
-            action.AddOrReplaceArlemTrigger("audio", annotationToEdit.predicate, annotationToEdit.poi, audioSource.clip.length, string.Empty);
+            action.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, annotationToEdit.poi, audioSource.clip.length, string.Empty);
         }
         else
         {
@@ -301,18 +267,18 @@ public class AudioEditor : MonoBehaviour
         const string httpPrefix = "http://";
         
         string originalFileName = !audioName.StartsWith(httpPrefix) ? Path.Combine(Application.persistentDataPath, audioName)
-            : Path.Combine(ActivityManager.Instance.Path, Path.GetFileName(audioName.Remove(0, httpPrefix.Length)));
+            : Path.Combine(activityManager.ActivityPath, Path.GetFileName(audioName.Remove(0, httpPrefix.Length)));
 
-        string originalFilePath = Path.Combine(ActivityManager.Instance.Path, originalFileName);
+        string originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
 
-        //On character dialog recorder, use the custom dialog file path instead of annotationToEdit.url
-        //set the correct dialog recorder(correct character) to the audio player
+        // On character dialog recorder, use the custom dialog file path instead of annotationToEdit.url
+        // set the correct dialog recorder(correct character) to the audio player
         foreach (var character in FindObjectsOfType<MirageXR.CharacterController>())
         {
             if (character.MyAction == action && character.DialogRecorder.DialogSaveName != string.Empty)
             {
                 SaveFileName = character.DialogRecorder.DialogSaveName;
-                originalFilePath = Path.Combine(ActivityManager.Instance.Path, SaveFileName);
+                originalFilePath = Path.Combine(activityManager.ActivityPath, SaveFileName);
                 GameObject.Find(annotationToEdit.poi).GetComponentInChildren<AudioPlayer>().DialogRecorderPanel = character.transform.GetChild(0).GetComponentInChildren<DialogRecorder>(); //TODO: Possible NRE
                 break;
             }
@@ -328,7 +294,7 @@ public class AudioEditor : MonoBehaviour
             if (audioPlayer.Loop)
             {
                 audioPlayer.PlayAudio();
-                audioPlayer.iconImage.sprite = audioPlayer.iconSprite;
+                audioPlayer.IconImage.sprite = audioPlayer.IconSprite;
             }
         }
     }
@@ -346,15 +312,16 @@ public class AudioEditor : MonoBehaviour
                 File.Delete(originalFilePath);
             }
 
-            //edit audio type , loop and radius as option
+            // edit audio type , loop and radius as option
             AudioOptionsAdjustment(annotationToEdit);
         }
         else
         {
-            Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(action.id));
+            var workplaceManager = RootObject.Instance.workplaceManager;
+            Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
             GameObject originT = GameObject.Find(detectable.id);
 
-            //move the audio player to the spawn point
+            // move the audio player to the spawn point
             var annotationStartingPoint = GameObject.Find("AnnotationSpawnPoint");
 
             var offset = Utilities.CalculateOffset(annotationStartingPoint.transform.position,
@@ -362,7 +329,7 @@ public class AudioEditor : MonoBehaviour
                 originT.transform.position,
                 originT.transform.rotation);
             
-            annotationToEdit = ActivityManager.Instance.AddAnnotation(action, offset);
+            annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
             annotationToEdit.predicate = "audio";
 
             //save audio type , loop and radius as option
@@ -460,7 +427,7 @@ public class AudioEditor : MonoBehaviour
         {
             SaveFileName = SaveFileName.Remove(0, httpPrefix.Length);
         }
-        string fullFilePath = Path.Combine(ActivityManager.Instance.Path, SaveFileName);
+        string fullFilePath = Path.Combine(activityManager.ActivityPath, SaveFileName);
         SaveLoadAudioUtilities.Save(fullFilePath, capturedClip);
     }
 

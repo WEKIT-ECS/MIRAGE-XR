@@ -139,7 +139,7 @@ namespace Sketchfab
 			return SketchfabPlugin.VERSION == _latestVersion;
 		}
 
-		//Setup callbacks
+		// Setup callbacks
 		public void SetUploadSuccessCb(Callback callback)
 		{
 			_uploadSuccess = callback;
@@ -412,7 +412,7 @@ namespace Sketchfab
 			_state = ExporterState.IDLE;
 		}
 
-		private string GetUrlId(Dictionary<string, string> responseHeaders)
+		private static string GetUrlId(Dictionary<string, string> responseHeaders)
 		{
 			return responseHeaders["LOCATION"].Split('/')[responseHeaders["LOCATION"].Split('/').Length - 1];
 		}
@@ -424,7 +424,7 @@ namespace Sketchfab
 
 		private JSONNode ParseResponse(WWW www)
 		{
-			return JSON.Parse(this.Jsonify(www.text));
+			return JSON.Parse(Jsonify(www.text));
 		}
 
 		// Update is called once per frame
@@ -450,78 +450,7 @@ namespace Sketchfab
 		{
 			return jsondata.Replace("null", "\"null\"");
 		}
-
-		public string ValidateInputs(ref Dictionary<string, string> parameters)
-		{
-			string errors = "";
-
-			if (parameters["name"].Length > NAME_LIMIT)
-			{
-				errors = "Model name is too long";
-			}
-
-			if (parameters["name"].Length == 0)
-			{
-				errors = "Please give a name to your model";
-			}
-
-			if (parameters["description"].Length > DESC_LIMIT)
-			{
-				errors = "Model description is too long";
-			}
-
-
-			if (parameters["tags"].Length > TAGS_LIMIT)
-			{
-				errors = "Model tags are too long";
-			}
-
-			return errors;
-		}
 	}
-	class RequestManager
-	{
-		List<IEnumerator> _requests;
-		IEnumerator _current = null;
-
-		public RequestManager()
-		{
-				_requests = new List<IEnumerator>();
-		}
-
-		public void AddTask(IEnumerator task)
-		{
-				_requests.Add(task);
-		}
-
-		public void Clear()
-		{
-				_requests.Clear();
-		}
-
-		public bool Play()
-		{
-			if (_requests.Count > 0)
-			{
-				if (_current == null || !_current.MoveNext())
-				{
-					_current = _requests[0];
-					_requests.RemoveAt(0);
-				}
-			}
-
-			if (_current != null)
-				_current.MoveNext();
-
-			if (_current != null && !_current.MoveNext() && _requests.Count == 0)
-				return false;
-
-			return true;
-		}
-	}
-
-	
-
 
 	public class SketchfabRequest
 	{
@@ -557,7 +486,6 @@ namespace Sketchfab
 			}
 		}
 
-
 		// Request access_token
 		public void RequestAccessToken(string user_name, string user_password)
 		{
@@ -566,7 +494,7 @@ namespace Sketchfab
                 { "username", user_name },
                 { "password", user_password }
             };
-            //requestSketchfabAPI(SketchfabPlugin.Urls.oauth, parameters);
+            // requestSketchfabAPI(SketchfabPlugin.Urls.oauth, parameters);
         }
 
 		public WWW GetResponse()
@@ -632,59 +560,6 @@ namespace Sketchfab
 			{
 				www = new WWW(url);
 			}
-		}
-
-		public void RequestSketchfabAPI(string url, Dictionary<string, string> parameters)
-		{
-			_isDone = false;
-			WWWForm postForm = new WWWForm();
-
-
-			// Set parameters
-			foreach (string param in parameters.Keys)
-			{
-				postForm.AddField(param, parameters[param]);
-			}
-
-			// Create and send request
-			if(access_token.Length > 0 )
-			{
-				Dictionary<string, string> headers = postForm.headers;
-				if (access_token.Length > 0)
-					headers["Authorization"] = "Bearer " + access_token;
-
-				www = new WWW(url, postForm.data, headers);
-			}
-			else
-			{
-				www = new WWW(url, postForm);
-			}
-		}
-
-		public void RequestSketchfabAPI(string url, Dictionary<string, string> parameters, byte[] data, string fileName = "")
-		{
-			_isDone = false;
-			WWWForm postForm = new WWWForm();
-			// Set parameters
-			foreach (string param in parameters.Keys)
-			{
-				postForm.AddField(param, parameters[param]);
-			}
-
-			// Add source
-			postForm.AddField("source", uploadSource);
-
-			// add data
-			if (data.Length > 0)
-			{
-				postForm.AddBinaryData("modelFile", data, fileName, "application/zip");
-			}
-
-			Dictionary<string, string> headers = postForm.headers;
-			headers["Authorization"] = "Bearer " + access_token;
-
-			// Create and send request
-			www = new WWW(url, postForm.data, headers);
 		}
 	}
 }

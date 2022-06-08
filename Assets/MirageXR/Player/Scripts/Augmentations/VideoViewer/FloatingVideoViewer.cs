@@ -9,38 +9,34 @@ namespace MirageXR
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public class FloatingVideoViewer : MirageXRPrefab
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         private float _width = 0.32f;
         private float _height = 0.18f;
 
         [Tooltip("H.264 encoded video file. .mp4 and .mov formats supported")]
-        public string videoName = "video.mp4";
+        [SerializeField] private string videoName = "video.mp4";
         [Tooltip("Audio file. Only .wav format supported for external sources. Internally, .mp3 are supported as well")]
-        public string audioName = "audio.wav";
+        [SerializeField] private string audioName = "audio.wav";
         [Tooltip("Set to false to read from project's 'Resources' folder; set to true to read from applications 'LocalState' folder on HoloLens, or online, if filename starts with 'http'")]
-        public bool useExternalSource = false;
+        [SerializeField] private bool useExternalSource = false;
 
         [Tooltip("The video texture component")]
         [SerializeField] private UnityEngine.UI.RawImage _renderTexture;
 
-        [SerializeField] RectTransform cardRT;
-        [SerializeField] RectTransform videoRT;
-        [SerializeField] RectTransform slider;
-        [SerializeField] RectTransform pause;
-        [SerializeField] RectTransform stop;
-        [SerializeField] RectTransform play;
+        [SerializeField] private RectTransform cardRT;
+        [SerializeField] private RectTransform videoRT;
+        [SerializeField] private RectTransform slider;
+        [SerializeField] private RectTransform pause;
+        [SerializeField] private RectTransform stop;
+        [SerializeField] private RectTransform play;
 
+        private bool isAudioReady = false;
+        private bool isVideoReady = false;
+        private bool isPlaying = false;
+        private bool isPaused = false;
 
-        [HideInInspector]
-        public bool isAudioReady = false;
-        [HideInInspector]
-        public bool isVideoReady = false;
-        [HideInInspector]
-        public bool isPlaying = false;
-        [HideInInspector]
-        public bool isPaused = false;
-
-        public bool InPanel;
-        //private Transform _contentPanel;
+        [SerializeField] private bool InPanel;
+        // private Transform _contentPanel;
         private Vector3 _originalPosition = Vector3.zero;
         private Quaternion _originalRotation = Quaternion.identity;
         private Vector3 _originalScale = Vector3.one;
@@ -55,11 +51,11 @@ namespace MirageXR
         private AudioSource _audioSource;
 
         public bool VideoClipLoaded => _videoPlayer.clip != null;
-        public float VideoDuration => (float) _videoPlayer.length;
+        public float VideoDuration => (float)_videoPlayer.length;
 
         private void Awake()
         {
-            //_contentPanel = GameObject.FindGameObjectWithTag("ContentPanel").transform;
+            // _contentPanel = GameObject.FindGameObjectWithTag("ContentPanel").transform;
             _videoPlayer = transform.Find("VideoCanvas").Find("Slider").GetComponent<VideoPlayer>();
             _audioSource = transform.Find("VideoCanvas").Find("Slider").GetComponent<AudioSource>();
 
@@ -110,7 +106,7 @@ namespace MirageXR
                 var url = videoName.Split('/');
                 var filename = url[url.Length - 1];
 
-                videoFilePath = Path.Combine(ActivityManager.Instance.Path, filename);
+                videoFilePath = Path.Combine(activityManager.ActivityPath, filename);
             }
             else
             {
@@ -118,10 +114,10 @@ namespace MirageXR
                 videoFilePath = Path.Combine(Application.persistentDataPath, videoName);
             }
 
-            //Adjust the duration of the trigger
-            var myTrigger = ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == _obj.poi);
+            // Adjust the duration of the trigger
+            var myTrigger = activityManager.ActiveAction.triggers.Find(t => t.id == _obj.poi);
             if (myTrigger != null)
-                ActivityManager.Instance.ActiveAction.triggers.Find(t => t == myTrigger).duration = (float)_videoPlayer.length;
+                activityManager.ActiveAction.triggers.Find(t => t == myTrigger).duration = (float)_videoPlayer.length;
 
             Debug.Log($"Trying to load video: {videoFilePath}");
 
@@ -170,10 +166,10 @@ namespace MirageXR
                 _audioSource.Play();
             }
 
-            //Check if trigger is active
+            // Check if trigger is active
             StartCoroutine(ActivateTrigger());
             Debug.Log("KEY IS: " + content.key);
-            // If all went well, return true. 
+            // If all went well, return true.
             return base.Init(content);
         }
 
@@ -215,12 +211,12 @@ namespace MirageXR
 
         private IEnumerator ActivateTrigger()
         {
-            if (ActivityManager.Instance.EditModeActive) yield break;
+            if (activityManager.EditModeActive) yield break;
 
             while (_obj == null || _videoPlayer == null)
                 yield return null;
 
-            var myTrigger = ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == _obj.poi);
+            var myTrigger = activityManager.ActiveAction.triggers.Find(t => t.id == _obj.poi);
             if (myTrigger != null)
             {
                 _videoPlayer.isLooping = false;
@@ -233,14 +229,14 @@ namespace MirageXR
             var triggerDuration = myTrigger.duration;
             yield return new WaitForSeconds(triggerDuration);
             
-            if (!ActivityManager.Instance.IsLastAction(ActivityManager.Instance.ActiveAction))
+            if (!activityManager.IsLastAction(activityManager.ActiveAction))
             {
-                if (ActivityManager.Instance.ActiveAction != null)
+                if (activityManager.ActiveAction != null)
                 {
-                    ActivityManager.Instance.ActiveAction.isCompleted = true;
+                    activityManager.ActiveAction.isCompleted = true;
                 }
 
-                ActivityManager.Instance.ActivateNextAction();
+                activityManager.ActivateNextAction();
                 TaskStationDetailMenu.Instance.SelectedButton = null;
             }
         }
@@ -396,7 +392,7 @@ namespace MirageXR
                     var url = videoName.Split('/');
                     var filename = url[url.Length - 1];
 
-                    videoFilePath = $"file://{Path.Combine(ActivityManager.Instance.Path, filename)}";
+                    videoFilePath = $"file://{Path.Combine(activityManager.ActivityPath, filename)}";
                 }
                 else
                 {
@@ -516,10 +512,10 @@ namespace MirageXR
             {
                 name = "PlaneMesh",
                 vertices = new Vector3[] {
-            new Vector3( _width/2f, -_height/2f, 0 ),
-            new Vector3( -_width/2f, -_height/2f, 0 ),
-            new Vector3( -_width/2f, _height/2f, 0 ),
-            new Vector3( _width/2f, _height/2f, 0 )
+            new Vector3( _width / 2f, -_height / 2f, 0 ),
+            new Vector3( -_width / 2f, -_height / 2f, 0 ),
+            new Vector3( -_width / 2f, _height / 2f, 0 ),
+            new Vector3( _width / 2f, _height / 2f, 0 )
         },
                 uv = new Vector2[] {
             new Vector2 (1, 0),

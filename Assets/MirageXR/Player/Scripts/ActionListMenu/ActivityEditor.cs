@@ -9,15 +9,11 @@ public class ActivityEditor : MonoBehaviour
     [SerializeField] private InputField activityTitleField;
     [SerializeField] private Button addButton;
     [SerializeField] private Button saveButton;
-    public Button GetSaveButton()
-    {
-        return this.saveButton;
-    }
+    public Button SaveButton => saveButton;
+
     [SerializeField] private Button uploadButon;
-    public Button GetUploadButton()
-    {
-        return this.uploadButon;
-    }
+    public Button UploadButton => uploadButon;
+
     [SerializeField] private Text loginNeedText;
 
     [SerializeField] private GameObject updateConfirmPanel;
@@ -25,11 +21,11 @@ public class ActivityEditor : MonoBehaviour
     [SerializeField] private Button ConfirmPanelYesButton;
     [SerializeField] private Dropdown optionsDropDown;
 
-    public static ActivityEditor Instance;
+    public static ActivityEditor Instance { get; private set; }
 
     private void Awake()
     {
-        EventManager.OnWorkplaceParsed += CheckEditState;
+        EventManager.OnWorkplaceLoaded += CheckEditState;
     }
 
     private void Start()
@@ -48,9 +44,9 @@ public class ActivityEditor : MonoBehaviour
             activityTitleField.text = "New Activity";
         activityTitleField.onValueChanged.AddListener(OnActivityTitleChanged);
 
-        if (ActivityManager.Instance != null)
+        if (RootObject.Instance.activityManager != null)
         {
-            SetEditorState(ActivityManager.Instance.EditModeActive);
+            SetEditorState(RootObject.Instance.activityManager.EditModeActive);
         }
     }
 
@@ -62,20 +58,20 @@ public class ActivityEditor : MonoBehaviour
 
     private void OnDestroy()
     {
-        EventManager.OnWorkplaceParsed -= CheckEditState;
+        EventManager.OnWorkplaceLoaded -= CheckEditState;
     }
 
     private void CheckEditState()
     {
-        if (string.IsNullOrEmpty(ActivityManager.Instance.Activity.id))
+        if (string.IsNullOrEmpty(RootObject.Instance.activityManager.Activity.id))
         {
-            ActivityManager.Instance.EditModeActive = true;
+            RootObject.Instance.activityManager.EditModeActive = true;
         }
         else
         {
-            SetEditorState(ActivityManager.Instance.EditModeActive);
+            SetEditorState(RootObject.Instance.activityManager.EditModeActive);
         }
-        editCheckbox.isOn = ActivityManager.Instance.EditModeActive;
+        editCheckbox.isOn = RootObject.Instance.activityManager.EditModeActive;
     }
 
     public void SetEditorState(bool editModeActive)
@@ -118,7 +114,7 @@ public class ActivityEditor : MonoBehaviour
 
     public void DoUploadProcess()
     {
-        var option = optionsDropDown.options[optionsDropDown.value].text;
+        var option = optionsDropDown.options[optionsDropDown.value].text;   //TODO: use optionsDropDown.value instead of string
 
         switch (option)
         {
@@ -126,13 +122,13 @@ public class ActivityEditor : MonoBehaviour
                 OnUploadButtonClicked(1);
                 break;
             case "Clone":
-                ActivityManager.Instance.GenerateNewId(true);
+                RootObject.Instance.activityManager.CloneActivity();
                 OnUploadButtonClicked(2);
                 break;
             case "Cancel":
             default:
                 updateConfirmPanel.SetActive(false);
-                MoodleManager.Instance.GetProgressText = "Upload";
+                RootObject.Instance.moodleManager.GetProgressText = "Upload";
                 optionsDropDown.options.Clear();
                 break;
         }
@@ -142,23 +138,23 @@ public class ActivityEditor : MonoBehaviour
     public void OnEditToggleChanged(bool value)
     {
         Debug.Log("Toggle changed " + value);
-        if (ActivityManager.Instance)
+        if (RootObject.Instance.activityManager != null)
         {
-            ActivityManager.Instance.EditModeActive = value;
+            RootObject.Instance.activityManager.EditModeActive = value;
             transform.GetComponentInChildren<Toggle>().isOn = value;
         }
     }
 
     public void ToggleEditMode()
     {
-        bool newValue = !ActivityManager.Instance.EditModeActive;
+        bool newValue = !RootObject.Instance.activityManager.EditModeActive;
         OnEditToggleChanged(newValue);
         transform.GetComponentInChildren<Toggle>().isOn = newValue;
     }
 
     private void OnActivityTitleChanged(string text)
     {
-        ActivityManager.Instance.Activity.name = text;
+        RootObject.Instance.activityManager.Activity.name = text;
     }
 
     public void OnSaveButtonClicked()
@@ -169,21 +165,17 @@ public class ActivityEditor : MonoBehaviour
 
     private void SaveActivity()
     {
-        ActivityManager.Instance.SaveData();
-
-        //Reload the activity selection list with the new saved activity
-        var sessionListView = Resources.FindObjectsOfTypeAll<SessionListView>()[0];
-        if (sessionListView)
-            sessionListView.ReloadActivityList();
+        EventManager.ActivitySaved();
+        RootObject.Instance.activityManager.SaveData();
     }
 
     public void OpenScreenShot()
     {
         var actionEditor = FindObjectOfType<ActionEditor>();
-        var ie = (ImageEditor) actionEditor.CreateEditorView(ContentType.IMAGE);
-        var adv = actionEditor.GetDetailView();
+        var ie = (ImageEditor)actionEditor.CreateEditorView(ContentType.IMAGE);
+        var adv = actionEditor.DetailView;
         ie.IsThumbnail = true;
-        ie.Open(adv.DisplayedAction,null);
+        ie.Open(adv.DisplayedAction, null);
     }
 
     public async void OnUploadButtonClicked(int updateMode)
@@ -192,14 +184,14 @@ public class ActivityEditor : MonoBehaviour
 
         SaveActivity();
 
-        //clear optionDropDown options if is not empty
+        // clear optionDropDown options if is not empty
         optionsDropDown.options.Clear();
 
-        //hide confirm panel
+        // hide confirm panel
         updateConfirmPanel.SetActive(false);
 
         ////Thumbnail is mandatory
-        //string thumbnailPath = Path.Combine(ActivityManager.Instance.Path, "thumbnail.jpg");
+        //string thumbnailPath = Path.Combine(RootModel.Instance.activityManager.Path, "thumbnail.jpg");
         //if (!File.Exists(thumbnailPath))
         //{
         //    loginNeedText.text = "Thumbnail not exist!";
@@ -209,11 +201,11 @@ public class ActivityEditor : MonoBehaviour
         //    loginNeedText.text = "";
         //}
 
-        //login needed for uploading
+        // login needed for uploading
         if (DBManager.LoggedIn)
         {
             loginNeedText.text = string.Empty;
-            await MoodleManager.Instance.UploadFile(ActivityManager.Instance.Path, ActivityManager.Instance.Activity.name, updateMode);
+            await RootObject.Instance.moodleManager.UploadFile(RootObject.Instance.activityManager.ActivityPath, RootObject.Instance.activityManager.Activity.name, updateMode);
         }
         else
         {

@@ -8,17 +8,19 @@ namespace UnityEngine.UI.Extensions
     [AddComponentMenu("UI/Extensions/Primitives/UI Polygon")]
     public class UIPolygon : MaskableGraphic
     {
-        [SerializeField]
-        Texture m_Texture;
-        public bool fill = true;
-        public float thickness = 5;
+
+        [SerializeField] private Texture m_Texture;
+        [SerializeField] private bool fill = true;
+        [SerializeField] private float thickness = 5;
         [Range(3, 360)]
-        public int sides = 3;
+        [SerializeField] private int sides = 3;
         [Range(0, 360)]
-        public float rotation = 0;
+        [SerializeField] private float rotation = 0;
         [Range(0, 1)]
-        public float[] VerticesDistances = new float[3];
+        [SerializeField] private float[] verticesDistances = new float[3];
         private float size = 0;
+
+        public float[] VerticesDistances => verticesDistances;
 
         public override Texture mainTexture
         {
@@ -44,20 +46,20 @@ namespace UnityEngine.UI.Extensions
         public void DrawPolygon(int _sides)
         {
             sides = _sides;
-            VerticesDistances = new float[_sides + 1];
-            for (int i = 0; i < _sides; i++) VerticesDistances[i] = 1; ;
+            verticesDistances = new float[_sides + 1];
+            for (int i = 0; i < _sides; i++) verticesDistances[i] = 1; ;
             rotation = 0;
         }
-        public void DrawPolygon(int _sides, float[] _VerticesDistances)
+        public void DrawPolygon(int _sides, float[] _verticesDistances)
         {
             sides = _sides;
-            VerticesDistances = _VerticesDistances;
+            verticesDistances = _verticesDistances;
             rotation = 0;
         }
-        public void DrawPolygon(int _sides, float[] _VerticesDistances, float _rotation)
+        public void DrawPolygon(int _sides, float[] _verticesDistances, float _rotation)
         {
             sides = _sides;
-            VerticesDistances = _VerticesDistances;
+            verticesDistances = _verticesDistances;
             rotation = _rotation;
         }
         void Update()
@@ -97,17 +99,17 @@ namespace UnityEngine.UI.Extensions
             Vector2 pos3;
             float degrees = 360f / sides;
             int vertices = sides + 1;
-            if (VerticesDistances.Length != vertices)
+            if (verticesDistances.Length != vertices)
             {
-                VerticesDistances = new float[vertices];
-                for (int i = 0; i < vertices - 1; i++) VerticesDistances[i] = 1;
+                verticesDistances = new float[vertices];
+                for (int i = 0; i < vertices - 1; i++) verticesDistances[i] = 1;
             }
             // last vertex is also the first!
-            VerticesDistances[vertices - 1] = VerticesDistances[0];
+            verticesDistances[vertices - 1] = verticesDistances[0];
             for (int i = 0; i < vertices; i++)
             {
-                float outer = -rectTransform.pivot.x * size * VerticesDistances[i];
-                float inner = -rectTransform.pivot.x * size * VerticesDistances[i] + thickness;
+                float outer = -rectTransform.pivot.x * size * verticesDistances[i];
+                float inner = -rectTransform.pivot.x * size * verticesDistances[i] + thickness;
                 float rad = Mathf.Deg2Rad * (i * degrees + rotation);
                 float c = Mathf.Cos(rad);
                 float s = Mathf.Sin(rad);

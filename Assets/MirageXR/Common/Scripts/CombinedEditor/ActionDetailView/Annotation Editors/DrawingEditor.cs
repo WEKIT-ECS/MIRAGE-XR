@@ -11,6 +11,7 @@ namespace MirageXR
 {
     public class DrawingEditor : MonoBehaviour
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         [SerializeField] private MrtkSimpleBtn startRecordingButton;
         [SerializeField] private MrtkSimpleBtn stopRecordingButton;
         [SerializeField] private MrtkSimpleBtn acceptButton;
@@ -70,10 +71,10 @@ namespace MirageXR
             const string httpPrefix = "http://";
             string originalFileName = !drawingName.StartsWith(httpPrefix)
                 ? Path.Combine(Application.persistentDataPath, drawingName)
-                : Path.Combine(ActivityManager.Instance.Path,
+                : Path.Combine(activityManager.ActivityPath,
                     Path.GetFileName(drawingName.Remove(0, httpPrefix.Length)));
 
-            return Path.Combine(ActivityManager.Instance.Path, drawingName);
+            return Path.Combine(activityManager.ActivityPath, drawingName);
         }
 
         void Play()
@@ -116,10 +117,10 @@ namespace MirageXR
 
             var filename = $"MirageXR_Drawing_{System.DateTime.Now.ToFileTimeUtc()}.tilt";
 
-            string fullFilePath = Path.Combine(ActivityManager.Instance.Path, filename);
+            string fullFilePath = Path.Combine(activityManager.ActivityPath, filename);
             await tiltSnapshot.WriteToFile(fullFilePath);
 
-            //Delete old file
+            // Delete old file
             if (annotationToEdit != null)
             {
                 var originalFilePath = GetExistingDrawing();
@@ -131,13 +132,14 @@ namespace MirageXR
             }
             else
             {
-                Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(action.id));
+                var workplaceManager = RootObject.Instance.workplaceManager;
+                Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
                 GameObject originT = GameObject.Find(detectable.id);
 
-                //Offset should always be 0. Positional data are store in the drawing strokes.
+                // Offset should always be 0. Positional data are store in the drawing strokes.
                 var offset = Vector3.zero;
 
-                annotationToEdit = ActivityManager.Instance.AddAnnotation(action, offset);
+                annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
                 annotationToEdit.predicate = "drawing";
             }
 
@@ -189,7 +191,8 @@ namespace MirageXR
 
             tiltInstance.SubscribeComponent(this);
 
-            Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(action.id));
+            var workplaceManager = RootObject.Instance.workplaceManager;
+            Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
             GameObject originT = GameObject.Find(detectable.id);
 
             tiltInstance.transform.SetParent(originT.transform);
@@ -205,7 +208,7 @@ namespace MirageXR
 
         public void Close()
         {
-            //when editor is closed play the spatial audio if it is exist
+            // when editor is closed play the spatial audio if it is exist
             if (annotationToEdit != null && GameObject.Find(annotationToEdit.poi).GetComponentInChildren<AudioPlayer>() != null)
             {
                 GameObject.Find(annotationToEdit.poi).GetComponentInChildren<AudioPlayer>().PlayAudio();
@@ -231,7 +234,7 @@ namespace MirageXR
             const string httpPrefix = "http://";
             return !name.StartsWith(httpPrefix)
                 ? Path.Combine(Application.persistentDataPath, name)
-                : Path.Combine(ActivityManager.Instance.Path,
+                : Path.Combine(activityManager.ActivityPath,
                     Path.GetFileName(name.Remove(0, httpPrefix.Length)));
         }
 

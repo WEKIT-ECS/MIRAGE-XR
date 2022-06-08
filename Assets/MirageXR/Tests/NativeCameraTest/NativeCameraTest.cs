@@ -26,7 +26,7 @@ public class NativeCameraTest : MonoBehaviour
         _playBtn.onClick.AddListener(Play);
         _pauseBtn.onClick.AddListener(_videoPlayer.Pause);
         _stopBtn.onClick.AddListener(_videoPlayer.Stop);
-        _imageRectTransform = (RectTransform) _rawImage.transform;
+        _imageRectTransform = (RectTransform)_rawImage.transform;
     }
 
     private void TakePhoto()

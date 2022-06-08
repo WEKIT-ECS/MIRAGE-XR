@@ -1,10 +1,7 @@
-﻿using Microsoft.MixedReality.Toolkit.UI;
-using System;
+﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
-using System.Threading.Tasks;
 using UnityEngine.UI;
 
 
@@ -12,29 +9,35 @@ namespace MirageXR
 {
     public class PickAndPlaceController : MirageXRPrefab
     {
-        ToggleObject myObj;
-        [SerializeField] private Transform pickOb;
-        [SerializeField] private Transform targetOb;
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+
+        private ToggleObject myObj;
+        [SerializeField] private Transform pickObject;
+        [SerializeField] private Transform targetObject;
         [SerializeField] private Transform lockToggle;
-        [SerializeField] private SpriteToggle st;
+        [SerializeField] private SpriteToggle spriteToggle;
         [SerializeField] private Text textLabel;
-        Pick place;
+        private Pick pickComponent;
 
         private Vector3 defaultTargetSize = new Vector3(0.2f, 0.2f, 0.2f);
 
-        private async void Start()
+        private void Start()
         {
-            place = pickOb.GetComponent<Pick>();
-            EditModeChanges(ActivityManager.Instance.EditModeActive);
-            await Load();
+            pickComponent = pickObject.GetComponent<Pick>();
+            EditModeChanges(activityManager.EditModeActive);
 
-            st.IsSelected = !place.MoveMode;
-            
+            if (File.Exists(Path.Combine(activityManager.ActivityPath, "pickandplaceinfo/" + myObj.poi + ".json")))
+            {
+                LoadPickAndPlacePositions();
+            }
+
+            spriteToggle.IsSelected = !pickComponent.MoveMode;
+
         }
 
         public ToggleObject MyPoi
         {
-            get 
+            get
             {
                 return myObj;
             }
@@ -42,26 +45,31 @@ namespace MirageXR
 
         public Transform Target
         {
-            get {
-                return targetOb;
+            get
+            {
+                return targetObject;
             }
         }
 
         private void OnEnable()
         {
             EventManager.OnEditModeChanged += EditModeChanges;
+            EventManager.OnAugmentationDeleted += DeletePickAndPlaceData;
+            EventManager.OnActivitySaved += SavePositions;
         }
 
         private void OnDisable()
         {
             EventManager.OnEditModeChanged -= EditModeChanges;
+            EventManager.OnAugmentationDeleted -= DeletePickAndPlaceData;
+            EventManager.OnActivitySaved -= SavePositions;
         }
 
-        private void EditModeChanges(bool EditModeState)
+        private void EditModeChanges(bool editModeState)
         {
-            lockToggle.gameObject.SetActive(EditModeState);
-            targetOb.gameObject.SetActive(EditModeState);
-            place.ChangeModelButton.gameObject.SetActive(EditModeState);
+            lockToggle.gameObject.SetActive(editModeState);
+            targetObject.gameObject.SetActive(editModeState);
+            pickComponent.ChangeModelButton.gameObject.SetActive(editModeState);
         }
 
 
@@ -83,98 +91,117 @@ namespace MirageXR
             // Set scaling
             PoiEditor myPoiEditor = transform.parent.gameObject.GetComponent<PoiEditor>();
             Vector3 defaultScale = new Vector3(0.5f, 0.5f, 0.5f);
-            transform.parent.localScale = GetPoiScale(myPoiEditor, defaultScale);
 
             // If everything was ok, return base result.
             return base.Init(obj);
         }
 
-
-        private async Task<bool> Load()
+        private void LoadPickAndPlacePositions()
         {
-            var loaded = await LoadPositions(Path.Combine(ActivityManager.Instance.Path, "pickandplaceinfo/" + myObj.poi + ".json"));
-            return loaded;
+            var json = File.ReadAllText(Path.Combine(activityManager.ActivityPath, "pickandplaceinfo/" + myObj.poi + ".json"));
+
+            Positions positions = JsonUtility.FromJson<Positions>(json);
+
+            if (myObj.key == "1")
+            {
+                pickObject.localPosition = positions.resetPosition;
+            }
+            else
+            {
+                pickObject.localPosition = positions.pickObjectPosition;
+            }
+
+            pickObject.localRotation = positions.pickObjectRotation;
+            targetObject.localPosition = positions.targetObjectPosition;
+            targetObject.localScale = positions.targetObjectScale != null ? positions.targetObjectScale : defaultTargetSize;
+            pickComponent.MoveMode = positions.moveMode;
+            pickComponent.ResetPos = positions.resetPosition;
+            pickComponent.MyModelID = positions.modelID;
+
+            if (pickComponent.MyModelID != string.Empty)
+                StartCoroutine(LoadMyModel(pickComponent.MyModelID));
         }
 
+        public void SavePositions()
+        {
 
-        public void SavePositions() {
-
-            if (myObj == null || myObj.poi == "") return;//only if the poi is instantiated not the prefab
+            if (myObj == null || myObj.poi == string.Empty)
+            {
+                return; // only if the poi is instantiated not the prefab
+            }
 
             Positions positions = new Positions
             {
-                pickObPos = pickOb.localPosition,
-                PickObRot = pickOb.localRotation,
-                modelID = place.MyModelID,
-                targetObPos = targetOb.localPosition,
-                targetObScale = targetOb.localScale,
-                resetPos = place.resetPos,
-                moveMode = place.MoveMode
+                pickObjectPosition = pickObject.localPosition,
+                pickObjectRotation = pickObject.localRotation,
+                modelID = pickComponent.MyModelID,
+                targetObjectPosition = targetObject.localPosition,
+                targetObjectScale = targetObject.localScale,
+                resetPosition = pickComponent.ResetPos,
+                moveMode = pickComponent.MoveMode
             };
 
-            string pandpjson = JsonUtility.ToJson(positions);
-            if (!Directory.Exists(ActivityManager.Instance.Path + "/pickandplaceinfo "))
-                Directory.CreateDirectory(ActivityManager.Instance.Path + "/pickandplaceinfo");
+            string pickAndPlaceData = JsonUtility.ToJson(positions);
+            if (!Directory.Exists($"{activityManager.ActivityPath}/pickandplaceinfo "))
+            {
+                Directory.CreateDirectory($"{activityManager.ActivityPath}/pickandplaceinfo");
+            }
 
+            string jsonPath = Path.Combine(activityManager.ActivityPath, $"pickandplaceinfo/{myObj.poi}.json");
 
-            string jsonPath = Path.Combine(ActivityManager.Instance.Path, "pickandplaceinfo/" + myObj.poi + ".json");
-
-            //delete the exsiting file first
+            // delete the exsiting file first
             if (File.Exists(jsonPath))
+            {
                 File.Delete(jsonPath);
+            }
 
-            File.WriteAllText(jsonPath, pandpjson);
+            File.WriteAllText(jsonPath, pickAndPlaceData);
         }
 
-        public async Task<bool> LoadPositions(string jsonPath)
-        {
-            if (!File.Exists(jsonPath)) return false;
-
-            Positions positions = JsonUtility.FromJson<Positions>(File.ReadAllText(jsonPath));
-
-            await Task.Delay(1);
-
-            pickOb.localPosition = positions.pickObPos;
-            pickOb.localRotation = positions.PickObRot;
-            targetOb.localPosition = positions.targetObPos;
-            targetOb.localScale = positions.targetObScale != null ? positions.targetObScale : defaultTargetSize;
-            place.MoveMode = positions.moveMode;
-            place.resetPos = positions.resetPos;
-            place.MyModelID = positions.modelID;
-
-            if (place.MyModelID != "")
-                StartCoroutine(LoadMyModel(place.MyModelID));
-
-            return true;
-        }
-
-        IEnumerator LoadMyModel(string MyModelID)
+        private IEnumerator LoadMyModel(string MyModelID)
         {
             var newModel = GameObject.Find(MyModelID);
 
-            //wait until all model are loaded
+            // wait until all model are loaded
             while (newModel == null)
             {
                 newModel = GameObject.Find(MyModelID);
                 yield return null;
             }
 
-            StartCoroutine(ActionEditor.Instance.SpwanNewPickModel(place, newModel));
+            StartCoroutine(ActionEditor.Instance.SpawnNewPickModel(pickComponent, newModel));
         }
 
+        private void DeletePickAndPlaceData(ToggleObject toggleObject)
+        {
+            if (toggleObject != MyPoi) return;
+            var arlemPath = activityManager.ActivityPath;
+            var jsonPath = Path.Combine(arlemPath, $"pickandplaceinfo/{MyPoi.poi}.json");
 
+            if (File.Exists(jsonPath))
+            {
+                // delete the json
+                File.Delete(jsonPath);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            SavePositions();
+        }
     }
 
     [Serializable]
     public class Positions
     {
-        public Vector3 pickObPos = Vector3.zero;
-        public Quaternion PickObRot = Quaternion.identity;
-        public Vector3 targetObPos = Vector3.zero;
-        public Vector3 targetObScale = Vector3.zero;
+        public Vector3 pickObjectPosition = Vector3.zero;
+        public Quaternion pickObjectRotation = Quaternion.identity;
+        public Vector3 targetObjectPosition = Vector3.zero;
+        public Vector3 targetObjectScale = Vector3.zero;
 
-        public Vector3 resetPos = Vector3.zero;
+        public Vector3 resetPosition = Vector3.zero;
         public bool moveMode = false;
+        public bool reset = false;
         public string modelID;
     }
 }

@@ -25,6 +25,16 @@ namespace MirageXR
         public InputField ActionTitleInputField { get; private set; }
         public InputField ActionDescriptionInputField { get; private set; }
 
+        private void OnEnable()
+        {
+            EventManager.OnEditModeChanged += EditModeState;
+        }
+
+        private void OnDisable()
+        {
+            EventManager.OnEditModeChanged -= EditModeState;
+        }
+
         private void Start()
         {
             if (Instance == null)
@@ -47,8 +57,12 @@ namespace MirageXR
             //instantiate the navigator arrow if does not exists in the scene
             if(!navigatorArrowModel && navigatorArrowPrefab)
             {
-                navigatorArrowModel = Instantiate(navigatorArrowPrefab);
-                navigatorArrowModel.GetComponentInChildren<MeshRenderer>().enabled = false;
+                navigatorArrowModel = GameObject.Find("NavigatorArrow(Clone)");
+                if (!navigatorArrowModel)
+                {
+                    navigatorArrowModel = Instantiate(navigatorArrowPrefab);
+                    navigatorArrowModel.GetComponentInChildren<MeshRenderer>().enabled = false;
+                }
             }
         }
 
@@ -91,8 +105,15 @@ namespace MirageXR
                 Debug.LogError("Action Title Input Field not found on Task Station Menu. Tutorial will not work.");
             }
 
+            SetupActionDescriptionInputField();
+        }
+
+        private void SetupActionDescriptionInputField()
+        {
             try
             {
+                if (ActionDescriptionInputField) return;
+                
                 var obj = gameObject.transform.FindDeepChild("DescriptionInputField");
                 if (obj)
                 {
@@ -237,6 +258,12 @@ namespace MirageXR
             poiLineRenderer.SetPosition(1, poiBinderConnector + new Vector3(0.018f, 0f, 0f));
             poiLineRenderer.SetPosition(2, target.position - new Vector3(0.02f, 0f, 0f));
             poiLineRenderer.SetPosition(3, target.position);
+        }
+
+        private void EditModeState(bool editModeState)
+        {
+            SetupActionDescriptionInputField();
+            ActionDescriptionInputField.interactable = editModeState;
         }
     }
 }

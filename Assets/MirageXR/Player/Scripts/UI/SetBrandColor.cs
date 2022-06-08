@@ -14,11 +14,11 @@ namespace MirageXR
     }
 
     //For classes that implements Graphic like Image, Text etc
-    public bool setGraphicColor = true;
+    [SerializeField] private bool setGraphicColor = true;
 
     //For classes that implements Selectable like buttons
-    public bool setSelectableColors;
-    public ColorType colorType;
+    [SerializeField] private bool setSelectableColors;
+    [SerializeField] private ColorType colorType;
 
     void Awake()
     {

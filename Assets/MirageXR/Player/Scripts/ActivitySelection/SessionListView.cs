@@ -12,7 +12,7 @@ namespace MirageXR
         private ListView<SessionContainer> listView;
 
         public Dictionary<string, SessionContainer> CollectedContainers { get; private set; }
-        public List<SessionContainer> AllItems { get; set; }
+        public List<SessionContainer> AllItems { get; private set; }
 
         public List<SessionContainer> DisplayedItems
         {
@@ -20,7 +20,7 @@ namespace MirageXR
             set => listView.Items = value;
         }
 
-        public List<SessionContainer> PageItems { get; set; }
+        public List<SessionContainer> PageItems { get; private set; }
 
         private int pageStart = 0;
         public int sessionsOnPage = 5;
@@ -44,12 +44,12 @@ namespace MirageXR
         {
             CollectedContainers = new Dictionary<string, SessionContainer>();
 
-            //the local activities should be loaded as the first items
+            // the local activities should be loaded as the first items
             List<Activity> activities = await LocalFiles.GetDownloadedActivities();
             CollectedContainers = AddActivitiesToDictionary(CollectedContainers, activities);
 
-            //the records on the server should be shown after the local records
-            List<Session> sessions = await MoodleManager.Instance.GetArlemList();
+            // the records on the server should be shown after the local records
+            List<Session> sessions = await RootObject.Instance.moodleManager.GetArlemList();
             if(sessions != null)
                 CollectedContainers = AddSessionsToDictionary(CollectedContainers, sessions);
 
@@ -67,7 +67,7 @@ namespace MirageXR
 
         public void UpdateView(int sessions)
         {
-            //if the number of the all items is less more than  sessions(number of items on each page)
+            // if the number of the all items is less more than  sessions(number of items on each page)
             if (itemListCount > sessions) 
                 DisplayedItems = PageItems.GetRange(pageStart, sessions); 
             else
@@ -122,7 +122,7 @@ namespace MirageXR
             PageItems = AllItems;
             itemListCount = PageItems.Count();       
             UpdateView(sessionsOnPage);
-            //resets the shown sessions to be all loaded sessions
+            // resets the shown sessions to be all loaded sessions
         }
 
         public void SetSearchedItems(List<SessionContainer> currentItems)
@@ -130,7 +130,7 @@ namespace MirageXR
             PageItems = currentItems;
             itemListCount = PageItems.Count();
             UpdateView(sessionsOnPage);
-            //sets shown sessions to a given list
+            // sets shown sessions to a given list
         }
 
         public void NextPage()
@@ -138,19 +138,19 @@ namespace MirageXR
             if ((pageStart + sessionsOnPage) < itemListCount)
             {
                 pageStart += sessionsOnPage;
-                //moves to the next page provided that it is within the bounds of the current session list
+                // moves to the next page provided that it is within the bounds of the current session list
 
                 if ((pageStart + sessionsOnPage) > itemListCount)
                 {
                     int sessions = itemListCount - pageStart;
                     UpdateView(sessions);
-                    //if there are less sessions lest in a session list than the given sessions per page then only show the sessions that are left in the list
+                    // if there are less sessions lest in a session list than the given sessions per page then only show the sessions that are left in the list
 
                 }
                 else
                 {
                     UpdateView(sessionsOnPage);
-                    //show the page
+                    // show the page
                 }
             }
         }
@@ -164,6 +164,6 @@ namespace MirageXR
                 UpdateView(sessionsOnPage);              
             }
         }
-        //moves to previous page
+        // moves to previous page
     }
 }

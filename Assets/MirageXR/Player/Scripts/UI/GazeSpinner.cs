@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -26,7 +25,7 @@ namespace MirageXR
             StartCoroutine(Spin());
         }
 
-        IEnumerator Spin()
+        private IEnumerator Spin()
         {
             yield return new WaitForSeconds(0.1f);
 
@@ -40,13 +39,14 @@ namespace MirageXR
                 yield return null;
             }
 
-            var activityManager = ActivityManager.Instance;
+            var activityManager = RootObject.Instance.activityManager;
             if (activityManager.ActiveAction != null)
             {
                 activityManager.ActiveAction.isCompleted = true;
             }
 
-            activityManager.ActivateActionByIndex(stepNumber);
+            var task = activityManager.ActivateActionByIndex(stepNumber);
+            yield return new WaitUntil(() => task.IsCompleted);
             TaskStationDetailMenu.Instance.SelectedButton = null;
         }
     }

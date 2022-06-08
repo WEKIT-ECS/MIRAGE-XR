@@ -65,13 +65,15 @@ namespace MirageXR
             {
                 if (Activity != null)
                 {
-                    return UnityWebRequest.UnEscapeURL(Activity.name); 
+                    return Activity.name; 
                 }
 
                 if (Session != null)
                 {
-                    //Uri.UnescapeDataString() will print + instead of space
-                    return UnityWebRequest.UnEscapeURL(Session.filename.Replace(".zip", ""));
+                    if(string.IsNullOrEmpty(Session.title))
+                        return Session.filename.Replace(".zip", "");
+                    else
+                        return Session.title;
                 }
                 return string.Empty;
             }

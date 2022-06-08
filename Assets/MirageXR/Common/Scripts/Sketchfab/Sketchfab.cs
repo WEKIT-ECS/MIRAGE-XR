@@ -187,6 +187,11 @@ namespace MirageXR
             const string refreshKey = "refresh_token";
             const string grantTypeValue = "refresh_token";
 
+            if (string.IsNullOrEmpty(renewToken) || string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(clientSecret))
+            {
+                return (false, null);
+            }
+
             using (var client = new HttpClient())
             {
                 var form = new MultipartFormDataContent
@@ -255,7 +260,7 @@ namespace MirageXR
             using (var stream = new FileStream(file, FileMode.Open))
             {
                 bytes = new byte[stream.Length];
-                await stream.ReadAsync(bytes, 0, (int) stream.Length);
+                await stream.ReadAsync(bytes, 0, (int)stream.Length);
             }
 
             return (true, bytes);
@@ -349,7 +354,7 @@ namespace MirageXR
             var modelsFolderPath = Path.Combine(Application.persistentDataPath, FOLDER_NAME);
             var archiveUrl = Path.Combine(modelsFolderPath, $"{modelPreview.name}.zip");
             var modelFolder = Path.Combine(modelsFolderPath, modelPreview.name);
-            var targetDirectory = Path.Combine(ActivityManager.Instance.Path, modelPreview.name);
+            var targetDirectory = Path.Combine(RootObject.Instance.activityManager.ActivityPath, modelPreview.name);
             if (!Directory.Exists(targetDirectory)) Directory.CreateDirectory(targetDirectory);
 
             // build zip archive, if required (might be slow for big models)

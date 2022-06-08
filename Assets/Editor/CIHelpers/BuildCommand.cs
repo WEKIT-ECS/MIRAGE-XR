@@ -2,6 +2,7 @@
 using System.Linq;
 using System;
 using System.IO;
+using UnityEditor.AddressableAssets.Settings;
 
 static class BuildCommand
 {
@@ -193,6 +194,7 @@ static class BuildCommand
 
         SetScriptingBackendFromEnv(buildTarget);
 
+        AddressableAssetSettings.BuildPlayerContent();
         var buildReport = BuildPipeline.BuildPlayer(GetEnabledScenes(), fixedBuildPath, buildTarget, buildOptions);
 
         if (buildReport.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)

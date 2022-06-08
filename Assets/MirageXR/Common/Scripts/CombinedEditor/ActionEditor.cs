@@ -1,11 +1,15 @@
 ﻿using MirageXR;
+using System;
 using System.Collections;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(ActionDetailView))]
 public class ActionEditor : MonoBehaviour
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    
     [SerializeField] private GameObject TaskStationMenuPanel;
     [SerializeField] private GameObject TaskStationOpenButton;
     [SerializeField] private InputField titleField;
@@ -54,30 +58,14 @@ public class ActionEditor : MonoBehaviour
     private PluginEditor pluginEditor;
 
     private ActionDetailView detailView;
-    private GameObject[] poiButtons;
+    private GameObject[] augmentationsButtons;
 
-    public static ActionEditor Instance;
+    private static ActionEditor instance;
 
-    public ActionDetailView GetDetailView()
-    {
-        return detailView;
-    }
+    public static ActionEditor Instance => instance;
 
-    // private readonly string[] listOfPois = { "image", "video", "audio", "ghost", "label", "act", "vfx",  "model", "character", "pick&place", "image marker", "plugins"};
+    public ActionDetailView DetailView => detailView;
 
-    /*
-        private enum AnnotationTypes
-        {
-            IMAGE, VIDEO, AUDIO, GHOST, LABEL, ACT, VFX, MODEL, CHARACTER, PICKANDPLACE, IMAGEMARKER, PLUGIN
-        }
-    */
-
-#if UNITY_ANDROID || UNITY_IOS
-
-    private readonly string[] listOfPois = { "image", "video", "audio", "ghost", "label", "act", "vfx",  "model", "character", "pick&place", "image marker", "plugins" };
-#else
-    private readonly string[] listOfPois = { "image", "video", "audio", "ghost", "label", "act", "vfx", "model", "character", "pick&place", "image marker", "plugins", "drawing" };
-#endif
 
     public bool AddMenuVisible
     {
@@ -87,7 +75,7 @@ public class ActionEditor : MonoBehaviour
         }
         set
         {
-            annotationAddMenu.SetActive(value);
+            annotationAddMenu.SetActive(value && activityManager.EditModeActive);
             poiList.SetActive(!value);
 
             if(TaskStationDetailMenu.Instance && value)
@@ -121,9 +109,9 @@ public class ActionEditor : MonoBehaviour
         titleField.onValueChanged.AddListener( OnTitleChanged);
         descriptionField.onValueChanged.AddListener(OnDescriptionChanged) ;
 
-        if (ActivityManager.Instance != null)
+        if (activityManager != null)
         {
-            SetEditModeState(ActivityManager.Instance.EditModeActive);
+            SetEditModeState(activityManager.EditModeActive);
         }
         
         if (!PlatformManager.Instance.WorldSpaceUi)
@@ -141,28 +129,37 @@ public class ActionEditor : MonoBehaviour
 
     private void Start()
     {
-        if (!Instance)
-            Instance = this;
-        else if (Instance != this)
-            Destroy(gameObject);
-
-
-        poiButtons = new GameObject[listOfPois.Length];
-        for (int i = 0; i < listOfPois.Length; i++)
+        if (!instance)
         {
-            var type = (ContentType) (i + 1);
-            GameObject addItemInstance = Instantiate(poiAddItemPrefab, annotationAddMenu.transform);
-            PoiAddItem listItem = addItemInstance.GetComponent<PoiAddItem>();
-            listItem.Initialize(type, i, listOfPois[i], type.GetIcon());
+            instance = this;
+        }
+        else if (instance != this)
+        {
+            Destroy(gameObject);
+        }
+
+        // Get the list of augmentations from txt file depends on platform
+        var listOfAugmentations = BrandManager.Instance.GetListOfAugmentations();
+
+
+        augmentationsButtons = new GameObject[listOfAugmentations.Length];
+        for (int i = 0; i < listOfAugmentations.Length; i++)
+        {
+            var augmentationCorrectTypeName = listOfAugmentations[i].Replace("&", "and").Replace(" ", string.Empty).ToUpper();
+            var augmentationIndexOnEnum = (int)Enum.Parse(typeof(ContentType), augmentationCorrectTypeName);
+            var type = (ContentType) augmentationIndexOnEnum;
+            var addItemInstance = Instantiate(poiAddItemPrefab, annotationAddMenu.transform);
+            var listItem = addItemInstance.GetComponent<PoiAddItem>();
+            listItem.Initialize(type, i, listOfAugmentations[i], type.GetIcon());
             listItem.OnPoiAddItemClicked += OnAnnotationAddItemSelected;
             listItem.OnPoiHover += OnAnnotationHover;
 
-            var annotationName = listOfPois[i] == "vfx" ? "Visual Effect" : $"{char.ToUpper(listOfPois[i][0])}{listOfPois[i].Substring(1)}";
+            var annotationName = listOfAugmentations[i] == "vfx" ? "Visual Effect" : $"{char.ToUpper(listOfAugmentations[i][0])}{listOfAugmentations[i].Substring(1)}";
             listItem.GetComponent<ToolTipCaster>().SetTooltipText($"Add {annotationName}");
-            
-            poiButtons[i] = listItem.gameObject;
+
+            augmentationsButtons[i] = listItem.gameObject;
         }
-        SetEditModeState(ActivityManager.Instance.EditModeActive);
+        SetEditModeState(activityManager.EditModeActive);
 
         instructionText.gameObject.SetActive(false);
 
@@ -175,6 +172,9 @@ public class ActionEditor : MonoBehaviour
         }
     }
 
+
+
+
     public Transform GetDefaultAugmentationStartingPoint()
     {
         return DefaultAugmentationStartingPoint;
@@ -183,21 +183,19 @@ public class ActionEditor : MonoBehaviour
     private void OnToggleActionTargetCapture()
     {
         //if there is no annotations
-        if (ActivityManager.Instance.ActiveAction.enter.activates.Count == 0)
+        if (activityManager.ActiveAction.enter.activates.Count == 0)
         {
             StartCoroutine(NavigatorNotification("There is no annotation in this step yet", 5));
             return;
         }
 
         StepNavigationTargetCapturing = !StepNavigationTargetCapturing;
+        navigationTargetButton.GetComponent<Image>().color = StepNavigationTargetCapturing ? Color.red : Color.white;
 
         if (StepNavigationTargetCapturing)
-            navigationTargetButton.GetComponent<Image>().color = Color.red;
-        else
-            navigationTargetButton.GetComponent<Image>().color = Color.white;
-
-        if (StepNavigationTargetCapturing)
+        {
             StartCoroutine(NavigatorNotification("Now click on an augmentation button", 5));
+        }
     }
 
 
@@ -206,7 +204,7 @@ public class ActionEditor : MonoBehaviour
     /// </summary>
     /// <param name="sec"></param>
     /// <returns></returns>
-    IEnumerator NavigatorNotification(string msg, int sec)
+    private IEnumerator NavigatorNotification(string msg, int sec)
     {
         navigationTargetButton.GetComponentInChildren<Text>().enabled = true;
         navigationTargetButton.GetComponentInChildren<Text>().text = msg;
@@ -215,22 +213,21 @@ public class ActionEditor : MonoBehaviour
         navigationTargetButton.GetComponentInChildren<Text>().enabled = false;
     }
 
-
     private void CaptureNavigationTarget(ToggleObject annotation)
     {
         if (StepNavigationTargetCapturing)
         {
-            //remove target from other annotation's state
-            ActivityManager.Instance.ActiveAction.enter.activates.ForEach(b =>
+            // remove target from other annotation's state
+            activityManager.ActiveAction.enter.activates.ForEach(b =>
             {
-                b.state = "";
+                b.state = string.Empty;
             });
-            ActivityManager.Instance.ActiveAction.exit.deactivates.ForEach(b =>
+            activityManager.ActiveAction.exit.deactivates.ForEach(b =>
             {
-                b.state = "";
+                b.state = string.Empty;
             });
 
-            //set the new target
+            // set the new target
             annotation.state = "target";
             navigationTargetButton.GetComponent<Image>().color = Color.white;
             navigationTargetButton.GetComponentInChildren<Text>().enabled = false;
@@ -238,12 +235,11 @@ public class ActionEditor : MonoBehaviour
             TaskStationDetailMenu.Instance.NavigatorTarget = ActionListMenu.CorrectTargetObject(annotation);  
             TaskStationDetailMenu.Instance.TargetPredicate = annotation.predicate;
 
-            //show the target icon if annotation is the target of this action
+            // show the target icon if annotation is the target of this action
             foreach (var listItem in FindObjectsOfType<AnnotationListItem>())
                 listItem.TargetIconVisibility(listItem.DisplayedAnnotation.state == "target");
         }
     }
-
 
     public void CapturePickArrowTarget(ToggleObject annotation = null, Pick pick = null)
     {
@@ -256,30 +252,31 @@ public class ActionEditor : MonoBehaviour
             pick.MyModelID = annotation.poi;
 
             var newModel = GameObject.Find(pick.MyModelID);
-            StartCoroutine(SpwanNewPickModel(pick, newModel));
+            StartCoroutine(SpawnNewPickModel(pick, newModel));
         }
     }
 
-    public IEnumerator SpwanNewPickModel(Pick pick, GameObject newModel)
+    public IEnumerator SpawnNewPickModel(Pick pick, GameObject newModel)
     {
         if (!newModel || !pick) yield break;
 
-        //Delete the old model if exist
-        var oldModel = GameObject.Find("ArrowModel_" + pick.GetComponentInParent<PickAndPlaceController>().MyPoi.poi);
+        // Delete the old model if exist
+        var oldModel = GameObject.Find("ArrowModel_" + pick.GetComponentInParent<PickAndPlaceController>().MyPoi.poi); // TODO: possible NRE
         if (oldModel) Destroy(oldModel);
 
-        //hide the original arrow mesh and colliders
+        // hide the original arrow mesh and colliders
         pick.ArrowRenderer.enabled = false;
         foreach (var collider in pick.GetComponents<Collider>())
+        {
             collider.enabled = false;
+        }
 
-        //clone the selected model
+        // clone the selected model
         var sketchfabModel = newModel.GetComponentInChildren<Model>();
 
-        var originalModelCollider = sketchfabModel.gameObject.GetComponentInChildren<MeshCollider>();
         var modelLoadingCompleted = sketchfabModel.LoadingCompleted;
 
-        //wait until the model is loaded
+        // wait until the model is loaded
         while (!modelLoadingCompleted)
         {
             modelLoadingCompleted = sketchfabModel.LoadingCompleted;
@@ -290,22 +287,22 @@ public class ActionEditor : MonoBehaviour
         newModelClone.transform.SetParent(pick.transform);
         newModelClone.name = "ArrowModel_" + sketchfabModel.MyToggleObject.poi;
 
-        //move the model augmentation somewhere invisible(Cannot deactive it)
+        // move the model augmentation somewhere invisible(Cannot deactivate it)
         newModel.transform.position = new Vector3(9999, 9999, 9999);
 
-        //destroy all component on the spawn object
+        // destroy all component on the spawn object
         foreach (var comp in newModelClone.GetComponents<Component>())
         {
             if (!(comp is Transform))
+            {
                 Destroy(comp);
+            }
         }
-
     }
-
 
     public void OnTitleChanged(string newTitle)
     {
-        if(detailView.DisplayedAction!= null)
+        if (detailView.DisplayedAction!= null)
         {
             detailView.DisplayedAction.instruction.title = newTitle;
             EventManager.NotifyActionModified(detailView.DisplayedAction);
@@ -441,7 +438,9 @@ public class ActionEditor : MonoBehaviour
         instructionText.gameObject.SetActive(true);
 
         var taskStation = detailView.GetCurrentTaskStation();
-        TaskStationDetailMenu.Instance.BindPoiToTaskStation(taskStation.transform, poiButtons[index].transform);
+        if (!taskStation) return;
+        
+        TaskStationDetailMenu.Instance.BindPoiToTaskStation(taskStation.transform, augmentationsButtons[index].transform);
 
         instructionText.text = type.GetHint();
     }
@@ -458,7 +457,7 @@ public class ActionEditor : MonoBehaviour
 
         CaptureNavigationTarget(annotation);
 
-        //pick and place can only use the model augmentation as it's arrow
+        // pick and place can only use the model augmentation as it's arrow
         if(annotation.predicate.StartsWith("3d") )
             CapturePickArrowTarget(annotation, pickArrowModelCapturing.Item2);
 
@@ -557,7 +556,7 @@ public class ActionEditor : MonoBehaviour
         titleField.interactable = editModeActive;
         titleField.GetComponent<Image>().enabled = editModeActive;
         descriptionField.readOnly = !editModeActive;
-        //active the editor views only if the edit mode is on
+        // active the editor views only if the edit mode is on
         gameObject.GetComponent<Canvas>().enabled = editModeActive;
         addButton.gameObject.SetActive(editModeActive);
         navigationTargetButton.gameObject.SetActive(editModeActive);
@@ -577,7 +576,7 @@ public class ActionEditor : MonoBehaviour
 
     public void OpenTaskStationMenu()
     {
-        gameObject.GetComponent<Canvas>().enabled = ActivityManager.Instance.EditModeActive;
+        gameObject.GetComponent<Canvas>().enabled = activityManager.EditModeActive;
         detailView.MoveEditorNextToTaskSTation();
         TaskStationOpenButton.SetActive(false);
         TaskStationMenuPanel.SetActive(true);
@@ -590,17 +589,15 @@ public class ActionEditor : MonoBehaviour
         TaskStationOpenButton.SetActive(PlatformManager.Instance.WorldSpaceUi);
     }
 
-
-
     private bool InstanceOfAugmentationExist(ContentType type)
     {
-        var predicate = ContentTypeExtenstion.GetPredicate(type);
+        var predicate = type.GetPredicate();
 
-        foreach (var toggleObject in ActivityManager.Instance.ActiveAction.enter.activates)
+        foreach (var toggleObject in activityManager.ActiveAction.enter.activates)
         {
             if (toggleObject.predicate == predicate)
             {
-                /// give the info and close
+                // give the info and close
                 DialogWindow.Instance.Show("Info!",
                 $"There is already a {predicate} augmentation in this step. Please delete it before adding a new one!",
                 new DialogButtonContent("Ok"));

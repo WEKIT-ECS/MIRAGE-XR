@@ -41,10 +41,7 @@ namespace MirageXR
         {
             foreach (var prompt in _prompts)
             {
-                keywords.Add($"{prompt} {keyword}", () =>
-                {
-                    callback();
-                });
+                keywords.Add($"{prompt} {keyword}", callback);
             }
         }
 
@@ -81,14 +78,14 @@ namespace MirageXR
             AddPromptsToKeyword("New Activity", () => EventManager.StartByVoice());// TODO this command not working
             AddPromptsToKeyword("Show Activity List", () => EventManager.ShowActivitySelectionMenu());
             AddPromptsToKeyword("Hide Activity List", () => EventManager.HideActivitySelectionMenu());
-            AddPromptsToKeyword("Move Activity List", () => EventManager.MoveActiovityList());
+            AddPromptsToKeyword("Move Activity List", () => EventManager.MoveActivityList());
             AddPromptsToKeyword("Open Annotation List", () => EventManager.OpenAnnotationByVoice());
             AddPromptsToKeyword("Login", () => EventManager.LoginByVoice());
             AddPromptsToKeyword("Register", () => EventManager.RegisterByVoice());
             AddPromptsToKeyword("Save", () => EventManager.SaveActivityByVoice());
             AddPromptsToKeyword("Upload", () => EventManager.UploadActivityByVoice());
-            AddPromptsToKeyword("Turn on Edit Mode", () => { EventManager.NotifyEditModeChanged(true); ActivityEditor.Instance.SetEditorState(true); });
-            AddPromptsToKeyword("Turn off Edit Mode", () => { EventManager.NotifyEditModeChanged(false); ActivityEditor.Instance.SetEditorState(false); });
+            AddPromptsToKeyword("Turn on Edit Mode", () => {  ActivityEditor.Instance.OnEditToggleChanged(true); });
+            AddPromptsToKeyword("Turn off Edit Mode", () => {  ActivityEditor.Instance.OnEditToggleChanged(false); });
             AddPromptsToKeyword("Add Image", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.IMAGE); });
             AddPromptsToKeyword("Add Act", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.ACT); });
             AddPromptsToKeyword("Add Glyph", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.ACT); });

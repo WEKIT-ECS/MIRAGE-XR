@@ -9,6 +9,7 @@ namespace MirageXR
     [RequireComponent(typeof(SessionContainerListItem))]
     public class SessionButton : MonoBehaviour
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         [SerializeField] private SessionContainerListItem _selectedListViewItem;
 
         public async void OnActivitySelected()
@@ -21,7 +22,7 @@ namespace MirageXR
             // else: play the activity
             else
             {
-                //show loading label
+                // show loading label
                 Loading.Instance.LoadingVisibility(true);
 
                 Debug.Log("Play activity");
@@ -40,7 +41,6 @@ namespace MirageXR
 
             bool success;
             Session arlemFile = _selectedListViewItem.Content.Session;
-            arlemFile.filename = Uri.EscapeDataString(arlemFile.filename);
             Debug.Log($"Downloading from {arlemFile.contextid}/{arlemFile.component}/{arlemFile.filearea}/{arlemFile.itemid}/{arlemFile.filename}");
             using (SessionDownloader downloader = new SessionDownloader($"{DBManager.domain}/pluginfile.php/{arlemFile.contextid}/{arlemFile.component}/{arlemFile.filearea}/{arlemFile.itemid}/{arlemFile.filename}", arlemFile.sessionid + ".zip"))
             {
@@ -88,34 +88,34 @@ namespace MirageXR
             PlayerPrefs.SetString("activityUrl", activityJsonFileName);
             PlayerPrefs.Save();
 
-            //update the view of the activity on Moodle server after loading
-            await MoodleManager.Instance.UpdateViewsOfActivity(_selectedListViewItem.Content.ItemID);
+            // update the view of the activity on Moodle server after loading
+            await RootObject.Instance.moodleManager.UpdateViewsOfActivity(_selectedListViewItem.Content.ItemID);
 
             //StartCoroutine(SwitchToPlayerScene(activityJsonFileName));
-            await ServiceManager.GetService<EditorSceneService>().LoadEditorAsync();
-            EventManager.ParseActivity(activityJsonFileName);
+            await RootObject.Instance.editorSceneService.LoadEditorAsync();
+            await activityManager.LoadActivity(activityJsonFileName);
 
-            //Set the activity URL
-            ActivityManager.Instance.AbsoluteURL = _selectedListViewItem.Content.AbsoluteURL;
+            // Set the activity URL
+            activityManager.AbsoluteURL = _selectedListViewItem.Content.AbsoluteURL;
         }
 
         public async void OnDeleteButtonPressed()
         {
             if (LocalFiles.TryDeleteActivity(_selectedListViewItem.Content.Activity.id))
             {
-                //reload the activity list
+                // reload the activity list
                 var listView = FindObjectOfType<SessionListView>();
                 await listView.CollectAvailableSessionsAsync();
             }
         }
 
-        //private IEnumerator SwitchToPlayerScene(string activityJsonFileName)
-        //{
-        //yield return SceneManager.LoadSceneAsync(PlatformManager.Instance.GetPlayerSceneName, LoadSceneMode.Additive);
-        //// wait one more frame for everything to set up
-        //yield return null;
-        //EventManager.ParseActivity(activityJsonFileName);
-        //yield return SceneManager.UnloadSceneAsync("ActivitySelection");
-        //}
+        // private IEnumerator SwitchToPlayerScene(string activityJsonFileName)
+        // {
+        // yield return SceneManager.LoadSceneAsync(PlatformManager.Instance.GetPlayerSceneName, LoadSceneMode.Additive);
+        // // wait one more frame for everything to set up
+        // yield return null;
+        // EventManager.ParseActivity(activityJsonFileName);
+        // yield return SceneManager.UnloadSceneAsync("ActivitySelection");
+        // }
     }
 }

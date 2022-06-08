@@ -6,10 +6,10 @@ using UnityEngine;
 public class ConfigEditor
 {
 
-    public string configFileDir = "Assets/MirageXR/Resources";
-    public string configFileName = "MirageXRConfig";
-    public string termsOfUseDefault = "TermsOfUseDefault";
-    public string termsOfUseUser = "TermsOfUseUser";
+    public string configFileDir { get; private set; } = "Assets/MirageXR/Resources";
+    public string configFileName { get; private set; } = "MirageXRConfig";
+    public string termsOfUseDefault { get; private set; } = "TermsOfUseDefault";
+    public string termsOfUseUser { get; private set; } = "TermsOfUseUser";
     private string configFileExt = ".txt"; //Resources.load accept only txt or json as textasset
 
     public string ConfigFilePath()

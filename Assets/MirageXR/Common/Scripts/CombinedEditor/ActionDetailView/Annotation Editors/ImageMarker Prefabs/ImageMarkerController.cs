@@ -54,7 +54,8 @@ namespace MirageXR
 
         private void Start()
         {
-            detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(_obj.id));
+            var workplaceManager = RootObject.Instance.workplaceManager;
+            detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_obj.id));
             detectableOB = GameObject.Find(detectable.id);
 #if UNITY_ANDROID || UNITY_IOS
             trackImageManager.trackedImagePrefab = detectableOB;
@@ -122,14 +123,14 @@ namespace MirageXR
 
         private IEnumerator LoadImage()
         {
-            byte[] byteArray = File.ReadAllBytes(Path.Combine(ActivityManager.Instance.Path, ImgMName));
-            //Find and load the image to be used for createing an image marker
+            byte[] byteArray = File.ReadAllBytes(Path.Combine(RootObject.Instance.activityManager.ActivityPath, ImgMName));
+            // Find and load the image to be used for createing an image marker
 
             Texture2D loadTexture = new Texture2D(2, 2);
             // the size of the texture will be replaced by image size
 
             bool isLoaded = loadTexture.LoadImage(byteArray);
-            //convert loaded Byte array into a Texture2D
+            // convert loaded Byte array into a Texture2D
 
             yield return isLoaded;
 
@@ -140,17 +141,17 @@ namespace MirageXR
 
                 MutableRuntimeReferenceImageLibrary mutableRuntimeReferenceImageLibrary = trackImageManager.referenceLibrary as MutableRuntimeReferenceImageLibrary;
 
-                var jobHandle = mutableRuntimeReferenceImageLibrary.ScheduleAddImageJob(loadTexture, ImgMName, 0.1f);
+                var jobHandle = mutableRuntimeReferenceImageLibrary.ScheduleAddImageJob(loadTexture, ImgMName, _obj.scale);
 
 #else
 
                 VuforiaARController.Instance.RegisterVuforiaStartedCallback(HoloLensCreateImageTargetFromImageFile);
-                //calls the method to create an image marker using Vuforia for non-mobile builds
+                // calls the method to create an image marker using Vuforia for non-mobile builds
 #endif
             }
             else
             {
-                //debugLog.text += "Failed to load image";
+                // debugLog.text += "Failed to load image";
                 Debug.Log("Failed to load image");
             }
         }
@@ -204,7 +205,7 @@ namespace MirageXR
                GameObject detectableParentObj = GameObject.Find("Detectables");
                 IM.transform.parent = detectableParentObj.transform;
                 detectableAsChild();
-                //move the Image marker to be a child of the Detectables object in the player scene and set the current detectable to be a child of the newly created Image marker
+                // move the Image marker to be a child of the Detectables object in the player scene and set the current detectable to be a child of the newly created Image marker
             }
 
             objectTracker.ActivateDataSet(dataset);
@@ -218,7 +219,8 @@ namespace MirageXR
             //IM.GetComponent<TrackableEventHandlerEvents>().augmentation = GameObject.Find(detectable.id); ;
 
             
-            Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(_obj.id));
+            var workplaceManager = RootObject.Instance.workplaceManager;
+            Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_obj.id));
 
             Debug.Log("Detecable ID: " + detectable.id);
 
@@ -230,19 +232,19 @@ namespace MirageXR
 
         }
 
-        public void platformOnDestroy()
+        public void PlatformOnDestroy()
         {
 #if UNITY_ANDROID || UNITY_IOS
             trackImageManager.referenceLibrary = trackImageManager.CreateRuntimeLibrary(serializedLibrary);
             Destroy(gameObject);
 #else
             // Get the last bit of the url.
-            Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(_obj.id));
+            Detectable detectable = RootObject.Instance.workplaceManager.GetDetectable(RootObject.Instance.workplaceManager.GetPlaceFromTaskStationId(_obj.id));
 
             GameObject detectableObj = GameObject.Find(detectable.id);
             GameObject detectableParentObj = GameObject.Find("Detectables");
 
-            //as Vuforia dosent allow image markers to be destroyed at run time the detectable is moved instead leaving the marker still in the scene but removeing its content
+            // as Vuforia doesn't allow image markers to be destroyed at run time the detectable is moved instead leaving the marker still in the scene but removeing its content
             detectableObj.transform.parent = detectableParentObj.transform;
 
 #endif
@@ -251,7 +253,7 @@ namespace MirageXR
 
         public override void Delete()
         {
-            //changed Delete to a Virtual method so i could overide it for Image markers as they were being deleted twice when changing activities causeing the new activity not to load
+            // changed Delete to a virtual method so I could overide it for Image markers as they were being deleted twice when changing activities causeing the new activity not to load
         }
     }
 }
@@ -288,7 +290,7 @@ public class TrackableEventHandlerEvents : MonoBehaviour
     /// <summary>
     /// called when the tracking state changes.
     /// </summary>
-    private void OnTrackableStateChanged(TrackableBehaviour.StatusChangeResult status)//, TrackableBehaviour.Status newStatus)
+    private void OnTrackableStateChanged(TrackableBehaviour.StatusChangeResult status) // , TrackableBehaviour.Status newStatus)
     {   
 
         switch (status.NewStatus)
@@ -309,7 +311,7 @@ public class TrackableEventHandlerEvents : MonoBehaviour
     protected virtual void OnTrackingFound()
     {
         Debug.Log("Trackable " + _trackableBehaviour.TrackableName + " found");
-        //onTrackingFound.Invoke();
+        // onTrackingFound.Invoke();
        // augmentation.transform.position = _trackableBehaviour.transform.position;//new Vector3(0, 0, 0);
         tracked = true;
     }

@@ -10,24 +10,20 @@ namespace MirageXR
     {
 
         private Text _title;
-        public string Title;
+        public string Title { get; set; }
 
-        public Transform Container;
+        public Transform Container { get; private set; }
 
-        public GameObject Button;
+        [SerializeField] private GameObject Button;
 
         private void OnEnable()
         {
             EventManager.OnClearAll += Delete;
-            EventManager.OnShowSensors += ShowContent;
-            EventManager.OnHideSensors += HideContent;
         }
 
         private void OnDisable()
         {
             EventManager.OnClearAll -= Delete;
-            EventManager.OnShowSensors -= ShowContent;
-            EventManager.OnHideSensors -= HideContent;
         }
 
         // Use this for initialization

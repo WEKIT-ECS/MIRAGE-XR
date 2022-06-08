@@ -9,13 +9,16 @@ namespace MirageXR
     {
         private Image _bg;
         private Text _valueText;
-        public string Value;
+        public string Value
+        {
+            get; set;
+        }
 
-        public Color32 Green;
-        public Color32 Yellow;
-        public Color32 Red;
-        public Color32 Normal;
-        public Color32 Disabled;
+        [SerializeField] private Color32 Green;
+        [SerializeField] private Color32 Yellow;
+        [SerializeField] private Color32 Red;
+        [SerializeField] private Color32 Normal;
+        [SerializeField] private Color32 Disabled;
 
         private string state = "normal";
 

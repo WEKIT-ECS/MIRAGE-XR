@@ -7,48 +7,42 @@ namespace MirageXR
 {
     public class AudioPlayer : MirageXRPrefab
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         [Tooltip ("Audio file. Only .wav format supported for external sources. Internally, .mp3 are supported as well")]
-        public string audioName = "audio.wav";
+        [SerializeField] private string audioName = "audio.wav";
+        public string AudioName => audioName;
+
         [Tooltip ("Set to false to read from project's 'Resources' folder; set to true to read from applications 'LocalState' folder on HoloLens, or online, if filename starts with 'http'")]
-        public bool useExternalSource = false;
+        [SerializeField] private bool useExternalSource = false;
 
         private AudioEditor audioEditor;
-
         private float audioLength;
-
-        bool audio3dMode;
+        private bool audio3dMode;
         public bool Loop { get; private set; }
 
+
         [SerializeField] private GameObject icon;
-        public Sprite iconSprite;
+        [SerializeField] private Sprite iconSprite;
+        public Sprite IconSprite => iconSprite;
+
         [SerializeField] private Sprite pauseIcon;
 
-        public SpriteRenderer iconImage;
+        [SerializeField] private SpriteRenderer iconImage;
+        public SpriteRenderer IconImage => iconImage;
 
-        public string AudioSpatialType
-        {
-            get;set;
-        }
+        public string AudioSpatialType { get; private set; }
 
         public DialogRecorder DialogRecorderPanel
         {
             get; set;
         }
 
-
-        [HideInInspector]
-        public bool isReady = false;
-        [HideInInspector]
-        public bool isPlaying = false;
-
+        private bool isReady = false;
+        private bool isPlaying = false;
 
         private ToggleObject _obj;
 
-
-        public ToggleObject GetMyAnnotation()
-        {
-            return _obj;
-        }
+        public ToggleObject MyAnnotation => _obj;
 
         private GameObject _contentObject;
 
@@ -59,9 +53,7 @@ namespace MirageXR
 
             var actionEditor = FindObjectOfType<ActionEditor>();
             audioEditor = (AudioEditor)actionEditor.CreateEditorView(ContentType.AUDIO);
-            
         }
-
 
         /// <summary>
         /// Initialization method.
@@ -89,36 +81,35 @@ namespace MirageXR
             // Set name.
             name = obj.predicate;
 
-            //check audio is 2d or 3d
-            audio3dMode = obj.option.Split('#')[0] == "3d" ? true : false;
+            // check audio is 2d or 3d
+            audio3dMode = obj.option.Split('#')[0] == "3d";
 
             float radius = 0f;
 
-
-            //3d
+            // 3d
             if (audio3dMode)
             {
-                //loop is off for 2d and load the status of loop if it is 3d audio
+                // loop is off for 2d and load the status of loop if it is 3d audio
                 Loop = false;
                 if (audio3dMode)
+                {
                     Loop = obj.option.Split('#')[1] == "1";
-
-                //get the radius if it is 3d audio
-
+                }
+                // get the radius if it is 3d audio
                 if (audio3dMode)
+                {
                     radius = float.Parse(obj.option.Split('#')[2]);
-            }else
+                }
+            }
+            else
             {
                 Destroy(icon);
             }
-
-
 
             // Load audio from resources.
             if (obj.url.StartsWith ("resources://"))
             {
                 audioName = obj.url.Replace("resources://", "");
-
                 CreateAudioPlayer (false, audio3dMode, radius, Loop);
             }
 
@@ -126,7 +117,6 @@ namespace MirageXR
             else
             {
                 audioName = obj.url;
-
                 CreateAudioPlayer (true, audio3dMode, radius, Loop);
             }
 
@@ -135,9 +125,8 @@ namespace MirageXR
         }
 
 
-        void Update ()
+        private void Update ()
         {
-
             if (audioEditor && (audioEditor.IsRecording || audioEditor.IsPlaying))
             {
                 StopAudio();
@@ -145,7 +134,6 @@ namespace MirageXR
                  iconImage.sprite = pauseIcon;
                 return;
             }
-
 
             if (isPlaying == false)
             {
@@ -185,7 +173,7 @@ namespace MirageXR
                 isPlaying = true;
 
                 audioLength = audioSource.clip.length;
-                var myTrigger = ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == _obj.poi);
+                var myTrigger = activityManager.ActiveAction.triggers.Find(t => t.id == _obj.poi);
                 if (myTrigger != null)
                 {
                     StartCoroutine(ActivateTrigger(audioSource, myTrigger));
@@ -200,19 +188,19 @@ namespace MirageXR
                 yield return null;
             }
 
-            if (!ActivityManager.Instance.EditModeActive)
+            if (!activityManager.EditModeActive)
             {
                 var triggerDuration = trigger.duration;
                 yield return new WaitForSeconds(triggerDuration);
 
-                if (!ActivityManager.Instance.IsLastAction(ActivityManager.Instance.ActiveAction))
+                if (!activityManager.IsLastAction(activityManager.ActiveAction))
                 {
-                    if (ActivityManager.Instance.ActiveAction != null)
+                    if (activityManager.ActiveAction != null)
                     {
-                        ActivityManager.Instance.ActiveAction.isCompleted = true;
+                        activityManager.ActiveAction.isCompleted = true;
                     }
 
-                    ActivityManager.Instance.ActivateNextAction();
+                    activityManager.ActivateNextAction();
                     TaskStationDetailMenu.Instance.SelectedButton = null;
                 }
             }
@@ -365,7 +353,7 @@ namespace MirageXR
                 audioPlayer.playOnAwake = false;
                 isReady = true;
             }
-            //_contentObject = ActionContentStorageManager.Instance.CreateObject(gameObject, _obj);
+            // _contentObject = ActionContentStorageManager.Instance.CreateObject(gameObject, _obj);
         }
 
 
@@ -392,7 +380,7 @@ namespace MirageXR
                 var url = audioName.Split('/');
                 var filename = url[url.Length - 1];
 
-                var completeAudioName = "file://" + ActivityManager.Instance.Path + "/" + filename;
+                var completeAudioName = "file://" + activityManager.ActivityPath + "/" + filename;
                 Debug.Log("Trying to load audio: " + completeAudioName);
                 WWW www = new WWW(completeAudioName);
                 yield return www;

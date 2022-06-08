@@ -11,6 +11,7 @@ public class LoginView : PopupBase
     [SerializeField] private ExtendedInputField _inputFieldUserName;
     [SerializeField] private ExtendedInputField _inputFieldPassword;
     [SerializeField] private Toggle _toggleRemember;
+    [SerializeField] private Button _btnRegister;
     [SerializeField] private Button _btnLogin;
     [SerializeField] private Button _btnLogout;
     [SerializeField] private TMP_Text _txtLogout;
@@ -23,6 +24,7 @@ public class LoginView : PopupBase
         
         _inputFieldUserName.SetValidator(IsValidUsername);
         _inputFieldPassword.SetValidator(IsValidPassword);
+        _btnRegister.onClick.AddListener(OnClickRegister);
         _btnLogin.onClick.AddListener(OnClickLogin);
         _btnLogout.onClick.AddListener(OnClickLogout);
         _toggleRemember.onValueChanged.AddListener(OnToggleRememberValueChanged);
@@ -38,7 +40,7 @@ public class LoginView : PopupBase
     private async Task Login(string username, string password)
     {
         LoadView.Instance.Show();
-        var result = await MoodleManager.Instance.Login(username, password);
+        var result = await RootObject.Instance.moodleManager.Login(username, password);
         LoadView.Instance.Hide();
         if (result)
         {
@@ -66,7 +68,7 @@ public class LoginView : PopupBase
     private void OnLoginSucceed(string username, string password)
     {
         Toast.Instance.Show("Login succeeded");
-        ActivityListView.Instance.UpdateListView();
+        RootView.Instance.activityListView.UpdateListView();
         if (DBManager.rememberUser)
         {
             LocalFiles.SaveUsernameAndPassword(username, password);
@@ -107,6 +109,11 @@ public class LoginView : PopupBase
         _inputFieldPassword.ResetValidation();
     }
 
+    private void OnClickRegister()
+    {
+        Application.OpenURL(DBManager.registerPage);
+    }
+
     private async void OnClickLogin()
     {
         if (!_inputFieldUserName.Validate()) return;
@@ -118,21 +125,21 @@ public class LoginView : PopupBase
     private void OnClickLogout()
     {
         DBManager.LogOut();
-        ActivityListView.Instance.UpdateListView();
+        RootView.Instance.activityListView.UpdateListView();
         ShowLogin();
     }
 
-    private static bool IsValidUsername(string urlString)
+    private static bool IsValidUsername(string value)
     {
-        const string regexExpression = "^(?=[a-zA-Z0-9._@!#$%^&]{4,}$)(?!.*[_.]{2})[^_.].*[^_.]$";
+        const string regexExpression = "^\\S{3,}$";
         var regex = new Regex(regexExpression);
-        return regex.IsMatch(urlString);
+        return regex.IsMatch(value);
     }
 
-    private static bool IsValidPassword(string urlString)
+    private static bool IsValidPassword(string value)
     {
-        const string regexExpression = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*#?&]{8,}$";
+        const string regexExpression = "^\\S{8,}$";
         var regex = new Regex(regexExpression);
-        return regex.IsMatch(urlString);
+        return regex.IsMatch(value);
     }
 }

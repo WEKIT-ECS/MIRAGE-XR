@@ -26,7 +26,7 @@ namespace MirageXR
 
             var counter = 0;
 
-            //find out the steps
+            // find out the steps
             foreach (TaskStep task in tasks)
             {
                 if (task.Get_actionObject().isCompleted)
@@ -35,8 +35,8 @@ namespace MirageXR
 
             stepStatusLabel.text = "Step " + counter.ToString()  + " of " + tasks.Length.ToString() + " is done!";
 
-            //adjust the progress line if the task list is not empty
-            progressLine.GetComponent<RectTransform>().localScale = new Vector3( (1f / tasks.Length) * counter, 1f , 1f);
+            // adjust the progress line if the task list is not empty
+            progressLine.GetComponent<RectTransform>().localScale = new Vector3( (1f / tasks.Length) * counter, 1f, 1f);
             print(counter);
         }
     }

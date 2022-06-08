@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿ using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.XR.ARFoundation;
@@ -8,9 +7,6 @@ namespace MirageXR
 {
     public class PlatformManager : MonoBehaviour
     {
-        private const float HORIZONTAL_OFFSET = 0.5f;
-        private const float VERTICAL_OFFSET = 0.25f;
-        
         [Serializable]
         public class LoadObject
         {
@@ -19,7 +15,8 @@ namespace MirageXR
         }
         
         [Tooltip("If you want to test AR in the editor enable this.")]
-        [SerializeField] bool forceWorldSpaceUi = true;
+        [SerializeField] bool forceWorldSpaceUi = false;
+        [SerializeField] bool forceToTabletView = false;
         [SerializeField] private LoadObject[] _worldSpaceObjects;
         [SerializeField] private LoadObject[] _screenSpaceObjects;
         
@@ -69,13 +66,10 @@ namespace MirageXR
 
             if (Application.platform == RuntimePlatform.WSAPlayerX86 || Application.platform == RuntimePlatform.WSAPlayerARM)
             {
-
                 foreach (var arcm in Resources.FindObjectsOfTypeAll<ARCameraManager>()) Destroy(arcm);      //TODO: remove Resources.FindObjectsOfTypeAll
                 foreach (var arm in Resources.FindObjectsOfTypeAll<ARManager>()) Destroy(arm);
                 foreach (var ars in Resources.FindObjectsOfTypeAll<ARSession>()) Destroy(ars);
             }
-
-
         }
 
         public Vector3 GetTaskStationPosition()
@@ -125,6 +119,39 @@ namespace MirageXR
             {
                 Instantiate(loadObject.prefab);
             }
+        }
+        
+        public enum DeviceFormat
+        {
+            Phone,
+            Tablet,
+            Unknown
+        }
+
+        public static DeviceFormat GetDeviceFormat()
+        {
+            if (Instance != null && Instance.forceToTabletView) return DeviceFormat.Tablet;
+#if UNITY_IOS && !UNITY_EDITOR
+            return UnityEngine.iOS.Device.generation.ToString().Contains("iPad") ? DeviceFormat.Tablet : DeviceFormat.Phone;
+#elif UNITY_ANDROID && !UNITY_EDITOR
+            const float minTabletSize = 6.5f;
+            return GetDeviceDiagonalSizeInInches() > minTabletSize ? DeviceFormat.Tablet : DeviceFormat.Phone;
+#elif UNITY_WSA && !UNITY_EDITOR
+            return DeviceFormat.Unknown;
+#else
+            return Screen.width > Screen.height ? DeviceFormat.Tablet : DeviceFormat.Unknown;
+#endif
+        }
+
+        private static float GetDeviceDiagonalSizeInInches()
+        {
+            var screenWidth = Screen.width / Screen.dpi;
+            var screenHeight = Screen.height / Screen.dpi;
+            var diagonalInches = Mathf.Sqrt (Mathf.Pow (screenWidth, 2) + Mathf.Pow (screenHeight, 2));
+ 
+            Debug.Log ("Getting device inches: " + diagonalInches);
+ 
+            return diagonalInches;
         }
     }
 }

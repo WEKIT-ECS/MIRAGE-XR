@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +7,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using Action = System.Action;
 
-public class ContentListView : MonoBehaviour
+public class ContentListView : BaseView
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
     private const float HIDE_HEIGHT = 250f;
     private const float BASE_CONTROLS_COOLDOWN = 0.3f;
     
@@ -32,7 +32,13 @@ public class ContentListView : MonoBehaviour
 
     public PopupEditorBase[] editors => _editors;
     public MirageXR.Action currentStep => _currentStep;
-
+    public RootView rootView => (RootView)_parentView;
+    
+    public TMP_InputField TxtStepName => _txtStepName;
+    public TMP_InputField TxtStepDescription => _txtDescription;
+    public Button BtnShowHide => _btnShowHide;
+    public Button BtnAddContent => _btnAddContent;
+    
     public string navigatorId
     {
         get => _navigatorIds.ContainsKey(_currentStep.id) ? _navigatorIds[_currentStep.id] : null;
@@ -49,6 +55,7 @@ public class ContentListView : MonoBehaviour
             UpdateView();
         }
     }
+
     private readonly Dictionary<string, string> _navigatorIds = new Dictionary<string, string>();
     private readonly List<ContentListItem> _list = new List<ContentListItem>();
     private RectTransform _imdShowHideRectTransform;
@@ -60,10 +67,11 @@ public class ContentListView : MonoBehaviour
     private float _showHeight;
     private MirageXR.Action _currentStep;
     
-    private void Start()
+    public override void Initialization(BaseView parentView)
     {
-        _txtStepName.onValueChanged.AddListener(OnStepNameChanged);
-        _txtDescription.onValueChanged.AddListener(OnStepDescriptionChanged);
+        base.Initialization(parentView);
+        _txtStepName.onEndEdit.AddListener(OnStepNameChanged);
+        _txtDescription.onEndEdit.AddListener(OnStepDescriptionChanged);
         _btnShowHide.onClick.AddListener(OnShowHideClick);
         _btnAddContent.onClick.AddListener(OnAddContent);
         _btnDeleteStep.onClick.AddListener(OnDeleteStep);
@@ -95,18 +103,20 @@ public class ContentListView : MonoBehaviour
     private void OnStepNameChanged(string newTitle)
     {
         _currentStep.instruction.title = newTitle;
+        EventManager.NotifyOnActionStepTitleChanged();
         EventManager.NotifyActionModified(_currentStep);
     }
-    
+
     private void OnStepDescriptionChanged(string newDescription)
     {
         _currentStep.instruction.description = newDescription;
+        EventManager.NotifyOnActionStepDescriptionInputChanged();
         EventManager.NotifyActionModified(_currentStep);
     }
     
     private void OnActionActivated(string actionId)
     {
-        var action = ActivityManager.Instance.ActiveAction ?? ActivityManager.Instance.ActionsOfTypeAction.FirstOrDefault(t => t.id == actionId);
+        var action = activityManager.ActiveAction ?? activityManager.ActionsOfTypeAction.FirstOrDefault(t => t.id == actionId);
         if (action != null) _currentStep = action;
         UpdateView();
     }
@@ -139,7 +149,12 @@ public class ContentListView : MonoBehaviour
         
         var contents = _currentStep.enter.activates;
 
-        TaskStationDetailMenu.Instance.NavigatorTarget = null;
+        var detailMenu = TaskStationDetailMenu.Instance;
+        if (detailMenu)
+        {
+            detailMenu.NavigatorTarget = null;
+        }
+
         _list.ForEach(t => t.gameObject.SetActive(false));
         for (var i = 0; i < contents.Count; i++)
         {
@@ -153,12 +168,13 @@ public class ContentListView : MonoBehaviour
             _list[i].UpdateView(contents[i]);
         }
         
-        OnEditModeChanged(ActivityManager.Instance.EditModeActive);
+        OnEditModeChanged(activityManager.EditModeActive);
     }
     
     private void OnAddContent()
     {
         PopupsViewer.Instance.Show(_contentSelectorViewPrefab, _editors, _currentStep);
+        EventManager.NotifyOnMobileAddStepContentPressed();
     }
 
     private void EnableBaseControl()
@@ -180,28 +196,28 @@ public class ContentListView : MonoBehaviour
     private void OnDeleteStep()
     {
         DisableBaseControl();
-        StepsListView.Instance.OnDeleteStepClick(_currentStep);
+        rootView.stepsListView.OnDeleteStepClick(_currentStep);
         Invoke(nameof(EnableBaseControl), BASE_CONTROLS_COOLDOWN);
     }
 
     private void OnAddStep()
     {
         DisableBaseControl();
-        StepsListView.Instance.AddStep();
+        rootView.stepsListView.AddStep();
         Invoke(nameof(EnableBaseControl), BASE_CONTROLS_COOLDOWN);
     }
     
     private void OnNextStep()
     {
         DisableBaseControl();
-        StepsListView.Instance.NextStep();
+        rootView.stepsListView.NextStep();
         Invoke(nameof(EnableBaseControl), BASE_CONTROLS_COOLDOWN);
     }
     
     private void OnPreviousStep()
     {
         DisableBaseControl();
-        StepsListView.Instance.PreviousStep();
+        rootView.stepsListView.PreviousStep();
         Invoke(nameof(EnableBaseControl), BASE_CONTROLS_COOLDOWN);
     }
     
@@ -271,7 +287,7 @@ public class ContentListView : MonoBehaviour
         var sizeStart = axis == RectTransform.Axis.Horizontal ? rect.width : rect.height;
         var timer = 0.0f;
         while (timer < 1.0f) {
-            timer = Mathf.Min(1.0f, timer + Time.deltaTime/time);
+            timer = Mathf.Min(1.0f, timer + Time.deltaTime / time);
             var value = curve.Evaluate(timer);
             var size = Mathf.Lerp(sizeStart, sizeEnd, value);
             rectTransform.SetSizeWithCurrentAnchors(axis, size);
@@ -279,6 +295,7 @@ public class ContentListView : MonoBehaviour
             yield return null;
         }
 
+        EventManager.NotifyOnMobileStepContentExpanded();
         callback?.Invoke();
     }
 
@@ -287,7 +304,7 @@ public class ContentListView : MonoBehaviour
         var rotateStart = transform.localRotation;
         var timer = 0.0f;
         while (timer < 1.0f) {
-            timer = Mathf.Min(1.0f, timer + Time.deltaTime/time);
+            timer = Mathf.Min(1.0f, timer + Time.deltaTime / time);
             var value = curve.Evaluate(timer);
             transform.localRotation = Quaternion.Lerp(rotateStart, rotateEnd, value);
 

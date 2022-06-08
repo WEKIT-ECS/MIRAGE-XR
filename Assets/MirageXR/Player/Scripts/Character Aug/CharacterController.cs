@@ -9,14 +9,12 @@ using System.IO;
 using System.Linq;
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
-//using Microsoft.MixedReality.Toolkit.UI;
 
 namespace MirageXR
 {
     public class CharacterController : MirageXRPrefab
     {
-
-
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         [SerializeField] private Transform rightHandBone;
 
         [Tooltip("You need to play with this to set the correct start rotation of the image container")]
@@ -32,18 +30,18 @@ namespace MirageXR
         private float animationLength;
         private float triggerDuration;
 
-        //Animation variables
+        // Animation variables
         private bool animationClipPlaying;
         private bool animationPlayedOnce;
-        public bool characterParsed {
+        public bool CharacterParsed {
             get; private set;
         }
 
-        //Watson assistant
+        // Watson assistant
         private GameObject watsonService;
         public bool AIActivated { get; private set; }
 
-        //character settings
+        // character settings
         private CharacterSettings _characterSetting;
         private MovementManager movementManger;
         private Dropdown animationMenu;
@@ -64,7 +62,7 @@ namespace MirageXR
             {
                 if (isImageAssignModeActive)
                 {
-                    _characterSetting.AssignImageButton().GetComponent<Image>().color = Color.white;
+                    _characterSetting.AssignImageButton.GetComponent<Image>().color = Color.white;
                     isImageAssignModeActive = false;
                     return;
                 }
@@ -72,18 +70,18 @@ namespace MirageXR
                 isImageAssignModeActive = value;
                 if (value)
                 {
-                    //turn of all other assign button if is on
+                    // turn of all other assign button if is on
                     foreach (var character in FindObjectsOfType<CharacterController>())
                         if (character != this && character.IsImageAssignModeActive)
                             character.IsImageAssignModeActive = false;
 
-                    _characterSetting.AssignImageButton().GetComponent<Image>().color = Color.red;
+                    _characterSetting.AssignImageButton.GetComponent<Image>().color = Color.red;
                 }
-                else _characterSetting.AssignImageButton().GetComponent<Image>().color = Color.white;
+                else _characterSetting.AssignImageButton.GetComponent<Image>().color = Color.white;
             }
         }
 
-        //Check the character gender
+        // Check the character gender
         private List<string> _maleNames = new List<string>{ "Boy_A", "Boy_B", "Boy_C", "Fridolin", "Man_A", "Man_B", "Man_C", "Alien" };
         private bool IAmMale
         {
@@ -101,10 +99,7 @@ namespace MirageXR
         public ToggleObject MyImageAnnotation { get; set; }
         #endregion
 
-        public ToggleObject MyToggleObject()
-        {
-            return _myObj;
-        }
+        public ToggleObject ToggleObject => _myObj;
 
         public DialogRecorder DialogRecorder { get; private set; }
 
@@ -114,11 +109,9 @@ namespace MirageXR
 
         public string MovementType { get; set; }
 
-        public string AnimationType { get; set; }
+        public string AnimationType { get; private set; }
 
-        public bool AnimationLoop { get; set; }
-
-        public GameObject Character { get; set; }
+        public bool AnimationLoop { get; private set; }
 
         public bool AgentReturnAtTheEnd { get; set; }
 
@@ -129,10 +122,7 @@ namespace MirageXR
 
         public NavMeshAgent Agent => _agent;
 
-        public bool AnyNodeMoving
-        {
-            set;get;
-        }
+        public bool AnyNodeMoving { set; get; }
 
         public List<GameObject> Destinations { get; set; }
 
@@ -150,7 +140,11 @@ namespace MirageXR
 
             name = obj.predicate;
             obj.text = name;
-            transform.parent.GetComponent<PoiEditor>().ICanRotate = true;
+            var poiEditor = transform.parent.GetComponent<PoiEditor>();
+            if (poiEditor)
+            {
+                poiEditor.ICanRotate = true;
+            }
 
             _agent.enabled = false;
 
@@ -164,136 +158,178 @@ namespace MirageXR
             return base.Init(obj);
         }
 
-
-
-        private void Start()
+        private async void Start()
         {
-            //The folder where character data will be saved in
-            characterDataFolder = Path.Combine(ActivityManager.Instance.Path, "characterinfo");
+            Subscribe();
+            
+            // The folder where character data will be saved in
+            characterDataFolder = Path.Combine(activityManager.ActivityPath, "characterinfo");
 
-            //generate a random color
+            // generate a random color
             _pathNodesColor = new Color(
                 UnityEngine.Random.Range(0f, 1f),
                 UnityEngine.Random.Range(0f, 1f),
                 UnityEngine.Random.Range(0f, 1f)
             );
 
-            var ObjectManipulater = transform.parent.GetComponent<ObjectManipulator>();
-            if (ObjectManipulater)
+            var objectManipulator = transform.parent.GetComponent<ObjectManipulator>();
+            if (objectManipulator)
             {
-                //disable fully one hand manipulatin
-                ObjectManipulater.ManipulationType = Microsoft.MixedReality.Toolkit.Utilities.ManipulationHandFlags.TwoHanded;
-                //only scale on two hand manupulation
-                ObjectManipulater.TwoHandedManipulationType = Microsoft.MixedReality.Toolkit.Utilities.TransformFlags.Scale;
+                // disable fully one hand manipulation
+                objectManipulator.ManipulationType = Microsoft.MixedReality.Toolkit.Utilities.ManipulationHandFlags.TwoHanded;
+                // only scale on two hand manipulation
+                objectManipulator.TwoHandedManipulationType = Microsoft.MixedReality.Toolkit.Utilities.TransformFlags.Scale;
 
-                ObjectManipulater.OnManipulationEnded.AddListener(delegate { FitSpeedToSize(); });
+                objectManipulator.OnManipulationEnded.AddListener(delegate { FitSpeedToSize(); });
             }
 
-            //add NavMeshObstacle to the camera to avoid collision between the camera and the character
+            // add NavMeshObstacle to the camera to avoid collision between the camera and the character
             var cam = Camera.main;
             if (cam.GetComponentInChildren<NavMeshObstacle>() == null)
             {
-                var NavmeshObstacleObj = Instantiate(Resources.Load<GameObject>("Prefabs/Characters/NavmeshObstacle"), cam.transform.position, cam.transform.rotation);
-                NavmeshObstacleObj.transform.SetParent(cam.transform);
+                var navmeshObstaclePrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("Characters/NavmeshObstacle"); 
+                if(navmeshObstaclePrefab != null)
+                {
+                    var navmeshObstacle = Instantiate(navmeshObstaclePrefab, cam.transform.position, cam.transform.rotation);
+                    navmeshObstacle.transform.SetParent(cam.transform);
+                }
+                
             }
 
-            _characterSetting.AssignImageButton().onClick.AddListener(delegate { IsImageAssignModeActive = !IsImageAssignModeActive; });
-            _characterSetting.ResetImageButton().onClick.AddListener(ResetImage);
-
-            _characterSetting.Trigger().onValueChanged.AddListener(delegate { OnTriggerValueChanged(); }) ;
         }
-
-
 
         private async void OnEnable()
         {
-            EventManager.OnEditModeChanged += SetEditModeState;
-
             stepsSettings = new List<StepSettings>();
 
             _anim = GetComponentInChildren<Animator>();
             _agent = GetComponent<NavMeshAgent>();
 
-            //create the character setting
-            var characterSettingPrefab = Resources.Load<GameObject>("Prefabs/Characters/CharacterSettingPanel");
-            var spawnPoint = transform.Find("UISpawnPoint");
-            _characterSetting = Instantiate(characterSettingPrefab, spawnPoint.position, spawnPoint.rotation).GetComponent<CharacterSettings>(); 
-            _characterSetting.transform.SetParent(transform);
-            _characterSetting.AnimationLoopToggle().onValueChanged.AddListener(delegate { OnAnimatinLoopToggle(); });
+            // create the character setting
+            var characterSettingPrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("Characters/CharacterSettingPanel"); 
+            if(characterSettingPrefab != null)
+            {
+                var spawnPoint = transform.Find("UISpawnPoint");
+                _characterSetting = Instantiate(characterSettingPrefab, spawnPoint.position, spawnPoint.rotation).GetComponent<CharacterSettings>();
+                _characterSetting.transform.SetParent(transform);
+                _characterSetting.AnimationLoopToggle.onValueChanged.AddListener(delegate { OnAnimationLoopToggle(); });
+                _characterSetting.AssignImageButton.onClick.AddListener(delegate { IsImageAssignModeActive = !IsImageAssignModeActive; });
+                _characterSetting.ResetImageButton.onClick.AddListener(ResetImage);
+                _characterSetting.Trigger.onValueChanged.AddListener(delegate { OnTriggerValueChanged(); });
 
-            movementManger = _characterSetting.MovementManager();
-            movementManger.PathLoop.onValueChanged.AddListener(delegate { LoopPath(); });
-            movementManger.FollowPlayer.onValueChanged.AddListener(delegate { FollowPlayer(); });
+                movementManger = _characterSetting.MovementManager;
+                movementManger.PathLoop.onValueChanged.AddListener(delegate { LoopPath(); });
+                movementManger.FollowPlayer.onValueChanged.AddListener(delegate { FollowPlayer(); });
 
-            animationMenu = _characterSetting.AnimationMenu();
-            animationMenu.onValueChanged.AddListener(delegate { OnAnimationClipChanged(); });
+                animationMenu = _characterSetting.AnimationMenu;
+                animationMenu.onValueChanged.AddListener(delegate { OnAnimationClipChanged(); });
+            }
 
-            //create image container
-            var imageContainerPrefab = Resources.Load<GameObject>("Prefabs/Characters/ImageDisplayFiles/PictureContainer");
-            imageContainer = Instantiate(imageContainerPrefab, Vector3.zero, Quaternion.identity);
-            imageContainer.transform.SetParent(transform.Find("CharacterGroup").transform);
+            // create image container
+            var imageContainerPrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("Characters/PictureContainer");
+            if(imageContainerPrefab != null)
+            {
+                imageContainer = Instantiate(imageContainerPrefab, Vector3.zero, Quaternion.identity);
+                imageContainer.transform.SetParent(transform.Find("CharacterGroup").transform);
+            }
 
-            //create the audio source which will be used by Watson and dialogplayer
+            // create the audio source which will be used by Watson and dialog player
             CreateAudioSource();
 
-            MyAction = ActivityManager.Instance.ActiveAction;
+            MyAction = activityManager.ActiveAction;
 
-            DialogRecorder = _characterSetting.DialogRecorder();
+            DialogRecorder = _characterSetting.DialogRecorder;
             if (DialogRecorder)
+            {
                 DialogRecorder.MyCharacter = this;
+            }
 
             _characterSetting.AIToggle.onValueChanged.AddListener(delegate { AddWatsonAssistant(); });
             _characterSetting.PreRecordToggle.onValueChanged.AddListener(delegate { DeactivateAI(); });
 
-            //Do not remove this
+            // Do not remove this
             await Task.Delay(200);
 
-            //sometimes the character be destroyed by keep alive during the delay above
+            // sometimes the character be destroyed by keep alive during the delay above
             if (this == null) return;
 
-            //wait for the character be setup by using JSON data
-            await ActivateCharacterOnEnable();
-            characterParsed = true;
 
-            //Remove animation clips which not exist for this character from the drobdown list
-            for (int i = animationMenu.options.Count - 1 ; i > 0 ; i--)
+            // Remove animation clips which not exist for this character from the drobdown list
+            for (int i = animationMenu.options.Count - 1; i > 0; i--)
+            {
                 if (_anim.parameters.ToList().Find(c => c.name == animationMenu.options[i].text) == null)
+                {
                     animationMenu.options.RemoveAt(i);
+                }
+            }
 
+            // wait for the character be setup by using JSON data
+            await ActivateCharacterOnEnable();
+            CharacterParsed = true;
 
-            //if the movementtype was not found in the json file use followpath as default(with one node)
+            // if the movement type was not found in the json file use followpath as default(with one node)
             if (MovementType == string.Empty)
+            {
                 MovementType = "followPath";
+            }
 
-            //sometime after enabling the character some script try to disable it again for any reason, we need to checkit here to avoid getting Coroutine exception
+            // sometime after enabling the character some script try to disable it again for any reason, we need to checkit here to avoid getting Coroutine exception
             if (gameObject.activeInHierarchy)
+            {
                 StartCoroutine(WaitForMovementType());
+            }
 
-            //If animation clip is display image, move the image annotation to the character poster
+            // If animation clip is display image, move the image annotation to the character poster
             MoveImageToHandPos();
 
-            SetEditModeState(ActivityManager.Instance.EditModeActive);
+            SetEditModeState(activityManager.EditModeActive);
 
-            //if movement is inplace play the audio at the start
+            // if movement is inplace play the audio at the start
             if (Destinations.Count == 1)
+            {
                 DialogRecorder.PlayDialog();
+            }
         }
 
-
+        private void OnDestroy()
+        {
+            Unsubscribe();
+        }
 
         private void OnDisable()
         {
-            EventManager.OnEditModeChanged -= SetEditModeState;
-            SaveJson();
-
             DestroyDestinationsOnDisable();
         }
 
+        private void Subscribe()
+        {
+            EventManager.OnEditModeChanged += SetEditModeState;
+            EventManager.OnAugmentationDeleted += DeleteCharacterData;
+            EventManager.OnActivitySaved += SaveJson;
+            EventManager.OnToggleObject += OnToggleObjectActivated;
+        }
+
+        private void Unsubscribe()
+        {
+            EventManager.OnEditModeChanged -= SetEditModeState;
+            EventManager.OnAugmentationDeleted -= DeleteCharacterData;
+            EventManager.OnActivitySaved -= SaveJson;
+            EventManager.OnToggleObject -= OnToggleObjectActivated;
+        }
+
+        private void OnToggleObjectActivated(ToggleObject toggleObject, bool value)
+        {
+            if (!value && _myObj.poi == toggleObject.poi)
+            {
+                SaveJson();
+            }
+        }
+        
         /// <summary>
         /// Check that there is an audio editor present and, if not, create one.
         /// </summary>
         /// <param name="forceRemove">Set to true to remove an existing audio editor.</param>
-        public void AudioEditorCheck(bool forceRemove = false)
+        public async void AudioEditorCheck(bool forceRemove = false)
         {
             bool hasAudioEditor = GetComponentInChildren<AudioEditor>();
 
@@ -310,27 +346,30 @@ namespace MirageXR
             }
             else
             {
-                GameObject audioEditorObject = Instantiate(Resources.Load("Prefabs/UI/Hololens/EditorPanels/AudioEditor") as GameObject);
-                audioEditorObject.transform.SetParent(this.transform);
-                MyAudioEditor = audioEditorObject.GetComponent<AudioEditor>();
-
+                var audioEditorPrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("EditorPanels/AudioEditor"); 
+                if(audioEditorPrefab != null)
+                {
+                    var audioEditorObject = Instantiate(audioEditorPrefab, transform, true);
+                    MyAudioEditor = audioEditorObject.GetComponent<AudioEditor>();
+                }
             }
         }
 
-
-
         private void FixedUpdate()
         {
+
+            if (!CharacterParsed) return;
+
             if (this == null) {
                 StopAllCoroutines();
                 return;
-             }
+            }
 
-             triggerDuration = DialogRecorder.DialogLength() >= animationLength ? DialogRecorder.DialogLength() : animationLength;
+            triggerDuration = DialogRecorder.DialogLength() >= animationLength ? DialogRecorder.DialogLength() : animationLength;
 
-            if (!_anim || !_agent || MovementType == string.Empty || !characterParsed ) return;
+            if (!_anim || !_agent || MovementType == string.Empty || !CharacterParsed ) return;
 
-            //Deactive the animation selector if movement is follow path and loop is on
+            // Deactivate the animation selector if movement is follow path and loop is on
             animationMenu.interactable = !(AgentReturnAtTheEnd && !movementManger.FollowPlayer.isOn);
 
             if (_agent.isActiveAndEnabled)
@@ -343,11 +382,11 @@ namespace MirageXR
                     _agent.updateRotation = true;
                     _agent.updatePosition = true;
 
-                    //start walking animation a bit after moving
+                    // start walking animation a bit after moving
                     if(Vector3.Distance(charPosXZ, destinationPosXZ) > _agent.stoppingDistance + 0.1f)
                         PlayClip("Walk");
 
-                    //if image display is playing stop the particles and hide the image
+                    // if image display is playing stop the particles and hide the image
                     if(animationClipPlaying)
                         StartCoroutine(OnImageDisplayIntro(false));
                 }
@@ -356,45 +395,54 @@ namespace MirageXR
                     _agent.updateRotation = false;
                     _agent.updatePosition = false;
                     if (animationPlayedOnce)
+                    {
                         SelectClip();
-
+                    }
                 }
             }
-
         }
 
-        private void AddWatsonAssistant()
+        private async void AddWatsonAssistant()
         {
-            if (AIActivated && characterParsed) return;
+            if (AIActivated && CharacterParsed) return;
 
-            //stop dialog recording before activating AI
-            if(DialogRecorder.isRecording) 
+            // stop dialog recording before activating AI
+            if (DialogRecorder.isRecording)
+            {
                 DialogRecorder.StopDialogRecording();
+            }
 
             DialogRecorder.StopDialog();
 
-            //destroy all Watson services in the scene
+            // destroy all Watson services in the scene
             foreach (var dialogService in FindObjectsOfType<DialogueService>())
+            {
                 Destroy(dialogService.transform.parent.gameObject);
+            }
 
-            //Set back the audio mode for all characters to pre-record, except for me
+            // Set back the audio mode for all characters to pre-record, except for me
             foreach (var character in FindObjectsOfType<CharacterController>())
+            {
                 if (character != this)
+                {
                     character._characterSetting.PreRecordToggle.isOn = true;
+                }
+            }
 
-
-            //Create a new Watson assistant for this character
-            var watsonServicePrefab = Resources.Load<GameObject>("Prefabs/Characters/IBMWatsonAssistant");
-            watsonService = Instantiate(watsonServicePrefab, Vector3.zero, Quaternion.Euler(0, 180, 0));
-            watsonService.transform.SetParent(transform);
-            watsonService.transform.localPosition = new Vector3(0, 2, 0);
-            watsonService.transform.Find("WatsonServices").GetComponent<DaimonManager>().myCharacter = _anim.gameObject;
-            var speechOutputService = watsonService.transform.Find("WatsonServices").GetComponent<SpeechOutputService>();
-            speechOutputService.myCharacter = _anim.gameObject;
-            speechOutputService.myVoice = IAmMale ? "en-US_KevinV3Voice" : "en-US_AllisonVoice";
-            AIActivated = true;
+            // Create a new Watson assistant for this character
+            var watsonServicePrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("Characters/IBMWatsonAssistant");  
+            if (watsonServicePrefab != null)
+            {
+                watsonService = Instantiate(watsonServicePrefab, Vector3.zero, Quaternion.Euler(0, 180, 0));
+                watsonService.transform.SetParent(transform);
+                watsonService.transform.localPosition = new Vector3(0, 2, 0);
+                watsonService.transform.Find("WatsonServices").GetComponent<DaimonManager>().myCharacter = _anim.gameObject;
+                var speechOutputService = watsonService.transform.Find("WatsonServices").GetComponent<SpeechOutputService>();
+                speechOutputService.myCharacter = _anim.gameObject;
+                speechOutputService.myVoice = IAmMale ? "en-US_KevinV3Voice" : "en-US_AllisonVoice";
+                AIActivated = true;
+            }
         }
-
 
         private void CreateAudioSource()
         {
@@ -404,8 +452,7 @@ namespace MirageXR
             audioSource.maxDistance = 7;
         }
 
-
-        private void DeactivateAI()
+        public void DeactivateAI()
         {
             if (!AIActivated) return;
 
@@ -417,41 +464,41 @@ namespace MirageXR
             AIActivated = false;
         }
 
-
         private void OnTriggerValueChanged()
         {
-            if (!characterParsed) return;
+            if (!CharacterParsed) return;
 
-            if (_characterSetting.Trigger().isOn)
+            if (_characterSetting.Trigger.isOn)
             {
-                if (ActivityManager.Instance.ActionsOfTypeAction.IndexOf(MyAction) != ActivityManager.Instance.ActionsOfTypeAction.Count - 1)
+                if (activityManager.ActionsOfTypeAction.IndexOf(MyAction) != activityManager.ActionsOfTypeAction.Count - 1)
                 {
-                    MyAction.AddArlemTrigger("character", _myObj.predicate, _myObj.poi, triggerDuration);
+                    MyAction.AddArlemTrigger(TriggerMode.Character, ActionType.Character, _myObj.poi, triggerDuration);
                 }
                 else
-                { 
+                {
                     // give the info and close
                     DialogWindow.Instance.Show("Info!",
                     "This is the last step. The trigger is disabled!\n Add a new step and try again.",
                     new DialogButtonContent("Ok"));
 
-                    _characterSetting.Trigger().isOn = false;
+                    _characterSetting.Trigger.isOn = false;
                 }
             }
             else
+            {
                 MyAction.RemoveArlemTrigger(_myObj);
+            }
         }
-
 
         private IEnumerator WaitForMovementType()
         {
-            //wait until the movement type is set
-            while(MovementType == "")
+            // wait until the movement type is set
+            while(MovementType == string.Empty)
             {
                 yield return null;
             }
 
-            //wait until the destination is set for followpath movement
+            // wait until the destination is set for followpath movement
             if (MovementType == "followpath")
             {
                 while (Destinations == null || Destinations.Count == 0)
@@ -460,7 +507,7 @@ namespace MirageXR
                 }
             }
 
-            //set the movement type
+            // set the movement type
             switch (MovementType)
             {
                 case "followpath":
@@ -474,18 +521,20 @@ namespace MirageXR
                     _agent.autoBraking = true;
                     StartCoroutine(FollowThePlayer());
                     break;
-                default:
-                    break;
             }
 
-            //set the color of my destinations nodes
-            if(Destinations != null && Destinations.Count > 0)
+            // set the color of my destinations nodes
+            if (Destinations != null && Destinations.Count > 0)
+            {
                 foreach (var node in Destinations)
+                {
                     foreach (var mesh in node.GetComponentsInChildren<MeshRenderer>())
+                    {
                         mesh.material.color = _pathNodesColor;
-
+                    }
+                }
+            }
         }
-
 
         public void LoopPath()
         {
@@ -493,41 +542,46 @@ namespace MirageXR
             _agent.autoBraking = !movementManger.PathLoop.isOn;
             //sometime after enabling the character some script try to disable it again for any reason, we need to checkit here to avoid getting Coroutine exception
             if (gameObject.activeInHierarchy)
+            {
                 StartCoroutine(WaitForMovementType());
+            }
         }
 
-
-
-        public void FollowPlayer()
+        public async void FollowPlayer()
         {
-
-            //if after loading movement set to follow path but there is no nodes then create one
+            // if after loading movement set to follow path but there is no nodes then create one
             if (Destinations == null || Destinations.Count == 0)
             {
                 Destinations = new List<GameObject>();
-                var des = Instantiate(Resources.Load<GameObject>("Prefabs/characters/CharacterDestination"), transform.position, Quaternion.identity);
-                des.GetComponent<Destination>().MyCharacter = this;
-                des.transform.SetParent(transform.parent);
-                des.SetActive(false);
-                Destinations.Add(des);
+                var destinationPrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("Characters/CharacterDestination");
+                if(destinationPrefab != null)
+                {
+                    var des = Instantiate(destinationPrefab, transform.position, Quaternion.identity);
+                    des.GetComponent<Destination>().MyCharacter = this;
+                    des.transform.SetParent(transform.parent);
+                    des.SetActive(false);
+                    Destinations.Add(des);
+                }
             }
 
             foreach (var node in Destinations)
-                    node.SetActive(!movementManger.FollowPlayer.isOn);
+            {
+                node.SetActive(!movementManger.FollowPlayer.isOn);
+            }
 
             MovementType = movementManger.FollowPlayer.isOn ? "followplayer" : "followpath";
-            //sometime after enabling the character some script try to disable it again for any reason, we need to checkit here to avoid getting Coroutine exception
+            // sometime after enabling the character some script try to disable it again for any reason, we need to checkit here to avoid getting Coroutine exception
             if (gameObject.activeInHierarchy)
+            {
                 StartCoroutine(WaitForMovementType());
+            }
         }
 
-
-
-        Tuple<DestinationPoints, string> PrepareNodesToSave()
+        private Tuple<DestinationPoints, string> PrepareNodesToSave()
         {
             var destinationPoints = new DestinationPoints();
 
-            //prepare the movementType and the destination nodes
+            // prepare the movementType and the destination nodes
             switch (MovementType)
             {
                 case "followpath":
@@ -547,8 +601,8 @@ namespace MirageXR
                 case "followplayer":
                     break;
                 default:
-                    //This is because we only add moveType in the augmentationEditor at the beggining and might be null in other step
-                    //TODO: Later should in each step movementType be set seperately
+                    // This is because we only add moveType in the augmentationEditor at the beggining and might be null in other step
+                    // TODO: Later should in each step movementType be set seperately
                     var characterOriginalStep = stepsSettings.Find(a => a.actionId != string.Empty);
                     if (characterOriginalStep != null)
                     {
@@ -568,45 +622,43 @@ namespace MirageXR
         private void FitSpeedToSize()
         {
             if (!_agent) return;
-            var CharacterSize = transform.parent.localScale.x;
-            _agent.speed = CharacterSize;
-            _agent.stoppingDistance = CharacterSize * _agent.stoppingDistance;
-
+            var characterSize = transform.parent.localScale.x;
+            _agent.speed = characterSize;
+            _agent.stoppingDistance = characterSize * _agent.stoppingDistance;
         }
-
 
         public void SaveJson()
         {
-            if (_myObj == null || _myObj.poi == "" || !characterParsed) return; //only if the character is instantiated not the prefab
+            if (_myObj == null || string.IsNullOrEmpty(_myObj.poi) || !CharacterParsed) return; //only if the character is instantiated not the prefab
 
             var character = new Character();
 
             //add settings of all steps(which contains me) in json file
-            foreach (var action in ActivityManager.Instance.ActionsOfTypeAction)
+            foreach (var action in activityManager.ActionsOfTypeAction)
             {
                 if (action.enter.activates.Find(p => p.poi == _myObj.poi) != null)
                 {
-                    //create a new step to keep current step settings for this character
+                    // create a new step to keep current step settings for this character
                     var step = new StepSettings
                     {
                         actionId = action.id
                     };
 
-                    //Each time we call this method the json file will be regenrated with all steps settings the:
+                    // Each time we call this method the json file will be regenrated with all steps settings the:
                     // save the active step settings for the character
-                    if(step.actionId == ActivityManager.Instance.ActiveActionId)
+                    if(step.actionId == activityManager.ActiveActionId)
                     {
                         var(destinationPoints, movementType) = PrepareNodesToSave();
                         step.movementType = movementType;
                         step.destinations = destinationPoints; //null if not followpath
-                        step.animationType = animationMenu.options[animationMenu.value].text;
-                        step.animationLoop = _characterSetting.AnimationLoopToggle().isOn;
+                        step.animationType = animationMenu.options[animationMenu.value].text;   //TODO: possible Out Of Range Error
+                        step.animationLoop = _characterSetting.AnimationLoopToggle.isOn;
 
                         //if character has a dialog recorder
                         if (DialogRecorder)
                         {
                             step.dialogLoop = DialogRecorder.LoopToggle.isOn;
-                            step.dialSaveName = ActivityManager.Instance.ActiveActionId + "_" + _myObj.poi + ".wav";
+                            step.dialSaveName = activityManager.ActiveActionId + "_" + _myObj.poi + ".wav";
                         }
 
                         //if character has an image and animation type is image display
@@ -648,13 +700,13 @@ namespace MirageXR
             //save the size of the character (x,y and z is same)
             character.scale = transform.localScale.x;
 
-            ///save AI activation status
+            //save AI activation status
             //remove AI for all characters from jsons
             foreach (var ch in FindObjectsOfType<CharacterController>())
             {
                 //Save all other characters AIActive to false
                 if (ch == this) continue;
-                var jsonpath = $"{characterDataFolder}/{ch.MyToggleObject().poi}.json";
+                var jsonpath = $"{characterDataFolder}/{ch.ToggleObject.poi}.json";
 
                 if (!File.Exists(jsonpath)) continue;
 
@@ -666,6 +718,13 @@ namespace MirageXR
 
             //then save it only for this char if it is set to true
             character.AIActive = AIActivated;
+
+            //Save default assistant id if the json has empty assistant id
+            if (AIActivated)
+            {
+                var defaultAssisID = watsonService.transform.Find("WatsonServices").GetComponent<DialogueService>().AssistantID;
+                character.AssistantID = defaultAssisID;
+            }
 
 
             //create characterinfo folder if not exist
@@ -694,9 +753,7 @@ namespace MirageXR
             File.WriteAllText(jsonPath, characterJson);
         }
 
-
-
-        IEnumerator FollowThePlayer()
+        private IEnumerator FollowThePlayer()
         {
             SelectClip();
             while (_agent && _agent.gameObject.activeInHierarchy && Camera.main && _agent.enabled && MovementType == "followplayer")
@@ -717,8 +774,6 @@ namespace MirageXR
             }
         }
 
-
-
         public async void FollowThePath(int index, bool backNow)
         {
             if (!_agent || MovementType == "followplayer") return;
@@ -734,7 +789,7 @@ namespace MirageXR
             if (AgentReturnAtTheEnd)
             {
                 //only repeat the path on play mode
-                if (!ActivityManager.Instance.EditModeActive)
+                if (!activityManager.EditModeActive)
                 {
                     if (index == Destinations.Count - 1)
                         nextBackNowState = true;
@@ -764,8 +819,7 @@ namespace MirageXR
             }
         }
 
-
-        IEnumerator DoOnEndOFPath()
+        private IEnumerator DoOnEndOFPath()
         {
             var charPosXZ = new Vector3(_agent.transform.position.x, 0, _agent.transform.position.z);
             var destinationPosXZ = new Vector3(_agent.destination.x, 0, _agent.destination.z);
@@ -778,8 +832,6 @@ namespace MirageXR
             var yRot = Destinations.LastOrDefault().transform.localRotation.y;
             transform.parent.localRotation = Quaternion.Euler(0, yRot , 0);
         }
-
-
 
         private async Task<int> CheckIndex(int index, bool backNow)
         {
@@ -796,8 +848,6 @@ namespace MirageXR
             return index;
         }
 
-
-
         private async Task<bool> MoveToNextDestination(int index)
         {
             if (!_agent || !_agent.isActiveAndEnabled || Destinations == null) return false;
@@ -805,15 +855,13 @@ namespace MirageXR
             if (index < 0) return true; //go to the next point
 
             _agent.SetDestination(Destinations[index].transform.position);
-            while (_agent && _agent.remainingDistance > _agent.stoppingDistance)
+            while (_agent && _agent.isActiveAndEnabled && _agent.remainingDistance > _agent.stoppingDistance)
             {
                 await Task.Delay(10);
             }
 
             return true;
         }
-
-
 
         private void PlayClip(string clipName)
         {
@@ -822,24 +870,21 @@ namespace MirageXR
             foreach (var param in _anim.parameters) _anim.SetBool(param.name, param.name == clipName);
         }
 
-
-        private void OnAnimatinLoopToggle()
+        private void OnAnimationLoopToggle()
         {
-            if (!characterParsed) return;
+            if (!CharacterParsed) return;
 
-            if (_characterSetting.AnimationLoopToggle().isOn) animationClipPlaying = false; 
-            AnimationLoop = _characterSetting.AnimationLoopToggle().isOn;
+            if (_characterSetting.AnimationLoopToggle.isOn) animationClipPlaying = false; 
+            AnimationLoop = _characterSetting.AnimationLoopToggle.isOn;
         }
-
 
         private void OnAnimationClipChanged()
         {
-            if (!characterParsed) return;
+            if (!CharacterParsed) return;
 
             StartCoroutine(OnImageDisplayIntro(true)); 
             animationClipPlaying = false;
         }
-
 
         /// <summary>
         /// this method is called in update, be carefull what you add here. also on droplist changed value
@@ -854,14 +899,21 @@ namespace MirageXR
             var destinationPosXZ = new Vector3(Camera.main.transform.position.x, 0, Camera.main.transform.position.z);
             if (Vector3.Distance(charPosXZ, destinationPosXZ) > _agent.stoppingDistance && MovementType == "followplayer") return;
 
+            if (animationMenu.value >= animationMenu.options.Count || animationMenu.value < 0)
+            {
+                Debug.LogError("animationMenu.options: out of range");
+                return;
+            }
             var clipName = animationMenu.options[animationMenu.value].text;
 
-            if (!string.IsNullOrEmpty(AnimationType) && !ActivityManager.Instance.EditModeActive)
+            if (!string.IsNullOrEmpty(AnimationType) && !activityManager.EditModeActive)
             {
                 var animationIntValue = await GetAnimationMenuValue(AnimationType);
 
-                if (animationIntValue != 9999) //TODO: remove magic number
+                if (animationIntValue != 9999)  //TODO: remove magic number
+                {
                     animationMenu.value = animationIntValue;
+                }
             }
             else
             {
@@ -869,8 +921,11 @@ namespace MirageXR
             }
 
             //show the image if it is not displayed yet
-            if (AnimationType == _characterSetting.defaultImageDisplayAnimationName && !imageContainer.transform.Find("ImagePlane").gameObject.activeInHierarchy)
+            if (AnimationType == _characterSetting.defaultImageDisplayAnimationName &&
+                !imageContainer.transform.Find("ImagePlane").gameObject.activeInHierarchy)
+            {
                 StartCoroutine(OnImageDisplayIntro(true));
+            }
 
             PlayClip(AnimationType);
 
@@ -890,21 +945,23 @@ namespace MirageXR
 
             var time = 0f;
             if(_anim != null)
-                foreach (AnimationClip ac in _anim.runtimeAnimatorController.animationClips)
+                foreach (var animationClip in _anim.runtimeAnimatorController.animationClips)
                 {
-                    if (ac.name == AnimationType)
+                    if (animationClip.name == AnimationType)
                     {
-                        time = ac.length;
-                        animationLength = ac.length;
+                        time = animationClip.length;
+                        animationLength = animationClip.length;
                     }
 
                 }
 
             //Do not wait for idle because the idle is default one anyway
             if (AnimationType != "Idle")
-                await Task.Delay((int)(time * 1000));
+            {
+                await Task.Delay((int) (time * 1000));
+            }
 
-            if (!_characterSetting.AnimationLoopToggle().isOn && AnimationType != _characterSetting.defaultImageDisplayAnimationName)
+            if (!_characterSetting.AnimationLoopToggle.isOn && AnimationType != _characterSetting.defaultImageDisplayAnimationName)
             {
                 PlayClip("Idle");
                 return;
@@ -913,7 +970,6 @@ namespace MirageXR
             animationClipPlaying = false;
         }
 
-
         private async Task<int> GetAnimationMenuValue(string clipName)
         {
             int num = 9999;
@@ -921,7 +977,9 @@ namespace MirageXR
             {
                 var option = animationMenu.options[i].text;
                 if (option == clipName)
+                {
                     num = i;
+                }
             }
 
             await Task.Delay(1);
@@ -929,9 +987,7 @@ namespace MirageXR
             return num;
         }
 
-
-
-         void DestroyDestinationsOnDisable()
+        private void DestroyDestinationsOnDisable()
         {
             if (Destinations == null) return;
 
@@ -941,8 +997,6 @@ namespace MirageXR
             }
         }
 
-
-
          public async Task<bool> ActivateCharacterOnEnable()
         {
             var characterLoaded = false;
@@ -950,28 +1004,29 @@ namespace MirageXR
 
             var jsonpath = $"{characterDataFolder}/{_myObj.poi}.json";
             if (File.Exists(jsonpath))
+            {
                 characterLoaded = await ParseCharacters(jsonpath);
+            }
 
-            if (characterLoaded)
-                return true;
-            else
-                return false;
+            return characterLoaded;
         }
 
-
-
-        void SetEditModeState(bool editModeActive)
+         private void SetEditModeState(bool editModeActive)
         {
             //hilde all nodes(the root object of node, Destination.cs,  will not be deactivated)
             foreach (var des in Destinations)
+            {
                 if (des)
-                    des.transform.GetChild(0).gameObject.SetActive(editModeActive);
+                {
+                    des.transform.GetChild(0).gameObject.SetActive(editModeActive); //TODO: Possible NRE
+                }
+            }
 
-            //seperate the dialog player and hide other settings
+            //separate the dialog player and hide other settings
             if (!editModeActive)
             {
-                //seprate the play and stop button and let them be displayed on playmode too
-                if (File.Exists($"{characterDataFolder}/{ActivityManager.Instance.ActiveAction.id}_{_myObj.poi}.wav") && !AIActivated)
+                //separate the play and stop button and let them be displayed on playmode too
+                if (File.Exists($"{characterDataFolder}/{activityManager.ActiveAction.id}_{_myObj.poi}.wav") && !AIActivated)
                 {
                     DialogRecorder.transform.SetParent(_characterSetting.transform);
                     DialogRecorder.CloseDialogRecorder();
@@ -995,9 +1050,7 @@ namespace MirageXR
                 Destinations[Destinations.Count-1].GetComponent<BoundsControl> ().Active = true;
             }
         }
-
-    
-
+  
         /// <summary>
         /// parse the destination nodes that character should follow
         /// </summary>
@@ -1028,9 +1081,10 @@ namespace MirageXR
             }
 
             //set the size of the character
-            if(character.scale != 0)
+            if (character.scale != 0)
+            {
                 transform.localScale = new Vector3(character.scale, character.scale, character.scale);
-
+            }
 
             //Adjust navmesh setting
             FitSpeedToSize();
@@ -1043,20 +1097,28 @@ namespace MirageXR
                 return false;
             }
 
-            string MyActionID = string.Empty;
-            if (stepsSettings.Find(a => a.actionId == ActivityManager.Instance.ActiveActionId) != null )
-                MyActionID = ActivityManager.Instance.ActiveActionId;
+            string myActionID = string.Empty;
+            if (stepsSettings.Find(a => a.actionId == activityManager.ActiveActionId) != null)
+            {
+                myActionID = activityManager.ActiveActionId;
+            }
             else
-                MyActionID = stepsSettings.FirstOrDefault().actionId;
+            {
+                var stepSetting = stepsSettings.FirstOrDefault();
+                if (stepSetting != null)
+                {
+                    myActionID = stepSetting.actionId;
+                }
+            }
 
             //get the info for the active step
-            var movementType = stepsSettings.Find(a => a.actionId == MyActionID).movementType;
-            var destinationPoint = stepsSettings.Find(a => a.actionId == MyActionID).destinations;
-            var animationType = stepsSettings.Find(a => a.actionId == MyActionID).animationType;
-            var animationLoop = stepsSettings.Find(a => a.actionId == MyActionID).animationLoop;
-            var imagePoi = stepsSettings.Find(a => a.actionId == MyActionID).imagePoiId;
-            var dialogLoop = stepsSettings.Find(a => a.actionId == MyActionID).dialogLoop;
-            var dialogSaveName = stepsSettings.Find(a => a.actionId == MyActionID).dialSaveName;
+            var movementType = stepsSettings.Find(a => a.actionId == myActionID).movementType;
+            var destinationPoint = stepsSettings.Find(a => a.actionId == myActionID).destinations;
+            var animationType = stepsSettings.Find(a => a.actionId == myActionID).animationType;
+            var animationLoop = stepsSettings.Find(a => a.actionId == myActionID).animationLoop;
+            var imagePoi = stepsSettings.Find(a => a.actionId == myActionID).imagePoiId;
+            var dialogLoop = stepsSettings.Find(a => a.actionId == myActionID).dialogLoop;
+            var dialogSaveName = stepsSettings.Find(a => a.actionId == myActionID).dialSaveName;
 
             //set the movement panel toggles
             movementManger.PathLoop.isOn = destinationPoint.returnPath;
@@ -1065,17 +1127,20 @@ namespace MirageXR
             //and if the destinations are still not created 
             if (movementType == "followpath")
             {
-                var nodePrefab = Resources.Load("Prefabs/characters/CharacterDestination") as GameObject;
-                foreach (Point desPoint in destinationPoint.points)
+                var nodePrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("Characters/CharacterDestination");
+                if(nodePrefab != null)
                 {
-                    //instantiate points from json file
-                    GameObject des = Instantiate(nodePrefab, Vector3.zero, Quaternion.identity);
-                    des.name = desPoint.name;
-                    des.GetComponentInChildren<TextMesh>().text = (desPoint.index + 1).ToString();
-                    des.transform.SetParent(transform.parent.transform);
-                    des.transform.localPosition = desPoint.position != null ? desPoint.position : Vector3.zero;
-                    des.transform.localRotation = desPoint.rotation != null ? desPoint.rotation : Quaternion.Euler(0,180,0);
-                    destinations.Add(des);
+                    foreach (Point desPoint in destinationPoint.points)
+                    {
+                        //instantiate points from json file
+                        GameObject des = Instantiate(nodePrefab, Vector3.zero, Quaternion.identity);
+                        des.name = desPoint.name;
+                        des.GetComponentInChildren<TextMesh>().text = (desPoint.index + 1).ToString();
+                        des.transform.SetParent(transform.parent.transform);
+                        des.transform.localPosition = desPoint.position;
+                        des.transform.localRotation = desPoint.rotation;
+                        destinations.Add(des);
+                    }
                 }
 
                 Destinations = destinations;
@@ -1086,23 +1151,28 @@ namespace MirageXR
 
             //default animation if not found
             if (animationType == null || animationMenu.options.Find(a => a.text == animationType) == null)
+            {
                 animationType = "Idle";
-            else if(animationType == _characterSetting.defaultImageDisplayAnimationName)
+            }
+            else if (animationType == _characterSetting.defaultImageDisplayAnimationName)
+            {
                 StartCoroutine(OnImageDisplayIntro(destinations.Count == 1)); //show immidiatly if there is no path to follow
-
+            }
 
             AnimationType = animationType;
             AnimationLoop = animationLoop;
-            _characterSetting.AnimationLoopToggle().isOn = AnimationLoop;
+            _characterSetting.AnimationLoopToggle.isOn = AnimationLoop;
             animationMenu.value = await GetAnimationMenuValue(animationType);
-            if(AnimationType != _characterSetting.defaultImageDisplayAnimationName) //stop display image if the animation is not Display Image
+            if (AnimationType != _characterSetting.defaultImageDisplayAnimationName) //stop display image if the animation is not Display Image
+            {
                 StartCoroutine(OnImageDisplayIntro(false));
+            }
 
             //find the image annotation which is assigned to this character
-            var imageViewer = FindObjectsOfType<FloatingImageViewer>().ToList().Find(x => x.MyToggleObject().poi == imagePoi);
+            var imageViewer = FindObjectsOfType<FloatingImageViewer>().ToList().Find(x => x.ToggleObject.poi == imagePoi);
             if (imageViewer)
             {
-                MyImageAnnotation = imageViewer.MyToggleObject();
+                MyImageAnnotation = imageViewer.ToggleObject;
                 StartCoroutine(MoveMyImage(GameObject.Find(MyImageAnnotation.poi), MyImageAnnotation));
             }
 
@@ -1116,21 +1186,31 @@ namespace MirageXR
                 DialogRecorder.MyCharacter = this;
             }
 
-
             //Activate AI if is activated for this character
             if (character.AIActive)
+            {
                 _characterSetting.AIToggle.isOn = true;
+            }
 
+            //Set the assistant ID
+            if (!string.IsNullOrEmpty(character.AssistantID))
+            {
+                watsonService.transform.Find("WatsonServices").GetComponent<DialogueService>().AssistantID = character.AssistantID;
+            }
 
             //inplace is added here only for the old character in the repo. There is no inplace mode longer
             if (movementType == "followpath" || movementType == "inplace")
+            {
                 foreach (GameObject des in destinations)
+                {
                     des.GetComponent<Destination>().MyCharacter = this;
+                }
+            }
 
-            var myTrigger = ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == _myObj.poi);
+            var myTrigger = activityManager.ActiveAction.triggers.Find(t => t.id == _myObj.poi);
             if (myTrigger != null)
             {
-                _characterSetting.Trigger().isOn = true;
+                _characterSetting.Trigger.isOn = true;
                 StartCoroutine(ActivateTrigger());
             }
 
@@ -1138,15 +1218,16 @@ namespace MirageXR
 
             return true;
         }
-        
 
-        IEnumerator ActivateTrigger()
+        private IEnumerator ActivateTrigger()
         {
             while (!animationPlayedOnce)
+            {
                 yield return null;
+            }
 
-            var myTrigger = ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == _myObj.poi);
-            if (_characterSetting.Trigger().isOn && !ActivityManager.Instance.EditModeActive && myTrigger != null)
+            var myTrigger = activityManager.ActiveAction.triggers.Find(t => t.id == _myObj.poi);
+            if (_characterSetting.Trigger.isOn && !activityManager.EditModeActive && myTrigger != null)
             {
                 var triggerDuration = myTrigger.duration;
                 yield return new WaitForSeconds(triggerDuration);
@@ -1154,10 +1235,7 @@ namespace MirageXR
             }
         }
 
-
-
-
-        void MoveImageToHandPos()
+        private void MoveImageToHandPos()
         {
             if (!imageContainer || rightHandBone == null) return;
 
@@ -1167,9 +1245,7 @@ namespace MirageXR
             imageContainer.transform.SetParent(rightHandBone);
         }
 
-
-
-         IEnumerator MoveMyImage(GameObject img, ToggleObject annotation)
+        private IEnumerator MoveMyImage(GameObject img, ToggleObject annotation)
         {
             while (img != null && MyImageAnnotation == annotation)
             {
@@ -1179,8 +1255,6 @@ namespace MirageXR
                 yield return null;
             }
         }
-
-
 
         public void ResetImage()
         {
@@ -1204,8 +1278,6 @@ namespace MirageXR
             }
         }
 
-
-
         public void SetImage(ToggleObject annotation)
         {
             foreach (var character in FindObjectsOfType<CharacterController>())
@@ -1215,7 +1287,9 @@ namespace MirageXR
             }
 
             if (MyImageAnnotation != null)
+            {
                 ResetImage();
+            }
 
             MyImageAnnotation = annotation;
             IsImageAssignModeActive = false;
@@ -1225,9 +1299,7 @@ namespace MirageXR
             StartCoroutine(MoveMyImage(poi, annotation));
         }
 
-
-
-        IEnumerator OnImageDisplayIntro(bool visibility)
+        private IEnumerator OnImageDisplayIntro(bool visibility)
         {
             yield return new WaitForSeconds(0.1f);
             //only if animation type is "Image Display"
@@ -1252,16 +1324,12 @@ namespace MirageXR
             }
             catch (NullReferenceException e)
             {
-                Debug.LogError(
-                    "Some references are missing on display image animation part. f.exp imageContainer,MyImageAnnotation ,etc. " +
-                    e);
+                Debug.LogError($"Some references are missing on display image animation part. f.exp imageContainer,MyImageAnnotation ,etc. {e}");
             }
 
         }
 
-
-
-        IEnumerator ImageDisplayIntroSize()
+        private IEnumerator ImageDisplayIntroSize()
         {
             imageContainer.transform.localScale = Vector3.zero;
             yield return new WaitForSeconds(1f);
@@ -1273,8 +1341,49 @@ namespace MirageXR
             }
             imageContainer.transform.localScale = new Vector3(1, 1, 1);
         }
-    }
 
+
+        private void DeleteCharacterData(ToggleObject toggleObject)
+        {
+            if (toggleObject != _myObj) return;
+
+            var arlemPath = activityManager.ActivityPath;
+            var jsonPath = Path.Combine(arlemPath, $"characterinfo/{_myObj.poi}.json");
+
+            //delete character json
+            DeactivateAI();
+
+            if (File.Exists(jsonPath))
+            {
+                //delete the json
+                File.Delete(jsonPath);
+            }
+
+            //delete AssetBundle
+            var characterDataFolder = Path.Combine(arlemPath, "characterinfo");
+            var assetBundlePath = $"{characterDataFolder}/{_myObj.option}";
+            if (File.Exists(assetBundlePath))
+            {
+                File.Delete(assetBundlePath + ".manifest");
+                File.Delete(assetBundlePath);
+            }
+
+            //if only character dialog is deleted
+            var audioPlayer = GameObject.Find(_myObj.poi).GetComponentInChildren<AudioPlayer>();
+            if (audioPlayer)
+            {
+                var dialogpath = audioPlayer.AudioName.Replace("http:/", arlemPath);
+                if (File.Exists(dialogpath))
+                {
+                    // reset the dialog recorder for recording again if needed
+                    DialogRecorder.ResetDialogRecorder();
+
+                    // delete the old dialog
+                    File.Delete(dialogpath);
+                }
+            }
+        }
+    }
 
     [Serializable]
     public class Character
@@ -1282,8 +1391,8 @@ namespace MirageXR
         public List<StepSettings> steps;
         public float scale;
         public bool AIActive;
+        public string AssistantID;
     }
-
 
     [Serializable]
     public class StepSettings
@@ -1298,14 +1407,12 @@ namespace MirageXR
         public string imagePoiId;
     }
 
-
     [Serializable]
     public class DestinationPoints
     {
         public Point[] points = null;
         public bool returnPath = false;
     }
-
 
     [Serializable]
     public class Point

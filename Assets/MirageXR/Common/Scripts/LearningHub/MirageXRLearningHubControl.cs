@@ -11,7 +11,7 @@ using Windows.Networking;
 #endif
 
 public class MirageXRLearningHubControl : MonoBehaviour {
-    //Ip of the pc that sensor hub is running on
+    // Ip of the pc that sensor hub is running on
     private string IPAddress = "192.168.137.1";
     private string port = "12345";
     public bool learningHubReady = true;
@@ -28,27 +28,27 @@ public class MirageXRLearningHubControl : MonoBehaviour {
 
     public async void CheckLearningHubStatus()
     {
-        //try
-        //{
-        //    string response = await sendMessage(areYouReady, true);
-        //    learningHubReady = IamReady.Equals(response);
-        //    if (learningHubReady)
-        //    {
-        //        Debug.Log("Learning Hub Connection established");
-        //        CancelInvoke();
-        //    }
-        //    else
-        //    {
-        //        Debug.Log("Learning Hub Connection failed: "+response);
-        //        //learningHubReady = false;
-        //    }
-
-        //}
-        //catch (Exception e)
-        //{
-        //    Debug.Log("Learning Hub Connection failed");
-        //    //learningHubReady = false;
-        //}
+        // try
+        // {
+        //     string response = await sendMessage(areYouReady, true);
+        //     learningHubReady = IamReady.Equals(response);
+        //     if (learningHubReady)
+        //     {
+        //         Debug.Log("Learning Hub Connection established");
+        //         CancelInvoke();
+        //     }
+        //     else
+        //     {
+        //         Debug.Log("Learning Hub Connection failed: "+response);
+        //         //learningHubReady = false;
+        //     }
+           
+        // }
+        // catch (Exception e)
+        // {
+        //     Debug.Log("Learning Hub Connection failed");
+        //     //learningHubReady = false;
+        // }
     }
 
     public async void SendMessage(string message)

@@ -13,19 +13,19 @@ public class MirageXRModelExpander : MonoBehaviour
     /// <summary>
     /// array for holding all the 3d models
     /// </summary>
-    List<Transform> modelBlock;
+    private List<Transform> modelBlock;
     /// <summary>
     /// value that determines if the model is expanded or not
     /// </summary>
-    bool isExpanded = false;
+    private bool isExpanded = false;
     /// <summary>
     /// center of the whole model
     /// </summary>
-    Vector3 modelCenter;
+    private Vector3 modelCenter;
     /// <summary>
     /// The scalr to determine how far the model will expand
     /// </summary>
-    float expansionFactor = 0.1f;   
+    private float expansionFactor = 0.1f;   
     
     // Use this for initialization
     void Start()

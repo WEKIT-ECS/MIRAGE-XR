@@ -1,0 +1,263 @@
+stages:
+  - activation
+  - test
+  - build
+  - deploy
+
+variables:
+  BUILD_NAME: MirageXR
+  UNITY_VERSION: 2020.3.13f1
+  UNITY_ACTIVATION_FILE: ./Unity_v$UNITY_VERSION.alf
+  IMAGE: unityci/editor # https://hub.docker.com/r/unityci/editor
+  IMAGE_VERSION: "0.13.0" # https://hub.docker.com/r/unityci/editor
+  UNITY_DIR: $CI_PROJECT_DIR # this needs to be an absolute path. Defaults to the root of your tree.
+
+
+image: $IMAGE:$UNITY_VERSION-base-$IMAGE_VERSION
+
+.unity_before_script: &unity_before_script
+  before_script:
+    - TXT_RED="\033[31m" && TXT_CLEAR="\033[0m" && TXT_GREEN="\033[32m"
+    - chmod +x ./ci/before_script.sh && ./ci/before_script.sh
+    - echo "Creating IBM Watson credential file"
+    - echo -n "$ASSISTANTKEYS" > $UNITY_DIR/Assets/Resources/ibm-credentials.txt
+    - echo -n "$ASSISTANTKEYS" > $UNITY_DIR/ibm-credentials.env
+    - ls -la $UNITY_DIR/Assets/Resources/ibm-credentials.txt
+    - echo "path of the credentials resource $UNITY_DIR/Assets/Resources/ibm-credentials.txt"
+    - export IBM_CREDENTIALS_FILE="$UNITY_DIR/ibm-credentials.env"
+    - echo "IBM Watson credential file is created"
+
+.cache: &cache
+  cache:
+    key: "$CI_PROJECT_NAMESPACE-$CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG-$TEST_PLATFORM"
+    paths:
+      - $UNITY_DIR/Library/
+
+# uncomment and run this job when you need to request a license
+# you may need to follow activation steps from documentation
+#get-linux-activation-file:
+#  when: manual
+#  stage: activation
+#  script:
+#    - chmod +x ./ci/get_activation_file.sh && ./ci/get_activation_file.sh
+#  artifacts:
+#    paths:
+#      - $UNITY_ACTIVATION_FILE
+#    expire_in: 10 min # Expiring this as artifacts may contain sensitive data and should not be kept public
+
+determine-version:
+  only:
+    - master
+    - develop
+    - tags
+    - merge_requests
+  stage: test
+  image: ubuntu:18.04
+  script:
+    - apt-get update && apt-get -y install git
+    - chmod +x ./ci/get_version.sh && APP_VERSION=`./ci/get_version.sh` && export APP_VERSION
+    - echo -n $APP_VERSION > version.txt
+  artifacts:
+    paths:
+      - version.txt
+    expire_in: 1 day
+
+# base job for running tests
+.test: &test
+  stage: test
+  <<: *unity_before_script
+  <<: *cache
+  only:
+    - branches
+    - tags
+    - merge_requests
+  script:
+    - chmod +x ./ci/test.sh && ./ci/test.sh
+    - chmod +x ./ci/nunitToJunit/NUnitToJUnit && ./ci/nunitToJunit/NUnitToJUnit $(pwd)/$TEST_PLATFORM-results.xml $(pwd)/$TEST_PLATFORM-results-junit.xml
+  artifacts:
+    when: always
+    paths:
+      - $(pwd)/$TEST_PLATFORM-results.xml
+      - $(pwd)/$TEST_PLATFORM-results-junit.xml
+      - $(pwd)/$TEST_PLATFORM-coverage/
+    reports:
+      junit: $(pwd)/$TEST_PLATFORM-results-junit.xml
+    expire_in: 1 day
+  coverage: /<Linecoverage>(.*?)</Linecoverage>/
+
+# job for testing playmode tests (on the Linux runner)
+test-playmode:
+  <<: *test
+  variables:
+    TEST_PLATFORM: playmode
+
+# job for testing editmode tests (on the Linux runner)
+test-editmode:
+  <<: *test
+  variables:
+    TEST_PLATFORM: editmode
+
+# uncomment and run this job when you need to request a license
+# you may need to follow activation steps from documentation
+#get-windows-activation-file:
+#  when: manual
+#  stage: activation
+#  script:
+#    - ci\get_windows_activation_file.bat
+#  artifacts:
+#    paths:
+#      - artifacts
+#    expire_in: 10 min # Expiring this as artifacts may contain sensitive data and should not be kept public
+#  tags:
+#    - windows
+
+
+
+# job for building the HoloLens 1 installers
+hololens1-installer-build:
+  stage: build
+  only:
+    - tags
+    - master
+    - develop
+    - maintenance/441-pipeline-builds-reduce-space-required
+  cache:
+    key: "$CI_PROJECT_NAMESPACE-$CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG-$TEST_PLATFORM-windows"
+    paths:
+      - Library/
+  dependencies:
+    - determine-version
+  script:
+    - 'set /p APP_VERSION=<version.txt'
+    - 'echo|set /p jobId="%CI_JOB_ID%" > h1id.txt'
+    - 'call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" -app_platform=UWP -host_arch=amd64'
+    - 'call ci\build.bat'
+    - 'call msbuild.exe .\Builds\WSAPlayer\MirageXR\MirageXR.sln /p:Configuration=Release /p:Platform="x86" /p:AppxBundle=Always;AppxBundlePlatforms="x86" /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false'
+    #- 'mkdir HoloLens1-Installer'
+    #- 'xcopy /S /Y "Builds\WSAPlayer\MirageXR\AppPackages\MirageXR\*.appxbundle" "HoloLens1-Installer"'
+    #- 'xcopy /S /Y "Builds\WSAPlayer\MirageXR\AppPackages\MirageXR\*\Dependencies\x86\*.appx" "HoloLens1-Installer"'
+  artifacts:
+    paths:
+      - "Builds/WSAPlayer/MirageXR/AppPackages/MirageXR/*/*.appxbundle"
+      - "Builds/WSAPlayer/MirageXR/AppPackages/MirageXR/*/Dependencies/x86/*.appx"
+      - h1id.txt
+    expire_in: 1 day
+  tags:
+    - windows
+
+# job for building the HoloLens 2 installers
+hololens2-installer-build:
+  stage: build
+  only:
+    - tags
+    - master
+    - develop
+    - maintenance/441-pipeline-builds-reduce-space-required
+  cache:
+    key: "$CI_PROJECT_NAMESPACE-$CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG-$TEST_PLATFORM-windows"
+    paths:
+      - Library/
+  dependencies:
+    - determine-version
+  script:
+    - 'set /p APP_VERSION=<version.txt'
+    - 'echo|set /p jobId="%CI_JOB_ID%" > h2id.txt'
+    - 'call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" -app_platform=UWP -host_arch=amd64'
+    - 'call ci\build.bat'
+    - 'call msbuild.exe .\Builds\WSAPlayer\MirageXR\MirageXR.sln /p:Configuration=Release /p:Platform="ARM64" /p:AppxBundle=Always;AppxBundlePlatforms="ARM64" /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false'
+    # - 'mkdir HoloLens2-Installer'
+    # - 'xcopy /S /Y "Builds\WSAPlayer\MirageXR\AppPackages\MirageXR\*.appxbundle" "HoloLens2-Installer"'
+    # - 'xcopy /S /Y "Builds\WSAPlayer\MirageXR\AppPackages\MirageXR\*\Dependencies\ARM64\*.appx" "HoloLens2-Installer"'
+  artifacts:
+    paths:
+      - "Builds/WSAPlayer/MirageXR/AppPackages/MirageXR/*/*.appxbundle"
+      - "Builds/WSAPlayer/MirageXR/AppPackages/MirageXR/*/Dependencies/ARM64/*.appx"
+      - h2id.txt
+    expire_in: 1 day
+  tags:
+    - windows
+
+# Job for checking the HoloLens build (does not produce installer artifacts)
+hololens1-build-check:
+  stage: build
+  only:
+    - merge_requests
+  cache:
+    key: "$CI_PROJECT_NAMESPACE-$CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG-$TEST_PLATFORM-windows"
+    paths:
+      - Library/
+  dependencies:
+    - determine-version
+  script:
+    - 'set /p APP_VERSION=<version.txt'
+    - 'call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" -app_platform=UWP -host_arch=amd64'
+    - 'call ci\build.bat'
+    - 'call msbuild.exe .\Builds\WSAPlayer\MirageXR\MirageXR.sln /p:Configuration=Release /p:Platform="x86" /p:AppxBundle=Always;AppxBundlePlatforms="x86" /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false'
+  tags:
+    - windows
+
+.build: &build
+  stage: build
+  <<: *unity_before_script
+  <<: *cache
+  script:
+    - chmod +x ./ci/build.sh && ./ci/build.sh
+  artifacts:
+    paths:
+      - $UNITY_DIR/Builds/
+
+#build-android-il2cpp:
+#  <<: *build
+#  image: $IMAGE:$UNITY_VERSION-android-$IMAGE_VERSION
+#  variables:
+#    BUILD_TARGET: Android
+#    BUNDLE_VERSION_CODE: $CI_PIPELINE_IID
+#    BUILD_APP_BUNDLE: "false"
+#    SCRIPTING_BACKEND: IL2CPP
+
+
+prerelease-notification:
+  only:
+    - develop
+  stage: deploy
+  dependencies:
+    - determine-version
+    - hololens1-installer-build
+    - hololens2-installer-build
+  image: ubuntu:18.04
+  script:
+    - apt-get update && apt-get -y install curl
+    - H1ID=`cat h1id.txt` && export H1ID
+    - H2ID=`cat h2id.txt` && export H2ID
+    - APP_VERSION=`cat version.txt` && export APP_VERSION
+    - chmod +x ./ci/notify-preview.sh && ./ci/notify-preview.sh
+
+release-notification:
+  only:
+    - tags
+  stage: deploy
+  dependencies:
+    - determine-version
+    - hololens1-installer-build
+    - hololens2-installer-build
+  image: ubuntu:18.04
+  script:
+    - apt-get update && apt-get -y install curl
+    - H1ID=`cat h1id.txt` && export H1ID
+    - H2ID=`cat h2id.txt` && export H2ID
+    - APP_VERSION=`cat version.txt` && export APP_VERSION
+    - chmod +x ./ci/notify-release.sh && ./ci/notify-release.sh
+
+# job for building and publishing the documentation on the master branch
+pages:
+  only:
+    - master
+  image: erothejoker/docker-docfx:latest
+  stage: deploy
+  script:
+    - cp README.md Documentation/index.md
+    - docfx Documentation/docfx.json
+    - cp -r _site public
+  artifacts:
+    paths:
+      - public

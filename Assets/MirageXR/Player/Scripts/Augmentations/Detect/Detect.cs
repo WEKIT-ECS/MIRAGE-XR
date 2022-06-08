@@ -11,7 +11,7 @@ namespace MirageXR
     {
         // Holotoolkit gaze manager.
         private GazeProvider gazeProvider;
-        //private GazeManager _gazeManager;
+        // private GazeManager _gazeManager;
         private bool _isDetected;
         private bool _isTrigger;
 
@@ -74,11 +74,11 @@ namespace MirageXR
 
             // Set scale, if defined in the action step configuration.
             if (!obj.scale.Equals (0))
-                GetComponent<RectTransform> ().localScale = new Vector3 (obj.scale, obj.scale, obj.scale)/2048;
+                GetComponent<RectTransform> ().localScale = new Vector3 (obj.scale, obj.scale, obj.scale) / 2048;
 
             // If scaling is not set, default to 5 cm symbol.
             else
-                GetComponent<RectTransform> ().localScale = new Vector3 (0.05f, 0.05f, 0.05f)/2048;
+                GetComponent<RectTransform> ().localScale = new Vector3 (0.05f, 0.05f, 0.05f) / 2048;
 
             // Set target duration if defined in the action configuration.
             if (!obj.duration.Equals (0))
@@ -107,7 +107,7 @@ namespace MirageXR
                 // Check if user is gazing this symbol.
                 if (gazeProvider.GazeTarget)
                 {
-                    var hitObject = gazeProvider.GazeTarget;//_gazeManager.HitObject;
+                    var hitObject = gazeProvider.GazeTarget; //_gazeManager.HitObject;
 
                     if (hitObject.transform.parent != null)
                     {

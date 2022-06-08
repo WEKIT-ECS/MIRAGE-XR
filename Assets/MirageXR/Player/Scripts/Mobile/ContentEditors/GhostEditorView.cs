@@ -84,13 +84,13 @@ public class GhostEditorView : PopupEditorBase
             DeactivateContent(_content);
         }
         else {
-            _content = ActivityManager.Instance.AddAnnotation(_step, offset);
+            _content = augmentationManager.AddAugmentation(_step, offset);
             _content.predicate = editorForType.GetPredicate();
         }
         
         _content.option = _toggleMale.isOn ? MALE_TYPE : FEMALE_TYPE;
         
-        var ghostFilePath = Path.Combine(ActivityManager.Instance.Path, _ghostFileName);
+        var ghostFilePath = Path.Combine(activityManager.ActivityPath, _ghostFileName);
         GhostRecorder.ExportToFile(ghostFilePath, _ghostFrames);
         
         _content.url = HTTP_PREFIX + _ghostFileName;
@@ -112,10 +112,10 @@ public class GhostEditorView : PopupEditorBase
 
     private ToggleObject SaveAudio(Vector3 offset)
     {
-        var audioFilePath = Path.Combine(ActivityManager.Instance.Path, _audioFileName);
+        var audioFilePath = Path.Combine(activityManager.ActivityPath, _audioFileName);
         SaveLoadAudioUtilities.Save(audioFilePath, _audioClip);
             
-        var audioContent = ActivityManager.Instance.AddAnnotation(_step, offset);
+        var audioContent = augmentationManager.AddAugmentation(_step, offset);
         audioContent.predicate = ContentType.AUDIO.GetPredicate();
         audioContent.scale = 0.5f;
         audioContent.url =  HTTP_PREFIX + _audioFileName;
@@ -125,7 +125,7 @@ public class GhostEditorView : PopupEditorBase
     private static void DeactivateContent(ToggleObject content)
     {
         var fileName = content.url.Replace(HTTP_PREFIX, string.Empty);
-        var filePath = Path.Combine(ActivityManager.Instance.Path, fileName);
+        var filePath = Path.Combine(activityManager.ActivityPath, fileName);
         if (File.Exists(filePath))
         {
             File.Delete(filePath);

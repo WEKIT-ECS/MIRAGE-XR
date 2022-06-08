@@ -81,13 +81,14 @@ namespace MirageXR
 
         public void Create(App plugin)
         {
+            var workplaceManager = RootObject.Instance.workplaceManager;
             if (_annotationToEdit != null)
             {
                 EventManager.DeactivateObject(_annotationToEdit);
             }
             else
             {
-                Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(_action.id));
+                Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
                 GameObject originT = GameObject.Find(detectable.id);
 
                 var offset = Utilities.CalculateOffset(annotationStartingPoint.transform.position,
@@ -95,14 +96,13 @@ namespace MirageXR
                     originT.transform.position,
                     originT.transform.rotation);
 
-                _annotationToEdit = ActivityManager.Instance.AddAnnotation(_action, offset);
+                _annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(_action, offset);
             }
-
 
             _annotationToEdit.predicate = "plugin:" + plugin.name;
             _annotationToEdit.url = plugin.manifest;
             
-            WorkplaceManager.Instance.Workplace.apps.Add(plugin);
+            workplaceManager.workplace.apps.Add(plugin);
 
             _action.appIDs.Add(plugin.id);
 

@@ -13,14 +13,14 @@ namespace MirageXR
         [SerializeField]
         private ExperienceAPIClientCredentials xAPICredentials;
 
-        public DeepLinkDefinition deepLinkAPI;
+        [SerializeField] private DeepLinkDefinition deepLinkAPI;
 
         protected override void RegisterServices()
         {
             ServiceManager.RegisterService(new WorldAnchorService());
             ServiceManager.RegisterService(new KeywordService());
 
-            ServiceManager.RegisterService(new VestService()
+            ServiceManager.RegisterService(new VestService
             {
                 VestEnabled = vestServiceConfiguration.vestEnabled
             });
@@ -29,7 +29,7 @@ namespace MirageXR
             {
                 ExperienceAPIClient xAPIClient = new ExperienceAPIClient()
                 {
-                    XApiEndpoint = new System.Uri("https://lrs.tech4comp.dbis.rwth-aachen.de/data/xAPI"),
+                    XApiEndpoint = new System.Uri("https://lrs.wekit-ecs.com/data/xAPI"),
                     AuthorizationToken = xAPICredentials.authToken,
                     Version = "1.0.3"
                 };
@@ -41,7 +41,6 @@ namespace MirageXR
             }
 
             ServiceManager.RegisterService(new VideoAudioTrackGlobalService());
-            ServiceManager.RegisterService(new EditorSceneService());
 
             OpenIDConnectService oidc = new OpenIDConnectService
             {
@@ -53,7 +52,6 @@ namespace MirageXR
 #else
             // here could be the link to a nicer web page that tells the user to return to the app
 #endif
-
 
             ServiceManager.RegisterService(oidc);
 

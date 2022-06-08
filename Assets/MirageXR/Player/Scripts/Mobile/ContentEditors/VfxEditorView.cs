@@ -47,7 +47,7 @@ public class VfxEditorView : PopupEditorBase
         }
         else
         {
-            _content = ActivityManager.Instance.AddAnnotation(_step, GetOffset());
+            _content = augmentationManager.AddAugmentation(_step, GetOffset());
         }
 
         _content.predicate = $"vfx:{_prefabName}";
