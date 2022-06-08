@@ -8,6 +8,8 @@ public abstract class PopupEditorBase : PopupBase
 {
     protected const string HTTP_PREFIX = "http://";
     protected const string RESOURCES_PREFIX = "resources://";
+    protected static ActivityManager activityManager => RootObject.Instance.activityManager;
+    protected static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
     
     [SerializeField] protected Image _icon;
     [SerializeField] protected TMP_Text _txtLabel;
@@ -23,6 +25,8 @@ public abstract class PopupEditorBase : PopupBase
     {
         base.Init(onClose, args);
         canBeClosedByOutTap = false;
+        _btnAccept.onClick.AddListener(OnAccept);
+        _btnClose.onClick.AddListener(Close);
         UpdateBaseView();
     }
 
@@ -30,16 +34,14 @@ public abstract class PopupEditorBase : PopupBase
 
     protected virtual void UpdateBaseView()
     {
-        _btnAccept.onClick.AddListener(OnAccept);
-        _btnClose.onClick.AddListener(Close);
         _icon.sprite = editorForType.GetIcon();
         _txtLabel.text = editorForType.GetName();
     }
+    
     protected virtual Vector3 GetOffset()
     {
-        const string anchorName = "AnnotationSpawnPoint";
-        
-        var detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(_step.id));
+        var workplaceManager = RootObject.Instance.workplaceManager;
+        var detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_step.id));
         var originT = GameObject.Find(detectable.id);   // TODO: replace by direct reference to the object
         var annotationStartingPoint = ActionEditor.Instance.GetDefaultAugmentationStartingPoint();
         return originT.transform.InverseTransformPoint(annotationStartingPoint.transform.position);
@@ -49,7 +51,7 @@ public abstract class PopupEditorBase : PopupBase
     {
         try
         {
-            _step = (MirageXR.Action) args[0];
+            _step = (MirageXR.Action)args[0];
         }
         catch (Exception)
         {

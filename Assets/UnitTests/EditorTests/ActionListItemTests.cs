@@ -1,9 +1,8 @@
-﻿using MirageXR;
+﻿using System.Reflection;
+using MirageXR;
 using NUnit.Framework;
-using System.Collections;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.TestTools;
 using UnityEngine.UI;
 
 namespace Tests
@@ -21,7 +20,7 @@ namespace Tests
         private Color completedColor;
 
         private ActionListItem actionListItem;
-        private ActivityManager activityManager;
+        private RootObject rootObject;
 
         [SetUp]
         public void SetUp()
@@ -47,8 +46,16 @@ namespace Tests
             SetPrivateField(actionListItem, "deleteButton", deleteButton);
             SetPrivateField(actionListItem, "checkIcon", checkIcon);
 
-            activityManager = GenerateGameObjectWithComponent<ActivityManager>("ActivityManager");
-            activityManager.GetType().GetProperty("Instance").SetValue(null, activityManager);
+            if (!RootObject.Instance)
+            {
+                rootObject = GenerateGameObjectWithComponent<RootObject>("root");
+                CallPrivateMethod(rootObject, "Awake");
+                CallPrivateMethod(rootObject, "Initialization");
+            }
+            else
+            {
+                rootObject = RootObject.Instance;
+            }
         }
 
         [Test]
@@ -86,10 +93,10 @@ namespace Tests
         [Test]
         public void UpdateView_ContentSet_GameObjectNameSetToId()
         {
-            Action action = new Action()
+            Action action = new Action
             {
                 id = "myId",
-                instruction = new Instruction()
+                instruction = new Instruction
                 {
                     title = "ActionTitle"
                 }
@@ -105,10 +112,10 @@ namespace Tests
         [Test]
         public void UpdateView_ContentSet_CaptionLabelSetToTitle()
         {
-            Action action = new Action()
+            Action action = new Action
             {
                 id = "myId",
-                instruction = new Instruction()
+                instruction = new Instruction
                 {
                     title = "ActionTitle"
                 }
@@ -124,12 +131,12 @@ namespace Tests
         [Test]
         public void UpdateView_ContentSet_NumberLabelSetToDataIndex()
         {
-            int[] testCases = new int[] { 0, 5, 25 };
+            int[] testCases = { 0, 5, 25 };
 
-            Action action = new Action()
+            Action action = new Action
             {
                 id = "myId",
-                instruction = new Instruction()
+                instruction = new Instruction
                 {
                     title = "ActionTitle"
                 }
@@ -150,10 +157,10 @@ namespace Tests
         [Test]
         public void UpdateView_ContentSetToIncompleteAction_StandardBackgroundColorSet()
         {
-            Action action = new Action()
+            Action action = new Action
             {
                 id = "someId",
-                instruction = new Instruction()
+                instruction = new Instruction
                 {
                     title = "ActionTitle"
                 }
@@ -161,12 +168,12 @@ namespace Tests
 
             actionListItem.Content = action;
 
-            Action activeAction = new Action()
+            Action activeAction = new Action
             {
                 id = "activeActionId"
             };
 
-            SetPrivateProperty(activityManager, "ActiveAction", activeAction);
+            SetPrivateProperty(rootObject.activityManager, "ActiveAction", activeAction);
 
             actionListItem.UpdateView();
 
@@ -177,10 +184,10 @@ namespace Tests
         [Test]
         public void UpdateView_ContentSetToCompletedAction_CompletedBackgroundColorSet()
         {
-            Action action = new Action()
+            Action action = new Action
             {
                 id = "someId",
-                instruction = new Instruction()
+                instruction = new Instruction
                 {
                     title = "ActionTitle"
                 },
@@ -189,32 +196,37 @@ namespace Tests
 
             actionListItem.Content = action;
 
-            Action activeAction = new Action()
+            Action activeAction = new Action
             {
                 id = "activeActionId"
             };
 
-            SetPrivateProperty(activityManager, "ActiveAction", activeAction);
+            SetPrivateProperty(rootObject.activityManager, "ActiveAction", activeAction);
 
             actionListItem.UpdateView();
 
             Assert.AreEqual(completedColor, backgroundImage.color);
         }
 
-        private T GenerateGameObjectWithComponent<T>(string name) where T : MonoBehaviour
+        private static T GenerateGameObjectWithComponent<T>(string name) where T : MonoBehaviour
         {
             return new GameObject(name).AddComponent<T>();
         }
 
-        private void SetPrivateField<T>(object obj, string fieldName, T value)
+        private static void SetPrivateField<T>(object obj, string fieldName, T value)
         {
-            obj.GetType().GetField(fieldName, System.Reflection.BindingFlags.NonPublic
-    | System.Reflection.BindingFlags.Instance).SetValue(obj, value);
+            obj.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance)?.SetValue(obj, value);
         }
 
-        private void SetPrivateProperty<T>(object obj, string propertyName, T value)
+        private static void SetPrivateProperty<T>(object obj, string propertyName, T value)
         {
-            obj.GetType().GetProperty(propertyName).SetValue(obj, value);
+            obj.GetType().GetProperty(propertyName)?.SetValue(obj, value);
+        }
+
+        private static void CallPrivateMethod(object obj, string methodName, params object[] parameters)
+        {
+            var method = obj.GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
+            method?.Invoke(obj, parameters);
         }
     }
 }

@@ -61,7 +61,8 @@ namespace MirageXR
             }
             else
             {
-                Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(_action.id));
+                var workplaceManager = RootObject.Instance.workplaceManager;
+                Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
                 GameObject originT = GameObject.Find(detectable.id);
 
                 var offset = Utilities.CalculateOffset(_annotationStartingPoint.transform.position,
@@ -69,7 +70,7 @@ namespace MirageXR
                     originT.transform.position,
                     originT.transform.rotation);
 
-                _annotationToEdit = ActivityManager.Instance.AddAnnotation(_action, offset);
+                _annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(_action, offset);
             }
 
             _annotationToEdit.predicate = "vfx:" + iconName;

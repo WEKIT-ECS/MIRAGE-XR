@@ -6,7 +6,7 @@ namespace MirageXR
     {
         [SerializeField] private GameObject CalibrationModel;
 
-        public static CalibrationTool Instance;
+        public static CalibrationTool Instance { get; private set; }
 
         public void SetCalibrationModel(GameObject calibrationModel)
         {
@@ -15,37 +15,45 @@ namespace MirageXR
 
         private void Awake()
         {
-            Instance = this;
+            if (Instance == null)
+                Instance = this;
+            else if (Instance != this)
+                Destroy(gameObject);
         }
 
 
-        private void Start ()
+        private void Start()
         {
             Reset();
         }
 
         public void SetPlayer()
         {
-            CalibrationModel.gameObject.SetActive(true);
+            if (CalibrationModel)
+            {
+                CalibrationModel.SetActive(true);
+            }
         }
 
         public void Reset()
         {
-            CalibrationModel.gameObject.SetActive(false);
+            if (CalibrationModel)
+            {
+                CalibrationModel.SetActive(false);
+            }
         }
-        
+
         /// <summary>
         /// Calibrate workplace model anchors.
         /// </summary>
-        public void Calibrate ()
+        public async void Calibrate()
         {
             // Calibrate only if the marker is visible.
             if (CalibrationModel.activeInHierarchy)
             {
                 EventManager.Click();
-                WorkplaceManager.Instance.CalibrateAnchors(transform);
+                await RootObject.Instance.workplaceManager.CalibrateWorkplace(transform);
             }
-                
         }
     }
 }

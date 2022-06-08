@@ -283,7 +283,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 259}
-  - component: {fileID: 547}
   m_Layer: 0
   m_Name: ActivityManager
   m_TagString: Untagged
@@ -321,23 +320,6 @@ GameObject:
   - component: {fileID: 590}
   m_Layer: 5
   m_Name: DeviceInfoText
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!1 &147
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 288}
-  - component: {fileID: 603}
-  m_Layer: 0
-  m_Name: WorkplaceManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -476,7 +458,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 259}
-  - {fileID: 288}
   - {fileID: 296}
   - {fileID: 262}
   - {fileID: 2045688074}
@@ -539,21 +520,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 237}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &288
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 147}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 237}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &296
 Transform:
@@ -567,7 +534,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 237}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &301
 Transform:
@@ -611,7 +578,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311915, g: 0.3807396, b: 0.35872662, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &392
 LightmapSettings:
@@ -1082,33 +1049,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1.5
   m_Text: 
---- !u!114 &547
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 114}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 52e9a5e09fb2e4466a1b4b49a491fff4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Activity:
-    id: 
-    name: 
-    version: 
-    description: 
-    language: 
-    workplace: 
-    start: 
-    actions: []
-    message: 
-    resumeable: 1
-  IsReady: 0
-  RestoreActions: []
-  RestoreReactions: []
-  RestoreObjects: []
 --- !u!114 &553
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1155,38 +1095,6 @@ MonoBehaviour:
     m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: 'Device ID:'
---- !u!114 &603
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 147}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22a95bc721eb349d2b13bd99013879fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  taskStationPrefab: {fileID: 2232750753583396478, guid: d0464d2576401014d92b0ede9b680bc0,
-    type: 3}
-  anchorCubePrefab: {fileID: 1816019110440684, guid: 413e79bde40cce74a9b8ce877ffaf92b,
-    type: 3}
-  _calibrationPairs: []
-  Workplace:
-    id: 
-    name: 
-    version: 
-    things: []
-    places: []
-    persons: []
-    sensors: []
-    devices: []
-    apps: []
-    detectables: []
-    predicates: []
-    warnings: []
-    hazards: []
-  MirageXRSensorManager: {fileID: 0}
 --- !u!114 &614
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1341,16 +1249,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   updateInterval: 0.04
   updateInitialDelay: 0.3
-  currentSensorDataFrame:
-    TimeStamp: 0
-    HandPosition1: {x: 0, y: 0, z: 0}
-    HandPosition2: {x: 0, y: 0, z: 0}
-    HeadPosition: {x: 0, y: 0, z: 0}
-    GazeDirection: {x: 0, y: 0, z: 0}
-    CastHit: 0
-    leftHand: 
-    rightHand: 
-    attentionLevel: 0
   recording: 0
   connected: 0
 --- !u!114 &643054653
@@ -1453,7 +1351,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 237}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1203079006
 MonoBehaviour:
@@ -1476,7 +1374,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1387220373}
-  - component: {fileID: 1387220374}
   m_Layer: 0
   m_Name: ActionContentStorageManager
   m_TagString: Untagged
@@ -1496,23 +1393,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 237}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1387220374
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1387220372}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22b23e1acf34dc046ba2d643064e9aae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ActiveTarget: {fileID: 0}
-  TargetType: 
-  ContentCount: 0
 --- !u!1 &1428879321
 GameObject:
   m_ObjectHideFlags: 0
@@ -1690,7 +1572,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 237}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2045688075
 MonoBehaviour:

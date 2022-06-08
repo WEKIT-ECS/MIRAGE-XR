@@ -58,6 +58,16 @@ namespace MirageXR
         }
 
         /// <summary>
+        /// Convert Vector3 to string.
+        /// </summary>
+        /// <param name="input">Vector3 string</param>
+        /// <returns>returns string  with Vector3 representation in format 0, 0, 0</returns>
+        public static string Vector3ToString(Vector3 vector3)
+        {
+            return $"{vector3.x.ToString(CultureInfo.InvariantCulture)}, {vector3.y.ToString(CultureInfo.InvariantCulture)}, {vector3.z.ToString(CultureInfo.InvariantCulture)}";
+        }
+
+        /// <summary>
         /// Convert string to Quaternion.
         /// </summary>
         /// <param name="input">Quaternion string.</param>
@@ -126,10 +136,12 @@ namespace MirageXR
         {
             try
             {
-                var parentObject = GameObject.Find(parent);
+                var parentObject = GameObject.Find(parent); //TODO: possible NRE
 
                 if (parentObject == null)
-                    throw new ArgumentException("Object " + parent + " not found.");
+                {
+                    throw new ArgumentException($"Object {parent} not found.");
+                }
 
                 // Create a new game object and name it after the id.
                 var temp = new GameObject(id);
@@ -216,7 +228,7 @@ namespace MirageXR
             return angle;
         }
 
-        public static Vector3 CalculateOffset(Vector3 anchorPosition, Quaternion anchorRotation, Vector3 originPosition, Quaternion originRotation) //TODO: Looks like it can be replaced by Transform.InverseTransformPoint(...) 
+        public static Vector3 CalculateOffset(Vector3 anchorPosition, Quaternion anchorRotation, Vector3 originPosition, Quaternion originRotation) //TODO: Looks like it can be replaced by Transform.InverseTransformPoint(...)
         {
             // Some black magic for getting the offset.
             var anchorDummy = new GameObject("AnchorDummy");
@@ -265,22 +277,60 @@ namespace MirageXR
             if (!sameRotation) { Debug.Log("Angles not the same, separated by " + difference + " degrees"); }
             return sameRotation;
         }
-        
+
         public static Texture2D LoadTexture(string filePath)
         {
             if (!File.Exists(filePath)) return null;
-        
+
             var fileData = File.ReadAllBytes(filePath);
             var texture2D = new Texture2D(2, 2);
             return texture2D.LoadImage(fileData) ? texture2D : null;
         }
-        
+
         public static Sprite TextureToSprite(Texture2D texture2d)
         {
             const float pixelsPerUnit = 100.0f;
             var pivot = new Vector2(0.5f, 0.5f);
-            
+
             return Sprite.Create(texture2d, new Rect(0, 0, texture2d.width, texture2d.height), pivot, pixelsPerUnit);
+        }
+
+
+        public static void DeleteAllFilesInDirectory(string directoryName)
+        {
+            DirectoryInfo dir = new DirectoryInfo(directoryName);
+
+            foreach (FileInfo f in dir.GetFiles())
+            {
+                f.Delete();
+            }
+
+            foreach (DirectoryInfo d in dir.GetDirectories())
+            {
+                DeleteAllFilesInDirectory(d.FullName);
+                d.Delete();
+            }
+        }
+
+
+        public static void CopyEntireFolder(string folderPath, string destinationPath)
+        {
+            try
+            {
+                foreach (var dirPath in Directory.GetDirectories(folderPath, "*", SearchOption.AllDirectories))
+                {
+                    Directory.CreateDirectory(dirPath.Replace(folderPath, destinationPath));
+                }
+
+                foreach (var newPath in Directory.GetFiles(folderPath, "*.*", SearchOption.AllDirectories))
+                {
+                    File.Copy(newPath, newPath.Replace(folderPath, destinationPath), true);
+                }
+            }
+            catch (IOException e)
+            {
+                Debug.LogError(e);
+            }
         }
     }
 }

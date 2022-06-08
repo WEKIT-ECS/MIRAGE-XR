@@ -8,11 +8,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using Action = MirageXR.Action;
 
-public class StepsListView : MonoBehaviour
+public class StepsListView : BaseView
 {
-    private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg"; 
-    
-    public static StepsListView Instance { get; private set; }
+    private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg";
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static MoodleManager moodleManager => RootObject.Instance.moodleManager;
     
     [SerializeField] private TMP_InputField _inputFieldName;
     [SerializeField] private RectTransform _listContent;
@@ -22,32 +22,27 @@ public class StepsListView : MonoBehaviour
     [SerializeField] private Button _btnSave;
     [SerializeField] private Button _btnUpload;
     [SerializeField] private Image _imgThumbnail;
+    [SerializeField] private Sprite _defaultThumbnail;
     [SerializeField] private StepsListItem _stepsListItemPrefab;
     [SerializeField] private ThumbnailEditorView _thumbnailEditorPrefab;
 
     private readonly List<StepsListItem> _stepsList = new List<StepsListItem>();
-    
-    private void Awake()
-    {
-        if (Instance != null)
-        {
-            Debug.LogError($"{Instance.GetType().FullName} must only be a single copy!");
-            return;
-        }
-        
-        Instance = this;
-    }
+    public RootView rootView => (RootView)_parentView;
 
-    private void Start()
+    public TMP_InputField ActivityNameField => _inputFieldName;
+    public Button BtnAddStep => _btnAddStep;
+
+    public override void Initialization(BaseView parentView)
     {
+        base.Initialization(parentView);
         _inputFieldName.onValueChanged.AddListener(OnStepNameChanged);
         _btnAddStep.onClick.AddListener(OnAddStepClick);
         _toggleEdit.onValueChanged.AddListener(OnEditValueChanged);
         _btnSave.onClick.AddListener(OnSaveButtonPressed);
         _btnUpload.onClick.AddListener(OnUploadButtonPressed);
         _btnThumbnail.onClick.AddListener(OnThumbnailButtonPressed);
-        
-        EventManager.OnWorkplaceParsed += OnStartActivity;
+
+        EventManager.OnWorkplaceLoaded += OnStartActivity;
         EventManager.OnActionCreated += OnActionCreated;
         EventManager.OnActionDeleted += OnActionDeleted;
         EventManager.OnActionModified += OnActionChanged;
@@ -56,12 +51,11 @@ public class StepsListView : MonoBehaviour
 
     private void OnDestroy()
     {
-        EventManager.OnWorkplaceParsed -= OnStartActivity;
+        EventManager.OnWorkplaceLoaded -= OnStartActivity;
         EventManager.OnActionCreated -= OnActionCreated;
         EventManager.OnActionDeleted -= OnActionDeleted;
         EventManager.OnActionModified -= OnActionChanged;
         EventManager.OnEditModeChanged -= OnEditModeChanged;
-        Instance = null;
     }
 
     private void OnStartActivity()
@@ -71,8 +65,8 @@ public class StepsListView : MonoBehaviour
 
     private void UpdateView()
     {
-        _inputFieldName.text = ActivityManager.Instance.Activity.name;
-        var steps = ActivityManager.Instance.ActionsOfTypeAction;
+        _inputFieldName.text = activityManager.Activity.name;
+        var steps = activityManager.ActionsOfTypeAction;
         _stepsList.ForEach(t => t.gameObject.SetActive(false));
         for (var i = 0; i < steps.Count; i++)
         {
@@ -85,30 +79,37 @@ public class StepsListView : MonoBehaviour
             _stepsList[i].gameObject.SetActive(true);
             _stepsList[i].UpdateView(steps[i], i);
         }
-        OnEditModeChanged(ActivityManager.Instance.EditModeActive);
+        OnEditModeChanged(activityManager.EditModeActive);
         LoadThumbnail();
     }
 
     private void LoadThumbnail()
     {
-        var path = Path.Combine(ActivityManager.Instance.Path, THUMBNAIL_FILE_NAME);
-        if (!File.Exists(path)) return;
-        
+        var path = Path.Combine(activityManager.ActivityPath, THUMBNAIL_FILE_NAME);
+        if (!File.Exists(path))
+        {
+            _imgThumbnail.sprite = _defaultThumbnail;
+            return;
+        }
+
         var texture = Utilities.LoadTexture(path);
         var sprite = Utilities.TextureToSprite(texture);
         _imgThumbnail.sprite = sprite;
     }
-    
+
     private void OnStepNameChanged(string newTitle)
     {
-        ActivityManager.Instance.Activity.name = newTitle;
+        activityManager.Activity.name = newTitle;
+        EventManager.NotifyOnActivityRenamed();
     }
-    
+
     public void OnDeleteStepClick(Action step)
     {
-        if (ActivityManager.Instance.ActionsOfTypeAction.Count > 1)
+        if (activityManager.ActionsOfTypeAction.Count > 1)
         {
-            ActivityManager.Instance.DeleteAction(step.id);
+            DialogWindow.Instance.Show("Warning!", "Are you sure you want to delete this step?",
+                new DialogButtonContent("Yes", () => activityManager.DeleteAction(step.id)),
+                new DialogButtonContent("No"));
         }
     }
 
@@ -123,9 +124,9 @@ public class StepsListView : MonoBehaviour
 
     private void OnEditValueChanged(bool value)
     {
-        if (ActivityManager.Instance != null)
+        if (activityManager != null)
         {
-            ActivityManager.Instance.EditModeActive = value;
+            activityManager.EditModeActive = value;
         }
     }
 
@@ -137,38 +138,38 @@ public class StepsListView : MonoBehaviour
         _inputFieldName.interactable = value;
         _btnThumbnail.interactable = value;
         _toggleEdit.isOn = value;
-        
+
         _stepsList.ForEach(t => t.OnEditModeChanged(value));
     }
-    
+
     public async void AddStep()
     {
-        await ActivityManager.Instance.AddAction(Vector3.zero);
+        await activityManager.AddAction(Vector3.zero);
     }
-    
+
     public void NextStep()
     {
-        var activeStep = ActivityManager.Instance.ActiveAction;
-        var actionList = ActivityManager.Instance.Activity.actions;
+        var activeStep = activityManager.ActiveAction;
+        var actionList = activityManager.Activity.actions;
         if (actionList.Last() != activeStep)
         {
             if (activeStep != null) activeStep.isCompleted = true;
-            ActivityManager.Instance.ActivateNextAction();
+            activityManager.ActivateNextAction();
             UpdateView();
         }
     }
-    
+
     public void PreviousStep()
     {
-        var activeStep = ActivityManager.Instance.ActiveAction;
-        var actionList = ActivityManager.Instance.Activity.actions;
+        var activeStep = activityManager.ActiveAction;
+        var actionList = activityManager.Activity.actions;
         if (actionList.First() != activeStep)
         {
-            ActivityManager.Instance.ActivatePreviousAction();
+            activityManager.ActivatePreviousAction();
             UpdateView();
         }
-    }    
-    
+    }
+
     private void OnActionCreated(Action action)
     {
         UpdateView();
@@ -181,15 +182,15 @@ public class StepsListView : MonoBehaviour
 
     private void OnActionDeleted(string actionId)
     {
-        ActivityManager.Instance.ActivateNextAction();
+        activityManager.ActivateNextAction();
         UpdateView();
     }
 
     public void OnSaveButtonPressed()
     {
-        ActivityManager.Instance.SaveData();
+        activityManager.SaveData();
         Toast.Instance.Show("Activity saved on your device");
-        ActivityListView.Instance.UpdateListView();
+        rootView.activityListView.UpdateListView();
     }
 
     public void OnUploadButtonPressed()
@@ -207,7 +208,7 @@ public class StepsListView : MonoBehaviour
     private void OnThumbnailButtonPressed()
     {
         Action<string> onAccept = OnThumbnailAccepted;
-        var path = Path.Combine(ActivityManager.Instance.Path, THUMBNAIL_FILE_NAME);
+        var path = Path.Combine(activityManager.ActivityPath, THUMBNAIL_FILE_NAME);
         PopupsViewer.Instance.Show(_thumbnailEditorPrefab, onAccept, path);
     }
 
@@ -218,42 +219,41 @@ public class StepsListView : MonoBehaviour
 
     private async void Upload()
     {
-        ActivityManager.Instance.SaveData();
-        var (result, response) = await MoodleManager.Instance.UploadFile(ActivityManager.Instance.Path, ActivityManager.Instance.Activity.name, 0);
-        
+        activityManager.SaveData();
+        var (result, response) = await moodleManager.UploadFile(activityManager.ActivityPath, activityManager.Activity.name, 0);
         if (response == "Error: File exist, update")
         {
-            DialogWindow.Instance.Show("This file is exist! Please select an option:", 
-                new DialogButtonContent("Update", UploadAndUpdate), 
-                new DialogButtonContent("Clone", UploadAndCopy), 
-                new DialogButtonContent("Cancel", null));   
+            DialogWindow.Instance.Show("This file is exist! Please select an option:",
+                new DialogButtonContent("Update", UploadAndUpdate),
+                new DialogButtonContent("Clone", UploadAndCopy),
+                new DialogButtonContent("Cancel", null));
             return;
         }
 
         if (response == "Error: File exist, clone")
         {
-            DialogWindow.Instance.Show("You are not the original author of this file! Please select an option:", 
-                new DialogButtonContent("Clone", UploadAndCopy), 
+            DialogWindow.Instance.Show("You are not the original author of this file! Please select an option:",
+                new DialogButtonContent("Clone", UploadAndCopy),
                 new DialogButtonContent("Cancel", null));
             return;
         }
 
         if (result) Toast.Instance.Show("upload completed successfully");
-        ActivityListView.Instance.UpdateListView();
+        rootView.activityListView.UpdateListView();
     }
 
     private async void UploadAndUpdate()
     {
-        var (result, response) = await MoodleManager.Instance.UploadFile(ActivityManager.Instance.Path, ActivityManager.Instance.Activity.name, 1);
+        var (result, response) = await moodleManager.UploadFile(activityManager.ActivityPath, activityManager.Activity.name, 1);
         Toast.Instance.Show(result ? "upload completed successfully" : response);
-        if (result) ActivityListView.Instance.UpdateListView();
+        if (result) rootView.activityListView.UpdateListView();
     }
 
     private async void UploadAndCopy()
     {
-        ActivityManager.Instance.GenerateNewId(true);
-        var (result, response) = await MoodleManager.Instance.UploadFile(ActivityManager.Instance.Path, ActivityManager.Instance.Activity.name, 2);
+        activityManager.CloneActivity();
+        var (result, response) = await moodleManager.UploadFile(activityManager.ActivityPath, activityManager.Activity.name, 2);
         Toast.Instance.Show(result ? "upload completed successfully" : response);
-        if (result) ActivityListView.Instance.UpdateListView();
+        if (result) rootView.activityListView.UpdateListView();
     }
 }

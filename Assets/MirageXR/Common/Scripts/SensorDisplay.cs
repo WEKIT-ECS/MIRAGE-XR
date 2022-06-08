@@ -89,7 +89,7 @@ namespace MirageXR
         {
             _label.text = Name;
             var redMinSize = (YellowLimitMin - Min) / (Max - Min) * 700;
-            redMinSize += redMinSize/2;
+            redMinSize += redMinSize / 2;
             if (redMinSize > 700)
                 redMinSize = 700;
             _redMin.sizeDelta = new Vector2(redMinSize, 24f);

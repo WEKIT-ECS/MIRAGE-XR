@@ -4,6 +4,7 @@ namespace MirageXR
 {
     public class GlyphEditor : MonoBehaviour
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         [SerializeField] private Transform _contentContainer;
         [SerializeField] private StepTrigger stepTrigger;
         [SerializeField] private GlyphListItem _glyphListItemPrefab;
@@ -38,7 +39,7 @@ namespace MirageXR
 
             if(_annotationToEdit != null)
             {
-                var trigger = ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == _annotationToEdit.poi);
+                var trigger = activityManager.ActiveAction.triggers.Find(t => t.id == _annotationToEdit.poi);
                 var duration = trigger != null ? trigger.duration : 1;
                 var stepNumber = trigger != null ? trigger.value : "1";
                 stepTrigger.Initiate(_annotationToEdit, duration, stepNumber);
@@ -64,7 +65,8 @@ namespace MirageXR
             }
             else
             {
-                Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(_action.id));
+                var workplaceManager = RootObject.Instance.workplaceManager;
+                Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
                 GameObject originT = GameObject.Find(detectable.id);
 
                 var offset = Utilities.CalculateOffset(_annotationStartingPoint.transform.position,
@@ -72,11 +74,11 @@ namespace MirageXR
                     originT.transform.position,
                     originT.transform.rotation);
                 
-                _annotationToEdit = ActivityManager.Instance.AddAnnotation(_action, offset);
+                _annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(_action, offset);
             }
 
-            //change predicate on all steps
-            ActivityManager.Instance.ActionsOfTypeAction.ForEach(a => {
+            // change predicate on all steps
+            activityManager.ActionsOfTypeAction.ForEach(a => {
                 var anno = a.enter.activates.Find(t => t.poi == _annotationToEdit.poi);
                 if (anno != null)
                 {

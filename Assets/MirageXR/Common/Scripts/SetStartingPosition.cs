@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using MirageXR;
 
 public class SetStartingPosition : MonoBehaviour
@@ -18,13 +16,13 @@ public class SetStartingPosition : MonoBehaviour
     private void OnEnable()
     {
         EventManager.OnPlayerReset += SetPosition;
-        EventManager.OnWorkplaceParsed += SetPosition;
+        EventManager.OnWorkplaceLoaded += SetPosition;
     }
 
     private void OnDisable()
     {
         EventManager.OnPlayerReset -= SetPosition;
-        EventManager.OnWorkplaceParsed -= SetPosition;
+        EventManager.OnWorkplaceLoaded -= SetPosition;
     }
 
     // Use this for initialization
@@ -34,12 +32,12 @@ public class SetStartingPosition : MonoBehaviour
     }
 
     public void Call() {
-        SetPosition();    
+        SetPosition();
     }
 
     private void SetPosition()
     {
-        //if an offset is set for this window
+        // if an offset is set for this window
         if(offsetFromActivitySeceltor == Vector3.zero)
             transform.position = _userViewport.position;
         else

@@ -11,15 +11,15 @@ public class WearableManager : MonoBehaviour
 
     private MqttConnection _mqtt;
 
-    public string BrokerUrl = "192.168.0.1";
-    public int BrokerPort = 1883;
+    public string BrokerUrl { get; private set; } = "192.168.0.1";
+    public int BrokerPort { get; private set; } = 1883;
 
-    public string ButtonState = "none";
+    public string ButtonState { get; private set; } = "none";
     private string _previousButtonState = "";
-    public float Humidity;
-    public float Temperature;
+    public float Humidity { get; private set; }
+    public float Temperature { get; private set; }
 
-    public Text EnvironmentText;
+    public Text EnvironmentText { get; private set; }
 
     private void Awake()
     {

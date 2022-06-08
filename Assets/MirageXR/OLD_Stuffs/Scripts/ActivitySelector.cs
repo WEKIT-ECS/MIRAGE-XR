@@ -12,21 +12,21 @@ namespace MirageXR
 
     public class ActivitySelector : MonoBehaviour
     {
-        public List<string> ActionsList;
-        public Transform ActivityObjectContainer;
+        [SerializeField] private List<string> ActionsList;
+        [SerializeField] private Transform ActivityObjectContainer;
 
-        public Activity Activity;
-        public Workplace Workplace;
+        [SerializeField] private Activity Activity;
+        [SerializeField] private Workplace Workplace;
 
-        public Toggle OverwriteToggle;
+        [SerializeField] private Toggle OverwriteToggle;
 
-        public NonNativeKeyboard InputTextField = null;
-       // public TouchScreenKeyboard InputTextField;
-        public Text InputText;
-        public Text MessageText;
-        public GameObject CloseButton;
+        [SerializeField] private NonNativeKeyboard InputTextField = null;
+        // public TouchScreenKeyboard InputTextField;
+        [SerializeField] private Text InputText;
+        [SerializeField] private Text MessageText;
+        [SerializeField] private GameObject CloseButton;
 
-        public string Path;
+        [SerializeField] private string Path;
 
         public struct StoredFile
         {
@@ -239,8 +239,8 @@ namespace MirageXR
                             switch (activate.type)
                             {
                                 // Handle external action references.
-                                case "action":
-                                case "reaction":
+                                case ActionType.Action:
+                                case ActionType.Reaction:
                                     // Handle only online files that haven't been handled yet.
                                     if (activate.id.StartsWith("http") && !_handledActivites.Contains(activate.id))
                                     {
@@ -310,8 +310,8 @@ namespace MirageXR
                             switch (activate.type)
                             {
                                 // Handle external action references.
-                                case "action":
-                                case "reaction":
+                                case ActionType.Action:
+                                case ActionType.Reaction:
                                     // Handle only online files that haven't been handled yet.
                                     if (activate.id.StartsWith("http") && !_handledActivites.Contains(activate.id))
                                     {

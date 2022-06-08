@@ -1,47 +1,37 @@
 ﻿using MirageXR;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ActionListMenu : MonoBehaviour
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
     [SerializeField] private GameObject actionItemPrefab;
     [SerializeField] private RectTransform listViewParent;
     [SerializeField] private Button previousStepButton;
     [SerializeField] private Button nextStepButton;
     [SerializeField] private Text pageLabel;
     [SerializeField] private InputField titleText;
-    public InputField GetTitleText()
-    {
-        return this.titleText;
-    }
+    public InputField TitleText => titleText;
 
     [SerializeField] private GameObject addActionStepButton;
-    public GameObject GetAddActionStepButton()
-    {
-        return this.addActionStepButton;
-    }
+    [SerializeField] private GameObject restartActivityPrompt;
+    public GameObject AddActionStepButton => addActionStepButton;
 
     [HideInInspector]
-    public GameObject uploadProgressText;
+    public GameObject uploadProgressText { get; private set; }
 
-    public static ActionListMenu Instance;
+    public static ActionListMenu Instance { get; private set; }
 
     private int page;
     private int totalNumberOfPages;
     private const int itemsPerPage = 10;
-
-    private List<Action> actions;
-    public ActionListItem[] ActionListItems { get; private set; } = new ActionListItem[itemsPerPage];
+    public ActionListItem[] ActionListItems { get; } = new ActionListItem[itemsPerPage];
 
     private int Page
     {
         get => page;
-        set
-        {
-            page = Mathf.Clamp(value, 0, totalNumberOfPages - 1);
-        }
+        set => page = Mathf.Clamp(value, 0, totalNumberOfPages - 1);
     }
 
     private void Start()
@@ -57,7 +47,7 @@ public class ActionListMenu : MonoBehaviour
             return;
         }
         
-        //hide the upload progress number
+        // hide the upload progress number
         if (uploadProgressText == transform.FindDeepChild("UploadProgress").gameObject)
             uploadProgressText.SetActive(false);
 
@@ -68,14 +58,24 @@ public class ActionListMenu : MonoBehaviour
             ActionListItems[i] = itemInstance.GetComponent<ActionListItem>();
         }
 
-        if (ActivityManager.Instance.IsReady)
+
+
+        if (activityManager.IsReady)
         {
             Init();
 
-            //activate the first step
-            //ActivityManager.Instance.ActivateByID(ActivityManager.Instance.ActionsOfTypeAction[0].id);
+            // activate the first step
+            //activityManager.ActivateByID(activityManager.ActionsOfTypeAction[0].id);
         }
-        
+
+        if (activityManager.Activity.start != null)
+        {
+            if (activityManager.ActiveAction.id != activityManager.Activity.start)
+            {
+                GameObject.Instantiate(restartActivityPrompt, transform.position + transform.forward * 0.5f, transform.rotation);
+            }
+        }
+
         Debug.Log("Action list menu start called");
         EventManager.OnInitUi += Init;
         EventManager.OnActivateAction += OnActivateAction;
@@ -85,6 +85,7 @@ public class ActionListMenu : MonoBehaviour
         EventManager.OnActionModified += OnActionChanged;
         EventManager.OnNextByVoice += NextAction;
         EventManager.OnBackByVoice += PreviousAction;
+        titleText.onValueChanged.AddListener(delegate { EventManager.NotifyOnActivityRenamed(); });
     }
 
     private void OnDestroy()
@@ -102,21 +103,16 @@ public class ActionListMenu : MonoBehaviour
     private void Init()
     {
         page = 0;
-        actions = ActivityManager.Instance.ActionsOfTypeAction;
-        titleText.text = ActivityManager.Instance.Activity.name;
-
-        this.titleText.onValueChanged.AddListener(delegate { EventManager.NotifyOnActivityRenamed(); });
+        titleText.text = activityManager.Activity.name;
         
-
         UpdateUI();
-
-        this.addActionStepButton = this.gameObject.transform.Find("Panel").Find("ButtonAdd").gameObject;
+        addActionStepButton = gameObject.transform.Find("Panel").Find("ButtonAdd").gameObject;
     }
 
 
     private void UpdateUI()
     {
-        totalNumberOfPages = (actions.Count - 1) / itemsPerPage > 0 ? itemsPerPage: 1;
+        totalNumberOfPages = (activityManager.ActionsOfTypeAction.Count - 1) / itemsPerPage > 0 ? itemsPerPage : 1;
         DisplayList();
         CheckStepButtons();
         UpdatePageLabel();
@@ -125,12 +121,12 @@ public class ActionListMenu : MonoBehaviour
     private void DisplayList()
     {
         int startIndexOnPage = itemsPerPage * page;
-        int itemCount = Mathf.Min(itemsPerPage, actions.Count - startIndexOnPage);
+        int itemCount = Mathf.Min(itemsPerPage, activityManager.ActionsOfTypeAction.Count - startIndexOnPage);
 
         for (int i = 0; i < itemCount; i++)
         {
             int index = startIndexOnPage + i;
-            ActionListItems[i].Content = actions[index];
+            ActionListItems[i].Content = activityManager.ActionsOfTypeAction[index];
             ActionListItems[i].DataIndex = index;
             ActionListItems[i].UpdateView();
         }
@@ -145,40 +141,51 @@ public class ActionListMenu : MonoBehaviour
 
     private void CheckStepButtons()
     {
-        int activeIndex = ActivityManager.Instance.ActionsOfTypeAction.IndexOf(ActivityManager.Instance.ActiveAction);
+        if (!gameObject.activeInHierarchy)
+        {
+            return;
+        }
+        
+        int activeIndex = activityManager.ActionsOfTypeAction.IndexOf(activityManager.ActiveAction);
         previousStepButton.interactable = activeIndex > 0;
 
-        bool isLastStep = activeIndex >= ActivityManager.Instance.ActionsOfTypeAction.Count - 1;
+        bool isLastStep = activeIndex >= activityManager.ActionsOfTypeAction.Count - 1;
 
         if (isLastStep)
-            ActivityManager.Instance.ActiveAction.isCompleted = true;
+        {
+            activityManager.ActiveAction.isCompleted = true;
+        }
 
-        bool isCompleted = ActivityManager.Instance.ActiveAction == null || ActivityManager.Instance.ActiveAction.isCompleted;
-        nextStepButton.interactable = (!isLastStep || !isCompleted) && activeIndex < actions.Count-1;
+        bool isCompleted = activityManager.ActiveAction == null || activityManager.ActiveAction.isCompleted;
+        nextStepButton.interactable = (!isLastStep || !isCompleted) && activeIndex < activityManager.ActionsOfTypeAction.Count - 1;
 
-        //automaticaly go to next page if step is on next page
-        if (activeIndex + 1 > itemsPerPage * (page +1))
+        // automatically go to next page if step is on next page
+        if (activeIndex + 1 > itemsPerPage * (page + 1))
+        {
             NextPage();
-        //automaticaly go to previous page if step is on previous page
+        }
+        // automatically go to previous page if step is on previous page
         else if (activeIndex + 1 <= itemsPerPage * page)
+        {
             PreviousPage();
+        }
 
         UpdatePageLabel();
 
         StartCoroutine(ButtonShortTimeDeactivation(previousStepButton.interactable, nextStepButton.interactable));
 
-        //if the last step is done, next time start again from the first step
+        // if the last step is done, next time start again from the first step
         if (isLastStep && isCompleted)
         {
-            PlayerPrefs.SetString(ActivityManager.Instance.Activity.id, "StartingAction");
+            PlayerPrefs.SetString(activityManager.Activity.id, "StartingAction");
             PlayerPrefs.Save();
         }
 
-        //find the target annotation of this action
+        // find the target annotation of this action
         FindNavigatorTarget();
     }
 
-    IEnumerator ButtonShortTimeDeactivation(bool previousButtonIsActive, bool nextButtonIsActive)
+    private IEnumerator ButtonShortTimeDeactivation(bool previousButtonIsActive, bool nextButtonIsActive)
     {
         previousStepButton.interactable = false;
         nextStepButton.interactable = false;
@@ -187,18 +194,16 @@ public class ActionListMenu : MonoBehaviour
         nextStepButton.interactable = nextButtonIsActive;
     }
 
-
     private void UpdatePageLabel()
     {
-        int displayPageIndex = actions.IndexOf(ActivityManager.Instance.ActiveAction) + 1;
-        int totalNumberOfAction = actions.Count;
+        int displayPageIndex = activityManager.ActionsOfTypeAction.IndexOf(activityManager.ActiveAction) + 1;
+        int totalNumberOfAction = activityManager.ActionsOfTypeAction.Count;
         pageLabel.text = $"{displayPageIndex:00}/{totalNumberOfAction:00}";
     }
 
-
     private void FindNavigatorTarget()
     {
-        var targetAnnotation = ActivityManager.Instance.ActiveAction.enter.activates.Find(a => a.state == "target");
+        var targetAnnotation = activityManager.ActiveAction.enter.activates.Find(a => a.state == "target");
         if (targetAnnotation != null)
         {
             Transform target = CorrectTargetObject(targetAnnotation);
@@ -211,7 +216,6 @@ public class ActionListMenu : MonoBehaviour
             TaskStationDetailMenu.Instance.NavigatorTarget = null;
         }
     }
-
 
     public static Transform CorrectTargetObject(ToggleObject annotation)
     {
@@ -252,17 +256,17 @@ public class ActionListMenu : MonoBehaviour
     /// </summary>
     public void NextAction()
     {
-        var actionList = ActivityManager.Instance.ActionsOfTypeAction;
+        var actionList = activityManager.ActionsOfTypeAction;
 
-        //return if there is no next action
-        if (actionList.IndexOf(ActivityManager.Instance.ActiveAction) >= actionList.Count - 1) return;
+        // return if there is no next action
+        if (actionList.IndexOf(activityManager.ActiveAction) >= actionList.Count - 1) return;
 
-        if (ActivityManager.Instance.ActiveAction != null)
+        if (activityManager.ActiveAction != null)
         {
-            ActivityManager.Instance.ActiveAction.isCompleted = true;
+            activityManager.ActiveAction.isCompleted = true;
         }
 
-        ActivityManager.Instance.ActivateNextAction();
+        activityManager.ActivateNextAction();
 
         TaskStationDetailMenu.Instance.SelectedButton = null;
 
@@ -274,7 +278,7 @@ public class ActionListMenu : MonoBehaviour
     /// </summary>
     public void PreviousAction()
     {
-        ActivityManager.Instance.ActivatePreviousAction();
+        activityManager.ActivatePreviousAction();
 
         CheckStepButtons();
     }
@@ -291,7 +295,7 @@ public class ActionListMenu : MonoBehaviour
 
     public async void AddAction()
     {
-        await ActivityManager.Instance.AddAction(Vector3.zero);
+        await activityManager.AddAction(Vector3.zero);
     }
 
     private void OnActionCreated(Action action)
@@ -306,8 +310,7 @@ public class ActionListMenu : MonoBehaviour
 
     private void OnActionDeleted(string actionId)
     {
-        ActivityManager.Instance.ActivateNextAction();
+        activityManager.ActivateNextAction();
         UpdateUI();
     }
-
 }

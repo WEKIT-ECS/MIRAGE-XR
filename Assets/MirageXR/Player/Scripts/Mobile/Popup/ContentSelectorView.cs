@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MirageXR;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -20,10 +21,16 @@ public class ContentSelectorView : PopupBase
 
     private void UpdateView()
     {
+        // Get the list of augmentations from txt file depends on platform
+        var listOfAugmentations = BrandManager.Instance.GetListOfAugmentations();
         foreach (var type in _editors.Select(t => t.editorForType).Distinct())
         {
-            var item = Instantiate(_contentSelectorListItemPrefab, _listContent);
-            item.Init(type, OnListItemClick, OnListItemHintClick);
+            var value = type.ToString().ToLowerInvariant();
+            if (listOfAugmentations.Contains(value))
+            {
+                var item = Instantiate(_contentSelectorListItemPrefab, _listContent);
+                item.Init(type, OnListItemClick, OnListItemHintClick);
+            }
         }
     }
 

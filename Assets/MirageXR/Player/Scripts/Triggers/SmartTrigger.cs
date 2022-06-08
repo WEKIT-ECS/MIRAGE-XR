@@ -11,7 +11,7 @@ namespace MirageXR
         private bool _isActive;
 
         // Shoud we launch the trigger or not.
-        bool _trigger = true;
+        private bool _trigger = true;
 
         // Action id of the action using this trigger.
         private string _actionId;
@@ -48,6 +48,11 @@ namespace MirageXR
         private void Delete ()
         {
             Destroy (gameObject);
+        }
+
+        public bool CreateTrigger(string actionId, Trigger trigger)
+        {
+            return CreateTrigger(actionId, trigger.id, trigger.data, trigger.option, trigger.value, trigger.duration);
         }
 
         /// <summary>
@@ -278,10 +283,10 @@ namespace MirageXR
         /// <summary>
         /// Launch the trigger;
         /// </summary>
-        private void DoTrigger ()
+        private async void DoTrigger ()
         {
-            EventManager.DeactivateAction(_actionId);
-            EventManager.MarkCompleted(_actionId);
+            await RootObject.Instance.activityManager.DeactivateAction(_actionId);
+            RootObject.Instance.activityManager.MarkCompleted(_actionId);
             GameObject.Find("SystemSounds").SendMessage("PlayIotTrigger", SendMessageOptions.DontRequireReceiver);
         }
 

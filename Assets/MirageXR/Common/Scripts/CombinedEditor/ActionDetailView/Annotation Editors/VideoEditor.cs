@@ -9,6 +9,7 @@ using Action = MirageXR.Action;
 
 public class VideoEditor : MonoBehaviour
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
     [SerializeField] private Button startRecordingButton;
     [SerializeField] private Button stopRecordingButton;
     [SerializeField] private RawImage previewImage;
@@ -68,7 +69,7 @@ public class VideoEditor : MonoBehaviour
 
         if (annotationToEdit != null)
         {
-            var trigger = ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == annotationToEdit.poi) != null;
+            var trigger = activityManager.ActiveAction.triggers.Find(t => t.id == annotationToEdit.poi) != null;
             stepTrigger.isOn = trigger;
         }
     }
@@ -85,7 +86,7 @@ public class VideoEditor : MonoBehaviour
         {
             // create dummy video clip so that the augmentation can be created in Unity (debugging only)
             newFileName = $"videoTest_MP4.mp4";
-            string targetPath = Path.Combine(ActivityManager.Instance.Path, newFileName);
+            string targetPath = Path.Combine(activityManager.ActivityPath, newFileName);
 
             try
             {
@@ -126,14 +127,15 @@ public class VideoEditor : MonoBehaviour
         }
         else
         {
-            Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(action.id));
+            var workplaceManager = RootObject.Instance.workplaceManager;
+            Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
             GameObject originT = GameObject.Find(detectable.id);
 
             var startPointTr = annotationStartingPoint.transform;
             var offset = Utilities.CalculateOffset(startPointTr.position, startPointTr.rotation, 
                 originT.transform.position, originT.transform.rotation);
 
-            annotationToEdit = ActivityManager.Instance.AddAnnotation(action, offset);
+            annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
             annotationToEdit.predicate = "video";
         }
         
@@ -152,7 +154,7 @@ public class VideoEditor : MonoBehaviour
     {
         // delete the previous video file
         var originalFileName = Path.GetFileName(annotationToEdit.url.Remove(0, httpPrefix.Length));
-        var originalFilePath = Path.Combine(ActivityManager.Instance.Path, originalFileName);
+        var originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
         if (File.Exists(originalFilePath) && annotationToEdit != null)
         {
             File.Delete(originalFilePath);
@@ -181,7 +183,7 @@ public class VideoEditor : MonoBehaviour
             await DeleteOldVideoFile();
 
         newFileName = $"MirageXR_Video_{System.DateTime.Now.ToFileTimeUtc()}.mp4";
-        var filepath = Path.Combine(ActivityManager.Instance.Path, newFileName);
+        var filepath = Path.Combine(activityManager.ActivityPath, newFileName);
         
         NativeCameraController.StartRecordingVideo(filepath, OnVideoRecordingStopped);
         Maggie.Speak("Recording");
@@ -211,7 +213,7 @@ public class VideoEditor : MonoBehaviour
 
     private void OnTriggerValueChanged()
     {
-        if (stepTrigger.isOn && ActivityManager.Instance.IsLastAction(action))
+        if (stepTrigger.isOn && activityManager.IsLastAction(action))
         {
             // give the info and close
             DialogWindow.Instance.Show("Info!",
@@ -231,7 +233,7 @@ public class VideoEditor : MonoBehaviour
         if (stepTrigger.isOn)
         {
             if (annotationToEdit == null) return;
-            action.AddArlemTrigger("video", annotationToEdit.predicate, annotationToEdit.poi, 0);
+            action.AddArlemTrigger(TriggerMode.Video, ActionType.Video, annotationToEdit.poi);
         }
         else
         {

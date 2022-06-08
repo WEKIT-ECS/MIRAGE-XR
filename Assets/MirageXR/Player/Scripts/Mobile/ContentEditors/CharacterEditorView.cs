@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MirageXR;
 using UnityEngine;
 using CharacterController = MirageXR.CharacterController;
@@ -36,12 +37,19 @@ public class CharacterEditorView : PopupEditorBase
         }
     }
 
-    private void SetupCharacter()
+    private async void SetupCharacter()
     {
         const string movementType = "followpath";
         
         var characterObjectName = $"{_content.id}/{_content.poi}/{_content.predicate}";
-        var character = GameObject.Find(characterObjectName);   //TODO: possible NRE
+        var character = GameObject.Find(characterObjectName);   // TODO: possible NRE
+
+        while(character == null)
+        {
+            character = GameObject.Find(characterObjectName);   // TODO: possible NRE
+            await Task.Delay(10);
+        }
+
         var characterController = character.GetComponent<CharacterController>();
         characterController.MovementType = movementType;
         characterController.AgentReturnAtTheEnd = false;
@@ -74,7 +82,7 @@ public class CharacterEditorView : PopupEditorBase
         }
         else
         {
-            _content = ActivityManager.Instance.AddAnnotation(_step, GetOffset());
+            _content = augmentationManager.AddAugmentation(_step, GetOffset());
         }
 
         _content.predicate = $"char:{_prefabName}";

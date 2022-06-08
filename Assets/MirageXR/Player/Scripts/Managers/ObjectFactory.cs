@@ -1,13 +1,15 @@
 ﻿using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
-using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.AI;
 
 namespace MirageXR
 {
+    using BoundsCalculationMethod = Microsoft.MixedReality.Toolkit.UI.BoundsControlTypes.BoundsCalculationMethod;
+    
     public class ObjectFactory : MonoBehaviour
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         private void OnEnable()
         {
             // Register to event manager events.
@@ -30,7 +32,8 @@ namespace MirageXR
             // Do magic based on the object type.
             switch (obj.type)
             {
-                case "tangible":
+                case ActionType.Tangible:
+                {
                     // Check predicate.
                     switch (obj.predicate)
                     {
@@ -47,19 +50,19 @@ namespace MirageXR
                                     // Last minute change for enabling 3D glyph option.
                                     if (obj.predicate.StartsWith("3d:"))
                                     {
-                                        obj.option = obj.predicate.Replace("3d:","");
+                                        obj.option = obj.predicate.Replace("3d:", "");
 
                                         obj.url = "resources://" + obj.predicate;
 
                                         ActivatePrefab("Model/ModelPrefab", obj);
-                                    }     
+                                    }
                                     else if (obj.predicate.StartsWith("act:"))
                                     {
                                         obj.option = obj.predicate.Replace("act:", "");
 
                                         obj.url = "resources://" + obj.predicate;
 
-                                        var glyphModel = "Glyphs/" + obj.option;
+                                        var glyphModel = $"Glyphs/{obj.option}";
                                         ActivatePrefab(glyphModel, obj);
                                     }
                                     else if (obj.predicate.StartsWith("vfx:"))
@@ -68,10 +71,10 @@ namespace MirageXR
 
                                         obj.url = "resources://" + obj.predicate;
 
-                                        var vfxModel = "VFX/" + obj.option;
+                                        var vfxModel = $"VFX/{obj.option}";
                                         ActivatePrefab(vfxModel, obj);
                                     }
-                                    else  if (obj.predicate.StartsWith("char:"))
+                                    else if (obj.predicate.StartsWith("char:"))
                                     {
                                         obj.option = obj.predicate.Replace("char:", "");
 
@@ -79,19 +82,21 @@ namespace MirageXR
                                         obj.url = "resources://" + obj.predicate;
 
 
-                                        var charModel = "Characters/" + obj.option + "/" + obj.option;
+                                        var charModel = $"Characters/{obj.option}";
                                         ActivatePrefab(charModel, obj);
                                     }
                                     else if (obj.predicate.StartsWith("plugin:"))
                                     {
                                         obj.option = "PluginControllerPrefab";
-                                       
+
                                         ActivatePrefab(obj.option, obj);
                                     }
                                     // True and tested 2D symbols.
                                     else
+                                    {
                                         ActivatePrefab("SymbolPrefab", obj);
-                                }    
+                                    }
+                                }
                             }
 
                             else
@@ -125,8 +130,8 @@ namespace MirageXR
                                     {
                                         obj.option = obj.predicate.Replace("vfx:", "");
 
-                                        //obj.predicate = "glyph";
-                                        obj.url = "resources://" + obj.predicate;
+                                        // obj.predicate = "glyph";
+                                        obj.url = "resources:// " + obj.predicate;
 
                                         DestroyPrefab(obj);
                                     }
@@ -135,7 +140,7 @@ namespace MirageXR
                                         obj.option = obj.predicate.Replace("char:", "");
 
                                         //obj.predicate = "character";
-                                        obj.url = "resources://" + obj.predicate;
+                                        obj.url = "resources:// " + obj.predicate;
 
                                         DestroyPrefab(obj);
                                     }
@@ -147,16 +152,22 @@ namespace MirageXR
                                     else
                                         DestroyPrefab(obj);
                                 }
-                                    
+
                             }
+
                             break;
 
                         // Handle label type.
                         case "label":
                             if (isActivating)
+                            {
                                 ActivatePrefab("LabelPrefab", obj);
+                            }
                             else
+                            {
                                 DestroyPrefab(obj);
+                            }
+
                             break;
 
                         // Handle detect type.
@@ -166,7 +177,10 @@ namespace MirageXR
                                 ActivatePrefab("DetectPrefab", obj);
                             }
                             else
+                            {
                                 DestroyPrefab(obj);
+                            }
+
                             break;
 
                         // Audio type.
@@ -197,13 +211,13 @@ namespace MirageXR
                             break;
 
                         // Post it label type.
-                        case "postit":
-                            if (isActivating)
-                                ActivatePrefab("PostItPrefab", obj);
-                            else
-                                DestroyPrefab(obj);
-                            break;
-                        
+                        //case "postit":
+                        //    if (isActivating)
+                        //        ActivatePrefab("PostItPrefab", obj);
+                        //    else
+                        //        DestroyPrefab(obj);
+                        //    break;
+
                         // 3D model type.
                         case "3dmodel":
                         case "model":
@@ -213,8 +227,9 @@ namespace MirageXR
                             }
                             else
                                 DestroyPrefab(obj);
+
                             break;
-                        
+
                         // Ghost tracks type.
                         case "ghosttracks":
                             if (isActivating)
@@ -227,9 +242,9 @@ namespace MirageXR
                         case "hands":
                             if (isActivating)
                                 Debug.Log("hands activated");
-                                //ActivatePrefab("HandsPrefab", obj);
-                            //else
-                               // DestroyPrefab(obj);
+                            // ActivatePrefab("HandsPrefab", obj);
+                            // else
+                            //  DestroyPrefab(obj);
                             break;
 
                         // Image type.
@@ -242,6 +257,7 @@ namespace MirageXR
                             {
                                 DestroyPrefab(obj);
                             }
+
                             break;
                         // Image type.
                         case "imagemarker":
@@ -253,6 +269,7 @@ namespace MirageXR
                             {
                                 DestroyPrefab(obj);
                             }
+
                             break;
 
                         // Potentiometer type.
@@ -272,19 +289,19 @@ namespace MirageXR
                             break;
 
                         // VTT demo specific hacks.
-                        case "filterIn":
-                            if (isActivating)
-                                ActivatePrefab("FilterIn", obj);
-                            else
-                                DestroyPrefab(obj);
-                            break;
+                        //case "filterIn":
+                        //    if (isActivating)
+                        //        ActivatePrefab("FilterIn", obj);
+                        //    else
+                        //        DestroyPrefab(obj);
+                        //    break;
 
-                        case "filterOut":
-                            if (isActivating)
-                                ActivatePrefab("FilterOut", obj);
-                            else
-                                DestroyPrefab(obj);
-                            break;
+                        //case "filterOut":
+                        //    if (isActivating)
+                        //        ActivatePrefab("FilterOut", obj);
+                        //    else
+                        //        DestroyPrefab(obj);
+                        //    break;
                         case "pickandplace":
                             if (isActivating)
                                 ActivatePrefab("pickandplaceprefab", obj);
@@ -298,101 +315,100 @@ namespace MirageXR
                                 DestroyPrefab(obj);
                             break;
                         case "drawing":
-                            if(isActivating)
+                            if (isActivating)
                                 ActivatePrefab("DrawingPrefab", obj);
                             else
                                 DestroyPrefab(obj);
                             break;
                     }
-                    break;
 
+                    break;
+                }
                 default:
+                {
                     EventManager.DebugLog("ObjectFactory: Toggle - Unknown type: " + obj.type);
                     break;
+                }
             }
         }
 
-        private static void ActivatePrefab(string prefab, ToggleObject obj)
+        private static async void ActivatePrefab(string prefab, ToggleObject obj)
         {
-            var actionList = ActivityManager.Instance.ActionsOfTypeAction;
+            var actionList = activityManager.ActionsOfTypeAction;
             GameObject temp = null;
-            var activeActionIndex = actionList.IndexOf(ActivityManager.Instance.ActiveAction);
+            var activeActionIndex = actionList.IndexOf(activityManager.ActiveAction);
 
-            try
+            // if we are in the active step and the annotaiton exists in this step
+            if (actionList[activeActionIndex] == activityManager.ActiveAction
+                && actionList[activeActionIndex].enter.activates.Find(p => p.poi == obj.poi) != null)
             {
-                //if we are in the active step and the annotaiton exists in this step
-                if (actionList[activeActionIndex] == ActivityManager.Instance.ActiveAction
-                    && actionList[activeActionIndex].enter.activates.Find(p => p.poi == obj.poi) != null)
+                var objIfExist = GameObject.Find(obj.poi);
+
+                if (objIfExist)
                 {
-                    var objIfExist = GameObject.Find(obj.poi);
+                    var annotationChildren = objIfExist.transform.childCount;
 
-                    if (objIfExist)
+                    // prevent duplication
+                    if (annotationChildren > 0)
                     {
-                        var annotationChildren = objIfExist.transform.childCount;
-
-                        //prevent duplication
-                        if (annotationChildren > 0)
-                        {
-                            DestroyPrefab(obj);
-                        }
+                        DestroyPrefab(obj);
                     }
+                }
 
-                    //if this is the only clone of this object in this annotation
-                    var prefabInResources = Resources.Load<GameObject>("Prefabs/" + prefab);
-                    //if the prefab file exist
-                    if(prefabInResources != null)
+                // Get the prefab from the references
+                var prefabInAddressable = await ReferenceLoader.GetAssetReferenceAsync<GameObject>(prefab);
+                // if the prefab reference has been found successfully
+                if (prefabInAddressable != null)
+                {
+                    temp = Instantiate(prefabInAddressable, Vector3.zero, Quaternion.identity);
+                    AddExtraComponents(temp, obj);
+                }
+                else
+                {
+                    if (obj.predicate.StartsWith("char"))
                     {
-                        temp = Instantiate(prefabInResources, Vector3.zero, Quaternion.identity);
-                        AddExtraComponents(temp, obj);
-                    }
-                    else
-                    {
-                        if (obj.predicate.StartsWith("char"))
+                        var charPrefabPath = $"{activityManager.ActivityPath}/characterinfo/{obj.option}";
+                        if (File.Exists(charPrefabPath))
                         {
-                            var charPrefabPath = $"{ActivityManager.Instance.Path}/characterinfo/{obj.option}";
-                            if (File.Exists(charPrefabPath))
-                            {
-                                var loadedAssetBundle = AssetBundle.LoadFromFile(charPrefabPath);
-                                temp = Instantiate((GameObject) loadedAssetBundle.LoadAsset(obj.option), Vector3.zero, Quaternion.identity);
-                                loadedAssetBundle.Unload(false);
-                            }
+                            var loadedAssetBundle = AssetBundle.LoadFromFile(charPrefabPath);
+                            temp = Instantiate((GameObject)loadedAssetBundle.LoadAsset(obj.option), Vector3.zero, Quaternion.identity);
+                            loadedAssetBundle.Unload(false);
                         }
                     }
                 }
             }
-            catch (Exception e)
-            {
-                Debug.LogError(e);
-            }
+
 
             if (temp == null) return;
 
             // Try to initialize and if it fails, debug and destroy the object.
-            if (temp.GetComponent<MirageXRPrefab>() && !temp.GetComponent<MirageXRPrefab>().Init(obj))
+            var miragePrefab = temp.GetComponent<MirageXRPrefab>();
+            if (miragePrefab && !miragePrefab.Init(obj))
             {
                 EventManager.DebugLog($"Couldn't create the {prefab}. {obj.id}/{obj.poi}/{obj.predicate}");
                 temp.GetComponent<MirageXRPrefab>().Delete();
             }
         }
 
-        private async static void AddExtraComponents(GameObject go, ToggleObject annotationToggleObject)
+        private static async void AddExtraComponents(GameObject go, ToggleObject annotationToggleObject)
         {
-
             switch (annotationToggleObject.predicate)
             {
                 case string p when p.Contains("3d"):
+                {
                     var obstacle = go.AddComponent<NavMeshObstacle>();
                     obstacle.size = go.transform.localScale / 4;
                     break;
-
+                }
                 case string p when p.StartsWith("act") || p.StartsWith("vfx") || p.Equals("image") || p.Equals("video"):
+                {
                     if (DisableBounding(annotationToggleObject)) return;
                     var boundingBox = go.AddComponent<BoundingBoxGenerator>();
                     boundingBox.CustomScaleHandlesConfiguration = Resources.Load<ScaleHandlesConfiguration>("Prefabs/CustomBoundingScaleHandlesConfiguration");
                     boundingBox.CustomRotationHandlesConfiguration = Resources.Load<RotationHandlesConfiguration>("Prefabs/CustomBoundingRotationHandlesConfiguration");
-                    await boundingBox.AddBoundingBox(annotationToggleObject, Microsoft.MixedReality.Toolkit.UI.BoundsControlTypes.BoundsCalculationMethod.RendererOverCollider);
+                    await boundingBox.AddBoundingBox(annotationToggleObject, BoundsCalculationMethod.RendererOverCollider, false, true, BoundingRotationType.ALL, true);
 
-                    //disable rotation for image
+                    // disable rotation for image
                     if (DisableBoundingRotation(annotationToggleObject))
                     {
                         boundingBox.CustomRotationHandlesConfiguration.ShowHandleForX = false;
@@ -401,19 +417,15 @@ namespace MirageXR
                     }
 
                     break;
-                default:
-                    break;
+                }
             }
-
         }
-
-
+        
         private static bool DisableBoundingRotation(ToggleObject annotationToggleObject)
         {
-            return (annotationToggleObject.predicate.Equals("image") || annotationToggleObject.predicate.Equals("video"));
+            return annotationToggleObject.predicate.Equals("image") || annotationToggleObject.predicate.Equals("video");
         }
-
-
+        
         /// <summary>
         /// If bounding box needs to be disabled for some of the augmentations, add them in this method
         /// </summary>
@@ -424,91 +436,86 @@ namespace MirageXR
             var boundingState = false;
             var annotationName = annotationToggleObject.predicate.ToLower();
 
-            //add any other augmentation which need bounding box be disabled for, in this statment.
+            // add any other augmentation which need bounding box be disabled for, in this statement.
             if (annotationName == "act:measure")
+            {
                 boundingState = true;
+            }
 
             return boundingState;
         }
 
-
-
         private static void DestroyPrefab(ToggleObject obj)
         {
-            // For storing the gameobject to be destroyed.
             GameObject temp = null;
-             
-            // Do magic based on the object type.
-            switch (obj.type)
+
+            if (obj.type == ActionType.Tangible)
             {
-                case "tangible":
+                // Default path.
+                var path = $"{obj.id}/{obj.poi}/";
 
-                    // Default path.
-                    var path = $"{obj.id}/{obj.poi}/";
+                if (obj.id.Equals("ActionsViewport"))
+                {
+                    path = "TaskListPanel/Symbols/";
+                }
 
-                    if (obj.id.Equals("ActionsViewport"))
+                if (obj.id.Equals("UserViewport"))
+                {
+                    path = string.Empty;
+                }
+
+                switch (obj.predicate)
+                {
+                    case "label":
                     {
-                        path = "TaskListPanel/Symbols/";
+                        temp = GameObject.Find($"{path}label_{obj.text.Split(' ')[0]}");
+                        break;
                     }
-
-                    if (obj.id.Equals("UserViewport"))
+                    case "3dmodel":
+                    case "model":
                     {
-                        path = string.Empty;
+                        temp = GameObject.Find($"{path}{obj.predicate}_{obj.option}");
+                        break;
                     }
-
-                    // Check predicate.
-                    switch (obj.predicate)
+                    case "image":
                     {
-                        // Handle action symbols by default.
-                        default:
-                            temp = GameObject.Find(path + obj.predicate);
-                            break;
-                        case "label":
-                            // Let's see if we have an object for deletion...
-                            temp = GameObject.Find(path + "label_" + obj.text.Split(' ')[0]);
-                            break;
-                        case "3dmodel":
-                        case "model":
-                            // Let's see if we have an object for deletion...
-                            temp = GameObject.Find(path + obj.predicate + "_" + obj.option);
-                            break;
-                        case "image":
-
-                            // Get the last bit of the url.
-                            var id = obj.url.Split('/')[obj.url.Split('/').Length - 1];
-
-                            // Let's see if we have an object for deletion...
-                            temp = GameObject.Find(path + obj.predicate + "_" + id);
-                            break;
-                        case "imagemarker":
-
-                            Debug.Log("----------" + path );
-
-                            GameObject.Find(path).GetComponentInChildren<ImageMarkerController>().platformOnDestroy();
-                    break;
-                        case "pickandplace":                       
-
-                            // Let's see if we have an object for deletion...
-                            temp = GameObject.Find(path + obj.predicate);
-                            temp.GetComponent<PickAndPlaceController>().SavePositions();
-                            
-                            break;
-
+                        var id = obj.url.Split('/')[obj.url.Split('/').Length - 1];
+                        temp = GameObject.Find($"{path}{obj.predicate}_{id}");
+                        break;
                     }
-                    //for all type of glyphs icons
-                    if (obj.predicate.StartsWith("act") || obj.predicate.StartsWith("vfx") || obj.predicate.StartsWith("char") || obj.predicate.StartsWith("plugin"))
+                    case "imagemarker":
+                    {
+                        GameObject.Find(path).GetComponentInChildren<ImageMarkerController>().PlatformOnDestroy(); //TODO: possible NRE
+                        break;
+                    }
+                    case "pickandplace":
+                    {
                         temp = GameObject.Find(path + obj.predicate);
+                        break;
+                    }
+                    default:
+                    {
+                        temp = GameObject.Find(path + obj.predicate);
+                        break;
+                    }
+                }
 
-                    break;
-
-                default:
-                    EventManager.DebugLog("ObjectFactory: Delete - Unknown type: " + obj.type);
-                    break;
+                //for all type of glyphs icons
+                if (obj.predicate.StartsWith("act") || obj.predicate.StartsWith("vfx") ||
+                    obj.predicate.StartsWith("char") || obj.predicate.StartsWith("plugin"))
+                {
+                    temp = GameObject.Find(path + obj.predicate);
+                }
+            }
+            else
+            {
+                EventManager.DebugLog("ObjectFactory: Delete - Unknown type: " + obj.type);
             }
 
-            // If object exists...
             if (temp != null)
+            {
                 Destroy(temp);
+            }
         }
     }
 }

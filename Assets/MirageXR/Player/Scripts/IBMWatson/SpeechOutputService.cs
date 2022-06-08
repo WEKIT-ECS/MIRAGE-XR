@@ -16,7 +16,7 @@ using System;
 public class SpeechOutputService : MonoBehaviour
 {
 
-    public Text ResponseTextField; // inspector slot for drag & drop of the Canvas > Text gameobject
+    [SerializeField] private Text ResponseTextField; // inspector slot for drag & drop of the Canvas > Text gameobject
 
     private TextToSpeechService myService;
 

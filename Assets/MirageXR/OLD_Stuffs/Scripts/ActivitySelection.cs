@@ -9,7 +9,7 @@ namespace MirageXR
     {
         private string _activityUrl;
 
-        public GameObject ReloadButton;
+        [SerializeField] private GameObject ReloadButton;
 
         private void Start()
         {
@@ -21,7 +21,7 @@ namespace MirageXR
         /// <summary>
         /// Load activity on button press.
         /// </summary>
-        public void LoadActivity (string url = null)
+        public async void LoadActivity (string url = null)
         {
             // Click.
             EventManager.Click();
@@ -36,7 +36,7 @@ namespace MirageXR
                 PlayerPrefs.Save();
 
                 // Once the filename is stored, simply load the main player scene.
-                EventManager.ParseActivity(name);
+                await RootObject.Instance.activityManager.LoadActivity(name);
             }
 
             // For baked in activities. Add url to button configuration.
@@ -48,7 +48,7 @@ namespace MirageXR
 
                 // Once the filename is stored, simply load the main player scene.
                 //SceneManager.LoadScene(PlatformManager.Instance.GetPlayerSceneName);
-                EventManager.ParseActivity(url);
+                await RootObject.Instance.activityManager.LoadActivity(url);
             }
         }
 

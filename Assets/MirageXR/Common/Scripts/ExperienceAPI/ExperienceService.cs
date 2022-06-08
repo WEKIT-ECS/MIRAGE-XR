@@ -12,6 +12,7 @@ namespace MirageXR
     /// </summary>
     public class ExperienceService : IService
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         private readonly Actor anonymousActor = new Actor("anonymous@wekit-ecs.com", "An Anonymous Actor");
         private readonly string mirageIRIroot = "https://wekit-community.org";
 
@@ -34,9 +35,9 @@ namespace MirageXR
         public void Initialize(IServiceManager owner)
         {
             // Register to event manager events.
-            EventManager.OnStartActivity += StartActivity; // launched
+            //EventManager.OnStartActivity += StartActivity; // launched
             EventManager.OnToggleObject += OnToggleObject; // true ? predicate : null
-            EventManager.OnStepActivatedStamp += StepActivatedStamp; //start
+            EventManager.OnStepActivatedStamp += StepActivatedStamp; // start
             EventManager.OnActivityLoadedStamp += ActivityLoadedStamp; // launch
             EventManager.OnStepDeactivatedStamp += StepDeactivatedStamp; // experienced
             EventManager.OnActivityCompletedStamp += ActivityCompletedStamp; // completd
@@ -50,7 +51,7 @@ namespace MirageXR
         public void Cleanup()
         {
             // Unregister from event manager events.
-            EventManager.OnStartActivity -= StartActivity;
+            //EventManager.OnStartActivity -= StartActivity;
             EventManager.OnToggleObject -= OnToggleObject;
             EventManager.OnActivityLoadedStamp -= ActivityLoadedStamp;
             EventManager.OnStepActivatedStamp -= StepActivatedStamp;
@@ -60,11 +61,11 @@ namespace MirageXR
         }
 
         // !!!!!!! This never gets called !!!!!!!!!
-        private async void StartActivity()
-        {
-            Statement statement = GenerateStatement("http://adlnet.gov/expapi/verbs/launched", "http://competenceanalytics.com/ActivityName="); // + ActivityManager.Instance.Activity.name);
-            await xAPIClient.SendStatementAsync(statement);
-        }
+        //private async void StartActivity()
+        //{
+        //    Statement statement = GenerateStatement("http://adlnet.gov/expapi/verbs/launched", "http://competenceanalytics.com/ActivityName="); // + activityManager.Activity.name);
+        //    await xAPIClient.SendStatementAsync(statement);
+        //}
 
         /// <summary>
         /// Called if an augmentation object is toggled.
@@ -308,10 +309,10 @@ namespace MirageXR
 
                         // Add context activity
                         Context context = new Context();
-                        string parentActivityIRI = ActivityManager.Instance.AbsoluteURL;
+                        string parentActivityIRI = activityManager.AbsoluteURL;
                         if (parentActivityIRI == null)
                         {
-                            parentActivityIRI = createActivityIRI(ActivityManager.Instance.Activity.id);
+                            parentActivityIRI = createActivityIRI(activityManager.Activity.id);
                         }
                         context.AddParentActivity(parentActivityIRI);
                         statement.context = context;
@@ -347,8 +348,8 @@ namespace MirageXR
         {
             Verb verb = new Verb("http://activitystrea.ms/schema/1.0/complete");
             verb.displayLanguageDictionary.Add("en-us", "completed");
-            XApiObject obj = new XApiObject(mirageIRIroot + "/ActivityID=" + ActivityManager.Instance.Activity.id);
-            obj.AddName(ActivityManager.Instance.Activity.name);
+            XApiObject obj = new XApiObject(mirageIRIroot + "/ActivityID=" + activityManager.Activity.id);
+            obj.AddName(activityManager.Activity.name);
             Statement statement = GenerateStatement(verb, obj);
 
             await xAPIClient.SendStatementAsync(statement);
@@ -359,8 +360,8 @@ namespace MirageXR
         private async void ActivityLoadedStamp(string deviceID, string activityID, string stamp)
         {
             Verb verb = new Verb("http://adlnet.gov/expapi/verbs/initialized");
-            XApiObject obj = new XApiObject(mirageIRIroot + "/ActivityID=" + ActivityManager.Instance.Activity.id);
-            obj.AddName(ActivityManager.Instance.Activity.name);
+            XApiObject obj = new XApiObject(mirageIRIroot + "/ActivityID=" + activityManager.Activity.id);
+            obj.AddName(activityManager.Activity.name);
             Statement statement = GenerateStatement(verb, obj);
 
             await xAPIClient.SendStatementAsync(statement);
@@ -380,10 +381,10 @@ namespace MirageXR
 
             // Add context activity
             Context context = new Context();
-            string parentActivityIRI = ActivityManager.Instance.AbsoluteURL;
+            string parentActivityIRI = activityManager.AbsoluteURL;
             if (parentActivityIRI == null)
             {
-                parentActivityIRI = createActivityIRI(ActivityManager.Instance.Activity.id);
+                parentActivityIRI = createActivityIRI(activityManager.Activity.id);
             }
             context.AddParentActivity(parentActivityIRI);
             statement.context = context;
@@ -405,10 +406,10 @@ namespace MirageXR
 
             // Add context activity
             Context context = new Context();
-            string parentActivityIRI = ActivityManager.Instance.AbsoluteURL;
+            string parentActivityIRI = activityManager.AbsoluteURL;
             if (parentActivityIRI == null)
             {
-                parentActivityIRI = createActivityIRI(ActivityManager.Instance.Activity.id);
+                parentActivityIRI = createActivityIRI(activityManager.Activity.id);
             }
             context.AddParentActivity(parentActivityIRI);
             statement.context = context;

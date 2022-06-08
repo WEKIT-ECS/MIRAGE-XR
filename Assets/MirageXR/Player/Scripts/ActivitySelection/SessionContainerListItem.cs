@@ -48,7 +48,7 @@ namespace MirageXR
             iconDownloaded.SetActive(Content.ExistsRemotely && Content.ExistsLocally && !Content.IsDownloading);
 
             iconDelete.SetActive(iconDownloaded.activeInHierarchy || iconLocal.activeInHierarchy || Content.userIsOwner);
-            //set the event of the delete button
+            // set the event of the delete button
             DeleteButtonEvent();
 
             iconCloud.SetActive(Content.ExistsRemotely && !Content.ExistsLocally && !Content.IsDownloading);
@@ -88,11 +88,11 @@ namespace MirageXR
         
         private static async void DeleteFromServer(SessionContainer activity)
         {
-            var result = await MoodleManager.Instance.DeleteArlem(activity.ItemID, activity.FileIdentifier);
+            var result = await RootObject.Instance.moodleManager.DeleteArlem(activity.ItemID, activity.FileIdentifier);
             if (result)
             {
                 var sessionListView = FindObjectOfType<SessionListView>();
-                if (sessionListView) {sessionListView.RefreshActivityList();}
+                if (sessionListView) {sessionListView.RefreshActivityList(); }
             }
         }
     }

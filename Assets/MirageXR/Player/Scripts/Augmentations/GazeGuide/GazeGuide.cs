@@ -6,12 +6,12 @@ namespace MirageXR
 {
     public class GazeGuide : MonoBehaviour
     {
-        public bool _isVisible;
+        [SerializeField] private bool _isVisible;
         private bool _isFound;
         private float _counter = 1.5f;
         private float _timer = 1.5f;
 
-        public GameObject Parent;
+        public GameObject Parent { get; set; }
 
         // Inbuild Unity function launched when object is first rendered with any camera.
         private void OnBecameVisible ()

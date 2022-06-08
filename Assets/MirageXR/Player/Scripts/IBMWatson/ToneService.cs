@@ -17,10 +17,10 @@ using IBM.Watson.ToneAnalyzer.V3.Model;
 public class ToneService : MonoBehaviour
 {
 
-    public float emotion_threshold;
+    [SerializeField] private float emotion_threshold;
     private ToneService Tone;
 
-    public string versionDate = "2019-07-03";
+    [SerializeField] private string versionDate = "2019-07-03";
     //public string apiKey = "";
     //public string serviceUrl = "https://gateway-lon.watsonplatform.net/tone-analyzer/api";
 
@@ -29,25 +29,25 @@ public class ToneService : MonoBehaviour
     private bool _analyzeToneTested = false;
 
 
-    public Text ResultsAnalysis;
+    [SerializeField] private Text ResultsAnalysis;
     //public MeshRenderer MacKenzieRenderer;  // main digital human 
 
     // Over the shoulder emotional spheres
-    public MeshRenderer sphere_emo_joyRenderer;
-    public MeshRenderer sphere_emo_angerRenderer;
-    public MeshRenderer sphere_emo_fearRenderer;
-    public MeshRenderer sphere_emo_disgustRenderer;
-    public MeshRenderer sphere_emo_sadnessRenderer;
+    [SerializeField] private MeshRenderer sphere_emo_joyRenderer;
+    [SerializeField] private MeshRenderer sphere_emo_angerRenderer;
+    [SerializeField] private MeshRenderer sphere_emo_fearRenderer;
+    [SerializeField] private MeshRenderer sphere_emo_disgustRenderer;
+    [SerializeField] private MeshRenderer sphere_emo_sadnessRenderer;
 
-    public Material original_material;
-    public Material red_material;
-    public Material blue_material;
-    public Material yellow_material;
-    public Material green_material;
-    public Material purple_material;
-    public Material white_material;
+    [SerializeField] private Material original_material;
+    [SerializeField] private Material red_material;
+    [SerializeField] private Material blue_material;
+    [SerializeField] private Material yellow_material;
+    [SerializeField] private Material green_material;
+    [SerializeField] private Material purple_material;
+    [SerializeField] private Material white_material;
 
-    string _testString = "<speak version=\"1.0\"><express-as type=\"HI\">How are you today?</express-as></speak>";
+    private string _testString = "<speak version=\"1.0\"><express-as type=\"HI\">How are you today?</express-as></speak>";
     // Start is called before the first frame update
     void Start()
     {

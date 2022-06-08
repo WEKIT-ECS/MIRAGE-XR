@@ -12,18 +12,29 @@ namespace MirageXR
         [SerializeField] private GameObject pickOb;
         [SerializeField] private float correctionDistance;
         [SerializeField] private bool resetOnMiss = true;
-        [SerializeField] private SpriteToggle iconToggle;
+        [SerializeField] private SpriteToggle lockToggle;
         [SerializeField] private Button changeModelButton;
+        [SerializeField] private Text hoverGuide;
 
-        public Vector3 resetPos;
+        [SerializeField] private Vector3 resetPos;
         private bool isMoving = false;
         private bool moveMode = true;
+        private float targetRadius;
+        private Color originalArrowColor;
 
+        private const string lockHelpText = "When locked the arrow (or 3D model) will bounce back to this location if it is not correctly placed on the target";
+        private const string modelButtonHelpText = "Click this button and select a 3D model from the augmentation list to change the pick and place object model";
+
+        public Vector3 ResetPos
+        {
+            get { return resetPos; }
+            set { resetPos = value; }
+        }
 
         public MeshRenderer ArrowRenderer
         {
             get { return GetComponentInChildren<MeshRenderer>(); }
-        } 
+        }
 
         public Button ChangeModelButton
         {
@@ -45,20 +56,29 @@ namespace MirageXR
             get; set;
         }
 
-        // Start is called before the first frame update
         void Start()
         {
+            targetRadius = placeLocation.transform.localScale.x / 2;
             pickOb = this.gameObject;
-            ChangeCorrectionDistance(0.5f);
-            SetResetPos(pickOb.transform.localPosition);
+            ChangeCorrectionDistance(targetRadius);
             moveMode = false;
-            iconToggle.IsSelected = true;
+            lockToggle.IsSelected = true;
+
+            originalArrowColor = pickOb.GetComponentInChildren<Renderer>().material.color;
 
             changeModelButton.onClick.AddListener(CapturePickModel);
+
+
+
+            AddHoverGuide(lockToggle.gameObject, lockHelpText);
+            AddHoverGuide(changeModelButton.gameObject, modelButtonHelpText);
+
         }
 
         void Update()
         {
+            float targetRadiusUpdate = placeLocation.transform.localScale.x / 2;
+
             if (!moveMode)
             {
                 if (transform.hasChanged)
@@ -70,6 +90,15 @@ namespace MirageXR
                     ManipulationStop();
                 }
                 transform.hasChanged = false;
+            }
+
+            if (targetRadius != targetRadiusUpdate)
+            {
+
+                targetRadius = targetRadiusUpdate;
+
+                ChangeCorrectionDistance(targetRadius);
+
             }
         }
 
@@ -99,7 +128,7 @@ namespace MirageXR
                 moveMode = true;
             }
 
-            iconToggle.ToggleValue();
+            lockToggle.ToggleValue();
         }
 
         /// <summary>
@@ -156,12 +185,24 @@ namespace MirageXR
                 Mathf.Abs(pickOb.transform.localPosition.z - placeLocation.localPosition.z) <= correctionDistance)
             {
                 pickOb.transform.localPosition = new Vector3(placeLocation.localPosition.x, placeLocation.localPosition.y, placeLocation.localPosition.z);
+                pickOb.GetComponentInChildren<Renderer>().material.SetColor("_Color", Color.green);
             }
             else if (resetOnMiss)
             {
                 pickOb.transform.localPosition = new Vector3(resetPos.x, resetPos.y, resetPos.z);
 
+
+                pickOb.GetComponentInChildren<Renderer>().material.SetColor("_Color", originalArrowColor);
             }
+
+        }
+
+
+        private void AddHoverGuide(GameObject obj, string hoverMessage)
+        {
+            var HoverGuilde = obj.AddComponent<HoverGuilde>();
+            HoverGuilde.SetGuildText(hoverGuide);
+            HoverGuilde.SetMessage(hoverMessage);
 
         }
     }

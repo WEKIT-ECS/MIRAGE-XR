@@ -21,6 +21,7 @@ public class ModelEditorView : PopupEditorBase
     [SerializeField] private DirectLoginPopup _directLoginPopupPrefab;
     [SerializeField] private GameObject _loadMorePrefab;
     [SerializeField] private Button _btnSearch;
+    [SerializeField] private Button _btnLogout;
     [SerializeField] private TMP_InputField _inputSearch;
     [SerializeField] private Toggle _toggleLocal;
     [SerializeField] private ClientDataObject _clientDataObject;
@@ -43,9 +44,15 @@ public class ModelEditorView : PopupEditorBase
         if (!CheckAndLoadCredentials()) return; 
 
         _btnSearch.onClick.AddListener(OnSearchClicked);
+        _btnLogout.onClick.AddListener(OnLogoutClicked);
+        _toggleLocal.onValueChanged.AddListener(OnToggleLocalValueChanged);
+        ResetView();
+    }
+    
+    private void ResetView()
+    {
         _pageIndex = 0;
         _toggleLocal.isOn = false;
-        _toggleLocal.onValueChanged.AddListener(OnToggleLocalValueChanged);
         if (LocalFiles.TryGetPassword("sketchfab", out _renewToken, out _token))
         {
             if (!string.IsNullOrEmpty(_renewToken) && DBManager.isNeedToRenewSketchfabToken)
@@ -62,8 +69,13 @@ public class ModelEditorView : PopupEditorBase
         }
         Clear();
     }
-
+    
     private async void RenewToken()
+    {
+        await RenewTokenAsync();
+    }
+
+    private async Task RenewTokenAsync()
     {
         var clientId = _clientDirectLoginDataObject.clientData.ClientId;
         var clientSecret = _clientDirectLoginDataObject.clientData.ClientSecret;
@@ -290,7 +302,7 @@ public class ModelEditorView : PopupEditorBase
         }
         Close();
     }
-    
+
     private void OnLoginCompleted(object sender, EventArgs e)
     {
         var service = ServiceManager.GetService<OpenIDConnectService>();
@@ -309,24 +321,51 @@ public class ModelEditorView : PopupEditorBase
         item.interactable = true;
         OnAccept();
     }
-    
+
     private async void DownloadItem(ModelListItem item)
     {
+        await DownloadItemAsync(item);
+    }
+
+    private async Task DownloadItemAsync(ModelListItem item)
+    {
         var (result, downloadInfo) = await MirageXR.Sketchfab.GetDownloadInfoAsync(_token, item.previewItem);
-        if (result)
+        if (!result)
         {
-            item.OnBeginDownload();
-            if (await MirageXR.Sketchfab.DownloadModelAndExtractAsync(downloadInfo.gltf.url, item.previewItem, item.OnDownload))
+            await RenewTokenAsync();
+            (result, downloadInfo) = await MirageXR.Sketchfab.GetDownloadInfoAsync(_token, item.previewItem);
+            if (!result)
             {
-                Toast.Instance.Show("Download successfully.");
-                item.isDownloaded = true;
-                item.OnEndDownload();
+                Logout();
+                Toast.Instance.Show("The session is out of date. Re-login is required.");
                 return;
             }
-            item.OnEndDownload();
         }
-        
+
+        item.OnBeginDownload();
+        if (await MirageXR.Sketchfab.DownloadModelAndExtractAsync(downloadInfo.gltf.url, item.previewItem, item.OnDownload))
+        {
+            Toast.Instance.Show("Download successfully.");
+            item.isDownloaded = true;
+            item.OnEndDownload();
+            return;
+        }
+        item.OnEndDownload();
+
         Toast.Instance.Show("Download error. Please, try again.");
+    }
+
+    private void OnLogoutClicked()
+    {
+        DialogWindow.Instance.Show("Are you sure you want to logout?", new DialogButtonContent("Yes", Logout),
+            new DialogButtonContent("No"));
+    }
+
+
+    private void Logout()
+    {
+        LocalFiles.RemoveKey("sketchfab");
+        ResetView();
     }
 
     protected override void OnAccept()
@@ -338,7 +377,7 @@ public class ModelEditorView : PopupEditorBase
         }
         else
         {
-            _content = ActivityManager.Instance.AddAnnotation(_step, GetOffset());
+            _content = augmentationManager.AddAugmentation(_step, GetOffset());
             _content.option = _previewItem.name;
             _content.predicate = predicate;
             _content.url = predicate;

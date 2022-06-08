@@ -9,35 +9,35 @@ using UnityEngine;
 public class MirageXRModelManipulation : MonoBehaviour, IMixedRealityGestureHandler<Vector3>
 {
 
-    float RotateSpeed = 20f;
+    private float RotateSpeed = 20f;
     /// <summary>
     /// Speed of interactive rotation via navigation gestures
     /// </summary>
-    float RotationFactor = 25f;
+    private float RotationFactor = 25f;
 
     /// <summary>
     /// hold the last transform.rotation
     /// </summary>
-    Quaternion lastRotation;
+    private Quaternion lastRotation;
 
     /// <summary>
     /// value to turn off and on the rotation which didnt work!!
     /// </summary>
-    public bool rotatingEnabled = true;
+    [SerializeField] private bool rotatingEnabled = true;
 
     public void OnGestureStarted(InputEventData eventData)
     {
-        //push the object into modal so that if you lose focus the object can still be rotated
+        // push the object into modal so that if you lose focus the object can still be rotated
         // commenting this out since the InputManager does not exist anymore in the MRTK v2
-        //InputManager.Instance.PushModalInputHandler(gameObject);
+        // InputManager.Instance.PushModalInputHandler(gameObject);
         lastRotation = transform.rotation;
     }
 
     public void OnGestureCompleted(InputEventData eventData)
     {
         // commenting this out since the InputManager does not exist anymore in the MRTK v2
-        //InputManager.Instance.PopModalInputHandler();
-        //remove the component and add the drag component back
+        // InputManager.Instance.PopModalInputHandler();
+        // remove the component and add the drag component back
         TurnOffRotation();
     }
 
@@ -60,7 +60,7 @@ public class MirageXRModelManipulation : MonoBehaviour, IMixedRealityGestureHand
     {
         if (rotatingEnabled)
         {
-            //calulate the new rotation based on the eventdata
+            // calulate the new rotation based on the eventdata
             var rotation = new Quaternion(eventData.InputData.y * RotationFactor,
                 eventData.InputData.x * RotationFactor,
                 eventData.InputData.z * RotationFactor,
@@ -85,8 +85,8 @@ public class MirageXRModelManipulation : MonoBehaviour, IMixedRealityGestureHand
     void TurnOffRotation()
     {
         Destroy(gameObject.GetComponent<MirageXRModelManipulation>());
-        //gameObject.GetComponent<HandDraggable>().IsDraggingEnabled = false
-        //gameObject.GetComponent<MirageXRModelManipulation>().rotatingEnabled = true;
+        // gameObject.GetComponent<HandDraggable>().IsDraggingEnabled = false
+        // gameObject.GetComponent<MirageXRModelManipulation>().rotatingEnabled = true;
         gameObject.AddComponent<ObjectManipulator>();
     }
 }

@@ -7,13 +7,13 @@ namespace MirageXR
 {
     public class StaticImageViewer : MonoBehaviour
     {
-        public GameObject ImageViewer;
-        public GameObject ContentStorage;
-        public GameObject ContentToggle;
+        [SerializeField] private GameObject ImageViewer;
+        [SerializeField] private GameObject ContentStorage;
+        [SerializeField] private GameObject ContentToggle;
 
         private RawImage _image;
 
-        public string ImageName;
+        [SerializeField] private string ImageName;
 
         private void Start()
         {
@@ -44,7 +44,7 @@ namespace MirageXR
                 var url = ImageName.Split('/');
                 var filename = url[url.Length - 1];
 
-                var completeImageName = "file://" + ActivityManager.Instance.Path + "/" + filename;
+                var completeImageName = $"file://{RootObject.Instance.activityManager.ActivityPath}/{filename}";
 
                 Debug.Log("Trying to load image from:" + completeImageName);
 

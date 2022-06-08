@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class ContentListItem : MonoBehaviour
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
     [SerializeField] private TMP_Text _txtType;
     [SerializeField] private TMP_Text _txtFrom;
     [SerializeField] private TMP_Text _txtTo;
@@ -25,7 +26,7 @@ public class ContentListItem : MonoBehaviour
     private int _from;
     private int _to;
 
-    private int _maxStepIndex => ActivityManager.Instance.ActionsOfTypeAction.Count - 1;
+    private int _maxStepIndex => activityManager.ActionsOfTypeAction.Count - 1;
     
     public void Init(ContentListView parentView)
     {
@@ -46,7 +47,7 @@ public class ContentListItem : MonoBehaviour
         _txtType.text = _content.predicate;
         _imgType.sprite = _type.GetIcon();
         
-        var stepList = ActivityManager.Instance.ActionsOfTypeAction;
+        var stepList = activityManager.ActionsOfTypeAction;
         
         var startStep = stepList.FindIndex(step => step.enter.activates.Any(t => t.poi == _content.poi));
         var lastStep = stepList.FindLastIndex(step => step.enter.activates.Any(t => t.poi == _content.poi));
@@ -92,7 +93,7 @@ public class ContentListItem : MonoBehaviour
 
     private void OnDeleteClick()
     {
-        ActivityManager.Instance.DeleteAnnotation(_content);
+        RootObject.Instance.augmentationManager.DeleteAugmentation(_content);
         if (_parentView.navigatorId == _content.poi)
         {
             TaskStationDetailMenu.Instance.NavigatorTarget = null;
@@ -133,10 +134,10 @@ public class ContentListItem : MonoBehaviour
 
     private void UpdateStep()
     {
-        ActivityManager.Instance.AddAllAnnotationsBetweenSteps(_from, _to, _content, Vector3.zero);
+        RootObject.Instance.augmentationManager.AddAllAugmentationsBetweenSteps(_from, _to, _content, Vector3.zero);
         if (_type == ContentType.CHARACTER)
         {
-            ActivityManager.Instance.SaveData();
+            activityManager.SaveData();
         }
     }
 }

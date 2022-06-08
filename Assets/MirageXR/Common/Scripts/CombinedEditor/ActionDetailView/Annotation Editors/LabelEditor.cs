@@ -1,22 +1,18 @@
-﻿
-using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace MirageXR
 {
     public class LabelEditor : MonoBehaviour
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         [SerializeField] private InputField textInputField;
         [SerializeField] private Transform annotationStartingPoint;
         [SerializeField] private StepTrigger stepTrigger;
         [SerializeField] private GameObject acceptButton;
 
-        public GameObject GetAcceptButton()
-        {
-            return acceptButton;
-        }
-
+        public GameObject AcceptButton => acceptButton;
+   
         private Action action;
         private ToggleObject annotationToEdit;
 
@@ -44,7 +40,7 @@ namespace MirageXR
             if (annotationToEdit != null)
             {
                 textInputField.text = annotationToEdit.text;
-                var trigger = ActivityManager.Instance.ActiveAction.triggers.Find(t => t.id == annotationToEdit.poi);
+                var trigger = activityManager.ActiveAction.triggers.Find(t => t.id == annotationToEdit.poi);
                 var duration = trigger != null ? trigger.duration : 1;
                 var stepNumber = trigger != null ? trigger.value : "1";
                 stepTrigger.Initiate(annotationToEdit, duration, stepNumber);
@@ -63,7 +59,8 @@ namespace MirageXR
             }
             else
             {
-                Detectable detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(action.id));
+                var workplaceManager = RootObject.Instance.workplaceManager;
+                Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
                 GameObject originT = GameObject.Find(detectable.id);
 
                 var offset = Utilities.CalculateOffset(annotationStartingPoint.transform.position,
@@ -71,7 +68,7 @@ namespace MirageXR
                     originT.transform.position,
                     originT.transform.rotation);
 
-                annotationToEdit = ActivityManager.Instance.AddAnnotation(action, offset);
+                annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
                 annotationToEdit.predicate = "label";
             }
             annotationToEdit.text = textInputField.text;

@@ -7,7 +7,7 @@ using MirageXR;
 
 public class Tappable : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    public bool IsSelected { get; set; }
+    public bool IsSelected { get; private set; }
 
     private void OnEnable()
     {

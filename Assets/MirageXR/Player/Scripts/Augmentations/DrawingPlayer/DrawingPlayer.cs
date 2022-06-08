@@ -10,14 +10,10 @@ namespace MirageXR
 
     public class DrawingPlayer : MirageXRPrefab
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         private ToggleObject _obj;
 
-        public ToggleObject GetMyAnnotation()
-        {
-            return _obj;
-        }
-
-        public Tiltbrush tiltbrushPrefab;
+        [SerializeField] private Tiltbrush tiltbrushPrefab;
         private Tiltbrush tiltInstance;
         private SimpleSnapshot TiltSnapshot;
 
@@ -142,7 +138,7 @@ namespace MirageXR
                 const string httpPrefix = "http://";
                 var completeFilename = !_obj.url.StartsWith(httpPrefix)
                     ? Path.Combine(Application.persistentDataPath, _obj.url)
-                    : Path.Combine(ActivityManager.Instance.Path,
+                    : Path.Combine(activityManager.ActivityPath,
                         Path.GetFileName(_obj.url.Remove(0, httpPrefix.Length)));
                 
                 TiltSnapshot = tiltInstance.ImportSnapshotFromFile(completeFilename);

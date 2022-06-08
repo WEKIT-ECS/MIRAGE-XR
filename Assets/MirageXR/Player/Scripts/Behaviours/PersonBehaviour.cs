@@ -20,12 +20,12 @@ namespace MirageXR
 
         public void ShowGuides()
         {
-            //transform.GetComponentInChildren<PathRoleController>(true).IsVisible = true;
+            // transform.GetComponentInChildren<PathRoleController>(true).IsVisible = true;
         }
 
         public void HideGuides()
         {
-            //transform.GetComponentInChildren<PathRoleController>(true).IsVisible = false;
+            // transform.GetComponentInChildren<PathRoleController>(true).IsVisible = false;
         }
 
         private void Delete()
@@ -65,11 +65,11 @@ namespace MirageXR
             }
         }
 
-        //private void Update()
-        //{
-        //    var content = transform.FindDeepChildTag("GuideActive");
-        //    if (content == null && !GameObject.Find("UiManager").GetComponent<UiManager>().IsFindActive)
-        //        transform.GetComponentInChildren<PathRoleController>(true).IsVisible = false;
-        //}
+        // private void Update()
+        // {
+        //     var content = transform.FindDeepChildTag("GuideActive");
+        //     if (content == null && !GameObject.Find("UiManager").GetComponent<UiManager>().IsFindActive)
+        //         transform.GetComponentInChildren<PathRoleController>(true).IsVisible = false;
+        // }
     }
 }

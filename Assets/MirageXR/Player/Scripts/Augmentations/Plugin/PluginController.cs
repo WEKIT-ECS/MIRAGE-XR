@@ -5,7 +5,7 @@ namespace MirageXR
     public class PluginController : MirageXRPrefab
     {
         private GameObject plugin;
-        public Transform axis;
+        [SerializeField] private Transform axis;
 
         private void OnEnable()
         {
@@ -33,7 +33,6 @@ namespace MirageXR
 
             loadPlugin(obj.url);
 
-
             // Set scaling
             gameObject.name = obj.predicate;
             PoiEditor myPoiEditor = transform.parent.gameObject.GetComponent<PoiEditor>();
@@ -51,7 +50,7 @@ namespace MirageXR
             Debug.Log(path);
             plugin = Instantiate(Resources.Load<GameObject>(path), Vector3.zero, Quaternion.identity);
 
-            plugin.transform.parent = gameObject.transform; //pluginParent;
+            plugin.transform.parent = gameObject.transform; // pluginParent;
             plugin.transform.localPosition = new Vector3(0, 1, 0);
         }
     }

@@ -1,45 +1,41 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 using IBM.Cloud.SDK.Utilities;
-using IBM.Cloud.SDK.Authentication;
 using IBM.Cloud.SDK;
 using IBM.Watson.Assistant.V2;
-using IBM.Cloud.SDK.DataTypes;
-using IBM.Cloud.SDK.Connection;
-using IBM.Cloud.SDK.Logging;
-using System;
 using IBM.Watson.Assistant.V2.Model;
-
+using System;
 using System.Linq;
+using System;
 
 public class DialogueService : MonoBehaviour
 {
 
-    public Text ResponseTextField; // inspector slot for drag & drop of the Canvas > Text gameobject
+    [SerializeField] private Text ResponseTextField; // inspector slot for drag & drop of the Canvas > Text gameobject
     private SpeechOutputService dSpeechOutputMgr;
     private SpeechInputService dSpeechInputMgr;
 
 	private UserProfile dUser;
 	private ExerciseController dEC;
 
+    private MirageXR.CharacterController _character;
+
 
     [Space(10)]
-    //[Tooltip("The IAM apikey.")]
-    //[SerializeField]
-    //private string iamApikey = "X4udGLROceeDWMxy8aZ85p_AJLghkkwPtzYwF5IN5NVS";
-    //[Tooltip("The service URL (optional). This defaults to \"https://gateway.watsonplatform.net/assistant/api\"")]
-    //[SerializeField]
-    //private string serviceUrl = "https://gateway-lon.watsonplatform.net/assistant/api";
+    // [Tooltip("The IAM apikey.")]
+    // [SerializeField]
+    // private string iamApikey = "X4udGLROceeDWMxy8aZ85p_AJLghkkwPtzYwF5IN5NVS";
+    // [Tooltip("The service URL (optional). This defaults to \"https://gateway.watsonplatform.net/assistant/api\"")]
+    // [SerializeField]
+    // private string serviceUrl = "https://gateway-lon.watsonplatform.net/assistant/api";
 
     [Tooltip("The version date with which you would like to use the service in the form YYYY-MM-DD.")]
     [SerializeField]
     private string versionDate = "2019-02-28";
     [Tooltip("The assistantId to run the example.")]
     [SerializeField]
-	private string assistantId = "fd4e26f9-5677-4136-910c-bd4cc6891e8d"; 
+	private string assistantId = "b392e763-cfde-44c4-b24a-275c92fc4f9b"; 
     private AssistantService service;
 	private DaimonManager dAImgr;
 
@@ -48,6 +44,19 @@ public class DialogueService : MonoBehaviour
     private bool createSessionTested = false;
     private bool deleteSessionTested = false;
     private string sessionId;
+
+    public string AssistantID
+    {
+        get
+        {
+            return assistantId;
+        }
+        set
+        {
+            assistantId = value;
+        }
+    }
+
 
     void Start()
     {
@@ -60,6 +69,8 @@ public class DialogueService : MonoBehaviour
 
         dSpeechInputMgr = GetComponent<SpeechInputService>();
         dSpeechInputMgr.onInputReceived += OnInputReceived;
+
+        _character = dSpeechOutputMgr.myCharacter.GetComponentInParent<MirageXR.CharacterController>();
 
         Runnable.Run(CreateService());
 
@@ -89,14 +100,14 @@ public class DialogueService : MonoBehaviour
             yield return null;
 		*/
 
-        service = new AssistantService(versionDate); //, credentials);
+        service = new AssistantService(versionDate); // , credentials);
 
 		while (!service.Authenticator.CanAuthenticate()) // .Credentials.HasIamTokenData()
             yield return null;
 		
         Runnable.Run(CreateSession());
 
-        //Runnable.Run(Examples());
+        // Runnable.Run(Examples());
     }
 
     private IEnumerator CreateSession()
@@ -112,7 +123,7 @@ public class DialogueService : MonoBehaviour
 
     private void OnDeleteSession(DetailedResponse<object> response, IBMError error)
     {
-        //Log.Debug("ExampleAssistantV2.OnDeleteSession()", "Session deleted.");
+        // Log.Debug("ExampleAssistantV2.OnDeleteSession()", "Session deleted.");
         deleteSessionTested = true;
     }
 
@@ -142,8 +153,8 @@ public class DialogueService : MonoBehaviour
 
     private void MakeDance()
     {
-        Debug.Log(">>> Starting to dance");
-        dAImgr.Animate("Waving");
+        Debug.LogError(">>> Starting to dance");
+        //dAImgr.Animate("Waving");
     }
 
     private void OnResponseReceived(DetailedResponse<MessageResponse> response, IBMError error)
@@ -168,7 +179,7 @@ public class DialogueService : MonoBehaviour
 
                 switch (answerIntent)
                 {
-                    case "dance":
+                    case "dancing":
                         MakeDance();
                         break;
                     case "S0-GenderMale": // might also be without hashtag? not sure
@@ -209,12 +220,33 @@ public class DialogueService : MonoBehaviour
 
             if (response.Result.Output.Generic != null && response.Result.Output.Generic.Capacity > 0)
             {
+                // if the name is char:alla only take alla 
+                try
+                {
+                    var res = response.Result.Output.Generic[0].Text;
+                    if (!string.IsNullOrEmpty(res) && res.Contains("%%charactername%%"))
+                    {
+                        var charName = _character.name.Contains(":") ? _character.name.Split(':')[1] : _character.name;
+                        res = res.Replace("%%charactername%%", charName);
+                    }
+                    else
+                        dAImgr.check = true;
 
-                dSpeechOutputMgr.Speak(response.Result.Output.Generic[0].Text); // + ", " + username
+                    if(string.IsNullOrEmpty(res))
+                        dSpeechOutputMgr.Speak("Sorry, I don't understand.");
+
+                    dSpeechOutputMgr.Speak(res); // + ", " + username
+                }
+                catch (NullReferenceException e)
+                {
+                    dAImgr.check = true;
+                    dSpeechOutputMgr.Speak("I don't understand, can you rephrase?");
+                    Debug.LogError($"Somthing went wrong but the conversiontion will be continued. The error is:\n {e}");
+                }
 
             } else // no Generic response coming back, so say something diplomatic
             {
-                dSpeechOutputMgr.Speak("OK.");
+                dSpeechOutputMgr.Speak("Sorry, I don't understand.");
             }
             
             // now all data has been extracted, so we can run through the list of exclusions
@@ -231,7 +263,7 @@ public class DialogueService : MonoBehaviour
         //myTTS.myVoice = "en-GB_KateV3Voice";
 
 
-        //  Convert resp to fsdata
+        // Convert resp to fsdata
         //fsData fsdata = null;
         //fsResult r = _serializer.TrySerialize(response.GetType(), response, out fsdata);
         //if (!r.Succeeded)

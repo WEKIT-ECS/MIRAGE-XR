@@ -1,4 +1,3 @@
-
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,17 +7,16 @@ using System;
 using Newtonsoft.Json.Linq;
 using ICSharpCode.SharpZipLib.Zip;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using System.Collections;
+using Object = UnityEngine.Object;
 
 namespace MirageXR
 {
-    public class MoodleManager : MonoBehaviour
+    public class MoodleManager
     {
-        private const long MAX_FILE_SIZE_FOR_MEMORY = 150 * 1024 * 1024; //150 mb
-        public static MoodleManager Instance { get; private set; }
+        private const long MAX_FILE_SIZE_FOR_MEMORY = 150 * 1024 * 1024; // 150 mb
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
-        private GameObject _progressText;
+        private GameObject _progressText;   //TODO: remove ui logic 
 
         public string GetProgressText
         {
@@ -26,22 +24,7 @@ namespace MirageXR
             set => _progressText.GetComponent<Text>().text = value;
         }
 
-        private void Awake()
-        {
-            Init();
-        }
-
-        private void Init()
-        {
-            if (Instance == null)
-                Instance = this;
-            else if (Instance != this)
-                Destroy(gameObject);
-
-            DontDestroyOnLoad(gameObject);
-        }
-
-        private void Update()
+        private void Update()    //TODO: remove ui logic 
         {
             if (!DBManager.LoggedIn && _progressText)
                 _progressText.GetComponent<Text>().text = string.Empty;
@@ -65,9 +48,9 @@ namespace MirageXR
         /// <summary>
         /// Zip files and send them to upload as a zip file
         /// </summary>
-        public async Task<(bool, string)> UploadFile(string filepath, string recordingID, int updateFile)
+        public async Task<(bool, string)> UploadFile(string filepath, string recordingID, int updateFile)   //TODO: split it to two methods based on 'updateFile' value
         {
-            _progressText = FindObjectOfType<ActionListMenu>().uploadProgressText;
+            _progressText = Object.FindObjectOfType<ActionListMenu>().uploadProgressText;
 
             if (_progressText)
             {
@@ -75,7 +58,7 @@ namespace MirageXR
                 _progressText.SetActive(true);
             }
 
-            var file = await CompressRecord(filepath, ActivityManager.Instance.SessionId);
+            var file = await CompressRecord(filepath, activityManager.SessionId);
             if (_progressText) _progressText.GetComponent<Text>().text = "Uploading";
             return await StartUploading($"{recordingID}.zip", file, updateFile);
         }
@@ -98,14 +81,14 @@ namespace MirageXR
             }
 
             byte[] thumbnail = null;
-            var thumbnailExist = File.Exists(Path.Combine(ActivityManager.Instance.Path, thumbnailName));
-            if (thumbnailExist) thumbnail = File.ReadAllBytes(Path.Combine(ActivityManager.Instance.Path, thumbnailName));
+            var thumbnailExist = File.Exists(Path.Combine(activityManager.ActivityPath, thumbnailName));
+            if (thumbnailExist) thumbnail = File.ReadAllBytes(Path.Combine(activityManager.ActivityPath, thumbnailName));
 
-            var activityJson = File.ReadAllText(ActivityManager.Instance.Path + "-activity.json");
-            var workplaceJson = File.ReadAllText(ActivityManager.Instance.Path + "-workplace.json");
+            var activityJson = File.ReadAllText(activityManager.ActivityPath + "-activity.json");
+            var workplaceJson = File.ReadAllText(activityManager.ActivityPath + "-workplace.json");
 
-            var (result, response) = await Network.UploadRequestAsync(DBManager.token, DBManager.userid, ActivityManager.Instance.SessionId,
-                DBManager.publicUploadPrivacy, filename, file, thumbnailName, thumbnail, DBManager.domain, activityJson, workplaceJson, updateMode);
+            var (result, response) = await Network.UploadRequestAsync(DBManager.token, DBManager.userid, activityManager.SessionId,
+                DBManager.publicUploadPrivacy, filename, activityManager.Activity.name, file, thumbnailName, thumbnail, DBManager.domain, activityJson, workplaceJson, updateMode);
 
             if (result && !response.Contains("Error"))
             {
@@ -119,7 +102,7 @@ namespace MirageXR
                 return (true, response);
             }
 
-            //The file handling response should be displayed as Log, not LogError
+            // The file handling response should be displayed as Log, not LogError
             if (response.Contains("File exist"))
                 Debug.Log($"Error on uploading: {response}");
             else
@@ -130,15 +113,15 @@ namespace MirageXR
 
             if (_progressText) _progressText.GetComponent<Text>().text = "Error!";
 
-            var activityEditor = FindObjectOfType<ActivityEditor>();
-            //show update confirmation panel if file exist
+            var activityEditor = Object.FindObjectOfType<ActivityEditor>();
+            // show update confirmation panel if file exist
             if (activityEditor && response == "Error: File exist, update")
             {
-                FindObjectOfType<ActivityEditor>().ShowUploadWarningPanel();
+                Object.FindObjectOfType<ActivityEditor>().ShowUploadWarningPanel();
             }
             if (activityEditor && response == "Error: File exist, clone")
             {
-                FindObjectOfType<ActivityEditor>().ShowCloneWarningPanel();
+                Object.FindObjectOfType<ActivityEditor>().ShowCloneWarningPanel();
             }
 
             return (false, response);
@@ -158,7 +141,7 @@ namespace MirageXR
                 Debug.LogError($"Can't get UserId, error: {response}");
                 return null;
             }
-            DBManager.userid = Regex.Replace(response, "[^0-9]+", string.Empty); //only numbers
+            DBManager.userid = Regex.Replace(response, "[^0-9]+", string.Empty); // only numbers
 
             return DBManager.userid;
         }
@@ -185,27 +168,56 @@ namespace MirageXR
         /// <returns></returns>
         public async Task<List<Session>> GetArlemList()
         {
-            var (result, response) = await Network.GetCustomDataFromDBRequestAsync(DBManager.userid, DBManager.domain, "arlemlist", DBManager.token);
+            const string httpsPrefix = "https://";
+            const string httpPrefix = "http://";
 
-            //Return null if some error happened
-            if (!result || response.StartsWith("Error") || response == "[]")
+            var serverUrl = DBManager.domain;
+            var response = await GetArlemListJson(serverUrl);
+            if (response == null && !DBManager.domain.StartsWith(httpsPrefix))
             {
-                if (response == "[]")
+                serverUrl = DBManager.domain.StartsWith(httpPrefix) ? serverUrl.Replace(httpPrefix, httpsPrefix) : httpsPrefix + serverUrl;
+                response = await GetArlemListJson(serverUrl);
+                if (response != null)
                 {
-                    Debug.LogError("Probably the server is down or you are not connect to the internet.");
+                    DBManager.domain = serverUrl;
                 }
-                else
-                {
-                    Debug.LogError(response);
-                }
+            }
+            
+            Debug.Log(response);
+            
+            return ParseArlemListJson(response);
+        }
+        
+        private static async Task<string> GetArlemListJson(string serverUrl)
+        {
+            const string responseValue = "arlemlist";
+            
+            var (result, response) = await Network.GetCustomDataFromDBRequestAsync(DBManager.userid, serverUrl, responseValue, DBManager.token);
+            
+            if (!result || response.StartsWith("Error"))
+            {
+                Debug.LogError($"Network error\nmessage: {response}");
                 return null;
             }
 
-            //parse json object from php json string
+            return response;
+        }
+
+        private static List<Session> ParseArlemListJson(string json)
+        {
+            const string emptyJson = "[]";
+            
             try
             {
-                var parsed = JObject.Parse(response);
                 var arlemList = new List<Session>();
+                
+                if (json == emptyJson)
+                {
+                    Debug.Log("Probably there is no public activity on the server.");
+                    return arlemList;
+                }
+                
+                var parsed = JObject.Parse(json);
                 foreach (var pair in parsed)
                 {
                     if (pair.Value != null)
@@ -217,13 +229,13 @@ namespace MirageXR
 
                 return arlemList;
             }
-            catch (JsonReaderException e)
+            catch (Exception e)
             {
-                Debug.LogError(e);
+                Debug.LogError($"ParseArlemListJson error\nmessage: {e}");
                 return null;
             }
         }
-
+        
         public async Task<bool> DeleteArlem(string itemID, string sessionID)
         {
             var (result, response) = await Network.GetCustomDataFromDBRequestAsync(DBManager.userid, DBManager.domain, "deleteArlem", DBManager.token, itemID, sessionID);
@@ -249,7 +261,7 @@ namespace MirageXR
         {
             var (result, response) = await Network.GetCustomDataFromDBRequestAsync(DBManager.userid, DBManager.domain, "updateViews", DBManager.token, itemID);
 
-            //Return null if some error happened
+            // Return null if some error happened
             if (!result || response.StartsWith("Error"))
             {
                 Debug.LogError(response);

@@ -105,7 +105,7 @@ public class AudioEditorView : PopupEditorBase
     private void LoadContent()
     {
         _fileName = GetFileName(_content);
-        var filePath = Path.Combine(ActivityManager.Instance.Path, _fileName);
+        var filePath = Path.Combine(activityManager.ActivityPath, _fileName);
         _audioClip = SaveLoadAudioUtilities.LoadAudioFile(filePath);
 
         var parameters = _content.option.Split('#');
@@ -303,7 +303,7 @@ public class AudioEditorView : PopupEditorBase
     
     private void OnToggleTriggerValueChanged(bool value)
     {
-        if (value && ActivityManager.Instance.IsLastAction(_step))
+        if (value && activityManager.IsLastAction(_step))
         {
             Toast.Instance.Show("This is the last step. The trigger is disabled!\n Add a new step and try again.");
             _toggleTrigger.onValueChanged.RemoveListener(OnToggleTriggerValueChanged);
@@ -324,7 +324,7 @@ public class AudioEditorView : PopupEditorBase
             return;
         }
         
-        var filePath = Path.Combine(ActivityManager.Instance.Path, _fileName);
+        var filePath = Path.Combine(activityManager.ActivityPath, _fileName);
         if (_content != null)
         {
             _fileName = GetFileName(_content);
@@ -337,7 +337,7 @@ public class AudioEditorView : PopupEditorBase
         }
         else
         {
-            _content = ActivityManager.Instance.AddAnnotation(_step, GetOffset());
+            _content = augmentationManager.AddAugmentation(_step, GetOffset());
             _content.predicate = editorForType.GetPredicate();
         }
 
@@ -349,7 +349,7 @@ public class AudioEditorView : PopupEditorBase
 
         if (_toggleTrigger.isOn)
         {
-            _step.AddOrReplaceArlemTrigger("audio", _content.predicate, _content.poi, _audioClip.length, string.Empty);
+            _step.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, _content.poi, _audioClip.length, string.Empty);
         }
         else
         {

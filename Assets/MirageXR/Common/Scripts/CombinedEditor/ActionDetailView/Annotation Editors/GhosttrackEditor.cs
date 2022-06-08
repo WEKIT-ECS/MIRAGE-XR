@@ -1,6 +1,4 @@
-﻿using Microsoft.MixedReality.Toolkit.Input;
-using Microsoft.MixedReality.Toolkit.Utilities;
-using MirageXR;
+﻿using MirageXR;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -8,6 +6,7 @@ using UnityEngine.UI;
 
 public class GhosttrackEditor : MonoBehaviour
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
     [SerializeField] private Button _startRecordingButton;
     [SerializeField] private Button _stopRecordingButton;
 
@@ -73,7 +72,8 @@ public class GhosttrackEditor : MonoBehaviour
 
     public void OnAccept()
     {
-        var detectable = WorkplaceManager.Instance.GetDetectable(WorkplaceManager.Instance.GetPlaceFromTaskStationId(_action.id));
+        var workplaceManager = RootObject.Instance.workplaceManager;
+        Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
         var originT = GameObject.Find(detectable.id);
         var offset = Utilities.CalculateOffset(_augOrigin.position, _augOrigin.rotation, originT.transform.position, originT.transform.rotation);
         
@@ -82,57 +82,57 @@ public class GhosttrackEditor : MonoBehaviour
         {
             EventManager.DeactivateObject(_annotationToEdit);
 
-            //delete old xml file
-            var xmlPath = $"{ActivityManager.Instance.Path}/MirageXR_Ghost_{_annotationToEdit.poi}.xml";
+            // delete old xml file
+            var xmlPath = $"{activityManager.ActivityPath}/MirageXR_Ghost_{_annotationToEdit.poi}.xml";
             if (File.Exists(xmlPath))
             {
                 File.Delete(xmlPath);
             }
-            //delete old audio annotation before creating a new one
-            ActivityManager.Instance.ActionsOfTypeAction.ForEach(a => { if (a.enter.activates.Contains(_annotationToEdit)) {
-
+            // delete old audio annotation before creating a new one
+            activityManager.ActionsOfTypeAction.ForEach(a => 
+            { 
+                if (a.enter.activates.Contains(_annotationToEdit) && _annotationToEdit.option.Contains(":")) 
+                {
                     var myAudioPoi = _annotationToEdit.option.Split(':')[1];
-                    if(myAudioPoi != null)
+                    var myAudioToggleObject = a.enter.activates.Find(t => t.poi == myAudioPoi);
+                    if (myAudioToggleObject != null)
                     {
-                        var myAudioToggleObject = a.enter.activates.Find(t => t.poi == myAudioPoi);
-                        if (myAudioToggleObject != null)
-                        {
-                            a.enter.activates.Remove(myAudioToggleObject);
-                            var audioFilePath = Path.Combine(ActivityManager.Instance.Path, myAudioToggleObject.url.Replace("http://", ""));
-                            File.Delete(audioFilePath);
-                        }
-
+                        a.enter.activates.Remove(myAudioToggleObject);
+                        var audioFilePath = Path.Combine(activityManager.ActivityPath,
+                            myAudioToggleObject.url.Replace("http://", ""));
+                        File.Delete(audioFilePath);
                     }
-                } });
+                } 
+            });
 
             Debug.LogError(_annotationToEdit == null); 
         }
         else
         {
-            _annotationToEdit = ActivityManager.Instance.AddAnnotation(_action, offset);
+            _annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(_action, offset);
             _annotationToEdit.predicate = "ghosttracks";
             _annotationToEdit.scale = 1f;
         }
 
-         _ghostFileName = $"MirageXR_Ghost_{_annotationToEdit.poi}.xml";
+        _ghostFileName = $"MirageXR_Ghost_{_annotationToEdit.poi}.xml";
 
-        var ghostFilePath = Path.Combine(ActivityManager.Instance.Path, _ghostFileName);
+        var ghostFilePath = Path.Combine(activityManager.ActivityPath, _ghostFileName);
         GhostRecorder.ExportToFile(ghostFilePath, _ghostFrames);
         
-        var audioFilePath = Path.Combine(ActivityManager.Instance.Path, _audioFileName);
+        var audioFilePath = Path.Combine(activityManager.ActivityPath, _audioFileName);
         SaveLoadAudioUtilities.Save(audioFilePath, _audioClip);
 
         _annotationToEdit.url = $"http://{_ghostFileName}";
         _annotationToEdit.position = _augOrigin.position.ToString();
         _annotationToEdit.rotation = _augOrigin.rotation.ToString();
 
-        var audioAnnotation = ActivityManager.Instance.AddAnnotation(_action, offset);
+        var audioAnnotation = RootObject.Instance.augmentationManager.AddAugmentation(_action, offset);
         audioAnnotation.predicate = "audio";
         audioAnnotation.scale = 0.5f;
         audioAnnotation.url = $"http://{_audioFileName}";
 
 
-        //Set the gender option
+        // Set the gender option
         if (_annotationToEdit.option.Contains(":"))
         {
             var temp = _annotationToEdit.option.Split(':')[0];
@@ -140,10 +140,10 @@ public class GhosttrackEditor : MonoBehaviour
         }
         else
         {
-            _annotationToEdit.option = _isFemaleGender ? "GhosttrackPrefabFemale" : "GhosttrackPrefab"; //TODO:It's not a good idea to send the name of the prefab.
+            _annotationToEdit.option = _isFemaleGender ? "GhosttrackPrefabFemale" : "GhosttrackPrefab"; // TODO:It's not a good idea to send the name of the prefab.
         }
 
-        //then add the audio poi to option after the gender
+        // then add the audio poi to option after the gender
         _annotationToEdit.option += ":" + audioAnnotation.poi;
 
         EventManager.ActivateObject(_annotationToEdit);
@@ -237,7 +237,7 @@ public class GhosttrackEditor : MonoBehaviour
             // call to setPoint must happen first to allow AugOrigin to be used in the FixedUpdate loop
             SetPoint();
 
-            _augOrigin = GameObject.Find(_action.id).transform;  //TODO: possible NRE. replace with direct ref
+            _augOrigin = GameObject.Find(_action.id).transform;  // TODO: possible NRE. replace with direct ref
                 
             var timeStamp = System.DateTime.Now.ToFileTimeUtc();
             _audioFileName =  $"MirageXR_Audio_{timeStamp}.wav";

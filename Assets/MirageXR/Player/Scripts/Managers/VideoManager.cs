@@ -13,7 +13,7 @@ public class VideoManager : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
     private VideoPlayer videoPlayer;
     private Slider progress;
 
-    bool slide = false;
+    private bool slide = false;
 
     // Start is called before the first frame update
     private void Awake()
@@ -44,7 +44,7 @@ public class VideoManager : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
             pauseButton.SetActive(true);
             stopButton.SetActive(true);
             if (videoPlayer.frame > 0)
-                progress.transform.Find("Handle").GetComponent<Image>().enabled = true; //show handle
+                progress.transform.Find("Handle").GetComponent<Image>().enabled = true; // show handle
         }
         else
         {
@@ -52,7 +52,7 @@ public class VideoManager : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
             pauseButton.SetActive(false);
             stopButton.SetActive(false);
             progress.value = 0;
-            progress.transform.Find("Handle").GetComponent<Image>().enabled = false; //hide handle
+            progress.transform.Find("Handle").GetComponent<Image>().enabled = false; // hide handle
         }
     }
 

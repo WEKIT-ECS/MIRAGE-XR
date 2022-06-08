@@ -93,11 +93,11 @@ public class SaveLoadAudioUtilities
         var intData = new short[samples.Length];
         var bytesData = new byte[samples.Length * 2];
 
-        const float rescaleFactor = short.MaxValue; //to convert float to Int16
+        const float rescaleFactor = short.MaxValue; // to convert float to Int16
 
         for (int i = 0; i < samples.Length; i++)
         {
-            intData[i] = (short) (samples[i] * rescaleFactor);
+            intData[i] = (short)(samples[i] * rescaleFactor);
         }
 
         Buffer.BlockCopy(intData, 0, bytesData, 0, bytesData.Length);

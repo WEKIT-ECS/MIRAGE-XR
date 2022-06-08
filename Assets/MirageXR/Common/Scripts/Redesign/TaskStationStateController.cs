@@ -1,8 +1,4 @@
-﻿using Microsoft.MixedReality.Toolkit.UI;
-using MirageXR;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace MirageXR
@@ -46,8 +42,8 @@ namespace MirageXR
 
         private void OnActionDeleted(string actionId)
         {
-            //TODO: This will destroy all annotations too and any annotations which are created in this step and also exist in other step will be deleted. 
-            //Find a way to not destroy common annotations
+            // TODO: This will destroy all annotations too and any annotations which are created in this step and also exist in other step will be deleted. 
+            // Find a way to not destroy common annotations
             if (ActionId == actionId)
             {
                 Destroy(transform.parent.parent.gameObject);
@@ -62,7 +58,10 @@ namespace MirageXR
             {
                 gameObject.SetActive(true);
                 taskStationColor = BrandManager.Instance.GetTaskStationColor();
-                TaskStationDetailMenu.Instance.ResetTaskStationMenu(this);
+                if (TaskStationDetailMenu.Instance)
+                {
+                    TaskStationDetailMenu.Instance.ResetTaskStationMenu(this);
+                }
             }
             else if (IsNext())
             {
@@ -79,24 +78,20 @@ namespace MirageXR
 
         }
 
-
-
         public bool IsCurrent()
         {          
-            return ActivityManager.Instance.ActiveActionId.Equals(ActionId);
+            return RootObject.Instance.activityManager.ActiveActionId.Equals(ActionId);
         }
 
         private bool IsNext()
         {
-            List<Action> actions = ActivityManager.Instance.ActionsOfTypeAction;
-            
-            int index = actions.IndexOf(ActivityManager.Instance.ActiveAction);
+            List<Action> actions = RootObject.Instance.activityManager.ActionsOfTypeAction;
+            int index = actions.IndexOf(RootObject.Instance.activityManager.ActiveAction);
 
             if (index >= actions.Count - 1)
             {
                 return false;
             }
-
             
             return ActionId.Equals(actions[index + 1].id);
         }

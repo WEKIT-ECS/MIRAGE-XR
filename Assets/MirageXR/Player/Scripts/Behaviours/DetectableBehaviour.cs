@@ -9,7 +9,7 @@ namespace MirageXR
     /// </summary>
     public class DetectableBehaviour : MonoBehaviour
     {
-        public bool IsWorking;
+        [SerializeField] private bool IsWorking;
 
         // User position
         private Transform _userPosition;
@@ -18,10 +18,10 @@ namespace MirageXR
         private Transform _origin;
 
         // Has the detectable been located.
-        public bool IsLocated;
+        [SerializeField] private bool IsLocated;
 
         // Is this trackable currently detected or not
-        public bool IsDetected;
+        [SerializeField] private bool IsDetected;
 
         // For world anchors. Has the anchor been attached or not.
         private bool _isAttached;
@@ -30,16 +30,16 @@ namespace MirageXR
         private Renderer _rendererCheck;
 
         // Flag for checking preventing continuous transform updates in some tracking styles
-        public bool IsActive;
+        [SerializeField] private bool IsActive;
 
         private TrackableBehaviour _trackableComponent;
 
-        public DataSet Dataset;
+        public DataSet Dataset { get; set; }
 
         // Is detectable ready for action or not
         public bool IsDetectableReady { get; set; }
 
-        public bool ExtendedTrackingActive = true;
+        [SerializeField] private bool ExtendedTrackingActive = true;
 
         // Definitions of all the supported trackable types
         public enum TrackableType

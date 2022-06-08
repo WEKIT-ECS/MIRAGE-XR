@@ -1,21 +1,23 @@
 ﻿using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 namespace MirageXR
 {
     public class DialogRecorder : MonoBehaviour
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         [SerializeField] private GameObject recordButton;
         [SerializeField] private GameObject stopButton;
         [SerializeField] private GameObject playButton;
         [SerializeField] private GameObject closeButton;
         [SerializeField] private GameObject openButton;
-        
-        public GameObject RecordButton { get { return recordButton; } }
-        public GameObject PlayButton { get { return playButton; } }
-        public GameObject CloseButton { get { return closeButton; } }
-        public GameObject OpenButton { get { return openButton; } }
+
+        public GameObject RecordButton => recordButton;
+        public GameObject PlayButton => playButton;
+        public GameObject CloseButton => closeButton;
+        public GameObject OpenButton => openButton;
 
         public Toggle LoopToggle;
 
@@ -37,10 +39,15 @@ namespace MirageXR
         bool isPlaying;
         public bool isRecording { get; private set; }
 
-        private void Start()
+        private IEnumerator Start()
         {
+            while (!MyCharacter || !MyCharacter.CharacterParsed)
+            {
+                yield return null;
+            }
+
             Init();
-            SetEditorState(ActivityManager.Instance.EditModeActive);
+            SetEditorState(activityManager.EditModeActive);
         }
 
         public CharacterController MyCharacter
@@ -48,25 +55,41 @@ namespace MirageXR
             get; set;
         }
 
-        private async void Init()
-        {
-            DialogSaveName = $"characterinfo/{ActivityManager.Instance.ActiveActionId}_{MyCharacter.MyToggleObject().poi}.wav";
 
-            _audioSource = MyCharacter.GetComponentInChildren<ThreeLSControl>().GetComponent<AudioSource>();
+
+        private void Init()
+        {
+            DialogSaveName = $"characterinfo/{activityManager.ActiveActionId}_{MyCharacter.ToggleObject.poi}.wav";
+
+            // For character who has lipsync the audio source is added to the object with ThreeLSControl component
+            var threeLSControl = MyCharacter.GetComponentInChildren<ThreeLSControl>();
+            if(threeLSControl)
+            {
+                _audioSource = threeLSControl.GetComponent<AudioSource>();
+            }
+            else
+            {
+                _audioSource = MyCharacter.GetComponent<AudioSource>();
+            }
 
             MyCharacter.GetComponent<CharacterController>().AudioEditorCheck();
             _audioEditor = MyCharacter.MyAudioEditor;
-            _audioEditor.DialogRecorderPanel = this;
-            _audioSource.loop = LoopToggle.isOn;
 
-            _clipPath =  Path.Combine(ActivityManager.Instance.Path, DialogSaveName);
-
-            if (File.Exists(_clipPath))
+            if(_audioEditor != null)
             {
-                _audioSource.clip = await _audioEditor.LoadClipFromExistingFile(_clipPath);
-                _audioEditor.GetPlayerAudioSource().clip = _audioSource.clip;
+                _audioEditor.DialogRecorderPanel = this;
+                _audioSource.loop = LoopToggle.isOn;
+                _clipPath = Path.Combine(activityManager.ActivityPath, DialogSaveName);
+
+                if (File.Exists(_clipPath))
+                {
+                    _audioSource.clip = SaveLoadAudioUtilities.LoadAudioFile(_clipPath);
+                    _audioEditor.PlayerAudioSource.clip = _audioSource.clip;
+                }
             }
+
         }
+
 
         private void OnEnable()
         {
@@ -80,10 +103,10 @@ namespace MirageXR
 
         private void SetEditorState(bool editModeActive)
         {
-            //Dialog recorder is closed manually dont open it 
+            // Dialog recorder is closed manually dont open it
             if (openButton.activeInHierarchy) return;
 
-            if (_audioSource.clip == null)
+            if (!_audioSource || _audioSource.clip == null)
             {
                 recordButton.SetActive(editModeActive);
                 stopButton.SetActive(!editModeActive);
@@ -107,11 +130,11 @@ namespace MirageXR
         {
             if (_audioSource == null) return;
 
-            //if a dialog is already recorded
+            // if a dialog is already recorded
             if(_audioSource.clip == null)
             {
-                recordButton.SetActive(ActivityManager.Instance.EditModeActive);
-                stopButton.SetActive(!ActivityManager.Instance.EditModeActive);
+                recordButton.SetActive(activityManager.EditModeActive);
+                stopButton.SetActive(!activityManager.EditModeActive);
             }
             else
             {
@@ -122,7 +145,7 @@ namespace MirageXR
             playButton.SetActive(true);
             openButton.SetActive(false);
             closeButton.SetActive(true);
-            LoopToggle.gameObject.SetActive(ActivityManager.Instance.EditModeActive);
+            LoopToggle.gameObject.SetActive(activityManager.EditModeActive);
         }
 
         public void ResetDialogRecorder()
@@ -148,7 +171,7 @@ namespace MirageXR
 
         private bool AllowToRecord()
         {
-            //Check AI or recording is active in this scene, if so send a nofication and disable recording
+            // Check AI or recording is active in this scene, if so send a nofication and disable recording
             var AIIsActiveInThisScene = false;
             var RecordingIsActiveInThisScene = false;
             foreach (var character in FindObjectsOfType<CharacterController>())
@@ -227,12 +250,12 @@ namespace MirageXR
 
         }
 
-        public async void PlayDialog()
+        public void PlayDialog()
         {
             if (!File.Exists(_clipPath) || MyCharacter.AIActivated) return;
 
             MyCharacter.AudioEditorCheck();
-            var dialogClip = await _audioEditor.LoadClipFromExistingFile(_clipPath);
+            var dialogClip = SaveLoadAudioUtilities.LoadAudioFile(_clipPath);
             _audioSource.clip = dialogClip;
             _audioSource.loop = LoopToggle.isOn;
             _audioSource.Play();
