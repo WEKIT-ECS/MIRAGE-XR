@@ -64,8 +64,8 @@ public class ActionDetailView : MonoBehaviour
         UpdateUI();
     }
 
-    //move the taskcard to the task station position
-    public void MoveEditorNextToTaskSTation() //TODO: fix method name
+    // move the taskcard to the task station position
+    public void MoveEditorNextToTaskSTation() // TODO: fix method name
     {
         var taskStation = GetCurrentTaskStation();
         transform.SetParent(taskStation.transform);
@@ -98,7 +98,7 @@ public class ActionDetailView : MonoBehaviour
 
     public void UpdateUI()
     {
-        //If all action steps are deleted and only the last one exist, add it to displayedAction
+        // If all action steps are deleted and only the last one exist, add it to displayedAction
         if (activityManager.ActionsOfTypeAction.Count == 1)
         {
             displayedAction = activityManager.ActionsOfTypeAction[0];
@@ -112,7 +112,7 @@ public class ActionDetailView : MonoBehaviour
         }
         else
         {
-            //move the taskcard to the task station position
+            // move the taskcard to the task station position
             MoveEditorNextToTaskSTation();
 
             titleLabel.text = DisplayedAction.instruction.title;
@@ -141,7 +141,7 @@ public class ActionDetailView : MonoBehaviour
                 }
             }
 
-            //Show Grid view if there is no augmentation yet
+            // Show Grid view if there is no augmentation yet
             ActionEditor.Instance.AddMenuVisible = !activityManager.ActiveAction.enter.activates.Any();
 
             // disable all unused item labels

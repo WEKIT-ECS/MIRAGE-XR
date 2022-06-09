@@ -35,7 +35,7 @@ namespace MirageXR
 
 #if UNITY_ANDROID || UNITY_IOS
 
-    private readonly string[] spareListOfAugmentations = { "image", "video", "audio", "ghost", "label", "act", "vfx",  "model", "character", "pick&place", "image marker", "plugin" };
+    private readonly string[] spareListOfAugmentations = { "image", "video", "audio", "ghost", "label", "act", "vfx",  "model", "character", "pickandplace", "imagemarker", "plugin" };
     private const string augmentationsListFile = "MobileAugmentationListFile";
 #else
         private readonly string[] spareListOfAugmentations = { "image", "video", "audio", "ghost", "label", "act", "vfx", "model", "character", "pick&place", "image marker", "plugin", "drawing" };
@@ -57,7 +57,7 @@ namespace MirageXR
 
             if (prefabsOriginalColors) return;
 
-            //if config file doen't exist, disable color customization
+            // if config file doen't exist, disable color customization
             if (Resources.Load<TextAsset>(CFEditor.configFileName) == null)
             {
                 prefabsOriginalColors = true;
@@ -80,7 +80,7 @@ namespace MirageXR
         /// </summary>
         public string[] GetListOfAugmentations()
         {
-            //If the file missing, use the spare array in this class
+            // If the file missing, use the spare array in this class
             var listOfAugmentations = spareListOfAugmentations;
 
             var augmentationListFile = Resources.Load<TextAsset>(augmentationsListFile);
@@ -93,7 +93,7 @@ namespace MirageXR
                 return spareListOfAugmentations;
             }
 
-            //if the file is empty return the default array
+            // if the file is empty return the default array
             if(listOfAugmentations.Length == 0 || (listOfAugmentations.Length == 1 && listOfAugmentations[0] == ""))
             {
                 return spareListOfAugmentations;

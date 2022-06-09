@@ -132,7 +132,7 @@ namespace MirageXR
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public static bool TryGetPassword(string key, out string username, out string password) //TODO: Replace with a json file
+        public static bool TryGetPassword(string key, out string username, out string password) // TODO: Replace with a json file
         {
             const string configFileName = "config.info";
             const char splitChar = '|';

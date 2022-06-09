@@ -156,7 +156,7 @@ namespace MirageXR
             }
             ActiveCard.SetActive(true);
 
-           //  ContentPanel.localScale = Vector3.zero; // Moved this to HideContentPanel
+            // ContentPanel.localScale = Vector3.zero; // Moved this to HideContentPanel
             ShowCardsToggle.SetActive(false);
 
             var audioObjects = ContentPanel.gameObject.transform.GetComponentsInChildren<AudioSource>();

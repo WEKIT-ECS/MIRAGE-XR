@@ -40,21 +40,21 @@ public class LangTransService : MonoBehaviour
         //Translate("Where is the library");
     }
 
-    //  Call this method from ExampleStreaming
+    // Call this method from ExampleStreaming
     public void Translate(string text)
     {
-        //  Array of text to translate
+        // Array of text to translate
         List<string> translateText = new List<string>();
         translateText.Add(text);
 
-        //  Call to the service
+        // Call to the service
         languageTranslatorService.Translate(OnTranslate, translateText, translationModel);
     }
 
-    //  OnTranslate handler
+    // OnTranslate handler
     private void OnTranslate(DetailedResponse<TranslationResult> response, IBMError error)
     {
-        //  Populate text field with TranslationOutput
+        // Populate text field with TranslationOutput
         ResponseTextField.text = response.Result.Translations[0]._Translation;
         lastTranslationResult = response.Result.Translations[0]._Translation;
     }

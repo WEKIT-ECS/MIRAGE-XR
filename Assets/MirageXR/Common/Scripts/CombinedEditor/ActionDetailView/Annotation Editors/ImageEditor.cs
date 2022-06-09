@@ -9,7 +9,10 @@ using Action = MirageXR.Action;
 
 public class ImageEditor : MonoBehaviour
 {
+    private static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
+    private static WorkplaceManager workplaceManager => RootObject.Instance.workplaceManager;
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
+
     [SerializeField] private Button captureButton;
     [SerializeField] private Button acceptButton;
     [SerializeField] private Button closeButton;
@@ -49,7 +52,7 @@ public class ImageEditor : MonoBehaviour
         _capturedImage = null;
         if (IsThumbnail)
         {
-            //show the last thumbnail on previewImage
+            // show the last thumbnail on previewImage
             var thumbnailPath = Path.Combine(activityManager.ActivityPath, "thumbnail.jpg");
             if (File.Exists(thumbnailPath))
             {
@@ -66,8 +69,8 @@ public class ImageEditor : MonoBehaviour
             label.text = "Edit Image";
         }
 
-        //Check if any character will use this image
-        if(annotation != null)
+        // Check if any character will use this image
+        if (annotation != null)
         {
             foreach (var character in FindObjectsOfType<MirageXR.CharacterController>())
             {
@@ -88,7 +91,7 @@ public class ImageEditor : MonoBehaviour
     public void OnAccept()
     {
         const string httpPrefix = "http://";
-        
+
         // close without saving if no image was taken
         if (_capturedImage == null)
         {
@@ -111,25 +114,25 @@ public class ImageEditor : MonoBehaviour
         }
         else if (!IsThumbnail)
         {
-            var workplaceManager = RootObject.Instance.workplaceManager;
-            Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
+            var detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
             var originT = GameObject.Find(detectable.id);
-            
+
             var startPointTr = annotationStartingPoint.transform;
             var offset = Utilities.CalculateOffset(startPointTr.position, startPointTr.rotation,
                 originT.transform.position, originT.transform.rotation);
 
-            _annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(_action, offset);
+            _annotationToEdit = augmentationManager.AddAugmentation(_action, offset);
             _annotationToEdit.predicate = "image";
         }
 
         SaveImage();
 
-        //dont add the thumbnail to the activity
+        // don't add the thumbnail to the activity
         if (!IsThumbnail)
         {
             _annotationToEdit.url = httpPrefix + _saveFileName;
             _annotationToEdit.scale = 0.5f;
+            _annotationToEdit.key = "L";
             EventManager.ActivateObject(_annotationToEdit);
             EventManager.NotifyActionModified(_action);
         }
@@ -167,7 +170,7 @@ public class ImageEditor : MonoBehaviour
         if (_capturedImage) Destroy(_capturedImage);
         NativeCameraController.TakePicture(OnPictureTaken, IsThumbnail);
     }
-    
+
     private void OnPictureTaken(bool result, Texture2D texture2D)
     {
         PlayCameraSound();
@@ -187,7 +190,7 @@ public class ImageEditor : MonoBehaviour
         acceptButton.gameObject.SetActive(true);
         closeButton.gameObject.SetActive(true);
     }
-    
+
     private void PlayCameraSound()
     {
         shutterPlayer.Play();
