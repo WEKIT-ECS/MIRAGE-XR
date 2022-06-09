@@ -91,6 +91,13 @@ namespace MirageXR
 
                                         ActivatePrefab(obj.option, obj);
                                     }
+                                    else if (obj.predicate.StartsWith("eRobson:"))
+                                    {
+                                        obj.option = obj.predicate.Replace("eRobson:", "");
+                                        obj.url = "resources://" + obj.predicate;
+                                        var eRobsonModel = $"eROBSON/Prefabs/{obj.option}";
+                                        ActivatePrefab(eRobsonModel, obj);
+                                        }
                                     // True and tested 2D symbols.
                                     else
                                     {
@@ -148,9 +155,13 @@ namespace MirageXR
                                     {
                                         DestroyPrefab(obj);
                                     }
+                                    else if (obj.predicate.StartsWith("eRobson:"))
+                                    {
+                                        DestroyPrefab(obj);
+                                    }
                                     // True and tested 2D symbol option.
                                     else
-                                        DestroyPrefab(obj);
+                                    DestroyPrefab(obj);
                                 }
 
                             }
@@ -320,7 +331,7 @@ namespace MirageXR
                             else
                                 DestroyPrefab(obj);
                             break;
-                    }
+                        }
 
                     break;
                 }
@@ -502,7 +513,8 @@ namespace MirageXR
 
                 //for all type of glyphs icons
                 if (obj.predicate.StartsWith("act") || obj.predicate.StartsWith("vfx") ||
-                    obj.predicate.StartsWith("char") || obj.predicate.StartsWith("plugin"))
+                    obj.predicate.StartsWith("char") || obj.predicate.StartsWith("plugin") || 
+                    obj.predicate.StartsWith("eRobson"))
                 {
                     temp = GameObject.Find(path + obj.predicate);
                 }
