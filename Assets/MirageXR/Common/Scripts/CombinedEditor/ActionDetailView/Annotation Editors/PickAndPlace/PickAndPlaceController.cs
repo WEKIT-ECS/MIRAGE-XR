@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using System.IO;
 using UnityEngine.UI;
+using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 
 
 namespace MirageXR
@@ -70,6 +71,11 @@ namespace MirageXR
             lockToggle.gameObject.SetActive(editModeState);
             targetObject.gameObject.SetActive(editModeState);
             pickComponent.ChangeModelButton.gameObject.SetActive(editModeState);
+            var boundsControl = pickObject.GetComponent<BoundsControl>();
+            if (boundsControl != null)
+            {
+                boundsControl.Active = editModeState;
+            }
         }
 
 
@@ -112,6 +118,7 @@ namespace MirageXR
             }
 
             pickObject.localRotation = positions.pickObjectRotation;
+            pickObject.localScale = positions.pickObjectScale;
             targetObject.localPosition = positions.targetObjectPosition;
             targetObject.localScale = positions.targetObjectScale != null ? positions.targetObjectScale : defaultTargetSize;
             pickComponent.MoveMode = positions.moveMode;
@@ -134,6 +141,7 @@ namespace MirageXR
             {
                 pickObjectPosition = pickObject.localPosition,
                 pickObjectRotation = pickObject.localRotation,
+                pickObjectScale = pickObject.localScale,
                 modelID = pickComponent.MyModelID,
                 targetObjectPosition = targetObject.localPosition,
                 targetObjectScale = targetObject.localScale,
@@ -196,6 +204,7 @@ namespace MirageXR
     {
         public Vector3 pickObjectPosition = Vector3.zero;
         public Quaternion pickObjectRotation = Quaternion.identity;
+        public Vector3 pickObjectScale = Vector3.zero;
         public Vector3 targetObjectPosition = Vector3.zero;
         public Vector3 targetObjectScale = Vector3.zero;
 
