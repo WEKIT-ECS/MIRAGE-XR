@@ -16,6 +16,12 @@ namespace MirageXR
         [SerializeField] private Button changeModelButton;
         [SerializeField] private Text hoverGuide;
 
+        [SerializeField] private AudioSource audioSource;
+        [SerializeField] private AudioClip correctAudio;
+        [SerializeField] private AudioClip incorrectAudio;
+
+        private bool shouldPlaySound;
+
         [SerializeField] private Vector3 resetPos;
         private bool isMoving = false;
         private bool moveMode = true;
@@ -72,6 +78,7 @@ namespace MirageXR
 
             AddHoverGuide(lockToggle.gameObject, lockHelpText);
             AddHoverGuide(changeModelButton.gameObject, modelButtonHelpText);
+            shouldPlaySound = false;
 
         }
 
@@ -90,6 +97,10 @@ namespace MirageXR
                     ManipulationStop();
                 }
                 transform.hasChanged = false;
+            }
+            else if(moveMode && pickOb.GetComponentInChildren<Renderer>().material.color != originalArrowColor)
+            {
+                pickOb.GetComponentInChildren<Renderer>().material.SetColor("_Color", originalArrowColor);      
             }
 
             if (targetRadius != targetRadiusUpdate)
@@ -122,6 +133,7 @@ namespace MirageXR
             {
                 moveMode = false;
                 SetResetPos(pickOb.transform.localPosition);
+                shouldPlaySound = false;
             }
             else
             {
@@ -170,6 +182,7 @@ namespace MirageXR
         /// </summary>
         public void ManipulationStart()
         {
+            pickOb.GetComponentInChildren<Renderer>().material.SetColor("_Color", originalArrowColor);     
             isMoving = true;
         }
 
@@ -178,25 +191,41 @@ namespace MirageXR
         /// </summary>
         public void ManipulationStop()
         {
-            isMoving = false;
 
-            if (Mathf.Abs(pickOb.transform.localPosition.x - placeLocation.localPosition.x) <= correctionDistance &&
+            if (isMoving)
+            {
+                if (Mathf.Abs(pickOb.transform.localPosition.x - placeLocation.localPosition.x) <= correctionDistance &&
                 Mathf.Abs(pickOb.transform.localPosition.y - placeLocation.localPosition.y) <= correctionDistance &&
                 Mathf.Abs(pickOb.transform.localPosition.z - placeLocation.localPosition.z) <= correctionDistance)
-            {
-                pickOb.transform.localPosition = new Vector3(placeLocation.localPosition.x, placeLocation.localPosition.y, placeLocation.localPosition.z);
-                pickOb.GetComponentInChildren<Renderer>().material.SetColor("_Color", Color.green);
+                {
+ 
+                    pickOb.transform.localPosition = new Vector3(placeLocation.localPosition.x, placeLocation.localPosition.y, placeLocation.localPosition.z);
+
+                    pickOb.GetComponentInChildren<Renderer>().material.SetColor("_Color", Color.green);
+                   
+                    if (shouldPlaySound)
+                        playAudio(correctAudio);
+                }
+
+                else if (resetOnMiss)
+                {                  
+                        pickOb.transform.localPosition = resetPos;
+
+                        pickOb.GetComponentInChildren<Renderer>().material.SetColor("_Color", originalArrowColor);
+                        if (shouldPlaySound)
+                            playAudio(incorrectAudio);
+                }
             }
-            else if (resetOnMiss)
-            {
-                pickOb.transform.localPosition = new Vector3(resetPos.x, resetPos.y, resetPos.z);
-
-
-                pickOb.GetComponentInChildren<Renderer>().material.SetColor("_Color", originalArrowColor);
-            }
-
+            isMoving = false;
+            shouldPlaySound = true;
         }
 
+
+        private void playAudio(AudioClip clip)
+        {           
+            audioSource.clip = clip;
+            audioSource.Play();
+        }
 
         private void AddHoverGuide(GameObject obj, string hoverMessage)
         {
