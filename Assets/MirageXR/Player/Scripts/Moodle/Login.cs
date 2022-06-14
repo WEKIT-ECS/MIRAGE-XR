@@ -24,6 +24,8 @@ namespace MirageXR
         [SerializeField] private Toggle rememberLogin;
         [SerializeField] private int moodleForumID;
 
+        [SerializeField] private GameObject lrsPanel;
+
         public Text status;
 
         private void Start()
@@ -57,6 +59,13 @@ namespace MirageXR
             EventManager.OnEditorLoaded -= HideLoginPanel;
         }
 
+
+        public void SetXApi(Dropdown option)
+        {
+            EventManager.NotifyxAPIChanged(option.value);
+        }
+
+
         /// <summary>
         /// Cal UserLogin by the login button
         /// </summary>
@@ -71,7 +80,7 @@ namespace MirageXR
             if (!DBManager.rememberUser) return;
 
             rememberLogin.isOn = true;
-            
+
             if (!DBManager.LoggedIn && LocalFiles.TryToGetUsernameAndPassword(out var username, out var password))
             {
                 usernameField.text = username;
@@ -200,6 +209,7 @@ namespace MirageXR
             notificationPanel.SetActive(false);
             loginCanvas.SetActive(false);
             siteConfigurationPanel.SetActive(false);
+            lrsPanel.SetActive(false);
 
             var loginToggle = AutenticationOpenButton.GetComponent<SpriteToggle>();
 
@@ -314,6 +324,11 @@ namespace MirageXR
         {
             ShowPanel(siteConfigurationPanel);
             moodleURLText.text = DBManager.domain;
+        }
+
+        public void showLRSSettings()
+        {
+            ShowPanel(lrsPanel);
         }
 
         public void MoodleConfigurationCancel()
