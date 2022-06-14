@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace MirageXR
 {
@@ -300,8 +301,8 @@ namespace MirageXR
         }
 
         // Player UI related events. Needed for the unified KeywordManager.
-        
-#region Voice
+
+        #region Voice
 
         //TODO: Replace "voice" events with a single event with an enum parameter 
         // For opening the augmentation list
@@ -456,8 +457,8 @@ namespace MirageXR
         {
             OnStartByVoice?.Invoke();
         }
-        
-#endregion
+
+        #endregion
 
         // Do click.
         public delegate void ClickDelegate();
@@ -816,6 +817,14 @@ namespace MirageXR
         public static void NotifyOnMobileAddStepContentPressed()
         {
             MobileAddStepContentPressed?.Invoke();
+        }
+
+
+        public delegate void xAPIChangedDelegate(int option);
+        public static event xAPIChangedDelegate XAPIChanged;
+        public static void NotifyxAPIChanged(int option)
+        {
+            XAPIChanged?.Invoke(option);
         }
     }
 }
