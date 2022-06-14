@@ -7,6 +7,7 @@ namespace MirageXR
     {
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
         private ToggleObject myObj;
+
         [SerializeField] private GameObject icon;
 
         private void OnEnable()
@@ -54,7 +55,7 @@ namespace MirageXR
 
             // Set scaling if defined in action configuration.
             var myPoiEditor = transform.parent.gameObject.GetComponent<PoiEditor>();
-            transform.parent.localScale = GetPoiScale(myPoiEditor, new Vector3(0.2f, 0.2f, 0.2f));
+            transform.parent.localScale = GetPoiScale(myPoiEditor, Vector3.one);
 
             // If everything was ok, return base result.
             return base.Init(obj);

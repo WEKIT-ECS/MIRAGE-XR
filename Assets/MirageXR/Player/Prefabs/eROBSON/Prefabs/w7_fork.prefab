@@ -773,6 +773,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4497128150242002244}
+  - component: {fileID: 9008486989470889956}
+  - component: {fileID: -6181793443713091083}
   m_Layer: 0
   m_Name: w7_fork
   m_TagString: Untagged
@@ -789,7 +791,7 @@ Transform:
   m_GameObject: {fileID: 3828854171854299134}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.15, y: 0.15, z: 0.15}
   m_Children:
   - {fileID: 6809315177963028987}
   - {fileID: 4644606972479320903}
@@ -800,6 +802,33 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &9008486989470889956
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3828854171854299134}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 2.397206, y: 0.3296992, z: 0.66038144}
+  m_Center: {x: 0.004468709, y: 0.17725734, z: 0.09533174}
+--- !u!114 &-6181793443713091083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3828854171854299134}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9371a043b6ff6834ba1ac3d3cf94e04f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  focusEnabled: 0
+  icon: {fileID: 0}
 --- !u!1 &4222688700849911067
 GameObject:
   m_ObjectHideFlags: 0

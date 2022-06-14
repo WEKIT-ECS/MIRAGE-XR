@@ -776,6 +776,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3912942538202752916}
   - component: {fileID: 7321722762309997498}
+  - component: {fileID: 299031033678766833}
   m_Layer: 0
   m_Name: Press point
   m_TagString: Untagged
@@ -850,6 +851,19 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.036727376, y: -0.0018556789, z: -0.18057397}
     m_Extent: {x: 0.25229898, y: 0.2397779, z: 0.12575677}
   m_DirtyAABB: 0
+--- !u!135 &299031033678766833
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7152688615363399504}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.19352342
+  m_Center: {x: -0.03672738, y: -0.0018556752, z: -0.12179839}
 --- !u!1 &7152989605028262371
 GameObject:
   m_ObjectHideFlags: 0
@@ -1220,6 +1234,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8873380595460987054}
+  - component: {fileID: 4246673333661178534}
+  - component: {fileID: 1088892641088898215}
+  - component: {fileID: 4288997154220687769}
   m_Layer: 0
   m_Name: i11_pressure_sensor
   m_TagString: Untagged
@@ -1236,7 +1253,7 @@ Transform:
   m_GameObject: {fileID: 8101769090038465044}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.15, y: 0.15, z: 0.15}
   m_Children:
   - {fileID: 308875582740539341}
   - {fileID: 2443059282534502049}
@@ -1250,6 +1267,46 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &4246673333661178534
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8101769090038465044}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.6741375, y: 0.33410698, z: 0.560794}
+  m_Center: {x: 0.004250407, y: 0.16009778, z: -0.21960312}
+--- !u!65 &1088892641088898215
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8101769090038465044}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1.2040186, y: 0.028079413, z: 0.22643048}
+  m_Center: {x: 0.94641894, y: 0.21393588, z: -0.2479391}
+--- !u!114 &4288997154220687769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8101769090038465044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9371a043b6ff6834ba1ac3d3cf94e04f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  focusEnabled: 0
+  icon: {fileID: 0}
 --- !u!1 &8366582130726801089
 GameObject:
   m_ObjectHideFlags: 0
