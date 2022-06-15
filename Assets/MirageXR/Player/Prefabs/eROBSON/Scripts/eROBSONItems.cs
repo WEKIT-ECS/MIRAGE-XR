@@ -1,5 +1,7 @@
+using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using UnityEngine;
+using System.Collections;
 
 namespace MirageXR
 {
@@ -8,7 +10,15 @@ namespace MirageXR
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
         private ToggleObject myObj;
 
-        [SerializeField] private GameObject icon;
+        public GameObject TouchedObject { get; private set; }
+
+        [Tooltip("The bit id")]
+        [SerializeField] private string id;
+        public string ID => id;
+
+        private Port[] ports;
+        public Port[] Ports => ports;
+
 
         private void OnEnable()
         {
@@ -23,14 +33,32 @@ namespace MirageXR
         private void Start()
         {
             SetEditorState(activityManager.EditModeActive);
+            gameObject.GetComponentInParent<ObjectManipulator>().OnManipulationStarted.AddListener(delegate { TouchedObject = gameObject; });
+            gameObject.GetComponentInParent<ObjectManipulator>().OnManipulationEnded.AddListener(delegate { StartCoroutine(DoAfterDelay()); });
+
+            ports = GetComponentsInChildren<Port>();
         }
+
+        IEnumerator DoAfterDelay()
+        {
+            TouchedObject = null;
+            yield return new WaitForSeconds(1);
+            gameObject.GetComponentInParent<ObjectManipulator>().enabled = true;
+        }
+
+        public void DisableManipulation()
+        {
+            gameObject.GetComponentInParent<ObjectManipulator>().enabled = false;
+        }
+
+        public void EnableManipulation()
+        {
+            gameObject.GetComponentInParent<ObjectManipulator>().enabled = true;
+        }
+
 
         private void SetEditorState(bool editModeActive)
         {
-            if (icon)
-            {
-                icon.SetActive(editModeActive);
-            }
 
             var boundsControl = GetComponent<BoundsControl>();
             if (boundsControl != null)
