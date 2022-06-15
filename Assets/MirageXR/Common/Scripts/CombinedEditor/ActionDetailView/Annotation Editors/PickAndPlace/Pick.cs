@@ -20,6 +20,8 @@ namespace MirageXR
         [SerializeField] private AudioClip correctAudio;
         [SerializeField] private AudioClip incorrectAudio;
 
+        //[SerializeField] private Renderer arrowRenderer;
+
         private bool shouldPlaySound;
 
         [SerializeField] private Vector3 resetPos;
@@ -70,7 +72,7 @@ namespace MirageXR
             moveMode = false;
             lockToggle.IsSelected = true;
 
-            originalArrowColor = pickOb.GetComponentInChildren<Renderer>().material.color;
+            originalArrowColor = ArrowRenderer.material.color; //pickOb.GetComponentInChildren<Renderer>()
 
             changeModelButton.onClick.AddListener(CapturePickModel);
 
@@ -98,9 +100,9 @@ namespace MirageXR
                 }
                 transform.hasChanged = false;
             }
-            else if(moveMode && pickOb.GetComponentInChildren<Renderer>().material.color != originalArrowColor)
+            else if(moveMode && ArrowRenderer.material.color != originalArrowColor)
             {
-                pickOb.GetComponentInChildren<Renderer>().material.SetColor("_Color", originalArrowColor);      
+                ArrowRenderer.material.SetColor("_Color", originalArrowColor);      
             }
 
             if (targetRadius != targetRadiusUpdate)
@@ -182,7 +184,7 @@ namespace MirageXR
         /// </summary>
         public void ManipulationStart()
         {
-            pickOb.GetComponentInChildren<Renderer>().material.SetColor("_Color", originalArrowColor);     
+            ArrowRenderer.material.SetColor("_Color", originalArrowColor);     
             isMoving = true;
         }
 
@@ -201,19 +203,23 @@ namespace MirageXR
  
                     pickOb.transform.localPosition = new Vector3(placeLocation.localPosition.x, placeLocation.localPosition.y, placeLocation.localPosition.z);
 
-                    pickOb.GetComponentInChildren<Renderer>().material.SetColor("_Color", Color.green);
-                   
+                    ArrowRenderer.material.SetColor("_Color", Color.green);
+
                     if (shouldPlaySound)
+                    {
                         playAudio(correctAudio);
+                    }
                 }
 
                 else if (resetOnMiss)
                 {                  
                         pickOb.transform.localPosition = resetPos;
 
-                        pickOb.GetComponentInChildren<Renderer>().material.SetColor("_Color", originalArrowColor);
-                        if (shouldPlaySound)
-                            playAudio(incorrectAudio);
+                    ArrowRenderer.material.SetColor("_Color", originalArrowColor);
+                    if (shouldPlaySound)
+                    {
+                        playAudio(incorrectAudio);
+                    }
                 }
             }
             isMoving = false;
