@@ -15,7 +15,7 @@ public class SettingsView : PopupBase
     [SerializeField] private Toggle _toggleUiForKids;
     [SerializeField] private Button _btnSave;
     [SerializeField] private Button _btnReset;
-    [SerializeField] private Dropdown _LRSDropdown;
+    [SerializeField] private Dropdown _learningRecordStoreDropdown;
 
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
@@ -27,7 +27,7 @@ public class SettingsView : PopupBase
         _toggleUiForKids.onValueChanged.AddListener(OnValueChangedUiForKids);
         _btnSave.onClick.AddListener(OnClickSaveChanges);
         _btnReset.onClick.AddListener(OnClickReset);
-        _LRSDropdown.onValueChanged.AddListener(OnValueChangedRecordStore);
+        _learningRecordStoreDropdown.onValueChanged.AddListener(OnValueChangedRecordStore);
 
         ResetValues();
     }
@@ -43,7 +43,6 @@ public class SettingsView : PopupBase
         _inputFieldMoodleAddress.ResetValidation();
         _togglePublicUpload.isOn = DBManager.publicUploadPrivacy;
         _toggleUiForKids.isOn = false;
-        _LRSDropdown.value = _LRSDropdown.value;
         _btnSave.interactable = false;
     }
 
@@ -90,7 +89,7 @@ public class SettingsView : PopupBase
         
         DBManager.publicUploadPrivacy = _togglePublicUpload.isOn;
 
-        EventManager.NotifyxAPIChanged(_LRSDropdown.value);
+        EventManager.NotifyxAPIChanged(_learningRecordStoreDropdown.value);
         ResetValues();
         
         Close();
@@ -100,7 +99,7 @@ public class SettingsView : PopupBase
     {
         _inputFieldMoodleAddress.text = DBManager.MOODLE_URL_DEFAULT;
         _togglePublicUpload.isOn = DBManager.PUBLIC_UPLOAD_PRIVACY_DEFAULT;
-        _LRSDropdown.value = 0;
+        _learningRecordStoreDropdown.value = 0;
     }
 
     private static bool IsValidUrl(string urlString)
