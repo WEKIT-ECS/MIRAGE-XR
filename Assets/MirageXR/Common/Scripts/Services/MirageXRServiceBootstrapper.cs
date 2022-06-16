@@ -11,9 +11,21 @@ namespace MirageXR
         [SerializeField]
         private VestServiceConfiguration vestServiceConfiguration;
         [SerializeField]
-        private ExperienceAPIClientCredentials xAPICredentials;
+        private ExperienceAPIClientCredentials xAPICredentialsWEKIT;
+        [SerializeField]
+        private ExperienceAPIClientCredentials xAPICredentialsARETE;
 
         [SerializeField] private DeepLinkDefinition deepLinkAPI;
+
+        private void OnEnable()
+        {
+            EventManager.XAPIChanged += ChangeXAPI;
+        }
+
+        private void OnDisable()
+        {
+            EventManager.XAPIChanged -= ChangeXAPI;
+        }
 
         protected override void RegisterServices()
         {
@@ -25,15 +37,9 @@ namespace MirageXR
                 VestEnabled = vestServiceConfiguration.vestEnabled
             });
 
-            if (xAPICredentials != null)
+            if (xAPICredentialsWEKIT != null)
             {
-                ExperienceAPIClient xAPIClient = new ExperienceAPIClient()
-                {
-                    XApiEndpoint = new System.Uri("https://lrs.wekit-ecs.com/data/xAPI"),
-                    AuthorizationToken = xAPICredentials.authToken,
-                    Version = "1.0.3"
-                };
-                ServiceManager.RegisterService(new ExperienceService(xAPIClient));
+                ServiceManager.RegisterService(new ExperienceService(CreateXAPIClient("WEKIT")));
             }
             else
             {
@@ -66,6 +72,50 @@ namespace MirageXR
         {
             ServiceManager.GetService<DeepLinkingService>().RemoveDeepLinkListener(deepLinkAPI);
             ServiceManager.RemoveService<DeepLinkingService>();
+        }
+
+        private ExperienceAPIClient CreateXAPIClient(string client) {
+
+            ExperienceAPIClient xAPIClient = null;
+
+            switch (client)
+            {
+                case "WEKIT":
+                    xAPIClient = new ExperienceAPIClient
+                    {
+                        XApiEndpoint = new System.Uri("https://lrs.wekit-ecs.com/data/xAPI"),
+                        AuthorizationToken = xAPICredentialsWEKIT.authToken,
+                        Version = "1.0.3",
+                    };
+                    break;
+                case "ARETE":
+                    xAPIClient = new ExperienceAPIClient
+                    {
+                        XApiEndpoint = new System.Uri("https://learninglocker.vicomtech.org/data/xAPI"),
+                        AuthorizationToken = xAPICredentialsARETE.authToken,
+                        Version = "1.0.3",
+                    };
+                    break;
+            }
+
+            return xAPIClient;
+        }
+
+
+        private void ChangeXAPI(int selectedLRS)
+        {
+            ServiceManager.RemoveService<ExperienceService>();
+
+            switch (selectedLRS)
+            {
+                case 0:
+                    ServiceManager.RegisterService(new ExperienceService(CreateXAPIClient("WEKIT")));
+                    break;
+
+                case 1:
+                    ServiceManager.RegisterService(new ExperienceService(CreateXAPIClient("ARETE")));
+                    break;
+            }
         }
     }
 }
