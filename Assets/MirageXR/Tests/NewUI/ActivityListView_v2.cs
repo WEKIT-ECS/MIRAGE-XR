@@ -15,30 +15,27 @@ namespace MirageXR
     {
         public static ActivityListView_v2 Instance { get; private set; }
         
-        [SerializeField] private Button _btnByDate;
-        [SerializeField] private Button _btnShowAll;
-        //[SerializeField] private Button _btnAddActivity;
+        [SerializeField] private Button _btnFilter;
         [SerializeField] private Transform _listTransform;
         [SerializeField] private ActivityListItem_v2 _smallItemPrefab;
         [SerializeField] private ActivityListItem_v2 _bigItemPrefab;
         
         [SerializeField] private SortingView _sortingPrefab;
-        [SerializeField] private SettingsView _settingsViewPrefab;
-        
+
         private List<SessionContainer> _content;
         private readonly List<ActivityListItem_v2> _items = new List<ActivityListItem_v2>();
         private bool _interactable = true;
-        
+
         public bool interactable
         {
             get
             {
                 return _interactable;
             }
+
             set
             {
                 _interactable = value;
-                //_btnAddActivity.interactable = value;
                 _items.ForEach(t => t.interactable = value);
             }
         }
@@ -50,7 +47,7 @@ namespace MirageXR
                 Debug.LogError($"{nameof(Instance.GetType)} must only be a single copy!");
                 return;
             }
-        
+
             Instance = this;
         }
 
@@ -66,8 +63,8 @@ namespace MirageXR
 
         private async void Init()
         {
-            _btnByDate.onClick.AddListener(OnByDateClick);
-            _btnShowAll.onClick.AddListener(OnShowAllClick);
+            _btnFilter.onClick.AddListener(OnByDateClick);
+
             //_btnAddActivity.onClick.AddListener(OnAddActivityClick);
             if (!DBManager.LoggedIn && DBManager.rememberUser)
             {
@@ -101,7 +98,7 @@ namespace MirageXR
                     dictionary.Add(t.id, new SessionContainer {Activity = t});
                 }
             });
-            
+
             var remoteList = await RootObject.Instance.moodleManager.GetArlemList();
             remoteList?.ForEach(t =>
             {
@@ -142,11 +139,6 @@ namespace MirageXR
                 item.Init(content);
                 _items.Add(item);
             });
-        }
-
-        private void OnShowAllClick()
-        {
-            //PopupsViewer.Instance.Show(_settingsViewPrefab);
         }
 
         private void OnByDateClick()
