@@ -10,10 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 123955173422469536}
   - component: {fileID: 123955173422469538}
-  - component: {fileID: 6179861789440747836}
   - component: {fileID: 123955173422469537}
   - component: {fileID: 383845302417225348}
   - component: {fileID: 4219797905199568613}
+  - component: {fileID: 8222127589552356431}
   m_Layer: 5
   m_Name: StartCalibration
   m_TagString: Untagged
@@ -50,19 +50,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 123955173422469551}
   m_CullTransparentMesh: 0
---- !u!114 &6179861789440747836
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 123955173422469551}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57badc15b04d2734090dc8a1f9f642e4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canBeClosedByOutTap: 1
 --- !u!114 &123955173422469537
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -133,6 +120,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 1
   m_VerticalFit: 1
+--- !u!114 &8222127589552356431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 123955173422469551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d78a8580f613452449c82a7924197c28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canBeClosedByOutTap: 1
+  _calibrationScreen: {fileID: 4644508207892437915, guid: f87ca5b9b3a6e464c901c76310b00b6c,
+    type: 3}
+  _btnStartCalibration: {fileID: 8243879237154742467}
+  _btnGetCalibrationImage: {fileID: 654612734537301849}
 --- !u!1 &3532551928215114084
 GameObject:
   m_ObjectHideFlags: 0
