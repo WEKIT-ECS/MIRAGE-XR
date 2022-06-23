@@ -21,12 +21,12 @@ namespace MirageXR
         [SerializeField] private Sprite _spriteCloud;
         [SerializeField] private Sprite _spriteLocal;
         [SerializeField] private Sprite _spriteDownloaded;
-        
+
         private SessionContainer _container;
         private bool _interactable = true;
 
         public string activityName => _container.Name;
-        
+
         public bool interactable
         {
             get
@@ -41,7 +41,7 @@ namespace MirageXR
                 _btnEdit.interactable = value;
             }
         }
-        
+
         public void Initialization(SessionContainer container)
         {
             _container = container;
@@ -57,7 +57,7 @@ namespace MirageXR
             _txtSize.text = _container.Filesize;
             _txtDeadline.text = _container.deadline;
             _txtAuthor.text = _container.author;
-            
+
             var isLocal = !_container.ExistsRemotely && _container.ExistsLocally && !_container.IsDownloading;
             var isDownloaded = _container.ExistsRemotely && _container.ExistsLocally && !_container.IsDownloading;
             var isOnClouds = _container.ExistsRemotely && !_container.ExistsLocally && !_container.IsDownloading;
@@ -69,7 +69,7 @@ namespace MirageXR
             else if (isDownloaded) _imgStatus.sprite = _spriteDownloaded;
             else if (isOnClouds) _imgStatus.sprite = _spriteCloud;
         }
-        
+
         private void OnBtnDelete()
         {
             if (_container.ExistsLocally)
@@ -80,8 +80,8 @@ namespace MirageXR
 
             if (_container.userIsOwner)
             {
-                DialogWindow.Instance.Show($"You are trying to delete activity \"{_container.Name}\" from the server. Are you sure?", 
-                    new DialogButtonContent("Yes", DeleteFromServer), 
+                DialogWindow.Instance.Show($"You are trying to delete activity \"{_container.Name}\" from the server. Are you sure?",
+                    new DialogButtonContent("Yes", DeleteFromServer),
                     new DialogButtonContent("No"));
             }
         }
@@ -98,7 +98,7 @@ namespace MirageXR
         private void DeleteLocal()
         {
             if (_container.Activity == null) return;
-            
+
             if (LocalFiles.TryDeleteActivity(_container.Activity.id))
             {
                 if (_container.ExistsRemotely)
@@ -112,7 +112,7 @@ namespace MirageXR
                 }
             }
         }
-        
+
         private async void OnBtnMain()
         {
             _interactable = false;

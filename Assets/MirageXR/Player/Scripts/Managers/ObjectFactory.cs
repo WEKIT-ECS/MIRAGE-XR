@@ -6,7 +6,7 @@ using UnityEngine.AI;
 namespace MirageXR
 {
     using BoundsCalculationMethod = Microsoft.MixedReality.Toolkit.UI.BoundsControlTypes.BoundsCalculationMethod;
-    
+
     public class ObjectFactory : MonoBehaviour
     {
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
@@ -33,302 +33,302 @@ namespace MirageXR
             switch (obj.type)
             {
                 case ActionType.Tangible:
-                {
-                    // Check predicate.
-                    switch (obj.predicate)
                     {
-                        // Handle action symbols by default.
-                        default:
-                            if (isActivating)
-                            {
-                                if (obj.id == "ActionsViewport")
+                        // Check predicate.
+                        switch (obj.predicate)
+                        {
+                            // Handle action symbols by default.
+                            default:
+                                if (isActivating)
                                 {
-                                    ActivatePrefab("UiSymbolPrefab", obj);
+                                    if (obj.id == "ActionsViewport")
+                                    {
+                                        ActivatePrefab("UiSymbolPrefab", obj);
+                                    }
+                                    else
+                                    {
+                                        // Last minute change for enabling 3D glyph option.
+                                        if (obj.predicate.StartsWith("3d:"))
+                                        {
+                                            obj.option = obj.predicate.Replace("3d:", "");
+
+                                            obj.url = "resources://" + obj.predicate;
+
+                                            ActivatePrefab("Model/ModelPrefab", obj);
+                                        }
+                                        else if (obj.predicate.StartsWith("act:"))
+                                        {
+                                            obj.option = obj.predicate.Replace("act:", "");
+
+                                            obj.url = "resources://" + obj.predicate;
+
+                                            var glyphModel = $"Glyphs/{obj.option}";
+                                            ActivatePrefab(glyphModel, obj);
+                                        }
+                                        else if (obj.predicate.StartsWith("vfx:"))
+                                        {
+                                            obj.option = obj.predicate.Replace("vfx:", "");
+
+                                            obj.url = "resources://" + obj.predicate;
+
+                                            var vfxModel = $"VFX/{obj.option}";
+                                            ActivatePrefab(vfxModel, obj);
+                                        }
+                                        else if (obj.predicate.StartsWith("char:"))
+                                        {
+                                            obj.option = obj.predicate.Replace("char:", "");
+
+                                            //obj.predicate = "character";
+                                            obj.url = "resources://" + obj.predicate;
+
+
+                                            var charModel = $"Characters/{obj.option}";
+                                            ActivatePrefab(charModel, obj);
+                                        }
+                                        else if (obj.predicate.StartsWith("plugin:"))
+                                        {
+                                            obj.option = "PluginControllerPrefab";
+
+                                            ActivatePrefab(obj.option, obj);
+                                        }
+                                        // True and tested 2D symbols.
+                                        else
+                                        {
+                                            ActivatePrefab("SymbolPrefab", obj);
+                                        }
+                                    }
+                                }
+
+                                else
+                                {
+                                    if (obj.id == "ActionsViewport")
+                                        DestroyPrefab(obj);
+                                    else
+                                    {
+                                        // Last minute change to enable 3D glyph option.
+                                        if (obj.predicate.StartsWith("3d_"))
+                                        {
+                                            // Let's clean the crap from the name.
+                                            obj.option = obj.predicate.Replace("3d_", "");
+
+                                            obj.url = "resources://" + obj.predicate;
+
+                                            obj.predicate = "model";
+
+                                            DestroyPrefab(obj);
+                                        }
+                                        else if (obj.predicate.StartsWith("act:"))
+                                        {
+                                            obj.option = obj.predicate.Replace("act:", "");
+
+                                            //obj.predicate = "glyph";
+                                            obj.url = "resources://" + obj.predicate;
+
+                                            DestroyPrefab(obj);
+                                        }
+                                        else if (obj.predicate.StartsWith("vfx:"))
+                                        {
+                                            obj.option = obj.predicate.Replace("vfx:", "");
+
+                                            // obj.predicate = "glyph";
+                                            obj.url = "resources:// " + obj.predicate;
+
+                                            DestroyPrefab(obj);
+                                        }
+                                        else if (obj.predicate.StartsWith("char:"))
+                                        {
+                                            obj.option = obj.predicate.Replace("char:", "");
+
+                                            //obj.predicate = "character";
+                                            obj.url = "resources:// " + obj.predicate;
+
+                                            DestroyPrefab(obj);
+                                        }
+                                        else if (obj.predicate.StartsWith("plugin:"))
+                                        {
+                                            DestroyPrefab(obj);
+                                        }
+                                        // True and tested 2D symbol option.
+                                        else
+                                            DestroyPrefab(obj);
+                                    }
+
+                                }
+
+                                break;
+
+                            // Handle label type.
+                            case "label":
+                                if (isActivating)
+                                {
+                                    ActivatePrefab("LabelPrefab", obj);
                                 }
                                 else
                                 {
-                                    // Last minute change for enabling 3D glyph option.
-                                    if (obj.predicate.StartsWith("3d:"))
-                                    {
-                                        obj.option = obj.predicate.Replace("3d:", "");
-
-                                        obj.url = "resources://" + obj.predicate;
-
-                                        ActivatePrefab("Model/ModelPrefab", obj);
-                                    }
-                                    else if (obj.predicate.StartsWith("act:"))
-                                    {
-                                        obj.option = obj.predicate.Replace("act:", "");
-
-                                        obj.url = "resources://" + obj.predicate;
-
-                                        var glyphModel = $"Glyphs/{obj.option}";
-                                        ActivatePrefab(glyphModel, obj);
-                                    }
-                                    else if (obj.predicate.StartsWith("vfx:"))
-                                    {
-                                        obj.option = obj.predicate.Replace("vfx:", "");
-
-                                        obj.url = "resources://" + obj.predicate;
-
-                                        var vfxModel = $"VFX/{obj.option}";
-                                        ActivatePrefab(vfxModel, obj);
-                                    }
-                                    else if (obj.predicate.StartsWith("char:"))
-                                    {
-                                        obj.option = obj.predicate.Replace("char:", "");
-
-                                        //obj.predicate = "character";
-                                        obj.url = "resources://" + obj.predicate;
-
-
-                                        var charModel = $"Characters/{obj.option}";
-                                        ActivatePrefab(charModel, obj);
-                                    }
-                                    else if (obj.predicate.StartsWith("plugin:"))
-                                    {
-                                        obj.option = "PluginControllerPrefab";
-
-                                        ActivatePrefab(obj.option, obj);
-                                    }
-                                    // True and tested 2D symbols.
-                                    else
-                                    {
-                                        ActivatePrefab("SymbolPrefab", obj);
-                                    }
-                                }
-                            }
-
-                            else
-                            {
-                                if (obj.id == "ActionsViewport")
                                     DestroyPrefab(obj);
-                                else
-                                {
-                                    // Last minute change to enable 3D glyph option.
-                                    if (obj.predicate.StartsWith("3d_"))
-                                    {
-                                        // Let's clean the crap from the name.
-                                        obj.option = obj.predicate.Replace("3d_", "");
-
-                                        obj.url = "resources://" + obj.predicate;
-
-                                        obj.predicate = "model";
-
-                                        DestroyPrefab(obj);
-                                    }
-                                    else if (obj.predicate.StartsWith("act:"))
-                                    {
-                                        obj.option = obj.predicate.Replace("act:", "");
-
-                                        //obj.predicate = "glyph";
-                                        obj.url = "resources://" + obj.predicate;
-
-                                        DestroyPrefab(obj);
-                                    }
-                                    else if (obj.predicate.StartsWith("vfx:"))
-                                    {
-                                        obj.option = obj.predicate.Replace("vfx:", "");
-
-                                        // obj.predicate = "glyph";
-                                        obj.url = "resources:// " + obj.predicate;
-
-                                        DestroyPrefab(obj);
-                                    }
-                                    else if (obj.predicate.StartsWith("char:"))
-                                    {
-                                        obj.option = obj.predicate.Replace("char:", "");
-
-                                        //obj.predicate = "character";
-                                        obj.url = "resources:// " + obj.predicate;
-
-                                        DestroyPrefab(obj);
-                                    }
-                                    else if (obj.predicate.StartsWith("plugin:"))
-                                    {
-                                        DestroyPrefab(obj);
-                                    }
-                                    // True and tested 2D symbol option.
-                                    else
-                                        DestroyPrefab(obj);
                                 }
 
-                            }
+                                break;
 
-                            break;
+                            // Handle detect type.
+                            case "detect":
+                                if (isActivating)
+                                {
+                                    ActivatePrefab("DetectPrefab", obj);
+                                }
+                                else
+                                {
+                                    DestroyPrefab(obj);
+                                }
 
-                        // Handle label type.
-                        case "label":
-                            if (isActivating)
-                            {
-                                ActivatePrefab("LabelPrefab", obj);
-                            }
-                            else
-                            {
-                                DestroyPrefab(obj);
-                            }
+                                break;
 
-                            break;
+                            // Audio type.
+                            case "audio":
+                            case "sound":
+                                if (isActivating)
+                                {
+                                    ActivatePrefab("AudioPrefab", obj);
+                                }
+                                else
+                                {
+                                    DestroyPrefab(obj);
+                                }
 
-                        // Handle detect type.
-                        case "detect":
-                            if (isActivating)
-                            {
-                                ActivatePrefab("DetectPrefab", obj);
-                            }
-                            else
-                            {
-                                DestroyPrefab(obj);
-                            }
+                                break;
 
-                            break;
+                            // Video type.
+                            case "video":
+                                if (isActivating)
+                                {
+                                    ActivatePrefab("VideoPrefab", obj);
+                                }
+                                else
+                                {
+                                    DestroyPrefab(obj);
+                                }
 
-                        // Audio type.
-                        case "audio":
-                        case "sound":
-                            if (isActivating)
-                            {
-                                ActivatePrefab("AudioPrefab", obj);
-                            }
-                            else
-                            {
-                                DestroyPrefab(obj);
-                            }
+                                break;
 
-                            break;
+                            // Post it label type.
+                            //case "postit":
+                            //    if (isActivating)
+                            //        ActivatePrefab("PostItPrefab", obj);
+                            //    else
+                            //        DestroyPrefab(obj);
+                            //    break;
 
-                        // Video type.
-                        case "video":
-                            if (isActivating)
-                            {
-                                ActivatePrefab("VideoPrefab", obj);
-                            }
-                            else
-                            {
-                                DestroyPrefab(obj);
-                            }
+                            // 3D model type.
+                            case "3dmodel":
+                            case "model":
+                                if (isActivating)
+                                {
+                                    ActivatePrefab("ModelPrefab", obj);
+                                }
+                                else
+                                    DestroyPrefab(obj);
 
-                            break;
+                                break;
 
-                        // Post it label type.
-                        //case "postit":
-                        //    if (isActivating)
-                        //        ActivatePrefab("PostItPrefab", obj);
-                        //    else
-                        //        DestroyPrefab(obj);
-                        //    break;
+                            // Ghost tracks type.
+                            case "ghosttracks":
+                                if (isActivating)
+                                    ActivatePrefab(obj.option.Split(':')[0], obj);
+                                else
+                                    DestroyPrefab(obj);
+                                break;
 
-                        // 3D model type.
-                        case "3dmodel":
-                        case "model":
-                            if (isActivating)
-                            {
-                                ActivatePrefab("ModelPrefab", obj);
-                            }
-                            else
-                                DestroyPrefab(obj);
+                            // Ghost hands type.
+                            case "hands":
+                                if (isActivating)
+                                    Debug.Log("hands activated");
+                                // ActivatePrefab("HandsPrefab", obj);
+                                // else
+                                //  DestroyPrefab(obj);
+                                break;
 
-                            break;
+                            // Image type.
+                            case "image":
+                                if (isActivating)
+                                {
+                                    ActivatePrefab("ImagePrefab", obj);
+                                }
+                                else
+                                {
+                                    DestroyPrefab(obj);
+                                }
 
-                        // Ghost tracks type.
-                        case "ghosttracks":
-                            if (isActivating)
-                                ActivatePrefab(obj.option.Split(':')[0], obj);
-                            else
-                                DestroyPrefab(obj);
-                            break;
+                                break;
+                            // Image type.
+                            case "imagemarker":
+                                if (isActivating)
+                                {
+                                    ActivatePrefab("ImageMarkerPrefab", obj);
+                                }
+                                else
+                                {
+                                    DestroyPrefab(obj);
+                                }
 
-                        // Ghost hands type.
-                        case "hands":
-                            if (isActivating)
-                                Debug.Log("hands activated");
-                            // ActivatePrefab("HandsPrefab", obj);
-                            // else
-                            //  DestroyPrefab(obj);
-                            break;
+                                break;
 
-                        // Image type.
-                        case "image":
-                            if (isActivating)
-                            {
-                                ActivatePrefab("ImagePrefab", obj);
-                            }
-                            else
-                            {
-                                DestroyPrefab(obj);
-                            }
+                            // Potentiometer type.
+                            case "potentiometer":
+                                if (isActivating)
+                                    ActivatePrefab("PotentiometerPrefab", obj);
+                                else
+                                    DestroyPrefab(obj);
+                                break;
 
-                            break;
-                        // Image type.
-                        case "imagemarker":
-                            if (isActivating)
-                            {
-                                ActivatePrefab("ImageMarkerPrefab", obj);
-                            }
-                            else
-                            {
-                                DestroyPrefab(obj);
-                            }
+                            // Show card button type.
+                            case "menutoggle":
+                                if (isActivating)
+                                    ActivatePrefab("ShowCardsPrefab", obj);
+                                else
+                                    DestroyPrefab(obj);
+                                break;
 
-                            break;
+                            // VTT demo specific hacks.
+                            //case "filterIn":
+                            //    if (isActivating)
+                            //        ActivatePrefab("FilterIn", obj);
+                            //    else
+                            //        DestroyPrefab(obj);
+                            //    break;
 
-                        // Potentiometer type.
-                        case "potentiometer":
-                            if (isActivating)
-                                ActivatePrefab("PotentiometerPrefab", obj);
-                            else
-                                DestroyPrefab(obj);
-                            break;
+                            //case "filterOut":
+                            //    if (isActivating)
+                            //        ActivatePrefab("FilterOut", obj);
+                            //    else
+                            //        DestroyPrefab(obj);
+                            //    break;
+                            case "pickandplace":
+                                if (isActivating)
+                                    ActivatePrefab("pickandplaceprefab", obj);
+                                else
+                                    DestroyPrefab(obj);
+                                break;
+                            case "plugin":
+                                if (isActivating)
+                                    ActivatePrefab("PluginControllerPrefab", obj);
+                                else
+                                    DestroyPrefab(obj);
+                                break;
+                            case "drawing":
+                                if (isActivating)
+                                    ActivatePrefab("DrawingPrefab", obj);
+                                else
+                                    DestroyPrefab(obj);
+                                break;
+                        }
 
-                        // Show card button type.
-                        case "menutoggle":
-                            if (isActivating)
-                                ActivatePrefab("ShowCardsPrefab", obj);
-                            else
-                                DestroyPrefab(obj);
-                            break;
-
-                        // VTT demo specific hacks.
-                        //case "filterIn":
-                        //    if (isActivating)
-                        //        ActivatePrefab("FilterIn", obj);
-                        //    else
-                        //        DestroyPrefab(obj);
-                        //    break;
-
-                        //case "filterOut":
-                        //    if (isActivating)
-                        //        ActivatePrefab("FilterOut", obj);
-                        //    else
-                        //        DestroyPrefab(obj);
-                        //    break;
-                        case "pickandplace":
-                            if (isActivating)
-                                ActivatePrefab("pickandplaceprefab", obj);
-                            else
-                                DestroyPrefab(obj);
-                            break;
-                        case "plugin":
-                            if (isActivating)
-                                ActivatePrefab("PluginControllerPrefab", obj);
-                            else
-                                DestroyPrefab(obj);
-                            break;
-                        case "drawing":
-                            if (isActivating)
-                                ActivatePrefab("DrawingPrefab", obj);
-                            else
-                                DestroyPrefab(obj);
-                            break;
+                        break;
                     }
-
-                    break;
-                }
                 default:
-                {
-                    EventManager.DebugLog("ObjectFactory: Toggle - Unknown type: " + obj.type);
-                    break;
-                }
+                    {
+                        EventManager.DebugLog("ObjectFactory: Toggle - Unknown type: " + obj.type);
+                        break;
+                    }
             }
         }
 
@@ -395,37 +395,37 @@ namespace MirageXR
             switch (annotationToggleObject.predicate)
             {
                 case string p when p.Contains("3d"):
-                {
-                    var obstacle = go.AddComponent<NavMeshObstacle>();
-                    obstacle.size = go.transform.localScale / 4;
-                    break;
-                }
-                case string p when p.StartsWith("act") || p.StartsWith("vfx") || p.Equals("image") || p.Equals("video"):
-                {
-                    if (DisableBounding(annotationToggleObject)) return;
-                    var boundingBox = go.AddComponent<BoundingBoxGenerator>();
-                    boundingBox.CustomScaleHandlesConfiguration = Resources.Load<ScaleHandlesConfiguration>("Prefabs/CustomBoundingScaleHandlesConfiguration");
-                    boundingBox.CustomRotationHandlesConfiguration = Resources.Load<RotationHandlesConfiguration>("Prefabs/CustomBoundingRotationHandlesConfiguration");
-                    await boundingBox.AddBoundingBox(annotationToggleObject, BoundsCalculationMethod.RendererOverCollider, false, true, BoundingRotationType.ALL, true);
-
-                    // disable rotation for image
-                    if (DisableBoundingRotation(annotationToggleObject))
                     {
-                        boundingBox.CustomRotationHandlesConfiguration.ShowHandleForX = false;
-                        boundingBox.CustomRotationHandlesConfiguration.ShowHandleForY = false;
-                        boundingBox.CustomRotationHandlesConfiguration.ShowHandleForZ = false;
+                        var obstacle = go.AddComponent<NavMeshObstacle>();
+                        obstacle.size = go.transform.localScale / 4;
+                        break;
                     }
+                case string p when p.StartsWith("act") || p.StartsWith("vfx") || p.Equals("image") || p.Equals("video"):
+                    {
+                        if (DisableBounding(annotationToggleObject)) return;
+                        var boundingBox = go.AddComponent<BoundingBoxGenerator>();
+                        boundingBox.CustomScaleHandlesConfiguration = Resources.Load<ScaleHandlesConfiguration>("Prefabs/CustomBoundingScaleHandlesConfiguration");
+                        boundingBox.CustomRotationHandlesConfiguration = Resources.Load<RotationHandlesConfiguration>("Prefabs/CustomBoundingRotationHandlesConfiguration");
+                        await boundingBox.AddBoundingBox(annotationToggleObject, BoundsCalculationMethod.RendererOverCollider, false, true, BoundingRotationType.ALL, true);
 
-                    break;
-                }
+                        // disable rotation for image
+                        if (DisableBoundingRotation(annotationToggleObject))
+                        {
+                            boundingBox.CustomRotationHandlesConfiguration.ShowHandleForX = false;
+                            boundingBox.CustomRotationHandlesConfiguration.ShowHandleForY = false;
+                            boundingBox.CustomRotationHandlesConfiguration.ShowHandleForZ = false;
+                        }
+
+                        break;
+                    }
             }
         }
-        
+
         private static bool DisableBoundingRotation(ToggleObject annotationToggleObject)
         {
             return annotationToggleObject.predicate.Equals("image") || annotationToggleObject.predicate.Equals("video");
         }
-        
+
         /// <summary>
         /// If bounding box needs to be disabled for some of the augmentations, add them in this method
         /// </summary>
@@ -467,37 +467,37 @@ namespace MirageXR
                 switch (obj.predicate)
                 {
                     case "label":
-                    {
-                        temp = GameObject.Find($"{path}label_{obj.text.Split(' ')[0]}");
-                        break;
-                    }
+                        {
+                            temp = GameObject.Find($"{path}label_{obj.text.Split(' ')[0]}");
+                            break;
+                        }
                     case "3dmodel":
                     case "model":
-                    {
-                        temp = GameObject.Find($"{path}{obj.predicate}_{obj.option}");
-                        break;
-                    }
+                        {
+                            temp = GameObject.Find($"{path}{obj.predicate}_{obj.option}");
+                            break;
+                        }
                     case "image":
-                    {
-                        var id = obj.url.Split('/')[obj.url.Split('/').Length - 1];
-                        temp = GameObject.Find($"{path}{obj.predicate}_{id}");
-                        break;
-                    }
+                        {
+                            var id = obj.url.Split('/')[obj.url.Split('/').Length - 1];
+                            temp = GameObject.Find($"{path}{obj.predicate}_{id}");
+                            break;
+                        }
                     case "imagemarker":
-                    {
-                        GameObject.Find(path).GetComponentInChildren<ImageMarkerController>().PlatformOnDestroy(); //TODO: possible NRE
-                        break;
-                    }
+                        {
+                            GameObject.Find(path).GetComponentInChildren<ImageMarkerController>().PlatformOnDestroy(); //TODO: possible NRE
+                            break;
+                        }
                     case "pickandplace":
-                    {
-                        temp = GameObject.Find(path + obj.predicate);
-                        break;
-                    }
+                        {
+                            temp = GameObject.Find(path + obj.predicate);
+                            break;
+                        }
                     default:
-                    {
-                        temp = GameObject.Find(path + obj.predicate);
-                        break;
-                    }
+                        {
+                            temp = GameObject.Find(path + obj.predicate);
+                            break;
+                        }
                 }
 
                 //for all type of glyphs icons

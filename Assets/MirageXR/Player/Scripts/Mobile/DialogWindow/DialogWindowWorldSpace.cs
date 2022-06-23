@@ -5,18 +5,18 @@ using UnityEngine.UI;
 public class DialogWindowWorldSpace : DialogWindow
 {
     private float DISTANCE = 0.8f;
-    
+
     [SerializeField] private Text _txtTitle;
     [SerializeField] private Text _txtMessage;
-    
+
     protected override string _titleText
     {
         get => _txtTitle.text;
         set => _txtTitle.text = value;
     }
-    
-    protected override string _messageText 
-    { 
+
+    protected override string _messageText
+    {
         get => _txtMessage.text;
         set => _txtMessage.text = value;
     }

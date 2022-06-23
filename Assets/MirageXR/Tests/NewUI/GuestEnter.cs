@@ -15,7 +15,7 @@ public class GuestEnter : MonoBehaviour
             Destroy(enterPrefab);
         }
     }
-    
+
     public void OnClickGuest()
     {
         Destroy(enterPrefab);
@@ -25,5 +25,5 @@ public class GuestEnter : MonoBehaviour
     {
         Instantiate(_registerPrefab);
     }
-    
+
 }

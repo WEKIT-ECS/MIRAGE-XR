@@ -36,14 +36,14 @@ namespace MirageXR
             if (!PlatformManager.Instance.WorldSpaceUi && calibrationButton)
             {
                 calibrationButton.gameObject.SetActive(false);
-            } 
+            }
         }
 
         private void Update()
         {
             var startPosition = startTransform.position;
             var endPosition = endTransform.position;
-            
+
             var projectedStart = new Vector3(startPosition.x, 0, startPosition.z);
             var projectedEnd = new Vector3(endPosition.x, 0, endPosition.z);
 

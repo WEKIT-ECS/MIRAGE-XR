@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class SettingsView_v2 : PopupBase
 {
     private const string VERSION_FORMAT = "Version {0}";
-    
+
     [SerializeField] private Toggle _togglePublicUpload;
     [SerializeField] private Toggle _toggleUiForKids;
     [SerializeField] private Button _btnSave;
@@ -16,7 +16,7 @@ public class SettingsView_v2 : PopupBase
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
         base.Init(onClose, args);
-       
+
         _togglePublicUpload.onValueChanged.AddListener(OnValueChangedPublicUpload);
         _toggleUiForKids.onValueChanged.AddListener(OnValueChangedUiForKids);
         _btnSave.onClick.AddListener(OnClickSaveChanges);
@@ -40,7 +40,7 @@ public class SettingsView_v2 : PopupBase
     {
         return true;
     }
-    
+
     private void OnValueChangedRecordStore(string value)
     {
         //ValueHasBeenChanged();
@@ -65,7 +65,7 @@ public class SettingsView_v2 : PopupBase
     {
         _btnSave.interactable = true;
     }
-    
+
     private void OnClickSaveChanges()
     {
         DBManager.publicUploadPrivacy = _togglePublicUpload.isOn;

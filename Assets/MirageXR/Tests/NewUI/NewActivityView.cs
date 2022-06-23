@@ -13,14 +13,14 @@ public class NewActivityView : MonoBehaviour
     [SerializeField] private GameObject _stepsTab;
     [SerializeField] private GameObject _infoTab;
     [SerializeField] private GameObject _calibrationTab;
-    
+
     [SerializeField] private GameObject _augmentationsTab;
     [SerializeField] private GameObject _infoStepsTab;
     [SerializeField] private GameObject _MarkerTab;
-    
+
     [SerializeField] private Button _btnSetPicture;
     [SerializeField] private PopupBase _addPreviewImage;
-    
+
     [SerializeField] private Button _btnStart;
     [SerializeField] private PopupBase _startcalibrationPanel;
 
@@ -29,7 +29,7 @@ public class NewActivityView : MonoBehaviour
 
     [SerializeField] private GameObject _toggles;
     [SerializeField] private GameObject _toggles_steps;
-    
+
     [SerializeField] private Button _btnAddImage;
     [SerializeField] private PopupBase _addImageMaker;
 
@@ -44,7 +44,7 @@ public class NewActivityView : MonoBehaviour
 
         _headLabel = _title.GetComponent<TMP_Text>();
         _headLabel.text = "New activity";
-        
+
         _toggles.SetActive(true);
         _toggles_steps.SetActive(false);
     }
@@ -55,35 +55,35 @@ public class NewActivityView : MonoBehaviour
         _infoTab.SetActive(false);
         _calibrationTab.SetActive(false);
     }
-    
+
     public void ShowInfoTab()
     {
         _stepsTab.SetActive(false);
         _infoTab.SetActive(true);
         _calibrationTab.SetActive(false);
     }
-    
+
     public void ShowCalibrationTab()
     {
         _stepsTab.SetActive(false);
         _infoTab.SetActive(false);
         _calibrationTab.SetActive(true);
     }
-    
+
     public void ShowAugmentationsTab()
     {
         _augmentationsTab.SetActive(true);
         _infoStepsTab.SetActive(false);
         _MarkerTab.SetActive(false);
     }
-    
+
     public void ShowInfoStepsTab()
     {
         _augmentationsTab.SetActive(false);
         _infoStepsTab.SetActive(true);
         _MarkerTab.SetActive(false);
     }
-    
+
     public void ShowMarkerTab()
     {
         _augmentationsTab.SetActive(false);
@@ -100,7 +100,7 @@ public class NewActivityView : MonoBehaviour
     {
         PopupsViewer.Instance.Show(_addImageMaker);
     }
-    
+
     private void OnStartCalibrationClick()
     {
         PopupsViewer.Instance.Show(_startcalibrationPanel);

@@ -12,7 +12,7 @@ namespace MirageXR
         [SerializeField] private GameObject acceptButton;
 
         public GameObject AcceptButton => acceptButton;
-   
+
         private Action action;
         private ToggleObject annotationToEdit;
 

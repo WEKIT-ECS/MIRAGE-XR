@@ -9,12 +9,12 @@ using UnityEngine.UI;
 public class RootView_v2 : BaseView
 {
     public static RootView_v2 Instance { get; private set; }
-    
+
     [SerializeField] private Toggle _toggleHome;
     [SerializeField] private Toggle _toggleProfile;
     [SerializeField] private Toggle _toggleNewActivity;
     [SerializeField] private Button _btnAddAugmentation;
-    
+
     [SerializeField] private PageView_v2 _pageView;
     [SerializeField] private CalibrationGuideView _calibrationGuideViewPrefab;
 
@@ -25,13 +25,13 @@ public class RootView_v2 : BaseView
 
     [SerializeField] private GameObject newActivityGameObject;
     [SerializeField] public RectTransform bottomPanel;
-    
+
     private Vector3 _currentPanelPosition;
-    float moveTime=1;
-    float currentTime=0;
+    float moveTime = 1;
+    float currentTime = 0;
     private float normalizedValue;
     private bool panelMoving = false;
-    
+
     private void Awake()
     {
         if (Instance != null)
@@ -55,7 +55,7 @@ public class RootView_v2 : BaseView
     {
         base.Initialization(parentView);
         EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
-        
+
         _toggleProfile.interactable = true;
         _toggleNewActivity.interactable = true;
         _toggleHome.onValueChanged.AddListener(OnStepsClick);
@@ -88,7 +88,7 @@ public class RootView_v2 : BaseView
     {
         switch (index)
         {
-            case 0: 
+            case 0:
                 _toggleHome.isOn = true;
                 newActivityGameObject.SetActive(true);
                 break;
@@ -96,7 +96,7 @@ public class RootView_v2 : BaseView
                 _toggleProfile.isOn = true;
                 newActivityGameObject.SetActive(true);
                 break;
-            case 2: 
+            case 2:
                 _toggleNewActivity.isOn = true;
                 newActivityGameObject.SetActive(false);
                 break;
@@ -132,12 +132,12 @@ public class RootView_v2 : BaseView
     {
         PopupsViewer.Instance.Show(_helpPrefab);
     }
-    
+
     public void OnMoodleServersClick()
     {
         PopupsViewer.Instance.Show(_moofleServersPrefab);
     }
-    
+
     public void OnActivitySettingsClick()
     {
         PopupsViewer.Instance.Show(_activitySettingsPrefab);
@@ -152,12 +152,12 @@ public class RootView_v2 : BaseView
     {
         _pageView.currentPageIndex = 2;
     }
-    
+
     public void OnStartCalibration()
     {
         _pageView.currentPageIndex = 4;
     }
-    
+
     public void OnBeginDrag()
     {
         if (!panelMoving)
@@ -165,12 +165,12 @@ public class RootView_v2 : BaseView
             //StartCoroutine(LerpObject(_currentPanelPosition, new Vector3(0,-200,0)));
         }
     }
-    
+
     public void OnDrag()
     {
 
     }
-        
+
     public void EndDrag()
     {
         StartCoroutine(Delay(5f));
@@ -184,22 +184,23 @@ public class RootView_v2 : BaseView
     {
         panelMoving = true;
         currentTime = 0;
-        while (currentTime  <= moveTime) {
-           currentTime += Time.deltaTime; 
-            normalizedValue=currentTime/moveTime;
-            bottomPanel.anchoredPosition=Vector3.Lerp(from,to, normalizedValue);
-            
-            yield return null; 
-           StartCoroutine(Delay(3f));
+        while (currentTime <= moveTime)
+        {
+            currentTime += Time.deltaTime;
+            normalizedValue = currentTime / moveTime;
+            bottomPanel.anchoredPosition = Vector3.Lerp(from, to, normalizedValue);
+
+            yield return null;
+            StartCoroutine(Delay(3f));
             panelMoving = false;
         }
     }
-    
+
     IEnumerator Delay(float t)
     {
         yield return new WaitForSeconds(t);
     }
-    
+
     private async Task SetupViewForTablet()
     {
         const float scale = 0.001f;

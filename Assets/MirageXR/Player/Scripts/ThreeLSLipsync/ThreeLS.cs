@@ -1,12 +1,12 @@
 ﻿/* ThreeLS
- * 
+ *
  * Author: Gerard Llorach
  * Date: 20/03/2018
  * Version: 0.0
  *
  * Refer to:
- * G. Llorach, A. Evans, J. Blat, G. Grimm, V. Hohmann. Web-based live 
- * speech-driven lip-sync, In Proceedings of VS-Games 2016, September 2016, 
+ * G. Llorach, A. Evans, J. Blat, G. Grimm, V. Hohmann. Web-based live
+ * speech-driven lip-sync, In Proceedings of VS-Games 2016, September 2016,
  * Barcelona
  */
 

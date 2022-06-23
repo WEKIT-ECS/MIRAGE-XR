@@ -128,13 +128,8 @@ public class PoiEditor : MonoBehaviour
 
     }
 
-
-    
-
     private void SetAugmentationSpecificManipulation(GameObject prefabObject)
     {
-
-
         // check type of augmentation
         string objectName = prefabObject.name.ToLower();
 

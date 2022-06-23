@@ -27,7 +27,7 @@ namespace MirageXR
         /// <summary>
         /// FixedFrameUpdate is used (instead of Update) to set
         /// the sensor update frame rate to the desired interval.
-        /// The routine is registered in Start(). The public float 
+        /// The routine is registered in Start(). The public float
         /// updateInterval can be overridden in order to change the frequency.
         /// </summary>
         public virtual void FixedFrameUpdate()

@@ -12,7 +12,7 @@ public class ContentListView : BaseView
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
     private const float HIDE_HEIGHT = 250f;
     private const float BASE_CONTROLS_COOLDOWN = 0.3f;
-    
+
     [SerializeField] private TMP_InputField _txtStepName;
     [SerializeField] private TMP_InputField _txtDescription;
     [SerializeField] private Button _btnShowHide;
@@ -27,18 +27,18 @@ public class ContentListView : BaseView
     [SerializeField] private ContentSelectorView _contentSelectorViewPrefab;
     [SerializeField] private AnimationCurve _animationCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
     [SerializeField] private float _animationTime = 0.3f;
-    
+
     [SerializeField] private PopupEditorBase[] _editors;
 
     public PopupEditorBase[] editors => _editors;
     public MirageXR.Action currentStep => _currentStep;
     public RootView rootView => (RootView)_parentView;
-    
+
     public TMP_InputField TxtStepName => _txtStepName;
     public TMP_InputField TxtStepDescription => _txtDescription;
     public Button BtnShowHide => _btnShowHide;
     public Button BtnAddContent => _btnAddContent;
-    
+
     public string navigatorId
     {
         get => _navigatorIds.ContainsKey(_currentStep.id) ? _navigatorIds[_currentStep.id] : null;
@@ -66,7 +66,7 @@ public class ContentListView : BaseView
     private Coroutine _coroutineRotateTo;
     private float _showHeight;
     private MirageXR.Action _currentStep;
-    
+
     public override void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
@@ -79,13 +79,13 @@ public class ContentListView : BaseView
         _btnNextStep.onClick.AddListener(OnNextStep);
         _btnPreviousStep.onClick.AddListener(OnPreviousStep);
         _imdShowHideRectTransform = (RectTransform)_btnShowHide.targetGraphic.transform;
-        
+
         Canvas.ForceUpdateCanvases();
         _showHeight = _panel.rect.height;
 
         HideContentListImmediate();
         OnEditModeChanged(false);
-        
+
         EventManager.OnActionCreated += OnActionCreated;
         EventManager.OnActivateAction += OnActionActivated;
         EventManager.OnEditModeChanged += OnEditModeChanged;
@@ -99,7 +99,7 @@ public class ContentListView : BaseView
         EventManager.OnEditModeChanged -= OnEditModeChanged;
         EventManager.OnActionModified -= OnActionChanged;
     }
-    
+
     private void OnStepNameChanged(string newTitle)
     {
         _currentStep.instruction.title = newTitle;
@@ -113,14 +113,14 @@ public class ContentListView : BaseView
         EventManager.NotifyOnActionStepDescriptionInputChanged();
         EventManager.NotifyActionModified(_currentStep);
     }
-    
+
     private void OnActionActivated(string actionId)
     {
         var action = activityManager.ActiveAction ?? activityManager.ActionsOfTypeAction.FirstOrDefault(t => t.id == actionId);
         if (action != null) _currentStep = action;
         UpdateView();
     }
-    
+
     private void OnActionCreated(MirageXR.Action action)
     {
         _currentStep = action;
@@ -146,7 +146,7 @@ public class ContentListView : BaseView
     {
         _txtStepName.text = _currentStep.instruction.title;
         _txtDescription.text = _currentStep.instruction.description;
-        
+
         var contents = _currentStep.enter.activates;
 
         var detailMenu = TaskStationDetailMenu.Instance;
@@ -167,10 +167,10 @@ public class ContentListView : BaseView
             _list[i].gameObject.SetActive(true);
             _list[i].UpdateView(contents[i]);
         }
-        
+
         OnEditModeChanged(activityManager.EditModeActive);
     }
-    
+
     private void OnAddContent()
     {
         PopupsViewer.Instance.Show(_contentSelectorViewPrefab, _editors, _currentStep);
@@ -192,7 +192,7 @@ public class ContentListView : BaseView
         _btnNextStep.interactable = false;
         _btnPreviousStep.interactable = false;
     }
-    
+
     private void OnDeleteStep()
     {
         DisableBaseControl();
@@ -206,21 +206,21 @@ public class ContentListView : BaseView
         rootView.stepsListView.AddStep();
         Invoke(nameof(EnableBaseControl), BASE_CONTROLS_COOLDOWN);
     }
-    
+
     private void OnNextStep()
     {
         DisableBaseControl();
         rootView.stepsListView.NextStep();
         Invoke(nameof(EnableBaseControl), BASE_CONTROLS_COOLDOWN);
     }
-    
+
     private void OnPreviousStep()
     {
         DisableBaseControl();
         rootView.stepsListView.PreviousStep();
         Invoke(nameof(EnableBaseControl), BASE_CONTROLS_COOLDOWN);
     }
-    
+
     private void OnShowHideClick()
     {
         _isShown = !_isShown;
@@ -265,7 +265,7 @@ public class ContentListView : BaseView
         _imdShowHideRectTransform.localRotation = rotation;
         _panel.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
     }
-    
+
     private void StopCoroutines()
     {
         if (_coroutineRotateTo != null)
@@ -281,12 +281,14 @@ public class ContentListView : BaseView
         }
     }
 
-    private static IEnumerator SizeTo(RectTransform rectTransform, RectTransform.Axis axis, float sizeEnd, float time, AnimationCurve curve = null, Action callback = null) {
+    private static IEnumerator SizeTo(RectTransform rectTransform, RectTransform.Axis axis, float sizeEnd, float time, AnimationCurve curve = null, Action callback = null)
+    {
         if (curve == null) curve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
         var rect = rectTransform.rect;
         var sizeStart = axis == RectTransform.Axis.Horizontal ? rect.width : rect.height;
         var timer = 0.0f;
-        while (timer < 1.0f) {
+        while (timer < 1.0f)
+        {
             timer = Mathf.Min(1.0f, timer + Time.deltaTime / time);
             var value = curve.Evaluate(timer);
             var size = Mathf.Lerp(sizeStart, sizeEnd, value);
@@ -299,11 +301,13 @@ public class ContentListView : BaseView
         callback?.Invoke();
     }
 
-    private static IEnumerator RotateTo(Transform transform, Quaternion rotateEnd, float time, AnimationCurve curve = null, Action callback = null) {
+    private static IEnumerator RotateTo(Transform transform, Quaternion rotateEnd, float time, AnimationCurve curve = null, Action callback = null)
+    {
         if (curve == null) curve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
         var rotateStart = transform.localRotation;
         var timer = 0.0f;
-        while (timer < 1.0f) {
+        while (timer < 1.0f)
+        {
             timer = Mathf.Min(1.0f, timer + Time.deltaTime / time);
             var value = curve.Evaluate(timer);
             transform.localRotation = Quaternion.Lerp(rotateStart, rotateEnd, value);

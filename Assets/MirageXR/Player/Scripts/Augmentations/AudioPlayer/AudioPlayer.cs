@@ -150,7 +150,7 @@ namespace MirageXR
 
         /// <summary>
         /// This method starts playback of the audio file, unmuted and on full volume.
-        /// If the audio track is already being played, it will be restarted from the beginning. 
+        /// If the audio track is already being played, it will be restarted from the beginning.
         /// If audio source doesn't exist, or hasn't finished loading, the method returns without doing anything
         /// </summary>
         public void PlayAudio()
@@ -323,7 +323,7 @@ namespace MirageXR
             isReady = false;
             isPlaying = false;
 
-            // Create audio source component 
+            // Create audio source component
             var audioPlayer = gameObject.AddComponent<AudioSource>();
 
             if (spatialAudio)

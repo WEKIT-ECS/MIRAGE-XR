@@ -222,7 +222,7 @@ public class DialogueService : MonoBehaviour
 
             if (response.Result.Output.Generic != null && response.Result.Output.Generic.Capacity > 0)
             {
-                // if the name is char:alla only take alla 
+                // if the name is char:alla only take alla
                 try
                 {
                     var res = response.Result.Output.Generic[0].Text;

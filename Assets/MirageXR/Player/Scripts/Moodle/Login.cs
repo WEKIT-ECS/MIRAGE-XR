@@ -34,7 +34,8 @@ namespace MirageXR
             siteConfigurationStatusLabel.text = string.Empty;
             publicUploadToggle.isOn = DBManager.publicUploadPrivacy;
 
-            if (PlayerPrefs.HasKey("MoodleURL")) {
+            if (PlayerPrefs.HasKey("MoodleURL"))
+            {
                 ShowPanel(null); // hide login panel
             }
             else
@@ -116,7 +117,7 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Save token and the username into DBManager 
+        /// Save token and the username into DBManager
         /// Send a welcome message to the user on activity selector
         /// </summary>
         /// <param name="token"></param>
@@ -267,7 +268,7 @@ namespace MirageXR
             Application.OpenURL($"{DBManager.domain}/mod/forum/view.php?id={moodleForumID}");
         }
 
-        
+
         public void CloseGuestNotification()
         {
             PlayerPrefs.SetInt("guest", 1);
@@ -314,7 +315,7 @@ namespace MirageXR
 
             DBManager.domain = url;
             DBManager.publicUploadPrivacy = publicUploadToggle.isOn;
-            
+
             Maggie.Speak("Settings saved successfully.");
 
             ShowLogin();

@@ -33,7 +33,7 @@ namespace MirageXR
     {
         pickOb = this.gameObject;
         ChangeCorrectionDistance(0.5f);
-        SetResetPos(pickOb.transform.localPosition);      
+        SetResetPos(pickOb.transform.localPosition);
     }
 >>>>>>> 55eb6be7398f057b0e0973d8af228b1c3495229f
 
@@ -99,7 +99,7 @@ namespace MirageXR
 
         /// <summary>
         /// Sets the possition of the pick objects reset location
-        /// </summary> 
+        /// </summary>
         public void setResetPos(Vector3 pos)
         {
             resetPos = pos;
@@ -110,7 +110,7 @@ namespace MirageXR
         }
         else {
             moveMode = true;
-        }       
+        }
     }
 
     /// <summary>
@@ -141,7 +141,7 @@ namespace MirageXR
 
 <<<<<<< HEAD
         /// <summary>
-        /// Sets isMoving to true to show that the object is being manipulated 
+        /// Sets isMoving to true to show that the object is being manipulated
         /// </summary>
         public void manipulationStart()
         {
@@ -149,7 +149,7 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Sets isMoving to false to show that the object has stopped being manipulated 
+        /// Sets isMoving to false to show that the object has stopped being manipulated
         /// </summary>
         public void manipulationStop()
         {
@@ -169,7 +169,7 @@ namespace MirageXR
 =======
     /// <summary>
     /// Sets the possition of the pick objects reset location
-    /// </summary> 
+    /// </summary>
     public void SetResetPos(Vector3 pos)
     {
         resetPos = pos;
@@ -183,14 +183,14 @@ namespace MirageXR
     }
 
     /// <summary>
-    /// Sets isMoving to true to show that the object is being manipulated 
+    /// Sets isMoving to true to show that the object is being manipulated
     /// </summary>
     public void ManipulationStart() {
         isMoving = true;
     }
 
     /// <summary>
-    /// Sets isMoving to false to show that the object has stopped being manipulated 
+    /// Sets isMoving to false to show that the object has stopped being manipulated
     /// </summary>
     public void ManipulationStop() {
         isMoving = false;

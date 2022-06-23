@@ -8,8 +8,8 @@ using Image = UnityEngine.UI.Image;
 
 public class ThumbnailEditorView : PopupBase
 {
-    private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg"; 
-    
+    private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg";
+
     [SerializeField] private Transform _imageHolder;
     [SerializeField] private Image _image;
     [SerializeField] private Button _btnCaptureImage;
@@ -19,7 +19,7 @@ public class ThumbnailEditorView : PopupBase
     private string _imagePath;
     private Action<string> _onAccept;
     private Texture2D _texture2D;
-    
+
     protected override bool TryToGetArguments(params object[] args)
     {
         try
@@ -37,7 +37,7 @@ public class ThumbnailEditorView : PopupBase
         catch (Exception) { /*ignore*/ }
         return true;
     }
-    
+
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
         base.Init(onClose, args);
@@ -68,7 +68,7 @@ public class ThumbnailEditorView : PopupBase
         if (_texture2D) Destroy(_texture2D);
         base.Close();
     }
-    
+
     private void OnCaptureImage()
     {
         CaptureImage();
@@ -79,7 +79,7 @@ public class ThumbnailEditorView : PopupBase
         VuforiaBehaviour.Instance.enabled = false;
         NativeCameraController.TakePicture(OnPictureTaken);
     }
-    
+
     private void OnPictureTaken(bool result, Texture2D texture2D)
     {
         VuforiaBehaviour.Instance.enabled = true;
@@ -99,7 +99,7 @@ public class ThumbnailEditorView : PopupBase
         var rtImage = (RectTransform)_image.transform;
         var height = rtImage.rect.width / _texture2D.width * _texture2D.height + (rtImage.sizeDelta.y * -1);
         rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
-        
+
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
     }
 }

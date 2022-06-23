@@ -12,16 +12,16 @@ public class AudioEditorView : PopupEditorBase
     private const float MIN_RANGE = 0.0f;
     private const float MAX_RANGE = 10.0f;
     private const float REWIND_VALUE = 10f;
-    
+
     public override ContentType editorForType => ContentType.AUDIO;
-    
+
     [SerializeField] private Button _btnRecord;
     [SerializeField] private Button _btnStop;
     [SerializeField] private Button _btnPlay;
     [SerializeField] private Button _btnPause;
     [SerializeField] private Button _btnRewindBack;
     [SerializeField] private Button _btnRewindForward;
-    
+
     [SerializeField] private Toggle _toggleTrigger;
     [SerializeField] private Toggle _toggle3D;
     [SerializeField] private Toggle _toggle2D;
@@ -29,27 +29,27 @@ public class AudioEditorView : PopupEditorBase
     [SerializeField] private Slider _sliderRange;
     [SerializeField] private TMP_Text _txtSliderRangeValue;
     [SerializeField] private GameObject _panelRange;
-    
+
     [SerializeField] private TMP_Text _txtTimer;
     [SerializeField] private Slider _sliderPlayer;
     [SerializeField] private Image _imgRecordingIcon;
     [SerializeField] private CanvasGroup _groupPlayControls;
     [SerializeField] private AudioSource _audioSource;
-    
+
     private AudioClip _audioClip;
     private string _fileName;
     private Coroutine _updateSliderPlayerCoroutine;
     private Coroutine _updateRecordTimerCoroutine;
     private float _recordStartTime;
-    
+
     private bool _isRecording;
     private bool _isPlaying;
-    
-    
+
+
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
         base.Init(onClose, args);
-        
+
         _toggle3D.isOn = false;
         _toggleLoop.isOn = false;
         _sliderRange.minValue = MIN_RANGE;
@@ -57,7 +57,7 @@ public class AudioEditorView : PopupEditorBase
         _sliderRange.value = DEFAULT_RANGE;
         _txtSliderRangeValue.text = DEFAULT_RANGE.ToString("0");
         _panelRange.SetActive(false);
-                
+
         _btnRecord.onClick.AddListener(OnRecordStarted);
         _btnStop.onClick.AddListener(OnRecordStopped);
         _btnPlay.onClick.AddListener(OnPlayingStarted);
@@ -68,11 +68,11 @@ public class AudioEditorView : PopupEditorBase
         _sliderPlayer.minValue = 0;
         _sliderPlayer.maxValue = 1f;
         _sliderPlayer.onValueChanged.AddListener(OnSliderPlayerValueChanged);
-        
+
         _toggleTrigger.onValueChanged.AddListener(OnToggleTriggerValueChanged);
         _toggle3D.onValueChanged.AddListener(On3DSelected);
         _sliderRange.onValueChanged.AddListener(OnSliderRangeValueChanged);
-        
+
         if (_content != null && !string.IsNullOrEmpty(_content.url))
         {
             LoadContent();
@@ -88,7 +88,7 @@ public class AudioEditorView : PopupEditorBase
             _fileName = $"MirageXR_Audio_{DateTime.Now.ToFileTimeUtc()}.wav";
             _groupPlayControls.interactable = false;
         }
-        
+
         SetPlayerActive(true);
         UpdateSliderPlayerAndTimer();
     }
@@ -122,11 +122,11 @@ public class AudioEditorView : PopupEditorBase
             }
         }
     }
-    
+
     private void OnPlayingStarted()
     {
         if (!_audioClip) return;
-        
+
         if (_audioSource.clip && _audioSource.time > 0)
         {
             _audioSource.UnPause();
@@ -146,7 +146,7 @@ public class AudioEditorView : PopupEditorBase
         var fileName = content.url.StartsWith(httpPrefix) ? content.url.Remove(0, httpPrefix.Length) : content.url;
         return fileName;
     }
-    
+
     private void OnPlayingPaused()
     {
         _audioSource.Pause();
@@ -157,7 +157,7 @@ public class AudioEditorView : PopupEditorBase
         _audioSource.time = Mathf.Max(_audioSource.time - REWIND_VALUE, 0);
         UpdateSliderPlayerAndTimer();
     }
-    
+
     private void OnRewindForward()
     {
         _audioSource.time = Mathf.Min(_audioSource.time + REWIND_VALUE, _audioClip.length - 0.1f);
@@ -172,14 +172,14 @@ public class AudioEditorView : PopupEditorBase
             Destroy(_audioClip);
             _audioClip = null;
         }
-        
+
         SetPlayerActive(false);
 
         _recordStartTime = Time.unscaledTime;
         AudioRecorder.Start(_fileName);
         StartUpdateRecordTimer();
     }
-    
+
     private void OnRecordStopped()
     {
         _recordStartTime = 0;
@@ -204,10 +204,10 @@ public class AudioEditorView : PopupEditorBase
         }
         UpdateSliderPlayerAndTimer();
     }
-    
+
     private void UpdateSliderPlayerAndTimer()
     {
-        var clip = _audioSource.clip; 
+        var clip = _audioSource.clip;
         if (clip)
         {
             var percent = _audioSource.time / clip.length;
@@ -219,7 +219,7 @@ public class AudioEditorView : PopupEditorBase
             if (Math.Abs(_audioSource.time - clip.length) <= float.Epsilon)
             {
                 OnPlayingFinished();
-            } 
+            }
         }
         else
         {
@@ -241,7 +241,7 @@ public class AudioEditorView : PopupEditorBase
             StopCoroutine(_updateSliderPlayerCoroutine);
         }
     }
-    
+
     private void ResetPlayerTimer()
     {
         _sliderPlayer.onValueChanged.RemoveListener(OnSliderPlayerValueChanged);
@@ -249,7 +249,7 @@ public class AudioEditorView : PopupEditorBase
         _txtTimer.text = ToTimeFormat(0);
         _sliderPlayer.onValueChanged.AddListener(OnSliderPlayerValueChanged);
     }
-    
+
     private void StartUpdateRecordTimer()
     {
         _updateRecordTimerCoroutine = StartCoroutine(UpdateRecordTimerIEnumerator());
@@ -258,7 +258,7 @@ public class AudioEditorView : PopupEditorBase
     private IEnumerator UpdateRecordTimerIEnumerator()
     {
         const float second = 1.0f;
-        
+
         while (AudioRecorder.IsRecording)
         {
             UpdateRecordTimer();
@@ -266,7 +266,7 @@ public class AudioEditorView : PopupEditorBase
         }
         UpdateRecordTimer();
     }
-    
+
     private void UpdateRecordTimer()
     {
         _txtTimer.text = ToTimeFormat(Time.unscaledTime - _recordStartTime);
@@ -285,12 +285,12 @@ public class AudioEditorView : PopupEditorBase
         _groupPlayControls.gameObject.SetActive(value);
         _sliderPlayer.gameObject.SetActive(value);
     }
-    
+
     private void On3DSelected(bool value)
     {
         _panelRange.SetActive(value);
     }
-    
+
     private void OnSliderRangeValueChanged(float value)
     {
         _txtSliderRangeValue.text = value.ToString("0");
@@ -300,7 +300,7 @@ public class AudioEditorView : PopupEditorBase
     {
         _audioSource.time = _audioClip.length * value;
     }
-    
+
     private void OnToggleTriggerValueChanged(bool value)
     {
         if (value && activityManager.IsLastAction(_step))
@@ -315,7 +315,7 @@ public class AudioEditorView : PopupEditorBase
         if (value) _toggleLoop.isOn = false;
         _toggleLoop.interactable = _toggle3D.isOn && !value;
     }
-    
+
     protected override void OnAccept()
     {
         if (!_audioClip)
@@ -323,12 +323,12 @@ public class AudioEditorView : PopupEditorBase
             Toast.Instance.Show("The audio has not been recorded");
             return;
         }
-        
+
         var filePath = Path.Combine(activityManager.ActivityPath, _fileName);
         if (_content != null)
         {
             _fileName = GetFileName(_content);
-            
+
             if (File.Exists(filePath) && _audioClip != null)
             {
                 EventManager.DeactivateObject(_content);
@@ -355,9 +355,9 @@ public class AudioEditorView : PopupEditorBase
         {
             _step.RemoveArlemTrigger(_content);
         }
-        
+
         SaveLoadAudioUtilities.Save(filePath, _audioClip);
-        
+
         EventManager.ActivateObject(_content);
         EventManager.NotifyActionModified(_step);
 

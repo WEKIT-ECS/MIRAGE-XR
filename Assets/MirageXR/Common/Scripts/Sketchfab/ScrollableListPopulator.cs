@@ -17,7 +17,7 @@ namespace MirageXR
 
         [Tooltip("The ScrollingObjectCollection to populate.")]
         [SerializeField] private ScrollingObjectCollection localScrollView;
-        
+
         [SerializeField] private GridObjectCollection localGridObjectCollection;
 
         [Tooltip("Object to duplicate in ScrollCollection")]
@@ -72,7 +72,7 @@ namespace MirageXR
                 SetLoaderFillAmount(0, numItems);
                 loader.SetActive(true);
             }
-            
+
             if (isLocal)
             {
                 currentLocalPreviewList = itemList;
@@ -166,7 +166,7 @@ namespace MirageXR
             yield return SketchfabManager.DownloadImage(previewItem.resourceImage.url, sprite =>
             {
                 previewImage.sprite = sprite;
-                spritesInUse.Add(sprite); 
+                spritesInUse.Add(sprite);
             });
 
             itemInstance.SetActive(true);

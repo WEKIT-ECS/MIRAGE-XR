@@ -10,7 +10,7 @@ namespace MirageXR
         [SerializeField] private GlyphListItem _glyphListItemPrefab;
         [SerializeField] private ActionObject[] _actionObjects;
 
-        
+
         private Transform _annotationStartingPoint;
         private Action _action;
         private ToggleObject _annotationToEdit;
@@ -34,10 +34,10 @@ namespace MirageXR
             gameObject.SetActive(true);
             _action = action;
             _annotationToEdit = annotation;
-            
+
             GenerateActionList();
 
-            if(_annotationToEdit != null)
+            if (_annotationToEdit != null)
             {
                 var trigger = activityManager.ActiveAction.triggers.Find(t => t.id == _annotationToEdit.poi);
                 var duration = trigger != null ? trigger.duration : 1;
@@ -73,12 +73,13 @@ namespace MirageXR
                     _annotationStartingPoint.transform.rotation,
                     originT.transform.position,
                     originT.transform.rotation);
-                
+
                 _annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(_action, offset);
             }
 
             // change predicate on all steps
-            activityManager.ActionsOfTypeAction.ForEach(a => {
+            activityManager.ActionsOfTypeAction.ForEach(a =>
+            {
                 var anno = a.enter.activates.Find(t => t.poi == _annotationToEdit.poi);
                 if (anno != null)
                 {

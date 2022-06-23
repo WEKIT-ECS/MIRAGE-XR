@@ -1,17 +1,17 @@
 ﻿
 /* ThreeLSControl
- * 
+ *
  * Author: Gerard Llorach
  * Date: 20/03/2018
  * Version: 0.0
- * 
+ *
  * DESCRIPTION:
- * This script connects the ThreeLS class with the scene. ThreeLS needs an 
+ * This script connects the ThreeLS class with the scene. ThreeLS needs an
  * AudioSource and returns weights from 0 and 1 for the blend shapes Kiss,
  * Lips Closed and Mouth Open (in FACS its AU22, AU24 and AU27). This script
  * finds the blend shapes of the SkinnedMeshRenderers that match the input name
  * and assigns the weights from ThreeLS to the SkinnedMeshRenderers.
- * 
+ *
  * USE:
  * 0. Watch the video explaining how to use it (found in the description of the asset)
  * 1. Add this script to the virtual character. The objects with the blend shapes
@@ -25,18 +25,18 @@
  * 4. Play the scene. If the Audio Source is playing, you should see the lips
  * of your virtual character moving. You will get error messages if the blend
  * shape names you wrote down are not found in any of the child meshes.
- * 5. Play around with the sliders Threshold, Smoothness and Vocal Track Factor 
+ * 5. Play around with the sliders Threshold, Smoothness and Vocal Track Factor
  * as well as the factors for each blend shape.
  * Threshold helps when the audio is a bit noise. The smaller the value,
  * less sentitiveness. Smoothness makes the transitions of the lips more smooth.
- * Vocal Track Factor tries to take into account differences between speakers. 
+ * Vocal Track Factor tries to take into account differences between speakers.
  * Values around 0.7-0.8 have been found to be good for female voices.
- * 
+ *
  * OTHER COMMENTS:
  * This lipsync strategy should work also with a microphone, although I haven't
  * seen a straight forward way to connect the microphone to the spectrum analysis.
  * Remains to be done I guess.
- * 
+ *
  */
 
 using System.Collections;

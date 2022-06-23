@@ -12,10 +12,9 @@ public class ContentSelectorView_v2 : MonoBehaviour
 
     private IEnumerable<PopupEditorBase> _editors;
     private MirageXR.Action _currentStep;
-    
+
     public void Start()
     {
-        
         UpdateView();
     }
 

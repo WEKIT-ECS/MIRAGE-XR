@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace MirageXR
-{ 
+{
     /// <summary>
     /// Scenario: The user is asked to enter a description for an action step.
     /// </summary>
