@@ -1,4 +1,4 @@
-﻿ using System;
+﻿using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.XR.ARFoundation;
@@ -13,16 +13,16 @@ namespace MirageXR
             public GameObject prefab;
             public Transform pathToLoad;
         }
-        
+
         [Tooltip("If you want to test AR in the editor enable this.")]
         [SerializeField] bool forceWorldSpaceUi = false;
         [SerializeField] bool forceToTabletView = false;
         [SerializeField] private LoadObject[] _worldSpaceObjects;
         [SerializeField] private LoadObject[] _screenSpaceObjects;
-        
+
         private float distanceToCamera = 0.5f;
         private float offsetYFromCamera = 0.5f;
-        
+
         private bool _worldSpaceUi;
         private string _playerScene = "Player";
         private string _recorderScene = "recorder";
@@ -120,7 +120,7 @@ namespace MirageXR
                 Instantiate(loadObject.prefab);
             }
         }
-        
+
         public enum DeviceFormat
         {
             Phone,
@@ -147,10 +147,10 @@ namespace MirageXR
         {
             var screenWidth = Screen.width / Screen.dpi;
             var screenHeight = Screen.height / Screen.dpi;
-            var diagonalInches = Mathf.Sqrt (Mathf.Pow (screenWidth, 2) + Mathf.Pow (screenHeight, 2));
- 
-            Debug.Log ("Getting device inches: " + diagonalInches);
- 
+            var diagonalInches = Mathf.Sqrt(Mathf.Pow(screenWidth, 2) + Mathf.Pow(screenHeight, 2));
+
+            Debug.Log("Getting device inches: " + diagonalInches);
+
             return diagonalInches;
         }
     }

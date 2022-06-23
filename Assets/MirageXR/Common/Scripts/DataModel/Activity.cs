@@ -19,7 +19,7 @@ namespace MirageXR
         public string workplace;
         public string start;
 
-        public List<Action> actions = new List<Action> ();
+        public List<Action> actions = new List<Action>();
     }
 
     [Serializable]
@@ -43,8 +43,8 @@ namespace MirageXR
         public Enter enter;
         public Exit exit;
 
-        public List<Trigger> triggers;  
-        
+        public List<Trigger> triggers;
+
         public void AddArlemTrigger(TriggerMode mode, ActionType type = ActionType.Action, string id = "start", float duration = 0f, string value = "")
         {
             // add a trigger, give it an id
@@ -91,9 +91,9 @@ namespace MirageXR
     [Serializable]
     public abstract class EnterExit
     {
-        public List<Message> messages = new List<Message> ();
-        public List<ToggleObject> activates = new List<ToggleObject> ();
-        public List<ToggleObject> deactivates = new List<ToggleObject> ();
+        public List<Message> messages = new List<Message>();
+        public List<ToggleObject> activates = new List<ToggleObject>();
+        public List<ToggleObject> deactivates = new List<ToggleObject>();
     }
 
     [Serializable]
@@ -101,11 +101,11 @@ namespace MirageXR
 
     [Serializable]
     public class Exit : EnterExit { }
-    
+
     [JsonConverter(typeof(StringEnumConverter))]
     public enum ActionType
     {
-        [EnumMember] 
+        [EnumMember]
         Unknown,
         [EnumMember(Value = "action")]
         Action,
@@ -128,7 +128,7 @@ namespace MirageXR
     [JsonConverter(typeof(StringEnumConverter))]
     public enum TriggerMode
     {
-        [EnumMember] 
+        [EnumMember]
         Unknown,
         [EnumMember(Value = "click")]
         Click,
@@ -145,7 +145,7 @@ namespace MirageXR
         [EnumMember(Value = "detect")]
         Detect
     }
-    
+
     [Serializable]
     public class ToggleObject      // is an annotation
     {
@@ -174,7 +174,7 @@ namespace MirageXR
         // NOT IN ARLEM SPEC. For forcing the guide on.
         public bool guide;
     }
-    
+
     [Serializable]
     public class Trigger
     {
@@ -197,29 +197,29 @@ namespace MirageXR
                 {
                     // Every trigger need to have a mode.
                     case TriggerMode.Unknown:
-                    {
-                        throw new ArgumentException("Trigger mode not set.");
-                    }
+                        {
+                            throw new ArgumentException("Trigger mode not set.");
+                        }
                     case TriggerMode.Sensor:
-                    {
-                        var smartObj = Utilities.CreateObject($"{action.id}_smartTrigger_{trigger.id}", "Triggers");
-
-                        if (smartObj == null)
                         {
-                            throw new MissingComponentException("Couldn't create the smart trigger object.");
+                            var smartObj = Utilities.CreateObject($"{action.id}_smartTrigger_{trigger.id}", "Triggers");
+
+                            if (smartObj == null)
+                            {
+                                throw new MissingComponentException("Couldn't create the smart trigger object.");
+                            }
+
+                            var smartBehaviour = smartObj.AddComponent<SmartTrigger>();
+
+                            if (!smartBehaviour.CreateTrigger(action.id, trigger))
+                            {
+                                Object.Destroy(smartObj);
+                                throw new MissingComponentException("Couldn't create the smart trigger.");
+                            }
+
+                            smartBehaviour.Activate();
+                            break;
                         }
-
-                        var smartBehaviour = smartObj.AddComponent<SmartTrigger>();
-
-                        if (!smartBehaviour.CreateTrigger(action.id, trigger))
-                        {
-                            Object.Destroy(smartObj);
-                            throw new MissingComponentException("Couldn't create the smart trigger.");
-                        }
-
-                        smartBehaviour.Activate();
-                        break;
-                    }
                 }
             }
         }

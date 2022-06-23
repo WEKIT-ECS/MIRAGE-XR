@@ -94,7 +94,7 @@ namespace MirageXR
 
             // Rename with the predicate + id to get unique name.
             name = content.predicate;
-            
+
             // Load video from resources.
             videoName = content.url.StartsWith("resources://") ? content.url.Replace("resources://", string.Empty) : content.url;
 
@@ -128,7 +128,7 @@ namespace MirageXR
             if (content.key == "P")
             {
                 this.transform.eulerAngles = new Vector3(0, 0, -90);
-                
+
                 play.Rotate(0, 0, 90);
                 pause.Rotate(0, 0, 90);
                 stop.Rotate(0, 0, 90);
@@ -228,7 +228,7 @@ namespace MirageXR
 
             var triggerDuration = myTrigger.duration;
             yield return new WaitForSeconds(triggerDuration);
-            
+
             if (!activityManager.IsLastAction(activityManager.ActiveAction))
             {
                 if (activityManager.ActiveAction != null)
@@ -512,16 +512,16 @@ namespace MirageXR
             {
                 name = "PlaneMesh",
                 vertices = new Vector3[] {
-            new Vector3( _width / 2f, -_height / 2f, 0 ),
-            new Vector3( -_width / 2f, -_height / 2f, 0 ),
-            new Vector3( -_width / 2f, _height / 2f, 0 ),
-            new Vector3( _width / 2f, _height / 2f, 0 )
+            new Vector3(_width / 2f, -_height / 2f, 0 ),
+            new Vector3(-_width / 2f, -_height / 2f, 0 ),
+            new Vector3(-_width / 2f, _height / 2f, 0 ),
+            new Vector3(_width / 2f, _height / 2f, 0 )
         },
                 uv = new Vector2[] {
-            new Vector2 (1, 0),
-            new Vector2 (0, 0),
-            new Vector2 (0, 1),
-            new Vector2 (1, 1)
+            new Vector2(1, 0),
+            new Vector2(0, 0),
+            new Vector2(0, 1),
+            new Vector2(1, 1)
         },
                 triangles = new int[] { 0, 1, 2, 0, 2, 3 }
             };

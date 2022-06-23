@@ -43,7 +43,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ThreeLSControl : MonoBehaviour {
+public class ThreeLSControl : MonoBehaviour
+{
 
     // PUBLIC
     // Configurable parameters of ThreeLS
@@ -115,7 +116,8 @@ public class ThreeLSControl : MonoBehaviour {
 
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
 
         StartCoroutine(Init());
 
@@ -128,7 +130,7 @@ public class ThreeLSControl : MonoBehaviour {
             audioInput = GetComponent<AudioSource>();
             yield return new WaitForSeconds(0.1f);
         }
-            
+
 
         // Initialize lipsync
         LS = new ThreeLS(audioInput, threshold, smoothness, vocalTractFactor);
@@ -152,7 +154,8 @@ public class ThreeLSControl : MonoBehaviour {
 
 
     // Update is called once per frame
-    void Update () {
+    void Update()
+    {
         if (LS == null) return;
 
         // Update lipsync values and apply to mesh
@@ -256,7 +259,7 @@ public class ThreeLSControl : MonoBehaviour {
         Debug.DrawLine(new Vector3(2.4f, 1.0f, 0.0f), new Vector3(2.4f, LS.LSbsw[2] + 1.0f, 0.0f), Color.blue);
 
     }
-    
+
 
 
 
@@ -333,15 +336,17 @@ public class ThreeLSControl : MonoBehaviour {
         {
             fadingOut = false;
             // Set blend shapes to zero
-            for (var i = 0; i < 3; i++){
+            for (var i = 0; i < 3; i++)
+            {
                 BSReference BSRef = BSToFind[i];
-                for (int m = 0; m < BSRef.meshes.Count; m++){
+                for (int m = 0; m < BSRef.meshes.Count; m++)
+                {
                     var indx = BSRef.BSIndices[m];
                     BSRef.meshes[m].SetBlendShapeWeight(indx, 0);
                 }
             }
         }
-            
+
     }
-    
+
 }
