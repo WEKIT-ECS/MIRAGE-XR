@@ -18,17 +18,17 @@ public class GhostEditorView : PopupEditorBase
     [SerializeField] private Button _btnStop;
 
     private readonly GhostRecorder _ghostRecorder = new GhostRecorder();
-    
+
     private string _ghostFileName;
     private string _audioFileName;
     private List<GhostDataFrame> _ghostFrames;
     private AudioClip _audioClip;
     private Transform _anchor;
-   
+
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
         base.Init(onClose, args);
-        
+
         _btnStart.onClick.AddListener(StartRecording);
         _btnStop.onClick.AddListener(StopRecording);
         _toggleMale.isOn = true;
@@ -44,10 +44,10 @@ public class GhostEditorView : PopupEditorBase
     {
         var timeStamp = DateTime.Now.ToFileTimeUtc();
         _ghostFileName = $"MirageXR_Ghost_{timeStamp}.xml";
-        _audioFileName =  $"MirageXR_Audio_{timeStamp}.wav";
+        _audioFileName = $"MirageXR_Audio_{timeStamp}.wav";
 
         _anchor = GameObject.Find(_step.id).transform;  //TODO: possible NRE. replace with direct ref
-        
+
         _ghostRecorder.Start(_anchor, Camera.main.transform);
         if (_toggleAudio.isOn) AudioRecorder.Start(_audioFileName);
 
@@ -68,7 +68,7 @@ public class GhostEditorView : PopupEditorBase
         _toggleMale.interactable = value;
         _toggleFemale.interactable = value;
     }
-    
+
     protected override void OnAccept()
     {
         if (_ghostFrames == null || _ghostFrames.Count == 0)
@@ -78,21 +78,22 @@ public class GhostEditorView : PopupEditorBase
         }
 
         var offset = GetOffset();
-        
+
         if (_content != null)
         {
             DeactivateContent(_content);
         }
-        else {
+        else
+        {
             _content = augmentationManager.AddAugmentation(_step, offset);
             _content.predicate = editorForType.GetPredicate();
         }
-        
+
         _content.option = _toggleMale.isOn ? MALE_TYPE : FEMALE_TYPE;
-        
+
         var ghostFilePath = Path.Combine(activityManager.ActivityPath, _ghostFileName);
         GhostRecorder.ExportToFile(ghostFilePath, _ghostFrames);
-        
+
         _content.url = HTTP_PREFIX + _ghostFileName;
         _content.position = _anchor.position.ToString();
         _content.rotation = _anchor.rotation.ToString();
@@ -104,7 +105,7 @@ public class GhostEditorView : PopupEditorBase
             _content.option += $":{audioContent.poi}";
             EventManager.ActivateObject(audioContent);
         }
-        
+
         EventManager.ActivateObject(_content);
         EventManager.NotifyActionModified(_step);
         Close();
@@ -114,14 +115,14 @@ public class GhostEditorView : PopupEditorBase
     {
         var audioFilePath = Path.Combine(activityManager.ActivityPath, _audioFileName);
         SaveLoadAudioUtilities.Save(audioFilePath, _audioClip);
-            
+
         var audioContent = augmentationManager.AddAugmentation(_step, offset);
         audioContent.predicate = ContentType.AUDIO.GetPredicate();
         audioContent.scale = 0.5f;
-        audioContent.url =  HTTP_PREFIX + _audioFileName;
+        audioContent.url = HTTP_PREFIX + _audioFileName;
         return audioContent;
     }
-    
+
     private static void DeactivateContent(ToggleObject content)
     {
         var fileName = content.url.Replace(HTTP_PREFIX, string.Empty);

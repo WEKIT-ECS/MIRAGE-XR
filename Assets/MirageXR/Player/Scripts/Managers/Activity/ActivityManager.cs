@@ -737,7 +737,7 @@ namespace MirageXR
 
 			Debug.Log($"Planning to delete action with index {indexToDelete}");
 
-			if (indexToDelete == totalNumberOfActions - 1)          // if deleting the last action
+			if (indexToDelete == totalNumberOfActions - 1) // if deleting the last action
 			{
 				Debug.Log("deleting last action");
 
@@ -746,7 +746,7 @@ namespace MirageXR
 					_activity.actions[indexToDelete - 1].exit.activates.Last().id = string.Empty;
 				}
 			}
-			else if (indexToDelete == 0)                // if deleting the first action
+			else if (indexToDelete == 0) // if deleting the first action
 			{
 				Debug.Log("deleting first action");
 				// update start action with the one that is currently second (prior to deleting the action, in this case)

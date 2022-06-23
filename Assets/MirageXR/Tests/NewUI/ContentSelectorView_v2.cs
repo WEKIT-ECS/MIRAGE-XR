@@ -40,7 +40,7 @@ public class ContentSelectorView_v2 : MonoBehaviour
         PopupsViewer.Instance.Show(editor, _currentStep);
     }
 
-    protected  bool TryToGetArguments(params object[] args)
+    protected bool TryToGetArguments(params object[] args)
     {
         try
         {
