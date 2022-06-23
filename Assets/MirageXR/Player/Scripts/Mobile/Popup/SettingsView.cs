@@ -44,6 +44,7 @@ public class SettingsView : PopupBase
         _togglePublicUpload.isOn = DBManager.publicUploadPrivacy;
         _toggleUiForKids.isOn = false;
         _btnSave.interactable = false;
+        _learningRecordStoreDropdown.value = DBManager.publicCurrentLearningRecordStore;
     }
 
     protected override bool TryToGetArguments(params object[] args)
@@ -89,10 +90,19 @@ public class SettingsView : PopupBase
         
         DBManager.publicUploadPrivacy = _togglePublicUpload.isOn;
 
-        EventManager.NotifyxAPIChanged(_learningRecordStoreDropdown.value);
+        changeLearningRecordStore(_learningRecordStoreDropdown.value);
+
         ResetValues();
         
         Close();
+    }
+
+    private void changeLearningRecordStore(int selectedLearningRecordStore)
+    {
+        EventManager.NotifyxAPIChanged(selectedLearningRecordStore);
+
+        DBManager.publicCurrentLearningRecordStore = selectedLearningRecordStore;
+
     }
 
     private void OnClickReset()
