@@ -55,7 +55,7 @@ public class DaimonManager : MonoBehaviour
         if ((wait < 0f) && (check))
         {
 
-            //check that clip is not playing		
+            //check that clip is not playing
             Debug.Log("-------------------- Speech Output has finished playing, now reactivating SpeechInput.");
             check = false;
 

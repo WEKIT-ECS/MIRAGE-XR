@@ -48,10 +48,10 @@ public class SpeechOutputService : MonoBehaviour
         StartCoroutine(ConnectToTTSService());
 
     }
-       
+
     private IEnumerator ConnectToTTSService()
     {
-		/*
+        /*
         TokenOptions myTokenOptions = new TokenOptions()
         {
             IamApiKey = apiKey
@@ -62,9 +62,9 @@ public class SpeechOutputService : MonoBehaviour
 
         myService = new TextToSpeechService(myCredentials);
 		 */
-		
-		myService = new TextToSpeechService();
-		while (!myService.Authenticator.CanAuthenticate()) yield return null; // .Credentials.HasIamTokenData()
+
+        myService = new TextToSpeechService();
+        while (!myService.Authenticator.CanAuthenticate()) yield return null; // .Credentials.HasIamTokenData()
     }
 
     public void Speak(string text)
@@ -78,7 +78,8 @@ public class SpeechOutputService : MonoBehaviour
                 voice: myVoice,
                 accept: "audio/wav");
 
-        } else
+        }
+        else
         {
             Debug.Log("WARNING: text to speech: text was empty");
         }
@@ -87,16 +88,16 @@ public class SpeechOutputService : MonoBehaviour
 
     public void onSynthCompleted(DetailedResponse<byte[]> response, IBMError error)
     {
-        
+
         byte[] synthesizeResponse = null;
         AudioClip clip = null;
         synthesizeResponse = response.Result;
         clip = WaveFile.ParseWAV("myClip", synthesizeResponse);
-		Debug.Log("before playing: " + clip);
+        Debug.Log("before playing: " + clip);
         PlayClip(clip);
     }
 
-     private void PlayClip(AudioClip clip)
+    private void PlayClip(AudioClip clip)
     {
         //Debug.Log("Received audio file from Watson Text To Speech");
 
@@ -115,7 +116,8 @@ public class SpeechOutputService : MonoBehaviour
             dDaimonMgr.check = true;
             Debug.Log("Speech output playing, set DaimonMgr waiting time for SpeechInput to reactivate again (when done) after " + clip.length + " seconds");
 
-        } else
+        }
+        else
         {
             Debug.Log("ERROR: something is already playing or we did not get a clip.");
         }
