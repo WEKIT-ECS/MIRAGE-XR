@@ -62,6 +62,6 @@ public class BrandCustomizer : MonoBehaviour
 
         if (name == "floorTarget" && GetComponent<SpriteRenderer>())
             GetComponent<SpriteRenderer>().color = BrandManager.Instance.GetTaskStationColor();
-    } 
+    }
 
 }

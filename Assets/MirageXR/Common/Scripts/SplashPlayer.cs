@@ -61,6 +61,4 @@ public class SplashPlayer : MonoBehaviour
         }
         SceneManager.LoadSceneAsync("Start", LoadSceneMode.Single);
     }
-
-         
 }

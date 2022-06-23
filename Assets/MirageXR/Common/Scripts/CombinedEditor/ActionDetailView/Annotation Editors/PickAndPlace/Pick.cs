@@ -100,9 +100,9 @@ namespace MirageXR
                 }
                 transform.hasChanged = false;
             }
-            else if(moveMode && ArrowRenderer.material.color != originalArrowColor)
+            else if (moveMode && ArrowRenderer.material.color != originalArrowColor)
             {
-                ArrowRenderer.material.SetColor("_Color", originalArrowColor);      
+                ArrowRenderer.material.SetColor("_Color", originalArrowColor);
             }
 
             if (targetRadius != targetRadiusUpdate)
@@ -184,7 +184,7 @@ namespace MirageXR
         /// </summary>
         public void ManipulationStart()
         {
-            ArrowRenderer.material.SetColor("_Color", originalArrowColor);     
+            ArrowRenderer.material.SetColor("_Color", originalArrowColor);
             isMoving = true;
         }
 
@@ -200,7 +200,7 @@ namespace MirageXR
                 Mathf.Abs(pickOb.transform.localPosition.y - placeLocation.localPosition.y) <= correctionDistance &&
                 Mathf.Abs(pickOb.transform.localPosition.z - placeLocation.localPosition.z) <= correctionDistance)
                 {
- 
+
                     pickOb.transform.localPosition = new Vector3(placeLocation.localPosition.x, placeLocation.localPosition.y, placeLocation.localPosition.z);
 
                     ArrowRenderer.material.SetColor("_Color", Color.green);
@@ -212,8 +212,8 @@ namespace MirageXR
                 }
 
                 else if (resetOnMiss)
-                {                  
-                        pickOb.transform.localPosition = resetPos;
+                {
+                    pickOb.transform.localPosition = resetPos;
 
                     ArrowRenderer.material.SetColor("_Color", originalArrowColor);
                     if (shouldPlaySound)
@@ -228,7 +228,7 @@ namespace MirageXR
 
 
         private void playAudio(AudioClip clip)
-        {           
+        {
             audioSource.clip = clip;
             audioSource.Play();
         }

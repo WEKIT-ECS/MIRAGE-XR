@@ -12,13 +12,13 @@ public class LoginView_v2 : PopupBase
     [SerializeField] private ExtendedInputField _inputFieldPassword;
     [SerializeField] private Toggle _toggleRemember;
     [SerializeField] private Button _btnLogin;
-  
+
     [SerializeField] private GameObject[] _loginObjects;
     [SerializeField] private GameObject registerPrefab;
-    
-    
+
+
     [SerializeField] private GameObject enter2Prefab; //temp
-    void Update() 
+    void Update()
     {
 #if UNITY_EDITOR // delete that!!!
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -31,12 +31,12 @@ public class LoginView_v2 : PopupBase
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
         base.Init(onClose, args);
-        
+
         _inputFieldUserName.SetValidator(IsValidUsername);
         _inputFieldPassword.SetValidator(IsValidPassword);
         _btnLogin.onClick.AddListener(OnClickLogin);
         _toggleRemember.onValueChanged.AddListener(OnToggleRememberValueChanged);
-            
+
         ResetValues();
     }
 
@@ -62,12 +62,12 @@ public class LoginView_v2 : PopupBase
             Toast.Instance.Show("Check your login/password");
         }
     }
-   
+
     private void OnToggleRememberValueChanged(bool value)
     {
         DBManager.rememberUser = value;
     }
-    
+
     private void OnEnable()
     {
         ResetValues();
@@ -86,12 +86,12 @@ public class LoginView_v2 : PopupBase
             LocalFiles.RemoveUsernameAndPassword();
         }
     }
-    
+
     private void ShowLogin()
     {
         foreach (var obj in _loginObjects) obj.SetActive(true);
     }
-    
+
     private void ResetValues()
     {
         ShowLogin();
@@ -109,7 +109,7 @@ public class LoginView_v2 : PopupBase
 
         await Login(_inputFieldUserName.text, _inputFieldPassword.text);
     }
-    
+
     private static bool IsValidUsername(string urlString)
     {
         const string regexExpression = "^(?=[a-zA-Z0-9._@!#$%^&]{4,}$)(?!.*[_.]{2})[^_.].*[^_.]$";

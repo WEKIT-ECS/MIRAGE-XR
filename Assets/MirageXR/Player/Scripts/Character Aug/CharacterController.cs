@@ -591,7 +591,7 @@ namespace MirageXR
                     for (int i = 0; i < Destinations.Count; i++)
                     {
                         var desNode = Destinations[i].transform;
-                        //create a point from this des point 
+                        //create a point from this des point
                         points[i] = new Point(i, desNode.localPosition, desNode.localRotation, Destinations[i].name);
                     }
 
@@ -1125,7 +1125,7 @@ namespace MirageXR
             movementManger.PathLoop.isOn = destinationPoint.returnPath;
             movementManger.FollowPlayer.isOn = movementType == "followplayer";
 
-            //and if the destinations are still not created 
+            //and if the destinations are still not created
             if (movementType == "followpath")
             {
                 var nodePrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("Characters/CharacterDestination");

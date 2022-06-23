@@ -9,7 +9,7 @@ public class PopupsViewer : MonoBehaviour
     [SerializeField] private Button _btnBackground;
 
     private readonly Stack<PopupBase> _stack = new Stack<PopupBase>();
-    
+
     private void Awake()
     {
         if (Instance != null)
@@ -17,7 +17,7 @@ public class PopupsViewer : MonoBehaviour
             Debug.LogError($"{Instance.GetType().FullName} must only be a single copy!");
             return;
         }
-        
+
         Instance = this;
     }
 
@@ -54,7 +54,7 @@ public class PopupsViewer : MonoBehaviour
         {
             popupBase.gameObject.SetActive(false);
         }
-        
+
         var popup = _stack.Peek();
         if (popup.isMarkedToDelete)
         {
@@ -77,7 +77,7 @@ public class PopupsViewer : MonoBehaviour
             popup.Close();
         }
     }
-    
+
     private void OnClose(PopupBase popup)
     {
         if (_stack.Peek() == popup)

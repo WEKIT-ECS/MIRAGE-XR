@@ -1,6 +1,6 @@
 /**
 * Modified by Fridolin/Xinyu
-* 
+*
 * Copyright 2015 IBM Corp. All Rights Reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -86,7 +86,7 @@ public class SpeechInputService : MonoBehaviour
     private IEnumerator CreateService()
     {
         /*
-         
+
         if (string.IsNullOrEmpty(iamApikey))
         {
             throw new IBMException("Please provide IAM ApiKey for the service.");
@@ -108,7 +108,7 @@ public class SpeechInputService : MonoBehaviour
             yield return null;
 
         _service = new SpeechToTextService(credentials);
-         
+
          */
 
         _service = new SpeechToTextService();
@@ -223,7 +223,7 @@ public class SpeechInputService : MonoBehaviour
             }
             else
             {
-                // calculate the number of samples remaining until we ready for a block of audio, 
+                // calculate the number of samples remaining until we ready for a block of audio,
                 // and wait that amount of time it will take to record.
                 int remaining = bFirstBlock ? (midPoint - writePos) : (_recording.samples - writePos);
                 float timeRemaining = (float)remaining / (float)_recordingHZ;

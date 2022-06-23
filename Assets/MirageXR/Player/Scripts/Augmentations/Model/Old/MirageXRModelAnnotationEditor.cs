@@ -51,7 +51,7 @@ public class MirageXRModelAnnotationEditor : MonoBehaviour
     //         gameObject.GetComponent<MirageXRMenuBase>().menuItemTexts[i] = modelsCollection[i];
     //         gameObject.GetComponent<MirageXRMenuBase>().menuItemNames[i]= "PlaceModel";
     //     }
-       
+
     // }
 
 
@@ -124,7 +124,7 @@ public class MirageXRModelAnnotationEditor : MonoBehaviour
     }
 
     /// <summary>
-    /// method to call the expand model 
+    /// method to call the expand model
     /// </summary>
 
     public void ExpandModel()
@@ -138,7 +138,7 @@ public class MirageXRModelAnnotationEditor : MonoBehaviour
         Debug.Log("3d model compressed");
         gameObject.GetComponentInChildren<MirageXRModelExpander>().SendMessage("CompressModel", SendMessageOptions.DontRequireReceiver);
     }
-   
+
     public void RotateModel()
     {
         Destroy(gameObject.GetComponent<ObjectManipulator>());

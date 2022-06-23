@@ -25,6 +25,6 @@ namespace MirageXR
         {
             EventManager.LabelEditorTextChanged -= this.DefaultExitEventListener;
             EventManager.OnActivityStarted -= DefaultCloseEventListener;
-        }        
+        }
     }
 }

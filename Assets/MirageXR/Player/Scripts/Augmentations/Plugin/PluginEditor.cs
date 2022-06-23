@@ -16,13 +16,13 @@ namespace MirageXR
             public string name;
             public string manifest;
         }
-        
+
         [SerializeField] private Transform annotationStartingPoint;
         [SerializeField] private Transform contentContainer;
         [SerializeField] private GameObject iconPrefab;
         [SerializeField] private Texture2D defaultIcon;
         [SerializeField] private Plugin[] Plugins;
-        
+
         private Action _action;
         private ToggleObject _annotationToEdit;
 
@@ -101,7 +101,7 @@ namespace MirageXR
 
             _annotationToEdit.predicate = "plugin:" + plugin.name;
             _annotationToEdit.url = plugin.manifest;
-            
+
             workplaceManager.workplace.apps.Add(plugin);
 
             _action.appIDs.Add(plugin.id);

@@ -11,11 +11,11 @@ public class VideoEditorView : PopupEditorBase
     private const string HTTP_PREFIX = "http://";
     private const string LANDSCAPE = "L";
     private const string PORTRAIT = "P";
-    
+
     public override ContentType editorForType => ContentType.VIDEO;
 
     [SerializeField] private Transform _imageHolder;
-    [SerializeField] private Image _image;      // TODO: replace image preview with a video  
+    [SerializeField] private Image _image;      // TODO: replace image preview with a video
     [SerializeField] private Button _btnCaptureVideo;
     [SerializeField] private Toggle _toggleTrigger;
     [SerializeField] private Toggle _toggleOrientation;
@@ -35,16 +35,16 @@ public class VideoEditorView : PopupEditorBase
         UpdateView();
 
     }
-    
+
     private void UpdateView()
     {
         if (_content != null && !string.IsNullOrEmpty(_content.url))
         {
             var originalFileName = Path.GetFileName(_content.url.Remove(0, HTTP_PREFIX.Length));
             var originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
-            
+
             if (!File.Exists(originalFilePath)) return;
-            
+
             var trigger = _step.triggers.Find(tr => tr.id == _content.poi);
             if (trigger != null)
             {
@@ -55,7 +55,7 @@ public class VideoEditorView : PopupEditorBase
             SetPreview(NativeCameraController.GetVideoThumbnail(originalFilePath));
         }
     }
-    
+
     private void OnStartRecordingVideo()
     {
         StartRecordingVideo();
@@ -64,10 +64,10 @@ public class VideoEditorView : PopupEditorBase
     private void StartRecordingVideo()
     {
         VuforiaBehaviour.Instance.enabled = false;
-        
+
         _newFileName = $"MirageXR_Video_{DateTime.Now.ToFileTimeUtc()}.mp4";
         var filepath = Path.Combine(activityManager.ActivityPath, _newFileName);
-        
+
         VuforiaBehaviour.Instance.enabled = false;
         NativeCameraController.StartRecordingVideo(filepath, StopRecordingVideo);
     }
@@ -83,20 +83,21 @@ public class VideoEditorView : PopupEditorBase
         }
     }
 
-    private void OnToggleOrientationValueChanged(bool value) {
+    private void OnToggleOrientationValueChanged(bool value)
+    {
         _orientation = value;
     }
-    
+
     private void OnToggleTriggerValueChanged(bool value)
     {
         if (!value || !activityManager.IsLastAction(_step)) return;
-        
+
         Toast.Instance.Show("This is the last step. The trigger is disabled!\n Add a new step and try again.");
         _toggleTrigger.onValueChanged.RemoveListener(OnToggleTriggerValueChanged);
         _toggleTrigger.isOn = false;
         _toggleTrigger.onValueChanged.AddListener(OnToggleTriggerValueChanged);
     }
-    
+
     protected override void OnAccept()
     {
         if (!_videoWasRecorded)
@@ -122,11 +123,11 @@ public class VideoEditorView : PopupEditorBase
             _content = augmentationManager.AddAugmentation(_step, GetOffset());
             _content.predicate = editorForType.GetName().ToLower();
         }
-        
+
         // saving of the movie file has already happened since it has been written to file while recording
         _content.url = HTTP_PREFIX + _newFileName;
         _content.key = _orientation ? LANDSCAPE : PORTRAIT;
-        
+
         if (_toggleTrigger.isOn)
         {
             _step.AddOrReplaceArlemTrigger(TriggerMode.Video, ActionType.Video, _content.poi, 0, string.Empty);
@@ -145,12 +146,12 @@ public class VideoEditorView : PopupEditorBase
     private void SetPreview(Texture2D texture2D)
     {
         if (!texture2D) return;
-        
+
         if (_image.sprite && _image.sprite.texture)
         {
             Destroy(_image.sprite.texture);
         }
-        
+
         var sprite = Utilities.TextureToSprite(texture2D);
         _image.sprite = sprite;
 
@@ -158,7 +159,7 @@ public class VideoEditorView : PopupEditorBase
         var rtImage = (RectTransform)_image.transform;
         var height = rtImage.rect.width / texture2D.width * texture2D.height + (rtImage.sizeDelta.y * -1);
         rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
-        
+
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
     }
 }

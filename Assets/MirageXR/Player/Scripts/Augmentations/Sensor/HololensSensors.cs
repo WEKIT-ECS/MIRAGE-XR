@@ -25,7 +25,7 @@ namespace MirageXR
         public override void FixedFrameUpdate()
         {
             var cameraTransform = Camera.main.transform;
-            
+
             currentSensorDataFrame = new SensorDataFrame();
 
             // Check if the raycast from the user's head in the direction of his gaze hit an object.

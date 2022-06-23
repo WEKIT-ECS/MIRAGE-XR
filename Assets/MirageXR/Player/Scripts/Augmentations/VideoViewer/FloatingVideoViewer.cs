@@ -290,7 +290,7 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Set the volume of the audio in the video being played 
+        /// Set the volume of the audio in the video being played
         /// </summary>
         /// <param name="targetVolume">0.0-1.0</param>
         public void SetAudioVolume(float targetVolume)
@@ -338,9 +338,9 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// This method creates a video player according to the input dimensions. 
-        /// Set "videoName" and "audioName" variables before calling this method, or default filenames "video" and "audio" are used. 
-        /// Destroys any already existing video player in this GameObject. 
+        /// This method creates a video player according to the input dimensions.
+        /// Set "videoName" and "audioName" variables before calling this method, or default filenames "video" and "audio" are used.
+        /// Destroys any already existing video player in this GameObject.
         /// PlayVideo() must be called to start the video playback.
         /// </summary>
         /// <param name="width">Use to set video aspect ratio. If 0 or negative, default 16:9 is used.</param>
@@ -373,7 +373,7 @@ namespace MirageXR
             isPlaying = false;
             isPaused = false;
 
-            // Create video player screen        
+            // Create video player screen
             var meshFilter = gameObject.GetComponent<MeshFilter>();
             meshFilter.mesh = CreatePlaneMesh();
             var meshRenderer = gameObject.GetComponent<MeshRenderer>();

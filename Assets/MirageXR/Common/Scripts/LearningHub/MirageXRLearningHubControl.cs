@@ -10,7 +10,8 @@ using MirageXR;
 using Windows.Networking;
 #endif
 
-public class MirageXRLearningHubControl : MonoBehaviour {
+public class MirageXRLearningHubControl : MonoBehaviour
+{
     // Ip of the pc that sensor hub is running on
     private string IPAddress = "192.168.137.1";
     private string port = "12345";
@@ -42,7 +43,7 @@ public class MirageXRLearningHubControl : MonoBehaviour {
         //         Debug.Log("Learning Hub Connection failed: "+response);
         //         //learningHubReady = false;
         //     }
-           
+
         // }
         // catch (Exception e)
         // {
@@ -85,7 +86,7 @@ public class MirageXRLearningHubControl : MonoBehaviour {
         }
 #endif
         Debug.Log("MirageXR LearningHUb: sending message to learning hub");
-        
+
     }
 
     public async Task<string> SendMessage(string message, bool awaitResponse)
