@@ -24,7 +24,7 @@ public class RootView_v2 : BaseView
     [SerializeField] private MoodleServersView _moofleServersPrefab;
 
     [SerializeField] private GameObject newActivityGameObject;
-    [SerializeField] private RectTransform  bottomPanel;
+    [SerializeField] public RectTransform  bottomPanel;
     
     private Vector3 _currentPanelPosition;
     float moveTime=1;
@@ -113,7 +113,7 @@ public class RootView_v2 : BaseView
         if (value) _pageView.currentPageIndex = 1;
     }
 
-    private void OnHomeClick(bool value)
+    public void OnHomeClick(bool value)
     {
         if (value) _pageView.currentPageIndex = 2;
     }
@@ -151,6 +151,11 @@ public class RootView_v2 : BaseView
     public void OnBackToStep()
     {
         _pageView.currentPageIndex = 2;
+    }
+    
+    public void OnStartCalibration()
+    {
+        _pageView.currentPageIndex = 4;
     }
     
     public void OnBeginDrag()
