@@ -911,7 +911,7 @@ namespace MirageXR
             {
                 var animationIntValue = await GetAnimationMenuValue(AnimationType);
 
-                if (animationIntValue != 9999)  //TODO: remove magic number
+                if (animationIntValue != 9999) //TODO: remove magic number
                 {
                     animationMenu.value = animationIntValue;
                 }

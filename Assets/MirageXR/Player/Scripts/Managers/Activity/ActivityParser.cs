@@ -14,7 +14,7 @@ namespace MirageXR
 	    public static Activity Parse(string activityId)
 	    {
 		    var json = GetActivityJson(activityId);
-		    return  JsonConvert.DeserializeObject<Activity>(json);
+		    return JsonConvert.DeserializeObject<Activity>(json);
 	    }
 
 	    public static string Serialize(Activity activity)

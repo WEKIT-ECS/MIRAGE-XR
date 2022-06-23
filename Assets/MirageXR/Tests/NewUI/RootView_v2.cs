@@ -24,7 +24,7 @@ public class RootView_v2 : BaseView
     [SerializeField] private MoodleServersView _moofleServersPrefab;
 
     [SerializeField] private GameObject newActivityGameObject;
-    [SerializeField] public RectTransform  bottomPanel;
+    [SerializeField] public RectTransform bottomPanel;
     
     private Vector3 _currentPanelPosition;
     float moveTime=1;

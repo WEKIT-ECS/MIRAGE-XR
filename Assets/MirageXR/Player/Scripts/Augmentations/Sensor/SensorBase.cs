@@ -3,7 +3,7 @@
 namespace MirageXR
 {
 
-    public class SensorBase : MonoBehaviour  // TODO: now is useless
+    public class SensorBase : MonoBehaviour // TODO: now is useless
     {
         // streaming data: list of registered callback listeners (registered to get an update for each data frame captured)
         public delegate void CallbackStack(SensorDataFrame currentFrame);

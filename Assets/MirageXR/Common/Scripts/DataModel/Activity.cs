@@ -23,7 +23,7 @@ namespace MirageXR
     }
 
     [Serializable]
-    public class Action         // is a task station
+    public class Action // is a task station
     {
         // NOT IN ARLEM SPEC. For storing current action state.
         public bool isActive;
@@ -147,7 +147,7 @@ namespace MirageXR
     }
 
     [Serializable]
-    public class ToggleObject      // is an annotation
+    public class ToggleObject // is an annotation
     {
         public string id = string.Empty;          // the id of the thing/person/place (task station)
         public ActionType type;
@@ -224,7 +224,7 @@ namespace MirageXR
             }
         }
 
-        public static void DeleteTriggersForId(string id)   //TODO: move it to TriggerManager
+        public static void DeleteTriggersForId(string id) //TODO: move it to TriggerManager
         {
             foreach (Transform trigger in GameObject.Find("Triggers").transform)
             {

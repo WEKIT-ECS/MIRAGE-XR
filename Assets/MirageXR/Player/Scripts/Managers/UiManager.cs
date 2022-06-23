@@ -225,7 +225,7 @@ namespace MirageXR
             if (!PlatformManager.Instance.WorldSpaceUi || GameObject.Find("CalibrationGuide(Clone)") || GameObject.Find("CalibrationGuide"))
                 return;
 
-            if (IsCalibrated)   // create the guild if activity is not calibrated.
+            if (IsCalibrated) // create the guild if activity is not calibrated.
             {
                 var prefab = Resources.Load<GameObject>("Prefabs/Calibration/CalibrationGuide");
                 var position = PlatformManager.Instance.GetTaskStationPosition() - Vector3.forward * 0.1f;

@@ -144,7 +144,7 @@ namespace MirageXR
             var mainCamera = Camera.main;
             navigator.GetComponentInChildren<MeshRenderer>().enabled = true;
             var cameraTransform = mainCamera.transform;
-            var fromPos =  cameraTransform.position + cameraTransform.forward;
+            var fromPos = cameraTransform.position + cameraTransform.forward;
             var toPos = mainCamera.WorldToViewportPoint(NavigatorTarget.position);
 
             // target is behind the camera
