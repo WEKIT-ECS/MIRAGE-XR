@@ -81,7 +81,7 @@ public class AudioEditor : MonoBehaviour
             progress.value = audioSource.time / audioSource.clip.length;
             UpdatePlayBackTimer();
         }
-        else        
+        else
             timerText.text = SecToTimeFormat(timerSeconds);
     }
 
@@ -169,7 +169,7 @@ public class AudioEditor : MonoBehaviour
         if (annotationToEdit != null)
         {
             SaveFileName = annotationToEdit.url;
-            
+
             capturedClip = SaveLoadAudioUtilities.LoadAudioFile(GetExistingAudioFile());
 
             if (annotationToEdit.option.Contains("3d"))
@@ -181,7 +181,7 @@ public class AudioEditor : MonoBehaviour
             }
 
             // check if the trigger for this audio is on
-             stepTrigger.isOn = activityManager.ActiveAction.triggers.Find(t => t.id == annotationToEdit.poi) != null;
+            stepTrigger.isOn = activityManager.ActiveAction.triggers.Find(t => t.id == annotationToEdit.poi) != null;
 
             // re-recording is not allowed
             startRecordingButton.interactable = false;
@@ -209,7 +209,7 @@ public class AudioEditor : MonoBehaviour
         }
         else
         {
-            if (capturedClip != null )
+            if (capturedClip != null)
             {
                 audioSource.clip = capturedClip;
                 audioSource.time = slideValue;
@@ -265,7 +265,7 @@ public class AudioEditor : MonoBehaviour
     {
         var audioName = annotationToEdit.url;
         const string httpPrefix = "http://";
-        
+
         string originalFileName = !audioName.StartsWith(httpPrefix) ? Path.Combine(Application.persistentDataPath, audioName)
             : Path.Combine(activityManager.ActivityPath, Path.GetFileName(audioName.Remove(0, httpPrefix.Length)));
 
@@ -283,7 +283,7 @@ public class AudioEditor : MonoBehaviour
                 break;
             }
         }
-        
+
         return originalFilePath;
     }
 
@@ -328,7 +328,7 @@ public class AudioEditor : MonoBehaviour
                 annotationStartingPoint.transform.rotation,
                 originT.transform.position,
                 originT.transform.rotation);
-            
+
             annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
             annotationToEdit.predicate = "audio";
 
@@ -338,7 +338,7 @@ public class AudioEditor : MonoBehaviour
             annotationToEdit.scale = 0.5f;
         }
 
-        if(SaveFileName != string.Empty )
+        if (SaveFileName != string.Empty)
         {
             annotationToEdit.url = $"http://{SaveFileName}";
 

@@ -76,8 +76,7 @@ public class SpeechOutputService : MonoBehaviour
                 callback: onSynthCompleted,
                 text: text,
                 voice: myVoice,
-                accept: "audio/wav"
-               );
+                accept: "audio/wav");
 
         } else
         {

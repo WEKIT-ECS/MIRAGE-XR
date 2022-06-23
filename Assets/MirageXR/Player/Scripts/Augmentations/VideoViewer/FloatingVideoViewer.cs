@@ -512,10 +512,10 @@ namespace MirageXR
             {
                 name = "PlaneMesh",
                 vertices = new Vector3[] {
-            new Vector3(_width / 2f, -_height / 2f, 0 ),
-            new Vector3(-_width / 2f, -_height / 2f, 0 ),
-            new Vector3(-_width / 2f, _height / 2f, 0 ),
-            new Vector3(_width / 2f, _height / 2f, 0 )
+            new Vector3(_width / 2f, -_height / 2f, 0),
+            new Vector3(-_width / 2f, -_height / 2f, 0),
+            new Vector3(-_width / 2f, _height / 2f, 0),
+            new Vector3(_width / 2f, _height / 2f, 0)
         },
                 uv = new Vector2[] {
             new Vector2(1, 0),

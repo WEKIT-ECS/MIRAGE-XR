@@ -170,8 +170,7 @@ namespace MirageXR
             _pathNodesColor = new Color(
                 UnityEngine.Random.Range(0f, 1f),
                 UnityEngine.Random.Range(0f, 1f),
-                UnityEngine.Random.Range(0f, 1f)
-            );
+                UnityEngine.Random.Range(0f, 1f));
 
             var objectManipulator = transform.parent.GetComponent<ObjectManipulator>();
             if (objectManipulator)
