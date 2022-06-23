@@ -261,6 +261,11 @@ namespace MirageXR
             Application.OpenURL(DBManager.registerPage);
         }
 
+        public void DeleteAccount()
+        {
+            Application.OpenURL(DBManager.deleteAccount);
+        }
+
 
         public void Support()
         {

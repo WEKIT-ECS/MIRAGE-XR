@@ -140,6 +140,8 @@ namespace MirageXR
         
         public static string registerPage => $"{domain}/login/signup.php";
 
+        public static string deleteAccount => $"{domain}/admin/tool/dataprivacy/createdatarequest.php?type=2";
+
         // if user is logged into Moodle
         public static bool LoggedIn => username != null;
 

@@ -14,6 +14,7 @@ public class LoginView : PopupBase
     [SerializeField] private Button _btnRegister;
     [SerializeField] private Button _btnLogin;
     [SerializeField] private Button _btnLogout;
+    [SerializeField] private Button _btnDeleteAccount;
     [SerializeField] private TMP_Text _txtLogout;
     [SerializeField] private GameObject[] _loginObjects;
     [SerializeField] private GameObject[] _logoutObjects;
@@ -27,6 +28,7 @@ public class LoginView : PopupBase
         _btnRegister.onClick.AddListener(OnClickRegister);
         _btnLogin.onClick.AddListener(OnClickLogin);
         _btnLogout.onClick.AddListener(OnClickLogout);
+        _btnDeleteAccount.onClick.AddListener(OnClickDeleteAccount);
         _toggleRemember.onValueChanged.AddListener(OnToggleRememberValueChanged);
             
         ResetValues();
@@ -112,6 +114,10 @@ public class LoginView : PopupBase
     private void OnClickRegister()
     {
         Application.OpenURL(DBManager.registerPage);
+    }
+    private void OnClickDeleteAccount()
+    {
+        Application.OpenURL(DBManager.deleteAccount);
     }
 
     private async void OnClickLogin()
