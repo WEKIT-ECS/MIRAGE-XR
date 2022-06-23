@@ -43,7 +43,7 @@ namespace MirageXR
             AddHoverGuide(aiToggle.gameObject, "Select for artificial intelligence mode. The dialogue can be set by changing the assistant ID in the character model JSON in the LMS. AI can be activated only for one of the existing characters in this action step.");
             AddHoverGuide(preRecordToggle.gameObject, "If enabled, you are able to record an audio and the character will play it as a dialogue.");
 
-            animationMenu.onValueChanged.AddListener(delegate{ OnAnimationMenuOOptionChanged(); });
+            animationMenu.onValueChanged.AddListener(delegate { OnAnimationMenuOOptionChanged(); });
             trigger.onValueChanged.AddListener(delegate { OnTriggerValueChanged(); });
             aiToggle.onValueChanged.AddListener(delegate { OnAiToggleValueChanged(); });
             preRecordToggle.onValueChanged.AddListener(delegate { OnPreRecordToggleValueChanged(); });

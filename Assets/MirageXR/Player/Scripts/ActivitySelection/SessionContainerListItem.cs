@@ -85,14 +85,14 @@ namespace MirageXR
                 new DialogButtonContent("Yes", () => DeleteFromServer(activity)),
                 new DialogButtonContent("No"));
         }
-        
+
         private static async void DeleteFromServer(SessionContainer activity)
         {
             var result = await RootObject.Instance.moodleManager.DeleteArlem(activity.ItemID, activity.FileIdentifier);
             if (result)
             {
                 var sessionListView = FindObjectOfType<SessionListView>();
-                if (sessionListView) {sessionListView.RefreshActivityList(); }
+                if (sessionListView) { sessionListView.RefreshActivityList(); }
             }
         }
     }

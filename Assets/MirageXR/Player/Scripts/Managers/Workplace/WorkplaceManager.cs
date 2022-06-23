@@ -28,7 +28,7 @@ namespace MirageXR
         public Transform sensorContainer { get; private set; }
 
         // Device user id.
-        public static string userID {get; set; }
+        public static string userID { get; set; }
 
         // Frame / configuration pair for anchor calibration.
         [Serializable]
@@ -65,7 +65,7 @@ namespace MirageXR
         public async Task LoadWorkplace(string workplaceId)
         {
             InitContainers();
-            
+
             // empty string => create new workplace
             if (string.IsNullOrEmpty(workplaceId))
             {
@@ -107,7 +107,7 @@ namespace MirageXR
 
             return userID;
         }
-        
+
         public async Task PerformEditModeCalibration()
         {
             Debug.Log("Edit Mode Calibration started.\n");
@@ -265,7 +265,8 @@ namespace MirageXR
                 WorkplaceObjectFactory.CreatePoiObject(poi, GameObject.Find(place.id).transform);
 
                 place.pois.Add(poi);
-            }catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Debug.LogError(e);
             }
@@ -313,7 +314,7 @@ namespace MirageXR
             }
 
             await activityManager.StartActivity();
-            
+
             EventManager.WorkplaceCalibrated();
             Maggie.Speak("Workplace is now calibrated.");
         }

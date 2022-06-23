@@ -6,23 +6,24 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using Action = System.Action;
 
-public class PageView : MonoBehaviour, IDragHandler, IEndDragHandler{
-    
+public class PageView : MonoBehaviour, IDragHandler, IEndDragHandler
+{
+
     [Serializable]
-    public class IntUnityEvent : UnityEvent<int> {}
-    
+    public class IntUnityEvent : UnityEvent<int> { }
+
     [SerializeField] private RectTransform _content;
     [SerializeField] private AnimationCurve _animationCurve = AnimationCurve.Linear(0, 0, 1, 1);
     [SerializeField] private bool _elastic;
     [SerializeField] private float _moveTime = 0.2f;
     public bool interactable = true;
-    
+
     public IntUnityEvent OnPageChanged = new IntUnityEvent();
-    
+
     private int _totalPages;
     private int _currentPageIndex;
     private Coroutine _coroutine;
-    
+
     public int currentPageIndex
     {
         get
@@ -99,12 +100,13 @@ public class PageView : MonoBehaviour, IDragHandler, IEndDragHandler{
         return new Vector3(x, anchoredPosition.y, anchoredPosition.z);
     }
 
-    private static IEnumerator MoveToEnumerator(RectTransform rectTransform, Vector3 endPosition, float time, AnimationCurve curve = null, Action callback = null) 
+    private static IEnumerator MoveToEnumerator(RectTransform rectTransform, Vector3 endPosition, float time, AnimationCurve curve = null, Action callback = null)
     {
         if (curve == null) curve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
         var startPosition = rectTransform.anchoredPosition;
         var timer = 0.0f;
-        while (timer < 1.0f) {
+        while (timer < 1.0f)
+        {
             timer = Mathf.Min(1.0f, timer + Time.deltaTime / time);
             var value = curve.Evaluate(timer);
             rectTransform.anchoredPosition = Vector3.Lerp(startPosition, endPosition, value);
