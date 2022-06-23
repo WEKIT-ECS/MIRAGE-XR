@@ -23,7 +23,7 @@ namespace MirageXR
         public float Speed = 1f;
 
         // Update is called once per frame
-        void Update ()
+        void Update()
         {
             if (ActiveDirection == Direction.CW)
                 _speedFactor = -1f;
@@ -33,13 +33,13 @@ namespace MirageXR
             switch (ActiveAxis)
             {
                 case Axis.X:
-                    transform.Rotate (_speedFactor * Speed, 0, 0);
+                    transform.Rotate(_speedFactor * Speed, 0, 0);
                     break;
                 case Axis.Y:
-                    transform.Rotate (0, _speedFactor * Speed, 0);
+                    transform.Rotate(0, _speedFactor * Speed, 0);
                     break;
                 case Axis.Z:
-                    transform.Rotate (0, 0, _speedFactor * Speed);
+                    transform.Rotate(0, 0, _speedFactor * Speed);
                     break;
                 case Axis.None:
                 default:

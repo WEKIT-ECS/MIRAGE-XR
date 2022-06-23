@@ -28,11 +28,11 @@ namespace MirageXR
                 {
                     if (element is Detectable)
                     {
-                        CreateDetectableObject((Detectable) (object) element, false);
+                        CreateDetectableObject((Detectable)(object)element, false);
                     }
                     else if (element is Place)
                     {
-                        await CreatePlaceObject( (Place)(object)element );
+                        await CreatePlaceObject((Place)(object)element);
                     }
                 }
                 catch (Exception e)
@@ -631,46 +631,46 @@ namespace MirageXR
 
         public static void CreatePoiObject(Poi poi, Transform parent)
         {
-           var poiTemp = Utilities.CreateObject(poi.id, parent);
-           poiTemp.AddComponent<PoiEditor>().Initialize(poi);
+            var poiTemp = Utilities.CreateObject(poi.id, parent);
+            poiTemp.AddComponent<PoiEditor>().Initialize(poi);
 
-           // If offset not defined as separate values...
-           if (poi.x_offset.Equals(0) && poi.y_offset.Equals(0) && poi.z_offset.Equals(0))
-           {
-               // Use the CSV format if available.
-               if (!string.IsNullOrEmpty(poi.offset))
-                   poiTemp.transform.localPosition = Utilities.ParseStringToVector3(poi.offset);
-           }
+            // If offset not defined as separate values...
+            if (poi.x_offset.Equals(0) && poi.y_offset.Equals(0) && poi.z_offset.Equals(0))
+            {
+                // Use the CSV format if available.
+                if (!string.IsNullOrEmpty(poi.offset))
+                    poiTemp.transform.localPosition = Utilities.ParseStringToVector3(poi.offset);
+            }
 
-           // Parse offset from separate values.
-           else
-           {
-               poiTemp.transform.localPosition = new Vector3(poi.x_offset, poi.y_offset, poi.z_offset);
-           }
+            // Parse offset from separate values.
+            else
+            {
+                poiTemp.transform.localPosition = new Vector3(poi.x_offset, poi.y_offset, poi.z_offset);
+            }
 
-           if (!string.IsNullOrEmpty(poi.rotation))
-           {
-               if (Utilities.TryParseStringToVector3(poi.rotation, out Vector3 poiVal))
-               {
-                   poiTemp.transform.localEulerAngles = poiVal;
-               }
-               else
-               {
-                   Debug.LogError("Problem interpreting rotation value");
-               }
-           }
+            if (!string.IsNullOrEmpty(poi.rotation))
+            {
+                if (Utilities.TryParseStringToVector3(poi.rotation, out Vector3 poiVal))
+                {
+                    poiTemp.transform.localEulerAngles = poiVal;
+                }
+                else
+                {
+                    Debug.LogError("Problem interpreting rotation value");
+                }
+            }
 
-           if (!string.IsNullOrEmpty(poi.scale))
-           {
-               if (Utilities.TryParseStringToVector3(poi.scale, out Vector3 poiVal))
-               {
-                   poiTemp.transform.localScale = poiVal;
-               }
-               else
-               {
-                   Debug.LogError("Problem interpreting poi scale value");
-               }
-           }
+            if (!string.IsNullOrEmpty(poi.scale))
+            {
+                if (Utilities.TryParseStringToVector3(poi.scale, out Vector3 poiVal))
+                {
+                    poiTemp.transform.localScale = poiVal;
+                }
+                else
+                {
+                    Debug.LogError("Problem interpreting poi scale value");
+                }
+            }
 
         }
 

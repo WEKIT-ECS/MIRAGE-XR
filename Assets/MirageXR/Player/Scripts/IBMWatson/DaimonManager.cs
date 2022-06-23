@@ -9,9 +9,9 @@ public class DaimonManager : MonoBehaviour
     public SpeechInputService mySpeechInputMgr { get; private set; }
     private SpeechOutputService mySpeechOutputMgr;
 
-	public GameObject myCharacter { get;  set; }
-	private Animator myAnimator;
-	
+    public GameObject myCharacter { get; set; }
+    private Animator myAnimator;
+
     public GameObject[] lookTargets { get; private set; }
 
     private Dictionary<string, object> _context = null;
@@ -28,7 +28,7 @@ public class DaimonManager : MonoBehaviour
     {
         mySpeechInputMgr = GetComponent<SpeechInputService>();
         mySpeechOutputMgr = GetComponent<SpeechOutputService>();
-		myAnimator = myCharacter.GetComponent<Animator>();
+        myAnimator = myCharacter.GetComponent<Animator>();
     }
 
 
@@ -53,10 +53,10 @@ public class DaimonManager : MonoBehaviour
         }
 
         if ((wait < 0f) && (check))
-        { 
+        {
 
             //check that clip is not playing		
-            Debug.Log ("-------------------- Speech Output has finished playing, now reactivating SpeechInput.");
+            Debug.Log("-------------------- Speech Output has finished playing, now reactivating SpeechInput.");
             check = false;
 
             //Now let's start listening again.....
@@ -69,19 +69,21 @@ public class DaimonManager : MonoBehaviour
 
     // check for exercise name (from ExerciseController.cs)
     // and run the according animation (in myAnimator)
-	public void Animate( string exercise ) {
-		
-		switch (exercise) {
-			case "B12":
-				myAnimator.Play("BreathingIdle");
-				break;
+    public void Animate(string exercise)
+    {
+
+        switch (exercise)
+        {
+            case "B12":
+                myAnimator.Play("BreathingIdle");
+                break;
             case "waving":
                 myAnimator.Play("waving");
                 break;
-			default:
-				break;
-		}
-		
-	}
-	
+            default:
+                break;
+        }
+
+    }
+
 }

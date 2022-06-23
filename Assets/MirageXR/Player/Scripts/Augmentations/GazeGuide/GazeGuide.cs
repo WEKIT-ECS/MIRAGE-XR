@@ -14,20 +14,20 @@ namespace MirageXR
         public GameObject Parent { get; set; }
 
         // Inbuild Unity function launched when object is first rendered with any camera.
-        private void OnBecameVisible ()
+        private void OnBecameVisible()
         {
             // Raise the flag when object has become visible.
             _isVisible = true;
         }
 
         // Inbuild Unity function launched when object is no more rendered with any cameras.
-        private void OnBecameInvisible ()
+        private void OnBecameInvisible()
         {
             // Lower the flag when object has become invisible.
             _isVisible = false;
         }
 
-        private void Update ()
+        private void Update()
         {
             // If object has entered the view, count time the timer.
             if (_isVisible && !_isFound)
@@ -48,7 +48,7 @@ namespace MirageXR
                 _isFound = true;
 
                 // Disable the gaze guide.
-                Parent.GetComponent<LineRenderer> ().enabled = false;
+                Parent.GetComponent<LineRenderer>().enabled = false;
 
                 // Disable this object.
                 //gameObject.SetActive (false);

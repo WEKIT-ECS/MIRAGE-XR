@@ -66,12 +66,12 @@ namespace MirageXR
             return (true);
         }
 
-        public virtual void RegisterStreamListener ( CallbackStack fun ) 
+        public virtual void RegisterStreamListener(CallbackStack fun)
         {
-           OnSensorStreamUpdate += fun;
+            OnSensorStreamUpdate += fun;
         }
 
-        public virtual void UnregisterStreamListener( CallbackStack fun)
+        public virtual void UnregisterStreamListener(CallbackStack fun)
         {
             OnSensorStreamUpdate -= fun;
         }

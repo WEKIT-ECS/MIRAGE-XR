@@ -7,37 +7,37 @@ namespace MirageXR
 {
     public class UiSymbol : MirageXRPrefab
     {
-        private void Awake ()
+        private void Awake()
         {
             // We don't need the gaze guide for UI symbols.
             UseGuide = false;
         }
-        
+
         /// <summary>
         /// Initialization method.
         /// </summary>
         /// <param name="content">Action toggle object.</param>
         /// <returns>Returns true if initialization succesfull.</returns>
-        public override bool Init (ToggleObject content)
+        public override bool Init(ToggleObject content)
         {
             // Try to fetch the symbol sprite from the resources.
-            var symbol = Resources.Load<Sprite> (content.predicate);
+            var symbol = Resources.Load<Sprite>(content.predicate);
 
             // If symbol couldn't be found, terminate initialization.
             if (symbol == null)
             {
-                Debug.Log ("Symbol couldn't be found. " + content.predicate);
+                Debug.Log("Symbol couldn't be found. " + content.predicate);
                 return false;
             }
 
             // Set the displayed sprite to the one just loaded.
-            GetComponent<Image> ().sprite = symbol;
+            GetComponent<Image>().sprite = symbol;
 
             // Set parent.
-            transform.SetParent (GameObject.FindGameObjectWithTag ("ActionUi.Symbols").transform);
+            transform.SetParent(GameObject.FindGameObjectWithTag("ActionUi.Symbols").transform);
 
             // Get the rect transform component.
-            var rectTransform = GetComponent<RectTransform> ();
+            var rectTransform = GetComponent<RectTransform>();
 
             // Set initial transform.
             rectTransform.localPosition = Vector3.zero;
@@ -49,13 +49,13 @@ namespace MirageXR
             rectTransform.localScale = Vector3.one;
 
             // Set final position, if defined in action step.
-            if (!string.IsNullOrEmpty (content.position))
+            if (!string.IsNullOrEmpty(content.position))
                 rectTransform.localPosition = Utilities.ParseStringToVector3(content.position);
 
             // Set final rotation, if defined in action step.
-            if (!string.IsNullOrEmpty (content.rotation))
+            if (!string.IsNullOrEmpty(content.rotation))
                 rectTransform.localEulerAngles = Utilities.ParseStringToVector3(content.rotation);
-            
+
             // Set name.
             name = content.predicate;
 

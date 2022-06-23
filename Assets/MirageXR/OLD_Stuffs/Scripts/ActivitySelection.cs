@@ -21,7 +21,7 @@ namespace MirageXR
         /// <summary>
         /// Load activity on button press.
         /// </summary>
-        public async void LoadActivity (string url = null)
+        public async void LoadActivity(string url = null)
         {
             // Click.
             EventManager.Click();
@@ -42,7 +42,7 @@ namespace MirageXR
             // For baked in activities. Add url to button configuration.
             else
             {
-                
+
                 PlayerPrefs.SetString("activityUrl", url);
                 PlayerPrefs.Save();
 

@@ -15,18 +15,18 @@ namespace MirageXR
         [Tooltip("Sound played when IoT trigger triggers.")]
         public AudioClip IotTrigger;
 
-        private void Start ()
+        private void Start()
         {
-            _speaker = GetComponent<AudioSource> ();
+            _speaker = GetComponent<AudioSource>();
         }
 
         /// <summary>
         /// Play IoT trigger sound.
         /// </summary>
-        private void PlayIotTrigger ()
+        private void PlayIotTrigger()
         {
             _speaker.clip = IotTrigger;
-            _speaker.Play ();
+            _speaker.Play();
         }
     }
 }
