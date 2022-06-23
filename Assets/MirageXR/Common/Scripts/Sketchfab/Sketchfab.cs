@@ -155,9 +155,9 @@ namespace MirageXR
             {
                 var form = new MultipartFormDataContent
                 {
-                    { new StringContent(grantTypeValue), grantTypeKey},
-                    { new StringContent(username), usernameKey},
-                    { new StringContent(password), passwordKey}
+                    { new StringContent(grantTypeValue), grantTypeKey },
+                    { new StringContent(username), usernameKey },
+                    { new StringContent(password), passwordKey }
                 };
 
                 client.Timeout = TimeSpan.FromSeconds(timeout);
@@ -196,10 +196,10 @@ namespace MirageXR
             {
                 var form = new MultipartFormDataContent
                 {
-                    { new StringContent(grantTypeValue), grantTypeKey},
-                    { new StringContent(clientId), clientIdKey},
-                    { new StringContent(clientSecret), clientSecretKey},
-                    { new StringContent(renewToken), refreshKey}
+                    { new StringContent(grantTypeValue), grantTypeKey },
+                    { new StringContent(clientId), clientIdKey },
+                    { new StringContent(clientSecret), clientSecretKey },
+                    { new StringContent(renewToken), refreshKey }
                 };
 
                 client.Timeout = TimeSpan.FromSeconds(timeout);
@@ -438,11 +438,11 @@ namespace MirageXR
 
             var form = new MultipartFormDataContent
             {
-                { new StringContent(appId), clientIdKey},
-                { new StringContent(redirectUri), redirectUriKey},
-                { new StringContent(code), codeKey},
-                { new StringContent(authorizationCodeValue), grantTypeKey},
-                { new StringContent(appSecret), clientSecretKey},
+                { new StringContent(appId), clientIdKey },
+                { new StringContent(redirectUri), redirectUriKey },
+                { new StringContent(code), codeKey },
+                { new StringContent(authorizationCodeValue), grantTypeKey },
+                { new StringContent(appSecret), clientSecretKey },
             };
 
             using (var client = new HttpClient())

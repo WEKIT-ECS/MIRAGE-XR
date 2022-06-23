@@ -456,7 +456,7 @@ namespace MirageXR
                 case "image":
                     // Path to local storage.
                     string[] paths = { Application.persistentDataPath, workplaceManager.workplace.id, "/detectables/",
-                                      detectable.id, detectable.id, ".xml"};
+                                      detectable.id, detectable.id, ".xml" };
                     var path = Path.Combine(paths);
 
                     Debug.Log("VUFORIA PATH: " + path);
