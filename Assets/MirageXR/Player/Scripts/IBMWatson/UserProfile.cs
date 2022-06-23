@@ -27,14 +27,15 @@ public class UserProfile : MonoBehaviour
     };
     public cancers CancerType;
 
-    public enum Frequency {
+    public enum Frequency
+    {
         threeMonths,
         threeToSixMonths
     };
     public Frequency PhysicalExerciseFrequency;
     public Frequency ExerciseFrequency;
 
-    public enum feelings {good, bad};
+    public enum feelings { good, bad };
     public feelings Feeling;
 
     public enum TreatmentTime { };
@@ -51,12 +52,12 @@ public class UserProfile : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }
