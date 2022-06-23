@@ -79,8 +79,7 @@ public class OnboardingView : UIBehaviour, ICanvasElement, IBeginDragHandler, IE
           content,
           DrivenTransformProperties.Anchors |
           DrivenTransformProperties.AnchoredPositionY |
-          DrivenTransformProperties.SizeDelta
-        );
+          DrivenTransformProperties.SizeDelta);
         // Set the content size to match the viewport.
         content.anchorMin = Vector2.zero;
         content.anchorMax = Vector2.up;
