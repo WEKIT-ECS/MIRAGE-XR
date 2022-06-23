@@ -86,7 +86,7 @@ public class SpeechInputService : MonoBehaviour
     private IEnumerator CreateService()
     {
         /*
-		 
+         
         if (string.IsNullOrEmpty(iamApikey))
         {
             throw new IBMException("Please provide IAM ApiKey for the service.");
@@ -108,8 +108,8 @@ public class SpeechInputService : MonoBehaviour
             yield return null;
 
         _service = new SpeechToTextService(credentials);
-		 
-		 */
+         
+         */
 
         _service = new SpeechToTextService();
 

@@ -12,52 +12,52 @@ using UnityEditor;
 
 class SketchfabImporter : EditorWindow
 {
-	/*
-	[MenuItem("Sketchfab/Import glTF")]
-	static void Init()
-	{
+    /*
+    [MenuItem("Sketchfab/Import glTF")]
+    static void Init()
+    {
 #if UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX || UNITY_STANDALONE_LINUX
-		SketchfabImporter window = (SketchfabImporter)EditorWindow.GetWindow(typeof(SketchfabImporter));
-		window.titleContent.text = "glTF importer";
-		window.Show(true);
+        SketchfabImporter window = (SketchfabImporter)EditorWindow.GetWindow(typeof(SketchfabImporter));
+        window.titleContent.text = "glTF importer";
+        window.Show(true);
 #else // and error dialog if not standalone
-		EditorUtility.DisplayDialog("Error", "Your build target must be set to standalone", "Okay");
+        EditorUtility.DisplayDialog("Error", "Your build target must be set to standalone", "Okay");
 #endif
-	}
+    }
 
-	// Public
-	public bool _useGLTFMaterial = false;
+    // Public
+    public bool _useGLTFMaterial = false;
 
-	private string _defaultImportDirectory = "";
-	private static string _currentSampleName = "Imported";
-	GLTFEditorImporter _importer;
-	string _gltfPath = "";
-	string _projectDirectory = "";
-	string _unzipDirectory = "";
-	private List<string> _unzippedFiles;
-	bool _isInitialized = false;
-	GUIStyle _header;
-	Sketchfab.SketchfabAPI _api;
-	Vector2 minimumSize = new Vector2(603, 450);
+    private string _defaultImportDirectory = "";
+    private static string _currentSampleName = "Imported";
+    GLTFEditorImporter _importer;
+    string _gltfPath = "";
+    string _projectDirectory = "";
+    string _unzipDirectory = "";
+    private List<string> _unzippedFiles;
+    bool _isInitialized = false;
+    GUIStyle _header;
+    Sketchfab.SketchfabAPI _api;
+    Vector2 minimumSize = new Vector2(603, 450);
 
-	void setupAPI()
-	{
-		_api = new Sketchfab.SketchfabAPI("Unity-exporter");
+    void setupAPI()
+    {
+        _api = new Sketchfab.SketchfabAPI("Unity-exporter");
 
-		//Setup callbacks
-		_api.setCheckVersionSuccessCb(OnCheckVersionSuccess);
-		_api.setCheckVersionFailedCb(OnCheckVersionFailure);
-		_api.checkLatestExporterVersion();
-	}
+        //Setup callbacks
+        _api.setCheckVersionSuccessCb(OnCheckVersionSuccess);
+        _api.setCheckVersionFailedCb(OnCheckVersionFailure);
+        _api.checkLatestExporterVersion();
+    }
 
-	private void Initialize()
-	{
-		SketchfabPlugin.Initialize(); // Load header image
-		setupAPI();
+    private void Initialize()
+    {
+        SketchfabPlugin.Initialize(); // Load header image
+        setupAPI();
 
-		_importer = new GLTFEditorImporter(this.Repaint);
-		_unzippedFiles = new List<string>();
-		_isInitialized = true;
+        _importer = new GLTFEditorImporter(this.Repaint);
+        _unzippedFiles = new List<string>();
+        _isInitialized = true;
 		_unzipDirectory = Application.temporaryCachePath + "/unzip";
 		_header = new GUIStyle(EditorStyles.boldLabel);
 

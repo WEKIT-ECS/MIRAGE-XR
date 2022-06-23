@@ -15,7 +15,7 @@ public class AppSelection : MonoBehaviour
     /// <summary>
     /// Start MirageXR Recorder
     /// </summary>
-	public void StartRecorder()
+    public void StartRecorder()
     {
         EventManager.Click();
         SpatialMappingHelper.ActivateSpatialMapping();

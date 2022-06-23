@@ -35,7 +35,7 @@ public class LangTransService : MonoBehaviour
     {
 
         languageTranslatorService = new LanguageTranslatorService(versionDate);
-		while (!languageTranslatorService.Authenticator.CanAuthenticate()) yield return null;
+        while (!languageTranslatorService.Authenticator.CanAuthenticate()) yield return null;
 
         //Translate("Where is the library");
     }

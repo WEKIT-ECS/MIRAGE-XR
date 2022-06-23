@@ -98,7 +98,7 @@ public class DialogueService : MonoBehaviour
         //  Wait for tokendata
         while (!credentials.HasIamTokenData())
             yield return null;
-		*/
+        */
 
         service = new AssistantService(versionDate); // , credentials);
 

@@ -23,7 +23,7 @@ public class MirageXRLearningHubControl : MonoBehaviour {
     // Use this for initialization
     void Start () {
         //InvokeRepeating("checkLearningHubStatus", 0.0f, 30.0f);
-	}
+    }
     */
 
     public async void CheckLearningHubStatus()
