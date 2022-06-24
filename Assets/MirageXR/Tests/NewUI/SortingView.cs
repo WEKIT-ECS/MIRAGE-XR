@@ -21,11 +21,11 @@ public class SortingView : PopupBase
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
         base.Init(onClose, args);
-        
+
         _btnClose.onClick.AddListener(Close);
         //_toggleSmallCards.isOn = true;
         //_toggleBigCards.isOn = false;
-        
+
         _toggleSmallCards.onValueChanged.AddListener(ShowSmallCard);
         _toggleBigCards.onValueChanged.AddListener(ShowBigCard);
     }
@@ -39,11 +39,11 @@ public class SortingView : PopupBase
         SELECTED_CARD_SIZE = "small";
         ActivityListView_v2.Instance.UpdateListView();
     }
-    
+
     private void ShowBigCard(bool value)
     {
         SELECTED_CARD_SIZE = "big";
         ActivityListView_v2.Instance.UpdateListView();
     }
-    
+
 }

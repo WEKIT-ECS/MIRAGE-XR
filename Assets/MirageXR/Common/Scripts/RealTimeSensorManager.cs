@@ -49,7 +49,7 @@ namespace MirageXR
         // Overall sensor connection states.
         private bool _sensorsConnected;
         private bool _sensorsConnectedPrevious;
-        
+
         public bool IsActive;
 
         // There can only be one...

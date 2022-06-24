@@ -15,14 +15,14 @@ public class GhostRecorder
     public GhostDataFrame LastFrame => _lastFrame;
 
     private readonly List<GhostDataFrame> _ghostFrames = new List<GhostDataFrame>();
-    
+
     private GhostDataFrame _lastFrame;
     private CancellationTokenSource _cancellationTokenSource;
     private Transform _anchor;
     private Transform _cameraTransform;
     private int _cooldown;
     private bool _isRecording;
-    
+
     /// <summary>
     /// Write the data in an .xml file and save it locally.
     /// </summary>
@@ -41,7 +41,7 @@ public class GhostRecorder
 
         Debug.Log($"saved ghost track file: {filePath}");
     }
-    
+
     /// <summary>
     /// Load the data from an .xml file
     /// </summary>
@@ -50,7 +50,7 @@ public class GhostRecorder
     public static bool TryLoadFromFile(string filePath, out List<GhostDataFrame> ghostDataFrames)
     {
         ghostDataFrames = null;
-        
+
         if (!File.Exists(filePath)) return false;
 
         using (var file = File.Open(filePath, FileMode.Open))
@@ -62,7 +62,7 @@ public class GhostRecorder
 
         return ghostDataFrames != null && ghostDataFrames.Count != 0;
     }
-    
+
     /// <summary>
     /// Start recording the position of the ghost
     /// </summary>
@@ -73,7 +73,7 @@ public class GhostRecorder
     public void Start(Transform anchor, Transform camera, float? cooldown = null)
     {
         const int millisecondsInSecond = 1000;
-        
+
         if (_isRecording)
         {
             throw new Exception("A new recording cannot be started because the previous one has not been completed.");
@@ -83,16 +83,16 @@ public class GhostRecorder
         _cancellationTokenSource = new CancellationTokenSource();
         _cameraTransform = camera;
         _anchor = anchor;
-        
+
         _ghostFrames.Clear();
         _isRecording = true;
 
         StartAsync();
     }
-    
+
     public List<GhostDataFrame> Stop()
     {
-        if (!_isRecording) 
+        if (!_isRecording)
         {
             throw new Exception("The recording cannot be stopped because the recording has not been started.");
         }
@@ -115,11 +115,11 @@ public class GhostRecorder
             catch (TaskCanceledException) { /*hide exception*/ }
         }
     }
-    
+
     private void rec()
     {
         if (!_isRecording) return;
-        
+
         var cameraRotation = _cameraTransform.rotation;
         var defaultRotation = Quaternion.Inverse(_anchor.localRotation) * cameraRotation;
 
@@ -137,13 +137,13 @@ public class GhostRecorder
             var rotation = Quaternion.LookRotation(rightHandRay.direction, Vector3.up);
             _lastFrame.rightHand = CreateLocalPose(_anchor, rightHandRay.origin, rotation);
         }
-        
+
         if (InputRayUtils.TryGetHandRay(Handedness.Left, out var leftHandRay))
         {
             var rotation = Quaternion.LookRotation(leftHandRay.direction, Vector3.up);
-             _lastFrame.leftHand = CreateLocalPose(_anchor, leftHandRay.origin, rotation);
+            _lastFrame.leftHand = CreateLocalPose(_anchor, leftHandRay.origin, rotation);
         }
-        
+
         _ghostFrames.Add(_lastFrame);
     }
 

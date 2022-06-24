@@ -7,7 +7,7 @@ public class LoadView : MonoBehaviour
 
     [SerializeField] private Image _background;
     [SerializeField] private Image _circle;
-    
+
     private void Awake()
     {
         if (Instance != null)
@@ -15,9 +15,9 @@ public class LoadView : MonoBehaviour
             Debug.LogError($"{nameof(LoadView)} must only be a single copy!");
             return;
         }
-        
+
         Instance = this;
-        
+
         Hide();
     }
 

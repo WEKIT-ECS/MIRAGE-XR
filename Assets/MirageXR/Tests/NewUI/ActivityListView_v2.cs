@@ -14,12 +14,12 @@ namespace MirageXR
     public class ActivityListView_v2 : MonoBehaviour
     {
         public static ActivityListView_v2 Instance { get; private set; }
-        
+
         [SerializeField] private Button _btnFilter;
         [SerializeField] private Transform _listTransform;
         [SerializeField] private ActivityListItem_v2 _smallItemPrefab;
         [SerializeField] private ActivityListItem_v2 _bigItemPrefab;
-        
+
         [SerializeField] private SortingView _sortingPrefab;
 
         private List<SessionContainer> _content;
@@ -95,7 +95,7 @@ namespace MirageXR
                 }
                 else
                 {
-                    dictionary.Add(t.id, new SessionContainer {Activity = t});
+                    dictionary.Add(t.id, new SessionContainer { Activity = t });
                 }
             });
 
@@ -108,7 +108,7 @@ namespace MirageXR
                 }
                 else
                 {
-                    dictionary.Add(t.sessionid, new SessionContainer {Session = t});
+                    dictionary.Add(t.sessionid, new SessionContainer { Session = t });
                 }
             });
 

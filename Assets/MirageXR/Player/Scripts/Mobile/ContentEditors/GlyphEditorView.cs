@@ -9,9 +9,9 @@ public class GlyphEditorView : PopupEditorBase
     private const float MIN_SLIDER_VALUE = 1;
     private const float MAX_SLIDER_VALUE = 10;
     private const float DEFAULT_SLIDER_VALUE = 3;
-    
+
     public override ContentType editorForType => ContentType.ACT;
-    
+
     [SerializeField] private Transform _contentContainer;
     [SerializeField] private GlyphListItem _glyphListItemPrefab;
     [SerializeField] private Toggle _toggleTrigger;
@@ -26,9 +26,9 @@ public class GlyphEditorView : PopupEditorBase
     private float _gazeDuration;
     private int _triggerStepIndex;
     private string _prefabName;
-    
+
     private int _maxStepIndex => activityManager.ActionsOfTypeAction.Count - 1;
-    
+
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
         base.Init(onClose, args);
@@ -39,7 +39,7 @@ public class GlyphEditorView : PopupEditorBase
 
         UpdateView();
     }
-    
+
     private void UpdateView()
     {
         _slider.minValue = MIN_SLIDER_VALUE;
@@ -47,19 +47,19 @@ public class GlyphEditorView : PopupEditorBase
 
         _toggleTrigger.isOn = false;
         _slider.value = DEFAULT_SLIDER_VALUE;
-        
+
         for (int i = _contentContainer.childCount - 1; i >= 0; i--)
         {
             var child = _contentContainer.GetChild(i);
             Destroy(child);
         }
-        
+
         foreach (var actionObject in _actionObjects)
         {
             var item = Instantiate(_glyphListItemPrefab, _contentContainer);
             item.Init(actionObject, OnAccept);
         }
-        
+
         _triggerStepIndex = activityManager.ActionsOfTypeAction.IndexOf(_step);
         var isLastStep = activityManager.IsLastAction(_step);
 
@@ -67,7 +67,7 @@ public class GlyphEditorView : PopupEditorBase
         {
             _triggerStepIndex = isLastStep ? _triggerStepIndex - 1 : _triggerStepIndex + 1;
         }
-        
+
         if (_content != null)
         {
             _trigger = _step.triggers.Find(tr => tr.id == _content.poi);
@@ -92,27 +92,27 @@ public class GlyphEditorView : PopupEditorBase
         _gazeDuration = value;
         _txtSliderValue.text = $"{_gazeDuration} sec";
     }
-    
+
     private void OnNextToClick()
     {
         if (_triggerStepIndex >= _maxStepIndex) return;
         _triggerStepIndex++;
         _txtStep.text = (_triggerStepIndex + 1).ToString();
     }
-    
+
     private void OnPreviousToClick()
     {
         if (_triggerStepIndex <= 0) return;
         _triggerStepIndex--;
         _txtStep.text = (_triggerStepIndex + 1).ToString();
     }
-    
+
     private void OnAccept(string prefabName)
     {
         _prefabName = prefabName;
         OnAccept();
     }
-    
+
     protected override void OnAccept()
     {
         if (_content != null)
@@ -125,7 +125,7 @@ public class GlyphEditorView : PopupEditorBase
         }
 
         _content.predicate = $"act:{_prefabName}";
-        
+
         if (_toggleTrigger.isOn)
         {
             _step.AddOrReplaceArlemTrigger(TriggerMode.Detect, ActionType.Act, _content.poi, _gazeDuration, (_triggerStepIndex + 1).ToString());
@@ -134,7 +134,7 @@ public class GlyphEditorView : PopupEditorBase
         {
             _step.RemoveArlemTrigger(_content);
         }
-        
+
         EventManager.ActivateObject(_content);
         EventManager.NotifyActionModified(_step);
 

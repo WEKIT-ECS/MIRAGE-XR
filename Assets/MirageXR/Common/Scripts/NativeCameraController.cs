@@ -8,8 +8,8 @@ using UnityEngine.Windows.WebCam;
 
 public class NativeCameraController
 {
-    private const int DEFAULT_MAX_SIZE = 1024; 
-    
+    private const int DEFAULT_MAX_SIZE = 1024;
+
     public static void TakePicture(Action<bool, Texture2D> callback, bool showHolograms = false, int maxSize = DEFAULT_MAX_SIZE)
     {
 #if UNITY_WSA || UNITY_EDITOR
@@ -92,23 +92,23 @@ public class NativeCameraController
             }
         });
     }
-    
+
     private static void StopVideoRecordingMobile()
     {
         Debug.Log($"no need to call this function ({nameof(StopVideoRecordingMobile)}) for mobile devices");
     }
-    
+
 #if UNITY_WSA || UNITY_EDITOR
     private static void TakePictureUWP(Action<bool, Texture2D> callback, bool showHolograms = false, int maxSize = DEFAULT_MAX_SIZE)
     {
         var resolutions = PhotoCapture.SupportedResolutions.Where(t => t.height <= maxSize && t.width <= maxSize).ToList();
 
         if (resolutions.Count == 0)
-        {            
+        {
             Debug.LogWarning($"No extension was found for the specified parameters (maxSize == {maxSize}). The maximum available resolution will be used.");
             resolutions = PhotoCapture.SupportedResolutions.ToList();
         }
-        
+
         if (resolutions.Count == 0)
         {
             Debug.LogWarning("Could not take image. No resolutions are available. Is the webcam accessbile?");
@@ -119,7 +119,7 @@ public class NativeCameraController
         var cameraResolution = resolutions.OrderByDescending(res => res.width * res.height).First();
 
         PhotoCapture photoCapture;
-        
+
         PhotoCapture.CreateAsync(showHolograms, captureObject =>
         {
             photoCapture = captureObject;
@@ -167,8 +167,8 @@ public class NativeCameraController
     private static VideoCapture _videoCapture;
     private static string _filePath;
     private static Action<bool, string> _recordCallback;
-    
-    private static void StartVideoRecordingUWPAsync(string filePath, Action<bool, string> callback, 
+
+    private static void StartVideoRecordingUWPAsync(string filePath, Action<bool, string> callback,
         VideoCapture.AudioState audioState = VideoCapture.AudioState.MicAudio, bool showHolograms = false)
     {
         if (_videoCapture != null && _videoCapture.IsRecording)
@@ -221,7 +221,7 @@ public class NativeCameraController
         _videoCapture?.Dispose();
         _videoCapture = null;
     }
-    
+
     private static void StopVideoRecordingUWP()
     {
         if (_videoCapture == null || !_videoCapture.IsRecording)
@@ -229,7 +229,7 @@ public class NativeCameraController
             Debug.LogError("No recording taking place");
             return;
         }
-        
+
         _videoCapture.StopRecordingAsync(result =>
         {
             Debug.Log("Stopped Recording Video!");

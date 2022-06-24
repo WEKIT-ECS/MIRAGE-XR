@@ -9,223 +9,223 @@ using UnityEngine;
 
 namespace MirageXR
 {
-	/// <summary>
-	/// ActivityParser. Used for parsing Arlem activity file files
-	/// and for handling activities defined in the file.
-	/// </summary>
-	public class ActivityManager
-	{
-		private const string SESSION_ID_FORMAT = "session-{0:yyyy-MM-dd_HH-mm-ss}";
-		private const string WORKPLACE_ID_FORMAT = "{0}-workplace.json";
+    /// <summary>
+    /// ActivityParser. Used for parsing Arlem activity file files
+    /// and for handling activities defined in the file.
+    /// </summary>
+    public class ActivityManager
+    {
+        private const string SESSION_ID_FORMAT = "session-{0:yyyy-MM-dd_HH-mm-ss}";
+        private const string WORKPLACE_ID_FORMAT = "{0}-workplace.json";
 
-		public Activity Activity => _activity;
-		public string AbsoluteURL { get; set; }	// Id of the currently active action.
-		public string ActiveActionId => ActiveAction != null ? ActiveAction.id : string.Empty;
-		public Action ActiveAction { get; private set; }
-		public string SessionId => Path.GetFileName(ActivityPath);
-		public bool IsReady { get; private set; }
-		public List<Action> ActionsOfTypeAction => _actionsOfTypeAction;
-		public string ActivityPath	// Path for local files
-		{
-			get => _activityPath;
-			private set
-			{
-				if (!Directory.Exists(value))
-				{
-					Directory.CreateDirectory(value);
-				}
-				_activityPath = value;
-			}
-		}
+        public Activity Activity => _activity;
+        public string AbsoluteURL { get; set; } // Id of the currently active action.
+        public string ActiveActionId => ActiveAction != null ? ActiveAction.id : string.Empty;
+        public Action ActiveAction { get; private set; }
+        public string SessionId => Path.GetFileName(ActivityPath);
+        public bool IsReady { get; private set; }
+        public List<Action> ActionsOfTypeAction => _actionsOfTypeAction;
+        public string ActivityPath  // Path for local files
+        {
+            get => _activityPath;
+            private set
+            {
+                if (!Directory.Exists(value))
+                {
+                    Directory.CreateDirectory(value);
+                }
+                _activityPath = value;
+            }
+        }
 
-		private readonly ActivityRestorer _activityRestorer = new ActivityRestorer();
-		private List<Action> _actionsOfTypeAction = new List<Action>();
-		private string _activityPath;
-		private bool _isSwitching = true; // Flag for checking if manager is in the middle of switching an activity.
-		private string _activityUrl;
-		private Activity _activity;
-		private bool _newIdGenerated;
-		private bool _mustCleanUp;
-		private bool _editModeActive;
+        private readonly ActivityRestorer _activityRestorer = new ActivityRestorer();
+        private List<Action> _actionsOfTypeAction = new List<Action>();
+        private string _activityPath;
+        private bool _isSwitching = true; // Flag for checking if manager is in the middle of switching an activity.
+        private string _activityUrl;
+        private Activity _activity;
+        private bool _newIdGenerated;
+        private bool _mustCleanUp;
+        private bool _editModeActive;
 
-		public bool EditModeActive
-		{
-			get => _editModeActive;
-			set
-			{
-				var changed = _editModeActive != value;
-				_editModeActive = value;
+        public bool EditModeActive
+        {
+            get => _editModeActive;
+            set
+            {
+                var changed = _editModeActive != value;
+                _editModeActive = value;
                 if (_editModeActive)
                 {
                     GenerateNewId();
                 }
                 if (changed)
-				{
-					EventManager.NotifyEditModeChanged(value);
-				}
-			}
-		}
-
-		public void Subscription()
-		{
-			EventManager.OnClearAll += Clear;
-		}
-
-		public void Unsubscribe()
-		{
-			EventManager.OnClearAll -= Clear;
-		}
-
-		public void OnDestroy()
-		{
-			if (_activity == null)
-			{
-				return;
-			}
-
-			// TODO: at some point we should implement a way to find out if an activity is resumable
-			var isResumable = true;
-			if (ActiveAction == null)
-			{
-				PlayerPrefs.SetString(_activity.id, "StartingAction");
-				return;
-			}
-
-			var lastCompleted = ActionsOfTypeAction.IndexOf(ActiveAction) >= ActionsOfTypeAction.Count - 1 && ActiveAction.isCompleted;
-
-			PlayerPrefs.SetString(_activity.id, !isResumable || lastCompleted ? "StartingAction" : ActiveAction.id);
-			PlayerPrefs.Save();
-
-			if (_mustCleanUp)
-			{
-				ActivityLocalFiles.CleanUp(_activity);
-			}
-		}
-
-		private void Clear()
-		{
-			_activity = null;
-			_activityRestorer.Clear();
-		}
-		
-		/// <summary>
-		/// Reset activity manager when OnPlayerReset event is triggered.
-		/// </summary>
-		public async Task PlayerReset()
-		{
-			_isSwitching = true;
-			PlayerPrefs.SetString(_activity.id, "StartingAction");
-			Clear();
-			await LoadActivity(_activityUrl);
-			EventManager.PlayerReset();
-		}
-
-		public void CreateNewActivity()
-		{
-			var activity = CreateEmptyActivity();
-			_newIdGenerated = false;
-			EditModeActive = false;
-			ActivateActivity(activity).AsAsyncVoid();
-		}
-
-		private static Activity CreateEmptyActivity()
-		{
-			const string cultureInfo = "en-GB";
-			
-			return new Activity
-			{
-				name = $"Activity ({DateTime.Now.ToString(new CultureInfo(cultureInfo))})",
-				version = Application.version,
-				id = string.Empty
-			};
-		}
-
-		public async Task LoadActivity(string activityId)
-		{
-			var activity = string.IsNullOrEmpty(activityId) ? CreateEmptyActivity() : ActivityParser.Parse(activityId);
-			_activityUrl = activityId;
-      
-			//Always load an existing activity in play mode
-			EditModeActive = false;
-
-			await ActivateActivity(activity);
-		}
-
-		private async Task ActivateActivity(Activity activity)
-		{
-			EventManager.ClearAll();
-			await Task.Delay(100);
-
-			_activity = activity;
-			_actionsOfTypeAction = activity.actions.Where(t => t.type == ActionType.Action).ToList();
-			EventManager.InitUi();
-
-			EventManager.DebugLog($"Activity manager: {_activity.id} parsed.");
-
-			ActivityPath = Path.Combine(Application.persistentDataPath, _activity.id);
-
-			if (IsNeedToRestore(activity, out var restoreId))
-			{
-				_activityRestorer.RestoreActions(activity, restoreId);
-			}
-
-			await RootObject.Instance.workplaceManager.LoadWorkplace(_activity.workplace);
-
-			await StartActivity();
-			IsReady = true;
-		}
-
-		private static bool IsNeedToRestore(Activity activity, out string restoreId)
-		{
-			restoreId = PlayerPrefs.GetString(activity.id);
-			return !restoreId.Equals("StartingAction") && !string.IsNullOrEmpty(restoreId);
-		}
-
-		/// <summary>
-		/// Starts the activity when workplace file parsing is completed.
-		/// </summary>
-		public async Task StartActivity()
-		{
-			if (IsNeedToRestore(_activity, out var restoreId) && !restoreId.Equals(_activity.start))
-			{
-				try
-				{
-					_activityRestorer.RestoreState(_activity);
-				}
-				catch (Exception e)
-				{
-					Debug.Log(e);
-				}
-				_isSwitching = false;
-				EventManager.DebugLog($"Activity manager: Starting Activity: {_activity.id}");
-				EventManager.ActivityStarted();
-				await ActivateAction(restoreId);
-			}
-			else
-			{
-				try
                 {
-	                if (string.IsNullOrEmpty(_activity.start))
-	                {
-		                _isSwitching = false;
-		                EventManager.ActivityStarted();
-		                await AddAction(Vector3.zero);
-		                return;
-	                }
+                    EventManager.NotifyEditModeChanged(value);
+                }
+            }
+        }
 
-	                // Activate the starting action specified in the json file.
-	                foreach (var action in _activity.actions)
-	                {
-		                // Don't go further if the action id doesn't match.
-		                if (action.id != _activity.start)
-		                {
-			                continue;
-		                }
-		                _isSwitching = false;
-		                EventManager.DebugLog($"Activity manager: Starting Activity: {_activity.id}");
-		                EventManager.ActivityStarted();
-		                await ActivateAction(action.id);
-	                }
+        public void Subscription()
+        {
+            EventManager.OnClearAll += Clear;
+        }
+
+        public void Unsubscribe()
+        {
+            EventManager.OnClearAll -= Clear;
+        }
+
+        public void OnDestroy()
+        {
+            if (_activity == null)
+            {
+                return;
+            }
+
+            // TODO: at some point we should implement a way to find out if an activity is resumable
+            var isResumable = true;
+            if (ActiveAction == null)
+            {
+                PlayerPrefs.SetString(_activity.id, "StartingAction");
+                return;
+            }
+
+            var lastCompleted = ActionsOfTypeAction.IndexOf(ActiveAction) >= ActionsOfTypeAction.Count - 1 && ActiveAction.isCompleted;
+
+            PlayerPrefs.SetString(_activity.id, !isResumable || lastCompleted ? "StartingAction" : ActiveAction.id);
+            PlayerPrefs.Save();
+
+            if (_mustCleanUp)
+            {
+                ActivityLocalFiles.CleanUp(_activity);
+            }
+        }
+
+        private void Clear()
+        {
+            _activity = null;
+            _activityRestorer.Clear();
+        }
+
+        /// <summary>
+        /// Reset activity manager when OnPlayerReset event is triggered.
+        /// </summary>
+        public async Task PlayerReset()
+        {
+            _isSwitching = true;
+            PlayerPrefs.SetString(_activity.id, "StartingAction");
+            Clear();
+            await LoadActivity(_activityUrl);
+            EventManager.PlayerReset();
+        }
+
+        public void CreateNewActivity()
+        {
+            var activity = CreateEmptyActivity();
+            _newIdGenerated = false;
+            EditModeActive = false;
+            ActivateActivity(activity).AsAsyncVoid();
+        }
+
+        private static Activity CreateEmptyActivity()
+        {
+            const string cultureInfo = "en-GB";
+
+            return new Activity
+            {
+                name = $"Activity ({DateTime.Now.ToString(new CultureInfo(cultureInfo))})",
+                version = Application.version,
+                id = string.Empty
+            };
+        }
+
+        public async Task LoadActivity(string activityId)
+        {
+            var activity = string.IsNullOrEmpty(activityId) ? CreateEmptyActivity() : ActivityParser.Parse(activityId);
+            _activityUrl = activityId;
+
+            //Always load an existing activity in play mode
+            EditModeActive = false;
+
+            await ActivateActivity(activity);
+        }
+
+        private async Task ActivateActivity(Activity activity)
+        {
+            EventManager.ClearAll();
+            await Task.Delay(100);
+
+            _activity = activity;
+            _actionsOfTypeAction = activity.actions.Where(t => t.type == ActionType.Action).ToList();
+            EventManager.InitUi();
+
+            EventManager.DebugLog($"Activity manager: {_activity.id} parsed.");
+
+            ActivityPath = Path.Combine(Application.persistentDataPath, _activity.id);
+
+            if (IsNeedToRestore(activity, out var restoreId))
+            {
+                _activityRestorer.RestoreActions(activity, restoreId);
+            }
+
+            await RootObject.Instance.workplaceManager.LoadWorkplace(_activity.workplace);
+
+            await StartActivity();
+            IsReady = true;
+        }
+
+        private static bool IsNeedToRestore(Activity activity, out string restoreId)
+        {
+            restoreId = PlayerPrefs.GetString(activity.id);
+            return !restoreId.Equals("StartingAction") && !string.IsNullOrEmpty(restoreId);
+        }
+
+        /// <summary>
+        /// Starts the activity when workplace file parsing is completed.
+        /// </summary>
+        public async Task StartActivity()
+        {
+            if (IsNeedToRestore(_activity, out var restoreId) && !restoreId.Equals(_activity.start))
+            {
+                try
+                {
+                    _activityRestorer.RestoreState(_activity);
+                }
+                catch (Exception e)
+                {
+                    Debug.Log(e);
+                }
+                _isSwitching = false;
+                EventManager.DebugLog($"Activity manager: Starting Activity: {_activity.id}");
+                EventManager.ActivityStarted();
+                await ActivateAction(restoreId);
+            }
+            else
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(_activity.start))
+                    {
+                        _isSwitching = false;
+                        EventManager.ActivityStarted();
+                        await AddAction(Vector3.zero);
+                        return;
+                    }
+
+                    // Activate the starting action specified in the json file.
+                    foreach (var action in _activity.actions)
+                    {
+                        // Don't go further if the action id doesn't match.
+                        if (action.id != _activity.start)
+                        {
+                            continue;
+                        }
+                        _isSwitching = false;
+                        EventManager.DebugLog($"Activity manager: Starting Activity: {_activity.id}");
+                        EventManager.ActivityStarted();
+                        await ActivateAction(action.id);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -233,613 +233,613 @@ namespace MirageXR
                     Debug.LogError(e);
                 }
             }
-		}
+        }
 
-		public bool IsLastAction(Action action)
-		{
-			var last = ActionsOfTypeAction.LastOrDefault();
-			return action != null && last == action;
-		}
+        public bool IsLastAction(Action action)
+        {
+            var last = ActionsOfTypeAction.LastOrDefault();
+            return action != null && last == action;
+        }
 
-		public void MarkCompleted(string id)
-		{
-			foreach (var action in _activity.actions)
-			{
-				if (action.id.Equals(id))
-				{
-					action.isCompleted = true;
-				}
-			}
-		}
+        public void MarkCompleted(string id)
+        {
+            foreach (var action in _activity.actions)
+            {
+                if (action.id.Equals(id))
+                {
+                    action.isCompleted = true;
+                }
+            }
+        }
 
-		/// <summary>
-		/// Activates an action.
-		/// </summary>
-		/// <param name="id">ID of the action to be activated.</param>
-		private async Task ActivateAction(string id)
-		{
-			const string restartKey = "restart";
-			
-			try
-			{
-				if (id == restartKey)
-				{
-					_isSwitching = true;
-					await LoadActivity(_activityUrl);
-				}
-				else
-				{
-					var action = _activity.actions.FirstOrDefault(action => action.id == id);
-					if (action == null) return;
-					await ActivateAction(action);
-				}
-			}
-			catch (Exception e)
-			{
-				Maggie.Error();
-				EventManager.DebugLog($"Error: Activity manager: Couldn't activate action: {id}.");
-				Debug.LogError(e);
-			}
-		}
+        /// <summary>
+        /// Activates an action.
+        /// </summary>
+        /// <param name="id">ID of the action to be activated.</param>
+        private async Task ActivateAction(string id)
+        {
+            const string restartKey = "restart";
 
-		private async Task ActivateAction(Action step)
-		{
-			const string jsonExtension = ".json";
+            try
+            {
+                if (id == restartKey)
+                {
+                    _isSwitching = true;
+                    await LoadActivity(_activityUrl);
+                }
+                else
+                {
+                    var action = _activity.actions.FirstOrDefault(action => action.id == id);
+                    if (action == null) return;
+                    await ActivateAction(action);
+                }
+            }
+            catch (Exception e)
+            {
+                Maggie.Error();
+                EventManager.DebugLog($"Error: Activity manager: Couldn't activate action: {id}.");
+                Debug.LogError(e);
+            }
+        }
 
-			ActiveAction = step;
-			step.isActive = true;
-			Trigger.SetupTriggers(step);
+        private async Task ActivateAction(Action step)
+        {
+            const string jsonExtension = ".json";
 
-			foreach (var content in step.enter.activates)
-			{
-				switch (content.type)
-				{
-					case ActionType.Action:
-					case ActionType.Reaction:
-					{
-						if (content.id.EndsWith(jsonExtension)) //External activity reference!
-						{
-							_isSwitching = true;
-							await LoadActivity(content.id);
-							break;
-						}
+            ActiveAction = step;
+            step.isActive = true;
+            Trigger.SetupTriggers(step);
 
-						await ActivateAction(step.id, content);
-						break;
-					}
-					default:
-					{
-						EventManager.ActivateObject(content);
-						break;
-					}
-				}
-				if (_isSwitching)
-				{
-					break;
-				}
-			}
+            foreach (var content in step.enter.activates)
+            {
+                switch (content.type)
+                {
+                    case ActionType.Action:
+                    case ActionType.Reaction:
+                        {
+                            if (content.id.EndsWith(jsonExtension)) //External activity reference!
+                            {
+                                _isSwitching = true;
+                                await LoadActivity(content.id);
+                                break;
+                            }
 
-			foreach (var deactivate in step.enter.deactivates)
-			{
-				switch (deactivate.type)
-				{
-					case ActionType.Action:
-					case ActionType.Reaction:
-					{
-						await DeactivateAction(step.id, deactivate);
-						break;
-					}
-					default:
-					{
-						EventManager.DeactivateObject(deactivate);
-						break;
-					}
-				}
-			}
+                            await ActivateAction(step.id, content);
+                            break;
+                        }
+                    default:
+                        {
+                            EventManager.ActivateObject(content);
+                            break;
+                        }
+                }
+                if (_isSwitching)
+                {
+                    break;
+                }
+            }
 
-			var dateStamp = DateTime.UtcNow.ToUniversalTime().ToString(CultureInfo.InvariantCulture);
+            foreach (var deactivate in step.enter.deactivates)
+            {
+                switch (deactivate.type)
+                {
+                    case ActionType.Action:
+                    case ActionType.Reaction:
+                        {
+                            await DeactivateAction(step.id, deactivate);
+                            break;
+                        }
+                    default:
+                        {
+                            EventManager.DeactivateObject(deactivate);
+                            break;
+                        }
+                }
+            }
 
-			EventManager.ActivateAction(step.id);
-			EventManager.StepActivatedStamp(SystemInfo.deviceUniqueIdentifier, step, dateStamp);
-			EventManager.DebugLog($"Activity manager: Action {step.id} activated.");
-		}
+            var dateStamp = DateTime.UtcNow.ToUniversalTime().ToString(CultureInfo.InvariantCulture);
 
-		/// <summary>
-		/// Deactivates an action.
-		/// <param name="id">ID of the action to be deactivated.</param>
-		/// </summary>
-		public async Task DeactivateAction(string id, bool doNotActivateNextStep = false)
-		{
-			if (!_isSwitching)
-			{
-				await ActivityDeactivator(id, doNotActivateNextStep);
-			}
-		}
+            EventManager.ActivateAction(step.id);
+            EventManager.StepActivatedStamp(SystemInfo.deviceUniqueIdentifier, step, dateStamp);
+            EventManager.DebugLog($"Activity manager: Action {step.id} activated.");
+        }
 
-		private async Task ActivityDeactivator(string id, bool doNotActivateNextStep)
-		{
-			const string restartKey = "restart";
-			const string jsonExtension = ".json";
-			
-			// Stop any Maggie messages.
-			Maggie.Stop();
+        /// <summary>
+        /// Deactivates an action.
+        /// <param name="id">ID of the action to be deactivated.</param>
+        /// </summary>
+        public async Task DeactivateAction(string id, bool doNotActivateNextStep = false)
+        {
+            if (!_isSwitching)
+            {
+                await ActivityDeactivator(id, doNotActivateNextStep);
+            }
+        }
 
-			// Get rid of the triggers
-			Trigger.DeleteTriggersForId(id);
+        private async Task ActivityDeactivator(string id, bool doNotActivateNextStep)
+        {
+            const string restartKey = "restart";
+            const string jsonExtension = ".json";
 
-			// Go through all the actions...
-			foreach (var action in _activity.actions)
-			{
-				// Skip the non-matching actions...
-				if (action.id != id)
-				{
-					continue;
-				}
+            // Stop any Maggie messages.
+            Maggie.Stop();
 
-				// Handle messages.
+            // Get rid of the triggers
+            Trigger.DeleteTriggersForId(id);
 
-				ArlemMessage.ReadMessages(action);
-				
-				// Exit deactivate loop...
-				foreach (var deactivate in action.exit.deactivates)
-				{
-					switch (deactivate.type)
-					{
-						case ActionType.Action:
-						case ActionType.Reaction:
-							await DeactivateAction(action.id, deactivate);
-							break;
+            // Go through all the actions...
+            foreach (var action in _activity.actions)
+            {
+                // Skip the non-matching actions...
+                if (action.id != id)
+                {
+                    continue;
+                }
 
-						default:
-							EventManager.DeactivateObject(deactivate);
-							break;
-					}
-				}
+                // Handle messages.
 
-				await Task.Yield();
+                ArlemMessage.ReadMessages(action);
 
-				//do not activate next step
-				if (doNotActivateNextStep)
-				{
-					return;
-				}
-				
-				// Exit activate loop...
-				foreach (var activate in action.exit.activates)
-				{
-					switch (activate.type)
-					{
-						// Handle action logic related stuff here...
-						case ActionType.Action:
-						case ActionType.Reaction:
-							if (activate.id.Equals(restartKey))
-							{
-								_isSwitching = true;
-								await LoadActivity(_activityUrl);
-								break;
-							}
-							// External activity reference!
-							if (activate.id.EndsWith(jsonExtension))
-							{
-								_isSwitching = true;
-								await LoadActivity(activate.id);
-								break;
-							}
+                // Exit deactivate loop...
+                foreach (var deactivate in action.exit.deactivates)
+                {
+                    switch (deactivate.type)
+                    {
+                        case ActionType.Action:
+                        case ActionType.Reaction:
+                            await DeactivateAction(action.id, deactivate);
+                            break;
 
-							await ActivateAction(action.id, activate);
-							break;
+                        default:
+                            EventManager.DeactivateObject(deactivate);
+                            break;
+                    }
+                }
 
-						// All the others are handled outside.
-						default:
-							EventManager.ActivateObject(activate);
-							break;
-					}
+                await Task.Yield();
 
-					if (_isSwitching)
-					{
-						break;
-					}
-				}
+                //do not activate next step
+                if (doNotActivateNextStep)
+                {
+                    return;
+                }
 
-				if (_isSwitching)
-				{
-					break;
-				}
+                // Exit activate loop...
+                foreach (var activate in action.exit.activates)
+                {
+                    switch (activate.type)
+                    {
+                        // Handle action logic related stuff here...
+                        case ActionType.Action:
+                        case ActionType.Reaction:
+                            if (activate.id.Equals(restartKey))
+                            {
+                                _isSwitching = true;
+                                await LoadActivity(_activityUrl);
+                                break;
+                            }
+                            // External activity reference!
+                            if (activate.id.EndsWith(jsonExtension))
+                            {
+                                _isSwitching = true;
+                                await LoadActivity(activate.id);
+                                break;
+                            }
 
-				// Mark as completed. Might use a bit smarter way of handling this, but meh...
-				action.isCompleted = true;
-				// Send timestamp.
-				var timeStamp = DateTime.UtcNow.ToUniversalTime().ToString(CultureInfo.InvariantCulture);
-				EventManager.StepDeactivatedStamp(SystemInfo.deviceUniqueIdentifier, action, timeStamp);
-				EventManager.DebugLog($"Activity manager: Action {id} deactivated.");
-			}			
-		}
+                            await ActivateAction(action.id, activate);
+                            break;
 
-		/// <summary>
-		/// Activate action.
-		/// </summary>
-		/// <param name="caller">Id of the action calling this method.</param>
-		/// <param name="obj">Action toggle object.</param>
-		private async Task ActivateAction(string caller, ToggleObject obj)
-		{
-			const string restartKey = "restart";
-			const string jsonExtension = ".json";
-			const string userPrefix ="user:";
-			const char splitChar = ':';
-			
-			// Let's check that action really exists...
-			var counter = 0;
+                        // All the others are handled outside.
+                        default:
+                            EventManager.ActivateObject(activate);
+                            break;
+                    }
 
-			foreach (var actionObj in _activity.actions)
-			{
-				if (actionObj.id == obj.id)
-				{
-					counter++;
-				}
-			}
+                    if (_isSwitching)
+                    {
+                        break;
+                    }
+                }
 
-			// If not, shame on you for trying!
-			if (counter == 0 && obj.id != restartKey && !obj.id.EndsWith(jsonExtension))
-			{
-				throw new ArgumentException($"Action {obj.id} not found.");
-			}
+                if (_isSwitching)
+                {
+                    break;
+                }
 
-			// Check if activation is user dependent.
-			if (!string.IsNullOrEmpty(obj.option) && obj.option.StartsWith(userPrefix))
-			{
-				// Extract the user.
-				var user = obj.option.Split(splitChar)[1];
+                // Mark as completed. Might use a bit smarter way of handling this, but meh...
+                action.isCompleted = true;
+                // Send timestamp.
+                var timeStamp = DateTime.UtcNow.ToUniversalTime().ToString(CultureInfo.InvariantCulture);
+                EventManager.StepDeactivatedStamp(SystemInfo.deviceUniqueIdentifier, action, timeStamp);
+                EventManager.DebugLog($"Activity manager: Action {id} deactivated.");
+            }
+        }
 
-				// Activate if conditions are met.
-				if (obj.id != caller && user == WorkplaceManager.GetUser())
-				{
-					await ActivateAction(obj.id);
-				}
-			}
-			// Normal activation.
-			else
-			{
-				// Like never ending loops? I don't...
-				if (obj.id != caller)
-				{
-					await ActivateAction(obj.id);
-				}
-			}
-		}
+        /// <summary>
+        /// Activate action.
+        /// </summary>
+        /// <param name="caller">Id of the action calling this method.</param>
+        /// <param name="obj">Action toggle object.</param>
+        private async Task ActivateAction(string caller, ToggleObject obj)
+        {
+            const string restartKey = "restart";
+            const string jsonExtension = ".json";
+            const string userPrefix = "user:";
+            const char splitChar = ':';
 
-		/// <summary>
-		/// Deactivate action.
-		/// </summary>
-		/// <param name="caller">Id of the action calling this method.</param>
-		/// <param name="obj">Action toggle object.</param>
-		private async Task DeactivateAction(string caller, ToggleObject obj)
-		{
-			// Like never ending loops? I don't...
-			if (obj.id != caller)
-			{
-				await DeactivateAction(obj.id);
-			}
+            // Let's check that action really exists...
+            var counter = 0;
 
-			EventManager.DeactivateAction(caller);
-		}
+            foreach (var actionObj in _activity.actions)
+            {
+                if (actionObj.id == obj.id)
+                {
+                    counter++;
+                }
+            }
 
-		/// <summary>
-		/// Clears out the scene and activates a given action.
-		/// </summary>
-		/// <param name="id">Action id to be activated.</param>
-		private async Task BackAction(string id)
-		{
+            // If not, shame on you for trying!
+            if (counter == 0 && obj.id != restartKey && !obj.id.EndsWith(jsonExtension))
+            {
+                throw new ArgumentException($"Action {obj.id} not found.");
+            }
+
+            // Check if activation is user dependent.
+            if (!string.IsNullOrEmpty(obj.option) && obj.option.StartsWith(userPrefix))
+            {
+                // Extract the user.
+                var user = obj.option.Split(splitChar)[1];
+
+                // Activate if conditions are met.
+                if (obj.id != caller && user == WorkplaceManager.GetUser())
+                {
+                    await ActivateAction(obj.id);
+                }
+            }
+            // Normal activation.
+            else
+            {
+                // Like never ending loops? I don't...
+                if (obj.id != caller)
+                {
+                    await ActivateAction(obj.id);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Deactivate action.
+        /// </summary>
+        /// <param name="caller">Id of the action calling this method.</param>
+        /// <param name="obj">Action toggle object.</param>
+        private async Task DeactivateAction(string caller, ToggleObject obj)
+        {
+            // Like never ending loops? I don't...
+            if (obj.id != caller)
+            {
+                await DeactivateAction(obj.id);
+            }
+
+            EventManager.DeactivateAction(caller);
+        }
+
+        /// <summary>
+        /// Clears out the scene and activates a given action.
+        /// </summary>
+        /// <param name="id">Action id to be activated.</param>
+        private async Task BackAction(string id)
+        {
             // First clear out the scene.
             try
             {
                 // Get rid of the triggers
                 Trigger.DeleteTriggersForId(id);
 
-				// Go through all the actions and try to find the active action...
-				foreach (var action in _activity.actions)
-				{
-					// Skip the non-matching actions...
-					if (action.id != ActiveActionId)
-					{
-						continue;
-					}
+                // Go through all the actions and try to find the active action...
+                foreach (var action in _activity.actions)
+                {
+                    // Skip the non-matching actions...
+                    if (action.id != ActiveActionId)
+                    {
+                        continue;
+                    }
 
-					// Enter activate loop...
-					foreach (var activate in action.enter.activates)
-					{
-						// Do magic based on the activation object type...
-						switch (activate.type)
-						{
-							// Handle action logic related stuff here...
-							case ActionType.Action:
-							case ActionType.Reaction:
-								// We are not interested in activating anything!
-								break;
+                    // Enter activate loop...
+                    foreach (var activate in action.enter.activates)
+                    {
+                        // Do magic based on the activation object type...
+                        switch (activate.type)
+                        {
+                            // Handle action logic related stuff here...
+                            case ActionType.Action:
+                            case ActionType.Reaction:
+                                // We are not interested in activating anything!
+                                break;
 
-							// All the others are handled outside.
-							default:
-								// Deactivate everything that is activated!
-								EventManager.DeactivateObject(activate);
-								break;
-						}
-					}
-				}
+                            // All the others are handled outside.
+                            default:
+                                // Deactivate everything that is activated!
+                                EventManager.DeactivateObject(activate);
+                                break;
+                        }
+                    }
+                }
 
-				// Now activate the desired action on the empty slate.
-				await ActivateAction(id);
+                // Now activate the desired action on the empty slate.
+                await ActivateAction(id);
             }
             catch (Exception e)
             {
-	            Maggie.Error();
-	            EventManager.DebugLog($"Error: Activity manager: Couldn't force start action: {id}.");
-	            Debug.Log(e);
-	            throw;
+                Maggie.Error();
+                EventManager.DebugLog($"Error: Activity manager: Couldn't force start action: {id}.");
+                Debug.Log(e);
+                throw;
             }
-		}
+        }
 
-		public async Task ActivateActionByIndex(int index)
-		{
-			await DeactivateAction(ActiveAction.id, true);
-			await ActivateAction(ActionsOfTypeAction[index].id);
-		}
+        public async Task ActivateActionByIndex(int index)
+        {
+            await DeactivateAction(ActiveAction.id, true);
+            await ActivateAction(ActionsOfTypeAction[index].id);
+        }
 
-		public async Task ActivateNextAction()
-		{
-			if (ActiveAction != null)
-			{
-				await DeactivateAction(ActiveAction.id);
-			}
-			else
-			{
-				await ActivateAction(_activity.start);
-			}
-		}
+        public async Task ActivateNextAction()
+        {
+            if (ActiveAction != null)
+            {
+                await DeactivateAction(ActiveAction.id);
+            }
+            else
+            {
+                await ActivateAction(_activity.start);
+            }
+        }
 
-		public async Task ActivatePreviousAction()
-		{
-			int indexOfActivated = ActionsOfTypeAction.IndexOf(ActiveAction);
-			if (indexOfActivated > 0)
-			{
-				await BackAction(ActionsOfTypeAction[indexOfActivated - 1].id);
-			}
-		}
+        public async Task ActivatePreviousAction()
+        {
+            int indexOfActivated = ActionsOfTypeAction.IndexOf(ActiveAction);
+            if (indexOfActivated > 0)
+            {
+                await BackAction(ActionsOfTypeAction[indexOfActivated - 1].id);
+            }
+        }
 
-		public async Task ActivateFirstAction()
-		{
-			int indexOfActivated = ActionsOfTypeAction.IndexOf(ActiveAction);
-			if (indexOfActivated > 0)
-			{
-				await ActivateActionByIndex(0);
-			}
-		}
+        public async Task ActivateFirstAction()
+        {
+            int indexOfActivated = ActionsOfTypeAction.IndexOf(ActiveAction);
+            if (indexOfActivated > 0)
+            {
+                await ActivateActionByIndex(0);
+            }
+        }
 
-		public async Task ActivateLastAction()
-		{
-			int indexOfActivated = ActionsOfTypeAction.IndexOf(ActiveAction);
-			int indexOfLastAction = Activity.actions.Count - 1;
-			if (indexOfActivated < indexOfLastAction)
-			{
-				await ActivateActionByIndex(indexOfLastAction);
-			}
-		}
+        public async Task ActivateLastAction()
+        {
+            int indexOfActivated = ActionsOfTypeAction.IndexOf(ActiveAction);
+            int indexOfLastAction = Activity.actions.Count - 1;
+            if (indexOfActivated < indexOfLastAction)
+            {
+                await ActivateActionByIndex(indexOfLastAction);
+            }
+        }
 
 
-		public async Task AddAction(Vector3 position, bool hasImageMarker = false)
-		{
-			// TODO: put back in the warning
-			//if (taskStationList.Count == 0 && !calibrationMarkerFound)
-			//{
-			//    Maggie.Speak("Your workplace is not calibrated.  Recordings cannot be played back on other devices or in other workplaces.");
-			//}
+        public async Task AddAction(Vector3 position, bool hasImageMarker = false)
+        {
+            // TODO: put back in the warning
+            //if (taskStationList.Count == 0 && !calibrationMarkerFound)
+            //{
+            //    Maggie.Speak("Your workplace is not calibrated.  Recordings cannot be played back on other devices or in other workplaces.");
+            //}
 
-			// create a new arlem action representing the task station
-			// (must be done before instantiating the object)
-			var newAction = CreateAction();
+            // create a new arlem action representing the task station
+            // (must be done before instantiating the object)
+            var newAction = CreateAction();
 
-			// create a new workplace place
-			await RootObject.Instance.workplaceManager.AddPlace(newAction, position);
+            // create a new workplace place
+            await RootObject.Instance.workplaceManager.AddPlace(newAction, position);
 
-			int indexOfActive = -1;
+            int indexOfActive = -1;
 
-			// update the exit-activate ARLEM section of previous TS to point to the new one
-			if (_activity.actions.Count > 0)
-			{
-				// if no active action is set, use the last action as active action
-				ActiveAction ??= _activity.actions[_activity.actions.Count - 1];
+            // update the exit-activate ARLEM section of previous TS to point to the new one
+            if (_activity.actions.Count > 0)
+            {
+                // if no active action is set, use the last action as active action
+                ActiveAction ??= _activity.actions[_activity.actions.Count - 1];
 
-				indexOfActive = _activity.actions.IndexOf(ActiveAction);
+                indexOfActive = _activity.actions.IndexOf(ActiveAction);
 
-				// update the exit-activate ARLEM section of previous TS to point to the new one
-				if (indexOfActive >= 0)
-				{
-					var exitActivateElement = new ToggleObject
-					{
-						id = newAction.id,
-						viewport = newAction.viewport,
-						type = newAction.type
-					};
+                // update the exit-activate ARLEM section of previous TS to point to the new one
+                if (indexOfActive >= 0)
+                {
+                    var exitActivateElement = new ToggleObject
+                    {
+                        id = newAction.id,
+                        viewport = newAction.viewport,
+                        type = newAction.type
+                    };
 
-					if (_activity.actions[indexOfActive].exit.activates.Count > 0)
-					{
-						newAction.exit.activates.Add(_activity.actions[indexOfActive].exit.activates[0]);
-						_activity.actions[indexOfActive].exit.activates[0] = exitActivateElement;
-					}
-					else
-					{
-						_activity.actions[indexOfActive].exit.activates.Add(exitActivateElement);
-					}
-				}
-				else
-				{
-					Debug.LogError("Could not identify the active action");
-				}
+                    if (_activity.actions[indexOfActive].exit.activates.Count > 0)
+                    {
+                        newAction.exit.activates.Add(_activity.actions[indexOfActive].exit.activates[0]);
+                        _activity.actions[indexOfActive].exit.activates[0] = exitActivateElement;
+                    }
+                    else
+                    {
+                        _activity.actions[indexOfActive].exit.activates.Add(exitActivateElement);
+                    }
+                }
+                else
+                {
+                    Debug.LogError("Could not identify the active action");
+                }
 
-				//Save augmentations extra data(character, pick&place,...) for be carried over to the new action if the augmentation exists in that action
-				SaveData();
-			}
-			else
-			{
-				_activity.start = newAction.id;
-			}
+                //Save augmentations extra data(character, pick&place,...) for be carried over to the new action if the augmentation exists in that action
+                SaveData();
+            }
+            else
+            {
+                _activity.start = newAction.id;
+            }
 
-			_activity.actions.Insert(indexOfActive + 1, newAction);
+            _activity.actions.Insert(indexOfActive + 1, newAction);
 
-			Debug.Log($"Added {newAction.id} to list of task stations");
+            Debug.Log($"Added {newAction.id} to list of task stations");
 
-			RegenerateActionsList();
-			await ActivateNextAction();
-			await ActivateAction(newAction);
-			await Task.Yield();
-			EventManager.NotifyActionCreated(newAction);
-		}
+            RegenerateActionsList();
+            await ActivateNextAction();
+            await ActivateAction(newAction);
+            await Task.Yield();
+            EventManager.NotifyActionCreated(newAction);
+        }
 
-		private Action CreateAction()
-		{
-			var taskStationId = Guid.NewGuid();
-			var taskStationName = $"TS-{taskStationId}";
+        private Action CreateAction()
+        {
+            var taskStationId = Guid.NewGuid();
+            var taskStationName = $"TS-{taskStationId}";
 
-			var action = new Action
-			{
-				id = taskStationName,
-				viewport = "actions",
-				type = ActionType.Action,
-				instruction = new Instruction(),
-				enter = new Enter(),
-				exit = new Exit(),
-				triggers = new List<Trigger>(),
+            var action = new Action
+            {
+                id = taskStationName,
+                viewport = "actions",
+                type = ActionType.Action,
+                instruction = new Instruction(),
+                enter = new Enter(),
+                exit = new Exit(),
+                triggers = new List<Trigger>(),
 
-				device = "wekit.one",
-				location = "here",
-				predicate = "none",
-				user = string.Empty
-			};
+                device = "wekit.one",
+                location = "here",
+                predicate = "none",
+                user = string.Empty
+            };
 
-			action.instruction.title = $"Action Step {_activity.actions.Count + 1}"; // Fudge fix: Added +1 to remove "Action Step 0". Need more information if we want to increase thisActionIndex by 1 (Might be it needs the 0)
-			action.instruction.description = "Add task step description here...";
+            action.instruction.title = $"Action Step {_activity.actions.Count + 1}"; // Fudge fix: Added +1 to remove "Action Step 0". Need more information if we want to increase thisActionIndex by 1 (Might be it needs the 0)
+            action.instruction.description = "Add task step description here...";
 
-			action.AddArlemTrigger(TriggerMode.Voice);
-			action.AddArlemTrigger(TriggerMode.Click);
+            action.AddArlemTrigger(TriggerMode.Voice);
+            action.AddArlemTrigger(TriggerMode.Click);
 
-			return action;
-		}
-		
-		public void DeleteAction(string idToDelete)
-		{
-			int indexToDelete = _activity.actions.IndexOf(_activity.actions.FirstOrDefault(p => p.id.Equals(idToDelete)));
+            return action;
+        }
 
-			if (indexToDelete < 0)
-			{
-				Debug.LogError($"Could not remove {idToDelete} since the id could not be found in the list of actions");
-				return;
-			}
-			
-			int totalNumberOfActions = _activity.actions.Count;
+        public void DeleteAction(string idToDelete)
+        {
+            int indexToDelete = _activity.actions.IndexOf(_activity.actions.FirstOrDefault(p => p.id.Equals(idToDelete)));
 
-			Debug.Log($"Planning to delete action with index {indexToDelete}");
+            if (indexToDelete < 0)
+            {
+                Debug.LogError($"Could not remove {idToDelete} since the id could not be found in the list of actions");
+                return;
+            }
 
-			if (indexToDelete == totalNumberOfActions - 1)          // if deleting the last action
-			{
-				Debug.Log("deleting last action");
+            int totalNumberOfActions = _activity.actions.Count;
 
-				if (totalNumberOfActions != 1)
-				{
-					_activity.actions[indexToDelete - 1].exit.activates.Last().id = string.Empty;
-				}
-			}
-			else if (indexToDelete == 0)                // if deleting the first action
-			{
-				Debug.Log("deleting first action");
-				// update start action with the one that is currently second (prior to deleting the action, in this case)
-				if (totalNumberOfActions > 1)
-				{
-					_activity.start = _activity.actions[1].id;
-				}
-			}
-			else	// we are deleting an action that is in the middle
-			{
-				_activity.actions[indexToDelete - 1].exit.activates.Last().id = _activity.actions[indexToDelete + 1].id;
-			}
-			
-			//Create a new list of activate to avoid "Collection modified exception"
-			var enterActivateTempCopy = new List<ToggleObject>();
-			foreach (var item in _activity.actions[indexToDelete].enter.activates)
-			{
-				enterActivateTempCopy.Add(item);
-			}
+            Debug.Log($"Planning to delete action with index {indexToDelete}");
 
-			var actionToDelete = _activity.actions[indexToDelete];
+            if (indexToDelete == totalNumberOfActions - 1) // if deleting the last action
+            {
+                Debug.Log("deleting last action");
 
-			var commonToggleObjects = new List<ToggleObject>();
-			//find all common annotations which exist in action to delete and other actions
-			foreach (var action in _activity.actions)
-			{
-				commonToggleObjects.AddRange(action.enter.activates.Intersect(actionToDelete.enter.activates).ToList());
-			}
+                if (totalNumberOfActions != 1)
+                {
+                    _activity.actions[indexToDelete - 1].exit.activates.Last().id = string.Empty;
+                }
+            }
+            else if (indexToDelete == 0) // if deleting the first action
+            {
+                Debug.Log("deleting first action");
+                // update start action with the one that is currently second (prior to deleting the action, in this case)
+                if (totalNumberOfActions > 1)
+                {
+                    _activity.start = _activity.actions[1].id;
+                }
+            }
+            else // we are deleting an action that is in the middle
+            {
+                _activity.actions[indexToDelete - 1].exit.activates.Last().id = _activity.actions[indexToDelete + 1].id;
+            }
 
-			foreach (var toggleObject in enterActivateTempCopy)
-			{
-				if (!commonToggleObjects.Contains(toggleObject))
-				{
-					RootObject.Instance.augmentationManager.DeleteAugmentation(toggleObject, _activity.actions[indexToDelete]);
-				}
-			}
+            //Create a new list of activate to avoid "Collection modified exception"
+            var enterActivateTempCopy = new List<ToggleObject>();
+            foreach (var item in _activity.actions[indexToDelete].enter.activates)
+            {
+                enterActivateTempCopy.Add(item);
+            }
 
-			_activity.actions.RemoveAt(indexToDelete);
+            var actionToDelete = _activity.actions[indexToDelete];
 
-			RegenerateActionsList();
-			ActiveAction = null;
+            var commonToggleObjects = new List<ToggleObject>();
+            //find all common annotations which exist in action to delete and other actions
+            foreach (var action in _activity.actions)
+            {
+                commonToggleObjects.AddRange(action.enter.activates.Intersect(actionToDelete.enter.activates).ToList());
+            }
 
-			EventManager.NotifyActionDeleted(idToDelete);
-			EventManager.ActivateAction(string.Empty);
-		}
+            foreach (var toggleObject in enterActivateTempCopy)
+            {
+                if (!commonToggleObjects.Contains(toggleObject))
+                {
+                    RootObject.Instance.augmentationManager.DeleteAugmentation(toggleObject, _activity.actions[indexToDelete]);
+                }
+            }
 
-		private void RegenerateActionsList()
-		{
-			_actionsOfTypeAction.Clear();
-			_actionsOfTypeAction.AddRange(_activity.actions.Where(action => action.type == ActionType.Action));
-		}
-		
-		public void SaveData()
-		{
-			_mustCleanUp = false;
-			ActivityLocalFiles.SaveData(_activity);
-		}
+            _activity.actions.RemoveAt(indexToDelete);
 
-		private void GenerateNewId(bool force = false)
-		{
-			if (_newIdGenerated && !force)
-			{
-				return;
-			}
+            RegenerateActionsList();
+            ActiveAction = null;
 
-			string id;
-			if (!string.IsNullOrEmpty(_activity.id) && !force)
-			{
-				id = _activity.id;
-			}
-			else
-			{
-				var oldId = _activity.id;
-				id = string.Format(SESSION_ID_FORMAT, DateTime.UtcNow);
-				if (!string.IsNullOrEmpty(oldId))
-				{
-					ActivityLocalFiles.MoveData(oldId, id);
-				}
-				_activity.id = id;
-				_activity.version = Application.version;
-				ActivityPath = Path.Combine(Application.persistentDataPath, id);
-				_mustCleanUp = true; // not yet saved; this is used if the user quits without saving so that we can clean up
-			}
+            EventManager.NotifyActionDeleted(idToDelete);
+            EventManager.ActivateAction(string.Empty);
+        }
 
-			var workplaceId = string.Format(WORKPLACE_ID_FORMAT, id);
-			RootObject.Instance.workplaceManager.workplace.id = workplaceId;
-			_activity.workplace = workplaceId;
-			_newIdGenerated = true;
-		}
+        private void RegenerateActionsList()
+        {
+            _actionsOfTypeAction.Clear();
+            _actionsOfTypeAction.AddRange(_activity.actions.Where(action => action.type == ActionType.Action));
+        }
 
-		public void CloneActivity()
-		{
-			GenerateNewId(true);
-		}
-	}
+        public void SaveData()
+        {
+            _mustCleanUp = false;
+            ActivityLocalFiles.SaveData(_activity);
+        }
+
+        private void GenerateNewId(bool force = false)
+        {
+            if (_newIdGenerated && !force)
+            {
+                return;
+            }
+
+            string id;
+            if (!string.IsNullOrEmpty(_activity.id) && !force)
+            {
+                id = _activity.id;
+            }
+            else
+            {
+                var oldId = _activity.id;
+                id = string.Format(SESSION_ID_FORMAT, DateTime.UtcNow);
+                if (!string.IsNullOrEmpty(oldId))
+                {
+                    ActivityLocalFiles.MoveData(oldId, id);
+                }
+                _activity.id = id;
+                _activity.version = Application.version;
+                ActivityPath = Path.Combine(Application.persistentDataPath, id);
+                _mustCleanUp = true; // not yet saved; this is used if the user quits without saving so that we can clean up
+            }
+
+            var workplaceId = string.Format(WORKPLACE_ID_FORMAT, id);
+            RootObject.Instance.workplaceManager.workplace.id = workplaceId;
+            _activity.workplace = workplaceId;
+            _newIdGenerated = true;
+        }
+
+        public void CloneActivity()
+        {
+            GenerateNewId(true);
+        }
+    }
 }

@@ -12,7 +12,7 @@ namespace MirageXR
         private const string RECORD_NAME = "record";
         private const int CYCLE_RECORDING_TIME = 60;
         private const int DEFAULT_FREQUENCY = 96000;
-        
+
         private static AudioClip _audioClip;
         private static readonly List<float> _buffer = new List<float>();
         private static int _maxFrequency;
@@ -32,7 +32,7 @@ namespace MirageXR
                 return null;
             }
         }
-        
+
         public static void SetRecordingDevice(string recordingDevice)
         {
             if (IsRecording)
@@ -55,10 +55,11 @@ namespace MirageXR
                 throw new ArgumentException($"Device {recordingDevice} does not exist");
             }
         }
-        
-        public static void Start(string recordName = RECORD_NAME) {
+
+        public static void Start(string recordName = RECORD_NAME)
+        {
             _recordName = recordName;
-            
+
             if (IsRecording)
             {
                 Stop();
@@ -69,20 +70,21 @@ namespace MirageXR
                 var devices = GetRecordingDevices();
                 _device = devices?.First();
             }
-            
+
             Microphone.GetDeviceCaps(_device, out _, out _maxFrequency);
             if (_maxFrequency == 0) _maxFrequency = DEFAULT_FREQUENCY;
             _buffer.Clear();
             _audioClip = null;
             StartRecord(CYCLE_RECORDING_TIME);
         }
-        
-        public static void Pause() {
+
+        public static void Pause()
+        {
             if (!IsRecording) return;
-            
+
             var lastTime = Microphone.GetPosition(_device);
             if (lastTime == 0) return;
-            
+
             cancellationTokenSource.Cancel();
             cancellationTokenSource = null;
             var samples = new float[_audioClip.samples];
@@ -94,13 +96,15 @@ namespace MirageXR
             _audioClip = null;
         }
 
-        public static void Resume() {
+        public static void Resume()
+        {
             if (IsRecording || _buffer.Count == 0) return;
-            
+
             StartRecord(CYCLE_RECORDING_TIME);
         }
-    
-        public static AudioClip Stop() {
+
+        public static AudioClip Stop()
+        {
             Pause();
             _audioClip = null;
             var audioClip = AudioClip.Create(_recordName, _buffer.Count, 1, _maxFrequency, false);

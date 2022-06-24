@@ -246,9 +246,9 @@ namespace MirageXR
 
             var form = new MultipartFormDataContent
             {
-                {new StringContent(userName), userNameKey},
-                {new StringContent(password), passwordKey},
-                {new StringContent(domain), domainKey}
+                { new StringContent(userName), userNameKey},
+                { new StringContent(password), passwordKey},
+                { new StringContent(domain), domainKey}
             };
 
             var uri = string.Format(uriFormat, domain, DBManager.plugin);
@@ -338,15 +338,15 @@ namespace MirageXR
 
             var form = new MultipartFormDataContent
             {
-                {new StringContent(token), tokenKey},
-                {new StringContent(userId), userIdKey},
-                {new StringContent(updateMode.ToString()), updateFileKey},
-                {new StringContent(sessionId), sessionIdKey},
-                {new StringContent(title), titleKey},
-                {new StringContent(activityJson), activityJsonKey},
-                {new StringContent(workplaceJson), workplaceJsonKey},
-                {new StringContent((isPublic ? 1 : 0).ToString()), publicKey},
-                {zipBinaryContent, fileKey, fileName},
+                { new StringContent(token), tokenKey},
+                { new StringContent(userId), userIdKey},
+                { new StringContent(updateMode.ToString()), updateFileKey},
+                { new StringContent(sessionId), sessionIdKey},
+                { new StringContent(title), titleKey},
+                { new StringContent(activityJson), activityJsonKey},
+                { new StringContent(workplaceJson), workplaceJsonKey},
+                { new StringContent((isPublic ? 1 : 0).ToString()), publicKey},
+                { zipBinaryContent, fileKey, fileName},
             };
 
             if (thumbnailBinaryContent != null)

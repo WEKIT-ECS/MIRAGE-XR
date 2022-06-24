@@ -11,7 +11,7 @@ namespace MirageXR
     public static class LocalFiles
     {
         private static readonly string[] _possibleSuffixes = { "-activity.json", "_activity.json", "activity.json" };
-        
+
         public static async Task<List<Activity>> GetDownloadedActivities()
         {
             var result = new List<Activity>();
@@ -19,7 +19,7 @@ namespace MirageXR
             for (var i = fileInfos.Count - 1; i >= 0; i--)
             {
                 if (!IsActivityFile(fileInfos[i])) continue;
-                
+
                 try
                 {
                     var filePath = Path.Combine(Application.persistentDataPath, fileInfos[i].Name);
@@ -39,7 +39,7 @@ namespace MirageXR
                     Debug.LogWarning($"Exception occurred when reading {fileInfos[i].Name} : {e}");
                 }
             }
-            
+
             return result;
         }
 
@@ -58,13 +58,13 @@ namespace MirageXR
                 Debug.LogError(e);
                 return null;
             }
-        } 
-        
+        }
+
         public static bool TryDeleteActivity(string id)
         {
             const string activityFormat = "{0}-activity.json";
             const string workplaceFormat = "{0}-workplace.json";
-            
+
             var path = Path.Combine(Application.persistentDataPath, id);
             if (Directory.Exists(path))
             {
@@ -156,7 +156,7 @@ namespace MirageXR
             password = Encryption.EncriptDecrypt(array[1]);
             return true;
         }
-        
+
         public static void RemoveKey(string key)
         {
             const string configFileName = "config.info";
@@ -180,22 +180,22 @@ namespace MirageXR
             const string moodleKey = "moodle";
             const string configFileName = "config.info";
             const char splitChar = '|';
-            
+
             username = null;
             password = null;
             var path = Path.Combine(Application.persistentDataPath, configFileName);
-            
+
             if (!File.Exists(path)) return false;
-            
+
             var infos = File.ReadAllLines(path);
             var userPass = (from info in infos where info.StartsWith(moodleKey) select info.Replace(moodleKey, string.Empty)).FirstOrDefault();
 
             if (string.IsNullOrEmpty(userPass)) return false;
 
             var array = userPass.Split(splitChar);
-            
+
             if (array.Length < 2) return false;
-            
+
             username = array[0];
             password = Encryption.EncriptDecrypt(array[1]);
             return true;
@@ -206,12 +206,12 @@ namespace MirageXR
             const string moodleKey = "moodle";
             const string configFileName = "config.info";
             const char splitChar = '|';
-            
+
             var path = Path.Combine(Application.persistentDataPath, configFileName);
-            
+
             var encryptedPassword = Encryption.EncriptDecrypt(password);
             var loginInfo = $"{moodleKey}{username}{splitChar}{encryptedPassword}";
-            
+
             if (File.Exists(path))
             {
                 var sb = new StringBuilder();
@@ -220,7 +220,7 @@ namespace MirageXR
                 {
                     if (!line.StartsWith(moodleKey)) sb.AppendLine(line);
                 }
-                
+
                 sb.AppendLine(loginInfo);
                 File.WriteAllText(path, sb.ToString());
             }
@@ -234,18 +234,18 @@ namespace MirageXR
         {
             const string moodleKey = "moodle";
             const string configFileName = "config.info";
-            
+
             var path = Path.Combine(Application.persistentDataPath, configFileName);
-            
+
             if (!File.Exists(path)) return;
-            
+
             var sb = new StringBuilder();
             var configFileInfo = File.ReadAllLines(path);
             foreach (var line in configFileInfo)
             {
                 if (!line.StartsWith(moodleKey)) sb.AppendLine(line);
             }
-                
+
             File.WriteAllText(path, sb.ToString());
         }
 

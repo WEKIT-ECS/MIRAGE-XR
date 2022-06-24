@@ -22,15 +22,15 @@ namespace MirageXR
             public string access_token;
             public string refresh_token;
         }
-        
+
         private const float MAX_THUMBNAIL_HEIGHT = 256;
         private const float MAX_USER_AVATAR_HEIGHT = 256;
         private const float MAX_COLLECTION_AVATAR_HEIGHT = 256;
-        
-        private const string JSON_FILE_NAME = "previewInfo.json"; 
-        private const string FOLDER_NAME = "models"; 
-        private const string MODEL_NAME = "scene.gltf"; 
-        
+
+        private const string JSON_FILE_NAME = "previewInfo.json";
+        private const string FOLDER_NAME = "models";
+        private const string MODEL_NAME = "scene.gltf";
+
         public static string GetSearchUrl(string searchOption, string searchTerm, int cursorPosition, int itemsPrePage, bool downloadable = true)
         {
             var sb = new StringBuilder();
@@ -48,7 +48,7 @@ namespace MirageXR
             var url = GetSearchUrl(searchOption, searchTerm, cursorPosition, itemsPrePage, downloadable);
             return await DownloadStringAsync(url, token, timeout);
         }
-        
+
         public static List<ModelPreviewItem> ReadWebResults(string result, string searchOption)
         {
             var previewList = new List<ModelPreviewItem>();
@@ -58,23 +58,23 @@ namespace MirageXR
             switch (searchOption.ToLower())
             {
                 case "models":
-                {
-                    var foundModels = JsonUtility.FromJson<SketchfabModelSearchResult>(result).results;
-                    previewList.AddRange(foundModels.Select(CreateModelPreview));
-                    break;
-                }
+                    {
+                        var foundModels = JsonUtility.FromJson<SketchfabModelSearchResult>(result).results;
+                        previewList.AddRange(foundModels.Select(CreateModelPreview));
+                        break;
+                    }
                 case "users":
-                {
-                    var foundUsers = JsonUtility.FromJson<SketchfabUserSearchResult>(result).results;
-                    previewList.AddRange(foundUsers.Select(CreateUserPreview));
-                    break;
-                }
+                    {
+                        var foundUsers = JsonUtility.FromJson<SketchfabUserSearchResult>(result).results;
+                        previewList.AddRange(foundUsers.Select(CreateUserPreview));
+                        break;
+                    }
                 case "collections":
-                {
-                    var foundCollections = JsonUtility.FromJson<SketchfabCollectionSearchResult>(result).results;
-                    previewList.AddRange(foundCollections.Select(CreateUserPreview));
-                    break;
-                }
+                    {
+                        var foundCollections = JsonUtility.FromJson<SketchfabCollectionSearchResult>(result).results;
+                        previewList.AddRange(foundCollections.Select(CreateUserPreview));
+                        break;
+                    }
             }
 
             return previewList;
@@ -119,7 +119,7 @@ namespace MirageXR
                 }
             };
         }
-        
+
         private static ModelPreviewItem CreateUserPreview(SketchfabCollection sketchfabCollection)
         {
             var image = sketchfabCollection.user.avatar.images.FirstOrDefault(t => t.height < MAX_COLLECTION_AVATAR_HEIGHT) ??
@@ -139,11 +139,11 @@ namespace MirageXR
                 }
             };
         }
-     
+
         public static async Task<(bool, string)> GetTokenAsync(string username, string password, string clientId, string clientSecret)
         {
             const int timeout = 60 * 2;
-            
+
             const string url = "https://sketchfab.com/oauth2/token/";
             const string authorizationKey = "Basic";
             const string grantTypeKey = "grant_type";
@@ -155,11 +155,11 @@ namespace MirageXR
             {
                 var form = new MultipartFormDataContent
                 {
-                    {new StringContent(grantTypeValue), grantTypeKey},
-                    {new StringContent(username), usernameKey},
-                    {new StringContent(password), passwordKey}
+                    { new StringContent(grantTypeValue), grantTypeKey },
+                    { new StringContent(username), usernameKey },
+                    { new StringContent(password), passwordKey }
                 };
-                
+
                 client.Timeout = TimeSpan.FromSeconds(timeout);
                 try
                 {
@@ -175,11 +175,11 @@ namespace MirageXR
                 }
             }
         }
-     
+
         public static async Task<(bool, string)> RenewTokenAsync(string renewToken, string clientId, string clientSecret)
         {
             const int timeout = 60 * 2;
-            
+
             const string url = "https://sketchfab.com/oauth2/token/";
             const string grantTypeKey = "grant_type";
             const string clientIdKey = "client_id";
@@ -196,12 +196,12 @@ namespace MirageXR
             {
                 var form = new MultipartFormDataContent
                 {
-                    {new StringContent(grantTypeValue), grantTypeKey},
-                    {new StringContent(clientId), clientIdKey},
-                    {new StringContent(clientSecret), clientSecretKey},
-                    {new StringContent(renewToken), refreshKey}
+                    { new StringContent(grantTypeValue), grantTypeKey },
+                    { new StringContent(clientId), clientIdKey },
+                    { new StringContent(clientSecret), clientSecretKey },
+                    { new StringContent(renewToken), refreshKey }
                 };
-                
+
                 client.Timeout = TimeSpan.FromSeconds(timeout);
                 try
                 {
@@ -215,22 +215,22 @@ namespace MirageXR
                 }
             }
         }
-        
+
         public static async Task<(bool, Sprite)> LoadSpriteAsync(string url)
         {
             var (result, texture) = await LoadTextureAsync(url);
             if (!result) return (false, null);
-            
+
             // scale according to width or height (fit to button), create and store
             var rec = new Rect(0, 0, texture.width, texture.height);
             var ppu = Mathf.Max(texture.width / 9f, texture.height / 6f);
             return (true, Sprite.Create(texture, rec, new Vector2(0.5f, 0.5f), ppu));
         }
-        
+
         public static async Task<(bool, Texture2D)> LoadTextureAsync(string url)
         {
             const int timeout = 60 * 2;
-            
+
             const string httpPrefix = "http";
             const string filePrefix = "file://";
 
@@ -265,7 +265,7 @@ namespace MirageXR
 
             return (true, bytes);
         }
-        
+
         private static async Task<(bool, byte[])> DownloadBytesAsync(string url, int timeout, IProgress<float> progress = null, CancellationToken cancellationToken = default)
         {
             using (var memory = new MemoryStream())
@@ -274,7 +274,7 @@ namespace MirageXR
                 return (result, result ? memory.ToArray() : null);
             }
         }
-        
+
         public static async Task<(bool, ModelDownloadInfo)> GetDownloadInfoAsync(string token, ModelPreviewItem modelPreviewItem)
         {
             const int timeout = 2 * 60;
@@ -289,37 +289,37 @@ namespace MirageXR
             }
             return (result, downloadInfo);
         }
-        
+
         public static async Task<bool> DownloadModelAndExtractAsync(string url, ModelPreviewItem modelPreview, Action<float> onProgressChanged = null)
         {
             const int timeout = 5 * 60;
 
             var archiveName = $"{modelPreview.name}.zip";
             var imageName = $"{modelPreview.name}.png";
-            
+
             modelPreview.name = GetValidFileName(modelPreview.name);
 
             var modelsFolderPath = Path.Combine(Application.persistentDataPath, FOLDER_NAME);
             if (!Directory.Exists(modelsFolderPath)) Directory.CreateDirectory(modelsFolderPath);
-            
+
             var modelFolderPath = Path.Combine(modelsFolderPath, modelPreview.name);
             if (!Directory.Exists(modelFolderPath)) Directory.CreateDirectory(modelFolderPath);
-            
+
             var archivePath = Path.Combine(modelsFolderPath, archiveName);
             var jsonPath = Path.Combine(modelFolderPath, JSON_FILE_NAME);
             var modelPath = Path.Combine(modelFolderPath, MODEL_NAME);
             var imagePath = Path.Combine(modelFolderPath, imageName);
-            
+
             using (var stream = new FileStream(archivePath, FileMode.OpenOrCreate))
             {
                 Progress<float> progress = null;
                 if (onProgressChanged != null) progress = new Progress<float>(onProgressChanged.Invoke);
                 var (result, _) = await Network.DownloadToStreamAsync(url, stream, timeout, progress);
                 if (!result) return false;
-                
+
                 modelPreview.fileSize = stream.Length;
             }
-            
+
             if (!Directory.Exists(modelFolderPath)) Directory.CreateDirectory(modelFolderPath);
 
             using (var stream = new FileStream(imagePath, FileMode.OpenOrCreate))
@@ -331,13 +331,13 @@ namespace MirageXR
                 }
                 modelPreview.resourceImage.url = $"file://{imagePath}";
             }
-            
+
             using (var stream = new FileStream(archivePath, FileMode.Open))
             {
                 await ZipUtilities.ExtractZipFileAsync(stream, modelFolderPath);
                 modelPreview.resourceUrl = $"file://{modelPath}";
             }
-            
+
             var output = Newtonsoft.Json.JsonConvert.SerializeObject(modelPreview, Newtonsoft.Json.Formatting.Indented);
 
             using (var fs = new FileStream(jsonPath, FileMode.OpenOrCreate))
@@ -367,18 +367,18 @@ namespace MirageXR
                     await ZipUtilities.CompressFolderAsync($"{modelFolder}\\", zipStream);
                 }
             }
-            
+
             // unpack to session folder
             using (var stream = new FileStream(archiveUrl, FileMode.Open))
             {
                 await ZipUtilities.ExtractZipFileAsync(stream, targetDirectory);
             }
         }
-        
+
         public static List<ModelPreviewItem> GetLocalModels()
         {
-            const string searchPattern = "*"; 
-            
+            const string searchPattern = "*";
+
             var modelsFolderPath = Path.Combine(Application.persistentDataPath, FOLDER_NAME);
             if (!Directory.Exists(modelsFolderPath)) Directory.CreateDirectory(modelsFolderPath);
             var localModelDirs = Directory.GetDirectories(modelsFolderPath, searchPattern, SearchOption.TopDirectoryOnly);
@@ -414,21 +414,21 @@ namespace MirageXR
                 }
             }
         }
-        
+
         private static string GetValidFileName(string source)
         {
             var regexSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
             var r = new Regex($"[{Regex.Escape(regexSearch)}]");
             return r.Replace(source, string.Empty);
         }
-        
+
         public static async Task<(bool, string)> RequestToken(string appId, string appSecret, string code, CancellationToken cancellationToken = default)
         {
-            const int timeout = 60; 
+            const int timeout = 60;
             const string redirectUri = "https://wekit-community.org/sketchfab/callback.php";
             const string uri = "https://sketchfab.com/oauth2/token/";
             const string contentType = "application/x-www-form-urlencoded";
-            
+
             const string clientIdKey = "client_id";
             const string redirectUriKey = "redirect_uri";
             const string codeKey = "code";
@@ -438,11 +438,11 @@ namespace MirageXR
 
             var form = new MultipartFormDataContent
             {
-                {new StringContent(appId), clientIdKey},
-                {new StringContent(redirectUri), redirectUriKey},
-                {new StringContent(code), codeKey},
-                {new StringContent(authorizationCodeValue), grantTypeKey},
-                {new StringContent(appSecret), clientSecretKey},
+                { new StringContent(appId), clientIdKey },
+                { new StringContent(redirectUri), redirectUriKey },
+                { new StringContent(code), codeKey },
+                { new StringContent(authorizationCodeValue), grantTypeKey },
+                { new StringContent(appSecret), clientSecretKey },
             };
 
             using (var client = new HttpClient())
@@ -463,8 +463,9 @@ namespace MirageXR
                 }
             }
         }
-        
-        public static string Base64Encode(string plainText) {
+
+        public static string Base64Encode(string plainText)
+        {
             var plainTextBytes = Encoding.UTF8.GetBytes(plainText);
             return Convert.ToBase64String(plainTextBytes);
         }

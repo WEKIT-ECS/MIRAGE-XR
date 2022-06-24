@@ -12,9 +12,9 @@ using UnityEngine.UI;
 public class ModelEditorView : PopupEditorBase
 {
     private const int RESULTS_PER_PAGE = 20;
-    
+
     public override ContentType editorForType => ContentType.MODEL;
-    
+
     [SerializeField] private Transform _contentContainer;
     [SerializeField] private ScrollRect _scroll;
     [SerializeField] private ModelListItem _modelListItemPrefab;
@@ -36,19 +36,19 @@ public class ModelEditorView : PopupEditorBase
     private int _pageIndex;
 
     private readonly List<ModelListItem> _items = new List<ModelListItem>();
-    
+
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
         base.Init(onClose, args);
 
-        if (!CheckAndLoadCredentials()) return; 
+        if (!CheckAndLoadCredentials()) return;
 
         _btnSearch.onClick.AddListener(OnSearchClicked);
         _btnLogout.onClick.AddListener(OnLogoutClicked);
         _toggleLocal.onValueChanged.AddListener(OnToggleLocalValueChanged);
         ResetView();
     }
-    
+
     private void ResetView()
     {
         _pageIndex = 0;
@@ -69,7 +69,7 @@ public class ModelEditorView : PopupEditorBase
         }
         Clear();
     }
-    
+
     private async void RenewToken()
     {
         await RenewTokenAsync();
@@ -79,7 +79,7 @@ public class ModelEditorView : PopupEditorBase
     {
         var clientId = _clientDirectLoginDataObject.clientData.ClientId;
         var clientSecret = _clientDirectLoginDataObject.clientData.ClientSecret;
-        
+
         var (result, json) = await MirageXR.Sketchfab.RenewTokenAsync(_renewToken, clientId, clientSecret);
         var response = JsonConvert.DeserializeObject<MirageXR.Sketchfab.SketchfabResponse>(json);
         if (result)
@@ -93,7 +93,7 @@ public class ModelEditorView : PopupEditorBase
             }
         }
     }
-    
+
     private bool CheckAndLoadCredentials()
     {
         if (_clientDataObject == null)
@@ -116,7 +116,7 @@ public class ModelEditorView : PopupEditorBase
 
         return true;
     }
-    
+
     private void OnToggleLocalValueChanged(bool value)
     {
         _inputSearch.text = string.Empty;
@@ -128,8 +128,8 @@ public class ModelEditorView : PopupEditorBase
         {
             ShowRemoteModels();
         }
-    }  
-    
+    }
+
     private void ShowLocalModels()
     {
         Clear();
@@ -146,13 +146,13 @@ public class ModelEditorView : PopupEditorBase
     {
         Clear();
     }
-    
+
     private void AddLoadMoreButton()
     {
         _loadMoreObject = Instantiate(_loadMorePrefab, _contentContainer);
         _loadMoreObject.GetComponentInChildren<Button>().onClick.AddListener(OnLoadMoreButtonClicked);
     }
-    
+
     private void OnSearchClicked()
     {
         if (_toggleLocal.isOn)
@@ -161,7 +161,7 @@ public class ModelEditorView : PopupEditorBase
         }
         else
         {
-            SearchRemote();   
+            SearchRemote();
         }
     }
 
@@ -173,11 +173,11 @@ public class ModelEditorView : PopupEditorBase
             item.gameObject.SetActive(active);
         }
     }
-    
+
     private async void SearchRemote()
     {
         _searchString = _inputSearch.text;
-        
+
         if (string.IsNullOrEmpty(_searchString))
         {
             Toast.Instance.Show("Search field cannot be empty");
@@ -199,19 +199,19 @@ public class ModelEditorView : PopupEditorBase
             Toast.Instance.Show("Nothing found");
             return;
         }
-        
+
         AddItems(previewItems);
         if (previewItems.Count >= RESULTS_PER_PAGE)
         {
             AddLoadMoreButton();
         }
     }
-    
+
     private async void OnLoadMoreButtonClicked()
     {
         _pageIndex++;
         var cursorPosition = _pageIndex * RESULTS_PER_PAGE + 1;
-        
+
         var (result, content) = await MirageXR.Sketchfab.SearchModelsAsync(_token, _searchOption, _searchString, cursorPosition, RESULTS_PER_PAGE);
         if (!result)
         {
@@ -228,12 +228,12 @@ public class ModelEditorView : PopupEditorBase
         }
 
         AddItems(previewItems);
-        
+
         if (previewItems.Count < RESULTS_PER_PAGE)
         {
             _loadMoreObject.SetActive(false);
         }
-        
+
         _loadMoreObject.transform.SetAsLastSibling();
     }
 
@@ -248,7 +248,7 @@ public class ModelEditorView : PopupEditorBase
         }
         _items.Clear();
     }
-    
+
     private void AddItems(IEnumerable<ModelPreviewItem> previewItems, bool isDownloaded = false)
     {
         foreach (var item in previewItems)
@@ -284,7 +284,7 @@ public class ModelEditorView : PopupEditorBase
     {
         var clientId = _clientDirectLoginDataObject.clientData.ClientId;
         var clientSecret = _clientDirectLoginDataObject.clientData.ClientSecret;
-        Action<bool, string> onPopupClose = OnDirectLoginCompleted; 
+        Action<bool, string> onPopupClose = OnDirectLoginCompleted;
         PopupsViewer.Instance.Show(_directLoginPopupPrefab, onPopupClose, clientId, clientSecret);
     }
 
