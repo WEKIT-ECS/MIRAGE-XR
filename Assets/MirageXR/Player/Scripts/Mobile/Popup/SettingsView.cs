@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class SettingsView : PopupBase
 {
     private const string VERSION_FORMAT = "Version {0}";
-    
+
     [SerializeField] private TMP_Text _txtVersion;
     [SerializeField] private ExtendedInputField _inputFieldMoodleAddress;
     [SerializeField] private Toggle _togglePublicUpload;
@@ -50,7 +50,7 @@ public class SettingsView : PopupBase
     {
         return true;
     }
-    
+
     private void OnValueChangedRecordStore(int value)
     {
         ValueHasBeenChanged();
@@ -75,23 +75,23 @@ public class SettingsView : PopupBase
     {
         _btnSave.interactable = true;
     }
-    
+
     private void OnClickSaveChanges()
     {
         if (!_inputFieldMoodleAddress.Validate()) return;
-        
+
         if (DBManager.domain != _inputFieldMoodleAddress.text)
         {
             DBManager.domain = _inputFieldMoodleAddress.text;
             DBManager.LogOut();
             RootView.Instance.activityListView.UpdateListView();
         }
-        
+
         DBManager.publicUploadPrivacy = _togglePublicUpload.isOn;
 
         EventManager.NotifyxAPIChanged(_learningRecordStoreDropdown.value);
         ResetValues();
-        
+
         Close();
     }
 

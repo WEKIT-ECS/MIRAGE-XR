@@ -9,9 +9,9 @@ public class LabelEditorView : PopupEditorBase
     private const float MIN_SLIDER_VALUE = 1;
     private const float MAX_SLIDER_VALUE = 10;
     private const float DEFAULT_SLIDER_VALUE = 3;
-    
+
     public override ContentType editorForType => ContentType.LABEL;
-    
+
     [SerializeField] private TMP_InputField _inputField;
     [SerializeField] private Toggle _toggleTrigger;
     [SerializeField] private Slider _slider;
@@ -23,9 +23,9 @@ public class LabelEditorView : PopupEditorBase
     private Trigger _trigger;
     private float _gazeDuration;
     private int _triggerStepIndex;
-    
+
     private int _maxStepIndex => activityManager.ActionsOfTypeAction.Count - 1;
-    
+
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
         base.Init(onClose, args);
@@ -44,7 +44,7 @@ public class LabelEditorView : PopupEditorBase
         _inputField.text = string.Empty;
         _toggleTrigger.isOn = false;
         _slider.value = DEFAULT_SLIDER_VALUE;
-        
+
         _triggerStepIndex = activityManager.ActionsOfTypeAction.IndexOf(_step);
         var isLastStep = activityManager.IsLastAction(_step);
 
@@ -52,7 +52,7 @@ public class LabelEditorView : PopupEditorBase
         {
             _triggerStepIndex = isLastStep ? _triggerStepIndex - 1 : _triggerStepIndex + 1;
         }
-        
+
         if (_content != null)
         {
             _inputField.text = _content.text;
@@ -65,7 +65,7 @@ public class LabelEditorView : PopupEditorBase
                 OnSliderValueChanged(_trigger.duration);
             }
         }
-     
+
         _txtStep.text = (_triggerStepIndex + 1).ToString();
         _slider.interactable = _toggleTrigger.isOn;
     }
@@ -80,14 +80,14 @@ public class LabelEditorView : PopupEditorBase
         _gazeDuration = value;
         _txtSliderValue.text = $"{_gazeDuration} sec";
     }
-    
+
     private void OnNextToClick()
     {
         if (_triggerStepIndex >= _maxStepIndex) return;
         _triggerStepIndex++;
         _txtStep.text = (_triggerStepIndex + 1).ToString();
     }
-    
+
     private void OnPreviousToClick()
     {
         if (_triggerStepIndex <= 0) return;
@@ -102,7 +102,7 @@ public class LabelEditorView : PopupEditorBase
             Toast.Instance.Show("Input field is empty.");
             return;
         }
-        
+
         if (_content != null)
         {
             EventManager.DeactivateObject(_content);

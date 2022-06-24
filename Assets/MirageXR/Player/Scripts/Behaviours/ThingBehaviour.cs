@@ -31,11 +31,11 @@ namespace MirageXR
             // transform.GetComponentInChildren<PathRoleController>(true).IsVisible = false;
         }
 
-        private void Delete ()
+        private void Delete()
         {
-            Destroy (gameObject);
+            Destroy(gameObject);
         }
-        
+
         /// <summary>
         /// Show content stored inside this thing.
         /// </summary>
@@ -46,7 +46,7 @@ namespace MirageXR
                 rend.enabled = true;
             }
 
-            foreach (var coll in transform.GetComponentsInChildren<Collider> ())
+            foreach (var coll in transform.GetComponentsInChildren<Collider>())
             {
                 coll.enabled = true;
             }
@@ -57,12 +57,12 @@ namespace MirageXR
         /// </summary>
         private void HideContent()
         {
-            foreach (var rend in transform.GetComponentsInChildren<Renderer> ())
+            foreach (var rend in transform.GetComponentsInChildren<Renderer>())
             {
                 rend.enabled = false;
             }
 
-            foreach (var coll in transform.GetComponentsInChildren<Collider> ())
+            foreach (var coll in transform.GetComponentsInChildren<Collider>())
             {
                 coll.enabled = false;
             }

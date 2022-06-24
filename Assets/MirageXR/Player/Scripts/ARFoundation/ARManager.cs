@@ -9,7 +9,7 @@ public class ARManager : MonoBehaviour
     [SerializeField] private Camera _mainCamera;
     [SerializeField] private GameObject _prefabPlace;
     [SerializeField] private GameObject _prefabPointCloud;
-    
+
 #if UNITY_ANDROID || UNITY_IOS
     private ARPlaneManager _arPlaneManager;
     private ARPointCloudManager _arPointCloudManager;
@@ -48,7 +48,7 @@ public class ARManager : MonoBehaviour
         EventManager.OnEditModeChanged -= EnablePlaneDetection;
 #endif
     }
-    
+
 #if UNITY_ANDROID || UNITY_IOS
     private void EnablePlaneDetection(bool value)
     {

@@ -50,7 +50,7 @@ namespace MirageXR
                 RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
                 Maggie.Speak("Vest enabled.");
             }
-            else 
+            else
                 Maggie.Speak("Can not enable vest since a valid configuration file was not found.");
         }
 

@@ -26,7 +26,7 @@ namespace MirageXR
             {
                 req.method = UnityWebRequest.kHttpVerbGET;
                 Debug.Log($"Downloading zip file to " + _zipFilePath);
-                DownloadHandlerFile downloadHandler = new DownloadHandlerFile(_zipFilePath) {removeFileOnAbort = true};
+                DownloadHandlerFile downloadHandler = new DownloadHandlerFile(_zipFilePath) { removeFileOnAbort = true };
                 req.downloadHandler = downloadHandler;
                 await req.SendWebRequest();
                 bool success = !req.isHttpError && !req.isNetworkError;

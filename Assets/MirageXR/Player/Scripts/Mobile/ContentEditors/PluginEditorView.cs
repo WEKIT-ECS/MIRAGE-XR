@@ -5,19 +5,19 @@ using UnityEngine;
 public class PluginEditorView : PopupEditorBase
 {
     public override ContentType editorForType => ContentType.PLUGIN;
-    
+
     [SerializeField] private Transform _contentContainer;
     [SerializeField] private PluginListItem _pluginListItemPrefab;
     [SerializeField] private PluginObject[] _pluginObjects;
 
     private App _app;
-    
+
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
         base.Init(onClose, args);
         UpdateView();
     }
-    
+
     private void UpdateView()
     {
         for (int i = _contentContainer.childCount - 1; i >= 0; i--)
@@ -25,20 +25,20 @@ public class PluginEditorView : PopupEditorBase
             var child = _contentContainer.GetChild(i);
             Destroy(child);
         }
-        
+
         foreach (var pluginObject in _pluginObjects)
         {
             var item = Instantiate(_pluginListItemPrefab, _contentContainer);
             item.Init(pluginObject, OnAccept);
         }
     }
-    
+
     private void OnAccept(PluginObject pluginObject)
     {
         _app = PluginToApp(pluginObject);
         OnAccept();
     }
-    
+
     protected override void OnAccept()
     {
         if (_content != null)
@@ -61,7 +61,7 @@ public class PluginEditorView : PopupEditorBase
 
         Close();
     }
-    
+
     private static App PluginToApp(PluginObject plugin)
     {
         const string type = "App";

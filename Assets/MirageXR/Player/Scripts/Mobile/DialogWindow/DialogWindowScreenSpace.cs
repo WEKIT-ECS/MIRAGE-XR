@@ -5,15 +5,15 @@ public class DialogWindowScreenSpace : DialogWindow
 {
     [SerializeField] private TMP_Text _txtTitle;
     [SerializeField] private TMP_Text _txtMessage;
-    
+
     protected override string _titleText
     {
         get => _txtTitle.text;
         set => _txtTitle.text = value;
     }
-    
-    protected override string _messageText 
-    { 
+
+    protected override string _messageText
+    {
         get => _txtMessage.text;
         set => _txtMessage.text = value;
     }

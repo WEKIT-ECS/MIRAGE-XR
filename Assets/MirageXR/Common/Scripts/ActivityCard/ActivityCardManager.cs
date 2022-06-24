@@ -42,7 +42,7 @@ namespace MirageXR
 
             FinishFlag.SetActive(false);
             ReplayButton.SetActive(false);
-            
+
             _timelineObjects.Clear();
             _tasklistObjects.Clear();
             OriginalActions.Clear();
@@ -86,7 +86,7 @@ namespace MirageXR
 
                 var timelineItemPrefab = Resources.Load<GameObject>("Prefabs/TimelineItemPrefab");//TODO: change to addressables
                 var timelineObject = Instantiate(timelineItemPrefab, Vector3.zero, Quaternion.identity, TimeLine);
-                var timelineRectTransform = timelineObject.GetComponent<RectTransform>(); 
+                var timelineRectTransform = timelineObject.GetComponent<RectTransform>();
                 timelineRectTransform.localPosition = Vector3.zero;
                 timelineRectTransform.localEulerAngles = Vector3.zero;
                 timelineRectTransform.localScale = Vector3.one;
@@ -129,7 +129,7 @@ namespace MirageXR
             actionObject.isCompleted = true;
             await RootObject.Instance.activityManager.DeactivateAction(actionObject.id);
         }
-        
+
         /// <summary>
         /// Force activate previous action.
         /// </summary>
@@ -139,7 +139,7 @@ namespace MirageXR
         }
 
         private void ShowCards()
-        { 
+        {
             if (Actions.Count > 1)
             {
                 NextCard.SetActive(true);

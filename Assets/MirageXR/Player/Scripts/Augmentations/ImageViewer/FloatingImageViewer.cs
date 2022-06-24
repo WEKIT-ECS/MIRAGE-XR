@@ -137,7 +137,7 @@ namespace MirageXR
             }
             useExternalSource = useExternalImageSource;
 
-            // Create image viewer screen        
+            // Create image viewer screen
             MeshFilter meshFilter = Background.GetComponent<MeshFilter>();
             // meshFilter.mesh = CreatePlaneMesh ();
             MeshRenderer renderer = Background.GetComponent<MeshRenderer>();

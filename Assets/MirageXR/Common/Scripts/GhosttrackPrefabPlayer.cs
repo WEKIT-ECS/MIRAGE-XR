@@ -39,7 +39,7 @@ namespace MirageXR
                 Debug.Log("Content URL not provided.");
                 return false;
             }
-            
+
             if (!SetParent(content)) // Try to set the parent and if it fails, terminate initialization.
             {
                 Debug.Log("Couldn't set the parent.");
@@ -48,7 +48,7 @@ namespace MirageXR
 
             name = content.predicate;  // Set name. Please don't modify so that the ghosttrack can be deactivated...
             _loop = content.option.Contains("loop");
-            
+
             if (GhostRecorder.TryLoadFromFile(GetFullFilePathFromUrl(content.url), out _recordedGhostData))
             {
                 PlayRecording();
@@ -58,7 +58,7 @@ namespace MirageXR
             Debug.Log("Error loading ghost recording");
             return false;
         }
-        
+
         public void PlayRecording()
         {
             Debug.Log($"PlayRecording: there are {_recordedGhostData.Count} ghost frames");
@@ -73,8 +73,8 @@ namespace MirageXR
         {
             var fileName = url.Replace("resources://", string.Empty);
             fileName = fileName.Replace("http://", string.Empty);
-            
+
             return Path.Combine(RootObject.Instance.activityManager.ActivityPath, fileName);
-        } 
+        }
     }
 }

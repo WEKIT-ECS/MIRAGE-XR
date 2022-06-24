@@ -19,12 +19,13 @@ namespace MirageXR
             MyPoi = annotation;
             durationInputField.text = duration.ToString(CultureInfo.InvariantCulture);
             stepNumberInputField.text = stepNumber;
-            stepTriggerToggle.isOn =  activityManager.ActionsOfTypeAction.Count != 1 && IsTrigger();
+            stepTriggerToggle.isOn = activityManager.ActionsOfTypeAction.Count != 1 && IsTrigger();
             durationInputField.interactable = stepTriggerToggle.isOn;
             stepNumberInputField.interactable = stepTriggerToggle.isOn;
         }
 
-        private bool IsTrigger() {
+        private bool IsTrigger()
+        {
 
             if (MyPoi == null) return false;
 
@@ -48,7 +49,7 @@ namespace MirageXR
 
             if (stepTriggerToggle.isOn)
             {
-                if( activityManager.ActionsOfTypeAction.Count == 1)
+                if (activityManager.ActionsOfTypeAction.Count == 1)
                 {
                     // give the info and close
                     DialogWindow.Instance.Show("Info!",
@@ -77,14 +78,14 @@ namespace MirageXR
             {
                 stepNumberInputField.text = activityManager.ActionsOfTypeAction.Count.ToString();
             }
-            else if(stepNumber < 1)
+            else if (stepNumber < 1)
             {
                 stepNumberInputField.text = "1";
             }
 
             if (MyPoi == null) return;
 
-            if (IsTrigger()) 
+            if (IsTrigger())
             {
                 SetupTrigger();
             }
@@ -94,7 +95,7 @@ namespace MirageXR
         {
             if (MyPoi == null) return;
 
-            if (IsTrigger()) 
+            if (IsTrigger())
             {
                 SetupTrigger();
             }

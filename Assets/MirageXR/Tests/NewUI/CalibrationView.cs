@@ -11,7 +11,7 @@ public class CalibrationView : MonoBehaviour
     [SerializeField] private Image _targetBlue;
     [SerializeField] private TextMeshProUGUI _textDone;
     [SerializeField] private Button _btnClose;
-    
+
     private void Start()
     {
         Init();

@@ -51,7 +51,7 @@ namespace MirageXR
 
 
         private void Update()
-        { 
+        {
             if (gameObject.activeInHierarchy && target != null)
             {
                 if (PositionOffset != null)

@@ -13,7 +13,7 @@ public class StepsListView_v2 : BaseView
     private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg";
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
     private static MoodleManager moodleManager => RootObject.Instance.moodleManager;
-    
+
     [SerializeField] private TMP_InputField _inputFieldName;
     [SerializeField] private RectTransform _listContent;
     [SerializeField] private Toggle _toggleEdit;
@@ -31,7 +31,7 @@ public class StepsListView_v2 : BaseView
 
     public TMP_InputField ActivityNameField => _inputFieldName;
     public Button BtnAddStep => _btnAddStep;
-    
+
     public override void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
@@ -96,13 +96,13 @@ public class StepsListView_v2 : BaseView
         var sprite = Utilities.TextureToSprite(texture);
         _imgThumbnail.sprite = sprite;
     }
-    
+
     private void OnStepNameChanged(string newTitle)
     {
         activityManager.Activity.name = newTitle;
         EventManager.NotifyOnActivityRenamed();
     }
-    
+
     public void OnDeleteStepClick(Action step)
     {
         if (activityManager.ActionsOfTypeAction.Count > 1)
@@ -138,15 +138,15 @@ public class StepsListView_v2 : BaseView
         _inputFieldName.interactable = value;
         _btnThumbnail.interactable = value;
         _toggleEdit.isOn = value;
-        
+
         _stepsList.ForEach(t => t.OnEditModeChanged(value));
     }
-    
+
     public async void AddStep()
     {
         await activityManager.AddAction(Vector3.zero);
     }
-    
+
     public void NextStep()
     {
         var activeStep = activityManager.ActiveAction;
@@ -158,7 +158,7 @@ public class StepsListView_v2 : BaseView
             UpdateView();
         }
     }
-    
+
     public void PreviousStep()
     {
         var activeStep = activityManager.ActiveAction;
@@ -168,9 +168,9 @@ public class StepsListView_v2 : BaseView
             activityManager.ActivatePreviousAction();
             UpdateView();
         }
-    }    
-    
-     private void OnActionCreated(Action action)
+    }
+
+    private void OnActionCreated(Action action)
     {
         UpdateView();
     }

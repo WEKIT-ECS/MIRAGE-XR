@@ -43,7 +43,7 @@ public class ModelListItem : MonoBehaviour
         _previewItem = item;
         isDownloaded = downloaded;
         _imageProgress.gameObject.SetActive(false);
-        _label.text = _previewItem.name; 
+        _label.text = _previewItem.name;
         _btn.onClick.AddListener(OnButtonClicked);
     }
 
@@ -83,13 +83,13 @@ public class ModelListItem : MonoBehaviour
     {
         _imageProgress.fillAmount = progress;
     }
-    
+
     public void OnEndDownload()
     {
         _imageProgress.gameObject.SetActive(false);
         _btn.interactable = true;
     }
-    
+
     private void OnDestroy()
     {
         if (_image.sprite)

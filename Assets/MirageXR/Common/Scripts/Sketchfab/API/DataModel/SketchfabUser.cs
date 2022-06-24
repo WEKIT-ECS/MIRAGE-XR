@@ -17,7 +17,7 @@ public class SketchfabUser
 }
 
 [Serializable]
-public class UserAvatar 
+public class UserAvatar
 {
     public string uid = "";
     public string url = "";

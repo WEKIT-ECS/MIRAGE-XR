@@ -21,19 +21,19 @@ namespace MirageXR
         /// </summary>
         /// <param name="obj">Action toggle object.</param>
         /// <returns>Returns true if initialization succesfull.</returns>
-        public override bool Init (ToggleObject obj)
+        public override bool Init(ToggleObject obj)
         {
             // Check if the label text is set.
-            if (string.IsNullOrEmpty (obj.text))
+            if (string.IsNullOrEmpty(obj.text))
             {
-                Debug.Log ("Label text not provided.");
+                Debug.Log("Label text not provided.");
                 return false;
             }
 
             // Try to set the parent and if it fails, terminate initialization.
-            if (!SetParent (obj))
+            if (!SetParent(obj))
             {
-                Debug.Log ("Couldn't set the parent.");
+                Debug.Log("Couldn't set the parent.");
                 return false;
             }
 

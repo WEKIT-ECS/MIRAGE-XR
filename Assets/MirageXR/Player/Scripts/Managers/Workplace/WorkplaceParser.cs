@@ -14,7 +14,7 @@ namespace MirageXR
         public static Workplace Parse(string workplaceId)
         {
             var json = GetWorkplaceJson(workplaceId);
-            return  JsonConvert.DeserializeObject<Workplace>(json);
+            return JsonConvert.DeserializeObject<Workplace>(json);
         }
 
         public static string Serialize(Workplace workplace)

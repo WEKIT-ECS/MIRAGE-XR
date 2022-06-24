@@ -26,7 +26,7 @@ namespace MirageXR
                 GetComponent<Canvas>().enabled = false;
                 return;
             }
-            
+
             EventManager.OnShowActivitySelectionMenu += ShowMenu;
             EventManager.OnHideActivitySelectionMenu += HideMenu;
             EventManager.OnEditorLoaded += HideMenu;

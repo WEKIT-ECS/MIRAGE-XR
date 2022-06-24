@@ -40,7 +40,7 @@ public class ImageMarkerEditor : MonoBehaviour
         annotationStartingPoint = startingPoint;
     }
 
-    #region TakePhoto 
+    #region TakePhoto
 
     public bool IsThumbnail
     {
@@ -50,7 +50,7 @@ public class ImageMarkerEditor : MonoBehaviour
 #if UNITY_WSA
     private UnityEngine.Windows.WebCam.PhotoCapture photoCaptureObject = null;
 #endif
- 
+
     private void OnPictureTaken(bool result, Texture2D texture2D)
     {
         PlayCameraSound();
@@ -60,17 +60,18 @@ public class ImageMarkerEditor : MonoBehaviour
             Debug.Log("Image W: " + _capturedImage.width);
             Debug.Log("Image H: " + _capturedImage.height);
 
-           // _capturedImage.Resize((_capturedImage.width / 2), (_capturedImage.height / 2));
+            // _capturedImage.Resize((_capturedImage.width / 2), (_capturedImage.height / 2));
             Debug.Log("Image W: " + _capturedImage.width);
             Debug.Log("Image H: " + _capturedImage.height);
             var sprite = Sprite.Create(_capturedImage, new Rect(0, 0, _capturedImage.width, _capturedImage.height),
                 new Vector2(0.5f, 0.5f), 100.0f);
-            
+
             previewImage.sprite = sprite;
             previewImage.SetNativeSize();
 
-            while (previewImage.rectTransform.sizeDelta.x > 100) {
-                previewImage.rectTransform.sizeDelta /= 2;    
+            while (previewImage.rectTransform.sizeDelta.x > 100)
+            {
+                previewImage.rectTransform.sizeDelta /= 2;
             }
         }
 
@@ -107,7 +108,7 @@ public class ImageMarkerEditor : MonoBehaviour
         acceptButton.gameObject.SetActive(false);
         closeButton.gameObject.SetActive(false);
 
-#if UNITY_WSA 
+#if UNITY_WSA
         await ShowCountdown();
 #endif
         if (_capturedImage) Destroy(_capturedImage);
@@ -115,12 +116,12 @@ public class ImageMarkerEditor : MonoBehaviour
     }
 
     public void PlayCameraSound()
-        {
-            shutterPlayer.Play();
-        }
-#endregion
+    {
+        shutterPlayer.Play();
+    }
+    #endregion
 
-#region Crop Photo
+    #region Crop Photo
 
     private Texture2D Cropper(Texture2D sourceTexture)
     {
@@ -152,7 +153,7 @@ public class ImageMarkerEditor : MonoBehaviour
 
         cropImage.sizeDelta = new Vector2(HW, HW);
     }
-#endregion
+    #endregion
 
     private void SaveImageMarker(Texture2D tex)
     {
@@ -168,7 +169,7 @@ public class ImageMarkerEditor : MonoBehaviour
     public void OnAccept()
     {
         SaveImageMarker(Cropper(previewImage.sprite.texture));
-       // SaveImageMarker(TestImage);
+        // SaveImageMarker(TestImage);
 
         if (annotationToEdit != null)
         {
@@ -223,7 +224,8 @@ public class ImageMarkerEditor : MonoBehaviour
         cropScroll.value = 1;
     }
 
-    public void mobiletest() {
+    public void mobiletest()
+    {
         imageMarkerMobile.SetActive(true);
     }
 }

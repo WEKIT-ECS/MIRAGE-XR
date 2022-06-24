@@ -42,7 +42,7 @@ public class AnnotationEditor : MonoBehaviour
         if (TaskStationDetailMenu.Instance.SelectedButton == GetComponent<Button>())
             TaskStationDetailMenu.Instance.SelectedButton = null;
 
-        RootObject.Instance.augmentationManager.DeleteAugmentation( annotationListItem.DisplayedAnnotation);
-        
+        RootObject.Instance.augmentationManager.DeleteAugmentation(annotationListItem.DisplayedAnnotation);
+
     }
 }

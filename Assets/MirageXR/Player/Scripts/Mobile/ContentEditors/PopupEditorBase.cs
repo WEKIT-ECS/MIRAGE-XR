@@ -10,17 +10,17 @@ public abstract class PopupEditorBase : PopupBase
     protected const string RESOURCES_PREFIX = "resources://";
     protected static ActivityManager activityManager => RootObject.Instance.activityManager;
     protected static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
-    
+
     [SerializeField] protected Image _icon;
     [SerializeField] protected TMP_Text _txtLabel;
     [SerializeField] protected Button _btnAccept;
     [SerializeField] protected Button _btnClose;
-    
+
     public abstract ContentType editorForType { get; }
 
     protected ToggleObject _content;
     protected MirageXR.Action _step;
-    
+
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
         base.Init(onClose, args);
@@ -37,7 +37,7 @@ public abstract class PopupEditorBase : PopupBase
         _icon.sprite = editorForType.GetIcon();
         _txtLabel.text = editorForType.GetName();
     }
-    
+
     protected virtual Vector3 GetOffset()
     {
         var workplaceManager = RootObject.Instance.workplaceManager;
@@ -46,7 +46,7 @@ public abstract class PopupEditorBase : PopupBase
         var annotationStartingPoint = ActionEditor.Instance.GetDefaultAugmentationStartingPoint();
         return originT.transform.InverseTransformPoint(annotationStartingPoint.transform.position);
     }
-    
+
     protected override bool TryToGetArguments(params object[] args)
     {
         try
@@ -57,7 +57,7 @@ public abstract class PopupEditorBase : PopupBase
         {
             return false;
         }
-        
+
         try
         {
             _content = (ToggleObject)args[1];

@@ -30,15 +30,15 @@ public class GhosttrackEditor : MonoBehaviour
 
     private Transform _augOrigin;
     private Transform _cameraTransform;
-    
+
     private Image _maleThumbnailSelectedIcon;
     private Image _femaleThumbnailSelectedIcon;
-    
+
     private string _ghostFileName;
     private string _audioFileName;
-    
+
     private readonly GhostRecorder _ghostRecorder = new GhostRecorder();
-    
+
     private bool _isRecording;
     private bool IsRecording
     {
@@ -76,7 +76,7 @@ public class GhosttrackEditor : MonoBehaviour
         Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
         var originT = GameObject.Find(detectable.id);
         var offset = Utilities.CalculateOffset(_augOrigin.position, _augOrigin.rotation, originT.transform.position, originT.transform.rotation);
-        
+
         StopRecording();
         if (_annotationToEdit != null)
         {
@@ -89,9 +89,9 @@ public class GhosttrackEditor : MonoBehaviour
                 File.Delete(xmlPath);
             }
             // delete old audio annotation before creating a new one
-            activityManager.ActionsOfTypeAction.ForEach(a => 
-            { 
-                if (a.enter.activates.Contains(_annotationToEdit) && _annotationToEdit.option.Contains(":")) 
+            activityManager.ActionsOfTypeAction.ForEach(a =>
+            {
+                if (a.enter.activates.Contains(_annotationToEdit) && _annotationToEdit.option.Contains(":"))
                 {
                     var myAudioPoi = _annotationToEdit.option.Split(':')[1];
                     var myAudioToggleObject = a.enter.activates.Find(t => t.poi == myAudioPoi);
@@ -102,10 +102,10 @@ public class GhosttrackEditor : MonoBehaviour
                             myAudioToggleObject.url.Replace("http://", ""));
                         File.Delete(audioFilePath);
                     }
-                } 
+                }
             });
 
-            Debug.LogError(_annotationToEdit == null); 
+            Debug.LogError(_annotationToEdit == null);
         }
         else
         {
@@ -118,7 +118,7 @@ public class GhosttrackEditor : MonoBehaviour
 
         var ghostFilePath = Path.Combine(activityManager.ActivityPath, _ghostFileName);
         GhostRecorder.ExportToFile(ghostFilePath, _ghostFrames);
-        
+
         var audioFilePath = Path.Combine(activityManager.ActivityPath, _audioFileName);
         SaveLoadAudioUtilities.Save(audioFilePath, _audioClip);
 
@@ -151,17 +151,17 @@ public class GhosttrackEditor : MonoBehaviour
         EventManager.NotifyActionModified(_action);
         Close();
     }
-    
+
     private void Initialize()
     {
         _cameraTransform = Camera.main.transform;
-        
+
         _maleThumbnailSelectedIcon = _maleButton.transform.GetChild(0).GetComponent<Image>();
         _femaleThumbnailSelectedIcon = _femaleButton.transform.GetChild(0).GetComponent<Image>();
-        
+
         _maleButton.onClick.AddListener(OnMaleButtonClick);
         _femaleButton.onClick.AddListener(OnFemaleButtonClick);
-        
+
         Debug.Log("GhostTrackAnnotation: warm up holosensors");
     }
 
@@ -200,7 +200,7 @@ public class GhosttrackEditor : MonoBehaviour
             Destroy(GameObject.Find("GhostOrigin"));
             _augOrigin = null;
         }
-        
+
         _augOrigin = new GameObject("GhostOrigin").transform;
         _augOrigin.position = _cameraTransform.position;
         _augOrigin.rotation = GameObject.Find(_action.id).transform.rotation;
@@ -238,10 +238,10 @@ public class GhosttrackEditor : MonoBehaviour
             SetPoint();
 
             _augOrigin = GameObject.Find(_action.id).transform;  // TODO: possible NRE. replace with direct ref
-                
+
             var timeStamp = System.DateTime.Now.ToFileTimeUtc();
-            _audioFileName =  $"MirageXR_Audio_{timeStamp}.wav";
-            
+            _audioFileName = $"MirageXR_Audio_{timeStamp}.wav";
+
             Debug.Log("GhostTrackAnnotation: send filename timestamp to audio: " + _ghostFileName);
 
             var previewPos = _cameraTransform.position + _cameraTransform.forward * 1.0f + _cameraTransform.right * 0.2f + _cameraTransform.up * 0.1f;
@@ -250,10 +250,10 @@ public class GhosttrackEditor : MonoBehaviour
 
             _ghostPreviewTransform = _ghostPreview.transform;
             _ghostPreviewHeadTransform = _ghostPreviewTransform.Find("Head");
-            
+
             _ghostRecorder.Start(_augOrigin, _cameraTransform);
             AudioRecorder.Start(_audioFileName);
-            
+
             IsRecording = true;
         }
         Debug.Log("GhostTrackAnnotation.StartRecording done");
@@ -278,7 +278,7 @@ public class GhosttrackEditor : MonoBehaviour
 
         _ghostFrames = _ghostRecorder.Stop();
         _audioClip = AudioRecorder.Stop();
-        
+
         Maggie.Speak("Stopped recording ghost track");
         Debug.Log("Stopped recording ghost track");
     }

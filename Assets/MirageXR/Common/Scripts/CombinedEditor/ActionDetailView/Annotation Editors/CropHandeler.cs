@@ -58,15 +58,16 @@ public class CropHandeler : MonoBehaviour
     {
         screenShotName = filePath;
         myCamera.targetTexture = RenderTexture.GetTemporary(width, height, 16);
-        takeScreenShotOnNextFrame = true;      
+        takeScreenShotOnNextFrame = true;
     }
 
     public static void TakeScreenshot_static(int width, int height, string filePath)
     {
-        instance.TakeScreenShot(width, height, filePath);    
+        instance.TakeScreenShot(width, height, filePath);
     }
 
-    public Texture2D GetCropped() {
+    public Texture2D GetCropped()
+    {
         return RR;
     }
 }

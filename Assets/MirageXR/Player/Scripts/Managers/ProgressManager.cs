@@ -21,7 +21,7 @@ namespace MirageXR
         {
             var tasks = TaskList.transform.GetComponentsInChildren<TaskStep>();
 
-            if (tasks.Length == 0) 
+            if (tasks.Length == 0)
                 return;
 
             var counter = 0;
@@ -33,10 +33,10 @@ namespace MirageXR
                     counter++;
             }
 
-            stepStatusLabel.text = "Step " + counter.ToString()  + " of " + tasks.Length.ToString() + " is done!";
+            stepStatusLabel.text = "Step " + counter.ToString() + " of " + tasks.Length.ToString() + " is done!";
 
             // adjust the progress line if the task list is not empty
-            progressLine.GetComponent<RectTransform>().localScale = new Vector3( (1f / tasks.Length) * counter, 1f, 1f);
+            progressLine.GetComponent<RectTransform>().localScale = new Vector3((1f / tasks.Length) * counter, 1f, 1f);
             print(counter);
         }
     }

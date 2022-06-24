@@ -300,7 +300,7 @@ namespace MirageXR
                                 break;
                         }
                     }
-                   
+
                     if (verb != null && obj != null)
                     {
                         // Add object name and create statement
@@ -433,7 +433,7 @@ namespace MirageXR
         {
             Actor statementActor = ProduceActor();
             Statement retVal = new Statement(statementActor, verb, obj);
-            retVal.timestamp = DateTime.UtcNow;            
+            retVal.timestamp = DateTime.UtcNow;
 
             return retVal;
         }

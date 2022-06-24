@@ -12,7 +12,7 @@ public class GlyphListItem : MonoBehaviour
 
     private ActionObject _actionObject;
     private Action<string> _onClick;
-    
+
     public void Init(ActionObject actionObject, Action<string> onClick)
     {
         _actionObject = actionObject;

@@ -3,7 +3,7 @@
 namespace MirageXR
 {
 
-    public class SensorBase : MonoBehaviour  // TODO: now is useless
+    public class SensorBase : MonoBehaviour // TODO: now is useless
     {
         // streaming data: list of registered callback listeners (registered to get an update for each data frame captured)
         public delegate void CallbackStack(SensorDataFrame currentFrame);
@@ -27,7 +27,7 @@ namespace MirageXR
         /// <summary>
         /// FixedFrameUpdate is used (instead of Update) to set
         /// the sensor update frame rate to the desired interval.
-        /// The routine is registered in Start(). The public float 
+        /// The routine is registered in Start(). The public float
         /// updateInterval can be overridden in order to change the frequency.
         /// </summary>
         public virtual void FixedFrameUpdate()
@@ -66,12 +66,12 @@ namespace MirageXR
             return (true);
         }
 
-        public virtual void RegisterStreamListener ( CallbackStack fun ) 
+        public virtual void RegisterStreamListener(CallbackStack fun)
         {
-           OnSensorStreamUpdate += fun;
+            OnSensorStreamUpdate += fun;
         }
 
-        public virtual void UnregisterStreamListener( CallbackStack fun)
+        public virtual void UnregisterStreamListener(CallbackStack fun)
         {
             OnSensorStreamUpdate -= fun;
         }
