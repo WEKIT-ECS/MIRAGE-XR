@@ -1495,7 +1495,7 @@ Rigidbody:
   m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 3
 --- !u!1001 &190324359521710098
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1507,6 +1507,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: PositivePort
+      objectReference: {fileID: 0}
+    - target: {fileID: 4169984385689787876, guid: 4fec6e05490aa4146a5ad736fcfd2e96,
+        type: 3}
+      propertyPath: m_Center.z
+      value: -1.42
       objectReference: {fileID: 0}
     - target: {fileID: 4325867491917665838, guid: 4fec6e05490aa4146a5ad736fcfd2e96,
         type: 3}
@@ -1541,7 +1546,7 @@ PrefabInstance:
     - target: {fileID: 6035337587150862418, guid: 4fec6e05490aa4146a5ad736fcfd2e96,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.0112
+      value: -0.9799
       objectReference: {fileID: 0}
     - target: {fileID: 6035337587150862418, guid: 4fec6e05490aa4146a5ad736fcfd2e96,
         type: 3}
@@ -1557,6 +1562,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalRotation.z
       value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8539358538219237862, guid: 4fec6e05490aa4146a5ad736fcfd2e96,
+        type: 3}
+      propertyPath: m_IsKinematic
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8539358538219237862, guid: 4fec6e05490aa4146a5ad736fcfd2e96,
+        type: 3}
+      propertyPath: m_CollisionDetection
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4fec6e05490aa4146a5ad736fcfd2e96, type: 3}
@@ -1577,6 +1592,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: NegativePort
+      objectReference: {fileID: 0}
+    - target: {fileID: 4169984385689787876, guid: 4fec6e05490aa4146a5ad736fcfd2e96,
+        type: 3}
+      propertyPath: m_Center.z
+      value: 1.46
       objectReference: {fileID: 0}
     - target: {fileID: 4325867491917665838, guid: 4fec6e05490aa4146a5ad736fcfd2e96,
         type: 3}
@@ -1616,7 +1636,7 @@ PrefabInstance:
     - target: {fileID: 6035337587150862418, guid: 4fec6e05490aa4146a5ad736fcfd2e96,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.1094
+      value: 1.0269
       objectReference: {fileID: 0}
     - target: {fileID: 6035337587150862418, guid: 4fec6e05490aa4146a5ad736fcfd2e96,
         type: 3}
