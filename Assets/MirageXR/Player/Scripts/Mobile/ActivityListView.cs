@@ -77,10 +77,10 @@ namespace MirageXR
                 }
                 else
                 {
-                    dictionary.Add(t.id, new SessionContainer {Activity = t});
+                    dictionary.Add(t.id, new SessionContainer { Activity = t });
                 }
             });
-            
+
             var remoteList = await RootObject.Instance.moodleManager.GetArlemList();
             remoteList?.ForEach(t =>
             {
@@ -90,7 +90,7 @@ namespace MirageXR
                 }
                 else
                 {
-                    dictionary.Add(t.sessionid, new SessionContainer {Session = t});
+                    dictionary.Add(t.sessionid, new SessionContainer { Session = t });
                 }
             });
 
@@ -125,7 +125,7 @@ namespace MirageXR
 
         private void OnHelpClick()
         {
-            if(!TutorialManager.Instance.IsTutorialRunning)
+            if (!TutorialManager.Instance.IsTutorialRunning)
             {
                 TutorialDialog tDialog = RootView.Instance.TutorialDialog;
                 tDialog.Toggle();
@@ -134,7 +134,7 @@ namespace MirageXR
             {
                 TutorialManager.Instance.CloseTutorial();
             }
-            
+
         }
 
         private async void OnAddActivityClick()

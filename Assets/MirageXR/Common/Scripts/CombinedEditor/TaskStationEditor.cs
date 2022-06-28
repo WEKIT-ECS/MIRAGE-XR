@@ -6,7 +6,7 @@ using UnityEngine;
 public class TaskStationEditor : MonoBehaviour
 {
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
-    
+
     [SerializeField] private ObjectManipulator taskStationMover;
 
     private PlaceBehaviour placeBehaviour;

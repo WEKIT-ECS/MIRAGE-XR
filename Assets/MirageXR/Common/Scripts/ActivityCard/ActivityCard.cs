@@ -17,7 +17,7 @@ namespace MirageXR
 
         // Instruction text.
         private Text _instruction;
-        
+
         // Incompleted icon.
         private GameObject _incompletedIcon;
 
@@ -141,7 +141,7 @@ namespace MirageXR
             // Then start filling crap in.
             _title.text = action.instruction.title;
             _instruction.text = action.instruction.description;
-            
+
             _completedIcon.SetActive(action.isCompleted);
             _incompletedIcon.SetActive(!action.isCompleted);
 
@@ -208,7 +208,7 @@ namespace MirageXR
                         }
                         break;
                 }
-            }   
+            }
         }
 
         public void NextTouch(string trigger)
@@ -245,7 +245,7 @@ namespace MirageXR
 
         public void ClickActionTouch()
         {
-            // Show next card when active card is clicked 
+            // Show next card when active card is clicked
             if (IsActiveStep && ClickBehaviour == ClickBehaviours.Next)
             {
                 EventManager.Next("touch");

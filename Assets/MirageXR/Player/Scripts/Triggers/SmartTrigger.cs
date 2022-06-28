@@ -19,10 +19,10 @@ namespace MirageXR
         // Sensor values.
 
         // Value(s) to be monitored.
-        private readonly List<DeviceMqttBehaviour.SensorVariable> _keys = new List<DeviceMqttBehaviour.SensorVariable> ();
+        private readonly List<DeviceMqttBehaviour.SensorVariable> _keys = new List<DeviceMqttBehaviour.SensorVariable>();
 
         // Target value(s) that will launch the trigger.
-        private readonly List<string> _targets = new List<string> ();
+        private readonly List<string> _targets = new List<string>();
 
         // Determines how to compare the values.
         private string _operator;
@@ -45,9 +45,9 @@ namespace MirageXR
             EventManager.OnPlayerReset -= Delete;
         }
 
-        private void Delete ()
+        private void Delete()
         {
-            Destroy (gameObject);
+            Destroy(gameObject);
         }
 
         public bool CreateTrigger(string actionId, Trigger trigger)
@@ -64,42 +64,42 @@ namespace MirageXR
         /// <param name="option">Comparison operator (null if not set).</param>
         /// <param name="targetValue">Target value that will launch the trigger.</param>
         /// <param name="duration">Duration how long the match has to be active for the trigger to trigger.</param>
-        public bool CreateTrigger (string actionId, string sensorId, string keyId, string option, string targetValue, float duration)
+        public bool CreateTrigger(string actionId, string sensorId, string keyId, string option, string targetValue, float duration)
         {
             try
             {
-                if (string.IsNullOrEmpty (actionId))
-                    throw new ArgumentException ("Action id not set.");
+                if (string.IsNullOrEmpty(actionId))
+                    throw new ArgumentException("Action id not set.");
 
-                if (string.IsNullOrEmpty (sensorId))
-                    throw new ArgumentException ("Sensor id not set.");
+                if (string.IsNullOrEmpty(sensorId))
+                    throw new ArgumentException("Sensor id not set.");
 
-                if (string.IsNullOrEmpty (keyId))
-                    throw new ArgumentException ("Key id not set.");
+                if (string.IsNullOrEmpty(keyId))
+                    throw new ArgumentException("Key id not set.");
 
-                var keyArray = keyId.Split (';');
+                var keyArray = keyId.Split(';');
 
-                if (string.IsNullOrEmpty (targetValue))
-                    throw new ArgumentException ("Target value not set.");
+                if (string.IsNullOrEmpty(targetValue))
+                    throw new ArgumentException("Target value not set.");
 
-                var targetArray = targetValue.Split (';');
+                var targetArray = targetValue.Split(';');
 
-                if (float.IsNaN (duration))
+                if (float.IsNaN(duration))
                     duration = 0f;
 
                 _duration = duration;
 
                 // Search for sensor.
-                var sensorObject = GameObject.Find ("Sensors/" + sensorId);
+                var sensorObject = GameObject.Find("Sensors/" + sensorId);
 
                 if (sensorObject == null)
-                    throw new MissingComponentException ("Sensor " + sensorId + " not found.");
+                    throw new MissingComponentException("Sensor " + sensorId + " not found.");
 
                 // If we have a sensor, look for key.
-                var sensorBehaviour = sensorObject.GetComponent<DeviceMqttBehaviour> ();
+                var sensorBehaviour = sensorObject.GetComponent<DeviceMqttBehaviour>();
 
                 if (sensorBehaviour == null)
-                    throw new MissingComponentException (sensorId + " doesn't have a sensor object attached.");
+                    throw new MissingComponentException(sensorId + " doesn't have a sensor object attached.");
 
                 var counter = 0;
 
@@ -114,16 +114,16 @@ namespace MirageXR
                     case "greater":
                     case "smaller":
                         // If option is null or empty, set operator to "none" just in case...
-                        if (string.IsNullOrEmpty (option))
+                        if (string.IsNullOrEmpty(option))
                             _operator = "none";
 
                         // If we are looking for a single value, the key data can't contain multiple values.
                         if (keyArray.Length > 1)
-                            throw new ArgumentException ("Multiple key values for single value comparison.");
+                            throw new ArgumentException("Multiple key values for single value comparison.");
 
                         // And same thing for target values.
                         if (targetArray.Length > 1)
-                            throw new ArgumentException ("Multiple target values for single value comparison.");
+                            throw new ArgumentException("Multiple target values for single value comparison.");
 
                         // Ok the rest is quite straight forward...
 
@@ -133,13 +133,13 @@ namespace MirageXR
                             {
                                 // Ok, final check. Let's prevent greater than etc. comparisons between strings and bools...
                                 if (_operator != "none" && (sensorValue.Type.Equals("string") || sensorValue.Type.Equals("bool")))
-                                    throw new ArgumentException ("Can't do numerical comparison on strings or booleans.");
+                                    throw new ArgumentException("Can't do numerical comparison on strings or booleans.");
 
                                 // If key is found, attach the value as the monitored value.
-                                _keys.Add (sensorValue);
+                                _keys.Add(sensorValue);
 
                                 // Set also the target.
-                                _targets.Add (targetValue);
+                                _targets.Add(targetValue);
 
                                 // Set operator.
                                 _operator = option;
@@ -152,7 +152,7 @@ namespace MirageXR
                         }
 
                         if (counter == 0)
-                            throw new MissingComponentException ("Key " + keyId + " not found in " + sensorId);
+                            throw new MissingComponentException("Key " + keyId + " not found in " + sensorId);
 
                         break;
 
@@ -161,28 +161,28 @@ namespace MirageXR
 
                         // If we are looking for multiple values for comparison, we have to have more than one.
                         if (keyArray.Length == 1)
-                            throw new ArgumentException ("Single key value for and comparison.");
+                            throw new ArgumentException("Single key value for and comparison.");
 
                         // And same thing for target values.
                         if (targetArray.Length == 1)
-                            throw new ArgumentException ("Single target value for and comparison.");
+                            throw new ArgumentException("Single target value for and comparison.");
 
                         // Then make sure that we have matching numbers of keys and targets.
-                        if (keyArray.Length != targetValue.Split (';').Length)
-                            throw new ArgumentException ("Key and target count doesn't match.");
+                        if (keyArray.Length != targetValue.Split(';').Length)
+                            throw new ArgumentException("Key and target count doesn't match.");
 
                         // Uh. Now let's handle the variables...
                         foreach (var sensorValue in sensorBehaviour.Values)
                         {
                             for (int i = 0; i < keyArray.Length; i++)
                             {
-                                if (sensorValue.Key == keyArray [i])
+                                if (sensorValue.Key == keyArray[i])
                                 {
                                     // If key is found, attach the value as the monitored value.
-                                    _keys.Add (sensorValue);
+                                    _keys.Add(sensorValue);
 
                                     // Set also the target.
-                                    _targets.Add (targetArray [i]);
+                                    _targets.Add(targetArray[i]);
 
                                     // Set operator.
                                     _operator = option;
@@ -196,7 +196,7 @@ namespace MirageXR
                         }
 
                         if (counter == 0)
-                            throw new MissingComponentException ("Key ids " + keyId + " not found in " + sensorId);
+                            throw new MissingComponentException("Key ids " + keyId + " not found in " + sensorId);
 
                         break;
 
@@ -205,30 +205,30 @@ namespace MirageXR
 
                         // We are checking only one value that should be between two values.
                         if (keyArray.Length > 1)
-                            throw new ArgumentException ("Key count not suitable for between operator.");
+                            throw new ArgumentException("Key count not suitable for between operator.");
 
                         // ...Two values.
                         if (targetArray.Length != 2)
-                            throw new ArgumentException ("Target value count not suitable for between operator.");
+                            throw new ArgumentException("Target value count not suitable for between operator.");
 
                         // Now let's get our min and max...
                         var min = 0f;
-                        if (!float.TryParse (targetArray [0], out min))
-                            throw new ArgumentException ("Min value not a numerical value.");
+                        if (!float.TryParse(targetArray[0], out min))
+                            throw new ArgumentException("Min value not a numerical value.");
 
                         // Got min.
                         _min = min;
 
                         var max = 0f;
-                        if (!float.TryParse (targetArray [1], out max))
-                            throw new ArgumentException ("Max value not a numerical value.");
+                        if (!float.TryParse(targetArray[1], out max))
+                            throw new ArgumentException("Max value not a numerical value.");
 
                         // Got max.
                         _max = max;
 
                         // Let's check that they make sense...
                         if (min >= max)
-                            throw new ArgumentException ("Min greater or equal compared to max.");
+                            throw new ArgumentException("Min greater or equal compared to max.");
 
 
                         // Uh. Now let's handle the variables...
@@ -238,10 +238,10 @@ namespace MirageXR
                             {
                                 // Ok, final check. Let's between comparisons with strings and bools...
                                 if (sensorValue.Type.Equals("string") || sensorValue.Type.Equals("bool"))
-                                    throw new ArgumentException ("Can't do numerical comparison on strings or booleans.");
+                                    throw new ArgumentException("Can't do numerical comparison on strings or booleans.");
 
                                 // If key is found, attach the value as the monitored value.
-                                _keys.Add (sensorValue);
+                                _keys.Add(sensorValue);
 
                                 // Set operator.
                                 _operator = option;
@@ -254,20 +254,20 @@ namespace MirageXR
                         }
 
                         if (counter == 0)
-                            throw new MissingComponentException ("Key ids " + keyId + " not found in " + sensorId);
+                            throw new MissingComponentException("Key ids " + keyId + " not found in " + sensorId);
 
                         break;
 
                     // Now just handle the unknown operator handling:
                     default:
                         _operator = "none";
-                        throw new ArgumentException ("Unknown operator: " + option);
+                        throw new ArgumentException("Unknown operator: " + option);
                 }
                 return true;
             }
             catch (Exception e)
             {
-                Debug.Log (e);
+                Debug.Log(e);
                 return false;
             }
         }
@@ -275,7 +275,7 @@ namespace MirageXR
         /// <summary>
         /// Make the trigger active.
         /// </summary>
-        public void Activate ()
+        public void Activate()
         {
             _isActive = true;
         }
@@ -283,7 +283,7 @@ namespace MirageXR
         /// <summary>
         /// Launch the trigger;
         /// </summary>
-        private async void DoTrigger ()
+        private async void DoTrigger()
         {
             await RootObject.Instance.activityManager.DeactivateAction(_actionId);
             RootObject.Instance.activityManager.MarkCompleted(_actionId);
@@ -293,7 +293,7 @@ namespace MirageXR
         /// <summary>
         /// Standard Unity loop.
         /// </summary>
-        private void Update ()
+        private void Update()
         {
             if (_isActive)
             {
@@ -310,7 +310,7 @@ namespace MirageXR
                             // Defaults to single value comparison and "and".
                             default:
                                 // Do things properly based on variable type.
-                                switch (_keys [i].Type)
+                                switch (_keys[i].Type)
                                 {
                                     // Defaults to string and bool.
                                     default:
@@ -323,7 +323,7 @@ namespace MirageXR
 
                                     // Now the floats
                                     case "float":
-                                        
+
                                         // If value and target doesn't match, we don't trigger.
                                         if (!(float.Parse(_keys[i].Value).Equals(float.Parse(_targets[i]))))
                                             _trigger = false;
@@ -335,7 +335,7 @@ namespace MirageXR
                                     case "int":
 
                                         // If value and target doesn't match, we don't trigger.
-                                        if (!(int.Parse (_keys [i].Value).Equals (int.Parse (_targets [i]))))
+                                        if (!(int.Parse(_keys[i].Value).Equals(int.Parse(_targets[i]))))
                                             _trigger = false;
 
                                         break;
@@ -352,7 +352,7 @@ namespace MirageXR
                                     case "float":
 
                                         // If value and target doesn't match, we don't trigger.
-                                        if (!(float.Parse (_keys [i].Value) > float.Parse (_targets [i])))
+                                        if (!(float.Parse(_keys[i].Value) > float.Parse(_targets[i])))
                                             _trigger = false;
 
                                         break;
@@ -361,15 +361,15 @@ namespace MirageXR
                                     case "int":
 
                                         // If value and target doesn't match, we don't trigger.
-                                        if (!(int.Parse (_keys [i].Value) > int.Parse (_targets [i])))
+                                        if (!(int.Parse(_keys[i].Value) > int.Parse(_targets[i])))
                                             _trigger = false;
 
                                         break;
 
                                     // Shouldn't be possible at this stage, but let's make sure...
                                     default:
-                                        throw new ArgumentException ("Can't do numerical comparison on strings or booleans.");
-                                } 
+                                        throw new ArgumentException("Can't do numerical comparison on strings or booleans.");
+                                }
 
                                 break;
 
@@ -377,13 +377,13 @@ namespace MirageXR
                             case "smaller":
 
                                 // Let's do this properly based on the variable type.
-                                switch (_keys [i].Type)
+                                switch (_keys[i].Type)
                                 {
                                     // First the floats
                                     case "float":
 
                                         // If value and target doesn't match, we don't trigger.
-                                        if (!(float.Parse (_keys [i].Value) < float.Parse (_targets [i])))
+                                        if (!(float.Parse(_keys[i].Value) < float.Parse(_targets[i])))
                                             _trigger = false;
 
                                         break;
@@ -392,14 +392,14 @@ namespace MirageXR
                                     case "int":
 
                                         // If value and target doesn't match, we don't trigger.
-                                        if (!(int.Parse (_keys [i].Value) < int.Parse (_targets [i])))
+                                        if (!(int.Parse(_keys[i].Value) < int.Parse(_targets[i])))
                                             _trigger = false;
 
                                         break;
 
                                     // Shouldn't be possible at this stage, but let's make sure...
                                     default:
-                                        throw new ArgumentException ("Can't do numerical comparison on strings or booleans.");
+                                        throw new ArgumentException("Can't do numerical comparison on strings or booleans.");
                                 }
 
                                 break;
@@ -408,13 +408,13 @@ namespace MirageXR
                             case "between":
 
                                 // Let's do this properly based on the variable type.
-                                switch (_keys [i].Type)
+                                switch (_keys[i].Type)
                                 {
                                     // First the floats
                                     case "float":
 
                                         // If value and target doesn't match, we don't trigger.
-                                        if (!(float.Parse (_keys [i].Value) > _min && float.Parse (_keys [i].Value) < _max))
+                                        if (!(float.Parse(_keys[i].Value) > _min && float.Parse(_keys[i].Value) < _max))
                                             _trigger = false;
 
                                         break;
@@ -423,14 +423,14 @@ namespace MirageXR
                                     case "int":
 
                                         // If value and target doesn't match, we don't trigger.
-                                        if (!(int.Parse (_keys [i].Value) > _min && int.Parse (_keys [i].Value) < _max))
+                                        if (!(int.Parse(_keys[i].Value) > _min && int.Parse(_keys[i].Value) < _max))
                                             _trigger = false;
 
                                         break;
 
                                     // Shouldn't be possible at this stage, but let's make sure...
                                     default:
-                                        throw new ArgumentException ("Can't do numerical comparison on strings or booleans.");
+                                        throw new ArgumentException("Can't do numerical comparison on strings or booleans.");
                                 }
 
                                 break;
@@ -449,12 +449,12 @@ namespace MirageXR
                     if (_trigger && counter <= 0)
                     {
                         _isActive = false;
-                        DoTrigger ();
+                        DoTrigger();
                     }
                 }
                 catch (Exception e)
                 {
-                    Debug.Log (e);
+                    Debug.Log(e);
                     throw;
                 }
             }

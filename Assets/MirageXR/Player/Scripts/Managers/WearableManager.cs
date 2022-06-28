@@ -39,11 +39,11 @@ public class WearableManager : MonoBehaviour
         await _mqtt.DisconnectAsync();
     }
 
-	// Use this for initialization
-	async void Start ()
-	{
-	    await _mqtt.ConnectAsync(BrokerUrl, BrokerPort);
-	}
+    // Use this for initialization
+    async void Start()
+    {
+        await _mqtt.ConnectAsync(BrokerUrl, BrokerPort);
+    }
 
     private async void MqttConnected(bool success)
     {
@@ -100,25 +100,26 @@ public class WearableManager : MonoBehaviour
             case "toggle_guides":
                 EventManager.ToggleGuides();
                 break;
-           
+
             case "toggle_lock":
                 EventManager.ToggleLock();
                 break;
         }
     }
-	
-	// Update is called once per frame
-	void Update () {
-	    if (!ButtonState.Equals("none") && !ButtonState.Equals(_previousButtonState))
-	    {
-	        HandleButton(ButtonState);
-	    }
 
-	    _previousButtonState = ButtonState;
+    // Update is called once per frame
+    void Update()
+    {
+        if (!ButtonState.Equals("none") && !ButtonState.Equals(_previousButtonState))
+        {
+            HandleButton(ButtonState);
+        }
 
-	    if (!Humidity.Equals(0))
-	        EnvironmentText.text = "Temperature: " + Temperature + " C\n" + "Humidity: " + Humidity + " %";
-	    else
-	        EnvironmentText.text = "";
-	}
+        _previousButtonState = ButtonState;
+
+        if (!Humidity.Equals(0))
+            EnvironmentText.text = "Temperature: " + Temperature + " C\n" + "Humidity: " + Humidity + " %";
+        else
+            EnvironmentText.text = "";
+    }
 }

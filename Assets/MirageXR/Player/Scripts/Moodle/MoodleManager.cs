@@ -16,7 +16,7 @@ namespace MirageXR
         private const long MAX_FILE_SIZE_FOR_MEMORY = 150 * 1024 * 1024; // 150 mb
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
-        private GameObject _progressText;   //TODO: remove ui logic 
+        private GameObject _progressText;   //TODO: remove ui logic
 
         public string GetProgressText
         {
@@ -24,7 +24,7 @@ namespace MirageXR
             set => _progressText.GetComponent<Text>().text = value;
         }
 
-        private void Update()    //TODO: remove ui logic 
+        private void Update()    //TODO: remove ui logic
         {
             if (!DBManager.LoggedIn && _progressText)
                 _progressText.GetComponent<Text>().text = string.Empty;
@@ -44,11 +44,11 @@ namespace MirageXR
 
             return result;
         }
-        
+
         /// <summary>
         /// Zip files and send them to upload as a zip file
         /// </summary>
-        public async Task<(bool, string)> UploadFile(string filepath, string recordingID, int updateFile)   //TODO: split it to two methods based on 'updateFile' value
+        public async Task<(bool, string)> UploadFile(string filepath, string recordingID, int updateFile) //TODO: split it to two methods based on 'updateFile' value
         {
             _progressText = Object.FindObjectOfType<ActionListMenu>().uploadProgressText;
 
@@ -77,7 +77,7 @@ namespace MirageXR
             if (!DBManager.LoggedIn)
             {
                 Debug.Log("You are not logged in");
-                return  (false, "Error: You are not logged in");
+                return (false, "Error: You are not logged in");
             }
 
             byte[] thumbnail = null;
@@ -182,18 +182,18 @@ namespace MirageXR
                     DBManager.domain = serverUrl;
                 }
             }
-            
+
             Debug.Log(response);
-            
+
             return ParseArlemListJson(response);
         }
-        
+
         private static async Task<string> GetArlemListJson(string serverUrl)
         {
             const string responseValue = "arlemlist";
-            
+
             var (result, response) = await Network.GetCustomDataFromDBRequestAsync(DBManager.userid, serverUrl, responseValue, DBManager.token);
-            
+
             if (!result || response.StartsWith("Error"))
             {
                 Debug.LogError($"Network error\nmessage: {response}");
@@ -206,17 +206,17 @@ namespace MirageXR
         private static List<Session> ParseArlemListJson(string json)
         {
             const string emptyJson = "[]";
-            
+
             try
             {
                 var arlemList = new List<Session>();
-                
+
                 if (json == emptyJson)
                 {
                     Debug.Log("Probably there is no public activity on the server.");
                     return arlemList;
                 }
-                
+
                 var parsed = JObject.Parse(json);
                 foreach (var pair in parsed)
                 {
@@ -235,7 +235,7 @@ namespace MirageXR
                 return null;
             }
         }
-        
+
         public async Task<bool> DeleteArlem(string itemID, string sessionID)
         {
             var (result, response) = await Network.GetCustomDataFromDBRequestAsync(DBManager.userid, DBManager.domain, "deleteArlem", DBManager.token, itemID, sessionID);
@@ -249,7 +249,7 @@ namespace MirageXR
             {
                 Debug.LogError(response);
             }
-            
+
             return value;
         }
 
@@ -307,7 +307,7 @@ namespace MirageXR
         public static async Task<(bool, Activity)> DownloadActivity(Session session)
         {
             var isTooBigForMemory = session.filesize > MAX_FILE_SIZE_FOR_MEMORY;
-            
+
             bool result;
             Activity activity = null;
             var tempFilePath = Path.Combine(Application.persistentDataPath, Guid.NewGuid().ToString());

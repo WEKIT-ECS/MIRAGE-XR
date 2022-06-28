@@ -4,7 +4,7 @@ using System.Collections;
 public class EyeBlink : MonoBehaviour
 {
     private SkinnedMeshRenderer skinnedMeshRenderer;
-    [Range (0,100)]
+    [Range(0, 100)]
     [SerializeField] private int DefaultEyeOpenAmount = 10;
     [SerializeField] private int blinkingBlendIndex = 0;
     [SerializeField] private float blinkSpeed = 8f;
@@ -35,7 +35,7 @@ public class EyeBlink : MonoBehaviour
                 _blinking += blinkSpeed;
 
 
-                if(_blinking >= 100)
+                if (_blinking >= 100)
                     _eyesOpened = true;
             }
 
@@ -48,8 +48,8 @@ public class EyeBlink : MonoBehaviour
                 if (_blinking <= DefaultEyeOpenAmount)
                 {
                     _eyesOpened = false;
-                    yield return new WaitForSeconds(Random.Range(2f / blinkingFreq , 20 / blinkingFreq));
-                }   
+                    yield return new WaitForSeconds(Random.Range(2f / blinkingFreq, 20 / blinkingFreq));
+                }
             }
 
             yield return null;

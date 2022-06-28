@@ -26,18 +26,18 @@ public class BodyPropManager : MonoBehaviour
 
     public void SelectProp(string val)
     {
-        if ( propItems == null || propItems.Length == 0 ) return;
-        
+        if (propItems == null || propItems.Length == 0) return;
+
         eventFound = false;
 
-        foreach ( PropItem propItem in propItems)
+        foreach (PropItem propItem in propItems)
         {
-            if ( propItem.item == null ) continue;
+            if (propItem.item == null) continue;
 
-            if ( eventFound ) propItem.item.gameObject.SetActive(false);
+            if (eventFound) propItem.item.gameObject.SetActive(false);
             else
             {
-                foreach(PropEvent propEvent in propItem.propEvents)
+                foreach (PropEvent propEvent in propItem.propEvents)
                 {
                     if (propEvent.name == val)
                     {

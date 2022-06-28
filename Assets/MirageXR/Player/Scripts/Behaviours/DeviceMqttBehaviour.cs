@@ -126,7 +126,7 @@ public class DeviceMqttBehaviour : MonoBehaviour
                 return false;
             }
         }
-        
+
         // All good!
         return true;
     }
@@ -356,7 +356,7 @@ public class DeviceMqttBehaviour : MonoBehaviour
         _sensorDisplay.GetComponent<RadialView>().enabled = false;
     }
 
-    private void Delete ()
+    private void Delete()
     {
         _mqtt.Disconnect();
         Destroy(gameObject);
@@ -366,7 +366,7 @@ public class DeviceMqttBehaviour : MonoBehaviour
     {
         _sensorDisplay.name = _sensor.id;
 
-        if(_connectionEstablished && _connectionEstablished != _connectionEstablishedPrevious)
+        if (_connectionEstablished && _connectionEstablished != _connectionEstablishedPrevious)
             ConnectionEstablishedRoutine();
         _connectionEstablishedPrevious = _connectionEstablished;
     }

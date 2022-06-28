@@ -32,11 +32,11 @@ public class FaceManager : MonoBehaviour
         lowerLid.localPosition = eyelidLocalPosition;
         upperLid.SetParent(headBone, true);
         upperLid.localPosition = eyelidLocalPosition;
-               
+
         skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
 
         for (idx = 0; idx < skinnedMeshRenderer.materials.Length; idx++)
-            if ( skinnedMeshRenderer.materials[idx].name.Contains("AlienHead") ) { material = skinnedMeshRenderer.materials[idx]; break; }
+            if (skinnedMeshRenderer.materials[idx].name.Contains("AlienHead")) { material = skinnedMeshRenderer.materials[idx]; break; }
 
         _blendValues = Shader.PropertyToID("_blendValues");
         blendVal = new float[blendNumber];
@@ -73,8 +73,8 @@ public class FaceManager : MonoBehaviour
 
     private void Update()
     {
-        for ( idx = 0; idx < blendVal.Length; idx++) blendVal[idx] = skinnedMeshRenderer.GetBlendShapeWeight(idx) * blendDiv;
-        if ( material != null ) material.SetFloatArray(_blendValues, blendVal);
+        for (idx = 0; idx < blendVal.Length; idx++) blendVal[idx] = skinnedMeshRenderer.GetBlendShapeWeight(idx) * blendDiv;
+        if (material != null) material.SetFloatArray(_blendValues, blendVal);
         else Debug.LogError("Alien does't have correct materials");
 
         capTrnL.position = Vector3.SmoothDamp(capTrnL.position, capTrgtL.position, ref veloL, antennaSpeed);
@@ -83,8 +83,8 @@ public class FaceManager : MonoBehaviour
         lkDirL = capTrnL.position - baseBoneL.position;
         lkDirR = capTrnR.position - baseBoneR.position;
 
-        baseBoneL.rotation  = Quaternion.LookRotation(Vector3.Cross(lkDirL, -headBone.right), lkDirL);
-        baseBoneR.rotation  = Quaternion.LookRotation(Vector3.Cross(lkDirR, -headBone.right), lkDirR);
+        baseBoneL.rotation = Quaternion.LookRotation(Vector3.Cross(lkDirL, -headBone.right), lkDirL);
+        baseBoneR.rotation = Quaternion.LookRotation(Vector3.Cross(lkDirR, -headBone.right), lkDirR);
     }
 
     private IEnumerator _Blink()
@@ -110,7 +110,7 @@ public class FaceManager : MonoBehaviour
 
         speedTime = Random.Range(5f, 6f);
 
-        for (i = 0; i <= 1f; i += Time.deltaTime * speedTime )
+        for (i = 0; i <= 1f; i += Time.deltaTime * speedTime)
         {
             upRot.x = Mathf.Lerp(0, upperLidXRest, i);
             upperLid.localEulerAngles = upRot;
@@ -125,7 +125,7 @@ public class FaceManager : MonoBehaviour
 
     public void SetAntennaSpeed(float val)
     {
-        if ( val <= 0 ) antennaSpeed = defaultAntennaSpeed;
+        if (val <= 0) antennaSpeed = defaultAntennaSpeed;
         else antennaSpeed = val;
     }
 }

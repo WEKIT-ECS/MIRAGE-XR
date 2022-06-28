@@ -6,7 +6,7 @@ using System.Linq;
 /// <summary>
 /// @bibeg
 /// basic class for expanding the 3d model based on the parent gameobject which holds all the subcomponenet 3d models
-/// The methods is activated on airtap 
+/// The methods is activated on airtap
 /// </summary>
 public class MirageXRModelExpander : MonoBehaviour
 {
@@ -25,8 +25,8 @@ public class MirageXRModelExpander : MonoBehaviour
     /// <summary>
     /// The scalr to determine how far the model will expand
     /// </summary>
-    private float expansionFactor = 0.1f;   
-    
+    private float expansionFactor = 0.1f;
+
     // Use this for initialization
     void Start()
     {
@@ -57,13 +57,13 @@ public class MirageXRModelExpander : MonoBehaviour
                 //calculate the vector between 2 points pointing from center to the center of the child and increase it by a scalar
                 Vector3 direction = g.GetComponent<MeshRenderer>().bounds.center - modelCenter;
                 //normalize  and add the new vector to the old child position
-                    g.position += direction.normalized * expansionFactor;
+                g.position += direction.normalized * expansionFactor;
                 //g.localPosition not working
             }
         }
-        else 
+        else
         {
-            Debug.Log(isExpanded + " " + modelBlock.Count); 
+            Debug.Log(isExpanded + " " + modelBlock.Count);
         }
         //change the expanded state
         isExpanded = !isExpanded;
@@ -71,7 +71,7 @@ public class MirageXRModelExpander : MonoBehaviour
     }
 
     /// <summary>
-    /// methods for compressing the class back to original state. How ever since the initial position of the child is not saved the opposite vector 
+    /// methods for compressing the class back to original state. How ever since the initial position of the child is not saved the opposite vector
     /// is calculated and added to the expanded vector
     /// </summary>
     void CompressModel()
@@ -80,11 +80,11 @@ public class MirageXRModelExpander : MonoBehaviour
         {
             foreach (Transform g in modelBlock)
             {
-                //using transfrom.position and using localPos to origin or model center didnt work 
+                //using transfrom.position and using localPos to origin or model center didnt work
                 Vector3 direction = modelCenter - g.GetComponent<MeshRenderer>().bounds.center;
                 //normalize but since the direction is opposite it should subract based on point to point system.
-                g.position += direction.normalized * expansionFactor;     
-                
+                g.position += direction.normalized * expansionFactor;
+
             }
         }
         else

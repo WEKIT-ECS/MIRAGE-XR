@@ -68,7 +68,7 @@ namespace MirageXR
         public string type = "";
 
         // Not in ARLEM spec.
-        public List<Poi> pois = new List<Poi> ();
+        public List<Poi> pois = new List<Poi>();
 
         // Not in ARLEM spec.
         public string sensor = "";
@@ -85,7 +85,7 @@ namespace MirageXR
         public string persona = "";
 
         // Not in ARLEM spec.
-        public List<Poi> pois = new List<Poi> ();
+        public List<Poi> pois = new List<Poi>();
 
         // Not in ARLEM spec.
         public string sensor = "";
@@ -99,7 +99,7 @@ namespace MirageXR
         public string username = "";
         public string password = "";
 
-        public List<Data> data = new List<Data> ();
+        public List<Data> data = new List<Data>();
 
         // NOT IN ARLEM SPEC. For displaying sensor name in UI.
         public string name = "";

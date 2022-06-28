@@ -133,7 +133,7 @@ namespace MirageXR
             else
             {
                 Debug.LogError("Tried to start unknown tutorial type.");
-            }    
+            }
         }
 
         private void PopulateStepListForHololens()

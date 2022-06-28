@@ -24,6 +24,8 @@ namespace MirageXR
         [SerializeField] private Toggle rememberLogin;
         [SerializeField] private int moodleForumID;
 
+        [SerializeField] private GameObject lrsPanel;
+
         public Text status;
 
         private void Start()
@@ -32,7 +34,8 @@ namespace MirageXR
             siteConfigurationStatusLabel.text = string.Empty;
             publicUploadToggle.isOn = DBManager.publicUploadPrivacy;
 
-            if (PlayerPrefs.HasKey("MoodleURL")) {
+            if (PlayerPrefs.HasKey("MoodleURL"))
+            {
                 ShowPanel(null); // hide login panel
             }
             else
@@ -57,6 +60,13 @@ namespace MirageXR
             EventManager.OnEditorLoaded -= HideLoginPanel;
         }
 
+
+        public void SetXApi(Dropdown option)
+        {
+            EventManager.NotifyxAPIChanged(option.value);
+        }
+
+
         /// <summary>
         /// Cal UserLogin by the login button
         /// </summary>
@@ -71,7 +81,7 @@ namespace MirageXR
             if (!DBManager.rememberUser) return;
 
             rememberLogin.isOn = true;
-            
+
             if (!DBManager.LoggedIn && LocalFiles.TryToGetUsernameAndPassword(out var username, out var password))
             {
                 usernameField.text = username;
@@ -107,7 +117,7 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Save token and the username into DBManager 
+        /// Save token and the username into DBManager
         /// Send a welcome message to the user on activity selector
         /// </summary>
         /// <param name="token"></param>
@@ -200,6 +210,7 @@ namespace MirageXR
             notificationPanel.SetActive(false);
             loginCanvas.SetActive(false);
             siteConfigurationPanel.SetActive(false);
+            lrsPanel.SetActive(false);
 
             var loginToggle = AutenticationOpenButton.GetComponent<SpriteToggle>();
 
@@ -257,7 +268,7 @@ namespace MirageXR
             Application.OpenURL($"{DBManager.domain}/mod/forum/view.php?id={moodleForumID}");
         }
 
-        
+
         public void CloseGuestNotification()
         {
             PlayerPrefs.SetInt("guest", 1);
@@ -304,7 +315,7 @@ namespace MirageXR
 
             DBManager.domain = url;
             DBManager.publicUploadPrivacy = publicUploadToggle.isOn;
-            
+
             Maggie.Speak("Settings saved successfully.");
 
             ShowLogin();
@@ -314,6 +325,11 @@ namespace MirageXR
         {
             ShowPanel(siteConfigurationPanel);
             moodleURLText.text = DBManager.domain;
+        }
+
+        public void showLRSSettings()
+        {
+            ShowPanel(lrsPanel);
         }
 
         public void MoodleConfigurationCancel()

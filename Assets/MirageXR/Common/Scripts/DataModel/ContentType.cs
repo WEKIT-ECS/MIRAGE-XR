@@ -44,7 +44,7 @@ public static class ContentTypeExtenstion
     private const string PREDICATE_AUDIO = "audio";
     private const string PREDICATE_AUDIO_V2 = "sound"; // TODO: we should leave only one option, but we have several different references in the code. ideally, we should use the index enum
     private const string PREDICATE_VIDEO = "video";
-    private const string PREDICATE_GHOST = "ghosttracks"; 
+    private const string PREDICATE_GHOST = "ghosttracks";
     private const string PREDICATE_GHOST_V2 = "ghost"; // TODO:^^^
     private const string PREDICATE_ACT = "act";
     private const string PREDICATE_VFX = "vfx";
@@ -93,16 +93,16 @@ public static class ContentTypeExtenstion
     {
         switch (type)
         {
-            case ContentType.UNKNOWN:      return UNKNOWN;
-            case ContentType.IMAGE:        return IMAGE;
-            case ContentType.VIDEO:        return VIDEO;
-            case ContentType.AUDIO:        return AUDIO;
-            case ContentType.GHOST:        return GHOST;
-            case ContentType.LABEL:        return LABEL;
-            case ContentType.ACT:          return ACT;
-            case ContentType.VFX:          return VFX;
-            case ContentType.MODEL:        return MODEL;
-            case ContentType.CHARACTER:    return CHARACTER;
+            case ContentType.UNKNOWN: return UNKNOWN;
+            case ContentType.IMAGE: return IMAGE;
+            case ContentType.VIDEO: return VIDEO;
+            case ContentType.AUDIO: return AUDIO;
+            case ContentType.GHOST: return GHOST;
+            case ContentType.LABEL: return LABEL;
+            case ContentType.ACT: return ACT;
+            case ContentType.VFX: return VFX;
+            case ContentType.MODEL: return MODEL;
+            case ContentType.CHARACTER: return CHARACTER;
             case ContentType.PICKANDPLACE: return PICKANDPLACE;
             case ContentType.IMAGEMARKER:  return IMAGEMARKER;
             case ContentType.PLUGIN:       return PLUGIN;
@@ -122,15 +122,15 @@ public static class ContentTypeExtenstion
     {
         switch (type)
         {
-            case ContentType.IMAGE:        return IMAGE_IMAGE_PATH;
-            case ContentType.VIDEO:        return VIDEO_IMAGE_PATH;
-            case ContentType.AUDIO:        return AUDIO_IMAGE_PATH;
-            case ContentType.GHOST:        return GHOST_IMAGE_PATH;
-            case ContentType.LABEL:        return LABEL_IMAGE_PATH;
-            case ContentType.ACT:          return ACT_IMAGE_PATH;
-            case ContentType.VFX:          return VFX_IMAGE_PATH;
-            case ContentType.MODEL:        return MODEL_IMAGE_PATH;
-            case ContentType.CHARACTER:    return CHARACTER_IMAGE_PATH;
+            case ContentType.IMAGE: return IMAGE_IMAGE_PATH;
+            case ContentType.VIDEO: return VIDEO_IMAGE_PATH;
+            case ContentType.AUDIO: return AUDIO_IMAGE_PATH;
+            case ContentType.GHOST: return GHOST_IMAGE_PATH;
+            case ContentType.LABEL: return LABEL_IMAGE_PATH;
+            case ContentType.ACT: return ACT_IMAGE_PATH;
+            case ContentType.VFX: return VFX_IMAGE_PATH;
+            case ContentType.MODEL: return MODEL_IMAGE_PATH;
+            case ContentType.CHARACTER: return CHARACTER_IMAGE_PATH;
             case ContentType.PICKANDPLACE: return PICKANDPLACE_IMAGE_PATH;
             case ContentType.IMAGEMARKER:  return IMAGEMARKER_IMAGE_PATH;
             case ContentType.PLUGIN:       return PLUGIN_IMAGE_PATH;
@@ -146,16 +146,16 @@ public static class ContentTypeExtenstion
     {
         switch (type)
         {
-            case ContentType.UNKNOWN:      return UNKNOWN_HINT;
-            case ContentType.IMAGE:        return IMAGE_HINT;
-            case ContentType.VIDEO:        return VIDEO_HINT;
-            case ContentType.AUDIO:        return AUDIO_HINT;
-            case ContentType.GHOST:        return GHOST_HINT;
-            case ContentType.LABEL:        return LABEL_HINT;
-            case ContentType.ACT:          return ACT_HINT;
-            case ContentType.VFX:          return VFX_HINT;
-            case ContentType.MODEL:        return MODEL_HINT;
-            case ContentType.CHARACTER:    return CHARACTER_HINT;
+            case ContentType.UNKNOWN: return UNKNOWN_HINT;
+            case ContentType.IMAGE: return IMAGE_HINT;
+            case ContentType.VIDEO: return VIDEO_HINT;
+            case ContentType.AUDIO: return AUDIO_HINT;
+            case ContentType.GHOST: return GHOST_HINT;
+            case ContentType.LABEL: return LABEL_HINT;
+            case ContentType.ACT: return ACT_HINT;
+            case ContentType.VFX: return VFX_HINT;
+            case ContentType.MODEL: return MODEL_HINT;
+            case ContentType.CHARACTER: return CHARACTER_HINT;
             case ContentType.PICKANDPLACE: return PICKANDPLACE_HINT;
             case ContentType.IMAGEMARKER:  return IMAGEMARKER_HINT;
             case ContentType.PLUGIN:       return PLUGIN_HINT;
@@ -170,16 +170,16 @@ public static class ContentTypeExtenstion
     {
         switch (type)
         {
-            case ContentType.UNKNOWN:      return PREDICATE_UNKNOWN;
-            case ContentType.IMAGE:        return PREDICATE_IMAGE;
-            case ContentType.VIDEO:        return PREDICATE_VIDEO;
-            case ContentType.AUDIO:        return PREDICATE_AUDIO;
-            case ContentType.GHOST:        return PREDICATE_GHOST;
-            case ContentType.LABEL:        return PREDICATE_LABEL;
-            case ContentType.ACT:          return PREDICATE_ACT;
-            case ContentType.VFX:          return PREDICATE_VFX;
-            case ContentType.MODEL:        return PREDICATE_MODEL;
-            case ContentType.CHARACTER:    return PREDICATE_CHARACTER;
+            case ContentType.UNKNOWN: return PREDICATE_UNKNOWN;
+            case ContentType.IMAGE: return PREDICATE_IMAGE;
+            case ContentType.VIDEO: return PREDICATE_VIDEO;
+            case ContentType.AUDIO: return PREDICATE_AUDIO;
+            case ContentType.GHOST: return PREDICATE_GHOST;
+            case ContentType.LABEL: return PREDICATE_LABEL;
+            case ContentType.ACT: return PREDICATE_ACT;
+            case ContentType.VFX: return PREDICATE_VFX;
+            case ContentType.MODEL: return PREDICATE_MODEL;
+            case ContentType.CHARACTER: return PREDICATE_CHARACTER;
             case ContentType.PICKANDPLACE: return PREDICATE_PICKANDPLACE;
             case ContentType.IMAGEMARKER:  return PREDICATE_IMAGEMARKER;
             case ContentType.PLUGIN:       return PREDICATE_PLUGIN;

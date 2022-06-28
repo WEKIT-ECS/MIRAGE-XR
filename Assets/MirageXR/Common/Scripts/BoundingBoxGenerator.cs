@@ -87,7 +87,7 @@ namespace MirageXR
             }
 
             var minMaxScaleConstraint = GetComponent<MinMaxScaleConstraint>();
-            if(!minMaxScaleConstraint) 
+            if (!minMaxScaleConstraint)
             {
                 minMaxScaleConstraint = gameObject.AddComponent<MinMaxScaleConstraint>();   //TODO: looks useless
             }
@@ -173,7 +173,7 @@ namespace MirageXR
             objectManipulator.TwoHandedManipulationType = Microsoft.MixedReality.Toolkit.Utilities.TransformFlags.Move;
 
             objectManipulator.OnManipulationEnded.AddListener(arg => SaveTransform(annotation));
-            
+
             EditModeState(RootObject.Instance.activityManager.EditModeActive);
         }
 
