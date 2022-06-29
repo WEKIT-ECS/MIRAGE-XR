@@ -125,7 +125,7 @@ namespace MirageXR
             _items.Clear();
 
             ActivityListItem_v2 prefab;
-            if (SortingView.SELECTED_CARD_SIZE == "small")
+            if (!DBManager.showBigCards)
             {
                 prefab = _smallItemPrefab;
             }
