@@ -27,12 +27,9 @@ public class Port : MonoBehaviour
 
     public bool Connected { get; private set; }
 
-    private Rigidbody rb;
-
     private void Start()
     {
         myBit = transform.parent.gameObject;
-        rb = GetComponent<Rigidbody>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -77,7 +74,7 @@ public class Port : MonoBehaviour
                 detectedBit.DisableManipulation();
 
                 //Move the bit to the pole of the other bit (Snapping)
-                rb.MovePosition(detectedPortPole.transform.position);
+                transform.position = detectedPortPole.transform.position;
                 Connected = true;
             }
             else
@@ -112,7 +109,8 @@ public class Port : MonoBehaviour
 
     private void ReParentComponent()
     {
-        gameObject.transform.SetParent(myBit.transform);
+
+        transform.SetParent(myBit.transform);
 
         foreach (var child in transform.GetComponentsInChildren<Transform>())
         {
@@ -122,7 +120,7 @@ public class Port : MonoBehaviour
             }
         }
 
-       
     }
+
 
 }
