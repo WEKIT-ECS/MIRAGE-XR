@@ -62,6 +62,9 @@ namespace MirageXR
 
         private const string REMEMBER_SKETCHFAB_USER_KEY = "RememberSketchfabUser";
         private const bool REMEMBER_SKETCHFAB_USER_DEFAULT = false;
+        
+        private const string SHOW_BIG_CARDS_KEY = "ShowBigCards";
+        public const bool SHOW_BIG_CARDS_DEFAULT = false;
 
         private const string DONT_SHOW_CALIBRATION_GUIDE_KEY = "DontShowCalibrationGuide";
         private const bool DONT_SHOW_CALIBRATION_GUIDE_DEFAULT = false;
@@ -87,6 +90,7 @@ namespace MirageXR
         private static readonly PrefsBoolValue _dontShowCalibrationGuide = new PrefsBoolValue(DONT_SHOW_CALIBRATION_GUIDE_KEY, DONT_SHOW_CALIBRATION_GUIDE_DEFAULT);
         private static readonly PrefsStringValue _domain = new PrefsStringValue(MOODLE_URL_KEY, MOODLE_URL_DEFAULT);
         private static readonly PrefsStringValue _sketchfabTokenRenewDate = new PrefsStringValue(SKETCHFAB_TOKEN_RENEW_KEY, SKETCHFAB_TOKEN_RENEW_DEFAULT);
+        private static readonly PrefsBoolValue _showBigCards = new PrefsBoolValue(SHOW_BIG_CARDS_KEY, SHOW_BIG_CARDS_DEFAULT);
 
         public static bool isNeedToRenewSketchfabToken => sketchfabLastTokenRenewDate <= DateTime.Now.AddDays(-SKETCHFAB_RENEW_DYAS_COOLDOWN);
 
@@ -104,6 +108,12 @@ namespace MirageXR
         {
             get => _publicUploadPrivacy.Value;
             set => _publicUploadPrivacy.Value = value;
+        }
+
+        public static bool showBigCards
+        {
+            get => _showBigCards.Value;
+            set => _showBigCards.Value = value;
         }
 
         public static bool rememberUser
