@@ -11,7 +11,7 @@ public class StepSettingsView : PopupBase
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
         base.Init(onClose, args);
-        _btnClose.onClick.AddListener(Close);
+
         _btnCopyStep.onClick.AddListener(CopyStep);
         _btnDeleteStep.onClick.AddListener(DeleteStep);
     }
