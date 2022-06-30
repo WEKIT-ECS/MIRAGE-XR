@@ -203,7 +203,7 @@ public class ActionEditor : MonoBehaviour
     /// Control the helper text under the target button
     /// </summary>
     /// <param name="sec"></param>
-    /// <returns></returns>
+    /// <returns>Co-Routine values</returns>
     private IEnumerator NavigatorNotification(string msg, int sec)
     {
         navigationTargetButton.GetComponentInChildren<Text>().enabled = true;

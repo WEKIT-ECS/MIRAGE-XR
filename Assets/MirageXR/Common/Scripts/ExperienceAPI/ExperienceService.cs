@@ -464,7 +464,7 @@ namespace MirageXR
         /// To be used only if a direct URL from ARLEM isn't available.
         /// </summary>
         /// <param name="activityID">The activity ID (session ID).</param>
-        /// <returns></returns>
+        /// <returns>Returns the generated IRI</returns>
         private string createActivityIRI(string activityID)
         {
             return mirageIRIroot + "/context/ActivityID=" + activityID;
