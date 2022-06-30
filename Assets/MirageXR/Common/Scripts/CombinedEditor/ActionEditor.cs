@@ -404,7 +404,7 @@ public class ActionEditor : MonoBehaviour
     /// This function instantiates the relevant prefab and, depending on the augmentation type,
     /// allows the controller component to be returned after configuration.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The component which should be searched on the instantiated prefab and which is returned</typeparam>
     /// <param name="prefabToLoad"></param>
     /// <returns>A component of the type specified during the function call.</returns>
     private T LoadEditorPanel<T>(GameObject prefabToLoad) where T : Component
