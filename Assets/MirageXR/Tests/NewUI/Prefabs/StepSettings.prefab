@@ -10,10 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 123955173422469536}
   - component: {fileID: 123955173422469538}
-  - component: {fileID: 6179861789440747836}
   - component: {fileID: 123955173422469537}
   - component: {fileID: 383845302417225348}
   - component: {fileID: 4219797905199568613}
+  - component: {fileID: 945726291898297934}
   m_Layer: 5
   m_Name: StepSettings
   m_TagString: Untagged
@@ -51,19 +51,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 123955173422469551}
   m_CullTransparentMesh: 0
---- !u!114 &6179861789440747836
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 123955173422469551}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57badc15b04d2734090dc8a1f9f642e4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canBeClosedByOutTap: 1
 --- !u!114 &123955173422469537
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -134,6 +121,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 1
   m_VerticalFit: 1
+--- !u!114 &945726291898297934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 123955173422469551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ad8412e7fb982d478160db7bd23c5fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canBeClosedByOutTap: 1
+  _btnClose: {fileID: 1740255410665993586}
+  _btnCopyStep: {fileID: 5113833596967044423}
+  _btnDeleteStep: {fileID: 2656581011769724801}
 --- !u!1 &1039854029856583325
 GameObject:
   m_ObjectHideFlags: 0
@@ -747,7 +750,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 6179861789440747836}
+      - m_Target: {fileID: 945726291898297934}
         m_TargetAssemblyTypeName: PopupBase, MirageXR
         m_MethodName: Close
         m_Mode: 1

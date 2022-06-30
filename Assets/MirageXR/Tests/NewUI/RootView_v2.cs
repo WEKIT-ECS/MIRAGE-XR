@@ -21,6 +21,7 @@ public class RootView_v2 : BaseView
     [SerializeField] private SearchView _searchPrefab;
     [SerializeField] private HelpView _helpPrefab;
     [SerializeField] private SettingsView_v2 _activitySettingsPrefab;
+    [SerializeField] private StepSettingsView _stepSettingsPrefab;
     [SerializeField] private MoodleServersView _moofleServersPrefab;
 
     [SerializeField] private GameObject newActivityGameObject;
@@ -141,6 +142,11 @@ public class RootView_v2 : BaseView
     public void OnActivitySettingsClick()
     {
         PopupsViewer.Instance.Show(_activitySettingsPrefab);
+    }
+    
+    public void OnStepSettingsClick()
+    {
+        PopupsViewer.Instance.Show(_stepSettingsPrefab);
     }
 
     public void OnBackToHome()
