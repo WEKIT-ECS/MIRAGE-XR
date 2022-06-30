@@ -55,7 +55,7 @@ namespace MirageXR
         /// <param name="addListeners"></param>
         /// <param name="boundingRotationType"></param>
         /// <param name="AddManipulator"></param>
-        /// <returns></returns>
+        /// <returns>Task object for asynchronous execution</returns>
         public async Task AddBoundingBox(
             ToggleObject annotationToggleObject,
             BoundsCalculationMethod boundsCalculationMethod,
