@@ -191,7 +191,7 @@ namespace MirageXR
 
             if (AIIsActiveInThisScene)
             {
-                /// give the info and close
+                // give the info and close
                 DialogWindow.Instance.Show("Info!",
                 "For recordeing an audio, you need to deactivate AI on all characters in this step.",
                 new DialogButtonContent("Ok"));
@@ -200,7 +200,7 @@ namespace MirageXR
 
             if (RecordingIsActiveInThisScene)
             {
-                /// give the info and close
+                // give the info and close
                 DialogWindow.Instance.Show("Info!",
                 "You are recording audio using another character. Please stop recording there first.",
                 new DialogButtonContent("Ok"));
