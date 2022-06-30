@@ -84,7 +84,7 @@ namespace MirageXR
                     continue;
                 }
 
-                var timelineItemPrefab = Resources.Load<GameObject>("Prefabs/TimelineItemPrefab");//TODO: change to addressables
+                var timelineItemPrefab = Resources.Load<GameObject>("Prefabs/TimelineItemPrefab"); //TODO: change to addressables
                 var timelineObject = Instantiate(timelineItemPrefab, Vector3.zero, Quaternion.identity, TimeLine);
                 var timelineRectTransform = timelineObject.GetComponent<RectTransform>();
                 timelineRectTransform.localPosition = Vector3.zero;
