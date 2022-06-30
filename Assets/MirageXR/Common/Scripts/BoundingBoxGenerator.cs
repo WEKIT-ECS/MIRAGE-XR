@@ -56,8 +56,13 @@ namespace MirageXR
         /// <param name="boundingRotationType"></param>
         /// <param name="AddManipulator"></param>
         /// <returns></returns>
-        public async Task AddBoundingBox(ToggleObject annotationToggleObject, BoundsCalculationMethod boundsCalculationMethod, bool hasConstraintManager = false,
-            bool addListeners = true, BoundingRotationType boundingRotationType = BoundingRotationType.ALL, bool AddManipulator = false)
+        public async Task AddBoundingBox(
+            ToggleObject annotationToggleObject,
+            BoundsCalculationMethod boundsCalculationMethod,
+            bool hasConstraintManager = false,
+            bool addListeners = true,
+            BoundingRotationType boundingRotationType = BoundingRotationType.ALL,
+            bool AddManipulator = false)
         {
             if (!hasConstraintManager && !GetComponent<ConstraintManager>())
             {
@@ -89,7 +94,7 @@ namespace MirageXR
             var minMaxScaleConstraint = GetComponent<MinMaxScaleConstraint>();
             if (!minMaxScaleConstraint)
             {
-                minMaxScaleConstraint = gameObject.AddComponent<MinMaxScaleConstraint>();   //TODO: looks useless
+                minMaxScaleConstraint = gameObject.AddComponent<MinMaxScaleConstraint>(); // TODO: looks useless
             }
 
             if (boundsControl != null && boundingRotationType != BoundingRotationType.ALL)

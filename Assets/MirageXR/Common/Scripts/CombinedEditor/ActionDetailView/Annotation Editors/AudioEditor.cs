@@ -225,7 +225,7 @@ public class AudioEditor : MonoBehaviour
     {
         loop.interactable = audiotype.isOn && !stepTrigger.isOn;
 
-        //disable loop if trigger is active
+        // disable loop if trigger is active
         if (stepTrigger.isOn) loop.isOn = false;
 
         if (stepTrigger.isOn &&
@@ -279,7 +279,7 @@ public class AudioEditor : MonoBehaviour
             {
                 SaveFileName = character.DialogRecorder.DialogSaveName;
                 originalFilePath = Path.Combine(activityManager.ActivityPath, SaveFileName);
-                GameObject.Find(annotationToEdit.poi).GetComponentInChildren<AudioPlayer>().DialogRecorderPanel = character.transform.GetChild(0).GetComponentInChildren<DialogRecorder>(); //TODO: Possible NRE
+                GameObject.Find(annotationToEdit.poi).GetComponentInChildren<AudioPlayer>().DialogRecorderPanel = character.transform.GetChild(0).GetComponentInChildren<DialogRecorder>(); // TODO: Possible NRE
                 break;
             }
         }
@@ -332,7 +332,7 @@ public class AudioEditor : MonoBehaviour
             annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
             annotationToEdit.predicate = "audio";
 
-            //save audio type , loop and radius as option
+            // save audio type , loop and radius as option
             AudioOptionsAdjustment(annotationToEdit);
 
             annotationToEdit.scale = 0.5f;
@@ -359,7 +359,7 @@ public class AudioEditor : MonoBehaviour
 
     private void AudioOptionsAdjustment(ToggleObject annotationToEdit)
     {
-        //save audio type , loop and radius as option
+        // save audio type , loop and radius as option
         if (!audiotype.isOn)
             annotationToEdit.option = "2d";
         else
