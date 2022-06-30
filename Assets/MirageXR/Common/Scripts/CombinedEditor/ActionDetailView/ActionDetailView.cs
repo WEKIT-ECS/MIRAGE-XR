@@ -89,7 +89,7 @@ public class ActionDetailView : MonoBehaviour
         var place = GameObject.Find(actionId);
         if (place)
         {
-            var taskStation = place.transform.Find("default/PlayerTaskStation(Clone)"); //TODO: possible NRE
+            var taskStation = place.transform.Find("default/PlayerTaskStation(Clone)"); // TODO: possible NRE
             if (taskStation) return taskStation.gameObject;
         }
 

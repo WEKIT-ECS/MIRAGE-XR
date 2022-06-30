@@ -224,7 +224,7 @@ namespace MirageXR
             }
         }
 
-        public static void DeleteTriggersForId(string id) //TODO: move it to TriggerManager
+        public static void DeleteTriggersForId(string id) // TODO: move it to TriggerManager
         {
             foreach (Transform trigger in GameObject.Find("Triggers").transform)
             {

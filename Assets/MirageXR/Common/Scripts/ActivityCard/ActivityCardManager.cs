@@ -84,7 +84,7 @@ namespace MirageXR
                     continue;
                 }
 
-                var timelineItemPrefab = Resources.Load<GameObject>("Prefabs/TimelineItemPrefab"); //TODO: change to addressables
+                var timelineItemPrefab = Resources.Load<GameObject>("Prefabs/TimelineItemPrefab"); // TODO: change to addressables
                 var timelineObject = Instantiate(timelineItemPrefab, Vector3.zero, Quaternion.identity, TimeLine);
                 var timelineRectTransform = timelineObject.GetComponent<RectTransform>();
                 timelineRectTransform.localPosition = Vector3.zero;
@@ -93,7 +93,7 @@ namespace MirageXR
                 timelineObject.name = $"Step-{action.id}";
                 _timelineObjects.Add(timelineObject);
 
-                var taskStepPrefab = Resources.Load<GameObject>("Prefabs/UI/TaskStepPrefab");  //TODO: change to addressables
+                var taskStepPrefab = Resources.Load<GameObject>("Prefabs/UI/TaskStepPrefab");  // TODO: change to addressables
                 var taskListObject = Instantiate(taskStepPrefab, Vector3.zero, Quaternion.identity, Tasklist);
                 var taskListRectTransform = taskListObject.GetComponent<RectTransform>();
                 taskListRectTransform.localPosition = Vector3.zero;
