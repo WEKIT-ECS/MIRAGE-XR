@@ -10,15 +10,12 @@ namespace MirageXR
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
         private ToggleObject myObj;
 
-        public GameObject TouchedObject { get; private set; }
-
         [Tooltip("The bit id")]
         [SerializeField] private string id;
         public string ID => id;
 
         private Port[] ports;
         public Port[] Ports => ports;
-
 
         private void OnEnable()
         {
@@ -33,18 +30,9 @@ namespace MirageXR
         private void Start()
         {
             SetEditorState(activityManager.EditModeActive);
-            gameObject.GetComponentInParent<ObjectManipulator>().OnManipulationStarted.AddListener(delegate { TouchedObject = gameObject; });
-            gameObject.GetComponentInParent<ObjectManipulator>().OnManipulationEnded.AddListener(delegate { StartCoroutine(DoAfterDelay()); });
-
             ports = GetComponentsInChildren<Port>();
         }
 
-        IEnumerator DoAfterDelay()
-        {
-            TouchedObject = null;
-            yield return new WaitForSeconds(1);
-            gameObject.GetComponentInParent<ObjectManipulator>().enabled = true;
-        }
 
         public void DisableManipulation()
         {

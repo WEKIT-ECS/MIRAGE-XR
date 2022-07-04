@@ -15,17 +15,16 @@ public class Port : MonoBehaviour
 {
     [SerializeField] private Pole pole;
 
-    public GameObject PortBit => myBit;
-
     public Pole Pole => pole;
-
-    private GameObject myBit;
 
     private Port detectedPortPole;
 
-    private eROBSONItems detectedBit;
+
+    private GameObject myBit;
+    private eROBSONItems erobsonItem;
 
     public bool Connected { get; private set; }
+
 
     private void Start()
     {
@@ -35,7 +34,7 @@ public class Port : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         detectedPortPole = other.GetComponent<Port>();
-        detectedBit = myBit.GetComponent<eROBSONItems>();
+        erobsonItem = myBit.GetComponent<eROBSONItems>();
 
         //If the port is already connected
         if (Connected)
@@ -44,7 +43,7 @@ public class Port : MonoBehaviour
         }
 
         //If the bit is connected to atleast one other bit
-        foreach (var port in detectedBit.Ports)
+        foreach (var port in erobsonItem.Ports)
         {
             if (port.Connected)
             {
@@ -52,41 +51,38 @@ public class Port : MonoBehaviour
             }
         }
 
-        var touchedObject = detectedBit.TouchedObject;
 
         //If a port with different charge is detected
-        if (detectedPortPole && detectedPortPole.Pole != Pole.NEUTRAL && touchedObject != null)
+        if (detectedPortPole && detectedPortPole.Pole != Pole.NEUTRAL)
         {
 
             //if the detected port has NOT the same charge (different charge)
             if (detectedPortPole.Pole != Pole)
             {
-                //Make the pool be the parent of the bit
-                foreach (var child in myBit.GetComponentsInChildren<Transform>())
-                {
-                    if(child.parent == myBit.transform)
-                    {
-                        child.SetParent(transform);
-                    }
-                }
+                //Make the pole be the parent of the bit
+                MakePortBeParent();
 
-                //Snap the bit to the port
-                detectedBit.DisableManipulation();
+                //Disable manipulation
+                erobsonItem.DisableManipulation();
 
                 //Move the bit to the pole of the other bit (Snapping)
                 transform.position = detectedPortPole.transform.position;
-                Connected = true;
+
+                //Enable manipulation after a while
+                StartCoroutine(MakeBitBeParent());
             }
             else
             {
                 //Move the bit to the left or right side of this bit depends on the port
-                var connectionPosition = Pole == Pole.POSITIVE ? detectedPortPole.transform.forward : -detectedPortPole.transform.forward;
+                var connectionPosition = Pole == Pole.POSITIVE ? -detectedPortPole.transform.forward : detectedPortPole.transform.forward;
 
                 //Make a distance from the detected port
-                transform.position = detectedPortPole.transform.position + connectionPosition * 0.2f;
+                myBit.transform.position = detectedPortPole.transform.position + connectionPosition * 0.2f;
 
-                //Make the bit item as the bit parent again
-                ReParentComponent();
+                //Enable manipulation after a while
+                StartCoroutine(MakeBitBeParent());
+
+                OnConnected();
             }
             
         }
@@ -94,32 +90,59 @@ public class Port : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
+        OnDisconnected();
+    }
 
-        //Make the bit item as the bit parent again
-        ReParentComponent();
-        Connected = false;
-        detectedPortPole = null;
 
-        if (detectedBit)
+    /// <summary>
+    /// Make the connected port(this) be the parent of the bit and all its children
+    /// </summary>
+    private void MakePortBeParent()
+    {
+        foreach (var child in myBit.GetComponentsInChildren<Transform>())
         {
-            detectedBit.EnableManipulation();
-            detectedBit = null;
+            if (child.parent == myBit.transform)
+            {
+                child.SetParent(transform);
+            }
         }
     }
 
-    private void ReParentComponent()
-    {
 
-        transform.SetParent(myBit.transform);
+    /// <summary>
+    /// Make the bit be the parent of its children and both ports (negative and positive) again
+    /// </summary>
+    IEnumerator MakeBitBeParent()
+    {
 
         foreach (var child in transform.GetComponentsInChildren<Transform>())
         {
-            if (child.parent == transform)
+            if (child.parent == transform || child == transform)
             {
                 child.SetParent(myBit.transform);
             }
+            yield return null;
         }
+        erobsonItem.EnableManipulation();
+    }
 
+
+    /// <summary>
+    /// Port is disconnected
+    /// </summary>
+    private void OnConnected()
+    {
+        Connected = true;
+    }
+
+
+    /// <summary>
+    /// When the port is disconnected
+    /// </summary>
+    private void OnDisconnected()
+    {
+        Connected = false;
+        detectedPortPole = null;
     }
 
 
