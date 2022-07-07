@@ -265,10 +265,10 @@ namespace MirageXR
 
             var form = new MultipartFormDataContent
             {
-                {new StringContent(token), tokenKey},
-                {new StringContent(function), functionKey},
-                {new StringContent(parametersValueFormat), parametersKey},
-                {new StringContent(requestValue), requestKey}
+                { new StringContent(token), tokenKey},
+                { new StringContent(function), functionKey},
+                { new StringContent(parametersValueFormat), parametersKey},
+                { new StringContent(requestValue), requestKey}
             };
 
             var uri = string.Format(uriFormat, domain, DBManager.plugin);
