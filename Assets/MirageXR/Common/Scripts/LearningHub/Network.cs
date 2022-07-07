@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Threading;
-using i5.Toolkit.Core.ServiceCore;
 using ICSharpCode.SharpZipLib.Zip;
 #if NETFX_CORE
 using Windows.System;
@@ -246,9 +245,9 @@ namespace MirageXR
 
             var form = new MultipartFormDataContent
             {
-                { new StringContent(userName), userNameKey},
-                { new StringContent(password), passwordKey},
-                { new StringContent(domain), domainKey}
+                { new StringContent(userName), userNameKey },
+                { new StringContent(password), passwordKey },
+                { new StringContent(domain), domainKey }
             };
 
             var uri = string.Format(uriFormat, domain, DBManager.plugin);
@@ -265,10 +264,10 @@ namespace MirageXR
 
             var form = new MultipartFormDataContent
             {
-                { new StringContent(token), tokenKey},
-                { new StringContent(function), functionKey},
-                { new StringContent(parametersValueFormat), parametersKey},
-                { new StringContent(requestValue), requestKey}
+                { new StringContent(token), tokenKey },
+                { new StringContent(function), functionKey },
+                { new StringContent(parametersValueFormat), parametersKey },
+                { new StringContent(requestValue), requestKey }
             };
 
             var uri = string.Format(uriFormat, domain, DBManager.plugin);
@@ -338,15 +337,15 @@ namespace MirageXR
 
             var form = new MultipartFormDataContent
             {
-                { new StringContent(token), tokenKey},
-                { new StringContent(userId), userIdKey},
-                { new StringContent(updateMode.ToString()), updateFileKey},
-                { new StringContent(sessionId), sessionIdKey},
-                { new StringContent(title), titleKey},
-                { new StringContent(activityJson), activityJsonKey},
-                { new StringContent(workplaceJson), workplaceJsonKey},
-                { new StringContent((isPublic ? 1 : 0).ToString()), publicKey},
-                { zipBinaryContent, fileKey, fileName},
+                { new StringContent(token), tokenKey },
+                { new StringContent(userId), userIdKey },
+                { new StringContent(updateMode.ToString()), updateFileKey },
+                { new StringContent(sessionId), sessionIdKey },
+                { new StringContent(title), titleKey },
+                { new StringContent(activityJson), activityJsonKey },
+                { new StringContent(workplaceJson), workplaceJsonKey },
+                { new StringContent((isPublic ? 1 : 0).ToString()), publicKey },
+                { zipBinaryContent, fileKey, fileName },
             };
 
             if (thumbnailBinaryContent != null)
