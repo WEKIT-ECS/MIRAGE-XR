@@ -198,7 +198,7 @@ namespace MirageXR
                 var node = SimpleJSON.JSON.Parse(sessionJson);
                 // Debug.Log("parsed sessions: " + node.Count);
                 //  each entry in the JSONNode has the following structure:
-                /* 
+                /*
                  *  {
                  *       "id":5746569068412928,
                  *       "author":"User #1",
@@ -211,7 +211,7 @@ namespace MirageXR
                  *       "key":"/gs/wekitproject.appspot.com/L2FwcGhvc3RpbmdfZ2xvYmFsL2Jsb2JzL0FFbkIyVXB5eDJqd1hiMXVOU3BISndsS1VoblZhMHdRdEFaeGZWVHFjUERqbkNXZTZjSXhFU0tmaVpuWEVkYUZoSzFxX0xRWFV6SHhpeTFJVXJxblFvUVotT2NoOHg3ZjVBLmlOdDdQYmZsTDRUd3JvVm8",
                  *       "uploadingDate":"Oct 19, 2018 1:05:07 PM"
                  *  }
-                 *  
+                 *
                  *  prepend the key attribute with "https://wekitproject.appspot.com/storage/serve" for download of that session
                  */
                 // Debug.Log("node as array: " + node.AsArray.Count);
