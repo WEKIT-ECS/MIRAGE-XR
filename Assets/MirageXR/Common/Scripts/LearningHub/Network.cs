@@ -25,7 +25,7 @@ namespace MirageXR
         private const string DEFAULT_DOWNLOAD_URL = "https://wekitproject.appspot.com/storage/sessions?category=ARLEM";
         private const string DEFAULT_UPLOAD_URL = "http://wekitproject.appspot.com/storage/requestupload";
 
-        private static readonly HttpClient _client = new HttpClient();
+        private static readonly HttpClient client = new HttpClient();
 
         public static async void Upload(string path, string recordingId, Action<HttpStatusCode> callback)
         {
@@ -74,7 +74,7 @@ namespace MirageXR
 
         private static async Task<(string, HttpStatusCode)> GetUploadUrlAndTokenAsync()
         {
-            var response = await _client.PostAsync(DEFAULT_UPLOAD_URL, null);
+            var response = await client.PostAsync(DEFAULT_UPLOAD_URL, null);
             return (await response.Content.ReadAsStringAsync(), response.StatusCode);
         }
 
@@ -114,7 +114,7 @@ namespace MirageXR
             // form.Add(new StringContent("WEKIT ARLEM recorder session of " + DateTime.Now.ToString()), "\"description\"");
             form.Add(new StringContent("ARLEM"), "\"category\"");
 
-            var response = await _client.PostAsync(url, form);
+            var response = await client.PostAsync(url, form);
             var responseString = await response.Content.ReadAsStringAsync();
 
             Debug.Log("secondPost: PostAsync ");
@@ -150,7 +150,7 @@ namespace MirageXR
         {
             Debug.Log($"DownloadAndDecompress: {filename}, {downloadUrl}, {targetDir}");
             var success = false;
-            var response = await _client.GetAsync(downloadUrl);
+            var response = await client.GetAsync(downloadUrl);
             if (response.IsSuccessStatusCode)
             {
                 var unzipDir = Path.Combine(targetDir, filename.Substring(0, filename.Length - 4));
@@ -173,7 +173,7 @@ namespace MirageXR
             Debug.Log($"DownloadAndDecompress: {filename}, {downloadUrl}, {targetDir}");
             var success = false;
 
-            var response = await _client.GetAsync(downloadUrl);
+            var response = await client.GetAsync(downloadUrl);
             if (response.IsSuccessStatusCode)
             {
                 var unzipDir = targetDir;
@@ -195,7 +195,7 @@ namespace MirageXR
         public static async Task<SimpleJSON.JSONNode> GetDownloadableSessionsAsync(string sessionUrl = DEFAULT_DOWNLOAD_URL)
         {
             Debug.Log($"GetDownloadableSessions: {sessionUrl}");
-            var response = await _client.GetAsync(sessionUrl);
+            var response = await client.GetAsync(sessionUrl);
             if (response.IsSuccessStatusCode)
             {
                 var sessionJson = await response.Content.ReadAsStringAsync();

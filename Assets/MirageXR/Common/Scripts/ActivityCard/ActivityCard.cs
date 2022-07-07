@@ -10,28 +10,28 @@ namespace MirageXR
     {
         // Define all the components.
 
-        private AudioSource _audio;
+        private AudioSource audio;
 
         // Main title shown on the top of the card.
-        private Text _title;
+        private Text title;
 
         // Instruction text.
-        private Text _instruction;
+        private Text instruction;
 
         // Incompleted icon.
-        private GameObject _incompletedIcon;
+        private GameObject incompletedIcon;
 
         // Completed icon.
-        private GameObject _completedIcon;
+        private GameObject completedIcon;
 
         // Touchable icon.
-        private GameObject _touchableIcon;
+        private GameObject touchableIcon;
 
         // Voice triggerable icon.
-        private GameObject _voiceableIcon;
+        private GameObject voiceableIcon;
 
         // IoT triggerable icon.
-        private GameObject _iotIcon;
+        private GameObject iotIcon;
 
         // Activity card manager.
         [SerializeField] private ActivityCardManager Manager;
@@ -92,14 +92,14 @@ namespace MirageXR
         private void Start()
         {
             // Populate all the variables.
-            _audio = transform.parent.GetComponent<AudioSource>();
-            _title = transform.FindDeepChild("Title").GetComponent<Text>();
-            _instruction = transform.FindDeepChild("Instruction").GetComponent<Text>();
-            _incompletedIcon = transform.FindDeepChild("IncompletedIcon").gameObject;
-            _completedIcon = transform.FindDeepChild("CompletedIcon").gameObject;
-            _touchableIcon = transform.FindDeepChild("TouchableIcon").gameObject;
-            _voiceableIcon = transform.FindDeepChild("VoiceableIcon").gameObject;
-            _iotIcon = transform.FindDeepChild("IoTIcon").gameObject;
+            audio = transform.parent.GetComponent<AudioSource>();
+            title = transform.FindDeepChild("Title").GetComponent<Text>();
+            instruction = transform.FindDeepChild("Instruction").GetComponent<Text>();
+            incompletedIcon = transform.FindDeepChild("IncompletedIcon").gameObject;
+            completedIcon = transform.FindDeepChild("CompletedIcon").gameObject;
+            touchableIcon = transform.FindDeepChild("TouchableIcon").gameObject;
+            voiceableIcon = transform.FindDeepChild("VoiceableIcon").gameObject;
+            iotIcon = transform.FindDeepChild("IoTIcon").gameObject;
 
         }
 
@@ -112,14 +112,14 @@ namespace MirageXR
 
         private void Clear()
         {
-            _title.text = "";
-            _instruction.text = "";
+            title.text = "";
+            instruction.text = "";
 
-            _incompletedIcon.SetActive(true);
-            _completedIcon.SetActive(false);
-            _touchableIcon.SetActive(false);
-            _voiceableIcon.SetActive(false);
-            _iotIcon.SetActive(false);
+            incompletedIcon.SetActive(true);
+            completedIcon.SetActive(false);
+            touchableIcon.SetActive(false);
+            voiceableIcon.SetActive(false);
+            iotIcon.SetActive(false);
 
             clickable = false;
             voiceable = false;
@@ -139,16 +139,16 @@ namespace MirageXR
             Clear();
 
             // Then start filling crap in.
-            _title.text = action.instruction.title;
-            _instruction.text = action.instruction.description;
+            title.text = action.instruction.title;
+            instruction.text = action.instruction.description;
 
-            _completedIcon.SetActive(action.isCompleted);
-            _incompletedIcon.SetActive(!action.isCompleted);
+            completedIcon.SetActive(action.isCompleted);
+            incompletedIcon.SetActive(!action.isCompleted);
 
             if (IsActiveStep)
             {
                 // By default, the user cannot complete a task by clicking.
-                _incompletedIcon.GetComponent<Button>().enabled = false;
+                incompletedIcon.GetComponent<Button>().enabled = false;
             }
 
 
@@ -158,26 +158,26 @@ namespace MirageXR
                 // Click trigger handling
                 if (trigger.mode.Equals("click"))
                 {
-                    _touchableIcon.SetActive(true);
+                    touchableIcon.SetActive(true);
                     clickable = true;
 
                     if (IsActiveStep)
                     {
                         // Now the user can complete an action by clicking the check box.
-                        _incompletedIcon.GetComponent<Button>().enabled = true;
+                        incompletedIcon.GetComponent<Button>().enabled = true;
                     }
                 }
 
                 // Voice trigger handling.
                 else if (trigger.mode.Equals("voice"))
                 {
-                    _voiceableIcon.SetActive(true);
+                    voiceableIcon.SetActive(true);
                     voiceable = true;
                 }
 
                 else if (trigger.mode.Equals("sensor"))
                 {
-                    _iotIcon.SetActive(true);
+                    iotIcon.SetActive(true);
                     iotable = true;
                 }
 
