@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -31,7 +29,7 @@ public class StartCalibrationView : PopupBase
 
     private void OpenCalibrationScreen()
     {
-        RootView_v2.Instance.OnStartCalibration();
+        //RootView_v2.Instance.OnStartCalibration();
 
         // hide bottom panel
         RootView_v2.Instance.bottomPanel.gameObject.SetActive(false);
