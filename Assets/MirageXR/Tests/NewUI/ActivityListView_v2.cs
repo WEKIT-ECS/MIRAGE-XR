@@ -61,25 +61,10 @@ namespace MirageXR
             Init();
         }
 
-        private async void Init()
+        private void Init()
         {
             _btnFilter.onClick.AddListener(OnByDateClick);
-
-            //_btnAddActivity.onClick.AddListener(OnAddActivityClick);
-            if (!DBManager.LoggedIn && DBManager.rememberUser)
-            {
-                await AutoLogin();
-            }
             UpdateListView();
-        }
-
-        private async Task AutoLogin()
-        {
-            if (!LocalFiles.TryToGetUsernameAndPassword(out var username, out var password)) return;
-
-            LoadView.Instance.Show();
-            await RootObject.Instance.moodleManager.Login(username, password);
-            LoadView.Instance.Hide();
         }
 
         private static async Task<List<SessionContainer>> GetContent()
