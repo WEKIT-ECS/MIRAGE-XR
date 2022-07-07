@@ -33,6 +33,9 @@ public class NewActivityView : MonoBehaviour
     [SerializeField] private Button _btnAddImage;
     [SerializeField] private PopupBase _addImageMaker;
 
+    [SerializeField] private GameObject _btnActivitySettings;
+    [SerializeField] private GameObject _btnStepSettings;
+
     private void Start()
     {
         _steps.isOn = true;
@@ -112,6 +115,8 @@ public class NewActivityView : MonoBehaviour
         _toggles.SetActive(false);
         _toggles_steps.SetActive(true);
         _stepsTab.SetActive(false);
+        _btnActivitySettings.SetActive(false);
+        _btnStepSettings.SetActive(true);
         ShowAugmentationsTab();
     }
 }
