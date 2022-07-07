@@ -52,10 +52,14 @@ namespace MirageXR
                     using (var zipStream = new ZipOutputStream(stream))
                     {
                         await ZipUtilities.CompressFolderAsync(path, zipStream);
-                        await ZipUtilities.AddFileToZipStreamAsync(zipStream,
-                            $"{path}-activity.json", $"{recordingId}-activity.json");
-                        await ZipUtilities.AddFileToZipStreamAsync(zipStream,
-                            $"{path}-workplace.json", $"{recordingId}-workplace.json");
+                        await ZipUtilities.AddFileToZipStreamAsync(
+                            zipStream,
+                            $"{path}-activity.json",
+                            $"{recordingId}-activity.json");
+                        await ZipUtilities.AddFileToZipStreamAsync(
+                            zipStream,
+                            $"{path}-workplace.json",
+                            $"{recordingId}-workplace.json");
                     }
                     bytes = stream.ToArray();
                 }
