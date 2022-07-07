@@ -300,9 +300,20 @@ namespace MirageXR
             return await PostRequestAsync(uri, form, REQUEST_TIMEOUT_IN_SECONDS);
         }
 
-        public static async Task<(bool, string)> UploadRequestAsync(string token, string userId, string sessionId,
-            bool isPublic, string fileName, string title, byte[] zipContent, string thumbnailFileName,
-            byte[] thumbnailContent, string domain, string activityJson, string workplaceJson, int updateMode)
+        public static async Task<(bool, string)> UploadRequestAsync(
+            string token,
+            string userId,
+            string sessionId,
+            bool isPublic,
+            string fileName,
+            string title,
+            byte[] zipContent,
+            string thumbnailFileName,
+            byte[] thumbnailContent,
+            string domain,
+            string activityJson,
+            string workplaceJson,
+            int updateMode)
         {
             const string uriFormat = "{0}/mod/{1}/classes/webservice/getfile_from_unity.php";
             const string tokenKey = "token";
@@ -361,8 +372,15 @@ namespace MirageXR
             return await PostRequestAsync(uri, form, UPLOAD_TIMEOUT_IN_SECONDS);
         }
 
-        public static async Task<(bool, string)> DownloadRequestToStreamAsync(Stream stream, string contextId,
-            string component, string fileArea, string itemId, string fileName, string domain, CancellationToken cancellationToken = default)
+        public static async Task<(bool, string)> DownloadRequestToStreamAsync(
+            Stream stream,
+            string contextId,
+            string component,
+            string fileArea,
+            string itemId,
+            string fileName,
+            string domain,
+            CancellationToken cancellationToken = default)
         {
             const string uriFormat = "{0}/pluginfile.php/{1}/{2}/{3}/{4}/{5}";
 
