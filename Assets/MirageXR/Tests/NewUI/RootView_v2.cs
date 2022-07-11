@@ -18,11 +18,12 @@ public class RootView_v2 : BaseView
     [SerializeField] private SearchView _searchPrefab;
     [SerializeField] private HelpView _helpPrefab;
     [SerializeField] private SettingsView_v2 _activitySettingsPrefab;
-    [SerializeField] private StepSettingsView _stepSettingsPrefab;
+    //[SerializeField] private StepSettingsView _stepSettingsPrefab;
     [SerializeField] private MoodleServersView _moofleServersPrefab;
-    [SerializeField] private GameObject newActivityGameObject;
+    [SerializeField] private GameObject newActivityButton;
     [SerializeField] public RectTransform bottomPanel;
     [SerializeField] private LoginView_v2 _loginViewPrefab;
+    [SerializeField] public GameObject newActivityPanel;
 
     private Vector3 _currentPanelPosition;
     float moveTime = 1;
@@ -106,15 +107,15 @@ public class RootView_v2 : BaseView
         {
             case 0:
                 _toggleHome.isOn = true;
-                newActivityGameObject.SetActive(true);
+                newActivityButton.SetActive(true);
                 break;
             case 1:
                 _toggleProfile.isOn = true;
-                newActivityGameObject.SetActive(true);
+                newActivityButton.SetActive(true);
                 break;
             case 2:
                 _toggleNewActivity.isOn = true;
-                newActivityGameObject.SetActive(false);
+                newActivityButton.SetActive(false);
                 break;
         }
     }
@@ -161,7 +162,7 @@ public class RootView_v2 : BaseView
 
     public void OnStepSettingsClick()
     {
-        PopupsViewer.Instance.Show(_stepSettingsPrefab);
+        //PopupsViewer.Instance.Show(_stepSettingsPrefab);
     }
 
     public void OnBackToHome()
