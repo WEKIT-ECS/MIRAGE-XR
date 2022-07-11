@@ -5,9 +5,12 @@ using System.Collections;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
+using UnityEngine.UI;
 
 namespace Tests
 {
@@ -40,6 +43,7 @@ namespace Tests
         GameObject personContainer;
         GameObject detectableContainer;
         GameObject sensorContainer;
+        GameObject guide;
 
         // dummy manager objects
         UiManager dummyUiManager;
@@ -168,6 +172,8 @@ namespace Tests
             personContainer = new GameObject("Persons");
             detectableContainer = new GameObject("Detectables");
             sensorContainer = new GameObject("Sensors");
+
+            guide = (GameObject)AssetDatabase.LoadMainAssetAtPath("Assets/MirageXR/Player/Resources/Prefabs/Calibration/CalibrationGuide.prefab");
 
             // register scene selection service
             referenceServiceConfiguration = new ActivitySelectionSceneReferenceServiceConfiguration
@@ -663,7 +669,7 @@ namespace Tests
             }
         }
 
-        [UnityTest, Order(8)]
+        [UnityTest, Order(9)]
         public IEnumerator FocusOnPois_CheckLocalScales_z()
         {
             yield return EnsureTestReadiness();
@@ -687,6 +693,26 @@ namespace Tests
             }
         }
 
+        [UnityTest, Order(10)]
+        public IEnumerator Text_VerifyCloseText()
+        {
+            yield return EnsureTestReadiness();
+
+#if UNITY_ANDROID || UNITY_IOS
+            var ok = guide.transform.FindDeepChild("Button");
+            var component = ok.GetComponent<Button>();
+            var label = component.GetComponentInChildren<TMP_Text>();
+            var text = label.text;
+#else
+            var ok = guide.transform.FindDeepChild("OKButton");
+            var component = ok.GetComponent<Button>();
+            var componentText = component.GetComponentInChildren<Text>();
+            var text = componentText.text;
+#endif
+            Assert.AreEqual("Close", text);
+        }
+
+
         //[UnityTest, Order(99)]
         public IEnumerator PauseForDebug()
         {
@@ -707,6 +733,6 @@ namespace Tests
             var method = obj.GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
             method?.Invoke(obj, parameters);
         }
-    }
 
+    }
 }
