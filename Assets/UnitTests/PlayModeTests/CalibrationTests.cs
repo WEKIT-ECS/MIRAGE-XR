@@ -173,8 +173,11 @@ namespace Tests
             detectableContainer = new GameObject("Detectables");
             sensorContainer = new GameObject("Sensors");
 
+#if UNITY_ANDROID || UNITY_IOS
+            guide = (GameObject)AssetDatabase.LoadMainAssetAtPath("Assets/MirageXR/Player/Resources/Prefabs/UI/Mobile/CalibrationGuide.prefab");
+#else
             guide = (GameObject)AssetDatabase.LoadMainAssetAtPath("Assets/MirageXR/Player/Resources/Prefabs/Calibration/CalibrationGuide.prefab");
-
+#endif
             // register scene selection service
             referenceServiceConfiguration = new ActivitySelectionSceneReferenceServiceConfiguration
             {
@@ -297,10 +300,10 @@ namespace Tests
         }
 
 
-        #endregion Arrange
+#endregion Arrange
 
 
-        #region Act
+#region Act
 
 
         private Task StartDummyActivity(string activityId)
@@ -331,9 +334,9 @@ namespace Tests
             isCalibrated = true;
             EventManager.OnWorkplaceCalibrated -= CalibrationComplete;
         }
-        #endregion Act
+#endregion Act
 
-        #region Assert
+#region Assert
         /// <summary>
         /// A helper functions that checks that object have been initialised. It should be yielded at the start of each test.
         /// </summary>
@@ -726,7 +729,7 @@ namespace Tests
         }
 
 
-        #endregion Assert
+#endregion Assert
 
         private static void CallPrivateMethod(object obj, string methodName, params object[] parameters)
         {
