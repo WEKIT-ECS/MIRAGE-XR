@@ -2,6 +2,8 @@ using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MirageXR
 {
@@ -17,6 +19,9 @@ namespace MirageXR
         private Port[] ports;
         public Port[] Ports => ports;
 
+        public bool IsMoving { get; private set; }
+
+
         private void OnEnable()
         {
             EventManager.OnEditModeChanged += SetEditorState;
@@ -31,8 +36,9 @@ namespace MirageXR
         {
             SetEditorState(activityManager.EditModeActive);
             ports = GetComponentsInChildren<Port>();
+            gameObject.GetComponentInParent<ObjectManipulator>().OnManipulationStarted.AddListener(delegate { IsMoving = true; });
+            gameObject.GetComponentInParent<ObjectManipulator>().OnManipulationEnded.AddListener(delegate { IsMoving = false; });
         }
-
 
         public void DisableManipulation()
         {

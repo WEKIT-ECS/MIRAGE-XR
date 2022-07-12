@@ -2,7 +2,7 @@ using MirageXR;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System.Linq;
 
 public enum Pole
 {
@@ -25,19 +25,36 @@ public class Port : MonoBehaviour
 
     public bool Connected { get; private set; }
 
-
     private void Start()
     {
         myBit = transform.parent.gameObject;
     }
+
+    /// <summary>
+    /// Get the list of all connected bits in the scene
+    /// </summary>
+    public List<eROBSONItems> ConnectedERobsonItems
+    {
+        get
+        {
+            return FindObjectsOfType<eROBSONItems>().ToList().FindAll(i => i.Ports.ToList().Find(p => p.Connected));
+        }
+    }
+
 
     private void OnTriggerEnter(Collider other)
     {
         detectedPortPole = other.GetComponent<Port>();
         erobsonItem = myBit.GetComponent<eROBSONItems>();
 
-        //If the port is already connected
-        if (Connected)
+        //If the other collider is not a port or it is already connected
+        if(detectedPortPole == null || detectedPortPole.Connected)
+        {
+            return;
+        }
+
+        //Port is not neutral and the bit NOT moving by the user
+        if (!erobsonItem.IsMoving || detectedPortPole.Pole == Pole.NEUTRAL)
         {
             return;
         }
@@ -51,41 +68,37 @@ public class Port : MonoBehaviour
             }
         }
 
-
-        //If a port with different charge is detected
-        if (detectedPortPole && detectedPortPole.Pole != Pole.NEUTRAL)
+        //if the detected port has NOT the same charge (different charge) and it is not connected to any other bit
+        if (detectedPortPole.Pole != Pole && !ConnectedERobsonItems.Contains(detectedPortPole.erobsonItem))
         {
 
-            //if the detected port has NOT the same charge (different charge)
-            if (detectedPortPole.Pole != Pole)
-            {
-                //Make the pole be the parent of the bit
-                MakePortBeParent();
+            //Make the pole be the parent of the bit
+            MakePortBeParent();
 
-                //Disable manipulation
-                erobsonItem.DisableManipulation();
+            //Disable manipulation
+            erobsonItem.DisableManipulation();
 
-                //Move the bit to the pole of the other bit (Snapping)
-                transform.position = detectedPortPole.transform.position;
+            //Move the bit to the pole of the other bit (Snapping)
+            transform.position = detectedPortPole.transform.position;
+            transform.rotation = detectedPortPole.transform.rotation;
 
-                //Enable manipulation after a while
-                StartCoroutine(MakeBitBeParent());
-            }
-            else
-            {
-                //Move the bit to the left or right side of this bit depends on the port
-                var connectionPosition = Pole == Pole.POSITIVE ? -detectedPortPole.transform.forward : detectedPortPole.transform.forward;
-
-                //Make a distance from the detected port
-                myBit.transform.position = detectedPortPole.transform.position + connectionPosition * 0.2f;
-
-                //Enable manipulation after a while
-                StartCoroutine(MakeBitBeParent());
-
-                OnConnected();
-            }
-            
+            //Enable manipulation after a while
+            StartCoroutine(MakeBitBeParent());
         }
+        else
+        {
+            //Move the bit to the left or right side of this bit depends on the port
+            var connectionPosition = Pole == Pole.POSITIVE ? -detectedPortPole.transform.forward : detectedPortPole.transform.forward;
+
+            //Make a distance from the detected port
+            myBit.transform.position = detectedPortPole.transform.position + connectionPosition * 0.2f;
+
+            //Enable manipulation after a while
+            StartCoroutine(MakeBitBeParent());
+
+            OnConnected();
+        }
+        
     }
 
     private void OnTriggerExit(Collider other)
@@ -142,7 +155,9 @@ public class Port : MonoBehaviour
     private void OnDisconnected()
     {
         Connected = false;
-        detectedPortPole = null;
+
+        if(detectedPortPole)
+            detectedPortPole.Connected = false;
     }
 
 
