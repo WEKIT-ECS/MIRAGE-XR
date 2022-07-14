@@ -53,7 +53,6 @@ public class ERobsonEditorView : PopupEditorBase
         _content.predicate = $"eRobson:{_prefabName}";
         EventManager.ActivateObject(_content);
         EventManager.NotifyActionModified(_step);
-
         Close();
     }
 }

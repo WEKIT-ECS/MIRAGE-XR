@@ -818,7 +818,6 @@ namespace MirageXR
             MobileAddStepContentPressed?.Invoke();
         }
 
-
         public delegate void xAPIChangedDelegate(int option);
         public static event xAPIChangedDelegate XAPIChanged;
         public static void NotifyxAPIChanged(int option)

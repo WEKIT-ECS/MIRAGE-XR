@@ -1,14 +1,13 @@
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+
 
 namespace MirageXR
 {
     public class eROBSONItems : MirageXRPrefab
     {
+
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
         private ToggleObject myObj;
 

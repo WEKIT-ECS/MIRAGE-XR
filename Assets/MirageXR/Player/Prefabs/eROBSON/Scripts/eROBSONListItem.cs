@@ -13,9 +13,9 @@ public class eROBSONListItem : MonoBehaviour
     private eROBSONObject _eROBSONObject;
     private Action<string> _onClick;
 
-    public void Init(eROBSONObject vfxObject, Action<string> onClick)
+    public void Init(eROBSONObject eRobsonObject, Action<string> onClick)
     {
-        _eROBSONObject = vfxObject;
+        _eROBSONObject = eRobsonObject;
         _onClick = onClick;
         _button.onClick.AddListener(OnClick);
         _image.sprite = _eROBSONObject.sprite;

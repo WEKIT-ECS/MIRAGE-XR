@@ -430,13 +430,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3368968398888870677}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.0047240313, y: 0.00013158843, z: -0.05531121}
-  m_LocalScale: {x: 1.0677251, y: 1.0677251, z: 1.0677251}
+  m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0.008106858, y: 0.282388, z: -0.00922119}
+  m_LocalScale: {x: 1.0677251, y: 1.067725, z: 1.067725}
   m_Children:
   - {fileID: 7810635899511661284}
-  m_Father: {fileID: 2988063849060074290}
-  m_RootOrder: 0
+  - {fileID: 2988063849060074290}
+  m_Father: {fileID: 3938145181977883883}
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &2281811817591985519
 MeshFilter:
@@ -660,6 +661,7 @@ GameObject:
   - component: {fileID: 3938145181977883883}
   - component: {fileID: 3670979100961447325}
   - component: {fileID: 5140102296211363475}
+  - component: {fileID: 3973982862898804438}
   m_Layer: 0
   m_Name: i3_button
   m_TagString: Untagged
@@ -688,7 +690,7 @@ Transform:
   - {fileID: 6426177915578938169}
   - {fileID: 9033961584458081705}
   - {fileID: 8089132437967507339}
-  - {fileID: 2988063849060074290}
+  - {fileID: 8921100962327284689}
   - {fileID: 655705869301497558}
   - {fileID: 6009557091012198269}
   - {fileID: 8687883248512803988}
@@ -725,6 +727,25 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0, y: 0, z: 0}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!95 &3973982862898804438
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4462163986737360465}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 62f874b72d8e69742a35040a5f6247d0, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &4666076029257150790
 GameObject:
   m_ObjectHideFlags: 0
@@ -913,13 +934,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5921021878893720848}
-  m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0.0033828262, y: 0.33769923, z: -0.00908961}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 8921100962327284689}
-  m_Father: {fileID: 3938145181977883883}
-  m_RootOrder: 10
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.0044243895, y: -0.00012324189, z: 0.051802892}
+  m_LocalScale: {x: 0.9365707, y: 0.93657076, z: 0.93657076}
+  m_Children: []
+  m_Father: {fileID: 8921100962327284689}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &1848328302179088329
 MeshFilter:

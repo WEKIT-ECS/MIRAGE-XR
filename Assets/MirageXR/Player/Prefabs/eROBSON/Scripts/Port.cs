@@ -25,8 +25,20 @@ public class Port : MonoBehaviour
 
     public bool Connected { get; private set; }
 
-    private void Start()
+    private async void Start()
     {
+        //Add the image marker controller to the scene if it is not exist yet (first bit)
+        if (FindObjectOfType<ERobsonImageMarkerController>() == null)
+        {
+            // Get the prefab from the references
+            var erobsonImageMarkerController = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("eROBSON/Prefabs/ErobsonImageMarkerController");
+            // if the prefab reference has been found successfully
+            if (erobsonImageMarkerController != null)
+            {
+                Instantiate(erobsonImageMarkerController, Vector3.zero, Quaternion.identity);
+            }
+        }
+
         myBit = transform.parent.gameObject;
     }
 
