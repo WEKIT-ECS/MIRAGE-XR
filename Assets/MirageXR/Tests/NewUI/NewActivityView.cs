@@ -35,21 +35,47 @@ public class NewActivityView : MonoBehaviour
 
     [SerializeField] private GameObject _btnActivitySettings;
     [SerializeField] private GameObject _btnStepSettings;
+    
+    [SerializeField] private GameObject _btnBackToHome;
+    [SerializeField] private GameObject _btnBackToActivity;
 
     private void Start()
+    {
+        _btnSetPicture.onClick.AddListener(OnSetPictureClick);
+        _btnStart.onClick.AddListener(OnStartCalibrationClick);
+        _btnAddImage.onClick.AddListener(OnAddImageClick);
+        _btnBackToActivity.GetComponent<Button>().onClick.AddListener(OnBackToActivityClick);
+
+        _headLabel = _title.GetComponent<TMP_Text>();
+
+        ShowNewActivityScreen();
+    }
+
+    private void ShowNewActivityScreen()
     {
         _steps.isOn = true;
         _info.isOn = false;
         _calibration.isOn = false;
-        _btnSetPicture.onClick.AddListener(OnSetPictureClick);
-        _btnStart.onClick.AddListener(OnStartCalibrationClick);
-        _btnAddImage.onClick.AddListener(OnAddImageClick);
-
-        _headLabel = _title.GetComponent<TMP_Text>();
+        
         _headLabel.text = "New activity";
 
         _toggles.SetActive(true);
         _toggles_steps.SetActive(false);
+        
+        _stepsTab.SetActive(true);
+        _btnActivitySettings.SetActive(true);
+        _btnStepSettings.SetActive(false);
+        _augmentationsTab.SetActive(false);
+        _infoStepsTab.SetActive(false);
+        _MarkerTab.SetActive(false);
+        
+        _btnBackToHome.SetActive(true);
+        _btnBackToActivity.SetActive(false);
+    }
+
+    private void OnBackToActivityClick()
+    {
+        ShowNewActivityScreen();
     }
 
     public void ShowStepsTab()
@@ -117,6 +143,9 @@ public class NewActivityView : MonoBehaviour
         _stepsTab.SetActive(false);
         _btnActivitySettings.SetActive(false);
         _btnStepSettings.SetActive(true);
+        
+        _btnBackToHome.SetActive(false);
+        _btnBackToActivity.SetActive(true);
         ShowAugmentationsTab();
     }
 }
