@@ -19,6 +19,7 @@ public class CalibrationView : PopupBase
 
     private void Init()
     {
+        canBeClosedByOutTap = false;
         _btnClose.onClick.AddListener(CloseBtnClicked);
     }
 
