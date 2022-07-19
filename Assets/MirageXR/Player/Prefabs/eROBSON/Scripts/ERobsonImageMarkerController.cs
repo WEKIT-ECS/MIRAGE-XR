@@ -5,86 +5,106 @@ using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using MirageXR;
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 public class ERobsonImageMarkerController : MonoBehaviour
 {
-    [SerializeField] private ARTrackedImageManager _arTrackedImageManager;
+#if UNITY_ANDROID || UNITY_IOS
     [SerializeField] private XRReferenceImageLibrary _imageLibrary;
 
-    private Dictionary<string,GameObject> eRobsonObjects;
+    private ARTrackedImageManager trackImageManager;
 
-    void Start()
+
+    private Dictionary<ARTrackedImage,GameObject> spawnedObjects;
+
+
+    private void Awake()
     {
 
-        eRobsonObjects = new Dictionary<string, GameObject>();
-
-        if(_arTrackedImageManager.referenceLibrary == null)
+        GameObject tracker = GameObject.Find("MixedRealityPlayspace");
+        if (tracker.GetComponent<ARTrackedImageManager>())
         {
-            _arTrackedImageManager.referenceLibrary = _imageLibrary;
+            trackImageManager = tracker.GetComponent<ARTrackedImageManager>();
         }
+        else
+        {
+            trackImageManager = tracker.AddComponent<ARTrackedImageManager>();
+        }
+
+        trackImageManager.referenceLibrary = trackImageManager.CreateRuntimeLibrary(_imageLibrary);
+        trackImageManager.requestedMaxNumberOfMovingImages = 4;
+        trackImageManager.enabled = true;
+
+        spawnedObjects = new Dictionary<ARTrackedImage, GameObject>();
     }
 
     private void OnEnable()
     {
-        _arTrackedImageManager.trackedImagesChanged += OnImageChanged;
+        trackImageManager.trackedImagesChanged += OnImageChanged;
     }
+
 
     private void OnDisable()
     {
-        _arTrackedImageManager.trackedImagesChanged -= OnImageChanged;
+        trackImageManager.trackedImagesChanged -= OnImageChanged;
     }
 
     private void OnImageChanged(ARTrackedImagesChangedEventArgs eventArgs)
     {
-            foreach (var trackedImage in eventArgs.updated)
-            {
-                UpdateDetectedMenu(trackedImage);
-            }
 
-            foreach (var trackedImage in eventArgs.removed)
-            {
-                Destroy(trackedImage.gameObject);
-            }
+        foreach (var trackedImage in eventArgs.updated)
+        {
+            UpdateDetectedObject(trackedImage);
+        }
+
+        foreach (var trackedImage in eventArgs.removed)
+        {
+            spawnedObjects.Remove(trackedImage);
+            Destroy(trackedImage.gameObject);
+        }
     }
 
 
-    private void UpdateDetectedMenu(ARTrackedImage trackedImage)
+    private async void UpdateDetectedObject(ARTrackedImage trackedImage)
     {
         var name = trackedImage.referenceImage.name;
 
-        var id = $"{name}{string.Format("erobson-{0:yyyy-MM-dd_HH-mm-ss}", DateTime.UtcNow)}";
-
         if (trackedImage.trackingState == TrackingState.Tracking)
         {
-            var eRobsonItem = eRobsonObjects[name];
-
-            if (!eRobsonItem)
+            if (!spawnedObjects.ContainsKey(trackedImage))
             {
-                SpawnItem(name, id);
+                var erobsonObject = await SpawnItem(trackedImage);
+                spawnedObjects.Add(trackedImage, erobsonObject);
             }
+
+            var eRobsonItem = spawnedObjects.Values.ToList().Find(o => o.name == trackedImage.referenceImage.name);
 
             eRobsonItem.transform.position = trackedImage.transform.position;
             eRobsonItem.transform.rotation = trackedImage.transform.rotation/* * Quaternion.Euler(90, 0, 0)*/;
 
-            foreach (var eRobsonObject in eRobsonObjects)
-            {
-                if (eRobsonObject.Key != name)
-                {
-                    eRobsonObject.Value.SetActive(false);
-                }
-            }
         }
     }
 
-    private async void SpawnItem(string markerName, string erobsonId)
+
+    private async Task<GameObject> SpawnItem(ARTrackedImage trackedImage)
     {
+        var markerName = trackedImage.referenceImage.name;
         // Get the prefab from the references
-        var markerPrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>(markerName);
+        var markerPrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>($"eROBSON/Prefabs/{markerName}");
         // if the prefab reference has been found successfully
         if (markerPrefab != null)
         {
-            var erobsonItem = Instantiate(markerPrefab, Vector3.zero, Quaternion.identity);
-            eRobsonObjects.Add(erobsonId, erobsonItem);
+            var erobsonItem = Instantiate(markerPrefab, trackedImage.transform.position, trackedImage.transform.rotation);
+            erobsonItem.name = markerName;
+            return erobsonItem;
         }
+
+        return null;
     }
+
+#else
+        Debug.Log("Image detection of eRobson augmentation works only on Android and iOS.");
+#endif
+
 }

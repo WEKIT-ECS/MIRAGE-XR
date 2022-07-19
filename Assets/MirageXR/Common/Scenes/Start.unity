@@ -786,7 +786,6 @@ GameObject:
   - component: {fileID: 807537248}
   - component: {fileID: 807537239}
   - component: {fileID: 807537247}
-  - component: {fileID: 807537246}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -942,23 +941,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mWorldCenterMode: 2
   mWorldCenter: {fileID: 0}
---- !u!114 &807537246
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 807537237}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4dea56a9eaadd1c439095de4f9a371cb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SerializedLibrary: {fileID: 11400000, guid: 30088e9af0873bc48bb836e84f070694,
-    type: 2}
-  m_MaxNumberOfMovingImages: 5
-  m_TrackedImagePrefab: {fileID: 4462163986737360465, guid: 4fc94943012b7674aa3ccd040400a43f,
-    type: 3}
 --- !u!114 &807537247
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1048,7 +1030,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 1123643742}
+      objectReference: {fileID: 1846604725}
     - target: {fileID: 33609130599881980, guid: 177bff737c69d564ebb225d7fe7fc402,
         type: 3}
       propertyPath: m_Mesh
@@ -1366,35 +1348,6 @@ MonoBehaviour:
   mWidth: 0.15
   mHeight: 0.15
   mRuntimeTexture: {fileID: 0}
---- !u!21 &1123643742
-Material:
-  serializedVersion: 6
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 'targetMaterial
-
-    -1256'
-  m_Shader: {fileID: 10752, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: 
-  m_LightmapFlags: 5
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 02ca749bb835418ebe6506fa988f7211, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Floats: []
-    m_Colors:
-    - _Color: {r: 0.82089555, g: 0.82089555, b: 0.82089555, a: 1}
-  m_BuildTextureStacks: []
 --- !u!1 &1263153151
 GameObject:
   m_ObjectHideFlags: 0
@@ -1429,7 +1382,6 @@ Transform:
   - {fileID: 545706609}
   - {fileID: 92586980}
   - {fileID: 517222968}
-  - {fileID: 7980282290642376554}
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1552,6 +1504,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83799d6e6cefc994d8ec600d82769427, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!21 &1846604725
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 'targetMaterial
+
+    -97458'
+  m_Shader: {fileID: 10752, guid: 0000000000000000f000000000000000, type: 0}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 5
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 02ca749bb835418ebe6506fa988f7211, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats: []
+    m_Colors:
+    - _Color: {r: 0.82089555, g: 0.82089555, b: 0.82089555, a: 1}
+  m_BuildTextureStacks: []
 --- !u!1 &1888399831
 GameObject:
   m_ObjectHideFlags: 0
@@ -2079,51 +2060,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b20febc21a242b143aa20ea181ba5e8e, type: 3}
---- !u!1 &6666037244295759802
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7980282290642376554}
-  - component: {fileID: 8637122077143256045}
-  m_Layer: 0
-  m_Name: ErobsonImageMarkerController
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &7980282290642376554
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6666037244295759802}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.0007017702, y: 0.36878863, z: 0.88863504}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1263153152}
-  m_RootOrder: 6
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8637122077143256045
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6666037244295759802}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e1ef7316cfe52c44e9b1e43004106aef, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _arTrackedImageManager: {fileID: 807537246}
-  _imageLibrary: {fileID: 11400000, guid: 30088e9af0873bc48bb836e84f070694, type: 2}
 --- !u!1001 &8856608567612908826
 PrefabInstance:
   m_ObjectHideFlags: 0
