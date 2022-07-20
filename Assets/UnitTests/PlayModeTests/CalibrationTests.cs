@@ -5,9 +5,12 @@ using System.Collections;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
+using UnityEngine.UI;
 
 namespace Tests
 {
@@ -40,6 +43,7 @@ namespace Tests
         GameObject personContainer;
         GameObject detectableContainer;
         GameObject sensorContainer;
+        GameObject guide;
 
         // dummy manager objects
         UiManager dummyUiManager;
@@ -169,6 +173,11 @@ namespace Tests
             detectableContainer = new GameObject("Detectables");
             sensorContainer = new GameObject("Sensors");
 
+#if UNITY_ANDROID || UNITY_IOS
+            guide = (GameObject)AssetDatabase.LoadMainAssetAtPath("Assets/MirageXR/Player/Resources/Prefabs/UI/Mobile/CalibrationGuide.prefab");
+#else
+            guide = (GameObject)AssetDatabase.LoadMainAssetAtPath("Assets/MirageXR/Player/Resources/Prefabs/Calibration/CalibrationGuide.prefab");
+#endif
             // register scene selection service
             referenceServiceConfiguration = new ActivitySelectionSceneReferenceServiceConfiguration
             {
@@ -291,10 +300,10 @@ namespace Tests
         }
 
 
-        #endregion Arrange
+#endregion Arrange
 
 
-        #region Act
+#region Act
 
 
         private Task StartDummyActivity(string activityId)
@@ -325,9 +334,9 @@ namespace Tests
             isCalibrated = true;
             EventManager.OnWorkplaceCalibrated -= CalibrationComplete;
         }
-        #endregion Act
+#endregion Act
 
-        #region Assert
+#region Assert
         /// <summary>
         /// A helper functions that checks that object have been initialised. It should be yielded at the start of each test.
         /// </summary>
@@ -663,7 +672,7 @@ namespace Tests
             }
         }
 
-        [UnityTest, Order(8)]
+        [UnityTest, Order(9)]
         public IEnumerator FocusOnPois_CheckLocalScales_z()
         {
             yield return EnsureTestReadiness();
@@ -687,6 +696,26 @@ namespace Tests
             }
         }
 
+        [UnityTest, Order(10)]
+        public IEnumerator Text_VerifyCloseText()
+        {
+            yield return EnsureTestReadiness();
+
+#if UNITY_ANDROID || UNITY_IOS
+            var ok = guide.transform.FindDeepChild("Button");
+            var component = ok.GetComponent<Button>();
+            var label = component.GetComponentInChildren<TMP_Text>();
+            var text = label.text;
+#else
+            var ok = guide.transform.FindDeepChild("OKButton");
+            var component = ok.GetComponent<Button>();
+            var componentText = component.GetComponentInChildren<Text>();
+            var text = componentText.text;
+#endif
+            Assert.AreEqual("Close", text);
+        }
+
+
         //[UnityTest, Order(99)]
         public IEnumerator PauseForDebug()
         {
@@ -700,13 +729,13 @@ namespace Tests
         }
 
 
-        #endregion Assert
+#endregion Assert
 
         private static void CallPrivateMethod(object obj, string methodName, params object[] parameters)
         {
             var method = obj.GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
             method?.Invoke(obj, parameters);
         }
-    }
 
+    }
 }
