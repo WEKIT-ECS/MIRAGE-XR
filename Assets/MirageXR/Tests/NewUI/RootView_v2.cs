@@ -9,7 +9,7 @@ public class RootView_v2 : BaseView
     public static RootView_v2 Instance { get; private set; }
 
     [SerializeField] private Toggle _toggleHome;
-    [SerializeField] private Button _buttonProfile;
+    [SerializeField] private Button _btnProfile;
     [SerializeField] private Toggle _toggleNewActivity;
     [SerializeField] private Button _btnAddAugmentation;
 
@@ -60,7 +60,7 @@ public class RootView_v2 : BaseView
         _toggleHome.isOn = true;
         _toggleNewActivity.interactable = true;
         _toggleHome.onValueChanged.AddListener(OnStepsClick);
-        _buttonProfile.onClick.AddListener(OnViewClick);
+        _btnProfile.onClick.AddListener(OnProfileClick);
         _toggleNewActivity.onValueChanged.AddListener(OnHomeClick);
         _btnAddAugmentation.onClick.AddListener(AddAugmentation);
         _pageView.OnPageChanged.AddListener(OnPageChanged);
@@ -122,7 +122,7 @@ public class RootView_v2 : BaseView
         if (value) _pageView.currentPageIndex = 0;
     }
 
-    private void OnViewClick()
+    private void OnProfileClick()
     {
         PopupsViewer.Instance.Show(_profilePrefab);
     }

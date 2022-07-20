@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class ProfileView : PopupBase
 {
     [SerializeField] private MoodleServersView _moodlePrefab;
-    [SerializeField] private Button _selectServer;
+    [SerializeField] private Button _btnSelectServer;
     protected override bool TryToGetArguments(params object[] args)
     {
         return true;
@@ -17,7 +17,7 @@ public class ProfileView : PopupBase
     {
         base.Init(onClose, args);
         
-        _selectServer.onClick.AddListener(ShowServerPanel);
+        _btnSelectServer.onClick.AddListener(ShowServerPanel);
     }
 
     private void ShowServerPanel()
