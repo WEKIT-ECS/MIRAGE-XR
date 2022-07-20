@@ -9,12 +9,13 @@ public class RootView_v2 : BaseView
     public static RootView_v2 Instance { get; private set; }
 
     [SerializeField] private Toggle _toggleHome;
-    [SerializeField] private Toggle _toggleProfile;
+    [SerializeField] private Button _btnProfile;
     [SerializeField] private Toggle _toggleNewActivity;
     [SerializeField] private Button _btnAddAugmentation;
 
     [SerializeField] private PageView_v2 _pageView;
     [SerializeField] private CalibrationGuideView _calibrationGuideViewPrefab;
+    [SerializeField] private ProfileView _profilePrefab;
     [SerializeField] private SearchView _searchPrefab;
     [SerializeField] private HelpView _helpPrefab;
     [SerializeField] private SettingsView_v2 _activitySettingsPrefab;
@@ -56,10 +57,10 @@ public class RootView_v2 : BaseView
         base.Initialization(parentView);
         EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
 
-        _toggleProfile.interactable = true;
+        _toggleHome.isOn = true;
         _toggleNewActivity.interactable = true;
         _toggleHome.onValueChanged.AddListener(OnStepsClick);
-        _toggleProfile.onValueChanged.AddListener(OnViewClick);
+        _btnProfile.onClick.AddListener(OnProfileClick);
         _toggleNewActivity.onValueChanged.AddListener(OnHomeClick);
         _btnAddAugmentation.onClick.AddListener(AddAugmentation);
         _pageView.OnPageChanged.AddListener(OnPageChanged);
@@ -110,10 +111,6 @@ public class RootView_v2 : BaseView
                 newActivityButton.SetActive(true);
                 break;
             case 1:
-                _toggleProfile.isOn = true;
-                newActivityButton.SetActive(true);
-                break;
-            case 2:
                 _toggleNewActivity.isOn = true;
                 newActivityButton.SetActive(false);
                 break;
@@ -125,19 +122,19 @@ public class RootView_v2 : BaseView
         if (value) _pageView.currentPageIndex = 0;
     }
 
-    private void OnViewClick(bool value)
+    private void OnProfileClick()
     {
-        if (value) _pageView.currentPageIndex = 1;
+        PopupsViewer.Instance.Show(_profilePrefab);
     }
 
     public void OnHomeClick(bool value)
     {
-        if (value) _pageView.currentPageIndex = 2;
+        if (value) _pageView.currentPageIndex = 1;
     }
 
     private void AddAugmentation()
     {
-        _pageView.currentPageIndex = 3;
+        _pageView.currentPageIndex = 2;
     }
 
     public void OnSearchClick()
@@ -172,7 +169,7 @@ public class RootView_v2 : BaseView
 
     public void OnBackToStep()
     {
-        _pageView.currentPageIndex = 2;
+        _pageView.currentPageIndex = 1;
     }
 
     private async Task SetupViewForTablet()
