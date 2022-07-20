@@ -18,7 +18,7 @@ public class RootView_v2 : BaseView
     [SerializeField] private PageView_v2 _pageView;
     [SerializeField] private CalibrationGuideView _calibrationGuideViewPrefab;
 
-    [SerializeField] private SearchView _searchPrefab;
+    [SerializeField] public SearchView _searchPrefab;
     [SerializeField] private HelpView _helpPrefab;
     [SerializeField] private SettingsView_v2 _activitySettingsPrefab;
     [SerializeField] private MoodleServersView _moofleServersPrefab;
@@ -130,7 +130,8 @@ public class RootView_v2 : BaseView
 
     public void OnInfoClick()
     {
-        PopupsViewer.Instance.Show(_helpPrefab);
+        Debug.Log("PAGE INDEX = " +_pageView.currentPageIndex);
+        TutorialManager.Instance.showHelpSelection(_pageView.currentPageIndex);
     }
 
     public void OnMoodleServersClick()

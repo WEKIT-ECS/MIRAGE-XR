@@ -30,7 +30,7 @@ namespace MirageXR
             {
                 GameObject hbPrefab = Resources.Load("prefabs/UI/Mobile/Tutorial/HighlightButton", typeof(GameObject)) as GameObject;
                 _copy = Object.Instantiate(hbPrefab, gameObject.transform.position, gameObject.transform.rotation);
-                _copy.transform.SetParent(RootView.Instance.transform);
+                _copy.transform.SetParent(RootView_v2.Instance.transform);
                 _copy.transform.SetPositionAndRotation(gameObject.transform.position, gameObject.transform.rotation);
                 _copy.transform.localScale = gameObject.transform.localScale;
 
@@ -52,7 +52,7 @@ namespace MirageXR
 
             // If it's not an input field, make a copy of the object
             _copy = Object.Instantiate(gameObject);
-            _copy.transform.SetParent(RootView.Instance.transform);
+            _copy.transform.SetParent(RootView_v2.Instance.transform);
             _copy.transform.SetPositionAndRotation(gameObject.transform.position, gameObject.transform.rotation);
             _copy.transform.localScale = gameObject.transform.localScale;
 

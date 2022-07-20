@@ -45,8 +45,14 @@ namespace MirageXR
         /// </summary>
         public bool IsTutorialRunning { get; private set; }
 
-        private List<TutorialStep> steps;
+        private List<TutorialStep> steps;      
         private int currentStepNumber;
+
+        private List<HelpStep> helpSteps;
+        private int currentHelpStep;
+
+        private List<HelpSelection> helpSelections;
+        private int currentHelpSelection;
 
         /// <summary>
         /// TutorialButton on the Hololens UI.
@@ -63,6 +69,20 @@ namespace MirageXR
         /// Object Highlighter used in the mobile tutorial.
         /// </summary>
         public TutorialObjectHighlighter MobileHighlighter { get; private set; }
+
+        [SerializeField] private HelpSelectionPopup helpSelectionPopup;
+        /// <summary>
+        /// The Popup that states the instruction text of a mobile tutorial step.
+        /// Based on the PopupViewer subsystem.
+        /// </summary>
+        public HelpSelectionPopup HelpSelectionPopup => helpSelectionPopup;
+
+        [SerializeField] private HelpPopup helpPopup;
+        /// <summary>
+        /// The Popup that states the instruction text of a mobile tutorial step.
+        /// Based on the PopupViewer subsystem.
+        /// </summary>
+        public HelpPopup HelpPopup => helpPopup;
 
         [SerializeField] private TutorialPopup mobilePopup;
         /// <summary>
@@ -86,7 +106,10 @@ namespace MirageXR
         {
             IsTutorialRunning = false;
             steps = new List<TutorialStep>();
+            helpSteps = new List<HelpStep>();
+            helpSelections = new List<HelpSelection>();
             MobileHighlighter = new TutorialObjectHighlighter();
+            PopulateHelpStelectionsList();
         }
 
         /// <summary>
@@ -116,7 +139,8 @@ namespace MirageXR
             {
                 IsTutorialRunning = true;
 
-                PopulateStepListForMobileEditing();
+                PopulateStepListForMobileEditing();    
+
                 currentStepNumber = -1;
 
                 NextStep();
@@ -177,6 +201,7 @@ namespace MirageXR
                 "Have fun trying them all out.";
             steps.Add(new MobileOnlyDialogStep(message));
         }
+
 
         private void PopulateStepListForMobileViewing()
         {
@@ -252,5 +277,69 @@ namespace MirageXR
             }
 
         }
+
+        private void PopulateHelpStelectionsList() {
+            helpSelections.Add(new HelpSelectionActivitySelection());
+            helpSelections.Add(new HelpSelectionTest1());
+            helpSelections.Add(new HelpSelectionNewActivity());
+            helpSelections.Add(new HelpSelectionAddAugmentations());
+        }
+
+        private void PopulateHelpStepListActivitySelection()
+        {
+            helpSteps.Add(new HelpStepSearch());
+            helpSteps.Add(new HelpStepOpenActivity());
+            helpSteps.Add(new HelpStepCreateActivity());
+            helpSteps.Add(new HelpStepLoginRegister());
+
+        }
+
+        private void PopulateHelpStepListNewActivity()
+        {
+            helpSteps.Add(new HelpStepChangeActivityTitleAndDescription());
+            helpSteps.Add(new HelpStepActionStep());
+            helpSteps.Add(new HelpStepMultipleSteps());
+            helpSteps.Add(new HelpStepRenameStep());
+            helpSteps.Add(new HelpStepAddStepContent());
+            helpSteps.Add(new HelpStepCopyStep());
+
+        }
+
+
+
+        public void showHelp(int helpStep)
+        {
+            helpSteps[currentHelpStep].ExitStep();
+
+            helpSteps[helpStep].EnterStep();
+
+            currentHelpStep = helpStep;
+        }
+
+        public void showHelpSelection(int helpSelection)
+        {
+            helpSteps.Clear();
+
+            switch (helpSelection)
+            {
+                case 0:
+                    PopulateHelpStepListActivitySelection();
+                    break;
+                case 1:
+                    PopulateHelpStepListNewActivity();
+                    break;
+                case 2:
+                    PopulateHelpStepListNewActivity();
+                    break;
+            }
+
+
+            helpSelections[currentHelpSelection].ExitStep();
+
+            helpSelections[helpSelection].EnterStep();
+
+            currentHelpSelection = helpSelection;
+        }
+
     }
 }
