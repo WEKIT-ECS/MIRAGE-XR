@@ -10,6 +10,7 @@ public class DragAndDropController : MonoBehaviour, IPointerDownHandler, IDragHa
     private Vector3 _currentPossition;
     private int _totalChild;
     private VerticalLayoutGroup _verticalLayoutGroup;
+    private const int MIN_DISTANCE = 15;
 
     public void OnPointerDown(PointerEventData eventData)
     {
@@ -33,7 +34,7 @@ public class DragAndDropController : MonoBehaviour, IPointerDownHandler, IDragHa
                 Transform otherTransform = _mainContent.transform.GetChild(i);
                 int distance = (int) Vector3.Distance(currentTransform.position,
                     otherTransform.position);
-                if (distance <= 15)
+                if (distance <= MIN_DISTANCE)
                 {
                     Vector3 otherTransformOldPosition = otherTransform.position;
                     otherTransform.position = new Vector3(otherTransform.position.x, _currentPossition.y,
