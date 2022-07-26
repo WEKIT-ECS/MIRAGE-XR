@@ -43,7 +43,6 @@ namespace Tests
         GameObject personContainer;
         GameObject detectableContainer;
         GameObject sensorContainer;
-        GameObject guide;
 
         // dummy manager objects
         UiManager dummyUiManager;
@@ -173,11 +172,6 @@ namespace Tests
             detectableContainer = new GameObject("Detectables");
             sensorContainer = new GameObject("Sensors");
 
-#if UNITY_ANDROID || UNITY_IOS
-            guide = (GameObject)AssetDatabase.LoadMainAssetAtPath("Assets/MirageXR/Player/Resources/Prefabs/UI/Mobile/CalibrationGuide.prefab");
-#else
-            guide = (GameObject)AssetDatabase.LoadMainAssetAtPath("Assets/MirageXR/Player/Resources/Prefabs/Calibration/CalibrationGuide.prefab");
-#endif
             // register scene selection service
             referenceServiceConfiguration = new ActivitySelectionSceneReferenceServiceConfiguration
             {
@@ -695,26 +689,6 @@ namespace Tests
                 }
             }
         }
-
-        [UnityTest, Order(10)]
-        public IEnumerator Text_VerifyCloseText()
-        {
-            yield return EnsureTestReadiness();
-
-#if UNITY_ANDROID || UNITY_IOS
-            var ok = guide.transform.FindDeepChild("Button");
-            var component = ok.GetComponent<Button>();
-            var label = component.GetComponentInChildren<TMP_Text>();
-            var text = label.text;
-#else
-            var ok = guide.transform.FindDeepChild("OKButton");
-            var component = ok.GetComponent<Button>();
-            var componentText = component.GetComponentInChildren<Text>();
-            var text = componentText.text;
-#endif
-            Assert.AreEqual("Close", text);
-        }
-
 
         //[UnityTest, Order(99)]
         public IEnumerator PauseForDebug()
