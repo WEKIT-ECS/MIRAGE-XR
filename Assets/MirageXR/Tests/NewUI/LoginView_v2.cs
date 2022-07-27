@@ -17,6 +17,7 @@ public class LoginView_v2 : PopupBase
     [SerializeField] private Button _btnGoToLogin;
     [SerializeField] private Button _btnSkipLogin;
     [SerializeField] private Button _btnLogin;
+    [SerializeField] private Button _btnBack;
 
     [SerializeField] private GameObject[] _loginObjects;
     [SerializeField] private GameObject registerPrefab;
@@ -43,6 +44,7 @@ public class LoginView_v2 : PopupBase
         _btnLogin.onClick.AddListener(OnClickLogin);
         _btnGoToLogin.onClick.AddListener(OnGoToLoginPressed);
         _btnSkipLogin.onClick.AddListener(Close);
+        _btnBack.onClick.AddListener(OnClickBack);
         _toggleRemember.onValueChanged.AddListener(OnToggleRememberValueChanged);
 
         ResetValues();
@@ -85,6 +87,14 @@ public class LoginView_v2 : PopupBase
     {
         _pnlMenu.SetActive(false);
         _pnlFields.SetActive(true);
+        _btnBack.gameObject.SetActive(true);
+    }
+
+    private void OnClickBack()
+    {
+        _pnlMenu.SetActive(true);
+        _pnlFields.SetActive(false);
+        _btnBack.gameObject.SetActive(false);
     }
 
     private void OnLoginSucceed(string username, string password)
