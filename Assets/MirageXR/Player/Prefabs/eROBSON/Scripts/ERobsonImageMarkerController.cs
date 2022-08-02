@@ -16,7 +16,7 @@ public class ERobsonImageMarkerController : MonoBehaviour
     private ARTrackedImageManager trackImageManager;
 
 
-    private Dictionary<ARTrackedImage,GameObject> spawnedObjects;
+    private Dictionary<string,GameObject> spawnedObjects;
 
 
     private void Awake()
@@ -36,7 +36,7 @@ public class ERobsonImageMarkerController : MonoBehaviour
         trackImageManager.requestedMaxNumberOfMovingImages = 4;
         trackImageManager.enabled = true;
 
-        spawnedObjects = new Dictionary<ARTrackedImage, GameObject>();
+        spawnedObjects = new Dictionary<string, GameObject>();
     }
 
     private void OnEnable()
@@ -58,11 +58,11 @@ public class ERobsonImageMarkerController : MonoBehaviour
             UpdateDetectedObject(trackedImage);
         }
 
-        foreach (var trackedImage in eventArgs.removed)
-        {
-            spawnedObjects.Remove(trackedImage);
-            Destroy(trackedImage.gameObject);
-        }
+        //foreach (var trackedImage in eventArgs.removed)
+        //{
+        //    spawnedObjects.Remove(trackedImage);
+        //    Destroy(trackedImage.gameObject);
+        //}
     }
 
 
@@ -72,16 +72,16 @@ public class ERobsonImageMarkerController : MonoBehaviour
 
         if (trackedImage.trackingState == TrackingState.Tracking)
         {
-            if (!spawnedObjects.ContainsKey(trackedImage))
+            if (!spawnedObjects.ContainsKey(name))
             {
                 var erobsonObject = await SpawnItem(trackedImage);
-                spawnedObjects.Add(trackedImage, erobsonObject);
+                spawnedObjects.Add(name, erobsonObject);
             }
 
-            var eRobsonItem = spawnedObjects.Values.ToList().Find(o => o.name == trackedImage.referenceImage.name);
+            var eRobsonItem = spawnedObjects.Values.ToList().Find(o => o.name == name);
 
             eRobsonItem.transform.position = trackedImage.transform.position;
-            eRobsonItem.transform.rotation = trackedImage.transform.rotation/* * Quaternion.Euler(90, 0, 0)*/;
+            eRobsonItem.transform.rotation = trackedImage.transform.rotation * Quaternion.Euler(0, 90, 0);
 
         }
     }
@@ -90,13 +90,19 @@ public class ERobsonImageMarkerController : MonoBehaviour
     private async Task<GameObject> SpawnItem(ARTrackedImage trackedImage)
     {
         var markerName = trackedImage.referenceImage.name;
+
+        //Remove digits frem the marker name (eg. i3button1 -> i3button)
+        char[] digits = { '1', '2', '3', '4', '5' };
+        var MarkerNameWithoutDigits = markerName.TrimEnd(digits);
+
         // Get the prefab from the references
-        var markerPrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>($"eROBSON/Prefabs/{markerName}");
+        var markerPrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>($"eROBSON/Prefabs/{MarkerNameWithoutDigits}");
         // if the prefab reference has been found successfully
         if (markerPrefab != null)
         {
             var erobsonItem = Instantiate(markerPrefab, trackedImage.transform.position, trackedImage.transform.rotation);
             erobsonItem.name = markerName;
+            erobsonItem.transform.SetParent(null);
             return erobsonItem;
         }
 
