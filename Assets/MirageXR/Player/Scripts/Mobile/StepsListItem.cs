@@ -12,7 +12,7 @@ public class StepsListItem : MonoBehaviour
     [SerializeField] private GameObject _stepStatus;
     [SerializeField] private GameObject _stepDoneImage;
     [SerializeField] private GameObject _stepCurrentImage;
-
+    [SerializeField] private Button _editButton;
     private Action _step;
     private int _number;
     private System.Action<Action> _onStepClick;
@@ -52,4 +52,14 @@ public class StepsListItem : MonoBehaviour
     {
         _onDeleteClick(_step);
     }
+
+    public void OnEditClick() {
+
+        NewActivityView newActivityView = GameObject.Find("NewActivity").GetComponent<NewActivityView>();
+
+
+        newActivityView.ShowAugmentationsTab();
+
+    }
+
 }

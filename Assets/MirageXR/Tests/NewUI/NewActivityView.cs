@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine;
+using MirageXR;
+using Action = MirageXR.Action;
 
 public class NewActivityView : MonoBehaviour
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+
     [SerializeField] private Toggle _steps;
     [SerializeField] private Toggle _info;
     [SerializeField] private Toggle _calibration;
@@ -35,15 +39,21 @@ public class NewActivityView : MonoBehaviour
 
     [SerializeField] private GameObject _btnActivitySettings;
     [SerializeField] private GameObject _btnStepSettings;
-    
+
     [SerializeField] private GameObject _btnBackToHome;
     [SerializeField] private GameObject _btnBackToActivity;
+
+    [SerializeField] private TMP_InputField _inputFieldName;
+    [SerializeField] private TMP_Text _Name;
+
+    [SerializeField] private StepsListView_v2 _stepsListView;
 
     private void Start()
     {
         _btnSetPicture.onClick.AddListener(OnSetPictureClick);
         _btnStart.onClick.AddListener(OnStartCalibrationClick);
         _btnAddImage.onClick.AddListener(OnAddImageClick);
+        _inputFieldName.onValueChanged.AddListener(onNameChange);
         _btnBackToActivity.GetComponent<Button>().onClick.AddListener(OnBackToActivityClick);
 
         _headLabel = _title.GetComponent<TMP_Text>();
@@ -73,6 +83,11 @@ public class NewActivityView : MonoBehaviour
         _btnBackToActivity.SetActive(false);
     }
 
+
+    private void onNameChange(string name) {
+        _Name.text = name;   
+    }
+
     private void OnBackToActivityClick()
     {
         ShowNewActivityScreen();
@@ -94,13 +109,20 @@ public class NewActivityView : MonoBehaviour
 
     public void ShowCalibrationTab()
     {
-        _stepsTab.SetActive(false);
-        _infoTab.SetActive(false);
+        if (_stepsTab.activeInHierarchy)
+        {
+            _stepsTab.SetActive(false);
+        }
+        if (_infoTab.activeInHierarchy)
+        {
+            _infoTab.SetActive(false);
+        }
         _calibrationTab.SetActive(true);
     }
 
     public void ShowAugmentationsTab()
     {
+        _stepsTab.SetActive(false);
         _augmentationsTab.SetActive(true);
         _infoStepsTab.SetActive(false);
         _MarkerTab.SetActive(false);
@@ -135,8 +157,9 @@ public class NewActivityView : MonoBehaviour
         PopupsViewer.Instance.Show(_startcalibrationPanel);
     }
 
-    public void AddNewStepClick()
+    public async void AddNewStepClick()
     {
+        /*
         _headLabel.text = "Step ... Untittled";
         _toggles.SetActive(false);
         _toggles_steps.SetActive(true);
@@ -146,6 +169,10 @@ public class NewActivityView : MonoBehaviour
         
         _btnBackToHome.SetActive(false);
         _btnBackToActivity.SetActive(true);
-        ShowAugmentationsTab();
+        //ShowAugmentationsTab();
+        */
+        await activityManager.AddAction(Vector3.zero);
+
+        _stepsListView.UpdateView();
     }
 }

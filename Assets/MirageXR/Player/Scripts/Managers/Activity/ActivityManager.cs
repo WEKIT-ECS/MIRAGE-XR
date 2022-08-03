@@ -208,8 +208,9 @@ namespace MirageXR
                     if (string.IsNullOrEmpty(_activity.start))
                     {
                         _isSwitching = false;
-                        EventManager.ActivityStarted();
+                        
                         await AddAction(Vector3.zero);
+                        EventManager.ActivityStarted();
                         return;
                     }
 
