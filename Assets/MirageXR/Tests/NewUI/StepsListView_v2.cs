@@ -20,11 +20,15 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private Button _btnThumbnail;
     [SerializeField] private Button _btnAddStep;
     [SerializeField] private Button _btnSave;
+    [SerializeField] private Button _btnNext;
+    [SerializeField] private Button _btnPrev;
     [SerializeField] private Button _btnUpload;
     [SerializeField] private Image _imgThumbnail;
     [SerializeField] private StepsListItem _stepsListItemPrefab;
     [SerializeField] private ThumbnailEditorView _thumbnailEditorPrefab;
     [SerializeField] private Sprite _defaultThumbnail;
+
+    private bool edit;
 
     private readonly List<StepsListItem> _stepsList = new List<StepsListItem>();
     public RootView rootView => (RootView)_parentView;
@@ -32,21 +36,31 @@ public class StepsListView_v2 : BaseView
     public TMP_InputField ActivityNameField => _inputFieldName;
     public Button BtnAddStep => _btnAddStep;
 
+    private void Start()
+    {
+        testMethod();
+        UpdateView();
+        edit = false;
+    }
     public override void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
         _inputFieldName.onValueChanged.AddListener(OnStepNameChanged);
         _btnAddStep.onClick.AddListener(OnAddStepClick);
         _toggleEdit.onValueChanged.AddListener(OnEditValueChanged);
-        _btnSave.onClick.AddListener(OnSaveButtonPressed);
-        _btnUpload.onClick.AddListener(OnUploadButtonPressed);
+        _btnSave.onClick.AddListener(NextStep);
+        _btnUpload.onClick.AddListener(PreviousStep);
         _btnThumbnail.onClick.AddListener(OnThumbnailButtonPressed);
 
         EventManager.OnWorkplaceLoaded += OnStartActivity;
+        EventManager.OnActivityStarted += OnStartActivity;
+        EventManager.NewActivityCreationButtonPressed += OnStartActivity;
         EventManager.OnActionCreated += OnActionCreated;
         EventManager.OnActionDeleted += OnActionDeleted;
         EventManager.OnActionModified += OnActionChanged;
         EventManager.OnEditModeChanged += OnEditModeChanged;
+
+        UpdateView();
     }
 
     private void OnDestroy()
@@ -63,24 +77,34 @@ public class StepsListView_v2 : BaseView
         UpdateView();
     }
 
-    private void UpdateView()
+    public void UpdateView()
     {
-        _inputFieldName.text = activityManager.Activity.name;
-        var steps = activityManager.ActionsOfTypeAction;
-        _stepsList.ForEach(t => t.gameObject.SetActive(false));
-        for (var i = 0; i < steps.Count; i++)
+        if (activityManager.Activity != null)
         {
-            if (_stepsList.Count <= i)
+            _inputFieldName.text = activityManager.Activity.name;
+
+            Debug.Log("ACTIVITY NAME = " + activityManager.Activity.name);
+
+            var steps = activityManager.ActionsOfTypeAction;
+            _stepsList.ForEach(t => t.gameObject.SetActive(false));
+            for (var i = 0; i < steps.Count; i++)
             {
-                var obj = Instantiate(_stepsListItemPrefab, _listContent);
-                obj.Init(OnStepClick, OnDeleteStepClick);
-                _stepsList.Add(obj);
+                if (_stepsList.Count <= i)
+                {
+                    var obj = Instantiate(_stepsListItemPrefab, _listContent);
+                    obj.Init(OnStepClick, OnDeleteStepClick);
+                    _stepsList.Add(obj);
+                }
+                _stepsList[i].gameObject.SetActive(true);
+                _stepsList[i].UpdateView(steps[i], i);
             }
-            _stepsList[i].gameObject.SetActive(true);
-            _stepsList[i].UpdateView(steps[i], i);
+            OnEditModeChanged(activityManager.EditModeActive);
+            LoadThumbnail();
         }
-        OnEditModeChanged(activityManager.EditModeActive);
-        LoadThumbnail();
+        else {
+            _inputFieldName.text = "";
+        }
+       
     }
 
     private void LoadThumbnail()
@@ -120,14 +144,21 @@ public class StepsListView_v2 : BaseView
     private void OnAddStepClick()
     {
         AddStep();
+        UpdateView();
     }
 
-    private void OnEditValueChanged(bool value)
+    public void OnEditValueChanged(bool value)
     {
         if (activityManager != null)
         {
-            activityManager.EditModeActive = value;
+            edit = !edit;
+            activityManager.EditModeActive = edit;
+            Debug.Log(edit);
         }
+        else {
+            Debug.Log("Null");
+        }
+        
     }
 
     private void OnEditModeChanged(bool value)
