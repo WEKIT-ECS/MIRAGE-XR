@@ -46,7 +46,7 @@ public class StepsListView_v2 : BaseView
         base.Initialization(parentView);
         _inputFieldName.onValueChanged.AddListener(OnStepNameChanged);
         _btnAddStep.onClick.AddListener(OnAddStepClick);
-        _toggleEdit.onValueChanged.AddListener(OnEditValueChanged);
+       // _toggleEdit.onValueChanged.AddListener(OnEditValueChanged);
         _btnSave.onClick.AddListener(NextStep);
         _btnUpload.onClick.AddListener(PreviousStep);
         _btnThumbnail.onClick.AddListener(OnThumbnailButtonPressed);
@@ -131,13 +131,16 @@ public class StepsListView_v2 : BaseView
         if (activityManager.ActionsOfTypeAction.Count > 1)
         {
             DialogWindow.Instance.Show("Warning!", "Are you sure you want to delete this step?",
-                new DialogButtonContent("Yes", () => activityManager.DeleteAction(step.id)),
+                new DialogButtonContent("Yes", () => OnActionDeleted(step.id)),//activityManager.DeleteAction(step.id)),
                 new DialogButtonContent("No"));
         }
+
+        
     }
 
     private void OnStepClick(Action step)
     {
+        activityManager.ActivateActionByID(step.id);
     }
 
     private void OnAddStepClick()
@@ -157,14 +160,19 @@ public class StepsListView_v2 : BaseView
         else {
             Debug.Log("Null");
         }
-        
+
+        UpdateView();
     }
 
     private void OnEditModeChanged(bool value)
     {
-        _btnSave.gameObject.SetActive(value);
-        _btnUpload.gameObject.SetActive(value);
-        _btnAddStep.gameObject.SetActive(value);
+        //_btnSave.gameObject.SetActive(value);
+        //_btnUpload.gameObject.SetActive(value);
+
+
+        Debug.Log("THE EDIT VALUE IS:  " + value);
+
+        _btnAddStep.transform.parent.gameObject.SetActive(value);
         _inputFieldName.interactable = value;
         _btnThumbnail.interactable = value;
         _toggleEdit.isOn = value;
@@ -212,8 +220,12 @@ public class StepsListView_v2 : BaseView
 
     private void OnActionDeleted(string actionId)
     {
-        activityManager.ActivateNextAction();
-        UpdateView();
+        if (actionId == activityManager.ActiveAction.id) {
+            activityManager.ActivateNextAction();
+        }
+
+        activityManager.DeleteAction(actionId);
+        UpdateView();       
     }
 
     public void OnSaveButtonPressed()
@@ -286,4 +298,6 @@ public class StepsListView_v2 : BaseView
         Toast.Instance.Show(result ? "upload completed successfully" : response);
         if (result) rootView.activityListView.UpdateListView();
     }
+
+
 }
