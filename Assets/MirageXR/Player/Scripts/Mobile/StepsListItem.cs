@@ -5,8 +5,11 @@ using UnityEngine.UI;
 
 public class StepsListItem : MonoBehaviour
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+
     [SerializeField] private TMP_Text _txtNumber;
     [SerializeField] private TMP_Text _txtStepName;
+    [SerializeField] private TMP_Text _txtStepDescription;
     [SerializeField] private Button _btnStep;
     [SerializeField] private Button _btnDelete;
     [SerializeField] private GameObject _stepStatus;
@@ -17,13 +20,21 @@ public class StepsListItem : MonoBehaviour
     private int _number;
     private System.Action<Action> _onStepClick;
     private System.Action<Action> _onDeleteClick;
-    
+
+    NewActivityView newActivityView;
+
     public void Init(System.Action<Action> onStepClick, System.Action<Action> onDeleteClick)
     {
         _onStepClick = onStepClick;
         _onDeleteClick = onDeleteClick;
         _btnStep.onClick.AddListener(OnStepClick);
         _btnDelete.onClick.AddListener(OnDeleteClick);
+        _editButton.onClick.AddListener(OnEditClick);
+        OnEditModeChanged(activityManager.EditModeActive);
+
+        EventManager.OnEditModeChanged += OnEditModeChanged;
+        EventManager.OnActionModified += updateNameAndDescription;
+        newActivityView = GameObject.Find("NewActivity").GetComponent<NewActivityView>();
     }
 
     public void UpdateView(Action step, int number)
@@ -37,10 +48,20 @@ public class StepsListItem : MonoBehaviour
         _stepDoneImage.SetActive(_step.isCompleted && !isCurrent);
     }
 
+    private void updateNameAndDescription(Action step) {
+
+        if (step == _step) {
+            _txtStepName.text = step.instruction.title;
+            _txtStepDescription.text = step.instruction.description;
+        }
+    
+    }
+
     public void OnEditModeChanged(bool value)
     {
         _btnDelete.gameObject.SetActive(value);
         _stepStatus.SetActive(!value);
+        _editButton.gameObject.SetActive(value);
     }
     
     private void OnStepClick()
@@ -50,16 +71,15 @@ public class StepsListItem : MonoBehaviour
 
     private void OnDeleteClick()
     {
+        EventManager.NotifyActionDeleted(_step.id);
+
         _onDeleteClick(_step);
     }
 
     public void OnEditClick() {
-
-        NewActivityView newActivityView = GameObject.Find("NewActivity").GetComponent<NewActivityView>();
-
-
-        newActivityView.ShowAugmentationsTab();
-
+        
+        newActivityView.changeInfoStepNumber(_number);
+        newActivityView.ShowInfoStepsTab();
     }
 
 }
