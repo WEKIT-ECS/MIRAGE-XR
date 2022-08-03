@@ -38,7 +38,6 @@ public class StepsListView_v2 : BaseView
 
     private void Start()
     {
-        testMethod();
         UpdateView();
         edit = false;
     }
