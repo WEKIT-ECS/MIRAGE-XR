@@ -25,6 +25,7 @@ public class RootView_v2 : BaseView
     [SerializeField] public RectTransform bottomPanel;
     [SerializeField] private LoginView_v2 _loginViewPrefab;
     [SerializeField] public GameObject newActivityPanel;
+    [SerializeField] public ActivityListView_v2 activityListView_V2;
 
     private Vector3 _currentPanelPosition;
     float moveTime = 1;
