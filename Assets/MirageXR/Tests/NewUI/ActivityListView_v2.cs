@@ -70,10 +70,13 @@ namespace MirageXR
             _btnFilter.onClick.AddListener(OnByDateClick);
             _toggleNewActivity.onValueChanged.AddListener(OnNewActivityChanged);
 
-           EventManager.OnActivityStarted += UpdateStepsView;
+            EventManager.OnActivityStarted += UpdateStepsView;
+            EventManager.OnActivitySaved += UpdateListView;
 
             UpdateListView();
         }
+
+
 
         private static async Task<List<SessionContainer>> GetContent()
         {
