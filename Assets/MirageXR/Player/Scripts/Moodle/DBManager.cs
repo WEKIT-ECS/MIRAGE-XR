@@ -84,6 +84,8 @@ namespace MirageXR
         public static string usermail;
         public static string token;
 
+        private static int CurrentLearningRecordStore;
+
         private static readonly PrefsBoolValue _publicUploadPrivacy = new PrefsBoolValue(UPLOAD_PRIVACY_KEY, PUBLIC_UPLOAD_PRIVACY_DEFAULT);
         private static readonly PrefsBoolValue _rememberUser = new PrefsBoolValue(REMEMBER_USER_KEY, REMEMBER_USER_DEFAULT);
         private static readonly PrefsBoolValue _rememberSketchfabUser = new PrefsBoolValue(REMEMBER_SKETCHFAB_USER_KEY, REMEMBER_SKETCHFAB_USER_DEFAULT);
@@ -138,6 +140,12 @@ namespace MirageXR
         {
             get => _domain.Value;
             set => _domain.Value = value;
+        }
+
+        public static int publicCurrentLearningRecordStore
+        {
+            get => CurrentLearningRecordStore;
+            set => CurrentLearningRecordStore = value;
         }
 
         public static string registerPage => $"{domain}/login/signup.php";
