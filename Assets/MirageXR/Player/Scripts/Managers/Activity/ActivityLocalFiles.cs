@@ -23,6 +23,7 @@ namespace MirageXR
             var recFilePath = Path.Combine(Application.persistentDataPath, fileName);
             var json = ActivityParser.Serialize(activity);
             File.WriteAllText(recFilePath, json);
+            EventManager.ActivitySaved();
             RootObject.Instance.workplaceManager.SaveWorkplace();
         }
 
