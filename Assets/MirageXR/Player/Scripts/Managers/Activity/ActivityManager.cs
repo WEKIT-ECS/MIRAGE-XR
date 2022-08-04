@@ -208,8 +208,9 @@ namespace MirageXR
                     if (string.IsNullOrEmpty(_activity.start))
                     {
                         _isSwitching = false;
-                        EventManager.ActivityStarted();
+                        
                         await AddAction(Vector3.zero);
+                        EventManager.ActivityStarted();
                         return;
                     }
 
@@ -581,6 +582,12 @@ namespace MirageXR
         {
             await DeactivateAction(ActiveAction.id, true);
             await ActivateAction(ActionsOfTypeAction[index].id);
+        }
+
+        public async Task ActivateActionByID(string id)
+        {
+            await DeactivateAction(ActiveAction.id, true);
+            await ActivateAction(id);
         }
 
         public async Task ActivateNextAction()
