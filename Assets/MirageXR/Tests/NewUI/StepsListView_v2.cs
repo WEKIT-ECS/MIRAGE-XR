@@ -82,8 +82,6 @@ public class StepsListView_v2 : BaseView
         {
             _inputFieldName.text = activityManager.Activity.name;
 
-            Debug.Log("ACTIVITY NAME = " + activityManager.Activity.name);
-
             var steps = activityManager.ActionsOfTypeAction;
             _stepsList.ForEach(t => t.gameObject.SetActive(false));
             for (var i = 0; i < steps.Count; i++)
@@ -100,7 +98,8 @@ public class StepsListView_v2 : BaseView
             OnEditModeChanged(activityManager.EditModeActive);
             LoadThumbnail();
         }
-        else {
+        else 
+        {
             _inputFieldName.text = "";
         }
        
@@ -155,10 +154,6 @@ public class StepsListView_v2 : BaseView
         {
             edit = !edit;
             activityManager.EditModeActive = edit;
-            Debug.Log(edit);
-        }
-        else {
-            Debug.Log("Null");
         }
 
         UpdateView();
@@ -168,9 +163,6 @@ public class StepsListView_v2 : BaseView
     {
         //_btnSave.gameObject.SetActive(value);
         //_btnUpload.gameObject.SetActive(value);
-
-
-        Debug.Log("THE EDIT VALUE IS:  " + value);
 
         _btnAddStep.transform.parent.gameObject.SetActive(value);
         _inputFieldName.interactable = value;
@@ -220,7 +212,8 @@ public class StepsListView_v2 : BaseView
 
     private void OnActionDeleted(string actionId)
     {
-        if (actionId == activityManager.ActiveAction.id) {
+        if (actionId == activityManager.ActiveAction.id) 
+        {
             activityManager.ActivateNextAction();
         }
 

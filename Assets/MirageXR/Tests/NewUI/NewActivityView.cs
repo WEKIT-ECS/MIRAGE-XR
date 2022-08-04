@@ -68,7 +68,7 @@ public class NewActivityView : MonoBehaviour
         _btnSetPicture.onClick.AddListener(OnSetPictureClick);
         _btnStart.onClick.AddListener(OnStartCalibrationClick);
         _btnAddImage.onClick.AddListener(OnAddImageClick);
-        _inputFieldName.onValueChanged.AddListener(onNameChange);
+        _inputFieldName.onValueChanged.AddListener(OnNameChange);
         _btnBackToActivity.GetComponent<Button>().onClick.AddListener(ShowStepsTab);
 
         _headLabel = _title.GetComponent<TMP_Text>();
@@ -99,7 +99,8 @@ public class NewActivityView : MonoBehaviour
     }
 
 
-    private void onNameChange(string name) {
+    private void OnNameChange(string name)
+    {
         _Name.text = name;   
     }
 
@@ -110,8 +111,8 @@ public class NewActivityView : MonoBehaviour
 
     public void ShowStepsTab()
     {
-        showNewActivityTabs(true);
-        showStepsTabs(false);
+        ShowNewActivityTabs(true);
+        ShowStepsTabs(false);
 
         _stepsTab.SetActive(true);
         _infoTab.SetActive(false);
@@ -120,8 +121,8 @@ public class NewActivityView : MonoBehaviour
 
     public void ShowInfoTab()
     {
-        showNewActivityTabs(true);
-        showStepsTabs(false);
+        ShowNewActivityTabs(true);
+        ShowStepsTabs(false);
 
         _stepsTab.SetActive(false);
         _infoTab.SetActive(true);
@@ -130,8 +131,8 @@ public class NewActivityView : MonoBehaviour
 
     public void ShowCalibrationTab()
     {
-        showNewActivityTabs(true);
-        showStepsTabs(false);
+        ShowNewActivityTabs(true);
+        ShowStepsTabs(false);
 
         if (_stepsTab.activeInHierarchy)
         {
@@ -146,8 +147,8 @@ public class NewActivityView : MonoBehaviour
 
     public void ShowAugmentationsTab()
     {
-        showNewActivityTabs(false);
-        showStepsTabs(true);
+        ShowNewActivityTabs(false);
+        ShowStepsTabs(true);
 
         _stepsTab.SetActive(false);
         _augmentationsTab.SetActive(true);
@@ -157,24 +158,25 @@ public class NewActivityView : MonoBehaviour
 
     public void ShowInfoStepsTab()
     {
-        showNewActivityTabs(false);
-        showStepsTabs(true);
+        ShowNewActivityTabs(false);
+        ShowStepsTabs(true);
 
         _augmentationsTab.SetActive(false);
         _MarkerTab.SetActive(false);
         _infoStepsTab.SetActive(true);
 
-        infoStepsTab.init(infoStepNumber);
+        infoStepsTab.Init(infoStepNumber);
     }
 
-    public void changeInfoStepNumber(int stepNumber) {
+    public void ChangeInfoStepNumber(int stepNumber)
+    {
         infoStepNumber = stepNumber;       
     }
 
     public void ShowMarkerTab()
     {
-        showNewActivityTabs(false);
-        showStepsTabs(true);
+        ShowNewActivityTabs(false);
+        ShowStepsTabs(true);
 
         _augmentationsTab.SetActive(false);
         _infoStepsTab.SetActive(false);
@@ -215,7 +217,7 @@ public class NewActivityView : MonoBehaviour
         _stepsListView.UpdateView();
     }
 
-    private void showNewActivityTabs(bool show) 
+    private void ShowNewActivityTabs(bool show) 
     {     
         newActivityTabs.SetActive(show);
         _toggles.SetActive(show);     
@@ -223,7 +225,7 @@ public class NewActivityView : MonoBehaviour
         _btnBackToHome.SetActive(show);
     }
 
-    private void showStepsTabs(bool show)
+    private void ShowStepsTabs(bool show)
     {
         StepsTabs.SetActive(show);
         _toggles_steps.SetActive(show);
@@ -250,5 +252,8 @@ public class NewActivityView : MonoBehaviour
 
         panelUp.SetActive(true);
         panelDown.SetActive(false);
+
+        ShowNewActivityTabs(true);
+        ShowStepsTabs(false);
     }
 }

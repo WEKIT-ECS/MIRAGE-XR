@@ -68,7 +68,7 @@ namespace MirageXR
         private void Init()
         {
             _btnFilter.onClick.AddListener(OnByDateClick);
-            _toggleNewActivity.onValueChanged.AddListener(OnAddActivityClick);
+            _toggleNewActivity.onValueChanged.AddListener(OnNewActivityChanged);
 
            EventManager.OnActivityStarted += UpdateStepsView;
 
@@ -110,8 +110,6 @@ namespace MirageXR
 
         public async void UpdateListView()
         {
-            Debug.Log("TEST UPDATES");
-
             _content = await GetContent();
 #if UNITY_EDITOR
             if (!EditorApplication.isPlaying) return;
@@ -141,7 +139,7 @@ namespace MirageXR
             PopupsViewer.Instance.Show(_sortingPrefab);
         }
 
-        private async void OnAddActivityClick(bool value)
+        private async void OnNewActivityChanged(bool value)
         {
             LoadView.Instance.Show();
             interactable = false;

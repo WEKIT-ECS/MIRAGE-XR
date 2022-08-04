@@ -18,11 +18,11 @@ public class InfoStepsTab : MonoBehaviour
 
     private void Start()
     {
-        _inputFieldName.onValueChanged.AddListener(changeStepName);
-        _inputFieldDescription.onValueChanged.AddListener(changeStepDescription);
+        _inputFieldName.onValueChanged.AddListener(ChangeStepName);
+        _inputFieldDescription.onValueChanged.AddListener(ChangeStepDescription);
     }
 
-    public void init(int stepNumber)
+    public void Init(int stepNumber)
     {
         step = activityManager.Activity.actions[stepNumber];
 
@@ -33,13 +33,14 @@ public class InfoStepsTab : MonoBehaviour
         }
     }
 
-    public void changeStepName(string newTitle) {
+    public void ChangeStepName(string newTitle)
+    {
         step.instruction.title = newTitle;
         EventManager.NotifyOnActionStepTitleChanged();
         EventManager.NotifyActionModified(step);
     }
 
-    public void changeStepDescription(string newDescription)
+    public void ChangeStepDescription(string newDescription)
     {
         step.instruction.description = newDescription;
         EventManager.NotifyOnActionStepDescriptionInputChanged();
