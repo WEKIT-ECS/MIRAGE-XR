@@ -19,12 +19,14 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private Toggle _toggleEdit;
     [SerializeField] private Button _btnThumbnail;
     [SerializeField] private Button _btnAddStep;
-    [SerializeField] private Button _btnSave;
-    [SerializeField] private Button _btnUpload;
+    [SerializeField] private Button _btnNext;
+    [SerializeField] private Button _btnPrev;
     [SerializeField] private Image _imgThumbnail;
     [SerializeField] private StepsListItem _stepsListItemPrefab;
     [SerializeField] private ThumbnailEditorView _thumbnailEditorPrefab;
     [SerializeField] private Sprite _defaultThumbnail;
+
+    private bool edit;
 
     private readonly List<StepsListItem> _stepsList = new List<StepsListItem>();
     public RootView rootView => (RootView)_parentView;
@@ -32,21 +34,28 @@ public class StepsListView_v2 : BaseView
     public TMP_InputField ActivityNameField => _inputFieldName;
     public Button BtnAddStep => _btnAddStep;
 
+    private void Start()
+    {
+        UpdateView();
+        edit = false;
+    }
     public override void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
         _inputFieldName.onValueChanged.AddListener(OnStepNameChanged);
         _btnAddStep.onClick.AddListener(OnAddStepClick);
-        _toggleEdit.onValueChanged.AddListener(OnEditValueChanged);
-        _btnSave.onClick.AddListener(OnSaveButtonPressed);
-        _btnUpload.onClick.AddListener(OnUploadButtonPressed);
+       // _toggleEdit.onValueChanged.AddListener(OnEditValueChanged);
         _btnThumbnail.onClick.AddListener(OnThumbnailButtonPressed);
 
         EventManager.OnWorkplaceLoaded += OnStartActivity;
+        EventManager.OnActivityStarted += OnStartActivity;
+        EventManager.NewActivityCreationButtonPressed += OnStartActivity;
         EventManager.OnActionCreated += OnActionCreated;
         EventManager.OnActionDeleted += OnActionDeleted;
         EventManager.OnActionModified += OnActionChanged;
         EventManager.OnEditModeChanged += OnEditModeChanged;
+
+        UpdateView();
     }
 
     private void OnDestroy()
@@ -63,24 +72,33 @@ public class StepsListView_v2 : BaseView
         UpdateView();
     }
 
-    private void UpdateView()
+    public void UpdateView()
     {
-        _inputFieldName.text = activityManager.Activity.name;
-        var steps = activityManager.ActionsOfTypeAction;
-        _stepsList.ForEach(t => t.gameObject.SetActive(false));
-        for (var i = 0; i < steps.Count; i++)
+        if (activityManager.Activity != null)
         {
-            if (_stepsList.Count <= i)
+            _inputFieldName.text = activityManager.Activity.name;
+
+            var steps = activityManager.ActionsOfTypeAction;
+            _stepsList.ForEach(t => t.gameObject.SetActive(false));
+            for (var i = 0; i < steps.Count; i++)
             {
-                var obj = Instantiate(_stepsListItemPrefab, _listContent);
-                obj.Init(OnStepClick, OnDeleteStepClick);
-                _stepsList.Add(obj);
+                if (_stepsList.Count <= i)
+                {
+                    var obj = Instantiate(_stepsListItemPrefab, _listContent);
+                    obj.Init(OnStepClick, OnDeleteStepClick);
+                    _stepsList.Add(obj);
+                }
+                _stepsList[i].gameObject.SetActive(true);
+                _stepsList[i].UpdateView(steps[i], i);
             }
-            _stepsList[i].gameObject.SetActive(true);
-            _stepsList[i].UpdateView(steps[i], i);
+            OnEditModeChanged(activityManager.EditModeActive);
+            LoadThumbnail();
         }
-        OnEditModeChanged(activityManager.EditModeActive);
-        LoadThumbnail();
+        else 
+        {
+            _inputFieldName.text = "";
+        }
+       
     }
 
     private void LoadThumbnail()
@@ -108,33 +126,38 @@ public class StepsListView_v2 : BaseView
         if (activityManager.ActionsOfTypeAction.Count > 1)
         {
             DialogWindow.Instance.Show("Warning!", "Are you sure you want to delete this step?",
-                new DialogButtonContent("Yes", () => activityManager.DeleteAction(step.id)),
+                new DialogButtonContent("Yes", () => OnActionDeleted(step.id)),//activityManager.DeleteAction(step.id)),
                 new DialogButtonContent("No"));
         }
+
+        
     }
 
     private void OnStepClick(Action step)
     {
+        activityManager.ActivateActionByID(step.id);
     }
 
     private void OnAddStepClick()
     {
         AddStep();
+        UpdateView();
     }
 
-    private void OnEditValueChanged(bool value)
+    public void OnEditValueChanged(bool value)
     {
         if (activityManager != null)
         {
-            activityManager.EditModeActive = value;
+            edit = !edit;
+            activityManager.EditModeActive = edit;
         }
+
+        UpdateView();
     }
 
     private void OnEditModeChanged(bool value)
     {
-        _btnSave.gameObject.SetActive(value);
-        _btnUpload.gameObject.SetActive(value);
-        _btnAddStep.gameObject.SetActive(value);
+        _btnAddStep.transform.parent.gameObject.SetActive(value);
         _inputFieldName.interactable = value;
         _btnThumbnail.interactable = value;
         _toggleEdit.isOn = value;
@@ -182,27 +205,13 @@ public class StepsListView_v2 : BaseView
 
     private void OnActionDeleted(string actionId)
     {
-        activityManager.ActivateNextAction();
-        UpdateView();
-    }
-
-    public void OnSaveButtonPressed()
-    {
-        activityManager.SaveData();
-        Toast.Instance.Show("Activity saved on your device");
-        rootView.activityListView.UpdateListView();
-    }
-
-    public void OnUploadButtonPressed()
-    {
-        if (DBManager.LoggedIn)
+        if (actionId == activityManager.ActiveAction.id) 
         {
-            Upload();
+            activityManager.ActivateNextAction();
         }
-        else
-        {
-            DialogWindow.Instance.Show("You need to log in.", new DialogButtonContent("Ok", null));
-        }
+
+        activityManager.DeleteAction(actionId);
+        UpdateView();       
     }
 
     private void OnThumbnailButtonPressed()
@@ -217,43 +226,4 @@ public class StepsListView_v2 : BaseView
         LoadThumbnail();
     }
 
-    private async void Upload()
-    {
-        activityManager.SaveData();
-        var (result, response) = await moodleManager.UploadFile(activityManager.ActivityPath, activityManager.Activity.name, 0);
-        if (response == "Error: File exist, update")
-        {
-            DialogWindow.Instance.Show("This file is exist! Please select an option:",
-                new DialogButtonContent("Update", UploadAndUpdate),
-                new DialogButtonContent("Clone", UploadAndCopy),
-                new DialogButtonContent("Cancel", null));
-            return;
-        }
-
-        if (response == "Error: File exist, clone")
-        {
-            DialogWindow.Instance.Show("You are not the original author of this file! Please select an option:",
-                new DialogButtonContent("Clone", UploadAndCopy),
-                new DialogButtonContent("Cancel", null));
-            return;
-        }
-
-        if (result) Toast.Instance.Show("upload completed successfully");
-        rootView.activityListView.UpdateListView();
-    }
-
-    private async void UploadAndUpdate()
-    {
-        var (result, response) = await moodleManager.UploadFile(activityManager.ActivityPath, activityManager.Activity.name, 1);
-        Toast.Instance.Show(result ? "upload completed successfully" : response);
-        if (result) rootView.activityListView.UpdateListView();
-    }
-
-    private async void UploadAndCopy()
-    {
-        activityManager.CloneActivity();
-        var (result, response) = await moodleManager.UploadFile(activityManager.ActivityPath, activityManager.Activity.name, 2);
-        Toast.Instance.Show(result ? "upload completed successfully" : response);
-        if (result) rootView.activityListView.UpdateListView();
-    }
 }
