@@ -21,7 +21,7 @@ public class StepsListItem : MonoBehaviour
     private System.Action<Action> _onStepClick;
     private System.Action<Action> _onDeleteClick;
 
-    NewActivityView newActivityView;
+    private NewActivityView newActivityView;
 
     public void Init(System.Action<Action> onStepClick, System.Action<Action> onDeleteClick)
     {
@@ -33,7 +33,7 @@ public class StepsListItem : MonoBehaviour
         OnEditModeChanged(activityManager.EditModeActive);
 
         EventManager.OnEditModeChanged += OnEditModeChanged;
-        EventManager.OnActionModified += updateNameAndDescription;
+        EventManager.OnActionModified += OnActionModified;
         newActivityView = GameObject.Find("NewActivity").GetComponent<NewActivityView>();
     }
 
@@ -48,7 +48,7 @@ public class StepsListItem : MonoBehaviour
         _stepDoneImage.SetActive(_step.isCompleted && !isCurrent);
     }
 
-    private void updateNameAndDescription(Action step) {
+    private void OnActionModified(Action step) {
 
         if (step == _step) {
             _txtStepName.text = step.instruction.title;
@@ -78,7 +78,7 @@ public class StepsListItem : MonoBehaviour
 
     public void OnEditClick() {
         
-        newActivityView.changeInfoStepNumber(_number);
+        newActivityView.ChangeInfoStepNumber(_number);
         newActivityView.ShowInfoStepsTab();
     }
 
