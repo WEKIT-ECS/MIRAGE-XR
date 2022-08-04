@@ -825,5 +825,12 @@ namespace MirageXR
         {
             XAPIChanged?.Invoke(option);
         }
+
+        public delegate void MoodleDomainChangedDelegate();
+        public static event MoodleDomainChangedDelegate MoodleDomainChanged;
+        public static void NotifyMoodleDomainChanged()
+        {
+            MoodleDomainChanged?.Invoke();
+        }
     }
 }

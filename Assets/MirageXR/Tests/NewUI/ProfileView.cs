@@ -25,6 +25,8 @@ public class ProfileView : PopupBase
     [SerializeField] private Button _btnSelectServer;
     [SerializeField] private TMP_Text _txtConnectedServer;
 
+    [SerializeField] private Dropdown _learningRecordStoreDropdown;
+
 
 
     public override void Init(Action<PopupBase> onClose, params object[] args)
@@ -38,6 +40,10 @@ public class ProfileView : PopupBase
         _btnLogout.onClick.AddListener(OnClickLogout);
         _toggleRemember.onValueChanged.AddListener(OnToggleRememberValueChanged);
         _btnSelectServer.onClick.AddListener(ShowServerPanel);
+
+        EventManager.MoodleDomainChanged += UpdateConnectedServerText;
+
+        _learningRecordStoreDropdown.onValueChanged.AddListener(OnValueChangedRecordStore);
 
         UpdateConnectedServerText();
 
@@ -67,15 +73,18 @@ public class ProfileView : PopupBase
         }
     }
 
+    private void OnValueChangedRecordStore(int selectedLearningRecordStore)
+    {
+        EventManager.NotifyxAPIChanged(selectedLearningRecordStore);
+
+        DBManager.publicCurrentLearningRecordStore = selectedLearningRecordStore;
+    }
+
     private void OnToggleRememberValueChanged(bool value)
     {
         DBManager.rememberUser = value;
     }
 
-    private void OnEnable()
-    {
-        ResetValues();
-    }
 
     private void OnLoginSucceed(string username, string password)
     {
@@ -120,6 +129,7 @@ public class ProfileView : PopupBase
         _inputFieldPassword.text = string.Empty;
         _inputFieldUserName.ResetValidation();
         _inputFieldPassword.ResetValidation();
+        _learningRecordStoreDropdown.value = DBManager.publicCurrentLearningRecordStore;
     }
 
     private void OnClickRegister()
