@@ -22,6 +22,9 @@ namespace MirageXR
             EventManager.OnToggleObject -= Toggle;
         }
 
+
+        private static GameObject lastAddedPrefab;
+
         /// <summary>
         /// Toggle on/off action toggle object.
         /// </summary>
@@ -373,6 +376,7 @@ namespace MirageXR
                 {
                     temp = Instantiate(prefabInAddressable, Vector3.zero, Quaternion.identity);
                     AddExtraComponents(temp, obj);
+                    lastAddedPrefab = temp;
                 }
                 else
                 {
@@ -400,6 +404,7 @@ namespace MirageXR
                 temp.GetComponent<MirageXRPrefab>().Delete();
             }
         }
+
 
         private static async void AddExtraComponents(GameObject go, ToggleObject annotationToggleObject)
         {

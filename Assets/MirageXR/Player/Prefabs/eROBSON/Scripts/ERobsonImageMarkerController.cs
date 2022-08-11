@@ -6,7 +6,6 @@ using UnityEngine.XR.ARSubsystems;
 using MirageXR;
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 
 public class ERobsonImageMarkerController : MonoBehaviour
 {
@@ -16,8 +15,9 @@ public class ERobsonImageMarkerController : MonoBehaviour
     private ARTrackedImageManager trackImageManager;
 
 
-    private Dictionary<string,GameObject> spawnedObjects;
+    private Dictionary<string,ToggleObject> spawnedObjects;
 
+    private ObjectFactory _objectFactory;
 
     private void Awake()
     {
@@ -36,18 +36,32 @@ public class ERobsonImageMarkerController : MonoBehaviour
         trackImageManager.requestedMaxNumberOfMovingImages = 4;
         trackImageManager.enabled = true;
 
-        spawnedObjects = new Dictionary<string, GameObject>();
+        spawnedObjects = new Dictionary<string, ToggleObject>();
+    }
+
+    IEnumerator Start()
+    {
+        while (_objectFactory == null)
+        {
+            _objectFactory = FindObjectOfType<ObjectFactory>();
+            yield return null;
+        }
+        
     }
 
     private void OnEnable()
     {
         trackImageManager.trackedImagesChanged += OnImageChanged;
+        EventManager.OnActivateAction += OnStepChanged;
+        EventManager.OnAugmentationDeleted += OnDeleted;
     }
 
 
     private void OnDisable()
     {
         trackImageManager.trackedImagesChanged -= OnImageChanged;
+        EventManager.OnActivateAction -= OnStepChanged;
+        EventManager.OnAugmentationDeleted -= OnDeleted;
     }
 
     private void OnImageChanged(ARTrackedImagesChangedEventArgs eventArgs)
@@ -58,55 +72,73 @@ public class ERobsonImageMarkerController : MonoBehaviour
             UpdateDetectedObject(trackedImage);
         }
 
-        //foreach (var trackedImage in eventArgs.removed)
-        //{
-        //    spawnedObjects.Remove(trackedImage);
-        //    Destroy(trackedImage.gameObject);
-        //}
     }
 
 
-    private async void UpdateDetectedObject(ARTrackedImage trackedImage)
+    private void UpdateDetectedObject(ARTrackedImage trackedImage)
     {
         var name = trackedImage.referenceImage.name;
 
         if (trackedImage.trackingState == TrackingState.Tracking)
         {
+            ToggleObject erobsonToggleObject = null;
             if (!spawnedObjects.ContainsKey(name))
             {
-                var erobsonObject = await SpawnItem(trackedImage);
-                spawnedObjects.Add(name, erobsonObject);
+                erobsonToggleObject = SpawnItem(trackedImage);
+                spawnedObjects.Add(name, erobsonToggleObject);
+            }
+            else
+            {
+                erobsonToggleObject = spawnedObjects.First(o => o.Value.option == name).Value;
             }
 
-            var eRobsonItem = spawnedObjects.Values.ToList().Find(o => o.name == name);
+            var eRobsonGameObject = GameObject.Find(erobsonToggleObject.poi);
 
-            eRobsonItem.transform.position = trackedImage.transform.position;
-            eRobsonItem.transform.rotation = trackedImage.transform.rotation * Quaternion.Euler(0, 90, 0);
+            if (Vector3.Distance(trackedImage.transform.position, eRobsonGameObject.transform.position) > 0.04f)
+            {
+                var ports = eRobsonGameObject.GetComponentInChildren<eROBSONItems>().Ports;
+                foreach (var port in ports)
+                {
+                    if (port.Connected)
+                    {
+                        return;
+                    }
+                }
+            }
 
+            eRobsonGameObject.transform.position = trackedImage.transform.position;
+            eRobsonGameObject.transform.rotation = trackedImage.transform.rotation * Quaternion.Euler(0, 90, 0);
         }
     }
 
 
-    private async Task<GameObject> SpawnItem(ARTrackedImage trackedImage)
+    private ToggleObject SpawnItem(ARTrackedImage trackedImage)
     {
         var markerName = trackedImage.referenceImage.name;
 
-        //Remove digits frem the marker name (eg. i3button1 -> i3button)
+        // Remove digits frem the marker name (eg. i3button1 -> i3button)
         char[] digits = { '1', '2', '3', '4', '5' };
-        var MarkerNameWithoutDigits = markerName.TrimEnd(digits);
+        var markerNameWithoutDigits = markerName.TrimEnd(digits);
+        var activeAction = RootObject.Instance.activityManager.ActiveAction;
+        var eRobsonToggleObject = RootObject.Instance.augmentationManager.AddAugmentation(activeAction, trackedImage.transform.position);
+        eRobsonToggleObject.predicate = $"eRobson:{markerNameWithoutDigits}";
+        eRobsonToggleObject.option = markerName;
+        EventManager.ActivateObject(eRobsonToggleObject);
+        EventManager.NotifyActionModified(activeAction);
 
-        // Get the prefab from the references
-        var markerPrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>($"eROBSON/Prefabs/{MarkerNameWithoutDigits}");
-        // if the prefab reference has been found successfully
-        if (markerPrefab != null)
-        {
-            var erobsonItem = Instantiate(markerPrefab, trackedImage.transform.position, trackedImage.transform.rotation);
-            erobsonItem.name = markerName;
-            erobsonItem.transform.SetParent(null);
-            return erobsonItem;
-        }
+        return eRobsonToggleObject;
+    }
 
-        return null;
+
+    private void OnStepChanged(string action) {
+        spawnedObjects.Clear();
+    }
+
+
+    private void OnDeleted(ToggleObject poi)
+    {
+        var itemToDelete = spawnedObjects.First(i => i.Value == poi);
+        spawnedObjects.Remove(itemToDelete.Key);
     }
 
 #else
