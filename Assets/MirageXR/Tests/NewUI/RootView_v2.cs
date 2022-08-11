@@ -1,31 +1,30 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
+
 [RequireComponent(typeof(Canvas))]
 public class RootView_v2 : BaseView
 {
     public static RootView_v2 Instance { get; private set; }
 
     [SerializeField] private Toggle _toggleHome;
-    [SerializeField] private Toggle _toggleProfile;
+    [SerializeField] private Button _btnProfile;
     [SerializeField] private Toggle _toggleNewActivity;
     [SerializeField] private Button _btnAddAugmentation;
 
     [SerializeField] private PageView_v2 _pageView;
     [SerializeField] private CalibrationGuideView _calibrationGuideViewPrefab;
-
+    [SerializeField] private ProfileView _profilePrefab;
     [SerializeField] private SearchView _searchPrefab;
     [SerializeField] private HelpView _helpPrefab;
     [SerializeField] private SettingsView_v2 _activitySettingsPrefab;
-    [SerializeField] private StepSettingsView _stepSettingsPrefab;
+    //[SerializeField] private StepSettingsView _stepSettingsPrefab;
     [SerializeField] private MoodleServersView _moofleServersPrefab;
-
-    [SerializeField] private GameObject newActivityGameObject;
+    [SerializeField] private GameObject newActivityButton;
     [SerializeField] public RectTransform bottomPanel;
+    [SerializeField] private LoginView_v2 _loginViewPrefab;
+    [SerializeField] public GameObject newActivityPanel;
 
     private Vector3 _currentPanelPosition;
     float moveTime = 1;
@@ -52,20 +51,29 @@ public class RootView_v2 : BaseView
         }
         Initialization(null);
     }
-    public override void Initialization(BaseView parentView)
+
+    public override async void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
         EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
 
-        _toggleProfile.interactable = true;
+        _toggleHome.isOn = true;
         _toggleNewActivity.interactable = true;
         _toggleHome.onValueChanged.AddListener(OnStepsClick);
-        _toggleProfile.onValueChanged.AddListener(OnViewClick);
+        _btnProfile.onClick.AddListener(OnProfileClick);
         _toggleNewActivity.onValueChanged.AddListener(OnHomeClick);
         _btnAddAugmentation.onClick.AddListener(AddAugmentation);
         _pageView.OnPageChanged.AddListener(OnPageChanged);
 
-        _currentPanelPosition = bottomPanel.anchoredPosition;
+        if (!DBManager.LoggedIn && DBManager.rememberUser)
+        {
+            await AutoLogin();
+        }
+
+        if (!DBManager.LoggedIn)
+        {
+            PopupsViewer.Instance.Show(_loginViewPrefab);
+        }
     }
 
     private void OnDestroy()
@@ -85,21 +93,26 @@ public class RootView_v2 : BaseView
         }
     }
 
+    private async Task AutoLogin()
+    {
+        if (!LocalFiles.TryToGetUsernameAndPassword(out var username, out var password)) return;
+
+        LoadView.Instance.Show();
+        await RootObject.Instance.moodleManager.Login(username, password);
+        LoadView.Instance.Hide();
+    }
+
     private void OnPageChanged(int index)
     {
         switch (index)
         {
             case 0:
                 _toggleHome.isOn = true;
-                newActivityGameObject.SetActive(true);
+                newActivityButton.SetActive(true);
                 break;
             case 1:
-                _toggleProfile.isOn = true;
-                newActivityGameObject.SetActive(true);
-                break;
-            case 2:
                 _toggleNewActivity.isOn = true;
-                newActivityGameObject.SetActive(false);
+                newActivityButton.SetActive(false);
                 break;
         }
     }
@@ -109,19 +122,19 @@ public class RootView_v2 : BaseView
         if (value) _pageView.currentPageIndex = 0;
     }
 
-    private void OnViewClick(bool value)
+    private void OnProfileClick()
     {
-        if (value) _pageView.currentPageIndex = 1;
+        PopupsViewer.Instance.Show(_profilePrefab);
     }
 
     public void OnHomeClick(bool value)
     {
-        if (value) _pageView.currentPageIndex = 2;
+        if (value) _pageView.currentPageIndex = 1;
     }
 
     private void AddAugmentation()
     {
-        _pageView.currentPageIndex = 3;
+        _pageView.currentPageIndex = 2;
     }
 
     public void OnSearchClick()
@@ -143,10 +156,10 @@ public class RootView_v2 : BaseView
     {
         PopupsViewer.Instance.Show(_activitySettingsPrefab);
     }
-    
+
     public void OnStepSettingsClick()
     {
-        PopupsViewer.Instance.Show(_stepSettingsPrefab);
+        //PopupsViewer.Instance.Show(_stepSettingsPrefab);
     }
 
     public void OnBackToHome()
@@ -156,55 +169,7 @@ public class RootView_v2 : BaseView
 
     public void OnBackToStep()
     {
-        _pageView.currentPageIndex = 2;
-    }
-
-    public void OnStartCalibration()
-    {
-        _pageView.currentPageIndex = 4;
-    }
-
-    public void OnBeginDrag()
-    {
-        if (!panelMoving)
-        {
-            //StartCoroutine(LerpObject(_currentPanelPosition, new Vector3(0,-200,0)));
-        }
-    }
-
-    public void OnDrag()
-    {
-
-    }
-
-    public void EndDrag()
-    {
-        StartCoroutine(Delay(5f));
-        if (!panelMoving)
-        {
-            //StartCoroutine(LerpObject(new Vector3(0,-200,0), _currentPanelPosition));
-        }
-    }
-
-    IEnumerator LerpObject(Vector3 from, Vector3 to) // TODO: update LerpObject
-    {
-        panelMoving = true;
-        currentTime = 0;
-        while (currentTime <= moveTime)
-        {
-            currentTime += Time.deltaTime;
-            normalizedValue = currentTime / moveTime;
-            bottomPanel.anchoredPosition = Vector3.Lerp(from, to, normalizedValue);
-
-            yield return null;
-            StartCoroutine(Delay(3f));
-            panelMoving = false;
-        }
-    }
-
-    IEnumerator Delay(float t)
-    {
-        yield return new WaitForSeconds(t);
+        _pageView.currentPageIndex = 1;
     }
 
     private async Task SetupViewForTablet()

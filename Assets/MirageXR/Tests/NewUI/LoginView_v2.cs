@@ -2,7 +2,6 @@
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MirageXR;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,8 +9,15 @@ public class LoginView_v2 : PopupBase
 {
     [SerializeField] private ExtendedInputField _inputFieldUserName;
     [SerializeField] private ExtendedInputField _inputFieldPassword;
+    [SerializeField] private GameObject _pnlMenu;
+    [SerializeField] private GameObject _pnlFields;
     [SerializeField] private Toggle _toggleRemember;
+    [SerializeField] private Button _btnRegister;
+    [SerializeField] private Button _btnSignInWithSSO;
+    [SerializeField] private Button _btnGoToLogin;
+    [SerializeField] private Button _btnSkipLogin;
     [SerializeField] private Button _btnLogin;
+    [SerializeField] private Button _btnBack;
 
     [SerializeField] private GameObject[] _loginObjects;
     [SerializeField] private GameObject registerPrefab;
@@ -34,7 +40,11 @@ public class LoginView_v2 : PopupBase
 
         _inputFieldUserName.SetValidator(IsValidUsername);
         _inputFieldPassword.SetValidator(IsValidPassword);
+        _btnRegister.onClick.AddListener(OnClickRegister);
         _btnLogin.onClick.AddListener(OnClickLogin);
+        _btnGoToLogin.onClick.AddListener(OnGoToLoginPressed);
+        _btnSkipLogin.onClick.AddListener(Close);
+        _btnBack.onClick.AddListener(OnClickBack);
         _toggleRemember.onValueChanged.AddListener(OnToggleRememberValueChanged);
 
         ResetValues();
@@ -73,10 +83,23 @@ public class LoginView_v2 : PopupBase
         ResetValues();
     }
 
+    private void OnGoToLoginPressed()
+    {
+        _pnlMenu.SetActive(false);
+        _pnlFields.SetActive(true);
+        _btnBack.gameObject.SetActive(true);
+    }
+
+    private void OnClickBack()
+    {
+        _pnlMenu.SetActive(true);
+        _pnlFields.SetActive(false);
+        _btnBack.gameObject.SetActive(false);
+    }
+
     private void OnLoginSucceed(string username, string password)
     {
         Toast.Instance.Show("Login succeeded");
-        RootView.Instance.activityListView.UpdateListView();
         if (DBManager.rememberUser)
         {
             LocalFiles.SaveUsernameAndPassword(username, password);
@@ -86,20 +109,20 @@ public class LoginView_v2 : PopupBase
             LocalFiles.RemoveUsernameAndPassword();
         }
     }
-
-    private void ShowLogin()
-    {
-        foreach (var obj in _loginObjects) obj.SetActive(true);
-    }
-
     private void ResetValues()
     {
-        ShowLogin();
         _toggleRemember.isOn = DBManager.rememberUser;
         _inputFieldUserName.text = string.Empty;
         _inputFieldPassword.text = string.Empty;
+        _pnlMenu.SetActive(true);
+        _pnlFields.SetActive(false);
         _inputFieldUserName.ResetValidation();
         _inputFieldPassword.ResetValidation();
+    }
+
+    private void OnClickRegister()
+    {
+        Application.OpenURL(DBManager.registerPage);
     }
 
     private async void OnClickLogin()
@@ -110,22 +133,17 @@ public class LoginView_v2 : PopupBase
         await Login(_inputFieldUserName.text, _inputFieldPassword.text);
     }
 
-    private static bool IsValidUsername(string urlString)
+    private static bool IsValidUsername(string value)
     {
-        const string regexExpression = "^(?=[a-zA-Z0-9._@!#$%^&]{4,}$)(?!.*[_.]{2})[^_.].*[^_.]$";
+        const string regexExpression = "^\\S{3,}$";
         var regex = new Regex(regexExpression);
-        return regex.IsMatch(urlString);
+        return regex.IsMatch(value);
     }
 
-    private static bool IsValidPassword(string urlString)
+    private static bool IsValidPassword(string value)
     {
-        const string regexExpression = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*#?&]{8,}$";
+        const string regexExpression = "^\\S{8,}$";
         var regex = new Regex(regexExpression);
-        return regex.IsMatch(urlString);
-    }
-
-    public void OnClickRegister()
-    {
-        Instantiate(registerPrefab);
+        return regex.IsMatch(value);
     }
 }
