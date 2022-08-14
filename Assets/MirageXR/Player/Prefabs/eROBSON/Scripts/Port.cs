@@ -20,10 +20,12 @@ public class Port : MonoBehaviour
     private Port detectedPortPole;
 
 
-    private GameObject myBit;
+    private GameObject myBitPoi;
     private eROBSONItems erobsonItem;
 
     public bool Connected { get; private set; }
+
+    public eROBSONItems ERobsonItem => erobsonItem;
 
     private async void Start()
     {
@@ -39,7 +41,7 @@ public class Port : MonoBehaviour
             }
         }
 
-        myBit = transform.parent.gameObject;
+        myBitPoi = transform.parent.gameObject;
     }
 
     /// <summary>
@@ -57,7 +59,7 @@ public class Port : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         detectedPortPole = other.GetComponent<Port>();
-        erobsonItem = myBit.GetComponent<eROBSONItems>();
+        erobsonItem = myBitPoi.GetComponent<eROBSONItems>();
 
         //If the other collider is not a port or it is already connected
         if(detectedPortPole == null || detectedPortPole.Connected)
@@ -103,19 +105,19 @@ public class Port : MonoBehaviour
             var connectionPosition = Pole == Pole.POSITIVE ? -detectedPortPole.transform.forward : detectedPortPole.transform.forward;
 
             //Make a distance from the detected port
-            myBit.transform.position = detectedPortPole.transform.position + connectionPosition * 0.2f;
+            myBitPoi.transform.position = detectedPortPole.transform.position + connectionPosition * 0.2f;
 
             //Enable manipulation after a while
             StartCoroutine(MakeBitBeParent());
 
-            OnConnected();
+            OnConnecting();
         }
         
     }
 
     private void OnTriggerExit(Collider other)
     {
-        OnDisconnected();
+        OnDisconnecting();
     }
 
 
@@ -124,9 +126,9 @@ public class Port : MonoBehaviour
     /// </summary>
     private void MakePortBeParent()
     {
-        foreach (var child in myBit.GetComponentsInChildren<Transform>())
+        foreach (var child in myBitPoi.GetComponentsInChildren<Transform>())
         {
-            if (child.parent == myBit.transform)
+            if (child.parent == myBitPoi.transform)
             {
                 child.SetParent(transform);
             }
@@ -144,7 +146,7 @@ public class Port : MonoBehaviour
         {
             if (child.parent == transform || child == transform)
             {
-                child.SetParent(myBit.transform);
+                child.SetParent(myBitPoi.transform);
             }
             yield return null;
         }
@@ -153,9 +155,9 @@ public class Port : MonoBehaviour
 
 
     /// <summary>
-    /// Port is disconnected
+    /// Port is connected
     /// </summary>
-    private void OnConnected()
+    private void OnConnecting()
     {
         Connected = true;
     }
@@ -164,7 +166,7 @@ public class Port : MonoBehaviour
     /// <summary>
     /// When the port is disconnected
     /// </summary>
-    private void OnDisconnected()
+    private void OnDisconnecting()
     {
         Connected = false;
 

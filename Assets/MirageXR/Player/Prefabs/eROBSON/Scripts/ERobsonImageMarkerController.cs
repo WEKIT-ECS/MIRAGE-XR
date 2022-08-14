@@ -5,7 +5,7 @@ using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using MirageXR;
 using System;
-using System.Linq;
+
 
 public class ERobsonImageMarkerController : MonoBehaviour
 {
@@ -89,14 +89,20 @@ public class ERobsonImageMarkerController : MonoBehaviour
             }
             else
             {
-                erobsonToggleObject = spawnedObjects.First(o => o.Value.option == name).Value;
+                erobsonToggleObject = spawnedObjects[name];
             }
 
             var eRobsonGameObject = GameObject.Find(erobsonToggleObject.poi);
 
+            if(eRobsonGameObject == null)
+            {
+                return;
+            }
+
             if (Vector3.Distance(trackedImage.transform.position, eRobsonGameObject.transform.position) > 0.04f)
             {
-                var ports = eRobsonGameObject.GetComponentInChildren<eROBSONItems>().Ports;
+                var eRobsonItem = eRobsonGameObject.GetComponentInChildren<eROBSONItems>();
+                var ports = eRobsonItem.Ports; //The number of ports are usally only 2
                 foreach (var port in ports)
                 {
                     if (port.Connected)
@@ -106,8 +112,10 @@ public class ERobsonImageMarkerController : MonoBehaviour
                 }
             }
 
+
             eRobsonGameObject.transform.position = trackedImage.transform.position;
             eRobsonGameObject.transform.rotation = trackedImage.transform.rotation * Quaternion.Euler(0, 90, 0);
+
         }
     }
 
@@ -137,8 +145,7 @@ public class ERobsonImageMarkerController : MonoBehaviour
 
     private void OnDeleted(ToggleObject poi)
     {
-        var itemToDelete = spawnedObjects.First(i => i.Value == poi);
-        spawnedObjects.Remove(itemToDelete.Key);
+        spawnedObjects.Remove(poi.option);
     }
 
 #else
