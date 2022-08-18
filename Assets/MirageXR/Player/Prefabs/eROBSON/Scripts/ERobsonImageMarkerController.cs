@@ -14,14 +14,10 @@ public class ERobsonImageMarkerController : MonoBehaviour
 
     private ARTrackedImageManager trackImageManager;
 
-
-    private Dictionary<string,ToggleObject> spawnedObjects;
-
     private ObjectFactory _objectFactory;
 
     private void Awake()
     {
-
         GameObject tracker = GameObject.Find("MixedRealityPlayspace");
         if (tracker.GetComponent<ARTrackedImageManager>())
         {
@@ -36,7 +32,6 @@ public class ERobsonImageMarkerController : MonoBehaviour
         trackImageManager.requestedMaxNumberOfMovingImages = 4;
         trackImageManager.enabled = true;
 
-        spawnedObjects = new Dictionary<string, ToggleObject>();
     }
 
     IEnumerator Start()
@@ -52,16 +47,12 @@ public class ERobsonImageMarkerController : MonoBehaviour
     private void OnEnable()
     {
         trackImageManager.trackedImagesChanged += OnImageChanged;
-        EventManager.OnActivateAction += OnStepChanged;
-        EventManager.OnAugmentationDeleted += OnDeleted;
     }
 
 
     private void OnDisable()
     {
         trackImageManager.trackedImagesChanged -= OnImageChanged;
-        EventManager.OnActivateAction -= OnStepChanged;
-        EventManager.OnAugmentationDeleted -= OnDeleted;
     }
 
     private void OnImageChanged(ARTrackedImagesChangedEventArgs eventArgs)
@@ -81,16 +72,15 @@ public class ERobsonImageMarkerController : MonoBehaviour
 
         if (trackedImage.trackingState == TrackingState.Tracking)
         {
-            ToggleObject erobsonToggleObject = null;
-            if (!spawnedObjects.ContainsKey(name))
+            ToggleObject erobsonToggleObject = RootObject.Instance.activityManager.ActiveAction.enter.activates.Find(t => t.option == name && t.sensor == "MarkerDetection");
+            if (erobsonToggleObject == null)
             {
                 erobsonToggleObject = SpawnItem(trackedImage);
-                spawnedObjects.Add(name, erobsonToggleObject);
             }
-            else
-            {
-                erobsonToggleObject = spawnedObjects[name];
-            }
+
+            Debug.LogError(erobsonToggleObject.option);
+            Debug.LogError(erobsonToggleObject.sensor);
+            Debug.LogError(erobsonToggleObject.predicate);
 
             var eRobsonGameObject = GameObject.Find(erobsonToggleObject.poi);
 
@@ -102,12 +92,16 @@ public class ERobsonImageMarkerController : MonoBehaviour
             if (Vector3.Distance(trackedImage.transform.position, eRobsonGameObject.transform.position) > 0.04f)
             {
                 var eRobsonItem = eRobsonGameObject.GetComponentInChildren<eROBSONItems>();
-                var ports = eRobsonItem.Ports; //The number of ports are usally only 2
-                foreach (var port in ports)
+
+                if (eRobsonItem)
                 {
-                    if (port.Connected)
+                    var ports = eRobsonItem.Ports; //The number of ports are usally only 2
+                    foreach (var port in ports)
                     {
-                        return;
+                        if (port.Connected)
+                        {
+                            return;
+                        }
                     }
                 }
             }
@@ -124,28 +118,21 @@ public class ERobsonImageMarkerController : MonoBehaviour
     {
         var markerName = trackedImage.referenceImage.name;
 
+        var activeAction = RootObject.Instance.activityManager.ActiveAction;
+        var eRobsonToggleObject = RootObject.Instance.augmentationManager.AddAugmentation(activeAction, trackedImage.transform.position);
+
+        eRobsonToggleObject.option = trackedImage.referenceImage.name;
+        eRobsonToggleObject.sensor = "MarkerDetection";
+
         // Remove digits frem the marker name (eg. i3button1 -> i3button)
         char[] digits = { '1', '2', '3', '4', '5' };
         var markerNameWithoutDigits = markerName.TrimEnd(digits);
-        var activeAction = RootObject.Instance.activityManager.ActiveAction;
-        var eRobsonToggleObject = RootObject.Instance.augmentationManager.AddAugmentation(activeAction, trackedImage.transform.position);
         eRobsonToggleObject.predicate = $"eRobson:{markerNameWithoutDigits}";
-        eRobsonToggleObject.option = markerName;
+
         EventManager.ActivateObject(eRobsonToggleObject);
         EventManager.NotifyActionModified(activeAction);
 
         return eRobsonToggleObject;
-    }
-
-
-    private void OnStepChanged(string action) {
-        spawnedObjects.Clear();
-    }
-
-
-    private void OnDeleted(ToggleObject poi)
-    {
-        spawnedObjects.Remove(poi.option);
     }
 
 #else
