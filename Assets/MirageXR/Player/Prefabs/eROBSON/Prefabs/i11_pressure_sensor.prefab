@@ -275,6 +275,37 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 3
+--- !u!1 &3739549290693578272
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2071784745732468442}
+  m_Layer: 0
+  m_Name: pivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2071784745732468442
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3739549290693578272}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 1716467279934318751}
+  m_Father: {fileID: 8873380595460987054}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4519216743186482057
 GameObject:
   m_ObjectHideFlags: 0
@@ -379,15 +410,15 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5375973799776871880}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.169, y: 0.224, z: -0.244}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.16899998, y: 0.22399999, z: -0.24399999}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 6094546971413378397}
   - {fileID: 8334474575701281478}
   - {fileID: 3912942538202752916}
-  m_Father: {fileID: 8873380595460987054}
-  m_RootOrder: 2
+  m_Father: {fileID: 2071784745732468442}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7152688615363399504
 GameObject:
@@ -399,7 +430,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3912942538202752916}
   - component: {fileID: 7321722762309997498}
-  - component: {fileID: 299031033678766833}
+  - component: {fileID: 995581009918570750}
+  - component: {fileID: 1504811679738721498}
   m_Layer: 0
   m_Name: Press point
   m_TagString: Untagged
@@ -474,8 +506,8 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.036727376, y: -0.0018556789, z: -0.18057397}
     m_Extent: {x: 0.25229898, y: 0.2397779, z: 0.12575677}
   m_DirtyAABB: 0
---- !u!135 &299031033678766833
-SphereCollider:
+--- !u!65 &995581009918570750
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -485,8 +517,27 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.19352342
-  m_Center: {x: -0.03672738, y: -0.0018556752, z: -0.12179839}
+  m_Size: {x: 0.37422597, y: 0.3180992, z: 0.121141486}
+  m_Center: {x: -0.014998675, y: 0.0004593282, z: -0.11538793}
+--- !u!114 &1504811679738721498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7152688615363399504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98c748f3768ab714a8449b60fb9edc5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  eventsToReceive: 0
+  debounceThreshold: 0.01
+  localForward: {x: -0, y: -0, z: -1}
+  localUp: {x: 0, y: 1, z: 0}
+  localCenter: {x: -0.014998675, y: 0.0004593282, z: -0.17595868}
+  bounds: {x: 0.37422597, y: 0.3180992}
+  touchableCollider: {fileID: 995581009918570750}
 --- !u!1 &7175955628053291877
 GameObject:
   m_ObjectHideFlags: 0
@@ -683,7 +734,7 @@ Transform:
   m_Children:
   - {fileID: 308875582740539341}
   - {fileID: 2443059282534502049}
-  - {fileID: 1716467279934318751}
+  - {fileID: 2071784745732468442}
   - {fileID: 1482930708333035114}
   - {fileID: 8090832181459331923}
   - {fileID: 7938400193246401521}
@@ -749,7 +800,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8334474575701281478}
   - component: {fileID: 8120658920664892886}
-  - component: {fileID: 4154981172164405886}
   m_Layer: 0
   m_Name: Plane006
   m_TagString: Untagged
@@ -823,19 +873,6 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.0046021044, y: 0.010632686, z: -0.059047174}
     m_Extent: {x: 0.78681815, y: 0.11237398, z: 0.09906621}
   m_DirtyAABB: 0
---- !u!65 &4154981172164405886
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8366582130726801089}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1.573636, y: 0.22474799, z: 0.19813246}
-  m_Center: {x: -0.004602104, y: 0.010632687, z: -0.05904718}
 --- !u!1001 &715167790066206692
 PrefabInstance:
   m_ObjectHideFlags: 0
