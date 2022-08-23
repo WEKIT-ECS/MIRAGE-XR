@@ -8,11 +8,14 @@ namespace MirageXR
 {
     public class ActivityListItem_v2 : MonoBehaviour
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+
         [SerializeField] private TMP_Text _txtLabel;
         [SerializeField] private TMP_Text _txtDeadline;
         [SerializeField] private TMP_Text _txtAuthor;
         [SerializeField] private Image _imgSmall;
         [SerializeField] private Button _btnMain;
+        [SerializeField] private OpenActivityModeSelect activityModeSelect;
 
 
         private SessionContainer _container;
@@ -99,8 +102,22 @@ namespace MirageXR
         {
             _interactable = false;
             if (!_container.ExistsLocally) await DownloadActivityAsync();
-            else await PlayActivityAsync();
+            else showPopup();
             _interactable = true;
+        }
+
+        private void showPopup()
+        {
+            var popup = PopupsViewer.Instance.Show(activityModeSelect);
+
+            popup.ConnectedObject = gameObject;
+        }
+
+        public async void OpenActivity(bool value) 
+        {
+            await PlayActivityAsync();
+
+            activityManager.EditModeActive = value;
         }
 
         private async Task PlayActivityAsync()
