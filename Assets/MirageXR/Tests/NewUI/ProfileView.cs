@@ -180,8 +180,6 @@ public class ProfileView : PopupBase
 
     private void UpdateConectedLRS(int publicCurrentLearningRecordStore)
     {
-
-        Debug.Log("LRS ==== " + publicCurrentLearningRecordStore);
         switch (publicCurrentLearningRecordStore)
         {
             case 0:
