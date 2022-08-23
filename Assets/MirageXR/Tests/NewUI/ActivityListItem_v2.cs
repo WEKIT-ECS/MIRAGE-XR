@@ -22,6 +22,7 @@ namespace MirageXR
         private bool _interactable = true;
 
         public string activityName => _container.Name;
+        public string activityAuthor => _container.author;
 
         public bool interactable
         {
