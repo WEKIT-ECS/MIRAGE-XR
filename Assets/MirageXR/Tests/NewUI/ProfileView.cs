@@ -25,9 +25,9 @@ public class ProfileView : PopupBase
     [SerializeField] private Button _btnSelectServer;
     [SerializeField] private TMP_Text _txtConnectedServer;
 
-    [SerializeField] private Dropdown _learningRecordStoreDropdown;
-
-
+    [SerializeField] private SelectLRS _LRSPrefab;
+    [SerializeField] private Button _btnSelectLRS;
+    [SerializeField] private TMP_Text _txtConnectedLRS;
 
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
@@ -40,10 +40,11 @@ public class ProfileView : PopupBase
         _btnLogout.onClick.AddListener(OnClickLogout);
         _toggleRemember.onValueChanged.AddListener(OnToggleRememberValueChanged);
         _btnSelectServer.onClick.AddListener(ShowServerPanel);
+        _btnSelectLRS.onClick.AddListener(ShowLRSPanel);
 
         EventManager.MoodleDomainChanged += UpdateConnectedServerText;
+        EventManager.XAPIChanged += UpdateConectedLRS;
 
-        _learningRecordStoreDropdown.onValueChanged.AddListener(OnValueChangedRecordStore);
 
         UpdateConnectedServerText();
 
@@ -71,13 +72,6 @@ public class ProfileView : PopupBase
             _inputFieldPassword.SetInvalid();
             Toast.Instance.Show("Check your login/password");
         }
-    }
-
-    private void OnValueChangedRecordStore(int selectedLearningRecordStore)
-    {
-        EventManager.NotifyxAPIChanged(selectedLearningRecordStore);
-
-        DBManager.publicCurrentLearningRecordStore = selectedLearningRecordStore;
     }
 
     private void OnToggleRememberValueChanged(bool value)
@@ -129,8 +123,10 @@ public class ProfileView : PopupBase
         _inputFieldPassword.text = string.Empty;
         _inputFieldUserName.ResetValidation();
         _inputFieldPassword.ResetValidation();
-        _learningRecordStoreDropdown.value = DBManager.publicCurrentLearningRecordStore;
-    }
+        // _learningRecordStoreDropdown.value = DBManager.publicCurrentLearningRecordStore;
+
+        UpdateConectedLRS(DBManager.publicCurrentLearningRecordStore);
+        }
 
     private void OnClickRegister()
     {
@@ -171,9 +167,29 @@ public class ProfileView : PopupBase
         PopupsViewer.Instance.Show(_moodlePrefab);
     }
 
+    private void ShowLRSPanel()
+    {
+        PopupsViewer.Instance.Show(_LRSPrefab);
+    }
+
     private void UpdateConnectedServerText() 
     {
         _txtConnectedServer.text = DBManager.domain;
     }
 
+
+    private void UpdateConectedLRS(int publicCurrentLearningRecordStore)
+    {
+
+        Debug.Log("LRS ==== " + publicCurrentLearningRecordStore);
+        switch (publicCurrentLearningRecordStore)
+        {
+            case 0:
+                _txtConnectedLRS.text = "WEKIT";
+                break;
+            case 1:
+                _txtConnectedLRS.text = "ARETE";
+                break;
+        }
+    }
 }
