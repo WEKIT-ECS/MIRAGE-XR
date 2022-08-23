@@ -25,6 +25,8 @@ public class RootView_v2 : BaseView
     [SerializeField] public RectTransform bottomPanel;
     [SerializeField] private LoginView_v2 _loginViewPrefab;
     [SerializeField] public GameObject newActivityPanel;
+    [SerializeField] private GameObject HomePage;
+
 
     private Vector3 _currentPanelPosition;
     float moveTime = 1;
@@ -145,7 +147,9 @@ public class RootView_v2 : BaseView
 
     public void OnSearchClick()
     {
-        PopupsViewer.Instance.Show(_searchPrefab);
+        var popup = PopupsViewer.Instance.Show(_searchPrefab);
+
+        popup.ConnectedObject = HomePage;
     }
 
     public void OnInfoClick()
