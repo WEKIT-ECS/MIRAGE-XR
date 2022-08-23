@@ -12,6 +12,7 @@ namespace MirageXR
         [SerializeField] private TMP_Text _txtDeadline;
         [SerializeField] private TMP_Text _txtAuthor;
         [SerializeField] private Image _imgSmall;
+        [SerializeField] private Button _btnMain;
 
 
         private SessionContainer _container;
@@ -34,7 +35,7 @@ namespace MirageXR
         public void Init(SessionContainer container)
         {
             _container = container;
-            //_btnMain.onClick.AddListener(OnBtnMain);
+            _btnMain.onClick.AddListener(OnBtnMain);
             //_btnDelete.onClick.AddListener(OnBtnDelete);
 
             UpdateView();

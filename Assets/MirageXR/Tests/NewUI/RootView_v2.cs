@@ -61,9 +61,10 @@ public class RootView_v2 : BaseView
         _toggleNewActivity.interactable = true;
         _toggleHome.onValueChanged.AddListener(OnStepsClick);
         _btnProfile.onClick.AddListener(OnProfileClick);
-        _toggleNewActivity.onValueChanged.AddListener(OnHomeClick);
         _btnAddAugmentation.onClick.AddListener(AddAugmentation);
         _pageView.OnPageChanged.AddListener(OnPageChanged);
+
+        EventManager.OnActivityStarted += OnActivityLoaded;
 
         if (!DBManager.LoggedIn && DBManager.rememberUser)
         {
@@ -115,6 +116,11 @@ public class RootView_v2 : BaseView
                 newActivityButton.SetActive(false);
                 break;
         }
+    }
+
+    public void OnActivityLoaded()
+    {
+        _pageView.currentPageIndex = 1;
     }
 
     private void OnStepsClick(bool value)
