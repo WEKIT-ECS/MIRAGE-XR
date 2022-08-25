@@ -819,9 +819,9 @@ namespace MirageXR
         }
 
 
-        public delegate void xAPIChangedDelegate(int option);
+        public delegate void xAPIChangedDelegate(DBManager.LearningRecordStores option);
         public static event xAPIChangedDelegate XAPIChanged;
-        public static void NotifyxAPIChanged(int option)
+        public static void NotifyxAPIChanged(DBManager.LearningRecordStores option)
         {
             XAPIChanged?.Invoke(option);
         }
