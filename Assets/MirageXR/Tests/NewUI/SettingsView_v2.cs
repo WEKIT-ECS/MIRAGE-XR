@@ -28,7 +28,6 @@ public class SettingsView_v2 : PopupBase
         _toggleLocalSave.onValueChanged.AddListener(OnValueChangedSavetoggle);
         _toggleLocalSave.onValueChanged.AddListener(OnValueChangedCloudtoggle);
         _btnSave.onClick.AddListener(OnClickSaveChanges);
-        _btnPreview.onClick.AddListener(OnClickPreviewActivity);
 
         ResetValues();
     }
@@ -81,14 +80,6 @@ public class SettingsView_v2 : PopupBase
         }
 
         DBManager.publicUploadPrivacy = _togglePublicUpload.isOn;
-        ResetValues();
-        Close();
-    }
-
-    private void OnClickPreviewActivity()
-    {
-        EventManager.NotifyPreviewActivity(true);
-
         ResetValues();
         Close();
     }
