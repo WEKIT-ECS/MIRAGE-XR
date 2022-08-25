@@ -103,11 +103,11 @@ namespace MirageXR
         {
             _interactable = false;
             if (!_container.ExistsLocally) await DownloadActivityAsync();
-            else showPopup();
+            else ShowPopup();
             _interactable = true;
         }
 
-        private void showPopup()
+        private void ShowPopup()
         {
             var popup = PopupsViewer.Instance.Show(activityModeSelect);
 

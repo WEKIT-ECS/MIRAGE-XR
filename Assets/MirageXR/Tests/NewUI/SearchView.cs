@@ -20,13 +20,14 @@ public class SearchView : PopupBase
     private readonly List<ActivityListItem_v2> _items = new List<ActivityListItem_v2>();
 
     private ActivityListView_v2 activityListView;
-    private int searchType;
+    private enum SearchType {All, Title, Author};
+
+    private SearchType selectedSearchType;
 
     private void Start()
     {
         activityListView = ConnectedObject.GetComponent<ActivityListView_v2>();
         _content = activityListView.content;
-        //_items = activityListView.items;
 
         _inputFieldSearch.onValueChanged.AddListener(OnInputFieldSearchChanged);
 
@@ -36,28 +37,29 @@ public class SearchView : PopupBase
 
         EventManager.OnActivityStarted += Close;
 
-        searchType = 0;
+        selectedSearchType = SearchType.All;
 
         UpdateListView();
     }
 
 
-    public void OnAllClick() {
-        searchType = 0;
+    public void OnAllClick() 
+    {
+        selectedSearchType = SearchType.All;
 
         OnInputFieldSearchChanged(_inputFieldSearch.text);
     }
 
     public void OnTitleClick()
     {
-        searchType = 1;
+        selectedSearchType = SearchType.Title;
 
         OnInputFieldSearchChanged(_inputFieldSearch.text);
     }
 
     public void OnAuthorClick()
     {
-        searchType = 2;
+        selectedSearchType = SearchType.Author;
 
         OnInputFieldSearchChanged(_inputFieldSearch.text);
     }
@@ -91,9 +93,9 @@ public class SearchView : PopupBase
             var author = string.IsNullOrEmpty(text) || item.activityAuthor.ToLower().Contains(text.ToLower());
             var title = string.IsNullOrEmpty(text) || item.activityName.ToLower().Contains(text.ToLower());
 
-            switch (searchType)
+            switch (selectedSearchType)
             {
-                case 0:
+                case SearchType.All:
                     if (title || author)
                     {
                         item.gameObject.SetActive(true);
@@ -103,10 +105,10 @@ public class SearchView : PopupBase
                         item.gameObject.SetActive(false);
                     }
                     break;
-                case 1:
+                case SearchType.Title:
                     item.gameObject.SetActive(title);
                     break;
-                case 2:
+                case SearchType.Author:
                     item.gameObject.SetActive(author);
                     break;
             }                 
