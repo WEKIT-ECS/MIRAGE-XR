@@ -30,6 +30,22 @@ namespace MirageXR
         private readonly List<ActivityListItem_v2> _items = new List<ActivityListItem_v2>();
         private bool _interactable = true;
 
+        public List<SessionContainer> content 
+        {
+            get
+            {
+                return _content;
+            }
+        }
+
+        public List<ActivityListItem_v2> items
+        {
+            get
+            {
+                return _items;
+            }
+        }
+
         public bool interactable
         {
             get
@@ -156,15 +172,6 @@ namespace MirageXR
         private void UpdateStepsView()
         {
             _stepsListView.UpdateView();
-        }
-
-        private void OnInputFieldSearchChanged(string text)
-        {
-            foreach (var item in _items)
-            {
-                var enable = string.IsNullOrEmpty(text) || item.activityName.ToLower().Contains(text.ToLower());
-                item.gameObject.SetActive(enable);
-            }
         }
     }
 }

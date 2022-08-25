@@ -25,6 +25,8 @@ public class RootView_v2 : BaseView
     [SerializeField] public RectTransform bottomPanel;
     [SerializeField] private LoginView_v2 _loginViewPrefab;
     [SerializeField] public GameObject newActivityPanel;
+    [SerializeField] private GameObject HomePage;
+
 
     private Vector3 _currentPanelPosition;
     float moveTime = 1;
@@ -61,9 +63,10 @@ public class RootView_v2 : BaseView
         _toggleNewActivity.interactable = true;
         _toggleHome.onValueChanged.AddListener(OnStepsClick);
         _btnProfile.onClick.AddListener(OnProfileClick);
-        _toggleNewActivity.onValueChanged.AddListener(OnHomeClick);
         _btnAddAugmentation.onClick.AddListener(AddAugmentation);
         _pageView.OnPageChanged.AddListener(OnPageChanged);
+
+        EventManager.OnActivityStarted += OnActivityLoaded;
 
         if (!DBManager.LoggedIn && DBManager.rememberUser)
         {
@@ -117,6 +120,11 @@ public class RootView_v2 : BaseView
         }
     }
 
+    public void OnActivityLoaded()
+    {
+        _pageView.currentPageIndex = 1;
+    }
+
     private void OnStepsClick(bool value)
     {
         if (value) _pageView.currentPageIndex = 0;
@@ -139,7 +147,9 @@ public class RootView_v2 : BaseView
 
     public void OnSearchClick()
     {
-        PopupsViewer.Instance.Show(_searchPrefab);
+        var popup = PopupsViewer.Instance.Show(_searchPrefab);
+
+        popup.ConnectedObject = HomePage;
     }
 
     public void OnInfoClick()
