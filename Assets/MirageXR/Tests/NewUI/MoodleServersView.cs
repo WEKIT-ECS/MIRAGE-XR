@@ -29,12 +29,12 @@ public class MoodleServersView : PopupBase
     }
 
     private void OnClickWEKIT() {
-        ChangeServerDomain("https://learn.wekit-ecs.com");
+        ChangeServerDomain(DBManager.WEKIT_URL);
     }
 
     private void OnClickARETE()
     {
-        ChangeServerDomain("https://arete.ucd.ie");
+        ChangeServerDomain(DBManager.ARETE_URL);
     }
 
     private void OnClickSave()

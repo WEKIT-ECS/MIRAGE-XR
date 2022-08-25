@@ -89,7 +89,16 @@ public class SettingsView : PopupBase
 
         DBManager.publicUploadPrivacy = _togglePublicUpload.isOn;
 
-        EventManager.NotifyxAPIChanged(_learningRecordStoreDropdown.value);
+        switch (_learningRecordStoreDropdown.value) 
+        {
+            case 0:
+                EventManager.NotifyxAPIChanged(DBManager.LearningRecordStores.WEKIT);
+                break;
+            case 1:
+                EventManager.NotifyxAPIChanged(DBManager.LearningRecordStores.ARETE);
+                break;
+        }
+      
         ResetValues();
 
         Close();
@@ -97,7 +106,7 @@ public class SettingsView : PopupBase
 
     private void OnClickReset()
     {
-        _inputFieldMoodleAddress.text = DBManager.MOODLE_URL_DEFAULT;
+        _inputFieldMoodleAddress.text = DBManager.WEKIT_URL;
         _togglePublicUpload.isOn = DBManager.PUBLIC_UPLOAD_PRIVACY_DEFAULT;
         _learningRecordStoreDropdown.value = 0;
     }

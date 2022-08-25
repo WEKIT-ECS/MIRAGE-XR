@@ -24,15 +24,15 @@ public class SelectLRS : PopupBase
     }
 
     private void OnClickWEKIT() {
-        ChangeRecordStore(0);
+        ChangeRecordStore(DBManager.LearningRecordStores.WEKIT);
     }
 
     private void OnClickARETE()
     {
-        ChangeRecordStore(1);
+        ChangeRecordStore(DBManager.LearningRecordStores.ARETE);
     }
 
-    private void ChangeRecordStore(int selectedLearningRecordStore)
+    private void ChangeRecordStore(DBManager.LearningRecordStores selectedLearningRecordStore)
     {
         EventManager.NotifyxAPIChanged(selectedLearningRecordStore);
 
