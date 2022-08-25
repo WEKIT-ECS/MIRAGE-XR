@@ -8,16 +8,21 @@ namespace MirageXR
 {
     public class ActivityListItem_v2 : MonoBehaviour
     {
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+
         [SerializeField] private TMP_Text _txtLabel;
         [SerializeField] private TMP_Text _txtDeadline;
         [SerializeField] private TMP_Text _txtAuthor;
         [SerializeField] private Image _imgSmall;
+        [SerializeField] private Button _btnMain;
+        [SerializeField] private OpenActivityModeSelect activityModeSelect;
 
 
         private SessionContainer _container;
         private bool _interactable = true;
 
         public string activityName => _container.Name;
+        public string activityAuthor => _container.author;
 
         public bool interactable
         {
@@ -34,7 +39,7 @@ namespace MirageXR
         public void Init(SessionContainer container)
         {
             _container = container;
-            //_btnMain.onClick.AddListener(OnBtnMain);
+            _btnMain.onClick.AddListener(OnBtnMain);
             //_btnDelete.onClick.AddListener(OnBtnDelete);
 
             UpdateView();
@@ -98,8 +103,22 @@ namespace MirageXR
         {
             _interactable = false;
             if (!_container.ExistsLocally) await DownloadActivityAsync();
-            else await PlayActivityAsync();
+            else ShowPopup();
             _interactable = true;
+        }
+
+        private void ShowPopup()
+        {
+            var popup = PopupsViewer.Instance.Show(activityModeSelect);
+
+            popup.ConnectedObject = gameObject;
+        }
+
+        public async void OpenActivity(bool value) 
+        {
+            await PlayActivityAsync();
+
+            activityManager.EditModeActive = value;
         }
 
         private async Task PlayActivityAsync()
