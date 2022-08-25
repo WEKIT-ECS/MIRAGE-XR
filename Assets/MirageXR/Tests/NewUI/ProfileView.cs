@@ -28,6 +28,7 @@ public class ProfileView : PopupBase
     [SerializeField] private SelectLRS _LRSPrefab;
     [SerializeField] private Button _btnSelectLRS;
     [SerializeField] private TMP_Text _txtConnectedLRS;
+    
 
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
@@ -178,14 +179,14 @@ public class ProfileView : PopupBase
     }
 
 
-    private void UpdateConectedLRS(int publicCurrentLearningRecordStore)
+    private void UpdateConectedLRS(DBManager.LearningRecordStores publicCurrentLearningRecordStore)
     {
         switch (publicCurrentLearningRecordStore)
         {
-            case 0:
+            case DBManager.LearningRecordStores.WEKIT:
                 _txtConnectedLRS.text = "WEKIT";
                 break;
-            case 1:
+            case DBManager.LearningRecordStores.ARETE:
                 _txtConnectedLRS.text = "ARETE";
                 break;
         }
