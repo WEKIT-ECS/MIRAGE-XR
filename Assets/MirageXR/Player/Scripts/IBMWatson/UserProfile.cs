@@ -12,7 +12,11 @@ public class UserProfile : MonoBehaviour
 
     [SerializeField] private string Name;
 
-    public enum gender { male, female }
+    public enum gender
+    {
+        male, female
+    }
+
     public gender Gender;
 
     public int Age;

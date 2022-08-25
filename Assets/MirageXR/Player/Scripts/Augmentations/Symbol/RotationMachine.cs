@@ -23,12 +23,16 @@ namespace MirageXR
         public float Speed = 1f;
 
         // Update is called once per frame
-        void Update()
+        private void Update()
         {
             if (ActiveDirection == Direction.CW)
+            {
                 _speedFactor = -1f;
+            }
             else
+            {
                 _speedFactor = 1f;
+            }
 
             switch (ActiveAxis)
             {
