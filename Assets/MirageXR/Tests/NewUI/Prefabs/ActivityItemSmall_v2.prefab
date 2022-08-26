@@ -37,7 +37,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 499.58, y: 298.7901}
+  m_SizeDelta: {x: 0, y: 298.7901}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1269749572505214967
 MonoBehaviour:
@@ -132,9 +132,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Deadline:'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b133eed21dbaf2648a34e5bb04e81b31, type: 2}
-  m_sharedMaterial: {fileID: -7513635526780209487, guid: b133eed21dbaf2648a34e5bb04e81b31,
-    type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -235,7 +234,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 459.58, y: 41.44}
+  m_SizeDelta: {x: 360, y: 41.44}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &2766167982064553121
 CanvasRenderer:
@@ -431,6 +430,9 @@ MonoBehaviour:
   _txtDeadline: {fileID: 6578540517073645032}
   _txtAuthor: {fileID: 7371071613147974707}
   _imgSmall: {fileID: 8675226677905729549}
+  _btnMain: {fileID: 4492601342753435675}
+  activityModeSelect: {fileID: 3619492123829982354, guid: 4731257adaec34c4b949fa98422fab3d,
+    type: 3}
 --- !u!1 &3803819752317353182
 GameObject:
   m_ObjectHideFlags: 0
@@ -570,14 +572,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Padding:
     m_Left: 0
-    m_Right: 0
+    m_Right: -75
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
   m_Spacing: 0
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
-  m_ChildControlWidth: 0
+  m_ChildControlWidth: 1
   m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
@@ -780,7 +782,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 190.4178, y: 299.03}
+  m_SizeDelta: {x: 0, y: 299.03}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7324412657263382865
 CanvasRenderer:
@@ -856,7 +858,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 459.58, y: 41.44}
+  m_SizeDelta: {x: 360, y: 41.44}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &4834404555494864198
 MonoBehaviour:
