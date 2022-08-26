@@ -1,78 +1,55 @@
 using MirageXR;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
+using UnityEngine;
 
 public enum Pole
 {
     POSITIVE,
     NEGATIVE,
-    NEUTRAL
+    USB
 }
 
 public class Port : MonoBehaviour
 {
     [SerializeField] private Pole pole;
 
-    public Pole Pole => pole;
+    public Port DetectedPortPole
+    {
+        get; private set;
+    }
 
-    private Port detectedPortPole;
 
-
-    private GameObject myBitPoi;
+    private GameObject eRobsonItemGameObject;
     private eROBSONItems erobsonItem;
 
-    public bool Connected { get; private set; }
+    public bool Connected { get; set; }
 
-    public eROBSONItems ERobsonItem => erobsonItem;
 
-    private async void Start()
+    private void Start()
     {
-        //Add the image marker controller to the scene if it is not exist yet (first bit)
-        if (FindObjectOfType<ERobsonImageMarkerController>() == null)
-        {
-            // Get the prefab from the references
-            var erobsonImageMarkerController = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("eROBSON/Prefabs/ErobsonImageMarkerController");
-            // if the prefab reference has been found successfully
-            if (erobsonImageMarkerController != null)
-            {
-                Instantiate(erobsonImageMarkerController, Vector3.zero, Quaternion.identity);
-            }
-        }
-
-        myBitPoi = transform.parent.gameObject;
+        eRobsonItemGameObject = transform.parent.gameObject;
+        erobsonItem = eRobsonItemGameObject.GetComponent<eROBSONItems>();
     }
-
-    /// <summary>
-    /// Get the list of all connected bits in the scene
-    /// </summary>
-    public List<eROBSONItems> ConnectedERobsonItems
-    {
-        get
-        {
-            return FindObjectsOfType<eROBSONItems>().ToList().FindAll(i => i.Ports.ToList().Find(p => p.Connected));
-        }
-    }
-
 
     private void OnTriggerEnter(Collider other)
     {
-        detectedPortPole = other.GetComponent<Port>();
-        erobsonItem = myBitPoi.GetComponent<eROBSONItems>();
+        DetectedPortPole = other.GetComponent<Port>();
 
         //If the other collider is not a port or it is already connected
-        if(detectedPortPole == null || detectedPortPole.Connected)
+        if(erobsonItem == null || DetectedPortPole == null || DetectedPortPole.Connected)
         {
             return;
         }
 
         //Port is not neutral and the bit NOT moving by the user
-        if (!erobsonItem.IsMoving || detectedPortPole.Pole == Pole.NEUTRAL)
+        if (!erobsonItem.IsMoving)
         {
             return;
         }
 
+        //If the bit is connected to atleast one other bit
         //If the bit is connected to atleast one other bit
         foreach (var port in erobsonItem.Ports)
         {
@@ -82,10 +59,9 @@ public class Port : MonoBehaviour
             }
         }
 
-        //if the detected port has NOT the same charge (different charge) and it is not connected to any other bit
-        if (detectedPortPole.Pole != Pole && !ConnectedERobsonItems.Contains(detectedPortPole.erobsonItem))
+        //Check the port can be connected to the detected port
+        if (CanBeConnected())
         {
-
             //Make the pole be the parent of the bit
             MakePortBeParent();
 
@@ -93,31 +69,49 @@ public class Port : MonoBehaviour
             erobsonItem.DisableManipulation();
 
             //Move the bit to the pole of the other bit (Snapping)
-            transform.position = detectedPortPole.transform.position;
-            transform.rotation = detectedPortPole.transform.rotation;
+            transform.position = DetectedPortPole.transform.position;
+            transform.rotation = DetectedPortPole.transform.rotation;
 
             //Enable manipulation after a while
             StartCoroutine(MakeBitBeParent());
+
+            OnConnecting(DetectedPortPole);
+
         }
-        else
+        else if(DetectedPortPole.pole != Pole.USB && pole != Pole.USB)
         {
+
             //Move the bit to the left or right side of this bit depends on the port
-            var connectionPosition = Pole == Pole.POSITIVE ? -detectedPortPole.transform.forward : detectedPortPole.transform.forward;
+            var connectionPosition = pole == Pole.POSITIVE ? -DetectedPortPole.transform.forward : DetectedPortPole.transform.forward;
 
             //Make a distance from the detected port
-            myBitPoi.transform.position = detectedPortPole.transform.position + connectionPosition * 0.2f;
+            eRobsonItemGameObject.transform.position = DetectedPortPole.transform.position + connectionPosition * 0.2f;
 
-            //Enable manipulation after a while
-            StartCoroutine(MakeBitBeParent());
+            OnDisconnecting();
 
-            OnConnecting();
         }
-        
+
     }
+
+
+    /// <summary>
+    /// Check if the bits can be connected
+    /// </summary>
+    /// <returns></returns>
+    private bool CanBeConnected()
+    {
+        return ((DetectedPortPole.pole != pole) 
+            || (DetectedPortPole.pole == Pole.USB && pole == Pole.USB) 
+            && !erobsonItem.connectedbits.Contains(DetectedPortPole.erobsonItem));
+    }
+
 
     private void OnTriggerExit(Collider other)
     {
-        OnDisconnecting();
+        var detectedPortPole = other.GetComponent<Port>();
+
+        if (detectedPortPole && detectedPortPole == DetectedPortPole)
+            OnDisconnecting();
     }
 
 
@@ -126,9 +120,9 @@ public class Port : MonoBehaviour
     /// </summary>
     private void MakePortBeParent()
     {
-        foreach (var child in myBitPoi.GetComponentsInChildren<Transform>())
+        foreach (var child in eRobsonItemGameObject.GetComponentsInChildren<Transform>())
         {
-            if (child.parent == myBitPoi.transform)
+            if (child.parent == eRobsonItemGameObject.transform)
             {
                 child.SetParent(transform);
             }
@@ -146,7 +140,7 @@ public class Port : MonoBehaviour
         {
             if (child.parent == transform || child == transform)
             {
-                child.SetParent(myBitPoi.transform);
+                child.SetParent(eRobsonItemGameObject.transform);
             }
             yield return null;
         }
@@ -155,11 +149,23 @@ public class Port : MonoBehaviour
 
 
     /// <summary>
-    /// Port is connected
+    /// When the port is connected
     /// </summary>
-    private void OnConnecting()
+    private void OnConnecting(Port detectedPort)
     {
-        Connected = true;
+
+        if (detectedPort && detectedPort.erobsonItem)
+        {
+            Connected = true;
+
+            if (!erobsonItem.connectedbits.Contains(detectedPort.erobsonItem))
+            {
+                erobsonItem.connectedbits.Add(detectedPort.erobsonItem);
+            }
+
+            ErobsonItemManager.BitConnected();
+
+        }
     }
 
 
@@ -168,10 +174,22 @@ public class Port : MonoBehaviour
     /// </summary>
     private void OnDisconnecting()
     {
-        Connected = false;
 
-        if(detectedPortPole)
-            detectedPortPole.Connected = false;
+        if (DetectedPortPole)
+        {
+            Connected = false;
+
+            //Add connected bit to my list
+            if (erobsonItem.connectedbits.Contains(DetectedPortPole.erobsonItem))
+            {
+                erobsonItem.connectedbits.Remove(DetectedPortPole.erobsonItem);
+            }
+
+            ErobsonItemManager.BitDisconnected();
+
+            DetectedPortPole = null;
+        }
+
     }
 
 

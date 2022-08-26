@@ -377,6 +377,7 @@ namespace MirageXR
                     temp = Instantiate(prefabInAddressable, Vector3.zero, Quaternion.identity);
                     AddExtraComponents(temp, obj);
                     lastAddedPrefab = temp;
+                    EventManager.NotifyAugmentationObjectCreated(temp);
                 }
                 else
                 {
@@ -434,6 +435,19 @@ namespace MirageXR
 
                         break;
                     }
+                case string p when p.StartsWith("eRobson"):
+                    //Create the erobson managers
+                    if(ErobsonItemManager.Instance == null)
+                    {
+                        // Get the prefab from the references
+                        var erobsonImageMarkerController = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("eROBSON/Prefabs/ErobsonImageMarkerController");
+                        // if the prefab reference has been found successfully
+                        if (erobsonImageMarkerController != null)
+                        {
+                            Instantiate(erobsonImageMarkerController, Vector3.zero, Quaternion.identity);
+                        }
+                    }
+                    break;
             }
         }
 

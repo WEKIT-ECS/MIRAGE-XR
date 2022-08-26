@@ -628,6 +628,16 @@ namespace MirageXR
         }
 
 
+        public delegate void AugmentationObjectCreatedDelegate(GameObject augmentationGameObject);
+
+        public static event AugmentationObjectCreatedDelegate OnAugmentationObjectCreated;
+
+        public static void NotifyAugmentationObjectCreated(GameObject augmentationGameObject)
+        {
+            OnAugmentationObjectCreated?.Invoke(augmentationGameObject);
+        }
+
+
         public delegate void ActivitySaveDelegate();
 
         public static event ActivitySaveDelegate OnActivitySaved;
