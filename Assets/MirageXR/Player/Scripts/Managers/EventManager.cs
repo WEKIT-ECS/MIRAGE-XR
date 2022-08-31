@@ -176,6 +176,25 @@ namespace MirageXR
             OnToggleObject?.Invoke(action, true);
         }
 
+
+
+        // Gameobject of toggleobject is created
+        public delegate void AugmentationObjectCreatedDelegate(GameObject augmentationGameObject);
+
+        public static event AugmentationObjectCreatedDelegate OnAugmentationObjectCreated;
+
+        /// <summary>
+        /// The gameobject of toggleobject is instantiated
+        /// </summary>
+        /// <param name="augmentationGameObject"></param>
+        public static void AugmentationObjectCreated(GameObject augmentationGameObject)
+        {
+            OnAugmentationObjectCreated?.Invoke(augmentationGameObject);
+        }
+
+
+
+
         /// <summary>
         /// Deactivates an object.
         /// </summary>
@@ -627,15 +646,6 @@ namespace MirageXR
             OnAugmentationDeleted?.Invoke(toggleObject);
         }
 
-
-        public delegate void AugmentationObjectCreatedDelegate(GameObject augmentationGameObject);
-
-        public static event AugmentationObjectCreatedDelegate OnAugmentationObjectCreated;
-
-        public static void NotifyAugmentationObjectCreated(GameObject augmentationGameObject)
-        {
-            OnAugmentationObjectCreated?.Invoke(augmentationGameObject);
-        }
 
 
         public delegate void ActivitySaveDelegate();

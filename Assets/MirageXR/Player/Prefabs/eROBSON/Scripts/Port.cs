@@ -1,7 +1,5 @@
-using MirageXR;
+
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public enum Pole
@@ -144,6 +142,10 @@ public class Port : MonoBehaviour
             }
             yield return null;
         }
+
+        //Make snap effect be more clear
+        yield return new WaitForSeconds(0.1f);
+
         erobsonItem.EnableManipulation();
     }
 
@@ -163,8 +165,8 @@ public class Port : MonoBehaviour
                 erobsonItem.connectedbits.Add(detectedPort.erobsonItem);
             }
 
-            ErobsonItemManager.BitConnected();
-
+            erobsonItem.connectedTime = new System.DateTime();
+            ErobsonItemManager.BitConnected(erobsonItem);
         }
     }
 
@@ -185,7 +187,7 @@ public class Port : MonoBehaviour
                 erobsonItem.connectedbits.Remove(DetectedPortPole.erobsonItem);
             }
 
-            ErobsonItemManager.BitDisconnected();
+            ErobsonItemManager.BitDisconnected(erobsonItem);
 
             DetectedPortPole = null;
         }

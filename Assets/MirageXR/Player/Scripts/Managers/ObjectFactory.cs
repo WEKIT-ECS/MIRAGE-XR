@@ -14,14 +14,15 @@ namespace MirageXR
         {
             // Register to event manager events.
             EventManager.OnToggleObject += Toggle;
+            EventManager.OnWorkplaceLoaded += CreateSpesificPrefabsAtRuntime;
         }
 
         private void OnDisable()
         {
             // Unregister from event manager events.
             EventManager.OnToggleObject -= Toggle;
+            EventManager.OnWorkplaceLoaded -= CreateSpesificPrefabsAtRuntime;
         }
-
 
         private static GameObject lastAddedPrefab;
 
@@ -377,7 +378,7 @@ namespace MirageXR
                     temp = Instantiate(prefabInAddressable, Vector3.zero, Quaternion.identity);
                     AddExtraComponents(temp, obj);
                     lastAddedPrefab = temp;
-                    EventManager.NotifyAugmentationObjectCreated(temp);
+                    EventManager.AugmentationObjectCreated(temp);
                 }
                 else
                 {
@@ -435,19 +436,6 @@ namespace MirageXR
 
                         break;
                     }
-                case string p when p.StartsWith("eRobson"):
-                    //Create the erobson managers
-                    if(ErobsonItemManager.Instance == null)
-                    {
-                        // Get the prefab from the references
-                        var erobsonImageMarkerController = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("eROBSON/Prefabs/ErobsonImageMarkerController");
-                        // if the prefab reference has been found successfully
-                        if (erobsonImageMarkerController != null)
-                        {
-                            Instantiate(erobsonImageMarkerController, Vector3.zero, Quaternion.identity);
-                        }
-                    }
-                    break;
             }
         }
 
@@ -547,6 +535,32 @@ namespace MirageXR
             {
                 Destroy(temp);
             }
+        }
+
+
+        /// <summary>
+        /// If you need to add some manager or controller for any of augmentations which are not common 
+        /// create it here
+        /// </summary>
+        /// <param name="editmode"></param>
+        private async void CreateSpesificPrefabsAtRuntime()
+        {
+            //create eRobson manager
+            //Create the erobson managers
+            if (ErobsonItemManager.Instance == null)
+            {
+                // Get the prefab from the references
+                var erobsonManagers = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("eROBSON/Prefabs/ErobsonImageMarkerController");
+                // if the prefab reference has been found successfully
+                if (erobsonManagers != null)
+                {
+                    var erobsonManagersPrefab = Instantiate(erobsonManagers, Vector3.zero, Quaternion.identity);
+                    var erobsonItemManager = erobsonManagersPrefab.GetComponent<ErobsonItemManager>();
+                    if (erobsonItemManager)
+                        erobsonItemManager.Subscribe();
+                }
+            }
+
         }
     }
 }

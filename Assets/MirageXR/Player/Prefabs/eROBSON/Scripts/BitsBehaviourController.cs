@@ -1,9 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using MirageXR;
 using System.Linq;
-using System.Threading.Tasks;
 
 public class BitsBehaviourController : MonoBehaviour
 {
@@ -56,6 +54,13 @@ public class BitsBehaviourController : MonoBehaviour
                 _erobsonItem.IsActive = true;
                 _erobsonItem.HasPower = true;
                 break;
+            case BitID.I3BUTTON:
+            case BitID.I5SLIDEDIMMER:
+            case BitID.I11PRESSURESENSOR:
+            case BitID.I18MOTIONSENSOR:
+            case BitID.O25DCMOTOR:
+                _erobsonItem.IsActive = false;
+                break;
         }
     }
 
@@ -64,28 +69,45 @@ public class BitsBehaviourController : MonoBehaviour
     /// <summary>
     /// Toggle the status of the bit
     /// </summary>
-    public async void ActivatingToggle()
+    public void ActivatingToggle()
     {
         _erobsonItem.IsActive = !_erobsonItem.IsActive;
+        if (_erobsonItem.IsActive)
+        {
+            _erobsonItem.HasPower = true;
+        }
 
+        ControlCircuit();
+    }
+
+
+    /// <summary>
+    /// Control every bit in this circuit and active/diactive it if it is not connected to power sourse 
+    /// </summary>
+    private void ControlCircuit()
+    {
+        ErobsonItemManager.eRobsonItemsList.OrderBy(e => e.connectedTime);
         //Check all bits and deactivate all bits after this deactivated bit
         foreach (var eRobsonItem in ErobsonItemManager.eRobsonItemsList)
         {
-            if(eRobsonItem.connectedbits.Find(b => b.IsActive) == null)
+            //Check the bits which are connected to this bit
+            var hasConnectedPower = HasConnectedPower(eRobsonItem);
+
+            if ((hasConnectedPower && eRobsonItem.IsActive) || eRobsonItem.ID == BitID.USBPOWER)
             {
-                var isPowerInCircuit = await IsPowerInCircuit(_erobsonItem);
-                if (!isPowerInCircuit)
-                {
-                    _erobsonItem.HasPower = false;
-                    OnItemDisconnected();
-                }
-                else
-                {
-                    OnItemConnected();
-                }
+                eRobsonItem.HasPower = true;
+                ErobsonItemManager.AddOrRemoveFromConnectedList(eRobsonItem, AddOrRemove.ADD);
+                BitActionToggle(eRobsonItem, true);
+            }
+            else
+            {
+                eRobsonItem.HasPower = false;
+                ErobsonItemManager.AddOrRemoveFromConnectedList(eRobsonItem, AddOrRemove.REMOVE);
+                BitActionToggle(eRobsonItem, false);
             }
         }
     }
+
 
 
     /// <summary>
@@ -94,23 +116,16 @@ public class BitsBehaviourController : MonoBehaviour
     /// </summary>
     /// <param name="bit"></param>
     /// <returns></returns>
-    private async Task<bool> IsPowerInCircuit(eROBSONItems bit)
+    private bool HasConnectedPower(eROBSONItems bit)
     {
         foreach (var connectedbit in bit.connectedbits)
         {
-            if(connectedbit.HasPower && connectedbit.IsActive)
+            if (connectedbit.HasPower && connectedbit.IsActive)
             {
+                //Debug.Log($"{bit.name} is connected to {connectedbit} which is active and connected.");
                 return true;
             }
-            
-            if(connectedbit.connectedbits.Count == 0)
-            {
-                return false;
-            }
-            else
-            {
-                return await IsPowerInCircuit(connectedbit);
-            }
+            //Debug.Log($"{bit.name} is connected to {connectedbit} which is inactive or disconnected.");
         }
 
         return false;
@@ -120,35 +135,24 @@ public class BitsBehaviourController : MonoBehaviour
     /// <summary>
     /// The behaviour of the bit after connecting
     /// </summary>
-    private async void OnItemConnected()
+    private void OnItemConnected(eROBSONItems bit)
     {
-        if (!_erobsonItem)
+        if (bit != _erobsonItem)
             return;
 
-        var isPowerInCircuit = await IsPowerInCircuit(_erobsonItem);
-        if (isPowerInCircuit)
-        {
-            _erobsonItem.HasPower = true;
-            BitActionToggle(_erobsonItem.HasPower);
-        }
+        ControlCircuit();
     }
 
 
     /// <summary>
     /// The behaviour of the bit after disconnecting
     /// </summary>
-    private async void OnItemDisconnected()
+    private void OnItemDisconnected(eROBSONItems bit)
     {
-        if (!_erobsonItem)
+        if (bit != _erobsonItem)
             return;
 
-        var isPowerInCircuit = await IsPowerInCircuit(_erobsonItem);
-        if (!isPowerInCircuit)
-        {
-            _erobsonItem.HasPower = false;
-            BitActionToggle(_erobsonItem.HasPower);
-        }
-            
+        ControlCircuit();
     }
 
 
@@ -156,9 +160,9 @@ public class BitsBehaviourController : MonoBehaviour
     /// The actions which any bit will do on active/deactive status
     /// </summary>
     /// <param name="active"></param>
-    private void BitActionToggle(bool active)
+    private void BitActionToggle(eROBSONItems bit, bool value)
     {
-        switch (_erobsonItem.ID)
+        switch (bit.ID)
         {
             case BitID.I3BUTTON:
                 break;
@@ -169,15 +173,15 @@ public class BitsBehaviourController : MonoBehaviour
             case BitID.I18MOTIONSENSOR:
                 break;
             case BitID.O2LONGLED:
-                _erobsonItem.GetComponentInChildren<Light>().enabled = active;
+                bit.GetComponentInChildren<Light>().enabled = value;
                 break;
             case BitID.O6BUZZER:
                 break;
             case BitID.O9BARGRAPH:
                 break;
             case BitID.O13FAN:
-                break;
             case BitID.O25DCMOTOR:
+                bit.GetComponent<Animator>().SetBool("ON", value);
                 break;
             case BitID.P3USBPOWERCONNECTOR:
                 break;
@@ -186,7 +190,6 @@ public class BitsBehaviourController : MonoBehaviour
             case BitID.W7FORK:
                 break;
             case BitID.USBPOWER:
-                _erobsonItem.HasPower = true; //USB power always has power
                 break;
             default:
                 break;

@@ -31,6 +31,14 @@ public class eROBSONItems : MirageXRPrefab
     [Tooltip("The bit id")]
     [SerializeField] private BitID id;
 
+    public string poiID
+    {
+        get
+        {
+            return myObj.poi;
+        }
+    }
+
     public BitID ID => id;
 
     private BitsBehaviourController MyBehaviourController;
@@ -51,6 +59,12 @@ public class eROBSONItems : MirageXRPrefab
     {
         get; set;
     }
+
+    public DateTime connectedTime
+    {
+        get; set;
+    }
+
 
     [HideInInspector]
     public List<eROBSONItems> connectedbits = new List<eROBSONItems>();
@@ -129,5 +143,13 @@ public class eROBSONItems : MirageXRPrefab
 
         // If everything was ok, return base result.
         return base.Init(obj);
+    }
+
+
+    public void CopySettings(eROBSONItems bit)
+    {
+        HasPower = bit.HasPower;
+        IsActive = bit.IsActive;
+        connectedbits = bit.connectedbits;
     }
 }
