@@ -1,11 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using DG.Tweening;
+using TiltBrush;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class Dialog : MonoBehaviour
 {
+    private const float AnimationFadeTime = 0.1f;
+
     [SerializeField] private Button _background;
     [SerializeField] private DialogViewBottom _dialogBottomPrefab;
     [SerializeField] private DialogView _dialogMiddlePrefab;
@@ -13,6 +18,7 @@ public class Dialog : MonoBehaviour
 
     private readonly Queue<DialogModel> _queue = new Queue<DialogModel>();
     private DialogView _dialogView;
+    private CanvasGroup _backgroundCanvasGroup;
     private bool _isActive;
 
     protected void Start()
@@ -24,6 +30,7 @@ public class Dialog : MonoBehaviour
     {
         _isActive = false;
         _background.gameObject.SetActive(false);
+        _backgroundCanvasGroup = _background.GetComponent<CanvasGroup>();
     }
 
     public void ShowBottom(string label, params (string text, Action onClick, bool isWarning)[] buttonContents)
@@ -37,7 +44,6 @@ public class Dialog : MonoBehaviour
         var contents = buttonContents.Select(t => new DialogButtonContent(t.text, t.onClick)).ToList();
         Show(DialogType.Bottom, label, null, contents);
     }
-
 
     public void ShowBottom(string label, bool canBeClosedByOutTap, params (string text, Action onClick, bool isWarning)[] buttonContents)
     {
@@ -95,26 +101,25 @@ public class Dialog : MonoBehaviour
     {
         if (_queue.Count > 0)
         {
-            ViewDialog(_queue.Dequeue());
+            ViewDialog(_queue.Dequeue()).AsAsyncVoid();
         }
         else
         {
-            _isActive = false;
-            _background.gameObject.SetActive(false);
-
-            DestroyDialog();
+            CloseDialog().AsAsyncVoid();
         }
     }
 
-    private void ViewDialog(DialogModel model)
+    private async Task ViewDialog(DialogModel model)
     {
-        DestroyDialog();
+        await CloseDialog();
 
         _dialogView = CreateDialogView(model);
 
-        _dialogView.gameObject.SetActive(true);
+        _backgroundCanvasGroup.alpha = 0.0f;
         _background.gameObject.SetActive(true);
+        await _backgroundCanvasGroup.DOFade(1.0f, AnimationFadeTime).AsyncWaitForCompletion();
         _background.onClick.RemoveAllListeners();
+        await _dialogView.Show();
         if (model.canBeClosedByOutTap)
         {
             _background.onClick.AddListener(Close);
@@ -126,10 +131,7 @@ public class Dialog : MonoBehaviour
     private DialogView CreateDialogView(DialogModel model)
     {
         var prefab = DialogTypeToPrefab(model.dialogType);
-        var dialogView = Instantiate(prefab, transform);
-        dialogView.transform.SetAsLastSibling();
-        dialogView.UpdateView(model);
-        return dialogView;
+        return DialogView.Create(model, prefab, transform);
     }
 
     private DialogView DialogTypeToPrefab(DialogType dialogType)
@@ -147,11 +149,15 @@ public class Dialog : MonoBehaviour
         }
     }
 
-    private void DestroyDialog()
+    private async Task CloseDialog()
     {
         if (_dialogView)
         {
-            Destroy(_dialogView.gameObject);
+            await _dialogView.Close();
+            _backgroundCanvasGroup.alpha = 1.0f;
+            await _backgroundCanvasGroup.DOFade(0, AnimationFadeTime).AsyncWaitForCompletion();
+            _background.gameObject.SetActive(false);
+            _isActive = false;
             _dialogView = null;
         }
     }
