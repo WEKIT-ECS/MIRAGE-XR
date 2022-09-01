@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -5,7 +7,7 @@ using UnityEngine.UI;
 public class DialogViewMiddleMultiline : DialogView
 {
     [SerializeField] private GameObject _buttonPrefab;
-    [SerializeField] Color warningColor = Color.red;
+    [SerializeField] private Color warningColor = Color.red;
 
     public override void UpdateView(DialogModel model)
     {
@@ -30,5 +32,17 @@ public class DialogViewMiddleMultiline : DialogView
                 }
             }
         }
+    }
+
+    protected override Task OnShowAnimation()
+    {
+        transform.localScale = Vector3.zero;
+        return transform.DOScale(Vector3.one, AnimationTime).AsyncWaitForCompletion();
+    }
+
+    protected override Task OnCloseAnimation()
+    {
+        transform.localScale = Vector3.one;
+        return transform.DOScale(Vector3.zero, AnimationTime).AsyncWaitForCompletion();
     }
 }
