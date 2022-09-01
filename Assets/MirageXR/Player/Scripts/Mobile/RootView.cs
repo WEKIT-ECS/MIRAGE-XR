@@ -127,7 +127,7 @@ public class RootView : BaseView
 
         var canvas = GetComponent<Canvas>();
         canvas.enabled = false;
-        Screen.orientation = ScreenOrientation.Landscape;
+        Screen.orientation = ScreenOrientation.LandscapeLeft;
         await WaitForLandscapeOrientation();
 
         mainCamera.cullingMask &= ~(1 << LayerMask.NameToLayer(layerName));
