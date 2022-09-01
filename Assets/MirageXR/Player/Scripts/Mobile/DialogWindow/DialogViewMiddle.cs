@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -5,7 +7,7 @@ using UnityEngine.UI;
 public class DialogViewMiddle : DialogView
 {
     [SerializeField] private TMP_Text _description;
-    [SerializeField] protected Button _buttonClose;
+    [SerializeField] private Button _buttonClose;
     [SerializeField] private Button _buttonLeft;
     [SerializeField] private Button _buttonRight;
 
@@ -36,5 +38,17 @@ public class DialogViewMiddle : DialogView
         {
             textRight.text = model.contents[1].text;
         }
+    }
+
+    protected override Task OnShowAnimation()
+    {
+        transform.localScale = Vector3.zero;
+        return transform.DOScale(Vector3.one, AnimationTime).AsyncWaitForCompletion();
+    }
+
+    protected override Task OnCloseAnimation()
+    {
+        transform.localScale = Vector3.one;
+        return transform.DOScale(Vector3.zero, AnimationTime).AsyncWaitForCompletion();
     }
 }
