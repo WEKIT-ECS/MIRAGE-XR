@@ -20,11 +20,31 @@ namespace MirageXR
         [SerializeField] private ActivityListItem_v2 _smallItemPrefab;
         [SerializeField] private ActivityListItem_v2 _bigItemPrefab;
 
+        [SerializeField] private Toggle _toggleNewActivity;
+
         [SerializeField] private SortingView _sortingPrefab;
+
+        [SerializeField] private StepsListView_v2 _stepsListView;
 
         private List<SessionContainer> _content;
         private readonly List<ActivityListItem_v2> _items = new List<ActivityListItem_v2>();
         private bool _interactable = true;
+
+        public List<SessionContainer> content 
+        {
+            get
+            {
+                return _content;
+            }
+        }
+
+        public List<ActivityListItem_v2> items
+        {
+            get
+            {
+                return _items;
+            }
+        }
 
         public bool interactable
         {
@@ -64,8 +84,15 @@ namespace MirageXR
         private void Init()
         {
             _btnFilter.onClick.AddListener(OnByDateClick);
+            _toggleNewActivity.onValueChanged.AddListener(OnNewActivityChanged);
+
+            EventManager.OnActivityStarted += UpdateStepsView;
+            EventManager.OnActivitySaved += UpdateListView;
+
             UpdateListView();
         }
+
+
 
         private static async Task<List<SessionContainer>> GetContent()
         {
@@ -131,24 +158,20 @@ namespace MirageXR
             PopupsViewer.Instance.Show(_sortingPrefab);
         }
 
-        private async void OnAddActivityClick()
+        private async void OnNewActivityChanged(bool value)
         {
             LoadView.Instance.Show();
             interactable = false;
             await RootObject.Instance.editorSceneService.LoadEditorAsync();
-            RootObject.Instance.activityManager.CreateNewActivity();
+            RootObject.Instance.activityManager.CreateNewActivity();         
             interactable = true;
             LoadView.Instance.Hide();
             EventManager.NotifyOnNewActivityCreationButtonPressed();
         }
 
-        private void OnInputFieldSearchChanged(string text)
+        private void UpdateStepsView()
         {
-            foreach (var item in _items)
-            {
-                var enable = string.IsNullOrEmpty(text) || item.activityName.ToLower().Contains(text.ToLower());
-                item.gameObject.SetActive(enable);
-            }
+            _stepsListView.UpdateView();
         }
     }
 }

@@ -17,7 +17,7 @@ public class StepsListItem : MonoBehaviour
     private int _number;
     private System.Action<Action> _onStepClick;
     private System.Action<Action> _onDeleteClick;
-    
+
     public void Init(System.Action<Action> onStepClick, System.Action<Action> onDeleteClick)
     {
         _onStepClick = onStepClick;
@@ -42,7 +42,7 @@ public class StepsListItem : MonoBehaviour
         _btnDelete.gameObject.SetActive(value);
         _stepStatus.SetActive(!value);
     }
-    
+
     private void OnStepClick()
     {
         _onStepClick(_step);

@@ -7,18 +7,26 @@ using UnityEngine.UI;
 
 public class SettingsView_v2 : PopupBase
 {
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static MoodleManager moodleManager => RootObject.Instance.moodleManager;
+
+    //public RootView rootView => (RootView)_parentView;
+
     private const string VERSION_FORMAT = "Version {0}";
 
     [SerializeField] private Toggle _togglePublicUpload;
-    [SerializeField] private Toggle _toggleUiForKids;
+    [SerializeField] private Toggle _toggleUploadToCloud;
+    [SerializeField] private Toggle _toggleLocalSave;
     [SerializeField] private Button _btnSave;
+    [SerializeField] private Button _btnPreview;
 
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
         base.Init(onClose, args);
 
         _togglePublicUpload.onValueChanged.AddListener(OnValueChangedPublicUpload);
-        _toggleUiForKids.onValueChanged.AddListener(OnValueChangedUiForKids);
+        _toggleLocalSave.onValueChanged.AddListener(OnValueChangedSavetoggle);
+        _toggleLocalSave.onValueChanged.AddListener(OnValueChangedCloudtoggle);
         _btnSave.onClick.AddListener(OnClickSaveChanges);
 
         ResetValues();
@@ -32,7 +40,7 @@ public class SettingsView_v2 : PopupBase
     private void ResetValues()
     {
         _togglePublicUpload.isOn = DBManager.publicUploadPrivacy;
-        _toggleUiForKids.isOn = false;
+        _toggleLocalSave.isOn = false;
         _btnSave.interactable = false;
     }
 
@@ -41,24 +49,19 @@ public class SettingsView_v2 : PopupBase
         return true;
     }
 
-    private void OnValueChangedRecordStore(string value)
-    {
-        //ValueHasBeenChanged();
-    }
-
-    private void OnValueChangedMoodleAddress(string value)
-    {
-        ValueHasBeenChanged();
-    }
-
     private void OnValueChangedPublicUpload(bool value)
     {
         ValueHasBeenChanged();
     }
 
-    private void OnValueChangedUiForKids(bool value)
+    private void OnValueChangedSavetoggle(bool value)
     {
-        //ValueHasBeenChanged();
+        ValueHasBeenChanged();
+    }
+
+    private void OnValueChangedCloudtoggle(bool value)
+    {
+        ValueHasBeenChanged();
     }
 
     private void ValueHasBeenChanged()
@@ -68,15 +71,72 @@ public class SettingsView_v2 : PopupBase
 
     private void OnClickSaveChanges()
     {
+        if (_toggleLocalSave.isOn) 
+        {
+            OnSaveToggleOn();
+        } else if (_toggleUploadToCloud.isOn) 
+        {
+            OnUploadToggleOn();
+        }
+
         DBManager.publicUploadPrivacy = _togglePublicUpload.isOn;
         ResetValues();
         Close();
     }
 
-    private static bool IsValidUrl(string urlString)
+
+    public void OnSaveToggleOn()
     {
-        const string regexExpression = "^(?:http(s)?:\\/\\/)?[\\w.-]+(?:\\.[\\w\\.-]+)+[\\w\\-\\._~:/?#[\\]@!\\$&'\\(\\)\\*\\+,;=.]+$";
-        var regex = new Regex(regexExpression);
-        return regex.IsMatch(urlString);
+        activityManager.SaveData();
+        Toast.Instance.Show("Activity saved on your device");
+    }
+
+    public void OnUploadToggleOn()
+    {
+        if (DBManager.LoggedIn)
+        {
+            Upload();
+        }
+        else
+        {
+            DialogWindow.Instance.Show("You need to log in.", new DialogButtonContent("Ok", null));
+        }
+    }
+
+    private async void Upload()
+    {
+        activityManager.SaveData();
+        var (result, response) = await moodleManager.UploadFile(activityManager.ActivityPath, activityManager.Activity.name, 0);
+        if (response == "Error: File exist, update")
+        {
+            DialogWindow.Instance.Show("This file is exist! Please select an option:",
+                new DialogButtonContent("Update", UploadAndUpdate),
+                new DialogButtonContent("Clone", UploadAndCopy),
+                new DialogButtonContent("Cancel", null));
+            return;
+        }
+
+        if (response == "Error: File exist, clone")
+        {
+            DialogWindow.Instance.Show("You are not the original author of this file! Please select an option:",
+                new DialogButtonContent("Clone", UploadAndCopy),
+                new DialogButtonContent("Cancel", null));
+            return;
+        }
+
+        if (result) Toast.Instance.Show("upload completed successfully");
+    }
+
+    private async void UploadAndUpdate()
+    {
+        var (result, response) = await moodleManager.UploadFile(activityManager.ActivityPath, activityManager.Activity.name, 1);
+        Toast.Instance.Show(result ? "upload completed successfully" : response);
+    }
+
+    private async void UploadAndCopy()
+    {
+        activityManager.CloneActivity();
+        var (result, response) = await moodleManager.UploadFile(activityManager.ActivityPath, activityManager.Activity.name, 2);
+        Toast.Instance.Show(result ? "upload completed successfully" : response);
     }
 }
