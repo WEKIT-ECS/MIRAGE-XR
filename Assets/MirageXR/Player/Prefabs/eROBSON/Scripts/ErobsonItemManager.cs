@@ -230,6 +230,9 @@ public class ErobsonItemManager : MonoBehaviour
             if (eRobsonConnectedItemsList.Contains(bit))
                 eRobsonConnectedItemsList.Remove(bit);
         }
+
+        //Debug.LogError(eRobsonConnectedItemsList.Count);
+        //Debug.LogError(bit.ID + " " + addOrRemove);
     }
 }
 

@@ -69,6 +69,25 @@ public class eROBSONItems : MirageXRPrefab
     [HideInInspector]
     public List<eROBSONItems> connectedbits = new List<eROBSONItems>();
 
+    private async void Awake()
+    {
+        //create eRobson manager
+        //Create the erobson managers
+        if (ErobsonItemManager.Instance == null)
+        {
+            // Get the prefab from the references
+            var erobsonManagers = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("eROBSON/Prefabs/ErobsonImageMarkerController");
+            // if the prefab reference has been found successfully
+            if (erobsonManagers != null)
+            {
+                var erobsonManagersPrefab = Instantiate(erobsonManagers, Vector3.zero, Quaternion.identity);
+                var erobsonItemManager = erobsonManagersPrefab.GetComponent<ErobsonItemManager>();
+                if (erobsonItemManager)
+                    erobsonItemManager.Subscribe();
+            }
+        }
+    }
+
     private void OnEnable()
     {
         EventManager.OnEditModeChanged += SetEditorState;

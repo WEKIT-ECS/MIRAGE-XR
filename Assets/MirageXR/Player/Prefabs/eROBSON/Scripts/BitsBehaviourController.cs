@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System.Threading.Tasks;
 
 public class BitsBehaviourController : MonoBehaviour
 {
@@ -84,14 +85,14 @@ public class BitsBehaviourController : MonoBehaviour
     /// <summary>
     /// Control every bit in this circuit and active/diactive it if it is not connected to power sourse 
     /// </summary>
-    private void ControlCircuit()
+    private async void ControlCircuit()
     {
         ErobsonItemManager.eRobsonItemsList.OrderBy(e => e.connectedTime);
         //Check all bits and deactivate all bits after this deactivated bit
         foreach (var eRobsonItem in ErobsonItemManager.eRobsonItemsList)
         {
             //Check the bits which are connected to this bit
-            var hasConnectedPower = HasConnectedPower(eRobsonItem);
+            var hasConnectedPower = await HasConnectedPower(eRobsonItem);
 
             if ((hasConnectedPower && eRobsonItem.IsActive) || eRobsonItem.ID == BitID.USBPOWER)
             {
@@ -116,16 +117,24 @@ public class BitsBehaviourController : MonoBehaviour
     /// </summary>
     /// <param name="bit"></param>
     /// <returns></returns>
-    private bool HasConnectedPower(eROBSONItems bit)
+    private async Task<bool> HasConnectedPower(eROBSONItems bit)
     {
+        //Check the connected bit
         foreach (var connectedbit in bit.connectedbits)
         {
+            //The connected bit has both actived and power
             if (connectedbit.HasPower && connectedbit.IsActive)
             {
-                //Debug.Log($"{bit.name} is connected to {connectedbit} which is active and connected.");
-                return true;
+                //Then check if it is power source return true
+                if(connectedbit.ID == BitID.USBPOWER)
+                {
+                    return true;
+                }
+                else //If it is not power source check all previous bits are connected or not
+                {
+                    return await HasConnectedPower(connectedbit);
+                }
             }
-            //Debug.Log($"{bit.name} is connected to {connectedbit} which is inactive or disconnected.");
         }
 
         return false;

@@ -18,7 +18,6 @@ public class Port : MonoBehaviour
         get; private set;
     }
 
-
     private GameObject eRobsonItemGameObject;
     private eROBSONItems erobsonItem;
 
@@ -31,15 +30,20 @@ public class Port : MonoBehaviour
         erobsonItem = eRobsonItemGameObject.GetComponent<eROBSONItems>();
     }
 
+
     private void OnTriggerEnter(Collider other)
     {
         DetectedPortPole = other.GetComponent<Port>();
 
         //If the other collider is not a port or it is already connected
-        if(erobsonItem == null || DetectedPortPole == null || DetectedPortPole.Connected)
+        if (erobsonItem == null || DetectedPortPole == null)
         {
             return;
         }
+
+        //If the ports are not already connected
+        if (Connected || DetectedPortPole.Connected)
+            return;
 
         //Port is not neutral and the bit NOT moving by the user
         if (!erobsonItem.IsMoving)
@@ -47,7 +51,6 @@ public class Port : MonoBehaviour
             return;
         }
 
-        //If the bit is connected to atleast one other bit
         //If the bit is connected to atleast one other bit
         foreach (var port in erobsonItem.Ports)
         {
@@ -60,6 +63,7 @@ public class Port : MonoBehaviour
         //Check the port can be connected to the detected port
         if (CanBeConnected())
         {
+
             //Make the pole be the parent of the bit
             MakePortBeParent();
 
@@ -98,18 +102,15 @@ public class Port : MonoBehaviour
     /// <returns></returns>
     private bool CanBeConnected()
     {
-        return ((DetectedPortPole.pole != pole) 
-            || (DetectedPortPole.pole == Pole.USB && pole == Pole.USB) 
-            && !erobsonItem.connectedbits.Contains(DetectedPortPole.erobsonItem));
+        return ((DetectedPortPole.pole != pole && DetectedPortPole.pole != Pole.USB && pole != Pole.USB) 
+            || (DetectedPortPole.pole == Pole.USB && pole == Pole.USB))
+            && !erobsonItem.connectedbits.Contains(DetectedPortPole.erobsonItem);
     }
 
 
     private void OnTriggerExit(Collider other)
     {
-        var detectedPortPole = other.GetComponent<Port>();
-
-        if (detectedPortPole && detectedPortPole == DetectedPortPole)
-            OnDisconnecting();
+        OnDisconnecting();
     }
 
 
