@@ -60,6 +60,17 @@ public class eROBSONItems : MirageXRPrefab
         get; set;
     }
 
+    public float Value
+    {
+        get; set;
+    } 
+
+    public bool Dimmable
+    {
+        get; set;
+    }
+
+
     public DateTime connectedTime
     {
         get; set;

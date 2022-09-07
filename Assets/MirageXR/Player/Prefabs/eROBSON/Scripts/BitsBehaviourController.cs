@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.MixedReality.Toolkit.UI;
+using System;
 
 public class BitsBehaviourController : MonoBehaviour
 {
@@ -32,6 +34,12 @@ public class BitsBehaviourController : MonoBehaviour
     }
 
 
+    private bool CircuitControlling
+    {
+        get; set;
+    }
+
+
     /// <summary>
     /// Initiate the bits at the start
     /// </summary>
@@ -39,6 +47,10 @@ public class BitsBehaviourController : MonoBehaviour
     {
         if (!_erobsonItem)
             return;
+
+        _erobsonItem.IsActive = true;
+        _erobsonItem.HasPower = false;
+        _erobsonItem.Dimmable = false;
 
         switch (_erobsonItem.ID)
         {
@@ -49,18 +61,21 @@ public class BitsBehaviourController : MonoBehaviour
             case BitID.P3USBPOWERCONNECTOR:
             case BitID.W2BRANCH:
             case BitID.W7FORK:
-                _erobsonItem.IsActive = true;
                 break;
             case BitID.USBPOWER:
-                _erobsonItem.IsActive = true;
                 _erobsonItem.HasPower = true;
                 break;
             case BitID.I3BUTTON:
+                break;
             case BitID.I5SLIDEDIMMER:
+                _erobsonItem.Dimmable = true;
+                _erobsonItem.Value = 0.5f;
+                break;
             case BitID.I11PRESSURESENSOR:
             case BitID.I18MOTIONSENSOR:
             case BitID.O25DCMOTOR:
-                _erobsonItem.IsActive = false;
+                _erobsonItem.Dimmable = true;
+                _erobsonItem.Value = 0.0f;
                 break;
         }
     }
@@ -82,33 +97,90 @@ public class BitsBehaviourController : MonoBehaviour
     }
 
 
+
+    public void SetValue(float bitValue)
+    {
+        _erobsonItem.Value = bitValue;
+    }
+
+
+
     /// <summary>
     /// Control every bit in this circuit and active/diactive it if it is not connected to power sourse 
     /// </summary>
     private async void ControlCircuit()
     {
-        ErobsonItemManager.eRobsonItemsList.OrderBy(e => e.connectedTime);
-        //Check all bits and deactivate all bits after this deactivated bit
-        foreach (var eRobsonItem in ErobsonItemManager.eRobsonItemsList)
+        try
         {
-            //Check the bits which are connected to this bit
-            var hasConnectedPower = await HasConnectedPower(eRobsonItem);
+            if (CircuitControlling)
+                return;
 
-            if ((hasConnectedPower && eRobsonItem.IsActive) || eRobsonItem.ID == BitID.USBPOWER)
+            CircuitControlling = true;
+
+            var eRobsonItemsList = ErobsonItemManager.eRobsonItemsList;
+
+            //Order the list of bits by "connectedTime" variable
+            eRobsonItemsList.OrderBy(e => e.connectedTime);
+
+            //Check all bits and deactivate all bits after this deactivated bit
+            foreach (var eRobsonItem in eRobsonItemsList)
             {
-                eRobsonItem.HasPower = true;
-                ErobsonItemManager.AddOrRemoveFromConnectedList(eRobsonItem, AddOrRemove.ADD);
-                BitActionToggle(eRobsonItem, true);
+                //Check the bits which are connected to this bit
+                var hasConnectedPower = await HasConnectedPower(eRobsonItem);
+
+                if (hasConnectedPower || eRobsonItem.ID == BitID.USBPOWER)
+                {
+                    if (eRobsonItem.IsActive || (eRobsonItem.Dimmable && eRobsonItem.Value > 0))
+                    {
+                        eRobsonItem.HasPower = true;
+                        ErobsonItemManager.AddOrRemoveFromConnectedList(eRobsonItem, AddOrRemove.ADD);
+                        BitActionToggle(eRobsonItem, true);
+                    }
+                }
+                else
+                {
+                    eRobsonItem.HasPower = false;
+                    ErobsonItemManager.AddOrRemoveFromConnectedList(eRobsonItem, AddOrRemove.REMOVE);
+                    BitActionToggle(eRobsonItem, false);
+                }
             }
-            else
-            {
-                eRobsonItem.HasPower = false;
-                ErobsonItemManager.AddOrRemoveFromConnectedList(eRobsonItem, AddOrRemove.REMOVE);
-                BitActionToggle(eRobsonItem, false);
-            }
+
+            CircuitControlling = false;
+        }
+        catch (Exception e){
+
+            CircuitControlling = false;
+            Debug.LogError(e);
         }
     }
 
+
+    /// <summary>
+    /// Check if any dimmable bit exist in the curcuit
+    /// If exist return the average value otherwise return -1
+    /// </summary>
+    /// <returns>float</returns>
+    private float CalculateValue()
+    {
+        var eRobsonConnectedItemsList = ErobsonItemManager.eRobsonConnectedItemsList;
+        var curcuitHasDimmable = eRobsonConnectedItemsList.Find(b => b.Dimmable == true);
+
+        if (!curcuitHasDimmable)
+            return -1;
+
+        float valueSum = 0;
+        float counter = 0;
+        foreach (var bit in ErobsonItemManager.eRobsonConnectedItemsList)
+        {
+            if (bit.Dimmable)
+            {
+                valueSum += bit.Value;
+                counter++;
+            }
+        }
+
+        return valueSum / counter;
+    }
 
 
     /// <summary>
@@ -130,9 +202,14 @@ public class BitsBehaviourController : MonoBehaviour
                 {
                     return true;
                 }
-                else //If it is not power source check all previous bits are connected or not
+                else //If it is not power source check all previous bits are connected or not 
                 {
-                    return await HasConnectedPower(connectedbit);
+                    //Do not check the bit itself again
+                    if (connectedbit != bit)
+                    {
+                        return await HasConnectedPower(connectedbit);
+                    }
+
                 }
             }
         }
@@ -165,12 +242,28 @@ public class BitsBehaviourController : MonoBehaviour
     }
 
 
+    public async void SetValue()
+    {
+        var pinchSlider = GetComponentInChildren<PinchSlider>();
+        if (pinchSlider)
+        {
+            _erobsonItem.Value = pinchSlider.SliderValue;
+            ControlCircuit();
+            await Task.Delay(100);
+        }
+    }
+
+
+
     /// <summary>
     /// The actions which any bit will do on active/deactive status
     /// </summary>
     /// <param name="active"></param>
-    private void BitActionToggle(eROBSONItems bit, bool value)
+    private void BitActionToggle(eROBSONItems bit, bool status)
     {
+        var temp = CalculateValue();
+        var averageValue = temp == -1 ? 2 : temp * 2; //If no dimmable use default
+
         switch (bit.ID)
         {
             case BitID.I3BUTTON:
@@ -182,7 +275,9 @@ public class BitsBehaviourController : MonoBehaviour
             case BitID.I18MOTIONSENSOR:
                 break;
             case BitID.O2LONGLED:
-                bit.GetComponentInChildren<Light>().enabled = value;
+                var light = bit.GetComponentInChildren<Light>();
+                light.enabled = status;
+                light.intensity = averageValue;
                 break;
             case BitID.O6BUZZER:
                 break;
@@ -190,7 +285,9 @@ public class BitsBehaviourController : MonoBehaviour
                 break;
             case BitID.O13FAN:
             case BitID.O25DCMOTOR:
-                bit.GetComponent<Animator>().SetBool("ON", value);
+                var anim = bit.GetComponent<Animator>();
+                anim.SetBool("ON", status);
+                anim.SetFloat("Speed", averageValue);
                 break;
             case BitID.P3USBPOWERCONNECTOR:
                 break;
