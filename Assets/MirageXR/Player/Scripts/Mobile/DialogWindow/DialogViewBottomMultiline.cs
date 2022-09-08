@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DialogViewBottom : DialogView
+public class DialogViewBottomMultiline : DialogView
 {
     [SerializeField] private Button _buttonClose;
     [SerializeField] private Button _buttonPrefab;
