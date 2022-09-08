@@ -12,9 +12,9 @@ public class Dialog : MonoBehaviour
     private const float AnimationFadeTime = 0.1f;
 
     [SerializeField] private Button _background;
-    [SerializeField] private DialogView _dialogMiddlePrefab;
-    [SerializeField] private DialogView _dialogMiddleMultilinePrefab;
-    [SerializeField] private DialogView _dialogBottomMultilinePrefab;
+    [SerializeField] private DialogViewMiddle _dialogMiddlePrefab;
+    [SerializeField] private DialogViewMiddleMultiline _dialogMiddleMultilinePrefab;
+    [SerializeField] private DialogViewBottomMultiline _dialogBottomMultilinePrefab;
 
     private readonly Queue<DialogModel> _queue = new Queue<DialogModel>();
     private DialogView _dialogView;
