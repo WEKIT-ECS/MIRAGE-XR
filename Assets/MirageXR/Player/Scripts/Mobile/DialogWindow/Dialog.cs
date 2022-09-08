@@ -12,9 +12,9 @@ public class Dialog : MonoBehaviour
     private const float AnimationFadeTime = 0.1f;
 
     [SerializeField] private Button _background;
-    [SerializeField] private DialogViewBottom _dialogBottomPrefab;
-    [SerializeField] private DialogView _dialogMiddlePrefab;
-    [SerializeField] private DialogView _dialogMiddleMultilinePrefab;
+    [SerializeField] private DialogViewMiddle _dialogMiddlePrefab;
+    [SerializeField] private DialogViewMiddleMultiline _dialogMiddleMultilinePrefab;
+    [SerializeField] private DialogViewBottomMultiline _dialogBottomMultilinePrefab;
 
     private readonly Queue<DialogModel> _queue = new Queue<DialogModel>();
     private DialogView _dialogView;
@@ -33,25 +33,25 @@ public class Dialog : MonoBehaviour
         _backgroundCanvasGroup = _background.GetComponent<CanvasGroup>();
     }
 
-    public void ShowBottom(string label, params (string text, Action onClick, bool isWarning)[] buttonContents)
+    public void ShowBottomMultiline(string label, params (string text, Action onClick, bool isWarning)[] buttonContents)
     {
         var contents = buttonContents.Select(t => new DialogButtonContent(t.text, t.onClick, t.isWarning)).ToList();
         Show(DialogType.Bottom, label, null, contents);
     }
 
-    public void ShowBottom(string label, params (string text, Action onClick)[] buttonContents)
+    public void ShowBottomMultiline(string label, params (string text, Action onClick)[] buttonContents)
     {
         var contents = buttonContents.Select(t => new DialogButtonContent(t.text, t.onClick)).ToList();
         Show(DialogType.Bottom, label, null, contents);
     }
 
-    public void ShowBottom(string label, bool canBeClosedByOutTap, params (string text, Action onClick, bool isWarning)[] buttonContents)
+    public void ShowBottomMultiline(string label, bool canBeClosedByOutTap, params (string text, Action onClick, bool isWarning)[] buttonContents)
     {
         var contents = buttonContents.Select(t => new DialogButtonContent(t.text, t.onClick, t.isWarning)).ToList();
         Show(DialogType.Bottom, label, null, contents, canBeClosedByOutTap);
     }
 
-    public void ShowBottom(string label, bool canBeClosedByOutTap, params (string text, Action onClick)[] buttonContents)
+    public void ShowBottomMultiline(string label, bool canBeClosedByOutTap, params (string text, Action onClick)[] buttonContents)
     {
         var contents = buttonContents.Select(t => new DialogButtonContent(t.text, t.onClick)).ToList();
         Show(DialogType.Bottom, label, null, contents, canBeClosedByOutTap);
@@ -139,7 +139,7 @@ public class Dialog : MonoBehaviour
         switch (dialogType)
         {
             case DialogType.Bottom:
-                return _dialogBottomPrefab;
+                return _dialogBottomMultilinePrefab;
             case DialogType.Middle:
                 return _dialogMiddlePrefab;
             case DialogType.MiddleMultiline:
