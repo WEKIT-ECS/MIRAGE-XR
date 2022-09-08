@@ -136,7 +136,11 @@ public class ERobsonImageMarkerController : MonoBehaviour
     }
 
 #else
+
+    private void Start()
+    {
         Debug.Log("Image detection of eRobson augmentation works only on Android and iOS.");
+    }
 #endif
 
 }

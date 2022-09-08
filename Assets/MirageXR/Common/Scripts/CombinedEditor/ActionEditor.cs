@@ -41,6 +41,7 @@ public class ActionEditor : MonoBehaviour
     [SerializeField] private GameObject imageMarkerPrefab;
     [SerializeField] private GameObject pluginPrefab;
     [SerializeField] private GameObject drawingEditorPrefab;
+    [SerializeField] private GameObject ERobsonSelectorPrefab;
 
     private LabelEditor labelEditor;
     private AudioEditor audioEditor;
@@ -56,6 +57,7 @@ public class ActionEditor : MonoBehaviour
     private PickAndPlaceEditor pickAndPlaceEditor;
     private ImageMarkerEditor imageMarkerEditor;
     private PluginEditor pluginEditor;
+    private ERobsonEditor eRobsonSelector;
 
     private ActionDetailView detailView;
     private GameObject[] augmentationsButtons;
@@ -397,6 +399,14 @@ public class ActionEditor : MonoBehaviour
                     drawingEditor.Open(detailView.DisplayedAction, null);
                 }
                 break;
+            case ContentType.EROBSON:
+                if (!InstanceOfAugmentationExist(ContentType.EROBSON))
+                {
+                    eRobsonSelector = LoadEditorPanel<ERobsonEditor>(ERobsonSelectorPrefab);
+                    eRobsonSelector.SetAnnotationStartingPoint(DefaultAugmentationStartingPoint);
+                    eRobsonSelector.Open(detailView.DisplayedAction, null);
+                }
+                break;
         }
     }
 
@@ -511,6 +521,10 @@ public class ActionEditor : MonoBehaviour
                 pluginEditor = LoadEditorPanel<PluginEditor>(pluginPrefab);
                 pluginEditor.Open(detailView.DisplayedAction, annotation);
                 break;
+            case string anno when anno.StartsWith("eRobson"):
+                eRobsonSelector = LoadEditorPanel<ERobsonEditor>(characterAugmentationPrefab);
+                eRobsonSelector.Open(detailView.DisplayedAction, annotation);
+                break;
             default:
                 Debug.LogWarning("Unknown annotation predicate");
                 break;
@@ -546,6 +560,8 @@ public class ActionEditor : MonoBehaviour
             pluginEditor.Close();
         if (drawingEditor)
             drawingEditor.Close();
+        if (eRobsonSelector)
+            eRobsonSelector.Close();
 
 
         ShowHelpText();
