@@ -123,6 +123,7 @@ namespace MirageXR
             set => _showBigCards.Value = value;
         }
 
+
         public static bool rememberUser
         {
             get => _rememberUser.Value;

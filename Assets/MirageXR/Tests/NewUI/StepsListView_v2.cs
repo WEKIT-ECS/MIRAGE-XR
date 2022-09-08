@@ -22,13 +22,13 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private Button _btnNext;
     [SerializeField] private Button _btnPrev;
     [SerializeField] private Image _imgThumbnail;
-    [SerializeField] private StepsListItem _stepsListItemPrefab;
+    [SerializeField] private StepsListItem_v2 _stepsListItemPrefab;
     [SerializeField] private ThumbnailEditorView _thumbnailEditorPrefab;
     [SerializeField] private Sprite _defaultThumbnail;
 
     private bool edit;
 
-    private readonly List<StepsListItem> _stepsList = new List<StepsListItem>();
+    private readonly List<StepsListItem_v2> _stepsList = new List<StepsListItem_v2>();
     public RootView rootView => (RootView)_parentView;
 
     public TMP_InputField ActivityNameField => _inputFieldName;
