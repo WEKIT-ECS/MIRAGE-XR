@@ -26,7 +26,6 @@ public class RootView_v2 : BaseView
     [SerializeField] private LoginView_v2 _loginViewPrefab;
     [SerializeField] public GameObject newActivityPanel;
     [SerializeField] private GameObject HomePage;
-    [SerializeField] private ContentSelectorView_v2 _contentSelectorPrefab;
     [SerializeField] private StepsListView _stepsListView;
     [SerializeField] private Dialog _dialog;
     public Dialog dialog => _dialog;
