@@ -50,27 +50,39 @@ public class PopupsViewer : MonoBehaviour
             return;
         }
 
-        foreach (var popupBase in _stack)
-        {
-            popupBase.gameObject.SetActive(false);
-        }
+        //foreach (var popupBase in _stack)
+        //{
+        //    popupBase.gameObject.SetActive(false);
+        //}
 
         var popup = _stack.Peek();
         if (popup.isMarkedToDelete)
         {
             popup.Close();
+            UpdateView();
         }
         else
         {
-            popup.gameObject.SetActive(true);
-            popup.transform.SetAsLastSibling();
-            _btnBackground.gameObject.SetActive(true);
+            ShowPopup(popup);
         }
+    }
+
+    private void ShowPopup(PopupBase popup)
+    {
+        popup.gameObject.SetActive(true);
+        popup.transform.SetAsLastSibling();
+        var lastSiblingIndex = popup.transform.GetSiblingIndex();
+        _btnBackground.transform.SetSiblingIndex(lastSiblingIndex - 1);
+        _btnBackground.gameObject.SetActive(true);
     }
 
     private void OnOutTap()
     {
-        if (_stack.Count == 0) return;
+        if (_stack.Count == 0)
+        {
+            return;
+        }
+
         var popup = _stack.Peek();
         if (popup.canBeClosedByOutTap)
         {
