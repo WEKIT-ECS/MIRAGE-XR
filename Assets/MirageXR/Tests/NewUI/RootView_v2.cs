@@ -25,11 +25,12 @@ public class RootView_v2 : BaseView
     [SerializeField] public RectTransform bottomPanel;
     [SerializeField] private LoginView_v2 _loginViewPrefab;
     [SerializeField] public GameObject newActivityPanel;
+    [SerializeField] public ActivityListView_v2 activityListView_V2;
     [SerializeField] private GameObject HomePage;
     [SerializeField] private Dialog _dialog;
 
     public Dialog dialog => _dialog;
-    
+
     private Vector3 _currentPanelPosition;
     float moveTime = 1;
     float currentTime = 0;
