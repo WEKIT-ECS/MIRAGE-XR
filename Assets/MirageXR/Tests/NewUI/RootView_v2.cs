@@ -27,8 +27,8 @@ public class RootView_v2 : BaseView
     [SerializeField] public GameObject newActivityPanel;
     [SerializeField] public ActivityListView_v2 activityListView_V2;
     [SerializeField] private GameObject HomePage;
+    [SerializeField] private StepsListView _stepsListView;
     [SerializeField] private Dialog _dialog;
-
     public Dialog dialog => _dialog;
 
     private Vector3 _currentPanelPosition;
@@ -36,6 +36,8 @@ public class RootView_v2 : BaseView
     float currentTime = 0;
     private float normalizedValue;
     private bool panelMoving = false;
+    
+    public StepsListView stepsListView => _stepsListView;
 
     private void Awake()
     {
