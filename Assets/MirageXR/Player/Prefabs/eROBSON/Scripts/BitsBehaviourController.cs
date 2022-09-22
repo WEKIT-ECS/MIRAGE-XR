@@ -1,10 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.MixedReality.Toolkit.UI;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using UnityEngine;
 
 public class BitsBehaviourController : MonoBehaviour
 {
@@ -66,6 +65,7 @@ public class BitsBehaviourController : MonoBehaviour
                 _erobsonItem.HasPower = true;
                 break;
             case BitID.I3BUTTON:
+                _erobsonItem.IsActive = false;
                 break;
             case BitID.I5SLIDEDIMMER:
                 _erobsonItem.Dimmable = true;
@@ -108,7 +108,7 @@ public class BitsBehaviourController : MonoBehaviour
     /// <summary>
     /// Control every bit in this circuit and active/diactive it if it is not connected to power sourse 
     /// </summary>
-    private async void ControlCircuit()
+    public async void ControlCircuit()
     {
         try
         {
@@ -122,9 +122,21 @@ public class BitsBehaviourController : MonoBehaviour
             //Order the list of bits by "connectedTime" variable
             eRobsonItemsList.OrderBy(e => e.connectedTime);
 
+
+            //If the bit is a power source move it on top
+            // Find index for bottom item
+            var idx = eRobsonItemsList.FindIndex(i => i.ID == BitID.USBPOWER);
+
+            // Move power source item to first if it is not already and it is connected to the circuit
+            if (idx > 0 && ErobsonItemManager.eRobsonConnectedItemsList.Contains(eRobsonItemsList[idx]))
+                MoveToTop(eRobsonItemsList, idx);
+
+
             //Check all bits and deactivate all bits after this deactivated bit
             foreach (var eRobsonItem in eRobsonItemsList)
             {
+                if (!eRobsonItem) continue;
+
                 //Check the bits which are connected to this bit
                 var hasConnectedPower = await HasConnectedPower(eRobsonItem);
 
@@ -143,11 +155,15 @@ public class BitsBehaviourController : MonoBehaviour
                     ErobsonItemManager.AddOrRemoveFromConnectedList(eRobsonItem, AddOrRemove.REMOVE);
                     BitActionToggle(eRobsonItem, false);
                 }
+
+                //set the value text
+                _erobsonItem.SetValueText(_erobsonItem.ID);
             }
 
             CircuitControlling = false;
         }
-        catch (Exception e){
+        catch (Exception e)
+        {
 
             CircuitControlling = false;
             Debug.LogError(e);
@@ -163,9 +179,9 @@ public class BitsBehaviourController : MonoBehaviour
     private float CalculateValue()
     {
         var eRobsonConnectedItemsList = ErobsonItemManager.eRobsonConnectedItemsList;
-        var curcuitHasDimmable = eRobsonConnectedItemsList.Find(b => b.Dimmable == true);
+        var circuitHasDimmable = eRobsonConnectedItemsList.Find(b => b.Dimmable == true);
 
-        if (!curcuitHasDimmable)
+        if (!circuitHasDimmable)
             return -1;
 
         float valueSum = 0;
@@ -198,7 +214,7 @@ public class BitsBehaviourController : MonoBehaviour
             if (connectedbit.HasPower && connectedbit.IsActive)
             {
                 //Then check if it is power source return true
-                if(connectedbit.ID == BitID.USBPOWER)
+                if (connectedbit.ID == BitID.USBPOWER)
                 {
                     return true;
                 }
@@ -248,7 +264,9 @@ public class BitsBehaviourController : MonoBehaviour
         if (pinchSlider)
         {
             _erobsonItem.Value = pinchSlider.SliderValue;
+
             ControlCircuit();
+
             await Task.Delay(100);
         }
     }
@@ -302,4 +320,17 @@ public class BitsBehaviourController : MonoBehaviour
         }
     }
 
+
+    /// <summary>
+    /// Move an item from "index" to "0" in a list
+    /// </summary>
+    /// <param name="list"></param>
+    /// <param name="index"></param>
+    private void MoveToTop(List<eROBSONItems> list, int index)
+    {
+        var item = list[index];
+        for (int i = index; i > 0; i--)
+            list[i] = list[i - 1];
+        list[0] = item;
+    }
 }

@@ -68,6 +68,8 @@ public class ErobsonItemManager : MonoBehaviour
         eRobsonDataFolder = Path.Combine(activityManager.ActivityPath, $"eRobson/{activityManager.ActiveAction.id}");
 
         LoadeRobsonCircuit();
+
+        Subscribe();
     }
 
 
@@ -80,7 +82,7 @@ public class ErobsonItemManager : MonoBehaviour
     {
         EventManager.OnAugmentationObjectCreated += OnErobsonItemAdded;
         EventManager.OnAugmentationDeleted += OnErobsonItemDeleted;
-        EventManager.ActivitySaveButtonClicked += SaveJson;
+        EventManager.OnActivitySaved += SaveJson;
         EventManager.OnActivityStarted += OnActivateAction;
     }
 
@@ -88,7 +90,7 @@ public class ErobsonItemManager : MonoBehaviour
     {
         EventManager.OnAugmentationObjectCreated -= OnErobsonItemAdded;
         EventManager.OnAugmentationDeleted -= OnErobsonItemDeleted;
-        EventManager.ActivitySaveButtonClicked -= SaveJson;
+        EventManager.OnActivitySaved -= SaveJson;
         EventManager.OnActivityStarted -= OnActivateAction;
     }
 
@@ -163,6 +165,12 @@ public class ErobsonItemManager : MonoBehaviour
         if (eRobsonItem)
         {
             eRobsonItemsList.Add(eRobsonItem);
+
+            //The power source should be added to the connected bits list at the start
+            if(eRobsonItem.ID == BitID.USBPOWER)
+            {
+                eRobsonConnectedItemsList.Add(eRobsonItem);
+            }
         }
     }
 
@@ -178,7 +186,21 @@ public class ErobsonItemManager : MonoBehaviour
             var eRobsonItem = GameObject.Find(toggleObject.poi).GetComponentInChildren<eROBSONItems>();
             if (eRobsonItem)
             {
+                //If power source is deleted initiate all bits
+                if (eRobsonItem.ID == BitID.USBPOWER)
+                {
+                    foreach (var bit in eRobsonItemsList)
+                    {
+                        bit.GetComponent<BitsBehaviourController>().Init();
+                    }
+                }
+
                 eRobsonItemsList.Remove(eRobsonItem);
+
+                //Let adjust the circuit again after deleting this bit
+                eRobsonItem.GetComponent<BitsBehaviourController>().ControlCircuit();
+
+                Debug.LogError(eRobsonItem.ID + " deleted");
             }
         }
     }

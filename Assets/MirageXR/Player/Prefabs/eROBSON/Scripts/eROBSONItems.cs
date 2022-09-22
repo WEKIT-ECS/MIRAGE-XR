@@ -4,6 +4,7 @@ using UnityEngine;
 using MirageXR;
 using System.Collections.Generic;
 using System;
+using TMPro;
 
 public enum BitID
 {
@@ -30,6 +31,7 @@ public class eROBSONItems : MirageXRPrefab
 
     [Tooltip("The bit id")]
     [SerializeField] private BitID id;
+    [SerializeField] private TextMeshProUGUI valueText;
 
     public string poiID
     {
@@ -91,40 +93,33 @@ public class eROBSONItems : MirageXRPrefab
             // if the prefab reference has been found successfully
             if (erobsonManagers != null)
             {
-                var erobsonManagersPrefab = Instantiate(erobsonManagers, Vector3.zero, Quaternion.identity);
-                var erobsonItemManager = erobsonManagersPrefab.GetComponent<ErobsonItemManager>();
-                if (erobsonItemManager)
-                    erobsonItemManager.Subscribe();
+                Instantiate(erobsonManagers, Vector3.zero, Quaternion.identity);
             }
         }
     }
 
-    private void OnEnable()
-    {
-        EventManager.OnEditModeChanged += SetEditorState;
-    }
-
-    private void OnDisable()
-    {
-        EventManager.OnEditModeChanged -= SetEditorState;
-    }
-
-
     private void Start()
     {
-        SetEditorState(activityManager.EditModeActive);
-
         ports = GetComponentsInChildren<Port>();
         MyBehaviourController = GetComponent<BitsBehaviourController>();
         gameObject.GetComponentInParent<ObjectManipulator>().OnManipulationStarted.AddListener(OnMovingItem);
         gameObject.GetComponentInParent<ObjectManipulator>().OnManipulationEnded.AddListener(OnItemStoppedMoving);
     }
 
+
+    /// <summary>
+    /// When the user moves this item
+    /// </summary>
+    /// <param name="arg0"></param>
     private void OnMovingItem(ManipulationEventData arg0)
     {
         IsMoving = true;
     }
 
+    /// <summary>
+    /// When the user stop moving this item
+    /// </summary>
+    /// <param name="arg0"></param>
     private void OnItemStoppedMoving(ManipulationEventData arg0)
     {
         IsMoving = false;
@@ -132,24 +127,41 @@ public class eROBSONItems : MirageXRPrefab
 
 
 
+    /// <summary>
+    /// Disable manupulation
+    /// </summary>
     public void DisableManipulation()
     {
         gameObject.GetComponentInParent<ObjectManipulator>().enabled = false;
     }
 
+
+    /// <summary>
+    /// Enable manipulation
+    /// </summary>
     public void EnableManipulation()
     {
         gameObject.GetComponentInParent<ObjectManipulator>().enabled = true;
     }
 
 
-    private void SetEditorState(bool editModeActive)
+    /// <summary>
+    /// Set the value text if the bit has this feature
+    /// </summary>
+    public void SetValueText(BitID bitID)
     {
-
-        var boundsControl = GetComponent<BoundsControl>();
-        if (boundsControl != null)
+        if(valueText != null)
         {
-            boundsControl.Active = editModeActive;
+            switch (bitID)
+            {
+                case BitID.I5SLIDEDIMMER:
+                    valueText.text = Value.ToString("n2");
+                    break;
+                case BitID.I3BUTTON:
+                    valueText.text = IsActive ? "ON" : "OFF";
+                    break;
+            }
+
         }
     }
 
