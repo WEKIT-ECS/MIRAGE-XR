@@ -1,10 +1,10 @@
+using MirageXR;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class ContentSelectorView_v2 : MonoBehaviour
+public class ContentSelectorView_v2 : PopupBase
 {
     [SerializeField] private Transform _listContent;
     [SerializeField] private ContentSelectorListItem _contentSelectorListItemPrefab;
@@ -12,24 +12,31 @@ public class ContentSelectorView_v2 : MonoBehaviour
 
     private IEnumerable<PopupEditorBase> _editors;
     private MirageXR.Action _currentStep;
-
-    public void Start()
+    
+    public override void Init(Action<PopupBase> onClose, params object[] args)
     {
+        base.Init(onClose, args);
         UpdateView();
     }
 
     private void UpdateView()
     {
+        // Get the list of augmentations from txt file depends on platform
+        var listOfAugmentations = BrandManager.Instance.GetListOfAugmentations();
         foreach (var type in _editors.Select(t => t.editorForType).Distinct())
         {
-            var item = Instantiate(_contentSelectorListItemPrefab, _listContent);
-            item.Init(type, OnListItemClick, OnListItemHintClick);
+            var value = type.ToString().ToLowerInvariant();
+            if (listOfAugmentations.Contains(value))
+            {
+                var item = Instantiate(_contentSelectorListItemPrefab, _listContent);
+                item.Init(type, OnListItemClick, OnListItemHintClick);
+            }
         }
     }
 
     private void OnListItemClick(ContentType type)
     {
-        //Close();
+        Close();
         var editor = _editors.FirstOrDefault(t => t.editorForType == type);
         if (editor == null)
         {
@@ -39,7 +46,7 @@ public class ContentSelectorView_v2 : MonoBehaviour
         PopupsViewer.Instance.Show(editor, _currentStep);
     }
 
-    protected bool TryToGetArguments(params object[] args)
+    protected override bool TryToGetArguments(params object[] args)
     {
         try
         {

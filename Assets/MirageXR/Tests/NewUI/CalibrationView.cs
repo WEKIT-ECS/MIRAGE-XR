@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CalibrationView : MonoBehaviour
+public class CalibrationView : PopupBase
 {
     [SerializeField] private GameObject _footer;
     [SerializeField] private Image _targetRed;
@@ -19,13 +19,20 @@ public class CalibrationView : MonoBehaviour
 
     private void Init()
     {
-        _btnClose.onClick.AddListener(Close);
+        canBeClosedByOutTap = false;
+        _btnClose.onClick.AddListener(CloseBtnClicked);
     }
 
-    private void Close()
+    private void CloseBtnClicked()
     {
-        RootView_v2.Instance.OnHomeClick(true);
+        Close();
+        // show bottom panel and new activity screen
         RootView_v2.Instance.bottomPanel.gameObject.SetActive(true);
+        RootView_v2.Instance.newActivityPanel.SetActive(true);
     }
 
+    protected override bool TryToGetArguments(params object[] args)
+    {
+        return true;
+    }
 }
