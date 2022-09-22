@@ -1,5 +1,69 @@
 # MIRAGE·XR Changelog
 
+# Change Log
+
+# v1.9 (2022-06-08)
+
+## Featured
+- We refactored the core, breaking up ActivityManager and WorkplaceManager into more modular classes, rebuilding a better logic and flow with higher performance. This affects in particular: resuming activities, timing, event handling, bootstrapping, more clean separation of model-view-controller, persistence, addressables, with improved information hiding.
+- We added an in-app tutorial for the mobile user interface.
+- We migrated the project from GitLab provided by XR4ALL to a new code hosting platform on GitHub, set up new Github runners for Windows and Linux, and refactored our CI pipelines.
+
+## Added
+- We added new animations for the character models.
+- Pick & place now allows setting whether location resets or is remembered when repeating the activity. We also added contextual help to explain configuration better.
+- The model augmentation now has a log-out button, which allows forcing to reauthenticate with Sketchfab.
+
+## Changed
+- We fixed a bug in the activity list, which prevented displaying and searching the title.
+- We improved the built-in tutorial for the world space smart glasses user interface, changing wording, adding steps, and fixing a bug.
+- Several improvements to the character augmentation ensure that: the position marker does not slip so easily underneath the spatial map; handling of triggers; and a bug causing the edit panel to stay visible in the viewer.
+- The app version is now passed through via the IEEE P1589-2020 activity model to the repository. 
+
+## Fixed
+- We fixed cross-platform issues with the image and video augmentations. 
+- The pick & place augmentation on iOS was missing the sphere indicating the target zone.
+- In the settings screen on mobile platforms, the labels are now displayed correctly. 
+- We fixed an issue causing glyph, character model, and drawing sometimes to forget size or position.
+- We fixed an issue with the activity thumbnail not resetting, when creating a new activity. 
+- The activity list now correctly updates when returning to it after a new activity was created.
+- “https://” is now added automatically to the Moodle URL.
+- On the smart glasses UI, the grid augmentation menu now stays open when browsing to an empty action step and back.
+- The pointless ‘relocate activity list’ icon is no longer displayed on mobile platforms, only on smart glasses.
+- Some QR links were broken due to a bug in the Moodle repository plugin. This is now fixed. 
+- We added support for non-Latin characters to TextMeshPro, fixing issues with special characters in passwords and usernames.
+- We did some improvement to lighting of holograms.
+
+## Enterprise
+- We added a possibility to automatically build multiple apps with separate config files.
+- We added an option in the BrandConfiguration class that allows now to specify which augmentation editors shall be made available (with different configurations possible for mobile / smart glasses). 
+- It is now possible to configure the xAPI authentication and the Moodle URL via config file.
+
+## Developer
+- We migrated the project from GitLab provided by XR4ALL to a new code hosting platform on GitHub.
+- We setup new Github runners for Windows and Linux, and refactored our CI pipelines, migrating to GitHub actions, finally also adding a dedicated Android CI build pipeline.
+- Add abstraction layer for addressing GameObjects in the scene.
+- We introduced formal reviews as part of the changed approval process: every merge request is now reviewed and upon acceptance the original developer has to merge. This improves capacity of sprint masters, shifting workload back to the originating party.
+- We improved documentation, including with UML, in particular of the core and the connected augmentation system.
+- We implemented automatic syntax checking with StyleCop.
+- We cleaned the repository of some 3D models that are no longer used.
+- On mobile platforms, we replaced Vuforia with AR Foundation.
+- Notifications on slack now include the merge request details.
+- Pipeline preview builds now display the correct version number.
+
+### iOS
+
+Version 11.0+ (ARKit required)
+
+### Android
+
+Version 7.0+
+
+### UWP (Windows Holographic)
+
+10\.0.17134.0+
+
+
 # v1.8 (2021-11-12)
 
 ## Featured 

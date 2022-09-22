@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,6 +5,7 @@ public class StartCalibrationView : PopupBase
 {
     [SerializeField] private Button _btnStartCalibration;
     [SerializeField] private Button _btnGetCalibrationImage;
+    [SerializeField] private CalibrationView _calibrationPrefab;
 
     protected override bool TryToGetArguments(params object[] args)
     {
@@ -31,10 +30,12 @@ public class StartCalibrationView : PopupBase
 
     private void OpenCalibrationScreen()
     {
-        RootView_v2.Instance.OnStartCalibration();
+        PopupsViewer.Instance.Show(_calibrationPrefab);
 
-        // hide bottom panel
+        // hide bottom panel and new activity screen
         RootView_v2.Instance.bottomPanel.gameObject.SetActive(false);
+        RootView_v2.Instance.newActivityPanel.SetActive(false);
+
         Close();
     }
 }
