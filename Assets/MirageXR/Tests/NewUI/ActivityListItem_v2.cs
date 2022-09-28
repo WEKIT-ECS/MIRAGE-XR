@@ -1,5 +1,5 @@
+using System.IO;
 using System.Threading.Tasks;
-using i5.Toolkit.Core.ServiceCore;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,12 +8,15 @@ namespace MirageXR
 {
     public class ActivityListItem_v2 : MonoBehaviour
     {
+        private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg";
+
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
         [SerializeField] private TMP_Text _txtLabel;
         [SerializeField] private TMP_Text _txtDeadline;
         [SerializeField] private TMP_Text _txtAuthor;
-        [SerializeField] private Image _imgSmall;
+        [SerializeField] private Image _image;
+        [SerializeField] private Sprite _defaultThumbnail;
         [SerializeField] private Button _btnMain;
         [SerializeField] private OpenActivityModeSelect activityModeSelect;
 
@@ -56,6 +59,20 @@ namespace MirageXR
             var isOnClouds = _container.ExistsRemotely && !_container.ExistsLocally && !_container.IsDownloading;
         }
 
+        private void LoadThumbnail()
+        {
+            var path = Path.Combine(activityManager.ActivityPath, THUMBNAIL_FILE_NAME);
+            if (!File.Exists(path))
+            {
+                _image.sprite = _defaultThumbnail;
+                return;
+            }
+
+            var texture = Utilities.LoadTexture(path);
+            var sprite = Utilities.TextureToSprite(texture);
+            _image.sprite = sprite;
+        }
+
         private void OnBtnDelete()
         {
             if (_container.ExistsLocally)
@@ -66,9 +83,11 @@ namespace MirageXR
 
             if (_container.userIsOwner)
             {
-                DialogWindow.Instance.Show($"You are trying to delete activity \"{_container.Name}\" from the server. Are you sure?",
-                    new DialogButtonContent("Yes", DeleteFromServer),
-                    new DialogButtonContent("No"));
+                RootView_v2.Instance.dialog.ShowMiddle(
+                    "Warring!",
+                    $"You are trying to delete activity \"{_container.Name}\" from the server. Are you sure?",
+                    "Yes", DeleteFromServer,
+                    "No", null);
             }
         }
 
@@ -114,7 +133,7 @@ namespace MirageXR
             popup.ConnectedObject = gameObject;
         }
 
-        public async void OpenActivity(bool value) 
+        public async void OpenActivity(bool value)
         {
             await PlayActivityAsync();
 

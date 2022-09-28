@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -21,14 +19,11 @@ public class ProfileView : PopupBase
     [SerializeField] private TMP_Text _txtLogout;
     [SerializeField] private GameObject LogOutObjects;
 
-    [SerializeField] private MoodleServersView _moodlePrefab;
     [SerializeField] private Button _btnSelectServer;
     [SerializeField] private TMP_Text _txtConnectedServer;
 
-    [SerializeField] private SelectLRS _LRSPrefab;
     [SerializeField] private Button _btnSelectLRS;
     [SerializeField] private TMP_Text _txtConnectedLRS;
-    
 
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
@@ -40,7 +35,7 @@ public class ProfileView : PopupBase
         _btnLogin.onClick.AddListener(OnClickLogin);
         _btnLogout.onClick.AddListener(OnClickLogout);
         _toggleRemember.onValueChanged.AddListener(OnToggleRememberValueChanged);
-        _btnSelectServer.onClick.AddListener(ShowServerPanel);
+        _btnSelectServer.onClick.AddListener(ShowChangeServerPanel);
         _btnSelectLRS.onClick.AddListener(ShowLRSPanel);
 
         EventManager.MoodleDomainChanged += UpdateConnectedServerText;
@@ -84,7 +79,7 @@ public class ProfileView : PopupBase
     private void OnLoginSucceed(string username, string password)
     {
         Toast.Instance.Show("Login succeeded");
-        RootView_v2.Instance.activityListView_V2.UpdateListView();
+        RootView_v2.Instance.activityListView_V2.FetchAndUpdateView();
         if (DBManager.rememberUser)
         {
             LocalFiles.SaveUsernameAndPassword(username, password);
@@ -145,7 +140,7 @@ public class ProfileView : PopupBase
     private void OnClickLogout()
     {
         DBManager.LogOut();
-        RootView_v2.Instance.activityListView_V2.UpdateListView();
+        RootView_v2.Instance.activityListView_V2.FetchAndUpdateView();
         ShowLogin();
     }
 
@@ -163,21 +158,70 @@ public class ProfileView : PopupBase
         return regex.IsMatch(value);
     }
 
+    private static bool IsValidUrl(string urlString)
+    {
+        const string regexExpression = "^(?:http(s)?:\\/\\/)?[\\w.-]+(?:\\.[\\w\\.-]+)+[\\w\\-\\._~:/?#[\\]@!\\$&'\\(\\)\\*\\+,;=.]+$";
+        var regex = new Regex(regexExpression);
+        return regex.IsMatch(urlString);
+    }
+
+    private void ShowChangeServerPanel()
+    {
+        RootView_v2.Instance.dialog.ShowBottomMultiline("Select Learning Record Store:",
+            ("https://learn.wekit-ecs.com", () => ChangeServerDomain(DBManager.WEKIT_URL)),
+            ("https://arete.ucd.ie", () => ChangeServerDomain(DBManager.ARETE_URL)),
+            ("Other", ShowServerPanel));
+    }
+
     private void ShowServerPanel()
     {
-        PopupsViewer.Instance.Show(_moodlePrefab);
+        RootView_v2.Instance.dialog.ShowBottomInputField(
+            "Custom server:",
+            "Enter address",
+            "Cancel", null,
+            "Save", OnCustomServerSave);
     }
 
     private void ShowLRSPanel()
     {
-        PopupsViewer.Instance.Show(_LRSPrefab);
+        RootView_v2.Instance.dialog.ShowBottomMultiline("Select Learning Record Store:",
+            ("WEKIT", () => ChangeRecordStore(DBManager.LearningRecordStores.WEKIT)),
+            ("ARETE", () => ChangeRecordStore(DBManager.LearningRecordStores.ARETE)));
     }
 
-    private void UpdateConnectedServerText() 
+    private static void ChangeRecordStore(DBManager.LearningRecordStores recordStores)
+    {
+        EventManager.NotifyxAPIChanged(recordStores);
+        DBManager.publicCurrentLearningRecordStore = recordStores;
+    }
+
+    private void UpdateConnectedServerText()
     {
         _txtConnectedServer.text = DBManager.domain;
     }
 
+    private void OnCustomServerSave(string address)
+    {
+        if (!IsValidUrl(address))
+        {
+            Toast.Instance.Show("Server address is invalid!");
+            return;
+        }
+
+        ChangeServerDomain(address);
+    }
+
+    private static void ChangeServerDomain(string domain)
+    {
+        if (DBManager.domain != domain)
+        {
+            DBManager.domain = domain;
+            DBManager.LogOut();
+            RootView_v2.Instance.activityListView_V2.FetchAndUpdateView();
+        }
+
+        EventManager.NotifyMoodleDomainChanged();
+    }
 
     private void UpdateConectedLRS(DBManager.LearningRecordStores publicCurrentLearningRecordStore)
     {

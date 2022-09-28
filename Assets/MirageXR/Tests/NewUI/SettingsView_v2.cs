@@ -99,7 +99,7 @@ public class SettingsView_v2 : PopupBase
         }
         else
         {
-            DialogWindow.Instance.Show("You need to log in.", new DialogButtonContent("Ok", null));
+            Toast.Instance.Show("You need to log in.");
         }
     }
 
@@ -109,19 +109,17 @@ public class SettingsView_v2 : PopupBase
         var (result, response) = await moodleManager.UploadFile(activityManager.ActivityPath, activityManager.Activity.name, 0);
         if (response == "Error: File exist, update")
         {
-            DialogWindow.Instance.Show("This file is exist! Please select an option:",
-                new DialogButtonContent("Update", UploadAndUpdate),
-                new DialogButtonContent("Clone", UploadAndCopy),
-                new DialogButtonContent("Cancel", null));
-            return;
+            RootView_v2.Instance.dialog.ShowBottomMultiline("This file is exist! Please select an option:", 
+                ("Update", UploadAndUpdate),
+                ("Clone", UploadAndCopy),
+                ("Cancel", null));
         }
 
         if (response == "Error: File exist, clone")
         {
-            DialogWindow.Instance.Show("You are not the original author of this file! Please select an option:",
-                new DialogButtonContent("Clone", UploadAndCopy),
-                new DialogButtonContent("Cancel", null));
-            return;
+            RootView_v2.Instance.dialog.ShowBottomMultiline("You are not the original author of this file! Please select an option:",
+                ("Clone", UploadAndCopy),
+                ("Cancel", null));
         }
 
         if (result) Toast.Instance.Show("upload completed successfully");

@@ -3,9 +3,10 @@ using System.Collections.Generic;
 
 public enum DialogType
 {
-    Bottom,
     Middle,
-    MiddleMultiline
+    MiddleMultiline,
+    Bottom,
+    BottomInputField
 }
 
 public class DialogModel
