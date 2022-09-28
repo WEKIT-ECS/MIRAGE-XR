@@ -12,6 +12,7 @@ public class ERobsonEditorView : PopupEditorBase
 
     private string _prefabName;
 
+
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
         base.Init(onClose, args);

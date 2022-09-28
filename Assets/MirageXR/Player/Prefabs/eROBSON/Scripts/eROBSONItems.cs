@@ -78,6 +78,23 @@ public class eROBSONItems : MirageXRPrefab
         get; set;
     }
 
+    public ERobsonItem LoadedData
+    {
+        get; set;
+    }
+
+    private void OnEnable()
+    {
+        EventManager.OnEditModeChanged += EditModeState;
+    }
+
+    private void OnDisable()
+    {
+        EventManager.OnEditModeChanged -= EditModeState;
+    }
+
+
+
 
     [HideInInspector]
     public List<eROBSONItems> connectedbits = new List<eROBSONItems>();
@@ -104,6 +121,8 @@ public class eROBSONItems : MirageXRPrefab
         MyBehaviourController = GetComponent<BitsBehaviourController>();
         gameObject.GetComponentInParent<ObjectManipulator>().OnManipulationStarted.AddListener(OnMovingItem);
         gameObject.GetComponentInParent<ObjectManipulator>().OnManipulationEnded.AddListener(OnItemStoppedMoving);
+
+        EnableManipulation();
     }
 
 
@@ -188,10 +207,13 @@ public class eROBSONItems : MirageXRPrefab
     }
 
 
-    public void CopySettings(eROBSONItems bit)
+    /// <summary>
+    /// On edit mode switching
+    /// </summary>
+    /// <param name="editMode"></param>
+    private void EditModeState(bool editMode)
     {
-        HasPower = bit.HasPower;
-        IsActive = bit.IsActive;
-        connectedbits = bit.connectedbits;
+        //Manipulation should be enabled always for eRobson
+        EnableManipulation();
     }
 }

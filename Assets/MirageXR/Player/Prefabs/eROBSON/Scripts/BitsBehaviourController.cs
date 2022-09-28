@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
+using MirageXR;
 
 public class BitsBehaviourController : MonoBehaviour
 {
@@ -46,6 +47,7 @@ public class BitsBehaviourController : MonoBehaviour
     {
         if (!_erobsonItem)
             return;
+
 
         _erobsonItem.IsActive = true;
         _erobsonItem.HasPower = false;
@@ -110,8 +112,8 @@ public class BitsBehaviourController : MonoBehaviour
     /// </summary>
     public async void ControlCircuit()
     {
-        try
-        {
+        //try
+        //{
             if (CircuitControlling)
                 return;
 
@@ -140,7 +142,7 @@ public class BitsBehaviourController : MonoBehaviour
                 //Check the bits which are connected to this bit
                 var hasConnectedPower = await HasConnectedPower(eRobsonItem);
 
-                if (hasConnectedPower || eRobsonItem.ID == BitID.USBPOWER)
+                if (hasConnectedPower)
                 {
                     if (eRobsonItem.IsActive || (eRobsonItem.Dimmable && eRobsonItem.Value > 0))
                     {
@@ -161,13 +163,13 @@ public class BitsBehaviourController : MonoBehaviour
             }
 
             CircuitControlling = false;
-        }
-        catch (Exception e)
-        {
+        //}
+        //catch (Exception e)
+        //{
 
-            CircuitControlling = false;
-            Debug.LogError(e);
-        }
+        //    CircuitControlling = false;
+        //    Debug.LogError(e);
+        //}
     }
 
 
@@ -207,6 +209,12 @@ public class BitsBehaviourController : MonoBehaviour
     /// <returns></returns>
     private async Task<bool> HasConnectedPower(eROBSONItems bit)
     {
+        //Power source doesn't need to be check, it has power :)
+        if(bit.ID == BitID.USBPOWER)
+        {
+            return true;
+        }
+
         //Check the connected bit
         foreach (var connectedbit in bit.connectedbits)
         {
@@ -333,4 +341,5 @@ public class BitsBehaviourController : MonoBehaviour
             list[i] = list[i - 1];
         list[0] = item;
     }
+
 }

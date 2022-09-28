@@ -332,5 +332,11 @@ namespace MirageXR
                 Debug.LogError(e);
             }
         }
+
+        public static double GetRandomDouble(double minimum, double maximum)
+        {
+            System.Random random = new System.Random();
+            return random.NextDouble() * (maximum - minimum) + minimum;
+        }
     }
 }

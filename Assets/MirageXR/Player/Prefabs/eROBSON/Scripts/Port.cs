@@ -1,4 +1,5 @@
 
+using MirageXR;
 using System.Collections;
 using UnityEngine;
 
@@ -12,17 +13,22 @@ public enum Pole
 public class Port : MonoBehaviour
 {
     [SerializeField] private Pole pole;
+    [SerializeField] private GameObject IncorrectIconPrefab;
 
     public Port DetectedPortPole
     {
-        get; private set;
+        get; set;
     }
+
+    public bool Connected { get; set; }
+
+    public eROBSONItems ERobsonItem => erobsonItem;
+
 
     private GameObject eRobsonItemGameObject;
     private eROBSONItems erobsonItem;
 
-    public bool Connected { get; set; }
-
+    private bool _shaking;
 
     private void Start()
     {
@@ -31,9 +37,26 @@ public class Port : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// When the port collides any other colliders
+    /// </summary>
+    /// <param name="other"></param>
     private void OnTriggerEnter(Collider other)
     {
-        DetectedPortPole = other.GetComponent<Port>();
+
+        ControllPortCollision(other.gameObject);
+    }
+
+
+
+    /// <summary>
+    /// Check the informarion of the port which are collided to eachother and
+    /// make a disscion for their connecting regarding to their information
+    /// </summary>
+    /// <param name="collidedPort"></param>
+    private void ControllPortCollision(GameObject collidedPort)
+    {
+        DetectedPortPole = collidedPort.GetComponent<Port>();
 
         //If the other collider is not a port or it is already connected
         if (erobsonItem == null || DetectedPortPole == null)
@@ -80,19 +103,52 @@ public class Port : MonoBehaviour
             OnConnecting(DetectedPortPole);
 
         }
-        else if(DetectedPortPole.pole != Pole.USB && pole != Pole.USB)
+        else if (DetectedPortPole.pole != Pole.USB && pole != Pole.USB)
         {
 
-            //Move the bit to the left or right side of this bit depends on the port
-            var connectionPosition = pole == Pole.POSITIVE ? -DetectedPortPole.transform.forward : DetectedPortPole.transform.forward;
+            if (!RootObject.Instance.activityManager.EditModeActive)
+            {
+                if (!_shaking)
+                {
+                    //Show the feedback
+                    var icon = Instantiate(IncorrectIconPrefab, DetectedPortPole.transform.position - Camera.main.transform.forward * 0.1f, Quaternion.identity);
+                    var audioSource = icon.GetComponent<AudioSource>();
 
-            //Make a distance from the detected port
-            eRobsonItemGameObject.transform.position = DetectedPortPole.transform.position + connectionPosition * 0.2f;
+                    if (!audioSource.isPlaying)
+                    {
+                        audioSource.Play();
+                        StartCoroutine(Skake(erobsonItem.transform));
+
+                        if(icon)
+                            Destroy(icon, audioSource.clip.length);
+                    }
+                }
+
+            }
 
             OnDisconnecting();
+        }
+    }
 
+
+    private IEnumerator Skake(Transform go)
+    {
+        _shaking = true;
+
+        var temp = go;
+
+        for (int i = 0; i < 10; i++)
+        {
+            var rand = (float)Utilities.GetRandomDouble(0, 0.01f);
+            go.localPosition += new Vector3(rand, 0, 0);
+            yield return new WaitForSeconds(0.02f);
+            go.localPosition -= new Vector3(rand, 0, 0);
+            yield return new WaitForSeconds(0.02f);
         }
 
+        go.localPosition = temp.localPosition;
+
+        _shaking = false;
     }
 
 
@@ -102,9 +158,26 @@ public class Port : MonoBehaviour
     /// <returns></returns>
     private bool CanBeConnected()
     {
-        return ((DetectedPortPole.pole != pole && DetectedPortPole.pole != Pole.USB && pole != Pole.USB) 
-            || (DetectedPortPole.pole == Pole.USB && pole == Pole.USB))
-            && !erobsonItem.connectedbits.Contains(DetectedPortPole.erobsonItem);
+        var connectIt = false;
+
+        if (RootObject.Instance.activityManager.EditModeActive || erobsonItem.LoadedData == null)
+        {
+            var isUSBConnection = DetectedPortPole.pole == Pole.USB && pole == Pole.USB;
+            var hasDifferentPole = DetectedPortPole.pole != pole && DetectedPortPole.pole != Pole.USB && pole != Pole.USB;
+            var isAlreadyConnected = erobsonItem.connectedbits.Contains(DetectedPortPole.erobsonItem);
+
+            connectIt = (hasDifferentPole || isUSBConnection) && !isAlreadyConnected;
+        }
+        else
+        {
+            if (erobsonItem.LoadedData.connectedbitsID.Contains(DetectedPortPole.erobsonItem.poiID))
+            {
+                connectIt = true;
+            }
+        }
+
+
+        return connectIt;
     }
 
 
@@ -145,7 +218,7 @@ public class Port : MonoBehaviour
         }
 
         //Make snap effect be more clear
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(1f);
 
         erobsonItem.EnableManipulation();
     }

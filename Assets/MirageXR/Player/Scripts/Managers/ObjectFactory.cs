@@ -9,6 +9,24 @@ namespace MirageXR
 
     public class ObjectFactory : MonoBehaviour
     {
+
+        //TODO: we need to find a better place to create this eRobsonController
+        private async void Awake()
+        {
+            //create eRobson manager
+            //Create the erobson managers
+            if (ErobsonItemManager.Instance == null)
+            {
+                // Get the prefab from the references
+                var erobsonManagers = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("eROBSON/Prefabs/ErobsonImageMarkerController");
+                // if the prefab reference has been found successfully
+                if (erobsonManagers != null)
+                {
+                    Instantiate(erobsonManagers, Vector3.zero, Quaternion.identity);
+                }
+            }
+        }
+
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
         private void OnEnable()
         {
