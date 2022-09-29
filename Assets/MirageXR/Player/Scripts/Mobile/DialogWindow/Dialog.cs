@@ -58,13 +58,7 @@ public class Dialog : MonoBehaviour
         Show(DialogType.Bottom, label, null, contents, canBeClosedByOutTap);
     }
 
-    public void ShowBottomInputField(string label, string description, string textLeft, Action<string> onClickLeft, string textRight, Action<string> onClickRight)
-    {
-        var contents = new List<DialogButtonContent> { new DialogButtonContent(textLeft, onClickLeft), new DialogButtonContent(textRight, onClickRight) };
-        Show(DialogType.BottomInputField, label, description, contents);
-    }
-
-    public void ShowBottomInputField(string label, string description, bool canBeClosedByOutTap, string textLeft, Action<string> onClickLeft, string textRight, Action<string> onClickRight)
+    public void ShowBottomInputField(string label, string description, string textLeft, Action<string> onClickLeft, string textRight, Action<string> onClickRight, bool canBeClosedByOutTap = false)
     {
         var contents = new List<DialogButtonContent> { new DialogButtonContent(textLeft, onClickLeft), new DialogButtonContent(textRight, onClickRight) };
         Show(DialogType.BottomInputField, label, description, contents, canBeClosedByOutTap);
@@ -124,13 +118,18 @@ public class Dialog : MonoBehaviour
 
     private async Task ViewDialog(DialogModel model)
     {
-        await CloseDialog();
+        if (_dialogView)
+        {
+            await CloseDialogView();
+        }
+        else
+        {
+            ShowAnimation();
+        }
 
         _dialogView = CreateDialogView(model);
 
-        _backgroundCanvasGroup.alpha = 0.0f;
         _background.gameObject.SetActive(true);
-        await _backgroundCanvasGroup.DOFade(1.0f, AnimationFadeTime).AsyncWaitForCompletion();
         _background.onClick.RemoveAllListeners();
         await _dialogView.Show();
         if (model.canBeClosedByOutTap)
@@ -164,16 +163,32 @@ public class Dialog : MonoBehaviour
         }
     }
 
-    private async Task CloseDialog()
+    private async Task CloseDialogView()
     {
         if (_dialogView)
         {
             await _dialogView.Close();
-            _backgroundCanvasGroup.alpha = 1.0f;
-            await _backgroundCanvasGroup.DOFade(0, AnimationFadeTime).AsyncWaitForCompletion();
-            _background.gameObject.SetActive(false);
-            _isActive = false;
             _dialogView = null;
         }
+    }
+
+    private async Task CloseDialog()
+    {
+        await CloseDialogView();
+        await HideAnimation();
+        _background.gameObject.SetActive(false);
+        _isActive = false;
+    }
+
+    private async Task ShowAnimation()
+    {
+        _backgroundCanvasGroup.alpha = 0.0f;
+        await _backgroundCanvasGroup.DOFade(1.0f, AnimationFadeTime).AsyncWaitForCompletion();
+    }
+
+    private async Task HideAnimation()
+    {
+        _backgroundCanvasGroup.alpha = 1.0f;
+        await _backgroundCanvasGroup.DOFade(0, AnimationFadeTime).AsyncWaitForCompletion();
     }
 }

@@ -4,8 +4,8 @@ using UnityEngine;
 
 public abstract class DialogView : MonoBehaviour
 {
-    protected const float AnimationTime = 0.2f;
-    
+    protected const float AnimationTime = 0.15f;
+
     [SerializeField] protected TMP_Text _textLabel;
 
     public abstract void UpdateView(DialogModel model);
