@@ -7,6 +7,7 @@ public class DialogTest : MonoBehaviour
     [SerializeField] private Button _buttonMiddle;
     [SerializeField] private Button _buttonMiddleMultiline;
     [SerializeField] private Button _buttonBottomMultiline;
+    [SerializeField] private Button _buttonBottomInputField;
     [SerializeField] private Toggle _toggleCanBeClosedByOutTap;
 
     private void Start()
@@ -14,6 +15,7 @@ public class DialogTest : MonoBehaviour
         _buttonMiddle.onClick.AddListener(ShowMiddleDialog);
         _buttonMiddleMultiline.onClick.AddListener(ShowMiddleMultilineDialog);
         _buttonBottomMultiline.onClick.AddListener(ShowBottomMultilineDialog);
+        _buttonBottomInputField.onClick.AddListener(ShowBottomInputFieldDialog);
     }
 
     private void ShowMiddleDialog()
@@ -39,11 +41,20 @@ public class DialogTest : MonoBehaviour
     private void ShowBottomMultilineDialog()
     {
         _dialog.ShowBottomMultiline(
-        "Bottom Multiline Dialog Test!",
-        _toggleCanBeClosedByOutTap.isOn,
-        ("Item 1", () => Debug.Log("Item 1 - click!"), false),
-        ("Item 2", () => Debug.Log("Item 2 - click!"), false),
-        ("Item 3", () => Debug.Log("Item 3 - click!"), true),
-        ("Item 4", () => Debug.Log("Item 4 - click!"), true));
+            "Bottom Multiline Dialog Test!",
+            _toggleCanBeClosedByOutTap.isOn,
+            ("Item 1", () => Debug.Log("Item 1 - click!"), false),
+            ("Item 2", () => Debug.Log("Item 2 - click!"), false),
+            ("Item 3", () => Debug.Log("Item 3 - click!"), true),
+            ("Item 4", () => Debug.Log("Item 4 - click!"), true));
+    }
+
+    private void ShowBottomInputFieldDialog()
+    {
+        _dialog.ShowBottomInputField(
+            "Bottom Multiline Dialog Test!",
+            "Description",
+            "Left", t => Debug.Log($"Item Left - click! Text: {t}"),
+            "Right", t => Debug.Log($"Item Right - click! Text: {t}"));
     }
 }
