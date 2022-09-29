@@ -14,14 +14,11 @@ public class ProfileView : PopupBase
     [SerializeField] private ExtendedInputField _inputFieldPassword;
     [SerializeField] private Toggle _toggleRemember;
     [SerializeField] private GameObject LoginObjects;
-
     [SerializeField] private Button _btnLogout;
     [SerializeField] private TMP_Text _txtLogout;
     [SerializeField] private GameObject LogOutObjects;
-
     [SerializeField] private Button _btnSelectServer;
     [SerializeField] private TMP_Text _txtConnectedServer;
-
     [SerializeField] private Button _btnSelectLRS;
     [SerializeField] private TMP_Text _txtConnectedLRS;
 
