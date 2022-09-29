@@ -15,6 +15,7 @@ public class Dialog : MonoBehaviour
     [SerializeField] private DialogViewMiddle _dialogMiddlePrefab;
     [SerializeField] private DialogViewMiddleMultiline _dialogMiddleMultilinePrefab;
     [SerializeField] private DialogViewBottomMultiline _dialogBottomMultilinePrefab;
+    [SerializeField] private DialogViewBottomInputField _dialogBottomInputFieldPrefab;
 
     private readonly Queue<DialogModel> _queue = new Queue<DialogModel>();
     private DialogView _dialogView;
@@ -55,6 +56,18 @@ public class Dialog : MonoBehaviour
     {
         var contents = buttonContents.Select(t => new DialogButtonContent(t.text, t.onClick)).ToList();
         Show(DialogType.Bottom, label, null, contents, canBeClosedByOutTap);
+    }
+
+    public void ShowBottomInputField(string label, string description, string textLeft, Action<string> onClickLeft, string textRight, Action<string> onClickRight)
+    {
+        var contents = new List<DialogButtonContent> { new DialogButtonContent(textLeft, onClickLeft), new DialogButtonContent(textRight, onClickRight) };
+        Show(DialogType.BottomInputField, label, description, contents);
+    }
+
+    public void ShowBottomInputField(string label, string description, bool canBeClosedByOutTap, string textLeft, Action<string> onClickLeft, string textRight, Action<string> onClickRight)
+    {
+        var contents = new List<DialogButtonContent> { new DialogButtonContent(textLeft, onClickLeft), new DialogButtonContent(textRight, onClickRight) };
+        Show(DialogType.BottomInputField, label, description, contents, canBeClosedByOutTap);
     }
 
     public void ShowMiddleMultiline(string label, params (string text, Action onClick, bool isWarning)[] buttonContents)
@@ -144,6 +157,8 @@ public class Dialog : MonoBehaviour
                 return _dialogMiddlePrefab;
             case DialogType.MiddleMultiline:
                 return _dialogMiddleMultilinePrefab;
+            case DialogType.BottomInputField:
+                return _dialogBottomInputFieldPrefab;
             default:
                 throw new ArgumentOutOfRangeException();
         }
