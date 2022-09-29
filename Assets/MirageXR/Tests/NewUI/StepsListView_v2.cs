@@ -201,13 +201,13 @@ public class StepsListView_v2 : BaseView
 
     private void OnActionDeleted(string actionId)
     {
-        if (actionId == activityManager.ActiveAction.id) 
+        if (actionId == activityManager.ActiveAction.id)
         {
             activityManager.ActivateNextAction();
         }
 
         activityManager.DeleteAction(actionId);
-        UpdateView();       
+        UpdateView();
     }
 
     private void OnThumbnailButtonPressed()
