@@ -33,7 +33,7 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          unityVersion: 2020.3.13f1
+          unityVersion: 2020.3.38f1
 
   build:
     name: Build Unity
