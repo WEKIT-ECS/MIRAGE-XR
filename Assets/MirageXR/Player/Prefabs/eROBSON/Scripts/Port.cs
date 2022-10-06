@@ -1,6 +1,7 @@
 
 using MirageXR;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public enum Pole
@@ -30,11 +31,37 @@ public class Port : MonoBehaviour
 
     private bool _shaking;
 
+
     private void Start()
     {
         eRobsonItemGameObject = transform.parent.gameObject;
         erobsonItem = eRobsonItemGameObject.GetComponent<eROBSONItems>();
     }
+
+
+    private void FixedUpdate()
+    {
+        if (!erobsonItem.IsMoving)
+            return;
+
+        var colliders = Physics.OverlapSphere(transform.position, 0.0001f, LayerMask.GetMask("eRobsonPort"));
+
+        var WitoudPortForSameBit = new List<Collider>();
+
+        foreach (var col in colliders)
+        {
+            if(col.GetComponent<Port>().ERobsonItem != ERobsonItem && col != GetComponent<Collider>())
+            {
+                WitoudPortForSameBit.Add(col);
+            }
+        }
+
+        if (WitoudPortForSameBit.Count == 0)
+        {
+            Disconnect();
+        }
+    }
+
 
 
     /// <summary>
@@ -100,7 +127,7 @@ public class Port : MonoBehaviour
             //Enable manipulation after a while
             StartCoroutine(MakeBitBeParent());
 
-            OnConnecting(DetectedPortPole);
+            Connect(DetectedPortPole);
 
         }
         else if (DetectedPortPole.pole != Pole.USB && pole != Pole.USB)
@@ -126,7 +153,7 @@ public class Port : MonoBehaviour
 
             }
 
-            OnDisconnecting();
+            Disconnect();
         }
     }
 
@@ -183,7 +210,7 @@ public class Port : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        OnDisconnecting();
+        Disconnect();
     }
 
 
@@ -227,9 +254,8 @@ public class Port : MonoBehaviour
     /// <summary>
     /// When the port is connected
     /// </summary>
-    private void OnConnecting(Port detectedPort)
+    private void Connect(Port detectedPort)
     {
-
         if (detectedPort && detectedPort.erobsonItem)
         {
             Connected = true;
@@ -237,10 +263,9 @@ public class Port : MonoBehaviour
             if (!erobsonItem.connectedbits.Contains(detectedPort.erobsonItem))
             {
                 erobsonItem.connectedbits.Add(detectedPort.erobsonItem);
+                erobsonItem.connectedTime = new System.DateTime();
+                ErobsonItemManager.BitConnected(erobsonItem);
             }
-
-            erobsonItem.connectedTime = new System.DateTime();
-            ErobsonItemManager.BitConnected(erobsonItem);
         }
     }
 
@@ -248,7 +273,7 @@ public class Port : MonoBehaviour
     /// <summary>
     /// When the port is disconnected
     /// </summary>
-    private void OnDisconnecting()
+    private void Disconnect()
     {
 
         if (DetectedPortPole)

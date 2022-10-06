@@ -278,7 +278,11 @@ public class ErobsonItemManager : MonoBehaviour
                     }
                 }
 
+                //Remove the deleted bit from the erobson list
                 eRobsonItemsList.Remove(eRobsonItem);
+
+                //Remove the deleted bit from the connected erobson list
+                AddOrRemoveFromConnectedList(eRobsonItem, AddOrRemove.REMOVE);
 
                 //Let adjust the circuit again after deleting this bit
                 eRobsonItem.GetComponent<BitsBehaviourController>().ControlCircuit();

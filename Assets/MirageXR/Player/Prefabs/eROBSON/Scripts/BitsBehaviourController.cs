@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
-using MirageXR;
 
 public class BitsBehaviourController : MonoBehaviour
 {
@@ -90,10 +89,10 @@ public class BitsBehaviourController : MonoBehaviour
     public void ActivatingToggle()
     {
         _erobsonItem.IsActive = !_erobsonItem.IsActive;
-        if (_erobsonItem.IsActive)
-        {
-            _erobsonItem.HasPower = true;
-        }
+        _erobsonItem.HasPower = _erobsonItem.IsActive;
+
+        //Turn on/off the power indicators
+        SwitchPowerIndicatorLight(_erobsonItem);
 
         ControlCircuit();
     }
@@ -112,8 +111,8 @@ public class BitsBehaviourController : MonoBehaviour
     /// </summary>
     public async void ControlCircuit()
     {
-        //try
-        //{
+        try
+        {
             if (CircuitControlling)
                 return;
 
@@ -158,43 +157,44 @@ public class BitsBehaviourController : MonoBehaviour
                     BitActionToggle(eRobsonItem, false);
                 }
 
-                //set the value text
-                _erobsonItem.SetValueText(_erobsonItem.ID);
             }
 
-            CircuitControlling = false;
-        //}
-        //catch (Exception e)
-        //{
 
-        //    CircuitControlling = false;
-        //    Debug.LogError(e);
-        //}
+
+            //set the value text
+            _erobsonItem.SetValueText(_erobsonItem.ID);
+
+            CircuitControlling = false;
+        }
+        catch (Exception e)
+        {
+
+            CircuitControlling = false;
+            Debug.LogError(e);
+        }
     }
 
 
     /// <summary>
-    /// Check if any dimmable bit exist in the curcuit
+    /// Check if any dimmable bit exist in the curcuit within the given bit
     /// If exist return the average value otherwise return -1
     /// </summary>
     /// <returns>float</returns>
-    private float CalculateValue()
+    private float CalculateValue(eROBSONItems erobsonItem)
     {
         var eRobsonConnectedItemsList = ErobsonItemManager.eRobsonConnectedItemsList;
-        var circuitHasDimmable = eRobsonConnectedItemsList.Find(b => b.Dimmable == true);
+        var dimmablesToBeCaluculated = eRobsonConnectedItemsList.FindAll(b => b.Dimmable == true && eRobsonConnectedItemsList.IndexOf(b) < eRobsonConnectedItemsList.IndexOf(erobsonItem));
 
-        if (!circuitHasDimmable)
+        if (dimmablesToBeCaluculated.Count == 0)
             return -1;
+
 
         float valueSum = 0;
         float counter = 0;
-        foreach (var bit in ErobsonItemManager.eRobsonConnectedItemsList)
+        foreach (var bit in dimmablesToBeCaluculated)
         {
-            if (bit.Dimmable)
-            {
-                valueSum += bit.Value;
-                counter++;
-            }
+            valueSum += bit.Value;
+            counter++;
         }
 
         return valueSum / counter;
@@ -210,7 +210,7 @@ public class BitsBehaviourController : MonoBehaviour
     private async Task<bool> HasConnectedPower(eROBSONItems bit)
     {
         //Power source doesn't need to be check, it has power :)
-        if(bit.ID == BitID.USBPOWER)
+        if (bit.ID == BitID.USBPOWER)
         {
             return true;
         }
@@ -266,6 +266,9 @@ public class BitsBehaviourController : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// Set the value of sliders
+    /// </summary>
     public async void SetValue()
     {
         var pinchSlider = GetComponentInChildren<PinchSlider>();
@@ -280,6 +283,18 @@ public class BitsBehaviourController : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// Turn on or off the power indictor light depends on it has power(connected) or not
+    /// </summary>
+    /// <param name="bit"></param>
+    private void SwitchPowerIndicatorLight(eROBSONItems bit)
+    {
+        //Turn on/off the power indicators
+        if (bit && bit.IndicatorLight)
+            bit.IndicatorLight.SwitchLight(bit.HasPower);
+    }
+
+
 
     /// <summary>
     /// The actions which any bit will do on active/deactive status
@@ -287,7 +302,10 @@ public class BitsBehaviourController : MonoBehaviour
     /// <param name="active"></param>
     private void BitActionToggle(eROBSONItems bit, bool status)
     {
-        var temp = CalculateValue();
+        //Turn on/off the power indicators
+        SwitchPowerIndicatorLight(bit);
+
+        var temp = CalculateValue(bit);
         var averageValue = temp == -1 ? 2 : temp * 2; //If no dimmable use default
 
         switch (bit.ID)

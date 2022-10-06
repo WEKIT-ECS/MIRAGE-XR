@@ -33,6 +33,10 @@ public class eROBSONItems : MirageXRPrefab
     [SerializeField] private BitID id;
     [SerializeField] private TextMeshProUGUI valueText;
 
+    private IndicatorLight indicatorLight;
+
+    public IndicatorLight IndicatorLight => indicatorLight;
+
     public string poiID
     {
         get
@@ -117,6 +121,7 @@ public class eROBSONItems : MirageXRPrefab
 
     private void Start()
     {
+        indicatorLight = GetComponentInChildren<IndicatorLight>();
         ports = GetComponentsInChildren<Port>();
         MyBehaviourController = GetComponent<BitsBehaviourController>();
         gameObject.GetComponentInParent<ObjectManipulator>().OnManipulationStarted.AddListener(OnMovingItem);
@@ -160,7 +165,9 @@ public class eROBSONItems : MirageXRPrefab
     /// </summary>
     public void EnableManipulation()
     {
-        gameObject.GetComponentInParent<ObjectManipulator>().enabled = true;
+        var objectManipulator = GetComponentInParent<ObjectManipulator>();
+        objectManipulator.TwoHandedManipulationType = Microsoft.MixedReality.Toolkit.Utilities.TransformFlags.Move;
+        objectManipulator.enabled = true;
     }
 
 
