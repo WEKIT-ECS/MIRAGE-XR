@@ -110,7 +110,7 @@ public class eROBSONItems : MirageXRPrefab
         if (ErobsonItemManager.Instance == null)
         {
             // Get the prefab from the references
-            var erobsonManagers = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("eROBSON/Prefabs/ErobsonImageMarkerController");
+            var erobsonManagers = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("eROBSON/Prefabs/Common/ErobsonImageMarkerController");
             // if the prefab reference has been found successfully
             if (erobsonManagers != null)
             {

@@ -125,12 +125,8 @@ public class StepsListView_v2 : BaseView
     {
         if (activityManager.ActionsOfTypeAction.Count > 1)
         {
-            DialogWindow.Instance.Show("Warning!", "Are you sure you want to delete this step?",
-                new DialogButtonContent("Yes", () => OnActionDeleted(step.id)),//activityManager.DeleteAction(step.id)),
-                new DialogButtonContent("No"));
+            RootView_v2.Instance.dialog.ShowMiddle("Warning!", "Are you sure you want to delete this step?", "Yes", () => OnActionDeleted(step.id), "No", null);
         }
-
-        
     }
 
     private void OnStepClick(Action step)
@@ -205,13 +201,13 @@ public class StepsListView_v2 : BaseView
 
     private void OnActionDeleted(string actionId)
     {
-        if (actionId == activityManager.ActiveAction.id) 
+        if (actionId == activityManager.ActiveAction.id)
         {
             activityManager.ActivateNextAction();
         }
 
         activityManager.DeleteAction(actionId);
-        UpdateView();       
+        UpdateView();
     }
 
     private void OnThumbnailButtonPressed()

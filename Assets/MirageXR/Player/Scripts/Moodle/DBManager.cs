@@ -62,7 +62,7 @@ namespace MirageXR
 
         private const string REMEMBER_SKETCHFAB_USER_KEY = "RememberSketchfabUser";
         private const bool REMEMBER_SKETCHFAB_USER_DEFAULT = false;
-        
+
         private const string SHOW_BIG_CARDS_KEY = "ShowBigCards";
         public const bool SHOW_BIG_CARDS_DEFAULT = false;
 
@@ -70,10 +70,13 @@ namespace MirageXR
         private const bool DONT_SHOW_CALIBRATION_GUIDE_DEFAULT = false;
 
         private const string MOODLE_URL_KEY = "MoodleURL";
-        public const string MOODLE_URL_DEFAULT = "https://learn.wekit-ecs.com";
+        //public const string MOODLE_URL_DEFAULT = "https://learn.wekit-ecs.com";
+        public const string WEKIT_URL = "https://learn.wekit-ecs.com";
+        public const string ARETE_URL = "https://arete.ucd.ie";
 
         private const string SKETCHFAB_TOKEN_RENEW_KEY = "Sketchfab_token_last_renew_date";
         private const string SKETCHFAB_TOKEN_RENEW_DEFAULT = "";
+
 
         private const int SKETCHFAB_RENEW_DYAS_COOLDOWN = 5;
 
@@ -84,13 +87,15 @@ namespace MirageXR
         public static string usermail;
         public static string token;
 
-        private static int CurrentLearningRecordStore;
+        public enum LearningRecordStores {WEKIT, ARETE};
+
+        private static LearningRecordStores CurrentLearningRecordStore;
 
         private static readonly PrefsBoolValue _publicUploadPrivacy = new PrefsBoolValue(UPLOAD_PRIVACY_KEY, PUBLIC_UPLOAD_PRIVACY_DEFAULT);
         private static readonly PrefsBoolValue _rememberUser = new PrefsBoolValue(REMEMBER_USER_KEY, REMEMBER_USER_DEFAULT);
         private static readonly PrefsBoolValue _rememberSketchfabUser = new PrefsBoolValue(REMEMBER_SKETCHFAB_USER_KEY, REMEMBER_SKETCHFAB_USER_DEFAULT);
         private static readonly PrefsBoolValue _dontShowCalibrationGuide = new PrefsBoolValue(DONT_SHOW_CALIBRATION_GUIDE_KEY, DONT_SHOW_CALIBRATION_GUIDE_DEFAULT);
-        private static readonly PrefsStringValue _domain = new PrefsStringValue(MOODLE_URL_KEY, MOODLE_URL_DEFAULT);
+        private static readonly PrefsStringValue _domain = new PrefsStringValue(MOODLE_URL_KEY, WEKIT_URL);
         private static readonly PrefsStringValue _sketchfabTokenRenewDate = new PrefsStringValue(SKETCHFAB_TOKEN_RENEW_KEY, SKETCHFAB_TOKEN_RENEW_DEFAULT);
         private static readonly PrefsBoolValue _showBigCards = new PrefsBoolValue(SHOW_BIG_CARDS_KEY, SHOW_BIG_CARDS_DEFAULT);
 
@@ -118,11 +123,6 @@ namespace MirageXR
             set => _showBigCards.Value = value;
         }
 
-        public static int publicCurrentLearningRecordStore
-        {
-            get => CurrentLearningRecordStore;
-            set => CurrentLearningRecordStore = value;
-        }
 
         public static bool rememberUser
         {
@@ -148,7 +148,14 @@ namespace MirageXR
             set => _domain.Value = value;
         }
 
+        public static LearningRecordStores publicCurrentLearningRecordStore
+        {
+            get => CurrentLearningRecordStore;
+            set => CurrentLearningRecordStore = value;
+        }
+
         public static string registerPage => $"{domain}/login/signup.php";
+
 
         // if user is logged into Moodle
         public static bool LoggedIn => username != null;

@@ -63,7 +63,15 @@ namespace MirageXR
 
         public void SetXApi(Dropdown option)
         {
-            EventManager.NotifyxAPIChanged(option.value);
+            switch (option.value)
+            {
+                case 0:
+                    EventManager.NotifyxAPIChanged(DBManager.LearningRecordStores.WEKIT);
+                    break;
+                case 1:
+                    EventManager.NotifyxAPIChanged(DBManager.LearningRecordStores.ARETE);
+                    break;
+            }
         }
 
 

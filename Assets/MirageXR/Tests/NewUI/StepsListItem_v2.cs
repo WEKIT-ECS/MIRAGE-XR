@@ -55,7 +55,6 @@ public class StepsListItem_v2 : MonoBehaviour
             _txtStepName.text = step.instruction.title;
             _txtStepDescription.text = step.instruction.description;
         }
-    
     }
 
     public void OnEditModeChanged(bool value)
@@ -64,7 +63,7 @@ public class StepsListItem_v2 : MonoBehaviour
         _stepStatus.SetActive(!value);
         _editButton.gameObject.SetActive(value);
     }
-    
+
     private void OnStepClick()
     {
         _onStepClick(_step);
@@ -72,13 +71,11 @@ public class StepsListItem_v2 : MonoBehaviour
 
     private void OnDeleteClick()
     {
-        EventManager.NotifyActionDeleted(_step.id);
-
         _onDeleteClick(_step);
     }
 
-    public void OnEditClick() {
-        
+    public void OnEditClick() 
+    {
         newActivityView.ChangeInfoStepNumber(_number);
         newActivityView.ShowInfoStepsTab();
     }
