@@ -35,9 +35,6 @@ namespace MirageXR
         public bool WorldSpaceUi => _worldSpaceUi;
 
         public string PlayerSceneName => _playerScene;
-        public string RecorderSceneName => _recorderScene;
-
-        public string CommonSceneName => _commonScene;
 
         public string ActivitySelectionScene => _activitySelectionScene;
 
@@ -45,9 +42,13 @@ namespace MirageXR
         {
             //Singleton
             if (Instance == null)
+            {
                 Instance = this;
+            }
             else if (Instance != this)
+            {
                 Destroy(gameObject);
+            }
         }
 
         private void OnDisable()
@@ -143,6 +144,7 @@ namespace MirageXR
 #endif
         }
 
+#if UNITY_ANDROID && !UNITY_EDITOR
         private static float GetDeviceDiagonalSizeInInches()
         {
             var screenWidth = Screen.width / Screen.dpi;
@@ -153,5 +155,6 @@ namespace MirageXR
 
             return diagonalInches;
         }
+#endif
     }
 }

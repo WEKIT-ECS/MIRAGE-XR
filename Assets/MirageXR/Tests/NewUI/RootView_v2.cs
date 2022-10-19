@@ -26,7 +26,7 @@ public class RootView_v2 : BaseView
     [SerializeField] private GameObject _newActivityPanel;
     [SerializeField] private ActivityListView_v2 _activityListView_V2;
     [SerializeField] private GameObject HomePage;
-    [SerializeField] private StepsListView _stepsListView;
+    [SerializeField] private StepsListView_v2 _stepsListView;
     [SerializeField] private Dialog _dialog;
 
     public Dialog dialog => _dialog;
@@ -39,7 +39,7 @@ public class RootView_v2 : BaseView
     private float normalizedValue;
     private bool panelMoving = false;
 
-    public StepsListView stepsListView => _stepsListView;
+    public StepsListView_v2 stepsListView => _stepsListView;
 
     private void Awake()
     {
@@ -74,6 +74,8 @@ public class RootView_v2 : BaseView
         _pageView.OnPageChanged.AddListener(OnPageChanged);
 
         EventManager.OnActivityStarted += OnActivityLoaded;
+
+        stepsListView.Initialization(this);
 
         if (!DBManager.LoggedIn && DBManager.rememberUser)
         {
