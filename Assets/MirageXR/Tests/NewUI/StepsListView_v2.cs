@@ -34,22 +34,15 @@ public class StepsListView_v2 : BaseView
     public TMP_InputField ActivityNameField => _inputFieldName;
     public Button BtnAddStep => _btnAddStep;
 
-    private void Start()
-    {
-        UpdateView();
-        edit = false;
-    }
     public override void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
         _inputFieldName.onValueChanged.AddListener(OnStepNameChanged);
         _btnAddStep.onClick.AddListener(OnAddStepClick);
-       // _toggleEdit.onValueChanged.AddListener(OnEditValueChanged);
+        //_toggleEdit.onValueChanged.AddListener(OnEditValueChanged);
         _btnThumbnail.onClick.AddListener(OnThumbnailButtonPressed);
 
         EventManager.OnWorkplaceLoaded += OnStartActivity;
-        EventManager.OnActivityStarted += OnStartActivity;
-        EventManager.NewActivityCreationButtonPressed += OnStartActivity;
         EventManager.OnActionCreated += OnActionCreated;
         EventManager.OnActionDeleted += OnActionDeleted;
         EventManager.OnActionModified += OnActionChanged;
@@ -91,14 +84,14 @@ public class StepsListView_v2 : BaseView
                 _stepsList[i].gameObject.SetActive(true);
                 _stepsList[i].UpdateView(steps[i], i);
             }
+
             OnEditModeChanged(activityManager.EditModeActive);
             LoadThumbnail();
         }
-        else 
+        else
         {
-            _inputFieldName.text = "";
+            _inputFieldName.text = string.Empty;
         }
-       
     }
 
     private void LoadThumbnail()
@@ -125,7 +118,8 @@ public class StepsListView_v2 : BaseView
     {
         if (activityManager.ActionsOfTypeAction.Count > 1)
         {
-            RootView_v2.Instance.dialog.ShowMiddle("Warning!", "Are you sure you want to delete this step?", "Yes", () => OnActionDeleted(step.id), "No", null);
+            RootView_v2.Instance.dialog.ShowMiddle("Warning!", "Are you sure you want to delete this step?",
+                "Yes", () => activityManager.DeleteAction(step.id), "No", null);
         }
     }
 
@@ -182,7 +176,7 @@ public class StepsListView_v2 : BaseView
     {
         var activeStep = activityManager.ActiveAction;
         var actionList = activityManager.Activity.actions;
-        if (actionList.First() != activeStep)
+        if (actionList.FirstOrDefault() != activeStep)
         {
             activityManager.ActivatePreviousAction();
             UpdateView();
@@ -201,12 +195,7 @@ public class StepsListView_v2 : BaseView
 
     private void OnActionDeleted(string actionId)
     {
-        if (actionId == activityManager.ActiveAction.id)
-        {
-            activityManager.ActivateNextAction();
-        }
-
-        activityManager.DeleteAction(actionId);
+        //activityManager.ActivateNextAction();
         UpdateView();
     }
 
