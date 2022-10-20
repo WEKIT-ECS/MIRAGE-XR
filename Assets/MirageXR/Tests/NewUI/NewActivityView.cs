@@ -42,7 +42,6 @@ public class NewActivityView : MonoBehaviour
 
     [SerializeField] private GameObject _toggles;
     [SerializeField] private GameObject _toggles_steps;
-    [SerializeField] private GameObject _editAndNavigation;
 
     [SerializeField] private Button _btnAddImage;
     [SerializeField] private PopupBase _addImageMaker;
@@ -202,7 +201,6 @@ public class NewActivityView : MonoBehaviour
     {
         newActivityTabs.SetActive(show);
         _toggles.SetActive(show);
-        _editAndNavigation.SetActive(show);
         _btnBackToHome.SetActive(show);
     }
 
