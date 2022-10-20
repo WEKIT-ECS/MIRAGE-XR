@@ -43,7 +43,7 @@ public static class ContentTypeExtenstion
     private const string PREDICATE_AUDIO_V2 = "sound"; // TODO: we should leave only one option, but we have several different references in the code. ideally, we should use the index enum
     private const string PREDICATE_VIDEO = "video";
     private const string PREDICATE_GHOST = "ghosttracks";
-    private const string PREDICATE_GHOST_V2 = "ghost"; // TODO:^^^
+    private const string PREDICATE_GHOST_V2 = "ghost"; // TODO: ^^^
     private const string PREDICATE_ACT = "act";
     private const string PREDICATE_VFX = "vfx";
     private const string PREDICATE_MODEL = "model";
@@ -70,17 +70,17 @@ public static class ContentTypeExtenstion
     private const string PLUGIN_HINT = "Augmentations that are created for specific activities";
     private const string DRAWING_HINT = "Draw in 3d space";
 
-    private const string IMAGE_IMAGE_PATH = "Materials/Textures/imageeditor";
-    private const string VIDEO_IMAGE_PATH = "Materials/Textures/videoeditor";
-    private const string AUDIO_IMAGE_PATH = "Materials/Textures/audioeditor";
-    private const string GHOST_IMAGE_PATH = "Materials/Textures/ghosteditor";
-    private const string LABEL_IMAGE_PATH = "Materials/Textures/labeleditor";
-    private const string ACT_IMAGE_PATH = "Materials/Textures/glypheditor";
-    private const string VFX_IMAGE_PATH = "Materials/Textures/vfxeditor";
-    private const string MODEL_IMAGE_PATH = "Materials/Textures/modeleditor";
-    private const string CHARACTER_IMAGE_PATH = "Materials/Textures/charactereditor";
-    private const string PICKANDPLACE_IMAGE_PATH = "Materials/Textures/pickandplaceeditor";
-    private const string IMAGEMARKER_IMAGE_PATH = "Materials/Textures/imagemarkereditor";
+    private const string IMAGE_IMAGE_PATH = "Icons/Editors/image";
+    private const string VIDEO_IMAGE_PATH = "Icons/Editors/video";
+    private const string AUDIO_IMAGE_PATH = "Icons/Editors/audio";
+    private const string GHOST_IMAGE_PATH = "Icons/Editors/ghost";
+    private const string LABEL_IMAGE_PATH = "Icons/Editors/label";
+    private const string ACT_IMAGE_PATH = "Icons/Editors/action";
+    private const string VFX_IMAGE_PATH = "Icons/Editors/visualeffect";
+    private const string MODEL_IMAGE_PATH = "Icons/Editors/model";
+    private const string CHARACTER_IMAGE_PATH = "Icons/Editors/character";
+    private const string PICKANDPLACE_IMAGE_PATH = "Icons/Editors/pickandplace";
+    private const string IMAGEMARKER_IMAGE_PATH = "Icons/Editors/imagemarker";
     private const string PLUGIN_IMAGE_PATH = "Materials/Textures/plugineditor";
     private const string DRAWING_IMAGE_PATH = "Materials/Textures/drawingeditor";
 

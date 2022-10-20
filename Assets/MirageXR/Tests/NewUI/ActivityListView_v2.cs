@@ -1,12 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using i5.Toolkit.Core.ServiceCore;
-using TMPro;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace MirageXR
@@ -87,14 +83,12 @@ namespace MirageXR
             _toggleNewActivity.onValueChanged.AddListener(OnNewActivityChanged);
 
             EventManager.OnActivityStarted += UpdateStepsView;
-            EventManager.OnActivitySaved += UpdateListView;
+            EventManager.OnActivitySaved += FetchAndUpdateView;
 
-            UpdateListView();
+            FetchAndUpdateView();
         }
 
-
-
-        private static async Task<List<SessionContainer>> GetContent()
+        private static async Task<List<SessionContainer>> FetchContent()
         {
             var dictionary = new Dictionary<string, SessionContainer>();
 
@@ -127,24 +121,21 @@ namespace MirageXR
             return dictionary.Values.ToList();
         }
 
-        public async void UpdateListView()
+        public async void FetchAndUpdateView()
         {
-            _content = await GetContent();
+            _content = await FetchContent();
+            UpdateView();
+        }
+
+        public void UpdateView()
+        {
 #if UNITY_EDITOR
             if (!EditorApplication.isPlaying) return;
 #endif
             _items.ForEach(item => Destroy(item.gameObject));
             _items.Clear();
 
-            ActivityListItem_v2 prefab;
-            if (!DBManager.showBigCards)
-            {
-                prefab = _smallItemPrefab;
-            }
-            else
-            {
-                prefab = _bigItemPrefab;
-            }
+            var prefab = !DBManager.showBigCards ? _smallItemPrefab : _bigItemPrefab;
             _content.ForEach(content =>
             {
                 var item = Instantiate(prefab, _listTransform);
@@ -163,7 +154,7 @@ namespace MirageXR
             LoadView.Instance.Show();
             interactable = false;
             await RootObject.Instance.editorSceneService.LoadEditorAsync();
-            RootObject.Instance.activityManager.CreateNewActivity();         
+            RootObject.Instance.activityManager.CreateNewActivity();
             interactable = true;
             LoadView.Instance.Hide();
             EventManager.NotifyOnNewActivityCreationButtonPressed();

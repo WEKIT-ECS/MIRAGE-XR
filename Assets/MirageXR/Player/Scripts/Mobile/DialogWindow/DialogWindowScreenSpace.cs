@@ -25,9 +25,16 @@ public class DialogWindowScreenSpace : DialogWindow
     protected override void InstantiateDialogButton(DialogButtonContent content)
     {
         var btn = Instantiate(_dialogButtonPrefab, _buttonsTransform);
-        if (content.action != null) btn.onClick.AddListener(content.action.Invoke);
+        if (content.action != null)
+        {
+            btn.onClick.AddListener(content.action.Invoke);
+        }
+
         btn.onClick.AddListener(Hide);
         var tmpText = btn.GetComponentInChildren<TMP_Text>();
-        if (tmpText) tmpText.text = content.text;
+        if (tmpText)
+        {
+            tmpText.text = content.text;
+        }
     }
 }

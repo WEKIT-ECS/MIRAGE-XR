@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
@@ -40,13 +38,13 @@ public class SortingView : PopupBase
     private void ShowSmallCard(bool value)
     {
         DBManager.showBigCards = false;
-        ActivityListView_v2.Instance.UpdateListView();
+        ActivityListView_v2.Instance.UpdateView();
     }
 
     private void ShowBigCard(bool value)
     {
         DBManager.showBigCards = true;
-        ActivityListView_v2.Instance.UpdateListView();
+        ActivityListView_v2.Instance.UpdateView();
     }
 
 }
