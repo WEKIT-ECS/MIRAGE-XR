@@ -20,19 +20,26 @@ public class RootView_v2 : BaseView
     [SerializeField] private HelpView _helpPrefab;
     [SerializeField] private SettingsView_v2 _activitySettingsPrefab;
     //[SerializeField] private StepSettingsView _stepSettingsPrefab;
-    [SerializeField] private MoodleServersView _moofleServersPrefab;
     [SerializeField] private GameObject newActivityButton;
     [SerializeField] public RectTransform bottomPanel;
     [SerializeField] private LoginView_v2 _loginViewPrefab;
-    [SerializeField] public GameObject newActivityPanel;
+    [SerializeField] private GameObject _newActivityPanel;
+    [SerializeField] private ActivityListView_v2 _activityListView_V2;
     [SerializeField] private GameObject HomePage;
+    [SerializeField] private StepsListView_v2 _stepsListView;
+    [SerializeField] private Dialog _dialog;
 
+    public Dialog dialog => _dialog;
+    public GameObject newActivityPanel => _newActivityPanel;
+    public ActivityListView_v2 activityListView_V2 => _activityListView_V2;
 
     private Vector3 _currentPanelPosition;
     float moveTime = 1;
     float currentTime = 0;
     private float normalizedValue;
     private bool panelMoving = false;
+
+    public StepsListView_v2 stepsListView => _stepsListView;
 
     private void Awake()
     {
@@ -67,6 +74,8 @@ public class RootView_v2 : BaseView
         _pageView.OnPageChanged.AddListener(OnPageChanged);
 
         EventManager.OnActivityStarted += OnActivityLoaded;
+
+        stepsListView.Initialization(this);
 
         if (!DBManager.LoggedIn && DBManager.rememberUser)
         {
@@ -155,11 +164,6 @@ public class RootView_v2 : BaseView
     public void OnInfoClick()
     {
         PopupsViewer.Instance.Show(_helpPrefab);
-    }
-
-    public void OnMoodleServersClick()
-    {
-        PopupsViewer.Instance.Show(_moofleServersPrefab);
     }
 
     public void OnActivitySettingsClick()

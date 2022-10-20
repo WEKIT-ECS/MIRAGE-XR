@@ -794,10 +794,13 @@ namespace MirageXR
             _activity.actions.RemoveAt(indexToDelete);
 
             RegenerateActionsList();
-            ActiveAction = null;
 
             EventManager.NotifyActionDeleted(idToDelete);
-            EventManager.ActivateAction(string.Empty);
+
+            if (ActiveAction.id == idToDelete)
+            {
+                ActivateNextAction();
+            }
         }
 
         private void RegenerateActionsList()

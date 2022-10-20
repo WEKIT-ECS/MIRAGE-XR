@@ -42,7 +42,6 @@ public class NewActivityView : MonoBehaviour
 
     [SerializeField] private GameObject _toggles;
     [SerializeField] private GameObject _toggles_steps;
-    [SerializeField] private GameObject _editAndNavigation;
 
     [SerializeField] private Button _btnAddImage;
     [SerializeField] private PopupBase _addImageMaker;
@@ -198,30 +197,10 @@ public class NewActivityView : MonoBehaviour
         PopupsViewer.Instance.Show(_startcalibrationPanel);
     }
 
-    public async void AddNewStepClick()
+    private void ShowNewActivityTabs(bool show)
     {
-        /*
-        _headLabel.text = "Step ... Untittled";
-        _toggles.SetActive(false);
-        _toggles_steps.SetActive(true);
-        _stepsTab.SetActive(false);
-        _btnActivitySettings.SetActive(false);
-        _btnStepSettings.SetActive(true);
-        
-        _btnBackToHome.SetActive(false);
-        _btnBackToActivity.SetActive(true);
-        //ShowAugmentationsTab();
-        */
-        await activityManager.AddAction(Vector3.zero);
-
-        _stepsListView.UpdateView();
-    }
-
-    private void ShowNewActivityTabs(bool show) 
-    {     
         newActivityTabs.SetActive(show);
-        _toggles.SetActive(show);     
-        _editAndNavigation.SetActive(show);
+        _toggles.SetActive(show);
         _btnBackToHome.SetActive(show);
     }
 
