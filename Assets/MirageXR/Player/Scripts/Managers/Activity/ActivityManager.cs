@@ -592,13 +592,18 @@ namespace MirageXR
 
         public async Task ActivateNextAction()
         {
-            if (ActiveAction != null)
+            int indexOfActivated = ActionsOfTypeAction.IndexOf(ActiveAction);
+            int indexOfLast = ActionsOfTypeAction.Count - 1;
+            if (indexOfActivated < indexOfLast)
             {
-                await DeactivateAction(ActiveAction.id);
-            }
-            else
-            {
-                await ActivateAction(_activity.start);
+                if (ActiveAction != null)
+                {
+                    await DeactivateAction(ActiveAction.id);
+                }
+                else
+                {
+                    await ActivateAction(_activity.start);
+                }
             }
         }
 

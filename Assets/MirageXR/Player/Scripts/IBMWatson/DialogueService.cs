@@ -1,13 +1,11 @@
-using System.Collections;
-using UnityEngine;
-using UnityEngine.UI;
-using IBM.Cloud.SDK.Utilities;
 using IBM.Cloud.SDK;
+using IBM.Cloud.SDK.Utilities;
 using IBM.Watson.Assistant.V2;
 using IBM.Watson.Assistant.V2.Model;
 using System;
-using System.Linq;
-using System;
+using System.Collections;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class DialogueService : MonoBehaviour
 {
@@ -20,7 +18,7 @@ public class DialogueService : MonoBehaviour
     private ExerciseController dEC;
 
     private MirageXR.CharacterController _character;
-
+    private static MirageXR.ActivityManager activityManager => MirageXR.RootObject.Instance.activityManager;
 
     [Space(10)]
     // [Tooltip("The IAM apikey.")]
@@ -32,7 +30,7 @@ public class DialogueService : MonoBehaviour
 
     [Tooltip("The version date with which you would like to use the service in the form YYYY-MM-DD.")]
     [SerializeField]
-    private string versionDate = "2019-02-28";
+    private string versionDate = "2019-02-28";//"2021-11-27"
     [Tooltip("The assistantId to run the example.")]
     [SerializeField]
     private string assistantId = "b392e763-cfde-44c4-b24a-275c92fc4f9b";
@@ -98,7 +96,7 @@ public class DialogueService : MonoBehaviour
         //  Wait for tokendata
         while (!credentials.HasIamTokenData())
             yield return null;
-        */
+		*/
 
         service = new AssistantService(versionDate); // , credentials);
 
@@ -140,7 +138,8 @@ public class DialogueService : MonoBehaviour
                 {
                     ReturnContext = true
                 }
-            });
+            }
+            );
 
         }
         else
@@ -150,10 +149,12 @@ public class DialogueService : MonoBehaviour
 
     }
 
-    private void MakeDance()
+
+    private void nextStep()
     {
-        Debug.LogError(">>> Starting to dance");
-        //dAImgr.Animate("Waving");
+
+        activityManager.ActivateNextAction();
+
     }
 
     private void OnResponseReceived(DetailedResponse<MessageResponse> response, IBMError error)
@@ -179,11 +180,9 @@ public class DialogueService : MonoBehaviour
             {
                 string answerIntent = response.Result.Output.Intents[0].Intent.ToString();
 
+                // only evaluated if intents are used in dialog
                 switch (answerIntent)
                 {
-                    case "dancing":
-                        MakeDance();
-                        break;
                     case "S0-GenderMale": // might also be without hashtag? not sure
                         dUser.Gender = UserProfile.gender.male;
                         break;
@@ -205,14 +204,14 @@ public class DialogueService : MonoBehaviour
 
             if (response.Result.Output.Actions != null && response.Result.Output.Actions.Count > 0)
             {
-
                 string actionName = response.Result.Output.Actions[0].Name;
+                Debug.Log("Action Name = " + actionName);
                 // check whether it is really the intent we want to check
                 // (or do we want to know the name of the dialogue step?)
                 switch (actionName)
                 {
-                    case "makeWave":
-                        dAImgr.Animate("waving");
+                    case "jump to":
+                        Debug.Log("Jump to action recieved");
                         break;
                     default:
                         break;
@@ -222,22 +221,29 @@ public class DialogueService : MonoBehaviour
 
             if (response.Result.Output.Generic != null && response.Result.Output.Generic.Capacity > 0)
             {
-                // if the name is char:alla only take alla
                 try
                 {
                     var res = response.Result.Output.Generic[0].Text;
-                    if (!string.IsNullOrEmpty(res) && res.Contains("%%charactername%%"))
+                    if (!string.IsNullOrEmpty(res))
                     {
-                        var charName = _character.name.Contains(":") ? _character.name.Split(':')[1] : _character.name;
-                        res = res.Replace("%%charactername%%", charName);
+                        if (res.Contains("%%charactername%%"))
+                        {
+                            var charName = _character.name.Contains(":") ? _character.name.Split(':')[1] : _character.name;
+                            res = res.Replace("%%charactername%%", charName);
+                        }
+                        else if (res.Contains("%%trigger%%"))
+                        {
+                            res = res.Replace("%%trigger%%", " ");
+                            dAImgr.mySpeechInputMgr.Active = false;
+                            dAImgr.triggerNext = true;
+                        }
+                        dSpeechOutputMgr.Speak(res); // + ", " + username
                     }
                     else
-                        dAImgr.check = true;
-
-                    if (string.IsNullOrEmpty(res))
+                    {
                         dSpeechOutputMgr.Speak("Sorry, I don't understand.");
-
-                    dSpeechOutputMgr.Speak(res); // + ", " + username
+                        dAImgr.check = true;
+                    }
                 }
                 catch (NullReferenceException e)
                 {
