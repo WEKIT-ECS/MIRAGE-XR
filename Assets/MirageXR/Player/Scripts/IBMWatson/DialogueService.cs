@@ -150,7 +150,7 @@ public class DialogueService : MonoBehaviour
     }
 
 
-    private void nextStep()
+    private void NextStep()
     {
 
         activityManager.ActivateNextAction();
