@@ -46,13 +46,27 @@ jobs:
           unityVersion: 2021.3.8f1
       
       # Test report
-      - name: Report and format test results for html display
-        uses: dorny/test-reporter@v1
-        if: success() || failure()
+      - name: Report and format editmode test results for html display
+        uses: rempelj/nunit-html-action@v1.0.1
+        if: always()
         with:
-          name: 'Test report $1'      # Name of the check run which will be created
-          path: artifacts/*mode-results.xml    # Path to test results
-          reporter: dotnet-trx        # Format of test results
+          inputXmlPath: artifacts/editmode-results.xml 
+          outputHtmlPath: artifacts/editmode-results.html
+
+      # Test report 2
+      - name: Report and format playmode test results for html display
+        uses: rempelj/nunit-html-action@v1.0.1
+        if: always()
+        with:
+          inputXmlPath: artifacts/playmode-results.xml 
+          outputHtmlPath: artifacts/playmode-results.html
+
+      #  uses: dorny/test-reporter@v1
+      #  if: success() || failure()
+      #  with:
+      #    name: 'Test report $1'      # Name of the check run which will be created
+      #    path: artifacts/*mode-results.xml    # Path to test results
+      #    reporter: dotnet-trx        # Format of test results
 
   build:
     name: Build Unity
