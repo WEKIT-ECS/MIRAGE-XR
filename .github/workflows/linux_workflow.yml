@@ -21,8 +21,8 @@ jobs:
       - name: Install fonts
         run: |
           echo -n "Installing core fonts"
-          echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
-          echo ttf-mscorefonts-installer msttcorefonts/present-mscorefonts-eula note | sudo debconf-set-selections
+          echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
+          echo "ttf-mscorefonts-installer msttcorefonts/present-mscorefonts-eula note" | sudo debconf-set-selections
           sudo apt install ttf-mscorefonts-installer
           sudo fc-cache -f
           fc-match Arial
