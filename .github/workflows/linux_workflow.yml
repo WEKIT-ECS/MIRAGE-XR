@@ -39,6 +39,8 @@ jobs:
     name: Build Unity
     runs-on: ubuntu-latest
     needs: test
+    outputs:
+      buildVersion: ${{ steps.buildStep.outputs.buildVersion }}
     steps:
       # Activation stage
       - name: Checkout repository
@@ -80,7 +82,27 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: Build
+          name: Android
           path: build
           retention-days: 3
           if-no-files-found: error
+
+# Deploy stage
+  prerelease-notification:
+    name: Prerelease Slack notification
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/develop' && !github.event.pull_request
+    env:
+      SLACK_URL: ${{ secrets.SLACK_URL }}
+      COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+      APP_VERSION: ${{ needs.build.outputs.buildVersion }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Post notification
+        run: |
+          echo $APP_VERSION
+          sudo apt-get update && sudo apt-get -y install curl
+          chmod +x ./ci/notify-preview.sh && ./ci/notify-preview.sh
