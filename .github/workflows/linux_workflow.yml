@@ -51,7 +51,7 @@ jobs:
         if: success() || failure()
         with:
           name: 'Test report $1'      # Name of the check run which will be created
-          path: /github/workspace/artifacts/*results.xml    # Path to test results
+          path: /github/workspace/artifacts/**results.xml    # Path to test results
           reporter: dotnet-trx        # Format of test results
 
   build:
