@@ -45,14 +45,34 @@ jobs:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           unityVersion: 2021.3.8f1
       
+      - name: Install NUnit
+        run: |
+          nuget install NUnit.Console
+
+      - name: Fetch transform code
+        run: |
+          wget https://raw.githubusercontent.com/nunit/nunit-transforms/master/nunit3-junit/nunit3-junit.xslt
+        shell: bash
+
+      - name: Transform NUnit3 to JUnit
+        run: |
+          Get-ChildItem . -Filter artifacts/*-results.xml | Foreach-Object {
+            $xml = Resolve-Path $_.FullName
+            $output = Join-Path ($pwd) ($_.BaseName + '_junit.xml')
+            $xslt = New-Object System.Xml.Xsl.XslCompiledTransform;
+            $xslt.Load("nunit3-junit.xslt");
+            $xslt.Transform($xml, $output);
+          }
+        shell: pwsh
+
       # Test report
       - name: Report and format test results for html display
         uses: dorny/test-reporter@v1
         if: success() || failure()
         with:
-          name: 'Test report $1'      # Name of the check run which will be created
-          path: artifacts/*mode-results.xml    # Path to test results
-          reporter: dotnet-trx        # Format of test results
+          name: 'Test report $1' # Name of the check run which will be created
+          path: "artifacts/*_junit.xml" # Path
+          reporter: jest-junit # Format
 
   build:
     name: Build Unity
