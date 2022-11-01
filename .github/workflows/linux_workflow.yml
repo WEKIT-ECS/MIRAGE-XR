@@ -56,7 +56,7 @@ jobs:
 
       - name: Transform NUnit3 to JUnit
         run: |
-          Get-ChildItem . -Filter artifacts/*-results.xml | Foreach-Object {
+          Get-ChildItem . -Filter *-results.xml | Foreach-Object {
             $xml = Resolve-Path $_.FullName
             $output = Join-Path ($pwd) ($_.BaseName + '_junit.xml')
             $xslt = New-Object System.Xml.Xsl.XslCompiledTransform;
@@ -71,7 +71,7 @@ jobs:
         if: success() || failure()
         with:
           name: 'Test report $1' # Name of the check run which will be created
-          path: "artifacts/*_junit.xml" # Path
+          path: "*_junit.xml" # Path
           reporter: jest-junit # Format
 
   build:
