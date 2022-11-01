@@ -17,6 +17,14 @@ jobs:
           echo "path of the credentials resource $GITHUB_WORKSPACE/ibm-credentials.txt"
           export IBM_CREDENTIALS_FILE="$GITHUB_WORKSPACE/ibm-credentials.env"
 
+      # Fonts
+      - name: Install fonts
+        run: |
+          echo -n "Installing core fonts"
+          sudo apt install ttf-mscorefonts-installer
+          sudo fc-cache -f
+          fc-match Arial
+
       # Cache
       - name: Caching
         uses: actions/cache@v2
