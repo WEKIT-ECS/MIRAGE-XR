@@ -121,16 +121,21 @@ namespace MirageXR
         private async void OnBtnMain()
         {
             _interactable = false;
-            if (!_container.ExistsLocally) await DownloadActivityAsync();
-            else ShowPopup();
+            if (!_container.ExistsLocally)
+            {
+                await DownloadActivityAsync();
+            }
+            else
+            {
+                ShowPopup();
+            }
+
             _interactable = true;
         }
 
         private void ShowPopup()
         {
-            var popup = PopupsViewer.Instance.Show(activityModeSelect);
-
-            popup.ConnectedObject = gameObject;
+            PopupsViewer.Instance.Show(activityModeSelect, this);
         }
 
         public async void OpenActivity(bool value)
