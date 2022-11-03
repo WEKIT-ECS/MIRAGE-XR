@@ -1,21 +1,21 @@
 using System;
-using System.Text.RegularExpressions;
 using MirageXR;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class OpenActivityModeSelect : PopupBase
 {
-
     [SerializeField] private Toggle _editToggle;
     [SerializeField] private Toggle _viewToggle;
     [SerializeField] private Button _openButton;
     [SerializeField] private Button _closeButton;
 
+    private ActivityListItem_v2 _connectedObject;
 
-    private void Start()
+    public override void Init(Action<PopupBase> onClose, params object[] args)
     {
+        base.Init(onClose, args);
+
         _editToggle.onValueChanged.AddListener(OnEditToggle);
         _viewToggle.onValueChanged.AddListener(OnViewToggle);
 
@@ -23,7 +23,7 @@ public class OpenActivityModeSelect : PopupBase
         _closeButton.onClick.AddListener(Close);
     }
 
-    private void OnEditToggle(bool value) 
+    private void OnEditToggle(bool value)
     {
         _viewToggle.enabled = !value;
     }
@@ -35,17 +35,23 @@ public class OpenActivityModeSelect : PopupBase
 
     private void OnOpen()
     {
-        ActivityListItem_v2 activityItem = ConnectedObject.transform.GetComponent<ActivityListItem_v2>();
-
-        activityItem.OpenActivity(_editToggle.enabled);
+        if (_connectedObject)
+        {
+            _connectedObject.OpenActivity(_editToggle.enabled);
+        }
 
         Close();
     }
 
-
     protected override bool TryToGetArguments(params object[] args)
     {
-        return true;
+        if (args is { Length: 1 } && args[0] is ActivityListItem_v2 obj)
+        {
+            _connectedObject = obj;
+            return true;
+        }
+
+        return false;
     }
 
 }

@@ -4,7 +4,6 @@ using UnityEngine;
 public abstract class PopupBase : MonoBehaviour
 {
     private Action<PopupBase> _onClose;
-    private GameObject _connectedObject;
 
     [HideInInspector] public bool canBeClosedByOutTap = true;
 
@@ -26,18 +25,4 @@ public abstract class PopupBase : MonoBehaviour
     }
 
     protected abstract bool TryToGetArguments(params object[] args);
-
-
-    public GameObject ConnectedObject
-    {
-        get
-        {
-            return _connectedObject;
-        }
-        set
-        {
-            _connectedObject = value;
-        }
-    }
-    
 }

@@ -1,13 +1,12 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using UnityEngine;
 using MirageXR;
 using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class SearchView : PopupBase
 {
-
     [SerializeField] private Transform _listTransform;
     [SerializeField] private ActivityListItem_v2 _smallItemPrefab;
     [SerializeField] private ActivityListItem_v2 _bigItemPrefab;
@@ -19,31 +18,45 @@ public class SearchView : PopupBase
     private List<SessionContainer> _content;
     private readonly List<ActivityListItem_v2> _items = new List<ActivityListItem_v2>();
 
-    private ActivityListView_v2 activityListView;
-    private enum SearchType {All, Title, Author};
+    private ActivityListView_v2 _activityListView;
+
+    private enum SearchType
+    {
+        All,
+        Title,
+        Author
+    }
 
     private SearchType selectedSearchType;
 
-    private void Start()
+    public override void Init(Action<PopupBase> onClose, params object[] args)
     {
-        activityListView = ConnectedObject.GetComponent<ActivityListView_v2>();
-        _content = activityListView.content;
+        base.Init(onClose, args);
 
-        _inputFieldSearch.onValueChanged.AddListener(OnInputFieldSearchChanged);
+        if (_activityListView)
+        {
+            _content = _activityListView.content;
+            _inputFieldSearch.onValueChanged.AddListener(OnInputFieldSearchChanged);
 
-        _allButton.onClick.AddListener(OnAllClick);
-        _titleButton.onClick.AddListener(OnTitleClick);
-        _authorButton.onClick.AddListener(OnAuthorClick);
+            _allButton.onClick.AddListener(OnAllClick);
+            _titleButton.onClick.AddListener(OnTitleClick);
+            _authorButton.onClick.AddListener(OnAuthorClick);
+
+
+            selectedSearchType = SearchType.All;
+
+            UpdateListView();
+        }
 
         EventManager.OnActivityStarted += Close;
-
-        selectedSearchType = SearchType.All;
-
-        UpdateListView();
     }
 
+    private void OnDestroy()
+    {
+        EventManager.OnActivityStarted -= Close;
+    }
 
-    public void OnAllClick() 
+    public void OnAllClick()
     {
         selectedSearchType = SearchType.All;
 
@@ -64,20 +77,13 @@ public class SearchView : PopupBase
         OnInputFieldSearchChanged(_inputFieldSearch.text);
     }
 
-    private async void UpdateListView()
-    {      
+    private void UpdateListView()
+    {
         _items.ForEach(item => Destroy(item.gameObject));
         _items.Clear();
 
-        ActivityListItem_v2 prefab;
-        if (!DBManager.showBigCards)
-        {
-            prefab = _smallItemPrefab;
-        }
-        else
-        {
-            prefab = _bigItemPrefab;
-        }
+        var prefab = !DBManager.showBigCards ? _smallItemPrefab : _bigItemPrefab;
+
         _content.ForEach(content =>
         {
             var item = Instantiate(prefab, _listTransform);
@@ -104,6 +110,7 @@ public class SearchView : PopupBase
                     {
                         item.gameObject.SetActive(false);
                     }
+
                     break;
                 case SearchType.Title:
                     item.gameObject.SetActive(title);
@@ -111,15 +118,18 @@ public class SearchView : PopupBase
                 case SearchType.Author:
                     item.gameObject.SetActive(author);
                     break;
-            }                 
+            }
         }
     }
 
-
-    
-
     protected override bool TryToGetArguments(params object[] args)
     {
-        return true;
+        if (args is { Length: 1 } && args[0] is ActivityListView_v2 obj)
+        {
+            _activityListView = obj;
+            return true;
+        }
+
+        return false;
     }
 }
