@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine;
@@ -9,9 +10,7 @@ using Action = MirageXR.Action;
 public class NewActivityView : MonoBehaviour
 {
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
-
-    [SerializeField] private GameObject panelUp;
-    [SerializeField] private GameObject panelDown;
+    
     [SerializeField] private GameObject header;
     [SerializeField] private GameObject newActivityTabs;
     [SerializeField] private GameObject StepsTabs;
@@ -20,6 +19,7 @@ public class NewActivityView : MonoBehaviour
     [SerializeField] private Toggle _info;
     [SerializeField] private Toggle _calibration;
 
+    [Space]
     [SerializeField] private GameObject _stepsTab;
     [SerializeField] private GameObject _infoTab;
     [SerializeField] private GameObject _calibrationTab;
@@ -31,9 +31,13 @@ public class NewActivityView : MonoBehaviour
     [SerializeField] private Button _btnSetPicture;
     [SerializeField] private PopupBase _addPreviewImage;
 
-    [SerializeField] private GameObject _btnDown;
-    [SerializeField] private GameObject _btnUp;
-
+    [Space]
+    [SerializeField] private Button _btnArrow;
+    [SerializeField] private RectTransform _panel;
+    [SerializeField] private GameObject _arrowDown;
+    [SerializeField] private GameObject _arrowUp;
+    [Space]
+    
     [SerializeField] private Button _btnStart;
     [SerializeField] private PopupBase _startcalibrationPanel;
 
@@ -69,6 +73,10 @@ public class NewActivityView : MonoBehaviour
         _btnAddImage.onClick.AddListener(OnAddImageClick);
         _inputFieldName.onValueChanged.AddListener(OnNameChange);
         _btnBackToActivity.GetComponent<Button>().onClick.AddListener(ShowStepsTab);
+
+        _btnArrow.onClick.AddListener(ArrowBtnPressed);
+        _arrowDown.SetActive(true);
+        _arrowUp.SetActive(false);
 
         _headLabel = _title.GetComponent<TMP_Text>();
 
@@ -211,28 +219,19 @@ public class NewActivityView : MonoBehaviour
         _btnBackToActivity.SetActive(show);
     }
 
-    public void DownArrowPressed()
+    public void ArrowBtnPressed()
     {
-        //Temporary method 
-        header.SetActive(false);
-        newActivityTabs.SetActive(false);
-        StepsTabs.SetActive(false);
-
-        panelUp.SetActive(false);
-        panelDown.SetActive(true);
-    }
-
-    public void UpArrowPressed()
-    {
-        //Temporary method 
-        header.SetActive(true);
-        newActivityTabs.SetActive(true);
-        StepsTabs.SetActive(true);
-
-        panelUp.SetActive(true);
-        panelDown.SetActive(false);
-
-        ShowNewActivityTabs(true);
-        ShowStepsTabs(false);
+        if (_arrowDown.activeSelf)
+        {
+            _panel.DOAnchorPos(new Vector2(0, -1100), 0.25f);
+            _arrowDown.SetActive(false);
+            _arrowUp.SetActive(true);
+        }
+        else
+        {
+            _panel.DOAnchorPos(new Vector2(0, -60), 0.25f);
+            _arrowDown.SetActive(true);
+            _arrowUp.SetActive(false);
+        }
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DG.Tweening;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,6 +22,12 @@ namespace MirageXR
         [SerializeField] private SortingView _sortingPrefab;
 
         [SerializeField] private StepsListView_v2 _stepsListView;
+        
+        [Space]
+        [SerializeField] private Button _btnArrow;
+        [SerializeField] private RectTransform _panel;
+        [SerializeField] private GameObject _arrowDown;
+        [SerializeField] private GameObject _arrowUp;
 
         private List<SessionContainer> _content;
         private readonly List<ActivityListItem_v2> _items = new List<ActivityListItem_v2>();
@@ -81,6 +88,10 @@ namespace MirageXR
         {
             _btnFilter.onClick.AddListener(OnByDateClick);
             _toggleNewActivity.onValueChanged.AddListener(OnNewActivityChanged);
+
+            _btnArrow.onClick.AddListener(ArrowBtnPressed);
+            _arrowDown.SetActive(true);
+            _arrowUp.SetActive(false);
 
             EventManager.OnActivityStarted += UpdateStepsView;
             EventManager.OnActivitySaved += FetchAndUpdateView;
@@ -163,6 +174,22 @@ namespace MirageXR
         private void UpdateStepsView()
         {
             _stepsListView.UpdateView();
+        }
+
+        private void ArrowBtnPressed()
+        {
+            if (_arrowDown.activeSelf)
+            {
+                _panel.DOAnchorPos(new Vector2(0, -1100), 0.25f);
+                _arrowDown.SetActive(false);
+                _arrowUp.SetActive(true);
+            }
+            else
+            {
+                _panel.DOAnchorPos(new Vector2(0, -60), 0.25f);
+                _arrowDown.SetActive(true);
+                _arrowUp.SetActive(false);
+            }
         }
     }
 }
