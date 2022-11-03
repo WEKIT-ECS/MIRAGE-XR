@@ -19,13 +19,11 @@ public class RootView_v2 : BaseView
     [SerializeField] private SearchView _searchPrefab;
     [SerializeField] private HelpView _helpPrefab;
     [SerializeField] private SettingsView_v2 _activitySettingsPrefab;
-    //[SerializeField] private StepSettingsView _stepSettingsPrefab;
     [SerializeField] private GameObject newActivityButton;
     [SerializeField] public RectTransform bottomPanel;
     [SerializeField] private LoginView_v2 _loginViewPrefab;
     [SerializeField] private GameObject _newActivityPanel;
     [SerializeField] private ActivityListView_v2 _activityListView_V2;
-    [SerializeField] private GameObject HomePage;
     [SerializeField] private StepsListView_v2 _stepsListView;
     [SerializeField] private Dialog _dialog;
 
@@ -156,9 +154,7 @@ public class RootView_v2 : BaseView
 
     public void OnSearchClick()
     {
-        var popup = PopupsViewer.Instance.Show(_searchPrefab);
-
-        popup.ConnectedObject = HomePage;
+        PopupsViewer.Instance.Show(_searchPrefab, _activityListView_V2);
     }
 
     public void OnInfoClick()
