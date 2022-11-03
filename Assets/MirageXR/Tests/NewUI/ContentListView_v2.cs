@@ -1,43 +1,31 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Action = System.Action;
 
 public class ContentListView_v2 : BaseView
 {
-  private static ActivityManager activityManager => RootObject.Instance.activityManager;
-    private const float HIDE_HEIGHT = 250f;
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
     private const float BASE_CONTROLS_COOLDOWN = 0.3f;
 
     [SerializeField] private TMP_InputField _txtStepName;
     [SerializeField] private TMP_InputField _txtDescription;
-    [SerializeField] private Button _btnShowHide;
     [SerializeField] private Button _btnAddContent;
     [SerializeField] private Button _btnDeleteStep;
     [SerializeField] private Button _btnAddStep;
     [SerializeField] private Button _btnNextStep;
     [SerializeField] private Button _btnPreviousStep;
-    [SerializeField] private RectTransform _panel;
     [SerializeField] private RectTransform _listContent;
     [SerializeField] private ContentListItem_v2 _contentListItemPrefab;
     [SerializeField] private ContentSelectorView_v2 _contentSelectorViewPrefab;
-    [SerializeField] private AnimationCurve _animationCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
-    [SerializeField] private float _animationTime = 0.3f;
 
     [SerializeField] private PopupEditorBase[] _editors;
 
     public PopupEditorBase[] editors => _editors;
     public MirageXR.Action currentStep => _currentStep;
     public RootView_v2 rootView => (RootView_v2)_parentView;
-
-    public TMP_InputField TxtStepName => _txtStepName;
-    public TMP_InputField TxtStepDescription => _txtDescription;
-    public Button BtnShowHide => _btnShowHide;
-    public Button BtnAddContent => _btnAddContent;
 
     public string navigatorId
     {
@@ -58,13 +46,9 @@ public class ContentListView_v2 : BaseView
 
     private readonly Dictionary<string, string> _navigatorIds = new Dictionary<string, string>();
     private readonly List<ContentListItem_v2> _list = new List<ContentListItem_v2>();
-    private RectTransform _imdShowHideRectTransform;
     private bool _isShown = true;
-    private readonly Quaternion _rotationHide = Quaternion.Euler(new Vector3(0, 0, -90));
-    private readonly Quaternion _rotationShow = Quaternion.Euler(new Vector3(0, 0, 90));
     private Coroutine _coroutineSizeTo;
     private Coroutine _coroutineRotateTo;
-    private float _showHeight;
     private MirageXR.Action _currentStep;
 
     public override void Initialization(BaseView parentView)
@@ -72,18 +56,14 @@ public class ContentListView_v2 : BaseView
         base.Initialization(parentView);
         _txtStepName.onEndEdit.AddListener(OnStepNameChanged);
         _txtDescription.onEndEdit.AddListener(OnStepDescriptionChanged);
-        _btnShowHide.onClick.AddListener(OnShowHideClick);
         _btnAddContent.onClick.AddListener(OnAddContent);
         _btnDeleteStep.onClick.AddListener(OnDeleteStep);
         _btnAddStep.onClick.AddListener(OnAddStep);
         _btnNextStep.onClick.AddListener(OnNextStep);
         _btnPreviousStep.onClick.AddListener(OnPreviousStep);
-        _imdShowHideRectTransform = (RectTransform)_btnShowHide.targetGraphic.transform;
 
         Canvas.ForceUpdateCanvases();
-        _showHeight = _panel.rect.height;
 
-        HideContentListImmediate();
         OnEditModeChanged(false);
 
         EventManager.OnActionCreated += OnActionCreated;
@@ -219,102 +199,5 @@ public class ContentListView_v2 : BaseView
         DisableBaseControl();
         rootView.stepsListView.PreviousStep();
         Invoke(nameof(EnableBaseControl), BASE_CONTROLS_COOLDOWN);
-    }
-
-    private void OnShowHideClick()
-    {
-        _isShown = !_isShown;
-        if (_isShown) ShowContentList();
-        else HideContentList();
-    }
-
-    private void ShowContentList()
-    {
-        StopCoroutines();
-        StartCoroutines(_rotationShow, _showHeight);
-    }
-
-    private void HideContentList()
-    {
-        StopCoroutines();
-        StartCoroutines(_rotationHide, HIDE_HEIGHT);
-    }
-
-    private void ShowContentListImmediate()
-    {
-        _isShown = true;
-        StopCoroutines();
-        ChangeSizeAndRotation(_rotationShow, _showHeight);
-    }
-
-    private void HideContentListImmediate()
-    {
-        _isShown = false;
-        StopCoroutines();
-        ChangeSizeAndRotation(_rotationHide, HIDE_HEIGHT);
-    }
-
-    private void StartCoroutines(Quaternion rotation, float height, Action callback = null)
-    {
-        _coroutineRotateTo = StartCoroutine(RotateTo(_imdShowHideRectTransform, rotation, _animationTime, _animationCurve));
-        _coroutineSizeTo = StartCoroutine(SizeTo(_panel, RectTransform.Axis.Vertical, height, _animationTime, _animationCurve, callback));
-    }
-
-    private void ChangeSizeAndRotation(Quaternion rotation, float height)
-    {
-        _imdShowHideRectTransform.localRotation = rotation;
-        _panel.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
-    }
-
-    private void StopCoroutines()
-    {
-        if (_coroutineRotateTo != null)
-        {
-            StopCoroutine(_coroutineRotateTo);
-            _coroutineRotateTo = null;
-        }
-
-        if (_coroutineSizeTo != null)
-        {
-            StopCoroutine(_coroutineSizeTo);
-            _coroutineSizeTo = null;
-        }
-    }
-
-    private static IEnumerator SizeTo(RectTransform rectTransform, RectTransform.Axis axis, float sizeEnd, float time, AnimationCurve curve = null, Action callback = null)
-    {
-        if (curve == null) curve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
-        var rect = rectTransform.rect;
-        var sizeStart = axis == RectTransform.Axis.Horizontal ? rect.width : rect.height;
-        var timer = 0.0f;
-        while (timer < 1.0f)
-        {
-            timer = Mathf.Min(1.0f, timer + Time.deltaTime / time);
-            var value = curve.Evaluate(timer);
-            var size = Mathf.Lerp(sizeStart, sizeEnd, value);
-            rectTransform.SetSizeWithCurrentAnchors(axis, size);
-
-            yield return null;
-        }
-
-        EventManager.NotifyOnMobileStepContentExpanded();
-        callback?.Invoke();
-    }
-
-    private static IEnumerator RotateTo(Transform transform, Quaternion rotateEnd, float time, AnimationCurve curve = null, Action callback = null)
-    {
-        if (curve == null) curve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
-        var rotateStart = transform.localRotation;
-        var timer = 0.0f;
-        while (timer < 1.0f)
-        {
-            timer = Mathf.Min(1.0f, timer + Time.deltaTime / time);
-            var value = curve.Evaluate(timer);
-            transform.localRotation = Quaternion.Lerp(rotateStart, rotateEnd, value);
-
-            yield return null;
-        }
-
-        callback?.Invoke();
     }
 }
