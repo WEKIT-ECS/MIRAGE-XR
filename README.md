@@ -85,6 +85,6 @@ Preview builds reflect the current state of the development and may be unstable.
 Use these installers to test new features before they are available as a regular release.
 Preview releases are for testing purposes only and should not be used in production.
 
-Preview Build status: ![example workflow](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/workflows/windows_workflow.yml/badge.svg?branch=develop)
+Preview Build status for HoloLens builds: ![example workflow](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/workflows/windows_workflow.yml/badge.svg?branch=develop)
 
-Preview Build status: ![example workflow](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/workflows/linux_workflow.yml/badge.svg?branch=develop)
+Preview Build status for Android builds: ![example workflow](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/workflows/linux_workflow.yml/badge.svg?branch=develop)
