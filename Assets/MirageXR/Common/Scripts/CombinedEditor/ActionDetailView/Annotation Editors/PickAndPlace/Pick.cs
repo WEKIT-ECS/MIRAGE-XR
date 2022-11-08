@@ -1,13 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-
-namespace MirageXR
+﻿namespace MirageXR
 {
+    using System.Collections;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using UnityEngine.UI;
+
     public class Pick : MonoBehaviour
     {
-
         [SerializeField] private Transform placeLocation;
         [SerializeField] private GameObject pickOb;
         [SerializeField] private float correctionDistance;
@@ -20,23 +19,42 @@ namespace MirageXR
         [SerializeField] private AudioClip correctAudio;
         [SerializeField] private AudioClip incorrectAudio;
 
-        //[SerializeField] private Renderer arrowRenderer;
-
         private bool shouldPlaySound;
 
-        [SerializeField] private Vector3 resetPos;
+        private Vector3 resetPosition;
+        private Quaternion resetRotation;
         private bool isMoving = false;
         private bool moveMode = true;
         private float targetRadius;
         private Color originalArrowColor;
 
-        private const string lockHelpText = "When locked the arrow (or 3D model) will bounce back to this location if it is not correctly placed on the target";
-        private const string modelButtonHelpText = "Click this button and select a 3D model from the augmentation list to change the pick and place object model";
+        private bool isTrigger = false;
+        private int triggerStepIndex;
+        private float triggerDuration;
 
-        public Vector3 ResetPos
+        private bool editMode = false;
+
+        private const string LockHelpText = "When locked the arrow (or 3D model) will bounce back to this location if it is not correctly placed on the target";
+        private const string ModelButtonHelpText = "Click this button and select a 3D model from the augmentation list to change the pick and place object model";
+
+        private static MirageXR.ActivityManager ActivityManager => MirageXR.RootObject.Instance.activityManager;
+
+        public bool EditMode
         {
-            get { return resetPos; }
-            set { resetPos = value; }
+            get { return editMode; }
+            set { editMode = value; }
+        }
+
+        public Vector3 ResetPosition
+        {
+            get { return resetPosition; }
+            set { resetPosition = value; }
+        }
+
+        public Quaternion ResetRotation
+        {
+            get { return resetRotation; }
+            set { resetRotation = value; }
         }
 
         public MeshRenderer ArrowRenderer
@@ -54,10 +72,21 @@ namespace MirageXR
 
         public bool MoveMode
         {
-            set => moveMode = value;
             get => moveMode;
+            set => moveMode = value;
         }
 
+        public bool IsTrigger
+        {
+            get => IsTrigger;
+            set => IsTrigger = value;
+        }
+
+        public int TriggerStepIndex
+        {
+            get => TriggerStepIndex;
+            set => TriggerStepIndex = value;
+        }
 
         public string MyModelID
         {
@@ -72,16 +101,13 @@ namespace MirageXR
             moveMode = false;
             lockToggle.IsSelected = true;
 
-            originalArrowColor = ArrowRenderer.material.color; //pickOb.GetComponentInChildren<Renderer>()
+            originalArrowColor = ArrowRenderer.material.color;
 
             changeModelButton.onClick.AddListener(CapturePickModel);
 
-
-
-            AddHoverGuide(lockToggle.gameObject, lockHelpText);
-            AddHoverGuide(changeModelButton.gameObject, modelButtonHelpText);
+            AddHoverGuide(lockToggle.gameObject, LockHelpText);
+            AddHoverGuide(changeModelButton.gameObject, ModelButtonHelpText);
             shouldPlaySound = false;
-
         }
 
         void Update()
@@ -107,11 +133,9 @@ namespace MirageXR
 
             if (targetRadius != targetRadiusUpdate)
             {
-
                 targetRadius = targetRadiusUpdate;
 
                 ChangeCorrectionDistance(targetRadius);
-
             }
         }
 
@@ -124,17 +148,13 @@ namespace MirageXR
             ActionEditor.Instance.pickArrowModelCapturing = (true, this);
         }
 
-
-
-        /// <summary>
-        /// Sets the target transform for the pick object
-        /// </summary>
         public void SetMoveMode()
         {
             if (moveMode)
             {
                 moveMode = false;
-                SetResetPos(pickOb.transform.localPosition);
+                ResetPosition = pickOb.transform.localPosition;
+                ResetRotation = pickOb.transform.localRotation;
                 shouldPlaySound = false;
             }
             else
@@ -145,12 +165,8 @@ namespace MirageXR
             lockToggle.ToggleValue();
         }
 
-        /// <summary>
-        /// Sets the target transform for the pick object
-        /// </summary>
         public void SetRestOnMiss(bool reset)
         {
-            Debug.Log(reset);
             resetOnMiss = reset;
         }
 
@@ -162,15 +178,6 @@ namespace MirageXR
             placeLocation = target;
         }
 
-
-        /// <summary>
-        /// Sets the possition of the pick objects reset location
-        /// </summary> 
-        public void SetResetPos(Vector3 pos)
-        {
-            resetPos = pos;
-        }
-
         /// <summary>
         /// Change the distance that will be considered close enough to the desired place location
         /// </summary>
@@ -180,7 +187,7 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Sets isMoving to true to show that the object is being manipulated 
+        /// Sets isMoving to true to show that the object is being manipulated.
         /// </summary>
         public void ManipulationStart()
         {
@@ -189,18 +196,16 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Sets isMoving to false to show that the object has stopped being manipulated 
+        /// Checks if the pick object has been placed correctly and sets isMoving to false to show that the object has stopped being manipulated.
         /// </summary>
         public void ManipulationStop()
         {
-
             if (isMoving)
             {
                 if (Mathf.Abs(pickOb.transform.localPosition.x - placeLocation.localPosition.x) <= correctionDistance &&
                 Mathf.Abs(pickOb.transform.localPosition.y - placeLocation.localPosition.y) <= correctionDistance &&
                 Mathf.Abs(pickOb.transform.localPosition.z - placeLocation.localPosition.z) <= correctionDistance)
                 {
-
                     pickOb.transform.localPosition = new Vector3(placeLocation.localPosition.x, placeLocation.localPosition.y, placeLocation.localPosition.z);
 
                     ArrowRenderer.material.SetColor("_Color", Color.green);
@@ -209,11 +214,15 @@ namespace MirageXR
                     {
                         playAudio(correctAudio);
                     }
+                    if (isTrigger && !EditMode)
+                    {
+                        StartCoroutine(triggerAction());
+                    }
                 }
-
                 else if (resetOnMiss)
                 {
-                    pickOb.transform.localPosition = resetPos;
+                    pickOb.transform.localPosition = ResetPosition;
+                    pickOb.transform.localRotation = ResetRotation;
 
                     ArrowRenderer.material.SetColor("_Color", originalArrowColor);
                     if (shouldPlaySound)
@@ -238,7 +247,31 @@ namespace MirageXR
             var HoverGuilde = obj.AddComponent<HoverGuilde>();
             HoverGuilde.SetGuildText(hoverGuide);
             HoverGuilde.SetMessage(hoverMessage);
+        }
 
+        private IEnumerator triggerAction()
+        {
+            yield return new WaitForSeconds(triggerDuration);
+
+            ActivityManager.ActivateActionByIndex(triggerStepIndex);
+        }
+
+        public void setTrigger(Trigger trigger)
+        {
+            isTrigger = trigger != null ? true : false;
+
+            if (isTrigger)
+            {
+                var stepIndex = int.Parse(trigger.value) - 1;
+
+                if (stepIndex > ActivityManager.ActionsOfTypeAction.Count)
+                {
+                    stepIndex = ActivityManager.ActionsOfTypeAction.Count - 1;
+                }
+
+                triggerStepIndex = stepIndex;
+                triggerDuration = trigger.duration;
+            }
         }
     }
 }

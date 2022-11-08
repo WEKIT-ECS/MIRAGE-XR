@@ -20,6 +20,8 @@ namespace MirageXR
         [SerializeField] private Text textLabel;
         private Pick pickComponent;
 
+        private bool isTrigger;
+
         private Vector3 defaultTargetSize = new Vector3(0.2f, 0.2f, 0.2f);
 
         private void Start()
@@ -33,7 +35,7 @@ namespace MirageXR
             }
 
             spriteToggle.IsSelected = !pickComponent.MoveMode;
-
+            checkTrigger();
         }
 
         public ToggleObject MyPoi
@@ -71,6 +73,7 @@ namespace MirageXR
             lockToggle.gameObject.SetActive(editModeState);
             targetObject.gameObject.SetActive(editModeState);
             pickComponent.ChangeModelButton.gameObject.SetActive(editModeState);
+            pickComponent.EditMode = editModeState;
             var boundsControl = pickObject.GetComponent<BoundsControl>();
             if (boundsControl != null)
             {
@@ -122,7 +125,8 @@ namespace MirageXR
             targetObject.localPosition = positions.targetObjectPosition;
             targetObject.localScale = positions.targetObjectScale != null ? positions.targetObjectScale : defaultTargetSize;
             pickComponent.MoveMode = positions.moveMode;
-            pickComponent.ResetPos = positions.resetPosition;
+            pickComponent.ResetPosition = positions.resetPosition;
+            pickComponent.ResetRotation = positions.resetRotation;
             pickComponent.MyModelID = positions.modelID;
 
             if (pickComponent.MyModelID != string.Empty)
@@ -145,8 +149,9 @@ namespace MirageXR
                 modelID = pickComponent.MyModelID,
                 targetObjectPosition = targetObject.localPosition,
                 targetObjectScale = targetObject.localScale,
-                resetPosition = pickComponent.ResetPos,
-                moveMode = pickComponent.MoveMode
+                resetPosition = pickComponent.ResetPosition,
+                resetRotation = pickComponent.ResetRotation,
+                moveMode = pickComponent.MoveMode,
             };
 
             string pickAndPlaceData = JsonUtility.ToJson(positions);
@@ -197,6 +202,15 @@ namespace MirageXR
         {
             SavePositions();
         }
+
+        private void checkTrigger()
+        {
+            var trigger = activityManager.ActiveAction.triggers.Find(t => t.id == Annotation.poi);
+            isTrigger = trigger != null ? true : false;
+            pickComponent.setTrigger(trigger);
+        }
+
+
     }
 
     [Serializable]
@@ -209,6 +223,7 @@ namespace MirageXR
         public Vector3 targetObjectScale = Vector3.zero;
 
         public Vector3 resetPosition = Vector3.zero;
+        public Quaternion resetRotation = Quaternion.identity;
         public bool moveMode = false;
         public bool reset = false;
         public string modelID;
