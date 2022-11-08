@@ -125,6 +125,8 @@ namespace MirageXR
         Character,
         [EnumMember(Value = "pickandplace")]
         PickAndPlace,
+        [EnumMember(Value = "none")]
+        None,
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
