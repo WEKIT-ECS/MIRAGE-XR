@@ -17,6 +17,7 @@ public class PickAndPlaceEditor : MonoBehaviour
     [SerializeField] private GameObject triggerHelp;
     [SerializeField] private GameObject triggerIndexHelp;
     [SerializeField] private GameObject triggerTimeHelp;
+    [SerializeField] private Dropdown resetOnDropDown;
 
     [SerializeField] private GameObject editor;
     [SerializeField] private GameObject triggerSettings;
@@ -99,6 +100,11 @@ public class PickAndPlaceEditor : MonoBehaviour
 
         if (annotationToEdit != null)
         {
+            textInputField.text = annotationToEdit.text;
+
+            resetOption = int.Parse(annotationToEdit.key);
+            resetOnDropDown.value = resetOption;
+
             var trigger = activityManager.ActiveAction.triggers.Find(t => t.id == annotationToEdit.poi);
             isTrigger = trigger != null ? true : false;
             if (isTrigger)
