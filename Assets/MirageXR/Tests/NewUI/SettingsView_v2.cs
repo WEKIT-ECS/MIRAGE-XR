@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Text.RegularExpressions;
 using MirageXR;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,6 +17,11 @@ public class SettingsView_v2 : PopupBase
     [SerializeField] private Toggle _toggleLocalSave;
     [SerializeField] private Button _btnSave;
     [SerializeField] private Button _btnPreview;
+
+    public void Show()
+    {
+        PopupsViewer.Instance.Show(this);
+    }
 
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {

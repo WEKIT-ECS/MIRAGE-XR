@@ -76,7 +76,7 @@ public class ProfileView : PopupBase
     private void OnLoginSucceed(string username, string password)
     {
         Toast.Instance.Show("Login succeeded");
-        RootView_v2.Instance.activityListView_V2.FetchAndUpdateView();
+        RootView_v2.Instance.activityListView.FetchAndUpdateView();
         if (DBManager.rememberUser)
         {
             LocalFiles.SaveUsernameAndPassword(username, password);
@@ -137,7 +137,7 @@ public class ProfileView : PopupBase
     private void OnClickLogout()
     {
         DBManager.LogOut();
-        RootView_v2.Instance.activityListView_V2.FetchAndUpdateView();
+        RootView_v2.Instance.activityListView.FetchAndUpdateView();
         ShowLogin();
     }
 
@@ -214,7 +214,7 @@ public class ProfileView : PopupBase
         {
             DBManager.domain = domain;
             DBManager.LogOut();
-            RootView_v2.Instance.activityListView_V2.FetchAndUpdateView();
+            RootView_v2.Instance.activityListView.FetchAndUpdateView();
         }
 
         EventManager.NotifyMoodleDomainChanged();
