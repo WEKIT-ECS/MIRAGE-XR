@@ -120,12 +120,12 @@ namespace MirageXR
             EventManager.PlayerReset();
         }
 
-        public void CreateNewActivity()
+        public async Task CreateNewActivity()
         {
             var activity = CreateEmptyActivity();
             _newIdGenerated = false;
             EditModeActive = false;
-            ActivateActivity(activity).AsAsyncVoid();
+            await ActivateActivity(activity);
         }
 
         private static Activity CreateEmptyActivity()
@@ -308,12 +308,14 @@ namespace MirageXR
                             await ActivateAction(step.id, content);
                             break;
                         }
+
                     default:
                         {
                             EventManager.ActivateObject(content);
                             break;
                         }
                 }
+
                 if (_isSwitching)
                 {
                     break;

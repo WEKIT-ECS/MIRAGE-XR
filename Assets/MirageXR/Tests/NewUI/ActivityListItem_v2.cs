@@ -25,6 +25,7 @@ namespace MirageXR
         private bool _interactable = true;
 
         public string activityName => _container.Name;
+
         public string activityAuthor => _container.author;
 
         public bool interactable
@@ -33,6 +34,7 @@ namespace MirageXR
             {
                 return _interactable;
             }
+
             set
             {
                 _interactable = value;
@@ -141,7 +143,6 @@ namespace MirageXR
         public async void OpenActivity(bool value)
         {
             await PlayActivityAsync();
-
             activityManager.EditModeActive = value;
         }
 
@@ -161,7 +162,9 @@ namespace MirageXR
             _container.IsDownloading = true;
             UpdateView();
 
+            LoadView.Instance.Show();
             var (result, activity) = await MoodleManager.DownloadActivity(_container.Session);
+            LoadView.Instance.Hide();
 
             _container.HasError = !result;
             _container.Activity = activity;

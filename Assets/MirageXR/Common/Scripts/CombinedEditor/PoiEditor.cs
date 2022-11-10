@@ -1,7 +1,7 @@
-﻿using Microsoft.MixedReality.Toolkit.UI;
-using MirageXR;
-using System;
+﻿using System;
 using System.Globalization;
+using Microsoft.MixedReality.Toolkit.UI;
+using MirageXR;
 using UnityEngine;
 
 public class PoiEditor : MonoBehaviour
@@ -63,6 +63,11 @@ public class PoiEditor : MonoBehaviour
 
     private void OnEditModeChanged(bool editModeActive)
     {
+        if (!objectManipulator)
+        {
+            objectManipulator = GetOrAddComponent<ObjectManipulator>();
+        }
+
         objectManipulator.enabled = editModeActive;
     }
 
@@ -106,8 +111,6 @@ public class PoiEditor : MonoBehaviour
         {
             poi.scale = Math.Round(transform.localScale.x, 2).ToString() + ", " + Math.Round(transform.localScale.y, 2).ToString() + ", " + Math.Round(transform.localScale.z, 2).ToString();
         }
-
-
     }
 
 
@@ -125,7 +128,6 @@ public class PoiEditor : MonoBehaviour
 
         // ensure default interaction is present
         objectManipulator = GetOrAddComponent<ObjectManipulator>();
-
     }
 
     private void SetAugmentationSpecificManipulation(GameObject prefabObject)

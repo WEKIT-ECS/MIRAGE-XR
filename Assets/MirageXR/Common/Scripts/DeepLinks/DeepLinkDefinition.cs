@@ -48,7 +48,7 @@ public class DeepLinkDefinition
     public async void NewActivity()
     {
         await RootObject.Instance.editorSceneService.LoadEditorAsync();
-        RootObject.Instance.activityManager.CreateNewActivity();
+        await RootObject.Instance.activityManager.CreateNewActivity();
     }
 
     // opens the given activity
