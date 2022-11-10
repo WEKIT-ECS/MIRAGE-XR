@@ -29,12 +29,12 @@ jobs:
 
       # Cache
       - name: Caching
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: Library
-          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          key: Library-linux-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
-            Library-
+            Library-linux
 
       # Test stage
       - name: Unity Test runner (edit and play mode)
