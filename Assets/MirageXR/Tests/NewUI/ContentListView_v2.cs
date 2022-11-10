@@ -4,28 +4,38 @@ using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Step = MirageXR.Action;
 
 public class ContentListView_v2 : BaseView
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
-    private const float BASE_CONTROLS_COOLDOWN = 0.3f;
+    private const string STEP_NAME_MASK = "{0}/{1} {2}";
 
-    [SerializeField] private TMP_InputField _txtStepName;
-    [SerializeField] private TMP_InputField _txtDescription;
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+
     [SerializeField] private Button _btnAddContent;
-    [SerializeField] private Button _btnDeleteStep;
-    [SerializeField] private Button _btnAddStep;
-    [SerializeField] private Button _btnNextStep;
-    [SerializeField] private Button _btnPreviousStep;
     [SerializeField] private RectTransform _listContent;
+    [SerializeField] private TMP_Text _txtStepTitle;
+    [SerializeField] private TMP_InputField _inputFieldStepName;
+    [SerializeField] private TMP_InputField _inputFieldDescription;
+    [SerializeField] private Button _btnBack;
+    [SerializeField] private Button _btnSettings;
+    [SerializeField] private Button _btnMarker;
+    [SerializeField] private Toggle _toggleAugmentations;
+    [SerializeField] private Toggle _toggleInfo;
+    [SerializeField] private Toggle _toggleMarker;
+    [SerializeField] private GameObject _augmentations;
+    [SerializeField] private GameObject _info;
+    [SerializeField] private GameObject _marker;
     [SerializeField] private ContentListItem_v2 _contentListItemPrefab;
     [SerializeField] private ContentSelectorView_v2 _contentSelectorViewPrefab;
 
     [SerializeField] private PopupEditorBase[] _editors;
 
     public PopupEditorBase[] editors => _editors;
-    public MirageXR.Action currentStep => _currentStep;
-    public RootView_v2 rootView => (RootView_v2)_parentView;
+
+    public Step currentStep => _currentStep;
+
+    private ActivityView_v2 _activityView => (ActivityView_v2)_parentView;
 
     public string navigatorId
     {
@@ -40,6 +50,7 @@ public class ContentListView_v2 : BaseView
             {
                 _navigatorIds[_currentStep.id] = value;
             }
+
             UpdateView();
         }
     }
@@ -49,22 +60,27 @@ public class ContentListView_v2 : BaseView
     private bool _isShown = true;
     private Coroutine _coroutineSizeTo;
     private Coroutine _coroutineRotateTo;
-    private MirageXR.Action _currentStep;
+    private Step _currentStep;
 
     public override void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
-        _txtStepName.onEndEdit.AddListener(OnStepNameChanged);
-        _txtDescription.onEndEdit.AddListener(OnStepDescriptionChanged);
+
+        _augmentations.SetActive(true);
+        _info.SetActive(false);
+        _marker.SetActive(false);
+
         _btnAddContent.onClick.AddListener(OnAddContent);
-        _btnDeleteStep.onClick.AddListener(OnDeleteStep);
-        _btnAddStep.onClick.AddListener(OnAddStep);
-        _btnNextStep.onClick.AddListener(OnNextStep);
-        _btnPreviousStep.onClick.AddListener(OnPreviousStep);
+        _btnMarker.onClick.AddListener(OnAddMarkerPressed);
+        _btnBack.onClick.AddListener(OnBackPressed);
+        _btnSettings.onClick.AddListener(OnSettingsPressed);
 
-        Canvas.ForceUpdateCanvases();
+        _toggleAugmentations.onValueChanged.AddListener(OnToggleAugmentationsValueChanged);
+        _toggleInfo.onValueChanged.AddListener(OnToggleInfoValueChanged);
+        _toggleMarker.onValueChanged.AddListener(OnToggleMarkerValueChanged);
 
-        OnEditModeChanged(false);
+        _inputFieldStepName.onEndEdit.AddListener(OnStepNameChanged);
+        _inputFieldDescription.onEndEdit.AddListener(OnStepDescriptionChanged);
 
         EventManager.OnActionCreated += OnActionCreated;
         EventManager.OnActivateAction += OnActionActivated;
@@ -80,52 +96,86 @@ public class ContentListView_v2 : BaseView
         EventManager.OnActionModified -= OnActionChanged;
     }
 
-    private void OnStepNameChanged(string newTitle)
-    {
-        _currentStep.instruction.title = newTitle;
-        EventManager.NotifyOnActionStepTitleChanged();
-        EventManager.NotifyActionModified(_currentStep);
-    }
-
-    private void OnStepDescriptionChanged(string newDescription)
-    {
-        _currentStep.instruction.description = newDescription;
-        EventManager.NotifyOnActionStepDescriptionInputChanged();
-        EventManager.NotifyActionModified(_currentStep);
-    }
-
     private void OnActionActivated(string actionId)
     {
         var action = activityManager.ActiveAction ?? activityManager.ActionsOfTypeAction.FirstOrDefault(t => t.id == actionId);
-        if (action != null) _currentStep = action;
+        if (action != null)
+        {
+            _currentStep = action;
+        }
+
         UpdateView();
     }
 
-    private void OnActionCreated(MirageXR.Action action)
+    private void OnActionCreated(Step action)
     {
         _currentStep = action;
         UpdateView();
     }
 
-    private void OnActionChanged(MirageXR.Action action)
+    private void OnActionChanged(Step action)
     {
         UpdateView();
     }
 
+    private void OnBackPressed()
+    {
+        _activityView.ShowStepsList();
+        _augmentations.SetActive(true);
+        _info.SetActive(false);
+        _marker.SetActive(false);
+    }
+
+    private void OnAddMarkerPressed()
+    {
+        //not implemented
+    }
+
+    private void OnSettingsPressed()
+    {
+        RootView_v2.Instance.dialog.ShowBottomMultiline("Settings", ("Delete", OnCurrentStepDelete));
+    }
+
+    private void OnCurrentStepDelete()
+    {
+        _activityView.stepsListView.OnDeleteStepClick(_currentStep, OnBackPressed);
+    }
+
+    private void OnToggleAugmentationsValueChanged(bool value)
+    {
+        _augmentations.SetActive(value);
+        _info.SetActive(!value);
+        _marker.SetActive(!value);
+    }
+
+    private void OnToggleInfoValueChanged(bool value)
+    {
+        _augmentations.SetActive(!value);
+        _info.SetActive(value);
+        _marker.SetActive(!value);
+    }
+
+    private void OnToggleMarkerValueChanged(bool value)
+    {
+        _augmentations.SetActive(!value);
+        _info.SetActive(!value);
+        _marker.SetActive(value);
+    }
+
     private void OnEditModeChanged(bool value)
     {
-        _txtStepName.interactable = value;
-        _txtDescription.interactable = value;
         _btnAddContent.gameObject.SetActive(value);
-        _btnDeleteStep.gameObject.SetActive(value);
-        _btnAddStep.gameObject.SetActive(value);
-        _list.ForEach(item => item.OnEditModeChanged(value));
+        //_list.ForEach(item => item.OnEditModeChanged(value));
     }
 
     private void UpdateView()
     {
-        _txtStepName.text = _currentStep.instruction.title;
-        _txtDescription.text = _currentStep.instruction.description;
+        int currentIndex = activityManager.ActionsOfTypeAction.IndexOf(_currentStep) + 1;
+        int maxIndex = activityManager.ActionsOfTypeAction.Count;
+
+        _txtStepTitle.text = string.Format(STEP_NAME_MASK, currentIndex, maxIndex, _currentStep.instruction.title);
+        _inputFieldStepName.text = _currentStep.instruction.title;
+        _inputFieldDescription.text = _currentStep.instruction.description;
 
         var contents = _currentStep.enter.activates;
 
@@ -144,6 +194,7 @@ public class ContentListView_v2 : BaseView
                 obj.Init(this);
                 _list.Add(obj);
             }
+
             _list[i].gameObject.SetActive(true);
             _list[i].UpdateView(contents[i]);
         }
@@ -154,50 +205,17 @@ public class ContentListView_v2 : BaseView
     public void OnAddContent()
     {
         PopupsViewer.Instance.Show(_contentSelectorViewPrefab, _editors, _currentStep);
-        EventManager.NotifyOnMobileAddStepContentPressed();
     }
 
-    private void EnableBaseControl()
+    private void OnStepNameChanged(string newTitle)
     {
-        _btnDeleteStep.interactable = true;
-        _btnAddStep.interactable = true;
-        _btnNextStep.interactable = true;
-        _btnPreviousStep.interactable = true;
+        _currentStep.instruction.title = newTitle;
+        EventManager.NotifyActionModified(_currentStep);
     }
 
-    private void DisableBaseControl()
+    private void OnStepDescriptionChanged(string newDescription)
     {
-        _btnDeleteStep.interactable = false;
-        _btnAddStep.interactable = false;
-        _btnNextStep.interactable = false;
-        _btnPreviousStep.interactable = false;
-    }
-
-    private void OnDeleteStep()
-    {
-        DisableBaseControl();
-        rootView.stepsListView.OnDeleteStepClick(_currentStep);
-        Invoke(nameof(EnableBaseControl), BASE_CONTROLS_COOLDOWN);
-    }
-
-    private void OnAddStep()
-    {
-        DisableBaseControl();
-        rootView.stepsListView.AddStep();
-        Invoke(nameof(EnableBaseControl), BASE_CONTROLS_COOLDOWN);
-    }
-
-    private void OnNextStep()
-    {
-        DisableBaseControl();
-        rootView.stepsListView.NextStep();
-        Invoke(nameof(EnableBaseControl), BASE_CONTROLS_COOLDOWN);
-    }
-
-    private void OnPreviousStep()
-    {
-        DisableBaseControl();
-        rootView.stepsListView.PreviousStep();
-        Invoke(nameof(EnableBaseControl), BASE_CONTROLS_COOLDOWN);
+        _currentStep.instruction.description = newDescription;
+        EventManager.NotifyActionModified(_currentStep);
     }
 }

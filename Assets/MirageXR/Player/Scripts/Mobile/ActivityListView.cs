@@ -142,7 +142,7 @@ namespace MirageXR
             LoadView.Instance.Show();
             interactable = false;
             await RootObject.Instance.editorSceneService.LoadEditorAsync();
-            RootObject.Instance.activityManager.CreateNewActivity();
+            await RootObject.Instance.activityManager.CreateNewActivity();
             interactable = true;
             LoadView.Instance.Hide();
             EventManager.NotifyOnNewActivityCreationButtonPressed();
