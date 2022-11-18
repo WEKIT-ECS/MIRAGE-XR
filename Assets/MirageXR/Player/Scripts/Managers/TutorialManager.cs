@@ -303,7 +303,7 @@ namespace MirageXR
             helpSteps.Add(new HelpStepRenameStep());
             helpSteps.Add(new HelpStepAddStepContent());
             helpSteps.Add(new HelpStepCopyStep());
-            helpSteps.Add(new HelpStepAddStepContent2());
+            //helpSteps.Add(new HelpStepAddStepContent2());
 
         }
 
