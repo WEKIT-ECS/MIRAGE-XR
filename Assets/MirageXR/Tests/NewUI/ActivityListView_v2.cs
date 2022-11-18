@@ -1,177 +1,151 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using i5.Toolkit.Core.ServiceCore;
-using TMPro;
+using DG.Tweening;
+using MirageXR;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-namespace MirageXR
+public class ActivityListView_v2 : BaseView
 {
-    public class ActivityListView_v2 : MonoBehaviour
+    public static ActivityListView_v2 Instance { get; private set; }
+
+    [SerializeField] private Button _btnFilter;
+    [SerializeField] private Transform _listTransform;
+    [SerializeField] private ActivityListItem_v2 _smallItemPrefab;
+    [SerializeField] private ActivityListItem_v2 _bigItemPrefab;
+
+    [SerializeField] private Button _btnNewActivity;
+    [SerializeField] private SortingView _sortingPrefab;
+
+    [Space]
+    [SerializeField] private Button _btnArrow;
+    [SerializeField] private RectTransform _panel;
+    [SerializeField] private GameObject _arrowDown;
+    [SerializeField] private GameObject _arrowUp;
+
+    private List<SessionContainer> _content;
+    private readonly List<ActivityListItem_v2> _items = new List<ActivityListItem_v2>();
+    private bool _interactable = true;
+
+    public List<SessionContainer> content => _content;
+
+    private void Awake()
     {
-        public static ActivityListView_v2 Instance { get; private set; }
-
-        [SerializeField] private Button _btnFilter;
-        [SerializeField] private Transform _listTransform;
-        [SerializeField] private ActivityListItem_v2 _smallItemPrefab;
-        [SerializeField] private ActivityListItem_v2 _bigItemPrefab;
-
-        [SerializeField] private Toggle _toggleNewActivity;
-
-        [SerializeField] private SortingView _sortingPrefab;
-
-        [SerializeField] private StepsListView_v2 _stepsListView;
-
-        private List<SessionContainer> _content;
-        private readonly List<ActivityListItem_v2> _items = new List<ActivityListItem_v2>();
-        private bool _interactable = true;
-
-        public List<SessionContainer> content 
+        if (Instance != null)
         {
-            get
-            {
-                return _content;
-            }
+            Debug.LogError($"{nameof(Instance.GetType)} must only be a single copy!");
+            return;
         }
 
-        public List<ActivityListItem_v2> items
+        Instance = this;
+    }
+
+    private void OnDestroy()
+    {
+        Instance = null;
+    }
+
+    public override void Initialization(BaseView parentView)
+    {
+        _btnFilter.onClick.AddListener(OnByDateClick);
+        _btnNewActivity.onClick.AddListener(OnNewActivityChanged);
+
+        _btnArrow.onClick.AddListener(ArrowBtnPressed);
+        _arrowDown.SetActive(true);
+        _arrowUp.SetActive(false);
+
+        EventManager.OnActivitySaved += FetchAndUpdateView;
+
+        FetchAndUpdateView();
+    }
+
+    private static async Task<List<SessionContainer>> FetchContent()
+    {
+        var dictionary = new Dictionary<string, SessionContainer>();
+
+        var localList = await LocalFiles.GetDownloadedActivities();
+        localList.ForEach(t =>
         {
-            get
+            if (dictionary.ContainsKey(t.id))
             {
-                return _items;
-            }
-        }
-
-        public bool interactable
-        {
-            get
-            {
-                return _interactable;
-            }
-
-            set
-            {
-                _interactable = value;
-                _items.ForEach(t => t.interactable = value);
-            }
-        }
-
-        private void Awake()
-        {
-            if (Instance != null)
-            {
-                Debug.LogError($"{nameof(Instance.GetType)} must only be a single copy!");
-                return;
-            }
-
-            Instance = this;
-        }
-
-        private void OnDestroy()
-        {
-            Instance = null;
-        }
-
-        private void Start()
-        {
-            Init();
-        }
-
-        private void Init()
-        {
-            _btnFilter.onClick.AddListener(OnByDateClick);
-            _toggleNewActivity.onValueChanged.AddListener(OnNewActivityChanged);
-
-            EventManager.OnActivityStarted += UpdateStepsView;
-            EventManager.OnActivitySaved += UpdateListView;
-
-            UpdateListView();
-        }
-
-
-
-        private static async Task<List<SessionContainer>> GetContent()
-        {
-            var dictionary = new Dictionary<string, SessionContainer>();
-
-            var localList = await LocalFiles.GetDownloadedActivities();
-            localList.ForEach(t =>
-            {
-                if (dictionary.ContainsKey(t.id))
-                {
-                    dictionary[t.id].Activity = t;
-                }
-                else
-                {
-                    dictionary.Add(t.id, new SessionContainer { Activity = t });
-                }
-            });
-
-            var remoteList = await RootObject.Instance.moodleManager.GetArlemList();
-            remoteList?.ForEach(t =>
-            {
-                if (dictionary.ContainsKey(t.sessionid))
-                {
-                    dictionary[t.sessionid].Session = t;
-                }
-                else
-                {
-                    dictionary.Add(t.sessionid, new SessionContainer { Session = t });
-                }
-            });
-
-            return dictionary.Values.ToList();
-        }
-
-        public async void UpdateListView()
-        {
-            _content = await GetContent();
-#if UNITY_EDITOR
-            if (!EditorApplication.isPlaying) return;
-#endif
-            _items.ForEach(item => Destroy(item.gameObject));
-            _items.Clear();
-
-            ActivityListItem_v2 prefab;
-            if (!DBManager.showBigCards)
-            {
-                prefab = _smallItemPrefab;
+                dictionary[t.id].Activity = t;
             }
             else
             {
-                prefab = _bigItemPrefab;
+                dictionary.Add(t.id, new SessionContainer { Activity = t });
             }
-            _content.ForEach(content =>
+        });
+
+        var remoteList = await RootObject.Instance.moodleManager.GetArlemList();
+        remoteList?.ForEach(t =>
+        {
+            if (dictionary.ContainsKey(t.sessionid))
             {
-                var item = Instantiate(prefab, _listTransform);
-                item.Init(content);
-                _items.Add(item);
-            });
-        }
+                dictionary[t.sessionid].Session = t;
+            }
+            else
+            {
+                dictionary.Add(t.sessionid, new SessionContainer { Session = t });
+            }
+        });
 
-        private void OnByDateClick()
-        {
-            PopupsViewer.Instance.Show(_sortingPrefab);
-        }
+        return dictionary.Values.ToList();
+    }
 
-        private async void OnNewActivityChanged(bool value)
-        {
-            LoadView.Instance.Show();
-            interactable = false;
-            await RootObject.Instance.editorSceneService.LoadEditorAsync();
-            RootObject.Instance.activityManager.CreateNewActivity();         
-            interactable = true;
-            LoadView.Instance.Hide();
-            EventManager.NotifyOnNewActivityCreationButtonPressed();
-        }
+    public async void FetchAndUpdateView()
+    {
+        _content = await FetchContent();
+        UpdateView();
+    }
 
-        private void UpdateStepsView()
+    public void UpdateView()
+    {
+#if UNITY_EDITOR
+        if (!EditorApplication.isPlaying)
         {
-            _stepsListView.UpdateView();
+            return;
+        }
+#endif
+        _items.ForEach(item => Destroy(item.gameObject));
+        _items.Clear();
+
+        var prefab = !DBManager.showBigCards ? _smallItemPrefab : _bigItemPrefab;
+        _content.ForEach(content =>
+        {
+            var item = Instantiate(prefab, _listTransform);
+            item.Init(content);
+            _items.Add(item);
+        });
+    }
+
+    private void OnByDateClick()
+    {
+        PopupsViewer.Instance.Show(_sortingPrefab);
+    }
+
+    private async void OnNewActivityChanged()
+    {
+        LoadView.Instance.Show();
+        await RootObject.Instance.editorSceneService.LoadEditorAsync();
+        await RootObject.Instance.activityManager.CreateNewActivity();
+        LoadView.Instance.Hide();
+    }
+
+    private void ArrowBtnPressed()
+    {
+        if (_arrowDown.activeSelf)
+        {
+            _panel.DOAnchorPos(new Vector2(0, -1100), 0.25f);
+            _arrowDown.SetActive(false);
+            _arrowUp.SetActive(true);
+        }
+        else
+        {
+            _panel.DOAnchorPos(new Vector2(0, -60), 0.25f);
+            _arrowDown.SetActive(true);
+            _arrowUp.SetActive(false);
         }
     }
 }

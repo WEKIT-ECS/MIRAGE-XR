@@ -62,7 +62,7 @@ namespace MirageXR
 
         private const string REMEMBER_SKETCHFAB_USER_KEY = "RememberSketchfabUser";
         private const bool REMEMBER_SKETCHFAB_USER_DEFAULT = false;
-        
+
         private const string SHOW_BIG_CARDS_KEY = "ShowBigCards";
         public const bool SHOW_BIG_CARDS_DEFAULT = false;
 

@@ -1,10 +1,8 @@
-using System.Threading.Tasks;
-using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DialogViewBottomMultiline : DialogView
+public class DialogViewBottomMultiline : DialogViewBottom
 {
     [SerializeField] private Button _buttonClose;
     [SerializeField] private Button _buttonPrefab;
@@ -31,22 +29,5 @@ public class DialogViewBottomMultiline : DialogView
         }
 
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
-    }
-
-    protected override Task OnShowAnimation()
-    {
-        var rectTransform = (RectTransform)transform;
-        var position = rectTransform.localPosition;
-        var height = rectTransform.rect.height;
-        rectTransform.localPosition = new Vector3(position.x, position.y - height, position.z);
-        return rectTransform.DOLocalMoveY(position.y, AnimationTime).AsyncWaitForCompletion();
-    }
-
-    protected override Task OnCloseAnimation()
-    {
-        var rectTransform = (RectTransform)transform;
-        var position = rectTransform.localPosition;
-        var height = rectTransform.rect.height;
-        return rectTransform.DOLocalMoveY(position.y - height, AnimationTime).AsyncWaitForCompletion();
     }
 }

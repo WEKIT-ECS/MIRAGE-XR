@@ -15,6 +15,7 @@ public class Dialog : MonoBehaviour
     [SerializeField] private DialogViewMiddle _dialogMiddlePrefab;
     [SerializeField] private DialogViewMiddleMultiline _dialogMiddleMultilinePrefab;
     [SerializeField] private DialogViewBottomMultiline _dialogBottomMultilinePrefab;
+    [SerializeField] private DialogViewBottomInputField _dialogBottomInputFieldPrefab;
 
     private readonly Queue<DialogModel> _queue = new Queue<DialogModel>();
     private DialogView _dialogView;
@@ -55,6 +56,12 @@ public class Dialog : MonoBehaviour
     {
         var contents = buttonContents.Select(t => new DialogButtonContent(t.text, t.onClick)).ToList();
         Show(DialogType.Bottom, label, null, contents, canBeClosedByOutTap);
+    }
+
+    public void ShowBottomInputField(string label, string description, string textLeft, Action<string> onClickLeft, string textRight, Action<string> onClickRight, bool canBeClosedByOutTap = false)
+    {
+        var contents = new List<DialogButtonContent> { new DialogButtonContent(textLeft, onClickLeft), new DialogButtonContent(textRight, onClickRight) };
+        Show(DialogType.BottomInputField, label, description, contents, canBeClosedByOutTap);
     }
 
     public void ShowMiddleMultiline(string label, params (string text, Action onClick, bool isWarning)[] buttonContents)
@@ -111,13 +118,18 @@ public class Dialog : MonoBehaviour
 
     private async Task ViewDialog(DialogModel model)
     {
-        await CloseDialog();
+        if (_dialogView)
+        {
+            await CloseDialogView();
+        }
+        else
+        {
+            ShowAnimation();
+        }
 
         _dialogView = CreateDialogView(model);
 
-        _backgroundCanvasGroup.alpha = 0.0f;
         _background.gameObject.SetActive(true);
-        await _backgroundCanvasGroup.DOFade(1.0f, AnimationFadeTime).AsyncWaitForCompletion();
         _background.onClick.RemoveAllListeners();
         await _dialogView.Show();
         if (model.canBeClosedByOutTap)
@@ -144,21 +156,39 @@ public class Dialog : MonoBehaviour
                 return _dialogMiddlePrefab;
             case DialogType.MiddleMultiline:
                 return _dialogMiddleMultilinePrefab;
+            case DialogType.BottomInputField:
+                return _dialogBottomInputFieldPrefab;
             default:
                 throw new ArgumentOutOfRangeException();
         }
     }
 
-    private async Task CloseDialog()
+    private async Task CloseDialogView()
     {
         if (_dialogView)
         {
             await _dialogView.Close();
-            _backgroundCanvasGroup.alpha = 1.0f;
-            await _backgroundCanvasGroup.DOFade(0, AnimationFadeTime).AsyncWaitForCompletion();
-            _background.gameObject.SetActive(false);
-            _isActive = false;
             _dialogView = null;
         }
+    }
+
+    private async Task CloseDialog()
+    {
+        await CloseDialogView();
+        await HideAnimation();
+        _background.gameObject.SetActive(false);
+        _isActive = false;
+    }
+
+    private async Task ShowAnimation()
+    {
+        _backgroundCanvasGroup.alpha = 0.0f;
+        await _backgroundCanvasGroup.DOFade(1.0f, AnimationFadeTime).AsyncWaitForCompletion();
+    }
+
+    private async Task HideAnimation()
+    {
+        _backgroundCanvasGroup.alpha = 1.0f;
+        await _backgroundCanvasGroup.DOFade(0, AnimationFadeTime).AsyncWaitForCompletion();
     }
 }

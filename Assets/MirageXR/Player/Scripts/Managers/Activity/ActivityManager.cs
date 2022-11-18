@@ -120,12 +120,12 @@ namespace MirageXR
             EventManager.PlayerReset();
         }
 
-        public void CreateNewActivity()
+        public async Task CreateNewActivity()
         {
             var activity = CreateEmptyActivity();
             _newIdGenerated = false;
             EditModeActive = false;
-            ActivateActivity(activity).AsAsyncVoid();
+            await ActivateActivity(activity);
         }
 
         private static Activity CreateEmptyActivity()
@@ -308,12 +308,14 @@ namespace MirageXR
                             await ActivateAction(step.id, content);
                             break;
                         }
+
                     default:
                         {
                             EventManager.ActivateObject(content);
                             break;
                         }
                 }
+
                 if (_isSwitching)
                 {
                     break;
@@ -592,13 +594,18 @@ namespace MirageXR
 
         public async Task ActivateNextAction()
         {
-            if (ActiveAction != null)
+            int indexOfActivated = ActionsOfTypeAction.IndexOf(ActiveAction);
+            int indexOfLast = ActionsOfTypeAction.Count - 1;
+            if (indexOfActivated < indexOfLast)
             {
-                await DeactivateAction(ActiveAction.id);
-            }
-            else
-            {
-                await ActivateAction(_activity.start);
+                if (ActiveAction != null)
+                {
+                    await DeactivateAction(ActiveAction.id);
+                }
+                else
+                {
+                    await ActivateAction(_activity.start);
+                }
             }
         }
 
@@ -794,10 +801,13 @@ namespace MirageXR
             _activity.actions.RemoveAt(indexToDelete);
 
             RegenerateActionsList();
-            ActiveAction = null;
 
             EventManager.NotifyActionDeleted(idToDelete);
-            EventManager.ActivateAction(string.Empty);
+
+            if (ActiveAction.id == idToDelete)
+            {
+                ActivateNextAction();
+            }
         }
 
         private void RegenerateActionsList()

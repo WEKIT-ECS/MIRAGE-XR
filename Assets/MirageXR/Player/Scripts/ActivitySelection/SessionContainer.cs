@@ -1,7 +1,4 @@
-﻿
-using UnityEngine.Networking;
-
-namespace MirageXR
+﻿namespace MirageXR
 {
     public class SessionContainer
     {
@@ -14,24 +11,36 @@ namespace MirageXR
         private const string KB_FORMAT = "{0:F2}KB";
         private const string MB_FORMAT = "{0:F2}MB";
         private const string GB_FORMAT = "{0:F2}GB";
+        private const string ZIP = ".zip";
 
         public Session Session { get; set; }
+
         public Activity Activity { get; set; }
 
         public string Filesize
         {
             get
             {
-                if (Session == null) return string.Empty;
+                if (Session == null)
+                {
+                    return string.Empty;
+                }
 
                 long size = Session.filesize;
                 string convertedSize;
+
                 if (size > GB)
+                {
                     convertedSize = string.Format(GB_FORMAT, size / (float)GB);
+                }
                 else if (size > MB)
+                {
                     convertedSize = string.Format(MB_FORMAT, size / (float)MB);
+                }
                 else if (size > KB)
+                {
                     convertedSize = string.Format(KB_FORMAT, size / (float)KB);
+                }
                 else
                 {
                     convertedSize = LESS_THAN_KB;
@@ -70,11 +79,10 @@ namespace MirageXR
 
                 if (Session != null)
                 {
-                    if (string.IsNullOrEmpty(Session.title))
-                        return Session.filename.Replace(".zip", "");
-                    else
-                        return Session.title;
+                    return string.IsNullOrEmpty(Session.title)
+                        ? Session.filename.Replace(ZIP, string.Empty) : Session.title;
                 }
+
                 return string.Empty;
             }
         }

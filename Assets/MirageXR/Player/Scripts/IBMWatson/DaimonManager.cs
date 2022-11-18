@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class DaimonManager : MonoBehaviour
 {
+    private static MirageXR.ActivityManager activityManager => MirageXR.RootObject.Instance.activityManager;
 
     public SpeechInputService mySpeechInputMgr { get; private set; }
     private SpeechOutputService mySpeechOutputMgr;
@@ -17,9 +18,10 @@ public class DaimonManager : MonoBehaviour
     private Dictionary<string, object> _context = null;
     private bool _waitingForResponse = true;
 
-    public float wait = 0.0f;
+    public float wait = 0.0f; //currently no wait, may require a fix
     public bool check = false;
     public bool play = false;
+    public bool triggerNext = false;
 
 
 
@@ -58,6 +60,12 @@ public class DaimonManager : MonoBehaviour
             //check that clip is not playing
             Debug.Log("-------------------- Speech Output has finished playing, now reactivating SpeechInput.");
             check = false;
+
+            if (triggerNext)
+            {
+                triggerNext = false;
+                activityManager.ActivateNextAction();
+            }
 
             //Now let's start listening again.....
             mySpeechInputMgr.Active = true;
