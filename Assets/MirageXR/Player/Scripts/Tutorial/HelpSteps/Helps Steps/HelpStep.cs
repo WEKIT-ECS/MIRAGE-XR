@@ -13,6 +13,9 @@ namespace MirageXR
     {
         protected string instructionText;
 
+        public Vector3 pos;
+        public bool shouldMove = false;
+
         private TutorialPopup popup;
         private TutorialObjectHighlighter highlighter;
 
@@ -48,6 +51,11 @@ namespace MirageXR
         {
             popup = (TutorialPopup)PopupsViewer.Instance.Show(manager.MobilePopup);
             popup.SetInstructionText(instructionText);
+
+            if (shouldMove)
+            {
+                popup.movePopup(pos);
+            }
         }
 
         protected void SetupHighlighter()

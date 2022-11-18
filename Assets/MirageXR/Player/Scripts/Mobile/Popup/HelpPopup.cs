@@ -28,6 +28,8 @@ namespace MirageXR
         {
             base.Init(onClose, args);
             btnGotIt.onClick.AddListener(GotItOnClick);
+
+            
         }
 
         private void GotItOnClick()
@@ -41,6 +43,7 @@ namespace MirageXR
             EventManager.NotifyOnTutorialPopupCloseClicked();
             Close();
             TutorialManager.Instance.showHelp(1);
+            
         }
 
         protected override bool TryToGetArguments(params object[] args)

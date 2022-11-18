@@ -9,7 +9,21 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "Long-tap on the action step to select it.";
+            this.instructionText = "Tap the + button to add new steps";
+
+            GameObject add = GameObject.Find("AddButton");
+
+            Button button = add.GetComponent<Button>();
+            if (button != null)
+            {
+                button.onClick.AddListener(SecuredExitStep);
+            }
+
+            this.highlightedObject = add;
+            this.shouldMove = true;
+            this.pos = new Vector3(0, 0, 0);
+           
+
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
         }
 
