@@ -280,8 +280,9 @@ namespace MirageXR
 
         private void PopulateHelpStelectionsList() {
             helpSelections.Add(new HelpSelectionActivitySelection());
-            helpSelections.Add(new HelpSelectionTest1());
             helpSelections.Add(new HelpSelectionNewActivity());
+            helpSelections.Add(new HelpSelectionTest1());
+            
             helpSelections.Add(new HelpSelectionAddAugmentations());
         }
 
@@ -302,6 +303,7 @@ namespace MirageXR
             helpSteps.Add(new HelpStepRenameStep());
             helpSteps.Add(new HelpStepAddStepContent());
             helpSteps.Add(new HelpStepCopyStep());
+            helpSteps.Add(new HelpStepAddStepContent2());
 
         }
 
@@ -327,6 +329,15 @@ namespace MirageXR
                     break;
                 case 1:
                     PopulateHelpStepListNewActivity();
+
+                    GameObject view = GameObject.Find("ActionContent");
+
+                    if (view.transform.position.y != 0)
+                    {
+                        view.transform.position = new Vector3(view.transform.position.x, 0, view.transform.position.z);
+
+                    }
+
                     break;
                 case 2:
                     PopulateHelpStepListNewActivity();
