@@ -14,11 +14,11 @@ jobs:
       - name: Setup Unity
         uses: kuler90/setup-unity@v1.0.8
         with:
-          unity-version: 2020.3.13f1
+          unity-version: 2021.3.8f1
 
       # Request manual activation file
       - name: Request manual activation file
-        run: ci\get_windows_activation_file.bat
+        run: .\ci\get_windows_activation_file.bat
       # Upload artifact (Unity_v20XX.X.XXXX.alf)
       - name: Expose as artifact
         uses: actions/upload-artifact@v2

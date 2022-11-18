@@ -70,13 +70,21 @@ The Alien character model is licensed under a [Creative Commons Attribution-NonC
 
 IBM Cloud Unity SDK Core (Assets/IBMWatsonSDK/IBMSdkCore) and IBM Cloud Unity SDK Core (Assets/IBMWatsonSDK/Watson) are licensed under Apache 2.0. The full license text is available in /Assets/IBMWatsonSDK/Watson/LICENSE and /Assets/IBMWatsonSDK/IBMSdkCore/README.md
 
+## Download Releases
+
+Main Build status for HoloLens builds: ![example workflow](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/workflows/windows_workflow.yml/badge.svg?branch=master)
+
+Main Build status for Android builds: ![example workflow](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/workflows/linux_workflow.yml/badge.svg?branch=master)
+
+You can find the releases in the [Releases tab](https://github.com/WEKIT-ECS/MIRAGE-XR/releases).
+They contain changelogs and installer files for the HoloLens 1 & 2 devices.
+
 ## Download Preview Builds
 
 Preview builds reflect the current state of the development and may be unstable.
 Use these installers to test new features before they are available as a regular release.
 Preview releases are for testing purposes only and should not be used in production.
 
-Preview Build status: ![example workflow](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/workflows/windows_workflow.yml/badge.svg?branch=develop)
+Preview Build status for HoloLens builds: ![example workflow](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/workflows/windows_workflow.yml/badge.svg?branch=develop)
 
-[![Download HoloLens 1 Preview Build](https://img.shields.io/badge/Download-HoloLens%201%20Preview%20Build-blue)](https://platform.xr4all.eu/wekit-ecs/mirage-xr/-/jobs/artifacts/develop/download?job=hololens1-installer-build)
-[![Download HoloLens 2 Preview Build](https://img.shields.io/badge/Download-HoloLens%202%20Preview%20Build-blue)](https://platform.xr4all.eu/wekit-ecs/mirage-xr/-/jobs/artifacts/develop/download?job=hololens2-installer-build)
+Preview Build status for Android builds: ![example workflow](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/workflows/linux_workflow.yml/badge.svg?branch=develop)
