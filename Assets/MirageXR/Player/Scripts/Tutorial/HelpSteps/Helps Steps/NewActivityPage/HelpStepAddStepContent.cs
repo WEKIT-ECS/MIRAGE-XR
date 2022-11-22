@@ -29,7 +29,7 @@ namespace MirageXR
 
         public void exit()
         {
-            //this.ExitStep();
+            this.ExitStep();
             TutorialManager.Instance.showHelp(6);
         }
 

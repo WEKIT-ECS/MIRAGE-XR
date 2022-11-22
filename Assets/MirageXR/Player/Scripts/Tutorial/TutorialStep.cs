@@ -49,7 +49,6 @@ namespace MirageXR
             }
             else
             {
-                Debug.Log("ACTIVE");
                 return;
             }
         }

@@ -132,7 +132,7 @@ public class StepsListView_v2 : BaseView
         _calibration.SetActive(!value);
         if (value)
         {
-            EventManager.NotifyMobilePageNumberChanged(RootView_v2.HelpPage.ActivitySteps);
+            EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivitySteps);
         }
     }
 
@@ -143,7 +143,7 @@ public class StepsListView_v2 : BaseView
         _calibration.SetActive(!value);
         if (value)
         {
-            EventManager.NotifyMobilePageNumberChanged(RootView_v2.HelpPage.ActivityInfo);
+            EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivityInfo);
         }
     }
 
@@ -154,7 +154,7 @@ public class StepsListView_v2 : BaseView
         _calibration.SetActive(value);
         if (value)
         {
-            EventManager.NotifyMobilePageNumberChanged(RootView_v2.HelpPage.ActivityCalibration);
+            EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivityCalibration);
         }
     }
 

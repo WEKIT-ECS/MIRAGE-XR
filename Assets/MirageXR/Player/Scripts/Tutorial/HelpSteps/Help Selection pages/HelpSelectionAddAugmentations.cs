@@ -9,19 +9,16 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "This is a test";
+            this.instructionText = "";
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
 
             this.popup.createNewSelectionButton("For more info on each augmentation type, open their window by selecting them on the list and then click their info").onClick.AddListener(SecuredExitStep);
-
-
         }
 
         protected override void Detach()
         {
             EventManager.NewActivityCreationButtonPressed -= DefaultExitEventListener;
         }
-
 
         protected override void SecuredExitStep()
         {

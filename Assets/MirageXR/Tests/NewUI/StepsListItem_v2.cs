@@ -80,6 +80,6 @@ public class StepsListItem_v2 : MonoBehaviour
     public void OnEditClick()
     {
         _onEditClick(_step);
-        EventManager.NotifyMobilePageNumberChanged(RootView_v2.HelpPage.ActionInfo);
+        EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActionInfo);
     }
 }

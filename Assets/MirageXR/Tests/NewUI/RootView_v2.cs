@@ -70,7 +70,7 @@ public class RootView_v2 : BaseView
     {
         base.Initialization(parentView);
         EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
-        EventManager.onMobilePageNumberChanged += updatePageNumber;
+        EventManager.onMobileHelpPageChanged += updateHelpPage;
 
         _toggleHome.isOn = true;
         _toggleHome.onValueChanged.AddListener(OnStepsClick);
@@ -127,12 +127,12 @@ public class RootView_v2 : BaseView
             case 0:
                 _toggleHome.isOn = true;
                 _btnAddAugmentation.gameObject.SetActive(true);
-                EventManager.NotifyMobilePageNumberChanged(HelpPage.Home);
+                EventManager.NotifyMobileHelpPageChanged(HelpPage.Home);
                 break;
             case 1:
                 _toggleHome.isOn = true;
                 _btnAddAugmentation.gameObject.SetActive(false);
-                EventManager.NotifyMobilePageNumberChanged(HelpPage.ActivitySteps);
+                EventManager.NotifyMobileHelpPageChanged(HelpPage.ActivitySteps);
                 break;
         }
     }
@@ -236,7 +236,7 @@ public class RootView_v2 : BaseView
         }
     }
 
-    private void updatePageNumber(HelpPage page)
+    private void updateHelpPage(HelpPage page)
     {
         helpPage = page;
     }

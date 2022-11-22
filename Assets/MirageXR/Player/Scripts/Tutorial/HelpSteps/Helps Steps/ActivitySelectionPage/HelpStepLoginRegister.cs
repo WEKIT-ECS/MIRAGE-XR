@@ -10,7 +10,7 @@ namespace MirageXR
         protected override void Init()
         {
             this.instructionText = "To login, register or manage your account, click on the profile menu item below.";
-            GameObject Profile = GameObject.Find("Profile");//RootView_v2.Instance._searchPrefab.gameObject;
+            GameObject Profile = GameObject.Find("Profile");
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
 
             Button button = Profile.GetComponentInChildren<Button>();
