@@ -10,7 +10,6 @@ namespace MirageXR
         protected override void Init()
         {
             this.instructionText = "Tap the plus button below to add a new activity.";
-            //RootView_v2.Instance._searchPrefab.gameObject;
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
 
             GameObject Activitytoggle = GameObject.Find("NewActivity");

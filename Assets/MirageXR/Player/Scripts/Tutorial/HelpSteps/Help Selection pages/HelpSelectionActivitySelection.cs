@@ -9,7 +9,7 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "This is a test";
+            this.instructionText = "";
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
 
             this.popup.createNewSelectionButton("How to search for a specific activity").onClick.AddListener(search);
@@ -27,30 +27,23 @@ namespace MirageXR
 
             this.ExitStep();
             TutorialManager.Instance.showHelp(0);
-        
         }
 
         public void open()
         {
-
             this.ExitStep();
             TutorialManager.Instance.showHelp(1);
-
         }
 
         public void edit()
         {
-
             this.ExitStep();
             TutorialManager.Instance.showHelp(2);
-
         }
         public void createAccount()
         {
-
             this.ExitStep();
             TutorialManager.Instance.showHelp(3);
-
         }
 
 

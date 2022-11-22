@@ -833,13 +833,13 @@ namespace MirageXR
             MoodleDomainChanged?.Invoke();
         }
 
-        public delegate void MobilePageNumberChanged(RootView_v2.HelpPage value);
+        public delegate void MobileHelpPageChanged(RootView_v2.HelpPage value);
 
-        public static event MobilePageNumberChanged onMobilePageNumberChanged;
+        public static event MobileHelpPageChanged onMobileHelpPageChanged;
 
-        public static void NotifyMobilePageNumberChanged(RootView_v2.HelpPage value)
+        public static void NotifyMobileHelpPageChanged(RootView_v2.HelpPage value)
         {
-            onMobilePageNumberChanged?.Invoke(value);
+            onMobileHelpPageChanged?.Invoke(value);
             Debug.Log("page change = " + value);
         }
     }

@@ -37,7 +37,6 @@ namespace MirageXR
             Detach();
             RemoveHighlight();
             RemoveInstruction();
-           // manager.NextStep();
         }
 
         protected abstract void Init();
@@ -47,7 +46,6 @@ namespace MirageXR
         protected void SetupInstruction()
         {
             popup = (HelpSelectionPopup)PopupsViewer.Instance.Show(manager.HelpSelectionPopup);
-            //popup.SetInstructionText(instructionText);
         }
 
         protected void SetupHighlighter()
