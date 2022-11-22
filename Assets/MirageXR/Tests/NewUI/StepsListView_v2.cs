@@ -130,6 +130,10 @@ public class StepsListView_v2 : BaseView
         _steps.SetActive(value);
         _info.SetActive(!value);
         _calibration.SetActive(!value);
+        if (value)
+        {
+            EventManager.NotifyMobilePageNumberChanged(1);
+        }
     }
 
     private void OnToggleInfoValueChanged(bool value)
@@ -137,6 +141,10 @@ public class StepsListView_v2 : BaseView
         _steps.SetActive(!value);
         _info.SetActive(value);
         _calibration.SetActive(!value);
+        if (value)
+        {
+            EventManager.NotifyMobilePageNumberChanged(2);
+        }
     }
 
     private void OnToggleCalibrationValueChanged(bool value)
@@ -144,6 +152,10 @@ public class StepsListView_v2 : BaseView
         _steps.SetActive(!value);
         _info.SetActive(!value);
         _calibration.SetActive(value);
+        if (value)
+        {
+            EventManager.NotifyMobilePageNumberChanged(3);
+        }
     }
 
     private void LoadThumbnail()

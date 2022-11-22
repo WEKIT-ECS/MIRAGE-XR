@@ -281,8 +281,7 @@ namespace MirageXR
         private void PopulateHelpStelectionsList() {
             helpSelections.Add(new HelpSelectionActivitySelection());
             helpSelections.Add(new HelpSelectionNewActivity());
-            helpSelections.Add(new HelpSelectionTest1());
-            
+            helpSelections.Add(new HelpSelectionActivityInfo());
             helpSelections.Add(new HelpSelectionAddAugmentations());
         }
 
@@ -318,38 +317,46 @@ namespace MirageXR
             currentHelpStep = helpStep;
         }
 
-        public void showHelpSelection(int helpSelection)
+        public void showHelpSelection(RootView_v2.HelpPage helpSelection)
         {
             helpSteps.Clear();
+            int nextStep = 0;
 
             switch (helpSelection)
             {
-                case 0:
+                case RootView_v2.HelpPage.Home:
                     PopulateHelpStepListActivitySelection();
+                    nextStep = 0;
                     break;
-                case 1:
+                case RootView_v2.HelpPage.ActivitySteps:
                     PopulateHelpStepListNewActivity();
-
-                    GameObject view = GameObject.Find("ActionContent");
-
-/*                    if (view.transform.position.y != 0)
-                    {
-                        view.transform.position = new Vector3(view.transform.position.x, 0, view.transform.position.z);
-
-                    }*/
-
+                    nextStep = 1;
                     break;
-                case 2:
+                case RootView_v2.HelpPage.ActivityInfo:
                     PopulateHelpStepListNewActivity();
+                    nextStep = 2;
                     break;
+                case RootView_v2.HelpPage.ActivityCalibration:
+                    PopulateHelpStepListNewActivity();
+                    nextStep = 3;
+                    break;
+                case RootView_v2.HelpPage.ActionInfo:
+                    PopulateHelpStepListNewActivity();
+                    nextStep = 4;
+                    break;
+                case RootView_v2.HelpPage.ActionAugmentations:
+                    PopulateHelpStepListNewActivity();
+                    nextStep = 5;
+                    break;
+                
             }
 
 
             helpSelections[currentHelpSelection].ExitStep();
 
-            helpSelections[helpSelection].EnterStep();
+            helpSelections[nextStep].EnterStep();
 
-            currentHelpSelection = helpSelection;
+            currentHelpSelection = nextStep;
         }
 
     }
