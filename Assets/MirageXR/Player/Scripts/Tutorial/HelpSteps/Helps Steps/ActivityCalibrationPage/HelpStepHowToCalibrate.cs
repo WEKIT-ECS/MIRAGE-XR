@@ -5,12 +5,11 @@ using UnityEngine.UI;
 
 namespace MirageXR
 {
-    public class HelpStepActionStep : HelpStep
+    public class HelpStepHowToCalibrate : HelpStep
     {
         protected override void Init()
         {
-            this.instructionText = "An action step is the basic component of a learning activity created in MirageXR. Each activity consists of one or multiple action steps.";
-
+            this.instructionText = "To calibrate, you need to download the calibration marker from https://wekit-ecs.com/documents/calibration, print it on paper, and hang in your workspace. Calibration itself is run simply by gazing at the calibration marker.";
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
         }
 

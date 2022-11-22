@@ -27,11 +27,10 @@ namespace MirageXR
             EventManager.NewActivityCreationButtonPressed -= DefaultExitEventListener;
         }
 
-        public void changeTitleAndDescription() {
-
+        public void changeTitleAndDescription()
+        {
             this.ExitStep();
             TutorialManager.Instance.showHelp(0);
-        
         }
 
         public void whatIsAnActionStep()

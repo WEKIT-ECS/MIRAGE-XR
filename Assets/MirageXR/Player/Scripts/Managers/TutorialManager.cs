@@ -278,10 +278,13 @@ namespace MirageXR
 
         }
 
-        private void PopulateHelpStelectionsList() {
+        private void PopulateHelpStelectionsList()
+        {
             helpSelections.Add(new HelpSelectionActivitySelection());
             helpSelections.Add(new HelpSelectionNewActivity());
             helpSelections.Add(new HelpSelectionActivityInfo());
+            helpSelections.Add(new HelpSelectionActivityCalibration());
+            helpSelections.Add(new HelpSelectionActionInfo());
             helpSelections.Add(new HelpSelectionAddAugmentations());
         }
 
@@ -302,16 +305,34 @@ namespace MirageXR
             helpSteps.Add(new HelpStepRenameStep());
             helpSteps.Add(new HelpStepAddStepContent());
             helpSteps.Add(new HelpStepCopyStep());
-            //helpSteps.Add(new HelpStepAddStepContent2());
+        }
 
+        private void PopulateHelpStepListActivityInfo()
+        {
+            helpSteps.Add(new HelpStepActivityInfo());
+            helpSteps.Add(new HelpStepActivityInfo());
+        }
+
+        private void PopulateHelpStepListActivityCalibration()
+        {
+            helpSteps.Add(new HelpStepWhatIsCalibration());
+            helpSteps.Add(new HelpStepHowToCalibrate());
+            helpSteps.Add(new HelpStepWhyCalibrate());
+            helpSteps.Add(new HelpStepCalibrateImage());
+        }
+
+        private void PopulateHelpStepListActionInfo()
+        {
+            helpSteps.Add(new HelpStepActionChangeTitleAndDescription());
+            helpSteps.Add(new HelpStepWhatIsAnAugmentation());
+            helpSteps.Add(new HelpStepHowToAddAugmentations());
+            helpSteps.Add(new HelpStepKeepAlive());
         }
 
 
 
         public void showHelp(int helpStep)
         {
-            helpSteps[currentHelpStep].ExitStep();
-
             helpSteps[helpStep].EnterStep();
 
             currentHelpStep = helpStep;
@@ -320,6 +341,7 @@ namespace MirageXR
         public void showHelpSelection(RootView_v2.HelpPage helpSelection)
         {
             helpSteps.Clear();
+
             int nextStep = 0;
 
             switch (helpSelection)
@@ -333,22 +355,22 @@ namespace MirageXR
                     nextStep = 1;
                     break;
                 case RootView_v2.HelpPage.ActivityInfo:
-                    PopulateHelpStepListNewActivity();
+                    PopulateHelpStepListActivityInfo();
                     nextStep = 2;
                     break;
                 case RootView_v2.HelpPage.ActivityCalibration:
-                    PopulateHelpStepListNewActivity();
+                    PopulateHelpStepListActivityCalibration();
                     nextStep = 3;
                     break;
                 case RootView_v2.HelpPage.ActionInfo:
-                    PopulateHelpStepListNewActivity();
+                    PopulateHelpStepListActionInfo();
                     nextStep = 4;
                     break;
                 case RootView_v2.HelpPage.ActionAugmentations:
                     PopulateHelpStepListNewActivity();
                     nextStep = 5;
                     break;
-                
+
             }
 
 

@@ -15,7 +15,7 @@ namespace MirageXR
             this.popup.createNewSelectionButton("What is calibration").onClick.AddListener(whatIsCalibration);
             this.popup.createNewSelectionButton("How do I calibrate").onClick.AddListener(howToCalibrate);
             this.popup.createNewSelectionButton("Why do I need to calibrate").onClick.AddListener(whyCalibrate);
-            this.popup.createNewSelectionButton("What Can I use as a calibration image").onClick.AddListener(whatImage);
+            this.popup.createNewSelectionButton("What can I use as a calibration image").onClick.AddListener(whatImage);
         }
 
         protected override void Detach()

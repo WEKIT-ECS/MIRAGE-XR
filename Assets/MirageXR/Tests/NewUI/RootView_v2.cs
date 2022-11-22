@@ -127,10 +127,12 @@ public class RootView_v2 : BaseView
             case 0:
                 _toggleHome.isOn = true;
                 _btnAddAugmentation.gameObject.SetActive(true);
+                EventManager.NotifyMobilePageNumberChanged(HelpPage.Home);
                 break;
             case 1:
                 _toggleHome.isOn = true;
                 _btnAddAugmentation.gameObject.SetActive(false);
+                EventManager.NotifyMobilePageNumberChanged(HelpPage.ActivitySteps);
                 break;
         }
     }
