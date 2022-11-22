@@ -35,8 +35,7 @@ public class PageView_v2 : MonoBehaviour, IDragHandler, IEndDragHandler
             {
                 _currentPageIndex = value;
                 MoveTo(CalculatePositionForPage(_currentPageIndex));
-                OnPageChanged.Invoke(_currentPageIndex);
-                EventManager.NotifyMobilePageNumberChanged(value);
+                OnPageChanged.Invoke(_currentPageIndex);              
             }
         }
     }

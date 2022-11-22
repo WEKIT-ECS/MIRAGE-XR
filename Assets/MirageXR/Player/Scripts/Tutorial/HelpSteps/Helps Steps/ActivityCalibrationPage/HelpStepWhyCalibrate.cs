@@ -5,12 +5,11 @@ using UnityEngine.UI;
 
 namespace MirageXR
 {
-    public class HelpStepActionStep : HelpStep
+    public class HelpStepWhyCalibrate : HelpStep
     {
         protected override void Init()
         {
-            this.instructionText = "An action step is the basic component of a learning activity created in MirageXR. Each activity consists of one or multiple action steps.";
-
+            this.instructionText = "Calibration is needed to tie the digital augmentations to points of interest in the physical environment. Where locations do not matter, the calibration marker can be hung somewhere where enough open space is provided to place the holograms. Where locations matter, like, for example, when instructing in a maker’s lab on how to handle a 3D printer, the activity will either include instruction on where to place the calibration marker directly or a hand -out will show students or teachers how to. ";
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
         }
 

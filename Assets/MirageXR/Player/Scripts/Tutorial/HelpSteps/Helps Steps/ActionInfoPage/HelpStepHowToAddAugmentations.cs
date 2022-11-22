@@ -5,12 +5,11 @@ using UnityEngine.UI;
 
 namespace MirageXR
 {
-    public class HelpStepActionStep : HelpStep
+    public class HelpStepHowToAddAugmentations : HelpStep
     {
         protected override void Init()
         {
-            this.instructionText = "An action step is the basic component of a learning activity created in MirageXR. Each activity consists of one or multiple action steps.";
-
+            this.instructionText = "Additional options for added augmentations can be accessed by pressing the three dots on the right side of an augmentation tile.";
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
         }
 

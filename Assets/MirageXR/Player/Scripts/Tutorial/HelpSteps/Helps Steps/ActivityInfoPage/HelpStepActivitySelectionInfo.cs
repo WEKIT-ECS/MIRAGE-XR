@@ -5,12 +5,11 @@ using UnityEngine.UI;
 
 namespace MirageXR
 {
-    public class HelpStepActionStep : HelpStep
+    public class HelpStepActivityInfo : HelpStep
     {
         protected override void Init()
         {
-            this.instructionText = "An action step is the basic component of a learning activity created in MirageXR. Each activity consists of one or multiple action steps.";
-
+            this.instructionText = "Titles allow you to name your steps, making it clearer for creator and learner what a step is about. Descriptions allow you to go into even more detail, for example by adding instructions to the step.";
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
         }
 
