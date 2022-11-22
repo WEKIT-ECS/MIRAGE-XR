@@ -9,7 +9,7 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "This is a test";
+            this.instructionText = "";
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
 
             this.popup.createNewSelectionButton("How to change activity title and description").onClick.AddListener(changeTitleAndDescription);

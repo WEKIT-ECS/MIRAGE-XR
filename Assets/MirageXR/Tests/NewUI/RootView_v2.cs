@@ -25,6 +25,18 @@ public class RootView_v2 : BaseView
     [Space]
     [SerializeField] private Dialog _dialog;
 
+    public enum HelpPage {
+        Home, 
+        ActivitySteps, 
+        ActivityInfo, 
+        ActivityCalibration, 
+        ActionAugmentations,
+        ActionInfo, 
+        ActionMarker,
+    };
+
+    private static HelpPage helpPage;
+
     public ActivityListView_v2 activityListView => _activityListView;
 
     public Dialog dialog => _dialog;
@@ -58,6 +70,7 @@ public class RootView_v2 : BaseView
     {
         base.Initialization(parentView);
         EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
+        EventManager.onMobilePageNumberChanged += updatePageNumber;
 
         _toggleHome.isOn = true;
         _toggleHome.onValueChanged.AddListener(OnStepsClick);
@@ -161,7 +174,7 @@ public class RootView_v2 : BaseView
     public void OnInfoClick()
     {
         Debug.Log("PAGE INDEX = " +_pageView.currentPageIndex);
-        TutorialManager.Instance.showHelpSelection(_pageView.currentPageIndex);
+        TutorialManager.Instance.showHelpSelection(helpPage);
     }
 
     public void OnActivitySettingsClick()
@@ -219,5 +232,10 @@ public class RootView_v2 : BaseView
         {
             await Task.Yield();
         }
+    }
+
+    private void updatePageNumber(HelpPage page)
+    {
+        helpPage = page;
     }
 }
