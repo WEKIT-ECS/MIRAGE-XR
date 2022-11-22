@@ -47,6 +47,8 @@ namespace MirageXR
             rectTransform.offsetMin = Vector2.zero;
             rectTransform.offsetMax = Vector2.zero;
             rectTransform.sizeDelta = new Vector2(100, 50);
+            rectTransform.localScale = new Vector3(2,2,2);
+            rectTransform.localPosition = new Vector3(rectTransform.position.x, rectTransform.position.y, 0);
             rectTransform.GetComponent<TMP_Text>().text = title;
 
             return button;

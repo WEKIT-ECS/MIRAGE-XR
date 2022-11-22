@@ -20,7 +20,6 @@ namespace MirageXR
 
         protected override void SecuredEnterStep()
         {
-            
             SetupInstruction();
             SetupHighlighter();
             Init();

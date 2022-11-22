@@ -332,11 +332,11 @@ namespace MirageXR
 
                     GameObject view = GameObject.Find("ActionContent");
 
-                    if (view.transform.position.y != 0)
+/*                    if (view.transform.position.y != 0)
                     {
                         view.transform.position = new Vector3(view.transform.position.x, 0, view.transform.position.z);
 
-                    }
+                    }*/
 
                     break;
                 case 2:

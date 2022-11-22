@@ -40,7 +40,7 @@ namespace MirageXR
             Detach();
             RemoveHighlight();
             RemoveInstruction();
-           // manager.NextStep();
+            //manager.NextStep();
         }
 
         protected abstract void Init();
@@ -80,6 +80,7 @@ namespace MirageXR
 
             if (isHighlighting)
             {
+                RemoveHighlight();
                 EventManager.HighlightingButtonClicked -= RemoveInstruction;
             }
         }
@@ -94,5 +95,7 @@ namespace MirageXR
                 isHighlighting = false;
             }
         }
+
+
     }
 }

@@ -13,7 +13,7 @@ namespace MirageXR
             //RootView_v2.Instance._searchPrefab.gameObject;
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
 
-            GameObject Activitytoggle = GameObject.Find("NewActivityToggle");
+            GameObject Activitytoggle = GameObject.Find("NewActivity");
 
             Button button = Activitytoggle.GetComponent<Button>();
             if (button != null)
