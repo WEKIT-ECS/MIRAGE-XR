@@ -9,6 +9,7 @@ namespace MirageXR
     {
         protected override void Init()
         {
+            Debug.Log("TEST2");
             this.instructionText = "This is a test";
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
 
@@ -16,8 +17,6 @@ namespace MirageXR
             this.popup.createNewSelectionButton("How to open an activity").onClick.AddListener(open);
             this.popup.createNewSelectionButton("How to create a new activity").onClick.AddListener(edit);
             this.popup.createNewSelectionButton("How to create an account and login").onClick.AddListener(createAccount);
-
-
         }
 
         protected override void Detach()

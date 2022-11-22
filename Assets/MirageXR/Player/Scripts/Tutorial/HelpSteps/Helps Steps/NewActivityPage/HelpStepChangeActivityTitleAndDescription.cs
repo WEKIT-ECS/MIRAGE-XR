@@ -10,7 +10,7 @@ namespace MirageXR
         protected override void Init()
         {
             this.instructionText = "Tap on the Info tab and add a title and description";
-            this.highlightedObject = GameObject.Find("Info");//RootView_v2.Instance._searchPrefab.gameObject;
+            this.highlightedObject = GameObject.Find("Second");//RootView_v2.Instance._searchPrefab.gameObject;
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
         }
 

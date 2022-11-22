@@ -46,5 +46,6 @@ namespace MirageXR
         {
             gameObject.transform.position = pos;
         }
+
     }
 }
