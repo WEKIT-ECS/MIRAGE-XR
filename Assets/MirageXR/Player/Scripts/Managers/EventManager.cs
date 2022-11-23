@@ -709,13 +709,6 @@ namespace MirageXR
             TaskStationEditorEnabled?.Invoke();
         }
 
-        public delegate void ActivityRenamedDelegate();
-        public static event ActivityRenamedDelegate ActivityRenamed;
-        public static void NotifyOnActivityRenamed()
-        {
-            ActivityRenamed?.Invoke();
-        }
-
         // TODO: Give comment summary for all events.
 
         public delegate void AddAugmentationButtonClickedDelegate();
@@ -753,6 +746,13 @@ namespace MirageXR
         public static void NotifyOnActivityUploadButtonClicked()
         {
             ActivityUploadButtonClicked?.Invoke();
+        }
+
+        public delegate void ActivityRenamedDelegate();
+        public static event ActivityRenamedDelegate ActivityRenamed;
+        public static void NotifyOnActivityRenamed()
+        {
+            ActivityRenamed?.Invoke();
         }
 
         public delegate void ActionStepTitleInputChangedDelegate();

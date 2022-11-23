@@ -1,8 +1,10 @@
-﻿
+﻿using System;
 using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Action = System.Action;
+using Step = MirageXR.Action;
 
 public class StepsListItem_v2 : MonoBehaviour
 {
@@ -12,36 +14,37 @@ public class StepsListItem_v2 : MonoBehaviour
     [SerializeField] private TMP_Text _txtStepName;
     [SerializeField] private TMP_Text _txtStepDescription;
     [SerializeField] private Button _btnStep;
+    [SerializeField] private Button _btnEditButton;
     [SerializeField] private Button _btnDelete;
     [SerializeField] private GameObject _stepStatus;
     [SerializeField] private GameObject _stepDoneImage;
     [SerializeField] private GameObject _stepCurrentImage;
-    [SerializeField] private Button _editButton;
-    private Action _step;
+
+    private MirageXR.Action _step;
     private int _number;
-    private System.Action<Action> _onStepClick;
-    private System.Action<Action> _onDeleteClick;
+    private Action<Step> _onStepClick;
+    private Action<Step> _onEditClick;
+    private Action<Step, Action> _onDeleteClick;
 
-    private NewActivityView newActivityView;
-
-    public void Init(System.Action<Action> onStepClick, System.Action<Action> onDeleteClick)
+    public void Init(Action<Step> onStepClick, Action<Step> onEditClick, Action<Step, Action> onDeleteClick)
     {
         _onStepClick = onStepClick;
+        _onEditClick = onEditClick;
         _onDeleteClick = onDeleteClick;
         _btnStep.onClick.AddListener(OnStepClick);
         _btnDelete.onClick.AddListener(OnDeleteClick);
-        _editButton.onClick.AddListener(OnEditClick);
+        _btnEditButton.onClick.AddListener(OnEditClick);
         OnEditModeChanged(activityManager.EditModeActive);
 
         EventManager.OnEditModeChanged += OnEditModeChanged;
         EventManager.OnActionModified += OnActionModified;
-        newActivityView = GameObject.Find("NewActivity").GetComponent<NewActivityView>();
     }
 
-    public void UpdateView(Action step, int number)
+    public void UpdateView(Step step, int number)
     {
         _step = step;
         _number = number;
+
         _txtStepName.text = _step.instruction.title;
         _txtNumber.text = _number.ToString("00");
         var isCurrent = _step.id == RootObject.Instance.activityManager.ActiveActionId;
@@ -49,7 +52,7 @@ public class StepsListItem_v2 : MonoBehaviour
         _stepDoneImage.SetActive(_step.isCompleted && !isCurrent);
     }
 
-    private void OnActionModified(Action step) {
+    private void OnActionModified(Step step) {
 
         if (step == _step) {
             _txtStepName.text = step.instruction.title;
@@ -61,7 +64,7 @@ public class StepsListItem_v2 : MonoBehaviour
     {
         _btnDelete.gameObject.SetActive(value);
         _stepStatus.SetActive(!value);
-        _editButton.gameObject.SetActive(value);
+        _btnEditButton.gameObject.SetActive(value);
     }
 
     private void OnStepClick()
@@ -71,13 +74,11 @@ public class StepsListItem_v2 : MonoBehaviour
 
     private void OnDeleteClick()
     {
-        _onDeleteClick(_step);
+        _onDeleteClick(_step, null);
     }
 
-    public void OnEditClick() 
+    public void OnEditClick()
     {
-        newActivityView.ChangeInfoStepNumber(_number);
-        newActivityView.ShowInfoStepsTab();
+        _onEditClick(_step);
     }
-
 }
