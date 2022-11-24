@@ -324,15 +324,10 @@ namespace MirageXR
                             await ZipUtilities.CompressFolderAsync(path, zipStream);
                         }
 
-                        await ZipUtilities.AddFileToZipStreamAsync(
-                            zipStream,
-                            $"{path}-activity.json",
-                            $"{recordingId}-activity.json");
-                        await ZipUtilities.AddFileToZipStreamAsync(
-                            zipStream,
-                            $"{path}-workplace.json",
-                            $"{recordingId}-workplace.json");
+                        await ZipUtilities.AddFileToZipStreamAsync(zipStream, $"{path}-activity.json", $"{recordingId}-activity.json");
+                        await ZipUtilities.AddFileToZipStreamAsync(zipStream, $"{path}-workplace.json", $"{recordingId}-workplace.json");
                     }
+
                     bytes = stream.ToArray();
                 }
             }
@@ -340,6 +335,7 @@ namespace MirageXR
             {
                 Debug.LogError($"compression error: {e}");
             }
+
             return bytes;
         }
 
@@ -366,9 +362,10 @@ namespace MirageXR
                 {
                     if (isTooBigForMemory)
                     {
-                        stream.Dispose();
+                        await stream.DisposeAsync();
                         stream = File.OpenRead(tempFilePath);
                     }
+
                     await ZipUtilities.ExtractZipFileAsync(stream, Application.persistentDataPath);
                     var fileName = LocalFiles.GetActivityJsonFilename(session.sessionid, true);
                     var newActivity = await LocalFiles.ReadActivityAsync(fileName);
@@ -389,7 +386,7 @@ namespace MirageXR
             }
             finally
             {
-                stream.Dispose();
+                await stream.DisposeAsync();
                 if (isTooBigForMemory && File.Exists(tempFilePath))
                 {
                     File.Delete(tempFilePath);

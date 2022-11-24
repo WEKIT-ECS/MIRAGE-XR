@@ -10,29 +10,28 @@ public class RootView_v2 : BaseView
 
     [SerializeField] private Toggle _toggleHome;
     [SerializeField] private Button _btnProfile;
-    [SerializeField] private Toggle _toggleNewActivity;
     [SerializeField] private Button _btnAddAugmentation;
-
     [SerializeField] private PageView_v2 _pageView;
     [SerializeField] private CalibrationGuideView _calibrationGuideViewPrefab;
     [SerializeField] private ProfileView _profilePrefab;
     [SerializeField] private SearchView _searchPrefab;
     [SerializeField] private HelpView _helpPrefab;
     [SerializeField] private SettingsView_v2 _activitySettingsPrefab;
-    //[SerializeField] private StepSettingsView _stepSettingsPrefab;
-    [SerializeField] private MoodleServersView _moofleServersPrefab;
-    [SerializeField] private GameObject newActivityButton;
-    [SerializeField] public RectTransform bottomPanel;
+    [SerializeField] private RectTransform _bottomPanel;
     [SerializeField] private LoginView_v2 _loginViewPrefab;
-    [SerializeField] public GameObject newActivityPanel;
-    [SerializeField] private GameObject HomePage;
+    [SerializeField] private GameObject _newActivityPanel;
+    [SerializeField] private ActivityListView_v2 _activityListView;
+    [SerializeField] private ActivityView_v2 _activityView;
+    [Space]
+    [SerializeField] private Dialog _dialog;
 
+    public ActivityListView_v2 activityListView => _activityListView;
 
-    private Vector3 _currentPanelPosition;
-    float moveTime = 1;
-    float currentTime = 0;
-    private float normalizedValue;
-    private bool panelMoving = false;
+    public Dialog dialog => _dialog;
+
+    public GameObject newActivityPanel => _newActivityPanel;
+
+    public RectTransform bottomPanel => _bottomPanel;
 
     private void Awake()
     {
@@ -51,6 +50,7 @@ public class RootView_v2 : BaseView
         {
             await SetupViewForTablet();
         }
+
         Initialization(null);
     }
 
@@ -60,13 +60,15 @@ public class RootView_v2 : BaseView
         EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
 
         _toggleHome.isOn = true;
-        _toggleNewActivity.interactable = true;
         _toggleHome.onValueChanged.AddListener(OnStepsClick);
         _btnProfile.onClick.AddListener(OnProfileClick);
         _btnAddAugmentation.onClick.AddListener(AddAugmentation);
         _pageView.OnPageChanged.AddListener(OnPageChanged);
 
         EventManager.OnActivityStarted += OnActivityLoaded;
+
+        _activityView.Initialization(this);
+        _activityListView.Initialization(this);
 
         if (!DBManager.LoggedIn && DBManager.rememberUser)
         {
@@ -111,11 +113,11 @@ public class RootView_v2 : BaseView
         {
             case 0:
                 _toggleHome.isOn = true;
-                newActivityButton.SetActive(true);
+                _btnAddAugmentation.gameObject.SetActive(true);
                 break;
             case 1:
-                _toggleNewActivity.isOn = true;
-                newActivityButton.SetActive(false);
+                _toggleHome.isOn = true;
+                _btnAddAugmentation.gameObject.SetActive(false);
                 break;
         }
     }
@@ -127,7 +129,10 @@ public class RootView_v2 : BaseView
 
     private void OnStepsClick(bool value)
     {
-        if (value) _pageView.currentPageIndex = 0;
+        if (value)
+        {
+            _pageView.currentPageIndex = 0;
+        }
     }
 
     private void OnProfileClick()
@@ -137,19 +142,20 @@ public class RootView_v2 : BaseView
 
     public void OnHomeClick(bool value)
     {
-        if (value) _pageView.currentPageIndex = 1;
+        if (value)
+        {
+            _pageView.currentPageIndex = 1;
+        }
     }
 
     private void AddAugmentation()
     {
-        _pageView.currentPageIndex = 2;
+        _pageView.currentPageIndex = 1;
     }
 
     public void OnSearchClick()
     {
-        var popup = PopupsViewer.Instance.Show(_searchPrefab);
-
-        popup.ConnectedObject = HomePage;
+        PopupsViewer.Instance.Show(_searchPrefab, _activityListView);
     }
 
     public void OnInfoClick()
@@ -157,29 +163,14 @@ public class RootView_v2 : BaseView
         PopupsViewer.Instance.Show(_helpPrefab);
     }
 
-    public void OnMoodleServersClick()
-    {
-        PopupsViewer.Instance.Show(_moofleServersPrefab);
-    }
-
     public void OnActivitySettingsClick()
     {
         PopupsViewer.Instance.Show(_activitySettingsPrefab);
     }
 
-    public void OnStepSettingsClick()
-    {
-        //PopupsViewer.Instance.Show(_stepSettingsPrefab);
-    }
-
     public void OnBackToHome()
     {
         _pageView.currentPageIndex = 0;
-    }
-
-    public void OnBackToStep()
-    {
-        _pageView.currentPageIndex = 1;
     }
 
     private async Task SetupViewForTablet()
@@ -190,11 +181,14 @@ public class RootView_v2 : BaseView
         const string cameraName = "ViewCamera";
 
         var mainCamera = Camera.main;
-        if (!mainCamera) return;
+        if (!mainCamera)
+        {
+            return;
+        }
 
         var canvas = GetComponent<Canvas>();
         canvas.enabled = false;
-        Screen.orientation = ScreenOrientation.Landscape;
+        Screen.orientation = ScreenOrientation.LandscapeLeft;
         await WaitForLandscapeOrientation();
 
         mainCamera.cullingMask &= ~(1 << LayerMask.NameToLayer(layerName));

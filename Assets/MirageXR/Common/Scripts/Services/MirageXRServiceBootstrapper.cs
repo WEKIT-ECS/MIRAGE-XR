@@ -102,17 +102,17 @@ namespace MirageXR
         }
 
 
-        private void ChangeXAPI(int selectedLRS)
+        private void ChangeXAPI(DBManager.LearningRecordStores selectedLRS)
         {
             ServiceManager.RemoveService<ExperienceService>();
 
             switch (selectedLRS)
             {
-                case 0:
+                case DBManager.LearningRecordStores.WEKIT:
                     ServiceManager.RegisterService(new ExperienceService(CreateXAPIClient("WEKIT")));
                     break;
 
-                case 1:
+                case DBManager.LearningRecordStores.ARETE:
                     ServiceManager.RegisterService(new ExperienceService(CreateXAPIClient("ARETE")));
                     break;
             }

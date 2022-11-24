@@ -111,7 +111,7 @@ public class Environment : ScriptableObject {
     // Ignore .m_EnvironmentPrefab
     // Ignore .m_EnvironmentReverbZonePrefab
     // Ignore .m_SkyboxCubemap
-    dst.m_ReflectionCubemap = RenderSettings.customReflection;
+    dst.m_ReflectionCubemap = (Cubemap)RenderSettings.customReflection;
     dst.m_ReflectionIntensity = RenderSettings.reflectionIntensity;
 
     return dst;
