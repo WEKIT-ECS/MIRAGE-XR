@@ -7,26 +7,26 @@ public class ClickableLink : MonoBehaviour, IPointerClickHandler
     [SerializeField]
     private string url;
 
-    private TextMeshProUGUI textMeshPro;
-    private Camera mainCamera;
-    private int pressedLinkIndex = -1;
+    private TextMeshProUGUI _textMeshPro;
+    private Camera _mainCamera;
+    private int _pressedLinkIndex = -1;
 
     void Awake()
     {
-        textMeshPro = GetComponent<TextMeshProUGUI>();
+        _textMeshPro = GetComponent<TextMeshProUGUI>();
 
-        mainCamera = Camera.main;
-        if (textMeshPro.canvas.renderMode == RenderMode.ScreenSpaceOverlay) mainCamera = null;
-        else if (textMeshPro.canvas.worldCamera != null) mainCamera = textMeshPro.canvas.worldCamera;
+        _mainCamera = Camera.main;
+        if (_textMeshPro.canvas.renderMode == RenderMode.ScreenSpaceOverlay) _mainCamera = null;
+        else if (_textMeshPro.canvas.worldCamera != null) _mainCamera = _textMeshPro.canvas.worldCamera;
     }
     public void OnPointerClick(PointerEventData eventData)
     {
-        int linkIndex = TMP_TextUtilities.FindIntersectingLink(textMeshPro, Input.mousePosition, mainCamera);
+        int linkIndex = TMP_TextUtilities.FindIntersectingLink(_textMeshPro, Input.mousePosition, _mainCamera);
 
         if (linkIndex != -1)
         {
             Application.OpenURL(url);
         }
-        else pressedLinkIndex = -1;
+        else _pressedLinkIndex = -1;
     }
 }
