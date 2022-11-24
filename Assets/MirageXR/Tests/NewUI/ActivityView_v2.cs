@@ -18,10 +18,12 @@ public class ActivityView_v2 : BaseView
     [SerializeField] private GameObject _toggles;
     [SerializeField] private GameObject _navigationButtons;
     [SerializeField] private GameObject _homeToggels;
+    [SerializeField] private GameObject _backToActivity;
     [SerializeField] private GameObject _content;
     [SerializeField] private Toggle _toggleEdit;
     [SerializeField] private StepsListView_v2 _stepsListView;
     [SerializeField] private ContentListView_v2 _contentListView;
+   
 
 
     private int _infoStepNumber;
@@ -67,6 +69,7 @@ public class ActivityView_v2 : BaseView
     public void OnBackToHomePressed()
     {
         rootView.OnBackToHome();
+        _backToActivity.SetActive(true);
     }
 
     private void OnEditToggleValueChanged(bool value)
