@@ -182,7 +182,6 @@ public class StepsListView : BaseView
 
     private void OnActionDeleted(string actionId)
     {
-        activityManager.ActivateNextAction();
         UpdateView();
     }
 
