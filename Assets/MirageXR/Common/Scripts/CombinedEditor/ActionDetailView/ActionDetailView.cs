@@ -17,7 +17,7 @@ public class ActionDetailView : MonoBehaviour
     [SerializeField] private Transform poiPredicatesParent;
     [SerializeField] private GameObject poiPredicateItemPrefab;
 
-    private Action displayedAction;
+    private Action _displayedAction;
 
     private readonly List<AnnotationListItem> poiPredicateItems = new List<AnnotationListItem>();
     private ActionEditor editor;
@@ -26,11 +26,11 @@ public class ActionDetailView : MonoBehaviour
     {
         get
         {
-            return displayedAction;
+            return _displayedAction;
         }
         set
         {
-            displayedAction = value;
+            _displayedAction = value;
             UpdateUI();
         }
     }
@@ -101,10 +101,10 @@ public class ActionDetailView : MonoBehaviour
         // If all action steps are deleted and only the last one exist, add it to displayedAction
         if (activityManager.ActionsOfTypeAction.Count == 1)
         {
-            displayedAction = activityManager.ActionsOfTypeAction[0];
+            _displayedAction = activityManager.ActionsOfTypeAction[0];
         }
 
-        if (displayedAction == null)
+        if (_displayedAction == null)
         {
             titleLabel.text = string.Empty;
             descriptionText.text = string.Empty;
@@ -124,18 +124,18 @@ public class ActionDetailView : MonoBehaviour
             numberLabel.text = (index + 1).ToString("00");
 
             // fill or create all necessary item labels
-            for (int i = 0; i < displayedAction.enter.activates.Count; i++)
+            for (int i = 0; i < _displayedAction.enter.activates.Count; i++)
             {
                 if (i < poiPredicateItems.Count)
                 {
                     poiPredicateItems[i].gameObject.SetActive(true);
-                    poiPredicateItems[i].SetUp(this, displayedAction.enter.activates[i]);
+                    poiPredicateItems[i].SetUp(this, _displayedAction.enter.activates[i]);
                 }
                 else
                 {
                     var poiItemInstance = Instantiate(poiPredicateItemPrefab, poiPredicatesParent);
                     var poiListItem = poiItemInstance.GetComponent<AnnotationListItem>();
-                    poiListItem.SetUp(this, displayedAction.enter.activates[i]);
+                    poiListItem.SetUp(this, _displayedAction.enter.activates[i]);
                     poiListItem.OnAnnotationItemClicked += OnAnnotationSelected;
                     poiPredicateItems.Add(poiListItem);
                 }
@@ -145,7 +145,7 @@ public class ActionDetailView : MonoBehaviour
             ActionEditor.Instance.AddMenuVisible = !activityManager.ActiveAction.enter.activates.Any();
 
             // disable all unused item labels
-            for (int i = displayedAction.enter.activates.Count; i < poiPredicateItems.Count; i++)
+            for (int i = _displayedAction.enter.activates.Count; i < poiPredicateItems.Count; i++)
             {
                 poiPredicateItems[i].gameObject.SetActive(false);
             }

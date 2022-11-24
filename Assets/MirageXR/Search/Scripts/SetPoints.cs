@@ -13,13 +13,13 @@ public class SetPoints : MonoBehaviour
     [SerializeField] private bool autoSetTarget = false;
     [SerializeField] private string targetObjectName = "cursorTarget";
 
-    private Vector3 originPoint, targetPoint, middlePoint, directionVector;
-    private LineRenderer lineRenderer;
+    private Vector3 _originPoint, _targetPoint, _middlePoint, _directionVector;
+    private LineRenderer _lineRenderer;
 
     // Use this for initialization
     void Start()
     {
-        lineRenderer = transform.GetComponent<LineRenderer>();
+        _lineRenderer = transform.GetComponent<LineRenderer>();
 
         if (autoSetTarget)
         {
@@ -30,14 +30,14 @@ public class SetPoints : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        originPoint = transform.position;
-        targetPoint = targetTransform.position;
-        middlePoint = (originPoint + targetPoint) / 2;
+        _originPoint = transform.position;
+        _targetPoint = targetTransform.position;
+        _middlePoint = (_originPoint + _targetPoint) / 2;
 
-        directionVector = (targetPoint - originPoint).normalized;
+        _directionVector = (_targetPoint - _originPoint).normalized;
 
-        lineRenderer.SetPosition(0, originPoint + directionVector * originOffset);
-        lineRenderer.SetPosition(1, middlePoint);
-        lineRenderer.SetPosition(2, targetPoint - directionVector * targetOffset);
+        _lineRenderer.SetPosition(0, _originPoint + _directionVector * originOffset);
+        _lineRenderer.SetPosition(1, _middlePoint);
+        _lineRenderer.SetPosition(2, _targetPoint - _directionVector * targetOffset);
     }
 }

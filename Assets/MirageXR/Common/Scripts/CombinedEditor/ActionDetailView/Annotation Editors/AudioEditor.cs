@@ -25,14 +25,14 @@ public class AudioEditor : MonoBehaviour
     [SerializeField] private Toggle loop;
     [SerializeField] private Toggle stepTrigger;
 
-    private Action action;
-    private ToggleObject annotationToEdit;
+    private Action _action;
+    private ToggleObject _annotationToEdit;
 
-    private AudioClip capturedClip;
+    private AudioClip _capturedClip;
 
-    private bool isRecording;
-    private bool isPaused;
-    private int timerSeconds = 0;
+    private bool _isRecording;
+    private bool _isPaused;
+    private int _timerSeconds = 0;
 
 
     public AudioSource PlayerAudioSource => audioSource;
@@ -46,12 +46,12 @@ public class AudioEditor : MonoBehaviour
 
     public bool IsRecording
     {
-        get => isRecording;
+        get => _isRecording;
         private set
         {
-            isRecording = value;
-            timerIcon.enabled = isRecording; // recorder circle shows only on recording
-            startRecordingButton.interactable = !isRecording;
+            _isRecording = value;
+            timerIcon.enabled = _isRecording; // recorder circle shows only on recording
+            startRecordingButton.interactable = !_isRecording;
         }
     }
 
@@ -63,7 +63,7 @@ public class AudioEditor : MonoBehaviour
 
     public AudioClip CapturedClip()
     {
-        return capturedClip;
+        return _capturedClip;
     }
 
 
@@ -76,23 +76,23 @@ public class AudioEditor : MonoBehaviour
     {
         if (!gameObject) return;
 
-        if (gameObject.activeInHierarchy && !isRecording && IsPlaying)
+        if (gameObject.activeInHierarchy && !_isRecording && IsPlaying)
         {
             progress.value = audioSource.time / audioSource.clip.length;
             UpdatePlayBackTimer();
         }
         else
-            timerText.text = SecToTimeFormat(timerSeconds);
+            timerText.text = SecToTimeFormat(_timerSeconds);
     }
 
     private IEnumerator Timer()
     {
-        timerSeconds = 0;
+        _timerSeconds = 0;
 
-        while (isRecording)
+        while (_isRecording)
         {
             yield return new WaitForSeconds(1);
-            timerSeconds++;
+            _timerSeconds++;
         }
     }
 
@@ -100,10 +100,10 @@ public class AudioEditor : MonoBehaviour
     {
         if (!gameObject) return;
 
-        stopRecordingButton.interactable = IsPlaying || isRecording;
-        pauseButton.gameObject.SetActive(!isPaused && IsPlaying);
+        stopRecordingButton.interactable = IsPlaying || _isRecording;
+        pauseButton.gameObject.SetActive(!_isPaused && IsPlaying);
         playButton.interactable = !IsRecording;
-        progress.gameObject.SetActive(!isRecording && capturedClip);
+        progress.gameObject.SetActive(!_isRecording && _capturedClip);
         timerText.enabled = !progress.gameObject.activeInHierarchy;
     }
 
@@ -124,10 +124,10 @@ public class AudioEditor : MonoBehaviour
     public void Close()
     {
         // when editor is closed play the spatial audio if it is exist
-        if (annotationToEdit != null)
+        if (_annotationToEdit != null)
         {
-            var audioPlayer = GameObject.Find(annotationToEdit.poi).GetComponentInChildren<AudioPlayer>();
-            if (annotationToEdit != null && audioPlayer != null)
+            var audioPlayer = GameObject.Find(_annotationToEdit.poi).GetComponentInChildren<AudioPlayer>();
+            if (_annotationToEdit != null && audioPlayer != null)
             {
                 audioPlayer.PlayAudio();
             }
@@ -135,9 +135,9 @@ public class AudioEditor : MonoBehaviour
 
 
         StopRecording();
-        action = null;
-        annotationToEdit = null;
-        capturedClip = null;
+        _action = null;
+        _annotationToEdit = null;
+        _capturedClip = null;
         SaveFileName = string.Empty;
         IsPlaying = false;
 
@@ -152,10 +152,10 @@ public class AudioEditor : MonoBehaviour
     public void Open(Action action, ToggleObject annotation)
     {
         gameObject.SetActive(true);
-        this.action = action;
-        annotationToEdit = annotation;
+        this._action = action;
+        _annotationToEdit = annotation;
         IsRecording = false;
-        timerSeconds = 0;
+        _timerSeconds = 0;
         audiotype.isOn = false;
 
         foreach (var foundAudioSource in FindObjectsOfType<AudioSource>())
@@ -166,22 +166,22 @@ public class AudioEditor : MonoBehaviour
             audioSource = GameObject.Find(annotation.id).GetComponentInChildren<AudioSource>();
         }
 
-        if (annotationToEdit != null)
+        if (_annotationToEdit != null)
         {
-            SaveFileName = annotationToEdit.url;
+            SaveFileName = _annotationToEdit.url;
 
-            capturedClip = SaveLoadAudioUtilities.LoadAudioFile(GetExistingAudioFile());
+            _capturedClip = SaveLoadAudioUtilities.LoadAudioFile(GetExistingAudioFile());
 
-            if (annotationToEdit.option.Contains("3d"))
+            if (_annotationToEdit.option.Contains("3d"))
             {
                 audiotype.isOn = true;
-                loop.isOn = annotationToEdit.option.Split('#')[1] == "1";
-                radius.text = annotationToEdit.option.Split('#')[2];
+                loop.isOn = _annotationToEdit.option.Split('#')[1] == "1";
+                radius.text = _annotationToEdit.option.Split('#')[2];
                 OnAudioTypeToggle();
             }
 
             // check if the trigger for this audio is on
-            stepTrigger.isOn = activityManager.ActiveAction.triggers.Find(t => t.id == annotationToEdit.poi) != null;
+            stepTrigger.isOn = activityManager.ActiveAction.triggers.Find(t => t.id == _annotationToEdit.poi) != null;
 
             // re-recording is not allowed
             startRecordingButton.interactable = false;
@@ -202,16 +202,16 @@ public class AudioEditor : MonoBehaviour
 
     public void PlayAudioFileAt(float slideValue = 0)
     {
-        if (isPaused)
+        if (_isPaused)
         {
             audioSource.Play();
-            isPaused = false;
+            _isPaused = false;
         }
         else
         {
-            if (capturedClip != null)
+            if (_capturedClip != null)
             {
-                audioSource.clip = capturedClip;
+                audioSource.clip = _capturedClip;
                 audioSource.time = slideValue;
                 audioSource.Play();
                 IsPlaying = true;
@@ -229,7 +229,7 @@ public class AudioEditor : MonoBehaviour
         if (stepTrigger.isOn) loop.isOn = false;
 
         if (stepTrigger.isOn &&
-            activityManager.ActionsOfTypeAction.IndexOf(action) == activityManager.ActionsOfTypeAction.Count - 1)
+            activityManager.ActionsOfTypeAction.IndexOf(_action) == activityManager.ActionsOfTypeAction.Count - 1)
         {
             // give the info and close
             DialogWindow.Instance.Show("Info!",
@@ -244,26 +244,26 @@ public class AudioEditor : MonoBehaviour
     {
         if (stepTrigger.isOn)
         {
-            if (annotationToEdit == null) return;
-            action.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, annotationToEdit.poi, audioSource.clip.length, string.Empty);
+            if (_annotationToEdit == null) return;
+            _action.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, _annotationToEdit.poi, audioSource.clip.length, string.Empty);
         }
         else
         {
-            action.RemoveArlemTrigger(annotationToEdit);
+            _action.RemoveArlemTrigger(_annotationToEdit);
         }
     }
 
     public void Initialize(Action action)
     {
-        this.action = action;
-        annotationToEdit = null;
+        this._action = action;
+        _annotationToEdit = null;
         IsRecording = false;
         SaveFileName = string.Empty;
     }
 
     private string GetExistingAudioFile()
     {
-        var audioName = annotationToEdit.url;
+        var audioName = _annotationToEdit.url;
         const string httpPrefix = "http://";
 
         string originalFileName = !audioName.StartsWith(httpPrefix) ? Path.Combine(Application.persistentDataPath, audioName)
@@ -275,11 +275,11 @@ public class AudioEditor : MonoBehaviour
         // set the correct dialog recorder(correct character) to the audio player
         foreach (var character in FindObjectsOfType<MirageXR.CharacterController>())
         {
-            if (character.MyAction == action && character.DialogRecorder.DialogSaveName != string.Empty)
+            if (character.MyAction == _action && character.DialogRecorder.DialogSaveName != string.Empty)
             {
                 SaveFileName = character.DialogRecorder.DialogSaveName;
                 originalFilePath = Path.Combine(activityManager.ActivityPath, SaveFileName);
-                GameObject.Find(annotationToEdit.poi).GetComponentInChildren<AudioPlayer>().DialogRecorderPanel = character.transform.GetChild(0).GetComponentInChildren<DialogRecorder>(); // TODO: Possible NRE
+                GameObject.Find(_annotationToEdit.poi).GetComponentInChildren<AudioPlayer>().DialogRecorderPanel = character.transform.GetChild(0).GetComponentInChildren<DialogRecorder>(); // TODO: Possible NRE
                 break;
             }
         }
@@ -302,23 +302,23 @@ public class AudioEditor : MonoBehaviour
     public void OnAccept()
     {
         StopRecording();
-        if (annotationToEdit != null)
+        if (_annotationToEdit != null)
         {
             // delete the previous audio file if a new file is recorded
             var originalFilePath = GetExistingAudioFile();
-            if (File.Exists(originalFilePath) && SaveFileName != string.Empty && annotationToEdit.url == null)
+            if (File.Exists(originalFilePath) && SaveFileName != string.Empty && _annotationToEdit.url == null)
             {
-                EventManager.DeactivateObject(annotationToEdit);
+                EventManager.DeactivateObject(_annotationToEdit);
                 File.Delete(originalFilePath);
             }
 
             // edit audio type , loop and radius as option
-            AudioOptionsAdjustment(annotationToEdit);
+            AudioOptionsAdjustment(_annotationToEdit);
         }
         else
         {
             var workplaceManager = RootObject.Instance.workplaceManager;
-            Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
+            Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
             GameObject originT = GameObject.Find(detectable.id);
 
             // move the audio player to the spawn point
@@ -329,23 +329,23 @@ public class AudioEditor : MonoBehaviour
                 originT.transform.position,
                 originT.transform.rotation);
 
-            annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
-            annotationToEdit.predicate = "audio";
+            _annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(_action, offset);
+            _annotationToEdit.predicate = "audio";
 
             // save audio type , loop and radius as option
-            AudioOptionsAdjustment(annotationToEdit);
+            AudioOptionsAdjustment(_annotationToEdit);
 
-            annotationToEdit.scale = 0.5f;
+            _annotationToEdit.scale = 0.5f;
         }
 
         if (SaveFileName != string.Empty)
         {
-            annotationToEdit.url = $"http://{SaveFileName}";
+            _annotationToEdit.url = $"http://{SaveFileName}";
 
-            EventManager.ActivateObject(annotationToEdit);
-            EventManager.NotifyActionModified(action);
+            EventManager.ActivateObject(_annotationToEdit);
+            EventManager.NotifyActionModified(_action);
 
-            var player = GameObject.Find(annotationToEdit.poi).GetComponentInChildren<AudioPlayer>();
+            var player = GameObject.Find(_annotationToEdit.poi).GetComponentInChildren<AudioPlayer>();
             if (player != null)
             {
                 player.DialogRecorderPanel = DialogRecorderPanel;
@@ -405,13 +405,13 @@ public class AudioEditor : MonoBehaviour
             IsPlaying = false;
         }
 
-        if (isRecording)
+        if (_isRecording)
         {
-            capturedClip = AudioRecorder.Stop();
+            _capturedClip = AudioRecorder.Stop();
 
             IsRecording = false;
 
-            audioSource.clip = capturedClip;
+            audioSource.clip = _capturedClip;
             UpdatePlayBackTimer();
 
             SaveRecording();
@@ -428,12 +428,12 @@ public class AudioEditor : MonoBehaviour
             SaveFileName = SaveFileName.Remove(0, httpPrefix.Length);
         }
         string fullFilePath = Path.Combine(activityManager.ActivityPath, SaveFileName);
-        SaveLoadAudioUtilities.Save(fullFilePath, capturedClip);
+        SaveLoadAudioUtilities.Save(fullFilePath, _capturedClip);
     }
 
     public void PauseAudio()
     {
-        isPaused = true;
+        _isPaused = true;
         audioSource.Pause();
 
         UpdateUI();
@@ -442,13 +442,13 @@ public class AudioEditor : MonoBehaviour
     private void ResetSlider()
     {
         IsPlaying = false;
-        isPaused = false;
+        _isPaused = false;
         UpdateUI();
     }
 
     public void ChangeAudioTime()
     {
-        if (!audioSource.clip || isRecording || !gameObject.activeInHierarchy) return;
+        if (!audioSource.clip || _isRecording || !gameObject.activeInHierarchy) return;
         if (audioSource.clip.length * progress.value < audioSource.clip.length)
         {
             audioSource.time = audioSource.clip.length * progress.value;
