@@ -9,7 +9,7 @@ public abstract class PopupBase : MonoBehaviour
 
     public bool isMarkedToDelete { get; private set; } = false;
 
-    public virtual void Init(Action<PopupBase> onClose, params object[] args)
+    public virtual void Initialization(Action<PopupBase> onClose, params object[] args)
     {
         _onClose = onClose;
         if (!TryToGetArguments(args))

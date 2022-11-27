@@ -6,9 +6,8 @@ namespace MirageXR
     public class GazeCalibration : MonoBehaviour
     {
         private static readonly int Load = Animator.StringToHash("Load");
-        
+
         [SerializeField] private GameObject loading;
-        [SerializeField] private CalibrationTool calibrationTool;
         [SerializeField] private GameObject calibrationModel;
         [SerializeField] private GameObject lookHereText;
         [SerializeField] private GameObject calibratingText;
@@ -26,7 +25,7 @@ namespace MirageXR
 
         private void DisableCalibration()
         {
-            //reset the animation to the first frame
+            // reset the animation to the first frame
             if (loadingAnimator.GetBool(Load))
             {
                 loadingAnimator.Play("loading", 0, 0);
@@ -41,7 +40,7 @@ namespace MirageXR
         // Update is called once per frame
         private void FixedUpdate()
         {
-            //if you remove !UiManager.Instance you will get an error on editor
+            // if you remove !UiManager.Instance you will get an error on editor
             if (!UiManager.Instance || UiManager.Instance.IsCalibrated)
             {
                 if (calibrationModel.activeInHierarchy)
@@ -53,12 +52,13 @@ namespace MirageXR
             }
 
             DetectCalibration();
-
         }
 
         private void DetectCalibration()
         {
-            if (Physics.Raycast(cam.transform.position, cam.transform.TransformDirection(Vector3.forward), out var hit, Mathf.Infinity))
+            const float rayCastDistance = 10000;
+
+            if (Physics.Raycast(cam.transform.position, cam.transform.TransformDirection(Vector3.forward), out var hit, rayCastDistance))
             {
                 if (hit.collider.gameObject == calibrationModel)
                 {
