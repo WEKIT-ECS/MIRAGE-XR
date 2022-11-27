@@ -47,7 +47,7 @@ namespace UnityEngine.UI.Extensions
         {
             sides = _sides;
             verticesDistances = new float[_sides + 1];
-            for (int i = 0; i < _sides; i++) verticesDistances[i] = 1; ;
+            for (int i = 0; i < _sides; i++) verticesDistances[i] = 1;
             rotation = 0;
         }
         public void DrawPolygon(int _sides, float[] _verticesDistances)

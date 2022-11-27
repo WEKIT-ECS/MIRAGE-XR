@@ -4,6 +4,10 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Editor logic for creating a ghost track
+/// The ghost track consists of a recording of an expert's movement and audio
+/// </summary>
 public class GhosttrackEditor : MonoBehaviour
 {
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
@@ -40,6 +44,7 @@ public class GhosttrackEditor : MonoBehaviour
     private readonly GhostRecorder _ghostRecorder = new GhostRecorder();
 
     private bool _isRecording;
+
     private bool IsRecording
     {
         get => _isRecording;
@@ -51,9 +56,15 @@ public class GhosttrackEditor : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Closes the ghost track editor
+    /// </summary>
     public void Close()
     {
-        if (_isRecording) StopRecording();
+        if (_isRecording)
+        {
+            StopRecording();
+        }
         _action = null;
         _annotationToEdit = null;
         gameObject.SetActive(false);
