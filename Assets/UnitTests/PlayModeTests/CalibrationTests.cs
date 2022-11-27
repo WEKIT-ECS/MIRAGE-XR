@@ -87,7 +87,6 @@ namespace Tests
             SceneManager.UnloadSceneAsync("TestScene");
         }
 
-
         [UnitySetUp]
         public IEnumerator PlayModeInit()
         {
@@ -196,7 +195,7 @@ namespace Tests
             EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
 
             LoadTestArlemModels();
-            
+
             // audio listener cannot be added with helper function
             var audioListener = new GameObject("Audio Listener");
             audioListener.AddComponent<AudioListener>();

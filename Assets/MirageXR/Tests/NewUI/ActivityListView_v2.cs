@@ -9,14 +9,11 @@ using UnityEngine.UI;
 
 public class ActivityListView_v2 : BaseView
 {
-    public static ActivityListView_v2 Instance { get; private set; }
-
     [SerializeField] private Button _btnFilter;
     [SerializeField] private Transform _listTransform;
     [SerializeField] private ActivityListItem_v2 _smallItemPrefab;
     [SerializeField] private ActivityListItem_v2 _bigItemPrefab;
 
-    [SerializeField] private Button _btnNewActivity;
     [SerializeField] private SortingView _sortingPrefab;
 
     [Space]
@@ -31,27 +28,9 @@ public class ActivityListView_v2 : BaseView
 
     public List<SessionContainer> content => _content;
 
-    private void Awake()
-    {
-        if (Instance != null)
-        {
-            Debug.LogError($"{nameof(Instance.GetType)} must only be a single copy!");
-            return;
-        }
-
-        Instance = this;
-    }
-
-    private void OnDestroy()
-    {
-        Instance = null;
-    }
-
     public override void Initialization(BaseView parentView)
     {
         _btnFilter.onClick.AddListener(OnByDateClick);
-        _btnNewActivity.onClick.AddListener(OnNewActivityChanged);
-
         _btnArrow.onClick.AddListener(ArrowBtnPressed);
         _arrowDown.SetActive(true);
         _arrowUp.SetActive(false);
@@ -122,15 +101,7 @@ public class ActivityListView_v2 : BaseView
 
     private void OnByDateClick()
     {
-        PopupsViewer.Instance.Show(_sortingPrefab);
-    }
-
-    private async void OnNewActivityChanged()
-    {
-        LoadView.Instance.Show();
-        await RootObject.Instance.editorSceneService.LoadEditorAsync();
-        await RootObject.Instance.activityManager.CreateNewActivity();
-        LoadView.Instance.Hide();
+        PopupsViewer.Instance.Show(_sortingPrefab, this);
     }
 
     private void ArrowBtnPressed()

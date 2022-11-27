@@ -8,9 +8,9 @@ public class StepSettingsView : PopupBase
     [SerializeField] private Button _btnCopyStep;
     [SerializeField] private Button _btnDeleteStep;
 
-    public override void Init(Action<PopupBase> onClose, params object[] args)
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        base.Init(onClose, args);
+        base.Initialization(onClose, args);
 
         _btnCopyStep.onClick.AddListener(CopyStep);
         _btnDeleteStep.onClick.AddListener(DeleteStep);

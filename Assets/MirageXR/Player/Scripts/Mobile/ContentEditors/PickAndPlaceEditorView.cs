@@ -14,9 +14,9 @@ public class PickAndPlaceEditorView : PopupEditorBase
     [SerializeField] private TMP_InputField _inputField;
     private int resetOption = 0;
 
-    public override void Init(Action<PopupBase> onClose, params object[] args)
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        base.Init(onClose, args);
+        base.Initialization(onClose, args);
         UpdateView();
     }
 

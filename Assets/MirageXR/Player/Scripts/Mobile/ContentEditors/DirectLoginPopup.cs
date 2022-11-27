@@ -19,9 +19,9 @@ public class DirectLoginPopup : PopupBase
     private string _clientId;
     private string _appSecret;
     
-    public override void Init(Action<PopupBase> onClose, params object[] args)
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        base.Init(onClose, args);
+        base.Initialization(onClose, args);
         
         _usernameInputField.SetValidator(IsValidUsername);
         _passwordInputField.SetValidator(IsValidPassword);
