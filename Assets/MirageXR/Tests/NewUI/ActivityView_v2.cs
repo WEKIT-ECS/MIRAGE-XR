@@ -23,8 +23,6 @@ public class ActivityView_v2 : BaseView
     [SerializeField] private Toggle _toggleEdit;
     [SerializeField] private StepsListView_v2 _stepsListView;
     [SerializeField] private ContentListView_v2 _contentListView;
-   
-
 
     private int _infoStepNumber;
 
@@ -42,8 +40,8 @@ public class ActivityView_v2 : BaseView
         _toggleEdit.onValueChanged.AddListener(OnEditToggleValueChanged);
 
         _btnArrow.onClick.AddListener(ArrowBtnPressed);
-        _nextButton.onClick.AddListener(nextOnPressed);
-        _prevButton.onClick.AddListener(prevOnPressed);
+        _nextButton.onClick.AddListener(NextOnPressed);
+        _prevButton.onClick.AddListener(PrevOnPressed);
 
         _arrowDown.SetActive(true);
         _arrowUp.SetActive(false);
@@ -105,18 +103,18 @@ public class ActivityView_v2 : BaseView
         {
             _panel.DOAnchorPos(new Vector2(0, -1100), 0.25f);
             _arrowDown.SetActive(false);
-            setActiveObjects(false);
+            SetActiveObjects(false);
         }
         else
         {
             _panel.DOAnchorPos(new Vector2(0, -120), 0.25f);
             _arrowDown.SetActive(true);
 
-            setActiveObjects(true);
+            SetActiveObjects(true);
         }
     }
 
-    private void setActiveObjects(bool active)
+    private void SetActiveObjects(bool active)
     {
         _toggles.SetActive(active);
         _topButtons.SetActive(active);
@@ -127,12 +125,12 @@ public class ActivityView_v2 : BaseView
         _navigationButtons.SetActive(!active);
     }
 
-    private void nextOnPressed()
+    private void NextOnPressed()
     {
         activityManager.ActivateNextAction();
     }
 
-    private void prevOnPressed()
+    private void PrevOnPressed()
     {
         activityManager.ActivatePreviousAction();
     }
