@@ -12,6 +12,7 @@ public class ContentListItem_v2 : MonoBehaviour
     [SerializeField] private TMP_Text _txtName;
     [SerializeField] private Image _imgType;
     [SerializeField] private Button _btnSettings;
+    [SerializeField] private Button _btnListItem;
 
     private ContentListView_v2 _parentView;
     private ToggleObject _content;
@@ -19,12 +20,17 @@ public class ContentListItem_v2 : MonoBehaviour
     private int _from;
     private int _to;
 
+    public delegate void OnAnnotationItemClickedDelegate(ToggleObject annotation);
+
+    public event OnAnnotationItemClickedDelegate OnAnnotationItemClicked;
+
     private int _maxStepIndex => activityManager.ActionsOfTypeAction.Count - 1;
 
     public void Init(ContentListView_v2 parentView)
     {
         _parentView = parentView;
         _btnSettings.onClick.AddListener(OnSettingsPressed);
+        _btnListItem.onClick.AddListener(OnListItemPressed);
     }
 
     public void UpdateView(ToggleObject content)
@@ -53,6 +59,12 @@ public class ContentListItem_v2 : MonoBehaviour
             ("Rename", RenameContent, false),
             ($"Keep alive {_from}-{_to}", ChangeKeepAlive, false),
             ("Delete", DeleteContent, true));
+        
+    }
+
+    private void OnListItemPressed()
+    {
+        OnAnnotationItemClicked?.Invoke(_content);
     }
 
     private void EditContent()
