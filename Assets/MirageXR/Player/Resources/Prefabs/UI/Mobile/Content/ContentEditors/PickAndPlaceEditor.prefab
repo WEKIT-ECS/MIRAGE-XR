@@ -1138,12 +1138,12 @@ MonoBehaviour:
   _btnAccept: {fileID: 1318640481335322013}
   _btnClose: {fileID: 8340247395932589955}
   _inputField: {fileID: 3161357692059685080}
-  toggleTrigger: {fileID: 913457816274005054}
-  triggerStepIndex: {fileID: 6217657296286102085}
-  triggerStepTime: {fileID: 5138067137081760945}
-  triggerIndexObject: {fileID: 8671493169083394144}
-  triggerTimeObject: {fileID: 7588793654036350612}
-  resetOnDropDown: {fileID: 7319032454099497805}
+  _toggleTrigger: {fileID: 913457816274005054}
+  _triggerStepIndex: {fileID: 6217657296286102085}
+  _triggerStepTime: {fileID: 5138067137081760945}
+  _triggerIndexObject: {fileID: 8671493169083394144}
+  _triggerTimeObject: {fileID: 7588793654036350612}
+  _resetOnDropDown: {fileID: 7319032454099497805}
 --- !u!114 &8371701705238998908
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2175,7 +2175,7 @@ PrefabInstance:
     - target: {fileID: 7767528828638322410, guid: 0da6c846047eb364684101b2e5e2abc4,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 360
       objectReference: {fileID: 0}
     - target: {fileID: 9179672252660428331, guid: 0da6c846047eb364684101b2e5e2abc4,
         type: 3}
@@ -2475,7 +2475,7 @@ PrefabInstance:
     - target: {fileID: 7466344188122564584, guid: 369d9ceb8cb703e42b5fd93a386acdf5,
         type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: triggerToggle
+      value: TriggerToggle
       objectReference: {fileID: 0}
     - target: {fileID: 7466344188122564584, guid: 369d9ceb8cb703e42b5fd93a386acdf5,
         type: 3}
