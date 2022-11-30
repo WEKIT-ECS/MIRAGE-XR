@@ -20,15 +20,14 @@ public class ContentListItem_v2 : MonoBehaviour
     private int _from;
     private int _to;
 
-    public delegate void OnAnnotationItemClickedDelegate(ToggleObject annotation);
-
-    public event OnAnnotationItemClickedDelegate OnAnnotationItemClicked;
+    private System.Action<ToggleObject> _onListItemPressed;
 
     private int _maxStepIndex => activityManager.ActionsOfTypeAction.Count - 1;
 
-    public void Init(ContentListView_v2 parentView)
+    public void Init(ContentListView_v2 parentView, System.Action<ToggleObject> onListItemPressed)
     {
         _parentView = parentView;
+        _onListItemPressed = onListItemPressed;
         _btnSettings.onClick.AddListener(OnSettingsPressed);
         _btnListItem.onClick.AddListener(OnListItemPressed);
     }
@@ -64,7 +63,7 @@ public class ContentListItem_v2 : MonoBehaviour
 
     private void OnListItemPressed()
     {
-        OnAnnotationItemClicked?.Invoke(_content);
+        _onListItemPressed?.Invoke(_content);
     }
 
     private void EditContent()

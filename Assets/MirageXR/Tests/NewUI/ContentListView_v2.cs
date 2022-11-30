@@ -191,8 +191,7 @@ public class ContentListView_v2 : BaseView
             if (_list.Count <= i)
             {
                 var obj = Instantiate(_contentListItemPrefab, _listContent);
-                obj.Init(this);
-                obj.OnAnnotationItemClicked += OnAnnotationSelected;
+                obj.Init(this, OnAnnotationSelected);
                 _list.Add(obj);
             }
 
