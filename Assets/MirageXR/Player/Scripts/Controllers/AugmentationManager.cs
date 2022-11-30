@@ -104,8 +104,8 @@ namespace MirageXR
                     }
 
                     EventManager.NotifyActionModified(actionObj);
-                    activityManager.SaveData();//save data(annotations) after deleting additional files like character or models data
-                    EventManager.NotifyAugmentationDeleted(annotation);//All augmentations classes should do whatever should be done on augmentation deletion
+                    activityManager.SaveData(); //save data(annotations) after deleting additional files like character or models data
+                    EventManager.NotifyAugmentationDeleted(annotation); //All augmentations classes should do whatever should be done on augmentation deletion
                 }
             }
             else
