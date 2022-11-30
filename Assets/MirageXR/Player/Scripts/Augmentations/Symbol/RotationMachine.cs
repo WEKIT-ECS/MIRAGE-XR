@@ -13,22 +13,26 @@ namespace MirageXR
         private float _speedFactor = 1f;
 
         // Rotation axis selection.
-        public enum Axis { None, X, Y, Z };
+        public enum Axis { None, X, Y, Z }
         public Axis ActiveAxis = Axis.X;
 
         // Rotation direction selection
-        public enum Direction { CW, CCW };
+        public enum Direction { CW, CCW }
         public Direction ActiveDirection = Direction.CW;
 
         public float Speed = 1f;
 
         // Update is called once per frame
-        void Update()
+        private void Update()
         {
             if (ActiveDirection == Direction.CW)
+            {
                 _speedFactor = -1f;
+            }
             else
+            {
                 _speedFactor = 1f;
+            }
 
             switch (ActiveAxis)
             {
