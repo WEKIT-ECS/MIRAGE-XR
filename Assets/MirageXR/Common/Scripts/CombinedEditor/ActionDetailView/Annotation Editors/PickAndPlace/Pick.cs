@@ -7,54 +7,54 @@
 
     public class Pick : MonoBehaviour
     {
-        [SerializeField] private Transform placeLocation;
-        [SerializeField] private GameObject pickOb;
-        [SerializeField] private float correctionDistance;
-        [SerializeField] private bool resetOnMiss = true;
-        [SerializeField] private SpriteToggle lockToggle;
-        [SerializeField] private Button changeModelButton;
-        [SerializeField] private Text hoverGuide;
+        [SerializeField] private Transform _placeLocation;
+        [SerializeField] private GameObject _pickOb;
+        [SerializeField] private float _correctionDistance;
+        [SerializeField] private bool _resetOnMiss = true;
+        [SerializeField] private SpriteToggle _lockToggle;
+        [SerializeField] private Button _changeModelButton;
+        [SerializeField] private Text _hoverGuide;
 
-        [SerializeField] private AudioSource audioSource;
-        [SerializeField] private AudioClip correctAudio;
-        [SerializeField] private AudioClip incorrectAudio;
+        [SerializeField] private AudioSource _audioSource;
+        [SerializeField] private AudioClip _correctAudio;
+        [SerializeField] private AudioClip _incorrectAudio;
 
-        private bool shouldPlaySound;
+        private bool _shouldPlaySound;
 
-        private Vector3 resetPosition;
-        private Quaternion resetRotation;
-        private bool isMoving = false;
-        private bool moveMode = true;
-        private float targetRadius;
-        private Color originalArrowColor;
+        private Vector3 _resetPosition;
+        private Quaternion _resetRotation;
+        private bool _isMoving = false;
+        private bool _moveMode = true;
+        private float _targetRadius;
+        private Color _originalArrowColor;
 
-        private bool isTrigger = false;
-        private int triggerStepIndex;
-        private float triggerDuration;
+        private bool _isTrigger = false;
+        private int _triggerStepIndex;
+        private float _triggerDuration;
 
-        private bool editMode = false;
+        private bool _editMode = false;
 
-        private const string LockHelpText = "When locked the arrow (or 3D model) will bounce back to this location if it is not correctly placed on the target";
-        private const string ModelButtonHelpText = "Click this button and select a 3D model from the augmentation list to change the pick and place object model";
+        private const string _LockHelpText = "When locked the arrow (or 3D model) will bounce back to this location if it is not correctly placed on the target";
+        private const string _ModelButtonHelpText = "Click this button and select a 3D model from the augmentation list to change the pick and place object model";
 
-        private static MirageXR.ActivityManager ActivityManager => MirageXR.RootObject.Instance.activityManager;
+        private static MirageXR.ActivityManager _activityManager => MirageXR.RootObject.Instance.activityManager;
 
         public bool EditMode
         {
-            get { return editMode; }
-            set { editMode = value; }
+            get { return _editMode; }
+            set { _editMode = value; }
         }
 
         public Vector3 ResetPosition
         {
-            get { return resetPosition; }
-            set { resetPosition = value; }
+            get { return _resetPosition; }
+            set { _resetPosition = value; }
         }
 
         public Quaternion ResetRotation
         {
-            get { return resetRotation; }
-            set { resetRotation = value; }
+            get { return _resetRotation; }
+            set { _resetRotation = value; }
         }
 
         public MeshRenderer ArrowRenderer
@@ -66,14 +66,14 @@
         {
             get
             {
-                return changeModelButton;
+                return _changeModelButton;
             }
         }
 
         public bool MoveMode
         {
-            get => moveMode;
-            set => moveMode = value;
+            get => _moveMode;
+            set => _moveMode = value;
         }
 
         public bool IsTrigger
@@ -95,26 +95,26 @@
 
         void Start()
         {
-            targetRadius = placeLocation.transform.localScale.x / 2;
-            pickOb = this.gameObject;
-            ChangeCorrectionDistance(targetRadius);
-            moveMode = false;
-            lockToggle.IsSelected = true;
+            _targetRadius = _placeLocation.transform.localScale.x / 2;
+            _pickOb = this.gameObject;
+            ChangeCorrectionDistance(_targetRadius);
+            _moveMode = false;
+            _lockToggle.IsSelected = true;
 
-            originalArrowColor = ArrowRenderer.material.color;
+            _originalArrowColor = ArrowRenderer.material.color;
 
-            changeModelButton.onClick.AddListener(CapturePickModel);
+            _changeModelButton.onClick.AddListener(CapturePickModel);
 
-            AddHoverGuide(lockToggle.gameObject, LockHelpText);
-            AddHoverGuide(changeModelButton.gameObject, ModelButtonHelpText);
-            shouldPlaySound = false;
+            AddHoverGuide(_lockToggle.gameObject, _LockHelpText);
+            AddHoverGuide(_changeModelButton.gameObject, _ModelButtonHelpText);
+            _shouldPlaySound = false;
         }
 
         void Update()
         {
-            float targetRadiusUpdate = placeLocation.transform.localScale.x / 2;
+            float targetRadiusUpdate = _placeLocation.transform.localScale.x / 2;
 
-            if (!moveMode)
+            if (!_moveMode)
             {
                 if (transform.hasChanged)
                 {
@@ -126,16 +126,16 @@
                 }
                 transform.hasChanged = false;
             }
-            else if (moveMode && ArrowRenderer.material.color != originalArrowColor)
+            else if (_moveMode && ArrowRenderer.material.color != _originalArrowColor)
             {
-                ArrowRenderer.material.SetColor("_Color", originalArrowColor);
+                ArrowRenderer.material.SetColor("_Color", _originalArrowColor);
             }
 
-            if (targetRadius != targetRadiusUpdate)
+            if (_targetRadius != targetRadiusUpdate)
             {
-                targetRadius = targetRadiusUpdate;
+                _targetRadius = targetRadiusUpdate;
 
-                ChangeCorrectionDistance(targetRadius);
+                ChangeCorrectionDistance(_targetRadius);
             }
         }
 
@@ -144,30 +144,30 @@
         /// </summary>
         private void CapturePickModel()
         {
-            changeModelButton.GetComponent<Image>().color = Color.red;
+            _changeModelButton.GetComponent<Image>().color = Color.red;
             ActionEditor.Instance.pickArrowModelCapturing = (true, this);
         }
 
         public void SetMoveMode()
         {
-            if (moveMode)
+            if (_moveMode)
             {
-                moveMode = false;
-                ResetPosition = pickOb.transform.localPosition;
-                ResetRotation = pickOb.transform.localRotation;
-                shouldPlaySound = false;
+                _moveMode = false;
+                ResetPosition = _pickOb.transform.localPosition;
+                ResetRotation = _pickOb.transform.localRotation;
+                _shouldPlaySound = false;
             }
             else
             {
-                moveMode = true;
+                _moveMode = true;
             }
 
-            lockToggle.ToggleValue();
+            _lockToggle.ToggleValue();
         }
 
         public void SetRestOnMiss(bool reset)
         {
-            resetOnMiss = reset;
+            _resetOnMiss = reset;
         }
 
         /// <summary>
@@ -175,7 +175,7 @@
         /// </summary>
         public void SetTargettransform(Transform target)
         {
-            placeLocation = target;
+            _placeLocation = target;
         }
 
         /// <summary>
@@ -183,7 +183,7 @@
         /// </summary>
         public void ChangeCorrectionDistance(float distance)
         {
-            correctionDistance = distance;
+            _correctionDistance = distance;
         }
 
         /// <summary>
@@ -191,8 +191,8 @@
         /// </summary>
         public void ManipulationStart()
         {
-            ArrowRenderer.material.SetColor("_Color", originalArrowColor);
-            isMoving = true;
+            ArrowRenderer.material.SetColor("_Color", _originalArrowColor);
+            _isMoving = true;
         }
 
         /// <summary>
@@ -200,77 +200,77 @@
         /// </summary>
         public void ManipulationStop()
         {
-            if (isMoving)
+            if (_isMoving)
             {
-                if (Mathf.Abs(pickOb.transform.localPosition.x - placeLocation.localPosition.x) <= correctionDistance &&
-                Mathf.Abs(pickOb.transform.localPosition.y - placeLocation.localPosition.y) <= correctionDistance &&
-                Mathf.Abs(pickOb.transform.localPosition.z - placeLocation.localPosition.z) <= correctionDistance)
+                if (Mathf.Abs(_pickOb.transform.localPosition.x - _placeLocation.localPosition.x) <= _correctionDistance &&
+                Mathf.Abs(_pickOb.transform.localPosition.y - _placeLocation.localPosition.y) <= _correctionDistance &&
+                Mathf.Abs(_pickOb.transform.localPosition.z - _placeLocation.localPosition.z) <= _correctionDistance)
                 {
-                    pickOb.transform.localPosition = new Vector3(placeLocation.localPosition.x, placeLocation.localPosition.y, placeLocation.localPosition.z);
+                    _pickOb.transform.localPosition = new Vector3(_placeLocation.localPosition.x, _placeLocation.localPosition.y, _placeLocation.localPosition.z);
 
                     ArrowRenderer.material.SetColor("_Color", Color.green);
 
-                    if (shouldPlaySound)
+                    if (_shouldPlaySound)
                     {
-                        playAudio(correctAudio);
+                        PlayAudio(_correctAudio);
                     }
-                    if (isTrigger && !EditMode)
+                    if (_isTrigger && !EditMode)
                     {
-                        StartCoroutine(triggerAction());
+                        StartCoroutine(TriggerAction());
                     }
                 }
-                else if (resetOnMiss)
+                else if (_resetOnMiss)
                 {
-                    pickOb.transform.localPosition = ResetPosition;
-                    pickOb.transform.localRotation = ResetRotation;
+                    _pickOb.transform.localPosition = ResetPosition;
+                    _pickOb.transform.localRotation = ResetRotation;
 
-                    ArrowRenderer.material.SetColor("_Color", originalArrowColor);
-                    if (shouldPlaySound)
+                    ArrowRenderer.material.SetColor("_Color", _originalArrowColor);
+                    if (_shouldPlaySound)
                     {
-                        playAudio(incorrectAudio);
+                        PlayAudio(_incorrectAudio);
                     }
                 }
             }
-            isMoving = false;
-            shouldPlaySound = true;
+            _isMoving = false;
+            _shouldPlaySound = true;
         }
 
 
-        private void playAudio(AudioClip clip)
+        private void PlayAudio(AudioClip clip)
         {
-            audioSource.clip = clip;
-            audioSource.Play();
+            _audioSource.clip = clip;
+            _audioSource.Play();
         }
 
         private void AddHoverGuide(GameObject obj, string hoverMessage)
         {
             var HoverGuilde = obj.AddComponent<HoverGuilde>();
-            HoverGuilde.SetGuildText(hoverGuide);
+            HoverGuilde.SetGuildText(_hoverGuide);
             HoverGuilde.SetMessage(hoverMessage);
         }
 
-        private IEnumerator triggerAction()
+        private IEnumerator TriggerAction()
         {
-            yield return new WaitForSeconds(triggerDuration);
+            yield return new WaitForSeconds(_triggerDuration);
 
-            ActivityManager.ActivateActionByIndex(triggerStepIndex);
+            _activityManager.ActivateActionByIndex(_triggerStepIndex);
         }
 
-        public void setTrigger(Trigger trigger)
+        public void SetTrigger(Trigger trigger)
         {
-            isTrigger = trigger != null ? true : false;
+            _isTrigger = trigger != null ? true : false;
 
-            if (isTrigger)
+            if (_isTrigger)
             {
                 var stepIndex = int.Parse(trigger.value) - 1;
 
-                if (stepIndex > ActivityManager.ActionsOfTypeAction.Count)
+                if (stepIndex > _activityManager.ActionsOfTypeAction.Count)
                 {
-                    stepIndex = ActivityManager.ActionsOfTypeAction.Count - 1;
+                    stepIndex = _activityManager.ActionsOfTypeAction.Count - 1;
                 }
 
-                triggerStepIndex = stepIndex;
-                triggerDuration = trigger.duration;
+                _triggerStepIndex = stepIndex;
+                _triggerDuration = trigger.duration;
             }
         }
     }
