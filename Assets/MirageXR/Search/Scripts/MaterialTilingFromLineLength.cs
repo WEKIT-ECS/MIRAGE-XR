@@ -6,21 +6,21 @@ public class MaterialTilingFromLineLength : MonoBehaviour
 {
 
     [SerializeField] private float scaleFactor = 16;
-    private LineRenderer line;
+    private LineRenderer _line;
 
     // Use this for initialization
     void Start()
     {
-        line = GetComponent<LineRenderer>();
+        _line = GetComponent<LineRenderer>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (line.positionCount > 1)
+        if (_line.positionCount > 1)
         {
-            float tiling = (line.GetPosition(line.positionCount - 1) - line.GetPosition(0)).magnitude * scaleFactor;
-            line.material.mainTextureScale = new Vector2(tiling, 1);
+            float tiling = (_line.GetPosition(_line.positionCount - 1) - _line.GetPosition(0)).magnitude * scaleFactor;
+            _line.material.mainTextureScale = new Vector2(tiling, 1);
         }
     }
 }

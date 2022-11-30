@@ -27,7 +27,7 @@ public class SearchView : PopupBase
         Author
     }
 
-    private SearchType selectedSearchType;
+    private SearchType _selectedSearchType;
 
     public override void Init(Action<PopupBase> onClose, params object[] args)
     {
@@ -43,7 +43,7 @@ public class SearchView : PopupBase
             _authorButton.onClick.AddListener(OnAuthorClick);
 
 
-            selectedSearchType = SearchType.All;
+            _selectedSearchType = SearchType.All;
 
             UpdateListView();
         }
@@ -58,21 +58,21 @@ public class SearchView : PopupBase
 
     public void OnAllClick()
     {
-        selectedSearchType = SearchType.All;
+        _selectedSearchType = SearchType.All;
 
         OnInputFieldSearchChanged(_inputFieldSearch.text);
     }
 
     public void OnTitleClick()
     {
-        selectedSearchType = SearchType.Title;
+        _selectedSearchType = SearchType.Title;
 
         OnInputFieldSearchChanged(_inputFieldSearch.text);
     }
 
     public void OnAuthorClick()
     {
-        selectedSearchType = SearchType.Author;
+        _selectedSearchType = SearchType.Author;
 
         OnInputFieldSearchChanged(_inputFieldSearch.text);
     }
@@ -99,7 +99,7 @@ public class SearchView : PopupBase
             var author = string.IsNullOrEmpty(text) || item.activityAuthor.ToLower().Contains(text.ToLower());
             var title = string.IsNullOrEmpty(text) || item.activityName.ToLower().Contains(text.ToLower());
 
-            switch (selectedSearchType)
+            switch (_selectedSearchType)
             {
                 case SearchType.All:
                     if (title || author)

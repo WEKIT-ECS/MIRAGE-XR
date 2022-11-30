@@ -7,7 +7,7 @@ curl -X POST \
   -d "{
 	\"channel\": \"#preview-releases\",
 	\"username\": \"Release Bot\",
-	\"text\": \"A new preview version is available!\nVersion: *$APP_VERSION*\",
+	\"text\": \"A new preview version is available for $TARGET_PLATFORM!\nVersion: *$APP_VERSION*\",
 	\"icon_emoji\": \":rocket:\",
 	\"attachments\": [
 		{
@@ -17,7 +17,7 @@ curl -X POST \
 					\"type\": \"section\",
 					\"text\": {
 						\"type\": \"mrkdwn\",
-						\"text\": \"<https://github.com/WEKIT-ECS/MIRAGE-XR/actions/runs/$GITHUB_RUN_ID| View workflow to download HoloLens builds :package:>\"
+						\"text\": \"<https://github.com/WEKIT-ECS/MIRAGE-XR/actions/runs/$GITHUB_RUN_ID| View workflow to download build :package:>\"
 					}
 				},
 				{
