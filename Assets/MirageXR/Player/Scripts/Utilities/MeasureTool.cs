@@ -19,8 +19,8 @@ namespace MirageXR
         [SerializeField] private LineRenderer lineFromA;
         [SerializeField] private LineRenderer lineFromB;
 
-        private ObjectManipulator startObjectManipulator;
-        private ObjectManipulator endObjectManipulator;
+        private ObjectManipulator _startObjectManipulator;
+        private ObjectManipulator _endObjectManipulator;
 
 
         private bool _pointsMoving;
@@ -38,17 +38,17 @@ namespace MirageXR
 
         void Start()
         {
-            startObjectManipulator = startPoint.GetComponentInParent<ObjectManipulator>();
-            endObjectManipulator = endPoint.GetComponentInParent<ObjectManipulator>();
+            _startObjectManipulator = startPoint.GetComponentInParent<ObjectManipulator>();
+            _endObjectManipulator = endPoint.GetComponentInParent<ObjectManipulator>();
 
             var myPoiManipulator = transform.parent.GetComponent<ObjectManipulator>();
 
-            startObjectManipulator.OnManipulationStarted.AddListener(delegate { OnMeasuringStart(); });
-            endObjectManipulator.OnManipulationStarted.AddListener(delegate { OnMeasuringStart(); });
+            _startObjectManipulator.OnManipulationStarted.AddListener(delegate { OnMeasuringStart(); });
+            _endObjectManipulator.OnManipulationStarted.AddListener(delegate { OnMeasuringStart(); });
             myPoiManipulator.OnManipulationStarted.AddListener(delegate { OnMeasuringStart(); });
 
-            startObjectManipulator.OnManipulationEnded.AddListener(delegate { OnMeasuringEnd(); });
-            endObjectManipulator.OnManipulationEnded.AddListener(delegate { OnMeasuringEnd(); });
+            _startObjectManipulator.OnManipulationEnded.AddListener(delegate { OnMeasuringEnd(); });
+            _endObjectManipulator.OnManipulationEnded.AddListener(delegate { OnMeasuringEnd(); });
             myPoiManipulator.OnManipulationEnded.AddListener(delegate { OnMeasuringEnd(); });
 
 
