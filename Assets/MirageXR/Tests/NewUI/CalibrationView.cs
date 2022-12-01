@@ -35,7 +35,7 @@ public class CalibrationView : PopupBase
         calibrationTool.onTargetFound.AddListener(OnTargetFound);
         calibrationTool.onTargetLost.AddListener(OnTargetLost);
         calibrationTool.onCalibrationFinished.AddListener(OnCalibrationFinished);
-
+        calibrationTool.isEnabled = true;
         _hideBaseView?.Invoke();
     }
 
@@ -63,6 +63,9 @@ public class CalibrationView : PopupBase
     private async Task OnCalibrationFinishedAsync()
     {
         _textDone.gameObject.SetActive(true);
+        _imageTarget.gameObject.SetActive(false);
+        _imageAnimation.gameObject.SetActive(false);
+        _footer.SetActive(false);
         await Task.Delay(CLOSE_TIME);
         Close();
     }
@@ -77,6 +80,7 @@ public class CalibrationView : PopupBase
 
     public override void Close()
     {
+        CalibrationTool.Instance.isEnabled = false;
         _showBaseView?.Invoke();
         base.Close();
     }

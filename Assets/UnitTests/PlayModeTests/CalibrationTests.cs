@@ -44,8 +44,6 @@ namespace Tests
         // dummy manager objects
         UiManager dummyUiManager;
         PlatformManager dummyPlatformManager;
-
-        CalibrationTool dummyCalibrationTool;
         TaskStationDetailMenu dummyTSDM;
 
         // setup progress flags
@@ -142,7 +140,6 @@ namespace Tests
 
         #endregion SetUp and TearDown
 
-
         #region Arrange
 
 
@@ -203,9 +200,6 @@ namespace Tests
             // create and configure content managers or UI elements needed to start an activity
             GenerateGameObjectWithComponent<Maggie>("Maggie");
             GenerateGameObjectWithComponent<BrandManager>("Brand Manager");
-
-            dummyCalibrationTool = GenerateGameObjectWithComponent<CalibrationTool>("Calibration Tool");
-            dummyCalibrationTool.SetCalibrationModel(new GameObject("Calibration Model"));
 
             CreateDummyUiManager();
 

@@ -92,7 +92,7 @@ namespace MirageXR
             HideDebug();
             HideMenu();
             WelcomeMessage = string.Empty;
-            CalibrationTool.Instance.Reset();
+            CalibrationTool.Instance.isEnabled = false;
         }
 
         private void MoveActivityList()
@@ -255,7 +255,10 @@ namespace MirageXR
             // Add a small delay just be sure that the message is stopped.
             await Task.Delay(250);
 
-            CalibrationTool.Instance.SetPlayer();
+            if (PlatformManager.Instance.WorldSpaceUi)
+            {
+                CalibrationTool.Instance.isEnabled = true;
+            }
 
             if (IsCalibrated)
             {
@@ -277,7 +280,7 @@ namespace MirageXR
         private void ActivityStarted()
         {
             //WelcomeMessage = activityManager.Activity;
-            CalibrationTool.Instance.Reset();
+            CalibrationTool.Instance.isEnabled = false;
 
             switch (PlayerPrefs.GetString("uistyle"))
             {
