@@ -122,7 +122,11 @@ namespace MirageXR
         [EnumMember(Value = "label")]
         Label,
         [EnumMember(Value = "char")]
-        Character
+        Character,
+        [EnumMember(Value = "pickandplace")]
+        PickAndPlace,
+        [EnumMember(Value = "none")]
+        None,
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
@@ -143,7 +147,9 @@ namespace MirageXR
         [EnumMember(Value = "sensor")]
         Sensor,
         [EnumMember(Value = "detect")]
-        Detect
+        Detect,
+        [EnumMember(Value = "pickandplace")]
+        PickAndPlace,
     }
 
     [Serializable]
