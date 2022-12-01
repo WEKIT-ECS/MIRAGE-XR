@@ -1,18 +1,23 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
+using Vuforia;
 
 namespace MirageXR
 {
     public class CalibrationTool : MonoBehaviour
     {
-        private static float ANIMATION_TIME = 3f;
+        private static float ANIMATION_TIME = 5f;
+        const float RAY_CAST_DISTANCE = 1000000;
 
-        [SerializeField] private GameObject _calibrationAnimation;
+        public static CalibrationTool Instance { get; private set; }
 
-        [SerializeField] private UnityEvent _onTargetFound = new UnityEvent();
-        [SerializeField] private UnityEvent _onTargetLost = new UnityEvent();
-        [SerializeField] private UnityEvent _onCalibrationFinished = new UnityEvent();
+        [SerializeField] private CalibrationAnimation _calibrationAnimation;
+        [SerializeField] private ImageTargetBehaviour _imageTargetBehaviour;
+        [SerializeField] private DefaultTrackableEventHandler _trackableEventHandler;
+        private UnityEvent _onTargetFound = new UnityEvent();
+        private UnityEvent _onTargetLost = new UnityEvent();
+        private UnityEvent _onCalibrationFinished = new UnityEvent();
 
         public UnityEvent onTargetFound => _onTargetFound;
 
@@ -22,15 +27,19 @@ namespace MirageXR
 
         public float animationTime => ANIMATION_TIME;
 
-        private bool _isTargetFound;
-        private Coroutine _countdown;
-
-        public static CalibrationTool Instance { get; private set; }
-
-        public void SetCalibrationModel(GameObject calibrationModel)
+        public bool isEnabled
         {
-            _calibrationAnimation = calibrationModel;
+            get => _isEnabled;
+            set
+            {
+                _isEnabled = value;
+                SetEnabled(value);
+            }
         }
+
+        private bool _isEnabled;
+        private bool _isTargetFound;
+        private Coroutine _countdownToEnd;
 
         private void Awake()
         {
@@ -46,55 +55,88 @@ namespace MirageXR
 
         private void Start()
         {
-            Reset();
+            _trackableEventHandler.OnTargetFound.AddListener(OnTargetFound);
+            _trackableEventHandler.OnTargetLost.AddListener(OnTargetLost);
+            isEnabled = false;
         }
 
-        public void OnTargetFound()
+        private void SetEnabled(bool value)
+        {
+            if (value)
+            {
+                Enable();
+            }
+            else
+            {
+                Disable();
+            }
+        }
+
+        private void OnTargetFound()
         {
             _isTargetFound = true;
-            onTargetFound.Invoke();
-            _countdown = StartCoroutine(WaitAndDo(ANIMATION_TIME, Calibrate));
+            _onTargetFound.Invoke();
+            _calibrationAnimation.PlayAnimation();
+            _countdownToEnd = StartCoroutine(WaitAndDo(ANIMATION_TIME, Calibrate));
         }
 
-        public void OnTargetLost()
+        private void OnTargetLost()
         {
             _isTargetFound = false;
-            onTargetLost.Invoke();
-            if (_countdown != null)
+            _onTargetLost.Invoke();
+            _calibrationAnimation.StopAnimation();
+            if (_countdownToEnd != null)
             {
-                StopCoroutine(_countdown);
+                StopCoroutine(_countdownToEnd);
+                _countdownToEnd = null;
             }
         }
 
-        public void SetPlayer()
+        private void Enable()
         {
-            if (_calibrationAnimation)
+            _isEnabled = true;
+
+            if (_countdownToEnd != null)
             {
-                _calibrationAnimation.SetActive(true);
+                StopCoroutine(_countdownToEnd);
+                _countdownToEnd = null;
             }
+
+            _imageTargetBehaviour.enabled = true;
+            _calibrationAnimation.gameObject.SetActive(true);
         }
 
-        public void Reset()
+        private void Disable()
         {
-            if (_calibrationAnimation)
+            _isTargetFound = false;
+
+            if (_countdownToEnd != null)
             {
-                _calibrationAnimation.SetActive(false);
+                StopCoroutine(_countdownToEnd);
+                _countdownToEnd = null;
             }
+
+            _calibrationAnimation.StopAnimation();
+            _imageTargetBehaviour.enabled = false;
+            _calibrationAnimation.gameObject.SetActive(false);
         }
 
         public async void Calibrate()
         {
+            _calibrationAnimation.StopAnimation();
             if (_isTargetFound)
             {
                 await RootObject.Instance.workplaceManager.CalibrateWorkplace(transform);
-                onCalibrationFinished.Invoke();
+                _onCalibrationFinished.Invoke();
             }
 
-            if (_countdown != null)
+            if (_countdownToEnd != null)
             {
-                StopCoroutine(_countdown);
-                _countdown = null;
+                StopCoroutine(_countdownToEnd);
+                _countdownToEnd = null;
             }
+
+            isEnabled = false;
         }
 
         private static IEnumerator WaitAndDo(float time, System.Action callback)
