@@ -21,6 +21,8 @@ public class ActivityListView_v2 : BaseView
 
     [Space]
     [SerializeField] private Button _btnArrow;
+    [SerializeField] private Button _btnBackToActivity;
+    [SerializeField] private Button _btnRestartActivity;
     [SerializeField] private RectTransform _panel;
     [SerializeField] private GameObject _arrowDown;
     [SerializeField] private GameObject _arrowUp;
@@ -51,6 +53,8 @@ public class ActivityListView_v2 : BaseView
     {
         _btnFilter.onClick.AddListener(OnByDateClick);
         _btnNewActivity.onClick.AddListener(OnNewActivityChanged);
+        _btnBackToActivity.onClick.AddListener(OnBacktoActivityButton);
+        _btnRestartActivity.onClick.AddListener(OnRestartActivityButton);
 
         _btnArrow.onClick.AddListener(ArrowBtnPressed);
         _arrowDown.SetActive(true);
@@ -123,6 +127,17 @@ public class ActivityListView_v2 : BaseView
     private void OnByDateClick()
     {
         PopupsViewer.Instance.Show(_sortingPrefab);
+    }
+
+    private void OnBacktoActivityButton()
+    {
+        RootView_v2.Instance.OnActivityLoaded();
+    }
+
+    private void OnRestartActivityButton()
+    {
+        RootView_v2.Instance.OnActivityLoaded();
+        RootObject.Instance.activityManager.ActivateFirstAction();
     }
 
     private async void OnNewActivityChanged()

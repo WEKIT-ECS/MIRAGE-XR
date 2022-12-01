@@ -9,9 +9,17 @@ public class ActivityView_v2 : BaseView
 
     [Space]
     [SerializeField] private Button _btnArrow;
+    [SerializeField] private Button _nextButton;
+    [SerializeField] private Button _prevButton;
     [SerializeField] private RectTransform _panel;
     [SerializeField] private GameObject _arrowDown;
     [SerializeField] private GameObject _arrowUp;
+    [SerializeField] private GameObject _topButtons;
+    [SerializeField] private GameObject _toggles;
+    [SerializeField] private GameObject _navigationButtons;
+    [SerializeField] private GameObject _homeToggels;
+    [SerializeField] private GameObject _backToActivity;
+    [SerializeField] private GameObject _content;
     [SerializeField] private Toggle _toggleEdit;
     [SerializeField] private StepsListView_v2 _stepsListView;
     [SerializeField] private ContentListView_v2 _contentListView;
@@ -32,6 +40,9 @@ public class ActivityView_v2 : BaseView
         _toggleEdit.onValueChanged.AddListener(OnEditToggleValueChanged);
 
         _btnArrow.onClick.AddListener(ArrowBtnPressed);
+        _nextButton.onClick.AddListener(NextOnPressed);
+        _prevButton.onClick.AddListener(PrevOnPressed);
+
         _arrowDown.SetActive(true);
         _arrowUp.SetActive(false);
 
@@ -56,6 +67,7 @@ public class ActivityView_v2 : BaseView
     public void OnBackToHomePressed()
     {
         rootView.OnBackToHome();
+        _backToActivity.SetActive(true);
     }
 
     private void OnEditToggleValueChanged(bool value)
@@ -91,13 +103,35 @@ public class ActivityView_v2 : BaseView
         {
             _panel.DOAnchorPos(new Vector2(0, -1100), 0.25f);
             _arrowDown.SetActive(false);
-            _arrowUp.SetActive(true);
+            SetActiveObjects(false);
         }
         else
         {
             _panel.DOAnchorPos(new Vector2(0, -120), 0.25f);
             _arrowDown.SetActive(true);
-            _arrowUp.SetActive(false);
+
+            SetActiveObjects(true);
         }
+    }
+
+    private void SetActiveObjects(bool active)
+    {
+        _toggles.SetActive(active);
+        _topButtons.SetActive(active);
+        _homeToggels.SetActive(active);
+        _content.SetActive(active);
+
+        _arrowUp.SetActive(!active);
+        _navigationButtons.SetActive(!active);
+    }
+
+    private void NextOnPressed()
+    {
+        activityManager.ActivateNextAction();
+    }
+
+    private void PrevOnPressed()
+    {
+        activityManager.ActivatePreviousAction();
     }
 }
