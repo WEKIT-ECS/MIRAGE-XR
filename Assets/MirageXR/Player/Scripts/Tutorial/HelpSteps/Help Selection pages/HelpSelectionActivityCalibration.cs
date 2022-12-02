@@ -9,13 +9,13 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "";
+            this._instructionText = "";
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
 
-            this.popup.createNewSelectionButton("What is calibration").onClick.AddListener(whatIsCalibration);
-            this.popup.createNewSelectionButton("How do I calibrate").onClick.AddListener(howToCalibrate);
-            this.popup.createNewSelectionButton("Why do I need to calibrate").onClick.AddListener(whyCalibrate);
-            this.popup.createNewSelectionButton("What can I use as a calibration image").onClick.AddListener(whatImage);
+            this._popup.CreateNewSelectionButton("What is calibration").onClick.AddListener(whatIsCalibration);
+            this._popup.CreateNewSelectionButton("How do I calibrate").onClick.AddListener(howToCalibrate);
+            this._popup.CreateNewSelectionButton("Why do I need to calibrate").onClick.AddListener(whyCalibrate);
+            this._popup.CreateNewSelectionButton("What can I use as a calibration image").onClick.AddListener(whatImage);
         }
 
         protected override void Detach()
@@ -26,7 +26,7 @@ namespace MirageXR
         public void whatIsCalibration() {
 
             this.ExitStep();
-            TutorialManager.Instance.showHelp(0);
+            TutorialManager.Instance.ShowHelp(0);
         
         }
 
@@ -34,7 +34,7 @@ namespace MirageXR
         {
 
             this.ExitStep();
-            TutorialManager.Instance.showHelp(1);
+            TutorialManager.Instance.ShowHelp(1);
 
         }
 
@@ -42,7 +42,7 @@ namespace MirageXR
         {
 
             this.ExitStep();
-            TutorialManager.Instance.showHelp(2);
+            TutorialManager.Instance.ShowHelp(2);
 
         }
 
@@ -50,7 +50,7 @@ namespace MirageXR
         {
 
             this.ExitStep();
-            TutorialManager.Instance.showHelp(3);
+            TutorialManager.Instance.ShowHelp(3);
 
         }
 

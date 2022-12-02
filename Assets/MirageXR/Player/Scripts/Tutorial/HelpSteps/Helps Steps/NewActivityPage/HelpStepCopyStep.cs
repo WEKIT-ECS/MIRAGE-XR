@@ -9,7 +9,7 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "To make a copy of a step and all its contents, tap on Edit step and then tap on the info tab.";
+            this._instructionText = "To make a copy of a step and all its contents, tap on Edit step and then tap on the info tab.";
             GameObject Edit = GameObject.Find("EditButton");
 
             Button button = Edit.GetComponent<Button>();

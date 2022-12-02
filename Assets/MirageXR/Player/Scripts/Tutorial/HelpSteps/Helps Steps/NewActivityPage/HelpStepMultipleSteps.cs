@@ -9,7 +9,7 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "Tap the + button to add new steps";
+            this._instructionText = "Tap the + button to add new steps";
 
             GameObject add = GameObject.Find("AddButton");
 
@@ -20,8 +20,8 @@ namespace MirageXR
             }
 
             this.highlightedObject = add;
-            this.shouldMove = true;
-            this.pos = new Vector3(0, 0, 0);
+            this._shouldMove = true;
+            this._position = new Vector3(0, 0, 0);
            
 
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;

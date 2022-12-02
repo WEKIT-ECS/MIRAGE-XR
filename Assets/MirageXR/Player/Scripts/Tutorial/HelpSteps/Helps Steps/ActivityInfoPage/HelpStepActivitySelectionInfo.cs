@@ -9,7 +9,7 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "Titles allow you to name your steps, making it clearer for creator and learner what a step is about. Descriptions allow you to go into even more detail, for example by adding instructions to the step.";
+            this._instructionText = "Titles allow you to name your steps, making it clearer for creator and learner what a step is about. Descriptions allow you to go into even more detail, for example by adding instructions to the step.";
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
         }
 

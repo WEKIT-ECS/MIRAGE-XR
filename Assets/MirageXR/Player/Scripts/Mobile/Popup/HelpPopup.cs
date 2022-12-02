@@ -11,9 +11,9 @@ namespace MirageXR
     /// </summary>
     public class HelpPopup : PopupBase
     {
-        [SerializeField] private Button btnGotIt;
-        [SerializeField] private TMP_Text txtInstruction;
-        private GameObject highlightedObject;
+        [SerializeField] private Button _btnGotIt;
+        [SerializeField] private TMP_Text _txtInstruction;
+        private GameObject _highlightedObject;
 
         /// <summary>
         /// Sets the text that is going to be shown on the popup.
@@ -22,14 +22,13 @@ namespace MirageXR
 
         public void SetInstructionText(String text)
         {
-            txtInstruction.text = text;
+            _txtInstruction.text = text;
         }
+
         public override void Init(Action<PopupBase> onClose, params object[] args)
         {
             base.Init(onClose, args);
-            btnGotIt.onClick.AddListener(GotItOnClick);
-
-            
+            _btnGotIt.onClick.AddListener(GotItOnClick);
         }
 
         private void GotItOnClick()
@@ -38,12 +37,11 @@ namespace MirageXR
             Close();
         }
 
-        private void textOnclick()
+        private void TextOnclick()
         {
             EventManager.NotifyOnTutorialPopupCloseClicked();
             Close();
-            TutorialManager.Instance.showHelp(1);
-            
+            TutorialManager.Instance.ShowHelp(1);
         }
 
         protected override bool TryToGetArguments(params object[] args)

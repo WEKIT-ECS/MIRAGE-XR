@@ -9,7 +9,7 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "Additional options for added augmentations can be accessed by pressing the three dots on the right side of an augmentation tile.";
+            this._instructionText = "Additional options for added augmentations can be accessed by pressing the three dots on the right side of an augmentation tile.";
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
         }
 

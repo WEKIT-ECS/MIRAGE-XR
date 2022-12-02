@@ -9,7 +9,7 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "Tap on the Info tab and add a title and description";
+            this._instructionText = "Tap on the Info tab and add a title and description";
             this.highlightedObject = GameObject.Find("Second");
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
         }

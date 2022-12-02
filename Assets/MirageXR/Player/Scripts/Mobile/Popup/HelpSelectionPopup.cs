@@ -11,19 +11,18 @@ namespace MirageXR
     /// </summary>
     public class HelpSelectionPopup : PopupBase
     {
-        [SerializeField] private Button btnGotIt;
-        [SerializeField] private Button selectionButton;
-        private GameObject highlightedObject;
+        [SerializeField] private Button _btnGotIt;
+        [SerializeField] private Button _selectionButton;
+        private GameObject _highlightedObject;
 
         /// <summary>
         /// Sets the text that is going to be shown on the popup.
         /// </summary>
         /// <param name="text">The instruction text to be shown.</param>
-
         public override void Init(Action<PopupBase> onClose, params object[] args)
         {
             base.Init(onClose, args);
-            btnGotIt.onClick.AddListener(GotItOnClick);
+            _btnGotIt.onClick.AddListener(GotItOnClick);
         }
 
         private void GotItOnClick()
@@ -32,16 +31,16 @@ namespace MirageXR
             Close();
         }
 
-        private void textOnclick()
+        private void TextOnclick()
         {
             EventManager.NotifyOnTutorialPopupCloseClicked();
             Close();
-            TutorialManager.Instance.showHelp(1);
+            TutorialManager.Instance.ShowHelp(1);
         }
 
-        public Button createNewSelectionButton(string title) {
+        public Button CreateNewSelectionButton(string title) {
 
-            var button = Instantiate(selectionButton, Vector3.zero, Quaternion.identity) as Button;
+            var button = Instantiate(_selectionButton, Vector3.zero, Quaternion.identity) as Button;
             var rectTransform = button.GetComponent<RectTransform>();
             rectTransform.SetParent(gameObject.transform);
             rectTransform.offsetMin = Vector2.zero;

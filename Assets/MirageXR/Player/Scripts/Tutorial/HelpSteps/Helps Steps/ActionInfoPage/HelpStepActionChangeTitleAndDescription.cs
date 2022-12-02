@@ -9,7 +9,7 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "You can add or change the title and description of any step, switch to the info tab.";
+            this._instructionText = "You can add or change the title and description of any step, switch to the info tab.";
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
         }
 

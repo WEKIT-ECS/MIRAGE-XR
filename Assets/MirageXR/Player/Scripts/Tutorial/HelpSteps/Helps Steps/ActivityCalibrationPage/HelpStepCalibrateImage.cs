@@ -9,7 +9,7 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "The calibration marker can be downloaded from https://wekit-ecs.com/documents/calibration. More images will be available as markers soon.";
+            this._instructionText = "The calibration marker can be downloaded from https://wekit-ecs.com/documents/calibration. More images will be available as markers soon.";
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
         }
 

@@ -11,12 +11,12 @@ namespace MirageXR
     /// </summary>
     public abstract class HelpSelection : TutorialStep
     {
-        protected string instructionText;
+        protected string _instructionText;
 
-        protected HelpSelectionPopup popup;
-        private TutorialObjectHighlighter highlighter;
+        protected HelpSelectionPopup _popup;
+        private TutorialObjectHighlighter _highlighter;
 
-        private bool isHighlighting = false;
+        private bool _isHighlighting = false;
 
         protected override void SecuredEnterStep()
         {
@@ -45,16 +45,16 @@ namespace MirageXR
 
         protected void SetupInstruction()
         {
-            popup = (HelpSelectionPopup)PopupsViewer.Instance.Show(manager.HelpSelectionPopup);
+            _popup = (HelpSelectionPopup)PopupsViewer.Instance.Show(manager.HelpSelectionPopup);
         }
 
         protected void SetupHighlighter()
         {
             if (highlightedObject != null)
             {
-                highlighter = manager.MobileHighlighter;
-                highlighter.Show(highlightedObject);
-                isHighlighting = true;
+                _highlighter = manager.MobileHighlighter;
+                _highlighter.Show(highlightedObject);
+                _isHighlighting = true;
                 EventManager.TutorialPopupCloseClicked += RemoveHighlight;
                 EventManager.HighlightingButtonClicked += RemoveHighlight;
                 EventManager.HighlightingButtonClicked += RemoveInstruction;
@@ -63,12 +63,12 @@ namespace MirageXR
 
         protected void RemoveInstruction()
         {
-            if (popup != null)
+            if (_popup != null)
             {
-                popup.Close();
+                _popup.Close();
             }
 
-            if (isHighlighting)
+            if (_isHighlighting)
             {
                 EventManager.HighlightingButtonClicked -= RemoveInstruction;
             }
@@ -76,12 +76,12 @@ namespace MirageXR
 
         protected void RemoveHighlight()
         {
-            if (isHighlighting)
+            if (_isHighlighting)
             {
-                highlighter.Remove();
+                _highlighter.Remove();
                 EventManager.TutorialPopupCloseClicked -= RemoveHighlight;
                 EventManager.HighlightingButtonClicked -= RemoveHighlight;
-                isHighlighting = false;
+                _isHighlighting = false;
             }
         }
     }

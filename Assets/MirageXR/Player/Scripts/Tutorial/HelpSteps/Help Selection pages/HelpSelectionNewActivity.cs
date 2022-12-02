@@ -9,15 +9,15 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "";
+            this._instructionText = "";
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
 
-            this.popup.createNewSelectionButton("How to change activity title and description").onClick.AddListener(changeTitleAndDescription);
-            this.popup.createNewSelectionButton("What is an action step").onClick.AddListener(whatIsAnActionStep);
-            this.popup.createNewSelectionButton("How can i make multiple steps").onClick.AddListener(selectMultipleSteps);
-            this.popup.createNewSelectionButton("How to rename a step").onClick.AddListener(renameSteps);
-            this.popup.createNewSelectionButton("How to add content to a step").onClick.AddListener(addContent);
-            this.popup.createNewSelectionButton("How to copy a step").onClick.AddListener(copyStep);
+            this._popup.CreateNewSelectionButton("How to change activity title and description").onClick.AddListener(ChangeTitleAndDescription);
+            this._popup.CreateNewSelectionButton("What is an action step").onClick.AddListener(WhatIsAnActionStep);
+            this._popup.CreateNewSelectionButton("How can i make multiple steps").onClick.AddListener(SelectMultipleSteps);
+            this._popup.CreateNewSelectionButton("How to rename a step").onClick.AddListener(RenameSteps);
+            this._popup.CreateNewSelectionButton("How to add content to a step").onClick.AddListener(AddContent);
+            this._popup.CreateNewSelectionButton("How to copy a step").onClick.AddListener(CopyStep);
         }
 
         protected override void Detach()
@@ -25,40 +25,40 @@ namespace MirageXR
             EventManager.NewActivityCreationButtonPressed -= DefaultExitEventListener;
         }
 
-        public void changeTitleAndDescription()
+        public void ChangeTitleAndDescription()
         {
             this.ExitStep();
-            TutorialManager.Instance.showHelp(0);
+            TutorialManager.Instance.ShowHelp(0);
         }
 
-        public void whatIsAnActionStep()
+        public void WhatIsAnActionStep()
         {
             this.ExitStep();
-            TutorialManager.Instance.showHelp(1);
+            TutorialManager.Instance.ShowHelp(1);
         }
 
-        public void selectMultipleSteps()
+        public void SelectMultipleSteps()
         {
             this.ExitStep();
-            TutorialManager.Instance.showHelp(2);
+            TutorialManager.Instance.ShowHelp(2);
         }
 
-        public void renameSteps()
+        public void RenameSteps()
         {
             this.ExitStep();
-            TutorialManager.Instance.showHelp(3);
+            TutorialManager.Instance.ShowHelp(3);
         }
 
-        public void addContent()
+        public void AddContent()
         {
             this.ExitStep();
-            TutorialManager.Instance.showHelp(4);
+            TutorialManager.Instance.ShowHelp(4);
         }
 
-        public void copyStep()
+        public void CopyStep()
         {
             this.ExitStep();
-            TutorialManager.Instance.showHelp(5);
+            TutorialManager.Instance.ShowHelp(5);
         }
 
 
