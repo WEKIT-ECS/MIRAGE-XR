@@ -9,7 +9,7 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "An action step is the basic component of a learning activity created in MirageXR. Each activity consists of one or multiple action steps.";
+            this._instructionText = "An action step is the basic component of a learning activity created in MirageXR. Each activity consists of one or multiple action steps.";
 
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
         }

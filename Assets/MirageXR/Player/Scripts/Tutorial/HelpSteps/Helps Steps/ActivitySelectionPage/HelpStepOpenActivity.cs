@@ -9,7 +9,7 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "To open an activity find it on the list here and simply tap it!";
+            this._instructionText = "To open an activity find it on the list here and simply tap it!";
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
         }
 

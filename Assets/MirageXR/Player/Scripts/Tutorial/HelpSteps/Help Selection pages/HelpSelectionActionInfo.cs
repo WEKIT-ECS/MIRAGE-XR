@@ -9,13 +9,13 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "";
+            this._instructionText = "";
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
 
-            this.popup.createNewSelectionButton("How to add step title and description").onClick.AddListener(changeTitleAndDescription);
-            this.popup.createNewSelectionButton("What is an augmentation").onClick.AddListener(whatIsAnAugmentation);
-            this.popup.createNewSelectionButton("How to add or change augmentations in a step").onClick.AddListener(howToAddOrChange);
-            this.popup.createNewSelectionButton("Is there a way for an augmentation to stay for more than one step").onClick.AddListener(howToKeepAlive);
+            this._popup.CreateNewSelectionButton("How to add step title and description").onClick.AddListener(changeTitleAndDescription);
+            this._popup.CreateNewSelectionButton("What is an augmentation").onClick.AddListener(whatIsAnAugmentation);
+            this._popup.CreateNewSelectionButton("How to add or change augmentations in a step").onClick.AddListener(howToAddOrChange);
+            this._popup.CreateNewSelectionButton("Is there a way for an augmentation to stay for more than one step").onClick.AddListener(howToKeepAlive);
         }
 
         protected override void Detach()
@@ -26,25 +26,25 @@ namespace MirageXR
         public void changeTitleAndDescription()
         {
             this.ExitStep();
-            TutorialManager.Instance.showHelp(0);
+            TutorialManager.Instance.ShowHelp(0);
         }
 
         public void whatIsAnAugmentation()
         {
             this.ExitStep();
-            TutorialManager.Instance.showHelp(1);
+            TutorialManager.Instance.ShowHelp(1);
         }
 
         public void howToAddOrChange()
         {
             this.ExitStep();
-            TutorialManager.Instance.showHelp(2);
+            TutorialManager.Instance.ShowHelp(2);
         }
 
         public void howToKeepAlive()
         {
             this.ExitStep();
-            TutorialManager.Instance.showHelp(3);
+            TutorialManager.Instance.ShowHelp(3);
         }
 
 

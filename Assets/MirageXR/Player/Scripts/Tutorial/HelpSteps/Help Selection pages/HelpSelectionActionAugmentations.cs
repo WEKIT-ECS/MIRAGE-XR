@@ -9,7 +9,7 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "For more info on each augmentation type, open their window by selecting them on the list and then click their info";
+            this._instructionText = "For more info on each augmentation type, open their window by selecting them on the list and then click their info";
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
         }
 

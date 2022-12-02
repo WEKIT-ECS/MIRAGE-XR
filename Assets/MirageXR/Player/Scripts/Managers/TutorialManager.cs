@@ -45,14 +45,14 @@ namespace MirageXR
         /// </summary>
         public bool IsTutorialRunning { get; private set; }
 
-        private List<TutorialStep> steps;      
-        private int currentStepNumber;
+        private List<TutorialStep> _steps;
+        private int _currentStepNumber;
 
-        private List<HelpStep> helpSteps;
-        private int currentHelpStep;
+        private List<HelpStep> _helpSteps;
+        private int _currentHelpStep;
 
-        private List<HelpSelection> helpSelections;
-        private int currentHelpSelection;
+        private List<HelpSelection> _helpSelections;
+        private int _currentHelpSelection;
 
         /// <summary>
         /// TutorialButton on the Hololens UI.
@@ -70,26 +70,26 @@ namespace MirageXR
         /// </summary>
         public TutorialObjectHighlighter MobileHighlighter { get; private set; }
 
-        [SerializeField] private HelpSelectionPopup helpSelectionPopup;
+        [SerializeField] private HelpSelectionPopup _helpSelectionPopup;
         /// <summary>
         /// The Popup that states the instruction text of a mobile tutorial step.
         /// Based on the PopupViewer subsystem.
         /// </summary>
-        public HelpSelectionPopup HelpSelectionPopup => helpSelectionPopup;
+        public HelpSelectionPopup HelpSelectionPopup => _helpSelectionPopup;
 
-        [SerializeField] private HelpPopup helpPopup;
+        [SerializeField] private HelpPopup _helpPopup;
         /// <summary>
         /// The Popup that states the instruction text of a mobile tutorial step.
         /// Based on the PopupViewer subsystem.
         /// </summary>
-        public HelpPopup HelpPopup => helpPopup;
+        public HelpPopup HelpPopup => _helpPopup;
 
-        [SerializeField] private TutorialPopup mobilePopup;
+        [SerializeField] private TutorialPopup _mobilePopup;
         /// <summary>
         /// The Popup that states the instruction text of a mobile tutorial step.
         /// Based on the PopupViewer subsystem.
         /// </summary>
-        public TutorialPopup MobilePopup => mobilePopup;
+        public TutorialPopup MobilePopup => _mobilePopup;
 
         private void Awake()
         {
@@ -105,9 +105,9 @@ namespace MirageXR
         private void Start()
         {
             IsTutorialRunning = false;
-            steps = new List<TutorialStep>();
-            helpSteps = new List<HelpStep>();
-            helpSelections = new List<HelpSelection>();
+            _steps = new List<TutorialStep>();
+            _helpSteps = new List<HelpStep>();
+            _helpSelections = new List<HelpSelection>();
             MobileHighlighter = new TutorialObjectHighlighter();
             PopulateHelpStelectionsList();
         }
@@ -131,7 +131,7 @@ namespace MirageXR
                 }
 
                 PopulateStepListForHololens();
-                currentStepNumber = -1;
+                _currentStepNumber = -1;
 
                 NextStep();
             }
@@ -139,9 +139,9 @@ namespace MirageXR
             {
                 IsTutorialRunning = true;
 
-                PopulateStepListForMobileEditing();    
+                PopulateStepListForMobileEditing();
 
-                currentStepNumber = -1;
+                _currentStepNumber = -1;
 
                 NextStep();
             }
@@ -150,7 +150,7 @@ namespace MirageXR
                 IsTutorialRunning = true;
 
                 PopulateStepListForMobileViewing();
-                currentStepNumber = -1;
+                _currentStepNumber = -1;
 
                 NextStep();
             }
@@ -162,51 +162,51 @@ namespace MirageXR
 
         private void PopulateStepListForHololens()
         {
-            steps.Clear();
-            steps.Add(new StepUnlockActivityMenu());
-            steps.Add(new StepDragActivityMenu());
-            steps.Add(new StepLockActivityMenu());
-            steps.Add(new StepCreateNewActivity());
-            steps.Add(new StepDragActionEditor());
-            steps.Add(new StepRenameActivity());
-            steps.Add(new StepCreateNewActionStep());
-            steps.Add(new StepAddActionStepTitle());
-            steps.Add(new StepAddActionStepDescription());
+            _steps.Clear();
+            _steps.Add(new StepUnlockActivityMenu());
+            _steps.Add(new StepDragActivityMenu());
+            _steps.Add(new StepLockActivityMenu());
+            _steps.Add(new StepCreateNewActivity());
+            _steps.Add(new StepDragActionEditor());
+            _steps.Add(new StepRenameActivity());
+            _steps.Add(new StepCreateNewActionStep());
+            _steps.Add(new StepAddActionStepTitle());
+            _steps.Add(new StepAddActionStepDescription());
             //steps.Add(new StepCreateNewAugmentation());
-            steps.Add(new StepSelectLabelAugmentation());
-            steps.Add(new StepEnterLabelText());
-            steps.Add(new StepAddLabelToScene());
-            steps.Add(new StepMoveCreatedLabel());
-            steps.Add(new StepDeleteActionStep());
-            steps.Add(new StepSaveActivity());
-            steps.Add(new StepUploadActivity());
+            _steps.Add(new StepSelectLabelAugmentation());
+            _steps.Add(new StepEnterLabelText());
+            _steps.Add(new StepAddLabelToScene());
+            _steps.Add(new StepMoveCreatedLabel());
+            _steps.Add(new StepDeleteActionStep());
+            _steps.Add(new StepSaveActivity());
+            _steps.Add(new StepUploadActivity());
         }
 
         private void PopulateStepListForMobileEditing()
         {
-            steps.Clear();
-            steps.Add(new MobileStepCreateActivity());
-            steps.Add(new MobileStepClickActivityInfo());
-            steps.Add(new WaitForMobilePageChangeStep());
-            steps.Add(new MobileStepAddActivityName());
-            steps.Add(new MobileStepCreateActionStep());
-            steps.Add(new MobileStepClickActionStepDetails());
-            steps.Add(new WaitForMobilePageChangeStep());
-            steps.Add(new MobileStepAddActionStepTitle());
-            steps.Add(new MobileStepExpandStepDetails());
-            steps.Add(new MobileStepAddActionStepDescription());
-            steps.Add(new MobileStepClickAddStepContent());
+            _steps.Clear();
+            _steps.Add(new MobileStepCreateActivity());
+            _steps.Add(new MobileStepClickActivityInfo());
+            _steps.Add(new WaitForMobilePageChangeStep());
+            _steps.Add(new MobileStepAddActivityName());
+            _steps.Add(new MobileStepCreateActionStep());
+            _steps.Add(new MobileStepClickActionStepDetails());
+            _steps.Add(new WaitForMobilePageChangeStep());
+            _steps.Add(new MobileStepAddActionStepTitle());
+            _steps.Add(new MobileStepExpandStepDetails());
+            _steps.Add(new MobileStepAddActionStepDescription());
+            _steps.Add(new MobileStepClickAddStepContent());
             string message = "This concludes the tutorial! From here " +
                 "you can choose and add different types of augmentations. " +
                 "Have fun trying them all out.";
-            steps.Add(new MobileOnlyDialogStep(message));
+            _steps.Add(new MobileOnlyDialogStep(message));
         }
 
 
         private void PopulateStepListForMobileViewing()
         {
-            steps.Clear();
-            steps.Add(new MobileOnlyDialogStep("Coming soon!"));
+            _steps.Clear();
+            _steps.Add(new MobileOnlyDialogStep("Coming soon!"));
         }
 
         /// <summary>
@@ -216,10 +216,10 @@ namespace MirageXR
         /// </summary>
         public void NextStep()
         {
-            currentStepNumber++;
-            if (currentStepNumber < steps.Count)
+            _currentStepNumber++;
+            if (_currentStepNumber < _steps.Count)
             {
-                steps[currentStepNumber].EnterStep();
+                _steps[_currentStepNumber].EnterStep();
             }
             else
             {
@@ -232,7 +232,7 @@ namespace MirageXR
         /// </summary>
         public void EndTutorial()
         {
-            steps.Clear();
+            _steps.Clear();
             IsTutorialRunning = false;
             if (TutorialButton != null)
             {
@@ -249,9 +249,9 @@ namespace MirageXR
         /// </summary>
         public void CloseTutorial()
         {
-            steps[currentStepNumber].CloseStep();
+            _steps[_currentStepNumber].CloseStep();
 
-            steps.Clear();
+            _steps.Clear();
             IsTutorialRunning = false;
             if (TutorialButton != null)
             {
@@ -280,67 +280,67 @@ namespace MirageXR
 
         private void PopulateHelpStelectionsList()
         {
-            helpSelections.Add(new HelpSelectionActivitySelection());
-            helpSelections.Add(new HelpSelectionNewActivity());
-            helpSelections.Add(new HelpSelectionActivityInfo());
-            helpSelections.Add(new HelpSelectionActivityCalibration());
-            helpSelections.Add(new HelpSelectionActionInfo());
-            helpSelections.Add(new HelpSelectionAddAugmentations());
+            _helpSelections.Add(new HelpSelectionActivitySelection());
+            _helpSelections.Add(new HelpSelectionNewActivity());
+            _helpSelections.Add(new HelpSelectionActivityInfo());
+            _helpSelections.Add(new HelpSelectionActivityCalibration());
+            _helpSelections.Add(new HelpSelectionActionInfo());
+            _helpSelections.Add(new HelpSelectionAddAugmentations());
         }
 
         private void PopulateHelpStepListActivitySelection()
         {
-            helpSteps.Add(new HelpStepSearch());
-            helpSteps.Add(new HelpStepOpenActivity());
-            helpSteps.Add(new HelpStepCreateActivity());
-            helpSteps.Add(new HelpStepLoginRegister());
+            _helpSteps.Add(new HelpStepSearch());
+            _helpSteps.Add(new HelpStepOpenActivity());
+            _helpSteps.Add(new HelpStepCreateActivity());
+            _helpSteps.Add(new HelpStepLoginRegister());
 
         }
 
         private void PopulateHelpStepListNewActivity()
         {
-            helpSteps.Add(new HelpStepChangeActivityTitleAndDescription());
-            helpSteps.Add(new HelpStepActionStep());
-            helpSteps.Add(new HelpStepMultipleSteps());
-            helpSteps.Add(new HelpStepRenameStep());
-            helpSteps.Add(new HelpStepAddStepContent());
-            helpSteps.Add(new HelpStepCopyStep());
+            _helpSteps.Add(new HelpStepChangeActivityTitleAndDescription());
+            _helpSteps.Add(new HelpStepActionStep());
+            _helpSteps.Add(new HelpStepMultipleSteps());
+            _helpSteps.Add(new HelpStepRenameStep());
+            _helpSteps.Add(new HelpStepAddStepContent());
+            _helpSteps.Add(new HelpStepCopyStep());
         }
 
         private void PopulateHelpStepListActivityInfo()
         {
-            helpSteps.Add(new HelpStepActivityInfo());
-            helpSteps.Add(new HelpStepActivityInfo());
+            _helpSteps.Add(new HelpStepActivityInfo());
+            _helpSteps.Add(new HelpStepActivityInfo());
         }
 
         private void PopulateHelpStepListActivityCalibration()
         {
-            helpSteps.Add(new HelpStepWhatIsCalibration());
-            helpSteps.Add(new HelpStepHowToCalibrate());
-            helpSteps.Add(new HelpStepWhyCalibrate());
-            helpSteps.Add(new HelpStepCalibrateImage());
+            _helpSteps.Add(new HelpStepWhatIsCalibration());
+            _helpSteps.Add(new HelpStepHowToCalibrate());
+            _helpSteps.Add(new HelpStepWhyCalibrate());
+            _helpSteps.Add(new HelpStepCalibrateImage());
         }
 
         private void PopulateHelpStepListActionInfo()
         {
-            helpSteps.Add(new HelpStepActionChangeTitleAndDescription());
-            helpSteps.Add(new HelpStepWhatIsAnAugmentation());
-            helpSteps.Add(new HelpStepHowToAddAugmentations());
-            helpSteps.Add(new HelpStepKeepAlive());
+            _helpSteps.Add(new HelpStepActionChangeTitleAndDescription());
+            _helpSteps.Add(new HelpStepWhatIsAnAugmentation());
+            _helpSteps.Add(new HelpStepHowToAddAugmentations());
+            _helpSteps.Add(new HelpStepKeepAlive());
         }
 
 
 
-        public void showHelp(int helpStep)
+        public void ShowHelp(int helpStep)
         {
-            helpSteps[helpStep].EnterStep();
+            _helpSteps[helpStep].EnterStep();
 
-            currentHelpStep = helpStep;
+            _currentHelpStep = helpStep;
         }
 
-        public void showHelpSelection(RootView_v2.HelpPage helpSelection)
+        public void ShowHelpSelection(RootView_v2.HelpPage helpSelection)
         {
-            helpSteps.Clear();
+            _helpSteps.Clear();
 
             int nextStep = 0;
 
@@ -370,16 +370,13 @@ namespace MirageXR
                     PopulateHelpStepListNewActivity();
                     nextStep = 5;
                     break;
-
             }
 
+            _helpSelections[_currentHelpSelection].ExitStep();
 
-            helpSelections[currentHelpSelection].ExitStep();
+            _helpSelections[nextStep].EnterStep();
 
-            helpSelections[nextStep].EnterStep();
-
-            currentHelpSelection = nextStep;
+            _currentHelpSelection = nextStep;
         }
-
     }
 }

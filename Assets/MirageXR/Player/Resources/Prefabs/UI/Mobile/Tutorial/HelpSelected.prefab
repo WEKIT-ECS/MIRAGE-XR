@@ -29,6 +29,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 856918793143640625}
   m_Father: {fileID: 1210706656698896033}
@@ -161,6 +162,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3958071357838138098}
   m_RootOrder: 0
@@ -244,6 +246,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1210706656698896033}
   - {fileID: 7752627425352966153}
@@ -359,8 +362,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canBeClosedByOutTap: 1
-  btnGotIt: {fileID: 9204651916490721972}
-  txtInstruction: {fileID: 7752627425352966152}
+  _btnGotIt: {fileID: 9204651916490721972}
+  _txtInstruction: {fileID: 0}
 --- !u!1 &7635169882453234011
 GameObject:
   m_ObjectHideFlags: 0
@@ -387,6 +390,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1673215944522094732}
   - {fileID: 3958071357838138098}
@@ -700,15 +704,3 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 7245944191251493822}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7752627425352966152 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1087652607176266678, guid: fc2a4ee3cb313bc4e8e0189037cb8acb,
-    type: 3}
-  m_PrefabInstance: {fileID: 7245944191251493822}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

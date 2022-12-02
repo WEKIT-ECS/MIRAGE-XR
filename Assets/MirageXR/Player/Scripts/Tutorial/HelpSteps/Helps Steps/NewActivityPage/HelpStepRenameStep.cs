@@ -9,7 +9,7 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "Tap on edit button below the step and navigate to the Info tab where you can change the title section";
+            this._instructionText = "Tap on edit button below the step and navigate to the Info tab where you can change the title section";
             GameObject Edit = GameObject.Find("EditButton");
 
             Button button = Edit.GetComponent<Button>();

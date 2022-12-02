@@ -11,15 +11,15 @@ namespace MirageXR
     /// </summary>
     public abstract class HelpStep : TutorialStep
     {
-        protected string instructionText;
+        protected string _instructionText;
 
-        public Vector3 pos;
-        public bool shouldMove = false;
+        public Vector3 _position;
+        public bool _shouldMove = false;
 
-        private TutorialPopup popup;
-        private TutorialObjectHighlighter highlighter;
+        private TutorialPopup _popup;
+        private TutorialObjectHighlighter _highlighter;
 
-        private bool isHighlighting = false;
+        private bool _isHighlighting = false;
 
         protected override void SecuredEnterStep()
         {
@@ -49,12 +49,12 @@ namespace MirageXR
 
         protected void SetupInstruction()
         {
-            popup = (TutorialPopup)PopupsViewer.Instance.Show(manager.MobilePopup);
-            popup.SetInstructionText(instructionText);
+            _popup = (TutorialPopup)PopupsViewer.Instance.Show(manager.MobilePopup);
+            _popup.SetInstructionText(_instructionText);
 
-            if (shouldMove)
+            if (_shouldMove)
             {
-                popup.movePopup(pos);
+                _popup.MovePopup(_position);
             }
         }
 
@@ -62,9 +62,9 @@ namespace MirageXR
         {
             if (highlightedObject != null)
             {
-                highlighter = manager.MobileHighlighter;
-                highlighter.Show(highlightedObject);
-                isHighlighting = true;
+                _highlighter = manager.MobileHighlighter;
+                _highlighter.Show(highlightedObject);
+                _isHighlighting = true;
                 EventManager.TutorialPopupCloseClicked += RemoveHighlight;
                 EventManager.HighlightingButtonClicked += RemoveHighlight;
                 EventManager.HighlightingButtonClicked += RemoveInstruction;
@@ -73,12 +73,12 @@ namespace MirageXR
 
         protected void RemoveInstruction()
         {
-            if (popup != null)
+            if (_popup != null)
             {
-                popup.Close();
+                _popup.Close();
             }
 
-            if (isHighlighting)
+            if (_isHighlighting)
             {
                 RemoveHighlight();
                 EventManager.HighlightingButtonClicked -= RemoveInstruction;
@@ -87,12 +87,12 @@ namespace MirageXR
 
         protected void RemoveHighlight()
         {
-            if (isHighlighting)
+            if (_isHighlighting)
             {
-                highlighter.Remove();
+                _highlighter.Remove();
                 EventManager.TutorialPopupCloseClicked -= RemoveHighlight;
                 EventManager.HighlightingButtonClicked -= RemoveHighlight;
-                isHighlighting = false;
+                _isHighlighting = false;
             }
         }
 

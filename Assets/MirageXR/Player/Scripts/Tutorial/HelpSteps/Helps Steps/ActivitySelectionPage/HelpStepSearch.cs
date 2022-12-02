@@ -9,7 +9,7 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "To search for an activity by name, tap the search menu item below.";
+            this._instructionText = "To search for an activity by name, tap the search menu item below.";
             GameObject search = GameObject.Find("Search");
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
 

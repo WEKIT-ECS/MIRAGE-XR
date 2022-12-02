@@ -9,7 +9,7 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "Tap the plus button below to add a new activity.";
+            this._instructionText = "Tap the plus button below to add a new activity.";
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
 
             GameObject Activitytoggle = GameObject.Find("NewActivity");

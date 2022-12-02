@@ -9,10 +9,10 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "";
+            this._instructionText = "";
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
 
-            this.popup.createNewSelectionButton("What are title/description for").onClick.AddListener(titleAndDescription);
+            this._popup.CreateNewSelectionButton("What are title/description for").onClick.AddListener(titleAndDescription);
         }
 
         protected override void Detach()
@@ -23,7 +23,7 @@ namespace MirageXR
         public void titleAndDescription() 
         {
             this.ExitStep();
-            TutorialManager.Instance.showHelp(0);
+            TutorialManager.Instance.ShowHelp(0);
         }
 
 
