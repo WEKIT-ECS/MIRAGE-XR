@@ -16,7 +16,7 @@ PlayerSettings:
   productName: MirageXR
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
-  m_SplashScreenBackgroundColor: {r: 0, g: 0, b: 0, a: 1}
+  m_SplashScreenBackgroundColor: {r: 0.5465804, g: 0.36209506, b: 0.9716981, a: 1}
   m_ShowUnitySplashScreen: 1
   m_ShowUnitySplashLogo: 1
   m_SplashScreenOverlayOpacity: 1
@@ -40,7 +40,9 @@ PlayerSettings:
     width: 1
     height: 1
   m_SplashScreenLogos:
-  - logo: {fileID: 3286163911610860551, guid: bfed20cebad152d44b80e2c6558eb050, type: 3}
+  - logo: {fileID: 21300000, guid: f5a8f87743faa9844a0ff69df19eb225, type: 3}
+    duration: 2
+  - logo: {fileID: 21300000, guid: ece48c44953f2314c93b1ce48f8385f8, type: 3}
     duration: 2
   m_VirtualRealitySplashScreen: {fileID: 2800000, guid: 528562db9897a1447a9e8cb8baab870d,
     type: 3}
@@ -141,9 +143,9 @@ PlayerSettings:
   preloadedAssets:
   - {fileID: 11400000, guid: 5af8949b7209364499abc8979cef0d21, type: 2}
   - {fileID: 0}
+  - {fileID: 4800000, guid: c9f956787b1d945e7b36e0516201fc76, type: 3}
   - {fileID: -1320681756008391923, guid: c24e8192fb4aadc4bbfb2072bb2399b0, type: 2}
   - {fileID: -3831414650097208346, guid: b3a3cc9ae17858f4a9346913737e2188, type: 2}
-  - {fileID: 4800000, guid: c9f956787b1d945e7b36e0516201fc76, type: 3}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -163,14 +165,14 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
-    Android: com.WEKIT.MirageXR
+    Android: com.UnityTestRunner.UnityTestRunner
     Standalone: com.WEKIT.MirageXR
     iPhone: com.WEKIT-ECS.MirageXR
   buildNumber:
     Standalone: 0
     iPhone: 0
     tvOS: 0
-  overrideDefaultApplicationIdentifier: 0
+  overrideDefaultApplicationIdentifier: 1
   AndroidBundleVersionCode: 2168
   AndroidMinSdkVersion: 24
   AndroidTargetSdkVersion: 33

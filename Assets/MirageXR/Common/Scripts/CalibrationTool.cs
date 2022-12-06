@@ -8,7 +8,6 @@ namespace MirageXR
     public class CalibrationTool : MonoBehaviour
     {
         private static float ANIMATION_TIME = 5f;
-        const float RAY_CAST_DISTANCE = 1000000;
 
         public static CalibrationTool Instance { get; private set; }
 

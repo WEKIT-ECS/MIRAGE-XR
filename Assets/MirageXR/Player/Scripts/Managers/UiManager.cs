@@ -9,6 +9,7 @@ namespace MirageXR
     public class UiManager : MonoBehaviour
     {
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
+
         [SerializeField] private bool IsMenuVisible;
         private bool _inAction;
         public bool IsFindActive;
@@ -291,6 +292,7 @@ namespace MirageXR
                     ShowActivityCards();
                     break;
             }
+
             _inAction = true;
         }
 
