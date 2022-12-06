@@ -175,8 +175,7 @@ public class RootView_v2 : BaseView
 
     public void OnInfoClick()
     {
-        Debug.Log("PAGE INDEX = " +_pageView.currentPageIndex);
-        TutorialManager.Instance.showHelpSelection(helpPage);
+        TutorialManager.Instance.ShowHelpSelection(helpPage);
     }
 
     public void OnActivitySettingsClick()
