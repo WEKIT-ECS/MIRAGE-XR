@@ -37,7 +37,7 @@ public class PopupsViewer : MonoBehaviour
         var popup = Instantiate(popupPrefab, transform);
         _stack.Push(popup);
         popup.gameObject.SetActive(false);
-        popup.Init(OnClose, args);
+        popup.Initialization(OnClose, args);
         UpdateView();
 
         return popup;

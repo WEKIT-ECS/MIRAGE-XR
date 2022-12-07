@@ -24,9 +24,9 @@ public class VideoEditorView : PopupEditorBase
     private bool _videoWasRecorded;
     private bool _orientation;
 
-    public override void Init(Action<PopupBase> onClose, params object[] args)
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        base.Init(onClose, args);
+        base.Initialization(onClose, args);
         _btnCaptureVideo.onClick.AddListener(OnStartRecordingVideo);
         _toggleOrientation.onValueChanged.AddListener(OnToggleOrientationValueChanged);
         _toggleTrigger.onValueChanged.AddListener(OnToggleTriggerValueChanged);

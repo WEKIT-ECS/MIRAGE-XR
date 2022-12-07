@@ -1,25 +1,20 @@
 using System.Threading.Tasks;
 using MirageXR;
 using UnityEngine;
-using UnityEngine.UI;
 
 [RequireComponent(typeof(Canvas))]
 public class RootView_v2 : BaseView
 {
     public static RootView_v2 Instance { get; private set; }
 
-    [SerializeField] private Toggle _toggleHome;
-    [SerializeField] private Button _btnProfile;
-    [SerializeField] private Button _btnAddAugmentation;
+    [SerializeField] private BottomPanelView _bottomPanelView;
     [SerializeField] private PageView_v2 _pageView;
     [SerializeField] private CalibrationGuideView _calibrationGuideViewPrefab;
     [SerializeField] public SearchView _searchPrefab;
     [SerializeField] private ProfileView _profilePrefab;
     [SerializeField] private HelpView _helpPrefab;
     [SerializeField] private SettingsView_v2 _activitySettingsPrefab;
-    [SerializeField] private RectTransform _bottomPanel;
     [SerializeField] private LoginView_v2 _loginViewPrefab;
-    [SerializeField] private GameObject _newActivityPanel;
     [SerializeField] private ActivityListView_v2 _activityListView;
     [SerializeField] private ActivityView_v2 _activityView;
     [Space]
@@ -40,10 +35,6 @@ public class RootView_v2 : BaseView
     public ActivityListView_v2 activityListView => _activityListView;
 
     public Dialog dialog => _dialog;
-
-    public GameObject newActivityPanel => _newActivityPanel;
-
-    public RectTransform bottomPanel => _bottomPanel;
 
     private void Awake()
     {
@@ -72,16 +63,17 @@ public class RootView_v2 : BaseView
         EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
         EventManager.onMobileHelpPageChanged += updateHelpPage;
 
-        _toggleHome.isOn = true;
-        _toggleHome.onValueChanged.AddListener(OnStepsClick);
-        _btnProfile.onClick.AddListener(OnProfileClick);
-        _btnAddAugmentation.onClick.AddListener(AddAugmentation);
-        _pageView.OnPageChanged.AddListener(OnPageChanged);
 
-        EventManager.OnActivityStarted += OnActivityLoaded;
-
+        _bottomPanelView.Initialization(this);
         _activityView.Initialization(this);
         _activityListView.Initialization(this);
+
+        _bottomPanelView.SetHomeActive(true);
+
+        _pageView.OnPageChanged.AddListener(OnPageChanged);
+
+        EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
+        EventManager.OnActivityStarted += OnActivityLoaded;
 
         if (!DBManager.LoggedIn && DBManager.rememberUser)
         {
@@ -125,13 +117,11 @@ public class RootView_v2 : BaseView
         switch (index)
         {
             case 0:
-                _toggleHome.isOn = true;
-                _btnAddAugmentation.gameObject.SetActive(true);
+                _bottomPanelView.SetHomeActive(true);
                 EventManager.NotifyMobileHelpPageChanged(HelpPage.Home);
                 break;
             case 1:
-                _toggleHome.isOn = true;
-                _btnAddAugmentation.gameObject.SetActive(false);
+                _bottomPanelView.SetHomeActive(false);
                 EventManager.NotifyMobileHelpPageChanged(HelpPage.ActivitySteps);
                 break;
         }
@@ -142,38 +132,43 @@ public class RootView_v2 : BaseView
         _pageView.currentPageIndex = 1;
     }
 
-    private void OnStepsClick(bool value)
+    public void ShowBaseView()
     {
-        if (value)
-        {
-            _pageView.currentPageIndex = 0;
-        }
+        _pageView.gameObject.SetActive(true);
+        _bottomPanelView.Show();
     }
 
-    private void OnProfileClick()
+    public void HideBaseView()
+    {
+        _pageView.gameObject.SetActive(false);
+        _bottomPanelView.Hide();
+    }
+
+    public void ShowProfileView()
     {
         PopupsViewer.Instance.Show(_profilePrefab);
     }
 
-    public void OnHomeClick(bool value)
+    public async void CreateNewActivity()
     {
-        if (value)
-        {
-            _pageView.currentPageIndex = 1;
-        }
+        LoadView.Instance.Show();
+        await RootObject.Instance.editorSceneService.LoadEditorAsync();
+        await RootObject.Instance.activityManager.CreateNewActivity();
+        _pageView.currentPageIndex = 1;
+        LoadView.Instance.Hide();
     }
 
-    private void AddAugmentation()
+    public void ShowHomeView()
     {
         _pageView.currentPageIndex = 1;
     }
 
-    public void OnSearchClick()
+    public void ShowSearchView()
     {
         PopupsViewer.Instance.Show(_searchPrefab, _activityListView);
     }
 
-    public void OnInfoClick()
+    public void ShowHelpView()
     {
         TutorialManager.Instance.ShowHelpSelection(helpPage);
     }

@@ -22,9 +22,9 @@ public class ProfileView : PopupBase
     [SerializeField] private Button _btnSelectLRS;
     [SerializeField] private TMP_Text _txtConnectedLRS;
 
-    public override void Init(Action<PopupBase> onClose, params object[] args)
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        base.Init(onClose, args);
+        base.Initialization(onClose, args);
 
         _inputFieldUserName.SetValidator(IsValidUsername);
         _inputFieldPassword.SetValidator(IsValidPassword);

@@ -8,8 +8,8 @@ public class TempStart : MonoBehaviour
     [Serializable]
     public class LoadObject
     {
-        public GameObject prefab;
-        public Transform pathToLoad;
+        public GameObject _prefab;
+        public Transform _pathToLoad;
     }
 
     [SerializeField] private LoadObject[] oldPrefab;
@@ -41,13 +41,13 @@ public class TempStart : MonoBehaviour
 
     private static void InstantiateObject(LoadObject loadObject)
     {
-        if (loadObject.pathToLoad)
+        if (loadObject._pathToLoad)
         {
-            Instantiate(loadObject.prefab, loadObject.pathToLoad);
+            Instantiate(loadObject._prefab, loadObject._pathToLoad);
         }
         else
         {
-            Instantiate(loadObject.prefab);
+            Instantiate(loadObject._prefab);
         }
     }
 }

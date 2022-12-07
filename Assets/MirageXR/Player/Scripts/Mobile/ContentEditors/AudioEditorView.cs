@@ -46,9 +46,9 @@ public class AudioEditorView : PopupEditorBase
     private bool _isPlaying;
 
 
-    public override void Init(Action<PopupBase> onClose, params object[] args)
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        base.Init(onClose, args);
+        base.Initialization(onClose, args);
 
         _toggle3D.isOn = false;
         _toggleLoop.isOn = false;

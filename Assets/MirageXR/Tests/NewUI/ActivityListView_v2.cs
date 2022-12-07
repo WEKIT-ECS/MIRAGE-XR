@@ -9,18 +9,16 @@ using UnityEngine.UI;
 
 public class ActivityListView_v2 : BaseView
 {
-    public static ActivityListView_v2 Instance { get; private set; }
-
     [SerializeField] private Button _btnFilter;
     [SerializeField] private Transform _listTransform;
     [SerializeField] private ActivityListItem_v2 _smallItemPrefab;
     [SerializeField] private ActivityListItem_v2 _bigItemPrefab;
-
-    [SerializeField] private Button _btnNewActivity;
     [SerializeField] private SortingView _sortingPrefab;
 
     [Space]
     [SerializeField] private Button _btnArrow;
+    [SerializeField] private Button _btnBackToActivity;
+    [SerializeField] private Button _btnRestartActivity;
     [SerializeField] private RectTransform _panel;
     [SerializeField] private GameObject _arrowDown;
     [SerializeField] private GameObject _arrowUp;
@@ -31,26 +29,11 @@ public class ActivityListView_v2 : BaseView
 
     public List<SessionContainer> content => _content;
 
-    private void Awake()
-    {
-        if (Instance != null)
-        {
-            Debug.LogError($"{nameof(Instance.GetType)} must only be a single copy!");
-            return;
-        }
-
-        Instance = this;
-    }
-
-    private void OnDestroy()
-    {
-        Instance = null;
-    }
-
     public override void Initialization(BaseView parentView)
     {
         _btnFilter.onClick.AddListener(OnByDateClick);
-        _btnNewActivity.onClick.AddListener(OnNewActivityChanged);
+        _btnBackToActivity.onClick.AddListener(OnBacktoActivityButton);
+        _btnRestartActivity.onClick.AddListener(OnRestartActivityButton);
 
         _btnArrow.onClick.AddListener(ArrowBtnPressed);
         _arrowDown.SetActive(true);
@@ -122,7 +105,25 @@ public class ActivityListView_v2 : BaseView
 
     private void OnByDateClick()
     {
-        PopupsViewer.Instance.Show(_sortingPrefab);
+        PopupsViewer.Instance.Show(_sortingPrefab, this);
+    }
+
+    private void OnBacktoActivityButton()
+    {
+        RootView_v2.Instance.OnActivityLoaded();
+    }
+
+    private void OnRestartActivityButton()
+    {
+        RestartActivityAsync().AsAsyncVoid();
+    }
+
+    private async Task RestartActivityAsync()
+    {
+        LoadView.Instance.Show();
+        RootView_v2.Instance.OnActivityLoaded();
+        await RootObject.Instance.activityManager.ActivateFirstAction();
+        LoadView.Instance.Hide();
     }
 
     private async void OnNewActivityChanged()
