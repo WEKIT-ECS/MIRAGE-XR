@@ -29,9 +29,9 @@ public class SearchView : PopupBase
 
     private SearchType _selectedSearchType;
 
-    public override void Init(Action<PopupBase> onClose, params object[] args)
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        base.Init(onClose, args);
+        base.Initialization(onClose, args);
 
         if (_activityListView)
         {

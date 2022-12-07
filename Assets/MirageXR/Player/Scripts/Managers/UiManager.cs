@@ -9,6 +9,7 @@ namespace MirageXR
     public class UiManager : MonoBehaviour
     {
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
+
         [SerializeField] private bool IsMenuVisible;
         private bool _inAction;
         public bool IsFindActive;
@@ -91,8 +92,8 @@ namespace MirageXR
             ClearDebug();
             HideDebug();
             HideMenu();
-            WelcomeMessage = "";
-            CalibrationTool.Instance.Reset();
+            WelcomeMessage = string.Empty;
+            CalibrationTool.Instance.isEnabled = false;
         }
 
         private void MoveActivityList()
@@ -255,32 +256,32 @@ namespace MirageXR
             // Add a small delay just be sure that the message is stopped.
             await Task.Delay(250);
 
-            CalibrationTool.Instance.SetPlayer();
+            if (PlatformManager.Instance.WorldSpaceUi)
+            {
+                CalibrationTool.Instance.isEnabled = true;
+            }
 
             if (IsCalibrated)
             {
-                if (!string.IsNullOrEmpty(WelcomeMessage))
-                    Maggie.Speak(WelcomeMessage);
-                else
-                    Maggie.Speak("Activity loaded and ready to be started.");
+                Maggie.Speak(!string.IsNullOrEmpty(WelcomeMessage) ? WelcomeMessage : "Activity loaded and ready to be started.");
             }
             else
             {
                 // Nag.
-                //Maggie.Speak("Workplace anchors have not been calibrated. Please run the calibration before starting the activity.");
+                // Maggie.Speak("Workplace anchors have not been calibrated. Please run the calibration before starting the activity.");
                 CreateCalibrationGuide();
 
                 // Hile loading text
                 Loading.Instance.LoadingVisibility(false);
             }
 
-            //EventManager.ActivityLoadedStamp(SystemInfo.deviceUniqueIdentifier, activityManager.Activity.id, System.DateTime.UtcNow.ToUniversalTime().ToString());
+            // EventManager.ActivityLoadedStamp(SystemInfo.deviceUniqueIdentifier, activityManager.Activity.id, System.DateTime.UtcNow.ToUniversalTime().ToString());
         }
 
         private void ActivityStarted()
         {
             //WelcomeMessage = activityManager.Activity;
-            CalibrationTool.Instance.Reset();
+            CalibrationTool.Instance.isEnabled = false;
 
             switch (PlayerPrefs.GetString("uistyle"))
             {
@@ -291,6 +292,7 @@ namespace MirageXR
                     ShowActivityCards();
                     break;
             }
+
             _inAction = true;
         }
 

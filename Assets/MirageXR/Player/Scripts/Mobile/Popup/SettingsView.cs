@@ -17,9 +17,9 @@ public class SettingsView : PopupBase
     [SerializeField] private Button _btnReset;
     [SerializeField] private Dropdown _learningRecordStoreDropdown;
 
-    public override void Init(Action<PopupBase> onClose, params object[] args)
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        base.Init(onClose, args);
+        base.Initialization(onClose, args);
         _txtVersion.text = string.Format(VERSION_FORMAT, Application.version);
         _inputFieldMoodleAddress.SetValidator(IsValidUrl);
         _inputFieldMoodleAddress.inputField.onValueChanged.AddListener(OnValueChangedMoodleAddress);

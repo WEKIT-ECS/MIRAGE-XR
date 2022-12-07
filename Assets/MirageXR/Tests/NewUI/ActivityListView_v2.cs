@@ -9,14 +9,11 @@ using UnityEngine.UI;
 
 public class ActivityListView_v2 : BaseView
 {
-    public static ActivityListView_v2 Instance { get; private set; }
-
     [SerializeField] private Button _btnFilter;
     [SerializeField] private Transform _listTransform;
     [SerializeField] private ActivityListItem_v2 _smallItemPrefab;
     [SerializeField] private ActivityListItem_v2 _bigItemPrefab;
 
-    [SerializeField] private Button _btnNewActivity;
     [SerializeField] private SortingView _sortingPrefab;
 
     [Space]
@@ -32,22 +29,6 @@ public class ActivityListView_v2 : BaseView
     private bool _interactable = true;
 
     public List<SessionContainer> content => _content;
-
-    private void Awake()
-    {
-        if (Instance != null)
-        {
-            Debug.LogError($"{nameof(Instance.GetType)} must only be a single copy!");
-            return;
-        }
-
-        Instance = this;
-    }
-
-    private void OnDestroy()
-    {
-        Instance = null;
-    }
 
     public override void Initialization(BaseView parentView)
     {
@@ -126,7 +107,7 @@ public class ActivityListView_v2 : BaseView
 
     private void OnByDateClick()
     {
-        PopupsViewer.Instance.Show(_sortingPrefab);
+        PopupsViewer.Instance.Show(_sortingPrefab, this);
     }
 
     private void OnBacktoActivityButton()
