@@ -362,7 +362,7 @@ namespace MirageXR
         private bool IsGazeTrigger()
         {
             return activityManager.ActiveAction.triggers.Find(t => t.id == Annotation.poi) != null
-                   && Annotation.predicate != "video" && Annotation.predicate != "audio" && !Annotation.predicate.StartsWith("char");
+                   && Annotation.predicate != "video" && Annotation.predicate != "audio" && !Annotation.predicate.StartsWith("char") && Annotation.predicate != "pickandplace";
         }
 
 

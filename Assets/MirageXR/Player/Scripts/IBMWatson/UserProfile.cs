@@ -12,7 +12,11 @@ public class UserProfile : MonoBehaviour
 
     [SerializeField] private string Name;
 
-    public enum gender { male, female };
+    public enum gender
+    {
+        male, female
+    }
+
     public gender Gender;
 
     public int Age;
@@ -24,27 +28,27 @@ public class UserProfile : MonoBehaviour
     public enum cancers
     {
 
-    };
+    }
     public cancers CancerType;
 
     public enum Frequency
     {
         threeMonths,
         threeToSixMonths
-    };
+    }
     public Frequency PhysicalExerciseFrequency;
     public Frequency ExerciseFrequency;
 
-    public enum feelings { good, bad };
+    public enum feelings { good, bad }
     public feelings Feeling;
 
-    public enum TreatmentTime { };
+    public enum TreatmentTime { }
     public TreatmentTime treated;
 
-    public enum CVdiseases { };
+    public enum CVdiseases { }
     public CVdiseases CardiovascularDiseases;
 
-    public enum pains { };
+    public enum pains { }
     public pains Pain;
 
     // -  -  -  -  -  -  -  -  -  -  -  -  -  -

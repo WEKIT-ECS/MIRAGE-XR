@@ -487,7 +487,7 @@ GameObject:
   - component: {fileID: 3665785102704556292}
   - component: {fileID: 4185368009574995308}
   m_Layer: 30
-  m_Name: NewActivity
+  m_Name: Create
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1067,6 +1067,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8784741215722865873}
   - component: {fileID: 8784741215722865876}
+  - component: {fileID: 3207944297261921981}
   - component: {fileID: 8784741215722865874}
   - component: {fileID: 18987521698260615}
   - component: {fileID: 7286346169691993419}
@@ -1110,6 +1111,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8784741215722865872}
   m_CullTransparentMesh: 0
+--- !u!114 &3207944297261921981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8784741215722865872}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85a7e0dec15876441a315062c1e3cffa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _toggleHome: {fileID: 7144714271642672573}
+  _btnProfile: {fileID: 1851362030015517597}
+  _btnCreate: {fileID: 4185368009574995308}
+  _btnSearch: {fileID: 3684357907188201550}
+  _btnHelp: {fileID: 5768817197312200646}
 --- !u!114 &8784741215722865874
 MonoBehaviour:
   m_ObjectHideFlags: 0

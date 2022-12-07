@@ -38,9 +38,9 @@ public class ThumbnailEditorView : PopupBase
         return true;
     }
 
-    public override void Init(Action<PopupBase> onClose, params object[] args)
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        base.Init(onClose, args);
+        base.Initialization(onClose, args);
         _btnCaptureImage.onClick.AddListener(OnCaptureImage);
         _btnAccept.onClick.AddListener(OnAccept);
         _btnClose.onClick.AddListener(Close);
