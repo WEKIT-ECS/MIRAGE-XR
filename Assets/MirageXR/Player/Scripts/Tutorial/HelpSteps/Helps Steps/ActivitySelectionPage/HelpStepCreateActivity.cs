@@ -12,7 +12,7 @@ namespace MirageXR
             this._instructionText = "Tap the plus button below to add a new activity.";
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
 
-            GameObject Activitytoggle = GameObject.Find("NewActivity");
+            GameObject Activitytoggle = GameObject.Find("Create");
 
             Button button = Activitytoggle.GetComponent<Button>();
             if (button != null)
