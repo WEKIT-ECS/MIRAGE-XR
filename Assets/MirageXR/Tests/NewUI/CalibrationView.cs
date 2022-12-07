@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using DG.Tweening;
 using MirageXR;
-using TiltBrush;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

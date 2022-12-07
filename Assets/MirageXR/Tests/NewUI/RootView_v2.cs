@@ -49,7 +49,6 @@ public class RootView_v2 : BaseView
     {
         base.Initialization(parentView);
 
-
         _bottomPanelView.Initialization(this);
         _activityView.Initialization(this);
         _activityListView.Initialization(this);
@@ -111,7 +110,7 @@ public class RootView_v2 : BaseView
         }
     }
 
-    private void OnActivityLoaded()
+    public void OnActivityLoaded()
     {
         _pageView.currentPageIndex = 1;
     }

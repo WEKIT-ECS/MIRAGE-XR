@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using System.Threading.Tasks;
 using MirageXR;
-using TiltBrush;
+using UnityEngine;
 
 /// <summary>
 /// Just used for MirageXR player testing.
