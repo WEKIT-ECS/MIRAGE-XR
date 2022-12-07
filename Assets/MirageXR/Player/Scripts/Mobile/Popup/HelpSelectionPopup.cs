@@ -19,9 +19,9 @@ namespace MirageXR
         /// Sets the text that is going to be shown on the popup.
         /// </summary>
         /// <param name="text">The instruction text to be shown.</param>
-        public override void Init(Action<PopupBase> onClose, params object[] args)
+        public override void Initialization(Action<PopupBase> onClose, params object[] args)
         {
-            base.Init(onClose, args);
+            base.Initialization(onClose, args);
             _btnGotIt.onClick.AddListener(GotItOnClick);
         }
 
