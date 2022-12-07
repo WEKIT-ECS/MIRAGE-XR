@@ -191,7 +191,7 @@ public class ContentListView_v2 : BaseView
             if (_list.Count <= i)
             {
                 var obj = Instantiate(_contentListItemPrefab, _listContent);
-                obj.Init(this);
+                obj.Init(this, OnAnnotationSelected);
                 _list.Add(obj);
             }
 
@@ -217,5 +217,10 @@ public class ContentListView_v2 : BaseView
     {
         _currentStep.instruction.description = newDescription;
         EventManager.NotifyActionModified(_currentStep);
+    }
+
+    private void OnAnnotationSelected(ToggleObject annotation)
+    {
+        ActionEditor.Instance.CapturePickArrowTarget(annotation, ActionEditor.Instance.pickArrowModelCapturing.Item2);
     }
 }

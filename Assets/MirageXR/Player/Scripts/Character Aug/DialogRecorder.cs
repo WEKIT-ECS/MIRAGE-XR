@@ -30,7 +30,8 @@ namespace MirageXR
             return _audioSource.clip.length;
         }
 
-        public string DialogSaveName {
+        public string DialogSaveName
+        {
             get; set;
         }
 
@@ -63,7 +64,7 @@ namespace MirageXR
 
             // For character who has lipsync the audio source is added to the object with ThreeLSControl component
             var threeLSControl = MyCharacter.GetComponentInChildren<ThreeLSControl>();
-            if(threeLSControl)
+            if (threeLSControl)
             {
                 _audioSource = threeLSControl.GetComponent<AudioSource>();
             }
@@ -75,7 +76,7 @@ namespace MirageXR
             MyCharacter.GetComponent<CharacterController>().AudioEditorCheck();
             _audioEditor = MyCharacter.MyAudioEditor;
 
-            if(_audioEditor != null)
+            if (_audioEditor != null)
             {
                 _audioEditor.DialogRecorderPanel = this;
                 _audioSource.loop = LoopToggle.isOn;
@@ -122,7 +123,7 @@ namespace MirageXR
 
         public void UpdateLoopStatus()
         {
-            if(_audioSource)
+            if (_audioSource)
                 _audioSource.loop = LoopToggle.isOn;
         }
 
@@ -131,7 +132,7 @@ namespace MirageXR
             if (_audioSource == null) return;
 
             // if a dialog is already recorded
-            if(_audioSource.clip == null)
+            if (_audioSource.clip == null)
             {
                 recordButton.SetActive(activityManager.EditModeActive);
                 stopButton.SetActive(!activityManager.EditModeActive);
@@ -164,7 +165,7 @@ namespace MirageXR
             closeButton.SetActive(false);
             LoopToggle.gameObject.SetActive(false);
 
-            if(_audioEditor)
+            if (_audioEditor)
                 _audioEditor.Close();
         }
 
@@ -190,7 +191,7 @@ namespace MirageXR
 
             if (AIIsActiveInThisScene)
             {
-                /// give the info and close
+                // give the info and close
                 DialogWindow.Instance.Show("Info!",
                 "For recordeing an audio, you need to deactivate AI on all characters in this step.",
                 new DialogButtonContent("Ok"));
@@ -199,7 +200,7 @@ namespace MirageXR
 
             if (RecordingIsActiveInThisScene)
             {
-                /// give the info and close
+                // give the info and close
                 DialogWindow.Instance.Show("Info!",
                 "You are recording audio using another character. Please stop recording there first.",
                 new DialogButtonContent("Ok"));
@@ -237,8 +238,8 @@ namespace MirageXR
             {
                 _audioSource.Stop();
                 isPlaying = false;
-            }                
-            else if(isRecording)
+            }
+            else if (isRecording)
             {
                 _audioEditor.StopRecording();
                 _audioEditor.OnAccept();
@@ -268,7 +269,7 @@ namespace MirageXR
 
         public void StopDialog()
         {
-            if(_audioSource)
+            if (_audioSource)
                 _audioSource.Stop();
         }
     }

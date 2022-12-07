@@ -5,7 +5,7 @@ namespace MirageXR
 {
     public class CalibrationMarker : MonoBehaviour
     {
-        private bool calibratorSpawned = false;
+        private bool _calibratorSpawned = false;
         [SerializeField] private GameObject calibrator;
         [SerializeField] private GameObject selectionMenu;
 
@@ -26,15 +26,15 @@ namespace MirageXR
 
         public void SpawnCalibrator()
         {
-            if (!calibratorSpawned)
+            if (!_calibratorSpawned)
             {
                 calibrator.SetActive(true);
-                calibratorSpawned = true;
+                _calibratorSpawned = true;
             }
             else
             {
                 calibrator.SetActive(false);
-                calibratorSpawned = false;
+                _calibratorSpawned = false;
             }
 
         }
