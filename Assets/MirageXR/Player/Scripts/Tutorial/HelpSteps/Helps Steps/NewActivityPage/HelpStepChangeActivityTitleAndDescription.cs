@@ -10,7 +10,19 @@ namespace MirageXR
         protected override void Init()
         {
             this._instructionText = "Tap on the Info tab and add a title and description";
-            this.highlightedObject = GameObject.Find("Second");
+
+            GameObject info = GameObject.Find("Second");
+            this.highlightedObject = info;
+
+            Toggle toggle = info.GetComponent<Toggle>();
+
+            if (toggle != null)
+            {
+                toggle.onValueChanged.AddListener(ToggleExit);
+            }
+
+            this._shouldMove = true;
+
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
         }
 
@@ -24,6 +36,11 @@ namespace MirageXR
             Detach();
             RemoveHighlight();
             RemoveInstruction();
+        }
+
+        private void ToggleExit(bool toggle)
+        {
+            SecuredExitStep();
         }
     }
 }

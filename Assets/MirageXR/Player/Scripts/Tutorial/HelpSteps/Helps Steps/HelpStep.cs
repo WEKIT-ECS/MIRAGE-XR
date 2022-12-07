@@ -13,7 +13,7 @@ namespace MirageXR
     {
         protected string _instructionText;
 
-        public Vector3 _position;
+        public float _position;
         public bool _shouldMove = false;
 
         private TutorialPopup _popup;
@@ -54,7 +54,7 @@ namespace MirageXR
 
             if (_shouldMove)
             {
-                _popup.MovePopup(_position);
+                _popup.MovePopup(this.highlightedObject.transform.position.y);
             }
         }
 

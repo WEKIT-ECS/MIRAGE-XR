@@ -13,6 +13,9 @@ namespace MirageXR
 
             GameObject add = GameObject.Find("AddButton");
 
+            Transform content = add.transform.parent.transform.parent;
+            content.localPosition = new Vector3(content.localPosition.x, 0, content.localPosition.z);
+
             Button button = add.GetComponent<Button>();
             if (button != null)
             {
@@ -21,8 +24,6 @@ namespace MirageXR
 
             this.highlightedObject = add;
             this._shouldMove = true;
-            this._position = new Vector3(0, 0, 0);
-           
 
             EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
         }
