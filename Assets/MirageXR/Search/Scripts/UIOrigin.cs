@@ -11,19 +11,19 @@ public class UIOrigin : MonoBehaviour
     [SerializeField] private LayerMask floorLayer;
 
     // the object that the placement should follow
-    private Transform followTarget;
+    private Transform _followTarget;
 
-    private float heightOffset = 1.75f;
-    private Vector3 currentPosition;
+    private float _heightOffset = 1.75f;
+    private Vector3 _currentPosition;
 
-    private List<float> raycastResults = new List<float>();
+    private List<float> _raycastResults = new List<float>();
 
     /// <summary>
     /// Singleton instance of the placement script
     /// </summary>
     public static UIOrigin Instance { get; private set; }
 
-    public float CurrentFloorYPosition() { return currentPosition.y; }
+    public float CurrentFloorYPosition() { return _currentPosition.y; }
 
     // Sets the main camera as the target that the aura should follow
     private void Awake()
@@ -31,27 +31,27 @@ public class UIOrigin : MonoBehaviour
         Instance = this;
 
         // Attach mixed reality camera as the follow target.
-        followTarget = GameObject.FindWithTag("MainCamera").transform;
+        _followTarget = GameObject.FindWithTag("MainCamera").transform;
     }
 
     // initializes the currentPosition vector
     private void Start()
     {
-        currentPosition = Vector3.zero;
-        currentPosition.y = followTarget.position.y - heightOffset;
+        _currentPosition = Vector3.zero;
+        _currentPosition.y = _followTarget.position.y - _heightOffset;
     }
 
     // Updates the position of the aura
     // Calculates the floor height and puts the aura onto the floor
     private void Update()
     {
-        currentPosition.x = followTarget.position.x;
-        currentPosition.z = followTarget.position.z;
+        _currentPosition.x = _followTarget.position.x;
+        _currentPosition.z = _followTarget.position.z;
 
-        currentPosition.y = GetFloorHeight(followTarget.position, 0.75f, 6) + 0.03f;
+        _currentPosition.y = GetFloorHeight(_followTarget.position, 0.75f, 6) + 0.03f;
 
-        transform.position = currentPosition;
-        transform.rotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(followTarget.forward, Vector3.up).normalized, Vector3.up);
+        transform.position = _currentPosition;
+        transform.rotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(_followTarget.forward, Vector3.up).normalized, Vector3.up);
     }
 
     // Calculates the floor height
@@ -63,7 +63,7 @@ public class UIOrigin : MonoBehaviour
     {
         float minimumValue = centerPos.y;
 
-        raycastResults.Clear();
+        _raycastResults.Clear();
 
         // create rays circular around a center position with a given radius
 
@@ -82,7 +82,7 @@ public class UIOrigin : MonoBehaviour
             Debug.DrawLine(raycastOrigin, raycastOrigin + 2f * ray.direction);
             if (Physics.Raycast(ray, out RaycastHit hit, 2f, floorLayer))
             {
-                raycastResults.Add(hit.point.y);
+                _raycastResults.Add(hit.point.y);
                 minimumValue = Mathf.Min(minimumValue, hit.point.y);
             }
         }
@@ -90,20 +90,20 @@ public class UIOrigin : MonoBehaviour
         float floorHeight;
 
         // if we did not find the floor with any raycast, we just take a default height were we assume the floor to be
-        if (raycastResults.Count == 0)
+        if (_raycastResults.Count == 0)
         {
-            floorHeight = centerPos.y - heightOffset;
+            floorHeight = centerPos.y - _heightOffset;
         }
         // otherwise: take the lowest point, span a 20cm zone above it and take the highest floor hit in this zone
         else
         {
             floorHeight = minimumValue;
             float threshold = minimumValue + 0.2f;
-            for (int i = 0; i < raycastResults.Count; i++)
+            for (int i = 0; i < _raycastResults.Count; i++)
             {
-                if (raycastResults[i] <= threshold)
+                if (_raycastResults[i] <= threshold)
                 {
-                    floorHeight = Mathf.Max(floorHeight, raycastResults[i]);
+                    floorHeight = Mathf.Max(floorHeight, _raycastResults[i]);
                 }
             }
         }

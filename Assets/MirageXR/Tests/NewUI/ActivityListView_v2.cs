@@ -18,6 +18,8 @@ public class ActivityListView_v2 : BaseView
 
     [Space]
     [SerializeField] private Button _btnArrow;
+    [SerializeField] private Button _btnBackToActivity;
+    [SerializeField] private Button _btnRestartActivity;
     [SerializeField] private RectTransform _panel;
     [SerializeField] private GameObject _arrowDown;
     [SerializeField] private GameObject _arrowUp;
@@ -31,6 +33,10 @@ public class ActivityListView_v2 : BaseView
     public override void Initialization(BaseView parentView)
     {
         _btnFilter.onClick.AddListener(OnByDateClick);
+        _btnNewActivity.onClick.AddListener(OnNewActivityChanged);
+        _btnBackToActivity.onClick.AddListener(OnBacktoActivityButton);
+        _btnRestartActivity.onClick.AddListener(OnRestartActivityButton);
+
         _btnArrow.onClick.AddListener(ArrowBtnPressed);
         _arrowDown.SetActive(true);
         _arrowUp.SetActive(false);
@@ -102,6 +108,25 @@ public class ActivityListView_v2 : BaseView
     private void OnByDateClick()
     {
         PopupsViewer.Instance.Show(_sortingPrefab, this);
+    }
+
+    private void OnBacktoActivityButton()
+    {
+        RootView_v2.Instance.OnActivityLoaded();
+    }
+
+    private void OnRestartActivityButton()
+    {
+        RootView_v2.Instance.OnActivityLoaded();
+        RootObject.Instance.activityManager.ActivateFirstAction();
+    }
+
+    private async void OnNewActivityChanged()
+    {
+        LoadView.Instance.Show();
+        await RootObject.Instance.editorSceneService.LoadEditorAsync();
+        await RootObject.Instance.activityManager.CreateNewActivity();
+        LoadView.Instance.Hide();
     }
 
     private void ArrowBtnPressed()
