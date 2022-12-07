@@ -9,6 +9,9 @@ using UnityEngine.UI;
 
 public class ActivityListView_v2 : BaseView
 {
+    private const float HIDED_SIZE = 100f;
+    private const float HIDE_ANIMATION_TIME = 0.5f;
+
     [SerializeField] private Button _btnFilter;
     [SerializeField] private Transform _listTransform;
     [SerializeField] private ActivityListItem_v2 _smallItemPrefab;
@@ -26,18 +29,25 @@ public class ActivityListView_v2 : BaseView
     private List<SessionContainer> _content;
     private readonly List<ActivityListItem_v2> _items = new List<ActivityListItem_v2>();
     private bool _interactable = true;
+    private Vector2 _panelSize;
 
     public List<SessionContainer> content => _content;
 
+    private RootView_v2 rootView => (RootView_v2)_parentView;
+
     public override void Initialization(BaseView parentView)
     {
+        base.Initialization(parentView);
+
         _btnFilter.onClick.AddListener(OnByDateClick);
-        _btnBackToActivity.onClick.AddListener(OnBacktoActivityButton);
+        _btnBackToActivity.onClick.AddListener(OnBackToActivityButton);
         _btnRestartActivity.onClick.AddListener(OnRestartActivityButton);
 
-        _btnArrow.onClick.AddListener(ArrowBtnPressed);
+        _btnArrow.onClick.AddListener(OnArrowButtonPressed);
         _arrowDown.SetActive(true);
         _arrowUp.SetActive(false);
+
+        _panelSize = _panel.sizeDelta;
 
         EventManager.OnActivitySaved += FetchAndUpdateView;
 
@@ -108,7 +118,7 @@ public class ActivityListView_v2 : BaseView
         PopupsViewer.Instance.Show(_sortingPrefab, this);
     }
 
-    private void OnBacktoActivityButton()
+    private void OnBackToActivityButton()
     {
         RootView_v2.Instance.OnActivityLoaded();
     }
@@ -134,19 +144,21 @@ public class ActivityListView_v2 : BaseView
         LoadView.Instance.Hide();
     }
 
-    private void ArrowBtnPressed()
+    private void OnArrowButtonPressed()
     {
         if (_arrowDown.activeSelf)
         {
-            _panel.DOAnchorPos(new Vector2(0, -1100), 0.25f);
+            _panel.DOSizeDelta(new Vector2(_panelSize.x, -_panel.rect.height + HIDED_SIZE), HIDE_ANIMATION_TIME);
             _arrowDown.SetActive(false);
             _arrowUp.SetActive(true);
+            rootView.bottomPanelView.Hide();
         }
         else
         {
-            _panel.DOAnchorPos(new Vector2(0, -60), 0.25f);
+            _panel.DOSizeDelta(_panelSize, 0.5f);
             _arrowDown.SetActive(true);
             _arrowUp.SetActive(false);
+            rootView.bottomPanelView.Show();
         }
     }
 }
