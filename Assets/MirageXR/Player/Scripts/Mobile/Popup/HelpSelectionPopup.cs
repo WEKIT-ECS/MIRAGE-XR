@@ -38,16 +38,17 @@ namespace MirageXR
             TutorialManager.Instance.ShowHelp(1);
         }
 
-        public Button CreateNewSelectionButton(string title) {
-
+        public Button CreateNewSelectionButton(string title)
+        {
             var button = Instantiate(_selectionButton, Vector3.zero, Quaternion.identity) as Button;
             var rectTransform = button.GetComponent<RectTransform>();
             rectTransform.SetParent(gameObject.transform);
             rectTransform.offsetMin = Vector2.zero;
             rectTransform.offsetMax = Vector2.zero;
             rectTransform.sizeDelta = new Vector2(400, 50);
-            rectTransform.localScale = new Vector3(2,2,2);
+            rectTransform.localScale = new Vector3(1,1,1);
             rectTransform.localPosition = new Vector3(rectTransform.position.x, rectTransform.position.y, 0);
+
             rectTransform.GetComponent<TMP_Text>().text = title;
 
             return button;

@@ -42,9 +42,12 @@ namespace MirageXR
             return true;
         }
 
-        public void MovePopup(Vector3 pos)
+        public void MovePopup(float pos)
         {
-            gameObject.transform.position = pos;
+            var rectTransform = (RectTransform)gameObject.transform;
+            var newY = pos - (rectTransform.rect.height / 2);
+
+            gameObject.transform.position = new Vector3(gameObject.transform.position.x, newY, gameObject.transform.position.z);
         }
 
     }
