@@ -18,9 +18,9 @@ public class LoginView : PopupBase
     [SerializeField] private GameObject[] _loginObjects;
     [SerializeField] private GameObject[] _logoutObjects;
 
-    public override void Init(Action<PopupBase> onClose, params object[] args)
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        base.Init(onClose, args);
+        base.Initialization(onClose, args);
 
         _inputFieldUserName.SetValidator(IsValidUsername);
         _inputFieldPassword.SetValidator(IsValidPassword);

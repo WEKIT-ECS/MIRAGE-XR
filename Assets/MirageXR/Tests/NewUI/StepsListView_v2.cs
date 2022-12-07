@@ -6,7 +6,7 @@ using TiltBrush;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Action = MirageXR.Action;
+using Content = MirageXR.Action;
 
 public class StepsListView_v2 : BaseView
 {
@@ -22,6 +22,8 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private Button _btnBack;
     [SerializeField] private Button _btnSettings;
     [SerializeField] private Button _btnThumbnail;
+    [SerializeField] private Button _btnCalibration;
+    [SerializeField] private Button _btnRecalibration;
     [SerializeField] private Image _imgThumbnail;
     [SerializeField] private GameObject _defaultThumbnail;
     [SerializeField] private Toggle _toggleSteps;
@@ -30,6 +32,9 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private GameObject _steps;
     [SerializeField] private GameObject _info;
     [SerializeField] private GameObject _calibration;
+    [SerializeField] private GameObject _first;
+    [SerializeField] private GameObject _second;
+    [SerializeField] private CalibrationView _calibrationViewPrefab;
     [SerializeField] private SettingsView_v2 _settingsViewPrefab;
     [SerializeField] private StepsListItem_v2 _stepsListItemPrefab;
     [SerializeField] private ThumbnailEditorView _thumbnailEditorPrefab;
@@ -46,6 +51,8 @@ public class StepsListView_v2 : BaseView
 
         _btnAddStep.onClick.AddListener(OnAddStepClick);
         _btnThumbnail.onClick.AddListener(OnThumbnailButtonPressed);
+        _btnCalibration.onClick.AddListener(OnCalibrationPressed);
+        _btnRecalibration.onClick.AddListener(OnCalibrationPressed);
 
         _toggleSteps.onValueChanged.AddListener(OnToggleStepValueChanged);
         _toggleInfo.onValueChanged.AddListener(OnToggleInfoValueChanged);
@@ -60,17 +67,20 @@ public class StepsListView_v2 : BaseView
         EventManager.OnActionDeleted += OnActionDeleted;
         EventManager.OnActionModified += OnActionChanged;
         EventManager.OnEditModeChanged += OnEditModeChanged;
+        EventManager.OnWorkplaceCalibrated += OnWorkplaceCalibrated;
 
         UpdateView();
     }
 
     private void OnDestroy()
     {
+        EventManager.OnActivityStarted -= OnActivityStarted;
         EventManager.OnWorkplaceLoaded -= OnStartActivity;
         EventManager.OnActionCreated -= OnActionCreated;
         EventManager.OnActionDeleted -= OnActionDeleted;
         EventManager.OnActionModified -= OnActionChanged;
         EventManager.OnEditModeChanged -= OnEditModeChanged;
+        EventManager.OnWorkplaceCalibrated -= OnWorkplaceCalibrated;
     }
 
     private void OnStartActivity()
@@ -122,7 +132,7 @@ public class StepsListView_v2 : BaseView
 
     private void OnSettingsPressed()
     {
-        _settingsViewPrefab.Show();
+        PopupsViewer.Instance.Show(_settingsViewPrefab);
     }
 
     private void OnToggleStepValueChanged(bool value)
@@ -163,7 +173,7 @@ public class StepsListView_v2 : BaseView
         _imgThumbnail.sprite = sprite;
     }
 
-    public void OnDeleteStepClick(Action step, System.Action deleteCallback = null)
+    public void OnDeleteStepClick(Content step, System.Action deleteCallback = null)
     {
         if (activityManager.ActionsOfTypeAction.Count > 1)
         {
@@ -176,12 +186,12 @@ public class StepsListView_v2 : BaseView
         }
     }
 
-    private void OnStepClick(Action step)
+    private void OnStepClick(Content step)
     {
         activityManager.ActivateActionByID(step.id).AsAsyncVoid();
     }
 
-    private async void OnStepEditClick(Action step)
+    private async void OnStepEditClick(Content step)
     {
         await activityManager.ActivateActionByID(step.id);
         _activityView.ShowStepContent();
@@ -201,29 +211,36 @@ public class StepsListView_v2 : BaseView
         _stepsList.ForEach(t => t.OnEditModeChanged(value));
     }
 
+    private void OnWorkplaceCalibrated()
+    {
+        _first.SetActive(false);
+        _second.SetActive(true);
+    }
+
     private async void AddStep()
     {
         await activityManager.AddAction(Vector3.zero);
     }
 
-    private void OnActionCreated(Action action)
+    private void OnActionCreated(Content action)
     {
         UpdateView();
     }
 
-    private void OnActionChanged(Action action)
+    private void OnActionChanged(Content action)
     {
         UpdateView();
     }
 
     private void OnActivityStarted()
     {
+        _first.SetActive(true);
+        _second.SetActive(false);
         UpdateView();
     }
 
     private void OnActionDeleted(string actionId)
     {
-        //activityManager.ActivateNextAction();
         UpdateView();
     }
 
@@ -245,7 +262,7 @@ public class StepsListView_v2 : BaseView
 
     private void OpenGallery()
     {
-        //not implemented
+        // not implemented
     }
 
     private void OnThumbnailAccepted(string path)
@@ -262,5 +279,30 @@ public class StepsListView_v2 : BaseView
     private void OnActivityDescriptionChanged(string description)
     {
         activityManager.Activity.description = description;
+    }
+
+    private void OnCalibrationPressed()
+    {
+        RootView_v2.Instance.dialog.ShowBottomMultiline(null, ("Start Calibration", ShowCalibrationView), ("Get Calibration Image", ShareCalibrationImage));
+    }
+
+    private void ShareCalibrationImage()
+    {
+        // not implemented
+    }
+
+    private void ShowCalibrationView()
+    {
+        PopupsViewer.Instance.Show(_calibrationViewPrefab, (System.Action)OnCalibrationViewOpened, (System.Action)OnCalibrationViewClosed);
+    }
+
+    private void OnCalibrationViewOpened()
+    {
+        RootView_v2.Instance.HideBaseView();
+    }
+
+    private void OnCalibrationViewClosed()
+    {
+        RootView_v2.Instance.ShowBaseView();
     }
 }

@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class SettingsView_v2 : PopupBase
 {
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
+
     private static MoodleManager moodleManager => RootObject.Instance.moodleManager;
 
     //public RootView rootView => (RootView)_parentView;
@@ -18,14 +19,9 @@ public class SettingsView_v2 : PopupBase
     [SerializeField] private Button _btnSave;
     [SerializeField] private Button _btnPreview;
 
-    public void Show()
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        PopupsViewer.Instance.Show(this);
-    }
-
-    public override void Init(Action<PopupBase> onClose, params object[] args)
-    {
-        base.Init(onClose, args);
+        base.Initialization(onClose, args);
 
         _togglePublicUpload.onValueChanged.AddListener(OnValueChangedPublicUpload);
         _toggleLocalSave.onValueChanged.AddListener(OnValueChangedSavetoggle);

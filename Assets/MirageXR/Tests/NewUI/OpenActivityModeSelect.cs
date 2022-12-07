@@ -12,9 +12,9 @@ public class OpenActivityModeSelect : PopupBase
 
     private ActivityListItem_v2 _connectedObject;
 
-    public override void Init(Action<PopupBase> onClose, params object[] args)
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        base.Init(onClose, args);
+        base.Initialization(onClose, args);
 
         _editToggle.onValueChanged.AddListener(OnEditToggle);
         _viewToggle.onValueChanged.AddListener(OnViewToggle);
