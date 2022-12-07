@@ -13,7 +13,6 @@ public class ActivityListView_v2 : BaseView
     [SerializeField] private Transform _listTransform;
     [SerializeField] private ActivityListItem_v2 _smallItemPrefab;
     [SerializeField] private ActivityListItem_v2 _bigItemPrefab;
-
     [SerializeField] private SortingView _sortingPrefab;
 
     [Space]
@@ -33,7 +32,6 @@ public class ActivityListView_v2 : BaseView
     public override void Initialization(BaseView parentView)
     {
         _btnFilter.onClick.AddListener(OnByDateClick);
-        _btnNewActivity.onClick.AddListener(OnNewActivityChanged);
         _btnBackToActivity.onClick.AddListener(OnBacktoActivityButton);
         _btnRestartActivity.onClick.AddListener(OnRestartActivityButton);
 
@@ -117,8 +115,15 @@ public class ActivityListView_v2 : BaseView
 
     private void OnRestartActivityButton()
     {
+        RestartActivityAsync().AsAsyncVoid();
+    }
+
+    private async Task RestartActivityAsync()
+    {
+        LoadView.Instance.Show();
         RootView_v2.Instance.OnActivityLoaded();
-        RootObject.Instance.activityManager.ActivateFirstAction();
+        await RootObject.Instance.activityManager.ActivateFirstAction();
+        LoadView.Instance.Hide();
     }
 
     private async void OnNewActivityChanged()
