@@ -10,7 +10,6 @@ namespace MirageXR
         protected override void Init()
         {
             this._instructionText = "Tap on the Info tab and add a title and description";
-
             GameObject info = GameObject.Find("Second");
             this.highlightedObject = info;
 
