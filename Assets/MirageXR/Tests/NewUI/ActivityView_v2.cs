@@ -5,26 +5,22 @@ using UnityEngine.UI;
 
 public class ActivityView_v2 : BaseView
 {
+    private const float HIDED_SIZE = 100f;
+    private const float HIDE_ANIMATION_TIME = 0.5f;
+
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
-    [Space]
     [SerializeField] private Button _btnArrow;
-    [SerializeField] private Button _nextButton;
-    [SerializeField] private Button _prevButton;
     [SerializeField] private RectTransform _panel;
     [SerializeField] private GameObject _arrowDown;
     [SerializeField] private GameObject _arrowUp;
-    [SerializeField] private GameObject _topButtons;
-    [SerializeField] private GameObject _toggles;
-    [SerializeField] private GameObject _navigationButtons;
-    [SerializeField] private GameObject _homeToggels;
     [SerializeField] private GameObject _backToActivity;
-    [SerializeField] private GameObject _content;
     [SerializeField] private Toggle _toggleEdit;
     [SerializeField] private StepsListView_v2 _stepsListView;
     [SerializeField] private ContentListView_v2 _contentListView;
 
     private int _infoStepNumber;
+    private Vector2 _panelSize;
 
     public StepsListView_v2 stepsListView => _stepsListView;
 
@@ -39,15 +35,14 @@ public class ActivityView_v2 : BaseView
 
         _toggleEdit.onValueChanged.AddListener(OnEditToggleValueChanged);
 
-        _btnArrow.onClick.AddListener(ArrowBtnPressed);
-        _nextButton.onClick.AddListener(NextOnPressed);
-        _prevButton.onClick.AddListener(PrevOnPressed);
+        _btnArrow.onClick.AddListener(OnArrowButtonPressed);
 
         _arrowDown.SetActive(true);
         _arrowUp.SetActive(false);
 
         _contentListView.Initialization(this);
         _stepsListView.Initialization(this);
+        _panelSize = _panel.sizeDelta;
 
         EventManager.OnEditModeChanged += OnEditModeChanged;
 
@@ -68,6 +63,8 @@ public class ActivityView_v2 : BaseView
     {
         rootView.OnBackToHome();
         _backToActivity.SetActive(true);
+        rootView.bottomPanelView.Show();
+        rootView.bottomNavigationArrowsView.Hide();
     }
 
     private void OnEditToggleValueChanged(bool value)
@@ -92,45 +89,32 @@ public class ActivityView_v2 : BaseView
         _stepsListView.gameObject.SetActive(true);
     }
 
-    //private void OnStartCalibrationClick()
-    //{
-    //    PopupsViewer.Instance.Show(_startCalibrationPanel);
-    //}
-
-    private void ArrowBtnPressed()
+    private void OnArrowButtonPressed()
     {
         if (_arrowDown.activeSelf)
         {
-            _panel.DOAnchorPos(new Vector2(0, -1100), 0.25f);
+            _panel.DOSizeDelta(new Vector2(_panelSize.x, -_panel.rect.height + HIDED_SIZE), HIDE_ANIMATION_TIME);
             _arrowDown.SetActive(false);
-            SetActiveObjects(false);
+            _arrowUp.SetActive(true);
+            rootView.bottomPanelView.Hide();
+            rootView.bottomNavigationArrowsView.Show();
         }
         else
         {
-            _panel.DOAnchorPos(new Vector2(0, -120), 0.25f);
+            _panel.DOSizeDelta(_panelSize, 0.5f);
             _arrowDown.SetActive(true);
-
-            SetActiveObjects(true);
+            _arrowUp.SetActive(false);
+            rootView.bottomPanelView.Show();
+            rootView.bottomNavigationArrowsView.Hide();
         }
     }
 
-    private void SetActiveObjects(bool active)
-    {
-        _toggles.SetActive(active);
-        _topButtons.SetActive(active);
-        _homeToggels.SetActive(active);
-        _content.SetActive(active);
-
-        _arrowUp.SetActive(!active);
-        _navigationButtons.SetActive(!active);
-    }
-
-    private void NextOnPressed()
+    public void ActivateNextAction()
     {
         activityManager.ActivateNextAction();
     }
 
-    private void PrevOnPressed()
+    public void ActivatePreviousAction()
     {
         activityManager.ActivatePreviousAction();
     }
