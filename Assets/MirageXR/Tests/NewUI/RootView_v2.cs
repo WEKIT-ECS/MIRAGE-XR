@@ -162,9 +162,9 @@ public class RootView_v2 : BaseView
     public void ShowHelpView()
     {
         var queue = new Queue<TutorialModel>();
-        queue.Enqueue(new TutorialModel { id = "tutorial_1_1", message = "1 message", relativePosition = new Vector2(0.5f, 0.7f) });
-        queue.Enqueue(new TutorialModel { id = "tutorial_1_2", message = "2 message", relativePosition = new Vector2(0.5f, 0.3f) });
-        queue.Enqueue(new TutorialModel { id = "tutorial_1_3", message = "3 message", relativePosition = new Vector2(0.5f, 0.3f) });
+        queue.Enqueue(new TutorialModel { id = "tutorial_1_1", message = "1 message" });
+        queue.Enqueue(new TutorialModel { id = "tutorial_1_2", message = "2 message", position = TutorialModel.MessagePosition.Bottom });
+        queue.Enqueue(new TutorialModel { id = "tutorial_1_3", message = "3 message", position = TutorialModel.MessagePosition.Top });
 
         _tutorial.Show(queue);
         //PopupsViewer.Instance.Show(_helpPrefab);
