@@ -55,10 +55,10 @@ public class ContentListItem_v2 : MonoBehaviour
     {
         RootView_v2.Instance.dialog.ShowBottomMultiline("Settings", 
             ("Edit", EditContent, false),
+            ("Locate", LocateContent, false),
             ("Rename", RenameContent, false),
             ($"Keep alive {_from}-{_to}", ChangeKeepAlive, false),
             ("Delete", DeleteContent, true));
-        
     }
 
     private void OnListItemPressed()
@@ -77,6 +77,11 @@ public class ContentListItem_v2 : MonoBehaviour
         }
 
         PopupsViewer.Instance.Show(editor, _parentView.currentStep, _content);
+    }
+
+    private void LocateContent()
+    {
+        _parentView.navigatorId = _parentView.navigatorId != _content.poi ? _content.poi : null;
     }
 
     private void RenameContent()
