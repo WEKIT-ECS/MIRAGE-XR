@@ -34,6 +34,7 @@ public class Tutorial : MonoBehaviour
 
     private Queue<TutorialModel> _queue;
     private TutorialMessageView _lastMessageView;
+    private TutorialItem _lastCopy;
 
     protected void Start()
     {
@@ -55,6 +56,18 @@ public class Tutorial : MonoBehaviour
 
     public void Hide()
     {
+        if (_lastMessageView)
+        {
+            Destroy(_lastMessageView.gameObject);
+            _lastMessageView = null;
+        }
+
+        if (_lastCopy)
+        {
+            Destroy(_lastCopy.gameObject);
+            _lastCopy = null;
+        }
+
         _backgroundCanvasGroup.gameObject.SetActive(false);
         _panel.gameObject.SetActive(false);
     }
@@ -83,8 +96,8 @@ public class Tutorial : MonoBehaviour
             var item = await FindTutorialItem(model.id);
             if (item)
             {
-                var copy = CopyTutorialItem(item);
-                SetUpCopy(item, copy);
+                _lastCopy = CopyTutorialItem(item);
+                SetUpCopy(item, _lastCopy);
             }
             else
             {
@@ -108,10 +121,7 @@ public class Tutorial : MonoBehaviour
 
     private void OnMessageViewButtonClicked(TutorialModel model)
     {
-        if (!model.hasId)
-        {
-            Next();
-        }
+        Hide();
     }
 
     private async Task<TutorialItem> FindTutorialItem(string id)
@@ -172,6 +182,12 @@ public class Tutorial : MonoBehaviour
     {
         item.button.onClick.Invoke();
         copy.StopTracking();
+
+        if (_lastCopy == copy)
+        {
+            _lastCopy = null;
+        }
+
         Destroy(copy.gameObject);
         if (_lastMessageView)
         {
