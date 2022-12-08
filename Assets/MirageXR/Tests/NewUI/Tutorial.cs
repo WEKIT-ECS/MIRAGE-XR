@@ -33,6 +33,7 @@ public class Tutorial : MonoBehaviour
     [SerializeField] private RectTransform[] _searchRoots;
 
     private Queue<TutorialModel> _queue;
+    private TutorialMessageView _lastMessageView;
 
     protected void Start()
     {
@@ -94,7 +95,7 @@ public class Tutorial : MonoBehaviour
 
         if (model.hasMessage)
         {
-            ShowMessage(model);
+            _lastMessageView = ShowMessage(model);
         }
     }
 
@@ -172,6 +173,12 @@ public class Tutorial : MonoBehaviour
         item.button.onClick.Invoke();
         copy.StopTracking();
         Destroy(copy.gameObject);
+        if (_lastMessageView)
+        {
+            Destroy(_lastMessageView.gameObject);
+            _lastMessageView = null;
+        }
+
         Next();
     }
 }
