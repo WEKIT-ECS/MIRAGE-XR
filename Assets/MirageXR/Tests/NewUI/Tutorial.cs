@@ -1,24 +1,31 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DG.Tweening;
 using MirageXR;
 using UnityEngine;
 
 public class TutorialModel
 {
+    public enum MessagePosition
+    {
+        Top,
+        Middle,
+        Bottom
+    }
+
     public bool hasId => !string.IsNullOrEmpty(id);
 
     public bool hasMessage => !string.IsNullOrEmpty(message);
 
     public string id;
     public string message;
-    public Vector2 relativePosition = new Vector2(0.5f, 0.5f); // from 0.0f to 1.0f
+    public MessagePosition position = MessagePosition.Middle;
 }
 
 public class Tutorial : MonoBehaviour
 {
-    private const float AnimationFadeTime = 0.1f;
+    private const int MAX_TRY_COUNT = 40;
+    private const int WAIT_IN_MILLISECONDS = 250;
 
     [SerializeField] private CanvasGroup _backgroundCanvasGroup;
     [SerializeField] private RectTransform _panel;
@@ -58,10 +65,9 @@ public class Tutorial : MonoBehaviour
 
     private async Task NextAsync()
     {
-        await Task.Yield();
         if (_queue.Count != 0)
         {
-            ShowItem(_queue.Dequeue());
+            await ShowItem(_queue.Dequeue());
         }
         else
         {
@@ -69,11 +75,11 @@ public class Tutorial : MonoBehaviour
         }
     }
 
-    private void ShowItem(TutorialModel model)
+    private async Task ShowItem(TutorialModel model, int tryCount = 0)
     {
         if (model.hasId)
         {
-            var item = FindTutorialItem(model.id);
+            var item = await FindTutorialItem(model.id);
             if (item)
             {
                 var copy = CopyTutorialItem(item);
@@ -107,21 +113,26 @@ public class Tutorial : MonoBehaviour
         }
     }
 
-    private TutorialItem FindTutorialItem(string id)
+    private async Task<TutorialItem> FindTutorialItem(string id)
     {
-        foreach (var searchRoot in _searchRoots)
+        for (int i = 0; i < MAX_TRY_COUNT; i++)
         {
-            var items = searchRoot.GetComponentsInChildren<TutorialItem>();
-            if (items == null)
+            foreach (var searchRoot in _searchRoots)
             {
-                continue;
+                var items = searchRoot.GetComponentsInChildren<TutorialItem>();
+                if (items == null)
+                {
+                    continue;
+                }
+
+                var item = items.FirstOrDefault(t => t.id == id);
+                if (item)
+                {
+                    return item;
+                }
             }
 
-            var item = items.FirstOrDefault(t => t.id == id);
-            if (item)
-            {
-                return item;
-            }
+            await Task.Delay(WAIT_IN_MILLISECONDS);
         }
 
         return null;
@@ -129,6 +140,11 @@ public class Tutorial : MonoBehaviour
 
     private TutorialItem CopyTutorialItem(TutorialItem item)
     {
+        if (item.isPartOfScrollView)
+        {
+            item.ScrollToTop();
+        }
+
         var copyItem = Instantiate(item, _panel, true);
 
         return copyItem;
@@ -147,24 +163,15 @@ public class Tutorial : MonoBehaviour
             copy.toggle.onValueChanged.RemoveAllListeners();
             copy.toggle.onValueChanged.AddListener(value => OnCopyClicked(item, copy));
         }
+
+        copy.StartTracking(item.transform);
     }
 
     private void OnCopyClicked(TutorialItem item, TutorialItem copy)
     {
         item.button.onClick.Invoke();
+        copy.StopTracking();
         Destroy(copy.gameObject);
         Next();
-    }
-
-    private async Task ShowAnimation()
-    {
-        _backgroundCanvasGroup.alpha = 0.0f;
-        await _backgroundCanvasGroup.DOFade(1.0f, AnimationFadeTime).AsyncWaitForCompletion();
-    }
-
-    private async Task HideAnimation()
-    {
-        _backgroundCanvasGroup.alpha = 1.0f;
-        await _backgroundCanvasGroup.DOFade(0, AnimationFadeTime).AsyncWaitForCompletion();
     }
 }

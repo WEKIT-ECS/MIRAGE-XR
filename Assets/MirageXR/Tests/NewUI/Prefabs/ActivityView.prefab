@@ -505,17 +505,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _btnArrow: {fileID: 606785286919405235}
-  _nextButton: {fileID: 0}
-  _prevButton: {fileID: 0}
   _panel: {fileID: 3962559163701727825}
   _arrowDown: {fileID: 934973780048964906}
   _arrowUp: {fileID: 2814829010217319243}
-  _topButtons: {fileID: 2542900067017355583}
-  _toggles: {fileID: 363511629212851062}
-  _navigationButtons: {fileID: 0}
-  _homeToggels: {fileID: 0}
   _backToActivity: {fileID: 0}
-  _content: {fileID: 888533598670337611}
   _toggleEdit: {fileID: 1366869585191445071}
   _stepsListView: {fileID: 8899920766602325070}
   _contentListView: {fileID: 2734096444768614957}
@@ -1155,30 +1148,33 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5b0ba590e1ce62f489258ada7b769e87, type: 3}
---- !u!1 &363511629212851062 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8069162574147212032, guid: 5b0ba590e1ce62f489258ada7b769e87,
-    type: 3}
-  m_PrefabInstance: {fileID: 7705693586177607798}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &888533598670337611 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7396225487407808061, guid: 5b0ba590e1ce62f489258ada7b769e87,
-    type: 3}
-  m_PrefabInstance: {fileID: 7705693586177607798}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &888533599361811175 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7396225486489815697, guid: 5b0ba590e1ce62f489258ada7b769e87,
     type: 3}
   m_PrefabInstance: {fileID: 7705693586177607798}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &2542900067017355583 stripped
+--- !u!1 &5256203330298226479 stripped
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 5312608592757373257, guid: 5b0ba590e1ce62f489258ada7b769e87,
+  m_CorrespondingSourceObject: {fileID: 2450475422647447385, guid: 5b0ba590e1ce62f489258ada7b769e87,
     type: 3}
   m_PrefabInstance: {fileID: 7705693586177607798}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &6369315370940781823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5256203330298226479}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _id: tutorial_1_2
+  _interactableObject: {fileID: 5256203330298226479}
+  _isPartOfScrollView: 1
 --- !u!114 &8899920766602325070 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1257280233257264184, guid: 5b0ba590e1ce62f489258ada7b769e87,

@@ -3,8 +3,15 @@ using UnityEngine.UI;
 
 public class TutorialItem : MonoBehaviour
 {
+    private const float THRESHOLD_CHANGE = 0.05f;
+
     [SerializeField] private string _id;
     [SerializeField] private GameObject _interactableObject;
+    [SerializeField] private bool _isPartOfScrollView;
+
+    private Vector3 _lastTraceablePosition;
+    private bool _isЕrackingActivated;
+    private Transform _traceable;
 
     public string id => _id;
 
@@ -12,17 +19,50 @@ public class TutorialItem : MonoBehaviour
 
     public Toggle toggle => _interactableObject.GetComponent<Toggle>();
 
-    //public string pathToButton => GetPathToButton();
+    public bool isPartOfScrollView => _isPartOfScrollView;
 
-    //private string GetPathToButton()
-    //{
-    //    var parent = _interactableObject.transform;
-    //    var stringBuilder = new StringBuilder();
-    //    do
-    //    {
-    //        stringBuilder.Insert(0, $"\\{parent.name}");
-    //    } while (parent != transform);
+    private void Update()
+    {
+        if (!_isЕrackingActivated)
+        {
+            return;
+        }
 
-    //    return stringBuilder.ToString();
-    //}
+        var diffVector = _traceable.position - _lastTraceablePosition;
+        if (diffVector.magnitude >= THRESHOLD_CHANGE)
+        {
+            _lastTraceablePosition = transform.position;
+            OnTraceablePositionChanged();
+        }
+    }
+
+    private void OnTraceablePositionChanged()
+    {
+        transform.position = _traceable.position;
+    }
+
+    public void StartTracking(Transform traceable)
+    {
+        _isЕrackingActivated = true;
+        _traceable = traceable;
+        _lastTraceablePosition = transform.position;
+    }
+
+    public void StopTracking()
+    {
+        _isЕrackingActivated = false;
+        _traceable = null;
+    }
+
+    public void ScrollToTop()
+    {
+        if (_isPartOfScrollView)
+        {
+            var scrollRect = GetComponentInParent<ScrollRect>();
+            if (scrollRect)
+            {
+                scrollRect.verticalNormalizedPosition = 1f;
+            }
+        }
+    }
 }
