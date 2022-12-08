@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MirageXR;
 using UnityEngine;
@@ -20,6 +22,7 @@ public class RootView_v2 : BaseView
     [SerializeField] private ActivityView_v2 _activityView;
     [Space]
     [SerializeField] private Dialog _dialog;
+    [SerializeField] private Tutorial _tutorial;
 
     public ActivityListView_v2 activityListView => _activityListView;
 
@@ -158,7 +161,13 @@ public class RootView_v2 : BaseView
 
     public void ShowHelpView()
     {
-        PopupsViewer.Instance.Show(_helpPrefab);
+        var queue = new Queue<TutorialModel>();
+        queue.Enqueue(new TutorialModel { id = "tutorial_1_1", message = "1 message", relativePosition = new Vector2(0.5f, 0.7f) });
+        queue.Enqueue(new TutorialModel { id = "tutorial_1_2", message = "2 message", relativePosition = new Vector2(0.5f, 0.3f) });
+        queue.Enqueue(new TutorialModel { id = "tutorial_1_3", message = "3 message", relativePosition = new Vector2(0.5f, 0.3f) });
+
+        _tutorial.Show(queue);
+        //PopupsViewer.Instance.Show(_helpPrefab);
     }
 
     public void OnActivitySettingsClick()
