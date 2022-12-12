@@ -44,7 +44,7 @@ public class LoginView_v2 : PopupBase
         _btnRegister.onClick.AddListener(OnClickRegister);
         _btnLogin.onClick.AddListener(OnClickLogin);
         _btnGoToLogin.onClick.AddListener(OnGoToLoginPressed);
-        _btnSkipLogin.onClick.AddListener(EnterAsGuest);
+        _btnSkipLogin.onClick.AddListener(OnEnterAsGuest);
         _btnBack.onClick.AddListener(OnClickBack);
         _toggleRemember.onValueChanged.AddListener(OnToggleRememberValueChanged);
 
@@ -83,13 +83,12 @@ public class LoginView_v2 : PopupBase
     private void OnEnable()
     {
         ResetValues();
-    }   
-    
-    private void EnterAsGuest()
+    }
+
+    private void OnEnterAsGuest()
     {
         Instantiate(_onboardingPrefab);
         Close();
-        
     }
 
     private void OnGoToLoginPressed()
