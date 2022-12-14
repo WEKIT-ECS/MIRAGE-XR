@@ -179,14 +179,15 @@ public class RootView_v2 : BaseView
     public void ShowHelpView()
     {
 
-        TutorialManager.Instance.ShowHelpSelection(helpPage);
+        //TutorialManager.Instance.ShowHelpSelection(helpPage);
         
-        //var queue = new Queue<TutorialModel>();
-        //queue.Enqueue(new TutorialModel { id = "tutorial_1_1", message = "1 message" });
-        //queue.Enqueue(new TutorialModel { id = "tutorial_1_2", message = "2 message", position = TutorialModel.MessagePosition.Bottom });
-        //queue.Enqueue(new TutorialModel { id = "tutorial_1_3", message = "3 message", position = TutorialModel.MessagePosition.Top });
+        var queue = new Queue<TutorialModel>();
+        //queue.Enqueue(new TutorialModel { id = "activity_create", message = "Press here to create an activity." });
+        //queue.Enqueue(new TutorialModel { id = "activity_info", message = "Press to add info to activity", position = TutorialModel.MessagePosition.Bottom });
+        queue.Enqueue(new TutorialModel { id = "activity_title", message = "3 message", position = TutorialModel.MessagePosition.Bottom });
+        queue.Enqueue(new TutorialModel { id = "activity_description", message = "4 message", position = TutorialModel.MessagePosition.Top });
+        _tutorial.Show(queue);
 
-        //_tutorial.Show(queue);
         //PopupsViewer.Instance.Show(_helpPrefab);
     }
 

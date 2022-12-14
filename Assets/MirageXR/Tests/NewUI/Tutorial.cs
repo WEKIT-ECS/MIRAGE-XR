@@ -97,7 +97,7 @@ public class Tutorial : MonoBehaviour
             if (item)
             {
                 _lastCopy = CopyTutorialItem(item);
-                SetUpCopy(item, _lastCopy);
+                SetUpTargetCopy(item, _lastCopy);
             }
             else
             {
@@ -156,31 +156,72 @@ public class Tutorial : MonoBehaviour
             item.ScrollToTop();
         }
 
-        var copyItem = Instantiate(item, _panel, true);
+        if (item.inputField)
+        {
+            GameObject hbPrefab = Resources.Load("prefabs/UI/Mobile/Tutorial/HighlightButton", typeof(GameObject)) as GameObject;
+            GameObject target = item.gameObject;
+            var highlightButton = Object.Instantiate(hbPrefab, target.transform.position, target.transform.rotation);
+            highlightButton.transform.SetParent(RootView_v2.Instance.transform);
+            //highlightButton.transform.SetPositionAndRotation(target.transform.position, target.transform.rotation);
+            highlightButton.transform.localScale = target.transform.localScale;
 
-        return copyItem;
+            var rectTransform = (RectTransform)target.transform;
+
+            if (rectTransform)
+            {
+                var height = rectTransform.rect.height;
+                var width = rectTransform.rect.width;
+
+                var copyRectTransform = (RectTransform)highlightButton.transform;
+                copyRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+                copyRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
+                copyRectTransform.SetPositionAndRotation(target.transform.position, target.transform.rotation);
+            }
+
+            var copyItem = highlightButton.AddComponent<TutorialItem>();
+            return copyItem;
+        }
+        else
+        {
+            var copyItem = Instantiate(item, _panel, true);
+            return copyItem;
+        }
     }
 
-    private void SetUpCopy(TutorialItem item, TutorialItem copy)
+    private void SetUpTargetCopy(TutorialItem item, TutorialItem copy)
     {
         if (item.button)
         {
             copy.button.onClick.RemoveAllListeners();
-            copy.button.onClick.AddListener(() => OnCopyClicked(item, copy));
+            copy.button.onClick.AddListener(() => OnTargetCopyClicked(item, copy));
         }
 
         if (item.toggle)
         {
             copy.toggle.onValueChanged.RemoveAllListeners();
-            copy.toggle.onValueChanged.AddListener(value => OnCopyClicked(item, copy));
+            copy.toggle.onValueChanged.AddListener(value => OnTargetCopyClicked(item, copy));
+        }
+
+        if (item.inputField)
+        {
+            HighlightingButton higBtn = copy.gameObject.GetComponent<HighlightingButton>();
+            higBtn.SetTarget(item.inputField);
+            higBtn.Btn.onClick.AddListener(() => OnTargetCopyClicked(item, copy));
         }
 
         copy.StartTracking(item.transform);
     }
 
-    private void OnCopyClicked(TutorialItem item, TutorialItem copy)
+    private void OnTargetCopyClicked(TutorialItem item, TutorialItem copy)
     {
-        item.button.onClick.Invoke();
+        if (item.button)
+        {
+            item.button.onClick.Invoke();
+        }
+        if (item.toggle)
+        {
+            item.toggle.onValueChanged.Invoke(true);
+        }
         copy.StopTracking();
 
         if (_lastCopy == copy)
