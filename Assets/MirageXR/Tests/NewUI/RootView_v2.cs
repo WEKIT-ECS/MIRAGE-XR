@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MirageXR;
 using UnityEngine;
@@ -8,6 +10,7 @@ public class RootView_v2 : BaseView
     public static RootView_v2 Instance { get; private set; }
 
     [SerializeField] private BottomPanelView _bottomPanelView;
+    [SerializeField] private BottomNavigationArrowsView _bottomNavigationArrowsView;
     [SerializeField] private PageView_v2 _pageView;
     [SerializeField] private CalibrationGuideView _calibrationGuideViewPrefab;
     [SerializeField] public SearchView _searchPrefab;
@@ -19,6 +22,7 @@ public class RootView_v2 : BaseView
     [SerializeField] private ActivityView_v2 _activityView;
     [Space]
     [SerializeField] private Dialog _dialog;
+    [SerializeField] private Tutorial _tutorial;
 
     public enum HelpPage {
         Home, 
@@ -33,6 +37,12 @@ public class RootView_v2 : BaseView
     private static HelpPage helpPage;
 
     public ActivityListView_v2 activityListView => _activityListView;
+
+    public ActivityView_v2 activityView => _activityView;
+
+    public BottomPanelView bottomPanelView => _bottomPanelView;
+
+    public BottomNavigationArrowsView bottomNavigationArrowsView => _bottomNavigationArrowsView;
 
     public Dialog dialog => _dialog;
 
@@ -65,10 +75,12 @@ public class RootView_v2 : BaseView
 
 
         _bottomPanelView.Initialization(this);
+        _bottomNavigationArrowsView.Initialization(this);
         _activityView.Initialization(this);
         _activityListView.Initialization(this);
 
         _bottomPanelView.SetHomeActive(true);
+        _bottomNavigationArrowsView.HideImmediate();
 
         _pageView.OnPageChanged.AddListener(OnPageChanged);
 
@@ -93,10 +105,6 @@ public class RootView_v2 : BaseView
 
     private void OnWorkplaceLoaded()
     {
-        //_toggleView.interactable = true;
-        //_toggleSteps.interactable = true;
-        //_toggleView.isOn = true;
-
         if (!DBManager.dontShowCalibrationGuide)
         {
             PopupsViewer.Instance.Show(_calibrationGuideViewPrefab);
@@ -170,7 +178,16 @@ public class RootView_v2 : BaseView
 
     public void ShowHelpView()
     {
+
         TutorialManager.Instance.ShowHelpSelection(helpPage);
+        
+        //var queue = new Queue<TutorialModel>();
+        //queue.Enqueue(new TutorialModel { id = "tutorial_1_1", message = "1 message" });
+        //queue.Enqueue(new TutorialModel { id = "tutorial_1_2", message = "2 message", position = TutorialModel.MessagePosition.Bottom });
+        //queue.Enqueue(new TutorialModel { id = "tutorial_1_3", message = "3 message", position = TutorialModel.MessagePosition.Top });
+
+        //_tutorial.Show(queue);
+        //PopupsViewer.Instance.Show(_helpPrefab);
     }
 
     public void OnActivitySettingsClick()
