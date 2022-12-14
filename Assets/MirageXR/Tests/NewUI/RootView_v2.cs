@@ -13,8 +13,8 @@ public class RootView_v2 : BaseView
     [SerializeField] private BottomNavigationArrowsView _bottomNavigationArrowsView;
     [SerializeField] private PageView_v2 _pageView;
     [SerializeField] private CalibrationGuideView _calibrationGuideViewPrefab;
+    [SerializeField] public SearchView _searchPrefab;
     [SerializeField] private ProfileView _profilePrefab;
-    [SerializeField] private SearchView _searchPrefab;
     [SerializeField] private HelpView _helpPrefab;
     [SerializeField] private SettingsView_v2 _activitySettingsPrefab;
     [SerializeField] private LoginView_v2 _loginViewPrefab;
@@ -23,6 +23,18 @@ public class RootView_v2 : BaseView
     [Space]
     [SerializeField] private Dialog _dialog;
     [SerializeField] private Tutorial _tutorial;
+
+    public enum HelpPage {
+        Home, 
+        ActivitySteps, 
+        ActivityInfo, 
+        ActivityCalibration, 
+        ActionAugmentations,
+        ActionInfo, 
+        ActionMarker,
+    };
+
+    private static HelpPage helpPage;
 
     public ActivityListView_v2 activityListView => _activityListView;
 
@@ -58,6 +70,9 @@ public class RootView_v2 : BaseView
     public override async void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
+        EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
+        EventManager.onMobileHelpPageChanged += updateHelpPage;
+
 
         _bottomPanelView.Initialization(this);
         _bottomNavigationArrowsView.Initialization(this);
@@ -111,9 +126,11 @@ public class RootView_v2 : BaseView
         {
             case 0:
                 _bottomPanelView.SetHomeActive(true);
+                EventManager.NotifyMobileHelpPageChanged(HelpPage.Home);
                 break;
             case 1:
                 _bottomPanelView.SetHomeActive(false);
+                EventManager.NotifyMobileHelpPageChanged(HelpPage.ActivitySteps);
                 break;
         }
     }
@@ -161,12 +178,15 @@ public class RootView_v2 : BaseView
 
     public void ShowHelpView()
     {
-        var queue = new Queue<TutorialModel>();
-        queue.Enqueue(new TutorialModel { id = "tutorial_1_1", message = "1 message" });
-        queue.Enqueue(new TutorialModel { id = "tutorial_1_2", message = "2 message", position = TutorialModel.MessagePosition.Bottom });
-        queue.Enqueue(new TutorialModel { id = "tutorial_1_3", message = "3 message", position = TutorialModel.MessagePosition.Top });
 
-        _tutorial.Show(queue);
+        TutorialManager.Instance.ShowHelpSelection(helpPage);
+        
+        //var queue = new Queue<TutorialModel>();
+        //queue.Enqueue(new TutorialModel { id = "tutorial_1_1", message = "1 message" });
+        //queue.Enqueue(new TutorialModel { id = "tutorial_1_2", message = "2 message", position = TutorialModel.MessagePosition.Bottom });
+        //queue.Enqueue(new TutorialModel { id = "tutorial_1_3", message = "3 message", position = TutorialModel.MessagePosition.Top });
+
+        //_tutorial.Show(queue);
         //PopupsViewer.Instance.Show(_helpPrefab);
     }
 
@@ -225,5 +245,10 @@ public class RootView_v2 : BaseView
         {
             await Task.Yield();
         }
+    }
+
+    private void updateHelpPage(HelpPage page)
+    {
+        helpPage = page;
     }
 }
