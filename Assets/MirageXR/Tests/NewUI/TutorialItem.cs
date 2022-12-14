@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class TutorialItem : MonoBehaviour
 {
@@ -10,7 +11,7 @@ public class TutorialItem : MonoBehaviour
     [SerializeField] private bool _isPartOfScrollView;
 
     private Vector3 _lastTraceablePosition;
-    private bool _isЕrackingActivated;
+    private bool _isTrackingActivated;
     private Transform _traceable;
 
     public string id => _id;
@@ -19,11 +20,13 @@ public class TutorialItem : MonoBehaviour
 
     public Toggle toggle => _interactableObject.GetComponent<Toggle>();
 
+    public TMP_InputField inputField => _interactableObject.GetComponent<TMP_InputField>();
+
     public bool isPartOfScrollView => _isPartOfScrollView;
 
     private void Update()
     {
-        if (!_isЕrackingActivated)
+        if (!_isTrackingActivated)
         {
             return;
         }
@@ -43,14 +46,14 @@ public class TutorialItem : MonoBehaviour
 
     public void StartTracking(Transform traceable)
     {
-        _isЕrackingActivated = true;
+        _isTrackingActivated = true;
         _traceable = traceable;
         _lastTraceablePosition = transform.position;
     }
 
     public void StopTracking()
     {
-        _isЕrackingActivated = false;
+        _isTrackingActivated = false;
         _traceable = null;
     }
 
