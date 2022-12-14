@@ -51,11 +51,6 @@ public class PopupsViewer : MonoBehaviour
             return;
         }
 
-        //foreach (var popupBase in _stack)
-        //{
-        //    popupBase.gameObject.SetActive(false);
-        //}
-
         var popup = _stack.Peek();
         if (popup.isMarkedToDelete)
         {
