@@ -832,5 +832,15 @@ namespace MirageXR
         {
             MoodleDomainChanged?.Invoke();
         }
+
+        public delegate void MobileHelpPageChanged(RootView_v2.HelpPage value);
+
+        public static event MobileHelpPageChanged onMobileHelpPageChanged;
+
+        public static void NotifyMobileHelpPageChanged(RootView_v2.HelpPage value)
+        {
+            onMobileHelpPageChanged?.Invoke(value);
+            Debug.Log("page change = " + value);
+        }
     }
 }
