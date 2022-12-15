@@ -7,7 +7,7 @@ public class BottomPanelView : BaseView
     private const float MOVE_DISTANSE = 300f;
     private const float ANIMATION_TIME = 0.5f;
 
-    [SerializeField] private Toggle _toggleHome;
+    [SerializeField] private Button _btnHome;
     [SerializeField] private Button _btnProfile;
     [SerializeField] private Button _btnCreate;
     [SerializeField] private Button _btnSearch;
@@ -21,7 +21,7 @@ public class BottomPanelView : BaseView
     {
         base.Initialization(parentView);
 
-        _toggleHome.onValueChanged.AddListener(OnHomeValueChanged);
+        _btnHome.onClick.AddListener(OnHomeClicked);
         _btnProfile.onClick.AddListener(OnProfileClicked);
         _btnCreate.onClick.AddListener(OnCreateClicked);
         _btnSearch.onClick.AddListener(OnSearchClicked);
@@ -42,11 +42,10 @@ public class BottomPanelView : BaseView
 
     public void SetHomeActive(bool value)
     {
-        _toggleHome.isOn = value;
         _btnCreate.gameObject.SetActive(value);
     }
 
-    private void OnHomeValueChanged(bool value)
+    private void OnHomeClicked()
     {
         rootView.ShowHomeView();
     }

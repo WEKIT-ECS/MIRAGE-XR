@@ -168,7 +168,7 @@ public class ContentListView_v2 : BaseView
         //_list.ForEach(item => item.OnEditModeChanged(value));
     }
 
-    private void UpdateView()
+    public void UpdateView()
     {
         int currentIndex = activityManager.ActionsOfTypeAction.IndexOf(_currentStep) + 1;
         int maxIndex = activityManager.ActionsOfTypeAction.Count;
@@ -191,7 +191,7 @@ public class ContentListView_v2 : BaseView
             if (_list.Count <= i)
             {
                 var obj = Instantiate(_contentListItemPrefab, _listContent);
-                obj.Init(this, OnAnnotationSelected);
+                obj.Initialization(this, OnAnnotationSelected);
                 _list.Add(obj);
             }
 
