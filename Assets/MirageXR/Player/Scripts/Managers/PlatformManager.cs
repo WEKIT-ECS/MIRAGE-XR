@@ -135,7 +135,7 @@ namespace MirageXR
 #if UNITY_IOS && !UNITY_EDITOR
             return UnityEngine.iOS.Device.generation.ToString().Contains("iPad") ? DeviceFormat.Tablet : DeviceFormat.Phone;
 #elif UNITY_ANDROID && !UNITY_EDITOR
-            const float minTabletSize = 6.5f;
+            const float minTabletSize = 7.5f;
             return GetDeviceDiagonalSizeInInches() > minTabletSize ? DeviceFormat.Tablet : DeviceFormat.Phone;
 #elif UNITY_WSA && !UNITY_EDITOR
             return DeviceFormat.Unknown;
