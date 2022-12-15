@@ -47,6 +47,7 @@ public class GlyphEditorView : PopupEditorBase
 
         _toggleTrigger.isOn = false;
         _slider.value = DEFAULT_SLIDER_VALUE;
+        OnSliderValueChanged(_slider.value);
 
         for (int i = _contentContainer.childCount - 1; i >= 0; i--)
         {

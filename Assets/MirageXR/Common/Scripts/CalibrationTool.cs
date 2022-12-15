@@ -101,8 +101,11 @@ namespace MirageXR
                 _countdownToEnd = null;
             }
 
-            _imageTargetBehaviour.enabled = true;
-            _calibrationAnimation.gameObject.SetActive(true);
+            if (_imageTargetBehaviour != null && _calibrationAnimation != null)
+            {
+                _imageTargetBehaviour.enabled = true;
+                _calibrationAnimation.gameObject.SetActive(true);
+            }
         }
 
         private void Disable()
