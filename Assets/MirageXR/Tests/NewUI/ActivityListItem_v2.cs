@@ -20,7 +20,6 @@ namespace MirageXR
         [SerializeField] private Button _btnMain;
         [SerializeField] private OpenActivityModeSelect activityModeSelect;
 
-
         private SessionContainer _container;
         private bool _interactable = true;
 
@@ -143,6 +142,7 @@ namespace MirageXR
         public async void OpenActivity(bool value)
         {
             await PlayActivityAsync();
+            RootView_v2.Instance.activityView.SetSessionInfo(_container);
             activityManager.EditModeActive = value;
         }
 
