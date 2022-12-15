@@ -1,6 +1,5 @@
 using System;
 using TMPro;
-using UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -39,25 +38,10 @@ public class KeepAliveView : PopupBase
     {
         try
         {
-            if (args[0] is int stepCount)
-            {
-                _stepCount = stepCount;
-            }
-
-            if (args[1] is int from)
-            {
-                _from = from;
-            }
-
-            if (args[2] is int to)
-            {
-                _to = to;
-            }
-
-            if (args[3] is Action<int, int> callback)
-            {
-                _callback = callback;
-            }
+            _stepCount = (int)args[0];
+            _from = (int)args[1];
+            _to = (int)args[2];
+            _callback = (Action<int, int>)args[3];
 
             return true;
         }
@@ -83,7 +67,7 @@ public class KeepAliveView : PopupBase
     {
         if (_from > _to)
         {
-            Toast.Instance.Show("The 'From' should be less than the 'Do'");
+            Toast.Instance.Show("The 'From' should be less than the 'To'");
             return;
         }
 

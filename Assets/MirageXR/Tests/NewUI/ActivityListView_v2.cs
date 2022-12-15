@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ public class ActivityListView_v2 : BaseView
 
     [Space]
     [SerializeField] private Button _btnArrow;
+    [SerializeField] private GameObject _backToActivity;
     [SerializeField] private Button _btnBackToActivity;
     [SerializeField] private Button _btnRestartActivity;
     [SerializeField] private RectTransform _panel;
@@ -42,7 +44,7 @@ public class ActivityListView_v2 : BaseView
         _btnFilter.onClick.AddListener(OnByDateClick);
         _btnBackToActivity.onClick.AddListener(OnBackToActivityButton);
         _btnRestartActivity.onClick.AddListener(OnRestartActivityButton);
-
+        _backToActivity.gameObject.SetActive(false);
         _btnArrow.onClick.AddListener(OnArrowButtonPressed);
         _arrowDown.SetActive(true);
         _arrowUp.SetActive(false);
@@ -50,8 +52,15 @@ public class ActivityListView_v2 : BaseView
         _panelSize = _panel.sizeDelta;
 
         EventManager.OnActivitySaved += FetchAndUpdateView;
+        EventManager.OnActivityStarted += ShowBackButtons;
 
         FetchAndUpdateView();
+    }
+
+    private void OnDestroy()
+    {
+        EventManager.OnActivitySaved -= FetchAndUpdateView;
+        EventManager.OnActivityStarted -= ShowBackButtons;
     }
 
     private static async Task<List<SessionContainer>> FetchContent()
@@ -85,6 +94,16 @@ public class ActivityListView_v2 : BaseView
         });
 
         return dictionary.Values.ToList();
+    }
+
+    public void ShowBackButtons()
+    {
+        _backToActivity.SetActive(true);
+    }
+
+    public void HideBackButtons()
+    {
+        _backToActivity.SetActive(false);
     }
 
     public async void FetchAndUpdateView()

@@ -9,8 +9,6 @@ public class SettingsView_v2 : PopupBase
 
     private static MoodleManager moodleManager => RootObject.Instance.moodleManager;
 
-    //public RootView rootView => (RootView)_parentView;
-
     private const string VERSION_FORMAT = "Version {0}";
 
     [SerializeField] private Toggle _togglePublicUpload;
@@ -18,6 +16,10 @@ public class SettingsView_v2 : PopupBase
     [SerializeField] private Toggle _toggleLocalSave;
     [SerializeField] private Button _btnSave;
     [SerializeField] private Button _btnPreview;
+    [SerializeField] private Button _btnDelete;
+    [SerializeField] private DeleteActivityView _deleteActivityViewPrefab;
+
+    private SessionContainer _container;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -27,6 +29,9 @@ public class SettingsView_v2 : PopupBase
         _toggleLocalSave.onValueChanged.AddListener(OnValueChangedSavetoggle);
         _toggleLocalSave.onValueChanged.AddListener(OnValueChangedCloudtoggle);
         _btnSave.onClick.AddListener(OnClickSaveChanges);
+        _btnDelete.onClick.AddListener(OnButtonDeleteClicked);
+
+        _btnDelete.interactable = _container != null;
 
         ResetValues();
     }
@@ -45,7 +50,20 @@ public class SettingsView_v2 : PopupBase
 
     protected override bool TryToGetArguments(params object[] args)
     {
-        return true;
+        if (args.Length == 0 || args[0] == null)
+        {
+            return true;
+        }
+
+        try
+        {
+            _container = (SessionContainer)args[0];
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
     private void OnValueChangedPublicUpload(bool value)
@@ -70,10 +88,11 @@ public class SettingsView_v2 : PopupBase
 
     private void OnClickSaveChanges()
     {
-        if (_toggleLocalSave.isOn) 
+        if (_toggleLocalSave.isOn)
         {
             OnSaveToggleOn();
-        } else if (_toggleUploadToCloud.isOn) 
+        }
+        else if (_toggleUploadToCloud.isOn)
         {
             OnUploadToggleOn();
         }
@@ -83,6 +102,51 @@ public class SettingsView_v2 : PopupBase
         Close();
     }
 
+    private void OnButtonDeleteClicked()
+    {
+        Close();
+
+        if (!_container.userIsOwner || !_container.ExistsRemotely)
+        {
+            RootView_v2.Instance.dialog.ShowMiddle("Delete activity?", "Do you really want to remove activity from the device?", "Yes", DeleteLocal, "No", null);
+            return;
+        }
+
+        PopupsViewer.Instance.Show(_deleteActivityViewPrefab, (Action<bool, bool>)OnDeleteActivity);
+    }
+
+    private void OnDeleteActivity(bool fromDevice, bool fromServer)
+    {
+        if (!fromDevice && !fromServer)
+        {
+            return;
+        }
+
+        if (fromDevice && !fromServer)
+        {
+            RootView_v2.Instance.dialog.ShowMiddle("Delete activity?", "Do you really want to remove activity from the device?", "Yes", DeleteLocal, "No", null);
+            return;
+        }
+
+        RootView_v2.Instance.dialog.ShowMiddle(
+            "Delete activity?",
+            $"You are trying to delete activity \"{_container.Name}\" from the server. Are you sure?",
+            "Yes", () => OnDeleteActivityFromServer(fromDevice, fromServer),
+            "No", null);
+    }
+
+    private void OnDeleteActivityFromServer(bool fromDevice, bool fromServer)
+    {
+        if (fromDevice)
+        {
+            DeleteLocal();
+        }
+
+        if (fromServer)
+        {
+            DeleteFromServer();
+        }
+    }
 
     public void OnSaveToggleOn()
     {
@@ -135,5 +199,25 @@ public class SettingsView_v2 : PopupBase
         activityManager.CloneActivity();
         var (result, response) = await moodleManager.UploadFile(activityManager.ActivityPath, activityManager.Activity.name, 2);
         Toast.Instance.Show(result ? "upload completed successfully" : response);
+    }
+
+    private async void DeleteFromServer()
+    {
+        var result = await RootObject.Instance.moodleManager.DeleteArlem(_container.ItemID, _container.FileIdentifier);
+        if (result)
+        {
+            RootView.Instance.activityListView.UpdateListView();
+        }
+    }
+
+    private void DeleteLocal()
+    {
+        if (activityManager.Activity == null)
+        {
+            return;
+        }
+
+        LocalFiles.TryDeleteActivity(activityManager.Activity.id);
+        RootView_v2.Instance.OnActivityDeleted();
     }
 }
