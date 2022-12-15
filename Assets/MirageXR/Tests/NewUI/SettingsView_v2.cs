@@ -28,6 +28,7 @@ public class SettingsView_v2 : PopupBase
         _togglePublicUpload.onValueChanged.AddListener(OnValueChangedPublicUpload);
         _toggleLocalSave.onValueChanged.AddListener(OnValueChangedSavetoggle);
         _toggleLocalSave.onValueChanged.AddListener(OnValueChangedCloudtoggle);
+        _btnPreview.onClick.AddListener(OnPreviewClicked);
         _btnSave.onClick.AddListener(OnClickSaveChanges);
         _btnDelete.onClick.AddListener(OnButtonDeleteClicked);
 
@@ -84,6 +85,13 @@ public class SettingsView_v2 : PopupBase
     private void ValueHasBeenChanged()
     {
         _btnSave.interactable = true;
+    }
+
+    private void OnPreviewClicked()
+    {
+        activityManager.EditModeActive = false;
+        activityManager.ActivateFirstAction();
+        Close();
     }
 
     private void OnClickSaveChanges()
