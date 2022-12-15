@@ -57,19 +57,13 @@ public class StepsListItem_v2 : MonoBehaviour
         _stepCurrentImage.SetActive(isCurrent);
         _stepDoneImage.SetActive(_step.isCompleted && !isCurrent);
 
-        if (ImageMarkerCheck())
-        {
-            _btnImageMarkerPopup.gameObject.SetActive(true);
-        }
-        else
-        {
-            _btnImageMarkerPopup.gameObject.SetActive(false);
-        }
+        _btnImageMarkerPopup.gameObject.SetActive(ImageMarkerCheck());
     }
 
-    private void OnActionModified(Step step) {
-
-        if (step == _step) {
+    private void OnActionModified(Step step)
+    {
+        if (step == _step)
+        {
             _txtStepName.text = step.instruction.title;
             _txtStepDescription.text = step.instruction.description;
         }
@@ -107,14 +101,14 @@ public class StepsListItem_v2 : MonoBehaviour
     {
         bool imageMarker = false;
 
-        var contents = _step.enter.activates;
+        var augmentations = _step.enter.activates;
 
-        foreach (var content in contents)
+        foreach (var augmentation in augmentations)
         {
-            if (content.predicate == "imagemarker")
+            if (augmentation.predicate == "imagemarker")
             {
                 imageMarker = true;
-                _imageMarkerUrl = content.url;
+                _imageMarkerUrl = augmentation.url;
             }
         }
 
