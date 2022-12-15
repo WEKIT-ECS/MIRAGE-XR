@@ -19,14 +19,14 @@ public class SwitchToggle : MonoBehaviour
         _toggle.onValueChanged.AddListener(OnEditValueChanged);
         _background = _handleRectTransform.parent.GetComponent<Image>();
         _currentBgColor = _colorOff;
-        _textOff.SetActive(true);
-        _textOn.SetActive(false);
-        
+        _textOff?.SetActive(true);
+        _textOn?.SetActive(false);
+
         if (_toggle.isOn)
         {
             OnEditValueChanged(true);
-            _textOff.SetActive(false);
-            _textOn.SetActive(true);
+            _textOff?.SetActive(false);
+            _textOn?.SetActive(true);
         }
     }
 
@@ -35,8 +35,8 @@ public class SwitchToggle : MonoBehaviour
         _handleRectTransform.anchoredPosition = value ? _handlePosition * -1 : _handlePosition;
         _background.color = value ? _colorOn : _currentBgColor;
 
-        _textOff.SetActive(!value);
-        _textOn.SetActive(value);
+        _textOff?.SetActive(!value);
+        _textOn?.SetActive(value);
     }
 
     private void OnDestroy()

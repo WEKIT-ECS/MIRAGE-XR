@@ -131,7 +131,7 @@ public class StepsListView_v2 : BaseView
 
     private void OnSettingsPressed()
     {
-        PopupsViewer.Instance.Show(_settingsViewPrefab);
+        PopupsViewer.Instance.Show(_settingsViewPrefab, _activityView.container);
     }
 
     private void OnToggleStepValueChanged(bool value)
