@@ -168,7 +168,13 @@ public class RootView_v2 : BaseView
 
     public void ShowHomeView()
     {
-        _pageView.currentPageIndex = 1;
+        _pageView.currentPageIndex = 0;
+    }
+
+    public void OnActivityDeleted()
+    {
+        ShowHomeView();
+        _activityListView.HideBackButtons();
     }
 
     public void ShowSearchView()
@@ -204,11 +210,6 @@ public class RootView_v2 : BaseView
     public void OnActivitySettingsClick()
     {
         PopupsViewer.Instance.Show(_activitySettingsPrefab);
-    }
-
-    public void OnBackToHome()
-    {
-        _pageView.currentPageIndex = 0;
     }
 
     private async Task SetupViewForTablet()

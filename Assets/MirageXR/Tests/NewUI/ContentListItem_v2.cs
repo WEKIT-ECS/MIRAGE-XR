@@ -1,8 +1,10 @@
+using System;
 using System.Linq;
 using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Content = MirageXR.ToggleObject;
 
 public class ContentListItem_v2 : MonoBehaviour
 {
@@ -13,18 +15,19 @@ public class ContentListItem_v2 : MonoBehaviour
     [SerializeField] private Image _imgType;
     [SerializeField] private Button _btnSettings;
     [SerializeField] private Button _btnListItem;
+    [SerializeField] private KeepAliveView _keepAliveViewPrefab;
 
     private ContentListView_v2 _parentView;
-    private ToggleObject _content;
+    private Content _content;
     private ContentType _type;
     private int _from;
     private int _to;
 
-    private System.Action<ToggleObject> _onListItemPressed;
+    private Action<Content> _onListItemPressed;
 
-    private int _maxStepIndex => activityManager.ActionsOfTypeAction.Count - 1;
+    private int _maxStepIndex => activityManager.ActionsOfTypeAction.Count;
 
-    public void Init(ContentListView_v2 parentView, System.Action<ToggleObject> onListItemPressed)
+    public void Initialization(ContentListView_v2 parentView, Action<Content> onListItemPressed)
     {
         _parentView = parentView;
         _onListItemPressed = onListItemPressed;
@@ -32,7 +35,7 @@ public class ContentListItem_v2 : MonoBehaviour
         _btnListItem.onClick.AddListener(OnListItemPressed);
     }
 
-    public void UpdateView(ToggleObject content)
+    public void UpdateView(Content content)
     {
         _content = content;
         _type = ContentTypeExtenstion.ParsePredicate(_content.predicate);
@@ -53,12 +56,12 @@ public class ContentListItem_v2 : MonoBehaviour
 
     private void OnSettingsPressed()
     {
-        RootView_v2.Instance.dialog.ShowBottomMultiline("Settings", 
+        RootView_v2.Instance.dialog.ShowBottomMultiline("Settings",
             ("Edit", EditContent, false),
+            ("Locate", LocateContent, false),
             ("Rename", RenameContent, false),
-            ($"Keep alive {_from}-{_to}", ChangeKeepAlive, false),
+            ($"Keep alive {_from + 1}-{_to + 1}", ChangeKeepAlive, false),
             ("Delete", DeleteContent, true));
-        
     }
 
     private void OnListItemPressed()
@@ -77,6 +80,11 @@ public class ContentListItem_v2 : MonoBehaviour
         }
 
         PopupsViewer.Instance.Show(editor, _parentView.currentStep, _content);
+    }
+
+    private void LocateContent()
+    {
+        _parentView.navigatorId = _parentView.navigatorId != _content.poi ? _content.poi : null;
     }
 
     private void RenameContent()
@@ -99,7 +107,20 @@ public class ContentListItem_v2 : MonoBehaviour
 
     private void ChangeKeepAlive()
     {
-        //not implemented
+        if (_maxStepIndex < 2)
+        {
+            Toast.Instance.Show("First add a new step");
+            return;
+        }
+
+        PopupsViewer.Instance.Show(_keepAliveViewPrefab, _maxStepIndex, _from, _to, (Action<int, int>)OnKeepAliveChange);
+    }
+
+    private void OnKeepAliveChange(int from, int to)
+    {
+        _from = from;
+        _to = to;
+        UpdateStep();
     }
 
     private void UpdateStep()
@@ -109,5 +130,7 @@ public class ContentListItem_v2 : MonoBehaviour
         {
             activityManager.SaveData();
         }
+
+        _parentView.UpdateView();
     }
 }
