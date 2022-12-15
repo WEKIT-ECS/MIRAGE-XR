@@ -200,7 +200,11 @@ namespace MirageXR
                         activityManager.ActiveAction.isCompleted = true;
                     }
 
-                    activityManager.ActivateActionByIndex(int.Parse(trigger.value)-1);
+                    if (int.TryParse(trigger.value, out var stepNumber))
+                    {
+                        activityManager.ActivateActionByIndex(stepNumber - 1);
+                    }
+
                     TaskStationDetailMenu.Instance.SelectedButton = null;
                 }
             }
