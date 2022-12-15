@@ -14,15 +14,16 @@ public class ActivityView_v2 : BaseView
     [SerializeField] private RectTransform _panel;
     [SerializeField] private GameObject _arrowDown;
     [SerializeField] private GameObject _arrowUp;
-    [SerializeField] private GameObject _backToActivity;
     [SerializeField] private Toggle _toggleEdit;
     [SerializeField] private StepsListView_v2 _stepsListView;
     [SerializeField] private ContentListView_v2 _contentListView;
 
+    private SessionContainer _container;
     private int _infoStepNumber;
     private Vector2 _panelSize;
 
     public StepsListView_v2 stepsListView => _stepsListView;
+    public SessionContainer container => _container;
 
     private RootView_v2 rootView => (RootView_v2)_parentView;
 
@@ -61,8 +62,7 @@ public class ActivityView_v2 : BaseView
 
     public void OnBackToHomePressed()
     {
-        rootView.OnBackToHome();
-        _backToActivity.SetActive(true);
+        rootView.ShowHomeView();
         rootView.bottomPanelView.Show();
         rootView.bottomNavigationArrowsView.Hide();
     }
@@ -75,6 +75,11 @@ public class ActivityView_v2 : BaseView
     private void OnEditModeChanged(bool value)
     {
         UpdateView();
+    }
+
+    public void SetSessionInfo(SessionContainer info)
+    {
+        _container = info;
     }
 
     public void ShowStepContent()
