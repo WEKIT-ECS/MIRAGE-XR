@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Action = System.Action;
 using Step = MirageXR.Action;
+using System.IO;
 
 public class StepsListItem_v2 : MonoBehaviour
 {
@@ -16,15 +17,19 @@ public class StepsListItem_v2 : MonoBehaviour
     [SerializeField] private Button _btnStep;
     [SerializeField] private Button _btnEditButton;
     [SerializeField] private Button _btnDelete;
+    [SerializeField] private Button _btnImageMarkerPopup;
     [SerializeField] private GameObject _stepStatus;
     [SerializeField] private GameObject _stepDoneImage;
     [SerializeField] private GameObject _stepCurrentImage;
+    
+    [SerializeField] private ImageMarkerPopup _imageMarkerPopup;
 
     private MirageXR.Action _step;
     private int _number;
     private Action<Step> _onStepClick;
     private Action<Step> _onEditClick;
     private Action<Step, Action> _onDeleteClick;
+    private string _imageMarkerUrl;
 
     public void Init(Action<Step> onStepClick, Action<Step> onEditClick, Action<Step, Action> onDeleteClick)
     {
@@ -34,6 +39,7 @@ public class StepsListItem_v2 : MonoBehaviour
         _btnStep.onClick.AddListener(OnStepClick);
         _btnDelete.onClick.AddListener(OnDeleteClick);
         _btnEditButton.onClick.AddListener(OnEditClick);
+        _btnImageMarkerPopup.onClick.AddListener(OnImageMarkerButtonClick);
         OnEditModeChanged(activityManager.EditModeActive);
 
         EventManager.OnEditModeChanged += OnEditModeChanged;
@@ -50,6 +56,15 @@ public class StepsListItem_v2 : MonoBehaviour
         var isCurrent = _step.id == RootObject.Instance.activityManager.ActiveActionId;
         _stepCurrentImage.SetActive(isCurrent);
         _stepDoneImage.SetActive(_step.isCompleted && !isCurrent);
+
+        if (ImageMarkerCheck())
+        {
+            _btnImageMarkerPopup.gameObject.SetActive(true);
+        }
+        else
+        {
+            _btnImageMarkerPopup.gameObject.SetActive(false);
+        }
     }
 
     private void OnActionModified(Step step) {
@@ -80,5 +95,29 @@ public class StepsListItem_v2 : MonoBehaviour
     public void OnEditClick()
     {
         _onEditClick(_step);
+    }
+
+    public void OnImageMarkerButtonClick()
+    {
+        var popup = (ImageMarkerPopup)PopupsViewer.Instance.Show(_imageMarkerPopup);
+        popup.SetImage(_imageMarkerUrl);
+    }
+
+    private bool ImageMarkerCheck()
+    {
+        bool imageMarker = false;
+
+        var contents = _step.enter.activates;
+
+        foreach (var content in contents)
+        {
+            if (content.predicate == "imagemarker")
+            {
+                imageMarker = true;
+                _imageMarkerUrl = content.url;
+            }
+        }
+
+        return imageMarker;
     }
 }
