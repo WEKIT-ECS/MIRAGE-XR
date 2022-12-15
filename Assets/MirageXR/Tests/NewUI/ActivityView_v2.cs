@@ -70,6 +70,7 @@ public class ActivityView_v2 : BaseView
     private void OnEditToggleValueChanged(bool value)
     {
         activityManager.EditModeActive = value;
+        ShowStepsList();
     }
 
     private void OnEditModeChanged(bool value)
