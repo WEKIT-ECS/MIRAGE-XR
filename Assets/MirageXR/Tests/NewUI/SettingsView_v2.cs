@@ -71,7 +71,7 @@ public class SettingsView_v2 : PopupBase
 
     private void OnPreviewClicked()
     {
-        activityManager.EditModeActive = true;
+        activityManager.EditModeActive = false;
         activityManager.ActivateFirstAction();
         Close();
     }
