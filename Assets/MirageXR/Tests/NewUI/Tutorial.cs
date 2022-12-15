@@ -36,6 +36,8 @@ public class Tutorial : MonoBehaviour
     private TutorialMessageView _lastMessageView;
     private TutorialItem _lastCopy;
 
+    private bool _toggleIsFirstPass;
+
     protected void Start()
     {
         Init();
@@ -96,6 +98,8 @@ public class Tutorial : MonoBehaviour
             var item = await FindTutorialItem(model.id);
             if (item)
             {
+                // This delay is due to the fact that not all values, i.e., in RectTransform are loaded in time
+                await Task.Delay(10);
                 _lastCopy = CopyTutorialItem(item);
                 SetUpTargetCopy(item, _lastCopy);
             }
@@ -162,7 +166,7 @@ public class Tutorial : MonoBehaviour
             GameObject target = item.gameObject;
             var highlightButton = Object.Instantiate(hbPrefab, target.transform.position, target.transform.rotation);
             highlightButton.transform.SetParent(RootView_v2.Instance.transform);
-            //highlightButton.transform.SetPositionAndRotation(target.transform.position, target.transform.rotation);
+            highlightButton.transform.SetPositionAndRotation(target.transform.position, target.transform.rotation);
             highlightButton.transform.localScale = target.transform.localScale;
 
             var rectTransform = (RectTransform)target.transform;
@@ -200,6 +204,7 @@ public class Tutorial : MonoBehaviour
         {
             copy.toggle.onValueChanged.RemoveAllListeners();
             copy.toggle.onValueChanged.AddListener(value => OnTargetCopyClicked(item, copy));
+            _toggleIsFirstPass = true;
         }
 
         if (item.inputField)
@@ -220,7 +225,15 @@ public class Tutorial : MonoBehaviour
         }
         if (item.toggle)
         {
-            item.toggle.onValueChanged.Invoke(true);
+            if (_toggleIsFirstPass)
+            {
+                _toggleIsFirstPass = false;
+                item.toggle.isOn = true;
+            }
+            else
+            {
+                return;
+            }
         }
         copy.StopTracking();
 

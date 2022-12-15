@@ -178,6 +178,16 @@ public class OnboardingView : UIBehaviour, ICanvasElement, IBeginDragHandler, IE
         _selectedTabIndex -= 1;
         _snapPosition = viewport.rect.width * _selectedTabIndex;
     }
+
+    public void StartEditingTutorialClicked()
+    {
+
+    }
+
+    public void StartViewingTutorialClicked()
+    {
+
+    }
 }
 
 
