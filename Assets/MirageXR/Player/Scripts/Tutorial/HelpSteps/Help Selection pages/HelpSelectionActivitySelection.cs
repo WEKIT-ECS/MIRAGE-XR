@@ -5,53 +5,52 @@ using UnityEngine.UI;
 
 namespace MirageXR
 {
-    public class HelpSelectionActivitySelection : HelpSelection
+    public class HelpSelectionActivitySelection
     {
-        protected override void Init()
-        {
-            this._instructionText = "";
-            EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
+        private Tutorial _mobileTutorial;
+        private HelpSelectionPopup _popup;
 
-            this._popup.CreateNewSelectionButton("How to search for a specific activity").onClick.AddListener(search);
-            this._popup.CreateNewSelectionButton("How to open an activity").onClick.AddListener(open);
-            this._popup.CreateNewSelectionButton("How to create a new activity").onClick.AddListener(edit);
-            this._popup.CreateNewSelectionButton("How to create an account and login").onClick.AddListener(createAccount);
+        public void Init(HelpSelectionPopup popup, Tutorial mobileTutorial)
+        {
+            _popup = popup;
+            _mobileTutorial = mobileTutorial;
+
+            _popup.CreateNewSelectionButton("How to search for a specific activity").onClick.AddListener(search);
+            _popup.CreateNewSelectionButton("How to open an activity").onClick.AddListener(open);
+            _popup.CreateNewSelectionButton("How to create a new activity").onClick.AddListener(edit);
+            _popup.CreateNewSelectionButton("How to create an account and login").onClick.AddListener(createAccount);
         }
 
-        protected override void Detach()
-        {
-            EventManager.NewActivityCreationButtonPressed -= DefaultExitEventListener;
-        }
 
         public void search() {
-
-            this.ExitStep();
-            TutorialManager.Instance.ShowHelp(0);
+            _popup.Close();
+            var queue = new Queue<TutorialModel>();
+            queue.Enqueue(new TutorialModel { id = "activity_search", message = "To search for an activity by name, tap the search menu item below." });
+            _mobileTutorial.Show(queue);
         }
 
         public void open()
         {
-            this.ExitStep();
-            TutorialManager.Instance.ShowHelp(1);
+            _popup.Close();
+            var queue = new Queue<TutorialModel>();
+            queue.Enqueue(new TutorialModel { message = "To open an activity find it on the list here and simply tap it!" });
+            _mobileTutorial.Show(queue);
         }
 
         public void edit()
         {
-            this.ExitStep();
-            TutorialManager.Instance.ShowHelp(2);
+            _popup.Close();
+            var queue = new Queue<TutorialModel>();
+            queue.Enqueue(new TutorialModel { id = "activity_create", message = "Tap the plus button below to add a new activity" });
+            _mobileTutorial.Show(queue);
         }
+
         public void createAccount()
         {
-            this.ExitStep();
-            TutorialManager.Instance.ShowHelp(3);
-        }
-
-
-        protected override void SecuredExitStep()
-        {
-            Detach();
-            RemoveHighlight();
-            RemoveInstruction();
+            _popup.Close();
+            var queue = new Queue<TutorialModel>();
+            queue.Enqueue(new TutorialModel { id = "user_profile", message = "To login, register or manage your account, tap the profile menu item below." });
+            _mobileTutorial.Show(queue);
         }
     }
 }

@@ -37,13 +37,6 @@ namespace MirageXR
             Close();
         }
 
-        private void TextOnclick()
-        {
-            EventManager.NotifyOnTutorialPopupCloseClicked();
-            Close();
-            TutorialManager.Instance.ShowHelp(1);
-        }
-
         protected override bool TryToGetArguments(params object[] args)
         {
             return true;

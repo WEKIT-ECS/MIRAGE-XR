@@ -31,13 +31,6 @@ namespace MirageXR
             Close();
         }
 
-        private void TextOnclick()
-        {
-            EventManager.NotifyOnTutorialPopupCloseClicked();
-            Close();
-            TutorialManager.Instance.ShowHelp(1);
-        }
-
         public Button CreateNewSelectionButton(string title)
         {
             var button = Instantiate(_selectionButton, Vector3.zero, Quaternion.identity) as Button;

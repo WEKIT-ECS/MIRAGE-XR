@@ -48,9 +48,6 @@ namespace MirageXR
         private List<TutorialStep> _steps;
         private int _currentStepNumber;
 
-        private List<HelpStep> _helpSteps;
-        private int _currentHelpStep;
-
         private List<HelpSelection> _helpSelections;
         private int _currentHelpSelection;
 
@@ -108,10 +105,8 @@ namespace MirageXR
         {
             IsTutorialRunning = false;
             _steps = new List<TutorialStep>();
-            _helpSteps = new List<HelpStep>();
             _helpSelections = new List<HelpSelection>();
             MobileHighlighter = new TutorialObjectHighlighter();
-            PopulateHelpStelectionsList();
         }
 
         /// <summary>
@@ -280,109 +275,44 @@ namespace MirageXR
 
         }
 
-        private void PopulateHelpStelectionsList()
-        {
-            _helpSelections.Add(new HelpSelectionActivitySelection());
-            _helpSelections.Add(new HelpSelectionNewActivity());
-            _helpSelections.Add(new HelpSelectionActivityInfo());
-            _helpSelections.Add(new HelpSelectionActivityCalibration());
-            _helpSelections.Add(new HelpSelectionActionInfo());
-            _helpSelections.Add(new HelpSelectionAddAugmentations());
-        }
-
-        private void PopulateHelpStepListActivitySelection()
-        {
-            _helpSteps.Add(new HelpStepSearch());
-            _helpSteps.Add(new HelpStepOpenActivity());
-            _helpSteps.Add(new HelpStepCreateActivity());
-            _helpSteps.Add(new HelpStepLoginRegister());
-
-        }
-
-        private void PopulateHelpStepListNewActivity()
-        {
-            _helpSteps.Add(new HelpStepChangeActivityTitleAndDescription());
-            _helpSteps.Add(new HelpStepActionStep());
-            _helpSteps.Add(new HelpStepMultipleSteps());
-            _helpSteps.Add(new HelpStepRenameStep());
-            _helpSteps.Add(new HelpStepAddStepContent());
-            _helpSteps.Add(new HelpStepCopyStep());
-        }
-
-        private void PopulateHelpStepListActivityInfo()
-        {
-            _helpSteps.Add(new HelpStepActivityInfo());
-            _helpSteps.Add(new HelpStepActivityInfo());
-        }
-
-        private void PopulateHelpStepListActivityCalibration()
-        {
-            _helpSteps.Add(new HelpStepWhatIsCalibration());
-            _helpSteps.Add(new HelpStepHowToCalibrate());
-            _helpSteps.Add(new HelpStepWhyCalibrate());
-            _helpSteps.Add(new HelpStepCalibrateImage());
-        }
-
-        private void PopulateHelpStepListActionInfo()
-        {
-            _helpSteps.Add(new HelpStepActionChangeTitleAndDescription());
-            _helpSteps.Add(new HelpStepWhatIsAnAugmentation());
-            _helpSteps.Add(new HelpStepHowToAddAugmentations());
-            _helpSteps.Add(new HelpStepKeepAlive());
-        }
-
-
-
-        public void ShowHelp(int helpStep)
-        {
-            _helpSteps[helpStep].EnterStep();
-
-            _currentHelpStep = helpStep;
-        }
-
         public void ShowHelpSelection(RootView_v2.HelpPage helpSelection)
         {
             if (_mobileTutorial == null)
             {
                 _mobileTutorial = RootView_v2.Instance.Tutorial;
             }
-            _helpSteps.Clear();
 
-            int nextStep = 0;
-
+            var popup = (HelpSelectionPopup)PopupsViewer.Instance.Show(HelpSelectionPopup);
             switch (helpSelection)
             {
                 case RootView_v2.HelpPage.Home:
-                    PopulateHelpStepListActivitySelection();
-                    nextStep = 0;
+                    HelpSelectionActivitySelection hsas = new HelpSelectionActivitySelection();
+                    hsas.Init(popup, _mobileTutorial);
                     break;
                 case RootView_v2.HelpPage.ActivitySteps:
-                    PopulateHelpStepListNewActivity();
-                    nextStep = 1;
+                    HelpSelectionNewActivity hsna = new HelpSelectionNewActivity();
+                    hsna.Init(popup, _mobileTutorial);
                     break;
                 case RootView_v2.HelpPage.ActivityInfo:
-                    PopulateHelpStepListActivityInfo();
-                    nextStep = 2;
+                    HelpSelectionActivityInfo hsai = new HelpSelectionActivityInfo();
+                    hsai.Init(popup, _mobileTutorial);
                     break;
                 case RootView_v2.HelpPage.ActivityCalibration:
-                    PopulateHelpStepListActivityCalibration();
-                    nextStep = 3;
-                    break;
-                case RootView_v2.HelpPage.ActionInfo:
-                    PopulateHelpStepListActionInfo();
-                    nextStep = 4;
+                    HelpSelectionActivityCalibration hsac = new HelpSelectionActivityCalibration();
+                    hsac.Init(popup, _mobileTutorial);
                     break;
                 case RootView_v2.HelpPage.ActionAugmentations:
-                    PopulateHelpStepListNewActivity();
-                    nextStep = 5;
+                    HelpSelectionActionAugmentations hsaa = new HelpSelectionActionAugmentations();
+                    hsaa.Init(popup, _mobileTutorial);
+                    break;
+                case RootView_v2.HelpPage.ActionInfo:
+                    HelpSelectionActionInfo hsaci = new HelpSelectionActionInfo();
+                    hsaci.Init(popup, _mobileTutorial);
+                    break;
+                case RootView_v2.HelpPage.ActionMarker:
+                    // TODO: maybe add something here?
                     break;
             }
-
-            _helpSelections[_currentHelpSelection].ExitStep();
-
-            _helpSelections[nextStep].EnterStep();
-
-            _currentHelpSelection = nextStep;
         }
 
         public void StartNewMobileEditingTutorial()
@@ -400,7 +330,7 @@ namespace MirageXR
             queue.Enqueue(new TutorialModel { id = "activity_steps", message = "Now we're going to add some steps to our activity. Tap the Steps tab to continue.", position = TutorialModel.MessagePosition.Middle });
             queue.Enqueue(new TutorialModel { id = "activity_add_step", message = "Activities consist of steps, which hold content for users to experience. Let's create a new step by tapping the plus button above.", position = TutorialModel.MessagePosition.Middle });
             queue.Enqueue(new TutorialModel { id = "step_edit_step", message = "Empty steps aren't really entertaining. Let's add some content to our step by tapping the Edit Step button.", position = TutorialModel.MessagePosition.Bottom });
-            queue.Enqueue(new TutorialModel { id = "step_info", message = "First let's name and describe our step so users know what to expect. tap the Info tab to continue.", position = TutorialModel.MessagePosition.Middle });
+            queue.Enqueue(new TutorialModel { id = "step_info", message = "First let's name and describe our step so users know what to expect. Tap the Info tab to continue.", position = TutorialModel.MessagePosition.Middle });
             queue.Enqueue(new TutorialModel { id = "step_title", message = "Just like with the Activity, we should add a title...", position = TutorialModel.MessagePosition.Bottom });
             queue.Enqueue(new TutorialModel { id = "step_description", message = "...and a description to our step.", position = TutorialModel.MessagePosition.Bottom });
             queue.Enqueue(new TutorialModel { id = "step_augmentations", message = "Finally, lets add some content to our Step. To do so, tap the Augmentations tab.", position = TutorialModel.MessagePosition.Middle });

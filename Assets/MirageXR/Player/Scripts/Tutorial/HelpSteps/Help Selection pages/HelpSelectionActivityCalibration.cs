@@ -5,60 +5,52 @@ using UnityEngine.UI;
 
 namespace MirageXR
 {
-    public class HelpSelectionActivityCalibration : HelpSelection
+    public class HelpSelectionActivityCalibration
     {
-        protected override void Init()
-        {
-            this._instructionText = "";
-            EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
+        private Tutorial _mobileTutorial;
+        private HelpSelectionPopup _popup;
 
-            this._popup.CreateNewSelectionButton("What is calibration").onClick.AddListener(whatIsCalibration);
-            this._popup.CreateNewSelectionButton("How do I calibrate").onClick.AddListener(howToCalibrate);
-            this._popup.CreateNewSelectionButton("Why do I need to calibrate").onClick.AddListener(whyCalibrate);
-            this._popup.CreateNewSelectionButton("What can I use as a calibration image").onClick.AddListener(whatImage);
-        }
-
-        protected override void Detach()
+        public void Init(HelpSelectionPopup popup, Tutorial mobileTutorial)
         {
-            EventManager.NewActivityCreationButtonPressed -= DefaultExitEventListener;
+            _popup = popup;
+            _mobileTutorial = mobileTutorial;
+
+            _popup.CreateNewSelectionButton("What is calibration").onClick.AddListener(whatIsCalibration);
+            _popup.CreateNewSelectionButton("How do I calibrate").onClick.AddListener(howToCalibrate);
+            _popup.CreateNewSelectionButton("Why do I need to calibrate").onClick.AddListener(whyCalibrate);
+            _popup.CreateNewSelectionButton("What can I use as a calibration image").onClick.AddListener(whatImage);
         }
 
         public void whatIsCalibration() {
 
-            this.ExitStep();
-            TutorialManager.Instance.ShowHelp(0);
-        
+            _popup.Close();
+            var queue = new Queue<TutorialModel>();
+            queue.Enqueue(new TutorialModel { message = "Learning in the real world is most effective when the activities are responsive to points of interest and events in the real world. MirageXR uses a single calibration marker to tie the digital augmentations to points of interest in the physical environment of the user." });
+            _mobileTutorial.Show(queue);
         }
 
         public void howToCalibrate()
         {
-
-            this.ExitStep();
-            TutorialManager.Instance.ShowHelp(1);
-
+            _popup.Close();
+            var queue = new Queue<TutorialModel>();
+            queue.Enqueue(new TutorialModel { message = "To calibrate, you need to download the calibration marker from https://wekit-ecs.com/documents/calibration, print it on paper, and hang in your workspace. Calibration itself is run simply by gazing at the calibration marker." });
+            _mobileTutorial.Show(queue);
         }
 
         public void whyCalibrate()
         {
-
-            this.ExitStep();
-            TutorialManager.Instance.ShowHelp(2);
-
+            _popup.Close();
+            var queue = new Queue<TutorialModel>();
+            queue.Enqueue(new TutorialModel { message = "Calibration is needed to tie the digital augmentations to points of interest in the physical environment. Where locations do not matter, the calibration marker can be hung somewhere where enough open space is provided to place the holograms. Where locations matter, like, for example, when instructing in a maker’s lab on how to handle a 3D printer, the activity will either include instruction on where to place the calibration marker directly or a hand -out will show students or teachers how to." });
+            _mobileTutorial.Show(queue);
         }
 
         public void whatImage()
         {
-
-            this.ExitStep();
-            TutorialManager.Instance.ShowHelp(3);
-
-        }
-
-        protected override void SecuredExitStep()
-        {
-            Detach();
-            RemoveHighlight();
-            RemoveInstruction();
+            _popup.Close();
+            var queue = new Queue<TutorialModel>();
+            queue.Enqueue(new TutorialModel { message = "The calibration marker can be downloaded from https://wekit-ecs.com/documents/calibration. More images will be available as markers soon." });
+            _mobileTutorial.Show(queue);
         }
     }
 }
