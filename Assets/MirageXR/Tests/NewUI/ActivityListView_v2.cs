@@ -1,13 +1,12 @@
-using System;
+using DG.Tweening;
+using MirageXR;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DG.Tweening;
-using MirageXR;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
-
+using System;
 public class ActivityListView_v2 : BaseView
 {
     private const float HIDED_SIZE = 100f;
@@ -31,6 +30,7 @@ public class ActivityListView_v2 : BaseView
     private List<SessionContainer> _content;
     private readonly List<ActivityListItem_v2> _items = new List<ActivityListItem_v2>();
     private bool _interactable = true;
+    private static bool _orderByRelavance = false;
     private Vector2 _panelSize;
 
     public List<SessionContainer> content => _content;
@@ -66,6 +66,12 @@ public class ActivityListView_v2 : BaseView
     private static async Task<List<SessionContainer>> FetchContent()
     {
         var dictionary = new Dictionary<string, SessionContainer>();
+
+        if (_orderByRelavance)
+        {
+            var activityList = await RootObject.Instance.moodleManager.GetArlemList();
+            return OrderByRelavance(activityList).Values.ToList();
+        }
 
         var localList = await LocalFiles.GetDownloadedActivities();
         localList.ForEach(t =>
@@ -179,5 +185,94 @@ public class ActivityListView_v2 : BaseView
             _arrowUp.SetActive(false);
             rootView.bottomPanelView.Show();
         }
+    }
+
+    public void OnShowbyChanged()
+    {
+        foreach (var item in _items)
+        {
+            switch (DBManager.currentShowby)
+            {
+                case DBManager.ShowBy.ALL:
+                    item.gameObject.SetActive(true);
+                    break;
+                case DBManager.ShowBy.MYACTIVITIES:
+                    item.gameObject.SetActive(item.GetComponent<ActivityListItem_v2>().userIsAuthor);
+                    break;
+                case DBManager.ShowBy.MYASSIGNMENTS:
+                    item.gameObject.SetActive(item.GetComponent<ActivityListItem_v2>().userIsEnroled);
+                    break;
+            }
+        }
+    }
+
+    public void OnSortbyChanged()
+    {
+        switch (DBManager.currentSortby)
+        {
+            case DBManager.SortBy.DATE:
+                _orderByRelavance = false;
+                FetchAndUpdateView();
+                break;
+            case DBManager.SortBy.RELAVEANCE:
+                _orderByRelavance = true;
+                FetchAndUpdateView();
+                break;
+        }
+    }
+
+    private static Dictionary<string, SessionContainer> OrderByRelavance(List<Session> activityList)
+    {
+        var dictionary = new Dictionary<string, SessionContainer>();
+
+        var sessionContainersByDate = new List<KeyValuePair<DateTime, SessionContainer>>();
+
+        foreach (var activity in activityList)
+        {
+            SessionContainer sessionContainer = new SessionContainer { Session = activity };
+
+            if(sessionContainer.hasDeadline)
+            {
+                if (DateTime.TryParse(sessionContainer.Session.deadline, out var date))
+                {
+                    sessionContainersByDate.Add(new KeyValuePair<DateTime, SessionContainer>(date, sessionContainer));
+                }
+                else
+                {
+                    Debug.Log("Cannot convert date");
+                }
+            }
+        }
+
+        List<KeyValuePair<DateTime, SessionContainer>> sortedDateList = sessionContainersByDate.OrderBy(d => d.Value).ToList();
+
+        foreach (var keypair in sortedDateList)
+        {
+            keypair.Deconstruct(out var date, out var sessionContatiner);
+            dictionary.Add(sessionContatiner.Session.sessionid, sessionContatiner);
+        }
+
+        foreach (var activity in activityList)
+        {
+            if (!dictionary.ContainsKey(activity.sessionid))
+            {
+                SessionContainer sessionContainer = new SessionContainer { Session = activity };
+
+                if (sessionContainer.userIsOwner)
+                {
+                    dictionary.Add(activity.sessionid, sessionContainer);
+                }
+            }
+        }
+
+        foreach (var activity in activityList)
+        {
+            if (!dictionary.ContainsKey(activity.sessionid))
+            {
+                dictionary.Add(activity.sessionid, new SessionContainer { Session = activity });
+            }
+        }
+
+        return dictionary;
     }
 }
