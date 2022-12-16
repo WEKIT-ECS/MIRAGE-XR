@@ -144,6 +144,10 @@ namespace MirageXR
             await PlayActivityAsync();
             RootView_v2.Instance.activityView.SetSessionInfo(_container);
             activityManager.EditModeActive = value;
+            if (!value)
+            {
+                RootView_v2.Instance.activityView.stepsListView.OnToggleCalibrationValueChanged(true);
+            }
         }
 
         private async Task PlayActivityAsync()
