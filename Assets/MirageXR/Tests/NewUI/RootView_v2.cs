@@ -25,12 +25,12 @@ public class RootView_v2 : BaseView
     [SerializeField] private Tutorial _tutorial;
 
     public enum HelpPage {
-        Home, 
-        ActivitySteps, 
-        ActivityInfo, 
-        ActivityCalibration, 
+        Home,
+        ActivitySteps,
+        ActivityInfo,
+        ActivityCalibration,
         ActionAugmentations,
-        ActionInfo, 
+        ActionInfo,
         ActionMarker,
     };
 
@@ -45,6 +45,8 @@ public class RootView_v2 : BaseView
     public BottomNavigationArrowsView bottomNavigationArrowsView => _bottomNavigationArrowsView;
 
     public Dialog dialog => _dialog;
+
+    public Tutorial Tutorial => _tutorial;
 
     private void Awake()
     {
@@ -186,23 +188,6 @@ public class RootView_v2 : BaseView
     {
 
         //TutorialManager.Instance.ShowHelpSelection(helpPage);
-        
-        var queue = new Queue<TutorialModel>();
-        queue.Enqueue(new TutorialModel { id = "activity_create", message = "Welcome to the MirageXR editing tutorial! To start, let's create a new activity by tapping the plus button below." });
-        queue.Enqueue(new TutorialModel { id = "activity_info", message = "We should add some info about our activity so it's recognisable. To do this tap the Info tab.", position = TutorialModel.MessagePosition.Middle });
-        queue.Enqueue(new TutorialModel { id = "activity_title", message = "To give our activity a new title, we can tap on the field below.", position = TutorialModel.MessagePosition.Middle });
-        queue.Enqueue(new TutorialModel { id = "activity_description", message = "Activity descriptions help users understand what an activity is about. To add one, we can tap on the field below.", position = TutorialModel.MessagePosition.Middle });
-        queue.Enqueue(new TutorialModel { id = "activity_steps", message = "Now we're going to add some steps to our activity. Tap the Steps tab to continue.", position = TutorialModel.MessagePosition.Middle });
-        queue.Enqueue(new TutorialModel { id = "activity_add_step", message = "Activities consist of steps, which hold content for users to experience. Let's create a new step by tapping the plus button above.", position = TutorialModel.MessagePosition.Middle });
-        queue.Enqueue(new TutorialModel { id = "step_edit_step", message = "Empty steps aren't really entertaining. Let's add some content to our step by tapping the Edit Step button.", position = TutorialModel.MessagePosition.Bottom });
-        queue.Enqueue(new TutorialModel { id = "step_info", message = "First let's name and describe our step so users know what to expect. tap the Info tab to continue.", position = TutorialModel.MessagePosition.Middle });
-        queue.Enqueue(new TutorialModel { id = "step_title", message = "Just like with the Activity, we should add a title...", position = TutorialModel.MessagePosition.Bottom });
-        queue.Enqueue(new TutorialModel { id = "step_description", message = "...and a description to our step.", position = TutorialModel.MessagePosition.Bottom });
-        queue.Enqueue(new TutorialModel { id = "step_augmentations", message = "Finally, lets add some content to our Step. To do so, tap the Augmentations tab.", position = TutorialModel.MessagePosition.Middle });
-        queue.Enqueue(new TutorialModel { id = "step_add_augmentation", message = "Augmentations represent different AR content for our users. A list of possible augmentations can be seen by tapping the plus button.", position = TutorialModel.MessagePosition.Bottom });
-        queue.Enqueue(new TutorialModel { message = "Here you can choose any of the available augmentations to add to the step. More information on each augmentation is available on their info page. This concludes the tutorial, have fun exploring!", position = TutorialModel.MessagePosition.Middle });
-        _tutorial.Show(queue);
-        
 
         //PopupsViewer.Instance.Show(_helpPrefab);
     }
