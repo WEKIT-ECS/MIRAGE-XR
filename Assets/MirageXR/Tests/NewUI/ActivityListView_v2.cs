@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using TMPro;
 public class ActivityListView_v2 : BaseView
 {
     private const float HIDED_SIZE = 100f;
@@ -26,6 +27,8 @@ public class ActivityListView_v2 : BaseView
     [SerializeField] private RectTransform _panel;
     [SerializeField] private GameObject _arrowDown;
     [SerializeField] private GameObject _arrowUp;
+    [SerializeField] private TMP_Text _txtShowby;
+    [SerializeField] private TMP_Text _txtSortby;
 
     private List<SessionContainer> _content;
     private readonly List<ActivityListItem_v2> _items = new List<ActivityListItem_v2>();
@@ -114,8 +117,10 @@ public class ActivityListView_v2 : BaseView
 
     public async void FetchAndUpdateView()
     {
+        _btnFilter.interactable = false;
         _content = await FetchContent();
         UpdateView();
+        _btnFilter.interactable = true;
     }
 
     public void UpdateView()
@@ -187,7 +192,7 @@ public class ActivityListView_v2 : BaseView
         }
     }
 
-    public void OnShowbyChanged()
+    public void OnShowByChanged()
     {
         foreach (var item in _items)
         {
@@ -195,12 +200,15 @@ public class ActivityListView_v2 : BaseView
             {
                 case DBManager.ShowBy.ALL:
                     item.gameObject.SetActive(true);
+                    _txtShowby.text = "Show All";
                     break;
                 case DBManager.ShowBy.MYACTIVITIES:
                     item.gameObject.SetActive(item.GetComponent<ActivityListItem_v2>().userIsAuthor);
+                    _txtShowby.text = "My Activities";
                     break;
                 case DBManager.ShowBy.MYASSIGNMENTS:
                     item.gameObject.SetActive(item.GetComponent<ActivityListItem_v2>().userIsEnroled);
+                    _txtShowby.text = "My Assignments";
                     break;
             }
         }
@@ -212,13 +220,19 @@ public class ActivityListView_v2 : BaseView
         {
             case DBManager.SortBy.DATE:
                 _orderByRelavance = false;
+                _txtSortby.text = "By Date";
                 FetchAndUpdateView();
                 break;
             case DBManager.SortBy.RELAVEANCE:
                 _orderByRelavance = true;
+                _txtSortby.text = "By Relavence";
                 FetchAndUpdateView();
                 break;
         }
+
+        DBManager.currentShowby = DBManager.ShowBy.ALL;
+
+        OnShowByChanged();
     }
 
     private static Dictionary<string, SessionContainer> OrderByRelavance(List<Session> activityList)

@@ -92,10 +92,14 @@ public class PopupsViewer : MonoBehaviour
 
     private void OnClose(PopupBase popup)
     {
-        if (_stack.Peek() == popup)
+        if (_stack.Count > 0)
         {
-            Destroy(_stack.Pop().gameObject);
-            UpdateView();
+
+            if (_stack.Peek() == popup)
+            {
+                Destroy(_stack.Pop().gameObject);
+                UpdateView();
+            }
         }
     }
 }

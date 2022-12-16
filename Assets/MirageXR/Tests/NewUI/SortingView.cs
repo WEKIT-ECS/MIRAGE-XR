@@ -23,7 +23,7 @@ public class SortingView : PopupBase
 
         _btnClose.onClick.AddListener(Close);
 
-        UpdateView();
+        SetToggles();
 
         _toggleShowAll.onValueChanged.AddListener(ShowAll);
         _toggleMyAssignments.onValueChanged.AddListener(ShowMyAssignments);
@@ -36,7 +36,7 @@ public class SortingView : PopupBase
         _toggleBigCards.onValueChanged.AddListener(ShowBigCard);
     }
 
-    private void UpdateView()
+    private void SetToggles()
     {
         _toggleSmallCards.isOn = !DBManager.showBigCards;
         _toggleBigCards.isOn = DBManager.showBigCards;
@@ -93,12 +93,14 @@ public class SortingView : PopupBase
     {
         DBManager.showBigCards = false;
         _parentView.UpdateView();
+        Close();
     }
 
     private void ShowBigCard(bool value)
     {
         DBManager.showBigCards = true;
         _parentView.UpdateView();
+        Close();
     }
 
     private void ShowAll(bool value)
@@ -107,7 +109,8 @@ public class SortingView : PopupBase
         _toggleMyAssignments.isOn = false;
         _toggleMyActivities.isOn = false;
 
-        _parentView.OnShowbyChanged();
+        _parentView.OnShowByChanged();
+        Close();
     }
 
     private void ShowMyAssignments(bool value)
@@ -116,7 +119,8 @@ public class SortingView : PopupBase
         _toggleShowAll.isOn = false;
         _toggleMyActivities.isOn = false;
 
-        _parentView.OnShowbyChanged();
+        _parentView.OnShowByChanged();
+        Close();
     }
 
     private void ShowMyActivities(bool value)
@@ -125,7 +129,8 @@ public class SortingView : PopupBase
         _toggleShowAll.isOn = false;
         _toggleMyAssignments.isOn = false;
 
-        _parentView.OnShowbyChanged();
+        _parentView.OnShowByChanged();
+        Close();
     }
 
     private void SortByDate(bool value)
@@ -134,6 +139,7 @@ public class SortingView : PopupBase
         _toggleByRelevance.isOn = false;
 
         _parentView.OnSortbyChanged();
+        Close();
     }
 
     private void SortByRelevance(bool value)
@@ -142,6 +148,7 @@ public class SortingView : PopupBase
         _toggleByDate.isOn = false;
 
         _parentView.OnSortbyChanged();
+        Close();
     }
 
 
