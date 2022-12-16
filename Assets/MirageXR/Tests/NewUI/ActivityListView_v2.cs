@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 public class ActivityListView_v2 : BaseView
 {
-    private const float HIDED_SIZE = 100f;
+    private const float HIDED_SIZE = 80f;
     private const float HIDE_ANIMATION_TIME = 0.5f;
 
     [SerializeField] private Button _btnFilter;
