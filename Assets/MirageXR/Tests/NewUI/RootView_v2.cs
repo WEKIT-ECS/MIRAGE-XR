@@ -187,7 +187,7 @@ public class RootView_v2 : BaseView
     public void ShowHelpView()
     {
 
-        //TutorialManager.Instance.ShowHelpSelection(helpPage);
+        TutorialManager.Instance.ShowHelpSelection(helpPage);
 
         //PopupsViewer.Instance.Show(_helpPrefab);
     }

@@ -5,54 +5,25 @@ using UnityEngine.UI;
 
 namespace MirageXR
 {
-    public class HelpSelectionActionInfo : HelpSelection
+    public class HelpSelectionActionInfo
     {
-        protected override void Init()
-        {
-            this._instructionText = "";
-            EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
+        private Tutorial _mobileTutorial;
+        private HelpSelectionPopup _popup;
 
-            this._popup.CreateNewSelectionButton("How to add step title and description").onClick.AddListener(changeTitleAndDescription);
-            this._popup.CreateNewSelectionButton("What is an augmentation").onClick.AddListener(whatIsAnAugmentation);
-            this._popup.CreateNewSelectionButton("How to add or change augmentations in a step").onClick.AddListener(howToAddOrChange);
-            this._popup.CreateNewSelectionButton("Is there a way for an augmentation to stay for more than one step").onClick.AddListener(howToKeepAlive);
+        public void Init(HelpSelectionPopup popup, Tutorial mobileTutorial)
+        {
+            _popup = popup;
+            _mobileTutorial = mobileTutorial;
+
+            _popup.CreateNewSelectionButton("What are titles/descriptions for").onClick.AddListener(Explain);
         }
 
-        protected override void Detach()
+        private void Explain()
         {
-            EventManager.NewActivityCreationButtonPressed -= DefaultExitEventListener;
-        }
-
-        public void changeTitleAndDescription()
-        {
-            this.ExitStep();
-            TutorialManager.Instance.ShowHelp(0);
-        }
-
-        public void whatIsAnAugmentation()
-        {
-            this.ExitStep();
-            TutorialManager.Instance.ShowHelp(1);
-        }
-
-        public void howToAddOrChange()
-        {
-            this.ExitStep();
-            TutorialManager.Instance.ShowHelp(2);
-        }
-
-        public void howToKeepAlive()
-        {
-            this.ExitStep();
-            TutorialManager.Instance.ShowHelp(3);
-        }
-
-
-        protected override void SecuredExitStep()
-        {
-            Detach();
-            RemoveHighlight();
-            RemoveInstruction();
+            _popup.Close();
+            var queue = new Queue<TutorialModel>();
+            queue.Enqueue(new TutorialModel { message = "You can make the same augmentation to be present in multiple steps. Tap on the settings of the augmentation, choose keep-alive, and select the range of steps." });
+            _mobileTutorial.Show(queue);
         }
     }
 }

@@ -124,6 +124,7 @@ public class ContentListView_v2 : BaseView
         _augmentations.SetActive(true);
         _info.SetActive(false);
         _marker.SetActive(false);
+        EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivitySteps);
     }
 
     private void OnAddMarkerPressed()
@@ -146,6 +147,7 @@ public class ContentListView_v2 : BaseView
         _augmentations.SetActive(value);
         _info.SetActive(!value);
         _marker.SetActive(!value);
+        EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActionAugmentations);
     }
 
     private void OnToggleInfoValueChanged(bool value)
@@ -153,6 +155,7 @@ public class ContentListView_v2 : BaseView
         _augmentations.SetActive(!value);
         _info.SetActive(value);
         _marker.SetActive(!value);
+        EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActionInfo);
     }
 
     private void OnToggleMarkerValueChanged(bool value)
@@ -160,6 +163,7 @@ public class ContentListView_v2 : BaseView
         _augmentations.SetActive(!value);
         _info.SetActive(!value);
         _marker.SetActive(value);
+        EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActionMarker);
     }
 
     private void OnEditModeChanged(bool value)

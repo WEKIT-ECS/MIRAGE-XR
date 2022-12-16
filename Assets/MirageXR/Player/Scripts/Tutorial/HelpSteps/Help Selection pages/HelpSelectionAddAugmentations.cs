@@ -5,26 +5,19 @@ using UnityEngine.UI;
 
 namespace MirageXR
 {
-    public class HelpSelectionAddAugmentations : HelpSelection
+    public class HelpSelectionAddAugmentations
     {
-        protected override void Init()
-        {
-            this._instructionText = "";
-            EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
+        private HelpSelectionPopup _popup;
 
-            this._popup.CreateNewSelectionButton("For more info on each augmentation type, open their window by selecting them on the list and then click their info").onClick.AddListener(SecuredExitStep);
+        public void Init(HelpSelectionPopup popup)
+        {
+            _popup = popup;
+            _popup.CreateNewSelectionButton("For more info on each augmentation type, open their window by selecting them on the list and then click their info").onClick.AddListener(Exit);
         }
 
-        protected override void Detach()
+        private void Exit()
         {
-            EventManager.NewActivityCreationButtonPressed -= DefaultExitEventListener;
-        }
-
-        protected override void SecuredExitStep()
-        {
-            Detach();
-            RemoveHighlight();
-            RemoveInstruction();
+            _popup.Close();
         }
     }
 }
