@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using MirageXR;
 
 public class PopupsViewer : MonoBehaviour
 {
@@ -50,11 +51,6 @@ public class PopupsViewer : MonoBehaviour
             return;
         }
 
-        //foreach (var popupBase in _stack)
-        //{
-        //    popupBase.gameObject.SetActive(false);
-        //}
-
         var popup = _stack.Peek();
         if (popup.isMarkedToDelete)
         {
@@ -88,6 +84,7 @@ public class PopupsViewer : MonoBehaviour
         {
             popup.Close();
         }
+        EventManager.NotifyOnTutorialPopupCloseClicked();
     }
 
     private void OnClose(PopupBase popup)
