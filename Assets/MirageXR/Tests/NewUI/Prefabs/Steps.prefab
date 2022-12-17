@@ -483,6 +483,7 @@ GameObject:
   - component: {fileID: 5879572080445640506}
   - component: {fileID: 4531453496383573335}
   - component: {fileID: 3119189113585659108}
+  - component: {fileID: 3812656643993007674}
   m_Layer: 5
   m_Name: AddButton
   m_TagString: Untagged
@@ -593,6 +594,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3812656643993007674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2450475422647447385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _id: activity_add_step
+  _interactableObject: {fileID: 2450475422647447385}
+  _isPartOfScrollView: 0
 --- !u!1 &2561625108189103839
 GameObject:
   m_ObjectHideFlags: 0
@@ -4553,12 +4569,33 @@ MonoBehaviour:
     type: 3}
   m_PrefabInstance: {fileID: 8891541554267661653}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 8472046933111759921}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1707416028901310053 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7842152592959855408, guid: 9387b99b8853f844595f59ef3f811e2f,
+    type: 3}
+  m_PrefabInstance: {fileID: 8891541554267661653}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &9109209934790318240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1707416028901310053}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _id: activity_info
+  _interactableObject: {fileID: 1707416028901310053}
+  _isPartOfScrollView: 0
 --- !u!224 &3183183475383556694 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6289815014708543235, guid: 9387b99b8853f844595f59ef3f811e2f,
@@ -4571,19 +4608,40 @@ MonoBehaviour:
     type: 3}
   m_PrefabInstance: {fileID: 8891541554267661653}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1707416028901310053}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &4918718052788098732 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4550841162516395001, guid: 9387b99b8853f844595f59ef3f811e2f,
+    type: 3}
+  m_PrefabInstance: {fileID: 8891541554267661653}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7874822903976892688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4918718052788098732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _id: activity_steps
+  _interactableObject: {fileID: 4918718052788098732}
+  _isPartOfScrollView: 0
 --- !u!114 &7959459148325037110 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1517911001609666915, guid: 9387b99b8853f844595f59ef3f811e2f,
     type: 3}
   m_PrefabInstance: {fileID: 8891541554267661653}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 4918718052788098732}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
@@ -4615,3 +4673,24 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!1 &8472046933111759921 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1078568283418902884, guid: 9387b99b8853f844595f59ef3f811e2f,
+    type: 3}
+  m_PrefabInstance: {fileID: 8891541554267661653}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6475749282695454121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8472046933111759921}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _id: activity_calibration
+  _interactableObject: {fileID: 8472046933111759921}
+  _isPartOfScrollView: 0

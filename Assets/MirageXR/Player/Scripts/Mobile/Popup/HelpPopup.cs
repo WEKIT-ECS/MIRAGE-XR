@@ -9,26 +9,25 @@ namespace MirageXR
     /// Popup that presents instructions to the user in the mobile version
     /// of the tutorial. Uses the PopupBase to do so.
     /// </summary>
-    public class TutorialPopup : PopupBase
+    public class HelpPopup : PopupBase
     {
-        [SerializeField] private RectTransform _background;
         [SerializeField] private Button _btnGotIt;
         [SerializeField] private TMP_Text _txtInstruction;
-        private GameObject highlightedObject;
+        private GameObject _highlightedObject;
 
         /// <summary>
         /// Sets the text that is going to be shown on the popup.
         /// </summary>
         /// <param name="text">The instruction text to be shown.</param>
+
         public void SetInstructionText(String text)
         {
             _txtInstruction.text = text;
         }
-        
+
         public override void Initialization(Action<PopupBase> onClose, params object[] args)
         {
             base.Initialization(onClose, args);
-
             _btnGotIt.onClick.AddListener(GotItOnClick);
         }
 
@@ -41,13 +40,6 @@ namespace MirageXR
         protected override bool TryToGetArguments(params object[] args)
         {
             return true;
-        }
-
-        public void MovePopup()
-        {
-            var newY = gameObject.transform.localPosition.y - _background.rect.height;
-
-            gameObject.transform.localPosition = new Vector3(gameObject.transform.localPosition.x, newY, gameObject.transform.localPosition.z);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using MirageXR;
 
 public class PageView_v2 : MonoBehaviour, IDragHandler, IEndDragHandler
 {
@@ -34,7 +35,7 @@ public class PageView_v2 : MonoBehaviour, IDragHandler, IEndDragHandler
             {
                 _currentPageIndex = value;
                 MoveTo(CalculatePositionForPage(_currentPageIndex));
-                OnPageChanged.Invoke(_currentPageIndex);
+                OnPageChanged.Invoke(_currentPageIndex);              
             }
         }
     }
@@ -98,7 +99,7 @@ public class PageView_v2 : MonoBehaviour, IDragHandler, IEndDragHandler
         return new Vector3(x, anchoredPosition.y, anchoredPosition.z);
     }
 
-    private static IEnumerator MoveToEnumerator(RectTransform rectTransform, Vector3 endPosition, float time, AnimationCurve curve = null, Action callback = null)
+    private static IEnumerator MoveToEnumerator(RectTransform rectTransform, Vector3 endPosition, float time, AnimationCurve curve = null, System.Action callback = null)
     {
         if (curve == null) curve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
         var startPosition = rectTransform.anchoredPosition;
