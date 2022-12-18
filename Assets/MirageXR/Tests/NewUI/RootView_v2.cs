@@ -67,6 +67,7 @@ public class RootView_v2 : BaseView
         }
 
         Initialization(null);
+        EventManager.OnEditModeChanged += editModeChangedForHelp;
     }
 
     public override async void Initialization(BaseView parentView)
@@ -247,5 +248,18 @@ public class RootView_v2 : BaseView
     private void updateHelpPage(HelpPage page)
     {
         helpPage = page;
+    }
+
+    private void editModeChangedForHelp(bool editModeOn)
+    {
+        if (!editModeOn)
+        {
+            if (helpPage == HelpPage.ActionAugmentations ||
+                helpPage == HelpPage.ActionInfo ||
+                helpPage == HelpPage.ActionMarker)
+            {
+                helpPage = HelpPage.ActivitySteps;
+            }
+        }
     }
 }

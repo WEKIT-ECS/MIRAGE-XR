@@ -10,17 +10,20 @@ namespace MirageXR
         private Tutorial _mobileTutorial;
         private HelpSelectionPopup _popup;
 
-        public void Init(HelpSelectionPopup popup, Tutorial mobileTutorial)
+        public void Init(HelpSelectionPopup popup, Tutorial mobileTutorial, bool editMode)
         {
             _popup = popup;
             _mobileTutorial = mobileTutorial;
 
-            _popup.CreateNewSelectionButton("How to change activity title and description").onClick.AddListener(ChangeTitleAndDescription);
             _popup.CreateNewSelectionButton("What is an action step").onClick.AddListener(WhatIsAnActionStep);
-            _popup.CreateNewSelectionButton("How can i make multiple steps").onClick.AddListener(SelectMultipleSteps);
-            _popup.CreateNewSelectionButton("How to rename a step").onClick.AddListener(RenameSteps);
-            _popup.CreateNewSelectionButton("How to add content to a step").onClick.AddListener(AddContent);
-            //_popup.CreateNewSelectionButton("How to copy a step").onClick.AddListener(CopyStep); TODO: Add this when we can actually copy
+            if (editMode)
+            {
+                _popup.CreateNewSelectionButton("How to change activity title and description").onClick.AddListener(ChangeTitleAndDescription);
+                _popup.CreateNewSelectionButton("How can i make multiple steps").onClick.AddListener(SelectMultipleSteps);
+                _popup.CreateNewSelectionButton("How to rename a step").onClick.AddListener(RenameSteps);
+                _popup.CreateNewSelectionButton("How to add content to a step").onClick.AddListener(AddContent);
+                //_popup.CreateNewSelectionButton("How to copy a step").onClick.AddListener(CopyStep); TODO: Add this when we can actually copy
+            }
         }
 
         public void ChangeTitleAndDescription()

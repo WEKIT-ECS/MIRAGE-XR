@@ -52,6 +52,7 @@ namespace MirageXR
         private int _currentHelpSelection;
 
         private Tutorial _mobileTutorial;
+        private bool _isInEditMode;
 
         /// <summary>
         /// TutorialButton on the Hololens UI.
@@ -107,6 +108,12 @@ namespace MirageXR
             _steps = new List<TutorialStep>();
             _helpSelections = new List<HelpSelection>();
             MobileHighlighter = new TutorialObjectHighlighter();
+            EventManager.OnEditModeChanged += EditModeListener;
+        }
+
+        private void EditModeListener(bool value)
+        {
+            _isInEditMode = value;
         }
 
         /// <summary>
@@ -291,7 +298,7 @@ namespace MirageXR
                     break;
                 case RootView_v2.HelpPage.ActivitySteps:
                     HelpSelectionNewActivity hsna = new HelpSelectionNewActivity();
-                    hsna.Init(popup, _mobileTutorial);
+                    hsna.Init(popup, _mobileTutorial, _isInEditMode);
                     break;
                 case RootView_v2.HelpPage.ActivityInfo:
                     HelpSelectionActivityInfo hsai = new HelpSelectionActivityInfo();
@@ -303,7 +310,7 @@ namespace MirageXR
                     break;
                 case RootView_v2.HelpPage.ActionAugmentations:
                     HelpSelectionActionAugmentations hsaa = new HelpSelectionActionAugmentations();
-                    hsaa.Init(popup, _mobileTutorial);
+                    hsaa.Init(popup, _mobileTutorial, _isInEditMode);
                     break;
                 case RootView_v2.HelpPage.ActionInfo:
                     HelpSelectionActionInfo hsaci = new HelpSelectionActionInfo();
