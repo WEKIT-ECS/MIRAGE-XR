@@ -15,18 +15,27 @@ namespace MirageXR
             _popup = popup;
             _mobileTutorial = mobileTutorial;
 
+            _popup.CreateNewSelectionButton("How to calibrate").onClick.AddListener(HowDoICalibrate);
             _popup.CreateNewSelectionButton("What is an action step").onClick.AddListener(WhatIsAnActionStep);
             if (editMode)
             {
                 _popup.CreateNewSelectionButton("How to change activity title and description").onClick.AddListener(ChangeTitleAndDescription);
-                _popup.CreateNewSelectionButton("How can i make multiple steps").onClick.AddListener(SelectMultipleSteps);
+                _popup.CreateNewSelectionButton("How can I make multiple steps").onClick.AddListener(SelectMultipleSteps);
                 _popup.CreateNewSelectionButton("How to rename a step").onClick.AddListener(RenameSteps);
                 _popup.CreateNewSelectionButton("How to add content to a step").onClick.AddListener(AddContent);
                 //_popup.CreateNewSelectionButton("How to copy a step").onClick.AddListener(CopyStep); TODO: Add this when we can actually copy
             }
         }
 
-        public void ChangeTitleAndDescription()
+        private void HowDoICalibrate()
+        {
+            _popup.Close();
+            var queue = new Queue<TutorialModel>();
+            queue.Enqueue(new TutorialModel { id = "activity_calibration", message = "Tap on the Calibration tab to be able to calibrate your device." });
+            _mobileTutorial.Show(queue);
+        }
+
+        private void ChangeTitleAndDescription()
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
@@ -34,7 +43,7 @@ namespace MirageXR
             _mobileTutorial.Show(queue);
         }
 
-        public void WhatIsAnActionStep()
+        private void WhatIsAnActionStep()
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
@@ -42,15 +51,15 @@ namespace MirageXR
             _mobileTutorial.Show(queue);
         }
 
-        public void SelectMultipleSteps()
+        private void SelectMultipleSteps()
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { id = "step_item", message = "Long tap on the action step to select it.", position = TutorialModel.MessagePosition.Bottom });
+            queue.Enqueue(new TutorialModel { id = "step_item", message = "Tap on the add step button. You can drag & drop steps to change their position in the list.", position = TutorialModel.MessagePosition.Bottom });
             _mobileTutorial.Show(queue);
         }
 
-        public void RenameSteps()
+        private void RenameSteps()
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
@@ -58,7 +67,7 @@ namespace MirageXR
             _mobileTutorial.Show(queue);
         }
 
-        public void AddContent()
+        private void AddContent()
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
@@ -66,7 +75,7 @@ namespace MirageXR
             _mobileTutorial.Show(queue);
         }
 
-        public void CopyStep()
+        private void CopyStep()
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
