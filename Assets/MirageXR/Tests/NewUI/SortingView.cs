@@ -67,7 +67,7 @@ public class SortingView : PopupBase
                 _toggleByDate.isOn = true;
 
                 break;
-            case DBManager.SortBy.RELAVEANCE:
+            case DBManager.SortBy.RELEVEANCE:
                 _toggleByRelevance.isOn = true;
                 _toggleByDate.isOn = false;
 
@@ -144,7 +144,7 @@ public class SortingView : PopupBase
 
     private void SortByRelevance(bool value)
     {
-        DBManager.currentSortby = DBManager.SortBy.RELAVEANCE;
+        DBManager.currentSortby = DBManager.SortBy.RELEVEANCE;
         _toggleByDate.isOn = false;
 
         _parentView.OnSortbyChanged();

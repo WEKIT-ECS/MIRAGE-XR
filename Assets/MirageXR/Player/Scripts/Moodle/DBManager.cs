@@ -95,7 +95,7 @@ namespace MirageXR
 
         private static ShowBy CurrentShowby = ShowBy.ALL;
 
-        public enum SortBy {DATE, RELAVEANCE};
+        public enum SortBy {DATE, RELEVEANCE};
 
         private static SortBy CurrentSortby = SortBy.DATE;
 
