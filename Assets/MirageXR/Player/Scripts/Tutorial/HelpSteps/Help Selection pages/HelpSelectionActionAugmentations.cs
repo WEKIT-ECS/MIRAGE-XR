@@ -10,16 +10,19 @@ namespace MirageXR
         private Tutorial _mobileTutorial;
         private HelpSelectionPopup _popup;
 
-        public void Init(HelpSelectionPopup popup, Tutorial mobileTutorial)
+        public void Init(HelpSelectionPopup popup, Tutorial mobileTutorial, bool editMode)
         {
             _popup = popup;
             _mobileTutorial = mobileTutorial;
 
-            _popup.CreateNewSelectionButton("How to add step title and description").onClick.AddListener(changeTitleAndDescription);
             _popup.CreateNewSelectionButton("What is an augmentation").onClick.AddListener(whatIsAnAugmentation);
-            _popup.CreateNewSelectionButton("How to add augmentations to a step").onClick.AddListener(howToAdd);
-            _popup.CreateNewSelectionButton("How to make changes to existing augmentations").onClick.AddListener(howToChange);
-            _popup.CreateNewSelectionButton("Is there a way for an augmentation to stay for more than one step").onClick.AddListener(howToKeepAlive);
+            if (editMode)
+            {
+                _popup.CreateNewSelectionButton("How to add step title and description").onClick.AddListener(changeTitleAndDescription);
+                _popup.CreateNewSelectionButton("How to add augmentations to a step").onClick.AddListener(howToAdd);
+                _popup.CreateNewSelectionButton("How to make changes to existing augmentations").onClick.AddListener(howToChange);
+                _popup.CreateNewSelectionButton("Is there a way for an augmentation to stay for more than one step").onClick.AddListener(howToKeepAlive);
+            }
         }
 
         public void changeTitleAndDescription()
