@@ -330,7 +330,7 @@ namespace MirageXR
             {
                 _mobileTutorial = RootView_v2.Instance.Tutorial;
             }
-            DBManager.dontShowCalibrationGuide = true;
+
             var queue = new Queue<TutorialModel>();
             queue.Enqueue(new TutorialModel { id = "activity_create", message = "Welcome to the MirageXR editing tutorial! To start, let's create a new activity by tapping the plus button below.", btnText = "Skip" });
             queue.Enqueue(new TutorialModel { id = "activity_info", message = "We should add some info about our activity so it's recognisable. To do this tap the Info tab.", position = TutorialModel.MessagePosition.Middle, btnText = "Skip" });
@@ -346,7 +346,6 @@ namespace MirageXR
             queue.Enqueue(new TutorialModel { id = "step_add_augmentation", message = "Augmentations represent different AR content for our users. A list of possible augmentations can be seen by tapping the plus button.", position = TutorialModel.MessagePosition.Bottom, btnText = "Skip" });
             queue.Enqueue(new TutorialModel { message = "Here you can choose any of the available augmentations to add to the step. More information on each augmentation is available on their info page. This concludes the tutorial, have fun exploring!", position = TutorialModel.MessagePosition.Middle, btnText = "Got it" });
             _mobileTutorial.Show(queue);
-            DBManager.dontShowCalibrationGuide = false;
         }
     }
 }
