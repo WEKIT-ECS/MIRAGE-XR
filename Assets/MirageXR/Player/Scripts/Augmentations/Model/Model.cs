@@ -2,11 +2,14 @@
 using System.IO;
 using UnityEngine;
 using Siccity.GLTFUtility;
+using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 
 namespace MirageXR
 {
     public class Model : MirageXRPrefab
-    {
+    { 
+        private static ActivityManager _activityManager => RootObject.Instance.activityManager;
+
         private float startLoadTime = 0.0f;
         private ToggleObject myToggleObject;
         private Animation animation;
@@ -22,6 +25,16 @@ namespace MirageXR
         private void OnDestroy()
         {
             UnSubscribe();
+        }
+
+        private void OnEnable()
+        {
+            EventManager.OnEditModeChanged += EditModeChanges;
+        }
+
+        private void OnDisable()
+        {
+            EventManager.OnEditModeChanged -= EditModeChanges;
         }
 
         private void Subscribe()
@@ -130,6 +143,8 @@ namespace MirageXR
                 animation.clip.legacy = true;
                 animation.Play();
             }
+            gameObject.AddComponent<BoundsControl>();
+            EditModeChanges(_activityManager.EditModeActive);
         }
 
         private List<Bounds> colliders;
@@ -265,6 +280,15 @@ namespace MirageXR
                         pick.ArrowRenderer.enabled = true;
                     }
                 }
+            }
+        }
+
+        private void EditModeChanges(bool editModeState)
+        {
+            var boundsControl = gameObject.GetComponent<BoundsControl>();
+            if (boundsControl != null)
+            {
+                boundsControl.Active = editModeState;
             }
         }
     }
