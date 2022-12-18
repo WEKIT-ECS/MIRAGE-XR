@@ -13,13 +13,14 @@ public class TutorialModel
         Bottom
     }
 
-    public bool hasId => !string.IsNullOrEmpty(id);
-
-    public bool hasMessage => !string.IsNullOrEmpty(message);
-
     public string id;
     public string message;
     public MessagePosition position = MessagePosition.Middle;
+    public string btnText = "Got it";
+
+    public bool HasId => !string.IsNullOrEmpty(id);
+
+    public bool HasMessage => !string.IsNullOrEmpty(message);
 }
 
 public class Tutorial : MonoBehaviour
@@ -93,7 +94,7 @@ public class Tutorial : MonoBehaviour
 
     private async Task ShowItem(TutorialModel model, int tryCount = 0)
     {
-        if (model.hasId)
+        if (model.HasId)
         {
             var item = await FindTutorialItem(model.id);
             if (item)
@@ -110,7 +111,7 @@ public class Tutorial : MonoBehaviour
             }
         }
 
-        if (model.hasMessage)
+        if (model.HasMessage)
         {
             _lastMessageView = ShowMessage(model);
         }
