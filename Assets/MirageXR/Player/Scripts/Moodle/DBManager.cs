@@ -174,11 +174,6 @@ namespace MirageXR
             set => CurrentSortby = value;
         }
 
-        public static string Username
-        {
-            get => username;
-        }
-
         public static string registerPage => $"{domain}/login/signup.php";
 
 
