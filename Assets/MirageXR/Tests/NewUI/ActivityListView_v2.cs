@@ -223,9 +223,9 @@ public class ActivityListView_v2 : BaseView
                 _txtSortby.text = "By Date";
                 FetchAndUpdateView();
                 break;
-            case DBManager.SortBy.RELAVEANCE:
+            case DBManager.SortBy.RELEVEANCE:
                 _orderByRelavance = true;
-                _txtSortby.text = "By Relavence";
+                _txtSortby.text = "By Relevence";
                 FetchAndUpdateView();
                 break;
         }
