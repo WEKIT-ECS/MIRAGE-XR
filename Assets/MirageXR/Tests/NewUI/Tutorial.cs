@@ -51,6 +51,8 @@ public class Tutorial : MonoBehaviour
 
     public void Show(Queue<TutorialModel> queue)
     {
+        // Disable calibration guide so that it doesn't interfere with layering
+        DBManager.dontShowCalibrationGuide = true;
         _backgroundCanvasGroup.gameObject.SetActive(true);
         _panel.gameObject.SetActive(true);
         _queue = queue;
@@ -89,6 +91,8 @@ public class Tutorial : MonoBehaviour
         else
         {
             Hide();
+            // Re-enable calibration guide for next prompt
+            DBManager.dontShowCalibrationGuide = false;
         }
     }
 
