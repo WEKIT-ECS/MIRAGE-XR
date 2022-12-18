@@ -15,10 +15,10 @@ namespace MirageXR
             _popup = popup;
             _mobileTutorial = mobileTutorial;
 
-            _popup.CreateNewSelectionButton("What are title/description for").onClick.AddListener(titleAndDescription);
+            _popup.CreateNewSelectionButton("What are title/description for").onClick.AddListener(TitleAndDescription);
         }
 
-        public void titleAndDescription() 
+        private void TitleAndDescription()
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
