@@ -91,65 +91,84 @@ public class SortingView : PopupBase
 
     private void ShowSmallCard(bool value)
     {
-        DBManager.showBigCards = false;
-        _parentView.UpdateView();
-        Close();
+        if (value)
+        {
+            DBManager.showBigCards = false;
+            _parentView.UpdateView();
+            Close();
+        }
     }
 
     private void ShowBigCard(bool value)
     {
-        DBManager.showBigCards = true;
-        _parentView.UpdateView();
-        Close();
+        if (value)
+        {
+            DBManager.showBigCards = true;
+            _parentView.UpdateView();
+            Close();
+        }
     }
 
     private void ShowAll(bool value)
     {
-        DBManager.currentShowby = DBManager.ShowBy.ALL;
-        _toggleMyAssignments.isOn = false;
-        _toggleMyActivities.isOn = false;
+        if (value)
+        {
+            DBManager.currentShowby = DBManager.ShowBy.ALL;
+            _toggleMyAssignments.isOn = false;
+            _toggleMyActivities.isOn = false;
 
-        _parentView.OnShowByChanged();
-        Close();
+            _parentView.OnShowByChanged();
+            Close();
+        }
     }
 
     private void ShowMyAssignments(bool value)
     {
-        DBManager.currentShowby = DBManager.ShowBy.MYASSIGNMENTS;
-        _toggleShowAll.isOn = false;
-        _toggleMyActivities.isOn = false;
+        if (value)
+        {
+            DBManager.currentShowby = DBManager.ShowBy.MYASSIGNMENTS;
+            _toggleShowAll.isOn = false;
+            _toggleMyActivities.isOn = false;
 
-        _parentView.OnShowByChanged();
-        Close();
+            _parentView.OnShowByChanged();
+            Close();
+        }
     }
 
     private void ShowMyActivities(bool value)
     {
-        DBManager.currentShowby = DBManager.ShowBy.MYACTIVITIES;
-        _toggleShowAll.isOn = false;
-        _toggleMyAssignments.isOn = false;
+        if (value)
+        {
+            DBManager.currentShowby = DBManager.ShowBy.MYACTIVITIES;
+            _toggleShowAll.isOn = false;
+            _toggleMyAssignments.isOn = false;
 
-        _parentView.OnShowByChanged();
-        Close();
+            _parentView.OnShowByChanged();
+            Close();
+        }
     }
 
     private void SortByDate(bool value)
     {
-        DBManager.currentSortby = DBManager.SortBy.DATE;
-        _toggleByRelevance.isOn = false;
+        if (value)
+        {
+            DBManager.currentSortby = DBManager.SortBy.DATE;
+            _toggleByRelevance.isOn = false;
 
-        _parentView.OnSortbyChanged();
-        Close();
+            _parentView.OnSortbyChanged();
+            Close();
+        }
     }
 
     private void SortByRelevance(bool value)
     {
-        DBManager.currentSortby = DBManager.SortBy.RELEVEANCE;
-        _toggleByDate.isOn = false;
+        if (value)
+        {
+            DBManager.currentSortby = DBManager.SortBy.RELEVEANCE;
+            _toggleByDate.isOn = false;
 
-        _parentView.OnSortbyChanged();
-        Close();
+            _parentView.OnSortbyChanged();
+            Close();
+        }
     }
-
-
 }
