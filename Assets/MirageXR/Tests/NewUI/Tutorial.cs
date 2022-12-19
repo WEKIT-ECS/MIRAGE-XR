@@ -13,13 +13,14 @@ public class TutorialModel
         Bottom
     }
 
-    public bool hasId => !string.IsNullOrEmpty(id);
-
-    public bool hasMessage => !string.IsNullOrEmpty(message);
-
     public string id;
     public string message;
     public MessagePosition position = MessagePosition.Middle;
+    public string btnText = "Got it";
+
+    public bool HasId => !string.IsNullOrEmpty(id);
+
+    public bool HasMessage => !string.IsNullOrEmpty(message);
 }
 
 public class Tutorial : MonoBehaviour
@@ -50,6 +51,8 @@ public class Tutorial : MonoBehaviour
 
     public void Show(Queue<TutorialModel> queue)
     {
+        // Disable calibration guide so that it doesn't interfere with layering
+        DBManager.dontShowCalibrationGuide = true;
         _backgroundCanvasGroup.gameObject.SetActive(true);
         _panel.gameObject.SetActive(true);
         _queue = queue;
@@ -88,12 +91,14 @@ public class Tutorial : MonoBehaviour
         else
         {
             Hide();
+            // Re-enable calibration guide for next prompt
+            DBManager.dontShowCalibrationGuide = false;
         }
     }
 
     private async Task ShowItem(TutorialModel model, int tryCount = 0)
     {
-        if (model.hasId)
+        if (model.HasId)
         {
             var item = await FindTutorialItem(model.id);
             if (item)
@@ -110,7 +115,7 @@ public class Tutorial : MonoBehaviour
             }
         }
 
-        if (model.hasMessage)
+        if (model.HasMessage)
         {
             _lastMessageView = ShowMessage(model);
         }
