@@ -146,7 +146,7 @@ namespace MirageXR
             activityManager.EditModeActive = value;
             if (!value)
             {
-                RootView_v2.Instance.activityView.stepsListView.OnToggleCalibrationValueChanged(true);
+                RootView_v2.Instance.activityView.stepsListView.SetCalibrationToggle(true);
             }
         }
 
