@@ -15,7 +15,7 @@ namespace MirageXR
             _popup = popup;
             _mobileTutorial = mobileTutorial;
 
-            _popup.CreateNewSelectionButton("How to calibrate").onClick.AddListener(HowDoICalibrate);
+            _popup.CreateNewSelectionButton("How and why to calibrate").onClick.AddListener(HowDoICalibrate);
             _popup.CreateNewSelectionButton("What is an action step").onClick.AddListener(WhatIsAnActionStep);
             if (editMode)
             {
@@ -31,7 +31,7 @@ namespace MirageXR
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { id = "activity_calibration", message = "Tap on the Calibration tab to be able to calibrate your device." });
+            queue.Enqueue(new TutorialModel { id = "activity_calibration", message = "Calibration ensures that all locations in 3D space are correct next time you or someone else opens the activity. Each activity needs to be calibrated when editing and when viewing. To calibrate, tap the Calibration tab and start calibration." });
             _mobileTutorial.Show(queue);
         }
 
