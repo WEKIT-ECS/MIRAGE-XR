@@ -156,7 +156,7 @@ public class StepsListView_v2 : BaseView
         }
     }
 
-    public void OnToggleCalibrationValueChanged(bool value)
+    private void OnToggleCalibrationValueChanged(bool value)
     {
         _steps.SetActive(!value);
         _info.SetActive(!value);
@@ -165,6 +165,11 @@ public class StepsListView_v2 : BaseView
         {
             EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivityCalibration);
         }
+    }
+
+    public void SetCalibrationToggle(bool value)
+    {
+        _toggleCalibration.isOn = value;
     }
 
     private void LoadThumbnail()
