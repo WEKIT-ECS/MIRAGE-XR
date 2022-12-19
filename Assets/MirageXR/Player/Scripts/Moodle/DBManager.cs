@@ -91,6 +91,14 @@ namespace MirageXR
 
         private static LearningRecordStores CurrentLearningRecordStore;
 
+        public enum ShowBy {ALL, MYASSIGNMENTS, MYACTIVITIES};
+
+        private static ShowBy CurrentShowby = ShowBy.ALL;
+
+        public enum SortBy {DATE, RELEVEANCE};
+
+        private static SortBy CurrentSortby = SortBy.DATE;
+
         private static readonly PrefsBoolValue _publicUploadPrivacy = new PrefsBoolValue(UPLOAD_PRIVACY_KEY, PUBLIC_UPLOAD_PRIVACY_DEFAULT);
         private static readonly PrefsBoolValue _rememberUser = new PrefsBoolValue(REMEMBER_USER_KEY, REMEMBER_USER_DEFAULT);
         private static readonly PrefsBoolValue _rememberSketchfabUser = new PrefsBoolValue(REMEMBER_SKETCHFAB_USER_KEY, REMEMBER_SKETCHFAB_USER_DEFAULT);
@@ -152,6 +160,18 @@ namespace MirageXR
         {
             get => CurrentLearningRecordStore;
             set => CurrentLearningRecordStore = value;
+        }
+
+        public static ShowBy currentShowby
+        {
+            get => CurrentShowby;
+            set => CurrentShowby = value;
+        }
+
+        public static SortBy currentSortby
+        {
+            get => CurrentSortby;
+            set => CurrentSortby = value;
         }
 
         public static string registerPage => $"{domain}/login/signup.php";

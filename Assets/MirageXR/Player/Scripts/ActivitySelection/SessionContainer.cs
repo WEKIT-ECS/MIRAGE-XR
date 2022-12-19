@@ -100,6 +100,18 @@
             }
         }
 
+        public bool hasDeadline
+        {
+            get
+            {
+                if (Session != null && Session.deadline != null)
+                {
+                    return true;
+                }
+                return false;
+            }
+        }
+
         public string author
         {
             get

@@ -27,6 +27,10 @@ namespace MirageXR
 
         public string activityAuthor => _container.author;
 
+        public bool userIsAuthor => _container.userIsOwner;
+
+        public bool userIsEnroled => _container.hasDeadline;
+
         public bool interactable
         {
             get

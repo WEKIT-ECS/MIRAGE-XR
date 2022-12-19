@@ -89,6 +89,12 @@ public class PopupsViewer : MonoBehaviour
 
     private void OnClose(PopupBase popup)
     {
+        if (_stack.Count <= 0)
+        {
+            Debug.LogError("Stack is empty!");
+            return;
+        }
+
         if (_stack.Peek() == popup)
         {
             Destroy(_stack.Pop().gameObject);
