@@ -15,21 +15,22 @@ namespace MirageXR
             _popup = popup;
             _mobileTutorial = mobileTutorial;
 
-            _popup.CreateNewSelectionButton("How to search for a specific activity").onClick.AddListener(search);
-            _popup.CreateNewSelectionButton("How to open an activity").onClick.AddListener(open);
-            _popup.CreateNewSelectionButton("How to create a new activity").onClick.AddListener(edit);
-            _popup.CreateNewSelectionButton("How to create an account and login").onClick.AddListener(createAccount);
+            _popup.CreateNewSelectionButton("How to search for a specific activity").onClick.AddListener(Search);
+            _popup.CreateNewSelectionButton("How to open an activity").onClick.AddListener(Open);
+            _popup.CreateNewSelectionButton("How to create a new activity").onClick.AddListener(Edit);
+            _popup.CreateNewSelectionButton("How to create an account and login").onClick.AddListener(CreateAccount);
         }
 
 
-        public void search() {
+        private void Search()
+        {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
             queue.Enqueue(new TutorialModel { id = "activity_search", message = "To search for an activity by name, tap the search menu item below." });
             _mobileTutorial.Show(queue);
         }
 
-        public void open()
+        private void Open()
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
@@ -37,7 +38,7 @@ namespace MirageXR
             _mobileTutorial.Show(queue);
         }
 
-        public void edit()
+        private void Edit()
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
@@ -45,7 +46,7 @@ namespace MirageXR
             _mobileTutorial.Show(queue);
         }
 
-        public void createAccount()
+        private void CreateAccount()
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();

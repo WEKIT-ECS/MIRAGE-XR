@@ -7,6 +7,7 @@ public class TutorialMessageView : MonoBehaviour
 {
     [SerializeField] private TMP_Text _message;
     [SerializeField] private Button _btnGotIt;
+    [SerializeField] private TMP_Text _btnText;
 
     private Action<TutorialModel> _action;
     private TutorialModel _model;
@@ -17,6 +18,7 @@ public class TutorialMessageView : MonoBehaviour
         _model = model;
         _message.text = model.message;
         _btnGotIt.onClick.AddListener(OnGotItButtonClicked);
+        _btnText.text = model.btnText;
         transform.localPosition = new Vector3(0, GetPositionByY(), 0);
     }
 

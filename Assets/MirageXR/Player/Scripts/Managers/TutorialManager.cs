@@ -52,6 +52,7 @@ namespace MirageXR
         private int _currentHelpSelection;
 
         private Tutorial _mobileTutorial;
+        private bool _isInEditMode;
 
         /// <summary>
         /// TutorialButton on the Hololens UI.
@@ -107,6 +108,12 @@ namespace MirageXR
             _steps = new List<TutorialStep>();
             _helpSelections = new List<HelpSelection>();
             MobileHighlighter = new TutorialObjectHighlighter();
+            EventManager.OnEditModeChanged += EditModeListener;
+        }
+
+        private void EditModeListener(bool value)
+        {
+            _isInEditMode = value;
         }
 
         /// <summary>
@@ -282,6 +289,8 @@ namespace MirageXR
                 _mobileTutorial = RootView_v2.Instance.Tutorial;
             }
 
+            bool isEditModeOn = RootObject.Instance.activityManager.EditModeActive;
+
             var popup = (HelpSelectionPopup)PopupsViewer.Instance.Show(HelpSelectionPopup);
             switch (helpSelection)
             {
@@ -291,7 +300,7 @@ namespace MirageXR
                     break;
                 case RootView_v2.HelpPage.ActivitySteps:
                     HelpSelectionNewActivity hsna = new HelpSelectionNewActivity();
-                    hsna.Init(popup, _mobileTutorial);
+                    hsna.Init(popup, _mobileTutorial, isEditModeOn);
                     break;
                 case RootView_v2.HelpPage.ActivityInfo:
                     HelpSelectionActivityInfo hsai = new HelpSelectionActivityInfo();
@@ -303,7 +312,7 @@ namespace MirageXR
                     break;
                 case RootView_v2.HelpPage.ActionAugmentations:
                     HelpSelectionActionAugmentations hsaa = new HelpSelectionActionAugmentations();
-                    hsaa.Init(popup, _mobileTutorial);
+                    hsaa.Init(popup, _mobileTutorial, isEditModeOn);
                     break;
                 case RootView_v2.HelpPage.ActionInfo:
                     HelpSelectionActionInfo hsaci = new HelpSelectionActionInfo();
@@ -323,19 +332,19 @@ namespace MirageXR
             }
 
             var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { id = "activity_create", message = "Welcome to the MirageXR editing tutorial! To start, let's create a new activity by tapping the plus button below." });
-            queue.Enqueue(new TutorialModel { id = "activity_info", message = "We should add some info about our activity so it's recognisable. To do this tap the Info tab.", position = TutorialModel.MessagePosition.Middle });
-            queue.Enqueue(new TutorialModel { id = "activity_title", message = "To give our activity a new title, we can tap on the field below.", position = TutorialModel.MessagePosition.Middle });
-            queue.Enqueue(new TutorialModel { id = "activity_description", message = "Activity descriptions help users understand what an activity is about. To add one, we can tap on the field below.", position = TutorialModel.MessagePosition.Middle });
-            queue.Enqueue(new TutorialModel { id = "activity_steps", message = "Now we're going to add some steps to our activity. Tap the Steps tab to continue.", position = TutorialModel.MessagePosition.Middle });
-            queue.Enqueue(new TutorialModel { id = "activity_add_step", message = "Activities consist of steps, which hold content for users to experience. Let's create a new step by tapping the plus button above.", position = TutorialModel.MessagePosition.Middle });
-            queue.Enqueue(new TutorialModel { id = "step_edit_step", message = "Empty steps aren't really entertaining. Let's add some content to our step by tapping the Edit Step button.", position = TutorialModel.MessagePosition.Bottom });
-            queue.Enqueue(new TutorialModel { id = "step_info", message = "First let's name and describe our step so users know what to expect. Tap the Info tab to continue.", position = TutorialModel.MessagePosition.Middle });
-            queue.Enqueue(new TutorialModel { id = "step_title", message = "Just like with the Activity, we should add a title...", position = TutorialModel.MessagePosition.Bottom });
-            queue.Enqueue(new TutorialModel { id = "step_description", message = "...and a description to our step.", position = TutorialModel.MessagePosition.Bottom });
-            queue.Enqueue(new TutorialModel { id = "step_augmentations", message = "Finally, lets add some content to our Step. To do so, tap the Augmentations tab.", position = TutorialModel.MessagePosition.Middle });
-            queue.Enqueue(new TutorialModel { id = "step_add_augmentation", message = "Augmentations represent different AR content for our users. A list of possible augmentations can be seen by tapping the plus button.", position = TutorialModel.MessagePosition.Bottom });
-            queue.Enqueue(new TutorialModel { message = "Here you can choose any of the available augmentations to add to the step. More information on each augmentation is available on their info page. This concludes the tutorial, have fun exploring!", position = TutorialModel.MessagePosition.Middle });
+            queue.Enqueue(new TutorialModel { id = "activity_create", message = "Welcome to the MirageXR editing tutorial! To start, let's create a new activity by tapping the plus button below.", btnText = "Skip" });
+            queue.Enqueue(new TutorialModel { id = "activity_info", message = "We should add some info about our activity so it's recognisable. To do this tap the Info tab.", position = TutorialModel.MessagePosition.Middle, btnText = "Skip" });
+            queue.Enqueue(new TutorialModel { id = "activity_title", message = "To give our activity a new title, we can tap on the field below.", position = TutorialModel.MessagePosition.Middle, btnText = "Skip" });
+            queue.Enqueue(new TutorialModel { id = "activity_description", message = "Activity descriptions help users understand what an activity is about. To add one, we can tap on the field below.", position = TutorialModel.MessagePosition.Middle, btnText = "Skip" });
+            queue.Enqueue(new TutorialModel { id = "activity_steps", message = "Now we're going to add some steps to our activity. Tap the Steps tab to continue.", position = TutorialModel.MessagePosition.Middle, btnText = "Skip" });
+            queue.Enqueue(new TutorialModel { id = "activity_add_step", message = "Activities consist of steps, which hold content for users to experience. Let's create a new step by tapping the plus button above.", position = TutorialModel.MessagePosition.Middle, btnText = "Skip" });
+            queue.Enqueue(new TutorialModel { id = "step_edit_step", message = "Empty steps aren't really entertaining. Let's add some content to our step by tapping the Edit Step button.", position = TutorialModel.MessagePosition.Bottom, btnText = "Skip" });
+            queue.Enqueue(new TutorialModel { id = "step_info", message = "First let's name and describe our step so users know what to expect. Tap the Info tab to continue.", position = TutorialModel.MessagePosition.Middle, btnText = "Skip" });
+            queue.Enqueue(new TutorialModel { id = "step_title", message = "Just like with the Activity, we should add a title...", position = TutorialModel.MessagePosition.Bottom, btnText = "Skip" });
+            queue.Enqueue(new TutorialModel { id = "step_description", message = "...and a description to our step.", position = TutorialModel.MessagePosition.Bottom, btnText = "Skip" });
+            queue.Enqueue(new TutorialModel { id = "step_augmentations", message = "Finally, lets add some content to our Step. To do so, tap the Augmentations tab.", position = TutorialModel.MessagePosition.Middle, btnText = "Skip" });
+            queue.Enqueue(new TutorialModel { id = "step_add_augmentation", message = "Augmentations represent different AR content for our users. A list of possible augmentations can be seen by tapping the plus button.", position = TutorialModel.MessagePosition.Bottom, btnText = "Skip" });
+            queue.Enqueue(new TutorialModel { message = "Here you can choose any of the available augmentations to add to the step. More information on each augmentation is available on their info page. This concludes the tutorial, have fun exploring!", position = TutorialModel.MessagePosition.Middle, btnText = "Got it" });
             _mobileTutorial.Show(queue);
         }
     }
