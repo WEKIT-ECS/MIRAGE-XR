@@ -148,11 +148,16 @@ public class StepsListView_v2 : BaseView
         _calibration.SetActive(!value);
     }
 
-    public void OnToggleCalibrationValueChanged(bool value)
+    private void OnToggleCalibrationValueChanged(bool value)
     {
         _steps.SetActive(!value);
         _info.SetActive(!value);
         _calibration.SetActive(value);
+    }
+
+    public void SetCalibrationToggle(bool value)
+    {
+        _toggleCalibration.isOn = value;
     }
 
     private void LoadThumbnail()
