@@ -1720,6 +1720,7 @@ GameObject:
   - component: {fileID: 8498793042986962144}
   - component: {fileID: 8540886020784719290}
   - component: {fileID: 3458798220509592103}
+  - component: {fileID: 3478304661851264728}
   - component: {fileID: 2492684018018381973}
   m_Layer: 5
   m_Name: AddNewStep
@@ -1790,6 +1791,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3478304661851264728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5111635670700392115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a3a71c8d4e2a57449bd5744aa60f70e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentTransform: {fileID: 8498793042986962144}
 --- !u!114 &2492684018018381973
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2282,7 +2296,6 @@ MonoBehaviour:
   _inputFieldActivityName: {fileID: 7272325896354531652}
   _inputFieldActivityDescription: {fileID: 3812528685048994425}
   _listContent: {fileID: 7396225487583108835}
-  _addStepPanel: {fileID: 8498793042986962144}
   _btnAddStep: {fileID: 3119189113585659108}
   _btnBack: {fileID: 6983206452208626133}
   _btnSettings: {fileID: 1092049895643708482}
