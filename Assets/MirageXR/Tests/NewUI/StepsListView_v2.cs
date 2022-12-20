@@ -121,7 +121,7 @@ public class StepsListView_v2 : BaseView
             _inputFieldActivityDescription.text = string.Empty;
         }
 
-        _addStepPanel.SetAsFirstSibling();
+        _addStepPanel.SetAsLastSibling();
     }
 
     private void OnBackPressed()
