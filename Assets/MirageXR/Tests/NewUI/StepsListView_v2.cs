@@ -17,6 +17,7 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private TMP_InputField _inputFieldActivityName;
     [SerializeField] private TMP_InputField _inputFieldActivityDescription;
     [SerializeField] private RectTransform _listContent;
+    [SerializeField] private RectTransform _addStepPanel;
     [SerializeField] private Button _btnAddStep;
     [SerializeField] private Button _btnBack;
     [SerializeField] private Button _btnSettings;
@@ -119,6 +120,8 @@ public class StepsListView_v2 : BaseView
             _inputFieldActivityName.text = string.Empty;
             _inputFieldActivityDescription.text = string.Empty;
         }
+
+        _addStepPanel.SetAsLastSibling();
     }
 
     private void OnBackPressed()
