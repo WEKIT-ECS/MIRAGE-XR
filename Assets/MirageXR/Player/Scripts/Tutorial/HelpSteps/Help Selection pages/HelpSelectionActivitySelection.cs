@@ -41,9 +41,7 @@ namespace MirageXR
         private void Edit()
         {
             _popup.Close();
-            var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { id = "activity_create", message = "Tap the plus button below to add a new activity" });
-            _mobileTutorial.Show(queue);
+            TutorialManager.Instance.StartNewMobileEditingTutorial();
         }
 
         private void CreateAccount()
