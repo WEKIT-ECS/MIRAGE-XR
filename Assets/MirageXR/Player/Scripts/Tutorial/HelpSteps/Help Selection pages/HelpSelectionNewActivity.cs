@@ -55,7 +55,7 @@ namespace MirageXR
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { id = "step_item", message = "Tap on the add step button. You can drag & drop steps to change their position in the list.", position = TutorialModel.MessagePosition.Bottom });
+            queue.Enqueue(new TutorialModel { id = "activity_add_step", message = "Tap on the add step button.", position = TutorialModel.MessagePosition.Bottom });
             _mobileTutorial.Show(queue);
         }
 
