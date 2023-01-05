@@ -24,6 +24,7 @@ namespace MirageXR
                 _popup.CreateNewSelectionButton("How to rename a step").onClick.AddListener(RenameSteps);
                 _popup.CreateNewSelectionButton("How to add content to a step").onClick.AddListener(AddContent);
                 //_popup.CreateNewSelectionButton("How to copy a step").onClick.AddListener(CopyStep); TODO: Add this when we can actually copy
+                _popup.CreateNewSelectionButton("How to save an activity").onClick.AddListener(SaveActivity);
             }
         }
 
@@ -80,6 +81,14 @@ namespace MirageXR
             _popup.Close();
             var queue = new Queue<TutorialModel>();
             queue.Enqueue(new TutorialModel { id = "step_edit_step", message = "To make a copy of a step and all its contents, tap on Edit step and then tap on the info tab.", position = TutorialModel.MessagePosition.Bottom });
+            _mobileTutorial.Show(queue);
+        }
+
+        private void SaveActivity()
+        {
+            _popup.Close();
+            var queue = new Queue<TutorialModel>();
+            queue.Enqueue(new TutorialModel { id = "activity_save", message = "Activities are automatically saved locally, but you need to save them to the cloud if you want a backup online. You have to mark them as 'Public upload', if you want others to see and access your activity.", position = TutorialModel.MessagePosition.Middle });
             _mobileTutorial.Show(queue);
         }
     }
