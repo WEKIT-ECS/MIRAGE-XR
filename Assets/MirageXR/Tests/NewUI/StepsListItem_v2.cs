@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using Action = System.Action;
 using Step = MirageXR.Action;
-using System.IO;
 
 public class StepsListItem_v2 : MonoBehaviour
 {
@@ -18,10 +17,11 @@ public class StepsListItem_v2 : MonoBehaviour
     [SerializeField] private Button _btnEditButton;
     [SerializeField] private Button _btnDelete;
     [SerializeField] private Button _btnImageMarkerPopup;
+    [SerializeField] private GameObject _moveIcon;
     [SerializeField] private GameObject _stepStatus;
     [SerializeField] private GameObject _stepDoneImage;
     [SerializeField] private GameObject _stepCurrentImage;
-    
+    [SerializeField] private DragAndDropController _dragAndDropController;
     [SerializeField] private ImageMarkerPopup _imageMarkerPopup;
 
     private MirageXR.Action _step;
@@ -29,17 +29,22 @@ public class StepsListItem_v2 : MonoBehaviour
     private Action<Step> _onStepClick;
     private Action<Step> _onEditClick;
     private Action<Step, Action> _onDeleteClick;
+    private Action<Step, int, int> _onSiblingIndexChanged;
     private string _imageMarkerUrl;
 
-    public void Init(Action<Step> onStepClick, Action<Step> onEditClick, Action<Step, Action> onDeleteClick)
+    public Step step => _step;
+
+    public void Init(Action<Step> onStepClick, Action<Step> onEditClick, Action<Step, Action> onDeleteClick, Action<Step, int, int> onSiblingIndexChanged)
     {
         _onStepClick = onStepClick;
         _onEditClick = onEditClick;
         _onDeleteClick = onDeleteClick;
+        _onSiblingIndexChanged = onSiblingIndexChanged;
         _btnStep.onClick.AddListener(OnStepClick);
         _btnDelete.onClick.AddListener(OnDeleteClick);
         _btnEditButton.onClick.AddListener(OnEditClick);
         _btnImageMarkerPopup.onClick.AddListener(OnImageMarkerButtonClick);
+        _dragAndDropController.onSiblingIndexChanged.AddListener(OnSiblingIndexChanged);
         OnEditModeChanged(activityManager.EditModeActive);
 
         EventManager.OnEditModeChanged += OnEditModeChanged;
@@ -74,11 +79,18 @@ public class StepsListItem_v2 : MonoBehaviour
         _btnDelete.gameObject.SetActive(value);
         _stepStatus.SetActive(!value);
         _btnEditButton.gameObject.SetActive(value);
+        _moveIcon.gameObject.SetActive(false);
+        //_moveIcon.gameObject.SetActive(value);
     }
 
     private void OnStepClick()
     {
         _onStepClick(_step);
+    }
+
+    private void OnSiblingIndexChanged(int oldIndex, int newIndex)
+    {
+        _onSiblingIndexChanged(_step, oldIndex, newIndex);
     }
 
     private void OnDeleteClick()
