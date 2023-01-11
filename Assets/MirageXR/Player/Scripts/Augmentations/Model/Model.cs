@@ -23,8 +23,11 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-            // GetComponentInParent<BoundsControl>().enabled = false;
-            GetComponentInParent<PoiEditor>().EnableBoundsControl(false);
+            if (GetComponentInParent<PoiEditor>())
+            {
+                GetComponentInParent<PoiEditor>().EnableBoundsControl(false);
+            }
+
             UnSubscribe();
         }
 
@@ -136,7 +139,10 @@ namespace MirageXR
                 animation.Play();
             }
 
-            GetComponentInParent<PoiEditor>().EnableBoundsControl(true);
+            if (GetComponentInParent<PoiEditor>())
+            {
+                GetComponentInParent<PoiEditor>().EnableBoundsControl(true);
+            }
         }
 
         private List<Bounds> colliders;
