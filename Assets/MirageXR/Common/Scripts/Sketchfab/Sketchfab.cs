@@ -425,7 +425,7 @@ namespace MirageXR
         public static async Task<(bool, string)> RequestToken(string appId, string appSecret, string code, CancellationToken cancellationToken = default)
         {
             const int timeout = 60;
-            const string redirectUri = "https://wekit-community.org/sketchfab/callback.php";
+            const string redirectUri = "https://wekit-ecs.com/sso/callback.php";
             const string uri = "https://sketchfab.com/oauth2/token/";
             const string contentType = "application/x-www-form-urlencoded";
 
