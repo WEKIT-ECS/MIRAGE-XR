@@ -23,6 +23,7 @@ public class ActivityView_v2 : BaseView
     private Vector2 _panelSize;
 
     public StepsListView_v2 stepsListView => _stepsListView;
+
     public SessionContainer container => _container;
 
     private RootView_v2 rootView => (RootView_v2)_parentView;
