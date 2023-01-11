@@ -139,11 +139,6 @@ namespace MirageXR
             GetComponentInParent<PoiEditor>().EnableBoundsControl(true);
         }
 
-        public void OnChanged()
-        {
-           EventManager.NotifyOnAugmentationPoiChanged();
-        }
-
         private List<Bounds> colliders;
 
         private void ConfigureModel(GameObject _model, AnimationClip[] clips)
