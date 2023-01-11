@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using MirageXR;
 using TMPro;
 using UnityEngine;
@@ -17,6 +18,7 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private TMP_InputField _inputFieldActivityName;
     [SerializeField] private TMP_InputField _inputFieldActivityDescription;
     [SerializeField] private RectTransform _listContent;
+    [SerializeField] private RectTransform _addStep;
     [SerializeField] private Button _btnAddStep;
     [SerializeField] private Button _btnBack;
     [SerializeField] private Button _btnSettings;
@@ -102,7 +104,7 @@ public class StepsListView_v2 : BaseView
                 if (_stepsList.Count <= i)
                 {
                     var obj = Instantiate(_stepsListItemPrefab, _listContent);
-                    obj.Init(OnStepClick, OnStepEditClick, OnDeleteStepClick);
+                    obj.Init(OnStepClick, OnStepEditClick, OnDeleteStepClick, OnSiblingIndexChanged);
                     _stepsList.Add(obj);
                 }
 
@@ -202,6 +204,17 @@ public class StepsListView_v2 : BaseView
         }
     }
 
+    private void OnSiblingIndexChanged(Content step, int oldIndex, int newIndex)
+    {
+        /*var item1 = _listContent.GetChild(oldIndex).GetComponent<StepsListItem_v2>();
+
+        if (item1)
+        {
+            activityManager.SwapActions(step, item1.step);
+        }
+        */
+    }
+
     private void OnStepClick(Content step)
     {
         activityManager.ActivateActionByID(step.id).AsAsyncVoid();
@@ -215,8 +228,31 @@ public class StepsListView_v2 : BaseView
 
     private void OnAddStepClick()
     {
-        AddStep();
+        OnAddStepClickAsync().AsAsyncVoid();
+    }
+
+    private async Task OnAddStepClickAsync()
+    {
+        var index = _addStep.GetSiblingIndex();
+        if (index == 0)
+        {
+            await activityManager.AddActionToBegin(Vector3.zero);
+        }
+        else
+        {
+            var child = _listContent.GetChild(index - 1);
+            var stepListItem = child.GetComponent<StepsListItem_v2>();
+
+            if (stepListItem)
+            {
+                await activityManager.ActivateActionByID(stepListItem.step.id);
+                await activityManager.AddAction(Vector3.zero);
+            }
+        }
+
         UpdateView();
+        _addStep.SetSiblingIndex(_addStep.GetSiblingIndex() + 1);
+        _activityView.ShowStepContent();
     }
 
     private void OnEditModeChanged(bool value)
@@ -231,11 +267,6 @@ public class StepsListView_v2 : BaseView
     {
         _first.SetActive(false);
         _second.SetActive(true);
-    }
-
-    private async void AddStep()
-    {
-        await activityManager.AddAction(Vector3.zero);
     }
 
     private void OnActionCreated(Content action)
@@ -253,6 +284,7 @@ public class StepsListView_v2 : BaseView
         _first.SetActive(true);
         _second.SetActive(false);
         UpdateView();
+        _addStep.SetAsLastSibling();
     }
 
     private void OnActionDeleted(string actionId)

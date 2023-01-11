@@ -637,6 +637,39 @@ namespace MirageXR
             }
         }
 
+/*
+        public void SwapActions(Action action1, Action action2)
+        {
+            var index1 = _activity.actions.IndexOf(action1);
+            var index2 = _activity.actions.IndexOf(action2);
+
+            if (index1 == -1 || index2 == -1)
+            {
+                Debug.LogError($"Could not find the {action1.id} or {action2.id} actions");
+                return;
+            }
+
+            _activity.actions[index1] = action2;
+            _activity.actions[index2] = action1;
+        }
+*/
+
+        public async Task AddActionToBegin(Vector3 position, bool hasImageMarker = false)
+        {
+            var newAction = CreateAction();
+            await RootObject.Instance.workplaceManager.AddPlace(newAction, position);
+
+            _activity.start = newAction.id;
+            _activity.actions.Insert(0, newAction);
+
+            Debug.Log($"Added {newAction.id} to list of task stations");
+
+            RegenerateActionsList();
+            await ActivateNextAction();
+            await ActivateAction(newAction);
+            await Task.Yield();
+            EventManager.NotifyActionCreated(newAction);
+        }
 
         public async Task AddAction(Vector3 position, bool hasImageMarker = false)
         {
@@ -757,7 +790,10 @@ namespace MirageXR
 
                 if (totalNumberOfActions != 1)
                 {
-                    _activity.actions[indexToDelete - 1].exit.activates.Last().id = string.Empty;
+                    if (_activity.actions[indexToDelete - 1].exit.activates.Count > 0)
+                    {
+                        _activity.actions[indexToDelete - 1].exit.activates.Last().id = string.Empty;
+                    }
                 }
             }
             else if (indexToDelete == 0) // if deleting the first action
