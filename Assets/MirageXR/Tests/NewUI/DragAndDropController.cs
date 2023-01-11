@@ -1,56 +1,142 @@
+using System;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class DragAndDropController : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
+public class DragAndDropController : MonoBehaviour, IDragHandler, IEndDragHandler, IBeginDragHandler
 {
-    [SerializeField] private RectTransform currentTransform;
-    
-    private GameObject _mainContent;
-    private Vector3 _currentPossition;
-    private int _totalChild;
-    private VerticalLayoutGroup _verticalLayoutGroup;
-    private const int MIN_DISTANCE = 15;
+    [Serializable] public class UnityEventIntInt : UnityEvent<int, int> { }
 
-    public void OnPointerDown(PointerEventData eventData)
+    private const string SHADOW_OBJECT_NAME = "Shadow";
+
+    [SerializeField] private RectTransform _moveTransform;
+    [SerializeField] private LayoutElement _layout;
+    [SerializeField] private UnityEventIntInt _onSiblingIndexChanged = new UnityEventIntInt();
+
+    public UnityEventIntInt onSiblingIndexChanged => _onSiblingIndexChanged;
+
+    private ScrollRect _scrollRect;
+    private Transform _shadowTransform;
+    private LayoutElement _shadowLayout;
+    private int _totalChild;
+    private bool _childControlHeight;
+    private bool _isInited;
+    private bool _isActive;
+    private bool _isNeedToSkipUpdate;
+    private PointerEventData _lastPointerData;
+
+    private void Awake()
     {
-        _currentPossition = currentTransform.position;
-        _mainContent = currentTransform.parent.gameObject;
-        _totalChild = _mainContent.transform.childCount;
-        // the fix for overlapping items
-        _verticalLayoutGroup = _mainContent.GetComponent<VerticalLayoutGroup>();
-        _verticalLayoutGroup.childControlHeight = false;
+        _scrollRect = GetComponentInParent<ScrollRect>();
+    }
+
+    private void CreateShadowObject()
+    {
+        var obj = new GameObject(SHADOW_OBJECT_NAME);
+        _shadowLayout = obj.AddComponent<LayoutElement>();
+        _shadowLayout.preferredHeight = _layout.preferredHeight;
+        _shadowTransform = obj.transform;
+        _shadowTransform.SetParent(_scrollRect.content, false);
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        CreateShadowObject();
+
+        _isActive = true;
+        _shadowTransform.gameObject.SetActive(true);
+        _shadowTransform.SetSiblingIndex(_moveTransform.GetSiblingIndex());
+        _moveTransform.SetAsLastSibling();
+        _layout.ignoreLayout = true;
+        _totalChild = _scrollRect.content.childCount - 1;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        currentTransform.position =
-            new Vector3(currentTransform.position.x, eventData.position.y, currentTransform.position.z);
+        Move(eventData);
+        ChangeSiblingIndex();
+        Scroll(eventData);
+        _lastPointerData = eventData;
+        _isNeedToSkipUpdate = true;
+    }
 
-        for (int i = 0; i < _totalChild; i++)
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        _isActive = false;
+        _moveTransform.SetSiblingIndex(_shadowTransform.GetSiblingIndex());
+        _shadowTransform.SetAsLastSibling();
+        _shadowTransform.gameObject.SetActive(false);
+        _layout.ignoreLayout = false;
+
+        Destroy(_shadowTransform.gameObject);
+    }
+
+    private void Update()
+    {
+        if (_isActive && _lastPointerData != null)
         {
-            if (i != currentTransform.GetSiblingIndex())
+            if (_isNeedToSkipUpdate)
             {
-                Transform otherTransform = _mainContent.transform.GetChild(i);
-                int distance = (int) Vector3.Distance(currentTransform.position,
-                    otherTransform.position);
-                if (distance <= MIN_DISTANCE)
-                {
-                    Vector3 otherTransformOldPosition = otherTransform.position;
-                    otherTransform.position = new Vector3(otherTransform.position.x, _currentPossition.y,
-                        otherTransform.position.z);
-                    currentTransform.position = new Vector3(currentTransform.position.x, otherTransformOldPosition.y,
-                        currentTransform.position.z);
-                    currentTransform.SetSiblingIndex(otherTransform.GetSiblingIndex());
-                    _currentPossition = currentTransform.position;
-                }
+                _isNeedToSkipUpdate = false;
+                return;
             }
+
+            OnDrag(_lastPointerData);
         }
     }
 
-    public void OnPointerUp(PointerEventData eventData)
+    private void Move(PointerEventData eventData)
     {
-        currentTransform.position = _currentPossition;
-        _verticalLayoutGroup.childControlHeight = true;
+        var position = _moveTransform.position;
+        _moveTransform.position = new Vector3(position.x, eventData.position.y, position.z);
+    }
+
+    private void ChangeSiblingIndex()
+    {
+        var index = _shadowTransform.GetSiblingIndex();
+        Transform topItem = null;
+        Transform botItem = null;
+
+        if (index > 0)
+        {
+            topItem = _scrollRect.content.GetChild(index - 1);
+        }
+
+        if (index < _totalChild - 1)
+        {
+            botItem = _scrollRect.content.GetChild(index + 1);
+        }
+
+        if (topItem != null && topItem.localPosition.y < _moveTransform.localPosition.y)
+        {
+            var newIndex = index - 1;
+            _shadowTransform.SetSiblingIndex(newIndex);
+            _onSiblingIndexChanged.Invoke(index, newIndex);
+        }
+
+        if (botItem != null && botItem.localPosition.y > _moveTransform.localPosition.y)
+        {
+            var newIndex = index + 1;
+            _shadowTransform.SetSiblingIndex(newIndex);
+            _onSiblingIndexChanged.Invoke(index, newIndex);
+        }
+    }
+
+    private void Scroll(PointerEventData eventData)
+    {
+        var viewport = _scrollRect.viewport;
+        var viewportRect = viewport.rect;
+        var contentRect = _scrollRect.content.rect;
+
+        if (viewport.position.y - (viewportRect.height * viewport.pivot.y) < eventData.position.y)
+        {
+            _scrollRect.verticalNormalizedPosition = Mathf.Min(1, _scrollRect.verticalNormalizedPosition + (viewportRect.height / contentRect.height * 0.01f));
+        }
+
+        if (viewport.position.y + (viewportRect.height * (1 - viewport.pivot.y)) > eventData.position.y)
+        {
+            _scrollRect.verticalNormalizedPosition = Mathf.Max(0, _scrollRect.verticalNormalizedPosition - (viewportRect.height / contentRect.height * 0.01f));
+        }
     }
 }
