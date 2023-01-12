@@ -23,6 +23,7 @@ public class StepsListItem_v2 : MonoBehaviour
     [SerializeField] private GameObject _stepCurrentImage;
     [SerializeField] private DragAndDropController _dragAndDropController;
     [SerializeField] private ImageMarkerPopup _imageMarkerPopup;
+    [SerializeField] private GameObject _stepSelected;
 
     private MirageXR.Action _step;
     private int _number;
@@ -60,6 +61,7 @@ public class StepsListItem_v2 : MonoBehaviour
         _txtNumber.text = (_number + 1).ToString("00");
         var isCurrent = _step.id == RootObject.Instance.activityManager.ActiveActionId;
         _stepCurrentImage.SetActive(isCurrent);
+        _stepSelected.SetActive(isCurrent);
         _stepDoneImage.SetActive(_step.isCompleted && !isCurrent);
 
         _btnImageMarkerPopup.gameObject.SetActive(ImageMarkerCheck());
