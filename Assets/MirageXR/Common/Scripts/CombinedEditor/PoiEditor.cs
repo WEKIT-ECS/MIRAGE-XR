@@ -3,21 +3,25 @@ using System.Globalization;
 using Microsoft.MixedReality.Toolkit.UI;
 using MirageXR;
 using UnityEngine;
+using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 
 public class PoiEditor : MonoBehaviour
 {
-    private ObjectManipulator objectManipulator;
+    private ObjectManipulator _objectManipulator;
 
-    private float modelMagnification = 0.0f;
+    private BoundsControl _boundsControl;
+    private bool _boundsControlActive = false;
+
+    private float _modelMagnification = 0.0f;
     public float ModelMagnification
     {
         get
         {
-            return modelMagnification;
+            return _modelMagnification;
         }
         set
         {
-            modelMagnification = value;
+            _modelMagnification = value;
         }
     }
 
@@ -50,7 +54,7 @@ public class PoiEditor : MonoBehaviour
     private void Start()
     {
         SetAllObjectManipulationOptions();
-        objectManipulator.OnManipulationEnded.AddListener(OnChanged);
+        _objectManipulator.OnManipulationEnded.AddListener(OnChanged);
 
         OnEditModeChanged(RootObject.Instance.activityManager.EditModeActive);
         //SetPoiData();
@@ -63,12 +67,17 @@ public class PoiEditor : MonoBehaviour
 
     private void OnEditModeChanged(bool editModeActive)
     {
-        if (!objectManipulator)
+        if (!_objectManipulator)
         {
-            objectManipulator = GetOrAddComponent<ObjectManipulator>();
+            _objectManipulator = GetOrAddComponent<ObjectManipulator>();
         }
 
-        objectManipulator.enabled = editModeActive;
+        _objectManipulator.enabled = editModeActive;
+
+        if (_boundsControl && _boundsControlActive)
+        {
+            _boundsControl.enabled = editModeActive;
+        }
     }
 
     private void OnDisable()
@@ -82,6 +91,12 @@ public class PoiEditor : MonoBehaviour
     }
 
     public void OnChanged(ManipulationEventData data)
+    {
+        SetPoiData();
+        EventManager.NotifyOnAugmentationPoiChanged();
+    } 
+
+    public void OnChanged()
     {
         SetPoiData();
         EventManager.NotifyOnAugmentationPoiChanged();
@@ -127,7 +142,7 @@ public class PoiEditor : MonoBehaviour
         }
 
         // ensure default interaction is present
-        objectManipulator = GetOrAddComponent<ObjectManipulator>();
+        _objectManipulator = GetOrAddComponent<ObjectManipulator>();
     }
 
     private void SetAugmentationSpecificManipulation(GameObject prefabObject)
@@ -140,10 +155,28 @@ public class PoiEditor : MonoBehaviour
             Debug.Log("adding video prefab interaction options");
             GetOrAddComponent<ObjectManipulator>();
         }
-
         // add other augmentation types here
         // ...
         // ...
 
+    }
+
+    public void EnableBoundsControl(bool enabled)
+    {
+        _boundsControlActive = enabled;
+
+        if (_boundsControlActive)
+        {
+            _boundsControl = GetOrAddComponent<BoundsControl>();
+
+            _boundsControl.RotateStopped.AddListener(OnChanged);
+            _boundsControl.ScaleStopped.AddListener(OnChanged);
+
+            _boundsControl.enabled = RootObject.Instance.activityManager.EditModeActive;
+        }
+        else
+        {
+            GetOrAddComponent<BoundsControl>().enabled = enabled;
+        }
     }
 }

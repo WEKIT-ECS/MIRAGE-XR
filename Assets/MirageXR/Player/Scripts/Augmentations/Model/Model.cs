@@ -2,7 +2,6 @@
 using System.IO;
 using UnityEngine;
 using Siccity.GLTFUtility;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 
 namespace MirageXR
 {
@@ -24,17 +23,14 @@ namespace MirageXR
 
         private void OnDestroy()
         {
+            var poiEditor = GetComponentInParent<PoiEditor>();
+
+            if (poiEditor)
+            {
+                poiEditor.EnableBoundsControl(false);
+            }
+
             UnSubscribe();
-        }
-
-        private void OnEnable()
-        {
-            EventManager.OnEditModeChanged += EditModeChanges;
-        }
-
-        private void OnDisable()
-        {
-            EventManager.OnEditModeChanged -= EditModeChanges;
         }
 
         private void Subscribe()
@@ -87,6 +83,7 @@ namespace MirageXR
             }
 
             // If all went well, return true.
+            
             return true;
         }
 
@@ -143,8 +140,13 @@ namespace MirageXR
                 animation.clip.legacy = true;
                 animation.Play();
             }
-            gameObject.AddComponent<BoundsControl>();
-            EditModeChanges(_activityManager.EditModeActive);
+
+            var poiEditor = GetComponentInParent<PoiEditor>();
+
+            if (poiEditor)
+            {
+                poiEditor.EnableBoundsControl(true);
+            }
         }
 
         private List<Bounds> colliders;
@@ -280,15 +282,6 @@ namespace MirageXR
                         pick.ArrowRenderer.enabled = true;
                     }
                 }
-            }
-        }
-
-        private void EditModeChanges(bool editModeState)
-        {
-            var boundsControl = gameObject.GetComponent<BoundsControl>();
-            if (boundsControl != null)
-            {
-                boundsControl.Active = editModeState;
             }
         }
     }
