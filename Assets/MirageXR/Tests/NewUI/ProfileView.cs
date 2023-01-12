@@ -1,13 +1,15 @@
 using System;
-using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
-using MirageXR;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using MirageXR;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class ProfileView : PopupBase
 {
+    private const string VERSION_TEXT = "Version {0}";
+
     [SerializeField] private Button _btnLogin;
     [SerializeField] private Button _btnRegister;
     [SerializeField] private ExtendedInputField _inputFieldUserName;
@@ -21,6 +23,7 @@ public class ProfileView : PopupBase
     [SerializeField] private TMP_Text _txtConnectedServer;
     [SerializeField] private Button _btnSelectLRS;
     [SerializeField] private TMP_Text _txtConnectedLRS;
+    [SerializeField] private TMP_Text _txtVersion;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -38,6 +41,7 @@ public class ProfileView : PopupBase
         EventManager.MoodleDomainChanged += UpdateConnectedServerText;
         EventManager.XAPIChanged += UpdateConectedLRS;
 
+        _txtVersion.text = string.Format(VERSION_TEXT, Application.version);
 
         UpdateConnectedServerText();
 
