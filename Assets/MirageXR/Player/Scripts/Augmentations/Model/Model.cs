@@ -23,9 +23,11 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-            if (GetComponentInParent<PoiEditor>())
+            var poiEditor = GetComponentInParent<PoiEditor>();
+
+            if (poiEditor)
             {
-                GetComponentInParent<PoiEditor>().EnableBoundsControl(false);
+                poiEditor.EnableBoundsControl(false);
             }
 
             UnSubscribe();
@@ -139,9 +141,11 @@ namespace MirageXR
                 animation.Play();
             }
 
-            if (GetComponentInParent<PoiEditor>())
+            var poiEditor = GetComponentInParent<PoiEditor>();
+
+            if (poiEditor)
             {
-                GetComponentInParent<PoiEditor>().EnableBoundsControl(true);
+                poiEditor.EnableBoundsControl(true);
             }
         }
 
