@@ -69,6 +69,7 @@ public class StepsListView_v2 : BaseView
         EventManager.OnActionModified += OnActionChanged;
         EventManager.OnEditModeChanged += OnEditModeChanged;
         EventManager.OnWorkplaceCalibrated += OnWorkplaceCalibrated;
+        EventManager.OnActivateAction += OnActionActivated;
 
         UpdateView();
     }
@@ -82,6 +83,7 @@ public class StepsListView_v2 : BaseView
         EventManager.OnActionModified -= OnActionChanged;
         EventManager.OnEditModeChanged -= OnEditModeChanged;
         EventManager.OnWorkplaceCalibrated -= OnWorkplaceCalibrated;
+        EventManager.OnActivateAction -= OnActionActivated;
     }
 
     private void OnStartActivity()
@@ -121,6 +123,11 @@ public class StepsListView_v2 : BaseView
             _inputFieldActivityName.text = string.Empty;
             _inputFieldActivityDescription.text = string.Empty;
         }
+    }
+
+    private void OnActionActivated(string stepId)
+    {
+        _stepsList.ForEach(t => t.UpdateView());
     }
 
     private void OnBackPressed()
