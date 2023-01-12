@@ -271,7 +271,11 @@ namespace MirageXR
                 else
                 {
                     var action = _activity.actions.FirstOrDefault(action => action.id == id);
-                    if (action == null) return;
+                    if (action == null)
+                    {
+                        return;
+                    }
+
                     await ActivateAction(action);
                 }
             }
