@@ -218,6 +218,7 @@ public class StepsListView_v2 : BaseView
     private void OnStepClick(Content step)
     {
         activityManager.ActivateActionByID(step.id).AsAsyncVoid();
+        UpdateView();
     }
 
     private async void OnStepEditClick(Content step)
