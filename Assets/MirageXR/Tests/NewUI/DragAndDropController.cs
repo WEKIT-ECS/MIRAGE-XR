@@ -23,7 +23,7 @@ public class DragAndDropController : MonoBehaviour, IDragHandler, IEndDragHandle
     private bool _childControlHeight;
     private bool _isInited;
     private bool _isActive;
-    private bool _isNeedToSkipUpdate;
+    private bool _isNeedToUpdate;
     private PointerEventData _lastPointerData;
 
     private void Awake()
@@ -54,11 +54,8 @@ public class DragAndDropController : MonoBehaviour, IDragHandler, IEndDragHandle
 
     public void OnDrag(PointerEventData eventData)
     {
-        Move(eventData);
-        ChangeSiblingIndex();
-        Scroll(eventData);
         _lastPointerData = eventData;
-        _isNeedToSkipUpdate = true;
+        _isNeedToUpdate = true;
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -76,13 +73,13 @@ public class DragAndDropController : MonoBehaviour, IDragHandler, IEndDragHandle
     {
         if (_isActive && _lastPointerData != null)
         {
-            if (_isNeedToSkipUpdate)
+            if (_isNeedToUpdate)
             {
-                _isNeedToSkipUpdate = false;
-                return;
+                Move(_lastPointerData);
+                ChangeSiblingIndex();
             }
 
-            OnDrag(_lastPointerData);
+            Scroll(_lastPointerData, Time.deltaTime);
         }
     }
 
@@ -123,20 +120,25 @@ public class DragAndDropController : MonoBehaviour, IDragHandler, IEndDragHandle
         }
     }
 
-    private void Scroll(PointerEventData eventData)
+    private void Scroll(PointerEventData eventData, float deltaTime)
     {
         var viewport = _scrollRect.viewport;
         var viewportRect = viewport.rect;
         var contentRect = _scrollRect.content.rect;
 
-        if (viewport.position.y - (viewportRect.height * viewport.pivot.y) < eventData.position.y)
+        var bot = viewport.TransformPoint(viewportRect.min);
+        var top = viewport.TransformPoint(viewportRect.max);
+
+        var value = viewportRect.height / contentRect.height * deltaTime;
+
+        if (top.y < eventData.position.y)
         {
-            _scrollRect.verticalNormalizedPosition = Mathf.Min(1, _scrollRect.verticalNormalizedPosition + (viewportRect.height / contentRect.height * 0.01f));
+            _scrollRect.verticalNormalizedPosition = Mathf.Min(1, _scrollRect.verticalNormalizedPosition + value);
         }
 
-        if (viewport.position.y + (viewportRect.height * (1 - viewport.pivot.y)) > eventData.position.y)
+        if (bot.y > eventData.position.y)
         {
-            _scrollRect.verticalNormalizedPosition = Mathf.Max(0, _scrollRect.verticalNormalizedPosition - (viewportRect.height / contentRect.height * 0.01f));
+            _scrollRect.verticalNormalizedPosition = Mathf.Max(0, _scrollRect.verticalNormalizedPosition - value);
         }
     }
 }
