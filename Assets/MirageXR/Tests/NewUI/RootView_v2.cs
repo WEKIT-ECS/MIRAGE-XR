@@ -73,9 +73,6 @@ public class RootView_v2 : BaseView
     public override async void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
-        EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
-        EventManager.onMobileHelpPageChanged += updateHelpPage;
-
 
         _bottomPanelView.Initialization(this);
         _bottomNavigationArrowsView.Initialization(this);
@@ -89,6 +86,7 @@ public class RootView_v2 : BaseView
 
         EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
         EventManager.OnActivityStarted += OnActivityLoaded;
+        EventManager.OnMobileHelpPageChanged += UpdateHelpPage;
 
         if (!DBManager.LoggedIn && DBManager.rememberUser)
         {
@@ -104,11 +102,13 @@ public class RootView_v2 : BaseView
     private void OnDestroy()
     {
         EventManager.OnWorkplaceLoaded -= OnWorkplaceLoaded;
+        EventManager.OnActivityStarted -= OnActivityLoaded;
+        EventManager.OnMobileHelpPageChanged -= UpdateHelpPage;
     }
 
     private void OnWorkplaceLoaded()
     {
-        if (!DBManager.dontShowCalibrationGuide)
+        if (!DBManager.dontShowCalibrationGuide && !_tutorial.isActivated)
         {
             PopupsViewer.Instance.Show(_calibrationGuideViewPrefab);
         }
@@ -245,7 +245,7 @@ public class RootView_v2 : BaseView
         }
     }
 
-    private void updateHelpPage(HelpPage page)
+    private void UpdateHelpPage(HelpPage page)
     {
         helpPage = page;
     }
