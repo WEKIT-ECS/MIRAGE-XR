@@ -133,9 +133,8 @@ public class StepsListView_v2 : BaseView
     private void OnBackPressed()
     {
         _activityView.OnBackToHomePressed();
-        _steps.SetActive(true);
-        _info.SetActive(false);
-        _calibration.SetActive(false);
+
+        _toggleSteps.isOn = true;
     }
 
     private void OnSettingsPressed()
