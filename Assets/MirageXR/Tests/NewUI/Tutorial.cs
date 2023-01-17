@@ -38,6 +38,9 @@ public class Tutorial : MonoBehaviour
     private TutorialItem _lastCopy;
 
     private bool _toggleIsFirstPass;
+    private bool _isActivated;
+
+    public bool isActivated => _isActivated;
 
     protected void Start()
     {
@@ -51,10 +54,9 @@ public class Tutorial : MonoBehaviour
 
     public void Show(Queue<TutorialModel> queue)
     {
-        // Disable calibration guide so that it doesn't interfere with layering
-        DBManager.dontShowCalibrationGuide = true;
         _backgroundCanvasGroup.gameObject.SetActive(true);
         _panel.gameObject.SetActive(true);
+        _isActivated = true;
         _queue = queue;
         Next();
     }
@@ -75,6 +77,7 @@ public class Tutorial : MonoBehaviour
 
         _backgroundCanvasGroup.gameObject.SetActive(false);
         _panel.gameObject.SetActive(false);
+        _isActivated = false;
     }
 
     private void Next()
@@ -91,12 +94,10 @@ public class Tutorial : MonoBehaviour
         else
         {
             Hide();
-            // Re-enable calibration guide for next prompt
-            DBManager.dontShowCalibrationGuide = false;
         }
     }
 
-    private async Task ShowItem(TutorialModel model, int tryCount = 0)
+    private async Task ShowItem(TutorialModel model)
     {
         if (model.HasId)
         {
@@ -169,7 +170,7 @@ public class Tutorial : MonoBehaviour
         {
             GameObject hbPrefab = Resources.Load("prefabs/UI/Mobile/Tutorial/HighlightButton", typeof(GameObject)) as GameObject;
             GameObject target = item.gameObject;
-            var highlightButton = Object.Instantiate(hbPrefab, target.transform.position, target.transform.rotation);
+            var highlightButton = Instantiate(hbPrefab, target.transform.position, target.transform.rotation);
             highlightButton.transform.SetParent(RootView_v2.Instance.transform);
             highlightButton.transform.SetPositionAndRotation(target.transform.position, target.transform.rotation);
             highlightButton.transform.localScale = target.transform.localScale;
@@ -228,6 +229,7 @@ public class Tutorial : MonoBehaviour
         {
             item.button.onClick.Invoke();
         }
+
         if (item.toggle)
         {
             if (_toggleIsFirstPass)
@@ -240,6 +242,7 @@ public class Tutorial : MonoBehaviour
                 return;
             }
         }
+
         copy.StopTracking();
 
         if (_lastCopy == copy)
