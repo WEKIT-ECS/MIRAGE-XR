@@ -9,24 +9,23 @@ public class SwitchToggle : MonoBehaviour
     [SerializeField] protected Color _colorOff;
     protected Vector2 _handlePosition;
     protected Image _background;
-    protected Color _currentBgColor;
 
     protected virtual void Start()
     {
         _handlePosition = _handleRectTransform.anchoredPosition;
-        _toggle.onValueChanged.AddListener(OnEditValueChanged);
+        _toggle.onValueChanged.AddListener(UpdateView);
         _background = _handleRectTransform.parent.GetComponent<Image>();
-        _currentBgColor = _colorOff;
+        UpdateView(_toggle.isOn);
     }
 
-    protected virtual void OnEditValueChanged(bool value)
+    protected virtual void UpdateView(bool value)
     {
         _handleRectTransform.anchoredPosition = value ? _handlePosition * -1 : _handlePosition;
-        _background.color = value ? _colorOn : _currentBgColor;
+        _background.color = value ? _colorOn : _colorOff;
     }
 
     protected virtual void OnDestroy()
     {
-        _toggle.onValueChanged.RemoveListener(OnEditValueChanged);
+        _toggle.onValueChanged.RemoveListener(UpdateView);
     }
 }
