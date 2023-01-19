@@ -18,7 +18,6 @@ namespace MirageXR
         [SerializeField] private Image _image;
         [SerializeField] private Sprite _defaultThumbnail;
         [SerializeField] private Button _btnMain;
-        [SerializeField] private OpenActivityModeSelect activityModeSelect;
 
         private SessionContainer _container;
         private bool _interactable = true;
@@ -31,24 +30,10 @@ namespace MirageXR
 
         public bool userIsEnroled => _container.hasDeadline;
 
-        public bool interactable
-        {
-            get
-            {
-                return _interactable;
-            }
-
-            set
-            {
-                _interactable = value;
-            }
-        }
-
         public void Init(SessionContainer container)
         {
             _container = container;
             _btnMain.onClick.AddListener(OnBtnMain);
-            //_btnDelete.onClick.AddListener(OnBtnDelete);
 
             UpdateView();
         }
@@ -140,7 +125,10 @@ namespace MirageXR
 
         private void ShowPopup()
         {
-            PopupsViewer.Instance.Show(activityModeSelect, this);
+            RootView_v2.Instance.dialog.ShowMiddleMultiline("Open Activity", true,
+                ("Open to edit", () => OpenActivity(true), false),
+                ("Open to view", () => OpenActivity(false), false),
+                ("Cancel", null, true));
         }
 
         public async void OpenActivity(bool value)
