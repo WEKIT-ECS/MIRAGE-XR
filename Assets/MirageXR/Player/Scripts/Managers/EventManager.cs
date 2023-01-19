@@ -840,7 +840,6 @@ namespace MirageXR
         public static void NotifyMobileHelpPageChanged(RootView_v2.HelpPage value)
         {
             OnMobileHelpPageChanged?.Invoke(value);
-            Debug.Log("page change = " + value);
         }
     }
 }
