@@ -16,7 +16,7 @@ public class RootView_v2 : BaseView
     [SerializeField] public SearchView _searchPrefab;
     [SerializeField] private ProfileView _profilePrefab;
     [SerializeField] private HelpView _helpPrefab;
-    [SerializeField] private SettingsView_v2 _activitySettingsPrefab;
+    [SerializeField] private ActivitySettings _activitySettingsPrefab;
     [SerializeField] private LoginView_v2 _loginViewPrefab;
     [SerializeField] private ActivityListView_v2 _activityListView;
     [SerializeField] private ActivityView_v2 _activityView;

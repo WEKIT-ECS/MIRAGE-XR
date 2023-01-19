@@ -36,7 +36,7 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private GameObject _first;
     [SerializeField] private GameObject _second;
     [SerializeField] private CalibrationView _calibrationViewPrefab;
-    [SerializeField] private SettingsView_v2 _settingsViewPrefab;
+    [SerializeField] private ActivitySettings _settingsViewPrefab;
     [SerializeField] private StepsListItem_v2 _stepsListItemPrefab;
     [SerializeField] private ThumbnailEditorView _thumbnailEditorPrefab;
 
