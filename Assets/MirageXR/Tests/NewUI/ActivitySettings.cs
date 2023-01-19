@@ -3,7 +3,7 @@ using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SettingsView_v2 : PopupBase
+public class ActivitySettings : PopupBase
 {
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
