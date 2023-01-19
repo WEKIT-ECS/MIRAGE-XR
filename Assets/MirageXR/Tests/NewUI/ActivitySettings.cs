@@ -9,14 +9,13 @@ public class ActivitySettings : PopupBase
 
     private static MoodleManager moodleManager => RootObject.Instance.moodleManager;
 
-    private const string VERSION_FORMAT = "Version {0}";
-
     [SerializeField] private Toggle _togglePublicUpload;
     [SerializeField] private Toggle _toggleUploadToCloud;
     [SerializeField] private Toggle _toggleLocalSave;
     [SerializeField] private Button _btnSave;
     [SerializeField] private Button _btnPreview;
     [SerializeField] private Button _btnDelete;
+    [SerializeField] private Button _btnClose;
     [SerializeField] private DeleteActivityView _deleteActivityViewPrefab;
 
     private SessionContainer _container;
@@ -26,11 +25,12 @@ public class ActivitySettings : PopupBase
         base.Initialization(onClose, args);
 
         _togglePublicUpload.onValueChanged.AddListener(OnValueChangedPublicUpload);
-        _toggleLocalSave.onValueChanged.AddListener(OnValueChangedSavetoggle);
-        _toggleLocalSave.onValueChanged.AddListener(OnValueChangedCloudtoggle);
+        _toggleLocalSave.onValueChanged.AddListener(OnValueChangedSaveToggle);
+        _toggleUploadToCloud.onValueChanged.AddListener(OnValueChangedCloudToggle);
         _btnPreview.onClick.AddListener(OnPreviewClicked);
         _btnSave.onClick.AddListener(OnClickSaveChanges);
         _btnDelete.onClick.AddListener(OnButtonDeleteClicked);
+        _btnClose.onClick.AddListener(OnCloseClicked);
 
         _btnDelete.interactable = _container != null;
 
@@ -72,12 +72,12 @@ public class ActivitySettings : PopupBase
         ValueHasBeenChanged();
     }
 
-    private void OnValueChangedSavetoggle(bool value)
+    private void OnValueChangedSaveToggle(bool value)
     {
         ValueHasBeenChanged();
     }
 
-    private void OnValueChangedCloudtoggle(bool value)
+    private void OnValueChangedCloudToggle(bool value)
     {
         ValueHasBeenChanged();
     }
@@ -91,6 +91,11 @@ public class ActivitySettings : PopupBase
     {
         activityManager.EditModeActive = false;
         activityManager.ActivateFirstAction();
+        Close();
+    }
+
+    private void OnCloseClicked()
+    {
         Close();
     }
 
