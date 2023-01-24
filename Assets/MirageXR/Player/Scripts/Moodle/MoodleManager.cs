@@ -301,7 +301,8 @@ namespace MirageXR
             // Return null if some error happened
             if (!result || response.StartsWith("Error"))
             {
-                Debug.LogError(response);
+                var maxLenght = 200;
+                Debug.LogError(response.Length > maxLenght ? response.Substring(0, maxLenght) : response);
             }
             else
             {
