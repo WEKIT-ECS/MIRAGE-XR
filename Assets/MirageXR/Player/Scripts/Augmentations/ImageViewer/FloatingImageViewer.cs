@@ -32,6 +32,7 @@ namespace MirageXR
         private ToggleObject _obj;
         private GameObject _thinLine;
         private GameObject _contentObject;
+        private Texture2D _texture;
 
         public ToggleObject ToggleObject => _obj;
 
@@ -170,9 +171,9 @@ namespace MirageXR
             }
 
             var data = await File.ReadAllBytesAsync(path);
-            var texture = new Texture2D(2, 2, TextureFormat.RGB24, false);
-            texture.LoadImage(data);
-            meshRenderer.sharedMaterial.SetTexture(MAIN_TEXTUERE, texture);
+            _texture = new Texture2D(2, 2, TextureFormat.RGB24, false);
+            _texture.LoadImage(data);
+            meshRenderer.sharedMaterial.SetTexture(MAIN_TEXTUERE, _texture);
         }
 
         private void SetOrientation(GameObject activeFrame, GameObject unusedFrame, GameObject background)
@@ -234,6 +235,11 @@ namespace MirageXR
             if (_contentObject != null)
             {
                 Destroy(_contentObject);
+            }
+
+            if (_texture)
+            {
+                Destroy(_texture);
             }
         }
     }
