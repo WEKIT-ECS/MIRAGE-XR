@@ -174,14 +174,7 @@ namespace MirageXR
         {
             RenderTexture rendTex;
 
-            if (_obj.key == "P")
-            {
-                rendTex = new RenderTexture(1080, 1920, 24);
-            }
-            else
-            {
-                rendTex = new RenderTexture(1920, 1080, 24);
-            }
+            rendTex = new RenderTexture(1920, 1080, 24);
 
             _renderTexture.name = "Tex_" + _obj.poi;
             _renderTexture.texture = rendTex;
