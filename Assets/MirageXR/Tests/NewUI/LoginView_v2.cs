@@ -13,27 +13,11 @@ public class LoginView_v2 : PopupBase
     [SerializeField] private GameObject _pnlFields;
     [SerializeField] private Toggle _toggleRemember;
     [SerializeField] private Button _btnRegister;
-    [SerializeField] private Button _btnSignInWithSSO;
     [SerializeField] private Button _btnGoToLogin;
     [SerializeField] private Button _btnSkipLogin;
     [SerializeField] private Button _btnLogin;
     [SerializeField] private Button _btnBack;
-
-    [SerializeField] private GameObject[] _loginObjects;
-    [SerializeField] private GameObject registerPrefab;
-    [SerializeField] private GameObject _onboardingPrefab;
-
-
-    [SerializeField] private GameObject enter2Prefab; //temp
-    void Update()
-    {
-#if UNITY_EDITOR // delete that!!!
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            enter2Prefab.SetActive(false);
-        }
-#endif
-    }
+    [SerializeField] private OnboardingTutorialView _onboardingTutorialViewPrefab;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -65,7 +49,7 @@ public class LoginView_v2 : PopupBase
         {
             OnLoginSucceed(username, password);
             Close();
-            Instantiate(_onboardingPrefab);
+            PopupsViewer.Instance.Show(_onboardingTutorialViewPrefab);
         }
         else
         {
@@ -87,7 +71,7 @@ public class LoginView_v2 : PopupBase
 
     private void OnEnterAsGuest()
     {
-        Instantiate(_onboardingPrefab);
+        PopupsViewer.Instance.Show(_onboardingTutorialViewPrefab);
         Close();
     }
 
@@ -117,6 +101,7 @@ public class LoginView_v2 : PopupBase
             LocalFiles.RemoveUsernameAndPassword();
         }
     }
+
     private void ResetValues()
     {
         _toggleRemember.isOn = DBManager.rememberUser;
@@ -135,8 +120,15 @@ public class LoginView_v2 : PopupBase
 
     private async void OnClickLogin()
     {
-        if (!_inputFieldUserName.Validate()) return;
-        if (!_inputFieldPassword.Validate()) return;
+        if (!_inputFieldUserName.Validate())
+        {
+            return;
+        }
+
+        if (!_inputFieldPassword.Validate())
+        {
+            return;
+        }
 
         await Login(_inputFieldUserName.text, _inputFieldPassword.text);
     }
