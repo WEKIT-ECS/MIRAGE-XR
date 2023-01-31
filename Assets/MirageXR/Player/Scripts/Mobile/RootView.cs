@@ -39,10 +39,11 @@ public class RootView : BaseView
 
     private async void Start()
     {
-        if (PlatformManager.GetDeviceFormat() == PlatformManager.DeviceFormat.Tablet)
+        if (PlatformManager.GetDeviceFormat() == DeviceFormat.Tablet)
         {
             await SetupViewForTablet();
         }
+
         Initialization(null);
     }
 
@@ -55,7 +56,7 @@ public class RootView : BaseView
         _toggleHome.onValueChanged.AddListener(OnHomeClick);
         _toggleView.onValueChanged.AddListener(OnViewClick);
         _toggleSteps.onValueChanged.AddListener(OnStepsClick);
-        _pageView.OnPageChanged.AddListener(OnPageChanged);
+        _pageView.onPageChanged.AddListener(OnPageChanged);
 
         _activityListView.Initialization(this);
         _contentListView.Initialization(this);
