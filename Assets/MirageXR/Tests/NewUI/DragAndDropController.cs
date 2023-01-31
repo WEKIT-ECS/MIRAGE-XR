@@ -85,8 +85,11 @@ public class DragAndDropController : MonoBehaviour, IDragHandler, IEndDragHandle
 
     private void Move(PointerEventData eventData)
     {
-        var position = _moveTransform.position;
-        _moveTransform.position = new Vector3(position.x, eventData.position.y, position.z);
+        if (RectTransformUtility.ScreenPointToWorldPointInRectangle(_moveTransform, eventData.position, eventData.pressEventCamera, out var position))
+        {
+            var current = _moveTransform.position;
+            _moveTransform.position = new Vector3(current.x, position.y, current.z);
+        }
     }
 
     private void ChangeSiblingIndex()
@@ -122,23 +125,26 @@ public class DragAndDropController : MonoBehaviour, IDragHandler, IEndDragHandle
 
     private void Scroll(PointerEventData eventData, float deltaTime)
     {
-        var viewport = _scrollRect.viewport;
-        var viewportRect = viewport.rect;
-        var contentRect = _scrollRect.content.rect;
-
-        var bot = viewport.TransformPoint(viewportRect.min);
-        var top = viewport.TransformPoint(viewportRect.max);
-
-        var value = viewportRect.height / contentRect.height * deltaTime;
-
-        if (top.y < eventData.position.y)
+        if (RectTransformUtility.ScreenPointToWorldPointInRectangle(_moveTransform, eventData.position, eventData.pressEventCamera, out var position))
         {
-            _scrollRect.verticalNormalizedPosition = Mathf.Min(1, _scrollRect.verticalNormalizedPosition + value);
-        }
+            var viewport = _scrollRect.viewport;
+            var viewportRect = viewport.rect;
+            var contentRect = _scrollRect.content.rect;
 
-        if (bot.y > eventData.position.y)
-        {
-            _scrollRect.verticalNormalizedPosition = Mathf.Max(0, _scrollRect.verticalNormalizedPosition - value);
+            var bot = viewport.TransformPoint(viewportRect.min);
+            var top = viewport.TransformPoint(viewportRect.max);
+
+            var value = viewportRect.height / contentRect.height * deltaTime;
+
+            if (top.y < position.y)
+            {
+                _scrollRect.verticalNormalizedPosition = Mathf.Min(1, _scrollRect.verticalNormalizedPosition + value);
+            }
+
+            if (bot.y > position.y)
+            {
+                _scrollRect.verticalNormalizedPosition = Mathf.Max(0, _scrollRect.verticalNormalizedPosition - value);
+            }
         }
     }
 }

@@ -12,31 +12,33 @@ public class BottomNavigationArrowsView : BaseView
 
     private RootView_v2 rootView => (RootView_v2)_parentView;
 
+    private RectTransform _rectTransform;
+    private RectTransform _parentRectTransform;
     private Vector3 _startLocalPosition;
 
     public virtual void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
 
+        _rectTransform = (RectTransform)transform;
+        _parentRectTransform = (RectTransform)_rectTransform.parent;
         _btnPrevious.onClick.AddListener(OnPreviousButtonClicked);
         _btnNext.onClick.AddListener(OnNextButtonClicked);
-
-        _startLocalPosition = transform.localPosition;
     }
 
     public void HideImmediate()
     {
-        transform.Translate(0, -MOVE_DISTANSE, 0);
+        _rectTransform.Translate(0, _parentRectTransform.rect.height * -0.5f - MOVE_DISTANSE, 0);
     }
 
     public void Hide()
     {
-        transform.DOLocalMoveY(_startLocalPosition.y - MOVE_DISTANSE, ANIMATION_TIME);
+        _rectTransform.DOLocalMoveY(_parentRectTransform.rect.height * -0.5f - MOVE_DISTANSE, ANIMATION_TIME);
     }
 
     public void Show()
     {
-        transform.DOLocalMoveY(_startLocalPosition.y, ANIMATION_TIME);
+        _rectTransform.DOLocalMoveY(_parentRectTransform.rect.height * -0.5f, ANIMATION_TIME);
     }
 
     private void OnPreviousButtonClicked()
