@@ -17,6 +17,7 @@ public class BottomPanelView : BaseView
 
     private Vector3 _startLocalPosition;
     private bool _isFirst = true;
+    private bool _isVisible = true;
 
     public virtual void Initialization(BaseView parentView)
     {
@@ -31,6 +32,11 @@ public class BottomPanelView : BaseView
 
     public void Hide()
     {
+        if (!_isVisible)
+        {
+            return;
+        }
+
         if (_isFirst)
         {
             _startLocalPosition = transform.localPosition;
@@ -38,11 +44,18 @@ public class BottomPanelView : BaseView
         }
 
         transform.DOLocalMoveY(_startLocalPosition.y - MOVE_DISTANSE, ANIMATION_TIME);
+        _isVisible = false;
     }
 
     public void Show()
     {
+        if (_isVisible)
+        {
+            return;
+        }
+
         transform.DOLocalMoveY(_startLocalPosition.y, ANIMATION_TIME);
+        _isVisible = true;
     }
 
     public void SetHomeActive(bool value)
