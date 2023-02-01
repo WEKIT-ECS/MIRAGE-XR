@@ -1,8 +1,8 @@
 # Contributing: Agile Workflow in MirageXR
 
-## Set up Git to Access this Gitlab Instance
+## Set up Git to Access this GitHub Instance
 
-Create an SSH key according to [Gitlab's instructions](https://docs.gitlab.com/ee/ssh/) and add it to the Gitlab account. After that, you can pull from the repository and push changes using Git.
+Create an SSH key according to [GitHub's instructions](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) and add it to your GitHub account. After that, you can pull from the repository and push changes using Git.
 
 ### Git client
 
@@ -30,6 +30,8 @@ Provide clear commit messages which state exactly what you changed and why you c
 
 Code should be tested by the developer before posting a merge request. The absolut minimum are manual tests in the editor where you use the input simulation of the MRTK to navigate in the application. Preferrably, the feature should also be tested on the target device, too, before creating the merge request. For new features or new code, it would be awesome if you could already design them with unit tests in mind and create unit tests for your changes. Unit tests speed up the review process. Try to create unit tests during your implementation of a feature since it is difficult to add them to existing code at a later stage.
 
+TIP: If the Android build pipeline fails with a signing error (```UnityException: Can not sign the application```), just untick the "custom keystore" checkbox in player publishing settings, and the apk will be signed with an ad hoc development key!
+
 ### Create Merge Requests
 
 Once you completed the implementation of an issue, create a merge request that asks to merge your feature branch into the **develop** branch again. You can also reference the number of the original issue - it will create a link between the issue and the merge request which helps with transparency. When you create the merge request, the CI pipeline will check your work to make sure it compiles. We generally should only accept merge requests where the CI pipeline works.
@@ -54,6 +56,8 @@ To create a new release, create a release branch based on the **develop** branch
 To create a formal release on the master branch, add a Git tag to the latest commit on the master branch and name it "v", followed by a version number. We use [semantic versioning](https://semver.org/), e.g. "v1.2.3", so make sure to look at the principles for incrementing the version numbers before creating a new release.
 
 After a new release is created, if the preview builds show an incorrect version, i.e. they show the previous tag version, try merging the master branch into the develop branch. Do not change the app version in unity player settings from "$appVersion".
+
+[Here](https://github.com/WEKIT-ECS/MIRAGE-XR/wiki/Making-a-new-Changelog.md) are some instructions on how to generate a tab separated value file (for spreadsheet import) of all closed/merged pull requests and all closed issues. This can make updating of the Changelog.md easier.
 
 
 ## Sprints
