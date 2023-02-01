@@ -1,8 +1,8 @@
 # Contributing: Agile Workflow in MirageXR
 
-## Set up Git to Access this Gitlab Instance
+## Set up Git to Access this GitHub Instance
 
-Create an SSH key according to [Gitlab's instructions](https://docs.gitlab.com/ee/ssh/) and add it to the Gitlab account. After that, you can pull from the repository and push changes using Git.
+Create an SSH key according to [GitHub's instructions](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) and add it to your GitHub account. After that, you can pull from the repository and push changes using Git.
 
 ### Git client
 
