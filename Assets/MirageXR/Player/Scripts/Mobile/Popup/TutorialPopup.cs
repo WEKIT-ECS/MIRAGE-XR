@@ -11,8 +11,9 @@ namespace MirageXR
     /// </summary>
     public class TutorialPopup : PopupBase
     {
-        [SerializeField] private Button btnGotIt;
-        [SerializeField] private TMP_Text txtInstruction;
+        [SerializeField] private RectTransform _background;
+        [SerializeField] private Button _btnGotIt;
+        [SerializeField] private TMP_Text _txtInstruction;
         private GameObject highlightedObject;
 
         /// <summary>
@@ -21,14 +22,14 @@ namespace MirageXR
         /// <param name="text">The instruction text to be shown.</param>
         public void SetInstructionText(String text)
         {
-            txtInstruction.text = text;
+            _txtInstruction.text = text;
         }
         
-        public override void Init(Action<PopupBase> onClose, params object[] args)
+        public override void Initialization(Action<PopupBase> onClose, params object[] args)
         {
-            base.Init(onClose, args);
+            base.Initialization(onClose, args);
 
-            btnGotIt.onClick.AddListener(GotItOnClick);
+            _btnGotIt.onClick.AddListener(GotItOnClick);
         }
 
         private void GotItOnClick()
@@ -40,6 +41,13 @@ namespace MirageXR
         protected override bool TryToGetArguments(params object[] args)
         {
             return true;
+        }
+
+        public void MovePopup()
+        {
+            var newY = gameObject.transform.localPosition.y - _background.rect.height;
+
+            gameObject.transform.localPosition = new Vector3(gameObject.transform.localPosition.x, newY, gameObject.transform.localPosition.z);
         }
     }
 }

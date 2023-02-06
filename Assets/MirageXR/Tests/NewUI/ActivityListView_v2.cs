@@ -1,168 +1,292 @@
+using DG.Tweening;
+using MirageXR;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
-
-namespace MirageXR
+using System;
+using TMPro;
+public class ActivityListView_v2 : BaseView
 {
-    public class ActivityListView_v2 : MonoBehaviour
+    private const float HIDED_SIZE = 80f;
+    private const float HIDE_ANIMATION_TIME = 0.5f;
+
+    [SerializeField] private Button _btnFilter;
+    [SerializeField] private Transform _listTransform;
+    [SerializeField] private ActivityListItem_v2 _smallItemPrefab;
+    [SerializeField] private ActivityListItem_v2 _bigItemPrefab;
+    [SerializeField] private SortingView _sortingPrefab;
+
+    [Space]
+    [SerializeField] private Button _btnArrow;
+    [SerializeField] private GameObject _backToActivity;
+    [SerializeField] private Button _btnBackToActivity;
+    [SerializeField] private Button _btnRestartActivity;
+    [SerializeField] private RectTransform _panel;
+    [SerializeField] private GameObject _arrowDown;
+    [SerializeField] private GameObject _arrowUp;
+    [SerializeField] private TMP_Text _txtShowby;
+    [SerializeField] private TMP_Text _txtSortby;
+
+    private List<SessionContainer> _content;
+    private readonly List<ActivityListItem_v2> _items = new List<ActivityListItem_v2>();
+    private bool _interactable = true;
+    private static bool _orderByRelavance = false;
+    private Vector2 _panelSize;
+
+    public List<SessionContainer> content => _content;
+
+    private RootView_v2 rootView => (RootView_v2)_parentView;
+
+    public override void Initialization(BaseView parentView)
     {
-        public static ActivityListView_v2 Instance { get; private set; }
+        base.Initialization(parentView);
 
-        [SerializeField] private Button _btnFilter;
-        [SerializeField] private Transform _listTransform;
-        [SerializeField] private ActivityListItem_v2 _smallItemPrefab;
-        [SerializeField] private ActivityListItem_v2 _bigItemPrefab;
+        _btnFilter.onClick.AddListener(OnByDateClick);
+        _btnBackToActivity.onClick.AddListener(OnBackToActivityButton);
+        _btnRestartActivity.onClick.AddListener(OnRestartActivityButton);
+        _backToActivity.gameObject.SetActive(false);
+        _btnArrow.onClick.AddListener(OnArrowButtonPressed);
+        _arrowDown.SetActive(true);
+        _arrowUp.SetActive(false);
 
-        [SerializeField] private Toggle _toggleNewActivity;
+        _panelSize = _panel.sizeDelta;
 
-        [SerializeField] private SortingView _sortingPrefab;
+        EventManager.OnActivitySaved += FetchAndUpdateView;
+        EventManager.OnActivityStarted += ShowBackButtons;
 
-        [SerializeField] private StepsListView_v2 _stepsListView;
+        FetchAndUpdateView();
+    }
 
-        private List<SessionContainer> _content;
-        private readonly List<ActivityListItem_v2> _items = new List<ActivityListItem_v2>();
-        private bool _interactable = true;
+    private void OnDestroy()
+    {
+        EventManager.OnActivitySaved -= FetchAndUpdateView;
+        EventManager.OnActivityStarted -= ShowBackButtons;
+    }
 
-        public List<SessionContainer> content 
+    private static async Task<List<SessionContainer>> FetchContent()
+    {
+        var dictionary = new Dictionary<string, SessionContainer>();
+
+        if (_orderByRelavance)
         {
-            get
+            var activityList = await RootObject.Instance.moodleManager.GetArlemList();
+            return OrderByRelavance(activityList).Values.ToList();
+        }
+
+        var localList = await LocalFiles.GetDownloadedActivities();
+        localList.ForEach(t =>
+        {
+            if (dictionary.ContainsKey(t.id))
             {
-                return _content;
+                dictionary[t.id].Activity = t;
             }
-        }
-
-        public List<ActivityListItem_v2> items
-        {
-            get
+            else
             {
-                return _items;
+                dictionary.Add(t.id, new SessionContainer { Activity = t });
             }
-        }
+        });
 
-        public bool interactable
+        var remoteList = await RootObject.Instance.moodleManager.GetArlemList();
+        remoteList?.ForEach(t =>
         {
-            get
+            if (dictionary.ContainsKey(t.sessionid))
             {
-                return _interactable;
+                dictionary[t.sessionid].Session = t;
             }
-
-            set
+            else
             {
-                _interactable = value;
-                _items.ForEach(t => t.interactable = value);
+                dictionary.Add(t.sessionid, new SessionContainer { Session = t });
             }
-        }
+        });
 
-        private void Awake()
-        {
-            if (Instance != null)
-            {
-                Debug.LogError($"{nameof(Instance.GetType)} must only be a single copy!");
-                return;
-            }
+        return dictionary.Values.ToList();
+    }
 
-            Instance = this;
-        }
+    public void ShowBackButtons()
+    {
+        _backToActivity.SetActive(true);
+    }
 
-        private void OnDestroy()
-        {
-            Instance = null;
-        }
+    public void HideBackButtons()
+    {
+        _backToActivity.SetActive(false);
+    }
 
-        private void Start()
-        {
-            Init();
-        }
+    public async void FetchAndUpdateView()
+    {
+        _btnFilter.interactable = false;
+        _content = await FetchContent();
+        UpdateView();
+        _btnFilter.interactable = true;
+    }
 
-        private void Init()
-        {
-            _btnFilter.onClick.AddListener(OnByDateClick);
-            _toggleNewActivity.onValueChanged.AddListener(OnNewActivityChanged);
-
-            EventManager.OnActivityStarted += UpdateStepsView;
-            EventManager.OnActivitySaved += FetchAndUpdateView;
-
-            FetchAndUpdateView();
-        }
-
-        private static async Task<List<SessionContainer>> FetchContent()
-        {
-            var dictionary = new Dictionary<string, SessionContainer>();
-
-            var localList = await LocalFiles.GetDownloadedActivities();
-            localList.ForEach(t =>
-            {
-                if (dictionary.ContainsKey(t.id))
-                {
-                    dictionary[t.id].Activity = t;
-                }
-                else
-                {
-                    dictionary.Add(t.id, new SessionContainer { Activity = t });
-                }
-            });
-
-            var remoteList = await RootObject.Instance.moodleManager.GetArlemList();
-            remoteList?.ForEach(t =>
-            {
-                if (dictionary.ContainsKey(t.sessionid))
-                {
-                    dictionary[t.sessionid].Session = t;
-                }
-                else
-                {
-                    dictionary.Add(t.sessionid, new SessionContainer { Session = t });
-                }
-            });
-
-            return dictionary.Values.ToList();
-        }
-
-        public async void FetchAndUpdateView()
-        {
-            _content = await FetchContent();
-            UpdateView();
-        }
-
-        public void UpdateView()
-        {
+    public void UpdateView()
+    {
 #if UNITY_EDITOR
-            if (!EditorApplication.isPlaying) return;
+        if (!EditorApplication.isPlaying)
+        {
+            return;
+        }
 #endif
-            _items.ForEach(item => Destroy(item.gameObject));
-            _items.Clear();
+        _items.ForEach(item => Destroy(item.gameObject));
+        _items.Clear();
 
-            var prefab = !DBManager.showBigCards ? _smallItemPrefab : _bigItemPrefab;
-            _content.ForEach(content =>
+        var prefab = !DBManager.showBigCards ? _smallItemPrefab : _bigItemPrefab;
+        _content.ForEach(content =>
+        {
+            var item = Instantiate(prefab, _listTransform);
+            item.Init(content);
+            _items.Add(item);
+        });
+    }
+
+    private void OnByDateClick()
+    {
+        PopupsViewer.Instance.Show(_sortingPrefab, this);
+    }
+
+    private void OnBackToActivityButton()
+    {
+        RootView_v2.Instance.OnActivityLoaded();
+    }
+
+    private void OnRestartActivityButton()
+    {
+        RestartActivityAsync().AsAsyncVoid();
+    }
+
+    private async Task RestartActivityAsync()
+    {
+        LoadView.Instance.Show();
+        RootView_v2.Instance.OnActivityLoaded();
+        await RootObject.Instance.activityManager.ActivateFirstAction();
+        LoadView.Instance.Hide();
+    }
+
+    private async void OnNewActivityChanged()
+    {
+        LoadView.Instance.Show();
+        await RootObject.Instance.editorSceneService.LoadEditorAsync();
+        await RootObject.Instance.activityManager.CreateNewActivity();
+        LoadView.Instance.Hide();
+    }
+
+    private void OnArrowButtonPressed()
+    {
+        if (_arrowDown.activeSelf)
+        {
+            _panel.DOSizeDelta(new Vector2(_panelSize.x, -_panel.rect.height + HIDED_SIZE), HIDE_ANIMATION_TIME);
+            _arrowDown.SetActive(false);
+            _arrowUp.SetActive(true);
+            rootView.bottomPanelView.Hide();
+        }
+        else
+        {
+            _panel.DOSizeDelta(_panelSize, 0.5f);
+            _arrowDown.SetActive(true);
+            _arrowUp.SetActive(false);
+            rootView.bottomPanelView.Show();
+        }
+    }
+
+    public void OnShowByChanged()
+    {
+        foreach (var item in _items)
+        {
+            switch (DBManager.currentShowby)
             {
-                var item = Instantiate(prefab, _listTransform);
-                item.Init(content);
-                _items.Add(item);
-            });
+                case DBManager.ShowBy.ALL:
+                    item.gameObject.SetActive(true);
+                    _txtShowby.text = "Show All";
+                    break;
+                case DBManager.ShowBy.MYACTIVITIES:
+                    item.gameObject.SetActive(item.GetComponent<ActivityListItem_v2>().userIsAuthor);
+                    _txtShowby.text = "My Activities";
+                    break;
+                case DBManager.ShowBy.MYASSIGNMENTS:
+                    item.gameObject.SetActive(item.GetComponent<ActivityListItem_v2>().userIsEnroled);
+                    _txtShowby.text = "My Assignments";
+                    break;
+            }
+        }
+    }
+
+    public void OnSortbyChanged()
+    {
+        switch (DBManager.currentSortby)
+        {
+            case DBManager.SortBy.DATE:
+                _orderByRelavance = false;
+                _txtSortby.text = "By Date";
+                FetchAndUpdateView();
+                break;
+            case DBManager.SortBy.RELEVEANCE:
+                _orderByRelavance = true;
+                _txtSortby.text = "By Relevence";
+                FetchAndUpdateView();
+                break;
         }
 
-        private void OnByDateClick()
+        DBManager.currentShowby = DBManager.ShowBy.ALL;
+
+        OnShowByChanged();
+    }
+
+    private static Dictionary<string, SessionContainer> OrderByRelavance(List<Session> activityList)
+    {
+        var dictionary = new Dictionary<string, SessionContainer>();
+
+        var sessionContainersByDate = new List<KeyValuePair<DateTime, SessionContainer>>();
+
+        foreach (var activity in activityList)
         {
-            PopupsViewer.Instance.Show(_sortingPrefab);
+            SessionContainer sessionContainer = new SessionContainer { Session = activity };
+
+            if(sessionContainer.hasDeadline)
+            {
+                if (DateTime.TryParse(sessionContainer.Session.deadline, out var date))
+                {
+                    sessionContainersByDate.Add(new KeyValuePair<DateTime, SessionContainer>(date, sessionContainer));
+                }
+                else
+                {
+                    Debug.Log("Cannot convert date");
+                }
+            }
         }
 
-        private async void OnNewActivityChanged(bool value)
+        List<KeyValuePair<DateTime, SessionContainer>> sortedDateList = sessionContainersByDate.OrderBy(d => d.Value).ToList();
+
+        foreach (var keypair in sortedDateList)
         {
-            LoadView.Instance.Show();
-            interactable = false;
-            await RootObject.Instance.editorSceneService.LoadEditorAsync();
-            RootObject.Instance.activityManager.CreateNewActivity();
-            interactable = true;
-            LoadView.Instance.Hide();
-            EventManager.NotifyOnNewActivityCreationButtonPressed();
+            keypair.Deconstruct(out var date, out var sessionContatiner);
+            dictionary.Add(sessionContatiner.Session.sessionid, sessionContatiner);
         }
 
-        private void UpdateStepsView()
+        foreach (var activity in activityList)
         {
-            _stepsListView.UpdateView();
+            if (!dictionary.ContainsKey(activity.sessionid))
+            {
+                SessionContainer sessionContainer = new SessionContainer { Session = activity };
+
+                if (sessionContainer.userIsOwner)
+                {
+                    dictionary.Add(activity.sessionid, sessionContainer);
+                }
+            }
         }
+
+        foreach (var activity in activityList)
+        {
+            if (!dictionary.ContainsKey(activity.sessionid))
+            {
+                dictionary.Add(activity.sessionid, new SessionContainer { Session = activity });
+            }
+        }
+
+        return dictionary;
     }
 }

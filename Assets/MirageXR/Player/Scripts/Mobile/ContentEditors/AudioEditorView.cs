@@ -29,6 +29,7 @@ public class AudioEditorView : PopupEditorBase
     [SerializeField] private Slider _sliderRange;
     [SerializeField] private TMP_Text _txtSliderRangeValue;
     [SerializeField] private GameObject _panelRange;
+    [SerializeField] private TMP_InputField _inputTriggerStepNumber;
 
     [SerializeField] private TMP_Text _txtTimer;
     [SerializeField] private Slider _sliderPlayer;
@@ -46,9 +47,9 @@ public class AudioEditorView : PopupEditorBase
     private bool _isPlaying;
 
 
-    public override void Init(Action<PopupBase> onClose, params object[] args)
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        base.Init(onClose, args);
+        base.Initialization(onClose, args);
 
         _toggle3D.isOn = false;
         _toggleLoop.isOn = false;
@@ -81,6 +82,7 @@ public class AudioEditorView : PopupEditorBase
             if (trigger != null)
             {
                 _toggleTrigger.isOn = true;
+                _inputTriggerStepNumber.text = trigger.value;
             }
         }
         else
@@ -312,7 +314,15 @@ public class AudioEditorView : PopupEditorBase
             return;
         }
 
-        if (value) _toggleLoop.isOn = false;
+        if (value)
+        {
+            _toggleLoop.isOn = false;
+            _inputTriggerStepNumber.transform.parent.gameObject.SetActive(true);
+        }
+        else
+        {
+            _inputTriggerStepNumber.transform.parent.gameObject.SetActive(false);
+        }
         _toggleLoop.interactable = _toggle3D.isOn && !value;
     }
 
@@ -347,9 +357,15 @@ public class AudioEditorView : PopupEditorBase
         _content.scale = 0.5f;
         _content.url = $"http://{_fileName}";
 
+        if (_inputTriggerStepNumber.text == "" && _toggleTrigger.isOn)
+        {
+            Toast.Instance.Show("Input field is empty.");
+            return;
+        }
+
         if (_toggleTrigger.isOn)
         {
-            _step.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, _content.poi, _audioClip.length, string.Empty);
+            _step.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, _content.poi, _audioClip.length, _inputTriggerStepNumber.text);
         }
         else
         {

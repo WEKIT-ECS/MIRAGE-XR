@@ -120,12 +120,12 @@ namespace MirageXR
             EventManager.PlayerReset();
         }
 
-        public void CreateNewActivity()
+        public async Task CreateNewActivity()
         {
             var activity = CreateEmptyActivity();
             _newIdGenerated = false;
             EditModeActive = false;
-            ActivateActivity(activity).AsAsyncVoid();
+            await ActivateActivity(activity);
         }
 
         private static Activity CreateEmptyActivity()
@@ -208,7 +208,7 @@ namespace MirageXR
                     if (string.IsNullOrEmpty(_activity.start))
                     {
                         _isSwitching = false;
-                        
+
                         await AddAction(Vector3.zero);
                         EventManager.ActivityStarted();
                         return;
@@ -271,7 +271,11 @@ namespace MirageXR
                 else
                 {
                     var action = _activity.actions.FirstOrDefault(action => action.id == id);
-                    if (action == null) return;
+                    if (action == null)
+                    {
+                        return;
+                    }
+
                     await ActivateAction(action);
                 }
             }
@@ -308,12 +312,14 @@ namespace MirageXR
                             await ActivateAction(step.id, content);
                             break;
                         }
+
                     default:
                         {
                             EventManager.ActivateObject(content);
                             break;
                         }
                 }
+
                 if (_isSwitching)
                 {
                     break;
@@ -592,13 +598,18 @@ namespace MirageXR
 
         public async Task ActivateNextAction()
         {
-            if (ActiveAction != null)
+            int indexOfActivated = ActionsOfTypeAction.IndexOf(ActiveAction);
+            int indexOfLast = ActionsOfTypeAction.Count - 1;
+            if (indexOfActivated < indexOfLast)
             {
-                await DeactivateAction(ActiveAction.id);
-            }
-            else
-            {
-                await ActivateAction(_activity.start);
+                if (ActiveAction != null)
+                {
+                    await DeactivateAction(ActiveAction.id);
+                }
+                else
+                {
+                    await ActivateAction(_activity.start);
+                }
             }
         }
 
@@ -630,6 +641,39 @@ namespace MirageXR
             }
         }
 
+/*
+        public void SwapActions(Action action1, Action action2)
+        {
+            var index1 = _activity.actions.IndexOf(action1);
+            var index2 = _activity.actions.IndexOf(action2);
+
+            if (index1 == -1 || index2 == -1)
+            {
+                Debug.LogError($"Could not find the {action1.id} or {action2.id} actions");
+                return;
+            }
+
+            _activity.actions[index1] = action2;
+            _activity.actions[index2] = action1;
+        }
+*/
+
+        public async Task AddActionToBegin(Vector3 position, bool hasImageMarker = false)
+        {
+            var newAction = CreateAction();
+            await RootObject.Instance.workplaceManager.AddPlace(newAction, position);
+
+            _activity.start = newAction.id;
+            _activity.actions.Insert(0, newAction);
+
+            Debug.Log($"Added {newAction.id} to list of task stations");
+
+            RegenerateActionsList();
+            await ActivateNextAction();
+            await ActivateAction(newAction);
+            await Task.Yield();
+            EventManager.NotifyActionCreated(newAction);
+        }
 
         public async Task AddAction(Vector3 position, bool hasImageMarker = false)
         {
@@ -750,7 +794,10 @@ namespace MirageXR
 
                 if (totalNumberOfActions != 1)
                 {
-                    _activity.actions[indexToDelete - 1].exit.activates.Last().id = string.Empty;
+                    if (_activity.actions[indexToDelete - 1].exit.activates.Count > 0)
+                    {
+                        _activity.actions[indexToDelete - 1].exit.activates.Last().id = string.Empty;
+                    }
                 }
             }
             else if (indexToDelete == 0) // if deleting the first action
@@ -794,10 +841,13 @@ namespace MirageXR
             _activity.actions.RemoveAt(indexToDelete);
 
             RegenerateActionsList();
-            ActiveAction = null;
 
             EventManager.NotifyActionDeleted(idToDelete);
-            EventManager.ActivateAction(string.Empty);
+
+            if (ActiveAction.id == idToDelete)
+            {
+                ActivateNextAction();
+            }
         }
 
         private void RegenerateActionsList()

@@ -29,9 +29,9 @@ public class GlyphEditorView : PopupEditorBase
 
     private int _maxStepIndex => activityManager.ActionsOfTypeAction.Count - 1;
 
-    public override void Init(Action<PopupBase> onClose, params object[] args)
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        base.Init(onClose, args);
+        base.Initialization(onClose, args);
         _toggleTrigger.onValueChanged.AddListener(OnTriggerValueChanged);
         _slider.onValueChanged.AddListener(OnSliderValueChanged);
         _btnNextStep.onClick.AddListener(OnNextToClick);
@@ -47,6 +47,7 @@ public class GlyphEditorView : PopupEditorBase
 
         _toggleTrigger.isOn = false;
         _slider.value = DEFAULT_SLIDER_VALUE;
+        OnSliderValueChanged(_slider.value);
 
         for (int i = _contentContainer.childCount - 1; i >= 0; i--)
         {

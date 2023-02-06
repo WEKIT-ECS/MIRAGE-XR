@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Threading;
-using i5.Toolkit.Core.ServiceCore;
 using ICSharpCode.SharpZipLib.Zip;
 #if NETFX_CORE
 using Windows.System;
@@ -26,7 +25,7 @@ namespace MirageXR
         private const string DEFAULT_DOWNLOAD_URL = "https://wekitproject.appspot.com/storage/sessions?category=ARLEM";
         private const string DEFAULT_UPLOAD_URL = "http://wekitproject.appspot.com/storage/requestupload";
 
-        private static readonly HttpClient _client = new HttpClient();
+        private static readonly HttpClient client = new HttpClient();
 
         public static async void Upload(string path, string recordingId, Action<HttpStatusCode> callback)
         {
@@ -53,10 +52,14 @@ namespace MirageXR
                     using (var zipStream = new ZipOutputStream(stream))
                     {
                         await ZipUtilities.CompressFolderAsync(path, zipStream);
-                        await ZipUtilities.AddFileToZipStreamAsync(zipStream,
-                            $"{path}-activity.json", $"{recordingId}-activity.json");
-                        await ZipUtilities.AddFileToZipStreamAsync(zipStream,
-                            $"{path}-workplace.json", $"{recordingId}-workplace.json");
+                        await ZipUtilities.AddFileToZipStreamAsync(
+                            zipStream,
+                            $"{path}-activity.json",
+                            $"{recordingId}-activity.json");
+                        await ZipUtilities.AddFileToZipStreamAsync(
+                            zipStream,
+                            $"{path}-workplace.json",
+                            $"{recordingId}-workplace.json");
                     }
                     bytes = stream.ToArray();
                 }
@@ -71,7 +74,7 @@ namespace MirageXR
 
         private static async Task<(string, HttpStatusCode)> GetUploadUrlAndTokenAsync()
         {
-            var response = await _client.PostAsync(DEFAULT_UPLOAD_URL, null);
+            var response = await client.PostAsync(DEFAULT_UPLOAD_URL, null);
             return (await response.Content.ReadAsStringAsync(), response.StatusCode);
         }
 
@@ -111,7 +114,7 @@ namespace MirageXR
             // form.Add(new StringContent("WEKIT ARLEM recorder session of " + DateTime.Now.ToString()), "\"description\"");
             form.Add(new StringContent("ARLEM"), "\"category\"");
 
-            var response = await _client.PostAsync(url, form);
+            var response = await client.PostAsync(url, form);
             var responseString = await response.Content.ReadAsStringAsync();
 
             Debug.Log("secondPost: PostAsync ");
@@ -147,7 +150,7 @@ namespace MirageXR
         {
             Debug.Log($"DownloadAndDecompress: {filename}, {downloadUrl}, {targetDir}");
             var success = false;
-            var response = await _client.GetAsync(downloadUrl);
+            var response = await client.GetAsync(downloadUrl);
             if (response.IsSuccessStatusCode)
             {
                 var unzipDir = Path.Combine(targetDir, filename.Substring(0, filename.Length - 4));
@@ -170,7 +173,7 @@ namespace MirageXR
             Debug.Log($"DownloadAndDecompress: {filename}, {downloadUrl}, {targetDir}");
             var success = false;
 
-            var response = await _client.GetAsync(downloadUrl);
+            var response = await client.GetAsync(downloadUrl);
             if (response.IsSuccessStatusCode)
             {
                 var unzipDir = targetDir;
@@ -192,14 +195,14 @@ namespace MirageXR
         public static async Task<SimpleJSON.JSONNode> GetDownloadableSessionsAsync(string sessionUrl = DEFAULT_DOWNLOAD_URL)
         {
             Debug.Log($"GetDownloadableSessions: {sessionUrl}");
-            var response = await _client.GetAsync(sessionUrl);
+            var response = await client.GetAsync(sessionUrl);
             if (response.IsSuccessStatusCode)
             {
                 var sessionJson = await response.Content.ReadAsStringAsync();
                 var node = SimpleJSON.JSON.Parse(sessionJson);
                 // Debug.Log("parsed sessions: " + node.Count);
                 //  each entry in the JSONNode has the following structure:
-                /* 
+                /*
                  *  {
                  *       "id":5746569068412928,
                  *       "author":"User #1",
@@ -212,7 +215,7 @@ namespace MirageXR
                  *       "key":"/gs/wekitproject.appspot.com/L2FwcGhvc3RpbmdfZ2xvYmFsL2Jsb2JzL0FFbkIyVXB5eDJqd1hiMXVOU3BISndsS1VoblZhMHdRdEFaeGZWVHFjUERqbkNXZTZjSXhFU0tmaVpuWEVkYUZoSzFxX0xRWFV6SHhpeTFJVXJxblFvUVotT2NoOHg3ZjVBLmlOdDdQYmZsTDRUd3JvVm8",
                  *       "uploadingDate":"Oct 19, 2018 1:05:07 PM"
                  *  }
-                 *  
+                 *
                  *  prepend the key attribute with "https://wekitproject.appspot.com/storage/serve" for download of that session
                  */
                 // Debug.Log("node as array: " + node.AsArray.Count);
@@ -246,9 +249,9 @@ namespace MirageXR
 
             var form = new MultipartFormDataContent
             {
-                { new StringContent(userName), userNameKey},
-                { new StringContent(password), passwordKey},
-                { new StringContent(domain), domainKey}
+                { new StringContent(userName), userNameKey },
+                { new StringContent(password), passwordKey },
+                { new StringContent(domain), domainKey }
             };
 
             var uri = string.Format(uriFormat, domain, DBManager.plugin);
@@ -265,10 +268,10 @@ namespace MirageXR
 
             var form = new MultipartFormDataContent
             {
-                {new StringContent(token), tokenKey},
-                {new StringContent(function), functionKey},
-                {new StringContent(parametersValueFormat), parametersKey},
-                {new StringContent(requestValue), requestKey}
+                { new StringContent(token), tokenKey },
+                { new StringContent(function), functionKey },
+                { new StringContent(parametersValueFormat), parametersKey },
+                { new StringContent(requestValue), requestKey }
             };
 
             var uri = string.Format(uriFormat, domain, DBManager.plugin);
@@ -297,9 +300,20 @@ namespace MirageXR
             return await PostRequestAsync(uri, form, REQUEST_TIMEOUT_IN_SECONDS);
         }
 
-        public static async Task<(bool, string)> UploadRequestAsync(string token, string userId, string sessionId,
-            bool isPublic, string fileName, string title, byte[] zipContent, string thumbnailFileName,
-            byte[] thumbnailContent, string domain, string activityJson, string workplaceJson, int updateMode)
+        public static async Task<(bool, string)> UploadRequestAsync(
+            string token,
+            string userId,
+            string sessionId,
+            bool isPublic,
+            string fileName,
+            string title,
+            byte[] zipContent,
+            string thumbnailFileName,
+            byte[] thumbnailContent,
+            string domain,
+            string activityJson,
+            string workplaceJson,
+            int updateMode)
         {
             const string uriFormat = "{0}/mod/{1}/classes/webservice/getfile_from_unity.php";
             const string tokenKey = "token";
@@ -338,15 +352,15 @@ namespace MirageXR
 
             var form = new MultipartFormDataContent
             {
-                { new StringContent(token), tokenKey},
-                { new StringContent(userId), userIdKey},
-                { new StringContent(updateMode.ToString()), updateFileKey},
-                { new StringContent(sessionId), sessionIdKey},
-                { new StringContent(title), titleKey},
-                { new StringContent(activityJson), activityJsonKey},
-                { new StringContent(workplaceJson), workplaceJsonKey},
-                { new StringContent((isPublic ? 1 : 0).ToString()), publicKey},
-                { zipBinaryContent, fileKey, fileName},
+                { new StringContent(token), tokenKey },
+                { new StringContent(userId), userIdKey },
+                { new StringContent(updateMode.ToString()), updateFileKey },
+                { new StringContent(sessionId), sessionIdKey },
+                { new StringContent(title), titleKey },
+                { new StringContent(activityJson), activityJsonKey },
+                { new StringContent(workplaceJson), workplaceJsonKey },
+                { new StringContent((isPublic ? 1 : 0).ToString()), publicKey },
+                { zipBinaryContent, fileKey, fileName },
             };
 
             if (thumbnailBinaryContent != null)
@@ -358,8 +372,15 @@ namespace MirageXR
             return await PostRequestAsync(uri, form, UPLOAD_TIMEOUT_IN_SECONDS);
         }
 
-        public static async Task<(bool, string)> DownloadRequestToStreamAsync(Stream stream, string contextId,
-            string component, string fileArea, string itemId, string fileName, string domain, CancellationToken cancellationToken = default)
+        public static async Task<(bool, string)> DownloadRequestToStreamAsync(
+            Stream stream,
+            string contextId,
+            string component,
+            string fileArea,
+            string itemId,
+            string fileName,
+            string domain,
+            CancellationToken cancellationToken = default)
         {
             const string uriFormat = "{0}/pluginfile.php/{1}/{2}/{3}/{4}/{5}";
 

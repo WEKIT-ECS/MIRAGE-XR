@@ -2,8 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-static class LevenshteinDistance
+/// <summary>
+/// Utility class for computing the Levenshtein distance
+/// https://en.wikipedia.org/wiki/Levenshtein_distance
+/// </summary>
+public static class LevenshteinDistance
 {
+    /// <summary>
+    /// Computes the Levenshtein distance between the two given strings
+    /// This is a metric for measuring how close the two character sequences are to each other
+    /// </summary>
+    /// <param name="s">The first string</param>
+    /// <param name="t">The second string</param>
+    /// <returns>Returns the Levenshtein distance, i.e. the number of steps necessary to make the two strings the same</returns>
     public static int Compute(string s, string t)
     {
         if (string.IsNullOrEmpty(s))

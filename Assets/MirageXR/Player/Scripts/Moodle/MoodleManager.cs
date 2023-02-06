@@ -11,6 +11,9 @@ using Object = UnityEngine.Object;
 
 namespace MirageXR
 {
+    /// <summary>
+    /// Manager for centralized access to the Moodle API
+    /// </summary>
     public class MoodleManager
     {
         private const long MAX_FILE_SIZE_FOR_MEMORY = 150 * 1024 * 1024; // 150 mb
@@ -18,6 +21,9 @@ namespace MirageXR
 
         private GameObject _progressText;   //TODO: remove ui logic
 
+        /// <summary>
+        /// Gets or sets the text that is currently displayed in the progress text label of the UI
+        /// </summary>
         public string GetProgressText
         {
             get => _progressText.GetComponent<Text>().text;
@@ -27,9 +33,17 @@ namespace MirageXR
         private void Update()    //TODO: remove ui logic
         {
             if (!DBManager.LoggedIn && _progressText)
+            {
                 _progressText.GetComponent<Text>().text = string.Empty;
+            }
         }
 
+        /// <summary>
+        /// Logs in a user with the given credentials
+        /// </summary>
+        /// <param name="username">The username of the user which should be logged in</param>
+        /// <param name="password">The password of the user which should be logged in</param>
+        /// <returns>Returns true if the login was successful, otherwise false</returns>
         public async Task<bool> Login(string username, string password)
         {
             var (result, response) = await Network.LoginRequestAsync(username, password, DBManager.domain);
@@ -63,13 +77,7 @@ namespace MirageXR
             return await StartUploading($"{recordingID}.zip", file, updateFile);
         }
 
-        /// <summary>
-        /// Upload The File
-        /// </summary>
-        /// <param name="filename"></param>
-        /// <param name="file"></param>
-        /// <param updateMode="int"></param> 0 == check if sessionid exist , 1 = exist and update , 2 = exist and clone
-        /// <returns></returns>
+        // Uploads a file to Moodle
         private async Task<(bool, string)> StartUploading(string filename, byte[] file, int updateMode)
         {
             const string thumbnailName = "thumbnail.jpg";
@@ -82,7 +90,10 @@ namespace MirageXR
 
             byte[] thumbnail = null;
             var thumbnailExist = File.Exists(Path.Combine(activityManager.ActivityPath, thumbnailName));
-            if (thumbnailExist) thumbnail = File.ReadAllBytes(Path.Combine(activityManager.ActivityPath, thumbnailName));
+            if (thumbnailExist)
+            {
+                thumbnail = File.ReadAllBytes(Path.Combine(activityManager.ActivityPath, thumbnailName));
+            }
 
             var activityJson = File.ReadAllText(activityManager.ActivityPath + "-activity.json");
             var workplaceJson = File.ReadAllText(activityManager.ActivityPath + "-workplace.json");
@@ -93,25 +104,38 @@ namespace MirageXR
             if (result && !response.Contains("Error"))
             {
                 if (response.EndsWith("Saved."))
+                {
                     Debug.Log(response);
+                }
                 else
+                {
                     Debug.LogError(response);
+                }
 
                 Maggie.Speak("The upload is completed.");
-                if (_progressText) _progressText.GetComponent<Text>().text = "Done";
+                if (_progressText)
+                {
+                    _progressText.GetComponent<Text>().text = "Done";
+                }
+
                 return (true, response);
             }
 
             // The file handling response should be displayed as Log, not LogError
             if (response.Contains("File exist"))
+            {
                 Debug.Log($"Error on uploading: {response}");
+            }
             else
             {
                 Maggie.Speak("Uploading ARLEM failed. Check your system administrator.");
                 Debug.LogError($"Error on uploading: {response}");
             }
 
-            if (_progressText) _progressText.GetComponent<Text>().text = "Error!";
+            if (_progressText)
+            {
+                _progressText.GetComponent<Text>().text = "Error!";
+            }
 
             var activityEditor = Object.FindObjectOfType<ActivityEditor>();
             // show update confirmation panel if file exist
@@ -128,8 +152,9 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Ask moodle about the user id of the current logged user
+        /// Requests the user id of the currently logged-in user from Moodle
         /// </summary>
+        /// <returns>Returns the user id of the currently logged-in user</returns>
         public async Task<string> GetUserId()
         {
             var requestValue = "userid";
@@ -146,6 +171,10 @@ namespace MirageXR
             return DBManager.userid;
         }
 
+        /// <summary>
+        /// Requests the mail address of the currently logged-in user from Moodle
+        /// </summary>
+        /// <returns>Returns the mail address of the currently logged-in user</returns>
         public async Task<string> GetUserMail()
         {
             var requestValue = "mail";
@@ -165,7 +194,7 @@ namespace MirageXR
         /// <summary>
         /// Get the list of all arlems on Moodle and make the sessions
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Return the list of all ARLEM sessions that are stored on Moodle</returns>
         public async Task<List<Session>> GetArlemList()
         {
             const string httpsPrefix = "https://";
@@ -188,6 +217,7 @@ namespace MirageXR
             return ParseArlemListJson(response);
         }
 
+        // returns a json string which contains all stored ARLEM sessions on the given Moodle server
         private static async Task<string> GetArlemListJson(string serverUrl)
         {
             const string responseValue = "arlemlist";
@@ -203,6 +233,7 @@ namespace MirageXR
             return response;
         }
 
+        // parses the ARLEM list that is given as a JSON string and converts it to a list of sessions
         private static List<Session> ParseArlemListJson(string json)
         {
             const string emptyJson = "[]";
@@ -236,6 +267,12 @@ namespace MirageXR
             }
         }
 
+        /// <summary>
+        /// Deletes the given ARLEM session from the connected Moodle instance
+        /// </summary>
+        /// <param name="itemID"></param>
+        /// <param name="sessionID"></param>
+        /// <returns>Returns true if the delete session worked; otherwise false</returns>
         public async Task<bool> DeleteArlem(string itemID, string sessionID)
         {
             var (result, response) = await Network.GetCustomDataFromDBRequestAsync(DBManager.userid, DBManager.domain, "deleteArlem", DBManager.token, itemID, sessionID);
@@ -256,7 +293,7 @@ namespace MirageXR
         /// <summary>
         /// Increase the views of the activity on server by 1
         /// </summary>
-        /// <param name="itemID"></param>
+        /// <param name="itemID">The id of the item for which the activity views should be increased</param>
         public async Task UpdateViewsOfActivity(string itemID)
         {
             var (result, response) = await Network.GetCustomDataFromDBRequestAsync(DBManager.userid, DBManager.domain, "updateViews", DBManager.token, itemID);
@@ -264,7 +301,8 @@ namespace MirageXR
             // Return null if some error happened
             if (!result || response.StartsWith("Error"))
             {
-                Debug.LogError(response);
+                var maxLenght = 200;
+                Debug.LogError(response.Length > maxLenght ? response.Substring(0, maxLenght) : response);
             }
             else
             {
@@ -272,12 +310,7 @@ namespace MirageXR
             }
         }
 
-        /// <summary>
-        /// Zip the worksshop files
-        /// </summary>
-        /// <param name="path"></param>
-        /// <param name="recordingId"></param>
-        /// <returns></returns>
+        // Zips the workshop files
         private static async Task<byte[]> CompressRecord(string path, string recordingId)
         {
             byte[] bytes = null;
@@ -288,12 +321,14 @@ namespace MirageXR
                     using (var zipStream = new ZipOutputStream(stream))
                     {
                         if (Directory.Exists(path))
+                        {
                             await ZipUtilities.CompressFolderAsync(path, zipStream);
-                        await ZipUtilities.AddFileToZipStreamAsync(zipStream,
-                            $"{path}-activity.json", $"{recordingId}-activity.json");
-                        await ZipUtilities.AddFileToZipStreamAsync(zipStream,
-                            $"{path}-workplace.json", $"{recordingId}-workplace.json");
+                        }
+
+                        await ZipUtilities.AddFileToZipStreamAsync(zipStream, $"{path}-activity.json", $"{recordingId}-activity.json");
+                        await ZipUtilities.AddFileToZipStreamAsync(zipStream, $"{path}-workplace.json", $"{recordingId}-workplace.json");
                     }
+
                     bytes = stream.ToArray();
                 }
             }
@@ -301,9 +336,17 @@ namespace MirageXR
             {
                 Debug.LogError($"compression error: {e}");
             }
+
             return bytes;
         }
 
+        /// <summary>
+        /// Download an ARLEM activity based on a given session
+        /// </summary>
+        /// <param name="session">The session data object that identifies the activity</param>
+        /// <returns>Returns a tuple:
+        /// The Bool is true if the download succeeded;
+        /// In the second item, the downloaded activity can be found</returns>
         public static async Task<(bool, Activity)> DownloadActivity(Session session)
         {
             var isTooBigForMemory = session.filesize > MAX_FILE_SIZE_FOR_MEMORY;
@@ -320,13 +363,17 @@ namespace MirageXR
                 {
                     if (isTooBigForMemory)
                     {
-                        stream.Dispose();
+                        await stream.DisposeAsync();
                         stream = File.OpenRead(tempFilePath);
                     }
+
                     await ZipUtilities.ExtractZipFileAsync(stream, Application.persistentDataPath);
                     var fileName = LocalFiles.GetActivityJsonFilename(session.sessionid, true);
                     var newActivity = await LocalFiles.ReadActivityAsync(fileName);
-                    if (newActivity != null) activity = newActivity;
+                    if (newActivity != null)
+                    {
+                        activity = newActivity;
+                    }
                 }
                 else
                 {
@@ -340,8 +387,11 @@ namespace MirageXR
             }
             finally
             {
-                stream.Dispose();
-                if (isTooBigForMemory && File.Exists(tempFilePath)) File.Delete(tempFilePath);
+                await stream.DisposeAsync();
+                if (isTooBigForMemory && File.Exists(tempFilePath))
+                {
+                    File.Delete(tempFilePath);
+                }
             }
 
             return (result, activity);

@@ -6,7 +6,9 @@ using Siccity.GLTFUtility;
 namespace MirageXR
 {
     public class Model : MirageXRPrefab
-    {
+    { 
+        private static ActivityManager _activityManager => RootObject.Instance.activityManager;
+
         private float startLoadTime = 0.0f;
         private ToggleObject myToggleObject;
         private Animation animation;
@@ -21,6 +23,13 @@ namespace MirageXR
 
         private void OnDestroy()
         {
+            var poiEditor = GetComponentInParent<PoiEditor>();
+
+            if (poiEditor)
+            {
+                poiEditor.EnableBoundsControl(false);
+            }
+
             UnSubscribe();
         }
 
@@ -74,6 +83,7 @@ namespace MirageXR
             }
 
             // If all went well, return true.
+            
             return true;
         }
 
@@ -129,6 +139,13 @@ namespace MirageXR
                 animation.clip = clip[0];
                 animation.clip.legacy = true;
                 animation.Play();
+            }
+
+            var poiEditor = GetComponentInParent<PoiEditor>();
+
+            if (poiEditor)
+            {
+                poiEditor.EnableBoundsControl(true);
             }
         }
 

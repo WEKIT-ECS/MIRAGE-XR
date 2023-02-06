@@ -729,13 +729,6 @@ namespace MirageXR
             TaskStationEditorEnabled?.Invoke();
         }
 
-        public delegate void ActivityRenamedDelegate();
-        public static event ActivityRenamedDelegate ActivityRenamed;
-        public static void NotifyOnActivityRenamed()
-        {
-            ActivityRenamed?.Invoke();
-        }
-
         // TODO: Give comment summary for all events.
 
         public delegate void AddAugmentationButtonClickedDelegate();
@@ -773,6 +766,13 @@ namespace MirageXR
         public static void NotifyOnActivityUploadButtonClicked()
         {
             ActivityUploadButtonClicked?.Invoke();
+        }
+
+        public delegate void ActivityRenamedDelegate();
+        public static event ActivityRenamedDelegate ActivityRenamed;
+        public static void NotifyOnActivityRenamed()
+        {
+            ActivityRenamed?.Invoke();
         }
 
         public delegate void ActionStepTitleInputChangedDelegate();
@@ -851,6 +851,15 @@ namespace MirageXR
         public static void NotifyMoodleDomainChanged()
         {
             MoodleDomainChanged?.Invoke();
+        }
+
+        public delegate void MobileHelpPageChanged(RootView_v2.HelpPage value);
+
+        public static event MobileHelpPageChanged OnMobileHelpPageChanged;
+
+        public static void NotifyMobileHelpPageChanged(RootView_v2.HelpPage value)
+        {
+            OnMobileHelpPageChanged?.Invoke(value);
         }
     }
 }

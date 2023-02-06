@@ -30,6 +30,7 @@ jobs:
           echo -n "$env:ASSISTANTKEYS" > $env:GITHUB_WORKSPACE/ibm-credentials.env
           echo "path of the credentials resource $env:GITHUB_WORKSPACE/Assets/Resources/ibm-credentials.txt"
           $env:IBM_CREDENTIALS_FILE="$env:GITHUB_WORKSPACE/ibm-credentials.env"
+          $env:TARGET_PLATFORM="Hololens"
 
       # Cache
       - name: Caching
@@ -55,7 +56,7 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE_WINDOWS }}
         with:
           targetPlatform: WSAPlayer
-          unityVersion: 2020.3.38f1
+          unityVersion: 2021.3.8f1
           versioning: Semantic
           # dirty build needed to include generated Watson credentials
           allowDirtyBuild: true
@@ -151,6 +152,7 @@ jobs:
       SLACK_URL: ${{ secrets.SLACK_URL }}
       COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
       APP_VERSION: ${{ needs.build_unity.outputs.buildVersion }}
+      TARGET_PLATFORM: ${{ runner.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2

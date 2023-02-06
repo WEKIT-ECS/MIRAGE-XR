@@ -14,22 +14,33 @@
         private const string ZIP = ".zip";
 
         public Session Session { get; set; }
+
         public Activity Activity { get; set; }
 
         public string Filesize
         {
             get
             {
-                if (Session == null) return string.Empty;
+                if (Session == null)
+                {
+                    return string.Empty;
+                }
 
                 long size = Session.filesize;
                 string convertedSize;
+
                 if (size > GB)
+                {
                     convertedSize = string.Format(GB_FORMAT, size / (float)GB);
+                }
                 else if (size > MB)
+                {
                     convertedSize = string.Format(MB_FORMAT, size / (float)MB);
+                }
                 else if (size > KB)
+                {
                     convertedSize = string.Format(KB_FORMAT, size / (float)KB);
+                }
                 else
                 {
                     convertedSize = LESS_THAN_KB;
@@ -86,6 +97,18 @@
                     return $"Deadline: {Session.deadline}";
                 }
                 return "Not enrolled to this course.";
+            }
+        }
+
+        public bool hasDeadline
+        {
+            get
+            {
+                if (Session != null && Session.deadline != null)
+                {
+                    return true;
+                }
+                return false;
             }
         }
 

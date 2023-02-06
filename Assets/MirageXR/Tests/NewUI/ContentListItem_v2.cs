@@ -1,88 +1,75 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using System;
 using System.Linq;
 using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Content = MirageXR.ToggleObject;
 
 public class ContentListItem_v2 : MonoBehaviour
 {
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
+
     [SerializeField] private TMP_Text _txtType;
-    [SerializeField] private TMP_Text _txtFrom;
-    [SerializeField] private TMP_Text _txtTo;
+    [SerializeField] private TMP_Text _txtName;
     [SerializeField] private Image _imgType;
-    [SerializeField] private Button _btnContent;
-    [SerializeField] private Button _btnDelete;
-    [SerializeField] private Button _btnMinusFrom;
-    [SerializeField] private Button _btnPlusFrom;
-    [SerializeField] private Button _btnMinusTo;
-    [SerializeField] private Button _btnPlusTo;
-    [SerializeField] private Button _btnNavigator;
-    [SerializeField] private Image _imageNavigatorCheck;
+    [SerializeField] private Button _btnSettings;
+    [SerializeField] private Button _btnListItem;
+    [SerializeField] private KeepAliveView _keepAliveViewPrefab;
 
     private ContentListView_v2 _parentView;
-    private ToggleObject _content;
+    private Content _content;
     private ContentType _type;
     private int _from;
     private int _to;
 
-    private int _maxStepIndex => activityManager.ActionsOfTypeAction.Count - 1;
+    private Action<Content> _onListItemPressed;
 
-    public void Init(ContentListView_v2 parentView)
+    private int _maxStepIndex => activityManager.ActionsOfTypeAction.Count;
+
+    public void Initialization(ContentListView_v2 parentView, Action<Content> onListItemPressed)
     {
         _parentView = parentView;
-        _btnNavigator.onClick.AddListener(OnNavigatorClick);
-        _btnContent.onClick.AddListener(OnContentClick);
-        _btnDelete.onClick.AddListener(OnDeleteClick);
-        _btnMinusFrom.onClick.AddListener(OnMinusFromClick);
-        _btnPlusFrom.onClick.AddListener(OnPlusFromClick);
-        _btnMinusTo.onClick.AddListener(OnMinusToClick);
-        _btnPlusTo.onClick.AddListener(OnPlusToClick);
+        _onListItemPressed = onListItemPressed;
+        _btnSettings.onClick.AddListener(OnSettingsPressed);
+        _btnListItem.onClick.AddListener(OnListItemPressed);
     }
 
-    public void UpdateView(ToggleObject content)
+    public void UpdateView(Content content)
     {
         _content = content;
         _type = ContentTypeExtenstion.ParsePredicate(_content.predicate);
         _txtType.text = _content.predicate;
+        _txtName.text = _type.GetName();
         _imgType.sprite = _type.GetIcon();
 
         var stepList = activityManager.ActionsOfTypeAction;
 
-        var startStep = stepList.FindIndex(step => step.enter.activates.Any(t => t.poi == _content.poi));
-        var lastStep = stepList.FindLastIndex(step => step.enter.activates.Any(t => t.poi == _content.poi));
+        _from = stepList.FindIndex(step => step.enter.activates.Any(t => t.poi == _content.poi));
+        _to = stepList.FindLastIndex(step => step.enter.activates.Any(t => t.poi == _content.poi));
 
-        _from = startStep;
-        _to = lastStep;
-        _txtFrom.text = (_from + 1).ToString();
-        _txtTo.text = (_to + 1).ToString();
-
-        _imageNavigatorCheck.enabled = false;
         if (_parentView.navigatorId == _content.poi)
         {
-            _imageNavigatorCheck.enabled = true;
             TaskStationDetailMenu.Instance.NavigatorTarget = ActionListMenu.CorrectTargetObject(_content);
         }
     }
 
-    private void OnNavigatorClick()
+    private void OnSettingsPressed()
     {
-        _parentView.navigatorId = _parentView.navigatorId != _content.poi ? _content.poi : null;
+        RootView_v2.Instance.dialog.ShowBottomMultiline("Settings",
+            ("Edit", EditContent, false),
+            ("Locate", LocateContent, false),
+            ("Rename", RenameContent, false),
+            ($"Keep alive {_from + 1}-{_to + 1}", ChangeKeepAlive, false),
+            ("Delete", DeleteContent, true));
     }
 
-    public void OnEditModeChanged(bool value)
+    private void OnListItemPressed()
     {
-        _btnDelete.gameObject.SetActive(value);
-        _btnMinusFrom.interactable = value;
-        _btnPlusFrom.interactable = value;
-        _btnMinusTo.interactable = value;
-        _btnPlusTo.interactable = value;
+        _onListItemPressed?.Invoke(_content);
     }
 
-    private void OnContentClick()
+    private void EditContent()
     {
         var type = ContentTypeExtenstion.ParsePredicate(_content.predicate);
         var editor = _parentView.editors.FirstOrDefault(t => t.editorForType == type);
@@ -91,47 +78,48 @@ public class ContentListItem_v2 : MonoBehaviour
             Debug.LogError($"there is no editor for the type {type}");
             return;
         }
+
         PopupsViewer.Instance.Show(editor, _parentView.currentStep, _content);
     }
 
-    private void OnDeleteClick()
+    private void LocateContent()
     {
-        RootObject.Instance.augmentationManager.DeleteAugmentation(_content);
-        if (_parentView.navigatorId == _content.poi)
+        _parentView.navigatorId = _parentView.navigatorId != _content.poi ? _content.poi : null;
+    }
+
+    private void RenameContent()
+    {
+        //not implemented
+    }
+
+    private void DeleteContent()
+    {
+        RootView_v2.Instance.dialog.ShowMiddle("Warning!", "Are you sure you want to delete this content?",
+            "Yes", () =>
+            {
+                RootObject.Instance.augmentationManager.DeleteAugmentation(_content);
+                if (_parentView.navigatorId == _content.poi)
+                {
+                    TaskStationDetailMenu.Instance.NavigatorTarget = null;
+                }
+            }, "No", null);
+    }
+
+    private void ChangeKeepAlive()
+    {
+        if (_maxStepIndex < 2)
         {
-            TaskStationDetailMenu.Instance.NavigatorTarget = null;
+            Toast.Instance.Show("First add a new step");
+            return;
         }
+
+        PopupsViewer.Instance.Show(_keepAliveViewPrefab, _maxStepIndex, _from, _to, (Action<int, int>)OnKeepAliveChange);
     }
 
-    private void OnMinusFromClick()
+    private void OnKeepAliveChange(int from, int to)
     {
-        if (_from == 0) return;
-        _from--;
-        _txtFrom.text = (_from + 1).ToString();
-        UpdateStep();
-    }
-
-    private void OnPlusFromClick()
-    {
-        if (_from == _to) return;
-        _from++;
-        _txtFrom.text = (_from + 1).ToString();
-        UpdateStep();
-    }
-
-    private void OnMinusToClick()
-    {
-        if (_to == _from) return;
-        _to--;
-        _txtTo.text = (_to + 1).ToString();
-        UpdateStep();
-    }
-
-    private void OnPlusToClick()
-    {
-        if (_to == _maxStepIndex) return;
-        _to++;
-        _txtTo.text = (_to + 1).ToString();
+        _from = from;
+        _to = to;
         UpdateStep();
     }
 
@@ -142,5 +130,7 @@ public class ContentListItem_v2 : MonoBehaviour
         {
             activityManager.SaveData();
         }
+
+        _parentView.UpdateView();
     }
 }

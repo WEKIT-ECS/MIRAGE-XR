@@ -18,32 +18,22 @@ namespace MirageXR
         [SerializeField] private Image _image;
         [SerializeField] private Sprite _defaultThumbnail;
         [SerializeField] private Button _btnMain;
-        [SerializeField] private OpenActivityModeSelect activityModeSelect;
-
 
         private SessionContainer _container;
         private bool _interactable = true;
 
         public string activityName => _container.Name;
+
         public string activityAuthor => _container.author;
 
-        public bool interactable
-        {
-            get
-            {
-                return _interactable;
-            }
-            set
-            {
-                _interactable = value;
-            }
-        }
+        public bool userIsAuthor => _container.userIsOwner;
+
+        public bool userIsEnroled => _container.hasDeadline;
 
         public void Init(SessionContainer container)
         {
             _container = container;
             _btnMain.onClick.AddListener(OnBtnMain);
-            //_btnDelete.onClick.AddListener(OnBtnDelete);
 
             UpdateView();
         }
@@ -121,23 +111,35 @@ namespace MirageXR
         private async void OnBtnMain()
         {
             _interactable = false;
-            if (!_container.ExistsLocally) await DownloadActivityAsync();
-            else ShowPopup();
+            if (!_container.ExistsLocally)
+            {
+                await DownloadActivityAsync();
+            }
+            else
+            {
+                ShowPopup();
+            }
+
             _interactable = true;
         }
 
         private void ShowPopup()
         {
-            var popup = PopupsViewer.Instance.Show(activityModeSelect);
-
-            popup.ConnectedObject = gameObject;
+            RootView_v2.Instance.dialog.ShowMiddleMultiline("Open Activity", true,
+                ("Open to edit", () => OpenActivity(true), false),
+                ("Open to view", () => OpenActivity(false), false),
+                ("Cancel", null, true));
         }
 
         public async void OpenActivity(bool value)
         {
             await PlayActivityAsync();
-
+            RootView_v2.Instance.activityView.SetSessionInfo(_container);
             activityManager.EditModeActive = value;
+            if (!value)
+            {
+                RootView_v2.Instance.activityView.stepsListView.SetCalibrationToggle(true);
+            }
         }
 
         private async Task PlayActivityAsync()
@@ -156,7 +158,9 @@ namespace MirageXR
             _container.IsDownloading = true;
             UpdateView();
 
+            LoadView.Instance.Show();
             var (result, activity) = await MoodleManager.DownloadActivity(_container.Session);
+            LoadView.Instance.Hide();
 
             _container.HasError = !result;
             _container.Activity = activity;

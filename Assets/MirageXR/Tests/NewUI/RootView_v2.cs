@@ -1,45 +1,52 @@
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MirageXR;
 using UnityEngine;
-using UnityEngine.UI;
 
 [RequireComponent(typeof(Canvas))]
 public class RootView_v2 : BaseView
 {
     public static RootView_v2 Instance { get; private set; }
 
-    [SerializeField] private Toggle _toggleHome;
-    [SerializeField] private Button _btnProfile;
-    [SerializeField] private Toggle _toggleNewActivity;
-    [SerializeField] private Button _btnAddAugmentation;
-
+    [SerializeField] private BottomPanelView _bottomPanelView;
+    [SerializeField] private BottomNavigationArrowsView _bottomNavigationArrowsView;
     [SerializeField] private PageView_v2 _pageView;
     [SerializeField] private CalibrationGuideView _calibrationGuideViewPrefab;
+    [SerializeField] public SearchView _searchPrefab;
     [SerializeField] private ProfileView _profilePrefab;
-    [SerializeField] private SearchView _searchPrefab;
     [SerializeField] private HelpView _helpPrefab;
-    [SerializeField] private SettingsView_v2 _activitySettingsPrefab;
-    //[SerializeField] private StepSettingsView _stepSettingsPrefab;
-    [SerializeField] private GameObject newActivityButton;
-    [SerializeField] public RectTransform bottomPanel;
+    [SerializeField] private ActivitySettings _activitySettingsPrefab;
     [SerializeField] private LoginView_v2 _loginViewPrefab;
-    [SerializeField] private GameObject _newActivityPanel;
-    [SerializeField] private ActivityListView_v2 _activityListView_V2;
-    [SerializeField] private GameObject HomePage;
-    [SerializeField] private StepsListView _stepsListView;
+    [SerializeField] private ActivityListView_v2 _activityListView;
+    [SerializeField] private ActivityView_v2 _activityView;
+    [Space]
     [SerializeField] private Dialog _dialog;
+    [SerializeField] private Tutorial _tutorial;
+
+    public enum HelpPage {
+        Home,
+        ActivitySteps,
+        ActivityInfo,
+        ActivityCalibration,
+        ActionAugmentations,
+        ActionInfo,
+        ActionMarker,
+    };
+
+    private static HelpPage helpPage;
+
+    public ActivityListView_v2 activityListView => _activityListView;
+
+    public ActivityView_v2 activityView => _activityView;
+
+    public BottomPanelView bottomPanelView => _bottomPanelView;
+
+    public BottomNavigationArrowsView bottomNavigationArrowsView => _bottomNavigationArrowsView;
 
     public Dialog dialog => _dialog;
-    public GameObject newActivityPanel => _newActivityPanel;
-    public ActivityListView_v2 activityListView_V2 => _activityListView_V2;
 
-    private Vector3 _currentPanelPosition;
-    float moveTime = 1;
-    float currentTime = 0;
-    private float normalizedValue;
-    private bool panelMoving = false;
-
-    public StepsListView stepsListView => _stepsListView;
+    public Tutorial Tutorial => _tutorial;
 
     private void Awake()
     {
@@ -58,22 +65,28 @@ public class RootView_v2 : BaseView
         {
             await SetupViewForTablet();
         }
+
         Initialization(null);
+        EventManager.OnEditModeChanged += editModeChangedForHelp;
     }
 
     public override async void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
-        EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
 
-        _toggleHome.isOn = true;
-        _toggleNewActivity.interactable = true;
-        _toggleHome.onValueChanged.AddListener(OnStepsClick);
-        _btnProfile.onClick.AddListener(OnProfileClick);
-        _btnAddAugmentation.onClick.AddListener(AddAugmentation);
+        _bottomPanelView.Initialization(this);
+        _bottomNavigationArrowsView.Initialization(this);
+        _activityView.Initialization(this);
+        _activityListView.Initialization(this);
+
+        _bottomPanelView.SetHomeActive(true);
+        _bottomNavigationArrowsView.HideImmediate();
+
         _pageView.OnPageChanged.AddListener(OnPageChanged);
 
+        EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
         EventManager.OnActivityStarted += OnActivityLoaded;
+        EventManager.OnMobileHelpPageChanged += UpdateHelpPage;
 
         if (!DBManager.LoggedIn && DBManager.rememberUser)
         {
@@ -89,15 +102,13 @@ public class RootView_v2 : BaseView
     private void OnDestroy()
     {
         EventManager.OnWorkplaceLoaded -= OnWorkplaceLoaded;
+        EventManager.OnActivityStarted -= OnActivityLoaded;
+        EventManager.OnMobileHelpPageChanged -= UpdateHelpPage;
     }
 
     private void OnWorkplaceLoaded()
     {
-        //_toggleView.interactable = true;
-        //_toggleSteps.interactable = true;
-        //_toggleView.isOn = true;
-
-        if (!DBManager.dontShowCalibrationGuide)
+        if (!DBManager.dontShowCalibrationGuide && !_tutorial.isActivated)
         {
             PopupsViewer.Instance.Show(_calibrationGuideViewPrefab);
         }
@@ -117,12 +128,12 @@ public class RootView_v2 : BaseView
         switch (index)
         {
             case 0:
-                _toggleHome.isOn = true;
-                newActivityButton.SetActive(true);
+                _bottomPanelView.SetHomeActive(true);
+                EventManager.NotifyMobileHelpPageChanged(HelpPage.Home);
                 break;
             case 1:
-                _toggleNewActivity.isOn = true;
-                newActivityButton.SetActive(false);
+                _bottomPanelView.SetHomeActive(false);
+                EventManager.NotifyMobileHelpPageChanged(HelpPage.ActivitySteps);
                 break;
         }
     }
@@ -132,56 +143,59 @@ public class RootView_v2 : BaseView
         _pageView.currentPageIndex = 1;
     }
 
-    private void OnStepsClick(bool value)
+    public void ShowBaseView()
     {
-        if (value) _pageView.currentPageIndex = 0;
+        _pageView.gameObject.SetActive(true);
+        _bottomPanelView.Show();
     }
 
-    private void OnProfileClick()
+    public void HideBaseView()
+    {
+        _pageView.gameObject.SetActive(false);
+        _bottomPanelView.Hide();
+    }
+
+    public void ShowProfileView()
     {
         PopupsViewer.Instance.Show(_profilePrefab);
     }
 
-    public void OnHomeClick(bool value)
+    public async void CreateNewActivity()
     {
-        if (value) _pageView.currentPageIndex = 1;
+        LoadView.Instance.Show();
+        await RootObject.Instance.editorSceneService.LoadEditorAsync();
+        await RootObject.Instance.activityManager.CreateNewActivity();
+        _pageView.currentPageIndex = 1;
+        LoadView.Instance.Hide();
     }
 
-    private void AddAugmentation()
+    public void ShowHomeView()
     {
-        _pageView.currentPageIndex = 2;
+        _pageView.currentPageIndex = 0;
     }
 
-    public void OnSearchClick()
+    public void OnActivityDeleted()
     {
-        var popup = PopupsViewer.Instance.Show(_searchPrefab);
-
-        popup.ConnectedObject = HomePage;
+        ShowHomeView();
+        _activityListView.HideBackButtons();
     }
 
-    public void OnInfoClick()
+    public void ShowSearchView()
     {
-        PopupsViewer.Instance.Show(_helpPrefab);
+        PopupsViewer.Instance.Show(_searchPrefab, _activityListView);
+    }
+
+    public void ShowHelpView()
+    {
+
+        TutorialManager.Instance.ShowHelpSelection(helpPage);
+
+        //PopupsViewer.Instance.Show(_helpPrefab);
     }
 
     public void OnActivitySettingsClick()
     {
         PopupsViewer.Instance.Show(_activitySettingsPrefab);
-    }
-
-    public void OnStepSettingsClick()
-    {
-        //PopupsViewer.Instance.Show(_stepSettingsPrefab);
-    }
-
-    public void OnBackToHome()
-    {
-        _pageView.currentPageIndex = 0;
-    }
-
-    public void OnBackToStep()
-    {
-        _pageView.currentPageIndex = 1;
     }
 
     private async Task SetupViewForTablet()
@@ -192,11 +206,14 @@ public class RootView_v2 : BaseView
         const string cameraName = "ViewCamera";
 
         var mainCamera = Camera.main;
-        if (!mainCamera) return;
+        if (!mainCamera)
+        {
+            return;
+        }
 
         var canvas = GetComponent<Canvas>();
         canvas.enabled = false;
-        Screen.orientation = ScreenOrientation.Landscape;
+        Screen.orientation = ScreenOrientation.LandscapeLeft;
         await WaitForLandscapeOrientation();
 
         mainCamera.cullingMask &= ~(1 << LayerMask.NameToLayer(layerName));
@@ -225,6 +242,24 @@ public class RootView_v2 : BaseView
         while (Screen.width < Screen.height)
         {
             await Task.Yield();
+        }
+    }
+
+    private void UpdateHelpPage(HelpPage page)
+    {
+        helpPage = page;
+    }
+
+    private void editModeChangedForHelp(bool editModeOn)
+    {
+        if (!editModeOn)
+        {
+            if (helpPage == HelpPage.ActionAugmentations ||
+                helpPage == HelpPage.ActionInfo ||
+                helpPage == HelpPage.ActionMarker)
+            {
+                helpPage = HelpPage.ActivitySteps;
+            }
         }
     }
 }

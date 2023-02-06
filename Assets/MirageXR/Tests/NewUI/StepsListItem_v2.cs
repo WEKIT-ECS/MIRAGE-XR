@@ -1,8 +1,10 @@
-﻿
+﻿using System;
 using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Action = System.Action;
+using Step = MirageXR.Action;
 
 public class StepsListItem_v2 : MonoBehaviour
 {
@@ -12,46 +14,68 @@ public class StepsListItem_v2 : MonoBehaviour
     [SerializeField] private TMP_Text _txtStepName;
     [SerializeField] private TMP_Text _txtStepDescription;
     [SerializeField] private Button _btnStep;
+    [SerializeField] private Button _btnEditButton;
     [SerializeField] private Button _btnDelete;
+    [SerializeField] private Button _btnImageMarkerPopup;
+    [SerializeField] private GameObject _moveIcon;
     [SerializeField] private GameObject _stepStatus;
     [SerializeField] private GameObject _stepDoneImage;
     [SerializeField] private GameObject _stepCurrentImage;
-    [SerializeField] private Button _editButton;
-    private Action _step;
+    [SerializeField] private DragAndDropController _dragAndDropController;
+    [SerializeField] private ImageMarkerPopup _imageMarkerPopup;
+    [SerializeField] private GameObject _stepSelected;
+
+    private MirageXR.Action _step;
     private int _number;
-    private System.Action<Action> _onStepClick;
-    private System.Action<Action> _onDeleteClick;
+    private Action<Step> _onStepClick;
+    private Action<Step> _onEditClick;
+    private Action<Step, Action> _onDeleteClick;
+    private Action<Step, int, int> _onSiblingIndexChanged;
+    private string _imageMarkerUrl;
 
-    private NewActivityView newActivityView;
+    public Step step => _step;
 
-    public void Init(System.Action<Action> onStepClick, System.Action<Action> onDeleteClick)
+    public void Init(Action<Step> onStepClick, Action<Step> onEditClick, Action<Step, Action> onDeleteClick, Action<Step, int, int> onSiblingIndexChanged)
     {
         _onStepClick = onStepClick;
+        _onEditClick = onEditClick;
         _onDeleteClick = onDeleteClick;
+        _onSiblingIndexChanged = onSiblingIndexChanged;
         _btnStep.onClick.AddListener(OnStepClick);
         _btnDelete.onClick.AddListener(OnDeleteClick);
-        _editButton.onClick.AddListener(OnEditClick);
+        _btnEditButton.onClick.AddListener(OnEditClick);
+        _btnImageMarkerPopup.onClick.AddListener(OnImageMarkerButtonClick);
+        _dragAndDropController.onSiblingIndexChanged.AddListener(OnSiblingIndexChanged);
         OnEditModeChanged(activityManager.EditModeActive);
 
         EventManager.OnEditModeChanged += OnEditModeChanged;
         EventManager.OnActionModified += OnActionModified;
-        newActivityView = GameObject.Find("NewActivity").GetComponent<NewActivityView>();
     }
 
-    public void UpdateView(Action step, int number)
+    public void UpdateView(Step step, int number)
     {
         _step = step;
         _number = number;
+
         _txtStepName.text = _step.instruction.title;
-        _txtNumber.text = _number.ToString("00");
+        _txtNumber.text = (_number + 1).ToString("00");
         var isCurrent = _step.id == RootObject.Instance.activityManager.ActiveActionId;
         _stepCurrentImage.SetActive(isCurrent);
+        _stepSelected.SetActive(isCurrent);
         _stepDoneImage.SetActive(_step.isCompleted && !isCurrent);
+
+        _btnImageMarkerPopup.gameObject.SetActive(ImageMarkerCheck());
     }
 
-    private void OnActionModified(Action step) {
+    public void UpdateView()
+    {
+        UpdateView(_step, _number);
+    }
 
-        if (step == _step) {
+    private void OnActionModified(Step step)
+    {
+        if (step == _step)
+        {
             _txtStepName.text = step.instruction.title;
             _txtStepDescription.text = step.instruction.description;
         }
@@ -61,7 +85,9 @@ public class StepsListItem_v2 : MonoBehaviour
     {
         _btnDelete.gameObject.SetActive(value);
         _stepStatus.SetActive(!value);
-        _editButton.gameObject.SetActive(value);
+        _btnEditButton.gameObject.SetActive(value);
+        _moveIcon.gameObject.SetActive(false);
+        //_moveIcon.gameObject.SetActive(value);
     }
 
     private void OnStepClick()
@@ -69,15 +95,43 @@ public class StepsListItem_v2 : MonoBehaviour
         _onStepClick(_step);
     }
 
+    private void OnSiblingIndexChanged(int oldIndex, int newIndex)
+    {
+        _onSiblingIndexChanged(_step, oldIndex, newIndex);
+    }
+
     private void OnDeleteClick()
     {
-        _onDeleteClick(_step);
+        _onDeleteClick(_step, null);
     }
 
-    public void OnEditClick() 
+    public void OnEditClick()
     {
-        newActivityView.ChangeInfoStepNumber(_number);
-        newActivityView.ShowInfoStepsTab();
+        _onEditClick(_step);
+        EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActionAugmentations);
     }
 
+    public void OnImageMarkerButtonClick()
+    {
+        var popup = (ImageMarkerPopup)PopupsViewer.Instance.Show(_imageMarkerPopup);
+        popup.SetImage(_imageMarkerUrl);
+    }
+
+    private bool ImageMarkerCheck()
+    {
+        bool imageMarker = false;
+
+        var augmentations = _step.enter.activates;
+
+        foreach (var augmentation in augmentations)
+        {
+            if (augmentation.predicate == "imagemarker")
+            {
+                imageMarker = true;
+                _imageMarkerUrl = augmentation.url;
+            }
+        }
+
+        return imageMarker;
+    }
 }

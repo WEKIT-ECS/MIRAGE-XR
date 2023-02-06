@@ -37,9 +37,9 @@ public class ModelEditorView : PopupEditorBase
 
     private readonly List<ModelListItem> _items = new List<ModelListItem>();
 
-    public override void Init(Action<PopupBase> onClose, params object[] args)
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        base.Init(onClose, args);
+        base.Initialization(onClose, args);
 
         if (!CheckAndLoadCredentials()) return;
 
@@ -63,7 +63,7 @@ public class ModelEditorView : PopupEditorBase
         else
         {
             DialogWindow.Instance.Show("Login to Sketchfab",
-                new DialogButtonContent("Via the browser", LoginToSketchfab),
+                //new DialogButtonContent("Via the browser", LoginToSketchfab),
                 new DialogButtonContent("With password", ShowDirectLoginPopup),
                 new DialogButtonContent("Cancel", Close));
         }

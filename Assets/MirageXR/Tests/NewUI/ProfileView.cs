@@ -1,13 +1,15 @@
 using System;
-using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
-using MirageXR;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using MirageXR;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class ProfileView : PopupBase
 {
+    private const string VERSION_TEXT = "Version {0}";
+
     [SerializeField] private Button _btnLogin;
     [SerializeField] private Button _btnRegister;
     [SerializeField] private ExtendedInputField _inputFieldUserName;
@@ -21,10 +23,11 @@ public class ProfileView : PopupBase
     [SerializeField] private TMP_Text _txtConnectedServer;
     [SerializeField] private Button _btnSelectLRS;
     [SerializeField] private TMP_Text _txtConnectedLRS;
+    [SerializeField] private TMP_Text _txtVersion;
 
-    public override void Init(Action<PopupBase> onClose, params object[] args)
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        base.Init(onClose, args);
+        base.Initialization(onClose, args);
 
         _inputFieldUserName.SetValidator(IsValidUsername);
         _inputFieldPassword.SetValidator(IsValidPassword);
@@ -38,6 +41,7 @@ public class ProfileView : PopupBase
         EventManager.MoodleDomainChanged += UpdateConnectedServerText;
         EventManager.XAPIChanged += UpdateConectedLRS;
 
+        _txtVersion.text = string.Format(VERSION_TEXT, Application.version);
 
         UpdateConnectedServerText();
 
@@ -76,7 +80,7 @@ public class ProfileView : PopupBase
     private void OnLoginSucceed(string username, string password)
     {
         Toast.Instance.Show("Login succeeded");
-        RootView_v2.Instance.activityListView_V2.FetchAndUpdateView();
+        RootView_v2.Instance.activityListView.FetchAndUpdateView();
         if (DBManager.rememberUser)
         {
             LocalFiles.SaveUsernameAndPassword(username, password);
@@ -137,7 +141,7 @@ public class ProfileView : PopupBase
     private void OnClickLogout()
     {
         DBManager.LogOut();
-        RootView_v2.Instance.activityListView_V2.FetchAndUpdateView();
+        RootView_v2.Instance.activityListView.FetchAndUpdateView();
         ShowLogin();
     }
 
@@ -214,7 +218,7 @@ public class ProfileView : PopupBase
         {
             DBManager.domain = domain;
             DBManager.LogOut();
-            RootView_v2.Instance.activityListView_V2.FetchAndUpdateView();
+            RootView_v2.Instance.activityListView.FetchAndUpdateView();
         }
 
         EventManager.NotifyMoodleDomainChanged();
