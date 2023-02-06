@@ -152,6 +152,7 @@ jobs:
       SLACK_URL: ${{ secrets.SLACK_URL }}
       COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
       APP_VERSION: ${{ needs.build_unity.outputs.buildVersion }}
+      TARGET_PLATFORM: ${{ runner.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
