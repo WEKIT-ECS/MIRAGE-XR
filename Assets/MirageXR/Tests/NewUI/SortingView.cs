@@ -1,5 +1,5 @@
-using MirageXR;
 using System;
+using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -73,7 +73,6 @@ public class SortingView : PopupBase
 
                 break;
         }
-
     }
 
     protected override bool TryToGetArguments(params object[] args)
