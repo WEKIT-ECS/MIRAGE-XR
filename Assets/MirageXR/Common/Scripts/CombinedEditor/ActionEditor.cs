@@ -493,23 +493,23 @@ public class ActionEditor : MonoBehaviour
                 ghostTrackEditor = LoadEditorPanel<GhosttrackEditor>(GhostTrackEditorPrefab);
                 ghostTrackEditor.Open(detailView.DisplayedAction, annotation);
                 break;
-            case string anno when anno.StartsWith("act"):
+            case { } anno when anno.StartsWith("act"):
                 glyphEditor = LoadEditorPanel<GlyphEditor>(GlyphSelectorPrefab);
                 glyphEditor.Open(detailView.DisplayedAction, annotation);
                 break;
-            case string anno when anno.StartsWith("vfx"):
+            case { } anno when anno.StartsWith("vfx"):
                 vfxEditor = LoadEditorPanel<VFXEditor>(VfxEditorPrefab);
                 vfxEditor.Open(detailView.DisplayedAction, annotation);
                 break;
-            case string anno when anno.StartsWith("3d"):
+            case { } anno when anno.StartsWith("3d"):
                 modelEditor = LoadEditorPanel<ModelEditor>(modelSelectorPrefab);
                 modelEditor.Open(detailView.DisplayedAction, annotation);
                 break;
-            case string anno when anno.StartsWith("pick"):
+            case { } anno when anno.StartsWith("pick"):
                 pickAndPlaceEditor = LoadEditorPanel<PickAndPlaceEditor>(pickAndPlaceEditorPrefab);
                 pickAndPlaceEditor.Open(detailView.DisplayedAction, annotation);
                 break;
-            case string anno when anno.StartsWith("char"):
+            case { } anno when anno.StartsWith("char"):
                 characterAug = LoadEditorPanel<CharacterAugmentation>(characterAugmentationPrefab);
                 characterAug.Open(detailView.DisplayedAction, annotation);
                 break;
@@ -521,7 +521,7 @@ public class ActionEditor : MonoBehaviour
                 pluginEditor = LoadEditorPanel<PluginEditor>(pluginPrefab);
                 pluginEditor.Open(detailView.DisplayedAction, annotation);
                 break;
-            case string anno when anno.StartsWith("eRobson"):
+            case { } annotationType when annotationType.StartsWith("eRobson"):
                 eRobsonSelector = LoadEditorPanel<ERobsonEditor>(characterAugmentationPrefab);
                 eRobsonSelector.Open(detailView.DisplayedAction, annotation);
                 break;
