@@ -10,21 +10,21 @@ public class eROBSONListItem : MonoBehaviour
     [SerializeField] private Text _unityText;
     [SerializeField] private TMP_Text _tmpText;
 
-    private eROBSONObject _eROBSONObject;
+    private eROBSONObject _eRobsonObject;
     private Action<string> _onClick;
 
     public void Init(eROBSONObject eRobsonObject, Action<string> onClick)
     {
-        _eROBSONObject = eRobsonObject;
+        _eRobsonObject = eRobsonObject;
         _onClick = onClick;
         _button.onClick.AddListener(OnClick);
-        _image.sprite = _eROBSONObject.sprite;
-        if (_unityText) _unityText.text = _eROBSONObject.label;
-        if (_tmpText) _tmpText.text = _eROBSONObject.label;
+        _image.sprite = _eRobsonObject.sprite;
+        if (_unityText) _unityText.text = _eRobsonObject.label;
+        if (_tmpText) _tmpText.text = _eRobsonObject.label;
     }
 
     private void OnClick()
     {
-        _onClick?.Invoke(_eROBSONObject.prefabName);
+        _onClick?.Invoke(_eRobsonObject.prefabName);
     }
 }

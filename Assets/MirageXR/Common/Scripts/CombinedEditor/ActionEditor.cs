@@ -147,6 +147,7 @@ public class ActionEditor : MonoBehaviour
         augmentationsButtons = new GameObject[listOfAugmentations.Length];
         for (int i = 0; i < listOfAugmentations.Length; i++)
         {
+            Debug.LogError(listOfAugmentations[i]);
             var augmentationCorrectTypeName = listOfAugmentations[i].Replace("&", "and").Replace(" ", string.Empty).ToUpper();
             var augmentationIndexOnEnum = (int)Enum.Parse(typeof(ContentType), augmentationCorrectTypeName);
             var type = (ContentType)augmentationIndexOnEnum;
