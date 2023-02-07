@@ -313,7 +313,6 @@ namespace MirageXR
             }
         }
 
-
         public static void CopyEntireFolder(string folderPath, string destinationPath)
         {
             try

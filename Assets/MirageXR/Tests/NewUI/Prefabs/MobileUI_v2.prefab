@@ -60,7 +60,7 @@ Canvas:
   serializedVersion: 3
   m_RenderMode: 0
   m_Camera: {fileID: 0}
-  m_PlaneDistance: 100
+  m_PlaneDistance: 5
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
@@ -131,14 +131,12 @@ MonoBehaviour:
     type: 3}
   _profilePrefab: {fileID: 4018523395379524472, guid: c6e5215e10fb13249945fd7b2728040f,
     type: 3}
-  _helpPrefab: {fileID: 4139444391980101018, guid: e4e07ce4320adc2469efd02ff1314eda,
-    type: 3}
-  _activitySettingsPrefab: {fileID: 7779770599530433754, guid: fbcb2c19e94f3934691ac56d657219b0,
-    type: 3}
   _loginViewPrefab: {fileID: 6072778627021752320, guid: aa28698984ee21c49bd79fea908c8472,
     type: 3}
   _activityListView: {fileID: 5475898387324802128}
   _activityView: {fileID: 118978598429362245}
+  _viewCamera: {fileID: 0}
+  _canvas: {fileID: 6574858133231062477}
   _dialog: {fileID: 7493834570770313470}
   _tutorial: {fileID: 5901229079759037930}
 --- !u!1 &6574858133297748278
@@ -1381,12 +1379,12 @@ PrefabInstance:
     - target: {fileID: 2970506559628125088, guid: 513f4b3f134707b41b4ed6315eedf67d,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: -250
+      value: -284
       objectReference: {fileID: 0}
     - target: {fileID: 2970506559628125088, guid: 513f4b3f134707b41b4ed6315eedf67d,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -125
+      value: -142
       objectReference: {fileID: 0}
     - target: {fileID: 2970506559762432283, guid: 513f4b3f134707b41b4ed6315eedf67d,
         type: 3}
@@ -3596,6 +3594,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee,
         type: 2}
+    - target: {fileID: 3398907102419122990, guid: 791c873db6c341248b94c901507408e1,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 12.449097
+      objectReference: {fileID: 0}
     - target: {fileID: 3531482940232952871, guid: 791c873db6c341248b94c901507408e1,
         type: 3}
       propertyPath: m_fontAsset
@@ -4375,6 +4378,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7396861964123516490, guid: 791c873db6c341248b94c901507408e1,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 105.83334
       objectReference: {fileID: 0}
     - target: {fileID: 7565753942512290341, guid: 791c873db6c341248b94c901507408e1,
         type: 3}

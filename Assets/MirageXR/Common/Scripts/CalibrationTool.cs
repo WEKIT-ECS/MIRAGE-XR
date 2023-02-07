@@ -39,6 +39,7 @@ namespace MirageXR
         private bool _isEnabled;
         private bool _isTargetFound;
         private Coroutine _countdownToEnd;
+        public bool isNewPosition;
 
         private void Awake()
         {
@@ -128,7 +129,7 @@ namespace MirageXR
             _calibrationAnimation.StopAnimation();
             if (_isTargetFound)
             {
-                await RootObject.Instance.workplaceManager.CalibrateWorkplace(transform);
+                await RootObject.Instance.workplaceManager.CalibrateWorkplace(transform, isNewPosition);
                 _onCalibrationFinished.Invoke();
             }
 
