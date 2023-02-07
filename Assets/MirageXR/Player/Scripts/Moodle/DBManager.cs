@@ -60,6 +60,9 @@ namespace MirageXR
         private const string REMEMBER_USER_KEY = "RememberUser";
         private const bool REMEMBER_USER_DEFAULT = false;
 
+        private const string DEVELOP_MODE_KEY = "DevelopMode";
+        private const bool DEVELOP_MODE_DEFAULT = false;
+
         private const string REMEMBER_SKETCHFAB_USER_KEY = "RememberSketchfabUser";
         private const bool REMEMBER_SKETCHFAB_USER_DEFAULT = false;
 
@@ -101,6 +104,7 @@ namespace MirageXR
 
         private static readonly PrefsBoolValue _publicUploadPrivacy = new PrefsBoolValue(UPLOAD_PRIVACY_KEY, PUBLIC_UPLOAD_PRIVACY_DEFAULT);
         private static readonly PrefsBoolValue _rememberUser = new PrefsBoolValue(REMEMBER_USER_KEY, REMEMBER_USER_DEFAULT);
+        private static readonly PrefsBoolValue _developMode = new PrefsBoolValue(DEVELOP_MODE_KEY, DEVELOP_MODE_DEFAULT);
         private static readonly PrefsBoolValue _rememberSketchfabUser = new PrefsBoolValue(REMEMBER_SKETCHFAB_USER_KEY, REMEMBER_SKETCHFAB_USER_DEFAULT);
         private static readonly PrefsBoolValue _dontShowCalibrationGuide = new PrefsBoolValue(DONT_SHOW_CALIBRATION_GUIDE_KEY, DONT_SHOW_CALIBRATION_GUIDE_DEFAULT);
         private static readonly PrefsStringValue _domain = new PrefsStringValue(MOODLE_URL_KEY, WEKIT_URL);
@@ -131,11 +135,16 @@ namespace MirageXR
             set => _showBigCards.Value = value;
         }
 
-
         public static bool rememberUser
         {
             get => _rememberUser.Value;
             set => _rememberUser.Value = value;
+        }
+
+        public static bool developMode
+        {
+            get => _developMode.Value;
+            set => _developMode.Value = value;
         }
 
         public static bool rememberSketchfabUser
