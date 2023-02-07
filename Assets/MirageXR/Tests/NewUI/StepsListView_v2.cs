@@ -44,6 +44,8 @@ public class StepsListView_v2 : BaseView
 
     private ActivityView_v2 _activityView => (ActivityView_v2)_parentView;
 
+    private bool _isEditMode;
+
     public override void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
@@ -263,6 +265,7 @@ public class StepsListView_v2 : BaseView
 
     private void OnEditModeChanged(bool value)
     {
+        _isEditMode = value;
         _btnAddStep.transform.parent.gameObject.SetActive(value);
         _btnThumbnail.interactable = value;
 
@@ -337,7 +340,19 @@ public class StepsListView_v2 : BaseView
 
     private void OnCalibrationPressed()
     {
-        RootView_v2.Instance.dialog.ShowBottomMultiline(null, ("Start Calibration", ShowCalibrationView), ("Get Calibration Image", ShareCalibrationImage));
+        if (_isEditMode)
+        {
+            RootView_v2.Instance.dialog.ShowBottomMultiline(null,
+                ("Start Calibration", ShowCalibrationView),
+                ("New position of the calibration image", ShowNewPositionCalibrationView),
+                ("Get Calibration Image", ShareCalibrationImage));
+        }
+        else
+        {
+            RootView_v2.Instance.dialog.ShowBottomMultiline(null,
+                ("Start Calibration", ShowCalibrationView),
+                ("Get Calibration Image", ShareCalibrationImage));
+        }
     }
 
     private void ShareCalibrationImage()
@@ -345,9 +360,14 @@ public class StepsListView_v2 : BaseView
         // not implemented
     }
 
+    private void ShowNewPositionCalibrationView()
+    {
+        PopupsViewer.Instance.Show(_calibrationViewPrefab, (System.Action)OnCalibrationViewOpened, (System.Action)OnCalibrationViewClosed, true);
+    }
+
     private void ShowCalibrationView()
     {
-        PopupsViewer.Instance.Show(_calibrationViewPrefab, (System.Action)OnCalibrationViewOpened, (System.Action)OnCalibrationViewClosed);
+        PopupsViewer.Instance.Show(_calibrationViewPrefab, (System.Action)OnCalibrationViewOpened, (System.Action)OnCalibrationViewClosed, false);
     }
 
     private void OnCalibrationViewOpened()

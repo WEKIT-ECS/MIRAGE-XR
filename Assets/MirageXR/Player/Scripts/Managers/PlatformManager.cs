@@ -122,13 +122,6 @@ namespace MirageXR
             }
         }
 
-        public enum DeviceFormat
-        {
-            Phone,
-            Tablet,
-            Unknown
-        }
-
         public static DeviceFormat GetDeviceFormat()
         {
             if (Instance != null && Instance.forceToTabletView) return DeviceFormat.Tablet;
