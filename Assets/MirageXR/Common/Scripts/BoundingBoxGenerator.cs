@@ -26,6 +26,7 @@ namespace MirageXR
         {
             get; set;
         }
+
         public RotationHandlesConfiguration CustomRotationHandlesConfiguration
         {
             get; set;
