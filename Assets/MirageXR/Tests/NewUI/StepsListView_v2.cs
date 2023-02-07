@@ -36,13 +36,15 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private GameObject _first;
     [SerializeField] private GameObject _second;
     [SerializeField] private CalibrationView _calibrationViewPrefab;
-    [SerializeField] private SettingsView_v2 _settingsViewPrefab;
+    [SerializeField] private ActivitySettings _settingsViewPrefab;
     [SerializeField] private StepsListItem_v2 _stepsListItemPrefab;
     [SerializeField] private ThumbnailEditorView _thumbnailEditorPrefab;
 
     private readonly List<StepsListItem_v2> _stepsList = new List<StepsListItem_v2>();
 
     private ActivityView_v2 _activityView => (ActivityView_v2)_parentView;
+
+    private bool _isEditMode;
 
     public override void Initialization(BaseView parentView)
     {
@@ -133,9 +135,8 @@ public class StepsListView_v2 : BaseView
     private void OnBackPressed()
     {
         _activityView.OnBackToHomePressed();
-        _steps.SetActive(true);
-        _info.SetActive(false);
-        _calibration.SetActive(false);
+
+        _toggleSteps.isOn = true;
     }
 
     private void OnSettingsPressed()
@@ -264,6 +265,7 @@ public class StepsListView_v2 : BaseView
 
     private void OnEditModeChanged(bool value)
     {
+        _isEditMode = value;
         _btnAddStep.transform.parent.gameObject.SetActive(value);
         _btnThumbnail.interactable = value;
 
@@ -338,7 +340,19 @@ public class StepsListView_v2 : BaseView
 
     private void OnCalibrationPressed()
     {
-        RootView_v2.Instance.dialog.ShowBottomMultiline(null, ("Start Calibration", ShowCalibrationView), ("Get Calibration Image", ShareCalibrationImage));
+        if (_isEditMode)
+        {
+            RootView_v2.Instance.dialog.ShowBottomMultiline(null,
+                ("Start Calibration", ShowCalibrationView),
+                ("New position of the calibration image", ShowNewPositionCalibrationView),
+                ("Get Calibration Image", ShareCalibrationImage));
+        }
+        else
+        {
+            RootView_v2.Instance.dialog.ShowBottomMultiline(null,
+                ("Start Calibration", ShowCalibrationView),
+                ("Get Calibration Image", ShareCalibrationImage));
+        }
     }
 
     private void ShareCalibrationImage()
@@ -346,9 +360,14 @@ public class StepsListView_v2 : BaseView
         // not implemented
     }
 
+    private void ShowNewPositionCalibrationView()
+    {
+        PopupsViewer.Instance.Show(_calibrationViewPrefab, (System.Action)OnCalibrationViewOpened, (System.Action)OnCalibrationViewClosed, true);
+    }
+
     private void ShowCalibrationView()
     {
-        PopupsViewer.Instance.Show(_calibrationViewPrefab, (System.Action)OnCalibrationViewOpened, (System.Action)OnCalibrationViewClosed);
+        PopupsViewer.Instance.Show(_calibrationViewPrefab, (System.Action)OnCalibrationViewOpened, (System.Action)OnCalibrationViewClosed, false);
     }
 
     private void OnCalibrationViewOpened()

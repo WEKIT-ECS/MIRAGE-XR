@@ -1,10 +1,16 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using UnityEngine;
-using Object = UnityEngine.Object;
-#if !UNITY_EDITOR && ( UNITY_ANDROID || UNITY_IOS )
+#if UNITY_2018_4_OR_NEWER && !NATIVE_CAMERA_DISABLE_ASYNC_FUNCTIONS
+using System.Threading.Tasks;
+using Unity.Collections;
+using UnityEngine.Networking;
+#endif
+#if UNITY_ANDROID || UNITY_IOS
 using NativeCameraNamespace;
 #endif
+using Object = UnityEngine.Object;
 
 public static class NativeCamera
 {
@@ -150,10 +156,10 @@ public static class NativeCamera
 	#endregion
 
 	#region Runtime Permissions
-	public static Permission CheckPermission()
+	public static Permission CheckPermission( bool isPicturePermission )
 	{
 #if !UNITY_EDITOR && UNITY_ANDROID
-		Permission result = (Permission) AJC.CallStatic<int>( "CheckPermission", Context );
+		Permission result = (Permission) AJC.CallStatic<int>( "CheckPermission", Context, isPicturePermission );
 		if( result == Permission.Denied && (Permission) PlayerPrefs.GetInt( "NativeCameraPermission", (int) Permission.ShouldAsk ) == Permission.ShouldAsk )
 			result = Permission.ShouldAsk;
 
@@ -165,7 +171,7 @@ public static class NativeCamera
 #endif
 	}
 
-	public static Permission RequestPermission()
+	public static Permission RequestPermission( bool isPicturePermission )
 	{
 #if !UNITY_EDITOR && UNITY_ANDROID
 		object threadLock = new object();
@@ -173,7 +179,7 @@ public static class NativeCamera
 		{
 			NCPermissionCallbackAndroid nativeCallback = new NCPermissionCallbackAndroid( threadLock );
 
-			AJC.CallStatic( "RequestPermission", Context, nativeCallback, PlayerPrefs.GetInt( "NativeCameraPermission", (int) Permission.ShouldAsk ) );
+			AJC.CallStatic( "RequestPermission", Context, nativeCallback, isPicturePermission, PlayerPrefs.GetInt( "NativeCameraPermission", (int) Permission.ShouldAsk ) );
 
 			if( nativeCallback.Result == -1 )
 				System.Threading.Monitor.Wait( threadLock );
@@ -215,7 +221,7 @@ public static class NativeCamera
 	#region Camera Functions
 	public static Permission TakePicture( CameraCallback callback, int maxSize = -1, bool saveAsJPEG = true, PreferredCamera preferredCamera = PreferredCamera.Default )
 	{
-		Permission result = RequestPermission();
+		Permission result = RequestPermission( true );
 		if( result == Permission.Granted && !IsCameraBusy() )
 		{
 #if UNITY_EDITOR
@@ -242,7 +248,7 @@ public static class NativeCamera
 
 	public static Permission RecordVideo( CameraCallback callback, Quality quality = Quality.Default, int maxDuration = 0, long maxSizeBytes = 0L, PreferredCamera preferredCamera = PreferredCamera.Default )
 	{
-		Permission result = RequestPermission();
+		Permission result = RequestPermission( false );
 		if( result == Permission.Granted && !IsCameraBusy() )
 		{
 #if UNITY_EDITOR
@@ -286,8 +292,7 @@ public static class NativeCamera
 	#endregion
 
 	#region Utility Functions
-	public static Texture2D LoadImageAtPath( string imagePath, int maxSize = -1, bool markTextureNonReadable = true,
-		bool generateMipmaps = true, bool linearColorSpace = false )
+	public static Texture2D LoadImageAtPath( string imagePath, int maxSize = -1, bool markTextureNonReadable = true, bool generateMipmaps = true, bool linearColorSpace = false )
 	{
 		if( string.IsNullOrEmpty( imagePath ) )
 			throw new ArgumentException( "Parameter 'imagePath' is null or empty!" );
@@ -315,6 +320,8 @@ public static class NativeCamera
 		{
 			if( !result.LoadImage( File.ReadAllBytes( loadPath ), markTextureNonReadable ) )
 			{
+				Debug.LogWarning( "Couldn't load image at path: " + loadPath );
+
 				Object.DestroyImmediate( result );
 				return null;
 			}
@@ -341,7 +348,129 @@ public static class NativeCamera
 		return result;
 	}
 
-	public static Texture2D GetVideoThumbnail( string videoPath, int maxSize = -1, double captureTimeInSeconds = -1.0, bool markTextureNonReadable = true )
+#if UNITY_2018_4_OR_NEWER && !NATIVE_CAMERA_DISABLE_ASYNC_FUNCTIONS
+	public static async Task<Texture2D> LoadImageAtPathAsync( string imagePath, int maxSize = -1, bool markTextureNonReadable = true, bool generateMipmaps = true, bool linearColorSpace = false )
+	{
+		if( string.IsNullOrEmpty( imagePath ) )
+			throw new ArgumentException( "Parameter 'imagePath' is null or empty!" );
+
+		if( !File.Exists( imagePath ) )
+			throw new FileNotFoundException( "File not found at " + imagePath );
+
+		if( maxSize <= 0 )
+			maxSize = SystemInfo.maxTextureSize;
+
+#if !UNITY_EDITOR && UNITY_ANDROID
+		string loadPath = await TryCallNativeAndroidFunctionOnSeparateThread( () => AJC.CallStatic<string>( "LoadImageAtPath", Context, imagePath, TemporaryImagePath, maxSize ) );
+#elif !UNITY_EDITOR && UNITY_IOS
+		string loadPath = await Task.Run( () => _NativeCamera_LoadImageAtPath( imagePath, TemporaryImagePath, maxSize ) );
+#else
+		string loadPath = imagePath;
+#endif
+
+		Texture2D result = null;
+
+		if( !linearColorSpace )
+		{
+			using( UnityWebRequest www = UnityWebRequestTexture.GetTexture( "file://" + loadPath, markTextureNonReadable && !generateMipmaps ) )
+			{
+				UnityWebRequestAsyncOperation asyncOperation = www.SendWebRequest();
+				while( !asyncOperation.isDone )
+					await Task.Yield();
+
+#if UNITY_2020_1_OR_NEWER
+				if( www.result != UnityWebRequest.Result.Success )
+#else
+				if( www.isNetworkError || www.isHttpError )
+#endif
+				{
+					Debug.LogWarning( "Couldn't use UnityWebRequest to load image, falling back to LoadImage: " + www.error );
+				}
+				else
+				{
+					Texture2D texture = DownloadHandlerTexture.GetContent( www );
+
+					if( !generateMipmaps )
+						result = texture;
+					else
+					{
+						Texture2D mipmapTexture = null;
+						try
+						{
+							// Generate a Texture with mipmaps enabled
+							// Credits: https://forum.unity.com/threads/generate-mipmaps-at-runtime-for-a-texture-loaded-with-unitywebrequest.644842/#post-7571809
+							NativeArray<byte> textureData = texture.GetRawTextureData<byte>();
+
+							mipmapTexture = new Texture2D( texture.width, texture.height, texture.format, true );
+#if UNITY_2019_3_OR_NEWER
+							mipmapTexture.SetPixelData( textureData, 0 );
+#else
+							NativeArray<byte> mipmapTextureData = mipmapTexture.GetRawTextureData<byte>();
+							NativeArray<byte>.Copy( textureData, mipmapTextureData, textureData.Length );
+							mipmapTexture.LoadRawTextureData( mipmapTextureData );
+#endif
+							mipmapTexture.Apply( true, markTextureNonReadable );
+
+							result = mipmapTexture;
+						}
+						catch( Exception e )
+						{
+							Debug.LogException( e );
+
+							if( mipmapTexture )
+								Object.DestroyImmediate( mipmapTexture );
+						}
+						finally
+						{
+							Object.DestroyImmediate( texture );
+						}
+					}
+				}
+			}
+		}
+
+		if( !result ) // Fallback to Texture2D.LoadImage if something goes wrong
+		{
+			string extension = Path.GetExtension( imagePath ).ToLowerInvariant();
+			TextureFormat format = ( extension == ".jpg" || extension == ".jpeg" ) ? TextureFormat.RGB24 : TextureFormat.RGBA32;
+
+			result = new Texture2D( 2, 2, format, generateMipmaps, linearColorSpace );
+
+			try
+			{
+				if( !result.LoadImage( File.ReadAllBytes( loadPath ), markTextureNonReadable ) )
+				{
+					Debug.LogWarning( "Couldn't load image at path: " + loadPath );
+
+					Object.DestroyImmediate( result );
+					return null;
+				}
+			}
+			catch( Exception e )
+			{
+				Debug.LogException( e );
+
+				Object.DestroyImmediate( result );
+				return null;
+			}
+			finally
+			{
+				if( loadPath != imagePath )
+				{
+					try
+					{
+						File.Delete( loadPath );
+					}
+					catch { }
+				}
+			}
+		}
+
+		return result;
+	}
+#endif
+
+	public static Texture2D GetVideoThumbnail( string videoPath, int maxSize = -1, double captureTimeInSeconds = -1.0, bool markTextureNonReadable = true, bool generateMipmaps = true, bool linearColorSpace = false )
 	{
 		if( maxSize <= 0 )
 			maxSize = SystemInfo.maxTextureSize;
@@ -355,10 +484,57 @@ public static class NativeCamera
 #endif
 
 		if( !string.IsNullOrEmpty( thumbnailPath ) )
-			return LoadImageAtPath( thumbnailPath, maxSize, markTextureNonReadable );
+			return LoadImageAtPath( thumbnailPath, maxSize, markTextureNonReadable, generateMipmaps, linearColorSpace );
 		else
 			return null;
 	}
+
+#if UNITY_2018_4_OR_NEWER && !NATIVE_CAMERA_DISABLE_ASYNC_FUNCTIONS
+	public static async Task<Texture2D> GetVideoThumbnailAsync( string videoPath, int maxSize = -1, double captureTimeInSeconds = -1.0, bool markTextureNonReadable = true, bool generateMipmaps = true, bool linearColorSpace = false )
+	{
+		if( maxSize <= 0 )
+			maxSize = SystemInfo.maxTextureSize;
+
+#if !UNITY_EDITOR && UNITY_ANDROID
+		string thumbnailPath = await TryCallNativeAndroidFunctionOnSeparateThread( () => AJC.CallStatic<string>( "GetVideoThumbnail", Context, videoPath, TemporaryImagePath + ".png", false, maxSize, captureTimeInSeconds ) );
+#elif !UNITY_EDITOR && UNITY_IOS
+		string thumbnailPath = await Task.Run( () => _NativeCamera_GetVideoThumbnail( videoPath, TemporaryImagePath + ".png", maxSize, captureTimeInSeconds ) );
+#else
+		string thumbnailPath = null;
+#endif
+
+		if( !string.IsNullOrEmpty( thumbnailPath ) )
+			return await LoadImageAtPathAsync( thumbnailPath, maxSize, markTextureNonReadable, generateMipmaps, linearColorSpace );
+		else
+			return null;
+	}
+
+	private static async Task<T> TryCallNativeAndroidFunctionOnSeparateThread<T>( Func<T> function )
+	{
+		T result = default( T );
+		bool hasResult = false;
+
+		await Task.Run( () =>
+		{
+			if( AndroidJNI.AttachCurrentThread() != 0 )
+				Debug.LogWarning( "Couldn't attach JNI thread, calling native function on the main thread" );
+			else
+			{
+				try
+				{
+					result = function();
+					hasResult = true;
+				}
+				finally
+				{
+					AndroidJNI.DetachCurrentThread();
+				}
+			}
+		} );
+
+		return hasResult ? result : function();
+	}
+#endif
 
 	public static ImageProperties GetImageProperties( string imagePath )
 	{
@@ -438,7 +614,7 @@ public static class NativeCamera
 					height = 0;
 				if( !long.TryParse( properties[2].Trim(), out duration ) )
 					duration = 0L;
-				if( !float.TryParse( properties[3].Trim(), out rotation ) )
+				if( !float.TryParse( properties[3].Trim().Replace( ',', '.' ), NumberStyles.Float, CultureInfo.InvariantCulture, out rotation ) )
 					rotation = 0f;
 			}
 		}

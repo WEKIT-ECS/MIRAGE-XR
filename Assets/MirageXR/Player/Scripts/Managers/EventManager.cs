@@ -835,12 +835,11 @@ namespace MirageXR
 
         public delegate void MobileHelpPageChanged(RootView_v2.HelpPage value);
 
-        public static event MobileHelpPageChanged onMobileHelpPageChanged;
+        public static event MobileHelpPageChanged OnMobileHelpPageChanged;
 
         public static void NotifyMobileHelpPageChanged(RootView_v2.HelpPage value)
         {
-            onMobileHelpPageChanged?.Invoke(value);
-            Debug.Log("page change = " + value);
+            OnMobileHelpPageChanged?.Invoke(value);
         }
     }
 }

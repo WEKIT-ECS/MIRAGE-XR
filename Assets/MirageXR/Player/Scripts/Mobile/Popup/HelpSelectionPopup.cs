@@ -15,10 +15,6 @@ namespace MirageXR
         [SerializeField] private Button _selectionButton;
         private GameObject _highlightedObject;
 
-        /// <summary>
-        /// Sets the text that is going to be shown on the popup.
-        /// </summary>
-        /// <param name="text">The instruction text to be shown.</param>
         public override void Initialization(Action<PopupBase> onClose, params object[] args)
         {
             base.Initialization(onClose, args);
@@ -33,13 +29,13 @@ namespace MirageXR
 
         public Button CreateNewSelectionButton(string title)
         {
-            var button = Instantiate(_selectionButton, Vector3.zero, Quaternion.identity) as Button;
+            var button = Instantiate(_selectionButton, Vector3.zero, Quaternion.identity);
             var rectTransform = button.GetComponent<RectTransform>();
             rectTransform.SetParent(gameObject.transform);
             rectTransform.offsetMin = Vector2.zero;
             rectTransform.offsetMax = Vector2.zero;
-            rectTransform.sizeDelta = new Vector2(400, 50);
-            rectTransform.localScale = new Vector3(1,1,1);
+            rectTransform.sizeDelta = new Vector2(400, 40);
+            rectTransform.localScale = new Vector3(1, 1, 1);
             rectTransform.localPosition = new Vector3(rectTransform.position.x, rectTransform.position.y, 0);
 
             rectTransform.GetComponent<TMP_Text>().text = title;
