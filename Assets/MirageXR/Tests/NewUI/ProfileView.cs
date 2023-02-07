@@ -10,11 +10,14 @@ public class ProfileView : PopupBase
 {
     private const string VERSION_TEXT = "Version {0}";
 
+    [SerializeField] private Button _btnClose;
     [SerializeField] private Button _btnLogin;
     [SerializeField] private Button _btnRegister;
     [SerializeField] private ExtendedInputField _inputFieldUserName;
     [SerializeField] private ExtendedInputField _inputFieldPassword;
     [SerializeField] private Toggle _toggleRemember;
+    [SerializeField] private Toggle _developToggle;
+    [SerializeField] private GameObject _developTogglePanel;
     [SerializeField] private GameObject LoginObjects;
     [SerializeField] private Button _btnLogout;
     [SerializeField] private TMP_Text _txtLogout;
@@ -24,24 +27,34 @@ public class ProfileView : PopupBase
     [SerializeField] private Button _btnSelectLRS;
     [SerializeField] private TMP_Text _txtConnectedLRS;
     [SerializeField] private TMP_Text _txtVersion;
+    [SerializeField] private ClickCounter _versionClickCounter;
+
+    private bool _isShownDevelopModeMessage;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
         base.Initialization(onClose, args);
 
+        _developToggle.isOn = DBManager.developMode;
+
+        _btnClose.onClick.AddListener(Close);
         _inputFieldUserName.SetValidator(IsValidUsername);
         _inputFieldPassword.SetValidator(IsValidPassword);
         _btnRegister.onClick.AddListener(OnClickRegister);
         _btnLogin.onClick.AddListener(OnClickLogin);
         _btnLogout.onClick.AddListener(OnClickLogout);
         _toggleRemember.onValueChanged.AddListener(OnToggleRememberValueChanged);
+        _developToggle.onValueChanged.AddListener(OnDevelopToggleValueChanged);
         _btnSelectServer.onClick.AddListener(ShowChangeServerPanel);
         _btnSelectLRS.onClick.AddListener(ShowLRSPanel);
+        _versionClickCounter.onClickAmountReached.AddListener(OnVersionClickAmountReached);
 
         EventManager.MoodleDomainChanged += UpdateConnectedServerText;
         EventManager.XAPIChanged += UpdateConectedLRS;
 
         _txtVersion.text = string.Format(VERSION_TEXT, Application.version);
+
+        _developTogglePanel.SetActive(DBManager.developMode);
 
         UpdateConnectedServerText();
 
@@ -76,6 +89,19 @@ public class ProfileView : PopupBase
         DBManager.rememberUser = value;
     }
 
+    private void OnDevelopToggleValueChanged(bool value)
+    {
+        DBManager.developMode = value;
+
+        if (_isShownDevelopModeMessage)
+        {
+            return;
+        }
+
+        var valueString = value ? "enabled" : "disabled";
+        Toast.Instance.Show($"Developer mode has been {valueString}.Restart the application to activate it.");
+        _isShownDevelopModeMessage = true;
+    }
 
     private void OnLoginSucceed(string username, string password)
     {
@@ -91,11 +117,20 @@ public class ProfileView : PopupBase
         }
     }
 
+    private void OnVersionClickAmountReached(int count)
+    {
+        ShowDevelopToggle();
+    }
+
+    private void ShowDevelopToggle()
+    {
+        _developTogglePanel.SetActive(true);
+    }
+
     private void ShowLogin()
     {
         LoginObjects.SetActive(true);
         LogOutObjects.SetActive(false);
-
     }
 
     private void ShowLogout()
@@ -114,6 +149,7 @@ public class ProfileView : PopupBase
         {
             ShowLogin();
         }
+
         _txtLogout.text = $"You are already logged in,\n<b>{DBManager.username}</b>";
         _toggleRemember.isOn = DBManager.rememberUser;
         _inputFieldUserName.text = string.Empty;
@@ -123,7 +159,7 @@ public class ProfileView : PopupBase
         // _learningRecordStoreDropdown.value = DBManager.publicCurrentLearningRecordStore;
 
         UpdateConectedLRS(DBManager.publicCurrentLearningRecordStore);
-        }
+    }
 
     private void OnClickRegister()
     {
