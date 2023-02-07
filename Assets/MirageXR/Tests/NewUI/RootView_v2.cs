@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using MirageXR;
 using UnityEngine;
@@ -13,18 +11,19 @@ public class RootView_v2 : BaseView
     [SerializeField] private BottomNavigationArrowsView _bottomNavigationArrowsView;
     [SerializeField] private PageView_v2 _pageView;
     [SerializeField] private CalibrationGuideView _calibrationGuideViewPrefab;
-    [SerializeField] public SearchView _searchPrefab;
+    [SerializeField] private SearchView _searchPrefab;
     [SerializeField] private ProfileView _profilePrefab;
-    [SerializeField] private HelpView _helpPrefab;
-    [SerializeField] private ActivitySettings _activitySettingsPrefab;
     [SerializeField] private LoginView_v2 _loginViewPrefab;
     [SerializeField] private ActivityListView_v2 _activityListView;
     [SerializeField] private ActivityView_v2 _activityView;
+    [SerializeField] private Canvas _canvas;
+    [SerializeField] private ViewCamera _viewCamera;
     [Space]
     [SerializeField] private Dialog _dialog;
     [SerializeField] private Tutorial _tutorial;
 
-    public enum HelpPage {
+    public enum HelpPage
+    {
         Home,
         ActivitySteps,
         ActivityInfo,
@@ -48,6 +47,10 @@ public class RootView_v2 : BaseView
 
     public Tutorial Tutorial => _tutorial;
 
+    public ViewCamera viewCamera => _viewCamera;
+
+    public Canvas canvas => _canvas;
+
     private void Awake()
     {
         if (Instance != null)
@@ -61,13 +64,9 @@ public class RootView_v2 : BaseView
 
     private async void Start()
     {
-        if (PlatformManager.GetDeviceFormat() == PlatformManager.DeviceFormat.Tablet)
-        {
-            await SetupViewForTablet();
-        }
-
+        await _viewCamera.SetupFormat(PlatformManager.GetDeviceFormat());
         Initialization(null);
-        EventManager.OnEditModeChanged += editModeChangedForHelp;
+        EventManager.OnEditModeChanged += EditModeChangedForHelp;
     }
 
     public override async void Initialization(BaseView parentView)
@@ -187,62 +186,7 @@ public class RootView_v2 : BaseView
 
     public void ShowHelpView()
     {
-
         TutorialManager.Instance.ShowHelpSelection(helpPage);
-
-        //PopupsViewer.Instance.Show(_helpPrefab);
-    }
-
-    public void OnActivitySettingsClick()
-    {
-        PopupsViewer.Instance.Show(_activitySettingsPrefab);
-    }
-
-    private async Task SetupViewForTablet()
-    {
-        const float scale = 0.001f;
-        const float zPosition = 1.5f;
-        const string layerName = "MobileUI";
-        const string cameraName = "ViewCamera";
-
-        var mainCamera = Camera.main;
-        if (!mainCamera)
-        {
-            return;
-        }
-
-        var canvas = GetComponent<Canvas>();
-        canvas.enabled = false;
-        Screen.orientation = ScreenOrientation.LandscapeLeft;
-        await WaitForLandscapeOrientation();
-
-        mainCamera.cullingMask &= ~(1 << LayerMask.NameToLayer(layerName));
-        var obj = new GameObject(cameraName);
-        var viewCamera = obj.AddComponent<Camera>();
-        viewCamera.clearFlags = CameraClearFlags.Depth;
-        viewCamera.cullingMask = LayerMask.GetMask(layerName);
-        var rectTransform = (RectTransform)transform;
-        rectTransform.SetParent(viewCamera.transform);
-        canvas.worldCamera = viewCamera;
-        canvas.renderMode = RenderMode.WorldSpace;
-        var bottomLeftPosition = viewCamera.ScreenToWorldPoint(new Vector3(0, 0, zPosition));
-        var viewSize = viewCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, zPosition)) - bottomLeftPosition;
-        var size = new Vector2(viewSize.y * 0.5f / scale, viewSize.y / scale);
-        rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
-        rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
-        rectTransform.localScale = new Vector3(scale, scale, scale);
-        var position = viewCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height * 0.5f, zPosition));
-        position.x -= size.x * 0.5f * scale;
-        rectTransform.position = position;
-        canvas.enabled = true;
-    }
-
-    private static async Task WaitForLandscapeOrientation()
-    {
-        while (Screen.width < Screen.height)
-        {
-            await Task.Yield();
-        }
     }
 
     private void UpdateHelpPage(HelpPage page)
@@ -250,7 +194,7 @@ public class RootView_v2 : BaseView
         helpPage = page;
     }
 
-    private void editModeChangedForHelp(bool editModeOn)
+    private void EditModeChangedForHelp(bool editModeOn)
     {
         if (!editModeOn)
         {
