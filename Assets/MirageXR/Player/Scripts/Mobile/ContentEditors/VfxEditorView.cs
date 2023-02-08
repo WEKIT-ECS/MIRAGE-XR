@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class VfxEditorView : PopupEditorBase
 {
-    public override ContentType editorForType => ContentType.VFX;
+    public override ContentType editorForType => ContentType.EFFECTS;
     
     [SerializeField] private Transform _contentContainer;
     [SerializeField] private VfxListItem _vfxListItemPrefab;
@@ -50,7 +50,7 @@ public class VfxEditorView : PopupEditorBase
             _content = augmentationManager.AddAugmentation(_step, GetOffset());
         }
 
-        _content.predicate = $"vfx:{_prefabName}";
+        _content.predicate = $"effect:{_prefabName}";
         EventManager.ActivateObject(_content);
         EventManager.NotifyActionModified(_step);
 
