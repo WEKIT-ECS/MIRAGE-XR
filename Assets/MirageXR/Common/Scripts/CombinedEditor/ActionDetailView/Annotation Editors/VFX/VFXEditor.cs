@@ -73,7 +73,7 @@ namespace MirageXR
                 _annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(_action, offset);
             }
 
-            _annotationToEdit.predicate = "vfx:" + iconName;
+            _annotationToEdit.predicate = "effect:" + iconName;
             EventManager.ActivateObject(_annotationToEdit);
             EventManager.NotifyActionModified(_action);
 
