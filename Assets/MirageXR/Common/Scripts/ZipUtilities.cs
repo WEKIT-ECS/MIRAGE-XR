@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.Zip;
+using UnityEngine;
 
 /// <summary>
 /// Utilities for handling ZIP files
@@ -22,7 +23,7 @@ public static class ZipUtilities
             {
                 if (!zipEntry.IsFile) continue;
 
-                var entryFileName = zipEntry.Name;
+                var entryFileName = CheckFileForIllegalCharacters(zipEntry.Name);
                 var fullZipToPath = Path.Combine(outFolder, entryFileName);
                 var directoryName = Path.GetDirectoryName(fullZipToPath);
                 if (!string.IsNullOrEmpty(directoryName))
@@ -54,7 +55,9 @@ public static class ZipUtilities
         if (compressionLevel > 9) compressionLevel = 9;
         if (compressionLevel < 0) compressionLevel = 0;
         zipStream.SetLevel(compressionLevel);
-        var folderName = Path.GetDirectoryName(path);
+
+        var folderName = CheckFileForIllegalCharacters(Path.GetDirectoryName(path));
+
         if (Directory.Exists(path) && folderName != null)
         {
             var folderOffset = folderName.Length + (folderName.EndsWith(slash) ? 0 : 1);
@@ -118,5 +121,26 @@ public static class ZipUtilities
             await fileStream.CopyToAsync(zipStream);
         }
         zipStream.CloseEntry();
+    }
+
+    /// <returns>The inputed file name without illegal characters</returns>
+    /// <summary>
+    /// Checks a given string for the illegal file name characters \ : * ? " < > |
+    /// </summary>
+    /// <param name="file">The file name to be checked</param>
+    public static string CheckFileForIllegalCharacters(string file)
+    {
+        string characters = "\\:*?\"<>|";
+        char[] charList = characters.ToCharArray();
+
+        foreach (char c in charList)
+        {
+            if (file.Contains(c))
+            {
+                file = file.Replace(c.ToString(), string.Empty);
+            }
+        }
+
+        return file;
     }
 }
