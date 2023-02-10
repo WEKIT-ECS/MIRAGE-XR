@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.Zip;
-using UnityEngine;
 
 /// <summary>
 /// Utilities for handling ZIP files
@@ -131,9 +130,8 @@ public static class ZipUtilities
     public static string CheckFileForIllegalCharacters(string file)
     {
         string characters = "\\:*?\"<>|";
-        char[] charList = characters.ToCharArray();
 
-        foreach (char c in charList)
+        foreach (char c in characters.ToCharArray())
         {
             if (file.Contains(c))
             {
