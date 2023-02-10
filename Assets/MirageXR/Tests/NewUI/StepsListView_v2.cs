@@ -47,6 +47,7 @@ public class StepsListView_v2 : BaseView
 
     private bool _isEditMode;
 
+    [Header("MirageXR calibration pdf file:")]
     public TextAsset calibrationImage;
     private static string calibrationImageFileName = "MirageXR_calibration_image_pdf.pdf";
 
