@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -45,6 +46,9 @@ public class StepsListView_v2 : BaseView
     private ActivityView_v2 _activityView => (ActivityView_v2)_parentView;
 
     private bool _isEditMode;
+
+    public TextAsset calibrationImage;
+    private static string calibrationImageFileName = "MirageXR_calibration_image_pdf.pdf";
 
     public override void Initialization(BaseView parentView)
     {
@@ -357,7 +361,16 @@ public class StepsListView_v2 : BaseView
 
     private void ShareCalibrationImage()
     {
-        // not implemented
+        StartCoroutine(SharePDFFile());
+    }
+
+    private IEnumerator SharePDFFile()
+    {
+        yield return new WaitForEndOfFrame();
+
+        string filePath = Path.Combine(Application.temporaryCachePath, calibrationImageFileName);
+        File.WriteAllBytes(filePath, calibrationImage.bytes);
+        new NativeShare().AddFile(filePath).Share();
     }
 
     private void ShowNewPositionCalibrationView()
