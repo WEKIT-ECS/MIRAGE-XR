@@ -195,6 +195,8 @@ namespace MirageXR
             token = null;
             userid = null;
             usermail = null;
+            rememberUser = false;
+            LocalFiles.RemoveUsernameAndPassword();
         }
 
     }
