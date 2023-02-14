@@ -359,6 +359,7 @@ namespace MirageXR
         {
             if (!_isSwitching)
             {
+                await Task.Yield();
                 await ActivityDeactivator(id, doNotActivateNextStep);
             }
         }
@@ -367,6 +368,9 @@ namespace MirageXR
         {
             const string restartKey = "restart";
             const string jsonExtension = ".json";
+
+            //Save augmentations extra data(character, pick&place,...) for be carried over to the new action if the augmentation exists in that action
+            SaveData();
 
             // Stop any Maggie messages.
             Maggie.Stop();
@@ -724,9 +728,6 @@ namespace MirageXR
                 {
                     Debug.LogError("Could not identify the active action");
                 }
-
-                //Save augmentations extra data(character, pick&place,...) for be carried over to the new action if the augmentation exists in that action
-                SaveData();
             }
             else
             {
@@ -739,8 +740,8 @@ namespace MirageXR
 
             RegenerateActionsList();
             await ActivateNextAction();
-            await ActivateAction(newAction);
             await Task.Yield();
+            await ActivateAction(newAction);
             EventManager.NotifyActionCreated(newAction);
         }
 
