@@ -4,7 +4,7 @@ using UnityEngine;
 using System.IO;
 using UnityEngine.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
-using System.Threading.Tasks;
+
 
 namespace MirageXR
 {
@@ -132,7 +132,7 @@ namespace MirageXR
                 StartCoroutine(LoadMyModel(_pickComponent.MyModelID));
         }
 
-        public async void SavePositions()
+        public void SavePositions()
         {
             if (_myObj == null || _myObj.poi == string.Empty || gameObject == null)
             {
