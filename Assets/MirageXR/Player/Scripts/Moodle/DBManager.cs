@@ -80,6 +80,15 @@ namespace MirageXR
         private const string SKETCHFAB_TOKEN_RENEW_KEY = "Sketchfab_token_last_renew_date";
         private const string SKETCHFAB_TOKEN_RENEW_DEFAULT = "";
 
+        private const string LOCAL_SAVE = "LocalSave";
+        private const bool LOCAL_SAVE_DEFAULT = true;
+
+        private const string CLOUD_SAVE = "CloudSave";
+        private const bool CLOUD_SAVE_DEFAULT = false;
+
+        private const string SHOW_PUBLIC_UPLOAD_WARNING = "DontShowPublicUploadWarning";
+        private const bool SHOW_PUBLIC_UPLOAD_WARNING_DEFAULT = true;
+
 
         private const int SKETCHFAB_RENEW_DYAS_COOLDOWN = 5;
 
@@ -111,8 +120,9 @@ namespace MirageXR
         private static readonly PrefsStringValue _sketchfabTokenRenewDate = new PrefsStringValue(SKETCHFAB_TOKEN_RENEW_KEY, SKETCHFAB_TOKEN_RENEW_DEFAULT);
         private static readonly PrefsBoolValue _showBigCards = new PrefsBoolValue(SHOW_BIG_CARDS_KEY, SHOW_BIG_CARDS_DEFAULT);
 
-        private static bool _localSave;
-        private static bool _cloudSave;
+        private static readonly PrefsBoolValue _localSave = new PrefsBoolValue(LOCAL_SAVE, LOCAL_SAVE_DEFAULT);
+        private static readonly PrefsBoolValue _cloudSave = new PrefsBoolValue(CLOUD_SAVE, CLOUD_SAVE_DEFAULT);
+        private static readonly PrefsBoolValue _showPublicUploadWarning = new PrefsBoolValue(SHOW_PUBLIC_UPLOAD_WARNING, SHOW_PUBLIC_UPLOAD_WARNING_DEFAULT);
 
         public static bool isNeedToRenewSketchfabToken => sketchfabLastTokenRenewDate <= DateTime.Now.AddDays(-SKETCHFAB_RENEW_DYAS_COOLDOWN);
 
@@ -134,14 +144,20 @@ namespace MirageXR
 
         public static bool publicLocalSave
         {
-            get => _localSave;
-            set => _localSave = value;
+            get => _localSave.Value;
+            set => _localSave.Value = value;
         }
 
         public static bool publicCloudSave
         {
-            get => _cloudSave;
-            set => _cloudSave = value;
+            get => _cloudSave.Value;
+            set => _cloudSave.Value = value;
+        }
+
+        public static bool publicShowPublicUploadWarning
+        {
+            get => _showPublicUploadWarning.Value;
+            set => _showPublicUploadWarning.Value = value;
         }
 
         public static bool showBigCards
