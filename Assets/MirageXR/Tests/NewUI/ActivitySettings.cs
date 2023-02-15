@@ -78,7 +78,22 @@ public class ActivitySettings : PopupBase
 
     private void OnValueChangedPublicUpload(bool value)
     {
+        if(value && _toggleUploadToCloud.isOn && DBManager.publicShowPublicUploadWarning)
+        {
+            RootView_v2.Instance.dialog.ShowMiddle(
+            "Public Upload",
+            "You have selected public upload. Once uploaded, this activity will be visable to all users.",
+            "Don't show again", () => DontShowPublicUploadWarning(),
+            "OK", () => Debug.Log("Ok!"),
+            true);
+        }
+
         ValueHasBeenChanged();
+    }
+
+    private void DontShowPublicUploadWarning()
+    {
+        DBManager.publicShowPublicUploadWarning = false;
     }
 
     private void OnValueChangedSaveToggle(bool value)
