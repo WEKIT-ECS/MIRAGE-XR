@@ -226,7 +226,7 @@ public class ActionListMenu : MonoBehaviour
                 target = GameObject.Find(annotation.poi).GetComponentInChildren<MirageXR.CharacterController>().transform;
                 break;
             case string type when type.StartsWith("pick"):
-                target = GameObject.Find(annotation.poi).GetComponentInChildren<PickAndPlaceController>().Target;
+                target = GameObject.Find(annotation.poi).GetComponentInChildren<PickAndPlaceController>().PickObject;
                 break;
             case "ghosttracks":
                 target = GameObject.Find(annotation.poi).GetComponentInChildren<GhostRecordPlayer>().transform;
