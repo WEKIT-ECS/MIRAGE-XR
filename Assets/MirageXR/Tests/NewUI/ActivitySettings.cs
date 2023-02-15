@@ -34,6 +34,8 @@ public class ActivitySettings : PopupBase
 
         _btnDelete.interactable = _container != null;
 
+        ValueHasBeenChanged();
+
         ResetValues();
     }
 
@@ -45,8 +47,15 @@ public class ActivitySettings : PopupBase
     private void ResetValues()
     {
         _togglePublicUpload.isOn = DBManager.publicUploadPrivacy;
-        _toggleLocalSave.isOn = false;
-        _btnSave.interactable = false;
+        _toggleLocalSave.isOn = DBManager.publicLocalSave;
+        _toggleUploadToCloud.isOn = DBManager.publicCloudSave;
+    }
+
+    private void SetValues()
+    {
+        DBManager.publicUploadPrivacy = _togglePublicUpload.isOn;
+        DBManager.publicLocalSave = _toggleLocalSave.isOn;
+        DBManager.publicCloudSave = _toggleUploadToCloud.isOn;
     }
 
     protected override bool TryToGetArguments(params object[] args)
@@ -84,7 +93,24 @@ public class ActivitySettings : PopupBase
 
     private void ValueHasBeenChanged()
     {
-        _btnSave.interactable = true;
+        if (!_toggleUploadToCloud.isOn && !_toggleLocalSave.isOn)
+        {
+            _btnSave.interactable = false;
+        }
+        else
+        {
+            _btnSave.interactable = true;
+        }
+
+        if (!_toggleUploadToCloud.isOn)
+        {
+            _togglePublicUpload.isOn = false;
+            _togglePublicUpload.interactable = false;
+        }
+        else
+        {
+            _togglePublicUpload.interactable = true;
+        }
     }
 
     private void OnPreviewClicked()
@@ -96,6 +122,7 @@ public class ActivitySettings : PopupBase
 
     private void OnCloseClicked()
     {
+        SetValues();
         Close();
     }
 
@@ -111,6 +138,7 @@ public class ActivitySettings : PopupBase
         }
 
         DBManager.publicUploadPrivacy = _togglePublicUpload.isOn;
+        SetValues();
         ResetValues();
         Close();
     }
