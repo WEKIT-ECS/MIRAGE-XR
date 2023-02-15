@@ -111,6 +111,9 @@ namespace MirageXR
         private static readonly PrefsStringValue _sketchfabTokenRenewDate = new PrefsStringValue(SKETCHFAB_TOKEN_RENEW_KEY, SKETCHFAB_TOKEN_RENEW_DEFAULT);
         private static readonly PrefsBoolValue _showBigCards = new PrefsBoolValue(SHOW_BIG_CARDS_KEY, SHOW_BIG_CARDS_DEFAULT);
 
+        private static bool _localSave;
+        private static bool _cloudSave;
+
         public static bool isNeedToRenewSketchfabToken => sketchfabLastTokenRenewDate <= DateTime.Now.AddDays(-SKETCHFAB_RENEW_DYAS_COOLDOWN);
 
         public static DateTime sketchfabLastTokenRenewDate
@@ -127,6 +130,18 @@ namespace MirageXR
         {
             get => _publicUploadPrivacy.Value;
             set => _publicUploadPrivacy.Value = value;
+        }
+
+        public static bool publicLocalSave
+        {
+            get => _localSave;
+            set => _localSave = value;
+        }
+
+        public static bool publicCloudSave
+        {
+            get => _cloudSave;
+            set => _cloudSave = value;
         }
 
         public static bool showBigCards
