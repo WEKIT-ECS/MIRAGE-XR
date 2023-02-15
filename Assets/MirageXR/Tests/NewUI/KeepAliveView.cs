@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using MirageXR;
 
 public class KeepAliveView : PopupBase
 {
@@ -12,6 +13,8 @@ public class KeepAliveView : PopupBase
     [SerializeField] private ClampedScrollRect _clampedScrollTo;
     [SerializeField] private Button _btnOk;
     [SerializeField] private Button _btnCancel;
+
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
     private int _stepCount;
     private int _from;
@@ -72,6 +75,7 @@ public class KeepAliveView : PopupBase
         }
 
         _callback?.Invoke(_from, _to);
+        activityManager.SaveData();
         Close();
     }
 
