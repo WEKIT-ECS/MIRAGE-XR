@@ -54,8 +54,8 @@ public class StepsListView_v2 : BaseView
     public override void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
-        _inputFieldActivityName.onEndEdit.AddListener(OnActivityNameChanged);
-        _inputFieldActivityDescription.onEndEdit.AddListener(OnActivityDescriptionChanged);
+        _inputFieldActivityName.onEndEdit.AddListener(OnActivityNameEndEdit);
+        _inputFieldActivityDescription.onEndEdit.AddListener(OnActivityDescriptionEndEdit);
 
         _btnAddStep.onClick.AddListener(OnAddStepClick);
         _btnThumbnail.onClick.AddListener(OnThumbnailButtonPressed);
@@ -332,7 +332,7 @@ public class StepsListView_v2 : BaseView
         LoadThumbnail();
     }
 
-    private void OnActivityNameChanged(string title)
+    private void OnActivityNameEndEdit(string title)
     {
         activityManager.Activity.name = title;
         _textActivityName.text = title;
@@ -343,7 +343,7 @@ public class StepsListView_v2 : BaseView
         }
     }
 
-    private void OnActivityDescriptionChanged(string description)
+    private void OnActivityDescriptionEndEdit(string description)
     {
         activityManager.Activity.description = description;
 
