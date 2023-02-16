@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.Zip;
 
@@ -126,19 +127,10 @@ public static class ZipUtilities
     /// <summary>
     /// Checks a given string for the illegal file name characters \ : * ? " < > |
     /// </summary>
-    /// <param name="file">The file name to be checked</param>
-    public static string CheckFileForIllegalCharacters(string file)
+    /// <param name="fileName">The file name to be checked</param>
+    public static string CheckFileForIllegalCharacters(string fileName)
     {
-        string characters = "\\:*?\"<>|";
-
-        foreach (char c in characters.ToCharArray())
-        {
-            if (file.Contains(c))
-            {
-                file = file.Replace(c.ToString(), string.Empty);
-            }
-        }
-
-        return file;
+        const string characters = "[\\:*?\"<>|]";
+        return Regex.Replace(fileName, characters, string.Empty);
     }
 }
