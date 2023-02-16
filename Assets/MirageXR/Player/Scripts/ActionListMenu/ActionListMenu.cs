@@ -1,4 +1,5 @@
-﻿using MirageXR;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using MirageXR;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -76,7 +77,7 @@ public class ActionListMenu : MonoBehaviour
             }
         }
 
-        Debug.Log("Action list menu start called");
+        AppLog.LogTrace("Action list menu start called");
         EventManager.OnInitUi += Init;
         EventManager.OnActivateAction += OnActivateAction;
         EventManager.OnDeactivateAction += OnDeactivateAction;

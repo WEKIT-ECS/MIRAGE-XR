@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -26,7 +27,7 @@ namespace MirageXR
             // If symbol couldn't be found, terminate initialization.
             if (symbol == null)
             {
-                Debug.Log("Symbol couldn't be found. " + content.predicate);
+                AppLog.LogWarning("Symbol couldn't be found. " + content.predicate);
                 return false;
             }
 

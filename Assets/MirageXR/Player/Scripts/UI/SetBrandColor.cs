@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,7 +25,7 @@ namespace MirageXR
         {
             if (BrandManager.Instance == null)
             {
-                Debug.Log("BrandManager not initialized");
+                AppLog.LogWarning("BrandManager not initialized");
                 return;
             }
 

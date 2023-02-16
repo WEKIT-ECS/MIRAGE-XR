@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace MirageXR
@@ -24,7 +25,7 @@ namespace MirageXR
         private void Start()
         {
             int tutorialStatus = PlayerPrefs.GetInt(TutorialManager.PLAYER_PREFS_STATUS_KEY);
-            Debug.Log(tutorialStatus);
+            AppLog.LogDebug(tutorialStatus.ToString());
             if (tutorialStatus == TutorialManager.STATUS_LOAD_ON_START)
             {
                 // TODO: In the future, this should be changed to an event. Like: OnEverythingLoaded
