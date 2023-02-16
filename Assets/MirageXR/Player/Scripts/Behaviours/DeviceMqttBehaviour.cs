@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using MirageXR;
 using Microsoft.MixedReality.Toolkit.Utilities.Solvers;
+using i5.Toolkit.Core.VerboseLogging;
 
 public class DeviceMqttBehaviour : MonoBehaviour
 {
@@ -105,7 +106,7 @@ public class DeviceMqttBehaviour : MonoBehaviour
             try
             {
                 await _mqtt.ConnectAsync(url, port, _sensor.username, _sensor.password, clientId);
-                Debug.Log(_sensor.id + " connected.");
+                AppLog.LogInfo(_sensor.id + " connected.");
             }
             catch
             {
@@ -119,7 +120,7 @@ public class DeviceMqttBehaviour : MonoBehaviour
             try
             {
                 await _mqtt.ConnectAsync(url, port, _sensor.username, _sensor.password, clientId);
-                Debug.Log(_sensor.id + " connected.");
+                AppLog.LogInfo(_sensor.id + " connected.");
             }
             catch
             {
@@ -149,7 +150,7 @@ public class DeviceMqttBehaviour : MonoBehaviour
 
     private async void ConnectionEstablishedRoutine()
     {
-        Debug.Log("Connection established.");
+        AppLog.LogInfo("Connection established.");
         // Instantiate a sensor container.
 
         // _sensorDisplay.name = _sensor.id;

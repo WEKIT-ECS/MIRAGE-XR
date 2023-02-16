@@ -1,4 +1,5 @@
-﻿using System;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -107,7 +108,7 @@ namespace MirageXR
 
         private async Task PerformEditModeCalibration()
         {
-            Debug.Log("Edit Mode Calibration started.\n");
+            AppLog.LogInfo("Edit Mode Calibration started.\n");
 
             foreach (var pair in calibrationPairs)
             {
@@ -134,17 +135,17 @@ namespace MirageXR
                 Object.Destroy(calibrationGuide);
             }
 
-            Debug.Log("Edit mode calibration completed.");
+            AppLog.LogInfo("Edit mode calibration completed.");
         }
 
         // here we are writing anchors for calibration pairs that (must) already exist, relative to a calibration origin.
         private async Task PerformPlayModeCalibration(Transform calibrationRoot)
         {
-            Debug.Log("Play Mode Calibration started.\n");
+            AppLog.LogInfo("Play Mode Calibration started.\n");
 
             foreach (var pair in calibrationPairs)
             {
-                Debug.Log("Handling " + pair.DetectableConfiguration.id);
+                AppLog.LogDebug("Handling " + pair.DetectableConfiguration.id);
 
                 // Create a temporary empty frame.
                 var dummy = new GameObject("AnchorDummy");
@@ -176,7 +177,7 @@ namespace MirageXR
                 pair.AnchorFrame.transform.SetParent(detectableContainer);
 
                 // Now attach anchor to the detectable anchor frame.
-                Debug.Log($"Anchor {pair.AnchorFrame.name} created at {pair.AnchorFrame.transform.position} || {pair.AnchorFrame.transform.eulerAngles}.");
+                AppLog.LogInfo($"Anchor {pair.AnchorFrame.name} created at {pair.AnchorFrame.transform.position} || {pair.AnchorFrame.transform.eulerAngles}.");
 
                 // Destroy dummy.
                 Object.Destroy(dummy);
@@ -192,7 +193,7 @@ namespace MirageXR
                 Object.Destroy(calibrationGuide);
             }
 
-            Debug.Log("Play mode calibration completed.");
+            AppLog.LogInfo("Play mode calibration completed.");
         }
 
         public Place GetPlaceFromTaskStationId(string id)
@@ -265,7 +266,7 @@ namespace MirageXR
             }
             catch (Exception e)
             {
-                Debug.LogError(e);
+                Debug.LogException(e);
             }
         }
 

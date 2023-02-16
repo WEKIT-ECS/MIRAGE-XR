@@ -1,4 +1,5 @@
-﻿using System;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,7 +21,7 @@ namespace MirageXR
 
         private void OnTextUpdated(string value)
         {
-            Debug.Log($"Text updated: {value}");
+            AppLog.LogDebug($"Text updated: {value}");
             if (string.IsNullOrEmpty(value))
             {
                 _sessionListView.SetAllItems();

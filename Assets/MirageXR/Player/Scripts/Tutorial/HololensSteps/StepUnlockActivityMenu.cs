@@ -1,3 +1,4 @@
+using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
 
 namespace MirageXR
@@ -31,7 +32,7 @@ namespace MirageXR
             }
             catch
             {
-                Debug.LogError("SpriteToggle component missing in Lock for StepUnlockActivityMenu in Tutorial.");
+                AppLog.LogError("SpriteToggle component missing in Lock for StepUnlockActivityMenu in Tutorial.");
                 ExitStep();
             }
 

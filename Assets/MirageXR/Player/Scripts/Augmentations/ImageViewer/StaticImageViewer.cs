@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,7 +32,7 @@ namespace MirageXR
             {
                 string dataPath = Application.persistentDataPath;
                 string completeImageName = "file://" + dataPath + "/" + ImageName;
-                Debug.Log("Trying to load static image from:" + completeImageName);
+                AppLog.LogTrace("Trying to load static image from:" + completeImageName);
                 WWW www = new WWW(completeImageName);
                 yield return www;
                 Texture2D imageTex = new Texture2D(4, 4, TextureFormat.DXT1, false);
@@ -46,7 +47,7 @@ namespace MirageXR
 
                 var completeImageName = $"file://{RootObject.Instance.activityManager.ActivityPath}/{filename}";
 
-                Debug.Log("Trying to load image from:" + completeImageName);
+                AppLog.LogTrace("Trying to load image from:" + completeImageName);
 
                 WWW www = new WWW(completeImageName);
                 yield return www;

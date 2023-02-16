@@ -1,3 +1,4 @@
+using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using System;
 using System.Collections.Generic;
@@ -40,7 +41,7 @@ public class ContentSelectorView_v2 : PopupBase
         var editor = _editors.FirstOrDefault(t => t.editorForType == type);
         if (editor == null)
         {
-            Debug.LogError($"there is no editor for the type {type}");
+            AppLog.LogError($"there is no editor for the type {type}");
             return;
         }
         PopupsViewer.Instance.Show(editor, _currentStep);

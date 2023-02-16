@@ -1,3 +1,4 @@
+using i5.Toolkit.Core.VerboseLogging;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,7 +29,7 @@ public abstract class DialogWindow : MonoBehaviour
     {
         if (Instance != null)
         {
-            Debug.LogError($"{Instance.GetType().FullName} must only be a single copy!");
+            AppLog.LogError($"{Instance.GetType().FullName} must only be a single copy!");
             return;
         }
 
