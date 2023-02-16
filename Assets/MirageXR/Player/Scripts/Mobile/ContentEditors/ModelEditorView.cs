@@ -63,7 +63,7 @@ public class ModelEditorView : PopupEditorBase
         else
         {
             DialogWindow.Instance.Show("Login to Sketchfab",
-                //new DialogButtonContent("Via the browser", LoginToSketchfab),
+                new DialogButtonContent("Via the browser", LoginToSketchfab),
                 new DialogButtonContent("With password", ShowDirectLoginPopup),
                 new DialogButtonContent("Cancel", Close));
         }
