@@ -81,11 +81,11 @@ public class ActivitySettings : PopupBase
         if(value && _toggleUploadToCloud.isOn && DBManager.publicShowPublicUploadWarning)
         {
             RootView_v2.Instance.dialog.ShowMiddle(
-            "Public Upload",
-            "You have selected public upload. Once uploaded, this activity will be visable to all users.",
-            "Don't show again", () => DontShowPublicUploadWarning(),
-            "OK", () => Debug.Log("Ok!"),
-            true);
+                "Public Upload",
+                "You have selected public upload. Once uploaded, this activity will be visable to all users.",
+                "Don't show again", () => DontShowPublicUploadWarning(),
+                "OK", () => Debug.Log("Ok!"),
+                true);
         }
 
         ValueHasBeenChanged();
@@ -108,14 +108,7 @@ public class ActivitySettings : PopupBase
 
     private void ValueHasBeenChanged()
     {
-        if (!_toggleUploadToCloud.isOn && !_toggleLocalSave.isOn)
-        {
-            _btnSave.interactable = false;
-        }
-        else
-        {
-            _btnSave.interactable = true;
-        }
+        _btnSave.interactable = _toggleUploadToCloud.isOn || _toggleLocalSave.isOn;
 
         if (!_toggleUploadToCloud.isOn)
         {
