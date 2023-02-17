@@ -46,6 +46,7 @@ public static class ContentTypeExtenstion
     private const string PREDICATE_GHOST_V2 = "ghost"; // TODO: ^^^
     private const string PREDICATE_ACT = "act";
     private const string PREDICATE_EFFECTS = "effects";
+    private const string PREDICATE_VFX = "vfx";
     private const string PREDICATE_MODEL = "model";
     private const string PREDICATE_MODEL_V2 = "3d"; // TODO: ^^^
     private const string PREDICATE_CHARACTER = "char";
@@ -196,7 +197,7 @@ public static class ContentTypeExtenstion
             return ContentType.LABEL;
         if (predicateLowCase.Contains(PREDICATE_ACT))
             return ContentType.ACT;
-        if (predicateLowCase.Contains(PREDICATE_EFFECTS))
+        if (predicateLowCase.Contains(PREDICATE_EFFECTS) || predicateLowCase.Contains(PREDICATE_VFX))
             return ContentType.EFFECTS;
         if (predicateLowCase.Contains(PREDICATE_MODEL) || predicateLowCase.Contains(PREDICATE_MODEL_V2))
             return ContentType.MODEL;
