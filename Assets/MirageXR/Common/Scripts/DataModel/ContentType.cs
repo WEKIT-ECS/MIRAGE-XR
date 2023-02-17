@@ -184,31 +184,31 @@ public static class ContentTypeExtenstion
     public static ContentType ParsePredicate(string predicate)
     {
         var predicateLowCase = predicate.ToLower();
-        if (predicateLowCase.Contains(PREDICATE_IMAGE))
+        if (predicateLowCase.StartsWith(PREDICATE_IMAGE))
             return ContentType.IMAGE;
-        if (predicateLowCase.Contains(PREDICATE_VIDEO))
+        if (predicateLowCase.StartsWith(PREDICATE_VIDEO))
             return ContentType.VIDEO;
-        if (predicateLowCase.Contains(PREDICATE_AUDIO) || predicateLowCase.Contains(PREDICATE_AUDIO_V2))
+        if (predicateLowCase.StartsWith(PREDICATE_AUDIO) || predicateLowCase.StartsWith(PREDICATE_AUDIO_V2))
             return ContentType.AUDIO;
-        if (predicateLowCase.Contains(PREDICATE_GHOST) || predicateLowCase.Contains(PREDICATE_GHOST_V2))
+        if (predicateLowCase.StartsWith(PREDICATE_GHOST) || predicateLowCase.StartsWith(PREDICATE_GHOST_V2))
             return ContentType.GHOST;
-        if (predicateLowCase.Contains(PREDICATE_LABEL))
+        if (predicateLowCase.StartsWith(PREDICATE_LABEL))
             return ContentType.LABEL;
-        if (predicateLowCase.Contains(PREDICATE_ACT))
+        if (predicateLowCase.StartsWith(PREDICATE_ACT))
             return ContentType.ACT;
-        if (predicateLowCase.Contains(PREDICATE_VFX))
+        if (predicateLowCase.StartsWith(PREDICATE_VFX))
             return ContentType.VFX;
-        if (predicateLowCase.Contains(PREDICATE_MODEL) || predicateLowCase.Contains(PREDICATE_MODEL_V2))
+        if (predicateLowCase.StartsWith(PREDICATE_MODEL) || predicateLowCase.StartsWith(PREDICATE_MODEL_V2))
             return ContentType.MODEL;
-        if (predicateLowCase.Contains(PREDICATE_CHARACTER))
+        if (predicateLowCase.StartsWith(PREDICATE_CHARACTER))
             return ContentType.CHARACTER;
-        if (predicateLowCase.Contains(PREDICATE_PICKANDPLACE) || predicateLowCase.Contains(PREDICATE_PICKANDPLACE_V2))
+        if (predicateLowCase.StartsWith(PREDICATE_PICKANDPLACE) || predicateLowCase.StartsWith(PREDICATE_PICKANDPLACE_V2))
             return ContentType.PICKANDPLACE;
-        if (predicateLowCase.Contains(PREDICATE_IMAGEMARKER))
+        if (predicateLowCase.StartsWith(PREDICATE_IMAGEMARKER))
             return ContentType.IMAGEMARKER;
-        if (predicateLowCase.Contains(PREDICATE_PLUGIN))
+        if (predicateLowCase.StartsWith(PREDICATE_PLUGIN))
             return ContentType.PLUGIN;
-        if (predicateLowCase.Contains(PREDICATE_DRAWING))
+        if (predicateLowCase.StartsWith(PREDICATE_DRAWING))
             return ContentType.DRAWING;
 
         return ContentType.UNKNOWN;
