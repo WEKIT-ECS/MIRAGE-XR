@@ -65,8 +65,9 @@ namespace MirageXR
                                             var glyphModel = $"Glyphs/{obj.option}";
                                             ActivatePrefab(glyphModel, obj);
                                         }
-                                        else if (obj.predicate.StartsWith("effect:"))
+                                        else if (obj.predicate.StartsWith("effect:") || obj.predicate.StartsWith("vfx:"))
                                         {
+                                            obj.predicate = obj.predicate.Replace("vfx:", "effect:");
                                             obj.option = obj.predicate.Replace("effect:", "");
 
                                             obj.url = "resources://" + obj.predicate;

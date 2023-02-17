@@ -487,7 +487,7 @@ public class ActionEditor : MonoBehaviour
                 glyphEditor = LoadEditorPanel<GlyphEditor>(GlyphSelectorPrefab);
                 glyphEditor.Open(detailView.DisplayedAction, annotation);
                 break;
-            case string anno when anno.StartsWith("vfx"):
+            case string anno when anno.StartsWith("effect"):
                 vfxEditor = LoadEditorPanel<VFXEditor>(VfxEditorPrefab);
                 vfxEditor.Open(detailView.DisplayedAction, annotation);
                 break;
