@@ -4,6 +4,7 @@ using UnityEngine;
 using MirageXR;
 using System.Collections.Generic;
 using System;
+using NSubstitute.Routing.Handlers;
 using TMPro;
 
 public enum BitID
@@ -51,6 +52,7 @@ public class eROBSONItems : MirageXRPrefab
 
 
     private Port[] ports;
+    private List<eROBSONItems> _connectedBits;
 
     public Port[] Ports => ports;
 
@@ -98,29 +100,26 @@ public class eROBSONItems : MirageXRPrefab
     }
 
 
-
-
-    [HideInInspector]
-    public List<eROBSONItems> connectedbits = new List<eROBSONItems>();
+    public List<eROBSONItems> ConnectedBits => _connectedBits;
 
     private async void Awake()
     {
-        //create eRobson manager
-        //Create the erobson managers
-        if (ErobsonItemManager.Instance == null)
+        if (ErobsonItemManager.Instance != null) return;
+
+
+        //Create the eRobson managers
+        // Get the prefab from the references
+        var eRobsonManagers = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("eROBSON/Prefabs/Common/ErobsonImageMarkerController");
+        // if the prefab reference has been found successfully
+        if (eRobsonManagers != null)
         {
-            // Get the prefab from the references
-            var erobsonManagers = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("eROBSON/Prefabs/Common/ErobsonImageMarkerController");
-            // if the prefab reference has been found successfully
-            if (erobsonManagers != null)
-            {
-                Instantiate(erobsonManagers, Vector3.zero, Quaternion.identity);
-            }
+            Instantiate(eRobsonManagers, Vector3.zero, Quaternion.identity);
         }
     }
 
     private void Start()
     {
+        _connectedBits = new List<eROBSONItems>();
         indicatorLight = GetComponentInChildren<IndicatorLight>();
         ports = GetComponentsInChildren<Port>();
         MyBehaviourController = GetComponent<BitsBehaviourController>();
@@ -138,6 +137,7 @@ public class eROBSONItems : MirageXRPrefab
     private void OnMovingItem(ManipulationEventData arg0)
     {
         IsMoving = true;
+
     }
 
     /// <summary>
@@ -147,6 +147,7 @@ public class eROBSONItems : MirageXRPrefab
     private void OnItemStoppedMoving(ManipulationEventData arg0)
     {
         IsMoving = false;
+        ErobsonItemManager.Instance.SaveJson();
     }
 
 

@@ -4,7 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
+using Action = MirageXR.Action;
 
 public enum AddOrRemove
 {
@@ -16,34 +18,34 @@ public class ErobsonItemManager : MonoBehaviour
 {
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
-    #region Erobson Events
+
     public delegate void BitConnectedDelegate(eROBSONItems eROBSONItem);
+
     public static event BitConnectedDelegate OnBitConnected;
+
     public static void BitConnected(eROBSONItems eROBSONItem)
     {
         OnBitConnected?.Invoke(eROBSONItem);
     }
 
 
+
     public delegate void BitDisconnectedDelegate(eROBSONItems eROBSONItem);
+
     public static event BitDisconnectedDelegate OnBitDisconnected;
+
     public static void BitDisconnected(eROBSONItems eROBSONItem)
     {
         OnBitDisconnected?.Invoke(eROBSONItem);
     }
-    #endregion
 
-    public static List<eROBSONItems> eRobsonItemsList
+
+    public static List<eROBSONItems> ERobsonItemsList
     {
         get; private set;
     }
 
-    public static List<eROBSONItems> eRobsonConnectedItemsList
-    {
-        get; private set;
-    }
-
-    public static List<ERobsonItem> ConnectedBitsLoadedData
+    public static List<eROBSONItems> ERobsonConnectedItemsList
     {
         get; private set;
     }
@@ -53,7 +55,9 @@ public class ErobsonItemManager : MonoBehaviour
         get; private set;
     }
 
-    private string eRobsonDataFolder;
+    public bool CircuitParsed { get; private set; }
+
+    private string _eRobsonDataFolder;
 
     private void Start()
     {
@@ -67,14 +71,12 @@ public class ErobsonItemManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        DontDestroyOnLoad(gameObject);
-
-        eRobsonItemsList = new List<eROBSONItems>();
-        eRobsonConnectedItemsList = new List<eROBSONItems>();
-
-        StartCoroutine(Init());
+        ERobsonItemsList = new List<eROBSONItems>();
+        ERobsonConnectedItemsList = new List<eROBSONItems>();
 
         Subscribe();
+
+        StartCoroutine(Init());
     }
 
 
@@ -85,33 +87,32 @@ public class ErobsonItemManager : MonoBehaviour
 
     public void Subscribe()
     {
-        EventManager.OnAugmentationObjectCreated += OnErobsonItemAdded;
-        EventManager.OnAugmentationDeleted += OnErobsonItemDeleted;
+        EventManager.OnAugmentationObjectCreated += OnERobsonItemAdded;
+        EventManager.OnAugmentationDeleted += OnERobsonItemDeleted;
         EventManager.OnActivitySaved += SaveJson;
-        EventManager.OnActivityStarted += OnActivateAction;
+        EventManager.OnStepActivatedStamp += OnActivateAction;
     }
 
     private void Unsubscribe()
     {
-        EventManager.OnAugmentationObjectCreated -= OnErobsonItemAdded;
-        EventManager.OnAugmentationDeleted -= OnErobsonItemDeleted;
+        EventManager.OnAugmentationObjectCreated -= OnERobsonItemAdded;
+        EventManager.OnAugmentationDeleted -= OnERobsonItemDeleted;
         EventManager.OnActivitySaved -= SaveJson;
-        EventManager.OnActivityStarted -= OnActivateAction;
+        EventManager.OnStepActivatedStamp -= OnActivateAction;
     }
-
 
 
     /// <summary>
     /// Load the circuit data from json file
     /// </summary>
-    private async void LoadeRobsonCircuit()
+    private async void LoadRobsonCircuit()
     {
         //Load json file
         ERobsonCircuit circuit = null;
-        var jsonpath = $"{eRobsonDataFolder}/eRobsonCircuit.json";
-        if (File.Exists(jsonpath))
+        var jsonPath = $"{_eRobsonDataFolder}/eRobsonCircuit.json";
+        if (File.Exists(jsonPath))
         {
-            circuit = JsonUtility.FromJson<ERobsonCircuit>(File.ReadAllText(jsonpath));
+            circuit = JsonUtility.FromJson<ERobsonCircuit>(await File.ReadAllTextAsync(jsonPath));
         }
 
         var activates = activityManager.ActiveAction.enter.activates;
@@ -124,63 +125,73 @@ public class ErobsonItemManager : MonoBehaviour
 
                 var erobsonItemPoiObject = GameObject.Find(toggleObject.poi);
 
-                if (erobsonItemPoiObject)
+                //eRobson object not found!
+                if (!erobsonItemPoiObject)
                 {
-                    var erobsonItem = erobsonItemPoiObject.GetComponentInChildren<eROBSONItems>();
+                    continue;
+                }
 
-                    while (!erobsonItem)
+                var erobsonItem = erobsonItemPoiObject.GetComponentInChildren<eROBSONItems>();
+
+                var timer = 0;
+
+                //Wait to be sure we will get eROBSONItems (not more than 1 sec)
+                while (!erobsonItem && timer < 20)
+                {
+                    erobsonItem = erobsonItemPoiObject.GetComponentInChildren<eROBSONItems>();
+                    timer++;
+                    await Task.Delay(50);
+                }
+
+                //Still not found! Go for the next eRobson item
+                if (erobsonItem == null)
+                {
+                    continue;
+                }
+
+                if (!ERobsonItemsList.Contains(erobsonItem))
+                {
+                    ERobsonItemsList.Add(erobsonItem);
+                }
+
+                //Check and adjust connected bits
+                if (circuit != null)
+                {
+                    try
                     {
-                        erobsonItem = erobsonItemPoiObject.GetComponentInChildren<eROBSONItems>();
-                        await Task.Delay(30);
-                    }
+                        foreach (var connectedBit in circuit.connectedbitsList)
+                        {
+                            //This connected bit is not me
+                            if (connectedBit.poiID != toggleObject.poi)
+                            {
+                                continue;
+                            }
 
-                    if (erobsonItem != null)
+                            //Save the loaded data in a list for using in playmode
+                            erobsonItem.LoadedData = connectedBit;
+
+                            //Apply the loaded info to the bits in editmode
+                            if (RootObject.Instance.activityManager.EditModeActive)
+                            {
+                                ApplySettings(erobsonItem, connectedBit);
+                            }
+                        }
+                    }
+                    catch (Exception e)
                     {
-                        if (!eRobsonItemsList.Contains(erobsonItem))
-                        {
-                            eRobsonItemsList.Add(erobsonItem);
-                        }
-
-                        //Check and adjust connected bits
-                        if (circuit != null)
-                        {
-                            try
-                            {
-                                foreach (var connectedBit in circuit.connectedbitsList)
-                                {
-
-                                    if (connectedBit.PoiID == toggleObject.poi)
-                                    {
-                                        //Save the loaded data in a list for using in playmode
-                                        erobsonItem.LoadedData = connectedBit;
-
-                                        //Apply the loaded info to the bits in editmode
-                                        if (RootObject.Instance.activityManager.EditModeActive)
-                                        {
-                                            ApplySettings(erobsonItem, connectedBit);
-                                        }
-
-                                    }
-                                }
-
-                            }
-                            catch (Exception e)
-                            {
-                                Debug.LogError(e);
-                            }
-                        }
-
-                        //The power source should be added to connected list even if there is not other bits connected
-                        if (erobsonItem.ID == BitID.USBPOWER)
-                        {
-                            AddOrRemoveFromConnectedList(erobsonItem, AddOrRemove.ADD);
-                        }
+                        Debug.LogError(e);
                     }
+                }
+
+                //The power source should be added to connected list even if there is not other bits connected
+                if (erobsonItem.ID == BitID.USBPOWER)
+                {
+                    AddOrRemoveFromConnectedList(erobsonItem, AddOrRemove.ADD);
                 }
             }
         }
 
-
+        CircuitParsed = true;
     }
 
 
@@ -188,46 +199,63 @@ public class ErobsonItemManager : MonoBehaviour
     /// Load the bit settings from json to the prefab
     /// </summary>
     /// <param name="bit"></param>
-    private void ApplySettings(eROBSONItems eROBSONItem, ERobsonItem bitFromJson)
+    private static void ApplySettings(eROBSONItems eROBSONItem, ERobsonItem bitFromJson)
     {
-        eROBSONItem.IsActive = bitFromJson.IsActive;
+        eROBSONItem.IsActive = bitFromJson.isActive;
 
-        eROBSONItem.Value = bitFromJson.Value;
+        eROBSONItem.Value = bitFromJson.value;
 
         eROBSONItem.Dimmable = bitFromJson.Dimmable;
 
-        eROBSONItem.transform.parent.localPosition = bitFromJson.position;
-        eROBSONItem.transform.parent.localRotation = bitFromJson.rotation;
 
-        //Find the the connected bits in the scene and add them as the loaded bit's connectedBit list
+        var poiObject = GameObject.Find(eROBSONItem.poiID);
+        if (poiObject)
+        {
+            var manipulator = poiObject.GetComponentInParent<ObjectManipulator>();
+            if (manipulator)
+            {
+                manipulator.transform.localPosition = bitFromJson.localPosition;
+                manipulator.transform.localRotation = bitFromJson.localRotation;
+            }
+        }
+
+
+        //Find the connected bits in the scene and add them as the loaded bit's connectedBit list
         foreach (var connectedBitID in bitFromJson.connectedbitsID)
         {
             var bit = GameObject.Find(connectedBitID);
             if (bit != null)
             {
-                eROBSONItem.connectedbits.Add(bit.GetComponent<eROBSONItems>());
+                eROBSONItem.ConnectedBits.Add(bit.GetComponent<eROBSONItems>());
             }
         }
 
         //Load the port infos and snap the connected port on editmode
-        for (int i = 0; i < eROBSONItem.Ports.Length; i++)
+        for (var i = 0; i < eROBSONItem.Ports.Length; i++)
         {
             var bitPort = eROBSONItem.Ports[i];
 
-            foreach (var portToLoad in bitFromJson.Ports)
+            foreach (var portToLoad in bitFromJson.ports)
             {
-                if (portToLoad.index == i)
+                //This port is not me
+                if (portToLoad.index != i)
                 {
-                    bitPort.Connected = portToLoad.Connected;
+                    continue;
+                }
 
-                    //Find the port which was connected to this port
-                    var connectedBitToPortGameObject = GameObject.Find(portToLoad.ConnectedPortBitPoiId);
-                    if (connectedBitToPortGameObject)
-                    {
-                        var connectedBitToPort = connectedBitToPortGameObject.GetComponentInChildren<eROBSONItems>();
-                        bitPort.DetectedPortPole = connectedBitToPort.Ports[portToLoad.index];
-                    }
+                bitPort.Connected = portToLoad.connected;
 
+                if (bitPort.PortIsMovable)
+                {
+                    bitPort.PortPosition = portToLoad.position;
+                }
+
+                //Find the port which was connected to this port
+                var connectedBitToPortGameObject = GameObject.Find(portToLoad.connectedPortBitPoiId);
+                if (connectedBitToPortGameObject)
+                {
+                    var connectedBitToPort = connectedBitToPortGameObject.GetComponentInChildren<eROBSONItems>();
+                    bitPort.DetectedPortPole = connectedBitToPort.Ports[portToLoad.index];
                 }
             }
         }
@@ -236,22 +264,26 @@ public class ErobsonItemManager : MonoBehaviour
 
 
     /// <summary>
-    /// When a new erobson augmentation is added to the scene
+    /// When a new eRobson augmentation is added to the scene
     /// </summary>
-    /// <param name="toggleObjectGameObject"></param>
-    private void OnErobsonItemAdded(GameObject erobsonGameObject)
+    /// <param name="eRobsonGameObject"></param>
+    private static void OnERobsonItemAdded(GameObject eRobsonGameObject)
     {
         // add the power source into connect bit list
-        var eRobsonItem = erobsonGameObject.GetComponentInChildren<eROBSONItems>();
-        if (eRobsonItem)
-        {
-            eRobsonItemsList.Add(eRobsonItem);
+        var eRobsonItem = eRobsonGameObject.GetComponentInChildren<eROBSONItems>();
 
-            //The power source should be added to the connected bits list at the start
-            if (eRobsonItem.ID == BitID.USBPOWER)
-            {
-                AddOrRemoveFromConnectedList(eRobsonItem, AddOrRemove.ADD);
-            }
+        //Couldn't find eROBSONItems component
+        if (!eRobsonItem)
+        {
+            return;
+        }
+
+        ERobsonItemsList.Add(eRobsonItem);
+
+        //The power source should be added to the connected bits list at the start
+        if (eRobsonItem.ID == BitID.USBPOWER)
+        {
+            AddOrRemoveFromConnectedList(eRobsonItem, AddOrRemove.ADD);
         }
     }
 
@@ -261,7 +293,7 @@ public class ErobsonItemManager : MonoBehaviour
     /// When the erobson augmentation is removed from the scene
     /// </summary>
     /// <param name="toggleObject"></param>
-    private void OnErobsonItemDeleted(ToggleObject toggleObject)
+    private static void OnERobsonItemDeleted(ToggleObject toggleObject)
     {
         // remove the power source from connect bit list
         if (toggleObject.predicate.StartsWith("eRobson"))
@@ -272,14 +304,14 @@ public class ErobsonItemManager : MonoBehaviour
                 //If power source is deleted initiate all bits
                 if (eRobsonItem.ID == BitID.USBPOWER)
                 {
-                    foreach (var bit in eRobsonItemsList)
+                    foreach (var bit in ERobsonItemsList)
                     {
                         bit.GetComponent<BitsBehaviourController>().Init();
                     }
                 }
 
                 //Remove the deleted bit from the erobson list
-                eRobsonItemsList.Remove(eRobsonItem);
+                ERobsonItemsList.Remove(eRobsonItem);
 
                 //Remove the deleted bit from the connected erobson list
                 AddOrRemoveFromConnectedList(eRobsonItem, AddOrRemove.REMOVE);
@@ -296,24 +328,26 @@ public class ErobsonItemManager : MonoBehaviour
     /// <summary>
     /// When a step is activated
     /// </summary>
-    private void OnActivateAction()
+    private void OnActivateAction(string deviceId, Action activatedAction, string timestamp)
     {
         StartCoroutine(Init());
     }
 
 
-    IEnumerator Init()
+    private IEnumerator Init()
     {
-        while(activityManager.ActiveAction == null)
+        CircuitParsed = false;
+
+        while (activityManager.ActiveAction == null)
         {
             yield return null;
         }
-        eRobsonDataFolder = Path.Combine(activityManager.ActivityPath, $"eRobson/{activityManager.ActiveAction.id}");
+        _eRobsonDataFolder = Path.Combine(activityManager.ActivityPath, $"eRobson/{activityManager.ActiveAction.id}");
 
-        eRobsonItemsList.Clear();
-        eRobsonConnectedItemsList.Clear();
+        ERobsonItemsList.Clear();
+        ERobsonConnectedItemsList.Clear();
 
-        LoadeRobsonCircuit();
+        LoadRobsonCircuit();
     }
 
 
@@ -321,78 +355,112 @@ public class ErobsonItemManager : MonoBehaviour
     /// <summary>
     /// Save the circuit data into a json file
     /// </summary>
-    private void SaveJson()
+    public void SaveJson()
     {
-        //The circuit should only be saved on editmode
-        if (!RootObject.Instance.activityManager.EditModeActive)
-            return;
 
-        var circuit = new ERobsonCircuit();
-        circuit.connectedbitsList = new List<ERobsonItem>();
-
-        foreach (var bit in eRobsonConnectedItemsList)
+        try
         {
-            var bitTosave = new ERobsonItem();
-
-            //Save the poi Id
-            bitTosave.PoiID = bit.poiID;
-
-            //Save the id (Only to be clear onjson file. This will not be used on loading)
-            bitTosave.ID = bit.ID.ToString();
-
-            //Save the ports info
-            var portsToJson = new PortItem[bit.Ports.Length];
-
-            for (int i = 0; i < bit.Ports.Length; i++)
+            //The circuit should only be saved on editMode
+            if (!RootObject.Instance.activityManager.EditModeActive)
             {
-                var p = bit.Ports[i];
+                return;
+            }
 
-                var portToSave = new PortItem();
-                portToSave.index = i;
+            var circuit = new ERobsonCircuit
+            {
+                connectedbitsList = new List<ERobsonItem>(),
+            };
 
-                if (p.DetectedPortPole)
+            foreach (var bit in ERobsonConnectedItemsList)
+            {
+                //When OnActivitySaved is invoked not by pressing save button
+                if (bit == null)
                 {
-                    portToSave.ConnectedPortBitPoiId = p.DetectedPortPole.ERobsonItem.poiID;
+                    ERobsonConnectedItemsList.Clear();
+                    return;
                 }
 
-                portToSave.Connected = p.Connected;
-                portsToJson[i] = portToSave;
+                var bitToSave = new ERobsonItem
+                {
+                    //Save the poi Id
+                    poiID = bit.poiID,
+                    //Save the id (Only to be clear onjson file. This will not be used on loading)
+                    id = bit.ID.ToString(),
+                };
+
+                //Save the ports info
+                var portsToJson = new PortItem[bit.Ports.Length];
+
+                for (var i = 0; i < bit.Ports.Length; i++)
+                {
+                    var port = bit.Ports[i];
+
+                    var portToSave = new PortItem
+                    {
+                        index = i,
+                    };
+
+                    if (port.DetectedPortPole)
+                    {
+                        portToSave.connectedPortBitPoiId = port.DetectedPortPole.ERobsonItem.poiID;
+                    }
+
+                    portToSave.connected = port.Connected;
+
+                    if (port.PortIsMovable)
+                    {
+                        portToSave.position = port.PortPosition;
+                    }
+
+                    portsToJson[i] = portToSave;
+                }
+
+                bitToSave.ports = portsToJson;
+
+                bitToSave.isActive = bit.IsActive;
+
+                bitToSave.Dimmable = bit.Dimmable;
+
+                if (bit.Dimmable)
+                {
+                    bitToSave.value = bit.Value;
+                }
+
+                var poiObject = GameObject.Find(bit.poiID);
+                if (poiObject)
+                {
+                    var manipulator = poiObject.GetComponentInParent<ObjectManipulator>();
+                    if (manipulator)
+                    {
+                        bitToSave.localPosition = manipulator.transform.localPosition;
+                        bitToSave.localRotation = manipulator.transform.localRotation;
+                    }
+                }
+
+                foreach (var connectedBit in bit.ConnectedBits)
+                {
+                    bitToSave.connectedbitsID.Add(connectedBit.poiID);
+                }
+
+                circuit.connectedbitsList.Add(bitToSave);
             }
 
-            bitTosave.Ports = portsToJson;
+            var eRobsonCircuitJson = JsonUtility.ToJson(circuit);
 
-            bitTosave.IsActive = bit.IsActive;
-
-            bitTosave.Dimmable = bit.Dimmable;
-
-            if (bit.Dimmable)
+            if (!Directory.Exists(_eRobsonDataFolder))
             {
-                bitTosave.Value = bit.Value;
+                Directory.CreateDirectory(_eRobsonDataFolder);
             }
 
-            bitTosave.position = bit.transform.parent.localPosition;
+            var jsonPath = $"{_eRobsonDataFolder}/eRobsonCircuit.json";
 
-            bitTosave.rotation = bit.transform.parent.localRotation;
-
-
-            foreach (var connectedBitm in bit.connectedbits)
-            {
-                bitTosave.connectedbitsID.Add(connectedBitm.poiID);
-            }
-
-            circuit.connectedbitsList.Add(bitTosave);
+            //write the json file
+            File.WriteAllText(jsonPath, eRobsonCircuitJson);
         }
-
-        string eRobsonCircuitJson = JsonUtility.ToJson(circuit);
-
-        if (!Directory.Exists(eRobsonDataFolder))
-            Directory.CreateDirectory(eRobsonDataFolder);
-
-        var jsonpath = $"{eRobsonDataFolder}/eRobsonCircuit.json";
-
-        //write the json file
-        File.WriteAllText(jsonpath, eRobsonCircuitJson);
-
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+        }
     }
 
 
@@ -405,13 +473,13 @@ public class ErobsonItemManager : MonoBehaviour
     {
         if (addOrRemove == AddOrRemove.ADD)
         {
-            if (!eRobsonConnectedItemsList.Contains(bit))
-                eRobsonConnectedItemsList.Add(bit);
+            if (!ERobsonConnectedItemsList.Contains(bit))
+                ERobsonConnectedItemsList.Add(bit);
         }
         else if (addOrRemove == AddOrRemove.REMOVE)
         {
-            if (eRobsonConnectedItemsList.Contains(bit))
-                eRobsonConnectedItemsList.Remove(bit);
+            if (ERobsonConnectedItemsList.Contains(bit))
+                ERobsonConnectedItemsList.Remove(bit);
         }
 
         //Debug.LogError(eRobsonConnectedItemsList.Count);
@@ -431,15 +499,15 @@ internal class ERobsonCircuit
 [Serializable]
 public class ERobsonItem
 {
-    public string PoiID;
-    public string ID;
-    public PortItem[] Ports;
-    public bool IsActive;
-    public float Value;
+    public string poiID;
+    public string id;
+    public PortItem[] ports;
+    public bool isActive;
+    public float value;
     public bool Dimmable;
-    public Vector3 position;
-    public Quaternion rotation;
-    public List<string> connectedbitsID = new List<string>();
+    public Vector3 localPosition;
+    public Quaternion localRotation;
+    public List<string> connectedbitsID = new ();
 }
 
 
@@ -447,6 +515,7 @@ public class ERobsonItem
 public class PortItem
 {
     public int index;
-    public bool Connected;
-    public string ConnectedPortBitPoiId;
+    public bool connected;
+    public string connectedPortBitPoiId;
+    public Vector3 position;
 }

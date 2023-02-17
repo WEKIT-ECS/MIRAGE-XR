@@ -3,17 +3,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MirageXR;
 using UnityEngine;
+using Obi;
 
 public class BitsBehaviourController : MonoBehaviour
 {
-
     private eROBSONItems _erobsonItem;
 
     private void Awake()
     {
         _erobsonItem = GetComponent<eROBSONItems>();
     }
+
 
     private void Start()
     {
@@ -118,7 +120,7 @@ public class BitsBehaviourController : MonoBehaviour
 
             CircuitControlling = true;
 
-            var eRobsonItemsList = ErobsonItemManager.eRobsonItemsList;
+            var eRobsonItemsList = ErobsonItemManager.ERobsonItemsList;
 
             //Order the list of bits by "connectedTime" variable
             eRobsonItemsList.OrderBy(e => e.connectedTime);
@@ -129,7 +131,7 @@ public class BitsBehaviourController : MonoBehaviour
             var idx = eRobsonItemsList.FindIndex(i => i.ID == BitID.USBPOWER);
 
             // Move power source item to first if it is not already and it is connected to the circuit
-            if (idx > 0 && ErobsonItemManager.eRobsonConnectedItemsList.Contains(eRobsonItemsList[idx]))
+            if (idx > 0 && ErobsonItemManager.ERobsonConnectedItemsList.Contains(eRobsonItemsList[idx]))
                 MoveToTop(eRobsonItemsList, idx);
 
 
@@ -180,9 +182,9 @@ public class BitsBehaviourController : MonoBehaviour
     /// If exist return the average value otherwise return -1
     /// </summary>
     /// <returns>float</returns>
-    private float CalculateValue(eROBSONItems erobsonItem)
+    private static float CalculateValue(eROBSONItems erobsonItem)
     {
-        var eRobsonConnectedItemsList = ErobsonItemManager.eRobsonConnectedItemsList;
+        var eRobsonConnectedItemsList = ErobsonItemManager.ERobsonConnectedItemsList;
         var dimmablesToBeCaluculated = eRobsonConnectedItemsList.FindAll(b => b.Dimmable == true && eRobsonConnectedItemsList.IndexOf(b) < eRobsonConnectedItemsList.IndexOf(erobsonItem));
 
         if (dimmablesToBeCaluculated.Count == 0)
@@ -207,7 +209,7 @@ public class BitsBehaviourController : MonoBehaviour
     /// </summary>
     /// <param name="bit"></param>
     /// <returns></returns>
-    private async Task<bool> HasConnectedPower(eROBSONItems bit)
+    private static async Task<bool> HasConnectedPower(eROBSONItems bit)
     {
         //Power source doesn't need to be check, it has power :)
         if (bit.ID == BitID.USBPOWER)
@@ -216,7 +218,7 @@ public class BitsBehaviourController : MonoBehaviour
         }
 
         //Check the connected bit
-        foreach (var connectedbit in bit.connectedbits)
+        foreach (var connectedbit in bit.ConnectedBits)
         {
             //The connected bit has both actived and power
             if (connectedbit.HasPower && connectedbit.IsActive)
@@ -287,7 +289,7 @@ public class BitsBehaviourController : MonoBehaviour
     /// Turn on or off the power indictor light depends on it has power(connected) or not
     /// </summary>
     /// <param name="bit"></param>
-    private void SwitchPowerIndicatorLight(eROBSONItems bit)
+    private static void SwitchPowerIndicatorLight(eROBSONItems bit)
     {
         //Turn on/off the power indicators
         if (bit && bit.IndicatorLight)
@@ -300,7 +302,7 @@ public class BitsBehaviourController : MonoBehaviour
     /// The actions which any bit will do on active/deactive status
     /// </summary>
     /// <param name="active"></param>
-    private void BitActionToggle(eROBSONItems bit, bool status)
+    private static void BitActionToggle(eROBSONItems bit, bool status)
     {
         //Turn on/off the power indicators
         SwitchPowerIndicatorLight(bit);
@@ -352,7 +354,7 @@ public class BitsBehaviourController : MonoBehaviour
     /// </summary>
     /// <param name="list"></param>
     /// <param name="index"></param>
-    private void MoveToTop(List<eROBSONItems> list, int index)
+    private static void MoveToTop(List<eROBSONItems> list, int index)
     {
         var item = list[index];
         for (int i = index; i > 0; i--)

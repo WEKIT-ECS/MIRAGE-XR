@@ -1,7 +1,9 @@
-
+using System;
 using MirageXR;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
 
 public enum Pole
@@ -13,152 +15,161 @@ public enum Pole
 
 public class Port : MonoBehaviour
 {
+    private const float RayDistance = 0.02f;
+    private const float SnappingDuration = 2f;
+
     [SerializeField] private Pole pole;
     [SerializeField] private GameObject IncorrectIconPrefab;
+    [SerializeField] private bool reverseRay;
+    [SerializeField] private bool portMovesSeparate;
+    [SerializeField] private FixedPort fixedPort;
 
-    public Port DetectedPortPole
+    public bool PortIsMovable => portMovesSeparate;
+
+    public Vector3 PortPosition
     {
-        get; set;
+        get => fixedPort != null ? fixedPort.transform.localPosition : Vector3.zero;
+        set
+        {
+            if (fixedPort != null)
+            {
+                fixedPort.transform.localPosition = value;
+            }
+        }
     }
+
+    public Port DetectedPortPole { get; set; }
+
+    public bool PortIsMovingSeparately { get; set;}
 
     public bool Connected { get; set; }
 
-    public eROBSONItems ERobsonItem => erobsonItem;
+    public eROBSONItems ERobsonItem { get; private set; }
 
-
-    private GameObject eRobsonItemGameObject;
-    private eROBSONItems erobsonItem;
-
+    private GameObject _eRobsonItemGameObject;
     private bool _shaking;
-
 
     private void Start()
     {
-        eRobsonItemGameObject = transform.parent.gameObject;
-        erobsonItem = eRobsonItemGameObject.GetComponent<eROBSONItems>();
+        fixedPort = GetComponentInParent<FixedPort>();
+        ERobsonItem = GetComponentInParent<eROBSONItems>();
+        _eRobsonItemGameObject = ERobsonItem.gameObject;
     }
 
 
-    private void FixedUpdate()
+    private void Update()
     {
-        if (!erobsonItem.IsMoving)
-            return;
+        var myTransform = transform;
+        var ray = new Ray(myTransform.position, myTransform.forward * (reverseRay ? -1 : 1));
 
-        var colliders = Physics.OverlapSphere(transform.position, 0.0001f, LayerMask.GetMask("eRobsonPort"));
-
-        var WitoudPortForSameBit = new List<Collider>();
-
-        foreach (var col in colliders)
+        // Check if the ray hits any GameObjects within the specified distance
+        if (Physics.Raycast(ray, out var hit, RayDistance, LayerMask.GetMask("eRobsonPort")))
         {
-            if(col.GetComponent<Port>().ERobsonItem != ERobsonItem && col != GetComponent<Collider>())
-            {
-                WitoudPortForSameBit.Add(col);
-            }
+            ControlPortCollision(hit.collider.gameObject);
         }
-
-        if (WitoudPortForSameBit.Count == 0)
+        else
         {
             Disconnect();
         }
+
+        Debug.DrawRay(myTransform.position, myTransform.forward * (RayDistance * (reverseRay ? -1 : 1)), Color.yellow);
     }
 
 
-
     /// <summary>
-    /// When the port collides any other colliders
-    /// </summary>
-    /// <param name="other"></param>
-    private void OnTriggerEnter(Collider other)
-    {
-
-        ControllPortCollision(other.gameObject);
-    }
-
-
-
-    /// <summary>
-    /// Check the informarion of the port which are collided to eachother and
-    /// make a disscion for their connecting regarding to their information
+    /// Check the information of the port which are collided to each other and
+    /// make a dissection for their connecting regarding to their information
     /// </summary>
     /// <param name="collidedPort"></param>
-    private void ControllPortCollision(GameObject collidedPort)
+    private void ControlPortCollision(GameObject collidedPort)
     {
         DetectedPortPole = collidedPort.GetComponent<Port>();
 
         //If the other collider is not a port or it is already connected
-        if (erobsonItem == null || DetectedPortPole == null)
+        if (ERobsonItem == null || DetectedPortPole == null)
         {
             return;
         }
 
         //If the ports are not already connected
         if (Connected || DetectedPortPole.Connected)
-            return;
-
-        //Port is not neutral and the bit NOT moving by the user
-        if (!erobsonItem.IsMoving)
         {
             return;
         }
 
-        //If the bit is connected to atleast one other bit
-        foreach (var port in erobsonItem.Ports)
+        //Port is not neutral and the bit NOT moving by the user
+        if (!ERobsonItem.IsMoving && !PortIsMovingSeparately)
         {
-            if (port.Connected)
-            {
-                return;
-            }
+            return;
+        }
+
+        //If the bit is connected to at least one other bit
+        if (ERobsonItem.Ports.Any(port => port.Connected))
+        {
+            return;
         }
 
         //Check the port can be connected to the detected port
         if (CanBeConnected())
         {
 
+            //The order of calling these three functions is important
             //Make the pole be the parent of the bit
             MakePortBeParent();
 
-            //Disable manipulation
-            erobsonItem.DisableManipulation();
-
-            //Move the bit to the pole of the other bit (Snapping)
-            transform.position = DetectedPortPole.transform.position;
-            transform.rotation = DetectedPortPole.transform.rotation;
+            //Connect the ports
+            Connect(DetectedPortPole);
 
             //Enable manipulation after a while
             StartCoroutine(MakeBitBeParent());
 
-            Connect(DetectedPortPole);
-
         }
         else if (DetectedPortPole.pole != Pole.USB && pole != Pole.USB)
         {
-
-            if (!RootObject.Instance.activityManager.EditModeActive)
-            {
-                if (!_shaking)
-                {
-                    //Show the feedback
-                    var icon = Instantiate(IncorrectIconPrefab, DetectedPortPole.transform.position - Camera.main.transform.forward * 0.1f, Quaternion.identity);
-                    var audioSource = icon.GetComponent<AudioSource>();
-
-                    if (!audioSource.isPlaying)
-                    {
-                        audioSource.Play();
-                        StartCoroutine(Skake(erobsonItem.transform));
-
-                        if(icon)
-                            Destroy(icon, audioSource.clip.length);
-                    }
-                }
-
-            }
-
+            DisplayWrongConnectivityMessage();
             Disconnect();
         }
     }
 
 
-    private IEnumerator Skake(Transform go)
+    /// <summary>
+    /// Display an error icon with sound on the port
+    /// </summary>
+    private void DisplayWrongConnectivityMessage()
+    {
+        if (RootObject.Instance.activityManager.EditModeActive)
+        {
+            return;
+        }
+
+        if (_shaking)
+        {
+            return;
+        }
+
+        //Show the feedback
+        var icon = Instantiate(IncorrectIconPrefab, DetectedPortPole.transform.position - Camera.main.transform.forward * 0.1f, Quaternion.identity);
+        var audioSource = icon.GetComponent<AudioSource>();
+
+        if (!audioSource.isPlaying)
+        {
+            audioSource.Play();
+            StartCoroutine(Shake(ERobsonItem.transform));
+
+            if (icon)
+            {
+                Destroy(icon, audioSource.clip.length);
+            }
+        }
+    }
+
+
+    /// <summary>
+    /// Shake the gameobject
+    /// </summary>
+    /// <param name="go"></param>
+    /// <returns></returns>
+    private IEnumerator Shake(Transform go)
     {
         _shaking = true;
 
@@ -187,30 +198,23 @@ public class Port : MonoBehaviour
     {
         var connectIt = false;
 
-        if (RootObject.Instance.activityManager.EditModeActive || erobsonItem.LoadedData == null)
+        if (RootObject.Instance.activityManager.EditModeActive || ERobsonItem.LoadedData == null)
         {
-            var isUSBConnection = DetectedPortPole.pole == Pole.USB && pole == Pole.USB;
+            var isUsbConnection = DetectedPortPole.pole == Pole.USB && pole == Pole.USB;
             var hasDifferentPole = DetectedPortPole.pole != pole && DetectedPortPole.pole != Pole.USB && pole != Pole.USB;
-            var isAlreadyConnected = erobsonItem.connectedbits.Contains(DetectedPortPole.erobsonItem);
+            var isAlreadyConnected = ERobsonItem.ConnectedBits.Contains(DetectedPortPole.ERobsonItem);
 
-            connectIt = (hasDifferentPole || isUSBConnection) && !isAlreadyConnected;
+            connectIt = (hasDifferentPole || isUsbConnection) && !isAlreadyConnected;
         }
         else
         {
-            if (erobsonItem.LoadedData.connectedbitsID.Contains(DetectedPortPole.erobsonItem.poiID))
+            if (ERobsonItem.LoadedData.connectedbitsID.Contains(DetectedPortPole.ERobsonItem.poiID))
             {
                 connectIt = true;
             }
         }
 
-
         return connectIt;
-    }
-
-
-    private void OnTriggerExit(Collider other)
-    {
-        Disconnect();
     }
 
 
@@ -219,9 +223,11 @@ public class Port : MonoBehaviour
     /// </summary>
     private void MakePortBeParent()
     {
-        foreach (var child in eRobsonItemGameObject.GetComponentsInChildren<Transform>())
+        if (PortIsMovable) return;
+
+        foreach (var child in _eRobsonItemGameObject.GetComponentsInChildren<Transform>())
         {
-            if (child.parent == eRobsonItemGameObject.transform)
+            if (child.parent == _eRobsonItemGameObject.transform)
             {
                 child.SetParent(transform);
             }
@@ -232,22 +238,29 @@ public class Port : MonoBehaviour
     /// <summary>
     /// Make the bit be the parent of its children and both ports (negative and positive) again
     /// </summary>
-    IEnumerator MakeBitBeParent()
+    private IEnumerator MakeBitBeParent()
     {
+        if (PortIsMovable)
+        {
+            //Make snap effect be more clear
+            yield return new WaitForSeconds(SnappingDuration);
+            fixedPort.GetComponent<ObjectManipulator>().enabled = true;
+            yield break;
+        }
 
         foreach (var child in transform.GetComponentsInChildren<Transform>())
         {
             if (child.parent == transform || child == transform)
             {
-                child.SetParent(eRobsonItemGameObject.transform);
+                child.SetParent(_eRobsonItemGameObject.transform);
             }
             yield return null;
         }
 
         //Make snap effect be more clear
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(SnappingDuration);
 
-        erobsonItem.EnableManipulation();
+        ERobsonItem.EnableManipulation();
     }
 
 
@@ -256,15 +269,43 @@ public class Port : MonoBehaviour
     /// </summary>
     private void Connect(Port detectedPort)
     {
-        if (detectedPort && detectedPort.erobsonItem)
+        if (detectedPort && detectedPort.ERobsonItem)
         {
             Connected = true;
 
-            if (!erobsonItem.connectedbits.Contains(detectedPort.erobsonItem))
+            if (!ERobsonItem.ConnectedBits.Contains(detectedPort.ERobsonItem))
             {
-                erobsonItem.connectedbits.Add(detectedPort.erobsonItem);
-                erobsonItem.connectedTime = new System.DateTime();
-                ErobsonItemManager.BitConnected(erobsonItem);
+                ERobsonItem.ConnectedBits.Add(detectedPort.ERobsonItem);
+                ERobsonItem.connectedTime = new DateTime();
+                ErobsonItemManager.BitConnected(ERobsonItem);
+            }
+
+            //Move the bit port to the port of the other bit (Snapping)
+            if (!PortIsMovable)
+            {
+                //Disable manipulation
+                ERobsonItem.DisableManipulation();
+                transform.position = DetectedPortPole.transform.position;
+
+                //Move the bit to the detected port
+                transform.rotation = DetectedPortPole.transform.rotation;
+            }
+            else
+            {
+                try
+                {
+                    //Disable manipulation
+                    fixedPort.GetComponent<ObjectManipulator>().enabled = false;
+
+                    //Move the port to the detected port
+                    fixedPort.transform.position = DetectedPortPole.transform.position;
+                }
+                catch (NullReferenceException)
+                {
+                    Debug.LogError("movablePortManipulatorObject in Port component is not assigned. When you" +
+                                   "Check portMovesSeparate, it should be assigned too.");
+                }
+
             }
         }
     }
@@ -275,23 +316,22 @@ public class Port : MonoBehaviour
     /// </summary>
     private void Disconnect()
     {
-
-        if (DetectedPortPole)
+        if (!DetectedPortPole)
         {
-            Connected = false;
-
-            //Add connected bit to my list
-            if (erobsonItem.connectedbits.Contains(DetectedPortPole.erobsonItem))
-            {
-                erobsonItem.connectedbits.Remove(DetectedPortPole.erobsonItem);
-            }
-
-            ErobsonItemManager.BitDisconnected(erobsonItem);
-
-            DetectedPortPole = null;
+            return;
         }
 
-    }
+        Connected = false;
 
+        //Add connected bit to my list
+        if (ERobsonItem.ConnectedBits.Contains(DetectedPortPole.ERobsonItem))
+        {
+            ERobsonItem.ConnectedBits.Remove(DetectedPortPole.ERobsonItem);
+        }
+
+        ErobsonItemManager.BitDisconnected(ERobsonItem);
+
+        DetectedPortPole = null;
+    }
 
 }
