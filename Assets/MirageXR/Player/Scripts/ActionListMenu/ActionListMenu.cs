@@ -1,4 +1,5 @@
 ﻿using MirageXR;
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -46,7 +47,7 @@ public class ActionListMenu : MonoBehaviour
             GetComponent<Canvas>().enabled = false;
             return;
         }
-        
+
         // hide the upload progress number
         if (uploadProgressText == transform.FindDeepChild("UploadProgress").gameObject)
             uploadProgressText.SetActive(false);
@@ -104,7 +105,7 @@ public class ActionListMenu : MonoBehaviour
     {
         page = 0;
         titleText.text = activityManager.Activity.name;
-        
+
         UpdateUI();
         addActionStepButton = gameObject.transform.Find("Panel").Find("ButtonAdd").gameObject;
     }
@@ -145,7 +146,7 @@ public class ActionListMenu : MonoBehaviour
         {
             return;
         }
-        
+
         int activeIndex = activityManager.ActionsOfTypeAction.IndexOf(activityManager.ActiveAction);
         previousStepButton.interactable = activeIndex > 0;
 
@@ -207,7 +208,7 @@ public class ActionListMenu : MonoBehaviour
         if (targetAnnotation != null)
         {
             Transform target = CorrectTargetObject(targetAnnotation);
-            
+
             TaskStationDetailMenu.Instance.NavigatorTarget = target;
             TaskStationDetailMenu.Instance.TargetPredicate = targetAnnotation.predicate;
         }
@@ -219,21 +220,31 @@ public class ActionListMenu : MonoBehaviour
 
     public static Transform CorrectTargetObject(ToggleObject annotation)
     {
-        Transform target;
-        switch (annotation.predicate)
+        Transform target = GameObject.Find(annotation.poi).transform;
+
+        try
         {
-            case string type when type.StartsWith("char"):
-                target = GameObject.Find(annotation.poi).GetComponentInChildren<MirageXR.CharacterController>().transform;
-                break;
-            case string type when type.StartsWith("pick"):
-                target = GameObject.Find(annotation.poi).GetComponentInChildren<PickAndPlaceController>().PickObject;
-                break;
-            case "ghosttracks":
-                target = GameObject.Find(annotation.poi).GetComponentInChildren<GhostRecordPlayer>().transform;
-                break;
-            default:
-                target = GameObject.Find(annotation.poi).transform;
-                break;
+            switch (annotation.predicate)
+            {
+
+                case string type when type.StartsWith("char"):
+                    target = target.GetComponentInChildren<MirageXR.CharacterController>().transform;
+                    break;
+                case string type when type.StartsWith("pick"):
+                    target = target.GetComponentInChildren<PickAndPlaceController>().PickObject;
+                    break;
+                case "ghosttracks":
+                    target = target.GetComponentInChildren<GhostRecordPlayer>().transform;
+                    break;
+                default:
+                    //for all other augmentations the model will be the first child of the poi
+                    target = target.GetChild(0);
+                    break;
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Could not find model for augmentation " + annotation.predicate + " at POI: " + annotation.poi);
         }
 
         return target;
@@ -241,76 +252,76 @@ public class ActionListMenu : MonoBehaviour
 
 
 
-    private void OnActivateAction(string action)
+private void OnActivateAction(string action)
+{
+    CheckStepButtons();
+}
+
+private void OnDeactivateAction(string action, bool doNotActivateNextStep)
+{
+    CheckStepButtons();
+}
+
+/// <summary>
+/// Activate next action.
+/// </summary>
+public void NextAction()
+{
+    var actionList = activityManager.ActionsOfTypeAction;
+
+    // return if there is no next action
+    if (actionList.IndexOf(activityManager.ActiveAction) >= actionList.Count - 1) return;
+
+    if (activityManager.ActiveAction != null)
     {
-        CheckStepButtons();
+        activityManager.ActiveAction.isCompleted = true;
     }
 
-    private void OnDeactivateAction(string action, bool doNotActivateNextStep)
-    {
-        CheckStepButtons();
-    }
+    activityManager.ActivateNextAction();
 
-    /// <summary>
-    /// Activate next action.
-    /// </summary>
-    public void NextAction()
-    {
-        var actionList = activityManager.ActionsOfTypeAction;
+    TaskStationDetailMenu.Instance.SelectedButton = null;
 
-        // return if there is no next action
-        if (actionList.IndexOf(activityManager.ActiveAction) >= actionList.Count - 1) return;
+    CheckStepButtons();
+}
 
-        if (activityManager.ActiveAction != null)
-        {
-            activityManager.ActiveAction.isCompleted = true;
-        }
+/// <summary>
+/// Force activate previous action.
+/// </summary>
+public void PreviousAction()
+{
+    activityManager.ActivatePreviousAction();
 
-        activityManager.ActivateNextAction();
+    CheckStepButtons();
+}
 
-        TaskStationDetailMenu.Instance.SelectedButton = null;
+public void NextPage()
+{
+    Page++;
+}
 
-        CheckStepButtons();
-    }
+public void PreviousPage()
+{
+    Page--;
+}
 
-    /// <summary>
-    /// Force activate previous action.
-    /// </summary>
-    public void PreviousAction()
-    {
-        activityManager.ActivatePreviousAction();
+public async void AddAction()
+{
+    await activityManager.AddAction(Vector3.zero);
+}
 
-        CheckStepButtons();
-    }
+private void OnActionCreated(MirageXR.Action action)
+{
+    UpdateUI();
+}
 
-    public void NextPage()
-    {
-        Page++;
-    }
+private void OnActionChanged(MirageXR.Action action)
+{
+    UpdateUI();
+}
 
-    public void PreviousPage()
-    {
-        Page--;
-    }
-
-    public async void AddAction()
-    {
-        await activityManager.AddAction(Vector3.zero);
-    }
-
-    private void OnActionCreated(Action action)
-    {
-        UpdateUI();
-    }
-
-    private void OnActionChanged(Action action)
-    {
-        UpdateUI();
-    }
-
-    private void OnActionDeleted(string actionId)
-    {
-        activityManager.ActivateNextAction();
-        UpdateUI();
-    }
+private void OnActionDeleted(string actionId)
+{
+    activityManager.ActivateNextAction();
+    UpdateUI();
+}
 }
