@@ -113,8 +113,8 @@ public class BitsBehaviourController : MonoBehaviour
     /// </summary>
     public async void ControlCircuit()
     {
-        try
-        {
+        //try
+        //{
             if (CircuitControlling)
                 return;
 
@@ -123,7 +123,7 @@ public class BitsBehaviourController : MonoBehaviour
             var eRobsonItemsList = ErobsonItemManager.ERobsonItemsList;
 
             //Order the list of bits by "connectedTime" variable
-            eRobsonItemsList.OrderBy(e => e.connectedTime);
+            eRobsonItemsList = eRobsonItemsList.OrderBy(e => e.connectedTime).ToList();
 
 
             //If the bit is a power source move it on top
@@ -132,13 +132,18 @@ public class BitsBehaviourController : MonoBehaviour
 
             // Move power source item to first if it is not already and it is connected to the circuit
             if (idx > 0 && ErobsonItemManager.ERobsonConnectedItemsList.Contains(eRobsonItemsList[idx]))
+            {
                 MoveToTop(eRobsonItemsList, idx);
+            }
 
 
             //Check all bits and deactivate all bits after this deactivated bit
             foreach (var eRobsonItem in eRobsonItemsList)
             {
-                if (!eRobsonItem) continue;
+                if (!eRobsonItem)
+                {
+                    continue;
+                }
 
                 //Check the bits which are connected to this bit
                 var hasConnectedPower = await HasConnectedPower(eRobsonItem);
@@ -167,13 +172,13 @@ public class BitsBehaviourController : MonoBehaviour
             _erobsonItem.SetValueText(_erobsonItem.ID);
 
             CircuitControlling = false;
-        }
-        catch (Exception e)
-        {
+    //}
+    //    catch (Exception e)
+    //    {
 
-            CircuitControlling = false;
-            Debug.LogError(e);
-        }
+    //        CircuitControlling = false;
+    //        Debug.LogError(e);
+    //    }
     }
 
 
@@ -188,7 +193,9 @@ public class BitsBehaviourController : MonoBehaviour
         var dimmablesToBeCaluculated = eRobsonConnectedItemsList.FindAll(b => b.Dimmable == true && eRobsonConnectedItemsList.IndexOf(b) < eRobsonConnectedItemsList.IndexOf(erobsonItem));
 
         if (dimmablesToBeCaluculated.Count == 0)
+        {
             return -1;
+        }
 
 
         float valueSum = 0;
@@ -228,14 +235,11 @@ public class BitsBehaviourController : MonoBehaviour
                 {
                     return true;
                 }
-                else //If it is not power source check all previous bits are connected or not 
+                //If it is not power source check all previous bits are connected or not 
+                //Do not check the bit itself again
+                if (connectedbit != bit)
                 {
-                    //Do not check the bit itself again
-                    if (connectedbit != bit)
-                    {
-                        return await HasConnectedPower(connectedbit);
-                    }
-
+                    return await HasConnectedPower(connectedbit);
                 }
             }
         }
@@ -293,7 +297,9 @@ public class BitsBehaviourController : MonoBehaviour
     {
         //Turn on/off the power indicators
         if (bit && bit.IndicatorLight)
+        {
             bit.IndicatorLight.SwitchLight(bit.HasPower);
+        }
     }
 
 
@@ -302,7 +308,7 @@ public class BitsBehaviourController : MonoBehaviour
     /// The actions which any bit will do on active/deactive status
     /// </summary>
     /// <param name="active"></param>
-    private static void BitActionToggle(eROBSONItems bit, bool status)
+    private static async void BitActionToggle(eROBSONItems bit, bool status)
     {
         //Turn on/off the power indicators
         SwitchPowerIndicatorLight(bit);
@@ -324,6 +330,20 @@ public class BitsBehaviourController : MonoBehaviour
                 var light = bit.GetComponentInChildren<Light>();
                 light.enabled = status;
                 light.intensity = averageValue;
+
+                //Change the material of the light bulb
+                var lightMeshRenderer = light.GetComponentInParent<MeshRenderer>();
+                Material lightMaterial;
+                if (status)
+                {
+                    lightMaterial = await ReferenceLoader.GetAssetReferenceAsync<Material>("eROBSON/Materials/LightOnMaterial");
+                }
+                else
+                {
+                    lightMaterial = await ReferenceLoader.GetAssetReferenceAsync<Material>("eROBSON/Materials/LightOffMaterial");
+                }
+
+                lightMeshRenderer.material = lightMaterial;
                 break;
             case BitID.O6BUZZER:
                 break;
@@ -357,8 +377,10 @@ public class BitsBehaviourController : MonoBehaviour
     private static void MoveToTop(List<eROBSONItems> list, int index)
     {
         var item = list[index];
-        for (int i = index; i > 0; i--)
+        for (var i = index; i > 0; i--)
+        {
             list[i] = list[i - 1];
+        }
         list[0] = item;
     }
 

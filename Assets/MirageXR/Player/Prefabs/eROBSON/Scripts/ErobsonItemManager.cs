@@ -207,6 +207,15 @@ public class ErobsonItemManager : MonoBehaviour
 
         eROBSONItem.Dimmable = bitFromJson.Dimmable;
 
+        //Load the wire position if the bit has wire
+        if (eROBSONItem.HasWire)
+        {
+            var wireEndPosition = eROBSONItem.GetComponentInChildren<FixedPort>();
+            if (wireEndPosition)
+            {
+                wireEndPosition.transform.localPosition = bitFromJson.wireEndPosition;
+            }
+        }
 
         var poiObject = GameObject.Find(eROBSONItem.poiID);
         if (poiObject)
@@ -244,11 +253,6 @@ public class ErobsonItemManager : MonoBehaviour
                 }
 
                 bitPort.Connected = portToLoad.connected;
-
-                if (bitPort.PortIsMovable)
-                {
-                    bitPort.PortPosition = portToLoad.position;
-                }
 
                 //Find the port which was connected to this port
                 var connectedBitToPortGameObject = GameObject.Find(portToLoad.connectedPortBitPoiId);
@@ -407,11 +411,6 @@ public class ErobsonItemManager : MonoBehaviour
 
                     portToSave.connected = port.Connected;
 
-                    if (port.PortIsMovable)
-                    {
-                        portToSave.position = port.PortPosition;
-                    }
-
                     portsToJson[i] = portToSave;
                 }
 
@@ -439,7 +438,18 @@ public class ErobsonItemManager : MonoBehaviour
 
                 foreach (var connectedBit in bit.ConnectedBits)
                 {
+                    if (!connectedBit) continue;
                     bitToSave.connectedbitsID.Add(connectedBit.poiID);
+                }
+
+                //If the bit has a real time simulated wire save the position of it
+                if (bit.HasWire)
+                {
+                    var wireEndPosition = bit.GetComponentInChildren<FixedPort>();
+                    if (wireEndPosition)
+                    {
+                        bitToSave.wireEndPosition = wireEndPosition.transform.localPosition;
+                    }
                 }
 
                 circuit.connectedbitsList.Add(bitToSave);
@@ -456,7 +466,7 @@ public class ErobsonItemManager : MonoBehaviour
 
             //write the json file
             File.WriteAllText(jsonPath, eRobsonCircuitJson);
-        }
+    }
         catch (Exception e)
         {
             Debug.LogError(e);
@@ -508,6 +518,7 @@ public class ERobsonItem
     public Vector3 localPosition;
     public Quaternion localRotation;
     public List<string> connectedbitsID = new ();
+    public Vector3 wireEndPosition;
 }
 
 
@@ -517,5 +528,4 @@ public class PortItem
     public int index;
     public bool connected;
     public string connectedPortBitPoiId;
-    public Vector3 position;
 }

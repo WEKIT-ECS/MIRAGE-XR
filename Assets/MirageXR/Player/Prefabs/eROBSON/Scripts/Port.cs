@@ -26,18 +26,6 @@ public class Port : MonoBehaviour
 
     public bool PortIsMovable => portMovesSeparate;
 
-    public Vector3 PortPosition
-    {
-        get => fixedPort != null ? fixedPort.transform.localPosition : Vector3.zero;
-        set
-        {
-            if (fixedPort != null)
-            {
-                fixedPort.transform.localPosition = value;
-            }
-        }
-    }
-
     public Port DetectedPortPole { get; set; }
 
     public bool PortIsMovingSeparately { get; set;}

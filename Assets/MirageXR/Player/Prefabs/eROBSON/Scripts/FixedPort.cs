@@ -48,7 +48,7 @@ public class FixedPort : MonoBehaviour
     private void OnMovingStop(ManipulationEventData data)
     {
         _moving = false;
-        _myTransform.position = _tempPosition;
+        //_myTransform.position = _tempPosition;
         ErobsonItemManager.Instance.SaveJson();
     }
 
@@ -64,6 +64,10 @@ public class FixedPort : MonoBehaviour
             _tempPosition = _myTransform.position;
         }
 
+        if (!_myPort)
+        {
+            return;
+        }
         _myPort.PortIsMovingSeparately = _moving;
     }
 

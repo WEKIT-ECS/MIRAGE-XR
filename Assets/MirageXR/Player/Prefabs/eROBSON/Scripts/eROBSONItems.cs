@@ -33,6 +33,7 @@ public class eROBSONItems : MirageXRPrefab
     [Tooltip("The bit id")]
     [SerializeField] private BitID id;
     [SerializeField] private TextMeshProUGUI valueText;
+    [SerializeField] private bool hasWire;
 
     private IndicatorLight indicatorLight;
 
@@ -57,6 +58,8 @@ public class eROBSONItems : MirageXRPrefab
     public Port[] Ports => ports;
 
     public bool IsMoving { get; private set; }
+
+    public bool HasWire => hasWire;
 
     public bool IsActive
     {
