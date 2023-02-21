@@ -216,10 +216,7 @@ public class ContentListView_v2 : BaseView
         _currentStep.instruction.title = newTitle;
         EventManager.NotifyActionModified(_currentStep);
 
-        if (_info.activeInHierarchy)
-        {
-            activityManager.SaveData();
-        }
+        activityManager.SaveData();
     }
 
     private void OnStepDescriptionChanged(string newDescription)
@@ -227,10 +224,7 @@ public class ContentListView_v2 : BaseView
         _currentStep.instruction.description = newDescription;
         EventManager.NotifyActionModified(_currentStep);
 
-        if (_info.activeInHierarchy)
-        {
-            activityManager.SaveData();
-        }
+        activityManager.SaveData();
     }
 
     private void OnAnnotationSelected(ToggleObject annotation)
