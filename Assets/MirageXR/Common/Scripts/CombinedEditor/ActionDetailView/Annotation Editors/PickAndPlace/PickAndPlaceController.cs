@@ -154,7 +154,7 @@ namespace MirageXR
                 };
 
                 string pickAndPlaceData = JsonUtility.ToJson(positions);
-                if (!Directory.Exists($"{_activityManager.ActivityPath}/pickandplaceinfo "))
+                if (!Directory.Exists($"{_activityManager.ActivityPath}/pickandplaceinfo"))
                 {
                     Directory.CreateDirectory($"{_activityManager.ActivityPath}/pickandplaceinfo");
                 }
@@ -171,7 +171,7 @@ namespace MirageXR
             }
             catch (Exception e) 
             {
-                Debug.Log("Pick and Place Exception " + e); 
+                Debug.LogError("Pick and Place Exception " + e); 
             }
         }
 
@@ -204,7 +204,7 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-           SavePositions();
+            SavePositions();
         }
 
         private void CheckTrigger()
