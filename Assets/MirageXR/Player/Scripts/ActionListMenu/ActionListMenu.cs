@@ -252,76 +252,76 @@ public class ActionListMenu : MonoBehaviour
 
 
 
-private void OnActivateAction(string action)
-{
-    CheckStepButtons();
-}
-
-private void OnDeactivateAction(string action, bool doNotActivateNextStep)
-{
-    CheckStepButtons();
-}
-
-/// <summary>
-/// Activate next action.
-/// </summary>
-public void NextAction()
-{
-    var actionList = activityManager.ActionsOfTypeAction;
-
-    // return if there is no next action
-    if (actionList.IndexOf(activityManager.ActiveAction) >= actionList.Count - 1) return;
-
-    if (activityManager.ActiveAction != null)
+    private void OnActivateAction(string action)
     {
-        activityManager.ActiveAction.isCompleted = true;
+        CheckStepButtons();
     }
 
-    activityManager.ActivateNextAction();
+    private void OnDeactivateAction(string action, bool doNotActivateNextStep)
+    {
+        CheckStepButtons();
+    }
 
-    TaskStationDetailMenu.Instance.SelectedButton = null;
+    /// <summary>
+    /// Activate next action.
+    /// </summary>
+    public void NextAction()
+    {
+        var actionList = activityManager.ActionsOfTypeAction;
 
-    CheckStepButtons();
-}
+        // return if there is no next action
+        if (actionList.IndexOf(activityManager.ActiveAction) >= actionList.Count - 1) return;
 
-/// <summary>
-/// Force activate previous action.
-/// </summary>
-public void PreviousAction()
-{
-    activityManager.ActivatePreviousAction();
+        if (activityManager.ActiveAction != null)
+        {
+            activityManager.ActiveAction.isCompleted = true;
+        }
 
-    CheckStepButtons();
-}
+        activityManager.ActivateNextAction();
 
-public void NextPage()
-{
-    Page++;
-}
+        TaskStationDetailMenu.Instance.SelectedButton = null;
 
-public void PreviousPage()
-{
-    Page--;
-}
+        CheckStepButtons();
+    }
 
-public async void AddAction()
-{
-    await activityManager.AddAction(Vector3.zero);
-}
+    /// <summary>
+    /// Force activate previous action.
+    /// </summary>
+    public void PreviousAction()
+    {
+        activityManager.ActivatePreviousAction();
 
-private void OnActionCreated(MirageXR.Action action)
-{
-    UpdateUI();
-}
+        CheckStepButtons();
+    }
 
-private void OnActionChanged(MirageXR.Action action)
-{
-    UpdateUI();
-}
+    public void NextPage()
+    {
+        Page++;
+    }
 
-private void OnActionDeleted(string actionId)
-{
-    activityManager.ActivateNextAction();
-    UpdateUI();
-}
+    public void PreviousPage()
+    {
+        Page--;
+    }
+
+    public async void AddAction()
+    {
+        await activityManager.AddAction(Vector3.zero);
+    }
+
+    private void OnActionCreated(MirageXR.Action action)
+    {
+        UpdateUI();
+    }
+
+    private void OnActionChanged(MirageXR.Action action)
+    {
+        UpdateUI();
+    }
+
+    private void OnActionDeleted(string actionId)
+    {
+        activityManager.ActivateNextAction();
+        UpdateUI();
+    }
 }
