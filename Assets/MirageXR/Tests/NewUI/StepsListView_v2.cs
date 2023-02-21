@@ -337,20 +337,14 @@ public class StepsListView_v2 : BaseView
         activityManager.Activity.name = title;
         _textActivityName.text = title;
 
-        if (_info.activeInHierarchy)
-        {
-            activityManager.SaveData();
-        }
+        activityManager.SaveData();
     }
 
     private void OnActivityDescriptionEndEdit(string description)
     {
         activityManager.Activity.description = description;
 
-        if (_info.activeInHierarchy)
-        {
-            activityManager.SaveData();
-        }
+        activityManager.SaveData();
     }
 
     private void OnCalibrationPressed()
