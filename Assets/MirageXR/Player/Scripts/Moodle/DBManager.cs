@@ -60,6 +60,9 @@ namespace MirageXR
         private const string REMEMBER_USER_KEY = "RememberUser";
         private const bool REMEMBER_USER_DEFAULT = false;
 
+        private const string DEVELOP_MODE_KEY = "DevelopMode";
+        private const bool DEVELOP_MODE_DEFAULT = false;
+
         private const string REMEMBER_SKETCHFAB_USER_KEY = "RememberSketchfabUser";
         private const bool REMEMBER_SKETCHFAB_USER_DEFAULT = false;
 
@@ -76,6 +79,15 @@ namespace MirageXR
 
         private const string SKETCHFAB_TOKEN_RENEW_KEY = "Sketchfab_token_last_renew_date";
         private const string SKETCHFAB_TOKEN_RENEW_DEFAULT = "";
+
+        private const string LOCAL_SAVE = "LocalSave";
+        private const bool LOCAL_SAVE_DEFAULT = true;
+
+        private const string CLOUD_SAVE = "CloudSave";
+        private const bool CLOUD_SAVE_DEFAULT = false;
+
+        private const string SHOW_PUBLIC_UPLOAD_WARNING = "DontShowPublicUploadWarning";
+        private const bool SHOW_PUBLIC_UPLOAD_WARNING_DEFAULT = true;
 
 
         private const int SKETCHFAB_RENEW_DYAS_COOLDOWN = 5;
@@ -101,11 +113,16 @@ namespace MirageXR
 
         private static readonly PrefsBoolValue _publicUploadPrivacy = new PrefsBoolValue(UPLOAD_PRIVACY_KEY, PUBLIC_UPLOAD_PRIVACY_DEFAULT);
         private static readonly PrefsBoolValue _rememberUser = new PrefsBoolValue(REMEMBER_USER_KEY, REMEMBER_USER_DEFAULT);
+        private static readonly PrefsBoolValue _developMode = new PrefsBoolValue(DEVELOP_MODE_KEY, DEVELOP_MODE_DEFAULT);
         private static readonly PrefsBoolValue _rememberSketchfabUser = new PrefsBoolValue(REMEMBER_SKETCHFAB_USER_KEY, REMEMBER_SKETCHFAB_USER_DEFAULT);
         private static readonly PrefsBoolValue _dontShowCalibrationGuide = new PrefsBoolValue(DONT_SHOW_CALIBRATION_GUIDE_KEY, DONT_SHOW_CALIBRATION_GUIDE_DEFAULT);
         private static readonly PrefsStringValue _domain = new PrefsStringValue(MOODLE_URL_KEY, WEKIT_URL);
         private static readonly PrefsStringValue _sketchfabTokenRenewDate = new PrefsStringValue(SKETCHFAB_TOKEN_RENEW_KEY, SKETCHFAB_TOKEN_RENEW_DEFAULT);
         private static readonly PrefsBoolValue _showBigCards = new PrefsBoolValue(SHOW_BIG_CARDS_KEY, SHOW_BIG_CARDS_DEFAULT);
+
+        private static readonly PrefsBoolValue _localSave = new PrefsBoolValue(LOCAL_SAVE, LOCAL_SAVE_DEFAULT);
+        private static readonly PrefsBoolValue _cloudSave = new PrefsBoolValue(CLOUD_SAVE, CLOUD_SAVE_DEFAULT);
+        private static readonly PrefsBoolValue _showPublicUploadWarning = new PrefsBoolValue(SHOW_PUBLIC_UPLOAD_WARNING, SHOW_PUBLIC_UPLOAD_WARNING_DEFAULT);
 
         public static bool isNeedToRenewSketchfabToken => sketchfabLastTokenRenewDate <= DateTime.Now.AddDays(-SKETCHFAB_RENEW_DYAS_COOLDOWN);
 
@@ -125,17 +142,40 @@ namespace MirageXR
             set => _publicUploadPrivacy.Value = value;
         }
 
+        public static bool publicLocalSave
+        {
+            get => _localSave.Value;
+            set => _localSave.Value = value;
+        }
+
+        public static bool publicCloudSave
+        {
+            get => _cloudSave.Value;
+            set => _cloudSave.Value = value;
+        }
+
+        public static bool publicShowPublicUploadWarning
+        {
+            get => _showPublicUploadWarning.Value;
+            set => _showPublicUploadWarning.Value = value;
+        }
+
         public static bool showBigCards
         {
             get => _showBigCards.Value;
             set => _showBigCards.Value = value;
         }
 
-
         public static bool rememberUser
         {
             get => _rememberUser.Value;
             set => _rememberUser.Value = value;
+        }
+
+        public static bool developMode
+        {
+            get => _developMode.Value;
+            set => _developMode.Value = value;
         }
 
         public static bool rememberSketchfabUser
@@ -186,6 +226,8 @@ namespace MirageXR
             token = null;
             userid = null;
             usermail = null;
+            rememberUser = false;
+            LocalFiles.RemoveUsernameAndPassword();
         }
 
     }
