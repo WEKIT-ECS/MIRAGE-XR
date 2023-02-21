@@ -220,10 +220,10 @@ public class ActionListMenu : MonoBehaviour
 
     public static Transform CorrectTargetObject(ToggleObject annotation)
     {
-        Transform target = GameObject.Find(annotation.poi).transform;
-
         try
         {
+            Transform target = GameObject.Find(annotation.poi).transform;
+
             switch (annotation.predicate)
             {
 
@@ -241,13 +241,13 @@ public class ActionListMenu : MonoBehaviour
                     target = target.GetChild(0);
                     break;
             }
+            return target;
         }
         catch (Exception e)
         {
-            Debug.LogError("Could not find model for augmentation " + annotation.predicate + " at POI: " + annotation.poi);
+            Debug.LogError("Could not find model for augmentation " + annotation.predicate + " at POI: " + annotation.poi + "\nException: " + e);
+            return null;
         }
-
-        return target;
     }
 
 
