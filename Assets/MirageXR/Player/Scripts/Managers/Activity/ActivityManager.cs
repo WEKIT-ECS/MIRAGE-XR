@@ -359,7 +359,6 @@ namespace MirageXR
         {
             if (!_isSwitching)
             {
-                await Task.Yield();
                 //Save augmentations extra data(character, pick&place,...) for be carried over to the new action if the augmentation exists in that action
                 SaveData();
                 await ActivityDeactivator(id, doNotActivateNextStep);
