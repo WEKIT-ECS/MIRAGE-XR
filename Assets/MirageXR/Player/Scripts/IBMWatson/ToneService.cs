@@ -30,7 +30,7 @@ public class ToneService : MonoBehaviour
 
 
     [SerializeField] private Text ResultsAnalysis;
-    //public MeshRenderer MacKenzieRenderer;  // main digital human 
+    //public MeshRenderer MacKenzieRenderer;  // main digital human
 
     // Over the shoulder emotional spheres
     [SerializeField] private MeshRenderer sphere_emo_joyRenderer;
@@ -65,7 +65,7 @@ public class ToneService : MonoBehaviour
 
         emotion_threshold = 0.75f; // for loose demo - above 75% seems to work well - may vary by signal
 
-      
+
     }
 
     private void OnGetToneAnalyze(ToneService resp, Dictionary<string, object> customData)
@@ -117,7 +117,7 @@ public class ToneService : MonoBehaviour
 
         // OTHER TEXT - Formatting for On Screen dump - LATER - pretty this up to use standard DESERIALIZE methods and table
         string RAW = (customData["json"].ToString());  // works but long and cannot read
-                                                       //RAW = string.Concat("Tone Response \n", RAW); 
+                                                       //RAW = string.Concat("Tone Response \n", RAW);
         RAW = Regex.Replace(RAW, "tone_categories", " \\\n");
         RAW = Regex.Replace(RAW, "}", "} \\\n");
         RAW = Regex.Replace(RAW, "tone_id", " ");
@@ -133,6 +133,6 @@ public class ToneService : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }

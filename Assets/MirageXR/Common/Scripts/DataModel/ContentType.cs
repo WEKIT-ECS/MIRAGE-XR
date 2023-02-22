@@ -35,15 +35,15 @@ public static class ContentTypeExtenstion
     private const string IMAGEMARKER = "Image marker";
     private const string PLUGIN = "Plugin";
     private const string DRAWING = "Drawing";
-    
+
     private const string PREDICATE_UNKNOWN = "unknown";
     private const string PREDICATE_LABEL = "label";
     private const string PREDICATE_IMAGE = "image";
     private const string PREDICATE_AUDIO = "audio";
     private const string PREDICATE_AUDIO_V2 = "sound"; // TODO: we should leave only one option, but we have several different references in the code. ideally, we should use the index enum
     private const string PREDICATE_VIDEO = "video";
-    private const string PREDICATE_GHOST = "ghosttracks"; 
-    private const string PREDICATE_GHOST_V2 = "ghost"; // TODO:^^^
+    private const string PREDICATE_GHOST = "ghosttracks";
+    private const string PREDICATE_GHOST_V2 = "ghost"; // TODO: ^^^
     private const string PREDICATE_ACT = "act";
     private const string PREDICATE_VFX = "vfx";
     private const string PREDICATE_MODEL = "model";
@@ -58,29 +58,29 @@ public static class ContentTypeExtenstion
     private const string UNKNOWN_HINT = "Unknown";
     private const string IMAGE_HINT = "Take a photo and add it as an augmentation to this action step.";
     private const string VIDEO_HINT = "Record a video and add it as an augmentation to this action step.";
-    private const string AUDIO_HINT = "Record an audio and add it to this action step.";
-    private const string GHOST_HINT = "Ghost track lets you record your movement in the real world and adds it to the this action as a virtual avatar.";
-    private const string LABEL_HINT = "Label augmentation lets you add a text.";
-    private const string ACT_HINT = "Pre-define models which represents verbs.";
-    private const string VFX_HINT = "Visual Effects lets you add effects like fire, explosion, etc.";
-    private const string MODEL_HINT = "You can import 3d models from Sketchfab.com to this action step. Sketchfab is a library with more than 3 million 3d models which half milions of them are free.";
-    private const string CHARACTER_HINT = "Add an AI character to this action. You can choose between different characters that each of them can do different tasks. ";
-    private const string PICKANDPLACE_HINT = "Add flags on an objects.";
+    private const string AUDIO_HINT = "Record an audio and add it to an action step. You can make the audio spatial (3D), so that it plays within a short radius from where it is placed in the physical location. You can also make the audio non-spatial (2D), so that it plays when the user starts the action step.";
+    private const string GHOST_HINT = "The ghost track augmentation is constructed from a recording of your movement in the real world, your hand position, and you voice. You can start the recording, perform a demonstration like you would normally do in the physical location, and MirageXR will add your performance to an action step in a form of a virtual human — a ‘Ghost’.";
+    private const string LABEL_HINT = "lets you attach a text annotation to specific location in 3D space.";
+    private const string ACT_HINT = "Pick action animations to instruct the user what to do - from a rich visual language with 3D animated icons for handling and movement.";
+    private const string VFX_HINT = "Use visual effects like fire, steam, or explosions to capture the user's attention.";
+    private const string MODEL_HINT = "Using the Model augmentation, you can import 3D models from Sketchfab.com to an action step. Sketchfab is a library that gives you access to millions of 3D models, hundreds of thousands of them for free.";
+    private const string CHARACTER_HINT = "Add an AI character to an action step. You can choose between different characters, each of them can do different tasks.";
+    private const string PICKANDPLACE_HINT = "Design your own interactive 3D quiz, where users need to pick and place the right object in the right location.";
     private const string IMAGEMARKER_HINT = "Image marker allows to take a photo of an object (or select a pretrained image target) and thus allow to move task stations with the marker around.";
     private const string PLUGIN_HINT = "Augmentations that are created for specific activities";
     private const string DRAWING_HINT = "Draw in 3d space";
 
-    private const string IMAGE_IMAGE_PATH = "Materials/Textures/imageeditor";
-    private const string VIDEO_IMAGE_PATH = "Materials/Textures/videoeditor";
-    private const string AUDIO_IMAGE_PATH = "Materials/Textures/audioeditor";
-    private const string GHOST_IMAGE_PATH = "Materials/Textures/ghosteditor";
-    private const string LABEL_IMAGE_PATH = "Materials/Textures/labeleditor";
-    private const string ACT_IMAGE_PATH = "Materials/Textures/glypheditor";
-    private const string VFX_IMAGE_PATH = "Materials/Textures/vfxeditor";
-    private const string MODEL_IMAGE_PATH = "Materials/Textures/modeleditor";
-    private const string CHARACTER_IMAGE_PATH = "Materials/Textures/charactereditor";
-    private const string PICKANDPLACE_IMAGE_PATH = "Materials/Textures/pickandplaceeditor";
-    private const string IMAGEMARKER_IMAGE_PATH = "Materials/Textures/imagemarkereditor";
+    private const string IMAGE_IMAGE_PATH = "Icons/Editors/image";
+    private const string VIDEO_IMAGE_PATH = "Icons/Editors/video";
+    private const string AUDIO_IMAGE_PATH = "Icons/Editors/audio";
+    private const string GHOST_IMAGE_PATH = "Icons/Editors/ghost";
+    private const string LABEL_IMAGE_PATH = "Icons/Editors/label";
+    private const string ACT_IMAGE_PATH = "Icons/Editors/action";
+    private const string VFX_IMAGE_PATH = "Icons/Editors/visualeffect";
+    private const string MODEL_IMAGE_PATH = "Icons/Editors/model";
+    private const string CHARACTER_IMAGE_PATH = "Icons/Editors/character";
+    private const string PICKANDPLACE_IMAGE_PATH = "Icons/Editors/pickandplace";
+    private const string IMAGEMARKER_IMAGE_PATH = "Icons/Editors/imagemarker";
     private const string PLUGIN_IMAGE_PATH = "Materials/Textures/plugineditor";
     private const string DRAWING_IMAGE_PATH = "Materials/Textures/drawingeditor";
 
@@ -88,20 +88,20 @@ public static class ContentTypeExtenstion
     {
         switch (type)
         {
-            case ContentType.UNKNOWN:      return UNKNOWN;
-            case ContentType.IMAGE:        return IMAGE;
-            case ContentType.VIDEO:        return VIDEO;
-            case ContentType.AUDIO:        return AUDIO;
-            case ContentType.GHOST:        return GHOST;
-            case ContentType.LABEL:        return LABEL;
-            case ContentType.ACT:          return ACT;
-            case ContentType.VFX:          return VFX;
-            case ContentType.MODEL:        return MODEL;
-            case ContentType.CHARACTER:    return CHARACTER;
+            case ContentType.UNKNOWN: return UNKNOWN;
+            case ContentType.IMAGE: return IMAGE;
+            case ContentType.VIDEO: return VIDEO;
+            case ContentType.AUDIO: return AUDIO;
+            case ContentType.GHOST: return GHOST;
+            case ContentType.LABEL: return LABEL;
+            case ContentType.ACT: return ACT;
+            case ContentType.VFX: return VFX;
+            case ContentType.MODEL: return MODEL;
+            case ContentType.CHARACTER: return CHARACTER;
             case ContentType.PICKANDPLACE: return PICKANDPLACE;
-            case ContentType.IMAGEMARKER:  return IMAGEMARKER;
-            case ContentType.PLUGIN:       return PLUGIN;
-            case ContentType.DRAWING:      return DRAWING;
+            case ContentType.IMAGEMARKER: return IMAGEMARKER;
+            case ContentType.PLUGIN: return PLUGIN;
+            case ContentType.DRAWING: return DRAWING;
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
@@ -116,20 +116,20 @@ public static class ContentTypeExtenstion
     {
         switch (type)
         {
-            case ContentType.IMAGE:        return IMAGE_IMAGE_PATH;
-            case ContentType.VIDEO:        return VIDEO_IMAGE_PATH;
-            case ContentType.AUDIO:        return AUDIO_IMAGE_PATH;
-            case ContentType.GHOST:        return GHOST_IMAGE_PATH;
-            case ContentType.LABEL:        return LABEL_IMAGE_PATH;
-            case ContentType.ACT:          return ACT_IMAGE_PATH;
-            case ContentType.VFX:          return VFX_IMAGE_PATH;
-            case ContentType.MODEL:        return MODEL_IMAGE_PATH;
-            case ContentType.CHARACTER:    return CHARACTER_IMAGE_PATH;
+            case ContentType.IMAGE: return IMAGE_IMAGE_PATH;
+            case ContentType.VIDEO: return VIDEO_IMAGE_PATH;
+            case ContentType.AUDIO: return AUDIO_IMAGE_PATH;
+            case ContentType.GHOST: return GHOST_IMAGE_PATH;
+            case ContentType.LABEL: return LABEL_IMAGE_PATH;
+            case ContentType.ACT: return ACT_IMAGE_PATH;
+            case ContentType.VFX: return VFX_IMAGE_PATH;
+            case ContentType.MODEL: return MODEL_IMAGE_PATH;
+            case ContentType.CHARACTER: return CHARACTER_IMAGE_PATH;
             case ContentType.PICKANDPLACE: return PICKANDPLACE_IMAGE_PATH;
-            case ContentType.IMAGEMARKER:  return IMAGEMARKER_IMAGE_PATH;
-            case ContentType.PLUGIN:       return PLUGIN_IMAGE_PATH;
-            case ContentType.UNKNOWN:      return MODEL_IMAGE_PATH; // TODO: add icon for unknown content type
-            case ContentType.DRAWING:      return DRAWING_IMAGE_PATH;
+            case ContentType.IMAGEMARKER: return IMAGEMARKER_IMAGE_PATH;
+            case ContentType.PLUGIN: return PLUGIN_IMAGE_PATH;
+            case ContentType.UNKNOWN: return MODEL_IMAGE_PATH; // TODO: add icon for unknown content type
+            case ContentType.DRAWING: return DRAWING_IMAGE_PATH;
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
@@ -139,20 +139,20 @@ public static class ContentTypeExtenstion
     {
         switch (type)
         {
-            case ContentType.UNKNOWN:      return UNKNOWN_HINT;
-            case ContentType.IMAGE:        return IMAGE_HINT;
-            case ContentType.VIDEO:        return VIDEO_HINT;
-            case ContentType.AUDIO:        return AUDIO_HINT;
-            case ContentType.GHOST:        return GHOST_HINT;
-            case ContentType.LABEL:        return LABEL_HINT;
-            case ContentType.ACT:          return ACT_HINT;
-            case ContentType.VFX:          return VFX_HINT;
-            case ContentType.MODEL:        return MODEL_HINT;
-            case ContentType.CHARACTER:    return CHARACTER_HINT;
+            case ContentType.UNKNOWN: return UNKNOWN_HINT;
+            case ContentType.IMAGE: return IMAGE_HINT;
+            case ContentType.VIDEO: return VIDEO_HINT;
+            case ContentType.AUDIO: return AUDIO_HINT;
+            case ContentType.GHOST: return GHOST_HINT;
+            case ContentType.LABEL: return LABEL_HINT;
+            case ContentType.ACT: return ACT_HINT;
+            case ContentType.VFX: return VFX_HINT;
+            case ContentType.MODEL: return MODEL_HINT;
+            case ContentType.CHARACTER: return CHARACTER_HINT;
             case ContentType.PICKANDPLACE: return PICKANDPLACE_HINT;
-            case ContentType.IMAGEMARKER:  return IMAGEMARKER_HINT;
-            case ContentType.PLUGIN:       return PLUGIN_HINT;
-            case ContentType.DRAWING:      return DRAWING_HINT;
+            case ContentType.IMAGEMARKER: return IMAGEMARKER_HINT;
+            case ContentType.PLUGIN: return PLUGIN_HINT;
+            case ContentType.DRAWING: return DRAWING_HINT;
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
@@ -162,20 +162,20 @@ public static class ContentTypeExtenstion
     {
         switch (type)
         {
-            case ContentType.UNKNOWN:      return PREDICATE_UNKNOWN;
-            case ContentType.IMAGE:        return PREDICATE_IMAGE;
-            case ContentType.VIDEO:        return PREDICATE_VIDEO;
-            case ContentType.AUDIO:        return PREDICATE_AUDIO;
-            case ContentType.GHOST:        return PREDICATE_GHOST;
-            case ContentType.LABEL:        return PREDICATE_LABEL;
-            case ContentType.ACT:          return PREDICATE_ACT;
-            case ContentType.VFX:          return PREDICATE_VFX;
-            case ContentType.MODEL:        return PREDICATE_MODEL;
-            case ContentType.CHARACTER:    return PREDICATE_CHARACTER;
+            case ContentType.UNKNOWN: return PREDICATE_UNKNOWN;
+            case ContentType.IMAGE: return PREDICATE_IMAGE;
+            case ContentType.VIDEO: return PREDICATE_VIDEO;
+            case ContentType.AUDIO: return PREDICATE_AUDIO;
+            case ContentType.GHOST: return PREDICATE_GHOST;
+            case ContentType.LABEL: return PREDICATE_LABEL;
+            case ContentType.ACT: return PREDICATE_ACT;
+            case ContentType.VFX: return PREDICATE_VFX;
+            case ContentType.MODEL: return PREDICATE_MODEL;
+            case ContentType.CHARACTER: return PREDICATE_CHARACTER;
             case ContentType.PICKANDPLACE: return PREDICATE_PICKANDPLACE;
-            case ContentType.IMAGEMARKER:  return PREDICATE_IMAGEMARKER;
-            case ContentType.PLUGIN:       return PREDICATE_PLUGIN;
-            case ContentType.DRAWING:      return PREDICATE_DRAWING;
+            case ContentType.IMAGEMARKER: return PREDICATE_IMAGEMARKER;
+            case ContentType.PLUGIN: return PREDICATE_PLUGIN;
+            case ContentType.DRAWING: return PREDICATE_DRAWING;
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
@@ -210,7 +210,7 @@ public static class ContentTypeExtenstion
             return ContentType.PLUGIN;
         if (predicateLowCase.Contains(PREDICATE_DRAWING))
             return ContentType.DRAWING;
-        
+
         return ContentType.UNKNOWN;
     }
 }

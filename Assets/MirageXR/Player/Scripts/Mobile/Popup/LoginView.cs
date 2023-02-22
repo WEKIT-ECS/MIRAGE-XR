@@ -17,18 +17,18 @@ public class LoginView : PopupBase
     [SerializeField] private TMP_Text _txtLogout;
     [SerializeField] private GameObject[] _loginObjects;
     [SerializeField] private GameObject[] _logoutObjects;
-    
-    public override void Init(Action<PopupBase> onClose, params object[] args)
+
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        base.Init(onClose, args);
-        
+        base.Initialization(onClose, args);
+
         _inputFieldUserName.SetValidator(IsValidUsername);
         _inputFieldPassword.SetValidator(IsValidPassword);
         _btnRegister.onClick.AddListener(OnClickRegister);
         _btnLogin.onClick.AddListener(OnClickLogin);
         _btnLogout.onClick.AddListener(OnClickLogout);
         _toggleRemember.onValueChanged.AddListener(OnToggleRememberValueChanged);
-            
+
         ResetValues();
     }
 
@@ -54,12 +54,12 @@ public class LoginView : PopupBase
             Toast.Instance.Show("Check your login/password");
         }
     }
-   
+
     private void OnToggleRememberValueChanged(bool value)
     {
         DBManager.rememberUser = value;
     }
-    
+
     private void OnEnable()
     {
         ResetValues();
@@ -78,7 +78,7 @@ public class LoginView : PopupBase
             LocalFiles.RemoveUsernameAndPassword();
         }
     }
-    
+
     private void ShowLogin()
     {
         foreach (var obj in _loginObjects) obj.SetActive(true);
@@ -90,7 +90,7 @@ public class LoginView : PopupBase
         foreach (var obj in _loginObjects) obj.SetActive(false);
         foreach (var obj in _logoutObjects) obj.SetActive(true);
     }
-    
+
     private void ResetValues()
     {
         if (DBManager.LoggedIn)

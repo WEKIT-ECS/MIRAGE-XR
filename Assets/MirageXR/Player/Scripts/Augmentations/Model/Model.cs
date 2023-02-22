@@ -6,7 +6,9 @@ using Siccity.GLTFUtility;
 namespace MirageXR
 {
     public class Model : MirageXRPrefab
-    {
+    { 
+        private static ActivityManager _activityManager => RootObject.Instance.activityManager;
+
         private float startLoadTime = 0.0f;
         private ToggleObject myToggleObject;
         private Animation animation;
@@ -21,6 +23,13 @@ namespace MirageXR
 
         private void OnDestroy()
         {
+            var poiEditor = GetComponentInParent<PoiEditor>();
+
+            if (poiEditor)
+            {
+                poiEditor.EnableBoundsControl(false);
+            }
+
             UnSubscribe();
         }
 
@@ -49,16 +58,16 @@ namespace MirageXR
             myToggleObject = obj;
 
             // Check that url is not empty.
-            if (string.IsNullOrEmpty (obj.url))
+            if (string.IsNullOrEmpty(obj.url))
             {
-                Debug.Log ("Content URL not provided.");
+                Debug.Log("Content URL not provided.");
                 return false;
             }
-             
+
             // Try to set the parent and if it fails, terminate initialization.
-            if (!SetParent (obj))
+            if (!SetParent(obj))
             {
-                Debug.Log ("Couldn't set the parent.");
+                Debug.Log("Couldn't set the parent.");
                 return false;
             }
 
@@ -72,8 +81,9 @@ namespace MirageXR
                 // Setup guide line feature.
                 if (!SetGuide(obj)) return false;
             }
-         
+
             // If all went well, return true.
+            
             return true;
         }
 
@@ -89,7 +99,7 @@ namespace MirageXR
 
         private void OnFinishLoadingAsync(GameObject model, AnimationClip[] clip)
         {
-            if(this == null)
+            if (this == null)
             {
                 Destroy(model);
                 return;
@@ -130,6 +140,13 @@ namespace MirageXR
                 animation.clip.legacy = true;
                 animation.Play();
             }
+
+            var poiEditor = GetComponentInParent<PoiEditor>();
+
+            if (poiEditor)
+            {
+                poiEditor.EnableBoundsControl(true);
+            }
         }
 
         private List<Bounds> colliders;
@@ -167,18 +184,18 @@ namespace MirageXR
                         var newCollider = g.AddComponent<MeshCollider>();
                         colliders.Add(newCollider.bounds);
                     }
-                    
+
                 }
                 else
                 {
                     colliders.Add(g.GetComponent<MeshCollider>().bounds);
                 }
-            }  
+            }
         }
 
         private static void AddCapsuleCollidersToPatient(Transform rootBone)
         {
-            for (int child = 0;  child < rootBone.childCount; child++)
+            for (int child = 0; child < rootBone.childCount; child++)
             {
                 var childBone = rootBone.GetChild(child);
                 var capcoll = childBone.gameObject.AddComponent<CapsuleCollider>();

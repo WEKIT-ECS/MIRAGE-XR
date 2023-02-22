@@ -20,16 +20,6 @@ namespace MirageXR
         [Tooltip("Set to false to read from project's 'Resources' folder; set to true to read from applications 'LocalState' folder on HoloLens, or online, if filename starts with 'http'")]
         [SerializeField] private bool useExternalSource = false;
 
-        [Tooltip("The video texture component")]
-        [SerializeField] private UnityEngine.UI.RawImage _renderTexture;
-
-        [SerializeField] private RectTransform cardRT;
-        [SerializeField] private RectTransform videoRT;
-        [SerializeField] private RectTransform slider;
-        [SerializeField] private RectTransform pause;
-        [SerializeField] private RectTransform stop;
-        [SerializeField] private RectTransform play;
-
         private bool isAudioReady = false;
         private bool isVideoReady = false;
         private bool isPlaying = false;
@@ -46,28 +36,25 @@ namespace MirageXR
 
         private ToggleObject _obj;
 
+        [SerializeField] private GameObject _landscapePlayerObject;
+        [SerializeField] private GameObject _portraitPlayerObject;
+
+
+        [Tooltip("The video texture component")]
+        private UnityEngine.UI.RawImage _renderTexture;
+        [SerializeField] private UnityEngine.UI.RawImage _renderTextureLand;
+        [SerializeField] private UnityEngine.UI.RawImage _renderTexturePort;
+
         private VideoPlayer _videoPlayer;
+        [SerializeField] private VideoPlayer _videoPlayerLandscape;
+        [SerializeField] private VideoPlayer _videoPlayerPortrait;
 
         private AudioSource _audioSource;
+        [SerializeField] private AudioSource _audioSourceLandscape;
+        [SerializeField] private AudioSource _audioSourcePortrait;
 
         public bool VideoClipLoaded => _videoPlayer.clip != null;
         public float VideoDuration => (float)_videoPlayer.length;
-
-        private void Awake()
-        {
-            // _contentPanel = GameObject.FindGameObjectWithTag("ContentPanel").transform;
-            _videoPlayer = transform.Find("VideoCanvas").Find("Slider").GetComponent<VideoPlayer>();
-            _audioSource = transform.Find("VideoCanvas").Find("Slider").GetComponent<AudioSource>();
-
-            // Fix for the missing audio track issue (hopefully...).
-
-            if (ServiceManager.GetService<VideoAudioTrackGlobalService>().UseAudioTrack)
-            {
-                _videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
-                _videoPlayer.EnableAudioTrack(0, true);
-                _videoPlayer.SetTargetAudioSource(0, _audioSource);
-            }
-        }
 
         /// <summary>
         /// Initialization method.
@@ -77,6 +64,31 @@ namespace MirageXR
         public override bool Init(ToggleObject content)
         {
             _obj = content;
+
+            if (_obj.key == "P")
+            {
+                _landscapePlayerObject.SetActive(false);
+                _portraitPlayerObject.SetActive(true);
+
+                _videoPlayer = _videoPlayerPortrait;
+                _audioSource = _audioSourcePortrait;
+                _renderTexture = _renderTexturePort;
+            }
+            else
+            {
+                _landscapePlayerObject.SetActive(true);
+                _portraitPlayerObject.SetActive(false);
+                _videoPlayer = _videoPlayerLandscape;
+                _audioSource = _audioSourceLandscape;
+                _renderTexture = _renderTextureLand;
+            }
+
+            if (ServiceManager.GetService<VideoAudioTrackGlobalService>().UseAudioTrack)
+            {
+                _videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
+                _videoPlayer.EnableAudioTrack(0, true);
+                _videoPlayer.SetTargetAudioSource(0, _audioSource);
+            }
 
             // Check that url is not empty.
             if (string.IsNullOrEmpty(content.url))
@@ -94,7 +106,7 @@ namespace MirageXR
 
             // Rename with the predicate + id to get unique name.
             name = content.predicate;
-            
+
             // Load video from resources.
             videoName = content.url.StartsWith("resources://") ? content.url.Replace("resources://", string.Empty) : content.url;
 
@@ -125,20 +137,6 @@ namespace MirageXR
             videoFilePath = $"file://{videoFilePath}";
 #endif
 
-            if (content.key == "P")
-            {
-                this.transform.eulerAngles = new Vector3(0, 0, -90);
-                
-                play.Rotate(0, 0, 90);
-                pause.Rotate(0, 0, 90);
-                stop.Rotate(0, 0, 90);
-                slider.Rotate(0, 0, 90);
-                slider.localPosition = new Vector3(0.27f, 0, 0);
-            }
-
-
-            videoRT.sizeDelta = new Vector2(160, 90);
-
             SetupNewRenderTexture();
 
             _videoPlayer.url = videoFilePath;
@@ -168,7 +166,6 @@ namespace MirageXR
 
             // Check if trigger is active
             StartCoroutine(ActivateTrigger());
-            Debug.Log("KEY IS: " + content.key);
             // If all went well, return true.
             return base.Init(content);
         }
@@ -228,7 +225,7 @@ namespace MirageXR
 
             var triggerDuration = myTrigger.duration;
             yield return new WaitForSeconds(triggerDuration);
-            
+
             if (!activityManager.IsLastAction(activityManager.ActiveAction))
             {
                 if (activityManager.ActiveAction != null)
@@ -290,7 +287,7 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Set the volume of the audio in the video being played 
+        /// Set the volume of the audio in the video being played
         /// </summary>
         /// <param name="targetVolume">0.0-1.0</param>
         public void SetAudioVolume(float targetVolume)
@@ -338,9 +335,9 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// This method creates a video player according to the input dimensions. 
-        /// Set "videoName" and "audioName" variables before calling this method, or default filenames "video" and "audio" are used. 
-        /// Destroys any already existing video player in this GameObject. 
+        /// This method creates a video player according to the input dimensions.
+        /// Set "videoName" and "audioName" variables before calling this method, or default filenames "video" and "audio" are used.
+        /// Destroys any already existing video player in this GameObject.
         /// PlayVideo() must be called to start the video playback.
         /// </summary>
         /// <param name="width">Use to set video aspect ratio. If 0 or negative, default 16:9 is used.</param>
@@ -373,7 +370,7 @@ namespace MirageXR
             isPlaying = false;
             isPaused = false;
 
-            // Create video player screen        
+            // Create video player screen
             var meshFilter = gameObject.GetComponent<MeshFilter>();
             meshFilter.mesh = CreatePlaneMesh();
             var meshRenderer = gameObject.GetComponent<MeshRenderer>();
@@ -512,16 +509,16 @@ namespace MirageXR
             {
                 name = "PlaneMesh",
                 vertices = new Vector3[] {
-            new Vector3( _width / 2f, -_height / 2f, 0 ),
-            new Vector3( -_width / 2f, -_height / 2f, 0 ),
-            new Vector3( -_width / 2f, _height / 2f, 0 ),
-            new Vector3( _width / 2f, _height / 2f, 0 )
+            new Vector3(_width / 2f, -_height / 2f, 0),
+            new Vector3(-_width / 2f, -_height / 2f, 0),
+            new Vector3(-_width / 2f, _height / 2f, 0),
+            new Vector3(_width / 2f, _height / 2f, 0)
         },
                 uv = new Vector2[] {
-            new Vector2 (1, 0),
-            new Vector2 (0, 0),
-            new Vector2 (0, 1),
-            new Vector2 (1, 1)
+            new Vector2(1, 0),
+            new Vector2(0, 0),
+            new Vector2(0, 1),
+            new Vector2(1, 1)
         },
                 triangles = new int[] { 0, 1, 2, 0, 2, 3 }
             };

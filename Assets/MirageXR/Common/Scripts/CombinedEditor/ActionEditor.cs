@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class ActionEditor : MonoBehaviour
 {
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
-    
+
     [SerializeField] private GameObject TaskStationMenuPanel;
     [SerializeField] private GameObject TaskStationOpenButton;
     [SerializeField] private InputField titleField;
@@ -20,7 +20,7 @@ public class ActionEditor : MonoBehaviour
     [SerializeField] private GameObject annotationAddMenu;
     [SerializeField] private GameObject poiAddItemPrefab;
     [SerializeField] private Button thumbnailButton;
-    [SerializeField] private Text  instructionText;
+    [SerializeField] private Text instructionText;
     [SerializeField] private Text helpText;
 
     [SerializeField] private Transform DefaultAugmentationStartingPoint;
@@ -41,7 +41,7 @@ public class ActionEditor : MonoBehaviour
     [SerializeField] private GameObject imageMarkerPrefab;
     [SerializeField] private GameObject pluginPrefab;
     [SerializeField] private GameObject drawingEditorPrefab;
-    
+
     private LabelEditor labelEditor;
     private AudioEditor audioEditor;
     private ImageEditor imageEditor;
@@ -78,7 +78,7 @@ public class ActionEditor : MonoBehaviour
             annotationAddMenu.SetActive(value && activityManager.EditModeActive);
             poiList.SetActive(!value);
 
-            if(TaskStationDetailMenu.Instance && value)
+            if (TaskStationDetailMenu.Instance && value)
             {
                 StepNavigationTargetCapturing = false;
                 TaskStationDetailMenu.Instance.SelectedButton = null;
@@ -106,14 +106,14 @@ public class ActionEditor : MonoBehaviour
     private void OnEnable()
     {
         EventManager.OnEditModeChanged += SetEditModeState;
-        titleField.onValueChanged.AddListener( OnTitleChanged);
-        descriptionField.onValueChanged.AddListener(OnDescriptionChanged) ;
+        titleField.onValueChanged.AddListener(OnTitleChanged);
+        descriptionField.onValueChanged.AddListener(OnDescriptionChanged);
 
         if (activityManager != null)
         {
             SetEditModeState(activityManager.EditModeActive);
         }
-        
+
         if (!PlatformManager.Instance.WorldSpaceUi)
         {
             CloseTaskStationMenu();
@@ -122,7 +122,7 @@ public class ActionEditor : MonoBehaviour
 
     private void OnDisable()
     {
-        titleField.onValueChanged.RemoveListener( OnTitleChanged);
+        titleField.onValueChanged.RemoveListener(OnTitleChanged);
         descriptionField.onValueChanged.RemoveListener(OnDescriptionChanged);
         EventManager.OnEditModeChanged -= SetEditModeState;
     }
@@ -147,7 +147,7 @@ public class ActionEditor : MonoBehaviour
         {
             var augmentationCorrectTypeName = listOfAugmentations[i].Replace("&", "and").Replace(" ", string.Empty).ToUpper();
             var augmentationIndexOnEnum = (int)Enum.Parse(typeof(ContentType), augmentationCorrectTypeName);
-            var type = (ContentType) augmentationIndexOnEnum;
+            var type = (ContentType)augmentationIndexOnEnum;
             var addItemInstance = Instantiate(poiAddItemPrefab, annotationAddMenu.transform);
             var listItem = addItemInstance.GetComponent<PoiAddItem>();
             listItem.Initialize(type, i, listOfAugmentations[i], type.GetIcon());
@@ -179,7 +179,7 @@ public class ActionEditor : MonoBehaviour
     {
         return DefaultAugmentationStartingPoint;
     }
-    
+
     private void OnToggleActionTargetCapture()
     {
         //if there is no annotations
@@ -203,7 +203,7 @@ public class ActionEditor : MonoBehaviour
     /// Control the helper text under the target button
     /// </summary>
     /// <param name="sec"></param>
-    /// <returns></returns>
+    /// <returns>Co-Routine values</returns>
     private IEnumerator NavigatorNotification(string msg, int sec)
     {
         navigationTargetButton.GetComponentInChildren<Text>().enabled = true;
@@ -232,7 +232,7 @@ public class ActionEditor : MonoBehaviour
             navigationTargetButton.GetComponent<Image>().color = Color.white;
             navigationTargetButton.GetComponentInChildren<Text>().enabled = false;
             StepNavigationTargetCapturing = false;
-            TaskStationDetailMenu.Instance.NavigatorTarget = ActionListMenu.CorrectTargetObject(annotation);  
+            TaskStationDetailMenu.Instance.NavigatorTarget = ActionListMenu.CorrectTargetObject(annotation);
             TaskStationDetailMenu.Instance.TargetPredicate = annotation.predicate;
 
             // show the target icon if annotation is the target of this action
@@ -302,7 +302,7 @@ public class ActionEditor : MonoBehaviour
 
     public void OnTitleChanged(string newTitle)
     {
-        if (detailView.DisplayedAction!= null)
+        if (detailView.DisplayedAction != null)
         {
             detailView.DisplayedAction.instruction.title = newTitle;
             EventManager.NotifyActionModified(detailView.DisplayedAction);
@@ -358,7 +358,7 @@ public class ActionEditor : MonoBehaviour
             case ContentType.ACT:
                 glyphEditor = LoadEditorPanel<GlyphEditor>(GlyphSelectorPrefab);
                 glyphEditor.SetAnnotationStartingPoint(DefaultAugmentationStartingPoint);
-                glyphEditor.Open(detailView.DisplayedAction,null);
+                glyphEditor.Open(detailView.DisplayedAction, null);
                 break;
             case ContentType.VFX:
                 vfxEditor = LoadEditorPanel<VFXEditor>(VfxEditorPrefab);
@@ -400,11 +400,11 @@ public class ActionEditor : MonoBehaviour
         }
     }
 
-/// <summary>
+    /// <summary>
     /// This function instantiates the relevant prefab and, depending on the augmentation type,
     /// allows the controller component to be returned after configuration.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The component which should be searched on the instantiated prefab and which is returned</typeparam>
     /// <param name="prefabToLoad"></param>
     /// <returns>A component of the type specified during the function call.</returns>
     private T LoadEditorPanel<T>(GameObject prefabToLoad) where T : Component
@@ -420,7 +420,7 @@ public class ActionEditor : MonoBehaviour
     }
 
     public object CreateEditorView(ContentType type)
-    { 
+    {
         switch (type)
         {
             case ContentType.IMAGE:
@@ -439,7 +439,7 @@ public class ActionEditor : MonoBehaviour
 
         var taskStation = detailView.GetCurrentTaskStation();
         if (!taskStation) return;
-        
+
         TaskStationDetailMenu.Instance.BindPoiToTaskStation(taskStation.transform, augmentationsButtons[index].transform);
 
         instructionText.text = type.GetHint();
@@ -458,12 +458,12 @@ public class ActionEditor : MonoBehaviour
         CaptureNavigationTarget(annotation);
 
         // pick and place can only use the model augmentation as it's arrow
-        if(annotation.predicate.StartsWith("3d") )
+        if (annotation.predicate.StartsWith("3d"))
             CapturePickArrowTarget(annotation, pickArrowModelCapturing.Item2);
 
         switch (annotation.predicate)
         {
-            case "label":    
+            case "label":
                 labelEditor = LoadEditorPanel<LabelEditor>(TextEditorPrefab);
                 labelEditor.Open(detailView.DisplayedAction, annotation);
                 break;
@@ -473,7 +473,7 @@ public class ActionEditor : MonoBehaviour
                 break;
             case "image":
                 imageEditor = LoadEditorPanel<ImageEditor>(ImageEditorPrefab);
-                    imageEditor.Open(detailView.DisplayedAction, annotation);
+                imageEditor.Open(detailView.DisplayedAction, annotation);
                 break;
             case "video":
                 videoEditor = LoadEditorPanel<VideoEditor>(VideoEditorPrefab);
@@ -544,7 +544,7 @@ public class ActionEditor : MonoBehaviour
             imageMarkerEditor.Close();
         if (pluginEditor)
             pluginEditor.Close();
-        if(drawingEditor)
+        if (drawingEditor)
             drawingEditor.Close();
 
 
@@ -567,7 +567,7 @@ public class ActionEditor : MonoBehaviour
         spawnPointVisualPart.SetActive(editModeActive);
 
         DisableAllPoiEditors();
-        
+
         if (!PlatformManager.Instance.WorldSpaceUi)
         {
             CloseTaskStationMenu();

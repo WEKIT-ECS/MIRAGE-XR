@@ -182,7 +182,7 @@ namespace MirageXR
 
             Debug.Log("is tracker active = " + objectTracker.IsActive);
 
-            
+
             var runtimeImageSource = objectTracker.RuntimeImageSource;
             bool result = runtimeImageSource.SetImage(_ImageMarkerImage, _obj.scale, ImgMName);
             // get the runtime image source and set the texture to load
@@ -192,17 +192,17 @@ namespace MirageXR
             var dataset = objectTracker.CreateDataSet();
 
             if (result)
-            {                       
+            {
                 trackableBehaviour = dataset.CreateTrackable(runtimeImageSource, ImgMName);
-                // use dataset and use the source to create a new trackable image target called ImageTarget 
+                // use dataset and use the source to create a new trackable image target called ImageTarget
 
                 Debug.Log(trackableBehaviour.name);
                 IM = trackableBehaviour.gameObject;
                 IM.AddComponent<TrackableEventHandlerEvents>();
-               // IM.AddComponent<DefaultTrackableEventHandler>();
+                // IM.AddComponent<DefaultTrackableEventHandler>();
                 // add the DefaultTrackableEventHandler to the newly created game object
 
-               GameObject detectableParentObj = GameObject.Find("Detectables");
+                GameObject detectableParentObj = GameObject.Find("Detectables");
                 IM.transform.parent = detectableParentObj.transform;
                 detectableAsChild();
                 // move the Image marker to be a child of the Detectables object in the player scene and set the current detectable to be a child of the newly created Image marker
@@ -212,13 +212,13 @@ namespace MirageXR
 
         }
 #endif
-        
-    
+
+
         public void detectableAsChild()
         {
             //IM.GetComponent<TrackableEventHandlerEvents>().augmentation = GameObject.Find(detectable.id); ;
 
-            
+
             var workplaceManager = RootObject.Instance.workplaceManager;
             Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_obj.id));
 
@@ -228,7 +228,7 @@ namespace MirageXR
 
             augmentation.transform.parent = GameObject.Find(ImgMName).transform;
 
-            augmentation.transform.localPosition = new Vector3(0, 0.1f, 0);  
+            augmentation.transform.localPosition = new Vector3(0, 0.1f, 0);
 
         }
 
@@ -291,7 +291,7 @@ public class TrackableEventHandlerEvents : MonoBehaviour
     /// called when the tracking state changes.
     /// </summary>
     private void OnTrackableStateChanged(TrackableBehaviour.StatusChangeResult status) // , TrackableBehaviour.Status newStatus)
-    {   
+    {
 
         switch (status.NewStatus)
         {
@@ -312,7 +312,7 @@ public class TrackableEventHandlerEvents : MonoBehaviour
     {
         Debug.Log("Trackable " + _trackableBehaviour.TrackableName + " found");
         // onTrackingFound.Invoke();
-       // augmentation.transform.position = _trackableBehaviour.transform.position;//new Vector3(0, 0, 0);
+        // augmentation.transform.position = _trackableBehaviour.transform.position;//new Vector3(0, 0, 0);
         tracked = true;
     }
 

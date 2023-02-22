@@ -27,7 +27,7 @@ public class ContentListItem : MonoBehaviour
     private int _to;
 
     private int _maxStepIndex => activityManager.ActionsOfTypeAction.Count - 1;
-    
+
     public void Init(ContentListView parentView)
     {
         _parentView = parentView;
@@ -46,12 +46,12 @@ public class ContentListItem : MonoBehaviour
         _type = ContentTypeExtenstion.ParsePredicate(_content.predicate);
         _txtType.text = _content.predicate;
         _imgType.sprite = _type.GetIcon();
-        
+
         var stepList = activityManager.ActionsOfTypeAction;
-        
+
         var startStep = stepList.FindIndex(step => step.enter.activates.Any(t => t.poi == _content.poi));
         var lastStep = stepList.FindLastIndex(step => step.enter.activates.Any(t => t.poi == _content.poi));
-        
+
         _from = startStep;
         _to = lastStep;
         _txtFrom.text = (_from + 1).ToString();
@@ -69,7 +69,7 @@ public class ContentListItem : MonoBehaviour
     {
         _parentView.navigatorId = _parentView.navigatorId != _content.poi ? _content.poi : null;
     }
-    
+
     public void OnEditModeChanged(bool value)
     {
         _btnDelete.gameObject.SetActive(value);
@@ -78,7 +78,7 @@ public class ContentListItem : MonoBehaviour
         _btnMinusTo.interactable = value;
         _btnPlusTo.interactable = value;
     }
-    
+
     private void OnContentClick()
     {
         var type = ContentTypeExtenstion.ParsePredicate(_content.predicate);
@@ -109,7 +109,7 @@ public class ContentListItem : MonoBehaviour
     }
 
     private void OnPlusFromClick()
-    {        
+    {
         if (_from == _to) return;
         _from++;
         _txtFrom.text = (_from + 1).ToString();

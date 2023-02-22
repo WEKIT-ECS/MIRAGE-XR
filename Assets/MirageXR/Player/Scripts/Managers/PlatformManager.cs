@@ -1,4 +1,4 @@
-﻿ using System;
+﻿using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.XR.ARFoundation;
@@ -13,16 +13,16 @@ namespace MirageXR
             public GameObject prefab;
             public Transform pathToLoad;
         }
-        
+
         [Tooltip("If you want to test AR in the editor enable this.")]
         [SerializeField] bool forceWorldSpaceUi = false;
         [SerializeField] bool forceToTabletView = false;
         [SerializeField] private LoadObject[] _worldSpaceObjects;
         [SerializeField] private LoadObject[] _screenSpaceObjects;
-        
+
         private float distanceToCamera = 0.5f;
         private float offsetYFromCamera = 0.5f;
-        
+
         private bool _worldSpaceUi;
         private string _playerScene = "Player";
         private string _recorderScene = "recorder";
@@ -35,9 +35,6 @@ namespace MirageXR
         public bool WorldSpaceUi => _worldSpaceUi;
 
         public string PlayerSceneName => _playerScene;
-        public string RecorderSceneName => _recorderScene;
-
-        public string CommonSceneName => _commonScene;
 
         public string ActivitySelectionScene => _activitySelectionScene;
 
@@ -45,9 +42,13 @@ namespace MirageXR
         {
             //Singleton
             if (Instance == null)
+            {
                 Instance = this;
+            }
             else if (Instance != this)
+            {
                 Destroy(gameObject);
+            }
         }
 
         private void OnDisable()
@@ -120,13 +121,6 @@ namespace MirageXR
                 Instantiate(loadObject.prefab);
             }
         }
-        
-        public enum DeviceFormat
-        {
-            Phone,
-            Tablet,
-            Unknown
-        }
 
         public static DeviceFormat GetDeviceFormat()
         {
@@ -134,7 +128,7 @@ namespace MirageXR
 #if UNITY_IOS && !UNITY_EDITOR
             return UnityEngine.iOS.Device.generation.ToString().Contains("iPad") ? DeviceFormat.Tablet : DeviceFormat.Phone;
 #elif UNITY_ANDROID && !UNITY_EDITOR
-            const float minTabletSize = 6.5f;
+            const float minTabletSize = 7.5f;
             return GetDeviceDiagonalSizeInInches() > minTabletSize ? DeviceFormat.Tablet : DeviceFormat.Phone;
 #elif UNITY_WSA && !UNITY_EDITOR
             return DeviceFormat.Unknown;
@@ -143,15 +137,17 @@ namespace MirageXR
 #endif
         }
 
+#if UNITY_ANDROID && !UNITY_EDITOR
         private static float GetDeviceDiagonalSizeInInches()
         {
             var screenWidth = Screen.width / Screen.dpi;
             var screenHeight = Screen.height / Screen.dpi;
-            var diagonalInches = Mathf.Sqrt (Mathf.Pow (screenWidth, 2) + Mathf.Pow (screenHeight, 2));
- 
-            Debug.Log ("Getting device inches: " + diagonalInches);
- 
+            var diagonalInches = Mathf.Sqrt(Mathf.Pow(screenWidth, 2) + Mathf.Pow(screenHeight, 2));
+
+            Debug.Log("Getting device inches: " + diagonalInches);
+
             return diagonalInches;
         }
+#endif
     }
 }

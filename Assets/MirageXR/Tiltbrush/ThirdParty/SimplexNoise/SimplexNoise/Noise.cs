@@ -136,7 +136,7 @@ namespace Simplex
             // Determine which simplex we are in.
             int i1, j1; // Offsets for second (middle) corner of simplex in (i,j) coords
             if (x0 > y0) { i1 = 1; j1 = 0; } // lower triangle, XY order: (0,0)->(1,0)->(1,1)
-            else { i1 = 0; j1 = 1; }      // upper triangle, YX order: (0,0)->(0,1)->(1,1)
+            else { i1 = 0; j1 = 1; } // upper triangle, YX order: (0,0)->(0,1)->(1,1)
 
             // A step of (1,0) in (i,j) means a step of (1-c,-c) in (x,y), and
             // a step of (0,1) in (i,j) means a step of (-c,1-c) in (x,y), where
@@ -290,7 +290,7 @@ namespace Simplex
         private static readonly byte[] permOriginal = new byte[]
         {
             151, 160, 137, 91, 90, 15,
-            131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142, 8, 99, 37, 240, 21, 10, 23, 
+            131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142, 8, 99, 37, 240, 21, 10, 23,
             190, 6, 148, 247, 120, 234, 75, 0, 26, 197, 62, 94, 252, 219, 203, 117, 35, 11, 32, 57, 177, 33,
             88, 237, 149, 56, 87, 174, 20, 125, 136, 171, 168,  68, 175, 74, 165, 71, 134, 139, 48, 27, 166,
             77, 146, 158, 231, 83, 111, 229, 122, 60, 211, 133, 230, 220, 105, 92, 41, 55, 46, 245, 40, 244,

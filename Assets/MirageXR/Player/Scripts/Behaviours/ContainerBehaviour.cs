@@ -7,13 +7,13 @@ namespace MirageXR
     /// </summary>
     public class ContainerBehaviour : MonoBehaviour
     {
-        private void OnEnable ()
+        private void OnEnable()
         {
             // Register to events.
             EventManager.OnClearAll += ClearContainer;
         }
 
-        private void OnDisable ()
+        private void OnDisable()
         {
             // Unregister from events.
             EventManager.OnClearAll -= ClearContainer;
@@ -22,7 +22,7 @@ namespace MirageXR
         /// <summary>
         /// Resets the container to empty state.
         /// </summary>
-        private void ClearContainer ()
+        private void ClearContainer()
         {
             // Destroy all the child objects inside the container.
             foreach (Transform obj in transform)

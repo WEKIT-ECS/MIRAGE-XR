@@ -30,18 +30,11 @@ namespace MirageXR
             {
                 GameObject hbPrefab = Resources.Load("prefabs/UI/Mobile/Tutorial/HighlightButton", typeof(GameObject)) as GameObject;
                 _copy = Object.Instantiate(hbPrefab, gameObject.transform.position, gameObject.transform.rotation);
-                _copy.transform.SetParent(RootView.Instance.transform);
+                _copy.transform.SetParent(RootView_v2.Instance.transform);
                 _copy.transform.SetPositionAndRotation(gameObject.transform.position, gameObject.transform.rotation);
                 _copy.transform.localScale = gameObject.transform.localScale;
 
-                var rectTransform = (RectTransform)gameObject.transform;
-                var height = rectTransform.rect.height;
-                var width = rectTransform.rect.width;
-
-                var copyRectTransform = (RectTransform)_copy.transform;
-                copyRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
-                copyRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
-                copyRectTransform.SetPositionAndRotation(gameObject.transform.position, gameObject.transform.rotation);
+                CopyRectTransform(gameObject);
 
                 HighlightingButton higBtn = _copy.GetComponent<HighlightingButton>();
                 higBtn.SetTarget(inputField);
@@ -52,9 +45,11 @@ namespace MirageXR
 
             // If it's not an input field, make a copy of the object
             _copy = Object.Instantiate(gameObject);
-            _copy.transform.SetParent(RootView.Instance.transform);
+            _copy.transform.SetParent(RootView_v2.Instance.transform);
             _copy.transform.SetPositionAndRotation(gameObject.transform.position, gameObject.transform.rotation);
             _copy.transform.localScale = gameObject.transform.localScale;
+            CopyRectTransform(gameObject);
+
 
             // If it's a button, also copy its OnClicks
             Button button = _copy.GetComponent<Button>();
@@ -73,6 +68,23 @@ namespace MirageXR
             }
 
             _copy.SetActive(true);
+        }
+
+        public void CopyRectTransform(GameObject gameObject)
+        {
+            var rectTransform = (RectTransform)gameObject.transform;
+
+            if (rectTransform)
+            {
+                var height = rectTransform.rect.height;
+                var width = rectTransform.rect.width;
+
+                var copyRectTransform = (RectTransform)_copy.transform;
+
+                copyRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+                copyRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
+                copyRectTransform.SetPositionAndRotation(gameObject.transform.position, gameObject.transform.rotation);
+            }
         }
 
         /// <summary>

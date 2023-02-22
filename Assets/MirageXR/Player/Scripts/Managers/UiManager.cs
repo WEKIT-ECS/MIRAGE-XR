@@ -9,16 +9,17 @@ namespace MirageXR
     public class UiManager : MonoBehaviour
     {
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
+
         [SerializeField] private bool IsMenuVisible;
         private bool _inAction;
         public bool IsFindActive;
 
         // Task list location is attached to Hololens main camera.
 
-        [Tooltip ("Drag and drop DebugConsole game object here.")]
+        [Tooltip("Drag and drop DebugConsole game object here.")]
         public GameObject DebugConsole;
 
-        [Tooltip ("Drag and drop Menu game object here.")]
+        [Tooltip("Drag and drop Menu game object here.")]
         public GameObject ActionList;
 
         public string WelcomeMessage = "";
@@ -32,7 +33,7 @@ namespace MirageXR
             Instance = this;
         }
 
-        private void OnEnable ()
+        private void OnEnable()
         {
             EventManager.OnPlayerReset += PlayerReset;
             EventManager.OnMoveActivityList += MoveActivityList;
@@ -59,7 +60,7 @@ namespace MirageXR
             EventManager.OnStartByVoice += StartActivityVoice;
         }
 
-        private void OnDisable ()
+        private void OnDisable()
         {
             EventManager.OnPlayerReset -= PlayerReset;
             EventManager.OnMoveActivityList -= MoveActivityList;
@@ -86,13 +87,13 @@ namespace MirageXR
             EventManager.OnStartByVoice -= StartActivityVoice;
         }
 
-        private void PlayerReset ()
+        private void PlayerReset()
         {
-            ClearDebug ();
-            HideDebug ();
+            ClearDebug();
+            HideDebug();
             HideMenu();
-            WelcomeMessage = "";
-            CalibrationTool.Instance.Reset();
+            WelcomeMessage = string.Empty;
+            CalibrationTool.Instance.isEnabled = false;
         }
 
         private void MoveActivityList()
@@ -138,10 +139,10 @@ namespace MirageXR
             HideMenu();
         }
 
-        private void Start ()
+        private void Start()
         {
             // Set default visibility to hidden.
-            DebugConsole.SetActive (false);
+            DebugConsole.SetActive(false);
             //Menu.GetComponent<CanvasGroup> ().alpha = 0;
             //Menu.GetComponent<GraphicRaycaster> ().enabled = false;
             ActionList.gameObject.SetActive(false);
@@ -150,25 +151,25 @@ namespace MirageXR
         /// <summary>
         /// Clear debug console. Called from Hololens keyword manager.
         /// </summary>
-        public void ClearDebug ()
+        public void ClearDebug()
         {
-            DebugConsole.transform.parent.SendMessage ("ClearDebug", SendMessageOptions.DontRequireReceiver);
+            DebugConsole.transform.parent.SendMessage("ClearDebug", SendMessageOptions.DontRequireReceiver);
         }
 
         /// <summary>
         /// Show debug console. Called from Hololens keyword manager.
         /// </summary>
-        public void ShowDebug ()
+        public void ShowDebug()
         {
-            DebugConsole.SetActive (true);
+            DebugConsole.SetActive(true);
         }
 
         /// <summary>
         /// Hide debug console. Called from Hololens keyword manager.
         /// </summary>
-        public void HideDebug ()
+        public void HideDebug()
         {
-            DebugConsole.SetActive (false);
+            DebugConsole.SetActive(false);
         }
 
         /// <summary>
@@ -197,7 +198,7 @@ namespace MirageXR
         public void HideSelectionPanel()
         {
             var ActivitySelectionPanel = FindObjectOfType<ActivitySelectionMenu>();
-            if(ActivitySelectionPanel != null)
+            if (ActivitySelectionPanel != null)
                 ActivitySelectionPanel.gameObject.SetActive(false);
         }
 
@@ -224,8 +225,8 @@ namespace MirageXR
             // do not create if it is exist already
             if (!PlatformManager.Instance.WorldSpaceUi || GameObject.Find("CalibrationGuide(Clone)") || GameObject.Find("CalibrationGuide"))
                 return;
-                
-            if (IsCalibrated)   // create the guild if activity is not calibrated.
+
+            if (IsCalibrated) // create the guild if activity is not calibrated.
             {
                 var prefab = Resources.Load<GameObject>("Prefabs/Calibration/CalibrationGuide");
                 var position = PlatformManager.Instance.GetTaskStationPosition() - Vector3.forward * 0.1f;
@@ -255,32 +256,32 @@ namespace MirageXR
             // Add a small delay just be sure that the message is stopped.
             await Task.Delay(250);
 
-            CalibrationTool.Instance.SetPlayer();
+            if (PlatformManager.Instance.WorldSpaceUi)
+            {
+                CalibrationTool.Instance.isEnabled = true;
+            }
 
             if (IsCalibrated)
             {
-                if (!string.IsNullOrEmpty(WelcomeMessage))
-                    Maggie.Speak(WelcomeMessage);
-                else
-                    Maggie.Speak("Activity loaded and ready to be started.");
+                Maggie.Speak(!string.IsNullOrEmpty(WelcomeMessage) ? WelcomeMessage : "Activity loaded and ready to be started.");
             }
             else
             {
                 // Nag.
-                //Maggie.Speak("Workplace anchors have not been calibrated. Please run the calibration before starting the activity.");
+                // Maggie.Speak("Workplace anchors have not been calibrated. Please run the calibration before starting the activity.");
                 CreateCalibrationGuide();
 
                 // Hile loading text
                 Loading.Instance.LoadingVisibility(false);
             }
 
-            //EventManager.ActivityLoadedStamp(SystemInfo.deviceUniqueIdentifier, activityManager.Activity.id, System.DateTime.UtcNow.ToUniversalTime().ToString());
+            // EventManager.ActivityLoadedStamp(SystemInfo.deviceUniqueIdentifier, activityManager.Activity.id, System.DateTime.UtcNow.ToUniversalTime().ToString());
         }
 
         private void ActivityStarted()
         {
             //WelcomeMessage = activityManager.Activity;
-            CalibrationTool.Instance.Reset();
+            CalibrationTool.Instance.isEnabled = false;
 
             switch (PlayerPrefs.GetString("uistyle"))
             {
@@ -291,6 +292,7 @@ namespace MirageXR
                     ShowActivityCards();
                     break;
             }
+
             _inAction = true;
         }
 
@@ -302,7 +304,7 @@ namespace MirageXR
         /// <summary>
         /// Show tasklist. Called from Hololens keyword manager.
         /// </summary>
-        public void ShowMenu ()
+        public void ShowMenu()
         {
             ActionList.gameObject.SetActive(true);
 
@@ -317,7 +319,7 @@ namespace MirageXR
             if (!_inAction) return;
 
             if (activated)
-               ShowMenu();
+                ShowMenu();
             else
                 HideMenu();
         }
@@ -389,7 +391,7 @@ namespace MirageXR
         /// <summary>
         /// Hide tasklist.
         /// </summary>
-        public void HideMenu ()
+        public void HideMenu()
         {
             ActionList.gameObject.SetActive(false);
             IsMenuVisible = false;
@@ -409,7 +411,7 @@ namespace MirageXR
         /// </summary>
         public void ToggleMenu()
         {
-            if(!IsMenuVisible)
+            if (!IsMenuVisible)
                 ShowMenu();
             else
                 HideMenu();
@@ -462,7 +464,7 @@ namespace MirageXR
 
         public void ShowActivityCards()
         {
-            if(!IsMenuVisible)
+            if (!IsMenuVisible)
                 ShowMenu();
 
             PlayerPrefs.SetString("uistyle", "cards");
@@ -580,7 +582,7 @@ namespace MirageXR
             }
             else
             {
-                if(activityManager.IsReady)
+                if (activityManager.IsReady)
                     StartActivityVoice();
                 else
                     Maggie.Speak("Please start the activity first.");

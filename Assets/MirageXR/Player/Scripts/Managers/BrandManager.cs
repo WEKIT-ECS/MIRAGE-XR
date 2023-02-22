@@ -18,7 +18,7 @@ namespace MirageXR
         [SerializeField] private Color defaultNextPathColor;
 
         public static BrandManager Instance { get; private set; }
-    
+
         private Color newPrimaryColor;
         private Color newSecondaryColor;
         private Color newTextColor;
@@ -94,7 +94,7 @@ namespace MirageXR
             }
 
             // if the file is empty return the default array
-            if(listOfAugmentations.Length == 0 || (listOfAugmentations.Length == 1 && listOfAugmentations[0] == ""))
+            if (listOfAugmentations.Length == 0 || (listOfAugmentations.Length == 1 && listOfAugmentations[0] == ""))
             {
                 return spareListOfAugmentations;
             }
@@ -182,12 +182,12 @@ namespace MirageXR
 
         public Color GetSecondaryColor()
         {
-            return !prefabsOriginalColors ? newSecondaryColor: defaultSecondaryColor;
+            return !prefabsOriginalColors ? newSecondaryColor : defaultSecondaryColor;
         }
 
         public Color GetTextColor()
         {
-            return !prefabsOriginalColors ? newTextColor: defaultTextColor;
+            return !prefabsOriginalColors ? newTextColor : defaultTextColor;
         }
 
         public Color GetIconColor()
@@ -197,7 +197,7 @@ namespace MirageXR
 
         public Color GetTaskStationColor()
         {
-            return !prefabsOriginalColors ? newTaskStationColor: defaultSecondaryColor;
+            return !prefabsOriginalColors ? newTaskStationColor : defaultSecondaryColor;
         }
 
         public Color GetUIPathColor()

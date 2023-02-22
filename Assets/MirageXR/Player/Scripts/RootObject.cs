@@ -9,11 +9,11 @@ namespace MirageXR
         public MoodleManager moodleManager;
         public EditorSceneService editorSceneService;
         public WorkplaceManager workplaceManager;
-        
+
         public static RootObject Instance { get; private set; }
 
         private bool _isInitialized;
-        
+
         private void Awake()
         {
             if (Instance)
@@ -22,8 +22,10 @@ namespace MirageXR
                 {
                     Destroy(gameObject);
                 }
+
                 return;
             }
+
             Instance = this;
             Initialization();
             if (Application.isPlaying)

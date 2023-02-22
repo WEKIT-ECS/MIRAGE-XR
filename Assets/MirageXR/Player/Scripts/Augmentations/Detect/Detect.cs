@@ -36,23 +36,23 @@ namespace MirageXR
         private float _rotationFactor = 0.35f;
 
         // Use this for initialization
-        private void Awake ()
+        private void Awake()
         {
             // Disable the default gaze guide since we are using a custom one...
             UseGuide = false;
-            
+
             // Attach components
-           
 
-            _startingPoint = GameObject.FindGameObjectWithTag ("MainCamera").transform;
 
-            _lineRend = GetComponent<LineRenderer> ();
-            _timerCircle = transform.Find ("TimerCircle").GetComponent<Image> ();
-            _triangles = transform.Find ("Triangles").GetComponent<Image> ();
-            _trianglesTransform = transform.Find ("Triangles").GetComponent<RectTransform> ();
-            _centerDot = transform.Find ("Center").GetComponent<Image> ();
+            _startingPoint = GameObject.FindGameObjectWithTag("MainCamera").transform;
 
-            _audio = GetComponent<AudioSource> ();
+            _lineRend = GetComponent<LineRenderer>();
+            _timerCircle = transform.Find("TimerCircle").GetComponent<Image>();
+            _triangles = transform.Find("Triangles").GetComponent<Image>();
+            _trianglesTransform = transform.Find("Triangles").GetComponent<RectTransform>();
+            _centerDot = transform.Find("Center").GetComponent<Image>();
+
+            _audio = GetComponent<AudioSource>();
         }
 
         /// <summary>
@@ -60,12 +60,12 @@ namespace MirageXR
         /// </summary>
         /// <param name="obj">Action toggle object.</param>
         /// <returns>Returns true if initialization succesfull.</returns>
-        public override bool Init (ToggleObject obj)
+        public override bool Init(ToggleObject obj)
         {
             // Try to set the parent and if it fails, terminate initialization.
-            if (!SetParent (obj))
+            if (!SetParent(obj))
             {
-                Debug.Log ("Couldn't set the parent.");
+                Debug.Log("Couldn't set the parent.");
                 return false;
             }
 
@@ -73,15 +73,15 @@ namespace MirageXR
             name = obj.predicate;
 
             // Set scale, if defined in the action step configuration.
-            if (!obj.scale.Equals (0))
-                GetComponent<RectTransform> ().localScale = new Vector3 (obj.scale, obj.scale, obj.scale) / 2048;
+            if (!obj.scale.Equals(0))
+                GetComponent<RectTransform>().localScale = new Vector3(obj.scale, obj.scale, obj.scale) / 2048;
 
             // If scaling is not set, default to 5 cm symbol.
             else
-                GetComponent<RectTransform> ().localScale = new Vector3 (0.05f, 0.05f, 0.05f) / 2048;
+                GetComponent<RectTransform>().localScale = new Vector3(0.05f, 0.05f, 0.05f) / 2048;
 
             // Set target duration if defined in the action configuration.
-            if (!obj.duration.Equals (0))
+            if (!obj.duration.Equals(0))
                 _target = obj.duration;
 
             // If duration is not set, default to 1.5 seconds.
@@ -96,7 +96,7 @@ namespace MirageXR
         }
 
         // Update is called once per frame
-        private void Update ()
+        private void Update()
         {
             // Line renderer is enabled once a proper location reference is received.
             if (_lineRend.enabled)
@@ -118,14 +118,14 @@ namespace MirageXR
                 }
 
                 // Rotate triangles. The closer you get, the slower the rotation.
-                _trianglesTransform.Rotate (Vector3.forward, Vector3.Distance (transform.position, _startingPoint.position) * _rotationFactor);
+                _trianglesTransform.Rotate(Vector3.forward, Vector3.Distance(transform.position, _startingPoint.position) * _rotationFactor);
 
                 // If not detected and not yet completed, draw the line between the symbol and the cursor.
                 if (!_isDetected && !_isCompleted)
                 {
                     _lineRend.enabled = true;
-                    _lineRend.SetPosition (0, _startingPoint.position);
-                    _lineRend.SetPosition (1, transform.position);
+                    _lineRend.SetPosition(0, _startingPoint.position);
+                    _lineRend.SetPosition(1, transform.position);
                     _centerDot.enabled = true;
                     _triangles.enabled = true;
                     _timerCircle.enabled = true;
@@ -173,7 +173,7 @@ namespace MirageXR
                     }
 
                     // Ding dong.
-                    _audio.Play ();
+                    _audio.Play();
 
                     // Wohoo!
                     _isCompleted = true;

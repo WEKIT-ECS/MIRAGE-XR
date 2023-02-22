@@ -230,7 +230,7 @@ namespace MirageXR
         /// </summary>
         public virtual void Delete()
         {
-            if(gameObject != null)
+            if (gameObject != null)
                 Destroy(gameObject);
         }
 
@@ -312,8 +312,8 @@ namespace MirageXR
 
 
         /// <summary>
-        /// Reads and convert the PoiEditor's scale factor, 
-        /// checking for null values and, in case of error, 
+        /// Reads and convert the PoiEditor's scale factor,
+        /// checking for null values and, in case of error,
         /// reverting to the given default value.
         /// </summary>
         /// <param name="poiEditor"></param>
@@ -343,7 +343,7 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Reads and convert the PoiEditor's rotation factor, 
+        /// Reads and convert the PoiEditor's rotation factor,
         /// checking for null values. If not set, reverts to
         /// euler angle version of Quaternion.identity.
         /// </summary>
@@ -361,8 +361,8 @@ namespace MirageXR
 
         private bool IsGazeTrigger()
         {
-            return activityManager.ActiveAction.triggers.Find(t => t.id == Annotation.poi) != null 
-                   && Annotation.predicate != "video" && Annotation.predicate != "audio" && !Annotation.predicate.StartsWith("char");
+            return activityManager.ActiveAction.triggers.Find(t => t.id == Annotation.poi) != null
+                   && Annotation.predicate != "video" && Annotation.predicate != "audio" && !Annotation.predicate.StartsWith("char") && Annotation.predicate != "pickandplace";
         }
 
 
@@ -407,7 +407,7 @@ namespace MirageXR
                     gazeCircle = Instantiate(Resources.Load<GameObject>("Prefabs/UI/GazeSpinner"), hit.collider.transform.position, transform.rotation);
                     gazeCircle.AddComponent<Billboard>();
                     gazeCircle.GetComponent<GazeSpinner>().Duration = trigger.duration;
-                    gazeCircle.GetComponent<GazeSpinner>().stepNumber = triggerStepNumber; 
+                    gazeCircle.GetComponent<GazeSpinner>().stepNumber = triggerStepNumber;
                     gazeCircle.transform.SetParent(transform);
                 }
             }

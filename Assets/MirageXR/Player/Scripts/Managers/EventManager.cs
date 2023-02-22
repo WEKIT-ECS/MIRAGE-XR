@@ -709,13 +709,6 @@ namespace MirageXR
             TaskStationEditorEnabled?.Invoke();
         }
 
-        public delegate void ActivityRenamedDelegate();
-        public static event ActivityRenamedDelegate ActivityRenamed;
-        public static void NotifyOnActivityRenamed()
-        {
-            ActivityRenamed?.Invoke();
-        }
-
         // TODO: Give comment summary for all events.
 
         public delegate void AddAugmentationButtonClickedDelegate();
@@ -753,6 +746,13 @@ namespace MirageXR
         public static void NotifyOnActivityUploadButtonClicked()
         {
             ActivityUploadButtonClicked?.Invoke();
+        }
+
+        public delegate void ActivityRenamedDelegate();
+        public static event ActivityRenamedDelegate ActivityRenamed;
+        public static void NotifyOnActivityRenamed()
+        {
+            ActivityRenamed?.Invoke();
         }
 
         public delegate void ActionStepTitleInputChangedDelegate();
@@ -819,11 +819,27 @@ namespace MirageXR
         }
 
 
-        public delegate void xAPIChangedDelegate(int option);
+        public delegate void xAPIChangedDelegate(DBManager.LearningRecordStores option);
         public static event xAPIChangedDelegate XAPIChanged;
-        public static void NotifyxAPIChanged(int option)
+        public static void NotifyxAPIChanged(DBManager.LearningRecordStores option)
         {
             XAPIChanged?.Invoke(option);
+        }
+
+        public delegate void MoodleDomainChangedDelegate();
+        public static event MoodleDomainChangedDelegate MoodleDomainChanged;
+        public static void NotifyMoodleDomainChanged()
+        {
+            MoodleDomainChanged?.Invoke();
+        }
+
+        public delegate void MobileHelpPageChanged(RootView_v2.HelpPage value);
+
+        public static event MobileHelpPageChanged OnMobileHelpPageChanged;
+
+        public static void NotifyMobileHelpPageChanged(RootView_v2.HelpPage value)
+        {
+            OnMobileHelpPageChanged?.Invoke(value);
         }
     }
 }

@@ -42,7 +42,7 @@ namespace MirageXR
 
         private void OnActionDeleted(string actionId)
         {
-            // TODO: This will destroy all annotations too and any annotations which are created in this step and also exist in other step will be deleted. 
+            // TODO: This will destroy all annotations too and any annotations which are created in this step and also exist in other step will be deleted.
             // Find a way to not destroy common annotations
             if (ActionId == actionId)
             {
@@ -79,7 +79,7 @@ namespace MirageXR
         }
 
         public bool IsCurrent()
-        {          
+        {
             return RootObject.Instance.activityManager.ActiveActionId.Equals(ActionId);
         }
 
@@ -92,7 +92,7 @@ namespace MirageXR
             {
                 return false;
             }
-            
+
             return ActionId.Equals(actions[index + 1].id);
         }
     }

@@ -19,13 +19,13 @@ public class HomePathVisibilityController : MonoBehaviour
             Destroy(gameObject);
 
         segmentController = GetComponent<PathSegmentsController>();
-        
+
         if (!PlatformManager.Instance.WorldSpaceUi)
         {
             SetVisibility(false);
             return;
         }
-        
+
         EventManager.OnHideActivitySelectionMenu += OnHideActivitySelectionMenu;
         EventManager.OnEditorLoaded += OnHideActivitySelectionMenu;
         EventManager.OnShowActivitySelectionMenu += OnShowActivitySelectionMenu;

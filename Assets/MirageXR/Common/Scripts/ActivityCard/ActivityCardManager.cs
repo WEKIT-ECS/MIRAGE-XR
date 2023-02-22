@@ -42,7 +42,7 @@ namespace MirageXR
 
             FinishFlag.SetActive(false);
             ReplayButton.SetActive(false);
-            
+
             _timelineObjects.Clear();
             _tasklistObjects.Clear();
             OriginalActions.Clear();
@@ -84,16 +84,16 @@ namespace MirageXR
                     continue;
                 }
 
-                var timelineItemPrefab = Resources.Load<GameObject>("Prefabs/TimelineItemPrefab");//TODO: change to addressables
+                var timelineItemPrefab = Resources.Load<GameObject>("Prefabs/TimelineItemPrefab"); // TODO: change to addressables
                 var timelineObject = Instantiate(timelineItemPrefab, Vector3.zero, Quaternion.identity, TimeLine);
-                var timelineRectTransform = timelineObject.GetComponent<RectTransform>(); 
+                var timelineRectTransform = timelineObject.GetComponent<RectTransform>();
                 timelineRectTransform.localPosition = Vector3.zero;
                 timelineRectTransform.localEulerAngles = Vector3.zero;
                 timelineRectTransform.localScale = Vector3.one;
                 timelineObject.name = $"Step-{action.id}";
                 _timelineObjects.Add(timelineObject);
 
-                var taskStepPrefab = Resources.Load<GameObject>("Prefabs/UI/TaskStepPrefab");  //TODO: change to addressables
+                var taskStepPrefab = Resources.Load<GameObject>("Prefabs/UI/TaskStepPrefab");  // TODO: change to addressables
                 var taskListObject = Instantiate(taskStepPrefab, Vector3.zero, Quaternion.identity, Tasklist);
                 var taskListRectTransform = taskListObject.GetComponent<RectTransform>();
                 taskListRectTransform.localPosition = Vector3.zero;
@@ -129,7 +129,7 @@ namespace MirageXR
             actionObject.isCompleted = true;
             await RootObject.Instance.activityManager.DeactivateAction(actionObject.id);
         }
-        
+
         /// <summary>
         /// Force activate previous action.
         /// </summary>
@@ -139,7 +139,7 @@ namespace MirageXR
         }
 
         private void ShowCards()
-        { 
+        {
             if (Actions.Count > 1)
             {
                 NextCard.SetActive(true);

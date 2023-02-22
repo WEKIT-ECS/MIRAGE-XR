@@ -13,554 +13,553 @@ using System;
 
 namespace Sketchfab
 {
-	public class SketchfabAPI
-	{
-		public const string authorizeEndpoint = "authorize/";
-		public const string tokenEndpoint = "token/";
-		public const string userInfoEndpoint = "userinfo/";
-		public const string clientParam = "client_id";
-		public const string redirectUriParam = "redirect_uri";
-		public const string scopeParam = "scope";
-		public const string stateParam = "state";
+    public class SketchfabAPI
+    {
+        public const string authorizeEndpoint = "authorize/";
+        public const string tokenEndpoint = "token/";
+        public const string userInfoEndpoint = "userinfo/";
+        public const string clientParam = "client_id";
+        public const string redirectUriParam = "redirect_uri";
+        public const string scopeParam = "scope";
+        public const string stateParam = "state";
 
-		private static string apiURL = "https://sketchfab.com/oauth2/";
-		public static string ApiURL
-		{
-			get
-			{
-				return apiURL;
-			}
-			set
-			{
-				apiURL = value;
-			}
-		}
+        private static string apiURL = "https://sketchfab.com/oauth2/";
 
-		public enum ExporterState
-		{
-			IDLE,
-			CHECK_VERSION,
-			REQUEST_CODE,
-			//GET_CATEGORIES,
-			USER_ACCOUNT_TYPE,
-			CAN_PRIVATE,
-			PUBLISH_MODEL
-		}
+        public static string ApiURL
+        {
+            get
+            {
+                return apiURL;
+            }
+            set
+            {
+                apiURL = value;
+            }
+        }
 
-		public class SketchfabPlan
-		{
-			public string label;
-			public int maxSize;
+        public enum ExporterState
+        {
+            IDLE,
+            CHECK_VERSION,
+            REQUEST_CODE,
+            //GET_CATEGORIES,
+            USER_ACCOUNT_TYPE,
+            CAN_PRIVATE,
+            PUBLISH_MODEL
+        }
 
-			public SketchfabPlan(string lb, int ms)
-			{
-				label = lb;
-				maxSize = ms;
-			}
-		}
+        public class SketchfabPlan
+        {
+            public string label;
+            public int maxSize;
 
-		public SketchfabPlan GetPlan(string accountName)
-		{
-			switch (accountName)
-			{
-				case "pro":
-					int nbPro = 200 * 1024 * 1024;
-					return new SketchfabPlan("PRO", nbPro);
-				case "prem":
-					int nbPrem = 500 * 1024 * 1024;
-					return new SketchfabPlan("PREMIUM", nbPrem);
-				case "biz":
-					int nbBiz = 500 * 1024 * 1024;
-					return new SketchfabPlan("BUSINESS", nbBiz);
-				case "ent":
-					int nbEnt = 500 * 1024 * 1024;
-					return new SketchfabPlan("ENTERPRISE", nbEnt);
-			}
+            public SketchfabPlan(string lb, int ms)
+            {
+                label = lb;
+                maxSize = ms;
+            }
+        }
 
-			int nbFree = 50 * 1024 * 1024;
-			return new SketchfabPlan("BASIC", nbFree);
-		}
+        public SketchfabPlan GetPlan(string accountName)
+        {
+            switch (accountName)
+            {
+                case "pro":
+                    int nbPro = 200 * 1024 * 1024;
+                    return new SketchfabPlan("PRO", nbPro);
+                case "prem":
+                    int nbPrem = 500 * 1024 * 1024;
+                    return new SketchfabPlan("PREMIUM", nbPrem);
+                case "biz":
+                    int nbBiz = 500 * 1024 * 1024;
+                    return new SketchfabPlan("BUSINESS", nbBiz);
+                case "ent":
+                    int nbEnt = 500 * 1024 * 1024;
+                    return new SketchfabPlan("ENTERPRISE", nbEnt);
+            }
 
-		// Fields limits
-		const int NAME_LIMIT = 48;
-		const int DESC_LIMIT = 1024;
-		const int TAGS_LIMIT = 50;
-		const int PASSWORD_LIMIT = 64;
-		const int SPACE_SIZE = 5;
+            int nbFree = 50 * 1024 * 1024;
+            return new SketchfabPlan("BASIC", nbFree);
+        }
 
-		// Exporter objects and scripts
-		public string _access_token = "";
-		ExporterState _state;
-		SketchfabRequest _publisher;
-		public string _uploadSource = "Unity-exporter";
+        // Fields limits
+        const int NAME_LIMIT = 48;
+        const int DESC_LIMIT = 1024;
+        const int TAGS_LIMIT = 50;
+        const int PASSWORD_LIMIT = 64;
+        const int SPACE_SIZE = 5;
 
-		//Dictionary<string, string> categories = new Dictionary<string, string>();
-		//List<string> categoriesNames = new List<string>();
-		private string _lastModelUrl;
+        // Exporter objects and scripts
+        public string _access_token = "";
+        ExporterState _state;
+        SketchfabRequest _publisher;
+        public string _uploadSource = "Unity-exporter";
 
-		private bool _isUserPro;
-		private string _userDisplayName;
-		private SketchfabPlan _currentUserPlan = null;
-		private bool _userCanPrivate = false;
-		//int categoryIndex = 0;
+        //Dictionary<string, string> categories = new Dictionary<string, string>();
+        //List<string> categoriesNames = new List<string>();
+        private string _lastModelUrl;
 
-		// Oauth stuff
-		private float expiresIn = 0;
-		private int lastTokenTime = 0;
-		private string _latestVersion;
-		private string _isLatestVersion;
+        private bool _isUserPro;
+        private string _userDisplayName;
+        private SketchfabPlan _currentUserPlan = null;
+        private bool _userCanPrivate = false;
+        //int categoryIndex = 0;
 
-		public delegate void Callback();
-		public Callback _uploadSuccess;
-		public Callback _uploadFailed;
-		public Callback _tokenRequestSuccess;
-		public Callback _tokenRequestFailed;
-		public Callback _checkVersionSuccess;
-		public Callback _checkVersionFailed;
+        // Oauth stuff
+        private float expiresIn = 0;
+        private int lastTokenTime = 0;
+        private string _latestVersion;
+        private string _isLatestVersion;
 
-		public Callback _checkUserAccountSuccess;
-		public Callback _checkUserAccountFailure;
+        public delegate void Callback();
 
-		private string _lastError = "";
+        public Callback _uploadSuccess;
+        public Callback _uploadFailed;
+        public Callback _tokenRequestSuccess;
+        public Callback _tokenRequestFailed;
+        public Callback _checkVersionSuccess;
+        public Callback _checkVersionFailed;
 
-		public SketchfabAPI(string uploadSource = "")
-		{
-			_publisher = new SketchfabRequest(uploadSource);
-			_publisher.SetResponseCallback(HandleRequestResponse);
-		}
+        public Callback _checkUserAccountSuccess;
+        public Callback _checkUserAccountFailure;
 
-		public bool IsUserAuthenticated()
-		{
-			return _access_token.Length > 0;
-		}
+        private string _lastError = "";
 
-		public bool IsLatestVersion()
-		{
-			return SketchfabPlugin.VERSION == _latestVersion;
-		}
+        public SketchfabAPI(string uploadSource = "")
+        {
+            _publisher = new SketchfabRequest(uploadSource);
+            _publisher.SetResponseCallback(HandleRequestResponse);
+        }
 
-		// Setup callbacks
-		public void SetUploadSuccessCb(Callback callback)
-		{
-			_uploadSuccess = callback;
-		}
+        public bool IsUserAuthenticated()
+        {
+            return _access_token.Length > 0;
+        }
 
-		public void SetUploadFailedCb(Callback callback)
-		{
-			_uploadFailed = callback;
-		}
+        public bool IsLatestVersion()
+        {
+            return SketchfabPlugin.VERSION == _latestVersion;
+        }
 
-		public void SetTokenRequestSuccessCb(Callback callback)
-		{
-			_tokenRequestSuccess = callback;
-		}
+        // Setup callbacks
+        public void SetUploadSuccessCb(Callback callback)
+        {
+            _uploadSuccess = callback;
+        }
 
-		public void SetTokenRequestFailedCb(Callback callback)
-		{
-			_tokenRequestFailed = callback;
-		}
+        public void SetUploadFailedCb(Callback callback)
+        {
+            _uploadFailed = callback;
+        }
 
-		public void SetCheckVersionSuccessCb(Callback callback)
-		{
-			_checkVersionSuccess = callback;
-		}
+        public void SetTokenRequestSuccessCb(Callback callback)
+        {
+            _tokenRequestSuccess = callback;
+        }
 
-		public void SetCheckVersionFailedCb(Callback callback)
-		{
-			_checkVersionFailed = callback;
-		}
+        public void SetTokenRequestFailedCb(Callback callback)
+        {
+            _tokenRequestFailed = callback;
+        }
 
-		public void SetCheckUserAccountSuccessCb(Callback callback)
-		{
-			_checkUserAccountSuccess = callback;
-		}
+        public void SetCheckVersionSuccessCb(Callback callback)
+        {
+            _checkVersionSuccess = callback;
+        }
 
-		public void SetCheckUserAccountFailureCb(Callback callback)
-		{
-			_checkUserAccountFailure = callback;
-		}
+        public void SetCheckVersionFailedCb(Callback callback)
+        {
+            _checkVersionFailed = callback;
+        }
 
-		public void LogoutUser()
-		{
-			_access_token = "";
-			_publisher.SaveAccessToken(_access_token);
-		}
+        public void SetCheckUserAccountSuccessCb(Callback callback)
+        {
+            _checkUserAccountSuccess = callback;
+        }
 
-		//public void AuthoriseUser(string client_id, string redirect_uri)
-		//{
-		//	string url = System.String.Format(apiURL + authorizeEndpoint + "?client_id={0}&redirect_uri={1}&response_type={2}",
-		//		client_id, redirect_uri, "code");
+        public void SetCheckUserAccountFailureCb(Callback callback)
+        {
+            _checkUserAccountFailure = callback;
+        }
 
+        public void LogoutUser()
+        {
+            _access_token = "";
+            _publisher.SaveAccessToken(_access_token);
+        }
 
+        //public void AuthoriseUser(string client_id, string redirect_uri)
+        //{
+        //  string url = System.String.Format(apiURL + authorizeEndpoint + "?client_id={0}&redirect_uri={1}&response_type={2}",
+        //      client_id, redirect_uri, "code");
+        //}
 
-		//}
+        public void AuthenticateUser(string username, string password)
+        {
+            _state = ExporterState.REQUEST_CODE;
+            _publisher.RequestAccessToken(username, password);
+        }
 
-		public void AuthenticateUser(string username, string password)
-		{
-			_state = ExporterState.REQUEST_CODE;
-			_publisher.RequestAccessToken(username, password);
-		}
+        public void CheckLatestExporterVersion()
+        {
+            _state = ExporterState.CHECK_VERSION;
+            _publisher.RequestExporterReleaseInfo();
+        }
 
-		public void CheckLatestExporterVersion()
-		{
-			_state = ExporterState.CHECK_VERSION;
-			_publisher.RequestExporterReleaseInfo();
-		}
+        public void RequestUserAccountInfo()
+        {
+            _state = ExporterState.USER_ACCOUNT_TYPE;
+            _publisher.RequestAccountInfo();
+        }
 
-		public void RequestUserAccountInfo()
-		{
-			_state = ExporterState.USER_ACCOUNT_TYPE;
-			_publisher.RequestAccountInfo();
-		}
+        public void RequestUserCanPrivate()
+        {
+            if (_currentUserPlan.label == "BASIC")
+            {
+                _userCanPrivate = false;
+            }
+            else
+            {
+                _state = ExporterState.CAN_PRIVATE;
+                _publisher.RequestUserCanPrivate();
+            }
+        }
 
-		public void RequestUserCanPrivate()
-		{
-			if(_currentUserPlan.label == "BASIC")
-			{
-				_userCanPrivate = false;
-			}
-			else
-			{
-				_state = ExporterState.CAN_PRIVATE;
-				_publisher.RequestUserCanPrivate();
-			}
-		}
+        public bool GetUserCanPrivate()
+        {
+            return _userCanPrivate;
+        }
 
-		public bool GetUserCanPrivate()
-		{
-			return _userCanPrivate;
-		}
+        public void PublishModel(Dictionary<string, string> parameters, string zipPath)
+        {
+            _state = ExporterState.PUBLISH_MODEL;
+            _publisher.PostModel(parameters, zipPath);
+        }
 
-		public void PublishModel(Dictionary<string, string> parameters, string zipPath)
-		{
-			_state = ExporterState.PUBLISH_MODEL;
-			_publisher.PostModel(parameters, zipPath);
-		}
+        int ConvertToSeconds(DateTime time)
+        {
+            return (int)(time.Hour * 3600 + time.Minute * 60 + time.Second);
+        }
 
-		int ConvertToSeconds(DateTime time)
-		{
-			return (int)(time.Hour * 3600 + time.Minute * 60 + time.Second);
-		}
+        public string GetLatestVersion()
+        {
+            return _latestVersion;
+        }
 
-		public string GetLatestVersion()
-		{
-			return _latestVersion;
-		}
+        public string GetLastError()
+        {
+            return _lastError;
+        }
 
-		public string GetLastError()
-		{
-			return _lastError;
-		}
+        public SketchfabPlan GetUserPlan()
+        {
+            return _currentUserPlan;
+        }
 
-		public SketchfabPlan GetUserPlan()
-		{
-			return _currentUserPlan;
-		}
+        public int GetCurrentUserMaxAllowedUploadSize()
+        {
+            if (_currentUserPlan == null)
+                return -1;
 
-		public int GetCurrentUserMaxAllowedUploadSize()
-		{
-			if (_currentUserPlan == null)
-				return -1;
+            return _currentUserPlan.maxSize;
+        }
 
-			return _currentUserPlan.maxSize;
-		}
+        public string GetCurrentUserPlanLabel()
+        {
+            if (_currentUserPlan == null)
+                return "Unknown";
 
-		public string GetCurrentUserPlanLabel()
-		{
-			if (_currentUserPlan == null)
-				return "Unknown";
+            return _currentUserPlan.label;
+        }
 
-			return _currentUserPlan.label;
-		}
+        public string GetCurrentUserDisplayName()
+        {
+            if (_userDisplayName == null)
+                return "";
 
-		public string GetCurrentUserDisplayName()
-		{
-			if (_userDisplayName == null)
-				return "";
+            return _userDisplayName;
+        }
 
-			return _userDisplayName;
-		}
+        //void relog()
+        //{
+        //  if(publisher && publisher.getState() == ExporterState.REQUEST_CODE)
+        //  {
+        //      return;
+        //  }
+        //  if (user_name.Length == 0)
+        //  {
+        //      user_name = EditorPrefs.GetString(usernameEditorKey);
+        //      //user_password = EditorPrefs.GetString(passwordEditorKey);
+        //  }
 
-		//void relog()
-		//{
-		//	if(publisher && publisher.getState() == ExporterState.REQUEST_CODE)
-		//	{
-		//		return;
-		//	}
-		//	if (user_name.Length == 0)
-		//	{
-		//		user_name = EditorPrefs.GetString(usernameEditorKey);
-		//		//user_password = EditorPrefs.GetString(passwordEditorKey);
-		//	}
+        //  if (publisher && user_name.Length > 0 && user_password.Length > 0)
+        //  {
+        //      publisher.oauth(user_name, user_password);
+        //  }
+        //}
 
-		//	if (publisher && user_name.Length > 0 && user_password.Length > 0)
-		//	{
-		//		publisher.oauth(user_name, user_password);
-		//	}
-		//}
+        private void CheckAccessTokenValidity()
+        {
+            float currentTimeSecond = ConvertToSeconds(DateTime.Now);
+            if (_access_token.Length > 0 && currentTimeSecond - lastTokenTime > expiresIn)
+            {
+                _access_token = "";
+                //relog();
+            }
+        }
 
-		private void CheckAccessTokenValidity()
-		{
-			float currentTimeSecond = ConvertToSeconds(DateTime.Now);
-			if (_access_token.Length > 0 && currentTimeSecond - lastTokenTime > expiresIn)
-			{
-				_access_token = "";
-				//relog();
-			}
-		}
+        public void HandleRequestResponse()
+        {
+            WWW www = _publisher.GetResponse();
 
-		public void HandleRequestResponse()
-		{
-			WWW www = _publisher.GetResponse();
+            if (www == null)
+            {
+                Debug.LogError("Request is empty (WWW object is null)");
+                return;
+            }
 
-			if (www == null)
-			{
-				Debug.LogError("Request is empty (WWW object is null)");
-				return;
-			}
-
-			JSONNode jsonResponse = ParseResponse(www);
-			switch (_state)
-			{
-				case ExporterState.CHECK_VERSION:
-					if (jsonResponse != null && jsonResponse[0]["tag_name"] != null)
-					{
-						_latestVersion = jsonResponse[0]["tag_name"];
-						_checkVersionSuccess();
-					}
-					else
-					{
-						_latestVersion = "";
-						_checkVersionFailed();
-					}
-					break;
-				case ExporterState.REQUEST_CODE:
-					if (jsonResponse["access_token"] != null)
-					{
-						_access_token = jsonResponse["access_token"];
-						expiresIn = jsonResponse["expires_in"].AsFloat;
-						lastTokenTime = ConvertToSeconds(DateTime.Now);
-						_publisher.SaveAccessToken(_access_token);
+            JSONNode jsonResponse = ParseResponse(www);
+            switch (_state)
+            {
+                case ExporterState.CHECK_VERSION:
+                    if (jsonResponse != null && jsonResponse[0]["tag_name"] != null)
+                    {
+                        _latestVersion = jsonResponse[0]["tag_name"];
+                        _checkVersionSuccess();
+                    }
+                    else
+                    {
+                        _latestVersion = "";
+                        _checkVersionFailed();
+                    }
+                    break;
+                case ExporterState.REQUEST_CODE:
+                    if (jsonResponse["access_token"] != null)
+                    {
+                        _access_token = jsonResponse["access_token"];
+                        expiresIn = jsonResponse["expires_in"].AsFloat;
+                        lastTokenTime = ConvertToSeconds(DateTime.Now);
+                        _publisher.SaveAccessToken(_access_token);
                         _tokenRequestSuccess?.Invoke();
                     }
-					else
-					{
+                    else
+                    {
                         _tokenRequestFailed?.Invoke();
                     }
-					break;
-				case ExporterState.PUBLISH_MODEL:
-					if (www.responseHeaders["STATUS"].Contains("201") == true)
-					{
-						_lastModelUrl = SketchfabPlugin.Urls.modelUrl + "/" + GetUrlId(www.responseHeaders);
+                    break;
+                case ExporterState.PUBLISH_MODEL:
+                    if (www.responseHeaders["STATUS"].Contains("201") == true)
+                    {
+                        _lastModelUrl = SketchfabPlugin.Urls.modelUrl + "/" + GetUrlId(www.responseHeaders);
                         _uploadSuccess?.Invoke();
                     }
-					else
-					{
-						_lastError = www.responseHeaders["STATUS"];
+                    else
+                    {
+                        _lastError = www.responseHeaders["STATUS"];
                         _uploadFailed?.Invoke();
                     }
-					break;
-				//case ExporterState.GET_CATEGORIES:
-				//	string jsonify = this.jsonify(www.text);
-				//	if (!jsonify.Contains("results"))
-				//	{
-				//		Debug.Log(jsonify);
-				//		Debug.Log("Failed to retrieve categories");
-				//		publisher.setIdle();
-				//		break;
-				//	}
+                    break;
+                //case ExporterState.GET_CATEGORIES:
+                //  string jsonify = this.jsonify(www.text);
+                //  if (!jsonify.Contains("results"))
+                //  {
+                //      Debug.Log(jsonify);
+                //      Debug.Log("Failed to retrieve categories");
+                //      publisher.setIdle();
+                //      break;
+                //  }
 
-				//	JSONArray categoriesArray = JSON.Parse(jsonify)["results"].AsArray;
-				//	foreach (JSONNode node in categoriesArray)
-				//	{
-				//		categories.Add(node["name"], node["slug"]);
-				//		categoriesNames.Add(node["name"]);
-				//	}
-				//	setIdle();
-				//	break;
-				case ExporterState.USER_ACCOUNT_TYPE:
-					string accountRequest = this.Jsonify(www.text);
-					if (!accountRequest.Contains("account"))
-					{
-						_lastError = "Failed to retrieve user account type";
+                // JSONArray categoriesArray = JSON.Parse(jsonify)["results"].AsArray;
+                //  foreach (JSONNode node in categoriesArray)
+                //  {
+                //      categories.Add(node["name"], node["slug"]);
+                //      categoriesNames.Add(node["name"]);
+                //  }
+                //  setIdle();
+                //  break;
+                case ExporterState.USER_ACCOUNT_TYPE:
+                    string accountRequest = this.Jsonify(www.text);
+                    if (!accountRequest.Contains("account"))
+                    {
+                        _lastError = "Failed to retrieve user account type";
                         _checkUserAccountFailure?.Invoke();
                         break;
-					}
-					else
-					{
-						var userSettings = JSON.Parse(accountRequest);
-						string account = userSettings["account"];
-						_currentUserPlan = GetPlan(account);
-						_userDisplayName = userSettings["displayName"];
+                    }
+                    else
+                    {
+                        var userSettings = JSON.Parse(accountRequest);
+                        string account = userSettings["account"];
+                        _currentUserPlan = GetPlan(account);
+                        _userDisplayName = userSettings["displayName"];
                         _checkUserAccountSuccess?.Invoke();
                     }
-					break;
-				case ExporterState.CAN_PRIVATE:
-					string canPrivateRequest = this.Jsonify(www.text);
-					if (!canPrivateRequest.Contains("canProtectModels"))
-					{
-						Debug.Log("Failed to retrieve if user can private");
-						SetIdle();
-						break;
-					}
-					_userCanPrivate = jsonResponse["canProtectModels"].AsBool;
-					break;
-			}
-		}
-		private void SetIdle()
-		{
-			_state = ExporterState.IDLE;
-		}
+                    break;
+                case ExporterState.CAN_PRIVATE:
+                    string canPrivateRequest = this.Jsonify(www.text);
+                    if (!canPrivateRequest.Contains("canProtectModels"))
+                    {
+                        Debug.Log("Failed to retrieve if user can private");
+                        SetIdle();
+                        break;
+                    }
+                    _userCanPrivate = jsonResponse["canProtectModels"].AsBool;
+                    break;
+            }
+        }
+        private void SetIdle()
+        {
+            _state = ExporterState.IDLE;
+        }
 
-		private static string GetUrlId(Dictionary<string, string> responseHeaders)
-		{
-			return responseHeaders["LOCATION"].Split('/')[responseHeaders["LOCATION"].Split('/').Length - 1];
-		}
+        private static string GetUrlId(Dictionary<string, string> responseHeaders)
+        {
+            return responseHeaders["LOCATION"].Split('/')[responseHeaders["LOCATION"].Split('/').Length - 1];
+        }
 
-		public string GetModelUrl()
-		{
-			return _lastModelUrl;
-		}
+        public string GetModelUrl()
+        {
+            return _lastModelUrl;
+        }
 
-		private JSONNode ParseResponse(WWW www)
-		{
-			return JSON.Parse(Jsonify(www.text));
-		}
+        private JSONNode ParseResponse(WWW www)
+        {
+            return JSON.Parse(Jsonify(www.text));
+        }
 
-		// Update is called once per frame
-		public void Update()
-		{
-			//checkAccessTokenValidity();
-			_publisher.Update();
-		}
+        // Update is called once per frame
+        public void Update()
+        {
+            //checkAccessTokenValidity();
+            _publisher.Update();
+        }
 
-		public float GetUploadProgress()
-		{
-			if(_state == ExporterState.PUBLISH_MODEL && _publisher.GetResponse() != null)
-			{
-				return _publisher.GetUploadProgress();
-			}
-			else
-			{
-				return -1.0f; // No upload in progress
-			}
-		}
+        public float GetUploadProgress()
+        {
+            if (_state == ExporterState.PUBLISH_MODEL && _publisher.GetResponse() != null)
+            {
+                return _publisher.GetUploadProgress();
+            }
+            else
+            {
+                return -1.0f; // No upload in progress
+            }
+        }
 
-		private string Jsonify(string jsondata)
-		{
-			return jsondata.Replace("null", "\"null\"");
-		}
-	}
+        private string Jsonify(string jsondata)
+        {
+            return jsondata.Replace("null", "\"null\"");
+        }
+    }
 
-	public class SketchfabRequest
-	{
-		bool _isDone = false;
-		public WWW www;
-		private string auth_code = "";
-		private string access_token = "";
-		private string uploadSource = "";
-		public delegate void RequestResponseCallback();
-		private RequestResponseCallback _callback;
+    public class SketchfabRequest
+    {
+        bool _isDone = false;
+        public WWW www;
+        private string auth_code = "";
+        private string access_token = "";
+        private string uploadSource = "";
+        public delegate void RequestResponseCallback();
+        private RequestResponseCallback _callback;
 
-		public SketchfabRequest(string source)
-		{
-			uploadSource = source;
-		}
+        public SketchfabRequest(string source)
+        {
+            uploadSource = source;
+        }
 
-		public void SaveAccessToken(string token)
-		{
-			access_token = token;
-		}
+        public void SaveAccessToken(string token)
+        {
+            access_token = token;
+        }
 
-		public void SetResponseCallback(RequestResponseCallback responseCb)
-		{
-			_callback = responseCb;
-		}
+        public void SetResponseCallback(RequestResponseCallback responseCb)
+        {
+            _callback = responseCb;
+        }
 
-		public void Update()
-		{
-			if(!_isDone && www != null && www.isDone)
-			{
-				_isDone = true;
-				_callback();
-			}
-		}
+        public void Update()
+        {
+            if (!_isDone && www != null && www.isDone)
+            {
+                _isDone = true;
+                _callback();
+            }
+        }
 
-		// Request access_token
-		public void RequestAccessToken(string user_name, string user_password)
-		{
+        // Request access_token
+        public void RequestAccessToken(string user_name, string user_password)
+        {
             Dictionary<string, string> parameters = new Dictionary<string, string>()
-			{
+            {
                 { "username", user_name },
                 { "password", user_password }
             };
             // requestSketchfabAPI(SketchfabPlugin.Urls.oauth, parameters);
         }
 
-		public WWW GetResponse()
-		{
-			return www;
-		}
+        public WWW GetResponse()
+        {
+            return www;
+        }
 
-		public float GetUploadProgress()
-		{
-			if(www != null)
-			{
-				return 0.99f * www.uploadProgress + 0.01f * www.progress;
-			}
-			else
-			{
-				return -1.0f;
-			}
-		}
+        public float GetUploadProgress()
+        {
+            if (www != null)
+            {
+                return 0.99f * www.uploadProgress + 0.01f * www.progress;
+            }
+            else
+            {
+                return -1.0f;
+            }
+        }
 
-		public void RequestExporterReleaseInfo()
-		{
-			RequestSketchfabAPI(SketchfabPlugin.Urls.latestReleaseCheck);
-		}
+        public void RequestExporterReleaseInfo()
+        {
+            RequestSketchfabAPI(SketchfabPlugin.Urls.latestReleaseCheck);
+        }
 
-		public void RequestAccountInfo()
-		{
-			RequestSketchfabAPI(SketchfabPlugin.Urls.userMe);
-		}
+        public void RequestAccountInfo()
+        {
+            RequestSketchfabAPI(SketchfabPlugin.Urls.userMe);
+        }
 
-		public void RequestUserCanPrivate()
-		{
-			RequestSketchfabAPI(SketchfabPlugin.Urls.userAccount);
-		}
+        public void RequestUserCanPrivate()
+        {
+            RequestSketchfabAPI(SketchfabPlugin.Urls.userAccount);
+        }
 
-		public void PostModel(Dictionary<string, string> parameters, string filePath)
-		{
-			if (!System.IO.File.Exists(filePath))
-			{
-				Debug.LogError("Exported file not found. Aborting");
-				return;
-			}
+        public void PostModel(Dictionary<string, string> parameters, string filePath)
+        {
+            if (!System.IO.File.Exists(filePath))
+            {
+                Debug.LogError("Exported file not found. Aborting");
+                return;
+            }
 
-			//byte[] data = File.ReadAllBytes(filePath);
-			//requestSketchfabAPI(SketchfabPlugin.Urls.postModel, parameters, data, filePath);
-		}
+            //byte[] data = File.ReadAllBytes(filePath);
+            //requestSketchfabAPI(SketchfabPlugin.Urls.postModel, parameters, data, filePath);
+        }
 
-		public void RequestSketchfabAPI(string url)
-		{
-			_isDone = false;
-			if (access_token.Length > 0)
-			{
-				WWWForm postForm = new WWWForm();
-				Dictionary<string, string> headers = postForm.headers;
-				if (access_token.Length > 0)
-					headers["Authorization"] = "Bearer " + access_token;
+        public void RequestSketchfabAPI(string url)
+        {
+            _isDone = false;
+            if (access_token.Length > 0)
+            {
+                WWWForm postForm = new WWWForm();
+                Dictionary<string, string> headers = postForm.headers;
+                if (access_token.Length > 0)
+                    headers["Authorization"] = "Bearer " + access_token;
 
 
-				Debug.Log("sending www");
-				www = new WWW(url, null, headers);
-				Debug.Log("finished www");
-			}
-			else
-			{
-				www = new WWW(url);
-			}
-		}
-	}
+                Debug.Log("sending www");
+                www = new WWW(url, null, headers);
+                Debug.Log("finished www");
+            }
+            else
+            {
+                www = new WWW(url);
+            }
+        }
+    }
 }
 #endif

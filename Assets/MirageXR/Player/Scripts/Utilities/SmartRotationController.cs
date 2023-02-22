@@ -6,7 +6,7 @@ namespace MirageXR
     /// <summary>
     /// Controls Rotation Machine based on sensor input.
     /// </summary>
-    [RequireComponent (typeof (RotationMachine))]
+    [RequireComponent(typeof(RotationMachine))]
     public class SmartRotationController : MonoBehaviour
     {
         // Rotation machine
@@ -14,7 +14,7 @@ namespace MirageXR
 
         // Sprite renderer
         private SpriteRenderer _spriteRenderer;
-        
+
         // Data stream to be monitored.
         private DeviceMqttBehaviour.SensorVariable _stream;
 
@@ -50,7 +50,7 @@ namespace MirageXR
             try
             {
                 // Let's do the easy bit first.
-                if(min >= max)
+                if (min >= max)
                     throw new ArgumentException("Minimum value not smaller than maximum.");
 
                 _min = min;
@@ -65,10 +65,10 @@ namespace MirageXR
                     sensorCounter++;
 
                     // Get sensor object streams.
-                    var streams = obj.GetComponent<DeviceMqttBehaviour> ().Values;
+                    var streams = obj.GetComponent<DeviceMqttBehaviour>().Values;
 
                     if (streams == null)
-                        throw new MissingComponentException (sensor + " doesn't contain any data streams.");
+                        throw new MissingComponentException(sensor + " doesn't contain any data streams.");
 
                     // If we got any...
                     foreach (var stream in streams)
@@ -78,7 +78,7 @@ namespace MirageXR
                             continue;
 
                         // Check that the value is numerical
-                        if(stream.Type.Equals("string") || stream.Type.Equals("bool"))
+                        if (stream.Type.Equals("string") || stream.Type.Equals("bool"))
                             throw new ArgumentException("Stream is not numerical.");
 
                         // Attach stream as the monitored stream.
@@ -88,10 +88,10 @@ namespace MirageXR
                     }
                 }
 
-                if(sensorCounter == 0)
+                if (sensorCounter == 0)
                     throw new ArgumentException("Sensor " + sensor + " couldn't be found.");
 
-                if(streamCounter == 0)
+                if (streamCounter == 0)
                     throw new ArgumentException("Stream " + key + " couldn't be found.");
 
                 _isReady = true;
@@ -105,7 +105,7 @@ namespace MirageXR
         }
 
         // Update is called once per frame
-        void Update ()
+        void Update()
         {
             // If everything is initialised properly.
             if (_isReady)

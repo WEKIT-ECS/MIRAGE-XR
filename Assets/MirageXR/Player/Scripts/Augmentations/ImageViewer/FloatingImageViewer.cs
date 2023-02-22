@@ -1,15 +1,16 @@
 ﻿using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
-using System.Collections;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace MirageXR
 {
     public class FloatingImageViewer : MirageXRPrefab
     {
-        private ActivityManager activityManager => RootObject.Instance.activityManager;
+        private const string MAIN_TEXTUERE = "_MainTex";
 
-        private float _width = 0.4f;
-        private float _height = 0.3f;
+        private ActivityManager activityManager => RootObject.Instance.activityManager;
 
         [Tooltip("Image file. .jpg and .png formats supported")]
 
@@ -24,25 +25,16 @@ namespace MirageXR
 
         [SerializeField] private GameObject Background;
 
-
-        //private Transform _contentPanel;
         private Vector3 _originalPosition = Vector3.zero;
         private Quaternion _originalRotation = Quaternion.identity;
         private Vector3 _originalScale = Vector3.one;
-
         private bool _originalGuideState;
-        private GameObject _thinLine;
         private ToggleObject _obj;
-
+        private GameObject _thinLine;
         private GameObject _contentObject;
+        private Texture2D _texture;
 
         public ToggleObject ToggleObject => _obj;
-
-
-        // private void Awake()
-        // {
-        //     _contentPanel = GameObject.FindGameObjectWithTag("ContentPanel").transform;
-        // }
 
         /// <summary>
         /// Initialization method.
@@ -75,24 +67,23 @@ namespace MirageXR
             {
                 SetOrientation(FrameLandscape, FramePortrait, BackgroundLandscape);
             }
+
             // Get the last bit of the url.
-            var id = obj.url.Split('/')[obj.url.Split('/').Length - 1];
+            var id = obj.url.Split('/').LastOrDefault();
 
             // Rename with the predicate + id to get unique name.
-            name = obj.predicate + "_" + id;
+            name = $"{obj.predicate}_{id}";
 
             // Load from resources.
             if (obj.url.StartsWith("resources://"))
             {
                 // Set image url.
-                imageName = obj.url.Replace("resources://", "");
+                imageName = obj.url.Replace("resources://", string.Empty);
 
                 // Create image viewer. Defaults to 4:3 landscape images for now.
                 CreateImageViewer(1.0f, 0.75f, false);
             }
-
-            // Load from external url.
-            else
+            else // Load from external url.
             {
                 // Set image url.
                 imageName = obj.url;
@@ -108,13 +99,18 @@ namespace MirageXR
             {
                 // Setup guide line feature.
                 if (!SetGuide(obj))
+                {
                     return false;
+                }
 
                 _thinLine = transform.FindDeepChild("ThinLine").gameObject;
             }
 
-            // this ensures objectmanipulator and billboard components are set
-            GetComponentInParent<PoiEditor>().UpdateManipulationOptions(gameObject);
+            var poiEditor = GetComponentInParent<PoiEditor>();
+            if (poiEditor)
+            {
+                poiEditor.UpdateManipulationOptions(gameObject);
+            }
 
             return base.Init(obj);
         }
@@ -127,25 +123,14 @@ namespace MirageXR
         /// <param name="useExternalImageSource">If true, load image from application's LocalState folder, if false, load from project resources.</param>
         public void CreateImageViewer(float width, float height, bool useExternalImageSource)
         {
-            if (width > 0)
-            {
-                _width = width;
-            }
-            if (height > 0)
-            {
-                _height = height;
-            }
             useExternalSource = useExternalImageSource;
 
-            // Create image viewer screen        
-            MeshFilter meshFilter = Background.GetComponent<MeshFilter>();
-            // meshFilter.mesh = CreatePlaneMesh ();
-            MeshRenderer renderer = Background.GetComponent<MeshRenderer>();
-            renderer.material.shader = Shader.Find("Unlit/Texture");
+            var meshRenderer = Background.GetComponent<MeshRenderer>();
+            meshRenderer.material.shader = Shader.Find("Unlit/Texture");
 
-            if (useExternalSource == true)
+            if (useExternalSource)
             {
-                StartCoroutine(nameof(LoadImage));
+                LoadImage().AsAsyncVoid();
             }
             else
             {
@@ -154,52 +139,41 @@ namespace MirageXR
                 {
                     imageName = imageName.Substring(0, imageName.Length - 4);
                 }
-                Texture2D imageTex = Resources.Load(imageName, typeof(Texture2D)) as Texture2D;
-                renderer.sharedMaterial.SetTexture("_MainTex", imageTex);
+
+                var imageTex = Resources.Load(imageName, typeof(Texture2D)) as Texture2D;
+                meshRenderer.sharedMaterial.SetTexture(MAIN_TEXTUERE, imageTex);
             }
         }
 
-
-        private IEnumerator LoadImage()
+        private async Task LoadImage()
         {
-            MeshRenderer renderer = Background.GetComponent<MeshRenderer>();
-            if (imageName.StartsWith("http") == false)
+            var meshRenderer = Background.GetComponent<MeshRenderer>();
+            string path;
+            if (imageName.StartsWith("http"))
             {
-                string dataPath = Application.persistentDataPath;
-                string completeImageName = "file://" + dataPath + "/" + imageName;
-                Debug.Log("Trying to load image from:" + completeImageName);
-                WWW www = new WWW(completeImageName);
-                yield return www;
-                Texture2D imageTex = new Texture2D(4, 4, TextureFormat.DXT1, false);
-                www.LoadImageIntoTexture(imageTex);
-                renderer.sharedMaterial.SetTexture("_MainTex", imageTex);
+                if (!imageName.Contains('/'))
+                {
+                    Debug.LogError($"Can't parse file name '{imageName}'");
+                }
+
+                var fileName = imageName.Split('/').LastOrDefault();
+                path = Path.Combine(activityManager.ActivityPath, fileName);
             }
             else
             {
-                // Online files stored locally.
-                var url = imageName.Split('/');
-                var filename = url[url.Length - 1];
-
-                var completeImageName = $"file://{activityManager.ActivityPath}/{filename}";
-
-                Debug.Log("Trying to load image from:" + completeImageName);
-
-                WWW www = new WWW(completeImageName);
-                yield return www;
-                Texture2D imageTex = new Texture2D(4, 4, TextureFormat.DXT1, false);
-                www.LoadImageIntoTexture(imageTex);
-                renderer.sharedMaterial.SetTexture("_MainTex", imageTex);
-
-                // Online files.
-                /*
-                WWW www = new WWW (imageName);
-                yield return www;
-                Texture2D imageTex = new Texture2D (4, 4, TextureFormat.DXT1, false);
-                www.LoadImageIntoTexture (imageTex);
-                renderer.sharedMaterial.SetTexture ("_MainTex", imageTex);
-                */
+                path = Path.Combine(Application.persistentDataPath, imageName);
             }
 
+            if (!File.Exists(path))
+            {
+                Debug.LogError($"File {path} doesn't exists");
+                return;
+            }
+
+            var data = await File.ReadAllBytesAsync(path);
+            _texture = new Texture2D(2, 2, TextureFormat.RGB24, false);
+            _texture.LoadImage(data);
+            meshRenderer.sharedMaterial.SetTexture(MAIN_TEXTUERE, _texture);
         }
 
         private void SetOrientation(GameObject activeFrame, GameObject unusedFrame, GameObject background)
@@ -214,40 +188,11 @@ namespace MirageXR
 
             Background = background;
 
-            BoundsControl boundsControl = gameObject.GetComponent<BoundsControl>();
+            var boundsControl = gameObject.GetComponent<BoundsControl>();
             boundsControl.enabled = false;
             boundsControl.enabled = true;
             // required to reset the bounding boxes of the frame used so that it displays correctly
         }
-
-        /// <summary>
-        /// Create a simple 2-triangle rectangle mesh in standing up position
-        /// </summary>
-        // private Mesh CreatePlaneMesh ()
-        // {
-        //     Mesh m = new Mesh ();
-        //     m.name = "PlaneMesh";
-        //     m.vertices = new Vector3 [] {
-        //     new Vector3( _width/2f, -_height/2f, 0 ),
-        //     new Vector3( -_width/2f, -_height/2f, 0 ),
-        //     new Vector3( -_width/2f, _height/2f, 0 ),
-        //     new Vector3( _width/2f, _height/2f, 0 )
-        // };
-        //     m.uv = new Vector2 [] {
-        //     new Vector2 (1, 0),
-        //     new Vector2 (0, 0),
-        //     new Vector2 (0, 1),
-        //     new Vector2 (1, 1)
-        // };
-        //    m.triangles = new int [] { 0, 1, 2, 0, 2, 3 };
-        //    m.RecalculateNormals ();
-
-        //    return m;
-        //}
-
-
-
-
 
         public void ToggleInPanel(bool inPanel)
         {
@@ -263,10 +208,8 @@ namespace MirageXR
                     _thinLine.SetActive(false);
                 }
 
-
                 InPanel = true;
             }
-
             else
             {
                 InPanel = false;
@@ -283,20 +226,21 @@ namespace MirageXR
         {
             if (InPanel)
             {
-                // GetComponent<Billboard>().enabled = false;
-                // transform.position = _contentPanel.position;
-                // transform.rotation = _contentPanel.rotation;
                 transform.localScale = Vector3.one * 0.35f;
             }
-
-            // else
-            // GetComponent<Billboard>().enabled = true;
         }
 
         private void OnDestroy()
         {
             if (_contentObject != null)
+            {
                 Destroy(_contentObject);
+            }
+
+            if (_texture)
+            {
+                Destroy(_texture);
+            }
         }
     }
 }

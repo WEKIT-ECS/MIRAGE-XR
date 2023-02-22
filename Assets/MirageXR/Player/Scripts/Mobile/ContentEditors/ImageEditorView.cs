@@ -9,6 +9,7 @@ using Image = UnityEngine.UI.Image;
 public class ImageEditorView : PopupEditorBase
 {
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
+
     private static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
 
     public override ContentType editorForType => ContentType.IMAGE;
@@ -24,9 +25,9 @@ public class ImageEditorView : PopupEditorBase
 
     private Texture2D _capturedImage;
 
-    public override void Init(Action<PopupBase> onClose, params object[] args)
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        base.Init(onClose, args);
+        base.Initialization(onClose, args);
         UpdateView();
         _btnCaptureImage.onClick.AddListener(OnCaptureImage);
 
@@ -68,7 +69,6 @@ public class ImageEditorView : PopupEditorBase
         }
 
         _content.key = _orientation ? LANDSCAPE : PORTRAIT;
-
 
         var saveFileName = $"MirageXR_Image_{DateTime.Now.ToFileTimeUtc()}.jpg";
         var outputPath = Path.Combine(activityManager.ActivityPath, saveFileName);
@@ -114,13 +114,20 @@ public class ImageEditorView : PopupEditorBase
     private void OnPictureTaken(bool result, Texture2D texture2D)
     {
         VuforiaBehaviour.Instance.enabled = true;
-        if (!result) return;
+        if (!result)
+        {
+            return;
+        }
+
         SetPreview(texture2D);
     }
 
     private void SetPreview(Texture2D texture2D)
     {
-        if (_capturedImage) Destroy(_capturedImage);
+        if (_capturedImage)
+        {
+            Destroy(_capturedImage);
+        }
 
         _capturedImage = texture2D;
         var sprite = Utilities.TextureToSprite(_capturedImage);

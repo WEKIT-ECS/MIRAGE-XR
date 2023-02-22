@@ -18,8 +18,11 @@ namespace MirageXR
             var operation = Addressables.LoadAssetAsync<T>(prefabName);
             await operation.Task;
 
-            if (operation.Status != AsyncOperationStatus.Failed) return operation.Result;
-            
+            if (operation.Status != AsyncOperationStatus.Failed)
+            {
+                return operation.Result;
+            }
+
             Debug.LogError(operation.OperationException);
             return null;
         }
