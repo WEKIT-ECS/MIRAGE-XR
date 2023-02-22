@@ -9,7 +9,7 @@ namespace MirageXR
     {
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
         [SerializeField] private Transform _head;
-        
+
         [SerializeField] private Transform _rightHand;
         [SerializeField] private Transform _leftHand;
 
@@ -17,7 +17,7 @@ namespace MirageXR
         [SerializeField] private Transform _lowerSpine;
 
         public bool IsPlaying => _isPlaying;
-        
+
         private bool _isPlaying;
         private Transform _anchor;
         private float _cooldown;
@@ -50,7 +50,7 @@ namespace MirageXR
             if (anchor == null) throw new ArgumentException("Can't be null", nameof(anchor));
 
             Stop();
-            
+
             _forceStop = false;
             _coroutine = StartCoroutine(PlayIEnumerator(ghostFrames, anchor, loop, cooldown ?? Time.fixedDeltaTime));
         }
@@ -59,7 +59,7 @@ namespace MirageXR
         {
             _forceStop = true;
             if (_coroutine == null) return;
-            
+
             StopCoroutine(_coroutine);
             _coroutine = null;
         }
@@ -72,15 +72,15 @@ namespace MirageXR
             var ghostTime = 0f;
 
             AudioPlayer audioPlayer = null;
-            
-            if (MyToggleObject.option.Contains(":")) 
-            {               
+
+            if (MyToggleObject.option.Contains(":"))
+            {
                 var audioPoi = MyToggleObject.option.Split(':')[1];
                 var audioAnnotation = activityManager.ActiveAction.enter.activates.Find(a => a.poi == audioPoi);
                 if (audioAnnotation != null)
                 {
                     yield return new WaitForSeconds(0.5f);
-                    // wait for half a second to give the audio object time to spawn 
+                    // wait for half a second to give the audio object time to spawn
 
                     audioPlayer = GameObject.Find(audioAnnotation.poi).GetComponentInChildren<AudioPlayer>();
                     if (audioPlayer)
@@ -103,7 +103,7 @@ namespace MirageXR
                         {
                             SetFrame(ghostFrame, anchor);
                             yield return new WaitForSeconds(framerate);
-                            // if the ghost playback is not behind the audio playback, play the next frame. 
+                            // if the ghost playback is not behind the audio playback, play the next frame.
                         }
                         ghostTime += framerate;
                         // Update ghost playback time regardless of whether or not the a frame is played, allows frames to be skiped untill the loop catches up with the audio
@@ -123,11 +123,11 @@ namespace MirageXR
 
         private void SetFrame(GhostDataFrame ghostFrame, Transform anchor)
         {
-            SetPose(_head,       ghostFrame.head,       anchor);
+            SetPose(_head, ghostFrame.head, anchor);
             SetPose(_upperSpine, ghostFrame.upperSpine, anchor);
             SetPose(_lowerSpine, ghostFrame.lowerSpine, anchor);
-            SetPose(_rightHand,  ghostFrame.rightHand,  anchor);
-            SetPose(_leftHand,   ghostFrame.leftHand,   anchor);
+            SetPose(_rightHand, ghostFrame.rightHand, anchor);
+            SetPose(_leftHand, ghostFrame.leftHand, anchor);
         }
 
         private static void SetPose(Transform obj, Pose pose, Transform anchor)

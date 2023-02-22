@@ -26,6 +26,7 @@ namespace MirageXR
         {
             get; set;
         }
+
         public RotationHandlesConfiguration CustomRotationHandlesConfiguration
         {
             get; set;
@@ -55,9 +56,14 @@ namespace MirageXR
         /// <param name="addListeners"></param>
         /// <param name="boundingRotationType"></param>
         /// <param name="AddManipulator"></param>
-        /// <returns></returns>
-        public async Task AddBoundingBox(ToggleObject annotationToggleObject, BoundsCalculationMethod boundsCalculationMethod, bool hasConstraintManager = false,
-            bool addListeners = true, BoundingRotationType boundingRotationType = BoundingRotationType.ALL, bool AddManipulator = false)
+        /// <returns>Task object for asynchronous execution</returns>
+        public async Task AddBoundingBox(
+            ToggleObject annotationToggleObject,
+            BoundsCalculationMethod boundsCalculationMethod,
+            bool hasConstraintManager = false,
+            bool addListeners = true,
+            BoundingRotationType boundingRotationType = BoundingRotationType.ALL,
+            bool AddManipulator = false)
         {
             if (!hasConstraintManager && !GetComponent<ConstraintManager>())
             {
@@ -87,9 +93,9 @@ namespace MirageXR
             }
 
             var minMaxScaleConstraint = GetComponent<MinMaxScaleConstraint>();
-            if(!minMaxScaleConstraint) 
+            if (!minMaxScaleConstraint)
             {
-                minMaxScaleConstraint = gameObject.AddComponent<MinMaxScaleConstraint>();   //TODO: looks useless
+                minMaxScaleConstraint = gameObject.AddComponent<MinMaxScaleConstraint>(); // TODO: looks useless
             }
 
             if (boundsControl != null && boundingRotationType != BoundingRotationType.ALL)
@@ -173,7 +179,7 @@ namespace MirageXR
             objectManipulator.TwoHandedManipulationType = Microsoft.MixedReality.Toolkit.Utilities.TransformFlags.Move;
 
             objectManipulator.OnManipulationEnded.AddListener(arg => SaveTransform(annotation));
-            
+
             EditModeState(RootObject.Instance.activityManager.EditModeActive);
         }
 

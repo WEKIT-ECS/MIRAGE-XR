@@ -14,7 +14,7 @@ namespace MirageXR
     {
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
         private readonly Actor anonymousActor = new Actor("anonymous@wekit-ecs.com", "An Anonymous Actor");
-        private readonly string mirageIRIroot = "https://wekit-community.org";
+        private readonly string mirageIRIroot = "https://wekit-ecs.com";
 
         private ExperienceAPIClient xAPIClient;
 
@@ -300,7 +300,7 @@ namespace MirageXR
                                 break;
                         }
                     }
-                   
+
                     if (verb != null && obj != null)
                     {
                         // Add object name and create statement
@@ -433,7 +433,7 @@ namespace MirageXR
         {
             Actor statementActor = ProduceActor();
             Statement retVal = new Statement(statementActor, verb, obj);
-            retVal.timestamp = DateTime.UtcNow;            
+            retVal.timestamp = DateTime.UtcNow;
 
             return retVal;
         }
@@ -464,7 +464,7 @@ namespace MirageXR
         /// To be used only if a direct URL from ARLEM isn't available.
         /// </summary>
         /// <param name="activityID">The activity ID (session ID).</param>
-        /// <returns></returns>
+        /// <returns>Returns the generated IRI</returns>
         private string createActivityIRI(string activityID)
         {
             return mirageIRIroot + "/context/ActivityID=" + activityID;

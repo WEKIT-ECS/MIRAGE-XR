@@ -185,7 +185,8 @@ namespace MirageXR
                 tiltInstance = Instantiate(tiltPrefab);
                 tiltInstance.SetViewOnly(true);
             }
-            else{
+            else
+            {
                 tiltInstance = Tiltbrush.Instance;
             }
 

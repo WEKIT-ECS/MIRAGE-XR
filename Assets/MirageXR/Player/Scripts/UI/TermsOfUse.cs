@@ -24,7 +24,7 @@ namespace MirageXR
 
             string TermsOfUse = string.Empty;
             if (Resources.Load<TextAsset>(CFEditor.termsOfUseUser))
-                TermsOfUse = Resources.Load<TextAsset>(CFEditor.termsOfUseUser).text; 
+                TermsOfUse = Resources.Load<TextAsset>(CFEditor.termsOfUseUser).text;
             else if (Resources.Load<TextAsset>(CFEditor.termsOfUseDefault))
                 TermsOfUse = Resources.Load<TextAsset>(CFEditor.termsOfUseDefault).text;
 

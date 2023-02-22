@@ -17,7 +17,7 @@ namespace MirageXR
         public const string URL = "http://127.0.0.1:52072";
         public const int RESULTS_PER_PAGE = 10;
         private const float RETRY_MAX_COUNT = 3;
-        
+
         // paging button control
         [SerializeField] private Text ResultsShownText;
         [SerializeField] private Button NextPageButton;
@@ -30,7 +30,7 @@ namespace MirageXR
         [SerializeField] private GameObject PanelLoginWithPassword;
         [SerializeField] private ClientDataObject SketchfabDataObject;
         [SerializeField] private ClientDataObject SketchfabLoginWithPasswordDataObject;
-        
+
         private float _retryCount;
         private bool _hasAccessToken;
         private bool _viewingLocalModels = false;
@@ -44,7 +44,7 @@ namespace MirageXR
         private string _prevSearchResults = string.Empty;
 
         private List<ModelPreviewItem> _currentPreviewItems = new List<ModelPreviewItem>();
-        
+
         private string _token;
         private string _renewToken;
 
@@ -74,11 +74,11 @@ namespace MirageXR
             PrevPageButton.onClick.AddListener(PreviousResultsPage);
             ToggleRememberMe.isOn = DBManager.rememberSketchfabUser;
             ToggleRememberMe.onValueChanged.AddListener(value => DBManager.rememberSketchfabUser = value);
-            
+
             CheckForAppCredentials();
             _hasAccessToken = LocalFiles.TryGetPassword("sketchfab", out _renewToken, out _token);
 
-            // TODO: check validity of existing access tokens, remove obsolete entry where needed 
+            // TODO: check validity of existing access tokens, remove obsolete entry where needed
             // step 1:
             // use the SketchfabAuthorizationFlowAnswer, which is accessed in the SketchfabOIDCProvider class of the i5 Toolkit
             // speak to BH about adding a function that returns the 'expires_in' parameter of the webresponse.
@@ -118,7 +118,7 @@ namespace MirageXR
                 }
             }
         }
-        
+
         private void CloseLoginWithPassword()
         {
             ToggleDisplayPanels("login");
@@ -219,7 +219,7 @@ namespace MirageXR
             {
                 _currentSearchPage++;
                 StartCoroutine(GetSketchfabResults(_nextSearchResults, _token, SketchfabSearchCallback));
-            }   
+            }
         }
 
         /// <summary>
@@ -276,7 +276,7 @@ namespace MirageXR
         {
             const float megabytesInBytes = 1024f * 1024f;
             const float maxSizeWithoutConfirm = 30f;
-            
+
             var modelManager = GetComponent<ModelManager>();
             StartCoroutine(GetModelDownloadInfo(_token, modelPreview, info =>
             {
@@ -337,7 +337,7 @@ namespace MirageXR
             if (!string.IsNullOrEmpty(authCode))
             {
                 StartCoroutine(RequestToken(authCode, AccessTokenReceiver));
-            }          
+            }
         }
 
         // Access token receiver
@@ -347,7 +347,7 @@ namespace MirageXR
             LocalFiles.SaveLoginDetails("sketchfab", string.Empty, _token);
             StartSession();
         }
-        
+
         // Receives the access token from the i5 service layer
         private void LoginCompleted(object sender, EventArgs e)
         {
@@ -425,7 +425,7 @@ namespace MirageXR
             }
         }
 
-        private void ShowRemoteModelsPage() //TODO: possible NRE 
+        private void ShowRemoteModelsPage() //TODO: possible NRE
         {
             transform.Find("panelLogin").gameObject.SetActive(false);
             PanelLoginWithPassword.SetActive(false);
@@ -440,7 +440,7 @@ namespace MirageXR
             DisplayCurrentSearchRange();
         }
 
-        private void ShowLocalModelsPage() //TODO: possible NRE 
+        private void ShowLocalModelsPage() //TODO: possible NRE
         {
             transform.Find("panelLogin").gameObject.SetActive(false);
             PanelLoginWithPassword.SetActive(false);
@@ -454,7 +454,7 @@ namespace MirageXR
             GetComponent<ModelManager>().PopulateModelPreview();
         }
 
-        private void ShowLoginPage() //TODO: possible NRE 
+        private void ShowLoginPage() //TODO: possible NRE
         {
             transform.Find("panelLogin").gameObject.SetActive(true);
             PanelLoginWithPassword.gameObject.SetActive(false);
@@ -463,7 +463,7 @@ namespace MirageXR
             transform.Find("panelSketchfabPreview").gameObject.SetActive(false);
         }
 
-        private void ShowLoginWithPasswordPage() //TODO: possible NRE 
+        private void ShowLoginWithPasswordPage() //TODO: possible NRE
         {
             PanelLoginWithPassword.gameObject.SetActive(true);
             transform.Find("panelLogin").gameObject.SetActive(false);
@@ -476,10 +476,10 @@ namespace MirageXR
         private void SketchfabSearchCallback(string result)
         {
             ResultsShownText.text = string.Empty;
-            
+
             var formattedResult = JsonUtility.FromJson<SketchfabModelSearchResult>(result);
             SetResultPaging(formattedResult.next, formattedResult.previous);
-            
+
             _currentPreviewItems = Sketchfab.ReadWebResults(result, _currentSearchOption);
 
             var listPopulator = GetComponent<ScrollableListPopulator>();
@@ -503,13 +503,13 @@ namespace MirageXR
             int searchResultsEndIndex = searchResultStartIndex + (RESULTS_PER_PAGE - 1);
             ResultsShownText.text = $"{searchResultStartIndex} - {searchResultsEndIndex}";
         }
-        
+
         #endregion Search Functions
-        
+
         /// <summary>
         /// Requests gltf model information from sketchfab.
         /// </summary>
-        /// <param name="token">Token</param> 
+        /// <param name="token">Token</param>
         /// <param name="modelPreview">Model preview data.</param>
         /// <param name="callback">The function to run when dowload information is available.</param>
         /// <returns></returns>
@@ -520,7 +520,7 @@ namespace MirageXR
             www.SetRequestHeader("Authorization", $"Bearer {token}");
             yield return www.SendWebRequest();
 
-            if (www.result == UnityWebRequest.Result.Success) 
+            if (www.result == UnityWebRequest.Result.Success)
             {
                 var response = www.downloadHandler.text;
                 var downloadInfo = JsonUtility.FromJson<ModelDownloadInfo>(response);
@@ -531,7 +531,7 @@ namespace MirageXR
                 Debug.Log(www.error);
             }
         }
-        
+
         public static IEnumerator GetSketchfabResults(string url, string token, Action<string> callbackReceivedCode)
         {
             const float cooldown = 0.5f;
@@ -539,7 +539,7 @@ namespace MirageXR
             while (retryCount < RETRY_MAX_COUNT)
             {
                 retryCount++;
-                
+
                 using var request = new UnityWebRequest(url);
                 request.SetRequestHeader("Authorisation", $"Bearer {token}");
                 var handler = new DownloadHandlerBuffer();
@@ -564,7 +564,7 @@ namespace MirageXR
                 yield return new WaitForSeconds(cooldown);
             }
         }
-        
+
         public static IEnumerator DownloadImage(string url, Action<Sprite> callback)
         {
             const string httpPrefix = "http";
@@ -574,14 +574,14 @@ namespace MirageXR
             if (url.StartsWith(httpPrefix))
             {
                 using var www = UnityWebRequestTexture.GetTexture(url);
-               
+
                 yield return www.SendWebRequest();
 
                 if (www.result != UnityWebRequest.Result.ConnectionError && www.result != UnityWebRequest.Result.ProtocolError)
                 {
                     texture = ((DownloadHandlerTexture)www.downloadHandler).texture;
                 }
-                
+
             }
             else if (url.StartsWith(filePrefix))
             {
@@ -596,11 +596,11 @@ namespace MirageXR
             {
                 Debug.Log("Unrecognised link for thumbnail image");
             }
-            
+
             var rec = new Rect(0, 0, texture.width, texture.height);
             var ppu = Mathf.Max(texture.width / 9f, texture.height / 6f);
             var sprite = Sprite.Create(texture, rec, new Vector2(0.5f, 0.5f), ppu);
-            
+
             callback?.Invoke(sprite);
         }
     }

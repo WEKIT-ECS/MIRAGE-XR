@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GlobalKeywords : MonoBehaviour {
+public class GlobalKeywords : MonoBehaviour
+{
 
-    public void LoadMainMenu ()
+    public void LoadMainMenu()
     {
-        SceneManager.LoadScene ("AppSelection");
+        SceneManager.LoadScene("AppSelection");
     }
 }

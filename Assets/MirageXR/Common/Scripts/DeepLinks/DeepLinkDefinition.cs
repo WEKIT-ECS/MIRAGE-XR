@@ -1,5 +1,4 @@
 ﻿using i5.Toolkit.Core.DeepLinkAPI;
-using i5.Toolkit.Core.ServiceCore;
 using MirageXR;
 using System;
 using System.IO;
@@ -38,6 +37,10 @@ public class DeepLinkDefinition
         else
         {
             Debug.LogError("Deep Link is missing id or download parameter");
+            DialogWindow.Instance.Show(
+            "Info!",
+            "Activity launch protocol is not complete",
+            new DialogButtonContent("Ok"));
         }
     }
 
@@ -48,7 +51,7 @@ public class DeepLinkDefinition
     public async void NewActivity()
     {
         await RootObject.Instance.editorSceneService.LoadEditorAsync();
-        RootObject.Instance.activityManager.CreateNewActivity();
+        await RootObject.Instance.activityManager.CreateNewActivity();
     }
 
     // opens the given activity
@@ -85,6 +88,13 @@ public class DeepLinkDefinition
                     Debug.LogError(e.ToString());
                     success = false;
                 }
+            }
+            else
+            {
+                DialogWindow.Instance.Show(
+                "Info!",
+                "Activity not found! Please check that you are connected to the correct Moodle repository",
+                new DialogButtonContent("Ok"));
             }
         }
         return success;

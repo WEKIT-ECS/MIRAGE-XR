@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace MirageXR
 {
-    
+
     /// <summary>
     /// The serializable custom class in which the gathered data will be stored,
     /// one instance for each frame (sensor updateInterval decides on framerate).
@@ -42,6 +42,6 @@ namespace MirageXR
             TimeStamp = tS;
         }
         */
-        
+
     }
 }

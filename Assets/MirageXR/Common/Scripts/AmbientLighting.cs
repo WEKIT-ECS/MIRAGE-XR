@@ -4,7 +4,7 @@ namespace MirageXR
 {
     public class AmbientLighting : MonoBehaviour
     {
-        private readonly int numberOfLights = 4;
+        private readonly int _numberOfLights = 4;
 
         private async void Start()
         {
@@ -23,17 +23,17 @@ namespace MirageXR
             if (PlatformManager.Instance.WorldSpaceUi)
                 sun.GetComponent<Light>().shadows = LightShadows.None;
 
-                // create 4 point lights 
-                for (int i = 0; i < numberOfLights; i++)
+            // create 4 point lights
+            for (int i = 0; i < _numberOfLights; i++)
+            {
+                Vector3 startPosition = transform.position + transform.forward * Random.Range(-5, 5) + transform.right * Random.Range(-5, 5);
+                var ambientLightPrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("AmbientLight");
+                if (ambientLightPrefab != null)
                 {
-                    Vector3 startPosition = transform.position + transform.forward * Random.Range(-5, 5) + transform.right * Random.Range(-5, 5);
-                    var ambientLightPrefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("AmbientLight");
-                    if(ambientLightPrefab != null)
-                    {
-                        Instantiate(ambientLightPrefab, startPosition, Quaternion.identity, transform);
-                    }
-
+                    Instantiate(ambientLightPrefab, startPosition, Quaternion.identity, transform);
                 }
+
+            }
         }
 
     }

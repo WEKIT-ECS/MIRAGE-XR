@@ -7,7 +7,7 @@ namespace MirageXR
         [SerializeField] private Transform _contentContainer;
         [SerializeField] private VfxListItem _vfxListItemPrefab;
         [SerializeField] private VfxObject[] _vfxObjects;
-        
+
         private Action _action;
         private ToggleObject _annotationToEdit;
         private Transform _annotationStartingPoint;
@@ -39,7 +39,7 @@ namespace MirageXR
         {
             foreach (var icon in _contentContainer.GetComponentsInChildren<RectTransform>())
             {
-                if(icon.gameObject != _contentContainer.gameObject)
+                if (icon.gameObject != _contentContainer.gameObject)
                     Destroy(icon.gameObject);
             }
         }

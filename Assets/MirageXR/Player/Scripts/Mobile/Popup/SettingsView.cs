@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class SettingsView : PopupBase
 {
     private const string VERSION_FORMAT = "Version {0}";
-    
+
     [SerializeField] private TMP_Text _txtVersion;
     [SerializeField] private ExtendedInputField _inputFieldMoodleAddress;
     [SerializeField] private Toggle _togglePublicUpload;
@@ -17,9 +17,9 @@ public class SettingsView : PopupBase
     [SerializeField] private Button _btnReset;
     [SerializeField] private Dropdown _learningRecordStoreDropdown;
 
-    public override void Init(Action<PopupBase> onClose, params object[] args)
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        base.Init(onClose, args);
+        base.Initialization(onClose, args);
         _txtVersion.text = string.Format(VERSION_FORMAT, Application.version);
         _inputFieldMoodleAddress.SetValidator(IsValidUrl);
         _inputFieldMoodleAddress.inputField.onValueChanged.AddListener(OnValueChangedMoodleAddress);
@@ -44,14 +44,23 @@ public class SettingsView : PopupBase
         _togglePublicUpload.isOn = DBManager.publicUploadPrivacy;
         _toggleUiForKids.isOn = false;
         _btnSave.interactable = false;
-        _learningRecordStoreDropdown.value = DBManager.publicCurrentLearningRecordStore;
+
+        switch (DBManager.publicCurrentLearningRecordStore)
+        {
+            case DBManager.LearningRecordStores.WEKIT:
+                _learningRecordStoreDropdown.value = 0;
+                break;
+            case DBManager.LearningRecordStores.ARETE:
+                _learningRecordStoreDropdown.value = 1;
+                break;
+        }
     }
 
     protected override bool TryToGetArguments(params object[] args)
     {
         return true;
     }
-    
+
     private void OnValueChangedRecordStore(int value)
     {
         ValueHasBeenChanged();
@@ -76,28 +85,40 @@ public class SettingsView : PopupBase
     {
         _btnSave.interactable = true;
     }
-    
+
     private void OnClickSaveChanges()
     {
         if (!_inputFieldMoodleAddress.Validate()) return;
-        
+
         if (DBManager.domain != _inputFieldMoodleAddress.text)
         {
             DBManager.domain = _inputFieldMoodleAddress.text;
             DBManager.LogOut();
             RootView.Instance.activityListView.UpdateListView();
         }
-        
+
         DBManager.publicUploadPrivacy = _togglePublicUpload.isOn;
 
-        changeLearningRecordStore(_learningRecordStoreDropdown.value);
+        var selectedLearningRecordStore = DBManager.publicCurrentLearningRecordStore;
+
+        switch (_learningRecordStoreDropdown.value) 
+        {
+            case 0:
+                selectedLearningRecordStore = DBManager.LearningRecordStores.WEKIT;
+                break;
+            case 1:
+                selectedLearningRecordStore = DBManager.LearningRecordStores.ARETE;
+                break;
+        }
+
+        changeLearningRecordStore(selectedLearningRecordStore);
 
         ResetValues();
-        
+
         Close();
     }
 
-    private void changeLearningRecordStore(int selectedLearningRecordStore)
+    private void changeLearningRecordStore(DBManager.LearningRecordStores selectedLearningRecordStore)
     {
         EventManager.NotifyxAPIChanged(selectedLearningRecordStore);
 
@@ -107,7 +128,7 @@ public class SettingsView : PopupBase
 
     private void OnClickReset()
     {
-        _inputFieldMoodleAddress.text = DBManager.MOODLE_URL_DEFAULT;
+        _inputFieldMoodleAddress.text = DBManager.WEKIT_URL;
         _togglePublicUpload.isOn = DBManager.PUBLIC_UPLOAD_PRIVACY_DEFAULT;
         _learningRecordStoreDropdown.value = 0;
     }

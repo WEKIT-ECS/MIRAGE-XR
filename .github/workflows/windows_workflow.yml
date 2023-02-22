@@ -30,6 +30,7 @@ jobs:
           echo -n "$env:ASSISTANTKEYS" > $env:GITHUB_WORKSPACE/ibm-credentials.env
           echo "path of the credentials resource $env:GITHUB_WORKSPACE/Assets/Resources/ibm-credentials.txt"
           $env:IBM_CREDENTIALS_FILE="$env:GITHUB_WORKSPACE/ibm-credentials.env"
+          $env:TARGET_PLATFORM="Hololens"
 
       # Cache
       - name: Caching
@@ -47,7 +48,7 @@ jobs:
 
       # Build stage
       - name: Unity builder
-        uses: game-ci/unity-builder@v2.0.1
+        uses: game-ci/unity-builder@v2.1.1
         id: buildStep
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -151,6 +152,7 @@ jobs:
       SLACK_URL: ${{ secrets.SLACK_URL }}
       COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
       APP_VERSION: ${{ needs.build_unity.outputs.buildVersion }}
+      TARGET_PLATFORM: ${{ runner.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2

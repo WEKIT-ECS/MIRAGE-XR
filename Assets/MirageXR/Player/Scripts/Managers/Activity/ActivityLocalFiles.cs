@@ -7,7 +7,7 @@ namespace MirageXR
     public static class ActivityLocalFiles
     {
         private const string JSON_NAME_FORMAT = "{0}-activity.json";
-    
+
         public static void CleanUp(Activity activity)
         {
             var newDirectoryPath = Path.Combine(Application.persistentDataPath, activity.id);
@@ -23,6 +23,7 @@ namespace MirageXR
             var recFilePath = Path.Combine(Application.persistentDataPath, fileName);
             var json = ActivityParser.Serialize(activity);
             File.WriteAllText(recFilePath, json);
+            EventManager.ActivitySaved();
             RootObject.Instance.workplaceManager.SaveWorkplace();
         }
 
@@ -32,10 +33,10 @@ namespace MirageXR
             {
                 throw new ArgumentException();
             }
-            
+
             var oldPath = Path.Combine(Application.persistentDataPath, oldActivityId);
             var path = Path.Combine(Application.persistentDataPath, activityId);
-            
+
             if (!Directory.Exists(oldPath))
             {
                 Directory.CreateDirectory(oldPath);

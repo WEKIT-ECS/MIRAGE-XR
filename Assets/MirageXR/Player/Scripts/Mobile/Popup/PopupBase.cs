@@ -4,12 +4,12 @@ using UnityEngine;
 public abstract class PopupBase : MonoBehaviour
 {
     private Action<PopupBase> _onClose;
-    
+
     [HideInInspector] public bool canBeClosedByOutTap = true;
 
     public bool isMarkedToDelete { get; private set; } = false;
 
-    public virtual void Init(Action<PopupBase> onClose, params object[] args)
+    public virtual void Initialization(Action<PopupBase> onClose, params object[] args)
     {
         _onClose = onClose;
         if (!TryToGetArguments(args))

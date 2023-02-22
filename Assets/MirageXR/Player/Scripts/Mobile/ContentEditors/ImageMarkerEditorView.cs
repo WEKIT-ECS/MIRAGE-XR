@@ -19,9 +19,9 @@ public class ImageMarkerEditorView : PopupEditorBase
 
     private Texture2D _capturedImage;
 
-    public override void Init(Action<PopupBase> onClose, params object[] args)
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        base.Init(onClose, args);
+        base.Initialization(onClose, args);
         UpdateView();
         _btnCaptureImage.onClick.AddListener(OnCaptureImage);
     }
@@ -69,10 +69,10 @@ public class ImageMarkerEditorView : PopupEditorBase
         var saveFileName = $"MirageXR_Image_{DateTime.Now.ToFileTimeUtc()}.jpg";
         var outputPath = Path.Combine(activityManager.ActivityPath, saveFileName);
         File.WriteAllBytes(outputPath, _capturedImage.EncodeToJPG());
-        
+
         _content.url = RESOURCES_PREFIX + saveFileName;
         _content.scale = size / 100;
-        
+
         EventManager.ActivateObject(_content);
         EventManager.NotifyActionModified(_step);
         Close();
@@ -84,11 +84,11 @@ public class ImageMarkerEditorView : PopupEditorBase
         {
             var originalFileName = Path.GetFileName(_content.url.Remove(0, RESOURCES_PREFIX.Length));
             var originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
-            
+
             if (!File.Exists(originalFilePath)) return;
 
             _tmpInputSize.text = (_content.scale * 100).ToString(CultureInfo.InvariantCulture);
-            
+
             var texture2D = Utilities.LoadTexture(originalFilePath);
             SetPreview(texture2D);
         }
@@ -104,7 +104,7 @@ public class ImageMarkerEditorView : PopupEditorBase
         VuforiaBehaviour.Instance.enabled = false;
         NativeCameraController.TakePicture(OnPictureTaken);
     }
-    
+
     private void OnPictureTaken(bool result, Texture2D texture2D)
     {
         VuforiaBehaviour.Instance.enabled = true;
@@ -115,7 +115,7 @@ public class ImageMarkerEditorView : PopupEditorBase
     private void SetPreview(Texture2D texture2D)
     {
         if (_capturedImage) Destroy(_capturedImage);
-        
+
         _capturedImage = texture2D;
         var sprite = Utilities.TextureToSprite(_capturedImage);
         _image.sprite = sprite;
@@ -124,7 +124,7 @@ public class ImageMarkerEditorView : PopupEditorBase
         var rtImage = (RectTransform)_image.transform;
         var height = rtImage.rect.width / _capturedImage.width * _capturedImage.height + (rtImage.sizeDelta.y * -1);
         rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
-        
+
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
     }
 }

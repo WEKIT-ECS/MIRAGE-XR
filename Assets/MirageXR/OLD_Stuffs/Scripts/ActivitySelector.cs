@@ -67,10 +67,10 @@ namespace MirageXR
             // Empty all buttons.
             foreach (Transform child in ActivityObjectContainer)
             {
-                if(child.CompareTag("ActivitySelectionButton"))
+                if (child.CompareTag("ActivitySelectionButton"))
                     Destroy(child.gameObject);
             }
-            
+
             // Get all the files inside the application path and sort them by creation date.
             var sortedFileInfos = new DirectoryInfo(Application.persistentDataPath).GetFiles()
                 .OrderBy(f => f.LastWriteTime)
@@ -226,7 +226,7 @@ namespace MirageXR
 
                     // Create necessary local folder if it doesn't already exist.
                     //if (!Directory.Exists(Path))
-                       // Directory.CreateDirectory(Path);
+                    // Directory.CreateDirectory(Path);
 
 
                     // Go through each action...
@@ -234,7 +234,7 @@ namespace MirageXR
                     {
                         // Enter activate loop...
                         foreach (var activate in action.enter.activates)
-                        {                            
+                        {
                             // Do magic based on the activation object type...
                             switch (activate.type)
                             {
@@ -268,7 +268,7 @@ namespace MirageXR
                                 default:
 
                                     // Handle only online files.
-                                    if(activate.url.StartsWith("http"))
+                                    if (activate.url.StartsWith("http"))
                                     {
                                         // And if so, start the saving...
 
@@ -510,7 +510,7 @@ namespace MirageXR
                 }
 
                 // Final check. If all is good, store files.
-                if(errorCount.Equals(0))
+                if (errorCount.Equals(0))
                     StoreFiles();
             }
         }

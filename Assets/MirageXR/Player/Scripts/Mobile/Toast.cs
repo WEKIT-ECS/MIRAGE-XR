@@ -10,16 +10,16 @@ public class Toast : MonoBehaviour
     private const float SHOW_TIME_SHORT = 1.5f;
     private const float FADE_TIME = 0.2f;
     private const int MAX_MESSAGE_QUEUE = 3;
-    
+
     public static Toast Instance { get; private set; }
-    
+
     [SerializeField] private TMP_Text _message;
     [SerializeField] private CanvasGroup _canvasGroup;
-    
+
     private readonly Queue<string> _queue = new Queue<string>();
     private bool _isActive;
     private Coroutine _coroutine;
-    
+
     private void Awake()
     {
         if (Instance != null)
@@ -27,10 +27,10 @@ public class Toast : MonoBehaviour
             Debug.LogError($"{Instance.GetType().FullName} must only be a single copy!");
             return;
         }
-        
+
         Instance = this;
     }
-    
+
     private void Start()
     {
         _canvasGroup.gameObject.SetActive(false);
@@ -77,13 +77,13 @@ public class Toast : MonoBehaviour
         var width = _message.margin.x + _message.margin.z + _message.preferredWidth;
         rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
     }
-    
+
     private static IEnumerator FadeTo(CanvasGroup canvasGroup, float alphaEnd, float time, AnimationCurve curve = null, Action callback = null)
     {
         if (curve == null || curve.length == 0) curve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
         var alphaStart = canvasGroup.alpha;
         var timer = 0.0f;
-        while (timer < 1.0f) 
+        while (timer < 1.0f)
         {
             timer = Mathf.Min(1.0f, timer + Time.deltaTime / time);
             canvasGroup.alpha = Mathf.Lerp(alphaStart, alphaEnd, curve.Evaluate(timer));

@@ -27,6 +27,7 @@ Transform:
   m_LocalRotation: {x: -0.16248775, y: -0, z: -0, w: 0.98671055}
   m_LocalPosition: {x: -1.6240234, y: -0.47052002, z: -0.21614407}
   m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2159500432378019243}
   m_RootOrder: 0
@@ -92,14 +93,15 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2159500432378019243}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: -30}
-  m_SizeDelta: {x: -60, y: -285}
+  m_SizeDelta: {x: 640, y: 480}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &2606038453001347949
 CanvasRenderer:
@@ -165,6 +167,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 527578345997533679}
   - {fileID: 5633201134102928279}
@@ -177,7 +180,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 700, y: 760}
+  m_SizeDelta: {x: 700, y: 840}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &902285109867039301
 CanvasRenderer:
@@ -337,7 +340,7 @@ PrefabInstance:
     - target: {fileID: 4183032759630723382, guid: ccb6b84aaecf6b6468e6f35bb7d90097,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 110
+      value: 155
       objectReference: {fileID: 0}
     - target: {fileID: 4183032759630723382, guid: ccb6b84aaecf6b6468e6f35bb7d90097,
         type: 3}
@@ -357,8 +360,9 @@ PrefabInstance:
     - target: {fileID: 6144288806858760991, guid: ccb6b84aaecf6b6468e6f35bb7d90097,
         type: 3}
       propertyPath: m_text
-      value: Look at the calibration image on a printed paper or a screen to calibrate
-        the activity.
+      value: 'Please run the calibration routine first by tapping on the ''Calibration''
+        tab visible once you close this dialogue. If you get stuck, don''t worry:
+        The help menu can explain in more detail the why and how'
       objectReference: {fileID: 0}
     - target: {fileID: 6144288806858760991, guid: ccb6b84aaecf6b6468e6f35bb7d90097,
         type: 3}
@@ -375,6 +379,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_HorizontalAlignment
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6144288806858760991, guid: ccb6b84aaecf6b6468e6f35bb7d90097,
+        type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ccb6b84aaecf6b6468e6f35bb7d90097, type: 3}
@@ -654,6 +663,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -31678406096840578, guid: d4749c904429aee4084fbbc23b31e23a,
         type: 2}
+    - target: {fileID: 7985106300870955935, guid: 37b817edc783f634d892194f6caeb1a6,
+        type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 37b817edc783f634d892194f6caeb1a6, type: 3}
 --- !u!224 &1697905323839803159 stripped

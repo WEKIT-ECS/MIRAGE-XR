@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using MirageXR;
 
 public class PopupsViewer : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class PopupsViewer : MonoBehaviour
     [SerializeField] private Button _btnBackground;
 
     private readonly Stack<PopupBase> _stack = new Stack<PopupBase>();
-    
+
     private void Awake()
     {
         if (Instance != null)
@@ -17,7 +18,7 @@ public class PopupsViewer : MonoBehaviour
             Debug.LogError($"{Instance.GetType().FullName} must only be a single copy!");
             return;
         }
-        
+
         Instance = this;
     }
 
@@ -36,7 +37,7 @@ public class PopupsViewer : MonoBehaviour
         var popup = Instantiate(popupPrefab, transform);
         _stack.Push(popup);
         popup.gameObject.SetActive(false);
-        popup.Init(OnClose, args);
+        popup.Initialization(OnClose, args);
         UpdateView();
 
         return popup;
@@ -50,36 +51,50 @@ public class PopupsViewer : MonoBehaviour
             return;
         }
 
-        foreach (var popupBase in _stack)
-        {
-            popupBase.gameObject.SetActive(false);
-        }
-        
         var popup = _stack.Peek();
         if (popup.isMarkedToDelete)
         {
             popup.Close();
+            UpdateView();
         }
         else
         {
-            popup.gameObject.SetActive(true);
-            popup.transform.SetAsLastSibling();
-            _btnBackground.gameObject.SetActive(true);
+            ShowPopup(popup);
         }
+    }
+
+    private void ShowPopup(PopupBase popup)
+    {
+        popup.gameObject.SetActive(true);
+        popup.transform.SetAsLastSibling();
+        var lastSiblingIndex = popup.transform.GetSiblingIndex();
+        _btnBackground.transform.SetSiblingIndex(lastSiblingIndex - 1);
+        _btnBackground.gameObject.SetActive(true);
     }
 
     private void OnOutTap()
     {
-        if (_stack.Count == 0) return;
+        if (_stack.Count == 0)
+        {
+            return;
+        }
+
         var popup = _stack.Peek();
         if (popup.canBeClosedByOutTap)
         {
             popup.Close();
         }
+        EventManager.NotifyOnTutorialPopupCloseClicked();
     }
-    
+
     private void OnClose(PopupBase popup)
     {
+        if (_stack.Count <= 0)
+        {
+            Debug.LogError("Stack is empty!");
+            return;
+        }
+
         if (_stack.Peek() == popup)
         {
             Destroy(_stack.Pop().gameObject);

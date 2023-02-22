@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using System.Threading.Tasks;
 using MirageXR;
-using TiltBrush;
+using UnityEngine;
 
 /// <summary>
 /// Just used for MirageXR player testing.
@@ -14,17 +12,17 @@ public class DummyLogic : MonoBehaviour
 
     [SerializeField] private GameObject SensorState;
 
-    private void OnEnable ()
+    private void OnEnable()
     {
         EventManager.OnPlayerReset += PlayerReset;
     }
 
-    private void OnDisable ()
+    private void OnDisable()
     {
         EventManager.OnPlayerReset -= PlayerReset;
     }
 
-    private void PlayerReset ()
+    private void PlayerReset()
     {
         // SensorState.SetActive (false);
     }
@@ -32,18 +30,18 @@ public class DummyLogic : MonoBehaviour
     /// <summary>
     /// Load activity file.
     /// </summary>
-    private Task LoadActivity ()
+    private Task LoadActivity()
     {
         // First load. Uses the default activity.
-        if (string.IsNullOrEmpty (PlayerPrefs.GetString ("activityUrl")))
+        if (string.IsNullOrEmpty(PlayerPrefs.GetString("activityUrl")))
         {
             // Save to persistent storage.
-            PlayerPrefs.SetString ("activityUrl", _activityURL);
-            PlayerPrefs.Save ();
+            PlayerPrefs.SetString("activityUrl", _activityURL);
+            PlayerPrefs.Save();
         }
 
         // Get the activity url from persistent storage.
-        var activity = PlayerPrefs.GetString ("activityUrl");
+        var activity = PlayerPrefs.GetString("activityUrl");
 
         // For VTT demos that are using the IoT functionality.
         switch (activity)
@@ -51,32 +49,32 @@ public class DummyLogic : MonoBehaviour
             // Enable the sensor state display object for VTT demos.
             case "resources://vttdemoactivity":
             case "http://192.168.0.1/activities/new_activity.json":
-                SensorState.SetActive (true);
+                SensorState.SetActive(true);
                 break;
-            
+
             // Disable the sensor state object for all the other activities.
             default:
-                SensorState.SetActive (false);
+                SensorState.SetActive(false);
                 break;
         }
 
-        return activityManager.LoadActivity(PlayerPrefs.GetString ("activityUrl"));
+        return activityManager.LoadActivity(PlayerPrefs.GetString("activityUrl"));
     }
 
     // Use this for initialization
-    private void Start ()
+    private void Start()
     {
         activityManager.LoadActivity("http://192.168.0.1/activities/AltecTrialActivity.json").AsAsyncVoid();
 
         // LoadActivity ();
-           
+
         // EventManager.ParseActivity ("resources://scenario0_activity");
-           
+
         // EventManager.ParseActivity ("resources://vttdemoactivity");
-           
+
         // Start the process by loading an activity file from server...
         // EventManager.ParseActivity ("https://dl.dropboxusercontent.com/s/vuw23fi2v88wj33/altec_activity.json");
-           
+
         // ...or from the inbuilt resources folder.
         // EventManager.ParseActivity ("resources://ebit_activity");
         // EventManager.ParseActivity ("resources://altec_activity");
@@ -91,60 +89,60 @@ public class DummyLogic : MonoBehaviour
     /// <summary>
     /// Load VTT Demo activity.
     /// </summary>
-    public void VttDemoMode ()
+    public void VttDemoMode()
     {
         // Load the VTT Demo trial activity.
-        PlayerPrefs.SetString ("activityUrl", "resources://vttdemoactivity");
-        PlayerPrefs.Save ();
-        Maggie.Speak ("Loading VTT Demo Activity");
+        PlayerPrefs.SetString("activityUrl", "resources://vttdemoactivity");
+        PlayerPrefs.Save();
+        Maggie.Speak("Loading VTT Demo Activity");
         RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
     }
 
     /// <summary>
     /// Load Lufttransport trial activity.
     /// </summary>
-    public void LuftTrialMode ()
+    public void LuftTrialMode()
     {
         // Load the Lufttransport trial activity.
-        PlayerPrefs.SetString ("activityUrl", "resources://lt_activity");
-        PlayerPrefs.Save ();
-        Maggie.Speak ("Loading Lufttransport Trial Activity");
+        PlayerPrefs.SetString("activityUrl", "resources://lt_activity");
+        PlayerPrefs.Save();
+        Maggie.Speak("Loading Lufttransport Trial Activity");
         RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
     }
 
     /// <summary>
     /// Load ALTEC trial activity.
     /// </summary>
-    public void AltecTrialMode ()
+    public void AltecTrialMode()
     {
         // Load the ALTEC trial activity.
-        PlayerPrefs.SetString ("activityUrl", "resources://altec_activity");
-        PlayerPrefs.Save ();
-        Maggie.Speak ("Loading ALTEC Trial Activity");
+        PlayerPrefs.SetString("activityUrl", "resources://altec_activity");
+        PlayerPrefs.Save();
+        Maggie.Speak("Loading ALTEC Trial Activity");
         RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
     }
 
     /// <summary>
     /// Load Ebit trial activity.
     /// </summary>
-    public void EbitTrialMode ()
+    public void EbitTrialMode()
     {
         // Load the Ebit trial activity.
-        PlayerPrefs.SetString ("activityUrl", "resources://ebit_activity");
-        PlayerPrefs.Save ();
-        Maggie.Speak ("Loading Ebit Trial Activity");
+        PlayerPrefs.SetString("activityUrl", "resources://ebit_activity");
+        PlayerPrefs.Save();
+        Maggie.Speak("Loading Ebit Trial Activity");
         RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
     }
 
     /// <summary>
     /// Load ESA Demo activity.
     /// </summary>
-    public void EsaDemoActivity ()
+    public void EsaDemoActivity()
     {
         // Load the ESA Demo activity.
-        PlayerPrefs.SetString ("activityUrl", "http://192.168.0.1/activities/new_activity.json");
-        PlayerPrefs.Save ();
-        Maggie.Speak ("Loading ESA Demo Activity");
+        PlayerPrefs.SetString("activityUrl", "http://192.168.0.1/activities/new_activity.json");
+        PlayerPrefs.Save();
+        Maggie.Speak("Loading ESA Demo Activity");
         RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
     }
 

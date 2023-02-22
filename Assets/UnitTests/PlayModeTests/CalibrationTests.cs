@@ -3,11 +3,14 @@ using MirageXR;
 using NUnit.Framework;
 using System.Collections;
 using System.IO;
+using System.Numerics;
 using System.Reflection;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
+using Quaternion = UnityEngine.Quaternion;
+using Vector3 = UnityEngine.Vector3;
 
 namespace Tests
 {
@@ -40,12 +43,11 @@ namespace Tests
         GameObject personContainer;
         GameObject detectableContainer;
         GameObject sensorContainer;
+        CalibrationTool dummyCalibrationTool;
 
         // dummy manager objects
         UiManager dummyUiManager;
         PlatformManager dummyPlatformManager;
-
-        CalibrationTool dummyCalibrationTool;
         TaskStationDetailMenu dummyTSDM;
 
         // setup progress flags
@@ -86,7 +88,6 @@ namespace Tests
 
             SceneManager.UnloadSceneAsync("TestScene");
         }
-
 
         [UnitySetUp]
         public IEnumerator PlayModeInit()
@@ -143,11 +144,7 @@ namespace Tests
 
         #endregion SetUp and TearDown
 
-
-        #region Arrange
-
-
-        private void SetupReferences()
+        private async Task SetupReferences()
         {
             // set world origin
             WorldTestOrigin = new GameObject("World Origin").transform;
@@ -176,6 +173,10 @@ namespace Tests
             };
             referenceService = new ActivitySelectionSceneReferenceService(referenceServiceConfiguration);
 
+            var prefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("WEKITCalibrationMarker");
+            dummyCalibrationTool = Object.Instantiate(prefab).GetComponent<CalibrationTool>();
+            //dummyCalibrationTool.SetCalibrationModel(new GameObject("Calibration Model"));
+
             if (!ServiceManager.ServiceExists<ActivitySelectionSceneReferenceService>())
             {
                 ServiceManager.RegisterService(referenceService);
@@ -196,7 +197,7 @@ namespace Tests
             EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
 
             LoadTestArlemModels();
-            
+
             // audio listener cannot be added with helper function
             var audioListener = new GameObject("Audio Listener");
             audioListener.AddComponent<AudioListener>();
@@ -204,9 +205,6 @@ namespace Tests
             // create and configure content managers or UI elements needed to start an activity
             GenerateGameObjectWithComponent<Maggie>("Maggie");
             GenerateGameObjectWithComponent<BrandManager>("Brand Manager");
-
-            dummyCalibrationTool = GenerateGameObjectWithComponent<CalibrationTool>("Calibration Tool");
-            dummyCalibrationTool.SetCalibrationModel(new GameObject("Calibration Model"));
 
             CreateDummyUiManager();
 
@@ -266,7 +264,6 @@ namespace Tests
             }
         }
 
-
         private void CreateDummyUiManager()
         {
             // set up simple UI manager - must set calibration to true to avoid creation of calibration object
@@ -289,13 +286,6 @@ namespace Tests
             go.SetActive(activated);
             return go.AddComponent<T>();
         }
-
-
-        #endregion Arrange
-
-
-        #region Act
-
 
         private Task StartDummyActivity(string activityId)
         {
@@ -325,9 +315,7 @@ namespace Tests
             isCalibrated = true;
             EventManager.OnWorkplaceCalibrated -= CalibrationComplete;
         }
-        #endregion Act
 
-        #region Assert
         /// <summary>
         /// A helper functions that checks that object have been initialised. It should be yielded at the start of each test.
         /// </summary>
@@ -402,7 +390,7 @@ namespace Tests
         public IEnumerator CheckArlemFileLength_Workplace()
         {
             yield return EnsureTestReadiness();
-            
+
             var task = rootObject.activityManager.LoadActivity("resources://calibrationTest-activity");
             yield return new WaitUntil(() => task.IsCompleted);
 
@@ -698,9 +686,6 @@ namespace Tests
             // pause for shutdown or debugging
             yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
         }
-
-
-        #endregion Assert
 
         private static void CallPrivateMethod(object obj, string methodName, params object[] parameters)
         {

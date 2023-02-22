@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace MirageXR
@@ -312,7 +313,6 @@ namespace MirageXR
             }
         }
 
-
         public static void CopyEntireFolder(string folderPath, string destinationPath)
         {
             try
@@ -331,6 +331,11 @@ namespace MirageXR
             {
                 Debug.LogError(e);
             }
+        }
+
+        public static async void AsAsyncVoid(this Task task)
+        {
+            await task;
         }
     }
 }

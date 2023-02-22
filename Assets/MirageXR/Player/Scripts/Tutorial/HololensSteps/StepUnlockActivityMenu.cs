@@ -34,7 +34,7 @@ namespace MirageXR
                 Debug.LogError("SpriteToggle component missing in Lock for StepUnlockActivityMenu in Tutorial.");
                 ExitStep();
             }
-            
+
         }
 
         protected override void Detach()
