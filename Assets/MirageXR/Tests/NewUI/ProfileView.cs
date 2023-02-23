@@ -53,6 +53,7 @@ public class ProfileView : PopupBase
 
         EventManager.MoodleDomainChanged += UpdateConnectedServerText;
         EventManager.XAPIChanged += UpdateConectedLRS;
+        EventManager.MoodleDomainChanged += UpdatePrivacyPolicyButtonActive;
 
         _txtVersion.text = string.Format(VERSION_TEXT, Application.version);
 
@@ -252,7 +253,7 @@ public class ProfileView : PopupBase
         ChangeServerDomain(address);
     }
 
-    private void ChangeServerDomain(string domain)
+    private static void ChangeServerDomain(string domain)
     {
         if (DBManager.domain != domain)
         {
@@ -262,10 +263,9 @@ public class ProfileView : PopupBase
         }
 
         EventManager.NotifyMoodleDomainChanged();
-        UpdatePrivacyPolicyButtonActive();
     }
 
-    private void ChangeServerAndPrivacyPolicyDomain(string domain, string privacyPolicyDomain)
+    private static void ChangeServerAndPrivacyPolicyDomain(string domain, string privacyPolicyDomain)
     {
         DBManager.privacyPolicyDomain = privacyPolicyDomain;
         ChangeServerDomain(domain);
