@@ -116,9 +116,9 @@ public class PickAndPlaceEditor : MonoBehaviour
         }
     }
 
-    public void SetResetOption(int option)
+    public void SetResetOption(Dropdown option)
     {
-        _resetOption = option;
+        _resetOption = option.value;
     }
 
     public void TriggerToggle(bool trigger)

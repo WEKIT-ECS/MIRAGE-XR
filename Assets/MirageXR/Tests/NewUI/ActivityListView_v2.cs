@@ -56,7 +56,6 @@ public class ActivityListView_v2 : BaseView
 
         _panelSize = _panel.sizeDelta;
 
-        EventManager.OnActivitySaved += FetchAndUpdateView;
         EventManager.OnActivityStarted += ShowBackButtons;
 
         FetchAndUpdateView();
@@ -64,7 +63,6 @@ public class ActivityListView_v2 : BaseView
 
     private void OnDestroy()
     {
-        EventManager.OnActivitySaved -= FetchAndUpdateView;
         EventManager.OnActivityStarted -= ShowBackButtons;
     }
 

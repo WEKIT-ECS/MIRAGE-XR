@@ -370,6 +370,8 @@ public class ModelEditorView : PopupEditorBase
 
     protected override void OnAccept()
     {
+        _previewItem.name = ZipUtilities.CheckFileForIllegalCharacters(_previewItem.name);
+
         var predicate = $"3d:{_previewItem.name}";
         if (_content != null)
         {

@@ -154,7 +154,7 @@ public class ActionEditor : MonoBehaviour
             listItem.OnPoiAddItemClicked += OnAnnotationAddItemSelected;
             listItem.OnPoiHover += OnAnnotationHover;
 
-            var annotationName = listOfAugmentations[i] == "vfx" ? "Visual Effect" : $"{char.ToUpper(listOfAugmentations[i][0])}{listOfAugmentations[i].Substring(1)}";
+            var annotationName = listOfAugmentations[i] == "effects" ? "Visual Effect" : $"{char.ToUpper(listOfAugmentations[i][0])}{listOfAugmentations[i].Substring(1)}";
             listItem.GetComponent<ToolTipCaster>().SetTooltipText($"Add {annotationName}");
 
             augmentationsButtons[i] = listItem.gameObject;
@@ -360,7 +360,7 @@ public class ActionEditor : MonoBehaviour
                 glyphEditor.SetAnnotationStartingPoint(DefaultAugmentationStartingPoint);
                 glyphEditor.Open(detailView.DisplayedAction, null);
                 break;
-            case ContentType.VFX:
+            case ContentType.EFFECTS:
                 vfxEditor = LoadEditorPanel<VFXEditor>(VfxEditorPrefab);
                 vfxEditor.SetAnnotationStartingPoint(DefaultAugmentationStartingPoint);
                 vfxEditor.Open(detailView.DisplayedAction, null);
@@ -487,7 +487,7 @@ public class ActionEditor : MonoBehaviour
                 glyphEditor = LoadEditorPanel<GlyphEditor>(GlyphSelectorPrefab);
                 glyphEditor.Open(detailView.DisplayedAction, annotation);
                 break;
-            case string anno when anno.StartsWith("vfx"):
+            case string anno when anno.StartsWith("effect"):
                 vfxEditor = LoadEditorPanel<VFXEditor>(VfxEditorPrefab);
                 vfxEditor.Open(detailView.DisplayedAction, annotation);
                 break;
