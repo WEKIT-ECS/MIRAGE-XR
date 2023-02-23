@@ -1,7 +1,7 @@
+using MirageXR;
 using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -59,6 +59,7 @@ public class ProfileView : PopupBase
         _developTogglePanel.SetActive(DBManager.developMode);
 
         UpdateConnectedServerText();
+        UpdatePrivacyPolicyButtonActive();
 
         ResetValues();
     }
@@ -247,10 +248,11 @@ public class ProfileView : PopupBase
             return;
         }
 
+        DBManager.privacyPolicyDomain = string.Empty;
         ChangeServerDomain(address);
     }
 
-    private static void ChangeServerDomain(string domain)
+    private void ChangeServerDomain(string domain)
     {
         if (DBManager.domain != domain)
         {
@@ -260,9 +262,10 @@ public class ProfileView : PopupBase
         }
 
         EventManager.NotifyMoodleDomainChanged();
+        UpdatePrivacyPolicyButtonActive();
     }
 
-    private static void ChangeServerAndPrivacyPolicyDomain(string domain, string privacyPolicyDomain)
+    private void ChangeServerAndPrivacyPolicyDomain(string domain, string privacyPolicyDomain)
     {
         DBManager.privacyPolicyDomain = privacyPolicyDomain;
         ChangeServerDomain(domain);
@@ -271,6 +274,13 @@ public class ProfileView : PopupBase
     private void OnClickPrivacyPolicy()
     {
         Application.OpenURL(DBManager.privacyPolicyDomain);
+    }
+
+    private void UpdatePrivacyPolicyButtonActive()
+    {
+        var setActive = (DBManager.privacyPolicyDomain != string.Empty) ? true : false;
+
+        _btnPrivacyPolicy.gameObject.SetActive(setActive);
     }
 
     private void UpdateConectedLRS(DBManager.LearningRecordStores publicCurrentLearningRecordStore)
