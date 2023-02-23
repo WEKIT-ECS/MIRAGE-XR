@@ -91,6 +91,9 @@ namespace MirageXR
         private void LoadModel(ToggleObject obj)
         {
             startLoadTime = Time.time;
+
+            obj.option = ZipUtilities.CheckFileForIllegalCharacters(obj.option);
+
             var loadPath = Path.Combine(RootObject.Instance.activityManager.ActivityPath, obj.option, "scene.gltf");
 
             AppLog.LogTrace($"Loading model: {loadPath}");

@@ -171,6 +171,7 @@ public class RootView_v2 : BaseView
 
     public void ShowHomeView()
     {
+        activityListView.FetchAndUpdateView();
         _pageView.currentPageIndex = 0;
     }
 
