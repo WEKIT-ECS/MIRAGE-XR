@@ -120,7 +120,7 @@
                 {
                     return $"Author: {Session.author}";
                 }
-                return "Author: Unknown";
+                return "Author: You";
             }
         }
 
