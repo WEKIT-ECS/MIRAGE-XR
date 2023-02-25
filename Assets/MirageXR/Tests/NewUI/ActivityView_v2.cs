@@ -17,6 +17,9 @@ public class ActivityView_v2 : BaseView
     [SerializeField] private Toggle _toggleEdit;
     [SerializeField] private StepsListView_v2 _stepsListView;
     [SerializeField] private ContentListView_v2 _contentListView;
+    [Space]
+    [SerializeField] private GameObject _stepsVertical;
+    [SerializeField] private GameObject _stepsHorizontal;
 
     private SessionContainer _container;
     private int _infoStepNumber;
@@ -47,6 +50,9 @@ public class ActivityView_v2 : BaseView
         _panelSize = _panel.sizeDelta;
 
         EventManager.OnEditModeChanged += OnEditModeChanged;
+
+        _stepsVertical.SetActive(true);
+        _stepsHorizontal.SetActive(false);
 
         UpdateView();
     }
