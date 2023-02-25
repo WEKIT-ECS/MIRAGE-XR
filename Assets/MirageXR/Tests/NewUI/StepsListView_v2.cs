@@ -15,10 +15,13 @@ public class StepsListView_v2 : BaseView
 
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
+    [Space]
+    [SerializeField] private RectTransform _listVerticalContent;
+    [SerializeField] private RectTransform _listHorizontalContent;
+    [Space]
     [SerializeField] private TMP_Text _textActivityName;
     [SerializeField] private TMP_InputField _inputFieldActivityName;
     [SerializeField] private TMP_InputField _inputFieldActivityDescription;
-    [SerializeField] private RectTransform _listContent;
     [SerializeField] private RectTransform _addStep;
     [SerializeField] private Button _btnAddStep;
     [SerializeField] private Button _btnBack;
@@ -112,9 +115,13 @@ public class StepsListView_v2 : BaseView
             {
                 if (_stepsList.Count <= i)
                 {
-                    var obj = Instantiate(_stepsListItemPrefab, _listContent);
+                    var obj = Instantiate(_stepsListItemPrefab, _listVerticalContent);
                     obj.Init(OnStepClick, OnStepEditClick, OnDeleteStepClick, OnSiblingIndexChanged);
                     _stepsList.Add(obj);
+
+                    var objHorizontal = Instantiate(_stepsListItemPrefab, _listHorizontalContent);
+                    objHorizontal.Init(OnStepClick, OnStepEditClick, OnDeleteStepClick, OnSiblingIndexChanged);
+                    //_stepsList.Add(objHorizontal);
                 }
 
                 _stepsList[i].gameObject.SetActive(true);
@@ -253,7 +260,7 @@ public class StepsListView_v2 : BaseView
         }
         else
         {
-            var child = _listContent.GetChild(index - 1);
+            var child = _listVerticalContent.GetChild(index - 1);
             var stepListItem = child.GetComponent<StepsListItem_v2>();
 
             if (stepListItem)
