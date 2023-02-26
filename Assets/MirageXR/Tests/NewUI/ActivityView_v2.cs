@@ -1,11 +1,12 @@
 using DG.Tweening;
 using MirageXR;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ActivityView_v2 : BaseView
 {
-    private const float HIDED_SIZE = 100f;
+    private const float HIDED_SIZE = 230f;
     private const float HIDE_ANIMATION_TIME = 0.5f;
 
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
@@ -20,6 +21,8 @@ public class ActivityView_v2 : BaseView
     [Space]
     [SerializeField] private GameObject _stepsVertical;
     [SerializeField] private GameObject _stepsHorizontal;
+    [SerializeField] private GameObject _header;
+    [SerializeField] private RectTransform _tabs;
 
     private SessionContainer _container;
     private int _infoStepNumber;
@@ -111,6 +114,7 @@ public class ActivityView_v2 : BaseView
             _arrowUp.SetActive(true);
             rootView.bottomPanelView.Hide();
             rootView.bottomNavigationArrowsView.Show();
+            StartCoroutine(ShowHorizontalScroll(HIDE_ANIMATION_TIME, true));
         }
         else
         {
@@ -119,6 +123,25 @@ public class ActivityView_v2 : BaseView
             _arrowUp.SetActive(false);
             rootView.bottomPanelView.Show();
             rootView.bottomNavigationArrowsView.Hide();
+            StartCoroutine(ShowHorizontalScroll(0f, false));
+        }
+    }
+
+    private IEnumerator ShowHorizontalScroll(float delay, bool value)
+    {
+        yield return new WaitForSeconds(delay);
+
+        _stepsVertical.SetActive(!value);
+        _stepsHorizontal.SetActive(value);
+        _header.SetActive(!value);
+
+        if (value)
+        {
+            _tabs.offsetMax = new Vector2(0f, 0f);
+        }
+        else
+        {
+            _tabs.offsetMax = new Vector2(0, -300f);
         }
     }
 
