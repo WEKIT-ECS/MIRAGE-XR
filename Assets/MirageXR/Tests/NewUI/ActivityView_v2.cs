@@ -6,7 +6,8 @@ using UnityEngine.UI;
 
 public class ActivityView_v2 : BaseView
 {
-    private const float HIDED_SIZE = 230f;
+    private const float HIDED_SIZE = 100f;
+    private const float HIDED_SIZE_FOR_HORIZONTAL_SCROLL = 230f;
     private const float HIDE_ANIMATION_TIME = 0.5f;
 
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
@@ -23,6 +24,7 @@ public class ActivityView_v2 : BaseView
     [SerializeField] private GameObject _stepsHorizontal;
     [SerializeField] private GameObject _header;
     [SerializeField] private RectTransform _tabs;
+    [SerializeField] private Toggle _toggleSteps;
 
     private SessionContainer _container;
     private int _infoStepNumber;
@@ -109,7 +111,13 @@ public class ActivityView_v2 : BaseView
     {
         if (_arrowDown.activeSelf)
         {
-            _panel.DOSizeDelta(new Vector2(_panelSize.x, -_panel.rect.height + HIDED_SIZE), HIDE_ANIMATION_TIME);
+            var hidedSize = HIDED_SIZE;
+            if (_toggleSteps.isOn)
+            {
+                hidedSize = HIDED_SIZE_FOR_HORIZONTAL_SCROLL;
+            }
+
+            _panel.DOSizeDelta(new Vector2(_panelSize.x, -_panel.rect.height + hidedSize), HIDE_ANIMATION_TIME);
             _arrowDown.SetActive(false);
             _arrowUp.SetActive(true);
             rootView.bottomPanelView.Hide();
@@ -129,19 +137,22 @@ public class ActivityView_v2 : BaseView
 
     private IEnumerator ShowHorizontalScroll(float delay, bool value)
     {
-        yield return new WaitForSeconds(delay);
-
-        _stepsVertical.SetActive(!value);
-        _stepsHorizontal.SetActive(value);
-        _header.SetActive(!value);
-
-        if (value)
+        if (_toggleSteps.isOn)
         {
-            _tabs.offsetMax = new Vector2(0f, 0f);
-        }
-        else
-        {
-            _tabs.offsetMax = new Vector2(0, -300f);
+            yield return new WaitForSeconds(delay);
+
+            _stepsVertical.SetActive(!value);
+            _stepsHorizontal.SetActive(value);
+            _header.SetActive(!value);
+
+            if (value)
+            {
+                _tabs.offsetMax = new Vector2(0f, 0f);
+            }
+            else
+            {
+                _tabs.offsetMax = new Vector2(0, -300f);
+            }
         }
     }
 
