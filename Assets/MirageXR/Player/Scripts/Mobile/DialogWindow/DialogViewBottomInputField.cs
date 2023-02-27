@@ -1,3 +1,4 @@
+using i5.Toolkit.Core.VerboseLogging;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,7 +14,7 @@ public class DialogViewBottomInputField : DialogViewBottom
     {
         if (model.contents.Count != 2)
         {
-            Debug.LogError("buttons content does not equal 2");
+            AppLog.LogError("buttons content does not equal 2");
             return;
         }
 

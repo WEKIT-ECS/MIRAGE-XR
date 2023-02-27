@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using UnityEngine;
 
@@ -111,7 +112,7 @@ public class Tutorial : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"Can't find TutorialModel with id = '{model.id}'");
+                AppLog.LogError($"Can't find TutorialModel with id = '{model.id}'");
                 model.id = null;
             }
         }

@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
+using i5.Toolkit.Core.VerboseLogging;
 
 namespace MirageXR
 {
@@ -135,7 +136,7 @@ namespace MirageXR
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
-                Debug.Log("Couldn't set the parent.");
+                AppLog.LogWarning("Couldn't set the parent.");
                 return false;
             }
 
@@ -902,7 +903,7 @@ namespace MirageXR
 
             if (animationMenu.value >= animationMenu.options.Count || animationMenu.value < 0)
             {
-                Debug.LogError("animationMenu.options: out of range");
+                AppLog.LogError("animationMenu.options: out of range");
                 return;
             }
             var clipName = animationMenu.options[animationMenu.value].text;
@@ -1094,7 +1095,7 @@ namespace MirageXR
             if (character.steps.Count == 0)
             {
                 gameObject.SetActive(false);
-                Debug.LogError("The character augmentation has had a major change. Please recreate the existing characters.");
+                AppLog.LogError("The character augmentation has had a major change. Please recreate the existing characters.");
                 return false;
             }
 
@@ -1325,7 +1326,7 @@ namespace MirageXR
             }
             catch (NullReferenceException e)
             {
-                Debug.LogError($"Some references are missing on display image animation part. f.exp imageContainer,MyImageAnnotation ,etc. {e}");
+                AppLog.LogError($"Some references are missing on display image animation part. f.exp imageContainer,MyImageAnnotation ,etc. {e}");
             }
 
         }

@@ -1,3 +1,4 @@
+using i5.Toolkit.Core.VerboseLogging;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -40,10 +41,10 @@ namespace MirageXR
             // If workplace has anchors which have not been calibrated...
             if (workplaceManager.calibrationPairs.Count > 0 && !UiManager.Instance.IsCalibrated)
             {
-                Debug.Log("Workplace has uncalibrated anchors. Please re-run the calibration");
+                AppLog.LogWarning("Workplace has uncalibrated anchors. Please re-run the calibration");
             }
 
-            Debug.Log("********** EventManager.WorkplaceLoaded");
+            AppLog.LogInfo("********** EventManager.WorkplaceLoaded");
             // SUGGESTION Use a different event here that symbolizes the end of the view update by the model
             EventManager.WorkplaceLoaded();
         }
