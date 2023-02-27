@@ -142,39 +142,45 @@ namespace MirageXR
 
         public void SavePositions()
         {
-            if (_myObj == null || _myObj.poi == string.Empty)
+            if (_myObj == null || _myObj.poi == string.Empty || gameObject == null)
             {
                 return; // only if the poi is instantiated not the prefab
             }
-
-            Positions positions = new Positions
+            try
             {
-                pickObjectPosition = _pickObject.localPosition,
-                pickObjectRotation = _pickObject.localRotation,
-                pickObjectScale = _pickObject.localScale,
-                modelID = _pickComponent.MyModelID,
-                targetObjectPosition = _targetObject.localPosition,
-                targetObjectScale = _targetObject.localScale,
-                resetPosition = _pickComponent.ResetPosition,
-                resetRotation = _pickComponent.ResetRotation,
-                moveMode = _pickComponent.MoveMode,
-            };
+                Positions positions = new Positions
+                {
+                    pickObjectPosition = _pickObject.localPosition,
+                    pickObjectRotation = _pickObject.localRotation,
+                    pickObjectScale = _pickObject.localScale,
+                    modelID = _pickComponent.MyModelID,
+                    targetObjectPosition = _targetObject.localPosition,
+                    targetObjectScale = _targetObject.localScale,
+                    resetPosition = _pickComponent.ResetPosition,
+                    resetRotation = _pickComponent.ResetRotation,
+                    moveMode = _pickComponent.MoveMode,
+                };
 
-            string pickAndPlaceData = JsonUtility.ToJson(positions);
-            if (!Directory.Exists($"{_activityManager.ActivityPath}/pickandplaceinfo "))
-            {
-                Directory.CreateDirectory($"{_activityManager.ActivityPath}/pickandplaceinfo");
+                string pickAndPlaceData = JsonUtility.ToJson(positions);
+                if (!Directory.Exists($"{_activityManager.ActivityPath}/pickandplaceinfo"))
+                {
+                    Directory.CreateDirectory($"{_activityManager.ActivityPath}/pickandplaceinfo");
+                }
+
+                string jsonPath = Path.Combine(_activityManager.ActivityPath, $"pickandplaceinfo/{_myObj.poi}.json");
+
+                // delete the exsiting file first
+                if (File.Exists(jsonPath))
+                {
+                    File.Delete(jsonPath);
+                }
+
+                File.WriteAllText(jsonPath, pickAndPlaceData);
             }
-
-            string jsonPath = Path.Combine(_activityManager.ActivityPath, $"pickandplaceinfo/{_myObj.poi}.json");
-
-            // delete the exsiting file first
-            if (File.Exists(jsonPath))
+            catch (Exception e) 
             {
-                File.Delete(jsonPath);
+                Debug.LogError("Pick and Place Exception " + e); 
             }
-
-            File.WriteAllText(jsonPath, pickAndPlaceData);
         }
 
         private IEnumerator LoadMyModel(string MyModelID)
@@ -215,8 +221,6 @@ namespace MirageXR
             _isTrigger = trigger != null ? true : false;
             _pickComponent.SetTrigger(trigger);
         }
-
-
     }
 
     [Serializable]
