@@ -1,4 +1,5 @@
-﻿using Microsoft.MixedReality.Toolkit.UI;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -26,14 +27,14 @@ namespace MirageXR
             // Check if the label text is set.
             if (string.IsNullOrEmpty(obj.text))
             {
-                Debug.Log("Label text not provided.");
+                AppLog.LogWarning("Label text not provided.");
                 return false;
             }
 
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
-                Debug.Log("Couldn't set the parent.");
+                AppLog.LogWarning("Couldn't set the parent.");
                 return false;
             }
 

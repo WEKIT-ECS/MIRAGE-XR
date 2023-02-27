@@ -1,3 +1,4 @@
+using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -23,8 +24,8 @@ public class DialogTest : MonoBehaviour
         _dialog.ShowMiddle(
             "Middle Dialog Test!",
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-            "Left", () => Debug.Log("Left - click!"),
-            "Right", () => Debug.Log("Right - click!"),
+            "Left", () => AppLog.LogTrace("Left - click!"),
+            "Right", () => AppLog.LogTrace("Right - click!"),
             _toggleCanBeClosedByOutTap.isOn);
     }
 
@@ -33,9 +34,9 @@ public class DialogTest : MonoBehaviour
         _dialog.ShowMiddleMultiline(
             "Middle Multiline Dialog Test!",
             _toggleCanBeClosedByOutTap.isOn,
-            ("Item 1", () => Debug.Log("Item 1 - click!"), false),
-            ("Item 2", () => Debug.Log("Item 2 - click!"), false),
-            ("Item 3", () => Debug.Log("Item 3 - click!"), true));
+            ("Item 1", () => AppLog.LogTrace("Item 1 - click!"), false),
+            ("Item 2", () => AppLog.LogTrace("Item 2 - click!"), false),
+            ("Item 3", () => AppLog.LogTrace("Item 3 - click!"), true));
     }
 
     private void ShowBottomMultilineDialog()
@@ -43,10 +44,10 @@ public class DialogTest : MonoBehaviour
         _dialog.ShowBottomMultiline(
             "Bottom Multiline Dialog Test!",
             _toggleCanBeClosedByOutTap.isOn,
-            ("Item 1", () => Debug.Log("Item 1 - click!"), false),
-            ("Item 2", () => Debug.Log("Item 2 - click!"), false),
-            ("Item 3", () => Debug.Log("Item 3 - click!"), true),
-            ("Item 4", () => Debug.Log("Item 4 - click!"), true));
+            ("Item 1", () => AppLog.LogTrace("Item 1 - click!"), false),
+            ("Item 2", () => AppLog.LogTrace("Item 2 - click!"), false),
+            ("Item 3", () => AppLog.LogTrace("Item 3 - click!"), true),
+            ("Item 4", () => AppLog.LogTrace("Item 4 - click!"), true));
     }
 
     private void ShowBottomInputFieldDialog()
@@ -54,7 +55,7 @@ public class DialogTest : MonoBehaviour
         _dialog.ShowBottomInputField(
             "Bottom Multiline Dialog Test!",
             "Description",
-            "Left", t => Debug.Log($"Item Left - click! Text: {t}"),
-            "Right", t => Debug.Log($"Item Right - click! Text: {t}"));
+            "Left", t => AppLog.LogTrace($"Item Left - click! Text: {t}"),
+            "Right", t => AppLog.LogTrace($"Item Right - click! Text: {t}"));
     }
 }

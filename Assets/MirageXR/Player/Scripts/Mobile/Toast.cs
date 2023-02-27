@@ -1,3 +1,4 @@
+using i5.Toolkit.Core.VerboseLogging;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -26,7 +27,7 @@ public class Toast : MonoBehaviour
     {
         if (Instance != null)
         {
-            Debug.LogError($"{Instance.GetType().FullName} must only be a single copy!");
+            AppLog.LogError($"{Instance.GetType().FullName} must only be a single copy!");
             return;
         }
 
