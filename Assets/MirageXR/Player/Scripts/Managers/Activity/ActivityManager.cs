@@ -360,6 +360,8 @@ namespace MirageXR
         {
             if (!_isSwitching)
             {
+                //Save augmentations extra data(character, pick&place,...) for be carried over to the new action if the augmentation exists in that action
+                SaveData();
                 await ActivityDeactivator(id, doNotActivateNextStep);
             }
         }
@@ -726,8 +728,7 @@ namespace MirageXR
                     AppLog.LogError("Could not identify the active action");
                 }
 
-                //Save augmentations extra data(character, pick&place,...) for be carried over to the new action if the augmentation exists in that action
-                SaveData();
+                }
             }
             else
             {
