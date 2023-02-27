@@ -4,9 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Tests
 {
@@ -186,6 +188,9 @@ namespace Tests
         public void CreateObject_ParentNameDoesNotExist_ReturnsNull()
         {
             const string id = "My ID";
+
+            LogAssert.Expect(LogType.Error, new Regex(@".*Object.*not found"));
+
             GameObject res = Utilities.CreateObject(id, "this parent does not exist");
 
             Assert.IsTrue(res == null);

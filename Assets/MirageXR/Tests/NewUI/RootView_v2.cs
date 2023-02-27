@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using UnityEngine;
 
@@ -55,7 +56,7 @@ public class RootView_v2 : BaseView
     {
         if (Instance != null)
         {
-            Debug.LogError($"{Instance.GetType().FullName} must only be a single copy!");
+            AppLog.LogError($"{Instance.GetType().FullName} must only be a single copy!");
             return;
         }
 

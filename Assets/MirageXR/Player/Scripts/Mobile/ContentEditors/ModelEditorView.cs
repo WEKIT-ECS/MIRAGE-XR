@@ -271,13 +271,13 @@ public class ModelEditorView : PopupEditorBase
         }
     }
 
-    private void LoginToSketchfab()
+    private async void LoginToSketchfab()
     {
         var service = ServiceManager.GetService<OpenIDConnectService>();
         service.OidcProvider.ClientData = _clientDataObject.clientData;
         service.LoginCompleted += OnLoginCompleted;
         service.ServerListener.ListeningUri = SketchfabManager.URL;
-        service.OpenLoginPage();
+        await service.OpenLoginPageAsync();
     }
 
     private void ShowDirectLoginPopup()

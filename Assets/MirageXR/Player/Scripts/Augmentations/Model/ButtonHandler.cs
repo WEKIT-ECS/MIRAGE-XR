@@ -1,4 +1,5 @@
 ﻿
+using i5.Toolkit.Core.VerboseLogging;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -46,7 +47,7 @@ public class ButtonHandler : MonoBehaviour
         }
         else
         {
-            Debug.Log("Resource url was not parsable");
+            AppLog.LogWarning("Resource url was not parsable");
         }
     }
 
