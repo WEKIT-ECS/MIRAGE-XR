@@ -1,3 +1,4 @@
+using i5.Toolkit.Core.VerboseLogging;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -188,7 +189,7 @@ public class ClampedScrollRect : ScrollRect
             }
         }
 
-        Debug.LogWarningFormat("can't get child with index {0}", index);
+        AppLog.LogWarning($"can't get child with index {index}");
         return null;
     }
 
@@ -223,7 +224,7 @@ public class ClampedScrollRect : ScrollRect
         var childTransform = GetContentItem(0);
         if (!childTransform)
         {
-            Debug.LogWarning("content must have active child");
+            AppLog.LogWarning("content must have active child");
         }
 
         var spacing = _layoutGroup ? _layoutGroup.spacing : 0;
@@ -236,7 +237,7 @@ public class ClampedScrollRect : ScrollRect
         _valid = viewportSize < contentSize;
         if (!_valid && contentSize > 0 && viewportSize > 0)
         {
-            Debug.LogWarning("content must be larger then viewport");
+            AppLog.LogWarning("content must be larger then viewport");
             LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)content.transform);
             _updateInLateUpdate = true;
         }

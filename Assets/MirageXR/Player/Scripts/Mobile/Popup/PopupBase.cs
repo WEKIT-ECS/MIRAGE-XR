@@ -1,3 +1,4 @@
+using i5.Toolkit.Core.VerboseLogging;
 using System;
 using UnityEngine;
 
@@ -14,7 +15,7 @@ public abstract class PopupBase : MonoBehaviour
         _onClose = onClose;
         if (!TryToGetArguments(args))
         {
-            Debug.LogError("error when trying to get arguments!");
+            AppLog.LogError("error when trying to get arguments!");
         }
     }
 

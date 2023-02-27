@@ -1,3 +1,4 @@
+using i5.Toolkit.Core.VerboseLogging;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -38,7 +39,7 @@ public class DaimonManager : MonoBehaviour
     {
         yield return new WaitForSeconds(preDelay);
 
-        Debug.Log("Look=" + "LEFT/RIGHT");
+        AppLog.LogTrace("Look=" + "LEFT/RIGHT");
         yield return new WaitForSeconds(duration);
 
     }
@@ -58,7 +59,7 @@ public class DaimonManager : MonoBehaviour
         {
 
             //check that clip is not playing
-            Debug.Log("-------------------- Speech Output has finished playing, now reactivating SpeechInput.");
+            AppLog.LogInfo("-------------------- Speech Output has finished playing, now reactivating SpeechInput.");
             check = false;
 
             if (triggerNext)

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using UnityEngine;
 
 namespace MirageXR
 {
@@ -27,7 +28,7 @@ namespace MirageXR
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
-                Debug.Log("Couldn't set the parent.");
+                AppLog.LogWarning("Couldn't set the parent.");
                 return false;
             }
 
@@ -46,8 +47,7 @@ namespace MirageXR
 
         private void loadPlugin(string path)
         {
-
-            Debug.Log(path);
+            AppLog.LogTrace($"Loading plugin from path {path}");
             plugin = Instantiate(Resources.Load<GameObject>(path), Vector3.zero, Quaternion.identity);
 
             plugin.transform.parent = gameObject.transform; // pluginParent;

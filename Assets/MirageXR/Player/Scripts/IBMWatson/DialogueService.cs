@@ -1,3 +1,4 @@
+using i5.Toolkit.Core.VerboseLogging;
 using IBM.Cloud.SDK;
 using IBM.Cloud.SDK.Utilities;
 using IBM.Watson.Assistant.V2;
@@ -110,7 +111,7 @@ public class DialogueService : MonoBehaviour
 
     private IEnumerator CreateSession()
     {
-        Debug.Log("CONNECTING TO ASSISTANT: " + assistantId);
+        AppLog.LogInfo("CONNECTING TO ASSISTANT: " + assistantId);
         service.CreateSession(OnCreateSession, assistantId);
 
         while (!createSessionTested)
@@ -128,7 +129,7 @@ public class DialogueService : MonoBehaviour
 
     public void SendMessageToAssistant(string theText)
     {
-        Debug.Log("Sending to assistant service: " + theText);
+        AppLog.LogDebug("Sending to assistant service: " + theText);
         if (createSessionTested)
         {
             service.Message(OnResponseReceived, assistantId, sessionId, input: new MessageInput()
@@ -144,7 +145,7 @@ public class DialogueService : MonoBehaviour
         }
         else
         {
-            Debug.Log("WARNING: trying to SendMessageToAssistant before session is established.");
+            AppLog.LogWarning("trying to SendMessageToAssistant before session is established.");
         }
 
     }
@@ -162,14 +163,14 @@ public class DialogueService : MonoBehaviour
 
         if (response.Result.Output.Generic != null && response.Result.Output.Generic.Count > 0)
         {
-            Debug.Log("DialogueService response: " + response.Result.Output.Generic[0].Text);
-            if (response.Result.Output.Intents.Capacity > 0) Debug.Log("    -> " + response.Result.Output.Intents[0].Intent.ToString());
+            AppLog.LogDebug("DialogueService response: " + response.Result.Output.Generic[0].Text);
+            if (response.Result.Output.Intents.Capacity > 0) AppLog.LogDebug("    -> " + response.Result.Output.Intents[0].Intent.ToString());
         }
 
         // check if Watson was able to make sense of the user input, otherwise ask to repeat the input
         if (response.Result.Output.Intents == null && response.Result.Output.Actions == null)
         {
-            Debug.Log("I did not understand");
+            AppLog.LogDebug("I did not understand");
             dSpeechOutputMgr.Speak("I don't understand, can you rephrase?");
 
         }
@@ -194,7 +195,7 @@ public class DialogueService : MonoBehaviour
                         break;
                     case "name":
                         username = response.Result.Output.Entities.Find((x) => x.Entity.ToString() == "sys-person").Value.ToString();
-                        Debug.Log("username = " + username);
+                        AppLog.LogDebug("username = " + username);
                         break;
                     default:
                         break;
@@ -205,13 +206,13 @@ public class DialogueService : MonoBehaviour
             if (response.Result.Output.Actions != null && response.Result.Output.Actions.Count > 0)
             {
                 string actionName = response.Result.Output.Actions[0].Name;
-                Debug.Log("Action Name = " + actionName);
+                AppLog.LogDebug("Action Name = " + actionName);
                 // check whether it is really the intent we want to check
                 // (or do we want to know the name of the dialogue step?)
                 switch (actionName)
                 {
                     case "jump to":
-                        Debug.Log("Jump to action recieved");
+                        AppLog.LogTrace("Jump to action recieved");
                         break;
                     default:
                         break;
@@ -249,7 +250,7 @@ public class DialogueService : MonoBehaviour
                 {
                     dAImgr.check = true;
                     dSpeechOutputMgr.Speak("I don't understand, can you rephrase?");
-                    Debug.LogError($"Somthing went wrong but the conversiontion will be continued. The error is:\n {e}");
+                    AppLog.LogError($"Somthing went wrong but the conversiontion will be continued. The error is:\n {e}");
                 }
 
             }
@@ -363,10 +364,10 @@ public class DialogueService : MonoBehaviour
     public void OnDestroy()
     {
 
-        Debug.Log("DialogueService: deregestering callback for speech2text input");
+        AppLog.LogTrace("DialogueService: deregestering callback for speech2text input");
         dSpeechInputMgr.onInputReceived -= OnInputReceived;
 
-        Debug.Log("DialogueService: Attempting to delete session");
+        AppLog.LogTrace("DialogueService: Attempting to delete session");
         service.DeleteSession(OnDeleteSession, assistantId, sessionId);
 
     }

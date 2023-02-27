@@ -1,4 +1,5 @@
 ﻿using i5.Toolkit.Core.ServiceCore;
+using i5.Toolkit.Core.VerboseLogging;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -25,14 +26,14 @@ namespace MirageXR
                 // show loading label
                 Loading.Instance.LoadingVisibility(true);
 
-                Debug.Log("Play activity");
+                AppLog.LogInfo("Playing activity...");
                 Play();
             }
         }
 
         private async Task DownloadAsync()
         {
-            Debug.Log("Download session");
+            AppLog.LogInfo("Downloading session...");
             // reset any error
             _selectedListViewItem.Content.HasError = false;
             // indicate that the system is working
@@ -41,7 +42,7 @@ namespace MirageXR
 
             bool success;
             Session arlemFile = _selectedListViewItem.Content.Session;
-            Debug.Log($"Downloading from {arlemFile.contextid}/{arlemFile.component}/{arlemFile.filearea}/{arlemFile.itemid}/{arlemFile.filename}");
+            AppLog.LogInfo($"Downloading from {arlemFile.contextid}/{arlemFile.component}/{arlemFile.filearea}/{arlemFile.itemid}/{arlemFile.filename}");
             using (SessionDownloader downloader = new SessionDownloader($"{DBManager.domain}/pluginfile.php/{arlemFile.contextid}/{arlemFile.component}/{arlemFile.filearea}/{arlemFile.itemid}/{arlemFile.filename}", arlemFile.sessionid + ".zip"))
             {
                 success = await downloader.DownloadZipFileAsync();
@@ -54,7 +55,7 @@ namespace MirageXR
                     }
                     catch (Exception e)
                     {
-                        Debug.LogError(e.ToString());
+                        AppLog.LogException(e);
                         success = false;
                     }
                 }

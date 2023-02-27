@@ -2,6 +2,7 @@
 using i5.Toolkit.Core.ExperienceAPI;
 using i5.Toolkit.Core.OpenIDConnectClient;
 using i5.Toolkit.Core.ServiceCore;
+using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
 
 namespace MirageXR
@@ -29,6 +30,12 @@ namespace MirageXR
 
         protected override void RegisterServices()
         {
+#if UNITY_EDITOR
+            AppLog.MinimumLogLevel = LogLevel.TRACE;
+#else
+            AppLog.MinimumLogLevel = LogLevel.INFO;
+#endif
+
             ServiceManager.RegisterService(new WorldAnchorService());
             ServiceManager.RegisterService(new KeywordService());
 

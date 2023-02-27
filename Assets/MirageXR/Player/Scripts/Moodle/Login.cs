@@ -1,3 +1,4 @@
+using i5.Toolkit.Core.VerboseLogging;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -118,7 +119,7 @@ namespace MirageXR
             }
             else
             {
-                Debug.Log($"User login failed. Error: {response}");
+                AppLog.LogError($"User login failed. Error: {response}");
                 status.color = Color.red;
                 status.text = "Invalid login, please try again";
             }
@@ -136,7 +137,7 @@ namespace MirageXR
             DBManager.username = usernameField.text;
             welcomUserText.text = $"Welcome {DBManager.username}";
             welcomUserText.gameObject.SetActive(true);
-            Debug.Log($"{DBManager.username} logged in successfully.");
+            AppLog.LogInfo($"{DBManager.username} logged in successfully.");
             status.text = string.Empty;
             // close login menu
             ShowPanel(null);

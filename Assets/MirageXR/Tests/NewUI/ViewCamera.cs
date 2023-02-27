@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace MirageXR
@@ -37,7 +38,7 @@ namespace MirageXR
                     break;
                 case DeviceFormat.Unknown:
                 default:
-                    Debug.Log("Unknown format");
+                    AppLog.LogWarning("Unknown format");
                     break;
             }
         }
