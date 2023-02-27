@@ -1,8 +1,10 @@
+using i5.Toolkit.Core.VerboseLogging;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Toast : MonoBehaviour
 {
@@ -15,6 +17,7 @@ public class Toast : MonoBehaviour
 
     [SerializeField] private TMP_Text _message;
     [SerializeField] private CanvasGroup _canvasGroup;
+    [SerializeField] private LayoutElement _layoutElement;
 
     private readonly Queue<string> _queue = new Queue<string>();
     private bool _isActive;
@@ -24,7 +27,7 @@ public class Toast : MonoBehaviour
     {
         if (Instance != null)
         {
-            Debug.LogError($"{Instance.GetType().FullName} must only be a single copy!");
+            AppLog.LogError($"{Instance.GetType().FullName} must only be a single copy!");
             return;
         }
 
@@ -62,13 +65,22 @@ public class Toast : MonoBehaviour
         _message.text = message;
         _isActive = true;
         _canvasGroup.gameObject.SetActive(true);
-        UpdateWidth();
+
+        SetupLayout();
+
         yield return FadeTo(_canvasGroup, 1.0f, FADE_TIME);
         yield return new WaitForSeconds(_queue.Count >= MAX_MESSAGE_QUEUE ? SHOW_TIME_SHORT : SHOW_TIME);
         yield return FadeTo(_canvasGroup, 0.0f, FADE_TIME);
         _canvasGroup.gameObject.SetActive(false);
         _message.text = string.Empty;
         _isActive = false;
+    }
+
+    private void SetupLayout()
+    {
+        var maxWidth = _layoutElement.preferredWidth;
+        var width = _message.margin.x + _message.margin.z + _message.preferredWidth;
+        _layoutElement.enabled = width > maxWidth;
     }
 
     private void UpdateWidth()

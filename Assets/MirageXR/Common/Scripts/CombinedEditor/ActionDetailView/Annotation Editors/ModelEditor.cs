@@ -32,6 +32,8 @@ namespace MirageXR
 
         public void Create(string modelName)
         {
+            modelName = ZipUtilities.CheckFileForIllegalCharacters(modelName);
+
             Vector3 offset;
             if (annotationToEdit != null)
             {

@@ -1,3 +1,4 @@
+using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,7 +13,7 @@ public class LoadView : MonoBehaviour
     {
         if (Instance != null)
         {
-            Debug.LogError($"{nameof(LoadView)} must only be a single copy!");
+            AppLog.LogError($"{nameof(LoadView)} must only be a single copy!");
             return;
         }
 

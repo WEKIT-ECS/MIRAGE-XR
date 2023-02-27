@@ -1,3 +1,4 @@
+using i5.Toolkit.Core.VerboseLogging;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -65,7 +66,7 @@ namespace MirageXR
             }
             else
             {
-                Debug.LogError("Highlighted object missing in tutorial step: " + this.GetType().Name);
+                AppLog.LogError("Highlighted object missing in tutorial step: " + this.GetType().Name);
                 manager.CloseTutorial();
             }
         }

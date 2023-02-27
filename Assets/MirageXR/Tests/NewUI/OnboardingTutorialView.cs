@@ -1,5 +1,6 @@
 using System;
 using DG.Tweening;
+using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
@@ -102,7 +103,7 @@ public class OnboardingTutorialView : PopupBase
                 _btnSkipTutorials.gameObject.SetActive(true);
                 break;
             default:
-                Debug.LogError("Page View: Out of range");
+                AppLog.LogError("Page View: Out of range");
                 break;
         }
 

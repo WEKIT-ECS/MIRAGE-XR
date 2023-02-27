@@ -1,4 +1,5 @@
-﻿using System;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.XR.ARFoundation;
@@ -17,6 +18,7 @@ namespace MirageXR
         [Tooltip("If you want to test AR in the editor enable this.")]
         [SerializeField] bool forceWorldSpaceUi = false;
         [SerializeField] bool forceToTabletView = false;
+        [SerializeField] GameObject _screenSpaceDebugTool;
         [SerializeField] private LoadObject[] _worldSpaceObjects;
         [SerializeField] private LoadObject[] _screenSpaceObjects;
 
@@ -40,6 +42,11 @@ namespace MirageXR
 
         private void Awake()
         {
+            if (DBManager.developMode)
+            {
+                Instantiate(_screenSpaceDebugTool);
+            }
+
             //Singleton
             if (Instance == null)
             {
@@ -63,8 +70,6 @@ namespace MirageXR
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            Debug.Log("Platform: " + Application.platform);
-
             if (Application.platform == RuntimePlatform.WSAPlayerX86 || Application.platform == RuntimePlatform.WSAPlayerARM)
             {
                 foreach (var arcm in Resources.FindObjectsOfTypeAll<ARCameraManager>()) Destroy(arcm);      //TODO: remove Resources.FindObjectsOfTypeAll
@@ -144,7 +149,7 @@ namespace MirageXR
             var screenHeight = Screen.height / Screen.dpi;
             var diagonalInches = Mathf.Sqrt(Mathf.Pow(screenWidth, 2) + Mathf.Pow(screenHeight, 2));
 
-            Debug.Log("Getting device inches: " + diagonalInches);
+            AppLog.LogDebug("Getting device inches: " + diagonalInches);
 
             return diagonalInches;
         }

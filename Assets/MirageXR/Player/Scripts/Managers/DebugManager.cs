@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace MirageXR
@@ -28,12 +29,12 @@ namespace MirageXR
         {
             if (DebugText == null)
             {
-                Debug.Log("Debug manager error: Debug text not found. Please add one in editor.");
+                AppLog.LogError("Debug manager error: Debug text not found. Please add one in editor.");
             }
 
             if (DeviceInfo == null)
             {
-                Debug.Log("Debug manager error: Device info text not found. Please add one in editor.");
+                AppLog.LogError("Debug manager error: Device info text not found. Please add one in editor.");
             }
 
             DeviceInfo.text = SystemInfo.deviceUniqueIdentifier;

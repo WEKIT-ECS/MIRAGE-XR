@@ -52,6 +52,14 @@ namespace MirageXR
             {
                 return _targetObject;
             }
+        } 
+        
+        public Transform PickObject
+        {
+            get
+            {
+                return _pickObject;
+            }
         }
 
         private void OnEnable()
