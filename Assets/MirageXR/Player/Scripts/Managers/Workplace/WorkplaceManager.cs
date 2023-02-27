@@ -299,6 +299,8 @@ namespace MirageXR
         /// <param name="origin">Origin transform from the calibration target.</param>
         public async Task CalibrateWorkplace(Transform origin, bool isNewPosition = false)
         {
+            await activityManager.ActivateFirstAction();
+
             if (isNewPosition)
             {
                 await PerformEditModeCalibration();
