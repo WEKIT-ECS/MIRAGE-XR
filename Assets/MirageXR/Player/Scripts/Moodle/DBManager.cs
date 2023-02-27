@@ -77,6 +77,10 @@ namespace MirageXR
         public const string WEKIT_URL = "https://learn.wekit-ecs.com";
         public const string ARETE_URL = "https://arete.ucd.ie";
 
+        private const string PRIVACY_POLICY_URL_KEY = "PrivacyPolicyURL";
+        public const string WEKIT_PRIVACY_POLICY_URL = "https://wekit-ecs.com/privacy-policy";
+        public const string ARETE_PRIVACY_POLICY_URL = "https://www.areteproject.eu/gdprpolicy/";
+
         private const string SKETCHFAB_TOKEN_RENEW_KEY = "Sketchfab_token_last_renew_date";
         private const string SKETCHFAB_TOKEN_RENEW_DEFAULT = "";
 
@@ -117,6 +121,7 @@ namespace MirageXR
         private static readonly PrefsBoolValue _rememberSketchfabUser = new PrefsBoolValue(REMEMBER_SKETCHFAB_USER_KEY, REMEMBER_SKETCHFAB_USER_DEFAULT);
         private static readonly PrefsBoolValue _dontShowCalibrationGuide = new PrefsBoolValue(DONT_SHOW_CALIBRATION_GUIDE_KEY, DONT_SHOW_CALIBRATION_GUIDE_DEFAULT);
         private static readonly PrefsStringValue _domain = new PrefsStringValue(MOODLE_URL_KEY, WEKIT_URL);
+        private static readonly PrefsStringValue _privacyPolicyDomain = new PrefsStringValue(PRIVACY_POLICY_URL_KEY, WEKIT_PRIVACY_POLICY_URL);
         private static readonly PrefsStringValue _sketchfabTokenRenewDate = new PrefsStringValue(SKETCHFAB_TOKEN_RENEW_KEY, SKETCHFAB_TOKEN_RENEW_DEFAULT);
         private static readonly PrefsBoolValue _showBigCards = new PrefsBoolValue(SHOW_BIG_CARDS_KEY, SHOW_BIG_CARDS_DEFAULT);
 
@@ -194,6 +199,12 @@ namespace MirageXR
         {
             get => _domain.Value;
             set => _domain.Value = value;
+        }
+
+        public static string privacyPolicyDomain
+        {
+            get => _privacyPolicyDomain.Value;
+            set => _privacyPolicyDomain.Value = value;
         }
 
         public static LearningRecordStores publicCurrentLearningRecordStore
