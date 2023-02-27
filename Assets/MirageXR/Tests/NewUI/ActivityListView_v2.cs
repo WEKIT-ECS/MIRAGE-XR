@@ -8,6 +8,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using TMPro;
+using i5.Toolkit.Core.VerboseLogging;
+
 public class ActivityListView_v2 : BaseView
 {
     private const float HIDED_SIZE = 80f;
@@ -54,7 +56,6 @@ public class ActivityListView_v2 : BaseView
 
         _panelSize = _panel.sizeDelta;
 
-        EventManager.OnActivitySaved += FetchAndUpdateView;
         EventManager.OnActivityStarted += ShowBackButtons;
 
         FetchAndUpdateView();
@@ -62,7 +63,6 @@ public class ActivityListView_v2 : BaseView
 
     private void OnDestroy()
     {
-        EventManager.OnActivitySaved -= FetchAndUpdateView;
         EventManager.OnActivityStarted -= ShowBackButtons;
     }
 
@@ -253,7 +253,7 @@ public class ActivityListView_v2 : BaseView
                 }
                 else
                 {
-                    Debug.Log("Cannot convert date");
+                    AppLog.LogError("Cannot convert date");
                 }
             }
         }

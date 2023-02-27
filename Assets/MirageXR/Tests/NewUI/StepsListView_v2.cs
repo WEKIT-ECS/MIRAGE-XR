@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -46,11 +47,15 @@ public class StepsListView_v2 : BaseView
 
     private bool _isEditMode;
 
+    [Header("MirageXR calibration pdf file:")]
+    public TextAsset calibrationImage;
+    private static string calibrationImageFileName = "MirageXR_calibration_image_pdf.pdf";
+
     public override void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
-        _inputFieldActivityName.onValueChanged.AddListener(OnActivityNameChanged);
-        _inputFieldActivityDescription.onValueChanged.AddListener(OnActivityDescriptionChanged);
+        _inputFieldActivityName.onEndEdit.AddListener(OnActivityNameEndEdit);
+        _inputFieldActivityDescription.onEndEdit.AddListener(OnActivityDescriptionEndEdit);
 
         _btnAddStep.onClick.AddListener(OnAddStepClick);
         _btnThumbnail.onClick.AddListener(OnThumbnailButtonPressed);
@@ -327,15 +332,19 @@ public class StepsListView_v2 : BaseView
         LoadThumbnail();
     }
 
-    private void OnActivityNameChanged(string title)
+    private void OnActivityNameEndEdit(string title)
     {
         activityManager.Activity.name = title;
         _textActivityName.text = title;
+
+        activityManager.SaveData();
     }
 
-    private void OnActivityDescriptionChanged(string description)
+    private void OnActivityDescriptionEndEdit(string description)
     {
         activityManager.Activity.description = description;
+
+        activityManager.SaveData();
     }
 
     private void OnCalibrationPressed()
@@ -357,7 +366,16 @@ public class StepsListView_v2 : BaseView
 
     private void ShareCalibrationImage()
     {
-        // not implemented
+        StartCoroutine(SharePDFFile());
+    }
+
+    private IEnumerator SharePDFFile()
+    {
+        yield return new WaitForEndOfFrame();
+
+        string filePath = Path.Combine(Application.temporaryCachePath, calibrationImageFileName);
+        File.WriteAllBytes(filePath, calibrationImage.bytes);
+        new NativeShare().AddFile(filePath).Share();
     }
 
     private void ShowNewPositionCalibrationView()

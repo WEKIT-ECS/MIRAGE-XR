@@ -1,4 +1,5 @@
-﻿using System;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using System;
 using TiltBrush;
 using UnityEngine;
 
@@ -45,7 +46,7 @@ namespace MirageXR
             }
             catch (Exception e)
             {
-                Debug.Log(e);
+                AppLog.LogException(e);
                 throw;
             }
         }

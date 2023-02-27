@@ -1,4 +1,6 @@
-﻿using MirageXR;
+using i5.Toolkit.Core.VerboseLogging;
+using MirageXR;
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -46,7 +48,7 @@ public class ActionListMenu : MonoBehaviour
             GetComponent<Canvas>().enabled = false;
             return;
         }
-        
+
         // hide the upload progress number
         if (uploadProgressText == transform.FindDeepChild("UploadProgress").gameObject)
             uploadProgressText.SetActive(false);
@@ -76,7 +78,7 @@ public class ActionListMenu : MonoBehaviour
             }
         }
 
-        Debug.Log("Action list menu start called");
+        AppLog.LogTrace("Action list menu start called");
         EventManager.OnInitUi += Init;
         EventManager.OnActivateAction += OnActivateAction;
         EventManager.OnDeactivateAction += OnDeactivateAction;
@@ -104,7 +106,7 @@ public class ActionListMenu : MonoBehaviour
     {
         page = 0;
         titleText.text = activityManager.Activity.name;
-        
+
         UpdateUI();
         addActionStepButton = gameObject.transform.Find("Panel").Find("ButtonAdd").gameObject;
     }
@@ -145,7 +147,7 @@ public class ActionListMenu : MonoBehaviour
         {
             return;
         }
-        
+
         int activeIndex = activityManager.ActionsOfTypeAction.IndexOf(activityManager.ActiveAction);
         previousStepButton.interactable = activeIndex > 0;
 
@@ -207,7 +209,7 @@ public class ActionListMenu : MonoBehaviour
         if (targetAnnotation != null)
         {
             Transform target = CorrectTargetObject(targetAnnotation);
-            
+
             TaskStationDetailMenu.Instance.NavigatorTarget = target;
             TaskStationDetailMenu.Instance.TargetPredicate = targetAnnotation.predicate;
         }
@@ -219,24 +221,34 @@ public class ActionListMenu : MonoBehaviour
 
     public static Transform CorrectTargetObject(ToggleObject annotation)
     {
-        Transform target;
-        switch (annotation.predicate)
+        try
         {
-            case string type when type.StartsWith("char"):
-                target = GameObject.Find(annotation.poi).GetComponentInChildren<MirageXR.CharacterController>().transform;
-                break;
-            case string type when type.StartsWith("pick"):
-                target = GameObject.Find(annotation.poi).GetComponentInChildren<PickAndPlaceController>().Target;
-                break;
-            case "ghosttracks":
-                target = GameObject.Find(annotation.poi).GetComponentInChildren<GhostRecordPlayer>().transform;
-                break;
-            default:
-                target = GameObject.Find(annotation.poi).transform;
-                break;
-        }
+            Transform target = GameObject.Find(annotation.poi).transform;
 
-        return target;
+            switch (annotation.predicate)
+            {
+
+                case string type when type.StartsWith("char"):
+                    target = target.GetComponentInChildren<MirageXR.CharacterController>().transform;
+                    break;
+                case string type when type.StartsWith("pick"):
+                    target = target.GetComponentInChildren<PickAndPlaceController>().PickObject;
+                    break;
+                case "ghosttracks":
+                    target = target.GetComponentInChildren<GhostRecordPlayer>().transform;
+                    break;
+                default:
+                    //for all other augmentations the model will be the first child of the poi
+                    target = target.GetChild(0);
+                    break;
+            }
+            return target;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Could not find model for augmentation " + annotation.predicate + " at POI: " + annotation.poi + "\nException: " + e);
+            return null;
+        }
     }
 
 
@@ -298,12 +310,12 @@ public class ActionListMenu : MonoBehaviour
         await activityManager.AddAction(Vector3.zero);
     }
 
-    private void OnActionCreated(Action action)
+    private void OnActionCreated(MirageXR.Action action)
     {
         UpdateUI();
     }
 
-    private void OnActionChanged(Action action)
+    private void OnActionChanged(MirageXR.Action action)
     {
         UpdateUI();
     }

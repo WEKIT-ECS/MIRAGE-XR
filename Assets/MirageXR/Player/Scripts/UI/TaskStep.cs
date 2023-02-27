@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace MirageXR
@@ -135,7 +136,7 @@ namespace MirageXR
             _completedIcon.SetActive(false);
             _incompletedIcon.SetActive(true);
             _incompletedIcon.gameObject.GetComponent<Button>().enabled = false;
-            Debug.Log("RESET!");
+            AppLog.LogInfo("RESET!");
         }
 
 

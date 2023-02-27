@@ -1,4 +1,5 @@
 ﻿using System;
+using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,6 +35,8 @@ public class ActivitySettings : PopupBase
 
         _btnDelete.interactable = _container != null;
 
+        ValueHasBeenChanged();
+
         ResetValues();
     }
 
@@ -45,8 +48,15 @@ public class ActivitySettings : PopupBase
     private void ResetValues()
     {
         _togglePublicUpload.isOn = DBManager.publicUploadPrivacy;
-        _toggleLocalSave.isOn = false;
-        _btnSave.interactable = false;
+        _toggleLocalSave.isOn = DBManager.publicLocalSave;
+        _toggleUploadToCloud.isOn = DBManager.publicCloudSave;
+    }
+
+    private void SetValues()
+    {
+        DBManager.publicUploadPrivacy = _togglePublicUpload.isOn;
+        DBManager.publicLocalSave = _toggleLocalSave.isOn;
+        DBManager.publicCloudSave = _toggleUploadToCloud.isOn;
     }
 
     protected override bool TryToGetArguments(params object[] args)
@@ -69,7 +79,22 @@ public class ActivitySettings : PopupBase
 
     private void OnValueChangedPublicUpload(bool value)
     {
+        if(value && _toggleUploadToCloud.isOn && DBManager.publicShowPublicUploadWarning)
+        {
+            RootView_v2.Instance.dialog.ShowMiddle(
+                "Public Upload",
+                "You have selected public upload. Once uploaded, this activity will be visable to all users.",
+                "Don't show again", () => DontShowPublicUploadWarning(),
+                "OK", () => AppLog.LogTrace("Ok!"),
+                true);
+        }
+
         ValueHasBeenChanged();
+    }
+
+    private void DontShowPublicUploadWarning()
+    {
+        DBManager.publicShowPublicUploadWarning = false;
     }
 
     private void OnValueChangedSaveToggle(bool value)
@@ -84,7 +109,17 @@ public class ActivitySettings : PopupBase
 
     private void ValueHasBeenChanged()
     {
-        _btnSave.interactable = true;
+        _btnSave.interactable = _toggleUploadToCloud.isOn || _toggleLocalSave.isOn;
+
+        if (!_toggleUploadToCloud.isOn)
+        {
+            _togglePublicUpload.isOn = false;
+            _togglePublicUpload.interactable = false;
+        }
+        else
+        {
+            _togglePublicUpload.interactable = true;
+        }
     }
 
     private void OnPreviewClicked()
@@ -96,6 +131,7 @@ public class ActivitySettings : PopupBase
 
     private void OnCloseClicked()
     {
+        SetValues();
         Close();
     }
 
@@ -105,12 +141,14 @@ public class ActivitySettings : PopupBase
         {
             OnSaveToggleOn();
         }
-        else if (_toggleUploadToCloud.isOn)
+
+        if (_toggleUploadToCloud.isOn)
         {
             OnUploadToggleOn();
         }
 
         DBManager.publicUploadPrivacy = _togglePublicUpload.isOn;
+        SetValues();
         ResetValues();
         Close();
     }

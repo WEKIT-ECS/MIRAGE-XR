@@ -1,4 +1,5 @@
 ﻿using i5.Toolkit.Core.ServiceCore;
+using i5.Toolkit.Core.VerboseLogging;
 using System.Collections;
 using System.IO;
 using UnityEngine;
@@ -93,7 +94,7 @@ namespace MirageXR
             // Check that url is not empty.
             if (string.IsNullOrEmpty(content.url))
             {
-                Debug.Log("Content URL not provided.");
+                AppLog.LogWarning("Content URL not provided.");
                 return false;
             }
 

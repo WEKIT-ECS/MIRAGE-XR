@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using MirageXR;
+using i5.Toolkit.Core.VerboseLogging;
 
 public class PopupsViewer : MonoBehaviour
 {
@@ -15,7 +16,7 @@ public class PopupsViewer : MonoBehaviour
     {
         if (Instance != null)
         {
-            Debug.LogError($"{Instance.GetType().FullName} must only be a single copy!");
+            AppLog.LogError($"{Instance.GetType().FullName} must only be a single copy!");
             return;
         }
 
@@ -91,7 +92,7 @@ public class PopupsViewer : MonoBehaviour
     {
         if (_stack.Count <= 0)
         {
-            Debug.LogError("Stack is empty!");
+            AppLog.LogError("Stack is empty!");
             return;
         }
 

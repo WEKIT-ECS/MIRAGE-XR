@@ -19,12 +19,19 @@ namespace MirageXR
 
         public static void SaveData(Activity activity)
         {
-            var fileName = string.Format(JSON_NAME_FORMAT, activity.id);
-            var recFilePath = Path.Combine(Application.persistentDataPath, fileName);
-            var json = ActivityParser.Serialize(activity);
-            File.WriteAllText(recFilePath, json);
-            EventManager.ActivitySaved();
-            RootObject.Instance.workplaceManager.SaveWorkplace();
+            try
+            {
+                var fileName = string.Format(JSON_NAME_FORMAT, activity.id);
+                var recFilePath = Path.Combine(Application.persistentDataPath, fileName);
+                var json = ActivityParser.Serialize(activity);
+                File.WriteAllText(recFilePath, json);
+                EventManager.ActivitySaved();
+                RootObject.Instance.workplaceManager.SaveWorkplace();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Error when saving activity: " + e);
+            }
         }
 
         public static void MoveData(string oldActivityId, string activityId)

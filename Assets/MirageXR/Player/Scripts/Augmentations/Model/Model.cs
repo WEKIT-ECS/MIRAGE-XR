@@ -2,6 +2,7 @@
 using System.IO;
 using UnityEngine;
 using Siccity.GLTFUtility;
+using i5.Toolkit.Core.VerboseLogging;
 
 namespace MirageXR
 {
@@ -60,14 +61,14 @@ namespace MirageXR
             // Check that url is not empty.
             if (string.IsNullOrEmpty(obj.url))
             {
-                Debug.Log("Content URL not provided.");
+                AppLog.LogWarning("Content URL not provided.");
                 return false;
             }
 
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
-                Debug.Log("Couldn't set the parent.");
+                AppLog.LogWarning("Couldn't set the parent.");
                 return false;
             }
 
@@ -90,9 +91,12 @@ namespace MirageXR
         private void LoadModel(ToggleObject obj)
         {
             startLoadTime = Time.time;
+
+            obj.option = ZipUtilities.CheckFileForIllegalCharacters(obj.option);
+
             var loadPath = Path.Combine(RootObject.Instance.activityManager.ActivityPath, obj.option, "scene.gltf");
 
-            Debug.Log($"Loading model: {loadPath}");
+            AppLog.LogTrace($"Loading model: {loadPath}");
 
             Importer.ImportGLTFAsync(loadPath, new ImportSettings(), OnFinishLoadingAsync);
         }
@@ -105,7 +109,7 @@ namespace MirageXR
                 return;
             }
 
-            Debug.Log($"Imported {model.name} in {Time.time - startLoadTime} seconds");
+            AppLog.LogTrace($"Imported {model.name} in {Time.time - startLoadTime} seconds");
 
             var startPos = transform.position + transform.forward * -0.5f + transform.up * -0.1f;
 
@@ -131,7 +135,7 @@ namespace MirageXR
 
             if (clip.Length > 0)
             {
-                Debug.Log($"Animation(s) found ({clip.Length})...isLegacy? {clip[0].legacy}");
+                AppLog.LogDebug($"Animation(s) found ({clip.Length})...isLegacy? {clip[0].legacy}");
 
                 animation = model.AddComponent<Animation>();
                 animation.AddClip(clip[0], "leaning");
@@ -228,7 +232,7 @@ namespace MirageXR
                 }
             }
 
-            Debug.Log($"largest collider: {largestColliderIndex} ({colliderSize.ToString("F4")})");
+            AppLog.LogDebug($"largest collider: {largestColliderIndex} ({colliderSize.ToString("F4")})");
 
             // set magnification and translation factors based on gltf info.
             float magnificationFactor = 0.5f / colliderSize.magnitude;
@@ -250,7 +254,7 @@ namespace MirageXR
             }
 
             myPoiEditor.ModelMagnification = magnificationFactor;
-            Debug.Log($"{modelToAdjust.name} has file mag. factor {magnificationFactor:F4}");
+            AppLog.LogDebug($"{modelToAdjust.name} has file mag. factor {magnificationFactor:F4}");
 
             modelToAdjust.transform.localScale *= myPoiEditor.ModelMagnification;
             modelToAdjust.transform.localPosition = Vector3.zero;
@@ -267,7 +271,7 @@ namespace MirageXR
 
             if (Directory.Exists(modelFolderPath))
             {
-                Debug.Log("found model folder (" + modelFolderPath + "). Deleting...");
+                AppLog.LogTrace("found model folder (" + modelFolderPath + "). Deleting...");
                 Utilities.DeleteAllFilesInDirectory(modelFolderPath);
                 Directory.Delete(modelFolderPath);
             }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using UnityEngine;
 
 namespace MirageXR
 {
@@ -19,13 +20,13 @@ namespace MirageXR
         {
             if (string.IsNullOrEmpty(target))
             {
-                Debug.Log("Message target not set.");
+                AppLog.LogWarning("Message target not set.");
                 return;
             }
 
             if (string.IsNullOrEmpty(message))
             {
-                Debug.Log("Message text not set.");
+                AppLog.LogWarning("Message text not set.");
                 return;
             }
 

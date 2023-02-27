@@ -1,3 +1,4 @@
+using i5.Toolkit.Core.VerboseLogging;
 using System;
 using System.IO;
 using TMPro;
@@ -56,7 +57,7 @@ public class NativeCameraTest : MonoBehaviour
 
     private void OnVideoRecorded(bool result, string path)
     {
-        Debug.Log(path);
+        AppLog.LogDebug("Video record path: " + path);
         _rawImage.texture = _renderTexture;
         _pathTxt.text = path;
         _videoPlayer.url = path;

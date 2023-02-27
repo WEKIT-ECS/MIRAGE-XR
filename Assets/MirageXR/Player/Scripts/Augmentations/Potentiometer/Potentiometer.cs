@@ -1,4 +1,5 @@
-﻿using Microsoft.MixedReality.Toolkit.UI;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
 
 namespace MirageXR
@@ -10,19 +11,19 @@ namespace MirageXR
             // Check that all the sensor related crap is defined.
             if (string.IsNullOrEmpty(obj.sensor))
             {
-                Debug.Log("Sensor is not defined.");
+                AppLog.LogWarning("Sensor is not defined.");
                 return false;
             }
 
             if (string.IsNullOrEmpty(obj.key))
             {
-                Debug.Log("Sensor key is not defined.");
+                AppLog.LogWarning("Sensor key is not defined.");
                 return false;
             }
 
             if (string.IsNullOrEmpty(obj.option))
             {
-                Debug.Log("Sensor option string is not defined.");
+                AppLog.LogWarning("Sensor option string is not defined.");
                 return false;
             }
 
@@ -30,20 +31,20 @@ namespace MirageXR
 
             if (limits.Length != 2)
             {
-                Debug.Log("Sensor limits not properly set.");
+                AppLog.LogWarning("Sensor limits not properly set.");
                 return false;
             }
 
             if (!float.TryParse(limits[0], out float min))
             {
-                Debug.Log("Minimum value is not a float.");
+                AppLog.LogWarning("Minimum value is not a float.");
                 return false;
             }
 
 
             if (!float.TryParse(limits[1], out float max))
             {
-                Debug.Log("Maximum value is not a float.");
+                AppLog.LogWarning("Maximum value is not a float.");
                 return false;
             }
 
@@ -51,14 +52,14 @@ namespace MirageXR
 
             if (!controller.AttachStream(obj.sensor, obj.key, min, max))
             {
-                Debug.Log("Couldn't attach sensor stream.");
+                AppLog.LogWarning("Couldn't attach sensor stream.");
                 return false;
             }
 
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
-                Debug.Log("Couldn't set the parent.");
+                AppLog.LogWarning("Couldn't set the parent.");
                 return false;
             }
 

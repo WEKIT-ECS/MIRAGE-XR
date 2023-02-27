@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 using Microsoft.MixedReality.Toolkit.Utilities;
+using i5.Toolkit.Core.VerboseLogging;
 
 namespace MirageXR
 {
@@ -25,7 +26,7 @@ namespace MirageXR
             using (UnityWebRequest req = new UnityWebRequest(_downloadUrl))
             {
                 req.method = UnityWebRequest.kHttpVerbGET;
-                Debug.Log($"Downloading zip file to " + _zipFilePath);
+                AppLog.LogInfo($"Downloading zip file to " + _zipFilePath);
                 DownloadHandlerFile downloadHandler = new DownloadHandlerFile(_zipFilePath) { removeFileOnAbort = true };
                 req.downloadHandler = downloadHandler;
                 await req.SendWebRequest();
@@ -37,8 +38,8 @@ namespace MirageXR
 
         public async Task UnzipFileAsync()
         {
-            Debug.Log($"Application persistent data path is {Application.persistentDataPath}");
-            Debug.Log($"Unzipping zip file from {_zipFilePath} to {_targetFolder}");
+            AppLog.LogDebug($"Application persistent data path is {Application.persistentDataPath}");
+            AppLog.LogInfo($"Unzipping zip file from {_zipFilePath} to {_targetFolder}");
             using (Stream stream = new FileStream(_zipFilePath, FileMode.Open))
             {
                 await ZipUtilities.ExtractZipFileAsync(stream, _targetFolder);
@@ -47,10 +48,10 @@ namespace MirageXR
 
         public void Dispose()
         {
-            Debug.Log("Disposing session downloader");
+            AppLog.LogTrace("Disposing session downloader");
             if (File.Exists(_zipFilePath))
             {
-                Debug.Log($"Clean up: Deleting zip file at {_zipFilePath}");
+                AppLog.LogDebug($"Clean up: Deleting zip file at {_zipFilePath}");
                 File.Delete(_zipFilePath);
             }
         }

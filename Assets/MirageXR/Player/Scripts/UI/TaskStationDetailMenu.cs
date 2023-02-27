@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace MirageXR
@@ -84,7 +85,7 @@ namespace MirageXR
             }
             catch
             {
-                Debug.LogError("Augmentation Creation Button not found on Task Station Menu. Tutorial will not work.");
+                AppLog.LogError("Augmentation Creation Button not found on Task Station Menu. Tutorial will not work.");
             }
 
             //Setup Title and Description Field listeners. Created for tutorial.
@@ -102,7 +103,7 @@ namespace MirageXR
             }
             catch
             {
-                Debug.LogError("Action Title Input Field not found on Task Station Menu. Tutorial will not work.");
+                AppLog.LogError("Action Title Input Field not found on Task Station Menu. Tutorial will not work.");
             }
 
             SetupActionDescriptionInputField();
@@ -126,7 +127,7 @@ namespace MirageXR
             }
             catch
             {
-                Debug.LogError("Action Description Input Field not found on Task Station Menu. Tutorial will not work.");
+                AppLog.LogError("Action Description Input Field not found on Task Station Menu. Tutorial will not work.");
             }
         }
 
