@@ -727,8 +727,6 @@ namespace MirageXR
                 {
                     AppLog.LogError("Could not identify the active action");
                 }
-
-                }
             }
             else
             {
