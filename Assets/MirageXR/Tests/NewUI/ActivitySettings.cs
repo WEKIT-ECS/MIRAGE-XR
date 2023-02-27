@@ -141,7 +141,8 @@ public class ActivitySettings : PopupBase
         {
             OnSaveToggleOn();
         }
-        else if (_toggleUploadToCloud.isOn)
+
+        if (_toggleUploadToCloud.isOn)
         {
             OnUploadToggleOn();
         }
