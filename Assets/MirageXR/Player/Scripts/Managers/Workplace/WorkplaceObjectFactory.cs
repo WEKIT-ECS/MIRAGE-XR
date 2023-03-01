@@ -1,4 +1,5 @@
 using i5.Toolkit.Core.ServiceCore;
+using i5.Toolkit.Core.VerboseLogging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -38,7 +39,7 @@ namespace MirageXR
                 catch (Exception e)
                 {
                     EventManager.DebugLog($"Error: Workplace manager: Couldn't create {debug}.");
-                    Debug.Log(e);
+                    AppLog.LogException(e);
                     throw;
                 }
             }
@@ -99,7 +100,7 @@ namespace MirageXR
                 {
                     Maggie.Speak("Error while trying to connect to sensor " + sensor.id);
                     EventManager.DebugLog("Error: Workplace manager: Couldn't create sensor objects.");
-                    Debug.Log(e);
+                    AppLog.LogException(e);
                     throw;
                 }
             }
@@ -225,7 +226,7 @@ namespace MirageXR
                         {
                             // If sensor poi found, link sensor display to sensor poi.
                             sensor.GetComponent<DeviceMqttBehaviour>().LinkDisplay(sensorPoi.transform);
-                            Debug.Log("Sensor poi");
+                            AppLog.LogDebug("Sensor poi");
                         }
 
                         else
@@ -233,14 +234,14 @@ namespace MirageXR
                             // If sensor poi not found, link to default poi.
                             var defaultPoi = GameObject.Find(thing.id + "/default");
                             sensor.GetComponent<DeviceMqttBehaviour>().LinkDisplay(defaultPoi.transform);
-                            Debug.Log("Default poi");
+                            AppLog.LogDebug("Default poi");
                         }
                     }
                 }
                 catch (Exception e)
                 {
                     EventManager.DebugLog("Error: Workplace manager: Couldn't create thing object: " + thing.id);
-                    Debug.Log(e);
+                    AppLog.LogException(e);
                     throw;
                 }
             }
@@ -352,7 +353,7 @@ namespace MirageXR
                 catch (Exception e)
                 {
                     EventManager.DebugLog("Error: Workplace manager: Couldn't create person objects.");
-                    Debug.Log(e);
+                    AppLog.LogException(e);
                     throw;
                 }
             }
@@ -382,7 +383,7 @@ namespace MirageXR
                 catch (Exception e)
                 {
                     EventManager.DebugLog("Error: Workplace manager: Couldn't attach user to current device.");
-                    Debug.Log(e);
+                    AppLog.LogException(e);
                     throw;
                 }
             }
@@ -398,7 +399,7 @@ namespace MirageXR
                 return;
             }
 
-            Debug.Log("Creating Detectable Object:" + detectable.id +
+            AppLog.LogInfo("Creating Detectable Object:" + detectable.id +
                 "\nPosition:" + detectable.origin_position +
                 "\nRotation:" + detectable.origin_rotation);
 
@@ -459,7 +460,7 @@ namespace MirageXR
                                       detectable.id, detectable.id, ".xml" };
                     var path = Path.Combine(paths);
 
-                    Debug.Log("VUFORIA PATH: " + path);
+                    AppLog.LogDebug("VUFORIA PATH: " + path);
 
                     // Check that we have the data set file.
                     if (!DataSet.Exists(path, VuforiaUnity.StorageType.STORAGE_ABSOLUTE))
@@ -656,7 +657,7 @@ namespace MirageXR
                 }
                 else
                 {
-                    Debug.LogError("Problem interpreting rotation value");
+                    AppLog.LogError("Problem interpreting rotation value");
                 }
             }
 
@@ -668,7 +669,7 @@ namespace MirageXR
                 }
                 else
                 {
-                    Debug.LogError("Problem interpreting poi scale value");
+                    AppLog.LogError("Problem interpreting poi scale value");
                 }
             }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
@@ -84,7 +85,7 @@ public class ActivitySettings : PopupBase
                 "Public Upload",
                 "You have selected public upload. Once uploaded, this activity will be visable to all users.",
                 "Don't show again", () => DontShowPublicUploadWarning(),
-                "OK", () => Debug.Log("Ok!"),
+                "OK", () => AppLog.LogTrace("Ok!"),
                 true);
         }
 
@@ -140,7 +141,8 @@ public class ActivitySettings : PopupBase
         {
             OnSaveToggleOn();
         }
-        else if (_toggleUploadToCloud.isOn)
+
+        if (_toggleUploadToCloud.isOn)
         {
             OnUploadToggleOn();
         }

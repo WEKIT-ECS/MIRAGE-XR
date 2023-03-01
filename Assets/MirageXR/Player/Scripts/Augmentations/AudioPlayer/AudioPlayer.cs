@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -67,14 +68,14 @@ namespace MirageXR
             // Check that url is not empty.
             if (string.IsNullOrEmpty(obj.url))
             {
-                Debug.Log("Content URL not provided.");
+                AppLog.LogWarning("Content URL not provided.");
                 return false;
             }
 
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
-                Debug.Log("Couldn't set the parent.");
+                AppLog.LogWarning("Couldn't set the parent.");
                 return false;
             }
 
@@ -351,7 +352,7 @@ namespace MirageXR
                 {
                     audioName = audioName.Substring(0, audioName.Length - 4);
                 }
-                Debug.Log("Trying to load audio: " + audioName);
+                AppLog.LogTrace("Trying to load audio: " + audioName);
                 AudioClip audioClip = Resources.Load(audioName, typeof(AudioClip)) as AudioClip;
                 audioPlayer.clip = audioClip;
                 audioPlayer.playOnAwake = false;
@@ -369,7 +370,7 @@ namespace MirageXR
                 // Local file
                 string dataPath = Application.persistentDataPath;
                 string completeAudioName = "file://" + dataPath + "/" + audioName;
-                Debug.Log("Trying to load audio: " + completeAudioName);
+                AppLog.LogTrace("Trying to load audio: " + completeAudioName);
                 WWW www = new WWW(completeAudioName);
                 yield return www;
                 AudioClip audioClip = www.GetAudioClip(false, false, AudioType.WAV);
@@ -385,7 +386,7 @@ namespace MirageXR
                 var filename = url[url.Length - 1];
 
                 var completeAudioName = "file://" + activityManager.ActivityPath + "/" + filename;
-                Debug.Log("Trying to load audio: " + completeAudioName);
+                AppLog.LogTrace("Trying to load audio: " + completeAudioName);
                 WWW www = new WWW(completeAudioName);
                 yield return www;
                 AudioClip audioClip = www.GetAudioClip(false, false, AudioType.WAV);

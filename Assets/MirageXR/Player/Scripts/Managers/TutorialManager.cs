@@ -1,3 +1,4 @@
+using i5.Toolkit.Core.VerboseLogging;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -95,7 +96,7 @@ namespace MirageXR
         {
             if (Instance != null)
             {
-                Debug.LogError($"{Instance.GetType().FullName} must only be a single copy!");
+                AppLog.LogError($"{Instance.GetType().FullName} must only be a single copy!");
                 return;
             }
 
@@ -160,7 +161,7 @@ namespace MirageXR
             }
             else
             {
-                Debug.LogError("Tried to start unknown tutorial type.");
+                AppLog.LogError("Tried to start unknown tutorial type.");
             }
         }
 

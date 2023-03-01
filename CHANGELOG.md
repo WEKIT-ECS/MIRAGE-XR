@@ -2,6 +2,95 @@
 
 # Change Log
 
+# v2.0 (2023-02-08)
+
+## Featured
+- New and improved mobile user interface. We completely redesigned the concept of user interaction and dialogues on the mobile platforms. The app now has a significantly improved usability and user experience, and many new features.
+- Context help. We introduced a new dynamic context help system, with a comprehensive set of help dialogues for anything we could think of.
+- Interactive tutorial. We added a facility for step-by-step interactive tutorials and added a tutorial introducing the user to the editing functionality.
+
+## Added
+- Onboarding: We added onboarding swipe-thru slides on first app launch, explaining the key concepts of mirageXR with text and animations.
+- Bottom bar: We added a new bottom tab bar with icons for quickly switching between activity stream, profile, search, and the new dynamic context help.
+- Quick edit toggle: We introduced a new edit toggle button in the top right corner of the mobile user interface for quickly switching from viewing to editing.
+- Collapsable main panel: Users can now minimize the main menu, providing ‘prev’/’next’ quick navigation buttons in the collapsed view for moving forwards and backwards between action steps. Especially on smaller screen phones, this frees valuable screen real estate up for a less cluttered view of the activity.
+- Model augmentation: We added boundary box handles for the model augmentation as alternative to the direct manipulation with pinch and rotate.
+- Pick & place augmentation: We added trigger functionality to allow jumping to the specified step if the pick object is placed in the correct target location, and we added reset options for placement.
+- Pick & place augmentation: We added sound effects for the pick & place augmentation (for correct and incorrect placement).
+- Character models: We added trigger functionality to character models, moving on to the next action step, when audio or animation are finished playing (whichever takes longer).
+- Character models: The AI mode of character models now supports the use of “%%trigger%%” control commands in the text string of their dialogue responses, triggering to move on to the next action step.
+- Audio augmentation: We added a 'jump to' option for audio triggers (not just 'next step').
+- Action augmentation: We added gaze trigger functionality for action augmentations.
+- Preview: We added a preview button from the publish settings to remind content authors to test their activities before uploading to the cloud.
+- Marker augmentation: We improved the marker augmentation to display the target image with a 'find this’ instruction and we worked on the anchor stability of the task station during tracking.
+- Locate: We reintroduced the locate functionality to activate a red arrow viewfinder pointing to the augmentation it is activated for.
+- Acknowledgements: We added logos of new collaborators to the acknowledgements.
+
+## Changed
+- Login at the start: The app starts now with the login, also adding buttons for registering (opens browser for web registration) and anonymous guest login.
+- Activity stream: We upgraded the activity list to a swipeable activity stream on mobiles and improved the sorting and search functionality.
+- Publish dialogue: We created a new ‘Publish...' dialogue to simplify data handling for content authors, with quick access for saving locally and saving to the cloud in public (or private).
+- Image and video augmentations: We added boundary box handles for easier manipulation to the image and video augmentations.
+- Step order: We improved the process of adding action steps during editing.
+- Best augmentations first: We reordered the list of augmentations in the editor by popularity.
+- Content selection: We improved support for content selection, adding a short description and additional context help to the augmentation list on mobiles.
+- Calibration dialogue: We created a new calibration guide and dialogue, which now starts automatically when a user opens an activity to view.
+- Highlight current step: We are now visually highlighting the current step in the step list also on mobiles.
+- Keep alive: We created a new dialogue with from/to dials on mobiles for the ‘keep alive’ functionality of augmentations, simplifying setting from which action step to which action step an augmentation shall remain visible.
+- Updated views: We implemented new views for activity settings, steps,  list of step contents, content selection, step settings, and profile.
+- Activity: We improved the process of deleting activities.
+- Screen layout: We improved the basic screen layout for tablets and large screen phones (e.g. Motorola Edge Pro). We increased icon resolutions.
+
+## Fixed
+- We updated the reference resolution for the new mobile user interface, which was causing crashes on some devices.
+- We extended the audio trigger functionality to work also with the GhostTrack augmentation.
+- Fixed portrait mode for video augmentation player.
+- We fixed bugs with the AI mode for character models.
+- We fixed bugs causing the image augmentation to crash (iOS), reset (Android), or not display (all).
+- We suppressed the calibration video instructions from displaying during the editing tutorial, so that the optional dialogue does not occlude the tutorial.
+- We fixed issues with the appearance of character models ('zombie mode') and improved the appearance for some.
+- We fixed issues with calibration.
+- We fixed a bug causing label augmentations to crash when using the trigger.
+- We fixed a bug with pick & place objects forgetting their orientation.
+
+## Enterprise
+- We updated the base URI for xAPI statements, retiring ‘wekit-community.org’.
+- We removed the Android advertising SDK package from project (it was never used).
+- We added a new profile setting for selecting repository servers from a dropdown list of preconfigured endpoints.
+- We added new profile settings for selecting the learning record store from a dropdown list, automatically configuring their xAPI endpoint URL, replacing the free text entry.
+- We fixed issues with the Sketchfab API direct login and authentication.
+- We reinstated the broken deep link launch from QR codes in Moodle (allowing MirageXR to launch from any QR-code enabled mobile camera app).
+- We added new app icons.
+
+## Developer
+- We migrated to Unity 2021 LTS and updated the CI pipelines to use the corresponding images.
+- We updated the ARfoundation versions.
+- We created a new UI kit to unify the presentation layer.
+- We introduced a new dialogue manager for presenting interactive dialogues.
+- We implemented a new drag & drop controller for ordering of UI elements.
+- We added CONTRIBUTING.md instructions, replacing the agile development wiki page.
+- We updated the CI pipeline badges in the README.md.
+- We excluded workspace layout settings from git index and added to gitignore.
+- We removed the UserSettings folder from git index and added it to gitignore.
+- We removed some ghost meta files that were still tracked by git.
+- We updated the cache action on the Android build pipeline.
+- We fixed the Android CI pipeline signing error and left a note in the CONTRIBUTING.md about not ticking the developer key option in the build settings.
+- We fixed the problem of the Android build pipeline running out of space before concluding the build.
+- We added missing standard Windows fonts on the Android build pipeline, which were causing many dialogues to not display type in automated preview builds.
+- We added StyleCop support and adjusted the rules to our needs, also reformatting large parts of the code to fix some of the warnings.
+
+### iOS
+
+Version 11.0+ (ARKit required)
+
+### Android
+
+Version 7.0+
+
+### UWP (Windows Holographic)
+
+10\.0.17134.0+
+
 # v1.9 (2022-06-08)
 
 ## Featured
