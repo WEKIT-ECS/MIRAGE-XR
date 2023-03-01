@@ -1,4 +1,5 @@
-﻿using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.IO;
 using UnityEngine;
 using UnityEngine.AI;
@@ -242,7 +243,7 @@ namespace MirageXR
                             // Ghost hands type.
                             case "hands":
                                 if (isActivating)
-                                    Debug.Log("hands activated");
+                                    AppLog.LogInfo("hands activated");
                                 // ActivatePrefab("HandsPrefab", obj);
                                 // else
                                 //  DestroyPrefab(obj);

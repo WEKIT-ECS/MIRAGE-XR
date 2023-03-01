@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using ICSharpCode.SharpZipLib.Zip;
 using System.Threading.Tasks;
 using Object = UnityEngine.Object;
+using i5.Toolkit.Core.VerboseLogging;
 
 namespace MirageXR
 {
@@ -84,7 +85,7 @@ namespace MirageXR
 
             if (!DBManager.LoggedIn)
             {
-                Debug.Log("You are not logged in");
+                AppLog.LogError("You are not logged in");
                 return (false, "Error: You are not logged in");
             }
 
@@ -105,11 +106,11 @@ namespace MirageXR
             {
                 if (response.EndsWith("Saved."))
                 {
-                    Debug.Log(response);
+                    AppLog.LogDebug(response);
                 }
                 else
                 {
-                    Debug.LogError(response);
+                    AppLog.LogError(response);
                 }
 
                 Maggie.Speak("The upload is completed.");
@@ -124,12 +125,12 @@ namespace MirageXR
             // The file handling response should be displayed as Log, not LogError
             if (response.Contains("File exist"))
             {
-                Debug.Log($"Error on uploading: {response}");
+                AppLog.LogError($"Error on uploading: {response}");
             }
             else
             {
                 Maggie.Speak("Uploading ARLEM failed. Check your system administrator.");
-                Debug.LogError($"Error on uploading: {response}");
+                AppLog.LogError($"Error on uploading: {response}");
             }
 
             if (_progressText)
@@ -163,7 +164,7 @@ namespace MirageXR
             var (result, response) = await Network.GetCustomDataFromAPIRequestAsync(DBManager.token, DBManager.domain, requestValue, function, parametersValueFormat);
             if (!result)
             {
-                Debug.LogError($"Can't get UserId, error: {response}");
+                AppLog.LogError($"Can't get UserId, error: {response}");
                 return null;
             }
             DBManager.userid = Regex.Replace(response, "[^0-9]+", string.Empty); // only numbers
@@ -183,7 +184,7 @@ namespace MirageXR
             var (result, response) = await Network.GetCustomDataFromAPIRequestAsync(DBManager.token, DBManager.domain, requestValue, function, parametersValueFormat);
             if (!result)
             {
-                Debug.LogError($"Can't get Usermail, error: {response}");
+                AppLog.LogError($"Can't get Usermail, error: {response}");
                 return null;
             }
 
@@ -212,7 +213,7 @@ namespace MirageXR
                 }
             }
 
-            Debug.Log(response);
+            AppLog.LogDebug(response);
 
             return ParseArlemListJson(response);
         }
@@ -226,7 +227,7 @@ namespace MirageXR
 
             if (!result || response.StartsWith("Error"))
             {
-                Debug.LogError($"Network error\nmessage: {response}");
+                AppLog.LogError($"Network error\nmessage: {response}");
                 return null;
             }
 
@@ -244,7 +245,7 @@ namespace MirageXR
 
                 if (json == emptyJson)
                 {
-                    Debug.Log("Probably there is no public activity on the server.");
+                    AppLog.LogWarning("Probably there is no public activity on the server.");
                     return arlemList;
                 }
 
@@ -262,7 +263,7 @@ namespace MirageXR
             }
             catch (Exception e)
             {
-                Debug.LogError($"ParseArlemListJson error\nmessage: {e}");
+                AppLog.LogError($"ParseArlemListJson error\nmessage: {e}");
                 return null;
             }
         }
@@ -280,11 +281,11 @@ namespace MirageXR
             var value = result && !response.StartsWith("Error");
             if (value)
             {
-                Debug.Log(sessionID + " is deleted from server");
+                AppLog.LogInfo(sessionID + " is deleted from server");
             }
             else
             {
-                Debug.LogError(response);
+                AppLog.LogError(response);
             }
 
             return value;
@@ -302,11 +303,11 @@ namespace MirageXR
             if (!result || response.StartsWith("Error"))
             {
                 var maxLenght = 200;
-                Debug.LogError(response.Length > maxLenght ? response.Substring(0, maxLenght) : response);
+                AppLog.LogError(response.Length > maxLenght ? response.Substring(0, maxLenght) : response);
             }
             else
             {
-                Debug.Log(" Views column of the activity is increased");
+                AppLog.LogTrace(" Views column of the activity is increased");
             }
         }
 
@@ -334,7 +335,7 @@ namespace MirageXR
             }
             catch (Exception e)
             {
-                Debug.LogError($"compression error: {e}");
+                AppLog.LogError($"compression error: {e}");
             }
 
             return bytes;
@@ -377,12 +378,12 @@ namespace MirageXR
                 }
                 else
                 {
-                    Debug.LogError(error);
+                    AppLog.LogError(error);
                 }
             }
             catch (Exception e)
             {
-                Debug.LogError(e);
+                AppLog.LogException(e);
                 result = false;
             }
             finally

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -86,14 +87,14 @@ namespace MirageXR
             // Check that url is not empty.
             if (string.IsNullOrEmpty(obj.url))
             {
-                Debug.Log("Content URL not provided.");
+                AppLog.LogWarning("Content URL not provided.");
                 return false;
             }
 
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
-                Debug.Log("Couldn't set the parent.");
+                AppLog.LogWarning("Couldn't set the parent.");
                 return false;
             }
 
@@ -147,7 +148,7 @@ namespace MirageXR
             }
             catch (Exception e)
             {
-                Debug.Log("An error occured during import of drawing file. Aborting. Error: " + e.Message);
+                AppLog.LogError("An error occured during import of drawing file. Aborting. Error: " + e.Message);
                 return false;
             }
         }

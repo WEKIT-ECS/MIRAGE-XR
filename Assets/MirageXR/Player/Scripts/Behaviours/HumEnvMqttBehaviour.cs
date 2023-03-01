@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using i5.Toolkit.Core.VerboseLogging;
 using MQTT;
 using UnityEngine;
 
@@ -57,7 +58,7 @@ namespace MirageXR
         {
             _sensor = sensor;
 
-            Debug.Log("Starting connection to sensors...");
+            AppLog.LogTrace("Starting connection to sensors...");
 
             // Generate randomized client id.
             var clientId = "WEKIT-";
@@ -67,7 +68,7 @@ namespace MirageXR
 
             if (!fullUri.StartsWith("mqtt://"))
             {
-                Debug.Log("Tried to create sensor without mqtt connection: " + _sensor.id);
+                AppLog.LogWarning("Tried to create sensor without mqtt connection: " + _sensor.id);
                 return false;
             }
 
@@ -78,7 +79,7 @@ namespace MirageXR
 
             if (uriComponents.Length != 2)
             {
-                Debug.Log("Sensor uri doesn't contain proper url + port definition: " + _sensor.id);
+                AppLog.LogWarning("Sensor uri doesn't contain proper url + port definition: " + _sensor.id);
                 return false;
             }
 
@@ -89,7 +90,7 @@ namespace MirageXR
             {
                 if (string.IsNullOrEmpty(_sensor.password))
                 {
-                    Debug.Log("Sensor connection username without a password: " + _sensor.id);
+                    AppLog.LogWarning("Sensor connection username without a password: " + _sensor.id);
                     return false;
                 }
 

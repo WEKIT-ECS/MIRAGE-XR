@@ -1,4 +1,5 @@
-﻿using MirageXR;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using MirageXR;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -137,7 +138,7 @@ public class ActivityEditor : MonoBehaviour
 
     public void OnEditToggleChanged(bool value)
     {
-        Debug.Log("Toggle changed " + value);
+        AppLog.LogDebug("Toggle changed " + value);
         if (RootObject.Instance.activityManager != null)
         {
             RootObject.Instance.activityManager.EditModeActive = value;

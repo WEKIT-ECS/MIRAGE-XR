@@ -1,4 +1,5 @@
-﻿using System;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using System;
 using UnityEngine;
 
 namespace MirageXR
@@ -99,7 +100,7 @@ namespace MirageXR
             }
             catch (Exception e)
             {
-                Debug.Log(e);
+                AppLog.LogException(e);
                 return false;
             }
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using TMPro;
 using UnityEngine;
@@ -40,7 +41,7 @@ public class RecordTestController : MonoBehaviour
 
     private void Awake()
     {
-        Debug.Log(Microphone.devices.Length);
+        AppLog.LogDebug("Number of microphones found: " + Microphone.devices.Length);
     }
 
     private void Start()

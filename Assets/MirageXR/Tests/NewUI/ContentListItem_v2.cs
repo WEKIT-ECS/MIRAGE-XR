@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using TMPro;
 using UnityEngine;
@@ -75,7 +76,7 @@ public class ContentListItem_v2 : MonoBehaviour
         var editor = _parentView.editors.FirstOrDefault(t => t.editorForType == type);
         if (editor == null)
         {
-            Debug.LogError($"there is no editor for the type {type}");
+            AppLog.LogError($"there is no editor for the type {type}");
             return;
         }
 
