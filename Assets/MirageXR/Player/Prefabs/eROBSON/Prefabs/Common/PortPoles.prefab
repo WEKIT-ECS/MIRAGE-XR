@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 6035337587150862418}
   - component: {fileID: 4169984385689787876}
   - component: {fileID: 4325867491917665838}
-  - component: {fileID: 8539358538219237862}
   m_Layer: 29
   m_Name: PortPoles
   m_TagString: Untagged
@@ -29,6 +28,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.009, y: 0.248, z: 0.57}
   m_LocalScale: {x: 0.2375, y: 0.125, z: 0.06875}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -61,19 +61,6 @@ MonoBehaviour:
   pole: 0
   IncorrectIconPrefab: {fileID: 1522874208597646471, guid: 7d7e08c9b526e0441b20f6b25d374325,
     type: 3}
---- !u!54 &8539358538219237862
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2124229434285276215}
-  serializedVersion: 2
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_UseGravity: 0
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 3
+  reverseRay: 0
+  portMovesSeparate: 0
+  fixedPort: {fileID: 0}

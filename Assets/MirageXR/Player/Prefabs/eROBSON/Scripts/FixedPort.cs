@@ -1,12 +1,17 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using Microsoft.MixedReality.Toolkit.UI;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class FixedPort : MonoBehaviour
 {
+
     [SerializeField] private Transform bitObject;
+    [SerializeField] private Toggle lockToggle;
+
+    public bool IsLock => lockToggle.isOn;
+
+    public bool Moving => _moving;
 
     private Vector3 _tempPosition;
 
@@ -16,6 +21,17 @@ public class FixedPort : MonoBehaviour
     private bool _moving;
 
     private bool _circuitDataLoaded;
+
+    public IEnumerator LetConnect(float snappingDuration, Vector3 detectedPortPosition)
+    {
+        transform.position = detectedPortPosition;
+        _tempPosition = _myTransform.position;
+        var manipulationStatus = _objectManipulator.enabled;
+        _objectManipulator.enabled = false;
+        yield return new WaitForSeconds(snappingDuration);
+        _objectManipulator.enabled = manipulationStatus;
+    }
+
 
     private IEnumerator Start()
     {
@@ -37,6 +53,16 @@ public class FixedPort : MonoBehaviour
 
         _objectManipulator.OnManipulationStarted.AddListener(OnMovingStart);
         _objectManipulator.OnManipulationEnded.AddListener(OnMovingStop);
+
+        lockToggle.onValueChanged.AddListener(OnLockToggled);
+
+        //The port is locked at start
+        OnLockToggled(true);
+    }
+
+    private void OnLockToggled(bool locked)
+    {
+        _objectManipulator.enabled = !locked;
     }
 
 
@@ -47,34 +73,32 @@ public class FixedPort : MonoBehaviour
 
     private void OnMovingStop(ManipulationEventData data)
     {
+        _tempPosition = _myTransform.position;
         _moving = false;
-        //_myTransform.position = _tempPosition;
         ErobsonItemManager.Instance.SaveJson();
     }
 
     private void Update()
     {
-        if (!_circuitDataLoaded)
+        if (!lockToggle || !_objectManipulator || lockToggle.isOn)
         {
             return;
         }
 
-        if (!bitObject.GetComponent<eROBSONItems>().IsMoving)
+        //if the main bit is moving do not store movable part position
+        if (!bitObject.GetComponent<eROBSONItems>().IsMoving && !_moving)
         {
             _tempPosition = _myTransform.position;
         }
-
-        if (!_myPort)
-        {
-            return;
-        }
-        _myPort.PortIsMovingSeparately = _moving;
     }
-
-
 
     private void LateUpdate()
     {
+        if (_objectManipulator && !_objectManipulator.enabled)
+        {
+            return;
+        }
+
         if (!_circuitDataLoaded || _moving)
         {
             return;
