@@ -1,4 +1,4 @@
-# MIRAGE·XR
+# MirageXR
 
 Slipping on a pair of smart glasses can give you superpowers in the workplace, 
 superimposing procedural guides and operational data directly where you need it. 
@@ -13,17 +13,17 @@ and based on state of the art research. MIRAGE·XR SOLUTIONS offer an all-in-one
 XR framework that is flexible and customisable for a broad range of industry 
 and sector needs. 
 
-The Mirage·XR COMMUNITY EDITION (CE) is the is the B2B Open Source solution of 
+The MirageXR COMMUNITY EDITION (CE) is the is the B2B Open Source solution of 
 the MIRAGE·XR platform. This reference implementation of an XR training system 
 for complex work environments is offered ‘as is’ for the XR developer community 
 to use, update, and further develop.
 
-The Mirage·XR SOLUTIONS enable experts and learners to share experience via XR 
+The MirageXR SOLUTIONS enable experts and learners to share experience via XR 
 and wearables using ghost tracks, in-situ feedback, and anchored instruction. 
 They offers six unique value adding features that are hard to emulate:
 
 * In-situ authoring and experience capture - reducing the time and resourcing 
-for the production of training content. Mirage·XR offers a tool for 
+for the production of training content. MirageXR offers a tool for 
 creating content directly in XR, cheap and efficiently. It allows both the 
 placing of previously imported media content into physical spaces (and into 
 step-by-step guides) and the ability to create content while performing 
@@ -46,7 +46,7 @@ transformation of content from legacy systems (such as, e.g., an Oasis DITA
 or S1000D compliant technical documentation system) - compatible with an ecosystem 
 of tools, future proofing your content, to the highest, approved standard.
 
-* Cognitive methods in performance measurement - Mirage·XR supports established 
+* Cognitive methods in performance measurement - MirageXR supports established 
 Cognitive Science research methodologies such as cognitive task analysis to 
 predict or identify errors or suggest improved or corrective practice. After 
 a training session, performance analysis can be prepared from the measured data,
@@ -56,12 +56,12 @@ stored via the interface with the IEEE Experience API (xAPI).
 project results of the Horizon 2020 project WEKIT, validated in two waves with 
 over 550 participants in pilot trials in medicine, aviation, and space. 
 
-Mirage·XR provides enhanced, location-based experience for learners with the promise 
+MirageXR provides enhanced, location-based experience for learners with the promise 
 to get access to expert knowledge faster, better, and more engaging than ever before. 
 Better engagement means more effective education and training which translates 
 real social and economic benefits to the market.
 
-Mirage·XR has received funding from the European Union’s Horizon 2020 research 
+MirageXR has received funding from the European Union’s Horizon 2020 research 
 and innovation programme through the XR4ALL project with grant agreement 
 No 825545, through the OpenReal project funded by The Open University of the UK, 
 and through the ARETE project with the grant agreement No 856533.
