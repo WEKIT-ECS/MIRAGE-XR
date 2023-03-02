@@ -1,4 +1,5 @@
 ﻿using i5.Toolkit.Core.ServiceCore;
+using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using NUnit.Framework;
 using System.Collections;
@@ -225,7 +226,7 @@ namespace Tests
             string targetPath = Path.Combine(Application.persistentDataPath, "calibrationTest");
 
             if (!Directory.Exists(sourcePath)) {
-                Debug.LogError("Calibration testing files not found");
+                AppLog.LogError("Calibration testing files not found");
                 return;
             }
 
@@ -681,7 +682,7 @@ namespace Tests
             // make sure test is runnable
             yield return EnsureTestReadiness();
 
-            Debug.Log("press space bar to end testing");
+            AppLog.LogInfo("press space bar to end testing");
 
             // pause for shutdown or debugging
             yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));

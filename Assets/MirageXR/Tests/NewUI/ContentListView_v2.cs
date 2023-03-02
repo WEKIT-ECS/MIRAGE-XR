@@ -215,12 +215,16 @@ public class ContentListView_v2 : BaseView
     {
         _currentStep.instruction.title = newTitle;
         EventManager.NotifyActionModified(_currentStep);
+
+        activityManager.SaveData();
     }
 
     private void OnStepDescriptionChanged(string newDescription)
     {
         _currentStep.instruction.description = newDescription;
         EventManager.NotifyActionModified(_currentStep);
+
+        activityManager.SaveData();
     }
 
     private void OnAnnotationSelected(ToggleObject annotation)

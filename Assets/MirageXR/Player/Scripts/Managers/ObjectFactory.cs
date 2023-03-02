@@ -1,4 +1,5 @@
-﻿using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.IO;
 using UnityEngine;
 using UnityEngine.AI;
@@ -68,9 +69,10 @@ namespace MirageXR
                                             var glyphModel = $"Glyphs/{obj.option}";
                                             ActivatePrefab(glyphModel, obj);
                                         }
-                                        else if (obj.predicate.StartsWith("vfx:"))
+                                        else if (obj.predicate.StartsWith("effect:") || obj.predicate.StartsWith("vfx:"))
                                         {
-                                            obj.option = obj.predicate.Replace("vfx:", "");
+                                            obj.predicate = obj.predicate.Replace("vfx:", "effect:");
+                                            obj.option = obj.predicate.Replace("effect:", "");
 
                                             obj.url = "resources://" + obj.predicate;
 
@@ -136,9 +138,9 @@ namespace MirageXR
 
                                             DestroyPrefab(obj);
                                         }
-                                        else if (obj.predicate.StartsWith("vfx:"))
+                                        else if (obj.predicate.StartsWith("effect:"))
                                         {
-                                            obj.option = obj.predicate.Replace("vfx:", "");
+                                            obj.option = obj.predicate.Replace("effect:", "");
 
                                             // obj.predicate = "glyph";
                                             obj.url = "resources:// " + obj.predicate;
@@ -255,7 +257,7 @@ namespace MirageXR
                             // Ghost hands type.
                             case "hands":
                                 if (isActivating)
-                                    Debug.Log("hands activated");
+                                    AppLog.LogInfo("hands activated");
                                 // ActivatePrefab("HandsPrefab", obj);
                                 // else
                                 //  DestroyPrefab(obj);
@@ -417,7 +419,7 @@ namespace MirageXR
                         obstacle.size = go.transform.localScale / 4;
                         break;
                     }
-                case string p when p.StartsWith("act") || p.StartsWith("vfx") || p.Equals("image") || p.Equals("video"):
+                case string p when p.StartsWith("act") || p.StartsWith("effect") || p.Equals("image") || p.Equals("video"):
                     {
                         if (DisableBounding(annotationToggleObject)) return;
                         var boundingBox = go.AddComponent<BoundingBoxGenerator>();
@@ -518,8 +520,8 @@ namespace MirageXR
                 }
 
                 //for all type of glyphs icons
-                if (obj.predicate.StartsWith("act") || obj.predicate.StartsWith("vfx") ||
-                    obj.predicate.StartsWith("char") || obj.predicate.StartsWith("plugin") || 
+                if (obj.predicate.StartsWith("act") || obj.predicate.StartsWith("effect") ||
+                    obj.predicate.StartsWith("char") || obj.predicate.StartsWith("plugin") ||
                     obj.predicate.StartsWith("eRobson"))
                 {
                     temp = GameObject.Find(path + obj.predicate);

@@ -166,13 +166,13 @@ namespace MirageXR
         /// <summary>
         /// Opens the Sketchfab model selector panel.
         /// </summary>
-        public void SketchfabLogin_Click()
+        public async void SketchfabLogin_Click()
         {
             var service = ServiceManager.GetService<OpenIDConnectService>();
             service.OidcProvider.ClientData = SketchfabDataObject.clientData;
             service.LoginCompleted += LoginCompleted;
             service.ServerListener.ListeningUri = URL;
-            service.OpenLoginPage();
+            await service.OpenLoginPageAsync();
         }
 
         /// <summary>

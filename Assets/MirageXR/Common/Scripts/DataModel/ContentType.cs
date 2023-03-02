@@ -10,7 +10,7 @@ public enum ContentType
     GHOST,
     LABEL,
     ACT,
-    VFX,
+    EFFECTS,
     MODEL,
     CHARACTER,
     PICKANDPLACE,
@@ -29,7 +29,7 @@ public static class ContentTypeExtenstion
     private const string GHOST = "Ghost";
     private const string LABEL = "Label";
     private const string ACT = "Action";
-    private const string VFX = "Vfx";
+    private const string EFFECTS = "Effects";
     private const string MODEL = "Model";
     private const string CHARACTER = "Character";
     private const string PICKANDPLACE = "Pick and place";
@@ -47,6 +47,7 @@ public static class ContentTypeExtenstion
     private const string PREDICATE_GHOST = "ghosttracks";
     private const string PREDICATE_GHOST_V2 = "ghost"; // TODO: ^^^
     private const string PREDICATE_ACT = "act";
+    private const string PREDICATE_EFFECTS = "effects";
     private const string PREDICATE_VFX = "vfx";
     private const string PREDICATE_MODEL = "model";
     private const string PREDICATE_MODEL_V2 = "3d"; // TODO: ^^^
@@ -65,7 +66,7 @@ public static class ContentTypeExtenstion
     private const string GHOST_HINT = "The ghost track augmentation is constructed from a recording of your movement in the real world, your hand position, and you voice. You can start the recording, perform a demonstration like you would normally do in the physical location, and MirageXR will add your performance to an action step in a form of a virtual human — a ‘Ghost’.";
     private const string LABEL_HINT = "lets you attach a text annotation to specific location in 3D space.";
     private const string ACT_HINT = "Pick action animations to instruct the user what to do - from a rich visual language with 3D animated icons for handling and movement.";
-    private const string VFX_HINT = "Use visual effects like fire, steam, or explosions to capture the user's attention.";
+    private const string EFFECTS_HINT = "Use visual effects like fire, steam, or explosions to capture the user's attention.";
     private const string MODEL_HINT = "Using the Model augmentation, you can import 3D models from Sketchfab.com to an action step. Sketchfab is a library that gives you access to millions of 3D models, hundreds of thousands of them for free.";
     private const string CHARACTER_HINT = "Add an AI character to an action step. You can choose between different characters, each of them can do different tasks.";
     private const string PICKANDPLACE_HINT = "Design your own interactive 3D quiz, where users need to pick and place the right object in the right location.";
@@ -80,7 +81,7 @@ public static class ContentTypeExtenstion
     private const string GHOST_IMAGE_PATH = "Icons/Editors/ghost";
     private const string LABEL_IMAGE_PATH = "Icons/Editors/label";
     private const string ACT_IMAGE_PATH = "Icons/Editors/action";
-    private const string VFX_IMAGE_PATH = "Icons/Editors/visualeffect";
+    private const string EFFECTS_IMAGE_PATH = "Icons/Editors/visualeffect";
     private const string MODEL_IMAGE_PATH = "Icons/Editors/model";
     private const string CHARACTER_IMAGE_PATH = "Icons/Editors/character";
     private const string PICKANDPLACE_IMAGE_PATH = "Icons/Editors/pickandplace";
@@ -100,7 +101,7 @@ public static class ContentTypeExtenstion
             case ContentType.GHOST: return GHOST;
             case ContentType.LABEL: return LABEL;
             case ContentType.ACT: return ACT;
-            case ContentType.VFX: return VFX;
+            case ContentType.EFFECTS: return EFFECTS;
             case ContentType.MODEL: return MODEL;
             case ContentType.CHARACTER: return CHARACTER;
             case ContentType.PICKANDPLACE: return PICKANDPLACE;
@@ -128,7 +129,7 @@ public static class ContentTypeExtenstion
             case ContentType.GHOST: return GHOST_IMAGE_PATH;
             case ContentType.LABEL: return LABEL_IMAGE_PATH;
             case ContentType.ACT: return ACT_IMAGE_PATH;
-            case ContentType.VFX: return VFX_IMAGE_PATH;
+            case ContentType.EFFECTS: return EFFECTS_IMAGE_PATH;
             case ContentType.MODEL: return MODEL_IMAGE_PATH;
             case ContentType.CHARACTER: return CHARACTER_IMAGE_PATH;
             case ContentType.PICKANDPLACE: return PICKANDPLACE_IMAGE_PATH;
@@ -153,7 +154,7 @@ public static class ContentTypeExtenstion
             case ContentType.GHOST: return GHOST_HINT;
             case ContentType.LABEL: return LABEL_HINT;
             case ContentType.ACT: return ACT_HINT;
-            case ContentType.VFX: return VFX_HINT;
+            case ContentType.EFFECTS: return EFFECTS_HINT;
             case ContentType.MODEL: return MODEL_HINT;
             case ContentType.CHARACTER: return CHARACTER_HINT;
             case ContentType.PICKANDPLACE: return PICKANDPLACE_HINT;
@@ -177,7 +178,7 @@ public static class ContentTypeExtenstion
             case ContentType.GHOST: return PREDICATE_GHOST;
             case ContentType.LABEL: return PREDICATE_LABEL;
             case ContentType.ACT: return PREDICATE_ACT;
-            case ContentType.VFX: return PREDICATE_VFX;
+            case ContentType.EFFECTS: return PREDICATE_EFFECTS;
             case ContentType.MODEL: return PREDICATE_MODEL;
             case ContentType.CHARACTER: return PREDICATE_CHARACTER;
             case ContentType.PICKANDPLACE: return PREDICATE_PICKANDPLACE;
@@ -193,31 +194,31 @@ public static class ContentTypeExtenstion
     public static ContentType ParsePredicate(string predicate)
     {
         var predicateLowCase = predicate.ToLower();
-        if (predicateLowCase.Contains(PREDICATE_IMAGE))
+        if (predicateLowCase.StartsWith(PREDICATE_IMAGE))
             return ContentType.IMAGE;
-        if (predicateLowCase.Contains(PREDICATE_VIDEO))
+        if (predicateLowCase.StartsWith(PREDICATE_VIDEO))
             return ContentType.VIDEO;
-        if (predicateLowCase.Contains(PREDICATE_AUDIO) || predicateLowCase.Contains(PREDICATE_AUDIO_V2))
+        if (predicateLowCase.StartsWith(PREDICATE_AUDIO) || predicateLowCase.StartsWith(PREDICATE_AUDIO_V2))
             return ContentType.AUDIO;
-        if (predicateLowCase.Contains(PREDICATE_GHOST) || predicateLowCase.Contains(PREDICATE_GHOST_V2))
+        if (predicateLowCase.StartsWith(PREDICATE_GHOST) || predicateLowCase.StartsWith(PREDICATE_GHOST_V2))
             return ContentType.GHOST;
-        if (predicateLowCase.Contains(PREDICATE_LABEL))
+        if (predicateLowCase.StartsWith(PREDICATE_LABEL))
             return ContentType.LABEL;
-        if (predicateLowCase.Contains(PREDICATE_ACT))
+        if (predicateLowCase.StartsWith(PREDICATE_ACT))
             return ContentType.ACT;
-        if (predicateLowCase.Contains(PREDICATE_VFX))
-            return ContentType.VFX;
-        if (predicateLowCase.Contains(PREDICATE_MODEL) || predicateLowCase.Contains(PREDICATE_MODEL_V2))
+        if (predicateLowCase.StartsWith(PREDICATE_EFFECTS) || predicateLowCase.StartsWith(PREDICATE_VFX))
+            return ContentType.EFFECTS;
+        if (predicateLowCase.StartsWith(PREDICATE_MODEL) || predicateLowCase.StartsWith(PREDICATE_MODEL_V2))
             return ContentType.MODEL;
-        if (predicateLowCase.Contains(PREDICATE_CHARACTER))
+        if (predicateLowCase.StartsWith(PREDICATE_CHARACTER))
             return ContentType.CHARACTER;
-        if (predicateLowCase.Contains(PREDICATE_PICKANDPLACE) || predicateLowCase.Contains(PREDICATE_PICKANDPLACE_V2))
+        if (predicateLowCase.StartsWith(PREDICATE_PICKANDPLACE) || predicateLowCase.StartsWith(PREDICATE_PICKANDPLACE_V2))
             return ContentType.PICKANDPLACE;
-        if (predicateLowCase.Contains(PREDICATE_IMAGEMARKER))
+        if (predicateLowCase.StartsWith(PREDICATE_IMAGEMARKER))
             return ContentType.IMAGEMARKER;
-        if (predicateLowCase.Contains(PREDICATE_PLUGIN))
+        if (predicateLowCase.StartsWith(PREDICATE_PLUGIN))
             return ContentType.PLUGIN;
-        if (predicateLowCase.Contains(PREDICATE_DRAWING))
+        if (predicateLowCase.StartsWith(PREDICATE_DRAWING))
             return ContentType.DRAWING;
         if (predicateLowCase.Contains(PREDICATE_EROBSON))
             return ContentType.EROBSON;

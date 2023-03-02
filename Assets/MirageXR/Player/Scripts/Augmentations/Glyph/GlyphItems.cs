@@ -1,4 +1,5 @@
-﻿using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using UnityEngine;
 
 namespace MirageXR
@@ -45,7 +46,7 @@ namespace MirageXR
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
-                Debug.Log("Couldn't set the parent.");
+                AppLog.LogWarning("Couldn't set the parent.");
                 return false;
             }
 

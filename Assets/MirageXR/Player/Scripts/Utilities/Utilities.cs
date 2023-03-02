@@ -1,4 +1,5 @@
-﻿using System;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using System;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -160,7 +161,7 @@ namespace MirageXR
             }
             catch (Exception e)
             {
-                Debug.Log(e);
+                AppLog.LogException(e);
                 return null;
             }
         }
@@ -275,7 +276,7 @@ namespace MirageXR
         {
             float difference = Quaternion.Angle(Quaternion.Euler(eulerOne), Quaternion.Euler(eulerTwo));
             bool sameRotation = Mathf.Abs(difference) < tolerance;
-            if (!sameRotation) { Debug.Log("Angles not the same, separated by " + difference + " degrees"); }
+            if (!sameRotation) { AppLog.LogDebug("Angles not the same, separated by " + difference + " degrees"); }
             return sameRotation;
         }
 
@@ -329,7 +330,7 @@ namespace MirageXR
             }
             catch (IOException e)
             {
-                Debug.LogError(e);
+                AppLog.LogException(e);
             }
         }
 

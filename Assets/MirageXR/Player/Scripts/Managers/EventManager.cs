@@ -1,4 +1,5 @@
-﻿using System;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using System;
 using UnityEngine;
 
 namespace MirageXR
@@ -215,7 +216,7 @@ namespace MirageXR
         /// <param name="debug">Debug message.</param>
         public static void DebugLog(string debug)
         {
-            Debug.Log(debug);
+            AppLog.LogInfo(debug);
             OnDebugLog?.Invoke(debug);
         }
 
@@ -314,7 +315,7 @@ namespace MirageXR
 
         public static void InitUi()
         {
-            Debug.Log("Init UI invoked");
+            AppLog.LogTrace("Init UI invoked");
             OnInitUi?.Invoke();
         }
 
@@ -556,7 +557,7 @@ namespace MirageXR
         {
             OnActivityLoadedStamp?.Invoke(deviceId, activityId, timestamp);
 
-            Debug.Log($"LOADED STAMP: {deviceId}, {activityId}, {timestamp}");
+            AppLog.LogInfo($"LOADED STAMP: {deviceId}, {activityId}, {timestamp}");
         }
 
         public delegate void ActivityCompletedStampDelegate(string deviceId, string activityId, string timestamp);
@@ -567,7 +568,7 @@ namespace MirageXR
         {
             OnActivityCompletedStamp?.Invoke(deviceId, activityId, timestamp);
 
-            Debug.Log($"COMPLETED STAMP: {deviceId}, {activityId}, {timestamp}");
+            AppLog.LogInfo($"COMPLETED STAMP: {deviceId}, {activityId}, {timestamp}");
         }
 
         public delegate void StepActivatedStampDelegate(string deviceId, Action activatedAction, string timestamp);
@@ -578,7 +579,7 @@ namespace MirageXR
         {
             OnStepActivatedStamp?.Invoke(deviceId, activatedAction, timestamp);
 
-            Debug.Log($"ACTIVATED STAMP: {deviceId}, {activatedAction.id}, {timestamp}");
+            AppLog.LogInfo($"ACTIVATED STAMP: {deviceId}, {activatedAction.id}, {timestamp}");
         }
 
         public delegate void StepDeactivatedStampDelegate(string deviceId, Action deactivatedAction, string timestamp);
@@ -589,7 +590,7 @@ namespace MirageXR
         {
             OnStepDeactivatedStamp?.Invoke(deviceId, deactivatedAction, timestamp);
 
-            Debug.Log("DEACTIVATED STAMP: " + deviceId + ", " + deactivatedAction.id + ", " + timestamp);
+            AppLog.LogInfo("DEACTIVATED STAMP: " + deviceId + ", " + deactivatedAction.id + ", " + timestamp);
         }
 
         public delegate void ShowActivitySelectionMenuDelegate();

@@ -10,8 +10,7 @@ using IBM.Watson.TextToSpeech.V1;
 using IBM.Cloud.SDK.Connection;
 using IBM.Cloud.SDK.DataTypes;
 using System;
-
-
+using i5.Toolkit.Core.VerboseLogging;
 
 public class SpeechOutputService : MonoBehaviour
 {
@@ -69,7 +68,7 @@ public class SpeechOutputService : MonoBehaviour
 
     public void Speak(string text)
     {
-        Debug.Log("Sending to Watson to generate voice audio output: " + text);
+        AppLog.LogTrace("Sending to Watson to generate voice audio output: " + text);
         if (text != null && text != "")
         {
             myService.Synthesize(
@@ -81,7 +80,7 @@ public class SpeechOutputService : MonoBehaviour
         }
         else
         {
-            Debug.Log("WARNING: text to speech: text was empty");
+            AppLog.LogWarning("Text to speech: text was empty");
         }
 
     }
@@ -93,7 +92,7 @@ public class SpeechOutputService : MonoBehaviour
         AudioClip clip = null;
         synthesizeResponse = response.Result;
         clip = WaveFile.ParseWAV("myClip", synthesizeResponse);
-        Debug.Log("before playing: " + clip);
+        AppLog.LogDebug("before playing: " + clip);
         PlayClip(clip);
     }
 
@@ -114,12 +113,12 @@ public class SpeechOutputService : MonoBehaviour
 
             dDaimonMgr.wait = clip.length; // may be useful to add +0.5f
             dDaimonMgr.check = true;
-            Debug.Log("Speech output playing, set DaimonMgr waiting time for SpeechInput to reactivate again (when done) after " + clip.length + " seconds");
+            AppLog.LogDebug("Speech output playing, set DaimonMgr waiting time for SpeechInput to reactivate again (when done) after " + clip.length + " seconds");
 
         }
         else
         {
-            Debug.Log("ERROR: something is already playing or we did not get a clip.");
+            AppLog.LogError("Something is already playing or we did not get a clip.");
         }
     }
 

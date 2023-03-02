@@ -35,10 +35,10 @@ namespace MirageXR
 
 #if UNITY_ANDROID || UNITY_IOS
 
-    private readonly string[] spareListOfAugmentations = { "image", "video", "audio", "ghost", "label", "act", "vfx",  "model", "character", "pickandplace", "imagemarker", "plugin", "erobson" };
+    private readonly string[] spareListOfAugmentations = { "image", "video", "audio", "ghost", "label", "act", "effects",  "model", "character", "pickandplace", "imagemarker", "plugin" , "erobson"};
     private const string augmentationsListFile = "MobileAugmentationListFile";
 #else
-        private readonly string[] spareListOfAugmentations = { "image", "video", "audio", "ghost", "label", "act", "vfx", "model", "character", "pick&place", "image marker", "plugin", "drawing", "erobson" };
+        private readonly string[] spareListOfAugmentations = { "image", "video", "audio", "ghost", "label", "act", "effects", "model", "character", "pick&place", "image marker", "plugin", "drawing", "erobson" };
         private const string augmentationsListFile = "HololensAugmentationListFile";
 #endif
 

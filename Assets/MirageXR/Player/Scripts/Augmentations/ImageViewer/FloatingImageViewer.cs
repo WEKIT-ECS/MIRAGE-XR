@@ -1,4 +1,5 @@
-﻿using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -48,14 +49,14 @@ namespace MirageXR
             // Check that url is not empty.
             if (string.IsNullOrEmpty(obj.url))
             {
-                Debug.Log("Content URL not provided.");
+                AppLog.LogWarning("Content URL not provided.");
                 return false;
             }
 
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
-                Debug.Log("Couldn't set the parent.");
+                AppLog.LogWarning("Couldn't set the parent.");
                 return false;
             }
 
@@ -153,7 +154,7 @@ namespace MirageXR
             {
                 if (!imageName.Contains('/'))
                 {
-                    Debug.LogError($"Can't parse file name '{imageName}'");
+                    AppLog.LogError($"Can't parse file name '{imageName}'");
                 }
 
                 var fileName = imageName.Split('/').LastOrDefault();
@@ -166,7 +167,7 @@ namespace MirageXR
 
             if (!File.Exists(path))
             {
-                Debug.LogError($"File {path} doesn't exists");
+                AppLog.LogError($"File {path} doesn't exists");
                 return;
             }
 
