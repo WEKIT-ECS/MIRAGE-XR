@@ -7,14 +7,14 @@ knowledge-intensive tasks, such as how to service the nose-wheel of an airplane,
 how to operate an ultrasound machine to obtain a healthcare diagnosis, or 
 how to check and service a self-driving vehicle.
 
-The MIRAGE·XR SOLUTIONS are the flagship products of WEKIT ECS, developed in response 
+The MirageXR SOLUTIONS are the flagship products of WEKIT ECS, developed in response 
 to real market needs, in consultation with industry and relevant communities, 
-and based on state of the art research. MIRAGE·XR SOLUTIONS offer an all-in-one 
+and based on state of the art research. MirageXR SOLUTIONS offer an all-in-one 
 XR framework that is flexible and customisable for a broad range of industry 
 and sector needs. 
 
 The MirageXR COMMUNITY EDITION (CE) is the is the B2B Open Source solution of 
-the MIRAGE·XR platform. This reference implementation of an XR training system 
+the MirageXR platform. This reference implementation of an XR training system 
 for complex work environments is offered ‘as is’ for the XR developer community 
 to use, update, and further develop.
 
@@ -29,7 +29,7 @@ placing of previously imported media content into physical spaces (and into
 step-by-step guides) and the ability to create content while performing 
 tasks (e.g., ghost track).
 
-* Experiential approach - MIRAGE·XR implements an experiential learning approach. 
+* Experiential approach - MirageXR implements an experiential learning approach. 
 Trainees can follow a sequence of performing a task (guided by a holographic 
 expert), reviewing their own performance, and performing the same or a similar 
 task again.
@@ -38,7 +38,7 @@ task again.
 reconstructed from the captured data (‘ghost track’) and embedded in the physical 
 workplace, including body position, gaze direction, gestures, and voice.
 
-* Open standards and architecture - The MIRAGE·XR core is adaptable to different 
+* Open standards and architecture - The MirageXR core is adaptable to different 
 platforms, IoT sensors, and wearables to suit the training needs of any 
 organisation. It implements the IEEE P1589-2020 standard for augmented reality 
 learning experience models, which allows for the automated extraction and 
@@ -52,7 +52,7 @@ predict or identify errors or suggest improved or corrective practice. After
 a training session, performance analysis can be prepared from the measured data,
 stored via the interface with the IEEE Experience API (xAPI).
 
-* Scientifically validated method - the MIRAGE·XR Open Source core is based on 
+* Scientifically validated method - the MirageXR Open Source core is based on 
 project results of the Horizon 2020 project WEKIT, validated in two waves with 
 over 550 participants in pilot trials in medicine, aviation, and space. 
 
