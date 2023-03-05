@@ -45,7 +45,6 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private ThumbnailEditorView _thumbnailEditorPrefab;
 
     private readonly List<StepsListItem_v2> _stepsList = new List<StepsListItem_v2>();
-    private List<StepsListItem_v2> _stepsListCopy = new List<StepsListItem_v2>(); // duplicate for the horizontal scroll
 
     private ActivityView_v2 _activityView => (ActivityView_v2)_parentView;
 
@@ -102,7 +101,7 @@ public class StepsListView_v2 : BaseView
         UpdateView();
     }
 
-    private void UpdateView()
+    public void UpdateView()
     {
         if (activityManager.Activity != null)
         {
@@ -113,9 +112,6 @@ public class StepsListView_v2 : BaseView
             var steps = activityManager.ActionsOfTypeAction;
             _stepsList.ForEach(t => t.gameObject.SetActive(false));
 
-            _stepsListCopy = new List<StepsListItem_v2>(_stepsList);
-            _stepsListCopy.ForEach(t => t.gameObject.SetActive(false));
-
             for (var i = 0; i < steps.Count; i++)
             {
                 if (_stepsList.Count <= i)
@@ -123,18 +119,10 @@ public class StepsListView_v2 : BaseView
                     var obj = Instantiate(_stepsListItemPrefab, _listVerticalContent);
                     obj.Init(OnStepClick, OnStepEditClick, OnDeleteStepClick, OnSiblingIndexChanged);
                     _stepsList.Add(obj);
-
-                    // duplicate for the horizontal scroll
-                    var objCopy = Instantiate(_stepsListItemPrefab, _listHorizontalContent);
-                    objCopy.Init(OnStepClick, OnStepEditClick, OnDeleteStepClick, OnSiblingIndexChanged);
-                    _stepsListCopy.Add(objCopy);
                 }
 
                 _stepsList[i].gameObject.SetActive(true);
                 _stepsList[i].UpdateView(steps[i], i);
-
-                _stepsListCopy[i].gameObject.SetActive(true);
-                _stepsListCopy[i].UpdateView(steps[i], i);
             }
 
             OnEditModeChanged(activityManager.EditModeActive);
@@ -151,7 +139,6 @@ public class StepsListView_v2 : BaseView
     private void OnActionActivated(string stepId)
     {
         _stepsList.ForEach(t => t.UpdateView());
-        _stepsListCopy.ForEach(t => t.UpdateView());
     }
 
     private void OnBackPressed()
@@ -292,7 +279,6 @@ public class StepsListView_v2 : BaseView
         _btnThumbnail.interactable = value;
 
         _stepsList.ForEach(t => t.OnEditModeChanged(value));
-        _stepsListCopy.ForEach(t => t.OnEditModeChanged(value));
     }
 
     private void OnWorkplaceCalibrated()
@@ -414,5 +400,21 @@ public class StepsListView_v2 : BaseView
     private void OnCalibrationViewClosed()
     {
         RootView_v2.Instance.ShowBaseView();
+    }
+
+    public void MoveStepsToHorizontalScroll()
+    {
+        for (var i = 0; i < _stepsList.Count; i++)
+        {
+            _stepsList[i].transform.parent = _listHorizontalContent;
+        }
+    }
+
+    public void MoveStepsToVerticalScroll()
+    {
+        for (var i = 0; i < _stepsList.Count; i++)
+        {
+            _stepsList[i].transform.parent = _listVerticalContent;
+        }
     }
 }

@@ -131,7 +131,7 @@ public class ActivityView_v2 : BaseView
             _arrowUp.SetActive(false);
             rootView.bottomPanelView.Show();
             rootView.bottomNavigationArrowsView.Hide();
-            StartCoroutine(ShowHorizontalScroll(0f, false));
+            StartCoroutine(ShowHorizontalScroll(0.1f, false));
         }
     }
 
@@ -147,10 +147,12 @@ public class ActivityView_v2 : BaseView
 
             if (value)
             {
+                _stepsListView.MoveStepsToHorizontalScroll();
                 _tabs.offsetMax = new Vector2(0f, 0f);
             }
             else
             {
+                _stepsListView.MoveStepsToVerticalScroll();
                 _tabs.offsetMax = new Vector2(0, -300f);
             }
         }
