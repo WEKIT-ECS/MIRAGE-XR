@@ -80,7 +80,7 @@ public class FixedPort : MonoBehaviour
 
     private void Update()
     {
-        if (!lockToggle || !_objectManipulator || lockToggle.isOn)
+        if (!lockToggle || lockToggle.isOn || !_objectManipulator || !_objectManipulator.enabled)
         {
             return;
         }

@@ -13,6 +13,10 @@ public class BitsBehaviourController : MonoBehaviour
 
     private eROBSONItems _eRobsonItem;
 
+
+    /// <summary>
+    /// Circuit is under control and should not another control starts
+    /// </summary>
     private bool CircuitControlling
     {
         get; set;
@@ -64,28 +68,23 @@ public class BitsBehaviourController : MonoBehaviour
 
 
     /// <summary>
-    /// Toggle the status of the bit
-    /// </summary>
-    public void ActivatingToggle()
-    {
-        _eRobsonItem.IsActive = !_eRobsonItem.IsActive;
-        _eRobsonItem.HasPower = _eRobsonItem.IsActive;
-
-        //Turn on/off the power indicators
-        SwitchPowerIndicatorLight(_eRobsonItem);
-
-        ControlCircuit();
-    }
-
-
-
-    /// <summary>
     /// Set the value of the bits sensor
     /// </summary>
     /// <param name="bitValue">This is the value which sensor has been registered such as slider value</param>
     public void SetValue(float bitValue)
     {
         _eRobsonItem.Value = bitValue;
+    }
+
+
+
+    /// <summary>
+    /// Toggle the active state of the bit. Uses for i3 button
+    /// </summary>
+    public void BitActivatingToggle()
+    {
+        _eRobsonItem.IsActive = !_eRobsonItem.IsActive;
+        ControlCircuit();
     }
 
 
@@ -122,41 +121,39 @@ public class BitsBehaviourController : MonoBehaviour
             //Check all bits and deactivate all bits after this deactivated bit
             foreach (var eRobsonItem in eRobsonItemsList)
             {
-                if (!eRobsonItem)
+                //Check the bits which are connected to this bit
+                var hasConnectedPower = await HasConnectedPowerUpToCurrentModule(eRobsonItem);
+
+                //remove from the connected list and deactivate
+                if (!eRobsonItem.IsActive || (eRobsonItem.Dimmable && eRobsonItem.Value <= 0) || !hasConnectedPower)
                 {
+                    //USBPower always has power
+                    if (eRobsonItem.ID != BitID.USBPOWER)
+                    {
+                        eRobsonItem.HasPower = false;
+                    }
+
+                    ErobsonItemManager.AddOrRemoveFromConnectedList(eRobsonItem, AddOrRemove.REMOVE);
+                    BitActionToggle(eRobsonItem, false);
                     continue;
                 }
 
-                //Check the bits which are connected to this bit
-                var hasConnectedPower = await HasConnectedPower(eRobsonItem);
-
-                if (hasConnectedPower)
-                {
-                    if (eRobsonItem.IsActive || (eRobsonItem.Dimmable && eRobsonItem.Value > 0))
-                    {
-                        eRobsonItem.HasPower = true;
-                        ErobsonItemManager.AddOrRemoveFromConnectedList(eRobsonItem, AddOrRemove.ADD);
-                        BitActionToggle(eRobsonItem, true);
-                    }
-                }
-                else
-                {
-                    eRobsonItem.HasPower = false;
-                    ErobsonItemManager.AddOrRemoveFromConnectedList(eRobsonItem, AddOrRemove.REMOVE);
-                    BitActionToggle(eRobsonItem, false);
-                }
+                //Add into the connected list and activate
+                eRobsonItem.HasPower = true;
+                ErobsonItemManager.AddOrRemoveFromConnectedList(eRobsonItem, AddOrRemove.ADD);
+                BitActionToggle(eRobsonItem, true);
             }
 
             //set the value text
             _eRobsonItem.SetValueText(_eRobsonItem.ID);
-
-            //Control is done
-            CircuitControlling = false;
         }
         catch (Exception e)
         {
-            CircuitControlling = false;
             Debug.LogError(e);
+        }
+        finally
+        {
+            CircuitControlling = false;
         }
     }
 
@@ -165,7 +162,6 @@ public class BitsBehaviourController : MonoBehaviour
     {
         _eRobsonItem = GetComponent<eROBSONItems>();
     }
-
 
     private void Start()
     {
@@ -189,13 +185,14 @@ public class BitsBehaviourController : MonoBehaviour
     /// Check if any dimmable bit exist in the circuit within the given bit
     /// If exist return the average value otherwise return -1
     /// </summary>
+    /// <param name="eRobsonItem">The dimmable bit to be calculated for its value</param>
     /// <returns>float</returns>
-    private static float CalculateValue(eROBSONItems eRobsonItem)
+    public static float CalculateValue(eROBSONItems eRobsonItem)
     {
         var eRobsonConnectedItemsList = ErobsonItemManager.ERobsonConnectedItemsList;
-        var dimmablesToBeCaluculated = eRobsonConnectedItemsList.FindAll(b => b.Dimmable == true && eRobsonConnectedItemsList.IndexOf(b) < eRobsonConnectedItemsList.IndexOf(eRobsonItem));
+        var dimmingToBeCalculated = eRobsonConnectedItemsList.FindAll(b => b.Dimmable && eRobsonConnectedItemsList.IndexOf(b) < eRobsonConnectedItemsList.IndexOf(eRobsonItem));
 
-        if (dimmablesToBeCaluculated.Count == 0)
+        if (dimmingToBeCalculated.Count == 0)
         {
             return -1;
         }
@@ -203,7 +200,7 @@ public class BitsBehaviourController : MonoBehaviour
 
         float valueSum = 0;
         float counter = 0;
-        foreach (var bit in dimmablesToBeCaluculated)
+        foreach (var bit in dimmingToBeCalculated)
         {
             valueSum += bit.Value;
             counter++;
@@ -219,43 +216,49 @@ public class BitsBehaviourController : MonoBehaviour
     /// </summary>
     /// <param name="bit">The bit that needs to be checked for power</param>
     /// <returns>true if the bit has power</returns>
-    private static async Task<bool> HasConnectedPower(eROBSONItems bit)
+    private static async Task<bool> HasConnectedPowerUpToCurrentModule(eROBSONItems bit)
     {
-        //Power source doesn't need to be check, it has power :)
-        if (bit.ID == BitID.USBPOWER)
-        {
-            return true;
-        }
-
-        if (bit.ConnectedBits == null || bit.ConnectedBits.Count == 0)
-        {
-            return false;
-        }
-
-        //Check the connected bit
+        // Check each connected bit
         foreach (var connectedBit in bit.ConnectedBits)
         {
             if (connectedBit == null)
             {
+                // If the connected bit is null, continue to the next bit
                 continue;
             }
 
-            //The connected bit is not activated or hasn't power
-            if (!connectedBit.HasPower || !connectedBit.IsActive)
-            {
-                continue;
-            }
 
-            //Then check if it is power source return true
-            if (connectedBit.ID == BitID.USBPOWER)
+            //if USBPOWER connecting into P3USBPOWERCONNECTOR
+            if ((bit.ID == BitID.USBPOWER && connectedBit.ID == BitID.P3USBPOWERCONNECTOR) ||
+                (bit.ID == BitID.P3USBPOWERCONNECTOR && connectedBit.ID == BitID.USBPOWER))
             {
                 return true;
             }
-            //If it is not power source check all previous bits are connected or not
-            //Do not check the bit itself again
-            if (connectedBit != bit)
+
+
+            // If the connected bit is not activated or does not have power, continue to the next bit
+            if (!connectedBit.HasPower)
             {
-                return await HasConnectedPower(connectedBit);
+                continue;
+            }
+
+            // If the connected bit has power and is activated, increment the count of connected bits with power
+            if (connectedBit.HasPower)
+            {
+                return true;
+            }
+
+
+            //No more connected bits
+            if (connectedBit == bit)
+            {
+                continue;
+            }
+
+            // If the connected bit is not the current bit, recursively check all of its connected bits
+            if (await HasConnectedPowerUpToCurrentModule(connectedBit))
+            {
+                return true;
             }
         }
 
@@ -266,6 +269,7 @@ public class BitsBehaviourController : MonoBehaviour
     /// <summary>
     /// The behaviour of the bit after connecting
     /// </summary>
+    /// <param name="bit">The bit which is connected</param>
     private void OnItemConnected(eROBSONItems bit)
     {
         if (bit != _eRobsonItem)
@@ -280,6 +284,7 @@ public class BitsBehaviourController : MonoBehaviour
     /// <summary>
     /// The behaviour of the bit after disconnecting
     /// </summary>
+    /// <param name="bit">The bit which is disconnected</param>
     private void OnItemDisconnected(eROBSONItems bit)
     {
         if (bit != _eRobsonItem)

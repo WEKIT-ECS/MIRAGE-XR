@@ -14,8 +14,8 @@ public enum Pole
 
 public class Port : MonoBehaviour
 {
-    private const float RayDistance = 0.02f;
-    private const float SnappingDuration = 2f;
+    private const float RAY_DISTANCE = 0.03f;
+    private const float SNAPPING_DURATION = 2f;
 
     [SerializeField] private Pole pole;
     [SerializeField] private GameObject IncorrectIconPrefab;
@@ -23,32 +23,61 @@ public class Port : MonoBehaviour
     [SerializeField] private bool portMovesSeparate;
     [SerializeField] private FixedPort fixedPort;
 
+
+    /// <summary>
+    /// Check if the port is moving by the user
+    /// </summary>
     public bool PortIsMovable => portMovesSeparate;
 
+
+    /// <summary>
+    /// Gets the port which is connecting to this port
+    /// </summary>
     public Port DetectedPortPole { get; set; }
 
+
+    /// <summary>
+    /// Checks if ports are USB power and P3. They can't be same neither
+    /// </summary>
+    private bool UsbPowerConnectionCheck => (DetectedPortPole.pole == Pole.USB && pole == Pole.USB) &&
+                                            ((DetectedPortPole.ERobsonItem.ID == BitID.USBPOWER && ERobsonItem.ID != BitID.USBPOWER) ||
+                                             (DetectedPortPole.ERobsonItem.ID != BitID.USBPOWER && ERobsonItem.ID == BitID.USBPOWER));
+
+    /// <summary>
+    /// If the port is connected
+    /// </summary>
     public bool Connected { get; set; }
 
+
+    /// <summary>
+    /// The bit which contains this port
+    /// </summary>
     public eROBSONItems ERobsonItem { get; private set; }
 
+
+    //Caches
     private GameObject _eRobsonItemGameObject;
     private bool _shaking;
+    private Camera _cam;
+
+
 
     private void Start()
     {
         fixedPort = GetComponentInParent<FixedPort>();
         ERobsonItem = GetComponentInParent<eROBSONItems>();
+        _cam = Camera.main;
         _eRobsonItemGameObject = ERobsonItem.gameObject;
     }
 
 
-    private void Update()
+    private void FixedUpdate()
     {
         var myTransform = transform;
         var ray = new Ray(myTransform.position, myTransform.forward * (reverseRay ? -1 : 1));
 
         // Check if the ray hits any GameObjects within the specified distance
-        if (Physics.Raycast(ray, out var hit, RayDistance, LayerMask.GetMask("eRobsonPort")))
+        if (Physics.Raycast(ray, out var hit, RAY_DISTANCE, LayerMask.GetMask("eRobsonPort")))
         {
             ControlPortCollision(hit.collider.gameObject);
         }
@@ -57,7 +86,7 @@ public class Port : MonoBehaviour
             Disconnect();
         }
 
-        //Debug.DrawRay(myTransform.position, myTransform.forward * (RayDistance * (reverseRay ? -1 : 1)), Color.yellow);
+        Debug.DrawRay(myTransform.position, myTransform.forward * (RAY_DISTANCE * (reverseRay ? -1 : 1)), Color.yellow);
     }
 
 
@@ -65,7 +94,7 @@ public class Port : MonoBehaviour
     /// Check the information of the port which are collided to each other and
     /// make a dissection for their connecting regarding to their information
     /// </summary>
-    /// <param name="collidedPort">The gameobject of the port which is detected and will connected to this port</param>
+    /// <param name="collidedPort">The GameObject of the port which is detected and will connected to this port</param>
     private void ControlPortCollision(GameObject collidedPort)
     {
         DetectedPortPole = collidedPort.GetComponent<Port>();
@@ -108,7 +137,7 @@ public class Port : MonoBehaviour
             //Enable manipulation after a while
             StartCoroutine(MakeBitBeParent());
         }
-        else if (DetectedPortPole.pole != Pole.USB && pole != Pole.USB)
+        else if (!UsbPowerConnectionCheck)
         {
             DisplayWrongConnectivityMessage();
             Disconnect();
@@ -132,7 +161,7 @@ public class Port : MonoBehaviour
         }
 
         //Show the feedback
-        var icon = Instantiate(IncorrectIconPrefab, DetectedPortPole.transform.position - Camera.main.transform.forward * 0.1f, Quaternion.identity);
+        var icon = Instantiate(IncorrectIconPrefab, DetectedPortPole.transform.position - _cam.transform.forward * 0.1f, Quaternion.identity);
         var audioSource = icon.GetComponent<AudioSource>();
 
         if (audioSource.isPlaying)
@@ -186,11 +215,10 @@ public class Port : MonoBehaviour
 
         if (RootObject.Instance.activityManager.EditModeActive || ERobsonItem.LoadedData == null)
         {
-            var isUsbConnection = DetectedPortPole.pole == Pole.USB && pole == Pole.USB;
-            var hasDifferentPole = DetectedPortPole.pole != pole && DetectedPortPole.pole != Pole.USB && pole != Pole.USB;
+            var hasDifferentPole = DetectedPortPole.pole != pole && (DetectedPortPole.pole != Pole.USB && pole != Pole.USB);
             var isAlreadyConnected = ERobsonItem.ConnectedBits.Contains(DetectedPortPole.ERobsonItem);
 
-            connectIt = (isUsbConnection || hasDifferentPole) && !isAlreadyConnected;
+            connectIt = (UsbPowerConnectionCheck || hasDifferentPole) && !isAlreadyConnected;
         }
         else
         {
@@ -202,6 +230,7 @@ public class Port : MonoBehaviour
 
         return connectIt;
     }
+
 
 
     /// <summary>
@@ -232,7 +261,7 @@ public class Port : MonoBehaviour
         if (PortIsMovable)
         {
             //Make snap effect be more clear
-            yield return new WaitForSeconds(SnappingDuration);
+            yield return new WaitForSeconds(SNAPPING_DURATION);
             ERobsonItem.EnableManipulation();
             yield break;
         }
@@ -247,7 +276,7 @@ public class Port : MonoBehaviour
         }
 
         //Make snap effect be more clear
-        yield return new WaitForSeconds(SnappingDuration);
+        yield return new WaitForSeconds(SNAPPING_DURATION);
 
         ERobsonItem.EnableManipulation();
     }
@@ -270,6 +299,7 @@ public class Port : MonoBehaviour
         }
 
         ERobsonItem.ConnectedBits.Add(detectedPort.ERobsonItem);
+        detectedPort.ERobsonItem.ConnectedBits.Add(ERobsonItem);
         ERobsonItem.connectedTime = new DateTime();
         ERobsonItem.DisableManipulation();
 
@@ -286,7 +316,7 @@ public class Port : MonoBehaviour
             try
             {
                 //Move the port to the detected port
-                StartCoroutine(fixedPort.LetConnect(SnappingDuration, DetectedPortPole.transform.position));
+                StartCoroutine(fixedPort.LetConnect(SNAPPING_DURATION, DetectedPortPole.transform.position));
             }
             catch (NullReferenceException)
             {
@@ -296,6 +326,7 @@ public class Port : MonoBehaviour
         }
 
         ErobsonItemManager.BitConnected(ERobsonItem);
+        ErobsonItemManager.BitConnected(detectedPort.ERobsonItem);
         Connected = true;
     }
 
@@ -317,6 +348,7 @@ public class Port : MonoBehaviour
         }
 
         ErobsonItemManager.BitDisconnected(ERobsonItem);
+        ErobsonItemManager.BitDisconnected(DetectedPortPole.ERobsonItem);
 
         DetectedPortPole = null;
 

@@ -4,9 +4,29 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using Action = MirageXR.Action;
+
+
+
+public enum BitID
+{
+    I3BUTTON,
+    I5SLIDEDIMMER,
+    I11PRESSURESENSOR,
+    I18MOTIONSENSOR,
+    O2LONGLED,
+    O6BUZZER,
+    O9BARGRAPH,
+    O13FAN,
+    O25DCMOTOR,
+    P3USBPOWERCONNECTOR,
+    USBPOWER,
+    W2BRANCH,
+    W7FORK
+}
 
 public enum AddOrRemove
 {
@@ -349,6 +369,14 @@ public class ErobsonItemManager : MonoBehaviour
     }
 
 
+    //This is for debugging
+    //private void Update()
+    //{
+    //    var temp = ERobsonConnectedItemsList.FindAll(e => e.HasPower).Select(e => e.ID.ToString());
+    //    Debug.LogError(string.Join(", ", temp.ToArray()));
+    //}
+
+
     /// <summary>
     /// Load the bit settings from json to the prefab
     /// </summary>
@@ -467,7 +495,9 @@ public class ErobsonItemManager : MonoBehaviour
             if (eRobsonItem)
             {
                 //If power source is deleted initiate all bits
-                if (eRobsonItem.ID == BitID.USBPOWER)
+                if (eRobsonItem.ID == BitID.USBPOWER &&
+                    ERobsonConnectedItemsList.Contains(eRobsonItem) &&
+                    ERobsonConnectedItemsList.FindAll(b => b.ID == BitID.USBPOWER).Count == 1)
                 {
                     foreach (var bit in ERobsonItemsList)
                     {

@@ -2563,7 +2563,9 @@ GameObject:
   - component: {fileID: 726722110774518648}
   - component: {fileID: 7887264389701608811}
   - component: {fileID: 2404529325185455390}
+  - component: {fileID: 3698259317459081523}
   - component: {fileID: 3713489013448111730}
+  - component: {fileID: 8323445891567139528}
   - component: {fileID: 7367204314941497398}
   - component: {fileID: 7428776127363312240}
   - component: {fileID: 4708818627226913818}
@@ -2659,6 +2661,26 @@ MonoBehaviour:
   m_ConstrainOrientation: 0
   m_Compliance: 0
   m_BreakThreshold: Infinity
+--- !u!114 &3698259317459081523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6637028994687542342}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d03c9194b7ab4aaba4dfa5afec22c69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actor: {fileID: 7367204314941497398}
+  m_Target: {fileID: 307890502529444663}
+  m_ParticleGroup: {fileID: -8248841266786018359, guid: e61734fb8d5495c42a32692c619bbe4f,
+    type: 2}
+  m_AttachmentType: 0
+  m_ConstrainOrientation: 0
+  m_Compliance: 0
+  m_BreakThreshold: Infinity
 --- !u!114 &3713489013448111730
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2674,6 +2696,26 @@ MonoBehaviour:
   m_Actor: {fileID: 7367204314941497398}
   m_Target: {fileID: 5760104641467538753}
   m_ParticleGroup: {fileID: -5823541296225281605, guid: e61734fb8d5495c42a32692c619bbe4f,
+    type: 2}
+  m_AttachmentType: 0
+  m_ConstrainOrientation: 0
+  m_Compliance: 0
+  m_BreakThreshold: Infinity
+--- !u!114 &8323445891567139528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6637028994687542342}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d03c9194b7ab4aaba4dfa5afec22c69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actor: {fileID: 7367204314941497398}
+  m_Target: {fileID: 5760104641467538753}
+  m_ParticleGroup: {fileID: 4749797077027887143, guid: e61734fb8d5495c42a32692c619bbe4f,
     type: 2}
   m_AttachmentType: 0
   m_ConstrainOrientation: 0
@@ -2695,76 +2737,76 @@ MonoBehaviour:
   m_CollisionMaterial: {fileID: 0}
   m_SurfaceCollisions: 0
   m_SelfCollisions: 0
-  restLength_: 1.2030402
+  restLength_: 1.22397
   elements:
   - particle1: 0
     particle2: 1
-    restLength: 0.057210956
+    restLength: 0.06869787
     constraintForce: 0
     tearResistance: 1
   - particle1: 1
     particle2: 2
-    restLength: 0.056108177
+    restLength: 0.06785117
     constraintForce: 0
     tearResistance: 1
   - particle1: 2
     particle2: 3
-    restLength: 0.092916586
+    restLength: 0.09149734
     constraintForce: 0
     tearResistance: 1
   - particle1: 3
     particle2: 4
-    restLength: 0.09348479
+    restLength: 0.09301376
     constraintForce: 0
     tearResistance: 1
   - particle1: 4
     particle2: 5
-    restLength: 0.0937752
+    restLength: 0.093279734
     constraintForce: 0
     tearResistance: 1
   - particle1: 5
     particle2: 6
-    restLength: 0.09375424
+    restLength: 0.0926412
     constraintForce: 0
     tearResistance: 1
   - particle1: 6
     particle2: 7
-    restLength: 0.093806036
+    restLength: 0.0930428
     constraintForce: 0
     tearResistance: 1
   - particle1: 7
     particle2: 8
-    restLength: 0.09370157
+    restLength: 0.09286281
     constraintForce: 0
     tearResistance: 1
   - particle1: 8
     particle2: 9
-    restLength: 0.09375167
+    restLength: 0.092835315
     constraintForce: 0
     tearResistance: 1
   - particle1: 9
     particle2: 10
-    restLength: 0.093718946
+    restLength: 0.09301144
     constraintForce: 0
     tearResistance: 1
   - particle1: 10
     particle2: 11
-    restLength: 0.093561746
+    restLength: 0.092594825
     constraintForce: 0
     tearResistance: 1
   - particle1: 11
     particle2: 12
-    restLength: 0.09360617
+    restLength: 0.093015075
     constraintForce: 0
     tearResistance: 1
   - particle1: 12
     particle2: 13
-    restLength: 0.07673549
+    restLength: 0.09233743
     constraintForce: 0
     tearResistance: 1
   - particle1: 13
     particle2: 14
-    restLength: 0.07690871
+    restLength: 0.0672895
     constraintForce: 0
     tearResistance: 1
   m_RopeBlueprint: {fileID: 11400000, guid: e61734fb8d5495c42a32692c619bbe4f, type: 2}
@@ -3654,7 +3696,7 @@ PrefabInstance:
     - target: {fileID: 4169984385689787876, guid: 4fec6e05490aa4146a5ad736fcfd2e96,
         type: 3}
       propertyPath: m_Size.z
-      value: 0.008118859
+      value: 0.01455705
       objectReference: {fileID: 0}
     - target: {fileID: 4169984385689787876, guid: 4fec6e05490aa4146a5ad736fcfd2e96,
         type: 3}
@@ -3664,12 +3706,12 @@ PrefabInstance:
     - target: {fileID: 4169984385689787876, guid: 4fec6e05490aa4146a5ad736fcfd2e96,
         type: 3}
       propertyPath: m_Center.y
-      value: 0.019589536
+      value: 0.019589527
       objectReference: {fileID: 0}
     - target: {fileID: 4169984385689787876, guid: 4fec6e05490aa4146a5ad736fcfd2e96,
         type: 3}
       propertyPath: m_Center.z
-      value: -0.029734418
+      value: -0.026514936
       objectReference: {fileID: 0}
     - target: {fileID: 4169984385689787876, guid: 4fec6e05490aa4146a5ad736fcfd2e96,
         type: 3}

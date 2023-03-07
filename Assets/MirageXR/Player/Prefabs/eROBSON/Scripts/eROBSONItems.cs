@@ -1,34 +1,14 @@
 using Microsoft.MixedReality.Toolkit.UI;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
-using UnityEngine;
 using MirageXR;
-using System.Collections.Generic;
 using System;
-using NSubstitute.Routing.Handlers;
+using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
 
-public enum BitID
-{
-    I3BUTTON,
-    I5SLIDEDIMMER,
-    I11PRESSURESENSOR,
-    I18MOTIONSENSOR,
-    O2LONGLED,
-    O6BUZZER,
-    O9BARGRAPH,
-    O13FAN,
-    O25DCMOTOR,
-    P3USBPOWERCONNECTOR,
-    USBPOWER,
-    W2BRANCH,
-    W7FORK
-}
 
 public class eROBSONItems : MirageXRPrefab
 {
-
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
-    private ToggleObject myObj;
+    private ToggleObject _myObj;
 
     [Tooltip("The bit id")]
     [SerializeField] private BitID id;
@@ -43,7 +23,7 @@ public class eROBSONItems : MirageXRPrefab
     {
         get
         {
-            return myObj.poi;
+            return _myObj.poi;
         }
     }
 
@@ -74,7 +54,7 @@ public class eROBSONItems : MirageXRPrefab
     public float Value
     {
         get; set;
-    } 
+    }
 
     public bool Dimmable
     {
@@ -180,7 +160,7 @@ public class eROBSONItems : MirageXRPrefab
     /// </summary>
     public void SetValueText(BitID bitID)
     {
-        if(valueText != null)
+        if (valueText != null)
         {
             switch (bitID)
             {
@@ -197,7 +177,7 @@ public class eROBSONItems : MirageXRPrefab
 
     public override bool Init(ToggleObject obj)
     {
-        myObj = obj;
+        _myObj = obj;
 
         // Try to set the parent and if it fails, terminate initialization.
         if (!SetParent(obj))
