@@ -15,10 +15,13 @@ public class StepsListView_v2 : BaseView
 
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
+    [Space]
+    [SerializeField] private RectTransform _listVerticalContent;
+    [SerializeField] private RectTransform _listHorizontalContent;
+    [Space]
     [SerializeField] private TMP_Text _textActivityName;
     [SerializeField] private TMP_InputField _inputFieldActivityName;
     [SerializeField] private TMP_InputField _inputFieldActivityDescription;
-    [SerializeField] private RectTransform _listContent;
     [SerializeField] private RectTransform _addStep;
     [SerializeField] private Button _btnAddStep;
     [SerializeField] private Button _btnBack;
@@ -98,7 +101,7 @@ public class StepsListView_v2 : BaseView
         UpdateView();
     }
 
-    private void UpdateView()
+    public void UpdateView()
     {
         if (activityManager.Activity != null)
         {
@@ -108,11 +111,12 @@ public class StepsListView_v2 : BaseView
 
             var steps = activityManager.ActionsOfTypeAction;
             _stepsList.ForEach(t => t.gameObject.SetActive(false));
+
             for (var i = 0; i < steps.Count; i++)
             {
                 if (_stepsList.Count <= i)
                 {
-                    var obj = Instantiate(_stepsListItemPrefab, _listContent);
+                    var obj = Instantiate(_stepsListItemPrefab, _listVerticalContent);
                     obj.Init(OnStepClick, OnStepEditClick, OnDeleteStepClick, OnSiblingIndexChanged);
                     _stepsList.Add(obj);
                 }
@@ -253,7 +257,7 @@ public class StepsListView_v2 : BaseView
         }
         else
         {
-            var child = _listContent.GetChild(index - 1);
+            var child = _listVerticalContent.GetChild(index - 1);
             var stepListItem = child.GetComponent<StepsListItem_v2>();
 
             if (stepListItem)
@@ -396,5 +400,21 @@ public class StepsListView_v2 : BaseView
     private void OnCalibrationViewClosed()
     {
         RootView_v2.Instance.ShowBaseView();
+    }
+
+    public void MoveStepsToHorizontalScroll()
+    {
+        for (var i = 0; i < _stepsList.Count; i++)
+        {
+            _stepsList[i].transform.parent = _listHorizontalContent;
+        }
+    }
+
+    public void MoveStepsToVerticalScroll()
+    {
+        for (var i = 0; i < _stepsList.Count; i++)
+        {
+            _stepsList[i].transform.parent = _listVerticalContent;
+        }
     }
 }
