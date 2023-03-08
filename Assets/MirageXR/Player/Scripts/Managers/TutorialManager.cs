@@ -211,7 +211,9 @@ namespace MirageXR
         private void PopulateStepListForMobileViewing()
         {
             _steps.Clear();
-            _steps.Add(new MobileOnlyDialogStep("Coming soon!"));
+            _steps.Add(new MVTLabelTriggerStep());
+            _steps.Add(new MVTLabelTriggerStep());
+            _steps.Add(new MVTHighlightTriggerStep());
         }
 
         /// <summary>
@@ -285,6 +287,10 @@ namespace MirageXR
 
         public void ShowHelpSelection(RootView_v2.HelpPage helpSelection)
         {
+            //TODO: Remove
+            this.StartTutorial(TutorialType.MOBILE_VIEWING);
+            //////////////////////////
+            ///
             if (_mobileTutorial == null)
             {
                 _mobileTutorial = RootView_v2.Instance.Tutorial;
