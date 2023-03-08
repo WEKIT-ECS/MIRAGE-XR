@@ -34,6 +34,10 @@ namespace MirageXR
         public GameObject CreateArrow()
         {
             GameObject newArrow = null;
+            newArrow = Object.Instantiate(arrowPrefab3D, Vector3.zero, Quaternion.identity);
+            Tutorial3DArrow arrowScript = newArrow.AddComponent<Tutorial3DArrow>();
+            //TODO: Remove or refactor
+            /*
             if (PlatformManager.Instance.WorldSpaceUi)
             {
                 newArrow = Object.Instantiate(arrowPrefab3D, Vector3.zero, Quaternion.identity);
@@ -45,7 +49,7 @@ namespace MirageXR
                 newArrow.GetComponent<TutorialMobileArrow>().Init();
                 //TutorialMobileArrow arrowScript = newArrow.AddComponent<TutorialMobileArrow>();
 
-            }
+            }*/
 
             return newArrow;
         }
