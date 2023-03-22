@@ -328,7 +328,38 @@ public class StepsListView_v2 : BaseView
 
     private void OpenGallery()
     {
-        // not implemented
+        PickImage(1024);
+    }
+
+    private void PickImage(int maxSize)
+    {
+        NativeGallery.Permission permission = NativeGallery.GetImageFromGallery((path) =>
+        {
+            Debug.Log("Image path: " + path);
+            if (path != null)
+            {
+                // Create Texture from selected image
+                Texture2D _texture2D = NativeGallery.LoadImageAtPath(path, maxSize, false);
+
+                if (_texture2D == null)
+                {
+                    Debug.Log("Couldn't load texture from " + path);
+                    return;
+                }
+
+                // Set picture
+                var sprite = Utilities.TextureToSprite(_texture2D);
+                _defaultThumbnail.SetActive(false);
+                _imgThumbnail.gameObject.SetActive(true);
+                _imgThumbnail.sprite = sprite;
+
+                // Save picture
+                Texture2D tempTexture = _imgThumbnail.sprite.texture;
+                byte[] bytes = tempTexture.EncodeToJPG();
+                var tempPath = Path.Combine(activityManager.ActivityPath, THUMBNAIL_FILE_NAME);
+                File.WriteAllBytes(tempPath, bytes);
+            }
+        });
     }
 
     private void OnThumbnailAccepted(string path)
