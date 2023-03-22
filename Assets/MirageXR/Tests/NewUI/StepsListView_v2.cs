@@ -12,6 +12,7 @@ using Content = MirageXR.Action;
 public class StepsListView_v2 : BaseView
 {
     private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg";
+    private const int MAX_PICTURE_SIZE = 1024;
 
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
@@ -328,7 +329,7 @@ public class StepsListView_v2 : BaseView
 
     private void OpenGallery()
     {
-        PickImage(1024);
+        PickImage(MAX_PICTURE_SIZE);
     }
 
     private void PickImage(int maxSize)
