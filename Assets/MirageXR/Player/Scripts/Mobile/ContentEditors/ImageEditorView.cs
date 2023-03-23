@@ -21,6 +21,7 @@ public class ImageEditorView : PopupEditorBase
     [SerializeField] private Transform _imageHolder;
     [SerializeField] private Image _image;
     [SerializeField] private Button _btnCaptureImage;
+    [SerializeField] private Button _btnOpenGallery;
     [SerializeField] private Toggle _toggleOrientation;
 
     private Texture2D _capturedImage;
@@ -30,6 +31,7 @@ public class ImageEditorView : PopupEditorBase
         base.Initialization(onClose, args);
         UpdateView();
         _btnCaptureImage.onClick.AddListener(OnCaptureImage);
+        _btnOpenGallery.onClick.AddListener(OpenGallery);
 
         _toggleOrientation.onValueChanged.AddListener(OnToggleOrientationValueChanged);
         _toggleOrientation.isOn = _orientation;
@@ -103,6 +105,11 @@ public class ImageEditorView : PopupEditorBase
     private void OnCaptureImage()
     {
         CaptureImage();
+    }
+
+    private void OpenGallery()
+    {
+
     }
 
     private void CaptureImage()
