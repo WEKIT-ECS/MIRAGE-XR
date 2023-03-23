@@ -15,6 +15,7 @@ public class ImageMarkerEditorView : PopupEditorBase
     [SerializeField] private Transform _imageHolder;
     [SerializeField] private Image _image;
     [SerializeField] private Button _btnCaptureImage;
+    [SerializeField] private Button _btnOpenGallery;
     [SerializeField] private TMP_InputField _tmpInputSize;
 
     private Texture2D _capturedImage;
@@ -24,6 +25,7 @@ public class ImageMarkerEditorView : PopupEditorBase
         base.Initialization(onClose, args);
         UpdateView();
         _btnCaptureImage.onClick.AddListener(OnCaptureImage);
+        _btnOpenGallery.onClick.AddListener(OpenGallery);
     }
 
     private void OnDestroy()
@@ -97,6 +99,11 @@ public class ImageMarkerEditorView : PopupEditorBase
     private void OnCaptureImage()
     {
         CaptureImage();
+    }
+
+    private void OpenGallery()
+    {
+
     }
 
     private void CaptureImage()

@@ -17,6 +17,7 @@ public class VideoEditorView : PopupEditorBase
     [SerializeField] private Transform _imageHolder;
     [SerializeField] private Image _image;      // TODO: replace image preview with a video
     [SerializeField] private Button _btnCaptureVideo;
+    [SerializeField] private Button _btnOpenGallery;
     [SerializeField] private Toggle _toggleTrigger;
     [SerializeField] private Toggle _toggleOrientation;
 
@@ -28,6 +29,7 @@ public class VideoEditorView : PopupEditorBase
     {
         base.Initialization(onClose, args);
         _btnCaptureVideo.onClick.AddListener(OnStartRecordingVideo);
+        _btnOpenGallery.onClick.AddListener(OpenGallery);
         _toggleOrientation.onValueChanged.AddListener(OnToggleOrientationValueChanged);
         _toggleTrigger.onValueChanged.AddListener(OnToggleTriggerValueChanged);
         _orientation = true;
@@ -161,5 +163,10 @@ public class VideoEditorView : PopupEditorBase
         rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
 
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
+    }
+
+    private void OpenGallery()
+    {
+
     }
 }
