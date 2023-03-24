@@ -8,6 +8,7 @@ using Image = UnityEngine.UI.Image;
 
 public class ImageEditorView : PopupEditorBase
 {
+    private const int MAX_PICTURE_SIZE = 1024;
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
     private static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
@@ -109,7 +110,45 @@ public class ImageEditorView : PopupEditorBase
 
     private void OpenGallery()
     {
+        PickImage(MAX_PICTURE_SIZE);
+    }
 
+    private void PickImage(int maxSize)
+    {
+        NativeGallery.Permission permission = NativeGallery.GetImageFromGallery((path) =>
+        {
+            Debug.Log("Image path: " + path);
+            if (path != null)
+            {
+                // Create Texture from selected image
+                Texture2D _texture2D = NativeGallery.LoadImageAtPath(path, maxSize, false);
+
+                if (_texture2D == null)
+                {
+                    Debug.Log("Couldn't load texture from " + path);
+                    return;
+                }
+
+                // Set picture
+                var sprite = Utilities.TextureToSprite(_texture2D);
+                _image.sprite = sprite;
+
+                // Save picture
+                Texture2D tempTexture = _image.sprite.texture;
+                byte[] bytes = tempTexture.EncodeToJPG();
+                var saveFileName = $"MirageXR_Image_{DateTime.Now.ToFileTimeUtc()}.jpg";
+                var tempPath = Path.Combine(activityManager.ActivityPath, saveFileName);
+                File.WriteAllBytes(tempPath, bytes);
+
+                _capturedImage = tempTexture;
+                var rtImageHolder = (RectTransform)_imageHolder.transform;
+                var rtImage = (RectTransform)_image.transform;
+                var height = (rtImage.rect.width / _capturedImage.width * _capturedImage.height) + (rtImage.sizeDelta.y * -1);
+                rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+
+                LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
+            }
+        });
     }
 
     private void CaptureImage()
