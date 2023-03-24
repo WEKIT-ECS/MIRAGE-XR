@@ -143,6 +143,27 @@ public class ActivityListView_v2 : BaseView
         });
     }
 
+    public void TutorialActivtyCard(bool on)
+    {
+        var firstContentIsTutorial = _content[0].Name == "Tutorial Activity" ? true : false;
+
+        if (on && !firstContentIsTutorial)
+        {
+            var activity = LocalFiles.GetTutorialActivity();
+
+            var sessionContatiner = new SessionContainer { Activity = activity };
+
+            _content.Insert(0, sessionContatiner);
+
+        }
+        else if (!on && firstContentIsTutorial)
+        {
+            _content.RemoveAt(0);
+        }
+
+        UpdateView();
+    }
+
     private void OnByDateClick()
     {
         PopupsViewer.Instance.Show(_sortingPrefab, this);
