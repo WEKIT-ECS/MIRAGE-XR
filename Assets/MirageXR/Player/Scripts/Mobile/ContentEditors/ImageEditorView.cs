@@ -133,13 +133,7 @@ public class ImageEditorView : PopupEditorBase
                 var sprite = Utilities.TextureToSprite(_texture2D);
                 _image.sprite = sprite;
 
-                // Save picture
                 Texture2D tempTexture = _image.sprite.texture;
-                byte[] bytes = tempTexture.EncodeToJPG();
-                var saveFileName = $"MirageXR_Image_{DateTime.Now.ToFileTimeUtc()}.jpg";
-                var tempPath = Path.Combine(activityManager.ActivityPath, saveFileName);
-                File.WriteAllBytes(tempPath, bytes);
-
                 _capturedImage = tempTexture;
                 var rtImageHolder = (RectTransform)_imageHolder.transform;
                 var rtImage = (RectTransform)_image.transform;
