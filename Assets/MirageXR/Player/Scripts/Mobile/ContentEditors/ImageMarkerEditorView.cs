@@ -115,26 +115,17 @@ public class ImageMarkerEditorView : PopupEditorBase
             if (path != null)
             {
                 // Create Texture from selected image
-                Texture2D _texture2D = NativeGallery.LoadImageAtPath(path, maxSize, false);
+                Texture2D texture2D = NativeGallery.LoadImageAtPath(path, maxSize, false);
 
-                if (_texture2D == null)
+                if (texture2D == null)
                 {
                     Debug.Log("Couldn't load texture from " + path);
                     return;
                 }
 
                 // Set picture
-                var sprite = Utilities.TextureToSprite(_texture2D);
-                _image.sprite = sprite;
-
-                Texture2D tempTexture = _image.sprite.texture;
-                _capturedImage = tempTexture;
-                var rtImageHolder = (RectTransform)_imageHolder.transform;
-                var rtImage = (RectTransform)_image.transform;
-                var height = (rtImage.rect.width / _capturedImage.width * _capturedImage.height) + (rtImage.sizeDelta.y * -1);
-                rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
-
-                LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
+                var sprite = Utilities.TextureToSprite(texture2D);
+                SetPreview(sprite.texture);
             }
         });
     }
