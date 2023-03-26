@@ -10,6 +10,7 @@ using Image = UnityEngine.UI.Image;
 
 public class ImageMarkerEditorView : PopupEditorBase
 {
+    private const int MAX_PICTURE_SIZE = 1024;
     public override ContentType editorForType => ContentType.IMAGEMARKER;
 
     [SerializeField] private Transform _imageHolder;
@@ -103,7 +104,39 @@ public class ImageMarkerEditorView : PopupEditorBase
 
     private void OpenGallery()
     {
+        PickImage(MAX_PICTURE_SIZE);
+    }
 
+    private void PickImage(int maxSize)
+    {
+        NativeGallery.Permission permission = NativeGallery.GetImageFromGallery((path) =>
+        {
+            Debug.Log("Image path: " + path);
+            if (path != null)
+            {
+                // Create Texture from selected image
+                Texture2D _texture2D = NativeGallery.LoadImageAtPath(path, maxSize, false);
+
+                if (_texture2D == null)
+                {
+                    Debug.Log("Couldn't load texture from " + path);
+                    return;
+                }
+
+                // Set picture
+                var sprite = Utilities.TextureToSprite(_texture2D);
+                _image.sprite = sprite;
+
+                Texture2D tempTexture = _image.sprite.texture;
+                _capturedImage = tempTexture;
+                var rtImageHolder = (RectTransform)_imageHolder.transform;
+                var rtImage = (RectTransform)_image.transform;
+                var height = (rtImage.rect.width / _capturedImage.width * _capturedImage.height) + (rtImage.sizeDelta.y * -1);
+                rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+
+                LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
+            }
+        });
     }
 
     private void CaptureImage()
