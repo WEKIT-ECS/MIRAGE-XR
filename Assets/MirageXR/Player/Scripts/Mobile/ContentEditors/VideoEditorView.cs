@@ -167,6 +167,26 @@ public class VideoEditorView : PopupEditorBase
 
     private void OpenGallery()
     {
+        PickVideo();
+    }
 
+    private void PickVideo()
+    {
+        NativeGallery.Permission permission = NativeGallery.GetVideoFromGallery((path) =>
+        {
+            Debug.Log("Video path: " + path);
+            if (path != null)
+            {
+                _videoWasRecorded = true;
+                SetPreview(NativeGallery.GetVideoThumbnail(path));
+
+                _newFileName = $"MirageXR_Video_{DateTime.Now.ToFileTimeUtc()}.mp4";
+                var newFilePath = Path.Combine(activityManager.ActivityPath, _newFileName);
+
+                var sourcePath = Path.Combine(Application.persistentDataPath, path);
+                var destPath = Path.Combine(Application.persistentDataPath, newFilePath);
+                File.Move(sourcePath, destPath);
+            }
+        });
     }
 }
