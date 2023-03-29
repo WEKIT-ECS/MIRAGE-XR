@@ -29,13 +29,13 @@ public class ARManager : MonoBehaviour
         if (!_mainCamera) return;
 
         var cameraParent = _mainCamera.transform.parent.gameObject;
-        
+
         _arPlaneManager = cameraParent.AddComponent<ARPlaneManager>();
         _arPointCloudManager = cameraParent.AddComponent<ARPointCloudManager>();
-        
+
         _arPlaneManager.planePrefab = _prefabPlace;
         _arPointCloudManager.pointCloudPrefab = _prefabPointCloud;
-        
+
         _arPlaneManager.enabled = false;
         _arPointCloudManager.enabled = false;
         EventManager.OnEditModeChanged += EnablePlaneDetection;
@@ -57,17 +57,21 @@ public class ARManager : MonoBehaviour
         SetAllPlanesActive(value);
         SetAllPointCloudsActive(value);
     }
-    
+
     private void SetAllPlanesActive(bool value)
     {
         foreach (var plane in _arPlaneManager.trackables)
+        {
             plane.gameObject.SetActive(value);
+        }
     }
 
     private void SetAllPointCloudsActive(bool value)
     {
         foreach (var cloud in _arPointCloudManager.trackables)
+        {
             cloud.gameObject.SetActive(value);
+        }
     }
 #endif
 }
