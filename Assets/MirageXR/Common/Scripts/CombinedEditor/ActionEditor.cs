@@ -1,4 +1,5 @@
-﻿using MirageXR;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using MirageXR;
 using System;
 using System.Collections;
 using System.IO;
@@ -135,6 +136,7 @@ public class ActionEditor : MonoBehaviour
         }
         else if (instance != this)
         {
+            AppLog.LogWarning("Found a duplicate of a singleton; removing the duplicate", this);
             Destroy(gameObject);
         }
 
