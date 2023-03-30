@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using Vuforia;
@@ -80,10 +81,36 @@ public class ImageTargetManagerVuforia : ImageTargetManagerBase
         runtimeImageSource.SetImage(texture, widthInMeters, targetName);
 
         var dataset = objectTracker.CreateDataSet();
+
+        if (dataset == null)
+        {
+            throw new Exception("Can't create dataset");
+        }
+
         var trackableBehaviour = dataset.CreateTrackable(runtimeImageSource, targetName);
 
         objectTracker.ActivateDataSet(dataset);
 
         return trackableBehaviour as ImageTargetBehaviour;
+    }
+
+    public override void RemoveImageTarget(ImageTargetModel imageTargetModel)
+    {
+        var obj = _images.FirstOrDefault(t => t.imageTargetName == imageTargetModel.name);
+
+        if (obj)
+        {
+            var targetBehaviour = obj.GetComponent<ImageTargetBehaviour>();
+            var objectTracker = TrackerManager.Instance.GetTracker<ObjectTracker>();
+            var dataset = objectTracker.GetDataSets().FirstOrDefault(t => t.GetTrackables().Contains(targetBehaviour.Trackable));
+            objectTracker.DeactivateDataSet(dataset);
+            objectTracker.DestroyDataSet(dataset, true);
+            _images.Remove(obj);
+        }
+        else
+        {
+            throw new NullReferenceException($"Can't find {imageTargetModel.name}");
+        }
+
     }
 }

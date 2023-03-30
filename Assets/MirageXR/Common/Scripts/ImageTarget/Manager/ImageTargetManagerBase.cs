@@ -16,7 +16,7 @@ public class ImageTargetModel
 }
 
 [Serializable]
-public class UnityEventImageTarget : UnityEvent<ImageTargetBase> { }
+public class UnityEventImageTarget : UnityEvent<IImageTarget> { }
 
 public abstract class ImageTargetManagerBase : MonoBehaviour
 {
@@ -45,7 +45,7 @@ public abstract class ImageTargetManagerBase : MonoBehaviour
 
     public virtual void RemoveImageTarget(ImageTargetModel imageTargetModel)
     {
-        var obj = _images.FirstOrDefault(t => t.imageName == imageTargetModel.name);
+        var obj = _images.FirstOrDefault(t => t.imageTargetName == imageTargetModel.name);
         if (obj)
         {
             _images.Remove(obj);
