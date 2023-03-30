@@ -249,15 +249,6 @@ namespace MirageXR
             File.WriteAllText(path, sb.ToString());
         }
 
-        public static Activity GetTutorialActivity()
-        {
-            var jsonTextFile = Resources.Load<TextAsset>("TutorialActivity/session-2023-02-24_11-18-29-activity");
-
-            var activity = JsonUtility.FromJson<Activity>(jsonTextFile.ToString());
-
-            return activity;
-        }
-
         private static bool IsActivityFile(FileSystemInfo file)
         {
             return _possibleSuffixes.Any(t => file.Name.ToLower().EndsWith(t));
