@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
-using MirageXR;
 using UnityEngine;
 
 public class ImageTargetManagerWrapper : MonoBehaviour
@@ -32,36 +31,46 @@ public class ImageTargetManagerWrapper : MonoBehaviour
     private ImageTargetManagerBase _imageTargetManager;
     private HashSet<string> _names = new HashSet<string>();
 
-    public async Task<string> AddImageTarget(ImageTargetModel model)
-    {
-        var newName = await AddImageTargetAsync(model);
-
-        if (newName != null)
-        {
-            _images.Add(model);
-        }
-
-        return newName;
-    }
-
-    public void RemoveImageTarget(string imageTargetName)
+    public async Task<(bool, string)> TryAddImageTarget(ImageTargetModel model)
     {
         try
         {
-            var model = _images.FirstOrDefault(t => t.name == imageTargetName);
-            if (_names.Contains(imageTargetName) && model != null)
-            {
-                _imageTargetManager.RemoveImageTarget(model);
-                _names.Remove(imageTargetName);
-            }
-            else
-            {
-                AppLog.LogError($"ImageTargetManagerWrapper: Can't find {imageTargetName}");
-            }
+            var newName = await AddImageTargetAsync(model);
+            _images.Add(model);
+            return (true, newName);
         }
         catch (Exception e)
         {
             AppLog.LogError(e.ToString());
+            return (false, null);
+        }
+    }
+
+    public bool TryRemoveImageTarget(string imageTargetName)
+    {
+        try
+        {
+            RemoveImageTarget(imageTargetName);
+            return true;
+        }
+        catch (Exception e)
+        {
+            AppLog.LogError(e.ToString());
+            return false;
+        }
+    }
+
+    private void RemoveImageTarget(string imageTargetName)
+    {
+        var model = _images.FirstOrDefault(t => t.name == imageTargetName);
+        if (_names.Contains(imageTargetName) && model != null)
+        {
+            _imageTargetManager.RemoveImageTarget(model);
+            _names.Remove(imageTargetName);
+        }
+        else
+        {
+            throw new Exception($"ImageTargetManagerWrapper: Can't find imageTarget by name: '{imageTargetName}'");
         }
     }
 
@@ -81,12 +90,7 @@ public class ImageTargetManagerWrapper : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        InitializationAsync().AsAsyncVoid();
-    }
-
-    private async Task InitializationAsync()
+    public async Task InitializationAsync()
     {
         _imageTargetManager = CreateImageTargetManager();
 
@@ -115,14 +119,16 @@ public class ImageTargetManagerWrapper : MonoBehaviour
         _imageTargetManager.onTargetLost.AddListener(_onTargetLost.Invoke);
         foreach (var image in _images)
         {
-            var newName = await AddImageTargetAsync(image);
-            if (!string.IsNullOrEmpty(newName))
+            try
             {
+                var newName = await AddImageTargetAsync(image);
                 image.name = newName;
             }
+            catch (Exception e)
+            {
+                AppLog.LogError(e.ToString());
+            }
         }
-
-        AppLog.LogInfo("ImageTargetManagerWrapper: Initialization completed");
     }
 
     private void OnDestroy()
@@ -168,8 +174,7 @@ public class ImageTargetManagerWrapper : MonoBehaviour
     {
         if (!model.texture2D.isReadable)
         {
-            AppLog.LogError("ImageTargetManagerWrapper: Texture must be readable");
-            return null;
+            throw new Exception("ImageTargetManagerWrapper: Texture must be readable");
         }
 
         if (_names.Contains(model.name))
@@ -177,15 +182,8 @@ public class ImageTargetManagerWrapper : MonoBehaviour
             model.name = $"{model.name}_{Guid.NewGuid()}";
         }
 
-        try
-        {
-            await _imageTargetManager.AddImageTarget(model);
-            _names.Add(model.name);
-        }
-        catch (Exception e)
-        {
-            AppLog.LogError(e.ToString());
-        }
+        await _imageTargetManager.AddImageTarget(model);
+        _names.Add(model.name);
 
         return model.name;
     }

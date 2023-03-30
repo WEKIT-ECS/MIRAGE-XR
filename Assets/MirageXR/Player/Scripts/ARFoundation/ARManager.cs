@@ -1,6 +1,6 @@
-﻿using MirageXR;
-using UnityEngine;
-#if UNITY_ANDROID || UNITY_IOS
+﻿using UnityEngine;
+#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+using MirageXR;
 using UnityEngine.XR.ARFoundation;
 #endif
 
@@ -10,21 +10,21 @@ public class ARManager : MonoBehaviour
     [SerializeField] private GameObject _prefabPlace;
     [SerializeField] private GameObject _prefabPointCloud;
 
-#if UNITY_ANDROID || UNITY_IOS
+#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
     private ARPlaneManager _arPlaneManager;
     private ARPointCloudManager _arPointCloudManager;
 #endif
 
     private void Start()
     {
-#if UNITY_ANDROID || UNITY_IOS
+#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
         Init();
 #endif
     }
 
     private void Init()
     {
-#if UNITY_ANDROID || UNITY_IOS
+#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
         if (!_mainCamera) _mainCamera = Camera.main;
         if (!_mainCamera) return;
 
@@ -44,12 +44,12 @@ public class ARManager : MonoBehaviour
 
     private void OnDestroy()
     {
-#if UNITY_ANDROID || UNITY_IOS
+#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
         EventManager.OnEditModeChanged -= EnablePlaneDetection;
 #endif
     }
 
-#if UNITY_ANDROID || UNITY_IOS
+#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
     private void EnablePlaneDetection(bool value)
     {
         _arPlaneManager.enabled = value;

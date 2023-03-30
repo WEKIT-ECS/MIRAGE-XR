@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public enum TrackingState
 {
@@ -7,21 +8,25 @@ public enum TrackingState
     Limited
 }
 
-public abstract class ImageTargetBase : MonoBehaviour
+public abstract class ImageTargetBase : MonoBehaviour, IImageTarget
 {
     protected ImageTargetModel _model;
     protected GameObject _targetObject;
     protected UnityEventImageTarget _onTargetFound = new UnityEventImageTarget();
     protected UnityEventImageTarget _onTargetLost = new UnityEventImageTarget();
 
+    public string imageTargetName => _model.name;
+
+    public GameObject targetObject => _targetObject;
+
     public UnityEventImageTarget onTargetFound => _onTargetFound;
 
     public UnityEventImageTarget onTargetLost => _onTargetLost;
 
-    public string imageName => _model.name;
-
     protected void OnStateChanged(TrackingState oldState, TrackingState newState)
     {
+        bool isFound;
+
         if (_model.useLimitedTracking)
         {
             if (oldState == newState
@@ -31,8 +36,7 @@ public abstract class ImageTargetBase : MonoBehaviour
                 return;
             }
 
-            _targetObject.SetActive(newState is TrackingState.Found or TrackingState.Limited);
-            _onTargetFound.Invoke(this);
+            isFound = newState is TrackingState.Found or TrackingState.Limited;
         }
         else
         {
@@ -43,7 +47,16 @@ public abstract class ImageTargetBase : MonoBehaviour
                 return;
             }
 
-            _targetObject.SetActive(newState is TrackingState.Found);
+            isFound = newState is TrackingState.Found;
+        }
+
+        _targetObject.SetActive(isFound);
+        if (isFound)
+        {
+            _onTargetFound.Invoke(this);
+        }
+        else
+        {
             _onTargetLost.Invoke(this);
         }
     }

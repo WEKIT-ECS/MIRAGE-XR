@@ -14,6 +14,8 @@ public class ImageTrackerManagerTest : MonoBehaviour
 
     private void Start()
     {
+        _wrapper.InitializationAsync().AsAsyncVoid();
+
         _addImageButton.onClick.AddListener(OnAddImageButtonClicked);
         _removeImageButton.onClick.AddListener(OnRemoveImageButtonClicked);
         _addImageButton.gameObject.SetActive(true);
@@ -22,8 +24,6 @@ public class ImageTrackerManagerTest : MonoBehaviour
 
     private void OnAddImageButtonClicked()
     {
-        _addImageButton.gameObject.SetActive(false);
-        _removeImageButton.gameObject.SetActive(true);
         AddImageTargetAsync().AsAsyncVoid();
     }
 
@@ -31,11 +31,17 @@ public class ImageTrackerManagerTest : MonoBehaviour
     {
         _addImageButton.gameObject.SetActive(true);
         _removeImageButton.gameObject.SetActive(false);
-        _wrapper.RemoveImageTarget(imageTargetName);
+        _wrapper.TryRemoveImageTarget(imageTargetName);
     }
 
     private async Task AddImageTargetAsync()
     {
-        imageTargetName = await _wrapper.AddImageTarget(_imageTargetModel);
+        bool result;
+        (result, imageTargetName) = await _wrapper.TryAddImageTarget(_imageTargetModel);
+        if (result)
+        {
+            _addImageButton.gameObject.SetActive(false);
+            _removeImageButton.gameObject.SetActive(true);
+        }
     }
 }

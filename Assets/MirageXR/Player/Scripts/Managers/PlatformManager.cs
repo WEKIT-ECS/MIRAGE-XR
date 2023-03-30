@@ -1,8 +1,5 @@
-﻿using i5.Toolkit.Core.VerboseLogging;
-using System;
+﻿using System;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.XR.ARFoundation;
 
 namespace MirageXR
 {
@@ -55,26 +52,6 @@ namespace MirageXR
             else if (Instance != this)
             {
                 Destroy(gameObject);
-            }
-        }
-
-        private void OnDisable()
-        {
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-        }
-
-        private void OnEnable()
-        {
-            SceneManager.sceneLoaded += OnSceneLoaded;
-        }
-
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            if (Application.platform == RuntimePlatform.WSAPlayerX86 || Application.platform == RuntimePlatform.WSAPlayerARM)
-            {
-                foreach (var arcm in Resources.FindObjectsOfTypeAll<ARCameraManager>()) Destroy(arcm);      //TODO: remove Resources.FindObjectsOfTypeAll
-                foreach (var arm in Resources.FindObjectsOfTypeAll<ARManager>()) Destroy(arm);
-                foreach (var ars in Resources.FindObjectsOfTypeAll<ARSession>()) Destroy(ars);
             }
         }
 
