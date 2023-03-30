@@ -1,11 +1,13 @@
 using DG.Tweening;
 using MirageXR;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ActivityView_v2 : BaseView
 {
     private const float HIDED_SIZE = 100f;
+    private const float HIDED_SIZE_FOR_HORIZONTAL_SCROLL = 230f;
     private const float HIDE_ANIMATION_TIME = 0.5f;
 
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
@@ -17,6 +19,12 @@ public class ActivityView_v2 : BaseView
     [SerializeField] private Toggle _toggleEdit;
     [SerializeField] private StepsListView_v2 _stepsListView;
     [SerializeField] private ContentListView_v2 _contentListView;
+    [Space]
+    [SerializeField] private GameObject _stepsVertical;
+    [SerializeField] private GameObject _stepsHorizontal;
+    [SerializeField] private GameObject _header;
+    [SerializeField] private RectTransform _tabs;
+    [SerializeField] private Toggle _toggleSteps;
 
     private SessionContainer _container;
     private int _infoStepNumber;
@@ -47,6 +55,9 @@ public class ActivityView_v2 : BaseView
         _panelSize = _panel.sizeDelta;
 
         EventManager.OnEditModeChanged += OnEditModeChanged;
+
+        _stepsVertical.SetActive(true);
+        _stepsHorizontal.SetActive(false);
 
         UpdateView();
     }
@@ -100,11 +111,18 @@ public class ActivityView_v2 : BaseView
     {
         if (_arrowDown.activeSelf)
         {
-            _panel.DOSizeDelta(new Vector2(_panelSize.x, -_panel.rect.height + HIDED_SIZE), HIDE_ANIMATION_TIME);
+            var hidedSize = HIDED_SIZE;
+            if (_toggleSteps.isOn)
+            {
+                hidedSize = HIDED_SIZE_FOR_HORIZONTAL_SCROLL;
+            }
+
+            _panel.DOSizeDelta(new Vector2(_panelSize.x, -_panel.rect.height + hidedSize), HIDE_ANIMATION_TIME);
             _arrowDown.SetActive(false);
             _arrowUp.SetActive(true);
             rootView.bottomPanelView.Hide();
             rootView.bottomNavigationArrowsView.Show();
+            StartCoroutine(ShowHorizontalScroll(HIDE_ANIMATION_TIME, true));
         }
         else
         {
@@ -113,6 +131,30 @@ public class ActivityView_v2 : BaseView
             _arrowUp.SetActive(false);
             rootView.bottomPanelView.Show();
             rootView.bottomNavigationArrowsView.Hide();
+            StartCoroutine(ShowHorizontalScroll(0.1f, false));
+        }
+    }
+
+    private IEnumerator ShowHorizontalScroll(float delay, bool value)
+    {
+        if (_toggleSteps.isOn)
+        {
+            yield return new WaitForSeconds(delay);
+
+            _stepsVertical.SetActive(!value);
+            _stepsHorizontal.SetActive(value);
+            _header.SetActive(!value);
+
+            if (value)
+            {
+                _stepsListView.MoveStepsToHorizontalScroll();
+                _tabs.offsetMax = new Vector2(0f, 0f);
+            }
+            else
+            {
+                _stepsListView.MoveStepsToVerticalScroll();
+                _tabs.offsetMax = new Vector2(0, -300f);
+            }
         }
     }
 
