@@ -9,6 +9,7 @@ using UnityEngine.UI;
 using System;
 using TMPro;
 using i5.Toolkit.Core.VerboseLogging;
+using System.IO;
 
 public class ActivityListView_v2 : BaseView
 {
@@ -143,19 +144,54 @@ public class ActivityListView_v2 : BaseView
         });
     }
 
-    public void TutorialActivtyCard(bool on)
+    public async void TutorialActivtyCard(bool on)
     {
+        //checks if the first activity in the list is already the turotial
         var firstContentIsTutorial = _content[0].Name == "Tutorial Activity" ? true : false;
 
         if (on && !firstContentIsTutorial)
         {
-            var activity = LocalFiles.GetTutorialActivity();
+            Activity tutorialActivity = null;
+            var list = await LocalFiles.GetDownloadedActivities();
 
-            var sessionContatiner = new SessionContainer { Activity = activity };
+            //checks if the tutorial is already in the local files
+            list.ForEach(t =>
+            {
+                if (t.id == "session-2023-02-24_11-18-29")
+                {
+                    tutorialActivity = t;
+                }
+            });
 
-            _content.Insert(0, sessionContatiner);
+            //extracts the turorial zip file out of streaming assets folder and unpacks it into local files
+            if (tutorialActivity == null)
+            {
+                var path = Path.Combine(Application.streamingAssetsPath, "TutorialActivity.zip");
 
+                var stream = new FileStream(path, FileMode.Open);
+
+                await ZipUtilities.ExtractZipFileAsync(stream, Application.persistentDataPath);
+
+                list = await LocalFiles.GetDownloadedActivities();
+
+                list.ForEach(t =>
+                {
+                    if (t.id == "session-2023-02-24_11-18-29")
+                    {
+                        tutorialActivity = t;
+                    }
+                });
+            }
+
+            //if the tutorial has been moved to local file correctly create a session container for it
+            if (tutorialActivity != null)
+            {
+                var sessionContatiner = new SessionContainer { Activity = tutorialActivity };
+
+                _content.Insert(0, sessionContatiner);
+            }
         }
+        //removes the tutrial session container from the top of the list
         else if (!on && firstContentIsTutorial)
         {
             _content.RemoveAt(0);
