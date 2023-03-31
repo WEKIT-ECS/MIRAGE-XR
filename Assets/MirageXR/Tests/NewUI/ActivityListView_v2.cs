@@ -10,6 +10,8 @@ using System;
 using TMPro;
 using i5.Toolkit.Core.VerboseLogging;
 using System.IO;
+using UnityEngine.Networking;
+using System.Collections;
 
 public class ActivityListView_v2 : BaseView
 {
@@ -142,62 +144,6 @@ public class ActivityListView_v2 : BaseView
             item.Init(content);
             _items.Add(item);
         });
-    }
-
-    public async void TutorialActivtyCard(bool on)
-    {
-        //checks if the first activity in the list is already the turotial
-        var firstContentIsTutorial = _content[0].Name == "Tutorial Activity" ? true : false;
-
-        if (on && !firstContentIsTutorial)
-        {
-            Activity tutorialActivity = null;
-            var list = await LocalFiles.GetDownloadedActivities();
-
-            //checks if the tutorial is already in the local files
-            list.ForEach(t =>
-            {
-                if (t.id == "session-2023-02-24_11-18-29")
-                {
-                    tutorialActivity = t;
-                }
-            });
-
-            //extracts the turorial zip file out of streaming assets folder and unpacks it into local files
-            if (tutorialActivity == null)
-            {
-                var path = Path.Combine(Application.streamingAssetsPath, "TutorialActivity.zip");
-
-                var stream = new FileStream(path, FileMode.Open);
-
-                await ZipUtilities.ExtractZipFileAsync(stream, Application.persistentDataPath);
-
-                list = await LocalFiles.GetDownloadedActivities();
-
-                list.ForEach(t =>
-                {
-                    if (t.id == "session-2023-02-24_11-18-29")
-                    {
-                        tutorialActivity = t;
-                    }
-                });
-            }
-
-            //if the tutorial has been moved to local file correctly create a session container for it
-            if (tutorialActivity != null)
-            {
-                var sessionContatiner = new SessionContainer { Activity = tutorialActivity };
-
-                _content.Insert(0, sessionContatiner);
-            }
-        }
-        //removes the tutrial session container from the top of the list
-        else if (!on && firstContentIsTutorial)
-        {
-            _content.RemoveAt(0);
-        }
-
-        UpdateView();
     }
 
     private void OnByDateClick()
@@ -345,5 +291,88 @@ public class ActivityListView_v2 : BaseView
         }
 
         return dictionary;
+    }
+
+    public async void TutorialActivtyCard(bool on)
+    {
+        //checks if the first activity in the list is already the turotial
+        var firstContentIsTutorial = _content[0].Name == "Tutorial Activity" ? true : false;
+
+        if (on && !firstContentIsTutorial)
+        {
+            Activity tutorialActivity = null;
+            var list = await LocalFiles.GetDownloadedActivities();
+
+            //checks if the tutorial is already in the local files
+            list.ForEach(t =>
+            {
+                if (t.id == "session-2023-02-24_11-18-29")
+                {
+                    tutorialActivity = t;
+                }
+            });
+
+            //If the tutorial isnt in the local files extract and unpack the tutorial zip from streaming assets
+            if (tutorialActivity == null)
+            {
+#if UNITY_ANDROID
+                StartCoroutine(MoveTutorialActivityToLocalFilesAndroid());
+#elif UNITY_IOS
+                MoveTutorialActivityToLocalFilesIOS();
+#endif
+            }
+            //Else create the session container for the tutorial activity at the top of the list
+            else
+            {
+                var sessionContatiner = new SessionContainer { Activity = tutorialActivity };
+
+                _content.Insert(0, sessionContatiner);
+                UpdateView();
+            }
+        }
+        //if the tutorial activity is at the top of the acivity list, remove it
+        else if (!on && firstContentIsTutorial)
+        {
+            _content.RemoveAt(0);
+            UpdateView();
+        }
+    }
+
+    private IEnumerator MoveTutorialActivityToLocalFilesAndroid()
+    {
+        using (UnityWebRequest www = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "TutorialActivity.zip")))
+        {
+            yield return www.Send();
+
+            MoveAndUnpackTutorialZipFileAndroid(www);
+        }
+    }
+
+    public async void MoveAndUnpackTutorialZipFileAndroid(UnityWebRequest www)
+    {
+        string savePath = Path.Combine(Application.persistentDataPath, "TutorialActivity.zip");
+
+        var stream = new FileStream(savePath, FileMode.OpenOrCreate);
+
+        await stream.WriteAsync(www.downloadHandler.data);
+
+        await ZipUtilities.ExtractZipFileAsync(stream, Application.persistentDataPath);
+
+        stream.Close();
+
+        File.Delete(savePath);
+
+        TutorialActivtyCard(true);
+    }
+
+    public async void MoveTutorialActivityToLocalFilesIOS()
+    {
+        var stream = new FileStream(Path.Combine(Application.streamingAssetsPath, "TutorialActivity.zip"), FileMode.OpenOrCreate);
+
+        await ZipUtilities.ExtractZipFileAsync(stream, Application.persistentDataPath);
+
+        stream.Close();
+
+        TutorialActivtyCard(true);
     }
 }
