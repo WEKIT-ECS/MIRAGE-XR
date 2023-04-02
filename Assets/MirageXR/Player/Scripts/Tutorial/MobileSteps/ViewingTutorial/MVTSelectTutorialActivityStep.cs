@@ -10,12 +10,16 @@ namespace MirageXR
         protected override void SecuredEnterStep()
         {
             ActivityListView_v2 alv = RootView_v2.Instance.activityListView;
-            ActivityListItem_v2 tmp = alv.GetComponent<ActivityListItem_v2>();
+            // Here it is necessary that the Tutorial Activity is the first in the list
+            ActivityListItem_v2 tutorialActivityCard = alv.GetComponentsInChildren<ActivityListItem_v2>()[0];
+            string name = tutorialActivityCard.activityName;
 
-            TutorialItem titem = new TutorialItem();
+            TutorialItem titem = tutorialActivityCard.gameObject.AddComponent(typeof(TutorialItem)) as TutorialItem;
+            titem.Id = "tutorial_activity";
+            titem.InteractableObject = tutorialActivityCard.gameObject;
 
             var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { id = "", message = "Click the first activity.", position = TutorialModel.MessagePosition.Bottom });
+            queue.Enqueue(new TutorialModel { id = "tutorial_activity", message = "Click the first activity.", position = TutorialModel.MessagePosition.Bottom });
             this.manager.MobileTutorial.Show(queue);
         }
 
