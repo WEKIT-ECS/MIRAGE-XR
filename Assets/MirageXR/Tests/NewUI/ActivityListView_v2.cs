@@ -293,9 +293,10 @@ public class ActivityListView_v2 : BaseView
         return dictionary;
     }
 
-    public async Task TutorialActivtyCard(bool on)
+    public async Task TutorialActivityCard(bool on)
     {
         //checks if the first activity in the list is already the turotial
+        // TODO: Perhaps we should forbid naming activities "Tutorial Activity" to prevent conflict
         var firstContentIsTutorial = _content[0].Name == "Tutorial Activity" ? true : false;
 
         if (on && !firstContentIsTutorial)
@@ -362,7 +363,7 @@ public class ActivityListView_v2 : BaseView
 
         File.Delete(savePath);
 
-        TutorialActivtyCard(true);
+        TutorialActivityCard(true);
     }
 
     public async void MoveTutorialActivityToLocalFilesIOS()
@@ -373,6 +374,6 @@ public class ActivityListView_v2 : BaseView
 
         stream.Close();
 
-        TutorialActivtyCard(true);
+        TutorialActivityCard(true);
     }
 }

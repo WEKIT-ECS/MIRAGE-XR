@@ -14,7 +14,7 @@ public class TutorialItem : MonoBehaviour
     private bool _isTrackingActivated;
     private Transform _traceable;
 
-    public Button button => InteractableObject.GetComponent<Button>();
+    public Button button => InteractableObject.GetComponentInChildren<Button>();
 
     public Toggle toggle => InteractableObject.GetComponent<Toggle>();
 

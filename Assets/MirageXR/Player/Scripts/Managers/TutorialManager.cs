@@ -366,7 +366,8 @@ namespace MirageXR
             }
 
             ActivityListView_v2 alv = RootView_v2.Instance.activityListView;
-            await alv.TutorialActivtyCard(true);
+            await alv.TutorialActivityCard(true);
+            await Task.Delay(100);
 
             _steps.Clear();
             _steps.Add(new MVTSelectTutorialActivityStep());
