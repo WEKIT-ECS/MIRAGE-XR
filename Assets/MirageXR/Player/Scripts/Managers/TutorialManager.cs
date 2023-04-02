@@ -52,7 +52,7 @@ namespace MirageXR
         private List<HelpSelection> _helpSelections;
         private int _currentHelpSelection;
 
-        private Tutorial _mobileTutorial;
+        public Tutorial MobileTutorial { get; private set; }
         private bool _isInEditMode;
 
         /// <summary>
@@ -291,9 +291,9 @@ namespace MirageXR
             this.StartTutorial(TutorialType.MOBILE_VIEWING);
             //////////////////////////
             ///
-            if (_mobileTutorial == null)
+            if (MobileTutorial == null)
             {
-                _mobileTutorial = RootView_v2.Instance.Tutorial;
+                MobileTutorial = RootView_v2.Instance.Tutorial;
             }
 
             bool isEditModeOn = RootObject.Instance.activityManager.EditModeActive;
@@ -303,27 +303,27 @@ namespace MirageXR
             {
                 case RootView_v2.HelpPage.Home:
                     HelpSelectionActivitySelection hsas = new HelpSelectionActivitySelection();
-                    hsas.Init(popup, _mobileTutorial);
+                    hsas.Init(popup, MobileTutorial);
                     break;
                 case RootView_v2.HelpPage.ActivitySteps:
                     HelpSelectionNewActivity hsna = new HelpSelectionNewActivity();
-                    hsna.Init(popup, _mobileTutorial, isEditModeOn);
+                    hsna.Init(popup, MobileTutorial, isEditModeOn);
                     break;
                 case RootView_v2.HelpPage.ActivityInfo:
                     HelpSelectionActivityInfo hsai = new HelpSelectionActivityInfo();
-                    hsai.Init(popup, _mobileTutorial);
+                    hsai.Init(popup, MobileTutorial);
                     break;
                 case RootView_v2.HelpPage.ActivityCalibration:
                     HelpSelectionActivityCalibration hsac = new HelpSelectionActivityCalibration();
-                    hsac.Init(popup, _mobileTutorial);
+                    hsac.Init(popup, MobileTutorial);
                     break;
                 case RootView_v2.HelpPage.ActionAugmentations:
                     HelpSelectionActionAugmentations hsaa = new HelpSelectionActionAugmentations();
-                    hsaa.Init(popup, _mobileTutorial, isEditModeOn);
+                    hsaa.Init(popup, MobileTutorial, isEditModeOn);
                     break;
                 case RootView_v2.HelpPage.ActionInfo:
                     HelpSelectionActionInfo hsaci = new HelpSelectionActionInfo();
-                    hsaci.Init(popup, _mobileTutorial);
+                    hsaci.Init(popup, MobileTutorial);
                     break;
                 case RootView_v2.HelpPage.ActionMarker:
                     // TODO: maybe add something here?
@@ -333,9 +333,9 @@ namespace MirageXR
 
         public void StartNewMobileEditingTutorial()
         {
-            if (_mobileTutorial == null)
+            if (MobileTutorial == null)
             {
-                _mobileTutorial = RootView_v2.Instance.Tutorial;
+                MobileTutorial = RootView_v2.Instance.Tutorial;
             }
 
             var queue = new Queue<TutorialModel>();
@@ -352,7 +352,7 @@ namespace MirageXR
             queue.Enqueue(new TutorialModel { id = "step_augmentations", message = "Finally, lets add some content to our Step. To do so, tap the Augmentations tab.", position = TutorialModel.MessagePosition.Middle, btnText = "Skip" });
             queue.Enqueue(new TutorialModel { id = "step_add_augmentation", message = "Augmentations represent different AR content for our users. A list of possible augmentations can be seen by tapping the plus button.", position = TutorialModel.MessagePosition.Bottom, btnText = "Skip" });
             queue.Enqueue(new TutorialModel { message = "Here you can choose any of the available augmentations to add to the step. More information on each augmentation is available on their info page. This concludes the tutorial, have fun exploring!", position = TutorialModel.MessagePosition.Middle, btnText = "Got it" });
-            _mobileTutorial.Show(queue);
+            MobileTutorial.Show(queue);
         }
     }
 }
