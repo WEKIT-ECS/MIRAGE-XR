@@ -293,7 +293,7 @@ public class ActivityListView_v2 : BaseView
         return dictionary;
     }
 
-    public async void TutorialActivtyCard(bool on)
+    public async Task TutorialActivtyCard(bool on)
     {
         //checks if the first activity in the list is already the turotial
         var firstContentIsTutorial = _content[0].Name == "Tutorial Activity" ? true : false;

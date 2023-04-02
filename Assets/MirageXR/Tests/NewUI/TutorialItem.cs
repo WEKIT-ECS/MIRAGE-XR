@@ -6,23 +6,21 @@ public class TutorialItem : MonoBehaviour
 {
     private const float THRESHOLD_CHANGE = 0.05f;
 
-    [SerializeField] private string _id;
-    [SerializeField] private GameObject _interactableObject;
-    [SerializeField] private bool _isPartOfScrollView;
+    public string Id;
+    public GameObject InteractableObject;
+    public bool IsPartOfScrollView;
 
     private Vector3 _lastTraceablePosition;
     private bool _isTrackingActivated;
     private Transform _traceable;
 
-    public string id => _id;
+    public Button button => InteractableObject.GetComponent<Button>();
 
-    public Button button => _interactableObject.GetComponent<Button>();
+    public Toggle toggle => InteractableObject.GetComponent<Toggle>();
 
-    public Toggle toggle => _interactableObject.GetComponent<Toggle>();
+    public TMP_InputField inputField => InteractableObject.GetComponent<TMP_InputField>();
 
-    public TMP_InputField inputField => _interactableObject.GetComponent<TMP_InputField>();
-
-    public bool isPartOfScrollView => _isPartOfScrollView;
+    public bool isPartOfScrollView => IsPartOfScrollView;
 
     private void Update()
     {
@@ -59,7 +57,7 @@ public class TutorialItem : MonoBehaviour
 
     public void ScrollToTop()
     {
-        if (_isPartOfScrollView)
+        if (IsPartOfScrollView)
         {
             var scrollRect = GetComponentInParent<ScrollRect>();
             if (scrollRect)

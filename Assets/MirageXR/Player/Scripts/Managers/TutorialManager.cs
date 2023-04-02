@@ -1,5 +1,6 @@
 using i5.Toolkit.Core.VerboseLogging;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace MirageXR
@@ -290,7 +291,7 @@ namespace MirageXR
             //TODO: Remove
             this.StartTutorial(TutorialType.MOBILE_VIEWING);
             //////////////////////////
-            ///
+            //
             if (MobileTutorial == null)
             {
                 MobileTutorial = RootView_v2.Instance.Tutorial;
@@ -345,7 +346,7 @@ namespace MirageXR
             queue.Enqueue(new TutorialModel { id = "activity_description", message = "Activity descriptions help users understand what an activity is about. To add one, we can tap on the field below.", position = TutorialModel.MessagePosition.Middle, btnText = "Skip" });
             queue.Enqueue(new TutorialModel { id = "activity_steps", message = "Now we're going to add some steps to our activity. Tap the Steps tab to continue.", position = TutorialModel.MessagePosition.Middle, btnText = "Skip" });
             queue.Enqueue(new TutorialModel { id = "activity_add_step", message = "Activities consist of steps, which hold content for users to experience. Let's create a new step by tapping the plus button below.", position = TutorialModel.MessagePosition.Top, btnText = "Skip" });
-            queue.Enqueue(new TutorialModel { id = "step_edit_step", message = "Empty steps aren't really entertaining. Let's add some content to our step by tapping the Edit Step button.", position = TutorialModel.MessagePosition.Bottom, btnText = "Skip" });
+            queue.Enqueue(new TutorialModel { id = "activity_edit_step", message = "Empty steps aren't really entertaining. Let's add some content to our step by tapping the Edit Step button.", position = TutorialModel.MessagePosition.Bottom, btnText = "Skip" });
             queue.Enqueue(new TutorialModel { id = "step_info", message = "First let's name and describe our step so users know what to expect. Tap the Info tab to continue.", position = TutorialModel.MessagePosition.Middle, btnText = "Skip" });
             queue.Enqueue(new TutorialModel { id = "step_title", message = "Just like with the Activity, we should add a title...", position = TutorialModel.MessagePosition.Bottom, btnText = "Skip" });
             queue.Enqueue(new TutorialModel { id = "step_description", message = "...and a description to our step.", position = TutorialModel.MessagePosition.Bottom, btnText = "Skip" });
@@ -353,6 +354,26 @@ namespace MirageXR
             queue.Enqueue(new TutorialModel { id = "step_add_augmentation", message = "Augmentations represent different AR content for our users. A list of possible augmentations can be seen by tapping the plus button.", position = TutorialModel.MessagePosition.Bottom, btnText = "Skip" });
             queue.Enqueue(new TutorialModel { message = "Here you can choose any of the available augmentations to add to the step. More information on each augmentation is available on their info page. This concludes the tutorial, have fun exploring!", position = TutorialModel.MessagePosition.Middle, btnText = "Got it" });
             MobileTutorial.Show(queue);
+        }
+
+
+
+        public async void StartNewMobileViewingTutorial()
+        {
+            if (MobileTutorial == null)
+            {
+                MobileTutorial = RootView_v2.Instance.Tutorial;
+            }
+
+            ActivityListView_v2 alv = RootView_v2.Instance.activityListView;
+            await alv.TutorialActivtyCard(true);
+
+            _steps.Clear();
+            _steps.Add(new MVTSelectTutorialActivityStep());
+            _currentStepNumber = -1;
+
+            NextStep();
+
         }
     }
 }
