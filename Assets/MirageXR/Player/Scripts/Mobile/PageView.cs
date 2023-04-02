@@ -65,7 +65,9 @@ public class PageView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
 
     public void MoveNext()
     {
-        currentPageIndex += 1;
+        //TODO: Replace back
+        //currentPageIndex += 1;
+        currentPageIndex = 4;
     }
 
     public void OnBeginDrag(PointerEventData eventData)

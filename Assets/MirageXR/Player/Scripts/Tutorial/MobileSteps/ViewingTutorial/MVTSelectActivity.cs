@@ -5,15 +5,10 @@ using UnityEngine;
 namespace MirageXR
 {
 
-    public class MVTSelectTutorialActivityStep : TutorialStep
+    public class MVTSelectActivity : TutorialStep
     {
         protected override void SecuredEnterStep()
         {
-            ActivityListView_v2 alv = RootView_v2.Instance.activityListView;
-            ActivityListItem_v2 tmp = alv.GetComponent<ActivityListItem_v2>();
-
-            TutorialItem titem = new TutorialItem();
-
             var queue = new Queue<TutorialModel>();
             queue.Enqueue(new TutorialModel { id = "", message = "Click the first activity.", position = TutorialModel.MessagePosition.Bottom });
             this.manager.MobileTutorial.Show(queue);
