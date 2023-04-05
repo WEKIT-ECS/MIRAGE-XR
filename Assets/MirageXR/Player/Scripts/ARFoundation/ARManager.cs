@@ -30,8 +30,17 @@ public class ARManager : MonoBehaviour
 
         var cameraParent = _mainCamera.transform.parent.gameObject;
 
-        _arPlaneManager = cameraParent.AddComponent<ARPlaneManager>();
-        _arPointCloudManager = cameraParent.AddComponent<ARPointCloudManager>();
+        _arPlaneManager = cameraParent.GetComponent<ARPlaneManager>();
+        if (!_arPlaneManager)
+        {
+            _arPlaneManager = cameraParent.AddComponent<ARPlaneManager>();
+        }
+
+        _arPointCloudManager = cameraParent.GetComponent<ARPointCloudManager>();
+        if (!_arPointCloudManager)
+        {
+            _arPointCloudManager = cameraParent.AddComponent<ARPointCloudManager>();
+        }
 
         _arPlaneManager.planePrefab = _prefabPlace;
         _arPointCloudManager.pointCloudPrefab = _prefabPointCloud;

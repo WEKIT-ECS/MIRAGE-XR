@@ -3,7 +3,6 @@ using System.IO;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
-using Vuforia;
 using Image = UnityEngine.UI.Image;
 
 public class ThumbnailEditorView : PopupBase
@@ -30,6 +29,7 @@ public class ThumbnailEditorView : PopupBase
         {
             return false;
         }
+
         try
         {
             _imagePath = (string)args[1];
@@ -76,14 +76,18 @@ public class ThumbnailEditorView : PopupBase
 
     private void CaptureImage()
     {
-        VuforiaBehaviour.Instance.enabled = false;
+        RootObject.Instance.imageTargetManager.enabled = false;
         NativeCameraController.TakePicture(OnPictureTaken);
     }
 
     private void OnPictureTaken(bool result, Texture2D texture2D)
     {
-        VuforiaBehaviour.Instance.enabled = true;
-        if (!result) return;
+        RootObject.Instance.imageTargetManager.enabled = true;
+        if (!result)
+        {
+            return;
+        }
+
         SetPreview(texture2D);
     }
 
@@ -97,7 +101,7 @@ public class ThumbnailEditorView : PopupBase
 
         var rtImageHolder = (RectTransform)_imageHolder.transform;
         var rtImage = (RectTransform)_image.transform;
-        var height = rtImage.rect.width / _texture2D.width * _texture2D.height + (rtImage.sizeDelta.y * -1);
+        var height = (rtImage.rect.width / _texture2D.width * _texture2D.height) + (rtImage.sizeDelta.y * -1);
         rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
 
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);

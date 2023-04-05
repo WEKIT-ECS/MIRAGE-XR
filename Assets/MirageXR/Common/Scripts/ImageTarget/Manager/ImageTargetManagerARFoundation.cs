@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
@@ -26,6 +27,79 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
         _isInitialized = true;
 
         return true;
+    }
+
+    public override async Task<ImageTargetBase> AddImageTarget(ImageTargetModel imageTargetModel, CancellationToken cancellationToken = default)
+    {
+        if (!_arTrackedImageManager.descriptor.supportsMutableLibrary ||
+            _arTrackedImageManager.referenceLibrary is not MutableRuntimeReferenceImageLibrary mutableLibrary)
+        {
+            throw new Exception("The reference image library is not mutable.");
+        }
+
+        var alreadyExists = false;
+
+        if (_map.ContainsKey(imageTargetModel.name))
+        {
+            if (imageTargetModel.texture2D == _map[imageTargetModel.name].texture2D)
+            {
+                alreadyExists = true;
+            }
+            else
+            {
+                _map.Remove(imageTargetModel.name);
+            }
+        }
+
+        if (!alreadyExists)
+        {
+            _map.Add(imageTargetModel.name, imageTargetModel);
+            var job = mutableLibrary.ScheduleAddImageWithValidationJob(imageTargetModel.texture2D, imageTargetModel.name, imageTargetModel.width);
+            while (job.status is AddReferenceImageJobStatus.Pending or AddReferenceImageJobStatus.None)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    _map.Remove(imageTargetModel.name);
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+
+                await Task.Yield();
+            }
+        }
+
+        _arTrackedImageManager.requestedMaxNumberOfMovingImages += 1;
+
+        while (!_images.ContainsKey(imageTargetModel.name))
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                _map.Remove(imageTargetModel.name);
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+
+            await Task.Yield();
+        }
+
+        return _images[imageTargetModel.name];
+    }
+
+    public override void RemoveImageTarget(ImageTargetBase imageTarget)
+    {
+        if (!_images.ContainsKey(imageTarget.imageTargetName))
+        {
+            return;
+        }
+
+        if (imageTarget.targetObject)
+        {
+            Destroy(imageTarget.targetObject);
+        }
+
+        _arTrackedImageManager.requestedMaxNumberOfMovingImages -= 1;
+        imageTarget.gameObject.SetActive(false);
+        Destroy(imageTarget); // right now the api doesn't allow us to delete the object itself
+        _map.Remove(imageTarget.imageTargetName);
+        _images.Remove(imageTarget.imageTargetName);
     }
 
     private async Task<bool> ARFoundationInitialization()
@@ -103,12 +177,13 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
         {
             if (!_map.ContainsKey(image.referenceImage.name))
             {
+                image.gameObject.SetActive(false);
                 return;
             }
 
             var model = _map[image.referenceImage.name];
             var imageTarget = image.gameObject.AddComponent<ImageTargetARFoundation>();
-            _images.Add(imageTarget);
+            _images.Add(image.referenceImage.name, imageTarget);
             imageTarget.Initialization(model);
             imageTarget.onTargetFound.AddListener(value => onTargetFound.Invoke(value));
             imageTarget.onTargetLost.AddListener(value => onTargetLost.Invoke(value));
@@ -119,7 +194,7 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
         foreach (var image in eventArgs.removed)
         {
             var imageTarget = image.GetComponent<ImageTargetARFoundation>();
-            _images.Remove(imageTarget);
+            _images.Remove(image.referenceImage.name);
             Destroy(imageTarget);
         }
     }
@@ -137,30 +212,6 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
         if (_isInitialized)
         {
             _arTrackedImageManager.enabled = false;
-        }
-    }
-
-    public override async Task AddImageTarget(ImageTargetModel imageTargetModel)
-    {
-        if (_arTrackedImageManager.descriptor.supportsMutableLibrary && _arTrackedImageManager.referenceLibrary is MutableRuntimeReferenceImageLibrary mutableLibrary)
-        {
-            if (_map.ContainsKey(imageTargetModel.name))
-            {
-                imageTargetModel.name = $"{imageTargetModel.name}_{Guid.NewGuid()}";
-            }
-
-            _map.Add(imageTargetModel.name, imageTargetModel);
-            var job = mutableLibrary.ScheduleAddImageWithValidationJob(imageTargetModel.texture2D, imageTargetModel.name, imageTargetModel.width);
-            while (job.status is AddReferenceImageJobStatus.Pending or AddReferenceImageJobStatus.None)
-            {
-                await Task.Yield();
-            }
-
-            _arTrackedImageManager.requestedMaxNumberOfMovingImages += 1;
-        }
-        else
-        {
-            throw new Exception("The reference image library is not mutable.");
         }
     }
 }

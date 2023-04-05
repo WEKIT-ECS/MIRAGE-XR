@@ -3,11 +3,9 @@ using i5.Toolkit.Core.VerboseLogging;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using UnityEngine;
-using Vuforia;
 using Object = UnityEngine.Object;
 
 namespace MirageXR
@@ -196,16 +194,9 @@ namespace MirageXR
                             continue;
                         }
 
-                        // Get detectable behaviour of the detectable...
                         var detectableBehaviour = detectable.gameObject.GetComponent<DetectableBehaviour>();
-
-                        // Attach this thing to the detectable defined in the workplace file
                         detectableBehaviour.AttachedObject = temp;
-
-                        // Set raw tracking style.
                         detectableBehaviour.Style = DetectableBehaviour.TrackingStyle.Raw;
-
-
                         detectableBehaviour.IsDetectableReady = true;
                     }
 
@@ -338,15 +329,9 @@ namespace MirageXR
                             continue;
                         }
 
-                        // Get detectable behaviour of the detectable...
                         var detectableBehaviour = detectable.gameObject.GetComponent<DetectableBehaviour>();
-
-                        // Attach this thing to the detectable defined in the workplace file
                         detectableBehaviour.AttachedObject = temp;
-
-                        // Set raw tracking style.
                         detectableBehaviour.Style = DetectableBehaviour.TrackingStyle.Raw;
-
                         detectableBehaviour.IsDetectableReady = true;
                     }
                 }
@@ -437,7 +422,6 @@ namespace MirageXR
                         anchorFrame.transform.localScale = Vector3.one;
                     }
 
-                    // And finally add and configure detectable behaviour
                     var anchorBehaviour = anchorFrame.AddComponent<DetectableBehaviour>();
                     anchorBehaviour.Type = DetectableBehaviour.TrackableType.Anchor;
                     anchorBehaviour.IsDetectableReady = true;
@@ -457,7 +441,9 @@ namespace MirageXR
                 // Vuforia image targets.
                 case "image":
                 {
-                    var path = Path.Combine(Application.persistentDataPath, workplaceManager.workplace.id, "/detectables/", detectable.id, detectable.id, ".xml");
+                    AppLog.LogError("Support for Vuforia image targets has been removed");
+
+                    /*var path = Path.Combine(Application.persistentDataPath, workplaceManager.workplace.id, "/detectables/", detectable.id, detectable.id, ".xml");
 
                     AppLog.LogDebug("VUFORIA PATH: " + path);
 
@@ -545,7 +531,7 @@ namespace MirageXR
                         detectableBehaviour.Type = DetectableBehaviour.TrackableType.Image;
                         detectableBehaviour.Dataset = dataSet;
                         detectableBehaviour.IsDetectableReady = true;
-                    }
+                    }*/
 
                     break;
                 }
@@ -623,15 +609,9 @@ namespace MirageXR
                     continue;
                 }
 
-                // Get detectable behaviour of the detectable...
                 var detectableBehaviour = detectable.gameObject.GetComponent<DetectableBehaviour>();
-
-                // Attach this thing to the detectable defined in the workplace file
                 detectableBehaviour.AttachedObject = temp;
-
-                // Set raw tracking style.
                 detectableBehaviour.Style = DetectableBehaviour.TrackingStyle.Raw;
-
                 detectableBehaviour.IsDetectableReady = true;
             }
         }
@@ -646,7 +626,9 @@ namespace MirageXR
             {
                 // Use the CSV format if available.
                 if (!string.IsNullOrEmpty(poi.offset))
+                {
                     poiTemp.transform.localPosition = Utilities.ParseStringToVector3(poi.offset);
+                }
             }
 
             // Parse offset from separate values.

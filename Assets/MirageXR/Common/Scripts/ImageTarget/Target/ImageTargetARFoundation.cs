@@ -24,7 +24,6 @@ public class ImageTargetARFoundation : ImageTargetBase
 
         if (_state != _image.trackingState)
         {
-            Debug.Log($"{name}_old: {_state} new: {_image.trackingState}");
             OnStateChanged(ToTrackingState(_state), ToTrackingState(_image.trackingState));
             _state = _image.trackingState;
         }

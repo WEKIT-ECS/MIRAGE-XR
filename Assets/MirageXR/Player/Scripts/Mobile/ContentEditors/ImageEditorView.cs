@@ -3,7 +3,6 @@ using System.IO;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
-using Vuforia;
 using Image = UnityEngine.UI.Image;
 
 public class ImageEditorView : PopupEditorBase
@@ -107,13 +106,13 @@ public class ImageEditorView : PopupEditorBase
 
     private void CaptureImage()
     {
-        VuforiaBehaviour.Instance.enabled = false;
+        RootObject.Instance.imageTargetManager.enabled = false;
         NativeCameraController.TakePicture(OnPictureTaken);
     }
 
     private void OnPictureTaken(bool result, Texture2D texture2D)
     {
-        VuforiaBehaviour.Instance.enabled = true;
+        RootObject.Instance.imageTargetManager.enabled = true;
         if (!result)
         {
             return;
