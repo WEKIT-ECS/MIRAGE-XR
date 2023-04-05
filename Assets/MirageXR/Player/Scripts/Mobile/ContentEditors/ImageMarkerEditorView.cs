@@ -5,7 +5,6 @@ using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Vuforia;
 using Image = UnityEngine.UI.Image;
 
 public class ImageMarkerEditorView : PopupEditorBase
@@ -101,14 +100,18 @@ public class ImageMarkerEditorView : PopupEditorBase
 
     private void CaptureImage()
     {
-        VuforiaBehaviour.Instance.enabled = false;
+        RootObject.Instance.imageTargetManager.enabled = false;
         NativeCameraController.TakePicture(OnPictureTaken);
     }
 
     private void OnPictureTaken(bool result, Texture2D texture2D)
     {
-        VuforiaBehaviour.Instance.enabled = true;
-        if (!result) return;
+        RootObject.Instance.imageTargetManager.enabled = true;
+        if (!result)
+        {
+            return;
+        }
+
         SetPreview(texture2D);
     }
 

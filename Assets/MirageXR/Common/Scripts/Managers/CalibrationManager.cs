@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
@@ -26,13 +27,14 @@ public class CalibrationManager : MonoBehaviour
 
     public float animationTime => ANIMATION_TIME;
 
+    private CancellationTokenSource _tokenSource;
+    private CancellationToken _token;
     private Transform _anchor;
     private ImageTargetModel _imageTargetModel;
-    private string _targetName;
+    private IImageTarget _imageTarget;
     private bool _isEnabled;
     private bool _isRecalibration;
     private CalibrationTool _calibrationTool;
-
 
     public void Initialization()
     {
@@ -59,15 +61,36 @@ public class CalibrationManager : MonoBehaviour
             return;
         }
 
-        bool result;
-        (result, _targetName) = await imageTargetManager.TryAddImageTarget(_imageTargetModel);
-        if (result)
+        if (_tokenSource != null)
         {
-            imageTargetManager.onTargetCreated.AddListener(OnImageTargetCreated);
+            _tokenSource.Cancel();
+            _tokenSource.Dispose();
+            _tokenSource = null;
+            Task.Yield();
         }
+
+        _tokenSource = new CancellationTokenSource();
+        _token = _tokenSource.Token;
 
         _isRecalibration = isRecalibration;
         _isEnabled = true;
+
+        _imageTarget = await imageTargetManager.AddImageTarget(_imageTargetModel, _token);
+        if (_imageTarget != null)
+        {
+            if (_isEnabled)
+            {
+                OnImageTargetCreated(_imageTarget);
+            }
+            else
+            {
+                imageTargetManager.RemoveImageTarget(_imageTarget);
+                _imageTarget = null;
+            }
+
+            _tokenSource.Dispose();
+            _tokenSource = null;
+        }
     }
 
     public void DisableCalibration()
@@ -77,18 +100,26 @@ public class CalibrationManager : MonoBehaviour
             return;
         }
 
-        imageTargetManager.TryRemoveImageTarget(_targetName);
+        if (_tokenSource != null)
+        {
+            _tokenSource.Cancel();
+            _tokenSource.Dispose();
+            _tokenSource = null;
+        }
+
         _isRecalibration = false;
         _isEnabled = false;
+
+        if (_imageTarget != null)
+        {
+            imageTargetManager.RemoveImageTarget(_imageTarget);
+            _imageTarget = null;
+            _calibrationTool = null;
+        }
     }
 
     private void OnImageTargetCreated(IImageTarget imageTarget)
     {
-        if (imageTarget.imageTargetName != _targetName)
-        {
-            return;
-        }
-
         _calibrationTool = imageTarget.targetObject.GetComponent<CalibrationTool>();
         if (!_calibrationTool)
         {
@@ -101,7 +132,7 @@ public class CalibrationManager : MonoBehaviour
         _calibrationTool.onCalibrationCanceled.AddListener(OnCalibrationCanceled);
         _calibrationTool.onCalibrationFinished.AddListener(OnCalibrationFinished);
 
-        imageTargetManager.onTargetCreated.RemoveListener(OnImageTargetCreated);
+        Debug.Log($"calibration tool has been created {imageTarget.imageTargetName}");
     }
 
     private void OnCalibrationStarted()

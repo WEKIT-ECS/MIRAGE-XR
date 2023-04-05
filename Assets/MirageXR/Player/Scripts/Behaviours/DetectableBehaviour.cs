@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
-using UnityEngine.XR.WSA;
-using Vuforia;
+//using Vuforia;
 
 namespace MirageXR
 {
@@ -10,36 +9,20 @@ namespace MirageXR
     public class DetectableBehaviour : MonoBehaviour
     {
         [SerializeField] private bool IsWorking;
-
-        // User position
-        private Transform _userPosition;
-
-        // Detectable origin
-        private Transform _origin;
-
-        // Has the detectable been located.
         [SerializeField] private bool IsLocated;
-
-        // Is this trackable currently detected or not
         [SerializeField] private bool IsDetected;
-
-        // For world anchors. Has the anchor been attached or not.
-        private bool _isAttached;
-
-        // Used for a Vuforia specific hack for quickly checking if the trackable is currently being tracked
-        private Renderer _rendererCheck;
-
-        // Flag for checking preventing continuous transform updates in some tracking styles
         [SerializeField] private bool IsActive;
+        [SerializeField] private bool ExtendedTrackingActive = true;
+        private Transform _userPosition;
+        private Transform _origin;
+        private bool _isAttached;
+        private Renderer _rendererCheck;
+        //private TrackableBehaviour _trackableComponent;
 
-        private TrackableBehaviour _trackableComponent;
-
-        public DataSet Dataset { get; set; }
+        //public DataSet Dataset { get; set; }
 
         // Is detectable ready for action or not
         public bool IsDetectableReady { get; set; }
-
-        [SerializeField] private bool ExtendedTrackingActive = true;
 
         // Definitions of all the supported trackable types
         public enum TrackableType
@@ -75,7 +58,7 @@ namespace MirageXR
 
         private void Awake()
         {
-            _trackableComponent = GetComponent<TrackableBehaviour>();
+            //_trackableComponent = GetComponent<TrackableBehaviour>();
         }
 
         private void OnEnable()
@@ -87,25 +70,24 @@ namespace MirageXR
         {
             EventManager.OnPlayerReset -= PlayerReset;
 
-            DetachTrackable();
+            //DetachTrackable();
         }
 
         private void OnDestroy()
         {
-            DetachTrackable();
+            //DetachTrackable();
         }
 
         private void DetachTrackable()
         {
-            if (_trackableComponent != null)
-            {
-                TrackerManager.Instance.GetStateManager().DestroyTrackableBehavioursForTrackable(_trackableComponent.Trackable);
-                TrackerManager.Instance.GetTracker<ObjectTracker>().DeactivateDataSet(Dataset);
-                Dataset.Destroy(_trackableComponent.Trackable, true);
-            }
+            //if (_trackableComponent != null)
+            //{
+            //    TrackerManager.Instance.GetStateManager().DestroyTrackableBehavioursForTrackable(_trackableComponent.Trackable);
+            //    TrackerManager.Instance.GetTracker<ObjectTracker>().DeactivateDataSet(Dataset);
+            //    Dataset.Destroy(_trackableComponent.Trackable, true);
+            //}
         }
 
-        // Use this for initialization.
         private void Start()
         {
             // Hololens camera position is the same as user position.
@@ -113,11 +95,15 @@ namespace MirageXR
 
             // Attach _origin object
             if (transform.Find("Origin") != null)
+            {
                 _origin = transform.Find("Origin").transform;
+            }
 
             // Attach the renderer check
             if (transform.Find("RendererCheck") != null)
+            {
                 _rendererCheck = transform.Find("RendererCheck").GetComponent<Renderer>();
+            }
 
             IsDetectableReady = true;
         }
@@ -125,7 +111,9 @@ namespace MirageXR
         private void Delete()
         {
             if (!CompareTag("Permanent"))
+            {
                 Destroy(gameObject);
+            }
         }
 
         private void PlayerReset()
@@ -139,10 +127,6 @@ namespace MirageXR
             transform.localEulerAngles = Vector3.zero;
         }
 
-
-
-
-        // Attach anchor.
         public void AttachAnchor()
         {
             AttachedObject.transform.position = transform.position;
@@ -151,7 +135,6 @@ namespace MirageXR
             _isAttached = true;
         }
 
-        // Update is called once per frame
         private void Update()
         {
             // Detectable behaviour can behave only if a tracker is attached...

@@ -1,4 +1,7 @@
 ﻿using System;
+#if UNITY_ANDROID && !UNITY_EDITOR
+using i5.Toolkit.Core.VerboseLogging;
+#endif
 using UnityEngine;
 
 namespace MirageXR

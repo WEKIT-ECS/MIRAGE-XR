@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
@@ -29,48 +29,65 @@ public class ImageTargetManagerWrapper : MonoBehaviour
     public UnityEventImageTarget onTargetLost => _onTargetLost;
 
     private ImageTargetManagerBase _imageTargetManager;
-    private HashSet<string> _names = new HashSet<string>();
+    private Dictionary<string, IImageTarget> _imagesMap = new Dictionary<string, IImageTarget>();
 
-    public async Task<(bool, string)> TryAddImageTarget(ImageTargetModel model)
+    public async Task<IImageTarget> AddImageTarget(ImageTargetModel model, CancellationToken cancellationToken = default)
     {
         try
         {
-            var newName = await AddImageTargetAsync(model);
-            _images.Add(model);
-            return (true, newName);
+            if (!model.texture2D.isReadable)
+            {
+                throw new Exception("ImageTargetManagerWrapper: Texture must be readable");
+            }
+
+            var newModel = new ImageTargetModel
+            {
+                name = model.name,
+                prefab = model.prefab,
+                width = model.width,
+                texture2D = model.texture2D,
+                useLimitedTracking = model.useLimitedTracking,
+            };
+
+            if (_imagesMap.ContainsKey(newModel.name))
+            {
+                newModel.name = $"{model.name}_{Guid.NewGuid()}";
+            }
+
+            var target = await _imageTargetManager.AddImageTarget(newModel, cancellationToken);
+            _imagesMap.Add(newModel.name, target);
+
+            return target;
+        }
+        catch (OperationCanceledException e)
+        {
+            AppLog.LogInfo(e.ToString());
+            return null;
         }
         catch (Exception e)
         {
             AppLog.LogError(e.ToString());
-            return (false, null);
+            return null;
         }
     }
 
-    public bool TryRemoveImageTarget(string imageTargetName)
+    public void RemoveImageTarget(IImageTarget imageTarget)
     {
         try
         {
-            RemoveImageTarget(imageTargetName);
-            return true;
+            if (_imagesMap.ContainsKey(imageTarget.imageTargetName))
+            {
+                _imageTargetManager.RemoveImageTarget(imageTarget as ImageTargetBase);
+                _imagesMap.Remove(imageTarget.imageTargetName);
+            }
+            else
+            {
+                throw new Exception($"ImageTargetManagerWrapper: Can't find imageTarget by name: '{imageTarget.imageTargetName}'");
+            }
         }
         catch (Exception e)
         {
             AppLog.LogError(e.ToString());
-            return false;
-        }
-    }
-
-    private void RemoveImageTarget(string imageTargetName)
-    {
-        var model = _images.FirstOrDefault(t => t.name == imageTargetName);
-        if (_names.Contains(imageTargetName) && model != null)
-        {
-            _imageTargetManager.RemoveImageTarget(model);
-            _names.Remove(imageTargetName);
-        }
-        else
-        {
-            throw new Exception($"ImageTargetManagerWrapper: Can't find imageTarget by name: '{imageTargetName}'");
         }
     }
 
@@ -121,8 +138,8 @@ public class ImageTargetManagerWrapper : MonoBehaviour
         {
             try
             {
-                var newName = await AddImageTargetAsync(image);
-                image.name = newName;
+                var target = await AddImageTarget(image);
+                image.name = target.imageTargetName;
             }
             catch (Exception e)
             {
@@ -168,23 +185,5 @@ public class ImageTargetManagerWrapper : MonoBehaviour
         var manager = gameObject.AddComponent<ImageTargetManagerVuforia>();
 #endif
         return manager;
-    }
-
-    private async Task<string> AddImageTargetAsync(ImageTargetModel model)
-    {
-        if (!model.texture2D.isReadable)
-        {
-            throw new Exception("ImageTargetManagerWrapper: Texture must be readable");
-        }
-
-        if (_names.Contains(model.name))
-        {
-            model.name = $"{model.name}_{Guid.NewGuid()}";
-        }
-
-        await _imageTargetManager.AddImageTarget(model);
-        _names.Add(model.name);
-
-        return model.name;
     }
 }

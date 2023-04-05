@@ -3,7 +3,6 @@ using System.IO;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
-using Vuforia;
 using Image = UnityEngine.UI.Image;
 
 public class VideoEditorView : PopupEditorBase
@@ -63,19 +62,18 @@ public class VideoEditorView : PopupEditorBase
 
     private void StartRecordingVideo()
     {
-        VuforiaBehaviour.Instance.enabled = false;
+        RootObject.Instance.imageTargetManager.enabled = false;
 
         _newFileName = $"MirageXR_Video_{DateTime.Now.ToFileTimeUtc()}.mp4";
         var filepath = Path.Combine(activityManager.ActivityPath, _newFileName);
 
-        VuforiaBehaviour.Instance.enabled = false;
         NativeCameraController.StartRecordingVideo(filepath, StopRecordingVideo);
     }
 
     private void StopRecordingVideo(bool result, string filePath)
     {
         _videoWasRecorded = result;
-        VuforiaBehaviour.Instance.enabled = true;
+        RootObject.Instance.imageTargetManager.enabled = true;
 
         if (result)
         {
@@ -90,7 +88,10 @@ public class VideoEditorView : PopupEditorBase
 
     private void OnToggleTriggerValueChanged(bool value)
     {
-        if (!value || !activityManager.IsLastAction(_step)) return;
+        if (!value || !activityManager.IsLastAction(_step))
+        {
+            return;
+        }
 
         Toast.Instance.Show("This is the last step. The trigger is disabled!\n Add a new step and try again.");
         _toggleTrigger.onValueChanged.RemoveListener(OnToggleTriggerValueChanged);

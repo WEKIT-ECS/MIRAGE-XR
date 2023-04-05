@@ -1,3 +1,5 @@
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -17,16 +19,30 @@ public class ImageTargetManagerEditor : ImageTargetManagerBase
         return Task.FromResult(true);
     }
 
+    public override Task<ImageTargetBase> AddImageTarget(ImageTargetModel imageTargetModel, CancellationToken cancellationToken = default)
+    {
+        var newObject = new GameObject(imageTargetModel.name);
+        newObject.transform.SetParent(_holder);
+        newObject.transform.Translate(_images.Count * STEP_LENGTH, 0, 0);
+        var imageTarget = newObject.AddComponent<ImageTargetEditor>();
+        imageTarget.Initialization(imageTargetModel);
+        _images.Add(imageTargetModel.name, imageTarget);
+
+        onTargetCreated.Invoke(imageTarget);
+
+        return Task.FromResult<ImageTargetBase>(imageTarget);
+    }
+
     protected override void OnEnable()
     {
         foreach (var imageTarget in _images)
         {
-            if (!imageTarget || !imageTarget.gameObject)
+            if (!imageTarget.Value || !imageTarget.Value.gameObject)
             {
                 return;
             }
 
-            imageTarget.gameObject.SetActive(true);
+            imageTarget.Value.gameObject.SetActive(true);
         }
     }
 
@@ -34,26 +50,25 @@ public class ImageTargetManagerEditor : ImageTargetManagerBase
     {
         foreach (var imageTarget in _images)
         {
-            if (!imageTarget || !imageTarget.gameObject)
+            if (!imageTarget.Value || !imageTarget.Value.gameObject)
             {
                 return;
             }
 
-            imageTarget.gameObject.SetActive(false);
+            imageTarget.Value.gameObject.SetActive(false);
         }
     }
 
-    public override Task AddImageTarget(ImageTargetModel imageTargetModel)
+    public override void RemoveImageTarget(ImageTargetBase imageTarget)
     {
-        var newObject = new GameObject(imageTargetModel.name);
-        newObject.transform.SetParent(_holder);
-        newObject.transform.Translate(_images.Count * STEP_LENGTH, 0, 0);
-        var imageTarget = newObject.AddComponent<ImageTargetEditor>();
-        imageTarget.Initialization(imageTargetModel);
-        _images.Add(imageTarget);
-
-        onTargetCreated.Invoke(imageTarget);
-
-        return Task.CompletedTask;
+        if (_images.ContainsKey(imageTarget.imageTargetName))
+        {
+            Destroy(imageTarget.gameObject);
+            _images.Remove(imageTarget.imageTargetName);
+        }
+        else
+        {
+            throw new NullReferenceException($"Can't find {imageTarget.imageTargetName}");
+        }
     }
 }

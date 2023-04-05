@@ -7,6 +7,8 @@ public class ImageTargetVuforia : ImageTargetBase
 {
     private ImageTargetBehaviour _imageTargetBehaviour;
 
+    public ImageTargetBehaviour imageTargetBehaviour => _imageTargetBehaviour;
+
     protected override void TrackerInitialization()
     {
         _imageTargetBehaviour = GetComponent<ImageTargetBehaviour>();

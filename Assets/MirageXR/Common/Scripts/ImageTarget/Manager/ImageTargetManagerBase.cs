@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
@@ -23,7 +23,7 @@ public abstract class ImageTargetManagerBase : MonoBehaviour
     protected UnityEventImageTarget _onTargetCreated = new UnityEventImageTarget();
     protected UnityEventImageTarget _onTargetFound = new UnityEventImageTarget();
     protected UnityEventImageTarget _onTargetLost = new UnityEventImageTarget();
-    protected List<ImageTargetBase> _images = new List<ImageTargetBase>();
+    protected Dictionary<string, ImageTargetBase> _images = new Dictionary<string, ImageTargetBase>();
 
     protected bool _isInitialized;
 
@@ -41,19 +41,7 @@ public abstract class ImageTargetManagerBase : MonoBehaviour
 
     protected abstract void OnDisable();
 
-    public abstract Task AddImageTarget(ImageTargetModel imageTargetModel);
+    public abstract Task<ImageTargetBase> AddImageTarget(ImageTargetModel imageTargetModel, CancellationToken cancellationToken = default);
 
-    public virtual void RemoveImageTarget(ImageTargetModel imageTargetModel)
-    {
-        var obj = _images.FirstOrDefault(t => t.imageTargetName == imageTargetModel.name);
-        if (obj)
-        {
-            _images.Remove(obj);
-            Destroy(obj.gameObject);
-        }
-        else
-        {
-            throw new NullReferenceException($"Can't find {imageTargetModel.name}");
-        }
-    }
+    public abstract void RemoveImageTarget(ImageTargetBase imageTarget);
 }

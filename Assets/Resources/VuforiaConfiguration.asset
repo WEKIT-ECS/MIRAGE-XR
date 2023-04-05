@@ -26,7 +26,7 @@ MonoBehaviour:
     version: 9.8.5
     eulaAcceptedVersions: '{"Values":["0.0","8.3","8.1","7.2","7.5","8.0","8.6","8.5","9.3","9.4","9.6","9.7","9.5","9.8","10.6","10.11","10.10"]}'
   database:
-    disableModelExtraction: 0
+    disableModelExtraction: 1
   shaders:
     depthMaskShader: {fileID: 4800000, guid: 1ce7eb78425fb1540838bc9d5d95857a, type: 3}
   videoBackground:
@@ -34,10 +34,10 @@ MonoBehaviour:
     videoBackgroundShader: {fileID: 4800000, guid: f40623b353e2f1943b1b3ba42975db7a,
       type: 3}
     unlitShader: {fileID: 10752, guid: 0000000000000000f000000000000000, type: 0}
-    videoBackgroundEnabled: 1
+    videoBackgroundEnabled: 0
   deviceTracker:
     autoStartTracker: 1
-    arcoreRequirement: 2
+    arcoreRequirement: 0
     autoImportArcore: 0
   playmode:
     mSequencePath: 

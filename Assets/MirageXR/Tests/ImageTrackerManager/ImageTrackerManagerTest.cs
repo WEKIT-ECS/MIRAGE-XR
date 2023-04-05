@@ -10,7 +10,7 @@ public class ImageTrackerManagerTest : MonoBehaviour
     [SerializeField] private Button _removeImageButton;
     [SerializeField] private ImageTargetModel _imageTargetModel;
 
-    private string imageTargetName;
+    private IImageTarget _imageTarget;
 
     private void Start()
     {
@@ -31,14 +31,13 @@ public class ImageTrackerManagerTest : MonoBehaviour
     {
         _addImageButton.gameObject.SetActive(true);
         _removeImageButton.gameObject.SetActive(false);
-        _wrapper.TryRemoveImageTarget(imageTargetName);
+        _wrapper.RemoveImageTarget(_imageTarget);
     }
 
     private async Task AddImageTargetAsync()
     {
-        bool result;
-        (result, imageTargetName) = await _wrapper.TryAddImageTarget(_imageTargetModel);
-        if (result)
+        _imageTarget = await _wrapper.AddImageTarget(_imageTargetModel);
+        if (_imageTarget != null)
         {
             _addImageButton.gameObject.SetActive(false);
             _removeImageButton.gameObject.SetActive(true);

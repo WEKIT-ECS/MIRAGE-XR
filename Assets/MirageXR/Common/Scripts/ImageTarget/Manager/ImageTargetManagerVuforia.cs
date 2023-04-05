@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using Vuforia;
@@ -43,6 +44,35 @@ public class ImageTargetManagerVuforia : ImageTargetManagerBase
         return true;
     }
 
+    public override Task<ImageTargetBase> AddImageTarget(ImageTargetModel imageTargetModel, CancellationToken cancellationToken = default)
+    {
+        var behaviour = CreateImageTargetFromTexture(imageTargetModel.texture2D, imageTargetModel.width, imageTargetModel.name);
+        var imageTarget = behaviour.gameObject.AddComponent<ImageTargetVuforia>();
+        imageTarget.Initialization(imageTargetModel);
+        imageTarget.onTargetFound.AddListener(value => onTargetFound.Invoke(value));
+        imageTarget.onTargetLost.AddListener(value => onTargetLost.Invoke(value));
+        _images.Add(imageTargetModel.name, imageTarget);
+
+        onTargetCreated.Invoke(imageTarget);
+
+        return Task.FromResult<ImageTargetBase>(imageTarget);
+    }
+
+    public override void RemoveImageTarget(ImageTargetBase imageTarget)
+    {
+        if (!_images.ContainsKey(imageTarget.imageTargetName) || imageTarget is not ImageTargetVuforia imageTargetVuforia)
+        {
+            throw new NullReferenceException($"Can't find {imageTarget.imageTargetName}");
+        }
+
+        var trackable = imageTargetVuforia.imageTargetBehaviour.Trackable;
+        var objectTracker = TrackerManager.Instance.GetTracker<ObjectTracker>();
+        var dataset = objectTracker.GetDataSets().FirstOrDefault(t => t.GetTrackables().Contains(trackable));
+        objectTracker.DeactivateDataSet(dataset);
+        objectTracker.DestroyDataSet(dataset, true);
+        _images.Remove(imageTarget.imageTargetName);
+    }
+
     protected override void OnEnable()
     {
         if (_isInitialized)
@@ -58,20 +88,6 @@ public class ImageTargetManagerVuforia : ImageTargetManagerBase
         {
             behaviour.enabled = false;
         }
-    }
-
-    public override Task AddImageTarget(ImageTargetModel imageTargetModel)
-    {
-        var behaviour = CreateImageTargetFromTexture(imageTargetModel.texture2D, imageTargetModel.width, imageTargetModel.name);
-        var imageTarget = behaviour.gameObject.AddComponent<ImageTargetVuforia>();
-        imageTarget.Initialization(imageTargetModel);
-        imageTarget.onTargetFound.AddListener(value => onTargetFound.Invoke(value));
-        imageTarget.onTargetLost.AddListener(value => onTargetLost.Invoke(value));
-        _images.Add(imageTarget);
-
-        onTargetCreated.Invoke(imageTarget);
-
-        return Task.CompletedTask;
     }
 
     private static ImageTargetBehaviour CreateImageTargetFromTexture(Texture2D texture, float widthInMeters, string targetName)
@@ -92,25 +108,5 @@ public class ImageTargetManagerVuforia : ImageTargetManagerBase
         objectTracker.ActivateDataSet(dataset);
 
         return trackableBehaviour as ImageTargetBehaviour;
-    }
-
-    public override void RemoveImageTarget(ImageTargetModel imageTargetModel)
-    {
-        var obj = _images.FirstOrDefault(t => t.imageTargetName == imageTargetModel.name);
-
-        if (obj)
-        {
-            var targetBehaviour = obj.GetComponent<ImageTargetBehaviour>();
-            var objectTracker = TrackerManager.Instance.GetTracker<ObjectTracker>();
-            var dataset = objectTracker.GetDataSets().FirstOrDefault(t => t.GetTrackables().Contains(targetBehaviour.Trackable));
-            objectTracker.DeactivateDataSet(dataset);
-            objectTracker.DestroyDataSet(dataset, true);
-            _images.Remove(obj);
-        }
-        else
-        {
-            throw new NullReferenceException($"Can't find {imageTargetModel.name}");
-        }
-
     }
 }
