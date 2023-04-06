@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using TMPro;
 using UnityEngine;
@@ -129,7 +130,15 @@ public class ContentListView_v2 : BaseView
 
     private void OnAddMarkerPressed()
     {
-        //not implemented
+        var editor = _editors.FirstOrDefault(t => t.editorForType == ContentType.IMAGEMARKER);
+        if (editor == null)
+        {
+            AppLog.LogError("there is no editor for the type ContentType.IMAGEMARKER");
+            return;
+        }
+        PopupsViewer.Instance.Show(editor, _currentStep);
+
+        _toggleAugmentations.isOn = true;
     }
 
     private void OnSettingsPressed()
