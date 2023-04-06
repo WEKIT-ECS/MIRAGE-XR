@@ -367,7 +367,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _forceManagerType: 0
-  _images: []
+  _images:
+  - name: Target
+    texture2D: {fileID: 2800000, guid: b463dcee3508044448742f24bf93043d, type: 3}
+    width: 0.3
+    prefab: {fileID: 1284601556465576, guid: 177bff737c69d564ebb225d7fe7fc402, type: 3}
+    useLimitedTracking: 0
   _onTargetCreated:
     m_PersistentCalls:
       m_Calls: []
@@ -708,8 +713,8 @@ Camera:
   m_GameObject: {fileID: 807537237}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 2
-  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_ClearFlags: 1
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -723,7 +728,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.1
-  far clip plane: 50
+  far clip plane: 1000
   field of view: 60
   orthographic: 0
   orthographic size: 5
