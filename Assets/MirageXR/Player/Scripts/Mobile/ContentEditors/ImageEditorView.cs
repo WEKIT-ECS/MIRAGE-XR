@@ -8,6 +8,7 @@ using Image = UnityEngine.UI.Image;
 
 public class ImageEditorView : PopupEditorBase
 {
+    private const int MAX_PICTURE_SIZE = 1024;
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
     private static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
@@ -21,6 +22,7 @@ public class ImageEditorView : PopupEditorBase
     [SerializeField] private Transform _imageHolder;
     [SerializeField] private Image _image;
     [SerializeField] private Button _btnCaptureImage;
+    [SerializeField] private Button _btnOpenGallery;
     [SerializeField] private Toggle _toggleOrientation;
 
     private Texture2D _capturedImage;
@@ -30,6 +32,7 @@ public class ImageEditorView : PopupEditorBase
         base.Initialization(onClose, args);
         UpdateView();
         _btnCaptureImage.onClick.AddListener(OnCaptureImage);
+        _btnOpenGallery.onClick.AddListener(OpenGallery);
 
         _toggleOrientation.onValueChanged.AddListener(OnToggleOrientationValueChanged);
         _toggleOrientation.isOn = _orientation;
@@ -103,6 +106,34 @@ public class ImageEditorView : PopupEditorBase
     private void OnCaptureImage()
     {
         CaptureImage();
+    }
+
+    private void OpenGallery()
+    {
+        PickImage(MAX_PICTURE_SIZE);
+    }
+
+    private void PickImage(int maxSize)
+    {
+        NativeGallery.Permission permission = NativeGallery.GetImageFromGallery((path) =>
+        {
+            Debug.Log("Image path: " + path);
+            if (path != null)
+            {
+                // Create Texture from selected image
+                Texture2D texture2D = NativeGallery.LoadImageAtPath(path, maxSize, false);
+
+                if (texture2D == null)
+                {
+                    Debug.Log("Couldn't load texture from " + path);
+                    return;
+                }
+
+                // Set picture
+                var sprite = Utilities.TextureToSprite(texture2D);
+                SetPreview(sprite.texture);
+            }
+        });
     }
 
     private void CaptureImage()
