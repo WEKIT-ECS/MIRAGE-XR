@@ -345,7 +345,7 @@ public class ModelEditorView : PopupEditorBase
         item.OnBeginDownload();
         if (await MirageXR.Sketchfab.DownloadModelAndExtractAsync(downloadInfo.gltf.url, item.previewItem, item.OnDownload))
         {
-            Toast.Instance.Show("Download successfully.");
+            Toast.Instance.Show("Download successfully.", true);
             item.isDownloaded = true;
             item.OnEndDownload();
             return;
