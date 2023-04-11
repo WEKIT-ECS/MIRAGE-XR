@@ -7,11 +7,11 @@ public class BottomPanelView : BaseView
     private const float MOVE_DISTANSE = 300f;
     private const float ANIMATION_TIME = 0.5f;
 
-    [SerializeField] private Button _btnHome;
-    [SerializeField] private Button _btnProfile;
-    [SerializeField] private Button _btnCreate;
-    [SerializeField] private Button _btnSearch;
-    [SerializeField] private Button _btnHelp;
+    [SerializeField] private Toggle _btnHome;
+    [SerializeField] private Toggle _btnProfile;
+    [SerializeField] private Toggle _btnCreate;
+    [SerializeField] private Toggle _btnSearch;
+    [SerializeField] private Toggle _btnHelp;
 
     private RootView_v2 rootView => (RootView_v2)_parentView;
 
@@ -23,11 +23,11 @@ public class BottomPanelView : BaseView
     {
         base.Initialization(parentView);
 
-        _btnHome.onClick.AddListener(OnHomeClicked);
-        _btnProfile.onClick.AddListener(OnProfileClicked);
-        _btnCreate.onClick.AddListener(OnCreateClicked);
-        _btnSearch.onClick.AddListener(OnSearchClicked);
-        _btnHelp.onClick.AddListener(OnHelpClicked);
+        _btnHome.onValueChanged.AddListener(OnHomeClicked);
+        _btnProfile.onValueChanged.AddListener(OnProfileClicked);
+        _btnCreate.onValueChanged.AddListener(OnCreateClicked);
+        _btnSearch.onValueChanged.AddListener(OnSearchClicked);
+        _btnHelp.onValueChanged.AddListener(OnHelpClicked);
     }
 
     public void Hide()
@@ -63,28 +63,43 @@ public class BottomPanelView : BaseView
         _btnCreate.gameObject.SetActive(value);
     }
 
-    private void OnHomeClicked()
+    private void OnHomeClicked(bool value)
     {
-        rootView.ShowHomeView();
+        if (value)
+        {
+            rootView.ShowHomeView();
+        }
     }
 
-    private void OnProfileClicked()
+    private void OnProfileClicked(bool value)
     {
-        rootView.ShowProfileView();
+        if (value)
+        {
+            rootView.ShowProfileView();
+        }
     }
 
-    private void OnCreateClicked()
+    private void OnCreateClicked(bool value)
     {
-        rootView.CreateNewActivity();
+        if (value)
+        {
+            rootView.CreateNewActivity();
+        }
     }
 
-    private void OnSearchClicked()
+    private void OnSearchClicked(bool value)
     {
-        rootView.ShowSearchView();
+        if (value)
+        {
+            rootView.ShowSearchView();
+        }
     }
 
-    private void OnHelpClicked()
+    private void OnHelpClicked(bool value)
     {
-        rootView.ShowHelpView();
+        if (value)
+        {
+            rootView.ShowHelpView();
+        }
     }
 }
