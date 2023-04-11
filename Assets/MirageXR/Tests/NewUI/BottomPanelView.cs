@@ -1,4 +1,5 @@
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,6 +13,23 @@ public class BottomPanelView : BaseView
     [SerializeField] private Toggle _btnCreate;
     [SerializeField] private Toggle _btnSearch;
     [SerializeField] private Toggle _btnHelp;
+
+    [Space]
+    [Header("The colors of text and icons:")]
+    [SerializeField] private Color normalColor;
+    [SerializeField] private Color highlightingColor;
+
+    [Space]
+    [SerializeField] private Image _iconHome;
+    [SerializeField] private Image _iconProfile;
+    [SerializeField] private Image _iconSearch;
+    [SerializeField] private Image _iconHelp;
+
+    [Space]
+    [SerializeField] private TextMeshProUGUI _txtHome;
+    [SerializeField] private TextMeshProUGUI _txtProfile;
+    [SerializeField] private TextMeshProUGUI _txtSearch;
+    [SerializeField] private TextMeshProUGUI _txtHelp;
 
     private RootView_v2 rootView => (RootView_v2)_parentView;
 
@@ -28,6 +46,9 @@ public class BottomPanelView : BaseView
         _btnCreate.onValueChanged.AddListener(OnCreateClicked);
         _btnSearch.onValueChanged.AddListener(OnSearchClicked);
         _btnHelp.onValueChanged.AddListener(OnHelpClicked);
+
+        _iconHome.color = highlightingColor;
+        _txtHome.color = highlightingColor;
     }
 
     public void Hide()
@@ -63,43 +84,71 @@ public class BottomPanelView : BaseView
         _btnCreate.gameObject.SetActive(value);
     }
 
-    private void OnHomeClicked(bool value)
+    private void OnHomeClicked(bool isOn)
     {
-        if (value)
+        if (isOn)
         {
+            _iconHome.color = highlightingColor;
+            _txtHome.color = highlightingColor;
             rootView.ShowHomeView();
         }
-    }
-
-    private void OnProfileClicked(bool value)
-    {
-        if (value)
+        else
         {
-            rootView.ShowProfileView();
+            _iconHome.color = normalColor;
+            _txtHome.color = normalColor;
         }
     }
 
-    private void OnCreateClicked(bool value)
+    private void OnProfileClicked(bool isOn)
     {
-        if (value)
+        if (isOn)
+        {
+            _iconProfile.color = highlightingColor;
+            _txtProfile.color = highlightingColor;
+            rootView.ShowProfileView();
+        }
+        else
+        {
+            _iconProfile.color = normalColor;
+            _txtProfile.color = normalColor;
+        }
+    }
+
+    private void OnCreateClicked(bool isOn)
+    {
+        if (isOn)
         {
             rootView.CreateNewActivity();
         }
     }
 
-    private void OnSearchClicked(bool value)
+    private void OnSearchClicked(bool isOn)
     {
-        if (value)
+        if (isOn)
         {
+            _iconSearch.color = highlightingColor;
+            _txtSearch.color = highlightingColor;
             rootView.ShowSearchView();
+        }
+        else
+        {
+            _iconSearch.color = normalColor;
+            _txtSearch.color = normalColor;
         }
     }
 
-    private void OnHelpClicked(bool value)
+    private void OnHelpClicked(bool isOn)
     {
-        if (value)
+        if (isOn)
         {
+            _iconHelp.color = highlightingColor;
+            _txtHelp.color = highlightingColor;
             rootView.ShowHelpView();
+        }
+        else
+        {
+            _iconHelp.color = normalColor;
+            _txtHelp.color = normalColor;
         }
     }
 }
