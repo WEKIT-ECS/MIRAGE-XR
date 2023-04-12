@@ -84,7 +84,7 @@ public class BottomPanelView : BaseView
         _btnCreate.gameObject.SetActive(value);
     }
 
-    private void OnHomeClicked(bool isOn)
+    public void OnHomeClicked(bool isOn)
     {
         if (isOn)
         {
@@ -99,7 +99,7 @@ public class BottomPanelView : BaseView
         }
     }
 
-    private void OnProfileClicked(bool isOn)
+    public void OnProfileClicked(bool isOn)
     {
         if (isOn)
         {
@@ -122,7 +122,7 @@ public class BottomPanelView : BaseView
         }
     }
 
-    private void OnSearchClicked(bool isOn)
+    public void OnSearchClicked(bool isOn)
     {
         if (isOn)
         {
@@ -137,7 +137,7 @@ public class BottomPanelView : BaseView
         }
     }
 
-    private void OnHelpClicked(bool isOn)
+    public void OnHelpClicked(bool isOn)
     {
         if (isOn)
         {

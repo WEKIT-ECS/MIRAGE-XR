@@ -14,6 +14,7 @@ public class SearchView : PopupBase
     [SerializeField] private Button _allButton;
     [SerializeField] private Button _titleButton;
     [SerializeField] private Button _authorButton;
+    [SerializeField] private Button _btnClose;
 
     private List<SessionContainer> _content;
     private readonly List<ActivityListItem_v2> _items = new List<ActivityListItem_v2>();
@@ -41,6 +42,7 @@ public class SearchView : PopupBase
             _allButton.onClick.AddListener(OnAllClick);
             _titleButton.onClick.AddListener(OnTitleClick);
             _authorButton.onClick.AddListener(OnAuthorClick);
+            _btnClose.onClick.AddListener(CloseAndReturnToHomePage);
 
 
             _selectedSearchType = SearchType.All;
@@ -131,5 +133,11 @@ public class SearchView : PopupBase
         }
 
         return false;
+    }
+
+    public void CloseAndReturnToHomePage()
+    {
+        Close();
+        RootView_v2.Instance.ReturnToHomePage();
     }
 }
