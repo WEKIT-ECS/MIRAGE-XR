@@ -16,8 +16,8 @@ public class ImageTargetManagerWrapper : MonoBehaviour
         Vuforia,
     }
 
-    [SerializeField] private ForceManagerType _forceManagerType;
-    [SerializeField] private List<ImageTargetModel> _images;
+    [SerializeField] private ForceManagerType _forceManagerType = ForceManagerType.Default;
+    [SerializeField] private List<ImageTargetModel> _images = new List<ImageTargetModel>();
     [SerializeField] private UnityEventImageTarget _onTargetCreated = new UnityEventImageTarget();
     [SerializeField] private UnityEventImageTarget _onTargetFound = new UnityEventImageTarget();
     [SerializeField] private UnityEventImageTarget _onTargetLost = new UnityEventImageTarget();
