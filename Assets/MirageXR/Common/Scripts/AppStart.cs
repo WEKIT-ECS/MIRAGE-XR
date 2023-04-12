@@ -1,7 +1,7 @@
-﻿using MirageXR;
-using System;
+﻿using System;
 using System.Collections;
 using System.IO;
+using MirageXR;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 #if UNITY_ANDROID
@@ -22,21 +22,23 @@ public class AppStart : MonoBehaviour
     }
 
     // initializes the app
-    private IEnumerator Init()
+    private static IEnumerator Init()
     {
         yield return RequestPermissions();
-        yield return CreateIBMWatsonCredential();
+        yield return CreateIbmWatsonCredential();
         yield return LoadScene();
     }
 
-    IEnumerator CreateIBMWatsonCredential()
+    private static IEnumerator CreateIbmWatsonCredential()
     {
         var ibmCredentialsFile = Path.Combine(Application.persistentDataPath, "ibm-credentials.env");
         if (!File.Exists(ibmCredentialsFile))
         {
             var ibmCredentials = Resources.Load("ibm-credentials") as TextAsset;
             if (ibmCredentials)
+            {
                 File.WriteAllText(ibmCredentialsFile, ibmCredentials.text);
+            }
         }
 
         Environment.SetEnvironmentVariable("IBM_CREDENTIALS_FILE", ibmCredentialsFile);
@@ -48,14 +50,16 @@ public class AppStart : MonoBehaviour
     {
         var ibmCredentialsFile = Path.Combine(Application.persistentDataPath, "ibm-credentials.env");
         if (File.Exists(ibmCredentialsFile))
+        {
             File.Delete(ibmCredentialsFile);
+        }
     }
 
     // requests necessary permissions on Android and iOS if they have not yet been granted
-    private IEnumerator RequestPermissions()
+    private static IEnumerator RequestPermissions()
     {
-#if UNITY_ANDROID && !UNITY_EDITOR
-        while (!Permission.HasUserAuthorizedPermission(Permission.Microphone) 
+#if UNITY_ANDROID
+        while (!Permission.HasUserAuthorizedPermission(Permission.Microphone)
                || !Permission.HasUserAuthorizedPermission(Permission.Camera))
         {
             if (!Permission.HasUserAuthorizedPermission(Permission.Camera))
@@ -63,18 +67,21 @@ public class AppStart : MonoBehaviour
                 Permission.RequestUserPermission(Permission.Camera);
                 yield return new WaitForSeconds(0.5f);
             }
+
             if (!Permission.HasUserAuthorizedPermission(Permission.Microphone))
             {
                 Permission.RequestUserPermission(Permission.Microphone);
                 yield return new WaitForSeconds(0.5f);
             }
+
             if (!Permission.HasUserAuthorizedPermission(Permission.ExternalStorageWrite))
             {
                 Permission.RequestUserPermission(Permission.ExternalStorageWrite);
                 yield return new WaitForSeconds(0.5f);
             }
         }
-#elif UNITY_IOS && !UNITY_EDITOR
+
+#elif UNITY_IOS
         while (!Application.HasUserAuthorization(UserAuthorization.Microphone)
                || !Application.HasUserAuthorization(UserAuthorization.WebCam))
         {
@@ -83,6 +90,7 @@ public class AppStart : MonoBehaviour
                 yield return Application.RequestUserAuthorization(UserAuthorization.WebCam);
                 yield return new WaitForSeconds(0.5f);
             }
+
             if (!Application.HasUserAuthorization(UserAuthorization.Microphone))
             {
                 yield return Application.RequestUserAuthorization(UserAuthorization.Microphone);
@@ -95,13 +103,12 @@ public class AppStart : MonoBehaviour
     }
 
     // loads the next scene, the activity selection, and waits for the scene to be loaded
-    private IEnumerator LoadScene()
+    private static IEnumerator LoadScene()
     {
         var loader = SceneManager.LoadSceneAsync(PlatformManager.Instance.ActivitySelectionScene, LoadSceneMode.Additive);
         while (!loader.isDone)
         {
             yield return null;
         }
-
     }
 }
