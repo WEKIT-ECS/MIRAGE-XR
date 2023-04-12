@@ -109,7 +109,7 @@ public class BitsBehaviourController : MonoBehaviour
             //Order the list of bits by "connectedTime" variable
             eRobsonItemsList = eRobsonItemsList.OrderBy(e => e.connectedTime).ToList();
 
-            // Find index for bottom item
+            // Find index for USBPOWER
             var idx = eRobsonItemsList.FindIndex(i => i.ID == BitID.USBPOWER);
 
             // Move power source item to first if it is not already and it is connected to the circuit
@@ -290,6 +290,12 @@ public class BitsBehaviourController : MonoBehaviour
         if (bit != _eRobsonItem)
         {
             return;
+        }
+
+        //No power source any more
+        if (bit.ID == BitID.USBPOWER && !ErobsonItemManager.ERobsonConnectedItemsList.Exists(b => b.ID == BitID.USBPOWER))
+        {
+            ErobsonItemManager.Instance.CutCircuitPower();
         }
 
         ControlCircuit();

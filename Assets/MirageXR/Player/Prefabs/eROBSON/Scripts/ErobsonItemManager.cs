@@ -207,19 +207,42 @@ public class ErobsonItemManager : MonoBehaviour
     /// <param name="addOrRemove">Add or delete</param>
     public static void AddOrRemoveFromConnectedList(eROBSONItems bit, AddOrRemove addOrRemove)
     {
-        if (addOrRemove == AddOrRemove.ADD)
+        switch (addOrRemove)
         {
-            if (!ERobsonConnectedItemsList.Contains(bit))
-                ERobsonConnectedItemsList.Add(bit);
-        }
-        else if (addOrRemove == AddOrRemove.REMOVE)
-        {
-            if (ERobsonConnectedItemsList.Contains(bit))
-                ERobsonConnectedItemsList.Remove(bit);
+            case AddOrRemove.ADD:
+            {
+                if (!ERobsonConnectedItemsList.Contains(bit))
+                {
+                    ERobsonConnectedItemsList.Add(bit);
+                }
+
+                break;
+            }
+            case AddOrRemove.REMOVE:
+            {
+                if (ERobsonConnectedItemsList.Contains(bit))
+                {
+                    ERobsonConnectedItemsList.Remove(bit);
+                }
+
+                break;
+            }
         }
 
         //Debug.LogError(eRobsonConnectedItemsList.Count);
         //Debug.LogError(bit.ID + " " + addOrRemove);
+    }
+
+
+    /// <summary>
+    /// All bits will lose power
+    /// </summary>
+    public void CutCircuitPower()
+    {
+        foreach (var bit in ERobsonConnectedItemsList.Where(bit => bit.ID != BitID.USBPOWER))
+        {
+            bit.HasPower = false;
+        }
     }
 
 
