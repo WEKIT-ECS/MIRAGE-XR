@@ -1,12 +1,17 @@
+using System;
 using System.Threading.Tasks;
+using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
 
 namespace MirageXR
 {
     public class RootObject : MonoBehaviour
     {
+        public static RootObject Instance { get; private set; }
+
         [SerializeField] private ImageTargetManagerWrapper _imageTargetManager;
         [SerializeField] private CalibrationManager _calibrationManager;
+
         private ActivityManager _activityManager;
         private AugmentationManager _augmentationManager;
         private MoodleManager _moodleManager;
@@ -27,10 +32,15 @@ namespace MirageXR
 
         public WorkplaceManager workplaceManager => _workplaceManager;
 
-
-        public static RootObject Instance { get; private set; }
-
         private bool _isInitialized;
+
+        public async Task WaitForInitialization()
+        {
+            while (!_isInitialized)
+            {
+                await Task.Yield();
+            }
+        }
 
         private void Awake()
         {
@@ -59,18 +69,28 @@ namespace MirageXR
                 return;
             }
 
-            _activityManager = new ActivityManager();
-            _augmentationManager = new AugmentationManager();
-            _moodleManager = new MoodleManager();
-            _editorSceneService = new EditorSceneService();
-            _workplaceManager = new WorkplaceManager();
+            try
+            {
+                _imageTargetManager ??= new GameObject("ImageTargetManagerWrapper").AddComponent<ImageTargetManagerWrapper>();
+                _calibrationManager ??= new GameObject("CalibrationManager").AddComponent<CalibrationManager>();
 
-            await _imageTargetManager.InitializationAsync();
-            calibrationManager.Initialization();
+                _activityManager = new ActivityManager();
+                _augmentationManager = new AugmentationManager();
+                _moodleManager = new MoodleManager();
+                _editorSceneService = new EditorSceneService();
+                _workplaceManager = new WorkplaceManager();
 
-            _activityManager.Subscription();
+                await _imageTargetManager.InitializationAsync();
+                _calibrationManager.Initialization();
 
-            _isInitialized = true;
+                _activityManager.Subscription();
+
+                _isInitialized = true;
+            }
+            catch (Exception e)
+            {
+                AppLog.LogError(e.ToString());
+            }
         }
 
         private void OnDestroy()
