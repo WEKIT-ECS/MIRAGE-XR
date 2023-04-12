@@ -38,7 +38,7 @@ public class ProfileView : PopupBase
 
         _developToggle.isOn = DBManager.developMode;
 
-        _btnClose.onClick.AddListener(Close);
+        _btnClose.onClick.AddListener(CloseAndReturnToHomePage);
         _inputFieldUserName.SetValidator(IsValidUsername);
         _inputFieldPassword.SetValidator(IsValidPassword);
         _btnRegister.onClick.AddListener(OnClickRegister);
@@ -294,5 +294,11 @@ public class ProfileView : PopupBase
                 _txtConnectedLRS.text = "ARETE";
                 break;
         }
+    }
+
+    private void CloseAndReturnToHomePage()
+    {
+        Close();
+        RootView_v2.Instance.ReturnToHomePage();
     }
 }
