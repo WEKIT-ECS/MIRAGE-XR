@@ -9,6 +9,8 @@ using Action = System.Action;
 
 public class CalibrationView : PopupBase
 {
+    private static CalibrationManager calibrationManager => RootObject.Instance.calibrationManager;
+
     private string CALIBRATION_TEXT = "Calibration";
     private string NEW_POSITION_TEXT = "New position";
     private int CLOSE_TIME = 1000;
@@ -35,27 +37,27 @@ public class CalibrationView : PopupBase
         Reset();
 
         _textTop.text = _isNewPosition ? NEW_POSITION_TEXT : CALIBRATION_TEXT;
-        var calibrationTool = CalibrationTool.Instance;
-        calibrationTool.isNewPosition = _isNewPosition;
-        calibrationTool.onTargetFound.AddListener(OnTargetFound);
-        calibrationTool.onTargetLost.AddListener(OnTargetLost);
-        calibrationTool.onCalibrationFinished.AddListener(OnCalibrationFinished);
-        calibrationTool.isEnabled = true;
+
+        calibrationManager.onCalibrationStarted.AddListener(OnCalibrationStarted);
+        calibrationManager.onCalibrationCanceled.AddListener(OnCalibrationCanceled);
+        calibrationManager.onCalibrationFinished.AddListener(OnCalibrationFinished);
+        calibrationManager.EnableCalibration(_isNewPosition);
+
         _hideBaseView?.Invoke();
     }
 
-    private void OnTargetFound()
+    private void OnCalibrationStarted()
     {
         _footer.SetActive(false);
         _imageTarget.color = _colorBlue;
         _imageAnimation.gameObject.SetActive(true);
         _textDone.gameObject.SetActive(false);
         _imageAnimation.transform
-            .DOLocalRotate(new Vector3(0, 0, -360), CalibrationTool.Instance.animationTime, RotateMode.FastBeyond360)
+            .DOLocalRotate(new Vector3(0, 0, -360), calibrationManager.animationTime, RotateMode.FastBeyond360)
             .SetRelative(true).SetEase(Ease.Linear);
     }
 
-    private void OnTargetLost()
+    private void OnCalibrationCanceled()
     {
         Reset();
     }
@@ -85,9 +87,7 @@ public class CalibrationView : PopupBase
 
     public override void Close()
     {
-        var calibrationTool = CalibrationTool.Instance;
-        calibrationTool.isEnabled = false;
-        calibrationTool.isNewPosition = false;
+        calibrationManager.DisableCalibration();
         _showBaseView?.Invoke();
         base.Close();
     }

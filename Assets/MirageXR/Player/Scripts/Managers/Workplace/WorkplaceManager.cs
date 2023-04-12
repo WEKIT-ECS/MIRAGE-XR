@@ -16,11 +16,16 @@ namespace MirageXR
     public class WorkplaceManager
     {
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
+
         // Containers for all the main types.
         public Transform thingContainer { get; private set; }
+
         public Transform placeContainer { get; private set; }
+
         public Transform personContainer { get; private set; }
+
         public Transform detectableContainer { get; private set; }
+
         public Transform sensorContainer { get; private set; }
 
         // Device user id.
@@ -216,13 +221,14 @@ namespace MirageXR
 
         public async Task AddPlace(Action newAction, Vector3 targetPosition, bool hasMarker = false)
         {
-            Place place = new Place
+            var place = new Place
             {
                 id = newAction.id,
                 name = string.Empty,
                 detectable = "WA-" + newAction.id.Substring(3),
             };
-            Detectable detectable = new Detectable
+
+            var detectable = new Detectable
             {
                 id = place.detectable,
                 sensor = string.Empty,
