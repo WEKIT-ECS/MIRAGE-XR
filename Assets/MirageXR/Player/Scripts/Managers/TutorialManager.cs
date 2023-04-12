@@ -371,6 +371,12 @@ namespace MirageXR
 
             _steps.Clear();
             _steps.Add(new MVTSelectTutorialActivityStep());
+            _steps.Add(new MVTOpenToViewStep());
+            if (!DBManager.dontShowCalibrationGuide)
+            {
+                _steps.Add(new MVTCalibrationGuideStep());
+            }
+
             _currentStepNumber = -1;
 
             NextStep();

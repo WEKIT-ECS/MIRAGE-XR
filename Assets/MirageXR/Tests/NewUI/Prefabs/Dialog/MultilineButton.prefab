@@ -28,6 +28,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7875174289223964516}
   m_RootOrder: 0
@@ -102,6 +103,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3568399952032888724}
   - {fileID: 8975821682239581884}
@@ -252,6 +254,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f815674454b75704b9f7f1896e4d387a, type: 3}
+--- !u!1 &2862106176961853885 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5626796218971709375, guid: f815674454b75704b9f7f1896e4d387a,
+    type: 3}
+  m_PrefabInstance: {fileID: 7615124342784058882}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8156312635998378750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2862106176961853885}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id: multiline_button
+  InteractableObject: {fileID: 2862106176961853885}
+  IsPartOfScrollView: 0
 --- !u!224 &8975821682239581884 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1530904455064668350, guid: f815674454b75704b9f7f1896e4d387a,

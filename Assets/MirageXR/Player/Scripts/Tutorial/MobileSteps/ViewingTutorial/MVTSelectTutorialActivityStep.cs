@@ -21,6 +21,8 @@ namespace MirageXR
             var queue = new Queue<TutorialModel>();
             queue.Enqueue(new TutorialModel { id = "tutorial_activity", message = "Click the first activity.", position = TutorialModel.MessagePosition.Bottom });
             this.manager.MobileTutorial.Show(queue);
+
+            tutorialActivityCard.BtnMain.onClick.AddListener(this.DefaultExitEventListener);
         }
 
         protected override void SecuredExitStep()
