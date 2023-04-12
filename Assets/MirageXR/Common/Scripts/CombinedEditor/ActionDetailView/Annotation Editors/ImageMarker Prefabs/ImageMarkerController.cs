@@ -1,20 +1,19 @@
 ﻿using System.Collections;
 using System.IO;
 using UnityEngine;
-using Vuforia;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+#if !(UNITY_ANDROID || UNITY_IOS)
 using UnityEngine.Events;
+using Vuforia;
+#endif
 
 namespace MirageXR
 {
     public class ImageMarkerController : MirageXRPrefab
     {
-
-
         private string ImgMName;
         private ToggleObject _obj;
-
         private Texture2D _ImageMarkerImage;
         private Detectable detectable;
         private GameObject detectableOB;
@@ -35,15 +34,9 @@ namespace MirageXR
 
 #if UNITY_ANDROID || UNITY_IOS
             GameObject tracker = GameObject.Find("MixedRealityPlayspace");
-            if (tracker.GetComponent<ARTrackedImageManager>())
-            {
-                trackImageManager = tracker.GetComponent<ARTrackedImageManager>();
-            }
-            else
-            {
-                trackImageManager = tracker.AddComponent<ARTrackedImageManager>();
-            }
-
+            trackImageManager = tracker.GetComponent<ARTrackedImageManager>() ?
+                tracker.GetComponent<ARTrackedImageManager>() :
+                tracker.AddComponent<ARTrackedImageManager>();
 
             trackImageManager.referenceLibrary = trackImageManager.CreateRuntimeLibrary(serializedLibrary);
             trackImageManager.maxNumberOfMovingImages = 1;
@@ -213,7 +206,6 @@ namespace MirageXR
         }
 #endif
 
-
         public void detectableAsChild()
         {
             //IM.GetComponent<TrackableEventHandlerEvents>().augmentation = GameObject.Find(detectable.id); ;
@@ -258,7 +250,7 @@ namespace MirageXR
     }
 }
 
-
+#if !(UNITY_ANDROID || UNITY_IOS)
 [RequireComponent(typeof(TrackableBehaviour))]
 public class TrackableEventHandlerEvents : MonoBehaviour
 {
@@ -284,9 +276,6 @@ public class TrackableEventHandlerEvents : MonoBehaviour
         tracked = false;
     }
 
-
-
-
     /// <summary>
     /// called when the tracking state changes.
     /// </summary>
@@ -307,7 +296,6 @@ public class TrackableEventHandlerEvents : MonoBehaviour
         }
     }
 
-
     protected virtual void OnTrackingFound()
     {
         Debug.Log("Trackable " + _trackableBehaviour.TrackableName + " found");
@@ -323,3 +311,4 @@ public class TrackableEventHandlerEvents : MonoBehaviour
         tracked = false;
     }
 }
+#endif
