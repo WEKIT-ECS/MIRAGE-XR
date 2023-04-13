@@ -6,15 +6,19 @@ using UnityEngine.UI;
 
 public class DialogViewMiddleMultiline : DialogView
 {
+    private const string BUTTON_NAME = "dialog_middle_multiline_{0}";
+
     [SerializeField] private GameObject _buttonPrefab;
     [SerializeField] private Color warningColor = Color.red;
 
     public override void UpdateView(DialogModel model)
     {
+        int count = 0;
         _textLabel.text = model.label;
         foreach (var content in model.contents)
         {
             var newObject = Instantiate(_buttonPrefab, transform);
+            newObject.name = string.Format(BUTTON_NAME, count++);
             var button = newObject.GetComponentInChildren<Button>();
             if (button)
             {

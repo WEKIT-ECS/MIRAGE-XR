@@ -1,19 +1,22 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class TutorialItem : MonoBehaviour
 {
     private const float THRESHOLD_CHANGE = 0.05f;
 
-    public string Id;
-    public GameObject InteractableObject;
-    public bool IsPartOfScrollView;
+    [SerializeField] private bool _getIdFromName;
+    [SerializeField] private string _id;
+    [SerializeField] private GameObject _interactableObject;
+    [SerializeField] private bool _isPartOfScrollView;
+    [SerializeField] private float _delay;
 
     private Vector3 _lastTraceablePosition;
     private bool _isTrackingActivated;
     private Transform _traceable;
 
+    public string id => _getIdFromName ? name : _id;
     public Button button => InteractableObject.GetComponentInChildren<Button>();
 
     public Toggle toggle => InteractableObject.GetComponent<Toggle>();
@@ -21,6 +24,8 @@ public class TutorialItem : MonoBehaviour
     public TMP_InputField inputField => InteractableObject.GetComponent<TMP_InputField>();
 
     public bool isPartOfScrollView => IsPartOfScrollView;
+
+    public float delay => _delay;
 
     private void Update()
     {

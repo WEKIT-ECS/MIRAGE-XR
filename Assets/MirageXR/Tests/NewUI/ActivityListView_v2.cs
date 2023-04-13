@@ -120,10 +120,10 @@ public class ActivityListView_v2 : BaseView
 
     public async void FetchAndUpdateView()
     {
-        _btnFilter.interactable = false;
+        LoadView.Instance.Show(true);
         _content = await FetchContent();
         UpdateView();
-        _btnFilter.interactable = true;
+        LoadView.Instance.Hide();
     }
 
     public void UpdateView()
