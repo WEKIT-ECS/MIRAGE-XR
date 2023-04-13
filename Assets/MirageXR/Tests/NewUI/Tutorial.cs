@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -105,8 +106,12 @@ public class Tutorial : MonoBehaviour
             var item = await FindTutorialItem(model.id);
             if (item)
             {
-                // This delay is due to the fact that not all values, i.e., in RectTransform are loaded in time
-                await Task.Delay(10);
+                await Task.Yield();
+                if (item.delay > 0)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(item.delay));
+                }
+
                 _lastCopy = CopyTutorialItem(item);
                 SetUpTargetCopy(item, _lastCopy);
             }
