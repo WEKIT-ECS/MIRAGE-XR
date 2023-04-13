@@ -152,7 +152,7 @@ public class Tutorial : MonoBehaviour
                     continue;
                 }
 
-                var item = items.FirstOrDefault(t => t.id == id);
+                var item = items.FirstOrDefault(t => t.Id == id);
                 if (item)
                 {
                     return item;
