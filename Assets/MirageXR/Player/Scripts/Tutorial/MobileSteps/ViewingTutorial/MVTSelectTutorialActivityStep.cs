@@ -20,9 +20,16 @@ namespace MirageXR
 
             var queue = new Queue<TutorialModel>();
             queue.Enqueue(new TutorialModel { id = "tutorial_activity", message = "Click the first activity.", position = TutorialModel.MessagePosition.Bottom });
+            queue.Enqueue(new TutorialModel { id = "open_to_view", message = "Second step.", position = TutorialModel.MessagePosition.Bottom });
             this.manager.MobileTutorial.Show(queue);
 
-            tutorialActivityCard.BtnMain.onClick.AddListener(this.DefaultExitEventListener);
+            EventManager.OnActivateAction += NextStepByLabelTriggerListener;
+            //tutorialActivityCard.BtnMain.onClick.AddListener(this.DefaultExitEventListener);
+        }
+
+        private void NextStepByLabelTriggerListener(string action)
+        {
+            ExitStep();
         }
 
         protected override void SecuredExitStep()
