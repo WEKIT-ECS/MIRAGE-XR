@@ -17,14 +17,13 @@ public class TutorialItem : MonoBehaviour
     private Transform _traceable;
 
     public string id => _getIdFromName ? name : _id;
+    public Button button => InteractableObject.GetComponentInChildren<Button>();
 
-    public Button button => _interactableObject.GetComponent<Button>();
+    public Toggle toggle => InteractableObject.GetComponent<Toggle>();
 
-    public Toggle toggle => _interactableObject.GetComponent<Toggle>();
+    public TMP_InputField inputField => InteractableObject.GetComponent<TMP_InputField>();
 
-    public TMP_InputField inputField => _interactableObject.GetComponent<TMP_InputField>();
-
-    public bool isPartOfScrollView => _isPartOfScrollView;
+    public bool isPartOfScrollView => IsPartOfScrollView;
 
     public float delay => _delay;
 
@@ -63,7 +62,7 @@ public class TutorialItem : MonoBehaviour
 
     public void ScrollToTop()
     {
-        if (_isPartOfScrollView)
+        if (IsPartOfScrollView)
         {
             var scrollRect = GetComponentInParent<ScrollRect>();
             if (scrollRect)
