@@ -1,7 +1,6 @@
 using MirageXR;
 using System;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,9 +13,6 @@ public class ProfileView : PopupBase
     [SerializeField] private Button _btnLogin;
     [SerializeField] private Button _btnRegister;
     [SerializeField] private Button _btnPrivacyPolicy;
-    [SerializeField] private ExtendedInputField _inputFieldUserName;
-    [SerializeField] private ExtendedInputField _inputFieldPassword;
-    [SerializeField] private Toggle _toggleRemember;
     [SerializeField] private Toggle _developToggle;
     [SerializeField] private GameObject _developTogglePanel;
     [SerializeField] private GameObject LoginObjects;
@@ -29,8 +25,12 @@ public class ProfileView : PopupBase
     [SerializeField] private TMP_Text _txtConnectedLRS;
     [SerializeField] private TMP_Text _txtVersion;
     [SerializeField] private ClickCounter _versionClickCounter;
+    [Space]
+    [SerializeField] private PopupBase _loginViewPrefab;
 
     private bool _isShownDevelopModeMessage;
+
+    public static bool dontShowLoginMenu { get; set; }
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -39,13 +39,10 @@ public class ProfileView : PopupBase
         _developToggle.isOn = DBManager.developMode;
 
         _btnClose.onClick.AddListener(Close);
-        _inputFieldUserName.SetValidator(IsValidUsername);
-        _inputFieldPassword.SetValidator(IsValidPassword);
         _btnRegister.onClick.AddListener(OnClickRegister);
         _btnPrivacyPolicy.onClick.AddListener(OnClickPrivacyPolicy);
         _btnLogin.onClick.AddListener(OnClickLogin);
         _btnLogout.onClick.AddListener(OnClickLogout);
-        _toggleRemember.onValueChanged.AddListener(OnToggleRememberValueChanged);
         _developToggle.onValueChanged.AddListener(OnDevelopToggleValueChanged);
         _btnSelectServer.onClick.AddListener(ShowChangeServerPanel);
         _btnSelectLRS.onClick.AddListener(ShowLRSPanel);
@@ -70,29 +67,6 @@ public class ProfileView : PopupBase
         return true;
     }
 
-    private async Task Login(string username, string password)
-    {
-        LoadView.Instance.Show();
-        var result = await RootObject.Instance.moodleManager.Login(username, password);
-        LoadView.Instance.Hide();
-        if (result)
-        {
-            OnLoginSucceed(username, password);
-            Close();
-        }
-        else
-        {
-            _inputFieldUserName.SetInvalid();
-            _inputFieldPassword.SetInvalid();
-            Toast.Instance.Show("Check your login/password");
-        }
-    }
-
-    private void OnToggleRememberValueChanged(bool value)
-    {
-        DBManager.rememberUser = value;
-    }
-
     private void OnDevelopToggleValueChanged(bool value)
     {
         DBManager.developMode = value;
@@ -105,20 +79,6 @@ public class ProfileView : PopupBase
         var valueString = value ? "enabled" : "disabled";
         Toast.Instance.Show($"Developer mode has been {valueString}.Restart the application to activate it.");
         _isShownDevelopModeMessage = true;
-    }
-
-    private void OnLoginSucceed(string username, string password)
-    {
-        Toast.Instance.Show("Login succeeded");
-        RootView_v2.Instance.activityListView.FetchAndUpdateView();
-        if (DBManager.rememberUser)
-        {
-            LocalFiles.SaveUsernameAndPassword(username, password);
-        }
-        else
-        {
-            LocalFiles.RemoveUsernameAndPassword();
-        }
     }
 
     private void OnVersionClickAmountReached(int count)
@@ -155,13 +115,6 @@ public class ProfileView : PopupBase
         }
 
         _txtLogout.text = $"You are already logged in,\n<b>{DBManager.username}</b>";
-        _toggleRemember.isOn = DBManager.rememberUser;
-        _inputFieldUserName.text = string.Empty;
-        _inputFieldPassword.text = string.Empty;
-        _inputFieldUserName.ResetValidation();
-        _inputFieldPassword.ResetValidation();
-        // _learningRecordStoreDropdown.value = DBManager.publicCurrentLearningRecordStore;
-
         UpdateConectedLRS(DBManager.publicCurrentLearningRecordStore);
     }
 
@@ -172,10 +125,8 @@ public class ProfileView : PopupBase
 
     private async void OnClickLogin()
     {
-        if (!_inputFieldUserName.Validate()) return;
-        if (!_inputFieldPassword.Validate()) return;
-
-        await Login(_inputFieldUserName.text, _inputFieldPassword.text);
+        dontShowLoginMenu = true;
+        PopupsViewer.Instance.Show(_loginViewPrefab);
     }
 
     private void OnClickLogout()
@@ -183,20 +134,6 @@ public class ProfileView : PopupBase
         DBManager.LogOut();
         RootView_v2.Instance.activityListView.FetchAndUpdateView();
         ShowLogin();
-    }
-
-    private static bool IsValidUsername(string value)
-    {
-        const string regexExpression = "^\\S{3,}$";
-        var regex = new Regex(regexExpression);
-        return regex.IsMatch(value);
-    }
-
-    private static bool IsValidPassword(string value)
-    {
-        const string regexExpression = "^\\S{8,}$";
-        var regex = new Regex(regexExpression);
-        return regex.IsMatch(value);
     }
 
     private static bool IsValidUrl(string urlString)
