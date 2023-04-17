@@ -107,8 +107,16 @@ public class LoginView_v2 : PopupBase
         _toggleRemember.isOn = DBManager.rememberUser;
         _inputFieldUserName.text = string.Empty;
         _inputFieldPassword.text = string.Empty;
-        _pnlMenu.SetActive(true);
-        _pnlFields.SetActive(false);
+        if (ProfileView.dontShowLoginMenu)
+        {
+            _pnlMenu.SetActive(false);
+            _pnlFields.SetActive(true);
+        }
+        else
+        {
+            _pnlMenu.SetActive(true);
+            _pnlFields.SetActive(false);
+        }
         _inputFieldUserName.ResetValidation();
         _inputFieldPassword.ResetValidation();
     }
