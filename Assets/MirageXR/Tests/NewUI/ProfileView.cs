@@ -97,7 +97,7 @@ public class ProfileView : PopupBase
         LogOutObjects.SetActive(false);
     }
 
-    private void ShowLogout()
+    public void ShowLogout()
     {
         LoginObjects.SetActive(false);
         LogOutObjects.SetActive(true);
@@ -114,7 +114,7 @@ public class ProfileView : PopupBase
             ShowLogin();
         }
 
-        _txtLogout.text = $"You are already logged in,\n<b>{DBManager.username}</b>";
+        _txtLogout.text = $"<b>{DBManager.username}</b>";
         UpdateConectedLRS(DBManager.publicCurrentLearningRecordStore);
     }
 
@@ -215,9 +215,9 @@ public class ProfileView : PopupBase
 
     private void UpdatePrivacyPolicyButtonActive()
     {
-        var setActive = (DBManager.privacyPolicyDomain != string.Empty) ? true : false;
+        //var setActive = (DBManager.privacyPolicyDomain != string.Empty) ? true : false;
 
-        _btnPrivacyPolicy.gameObject.SetActive(setActive);
+        //_btnPrivacyPolicy.gameObject.SetActive(setActive);
     }
 
     private void UpdateConectedLRS(DBManager.LearningRecordStores publicCurrentLearningRecordStore)
