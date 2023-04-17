@@ -1,6 +1,5 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,45 +18,55 @@ namespace MirageXR
 
         public static BrandManager Instance { get; private set; }
 
-        private Color newPrimaryColor;
-        private Color newSecondaryColor;
-        private Color newTextColor;
-        private Color newIconColor;
-        private Color newTaskStationColor;
-        private Color newUIPathColor;
-        private Color newNextPathColor;
+        private Color _newPrimaryColor;
+        private Color _newSecondaryColor;
+        private Color _newTextColor;
+        private Color _newIconColor;
+        private Color _newTaskStationColor;
+        private Color _newUIPathColor;
+        private Color _newNextPathColor;
 
         public bool Customizable { get; private set; }
 
-        ConfigEditor CFEditor = new ConfigEditor();
+        private readonly ConfigEditor CFEditor = new();
 
         public Color DefaultSecondaryColor => defaultSecondaryColor;
 
 #if UNITY_ANDROID || UNITY_IOS
 
-    private readonly string[] spareListOfAugmentations = { "image", "video", "audio", "ghost", "label", "act", "effects",  "model", "character", "pickandplace", "imagemarker", "plugin" };
-    private const string augmentationsListFile = "MobileAugmentationListFile";
+        private readonly string[] spareListOfAugmentations = { "image", "video", "audio", "ghost", "label", "act", "effects", "model", "character", "pickandplace", "imagemarker", "plugin" };
+        private const string augmentationsListFile = "MobileAugmentationListFile";
 #else
         private readonly string[] spareListOfAugmentations = { "image", "video", "audio", "ghost", "label", "act", "effects", "model", "character", "pick&place", "image marker", "plugin", "drawing" };
         private const string augmentationsListFile = "HololensAugmentationListFile";
 #endif
 
+        public string[] SpareListOfAugmentations => spareListOfAugmentations;
+
         public string AugmentationsListFile => augmentationsListFile;
+
 
         private void Awake()
         {
             if (Instance == null)
+            {
                 Instance = this;
+            }
             else if (Instance != this)
+            {
                 Destroy(gameObject);
+            }
         }
 
         private void Start()
         {
 
-            if (prefabsOriginalColors) return;
+            if (prefabsOriginalColors)
+            {
+                return;
+            }
 
-            // if config file doen't exist, disable color customization
+            // if config file isn't exist, disable color customization
             if (Resources.Load<TextAsset>(CFEditor.configFileName) == null)
             {
                 prefabsOriginalColors = true;
@@ -109,7 +118,7 @@ namespace MirageXR
         }
 
 
-        async void WaitForActivityList()
+        private async void WaitForActivityList()
         {
             if (Customizable)
             {
@@ -119,48 +128,48 @@ namespace MirageXR
             }
         }
 
-        void ChangePrimaryAndIconColor()
+        private void ChangePrimaryAndIconColor()
         {
             foreach (Image img in FindObjectsOfType<Image>())
             {
                 if (img.GetComponent<Button>()) continue; //not effect on buttons
 
-                if (img.color == defaultPrimaryColor && newPrimaryColor != null)
-                    img.color = newPrimaryColor;
+                if (img.color == defaultPrimaryColor && _newPrimaryColor != null)
+                    img.color = _newPrimaryColor;
 
-                else if (img.color == defaultSecondaryColor && newSecondaryColor != null)
-                    img.color = newSecondaryColor;
+                else if (img.color == defaultSecondaryColor && _newSecondaryColor != null)
+                    img.color = _newSecondaryColor;
 
-                else if (img.color == defaultIconColor && newIconColor != null)
-                    img.color = newIconColor;
+                else if (img.color == defaultIconColor && _newIconColor != null)
+                    img.color = _newIconColor;
             }
         }
 
 
-        void ChangeSecodaryColors()
+        private void ChangeSecondaryColors()
         {
             foreach (Button btn in FindObjectsOfType<Button>())
             {
                 ColorBlock colors = btn.colors;
-                if (colors.highlightedColor == defaultSecondaryColor && newSecondaryColor != null)
+                if (colors.highlightedColor == defaultSecondaryColor && _newSecondaryColor != null)
                 {
-                    colors.highlightedColor = newSecondaryColor;
+                    colors.highlightedColor = _newSecondaryColor;
                     var factor = 0.7f;
-                    Color darkerColor = new Color(newSecondaryColor.r * factor, newSecondaryColor.g * factor, newSecondaryColor.b * factor, newSecondaryColor.a);
+                    Color darkerColor = new Color(_newSecondaryColor.r * factor, _newSecondaryColor.g * factor, _newSecondaryColor.b * factor, _newSecondaryColor.a);
                     colors.pressedColor = darkerColor;
-                    colors.selectedColor = newSecondaryColor;
+                    colors.selectedColor = _newSecondaryColor;
                     btn.colors = colors;
                 }
             }
         }
 
 
-        void ChangeTextsColor()
+        private void ChangeTextsColor()
         {
             foreach (Text txt in FindObjectsOfType<Text>())
             {
-                if (txt.color == defaultTextColor && newTextColor != null)
-                    txt.color = newTextColor;
+                if (txt.color == defaultTextColor && _newTextColor != null)
+                    txt.color = _newTextColor;
             }
         }
 
@@ -168,7 +177,7 @@ namespace MirageXR
         public void AddCustomColors()
         {
             ChangePrimaryAndIconColor();
-            ChangeSecodaryColors();
+            ChangeSecondaryColors();
             ChangeTextsColor();
         }
 
@@ -176,69 +185,67 @@ namespace MirageXR
 
         public Color GetPrimaryColor()
         {
-            return !prefabsOriginalColors ? newPrimaryColor : defaultPrimaryColor;
+            return !prefabsOriginalColors ? _newPrimaryColor : defaultPrimaryColor;
         }
 
 
         public Color GetSecondaryColor()
         {
-            return !prefabsOriginalColors ? newSecondaryColor : defaultSecondaryColor;
+            return !prefabsOriginalColors ? _newSecondaryColor : defaultSecondaryColor;
         }
 
         public Color GetTextColor()
         {
-            return !prefabsOriginalColors ? newTextColor : defaultTextColor;
+            return !prefabsOriginalColors ? _newTextColor : defaultTextColor;
         }
 
         public Color GetIconColor()
         {
-            return !prefabsOriginalColors ? newIconColor : defaultIconColor;
+            return !prefabsOriginalColors ? _newIconColor : defaultIconColor;
         }
 
         public Color GetTaskStationColor()
         {
-            return !prefabsOriginalColors ? newTaskStationColor : defaultSecondaryColor;
+            return !prefabsOriginalColors ? _newTaskStationColor : defaultSecondaryColor;
         }
 
         public Color GetUIPathColor()
         {
-            return !prefabsOriginalColors ? newUIPathColor : defaultUIPathColor;
+            return !prefabsOriginalColors ? _newUIPathColor : defaultUIPathColor;
         }
 
 
         public Color GetNextPathColor()
         {
-            return !prefabsOriginalColors ? newNextPathColor : defaultNextPathColor;
+            return !prefabsOriginalColors ? _newNextPathColor : defaultNextPathColor;
         }
 
 
-        void AutoLoad()
+        private void AutoLoad()
         {
-            TextAsset ConfigFile = Resources.Load<TextAsset>(CFEditor.configFileName);
+            var configFile = Resources.Load<TextAsset>(CFEditor.configFileName);
 
-            List<string> ConfigItems = ConfigFile.text.Split(new[] { '\r', '\n' }).ToList();
+            var configItems = configFile.text.Split(new[] { '\r', '\n' }).ToList();
 
-            string color = CFEditor.GetValue(ConfigItems.Find(x => x.StartsWith("primaryColor")));
-            newPrimaryColor = CFEditor.StringToColor(color);
+            var properties = new Dictionary<string, Action<string>>
+            {
+                { "primaryColor", value => _newPrimaryColor = CFEditor.StringToColor(CFEditor.GetValue(value)) },
+                { "secondaryColor", value => _newSecondaryColor = CFEditor.StringToColor(CFEditor.GetValue(value)) },
+                { "textColor", value => _newTextColor = CFEditor.StringToColor(CFEditor.GetValue(value)) },
+                { "iconColor", value => _newIconColor = CFEditor.StringToColor(CFEditor.GetValue(value)) },
+                { "taskStationColor", value => _newTaskStationColor = CFEditor.StringToColor(CFEditor.GetValue(value)) },
+                { "pathColor", value => _newUIPathColor = CFEditor.StringToColor(CFEditor.GetValue(value)) },
+                { "nextPathColor", value => _newNextPathColor = CFEditor.StringToColor(CFEditor.GetValue(value)) },
+            };
 
-            color = CFEditor.GetValue(ConfigItems.Find(x => x.StartsWith("secondaryColor")));
-            newSecondaryColor = CFEditor.StringToColor(color);
-
-            color = CFEditor.GetValue(ConfigItems.Find(x => x.StartsWith("textColor")));
-            newTextColor = CFEditor.StringToColor(color);
-
-            color = CFEditor.GetValue(ConfigItems.Find(x => x.StartsWith("iconColor")));
-            newIconColor = CFEditor.StringToColor(color);
-
-            color = CFEditor.GetValue(ConfigItems.Find(x => x.StartsWith("taskStationColor")));
-            newTaskStationColor = CFEditor.StringToColor(color);
-
-            color = CFEditor.GetValue(ConfigItems.Find(x => x.StartsWith("pathColor")));
-            newUIPathColor = CFEditor.StringToColor(color);
-
-            color = CFEditor.GetValue(ConfigItems.Find(x => x.StartsWith("nextPathColor")));
-            newNextPathColor = CFEditor.StringToColor(color);
+            foreach (var property in properties)
+            {
+                var configItem = configItems.Find(x => x.StartsWith(property.Key));
+                if (configItem != null)
+                {
+                    property.Value(configItem);
+                }
+            }
         }
-
     }
 }
