@@ -18,8 +18,6 @@ public class LoginView_v2 : PopupBase
     [SerializeField] private Button _btnLogin;
     [SerializeField] private Button _btnBack;
     [SerializeField] private OnboardingTutorialView _onboardingTutorialViewPrefab;
-    [Space]
-    [SerializeField] private ProfileView _profilePrefab;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -52,7 +50,6 @@ public class LoginView_v2 : PopupBase
             OnLoginSucceed(username, password);
             Close();
             PopupsViewer.Instance.Show(_onboardingTutorialViewPrefab);
-            _profilePrefab.ShowLogout();
         }
         else
         {
@@ -103,6 +100,8 @@ public class LoginView_v2 : PopupBase
         {
             LocalFiles.RemoveUsernameAndPassword();
         }
+
+        EventManager.LoginStatusChanged();
     }
 
     private void ResetValues()

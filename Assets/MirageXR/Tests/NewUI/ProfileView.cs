@@ -51,6 +51,7 @@ public class ProfileView : PopupBase
         EventManager.MoodleDomainChanged += UpdateConnectedServerText;
         EventManager.XAPIChanged += UpdateConectedLRS;
         EventManager.MoodleDomainChanged += UpdatePrivacyPolicyButtonActive;
+        EventManager.OnLoginStatusChanged += ResetValues;
 
         _txtVersion.text = string.Format(VERSION_TEXT, Application.version);
 
@@ -97,7 +98,7 @@ public class ProfileView : PopupBase
         LogOutObjects.SetActive(false);
     }
 
-    public void ShowLogout()
+    private void ShowLogout()
     {
         LoginObjects.SetActive(false);
         LogOutObjects.SetActive(true);

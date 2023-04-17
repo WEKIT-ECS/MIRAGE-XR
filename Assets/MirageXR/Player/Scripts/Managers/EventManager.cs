@@ -842,5 +842,14 @@ namespace MirageXR
         {
             OnMobileHelpPageChanged?.Invoke(value);
         }
+
+        // MirageXR player logged in
+        public delegate void LoginSatusChangedDelegate();
+        public static event LoginSatusChangedDelegate OnLoginStatusChanged;
+
+        public static void LoginStatusChanged()
+        {
+            OnLoginStatusChanged?.Invoke();
+        }
     }
 }
