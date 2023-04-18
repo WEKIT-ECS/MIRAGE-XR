@@ -208,7 +208,7 @@ public class ProfileView : PopupBase
 
     private void ShowChangeServerPanel()
     {
-        RootView_v2.Instance.dialog.ShowBottomMultiline("Select Learning Record Store:",
+        RootView_v2.Instance.dialog.ShowBottomMultilineToggles("Select Learning Record Store:",
             (DBManager.WEKIT_URL, () => ChangeServerAndPrivacyPolicyDomain(DBManager.WEKIT_URL, DBManager.WEKIT_PRIVACY_POLICY_URL)),
             (DBManager.ARETE_URL, () => ChangeServerAndPrivacyPolicyDomain(DBManager.ARETE_URL, DBManager.ARETE_PRIVACY_POLICY_URL)),
             ("Other", ShowServerPanel));
@@ -278,9 +278,9 @@ public class ProfileView : PopupBase
 
     private void UpdatePrivacyPolicyButtonActive()
     {
-        var setActive = (DBManager.privacyPolicyDomain != string.Empty) ? true : false;
+        //var setActive = (DBManager.privacyPolicyDomain != string.Empty) ? true : false;
 
-        _btnPrivacyPolicy.gameObject.SetActive(setActive);
+        //_btnPrivacyPolicy.gameObject.SetActive(setActive);
     }
 
     private void UpdateConectedLRS(DBManager.LearningRecordStores publicCurrentLearningRecordStore)
