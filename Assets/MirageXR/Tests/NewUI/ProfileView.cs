@@ -208,7 +208,7 @@ public class ProfileView : PopupBase
 
     private void ShowChangeServerPanel()
     {
-        RootView_v2.Instance.dialog.ShowBottomMultilineToggles("Select Learning Record Store:",
+        RootView_v2.Instance.dialog.ShowBottomMultilineToggles("Moodle servers:",
             (DBManager.WEKIT_URL, () => ChangeServerAndPrivacyPolicyDomain(DBManager.WEKIT_URL, DBManager.WEKIT_PRIVACY_POLICY_URL)),
             (DBManager.ARETE_URL, () => ChangeServerAndPrivacyPolicyDomain(DBManager.ARETE_URL, DBManager.ARETE_PRIVACY_POLICY_URL)),
             ("Other", ShowServerPanel));
