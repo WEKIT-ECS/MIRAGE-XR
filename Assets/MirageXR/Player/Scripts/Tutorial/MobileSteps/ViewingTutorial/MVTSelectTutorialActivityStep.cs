@@ -15,8 +15,8 @@ namespace MirageXR
             string name = tutorialActivityCard.activityName;
 
             TutorialItem titem = tutorialActivityCard.gameObject.AddComponent(typeof(TutorialItem)) as TutorialItem;
-            titem.Id = "tutorial_activity";
-            titem.InteractableObject = tutorialActivityCard.gameObject;
+            titem.SetId("tutorial_activity");
+            titem.SetInteractableObject(tutorialActivityCard.gameObject);
 
             var queue = new Queue<TutorialModel>();
             queue.Enqueue(new TutorialModel { id = "tutorial_activity", message = "Click the first activity.", position = TutorialModel.MessagePosition.Bottom });

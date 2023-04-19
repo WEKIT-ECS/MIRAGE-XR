@@ -16,16 +16,26 @@ public class TutorialItem : MonoBehaviour
     private bool _isTrackingActivated;
     private Transform _traceable;
 
-    public string id => _getIdFromName ? name : _id;
-    public Button button => InteractableObject.GetComponentInChildren<Button>();
+    public string Id => _getIdFromName ? name : _id;
+    public Button Button => _interactableObject.GetComponentInChildren<Button>();
 
-    public Toggle toggle => InteractableObject.GetComponent<Toggle>();
+    public Toggle Toggle => _interactableObject.GetComponent<Toggle>();
 
-    public TMP_InputField inputField => InteractableObject.GetComponent<TMP_InputField>();
+    public TMP_InputField InputField => _interactableObject.GetComponent<TMP_InputField>();
 
-    public bool isPartOfScrollView => IsPartOfScrollView;
+    public bool IsPartOfScrollView => _isPartOfScrollView;
 
-    public float delay => _delay;
+    public float Delay => _delay;
+
+    public void SetId(string id)
+    {
+        this._id = id;
+    }
+
+    public void SetInteractableObject(GameObject gameObject)
+    {
+        this._interactableObject = gameObject;
+    }
 
     private void Update()
     {

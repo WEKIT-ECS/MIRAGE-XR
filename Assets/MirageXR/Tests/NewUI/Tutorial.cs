@@ -107,9 +107,9 @@ public class Tutorial : MonoBehaviour
             if (item)
             {
                 await Task.Yield();
-                if (item.delay > 0)
+                if (item.Delay > 0)
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(item.delay));
+                    await Task.Delay(TimeSpan.FromSeconds(item.Delay));
                 }
 
                 _lastCopy = CopyTutorialItem(item);
@@ -167,12 +167,12 @@ public class Tutorial : MonoBehaviour
 
     private TutorialItem CopyTutorialItem(TutorialItem item)
     {
-        if (item.isPartOfScrollView)
+        if (item.IsPartOfScrollView)
         {
             item.ScrollToTop();
         }
 
-        if (item.inputField)
+        if (item.InputField)
         {
             GameObject hbPrefab = Resources.Load("prefabs/UI/Mobile/Tutorial/HighlightButton", typeof(GameObject)) as GameObject;
             GameObject target = item.gameObject;
@@ -206,23 +206,23 @@ public class Tutorial : MonoBehaviour
 
     private void SetUpTargetCopy(TutorialItem item, TutorialItem copy)
     {
-        if (item.button)
+        if (item.Button)
         {
-            copy.button.onClick.RemoveAllListeners();
-            copy.button.onClick.AddListener(() => OnTargetCopyClicked(item, copy));
+            copy.Button.onClick.RemoveAllListeners();
+            copy.Button.onClick.AddListener(() => OnTargetCopyClicked(item, copy));
         }
 
-        if (item.toggle)
+        if (item.Toggle)
         {
-            copy.toggle.onValueChanged.RemoveAllListeners();
-            copy.toggle.onValueChanged.AddListener(value => OnTargetCopyClicked(item, copy));
+            copy.Toggle.onValueChanged.RemoveAllListeners();
+            copy.Toggle.onValueChanged.AddListener(value => OnTargetCopyClicked(item, copy));
             _toggleIsFirstPass = true;
         }
 
-        if (item.inputField)
+        if (item.InputField)
         {
             HighlightingButton higBtn = copy.gameObject.GetComponent<HighlightingButton>();
-            higBtn.SetTarget(item.inputField);
+            higBtn.SetTarget(item.InputField);
             higBtn.Btn.onClick.AddListener(() => OnTargetCopyClicked(item, copy));
         }
 
@@ -231,17 +231,17 @@ public class Tutorial : MonoBehaviour
 
     private void OnTargetCopyClicked(TutorialItem item, TutorialItem copy)
     {
-        if (item.button)
+        if (item.Button)
         {
-            item.button.onClick.Invoke();
+            item.Button.onClick.Invoke();
         }
 
-        if (item.toggle)
+        if (item.Toggle)
         {
             if (_toggleIsFirstPass)
             {
                 _toggleIsFirstPass = false;
-                item.toggle.isOn = true;
+                item.Toggle.isOn = true;
             }
             else
             {

@@ -39,8 +39,8 @@ public class DialogViewMiddleMultiline : DialogView
                 if (text.text == "Open to view")
                 {
                     TutorialItem titem = button.gameObject.AddComponent(typeof(TutorialItem)) as TutorialItem;
-                    titem.Id = "open_to_view";
-                    titem.InteractableObject = button.gameObject;
+                    titem.SetId("open_to_view");
+                    titem.SetInteractableObject(button.gameObject);
                 }
             }
         }
