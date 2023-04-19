@@ -336,7 +336,14 @@ namespace MirageXR
 
         public static async void AsAsyncVoid(this Task task)
         {
-            await task;
+            try
+            {
+                await task;
+            }
+            catch (Exception e)
+            {
+                AppLog.LogError(e.ToString());
+            }
         }
     }
 }
