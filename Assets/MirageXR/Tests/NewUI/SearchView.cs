@@ -11,9 +11,12 @@ public class SearchView : PopupBase
     [SerializeField] private ActivityListItem_v2 _smallItemPrefab;
     [SerializeField] private ActivityListItem_v2 _bigItemPrefab;
     [SerializeField] private TMP_InputField _inputFieldSearch;
-    [SerializeField] private Button _allButton;
-    [SerializeField] private Button _titleButton;
-    [SerializeField] private Button _authorButton;
+    [SerializeField] private Button _clearSearchBtn;
+    [SerializeField] private Button _backHomeBtn;
+    [SerializeField] private Toggle _allToggle;
+    [SerializeField] private Toggle _titleToggle;
+    [SerializeField] private Toggle _authorToggle;
+    [SerializeField] private GameObject _textNoResults;
 
     private List<SessionContainer> _content;
     private readonly List<ActivityListItem_v2> _items = new List<ActivityListItem_v2>();
@@ -38,9 +41,11 @@ public class SearchView : PopupBase
             _content = _activityListView.content;
             _inputFieldSearch.onValueChanged.AddListener(OnInputFieldSearchChanged);
 
-            _allButton.onClick.AddListener(OnAllClick);
-            _titleButton.onClick.AddListener(OnTitleClick);
-            _authorButton.onClick.AddListener(OnAuthorClick);
+            _backHomeBtn.onClick.AddListener(Close);
+            _clearSearchBtn.onClick.AddListener(ClearSearchField);
+            _allToggle.onValueChanged.AddListener(OnAllClick);
+            _titleToggle.onValueChanged.AddListener(OnTitleClick);
+            _authorToggle.onValueChanged.AddListener(OnAuthorClick);
 
 
             _selectedSearchType = SearchType.All;
@@ -48,7 +53,14 @@ public class SearchView : PopupBase
             UpdateListView();
         }
 
+        _clearSearchBtn.gameObject.SetActive(false);
+        _textNoResults.SetActive(false);
         EventManager.OnActivityStarted += Close;
+    }
+
+    private void ClearSearchField()
+    {
+       _inputFieldSearch.text = string.Empty;
     }
 
     private void OnDestroy()
@@ -56,25 +68,31 @@ public class SearchView : PopupBase
         EventManager.OnActivityStarted -= Close;
     }
 
-    public void OnAllClick()
+    private void OnAllClick(bool isOn)
     {
-        _selectedSearchType = SearchType.All;
-
-        OnInputFieldSearchChanged(_inputFieldSearch.text);
+        if (isOn)
+        {
+            _selectedSearchType = SearchType.All;
+            OnInputFieldSearchChanged(_inputFieldSearch.text);
+        }
     }
 
-    public void OnTitleClick()
+    private void OnTitleClick(bool isOn)
     {
-        _selectedSearchType = SearchType.Title;
-
-        OnInputFieldSearchChanged(_inputFieldSearch.text);
+        if (isOn)
+        {
+            _selectedSearchType = SearchType.Title;
+            OnInputFieldSearchChanged(_inputFieldSearch.text);
+        }
     }
 
-    public void OnAuthorClick()
+    private void OnAuthorClick(bool isOn)
     {
-        _selectedSearchType = SearchType.Author;
-
-        OnInputFieldSearchChanged(_inputFieldSearch.text);
+        if (isOn)
+        {
+            _selectedSearchType = SearchType.Author;
+            OnInputFieldSearchChanged(_inputFieldSearch.text);
+        }
     }
 
     private void UpdateListView()
@@ -89,11 +107,13 @@ public class SearchView : PopupBase
             var item = Instantiate(prefab, _listTransform);
             item.Init(content);
             _items.Add(item);
+            item.gameObject.SetActive(false);
         });
     }
 
     private void OnInputFieldSearchChanged(string text)
     {
+        var _itemsCount = 0;
         foreach (var item in _items)
         {
             var author = string.IsNullOrEmpty(text) || item.activityAuthor.ToLower().Contains(text.ToLower());
@@ -105,12 +125,12 @@ public class SearchView : PopupBase
                     if (title || author)
                     {
                         item.gameObject.SetActive(true);
+                        _itemsCount += 1;
                     }
                     else
                     {
                         item.gameObject.SetActive(false);
                     }
-
                     break;
                 case SearchType.Title:
                     item.gameObject.SetActive(title);
@@ -119,6 +139,17 @@ public class SearchView : PopupBase
                     item.gameObject.SetActive(author);
                     break;
             }
+        }
+
+        if (text == string.Empty)
+        {
+            _clearSearchBtn.gameObject.SetActive(false);
+            _textNoResults.SetActive(false);
+        }
+        else
+        {
+            _clearSearchBtn.gameObject.SetActive(true);
+            _textNoResults.SetActive(_itemsCount > 0 ? false : true);
         }
     }
 
