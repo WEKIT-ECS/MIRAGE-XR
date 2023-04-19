@@ -99,8 +99,8 @@ namespace MirageXR
         {
             var place = RootObject.Instance.workplaceManager.GetPlaceFromTaskStationId(_content.id);
             var detectable = RootObject.Instance.workplaceManager.GetDetectable(place);
-            var detectableObj = GameObject.Find(detectable.id);
-            var detectableParentObj = GameObject.Find("Detectables");
+            var detectableObj = GameObject.Find(detectable.id); // TODO: replace GameObject.Find(...)
+            var detectableParentObj = RootObject.Instance.workplaceManager.detectableContainer;
             detectableObj.transform.SetParent(detectableParentObj.transform);
         }
 
