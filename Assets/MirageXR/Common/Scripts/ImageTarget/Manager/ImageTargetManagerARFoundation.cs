@@ -8,8 +8,12 @@ using UnityEngine.XR.ARSubsystems;
 
 public class ImageTargetManagerARFoundation : ImageTargetManagerBase
 {
+    private const int DELAY = 1000;
+
     private ARTrackedImageManager _arTrackedImageManager;
     private Dictionary<string, ImageTargetModel> _map = new Dictionary<string, ImageTargetModel>();
+    private bool _libraryIsBusy = false;
+    private object _syncObject = new object();
 
     public override async Task<bool> InitializationAsync()
     {
@@ -21,7 +25,7 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
 
         _arTrackedImageManager.referenceLibrary ??= _arTrackedImageManager.CreateRuntimeLibrary();
         _arTrackedImageManager.trackedImagesChanged += OnTrackedImagesChanged;
-        _arTrackedImageManager.requestedMaxNumberOfMovingImages = 0;
+        _arTrackedImageManager.requestedMaxNumberOfMovingImages = 10;
         _arTrackedImageManager.enabled = true;
 
         _isInitialized = true;
@@ -47,33 +51,57 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
             }
             else
             {
-                _map.Remove(imageTargetModel.name);
+                lock (_syncObject)
+                {
+                    _map.Remove(imageTargetModel.name);
+                }
             }
         }
 
         if (!alreadyExists)
         {
-            _map.Add(imageTargetModel.name, imageTargetModel);
+            lock (_syncObject)
+            {
+                _map.Add(imageTargetModel.name, imageTargetModel);
+            }
+
+            while (_libraryIsBusy)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await Task.Yield();
+            }
+
+            _libraryIsBusy = true;
             var job = mutableLibrary.ScheduleAddImageWithValidationJob(imageTargetModel.texture2D, imageTargetModel.name, imageTargetModel.width);
             while (job.status is AddReferenceImageJobStatus.Pending or AddReferenceImageJobStatus.None)
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
+                    _libraryIsBusy = false;
                     _map.Remove(imageTargetModel.name);
                     cancellationToken.ThrowIfCancellationRequested();
                 }
 
                 await Task.Yield();
             }
+
+            _libraryIsBusy = false;
         }
 
-        _arTrackedImageManager.requestedMaxNumberOfMovingImages += 1;
+        lock (_syncObject)
+        {
+            _arTrackedImageManager.requestedMaxNumberOfMovingImages += 1;
+        }
 
         while (!_images.ContainsKey(imageTargetModel.name))
         {
             if (cancellationToken.IsCancellationRequested)
             {
-                _map.Remove(imageTargetModel.name);
+                lock (_syncObject)
+                {
+                    _map.Remove(imageTargetModel.name);
+                }
+
                 cancellationToken.ThrowIfCancellationRequested();
             }
 
@@ -160,6 +188,8 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
             arPoseDriver = mainCamera.gameObject.AddComponent<ARPoseDriver>();
         }
 
+        await Task.Delay(DELAY);
+
         return true;
     }
 
@@ -209,7 +239,7 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
 
     protected override void OnDisable()
     {
-        if (_isInitialized)
+        if (_isInitialized && _arTrackedImageManager)
         {
             _arTrackedImageManager.enabled = false;
         }

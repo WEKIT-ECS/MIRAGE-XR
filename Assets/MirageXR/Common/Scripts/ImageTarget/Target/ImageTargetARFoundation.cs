@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using ARTrackingState = UnityEngine.XR.ARSubsystems.TrackingState;
 
-
 [RequireComponent(typeof(ARTrackedImage))]
 public class ImageTargetARFoundation : ImageTargetBase
 {
