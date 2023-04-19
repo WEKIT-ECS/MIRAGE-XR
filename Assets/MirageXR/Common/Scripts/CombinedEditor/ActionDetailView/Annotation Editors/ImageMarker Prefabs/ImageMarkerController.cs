@@ -8,6 +8,8 @@ namespace MirageXR
 {
     public class ImageMarkerController : MirageXRPrefab
     {
+        private ImageTargetManagerWrapper imageTargetManager => RootObject.Instance.imageTargetManager;
+
         private string _imageName;
         private ToggleObject _content;
 
@@ -22,13 +24,13 @@ namespace MirageXR
         {
             if (string.IsNullOrEmpty(_content.url))
             {
-                Debug.LogError("Content URL not provided.");
+                AppLog.LogError("Content URL not provided.");
                 return false;
             }
 
             if (!SetParent(_content))
             {
-                Debug.LogError("Couldn't set the parent.");
+                AppLog.LogError("Couldn't set the parent.");
                 return false;
             }
 
@@ -41,17 +43,25 @@ namespace MirageXR
             var defaultScale = new Vector3(0.5f, 0.5f, 0.5f);
             transform.parent.localScale = GetPoiScale(myPoiEditor, defaultScale);
 
-            if (!GameObject.Find(_imageName))
+            var imageTarget = imageTargetManager.GetImageTarget(_imageName) as ImageTargetBase;
+
+            if (!imageTarget)
             {
-                await LoadImage();
+                imageTarget = await LoadImage();
+
+                if (imageTarget == null)
+                {
+                    AppLog.LogError("Can't add image target");
+                    return false;
+                }
             }
 
-            DetectableAsChild();
+            MoveDetectableToImage(imageTarget.transform);
 
             return base.Init(_content);
         }
 
-        private async Task<bool> LoadImage()
+        private async Task<ImageTargetBase> LoadImage()
         {
             var imagePath = Path.Combine(RootObject.Instance.activityManager.ActivityPath, _imageName);
             var byteArray = await File.ReadAllBytesAsync(imagePath);
@@ -59,7 +69,8 @@ namespace MirageXR
 
             if (!texture.LoadImage(byteArray))
             {
-                return false;
+                AppLog.LogError($"Can't load image. path: {imagePath}");
+                return null;
             }
 
             var model = new ImageTargetModel
@@ -71,40 +82,36 @@ namespace MirageXR
                 useLimitedTracking = true,
             };
 
-            var imageTarget = await RootObject.Instance.imageTargetManager.AddImageTarget(model);
-            var primitive = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-
-            primitive.transform.SetParent(((ImageTargetBase)imageTarget).transform);
-            primitive.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-
-            return imageTarget != null;
+            return await RootObject.Instance.imageTargetManager.AddImageTarget(model) as ImageTargetBase;
         }
 
-        private void DetectableAsChild()
+        private void MoveDetectableToImage(Transform targetHolder)
         {
             var workplaceManager = RootObject.Instance.workplaceManager;
             var taskStationId = workplaceManager.GetPlaceFromTaskStationId(_content.id);
             var detectable = workplaceManager.GetDetectable(taskStationId);
             var augmentation = GameObject.Find(detectable.id);
-            augmentation.transform.SetParent(GameObject.Find(_imageName).transform);
+            augmentation.transform.SetParent(targetHolder);
             augmentation.transform.localPosition = new Vector3(0, 0.1f, 0);
+        }
+
+        private void MoveDetectableBack()
+        {
+            var place = RootObject.Instance.workplaceManager.GetPlaceFromTaskStationId(_content.id);
+            var detectable = RootObject.Instance.workplaceManager.GetDetectable(place);
+            var detectableObj = GameObject.Find(detectable.id);
+            var detectableParentObj = GameObject.Find("Detectables");
+            detectableObj.transform.SetParent(detectableParentObj.transform);
         }
 
         public void PlatformOnDestroy()
         {
-            var place = RootObject.Instance.workplaceManager.GetPlaceFromTaskStationId(_content.id);
-            var detectable = RootObject.Instance.workplaceManager.GetDetectable(place);
-
-            var detectableObj = GameObject.Find(detectable.id);
-            var detectableParentObj = GameObject.Find("Detectables");
-
-            detectableObj.transform.SetParent(detectableParentObj.transform);
+            MoveDetectableBack();
             Destroy(gameObject);
         }
 
         public override void Delete()
         {
-            Debug.Log("-------Delete");
             // changed Delete to a virtual method so I could overide it for Image markers as they were being deleted twice when changing activities causeing the new activity not to load
         }
     }
