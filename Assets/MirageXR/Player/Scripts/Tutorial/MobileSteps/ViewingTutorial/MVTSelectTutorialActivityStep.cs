@@ -17,14 +17,15 @@ namespace MirageXR
             TutorialItem titem = tutorialActivityCard.gameObject.AddComponent(typeof(TutorialItem)) as TutorialItem;
             titem.SetId("tutorial_activity");
             titem.SetInteractableObject(tutorialActivityCard.gameObject);
+            titem.SetDelay(1);
 
             var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { id = "tutorial_activity", message = "Click the first activity.", position = TutorialModel.MessagePosition.Bottom });
-            queue.Enqueue(new TutorialModel { id = "open_to_view", message = "Second step.", position = TutorialModel.MessagePosition.Bottom });
+            queue.Enqueue(new TutorialModel { id = "tutorial_activity", message = "Welcome to the MirageXR Viewing Tutorial! To start, click on the specialy prepared Tutorial Activity highlighted on your screen.", position = TutorialModel.MessagePosition.Bottom });
+            queue.Enqueue(new TutorialModel { id = "dialog_middle_multiline_1", message = "An activity can be opened in two modes: editing (to make changes to the app) and viewing (read-only). For this tutorial, click Open to View.", position = TutorialModel.MessagePosition.Bottom });
             this.manager.MobileTutorial.Show(queue);
 
+            // Next Step triggered by first step being activated
             EventManager.OnActivateAction += NextStepByLabelTriggerListener;
-            //tutorialActivityCard.BtnMain.onClick.AddListener(this.DefaultExitEventListener);
         }
 
         private void NextStepByLabelTriggerListener(string action)
@@ -34,12 +35,14 @@ namespace MirageXR
 
         protected override void SecuredExitStep()
         {
+            EventManager.OnActivateAction -= NextStepByLabelTriggerListener;
             this.manager.NextStep();
         }
+
         protected override void SecuredCloseStep()
         {
             this.manager.MobileTutorial.Hide();
-            //nothing
+            EventManager.OnActivateAction -= NextStepByLabelTriggerListener;
         }
     }
 }

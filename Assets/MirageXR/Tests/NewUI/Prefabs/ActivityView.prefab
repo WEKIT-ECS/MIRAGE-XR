@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7076854043996937747}
   - component: {fileID: 5112632604181149349}
   - component: {fileID: 3270259943189173870}
+  - component: {fileID: 1689520083257939390}
   m_Layer: 5
   m_Name: ImageArrowDown
   m_TagString: Untagged
@@ -121,6 +122,23 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1689520083257939390
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 934973780048964906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _getIdFromName: 0
+  _id: ui_down
+  _interactableObject: {fileID: 934973780048964906}
+  _isPartOfScrollView: 0
+  _delay: 0
 --- !u!1 &1317516094878668361
 GameObject:
   m_ObjectHideFlags: 0
@@ -133,6 +151,7 @@ GameObject:
   - component: {fileID: 2378261806077373172}
   - component: {fileID: 4788704597219065251}
   - component: {fileID: 606785286919405235}
+  - component: {fileID: 5972627097439162017}
   m_Layer: 5
   m_Name: TopArrowButton
   m_TagString: Untagged
@@ -244,6 +263,23 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &5972627097439162017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1317516094878668361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _getIdFromName: 0
+  _id: ui_toggle
+  _interactableObject: {fileID: 1317516094878668361}
+  _isPartOfScrollView: 0
+  _delay: 0
 --- !u!1 &2410575906581098410
 GameObject:
   m_ObjectHideFlags: 0
@@ -335,6 +371,7 @@ GameObject:
   - component: {fileID: 674476546936108891}
   - component: {fileID: 6431001769028551092}
   - component: {fileID: 5812287363572833902}
+  - component: {fileID: 396919259395300553}
   m_Layer: 5
   m_Name: ImageArrowUp
   m_TagString: Untagged
@@ -444,6 +481,23 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &396919259395300553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2814829010217319243}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _getIdFromName: 0
+  _id: ui_up
+  _interactableObject: {fileID: 2814829010217319243}
+  _isPartOfScrollView: 0
+  _delay: 0
 --- !u!1 &2970506559561805934
 GameObject:
   m_ObjectHideFlags: 0
@@ -1453,6 +1507,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7874822903976892688, guid: 5b0ba590e1ce62f489258ada7b769e87,
         type: 3}
+      propertyPath: _delay
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7874822903976892688, guid: 5b0ba590e1ce62f489258ada7b769e87,
+        type: 3}
       propertyPath: InteractableObject
       value: 
       objectReference: {fileID: 3364984415467019994}
@@ -1714,6 +1773,29 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 7705693586177607798}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1508262910050955673 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9087826843404646895, guid: 5b0ba590e1ce62f489258ada7b769e87,
+    type: 3}
+  m_PrefabInstance: {fileID: 7705693586177607798}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5055027933712803849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1508262910050955673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _getIdFromName: 0
+  _id: activity_calibrate
+  _interactableObject: {fileID: 1508262910050955673}
+  _isPartOfScrollView: 0
+  _delay: 0.5
 --- !u!1 &2261614818854120519 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8472046933111759921, guid: 5b0ba590e1ce62f489258ada7b769e87,

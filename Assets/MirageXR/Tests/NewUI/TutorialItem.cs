@@ -37,6 +37,11 @@ public class TutorialItem : MonoBehaviour
         this._interactableObject = gameObject;
     }
 
+    public void SetDelay(float delay)
+    {
+        this._delay = delay;
+    }
+
     private void Update()
     {
         if (!_isTrackingActivated)
