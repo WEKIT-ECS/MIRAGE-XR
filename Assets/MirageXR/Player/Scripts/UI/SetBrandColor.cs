@@ -21,35 +21,40 @@ namespace MirageXR
         [SerializeField] private bool setSelectableColors;
         [SerializeField] private ColorType colorType;
 
-        void Awake()
+        private void Awake()
         {
             if (BrandManager.Instance == null)
             {
-                AppLog.LogWarning("BrandManager not initialized");
+                AppLog.LogWarning("BrandManager has been not initialized");
                 return;
             }
 
-            var colorToUse = colorType == ColorType.PrimaryColor ? BrandManager.Instance.GetPrimaryColor() : BrandManager.Instance.GetSecondaryColor();
+            var colorToUse = colorType == ColorType.PrimaryColor ? BrandManager.Instance.PrimaryColor : BrandManager.Instance.SecondaryColor;
             if (setGraphicColor)
-                GetComponent<Graphic>().color = colorToUse;
-            if (setSelectableColors)
             {
-                var selectable = GetComponent<Selectable>();
-                selectable.colors = new ColorBlock()
-                {
-                    normalColor = selectable.colors.normalColor,
-                    highlightedColor = colorToUse,
-                    selectedColor = ShadeColor(colorToUse, 20f),
-                    pressedColor = ShadeColor(colorToUse, -20f),
-                    disabledColor = new Color(0, 0, 0, 0.3f),
-                    colorMultiplier = 1,
-                    fadeDuration = 0.1f
-                };
+                GetComponent<Graphic>().color = colorToUse;
             }
+
+            if (!setSelectableColors)
+            {
+                return;
+            }
+
+            var selectable = GetComponent<Selectable>();
+            selectable.colors = new ColorBlock()
+            {
+                normalColor = selectable.colors.normalColor,
+                highlightedColor = colorToUse,
+                selectedColor = ShadeColor(colorToUse, 20f),
+                pressedColor = ShadeColor(colorToUse, -20f),
+                disabledColor = new Color(0, 0, 0, 0.3f),
+                colorMultiplier = 1,
+                fadeDuration = 0.1f,
+            };
         }
 
         //Returns a lighter or darker version of the color. Negative value for darker and positive value for lighter.
-        Color ShadeColor(Color color, float percent)
+        private static Color ShadeColor(Color color, float percent)
         {
             var R = color.r * 255;
             var G = color.g * 255;

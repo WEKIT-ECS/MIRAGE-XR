@@ -11,14 +11,29 @@ namespace MirageXR
 {
     public class BrandConfiguration : EditorWindow
     {
+
+#if UNITY_ANDROID || UNITY_IOS
+
+        private const string augmentationsListFile = "MobileAugmentationListFile";
+#else
+        private const string augmentationsListFile = "HololensAugmentationListFile";
+#endif
+
         //The gap from right side of the window to the fields
         private readonly int _windowRightOffset = 20;
         private readonly Dictionary<string, bool> _augmentations = new ();
         private readonly ConfigEditor _cfEditor = new ();
+        private const string DefaultCompanyName = "WEKIT ECS";
+        private const string DefaultAppName = "MirageXR";
+        private const string DefaultVersion = "$appVersion";
+        private const string DefaultMoodleUrl = "learn.wekit-ecs.com";
+        private const string DefaultXApiUrl = "lrs.wekit-ecs.com/data/xAPI";
 
         private string _compName = string.Empty;
         private string _prodName = string.Empty;
         private string _version = string.Empty;
+        private string _moodleUrl = string.Empty;
+        private string _xAPIUrl = string.Empty;
         private string _termsOfUse = string.Empty;
 
         private Texture2D _splashScreen;
@@ -94,18 +109,25 @@ namespace MirageXR
             {
                 _compName = EditorGUI.TextField(new Rect(3, myStartY + 20, position.width - _windowRightOffset, 20), "Company Name", _compName);
                 _prodName = EditorGUI.TextField(new Rect(3, myStartY + 45, position.width - _windowRightOffset, 20), "Product Name", _prodName);
-                _version = EditorGUI.TextField(new Rect(3, myStartY + 70, position.width - _windowRightOffset, 20), "Version", _version);
+                _moodleUrl = EditorGUI.TextField(new Rect(3, myStartY + 70, position.width - _windowRightOffset, 20), "Moodle URL", _moodleUrl);
+                _xAPIUrl = EditorGUI.TextField(new Rect(3, myStartY + 95, position.width - _windowRightOffset, 20), "xAPI URL", _xAPIUrl);
+                _version = EditorGUI.TextField(new Rect(3, myStartY + 120, position.width - _windowRightOffset, 20), "Version", _version);
 
                 //Available augmentation
-                GUILayout.BeginArea(new Rect(3, myStartY + 100, position.width - _windowRightOffset, 370));
+                GUILayout.BeginArea(new Rect(3, myStartY + 150, position.width - _windowRightOffset, 370));
                 GUILayout.Label("Available Augmentations");
                 var counter = 0;
-                foreach (var augmentation in BrandManager.Instance.SpareListOfAugmentations)
+                foreach (ContentType augmentation in Enum.GetValues(typeof(ContentType)))
                 {
-                    if (_augmentations.TryGetValue(augmentation, out var toggleValue))
+                    if (augmentation == ContentType.UNKNOWN)
                     {
+                        continue;
                     }
-                    _augmentations[augmentation] = EditorGUI.Toggle(new Rect(5, 30 + (counter * 25), position.width - _windowRightOffset, 15), augmentation, toggleValue);
+
+                    var contentTypeString = augmentation.GetPredicate();
+
+                    _augmentations.TryGetValue(contentTypeString, out var toggleValue);
+                    _augmentations[contentTypeString] = EditorGUI.Toggle(new Rect(5, 30 + (counter * 25), position.width - _windowRightOffset, 15), contentTypeString, toggleValue);
                     counter++;
                 }
                 GUILayout.EndArea();
@@ -117,7 +139,7 @@ namespace MirageXR
                     _cfEditor.TermsOfUseUserFilePath() : _cfEditor.TermsOfUseDefaultFilePath());
 
 
-                GUILayout.BeginArea(new Rect(3, myStartY + 490, position.width - _windowRightOffset, 245));
+                GUILayout.BeginArea(new Rect(3, myStartY + 510, position.width - _windowRightOffset, 245));
 
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("Terms of use");
@@ -194,7 +216,7 @@ namespace MirageXR
 
         private void SaveAugmentationSetting()
         {
-            var path = $"{Application.dataPath}/MirageXR/Resources/{BrandManager.Instance.AugmentationsListFile}.txt";
+            var path = $"{Application.dataPath}/MirageXR/Resources/{augmentationsListFile}.txt";
 
             //Create the file if not exist
             if (!File.Exists(path))
@@ -224,7 +246,7 @@ namespace MirageXR
 
         private void LoadAugmentationSetting()
         {
-            var path = $"{Application.dataPath}/MirageXR/Resources/{BrandManager.Instance.AugmentationsListFile}.txt";
+            var path = $"{Application.dataPath}/MirageXR/Resources/{augmentationsListFile}.txt";
 
             if (!File.Exists(path))
             {
@@ -290,9 +312,11 @@ namespace MirageXR
 
             var properties = new Dictionary<string, string>
         {
-            {"companyName", $"companyName:{PlayerSettings.companyName}"},
-            {"productName", $"productName:{PlayerSettings.productName}"},
-            {"version", $"version:{PlayerSettings.bundleVersion}"},
+            {"companyName", $"companyName:{DefaultCompanyName}"},
+            {"productName", $"productName:{DefaultAppName}"},
+            {"moodleUrl", $"moodleUrl:{DefaultMoodleUrl}"},
+            {"xApiUrl", $"xApiUrl:{DefaultXApiUrl}"},
+            {"version", $"version:{DefaultVersion}"},
             {"splashScreen", $"splashScreen:{AssetDatabase.GetAssetPath(PlayerSettings.virtualRealitySplashScreen)}"},
             {"logo", $"logo:{AssetDatabase.GetAssetPath(PlayerSettings.virtualRealitySplashScreen)}"},
             {"SplashBackgroundColor", $"SplashBackgroundColor:{_cfEditor.ColorToString(new Color32(0, 0, 0, 255))}"},
@@ -331,6 +355,8 @@ namespace MirageXR
 
             _cfEditor.EditLine("companyName", _compName);
             _cfEditor.EditLine("productName", _prodName);
+            _cfEditor.EditLine("moodleUrl", _moodleUrl);
+            _cfEditor.EditLine("xApiUrl", _xAPIUrl);
             _cfEditor.EditLine("version", _version);
 
             if (_termsOfUse != string.Empty && _termsOfUse != _termOfUseData)
@@ -370,6 +396,8 @@ namespace MirageXR
     {
         { "companyName", value => _compName = _cfEditor.GetValue(value) },
         { "productName", value => _prodName = _cfEditor.GetValue(value) },
+        { "moodleUrl", value => _moodleUrl = _cfEditor.GetValue(value) },
+        { "xApiUrl", value => _xAPIUrl = _cfEditor.GetValue(value) },
         { "version", value => _version = _cfEditor.GetValue(value) },
         { "splashScreen", value => {
             var splashPath = _cfEditor.GetValue(value);
