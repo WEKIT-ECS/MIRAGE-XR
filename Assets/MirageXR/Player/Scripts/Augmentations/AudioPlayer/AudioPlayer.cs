@@ -387,23 +387,22 @@ namespace MirageXR
                 AppLog.LogTrace("Trying to load audio: " + completeAudioName);
                 WWW www = new WWW(completeAudioName);
                 yield return www;
-                AudioClip audioClip;
-                if (filename.EndsWith("wav"))
+
+                var audioType = GetAudioType(filename);
+
+                if (audioType != AudioType.UNKNOWN)
                 {
-                    audioClip = www.GetAudioClip(false, false, AudioType.WAV);
-                }
-                else if (filename.EndsWith("mp3"))
-                {
-                    audioClip = www.GetAudioClip(false, false, AudioType.MPEG);
+                    AudioClip audioClip = www.GetAudioClip(false, false, audioType);
+
+                    audioPlayer.clip = audioClip;
+                    audioPlayer.playOnAwake = false;
+                    //audioPlayer.loop = false;
+                    isReady = true;
                 }
                 else
                 {
-                    audioClip = www.GetAudioClip(false, false, AudioType.UNKNOWN);
+                    AppLog.LogWarning("The file: \n" + completeAudioName + "\n has an unknown audio type. Please use .wav or .mp3");
                 }
-                audioPlayer.clip = audioClip;
-                audioPlayer.playOnAwake = false;
-                //audioPlayer.loop = false;
-                isReady = true;
 
                 // Online file
                 /*
@@ -419,11 +418,29 @@ namespace MirageXR
             }
         }
 
+        private AudioType GetAudioType(string filename)
+        {
+
+            if (filename.EndsWith("wav"))
+            {
+                return AudioType.WAV;
+            }
+            else if (filename.EndsWith("mp3"))
+            {
+                return AudioType.MPEG;
+            }
+            else
+            {
+                return AudioType.UNKNOWN;
+            }
+        }
+
         private void OnDestroy()
         {
             if (_contentObject != null)
                 Destroy(_contentObject);
         }
+
 
         public float getAudioLength()
         {
