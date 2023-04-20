@@ -34,14 +34,6 @@ public class DialogViewMiddleMultiline : DialogView
                 {
                     text.color = warningColor;
                 }
-
-                // Necessary for mobile viewing tutorial to know where to point to
-                if (text.text == "Open to view")
-                {
-                    TutorialItem titem = button.gameObject.AddComponent(typeof(TutorialItem)) as TutorialItem;
-                    titem.SetId("open_to_view");
-                    titem.SetInteractableObject(button.gameObject);
-                }
             }
         }
     }

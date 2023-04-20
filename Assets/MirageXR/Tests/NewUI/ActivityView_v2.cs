@@ -36,6 +36,10 @@ public class ActivityView_v2 : BaseView
 
     private RootView_v2 rootView => (RootView_v2)_parentView;
 
+    public RectTransform Tabs => _tabs;
+
+    public Button BtnArrow => _btnArrow;
+
     public override void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
