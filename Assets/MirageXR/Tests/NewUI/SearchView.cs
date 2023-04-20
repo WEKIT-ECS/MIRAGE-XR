@@ -113,45 +113,45 @@ public class SearchView : PopupBase
 
     private void OnInputFieldSearchChanged(string text)
     {
-        var _itemsCount = 0;
+        int itemsCount = 0;
+        bool isTextEmpty = string.IsNullOrEmpty(text);
+
         foreach (var item in _items)
         {
-            var author = string.IsNullOrEmpty(text) || item.activityAuthor.ToLower().Contains(text.ToLower());
-            var title = string.IsNullOrEmpty(text) || item.activityName.ToLower().Contains(text.ToLower());
+            bool author = isTextEmpty || item.activityAuthor.ToLower().Contains(text.ToLower());
+            bool title = isTextEmpty || item.activityName.ToLower().Contains(text.ToLower());
+            bool itemActive = false;
 
             switch (_selectedSearchType)
             {
                 case SearchType.All:
-                    if (title || author)
-                    {
-                        item.gameObject.SetActive(true);
-                        _itemsCount += 1;
-                    }
-                    else
-                    {
-                        item.gameObject.SetActive(false);
-                    }
+                    itemActive = title || author;
                     break;
                 case SearchType.Title:
-                    item.gameObject.SetActive(title);
+                    itemActive = title;
                     break;
                 case SearchType.Author:
-                    item.gameObject.SetActive(author);
+                    itemActive = author;
                     break;
+            }
+
+            item.gameObject.SetActive(itemActive);
+
+            if (itemActive)
+            {
+                itemsCount++;
+            }
+
+            if (isTextEmpty)
+            {
+                item.gameObject.SetActive(false);
             }
         }
 
-        if (text == string.Empty)
-        {
-            _clearSearchBtn.gameObject.SetActive(false);
-            _textNoResults.SetActive(false);
-        }
-        else
-        {
-            _clearSearchBtn.gameObject.SetActive(true);
-            _textNoResults.SetActive(_itemsCount > 0 ? false : true);
-        }
+        _clearSearchBtn.gameObject.SetActive(!isTextEmpty);
+        _textNoResults.SetActive(isTextEmpty ? false : itemsCount <= 0);
     }
+
 
     protected override bool TryToGetArguments(params object[] args)
     {
