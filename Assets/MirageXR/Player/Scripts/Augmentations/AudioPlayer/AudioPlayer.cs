@@ -1,8 +1,6 @@
 ﻿using i5.Toolkit.Core.VerboseLogging;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace MirageXR
 {
@@ -389,7 +387,19 @@ namespace MirageXR
                 AppLog.LogTrace("Trying to load audio: " + completeAudioName);
                 WWW www = new WWW(completeAudioName);
                 yield return www;
-                AudioClip audioClip = www.GetAudioClip(false, false, AudioType.WAV);
+                AudioClip audioClip;
+                if (filename.EndsWith("wav"))
+                {
+                    audioClip = www.GetAudioClip(false, false, AudioType.WAV);
+                }
+                else if (filename.EndsWith("mp3"))
+                {
+                    audioClip = www.GetAudioClip(false, false, AudioType.MPEG);
+                }
+                else
+                {
+                    audioClip = www.GetAudioClip(false, false, AudioType.UNKNOWN);
+                }
                 audioPlayer.clip = audioClip;
                 audioPlayer.playOnAwake = false;
                 //audioPlayer.loop = false;
