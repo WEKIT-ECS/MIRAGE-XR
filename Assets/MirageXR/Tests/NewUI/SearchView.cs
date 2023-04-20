@@ -113,14 +113,14 @@ public class SearchView : PopupBase
 
     private void OnInputFieldSearchChanged(string text)
     {
-        int itemsCount = 0;
-        bool isTextEmpty = string.IsNullOrEmpty(text);
+        var itemsCount = 0;
+        var isTextEmpty = string.IsNullOrEmpty(text);
 
         foreach (var item in _items)
         {
-            bool author = isTextEmpty || item.activityAuthor.ToLower().Contains(text.ToLower());
-            bool title = isTextEmpty || item.activityName.ToLower().Contains(text.ToLower());
-            bool itemActive = false;
+            var author = isTextEmpty || item.activityAuthor.ToLower().Contains(text.ToLower());
+            var title = isTextEmpty || item.activityName.ToLower().Contains(text.ToLower());
+            var itemActive = false;
 
             switch (_selectedSearchType)
             {
