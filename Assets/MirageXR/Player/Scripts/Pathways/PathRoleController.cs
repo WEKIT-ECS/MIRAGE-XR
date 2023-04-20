@@ -67,13 +67,13 @@ public class PathRoleController : MonoBehaviour
         {
             case PathRole.HOME:
                 segmentsController.endOffset = 0f;
-                pathColor = BrandManager.Instance.GetUIPathColor();
+                pathColor = BrandManager.Instance.UIPathColor;
                 caption = "Home";
                 icon = homeIcon;
                 break;
             case PathRole.SETTINGS:
                 segmentsController.endOffset = 0f;
-                pathColor = BrandManager.Instance.GetUIPathColor();
+                pathColor = BrandManager.Instance.UIPathColor;
                 caption = "Settings";
                 icon = settingsIcon;
                 break;
@@ -85,13 +85,13 @@ public class PathRoleController : MonoBehaviour
                 {
                     gameObject.SetActive(true);
                     positionCaption = "Current";
-                    pathColor = BrandManager.Instance.GetTaskStationColor();
+                    pathColor = BrandManager.Instance.TaskStationColor;
                 }
                 else if (IsNext())
                 {
                     gameObject.SetActive(true);
                     positionCaption = "Next";
-                    pathColor = BrandManager.Instance.GetNextPathColor();
+                    pathColor = BrandManager.Instance.NextPathColor;
                 }
                 else
                 {
