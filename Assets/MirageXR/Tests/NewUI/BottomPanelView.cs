@@ -47,8 +47,8 @@ public class BottomPanelView : BaseView
         _btnSearch.onValueChanged.AddListener(OnSearchClicked);
         _btnHelp.onValueChanged.AddListener(OnHelpClicked);
 
-        _iconHome.color = highlightingColor;
-        _txtHome.color = highlightingColor;
+        //_iconHome.color = highlightingColor; The switch selection is temporarily disabled. Need to update the bottom panel (maybe add a button for Steps?)
+        //_txtHome.color = highlightingColor;
     }
 
     public void Hide()
@@ -88,14 +88,14 @@ public class BottomPanelView : BaseView
     {
         if (isOn)
         {
-            _iconHome.color = highlightingColor;
-            _txtHome.color = highlightingColor;
+            //_iconHome.color = highlightingColor;
+            //_txtHome.color = highlightingColor;
             rootView.ShowHomeView();
         }
         else
         {
-            _iconHome.color = normalColor;
-            _txtHome.color = normalColor;
+            //_iconHome.color = normalColor;
+            //_txtHome.color = normalColor;
         }
     }
 
@@ -103,14 +103,14 @@ public class BottomPanelView : BaseView
     {
         if (isOn)
         {
-            _iconProfile.color = highlightingColor;
-            _txtProfile.color = highlightingColor;
+            //_iconProfile.color = highlightingColor;
+            //_txtProfile.color = highlightingColor;
             rootView.ShowProfileView();
         }
         else
         {
-            _iconProfile.color = normalColor;
-            _txtProfile.color = normalColor;
+            //_iconProfile.color = normalColor;
+            //_txtProfile.color = normalColor;
         }
     }
 
@@ -126,14 +126,14 @@ public class BottomPanelView : BaseView
     {
         if (isOn)
         {
-            _iconSearch.color = highlightingColor;
-            _txtSearch.color = highlightingColor;
+            //_iconSearch.color = highlightingColor;
+            //_txtSearch.color = highlightingColor;
             rootView.ShowSearchView();
         }
         else
         {
-            _iconSearch.color = normalColor;
-            _txtSearch.color = normalColor;
+            //_iconSearch.color = normalColor;
+            //_txtSearch.color = normalColor;
         }
     }
 
@@ -141,14 +141,14 @@ public class BottomPanelView : BaseView
     {
         if (isOn)
         {
-            _iconHelp.color = highlightingColor;
-            _txtHelp.color = highlightingColor;
+            //_iconHelp.color = highlightingColor;
+            //_txtHelp.color = highlightingColor;
             rootView.ShowHelpView();
         }
         else
         {
-            _iconHelp.color = normalColor;
-            _txtHelp.color = normalColor;
+            //_iconHelp.color = normalColor;
+            //_txtHelp.color = normalColor;
         }
     }
 }
