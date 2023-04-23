@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 1087982186866720060}
   - component: {fileID: 3172859092985641172}
   - component: {fileID: 5594192142306586414}
+  - component: {fileID: 5776878273106280077}
   m_Layer: 0
   m_Name: BottomMultilineToggles
   m_TagString: Untagged
@@ -137,7 +138,20 @@ MonoBehaviour:
   _buttonClose: {fileID: 8056534789760034967}
   _togglePrefab: {fileID: 8888666374409597832, guid: 304f2c325dc2aa04e8bbb8d2a896350f,
     type: 3}
-  warningColor: {r: 1, g: 0, b: 0, a: 1}
+  _toggleGroup: {fileID: 5776878273106280077}
+--- !u!114 &5776878273106280077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8097763765502462565}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fafe2cfe61f6974895a912c3755e8f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AllowSwitchOff: 0
 --- !u!1001 &4961971665844610346
 PrefabInstance:
   m_ObjectHideFlags: 0

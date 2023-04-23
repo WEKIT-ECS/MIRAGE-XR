@@ -59,9 +59,9 @@ public class Dialog : MonoBehaviour
         Show(DialogType.Bottom, label, null, contents, canBeClosedByOutTap);
     }
 
-    public void ShowBottomMultilineToggles(string label, params (string text, Action onClick)[] toggleContents)
+    public void ShowBottomMultilineToggles(string label, params (string text, Action onClick, bool isWarning, bool isSelected)[] toggleContents)
     {
-        var contents = toggleContents.Select(t => new DialogButtonContent(t.text, t.onClick)).ToList();
+        var contents = toggleContents.Select(t => new DialogButtonContent(t.text, t.onClick, t.isWarning, t.isSelected)).ToList();
         Show(DialogType.BottomToggles, label, null, contents);
     }
 
