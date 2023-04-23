@@ -9,6 +9,7 @@ using UnityEngine.UI;
 public class ProfileView : PopupBase
 {
     private const string VERSION_TEXT = "Version {0}";
+    private const string CUSTOM_SERVER_TEXT = "Other";
 
     [SerializeField] private Button _btnClose;
     [SerializeField] private Button _btnLogin;
@@ -211,12 +212,12 @@ public class ProfileView : PopupBase
         RootView_v2.Instance.dialog.ShowBottomMultilineToggles("Moodle servers:",
             (DBManager.WEKIT_URL, () => ChangeServerAndPrivacyPolicyDomain(DBManager.WEKIT_URL, DBManager.WEKIT_PRIVACY_POLICY_URL), false, IsSelectedToggle(DBManager.WEKIT_URL)),
             (DBManager.ARETE_URL, () => ChangeServerAndPrivacyPolicyDomain(DBManager.ARETE_URL, DBManager.ARETE_PRIVACY_POLICY_URL), false, IsSelectedToggle(DBManager.ARETE_URL)),
-            ("Other", ShowServerPanel, false, false));
+            (CUSTOM_SERVER_TEXT, ShowServerPanel, false, IsSelectedToggle(CUSTOM_SERVER_TEXT)));
     }
 
     private bool IsSelectedToggle(string text)
     {
-        return (text == DBManager.domain) ? true : false;
+        return (text == CUSTOM_SERVER_TEXT && DBManager.domain != DBManager.WEKIT_URL && DBManager.domain != DBManager.ARETE_URL) || (text == DBManager.domain);
     }
 
     private void ShowServerPanel()
