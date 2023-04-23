@@ -7,7 +7,8 @@ public class DialogViewBottomMultilineToggles : DialogViewBottom
 {
     [SerializeField] private Button _buttonClose;
     [SerializeField] private Toggle _togglePrefab;
-    [SerializeField] Color warningColor = Color.red;
+    [SerializeField] private ToggleGroup _toggleGroup;
+
     public override void UpdateView(DialogModel model)
     {
         _textLabel.text = model.label;
@@ -18,22 +19,12 @@ public class DialogViewBottomMultilineToggles : DialogViewBottom
             toggle.onValueChanged.AddListener((bool isOn) => content.action?.Invoke());
             toggle.onValueChanged.AddListener((bool isOn) => model.onClose?.Invoke());
             var text = toggle.GetComponentInChildren<TMP_Text>();
+            var m_toggle = toggle.GetComponentInChildren<Toggle>();
+            m_toggle.group = _toggleGroup;
             if (text)
             {
+                m_toggle.isOn = content.isSelected;
                 text.text = content.text;
-                if (content.isWarning)
-                {
-                    text.color = warningColor;
-                }
-
-                if (text.text == DBManager.domain)
-                {
-                    toggle.isOn = true;
-                }
-                else
-                {
-                    toggle.isOn = false;
-                }
             }
         }
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
