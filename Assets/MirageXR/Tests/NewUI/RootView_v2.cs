@@ -79,7 +79,6 @@ public class RootView_v2 : BaseView
         _activityView.Initialization(this);
         _activityListView.Initialization(this);
 
-        _bottomPanelView.SetHomeActive(true);
         _bottomNavigationArrowsView.HideImmediate();
 
         _pageView.OnPageChanged.AddListener(OnPageChanged);
