@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace MirageXR
@@ -15,17 +16,18 @@ namespace MirageXR
 
             //this.arrowPositionOffset = Vector3.forward * (-0.001f) + Vector3.up * 0.02f;
 
-            EventManager.OnActivateAction += NextStepByLabelTriggerListener;
+            EventManager.OnActivateAction += ExitListener;
         }
 
-        private void NextStepByLabelTriggerListener(string action)
+        private async void ExitListener(string action)
         {
+            await Task.Delay(100);
             ExitStep();
         }
 
         protected override void Detach()
         {
-            EventManager.OnActivateAction -= NextStepByLabelTriggerListener;
+            EventManager.OnActivateAction -= ExitListener;
         }
     }
 }

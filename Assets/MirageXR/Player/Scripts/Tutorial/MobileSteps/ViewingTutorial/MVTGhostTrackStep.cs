@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace MirageXR
@@ -13,19 +14,20 @@ namespace MirageXR
 
             highlightedObject = target;
 
-            //this.arrowPositionOffset = Vector3.forward * (-0.001f) + Vector3.up * 0.02f;
+            this.arrowRotationOffset = new Vector3(0f, 180f, 0f);
 
-            EventManager.OnActivateAction += NextStepManualListener;
+            EventManager.OnActivateAction += ExitListener;
         }
 
-        private void NextStepManualListener(string action)
+        private async void ExitListener(string action)
         {
+            await Task.Delay(100);
             ExitStep();
         }
 
         protected override void Detach()
         {
-            EventManager.OnActivateAction -= NextStepManualListener;
+            EventManager.OnActivateAction -= ExitListener;
         }
     }
 }
