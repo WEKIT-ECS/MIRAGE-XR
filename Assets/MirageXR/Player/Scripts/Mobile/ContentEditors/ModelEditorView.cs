@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using i5.Toolkit.Core.OpenIDConnectClient;
 using i5.Toolkit.Core.ServiceCore;
+using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using Newtonsoft.Json;
 using TMPro;
@@ -39,35 +40,50 @@ public class ModelEditorView : PopupEditorBase
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        base.Initialization(onClose, args);
+        try
+        {
+            base.Initialization(onClose, args);
 
-        if (!CheckAndLoadCredentials()) return;
+            if (!CheckAndLoadCredentials()) return;
 
-        _btnSearch.onClick.AddListener(OnSearchClicked);
-        _btnLogout.onClick.AddListener(OnLogoutClicked);
-        _toggleLocal.onValueChanged.AddListener(OnToggleLocalValueChanged);
-        ResetView();
+            _btnSearch.onClick.AddListener(OnSearchClicked);
+            _btnLogout.onClick.AddListener(OnLogoutClicked);
+            _toggleLocal.onValueChanged.AddListener(OnToggleLocalValueChanged);
+            ResetView();
+        }
+        catch (Exception e)
+        {
+            AppLog.LogError(e.ToString());
+        }
     }
 
     private void ResetView()
     {
-        _pageIndex = 0;
-        _toggleLocal.isOn = false;
-        if (LocalFiles.TryGetPassword("sketchfab", out _renewToken, out _token))
+        try
         {
-            if (!string.IsNullOrEmpty(_renewToken) && DBManager.isNeedToRenewSketchfabToken)
+            _pageIndex = 0;
+            _toggleLocal.isOn = false;
+            if (LocalFiles.TryGetPassword("sketchfab", out _renewToken, out _token))
             {
-                RenewToken();
+                if (!string.IsNullOrEmpty(_renewToken) && DBManager.isNeedToRenewSketchfabToken)
+                {
+                    RenewToken();
+                }
             }
+            else
+            {
+                DialogWindow.Instance.Show("Login to Sketchfab",
+                    new DialogButtonContent("Via the browser", LoginToSketchfab),
+                    new DialogButtonContent("With password", ShowDirectLoginPopup),
+                    new DialogButtonContent("Cancel", Close));
+            }
+
+            Clear();
         }
-        else
+        catch (Exception e)
         {
-            DialogWindow.Instance.Show("Login to Sketchfab",
-                new DialogButtonContent("Via the browser", LoginToSketchfab),
-                new DialogButtonContent("With password", ShowDirectLoginPopup),
-                new DialogButtonContent("Cancel", Close));
+            AppLog.LogError(e.ToString());
         }
-        Clear();
     }
 
     private async void RenewToken()
@@ -77,44 +93,61 @@ public class ModelEditorView : PopupEditorBase
 
     private async Task RenewTokenAsync()
     {
-        var clientId = _clientDirectLoginDataObject.clientData.ClientId;
-        var clientSecret = _clientDirectLoginDataObject.clientData.ClientSecret;
-
-        var (result, json) = await MirageXR.Sketchfab.RenewTokenAsync(_renewToken, clientId, clientSecret);
-        var response = JsonConvert.DeserializeObject<MirageXR.Sketchfab.SketchfabResponse>(json);
-        if (result)
+        try
         {
-            if (response.error == null && response.access_token != null)
+            var clientId = _clientDirectLoginDataObject.clientData.ClientId;
+            var clientSecret = _clientDirectLoginDataObject.clientData.ClientSecret;
+
+            var (result, json) = await MirageXR.Sketchfab.RenewTokenAsync(_renewToken, clientId, clientSecret);
+            var response = JsonConvert.DeserializeObject<MirageXR.Sketchfab.SketchfabResponse>(json);
+            if (result)
             {
-                _token = response.access_token;
-                _renewToken = response.refresh_token;
-                LocalFiles.SaveLoginDetails("sketchfab", _renewToken, _token);
-                DBManager.sketchfabLastTokenRenewDate = DateTime.Today;
+                if (response.error == null && response.access_token != null)
+                {
+                    _token = response.access_token;
+                    _renewToken = response.refresh_token;
+                    LocalFiles.SaveLoginDetails("sketchfab", _renewToken, _token);
+                    DBManager.sketchfabLastTokenRenewDate = DateTime.Today;
+                }
             }
+        }
+        catch (Exception e)
+        {
+            AppLog.LogError(e.ToString());
         }
     }
 
     private bool CheckAndLoadCredentials()
     {
-        if (_clientDataObject == null)
+        try
         {
-            var json = Resources.Load<TextAsset>("Credentials/SketchfabClient");
-            var appCredentials = JsonUtility.FromJson<SketchfabManager.AppCredentials>(json.ToString());
-            if (appCredentials != null)
+            if (_clientDataObject == null)
             {
-                _clientDataObject = ScriptableObject.CreateInstance<ClientDataObject>();
-                _clientDataObject.clientData = new ClientData(appCredentials.client_id, appCredentials.client_secret);
+                var json = Resources.Load<TextAsset>("Credentials/SketchfabClient");
+                var appCredentials = JsonUtility.FromJson<SketchfabManager.AppCredentials>(json.ToString());
+                if (appCredentials != null)
+                {
+                    _clientDataObject = ScriptableObject.CreateInstance<ClientDataObject>();
+                    _clientDataObject.clientData =
+                        new ClientData(appCredentials.client_id, appCredentials.client_secret);
+                }
             }
-        }
 
-        if (_clientDataObject == null)
+            if (_clientDataObject == null)
+            {
+                DialogWindow.Instance.Show(
+                    "Sketchfab client asset not found or reference is missing.\n\nContact the MirageXR development team for more information or access to the file.",
+                    new DialogButtonContent("Close", Close));
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception e)
         {
-            DialogWindow.Instance.Show("Sketchfab client asset not found or reference is missing.\n\nContact the MirageXR development team for more information or access to the file.",
-                new DialogButtonContent("Close", Close));
+            AppLog.LogError(e.ToString());
             return false;
         }
-
-        return true;
     }
 
     private void OnToggleLocalValueChanged(bool value)
@@ -176,77 +209,100 @@ public class ModelEditorView : PopupEditorBase
 
     private async void SearchRemote()
     {
-        _searchString = _inputSearch.text;
-
-        if (string.IsNullOrEmpty(_searchString))
+        try
         {
-            Toast.Instance.Show("Search field cannot be empty");
-            return;
+            _searchString = _inputSearch.text;
+
+            if (string.IsNullOrEmpty(_searchString))
+            {
+                Toast.Instance.Show("Search field cannot be empty");
+                return;
+            }
+
+            _pageIndex = 0;
+            var (result, content) = await MirageXR.Sketchfab.SearchModelsAsync(_token, _searchOption, _searchString,
+                _pageIndex, RESULTS_PER_PAGE);
+            if (!result)
+            {
+                Toast.Instance.Show("Error when trying to get a list of models.");
+                return;
+            }
+
+            Clear();
+            var previewItems = MirageXR.Sketchfab.ReadWebResults(content, _searchOption);
+            if (previewItems.Count == 0)
+            {
+                Toast.Instance.Show("Nothing found");
+                return;
+            }
+
+            AddItems(previewItems);
+            if (previewItems.Count >= RESULTS_PER_PAGE)
+            {
+                AddLoadMoreButton();
+            }
         }
-
-        _pageIndex = 0;
-        var (result, content) = await MirageXR.Sketchfab.SearchModelsAsync(_token, _searchOption, _searchString, _pageIndex, RESULTS_PER_PAGE);
-        if (!result)
+        catch (Exception e)
         {
-            Toast.Instance.Show("Error when trying to get a list of models.");
-            return;
-        }
-
-        Clear();
-        var previewItems = MirageXR.Sketchfab.ReadWebResults(content, _searchOption);
-        if (previewItems.Count == 0)
-        {
-            Toast.Instance.Show("Nothing found");
-            return;
-        }
-
-        AddItems(previewItems);
-        if (previewItems.Count >= RESULTS_PER_PAGE)
-        {
-            AddLoadMoreButton();
+            AppLog.LogError(e.ToString());
         }
     }
 
     private async void OnLoadMoreButtonClicked()
     {
-        _pageIndex++;
-        var cursorPosition = _pageIndex * RESULTS_PER_PAGE + 1;
-
-        var (result, content) = await MirageXR.Sketchfab.SearchModelsAsync(_token, _searchOption, _searchString, cursorPosition, RESULTS_PER_PAGE);
-        if (!result)
+        try
         {
-            Toast.Instance.Show("Error when trying to get a list of models.");
-            return;
-        }
+            _pageIndex++;
+            var cursorPosition = _pageIndex * RESULTS_PER_PAGE + 1;
 
-        var previewItems = MirageXR.Sketchfab.ReadWebResults(content, _searchOption);
-        if (previewItems.Count == 0)
+            var (result, content) = await MirageXR.Sketchfab.SearchModelsAsync(_token, _searchOption, _searchString, cursorPosition, RESULTS_PER_PAGE);
+            if (!result)
+            {
+                Toast.Instance.Show("Error when trying to get a list of models.");
+                return;
+            }
+
+            var previewItems = MirageXR.Sketchfab.ReadWebResults(content, _searchOption);
+            if (previewItems.Count == 0)
+            {
+                _loadMoreObject.SetActive(false);
+                Toast.Instance.Show("Nothing to download");
+                return;
+            }
+
+            AddItems(previewItems);
+
+            if (previewItems.Count < RESULTS_PER_PAGE)
+            {
+                _loadMoreObject.SetActive(false);
+            }
+
+            _loadMoreObject.transform.SetAsLastSibling();
+        }
+        catch (Exception e)
         {
-            _loadMoreObject.SetActive(false);
-            Toast.Instance.Show("Nothing to download");
-            return;
+            AppLog.LogError(e.ToString());
         }
-
-        AddItems(previewItems);
-
-        if (previewItems.Count < RESULTS_PER_PAGE)
-        {
-            _loadMoreObject.SetActive(false);
-        }
-
-        _loadMoreObject.transform.SetAsLastSibling();
     }
 
     private void Clear()
     {
-        _pageIndex = 0;
-        _scroll.normalizedPosition = Vector2.up;
-        for (int i = _contentContainer.childCount - 1; i >= 0; i--)
+        try
         {
-            var child = _contentContainer.GetChild(i);
-            Destroy(child.gameObject);
+            _pageIndex = 0;
+            _scroll.normalizedPosition = Vector2.up;
+            for (int i = _contentContainer.childCount - 1; i >= 0; i--)
+            {
+                var child = _contentContainer.GetChild(i);
+                Destroy(child.gameObject);
+            }
+
+            _items.Clear();
         }
-        _items.Clear();
+        catch (Exception e)
+        {
+            AppLog.LogError(e.ToString());
+        }
     }
 
     private void AddItems(IEnumerable<ModelPreviewItem> previewItems, bool isDownloaded = false)
@@ -273,11 +329,18 @@ public class ModelEditorView : PopupEditorBase
 
     private async void LoginToSketchfab()
     {
-        var service = ServiceManager.GetService<OpenIDConnectService>();
-        service.OidcProvider.ClientData = _clientDataObject.clientData;
-        service.LoginCompleted += OnLoginCompleted;
-        service.ServerListener.ListeningUri = SketchfabManager.URL;
-        await service.OpenLoginPageAsync();
+        try
+        {
+            var service = ServiceManager.GetService<OpenIDConnectService>();
+            service.OidcProvider.ClientData = _clientDataObject.clientData;
+            service.LoginCompleted += OnLoginCompleted;
+            service.ServerListener.ListeningUri = SketchfabManager.URL;
+            await service.OpenLoginPageAsync();
+        }
+        catch (Exception e)
+        {
+            AppLog.LogError(e.ToString());
+        }
     }
 
     private void ShowDirectLoginPopup()
@@ -329,28 +392,36 @@ public class ModelEditorView : PopupEditorBase
 
     private async Task DownloadItemAsync(ModelListItem item)
     {
-        var (result, downloadInfo) = await MirageXR.Sketchfab.GetDownloadInfoAsync(_token, item.previewItem);
-        if (!result)
+        try
         {
-            await RenewTokenAsync();
-            (result, downloadInfo) = await MirageXR.Sketchfab.GetDownloadInfoAsync(_token, item.previewItem);
+            var (result, downloadInfo) = await MirageXR.Sketchfab.GetDownloadInfoAsync(_token, item.previewItem);
             if (!result)
             {
-                Logout();
-                Toast.Instance.Show("The session is out of date. Re-login is required.");
+                await RenewTokenAsync();
+                (result, downloadInfo) = await MirageXR.Sketchfab.GetDownloadInfoAsync(_token, item.previewItem);
+                if (!result)
+                {
+                    Logout();
+                    Toast.Instance.Show("The session is out of date. Re-login is required.");
+                    return;
+                }
+            }
+
+            item.OnBeginDownload();
+            if (await MirageXR.Sketchfab.DownloadModelAndExtractAsync(downloadInfo.gltf.url, item.previewItem, item.OnDownload))
+            {
+                Toast.Instance.Show("Download successfully.");
+                item.isDownloaded = true;
+                item.OnEndDownload();
                 return;
             }
-        }
 
-        item.OnBeginDownload();
-        if (await MirageXR.Sketchfab.DownloadModelAndExtractAsync(downloadInfo.gltf.url, item.previewItem, item.OnDownload))
-        {
-            Toast.Instance.Show("Download successfully.");
-            item.isDownloaded = true;
             item.OnEndDownload();
-            return;
         }
-        item.OnEndDownload();
+        catch (Exception e)
+        {
+            AppLog.LogError(e.ToString());
+        }
 
         Toast.Instance.Show("Download error. Please, try again.");
     }

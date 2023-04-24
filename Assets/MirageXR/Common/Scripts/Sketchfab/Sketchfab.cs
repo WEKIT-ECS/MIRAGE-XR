@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using i5.Toolkit.Core.VerboseLogging;
 using ICSharpCode.SharpZipLib.Zip;
 using UnityEngine;
 
@@ -218,39 +219,58 @@ namespace MirageXR
 
         public static async Task<(bool, Sprite)> LoadSpriteAsync(string url)
         {
-            var (result, texture) = await LoadTextureAsync(url);
-            if (!result) return (false, null);
+            try
+            {
+                var (result, texture) = await LoadTextureAsync(url);
+                if (!result)
+                {
+                    return (false, null);
+                }
 
-            // scale according to width or height (fit to button), create and store
-            var rec = new Rect(0, 0, texture.width, texture.height);
-            var ppu = Mathf.Max(texture.width / 9f, texture.height / 6f);
-            return (true, Sprite.Create(texture, rec, new Vector2(0.5f, 0.5f), ppu));
+                // scale according to width or height (fit to button), create and store
+                var rec = new Rect(0, 0, texture.width, texture.height);
+                var ppu = Mathf.Max(texture.width / 9f, texture.height / 6f);
+                return (true, Sprite.Create(texture, rec, new Vector2(0.5f, 0.5f), ppu));
+            }
+            catch (Exception e)
+            {
+                AppLog.LogError(e.ToString());
+                return (false, null);
+            }
         }
 
         public static async Task<(bool, Texture2D)> LoadTextureAsync(string url)
         {
-            const int timeout = 60 * 2;
+            try
+            {
+                const int timeout = 60 * 2;
 
-            const string httpPrefix = "http";
-            const string filePrefix = "file://";
+                const string httpPrefix = "http";
+                const string filePrefix = "file://";
 
-            byte[] bytes;
-            var texture = new Texture2D(2, 2);
-            if (url.StartsWith(httpPrefix))
-            {
-                (_, bytes) = await DownloadBytesAsync(url, timeout);
+                byte[] bytes;
+                var texture = new Texture2D(2, 2);
+                if (url.StartsWith(httpPrefix))
+                {
+                    (_, bytes) = await DownloadBytesAsync(url, timeout);
+                }
+                else if (url.StartsWith(filePrefix))
+                {
+                    (_, bytes) = await ReaFileAsync(url.Substring(filePrefix.Length));
+                }
+                else
+                {
+                    return (false, null);
+                }
+
+                var result = bytes != null && texture.LoadImage(bytes);
+                return (result, result ? texture : null);
             }
-            else if (url.StartsWith(filePrefix))
+            catch (Exception e)
             {
-                (_, bytes) = await ReaFileAsync(url.Substring(filePrefix.Length));
-            }
-            else
-            {
+                AppLog.LogError(e.ToString());
                 return (false, null);
             }
-
-            var result = bytes != null && texture.LoadImage(bytes);
-            return (result, result ? texture : null);
         }
 
         private static async Task<(bool, byte[])> ReaFileAsync(string file)
