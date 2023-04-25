@@ -233,4 +233,12 @@ public class ProfileView : PopupBase
                 break;
         }
     }
+
+    private void OnDisable()
+    {
+        EventManager.MoodleDomainChanged -= UpdateConnectedServerText;
+        EventManager.XAPIChanged -= UpdateConectedLRS;
+        EventManager.MoodleDomainChanged -= UpdatePrivacyPolicyButtonActive;
+        EventManager.OnLoginStatusChanged -= ResetValues;
+    }
 }
