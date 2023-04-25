@@ -26,7 +26,7 @@ public class ProfileView : PopupBase
     [SerializeField] private TMP_Text _txtVersion;
     [SerializeField] private ClickCounter _versionClickCounter;
     [Space]
-    [SerializeField] private PopupBase _loginViewPrefab;
+    [SerializeField] private LoginView_v2 _loginViewPrefab;
 
     private bool _isShownDevelopModeMessage;
 
