@@ -30,8 +30,6 @@ public class ProfileView : PopupBase
 
     private bool _isShownDevelopModeMessage;
 
-    public static bool dontShowLoginMenu { get; set; }
-
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
         base.Initialization(onClose, args);
@@ -126,8 +124,8 @@ public class ProfileView : PopupBase
 
     private async void OnClickLogin()
     {
-        dontShowLoginMenu = true;
-        PopupsViewer.Instance.Show(_loginViewPrefab);
+        var dontShowLoginMenu = true;
+        PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu);
     }
 
     private void OnClickLogout()
