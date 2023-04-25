@@ -7,7 +7,7 @@ namespace MirageXR
     {
         protected override void Init()
         {
-            this.instructionText = "This list contains different types of Annotation. Let's start by creating a basic Label annotation, \"Tap\" to select Label from this list.";
+            this.instructionText = "This is a far more advanced augmentation called a Ghost Track. It's a recording of another user's movement and voice. To advance to the next step, use the UI and click 'Next Step'.";
 
             GameObject target = GameObject.Find("AN-c37d0117-a7d0-4de1-94d6-290a3369b23a");
             target = target.transform.FindDeepChild("Head").gameObject;

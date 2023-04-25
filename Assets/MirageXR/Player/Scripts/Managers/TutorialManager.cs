@@ -365,9 +365,10 @@ namespace MirageXR
                 MobileTutorial = RootView_v2.Instance.Tutorial;
             }
 
+            await Task.Delay(500);
             ActivityListView_v2 alv = RootView_v2.Instance.activityListView;
             await alv.TutorialActivityCard(true);
-            await Task.Delay(100);
+            await Task.Delay(500);
 
             _steps.Clear();
             _steps.Add(new MVTSelectTutorialActivityStep());
@@ -376,7 +377,7 @@ namespace MirageXR
             _steps.Add(new MVTLabelTriggerStep());
             _steps.Add(new MVTGhostTrackStep());
             _steps.Add(new MVTHighlightTriggerStep());
-            //_steps.Add(new MVTStartCalibrationStep());
+            _steps.Add(new MVTPickAndPlaceStep());
 
             _currentStepNumber = -1;
 
