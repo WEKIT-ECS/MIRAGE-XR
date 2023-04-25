@@ -19,6 +19,8 @@ public class LoginView_v2 : PopupBase
     [SerializeField] private Button _btnBack;
     [SerializeField] private OnboardingTutorialView _onboardingTutorialViewPrefab;
 
+    private bool _dontShowLoginMenu;
+
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
         base.Initialization(onClose, args);
@@ -37,7 +39,15 @@ public class LoginView_v2 : PopupBase
 
     protected override bool TryToGetArguments(params object[] args)
     {
-        return true;
+        try
+        {
+            _dontShowLoginMenu = (bool)args[0];
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
     private async Task Login(string username, string password)
@@ -109,7 +119,7 @@ public class LoginView_v2 : PopupBase
         _toggleRemember.isOn = DBManager.rememberUser;
         _inputFieldUserName.text = string.Empty;
         _inputFieldPassword.text = string.Empty;
-        if (ProfileView.dontShowLoginMenu)
+        if (_dontShowLoginMenu)
         {
             _pnlMenu.SetActive(false);
             _pnlFields.SetActive(true);
