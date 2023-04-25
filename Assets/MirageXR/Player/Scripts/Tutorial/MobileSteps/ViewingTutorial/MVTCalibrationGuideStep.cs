@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine.UI;
 
 namespace MirageXR
@@ -7,18 +8,7 @@ namespace MirageXR
     {
         protected override void SecuredEnterStep()
         {
-            /*
-            CalibrationGuideView cgv = RootView_v2.Instance.gameObject.transform.FindDeepChild("CalibrationGuide(Clone)").GetComponent<CalibrationGuideView>();
-            Button target = cgv.BtnClose;
-            target.onClick.AddListener(this.DefaultExitEventListener);
-            */
-            /*
-            ActivityView_v2 av = RootView_v2.Instance.activityView;
-            Button target = av.Tabs.Find("Calibration").FindDeepChild("Button").GetComponent<Button>();
-            target.onClick.AddListener(this.DefaultExitEventListener);
-            */
-
-            RootObject.Instance.calibrationManager.onCalibrationFinished.AddListener(this.DefaultExitEventListener);
+            RootObject.Instance.calibrationManager.onCalibrationFinished.AddListener(this.ExitListener);
 
             var queue = new Queue<TutorialModel>();
             if (!DBManager.dontShowCalibrationGuide)
@@ -28,6 +18,12 @@ namespace MirageXR
             queue.Enqueue(new TutorialModel { id = "activity_calibrate", message = "We begin calibration by clicking the button below...", position = TutorialModel.MessagePosition.Top });
             queue.Enqueue(new TutorialModel { id = "dialog_bottom_multiline_0", message = "and selecting Start Calibration.", position = TutorialModel.MessagePosition.Middle });
             this.manager.MobileTutorial.Show(queue);
+        }
+
+        private async void ExitListener()
+        {
+            await Task.Delay(500);
+            ExitStep();
         }
 
         protected override void SecuredExitStep()
