@@ -17,7 +17,7 @@ public class ProfileView : PopupBase
     [SerializeField] private GameObject _developTogglePanel;
     [SerializeField] private GameObject LoginObjects;
     [SerializeField] private Button _btnLogout;
-    [SerializeField] private TMP_Text _txtLogout;
+    [SerializeField] private TMP_Text _txtUserName;
     [SerializeField] private GameObject LogOutObjects;
     [SerializeField] private Button _btnSelectServer;
     [SerializeField] private TMP_Text _txtConnectedServer;
@@ -115,7 +115,7 @@ public class ProfileView : PopupBase
             ShowLogin();
         }
 
-        _txtLogout.text = $"<b>{DBManager.username}</b>";
+        _txtUserName.text = DBManager.username;
         UpdateConectedLRS(DBManager.publicCurrentLearningRecordStore);
     }
 
