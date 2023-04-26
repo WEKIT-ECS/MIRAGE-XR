@@ -293,43 +293,29 @@ public class ActivityListView_v2 : BaseView
         return dictionary;
     }
 
-    public async Task TutorialActivityCard(bool on)
+    public async void CreateTutorialActivity(bool on)
     {
         //checks if the first activity in the list is already the turotial
-        // TODO: Perhaps we should forbid naming activities "Tutorial Activity" to prevent conflict
         var firstContentIsTutorial = _content[0].Name == "Tutorial Activity" ? true : false;
 
         if (on && !firstContentIsTutorial)
         {
-            Activity tutorialActivity = null;
             var list = await LocalFiles.GetDownloadedActivities();
 
-            //checks if the tutorial is already in the local files
+            //if the tutorial is already in the local files delete it
             list.ForEach(t =>
             {
                 if (t.id == "session-2023-02-24_11-18-29")
                 {
-                    tutorialActivity = t;
+                    LocalFiles.TryDeleteActivity(t.id);
                 }
             });
 
-            //If the tutorial isnt in the local files extract and unpack the tutorial zip from streaming assets
-            if (tutorialActivity == null)
-            {
 #if UNITY_ANDROID
-                StartCoroutine(MoveTutorialActivityToLocalFilesAndroid());
+            StartCoroutine(MoveTutorialActivityToLocalFilesAndroid());
 #elif UNITY_IOS
-                MoveTutorialActivityToLocalFilesIOS();
+            MoveTutorialActivityToLocalFilesIOS();
 #endif
-            }
-            //Else create the session container for the tutorial activity at the top of the list
-            else
-            {
-                var sessionContatiner = new SessionContainer { Activity = tutorialActivity };
-
-                _content.Insert(0, sessionContatiner);
-                UpdateView();
-            }
         }
         //if the tutorial activity is at the top of the acivity list, remove it
         else if (!on && firstContentIsTutorial)
@@ -349,7 +335,7 @@ public class ActivityListView_v2 : BaseView
         }
     }
 
-    public async void MoveAndUnpackTutorialZipFileAndroid(UnityWebRequest www)
+    private async void MoveAndUnpackTutorialZipFileAndroid(UnityWebRequest www)
     {
         string savePath = Path.Combine(Application.persistentDataPath, "TutorialActivity.zip");
 
@@ -363,10 +349,10 @@ public class ActivityListView_v2 : BaseView
 
         File.Delete(savePath);
 
-        TutorialActivityCard(true);
+        CreateTutorialActivityCard();
     }
 
-    public async void MoveTutorialActivityToLocalFilesIOS()
+    private async void MoveTutorialActivityToLocalFilesIOS()
     {
         var stream = new FileStream(Path.Combine(Application.streamingAssetsPath, "TutorialActivity.zip"), FileMode.OpenOrCreate);
 
@@ -374,6 +360,33 @@ public class ActivityListView_v2 : BaseView
 
         stream.Close();
 
-        TutorialActivityCard(true);
+        CreateTutorialActivityCard();
+    }
+
+    private async void CreateTutorialActivityCard()
+    {
+        var list = await LocalFiles.GetDownloadedActivities();
+
+        Activity tutorialActivity = null;
+
+        list.ForEach(t =>
+        {
+            if (t.id == "session-2023-02-24_11-18-29")
+            {
+                tutorialActivity = t;
+            }
+        });
+
+        if (tutorialActivity != null)
+        {
+            var sessionContatiner = new SessionContainer { Activity = tutorialActivity };
+
+            _content.Insert(0, sessionContatiner);
+            UpdateView();
+        }
+        else
+        {
+            AppLog.LogError("Tutorial activity not in local files");
+        }
     }
 }
