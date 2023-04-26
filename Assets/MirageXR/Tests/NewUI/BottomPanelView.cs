@@ -1,4 +1,5 @@
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,11 +8,28 @@ public class BottomPanelView : BaseView
     private const float MOVE_DISTANSE = 300f;
     private const float ANIMATION_TIME = 0.5f;
 
-    [SerializeField] private Button _btnHome;
-    [SerializeField] private Button _btnProfile;
-    [SerializeField] private Button _btnCreate;
-    [SerializeField] private Button _btnSearch;
-    [SerializeField] private Button _btnHelp;
+    [SerializeField] private Toggle _btnHome;
+    [SerializeField] private Toggle _btnProfile;
+    [SerializeField] private Toggle _btnCreate;
+    [SerializeField] private Toggle _btnSearch;
+    [SerializeField] private Toggle _btnHelp;
+
+    [Space]
+    [Header("The colors of text and icons:")]
+    [SerializeField] private Color normalColor;
+    [SerializeField] private Color highlightingColor;
+
+    [Space]
+    [SerializeField] private Image _iconHome;
+    [SerializeField] private Image _iconProfile;
+    [SerializeField] private Image _iconSearch;
+    [SerializeField] private Image _iconHelp;
+
+    [Space]
+    [SerializeField] private TextMeshProUGUI _txtHome;
+    [SerializeField] private TextMeshProUGUI _txtProfile;
+    [SerializeField] private TextMeshProUGUI _txtSearch;
+    [SerializeField] private TextMeshProUGUI _txtHelp;
 
     private RootView_v2 rootView => (RootView_v2)_parentView;
 
@@ -23,11 +41,14 @@ public class BottomPanelView : BaseView
     {
         base.Initialization(parentView);
 
-        _btnHome.onClick.AddListener(OnHomeClicked);
-        _btnProfile.onClick.AddListener(OnProfileClicked);
-        _btnCreate.onClick.AddListener(OnCreateClicked);
-        _btnSearch.onClick.AddListener(OnSearchClicked);
-        _btnHelp.onClick.AddListener(OnHelpClicked);
+        _btnHome.onValueChanged.AddListener(OnHomeClicked);
+        _btnProfile.onValueChanged.AddListener(OnProfileClicked);
+        _btnCreate.onValueChanged.AddListener(OnCreateClicked);
+        _btnSearch.onValueChanged.AddListener(OnSearchClicked);
+        _btnHelp.onValueChanged.AddListener(OnHelpClicked);
+
+        //_iconHome.color = highlightingColor; The switch selection is temporarily disabled. Need to update the bottom panel (maybe add a button for Steps?)
+        //_txtHome.color = highlightingColor;
     }
 
     public void Hide()
@@ -64,30 +85,73 @@ public class BottomPanelView : BaseView
         _btnSearch.gameObject.SetActive(value);
     }
 
-    private void OnHomeClicked()
+    public void OnHomeClicked(bool isOn)
     {
-        rootView.ShowHomeView();
+        if (isOn)
+        {
+            //_iconHome.color = highlightingColor;
+            //_txtHome.color = highlightingColor;
+            rootView.ShowHomeView();
+        }
+        else
+        {
+            //_iconHome.color = normalColor;
+            //_txtHome.color = normalColor;
+        }
     }
 
-    private void OnProfileClicked()
+    public void OnProfileClicked(bool isOn)
     {
-        rootView.ShowProfileView();
+        if (isOn)
+        {
+            //_iconProfile.color = highlightingColor;
+            //_txtProfile.color = highlightingColor;
+            rootView.ShowProfileView();
+        }
+        else
+        {
+            //_iconProfile.color = normalColor;
+            //_txtProfile.color = normalColor;
+        }
     }
 
-    private void OnCreateClicked()
+    private void OnCreateClicked(bool isOn)
     {
-        _btnCreate.gameObject.SetActive(false);
-        _btnSearch.gameObject.SetActive(false);
-        rootView.CreateNewActivity();
+        if (isOn)
+        {
+            _btnCreate.gameObject.SetActive(false);
+            _btnSearch.gameObject.SetActive(false);
+            rootView.CreateNewActivity();
+        }
     }
 
-    private void OnSearchClicked()
+    public void OnSearchClicked(bool isOn)
     {
-        rootView.ShowSearchView();
+        if (isOn)
+        {
+            //_iconSearch.color = highlightingColor;
+            //_txtSearch.color = highlightingColor;
+            rootView.ShowSearchView();
+        }
+        else
+        {
+            //_iconSearch.color = normalColor;
+            //_txtSearch.color = normalColor;
+        }
     }
 
-    private void OnHelpClicked()
+    public void OnHelpClicked(bool isOn)
     {
-        rootView.ShowHelpView();
+        if (isOn)
+        {
+            //_iconHelp.color = highlightingColor;
+            //_txtHelp.color = highlightingColor;
+            rootView.ShowHelpView();
+        }
+        else
+        {
+            //_iconHelp.color = normalColor;
+            //_txtHelp.color = normalColor;
+        }
     }
 }
