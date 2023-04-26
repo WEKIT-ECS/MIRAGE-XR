@@ -49,7 +49,6 @@ public class ProfileView : PopupBase
         EventManager.MoodleDomainChanged += UpdateConnectedServerText;
         EventManager.XAPIChanged += UpdateConectedLRS;
         EventManager.MoodleDomainChanged += UpdatePrivacyPolicyButtonActive;
-        EventManager.OnLoginStatusChanged += ResetValues;
 
         _txtVersion.text = string.Format(VERSION_TEXT, Application.version);
 
@@ -125,7 +124,7 @@ public class ProfileView : PopupBase
     private async void OnClickLogin()
     {
         var dontShowLoginMenu = true;
-        PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu);
+        PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu, (System.Action)ResetValues);
     }
 
     private void OnClickLogout()
@@ -237,6 +236,5 @@ public class ProfileView : PopupBase
         EventManager.MoodleDomainChanged -= UpdateConnectedServerText;
         EventManager.XAPIChanged -= UpdateConectedLRS;
         EventManager.MoodleDomainChanged -= UpdatePrivacyPolicyButtonActive;
-        EventManager.OnLoginStatusChanged -= ResetValues;
     }
 }
