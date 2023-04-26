@@ -293,7 +293,7 @@ public class ActivityListView_v2 : BaseView
         return dictionary;
     }
 
-    public async void CreateTutorialActivity(bool on)
+    public async Task CreateTutorialActivity(bool on)
     {
         //checks if the first activity in the list is already the turotial
         var firstContentIsTutorial = _content[0].Name == "Tutorial Activity" ? true : false;
@@ -367,26 +367,18 @@ public class ActivityListView_v2 : BaseView
     {
         var list = await LocalFiles.GetDownloadedActivities();
 
-        Activity tutorialActivity = null;
-
         list.ForEach(t =>
         {
             if (t.id == "session-2023-02-24_11-18-29")
             {
-                tutorialActivity = t;
+                var sessionContatiner = new SessionContainer { Activity = t };
+
+                _content.Insert(0, sessionContatiner);
+                UpdateView();
+                return;
             }
         });
 
-        if (tutorialActivity != null)
-        {
-            var sessionContatiner = new SessionContainer { Activity = tutorialActivity };
-
-            _content.Insert(0, sessionContatiner);
-            UpdateView();
-        }
-        else
-        {
-            AppLog.LogError("Tutorial activity not in local files");
-        }
+        AppLog.LogError("Tutorial activity not in local files");
     }
 }
