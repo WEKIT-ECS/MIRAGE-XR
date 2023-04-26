@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Events;
 
 public enum TrackingState
 {
@@ -50,7 +49,11 @@ public abstract class ImageTargetBase : MonoBehaviour, IImageTarget
             isFound = newState is TrackingState.Found;
         }
 
-        _targetObject.SetActive(isFound);
+        if (_targetObject)
+        {
+            _targetObject.SetActive(isFound);
+        }
+
         if (isFound)
         {
             _onTargetFound.Invoke(this);
@@ -64,9 +67,13 @@ public abstract class ImageTargetBase : MonoBehaviour, IImageTarget
     public virtual void Initialization(ImageTargetModel model)
     {
         _model = model;
-        _targetObject = Instantiate(model.prefab, transform);
-        _targetObject.name = $"ImageTarget_{model.name}";
-        _targetObject.SetActive(false);
+
+        if (model.prefab)
+        {
+            _targetObject = Instantiate(model.prefab, transform);
+            _targetObject.name = $"ImageTarget_{model.name}";
+            _targetObject.SetActive(false);
+        }
 
         TrackerInitialization();
     }
