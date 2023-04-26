@@ -1,17 +1,17 @@
 using DG.Tweening;
+using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UI;
-using System;
-using TMPro;
-using i5.Toolkit.Core.VerboseLogging;
-using System.IO;
 using UnityEngine.Networking;
-using System.Collections;
+using UnityEngine.UI;
 
 public class ActivityListView_v2 : BaseView
 {
@@ -248,7 +248,7 @@ public class ActivityListView_v2 : BaseView
         {
             SessionContainer sessionContainer = new SessionContainer { Session = activity };
 
-            if(sessionContainer.hasDeadline)
+            if (sessionContainer.hasDeadline)
             {
                 if (DateTime.TryParse(sessionContainer.Session.deadline, out var date))
                 {
@@ -293,34 +293,24 @@ public class ActivityListView_v2 : BaseView
         return dictionary;
     }
 
-    public async Task CreateTutorialActivity(bool on)
+    public async Task CreateTutorialActivity()
     {
-        //checks if the first activity in the list is already the turotial
-        var firstContentIsTutorial = _content[0].Name == "Tutorial Activity" ? true : false;
-
-        if (on && !firstContentIsTutorial)
-        {
-            var list = await LocalFiles.GetDownloadedActivities();
-
-            //if the tutorial is already in the local files delete it
-            list.ForEach(t =>
-            {
-                if (t.id == "session-2023-02-24_11-18-29")
-                {
-                    LocalFiles.TryDeleteActivity(t.id);
-                }
-            });
-
+        await DeleteTutorialActivity();
 #if UNITY_ANDROID
-            StartCoroutine(MoveTutorialActivityToLocalFilesAndroid());
+        StartCoroutine(MoveTutorialActivityToLocalFilesAndroid());
 #elif UNITY_IOS
-            MoveTutorialActivityToLocalFilesIOS();
+        MoveTutorialActivityToLocalFilesIOS();
 #endif
-        }
-        //if the tutorial activity is at the top of the acivity list, remove it
-        else if (!on && firstContentIsTutorial)
+    }
+
+    public async Task DeleteTutorialActivity()
+    {
+        var tutorialActivity = await TryGetTutorialFromLocalFiles();
+
+        if (tutorialActivity != null)
         {
-            _content.RemoveAt(0);
+            LocalFiles.TryDeleteActivity(tutorialActivity.id);
+
             UpdateView();
         }
     }
@@ -365,18 +355,29 @@ public class ActivityListView_v2 : BaseView
 
     private async void CreateTutorialActivityCard()
     {
-        var list = await LocalFiles.GetDownloadedActivities();
+        var t = await TryGetTutorialFromLocalFiles();
 
-        list.ForEach(t =>
+        if (t != null)
+        {
+            var sessionContatiner = new SessionContainer { Activity = t };
+
+            _content.Insert(0, sessionContatiner);
+            UpdateView();
+        }
+    }
+
+    private async Task<Activity> TryGetTutorialFromLocalFiles()
+    {
+        var list = await LocalFiles.GetDownloadedActivities();
+        foreach (var t in list)
         {
             if (t.id == "session-2023-02-24_11-18-29")
             {
-                var sessionContatiner = new SessionContainer { Activity = t };
-
-                _content.Insert(0, sessionContatiner);
-                UpdateView();
-                return;
+                return t;
             }
-        });
+        }
+
+        AppLog.LogWarning("Tutorial activity not found in local files");
+        return null;
     }
 }
