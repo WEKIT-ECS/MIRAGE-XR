@@ -82,6 +82,7 @@ public class BottomPanelView : BaseView
     public void SetHomeActive(bool value)
     {
         _btnCreate.gameObject.SetActive(value);
+        _btnSearch.gameObject.SetActive(value);
     }
 
     public void OnHomeClicked(bool isOn)
@@ -118,6 +119,8 @@ public class BottomPanelView : BaseView
     {
         if (isOn)
         {
+            _btnCreate.gameObject.SetActive(false);
+            _btnSearch.gameObject.SetActive(false);
             rootView.CreateNewActivity();
         }
     }
