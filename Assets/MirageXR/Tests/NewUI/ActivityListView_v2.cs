@@ -378,7 +378,5 @@ public class ActivityListView_v2 : BaseView
                 return;
             }
         });
-
-        AppLog.LogError("Tutorial activity not in local files");
     }
 }
