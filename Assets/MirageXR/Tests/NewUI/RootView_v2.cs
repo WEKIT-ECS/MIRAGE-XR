@@ -174,6 +174,15 @@ public class RootView_v2 : BaseView
         _pageView.currentPageIndex = 0;
     }
 
+    public void ReturnToHomePage()
+    {
+        // select Home icon/text and deselect others
+        _bottomPanelView.OnHomeClicked(true);
+        _bottomPanelView.OnProfileClicked(false);
+        _bottomPanelView.OnSearchClicked(false);
+        _bottomPanelView.OnHelpClicked(false);
+    }
+
     public void OnActivityDeleted()
     {
         ShowHomeView();

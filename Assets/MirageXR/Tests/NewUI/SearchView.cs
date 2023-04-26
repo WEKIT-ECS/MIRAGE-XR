@@ -163,4 +163,10 @@ public class SearchView : PopupBase
 
         return false;
     }
+
+    public void CloseAndReturnToHomePage()
+    {
+        Close();
+        RootView_v2.Instance.ReturnToHomePage();
+    }
 }
