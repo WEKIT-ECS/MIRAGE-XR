@@ -19,6 +19,7 @@ public class LoginView_v2 : PopupBase
     [SerializeField] private Button _btnBack;
     [SerializeField] private OnboardingTutorialView _onboardingTutorialViewPrefab;
 
+    private System.Action _onLoginStatusChanged;
     private bool _dontShowLoginMenu;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
@@ -42,6 +43,7 @@ public class LoginView_v2 : PopupBase
         try
         {
             _dontShowLoginMenu = (bool)args[0];
+            _onLoginStatusChanged = (System.Action)args[1];
             return true;
         }
         catch (Exception)
@@ -111,7 +113,7 @@ public class LoginView_v2 : PopupBase
             LocalFiles.RemoveUsernameAndPassword();
         }
 
-        EventManager.LoginStatusChanged();
+        _onLoginStatusChanged?.Invoke();
     }
 
     private void ResetValues()

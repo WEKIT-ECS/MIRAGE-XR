@@ -96,7 +96,7 @@ public class RootView_v2 : BaseView
         if (!DBManager.LoggedIn)
         {
             var dontShowLoginMenu = false;
-            PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu);
+            PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu, null);
         }
     }
 
