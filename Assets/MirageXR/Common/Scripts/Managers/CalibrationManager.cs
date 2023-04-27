@@ -80,12 +80,19 @@ public class CalibrationManager : MonoBehaviour
             return;
         }
 
+        _imageTarget = imageTargetManager.GetImageTarget(_imageTargetModel.name);
+
         if (_imageTarget == null || !_calibrationTool)
         {
-            await CreateCalibrationTool(isRecalibration);
+            var value = await CreateCalibrationTool(isRecalibration);
+            if (!value)
+            {
+                AppLog.LogError("Unable to create imageTarget");
+                return;
+            }
         }
 
-        if (!_calibrationTool)
+        if (!InitCalibrationTool(_imageTarget))
         {
             AppLog.LogError("Unable to create calibrationTool");
             return;
@@ -101,7 +108,7 @@ public class CalibrationManager : MonoBehaviour
         }
     }
 
-    private async Task CreateCalibrationTool(bool isRecalibration = false)
+    private async Task<bool> CreateCalibrationTool(bool isRecalibration = false)
     {
         _isRecalibration = isRecalibration;
         _isEnabled = true;
@@ -110,14 +117,12 @@ public class CalibrationManager : MonoBehaviour
         try
         {
             _imageTarget = await imageTargetManager.AddImageTarget(_imageTargetModel);
-            if (_imageTarget != null)
-            {
-                OnImageTargetCreated(_imageTarget);
-            }
+            return _imageTarget != null;
         }
         catch (Exception e)
         {
             AppLog.LogError(e.ToString());
+            return false;
         }
         finally
         {
@@ -125,21 +130,24 @@ public class CalibrationManager : MonoBehaviour
         }
     }
 
-    private void OnImageTargetCreated(IImageTarget imageTarget)
+    private bool InitCalibrationTool(IImageTarget imageTarget)
     {
         _calibrationTool = imageTarget.targetObject.GetComponent<CalibrationTool>();
         if (!_calibrationTool)
         {
             AppLog.LogError($"{nameof(CalibrationTool)} cannot be found");
-            return;
+            return false;
         }
 
         _calibrationTool.Initialization(ANIMATION_TIME);
+        _calibrationTool.onCalibrationStarted.RemoveAllListeners();
         _calibrationTool.onCalibrationStarted.AddListener(OnCalibrationStarted);
+        _calibrationTool.onCalibrationCanceled.RemoveAllListeners();
         _calibrationTool.onCalibrationCanceled.AddListener(OnCalibrationCanceled);
+        _calibrationTool.onCalibrationFinished.RemoveAllListeners();
         _calibrationTool.onCalibrationFinished.AddListener(OnCalibrationFinished);
 
-        AppLog.LogInfo($"calibration tool has been created {imageTarget.imageTargetName}");
+        return true;
     }
 
     private void OnCalibrationStarted()
