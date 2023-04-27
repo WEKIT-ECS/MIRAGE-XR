@@ -45,7 +45,6 @@ namespace MirageXR
             base.Initialization(parentView);
             _btnLogin.onClick.AddListener(OnLoginClick);
             _btnSettings.onClick.AddListener(OnSettingsClick);
-            _btnHelp.onClick.AddListener(OnHelpClick);
             _btnAddActivity.onClick.AddListener(OnAddActivityClick);
             _inputFieldSearch.onValueChanged.AddListener(OnInputFieldSearchChanged);
             if (!DBManager.LoggedIn && DBManager.rememberUser)
@@ -121,20 +120,6 @@ namespace MirageXR
         private void OnLoginClick()
         {
             PopupsViewer.Instance.Show(_loginViewPrefab);
-        }
-
-        private void OnHelpClick()
-        {
-            if (!TutorialManager.Instance.IsTutorialRunning)
-            {
-                TutorialDialog tDialog = RootView.Instance.TutorialDialog;
-                tDialog.Toggle();
-            }
-            else
-            {
-                TutorialManager.Instance.CloseTutorial();
-            }
-
         }
 
         private async void OnAddActivityClick()

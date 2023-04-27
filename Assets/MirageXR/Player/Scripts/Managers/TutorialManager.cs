@@ -245,9 +245,8 @@ namespace MirageXR
             if (TutorialButton != null)
             {
                 TutorialButton.SetIconInactive();
+                PlayerPrefs.SetInt(PLAYER_PREFS_STATUS_KEY, STATUS_DO_NOT_LOAD_ON_START);
             }
-
-            PlayerPrefs.SetInt(PLAYER_PREFS_STATUS_KEY, STATUS_DO_NOT_LOAD_ON_START);
         }
 
         /// <summary>
@@ -264,9 +263,8 @@ namespace MirageXR
             if (TutorialButton != null)
             {
                 TutorialButton.SetIconInactive();
+                PlayerPrefs.SetInt(PLAYER_PREFS_STATUS_KEY, STATUS_DO_NOT_LOAD_ON_START);
             }
-
-            PlayerPrefs.SetInt(PLAYER_PREFS_STATUS_KEY, STATUS_DO_NOT_LOAD_ON_START);
         }
 
         /// <summary>
@@ -365,10 +363,10 @@ namespace MirageXR
                 MobileTutorial = RootView_v2.Instance.Tutorial;
             }
 
-            await Task.Delay(500);
+            await Task.Delay(200);
             ActivityListView_v2 alv = RootView_v2.Instance.activityListView;
             await alv.CreateTutorialActivity();
-            await Task.Delay(500);
+            await Task.Delay(2400);
 
             _steps.Clear();
             _steps.Add(new MVTSelectTutorialActivityStep());
@@ -378,6 +376,7 @@ namespace MirageXR
             _steps.Add(new MVTGhostTrackStep());
             _steps.Add(new MVTHighlightTriggerStep());
             _steps.Add(new MVTPickAndPlaceStep());
+            _steps.Add(new MVTFinishTutorialStep());
 
             _currentStepNumber = -1;
 

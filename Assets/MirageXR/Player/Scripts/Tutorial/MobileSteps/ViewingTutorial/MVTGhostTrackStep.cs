@@ -21,7 +21,7 @@ namespace MirageXR
 
         private async void ExitListener(string action)
         {
-            await Task.Delay(100);
+            await Task.Delay(300);
             ExitStep();
         }
 

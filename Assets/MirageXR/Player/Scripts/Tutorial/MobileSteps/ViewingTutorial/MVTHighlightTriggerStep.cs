@@ -14,14 +14,14 @@ namespace MirageXR
 
             highlightedObject = target;
 
-            //this.arrowPositionOffset = Vector3.forward * (-0.001f) + Vector3.up * 0.02f;
+            this.arrowRotationOffset = new Vector3(0f, 0f, -90f);
 
             EventManager.OnActivateAction += ExitListener;
         }
 
         private async void ExitListener(string action)
         {
-            await Task.Delay(100);
+            await Task.Delay(400);
             ExitStep();
         }
 
