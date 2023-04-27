@@ -217,9 +217,13 @@ public class ProfileView : PopupBase
 
     private void UpdatePrivacyPolicyButtonActive()
     {
-        //var setActive = (DBManager.privacyPolicyDomain != string.Empty) ? true : false;
+        var isWekitSelected = DBManager.domain == DBManager.WEKIT_URL;
+        var isAreteSelected = DBManager.domain == DBManager.ARETE_URL;
 
-        //_btnPrivacyPolicy.gameObject.SetActive(setActive);
+        var setActive = !string.IsNullOrEmpty(DBManager.privacyPolicyDomain) &&
+                (isWekitSelected || isAreteSelected);
+        _btnPrivacyPolicy.gameObject.SetActive(setActive);
+
     }
 
     private void UpdateConectedLRS(DBManager.LearningRecordStores publicCurrentLearningRecordStore)
