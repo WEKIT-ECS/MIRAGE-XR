@@ -282,9 +282,9 @@ public class ProfileView : PopupBase
 
     private void UpdatePrivacyPolicyButtonActive()
     {
-        //var setActive = (DBManager.privacyPolicyDomain != string.Empty) ? true : false;
+        var setActive = (DBManager.privacyPolicyDomain != string.Empty) ? true : false;
 
-        //_btnPrivacyPolicy.gameObject.SetActive(setActive);
+        _btnPrivacyPolicy.gameObject.SetActive(setActive);
     }
 
     private void UpdateConectedLRS(DBManager.LearningRecordStores publicCurrentLearningRecordStore)
