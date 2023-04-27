@@ -17,6 +17,7 @@ public class ActivityListView_v2 : BaseView
 {
     private const float HIDED_SIZE = 80f;
     private const float HIDE_ANIMATION_TIME = 0.5f;
+    private const string TUTORIAL_ACTIVITY_ID = "session-2023-02-24_11-18-29";
 
     [SerializeField] private Button _btnFilter;
     [SerializeField] private Transform _listTransform;
@@ -368,16 +369,8 @@ public class ActivityListView_v2 : BaseView
 
     private async Task<Activity> TryGetTutorialFromLocalFiles()
     {
-        var list = await LocalFiles.GetDownloadedActivities();
-        foreach (var t in list)
-        {
-            if (t.id == "session-2023-02-24_11-18-29")
-            {
-                return t;
-            }
-        }
-
-        AppLog.LogWarning("Tutorial activity not found in local files");
-        return null;
+        var filePath = Path.Combine(Application.persistentDataPath, "session-2023-02-24_11-18-29-activity.json");
+        var activity = await LocalFiles.ReadActivityAsync(filePath);
+        return activity;
     }
 }
