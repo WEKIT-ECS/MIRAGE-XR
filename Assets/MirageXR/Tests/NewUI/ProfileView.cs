@@ -9,6 +9,7 @@ using UnityEngine.UI;
 public class ProfileView : PopupBase
 {
     private const string VERSION_TEXT = "Version {0}";
+    private const string CUSTOM_SERVER_TEXT = "Other";
 
     [SerializeField] private Button _btnClose;
     [SerializeField] private Button _btnLogin;
@@ -208,10 +209,13 @@ public class ProfileView : PopupBase
 
     private void ShowChangeServerPanel()
     {
-        RootView_v2.Instance.dialog.ShowBottomMultiline("Select Learning Record Store:",
-            (DBManager.WEKIT_URL, () => ChangeServerAndPrivacyPolicyDomain(DBManager.WEKIT_URL, DBManager.WEKIT_PRIVACY_POLICY_URL)),
-            (DBManager.ARETE_URL, () => ChangeServerAndPrivacyPolicyDomain(DBManager.ARETE_URL, DBManager.ARETE_PRIVACY_POLICY_URL)),
-            ("Other", ShowServerPanel));
+        var isWekitSelected = DBManager.domain == DBManager.WEKIT_URL;
+        var isAreteSelected = DBManager.domain == DBManager.ARETE_URL;
+
+        RootView_v2.Instance.dialog.ShowBottomMultilineToggles("Moodle servers:",
+            (DBManager.WEKIT_URL, () => ChangeServerAndPrivacyPolicyDomain(DBManager.WEKIT_URL, DBManager.WEKIT_PRIVACY_POLICY_URL), false, isWekitSelected),
+            (DBManager.ARETE_URL, () => ChangeServerAndPrivacyPolicyDomain(DBManager.ARETE_URL, DBManager.ARETE_PRIVACY_POLICY_URL), false, isAreteSelected),
+            (CUSTOM_SERVER_TEXT, ShowServerPanel, false, !(isWekitSelected || isAreteSelected)));
     }
 
     private void ShowServerPanel()
