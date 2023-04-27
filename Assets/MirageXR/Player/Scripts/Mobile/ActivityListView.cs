@@ -120,7 +120,8 @@ namespace MirageXR
 
         private void OnLoginClick()
         {
-            PopupsViewer.Instance.Show(_loginViewPrefab);
+            var dontShowLoginMenu = false;
+            PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu);
         }
 
         private void OnHelpClick()
