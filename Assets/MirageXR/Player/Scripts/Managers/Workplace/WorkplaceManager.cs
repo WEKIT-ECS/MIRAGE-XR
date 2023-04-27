@@ -113,92 +113,41 @@ namespace MirageXR
 
         private async Task PerformEditModeCalibration()
         {
-            AppLog.LogInfo("Edit Mode Calibration started.\n");
-
             foreach (var pair in calibrationPairs)
             {
-                (Vector3, Vector3) relativePose = WorkplaceObjectFactory.GetPoseRelativeToCalibrationOrigin(pair.AnchorFrame);
-                Vector3 myPos = relativePose.Item1;
-                Vector3 myRot = relativePose.Item2;
+                var (position, rotation) = WorkplaceObjectFactory.GetPoseRelativeToCalibrationOrigin(pair.AnchorFrame);
+                var detectable = pair.DetectableConfiguration;
 
-                Detectable detectable = pair.DetectableConfiguration;
+                var positionX = position.x.ToString(CultureInfo.InvariantCulture);
+                var positionY = position.y.ToString(CultureInfo.InvariantCulture);
+                var positionZ = position.z.ToString(CultureInfo.InvariantCulture);
 
-                // set detectable values
-                detectable.origin_position = $"{myPos.x.ToString(CultureInfo.InvariantCulture)}, {myPos.y.ToString(CultureInfo.InvariantCulture)}, {myPos.z.ToString(CultureInfo.InvariantCulture)}";
-                detectable.origin_rotation = $"{myRot.x.ToString(CultureInfo.InvariantCulture)}, {myRot.y.ToString(CultureInfo.InvariantCulture)}, {myRot.z.ToString(CultureInfo.InvariantCulture)}";
+                var rotationX = rotation.x.ToString(CultureInfo.InvariantCulture);
+                var rotationY = rotation.y.ToString(CultureInfo.InvariantCulture);
+                var rotationZ = rotation.z.ToString(CultureInfo.InvariantCulture);
+
+                detectable.origin_position = $"{positionX}, {positionY}, {positionZ}";
+                detectable.origin_rotation = $"{rotationX}, {rotationY}, {rotationZ}";
             }
 
             await Task.Yield();
 
             UiManager.Instance.IsCalibrated = true;
-            Maggie.Speak("Workplace configuration saved.");
-
-            //delete calibration animation guide
-            var calibrationGuide = GameObject.Find("CalibrationGuide");
-            if (calibrationGuide)
-            {
-                Object.Destroy(calibrationGuide);
-            }
-
-            AppLog.LogInfo("Edit mode calibration completed.");
         }
 
-        // here we are writing anchors for calibration pairs that (must) already exist, relative to a calibration origin.
         private async Task PerformPlayModeCalibration(Transform calibrationRoot)
         {
-            AppLog.LogInfo("Play Mode Calibration started.\n");
-
             foreach (var pair in calibrationPairs)
             {
-                AppLog.LogDebug("Handling " + pair.DetectableConfiguration.id);
+                var position = Utilities.ParseStringToVector3(pair.DetectableConfiguration.origin_position);
+                var rotation = Utilities.ParseStringToVector3(pair.DetectableConfiguration.origin_rotation);
 
-                // Create a temporary empty frame.
-                var dummy = new GameObject("AnchorDummy");
-
-                // Make sure that the scale is 1:1.
-                dummy.transform.localScale = Vector3.one;
-
-                // Place the frame to calibration root position.
-                dummy.transform.position = calibrationRoot.position;
-
-                // Get calibration root rotation.
-                var originRotation = calibrationRoot.rotation;
-
-                // Apply calibration rotation to dummy frame.
-                dummy.transform.rotation = originRotation;
-
-                // Place anchor frame into the dummy frame.
-                pair.AnchorFrame.transform.SetParent(dummy.transform);
-
-                // Set anchor frame to proper position and orientation.
-                pair.AnchorFrame.transform.localEulerAngles = Utilities.ParseStringToVector3(pair.DetectableConfiguration.origin_rotation);
-
-                pair.AnchorFrame.transform.localPosition = Utilities.ParseStringToVector3(pair.DetectableConfiguration.origin_position);
-
-                // Update position to also the tangible attached to this anchor.
+                pair.AnchorFrame.transform.position = calibrationRoot.TransformPoint(position);
+                pair.AnchorFrame.transform.rotation = calibrationRoot.rotation * Quaternion.Euler(rotation);
                 pair.AnchorFrame.GetComponent<DetectableBehaviour>().AttachAnchor();
-
-                // Now move the frame back to detectable container.
-                pair.AnchorFrame.transform.SetParent(detectableContainer);
-
-                // Now attach anchor to the detectable anchor frame.
-                AppLog.LogInfo($"Anchor {pair.AnchorFrame.name} created at {pair.AnchorFrame.transform.position} || {pair.AnchorFrame.transform.eulerAngles}.");
-
-                // Destroy dummy.
-                Object.Destroy(dummy);
             }
 
-            // Add a small delay just to make sure all the anchors are stored...
             await Task.Yield();
-
-            // delete calibration animation guide
-            var calibrationGuide = GameObject.Find("CalibrationGuide");
-            if (calibrationGuide)
-            {
-                Object.Destroy(calibrationGuide);
-            }
-
-            AppLog.LogInfo("Play mode calibration completed.");
         }
 
         public Place GetPlaceFromTaskStationId(string id)
