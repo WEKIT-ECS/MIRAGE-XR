@@ -13,7 +13,7 @@ namespace MirageXR
 
             highlightedObject = target;
 
-            //this.arrowPositionOffset = Vector3.forward * (-0.001f) + Vector3.up * 0.02f;
+            this.arrowRotationOffset = new Vector3(0f, 0f, -30f);
 
             EventManager.OnPickPlacedCorrectly += this.DefaultExitEventListener;
         }
