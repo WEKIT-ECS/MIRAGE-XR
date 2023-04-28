@@ -212,9 +212,14 @@ namespace MirageXR
         private void PopulateStepListForMobileViewing()
         {
             _steps.Clear();
+            _steps.Add(new MVTSelectTutorialActivityStep());
+            _steps.Add(new MVTCalibrationGuideStep());
+            _steps.Add(new MVTSwitchTabsStep());
             _steps.Add(new MVTLabelTriggerStep());
-            _steps.Add(new MVTLabelTriggerStep());
+            _steps.Add(new MVTGhostTrackStep());
             _steps.Add(new MVTHighlightTriggerStep());
+            _steps.Add(new MVTPickAndPlaceStep());
+            _steps.Add(new MVTFinishTutorialStep());
         }
 
         /// <summary>
@@ -286,10 +291,6 @@ namespace MirageXR
 
         public void ShowHelpSelection(RootView_v2.HelpPage helpSelection)
         {
-            //TODO: Remove
-            this.StartTutorial(TutorialType.MOBILE_VIEWING);
-            //////////////////////////
-            //
             if (MobileTutorial == null)
             {
                 MobileTutorial = RootView_v2.Instance.Tutorial;
@@ -354,8 +355,6 @@ namespace MirageXR
             MobileTutorial.Show(queue);
         }
 
-
-
         public async void StartNewMobileViewingTutorial()
         {
             if (MobileTutorial == null)
@@ -368,20 +367,7 @@ namespace MirageXR
             await alv.CreateTutorialActivity();
             await Task.Delay(2400);
 
-            _steps.Clear();
-            _steps.Add(new MVTSelectTutorialActivityStep());
-            _steps.Add(new MVTCalibrationGuideStep());
-            _steps.Add(new MVTSwitchTabsStep());
-            _steps.Add(new MVTLabelTriggerStep());
-            _steps.Add(new MVTGhostTrackStep());
-            _steps.Add(new MVTHighlightTriggerStep());
-            _steps.Add(new MVTPickAndPlaceStep());
-            _steps.Add(new MVTFinishTutorialStep());
-
-            _currentStepNumber = -1;
-
-            NextStep();
-
+            StartTutorial(TutorialType.MOBILE_VIEWING);
         }
     }
 }

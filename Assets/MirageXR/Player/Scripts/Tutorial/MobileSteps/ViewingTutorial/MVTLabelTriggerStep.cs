@@ -14,8 +14,6 @@ namespace MirageXR
 
             highlightedObject = target;
 
-            //this.arrowPositionOffset = Vector3.forward * (-0.001f) + Vector3.up * 0.02f;
-
             EventManager.OnActivateAction += ExitListener;
         }
 
