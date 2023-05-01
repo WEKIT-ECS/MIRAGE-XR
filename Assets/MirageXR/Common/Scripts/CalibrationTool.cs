@@ -34,7 +34,9 @@ namespace MirageXR
                 return;
             }
 
+            imageTarget.onTargetFound.RemoveAllListeners();
             imageTarget.onTargetFound.AddListener(OnTargetFound);
+            imageTarget.onTargetLost.RemoveAllListeners();
             imageTarget.onTargetLost.AddListener(OnTargetLost);
         }
 
