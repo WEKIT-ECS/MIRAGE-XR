@@ -90,9 +90,16 @@ namespace MirageXR
             var workplaceManager = RootObject.Instance.workplaceManager;
             var taskStationId = workplaceManager.GetPlaceFromTaskStationId(_content.id);
             var detectable = workplaceManager.GetDetectable(taskStationId);
-            var augmentation = GameObject.Find(detectable.id);
-            augmentation.transform.SetParent(targetHolder);
-            augmentation.transform.localPosition = new Vector3(0, 0.1f, 0);
+            var detectableObj = GameObject.Find(detectable.id); // TODO: replace GameObject.Find(...)
+            if (detectableObj)
+            {
+                var detectableBehaviour = detectableObj.GetComponent<DetectableBehaviour>();
+                detectableBehaviour.SetTrackable(targetHolder);
+            }
+            else
+            {
+                AppLog.LogError($"Can't find detectable {detectable.id}");
+            }
         }
 
         private void MoveDetectableBack()
@@ -100,8 +107,15 @@ namespace MirageXR
             var place = RootObject.Instance.workplaceManager.GetPlaceFromTaskStationId(_content.id);
             var detectable = RootObject.Instance.workplaceManager.GetDetectable(place);
             var detectableObj = GameObject.Find(detectable.id); // TODO: replace GameObject.Find(...)
-            var detectableParentObj = RootObject.Instance.workplaceManager.detectableContainer;
-            detectableObj.transform.SetParent(detectableParentObj.transform);
+            if (detectableObj)
+            {
+                var detectableBehaviour = detectableObj.GetComponent<DetectableBehaviour>();
+                detectableBehaviour.RemoveTrackable();
+            }
+            else
+            {
+                AppLog.LogError($"Can't find detectable {detectable.id}");
+            }
         }
 
         public void PlatformOnDestroy()
