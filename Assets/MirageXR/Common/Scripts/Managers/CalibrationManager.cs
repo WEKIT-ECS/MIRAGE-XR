@@ -176,7 +176,7 @@ public class CalibrationManager : MonoBehaviour
     private void UpdateAnchorPosition()
     {
         _anchor.transform.position = _calibrationTool.transform.position;
-        //_anchor.transform.rotation = _calibrationTool.transform.rotation;
+        //_anchor.transform.rotation = Quaternion.AngleAxis(_calibrationTool.transform.rotation.eulerAngles.y, Vector3.up);
     }
 
     private static Transform CreateAnchor()
