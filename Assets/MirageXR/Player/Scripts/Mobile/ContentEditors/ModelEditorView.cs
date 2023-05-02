@@ -376,7 +376,12 @@ public class ModelEditorView : PopupEditorBase
         DBManager.sketchfabLastTokenRenewDate = DateTime.Now;
     }
 
-    private async void Accept(ModelListItem item)
+    private void Accept(ModelListItem item)
+    {
+        AcceptAsync(item).AsAsyncVoid();
+    }
+
+    private async Task AcceptAsync(ModelListItem item)
     {
         _previewItem = item.previewItem;
         item.interactable = false;
@@ -385,9 +390,9 @@ public class ModelEditorView : PopupEditorBase
         OnAccept();
     }
 
-    private async void DownloadItem(ModelListItem item)
+    private void DownloadItem(ModelListItem item)
     {
-        await DownloadItemAsync(item);
+        DownloadItemAsync(item).AsAsyncVoid();
     }
 
     private async Task DownloadItemAsync(ModelListItem item)

@@ -136,7 +136,7 @@ namespace MirageXR
                         if (_trackable)
                         {
                             AttachedObject.transform.position = _trackable.position;
-                            //AttachedObject.transform.rotation = _trackable.rotation;
+                            AttachedObject.transform.rotation = Quaternion.AngleAxis(_trackable.rotation.eulerAngles.y, Vector3.up);
                         }
 
                         break;
