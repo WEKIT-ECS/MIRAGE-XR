@@ -26,8 +26,11 @@ public class ProfileView : PopupBase
     [SerializeField] private TMP_Text _txtConnectedLRS;
     [SerializeField] private TMP_Text _txtVersion;
     [SerializeField] private ClickCounter _versionClickCounter;
+    [SerializeField] private Button _btnGrid;
+
     [Space]
     [SerializeField] private LoginView_v2 _loginViewPrefab;
+    [SerializeField] private GridView _gridViewPrefab;
 
     private bool _isShownDevelopModeMessage;
 
@@ -42,6 +45,7 @@ public class ProfileView : PopupBase
         _btnPrivacyPolicy.onClick.AddListener(OnClickPrivacyPolicy);
         _btnLogin.onClick.AddListener(OnClickLogin);
         _btnLogout.onClick.AddListener(OnClickLogout);
+        _btnGrid.onClick.AddListener(OnClickGrid);
         _developToggle.onValueChanged.AddListener(OnDevelopToggleValueChanged);
         _btnSelectServer.onClick.AddListener(ShowChangeServerPanel);
         _btnSelectLRS.onClick.AddListener(ShowLRSPanel);
@@ -133,6 +137,11 @@ public class ProfileView : PopupBase
         DBManager.LogOut();
         RootView_v2.Instance.activityListView.FetchAndUpdateView();
         ShowLogin();
+    }
+
+    private void OnClickGrid()
+    {
+        PopupsViewer.Instance.Show(_gridViewPrefab);
     }
 
     private static bool IsValidUrl(string urlString)
