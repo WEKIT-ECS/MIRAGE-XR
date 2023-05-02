@@ -1,13 +1,30 @@
 using System;
-using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using ARTrackingState = UnityEngine.XR.ARSubsystems.TrackingState;
 
-[RequireComponent(typeof(ARTrackedImage))]
 public class ImageTargetARFoundation : ImageTargetBase
 {
     private ARTrackedImage _image;
     private ARTrackingState _state = ARTrackingState.None;
+
+    public void SetARTrackedImage(ARTrackedImage trackedImage)
+    {
+        _image = trackedImage;
+        CopyPose(trackedImage);
+    }
+
+    public void RemoveARTrackedImage()
+    {
+        _image = null;
+    }
+
+    public void CopyPose(ARTrackedImage trackedImage)
+    {
+        var trackedImageTransform = trackedImage.transform;
+        transform.position = trackedImageTransform.position;
+        transform.rotation = trackedImageTransform.rotation;
+        transform.localScale = trackedImageTransform.localScale;
+    }
 
     private void Update()
     {
@@ -18,6 +35,8 @@ public class ImageTargetARFoundation : ImageTargetBase
     {
         if (!_image)
         {
+            OnStateChanged(ToTrackingState(_state), ToTrackingState(ARTrackingState.None));
+            _state = ARTrackingState.None;
             return;
         }
 
@@ -30,7 +49,7 @@ public class ImageTargetARFoundation : ImageTargetBase
 
     protected override void TrackerInitialization()
     {
-        _image = GetComponent<ARTrackedImage>();
+        _image = null;
     }
 
     private static TrackingState ToTrackingState(ARTrackingState state)
