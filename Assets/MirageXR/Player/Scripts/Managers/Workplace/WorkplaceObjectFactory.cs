@@ -2,7 +2,6 @@ using i5.Toolkit.Core.ServiceCore;
 using i5.Toolkit.Core.VerboseLogging;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -16,6 +15,11 @@ namespace MirageXR
 
         public static void CreateDetectables(List<Detectable> list, string debug)
         {
+            if (list == null || list.Count == 0)
+            {
+                return;
+            }
+
             try
             {
                 var rotation = Utilities.ParseStringToVector3(list[0].origin_rotation);
