@@ -50,6 +50,7 @@ public class StepsListView_v2 : BaseView
     private ActivityView_v2 _activityView => (ActivityView_v2)_parentView;
 
     private bool _isEditMode;
+    private int _addStepSiblingIndex = 0;
 
     [Header("MirageXR calibration pdf file:")]
     public TextAsset calibrationImage;
@@ -436,6 +437,8 @@ public class StepsListView_v2 : BaseView
 
     public void MoveStepsToHorizontalScroll()
     {
+        _addStepSiblingIndex = _addStep.GetSiblingIndex();
+
         for (var i = 0; i < _stepsList.Count; i++)
         {
             _stepsList[i].transform.parent = _listHorizontalContent;
@@ -448,5 +451,7 @@ public class StepsListView_v2 : BaseView
         {
             _stepsList[i].transform.parent = _listVerticalContent;
         }
+
+        _addStep.SetSiblingIndex(_addStepSiblingIndex);
     }
 }
