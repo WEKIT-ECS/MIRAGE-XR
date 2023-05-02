@@ -1,4 +1,5 @@
 using System;
+using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using TMPro;
 using UnityEngine;
@@ -42,9 +43,24 @@ public abstract class PopupEditorBase : PopupBase
     {
         var workplaceManager = RootObject.Instance.workplaceManager;
         var detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_step.id));
-        var originT = GameObject.Find(detectable.id);   // TODO: replace by direct reference to the object
         var annotationStartingPoint = ActionEditor.Instance.GetDefaultAugmentationStartingPoint();
-        return originT.transform.InverseTransformPoint(annotationStartingPoint.transform.position);
+        var originT = GameObject.Find(detectable.id);   // TODO: replace by direct reference to the object
+        if (!originT)
+        {
+            AppLog.LogError($"Can't find detectable {detectable.id}");
+            return annotationStartingPoint.transform.position;
+        }
+
+        var detectableBehaviour = originT.GetComponent<DetectableBehaviour>();
+
+        if (!detectableBehaviour)
+        {
+            AppLog.LogError($"Can't find DetectableBehaviour");
+            return annotationStartingPoint.transform.position;
+        }
+
+        var attachedObject = detectableBehaviour.AttachedObject;
+        return attachedObject.transform.InverseTransformPoint(annotationStartingPoint.transform.position);
     }
 
     protected override bool TryToGetArguments(params object[] args)
