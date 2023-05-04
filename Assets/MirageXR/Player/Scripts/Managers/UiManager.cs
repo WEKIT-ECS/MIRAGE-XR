@@ -93,7 +93,7 @@ namespace MirageXR
             HideDebug();
             HideMenu();
             WelcomeMessage = string.Empty;
-            CalibrationTool.Instance.isEnabled = false;
+            RootObject.Instance.calibrationManager.DisableCalibration();
         }
 
         private void MoveActivityList()
@@ -258,7 +258,7 @@ namespace MirageXR
 
             if (PlatformManager.Instance.WorldSpaceUi)
             {
-                CalibrationTool.Instance.isEnabled = true;
+                RootObject.Instance.calibrationManager.DisableCalibration();
             }
 
             if (IsCalibrated)
@@ -281,7 +281,7 @@ namespace MirageXR
         private void ActivityStarted()
         {
             //WelcomeMessage = activityManager.Activity;
-            CalibrationTool.Instance.isEnabled = false;
+            RootObject.Instance.calibrationManager.DisableCalibration();
 
             switch (PlayerPrefs.GetString("uistyle"))
             {

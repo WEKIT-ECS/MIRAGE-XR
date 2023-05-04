@@ -27,7 +27,7 @@ public class ContentSelectorView_v2 : PopupBase
         foreach (var type in _editors.Select(t => t.editorForType).Distinct())
         {
             var value = type.ToString().ToLowerInvariant();
-            if (listOfAugmentations.Contains(value))
+            if (listOfAugmentations.Contains(value) && type != ContentType.IMAGEMARKER)
             {
                 var item = Instantiate(_contentSelectorListItemPrefab, _listContent);
                 item.Init(type, OnListItemClick, OnListItemHintClick);

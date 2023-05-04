@@ -11,6 +11,7 @@ using UnityEngine.UI;
 public class GhosttrackEditor : MonoBehaviour
 {
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
+
     [SerializeField] private Button _startRecordingButton;
     [SerializeField] private Button _stopRecordingButton;
 
@@ -223,22 +224,6 @@ public class GhosttrackEditor : MonoBehaviour
     /// </summary>
     public void StartRecording()
     {
-        Debug.Log("GhostTrackAnnotation.StartRecording 1");
-        try
-        {
-            MirageXRLearningHubControl lhControl = GameObject.Find("MirageXRManagers").GetComponent<MirageXRLearningHubControl>();
-            if (true /* lhControl.learningHubReady */)
-            {
-                Debug.Log("Learning Hub: <START RECORDING>");
-                lhControl.SendMessage("<START RECORDING>");
-            }
-        }
-        catch
-        {
-            Debug.LogError("GhostTract: Failed to start recording");
-            return;
-        }
-
         if (_isRecording)
         {
             StopRecording();
@@ -267,8 +252,8 @@ public class GhosttrackEditor : MonoBehaviour
 
             IsRecording = true;
         }
-        Debug.Log("GhostTrackAnnotation.StartRecording done");
 
+        Debug.Log("GhostTrackAnnotation.StartRecording done");
     }
 
     /// <summary>
@@ -276,7 +261,10 @@ public class GhosttrackEditor : MonoBehaviour
     /// </summary>
     public void StopRecording()
     {
-        if (!_isRecording) return;
+        if (!_isRecording)
+        {
+            return;
+        }
 
         IsRecording = false;
 

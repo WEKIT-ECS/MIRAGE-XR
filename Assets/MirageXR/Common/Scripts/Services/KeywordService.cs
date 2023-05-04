@@ -1,14 +1,13 @@
 ﻿using i5.Toolkit.Core.ServiceCore;
 using i5.Toolkit.Core.VerboseLogging;
 using System.Collections.Generic;
+#if UNITY_WSA
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-#if UNITY_WSA
 using UnityEngine.Windows.Speech;
 using Microsoft.MixedReality.Toolkit.Input;
 #endif
-using Vuforia;
 
 namespace MirageXR
 {

@@ -401,40 +401,41 @@ namespace MirageXR
                                 foreach (var detectable in Workplace.detectables)
                                 {
                                     // Path to local storage.
-                                    var path = Application.persistentDataPath + "/" + Workplace.id + "/detectables/" +
-                                               detectable.id + "/";
+                                    var path = System.IO.Path.Combine(Application.persistentDataPath, Workplace.id, "detectables", detectable.id);
 
                                     // Load content needed for Vuforia image targets.
                                     switch (detectable.type)
                                     {
                                         case "image":
-
+                                        {
                                             // Fetch the image target .xml and .dat files from url folder.
-                                            var xmlFile =
-                                                new WWW(detectable.url + detectable.id + ".xml" + "?" +
-                                                        DateTime.Now.Ticks);
+                                            var xmlFile = new WWW(detectable.url + detectable.id + ".xml" + "?" +
+                                                                  DateTime.Now.Ticks);
                                             yield return xmlFile;
 
-                                            var datFile =
-                                                new WWW(detectable.url + detectable.id + ".dat" + "?" +
-                                                        DateTime.Now.Ticks);
+                                            var datFile = new WWW(detectable.url + detectable.id + ".dat" + "?" +
+                                                                  DateTime.Now.Ticks);
                                             yield return datFile;
 
                                             try
                                             {
                                                 // Check that we have the .xml file.
                                                 if (xmlFile.error != null)
-                                                    throw new FileLoadException(
-                                                        detectable.id + ": couldn't get the .xml file.");
+                                                {
+                                                    throw new FileLoadException(detectable.id +
+                                                        ": couldn't get the .xml file.");
+                                                }
 
                                                 // Check that we have the .dat file.
                                                 if (datFile.error != null)
-                                                    throw new FileLoadException(
-                                                        detectable.id + ": couldn't get the .dat file.");
+                                                {
+                                                    throw new FileLoadException(detectable.id +
+                                                        ": couldn't get the .dat file.");
+                                                }
 
                                                 // Create necessary local folder if it doesn't already exist.
-                                                //if (!Directory.Exists(path))
-                                                //Directory.CreateDirectory(path);
+                                                // if (!Directory.Exists(path))
+                                                // Directory.CreateDirectory(path);
 
                                                 // Prepare .xml file for storing.
                                                 PrepareForStoring(path, detectable.id + ".xml", xmlFile.bytes);
@@ -450,7 +451,9 @@ namespace MirageXR
                                                 Debug.Log(e);
                                                 throw;
                                             }
+
                                             break;
+                                        }
                                     }
                                 }
                             }

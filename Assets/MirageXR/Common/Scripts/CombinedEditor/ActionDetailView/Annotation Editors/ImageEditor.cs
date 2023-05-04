@@ -1,10 +1,9 @@
 ﻿using System;
-using MirageXR;
 using System.IO;
 using System.Threading.Tasks;
+using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
-using Vuforia;
 using Action = MirageXR.Action;
 
 public class ImageEditor : MonoBehaviour
@@ -17,7 +16,7 @@ public class ImageEditor : MonoBehaviour
     [SerializeField] private Button acceptButton;
     [SerializeField] private Button closeButton;
     [SerializeField] private AudioSource shutterPlayer;
-    [SerializeField] private UnityEngine.UI.Image previewImage;
+    [SerializeField] private Image previewImage;
     [SerializeField] private Text processingText;
     [SerializeField] private Text label;
     [SerializeField] private Transform annotationStartingPoint;
@@ -155,10 +154,7 @@ public class ImageEditor : MonoBehaviour
     {
         Maggie.Speak("Taking a photo in 3 seconds");
 
-        Debug.Log("\n\n\n\nStartPhotoCapture\n\n\n\n");
-
-        VuforiaBehaviour.Instance.enabled = false;
-        Debug.Log("Vuforia enabled?: " + VuforiaBehaviour.Instance.enabled);
+        RootObject.Instance.imageTargetManager.enabled = false;
 
         captureButton.gameObject.SetActive(false);
         acceptButton.gameObject.SetActive(false);
@@ -177,12 +173,11 @@ public class ImageEditor : MonoBehaviour
         if (result)
         {
             _capturedImage = texture2D;
-            var sprite = Sprite.Create(_capturedImage, new Rect(0, 0, _capturedImage.width, _capturedImage.height),
-                new Vector2(0.5f, 0.5f), 100.0f);
+            var sprite = Sprite.Create(_capturedImage, new Rect(0, 0, _capturedImage.width, _capturedImage.height), new Vector2(0.5f, 0.5f), 100.0f);
             previewImage.sprite = sprite;
         }
 
-        VuforiaBehaviour.Instance.enabled = true;
+        RootObject.Instance.imageTargetManager.enabled = true;
 
         processingText.text = string.Empty;
         processingText.transform.parent.gameObject.SetActive(false);

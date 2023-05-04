@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
 
 namespace MirageXR
@@ -178,7 +179,9 @@ namespace MirageXR
             password = null;
             username = null;
 
-            string path = Path.Combine(Application.persistentDataPath, configFileName);
+            try
+            {
+                var path = Path.Combine(Application.persistentDataPath, configFileName);
 
             if (!File.Exists(path))
             {
@@ -186,8 +189,8 @@ namespace MirageXR
                 return false;
             }
 
-            string[] infos = File.ReadAllLines(path);
-            string pword = (from info in infos where info.StartsWith(key) select info.Replace(key, string.Empty)).FirstOrDefault();
+                var infos = File.ReadAllLines(path);
+                var pword = (from info in infos where info.StartsWith(key) select info.Replace(key, string.Empty)).FirstOrDefault();
 
             if (string.IsNullOrEmpty(pword))
             {
@@ -195,7 +198,7 @@ namespace MirageXR
                 return false;
             }
 
-            var array = pword.Split(splitChar);
+                var array = pword.Split(splitChar);
 
             if (array.Length < 2)
             {
@@ -203,10 +206,16 @@ namespace MirageXR
                 return false;
             }
 
-            username = array[0];
-            password = Encryption.EncriptDecrypt(array[1]);
-            AppLog.LogDebug("Successfully retrieved stored password from config file");
-            return true;
+                username = array[0];
+                password = Encryption.EncriptDecrypt(array[1]);
+                AppLog.LogDebug("Successfully retrieved stored password from config file");
+                return true;
+            }
+            catch (Exception e)
+            {
+                AppLog.LogError(e.ToString());
+                return false;
+            }
         }
 
         public static void RemoveKey(string key)

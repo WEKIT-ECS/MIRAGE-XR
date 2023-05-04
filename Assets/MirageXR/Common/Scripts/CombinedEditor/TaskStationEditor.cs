@@ -54,7 +54,7 @@ public class TaskStationEditor : MonoBehaviour
         var position = taskStationMover.HostTransform.position;
         var rotation = taskStationMover.HostTransform.eulerAngles;
 
-        var originT = CalibrationTool.Instance.transform;
+        var originT = RootObject.Instance.calibrationManager.anchor;
 
         // Some black magic for getting the offset.
         var anchorDummy = new GameObject("AnchorDummy");

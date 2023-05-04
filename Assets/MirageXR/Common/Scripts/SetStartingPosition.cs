@@ -1,12 +1,11 @@
-﻿using UnityEngine;
-using MirageXR;
+﻿using MirageXR;
+using UnityEngine;
 
 public class SetStartingPosition : MonoBehaviour
 {
-
-    private Transform _userViewport;
     [SerializeField] private Vector3 offsetFromActivitySeceltor;
 
+    private Transform _userViewport;
 
     private void Awake()
     {
@@ -25,8 +24,7 @@ public class SetStartingPosition : MonoBehaviour
         EventManager.OnWorkplaceLoaded -= SetPosition;
     }
 
-    // Use this for initialization
-    void Start()
+    private void Start()
     {
         SetPosition();
     }
@@ -40,10 +38,13 @@ public class SetStartingPosition : MonoBehaviour
     {
         // if an offset is set for this window
         if (offsetFromActivitySeceltor == Vector3.zero)
+        {
             transform.position = _userViewport.position;
+        }
         else
+        {
             transform.position = _userViewport.position + offsetFromActivitySeceltor;
-
+        }
 
         var rotation = _userViewport.eulerAngles;
         rotation.z = 0;

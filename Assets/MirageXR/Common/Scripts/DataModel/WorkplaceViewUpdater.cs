@@ -1,6 +1,5 @@
 using i5.Toolkit.Core.VerboseLogging;
 using System.Threading.Tasks;
-using UnityEngine;
 
 namespace MirageXR
 {
@@ -22,20 +21,15 @@ namespace MirageXR
         public static async Task CreateObjects()
         {
             EventManager.DebugLog("Workplace manager: Starting to create the objects...");
-            
+
             // Instantiate detectables first, since they need to be there when others want to attach to them.
             // TODO further detatch the model from the WorkplaceManager
-            await WorkplaceObjectFactory.CreateDetectablesOrPlaces(workplaceManager.workplace.detectables, "detectables");
 
-            // Instantiate device sensors.
+            WorkplaceObjectFactory.CreateDetectables(workplaceManager.workplace.detectables, "detectables");
             WorkplaceObjectFactory.CreateSensors();
-            // Instantiate thing objects
             await WorkplaceObjectFactory.CreateThings();
-            // Instantiate place objects
-            await WorkplaceObjectFactory.CreateDetectablesOrPlaces(workplaceManager.workplace.places, "places");
-            // Instantiate person objects
+            await WorkplaceObjectFactory.CreatePlaces(workplaceManager.workplace.places, "places");
             await WorkplaceObjectFactory.CreatePersons();
-            // Attach user to current device.
             WorkplaceObjectFactory.CreateDevices();
 
             // If workplace has anchors which have not been calibrated...

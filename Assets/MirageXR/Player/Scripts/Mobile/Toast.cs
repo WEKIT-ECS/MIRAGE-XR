@@ -18,6 +18,7 @@ public class Toast : MonoBehaviour
     [SerializeField] private TMP_Text _message;
     [SerializeField] private CanvasGroup _canvasGroup;
     [SerializeField] private LayoutElement _layoutElement;
+    [SerializeField] private GameObject _icon;
 
     private readonly Queue<string> _queue = new Queue<string>();
     private bool _isActive;
@@ -45,8 +46,9 @@ public class Toast : MonoBehaviour
         if (!_isActive && _queue.Count > 0) ViewMessage(_queue.Dequeue());
     }
 
-    public void Show(string message)
+    public void Show(string message, bool showIcon = false)
     {
+        _icon.SetActive(showIcon);
         _queue.Enqueue(message);
     }
 

@@ -101,14 +101,15 @@ namespace Tests
                 yield return new WaitWhile(() => sceneLoaded == false && Time.time - timeoutStart < testTimeOut);
 
                 // arrange objects
-                SetupReferences();
+                var task = SetupReferences();
+                yield return new WaitUntil(() => task.IsCompleted);
 
                 // wait for resources to be arranged
                 timeoutStart = Time.time;
                 yield return new WaitWhile(() => resourcesArranged == false && Time.time - timeoutStart < testTimeOut);
 
                 // initialise activity parsing (first thing that needs to happen)
-                var task = StartDummyActivity("resources://calibrationTest-activity");
+                task = StartDummyActivity("resources://calibrationTest-activity");
                 yield return new WaitUntil(() => task.IsCompleted);
 
                 // wait for workplace parsing (last thing that happens)
@@ -188,6 +189,7 @@ namespace Tests
                 rootObject = GenerateGameObjectWithComponent<RootObject>("root");
                 CallPrivateMethod(rootObject, "Awake");
                 CallPrivateMethod(rootObject, "Initialization");
+                await rootObject.WaitForInitialization();
             }
             else
             {

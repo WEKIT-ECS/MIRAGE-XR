@@ -37,7 +37,7 @@ namespace MirageXR
 
         public List<Poi> pois = new List<Poi>();
 
-        // NOT IN ARLEM SPEC. Used for new tracking types enabled by Hololens + Vuforia combo.
+        // NOT IN ARLEM SPEC. Used for new tracking types enabled by Hololens
         public string type = ""; // fixed, handheld or raw (default)
         public float radius = 0.75f; // Tracking active area Radius
 

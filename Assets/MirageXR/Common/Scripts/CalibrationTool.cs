@@ -1,135 +1,98 @@
 ﻿using System.Collections;
+using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
 using UnityEngine.Events;
-using Vuforia;
 
 namespace MirageXR
 {
     public class CalibrationTool : MonoBehaviour
     {
-        private static float ANIMATION_TIME = 5f;
-
-        public static CalibrationTool Instance { get; private set; }
-
         [SerializeField] private CalibrationAnimation _calibrationAnimation;
-        [SerializeField] private ImageTargetBehaviour _imageTargetBehaviour;
-        [SerializeField] private DefaultTrackableEventHandler _trackableEventHandler;
-        private UnityEvent _onTargetFound = new UnityEvent();
-        private UnityEvent _onTargetLost = new UnityEvent();
-        private UnityEvent _onCalibrationFinished = new UnityEvent();
+        [SerializeField] private UnityEvent _onCalibrationStarted = new UnityEvent();
+        [SerializeField] private UnityEvent _onCalibrationCanceled = new UnityEvent();
+        [SerializeField] private UnityEvent _onCalibrationFinished = new UnityEvent();
 
-        public UnityEvent onTargetFound => _onTargetFound;
+        public UnityEvent onCalibrationStarted => _onCalibrationStarted;
 
-        public UnityEvent onTargetLost => _onTargetLost;
+        public UnityEvent onCalibrationCanceled => _onCalibrationCanceled;
 
         public UnityEvent onCalibrationFinished => _onCalibrationFinished;
 
-        public float animationTime => ANIMATION_TIME;
-
-        public bool isEnabled
-        {
-            get => _isEnabled;
-            set
-            {
-                _isEnabled = value;
-                SetEnabled(value);
-            }
-        }
-
-        private bool _isEnabled;
+        private IImageTarget _imageTarget;
+        private float _animationTime = 5f;
         private bool _isTargetFound;
         private Coroutine _countdownToEnd;
-        public bool isNewPosition;
 
-        private void Awake()
+        public void Initialization(float animationTime)
         {
-            if (Instance == null)
+            _animationTime = animationTime;
+            var imageTarget = GetComponentInParent<ImageTargetBase>();
+
+            if (imageTarget == null)
             {
-                Instance = this;
+                AppLog.LogError("Can't find IImageTarget");
+                return;
             }
-            else if (Instance != this)
+
+            imageTarget.onTargetFound.RemoveAllListeners();
+            imageTarget.onTargetFound.AddListener(OnTargetFound);
+            imageTarget.onTargetLost.RemoveAllListeners();
+            imageTarget.onTargetLost.AddListener(OnTargetLost);
+        }
+
+        public void Enable()
+        {
+            enabled = true;
+            _calibrationAnimation.gameObject.SetActive(true);
+
+            if (gameObject.activeInHierarchy)
             {
-                Destroy(gameObject);
+                OnTargetFound(null);
             }
         }
 
-        private void Start()
+        public void Disable()
         {
-            _trackableEventHandler.OnTargetFound.AddListener(OnTargetFound);
-            _trackableEventHandler.OnTargetLost.AddListener(OnTargetLost);
-            isEnabled = false;
-        }
-
-        private void SetEnabled(bool value)
-        {
-            if (value)
-            {
-                Enable();
-            }
-            else
-            {
-                Disable();
-            }
-        }
-
-        private void OnTargetFound()
-        {
-            _isTargetFound = true;
-            _onTargetFound.Invoke();
-            _calibrationAnimation.PlayAnimation();
-            _countdownToEnd = StartCoroutine(WaitAndDo(ANIMATION_TIME, Calibrate));
-        }
-
-        private void OnTargetLost()
-        {
-            _isTargetFound = false;
-            _onTargetLost.Invoke();
-            _calibrationAnimation.StopAnimation();
-            if (_countdownToEnd != null)
-            {
-                StopCoroutine(_countdownToEnd);
-                _countdownToEnd = null;
-            }
-        }
-
-        private void Enable()
-        {
-            _isEnabled = true;
-
-            if (_countdownToEnd != null)
-            {
-                StopCoroutine(_countdownToEnd);
-                _countdownToEnd = null;
-            }
-
-            if (_imageTargetBehaviour != null && _calibrationAnimation != null)
-            {
-                _imageTargetBehaviour.enabled = true;
-                _calibrationAnimation.gameObject.SetActive(true);
-            }
-        }
-
-        private void Disable()
-        {
-            _isTargetFound = false;
-
-            if (_countdownToEnd != null)
-            {
-                StopCoroutine(_countdownToEnd);
-                _countdownToEnd = null;
-            }
-
-            _calibrationAnimation.StopAnimation();
-            _imageTargetBehaviour.enabled = false;
+            OnTargetLost(null);
             _calibrationAnimation.gameObject.SetActive(false);
+            enabled = false;
         }
 
-        public async void Calibrate()
+        private void OnTargetFound(IImageTarget imageTarget)
+        {
+            if (!enabled)
+            {
+                return;
+            }
+
+            _isTargetFound = true;
+            _onCalibrationStarted.Invoke();
+            _calibrationAnimation.PlayAnimation();
+            _countdownToEnd = StartCoroutine(WaitAndDo(_animationTime, Calibrate));
+        }
+
+        private void OnTargetLost(IImageTarget imageTarget)
+        {
+            if (!enabled)
+            {
+                return;
+            }
+
+            _isTargetFound = false;
+            _onCalibrationCanceled.Invoke();
+            _calibrationAnimation.StopAnimation();
+            if (_countdownToEnd != null)
+            {
+                StopCoroutine(_countdownToEnd);
+                _countdownToEnd = null;
+            }
+        }
+
+        private void Calibrate()
         {
             _calibrationAnimation.StopAnimation();
             if (_isTargetFound)
             {
-                await RootObject.Instance.workplaceManager.CalibrateWorkplace(transform, isNewPosition);
                 _onCalibrationFinished.Invoke();
             }
 
@@ -138,8 +101,6 @@ namespace MirageXR
                 StopCoroutine(_countdownToEnd);
                 _countdownToEnd = null;
             }
-
-            isEnabled = false;
         }
 
         private static IEnumerator WaitAndDo(float time, System.Action callback)

@@ -1,8 +1,7 @@
-﻿using UnityEngine.SceneManagement;
+﻿using System.Threading.Tasks;
 using Microsoft.MixedReality.Toolkit.Utilities;
-using System.Threading.Tasks;
 using MirageXR;
-using Vuforia;
+using UnityEngine.SceneManagement;
 using i5.Toolkit.Core.VerboseLogging;
 
 public class EditorSceneService
@@ -23,8 +22,6 @@ public class EditorSceneService
 
     public async Task UnloadExistingScene()
     {
-        VuforiaBehaviour.Instance.enabled = false;
-
         if (editorScene.isLoaded)
         {
             AppLog.LogInfo("Unloading editor scene", this);

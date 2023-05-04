@@ -23,6 +23,7 @@ namespace MirageXR
 
         private void GotItOnClick()
         {
+            RootView_v2.Instance.ReturnToHomePage();
             EventManager.NotifyOnTutorialPopupCloseClicked();
             Close();
         }

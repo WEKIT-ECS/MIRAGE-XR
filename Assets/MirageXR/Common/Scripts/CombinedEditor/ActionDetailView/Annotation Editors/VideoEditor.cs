@@ -1,15 +1,14 @@
-﻿using MirageXR;
-using System.Collections;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
+using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
-using Vuforia;
 using Action = MirageXR.Action;
 
 public class VideoEditor : MonoBehaviour
 {
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
+
     [SerializeField] private Button startRecordingButton;
     [SerializeField] private Button stopRecordingButton;
     [SerializeField] private RawImage previewImage;
@@ -43,14 +42,14 @@ public class VideoEditor : MonoBehaviour
 
     private void Start()
     {
-        stepTrigger.onValueChanged.AddListener(delegate { OnTriggerValueChanged(); });
+        stepTrigger.onValueChanged.AddListener(_ => OnTriggerValueChanged());
     }
 
     public void Close()
     {
         videoWasRecorded = false;
         IsRecording = false;
-        VuforiaBehaviour.Instance.enabled = true;
+        RootObject.Instance.imageTargetManager.enabled = true;
         action = null;
         annotationToEdit = null;
         newFileName = string.Empty;
@@ -77,15 +76,15 @@ public class VideoEditor : MonoBehaviour
     public void OnAccept()
     {
         if (IsRecording)
+        {
             StopRecording();
-
+        }
 
 #if UNITY_EDITOR
-
         if (annotationToEdit == null)
         {
             // create dummy video clip so that the augmentation can be created in Unity (debugging only)
-            newFileName = $"videoTest_MP4.mp4";
+            newFileName = "videoTest_MP4.mp4";
             string targetPath = Path.Combine(activityManager.ActivityPath, newFileName);
 
             try
@@ -100,6 +99,7 @@ public class VideoEditor : MonoBehaviour
             {
                 Debug.LogError(e);
             }
+
             videoWasRecorded = true;
         }
         else
@@ -109,7 +109,6 @@ public class VideoEditor : MonoBehaviour
             Close();
             return;
         }
-
 #endif
 
         if (!videoWasRecorded)
@@ -132,8 +131,7 @@ public class VideoEditor : MonoBehaviour
             GameObject originT = GameObject.Find(detectable.id);
 
             var startPointTr = annotationStartingPoint.transform;
-            var offset = Utilities.CalculateOffset(startPointTr.position, startPointTr.rotation,
-                originT.transform.position, originT.transform.rotation);
+            var offset = Utilities.CalculateOffset(startPointTr.position, startPointTr.rotation, originT.transform.position, originT.transform.rotation);
 
             annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
             annotationToEdit.predicate = "video";
@@ -149,7 +147,6 @@ public class VideoEditor : MonoBehaviour
         Close();
     }
 
-
     private async Task<bool> DeleteOldVideoFile()
     {
         // delete the previous video file
@@ -160,11 +157,10 @@ public class VideoEditor : MonoBehaviour
             File.Delete(originalFilePath);
         }
 
-        await Task.Delay(5);
+        await Task.Yield();
 
         return true;
     }
-
 
     public async void StartRecording()
     {
@@ -176,11 +172,13 @@ public class VideoEditor : MonoBehaviour
 
         Debug.Log("Record Video");
 
-        VuforiaBehaviour.Instance.enabled = false;
+        RootObject.Instance.imageTargetManager.enabled = false;
         IsRecording = true;
 
         if (annotationToEdit != null)
+        {
             await DeleteOldVideoFile();
+        }
 
         newFileName = $"MirageXR_Video_{System.DateTime.Now.ToFileTimeUtc()}.mp4";
         var filepath = Path.Combine(activityManager.ActivityPath, newFileName);
@@ -194,11 +192,16 @@ public class VideoEditor : MonoBehaviour
         Maggie.Speak("Stopped recording");
         videoWasRecorded = result;
         IsRecording = false;
-        VuforiaBehaviour.Instance.enabled = true;
+
+        RootObject.Instance.imageTargetManager.enabled = true;
 
         if (result)
         {
-            if (previewImage.texture) Destroy(previewImage.texture);
+            if (previewImage.texture)
+            {
+                Destroy(previewImage.texture);
+            }
+
             previewImage.texture = NativeCameraController.GetVideoThumbnail(path);
         }
     }
@@ -232,12 +235,20 @@ public class VideoEditor : MonoBehaviour
     {
         if (stepTrigger.isOn)
         {
-            if (annotationToEdit == null) return;
+            if (annotationToEdit == null)
+            {
+                return;
+            }
+
             action.AddArlemTrigger(TriggerMode.Video, ActionType.Video, annotationToEdit.poi);
         }
         else
         {
-            if (annotationToEdit == null) return;
+            if (annotationToEdit == null)
+            {
+                return;
+            }
+
             action.RemoveArlemTrigger(annotationToEdit);
         }
     }

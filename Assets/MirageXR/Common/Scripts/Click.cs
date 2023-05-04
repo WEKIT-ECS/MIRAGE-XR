@@ -1,12 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace MirageXR
 {
     /// <summary>
     /// Universal Click. Should receive a Nobel prize for this...
     /// </summary>
+    [RequireComponent(typeof(AudioSource))]
     public class Click : MonoBehaviour
     {
 
