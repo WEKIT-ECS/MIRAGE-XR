@@ -2,6 +2,74 @@
 
 # Change Log
 
+# v2.2 (2023-05-04)
+
+## Featured:
+- We have optimized the application. Now it runs faster and heats up the phone less.
+- The image and video augmentation as well as the step marker now allow adding a picture directly from existing photo galleries
+- The search functionality has been improved, integrating search directly into the home screen.
+## Added:
+- New search screen has been added.
+- Horizontal scrolling has been added to the StepList View
+## Changed:
+- The operation of the bottom navigation bar has been changed
+- Activity settings have been updated
+## Fixed:
+- We fixed bugs related to Image Marker Augmentation.
+- Content in records no longer appears upside down.
+- We fixed bugs related to Pick & Place.
+- The spawn position has been corrected.
+## Developer:
+- Fixed the handling of screen press events.
+- Bottom multiline dialogue with toggles has been added.
+- Vuforia has been removed from the mobile version of the app.
+- iPad: the display of the debug console has been fixed.
+- Application crashes due to Vuforia initialization have been fixed.
+- The work with 3D models has been optimized.
+- Playmode tests have been updated.
+- Debug log messages have been improved.
+
+# v2.1 (2023-02-27)
+
+## Featured:
+- Automatic saving. We improved auto-saving of activities.
+- Calibration marker position. The calibration marker can now be moved and registered by the app in a new location, while editing an activity.
+- Debug console. We added a debug console for mobile devices to help diagnose complex, device-specific content or functionality issues.
+
+## Added:
+- New warning message is displayed when selecting public upload from the publishing menu.
+- We brought back the Sketchfab web-based single-sign on.
+- “Get Calibration Image” in the calibration tab now opens a sharing dialogue.
+- We added a feature to capture the new position of the calibration image which is useful when the user moves the calibration marker but wants to keep the position of AR content.
+
+## Changed:
+- We made minor changes to improve the uniformity of the mobile UI.
+- Changing an activities name or description will now auto-save the activity.
+- Changing an action step’s name or description will now auto-save the activity.
+- Changing an augmentation’s ‘keep alive’ settings will now auto-save the activity.
+- The VFX augmentation is now referred to as ‘Effects’.
+- We renamed “Activity settings” to “Publish”.
+- Locate now targets the Pick and place arrow rather than the sphere.
+
+## Fixed:
+- Logging out is now persisted on application re-launch.
+- Recalibration button is no longer visible when minimizing the calibration menu.
+- Publish toggle is now inactive when neither local nor cloud upload is selected.
+- Activity settings are remembered when re-launching the app.
+- Illegal characters of filenames (\ / : * ? " < > |) of 3D models no longer prevent their use.
+- We fixed a bug changing the content type of augmentations if their name contained the name of another augmentation type.
+- The pick and place ‘reset on action step’ option now works correctly.
+- Delete augmentation now works.
+- Recalibration now deactivates the active action step before starting the first action step.
+
+## Enterprise:
+- The privacy policy is now linked from the profile page.
+
+## Developer:
+- We changed the predicate for the visual effects augmentation from ‘vfx’ to ‘effects’.
+- We added a verbose logging system to improve debug outputs.
+- We added a debug console to mobile builds for listing log messages at run-time to improve device specific debugging.
+
 # v2.0 (2023-02-08)
 
 ## Featured
