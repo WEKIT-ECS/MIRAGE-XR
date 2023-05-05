@@ -16,6 +16,7 @@ public class Dialog : MonoBehaviour
     [SerializeField] private DialogViewMiddleMultiline _dialogMiddleMultilinePrefab;
     [SerializeField] private DialogViewBottomMultiline _dialogBottomMultilinePrefab;
     [SerializeField] private DialogViewBottomInputField _dialogBottomInputFieldPrefab;
+    [SerializeField] private DialogViewBottomMultilineToggles _dialogBottomMultilineTogglesPrefab;
 
     private readonly Queue<DialogModel> _queue = new Queue<DialogModel>();
     private DialogView _dialogView;
@@ -56,6 +57,12 @@ public class Dialog : MonoBehaviour
     {
         var contents = buttonContents.Select(t => new DialogButtonContent(t.text, t.onClick)).ToList();
         Show(DialogType.Bottom, label, null, contents, canBeClosedByOutTap);
+    }
+
+    public void ShowBottomMultilineToggles(string label, params (string text, Action onClick, bool isWarning, bool isSelected)[] toggleContents)
+    {
+        var contents = toggleContents.Select(t => new DialogButtonContent(t.text, t.onClick, t.isWarning, t.isSelected)).ToList();
+        Show(DialogType.BottomToggles, label, null, contents);
     }
 
     public void ShowBottomInputField(string label, string description, string textLeft, Action<string> onClickLeft, string textRight, Action<string> onClickRight, bool canBeClosedByOutTap = false)
@@ -152,6 +159,8 @@ public class Dialog : MonoBehaviour
         {
             case DialogType.Bottom:
                 return _dialogBottomMultilinePrefab;
+            case DialogType.BottomToggles:
+                return _dialogBottomMultilineTogglesPrefab;
             case DialogType.Middle:
                 return _dialogMiddlePrefab;
             case DialogType.MiddleMultiline:

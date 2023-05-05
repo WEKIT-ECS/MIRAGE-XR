@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
-using UnityEngine.XR.WSA;
-using Vuforia;
+//using Vuforia;
 
 namespace MirageXR
 {
@@ -10,36 +9,20 @@ namespace MirageXR
     public class DetectableBehaviour : MonoBehaviour
     {
         [SerializeField] private bool IsWorking;
-
-        // User position
-        private Transform _userPosition;
-
-        // Detectable origin
-        private Transform _origin;
-
-        // Has the detectable been located.
         [SerializeField] private bool IsLocated;
-
-        // Is this trackable currently detected or not
         [SerializeField] private bool IsDetected;
-
-        // For world anchors. Has the anchor been attached or not.
-        private bool _isAttached;
-
-        // Used for a Vuforia specific hack for quickly checking if the trackable is currently being tracked
-        private Renderer _rendererCheck;
-
-        // Flag for checking preventing continuous transform updates in some tracking styles
         [SerializeField] private bool IsActive;
+        [SerializeField] private bool ExtendedTrackingActive = true;
+        private Transform _userPosition;
+        private Transform _origin;
+        private bool _isAttached;
+        private Renderer _rendererCheck;
+        private Transform _trackable;
 
-        private TrackableBehaviour _trackableComponent;
-
-        public DataSet Dataset { get; set; }
+        //public DataSet Dataset { get; set; }
 
         // Is detectable ready for action or not
         public bool IsDetectableReady { get; set; }
-
-        [SerializeField] private bool ExtendedTrackingActive = true;
 
         // Definitions of all the supported trackable types
         public enum TrackableType
@@ -73,11 +56,6 @@ namespace MirageXR
         [Tooltip("Tolerance for handheld movements (in meters).")]
         public float Tolerance = 0.01f;
 
-        private void Awake()
-        {
-            _trackableComponent = GetComponent<TrackableBehaviour>();
-        }
-
         private void OnEnable()
         {
             EventManager.OnPlayerReset += PlayerReset;
@@ -86,26 +64,20 @@ namespace MirageXR
         private void OnDisable()
         {
             EventManager.OnPlayerReset -= PlayerReset;
-
-            DetachTrackable();
         }
 
-        private void OnDestroy()
+        public void SetTrackable(Transform trackable)
         {
-            DetachTrackable();
+            _trackable = trackable;
+            Type = TrackableType.Marker;
         }
 
-        private void DetachTrackable()
+        public void RemoveTrackable()
         {
-            if (_trackableComponent != null)
-            {
-                TrackerManager.Instance.GetStateManager().DestroyTrackableBehavioursForTrackable(_trackableComponent.Trackable);
-                TrackerManager.Instance.GetTracker<ObjectTracker>().DeactivateDataSet(Dataset);
-                Dataset.Destroy(_trackableComponent.Trackable, true);
-            }
+            _trackable = null;
+            Type = TrackableType.Anchor;
         }
 
-        // Use this for initialization.
         private void Start()
         {
             // Hololens camera position is the same as user position.
@@ -113,19 +85,17 @@ namespace MirageXR
 
             // Attach _origin object
             if (transform.Find("Origin") != null)
+            {
                 _origin = transform.Find("Origin").transform;
+            }
 
             // Attach the renderer check
             if (transform.Find("RendererCheck") != null)
+            {
                 _rendererCheck = transform.Find("RendererCheck").GetComponent<Renderer>();
+            }
 
             IsDetectableReady = true;
-        }
-
-        private void Delete()
-        {
-            if (!CompareTag("Permanent"))
-                Destroy(gameObject);
         }
 
         private void PlayerReset()
@@ -139,10 +109,6 @@ namespace MirageXR
             transform.localEulerAngles = Vector3.zero;
         }
 
-
-
-
-        // Attach anchor.
         public void AttachAnchor()
         {
             AttachedObject.transform.position = transform.position;
@@ -151,7 +117,6 @@ namespace MirageXR
             _isAttached = true;
         }
 
-        // Update is called once per frame
         private void Update()
         {
             // Detectable behaviour can behave only if a tracker is attached...
@@ -166,116 +131,14 @@ namespace MirageXR
                         AttachedObject.transform.rotation = transform.rotation;
                         break;
 
-                    // If the TrackableType is Vuforia image target or marker...
                     case TrackableType.Image:
                     case TrackableType.Marker:
-                        // Set is detected state based on the renderer check hack
-                        IsDetected = _rendererCheck.enabled;
-
-                        IsWorking = true;
-
-                        // Behave according to set tracking style...
-                        switch (Style)
+                        if (_trackable)
                         {
-                            // If normal Vuforia tracking is set...
-                            case (TrackingStyle.Raw):
-                            default:
-                                // ...update the position of the attached object.
-                                AttachedObject.transform.localPosition = _origin.position;
-                                AttachedObject.transform.localRotation = _origin.rotation;
-
-                                // ... if detectable is visible
-                                if (IsDetected)
-                                {
-                                    // Now we should have a reference of the location in the Hololens space.
-                                    if (!IsLocated)
-                                    {
-                                        // ...which means that we can safely enable the gaze guiding.
-                                        IsLocated = true;
-                                    }
-
-                                    // ... tell attached object to show content
-                                    AttachedObject.SendMessage("ShowContent", SendMessageOptions.DontRequireReceiver);
-                                }
-
-                                // ... and if detectable is lost
-                                else
-                                {
-                                    // ... tell attached object to hide content
-                                    AttachedObject.SendMessage("HideContent", SendMessageOptions.DontRequireReceiver);
-                                }
-                                break;
-
-                            // If handheld tracking style is set...
-                            case TrackingStyle.Handheld:
-
-                                // If not yet active and if the distance between the detectable position and the attached object position is greater than Tolerance...
-                                if (!IsActive && Mathf.Abs(Vector3.Distance(transform.position, AttachedObject.transform.position)) > Tolerance)
-                                {
-                                    // ...update the position of the attached object.
-                                    AttachedObject.transform.localPosition = _origin.position;
-                                    AttachedObject.transform.localRotation = _origin.rotation;
-
-                                    // ... tell attached object to show content
-                                    AttachedObject.SendMessage("ShowContent", SendMessageOptions.DontRequireReceiver);
-
-                                    // Set active flag
-                                    IsActive = true;
-                                }
-
-                                // If active and within active area (arms length), update attached object transform if movement Tolerance is exceeded...
-                                if (IsActive &&
-                                    Mathf.Abs(Vector3.Distance(_userPosition.position, AttachedObject.transform.position)) < Radius &&
-                                    Mathf.Abs(Vector3.Distance(transform.position, AttachedObject.transform.position)) > Tolerance)
-                                {
-                                    // ...update the position of the attached object.
-                                    AttachedObject.transform.localPosition = _origin.position;
-                                    AttachedObject.transform.localRotation = _origin.rotation;
-                                }
-
-                                // If detectable is lost, tell attached object to hide content and set inactive flag
-                                if (!IsDetected)
-                                {
-                                    AttachedObject.SendMessage("HideContent", SendMessageOptions.DontRequireReceiver);
-                                    IsActive = false;
-                                }
-
-                                break;
-
-                            // If fixed object tracking style is set...
-                            case TrackingStyle.Fixed:
-
-                                // Now we should have a reference of the location in the Hololens space.
-                                if (!IsLocated)
-                                {
-                                    IsLocated = true;
-                                }
-
-                                // If not yet active and if the distance between the detectable position and the attached object position is greater than Tolerance...
-                                if (!IsActive && Mathf.Abs(Vector3.Distance(transform.position, AttachedObject.transform.position)) > Tolerance)
-                                {
-                                    // ...update the position of the attached object.
-                                    AttachedObject.transform.localPosition = _origin.position;
-                                    AttachedObject.transform.localRotation = _origin.rotation;
-
-                                    // ... tell attached object to show content
-                                    AttachedObject.SendMessage("ShowContent", SendMessageOptions.DontRequireReceiver);
-
-                                    // Set active flag
-                                    IsActive = true;
-                                }
-
-                                // If user has moved outside the fixed object active area...
-                                if (Mathf.Abs(Vector3.Distance(_userPosition.position, AttachedObject.transform.position)) > Radius)
-                                {
-                                    // ... tell attached object to hide content
-                                    AttachedObject.SendMessage("HideContent", SendMessageOptions.DontRequireReceiver);
-
-                                    // Set inactive flag
-                                    IsActive = false;
-                                }
-                                break;
+                            AttachedObject.transform.position = _trackable.position;
+                            AttachedObject.transform.rotation = Quaternion.AngleAxis(_trackable.rotation.eulerAngles.y, Vector3.up);
                         }
+
                         break;
 
                     // If the TrackableType is not supported...

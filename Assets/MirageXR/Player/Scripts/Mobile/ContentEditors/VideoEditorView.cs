@@ -3,7 +3,6 @@ using System.IO;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
-using Vuforia;
 using Image = UnityEngine.UI.Image;
 
 public class VideoEditorView : PopupEditorBase
@@ -17,6 +16,7 @@ public class VideoEditorView : PopupEditorBase
     [SerializeField] private Transform _imageHolder;
     [SerializeField] private Image _image;      // TODO: replace image preview with a video
     [SerializeField] private Button _btnCaptureVideo;
+    [SerializeField] private Button _btnOpenGallery;
     [SerializeField] private Toggle _toggleTrigger;
     [SerializeField] private Toggle _toggleOrientation;
 
@@ -28,6 +28,7 @@ public class VideoEditorView : PopupEditorBase
     {
         base.Initialization(onClose, args);
         _btnCaptureVideo.onClick.AddListener(OnStartRecordingVideo);
+        _btnOpenGallery.onClick.AddListener(OpenGallery);
         _toggleOrientation.onValueChanged.AddListener(OnToggleOrientationValueChanged);
         _toggleTrigger.onValueChanged.AddListener(OnToggleTriggerValueChanged);
         _orientation = true;
@@ -63,19 +64,18 @@ public class VideoEditorView : PopupEditorBase
 
     private void StartRecordingVideo()
     {
-        VuforiaBehaviour.Instance.enabled = false;
+        RootObject.Instance.imageTargetManager.enabled = false;
 
         _newFileName = $"MirageXR_Video_{DateTime.Now.ToFileTimeUtc()}.mp4";
         var filepath = Path.Combine(activityManager.ActivityPath, _newFileName);
 
-        VuforiaBehaviour.Instance.enabled = false;
         NativeCameraController.StartRecordingVideo(filepath, StopRecordingVideo);
     }
 
     private void StopRecordingVideo(bool result, string filePath)
     {
         _videoWasRecorded = result;
-        VuforiaBehaviour.Instance.enabled = true;
+        RootObject.Instance.imageTargetManager.enabled = true;
 
         if (result)
         {
@@ -90,7 +90,10 @@ public class VideoEditorView : PopupEditorBase
 
     private void OnToggleTriggerValueChanged(bool value)
     {
-        if (!value || !activityManager.IsLastAction(_step)) return;
+        if (!value || !activityManager.IsLastAction(_step))
+        {
+            return;
+        }
 
         Toast.Instance.Show("This is the last step. The trigger is disabled!\n Add a new step and try again.");
         _toggleTrigger.onValueChanged.RemoveListener(OnToggleTriggerValueChanged);
@@ -161,5 +164,30 @@ public class VideoEditorView : PopupEditorBase
         rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
 
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
+    }
+
+    private void OpenGallery()
+    {
+        PickVideo();
+    }
+
+    private void PickVideo()
+    {
+        NativeGallery.Permission permission = NativeGallery.GetVideoFromGallery((path) =>
+        {
+            Debug.Log("Video path: " + path);
+            if (path != null)
+            {
+                _videoWasRecorded = true;
+                SetPreview(NativeGallery.GetVideoThumbnail(path));
+
+                _newFileName = $"MirageXR_Video_{DateTime.Now.ToFileTimeUtc()}.mp4";
+                var newFilePath = Path.Combine(activityManager.ActivityPath, _newFileName);
+
+                var sourcePath = Path.Combine(Application.persistentDataPath, path);
+                var destPath = Path.Combine(Application.persistentDataPath, newFilePath);
+                File.Move(sourcePath, destPath);
+            }
+        });
     }
 }
