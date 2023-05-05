@@ -79,7 +79,6 @@ public class RootView_v2 : BaseView
         _activityView.Initialization(this);
         _activityListView.Initialization(this);
 
-        _bottomPanelView.SetHomeActive(true);
         _bottomNavigationArrowsView.HideImmediate();
 
         _pageView.OnPageChanged.AddListener(OnPageChanged);
@@ -95,7 +94,8 @@ public class RootView_v2 : BaseView
 
         if (!DBManager.LoggedIn)
         {
-            PopupsViewer.Instance.Show(_loginViewPrefab);
+            var dontShowLoginMenu = false;
+            PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu, null);
         }
     }
 
@@ -173,6 +173,15 @@ public class RootView_v2 : BaseView
     {
         activityListView.FetchAndUpdateView();
         _pageView.currentPageIndex = 0;
+    }
+
+    public void ReturnToHomePage()
+    {
+        // select Home icon/text and deselect others
+        _bottomPanelView.OnHomeClicked(true);
+        _bottomPanelView.OnProfileClicked(false);
+        _bottomPanelView.OnSearchClicked(false);
+        _bottomPanelView.OnHelpClicked(false);
     }
 
     public void OnActivityDeleted()

@@ -2,12 +2,9 @@ using i5.Toolkit.Core.ServiceCore;
 using i5.Toolkit.Core.VerboseLogging;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using UnityEngine;
-using Vuforia;
 using Object = UnityEngine.Object;
 
 namespace MirageXR
@@ -15,34 +12,49 @@ namespace MirageXR
     public static class WorkplaceObjectFactory
     {
         private static WorkplaceManager workplaceManager => RootObject.Instance.workplaceManager;
-        // *** OBJECT FACTORIES ***
 
-        /// <summary>
-        /// Helper method that creates detectable or place objects.
-        /// </summary>
-        /// <returns>Returns the number of errors that occured while creating the objects.</returns>
-        public static async Task CreateDetectablesOrPlaces<T>(List<T> list, string debug)
+        public static void CreateDetectables(List<Detectable> list, string debug)
         {
-            foreach (var element in list)
+            if (list == null || list.Count == 0)
             {
-                try
+                return;
+            }
+
+            try
+            {
+                var rotation = Utilities.ParseStringToVector3(list[0].origin_rotation);
+                var quaternion = Quaternion.Euler(rotation);
+                workplaceManager.detectableContainer.rotation = Quaternion.Inverse(quaternion);
+
+                foreach (var detectable in list)
                 {
-                    if (element is Detectable)
-                    {
-                        CreateDetectableObject((Detectable)(object)element, false);
-                    }
-                    else if (element is Place)
-                    {
-                        await CreatePlaceObject((Place)(object)element);
-                    }
-                }
-                catch (Exception e)
-                {
-                    EventManager.DebugLog($"Error: Workplace manager: Couldn't create {debug}.");
-                    AppLog.LogException(e);
-                    throw;
+                    CreateDetectableObject(detectable, false);
                 }
             }
+            catch (Exception e)
+            {
+                EventManager.DebugLog($"Error: Workplace manager: Couldn't create {debug}.");
+                AppLog.LogException(e);
+            }
+
+            EventManager.DebugLog($"Workplace manager: {debug} created.");
+        }
+
+        public static async Task CreatePlaces<T>(List<T> list, string debug)
+        {
+            try
+            {
+                foreach (var element in list)
+                {
+                    await CreatePlaceObject((Place)(object)element);
+                }
+            }
+            catch (Exception e)
+            {
+                EventManager.DebugLog($"Error: Workplace manager: Couldn't create {debug}.");
+                AppLog.LogException(e);
+            }
+
             EventManager.DebugLog($"Workplace manager: {debug} created.");
         }
 
@@ -196,16 +208,9 @@ namespace MirageXR
                             continue;
                         }
 
-                        // Get detectable behaviour of the detectable...
                         var detectableBehaviour = detectable.gameObject.GetComponent<DetectableBehaviour>();
-
-                        // Attach this thing to the detectable defined in the workplace file
                         detectableBehaviour.AttachedObject = temp;
-
-                        // Set raw tracking style.
                         detectableBehaviour.Style = DetectableBehaviour.TrackingStyle.Raw;
-
-
                         detectableBehaviour.IsDetectableReady = true;
                     }
 
@@ -338,15 +343,9 @@ namespace MirageXR
                             continue;
                         }
 
-                        // Get detectable behaviour of the detectable...
                         var detectableBehaviour = detectable.gameObject.GetComponent<DetectableBehaviour>();
-
-                        // Attach this thing to the detectable defined in the workplace file
                         detectableBehaviour.AttachedObject = temp;
-
-                        // Set raw tracking style.
                         detectableBehaviour.Style = DetectableBehaviour.TrackingStyle.Raw;
-
                         detectableBehaviour.IsDetectableReady = true;
                     }
                 }
@@ -399,34 +398,30 @@ namespace MirageXR
                 return;
             }
 
-            AppLog.LogInfo("Creating Detectable Object:" + detectable.id +
-                "\nPosition:" + detectable.origin_position +
-                "\nRotation:" + detectable.origin_rotation);
+            AppLog.LogInfo($"Creating Detectable Object:{detectable.id}\nPosition:{detectable.origin_position}\nRotation:{detectable.origin_rotation}");
 
             switch (detectable.type)
             {
                 // Hololens world anchors.
                 case "anchor":
+                {
                     // Create anchor frame
-                    GameObject anchorFrame = Object.Instantiate(new GameObject("anchorCubePrefab"), Vector3.zero,
-                        Quaternion.identity, workplaceManager.detectableContainer);
-
+                    var anchorFrame = new GameObject("anchorObject");
+                    anchorFrame.transform.SetParent(workplaceManager.detectableContainer, true);
+                    anchorFrame.transform.position = Vector3.zero;
+                    anchorFrame.transform.rotation = Quaternion.identity;
                     anchorFrame.name = detectable.id;
 
                     if (newObject)
                     {
                         // Set transform.
-                        Vector3 startingPoint = PlatformManager.Instance.GetTaskStationPosition();
+                        var startingPoint = PlatformManager.Instance.GetTaskStationPosition();
                         anchorFrame.transform.localPosition = startingPoint;
-                        anchorFrame.transform.localEulerAngles = Vector3.zero;
+                        anchorFrame.transform.localRotation = Quaternion.identity;
                         anchorFrame.transform.localScale = Vector3.one;
 
-
                         // retrieve pose relative to calibration origin
-                        (Vector3, Vector3) relPose = GetPoseRelativeToCalibrationOrigin(anchorFrame);
-                        Vector3 myPos = relPose.Item1;
-                        Vector3 myRot = relPose.Item2;
-
+                        var (myPos, myRot) = GetPoseRelativeToCalibrationOrigin(anchorFrame);
 
                         // set detectable values
                         detectable.origin_position = Utilities.Vector3ToString(myPos);
@@ -439,49 +434,56 @@ namespace MirageXR
                         anchorFrame.transform.localScale = Vector3.one;
                     }
 
-                    // And finally add and configure detectable behaviour
                     var anchorBehaviour = anchorFrame.AddComponent<DetectableBehaviour>();
                     anchorBehaviour.Type = DetectableBehaviour.TrackableType.Anchor;
                     anchorBehaviour.IsDetectableReady = true;
 
                     // Add to the list of calibratable objects and attach the task station
-                    var pair = new WorkplaceManager.AnchorCalibrationPair();
-                    pair.AnchorFrame = anchorFrame;
-                    pair.DetectableConfiguration = detectable;
+                    var pair = new WorkplaceManager.AnchorCalibrationPair
+                    {
+                        AnchorFrame = anchorFrame,
+                        DetectableConfiguration = detectable,
+                    };
 
                     workplaceManager.calibrationPairs.Add(pair);
 
                     break;
+                }
 
                 // Vuforia image targets.
                 case "image":
-                    // Path to local storage.
-                    string[] paths = { Application.persistentDataPath, workplaceManager.workplace.id, "/detectables/",
-                                      detectable.id, detectable.id, ".xml" };
-                    var path = Path.Combine(paths);
+                {
+                    AppLog.LogError("Support for Vuforia image targets has been removed");
+
+                    /*var path = Path.Combine(Application.persistentDataPath, workplaceManager.workplace.id, "/detectables/", detectable.id, detectable.id, ".xml");
 
                     AppLog.LogDebug("VUFORIA PATH: " + path);
 
                     // Check that we have the data set file.
                     if (!DataSet.Exists(path, VuforiaUnity.StorageType.STORAGE_ABSOLUTE))
-                        throw new FileNotFoundException(detectable.id + " data set not found.");
+                    {
+                        throw new FileNotFoundException($"{detectable.id} data set not found.");
+                    }
 
                     var objectTracker = TrackerManager.Instance.GetTracker<ObjectTracker>();
                     var dataSet = objectTracker.CreateDataSet();
 
                     // Try to load the data set.
                     if (!dataSet.Load(path, VuforiaUnity.StorageType.STORAGE_ABSOLUTE))
-                        throw new FileLoadException(detectable.id + " data set couldn't be loaded.");
+                    {
+                        throw new FileLoadException($"{detectable.id} data set couldn't be loaded.");
+                    }
 
                     // Activate data set
                     if (!objectTracker.ActivateDataSet(dataSet))
-                        throw new FileLoadException(detectable.id + " data set couldn't be activated.");
+                    {
+                        throw new FileLoadException($"{detectable.id} data set couldn't be activated.");
+                    }
 
                     // Create the actual image target object...
 
                     // First get all the available trackable behaviours...
-                    var trackableBehaviours = TrackerManager.Instance.GetStateManager()
-                        .GetTrackableBehaviours();
+                    var trackableBehaviours = TrackerManager.Instance.GetStateManager().GetTrackableBehaviours();
 
                     // Then loop through all the available trackable behaviours
                     foreach (var trackableBehaviour in trackableBehaviours)
@@ -494,7 +496,6 @@ namespace MirageXR
 
                         // Create the image target...
                         var imageTarget = trackableBehaviour.gameObject;
-
 
                         // Name it after the detectable id...
                         imageTarget.name = detectable.id;
@@ -517,8 +518,7 @@ namespace MirageXR
                         originObj.transform.SetParent(imageTarget.transform);
 
                         // Set origin transform
-                        originObj.transform.localPosition =
-                            Utilities.ParseStringToVector3(detectable.origin_position);
+                        originObj.transform.localPosition = Utilities.ParseStringToVector3(detectable.origin_position);
                         originObj.transform.localEulerAngles =
                             Utilities.ParseStringToVector3(detectable.origin_rotation);
                         originObj.transform.localScale = Vector3.one;
@@ -543,11 +543,15 @@ namespace MirageXR
                         detectableBehaviour.Type = DetectableBehaviour.TrackableType.Image;
                         detectableBehaviour.Dataset = dataSet;
                         detectableBehaviour.IsDetectableReady = true;
-                    }
+                    }*/
 
                     break;
+                }
+
                 default:
+                {
                     throw new ArgumentException($"{detectable.id} unknown detectable type: {detectable.type}.");
+                }
             }
         }
 
@@ -617,15 +621,9 @@ namespace MirageXR
                     continue;
                 }
 
-                // Get detectable behaviour of the detectable...
                 var detectableBehaviour = detectable.gameObject.GetComponent<DetectableBehaviour>();
-
-                // Attach this thing to the detectable defined in the workplace file
                 detectableBehaviour.AttachedObject = temp;
-
-                // Set raw tracking style.
                 detectableBehaviour.Style = DetectableBehaviour.TrackingStyle.Raw;
-
                 detectableBehaviour.IsDetectableReady = true;
             }
         }
@@ -640,7 +638,9 @@ namespace MirageXR
             {
                 // Use the CSV format if available.
                 if (!string.IsNullOrEmpty(poi.offset))
+                {
                     poiTemp.transform.localPosition = Utilities.ParseStringToVector3(poi.offset);
+                }
             }
 
             // Parse offset from separate values.
@@ -686,31 +686,16 @@ namespace MirageXR
         /// <returns></returns>
         public static (Vector3, Vector3) GetPoseRelativeToCalibrationOrigin(GameObject objectOfInterest)
         {
-            // Setup initial values
-            Transform calibrationOrigin = CalibrationTool.Instance.transform;
-            Transform originalParent = objectOfInterest.transform.parent;
+            var calibrationOrigin = RootObject.Instance.calibrationManager.anchor;
+            var originalParent = objectOfInterest.transform.parent;
 
-            // Create a temporary empty frame.
-            var dummy = new GameObject("CalibrationDummy");     //TODO: it seems to be useless
-
-            // Make sure that the scale is 1:1.
-            dummy.transform.localScale = Vector3.one;
-
-            // Place the frame to calibration root position.
-            dummy.transform.position = calibrationOrigin.position;
-
-            // Temporarily move the object under the calibration marker to determine its relative position
             objectOfInterest.transform.SetParent(calibrationOrigin);
 
-            // Store the relative pose
-            Vector3 relativePosition = objectOfInterest.transform.localPosition;
-            Vector3 relativeOrientation = objectOfInterest.transform.localEulerAngles;
+            var relativePosition = objectOfInterest.transform.localPosition;
+            var relativeOrientation = objectOfInterest.transform.localEulerAngles;
 
-            // Revert the object back to its original parent
             objectOfInterest.transform.SetParent(originalParent);
 
-            // Destroy dummy object
-            Object.Destroy(dummy);
             return (relativePosition, relativeOrientation);
         }
 

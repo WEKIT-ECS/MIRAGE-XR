@@ -101,14 +101,15 @@ namespace Tests
                 yield return new WaitWhile(() => sceneLoaded == false && Time.time - timeoutStart < testTimeOut);
 
                 // arrange objects
-                SetupReferences();
+                var task = SetupReferences();
+                yield return new WaitUntil(() => task.IsCompleted);
 
                 // wait for resources to be arranged
                 timeoutStart = Time.time;
                 yield return new WaitWhile(() => resourcesArranged == false && Time.time - timeoutStart < testTimeOut);
 
                 // initialise activity parsing (first thing that needs to happen)
-                var task = StartDummyActivity("resources://calibrationTest-activity");
+                task = StartDummyActivity("resources://calibrationTest-activity");
                 yield return new WaitUntil(() => task.IsCompleted);
 
                 // wait for workplace parsing (last thing that happens)
@@ -188,6 +189,7 @@ namespace Tests
                 rootObject = GenerateGameObjectWithComponent<RootObject>("root");
                 CallPrivateMethod(rootObject, "Awake");
                 CallPrivateMethod(rootObject, "Initialization");
+                await rootObject.WaitForInitialization();
             }
             else
             {
@@ -443,7 +445,7 @@ namespace Tests
             for (int d = 0; d < rootObject.workplaceManager.workplace.detectables.Count; d++)
             {
                 float testDetectablePosition = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).x;
-                Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).position);
+                Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).localPosition);
                 float actualLocalPositionComponent = objectInWorld.x;
 
                 Assert.AreEqual(testDetectablePosition, actualLocalPositionComponent, 0.001f);
@@ -458,7 +460,7 @@ namespace Tests
             for (int d = 0; d < rootObject.workplaceManager.workplace.detectables.Count; d++)
             {
                 float testDetectablePosition = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).y;
-                Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).position);
+                Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).localPosition);
                 float actualLocalPositionComponent = objectInWorld.y;
 
                 Assert.AreEqual(testDetectablePosition, actualLocalPositionComponent, 0.001f);
@@ -473,7 +475,7 @@ namespace Tests
             for (int d = 0; d < rootObject.workplaceManager.workplace.detectables.Count; d++)
             {
                 float testDetectablePosition = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).z;
-                Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).position);
+                Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).localPosition);
                 float actualLocalPositionComponent = objectInWorld.z;
 
                 Assert.AreEqual(testDetectablePosition, actualLocalPositionComponent, 0.001f);
@@ -491,7 +493,7 @@ namespace Tests
                 Vector3 testDetectableRotation = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_rotation);
 
                 // calculate the relative position of the detectable
-                Quaternion objectInWorld = Quaternion.Inverse(WorldTestOrigin.rotation) * detectableContainer.transform.GetChild(d).rotation;
+                Quaternion objectInWorld = Quaternion.Inverse(WorldTestOrigin.rotation) * detectableContainer.transform.GetChild(d).localRotation;
 
                 // use the euler angle representation for comparison
                 Vector3 actualDetectableRotation = objectInWorld.eulerAngles;

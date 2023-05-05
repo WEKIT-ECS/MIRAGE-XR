@@ -12,13 +12,17 @@ using Content = MirageXR.Action;
 public class StepsListView_v2 : BaseView
 {
     private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg";
+    private const int MAX_PICTURE_SIZE = 1024;
 
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
+    [Space]
+    [SerializeField] private RectTransform _listVerticalContent;
+    [SerializeField] private RectTransform _listHorizontalContent;
+    [Space]
     [SerializeField] private TMP_Text _textActivityName;
     [SerializeField] private TMP_InputField _inputFieldActivityName;
     [SerializeField] private TMP_InputField _inputFieldActivityDescription;
-    [SerializeField] private RectTransform _listContent;
     [SerializeField] private RectTransform _addStep;
     [SerializeField] private Button _btnAddStep;
     [SerializeField] private Button _btnBack;
@@ -46,6 +50,7 @@ public class StepsListView_v2 : BaseView
     private ActivityView_v2 _activityView => (ActivityView_v2)_parentView;
 
     private bool _isEditMode;
+    private int _addStepSiblingIndex = 0;
 
     [Header("MirageXR calibration pdf file:")]
     public TextAsset calibrationImage;
@@ -98,7 +103,7 @@ public class StepsListView_v2 : BaseView
         UpdateView();
     }
 
-    private void UpdateView()
+    public void UpdateView()
     {
         if (activityManager.Activity != null)
         {
@@ -108,11 +113,12 @@ public class StepsListView_v2 : BaseView
 
             var steps = activityManager.ActionsOfTypeAction;
             _stepsList.ForEach(t => t.gameObject.SetActive(false));
+
             for (var i = 0; i < steps.Count; i++)
             {
                 if (_stepsList.Count <= i)
                 {
-                    var obj = Instantiate(_stepsListItemPrefab, _listContent);
+                    var obj = Instantiate(_stepsListItemPrefab, _listVerticalContent);
                     obj.Init(OnStepClick, OnStepEditClick, OnDeleteStepClick, OnSiblingIndexChanged);
                     _stepsList.Add(obj);
                 }
@@ -253,7 +259,7 @@ public class StepsListView_v2 : BaseView
         }
         else
         {
-            var child = _listContent.GetChild(index - 1);
+            var child = _listVerticalContent.GetChild(index - 1);
             var stepListItem = child.GetComponent<StepsListItem_v2>();
 
             if (stepListItem)
@@ -324,7 +330,38 @@ public class StepsListView_v2 : BaseView
 
     private void OpenGallery()
     {
-        // not implemented
+        PickImage(MAX_PICTURE_SIZE);
+    }
+
+    private void PickImage(int maxSize)
+    {
+        NativeGallery.Permission permission = NativeGallery.GetImageFromGallery((path) =>
+        {
+            Debug.Log("Image path: " + path);
+            if (path != null)
+            {
+                // Create Texture from selected image
+                Texture2D texture2D = NativeGallery.LoadImageAtPath(path, maxSize, false);
+
+                if (texture2D == null)
+                {
+                    Debug.Log("Couldn't load texture from " + path);
+                    return;
+                }
+
+                // Set picture
+                var sprite = Utilities.TextureToSprite(texture2D);
+                _defaultThumbnail.SetActive(false);
+                _imgThumbnail.gameObject.SetActive(true);
+                _imgThumbnail.sprite = sprite;
+
+                // Save picture
+                Texture2D tempTexture = _imgThumbnail.sprite.texture;
+                byte[] bytes = tempTexture.EncodeToJPG();
+                var tempPath = Path.Combine(activityManager.ActivityPath, THUMBNAIL_FILE_NAME);
+                File.WriteAllBytes(tempPath, bytes);
+            }
+        });
     }
 
     private void OnThumbnailAccepted(string path)
@@ -396,5 +433,25 @@ public class StepsListView_v2 : BaseView
     private void OnCalibrationViewClosed()
     {
         RootView_v2.Instance.ShowBaseView();
+    }
+
+    public void MoveStepsToHorizontalScroll()
+    {
+        _addStepSiblingIndex = _addStep.GetSiblingIndex();
+
+        for (var i = 0; i < _stepsList.Count; i++)
+        {
+            _stepsList[i].transform.parent = _listHorizontalContent;
+        }
+    }
+
+    public void MoveStepsToVerticalScroll()
+    {
+        for (var i = 0; i < _stepsList.Count; i++)
+        {
+            _stepsList[i].transform.parent = _listVerticalContent;
+        }
+
+        _addStep.SetSiblingIndex(_addStepSiblingIndex);
     }
 }

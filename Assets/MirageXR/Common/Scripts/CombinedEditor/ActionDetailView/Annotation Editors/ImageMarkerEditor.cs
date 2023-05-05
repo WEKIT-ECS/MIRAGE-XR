@@ -1,38 +1,33 @@
-﻿using MirageXR;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Threading.Tasks;
+using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
-using Vuforia;
+
+#if UNITY_WSA
+using System.Linq;
 using System.Collections;
+#endif
 
 public class ImageMarkerEditor : MonoBehaviour
 {
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
+
     [SerializeField] private Button captureButton;
     [SerializeField] private Button acceptButton;
     [SerializeField] private Button closeButton;
     [SerializeField] private Scrollbar cropScroll;
     [SerializeField] private AudioSource shutterPlayer;
-    [SerializeField] private UnityEngine.UI.Image previewImage;
+    [SerializeField] private Image previewImage;
     [SerializeField] private Text processingText;
     [SerializeField] private InputField Size;
-
-
-    [SerializeField] private Texture2D TestImage;
-
-
     [SerializeField] private Transform annotationStartingPoint;
     [SerializeField] private RectTransform cropImage;
-    [SerializeField] private GameObject ObjectSelect;
     [SerializeField] private GameObject imageMarkerMobile;
 
     private Action action;
     private ToggleObject annotationToEdit;
-
     private string saveFileName;
-
     private Texture2D _capturedImage;
 
     public void SetAnnotationStartingPoint(Transform startingPoint)
@@ -75,7 +70,7 @@ public class ImageMarkerEditor : MonoBehaviour
             }
         }
 
-        VuforiaBehaviour.Instance.enabled = true;
+        RootObject.Instance.imageTargetManager.enabled = true;
 
         processingText.text = string.Empty;
         processingText.transform.parent.gameObject.SetActive(false);
@@ -92,17 +87,19 @@ public class ImageMarkerEditor : MonoBehaviour
             processingText.text = i.ToString();
             await Task.Delay(1000);
         }
+
         processingText.text = "...";
     }
 
+#if UNITY_WSA
     public async void CaptureImageAsync()
+#else
+    public void CaptureImageAsync()
+#endif
     {
         Maggie.Speak("Taking a photo in 3 seconds");
 
-        Debug.Log("\nStartPhotoCapture\n");
-
-        VuforiaBehaviour.Instance.enabled = false;
-        Debug.Log("Vuforia enabled?: " + VuforiaBehaviour.Instance.enabled);
+        RootObject.Instance.imageTargetManager.enabled = false;
 
         captureButton.gameObject.SetActive(false);
         acceptButton.gameObject.SetActive(false);
@@ -132,12 +129,12 @@ public class ImageMarkerEditor : MonoBehaviour
         float xper = x / (previewImage.rectTransform.sizeDelta.x * 2);
         xper = 1f - xper;
         float xPos = xper * sourceTexture.width;
-        xPos -= (squareSizeW / 2);
+        xPos -= squareSizeW / 2;
         float y = previewImage.transform.localPosition.y + previewImage.rectTransform.rect.height;
         float yper = y / (previewImage.rectTransform.sizeDelta.y * 2);
         yper = 1f - yper;
         float yPos = yper * sourceTexture.height;
-        yPos -= (squareSizeH / 2);
+        yPos -= squareSizeH / 2;
 
         Color[] c = sourceTexture.GetPixels((int)xPos, (int)yPos, (int)squareSizeW, (int)squareSizeH);
         Texture2D croppedTexture = new Texture2D((int)squareSizeW, (int)squareSizeH);
@@ -169,7 +166,6 @@ public class ImageMarkerEditor : MonoBehaviour
     public void OnAccept()
     {
         SaveImageMarker(Cropper(previewImage.sprite.texture));
-        // SaveImageMarker(TestImage);
 
         if (annotationToEdit != null)
         {
@@ -205,7 +201,7 @@ public class ImageMarkerEditor : MonoBehaviour
     {
         action = null;
         annotationToEdit = null;
-        saveFileName = "";
+        saveFileName = string.Empty;
         gameObject.SetActive(false);
 
         Destroy(gameObject);
