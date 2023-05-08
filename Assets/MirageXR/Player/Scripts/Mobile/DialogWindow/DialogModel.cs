@@ -6,6 +6,7 @@ public enum DialogType
     Middle,
     MiddleMultiline,
     Bottom,
+    BottomToggles,
     BottomInputField
 }
 

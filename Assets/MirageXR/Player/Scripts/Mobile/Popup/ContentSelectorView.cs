@@ -26,8 +26,7 @@ public class ContentSelectorView : PopupBase
         var listOfAugmentations = BrandManager.Instance.GetListOfAugmentations();
         foreach (var type in _editors.Select(t => t.editorForType).Distinct())
         {
-            var value = type.ToString().ToLowerInvariant();
-            if (listOfAugmentations.Contains(value))
+            if (listOfAugmentations.Contains(type))
             {
                 var item = Instantiate(_contentSelectorListItemPrefab, _listContent);
                 item.Init(type, OnListItemClick, OnListItemHintClick);

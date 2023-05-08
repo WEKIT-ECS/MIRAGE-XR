@@ -9,6 +9,8 @@ public class LoadView : MonoBehaviour
     [SerializeField] private Image _background;
     [SerializeField] private Image _circle;
 
+    private int _siblingIndex;
+
     private void Awake()
     {
         if (Instance != null)
@@ -19,6 +21,7 @@ public class LoadView : MonoBehaviour
 
         Instance = this;
 
+        _siblingIndex = transform.GetSiblingIndex();
         Hide();
     }
 
@@ -27,14 +30,25 @@ public class LoadView : MonoBehaviour
         Instance = null;
     }
 
-    public void Show()
+    public void Show(bool dontCoverPopups = false)
     {
+        if (dontCoverPopups)
+        {
+            var siblingIndex = PopupsViewer.Instance.transform.GetSiblingIndex();
+            transform.SetSiblingIndex(siblingIndex);
+        }
+
         _background.gameObject.SetActive(true);
         _circle.gameObject.SetActive(true);
     }
 
     public void Hide()
     {
+        if (_siblingIndex != transform.GetSiblingIndex())
+        {
+            transform.SetSiblingIndex(_siblingIndex);
+        }
+
         _background.gameObject.SetActive(false);
         _circle.gameObject.SetActive(false);
     }
