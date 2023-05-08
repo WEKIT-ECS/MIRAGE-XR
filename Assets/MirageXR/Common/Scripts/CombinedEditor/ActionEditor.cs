@@ -142,20 +142,17 @@ public class ActionEditor : MonoBehaviour
         var listOfAugmentations = BrandManager.Instance.GetListOfAugmentations();
 
 
-        augmentationsButtons = new GameObject[listOfAugmentations.Length];
-        for (int i = 0; i < listOfAugmentations.Length; i++)
+        augmentationsButtons = new GameObject[listOfAugmentations.Count];
+        for (var i = 0; i < listOfAugmentations.Count; i++)
         {
-            var augmentationCorrectTypeName = listOfAugmentations[i].Replace("&", "and").Replace(" ", string.Empty).ToUpper();
-            var augmentationIndexOnEnum = (int)Enum.Parse(typeof(ContentType), augmentationCorrectTypeName);
-            var type = (ContentType)augmentationIndexOnEnum;
+            var type = listOfAugmentations[i];
             var addItemInstance = Instantiate(poiAddItemPrefab, annotationAddMenu.transform);
             var listItem = addItemInstance.GetComponent<PoiAddItem>();
-            listItem.Initialize(type, i, listOfAugmentations[i], type.GetIcon());
+            listItem.Initialize(type, i, type.GetName(), type.GetIcon());
             listItem.OnPoiAddItemClicked += OnAnnotationAddItemSelected;
             listItem.OnPoiHover += OnAnnotationHover;
 
-            var annotationName = listOfAugmentations[i] == "effects" ? "Visual Effect" : $"{char.ToUpper(listOfAugmentations[i][0])}{listOfAugmentations[i].Substring(1)}";
-            listItem.GetComponent<ToolTipCaster>().SetTooltipText($"Add {annotationName}");
+            listItem.GetComponent<ToolTipCaster>().SetTooltipText($"Add {type.GetName()}");
 
             augmentationsButtons[i] = listItem.gameObject;
         }
