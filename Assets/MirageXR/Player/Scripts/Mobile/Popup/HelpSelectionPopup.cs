@@ -11,21 +11,15 @@ namespace MirageXR
     /// </summary>
     public class HelpSelectionPopup : PopupBase
     {
-        [SerializeField] private Button _btnGotIt;
         [SerializeField] private Button _selectionButton;
+        [SerializeField] private Button _btnClose;
+
         private GameObject _highlightedObject;
 
         public override void Initialization(Action<PopupBase> onClose, params object[] args)
         {
             base.Initialization(onClose, args);
-            _btnGotIt.onClick.AddListener(GotItOnClick);
-        }
-
-        private void GotItOnClick()
-        {
-            RootView_v2.Instance.ReturnToHomePage();
-            EventManager.NotifyOnTutorialPopupCloseClicked();
-            Close();
+            _btnClose.onClick.AddListener(Close);
         }
 
         public Button CreateNewSelectionButton(string title)
@@ -38,7 +32,6 @@ namespace MirageXR
             rectTransform.sizeDelta = new Vector2(400, 40);
             rectTransform.localScale = new Vector3(1, 1, 1);
             rectTransform.localPosition = new Vector3(rectTransform.position.x, rectTransform.position.y, 0);
-
             rectTransform.GetComponent<TMP_Text>().text = title;
 
             return button;

@@ -1,8 +1,8 @@
-﻿using i5.Toolkit.Core.VerboseLogging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -137,6 +137,13 @@ namespace MirageXR
 
         private async Task PerformPlayModeCalibration(Transform calibrationRoot)
         {
+            if (calibrationPairs.Count == 0)
+            {
+                return;
+            }
+
+            detectableContainer.rotation = Quaternion.identity;
+
             foreach (var pair in calibrationPairs)
             {
                 var position = Utilities.ParseStringToVector3(pair.DetectableConfiguration.origin_position);
@@ -146,6 +153,9 @@ namespace MirageXR
                 pair.AnchorFrame.transform.rotation = calibrationRoot.rotation * Quaternion.Euler(rotation);
                 pair.AnchorFrame.GetComponent<DetectableBehaviour>().AttachAnchor();
             }
+
+            var newRotation = calibrationPairs.First().AnchorFrame.transform.rotation;
+            detectableContainer.rotation = Quaternion.Inverse(newRotation);
 
             await Task.Yield();
         }
