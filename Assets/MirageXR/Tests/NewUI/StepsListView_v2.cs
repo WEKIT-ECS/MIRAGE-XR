@@ -20,7 +20,7 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private RectTransform _listVerticalContent;
     [SerializeField] private RectTransform _listHorizontalContent;
 
-    [SerializeField] private float _moveTimeHorizontalScroll = 0.3f;
+    [SerializeField] private float _moveTimeHorizontalScroll = 0.9f;
     [SerializeField] private AnimationCurve _animationCurve = AnimationCurve.Linear(0, 0, 1, 1);
     private int _currentStepIndex;
     private string _currentStepId;
@@ -148,17 +148,19 @@ public class StepsListView_v2 : BaseView
     private void OnActionActivated(string stepId)
     {
         _currentStepId = stepId;
-        StartCoroutine(ShowSelectedItem(stepId));
         _stepsList.ForEach(t => t.UpdateView());
+
+        if (_listHorizontalContent.gameObject.activeSelf)
+        {
+            StartCoroutine(ShowSelectedItem(stepId));
+        }
     }
 
     private IEnumerator ShowSelectedItem(string stepId)
     {
         _currentStepIndex = _stepsList.FindIndex(step => step.step.id == stepId);
-
         var newPosition = CalculatePositionForPage(_currentStepIndex);
         MoveTo(newPosition);
-
         yield return null;
     }
 
@@ -499,7 +501,8 @@ public class StepsListView_v2 : BaseView
             _stepsList[i].transform.parent = _listHorizontalContent;
         }
 
-        OnActionActivated(_currentStepId);
+        Canvas.ForceUpdateCanvases();
+        StartCoroutine(ShowSelectedItem(_currentStepId));
     }
 
     public void MoveStepsToVerticalScroll()
