@@ -127,6 +127,7 @@ namespace MirageXR
         /// </param>
         public void StartTutorial(TutorialType type)
         {
+            /*
             if (type == TutorialType.HOLOLENS)
             {
                 IsTutorialRunning = true;
@@ -163,6 +164,8 @@ namespace MirageXR
             {
                 AppLog.LogError("Tried to start unknown tutorial type.");
             }
+            */
+            Debug.Log("Tutorial has been disabled");
         }
 
         private void PopulateStepListForHololens()
