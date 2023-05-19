@@ -11,6 +11,8 @@ namespace MirageXR
 
         [SerializeField] private ImageTargetManagerWrapper _imageTargetManager;
         [SerializeField] private CalibrationManager _calibrationManager;
+        [SerializeField] private FloorManager _floorManager;
+        [SerializeField] private PointCloudManager _pointCloudManager;
 
         private ActivityManager _activityManager;
         private AugmentationManager _augmentationManager;
@@ -21,6 +23,8 @@ namespace MirageXR
         public ImageTargetManagerWrapper imageTargetManager => _imageTargetManager;
 
         public CalibrationManager calibrationManager => _calibrationManager;
+
+        public FloorManager floorManager => _floorManager;
 
         public ActivityManager activityManager => _activityManager;
 
@@ -73,6 +77,8 @@ namespace MirageXR
             {
                 _imageTargetManager ??= new GameObject("ImageTargetManagerWrapper").AddComponent<ImageTargetManagerWrapper>();
                 _calibrationManager ??= new GameObject("CalibrationManager").AddComponent<CalibrationManager>();
+                _floorManager ??= new GameObject("FloorManager").AddComponent<FloorManager>();
+                _pointCloudManager ??= new GameObject("PointCloudManager").AddComponent<PointCloudManager>();
 
                 _activityManager = new ActivityManager();
                 _augmentationManager = new AugmentationManager();
@@ -81,11 +87,15 @@ namespace MirageXR
                 _workplaceManager = new WorkplaceManager();
 
                 await _imageTargetManager.InitializationAsync();
-                _calibrationManager.Initialization();
+                await _floorManager.InitializationAsync();
+                await _calibrationManager.InitializationAsync();
+                await _pointCloudManager.InitializationAsync();
 
                 _activityManager.Subscription();
 
                 _isInitialized = true;
+
+                //EventManager.OnPlayerReset += ResetManagers;
             }
             catch (Exception e)
             {
@@ -93,9 +103,22 @@ namespace MirageXR
             }
         }
 
+        private void ResetManagers()
+        {
+            ResetManagersAsync().AsAsyncVoid();
+        }
+
+        private async Task ResetManagersAsync()
+        {
+            await _floorManager.ResetAsync();
+            await _pointCloudManager.ResetAsync();
+        }
+
         private void OnDestroy()
         {
             _activityManager.Unsubscribe();
+            _floorManager.Unsubscribe();
+            _pointCloudManager.Unsubscribe();
             _activityManager.OnDestroy();
         }
     }
