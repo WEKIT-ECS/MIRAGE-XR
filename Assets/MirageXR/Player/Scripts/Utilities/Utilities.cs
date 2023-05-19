@@ -5,6 +5,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace MirageXR
 {
@@ -344,6 +345,37 @@ namespace MirageXR
             {
                 AppLog.LogError(e.ToString());
             }
+        }
+
+        public static T FindOrCreateComponent<T>(GameObject holder = null) where T : Component
+        {
+            var component = Object.FindObjectOfType<T>();
+            if (!component)
+            {
+                if (!holder)
+                {
+                    holder = new GameObject(typeof(T).FullName);
+                }
+
+                component = holder.GetComponent<T>();
+                if (!component)
+                {
+                    component = holder.AddComponent<T>();
+                }
+            }
+
+            return component;
+        }
+
+        public static Pose GetPose(this GameObject gameObject)
+        {
+            var transform = gameObject.transform;
+            return new Pose(transform.position, transform.rotation);
+        }
+
+        public static Pose GetPose(this Transform transform)
+        {
+            return new Pose(transform.position, transform.rotation);
         }
     }
 }

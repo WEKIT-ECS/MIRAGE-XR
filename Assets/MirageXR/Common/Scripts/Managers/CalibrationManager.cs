@@ -1,14 +1,16 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.XR.ARFoundation;
 
 public class CalibrationManager : MonoBehaviour
 {
     private static ImageTargetManagerWrapper imageTargetManager => RootObject.Instance.imageTargetManager;
+
+    private static FloorManager floorManager => RootObject.Instance.floorManager;
 
     private static float ANIMATION_TIME = 5f;
 
@@ -31,13 +33,25 @@ public class CalibrationManager : MonoBehaviour
     private Transform _anchor;
     private ImageTargetModel _imageTargetModel;
     private IImageTarget _imageTarget;
+    private ARAnchorManager _arAnchorManager;
     private bool _isEnabled;
     private bool _isRecalibration;
     private bool _isWaitingForImageTarget;
     private CalibrationTool _calibrationTool;
+    private ARAnchor _arAnchor;
 
-    public void Initialization()
+    public async Task<bool> InitializationAsync()
     {
+        var mainCamera = Camera.main;
+
+        if (!mainCamera)
+        {
+            Debug.LogError("Can't find camera main");
+            return false;
+        }
+
+        var cameraParent = mainCamera.transform.parent ? mainCamera.transform.parent.gameObject : mainCamera.gameObject;
+
         _anchor = CreateAnchor();
         _imageTargetModel = new ImageTargetModel
         {
@@ -47,6 +61,10 @@ public class CalibrationManager : MonoBehaviour
             prefab = _calibrationImageTargetPrefab,
             useLimitedTracking = false,
         };
+
+        _arAnchorManager = Utilities.FindOrCreateComponent<ARAnchorManager>(cameraParent);
+
+        return true;
     }
 
     public void EnableCalibration(bool isRecalibration = false)
@@ -175,8 +193,30 @@ public class CalibrationManager : MonoBehaviour
 
     private void UpdateAnchorPosition()
     {
-        _anchor.transform.position = _calibrationTool.transform.position;
+        var arAnchor = floorManager.CreateAnchor(new Pose(_calibrationTool.transform.position, Quaternion.identity));
+
+        if (!arAnchor)
+        {
+            Debug.LogError("Can't create arAnchor");
+            return;
+        }
+
+        var capsule = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        capsule.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
+
+        //_anchor.transform.position = _calibrationTool.transform.position;
         //_anchor.transform.rotation = Quaternion.AngleAxis(_calibrationTool.transform.rotation.eulerAngles.y, Vector3.up);
+
+        _anchor.SetParent(arAnchor.transform);
+        _anchor.localPosition = Vector3.zero;
+        _anchor.localRotation = Quaternion.identity;
+
+        if (_arAnchor)
+        {
+            Destroy(_arAnchor.gameObject);
+        }
+
+        _arAnchor = arAnchor;
     }
 
     private static Transform CreateAnchor()
@@ -187,11 +227,13 @@ public class CalibrationManager : MonoBehaviour
         anchorTransform.rotation = Quaternion.identity;
         anchorTransform.localScale = Vector3.one;
 
-#if UNITY_EDITOR
-        var capsule = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-        capsule.transform.SetParent(anchorTransform, true);
-        capsule.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-#endif
+        if (DBManager.developMode)
+        {
+            var capsule = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            capsule.transform.SetParent(anchorTransform, true);
+            capsule.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
+        }
+
         return anchorTransform;
     }
 }
