@@ -218,6 +218,8 @@
                     {
                         StartCoroutine(TriggerAction());
                     }
+
+                    EventManager.NotifyOnPickPlacedCorrectly();
                 }
                 else if (_resetOnMiss)
                 {
