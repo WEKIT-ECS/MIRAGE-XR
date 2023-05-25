@@ -1,34 +1,34 @@
 {
-  "scopedRegistries": [
-    {
-      "name": "Microsoft Mixed Reality",
-      "url": "https://pkgs.dev.azure.com/aipmr/MixedReality-Unity-Packages/_packaging/Unity-packages/npm/registry/",
-      "scopes": [
-        "com.microsoft.mixedreality",
-        "com.microsoft.spatialaudio"
-      ]
-    },
-    {
-      "name": "com.i5.toolkit.core",
-      "url": "https://package.openupm.com",
-      "scopes": [
-        "com.i5.toolkit.core"
-      ]
-    },
-    {
-      "name": "Packages from jillejr",
-      "url": "https://npm.cloudsmith.io/jillejr/newtonsoft-json-for-unity/",
-      "scopes": [
-        "jillejr"
-      ]
-    }
-  ],
-  "dependencies": {
+    "scopedRegistries": [
+        {
+            "name": "Microsoft Mixed Reality",
+            "url": "https://pkgs.dev.azure.com/aipmr/MixedReality-Unity-Packages/_packaging/Unity-packages/npm/registry/",
+            "scopes": [
+                "com.microsoft.mixedreality",
+                "com.microsoft.spatialaudio"
+            ]
+        },
+        {
+            "name": "com.i5.toolkit.core",
+            "url": "https://package.openupm.com",
+            "scopes": [
+                "com.i5.toolkit.core"
+            ]
+        },
+        {
+            "name": "Packages from jillejr",
+            "url": "https://npm.cloudsmith.io/jillejr/newtonsoft-json-for-unity/",
+            "scopes": [
+                "jillejr"
+            ]
+        }
+    ],
+    "dependencies": {
     "com.i5.toolkit.core": "1.9.0",
     "com.microsoft.mixedreality.toolkit.examples": "2.8.2",
     "com.microsoft.mixedreality.toolkit.foundation": "2.8.2",
     "com.microsoft.mixedreality.toolkit.tools": "2.8.2",
-    "com.ptc.vuforia.engine": "git+https://git-packages.developer.vuforia.com#9.8.5",
+    "com.ptc.vuforia.engine": "file:com.ptc.vuforia.engine-10.15.4.tgz",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
     "com.unity.addressables": "1.19.19",
