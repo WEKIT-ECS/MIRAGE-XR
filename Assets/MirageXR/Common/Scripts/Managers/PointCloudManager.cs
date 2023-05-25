@@ -52,12 +52,19 @@ public class PointCloudManager : MonoBehaviour
             return false;
         }
 
-        _arPointCloudManager.enabled = false;
+        //_arPointCloudManager.enabled = false;
+        foreach (var arPointCloud in _arPointCloudManager.trackables)
+        {
+            Destroy(arPointCloud.gameObject);
+        }
 
-        _arSession.Reset();
+        Destroy(_arPointCloudManager);
+
+        //_arSession.Reset();
         await Task.Yield();
 
-        _arPointCloudManager.enabled = true;
+        await InitializationAsync();
+        //_arPointCloudManager.enabled = true;
 
         return true;
     }
