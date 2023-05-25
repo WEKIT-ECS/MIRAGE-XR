@@ -15,8 +15,11 @@ namespace MirageXR
 
         private TutorialArrowFactory()
         {
-            arrowPrefab3D = Resources.Load("prefabs/Tutorial3DArrow", typeof(GameObject)) as GameObject;
+#if UNITY_ANDROID || UNITY_IOS
             arrowPrefabMobile = Resources.Load("prefabs/UI/Mobile/Tutorial/TutorialMessageGuide", typeof(GameObject)) as GameObject;
+#else
+            arrowPrefab3D = Resources.Load("prefabs/Tutorial3DArrow", typeof(GameObject)) as GameObject;
+#endif
         }
 
         public static TutorialArrowFactory Instance()
