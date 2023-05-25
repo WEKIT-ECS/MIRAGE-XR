@@ -33,6 +33,33 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
         return true;
     }
 
+    public override async Task<bool> ResetAsync()
+    {
+        foreach (var arTrackedImage in _arTrackedImageManager.trackables)
+        {
+            Destroy(arTrackedImage.gameObject);
+        }
+
+        Destroy(_arTrackedImageManager);
+
+        foreach (var pair in _images)
+        {
+            Destroy(pair.Value.gameObject);
+        }
+
+        _images.Clear();
+
+        _onTargetCreated.RemoveAllListeners();
+        _onTargetFound.RemoveAllListeners();
+        _onTargetLost.RemoveAllListeners();
+
+        await Task.Yield();
+
+        await InitializationAsync();
+
+        return true;
+    }
+
     public override async Task<ImageTargetBase> AddImageTarget(ImageTargetModel imageTargetModel, CancellationToken cancellationToken = default)
     {
         if (!_arTrackedImageManager.descriptor.supportsMutableLibrary ||

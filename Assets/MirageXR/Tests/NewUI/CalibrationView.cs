@@ -12,7 +12,7 @@ public class CalibrationView : PopupBase
 {
     private static CalibrationManager calibrationManager => RootObject.Instance.calibrationManager;
 
-    private static FloorManager floorManager => RootObject.Instance.floorManager;
+    private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
 
     private string CALIBRATION_TEXT = "Calibration";
     private string NEW_POSITION_TEXT = "New position";
@@ -38,7 +38,7 @@ public class CalibrationView : PopupBase
     private Action _hideBaseView;
     private bool _isNewPosition;
     private Tweener _tweenerCalibration;
-    private Tweener _tweenerDetection;
+    private Sequence _tweenerDetection;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -64,22 +64,29 @@ public class CalibrationView : PopupBase
     {
         _calibrationAnimation.SetActive(false);
         _floorDetectionAnimation.SetActive(true);
-        _tweenerDetection = _imageDetectionAnimation
-            .DOShakePosition(4f, new Vector3(20f, 20f), vibrato: 1, fadeOut: false)
-            .SetLoops(-1).SetEase(Ease.Linear);
+        _imageDetectionAnimation.eulerAngles = new Vector3(0, 0, -10);
+
+        _tweenerDetection = DOTween.Sequence();
+        _tweenerDetection.Append(_imageDetectionAnimation.DOLocalRotate(new Vector3(0, 0, 10), 1f));
+        _tweenerDetection.Append(_imageDetectionAnimation.DOLocalRotate(new Vector3(0, 0, -10), 1f));
+        _tweenerDetection.SetLoops(-1);
+        _tweenerDetection.SetEase(Ease.Linear);
+
         _textHint.text = HINT_FLOOR_TEXT;
 
         await Task.Delay(DELAY_TIME);
         floorManager.EnableFloorDetection(OnFloorDetected);
     }
 
-    private void OnFloorDetected(TrackableId floorID)
+    private void OnFloorDetected()
     {
-        OnFloorDetectedAsync(floorID).AsAsyncVoid();
+        OnFloorDetectedAsync().AsAsyncVoid();
     }
 
-    private async Task OnFloorDetectedAsync(TrackableId floorID)
+    private async Task OnFloorDetectedAsync()
     {
+        _floorDetectionAnimation.SetActive(false);
+        _tweenerDetection?.Kill();
         await Task.Delay(DELAY_TIME);
         floorManager.DisableFloorDetection();
         StartCalibration();

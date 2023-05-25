@@ -11,7 +11,7 @@ namespace MirageXR
 
         [SerializeField] private ImageTargetManagerWrapper _imageTargetManager;
         [SerializeField] private CalibrationManager _calibrationManager;
-        [SerializeField] private FloorManager _floorManager;
+        [SerializeField] private FloorManagerWrapper _floorManager;
         [SerializeField] private PointCloudManager _pointCloudManager;
 
         private ActivityManager _activityManager;
@@ -24,7 +24,7 @@ namespace MirageXR
 
         public CalibrationManager calibrationManager => _calibrationManager;
 
-        public FloorManager floorManager => _floorManager;
+        public FloorManagerWrapper floorManager => _floorManager;
 
         public ActivityManager activityManager => _activityManager;
 
@@ -77,7 +77,7 @@ namespace MirageXR
             {
                 _imageTargetManager ??= new GameObject("ImageTargetManagerWrapper").AddComponent<ImageTargetManagerWrapper>();
                 _calibrationManager ??= new GameObject("CalibrationManager").AddComponent<CalibrationManager>();
-                _floorManager ??= new GameObject("FloorManager").AddComponent<FloorManager>();
+                _floorManager ??= new GameObject("FloorManagerWrapper").AddComponent<FloorManagerWrapper>();
                 _pointCloudManager ??= new GameObject("PointCloudManager").AddComponent<PointCloudManager>();
 
                 _activityManager = new ActivityManager();
@@ -95,7 +95,7 @@ namespace MirageXR
 
                 _isInitialized = true;
 
-                //EventManager.OnPlayerReset += ResetManagers;
+                EventManager.OnClearAll += ResetManagers;
             }
             catch (Exception e)
             {
@@ -112,12 +112,13 @@ namespace MirageXR
         {
             await _floorManager.ResetAsync();
             await _pointCloudManager.ResetAsync();
+            await _imageTargetManager.ResetAsync();
         }
 
         private void OnDestroy()
         {
+            _floorManager.Dispose();
             _activityManager.Unsubscribe();
-            _floorManager.Unsubscribe();
             _pointCloudManager.Unsubscribe();
             _activityManager.OnDestroy();
         }

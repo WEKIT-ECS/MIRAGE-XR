@@ -95,6 +95,10 @@ namespace MirageXR
             personContainer = GameObject.Find("Persons").transform;
             detectableContainer = GameObject.Find("Detectables").transform;
             sensorContainer = GameObject.Find("Sensors").transform;
+
+            var poseСopier = detectableContainer.parent.gameObject.AddComponent<PoseСopier>();
+            poseСopier.target = RootObject.Instance.calibrationManager.anchor;
+            poseСopier.localSpace = false;
         }
 
         /// <summary>
@@ -118,16 +122,8 @@ namespace MirageXR
                 var (position, rotation) = WorkplaceObjectFactory.GetPoseRelativeToCalibrationOrigin(pair.AnchorFrame);
                 var detectable = pair.DetectableConfiguration;
 
-                var positionX = position.x.ToString(CultureInfo.InvariantCulture);
-                var positionY = position.y.ToString(CultureInfo.InvariantCulture);
-                var positionZ = position.z.ToString(CultureInfo.InvariantCulture);
-
-                var rotationX = rotation.x.ToString(CultureInfo.InvariantCulture);
-                var rotationY = rotation.y.ToString(CultureInfo.InvariantCulture);
-                var rotationZ = rotation.z.ToString(CultureInfo.InvariantCulture);
-
-                detectable.origin_position = $"{positionX}, {positionY}, {positionZ}";
-                detectable.origin_rotation = $"{rotationX}, {rotationY}, {rotationZ}";
+                detectable.origin_position = Utilities.Vector3ToString(position);
+                detectable.origin_rotation = Utilities.Vector3ToString(rotation);
             }
 
             await Task.Yield();
@@ -135,7 +131,7 @@ namespace MirageXR
             UiManager.Instance.IsCalibrated = true;
         }
 
-        private async Task PerformPlayModeCalibration(Transform calibrationRoot)
+        private async Task PerformPlayModeCalibration()
         {
             if (calibrationPairs.Count == 0)
             {
@@ -146,11 +142,11 @@ namespace MirageXR
 
             foreach (var pair in calibrationPairs)
             {
-                var position = Utilities.ParseStringToVector3(pair.DetectableConfiguration.origin_position);
-                var rotation = Utilities.ParseStringToVector3(pair.DetectableConfiguration.origin_rotation);
+                var localPosition = Utilities.ParseStringToVector3(pair.DetectableConfiguration.origin_position);
+                var localRotation = Utilities.ParseStringToVector3(pair.DetectableConfiguration.origin_rotation);
 
-                pair.AnchorFrame.transform.position = calibrationRoot.TransformPoint(position);
-                pair.AnchorFrame.transform.rotation = calibrationRoot.rotation * Quaternion.Euler(rotation);
+                pair.AnchorFrame.transform.localPosition = localPosition;
+                pair.AnchorFrame.transform.localRotation = Quaternion.Euler(localRotation);
                 pair.AnchorFrame.GetComponent<DetectableBehaviour>().AttachAnchor();
             }
 
@@ -273,7 +269,7 @@ namespace MirageXR
             }
             else
             {
-                await PerformPlayModeCalibration(origin);
+                await PerformPlayModeCalibration();
             }
 
             await activityManager.StartActivity();

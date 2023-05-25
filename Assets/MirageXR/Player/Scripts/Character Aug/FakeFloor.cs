@@ -1,21 +1,50 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+﻿using UnityEngine;
 
 namespace MirageXR
 {
-    /// <summary>
-    /// Positions a transform at the height where the application assumes the floor to be
-    /// Can be used for debuggin and as a reference point for other scripts to place objects based on the floor height
-    /// </summary>
+    [RequireComponent(typeof(BoxCollider))]
     public class FakeFloor : MonoBehaviour
     {
-        // Gets the floor height from the UIOrigin that places the aura and puts the attached transform on the found floor height
+        private const float OFFSET = -0.05f;
+
+        private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
+
+        private void Start()
+        {
+            gameObject.GetComponent<BoxCollider>().enabled = true;
+            floorManager.onDetectionEnabled.AddListener(OnDetectionEnabled);
+            floorManager.onDetectionDisabled.AddListener(OnDetectionDisabled);
+        }
+
+        private void OnDestroy()
+        {
+            floorManager.onDetectionEnabled.RemoveListener(OnDetectionEnabled);
+            floorManager.onDetectionDisabled.RemoveListener(OnDetectionDisabled);
+        }
+
         private void Update()
         {
-            transform.position = new Vector3(transform.position.x, UIOrigin.Instance.CurrentFloorYPosition(), transform.position.z);
+            var position = transform.position;
+            if (floorManager.isFloorDetected)
+            {
+                position.y = floorManager.floorLevel + OFFSET;
+            }
+            else
+            {
+                position.y = UIOrigin.Instance.CurrentFloorYPosition();
+            }
+
+            transform.position = position;
+        }
+
+        private void OnDetectionEnabled()
+        {
+            gameObject.GetComponent<BoxCollider>().enabled = false;
+        }
+
+        private void OnDetectionDisabled()
+        {
+            gameObject.GetComponent<BoxCollider>().enabled = true;
         }
     }
-
 }

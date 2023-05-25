@@ -414,18 +414,12 @@ namespace MirageXR
 
                     if (newObject)
                     {
-                        // Set transform.
-                        var startingPoint = PlatformManager.Instance.GetTaskStationPosition();
-                        anchorFrame.transform.localPosition = startingPoint;
+                        anchorFrame.transform.position = PlatformManager.Instance.GetTaskStationPosition();
                         anchorFrame.transform.localRotation = Quaternion.identity;
                         anchorFrame.transform.localScale = Vector3.one;
 
-                        // retrieve pose relative to calibration origin
-                        var (myPos, myRot) = GetPoseRelativeToCalibrationOrigin(anchorFrame);
-
-                        // set detectable values
-                        detectable.origin_position = Utilities.Vector3ToString(myPos);
-                        detectable.origin_rotation = Utilities.Vector3ToString(myRot);
+                        detectable.origin_position = Utilities.Vector3ToString(anchorFrame.transform.position);
+                        detectable.origin_rotation = Utilities.Vector3ToString(anchorFrame.transform.localRotation.eulerAngles);
                     }
                     else
                     {

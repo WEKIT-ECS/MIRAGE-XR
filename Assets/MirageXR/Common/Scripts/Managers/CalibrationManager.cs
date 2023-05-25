@@ -10,9 +10,10 @@ public class CalibrationManager : MonoBehaviour
 {
     private static ImageTargetManagerWrapper imageTargetManager => RootObject.Instance.imageTargetManager;
 
-    private static FloorManager floorManager => RootObject.Instance.floorManager;
+    private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
 
     private static float ANIMATION_TIME = 5f;
+    private static float IMAGE_TARGET_WIGTH = 0.19f;
 
     [SerializeField] private GameObject _calibrationImageTargetPrefab;
     [SerializeField] private Texture2D _targetImage;
@@ -33,12 +34,12 @@ public class CalibrationManager : MonoBehaviour
     private Transform _anchor;
     private ImageTargetModel _imageTargetModel;
     private IImageTarget _imageTarget;
-    private ARAnchorManager _arAnchorManager;
     private bool _isEnabled;
     private bool _isRecalibration;
     private bool _isWaitingForImageTarget;
     private CalibrationTool _calibrationTool;
-    private ARAnchor _arAnchor;
+    private Transform _arAnchor;
+    private GameObject _debugSphere;
 
     public async Task<bool> InitializationAsync()
     {
@@ -50,19 +51,15 @@ public class CalibrationManager : MonoBehaviour
             return false;
         }
 
-        var cameraParent = mainCamera.transform.parent ? mainCamera.transform.parent.gameObject : mainCamera.gameObject;
-
         _anchor = CreateAnchor();
         _imageTargetModel = new ImageTargetModel
         {
             name = "calibrationImageTarget",
-            width = 0.3f,
+            width = IMAGE_TARGET_WIGTH,
             texture2D = _targetImage,
             prefab = _calibrationImageTargetPrefab,
             useLimitedTracking = false,
         };
-
-        _arAnchorManager = Utilities.FindOrCreateComponent<ARAnchorManager>(cameraParent);
 
         return true;
     }
@@ -193,7 +190,11 @@ public class CalibrationManager : MonoBehaviour
 
     private void UpdateAnchorPosition()
     {
-        var arAnchor = floorManager.CreateAnchor(new Pose(_calibrationTool.transform.position, Quaternion.identity));
+        var eulerAngles = _calibrationTool.transform.eulerAngles;
+        var rotation = new Vector3(0, eulerAngles.x + eulerAngles.y + eulerAngles.z - 90f, 0);
+        var position = _calibrationTool.transform.position;
+
+        var arAnchor = floorManager.CreateAnchor(new Pose(position, Quaternion.Euler(rotation)));
 
         if (!arAnchor)
         {
@@ -201,11 +202,17 @@ public class CalibrationManager : MonoBehaviour
             return;
         }
 
-        var capsule = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        capsule.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
+        if (DBManager.developMode)
+        {
+            if (_debugSphere)
+            {
+                Destroy(_debugSphere);
+            }
 
-        //_anchor.transform.position = _calibrationTool.transform.position;
-        //_anchor.transform.rotation = Quaternion.AngleAxis(_calibrationTool.transform.rotation.eulerAngles.y, Vector3.up);
+            _debugSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            _debugSphere.transform.position = _calibrationTool.transform.position;
+            _debugSphere.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
+        }
 
         _anchor.SetParent(arAnchor.transform);
         _anchor.localPosition = Vector3.zero;

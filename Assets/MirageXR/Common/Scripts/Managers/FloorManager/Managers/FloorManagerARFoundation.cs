@@ -1,56 +1,77 @@
-using System;
 using System.Threading.Tasks;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using Action = System.Action;
 
-public class FloorManager : MonoBehaviour
+public class FloorManagerARFoundation : FloorManagerBase
 {
-    [Serializable]
-    public enum ForceManagerType
-    {
-        Default,
-        Editor,
-        ARFoundation,
-        MRTK,
-    }
-
+    private const float _DEFAULT_FLOOR_LEVEL = -1f;
     private const PlaneDetectionMode DETECTION_MODE = PlaneDetectionMode.Horizontal | PlaneDetectionMode.Vertical;
 
-    [SerializeField] private ForceManagerType _forceManagerType = ForceManagerType.Default;
-    [SerializeField] private GameObject _prefabAnchor;
-    [SerializeField] private GameObject _prefabPlace;
-    [SerializeField] private PlaneBehaviour _prefabDebugPlane;
-
+    private GameObject _prefabAnchor;
+    private GameObject _prefabPlane;
     private ARPlaneManager _arPlaneManager;
     private ARAnchorManager _arAnchorManager;
     private ARSession _arSession;
     private TrackableId _floorId = TrackableId.invalidId;
     private bool _enableColliders;
     private bool _showPlanes;
-    private Action<TrackableId> _onFloorDetected;
-    private PlaneBehaviour _debugPlane;
+    private ARFoundationPlaneBehaviour _debugARFoundationPlane;
+    private Vector3 _floorLevel;
+    private ARPlane _floorPlane;
 
-    public bool enableColliders => _enableColliders;
+    public override bool enableColliders => _enableColliders;
 
-    public bool showPlanes => _showPlanes;
+    public override bool showPlanes => _showPlanes;
+
+    public override float floorLevel
+    {
+        get
+        {
+            if (!isFloorDetected)
+            {
+                return _DEFAULT_FLOOR_LEVEL;
+            }
+
+            //if (!_floorPlane)
+            //{
+            //    _floorPlane = _arPlaneManager.GetPlane(_floorId);
+            //}
+
+            if (_floorPlane)
+            {
+                _floorLevel = _floorPlane.transform.position;
+            }
+
+            return _floorLevel.y;
+        }
+    }
+
+    public GameObject prefabAnchor
+    {
+        get => _prefabAnchor;
+        set => _prefabAnchor = value;
+    }
+
+    public GameObject prefabPlane
+    {
+        get => _prefabPlane;
+        set => _prefabPlane = value;
+    }
 
     public TrackableId floorId => _floorId;
 
-    public async Task<bool> InitializationAsync()
-    {
-        if (_forceManagerType == ForceManagerType.Default) // TODO: create wrapper
-        {
-#if UNITY_EDITOR
-            _forceManagerType = ForceManagerType.Editor;
-#elif UNITY_ANDROID || UNITY_IOS
-            _forceManagerType = ForceManagerType.ARFoundation;
-#else
-            _forceManagerType = ForceManagerType.MRTK;
-#endif
-        }
+    public override bool isFloorDetected => floorId != TrackableId.invalidId;
 
+    public override void Dispose()
+    {
+        EventManager.OnEditModeChanged -= OnEditModeChanged;
+    }
+
+    public override async Task<bool> InitializationAsync()
+    {
         var mainCamera = Camera.main;
 
         if (!mainCamera)
@@ -66,7 +87,7 @@ public class FloorManager : MonoBehaviour
         _arAnchorManager = Utilities.FindOrCreateComponent<ARAnchorManager>(cameraParent);
 
         _arPlaneManager.requestedDetectionMode = DETECTION_MODE;
-        _arPlaneManager.planePrefab = _prefabPlace;
+        _arPlaneManager.planePrefab = _prefabPlane;
 
         await Task.Yield();
 
@@ -78,7 +99,7 @@ public class FloorManager : MonoBehaviour
         return true;
     }
 
-    public async Task<bool> ResetAsync()
+    public override async Task<bool> ResetAsync()
     {
         if (!_arSession)
         {
@@ -98,19 +119,25 @@ public class FloorManager : MonoBehaviour
             return false;
         }
 
-        _arPlaneManager.enabled = false;
-        _arAnchorManager.enabled = false;
+        foreach (var arPlane in _arPlaneManager.trackables)
+        {
+            Destroy(arPlane.gameObject);
+        }
 
-        _arSession.Reset();
+        Destroy(_arPlaneManager);
+        Destroy(_arAnchorManager);
+
+        _floorId = TrackableId.invalidId;
+        _onFloorDetected = null;
+
         await Task.Yield();
 
-        _arPlaneManager.enabled = true;
-        _arAnchorManager.enabled = true;
+        await InitializationAsync();
 
         return true;
     }
 
-    public ARAnchor CreateAnchor(Pose pose)
+    public override Transform CreateAnchor(Pose pose)
     {
         if (_floorId == TrackableId.invalidId)
         {
@@ -121,9 +148,7 @@ public class FloorManager : MonoBehaviour
         var oldPrefab = _arAnchorManager.anchorPrefab;
         _arAnchorManager.anchorPrefab = _prefabAnchor;
 
-        var plane = _forceManagerType == ForceManagerType.Editor
-            ? _debugPlane.GetComponent<ARPlane>()
-            : _arPlaneManager.GetPlane(_floorId);
+        var plane = _arPlaneManager.GetPlane(_floorId);
 
         if (!plane)
         {
@@ -131,51 +156,30 @@ public class FloorManager : MonoBehaviour
             return null;
         }
 
-        ARAnchor anchor;
-        if (_forceManagerType == ForceManagerType.Editor)
-        {
-            var anchorObj = Instantiate(_prefabAnchor, pose.position, pose.rotation);
-            anchor = anchorObj.AddComponent<ARAnchor>();
-            anchor.transform.SetPositionAndRotation(pose.position, pose.rotation);
-        }
-        else
-        {
-            anchor = _arAnchorManager.AttachAnchor(plane, pose);
-        }
+        var anchor = _arAnchorManager.AttachAnchor(plane, pose);
 
         _arAnchorManager.anchorPrefab = oldPrefab;
 
-        return anchor;
+        return anchor.transform;
     }
 
-    public void SetFloor(PlaneBehaviour floor)
+    public override void SetFloor(IPlaneBehaviour floor)
     {
-        _floorId = floor.trackableId;
+        var arFloor = floor as ARFoundationPlaneBehaviour;
+        _floorId = arFloor.trackableId;
 
-        var render = floor.GetComponent<MeshRenderer>();
-        if (!render)
-        {
-            Debug.LogError("Can't find MeshRenderer");
-            return;
-        }
+        _floorLevel = arFloor.transform.position;
+        _floorPlane = _arPlaneManager.GetPlane(_floorId);
 
-        _onFloorDetected?.Invoke(_floorId);
+        _onFloorDetected?.Invoke();
         UpdatePlanes();
     }
 
-    public void EnableFloorDetection(Action<TrackableId> onFloorDetected)
+    public override void EnableFloorDetection(Action onFloorDetected)
     {
         if (_enableColliders)
         {
             return;
-        }
-
-        if (_forceManagerType == ForceManagerType.Editor)
-        {
-            if (!_debugPlane)
-            {
-                _debugPlane = Instantiate(_prefabDebugPlane);
-            }
         }
 
         _enableColliders = true;
@@ -184,7 +188,7 @@ public class FloorManager : MonoBehaviour
         UpdatePlanes();
     }
 
-    public void DisableFloorDetection()
+    public override void DisableFloorDetection()
     {
         if (!_enableColliders)
         {
@@ -194,11 +198,6 @@ public class FloorManager : MonoBehaviour
         _onFloorDetected = null;
         _enableColliders = false;
         UpdatePlanes();
-    }
-
-    public void Unsubscribe()
-    {
-        EventManager.OnEditModeChanged -= OnEditModeChanged;
     }
 
     private void OnEditModeChanged(bool value)
@@ -211,18 +210,10 @@ public class FloorManager : MonoBehaviour
     {
         foreach (var plane in _arPlaneManager.trackables)
         {
-            var planeBehaviour = plane.GetComponent<PlaneBehaviour>();
+            var planeBehaviour = plane.GetComponent<ARFoundationPlaneBehaviour>();
             if (planeBehaviour)
             {
                 planeBehaviour.UpdateState();
-            }
-        }
-
-        if (_forceManagerType == ForceManagerType.Editor)
-        {
-            if (_debugPlane)
-            {
-                _debugPlane.UpdateState();
             }
         }
     }

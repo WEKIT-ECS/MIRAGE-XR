@@ -12,9 +12,8 @@ GameObject:
   - component: {fileID: 3361435441617014500}
   - component: {fileID: 5317859060268311449}
   - component: {fileID: 4892699489493082229}
-  - component: {fileID: 8035474867731998497}
   - component: {fileID: 4381129014177876663}
-  - component: {fileID: 3493136007042050405}
+  - component: {fileID: 3038245397158199600}
   m_Layer: 31
   m_Name: DebugPlane
   m_TagString: Untagged
@@ -101,20 +100,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &8035474867731998497
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4068327573183295800}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f66da7470dce8f4d821d71dd2b1d4ac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_DestroyOnRemoval: 1
-  m_VertexChangedThreshold: 0.01
 --- !u!210 &4381129014177876663
 SortingGroup:
   m_ObjectHideFlags: 0
@@ -126,7 +111,7 @@ SortingGroup:
   m_SortingLayerID: 2030576609
   m_SortingLayer: -1
   m_SortingOrder: 0
---- !u!114 &3493136007042050405
+--- !u!114 &3038245397158199600
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -135,9 +120,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 4068327573183295800}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4acefc102bad40a4f8b0f8c20fbf5913, type: 3}
+  m_Script: {fileID: 11500000, guid: db747f432c89a554181aeedad6170d8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _colorDefault: {r: 1, g: 1, b: 1, a: 0.7}
-  _colorFloor: {r: 0.44, g: 0.22, b: 0.04, a: 0.7}
-  _isDebugPlane: 1
+  _colorFloor: {r: 0.03, g: 1, b: 0.09, a: 0.7}
