@@ -58,6 +58,8 @@ public class ImageTargetManagerVuforia : ImageTargetManagerBase
             throw new NullReferenceException($"Can't find {imageTarget.imageTargetName}");
         }
 
+        Debug.Log("Deleteing Image target: " + imageTarget.name);
+
         Destroy(imageTarget);
     }
 
