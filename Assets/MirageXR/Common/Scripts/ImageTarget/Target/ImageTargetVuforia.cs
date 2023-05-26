@@ -9,28 +9,36 @@ public class ImageTargetVuforia : ImageTargetBase
 
     public ImageTargetBehaviour imageTargetBehaviour => _imageTargetBehaviour;
 
+    private Status _oldTargetStatus;
+
     protected override void TrackerInitialization()
     {
         _imageTargetBehaviour = GetComponent<ImageTargetBehaviour>();
-        Debug.Log("TARGET STATUS " + _imageTargetBehaviour.TargetStatus);//.RegisterOnTrackableStatusChanged(OnTrackableStatusChangedAction);
+        _oldTargetStatus = _imageTargetBehaviour.TargetStatus.Status;
+        _imageTargetBehaviour.OnTargetStatusChanged += OnTrackableStatusChangedAction;
+        Debug.Log("TrackerInitialization for " + _imageTargetBehaviour.TargetName + "Complete");
     }
 
-    /* private void OnTrackableStatusChangedAction(TrackableBehaviour.StatusChangeResult statusChangeResult)
-     {
-         OnStateChanged(ToTrackingState(statusChangeResult.PreviousStatus), ToTrackingState(statusChangeResult.NewStatus));
-     }
+    private void OnTrackableStatusChangedAction(ObserverBehaviour observerBehaviour, TargetStatus targetStatusChangeResult)
+    {
+        var statusChangeResult = targetStatusChangeResult.Status;
+        //Debug.Log(_imageTargetBehaviour.TargetName + " Tracking status changed to " + statusChangeResult.ToString() + " From " + _oldTargetStatus.ToString());
+        OnStateChanged(ToTrackingState(_oldTargetStatus), ToTrackingState(statusChangeResult));
+        _oldTargetStatus = statusChangeResult;
+    }
 
-     private static TrackingState ToTrackingState()// TrackableBehaviour.Status state)
-     {
-         /       return state switch
-                 {
-                     TrackableBehaviour.Status.NO_POSE => TrackingState.Lost,
-                     TrackableBehaviour.Status.DETECTED => TrackingState.Lost,
-                     TrackableBehaviour.Status.LIMITED => TrackingState.Limited,
-                     TrackableBehaviour.Status.EXTENDED_TRACKED => TrackingState.Limited,
-                     TrackableBehaviour.Status.TRACKED => TrackingState.Found,
-                     _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
-                 };
 
-     }*/
+
+    private static TrackingState ToTrackingState(Status state)
+    {
+        return state switch
+        {
+            Status.NO_POSE => TrackingState.Lost,
+            Status.LIMITED => TrackingState.Limited,
+            Status.EXTENDED_TRACKED => TrackingState.Limited,
+            Status.TRACKED => TrackingState.Found,
+            _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
+        };
+
+    }
 }
