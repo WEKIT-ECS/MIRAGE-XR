@@ -16,7 +16,7 @@ public class PointCloudManager : MonoBehaviour
 
         if (!mainCamera)
         {
-            Debug.LogError("Can't find camera main");
+            Debug.Log("Can't find camera main");
             return false;
         }
 

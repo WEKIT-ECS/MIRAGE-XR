@@ -72,6 +72,7 @@ namespace MirageXR
             {
                 workplace = new Workplace();
             }
+
             // For loading from resources
             else
             {
@@ -95,6 +96,17 @@ namespace MirageXR
             personContainer = GameObject.Find("Persons").transform;
             detectableContainer = GameObject.Find("Detectables").transform;
             sensorContainer = GameObject.Find("Sensors").transform;
+
+            if (!detectableContainer.parent || detectableContainer.parent == placeContainer.parent)
+            {
+                var holder = new GameObject("DetectablesHolder");
+                if (detectableContainer.parent)
+                {
+                    holder.transform.SetParent(detectableContainer.parent, true);
+                }
+
+                detectableContainer.SetParent(holder.transform, true);
+            }
 
             var poseСopier = detectableContainer.parent.gameObject.AddComponent<PoseСopier>();
             poseСopier.target = RootObject.Instance.calibrationManager.anchor;

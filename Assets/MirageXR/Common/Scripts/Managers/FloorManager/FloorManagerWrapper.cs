@@ -91,7 +91,7 @@ public class FloorManagerWrapper : MonoBehaviour
 
     public void Dispose()
     {
-        _floorManager.Dispose();
+        _floorManager?.Dispose();
     }
 
     private IFloorManager CreateFloorManager()
