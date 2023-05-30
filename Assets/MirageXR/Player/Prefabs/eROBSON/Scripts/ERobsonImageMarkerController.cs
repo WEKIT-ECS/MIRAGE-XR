@@ -58,60 +58,60 @@ public class ERobsonImageMarkerController : MonoBehaviour
     private void OnImageChanged(ARTrackedImagesChangedEventArgs eventArgs)
     {
 
-        foreach (var trackedImage in eventArgs.updated)
-        {
-            UpdateDetectedObject(trackedImage);
-        }
+        //foreach (var trackedImage in eventArgs.updated)
+        //{
+        //    UpdateDetectedObject(trackedImage);
+        //}
 
     }
 
 
-    private void UpdateDetectedObject(ARTrackedImage trackedImage)
-    {
-        var name = trackedImage.referenceImage.name;
+    //private void UpdateDetectedObject(ARTrackedImage trackedImage)
+    //{
+    //    var name = trackedImage.referenceImage.name;
 
-        if (trackedImage.trackingState == TrackingState.Tracking)
-        {
-            ToggleObject erobsonToggleObject = RootObject.Instance.activityManager.ActiveAction.enter.activates.Find(t => t.option == name && t.sensor == "MarkerDetection");
-            if (erobsonToggleObject == null)
-            {
-                erobsonToggleObject = SpawnItem(trackedImage);
-            }
+    //    if (trackedImage.trackingState == TrackingState.Tracking)
+    //    {
+    //        ToggleObject erobsonToggleObject = RootObject.Instance.activityManager.ActiveAction.enter.activates.Find(t => t.option == name && t.sensor == "MarkerDetection");
+    //        if (erobsonToggleObject == null)
+    //        {
+    //            erobsonToggleObject = SpawnItem(trackedImage);
+    //        }
 
-            Debug.LogError(erobsonToggleObject.option);
-            Debug.LogError(erobsonToggleObject.sensor);
-            Debug.LogError(erobsonToggleObject.predicate);
+    //        Debug.LogError(erobsonToggleObject.option);
+    //        Debug.LogError(erobsonToggleObject.sensor);
+    //        Debug.LogError(erobsonToggleObject.predicate);
 
-            var eRobsonGameObject = GameObject.Find(erobsonToggleObject.poi);
+    //        var eRobsonGameObject = GameObject.Find(erobsonToggleObject.poi);
 
-            if(eRobsonGameObject == null)
-            {
-                return;
-            }
+    //        if(eRobsonGameObject == null)
+    //        {
+    //            return;
+    //        }
 
-            if (Vector3.Distance(trackedImage.transform.position, eRobsonGameObject.transform.position) > 0.04f)
-            {
-                var eRobsonItem = eRobsonGameObject.GetComponentInChildren<eROBSONItems>();
+    //        if (Vector3.Distance(trackedImage.transform.position, eRobsonGameObject.transform.position) > 0.04f)
+    //        {
+    //            var eRobsonItem = eRobsonGameObject.GetComponentInChildren<eROBSONItems>();
 
-                if (eRobsonItem)
-                {
-                    var ports = eRobsonItem.Ports; //The number of ports are usally only 2
-                    foreach (var port in ports)
-                    {
-                        if (port.Connected)
-                        {
-                            return;
-                        }
-                    }
-                }
-            }
+    //            if (eRobsonItem)
+    //            {
+    //                var ports = eRobsonItem.Ports; //The number of ports are usally only 2
+    //                foreach (var port in ports)
+    //                {
+    //                    if (port.Connected)
+    //                    {
+    //                        return;
+    //                    }
+    //                }
+    //            }
+    //        }
 
 
-            eRobsonGameObject.transform.position = trackedImage.transform.position;
-            eRobsonGameObject.transform.rotation = trackedImage.transform.rotation * Quaternion.Euler(0, 90, 0);
+    //        eRobsonGameObject.transform.position = trackedImage.transform.position;
+    //        eRobsonGameObject.transform.rotation = trackedImage.transform.rotation * Quaternion.Euler(0, 90, 0);
 
-        }
-    }
+    //    }
+    //}
 
 
     private ToggleObject SpawnItem(ARTrackedImage trackedImage)
