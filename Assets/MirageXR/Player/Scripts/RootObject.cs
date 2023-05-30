@@ -95,7 +95,7 @@ namespace MirageXR
 
                 _isInitialized = true;
 
-                EventManager.OnClearAll += ResetManagers;
+                //EventManager.OnClearAll += ResetManagers;
             }
             catch (Exception e)
             {
