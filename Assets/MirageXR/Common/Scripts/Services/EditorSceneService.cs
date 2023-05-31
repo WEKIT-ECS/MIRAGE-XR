@@ -20,6 +20,8 @@ public class EditorSceneService
 
     public async Task UnloadExistingScene()
     {
+        EventManager.NotifyEditorUnloading();
+
         if (editorScene.isLoaded)
         {
             await SceneManager.UnloadSceneAsync(editorScene);
