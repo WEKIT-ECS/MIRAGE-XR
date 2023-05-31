@@ -115,19 +115,19 @@ namespace MirageXR
 
         private static SortBy CurrentSortby = SortBy.DATE;
 
-        private static readonly PrefsBoolValue _publicUploadPrivacy = new PrefsBoolValue(UPLOAD_PRIVACY_KEY, PUBLIC_UPLOAD_PRIVACY_DEFAULT);
-        private static readonly PrefsBoolValue _rememberUser = new PrefsBoolValue(REMEMBER_USER_KEY, REMEMBER_USER_DEFAULT);
-        private static readonly PrefsBoolValue _developMode = new PrefsBoolValue(DEVELOP_MODE_KEY, DEVELOP_MODE_DEFAULT);
-        private static readonly PrefsBoolValue _rememberSketchfabUser = new PrefsBoolValue(REMEMBER_SKETCHFAB_USER_KEY, REMEMBER_SKETCHFAB_USER_DEFAULT);
-        private static readonly PrefsBoolValue _dontShowCalibrationGuide = new PrefsBoolValue(DONT_SHOW_CALIBRATION_GUIDE_KEY, DONT_SHOW_CALIBRATION_GUIDE_DEFAULT);
-        private static readonly PrefsStringValue _domain = new PrefsStringValue(MOODLE_URL_KEY, WEKIT_URL);
-        private static readonly PrefsStringValue _privacyPolicyDomain = new PrefsStringValue(PRIVACY_POLICY_URL_KEY, WEKIT_PRIVACY_POLICY_URL);
-        private static readonly PrefsStringValue _sketchfabTokenRenewDate = new PrefsStringValue(SKETCHFAB_TOKEN_RENEW_KEY, SKETCHFAB_TOKEN_RENEW_DEFAULT);
-        private static readonly PrefsBoolValue _showBigCards = new PrefsBoolValue(SHOW_BIG_CARDS_KEY, SHOW_BIG_CARDS_DEFAULT);
+        private static readonly PrefsBoolValue _publicUploadPrivacy = new (UPLOAD_PRIVACY_KEY, PUBLIC_UPLOAD_PRIVACY_DEFAULT);
+        private static readonly PrefsBoolValue _rememberUser = new (REMEMBER_USER_KEY, REMEMBER_USER_DEFAULT);
+        private static readonly PrefsBoolValue _developMode = new (DEVELOP_MODE_KEY, DEVELOP_MODE_DEFAULT);
+        private static readonly PrefsBoolValue _rememberSketchfabUser = new (REMEMBER_SKETCHFAB_USER_KEY, REMEMBER_SKETCHFAB_USER_DEFAULT);
+        private static readonly PrefsBoolValue _dontShowCalibrationGuide = new (DONT_SHOW_CALIBRATION_GUIDE_KEY, DONT_SHOW_CALIBRATION_GUIDE_DEFAULT);
+        private static readonly PrefsStringValue _domain = new (MOODLE_URL_KEY, WEKIT_URL);
+        private static readonly PrefsStringValue _privacyPolicyDomain = new (PRIVACY_POLICY_URL_KEY, WEKIT_PRIVACY_POLICY_URL);
+        private static readonly PrefsStringValue _sketchfabTokenRenewDate = new (SKETCHFAB_TOKEN_RENEW_KEY, SKETCHFAB_TOKEN_RENEW_DEFAULT);
+        private static readonly PrefsBoolValue _showBigCards = new (SHOW_BIG_CARDS_KEY, SHOW_BIG_CARDS_DEFAULT);
 
-        private static readonly PrefsBoolValue _localSave = new PrefsBoolValue(LOCAL_SAVE, LOCAL_SAVE_DEFAULT);
-        private static readonly PrefsBoolValue _cloudSave = new PrefsBoolValue(CLOUD_SAVE, CLOUD_SAVE_DEFAULT);
-        private static readonly PrefsBoolValue _showPublicUploadWarning = new PrefsBoolValue(SHOW_PUBLIC_UPLOAD_WARNING, SHOW_PUBLIC_UPLOAD_WARNING_DEFAULT);
+        private static readonly PrefsBoolValue _localSave = new (LOCAL_SAVE, LOCAL_SAVE_DEFAULT);
+        private static readonly PrefsBoolValue _cloudSave = new (CLOUD_SAVE, CLOUD_SAVE_DEFAULT);
+        private static readonly PrefsBoolValue _showPublicUploadWarning = new (SHOW_PUBLIC_UPLOAD_WARNING, SHOW_PUBLIC_UPLOAD_WARNING_DEFAULT);
 
         public static bool isNeedToRenewSketchfabToken => sketchfabLastTokenRenewDate <= DateTime.Now.AddDays(-SKETCHFAB_RENEW_DYAS_COOLDOWN);
 
