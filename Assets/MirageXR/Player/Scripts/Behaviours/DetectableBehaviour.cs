@@ -135,8 +135,8 @@ namespace MirageXR
                     case TrackableType.Marker:
                         if (_trackable)
                         {
-                            AttachedObject.transform.position = _trackable.position;
-                            AttachedObject.transform.rotation = Quaternion.AngleAxis(_trackable.rotation.eulerAngles.y, Vector3.up);
+                            AttachedObject.transform.FindDeepChild("PlayerTaskStation(Clone)").position =  _trackable.position;
+                            AttachedObject.transform.FindDeepChild("PlayerTaskStation(Clone)").transform.rotation = Quaternion.AngleAxis(_trackable.rotation.eulerAngles.y, Vector3.up);
                         }
 
                         break;

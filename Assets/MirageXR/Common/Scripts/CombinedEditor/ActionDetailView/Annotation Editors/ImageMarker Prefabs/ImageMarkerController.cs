@@ -12,6 +12,7 @@ namespace MirageXR
 
         private string _imageName;
         private ToggleObject _content;
+        private IImageTarget target;
 
         public override bool Init(ToggleObject content)
         {
@@ -82,7 +83,9 @@ namespace MirageXR
                 useLimitedTracking = true,
             };
 
-            return await RootObject.Instance.imageTargetManager.AddImageTarget(model) as ImageTargetBase;
+            target = await RootObject.Instance.imageTargetManager.AddImageTarget(model);
+
+            return target as ImageTargetBase;
         }
 
         private void MoveDetectableToImage(Transform targetHolder)
@@ -94,6 +97,7 @@ namespace MirageXR
             if (detectableObj)
             {
                 var detectableBehaviour = detectableObj.GetComponent<DetectableBehaviour>();
+                Debug.Log("Holder name = " + targetHolder.name);
                 detectableBehaviour.SetTrackable(targetHolder);
             }
             else
@@ -118,15 +122,15 @@ namespace MirageXR
             }
         }
 
-        public void PlatformOnDestroy()
-        {
-            MoveDetectableBack();
-            Destroy(gameObject);
-        }
-
         public override void Delete()
         {
             // changed Delete to a virtual method so I could overide it for Image markers as they were being deleted twice when changing activities causeing the new activity not to load
+        }
+
+        private void OnDestroy()
+        {
+            MoveDetectableBack();
+            RootObject.Instance.imageTargetManager.RemoveImageTarget(target);
         }
     }
 }

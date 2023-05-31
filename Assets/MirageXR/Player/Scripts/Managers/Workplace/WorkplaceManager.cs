@@ -235,17 +235,6 @@ namespace MirageXR
                 Object.Destroy(GameObject.Find(poi.id));
                 place.pois.Remove(poi);
             }
-
-            if (toggleObject.predicate == "imagemarker")
-            {
-                var detectable = GetDetectable(GetPlaceFromTaskStationId(toggleObject.id));
-
-                var detectableObj = GameObject.Find(detectable.id);
-                var detectableParentObj = GameObject.Find("Detectables");
-
-                // as Vuforia dosent allow image markers to be destroyed at run time the detectable is moved instead leaving the marker still in the scene but removeing its content
-                detectableObj.transform.parent = detectableParentObj.transform;
-            }
         }
 
         /// <summary>
