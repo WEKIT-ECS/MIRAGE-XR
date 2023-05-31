@@ -57,7 +57,7 @@ namespace MirageXR
             if (IsCurrent())
             {
                 gameObject.SetActive(true);
-                taskStationColor = BrandManager.Instance.GetTaskStationColor();
+                taskStationColor = BrandManager.Instance.TaskStationColor;
                 if (TaskStationDetailMenu.Instance)
                 {
                     TaskStationDetailMenu.Instance.ResetTaskStationMenu(this);
@@ -66,7 +66,7 @@ namespace MirageXR
             else if (IsNext())
             {
                 gameObject.SetActive(true);
-                taskStationColor = BrandManager.Instance.GetNextPathColor();
+                taskStationColor = BrandManager.Instance.NextPathColor;
             }
             else
             {

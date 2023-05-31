@@ -122,7 +122,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 6839170729863942748}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: PopupBase, MirageXR
         m_MethodName: Close
         m_Mode: 1
@@ -300,7 +300,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7359936944317787750}
   - component: {fileID: 7359936944317787748}
-  - component: {fileID: 6839170729863942748}
   - component: {fileID: 7359936944317787751}
   - component: {fileID: 7118060646494177602}
   - component: {fileID: 6707096672992061731}
@@ -342,19 +341,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7359936944317787753}
   m_CullTransparentMesh: 0
---- !u!114 &6839170729863942748
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7359936944317787753}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e21f1622cc658ae4c9ddcfe2f3d6300c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canBeClosedByOutTap: 1
 --- !u!114 &7359936944317787751
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -438,9 +424,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canBeClosedByOutTap: 1
-  _btnGotIt: {fileID: 9204651916490721972}
   _selectionButton: {fileID: 4097279443182448411, guid: fc2a4ee3cb313bc4e8e0189037cb8acb,
     type: 3}
+  _btnClose: {fileID: 9204651916490721972}
 --- !u!1 &7635169882453234011
 GameObject:
   m_ObjectHideFlags: 0
