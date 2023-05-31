@@ -27,7 +27,7 @@ namespace MirageXR
 
         public const string AugmentationsListFile = "MobileAugmentationListFile";
 #else
-        private const string augmentationsListFile = "HololensAugmentationListFile";
+        private const string AugmentationsListFile = "HololensAugmentationListFile";
 #endif
 
         public string MoodleUrl => !prefabsOriginalColors ? _newMoodleUrl : defaultMoodleUrl;
