@@ -487,7 +487,7 @@ namespace MirageXR
                         }
                     case "imagemarker":
                         {
-                            GameObject.Find(path).GetComponentInChildren<ImageMarkerController>().PlatformOnDestroy(); //TODO: possible NRE
+                            temp = GameObject.Find(path + obj.predicate);
                             break;
                         }
                     case "pickandplace":

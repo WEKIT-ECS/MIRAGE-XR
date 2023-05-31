@@ -3,12 +3,14 @@ using System.Threading.Tasks;
 using TiltBrush;
 using UnityEngine;
 using UnityEngine.UI;
+using Vuforia;
 
 namespace MirageXR
 {
     public class UiManager : MonoBehaviour
     {
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static CalibrationManager calibrationManager => RootObject.Instance.calibrationManager;
 
         [SerializeField] private bool IsMenuVisible;
         private bool _inAction;
@@ -256,9 +258,11 @@ namespace MirageXR
             // Add a small delay just be sure that the message is stopped.
             await Task.Delay(250);
 
+            Debug.Log("WorldSpaceUi = " + PlatformManager.Instance.WorldSpaceUi);
+
             if (PlatformManager.Instance.WorldSpaceUi)
             {
-                RootObject.Instance.calibrationManager.DisableCalibration();
+                //RootObject.Instance.calibrationManager.DisableCalibration();
             }
 
             if (IsCalibrated)
@@ -271,6 +275,9 @@ namespace MirageXR
                 // Maggie.Speak("Workplace anchors have not been calibrated. Please run the calibration before starting the activity.");
                 CreateCalibrationGuide();
 
+
+                RootObject.Instance.calibrationManager.EnableCalibration();
+
                 // Hile loading text
                 Loading.Instance.LoadingVisibility(false);
             }
@@ -281,7 +288,7 @@ namespace MirageXR
         private void ActivityStarted()
         {
             //WelcomeMessage = activityManager.Activity;
-            RootObject.Instance.calibrationManager.DisableCalibration();
+            //RootObject.Instance.calibrationManager.DisableCalibration();
 
             switch (PlayerPrefs.GetString("uistyle"))
             {
