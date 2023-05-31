@@ -97,7 +97,6 @@ namespace MirageXR
             if (detectableObj)
             {
                 var detectableBehaviour = detectableObj.GetComponent<DetectableBehaviour>();
-                Debug.Log("Holder name = " + targetHolder.name);
                 detectableBehaviour.SetTrackable(targetHolder);
             }
             else
