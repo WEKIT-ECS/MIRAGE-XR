@@ -1,7 +1,7 @@
-﻿using System.IO;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
 
 namespace MirageXR
@@ -13,11 +13,14 @@ namespace MirageXR
         private string _imageName;
         private ToggleObject _content;
         private IImageTarget target;
+        private bool _clearAll;
 
         public override bool Init(ToggleObject content)
         {
+            _clearAll = false;
             _content = content;
             InitAsync().AsAsyncVoid();
+            EventManager.OnEditorUnloading += changeClearAll;
             return true;
         }
 
@@ -107,17 +110,20 @@ namespace MirageXR
 
         private void MoveDetectableBack()
         {
-            var place = RootObject.Instance.workplaceManager.GetPlaceFromTaskStationId(_content.id);
-            var detectable = RootObject.Instance.workplaceManager.GetDetectable(place);
-            var detectableObj = GameObject.Find(detectable.id); // TODO: replace GameObject.Find(...)
-            if (detectableObj)
+            if (!_clearAll)
             {
-                var detectableBehaviour = detectableObj.GetComponent<DetectableBehaviour>();
-                detectableBehaviour.RemoveTrackable();
-            }
-            else
-            {
-                AppLog.LogError($"Can't find detectable {detectable.id}");
+                var place = RootObject.Instance.workplaceManager.GetPlaceFromTaskStationId(_content.id);
+                var detectable = RootObject.Instance.workplaceManager.GetDetectable(place);
+                var detectableObj = GameObject.Find(detectable.id); // TODO: replace GameObject.Find(...)
+                if (detectableObj)
+                {
+                    var detectableBehaviour = detectableObj.GetComponent<DetectableBehaviour>();
+                    detectableBehaviour.RemoveTrackable();
+                }
+                else
+                {
+                    AppLog.LogError($"Can't find detectable {detectable.id}");
+                }
             }
         }
 
@@ -128,8 +134,17 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-            MoveDetectableBack();
-            RootObject.Instance.imageTargetManager.RemoveImageTarget(target);
+            if (RootObject.Instance.imageTargetManager != null)
+            {
+                MoveDetectableBack();
+                RootObject.Instance.imageTargetManager.RemoveImageTarget(target);
+            }
+        }
+
+        private void changeClearAll()
+        {
+            _clearAll = !_clearAll;
+            Debug.Log("Clear = " + _clearAll);
         }
     }
 }

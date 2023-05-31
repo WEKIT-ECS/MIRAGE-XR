@@ -10,17 +10,12 @@ public class ImageTargetManagerVuforia : ImageTargetManagerBase
     {
         var vuforiaRuntime = VuforiaApplication.Instance;
 
-        if (!vuforiaRuntime.IsInitialized)
-        {
-            vuforiaRuntime.Initialize();
-        }
-
         while (!vuforiaRuntime.IsInitialized)
         {
             await Task.Yield();
         }
 
-        var vuforiaBehaviour = FindObjectOfType<VuforiaBehaviour>();
+        var vuforiaBehaviour = vuforiaRuntime.GetVuforiaBehaviour();
         if (!vuforiaBehaviour)
         {
             var mainCamera = Camera.main;
@@ -57,10 +52,12 @@ public class ImageTargetManagerVuforia : ImageTargetManagerBase
         {
             throw new NullReferenceException($"Can't find {imageTarget.imageTargetName}");
         }
+        else
+        {
+            _images.Remove(imageTarget.imageTargetName);
+        }
 
-        Debug.Log("Deleteing Image target: " + imageTarget.name);
-
-        Destroy(imageTarget);
+        Destroy(imageTargetVuforia.gameObject);
     }
 
     protected override void OnEnable()
@@ -82,10 +79,6 @@ public class ImageTargetManagerVuforia : ImageTargetManagerBase
 
     private static ImageTargetBehaviour CreateImageTargetFromTexture(Texture2D texture, float widthInMeters, string targetName)
     {
-
-        var trackableBehaviour = VuforiaBehaviour.Instance.ObserverFactory.CreateImageTarget(texture, widthInMeters, targetName);
-
-        return trackableBehaviour;
-        return null;
+        return VuforiaBehaviour.Instance.ObserverFactory.CreateImageTarget(texture, widthInMeters, targetName);
     }
 }
