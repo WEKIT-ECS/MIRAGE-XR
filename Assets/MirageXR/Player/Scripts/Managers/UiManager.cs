@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using TiltBrush;
 using UnityEngine;
 using UnityEngine.UI;
-using Vuforia;
 
 namespace MirageXR
 {

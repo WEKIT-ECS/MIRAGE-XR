@@ -451,8 +451,6 @@ namespace MirageXR
         {
             GameObject temp = null;
 
-            EventManager.DebugLog("ObjectFactory: Deleting object: " + obj.predicate);
-
             if (obj.type == ActionType.Tangible)
             {
                 // Default path.

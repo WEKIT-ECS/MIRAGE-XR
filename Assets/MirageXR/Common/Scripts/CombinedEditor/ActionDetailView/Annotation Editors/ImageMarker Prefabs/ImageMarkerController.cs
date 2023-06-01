@@ -13,11 +13,9 @@ namespace MirageXR
         private string _imageName;
         private ToggleObject _content;
         public IImageTarget target;
-        private bool _clearAll;
 
         public override bool Init(ToggleObject content)
         {
-            _clearAll = false;
             _content = content;
             InitAsync().AsAsyncVoid();
             return true;
@@ -109,20 +107,17 @@ namespace MirageXR
 
         public void MoveDetectableBack()
         {
-            if (!_clearAll)
+            var place = RootObject.Instance.workplaceManager.GetPlaceFromTaskStationId(_content.id);
+            var detectable = RootObject.Instance.workplaceManager.GetDetectable(place);
+            var detectableObj = GameObject.Find(detectable.id); // TODO: replace GameObject.Find(...)
+            if (detectableObj)
             {
-                var place = RootObject.Instance.workplaceManager.GetPlaceFromTaskStationId(_content.id);
-                var detectable = RootObject.Instance.workplaceManager.GetDetectable(place);
-                var detectableObj = GameObject.Find(detectable.id); // TODO: replace GameObject.Find(...)
-                if (detectableObj)
-                {
-                    var detectableBehaviour = detectableObj.GetComponent<DetectableBehaviour>();
-                    detectableBehaviour.RemoveTrackable();
-                }
-                else
-                {
-                    AppLog.LogError($"Can't find detectable {detectable.id}");
-                }
+                var detectableBehaviour = detectableObj.GetComponent<DetectableBehaviour>();
+                detectableBehaviour.RemoveTrackable();
+            }
+            else
+            {
+                AppLog.LogError($"Can't find detectable {detectable.id}");
             }
         }
 

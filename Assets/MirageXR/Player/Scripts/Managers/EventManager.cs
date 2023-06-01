@@ -601,14 +601,6 @@ namespace MirageXR
             OnEditorLoaded?.Invoke();
         }
 
-        public delegate void EditorUnloadingDelegate();
-        public static event EditorUnloadingDelegate OnEditorUnloading;
-
-        public static void NotifyEditorUnloading()
-        {
-            OnEditorUnloading?.Invoke();
-        }
-
         public delegate void EditorUnloadedDelegate();
         public static event EditorUnloadedDelegate OnEditorUnloaded;
 
