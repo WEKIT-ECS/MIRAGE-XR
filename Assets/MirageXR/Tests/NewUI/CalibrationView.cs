@@ -14,6 +14,8 @@ public class CalibrationView : PopupBase
 
     private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
 
+    private static GridManager gridManager => RootObject.Instance.gridManager;
+
     private string CALIBRATION_TEXT = "Calibration";
     private string NEW_POSITION_TEXT = "New position";
     private string HINT_MARKER_TEXT = "Look at the calibration image on a printed paper or a screen to calibrate the activity.";
@@ -127,6 +129,12 @@ public class CalibrationView : PopupBase
         _imageTarget.gameObject.SetActive(false);
         _imageCalibrationAnimation.gameObject.SetActive(false);
         _footer.SetActive(false);
+
+        if (gridManager.gridEnabled)
+        {
+            gridManager.ShowGrid();
+        }
+
         await Task.Delay(CLOSE_TIME);
         Close();
     }
