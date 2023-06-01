@@ -451,6 +451,8 @@ namespace MirageXR
         {
             GameObject temp = null;
 
+            EventManager.DebugLog("ObjectFactory: Deleting object: " + obj.predicate);
+
             if (obj.type == ActionType.Tangible)
             {
                 // Default path.
@@ -487,7 +489,11 @@ namespace MirageXR
                         }
                     case "imagemarker":
                         {
-                            temp = GameObject.Find(path + obj.predicate);
+                            var id = obj.url.Split('/')[obj.url.Split('/').Length - 1];
+                            temp = GameObject.Find($"{path}{obj.predicate}_{id}");
+
+                            var controller = temp.GetComponent<ImageMarkerController>();
+                            controller.MoveDetectableBack();
                             break;
                         }
                     case "pickandplace":

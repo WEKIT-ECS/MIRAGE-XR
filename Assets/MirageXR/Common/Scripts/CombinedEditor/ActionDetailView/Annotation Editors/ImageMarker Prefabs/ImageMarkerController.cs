@@ -12,7 +12,7 @@ namespace MirageXR
 
         private string _imageName;
         private ToggleObject _content;
-        private IImageTarget target;
+        public IImageTarget target;
         private bool _clearAll;
 
         public override bool Init(ToggleObject content)
@@ -20,7 +20,6 @@ namespace MirageXR
             _clearAll = false;
             _content = content;
             InitAsync().AsAsyncVoid();
-            EventManager.OnEditorUnloading += changeClearAll;
             return true;
         }
 
@@ -108,7 +107,7 @@ namespace MirageXR
             }
         }
 
-        private void MoveDetectableBack()
+        public void MoveDetectableBack()
         {
             if (!_clearAll)
             {
@@ -134,17 +133,7 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-            if (RootObject.Instance.imageTargetManager != null)
-            {
-                MoveDetectableBack();
-                RootObject.Instance.imageTargetManager.RemoveImageTarget(target);
-            }
-        }
-
-        private void changeClearAll()
-        {
-            _clearAll = !_clearAll;
-            Debug.Log("Clear = " + _clearAll);
+            RootObject.Instance.imageTargetManager.RemoveImageTarget(target);
         }
     }
 }
