@@ -16,7 +16,7 @@ public class ImageTargetVuforia : ImageTargetBase
         _imageTargetBehaviour = GetComponent<ImageTargetBehaviour>();
         _oldTargetStatus = _imageTargetBehaviour.TargetStatus.Status;
         _imageTargetBehaviour.OnTargetStatusChanged += OnTrackableStatusChangedAction;
-        Debug.Log("TrackerInitialization for " + _imageTargetBehaviour.TargetName + "Complete");
+        Debug.Log("TrackerInitialization for " + _imageTargetBehaviour.TargetName + " Complete");
     }
 
     private void OnTrackableStatusChangedAction(ObserverBehaviour observerBehaviour, TargetStatus targetStatusChangeResult)

@@ -242,7 +242,13 @@ namespace MirageXR
             var poi = place.pois.Find((item) => item.id == toggleObject.poi);
             if (poi != null)
             {
-                Object.Destroy(GameObject.Find(poi.id));
+                var temp = GameObject.Find(poi.id);
+                if (toggleObject.predicate == "imagemarker")
+                {
+                    var controller = temp.GetComponentInChildren<ImageMarkerController>();
+                    controller.MoveDetectableBack();
+                }
+                Object.Destroy(temp);
                 place.pois.Remove(poi);
             }
         }
@@ -265,7 +271,7 @@ namespace MirageXR
                 await PerformPlayModeCalibration(origin);
             }
 
-            await activityManager.StartActivity();
+            //await activityManager.StartActivity();
 
             EventManager.WorkplaceCalibrated();
             Maggie.Speak("Workplace is now calibrated.");
