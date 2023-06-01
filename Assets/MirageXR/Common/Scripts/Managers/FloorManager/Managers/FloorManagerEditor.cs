@@ -38,12 +38,13 @@ public class FloorManagerEditor : FloorManagerBase
     {
         _isFloorDetected = false;
         EventManager.OnEditModeChanged += OnEditModeChanged;
+        _floorLevel = new Vector3(0, _DEFAULT_FLOOR_LEVEL, 0);
         return Task.FromResult(true);
     }
 
     public override Task<bool> ResetAsync()
     {
-        _floorLevel = Vector3.zero;
+        _floorLevel = new Vector3(0, _DEFAULT_FLOOR_LEVEL, 0);
         _isFloorDetected = false;
         _onFloorDetected = null;
         return Task.FromResult(true);
