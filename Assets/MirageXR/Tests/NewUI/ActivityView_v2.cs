@@ -130,7 +130,7 @@ public class ActivityView_v2 : BaseView
         }
         else
         {
-            _panel.DOSizeDelta(_panelSize, 0.5f);
+            _panel.DOSizeDelta(_panelSize, HIDE_ANIMATION_TIME);
             _arrowDown.SetActive(true);
             _arrowUp.SetActive(false);
             rootView.bottomPanelView.Show();

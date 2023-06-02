@@ -167,7 +167,8 @@ namespace MirageXR
             _container.HasError = !result;
             _container.Activity = activity;
             _container.IsDownloading = false;
-            Toast.Instance.Show(result ? "Download succeeded." : "Something went wrong.");
+            string message = result ? "<color=#00000000>space</color>Downloaded.<color=#00000000>space</color>" : "Something went wrong.";
+            Toast.Instance.Show(message, result);
             UpdateView();
         }
     }

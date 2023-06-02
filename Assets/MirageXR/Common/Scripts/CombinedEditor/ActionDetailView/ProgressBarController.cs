@@ -51,7 +51,7 @@ public class ProgressBarController : MonoBehaviour
 
             if (actions[i].id == activityManager.ActiveActionId)
             {
-                stepInstances[i].color = BrandManager.Instance.GetSecondaryColor();
+                stepInstances[i].color = BrandManager.Instance.SecondaryColor;
             }
             else if (actions[i].isCompleted)
             {

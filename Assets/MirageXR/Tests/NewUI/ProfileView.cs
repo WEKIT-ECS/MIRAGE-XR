@@ -1,7 +1,6 @@
 using MirageXR;
 using System;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,19 +8,17 @@ using UnityEngine.UI;
 public class ProfileView : PopupBase
 {
     private const string VERSION_TEXT = "Version {0}";
+    private const string CUSTOM_SERVER_TEXT = "Other";
 
     [SerializeField] private Button _btnClose;
     [SerializeField] private Button _btnLogin;
     [SerializeField] private Button _btnRegister;
     [SerializeField] private Button _btnPrivacyPolicy;
-    [SerializeField] private ExtendedInputField _inputFieldUserName;
-    [SerializeField] private ExtendedInputField _inputFieldPassword;
-    [SerializeField] private Toggle _toggleRemember;
     [SerializeField] private Toggle _developToggle;
     [SerializeField] private GameObject _developTogglePanel;
     [SerializeField] private GameObject LoginObjects;
     [SerializeField] private Button _btnLogout;
-    [SerializeField] private TMP_Text _txtLogout;
+    [SerializeField] private TMP_Text _txtUserName;
     [SerializeField] private GameObject LogOutObjects;
     [SerializeField] private Button _btnSelectServer;
     [SerializeField] private TMP_Text _txtConnectedServer;
@@ -29,6 +26,11 @@ public class ProfileView : PopupBase
     [SerializeField] private TMP_Text _txtConnectedLRS;
     [SerializeField] private TMP_Text _txtVersion;
     [SerializeField] private ClickCounter _versionClickCounter;
+    [SerializeField] private Button _btnGrid;
+
+    [Space]
+    [SerializeField] private LoginView_v2 _loginViewPrefab;
+    [SerializeField] private GridView _gridViewPrefab;
 
     private bool _isShownDevelopModeMessage;
 
@@ -39,13 +41,11 @@ public class ProfileView : PopupBase
         _developToggle.isOn = DBManager.developMode;
 
         _btnClose.onClick.AddListener(Close);
-        _inputFieldUserName.SetValidator(IsValidUsername);
-        _inputFieldPassword.SetValidator(IsValidPassword);
         _btnRegister.onClick.AddListener(OnClickRegister);
         _btnPrivacyPolicy.onClick.AddListener(OnClickPrivacyPolicy);
         _btnLogin.onClick.AddListener(OnClickLogin);
         _btnLogout.onClick.AddListener(OnClickLogout);
-        _toggleRemember.onValueChanged.AddListener(OnToggleRememberValueChanged);
+        _btnGrid.onClick.AddListener(OnClickGrid);
         _developToggle.onValueChanged.AddListener(OnDevelopToggleValueChanged);
         _btnSelectServer.onClick.AddListener(ShowChangeServerPanel);
         _btnSelectLRS.onClick.AddListener(ShowLRSPanel);
@@ -70,29 +70,6 @@ public class ProfileView : PopupBase
         return true;
     }
 
-    private async Task Login(string username, string password)
-    {
-        LoadView.Instance.Show();
-        var result = await RootObject.Instance.moodleManager.Login(username, password);
-        LoadView.Instance.Hide();
-        if (result)
-        {
-            OnLoginSucceed(username, password);
-            Close();
-        }
-        else
-        {
-            _inputFieldUserName.SetInvalid();
-            _inputFieldPassword.SetInvalid();
-            Toast.Instance.Show("Check your login/password");
-        }
-    }
-
-    private void OnToggleRememberValueChanged(bool value)
-    {
-        DBManager.rememberUser = value;
-    }
-
     private void OnDevelopToggleValueChanged(bool value)
     {
         DBManager.developMode = value;
@@ -105,20 +82,6 @@ public class ProfileView : PopupBase
         var valueString = value ? "enabled" : "disabled";
         Toast.Instance.Show($"Developer mode has been {valueString}.Restart the application to activate it.");
         _isShownDevelopModeMessage = true;
-    }
-
-    private void OnLoginSucceed(string username, string password)
-    {
-        Toast.Instance.Show("Login succeeded");
-        RootView_v2.Instance.activityListView.FetchAndUpdateView();
-        if (DBManager.rememberUser)
-        {
-            LocalFiles.SaveUsernameAndPassword(username, password);
-        }
-        else
-        {
-            LocalFiles.RemoveUsernameAndPassword();
-        }
     }
 
     private void OnVersionClickAmountReached(int count)
@@ -154,14 +117,7 @@ public class ProfileView : PopupBase
             ShowLogin();
         }
 
-        _txtLogout.text = $"You are already logged in,\n<b>{DBManager.username}</b>";
-        _toggleRemember.isOn = DBManager.rememberUser;
-        _inputFieldUserName.text = string.Empty;
-        _inputFieldPassword.text = string.Empty;
-        _inputFieldUserName.ResetValidation();
-        _inputFieldPassword.ResetValidation();
-        // _learningRecordStoreDropdown.value = DBManager.publicCurrentLearningRecordStore;
-
+        _txtUserName.text = DBManager.username;
         UpdateConectedLRS(DBManager.publicCurrentLearningRecordStore);
     }
 
@@ -172,10 +128,8 @@ public class ProfileView : PopupBase
 
     private async void OnClickLogin()
     {
-        if (!_inputFieldUserName.Validate()) return;
-        if (!_inputFieldPassword.Validate()) return;
-
-        await Login(_inputFieldUserName.text, _inputFieldPassword.text);
+        var dontShowLoginMenu = true;
+        PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu, (System.Action)ResetValues);
     }
 
     private void OnClickLogout()
@@ -185,18 +139,9 @@ public class ProfileView : PopupBase
         ShowLogin();
     }
 
-    private static bool IsValidUsername(string value)
+    private void OnClickGrid()
     {
-        const string regexExpression = "^\\S{3,}$";
-        var regex = new Regex(regexExpression);
-        return regex.IsMatch(value);
-    }
-
-    private static bool IsValidPassword(string value)
-    {
-        const string regexExpression = "^\\S{8,}$";
-        var regex = new Regex(regexExpression);
-        return regex.IsMatch(value);
+        PopupsViewer.Instance.Show(_gridViewPrefab);
     }
 
     private static bool IsValidUrl(string urlString)
@@ -208,10 +153,13 @@ public class ProfileView : PopupBase
 
     private void ShowChangeServerPanel()
     {
-        RootView_v2.Instance.dialog.ShowBottomMultiline("Select Learning Record Store:",
-            (DBManager.WEKIT_URL, () => ChangeServerAndPrivacyPolicyDomain(DBManager.WEKIT_URL, DBManager.WEKIT_PRIVACY_POLICY_URL)),
-            (DBManager.ARETE_URL, () => ChangeServerAndPrivacyPolicyDomain(DBManager.ARETE_URL, DBManager.ARETE_PRIVACY_POLICY_URL)),
-            ("Other", ShowServerPanel));
+        var isWekitSelected = DBManager.domain == DBManager.WEKIT_URL;
+        var isAreteSelected = DBManager.domain == DBManager.ARETE_URL;
+
+        RootView_v2.Instance.dialog.ShowBottomMultilineToggles("Moodle servers:",
+            (DBManager.WEKIT_URL, () => ChangeServerAndPrivacyPolicyDomain(DBManager.WEKIT_URL, DBManager.WEKIT_PRIVACY_POLICY_URL), false, isWekitSelected),
+            (DBManager.ARETE_URL, () => ChangeServerAndPrivacyPolicyDomain(DBManager.ARETE_URL, DBManager.ARETE_PRIVACY_POLICY_URL), false, isAreteSelected),
+            (CUSTOM_SERVER_TEXT, ShowServerPanel, false, !(isWekitSelected || isAreteSelected)));
     }
 
     private void ShowServerPanel()
@@ -278,9 +226,13 @@ public class ProfileView : PopupBase
 
     private void UpdatePrivacyPolicyButtonActive()
     {
-        var setActive = (DBManager.privacyPolicyDomain != string.Empty) ? true : false;
+        var isWekitSelected = DBManager.domain == DBManager.WEKIT_URL;
+        var isAreteSelected = DBManager.domain == DBManager.ARETE_URL;
 
+        var setActive = !string.IsNullOrEmpty(DBManager.privacyPolicyDomain) &&
+                (isWekitSelected || isAreteSelected);
         _btnPrivacyPolicy.gameObject.SetActive(setActive);
+
     }
 
     private void UpdateConectedLRS(DBManager.LearningRecordStores publicCurrentLearningRecordStore)
@@ -294,5 +246,12 @@ public class ProfileView : PopupBase
                 _txtConnectedLRS.text = "ARETE";
                 break;
         }
+    }
+
+    private void OnDisable()
+    {
+        EventManager.MoodleDomainChanged -= UpdateConnectedServerText;
+        EventManager.XAPIChanged -= UpdateConectedLRS;
+        EventManager.MoodleDomainChanged -= UpdatePrivacyPolicyButtonActive;
     }
 }

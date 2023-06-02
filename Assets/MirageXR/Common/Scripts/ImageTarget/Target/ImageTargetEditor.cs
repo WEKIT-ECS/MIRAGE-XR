@@ -41,6 +41,16 @@ public class ImageTargetEditor : ImageTargetBase
 
     private TrackingState ToTrackingState(bool state)
     {
-        return state ? TrackingState.Found : _targetObject.activeSelf ? TrackingState.Limited : TrackingState.Lost;
+        if (state)
+        {
+            return TrackingState.Found;
+        }
+
+        if (_targetObject && _targetObject.activeSelf)
+        {
+            return TrackingState.Limited;
+        }
+
+        return TrackingState.Lost;
     }
 }

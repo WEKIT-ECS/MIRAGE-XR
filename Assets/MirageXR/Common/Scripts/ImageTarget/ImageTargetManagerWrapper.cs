@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
@@ -30,6 +31,12 @@ public class ImageTargetManagerWrapper : MonoBehaviour
 
     private ImageTargetManagerBase _imageTargetManager;
     private Dictionary<string, IImageTarget> _imagesMap = new Dictionary<string, IImageTarget>();
+    private object _syncObject = new object();
+
+    public IImageTarget GetImageTarget(string imageName)
+    {
+        return _imageTargetManager.GetImageTarget(imageName);
+    }
 
     public async Task<IImageTarget> AddImageTarget(ImageTargetModel model, CancellationToken cancellationToken = default)
     {
@@ -55,7 +62,11 @@ public class ImageTargetManagerWrapper : MonoBehaviour
             }
 
             var target = await _imageTargetManager.AddImageTarget(newModel, cancellationToken);
-            _imagesMap.Add(newModel.name, target);
+
+            lock (_syncObject)
+            {
+                _imagesMap.Add(newModel.name, target);
+            }
 
             return target;
         }
@@ -77,8 +88,11 @@ public class ImageTargetManagerWrapper : MonoBehaviour
         {
             if (_imagesMap.ContainsKey(imageTarget.imageTargetName))
             {
-                _imageTargetManager.RemoveImageTarget(imageTarget as ImageTargetBase);
-                _imagesMap.Remove(imageTarget.imageTargetName);
+                lock (_syncObject)
+                {
+                    _imageTargetManager.RemoveImageTarget(imageTarget as ImageTargetBase);
+                    _imagesMap.Remove(imageTarget.imageTargetName);
+                }
             }
             else
             {
@@ -134,16 +148,27 @@ public class ImageTargetManagerWrapper : MonoBehaviour
         _imageTargetManager.onTargetCreated.AddListener(_onTargetCreated.Invoke);
         _imageTargetManager.onTargetFound.AddListener(_onTargetFound.Invoke);
         _imageTargetManager.onTargetLost.AddListener(_onTargetLost.Invoke);
-        foreach (var image in _images)
+
+        var tasks = _images.Select(t => AddImageTarget(t));
+        var allTasks = Task.WhenAll(tasks);
+
+        try
         {
-            try
+            var imageTargets = await allTasks;
+            for (int i = 0; i < imageTargets.Length; i++)
             {
-                var target = await AddImageTarget(image);
-                image.name = target.imageTargetName;
+                if (imageTargets[i] != null)
+                {
+                    _images[i].name = imageTargets[i].imageTargetName;
+                }
             }
-            catch (Exception e)
+        }
+        catch
+        {
+            var allExceptions = allTasks.Exception;
+            if (allExceptions != null)
             {
-                AppLog.LogError(e.ToString());
+                AppLog.LogError(allExceptions.ToString());
             }
         }
     }

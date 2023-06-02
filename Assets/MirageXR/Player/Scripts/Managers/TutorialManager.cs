@@ -128,6 +128,7 @@ namespace MirageXR
         /// </param>
         public void StartTutorial(TutorialType type)
         {
+            
             if (type == TutorialType.HOLOLENS)
             {
                 IsTutorialRunning = true;

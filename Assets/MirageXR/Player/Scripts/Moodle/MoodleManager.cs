@@ -213,7 +213,8 @@ namespace MirageXR
                 }
             }
 
-            AppLog.LogDebug(response);
+            //Comented out the below debug log due to the size of the message
+            //AppLog.LogDebug(response);
 
             return ParseArlemListJson(response);
         }

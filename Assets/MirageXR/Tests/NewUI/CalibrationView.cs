@@ -27,6 +27,7 @@ public class CalibrationView : PopupBase
     private Action _showBaseView;
     private Action _hideBaseView;
     private bool _isNewPosition;
+    private Tweener _tweener;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -52,7 +53,7 @@ public class CalibrationView : PopupBase
         _imageTarget.color = _colorBlue;
         _imageAnimation.gameObject.SetActive(true);
         _textDone.gameObject.SetActive(false);
-        _imageAnimation.transform
+        _tweener = _imageAnimation.transform
             .DOLocalRotate(new Vector3(0, 0, -360), calibrationManager.animationTime, RotateMode.FastBeyond360)
             .SetRelative(true).SetEase(Ease.Linear);
     }
@@ -83,6 +84,7 @@ public class CalibrationView : PopupBase
         _imageAnimation.gameObject.SetActive(false);
         _textDone.gameObject.SetActive(false);
         _footer.SetActive(true);
+        _tweener?.Kill();
     }
 
     public override void Close()
