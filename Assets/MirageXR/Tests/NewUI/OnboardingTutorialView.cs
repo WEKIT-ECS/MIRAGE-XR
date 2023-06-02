@@ -60,6 +60,7 @@ public class OnboardingTutorialView : PopupBase
     private void OnViewingTutorialButtonPressed()
     {
         Close();
+        TutorialManager.Instance.StartNewMobileViewingTutorial();
     }
 
     private void OnEditingTutorialButtonPressed()
