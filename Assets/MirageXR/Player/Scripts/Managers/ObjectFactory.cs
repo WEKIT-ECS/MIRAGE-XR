@@ -489,9 +489,6 @@ namespace MirageXR
                         {
                             var id = obj.url.Split('/')[obj.url.Split('/').Length - 1];
                             temp = GameObject.Find($"{path}{obj.predicate}_{id}");
-
-                            var controller = temp.GetComponent<ImageMarkerController>();
-                            controller.MoveDetectableBack();
                             break;
                         }
                     case "pickandplace":

@@ -2,6 +2,11 @@ namespace MRTKUtilities.Application
 {
     using System.Threading.Tasks;
     using UnityEngine;
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Linq;
+    using System.Threading;
 
 #if !UNITY_ANDROID && !UNITY_IOS
     using Microsoft.Identity.Client;

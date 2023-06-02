@@ -1,4 +1,5 @@
 ﻿using i5.Toolkit.Core.VerboseLogging;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -128,7 +129,18 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-            RootObject.Instance.imageTargetManager.RemoveImageTarget(target);
+            try
+            {
+                if (PlatformManager.Instance.WorldSpaceUi)
+                {
+                    MoveDetectableBack();
+                    RootObject.Instance.imageTargetManager.RemoveImageTarget(target);
+                }
+            }
+            catch (Exception e)
+            {
+                AppLog.LogError("Error when destroying image marker controller" + e.ToString());
+            }
         }
     }
 }
