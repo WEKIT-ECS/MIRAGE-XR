@@ -44,4 +44,9 @@ public abstract class ImageTargetManagerBase : MonoBehaviour
     public abstract Task<ImageTargetBase> AddImageTarget(ImageTargetModel imageTargetModel, CancellationToken cancellationToken = default);
 
     public abstract void RemoveImageTarget(ImageTargetBase imageTarget);
+
+    public ImageTargetBase GetImageTarget(string imageName)
+    {
+        return _images.ContainsKey(imageName) ? _images[imageName] : null;
+    }
 }

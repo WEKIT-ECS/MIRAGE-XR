@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
@@ -27,13 +28,12 @@ public class CalibrationManager : MonoBehaviour
 
     public float animationTime => ANIMATION_TIME;
 
-    private CancellationTokenSource _tokenSource;
-    private CancellationToken _token;
     private Transform _anchor;
     private ImageTargetModel _imageTargetModel;
     private IImageTarget _imageTarget;
     private bool _isEnabled;
     private bool _isRecalibration;
+    private bool _isWaitingForImageTarget;
     private CalibrationTool _calibrationTool;
 
     public void Initialization()
@@ -54,45 +54,6 @@ public class CalibrationManager : MonoBehaviour
         EnableCalibrationAsync(isRecalibration).AsAsyncVoid();
     }
 
-    private async Task EnableCalibrationAsync(bool isRecalibration = false)
-    {
-        if (_isEnabled)
-        {
-            return;
-        }
-
-        if (_tokenSource != null)
-        {
-            _tokenSource.Cancel();
-            _tokenSource.Dispose();
-            _tokenSource = null;
-            Task.Yield();
-        }
-
-        _tokenSource = new CancellationTokenSource();
-        _token = _tokenSource.Token;
-
-        _isRecalibration = isRecalibration;
-        _isEnabled = true;
-
-        _imageTarget = await imageTargetManager.AddImageTarget(_imageTargetModel, _token);
-        if (_imageTarget != null)
-        {
-            if (_isEnabled)
-            {
-                OnImageTargetCreated(_imageTarget);
-            }
-            else
-            {
-                imageTargetManager.RemoveImageTarget(_imageTarget);
-                _imageTarget = null;
-            }
-
-            _tokenSource.Dispose();
-            _tokenSource = null;
-        }
-    }
-
     public void DisableCalibration()
     {
         if (!_isEnabled)
@@ -100,39 +61,93 @@ public class CalibrationManager : MonoBehaviour
             return;
         }
 
-        if (_tokenSource != null)
-        {
-            _tokenSource.Cancel();
-            _tokenSource.Dispose();
-            _tokenSource = null;
-        }
-
         _isRecalibration = false;
         _isEnabled = false;
 
-        if (_imageTarget != null)
+        if (_imageTarget != null && _calibrationTool)
         {
-            imageTargetManager.RemoveImageTarget(_imageTarget);
-            _imageTarget = null;
-            _calibrationTool = null;
+            _calibrationTool.Disable();
         }
     }
 
-    private void OnImageTargetCreated(IImageTarget imageTarget)
+    private async Task EnableCalibrationAsync(bool isRecalibration = false)
+    {
+        _isEnabled = true;
+        _isRecalibration = isRecalibration;
+
+        if (_isWaitingForImageTarget)
+        {
+            return;
+        }
+
+        _imageTarget = imageTargetManager.GetImageTarget(_imageTargetModel.name);
+
+        if (_imageTarget == null || !_calibrationTool)
+        {
+            var value = await CreateCalibrationTool(isRecalibration);
+            if (!value)
+            {
+                AppLog.LogError("Unable to create imageTarget");
+                return;
+            }
+        }
+
+        if (!InitCalibrationTool(_imageTarget))
+        {
+            AppLog.LogError("Unable to create calibrationTool");
+            return;
+        }
+
+        if (_isEnabled)
+        {
+            _calibrationTool.Enable();
+        }
+        else
+        {
+            _calibrationTool.Disable();
+        }
+    }
+
+    private async Task<bool> CreateCalibrationTool(bool isRecalibration = false)
+    {
+        _isRecalibration = isRecalibration;
+        _isEnabled = true;
+        _isWaitingForImageTarget = true;
+
+        try
+        {
+            _imageTarget = await imageTargetManager.AddImageTarget(_imageTargetModel);
+            return _imageTarget != null;
+        }
+        catch (Exception e)
+        {
+            AppLog.LogError(e.ToString());
+            return false;
+        }
+        finally
+        {
+            _isWaitingForImageTarget = false;
+        }
+    }
+
+    private bool InitCalibrationTool(IImageTarget imageTarget)
     {
         _calibrationTool = imageTarget.targetObject.GetComponent<CalibrationTool>();
         if (!_calibrationTool)
         {
             AppLog.LogError($"{nameof(CalibrationTool)} cannot be found");
-            return;
+            return false;
         }
 
         _calibrationTool.Initialization(ANIMATION_TIME);
+        _calibrationTool.onCalibrationStarted.RemoveAllListeners();
         _calibrationTool.onCalibrationStarted.AddListener(OnCalibrationStarted);
+        _calibrationTool.onCalibrationCanceled.RemoveAllListeners();
         _calibrationTool.onCalibrationCanceled.AddListener(OnCalibrationCanceled);
+        _calibrationTool.onCalibrationFinished.RemoveAllListeners();
         _calibrationTool.onCalibrationFinished.AddListener(OnCalibrationFinished);
 
-        Debug.Log($"calibration tool has been created {imageTarget.imageTargetName}");
+        return true;
     }
 
     private void OnCalibrationStarted()
@@ -161,7 +176,7 @@ public class CalibrationManager : MonoBehaviour
     private void UpdateAnchorPosition()
     {
         _anchor.transform.position = _calibrationTool.transform.position;
-        _anchor.transform.rotation = _calibrationTool.transform.rotation;
+        //_anchor.transform.rotation = Quaternion.AngleAxis(_calibrationTool.transform.rotation.eulerAngles.y, Vector3.up);
     }
 
     private static Transform CreateAnchor()

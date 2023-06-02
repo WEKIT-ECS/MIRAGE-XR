@@ -26,7 +26,7 @@ namespace MirageXR
         public void Initialization(float animationTime)
         {
             _animationTime = animationTime;
-            var imageTarget = GetComponentInParent<IImageTarget>();
+            var imageTarget = GetComponentInParent<ImageTargetBase>();
 
             if (imageTarget == null)
             {
@@ -34,12 +34,37 @@ namespace MirageXR
                 return;
             }
 
+            imageTarget.onTargetFound.RemoveAllListeners();
             imageTarget.onTargetFound.AddListener(OnTargetFound);
+            imageTarget.onTargetLost.RemoveAllListeners();
             imageTarget.onTargetLost.AddListener(OnTargetLost);
+        }
+
+        public void Enable()
+        {
+            enabled = true;
+            _calibrationAnimation.gameObject.SetActive(true);
+
+            if (gameObject.activeInHierarchy)
+            {
+                OnTargetFound(null);
+            }
+        }
+
+        public void Disable()
+        {
+            OnTargetLost(null);
+            _calibrationAnimation.gameObject.SetActive(false);
+            enabled = false;
         }
 
         private void OnTargetFound(IImageTarget imageTarget)
         {
+            if (!enabled)
+            {
+                return;
+            }
+
             _isTargetFound = true;
             _onCalibrationStarted.Invoke();
             _calibrationAnimation.PlayAnimation();
@@ -48,6 +73,11 @@ namespace MirageXR
 
         private void OnTargetLost(IImageTarget imageTarget)
         {
+            if (!enabled)
+            {
+                return;
+            }
+
             _isTargetFound = false;
             _onCalibrationCanceled.Invoke();
             _calibrationAnimation.StopAnimation();

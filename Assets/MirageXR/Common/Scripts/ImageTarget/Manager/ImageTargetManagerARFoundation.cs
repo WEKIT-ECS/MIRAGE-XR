@@ -8,8 +8,12 @@ using UnityEngine.XR.ARSubsystems;
 
 public class ImageTargetManagerARFoundation : ImageTargetManagerBase
 {
+    private const int DELAY = 1000;
+
     private ARTrackedImageManager _arTrackedImageManager;
-    private Dictionary<string, ImageTargetModel> _map = new Dictionary<string, ImageTargetModel>();
+    private bool _libraryIsBusy = false;
+    private object _syncObject = new object();
+    private Transform _imageTargetHolder;
 
     public override async Task<bool> InitializationAsync()
     {
@@ -21,7 +25,7 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
 
         _arTrackedImageManager.referenceLibrary ??= _arTrackedImageManager.CreateRuntimeLibrary();
         _arTrackedImageManager.trackedImagesChanged += OnTrackedImagesChanged;
-        _arTrackedImageManager.requestedMaxNumberOfMovingImages = 0;
+        _arTrackedImageManager.requestedMaxNumberOfMovingImages = 10;
         _arTrackedImageManager.enabled = true;
 
         _isInitialized = true;
@@ -37,50 +41,43 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
             throw new Exception("The reference image library is not mutable.");
         }
 
-        var alreadyExists = false;
-
-        if (_map.ContainsKey(imageTargetModel.name))
+        while (_libraryIsBusy)
         {
-            if (imageTargetModel.texture2D == _map[imageTargetModel.name].texture2D)
-            {
-                alreadyExists = true;
-            }
-            else
-            {
-                _map.Remove(imageTargetModel.name);
-            }
-        }
-
-        if (!alreadyExists)
-        {
-            _map.Add(imageTargetModel.name, imageTargetModel);
-            var job = mutableLibrary.ScheduleAddImageWithValidationJob(imageTargetModel.texture2D, imageTargetModel.name, imageTargetModel.width);
-            while (job.status is AddReferenceImageJobStatus.Pending or AddReferenceImageJobStatus.None)
-            {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    _map.Remove(imageTargetModel.name);
-                    cancellationToken.ThrowIfCancellationRequested();
-                }
-
-                await Task.Yield();
-            }
-        }
-
-        _arTrackedImageManager.requestedMaxNumberOfMovingImages += 1;
-
-        while (!_images.ContainsKey(imageTargetModel.name))
-        {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                _map.Remove(imageTargetModel.name);
-                cancellationToken.ThrowIfCancellationRequested();
-            }
-
+            cancellationToken.ThrowIfCancellationRequested();
             await Task.Yield();
         }
 
-        return _images[imageTargetModel.name];
+        try
+        {
+            _libraryIsBusy = true;
+            var job = mutableLibrary.ScheduleAddImageWithValidationJob(imageTargetModel.texture2D, imageTargetModel.name, imageTargetModel.width);
+            while (job.status is AddReferenceImageJobStatus.Pending or AddReferenceImageJobStatus.None)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await Task.Yield();
+            }
+        }
+        finally
+        {
+            _libraryIsBusy = false;
+        }
+
+        lock (_syncObject)
+        {
+            _arTrackedImageManager.requestedMaxNumberOfMovingImages += 1;
+        }
+
+        var imageTarget = new GameObject(imageTargetModel.name).AddComponent<ImageTargetARFoundation>();
+        imageTarget.transform.SetParent(_imageTargetHolder);
+
+        imageTarget.Initialization(imageTargetModel);
+        imageTarget.onTargetFound.AddListener(value => onTargetFound.Invoke(value));
+        imageTarget.onTargetLost.AddListener(value => onTargetLost.Invoke(value));
+
+        _images.Add(imageTargetModel.name, imageTarget);
+        onTargetCreated.Invoke(imageTarget);
+
+        return imageTarget;
     }
 
     public override void RemoveImageTarget(ImageTargetBase imageTarget)
@@ -90,15 +87,12 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
             return;
         }
 
-        if (imageTarget.targetObject)
+        lock (_syncObject)
         {
-            Destroy(imageTarget.targetObject);
+            _arTrackedImageManager.requestedMaxNumberOfMovingImages -= 1;
         }
 
-        _arTrackedImageManager.requestedMaxNumberOfMovingImages -= 1;
-        imageTarget.gameObject.SetActive(false);
         Destroy(imageTarget); // right now the api doesn't allow us to delete the object itself
-        _map.Remove(imageTarget.imageTargetName);
         _images.Remove(imageTarget.imageTargetName);
     }
 
@@ -160,6 +154,10 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
             arPoseDriver = mainCamera.gameObject.AddComponent<ARPoseDriver>();
         }
 
+        await Task.Delay(DELAY);
+
+        _imageTargetHolder = new GameObject("ImageTargetHolder").transform;
+
         return true;
     }
 
@@ -175,27 +173,33 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
     {
         foreach (var image in eventArgs.added)
         {
-            if (!_map.ContainsKey(image.referenceImage.name))
+            if (!_images.ContainsKey(image.referenceImage.name))
             {
-                image.gameObject.SetActive(false);
                 return;
             }
 
-            var model = _map[image.referenceImage.name];
-            var imageTarget = image.gameObject.AddComponent<ImageTargetARFoundation>();
-            _images.Add(image.referenceImage.name, imageTarget);
-            imageTarget.Initialization(model);
-            imageTarget.onTargetFound.AddListener(value => onTargetFound.Invoke(value));
-            imageTarget.onTargetLost.AddListener(value => onTargetLost.Invoke(value));
+            var imageTarget = (ImageTargetARFoundation)_images[image.referenceImage.name];
+            imageTarget.SetARTrackedImage(image);
+        }
 
-            onTargetCreated.Invoke(imageTarget);
+        foreach (var image in eventArgs.updated)
+        {
+            if (!_images.ContainsKey(image.referenceImage.name))
+            {
+                return;
+            }
+
+            ((ImageTargetARFoundation)_images[image.referenceImage.name]).CopyPose(image);
         }
 
         foreach (var image in eventArgs.removed)
         {
-            var imageTarget = image.GetComponent<ImageTargetARFoundation>();
-            _images.Remove(image.referenceImage.name);
-            Destroy(imageTarget);
+            if (!_images.ContainsKey(image.referenceImage.name))
+            {
+                return;
+            }
+
+            ((ImageTargetARFoundation)_images[image.referenceImage.name]).RemoveARTrackedImage();
         }
     }
 
@@ -209,7 +213,7 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
 
     protected override void OnDisable()
     {
-        if (_isInitialized)
+        if (_isInitialized && _arTrackedImageManager)
         {
             _arTrackedImageManager.enabled = false;
         }

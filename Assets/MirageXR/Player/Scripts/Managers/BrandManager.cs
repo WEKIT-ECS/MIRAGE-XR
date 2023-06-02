@@ -1,6 +1,5 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,6 +8,9 @@ namespace MirageXR
 {
     public class BrandManager : MonoBehaviour
     {
+        [SerializeField] private string defaultMoodleUrl = "https://learn.wekit-ecs.com";
+        [SerializeField] private string defaultXApiUrl = "https://lrs.wekit-ecs.com/data/xAPI";
+
         [SerializeField] private bool prefabsOriginalColors;
         [SerializeField] private Color defaultPrimaryColor;
         [SerializeField] private Color defaultSecondaryColor;
@@ -19,226 +21,200 @@ namespace MirageXR
 
         public static BrandManager Instance { get; private set; }
 
-        private Color newPrimaryColor;
-        private Color newSecondaryColor;
-        private Color newTextColor;
-        private Color newIconColor;
-        private Color newTaskStationColor;
-        private Color newUIPathColor;
-        private Color newNextPathColor;
-
-        public bool Customizable { get; private set; }
-
-        ConfigEditor CFEditor = new ConfigEditor();
-
         public Color DefaultSecondaryColor => defaultSecondaryColor;
 
 #if UNITY_ANDROID || UNITY_IOS
 
-    private readonly string[] spareListOfAugmentations = { "image", "video", "audio", "ghost", "label", "act", "effects",  "model", "character", "pickandplace", "imagemarker", "plugin" };
-    private const string augmentationsListFile = "MobileAugmentationListFile";
+        public const string AugmentationsListFile = "MobileAugmentationListFile";
 #else
-        private readonly string[] spareListOfAugmentations = { "image", "video", "audio", "ghost", "label", "act", "effects", "model", "character", "pick&place", "image marker", "plugin", "drawing" };
-        private const string augmentationsListFile = "HololensAugmentationListFile";
+        private const string AugmentationsListFile = "HololensAugmentationListFile";
 #endif
 
-        public string AugmentationsListFile => augmentationsListFile;
+        public string MoodleUrl => !prefabsOriginalColors ? _newMoodleUrl : defaultMoodleUrl;
+
+        public string XApiUrl => !prefabsOriginalColors ? _newXApiUrl : defaultXApiUrl;
+
+        public Color PrimaryColor => !prefabsOriginalColors ? _newPrimaryColor : defaultPrimaryColor;
+
+        public Color SecondaryColor => !prefabsOriginalColors ? _newSecondaryColor : defaultSecondaryColor;
+
+        public Color TextColor => !prefabsOriginalColors ? _newTextColor : defaultTextColor;
+
+        public Color IconColor => !prefabsOriginalColors ? _newIconColor : defaultIconColor;
+
+        public Color TaskStationColor => !prefabsOriginalColors ? _newTaskStationColor : defaultSecondaryColor;
+
+        public Color UIPathColor => !prefabsOriginalColors ? _newUIPathColor : defaultUIPathColor;
+
+        public Color NextPathColor => !prefabsOriginalColors ? _newNextPathColor : defaultNextPathColor;
+
+        private string _newMoodleUrl;
+        private string _newXApiUrl;
+
+        private Color _newPrimaryColor;
+        private Color _newSecondaryColor;
+        private Color _newTextColor;
+        private Color _newIconColor;
+        private Color _newTaskStationColor;
+        private Color _newUIPathColor;
+        private Color _newNextPathColor;
+
+        public bool Customizable { get; private set; }
+
+        /// <summary>
+        /// Apply the custom colors to the app
+        /// </summary>
+        public void AddCustomColors()
+        {
+            ChangePrimaryAndIconColor();
+            ChangeSecondaryColors();
+            ChangeTextsColor();
+        }
+
+
+
+        /// <summary>
+        /// Get the list of augmentations
+        /// </summary>
+        /// <returns>a list of ContentType</returns>
+        public List<ContentType> GetListOfAugmentations()
+        {
+            var listOfAugmentations = Enum.GetValues(typeof(ContentType)).OfType<ContentType>().ToList();
+            var augmentationListFile = Resources.Load<TextAsset>(AugmentationsListFile);
+            if (augmentationListFile != null)
+            {
+                var arrayOfAugmentations = augmentationListFile.ToString().Split('\n');
+                var contentTypeList = arrayOfAugmentations
+                    .Select(str => (ContentType?)ContentTypeExtenstion.ParsePredicate(str))
+                    .Where(ct => ct.Value != ContentType.UNKNOWN)
+                    .Select(ct => ct.Value)
+                    .ToList();
+
+                return contentTypeList;
+            }
+
+            return listOfAugmentations.Where(ct => ct != ContentType.UNKNOWN).ToList();
+        }
+
+
 
         private void Awake()
         {
             if (Instance == null)
+            {
                 Instance = this;
+            }
             else if (Instance != this)
+            {
                 Destroy(gameObject);
+            }
         }
 
         private void Start()
         {
 
-            if (prefabsOriginalColors) return;
+            if (prefabsOriginalColors)
+            {
+                return;
+            }
 
-            // if config file doen't exist, disable color customization
-            if (Resources.Load<TextAsset>(CFEditor.configFileName) == null)
+            // if config file isn't exist, disable color customization
+            if (ConfigParser.ConfigFile == null)
             {
                 prefabsOriginalColors = true;
                 return;
             }
-            else
-            {
-                Customizable = true;
-            }
 
-            AutoLoad();
+            Customizable = true;
+
+            LoadConfiguration();
             DontDestroyOnLoad(gameObject);
 
             WaitForActivityList();
         }
 
 
-        /// <summary>
-        /// Get the list of pois from json file depends on platform
-        /// </summary>
-        public string[] GetListOfAugmentations()
+        private async void WaitForActivityList()
         {
-            // If the file missing, use the spare array in this class
-            var listOfAugmentations = spareListOfAugmentations;
-
-            var augmentationListFile = Resources.Load<TextAsset>(augmentationsListFile);
-            if (augmentationListFile != null)
+            if (!Customizable)
             {
-                listOfAugmentations = augmentationListFile.ToString().Split('\n');
-            }
-            else
-            {
-                return spareListOfAugmentations;
+                return;
             }
 
-            // if the file is empty return the default array
-            if (listOfAugmentations.Length == 0 || (listOfAugmentations.Length == 1 && listOfAugmentations[0] == ""))
-            {
-                return spareListOfAugmentations;
-            }
+            await RootObject.Instance.moodleManager.GetArlemList();
 
-            string[] augFinalList = new string[listOfAugmentations.Length];
-            for (int i = 0; i < listOfAugmentations.Length; i++)
-            {
-                augFinalList[i] = listOfAugmentations[i].Replace("\r", string.Empty);
-            }
-
-            return augFinalList;
+            AddCustomColors();
         }
 
 
-        async void WaitForActivityList()
+        private void ChangePrimaryAndIconColor()
         {
-            if (Customizable)
+            foreach (var img in FindObjectsOfType<Image>())
             {
-                await RootObject.Instance.moodleManager.GetArlemList();
-
-                AddCustomColors();
-            }
-        }
-
-        void ChangePrimaryAndIconColor()
-        {
-            foreach (Image img in FindObjectsOfType<Image>())
-            {
-                if (img.GetComponent<Button>()) continue; //not effect on buttons
-
-                if (img.color == defaultPrimaryColor && newPrimaryColor != null)
-                    img.color = newPrimaryColor;
-
-                else if (img.color == defaultSecondaryColor && newSecondaryColor != null)
-                    img.color = newSecondaryColor;
-
-                else if (img.color == defaultIconColor && newIconColor != null)
-                    img.color = newIconColor;
-            }
-        }
-
-
-        void ChangeSecodaryColors()
-        {
-            foreach (Button btn in FindObjectsOfType<Button>())
-            {
-                ColorBlock colors = btn.colors;
-                if (colors.highlightedColor == defaultSecondaryColor && newSecondaryColor != null)
+                //not effect on buttons
+                if (img.GetComponent<Button>())
                 {
-                    colors.highlightedColor = newSecondaryColor;
-                    var factor = 0.7f;
-                    Color darkerColor = new Color(newSecondaryColor.r * factor, newSecondaryColor.g * factor, newSecondaryColor.b * factor, newSecondaryColor.a);
+                    continue;
+                }
+
+                if (img.color == defaultPrimaryColor)
+                {
+                    img.color = _newPrimaryColor;
+                }
+                else if (img.color == defaultSecondaryColor)
+                {
+                    img.color = _newSecondaryColor;
+                }
+                else if (img.color == defaultIconColor)
+                {
+                    img.color = _newIconColor;
+                }
+            }
+        }
+
+
+        private void ChangeSecondaryColors()
+        {
+            foreach (var btn in FindObjectsOfType<Button>())
+            {
+                var colors = btn.colors;
+                if (colors.highlightedColor == defaultSecondaryColor)
+                {
+                    colors.highlightedColor = _newSecondaryColor;
+                    const float factor = 0.7f;
+                    var darkerColor = new Color(_newSecondaryColor.r * factor, _newSecondaryColor.g * factor, _newSecondaryColor.b * factor, _newSecondaryColor.a);
                     colors.pressedColor = darkerColor;
-                    colors.selectedColor = newSecondaryColor;
+                    colors.selectedColor = _newSecondaryColor;
                     btn.colors = colors;
                 }
             }
         }
 
 
-        void ChangeTextsColor()
+        private void ChangeTextsColor()
         {
-            foreach (Text txt in FindObjectsOfType<Text>())
+            foreach (var txt in FindObjectsOfType<Text>())
             {
-                if (txt.color == defaultTextColor && newTextColor != null)
-                    txt.color = newTextColor;
+                if (txt.color == defaultTextColor)
+                {
+                    txt.color = _newTextColor;
+                }
             }
         }
 
 
-        public void AddCustomColors()
+
+        private void LoadConfiguration()
         {
-            ChangePrimaryAndIconColor();
-            ChangeSecodaryColors();
-            ChangeTextsColor();
+            _newMoodleUrl = ConfigParser.MoodleUrl;
+            _newXApiUrl = ConfigParser.XApiUrl;
+            _newPrimaryColor = ConfigParser.Editor.StringToColor(ConfigParser.PrimaryColor);
+            _newSecondaryColor = ConfigParser.Editor.StringToColor(ConfigParser.SecondaryColor);
+            _newTextColor = ConfigParser.Editor.StringToColor(ConfigParser.TextColor);
+            _newIconColor = ConfigParser.Editor.StringToColor(ConfigParser.IconColor);
+            _newTaskStationColor = ConfigParser.Editor.StringToColor(ConfigParser.TaskStationColor);
+            _newUIPathColor = ConfigParser.Editor.StringToColor(ConfigParser.UIPathColor);
+            _newNextPathColor = ConfigParser.Editor.StringToColor(ConfigParser.NextPathColor);
         }
-
-
-
-        public Color GetPrimaryColor()
-        {
-            return !prefabsOriginalColors ? newPrimaryColor : defaultPrimaryColor;
-        }
-
-
-        public Color GetSecondaryColor()
-        {
-            return !prefabsOriginalColors ? newSecondaryColor : defaultSecondaryColor;
-        }
-
-        public Color GetTextColor()
-        {
-            return !prefabsOriginalColors ? newTextColor : defaultTextColor;
-        }
-
-        public Color GetIconColor()
-        {
-            return !prefabsOriginalColors ? newIconColor : defaultIconColor;
-        }
-
-        public Color GetTaskStationColor()
-        {
-            return !prefabsOriginalColors ? newTaskStationColor : defaultSecondaryColor;
-        }
-
-        public Color GetUIPathColor()
-        {
-            return !prefabsOriginalColors ? newUIPathColor : defaultUIPathColor;
-        }
-
-
-        public Color GetNextPathColor()
-        {
-            return !prefabsOriginalColors ? newNextPathColor : defaultNextPathColor;
-        }
-
-
-        void AutoLoad()
-        {
-            TextAsset ConfigFile = Resources.Load<TextAsset>(CFEditor.configFileName);
-
-            List<string> ConfigItems = ConfigFile.text.Split(new[] { '\r', '\n' }).ToList();
-
-            string color = CFEditor.GetValue(ConfigItems.Find(x => x.StartsWith("primaryColor")));
-            newPrimaryColor = CFEditor.StringToColor(color);
-
-            color = CFEditor.GetValue(ConfigItems.Find(x => x.StartsWith("secondaryColor")));
-            newSecondaryColor = CFEditor.StringToColor(color);
-
-            color = CFEditor.GetValue(ConfigItems.Find(x => x.StartsWith("textColor")));
-            newTextColor = CFEditor.StringToColor(color);
-
-            color = CFEditor.GetValue(ConfigItems.Find(x => x.StartsWith("iconColor")));
-            newIconColor = CFEditor.StringToColor(color);
-
-            color = CFEditor.GetValue(ConfigItems.Find(x => x.StartsWith("taskStationColor")));
-            newTaskStationColor = CFEditor.StringToColor(color);
-
-            color = CFEditor.GetValue(ConfigItems.Find(x => x.StartsWith("pathColor")));
-            newUIPathColor = CFEditor.StringToColor(color);
-
-            color = CFEditor.GetValue(ConfigItems.Find(x => x.StartsWith("nextPathColor")));
-            newNextPathColor = CFEditor.StringToColor(color);
-        }
-
     }
 }

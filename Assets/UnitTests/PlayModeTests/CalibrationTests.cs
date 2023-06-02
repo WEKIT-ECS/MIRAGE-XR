@@ -445,7 +445,7 @@ namespace Tests
             for (int d = 0; d < rootObject.workplaceManager.workplace.detectables.Count; d++)
             {
                 float testDetectablePosition = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).x;
-                Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).position);
+                Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).localPosition);
                 float actualLocalPositionComponent = objectInWorld.x;
 
                 Assert.AreEqual(testDetectablePosition, actualLocalPositionComponent, 0.001f);
@@ -460,7 +460,7 @@ namespace Tests
             for (int d = 0; d < rootObject.workplaceManager.workplace.detectables.Count; d++)
             {
                 float testDetectablePosition = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).y;
-                Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).position);
+                Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).localPosition);
                 float actualLocalPositionComponent = objectInWorld.y;
 
                 Assert.AreEqual(testDetectablePosition, actualLocalPositionComponent, 0.001f);
@@ -475,7 +475,7 @@ namespace Tests
             for (int d = 0; d < rootObject.workplaceManager.workplace.detectables.Count; d++)
             {
                 float testDetectablePosition = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).z;
-                Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).position);
+                Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).localPosition);
                 float actualLocalPositionComponent = objectInWorld.z;
 
                 Assert.AreEqual(testDetectablePosition, actualLocalPositionComponent, 0.001f);
@@ -493,7 +493,7 @@ namespace Tests
                 Vector3 testDetectableRotation = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_rotation);
 
                 // calculate the relative position of the detectable
-                Quaternion objectInWorld = Quaternion.Inverse(WorldTestOrigin.rotation) * detectableContainer.transform.GetChild(d).rotation;
+                Quaternion objectInWorld = Quaternion.Inverse(WorldTestOrigin.rotation) * detectableContainer.transform.GetChild(d).localRotation;
 
                 // use the euler angle representation for comparison
                 Vector3 actualDetectableRotation = objectInWorld.eulerAngles;

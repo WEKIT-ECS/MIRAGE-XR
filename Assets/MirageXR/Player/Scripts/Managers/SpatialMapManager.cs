@@ -34,19 +34,26 @@ public class SpatialMapManager : MonoBehaviour
     }
 
     private void UpdateSpatialMapColliders(bool editMode) {
-
-        if (spatialMapMeshs == null) {
-            spatialMapMeshs = GameObject.Find("Spatial Awareness System").GetComponentsInChildren<MeshCollider>();
-            //find the spatial map colliders if they are not set
-            //TODO; Find a more efficent way of finding the colliders without using 'GameObject.Find'
-        }
-
-        foreach (MeshCollider spatialMapMesh in spatialMapMeshs)
+        try
         {
-            if(spatialMapMesh)
-                spatialMapMesh.enabled = !editMode;
+            if (spatialMapMeshs == null)
+            {
+                spatialMapMeshs = GameObject.Find("Spatial Awareness System").GetComponentsInChildren<MeshCollider>();
+                //find the spatial map colliders if they are not set
+                //TODO; Find a more efficent way of finding the colliders without using 'GameObject.Find'
+            }
+
+            foreach (MeshCollider spatialMapMesh in spatialMapMeshs)
+            {
+                if (spatialMapMesh)
+                    spatialMapMesh.enabled = !editMode;
+            }
+            //loop though spatial map colliders and set to enabled or disabled depending on the editmode status
         }
-        //loop though spatial map colliders and set to enabled or disabled depending on the editmode status
+        catch (System.Exception e)
+        {
+            Debug.Log("Spatial Awareness System game object not found");
+        }
     }
 #endif
 }

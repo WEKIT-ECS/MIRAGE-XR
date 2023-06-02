@@ -2,7 +2,6 @@ using i5.Toolkit.Core.ServiceCore;
 using i5.Toolkit.Core.VerboseLogging;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -13,34 +12,49 @@ namespace MirageXR
     public static class WorkplaceObjectFactory
     {
         private static WorkplaceManager workplaceManager => RootObject.Instance.workplaceManager;
-        // *** OBJECT FACTORIES ***
 
-        /// <summary>
-        /// Helper method that creates detectable or place objects.
-        /// </summary>
-        /// <returns>Returns the number of errors that occured while creating the objects.</returns>
-        public static async Task CreateDetectablesOrPlaces<T>(List<T> list, string debug)
+        public static void CreateDetectables(List<Detectable> list, string debug)
         {
-            foreach (var element in list)
+            if (list == null || list.Count == 0)
             {
-                try
+                return;
+            }
+
+            try
+            {
+                var rotation = Utilities.ParseStringToVector3(list[0].origin_rotation);
+                var quaternion = Quaternion.Euler(rotation);
+                workplaceManager.detectableContainer.rotation = Quaternion.Inverse(quaternion);
+
+                foreach (var detectable in list)
                 {
-                    if (element is Detectable)
-                    {
-                        CreateDetectableObject((Detectable)(object)element, false);
-                    }
-                    else if (element is Place)
-                    {
-                        await CreatePlaceObject((Place)(object)element);
-                    }
-                }
-                catch (Exception e)
-                {
-                    EventManager.DebugLog($"Error: Workplace manager: Couldn't create {debug}.");
-                    AppLog.LogException(e);
-                    throw;
+                    CreateDetectableObject(detectable, false);
                 }
             }
+            catch (Exception e)
+            {
+                EventManager.DebugLog($"Error: Workplace manager: Couldn't create {debug}.");
+                AppLog.LogException(e);
+            }
+
+            EventManager.DebugLog($"Workplace manager: {debug} created.");
+        }
+
+        public static async Task CreatePlaces<T>(List<T> list, string debug)
+        {
+            try
+            {
+                foreach (var element in list)
+                {
+                    await CreatePlaceObject((Place)(object)element);
+                }
+            }
+            catch (Exception e)
+            {
+                EventManager.DebugLog($"Error: Workplace manager: Couldn't create {debug}.");
+                AppLog.LogException(e);
+            }
+
             EventManager.DebugLog($"Workplace manager: {debug} created.");
         }
 
@@ -415,10 +429,8 @@ namespace MirageXR
                     }
                     else
                     {
-                        anchorFrame.transform.localPosition =
-                            Utilities.ParseStringToVector3(detectable.origin_position);
-                        anchorFrame.transform.localEulerAngles =
-                            Utilities.ParseStringToVector3(detectable.origin_rotation);
+                        anchorFrame.transform.localPosition = Utilities.ParseStringToVector3(detectable.origin_position);
+                        anchorFrame.transform.localEulerAngles = Utilities.ParseStringToVector3(detectable.origin_rotation);
                         anchorFrame.transform.localScale = Vector3.one;
                     }
 

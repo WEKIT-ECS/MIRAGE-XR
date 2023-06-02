@@ -34,7 +34,6 @@ namespace MirageXR
         {
             modelName = ZipUtilities.CheckFileForIllegalCharacters(modelName);
 
-            Vector3 offset;
             if (annotationToEdit != null)
             {
                 annotationToEdit.predicate = "3d:" + modelName;
@@ -43,10 +42,10 @@ namespace MirageXR
             else
             {
                 var workplaceManager = RootObject.Instance.workplaceManager;
-                Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
-                GameObject originT = GameObject.Find(detectable.id);
+                var detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
+                var originT = GameObject.Find(detectable.id);
 
-                offset = Utilities.CalculateOffset(annotationStartingPoint.transform.position,
+                var offset = Utilities.CalculateOffset(annotationStartingPoint.transform.position,
                     annotationStartingPoint.transform.rotation,
                     originT.transform.position,
                     originT.transform.rotation);
