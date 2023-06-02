@@ -243,11 +243,7 @@ namespace MirageXR
             if (poi != null)
             {
                 var temp = GameObject.Find(poi.id);
-                if (toggleObject.predicate == "imagemarker")
-                {
-                    var controller = temp.GetComponentInChildren<ImageMarkerController>();
-                    controller.MoveDetectableBack();
-                }
+
                 Object.Destroy(temp);
                 place.pois.Remove(poi);
             }

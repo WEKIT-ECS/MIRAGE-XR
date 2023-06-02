@@ -272,8 +272,10 @@ namespace MirageXR
                 // Maggie.Speak("Workplace anchors have not been calibrated. Please run the calibration before starting the activity.");
                 CreateCalibrationGuide();
 
-
-                RootObject.Instance.calibrationManager.EnableCalibration();
+                if (PlatformManager.Instance.WorldSpaceUi)
+                {
+                    RootObject.Instance.calibrationManager.EnableCalibration();
+                }
 
                 // Hile loading text
                 Loading.Instance.LoadingVisibility(false);
