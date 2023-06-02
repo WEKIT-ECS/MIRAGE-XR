@@ -1,13 +1,12 @@
 namespace MRTKUtilities.Application
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.Identity.Client;
     using UnityEngine;
+
+#if !UNITY_ANDROID && !UNITY_IOS
+    using Microsoft.Identity.Client;
+#endif
+
 
 #if WINDOWS_UWP
     using Windows.Security.Authentication.Web;
@@ -154,6 +153,7 @@ url = string.Format(
         /// Mostly this is the scope of the backend API, like "api://[client id]/user_impersonation".</param>
         /// <param name="cancellationTokenSource">Cancellation token.</param>
         /// <returns>A <see cref="AuthenticationResult"/> object or null on error.</returns>
+#if !UNITY_ANDROID && !UNITY_IOS
         public static async Task<AuthenticationResult> AuthenticateSilentAsync(
             string clientId,
             string scopes,
@@ -217,7 +217,7 @@ url = string.Format(
                 return null;
             }
         }
-
+#endif
         /// <summary>
         /// Authenticate with device code flow. The acquire request will return
         /// instructions to show to the user. It's essentially a message to go to
@@ -233,6 +233,7 @@ url = string.Format(
         /// <param name="tenantId">Tenant ID to authenticate against.</param>
         /// <param name="cancellationTokenSource">Cancellation token.</param>
         /// <returns>A <see cref="AuthenticationResult"/> object or null on error.</returns>
+#if !UNITY_ANDROID && !UNITY_IOS
         public static async Task<AuthenticationResult> AuthenticateWithDeviceCodeAsync(
             string clientId,
             string scopes,
@@ -306,7 +307,7 @@ url = string.Format(
                 return null;
             }
         }
-
+#endif
         /// <summary>
         /// Authenticate interactive. The user will be prompted to enter the
         /// account credentials.
@@ -317,6 +318,7 @@ url = string.Format(
         /// Mostly this is the scope of the backend API, like "api://[client id]/user_impersonation".</param>
         /// <param name="cancellationTokenSource">Cancellation token.</param>
         /// <returns>A <see cref="AuthenticationResult"/> object or null on error.</returns>
+#if !UNITY_ANDROID && !UNITY_IOS
         public static async Task<AuthenticationResult> AuthenticateInteractiveAsync(
             string clientId,
             string scopes,
@@ -384,13 +386,14 @@ url = string.Format(
                 return null;
             }
         }
-
+#endif
         /// <summary>
         /// Logout removes all cached accounts.
         /// </summary>
         /// <param name="clientId">Client ID from the app registration.</param>
         /// <param name="tenantId">Tenant ID to authenticate against.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+#if !UNITY_ANDROID && !UNITY_IOS
         public static async Task LogoutAllAsync(
             string clientId,
             string tenantId)
@@ -433,6 +436,7 @@ url = string.Format(
                 Debug.LogError($"Logout.Remove.Exception: {e.Message}");
             }
         }
+#endif
 
         /// <summary>
         /// Validate current user with Windows Hello. It will popup the Hello interface

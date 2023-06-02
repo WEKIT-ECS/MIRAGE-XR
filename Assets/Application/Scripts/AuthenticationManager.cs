@@ -1,6 +1,8 @@
 namespace MRTKUtilities.Application
 {
+#if !UNITY_ANDROID && !UNITY_IOS
     using Microsoft.Identity.Client;
+#endif
     using System.Threading;
     using System.Threading.Tasks;
     using UnityEngine;
@@ -61,7 +63,7 @@ namespace MRTKUtilities.Application
             {
                 _settingsManager = GetComponent<SettingsManager>();
             }
-
+#if !UNITY_ANDROID && !UNITY_IOS
             // get the token silently, probably from the cache
             using CancellationTokenSource cancellationToken = new CancellationTokenSource();
             AuthenticationResult result = await AuthenticationHelper.AuthenticateSilentAsync(
@@ -81,7 +83,7 @@ namespace MRTKUtilities.Application
             {
                 return result.AccessToken;
             }
-
+#endif
             Debug.LogError($"Auth ERROR: Couldn't retrieve access token from cache.");
             return null;
         }
@@ -95,13 +97,14 @@ namespace MRTKUtilities.Application
         /// <returns>The access token.</returns>
         public async Task<string> AuthenticateUserAsync()
         {
+#if !UNITY_ANDROID && !UNITY_IOS
             AuthenticationResult result = null;
 
             if (_settingsManager == null)
             {
                 _settingsManager = GetComponent<SettingsManager>();
             }
-
+#endif
 #if WINDOWS_UWP
         // get token for current user silently (ON HOLOLENS)
         using CancellationTokenSource cancellationtoken = new CancellationTokenSource();
@@ -109,7 +112,7 @@ namespace MRTKUtilities.Application
                            _settingsManager.Settings.ClientId, 
                            _settingsManager.Settings.Scopes, 
                            cancellationtoken);
-#else
+#elif !UNITY_ANDROID && !UNITY_IOS
             // handle the device code flow message (ONLY IN UNITY EDITOR)
             AuthenticationHelper.DeviceCodeMessage += message =>
             {
@@ -148,6 +151,7 @@ namespace MRTKUtilities.Application
                 accessToken = result.AccessToken;
             }
 #endif
+#if !UNITY_ANDROID && !UNITY_IOS
             if (result != null)
             {
                 // now get some user details from the acquired token
@@ -174,7 +178,7 @@ namespace MRTKUtilities.Application
 
                 return result.AccessToken;
             }
-
+#endif
             return string.Empty;
         }
     }
