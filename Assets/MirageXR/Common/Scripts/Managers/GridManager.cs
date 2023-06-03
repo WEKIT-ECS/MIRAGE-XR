@@ -1,7 +1,8 @@
-﻿using MirageXR;
+﻿using System;
+using MirageXR;
 using UnityEngine;
 
-public class GridManager : MonoBehaviour
+public class GridManager : MonoBehaviour, IDisposable
 {
     private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
 
@@ -34,10 +35,17 @@ public class GridManager : MonoBehaviour
         _angleStep = DBManager.gridAngleStep;
         _scaleStep = DBManager.gridScaleStep;
 
-        _grid = Instantiate(_gridPrefab);
+        if (!_gridPrefab)
+        {
+            Debug.Log("_gridPrefab is null");
+            return;
+        }
 
+        _grid = Instantiate(_gridPrefab);
         HideGrid();
         _grid.Initialization(_cellWidth);
+
+        EventManager.OnEditModeChanged += OnEditModeChanged;
     }
 
     public void ShowGrid()
@@ -131,5 +139,25 @@ public class GridManager : MonoBehaviour
     {
         _scaleStep = value;
         DBManager.gridScaleStep = value;
+    }
+
+    public void Dispose()
+    {
+        EventManager.OnEditModeChanged -= OnEditModeChanged;
+    }
+
+    private void OnEditModeChanged(bool value)
+    {
+        if (value)
+        {
+            if (_gridEnabled)
+            {
+                ShowGrid();
+            }
+        }
+        else
+        {
+            HideGrid();
+        }
     }
 }
