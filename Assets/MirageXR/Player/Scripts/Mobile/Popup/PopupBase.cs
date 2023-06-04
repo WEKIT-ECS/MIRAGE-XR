@@ -1,14 +1,20 @@
-using i5.Toolkit.Core.VerboseLogging;
 using System;
+using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
 
 public abstract class PopupBase : MonoBehaviour
 {
-    private Action<PopupBase> _onClose;
+    protected Action<PopupBase> _onClose;
+    protected bool _canBeClosedByOutTap = true;
+    protected bool _showBackground = true;
 
-    [HideInInspector] public bool canBeClosedByOutTap = true;
+    private bool _isMarkedToDelete = false;
 
-    public bool isMarkedToDelete { get; private set; } = false;
+    public bool canBeClosedByOutTap => _canBeClosedByOutTap;
+
+    public bool isMarkedToDelete => _isMarkedToDelete;
+
+    public bool showBackground => _showBackground;
 
     public virtual void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -21,7 +27,7 @@ public abstract class PopupBase : MonoBehaviour
 
     public virtual void Close()
     {
-        isMarkedToDelete = true;
+        _isMarkedToDelete = true;
         _onClose?.Invoke(this);
     }
 

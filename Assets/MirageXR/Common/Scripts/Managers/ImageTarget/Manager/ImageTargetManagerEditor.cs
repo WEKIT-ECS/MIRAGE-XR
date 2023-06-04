@@ -19,6 +19,20 @@ public class ImageTargetManagerEditor : ImageTargetManagerBase
         return Task.FromResult(true);
     }
 
+    public override async Task<bool> ResetAsync()
+    {
+        foreach (var pair in _images)
+        {
+            Destroy(pair.Value.gameObject);
+        }
+
+        _images.Clear();
+
+        await Task.Yield();
+
+        return true;
+    }
+
     public override Task<ImageTargetBase> AddImageTarget(ImageTargetModel imageTargetModel, CancellationToken cancellationToken = default)
     {
         var newObject = new GameObject(imageTargetModel.name);
