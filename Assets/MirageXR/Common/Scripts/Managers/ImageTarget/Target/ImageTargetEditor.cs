@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ImageTargetEditor : ImageTargetBase
 {
-    private const float ADDITIONAL_SACLE = 0.1f;
+    private const float ADDITIONAL_SACLE = 0.15f;
 
     private bool _isCenterInViewPort;
 
@@ -13,6 +13,7 @@ public class ImageTargetEditor : ImageTargetBase
         var aspect = (float)_model.texture2D.height / _model.texture2D.width;
         plane.transform.localScale = new Vector3(_model.width * ADDITIONAL_SACLE, _model.width * ADDITIONAL_SACLE, _model.width * aspect * ADDITIONAL_SACLE);
         plane.transform.localPosition = Vector3.zero;
+        plane.transform.localRotation = Quaternion.Euler(0, 180f, 0);
         var material = plane.GetComponentInChildren<MeshRenderer>().material;
         material.mainTexture = _model.texture2D;
     }

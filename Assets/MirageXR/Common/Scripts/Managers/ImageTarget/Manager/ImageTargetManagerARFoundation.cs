@@ -1,14 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MirageXR;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 
 public class ImageTargetManagerARFoundation : ImageTargetManagerBase
 {
-    private const int DELAY = 1000;
+    private const int DELAY = 500;
 
     private ARTrackedImageManager _arTrackedImageManager;
     private bool _libraryIsBusy = false;
@@ -29,6 +29,33 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
         _arTrackedImageManager.enabled = true;
 
         _isInitialized = true;
+
+        return true;
+    }
+
+    public override async Task<bool> ResetAsync()
+    {
+        foreach (var arTrackedImage in _arTrackedImageManager.trackables)
+        {
+            Destroy(arTrackedImage.gameObject);
+        }
+
+        Destroy(_arTrackedImageManager);
+
+        foreach (var pair in _images)
+        {
+            Destroy(pair.Value.gameObject);
+        }
+
+        _images.Clear();
+
+        _onTargetCreated.RemoveAllListeners();
+        _onTargetFound.RemoveAllListeners();
+        _onTargetLost.RemoveAllListeners();
+
+        await Task.Yield();
+
+        await InitializationAsync();
 
         return true;
     }
@@ -112,49 +139,22 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
             cameraParent = mainCamera.transform;
         }
 
-        var arSession = FindObjectOfType<ARSession>();
-        if (!arSession)
-        {
-            var arSessionObject = new GameObject("ARSession", typeof(ARSession), typeof(ARInputManager));
-        }
+        var arSession = Utilities.FindOrCreateComponent<ARSession>();
+        var arInputManager = Utilities.FindOrCreateComponent<ARInputManager>(arSession.gameObject);
 
         await Task.Yield();
 
-        _arTrackedImageManager = FindObjectOfType<ARTrackedImageManager>();
-        if (!_arTrackedImageManager)
-        {
-            var arSessionOrigin = cameraParent.gameObject.GetComponent<ARSessionOrigin>();
-            if (!arSessionOrigin)
-            {
-                arSessionOrigin = cameraParent.gameObject.AddComponent<ARSessionOrigin>();
-            }
+        var arSessionOrigin = Utilities.FindOrCreateComponent<ARSessionOrigin>(cameraParent.gameObject);
+        _arTrackedImageManager = Utilities.FindOrCreateComponent<ARTrackedImageManager>(cameraParent.gameObject);
 
-            arSessionOrigin.camera = mainCamera;
-
-            _arTrackedImageManager = cameraParent.gameObject.AddComponent<ARTrackedImageManager>();
-        }
-
+        arSessionOrigin.camera = mainCamera;
         await Task.Yield();
 
-        var arCameraManager = FindObjectOfType<ARCameraManager>();
-        if (!arCameraManager)
-        {
-            arCameraManager = mainCamera.gameObject.AddComponent<ARCameraManager>();
-        }
+        var arCameraManager = Utilities.FindOrCreateComponent<ARCameraManager>(mainCamera.gameObject);
+        var arCameraBackground = Utilities.FindOrCreateComponent<ARCameraBackground>(mainCamera.gameObject);
+        var arPoseDriver = Utilities.FindOrCreateComponent<ARPoseDriver>(mainCamera.gameObject);
 
-        var arCameraBackground = FindObjectOfType<ARCameraBackground>();
-        if (!arCameraBackground)
-        {
-            arCameraBackground = mainCamera.gameObject.AddComponent<ARCameraBackground>();
-        }
-
-        var arPoseDriver = FindObjectOfType<ARPoseDriver>();
-        if (!arPoseDriver)
-        {
-            arPoseDriver = mainCamera.gameObject.AddComponent<ARPoseDriver>();
-        }
-
-        await Task.Delay(DELAY);
+        //await Task.Delay(DELAY);
 
         _imageTargetHolder = new GameObject("ImageTargetHolder").transform;
 

@@ -37,6 +37,8 @@ public abstract class ImageTargetManagerBase : MonoBehaviour
 
     public abstract Task<bool> InitializationAsync();
 
+    public abstract Task<bool> ResetAsync();
+
     protected abstract void OnEnable();
 
     protected abstract void OnDisable();

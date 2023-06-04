@@ -44,6 +44,11 @@ public class ImageTargetManagerVuforia : ImageTargetManagerBase
         return true;
     }
 
+    public override Task<bool> ResetAsync()
+    {
+        return Task.FromResult(true);
+    }
+
     public override Task<ImageTargetBase> AddImageTarget(ImageTargetModel imageTargetModel, CancellationToken cancellationToken = default)
     {
         var behaviour = CreateImageTargetFromTexture(imageTargetModel.texture2D, imageTargetModel.width, imageTargetModel.name);
