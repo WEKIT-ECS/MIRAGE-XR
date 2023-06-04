@@ -841,5 +841,14 @@ namespace MirageXR
         {
             OnMobileHelpPageChanged?.Invoke(value);
         }
+
+        public delegate void PickPlacedCorrectly();
+
+        public static event PickPlacedCorrectly OnPickPlacedCorrectly;
+
+        public static void NotifyOnPickPlacedCorrectly()
+        {
+            OnPickPlacedCorrectly?.Invoke();
+        }
     }
 }

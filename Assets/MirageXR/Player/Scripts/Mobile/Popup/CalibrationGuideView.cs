@@ -8,6 +8,8 @@ public class CalibrationGuideView : PopupBase
     [SerializeField] private Button _btnClose;
     [SerializeField] private Toggle _toggleDontShow;
 
+    public Button BtnClose => _btnClose;
+
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
         base.Initialization(onClose, args);
