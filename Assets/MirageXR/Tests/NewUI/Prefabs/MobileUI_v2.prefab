@@ -635,9 +635,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _id: user_profile
-  _interactableObject: {fileID: 58198688738722479}
+  _getIdFromName: 0
+  _id: 
+  _interactableObject: {fileID: 0}
   _isPartOfScrollView: 0
+  _delay: 0
 --- !u!114 &1032403361252097349 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3207944297261921981, guid: fb034387717ef1f4782e73b4f5170da2,
@@ -668,9 +670,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _getIdFromName: 0
   _id: activity_create
   _interactableObject: {fileID: 1510575619719851647}
   _isPartOfScrollView: 0
+  _delay: 0
 --- !u!1 &1782133064575145153 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4209833897731170105, guid: fb034387717ef1f4782e73b4f5170da2,
@@ -689,9 +693,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _id: activity_search
-  _interactableObject: {fileID: 1782133064575145153}
+  _getIdFromName: 0
+  _id: 
+  _interactableObject: {fileID: 0}
   _isPartOfScrollView: 0
+  _delay: 0
 --- !u!114 &1784084279162085012 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4185368009574995308, guid: fb034387717ef1f4782e73b4f5170da2,
@@ -3965,6 +3971,11 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4901646514934929851, guid: 791c873db6c341248b94c901507408e1,
+        type: 3}
+      propertyPath: Id
+      value: step_add_augmentation
+      objectReference: {fileID: 0}
     - target: {fileID: 4909537160374036946, guid: 791c873db6c341248b94c901507408e1,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
@@ -4418,6 +4429,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7150771117260833585, guid: 791c873db6c341248b94c901507408e1,
+        type: 3}
+      propertyPath: Id
+      value: step_title
       objectReference: {fileID: 0}
     - target: {fileID: 7252031548220671535, guid: 791c873db6c341248b94c901507408e1,
         type: 3}
@@ -4894,9 +4910,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _id: activity_title
-  _interactableObject: {fileID: 2641556723898899983}
+  _getIdFromName: 0
+  _id: 
+  _interactableObject: {fileID: 0}
   _isPartOfScrollView: 0
+  _delay: 0
 --- !u!1 &5997718102022357527 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3364984415467019994, guid: 791c873db6c341248b94c901507408e1,
@@ -4915,9 +4933,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _id: activity_steps
-  _interactableObject: {fileID: 5997718102022357527}
+  _getIdFromName: 0
+  _id: 
+  _interactableObject: {fileID: 0}
   _isPartOfScrollView: 0
+  _delay: 0
 --- !u!224 &6104528497638386848 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2970506559561805933, guid: 791c873db6c341248b94c901507408e1,
@@ -4942,9 +4962,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _id: activity_calibration
-  _interactableObject: {fileID: 7128108699529588874}
+  _getIdFromName: 0
+  _id: 
+  _interactableObject: {fileID: 0}
   _isPartOfScrollView: 0
+  _delay: 0
 --- !u!1 &8407128297226030386 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 658335944890438143, guid: 791c873db6c341248b94c901507408e1,
@@ -4963,6 +4985,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _id: activity_description
-  _interactableObject: {fileID: 8407128297226030386}
+  _getIdFromName: 0
+  _id: 
+  _interactableObject: {fileID: 0}
   _isPartOfScrollView: 0
+  _delay: 0

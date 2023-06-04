@@ -1,8 +1,6 @@
 ﻿using i5.Toolkit.Core.VerboseLogging;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace MirageXR
 {
@@ -389,11 +387,22 @@ namespace MirageXR
                 AppLog.LogTrace("Trying to load audio: " + completeAudioName);
                 WWW www = new WWW(completeAudioName);
                 yield return www;
-                AudioClip audioClip = www.GetAudioClip(false, false, AudioType.WAV);
-                audioPlayer.clip = audioClip;
-                audioPlayer.playOnAwake = false;
-                //audioPlayer.loop = false;
-                isReady = true;
+
+                var audioType = GetAudioType(filename);
+
+                if (audioType != AudioType.UNKNOWN)
+                {
+                    AudioClip audioClip = www.GetAudioClip(false, false, audioType);
+
+                    audioPlayer.clip = audioClip;
+                    audioPlayer.playOnAwake = false;
+                    //audioPlayer.loop = false;
+                    isReady = true;
+                }
+                else
+                {
+                    AppLog.LogWarning("The file: \n" + completeAudioName + "\n has an unknown audio type. Please use .wav or .mp3");
+                }
 
                 // Online file
                 /*
@@ -409,11 +418,29 @@ namespace MirageXR
             }
         }
 
+        private AudioType GetAudioType(string filename)
+        {
+
+            if (filename.EndsWith("wav"))
+            {
+                return AudioType.WAV;
+            }
+            else if (filename.EndsWith("mp3"))
+            {
+                return AudioType.MPEG;
+            }
+            else
+            {
+                return AudioType.UNKNOWN;
+            }
+        }
+
         private void OnDestroy()
         {
             if (_contentObject != null)
                 Destroy(_contentObject);
         }
+
 
         public float getAudioLength()
         {

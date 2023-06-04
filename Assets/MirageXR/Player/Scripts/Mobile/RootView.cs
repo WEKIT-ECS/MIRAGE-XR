@@ -17,12 +17,10 @@ public class RootView : BaseView
     [SerializeField] private Toggle _toggleSteps;
     [SerializeField] private PageView _pageView;
     [SerializeField] private CalibrationGuideView _calibrationGuideViewPrefab;
-    [SerializeField] private TutorialDialog _tutorialDialog;
 
     public ActivityListView activityListView => _activityListView;
     public ContentListView contentListView => _contentListView;
     public StepsListView stepsListView => _stepsListView;
-    public TutorialDialog TutorialDialog => _tutorialDialog;
     public PageView PageView => _pageView;
     public Toggle ToggleSteps => _toggleSteps;
     public Toggle ToggleView => _toggleView;
@@ -62,7 +60,6 @@ public class RootView : BaseView
         _activityListView.Initialization(this);
         _contentListView.Initialization(this);
         _stepsListView.Initialization(this);
-        _tutorialDialog.Init();
     }
 
     private void OnDestroy()
