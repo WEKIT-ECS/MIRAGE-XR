@@ -1,10 +1,13 @@
 using System;
+using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class GridView : PopupBase
 {
+    private static GridManager gridManager => RootObject.Instance.gridManager;
+
     public class IntHolder : ObjectHolder<int> { }
 
     [SerializeField] private Button _btnClose;
@@ -19,10 +22,16 @@ public class GridView : PopupBase
     {
         base.Initialization(onClose, args);
 
-        InitClampedScrollRect(_clampedScrollGridStep, _templatePrefab, 15, "cm");
-        InitClampedScrollRect(_clampedScrollAngleStep, _templatePrefab, 15, "°");
-        InitClampedScrollRect(_clampedScrollScaleStep, _templatePrefab, 15, "%");
+        InitClampedScrollRect(_clampedScrollGridStep, _templatePrefab, 50, "cm");
+        InitClampedScrollRect(_clampedScrollAngleStep, _templatePrefab, 50, "°");
+        InitClampedScrollRect(_clampedScrollScaleStep, _templatePrefab, 50, "%");
 
+        _activateGridToggle.isOn = gridManager.gridEnabled;
+        _snapToGridToggle.isOn = gridManager.snapEnabled;
+
+        _clampedScrollGridStep.currentItemIndex = ((int)gridManager.cellWidth / 5) - 1;
+        _clampedScrollAngleStep.currentItemIndex = ((int)gridManager.angleStep / 5) - 1;
+        _clampedScrollScaleStep.currentItemIndex = ((int)gridManager.scaleStep / 5) - 1;
 
         _btnClose.onClick.AddListener(Close);
         _activateGridToggle.onValueChanged.AddListener(OnActivateGridToggleValueChanged);
@@ -45,32 +54,49 @@ public class GridView : PopupBase
             obj.name = i.ToString();
             obj.SetActive(true);
             obj.AddComponent<IntHolder>().item = i;
-            obj.GetComponentInChildren<TMP_Text>().text = i.ToString() + " " + text;
+            obj.GetComponentInChildren<TMP_Text>().text = $"{i} {text}";
         }
     }
 
-    private void OnSnapToGridToggleValueChanged(bool arg0)
+    private void OnSnapToGridToggleValueChanged(bool value)
     {
-        // TODO
+        if (value)
+        {
+            gridManager.EnableSnapToGrid();
+        }
+        else
+        {
+            gridManager.DisableSnapToGrid();
+        }
     }
 
-    private void OnActivateGridToggleValueChanged(bool arg0)
+    private void OnActivateGridToggleValueChanged(bool value)
     {
-        // TODO
+        if (value)
+        {
+            gridManager.EnableGrid();
+        }
+        else
+        {
+            gridManager.DisableGrid();
+        }
     }
 
     private void OnItemGridStepChanged(Component item)
     {
-        // TODO
+        var value = (float)item.GetComponent<IntHolder>().item;
+        gridManager.SetCellWidth(value);
     }
 
     private void OnItemAngleStepChanged(Component item)
     {
-        // TODO
+        var value = (float)item.GetComponent<IntHolder>().item;
+        gridManager.SetAngleStep(value);
     }
 
     private void OnItemScaleStepChanged(Component item)
     {
-        // TODO
+        var value = (float)item.GetComponent<IntHolder>().item;
+        gridManager.SetScaleStep(value);
     }
 }
