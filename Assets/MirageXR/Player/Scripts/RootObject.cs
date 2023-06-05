@@ -13,6 +13,7 @@ namespace MirageXR
         [SerializeField] private CalibrationManager _calibrationManager;
         [SerializeField] private FloorManagerWrapper _floorManager;
         [SerializeField] private PointCloudManager _pointCloudManager;
+        [SerializeField] private BrandManager _brandManager;
 
         private ActivityManager _activityManager;
         private AugmentationManager _augmentationManager;
@@ -25,6 +26,8 @@ namespace MirageXR
         public CalibrationManager calibrationManager => _calibrationManager;
 
         public FloorManagerWrapper floorManager => _floorManager;
+
+        public BrandManager brandManager => _brandManager;
 
         public ActivityManager activityManager => _activityManager;
 
@@ -66,7 +69,7 @@ namespace MirageXR
             }
         }
 
-        private async Task Initialization()
+        private async Task Initialization() // TODO: create base Manager class
         {
             if (_isInitialized)
             {
@@ -75,6 +78,7 @@ namespace MirageXR
 
             try
             {
+                _brandManager ??= new GameObject("BrandManager").AddComponent<BrandManager>();
                 _imageTargetManager ??= new GameObject("ImageTargetManagerWrapper").AddComponent<ImageTargetManagerWrapper>();
                 _calibrationManager ??= new GameObject("CalibrationManager").AddComponent<CalibrationManager>();
                 _floorManager ??= new GameObject("FloorManagerWrapper").AddComponent<FloorManagerWrapper>();
@@ -86,10 +90,12 @@ namespace MirageXR
                 _editorSceneService = new EditorSceneService();
                 _workplaceManager = new WorkplaceManager();
 
+                _brandManager.Initialization();
                 await _imageTargetManager.InitializationAsync();
                 await _floorManager.InitializationAsync();
                 await _calibrationManager.InitializationAsync();
                 await _pointCloudManager.InitializationAsync();
+
 
                 _activityManager.Subscription();
 
