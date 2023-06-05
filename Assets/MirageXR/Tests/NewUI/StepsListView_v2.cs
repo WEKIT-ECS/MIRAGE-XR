@@ -498,7 +498,8 @@ public class StepsListView_v2 : BaseView
 
         for (var i = 0; i < _stepsList.Count; i++)
         {
-            _stepsList[i].transform.parent = _listHorizontalContent;
+            _stepsList[i].transform.SetParent(_listHorizontalContent);
+            _stepsList[i].transform.localPosition = Vector3.zero;
         }
 
         Canvas.ForceUpdateCanvases();
@@ -509,7 +510,8 @@ public class StepsListView_v2 : BaseView
     {
         for (var i = 0; i < _stepsList.Count; i++)
         {
-            _stepsList[i].transform.parent = _listVerticalContent;
+            _stepsList[i].transform.SetParent(_listVerticalContent);
+            _stepsList[i].transform.localPosition = Vector3.zero;
         }
 
         _addStep.SetSiblingIndex(_addStepSiblingIndex);
