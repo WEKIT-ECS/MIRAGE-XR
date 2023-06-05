@@ -500,6 +500,12 @@ MonoBehaviour:
     type: 3}
   _prefabEditorPlane: {fileID: 4068327573183295800, guid: 9540ea72376a449458b8522ecc456196,
     type: 3}
+  _onDetectionEnabled:
+    m_PersistentCalls:
+      m_Calls: []
+  _onDetectionDisabled:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &636839176 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6061520891645277162, guid: b20febc21a242b143aa20ea181ba5e8e,
@@ -603,6 +609,10 @@ MonoBehaviour:
   defaultIconColor: {r: 1, g: 1, b: 1, a: 0.7843137}
   defaultUIPathColor: {r: 1, g: 1, b: 1, a: 0.70980394}
   defaultNextPathColor: {r: 0, g: 1, b: 0.90588236, a: 0.78431374}
+  _defaultCalibrationMarker: {fileID: 2800000, guid: b463dcee3508044448742f24bf93043d,
+    type: 3}
+  _defaultCalibrationMarkerPdf: {fileID: 4900000, guid: 315c2cb4b67930c44925a5d151997f25,
+    type: 3}
 --- !u!1 &807537237
 GameObject:
   m_ObjectHideFlags: 0
@@ -1192,6 +1202,7 @@ MonoBehaviour:
   _calibrationManager: {fileID: 1209410220}
   _floorManager: {fileID: 547987041}
   _pointCloudManager: {fileID: 1139113737}
+  _brandManager: {fileID: 802172368}
 --- !u!4 &1888399833
 Transform:
   m_ObjectHideFlags: 0
