@@ -1,5 +1,4 @@
-﻿using i5.Toolkit.Core.ServiceCore;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using Microsoft.MixedReality.Toolkit.UI;
 
@@ -13,6 +12,9 @@ namespace MirageXR
         [SerializeField] private GameObject header;
         [SerializeField] private GameObject lockButton;
         [SerializeField] private GameObject activityCreationButton;
+        [SerializeField] private Toggle _toggleGrid;
+        [SerializeField] private GridSettings _gridMenu;
+        [SerializeField] private Transform _loginPanelPos;
 
         public GameObject TutorialButton => tutorialButton;
         public GameObject Header => header;
@@ -32,6 +34,8 @@ namespace MirageXR
             EventManager.OnEditorLoaded += HideMenu;
             EventManager.OnRecorderExit += ShowMenu;
 
+            _toggleGrid.onValueChanged.AddListener(OnToggleGridValueChanged);
+
             // Hide the user welcome text if no one is logged into the Moodle
             if (!DBManager.LoggedIn)
             {
@@ -42,6 +46,18 @@ namespace MirageXR
             versionLabel.text = Application.productName + " v" + Application.version.Replace("-$branch", "");
 
             SetupListeners();
+        }
+
+        private void OnToggleGridValueChanged(bool value)
+        {
+            if (value)
+            {
+                _gridMenu.Show(_loginPanelPos.GetPose());
+            }
+            else
+            {
+                _gridMenu.Hide();
+            }
         }
 
         private void SetupListeners()
