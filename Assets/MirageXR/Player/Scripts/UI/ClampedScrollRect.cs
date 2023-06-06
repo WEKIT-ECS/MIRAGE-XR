@@ -1,4 +1,3 @@
-using i5.Toolkit.Core.VerboseLogging;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -84,7 +83,10 @@ public class ClampedScrollRect : ScrollRect
     protected override void OnEnable()
     {
         base.OnEnable();
-        SetCurrentItem(_index);
+        if (content.childCount > 0)
+        {
+            SetCurrentItem(_index);
+        }
     }
 
     protected override void LateUpdate()
@@ -189,7 +191,7 @@ public class ClampedScrollRect : ScrollRect
             }
         }
 
-        AppLog.LogWarning($"can't get child with index {index}");
+        Debug.Log($"can't get child with index {index}");
         return null;
     }
 
@@ -224,7 +226,8 @@ public class ClampedScrollRect : ScrollRect
         var childTransform = GetContentItem(0);
         if (!childTransform)
         {
-            AppLog.LogWarning("content must have active child");
+            Debug.LogError("content must have active child");
+            return;
         }
 
         var spacing = _layoutGroup ? _layoutGroup.spacing : 0;
@@ -237,7 +240,6 @@ public class ClampedScrollRect : ScrollRect
         _valid = viewportSize < contentSize;
         if (!_valid && contentSize > 0 && viewportSize > 0)
         {
-            AppLog.LogWarning("content must be larger then viewport");
             LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)content.transform);
             _updateInLateUpdate = true;
         }
