@@ -30,6 +30,8 @@ namespace MirageXR
 
         public bool userIsEnroled => _container.hasDeadline;
 
+        public Button BtnMain => _btnMain;
+
         public void Init(SessionContainer container)
         {
             _container = container;

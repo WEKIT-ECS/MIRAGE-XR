@@ -24,7 +24,7 @@ namespace MirageXR
         {
             EventManager.TaskStationEditorEnabled -= TaskStationEditorEnabledListener;
             Init();
-            SetupArrow();            
+            SetupArrow();
         }
 
         protected override void Init()

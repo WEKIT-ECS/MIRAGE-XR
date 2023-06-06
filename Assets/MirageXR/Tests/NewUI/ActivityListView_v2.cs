@@ -1,19 +1,23 @@
 using DG.Tweening;
+using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
-using System;
-using TMPro;
-using i5.Toolkit.Core.VerboseLogging;
 
 public class ActivityListView_v2 : BaseView
 {
     private const float HIDED_SIZE = 80f;
     private const float HIDE_ANIMATION_TIME = 0.5f;
+    private const string TUTORIAL_ACTIVITY_ID = "session-2023-02-24_11-18-29";
 
     [SerializeField] private Button _btnFilter;
     [SerializeField] private Transform _listTransform;
@@ -245,7 +249,7 @@ public class ActivityListView_v2 : BaseView
         {
             SessionContainer sessionContainer = new SessionContainer { Session = activity };
 
-            if(sessionContainer.hasDeadline)
+            if (sessionContainer.hasDeadline)
             {
                 if (DateTime.TryParse(sessionContainer.Session.deadline, out var date))
                 {
@@ -288,5 +292,85 @@ public class ActivityListView_v2 : BaseView
         }
 
         return dictionary;
+    }
+
+    public async Task CreateTutorialActivity()
+    {
+        await DeleteTutorialActivity();
+#if UNITY_ANDROID
+        StartCoroutine(MoveTutorialActivityToLocalFilesAndroid());
+#elif UNITY_IOS
+        MoveTutorialActivityToLocalFilesIOS();
+#endif
+    }
+
+    public async Task DeleteTutorialActivity()
+    {
+        var tutorialActivity = await TryGetTutorialFromLocalFiles();
+
+        if (tutorialActivity != null)
+        {
+            LocalFiles.TryDeleteActivity(tutorialActivity.id);
+
+            UpdateView();
+        }
+    }
+
+    private IEnumerator MoveTutorialActivityToLocalFilesAndroid()
+    {
+        using (UnityWebRequest www = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "TutorialActivity.zip")))
+        {
+            yield return www.Send();
+
+            MoveAndUnpackTutorialZipFileAndroid(www);
+        }
+    }
+
+    private async void MoveAndUnpackTutorialZipFileAndroid(UnityWebRequest www)
+    {
+        string savePath = Path.Combine(Application.persistentDataPath, "TutorialActivity.zip");
+
+        var stream = new FileStream(savePath, FileMode.OpenOrCreate);
+
+        await stream.WriteAsync(www.downloadHandler.data);
+
+        await ZipUtilities.ExtractZipFileAsync(stream, Application.persistentDataPath);
+
+        stream.Close();
+
+        File.Delete(savePath);
+
+        CreateTutorialActivityCard();
+    }
+
+    private async void MoveTutorialActivityToLocalFilesIOS()
+    {
+        var stream = new FileStream(Path.Combine(Application.streamingAssetsPath, "TutorialActivity.zip"), FileMode.OpenOrCreate);
+
+        await ZipUtilities.ExtractZipFileAsync(stream, Application.persistentDataPath);
+
+        stream.Close();
+
+        CreateTutorialActivityCard();
+    }
+
+    private async void CreateTutorialActivityCard()
+    {
+        var t = await TryGetTutorialFromLocalFiles();
+
+        if (t != null)
+        {
+            var sessionContatiner = new SessionContainer { Activity = t };
+
+            _content.Insert(0, sessionContatiner);
+            UpdateView();
+        }
+    }
+
+    private async Task<Activity> TryGetTutorialFromLocalFiles()
+    {
+        var filePath = Path.Combine(Application.persistentDataPath, "session-2023-02-24_11-18-29-activity.json");
+        var activity = await LocalFiles.ReadActivityAsync(filePath);
+        return activity;
     }
 }

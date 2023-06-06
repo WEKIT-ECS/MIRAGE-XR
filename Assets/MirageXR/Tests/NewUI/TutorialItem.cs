@@ -1,28 +1,46 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class TutorialItem : MonoBehaviour
 {
     private const float THRESHOLD_CHANGE = 0.05f;
 
+    [SerializeField] private bool _getIdFromName;
     [SerializeField] private string _id;
     [SerializeField] private GameObject _interactableObject;
     [SerializeField] private bool _isPartOfScrollView;
+    [SerializeField] private float _delay;
 
     private Vector3 _lastTraceablePosition;
     private bool _isTrackingActivated;
     private Transform _traceable;
 
-    public string id => _id;
+    public string Id => _getIdFromName ? name : _id;
+    public Button Button => _interactableObject.GetComponentInChildren<Button>();
 
-    public Button button => _interactableObject.GetComponent<Button>();
+    public Toggle Toggle => _interactableObject.GetComponent<Toggle>();
 
-    public Toggle toggle => _interactableObject.GetComponent<Toggle>();
+    public TMP_InputField InputField => _interactableObject.GetComponent<TMP_InputField>();
 
-    public TMP_InputField inputField => _interactableObject.GetComponent<TMP_InputField>();
+    public bool IsPartOfScrollView => _isPartOfScrollView;
 
-    public bool isPartOfScrollView => _isPartOfScrollView;
+    public float Delay => _delay;
+
+    public void SetId(string id)
+    {
+        this._id = id;
+    }
+
+    public void SetInteractableObject(GameObject gameObject)
+    {
+        this._interactableObject = gameObject;
+    }
+
+    public void SetDelay(float delay)
+    {
+        this._delay = delay;
+    }
 
     private void Update()
     {
@@ -59,7 +77,7 @@ public class TutorialItem : MonoBehaviour
 
     public void ScrollToTop()
     {
-        if (_isPartOfScrollView)
+        if (IsPartOfScrollView)
         {
             var scrollRect = GetComponentInParent<ScrollRect>();
             if (scrollRect)
