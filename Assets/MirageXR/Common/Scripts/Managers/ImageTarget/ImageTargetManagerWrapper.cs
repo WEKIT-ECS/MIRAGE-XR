@@ -173,6 +173,11 @@ public class ImageTargetManagerWrapper : MonoBehaviour
         }
     }
 
+    public async Task ResetAsync()
+    {
+         await _imageTargetManager.ResetAsync();
+    }
+
     private void OnDestroy()
     {
         if (_imageTargetManager)
