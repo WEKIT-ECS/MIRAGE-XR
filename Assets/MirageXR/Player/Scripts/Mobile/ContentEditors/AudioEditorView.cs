@@ -8,10 +8,13 @@ using UnityEngine.UI;
 
 public class AudioEditorView : PopupEditorBase
 {
+    public class IntHolder : ObjectHolder<int> { }
+
     private const float DEFAULT_RANGE = 3.0f;
     private const float MIN_RANGE = 0.0f;
     private const float MAX_RANGE = 10.0f;
     private const float REWIND_VALUE = 10f;
+    private float _currentRangeValue;
 
     public override ContentType editorForType => ContentType.AUDIO;
 
@@ -22,14 +25,19 @@ public class AudioEditorView : PopupEditorBase
     [SerializeField] private Button _btnRewindBack;
     [SerializeField] private Button _btnRewindForward;
 
-    [SerializeField] private Toggle _toggleTrigger;
+    //[SerializeField] private Toggle _toggleTrigger;
     [SerializeField] private Toggle _toggle3D;
-    [SerializeField] private Toggle _toggle2D;
+    //[SerializeField] private Toggle _toggle2D;
     [SerializeField] private Toggle _toggleLoop;
-    [SerializeField] private Slider _sliderRange;
+    //[SerializeField] private Slider _sliderRange;
+    [SerializeField] private Button _btnIncreaseRange;
+    [SerializeField] private Button _btnDecreaseRange;
+
     [SerializeField] private TMP_Text _txtSliderRangeValue;
     [SerializeField] private GameObject _panelRange;
-    [SerializeField] private TMP_InputField _inputTriggerStepNumber;
+    //[SerializeField] private TMP_InputField _inputTriggerStepNumber;
+    [SerializeField] private ClampedScrollRect _clampedScrollJumpToStep;
+    [SerializeField] private GameObject _templatePrefab;
 
     [SerializeField] private TMP_Text _txtTimer;
     [SerializeField] private Slider _sliderPlayer;
@@ -51,11 +59,14 @@ public class AudioEditorView : PopupEditorBase
     {
         base.Initialization(onClose, args);
 
+        InitClampedScrollRect(_clampedScrollJumpToStep, _templatePrefab, 15, "cm");
+
         _toggle3D.isOn = false;
         _toggleLoop.isOn = false;
-        _sliderRange.minValue = MIN_RANGE;
-        _sliderRange.maxValue = MAX_RANGE;
-        _sliderRange.value = DEFAULT_RANGE;
+        //_sliderRange.minValue = MIN_RANGE;
+        //_sliderRange.maxValue = MAX_RANGE;
+        //_sliderRange.value = DEFAULT_RANGE;
+        _currentRangeValue = DEFAULT_RANGE;
         _txtSliderRangeValue.text = DEFAULT_RANGE.ToString("0");
         _panelRange.SetActive(false);
 
@@ -65,14 +76,17 @@ public class AudioEditorView : PopupEditorBase
         _btnPause.onClick.AddListener(OnPlayingPaused);
         _btnRewindBack.onClick.AddListener(OnRewindBack);
         _btnRewindForward.onClick.AddListener(OnRewindForward);
+        _btnIncreaseRange.onClick.AddListener(OnIncreaseRange);
+        _btnDecreaseRange.onClick.AddListener(OnDecreaseRange);
 
         _sliderPlayer.minValue = 0;
         _sliderPlayer.maxValue = 1f;
         _sliderPlayer.onValueChanged.AddListener(OnSliderPlayerValueChanged);
+        _clampedScrollJumpToStep.onItemChanged.AddListener(OnItemJumpToStepChanged);
 
-        _toggleTrigger.onValueChanged.AddListener(OnToggleTriggerValueChanged);
+        //_toggleTrigger.onValueChanged.AddListener(OnToggleTriggerValueChanged);
         _toggle3D.onValueChanged.AddListener(On3DSelected);
-        _sliderRange.onValueChanged.AddListener(OnSliderRangeValueChanged);
+        //_sliderRange.onValueChanged.AddListener(OnSliderRangeValueChanged);
 
         if (_content != null && !string.IsNullOrEmpty(_content.url))
         {
@@ -81,8 +95,8 @@ public class AudioEditorView : PopupEditorBase
             var trigger = _step.triggers.Find(tr => tr.id == _content.poi);
             if (trigger != null)
             {
-                _toggleTrigger.isOn = true;
-                _inputTriggerStepNumber.text = trigger.value;
+                //_toggleTrigger.isOn = true;
+                //_inputTriggerStepNumber.text = trigger.value; // TODO
             }
         }
         else
@@ -93,6 +107,18 @@ public class AudioEditorView : PopupEditorBase
 
         SetPlayerActive(true);
         UpdateSliderPlayerAndTimer();
+    }
+
+    private void InitClampedScrollRect(ClampedScrollRect clampedScrollRect, GameObject templatePrefab, int maxCount, string text)
+    {
+        for (int i = 5; i <= maxCount; i += 5)
+        {
+            var obj = Instantiate(templatePrefab, clampedScrollRect.content, false);
+            obj.name = i.ToString();
+            obj.SetActive(true);
+            obj.AddComponent<IntHolder>().item = i;
+            obj.GetComponentInChildren<TMP_Text>().text = i.ToString() + " " + text;
+        }
     }
 
     private void OnDestroy()
@@ -114,13 +140,14 @@ public class AudioEditorView : PopupEditorBase
         if (parameters.Length == 3)
         {
             _toggle3D.isOn = parameters[0] == "3d";
-            _toggle2D.isOn = !_toggle3D.isOn;
+            //_toggle2D.isOn = !_toggle3D.isOn;
             _panelRange.SetActive(_toggle3D.isOn);
             _toggleLoop.isOn = parameters[1] == "1";
             if (int.TryParse(parameters[2], out var value))
             {
                 _txtSliderRangeValue.text = parameters[2];
-                _sliderRange.value = value;
+                //_sliderRange.value = value;
+                _currentRangeValue = value;
             }
         }
     }
@@ -298,6 +325,25 @@ public class AudioEditorView : PopupEditorBase
         _txtSliderRangeValue.text = value.ToString("0");
     }
 
+    private void OnIncreaseRange()
+    {
+        if (_currentRangeValue < MAX_RANGE)
+        {
+            _currentRangeValue++;
+        }
+
+        _txtSliderRangeValue.text = _currentRangeValue.ToString("0");
+    }
+
+    private void OnDecreaseRange()
+    {
+        if (_currentRangeValue > MIN_RANGE)
+        {
+            _currentRangeValue--;
+        }
+        _txtSliderRangeValue.text = _currentRangeValue.ToString("0");
+    }
+
     private void OnSliderPlayerValueChanged(float value)
     {
         _audioSource.time = _audioClip.length * value;
@@ -308,22 +354,27 @@ public class AudioEditorView : PopupEditorBase
         if (value && activityManager.IsLastAction(_step))
         {
             Toast.Instance.Show("This is the last step. The trigger is disabled!\n Add a new step and try again.");
-            _toggleTrigger.onValueChanged.RemoveListener(OnToggleTriggerValueChanged);
-            _toggleTrigger.isOn = false;
-            _toggleTrigger.onValueChanged.AddListener(OnToggleTriggerValueChanged);
+            //_toggleTrigger.onValueChanged.RemoveListener(OnToggleTriggerValueChanged);
+            //_toggleTrigger.isOn = false;
+            //_toggleTrigger.onValueChanged.AddListener(OnToggleTriggerValueChanged);
             return;
         }
 
         if (value)
         {
             _toggleLoop.isOn = false;
-            _inputTriggerStepNumber.transform.parent.gameObject.SetActive(true);
+            //_inputTriggerStepNumber.transform.parent.gameObject.SetActive(true); // TODO
         }
         else
         {
-            _inputTriggerStepNumber.transform.parent.gameObject.SetActive(false);
+            //_inputTriggerStepNumber.transform.parent.gameObject.SetActive(false); / TODO
         }
         _toggleLoop.interactable = _toggle3D.isOn && !value;
+    }
+
+    private void OnItemJumpToStepChanged(Component item)
+    {
+        // TODO
     }
 
     protected override void OnAccept()
@@ -357,20 +408,20 @@ public class AudioEditorView : PopupEditorBase
         _content.scale = 0.5f;
         _content.url = $"http://{_fileName}";
 
-        if (_inputTriggerStepNumber.text == "" && _toggleTrigger.isOn)
-        {
-            Toast.Instance.Show("Input field is empty.");
-            return;
-        }
+        //if (_inputTriggerStepNumber.text == "" && _toggleTrigger.isOn)
+        //{
+            //Toast.Instance.Show("Input field is empty.");
+            //return;
+        //}
 
-        if (_toggleTrigger.isOn)
+        /*if (_toggleTrigger.isOn)
         {
             _step.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, _content.poi, _audioClip.length, _inputTriggerStepNumber.text);
-        }
-        else
+        }*/
+        /*else
         {
             _step.RemoveArlemTrigger(_content);
-        }
+        }*/
 
         SaveLoadAudioUtilities.Save(filePath, _audioClip);
 
