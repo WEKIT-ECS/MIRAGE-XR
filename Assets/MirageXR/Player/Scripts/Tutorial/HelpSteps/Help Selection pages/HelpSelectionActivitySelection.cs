@@ -1,7 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
 
 namespace MirageXR
 {
@@ -20,7 +17,6 @@ namespace MirageXR
             _popup.CreateNewSelectionButton("How to create a new activity").onClick.AddListener(Edit);
             _popup.CreateNewSelectionButton("How to create an account and login").onClick.AddListener(CreateAccount);
         }
-
 
         private void Search()
         {
