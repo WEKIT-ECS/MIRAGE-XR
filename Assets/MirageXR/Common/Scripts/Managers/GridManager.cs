@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using MirageXR;
 using UnityEngine;
 
@@ -16,6 +17,25 @@ public class GridManager : MonoBehaviour, IDisposable
     private float _cellWidth = 10f;
     private float _angleStep = 10f;
     private float _scaleStep = 10f;
+
+    private readonly List<string> _optionsCellSize = new List<string> { "5 cm", "6.25 cm", "10 cm", "12.5 cm", "15 cm", "25 cm" };
+    private readonly List<float> _valuesCellSize = new List<float> { 5f, 6.25f, 10f, 12.5f, 15f, 25f };
+    private readonly List<string> _optionsAngleStep = new List<string> { "5°", "10°", "15°" };
+    private readonly List<float> _valuesAngleStep = new List<float> { 5f, 10f, 15f };
+    private readonly List<string> _optionsScaleStep = new List<string> { "5%", "10%", "15%" };
+    private readonly List<float> _valuesScaleStep = new List<float> { 5f, 10f, 15f };
+
+    public List<string> optionsCellSize => _optionsCellSize;
+
+    public List<float> valuesCellSize => _valuesCellSize;
+
+    public List<string> optionsAngleStep => _optionsAngleStep;
+
+    public List<float> valuesAngleStep => _valuesAngleStep;
+
+    public List<string> optionsScaleStep => _optionsScaleStep;
+
+    public List<float> valuesScaleStep => _valuesScaleStep;
 
     public bool gridEnabled => _gridEnabled;
 
@@ -96,7 +116,7 @@ public class GridManager : MonoBehaviour, IDisposable
         _gridEnabled = true;
         DBManager.showGrid = _gridEnabled;
 
-        if (RootObject.Instance.floorManager.isFloorDetected)
+        if (floorManager.isFloorDetected)
         {
             ShowGrid();
         }
@@ -150,7 +170,7 @@ public class GridManager : MonoBehaviour, IDisposable
     {
         if (value)
         {
-            if (_gridEnabled)
+            if (_gridEnabled && floorManager.isFloorDetected)
             {
                 ShowGrid();
             }

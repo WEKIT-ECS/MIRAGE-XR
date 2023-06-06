@@ -41,6 +41,11 @@ public class Grid : MonoBehaviour
 
     private void UpdatePosition()
     {
+        if (!transform.parent)
+        {
+            return;
+        }
+
         var cameraPosition = _cameraTransform.position;
         var localCameraPosition = transform.parent.InverseTransformPoint(cameraPosition);
         var scale = transform.localScale;
