@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
+using i5.Toolkit.Core.VerboseLogging;
+using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
-using MirageXR;
-using i5.Toolkit.Core.VerboseLogging;
 
 public class PopupsViewer : MonoBehaviour
 {
@@ -70,7 +70,7 @@ public class PopupsViewer : MonoBehaviour
         popup.transform.SetAsLastSibling();
         var lastSiblingIndex = popup.transform.GetSiblingIndex();
         _btnBackground.transform.SetSiblingIndex(lastSiblingIndex - 1);
-        _btnBackground.gameObject.SetActive(true);
+        _btnBackground.gameObject.SetActive(popup.showBackground);
     }
 
     private void OnOutTap()
@@ -85,6 +85,7 @@ public class PopupsViewer : MonoBehaviour
         {
             popup.Close();
         }
+
         EventManager.NotifyOnTutorialPopupCloseClicked();
     }
 

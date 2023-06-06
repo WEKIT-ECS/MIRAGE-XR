@@ -131,6 +131,7 @@ public class GhostEditorView : PopupEditorBase
         {
             File.Delete(filePath);
         }
+
         EventManager.DeactivateObject(content);
     }
 }

@@ -25,7 +25,7 @@ namespace MirageXR
 
 #if UNITY_ANDROID || UNITY_IOS
 
-        public const string AugmentationsListFile = "MobileAugmentationListFile";
+        private const string augmentationsListFile = "MobileAugmentationListFile";
 #else
         private const string AugmentationsListFile = "HololensAugmentationListFile";
 #endif
@@ -80,7 +80,7 @@ namespace MirageXR
         public List<ContentType> GetListOfAugmentations()
         {
             var listOfAugmentations = Enum.GetValues(typeof(ContentType)).OfType<ContentType>().ToList();
-            var augmentationListFile = Resources.Load<TextAsset>(AugmentationsListFile);
+            var augmentationListFile = Resources.Load<TextAsset>(augmentationsListFile);
             if (augmentationListFile != null)
             {
                 var arrayOfAugmentations = augmentationListFile.ToString().Split('\n');
