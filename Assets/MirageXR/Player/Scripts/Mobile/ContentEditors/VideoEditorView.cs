@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using DG.Tweening;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +11,8 @@ public class VideoEditorView : PopupEditorBase
     private const string HTTP_PREFIX = "http://";
     private const string LANDSCAPE = "L";
     private const string PORTRAIT = "P";
+    private const float HIDED_SIZE = 100f;
+    private const float HIDE_ANIMATION_TIME = 0.5f;
 
     public override ContentType editorForType => ContentType.VIDEO;
 
@@ -19,6 +22,11 @@ public class VideoEditorView : PopupEditorBase
     [SerializeField] private Button _btnOpenGallery;
     [SerializeField] private Toggle _toggleTrigger;
     [SerializeField] private Toggle _toggleOrientation;
+    [Space]
+    [SerializeField] private Button _btnArrow;
+    [SerializeField] private RectTransform _panel;
+    [SerializeField] private GameObject _arrowDown;
+    [SerializeField] private GameObject _arrowUp;
 
     private string _newFileName;
     private bool _videoWasRecorded;
@@ -33,6 +41,11 @@ public class VideoEditorView : PopupEditorBase
         _toggleTrigger.onValueChanged.AddListener(OnToggleTriggerValueChanged);
         _orientation = true;
         _toggleOrientation.isOn = _orientation;
+
+        _btnArrow.onClick.AddListener(OnArrowButtonPressed);
+        _arrowDown.SetActive(true);
+        _arrowUp.SetActive(false);
+
         UpdateView();
 
     }
@@ -189,5 +202,23 @@ public class VideoEditorView : PopupEditorBase
                 File.Move(sourcePath, destPath);
             }
         });
+    }
+
+    private void OnArrowButtonPressed()
+    {
+        if (_arrowDown.activeSelf)
+        {
+            var hidedSize = HIDED_SIZE;
+            _panel.DOAnchorPosY(-_panel.rect.height + hidedSize, HIDE_ANIMATION_TIME);
+            _arrowDown.SetActive(false);
+            _arrowUp.SetActive(true);
+            //RootView_v2.Instance.HideBaseView();
+        }
+        else
+        {
+            _panel.DOAnchorPosY(0.0f, HIDE_ANIMATION_TIME);
+            _arrowDown.SetActive(true);
+            _arrowUp.SetActive(false);
+        }
     }
 }
