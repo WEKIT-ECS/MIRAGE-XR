@@ -83,7 +83,6 @@ public class FloorManagerEditor : FloorManagerBase
         }
 
         _enableColliders = true;
-        _onFloorDetected = onFloorDetected;
 
         UpdatePlanes();
         _onFloorDetected = onFloorDetected;
