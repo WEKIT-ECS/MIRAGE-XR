@@ -46,7 +46,9 @@ public class SpatialMapManager : MonoBehaviour
             foreach (MeshCollider spatialMapMesh in spatialMapMeshs)
             {
                 if (spatialMapMesh)
+                {
                     spatialMapMesh.enabled = !editMode;
+                }
             }
             //loop though spatial map colliders and set to enabled or disabled depending on the editmode status
         }

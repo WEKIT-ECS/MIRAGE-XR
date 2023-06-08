@@ -336,12 +336,12 @@ namespace MirageXR
             moodleURLText.text = DBManager.domain;
         }
 
-        public void showLRSSettings()
+        public void ShowLRSSettings()
         {
             ShowPanel(lrsPanel);
         }
 
-        public void showDeveloperOptions()
+        public void ShowDeveloperOptions()
         {
             ShowPanel(developerOptionsPanel);
         }

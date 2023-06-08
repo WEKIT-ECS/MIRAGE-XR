@@ -13,7 +13,7 @@ namespace MirageXR
 
         private string _imageName;
         private ToggleObject _content;
-        public IImageTarget target;
+        public IImageTarget _target;
 
         public override bool Init(ToggleObject content)
         {
@@ -84,9 +84,9 @@ namespace MirageXR
                 useLimitedTracking = true,
             };
 
-            target = await RootObject.Instance.imageTargetManager.AddImageTarget(model);
+            _target = await RootObject.Instance.imageTargetManager.AddImageTarget(model);
 
-            return target as ImageTargetBase;
+            return _target as ImageTargetBase;
         }
 
         private void MoveDetectableToImage(Transform targetHolder)
@@ -134,7 +134,7 @@ namespace MirageXR
                 if (PlatformManager.Instance.WorldSpaceUi)
                 {
                     MoveDetectableBack();
-                    RootObject.Instance.imageTargetManager.RemoveImageTarget(target);
+                    RootObject.Instance.imageTargetManager.RemoveImageTarget(_target);
                 }
             }
             catch (Exception e)
