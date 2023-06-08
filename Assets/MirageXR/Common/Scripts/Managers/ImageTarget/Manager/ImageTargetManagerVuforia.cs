@@ -10,6 +10,8 @@ public class ImageTargetManagerVuforia : ImageTargetManagerBase
     {
         var vuforiaRuntime = VuforiaApplication.Instance;
 
+        vuforiaRuntime.Initialize();
+
         while (!vuforiaRuntime.IsInitialized)
         {
             await Task.Yield();

@@ -16,13 +16,11 @@ public class ImageTargetVuforia : ImageTargetBase
         _imageTargetBehaviour = GetComponent<ImageTargetBehaviour>();
         _oldTargetStatus = _imageTargetBehaviour.TargetStatus.Status;
         _imageTargetBehaviour.OnTargetStatusChanged += OnTrackableStatusChangedAction;
-        Debug.Log("TrackerInitialization for " + _imageTargetBehaviour.TargetName + " Complete");
     }
 
     private void OnTrackableStatusChangedAction(ObserverBehaviour observerBehaviour, TargetStatus targetStatusChangeResult)
     {
         var statusChangeResult = targetStatusChangeResult.Status;
-        //Debug.Log(_imageTargetBehaviour.TargetName + " Tracking status changed to " + statusChangeResult.ToString() + " From " + _oldTargetStatus.ToString());
         OnStateChanged(ToTrackingState(_oldTargetStatus), ToTrackingState(statusChangeResult));
         _oldTargetStatus = statusChangeResult;
     }
