@@ -18,6 +18,8 @@ public class AudioEditorView : PopupEditorBase
 
     public override ContentType editorForType => ContentType.AUDIO;
 
+    [SerializeField] private Button _btnAudioSettings;
+    [SerializeField] private Button _btnCancel;
     [SerializeField] private Button _btnRecord;
     [SerializeField] private Button _btnStop;
     [SerializeField] private Button _btnPlay;
@@ -38,11 +40,22 @@ public class AudioEditorView : PopupEditorBase
     //[SerializeField] private TMP_InputField _inputTriggerStepNumber;
     [SerializeField] private ClampedScrollRect _clampedScrollJumpToStep;
     [SerializeField] private GameObject _templatePrefab;
-
+    [Space]
     [SerializeField] private TMP_Text _txtTimer;
     [SerializeField] private Slider _sliderPlayer;
     [SerializeField] private Image _imgRecordingIcon;
     [SerializeField] private CanvasGroup _groupPlayControls;
+    [Space]
+    [SerializeField] private TMP_Text _txtTimerFrom;
+    [SerializeField] private TMP_Text _txtTimerTo;
+    [Space]
+    [SerializeField] private GameObject _panelRecordControls;
+    [SerializeField] private GameObject _panelPlayRecord;
+    [SerializeField] private GameObject _panelAudioSettings;
+    [SerializeField] private GameObject _panelRecordComplete;
+    [SerializeField] private GameObject _panelBottomButtons;
+    [SerializeField] private Button _btnRecordComplete;
+    [Space]
     [SerializeField] private AudioSource _audioSource;
 
     private AudioClip _audioClip;
@@ -59,8 +72,6 @@ public class AudioEditorView : PopupEditorBase
     {
         base.Initialization(onClose, args);
 
-        InitClampedScrollRect(_clampedScrollJumpToStep, _templatePrefab, 15, "cm");
-
         _toggle3D.isOn = false;
         _toggleLoop.isOn = false;
         //_sliderRange.minValue = MIN_RANGE;
@@ -68,7 +79,16 @@ public class AudioEditorView : PopupEditorBase
         //_sliderRange.value = DEFAULT_RANGE;
         _currentRangeValue = DEFAULT_RANGE;
         _txtSliderRangeValue.text = DEFAULT_RANGE.ToString("0");
+
         _panelRange.SetActive(false);
+        _panelRecordComplete.SetActive(false);
+        _panelPlayRecord.SetActive(false);
+        _panelRecordControls.SetActive(true);
+        _panelBottomButtons.SetActive(false);
+
+        _btnAudioSettings.onClick.AddListener(OnOpenAudioSettings);
+        _btnCancel.onClick.AddListener(OnClickCancel);
+
 
         _btnRecord.onClick.AddListener(OnRecordStarted);
         _btnStop.onClick.AddListener(OnRecordStopped);
@@ -78,6 +98,7 @@ public class AudioEditorView : PopupEditorBase
         _btnRewindForward.onClick.AddListener(OnRewindForward);
         _btnIncreaseRange.onClick.AddListener(OnIncreaseRange);
         _btnDecreaseRange.onClick.AddListener(OnDecreaseRange);
+        _btnRecordComplete.onClick.AddListener(OnClickRecordComplete);
 
         _sliderPlayer.minValue = 0;
         _sliderPlayer.maxValue = 1f;
@@ -87,6 +108,10 @@ public class AudioEditorView : PopupEditorBase
         //_toggleTrigger.onValueChanged.AddListener(OnToggleTriggerValueChanged);
         _toggle3D.onValueChanged.AddListener(On3DSelected);
         //_sliderRange.onValueChanged.AddListener(OnSliderRangeValueChanged);
+
+        var steps = activityManager.ActionsOfTypeAction;
+        var stepsCount = steps.Count;
+        InitClampedScrollRect(_clampedScrollJumpToStep, _templatePrefab, stepsCount, stepsCount.ToString()); // _step.instruction.title
 
         if (_content != null && !string.IsNullOrEmpty(_content.url))
         {
@@ -111,13 +136,14 @@ public class AudioEditorView : PopupEditorBase
 
     private void InitClampedScrollRect(ClampedScrollRect clampedScrollRect, GameObject templatePrefab, int maxCount, string text)
     {
-        for (int i = 5; i <= maxCount; i += 5)
+        var steps = activityManager.ActionsOfTypeAction;
+        for (int i = 1; i <= maxCount; i++)
         {
             var obj = Instantiate(templatePrefab, clampedScrollRect.content, false);
             obj.name = i.ToString();
             obj.SetActive(true);
             obj.AddComponent<IntHolder>().item = i;
-            obj.GetComponentInChildren<TMP_Text>().text = i.ToString() + " " + text;
+            obj.GetComponentInChildren<TMP_Text>().text = "   " + i.ToString() + "/" + text + "     " + steps[i - 1].instruction.title.ToString();
         }
     }
 
@@ -195,6 +221,7 @@ public class AudioEditorView : PopupEditorBase
 
     private void OnRecordStarted()
     {
+        _panelRecordComplete.SetActive(false);
         _audioSource.clip = null;
         if (_audioClip)
         {
@@ -216,7 +243,18 @@ public class AudioEditorView : PopupEditorBase
         _audioClip = AudioRecorder.Stop();
         _groupPlayControls.interactable = true;
         StopCoroutine(_updateRecordTimerCoroutine);
-        UpdateSliderPlayerAndTimer();
+        //UpdateSliderPlayerAndTimer();
+
+        _panelRecordComplete.SetActive(true);
+    }
+
+    private void OnClickRecordComplete()
+    {
+        _panelPlayRecord.SetActive(true);
+        _panelRecordControls.SetActive(false);
+        _panelBottomButtons.SetActive(true);
+        _panelRecordComplete.SetActive(false);
+        _txtTimerTo.text = ToTimeFormatMinutes(_audioClip.length);
     }
 
     private void StartUpdateSliderPlayerAndTimer()
@@ -242,7 +280,7 @@ public class AudioEditorView : PopupEditorBase
             var percent = _audioSource.time / clip.length;
             _sliderPlayer.onValueChanged.RemoveListener(OnSliderPlayerValueChanged);
             _sliderPlayer.value = percent;
-            _txtTimer.text = ToTimeFormat(_audioSource.time);
+            _txtTimerFrom.text = ToTimeFormatMinutes(_audioSource.time);
             _sliderPlayer.onValueChanged.AddListener(OnSliderPlayerValueChanged);
 
             if (Math.Abs(_audioSource.time - clip.length) <= float.Epsilon)
@@ -303,16 +341,24 @@ public class AudioEditorView : PopupEditorBase
 
     private static string ToTimeFormat(float time)
     {
-        var minutes = time / 60;
-        var seconds = time % 60;
+        var hours = (int)time / 3600;
+        var minutes = ((int)time / 60) % 60;
+        var seconds = (int)time % 60;
+        return $"{hours:00}:{minutes:00}:{seconds:00}";
+    }
+
+    private static string ToTimeFormatMinutes(float time)
+    {
+        var minutes = ((int)time / 60) % 60;
+        var seconds = (int)time % 60;
         return $"{minutes:00}:{seconds:00}";
     }
 
     private void SetPlayerActive(bool value)
     {
         _imgRecordingIcon.gameObject.SetActive(!value);
-        _groupPlayControls.gameObject.SetActive(value);
-        _sliderPlayer.gameObject.SetActive(value);
+        //_groupPlayControls.gameObject.SetActive(value);
+        //_sliderPlayer.gameObject.SetActive(value);
     }
 
     private void On3DSelected(bool value)
@@ -375,6 +421,22 @@ public class AudioEditorView : PopupEditorBase
     private void OnItemJumpToStepChanged(Component item)
     {
         // TODO
+        var txt = item.GetComponent<ObjectHolder<int>>().item;
+        Debug.LogError("[111] step = " + txt);
+    }
+
+    private void OnOpenAudioSettings()
+    {
+        _panelPlayRecord.SetActive(false);
+        _panelBottomButtons.SetActive(false);
+        _panelAudioSettings.SetActive(true);
+    }
+
+    private void OnClickCancel()
+    {
+        _panelPlayRecord.SetActive(false);
+        _panelBottomButtons.SetActive(false);
+        _panelRecordControls.SetActive(true);
     }
 
     protected override void OnAccept()
@@ -409,16 +471,17 @@ public class AudioEditorView : PopupEditorBase
         _content.url = $"http://{_fileName}";
 
         //if (_inputTriggerStepNumber.text == "" && _toggleTrigger.isOn)
-        //{
-            //Toast.Instance.Show("Input field is empty.");
-            //return;
-        //}
+        /* {
+            Toast.Instance.Show("Input field is empty.");
+            return;
+        }*/
+
 
         /*if (_toggleTrigger.isOn)
         {
             _step.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, _content.poi, _audioClip.length, _inputTriggerStepNumber.text);
-        }*/
-        /*else
+        }
+        else
         {
             _step.RemoveArlemTrigger(_content);
         }*/
