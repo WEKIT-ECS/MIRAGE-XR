@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using DG.Tweening;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,6 +8,8 @@ using Image = UnityEngine.UI.Image;
 
 public class ImageEditorView : PopupEditorBase
 {
+    private const float HIDED_SIZE = 100f;
+    private const float HIDE_ANIMATION_TIME = 0.5f;
     private const int MAX_PICTURE_SIZE = 1024;
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
@@ -23,6 +26,13 @@ public class ImageEditorView : PopupEditorBase
     [SerializeField] private Button _btnCaptureImage;
     [SerializeField] private Button _btnOpenGallery;
     [SerializeField] private Toggle _toggleOrientation;
+    [Space]
+    [SerializeField] private Button _btnArrow;
+    [SerializeField] private RectTransform _panel;
+    [SerializeField] private GameObject _arrowDown;
+    [SerializeField] private GameObject _arrowUp;
+    [Space]
+    [SerializeField] private HintViewWithButtonAndToggle _hintPrefab;
 
     private Texture2D _capturedImage;
 
@@ -32,6 +42,10 @@ public class ImageEditorView : PopupEditorBase
         UpdateView();
         _btnCaptureImage.onClick.AddListener(OnCaptureImage);
         _btnOpenGallery.onClick.AddListener(OpenGallery);
+        _btnArrow.onClick.AddListener(OnArrowButtonPressed);
+        
+        _arrowDown.SetActive(true);
+        _arrowUp.SetActive(false);
 
         _toggleOrientation.onValueChanged.AddListener(OnToggleOrientationValueChanged);
         _toggleOrientation.isOn = _orientation;
@@ -44,6 +58,10 @@ public class ImageEditorView : PopupEditorBase
 
     protected override void OnAccept()
     {
+        // TODO add rename and Hint window:
+
+        PopupsViewer.Instance.Show(_hintPrefab); //
+
         // close without saving if no image was taken
         if (_capturedImage == null)
         {
@@ -169,5 +187,23 @@ public class ImageEditorView : PopupEditorBase
         rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
 
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
+    }
+
+    private void OnArrowButtonPressed()
+    {
+        if (_arrowDown.activeSelf)
+        {
+            var hidedSize = HIDED_SIZE;
+            _panel.DOAnchorPosY(-_panel.rect.height + hidedSize, HIDE_ANIMATION_TIME);
+            _arrowDown.SetActive(false);
+            _arrowUp.SetActive(true);
+            //RootView_v2.Instance.HideBaseView();
+        }
+        else
+        {
+            _panel.DOAnchorPosY(0.0f, HIDE_ANIMATION_TIME);
+            _arrowDown.SetActive(true);
+            _arrowUp.SetActive(false);
+        }
     }
 }

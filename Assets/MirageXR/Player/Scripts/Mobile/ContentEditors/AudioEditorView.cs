@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
+using DG.Tweening;
 using MirageXR;
 using TMPro;
 using UnityEngine;
@@ -14,6 +15,9 @@ public class AudioEditorView : PopupEditorBase
     private const float MIN_RANGE = 0.0f;
     private const float MAX_RANGE = 10.0f;
     private const float REWIND_VALUE = 10f;
+    private const float HIDED_SIZE = 100f;
+    private const float HIDE_ANIMATION_TIME = 0.5f;
+
     private float _currentRangeValue;
 
     public override ContentType editorForType => ContentType.AUDIO;
@@ -56,6 +60,11 @@ public class AudioEditorView : PopupEditorBase
     [SerializeField] private GameObject _panelBottomButtons;
     [SerializeField] private Button _btnRecordComplete;
     [Space]
+    [SerializeField] private Button _btnArrow;
+    [SerializeField] private RectTransform _panel;
+    [SerializeField] private GameObject _arrowDown;
+    [SerializeField] private GameObject _arrowUp;
+    [Space]
     [SerializeField] private AudioSource _audioSource;
 
     private AudioClip _audioClip;
@@ -95,6 +104,7 @@ public class AudioEditorView : PopupEditorBase
         _btnPlay.onClick.AddListener(OnPlayingStarted);
         _btnPause.onClick.AddListener(OnPlayingPaused);
         _btnRewindBack.onClick.AddListener(OnRewindBack);
+        _btnArrow.onClick.AddListener(OnArrowButtonPressed);
         _btnRewindForward.onClick.AddListener(OnRewindForward);
         _btnIncreaseRange.onClick.AddListener(OnIncreaseRange);
         _btnDecreaseRange.onClick.AddListener(OnDecreaseRange);
@@ -492,5 +502,23 @@ public class AudioEditorView : PopupEditorBase
         EventManager.NotifyActionModified(_step);
 
         Close();
+    }
+
+    private void OnArrowButtonPressed()
+    {
+        if (_arrowDown.activeSelf)
+        {
+            var hidedSize = HIDED_SIZE;
+            _panel.DOAnchorPosY(-_panel.rect.height + hidedSize, HIDE_ANIMATION_TIME);
+            _arrowDown.SetActive(false);
+            _arrowUp.SetActive(true);
+            //RootView_v2.Instance.HideBaseView();
+        }
+        else
+        {
+            _panel.DOAnchorPosY(0.0f, HIDE_ANIMATION_TIME);
+            _arrowDown.SetActive(true);
+            _arrowUp.SetActive(false);
+        }
     }
 }
