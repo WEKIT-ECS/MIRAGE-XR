@@ -142,6 +142,7 @@ public class AudioEditorView : PopupEditorBase
 
         SetPlayerActive(true);
         UpdateSliderPlayerAndTimer();
+        RootView_v2.Instance.HideBaseView();
     }
 
     private void InitClampedScrollRect(ClampedScrollRect clampedScrollRect, GameObject templatePrefab, int maxCount, string text)
@@ -164,6 +165,7 @@ public class AudioEditorView : PopupEditorBase
             Destroy(_audioClip);
             _audioClip = null;
         }
+        RootView_v2.Instance.ShowBaseView();
     }
 
     private void LoadContent()
@@ -512,7 +514,6 @@ public class AudioEditorView : PopupEditorBase
             _panel.DOAnchorPosY(-_panel.rect.height + hidedSize, HIDE_ANIMATION_TIME);
             _arrowDown.SetActive(false);
             _arrowUp.SetActive(true);
-            //RootView_v2.Instance.HideBaseView();
         }
         else
         {

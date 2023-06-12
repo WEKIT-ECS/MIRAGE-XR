@@ -46,8 +46,13 @@ public class VideoEditorView : PopupEditorBase
         _arrowDown.SetActive(true);
         _arrowUp.SetActive(false);
 
+        RootView_v2.Instance.HideBaseView();
         UpdateView();
+    }
 
+    private void OnDestroy()
+    {
+        RootView_v2.Instance.ShowBaseView();
     }
 
     private void UpdateView()
@@ -212,7 +217,6 @@ public class VideoEditorView : PopupEditorBase
             _panel.DOAnchorPosY(-_panel.rect.height + hidedSize, HIDE_ANIMATION_TIME);
             _arrowDown.SetActive(false);
             _arrowUp.SetActive(true);
-            //RootView_v2.Instance.HideBaseView();
         }
         else
         {

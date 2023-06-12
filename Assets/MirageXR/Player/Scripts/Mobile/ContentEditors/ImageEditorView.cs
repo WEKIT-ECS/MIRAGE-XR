@@ -49,11 +49,15 @@ public class ImageEditorView : PopupEditorBase
 
         _toggleOrientation.onValueChanged.AddListener(OnToggleOrientationValueChanged);
         _toggleOrientation.isOn = _orientation;
+
+        RootView_v2.Instance.HideBaseView();
     }
 
     private void OnDestroy()
     {
         if (_capturedImage) Destroy(_capturedImage);
+
+        RootView_v2.Instance.ShowBaseView();
     }
 
     protected override void OnAccept()
@@ -197,7 +201,6 @@ public class ImageEditorView : PopupEditorBase
             _panel.DOAnchorPosY(-_panel.rect.height + hidedSize, HIDE_ANIMATION_TIME);
             _arrowDown.SetActive(false);
             _arrowUp.SetActive(true);
-            //RootView_v2.Instance.HideBaseView();
         }
         else
         {
