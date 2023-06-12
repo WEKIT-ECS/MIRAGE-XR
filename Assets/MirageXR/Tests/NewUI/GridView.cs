@@ -1,11 +1,15 @@
 using System;
+using System.Collections.Generic;
+using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class GridView : PopupBase
 {
-    public class IntHolder : ObjectHolder<int> { }
+    private static GridManager gridManager => RootObject.Instance.gridManager;
+
+    public class IntHolder : ObjectHolder<float> { }
 
     [SerializeField] private Button _btnClose;
     [SerializeField] private Toggle _activateGridToggle;
@@ -19,10 +23,16 @@ public class GridView : PopupBase
     {
         base.Initialization(onClose, args);
 
-        InitClampedScrollRect(_clampedScrollGridStep, _templatePrefab, 15, "cm");
-        InitClampedScrollRect(_clampedScrollAngleStep, _templatePrefab, 15, "°");
-        InitClampedScrollRect(_clampedScrollScaleStep, _templatePrefab, 15, "%");
+        InitClampedScrollRect(_clampedScrollGridStep, _templatePrefab, gridManager.optionsCellSize, gridManager.valuesCellSize);
+        InitClampedScrollRect(_clampedScrollAngleStep, _templatePrefab, gridManager.optionsAngleStep, gridManager.valuesAngleStep);
+        InitClampedScrollRect(_clampedScrollScaleStep, _templatePrefab, gridManager.optionsScaleStep, gridManager.valuesScaleStep);
 
+        _activateGridToggle.isOn = gridManager.gridEnabled;
+        _snapToGridToggle.isOn = gridManager.snapEnabled;
+
+        _clampedScrollGridStep.currentItemIndex = gridManager.valuesCellSize.IndexOf(gridManager.cellWidth);
+        _clampedScrollAngleStep.currentItemIndex = gridManager.valuesAngleStep.IndexOf(gridManager.angleStep);
+        _clampedScrollScaleStep.currentItemIndex = gridManager.valuesScaleStep.IndexOf(gridManager.scaleStep);
 
         _btnClose.onClick.AddListener(Close);
         _activateGridToggle.onValueChanged.AddListener(OnActivateGridToggleValueChanged);
@@ -37,40 +47,62 @@ public class GridView : PopupBase
         return true;
     }
 
-    private void InitClampedScrollRect(ClampedScrollRect clampedScrollRect, GameObject templatePrefab, int maxCount, string text)
+    private static void InitClampedScrollRect(ClampedScrollRect clampedScrollRect, GameObject templatePrefab, IReadOnlyList<string> texts, IReadOnlyList<float> values)
     {
-        for (int i = 5; i <= maxCount; i += 5)
+        if (texts.Count != values.Count)
+        {
+            throw new ApplicationException("texts and values must have equal length");
+        }
+
+        for (int i = 0; i < texts.Count; i++)
         {
             var obj = Instantiate(templatePrefab, clampedScrollRect.content, false);
-            obj.name = i.ToString();
+            obj.name = texts[i];
             obj.SetActive(true);
-            obj.AddComponent<IntHolder>().item = i;
-            obj.GetComponentInChildren<TMP_Text>().text = i.ToString() + " " + text;
+            obj.AddComponent<IntHolder>().item = values[i];
+            obj.GetComponentInChildren<TMP_Text>().text = texts[i];
         }
     }
 
-    private void OnSnapToGridToggleValueChanged(bool arg0)
+    private void OnSnapToGridToggleValueChanged(bool value)
     {
-        // TODO
+        if (value)
+        {
+            gridManager.EnableSnapToGrid();
+        }
+        else
+        {
+            gridManager.DisableSnapToGrid();
+        }
     }
 
-    private void OnActivateGridToggleValueChanged(bool arg0)
+    private void OnActivateGridToggleValueChanged(bool value)
     {
-        // TODO
+        if (value)
+        {
+            gridManager.EnableGrid();
+        }
+        else
+        {
+            gridManager.DisableGrid();
+        }
     }
 
     private void OnItemGridStepChanged(Component item)
     {
-        // TODO
+        var value = item.GetComponent<IntHolder>().item;
+        gridManager.SetCellWidth(value);
     }
 
     private void OnItemAngleStepChanged(Component item)
     {
-        // TODO
+        var value = item.GetComponent<IntHolder>().item;
+        gridManager.SetAngleStep(value);
     }
 
     private void OnItemScaleStepChanged(Component item)
     {
-        // TODO
+        var value = item.GetComponent<IntHolder>().item;
+        gridManager.SetScaleStep(value);
     }
 }
