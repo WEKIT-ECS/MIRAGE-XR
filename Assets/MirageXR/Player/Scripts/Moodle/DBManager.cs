@@ -4,6 +4,30 @@ using UnityEngine;
 
 namespace MirageXR
 {
+    public class PrefsFloatValue
+    {
+        private readonly float _defaultValue;
+        private readonly string _prefsKey;
+        private float? _value;
+
+        public float Value
+        {
+            get => _value ?? PlayerPrefs.GetFloat(_prefsKey, _defaultValue);
+            set
+            {
+                _value = value;
+                PlayerPrefs.SetFloat(_prefsKey, value);
+                PlayerPrefs.Save();
+            }
+        }
+
+        public PrefsFloatValue(string prefsKey, float defaultValue)
+        {
+            _prefsKey = prefsKey;
+            _defaultValue = defaultValue;
+        }
+    }
+
     public class PrefsStringValue
     {
         private readonly string _defaultValue;
@@ -93,6 +117,20 @@ namespace MirageXR
         private const string SHOW_PUBLIC_UPLOAD_WARNING = "DontShowPublicUploadWarning";
         private const bool SHOW_PUBLIC_UPLOAD_WARNING_DEFAULT = true;
 
+        private const string SHOW_GRID_KEY = "show_grid";
+        private const bool SHOW_GRID_DEFAULT = false;
+
+        private const string SNAP_TO_GRID_KEY = "snap_to_grid";
+        private const bool SNAP_TO_GRID_DEFAULT = false;
+
+        private const string GRID_CELL_WIDTH_KEY = "grid_cell_width";
+        private const float GRID_CELL_WIDTH_DEFAULT = 10f;
+
+        private const string GRID_ANGLE_STEP_KEY = "grid_angle_step";
+        private const float GRID_ANGLE_STEP_DEFAULT = 10f;
+
+        private const string GRID_SCALE_STEP_KEY = "grid_scale_step";
+        private const float GRID_SCALE_STEP_DEFAULT = 10f;
 
         private const int SKETCHFAB_RENEW_DYAS_COOLDOWN = 5;
 
@@ -124,6 +162,11 @@ namespace MirageXR
         private static readonly PrefsStringValue _privacyPolicyDomain = new (PRIVACY_POLICY_URL_KEY, WEKIT_PRIVACY_POLICY_URL);
         private static readonly PrefsStringValue _sketchfabTokenRenewDate = new (SKETCHFAB_TOKEN_RENEW_KEY, SKETCHFAB_TOKEN_RENEW_DEFAULT);
         private static readonly PrefsBoolValue _showBigCards = new (SHOW_BIG_CARDS_KEY, SHOW_BIG_CARDS_DEFAULT);
+        private static readonly PrefsBoolValue _showGrid = new (SHOW_GRID_KEY, SHOW_GRID_DEFAULT);
+        private static readonly PrefsBoolValue _snapToGrid = new (SNAP_TO_GRID_KEY, SNAP_TO_GRID_DEFAULT);
+        private static readonly PrefsFloatValue _gridCellWidth = new (GRID_CELL_WIDTH_KEY, GRID_CELL_WIDTH_DEFAULT);
+        private static readonly PrefsFloatValue _gridAngleStep = new (GRID_ANGLE_STEP_KEY, GRID_ANGLE_STEP_DEFAULT);
+        private static readonly PrefsFloatValue _gridScaleStep = new (GRID_SCALE_STEP_KEY, GRID_SCALE_STEP_DEFAULT);
 
         private static readonly PrefsBoolValue _localSave = new (LOCAL_SAVE, LOCAL_SAVE_DEFAULT);
         private static readonly PrefsBoolValue _cloudSave = new (CLOUD_SAVE, CLOUD_SAVE_DEFAULT);
@@ -139,6 +182,24 @@ namespace MirageXR
                 return result ? dateTime : default;
             }
             set => _sketchfabTokenRenewDate.Value = value.ToString("d", new CultureInfo("en-US"));
+        }
+
+        public static float gridCellWidth
+        {
+            get => _gridCellWidth.Value;
+            set => _gridCellWidth.Value = value;
+        }
+
+        public static float gridAngleStep
+        {
+            get => _gridAngleStep.Value;
+            set => _gridAngleStep.Value = value;
+        }
+
+        public static float gridScaleStep
+        {
+            get => _gridScaleStep.Value;
+            set => _gridScaleStep.Value = value;
         }
 
         public static bool publicUploadPrivacy
@@ -187,6 +248,18 @@ namespace MirageXR
         {
             get => _rememberSketchfabUser.Value;
             set => _rememberSketchfabUser.Value = value;
+        }
+
+        public static bool showGrid
+        {
+            get => _showGrid.Value;
+            set => _showGrid.Value = value;
+        }
+
+        public static bool snapToGrid
+        {
+            get => _snapToGrid.Value;
+            set => _snapToGrid.Value = value;
         }
 
         public static bool dontShowCalibrationGuide

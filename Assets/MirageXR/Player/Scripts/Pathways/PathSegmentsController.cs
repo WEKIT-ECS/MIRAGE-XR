@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Microsoft.MixedReality.Toolkit.UI;
+using UnityEngine;
 
 namespace MirageXR
 {
@@ -14,12 +15,16 @@ namespace MirageXR
         [SerializeField] private Transform upperDisplay;
 
         [SerializeField] private Transform calibrationButton;
+        [SerializeField] private Interactable calibrationStartButton;
+        [SerializeField] private CalibrationFlow calibrationFlowPrefab;
 
         public Transform startTransform;
         public Transform endTransform;
 
         public float startOffset;
         public float endOffset;
+
+        private CalibrationFlow _calibrationFlow;
 
         public bool IsVisible
         {
@@ -33,10 +38,34 @@ namespace MirageXR
 
         private void Start()
         {
-            if (!PlatformManager.Instance.WorldSpaceUi && calibrationButton)
+            if (!PlatformManager.Instance.WorldSpaceUi)
             {
-                calibrationButton.gameObject.SetActive(false);
+                if (calibrationButton)
+                {
+                    calibrationButton.gameObject.SetActive(false);
+                }
+
+                if (calibrationStartButton)
+                {
+                    calibrationStartButton.gameObject.SetActive(false);
+                }
             }
+
+            if (calibrationStartButton)
+            {
+                calibrationStartButton.OnClick.AddListener(StartCalibrationFlow);
+            }
+        }
+
+        private void StartCalibrationFlow()
+        {
+            if (!RootObject.Instance.activityManager.IsReady || _calibrationFlow)
+            {
+                return;
+            }
+
+            _calibrationFlow = Instantiate(calibrationFlowPrefab);
+            _calibrationFlow.Initialization(() => _calibrationFlow = null);
         }
 
         private void Update()
@@ -56,6 +85,11 @@ namespace MirageXR
             var lengthHorizontalPart = Mathf.Max(0, horizontalDistance - startOffset - CURVE_EXTEND);
             horizontalPart.localScale = new Vector3(1, 1, lengthHorizontalPart);
             lowerDisplay.localPosition = new Vector3(lowerDisplay.localPosition.x, 0.1f, horizontalDistance - startOffset);
+
+            if (calibrationStartButton)
+            {
+                calibrationStartButton.transform.localPosition = new Vector3(calibrationStartButton.transform.localPosition.x, 0.1f, horizontalDistance - startOffset);
+            }
 
             if (calibrationButton && calibrationButton.gameObject.activeInHierarchy)
             {
