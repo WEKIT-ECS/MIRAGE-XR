@@ -44,7 +44,10 @@ namespace MirageXR
         {
             if (DBManager.developMode)
             {
-                Instantiate(_screenSpaceDebugTool);
+                if (_screenSpaceDebugTool)
+                {
+                    Instantiate(_screenSpaceDebugTool);
+                }
             }
 
             //Singleton
