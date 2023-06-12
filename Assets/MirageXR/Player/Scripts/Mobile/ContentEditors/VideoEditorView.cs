@@ -27,6 +27,8 @@ public class VideoEditorView : PopupEditorBase
     [SerializeField] private RectTransform _panel;
     [SerializeField] private GameObject _arrowDown;
     [SerializeField] private GameObject _arrowUp;
+    [Space]
+    [SerializeField] private HintViewWithButtonAndToggle _hintPrefab;
 
     private string _newFileName;
     private bool _videoWasRecorded;
@@ -143,6 +145,11 @@ public class VideoEditorView : PopupEditorBase
         {
             _content = augmentationManager.AddAugmentation(_step, GetOffset());
             _content.predicate = editorForType.GetName().ToLower();
+        }
+
+        if (!DBManager.dontShowNewAugmentationHint)
+        {
+            PopupsViewer.Instance.Show(_hintPrefab);
         }
 
         // saving of the movie file has already happened since it has been written to file while recording
