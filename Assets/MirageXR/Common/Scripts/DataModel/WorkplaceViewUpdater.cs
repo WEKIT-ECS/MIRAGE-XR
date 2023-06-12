@@ -23,8 +23,7 @@ namespace MirageXR
             EventManager.DebugLog("Workplace manager: Starting to create the objects...");
 
             // Instantiate detectables first, since they need to be there when others want to attach to them.
-            // TODO further detatch the model from the WorkplaceManager
-
+            // TODO: further detatch the model from the WorkplaceManager
             WorkplaceObjectFactory.CreateDetectables(workplaceManager.workplace.detectables, "detectables");
             WorkplaceObjectFactory.CreateSensors();
             await WorkplaceObjectFactory.CreateThings();

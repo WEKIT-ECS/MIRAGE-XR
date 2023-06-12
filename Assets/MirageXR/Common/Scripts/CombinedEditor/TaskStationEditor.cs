@@ -1,34 +1,38 @@
 ﻿using Microsoft.MixedReality.Toolkit.UI;
 using MirageXR;
-using System.Globalization;
 using UnityEngine;
+using Action = MirageXR.Action;
 
+[RequireComponent(typeof(TaskStationStateController), typeof(ObjectManipulator))]
 public class TaskStationEditor : MonoBehaviour
 {
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
-    [SerializeField] private ObjectManipulator taskStationMover;
+    private ObjectManipulator _objectManipulator;
+    private TaskStationStateController _taskStationStateController;
+    private PlaceBehaviour _placeBehaviour;
+    private Detectable _detectable;
 
-    private PlaceBehaviour placeBehaviour;
-    private Detectable associatedDetectable;
+    private void Awake()
+    {
+        _objectManipulator = GetComponent<ObjectManipulator>();
+        _taskStationStateController = GetComponent<TaskStationStateController>();
+    }
 
     private void Start()
     {
-        placeBehaviour = transform.parent.parent.gameObject.GetComponent<PlaceBehaviour>();
-        associatedDetectable = RootObject.Instance.workplaceManager.GetDetectable(placeBehaviour.Place);
-        // make the entire task station move if the visual part is moved
-        taskStationMover.HostTransform = GameObject.Find(associatedDetectable.id).transform;
-        SetEditModeState(activityManager.EditModeActive);
+        _placeBehaviour = transform.parent.parent.gameObject.GetComponent<PlaceBehaviour>();
+        _detectable = RootObject.Instance.workplaceManager.GetDetectable(_placeBehaviour.Place);
+        _objectManipulator.HostTransform = GameObject.Find(_detectable.id).transform;
+        _objectManipulator.enabled = activityManager.EditModeActive;
     }
 
     private void OnEnable()
     {
         EventManager.OnActionModified += OnActionChanged;
-        EventManager.OnEditModeChanged += SetEditModeState;
-        if (activityManager != null)
-        {
-            SetEditModeState(activityManager.EditModeActive);
-        }
+        EventManager.OnEditModeChanged += OnEditModeChanged;
+
+        _objectManipulator.enabled = activityManager.EditModeActive;
 
         EventManager.NotifyOnTaskStationEditorEnabled();
     }
@@ -36,58 +40,27 @@ public class TaskStationEditor : MonoBehaviour
     private void OnDisable()
     {
         EventManager.OnActionModified -= OnActionChanged;
-        EventManager.OnEditModeChanged -= SetEditModeState;
+        EventManager.OnEditModeChanged -= OnEditModeChanged;
     }
 
-    public void SetTaskStationMover(bool status)
+    private void OnEditModeChanged(bool editModeActive)
     {
-        taskStationMover.enabled = status;
-    }
-
-    private void SetEditModeState(bool editModeActive)
-    {
-        taskStationMover.enabled = GetComponent<TaskStationStateController>().IsCurrent() && editModeActive;
+        _objectManipulator.enabled = _taskStationStateController.IsCurrent() && editModeActive;
     }
 
     public void OnManipulationEnded()
     {
-        var position = taskStationMover.HostTransform.position;
-        var rotation = taskStationMover.HostTransform.eulerAngles;
+        var position = _objectManipulator.HostTransform.localPosition;
+        var rotation = _objectManipulator.HostTransform.localRotation;
 
-        var originT = RootObject.Instance.calibrationManager.anchor;
-
-        // Some black magic for getting the offset.
-        var anchorDummy = new GameObject("AnchorDummy");
-        var targetDummy = new GameObject("TargetDummy");
-
-        anchorDummy.transform.position = position;
-        anchorDummy.transform.rotation = Quaternion.Euler(rotation);
-        targetDummy.transform.position = originT.transform.position;
-        targetDummy.transform.eulerAngles = originT.transform.eulerAngles;
-
-        anchorDummy.transform.SetParent(targetDummy.transform);
-
-        var myPos = anchorDummy.transform.localPosition;
-        var myRot = Utilities.ConvertEulerAngles(anchorDummy.transform.localEulerAngles);
-
-        Destroy(anchorDummy);
-        Destroy(targetDummy);
-
-        associatedDetectable.origin_position = $"{myPos.x.ToString(CultureInfo.InvariantCulture)}, {myPos.y.ToString(CultureInfo.InvariantCulture)}, {myPos.z.ToString(CultureInfo.InvariantCulture)}";
-        associatedDetectable.origin_rotation = $"{myRot.x.ToString(CultureInfo.InvariantCulture)}, {myRot.y.ToString(CultureInfo.InvariantCulture)}, {myRot.z.ToString(CultureInfo.InvariantCulture)}";
+        _detectable.origin_position = Utilities.Vector3ToString(position);
+        _detectable.origin_rotation = Utilities.Vector3ToString(rotation.eulerAngles);
 
         EventManager.NotifyOnTaskStationEditorDragEnd();
     }
 
     private void OnActionChanged(Action action)
     {
-        foreach (var taskStation in FindObjectsOfType<TaskStationStateController>())
-        {
-            var taskStationEditor = taskStation.GetComponent<TaskStationEditor>();
-
-            if (taskStationEditor == null) continue;
-
-            taskStationEditor.SetTaskStationMover(taskStation.IsCurrent() && activityManager.EditModeActive);
-        }
+        _objectManipulator.enabled = _taskStationStateController.IsCurrent() && activityManager.EditModeActive;
     }
 }
