@@ -16,6 +16,8 @@ public class StepsListView_v2 : BaseView
 
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
+    private static BrandManager brandManager => RootObject.Instance.brandManager;
+
     [Space]
     [SerializeField] private RectTransform _listVerticalContent;
     [SerializeField] private RectTransform _listHorizontalContent;
@@ -59,8 +61,6 @@ public class StepsListView_v2 : BaseView
     private bool _isEditMode;
     private int _addStepSiblingIndex = 0;
 
-    [Header("MirageXR calibration pdf file:")]
-    public TextAsset calibrationImage;
     private static string calibrationImageFileName = "MirageXR_calibration_image_pdf.pdf";
 
     public override void Initialization(BaseView parentView)
@@ -467,8 +467,8 @@ public class StepsListView_v2 : BaseView
     {
         yield return new WaitForEndOfFrame();
 
-        string filePath = Path.Combine(Application.temporaryCachePath, calibrationImageFileName);
-        File.WriteAllBytes(filePath, calibrationImage.bytes);
+        var filePath = Path.Combine(Application.temporaryCachePath, calibrationImageFileName);
+        File.WriteAllBytes(filePath, brandManager.CalibrationMarkerPdf.bytes);
         new NativeShare().AddFile(filePath).Share();
     }
 

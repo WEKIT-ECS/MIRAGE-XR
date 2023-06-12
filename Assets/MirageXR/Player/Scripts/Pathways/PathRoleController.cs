@@ -5,8 +5,10 @@ using UnityEngine;
 
 public class PathRoleController : MonoBehaviour
 {
+    private static BrandManager brandManager => RootObject.Instance.brandManager;
+
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
-    
+
     [Header("Elements")]
     [SerializeField] private Renderer[] renderers;
     [SerializeField] private SpriteRenderer iconRenderer;
@@ -67,31 +69,31 @@ public class PathRoleController : MonoBehaviour
         {
             case PathRole.HOME:
                 segmentsController.endOffset = 0f;
-                pathColor = BrandManager.Instance.UIPathColor;
+                pathColor = brandManager.UIPathColor;
                 caption = "Home";
                 icon = homeIcon;
                 break;
             case PathRole.SETTINGS:
                 segmentsController.endOffset = 0f;
-                pathColor = BrandManager.Instance.UIPathColor;
+                pathColor = brandManager.UIPathColor;
                 caption = "Settings";
                 icon = settingsIcon;
                 break;
             case PathRole.TASKSTATION:
                 segmentsController.endOffset = 0.07f;
-                int taskStationIndex = GetTaskstationIndex();
+                int taskStationIndex = GetTaskStationIndex();
                 string positionCaption;
                 if (IsCurrent())
                 {
                     gameObject.SetActive(true);
                     positionCaption = "Current";
-                    pathColor = BrandManager.Instance.TaskStationColor;
+                    pathColor = brandManager.TaskStationColor;
                 }
                 else if (IsNext())
                 {
                     gameObject.SetActive(true);
                     positionCaption = "Next";
-                    pathColor = BrandManager.Instance.NextPathColor;
+                    pathColor = brandManager.NextPathColor;
                 }
                 else
                 {
@@ -119,14 +121,14 @@ public class PathRoleController : MonoBehaviour
                 break;
         }
 
-
-        for (int i = 0; i < renderers.Length; i++)
+        foreach (var renderer in renderers)
         {
-            if (renderers[i] != null)
+            if (renderer != null)
             {
-                renderers[i].material.color = pathColor;
+                renderer.material.color = pathColor;
             }
         }
+
         iconRenderer.color = pathColor;
         iconRenderer.sprite = icon;
         foreach (TextMesh captionText in captionTexts)
@@ -135,11 +137,11 @@ public class PathRoleController : MonoBehaviour
         }
     }
 
-    private int GetTaskstationIndex()
+    private int GetTaskStationIndex()
     {
-        List<Action> actions = activityManager.ActionsOfTypeAction;
+        var actions = activityManager.ActionsOfTypeAction;
 
-        int index = actions.IndexOf(actions.Where(p => p.id.Equals(ActionId)).FirstOrDefault());
+        var index = actions.IndexOf(actions.FirstOrDefault(p => p.id.Equals(ActionId)));
         return index;
     }
 

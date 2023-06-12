@@ -18,6 +18,8 @@ namespace MirageXR
         public static string TaskStationColor;
         public static string UIPathColor;
         public static string NextPathColor;
+        public static string calibrationMarker;
+        public static string calibrationMarkerPdf;
 
         public static ConfigEditor Editor = new ();
 
@@ -27,7 +29,7 @@ namespace MirageXR
         /// </summary>
         static ConfigParser()
         {
-            ConfigFile = Resources.Load<TextAsset>(Editor.configFileName);
+            ConfigFile = Resources.Load<TextAsset>(Editor.configFileName); // TODO: change to simple JSON file.
 
             if (ConfigFile == null)
             {
@@ -45,6 +47,8 @@ namespace MirageXR
             TaskStationColor = configItems.FirstOrDefault(t => t.StartsWith("taskStationColor"))?.Split(":").LastOrDefault();
             UIPathColor = configItems.FirstOrDefault(t => t.StartsWith("pathColor"))?.Split(":").LastOrDefault();
             NextPathColor = configItems.FirstOrDefault(t => t.StartsWith("nextPathColor"))?.Split(":").LastOrDefault();
+            calibrationMarker = configItems.FirstOrDefault(t => t.StartsWith("calibrationMarker"))?.Split(":").LastOrDefault();
+            calibrationMarkerPdf = configItems.FirstOrDefault(t => t.StartsWith("pdfCalibrationMarker"))?.Split(":").LastOrDefault();
 
             // Add "https://" if it doesn't start with "https://" or "http://"
             AddProtocols();
