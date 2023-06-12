@@ -7,6 +7,8 @@ using UnityEngine;
 
 public class ContentSelectorView : PopupBase
 {
+    private static BrandManager brandManager => RootObject.Instance.brandManager;
+
     [SerializeField] private Transform _listContent;
     [SerializeField] private ContentSelectorListItem _contentSelectorListItemPrefab;
     [SerializeField] private ContentHintView _contentHintViewPrefab;
@@ -23,7 +25,7 @@ public class ContentSelectorView : PopupBase
     private void UpdateView()
     {
         // Get the list of augmentations from txt file depends on platform
-        var listOfAugmentations = BrandManager.Instance.GetListOfAugmentations();
+        var listOfAugmentations = brandManager.GetListOfAugmentations();
         foreach (var type in _editors.Select(t => t.editorForType).Distinct())
         {
             if (listOfAugmentations.Contains(type))
