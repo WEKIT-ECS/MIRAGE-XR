@@ -14,6 +14,7 @@ namespace MirageXR
         [SerializeField] private FloorManagerWrapper _floorManager;
         [SerializeField] private PointCloudManager _pointCloudManager;
         [SerializeField] private BrandManager _brandManager;
+        [SerializeField] private GridManager _gridManager;
 
         private ActivityManager _activityManager;
         private AugmentationManager _augmentationManager;
@@ -28,6 +29,8 @@ namespace MirageXR
         public FloorManagerWrapper floorManager => _floorManager;
 
         public BrandManager brandManager => _brandManager;
+
+        public GridManager gridManager => _gridManager;
 
         public ActivityManager activityManager => _activityManager;
 
@@ -83,6 +86,7 @@ namespace MirageXR
                 _calibrationManager ??= new GameObject("CalibrationManager").AddComponent<CalibrationManager>();
                 _floorManager ??= new GameObject("FloorManagerWrapper").AddComponent<FloorManagerWrapper>();
                 _pointCloudManager ??= new GameObject("PointCloudManager").AddComponent<PointCloudManager>();
+                _gridManager ??= new GameObject("GridManager").AddComponent<GridManager>();
 
                 _activityManager = new ActivityManager();
                 _augmentationManager = new AugmentationManager();
@@ -96,6 +100,7 @@ namespace MirageXR
                 await _calibrationManager.InitializationAsync();
                 await _pointCloudManager.InitializationAsync();
 
+                _gridManager.Initialization();
 
                 _activityManager.Subscription();
 
