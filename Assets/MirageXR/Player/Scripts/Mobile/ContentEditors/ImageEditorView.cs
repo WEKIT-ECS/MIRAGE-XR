@@ -62,10 +62,6 @@ public class ImageEditorView : PopupEditorBase
 
     protected override void OnAccept()
     {
-        // TODO add rename and Hint window:
-
-        PopupsViewer.Instance.Show(_hintPrefab); //
-
         // close without saving if no image was taken
         if (_capturedImage == null)
         {
@@ -90,6 +86,12 @@ public class ImageEditorView : PopupEditorBase
         {
             _content = augmentationManager.AddAugmentation(_step, GetOffset());
             _content.predicate = editorForType.GetPredicate();
+        }
+
+        // TODO add rename window:
+        if (!DBManager.dontShowNewAugmentationHint)
+        {
+            PopupsViewer.Instance.Show(_hintPrefab);
         }
 
         _content.key = _orientation ? LANDSCAPE : PORTRAIT;
