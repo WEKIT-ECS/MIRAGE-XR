@@ -11,6 +11,7 @@ public class ImageEditorView : PopupEditorBase
     private const float HIDED_SIZE = 100f;
     private const float HIDE_ANIMATION_TIME = 0.5f;
     private const int MAX_PICTURE_SIZE = 1024;
+    private const float IMAGE_HEIGHT = 630f;
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
     private static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
@@ -189,8 +190,10 @@ public class ImageEditorView : PopupEditorBase
 
         var rtImageHolder = (RectTransform)_imageHolder.transform;
         var rtImage = (RectTransform)_image.transform;
-        var height = (rtImage.rect.width / _capturedImage.width * _capturedImage.height) + (rtImage.sizeDelta.y * -1);
-        rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+        var width = (float)_capturedImage.width / _capturedImage.height * IMAGE_HEIGHT;
+
+        rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, IMAGE_HEIGHT);
+        rtImage.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
 
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
     }
