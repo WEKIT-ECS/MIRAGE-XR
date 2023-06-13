@@ -1,6 +1,8 @@
-﻿using i5.Toolkit.Core.VerboseLogging;
+﻿using System.Collections;
+using i5.Toolkit.Core.VerboseLogging;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.IO;
+using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -380,8 +382,10 @@ namespace MirageXR
                 }
             }
 
-
-            if (temp == null) return;
+            if (temp == null)
+            {
+                return;
+            }
 
             // Try to initialize and if it fails, debug and destroy the object.
             var miragePrefab = temp.GetComponent<MirageXRPrefab>();
@@ -397,30 +401,53 @@ namespace MirageXR
             switch (annotationToggleObject.predicate)
             {
                 case string p when p.Contains("3d"):
-                    {
-                        var obstacle = go.AddComponent<NavMeshObstacle>();
-                        obstacle.size = go.transform.localScale / 4;
-                        break;
-                    }
-                case string p when p.StartsWith("act") || p.StartsWith("effect") || p.Equals("image") || p.Equals("video"):
-                    {
-                        if (DisableBounding(annotationToggleObject)) return;
-                        var boundingBox = go.AddComponent<BoundingBoxGenerator>();
-                        boundingBox.CustomScaleHandlesConfiguration = Resources.Load<ScaleHandlesConfiguration>("Prefabs/CustomBoundingScaleHandlesConfiguration");
-                        boundingBox.CustomRotationHandlesConfiguration = Resources.Load<RotationHandlesConfiguration>("Prefabs/CustomBoundingRotationHandlesConfiguration");
-                        await boundingBox.AddBoundingBox(annotationToggleObject, BoundsCalculationMethod.RendererOverCollider, false, true, BoundingRotationType.ALL, true);
+                {
+                    var obstacle = go.AddComponent<NavMeshObstacle>();
+                    var model = go.GetComponent<Model>();
+                    obstacle.size = go.transform.localScale / 4;
 
-                        // disable rotation for image
-                        if (DisableBoundingRotation(annotationToggleObject))
+                    model.StartCoroutine(WaitForParent(go, () =>
+                    {
+                        var gridManager = RootObject.Instance.gridManager;
+                        var objectManipulator = go.GetComponentInParent<ObjectManipulator>();
+                        if (objectManipulator)
                         {
-                            boundingBox.CustomRotationHandlesConfiguration.ShowHandleForX = false;
-                            boundingBox.CustomRotationHandlesConfiguration.ShowHandleForY = false;
-                            boundingBox.CustomRotationHandlesConfiguration.ShowHandleForZ = false;
+                            objectManipulator.OnManipulationStarted.AddListener(gridManager.onManipulationStarted.Invoke);
+                            objectManipulator.OnManipulationEnded.AddListener(gridManager.onManipulationEnded.Invoke);
                         }
+                    }));
+                    break;
+                }
 
-                        break;
+                case string p when p.StartsWith("act") || p.StartsWith("effect") || p.Equals("image") || p.Equals("video"):
+                {
+                    if (DisableBounding(annotationToggleObject))
+                    {
+                        return;
                     }
+
+                    var boundingBox = go.AddComponent<BoundingBoxGenerator>();
+                    boundingBox.CustomScaleHandlesConfiguration = Resources.Load<ScaleHandlesConfiguration>("Prefabs/CustomBoundingScaleHandlesConfiguration");
+                    boundingBox.CustomRotationHandlesConfiguration = Resources.Load<RotationHandlesConfiguration>("Prefabs/CustomBoundingRotationHandlesConfiguration");
+                    await boundingBox.AddBoundingBox(annotationToggleObject, BoundsCalculationMethod.RendererOverCollider, false, true, BoundingRotationType.ALL, true);
+
+                    // disable rotation for image
+                    if (DisableBoundingRotation(annotationToggleObject))
+                    {
+                        boundingBox.CustomRotationHandlesConfiguration.ShowHandleForX = false;
+                        boundingBox.CustomRotationHandlesConfiguration.ShowHandleForY = false;
+                        boundingBox.CustomRotationHandlesConfiguration.ShowHandleForZ = false;
+                    }
+
+                    break;
+                }
             }
+        }
+
+        private static IEnumerator WaitForParent(GameObject gameObject, System.Action callback)
+        {
+            yield return new WaitWhile(() => gameObject.transform.parent);
+            callback?.Invoke();
         }
 
         private static bool DisableBoundingRotation(ToggleObject annotationToggleObject)
