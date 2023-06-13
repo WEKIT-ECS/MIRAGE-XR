@@ -13,6 +13,7 @@ public class VideoEditorView : PopupEditorBase
     private const string PORTRAIT = "P";
     private const float HIDED_SIZE = 100f;
     private const float HIDE_ANIMATION_TIME = 0.5f;
+    private const float IMAGE_HEIGHT = 630f;
 
     public override ContentType editorForType => ContentType.VIDEO;
 
@@ -185,8 +186,9 @@ public class VideoEditorView : PopupEditorBase
 
         var rtImageHolder = (RectTransform)_imageHolder.transform;
         var rtImage = (RectTransform)_image.transform;
-        var height = rtImage.rect.width / texture2D.width * texture2D.height + (rtImage.sizeDelta.y * -1);
-        rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+        var width = (float)texture2D.width / texture2D.height * IMAGE_HEIGHT;
+        rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, IMAGE_HEIGHT);
+        rtImage.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
 
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
     }
