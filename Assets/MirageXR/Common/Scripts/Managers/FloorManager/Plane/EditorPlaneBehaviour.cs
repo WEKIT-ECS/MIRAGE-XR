@@ -3,7 +3,7 @@ using MirageXR;
 using UnityEngine;
 
 [RequireComponent(typeof(MeshCollider), typeof(MeshRenderer))]
-public class EditorPlaneBehaviour : MonoBehaviour, IPlaneBehaviour
+public class EditorPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IMixedRealityPointerHandler
 {
     private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
 
@@ -51,5 +51,10 @@ public class EditorPlaneBehaviour : MonoBehaviour, IPlaneBehaviour
     public void OnPointerClicked(MixedRealityPointerEventData eventData)
     {
         floorManager.SetFloor(this);
+    }
+
+    public Vector3 GetPosition()
+    {
+        return transform.position;
     }
 }

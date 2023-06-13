@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class ProgressBarController : MonoBehaviour
 {
+    private static BrandManager brandManager => RootObject.Instance.brandManager;
+
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
     [SerializeField] private GameObject stepPrefab;
     [SerializeField] private Color completedColor;
@@ -51,7 +53,7 @@ public class ProgressBarController : MonoBehaviour
 
             if (actions[i].id == activityManager.ActiveActionId)
             {
-                stepInstances[i].color = BrandManager.Instance.SecondaryColor;
+                stepInstances[i].color = brandManager.SecondaryColor;
             }
             else if (actions[i].isCompleted)
             {

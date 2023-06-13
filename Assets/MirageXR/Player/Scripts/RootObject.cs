@@ -13,6 +13,8 @@ namespace MirageXR
         [SerializeField] private CalibrationManager _calibrationManager;
         [SerializeField] private FloorManagerWrapper _floorManager;
         [SerializeField] private PointCloudManager _pointCloudManager;
+        [SerializeField] private BrandManager _brandManager;
+        [SerializeField] private GridManager _gridManager;
 
         private ActivityManager _activityManager;
         private AugmentationManager _augmentationManager;
@@ -25,6 +27,10 @@ namespace MirageXR
         public CalibrationManager calibrationManager => _calibrationManager;
 
         public FloorManagerWrapper floorManager => _floorManager;
+
+        public BrandManager brandManager => _brandManager;
+
+        public GridManager gridManager => _gridManager;
 
         public ActivityManager activityManager => _activityManager;
 
@@ -66,7 +72,7 @@ namespace MirageXR
             }
         }
 
-        private async Task Initialization()
+        private async Task Initialization() // TODO: create base Manager class
         {
             if (_isInitialized)
             {
@@ -75,10 +81,12 @@ namespace MirageXR
 
             try
             {
+                _brandManager ??= new GameObject("BrandManager").AddComponent<BrandManager>();
                 _imageTargetManager ??= new GameObject("ImageTargetManagerWrapper").AddComponent<ImageTargetManagerWrapper>();
                 _calibrationManager ??= new GameObject("CalibrationManager").AddComponent<CalibrationManager>();
                 _floorManager ??= new GameObject("FloorManagerWrapper").AddComponent<FloorManagerWrapper>();
                 _pointCloudManager ??= new GameObject("PointCloudManager").AddComponent<PointCloudManager>();
+                _gridManager ??= new GameObject("GridManager").AddComponent<GridManager>();
 
                 _activityManager = new ActivityManager();
                 _augmentationManager = new AugmentationManager();
@@ -86,12 +94,16 @@ namespace MirageXR
                 _editorSceneService = new EditorSceneService();
                 _workplaceManager = new WorkplaceManager();
 
+                _brandManager.Initialization();
                 await _imageTargetManager.InitializationAsync();
                 await _floorManager.InitializationAsync();
                 await _calibrationManager.InitializationAsync();
 #if UNITY_IOS || UNITY_ANDROID || UNITY_EDITOR
                 await _pointCloudManager.InitializationAsync();
 #endif
+
+                _gridManager.Initialization();
+
                 _activityManager.Subscription();
 
                 _isInitialized = true;

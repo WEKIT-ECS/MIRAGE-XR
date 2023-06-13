@@ -8,6 +8,8 @@ using UnityEngine.UI;
 [RequireComponent(typeof(ActionDetailView))]
 public class ActionEditor : MonoBehaviour
 {
+    private static BrandManager brandManager => RootObject.Instance.brandManager;
+
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
     [SerializeField] private GameObject TaskStationMenuPanel;
@@ -139,7 +141,7 @@ public class ActionEditor : MonoBehaviour
         }
 
         // Get the list of augmentations from txt file depends on platform
-        var listOfAugmentations = BrandManager.Instance.GetListOfAugmentations();
+        var listOfAugmentations = brandManager.GetListOfAugmentations();
 
 
         augmentationsButtons = new GameObject[listOfAugmentations.Count];
@@ -169,9 +171,6 @@ public class ActionEditor : MonoBehaviour
         }
     }
 
-
-
-
     public Transform GetDefaultAugmentationStartingPoint()
     {
         return DefaultAugmentationStartingPoint;
@@ -194,7 +193,6 @@ public class ActionEditor : MonoBehaviour
             StartCoroutine(NavigatorNotification("Now click on an augmentation button", 5));
         }
     }
-
 
     /// <summary>
     /// Control the helper text under the target button

@@ -248,7 +248,7 @@ namespace MirageXR
             return sameRotation;
         }
 
-        public static Texture2D LoadTexture(string filePath)
+        public static Texture2D LoadTexture(string filePath, bool readable = true)
         {
             if (!File.Exists(filePath))
             {
@@ -257,7 +257,7 @@ namespace MirageXR
 
             var fileData = File.ReadAllBytes(filePath);
             var texture2D = new Texture2D(2, 2);
-            return texture2D.LoadImage(fileData) ? texture2D : null;
+            return texture2D.LoadImage(fileData, !readable) ? texture2D : null;
         }
 
         public static Sprite TextureToSprite(Texture2D texture2d)
@@ -375,6 +375,20 @@ namespace MirageXR
         {
             transform.localPosition = pose.position;
             transform.localRotation = pose.rotation;
+        }
+
+        public static string GetResourceName(string path)
+        {
+            const string resourcesFolder = "Resources/";
+            var split = path.Split(resourcesFolder);
+            if (split.Length > 1)
+            {
+                path = split[^1];
+            }
+
+            var fileName = Path.GetFileNameWithoutExtension(path);
+            var dir = Path.GetDirectoryName(path);
+            return Path.Combine(dir, fileName);
         }
     }
 }

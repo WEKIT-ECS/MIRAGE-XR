@@ -7,13 +7,15 @@ using UnityEngine;
 
 public class ContentSelectorView_v2 : PopupBase
 {
+    private static BrandManager brandManager => RootObject.Instance.brandManager;
+
     [SerializeField] private Transform _listContent;
     [SerializeField] private ContentSelectorListItem _contentSelectorListItemPrefab;
     [SerializeField] private ContentHintView _contentHintViewPrefab;
 
     private IEnumerable<PopupEditorBase> _editors;
     private MirageXR.Action _currentStep;
-    
+
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
         base.Initialization(onClose, args);
@@ -23,7 +25,7 @@ public class ContentSelectorView_v2 : PopupBase
     private void UpdateView()
     {
         // Get the list of augmentations from txt file depends on platform
-        var listOfAugmentations = BrandManager.Instance.GetListOfAugmentations();
+        var listOfAugmentations = brandManager.GetListOfAugmentations();
         foreach (var type in _editors.Select(t => t.editorForType).Distinct())
         {
             if (listOfAugmentations.Contains(type) && type != ContentType.IMAGEMARKER)
