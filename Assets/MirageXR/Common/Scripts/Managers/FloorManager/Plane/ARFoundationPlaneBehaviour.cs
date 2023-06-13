@@ -5,7 +5,7 @@ using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 
 [RequireComponent(typeof(ARPlane), typeof(MeshCollider), typeof(MeshRenderer))]
-public class ARFoundationPlaneBehaviour : MonoBehaviour, IPlaneBehaviour
+public class ARFoundationPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IMixedRealityPointerHandler
 {
     private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
 
@@ -58,5 +58,10 @@ public class ARFoundationPlaneBehaviour : MonoBehaviour, IPlaneBehaviour
     public void OnPointerClicked(MixedRealityPointerEventData eventData)
     {
         floorManager.SetFloor(this);
+    }
+
+    public Vector3 GetPosition()
+    {
+        return transform.position;
     }
 }

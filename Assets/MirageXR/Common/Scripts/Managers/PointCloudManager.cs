@@ -12,6 +12,10 @@ public class PointCloudManager : MonoBehaviour
 
     public async Task<bool> InitializationAsync()
     {
+#if !UNITY_ANDROID && !UNITY_IOS
+        return false;
+#endif
+
         var mainCamera = Camera.main;
 
         if (!mainCamera)

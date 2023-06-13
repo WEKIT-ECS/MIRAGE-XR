@@ -1,5 +1,6 @@
-using Microsoft.MixedReality.Toolkit.Input;
+using UnityEngine;
 
-public interface IPlaneBehaviour : IMixedRealityPointerHandler
+public interface IPlaneBehaviour
 {
+    Vector3 GetPosition();
 }

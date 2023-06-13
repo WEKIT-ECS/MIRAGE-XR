@@ -7,6 +7,8 @@ namespace MirageXR
 {
     public class BrandCustomizer : MonoBehaviour
     {
+        private static BrandManager brandManager => RootObject.Instance.brandManager;
+
         private void Start()
         {
             StartCoroutine(Init());
@@ -17,14 +19,14 @@ namespace MirageXR
         {
             yield return new WaitForSeconds(1);
 
-            if (!BrandManager.Instance || !BrandManager.Instance.Customizable)
+            if (!brandManager || !brandManager.Customizable)
             {
                 yield break;
             }
 
             if (GetComponent<Button>())
             {
-                var newSecondaryColor = BrandManager.Instance.SecondaryColor;
+                var newSecondaryColor = brandManager.SecondaryColor;
                 var btn = GetComponent<Button>();
                 var colors = btn.colors;
 
@@ -49,7 +51,7 @@ namespace MirageXR
                 }
                 else
                 {
-                    GetComponent<Image>().color = BrandManager.Instance.IconColor;
+                    GetComponent<Image>().color = brandManager.IconColor;
                 }
             }
 
@@ -59,18 +61,18 @@ namespace MirageXR
                 {
                     if (GetComponentInParent<Button>().interactable)
                     {
-                        GetComponent<Text>().color = BrandManager.Instance.TextColor;
+                        GetComponent<Text>().color = brandManager.TextColor;
                     }
                 }
                 else
                 {
-                    GetComponent<Text>().color = BrandManager.Instance.TextColor;
+                    GetComponent<Text>().color = brandManager.TextColor;
                 }
             }
 
             if (name == "floorTarget" && GetComponent<SpriteRenderer>())
             {
-                GetComponent<SpriteRenderer>().color = BrandManager.Instance.TaskStationColor;
+                GetComponent<SpriteRenderer>().color = brandManager.TaskStationColor;
             }
         }
     }

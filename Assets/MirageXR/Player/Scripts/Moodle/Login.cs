@@ -241,7 +241,7 @@ namespace MirageXR
 
             if (loginToggle.IsSelected)
             {
-                ShowPanel(null);
+                HideLoginPanel();
             }
             else
             {
