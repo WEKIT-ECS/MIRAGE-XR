@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using Microsoft.MixedReality.Toolkit.UI;
+using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using MirageXR;
 using UnityEngine;
 
@@ -10,6 +13,7 @@ public class GridManager : MonoBehaviour, IDisposable
     private static CalibrationManager calibrationManager => RootObject.Instance.calibrationManager;
 
     [SerializeField] private Grid _gridPrefab;
+    [SerializeField] private Material _ghostMaterial;
 
     private Grid _grid;
     private bool _gridEnabled = false;
@@ -25,6 +29,12 @@ public class GridManager : MonoBehaviour, IDisposable
     private readonly List<string> _optionsScaleStep = new List<string> { "5%", "10%", "15%" };
     private readonly List<float> _valuesScaleStep = new List<float> { 5f, 10f, 15f };
 
+    private GameObject _copy;
+    private int _copyID;
+    private Coroutine _copyUpdateCoroutine;
+    private Action<ManipulationEventData> _onManipulationStarted;
+    private Action<ManipulationEventData> _onManipulationEnded;
+
     public List<string> optionsCellSize => _optionsCellSize;
 
     public List<float> valuesCellSize => _valuesCellSize;
@@ -37,6 +47,8 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public List<float> valuesScaleStep => _valuesScaleStep;
 
+    public bool gridShown => _grid.gameObject.activeInHierarchy;
+
     public bool gridEnabled => _gridEnabled;
 
     public bool snapEnabled => _snapEnabled;
@@ -46,6 +58,10 @@ public class GridManager : MonoBehaviour, IDisposable
     public float angleStep => _angleStep;
 
     public float scaleStep => _scaleStep;
+
+    public Action<ManipulationEventData> onManipulationStarted => _onManipulationStarted;
+
+    public Action<ManipulationEventData> onManipulationEnded => _onManipulationEnded;
 
     public void Initialization()
     {
@@ -64,6 +80,9 @@ public class GridManager : MonoBehaviour, IDisposable
         _grid = Instantiate(_gridPrefab);
         HideGrid();
         _grid.Initialization(_cellWidth);
+
+        _onManipulationStarted = OnManipulationStarted;
+        _onManipulationEnded = OnManipulationEnded;
 
         EventManager.OnEditModeChanged += OnEditModeChanged;
     }
@@ -89,18 +108,9 @@ public class GridManager : MonoBehaviour, IDisposable
         _grid.gameObject.SetActive(false);
     }
 
-    public Vector3 GetSnapPosition(Vector3 position)
+    private static float ToClosestValue(float value, float step)
     {
-        var point = _grid.transform.InverseTransformPoint(position);
-        point.x = ToClosestPosition(point.x, _cellWidth);
-        point.y = ToClosestPosition(point.y, _cellWidth);
-        point.z = ToClosestPosition(point.z, _cellWidth);
-        return _grid.transform.TransformPoint(point);
-    }
-
-    private static float ToClosestPosition(float value, float step)
-    {
-        var stepInMeters = step / 100f;
+        var stepInMeters = step;
         var entire = (int)(value / stepInMeters);
         var residue = value % stepInMeters;
         if (residue > stepInMeters * 0.5f)
@@ -164,6 +174,154 @@ public class GridManager : MonoBehaviour, IDisposable
     public void Dispose()
     {
         EventManager.OnEditModeChanged -= OnEditModeChanged;
+    }
+
+    private void OnManipulationStarted(ManipulationEventData eventData)
+    {
+        if (!gridShown || !gridEnabled || !snapEnabled)
+        {
+            return;
+        }
+
+        var source = eventData.ManipulationSource;
+        CreateCopy(source);
+        RunCopyUpdateCoroutine(eventData);
+    }
+
+    private void OnManipulationUpdated(ManipulationEventData eventData)
+    {
+        if (!gridShown || !gridEnabled || !snapEnabled)
+        {
+            return;
+        }
+
+        var source = eventData.ManipulationSource;
+        _copy.SetPose(source.GetPose());
+        _copy.transform.localScale = source.transform.lossyScale;
+        SnapToGrid(_copy);
+    }
+
+    private void OnManipulationEnded(ManipulationEventData eventData)
+    {
+        if (!gridShown || !gridEnabled || !snapEnabled)
+        {
+            return;
+        }
+
+        var source = eventData.ManipulationSource;
+        StopObjectUpdateCoroutine();
+        SnapToGrid(source);
+        HideCopy();
+    }
+
+    private IEnumerator OnManipulationUpdatedCoroutine(ManipulationEventData eventData)
+    {
+        if (!_copy)
+        {
+            yield break;
+        }
+
+        while (true)
+        {
+            OnManipulationUpdated(eventData);
+            yield return null;
+        }
+    }
+
+    private void RunCopyUpdateCoroutine(ManipulationEventData eventData)
+    {
+        StopObjectUpdateCoroutine();
+        _copyUpdateCoroutine = StartCoroutine(OnManipulationUpdatedCoroutine(eventData));
+    }
+
+    private void StopObjectUpdateCoroutine()
+    {
+        if (_copyUpdateCoroutine != null)
+        {
+            StopCoroutine(_copyUpdateCoroutine);
+            _copyUpdateCoroutine = null;
+        }
+    }
+
+    private void CreateCopy(GameObject source)
+    {
+        const string helpGameObjectName = "rigRoot";
+        const string CopyObjectName = "CopyObject";
+
+        var copyID = source.gameObject.GetInstanceID();
+        if (_copy == null || _copyID != copyID)
+        {
+            Destroy(_copy);
+            _copy = Instantiate(source);
+            _copy.name = CopyObjectName;
+            _copyID = copyID;
+
+            var helpGameObject = _copy.transform.Find(helpGameObjectName);
+            if (helpGameObject)
+            {
+                Destroy(helpGameObject.gameObject);
+            }
+
+            var monoBehaviour = _copy.GetComponentsInChildren<MonoBehaviour>(true);
+            foreach (var behaviour in monoBehaviour)
+            {
+                behaviour.enabled = false;
+            }
+
+            var renderers = _copy.GetComponentsInChildren<MeshRenderer>(true);
+            foreach (var render in renderers)
+            {
+                var materials = new Material[render.materials.Length];
+
+                for (var i = 0; i < materials.Length; i++)
+                {
+                    materials[i] = _ghostMaterial;
+                }
+
+                render.materials = materials;
+            }
+        }
+
+        _copy.SetActive(true);
+    }
+
+    private void HideCopy()
+    {
+        if (_copy)
+        {
+            _copy.SetActive(false);
+        }
+    }
+
+    private void SnapToGrid(GameObject source)
+    {
+        source.transform.position = GetSnapPosition(source);
+    }
+
+    private Vector3 GetSnapPosition(GameObject source)
+    {
+        var delta = Vector3.zero;
+        var bounds = source.GetComponent<BoundsControl>();
+        var position = source.transform.position;
+
+        if (bounds)
+        {
+            position = bounds.transform.TransformPoint(bounds.TargetBounds.center);
+            delta = bounds.transform.position - position;
+        }
+
+        position.y = Mathf.Clamp(position.y, floorManager.floorLevel, float.PositiveInfinity);
+
+        return CalculateSnapPosition(position) + delta;
+    }
+
+    private Vector3 CalculateSnapPosition(Vector3 position)
+    {
+        var point = _grid.transform.InverseTransformPoint(position);
+        point.x = ToClosestValue(point.x, _cellWidth / 100f);
+        point.y = ToClosestValue(point.y, _cellWidth / 100f);
+        point.z = ToClosestValue(point.z, _cellWidth / 100f);
+        return _grid.transform.TransformPoint(point);
     }
 
     private void OnEditModeChanged(bool value)
