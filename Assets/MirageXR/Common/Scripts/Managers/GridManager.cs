@@ -203,11 +203,6 @@ public class GridManager : MonoBehaviour, IDisposable
 
     private void OnManipulationEnded(ManipulationEventData eventData)
     {
-        if (!gridShown || !gridEnabled || !snapEnabled)
-        {
-            return;
-        }
-
         var source = eventData.ManipulationSource;
         StopObjectUpdateCoroutine();
         SnapToGrid(source);
@@ -246,14 +241,14 @@ public class GridManager : MonoBehaviour, IDisposable
     private void CreateCopy(GameObject source)
     {
         const string helpGameObjectName = "rigRoot";
-        const string CopyObjectName = "CopyObject";
+        const string copyObjectName = "CopyObject";
 
         var copyID = source.gameObject.GetInstanceID();
         if (_copy == null || _copyID != copyID)
         {
             Destroy(_copy);
             _copy = Instantiate(source);
-            _copy.name = CopyObjectName;
+            _copy.name = copyObjectName;
             _copyID = copyID;
 
             var helpGameObject = _copy.transform.Find(helpGameObjectName);
