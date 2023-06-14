@@ -13,9 +13,11 @@ public class GridManager : MonoBehaviour, IDisposable
     private static CalibrationManager calibrationManager => RootObject.Instance.calibrationManager;
 
     [SerializeField] private Grid _gridPrefab;
+    [SerializeField] private GridLines _gridLinesPrefab;
     [SerializeField] private Material _ghostMaterial;
 
     private Grid _grid;
+    private GridLines _gridLines;
     private bool _gridEnabled = false;
     private bool _snapEnabled = false;
     private float _cellWidth = 10f;
@@ -46,6 +48,8 @@ public class GridManager : MonoBehaviour, IDisposable
     public List<string> optionsScaleStep => _optionsScaleStep;
 
     public List<float> valuesScaleStep => _valuesScaleStep;
+
+    public Grid grid => _grid;
 
     public bool gridShown => _grid.gameObject.activeInHierarchy;
 
@@ -79,6 +83,13 @@ public class GridManager : MonoBehaviour, IDisposable
 
         _grid = Instantiate(_gridPrefab);
         HideGrid();
+
+        _gridLines = Instantiate(_gridLinesPrefab);
+        _gridLines.transform.SetParent(_grid.transform);
+        _gridLines.transform.localPosition = Vector3.zero;
+        _gridLines.transform.localRotation = Quaternion.identity;
+        HideGridLines();
+
         _grid.Initialization(_cellWidth);
 
         _onManipulationStarted = OnManipulationStarted;
@@ -186,6 +197,7 @@ public class GridManager : MonoBehaviour, IDisposable
         var source = eventData.ManipulationSource;
         CreateCopy(source);
         RunCopyUpdateCoroutine(eventData);
+        ShowGridLines(_copy);
     }
 
     private void OnManipulationUpdated(ManipulationEventData eventData)
@@ -196,9 +208,9 @@ public class GridManager : MonoBehaviour, IDisposable
         }
 
         var source = eventData.ManipulationSource;
-        _copy.SetPose(source.GetPose());
-        _copy.transform.localScale = source.transform.lossyScale;
+        UpdateCopyPosition(source);
         SnapToGrid(_copy);
+        UpdateGridLines(_copy);
     }
 
     private void OnManipulationEnded(ManipulationEventData eventData)
@@ -207,6 +219,7 @@ public class GridManager : MonoBehaviour, IDisposable
         StopObjectUpdateCoroutine();
         SnapToGrid(source);
         HideCopy();
+        HideGridLines();
     }
 
     private IEnumerator OnManipulationUpdatedCoroutine(ManipulationEventData eventData)
@@ -221,6 +234,22 @@ public class GridManager : MonoBehaviour, IDisposable
             OnManipulationUpdated(eventData);
             yield return null;
         }
+    }
+
+    private void ShowGridLines(GameObject source)
+    {
+        _gridLines.gameObject.SetActive(true);
+        _gridLines.DrawLines(source.transform.position);
+    }
+
+    private void UpdateGridLines(GameObject source)
+    {
+        _gridLines.DrawLines(source.transform.position);
+    }
+
+    private void HideGridLines()
+    {
+        _gridLines.gameObject.SetActive(false);
     }
 
     private void RunCopyUpdateCoroutine(ManipulationEventData eventData)
@@ -249,6 +278,7 @@ public class GridManager : MonoBehaviour, IDisposable
             Destroy(_copy);
             _copy = Instantiate(source);
             _copy.name = copyObjectName;
+            _copy.SetPose(source.GetPose());
             _copyID = copyID;
 
             var helpGameObject = _copy.transform.Find(helpGameObjectName);
@@ -278,6 +308,13 @@ public class GridManager : MonoBehaviour, IDisposable
         }
 
         _copy.SetActive(true);
+    }
+
+
+    private void UpdateCopyPosition(GameObject source)
+    {
+        _copy.SetPose(source.GetPose());
+        _copy.transform.localScale = source.transform.lossyScale;
     }
 
     private void HideCopy()
