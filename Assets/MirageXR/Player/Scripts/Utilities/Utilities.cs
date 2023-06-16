@@ -248,7 +248,7 @@ namespace MirageXR
             return sameRotation;
         }
 
-        public static Texture2D LoadTexture(string filePath)
+        public static Texture2D LoadTexture(string filePath, bool readable = true)
         {
             if (!File.Exists(filePath))
             {
@@ -257,7 +257,7 @@ namespace MirageXR
 
             var fileData = File.ReadAllBytes(filePath);
             var texture2D = new Texture2D(2, 2);
-            return texture2D.LoadImage(fileData) ? texture2D : null;
+            return texture2D.LoadImage(fileData, !readable) ? texture2D : null;
         }
 
         public static Sprite TextureToSprite(Texture2D texture2d)
@@ -375,6 +375,41 @@ namespace MirageXR
         {
             transform.localPosition = pose.position;
             transform.localRotation = pose.rotation;
+        }
+
+        public static string GetResourceName(string path)
+        {
+            const string resourcesFolder = "Resources/";
+            var split = path.Split(resourcesFolder);
+            if (split.Length > 1)
+            {
+                path = split[^1];
+            }
+
+            var fileName = Path.GetFileNameWithoutExtension(path);
+            var dir = Path.GetDirectoryName(path);
+            return Path.Combine(dir, fileName);
+        }
+
+        public static Vector3 ToClosestToStepVector3(Vector3 vector3, float step)
+        {
+            var result = Vector3.zero;
+            result.x = ToClosestToStepValue(vector3.x, step);
+            result.y = ToClosestToStepValue(vector3.y, step);
+            result.z = ToClosestToStepValue(vector3.z, step);
+            return result;
+        }
+
+        public static float ToClosestToStepValue(float value, float step)
+        {
+            var entire = (int)(value / step);
+            var residue = value % step;
+            if (residue > step * 0.5f)
+            {
+                entire++;
+            }
+
+            return step * entire;
         }
     }
 }

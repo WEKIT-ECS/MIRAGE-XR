@@ -4,10 +4,11 @@ using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.XR.ARFoundation;
 
 public class CalibrationManager : MonoBehaviour
 {
+    private static BrandManager brandManager => RootObject.Instance.brandManager;
+
     private static ImageTargetManagerWrapper imageTargetManager => RootObject.Instance.imageTargetManager;
 
     private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
@@ -16,7 +17,6 @@ public class CalibrationManager : MonoBehaviour
     private static float IMAGE_TARGET_WIGTH = 0.19f;
 
     [SerializeField] private GameObject _calibrationImageTargetPrefab;
-    [SerializeField] private Texture2D _targetImage;
     [SerializeField] private UnityEvent _onCalibrationStarted = new UnityEvent();
     [SerializeField] private UnityEvent _onCalibrationCanceled = new UnityEvent();
     [SerializeField] private UnityEvent _onCalibrationFinished = new UnityEvent();
@@ -56,7 +56,7 @@ public class CalibrationManager : MonoBehaviour
         {
             name = "calibrationImageTarget",
             width = IMAGE_TARGET_WIGTH,
-            texture2D = _targetImage,
+            texture2D = brandManager.CalibrationMarker,
             prefab = _calibrationImageTargetPrefab,
             useLimitedTracking = false,
         };

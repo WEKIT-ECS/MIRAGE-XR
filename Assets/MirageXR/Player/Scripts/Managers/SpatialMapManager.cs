@@ -1,21 +1,43 @@
+using Microsoft.MixedReality.Toolkit;
+using Microsoft.MixedReality.Toolkit.SpatialAwareness;
 using MirageXR;
 using UnityEngine;
 
 public class SpatialMapManager : MonoBehaviour
 {
     private MeshCollider[] spatialMapMeshs;
+    
+    private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
 
 #if UNITY_WSA
     private void Start()
     {
         UpdateSpatialMapColliders(RootObject.Instance.activityManager.EditModeActive);
         //set colliders when first loading an activity
+
+        floorManager.onDetectionEnabled.AddListener(OnDetectionEnabled);
+        floorManager.onDetectionDisabled.AddListener(OnDetectionDisabled);
+    }
+
+    private void OnDetectionDisabled()
+    {
+        SpatialMapMeshVisible(false);
+        UpdateSpatialMapColliders(RootObject.Instance.activityManager.EditModeActive);
+    }
+
+    private void OnDetectionEnabled()
+    {
+        SpatialMapMeshVisible(true);
+        if (RootObject.Instance.activityManager.EditModeActive)
+        {
+            UpdateSpatialMapColliders(!RootObject.Instance.activityManager.EditModeActive);
+        }
     }
 
 
     private void OnEnable()
     {
-        EventManager.OnEditModeChanged += UpdateSpatialMapColliders;       
+        EventManager.OnEditModeChanged += UpdateSpatialMapColliders;
     }
 
 
@@ -47,6 +69,20 @@ public class SpatialMapManager : MonoBehaviour
                 spatialMapMesh.enabled = !editMode;
         }
         //loop though spatial map colliders and set to enabled or disabled depending on the editmode status
+    }
+
+    private void SpatialMapMeshVisible(bool visible)
+    {
+        var observer = CoreServices.GetSpatialAwarenessSystemDataProvider<IMixedRealitySpatialAwarenessMeshObserver>();
+
+        if (visible)
+        {
+            observer.DisplayOption = SpatialAwarenessMeshDisplayOptions.Visible;
+        }
+        else
+        {
+            observer.DisplayOption = SpatialAwarenessMeshDisplayOptions.None;
+        }
     }
 #endif
 }

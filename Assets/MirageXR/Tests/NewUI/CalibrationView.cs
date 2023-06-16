@@ -5,7 +5,6 @@ using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.XR.ARSubsystems;
 using Action = System.Action;
 
 public class CalibrationView : PopupBase
@@ -13,6 +12,8 @@ public class CalibrationView : PopupBase
     private static CalibrationManager calibrationManager => RootObject.Instance.calibrationManager;
 
     private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
+
+    private static GridManager gridManager => RootObject.Instance.gridManager;
 
     private string CALIBRATION_TEXT = "Calibration";
     private string NEW_POSITION_TEXT = "New position";
@@ -127,6 +128,12 @@ public class CalibrationView : PopupBase
         _imageTarget.gameObject.SetActive(false);
         _imageCalibrationAnimation.gameObject.SetActive(false);
         _footer.SetActive(false);
+
+        if (gridManager.gridEnabled)
+        {
+            gridManager.ShowGrid();
+        }
+
         await Task.Delay(CLOSE_TIME);
         Close();
     }
