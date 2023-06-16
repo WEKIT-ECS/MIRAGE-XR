@@ -92,11 +92,26 @@ public class FloorManagerMRTK : FloorManagerBase
 
     private void OnClicked(InputEventData eventData)
     {
+        if (eventData?.InputSource?.Pointers == null)
+        {
+            return;
+        }
+
         foreach (var pointer in eventData.InputSource.Pointers)
         {
+            if (pointer?.Result?.CurrentPointerTarget == null)
+            {
+                continue;
+            }
+
             var layer = pointer.Result.CurrentPointerTarget.layer;
 
             if (layer != _planeLayer)
+            {
+                continue;
+            }
+
+            if (pointer.Result?.Details == null)
             {
                 continue;
             }

@@ -390,5 +390,26 @@ namespace MirageXR
             var dir = Path.GetDirectoryName(path);
             return Path.Combine(dir, fileName);
         }
+
+        public static Vector3 ToClosestToStepVector3(Vector3 vector3, float step)
+        {
+            var result = Vector3.zero;
+            result.x = ToClosestToStepValue(vector3.x, step);
+            result.y = ToClosestToStepValue(vector3.y, step);
+            result.z = ToClosestToStepValue(vector3.z, step);
+            return result;
+        }
+
+        public static float ToClosestToStepValue(float value, float step)
+        {
+            var entire = (int)(value / step);
+            var residue = value % step;
+            if (residue > step * 0.5f)
+            {
+                entire++;
+            }
+
+            return step * entire;
+        }
     }
 }
