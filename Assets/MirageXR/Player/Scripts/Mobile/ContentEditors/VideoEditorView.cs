@@ -37,6 +37,7 @@ public class VideoEditorView : PopupEditorBase
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
+        _showBackground = false;
         base.Initialization(onClose, args);
         _btnCaptureVideo.onClick.AddListener(OnStartRecordingVideo);
         _btnOpenGallery.onClick.AddListener(OpenGallery);

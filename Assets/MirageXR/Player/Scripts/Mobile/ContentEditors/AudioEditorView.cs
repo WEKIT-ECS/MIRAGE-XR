@@ -79,6 +79,7 @@ public class AudioEditorView : PopupEditorBase
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
+        _showBackground = false;
         base.Initialization(onClose, args);
 
         _toggle3D.isOn = false;
@@ -121,7 +122,7 @@ public class AudioEditorView : PopupEditorBase
 
         var steps = activityManager.ActionsOfTypeAction;
         var stepsCount = steps.Count;
-        InitClampedScrollRect(_clampedScrollJumpToStep, _templatePrefab, stepsCount, stepsCount.ToString()); // _step.instruction.title
+        InitClampedScrollRect(_clampedScrollJumpToStep, _templatePrefab, stepsCount, stepsCount.ToString());
 
         if (_content != null && !string.IsNullOrEmpty(_content.url))
         {
