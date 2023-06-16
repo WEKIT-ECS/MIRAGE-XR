@@ -8,6 +8,8 @@ public class TaskStationEditor : MonoBehaviour
 {
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
+    private static GridManager gridManager => RootObject.Instance.gridManager;
+
     private ObjectManipulator _objectManipulator;
     private TaskStationStateController _taskStationStateController;
     private PlaceBehaviour _placeBehaviour;
@@ -25,6 +27,8 @@ public class TaskStationEditor : MonoBehaviour
         _detectable = RootObject.Instance.workplaceManager.GetDetectable(_placeBehaviour.Place);
         _objectManipulator.HostTransform = GameObject.Find(_detectable.id).transform;
         _objectManipulator.enabled = activityManager.EditModeActive;
+        _objectManipulator.OnManipulationStarted.AddListener(eventData => gridManager.onManipulationStarted(eventData.ManipulationSource));
+        _objectManipulator.OnManipulationEnded.AddListener(OnManipulationEnded);
     }
 
     private void OnEnable()
@@ -48,8 +52,10 @@ public class TaskStationEditor : MonoBehaviour
         _objectManipulator.enabled = _taskStationStateController.IsCurrent() && editModeActive;
     }
 
-    public void OnManipulationEnded()
+    private void OnManipulationEnded(ManipulationEventData eventData)
     {
+        gridManager.onManipulationEnded(eventData.ManipulationSource);
+
         var position = _objectManipulator.HostTransform.localPosition;
         var rotation = _objectManipulator.HostTransform.localRotation;
 

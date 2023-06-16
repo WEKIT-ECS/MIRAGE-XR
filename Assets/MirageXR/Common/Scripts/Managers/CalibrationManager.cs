@@ -17,7 +17,6 @@ public class CalibrationManager : MonoBehaviour
     private static float IMAGE_TARGET_WIGTH = 0.19f;
 
     [SerializeField] private GameObject _calibrationImageTargetPrefab;
-    [SerializeField] private Texture2D _targetImage;
     [SerializeField] private UnityEvent _onCalibrationStarted = new UnityEvent();
     [SerializeField] private UnityEvent _onCalibrationCanceled = new UnityEvent();
     [SerializeField] private UnityEvent _onCalibrationFinished = new UnityEvent();

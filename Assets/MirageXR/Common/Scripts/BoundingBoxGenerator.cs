@@ -3,7 +3,6 @@ using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControlTypes;
 using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -153,6 +152,7 @@ namespace MirageXR
                 {
                     boundsControl.enabled = editMode;
                 }
+
                 if (objectManipulator)
                 {
                     objectManipulator.enabled = editMode;
@@ -165,7 +165,7 @@ namespace MirageXR
         /// </summary>
         private IEnumerator ManipulationEvents(ToggleObject annotation)
         {
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitWhile(() => transform.parent == null);
 
             // Disable the parent manipulator and use mine
             var parentManipulator = transform.parent.gameObject.GetComponent<ObjectManipulator>();
@@ -178,16 +178,37 @@ namespace MirageXR
             objectManipulator.HostTransform = transform;
             objectManipulator.TwoHandedManipulationType = Microsoft.MixedReality.Toolkit.Utilities.TransformFlags.Move;
 
-            objectManipulator.OnManipulationEnded.AddListener(arg => SaveTransform(annotation));
+            var gridManager = RootObject.Instance.gridManager;
+            objectManipulator.OnManipulationStarted.AddListener(eventData => gridManager.onManipulationStarted(eventData.ManipulationSource));
+            objectManipulator.OnManipulationEnded.AddListener(eventData => OnManipulationEnded(eventData, annotation));
+
+            var boundsControl = GetComponent<BoundsControl>();
+            if (boundsControl)
+            {
+                boundsControl.RotateStarted.AddListener(() => gridManager.onRotateStarted?.Invoke(boundsControl.Target));
+                boundsControl.RotateStopped.AddListener(() => gridManager.onRotateStopped?.Invoke(boundsControl.Target));
+                boundsControl.ScaleStarted.AddListener(() => gridManager.onScaleStarted?.Invoke(boundsControl.Target));
+                boundsControl.ScaleStopped.AddListener(() => gridManager.onScaleStopped?.Invoke(boundsControl.Target));
+                boundsControl.TranslateStarted.AddListener(() => gridManager.onTranslateStarted?.Invoke(boundsControl.Target));
+                boundsControl.TranslateStopped.AddListener(() => gridManager.onTranslateStopped?.Invoke(boundsControl.Target));
+            }
 
             EditModeState(RootObject.Instance.activityManager.EditModeActive);
         }
 
-        private void SaveTransform(ToggleObject annotaion)
+        private void OnManipulationEnded(ManipulationEventData eventData, ToggleObject annotation)
         {
-            annotaion.position = transform.localPosition.ToString();
-            annotaion.rotation = transform.localRotation.ToString();
-            annotaion.scale = transform.localScale.x;
+            var gridManager = RootObject.Instance.gridManager;
+            gridManager.onManipulationEnded(eventData.ManipulationSource);
+
+            SaveTransform(annotation);
+        }
+
+        private void SaveTransform(ToggleObject annotation)
+        {
+            annotation.position = transform.localPosition.ToString();
+            annotation.rotation = transform.localRotation.ToString();
+            annotation.scale = transform.localScale.x;
         }
     }
 }
