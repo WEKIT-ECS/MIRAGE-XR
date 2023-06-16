@@ -178,6 +178,12 @@ namespace MirageXR
 
         private static bool IsNeedToRestore(Activity activity, out string restoreId)
         {
+            restoreId = null;
+            if (activity == null)
+            {
+                return false;
+            }
+
             restoreId = PlayerPrefs.GetString(activity.id);
             return !restoreId.Equals("StartingAction") && !string.IsNullOrEmpty(restoreId);
         }
