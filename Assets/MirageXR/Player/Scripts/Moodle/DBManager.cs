@@ -161,7 +161,8 @@ namespace MirageXR
         private static readonly PrefsBoolValue _developMode = new (DEVELOP_MODE_KEY, DEVELOP_MODE_DEFAULT);
         private static readonly PrefsBoolValue _rememberSketchfabUser = new (REMEMBER_SKETCHFAB_USER_KEY, REMEMBER_SKETCHFAB_USER_DEFAULT);
         private static readonly PrefsBoolValue _dontShowCalibrationGuide = new (DONT_SHOW_CALIBRATION_GUIDE_KEY, DONT_SHOW_CALIBRATION_GUIDE_DEFAULT);
-        private static readonly PrefsBoolValue _dontShowNewAugmentationHint = new(DONT_SHOW_NEW_AUGMENTATION_HINT_KEY, DONT_SHOW_NEW_AUGMENTATION_HINT_DEFAULT);
+        private static readonly PrefsBoolValue _dontShowNewAugmentationHint = new 
+ (DONT_SHOW_NEW_AUGMENTATION_HINT_KEY, DONT_SHOW_NEW_AUGMENTATION_HINT_DEFAULT);
         private static readonly PrefsStringValue _domain = new (MOODLE_URL_KEY, WEKIT_URL);
         private static readonly PrefsStringValue _privacyPolicyDomain = new (PRIVACY_POLICY_URL_KEY, WEKIT_PRIVACY_POLICY_URL);
         private static readonly PrefsStringValue _sketchfabTokenRenewDate = new (SKETCHFAB_TOKEN_RENEW_KEY, SKETCHFAB_TOKEN_RENEW_DEFAULT);
