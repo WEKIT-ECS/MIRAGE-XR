@@ -320,10 +320,16 @@ namespace MirageXR
             modelPreview.name = GetValidFileName(modelPreview.name);
 
             var modelsFolderPath = Path.Combine(Application.persistentDataPath, FOLDER_NAME);
-            if (!Directory.Exists(modelsFolderPath)) Directory.CreateDirectory(modelsFolderPath);
+            if (!Directory.Exists(modelsFolderPath))
+            {
+                Directory.CreateDirectory(modelsFolderPath);
+            }
 
             var modelFolderPath = Path.Combine(modelsFolderPath, modelPreview.name);
-            if (!Directory.Exists(modelFolderPath)) Directory.CreateDirectory(modelFolderPath);
+            if (!Directory.Exists(modelFolderPath))
+            {
+                Directory.CreateDirectory(modelFolderPath);
+            }
 
             var archivePath = Path.Combine(modelsFolderPath, archiveName);
             var jsonPath = Path.Combine(modelFolderPath, JSON_FILE_NAME);

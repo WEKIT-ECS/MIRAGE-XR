@@ -3,6 +3,8 @@ using System.IO;
 using UnityEngine;
 using Siccity.GLTFUtility;
 using i5.Toolkit.Core.VerboseLogging;
+using Microsoft.MixedReality.Toolkit.UI;
+using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 
 namespace MirageXR
 {
@@ -150,6 +152,25 @@ namespace MirageXR
             if (poiEditor)
             {
                 poiEditor.EnableBoundsControl(true);
+            }
+
+            var gridManager = RootObject.Instance.gridManager;
+            var objectManipulator = GetComponentInParent<ObjectManipulator>();
+            if (objectManipulator)
+            {
+                objectManipulator.OnManipulationStarted.AddListener(eventData => gridManager.onManipulationStarted(eventData.ManipulationSource));
+                objectManipulator.OnManipulationEnded.AddListener(eventData => gridManager.onManipulationEnded(eventData.ManipulationSource));
+            }
+
+            var boundsControl = GetComponentInParent<BoundsControl>();
+            if (boundsControl)
+            {
+                boundsControl.RotateStarted.AddListener(() => gridManager.onRotateStarted?.Invoke(boundsControl.Target));
+                boundsControl.RotateStopped.AddListener(() => gridManager.onRotateStopped?.Invoke(boundsControl.Target));
+                boundsControl.ScaleStarted.AddListener(() => gridManager.onScaleStarted?.Invoke(boundsControl.Target));
+                boundsControl.ScaleStopped.AddListener(() => gridManager.onScaleStopped?.Invoke(boundsControl.Target));
+                boundsControl.TranslateStarted.AddListener(() => gridManager.onTranslateStarted?.Invoke(boundsControl.Target));
+                boundsControl.TranslateStopped.AddListener(() => gridManager.onTranslateStopped?.Invoke(boundsControl.Target));
             }
         }
 

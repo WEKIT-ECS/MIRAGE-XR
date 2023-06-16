@@ -400,26 +400,14 @@ namespace MirageXR
         {
             switch (annotationToggleObject.predicate)
             {
-                case string p when p.Contains("3d"):
+                case { } p when p.Contains("3d"):
                 {
                     var obstacle = go.AddComponent<NavMeshObstacle>();
-                    var model = go.GetComponent<Model>();
                     obstacle.size = go.transform.localScale / 4;
-
-                    model.StartCoroutine(WaitForParent(go, () =>
-                    {
-                        var gridManager = RootObject.Instance.gridManager;
-                        var objectManipulator = go.GetComponentInParent<ObjectManipulator>();
-                        if (objectManipulator)
-                        {
-                            objectManipulator.OnManipulationStarted.AddListener(gridManager.onManipulationStarted.Invoke);
-                            objectManipulator.OnManipulationEnded.AddListener(gridManager.onManipulationEnded.Invoke);
-                        }
-                    }));
                     break;
                 }
 
-                case string p when p.StartsWith("act") || p.StartsWith("effect") || p.Equals("image") || p.Equals("video"):
+                case { } p when p.StartsWith("act") || p.StartsWith("effect") || p.Equals("image") || p.Equals("video"):
                 {
                     if (DisableBounding(annotationToggleObject))
                     {

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using Microsoft.MixedReality.Toolkit.UI;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using MirageXR;
 using UnityEngine;
 
@@ -17,7 +14,7 @@ public class GridManager : MonoBehaviour, IDisposable
     [SerializeField] private Material _ghostMaterial;
 
     private Grid _grid;
-    private GridLines _gridLines;
+    private ManipulationController _manipulationController;
     private bool _gridEnabled = false;
     private bool _snapEnabled = false;
     private float _cellWidth = 10f;
@@ -34,8 +31,15 @@ public class GridManager : MonoBehaviour, IDisposable
     private GameObject _copy;
     private int _copyID;
     private Coroutine _copyUpdateCoroutine;
-    private Action<ManipulationEventData> _onManipulationStarted;
-    private Action<ManipulationEventData> _onManipulationEnded;
+    private Action<GameObject> _onManipulationStarted;
+    private Action<GameObject> _onManipulationEnded;
+    private Action<GameObject> _onRotateStarted;
+    private Action<GameObject> _onRotateStopped;
+    private Action<GameObject> _onScaleStarted;
+    private Action<GameObject> _onScaleStopped;
+    private Action<GameObject> _onTranslateStarted;
+    private Action<GameObject> _onTranslateStopped;
+    private bool _manipulationStarted = false;
 
     public List<string> optionsCellSize => _optionsCellSize;
 
@@ -51,6 +55,9 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public Grid grid => _grid;
 
+
+    public Material ghostMaterial => _ghostMaterial;
+
     public bool gridShown => _grid.gameObject.activeInHierarchy;
 
     public bool gridEnabled => _gridEnabled;
@@ -63,9 +70,21 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public float scaleStep => _scaleStep;
 
-    public Action<ManipulationEventData> onManipulationStarted => _onManipulationStarted;
+    public Action<GameObject> onManipulationStarted => _manipulationController.onManipulationStarted;
 
-    public Action<ManipulationEventData> onManipulationEnded => _onManipulationEnded;
+    public Action<GameObject> onManipulationEnded => _manipulationController.onManipulationEnded;
+
+    public Action<GameObject> onRotateStarted => _manipulationController.onRotateStarted;
+
+    public Action<GameObject> onRotateStopped => _manipulationController.onRotateStopped;
+
+    public Action<GameObject> onScaleStarted => _manipulationController.onScaleStarted;
+
+    public Action<GameObject> onScaleStopped => _manipulationController.onScaleStopped;
+
+    public Action<GameObject> onTranslateStarted => _manipulationController.onTranslateStarted;
+
+    public Action<GameObject> onTranslateStopped => _manipulationController.onTranslateStopped;
 
     public void Initialization()
     {
@@ -75,25 +94,26 @@ public class GridManager : MonoBehaviour, IDisposable
         _angleStep = DBManager.gridAngleStep;
         _scaleStep = DBManager.gridScaleStep;
 
+
         if (!_gridPrefab)
         {
             Debug.Log("_gridPrefab is null");
             return;
         }
 
+        if (!_gridLinesPrefab)
+        {
+            Debug.Log("_gridLinesPrefab is null");
+            return;
+        }
+
         _grid = Instantiate(_gridPrefab);
         HideGrid();
 
-        _gridLines = Instantiate(_gridLinesPrefab);
-        _gridLines.transform.SetParent(_grid.transform);
-        _gridLines.transform.localPosition = Vector3.zero;
-        _gridLines.transform.localRotation = Quaternion.identity;
-        HideGridLines();
+        _manipulationController = gameObject.AddComponent<ManipulationController>();
+        _manipulationController.Initialization(this, _gridLinesPrefab);
 
         _grid.Initialization(_cellWidth);
-
-        _onManipulationStarted = OnManipulationStarted;
-        _onManipulationEnded = OnManipulationEnded;
 
         EventManager.OnEditModeChanged += OnEditModeChanged;
     }
@@ -117,19 +137,6 @@ public class GridManager : MonoBehaviour, IDisposable
     public void HideGrid()
     {
         _grid.gameObject.SetActive(false);
-    }
-
-    private static float ToClosestValue(float value, float step)
-    {
-        var stepInMeters = step;
-        var entire = (int)(value / stepInMeters);
-        var residue = value % stepInMeters;
-        if (residue > stepInMeters * 0.5f)
-        {
-            entire++;
-        }
-
-        return stepInMeters * entire;
     }
 
     public void EnableGrid()
@@ -185,175 +192,6 @@ public class GridManager : MonoBehaviour, IDisposable
     public void Dispose()
     {
         EventManager.OnEditModeChanged -= OnEditModeChanged;
-    }
-
-    private void OnManipulationStarted(ManipulationEventData eventData)
-    {
-        if (!gridShown || !gridEnabled || !snapEnabled)
-        {
-            return;
-        }
-
-        var source = eventData.ManipulationSource;
-        CreateCopy(source);
-        RunCopyUpdateCoroutine(eventData);
-        ShowGridLines(_copy);
-    }
-
-    private void OnManipulationUpdated(ManipulationEventData eventData)
-    {
-        if (!gridShown || !gridEnabled || !snapEnabled)
-        {
-            return;
-        }
-
-        var source = eventData.ManipulationSource;
-        UpdateCopyPosition(source);
-        SnapToGrid(_copy);
-        UpdateGridLines(_copy);
-    }
-
-    private void OnManipulationEnded(ManipulationEventData eventData)
-    {
-        var source = eventData.ManipulationSource;
-        StopObjectUpdateCoroutine();
-        SnapToGrid(source);
-        HideCopy();
-        HideGridLines();
-    }
-
-    private IEnumerator OnManipulationUpdatedCoroutine(ManipulationEventData eventData)
-    {
-        if (!_copy)
-        {
-            yield break;
-        }
-
-        while (true)
-        {
-            OnManipulationUpdated(eventData);
-            yield return null;
-        }
-    }
-
-    private void ShowGridLines(GameObject source)
-    {
-        _gridLines.gameObject.SetActive(true);
-        _gridLines.DrawLines(source.transform.position);
-    }
-
-    private void UpdateGridLines(GameObject source)
-    {
-        _gridLines.DrawLines(source.transform.position);
-    }
-
-    private void HideGridLines()
-    {
-        _gridLines.gameObject.SetActive(false);
-    }
-
-    private void RunCopyUpdateCoroutine(ManipulationEventData eventData)
-    {
-        StopObjectUpdateCoroutine();
-        _copyUpdateCoroutine = StartCoroutine(OnManipulationUpdatedCoroutine(eventData));
-    }
-
-    private void StopObjectUpdateCoroutine()
-    {
-        if (_copyUpdateCoroutine != null)
-        {
-            StopCoroutine(_copyUpdateCoroutine);
-            _copyUpdateCoroutine = null;
-        }
-    }
-
-    private void CreateCopy(GameObject source)
-    {
-        const string helpGameObjectName = "rigRoot";
-        const string copyObjectName = "CopyObject";
-
-        var copyID = source.gameObject.GetInstanceID();
-        if (_copy == null || _copyID != copyID)
-        {
-            Destroy(_copy);
-            _copy = Instantiate(source);
-            _copy.name = copyObjectName;
-            _copy.SetPose(source.GetPose());
-            _copyID = copyID;
-
-            var helpGameObject = _copy.transform.Find(helpGameObjectName);
-            if (helpGameObject)
-            {
-                Destroy(helpGameObject.gameObject);
-            }
-
-            var monoBehaviour = _copy.GetComponentsInChildren<MonoBehaviour>(true);
-            foreach (var behaviour in monoBehaviour)
-            {
-                behaviour.enabled = false;
-            }
-
-            var renderers = _copy.GetComponentsInChildren<MeshRenderer>(true);
-            foreach (var render in renderers)
-            {
-                var materials = new Material[render.materials.Length];
-
-                for (var i = 0; i < materials.Length; i++)
-                {
-                    materials[i] = _ghostMaterial;
-                }
-
-                render.materials = materials;
-            }
-        }
-
-        _copy.SetActive(true);
-    }
-
-
-    private void UpdateCopyPosition(GameObject source)
-    {
-        _copy.SetPose(source.GetPose());
-        _copy.transform.localScale = source.transform.lossyScale;
-    }
-
-    private void HideCopy()
-    {
-        if (_copy)
-        {
-            _copy.SetActive(false);
-        }
-    }
-
-    private void SnapToGrid(GameObject source)
-    {
-        source.transform.position = GetSnapPosition(source);
-    }
-
-    private Vector3 GetSnapPosition(GameObject source)
-    {
-        var delta = Vector3.zero;
-        var bounds = source.GetComponent<BoundsControl>();
-        var position = source.transform.position;
-
-        if (bounds)
-        {
-            position = bounds.transform.TransformPoint(bounds.TargetBounds.center);
-            delta = bounds.transform.position - position;
-        }
-
-        position.y = Mathf.Clamp(position.y, floorManager.floorLevel, float.PositiveInfinity);
-
-        return CalculateSnapPosition(position) + delta;
-    }
-
-    private Vector3 CalculateSnapPosition(Vector3 position)
-    {
-        var point = _grid.transform.InverseTransformPoint(position);
-        point.x = ToClosestValue(point.x, _cellWidth / 100f);
-        point.y = ToClosestValue(point.y, _cellWidth / 100f);
-        point.z = ToClosestValue(point.z, _cellWidth / 100f);
-        return _grid.transform.TransformPoint(point);
     }
 
     private void OnEditModeChanged(bool value)
