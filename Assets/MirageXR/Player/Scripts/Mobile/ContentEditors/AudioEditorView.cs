@@ -31,17 +31,14 @@ public class AudioEditorView : PopupEditorBase
     [SerializeField] private Button _btnRewindBack;
     [SerializeField] private Button _btnRewindForward;
 
-    //[SerializeField] private Toggle _toggleTrigger;
     [SerializeField] private Toggle _toggle3D;
     //[SerializeField] private Toggle _toggle2D;
     [SerializeField] private Toggle _toggleLoop;
-    //[SerializeField] private Slider _sliderRange;
     [SerializeField] private Button _btnIncreaseRange;
     [SerializeField] private Button _btnDecreaseRange;
 
     [SerializeField] private TMP_Text _txtSliderRangeValue;
     [SerializeField] private GameObject _panelRange;
-    //[SerializeField] private TMP_InputField _inputTriggerStepNumber;
     [SerializeField] private ClampedScrollRect _clampedScrollJumpToStep;
     [SerializeField] private GameObject _templatePrefab;
     [Space]
@@ -139,7 +136,9 @@ public class AudioEditorView : PopupEditorBase
 
     private void InitClampedScrollRect(ClampedScrollRect clampedScrollRect, GameObject templatePrefab, int maxCount, string text)
     {
+        var currentActionId = activityManager.ActiveAction.id;
         var steps = activityManager.ActionsOfTypeAction;
+
         for (int i = 1; i <= maxCount; i++)
         {
             var obj = Instantiate(templatePrefab, clampedScrollRect.content, false);
@@ -147,6 +146,11 @@ public class AudioEditorView : PopupEditorBase
             obj.SetActive(true);
             obj.AddComponent<IntHolder>().item = i;
             obj.GetComponentInChildren<TMP_Text>().text = "   " + i.ToString() + "/" + text + "     " + steps[i - 1].instruction.title.ToString();
+
+            if (steps[i - 1].id == currentActionId)
+            {
+                _clampedScrollJumpToStep.currentItemIndex = i;
+            }
         }
     }
 
@@ -176,7 +180,6 @@ public class AudioEditorView : PopupEditorBase
             if (int.TryParse(parameters[2], out var value))
             {
                 _txtSliderRangeValue.text = parameters[2];
-                //_sliderRange.value = value;
                 _currentRangeValue = value;
             }
         }
@@ -447,10 +450,6 @@ public class AudioEditorView : PopupEditorBase
         _content.url = $"http://{_fileName}";
 
         _step.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, _content.poi, _audioClip.length, _inputTriggerStepNumber);
-        if (_inputTriggerStepNumber == string.Empty)
-        {
-            _inputTriggerStepNumber = _clampedScrollJumpToStep.currentItemIndex.ToString(); // TODO
-        }
 
         SaveLoadAudioUtilities.Save(filePath, _audioClip);
 
