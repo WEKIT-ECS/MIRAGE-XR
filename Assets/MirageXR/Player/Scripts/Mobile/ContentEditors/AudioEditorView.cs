@@ -73,9 +73,7 @@ public class AudioEditorView : PopupEditorBase
     private Coroutine _updateRecordTimerCoroutine;
     private float _recordStartTime;
 
-    private bool _isRecording;
-    private bool _isPlaying;
-
+    private string _inputTriggerStepNumber = string.Empty;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -84,9 +82,6 @@ public class AudioEditorView : PopupEditorBase
 
         _toggle3D.isOn = false;
         _toggleLoop.isOn = false;
-        //_sliderRange.minValue = MIN_RANGE;
-        //_sliderRange.maxValue = MAX_RANGE;
-        //_sliderRange.value = DEFAULT_RANGE;
         _currentRangeValue = DEFAULT_RANGE;
         _txtSliderRangeValue.text = DEFAULT_RANGE.ToString("0");
 
@@ -98,7 +93,6 @@ public class AudioEditorView : PopupEditorBase
 
         _btnAudioSettings.onClick.AddListener(OnOpenAudioSettings);
         _btnCancel.onClick.AddListener(OnClickCancel);
-
 
         _btnRecord.onClick.AddListener(OnRecordStarted);
         _btnStop.onClick.AddListener(OnRecordStopped);
@@ -116,9 +110,7 @@ public class AudioEditorView : PopupEditorBase
         _sliderPlayer.onValueChanged.AddListener(OnSliderPlayerValueChanged);
         _clampedScrollJumpToStep.onItemChanged.AddListener(OnItemJumpToStepChanged);
 
-        //_toggleTrigger.onValueChanged.AddListener(OnToggleTriggerValueChanged);
         _toggle3D.onValueChanged.AddListener(On3DSelected);
-        //_sliderRange.onValueChanged.AddListener(OnSliderRangeValueChanged);
 
         var steps = activityManager.ActionsOfTypeAction;
         var stepsCount = steps.Count;
@@ -131,8 +123,7 @@ public class AudioEditorView : PopupEditorBase
             var trigger = _step.triggers.Find(tr => tr.id == _content.poi);
             if (trigger != null)
             {
-                //_toggleTrigger.isOn = true;
-                //_inputTriggerStepNumber.text = trigger.value; // TODO
+                _inputTriggerStepNumber = trigger.value;
             }
         }
         else
@@ -256,7 +247,6 @@ public class AudioEditorView : PopupEditorBase
         _audioClip = AudioRecorder.Stop();
         _groupPlayControls.interactable = true;
         StopCoroutine(_updateRecordTimerCoroutine);
-        //UpdateSliderPlayerAndTimer();
 
         _panelRecordComplete.SetActive(true);
     }
@@ -370,8 +360,6 @@ public class AudioEditorView : PopupEditorBase
     private void SetPlayerActive(bool value)
     {
         _imgRecordingIcon.gameObject.SetActive(!value);
-        //_groupPlayControls.gameObject.SetActive(value);
-        //_sliderPlayer.gameObject.SetActive(value);
     }
 
     private void On3DSelected(bool value)
@@ -408,34 +396,9 @@ public class AudioEditorView : PopupEditorBase
         _audioSource.time = _audioClip.length * value;
     }
 
-    private void OnToggleTriggerValueChanged(bool value)
-    {
-        if (value && activityManager.IsLastAction(_step))
-        {
-            Toast.Instance.Show("This is the last step. The trigger is disabled!\n Add a new step and try again.");
-            //_toggleTrigger.onValueChanged.RemoveListener(OnToggleTriggerValueChanged);
-            //_toggleTrigger.isOn = false;
-            //_toggleTrigger.onValueChanged.AddListener(OnToggleTriggerValueChanged);
-            return;
-        }
-
-        if (value)
-        {
-            _toggleLoop.isOn = false;
-            //_inputTriggerStepNumber.transform.parent.gameObject.SetActive(true); // TODO
-        }
-        else
-        {
-            //_inputTriggerStepNumber.transform.parent.gameObject.SetActive(false); / TODO
-        }
-        _toggleLoop.interactable = _toggle3D.isOn && !value;
-    }
-
     private void OnItemJumpToStepChanged(Component item)
     {
-        // TODO
-        var txt = item.GetComponent<ObjectHolder<int>>().item;
-        Debug.LogError("[111] step = " + txt);
+        _inputTriggerStepNumber = item.GetComponent<ObjectHolder<int>>().item.ToString();
     }
 
     private void OnOpenAudioSettings()
@@ -483,21 +446,11 @@ public class AudioEditorView : PopupEditorBase
         _content.scale = 0.5f;
         _content.url = $"http://{_fileName}";
 
-        //if (_inputTriggerStepNumber.text == "" && _toggleTrigger.isOn)
-        /* {
-            Toast.Instance.Show("Input field is empty.");
-            return;
-        }*/
-
-
-        /*if (_toggleTrigger.isOn)
+        _step.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, _content.poi, _audioClip.length, _inputTriggerStepNumber);
+        if (_inputTriggerStepNumber == string.Empty)
         {
-            _step.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, _content.poi, _audioClip.length, _inputTriggerStepNumber.text);
+            _inputTriggerStepNumber = _clampedScrollJumpToStep.currentItemIndex.ToString(); // TODO
         }
-        else
-        {
-            _step.RemoveArlemTrigger(_content);
-        }*/
 
         SaveLoadAudioUtilities.Save(filePath, _audioClip);
 
