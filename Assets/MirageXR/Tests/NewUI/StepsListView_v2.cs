@@ -150,7 +150,7 @@ public class StepsListView_v2 : BaseView
         _currentStepId = stepId;
         _stepsList.ForEach(t => t.UpdateView());
 
-        if (_listHorizontalContent.gameObject.activeSelf)
+        if (_listHorizontalContent.gameObject.activeInHierarchy)
         {
             StartCoroutine(ShowSelectedItem(stepId));
         }
