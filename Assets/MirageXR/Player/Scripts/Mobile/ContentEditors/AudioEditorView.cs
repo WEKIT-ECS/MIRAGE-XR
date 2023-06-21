@@ -289,7 +289,7 @@ public class AudioEditorView : PopupEditorBase
             _txtTimerFrom.text = ToTimeFormatMinutes(_audioSource.time);
             _sliderPlayer.onValueChanged.AddListener(OnSliderPlayerValueChanged);
 
-            if (Math.Abs(_audioSource.time - clip.length) <= float.Epsilon)
+            if (Math.Abs((int)_audioSource.time - (int)clip.length) <= float.Epsilon)
             {
                 OnPlayingFinished();
             }
@@ -308,6 +308,7 @@ public class AudioEditorView : PopupEditorBase
         _audioSource.clip = null;
         _btnPlay.gameObject.SetActive(true);
         _btnPause.gameObject.SetActive(false);
+        _txtTimerFrom.text = ToTimeFormatMinutes(0);
         ResetPlayerTimer();
         if (_updateSliderPlayerCoroutine != null)
         {
@@ -416,6 +417,7 @@ public class AudioEditorView : PopupEditorBase
         _panelPlayRecord.SetActive(false);
         _panelBottomButtons.SetActive(false);
         _panelRecordControls.SetActive(true);
+        _txtTimer.text = ToTimeFormat(0);
     }
 
     protected override void OnAccept()
