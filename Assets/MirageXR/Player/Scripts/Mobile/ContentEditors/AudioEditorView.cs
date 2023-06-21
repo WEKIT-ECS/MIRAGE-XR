@@ -145,7 +145,7 @@ public class AudioEditorView : PopupEditorBase
             obj.name = i.ToString();
             obj.SetActive(true);
             obj.AddComponent<IntHolder>().item = i;
-            obj.GetComponentInChildren<TMP_Text>().text = "   " + i.ToString() + "/" + text + "     " + steps[i - 1].instruction.title.ToString();
+           obj.GetComponentInChildren<TMP_Text>().text = $"   {i}/{text}     {steps[i - 1].instruction.title}";
 
             if (steps[i - 1].id == currentActionId)
             {
