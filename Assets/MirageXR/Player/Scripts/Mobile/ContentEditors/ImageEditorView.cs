@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using DG.Tweening;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,7 +8,10 @@ using Image = UnityEngine.UI.Image;
 
 public class ImageEditorView : PopupEditorBase
 {
+    private const float HIDED_SIZE = 100f;
+    private const float HIDE_ANIMATION_TIME = 0.5f;
     private const int MAX_PICTURE_SIZE = 1024;
+    private const float IMAGE_HEIGHT = 630f;
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
     private static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
@@ -23,23 +27,39 @@ public class ImageEditorView : PopupEditorBase
     [SerializeField] private Button _btnCaptureImage;
     [SerializeField] private Button _btnOpenGallery;
     [SerializeField] private Toggle _toggleOrientation;
+    [Space]
+    [SerializeField] private Button _btnArrow;
+    [SerializeField] private RectTransform _panel;
+    [SerializeField] private GameObject _arrowDown;
+    [SerializeField] private GameObject _arrowUp;
+    [Space]
+    [SerializeField] private HintViewWithButtonAndToggle _hintPrefab;
 
     private Texture2D _capturedImage;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
+        _showBackground = false;
         base.Initialization(onClose, args);
         UpdateView();
         _btnCaptureImage.onClick.AddListener(OnCaptureImage);
         _btnOpenGallery.onClick.AddListener(OpenGallery);
+        _btnArrow.onClick.AddListener(OnArrowButtonPressed);
+        
+        _arrowDown.SetActive(true);
+        _arrowUp.SetActive(false);
 
         _toggleOrientation.onValueChanged.AddListener(OnToggleOrientationValueChanged);
         _toggleOrientation.isOn = _orientation;
+
+        RootView_v2.Instance.HideBaseView();
     }
 
     private void OnDestroy()
     {
         if (_capturedImage) Destroy(_capturedImage);
+
+        RootView_v2.Instance.ShowBaseView();
     }
 
     protected override void OnAccept()
@@ -68,6 +88,12 @@ public class ImageEditorView : PopupEditorBase
         {
             _content = augmentationManager.AddAugmentation(_step, GetOffset());
             _content.predicate = editorForType.GetPredicate();
+        }
+
+        // TODO add rename window:
+        if (!DBManager.dontShowNewAugmentationHint)
+        {
+            PopupsViewer.Instance.Show(_hintPrefab);
         }
 
         _content.key = _orientation ? LANDSCAPE : PORTRAIT;
@@ -165,9 +191,28 @@ public class ImageEditorView : PopupEditorBase
 
         var rtImageHolder = (RectTransform)_imageHolder.transform;
         var rtImage = (RectTransform)_image.transform;
-        var height = (rtImage.rect.width / _capturedImage.width * _capturedImage.height) + (rtImage.sizeDelta.y * -1);
-        rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+        var width = (float)_capturedImage.width / _capturedImage.height * IMAGE_HEIGHT;
+
+        rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, IMAGE_HEIGHT);
+        rtImage.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
 
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
+    }
+
+    private void OnArrowButtonPressed()
+    {
+        if (_arrowDown.activeSelf)
+        {
+            var hidedSize = HIDED_SIZE;
+            _panel.DOAnchorPosY(-_panel.rect.height + hidedSize, HIDE_ANIMATION_TIME);
+            _arrowDown.SetActive(false);
+            _arrowUp.SetActive(true);
+        }
+        else
+        {
+            _panel.DOAnchorPosY(0.0f, HIDE_ANIMATION_TIME);
+            _arrowDown.SetActive(true);
+            _arrowUp.SetActive(false);
+        }
     }
 }
