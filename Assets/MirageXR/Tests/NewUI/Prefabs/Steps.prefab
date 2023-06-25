@@ -1713,8 +1713,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9057893016146581578}
-  - component: {fileID: 7078921081340010482}
   - component: {fileID: 4745819346267389404}
+  - component: {fileID: 7078921081340010482}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -1742,20 +1742,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
---- !u!114 &7078921081340010482
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6472889302828068100}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_HorizontalFit: 2
-  m_VerticalFit: 2
 --- !u!114 &4745819346267389404
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1782,6 +1768,20 @@ MonoBehaviour:
   m_ChildScaleWidth: 1
   m_ChildScaleHeight: 1
   m_ReverseArrangement: 0
+--- !u!114 &7078921081340010482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6472889302828068100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 2
+  m_VerticalFit: 2
 --- !u!1 &6844870268796425532
 GameObject:
   m_ObjectHideFlags: 0
@@ -1945,6 +1945,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _listVerticalContent: {fileID: 7396225487583108835}
   _listHorizontalContent: {fileID: 9057893016146581578}
+  _moveTimeHorizontalScroll: 0.9
+  _animationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   _textActivityName: {fileID: 8083235005199627035}
   _inputFieldActivityName: {fileID: 7272325896354531652}
   _inputFieldActivityDescription: {fileID: 3812528685048994425}
@@ -1973,7 +1998,6 @@ MonoBehaviour:
     type: 3}
   _thumbnailEditorPrefab: {fileID: 4327074725106002642, guid: d24de702880a89a4ab2811eed33ba72e,
     type: 3}
-  calibrationImage: {fileID: 4900000, guid: 315c2cb4b67930c44925a5d151997f25, type: 3}
 --- !u!1 &7396225487407808061
 GameObject:
   m_ObjectHideFlags: 0
@@ -2577,9 +2601,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Id: activity_title
-  InteractableObject: {fileID: 3735262054228724404}
-  IsPartOfScrollView: 0
+  _getIdFromName: 0
+  _id: 
+  _interactableObject: {fileID: 0}
+  _isPartOfScrollView: 0
+  _delay: 0
 --- !u!114 &7272325896354531652 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7807435668432571786, guid: 7bd0b0f78e85ce24ead512625b6ba02c,
@@ -3710,9 +3736,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Id: activity_description
-  InteractableObject: {fileID: 7193091314841262473}
-  IsPartOfScrollView: 0
+  _getIdFromName: 0
+  _id: 
+  _interactableObject: {fileID: 0}
+  _isPartOfScrollView: 0
+  _delay: 0
 --- !u!1001 &6807894510230605212
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4301,9 +4329,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Id: step_info
-  InteractableObject: {fileID: 1707416028901310053}
-  IsPartOfScrollView: 0
+  _getIdFromName: 0
+  _id: 
+  _interactableObject: {fileID: 0}
+  _isPartOfScrollView: 0
+  _delay: 0
 --- !u!224 &3183183475383556694 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6289815014708543235, guid: 9387b99b8853f844595f59ef3f811e2f,
@@ -4340,9 +4370,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Id: 
-  InteractableObject: {fileID: 0}
-  IsPartOfScrollView: 0
+  _getIdFromName: 0
+  _id: 
+  _interactableObject: {fileID: 0}
+  _isPartOfScrollView: 0
+  _delay: 0
 --- !u!114 &7959459148325037110 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1517911001609666915, guid: 9387b99b8853f844595f59ef3f811e2f,
@@ -4399,6 +4431,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Id: 
-  InteractableObject: {fileID: 0}
-  IsPartOfScrollView: 0
+  _getIdFromName: 0
+  _id: 
+  _interactableObject: {fileID: 0}
+  _isPartOfScrollView: 0
+  _delay: 0
