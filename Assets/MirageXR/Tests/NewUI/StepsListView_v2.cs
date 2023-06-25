@@ -503,7 +503,11 @@ public class StepsListView_v2 : BaseView
         }
 
         Canvas.ForceUpdateCanvases();
-        StartCoroutine(ShowSelectedItem(_currentStepId));
+        var stepsCount = activityManager.ActionsOfTypeAction.Count;
+        if (stepsCount != 1)
+        {
+            StartCoroutine(ShowSelectedItem(_currentStepId));
+        }
     }
 
     public void MoveStepsToVerticalScroll()
