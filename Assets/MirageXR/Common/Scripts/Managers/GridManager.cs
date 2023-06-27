@@ -10,8 +10,11 @@ public class GridManager : MonoBehaviour, IDisposable
     private static CalibrationManager calibrationManager => RootObject.Instance.calibrationManager;
 
     [SerializeField] private Grid _gridPrefab;
+    [SerializeField] private GridLines _gridLinesPrefab;
+    [SerializeField] private Material _ghostMaterial;
 
     private Grid _grid;
+    private ManipulationController _manipulationController;
     private bool _gridEnabled = false;
     private bool _snapEnabled = false;
     private float _cellWidth = 10f;
@@ -25,6 +28,19 @@ public class GridManager : MonoBehaviour, IDisposable
     private readonly List<string> _optionsScaleStep = new List<string> { "5%", "10%", "15%" };
     private readonly List<float> _valuesScaleStep = new List<float> { 5f, 10f, 15f };
 
+    private GameObject _copy;
+    private int _copyID;
+    private Coroutine _copyUpdateCoroutine;
+    private Action<GameObject> _onManipulationStarted;
+    private Action<GameObject> _onManipulationEnded;
+    private Action<GameObject> _onRotateStarted;
+    private Action<GameObject> _onRotateStopped;
+    private Action<GameObject> _onScaleStarted;
+    private Action<GameObject> _onScaleStopped;
+    private Action<GameObject> _onTranslateStarted;
+    private Action<GameObject> _onTranslateStopped;
+    private bool _manipulationStarted = false;
+
     public List<string> optionsCellSize => _optionsCellSize;
 
     public List<float> valuesCellSize => _valuesCellSize;
@@ -37,6 +53,13 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public List<float> valuesScaleStep => _valuesScaleStep;
 
+    public Grid grid => _grid;
+
+
+    public Material ghostMaterial => _ghostMaterial;
+
+    public bool gridShown => _grid.gameObject.activeInHierarchy;
+
     public bool gridEnabled => _gridEnabled;
 
     public bool snapEnabled => _snapEnabled;
@@ -47,6 +70,22 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public float scaleStep => _scaleStep;
 
+    public Action<GameObject> onManipulationStarted => _manipulationController.onManipulationStarted;
+
+    public Action<GameObject> onManipulationEnded => _manipulationController.onManipulationEnded;
+
+    public Action<GameObject> onRotateStarted => _manipulationController.onRotateStarted;
+
+    public Action<GameObject> onRotateStopped => _manipulationController.onRotateStopped;
+
+    public Action<GameObject> onScaleStarted => _manipulationController.onScaleStarted;
+
+    public Action<GameObject> onScaleStopped => _manipulationController.onScaleStopped;
+
+    public Action<GameObject> onTranslateStarted => _manipulationController.onTranslateStarted;
+
+    public Action<GameObject> onTranslateStopped => _manipulationController.onTranslateStopped;
+
     public void Initialization()
     {
         _gridEnabled = DBManager.showGrid;
@@ -55,14 +94,25 @@ public class GridManager : MonoBehaviour, IDisposable
         _angleStep = DBManager.gridAngleStep;
         _scaleStep = DBManager.gridScaleStep;
 
+
         if (!_gridPrefab)
         {
             Debug.Log("_gridPrefab is null");
             return;
         }
 
+        if (!_gridLinesPrefab)
+        {
+            Debug.Log("_gridLinesPrefab is null");
+            return;
+        }
+
         _grid = Instantiate(_gridPrefab);
         HideGrid();
+
+        _manipulationController = gameObject.AddComponent<ManipulationController>();
+        _manipulationController.Initialization(this, _gridLinesPrefab);
+
         _grid.Initialization(_cellWidth);
 
         EventManager.OnEditModeChanged += OnEditModeChanged;
@@ -87,28 +137,6 @@ public class GridManager : MonoBehaviour, IDisposable
     public void HideGrid()
     {
         _grid.gameObject.SetActive(false);
-    }
-
-    public Vector3 GetSnapPosition(Vector3 position)
-    {
-        var point = _grid.transform.InverseTransformPoint(position);
-        point.x = ToClosestPosition(point.x, _cellWidth);
-        point.y = ToClosestPosition(point.y, _cellWidth);
-        point.z = ToClosestPosition(point.z, _cellWidth);
-        return _grid.transform.TransformPoint(point);
-    }
-
-    private static float ToClosestPosition(float value, float step)
-    {
-        var stepInMeters = step / 100f;
-        var entire = (int)(value / stepInMeters);
-        var residue = value % stepInMeters;
-        if (residue > stepInMeters * 0.5f)
-        {
-            entire++;
-        }
-
-        return stepInMeters * entire;
     }
 
     public void EnableGrid()

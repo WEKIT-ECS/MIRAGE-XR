@@ -150,7 +150,7 @@ public class StepsListView_v2 : BaseView
         _currentStepId = stepId;
         _stepsList.ForEach(t => t.UpdateView());
 
-        if (_listHorizontalContent.gameObject.activeSelf)
+        if (_listHorizontalContent.gameObject.activeInHierarchy)
         {
             StartCoroutine(ShowSelectedItem(stepId));
         }
@@ -503,7 +503,11 @@ public class StepsListView_v2 : BaseView
         }
 
         Canvas.ForceUpdateCanvases();
-        StartCoroutine(ShowSelectedItem(_currentStepId));
+        var stepsCount = activityManager.ActionsOfTypeAction.Count;
+        if (stepsCount != 1)
+        {
+            StartCoroutine(ShowSelectedItem(_currentStepId));
+        }
     }
 
     public void MoveStepsToVerticalScroll()
