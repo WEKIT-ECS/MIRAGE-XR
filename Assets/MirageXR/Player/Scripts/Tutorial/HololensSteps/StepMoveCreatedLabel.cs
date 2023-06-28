@@ -13,7 +13,7 @@ namespace MirageXR
         protected override void Init()
         {
             this.instructionText = "Your newly created Label will be created at this red sphere called Spawn Point. Every annotation will spawn at this location, so let move this Label out of the way by using the \"Pinch and hold\" gesture.";
-            this.arrowRotationOffset = Vector3.up * -30f;
+            this.arrowRotationOffset = Vector3.up * -10f;
 
             GameObject label = GameObject.Find(manager.CreatedLabel.id + "/" + manager.CreatedLabel.poi);
             this.highlightedObject = label;
