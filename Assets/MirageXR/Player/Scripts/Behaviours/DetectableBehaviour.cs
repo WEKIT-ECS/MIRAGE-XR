@@ -136,6 +136,9 @@ namespace MirageXR
                         if (_trackable)
                         {
                             AttachedObject.transform.position = _trackable.position;
+                            //Adjust for task staions position
+                            AttachedObject.transform.position += AttachedObject.transform.position - AttachedObject.transform.FindDeepChild("PlayerTaskStation(Clone)").position;
+
                             AttachedObject.transform.rotation = Quaternion.AngleAxis(_trackable.rotation.eulerAngles.y, Vector3.up);
                         }
 

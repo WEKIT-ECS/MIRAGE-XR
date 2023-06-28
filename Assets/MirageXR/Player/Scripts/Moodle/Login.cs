@@ -24,6 +24,10 @@ namespace MirageXR
         [SerializeField] private Toggle publicUploadToggle;
         [SerializeField] private Toggle rememberLogin;
         [SerializeField] private int moodleForumID;
+        [SerializeField] private GameObject developerOptionsPanel;
+        [SerializeField] private Toggle showConsole;
+        [SerializeField] private GameObject developerConsole;
+
 
         [SerializeField] private GameObject lrsPanel;
 
@@ -46,11 +50,6 @@ namespace MirageXR
 
             EventManager.OnHideActivitySelectionMenu += HideLoginPanel;
             EventManager.OnEditorLoaded += HideLoginPanel;
-
-            // make tha login panel a child of the activity list
-            transform.position = loginPanelPosition.position;
-            transform.rotation = loginPanelPosition.rotation;
-            loginCanvas.transform.SetParent(FindObjectOfType<ActivitySelectionMenu>().transform);
 
             AutoLogin();
         }
@@ -220,6 +219,7 @@ namespace MirageXR
             loginCanvas.SetActive(false);
             siteConfigurationPanel.SetActive(false);
             lrsPanel.SetActive(false);
+            developerOptionsPanel.SetActive(false);
 
             var loginToggle = AutenticationOpenButton.GetComponent<SpriteToggle>();
 
@@ -336,9 +336,14 @@ namespace MirageXR
             moodleURLText.text = DBManager.domain;
         }
 
-        public void showLRSSettings()
+        public void ShowLRSSettings()
         {
             ShowPanel(lrsPanel);
+        }
+
+        public void ShowDeveloperOptions()
+        {
+            ShowPanel(developerOptionsPanel);
         }
 
         public void MoodleConfigurationCancel()

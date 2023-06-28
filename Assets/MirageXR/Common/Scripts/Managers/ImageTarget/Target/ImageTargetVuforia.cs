@@ -9,27 +9,34 @@ public class ImageTargetVuforia : ImageTargetBase
 
     public ImageTargetBehaviour imageTargetBehaviour => _imageTargetBehaviour;
 
+    private Status _oldTargetStatus;
+
     protected override void TrackerInitialization()
     {
         _imageTargetBehaviour = GetComponent<ImageTargetBehaviour>();
-        _imageTargetBehaviour.RegisterOnTrackableStatusChanged(OnTrackableStatusChangedAction);
+        _oldTargetStatus = _imageTargetBehaviour.TargetStatus.Status;
+        _imageTargetBehaviour.OnTargetStatusChanged += OnTrackableStatusChangedAction;
     }
 
-    private void OnTrackableStatusChangedAction(TrackableBehaviour.StatusChangeResult statusChangeResult)
+    private void OnTrackableStatusChangedAction(ObserverBehaviour observerBehaviour, TargetStatus targetStatusChangeResult)
     {
-        OnStateChanged(ToTrackingState(statusChangeResult.PreviousStatus), ToTrackingState(statusChangeResult.NewStatus));
+        var statusChangeResult = targetStatusChangeResult.Status;
+        OnStateChanged(ToTrackingState(_oldTargetStatus), ToTrackingState(statusChangeResult));
+        _oldTargetStatus = statusChangeResult;
     }
 
-    private static TrackingState ToTrackingState(TrackableBehaviour.Status state)
+
+
+    private static TrackingState ToTrackingState(Status state)
     {
         return state switch
         {
-            TrackableBehaviour.Status.NO_POSE => TrackingState.Lost,
-            TrackableBehaviour.Status.DETECTED => TrackingState.Lost,
-            TrackableBehaviour.Status.LIMITED => TrackingState.Limited,
-            TrackableBehaviour.Status.EXTENDED_TRACKED => TrackingState.Limited,
-            TrackableBehaviour.Status.TRACKED => TrackingState.Found,
+            Status.NO_POSE => TrackingState.Lost,
+            Status.LIMITED => TrackingState.Limited,
+            Status.EXTENDED_TRACKED => TrackingState.Limited,
+            Status.TRACKED => TrackingState.Found,
             _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
         };
+
     }
 }

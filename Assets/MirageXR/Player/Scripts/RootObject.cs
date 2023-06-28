@@ -98,7 +98,9 @@ namespace MirageXR
                 await _imageTargetManager.InitializationAsync();
                 await _floorManager.InitializationAsync();
                 await _calibrationManager.InitializationAsync();
+#if UNITY_IOS || UNITY_ANDROID || UNITY_EDITOR
                 await _pointCloudManager.InitializationAsync();
+#endif
 
                 _gridManager.Initialization();
 
@@ -122,7 +124,9 @@ namespace MirageXR
         private async Task ResetManagersAsync()
         {
             await _floorManager.ResetAsync();
+#if UNITY_IOS || UNITY_ANDROID || UNITY_EDITOR
             await _pointCloudManager.ResetAsync();
+#endif
             await _imageTargetManager.ResetAsync();
         }
 
