@@ -23,9 +23,6 @@ public class ManipulationController : MonoBehaviour
     private Action<GameObject> _onTranslateStopped;
     private bool _manipulationStarted = false;
 
-    private GameObject _temp;
-    private GameObject _temp1;
-
     public Action<GameObject> onManipulationStarted => _onManipulationStarted;
 
     public Action<GameObject> onManipulationEnded => _onManipulationEnded;
@@ -62,11 +59,6 @@ public class ManipulationController : MonoBehaviour
         _onTranslateStopped = OnTranslateStopped;
 
         HideGridLines();
-
-        _temp = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        _temp1 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        _temp.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
-        _temp1.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
     }
 
     private void OnRotateStarted(GameObject source)
