@@ -179,4 +179,13 @@ public class PoiEditor : MonoBehaviour
             GetOrAddComponent<BoundsControl>().enabled = enabled;
         }
     }
+
+    public void EnableBoxCollider(bool enabled)
+    {
+        var collider = GetOrAddComponent<BoxCollider>();
+        if (collider)
+        {
+            collider.enabled = enabled;
+        }
+    }
 }

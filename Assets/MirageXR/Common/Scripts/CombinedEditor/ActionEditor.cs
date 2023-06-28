@@ -281,6 +281,7 @@ public class ActionEditor : MonoBehaviour
         var newModelClone = Instantiate(sketchfabModel.gameObject, pick.transform.position, pick.transform.rotation);
         newModelClone.transform.SetParent(pick.transform);
         newModelClone.name = "ArrowModel_" + sketchfabModel.MyToggleObject.poi;
+        newModelClone.GetComponentInParent<PoiEditor>().EnableBoxCollider(false);
 
         // move the model augmentation somewhere invisible(Cannot deactivate it)
         newModel.transform.position = new Vector3(9999, 9999, 9999);
