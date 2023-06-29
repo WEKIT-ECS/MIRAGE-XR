@@ -174,8 +174,7 @@ public class ProfileView : PopupBase
     private void ShowLRSPanel()
     {
         RootView_v2.Instance.dialog.ShowBottomMultiline("Select Learning Record Store:",
-            ("WEKIT", () => ChangeRecordStore(DBManager.LearningRecordStores.WEKIT)),
-            ("ARETE", () => ChangeRecordStore(DBManager.LearningRecordStores.ARETE)));
+            ("WEKIT", () => ChangeRecordStore(DBManager.LearningRecordStores.WEKIT)));
     }
 
     private static void ChangeRecordStore(DBManager.LearningRecordStores recordStores)
@@ -241,9 +240,6 @@ public class ProfileView : PopupBase
         {
             case DBManager.LearningRecordStores.WEKIT:
                 _txtConnectedLRS.text = "WEKIT";
-                break;
-            case DBManager.LearningRecordStores.ARETE:
-                _txtConnectedLRS.text = "ARETE";
                 break;
         }
     }
