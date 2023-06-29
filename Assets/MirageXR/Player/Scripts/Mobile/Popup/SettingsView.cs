@@ -50,9 +50,6 @@ public class SettingsView : PopupBase
             case DBManager.LearningRecordStores.WEKIT:
                 _learningRecordStoreDropdown.value = 0;
                 break;
-            case DBManager.LearningRecordStores.ARETE:
-                _learningRecordStoreDropdown.value = 1;
-                break;
         }
     }
 
@@ -105,9 +102,6 @@ public class SettingsView : PopupBase
         {
             case 0:
                 selectedLearningRecordStore = DBManager.LearningRecordStores.WEKIT;
-                break;
-            case 1:
-                selectedLearningRecordStore = DBManager.LearningRecordStores.ARETE;
                 break;
         }
 
