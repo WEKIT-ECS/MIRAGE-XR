@@ -144,7 +144,7 @@ namespace MirageXR
         public static string usermail;
         public static string token;
 
-        public enum LearningRecordStores {WEKIT, ARETE};
+        public enum LearningRecordStores {WEKIT};
 
         private static LearningRecordStores CurrentLearningRecordStore;
 
