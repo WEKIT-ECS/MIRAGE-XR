@@ -844,7 +844,11 @@ namespace MirageXR
                 }
             }
 
+            //Remove action from activity
             _activity.actions.RemoveAt(indexToDelete);
+
+            //Remove action from workplace
+            RootObject.Instance.workplaceManager.DeletePlace(idToDelete);
 
             RegenerateActionsList();
 
