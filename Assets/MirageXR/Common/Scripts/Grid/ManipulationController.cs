@@ -4,7 +4,7 @@ using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using MirageXR;
 using UnityEngine;
 
-public class ManipulationController : MonoBehaviour
+public class ManipulationController : MonoBehaviour, IDisposable
 {
     private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
 
@@ -59,6 +59,8 @@ public class ManipulationController : MonoBehaviour
         _onTranslateStopped = OnTranslateStopped;
 
         HideGridLines();
+
+        EventManager.OnEditModeChanged += OnEditModeChanged;
     }
 
     private void OnRotateStarted(GameObject source)
@@ -102,6 +104,11 @@ public class ManipulationController : MonoBehaviour
         CreateCopy(source);
         RunCopyUpdateCoroutine(source);
         ShowGridLines(_copy);
+
+        if (!_gridManager.showOriginalObject)
+        {
+            HideOriginalObject(source);
+        }
     }
 
     private void OnManipulationUpdated(GameObject source)
@@ -123,6 +130,7 @@ public class ManipulationController : MonoBehaviour
             return;
         }
 
+        ShowOriginalObject(source);
         StopObjectUpdateCoroutine();
         SnapToGrid(source);
         HideCopy();
@@ -157,6 +165,24 @@ public class ManipulationController : MonoBehaviour
         {
             StopCoroutine(_copyUpdateCoroutine);
             _copyUpdateCoroutine = null;
+        }
+    }
+
+    private void ShowOriginalObject(GameObject source)
+    {
+        var renderers = source.GetComponentsInChildren<MeshRenderer>();
+        foreach (var meshRenderer in renderers)
+        {
+            meshRenderer.enabled = true;
+        }
+    }
+
+    private void HideOriginalObject(GameObject source)
+    {
+        var renderers = source.GetComponentsInChildren<MeshRenderer>();
+        foreach (var meshRenderer in renderers)
+        {
+            meshRenderer.enabled = false;
         }
     }
 
@@ -205,16 +231,8 @@ public class ManipulationController : MonoBehaviour
 
     private void ShowGridLines(GameObject source)
     {
-        var bounds = source.GetComponent<BoundsControl>();
-        var position = source.transform.position;
-
-        if (bounds && bounds.TargetBounds)
-        {
-            position = bounds.transform.TransformPoint(bounds.TargetBounds.center);
-        }
-
         _gridLines.gameObject.SetActive(true);
-        _gridLines.DrawLines(CalculateSnapPosition(position));
+        UpdateGridLines(source);
     }
 
     private void UpdateGridLines(GameObject source)
@@ -222,9 +240,12 @@ public class ManipulationController : MonoBehaviour
         var bounds = source.GetComponent<BoundsControl>();
         var position = source.transform.position;
 
-        if (bounds && bounds.TargetBounds)
+        if (_gridManager.useObjectCenter)
         {
-            position = bounds.transform.TransformPoint(bounds.TargetBounds.center);
+            if (bounds && bounds.TargetBounds)
+            {
+                position = bounds.transform.TransformPoint(bounds.TargetBounds.center);
+            }
         }
 
         _gridLines.DrawLines(CalculateSnapPosition(position));
@@ -259,13 +280,16 @@ public class ManipulationController : MonoBehaviour
     private Vector3 GetSnapPosition(GameObject source)
     {
         var delta = Vector3.zero;
-        var bounds = source.GetComponent<BoundsControl>();
         var position = source.transform.position;
 
-        if (bounds && bounds.TargetBounds)
+        if (_gridManager.useObjectCenter)
         {
-            position = bounds.transform.TransformPoint(bounds.TargetBounds.center);
-            delta = source.transform.position - position;
+            var bounds = source.GetComponent<BoundsControl>();
+            if (bounds && bounds.TargetBounds)
+            {
+                position = bounds.transform.TransformPoint(bounds.TargetBounds.center);
+                delta = source.transform.position - position;
+            }
         }
 
         position.y = Mathf.Clamp(position.y, floorManager.floorLevel, float.PositiveInfinity);
@@ -290,5 +314,23 @@ public class ManipulationController : MonoBehaviour
     private Vector3 CalculateSnapScale(Vector3 scale)
     {
         return Utilities.ToClosestToStepVector3(scale, _gridManager.scaleStep / 100f);
+    }
+
+    public void Dispose()
+    {
+        EventManager.OnEditModeChanged -= OnEditModeChanged;
+    }
+
+    private void OnEditModeChanged(bool value)
+    {
+        if (!value)
+        {
+            HideGridLines();
+            if (_copy)
+            {
+                Destroy(_copy);
+                _copy = null;
+            }
+        }
     }
 }

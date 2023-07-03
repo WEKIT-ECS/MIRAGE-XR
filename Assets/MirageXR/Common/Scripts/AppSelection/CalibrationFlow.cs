@@ -86,7 +86,8 @@ public class CalibrationFlow : MonoBehaviour
 
     private async Task OnCalibrationFinishedAsync()
     {
-        if (gridManager.gridEnabled)
+        var activityManager = RootObject.Instance.activityManager;
+        if (gridManager.gridEnabled && activityManager.EditModeActive)
         {
             gridManager.ShowGrid();
         }

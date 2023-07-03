@@ -1,9 +1,7 @@
-﻿using System;
-using System.Globalization;
-using Microsoft.MixedReality.Toolkit.UI;
+﻿using Microsoft.MixedReality.Toolkit.UI;
+using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using MirageXR;
 using UnityEngine;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 
 public class PoiEditor : MonoBehaviour
 {
@@ -13,37 +11,33 @@ public class PoiEditor : MonoBehaviour
     private bool _boundsControlActive = false;
 
     private float _modelMagnification = 0.0f;
+
     public float ModelMagnification
     {
-        get
-        {
-            return _modelMagnification;
-        }
-        set
-        {
-            _modelMagnification = value;
-        }
+        get => _modelMagnification;
+        set => _modelMagnification = value;
     }
 
-    private Poi poi;
-    public bool ICanRotate
+    private Poi _poi;
+
+    public bool canRotate
     {
         get; set;
     }
 
-    public bool iCanScale
+    public bool canScale
     {
         get; set;
     }
 
     public Poi GetMyPoi()
     {
-        return poi;
+        return _poi;
     }
 
     public void Initialize(Poi poi)
     {
-        this.poi = poi;
+        this._poi = poi;
     }
 
     public void UpdateManipulationOptions(GameObject ObjectToUpdate)
@@ -92,9 +86,8 @@ public class PoiEditor : MonoBehaviour
 
     public void OnChanged(ManipulationEventData data)
     {
-        SetPoiData();
-        EventManager.NotifyOnAugmentationPoiChanged();
-    } 
+        OnChanged();
+    }
 
     public void OnChanged()
     {
@@ -102,32 +95,50 @@ public class PoiEditor : MonoBehaviour
         EventManager.NotifyOnAugmentationPoiChanged();
     }
 
-    private void SetPoiData()
+    private Vector3 GetOffset()
     {
-        string taskStationId = transform.parent.name;
+        var taskStationId = transform.parent.name;
         var workplaceManager = RootObject.Instance.workplaceManager;
-        Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(taskStationId));
-        Transform originT = GameObject.Find(detectable.id).transform;
-
-        Vector3 offset = Utilities.CalculateOffset(transform.position, transform.rotation, originT.position, originT.rotation);
-        poi.offset = $"{offset.x.ToString(CultureInfo.InvariantCulture)}, {offset.y.ToString(CultureInfo.InvariantCulture)}, {offset.z.ToString(CultureInfo.InvariantCulture)}";
-        poi.x_offset = offset.x;
-        poi.y_offset = offset.y;
-        poi.z_offset = offset.z;
-
-        // rotation should be saved
-        if (ICanRotate)
+        var detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(taskStationId));
+        var annotationStartingPoint = ActionEditor.Instance.GetDefaultAugmentationStartingPoint();
+        var originT = GameObject.Find(detectable.id);   // TODO: replace by direct reference to the object
+        if (!originT)
         {
-            poi.rotation = Math.Round(transform.localRotation.eulerAngles.x, 2).ToString() + ", " + Math.Round(transform.localRotation.eulerAngles.y, 2).ToString() + ", " + Math.Round(transform.localRotation.eulerAngles.z, 2).ToString();
+            Debug.LogError($"Can't find detectable {detectable.id}");
+            return annotationStartingPoint.transform.position;
         }
 
-        // also scale can be adjusted using the object manipulator
-        if (iCanScale)
+        var detectableBehaviour = originT.GetComponent<DetectableBehaviour>();
+
+        if (!detectableBehaviour)
         {
-            poi.scale = Math.Round(transform.localScale.x, 2).ToString() + ", " + Math.Round(transform.localScale.y, 2).ToString() + ", " + Math.Round(transform.localScale.z, 2).ToString();
+            Debug.LogError($"Can't find DetectableBehaviour");
+            return annotationStartingPoint.transform.position;
         }
+
+        var attachedObject = detectableBehaviour.AttachedObject;
+        return attachedObject.transform.InverseTransformPoint(transform.position);
     }
 
+    private void SetPoiData()
+    {
+        var offset = GetOffset();
+
+        _poi.offset = Utilities.Vector3ToString(offset);
+        _poi.x_offset = offset.x;
+        _poi.y_offset = offset.y;
+        _poi.z_offset = offset.z;
+
+        if (canRotate)
+        {
+            _poi.rotation = Utilities.Vector3ToString(transform.localEulerAngles);
+        }
+
+        if (canScale)
+        {
+            _poi.scale = Utilities.Vector3ToString(transform.localScale);
+        }
+    }
 
     /// <summary>
     /// Optional orientation constraints and controls for each augmentation type

@@ -1,4 +1,3 @@
-using System;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +9,8 @@ public class GridSettings : MonoBehaviour
     [SerializeField] private Canvas _canvas;
     [SerializeField] private Toggle _activateGridToggle;
     [SerializeField] private Toggle _snapToGridToggle;
+    [SerializeField] private Toggle _showOriginalObjectToggle;
+    [SerializeField] private Toggle _useObjectCenterToggle;
     [SerializeField] private Dropdown _dropdownGridStep;
     [SerializeField] private Dropdown _dropdownAngleStep;
     [SerializeField] private Dropdown _dropdownScaleStep;
@@ -25,6 +26,8 @@ public class GridSettings : MonoBehaviour
 
         _activateGridToggle.isOn = gridManager.gridEnabled;
         _snapToGridToggle.isOn = gridManager.snapEnabled;
+        _showOriginalObjectToggle.isOn = gridManager.showOriginalObject;
+        _useObjectCenterToggle.isOn = gridManager.useObjectCenter;
 
         _dropdownGridStep.SetValueWithoutNotify(gridManager.valuesCellSize.IndexOf(gridManager.cellWidth));
         _dropdownAngleStep.SetValueWithoutNotify(gridManager.valuesAngleStep.IndexOf(gridManager.angleStep));
@@ -32,6 +35,8 @@ public class GridSettings : MonoBehaviour
 
         _activateGridToggle.onValueChanged.AddListener(OnActivateGridToggleValueChanged);
         _snapToGridToggle.onValueChanged.AddListener(OnSnapToGridToggleValueChanged);
+        _showOriginalObjectToggle.onValueChanged.AddListener(OnShowOriginalObjectValueChanged);
+        _useObjectCenterToggle.onValueChanged.AddListener(OnUseObjectCenterValueChanged);
         _dropdownGridStep.onValueChanged.AddListener(OnItemGridStepChanged);
         _dropdownAngleStep.onValueChanged.AddListener(OnItemAngleStepChanged);
         _dropdownScaleStep.onValueChanged.AddListener(OnItemScaleStepChanged);
@@ -70,6 +75,16 @@ public class GridSettings : MonoBehaviour
         {
             gridManager.DisableSnapToGrid();
         }
+    }
+
+    private void OnShowOriginalObjectValueChanged(bool value)
+    {
+        gridManager.SetShowOriginalObject(value);
+    }
+
+    private void OnUseObjectCenterValueChanged(bool value)
+    {
+        gridManager.SetUseObjectCenter(value);
     }
 
     private void OnActivateGridToggleValueChanged(bool value)
