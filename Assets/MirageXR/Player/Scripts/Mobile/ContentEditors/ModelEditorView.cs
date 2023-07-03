@@ -21,12 +21,18 @@ public class ModelEditorView : PopupEditorBase
     [SerializeField] private ModelListItem _modelListItemPrefab;
     [SerializeField] private DirectLoginPopup _directLoginPopupPrefab;
     [SerializeField] private GameObject _loadMorePrefab;
-    [SerializeField] private Button _btnSearch;
+    //[SerializeField] private Button _btnSearch;
     [SerializeField] private Button _btnLogout;
     [SerializeField] private TMP_InputField _inputSearch;
     [SerializeField] private Toggle _toggleLocal;
+    [SerializeField] private Toggle _toggleSketchfab;
+    [SerializeField] private Toggle _toggleLibraries;
     [SerializeField] private ClientDataObject _clientDataObject;
     [SerializeField] private ClientDataObject _clientDirectLoginDataObject;
+    [Space]
+    [SerializeField] private GameObject _localTab;
+    [SerializeField] private GameObject _sketchfabTab;
+    [SerializeField] private GameObject _librariesTab;
 
     private string _token;
     private string _renewToken;
@@ -46,9 +52,12 @@ public class ModelEditorView : PopupEditorBase
 
             if (!CheckAndLoadCredentials()) return;
 
-            _btnSearch.onClick.AddListener(OnSearchClicked);
+            //_btnSearch.onClick.AddListener(OnSearchClicked);
             _btnLogout.onClick.AddListener(OnLogoutClicked);
             _toggleLocal.onValueChanged.AddListener(OnToggleLocalValueChanged);
+            _toggleSketchfab.onValueChanged.AddListener(OnToggleSketchfabValueChanged);
+            _toggleLibraries.onValueChanged.AddListener(OnToggleLibrariesValueChanged);
+            _inputSearch.onValueChanged.AddListener(OnInputFieldSearchChanged);
             ResetView();
         }
         catch (Exception e)
@@ -152,14 +161,39 @@ public class ModelEditorView : PopupEditorBase
 
     private void OnToggleLocalValueChanged(bool value)
     {
+        //_inputSearch.text = string.Empty;
+        if (value)
+        {
+            _localTab.SetActive(true);
+            _sketchfabTab.SetActive(false);
+            _librariesTab.SetActive(false);
+            ShowLocalModels();
+        }
+        /*else
+        {
+          */
+    }
+
+    private void OnToggleSketchfabValueChanged(bool value)
+    {
         _inputSearch.text = string.Empty;
         if (value)
         {
+            _localTab.SetActive(false);
+            _sketchfabTab.SetActive(true);
+            _librariesTab.SetActive(false);
             ShowLocalModels();
         }
-        else
+    }
+
+    private void OnToggleLibrariesValueChanged(bool value)
+    {
+        //_inputSearch.text = string.Empty;
+        if (value)
         {
-            ShowRemoteModels();
+            _localTab.SetActive(false);
+            _sketchfabTab.SetActive(false);
+            _librariesTab.SetActive(true);
         }
     }
 
@@ -196,6 +230,12 @@ public class ModelEditorView : PopupEditorBase
         {
             SearchRemote();
         }
+    }
+
+    private async void OnInputFieldSearchChanged(string text)
+    {
+        // TODO
+        Debug.LogError("[111] OnInputFieldSearchChanged");
     }
 
     private void SearchLocal()
