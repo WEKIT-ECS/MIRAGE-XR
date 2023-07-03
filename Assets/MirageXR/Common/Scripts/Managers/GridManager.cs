@@ -23,12 +23,12 @@ public class GridManager : MonoBehaviour, IDisposable
     private float _angleStep = 10f;
     private float _scaleStep = 10f;
 
-    private readonly List<string> _optionsCellSize = new List<string> { "5 cm", "6.25 cm", "10 cm", "12.5 cm", "15 cm", "25 cm" };
-    private readonly List<float> _valuesCellSize = new List<float> { 5f, 6.25f, 10f, 12.5f, 15f, 25f };
-    private readonly List<string> _optionsAngleStep = new List<string> { "5°", "10°", "15°" };
-    private readonly List<float> _valuesAngleStep = new List<float> { 5f, 10f, 15f };
-    private readonly List<string> _optionsScaleStep = new List<string> { "5%", "10%", "15%" };
-    private readonly List<float> _valuesScaleStep = new List<float> { 5f, 10f, 15f };
+    private readonly List<string> _optionsCellSize = new List<string> { "1 cm", "5 cm", "6.25 cm", "10 cm", "12.5 cm", "15 cm", "25 cm", "50 cm", "1 m" };
+    private readonly List<float> _valuesCellSize = new List<float> { 1f, 5f, 6.25f, 10f, 12.5f, 15f, 25f, 50f, 100f };
+    private readonly List<string> _optionsAngleStep = new List<string> { "5°", "10°", "15°", "30°", "45°", "90°" };
+    private readonly List<float> _valuesAngleStep = new List<float> { 5f, 10f, 15f, 30f, 45f, 90f };
+    private readonly List<string> _optionsScaleStep = new List<string> { "5%", "10%", "15%", "30%" };
+    private readonly List<float> _valuesScaleStep = new List<float> { 5f, 10f, 15f, 30f };
 
     private GameObject _copy;
     private int _copyID;
