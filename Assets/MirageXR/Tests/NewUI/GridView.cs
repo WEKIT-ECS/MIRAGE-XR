@@ -14,6 +14,8 @@ public class GridView : PopupBase
     [SerializeField] private Button _btnClose;
     [SerializeField] private Toggle _activateGridToggle;
     [SerializeField] private Toggle _snapToGridToggle;
+    [SerializeField] private Toggle _showOriginalObjectToggle;
+    [SerializeField] private Toggle _useObjectCenterToggle;
     [SerializeField] private GameObject _templatePrefab;
     [SerializeField] private ClampedScrollRect _clampedScrollGridStep;
     [SerializeField] private ClampedScrollRect _clampedScrollAngleStep;
@@ -29,6 +31,8 @@ public class GridView : PopupBase
 
         _activateGridToggle.isOn = gridManager.gridEnabled;
         _snapToGridToggle.isOn = gridManager.snapEnabled;
+        _showOriginalObjectToggle.isOn = gridManager.showOriginalObject;
+        _useObjectCenterToggle.isOn = gridManager.showOriginalObject;
 
         _clampedScrollGridStep.currentItemIndex = gridManager.valuesCellSize.IndexOf(gridManager.cellWidth);
         _clampedScrollAngleStep.currentItemIndex = gridManager.valuesAngleStep.IndexOf(gridManager.angleStep);
@@ -37,6 +41,8 @@ public class GridView : PopupBase
         _btnClose.onClick.AddListener(Close);
         _activateGridToggle.onValueChanged.AddListener(OnActivateGridToggleValueChanged);
         _snapToGridToggle.onValueChanged.AddListener(OnSnapToGridToggleValueChanged);
+        _showOriginalObjectToggle.onValueChanged.AddListener(OnShowOriginalObjectValueChanged);
+        _useObjectCenterToggle.onValueChanged.AddListener(OnUseObjectCenterValueChanged);
         _clampedScrollGridStep.onItemChanged.AddListener(OnItemGridStepChanged);
         _clampedScrollAngleStep.onItemChanged.AddListener(OnItemAngleStepChanged);
         _clampedScrollScaleStep.onItemChanged.AddListener(OnItemScaleStepChanged);
@@ -86,6 +92,16 @@ public class GridView : PopupBase
         {
             gridManager.DisableGrid();
         }
+    }
+
+    private void OnShowOriginalObjectValueChanged(bool value)
+    {
+        gridManager.SetShowOriginalObject(value);
+    }
+
+    private void OnUseObjectCenterValueChanged(bool value)
+    {
+        gridManager.SetUseObjectCenter(value);
     }
 
     private void OnItemGridStepChanged(Component item)

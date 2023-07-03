@@ -150,7 +150,13 @@ namespace MirageXR
                 return;
             }
 
-            detectableContainer.rotation = Quaternion.identity;
+            var first = calibrationPairs.First().DetectableConfiguration.origin_rotation;
+            var needRotate = Utilities.ParseStringToVector3(first) != Vector3.zero;
+
+            if (needRotate)
+            {
+                detectableContainer.rotation = Quaternion.identity;
+            }
 
             foreach (var pair in calibrationPairs)
             {
@@ -162,8 +168,11 @@ namespace MirageXR
                 pair.AnchorFrame.GetComponent<DetectableBehaviour>().AttachAnchor();
             }
 
-            var newRotation = calibrationPairs.First().AnchorFrame.transform.rotation;
-            detectableContainer.rotation = Quaternion.Inverse(newRotation);
+            if (needRotate)
+            {
+                var newRotation = calibrationPairs.First().AnchorFrame.transform.rotation;
+                detectableContainer.rotation = Quaternion.Inverse(newRotation);
+            }
 
             await Task.Yield();
         }

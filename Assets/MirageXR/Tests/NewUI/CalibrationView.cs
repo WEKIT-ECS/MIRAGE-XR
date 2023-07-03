@@ -97,7 +97,7 @@ public class CalibrationView : PopupBase
     {
         _calibrationAnimation.SetActive(true);
         _floorDetectionAnimation.SetActive(false);
-        _textHint.text = HINT_FLOOR_TEXT;
+        _textHint.text = HINT_MARKER_TEXT;
         calibrationManager.EnableCalibration(_isNewPosition);
     }
 
@@ -129,7 +129,8 @@ public class CalibrationView : PopupBase
         _imageCalibrationAnimation.gameObject.SetActive(false);
         _footer.SetActive(false);
 
-        if (gridManager.gridEnabled)
+        var activityManager = RootObject.Instance.activityManager;
+        if (gridManager.gridEnabled && activityManager.EditModeActive)
         {
             gridManager.ShowGrid();
         }
