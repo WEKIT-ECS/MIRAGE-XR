@@ -17,16 +17,18 @@ public class GridManager : MonoBehaviour, IDisposable
     private ManipulationController _manipulationController;
     private bool _gridEnabled = false;
     private bool _snapEnabled = false;
+    private bool _showOriginalObject = false;
+    private bool _useObjectCenter = false;
     private float _cellWidth = 10f;
     private float _angleStep = 10f;
     private float _scaleStep = 10f;
 
-    private readonly List<string> _optionsCellSize = new List<string> { "5 cm", "6.25 cm", "10 cm", "12.5 cm", "15 cm", "25 cm" };
-    private readonly List<float> _valuesCellSize = new List<float> { 5f, 6.25f, 10f, 12.5f, 15f, 25f };
-    private readonly List<string> _optionsAngleStep = new List<string> { "5°", "10°", "15°" };
-    private readonly List<float> _valuesAngleStep = new List<float> { 5f, 10f, 15f };
-    private readonly List<string> _optionsScaleStep = new List<string> { "5%", "10%", "15%" };
-    private readonly List<float> _valuesScaleStep = new List<float> { 5f, 10f, 15f };
+    private readonly List<string> _optionsCellSize = new List<string> { "1 cm", "5 cm", "6.25 cm", "10 cm", "12.5 cm", "15 cm", "25 cm", "50 cm", "1 m" };
+    private readonly List<float> _valuesCellSize = new List<float> { 1f, 5f, 6.25f, 10f, 12.5f, 15f, 25f, 50f, 100f };
+    private readonly List<string> _optionsAngleStep = new List<string> { "5°", "10°", "15°", "30°", "45°", "90°" };
+    private readonly List<float> _valuesAngleStep = new List<float> { 5f, 10f, 15f, 30f, 45f, 90f };
+    private readonly List<string> _optionsScaleStep = new List<string> { "5%", "10%", "15%", "30%" };
+    private readonly List<float> _valuesScaleStep = new List<float> { 5f, 10f, 15f, 30f };
 
     private GameObject _copy;
     private int _copyID;
@@ -55,7 +57,6 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public Grid grid => _grid;
 
-
     public Material ghostMaterial => _ghostMaterial;
 
     public bool gridShown => _grid.gameObject.activeInHierarchy;
@@ -63,6 +64,10 @@ public class GridManager : MonoBehaviour, IDisposable
     public bool gridEnabled => _gridEnabled;
 
     public bool snapEnabled => _snapEnabled;
+
+    public bool showOriginalObject => _showOriginalObject;
+
+    public bool useObjectCenter => _useObjectCenter;
 
     public float cellWidth => _cellWidth;
 
@@ -93,7 +98,7 @@ public class GridManager : MonoBehaviour, IDisposable
         _cellWidth = DBManager.gridCellWidth;
         _angleStep = DBManager.gridAngleStep;
         _scaleStep = DBManager.gridScaleStep;
-
+        _showOriginalObject = DBManager.gridShowOriginalObject;
 
         if (!_gridPrefab)
         {
@@ -108,12 +113,11 @@ public class GridManager : MonoBehaviour, IDisposable
         }
 
         _grid = Instantiate(_gridPrefab);
+        _grid.Initialization(_cellWidth);
         HideGrid();
 
         _manipulationController = gameObject.AddComponent<ManipulationController>();
         _manipulationController.Initialization(this, _gridLinesPrefab);
-
-        _grid.Initialization(_cellWidth);
 
         EventManager.OnEditModeChanged += OnEditModeChanged;
     }
@@ -144,7 +148,8 @@ public class GridManager : MonoBehaviour, IDisposable
         _gridEnabled = true;
         DBManager.showGrid = _gridEnabled;
 
-        if (floorManager.isFloorDetected)
+        var activityManager = RootObject.Instance.activityManager;
+        if (floorManager.isFloorDetected && activityManager.EditModeActive)
         {
             ShowGrid();
         }
@@ -170,6 +175,18 @@ public class GridManager : MonoBehaviour, IDisposable
         DBManager.snapToGrid = _snapEnabled;
     }
 
+    public void SetShowOriginalObject(bool value)
+    {
+        _showOriginalObject = value;
+        DBManager.gridShowOriginalObject = _showOriginalObject;
+    }
+
+    public void SetUseObjectCenter(bool value)
+    {
+        _useObjectCenter = value;
+        DBManager.gridUseObjectCenter = _useObjectCenter;
+    }
+
     public void SetCellWidth(float value)
     {
         _cellWidth = value;
@@ -192,6 +209,7 @@ public class GridManager : MonoBehaviour, IDisposable
     public void Dispose()
     {
         EventManager.OnEditModeChanged -= OnEditModeChanged;
+        _manipulationController.Dispose();
     }
 
     private void OnEditModeChanged(bool value)

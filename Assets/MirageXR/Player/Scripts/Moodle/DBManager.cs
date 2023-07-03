@@ -135,6 +135,12 @@ namespace MirageXR
         private const string GRID_SCALE_STEP_KEY = "grid_scale_step";
         private const float GRID_SCALE_STEP_DEFAULT = 10f;
 
+        private const string GRID_SHOW_ORIGINAL_OBJECT_KEY = "grid_show_original_object";
+        private const bool GRID_SHOW_ORIGINAL_OBJECT_DEFAULT = false;
+
+        private const string GRID_USE_OBJECT_CENTER_KEY = "grid_use_object_center_key";
+        private const bool GRID_USE_OBJECT_CENTER_DEFAULT = false;
+
         private const int SKETCHFAB_RENEW_DYAS_COOLDOWN = 5;
 
         public static string plugin = "arete";
@@ -161,8 +167,7 @@ namespace MirageXR
         private static readonly PrefsBoolValue _developMode = new (DEVELOP_MODE_KEY, DEVELOP_MODE_DEFAULT);
         private static readonly PrefsBoolValue _rememberSketchfabUser = new (REMEMBER_SKETCHFAB_USER_KEY, REMEMBER_SKETCHFAB_USER_DEFAULT);
         private static readonly PrefsBoolValue _dontShowCalibrationGuide = new (DONT_SHOW_CALIBRATION_GUIDE_KEY, DONT_SHOW_CALIBRATION_GUIDE_DEFAULT);
-        private static readonly PrefsBoolValue _dontShowNewAugmentationHint = new 
- (DONT_SHOW_NEW_AUGMENTATION_HINT_KEY, DONT_SHOW_NEW_AUGMENTATION_HINT_DEFAULT);
+        private static readonly PrefsBoolValue _dontShowNewAugmentationHint = new (DONT_SHOW_NEW_AUGMENTATION_HINT_KEY, DONT_SHOW_NEW_AUGMENTATION_HINT_DEFAULT);
         private static readonly PrefsStringValue _domain = new (MOODLE_URL_KEY, WEKIT_URL);
         private static readonly PrefsStringValue _privacyPolicyDomain = new (PRIVACY_POLICY_URL_KEY, WEKIT_PRIVACY_POLICY_URL);
         private static readonly PrefsStringValue _sketchfabTokenRenewDate = new (SKETCHFAB_TOKEN_RENEW_KEY, SKETCHFAB_TOKEN_RENEW_DEFAULT);
@@ -172,6 +177,8 @@ namespace MirageXR
         private static readonly PrefsFloatValue _gridCellWidth = new (GRID_CELL_WIDTH_KEY, GRID_CELL_WIDTH_DEFAULT);
         private static readonly PrefsFloatValue _gridAngleStep = new (GRID_ANGLE_STEP_KEY, GRID_ANGLE_STEP_DEFAULT);
         private static readonly PrefsFloatValue _gridScaleStep = new (GRID_SCALE_STEP_KEY, GRID_SCALE_STEP_DEFAULT);
+        private static readonly PrefsBoolValue _gridShowOriginalObject = new (GRID_SHOW_ORIGINAL_OBJECT_KEY, GRID_SHOW_ORIGINAL_OBJECT_DEFAULT);
+        private static readonly PrefsBoolValue _gridUseObjectCenter = new (GRID_USE_OBJECT_CENTER_KEY, GRID_USE_OBJECT_CENTER_DEFAULT);
 
         private static readonly PrefsBoolValue _localSave = new (LOCAL_SAVE, LOCAL_SAVE_DEFAULT);
         private static readonly PrefsBoolValue _cloudSave = new (CLOUD_SAVE, CLOUD_SAVE_DEFAULT);
@@ -205,6 +212,18 @@ namespace MirageXR
         {
             get => _gridScaleStep.Value;
             set => _gridScaleStep.Value = value;
+        }
+
+        public static bool gridShowOriginalObject
+        {
+            get => _gridShowOriginalObject.Value;
+            set => _gridShowOriginalObject.Value = value;
+        }
+
+        public static bool gridUseObjectCenter
+        {
+            get => _gridUseObjectCenter.Value;
+            set => _gridUseObjectCenter.Value = value;
         }
 
         public static bool publicUploadPrivacy
