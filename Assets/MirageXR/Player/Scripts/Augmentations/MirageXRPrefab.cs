@@ -322,7 +322,7 @@ namespace MirageXR
         protected static Vector3 GetPoiScale(PoiEditor poiEditor, Vector3 defaultScale)
         {
             // since scaling is activated, allow the poi editor's object manipulator to set it.
-            poiEditor.iCanScale = true;
+            poiEditor.canScale = true;
             Poi poi = poiEditor.GetMyPoi();
 
             // ensure relevant string has value
@@ -352,11 +352,11 @@ namespace MirageXR
         protected static Vector3 GetPoiRotation(PoiEditor poiEditor)
         {
             // since scaling is activated, allow the poi editor's object manipulator to set it.
-            poiEditor.ICanRotate = true;
+            poiEditor.canRotate = true;
             Poi poi = poiEditor.GetMyPoi();
 
             // ensure relevant string has value
-            return string.IsNullOrEmpty(poi.rotation) ? Quaternion.identity.eulerAngles : Utilities.ParseStringToVector3(poi.rotation);
+            return string.IsNullOrEmpty(poi.rotation) ? Vector3.zero : Utilities.ParseStringToVector3(poi.rotation);
         }
 
         private bool IsGazeTrigger()
