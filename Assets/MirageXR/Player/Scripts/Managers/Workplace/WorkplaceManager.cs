@@ -257,6 +257,15 @@ namespace MirageXR
             }
         }
 
+        public void DeletePlace(string id)
+        {
+            var place = GetPlaceFromTaskStationId(id);
+
+            workplace.places.Remove(place);
+
+            workplace.detectables.Remove(GetDetectable(place));
+        }
+
         /// <summary>
         /// Controller triggers the calibration of the workplace anchors and
         /// performs changes to the model using the WorkplaceManager's functionality.
