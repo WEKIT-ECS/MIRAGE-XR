@@ -184,6 +184,7 @@ public class FloorManagerARFoundation : FloorManagerBase
 
         _enableColliders = true;
         _onFloorDetected = onFloorDetected;
+        _showPlanes = true;
 
         UpdatePlanes();
     }
@@ -197,12 +198,13 @@ public class FloorManagerARFoundation : FloorManagerBase
 
         _onFloorDetected = null;
         _enableColliders = false;
+        _showPlanes = RootObject.Instance.activityManager.EditModeActive;
         UpdatePlanes();
     }
 
     private void OnEditModeChanged(bool value)
     {
-        _showPlanes = value;
+        _showPlanes = value || _enableColliders;
         UpdatePlanes();
     }
 
