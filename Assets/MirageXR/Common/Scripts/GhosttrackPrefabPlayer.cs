@@ -22,7 +22,6 @@ namespace MirageXR
             _replayButton.onClick.AddListener(PlayRecording);
         }
 
-
         public void ShowReplayButton()
         {
             _replayButton.gameObject.SetActive(true);
@@ -66,7 +65,6 @@ namespace MirageXR
             _ghost.gameObject.SetActive(true);
             _ghost.Play(_recordedGhostData, _anchor, _loop);
             _replayButton.gameObject.SetActive(false);
-
         }
 
         private static string GetFullFilePathFromUrl(string url)
