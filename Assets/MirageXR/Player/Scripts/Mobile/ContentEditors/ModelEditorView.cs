@@ -18,12 +18,15 @@ public class ModelEditorView : PopupEditorBase
 
     [SerializeField] private Transform _contentContainer;
     [SerializeField] private ScrollRect _scroll;
+    [SerializeField] private Transform _contentLocalContainer;
+    [SerializeField] private ScrollRect _scrollLocal;
     [SerializeField] private ModelListItem _modelListItemPrefab;
     [SerializeField] private DirectLoginPopup _directLoginPopupPrefab;
     [SerializeField] private GameObject _loadMorePrefab;
     //[SerializeField] private Button _btnSearch;
     [SerializeField] private Button _btnLogout;
     [SerializeField] private TMP_InputField _inputSearch;
+    [Space]
     [SerializeField] private Toggle _toggleLocal;
     [SerializeField] private Toggle _toggleSketchfab;
     [SerializeField] private Toggle _toggleLibraries;
@@ -161,7 +164,6 @@ public class ModelEditorView : PopupEditorBase
 
     private void OnToggleLocalValueChanged(bool value)
     {
-        //_inputSearch.text = string.Empty;
         if (value)
         {
             _localTab.SetActive(true);
@@ -169,9 +171,6 @@ public class ModelEditorView : PopupEditorBase
             _librariesTab.SetActive(false);
             ShowLocalModels();
         }
-        /*else
-        {
-          */
     }
 
     private void OnToggleSketchfabValueChanged(bool value)
@@ -182,13 +181,12 @@ public class ModelEditorView : PopupEditorBase
             _localTab.SetActive(false);
             _sketchfabTab.SetActive(true);
             _librariesTab.SetActive(false);
-            ShowLocalModels();
+            ShowRemoteModels();
         }
     }
 
     private void OnToggleLibrariesValueChanged(bool value)
     {
-        //_inputSearch.text = string.Empty;
         if (value)
         {
             _localTab.SetActive(false);
@@ -232,10 +230,14 @@ public class ModelEditorView : PopupEditorBase
         }
     }
 
-    private async void OnInputFieldSearchChanged(string text)
+    private void OnInputFieldSearchChanged(string text)
     {
         // TODO
-        Debug.LogError("[111] OnInputFieldSearchChanged");
+    }
+
+    public void OnStartSearch()
+    {
+        SearchRemote();
     }
 
     private void SearchLocal()
@@ -336,6 +338,12 @@ public class ModelEditorView : PopupEditorBase
                 var child = _contentContainer.GetChild(i);
                 Destroy(child.gameObject);
             }
+            _scrollLocal.normalizedPosition = Vector2.up;
+            for (int i = _contentLocalContainer.childCount - 1; i >= 0; i--)
+            {
+                var child = _contentLocalContainer.GetChild(i);
+                Destroy(child.gameObject);
+            }
 
             _items.Clear();
         }
@@ -349,9 +357,18 @@ public class ModelEditorView : PopupEditorBase
     {
         foreach (var item in previewItems)
         {
-            var model = Instantiate(_modelListItemPrefab, _contentContainer);
-            model.Init(item, isDownloaded, DownloadItem, Accept);
-            _items.Add(model);
+            if (_toggleSketchfab.isOn)
+            {
+                var model = Instantiate(_modelListItemPrefab, _contentContainer);
+                model.Init(item, isDownloaded, DownloadItem, Accept);
+                _items.Add(model);
+            }
+            else if (_toggleLocal.isOn)
+            {
+                var model = Instantiate(_modelListItemPrefab, _contentLocalContainer);
+                model.Init(item, isDownloaded, DownloadItem, Accept);
+                _items.Add(model);
+            }
         }
 
         UpdateModelsItemView();

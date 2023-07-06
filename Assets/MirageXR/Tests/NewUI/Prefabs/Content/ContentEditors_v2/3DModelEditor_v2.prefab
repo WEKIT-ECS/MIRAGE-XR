@@ -445,7 +445,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.16470589, g: 0.16470589, b: 0.16470589, a: 0.39215687}
+  m_Color: {r: 0.105882354, g: 0.101960786, b: 0.09803922, a: 0.8}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2632,7 +2632,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2820,7 +2820,19 @@ MonoBehaviour:
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2832827128330036620}
+        m_TargetAssemblyTypeName: ModelEditorView, MirageXR
+        m_MethodName: OnStartSearch
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnSubmit:
     m_PersistentCalls:
       m_Calls: []
@@ -2918,7 +2930,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 1, b: 0.8806343, a: 0.392}
+  m_Color: {r: 0, g: 1, b: 0.8806343, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3026,7 +3038,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 0.105882354, g: 0.101960786, b: 0.09803922, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3251,8 +3263,10 @@ MonoBehaviour:
   _txtLabel: {fileID: 4994625388372942789}
   _btnAccept: {fileID: 8868533006758341665}
   _btnClose: {fileID: 5637056101906075783}
-  _contentContainer: {fileID: 953489119939463207}
-  _scroll: {fileID: 7889689494250518305}
+  _contentContainer: {fileID: 6301983597246632240}
+  _scroll: {fileID: 2579798836212159544}
+  _contentLocalContainer: {fileID: 953489119939463207}
+  _scrollLocal: {fileID: 7889689494250518305}
   _modelListItemPrefab: {fileID: 2851341042230528033, guid: ef2511f90312f874f8d20e8cb8ba56de,
     type: 3}
   _directLoginPopupPrefab: {fileID: 4081502955182956764, guid: d0c98f62cc9c8824ba0f47b1809887b0,
