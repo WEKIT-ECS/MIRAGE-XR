@@ -106,7 +106,7 @@ public class LabelEditorView : PopupEditorBase
 
     private void OnItemJumpToStepChanged(Component item)
     {
-        _triggerStepIndex = item.GetComponent<ObjectHolder<int>>().item;
+        _triggerStepIndex = item.GetComponent<ObjectHolder<int>>().item - 1;
     }
 
     private void OnIncreaseGazeDuration()
