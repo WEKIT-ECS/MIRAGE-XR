@@ -25,6 +25,7 @@ public class ModelEditorView : PopupEditorBase
     [SerializeField] private GameObject _loadMorePrefab;
     //[SerializeField] private Button _btnSearch;
     [SerializeField] private Button _btnLogout;
+    [SerializeField] private Button _clearSearchBtn;
     [SerializeField] private TMP_InputField _inputSearch;
     [Space]
     [SerializeField] private Toggle _toggleLocal;
@@ -57,6 +58,7 @@ public class ModelEditorView : PopupEditorBase
 
             //_btnSearch.onClick.AddListener(OnSearchClicked);
             _btnLogout.onClick.AddListener(OnLogoutClicked);
+            _clearSearchBtn.onClick.AddListener(ClearSearchField);
             _toggleLocal.onValueChanged.AddListener(OnToggleLocalValueChanged);
             _toggleSketchfab.onValueChanged.AddListener(OnToggleSketchfabValueChanged);
             _toggleLibraries.onValueChanged.AddListener(OnToggleLibrariesValueChanged);
@@ -288,6 +290,11 @@ public class ModelEditorView : PopupEditorBase
         {
             AppLog.LogError(e.ToString());
         }
+    }
+
+    private void ClearSearchField()
+    {
+        _inputSearch.text = string.Empty;
     }
 
     private async void OnLoadMoreButtonClicked()
