@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DG.Tweening;
 using i5.Toolkit.Core.OpenIDConnectClient;
 using i5.Toolkit.Core.ServiceCore;
 using i5.Toolkit.Core.VerboseLogging;
@@ -13,6 +14,8 @@ using UnityEngine.UI;
 public class ModelEditorView : PopupEditorBase
 {
     private const int RESULTS_PER_PAGE = 20;
+    private const float HIDED_SIZE = 100f;
+    private const float HIDE_ANIMATION_TIME = 0.5f;
 
     public override ContentType editorForType => ContentType.MODEL;
 
@@ -37,6 +40,11 @@ public class ModelEditorView : PopupEditorBase
     [SerializeField] private GameObject _localTab;
     [SerializeField] private GameObject _sketchfabTab;
     [SerializeField] private GameObject _librariesTab;
+    [Space]
+    [SerializeField] private Button _btnArrow;
+    [SerializeField] private RectTransform _panel;
+    [SerializeField] private GameObject _arrowDown;
+    [SerializeField] private GameObject _arrowUp;
 
     private string _token;
     private string _renewToken;
@@ -52,6 +60,7 @@ public class ModelEditorView : PopupEditorBase
     {
         try
         {
+            _showBackground = false;
             base.Initialization(onClose, args);
 
             if (!CheckAndLoadCredentials()) return;
@@ -59,11 +68,13 @@ public class ModelEditorView : PopupEditorBase
             //_btnSearch.onClick.AddListener(OnSearchClicked);
             _btnLogout.onClick.AddListener(OnLogoutClicked);
             _clearSearchBtn.onClick.AddListener(ClearSearchField);
+            _btnArrow.onClick.AddListener(OnArrowButtonPressed);
             _toggleLocal.onValueChanged.AddListener(OnToggleLocalValueChanged);
             _toggleSketchfab.onValueChanged.AddListener(OnToggleSketchfabValueChanged);
             _toggleLibraries.onValueChanged.AddListener(OnToggleLibrariesValueChanged);
             _inputSearch.onValueChanged.AddListener(OnInputFieldSearchChanged);
             ResetView();
+            RootView_v2.Instance.HideBaseView();
         }
         catch (Exception e)
         {
@@ -530,5 +541,27 @@ public class ModelEditorView : PopupEditorBase
         EventManager.NotifyActionModified(_step);
 
         Close();
+    }
+
+    private void OnArrowButtonPressed()
+    {
+        if (_arrowDown.activeSelf)
+        {
+            var hidedSize = HIDED_SIZE;
+            _panel.DOAnchorPosY(-_panel.rect.height + hidedSize, HIDE_ANIMATION_TIME);
+            _arrowDown.SetActive(false);
+            _arrowUp.SetActive(true);
+        }
+        else
+        {
+            _panel.DOAnchorPosY(0.0f, HIDE_ANIMATION_TIME);
+            _arrowDown.SetActive(true);
+            _arrowUp.SetActive(false);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        RootView_v2.Instance.ShowBaseView();
     }
 }
