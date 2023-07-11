@@ -250,7 +250,10 @@ public class ModelEditorView : PopupEditorBase
 
     public void OnStartSearch()
     {
-        SearchRemote();
+        if (_inputSearch.text != string.Empty)
+        {
+            SearchRemote();
+        }
     }
 
     private void SearchLocal()
