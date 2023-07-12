@@ -42,6 +42,8 @@ public class ModelEditorView : PopupEditorBase
     [SerializeField] private GameObject _sketchfabTab;
     [SerializeField] private GameObject _librariesTab;
     [SerializeField] private GameObject _bottomButtonsPanel;
+    [SerializeField] private GameObject _localEmptyPanel;
+    [SerializeField] private GameObject _localPanel;
     [Space]
     [SerializeField] private Button _btnArrow;
     [SerializeField] private RectTransform _panel;
@@ -222,9 +224,13 @@ public class ModelEditorView : PopupEditorBase
         var previewItems = MirageXR.Sketchfab.GetLocalModels();
         if (previewItems.Count == 0)
         {
+            _localEmptyPanel.SetActive(true);
+            _localPanel.SetActive(false);
             Toast.Instance.Show("Nothing found");
             return;
         }
+        _localEmptyPanel.SetActive(false);
+        _localPanel.SetActive(true);
         AddItems(previewItems, true);
     }
 
@@ -405,23 +411,13 @@ public class ModelEditorView : PopupEditorBase
 
     private void RemoveLocalItemAsync(ModelListItem item)
     {
-        RemoveModelAsync(item).AsAsyncVoid();
+        RemoveModelFromLocalStorageAsync(item).AsAsyncVoid();
     }
 
-    private async Task RemoveModelAsync(ModelListItem item)
+    private async Task RemoveModelFromLocalStorageAsync(ModelListItem item)
     {
         _previewItem = item.previewItem;
-        for (int i = _items.Count - 1; i >= 0; i--)
-        {
-            if (_items[i].previewItem.uid == item.previewItem.uid)
-            {
-                _items[i].gameObject.SetActive(false);
-                _items.RemoveAt(i);
-
-                await MirageXR.Sketchfab.RemoveLocalModelAsync(_previewItem);
-            }
-        }
-
+        await MirageXR.Sketchfab.RemoveLocalModelAsync(_previewItem);
         ShowLocalModels();
     }
 
