@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class ModelListItem : MonoBehaviour
 {
     [SerializeField] private Button _btn;
+    [SerializeField] private Button _threeDotBtn;
     [SerializeField] private Image _image;
     [SerializeField] private Image _imageDownloaded;
     [SerializeField] private Image _imageProgress;
@@ -35,16 +36,19 @@ public class ModelListItem : MonoBehaviour
     private bool _hasImageBeenDownloaded;
     private Action<ModelListItem> _downloadAction;
     private Action<ModelListItem> _acceptAction;
+    private Action<ModelListItem> _removeAction;
 
-    public void Init(ModelPreviewItem item, bool downloaded, Action<ModelListItem> downloadAction, Action<ModelListItem> acceptAction)
+    public void Init(ModelPreviewItem item, bool downloaded, Action<ModelListItem> downloadAction, Action<ModelListItem> acceptAction, Action<ModelListItem> removeAction)
     {
         _downloadAction = downloadAction;
         _acceptAction = acceptAction;
+        _removeAction = removeAction;
         _previewItem = item;
         isDownloaded = downloaded;
         _imageProgress.gameObject.SetActive(false);
         _label.text = _previewItem.name;
         _btn.onClick.AddListener(OnButtonClicked);
+        _threeDotBtn.onClick.AddListener(OnThreeDotButtonClicked);
     }
 
     private void OnButtonClicked()
@@ -58,6 +62,26 @@ public class ModelListItem : MonoBehaviour
             _downloadAction(this);
         }
     }
+
+    private void OnThreeDotButtonClicked()
+    {
+        RootView_v2.Instance.dialog.ShowMiddleMultiline(
+            "Actions",
+            ("Rename object", RenameObject, false),
+            ("Delete object", DeleteObject, false),
+            ("Cancel", null, true));
+    }
+
+    private void RenameObject()
+    {
+        // TODO
+    }
+
+    private void DeleteObject()
+    {
+        _removeAction(this);
+    }
+
 
     public async Task LoadImage()
     {

@@ -28,6 +28,7 @@ public class ModelEditorView : PopupEditorBase
     [SerializeField] private GameObject _loadMorePrefab;
     //[SerializeField] private Button _btnSearch;
     [SerializeField] private Button _btnLogout;
+    [SerializeField] private Button _btnAddFile;
     [SerializeField] private Button _clearSearchBtn;
     [SerializeField] private TMP_InputField _inputSearch;
     [Space]
@@ -40,6 +41,7 @@ public class ModelEditorView : PopupEditorBase
     [SerializeField] private GameObject _localTab;
     [SerializeField] private GameObject _sketchfabTab;
     [SerializeField] private GameObject _librariesTab;
+    [SerializeField] private GameObject _bottomButtonsPanel;
     [Space]
     [SerializeField] private Button _btnArrow;
     [SerializeField] private RectTransform _panel;
@@ -55,6 +57,7 @@ public class ModelEditorView : PopupEditorBase
     private int _pageIndex;
 
     private readonly List<ModelListItem> _items = new List<ModelListItem>();
+    private string _modelFileType;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -67,6 +70,7 @@ public class ModelEditorView : PopupEditorBase
 
             //_btnSearch.onClick.AddListener(OnSearchClicked);
             _btnLogout.onClick.AddListener(OnLogoutClicked);
+            _btnAddFile.onClick.AddListener(OnAddLocalFile);
             _clearSearchBtn.onClick.AddListener(ClearSearchField);
             _btnArrow.onClick.AddListener(OnArrowButtonPressed);
             _toggleLocal.onValueChanged.AddListener(OnToggleLocalValueChanged);
@@ -75,6 +79,7 @@ public class ModelEditorView : PopupEditorBase
             _inputSearch.onValueChanged.AddListener(OnInputFieldSearchChanged);
             ResetView();
             RootView_v2.Instance.HideBaseView();
+            _modelFileType = NativeFilePicker.ConvertExtensionToFileType("fbx");
         }
         catch (Exception e)
         {
@@ -182,6 +187,7 @@ public class ModelEditorView : PopupEditorBase
             _localTab.SetActive(true);
             _sketchfabTab.SetActive(false);
             _librariesTab.SetActive(false);
+            _bottomButtonsPanel.SetActive(true);
             ShowLocalModels();
         }
     }
@@ -194,6 +200,7 @@ public class ModelEditorView : PopupEditorBase
             _localTab.SetActive(false);
             _sketchfabTab.SetActive(true);
             _librariesTab.SetActive(false);
+            _bottomButtonsPanel.SetActive(false);
             ShowRemoteModels();
         }
     }
@@ -205,6 +212,7 @@ public class ModelEditorView : PopupEditorBase
             _localTab.SetActive(false);
             _sketchfabTab.SetActive(false);
             _librariesTab.SetActive(true);
+            _bottomButtonsPanel.SetActive(false);
         }
     }
 
@@ -381,18 +389,40 @@ public class ModelEditorView : PopupEditorBase
             if (_toggleSketchfab.isOn)
             {
                 var model = Instantiate(_modelListItemPrefab, _contentContainer);
-                model.Init(item, isDownloaded, DownloadItem, Accept);
+                model.Init(item, isDownloaded, DownloadItem, Accept, RemoveLocalItemAsync);
                 _items.Add(model);
             }
             else if (_toggleLocal.isOn)
             {
                 var model = Instantiate(_modelListItemPrefab, _contentLocalContainer);
-                model.Init(item, isDownloaded, DownloadItem, Accept);
+                model.Init(item, isDownloaded, DownloadItem, Accept, RemoveLocalItemAsync);
                 _items.Add(model);
             }
         }
 
         UpdateModelsItemView();
+    }
+
+    private void RemoveLocalItemAsync(ModelListItem item)
+    {
+        RemoveModelAsync(item).AsAsyncVoid();
+    }
+
+    private async Task RemoveModelAsync(ModelListItem item)
+    {
+        _previewItem = item.previewItem;
+        for (int i = _items.Count - 1; i >= 0; i--)
+        {
+            if (_items[i].previewItem.uid == item.previewItem.uid)
+            {
+                _items[i].gameObject.SetActive(false);
+                _items.RemoveAt(i);
+
+                await MirageXR.Sketchfab.RemoveLocalModelAsync(_previewItem);
+            }
+        }
+
+        ShowLocalModels();
     }
 
     private async void UpdateModelsItemView()
@@ -561,6 +591,33 @@ public class ModelEditorView : PopupEditorBase
             _arrowDown.SetActive(true);
             _arrowUp.SetActive(false);
         }
+    }
+
+    private void OnAddLocalFile()
+    {
+        // Don't attempt to import/export files if the file picker is already open
+        if (NativeFilePicker.IsFilePickerBusy())
+        {
+            return;
+        }
+
+        // Pick a 3D Model file
+        NativeFilePicker.Permission permission = NativeFilePicker.PickFile(
+            (path) =>
+            {
+                if (path == null)
+                {
+                    Debug.Log("Operation cancelled");
+                }
+                else
+                {
+                    Debug.Log("Picked file: " + path);
+
+                    // TODO: add local model to the list
+                }
+            }, new string[] { _modelFileType });
+
+        Debug.Log("Permission result: " + permission);
     }
 
     private void OnDestroy()
