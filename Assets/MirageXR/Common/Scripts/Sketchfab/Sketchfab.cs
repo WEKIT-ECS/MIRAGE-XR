@@ -375,6 +375,42 @@ namespace MirageXR
             return true;
         }
 
+        public static async Task RemoveLocalModelAsync(ModelPreviewItem modelPreview)
+        {
+            var modelsFolderPath = Path.Combine(Application.persistentDataPath, FOLDER_NAME);
+            var archiveUrl = Path.Combine(modelsFolderPath, $"{modelPreview.name}.zip");
+            var modelFolder = Path.Combine(modelsFolderPath, modelPreview.name);
+            if (File.Exists(archiveUrl))
+            {
+                try
+                {
+                    File.Delete(archiveUrl);
+                    Debug.Log($"Deleted archive: {archiveUrl}");
+                }
+                catch (IOException ex)
+                {
+                    Debug.LogError($"Failed to delete archive: {archiveUrl}\nError: {ex.Message}");
+                }
+            }
+
+            if (Directory.Exists(modelFolder))
+            {
+                try
+                {
+                    Directory.Delete(modelFolder, true);
+                    Debug.Log($"Deleted model folder: {modelFolder}");
+                }
+                catch (IOException ex)
+                {
+                    Debug.LogError($"Failed to delete model folder: {modelFolder}\nError: {ex.Message}");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"Model folder does not exist: {modelFolder}");
+            }
+        }
+
         public static async Task LoadModelAsync(ModelPreviewItem modelPreview)
         {
             var modelsFolderPath = Path.Combine(Application.persistentDataPath, FOLDER_NAME);
