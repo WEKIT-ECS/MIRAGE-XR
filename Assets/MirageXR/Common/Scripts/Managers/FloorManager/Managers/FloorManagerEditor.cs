@@ -83,6 +83,7 @@ public class FloorManagerEditor : FloorManagerBase
         }
 
         _enableColliders = true;
+        _showPlanes = true;
 
         UpdatePlanes();
         _onFloorDetected = onFloorDetected;
@@ -92,6 +93,8 @@ public class FloorManagerEditor : FloorManagerBase
     {
         _onFloorDetected = null;
         _enableColliders = false;
+        _showPlanes = RootObject.Instance.activityManager.EditModeActive;
+
         UpdatePlanes();
     }
 
@@ -102,7 +105,7 @@ public class FloorManagerEditor : FloorManagerBase
 
     private void OnEditModeChanged(bool value)
     {
-        _showPlanes = value;
+        _showPlanes = value || _enableColliders;
         UpdatePlanes();
     }
 

@@ -96,7 +96,7 @@ public class ImageEditorView : PopupEditorBase
             PopupsViewer.Instance.Show(_hintPrefab);
         }
 
-        _content.key = _orientation ? LANDSCAPE : PORTRAIT;
+        _content.key = _capturedImage.width > _capturedImage.height ? LANDSCAPE : PORTRAIT;
 
         var saveFileName = $"MirageXR_Image_{DateTime.Now.ToFileTimeUtc()}.jpg";
         var outputPath = Path.Combine(activityManager.ActivityPath, saveFileName);
