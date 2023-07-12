@@ -226,7 +226,6 @@ public class ModelEditorView : PopupEditorBase
         {
             _localEmptyPanel.SetActive(true);
             _localPanel.SetActive(false);
-            Toast.Instance.Show("Nothing found");
             return;
         }
         _localEmptyPanel.SetActive(false);
@@ -395,7 +394,7 @@ public class ModelEditorView : PopupEditorBase
             if (_toggleSketchfab.isOn)
             {
                 var model = Instantiate(_modelListItemPrefab, _contentContainer);
-                model.Init(item, isDownloaded, DownloadItem, Accept, RemoveLocalItemAsync);
+                model.Init(item, isDownloaded, DownloadItem, Accept, null);
                 _items.Add(model);
             }
             else if (_toggleLocal.isOn)
