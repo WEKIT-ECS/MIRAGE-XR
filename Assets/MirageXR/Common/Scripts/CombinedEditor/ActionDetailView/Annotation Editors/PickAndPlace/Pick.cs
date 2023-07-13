@@ -90,6 +90,12 @@ namespace MirageXR
         public void SetMoveMode(bool value)
         {
             _moveMode = value;
+
+            if (value)
+            {
+                ResetPositions();
+                SetArrowWrongColor();
+            }
         }
 
         private void OnManipulationStarted(ManipulationEventData data)
@@ -106,7 +112,7 @@ namespace MirageXR
                 return;
             }
 
-            var correctDistance = _targetTransform.transform.localScale.x * 0.25f;
+            var correctDistance = _targetTransform.transform.localScale.x * 0.3f;
             var distance = Vector3.Distance(transform.position, _targetTransform.position);
 
             if (distance <= correctDistance)
@@ -134,11 +140,15 @@ namespace MirageXR
             SetArrowColor(_originalArrowColor);
         }
 
-        private void OnPlacedIncorrectly()
+        private void ResetPositions()
         {
             transform.localPosition = _resetPosition;
             transform.localRotation = _resetRotation;
+        }
 
+        private void OnPlacedIncorrectly()
+        {
+            ResetPositions();
             SetArrowWrongColor();
             PlayAudio(_incorrectAudio);
         }
