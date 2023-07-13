@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
+using System;
 using System.Collections;
-using UnityEngine;
 using System.IO;
+using Microsoft.MixedReality.Toolkit.UI;
+using UnityEngine;
 using UnityEngine.UI;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
-
 
 namespace MirageXR
 {
@@ -15,52 +15,15 @@ namespace MirageXR
         private ToggleObject _myObj;
         [SerializeField] private Transform _pickObject;
         [SerializeField] private Transform _targetObject;
-        [SerializeField] private Transform _lockToggle;
-        [SerializeField] private SpriteToggle _spriteToggle;
         [SerializeField] private Text _textLabel;
         private Pick _pickComponent;
 
-        private bool _isTrigger;
 
         private Vector3 _defaultTargetSize = new Vector3(0.2f, 0.2f, 0.2f);
 
-        private void Start()
-        {
-            _pickComponent = _pickObject.GetComponent<Pick>();
-            EditModeChanges(_activityManager.EditModeActive);
+        public ToggleObject MyPoi => _myObj;
 
-            if (File.Exists(Path.Combine(_activityManager.ActivityPath, "pickandplaceinfo/" + _myObj.poi + ".json")))
-            {
-                LoadPickAndPlacePositions();
-            }
-
-            _spriteToggle.IsSelected = !_pickComponent.MoveMode;
-            CheckTrigger();
-        }
-
-        public ToggleObject MyPoi
-        {
-            get
-            {
-                return _myObj;
-            }
-        }
-
-        public Transform Target
-        {
-            get
-            {
-                return _targetObject;
-            }
-        } 
-        
-        public Transform PickObject
-        {
-            get
-            {
-                return _pickObject;
-            }
-        }
+        public Transform PickObject => _pickObject;
 
         private void OnEnable()
         {
@@ -78,10 +41,9 @@ namespace MirageXR
 
         private void EditModeChanges(bool editModeState)
         {
-            _lockToggle.gameObject.SetActive(editModeState);
             _targetObject.gameObject.SetActive(editModeState);
             _pickComponent.ChangeModelButton.gameObject.SetActive(editModeState);
-            _pickComponent.EditMode = editModeState;
+            _pickComponent.SetMoveMode(editModeState);
             var boundsControl = _pickObject.GetComponent<BoundsControl>();
             if (boundsControl != null)
             {
@@ -95,7 +57,6 @@ namespace MirageXR
 
             _textLabel.text = _myObj.text;
 
-            // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
                 Debug.Log("Couldn't set the parent.");
@@ -104,51 +65,68 @@ namespace MirageXR
 
             name = obj.predicate;
 
-            // Set scaling
-            PoiEditor myPoiEditor = transform.parent.gameObject.GetComponent<PoiEditor>();
-            Vector3 defaultScale = new Vector3(0.5f, 0.5f, 0.5f);
+            if (!base.Init(obj))
+            {
+                return false;
+            }
 
-            // If everything was ok, return base result.
-            return base.Init(obj);
+            var manipulator = GetComponentInParent<ObjectManipulator>();
+            if (manipulator)
+            {
+                manipulator.enabled = false;
+            }
+
+            _pickComponent = _pickObject.GetComponent<Pick>();
+            EditModeChanges(_activityManager.EditModeActive);
+
+            if (File.Exists(Path.Combine(_activityManager.ActivityPath, $"pickandplaceinfo/{_myObj.poi}.json")))
+            {
+                LoadPickAndPlacePositions();
+            }
+
+            CheckTrigger();
+
+            return true;
         }
 
         private void LoadPickAndPlacePositions()
         {
-            var json = File.ReadAllText(Path.Combine(_activityManager.ActivityPath, "pickandplaceinfo/" + _myObj.poi + ".json"));
+            var json = File.ReadAllText(Path.Combine(_activityManager.ActivityPath, $"pickandplaceinfo/{_myObj.poi}.json"));
+            var positions = JsonUtility.FromJson<Positions>(json);
 
-            Positions positions = JsonUtility.FromJson<Positions>(json);
-
-            if (_myObj.key == "1")
-            {
-                _pickObject.localPosition = positions.resetPosition;
-            }
-            else
-            {
-                _pickObject.localPosition = positions.pickObjectPosition;
-            }
-
+            _pickObject.localPosition = _myObj.key == "1" ? positions.resetPosition : positions.pickObjectPosition;
             _pickObject.localRotation = positions.pickObjectRotation;
             _pickObject.localScale = positions.pickObjectScale;
+
             _targetObject.localPosition = positions.targetObjectPosition;
             _targetObject.localScale = positions.targetObjectScale != null ? positions.targetObjectScale : _defaultTargetSize;
+
             _pickComponent.MoveMode = positions.moveMode;
             _pickComponent.ResetPosition = positions.resetPosition;
             _pickComponent.ResetRotation = positions.resetRotation;
             _pickComponent.MyModelID = positions.modelID;
 
             if (_pickComponent.MyModelID != string.Empty)
+            {
                 StartCoroutine(LoadMyModel(_pickComponent.MyModelID));
+            }
         }
 
-        public void SavePositions()
+        private void SavePositions()
         {
             if (_myObj == null || _myObj.poi == string.Empty || gameObject == null)
             {
                 return; // only if the poi is instantiated not the prefab
             }
+
+            if (!RootObject.Instance.activityManager.EditModeActive)
+            {
+                return;
+            }
+
             try
             {
-                Positions positions = new Positions
+                var positions = new Positions
                 {
                     pickObjectPosition = _pickObject.localPosition,
                     pickObjectRotation = _pickObject.localRotation,
@@ -161,13 +139,13 @@ namespace MirageXR
                     moveMode = _pickComponent.MoveMode,
                 };
 
-                string pickAndPlaceData = JsonUtility.ToJson(positions);
+                var pickAndPlaceData = JsonUtility.ToJson(positions);
                 if (!Directory.Exists($"{_activityManager.ActivityPath}/pickandplaceinfo"))
                 {
                     Directory.CreateDirectory($"{_activityManager.ActivityPath}/pickandplaceinfo");
                 }
 
-                string jsonPath = Path.Combine(_activityManager.ActivityPath, $"pickandplaceinfo/{_myObj.poi}.json");
+                var jsonPath = Path.Combine(_activityManager.ActivityPath, $"pickandplaceinfo/{_myObj.poi}.json");
 
                 // delete the exsiting file first
                 if (File.Exists(jsonPath))
@@ -177,9 +155,9 @@ namespace MirageXR
 
                 File.WriteAllText(jsonPath, pickAndPlaceData);
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
-                Debug.LogError("Pick and Place Exception " + e); 
+                Debug.LogError("Pick and Place Exception " + e);
             }
         }
 
@@ -199,13 +177,16 @@ namespace MirageXR
 
         private void DeletePickAndPlaceData(ToggleObject toggleObject)
         {
-            if (toggleObject != MyPoi) return;
+            if (toggleObject != MyPoi)
+            {
+                return;
+            }
+
             var arlemPath = _activityManager.ActivityPath;
             var jsonPath = Path.Combine(arlemPath, $"pickandplaceinfo/{MyPoi.poi}.json");
 
             if (File.Exists(jsonPath))
             {
-                // delete the json
                 File.Delete(jsonPath);
             }
         }
@@ -217,9 +198,11 @@ namespace MirageXR
 
         private void CheckTrigger()
         {
-            var trigger = _activityManager.ActiveAction.triggers.Find(t => t.id == Annotation.poi);
-            _isTrigger = trigger != null ? true : false;
-            _pickComponent.SetTrigger(trigger);
+            if (Annotation != null)
+            {
+                var trigger = _activityManager.ActiveAction.triggers.Find(t => t.id == Annotation.poi);
+                _pickComponent.SetTrigger(trigger);
+            }
         }
     }
 
