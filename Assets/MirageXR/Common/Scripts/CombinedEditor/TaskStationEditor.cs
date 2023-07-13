@@ -56,8 +56,10 @@ public class TaskStationEditor : MonoBehaviour
     {
         gridManager.onManipulationEnded(eventData.ManipulationSource);
 
-        var position = _objectManipulator.HostTransform.localPosition;
-        var rotation = _objectManipulator.HostTransform.localRotation;
+        var anchor = RootObject.Instance.calibrationManager.anchor;
+
+        var position = anchor.InverseTransformPoint(eventData.ManipulationSource.transform.position);
+        var rotation = Quaternion.Inverse(anchor.rotation) * eventData.ManipulationSource.transform.rotation;
 
         _detectable.origin_position = Utilities.Vector3ToString(position);
         _detectable.origin_rotation = Utilities.Vector3ToString(rotation.eulerAngles);
