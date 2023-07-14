@@ -7,7 +7,6 @@ namespace MirageXR
 {
     public class Pick : MonoBehaviour
     {
-        private const string _LockHelpText = "When locked the arrow (or 3D model) will bounce back to this location if it is not correctly placed on the target";
         private const string _ModelButtonHelpText = "Click this button and select a 3D model from the augmentation list to change the pick and place object model";
 
         private static readonly int ColorProperty = Shader.PropertyToID("_Color");
@@ -28,12 +27,14 @@ namespace MirageXR
         private bool _moveMode = true;
         private Color _originalArrowColor;
 
-        private bool _isTrigger = false;
-        private int _triggerStepIndex;
-        private float _triggerDuration;
+        private Trigger _correctTrigger;
+        private Trigger _incorrectTrigger;
+        private bool _isCorrectTrigger = false;
+        private bool _isIncorrectTrigger = false;
+
         private MeshRenderer _arrowRenderer;
 
-        private static ActivityManager _activityManager => MirageXR.RootObject.Instance.activityManager;
+        private static ActivityManager _activityManager => RootObject.Instance.activityManager;
 
         public Vector3 ResetPosition
         {
@@ -151,6 +152,11 @@ namespace MirageXR
             ResetPositions();
             SetArrowWrongColor();
             PlayAudio(_incorrectAudio);
+
+            if (_isIncorrectTrigger)
+            {
+                StartCoroutine(TriggerAction(_incorrectTrigger));
+            }
         }
 
         private void OnPlacedCorrectly()
@@ -159,9 +165,9 @@ namespace MirageXR
             SetArrowRightColor();
             PlayAudio(_correctAudio);
 
-            if (_isTrigger)
+            if (_isCorrectTrigger)
             {
-                StartCoroutine(TriggerAction());
+                StartCoroutine(TriggerAction(_correctTrigger));
             }
 
             EventManager.NotifyOnPickPlacedCorrectly();
@@ -180,28 +186,35 @@ namespace MirageXR
             hoverGuilde.SetMessage(hoverMessage);
         }
 
-        private IEnumerator TriggerAction()
+        private IEnumerator TriggerAction(Trigger trigger)
         {
-            yield return new WaitForSeconds(_triggerDuration);
+            yield return new WaitForSeconds(trigger.duration);
 
-            _activityManager.ActivateActionByIndex(_triggerStepIndex);
+            var stepIndex = int.Parse(trigger.value) - 1;
+
+            if (stepIndex > _activityManager.ActionsOfTypeAction.Count)
+            {
+                stepIndex = _activityManager.ActionsOfTypeAction.Count - 1;
+            }
+
+            _activityManager.ActivateActionByIndex(stepIndex);
         }
 
         public void SetTrigger(Trigger trigger)
         {
-            _isTrigger = trigger != null;
-
-            if (_isTrigger)
+            switch (trigger.mode)
             {
-                var stepIndex = int.Parse(trigger.value) - 1;
-
-                if (stepIndex > _activityManager.ActionsOfTypeAction.Count)
-                {
-                    stepIndex = _activityManager.ActionsOfTypeAction.Count - 1;
-                }
-
-                _triggerStepIndex = stepIndex;
-                _triggerDuration = trigger.duration;
+                case TriggerMode.PickAndPlace:
+                    _isCorrectTrigger = true;
+                    _correctTrigger = trigger;
+                    break;
+                case TriggerMode.IncorrectPickAndPlace:
+                    _isIncorrectTrigger = true;
+                    _incorrectTrigger = trigger;
+                    break;
+                default:
+                    Debug.Log("Not a valid pick and place trigger");
+                    break;
             }
         }
     }
