@@ -144,7 +144,7 @@ namespace MirageXR
         private static void SetPose(Transform obj, Pose pose, Transform anchor)
         {
             obj.position = anchor.TransformPoint(pose.position);
-            obj.rotation = anchor.parent.rotation * pose.rotation;
+            obj.rotation = anchor.rotation * pose.rotation;
         }
     }
 }
