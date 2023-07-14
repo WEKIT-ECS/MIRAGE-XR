@@ -37,12 +37,14 @@ public class ModelListItem : MonoBehaviour
     private Action<ModelListItem> _downloadAction;
     private Action<ModelListItem> _acceptAction;
     private Action<ModelListItem> _removeAction;
+    private Action<ModelListItem> _renameAction;
 
-    public void Init(ModelPreviewItem item, bool downloaded, Action<ModelListItem> downloadAction, Action<ModelListItem> acceptAction, Action<ModelListItem> removeAction)
+    public void Init(ModelPreviewItem item, bool downloaded, Action<ModelListItem> downloadAction, Action<ModelListItem> acceptAction, Action<ModelListItem> removeAction, Action<ModelListItem> renameAction)
     {
         _downloadAction = downloadAction;
         _acceptAction = acceptAction;
         _removeAction = removeAction;
+        _renameAction = renameAction;
         _previewItem = item;
         isDownloaded = downloaded;
         _imageProgress.gameObject.SetActive(false);
@@ -74,7 +76,7 @@ public class ModelListItem : MonoBehaviour
 
     private void RenameObject()
     {
-        // TODO
+        _renameAction(this);
     }
 
     private void DeleteObject()
