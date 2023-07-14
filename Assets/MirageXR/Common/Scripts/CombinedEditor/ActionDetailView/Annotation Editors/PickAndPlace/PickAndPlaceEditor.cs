@@ -105,25 +105,28 @@ public class PickAndPlaceEditor : MonoBehaviour
 
     public void OnCorrectToggleChanged()
     {
-        if (_correctToggle.isOn)
-        {
-            var isMorethanOneStep = IsMorethanOneStep();
-
-            _isCorrectTrigger = isMorethanOneStep;
-            _correctStepIndex.interactable = isMorethanOneStep;
-            _correctToggle.isOn = isMorethanOneStep;
-        }
+        _isCorrectTrigger = ToggleChanged(_correctToggle, _correctStepIndex);
     }
 
     public void OnIncorrectToggleChanged()
     {
-        if (_incorrectToggle.isOn)
+        _isIncorrectTrigger = ToggleChanged(_incorrectToggle, _incorrectStepIndex);
+    }
+
+    public bool ToggleChanged(Toggle toggle, InputField stepIndex)
+    {
+        if (toggle.isOn)
         {
             var isMorethanOneStep = IsMorethanOneStep();
 
-            _isIncorrectTrigger = isMorethanOneStep;
-            _incorrectStepIndex.interactable = isMorethanOneStep;
-            _incorrectToggle.isOn = isMorethanOneStep;
+            stepIndex.interactable = isMorethanOneStep;
+            toggle.isOn = isMorethanOneStep;
+            return isMorethanOneStep;
+        }
+        else
+        {
+            stepIndex.interactable = false;
+            return false;
         }
     }
 
