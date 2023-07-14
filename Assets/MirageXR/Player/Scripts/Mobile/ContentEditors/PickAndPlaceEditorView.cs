@@ -1,5 +1,5 @@
-﻿using System;
-using MirageXR;
+﻿using MirageXR;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -85,35 +85,44 @@ public class PickAndPlaceEditorView : PopupEditorBase
         _resetOption = option.value;
     }
 
-    public void TriggerToggle(bool trigger)
+    public void OnCorrectToggleChanged()
+    {
+        if (_correctToggle.isOn)
+        {
+            var isMorethanOneStep = IsMorethanOneStep();
+
+            _isCorrectTrigger = isMorethanOneStep;
+            _correctTriggerIndexObject.SetActive(isMorethanOneStep);
+            _correctToggle.isOn = isMorethanOneStep;
+        }
+    }
+
+    public void OnIncorrectToggleChanged()
+    {
+        if (_incorrectToggle.isOn)
+        {
+            var isMorethanOneStep = IsMorethanOneStep();
+
+            _isIncorrectTrigger = isMorethanOneStep;
+            _incorrectTriggerIndexObject.SetActive(isMorethanOneStep);
+            _incorrectToggle.isOn = isMorethanOneStep;
+        }
+    }
+
+    private bool IsMorethanOneStep()
     {
         var numberOfSteps = activityManager.ActionsOfTypeAction.Count;
 
         if (numberOfSteps == 1)
         {
-            if (_correctToggle.isOn || _incorrectToggle.isOn)
-            {
-                DialogWindow.Instance.Show(
-                "Info!",
-                "Only one step has been found in this activity!\n Add a new step and try again.",
-                new DialogButtonContent("Ok"));
+            DialogWindow.Instance.Show(
+            "Info!",
+            "Only one step has been found in this activity!\n Add a new step and try again.",
+            new DialogButtonContent("Ok"));
 
-                _correctToggle.isOn = false;
-                _incorrectToggle.isOn = false;
-            }
-            return;
+            return false;
         }
-        else
-        {
-            _isCorrectTrigger = _correctToggle.isOn;
-            _correctStepIndex.interactable = _correctToggle.isOn;
-
-            _isIncorrectTrigger = _incorrectToggle.isOn;
-            _incorrectStepIndex.interactable = _incorrectToggle.isOn;
-        }
-
-        _correctTriggerIndexObject.SetActive(_correctToggle.isOn);
-        _incorrectTriggerIndexObject.SetActive(_incorrectToggle.isOn);
+        return true;
     }
 
     public void OnCorrectStepIndexValueChanged()
