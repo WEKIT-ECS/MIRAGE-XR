@@ -116,18 +116,28 @@ public class PickAndPlaceEditorView : PopupEditorBase
         _incorrectTriggerIndexObject.SetActive(_incorrectToggle.isOn);
     }
 
-    public void OnStepTriggerValueChanged()
+    public void OnCorrectStepIndexValueChanged()
+    {
+        CheckInputedIndex(_correctStepIndex);
+    }
+
+    public void OnIncorrectStepIndexValueChanged()
+    {
+        CheckInputedIndex(_incorrectStepIndex);
+    }
+
+    private void CheckInputedIndex(TMP_InputField inputedIndex)
     {
         var numberOfSteps = activityManager.ActionsOfTypeAction.Count;
 
-        if (numberOfSteps < int.Parse(_incorrectStepIndex.text))
+        if (numberOfSteps < int.Parse(inputedIndex.text))
         {
             DialogWindow.Instance.Show(
             "Info!",
             "The entered step number doesn't exist yet. This trigger will jump to the last avalible step",
             new DialogButtonContent("Ok"));
 
-            _incorrectStepIndex.text = numberOfSteps.ToString();
+            inputedIndex.text = numberOfSteps.ToString();
             return;
         }
     }
