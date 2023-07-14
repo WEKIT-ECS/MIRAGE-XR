@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DG.Tweening;
 using i5.Toolkit.Core.OpenIDConnectClient;
@@ -60,6 +61,7 @@ public class ModelEditorView : PopupEditorBase
 
     private readonly List<ModelListItem> _items = new List<ModelListItem>();
     private string _modelFileType;
+    private ModelListItem _currentItem;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -394,13 +396,13 @@ public class ModelEditorView : PopupEditorBase
             if (_toggleSketchfab.isOn)
             {
                 var model = Instantiate(_modelListItemPrefab, _contentContainer);
-                model.Init(item, isDownloaded, DownloadItem, Accept, null);
+                model.Init(item, isDownloaded, DownloadItem, Accept, null, null);
                 _items.Add(model);
             }
             else if (_toggleLocal.isOn)
             {
                 var model = Instantiate(_modelListItemPrefab, _contentLocalContainer);
-                model.Init(item, isDownloaded, DownloadItem, Accept, RemoveLocalItemAsync);
+                model.Init(item, isDownloaded, DownloadItem, Accept, RemoveLocalItemAsync, RenameLocalItemAsync);
                 _items.Add(model);
             }
         }
@@ -411,6 +413,42 @@ public class ModelEditorView : PopupEditorBase
     private void RemoveLocalItemAsync(ModelListItem item)
     {
         RemoveModelFromLocalStorageAsync(item).AsAsyncVoid();
+    }
+
+    private void RenameLocalItemAsync(ModelListItem item)
+    {
+        _currentItem = item;
+        RootView_v2.Instance.dialog.ShowBottomInputField(
+           "New title:",
+           "Enter new title",
+           "Cancel", null,
+           "Save", EnterNewTitle);
+    }
+
+    private void EnterNewTitle(string text)
+    {
+        if (!string.IsNullOrWhiteSpace(text) && IsValidNewTitle(text))
+        {
+            RenameLocalModelAsync(text, _currentItem).AsAsyncVoid();
+        }
+        else
+        {
+            Debug.Log("Invalid text format");
+        }
+    }
+
+    private bool IsValidNewTitle(string value)
+    {
+        const string regexExpression = @"^[^/\\?!]+$";
+        var regex = new Regex(regexExpression);
+        return regex.IsMatch(value);
+    }
+
+    private async Task RenameLocalModelAsync(string newName, ModelListItem item)
+    {
+        _previewItem = item.previewItem;
+        await MirageXR.Sketchfab.RenameLocalModelAsync(newName, _previewItem);
+        ShowLocalModels();
     }
 
     private async Task RemoveModelFromLocalStorageAsync(ModelListItem item)
