@@ -87,25 +87,28 @@ public class PickAndPlaceEditorView : PopupEditorBase
 
     public void OnCorrectToggleChanged()
     {
-        if (_correctToggle.isOn)
-        {
-            var isMorethanOneStep = IsMorethanOneStep();
-
-            _isCorrectTrigger = isMorethanOneStep;
-            _correctTriggerIndexObject.SetActive(isMorethanOneStep);
-            _correctToggle.isOn = isMorethanOneStep;
-        }
+        _isCorrectTrigger = ToggleChanged(_correctToggle, _correctTriggerIndexObject);
     }
 
     public void OnIncorrectToggleChanged()
     {
-        if (_incorrectToggle.isOn)
+        _isIncorrectTrigger = ToggleChanged(_incorrectToggle, _incorrectTriggerIndexObject);
+    }
+
+    public bool ToggleChanged(Toggle toggle, GameObject stepIndexObject)
+    {
+        if (toggle.isOn)
         {
             var isMorethanOneStep = IsMorethanOneStep();
 
-            _isIncorrectTrigger = isMorethanOneStep;
-            _incorrectTriggerIndexObject.SetActive(isMorethanOneStep);
-            _incorrectToggle.isOn = isMorethanOneStep;
+            stepIndexObject.SetActive(isMorethanOneStep);
+            toggle.isOn = isMorethanOneStep;
+            return isMorethanOneStep;
+        }
+        else
+        {
+            stepIndexObject.SetActive(false);
+            return false;
         }
     }
 
