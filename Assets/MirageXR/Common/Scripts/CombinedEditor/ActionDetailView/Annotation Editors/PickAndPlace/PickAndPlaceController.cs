@@ -27,14 +27,14 @@ namespace MirageXR
 
         private void OnEnable()
         {
-            EventManager.OnEditModeChanged += EditModeChanges;
+            EventManager.OnEditModeChanged += OnEditModeChanged;
             EventManager.OnAugmentationDeleted += DeletePickAndPlaceData;
             EventManager.OnActivitySaved += OnActivitySaved;
         }
 
         private void OnDisable()
         {
-            EventManager.OnEditModeChanged -= EditModeChanges;
+            EventManager.OnEditModeChanged -= OnEditModeChanged;
             EventManager.OnAugmentationDeleted -= DeletePickAndPlaceData;
             EventManager.OnActivitySaved -= OnActivitySaved;
         }
@@ -50,7 +50,17 @@ namespace MirageXR
                 boundsControl.Active = editModeState;
             }
 
-            if (editModeState)
+            if (!editModeState)
+            {
+                SavePositions();
+            }
+        }
+
+        private void OnEditModeChanged(bool editModeState)
+        {
+            EditModeChanges(editModeState);
+
+            if (!editModeState)
             {
                 SavePositions();
             }
