@@ -7,7 +7,6 @@ using UnityEngine.UI;
 public class ModelListItem : MonoBehaviour
 {
     [SerializeField] private Button _btn;
-    [SerializeField] private Button _threeDotBtn;
     [SerializeField] private Image _image;
     [SerializeField] private Image _imageDownloaded;
     [SerializeField] private Image _imageProgress;
@@ -50,7 +49,6 @@ public class ModelListItem : MonoBehaviour
         _imageProgress.gameObject.SetActive(false);
         _label.text = _previewItem.name;
         _btn.onClick.AddListener(OnButtonClicked);
-        _threeDotBtn.onClick.AddListener(OnThreeDotButtonClicked);
     }
 
     private void OnButtonClicked()
@@ -65,7 +63,7 @@ public class ModelListItem : MonoBehaviour
         }
     }
 
-    private void OnThreeDotButtonClicked()
+    public void OnLongClick()
     {
         RootView_v2.Instance.dialog.ShowMiddleMultiline(
             "Actions",
