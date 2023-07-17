@@ -1,8 +1,8 @@
-﻿using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
-using System;
+﻿using System;
 using System.Collections;
 using System.IO;
 using Microsoft.MixedReality.Toolkit.UI;
+using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -29,14 +29,14 @@ namespace MirageXR
         {
             EventManager.OnEditModeChanged += EditModeChanges;
             EventManager.OnAugmentationDeleted += DeletePickAndPlaceData;
-            EventManager.OnActivitySaved += SavePositions;
+            EventManager.OnActivitySaved += OnActivitySaved;
         }
 
         private void OnDisable()
         {
             EventManager.OnEditModeChanged -= EditModeChanges;
             EventManager.OnAugmentationDeleted -= DeletePickAndPlaceData;
-            EventManager.OnActivitySaved -= SavePositions;
+            EventManager.OnActivitySaved -= OnActivitySaved;
         }
 
         private void EditModeChanges(bool editModeState)
@@ -48,6 +48,11 @@ namespace MirageXR
             if (boundsControl != null)
             {
                 boundsControl.Active = editModeState;
+            }
+
+            if (editModeState)
+            {
+                SavePositions();
             }
         }
 
@@ -99,7 +104,7 @@ namespace MirageXR
             _pickObject.localScale = positions.pickObjectScale;
 
             _targetObject.localPosition = positions.targetObjectPosition;
-            _targetObject.localScale = positions.targetObjectScale != null ? positions.targetObjectScale : _defaultTargetSize;
+            _targetObject.localScale = positions.targetObjectScale != Vector3.zero ? positions.targetObjectScale : _defaultTargetSize;
 
             _pickComponent.MoveMode = positions.moveMode;
             _pickComponent.ResetPosition = positions.resetPosition;
@@ -112,16 +117,19 @@ namespace MirageXR
             }
         }
 
+        private void OnActivitySaved()
+        {
+            if (RootObject.Instance.activityManager.EditModeActive)
+            {
+                SavePositions();
+            }
+        }
+
         private void SavePositions()
         {
             if (_myObj == null || _myObj.poi == string.Empty || gameObject == null)
             {
                 return; // only if the poi is instantiated not the prefab
-            }
-
-            if (!RootObject.Instance.activityManager.EditModeActive)
-            {
-                return;
             }
 
             try
@@ -193,7 +201,10 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-            SavePositions();
+            if (RootObject.Instance.activityManager.EditModeActive)
+            {
+                SavePositions();
+            }
         }
 
         private void CheckTrigger()
