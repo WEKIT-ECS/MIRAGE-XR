@@ -35,11 +35,15 @@ public class ModelListItem : MonoBehaviour
     private bool _hasImageBeenDownloaded;
     private Action<ModelListItem> _downloadAction;
     private Action<ModelListItem> _acceptAction;
+    private Action<ModelListItem> _removeAction;
+    private Action<ModelListItem> _renameAction;
 
-    public void Init(ModelPreviewItem item, bool downloaded, Action<ModelListItem> downloadAction, Action<ModelListItem> acceptAction)
+    public void Init(ModelPreviewItem item, bool downloaded, Action<ModelListItem> downloadAction, Action<ModelListItem> acceptAction, Action<ModelListItem> removeAction, Action<ModelListItem> renameAction)
     {
         _downloadAction = downloadAction;
         _acceptAction = acceptAction;
+        _removeAction = removeAction;
+        _renameAction = renameAction;
         _previewItem = item;
         isDownloaded = downloaded;
         _imageProgress.gameObject.SetActive(false);
@@ -58,6 +62,26 @@ public class ModelListItem : MonoBehaviour
             _downloadAction(this);
         }
     }
+
+    public void OnLongClick()
+    {
+        RootView_v2.Instance.dialog.ShowMiddleMultiline(
+            "Actions",
+            ("Rename object", RenameObject, false),
+            ("Delete object", DeleteObject, false),
+            ("Cancel", null, true));
+    }
+
+    private void RenameObject()
+    {
+        _renameAction(this);
+    }
+
+    private void DeleteObject()
+    {
+        _removeAction(this);
+    }
+
 
     public async Task LoadImage()
     {

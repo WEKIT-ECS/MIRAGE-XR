@@ -375,6 +375,87 @@ namespace MirageXR
             return true;
         }
 
+        public static async Task RemoveLocalModelAsync(ModelPreviewItem modelPreview)
+        {
+            var modelsFolderPath = Path.Combine(Application.persistentDataPath, FOLDER_NAME);
+            var archiveUrl = Path.Combine(modelsFolderPath, $"{modelPreview.name}.zip");
+            var modelFolder = Path.Combine(modelsFolderPath, modelPreview.name);
+            if (File.Exists(archiveUrl))
+            {
+                try
+                {
+                    File.Delete(archiveUrl);
+                    Debug.Log($"Deleted archive: {archiveUrl}");
+                }
+                catch (IOException ex)
+                {
+                    Debug.LogError($"Failed to delete archive: {archiveUrl}\nError: {ex.Message}");
+                }
+            }
+
+            if (Directory.Exists(modelFolder))
+            {
+                try
+                {
+                    Directory.Delete(modelFolder, true);
+                    Debug.Log($"Deleted model folder: {modelFolder}");
+                }
+                catch (IOException ex)
+                {
+                    Debug.LogError($"Failed to delete model folder: {modelFolder}\nError: {ex.Message}");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"Model folder does not exist: {modelFolder}");
+            }
+        }
+
+        public static async Task RenameLocalModelAsync(string newName, ModelPreviewItem modelPreview)
+        {
+            var modelsFolderPath = Path.Combine(Application.persistentDataPath, FOLDER_NAME);
+
+            var archiveUrl = Path.Combine(modelsFolderPath, $"{modelPreview.name}.zip");
+            var newArchiveUrl = Path.Combine(modelsFolderPath, $"{newName}.zip");
+            var modelFolder = Path.Combine(modelsFolderPath, modelPreview.name);
+            var newModelFolder = Path.Combine(modelsFolderPath, newName);
+
+            // rename .zip
+            if (File.Exists(archiveUrl))
+            {
+                File.Move(archiveUrl, newArchiveUrl);
+            }
+
+            // rename model folder
+            if (Directory.Exists(modelFolder))
+            {
+                Directory.Move(modelFolder, newModelFolder);
+            }
+
+            // update json file
+            var jsonPath = Path.Combine(newModelFolder, JSON_FILE_NAME);
+            var modelPath = Path.Combine(newModelFolder, MODEL_NAME);
+
+            using (StreamReader reader = new StreamReader(jsonPath))
+            {
+                var jsonString = reader.ReadToEnd();
+                var temp = Newtonsoft.Json.JsonConvert.DeserializeObject<ModelPreviewItem>(jsonString);
+                var pattern = $"({modelsFolderPath}/)([^/]+)";
+                reader.Close();
+                temp.name = newName;
+                temp.resourceUrl = $"file://{modelPath}";
+                var newImagePath = Regex.Replace(temp.resourceImage.url, pattern, $"${{1}}{newName}");
+                temp.resourceImage.url = newImagePath;
+
+                using (StreamWriter writer = new StreamWriter(jsonPath))
+                {
+                    var output = Newtonsoft.Json.JsonConvert.SerializeObject(temp, Newtonsoft.Json.Formatting.Indented);
+                    writer.Write(output);
+                    writer.Close();
+                }
+            }
+        }
+
         public static async Task LoadModelAsync(ModelPreviewItem modelPreview)
         {
             var modelsFolderPath = Path.Combine(Application.persistentDataPath, FOLDER_NAME);
