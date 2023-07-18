@@ -27,7 +27,7 @@ public class TaskStationEditor : MonoBehaviour
         _detectable = RootObject.Instance.workplaceManager.GetDetectable(_placeBehaviour.Place);
         _objectManipulator.HostTransform = GameObject.Find(_detectable.id).transform;
         _objectManipulator.enabled = activityManager.EditModeActive;
-        _objectManipulator.OnManipulationStarted.AddListener(eventData => gridManager.onManipulationStarted(eventData.ManipulationSource));
+        _objectManipulator.OnManipulationStarted.AddListener(_ => gridManager.onManipulationStarted(_objectManipulator.HostTransform.gameObject));
         _objectManipulator.OnManipulationEnded.AddListener(OnManipulationEnded);
     }
 
@@ -54,12 +54,13 @@ public class TaskStationEditor : MonoBehaviour
 
     private void OnManipulationEnded(ManipulationEventData eventData)
     {
-        gridManager.onManipulationEnded(eventData.ManipulationSource);
+        var source = _objectManipulator.HostTransform.gameObject;
+        gridManager.onManipulationEnded(source);
 
         var anchor = RootObject.Instance.calibrationManager.anchor;
 
-        var position = anchor.InverseTransformPoint(eventData.ManipulationSource.transform.position);
-        var rotation = Quaternion.Inverse(anchor.rotation) * eventData.ManipulationSource.transform.rotation;
+        var position = anchor.InverseTransformPoint(source.transform.position);
+        var rotation = Quaternion.Inverse(anchor.rotation) * source.transform.rotation;
 
         _detectable.origin_position = Utilities.Vector3ToString(position);
         _detectable.origin_rotation = Utilities.Vector3ToString(rotation.eulerAngles);
