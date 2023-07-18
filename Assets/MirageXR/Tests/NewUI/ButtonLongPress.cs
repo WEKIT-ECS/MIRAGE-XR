@@ -8,9 +8,12 @@ using UnityEngine.EventSystems;
 public class ButtonLongPress : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     [SerializeField] private float _holdTime;
+    [SerializeField] private UnityEvent  _onLongClick = new UnityEvent();
+
+    public UnityEvent onLongClick => _onLongClick;
+
     private bool _pointerDown;
     private float _pointerDownTimer;
-    public UnityEvent _onLongClick;
 
     public void OnPointerDown(PointerEventData eventData)
     {
