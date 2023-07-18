@@ -32,7 +32,7 @@ public class GridView : PopupBase
         _activateGridToggle.isOn = gridManager.gridEnabled;
         _snapToGridToggle.isOn = gridManager.snapEnabled;
         _showOriginalObjectToggle.isOn = gridManager.showOriginalObject;
-        _useObjectCenterToggle.isOn = gridManager.showOriginalObject;
+        _useObjectCenterToggle.isOn = gridManager.useObjectCenter;
 
         _clampedScrollGridStep.currentItemIndex = gridManager.valuesCellSize.IndexOf(gridManager.cellWidth);
         _clampedScrollAngleStep.currentItemIndex = gridManager.valuesAngleStep.IndexOf(gridManager.angleStep);
