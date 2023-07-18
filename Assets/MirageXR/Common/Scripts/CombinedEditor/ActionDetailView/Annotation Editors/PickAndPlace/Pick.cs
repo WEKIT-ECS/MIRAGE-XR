@@ -1,74 +1,55 @@
-﻿namespace MirageXR
-{
-    using System.Collections;
-    using System.Collections.Generic;
-    using UnityEngine;
-    using UnityEngine.UI;
+﻿using System.Collections;
+using Microsoft.MixedReality.Toolkit.UI;
+using UnityEngine;
+using UnityEngine.UI;
 
+namespace MirageXR
+{
     public class Pick : MonoBehaviour
     {
-        [SerializeField] private Transform _placeLocation;
-        [SerializeField] private GameObject _pickOb;
-        [SerializeField] private float _correctionDistance;
-        [SerializeField] private bool _resetOnMiss = true;
-        [SerializeField] private SpriteToggle _lockToggle;
+        private const string _LockHelpText = "When locked the arrow (or 3D model) will bounce back to this location if it is not correctly placed on the target";
+        private const string _ModelButtonHelpText = "Click this button and select a 3D model from the augmentation list to change the pick and place object model";
+
+        private static readonly int ColorProperty = Shader.PropertyToID("_Color");
+
+        [SerializeField] private Transform _targetTransform;
+        [SerializeField] private ObjectManipulator _objectManipulator;
         [SerializeField] private Button _changeModelButton;
         [SerializeField] private Text _hoverGuide;
-
         [SerializeField] private AudioSource _audioSource;
         [SerializeField] private AudioClip _correctAudio;
         [SerializeField] private AudioClip _incorrectAudio;
 
-        private bool _shouldPlaySound;
+        public string MyModelID;
 
         private Vector3 _resetPosition;
         private Quaternion _resetRotation;
         private bool _isMoving = false;
         private bool _moveMode = true;
-        private float _targetRadius;
         private Color _originalArrowColor;
 
         private bool _isTrigger = false;
         private int _triggerStepIndex;
         private float _triggerDuration;
+        private MeshRenderer _arrowRenderer;
 
-        private bool _editMode = false;
-
-        private const string _LockHelpText = "When locked the arrow (or 3D model) will bounce back to this location if it is not correctly placed on the target";
-        private const string _ModelButtonHelpText = "Click this button and select a 3D model from the augmentation list to change the pick and place object model";
-
-        private static MirageXR.ActivityManager _activityManager => MirageXR.RootObject.Instance.activityManager;
-
-        public bool EditMode
-        {
-            get { return _editMode; }
-            set { _editMode = value; }
-        }
+        private static ActivityManager _activityManager => MirageXR.RootObject.Instance.activityManager;
 
         public Vector3 ResetPosition
         {
-            get { return _resetPosition; }
-            set { _resetPosition = value; }
+            get => _resetPosition;
+            set => _resetPosition = value;
         }
 
         public Quaternion ResetRotation
         {
-            get { return _resetRotation; }
-            set { _resetRotation = value; }
+            get => _resetRotation;
+            set => _resetRotation = value;
         }
 
-        public MeshRenderer ArrowRenderer
-        {
-            get { return GetComponentInChildren<MeshRenderer>(); }
-        }
+        public MeshRenderer ArrowRenderer => _arrowRenderer;
 
-        public Button ChangeModelButton
-        {
-            get
-            {
-                return _changeModelButton;
-            }
-        }
+        public Button ChangeModelButton => _changeModelButton;
 
         public bool MoveMode
         {
@@ -76,67 +57,25 @@
             set => _moveMode = value;
         }
 
-        public bool IsTrigger
+        private void Awake()
         {
-            get => IsTrigger;
-            set => IsTrigger = value;
+            _arrowRenderer = GetComponentInChildren<MeshRenderer>();
+
+            _originalArrowColor = _arrowRenderer.material.color;
+
+            _resetPosition = transform.position;
+            _resetRotation = transform.rotation;
         }
 
-        public int TriggerStepIndex
+        private void Start()
         {
-            get => TriggerStepIndex;
-            set => TriggerStepIndex = value;
-        }
-
-        public string MyModelID
-        {
-            get; set;
-        }
-
-        void Start()
-        {
-            _targetRadius = _placeLocation.transform.localScale.x / 2;
-            _pickOb = this.gameObject;
-            ChangeCorrectionDistance(_targetRadius);
-            _moveMode = false;
-            _lockToggle.IsSelected = true;
-
-            _originalArrowColor = ArrowRenderer.material.color;
-
+            _objectManipulator.OnManipulationStarted.AddListener(OnManipulationStarted);
+            _objectManipulator.OnManipulationEnded.AddListener(OnManipulationEnded);
             _changeModelButton.onClick.AddListener(CapturePickModel);
 
-            AddHoverGuide(_lockToggle.gameObject, _LockHelpText);
+            _moveMode = RootObject.Instance.activityManager.EditModeActive;
             AddHoverGuide(_changeModelButton.gameObject, _ModelButtonHelpText);
-            _shouldPlaySound = false;
-        }
-
-        void Update()
-        {
-            float targetRadiusUpdate = _placeLocation.transform.localScale.x / 2;
-
-            if (!_moveMode)
-            {
-                if (transform.hasChanged)
-                {
-                    ManipulationStart();
-                }
-                else if (!transform.hasChanged)
-                {
-                    ManipulationStop();
-                }
-                transform.hasChanged = false;
-            }
-            else if (_moveMode && ArrowRenderer.material.color != _originalArrowColor)
-            {
-                ArrowRenderer.material.SetColor("_Color", _originalArrowColor);
-            }
-
-            if (_targetRadius != targetRadiusUpdate)
-            {
-                _targetRadius = targetRadiusUpdate;
-
-                ChangeCorrectionDistance(_targetRadius);
-            }
+            SetArrowWrongColor();
         }
 
         /// <summary>
@@ -148,95 +87,85 @@
             ActionEditor.Instance.pickArrowModelCapturing = (true, this);
         }
 
-        public void SetMoveMode()
+        public void SetMoveMode(bool value)
+        {
+            _moveMode = value;
+
+            if (value)
+            {
+                ResetPositions();
+                SetArrowWrongColor();
+            }
+        }
+
+        private void OnManipulationStarted(ManipulationEventData data)
+        {
+            SetArrowWrongColor();
+        }
+
+        private void OnManipulationEnded(ManipulationEventData data)
         {
             if (_moveMode)
             {
-                _moveMode = false;
-                ResetPosition = _pickOb.transform.localPosition;
-                ResetRotation = _pickOb.transform.localRotation;
-                _shouldPlaySound = false;
+                _resetPosition = transform.localPosition;
+                _resetRotation = transform.localRotation;
+                return;
+            }
+
+            var correctDistance = _targetTransform.transform.localScale.x * 0.3f;
+            var distance = Vector3.Distance(transform.position, _targetTransform.position);
+
+            if (distance <= correctDistance)
+            {
+                OnPlacedCorrectly();
             }
             else
             {
-                _moveMode = true;
+                OnPlacedIncorrectly();
             }
-
-            _lockToggle.ToggleValue();
         }
 
-        public void SetRestOnMiss(bool reset)
+        private void SetArrowColor(Color color)
         {
-            _resetOnMiss = reset;
+            _arrowRenderer.material.SetColor(ColorProperty, color);
         }
 
-        /// <summary>
-        /// Sets the target transform for the pick object
-        /// </summary>
-        public void SetTargettransform(Transform target)
+        private void SetArrowRightColor()
         {
-            _placeLocation = target;
+            SetArrowColor(Color.green);
         }
 
-        /// <summary>
-        /// Change the distance that will be considered close enough to the desired place location
-        /// </summary>
-        public void ChangeCorrectionDistance(float distance)
+        private void SetArrowWrongColor()
         {
-            _correctionDistance = distance;
+            SetArrowColor(_originalArrowColor);
         }
 
-        /// <summary>
-        /// Sets isMoving to true to show that the object is being manipulated.
-        /// </summary>
-        public void ManipulationStart()
+        private void ResetPositions()
         {
-            ArrowRenderer.material.SetColor("_Color", _originalArrowColor);
-            _isMoving = true;
+            transform.localPosition = _resetPosition;
+            transform.localRotation = _resetRotation;
         }
 
-        /// <summary>
-        /// Checks if the pick object has been placed correctly and sets isMoving to false to show that the object has stopped being manipulated.
-        /// </summary>
-        public void ManipulationStop()
+        private void OnPlacedIncorrectly()
         {
-            if (_isMoving)
+            ResetPositions();
+            SetArrowWrongColor();
+            PlayAudio(_incorrectAudio);
+        }
+
+        private void OnPlacedCorrectly()
+        {
+            transform.localPosition = _targetTransform.localPosition;
+            SetArrowRightColor();
+            PlayAudio(_correctAudio);
+
+            if (_isTrigger)
             {
-                if (Mathf.Abs(_pickOb.transform.localPosition.x - _placeLocation.localPosition.x) <= _correctionDistance &&
-                Mathf.Abs(_pickOb.transform.localPosition.y - _placeLocation.localPosition.y) <= _correctionDistance &&
-                Mathf.Abs(_pickOb.transform.localPosition.z - _placeLocation.localPosition.z) <= _correctionDistance)
-                {
-                    _pickOb.transform.localPosition = new Vector3(_placeLocation.localPosition.x, _placeLocation.localPosition.y, _placeLocation.localPosition.z);
-
-                    ArrowRenderer.material.SetColor("_Color", Color.green);
-
-                    if (_shouldPlaySound)
-                    {
-                        PlayAudio(_correctAudio);
-                    }
-                    if (_isTrigger && !EditMode)
-                    {
-                        StartCoroutine(TriggerAction());
-                    }
-
-                    EventManager.NotifyOnPickPlacedCorrectly();
-                }
-                else if (_resetOnMiss)
-                {
-                    _pickOb.transform.localPosition = ResetPosition;
-                    _pickOb.transform.localRotation = ResetRotation;
-
-                    ArrowRenderer.material.SetColor("_Color", _originalArrowColor);
-                    if (_shouldPlaySound)
-                    {
-                        PlayAudio(_incorrectAudio);
-                    }
-                }
+                StartCoroutine(TriggerAction());
             }
-            _isMoving = false;
-            _shouldPlaySound = true;
-        }
 
+            EventManager.NotifyOnPickPlacedCorrectly();
+        }
 
         private void PlayAudio(AudioClip clip)
         {
@@ -246,9 +175,9 @@
 
         private void AddHoverGuide(GameObject obj, string hoverMessage)
         {
-            var HoverGuilde = obj.AddComponent<HoverGuilde>();
-            HoverGuilde.SetGuildText(_hoverGuide);
-            HoverGuilde.SetMessage(hoverMessage);
+            var hoverGuilde = obj.AddComponent<HoverGuilde>();
+            hoverGuilde.SetGuildText(_hoverGuide);
+            hoverGuilde.SetMessage(hoverMessage);
         }
 
         private IEnumerator TriggerAction()
@@ -260,7 +189,7 @@
 
         public void SetTrigger(Trigger trigger)
         {
-            _isTrigger = trigger != null ? true : false;
+            _isTrigger = trigger != null;
 
             if (_isTrigger)
             {
