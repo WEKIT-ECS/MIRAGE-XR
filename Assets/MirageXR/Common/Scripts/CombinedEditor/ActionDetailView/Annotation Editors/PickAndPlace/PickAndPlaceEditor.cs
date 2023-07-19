@@ -11,24 +11,21 @@ public class PickAndPlaceEditor : MonoBehaviour
     [SerializeField] private Transform _annotationStartingPoint;
     [SerializeField] private InputField _textInputField;
 
-    [SerializeField] private Toggle _toggleTrigger;
-    [SerializeField] private InputField _triggerStepIndex;
-    [SerializeField] private InputField _triggerStepTime;
-    [SerializeField] private GameObject _triggerHelp;
-    [SerializeField] private GameObject _triggerIndexHelp;
-    [SerializeField] private GameObject _triggerTimeHelp;
+
+    [SerializeField] private Toggle _correctToggle;
+    [SerializeField] private InputField _correctStepIndex;
+
+    [SerializeField] private Toggle _incorrectToggle;
+    [SerializeField] private InputField _incorrectStepIndex;
     [SerializeField] private Dropdown _resetOnDropDown;
 
     [SerializeField] private GameObject _editor;
     [SerializeField] private GameObject _triggerSettings;
 
-    [SerializeField] private Text _hoverGuide;
 
-    private const string _triggerHelpText = "This toggle gives this pick and place augmentation a trigger, allowing you to jump to another step once placed correctly";
-    private const string _triggerIndexHelpText = "Use this input box to enter the step the trigger should take you to";
-    private const string _triggerTimeHelpText = "use this input box to determine the time between correct placement and moving onto the set step";
+    private bool _isCorrectTrigger;
+    private bool _isIncorrectTrigger;
 
-    private bool _isTrigger;
     private Action _action;
     private ToggleObject _annotationToEdit;
     private int _resetOption = 0;
@@ -61,14 +58,8 @@ public class PickAndPlaceEditor : MonoBehaviour
         _annotationToEdit.text = _textInputField.text;
         _annotationToEdit.key = _resetOption.ToString();
 
-        if (_isTrigger)
-        {
-            _action.AddOrReplaceArlemTrigger(TriggerMode.PickAndPlace, ActionType.PickAndPlace, _annotationToEdit.poi, int.Parse(_triggerStepTime.text), _triggerStepIndex.text);
-        }
-        else
-        {
-            _action.RemoveArlemTrigger(_annotationToEdit);
-        }
+        CreateOrRemoveTrigger(_isCorrectTrigger, TriggerMode.PickAndPlace, "correct", _correctStepIndex.text);
+        CreateOrRemoveTrigger(_isIncorrectTrigger, TriggerMode.IncorrectPickAndPlace, "incorrect", _incorrectStepIndex.text);
 
         EventManager.ActivateObject(_annotationToEdit);
         EventManager.NotifyActionModified(_action);
@@ -92,11 +83,8 @@ public class PickAndPlaceEditor : MonoBehaviour
         this._action = action;
         _annotationToEdit = annotation;
         _textInputField.text = annotation != null ? annotation.text : string.Empty;
-        _isTrigger = false;
-
-        AddHoverGuide(_triggerHelp, _triggerHelpText);
-        AddHoverGuide(_triggerIndexHelp, _triggerIndexHelpText);
-        AddHoverGuide(_triggerTimeHelp, _triggerTimeHelpText);
+        _isCorrectTrigger = false;
+        _isIncorrectTrigger = false;
 
         if (_annotationToEdit != null)
         {
@@ -105,14 +93,8 @@ public class PickAndPlaceEditor : MonoBehaviour
             _resetOption = int.Parse(_annotationToEdit.key);
             _resetOnDropDown.value = _resetOption;
 
-            var trigger = _activityManager.ActiveAction.triggers.Find(t => t.id == _annotationToEdit.poi);
-            _isTrigger = trigger != null ? true : false;
-            if (_isTrigger)
-            {
-                _toggleTrigger.isOn = _isTrigger;
-                _triggerStepTime.text = trigger.duration.ToString();
-                _triggerStepIndex.text = trigger.value;
-            }
+            _isCorrectTrigger = OpenTriggerInfo("correct", _correctToggle, _correctStepIndex);
+            _isIncorrectTrigger = OpenTriggerInfo("incorrect", _incorrectToggle, _incorrectStepIndex);
         }
     }
 
@@ -121,31 +103,47 @@ public class PickAndPlaceEditor : MonoBehaviour
         _resetOption = option.value;
     }
 
-    public void TriggerToggle(bool trigger)
+    public void OnCorrectToggleChanged()
+    {
+        _isCorrectTrigger = ToggleChanged(_correctToggle, _correctStepIndex);
+    }
+
+    public void OnIncorrectToggleChanged()
+    {
+        _isIncorrectTrigger = ToggleChanged(_incorrectToggle, _incorrectStepIndex);
+    }
+
+    public bool ToggleChanged(Toggle toggle, InputField stepIndex)
+    {
+        if (toggle.isOn)
+        {
+            var isMorethanOneStep = IsMorethanOneStep();
+
+            stepIndex.interactable = isMorethanOneStep;
+            toggle.isOn = isMorethanOneStep;
+            return isMorethanOneStep;
+        }
+        else
+        {
+            stepIndex.interactable = false;
+            return false;
+        }
+    }
+
+    private bool IsMorethanOneStep()
     {
         var numberOfSteps = _activityManager.ActionsOfTypeAction.Count;
 
         if (numberOfSteps == 1)
         {
-            if (_toggleTrigger.isOn)
-            {
-                DialogWindow.Instance.Show(
-                "Info!",
-                "Only one step has been found in this activity!\n Add a new step and try again.",
-                new DialogButtonContent("Ok"));
+            DialogWindow.Instance.Show(
+            "Info!",
+            "Only one step has been found in this activity!\n Add a new step and try again.",
+            new DialogButtonContent("Ok"));
 
-                _toggleTrigger.isOn = false;
-            }
-            return;
+            return false;
         }
-        else
-        {
-            _isTrigger = _toggleTrigger.isOn;
-            _triggerStepIndex.interactable = _toggleTrigger.isOn;
-            _triggerStepIndex.text = numberOfSteps.ToString();
-            _triggerStepTime.interactable = _toggleTrigger.isOn;
-            _triggerStepTime.text = "1";
-        }
+        return true;
     }
 
     public void OpenTriggerSettings()
@@ -160,26 +158,56 @@ public class PickAndPlaceEditor : MonoBehaviour
         _triggerSettings.SetActive(false);
     }
 
-    public void OnStepTriggerValueChanged()
+    public void OnCorrectStepIndexValueChanged()
+    {
+        CheckInputedIndex(_correctStepIndex);
+    }
+
+    public void OnIncorrectStepIndexValueChanged()
+    {
+        CheckInputedIndex(_incorrectStepIndex);
+    }
+
+    private void CheckInputedIndex(InputField inputedIndex)
     {
         var numberOfSteps = _activityManager.ActionsOfTypeAction.Count;
 
-        if (numberOfSteps < int.Parse(_triggerStepIndex.text))
+        if (numberOfSteps < int.Parse(inputedIndex.text))
         {
             DialogWindow.Instance.Show(
             "Info!",
             "The entered step number doesn't exist yet. This trigger will jump to the last avalible step",
             new DialogButtonContent("Ok"));
 
-            _triggerStepIndex.text = numberOfSteps.ToString();
+            inputedIndex.text = numberOfSteps.ToString();
             return;
         }
     }
 
-    private void AddHoverGuide(GameObject obj, string hoverMessage)
+    private void CreateOrRemoveTrigger(bool isTrigger, TriggerMode triggerMode, string suffix, string index)
     {
-        var HoverGuilde = obj.AddComponent<HoverGuilde>();
-        HoverGuilde.SetGuildText(_hoverGuide);
-        HoverGuilde.SetMessage(hoverMessage);
+        if (isTrigger)
+        {
+            _action.AddOrReplaceArlemTrigger(triggerMode, ActionType.PickAndPlace, _annotationToEdit.poi + suffix, 1, index);
+        }
+        else
+        {
+            _action.RemoveArlemTrigger(_annotationToEdit.poi + suffix);
+        }
+    }
+
+    private bool OpenTriggerInfo(string suffix, Toggle toggle, InputField inputField)
+    {
+        var trigger = _activityManager.ActiveAction.triggers.Find(t => t.id == _annotationToEdit.poi + suffix);
+
+        var isTrigger = trigger != null ? true : false;
+
+        if (isTrigger)
+        {
+            toggle.isOn = isTrigger;
+            inputField.text = trigger.value;
+        }
+
+        return isTrigger;
     }
 }
