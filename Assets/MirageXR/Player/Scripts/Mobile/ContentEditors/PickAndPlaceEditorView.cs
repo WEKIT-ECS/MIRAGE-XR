@@ -1,5 +1,5 @@
-﻿using System;
-using MirageXR;
+﻿using MirageXR;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,14 +12,20 @@ public class PickAndPlaceEditorView : PopupEditorBase
     public override ContentType editorForType => ContentType.PICKANDPLACE;
 
     [SerializeField] private TMP_InputField _inputField;
-    [SerializeField] private Toggle _toggleTrigger;
-    [SerializeField] private TMP_InputField _triggerStepIndex;
-    [SerializeField] private TMP_InputField _triggerStepTime;
-    [SerializeField] private GameObject _triggerIndexObject;
-    [SerializeField] private GameObject _triggerTimeObject;
+
+
+    [SerializeField] private Toggle _correctToggle;
+    [SerializeField] private TMP_InputField _correctStepIndex;
+    [SerializeField] private Toggle _incorrectToggle;
+    [SerializeField] private TMP_InputField _incorrectStepIndex;
+
+    [SerializeField] private GameObject _correctTriggerIndexObject;
+    [SerializeField] private GameObject _incorrectTriggerIndexObject;
     [SerializeField] private Dropdown _resetOnDropDown;
 
-    private bool _isTrigger;
+    private bool _isCorrectTrigger;
+    private bool _isIncorrectTrigger;
+
     private int _resetOption = 0;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
@@ -40,14 +46,9 @@ public class PickAndPlaceEditorView : PopupEditorBase
             _resetOnDropDown.value = _resetOption;
 
             var trigger = activityManager.ActiveAction.triggers.Find(t => t.id == _content.poi);
-            _isTrigger = trigger != null ? true : false;
 
-            if (_isTrigger)
-            {
-                _toggleTrigger.isOn = _isTrigger;
-                _triggerStepTime.text = trigger.duration.ToString();
-                _triggerStepIndex.text = trigger.value;
-            }
+            _isCorrectTrigger = OpenTriggerInfo("correct", _correctToggle, _correctStepIndex);
+            _isIncorrectTrigger = OpenTriggerInfo("incorrect", _incorrectToggle, _incorrectStepIndex);
         }
     }
 
@@ -71,15 +72,8 @@ public class PickAndPlaceEditorView : PopupEditorBase
         _content.text = _inputField.text;
         _content.key = _resetOption.ToString();
 
-        if (_isTrigger)
-        {
-            _step.AddOrReplaceArlemTrigger(TriggerMode.PickAndPlace, ActionType.PickAndPlace, _content.poi, int.Parse(_triggerStepTime.text), _triggerStepIndex.text);
-        }
-        else
-        {
-            _step.RemoveArlemTrigger(_content);
-        }
-
+        CreateOrRemoveTrigger(_isCorrectTrigger, TriggerMode.PickAndPlace, "correct", _correctStepIndex.text);
+        CreateOrRemoveTrigger(_isIncorrectTrigger, TriggerMode.IncorrectPickAndPlace, "incorrect", _incorrectStepIndex.text);
 
         EventManager.ActivateObject(_content);
         EventManager.NotifyActionModified(_step);
@@ -91,49 +85,99 @@ public class PickAndPlaceEditorView : PopupEditorBase
         _resetOption = option.value;
     }
 
-    public void TriggerToggle(bool trigger)
+    public void OnCorrectToggleChanged()
+    {
+        _isCorrectTrigger = ToggleChanged(_correctToggle, _correctTriggerIndexObject);
+    }
+
+    public void OnIncorrectToggleChanged()
+    {
+        _isIncorrectTrigger = ToggleChanged(_incorrectToggle, _incorrectTriggerIndexObject);
+    }
+
+    public bool ToggleChanged(Toggle toggle, GameObject stepIndexObject)
+    {
+        if (toggle.isOn)
+        {
+            var isMorethanOneStep = IsMorethanOneStep();
+
+            stepIndexObject.SetActive(isMorethanOneStep);
+            toggle.isOn = isMorethanOneStep;
+            return isMorethanOneStep;
+        }
+        else
+        {
+            stepIndexObject.SetActive(false);
+            return false;
+        }
+    }
+
+    private bool IsMorethanOneStep()
     {
         var numberOfSteps = activityManager.ActionsOfTypeAction.Count;
 
         if (numberOfSteps == 1)
         {
-            if (_toggleTrigger.isOn)
-            {
-                DialogWindow.Instance.Show(
-                "Info!",
-                "Only one step has been found in this activity!\n Add a new step and try again.",
-                new DialogButtonContent("Ok"));
+            DialogWindow.Instance.Show(
+            "Info!",
+            "Only one step has been found in this activity!\n Add a new step and try again.",
+            new DialogButtonContent("Ok"));
 
-                _toggleTrigger.isOn = false;
-            }
-            return;
+            return false;
         }
-        else
-        {
-            _isTrigger = _toggleTrigger.isOn;
-            _triggerStepIndex.interactable = _toggleTrigger.isOn;
-            _triggerStepIndex.text = numberOfSteps.ToString();
-            _triggerStepTime.interactable = _toggleTrigger.isOn;
-            _triggerStepTime.text = "1";
-        }
-
-        _triggerIndexObject.SetActive(_toggleTrigger.isOn);
-        _triggerTimeObject.SetActive(_toggleTrigger.isOn);
+        return true;
     }
 
-    public void OnStepTriggerValueChanged()
+    public void OnCorrectStepIndexValueChanged()
+    {
+        CheckInputedIndex(_correctStepIndex);
+    }
+
+    public void OnIncorrectStepIndexValueChanged()
+    {
+        CheckInputedIndex(_incorrectStepIndex);
+    }
+
+    private void CheckInputedIndex(TMP_InputField inputedIndex)
     {
         var numberOfSteps = activityManager.ActionsOfTypeAction.Count;
 
-        if (numberOfSteps < int.Parse(_triggerStepIndex.text))
+        if (numberOfSteps < int.Parse(inputedIndex.text))
         {
             DialogWindow.Instance.Show(
             "Info!",
             "The entered step number doesn't exist yet. This trigger will jump to the last avalible step",
             new DialogButtonContent("Ok"));
 
-            _triggerStepIndex.text = numberOfSteps.ToString();
+            inputedIndex.text = numberOfSteps.ToString();
             return;
         }
+    }
+
+    private void CreateOrRemoveTrigger(bool isTrigger, TriggerMode triggerMode, string suffix, string index)
+    {
+        if (isTrigger)
+        {
+            _step.AddOrReplaceArlemTrigger(triggerMode, ActionType.PickAndPlace, _content.poi + suffix, 1, index);
+        }
+        else
+        {
+            _step.RemoveArlemTrigger(_content.poi + suffix);
+        }
+    }
+
+    private bool OpenTriggerInfo(string suffix, Toggle toggle, TMP_InputField inputField)
+    {
+        var trigger = activityManager.ActiveAction.triggers.Find(t => t.id == _content.poi + suffix);
+
+        var isTrigger = trigger != null ? true : false;
+
+        if (isTrigger)
+        {
+            toggle.isOn = isTrigger;
+            inputField.text = trigger.value;
+        }
+
+        return isTrigger;
     }
 }

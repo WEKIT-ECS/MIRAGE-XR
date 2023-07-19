@@ -99,7 +99,8 @@ namespace MirageXR
                 LoadPickAndPlacePositions();
             }
 
-            CheckTrigger();
+            CheckTrigger("correct");
+            CheckTrigger("incorrect");
 
             return true;
         }
@@ -217,12 +218,17 @@ namespace MirageXR
             }
         }
 
-        private void CheckTrigger()
+        private void CheckTrigger(string suffix)
         {
             if (Annotation != null)
             {
-                var trigger = _activityManager.ActiveAction.triggers.Find(t => t.id == Annotation.poi);
-                _pickComponent.SetTrigger(trigger);
+                var trigger = _activityManager.ActiveAction.triggers.Find(t => t.id == Annotation.poi + suffix);
+                var _isTrigger = trigger != null ? true : false;
+
+                if (_isTrigger)
+                {
+                    _pickComponent.SetTrigger(trigger);
+                }
             }
         }
     }
