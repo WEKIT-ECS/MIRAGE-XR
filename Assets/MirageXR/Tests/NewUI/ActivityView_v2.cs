@@ -142,7 +142,7 @@ public class ActivityView_v2 : BaseView
 
     private IEnumerator ShowHorizontalScroll(float delay, bool value)
     {
-        if (_toggleSteps.isOn)
+        if (_toggleSteps.isOn && _stepsListView.gameObject.activeInHierarchy)
         {
             yield return new WaitForSeconds(delay);
 
