@@ -50,6 +50,14 @@ public class ModelEditorView : PopupEditorBase
     [SerializeField] private RectTransform _panel;
     [SerializeField] private GameObject _arrowDown;
     [SerializeField] private GameObject _arrowUp;
+    [Space]
+    [SerializeField] private GameObject _libraryList;
+    [SerializeField] private GameObject _libraryContent;
+    [SerializeField] private Transform _contentLibraryContainer;
+    [SerializeField] private ScrollRect _scrollLibrary;
+    [SerializeField] private ModelLibraryItem _LibraryListItemPrefab;
+    [SerializeField] private Transform _libraryListLocalContainer;
+    [SerializeField] private ScrollRect _scrollLibraryList;
 
     private string _token;
     private string _renewToken;
@@ -216,8 +224,28 @@ public class ModelEditorView : PopupEditorBase
             _localTab.SetActive(false);
             _sketchfabTab.SetActive(false);
             _librariesTab.SetActive(true);
+            _libraryList.SetActive(true);
+            _libraryContent.SetActive(false);
             _bottomButtonsPanel.SetActive(false);
+            ShowLibraries();
         }
+    }
+
+    private void ShowLibraries()
+    {
+        // TODO: create library list
+        Clear();
+        var library = Instantiate(_LibraryListItemPrefab, _libraryListLocalContainer);
+        library.Init(OpenLibraryModels);
+    }
+
+    private void OpenLibraryModels(ModelLibraryItem item)
+    {
+        Clear();
+        _libraryList.SetActive(false);
+        _libraryContent.SetActive(true);
+        var previewItems = MirageXR.Sketchfab.GetLocalModelsFromLibrary();
+        AddItems(previewItems, true);
     }
 
     private void ShowLocalModels()
@@ -380,6 +408,18 @@ public class ModelEditorView : PopupEditorBase
                 var child = _contentLocalContainer.GetChild(i);
                 Destroy(child.gameObject);
             }
+            _scrollLibrary.normalizedPosition = Vector2.up;
+            for (int i = _contentLibraryContainer.childCount - 1; i >= 0; i--)
+            {
+                var child = _contentLibraryContainer.GetChild(i);
+                Destroy(child.gameObject);
+            }
+            _scrollLibraryList.normalizedPosition = Vector2.up;
+            for (int i = _libraryListLocalContainer.childCount - 1; i >= 0; i--)
+            {
+                var child = _libraryListLocalContainer.GetChild(i);
+                Destroy(child.gameObject);
+            }
 
             _items.Clear();
         }
@@ -403,6 +443,12 @@ public class ModelEditorView : PopupEditorBase
             {
                 var model = Instantiate(_modelListItemPrefab, _contentLocalContainer);
                 model.Init(item, isDownloaded, DownloadItem, Accept, RemoveLocalItemAsync, RenameLocalItemAsync);
+                _items.Add(model);
+            }
+            else if (_toggleLibraries.isOn)
+            {
+                var model = Instantiate(_modelListItemPrefab, _contentLibraryContainer);
+                model.Init(item, isDownloaded, DownloadItem, Accept, null, null);
                 _items.Add(model);
             }
         }
@@ -526,7 +572,14 @@ public class ModelEditorView : PopupEditorBase
     {
         _previewItem = item.previewItem;
         item.interactable = false;
-        await MirageXR.Sketchfab.LoadModelAsync(_previewItem);
+        if (_toggleLocal.isOn)
+        {
+            await MirageXR.Sketchfab.LoadModelAsync(_previewItem);
+        }
+        else if (_toggleLibraries.isOn)
+        {
+            await MirageXR.Sketchfab.LoadModelAsyncFromLibrary(_previewItem);
+        }
         item.interactable = true;
         OnAccept();
     }

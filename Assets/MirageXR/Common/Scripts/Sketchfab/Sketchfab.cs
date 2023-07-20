@@ -482,6 +482,80 @@ namespace MirageXR
             }
         }
 
+        // TODO: Temporary solution. Add a mechanism for loading and extracting local libraries
+        private const string MODEL_LIBRARY_FOLDER = "construction_library";
+        private static bool jsonUpdated = false;
+
+        public static async Task LoadModelAsyncFromLibrary(ModelPreviewItem modelPreview)
+        {
+            var modelsFolderPath = Path.Combine(Application.persistentDataPath, MODEL_LIBRARY_FOLDER);
+            var archiveUrl = Path.Combine(modelsFolderPath, $"{modelPreview.name}.zip");
+            var modelFolder = Path.Combine(modelsFolderPath, modelPreview.name);
+            var targetDirectory = Path.Combine(RootObject.Instance.activityManager.ActivityPath, modelPreview.name);
+            // build zip archive, if required (might be slow for big models)
+            if (!File.Exists(archiveUrl))
+            {
+                Debug.Log("model archive not found, taking remedial action...");
+                using (var stream = new FileStream(archiveUrl, FileMode.OpenOrCreate))
+                using (var zipStream = new ZipOutputStream(stream))
+                {
+                    await ZipUtilities.CompressFolderAsync($"{modelFolder}\\", zipStream);
+                }
+            }
+            // unpack to session folder
+            using (var stream = new FileStream(archiveUrl, FileMode.Open))
+            {
+                await ZipUtilities.ExtractZipFileAsync(stream, targetDirectory);
+            }
+        }
+
+        // TODO: Temporary solution. Add a mechanism for loading and extracting local libraries
+        public static List<ModelPreviewItem> GetLocalModelsFromLibrary()
+        {
+            const string searchPattern = "*";
+
+            var modelsFolderPath = Path.Combine(Application.persistentDataPath, MODEL_LIBRARY_FOLDER);
+            if (!Directory.Exists(modelsFolderPath)) Directory.CreateDirectory(modelsFolderPath);
+            var localModelDirs = Directory.GetDirectories(modelsFolderPath, searchPattern, SearchOption.TopDirectoryOnly);
+            var items = new List<ModelPreviewItem>();
+
+            foreach (var dir in localModelDirs)
+            {
+                var jsonPath = Path.Combine(dir, JSON_FILE_NAME);
+                // update paths in json
+                if (!jsonUpdated)
+                {
+                    var dirInfo = new DirectoryInfo(dir);
+                    var modelPath = Path.Combine(dir, MODEL_NAME);
+                    var imagePath = $"{Path.Combine(dir, dirInfo.Name)}.png";
+                    Debug.LogError("[111] imagePath = " + imagePath);
+                    using (StreamReader reader = new StreamReader(jsonPath))
+                    {
+                        var jsonString = reader.ReadToEnd();
+                        var temp = Newtonsoft.Json.JsonConvert.DeserializeObject<ModelPreviewItem>(jsonString);
+                        reader.Close();
+
+                        temp.resourceUrl = $"file://{modelPath}";
+                        temp.resourceImage.url = $"file://{imagePath}";
+                        Debug.LogError("[111] temp.resourceImage.url = " + temp.resourceImage.url);
+
+                        var output = Newtonsoft.Json.JsonConvert.SerializeObject(temp, Newtonsoft.Json.Formatting.Indented);
+                        using (var writer = new StreamWriter(jsonPath))
+                        {
+                            writer.Write(output);
+                        }
+                    }
+                }
+                if (File.Exists(jsonPath))
+                {
+                    var json = File.ReadAllText(jsonPath);
+                    items.Add(JsonUtility.FromJson<ModelPreviewItem>(json));
+                }
+            }
+            jsonUpdated = true;
+            return items;
+        }
+
         public static List<ModelPreviewItem> GetLocalModels()
         {
             const string searchPattern = "*";
