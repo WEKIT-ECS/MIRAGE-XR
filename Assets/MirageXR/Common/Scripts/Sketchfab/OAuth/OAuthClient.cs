@@ -6,7 +6,6 @@ using UnityEngine.Networking;
 using System.Threading;
 using System.IO;
 using System.Diagnostics;
-using Debug = UnityEngine.Debug;
 using System.Net;
 using System.Threading.Tasks;
 
