@@ -5,10 +5,14 @@ jobs:
     name: Test Unity
     runs-on: ubuntu-latest
     steps:
+    
       # Activation stage
       - name: Checkout repository
         uses: actions/checkout@v2
-
+        with:
+           lfs: 'true'
+      - name: LFS pull
+        run: git lfs pull
       - name: Set up IBM Watson credentials
         env:
           ASSISTANTKEYS: ${{ secrets.ASSISTANTKEYS }}
@@ -52,10 +56,14 @@ jobs:
     outputs:
       buildVersion: ${{ steps.buildStep.outputs.buildVersion }}
     steps:
+    
       # Activation stage
       - name: Checkout repository
         uses: actions/checkout@v2
-
+        with:
+           lfs: 'true'
+      - name: LFS pull
+        run: git lfs pull
       - name: Set up IBM Watson credentials
         env:
           ASSISTANTKEYS: ${{ secrets.ASSISTANTKEYS }}

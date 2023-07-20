@@ -274,36 +274,36 @@ namespace MirageXR
                     obj.poi = "default";
                 }
 
-                // Check if target object + poi exist.
                 var temp = GameObject.Find($"{obj.id}/{obj.poi}");
 
-                // If the parenting object can't be found, terminate and return false.
                 if (temp == null)
                 {
-                    // Debug.Log("Parent object not found. " + obj.id + "/" + obj.poi);
+                    Debug.Log("Parent object not found. " + obj.id + "/" + obj.poi);
                     return false;
                 }
 
-                // Place the prefab under the parent.
                 transform.SetParent(temp.transform);
 
-                // Set initial transform.
                 transform.localPosition = Vector3.zero;
 
-                // Set initial scale.
                 if (obj.scale == 0)
+                {
                     transform.localScale = Vector3.one;
+                }
 
-                // Now set final position, if defined in the action configuration.
                 if (!string.IsNullOrEmpty(obj.position))
+                {
                     transform.localPosition = Utilities.ParseStringToVector3(obj.position);
+                }
 
-                // Now set final rotation, if defined in the action configuration.
-                if (!string.IsNullOrEmpty(obj.rotation) && Utilities.TryParseStringToQuaternion(obj.rotation, out Quaternion myRotation))
+                if (!string.IsNullOrEmpty(obj.rotation) && Utilities.TryParseStringToQuaternion(obj.rotation, out var myRotation))
+                {
                     transform.localRotation = myRotation;
+                }
                 else
-                    // Set initial rotation.
+                {
                     transform.localEulerAngles = Vector3.zero;
+                }
             }
 
             // If everything was ok, return true.

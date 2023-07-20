@@ -9,6 +9,7 @@ namespace MirageXR
     public class AugmentationManager
     {
         private const string AUGMENTATION_FORMAT = "AN-{0}";
+
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
         public ToggleObject AddAugmentation(Action action, Vector3 position)
@@ -18,7 +19,7 @@ namespace MirageXR
                 id = action.id,
                 poi = string.Format(AUGMENTATION_FORMAT, Guid.NewGuid()),
                 type = ActionType.Tangible,
-                scale = 1
+                scale = 1f,
             };
 
             int currentActionIndex = 0;

@@ -170,6 +170,12 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void ShowOriginalObject(GameObject source)
     {
+        var detectable = source.GetComponent<DetectableBehaviour>();
+        if (detectable)
+        {
+            source = detectable.AttachedObject;
+        }
+
         var renderers = source.GetComponentsInChildren<MeshRenderer>();
         foreach (var meshRenderer in renderers)
         {
@@ -179,6 +185,12 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void HideOriginalObject(GameObject source)
     {
+        var detectable = source.GetComponent<DetectableBehaviour>();
+        if (detectable)
+        {
+            source = detectable.AttachedObject;
+        }
+
         var renderers = source.GetComponentsInChildren<MeshRenderer>();
         foreach (var meshRenderer in renderers)
         {
@@ -190,6 +202,12 @@ public class ManipulationController : MonoBehaviour, IDisposable
     {
         const string helpGameObjectName = "rigRoot";
         const string copyObjectName = "CopyObject";
+
+        var detectable = source.GetComponent<DetectableBehaviour>();
+        if (detectable)
+        {
+            source = detectable.AttachedObject;
+        }
 
         var copyID = source.gameObject.GetInstanceID();
         if (_copy == null || _copyID != copyID)

@@ -165,11 +165,7 @@ namespace MirageXR
             {
                 objectManipulator.OnManipulationStarted.RemoveAllListeners();
                 objectManipulator.OnManipulationEnded.RemoveAllListeners();
-                objectManipulator.OnManipulationStarted.AddListener(eventData =>
-                {
-                    gridManager.onManipulationStarted(eventData.ManipulationSource);
-                    poiEditor.OnChanged();
-                });
+                objectManipulator.OnManipulationStarted.AddListener(eventData => gridManager.onManipulationStarted(eventData.ManipulationSource));
                 objectManipulator.OnManipulationEnded.AddListener(eventData =>
                 {
                     gridManager.onManipulationEnded(eventData.ManipulationSource);
@@ -180,31 +176,19 @@ namespace MirageXR
             var boundsControl = GetComponentInParent<BoundsControl>();
             if (boundsControl)
             {
-                boundsControl.RotateStarted.AddListener(() =>
-                {
-                    gridManager.onRotateStarted?.Invoke(boundsControl.Target);
-                    poiEditor.OnChanged();
-                });
+                boundsControl.RotateStarted.AddListener(() => gridManager.onRotateStarted?.Invoke(boundsControl.Target));
                 boundsControl.RotateStopped.AddListener(() =>
                 {
                     gridManager.onRotateStopped?.Invoke(boundsControl.Target);
                     poiEditor.OnChanged();
                 });
-                boundsControl.ScaleStarted.AddListener(() =>
-                {
-                    gridManager.onScaleStarted?.Invoke(boundsControl.Target);
-                    poiEditor.OnChanged();
-                });
+                boundsControl.ScaleStarted.AddListener(() => gridManager.onScaleStarted?.Invoke(boundsControl.Target));
                 boundsControl.ScaleStopped.AddListener(() =>
                 {
                     gridManager.onScaleStopped?.Invoke(boundsControl.Target);
                     poiEditor.OnChanged();
                 });
-                boundsControl.TranslateStarted.AddListener(() =>
-                {
-                    gridManager.onTranslateStarted?.Invoke(boundsControl.Target);
-                    poiEditor.OnChanged();
-                });
+                boundsControl.TranslateStarted.AddListener(() => gridManager.onTranslateStarted?.Invoke(boundsControl.Target));
                 boundsControl.TranslateStopped.AddListener(() =>
                 {
                     gridManager.onTranslateStopped?.Invoke(boundsControl.Target);

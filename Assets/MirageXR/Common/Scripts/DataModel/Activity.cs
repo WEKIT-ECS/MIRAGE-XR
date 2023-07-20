@@ -86,6 +86,14 @@ namespace MirageXR
                 triggers.Remove(myTrigger);
             }
         }
+        public void RemoveArlemTrigger(string triggerID)
+        {
+            var myTrigger = triggers.Find(t => t.id == triggerID);
+            if (myTrigger != null)
+            {
+                triggers.Remove(myTrigger);
+            }
+        }
     }
 
     [Serializable]
@@ -150,6 +158,8 @@ namespace MirageXR
         Detect,
         [EnumMember(Value = "pickandplace")]
         PickAndPlace,
+        [EnumMember(Value = "incorrectpickandplace")]
+        IncorrectPickAndPlace,
     }
 
     [Serializable]
