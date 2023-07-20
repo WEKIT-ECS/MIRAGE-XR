@@ -47,7 +47,7 @@ public class ButtonHandler : MonoBehaviour
         }
         else
         {
-            AppLog.LogWarning("Resource url was not parsable");
+            Debug.LogWarning("Resource url was not parsable");
         }
     }
 

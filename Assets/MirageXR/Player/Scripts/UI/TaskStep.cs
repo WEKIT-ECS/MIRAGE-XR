@@ -136,7 +136,7 @@ namespace MirageXR
             _completedIcon.SetActive(false);
             _incompletedIcon.SetActive(true);
             _incompletedIcon.gameObject.GetComponent<Button>().enabled = false;
-            AppLog.LogInfo("RESET!");
+            Debug.LogInfo("RESET!");
         }
 
 

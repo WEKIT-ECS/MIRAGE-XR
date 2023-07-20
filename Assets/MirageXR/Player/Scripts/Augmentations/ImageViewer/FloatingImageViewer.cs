@@ -49,14 +49,14 @@ namespace MirageXR
             // Check that url is not empty.
             if (string.IsNullOrEmpty(obj.url))
             {
-                AppLog.LogWarning("Content URL not provided.");
+                Debug.LogWarning("Content URL not provided.");
                 return false;
             }
 
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
-                AppLog.LogWarning("Couldn't set the parent.");
+                Debug.LogWarning("Couldn't set the parent.");
                 return false;
             }
 
@@ -154,7 +154,7 @@ namespace MirageXR
             {
                 if (!imageName.Contains('/'))
                 {
-                    AppLog.LogError($"Can't parse file name '{imageName}'");
+                    Debug.LogError($"Can't parse file name '{imageName}'");
                 }
 
                 var fileName = imageName.Split('/').LastOrDefault();
@@ -167,7 +167,7 @@ namespace MirageXR
 
             if (!File.Exists(path))
             {
-                AppLog.LogError($"File {path} doesn't exists");
+                Debug.LogError($"File {path} doesn't exists");
                 return;
             }
 

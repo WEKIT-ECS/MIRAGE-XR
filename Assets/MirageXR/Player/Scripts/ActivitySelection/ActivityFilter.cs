@@ -21,7 +21,7 @@ namespace MirageXR
 
         private void OnTextUpdated(string value)
         {
-            AppLog.LogDebug($"Text updated: {value}");
+            Debug.LogDebug($"Text updated: {value}");
             if (string.IsNullOrEmpty(value))
             {
                 _sessionListView.SetAllItems();

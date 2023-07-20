@@ -245,7 +245,7 @@ namespace MirageXR
                             // Ghost hands type.
                             case "hands":
                                 if (isActivating)
-                                    AppLog.LogInfo("hands activated");
+                                    Debug.LogInfo("hands activated");
                                 // ActivatePrefab("HandsPrefab", obj);
                                 // else
                                 //  DestroyPrefab(obj);

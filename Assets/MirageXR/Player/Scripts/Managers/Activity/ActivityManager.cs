@@ -201,7 +201,7 @@ namespace MirageXR
                 }
                 catch (Exception e)
                 {
-                    AppLog.LogException(e);
+                    Debug.LogException(e);
                 }
                 _isSwitching = false;
                 EventManager.DebugLog($"Activity manager: Starting Activity: {_activity.id}");
@@ -238,7 +238,7 @@ namespace MirageXR
                 catch (Exception e)
                 {
                     Maggie.Error();
-                    AppLog.LogException(e);
+                    Debug.LogException(e);
                 }
             }
         }
@@ -290,7 +290,7 @@ namespace MirageXR
             {
                 Maggie.Error();
                 EventManager.DebugLog($"Error: Activity manager: Couldn't activate action: {id}.");
-                AppLog.LogException(e);
+                Debug.LogException(e);
             }
         }
 
@@ -588,7 +588,7 @@ namespace MirageXR
             {
                 Maggie.Error();
                 EventManager.DebugLog($"Error: Activity manager: Couldn't force start action: {id}.");
-                AppLog.LogException(e);
+                Debug.LogException(e);
                 throw;
             }
         }
@@ -675,7 +675,7 @@ namespace MirageXR
             _activity.start = newAction.id;
             _activity.actions.Insert(0, newAction);
 
-            AppLog.LogDebug($"Added {newAction.id} to list of task stations");
+            Debug.LogDebug($"Added {newAction.id} to list of task stations");
 
             RegenerateActionsList();
             await ActivateNextAction();
@@ -731,7 +731,7 @@ namespace MirageXR
                 }
                 else
                 {
-                    AppLog.LogError("Could not identify the active action");
+                    Debug.LogError("Could not identify the active action");
                 }
             }
             else
@@ -741,7 +741,7 @@ namespace MirageXR
 
             _activity.actions.Insert(indexOfActive + 1, newAction);
 
-            AppLog.LogDebug($"Added {newAction.id} to list of task stations");
+            Debug.LogDebug($"Added {newAction.id} to list of task stations");
 
             RegenerateActionsList();
             await ActivateNextAction();
@@ -786,17 +786,17 @@ namespace MirageXR
 
             if (indexToDelete < 0)
             {
-                AppLog.LogError($"Could not remove {idToDelete} since the id could not be found in the list of actions");
+                Debug.LogError($"Could not remove {idToDelete} since the id could not be found in the list of actions");
                 return;
             }
 
             int totalNumberOfActions = _activity.actions.Count;
 
-            AppLog.LogInfo($"Deleting action with index {indexToDelete}...");
+            Debug.LogInfo($"Deleting action with index {indexToDelete}...");
 
             if (indexToDelete == totalNumberOfActions - 1) // if deleting the last action
             {
-                AppLog.LogTrace("deleting last action");
+                Debug.LogTrace("deleting last action");
 
                 if (totalNumberOfActions != 1)
                 {
@@ -808,7 +808,7 @@ namespace MirageXR
             }
             else if (indexToDelete == 0) // if deleting the first action
             {
-                AppLog.LogTrace("deleting first action");
+                Debug.LogTrace("deleting first action");
                 // update start action with the one that is currently second (prior to deleting the action, in this case)
                 if (totalNumberOfActions > 1)
                 {

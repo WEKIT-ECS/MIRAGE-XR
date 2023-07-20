@@ -27,7 +27,7 @@ namespace MirageXR
         {
             if (brandManager == null)
             {
-                AppLog.LogWarning("BrandManager has been not initialized");
+                Debug.LogWarning("BrandManager has been not initialized");
                 return;
             }
 

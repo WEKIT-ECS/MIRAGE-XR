@@ -94,7 +94,7 @@ namespace MirageXR
             // Check that url is not empty.
             if (string.IsNullOrEmpty(content.url))
             {
-                AppLog.LogWarning("Content URL not provided.");
+                Debug.LogWarning("Content URL not provided.");
                 return false;
             }
 

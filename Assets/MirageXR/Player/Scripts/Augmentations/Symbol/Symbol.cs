@@ -19,7 +19,7 @@ namespace MirageXR
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
-                AppLog.LogWarning("Couldn't set the parent.");
+                Debug.LogWarning("Couldn't set the parent.");
                 return false;
             }
 
@@ -40,7 +40,7 @@ namespace MirageXR
             // If symbol couldn't be found, terminate initialization.
             if (symbol == null)
             {
-                AppLog.LogWarning("Symbol couldn't be found. " + obj.predicate);
+                Debug.LogWarning("Symbol couldn't be found. " + obj.predicate);
                 return false;
             }
 
@@ -61,7 +61,7 @@ namespace MirageXR
                 {
                     // If the animation type is unknown, terminate the initialization.
                     default:
-                        AppLog.LogWarning("Unknown animation type. " + animationId);
+                        Debug.LogWarning("Unknown animation type. " + animationId);
                         return false;
 
                     // For rotation types.
