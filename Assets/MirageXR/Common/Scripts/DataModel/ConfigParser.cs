@@ -2,8 +2,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-
-
 namespace MirageXR
 {
     public static class ConfigParser
@@ -20,6 +18,8 @@ namespace MirageXR
         public static string TaskStationColor;
         public static string UIPathColor;
         public static string NextPathColor;
+        public static string calibrationMarker;
+        public static string calibrationMarkerPdf;
 
         public static ConfigEditor Editor = new ();
 
@@ -29,7 +29,7 @@ namespace MirageXR
         /// </summary>
         static ConfigParser()
         {
-            ConfigFile = Resources.Load<TextAsset>(Editor.configFileName);
+            ConfigFile = Resources.Load<TextAsset>(Editor.configFileName); // TODO: change to simple JSON file.
 
             if (ConfigFile == null)
             {
@@ -38,15 +38,17 @@ namespace MirageXR
 
             var configItems = ConfigFile.text.Split(new[] { '\r', '\n' }).ToList();
 
-            MoodleUrl = configItems.Find(ci => ci == "moodleUrl");
-            XApiUrl = configItems.Find(ci => ci == "xApiUrl");
-            PrimaryColor = configItems.Find(ci => ci == "primaryColor");
-            SecondaryColor = configItems.Find(ci => ci == "secondaryColor");
-            TextColor = configItems.Find(ci => ci == "textColor");
-            IconColor = configItems.Find(ci => ci == "iconColor");
-            TaskStationColor = configItems.Find(ci => ci == "taskStationColor");
-            UIPathColor = configItems.Find(ci => ci == "pathColor");
-            NextPathColor = configItems.Find(ci => ci == "nextPathColor");
+            MoodleUrl = configItems.FirstOrDefault(t => t.StartsWith("moodleUrl"))?.Split(":").LastOrDefault();
+            XApiUrl = configItems.FirstOrDefault(t => t.StartsWith("xApiUrl"))?.Split(":").LastOrDefault();
+            PrimaryColor = configItems.FirstOrDefault(t => t.StartsWith("primaryColor"))?.Split(":").LastOrDefault();
+            SecondaryColor = configItems.FirstOrDefault(t => t.StartsWith("secondaryColor"))?.Split(":").LastOrDefault();
+            TextColor = configItems.FirstOrDefault(t => t.StartsWith("textColor"))?.Split(":").LastOrDefault();
+            IconColor = configItems.FirstOrDefault(t => t.StartsWith("iconColor"))?.Split(":").LastOrDefault();
+            TaskStationColor = configItems.FirstOrDefault(t => t.StartsWith("taskStationColor"))?.Split(":").LastOrDefault();
+            UIPathColor = configItems.FirstOrDefault(t => t.StartsWith("pathColor"))?.Split(":").LastOrDefault();
+            NextPathColor = configItems.FirstOrDefault(t => t.StartsWith("nextPathColor"))?.Split(":").LastOrDefault();
+            calibrationMarker = configItems.FirstOrDefault(t => t.StartsWith("calibrationMarker"))?.Split(":").LastOrDefault();
+            calibrationMarkerPdf = configItems.FirstOrDefault(t => t.StartsWith("pdfCalibrationMarker"))?.Split(":").LastOrDefault();
 
             // Add "https://" if it doesn't start with "https://" or "http://"
             AddProtocols();
@@ -56,15 +58,21 @@ namespace MirageXR
         private static void AddProtocols()
         {
             // Add "https://" to MoodleUrl
-            if (!MoodleUrl.StartsWith("https://") && !MoodleUrl.StartsWith("http://"))
+            if (!string.IsNullOrEmpty(MoodleUrl))
             {
-                MoodleUrl = "https://" + MoodleUrl;
+                if (!MoodleUrl.StartsWith("https://") && !MoodleUrl.StartsWith("http://"))
+                {
+                    MoodleUrl = "https://" + MoodleUrl;
+                }
             }
 
             // Add "https://" to xApiUrl
-            if (!XApiUrl.StartsWith("https://") && !XApiUrl.StartsWith("http://"))
+            if (!string.IsNullOrEmpty(XApiUrl))
             {
-                XApiUrl = "https://" + XApiUrl;
+                if (!XApiUrl.StartsWith("https://") && !XApiUrl.StartsWith("http://"))
+                {
+                    XApiUrl = "https://" + XApiUrl;
+                }
             }
 
             if (!IsValidUrl(MoodleUrl))
@@ -82,6 +90,12 @@ namespace MirageXR
         private static bool IsValidUrl(string urlString)
         {
             const string regexExpression = "^(?:http(s)?:\\/\\/)?[\\w.-]+(?:\\.[\\w\\.-]+)+[\\w\\-\\._~:/?#[\\]@!\\$&'\\(\\)\\*\\+,;=.]+$";
+
+            if (string.IsNullOrEmpty(urlString))
+            {
+                return false;
+            }
+
             var regex = new Regex(regexExpression);
             return regex.IsMatch(urlString);
         }

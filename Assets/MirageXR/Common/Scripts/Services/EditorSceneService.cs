@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class EditorSceneService
 {
+    private static BrandManager brandManager => RootObject.Instance.brandManager;
+
     private Scene editorScene;
 
     public async Task LoadEditorAsync()
@@ -30,9 +32,9 @@ public class EditorSceneService
 
     private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (BrandManager.Instance.Customizable)
+        if (brandManager.Customizable)
         {
-            BrandManager.Instance.AddCustomColors();
+            brandManager.AddCustomColors();
         }
 
         if (scene.name == PlatformManager.Instance.PlayerSceneName)

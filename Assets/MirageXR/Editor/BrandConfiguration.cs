@@ -6,14 +6,11 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-
 namespace MirageXR
 {
-    public class BrandConfiguration : EditorWindow
+    public class BrandConfiguration : EditorWindow // TODO: update the class and related classes.
     {
-
 #if UNITY_ANDROID || UNITY_IOS
-
         private const string augmentationsListFile = "MobileAugmentationListFile";
 #else
         private const string augmentationsListFile = "HololensAugmentationListFile";
@@ -38,6 +35,8 @@ namespace MirageXR
 
         private Texture2D _splashScreen;
         private Texture2D _logo;
+        private Texture2D _calibrationMarker;
+        private TextAsset _calibrationMarkerPdf;
         private Color _splashBgColor;
 
         private Color _uiPrimaryColor;
@@ -59,8 +58,6 @@ namespace MirageXR
 
         //for temporary check of change
         private string _termOfUseData;
-
-
 
         [MenuItem("Brand Manager/Settings")]
         private static void Init()
@@ -148,6 +145,7 @@ namespace MirageXR
                     File.Delete(_cfEditor.TermsOfUseUserFilePath());
                     _termOfUseData = File.ReadAllText(_cfEditor.TermsOfUseDefaultFilePath());
                 }
+
                 GUILayout.EndHorizontal();
                 EditorGUI.TextArea(new Rect(3, 20, position.width - _windowRightOffset, 45), "Available Tags:<size><color><b><i>\nExample:<size=14></size><color=#ff0000ff></color>\nRemember to close tags", GUI.skin.GetStyle("HelpBox"));
                 EditorGUILayout.Space(45);
@@ -195,13 +193,15 @@ namespace MirageXR
                 _nextPathColor = EditorGUI.ColorField(new Rect(5, myStartY + 170, position.width - _windowRightOffset, 15), "Next Path Color", _nextPathColor);
             }
 
+            _calibrationMarker = CreateSplashTextureField("Calibration Marker", _calibrationMarker, myStartY + 200);
+
+            _calibrationMarkerPdf = (TextAsset)EditorGUI.ObjectField(new Rect(3, myStartY + 300, position.width - _windowRightOffset, 15), "Calibration Marker PDF", _calibrationMarkerPdf, typeof(TextAsset), false);
 
             EditorGUILayout.EndVertical();
             EditorGUILayout.EndScrollView();
 
             if (GUI.changed)
             {
-                //if the file is deleted and the inspector is still open create the file again
                 var configFilePath = _cfEditor.ConfigFilePath();
                 if (!File.Exists(configFilePath))
                 {
@@ -218,13 +218,11 @@ namespace MirageXR
         {
             var path = $"{Application.dataPath}/MirageXR/Resources/{augmentationsListFile}.txt";
 
-            //Create the file if not exist
             if (!File.Exists(path))
             {
                 File.Create(path).Dispose();
             }
 
-            //Read the lines
             var poiLists = File.ReadAllLines(path).ToList();
 
             foreach (var augmentation in _augmentations)
@@ -243,7 +241,6 @@ namespace MirageXR
             WriteAllLinesWithoutBlank(path, poiLists.ToArray());
         }
 
-
         private void LoadAugmentationSetting()
         {
             var path = $"{Application.dataPath}/MirageXR/Resources/{augmentationsListFile}.txt";
@@ -259,17 +256,16 @@ namespace MirageXR
             }
         }
 
-
-
         public static void WriteAllLinesWithoutBlank(string path, params string[] lines)
         {
             if (path == null)
             {
-                throw new ArgumentNullException($"path");
+                throw new ArgumentNullException(nameof(path));
             }
+
             if (lines == null)
             {
-                throw new ArgumentNullException($"lines");
+                throw new ArgumentNullException(nameof(lines));
             }
 
             using var stream = File.OpenWrite(path);
@@ -290,7 +286,6 @@ namespace MirageXR
             writer.Write(lines[^1]);
         }
 
-
         /// <summary>
         /// Initiating config file
         /// </summary>
@@ -310,28 +305,31 @@ namespace MirageXR
 
             var lines = _cfEditor.ReadConfigFile();
 
+            var t = AssetDatabase.GetAssetPath(_calibrationMarker);
             var properties = new Dictionary<string, string>
-        {
-            {"companyName", $"companyName:{DefaultCompanyName}"},
-            {"productName", $"productName:{DefaultAppName}"},
-            {"moodleUrl", $"moodleUrl:{DefaultMoodleUrl}"},
-            {"xApiUrl", $"xApiUrl:{DefaultXApiUrl}"},
-            {"version", $"version:{DefaultVersion}"},
-            {"splashScreen", $"splashScreen:{AssetDatabase.GetAssetPath(PlayerSettings.virtualRealitySplashScreen)}"},
-            {"logo", $"logo:{AssetDatabase.GetAssetPath(PlayerSettings.virtualRealitySplashScreen)}"},
-            {"SplashBackgroundColor", $"SplashBackgroundColor:{_cfEditor.ColorToString(new Color32(0, 0, 0, 255))}"},
-            {"primaryColor", $"primaryColor:{_cfEditor.ColorToString(new Color32(46, 196, 182, 255))}"},
-            {"secondaryColor", $"secondaryColor:{_cfEditor.ColorToString(new Color32(255, 159, 28, 255))}"},
-            {"textColor", $"textColor:{_cfEditor.ColorToString(Color.white)}"},
-            {"iconColor", $"iconColor:{_cfEditor.ColorToString(new Color32(255, 255, 255, 200))}"},
-            {"taskStationColor", $"taskStationColor:{_cfEditor.ColorToString(new Color32(255, 159, 28, 255))}"},
-            {"pathColor", $"pathColor:{_cfEditor.ColorToString(new Color32(255, 255, 255, 181))}"},
-            {"nextPathColor", $"nextPathColor:{_cfEditor.ColorToString(new Color32(0, 255, 231, 200))}"},
-        };
+            {
+                {"companyName", $"companyName:{DefaultCompanyName}"},
+                {"productName", $"productName:{DefaultAppName}"},
+                {"moodleUrl", $"moodleUrl:{DefaultMoodleUrl}"},
+                {"xApiUrl", $"xApiUrl:{DefaultXApiUrl}"},
+                {"version", $"version:{DefaultVersion}"},
+                {"splashScreen", $"splashScreen:{AssetDatabase.GetAssetPath(PlayerSettings.virtualRealitySplashScreen)}"},
+                {"logo", $"logo:{AssetDatabase.GetAssetPath(PlayerSettings.virtualRealitySplashScreen)}"},
+                {"SplashBackgroundColor", $"SplashBackgroundColor:{_cfEditor.ColorToString(new Color32(0, 0, 0, 255))}"},
+                {"primaryColor", $"primaryColor:{_cfEditor.ColorToString(new Color32(46, 196, 182, 255))}"},
+                {"secondaryColor", $"secondaryColor:{_cfEditor.ColorToString(new Color32(255, 159, 28, 255))}"},
+                {"textColor", $"textColor:{_cfEditor.ColorToString(Color.white)}"},
+                {"iconColor", $"iconColor:{_cfEditor.ColorToString(new Color32(255, 255, 255, 200))}"},
+                {"taskStationColor", $"taskStationColor:{_cfEditor.ColorToString(new Color32(255, 159, 28, 255))}"},
+                {"pathColor", $"pathColor:{_cfEditor.ColorToString(new Color32(255, 255, 255, 181))}"},
+                {"nextPathColor", $"nextPathColor:{_cfEditor.ColorToString(new Color32(0, 255, 231, 200))}"},
+                {"calibrationMarker", $"calibrationMarker:{AssetDatabase.GetAssetPath(_calibrationMarker)}"},
+                {"pdfCalibrationMarker", $"pdfCalibrationMarker:{AssetDatabase.GetAssetPath(_calibrationMarkerPdf)}"},
+            };
 
             foreach (var property in properties)
             {
-                if (lines.Find(x => x.StartsWith(property.Key)) == null)
+                if (lines.Find(x => x.StartsWith(property.Key)) == null) // TODO: an error will occur in the case of 'propertyKey' and 'propertyKeyTemp'
                 {
                     lines.Add(property.Value);
                 }
@@ -353,7 +351,7 @@ namespace MirageXR
             PlayerSettings.bundleVersion = _version;
             PlayerSettings.SplashScreen.backgroundColor = _splashBgColor;
 
-            _cfEditor.EditLine("companyName", _compName);
+            _cfEditor.EditLine("companyName", _compName); // TODO: optimize it
             _cfEditor.EditLine("productName", _prodName);
             _cfEditor.EditLine("moodleUrl", _moodleUrl);
             _cfEditor.EditLine("xApiUrl", _xAPIUrl);
@@ -385,39 +383,56 @@ namespace MirageXR
             _cfEditor.EditLine("taskStationColor", _cfEditor.ColorToString(_taskStationColor));
             _cfEditor.EditLine("pathColor", _cfEditor.ColorToString(_pathColor));
             _cfEditor.EditLine("nextPathColor", _cfEditor.ColorToString(_nextPathColor));
-        }
 
+            if (_calibrationMarker != null)
+            {
+                _cfEditor.EditLine("calibrationMarker", AssetDatabase.GetAssetPath(_calibrationMarker));
+            }
+
+            if (_calibrationMarkerPdf != null)
+            {
+                _cfEditor.EditLine("pdfCalibrationMarker", AssetDatabase.GetAssetPath(_calibrationMarkerPdf));
+            }
+        }
 
         private void AutoLoad()
         {
             var configItems = _cfEditor.ReadConfigFile();
 
             var properties = new Dictionary<string, Action<string>>
-    {
-        { "companyName", value => _compName = _cfEditor.GetValue(value) },
-        { "productName", value => _prodName = _cfEditor.GetValue(value) },
-        { "moodleUrl", value => _moodleUrl = _cfEditor.GetValue(value) },
-        { "xApiUrl", value => _xAPIUrl = _cfEditor.GetValue(value) },
-        { "version", value => _version = _cfEditor.GetValue(value) },
-        { "splashScreen", value => {
-            var splashPath = _cfEditor.GetValue(value);
-            _splashScreen = (Texture2D)AssetDatabase.LoadAssetAtPath(splashPath, typeof(Texture2D));
-            PlayerSettings.virtualRealitySplashScreen = _splashScreen;
-        }},
-        { "logo", value => {
-            var logoPath = _cfEditor.GetValue(value);
-            _logo = (Texture2D)AssetDatabase.LoadAssetAtPath(logoPath, typeof(Texture2D));
-            PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown, new Texture2D[] { _logo });
-        }},
-        { "SplashBackgroundColor", value => _splashBgColor = _cfEditor.StringToColor(_cfEditor.GetValue(value)) },
-        { "primaryColor", value => _uiPrimaryColor = _cfEditor.StringToColor(_cfEditor.GetValue(value)) },
-        { "secondaryColor", value => _uiSecondaryColor = _cfEditor.StringToColor(_cfEditor.GetValue(value)) },
-        { "textColor", value => _uiTextColor = _cfEditor.StringToColor(_cfEditor.GetValue(value)) },
-        { "iconColor", value => _uiIconColor = _cfEditor.StringToColor(_cfEditor.GetValue(value)) },
-        { "taskStationColor", value => _taskStationColor = _cfEditor.StringToColor(_cfEditor.GetValue(value)) },
-        { "pathColor", value => _pathColor = _cfEditor.StringToColor(_cfEditor.GetValue(value)) },
-        { "nextPathColor", value => _nextPathColor = _cfEditor.StringToColor(_cfEditor.GetValue(value)) },
-    };
+            {
+                { "companyName", value => _compName = _cfEditor.GetValue(value) },
+                { "productName", value => _prodName = _cfEditor.GetValue(value) },
+                { "moodleUrl", value => _moodleUrl = _cfEditor.GetValue(value) },
+                { "xApiUrl", value => _xAPIUrl = _cfEditor.GetValue(value) },
+                { "version", value => _version = _cfEditor.GetValue(value) },
+                { "splashScreen", value => {
+                    var splashPath = _cfEditor.GetValue(value);
+                    _splashScreen = (Texture2D)AssetDatabase.LoadAssetAtPath(splashPath, typeof(Texture2D));
+                    PlayerSettings.virtualRealitySplashScreen = _splashScreen;
+                }},
+                { "logo", value => {
+                    var logoPath = _cfEditor.GetValue(value);
+                    _logo = (Texture2D)AssetDatabase.LoadAssetAtPath(logoPath, typeof(Texture2D));
+                    PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown, new Texture2D[] { _logo });
+                }},
+                { "SplashBackgroundColor", value => _splashBgColor = _cfEditor.StringToColor(_cfEditor.GetValue(value)) },
+                { "primaryColor", value => _uiPrimaryColor = _cfEditor.StringToColor(_cfEditor.GetValue(value)) },
+                { "secondaryColor", value => _uiSecondaryColor = _cfEditor.StringToColor(_cfEditor.GetValue(value)) },
+                { "textColor", value => _uiTextColor = _cfEditor.StringToColor(_cfEditor.GetValue(value)) },
+                { "iconColor", value => _uiIconColor = _cfEditor.StringToColor(_cfEditor.GetValue(value)) },
+                { "taskStationColor", value => _taskStationColor = _cfEditor.StringToColor(_cfEditor.GetValue(value)) },
+                { "pathColor", value => _pathColor = _cfEditor.StringToColor(_cfEditor.GetValue(value)) },
+                { "nextPathColor", value => _nextPathColor = _cfEditor.StringToColor(_cfEditor.GetValue(value)) },
+                { "calibrationMarker", value => {
+                    var calibrationMarker = _cfEditor.GetValue(value);
+                    _calibrationMarker = AssetDatabase.LoadAssetAtPath<Texture2D>(calibrationMarker);
+                }},
+                { "pdfCalibrationMarker", value => {
+                    var calibrationMarkerPdf = _cfEditor.GetValue(value);
+                    _calibrationMarkerPdf = AssetDatabase.LoadAssetAtPath<TextAsset>(calibrationMarkerPdf);
+                }},
+            };
 
             foreach (var property in properties)
             {
@@ -431,10 +446,8 @@ namespace MirageXR
             LoadAugmentationSetting();
         }
 
-
         private Texture2D CreateSplashTextureField(string textureName, Texture2D texture, int y)
         {
-
             var style = new GUIStyle(GUI.skin.label)
             {
                 alignment = TextAnchor.UpperCenter,

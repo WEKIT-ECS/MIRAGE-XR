@@ -26,7 +26,7 @@ namespace MirageXR
         {
             int tutorialStatus = PlayerPrefs.GetInt(TutorialManager.PLAYER_PREFS_STATUS_KEY);
             AppLog.LogDebug(tutorialStatus.ToString());
-            if (tutorialStatus == TutorialManager.STATUS_LOAD_ON_START)
+            if (tutorialStatus == TutorialManager.STATUS_LOAD_ON_START && PlatformManager.Instance.WorldSpaceUi)
             {
                 // TODO: In the future, this should be changed to an event. Like: OnEverythingLoaded
                 Invoke(nameof(StartTutorial), 0.2f);

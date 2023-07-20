@@ -8,6 +8,8 @@ namespace MirageXR
 {
     public class SetBrandColor : MonoBehaviour
     {
+        private static BrandManager brandManager => RootObject.Instance.brandManager;
+
         public enum ColorType
         {
             PrimaryColor,
@@ -23,13 +25,13 @@ namespace MirageXR
 
         private void Awake()
         {
-            if (BrandManager.Instance == null)
+            if (brandManager == null)
             {
                 AppLog.LogWarning("BrandManager has been not initialized");
                 return;
             }
 
-            var colorToUse = colorType == ColorType.PrimaryColor ? BrandManager.Instance.PrimaryColor : BrandManager.Instance.SecondaryColor;
+            var colorToUse = colorType == ColorType.PrimaryColor ? brandManager.PrimaryColor : brandManager.SecondaryColor;
             if (setGraphicColor)
             {
                 GetComponent<Graphic>().color = colorToUse;

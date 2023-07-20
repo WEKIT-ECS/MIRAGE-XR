@@ -9,7 +9,9 @@ public abstract class PopupEditorBase : PopupBase
 {
     protected const string HTTP_PREFIX = "http://";
     protected const string RESOURCES_PREFIX = "resources://";
+
     protected static ActivityManager activityManager => RootObject.Instance.activityManager;
+
     protected static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
 
     [SerializeField] protected Image _icon;
@@ -25,7 +27,7 @@ public abstract class PopupEditorBase : PopupBase
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
         base.Initialization(onClose, args);
-        canBeClosedByOutTap = false;
+        _canBeClosedByOutTap = false;
         _btnAccept.onClick.AddListener(OnAccept);
         _btnClose.onClick.AddListener(Close);
         UpdateBaseView();

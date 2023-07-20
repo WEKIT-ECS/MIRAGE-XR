@@ -46,8 +46,15 @@ namespace MirageXR
         /// <param name="cooldown">Time between capturing ghost position. The default is 'Time.fixedDeltaTime'</param>
         public void Play(List<GhostDataFrame> ghostFrames, Transform anchor, bool loop, float? cooldown = null)
         {
-            if (ghostFrames == null || ghostFrames.Count <= 0) throw new ArgumentException("Can't be null or empty", nameof(ghostFrames));
-            if (anchor == null) throw new ArgumentException("Can't be null", nameof(anchor));
+            if (ghostFrames == null || ghostFrames.Count <= 0)
+            {
+                throw new ArgumentException("Can't be null or empty", nameof(ghostFrames));
+            }
+
+            if (anchor == null)
+            {
+                throw new ArgumentException("Can't be null", nameof(anchor));
+            }
 
             Stop();
 
@@ -96,7 +103,11 @@ namespace MirageXR
             {
                 foreach (var ghostFrame in ghostFrames)
                 {
-                    if (_forceStop) break;
+                    if (_forceStop)
+                    {
+                        break;
+                    }
+
                     if (audioPlayer != null)
                     {
                         if (ghostTime >= audioPlayer.getCurrenttime())

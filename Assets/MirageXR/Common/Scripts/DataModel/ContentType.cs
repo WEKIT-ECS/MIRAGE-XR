@@ -28,7 +28,7 @@ public static class ContentTypeExtenstion
     private const string GHOST = "Ghost";
     private const string LABEL = "Label";
     private const string ACT = "Action";
-    private const string EFFECTS = "Effects";
+    private const string EFFECTS = "Effect";
     private const string MODEL = "Model";
     private const string CHARACTER = "Character";
     private const string PICKANDPLACE = "Pick and place";
@@ -45,7 +45,7 @@ public static class ContentTypeExtenstion
     private const string PREDICATE_GHOST = "ghosttracks";
     private const string PREDICATE_GHOST_V2 = "ghost"; // TODO: ^^^
     private const string PREDICATE_ACT = "act";
-    private const string PREDICATE_EFFECTS = "effects";
+    private const string PREDICATE_EFFECTS = "effect";
     private const string PREDICATE_VFX = "vfx";
     private const string PREDICATE_MODEL = "model";
     private const string PREDICATE_MODEL_V2 = "3d"; // TODO: ^^^
@@ -59,12 +59,12 @@ public static class ContentTypeExtenstion
     private const string UNKNOWN_HINT = "Unknown";
     private const string IMAGE_HINT = "Take a photo and add it as an augmentation to this action step.";
     private const string VIDEO_HINT = "Record a video and add it as an augmentation to this action step.";
-    private const string AUDIO_HINT = "Record an audio and add it to an action step. You can make the audio spatial (3D), so that it plays within a short radius from where it is placed in the physical location. You can also make the audio non-spatial (2D), so that it plays when the user starts the action step.";
-    private const string GHOST_HINT = "The ghost track augmentation is constructed from a recording of your movement in the real world, your hand position, and you voice. You can start the recording, perform a demonstration like you would normally do in the physical location, and MirageXR will add your performance to an action step in a form of a virtual human — a ‘Ghost’.";
-    private const string LABEL_HINT = "lets you attach a text annotation to specific location in 3D space.";
+    private const string AUDIO_HINT = "Record anï¿½audio and add itï¿½toï¿½anï¿½action step. You can make the audio spatial (3D), soï¿½that itï¿½plays within aï¿½short radius from where itï¿½isï¿½placed inï¿½the physical location. You can also make the audio non-spatial (2D), soï¿½that itï¿½plays when the user starts the action step.";
+    private const string GHOST_HINT = "The ghost track augmentation isï¿½constructed from aï¿½recording ofï¿½your movement inï¿½the real world, your hand position, and you voice. You can start the recording, perform aï¿½demonstration like you would normally doï¿½inï¿½the physical location, and MirageXR will add your performance toï¿½anï¿½action step inï¿½aï¿½form ofï¿½aï¿½virtual humanï¿½ï¿½ aï¿½ï¿½Ghostï¿½.";
+    private const string LABEL_HINT = "lets you attach aï¿½text annotation toï¿½specific location inï¿½3Dï¿½space.";
     private const string ACT_HINT = "Pick action animations to instruct the user what to do - from a rich visual language with 3D animated icons for handling and movement.";
     private const string EFFECTS_HINT = "Use visual effects like fire, steam, or explosions to capture the user's attention.";
-    private const string MODEL_HINT = "Using the Model augmentation, you can import 3D models from Sketchfab.com to an action step. Sketchfab is a library that gives you access to millions of 3D models, hundreds of thousands of them for free.";
+    private const string MODEL_HINT = "Using the Model augmentation, you can import 3Dï¿½models from Sketchfab.com toï¿½anï¿½action step. Sketchfab isï¿½aï¿½library that gives you access toï¿½millions ofï¿½3Dï¿½models, hundreds ofï¿½thousands ofï¿½them for free.";
     private const string CHARACTER_HINT = "Add an AI character to an action step. You can choose between different characters, each of them can do different tasks.";
     private const string PICKANDPLACE_HINT = "Design your own interactive 3D quiz, where users need to pick and place the right object in the right location.";
     private const string IMAGEMARKER_HINT = "Image marker allows to take a photo of an object (or select a pretrained image target) and thus allow to move task stations with the marker around.";

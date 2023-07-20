@@ -118,10 +118,6 @@ namespace MirageXR
                 case DBManager.LearningRecordStores.WEKIT:
                     ServiceManager.RegisterService(new ExperienceService(CreateXAPIClient("WEKIT")));
                     break;
-
-                case DBManager.LearningRecordStores.ARETE:
-                    ServiceManager.RegisterService(new ExperienceService(CreateXAPIClient("ARETE")));
-                    break;
             }
         }
     }

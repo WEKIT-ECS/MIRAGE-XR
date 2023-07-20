@@ -64,7 +64,7 @@ public class ButtonHandler : MonoBehaviour
         /// Confirm and load
         DialogWindow.Instance.Show("Confirm selection",
         $"Do you want to load {model.name}?",
-        new DialogButtonContent("Yes", delegate { OnItemLoadClick.Invoke(this, PreviewItem); }),
+        new DialogButtonContent("Yes", () => { OnItemLoadClick.Invoke(this, PreviewItem); }),
         new DialogButtonContent("No"));
     }
 
@@ -81,7 +81,7 @@ public class ButtonHandler : MonoBehaviour
         /// Confirm and download
         DialogWindow.Instance.Show("Confirm download",
         $"Are you sure you wish to download {model.name}? \n{model.description}",
-        new DialogButtonContent("Yes", delegate { OnItemDownloadClick.Invoke(this, PreviewItem); }),
+        new DialogButtonContent("Yes", () => { OnItemDownloadClick.Invoke(this, PreviewItem); }),
         new DialogButtonContent("No"));
     }
 
@@ -92,7 +92,7 @@ public class ButtonHandler : MonoBehaviour
         /// Confirm and download
         DialogWindow.Instance.Show($"Warning. Large file requested ({model.fileSize} MB)",
         $"Are you sure you wish to download {model.name}? \n\nLarge files may not display correctly, and may cause performance issues. Where possible, use 'low poly' models (< 20 MB).",
-        new DialogButtonContent("Yes", delegate { modelDownloadCallback(downloadInfo.gltf.url, model); }),
+        new DialogButtonContent("Yes", () => { modelDownloadCallback(downloadInfo.gltf.url, model); }),
         new DialogButtonContent("No"));
 
     }
