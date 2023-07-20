@@ -1,4 +1,5 @@
 ﻿using System;
+using DG.Tweening;
 using MirageXR;
 using TMPro;
 using UnityEngine;
@@ -6,44 +7,61 @@ using UnityEngine.UI;
 
 public class LabelEditorView : PopupEditorBase
 {
+    public class IntHolder : ObjectHolder<int> { }
+
     private const float MIN_SLIDER_VALUE = 1;
     private const float MAX_SLIDER_VALUE = 10;
     private const float DEFAULT_SLIDER_VALUE = 3;
+    private const float HIDED_SIZE = 100f;
+    private const float HIDE_ANIMATION_TIME = 0.5f;
 
     public override ContentType editorForType => ContentType.LABEL;
 
     [SerializeField] private TMP_InputField _inputField;
     [SerializeField] private Toggle _toggleTrigger;
-    [SerializeField] private Slider _slider;
-    [SerializeField] private TMP_Text _txtSliderValue;
-    [SerializeField] private TMP_Text _txtStep;
-    [SerializeField] private Button _btnNextStep;
-    [SerializeField] private Button _btnPreviousStep;
+    [SerializeField] private Button _btnIncreaseGazeDuration;
+    [SerializeField] private Button _btnDecreaseGazeDuration;
+    [SerializeField] private TMP_Text _txtGazeDurationValue;
+    [SerializeField] private GameObject _gazeDurationPanel;
+    [SerializeField] private ClampedScrollRect _clampedScrollJumpToStep;
+    [SerializeField] private GameObject _templatePrefab;
+    [Space]
+    [SerializeField] private Button _btnArrow;
+    [SerializeField] private RectTransform _panel;
+    [SerializeField] private GameObject _arrowDown;
+    [SerializeField] private GameObject _arrowUp;
 
     private Trigger _trigger;
     private float _gazeDuration;
     private int _triggerStepIndex;
 
-    private int _maxStepIndex => activityManager.ActionsOfTypeAction.Count - 1;
-
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
+        _showBackground = false;
         base.Initialization(onClose, args);
         _toggleTrigger.onValueChanged.AddListener(OnTriggerValueChanged);
-        _slider.onValueChanged.AddListener(OnSliderValueChanged);
-        _btnNextStep.onClick.AddListener(OnNextToClick);
-        _btnPreviousStep.onClick.AddListener(OnPreviousToClick);
+        _btnIncreaseGazeDuration.onClick.AddListener(OnIncreaseGazeDuration);
+        _btnDecreaseGazeDuration.onClick.AddListener(OnDecreaseGazeDuration);
+        _btnArrow.onClick.AddListener(OnArrowButtonPressed);
+        _clampedScrollJumpToStep.onItemChanged.AddListener(OnItemJumpToStepChanged);
+
+        var steps = activityManager.ActionsOfTypeAction;
+        var stepsCount = steps.Count;
+        InitClampedScrollRect(_clampedScrollJumpToStep, _templatePrefab, stepsCount, stepsCount.ToString());
+
+        _toggleTrigger.isOn = false;
+        _gazeDurationPanel.SetActive(false);
+
         UpdateView();
+        RootView_v2.Instance.HideBaseView();
     }
 
     private void UpdateView()
     {
-        _slider.minValue = MIN_SLIDER_VALUE;
-        _slider.maxValue = MAX_SLIDER_VALUE;
-
         _inputField.text = string.Empty;
         _toggleTrigger.isOn = false;
-        _slider.value = DEFAULT_SLIDER_VALUE;
+        _gazeDuration = DEFAULT_SLIDER_VALUE;
+        _txtGazeDurationValue.text = DEFAULT_SLIDER_VALUE.ToString("0");
 
         _triggerStepIndex = activityManager.ActionsOfTypeAction.IndexOf(_step);
         var isLastStep = activityManager.IsLastAction(_step);
@@ -61,38 +79,59 @@ public class LabelEditorView : PopupEditorBase
             {
                 _toggleTrigger.isOn = true;
                 _triggerStepIndex = int.Parse(_trigger.value) - 1;
-                _slider.value = _trigger.duration;
-                OnSliderValueChanged(_trigger.duration);
+                _gazeDuration = _trigger.duration;
             }
         }
+    }
 
-        _txtStep.text = (_triggerStepIndex + 1).ToString();
-        _slider.interactable = _toggleTrigger.isOn;
+    private void InitClampedScrollRect(ClampedScrollRect clampedScrollRect, GameObject templatePrefab, int maxCount, string text)
+    {
+        var currentActionId = activityManager.ActiveAction.id;
+        var steps = activityManager.ActionsOfTypeAction;
+
+        for (int i = 1; i <= maxCount; i++)
+        {
+            var obj = Instantiate(templatePrefab, clampedScrollRect.content, false);
+            obj.name = i.ToString();
+            obj.SetActive(true);
+            obj.AddComponent<IntHolder>().item = i;
+            obj.GetComponentInChildren<TMP_Text>().text = $"   {i}/{text}     {steps[i - 1].instruction.title}";
+
+            if (steps[i - 1].id == currentActionId)
+            {
+                _clampedScrollJumpToStep.currentItemIndex = i;
+            }
+        }
+    }
+
+    private void OnItemJumpToStepChanged(Component item)
+    {
+        _triggerStepIndex = item.GetComponent<ObjectHolder<int>>().item - 1;
+    }
+
+    private void OnIncreaseGazeDuration()
+    {
+        if (_gazeDuration < MAX_SLIDER_VALUE)
+        {
+            _gazeDuration++;
+        }
+
+        _txtGazeDurationValue.text = _gazeDuration.ToString("0");
+    }
+
+    private void OnDecreaseGazeDuration()
+    {
+        if (_gazeDuration > MIN_SLIDER_VALUE)
+        {
+            _gazeDuration--;
+        }
+
+        _txtGazeDurationValue.text = _gazeDuration.ToString("0");
     }
 
     private void OnTriggerValueChanged(bool value)
     {
-        _slider.interactable = value;
-    }
-
-    private void OnSliderValueChanged(float value)
-    {
-        _gazeDuration = value;
-        _txtSliderValue.text = $"{_gazeDuration} sec";
-    }
-
-    private void OnNextToClick()
-    {
-        if (_triggerStepIndex >= _maxStepIndex) return;
-        _triggerStepIndex++;
-        _txtStep.text = (_triggerStepIndex + 1).ToString();
-    }
-
-    private void OnPreviousToClick()
-    {
-        if (_triggerStepIndex <= 0) return;
-        _triggerStepIndex--;
-        _txtStep.text = (_triggerStepIndex + 1).ToString();
+        _gazeDurationPanel.SetActive(value);
     }
 
     protected override void OnAccept()
@@ -126,5 +165,27 @@ public class LabelEditorView : PopupEditorBase
         EventManager.ActivateObject(_content);
         EventManager.NotifyActionModified(_step);
         Close();
+    }
+
+    private void OnArrowButtonPressed()
+    {
+        if (_arrowDown.activeSelf)
+        {
+            var hidedSize = HIDED_SIZE;
+            _panel.DOAnchorPosY(-_panel.rect.height + hidedSize, HIDE_ANIMATION_TIME);
+            _arrowDown.SetActive(false);
+            _arrowUp.SetActive(true);
+        }
+        else
+        {
+            _panel.DOAnchorPosY(0.0f, HIDE_ANIMATION_TIME);
+            _arrowDown.SetActive(true);
+            _arrowUp.SetActive(false);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        RootView_v2.Instance.ShowBaseView();
     }
 }

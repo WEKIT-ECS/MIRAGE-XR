@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using DG.Tweening;
 using i5.Toolkit.Core.OpenIDConnectClient;
 using i5.Toolkit.Core.ServiceCore;
 using i5.Toolkit.Core.VerboseLogging;
@@ -13,20 +15,41 @@ using UnityEngine.UI;
 public class ModelEditorView : PopupEditorBase
 {
     private const int RESULTS_PER_PAGE = 20;
+    private const float HIDED_SIZE = 100f;
+    private const float HIDE_ANIMATION_TIME = 0.5f;
 
     public override ContentType editorForType => ContentType.MODEL;
 
     [SerializeField] private Transform _contentContainer;
     [SerializeField] private ScrollRect _scroll;
+    [SerializeField] private Transform _contentLocalContainer;
+    [SerializeField] private ScrollRect _scrollLocal;
     [SerializeField] private ModelListItem _modelListItemPrefab;
     [SerializeField] private DirectLoginPopup _directLoginPopupPrefab;
     [SerializeField] private GameObject _loadMorePrefab;
-    [SerializeField] private Button _btnSearch;
+    //[SerializeField] private Button _btnSearch;
     [SerializeField] private Button _btnLogout;
+    [SerializeField] private Button _btnAddFile;
+    [SerializeField] private Button _clearSearchBtn;
     [SerializeField] private TMP_InputField _inputSearch;
+    [Space]
     [SerializeField] private Toggle _toggleLocal;
+    [SerializeField] private Toggle _toggleSketchfab;
+    [SerializeField] private Toggle _toggleLibraries;
     [SerializeField] private ClientDataObject _clientDataObject;
     [SerializeField] private ClientDataObject _clientDirectLoginDataObject;
+    [Space]
+    [SerializeField] private GameObject _localTab;
+    [SerializeField] private GameObject _sketchfabTab;
+    [SerializeField] private GameObject _librariesTab;
+    [SerializeField] private GameObject _bottomButtonsPanel;
+    [SerializeField] private GameObject _localEmptyPanel;
+    [SerializeField] private GameObject _localPanel;
+    [Space]
+    [SerializeField] private Button _btnArrow;
+    [SerializeField] private RectTransform _panel;
+    [SerializeField] private GameObject _arrowDown;
+    [SerializeField] private GameObject _arrowUp;
 
     private string _token;
     private string _renewToken;
@@ -37,19 +60,30 @@ public class ModelEditorView : PopupEditorBase
     private int _pageIndex;
 
     private readonly List<ModelListItem> _items = new List<ModelListItem>();
+    private string _modelFileType;
+    private ModelListItem _currentItem;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
         try
         {
+            _showBackground = false;
             base.Initialization(onClose, args);
 
             if (!CheckAndLoadCredentials()) return;
 
-            _btnSearch.onClick.AddListener(OnSearchClicked);
+            //_btnSearch.onClick.AddListener(OnSearchClicked);
             _btnLogout.onClick.AddListener(OnLogoutClicked);
+            _btnAddFile.onClick.AddListener(OnAddLocalFile);
+            _clearSearchBtn.onClick.AddListener(ClearSearchField);
+            _btnArrow.onClick.AddListener(OnArrowButtonPressed);
             _toggleLocal.onValueChanged.AddListener(OnToggleLocalValueChanged);
+            _toggleSketchfab.onValueChanged.AddListener(OnToggleSketchfabValueChanged);
+            _toggleLibraries.onValueChanged.AddListener(OnToggleLibrariesValueChanged);
+            _inputSearch.onValueChanged.AddListener(OnInputFieldSearchChanged);
             ResetView();
+            RootView_v2.Instance.HideBaseView();
+            _modelFileType = NativeFilePicker.ConvertExtensionToFileType("fbx");
         }
         catch (Exception e)
         {
@@ -152,14 +186,37 @@ public class ModelEditorView : PopupEditorBase
 
     private void OnToggleLocalValueChanged(bool value)
     {
+        if (value)
+        {
+            _localTab.SetActive(true);
+            _sketchfabTab.SetActive(false);
+            _librariesTab.SetActive(false);
+            _bottomButtonsPanel.SetActive(true);
+            ShowLocalModels();
+        }
+    }
+
+    private void OnToggleSketchfabValueChanged(bool value)
+    {
         _inputSearch.text = string.Empty;
         if (value)
         {
-            ShowLocalModels();
-        }
-        else
-        {
+            _localTab.SetActive(false);
+            _sketchfabTab.SetActive(true);
+            _librariesTab.SetActive(false);
+            _bottomButtonsPanel.SetActive(false);
             ShowRemoteModels();
+        }
+    }
+
+    private void OnToggleLibrariesValueChanged(bool value)
+    {
+        if (value)
+        {
+            _localTab.SetActive(false);
+            _sketchfabTab.SetActive(false);
+            _librariesTab.SetActive(true);
+            _bottomButtonsPanel.SetActive(false);
         }
     }
 
@@ -169,9 +226,12 @@ public class ModelEditorView : PopupEditorBase
         var previewItems = MirageXR.Sketchfab.GetLocalModels();
         if (previewItems.Count == 0)
         {
-            Toast.Instance.Show("Nothing found");
+            _localEmptyPanel.SetActive(true);
+            _localPanel.SetActive(false);
             return;
         }
+        _localEmptyPanel.SetActive(false);
+        _localPanel.SetActive(true);
         AddItems(previewItems, true);
     }
 
@@ -193,6 +253,19 @@ public class ModelEditorView : PopupEditorBase
             SearchLocal();
         }
         else
+        {
+            SearchRemote();
+        }
+    }
+
+    private void OnInputFieldSearchChanged(string text)
+    {
+        // TODO
+    }
+
+    public void OnStartSearch()
+    {
+        if (_inputSearch.text != string.Empty)
         {
             SearchRemote();
         }
@@ -248,6 +321,11 @@ public class ModelEditorView : PopupEditorBase
         }
     }
 
+    private void ClearSearchField()
+    {
+        _inputSearch.text = string.Empty;
+    }
+
     private async void OnLoadMoreButtonClicked()
     {
         try
@@ -296,6 +374,12 @@ public class ModelEditorView : PopupEditorBase
                 var child = _contentContainer.GetChild(i);
                 Destroy(child.gameObject);
             }
+            _scrollLocal.normalizedPosition = Vector2.up;
+            for (int i = _contentLocalContainer.childCount - 1; i >= 0; i--)
+            {
+                var child = _contentLocalContainer.GetChild(i);
+                Destroy(child.gameObject);
+            }
 
             _items.Clear();
         }
@@ -309,12 +393,69 @@ public class ModelEditorView : PopupEditorBase
     {
         foreach (var item in previewItems)
         {
-            var model = Instantiate(_modelListItemPrefab, _contentContainer);
-            model.Init(item, isDownloaded, DownloadItem, Accept);
-            _items.Add(model);
+            if (_toggleSketchfab.isOn)
+            {
+                var model = Instantiate(_modelListItemPrefab, _contentContainer);
+                model.Init(item, isDownloaded, DownloadItem, Accept, null, null);
+                _items.Add(model);
+            }
+            else if (_toggleLocal.isOn)
+            {
+                var model = Instantiate(_modelListItemPrefab, _contentLocalContainer);
+                model.Init(item, isDownloaded, DownloadItem, Accept, RemoveLocalItemAsync, RenameLocalItemAsync);
+                _items.Add(model);
+            }
         }
 
         UpdateModelsItemView();
+    }
+
+    private void RemoveLocalItemAsync(ModelListItem item)
+    {
+        RemoveModelFromLocalStorageAsync(item).AsAsyncVoid();
+    }
+
+    private void RenameLocalItemAsync(ModelListItem item)
+    {
+        _currentItem = item;
+        RootView_v2.Instance.dialog.ShowBottomInputField(
+           "New title:",
+           "Enter new title",
+           "Cancel", null,
+           "Save", EnterNewTitle);
+    }
+
+    private void EnterNewTitle(string text)
+    {
+        if (!string.IsNullOrWhiteSpace(text) && IsValidNewTitle(text))
+        {
+            RenameLocalModelAsync(text, _currentItem).AsAsyncVoid();
+        }
+        else
+        {
+            Debug.Log("Invalid text format");
+        }
+    }
+
+    private bool IsValidNewTitle(string value)
+    {
+        const string regexExpression = @"^[^/\\?!]+$";
+        var regex = new Regex(regexExpression);
+        return regex.IsMatch(value);
+    }
+
+    private async Task RenameLocalModelAsync(string newName, ModelListItem item)
+    {
+        _previewItem = item.previewItem;
+        await MirageXR.Sketchfab.RenameLocalModelAsync(newName, _previewItem);
+        ShowLocalModels();
+    }
+
+    private async Task RemoveModelFromLocalStorageAsync(ModelListItem item)
+    {
+        _previewItem = item.previewItem;
+        await MirageXR.Sketchfab.RemoveLocalModelAsync(_previewItem);
+        ShowLocalModels();
     }
 
     private async void UpdateModelsItemView()
@@ -466,5 +607,54 @@ public class ModelEditorView : PopupEditorBase
         EventManager.NotifyActionModified(_step);
 
         Close();
+    }
+
+    private void OnArrowButtonPressed()
+    {
+        if (_arrowDown.activeSelf)
+        {
+            var hidedSize = HIDED_SIZE;
+            _panel.DOAnchorPosY(-_panel.rect.height + hidedSize, HIDE_ANIMATION_TIME);
+            _arrowDown.SetActive(false);
+            _arrowUp.SetActive(true);
+        }
+        else
+        {
+            _panel.DOAnchorPosY(0.0f, HIDE_ANIMATION_TIME);
+            _arrowDown.SetActive(true);
+            _arrowUp.SetActive(false);
+        }
+    }
+
+    private void OnAddLocalFile()
+    {
+        // Don't attempt to import/export files if the file picker is already open
+        if (NativeFilePicker.IsFilePickerBusy())
+        {
+            return;
+        }
+
+        // Pick a 3D Model file
+        NativeFilePicker.Permission permission = NativeFilePicker.PickFile(
+            (path) =>
+            {
+                if (path == null)
+                {
+                    Debug.Log("Operation cancelled");
+                }
+                else
+                {
+                    Debug.Log("Picked file: " + path);
+
+                    // TODO: add local model to the list
+                }
+            }, new string[] { _modelFileType });
+
+        Debug.Log("Permission result: " + permission);
+    }
+
+    private void OnDestroy()
+    {
+        RootView_v2.Instance.ShowBaseView();
     }
 }

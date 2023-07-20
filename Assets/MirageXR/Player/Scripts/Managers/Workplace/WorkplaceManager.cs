@@ -72,6 +72,7 @@ namespace MirageXR
             {
                 workplace = new Workplace();
             }
+
             // For loading from resources
             else
             {
@@ -95,6 +96,21 @@ namespace MirageXR
             personContainer = GameObject.Find("Persons").transform;
             detectableContainer = GameObject.Find("Detectables").transform;
             sensorContainer = GameObject.Find("Sensors").transform;
+
+            if (!detectableContainer.parent || detectableContainer.parent == placeContainer.parent)
+            {
+                var holder = new GameObject("DetectablesHolder");
+                if (detectableContainer.parent)
+                {
+                    holder.transform.SetParent(detectableContainer.parent, true);
+                }
+
+                detectableContainer.SetParent(holder.transform, true);
+            }
+
+            var poseСopier = detectableContainer.parent.gameObject.AddComponent<PoseСopier>();
+            poseСopier.target = RootObject.Instance.calibrationManager.anchor;
+            poseСopier.localSpace = false;
         }
 
         /// <summary>
@@ -118,16 +134,8 @@ namespace MirageXR
                 var (position, rotation) = WorkplaceObjectFactory.GetPoseRelativeToCalibrationOrigin(pair.AnchorFrame);
                 var detectable = pair.DetectableConfiguration;
 
-                var positionX = position.x.ToString(CultureInfo.InvariantCulture);
-                var positionY = position.y.ToString(CultureInfo.InvariantCulture);
-                var positionZ = position.z.ToString(CultureInfo.InvariantCulture);
-
-                var rotationX = rotation.x.ToString(CultureInfo.InvariantCulture);
-                var rotationY = rotation.y.ToString(CultureInfo.InvariantCulture);
-                var rotationZ = rotation.z.ToString(CultureInfo.InvariantCulture);
-
-                detectable.origin_position = $"{positionX}, {positionY}, {positionZ}";
-                detectable.origin_rotation = $"{rotationX}, {rotationY}, {rotationZ}";
+                detectable.origin_position = Utilities.Vector3ToString(position);
+                detectable.origin_rotation = Utilities.Vector3ToString(rotation);
             }
 
             await Task.Yield();
@@ -135,27 +143,22 @@ namespace MirageXR
             UiManager.Instance.IsCalibrated = true;
         }
 
-        private async Task PerformPlayModeCalibration(Transform calibrationRoot)
+        private async Task PerformPlayModeCalibration()
         {
             if (calibrationPairs.Count == 0)
             {
                 return;
             }
 
-            detectableContainer.rotation = Quaternion.identity;
-
             foreach (var pair in calibrationPairs)
             {
-                var position = Utilities.ParseStringToVector3(pair.DetectableConfiguration.origin_position);
-                var rotation = Utilities.ParseStringToVector3(pair.DetectableConfiguration.origin_rotation);
+                var localPosition = Utilities.ParseStringToVector3(pair.DetectableConfiguration.origin_position);
+                var localRotation = Utilities.ParseStringToVector3(pair.DetectableConfiguration.origin_rotation);
 
-                pair.AnchorFrame.transform.position = calibrationRoot.TransformPoint(position);
-                pair.AnchorFrame.transform.rotation = calibrationRoot.rotation * Quaternion.Euler(rotation);
+                pair.AnchorFrame.transform.localPosition = localPosition;
+                pair.AnchorFrame.transform.localRotation = Quaternion.Euler(localRotation);
                 pair.AnchorFrame.GetComponent<DetectableBehaviour>().AttachAnchor();
             }
-
-            var newRotation = calibrationPairs.First().AnchorFrame.transform.rotation;
-            detectableContainer.rotation = Quaternion.Inverse(newRotation);
 
             await Task.Yield();
         }
@@ -242,20 +245,20 @@ namespace MirageXR
             var poi = place.pois.Find((item) => item.id == toggleObject.poi);
             if (poi != null)
             {
-                Object.Destroy(GameObject.Find(poi.id));
+                var temp = GameObject.Find(poi.id);
+
+                Object.Destroy(temp);
                 place.pois.Remove(poi);
             }
+        }
 
-            if (toggleObject.predicate == "imagemarker")
-            {
-                var detectable = GetDetectable(GetPlaceFromTaskStationId(toggleObject.id));
+        public void DeletePlace(string id)
+        {
+            var place = GetPlaceFromTaskStationId(id);
 
-                var detectableObj = GameObject.Find(detectable.id);
-                var detectableParentObj = GameObject.Find("Detectables");
+            workplace.places.Remove(place);
 
-                // as Vuforia dosent allow image markers to be destroyed at run time the detectable is moved instead leaving the marker still in the scene but removeing its content
-                detectableObj.transform.parent = detectableParentObj.transform;
-            }
+            workplace.detectables.Remove(GetDetectable(place));
         }
 
         /// <summary>
@@ -273,10 +276,10 @@ namespace MirageXR
             }
             else
             {
-                await PerformPlayModeCalibration(origin);
+                await PerformPlayModeCalibration();
             }
 
-            await activityManager.StartActivity();
+            //await activityManager.StartActivity();
 
             EventManager.WorkplaceCalibrated();
             Maggie.Speak("Workplace is now calibrated.");

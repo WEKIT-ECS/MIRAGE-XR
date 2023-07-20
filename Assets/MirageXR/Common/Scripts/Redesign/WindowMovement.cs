@@ -1,7 +1,4 @@
 ﻿using Microsoft.MixedReality.Toolkit.UI;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace MirageXR
@@ -13,7 +10,11 @@ namespace MirageXR
 
         public SpriteToggle SpriteToggle => toggleLock;
 
-        public bool IsMoveable { get => objectManipulator.enabled; set => objectManipulator.enabled = value; }
+        public bool IsMoveable 
+        {
+            get => objectManipulator.enabled;
+            set => objectManipulator.enabled = value;
+        }
 
         private void Start()
         {

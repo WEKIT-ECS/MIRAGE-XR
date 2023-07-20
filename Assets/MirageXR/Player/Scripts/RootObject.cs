@@ -11,6 +11,10 @@ namespace MirageXR
 
         [SerializeField] private ImageTargetManagerWrapper _imageTargetManager;
         [SerializeField] private CalibrationManager _calibrationManager;
+        [SerializeField] private FloorManagerWrapper _floorManager;
+        [SerializeField] private PointCloudManager _pointCloudManager;
+        [SerializeField] private BrandManager _brandManager;
+        [SerializeField] private GridManager _gridManager;
 
         private ActivityManager _activityManager;
         private AugmentationManager _augmentationManager;
@@ -21,6 +25,12 @@ namespace MirageXR
         public ImageTargetManagerWrapper imageTargetManager => _imageTargetManager;
 
         public CalibrationManager calibrationManager => _calibrationManager;
+
+        public FloorManagerWrapper floorManager => _floorManager;
+
+        public BrandManager brandManager => _brandManager;
+
+        public GridManager gridManager => _gridManager;
 
         public ActivityManager activityManager => _activityManager;
 
@@ -62,7 +72,7 @@ namespace MirageXR
             }
         }
 
-        private async Task Initialization()
+        private async Task Initialization() // TODO: create base Manager class
         {
             if (_isInitialized)
             {
@@ -71,8 +81,12 @@ namespace MirageXR
 
             try
             {
+                _brandManager ??= new GameObject("BrandManager").AddComponent<BrandManager>();
                 _imageTargetManager ??= new GameObject("ImageTargetManagerWrapper").AddComponent<ImageTargetManagerWrapper>();
                 _calibrationManager ??= new GameObject("CalibrationManager").AddComponent<CalibrationManager>();
+                _floorManager ??= new GameObject("FloorManagerWrapper").AddComponent<FloorManagerWrapper>();
+                _pointCloudManager ??= new GameObject("PointCloudManager").AddComponent<PointCloudManager>();
+                _gridManager ??= new GameObject("GridManager").AddComponent<GridManager>();
 
                 _activityManager = new ActivityManager();
                 _augmentationManager = new AugmentationManager();
@@ -80,12 +94,21 @@ namespace MirageXR
                 _editorSceneService = new EditorSceneService();
                 _workplaceManager = new WorkplaceManager();
 
+                _brandManager.Initialization();
                 await _imageTargetManager.InitializationAsync();
-                _calibrationManager.Initialization();
+                await _floorManager.InitializationAsync();
+                await _calibrationManager.InitializationAsync();
+#if UNITY_IOS || UNITY_ANDROID || UNITY_EDITOR
+                await _pointCloudManager.InitializationAsync();
+#endif
+
+                _gridManager.Initialization();
 
                 _activityManager.Subscription();
 
                 _isInitialized = true;
+
+                //EventManager.OnClearAll += ResetManagers;
             }
             catch (Exception e)
             {
@@ -93,9 +116,25 @@ namespace MirageXR
             }
         }
 
+        private void ResetManagers()
+        {
+            ResetManagersAsync().AsAsyncVoid();
+        }
+
+        private async Task ResetManagersAsync()
+        {
+            await _floorManager.ResetAsync();
+#if UNITY_IOS || UNITY_ANDROID || UNITY_EDITOR
+            await _pointCloudManager.ResetAsync();
+#endif
+            await _imageTargetManager.ResetAsync();
+        }
+
         private void OnDestroy()
         {
+            _floorManager.Dispose();
             _activityManager.Unsubscribe();
+            _pointCloudManager.Unsubscribe();
             _activityManager.OnDestroy();
         }
     }

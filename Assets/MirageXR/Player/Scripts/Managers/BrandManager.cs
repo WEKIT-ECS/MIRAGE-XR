@@ -19,13 +19,14 @@ namespace MirageXR
         [SerializeField] private Color defaultUIPathColor;
         [SerializeField] private Color defaultNextPathColor;
 
-        public static BrandManager Instance { get; private set; }
+        [SerializeField] private Texture2D _defaultCalibrationMarker;
+        [SerializeField] private TextAsset _defaultCalibrationMarkerPdf;
 
         public Color DefaultSecondaryColor => defaultSecondaryColor;
 
 #if UNITY_ANDROID || UNITY_IOS
 
-        public const string AugmentationsListFile = "MobileAugmentationListFile";
+        private const string augmentationsListFile = "MobileAugmentationListFile";
 #else
         private const string augmentationsListFile = "HololensAugmentationListFile";
 #endif
@@ -48,6 +49,10 @@ namespace MirageXR
 
         public Color NextPathColor => !prefabsOriginalColors ? _newNextPathColor : defaultNextPathColor;
 
+        public Texture2D CalibrationMarker => _calibrationMarker != null ? _calibrationMarker : _defaultCalibrationMarker;
+
+        public TextAsset CalibrationMarkerPdf => _calibrationMarkerPdf != null ? _calibrationMarkerPdf : _defaultCalibrationMarkerPdf;
+
         private string _newMoodleUrl;
         private string _newXApiUrl;
 
@@ -58,6 +63,8 @@ namespace MirageXR
         private Color _newTaskStationColor;
         private Color _newUIPathColor;
         private Color _newNextPathColor;
+        private Texture2D _calibrationMarker;
+        private TextAsset _calibrationMarkerPdf;
 
         public bool Customizable { get; private set; }
 
@@ -71,8 +78,6 @@ namespace MirageXR
             ChangeTextsColor();
         }
 
-
-
         /// <summary>
         /// Get the list of augmentations
         /// </summary>
@@ -80,7 +85,7 @@ namespace MirageXR
         public List<ContentType> GetListOfAugmentations()
         {
             var listOfAugmentations = Enum.GetValues(typeof(ContentType)).OfType<ContentType>().ToList();
-            var augmentationListFile = Resources.Load<TextAsset>(AugmentationsListFile);
+            var augmentationListFile = Resources.Load<TextAsset>(augmentationsListFile);
             if (augmentationListFile != null)
             {
                 var arrayOfAugmentations = augmentationListFile.ToString().Split('\n');
@@ -96,29 +101,15 @@ namespace MirageXR
             return listOfAugmentations.Where(ct => ct != ContentType.UNKNOWN).ToList();
         }
 
-
-
-        private void Awake()
+        public void Initialization()
         {
-            if (Instance == null)
-            {
-                Instance = this;
-            }
-            else if (Instance != this)
-            {
-                Destroy(gameObject);
-            }
-        }
-
-        private void Start()
-        {
+            LoadConfiguration();
 
             if (prefabsOriginalColors)
             {
                 return;
             }
 
-            // if config file isn't exist, disable color customization
             if (ConfigParser.ConfigFile == null)
             {
                 prefabsOriginalColors = true;
@@ -127,12 +118,8 @@ namespace MirageXR
 
             Customizable = true;
 
-            LoadConfiguration();
-            DontDestroyOnLoad(gameObject);
-
             WaitForActivityList();
         }
-
 
         private async void WaitForActivityList()
         {
@@ -145,7 +132,6 @@ namespace MirageXR
 
             AddCustomColors();
         }
-
 
         private void ChangePrimaryAndIconColor()
         {
@@ -172,7 +158,6 @@ namespace MirageXR
             }
         }
 
-
         private void ChangeSecondaryColors()
         {
             foreach (var btn in FindObjectsOfType<Button>())
@@ -190,7 +175,6 @@ namespace MirageXR
             }
         }
 
-
         private void ChangeTextsColor()
         {
             foreach (var txt in FindObjectsOfType<Text>())
@@ -201,8 +185,6 @@ namespace MirageXR
                 }
             }
         }
-
-
 
         private void LoadConfiguration()
         {
@@ -215,6 +197,8 @@ namespace MirageXR
             _newTaskStationColor = ConfigParser.Editor.StringToColor(ConfigParser.TaskStationColor);
             _newUIPathColor = ConfigParser.Editor.StringToColor(ConfigParser.UIPathColor);
             _newNextPathColor = ConfigParser.Editor.StringToColor(ConfigParser.NextPathColor);
+            _calibrationMarker = Resources.Load<Texture2D>(Utilities.GetResourceName(ConfigParser.calibrationMarker));
+            _calibrationMarkerPdf = Resources.Load<TextAsset>(Utilities.GetResourceName(ConfigParser.calibrationMarkerPdf));
         }
     }
 }

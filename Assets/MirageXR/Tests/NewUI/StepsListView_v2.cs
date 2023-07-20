@@ -16,6 +16,8 @@ public class StepsListView_v2 : BaseView
 
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
+    private static BrandManager brandManager => RootObject.Instance.brandManager;
+
     [Space]
     [SerializeField] private RectTransform _listVerticalContent;
     [SerializeField] private RectTransform _listHorizontalContent;
@@ -59,8 +61,6 @@ public class StepsListView_v2 : BaseView
     private bool _isEditMode;
     private int _addStepSiblingIndex = 0;
 
-    [Header("MirageXR calibration pdf file:")]
-    public TextAsset calibrationImage;
     private static string calibrationImageFileName = "MirageXR_calibration_image_pdf.pdf";
 
     public override void Initialization(BaseView parentView)
@@ -150,7 +150,7 @@ public class StepsListView_v2 : BaseView
         _currentStepId = stepId;
         _stepsList.ForEach(t => t.UpdateView());
 
-        if (_listHorizontalContent.gameObject.activeSelf)
+        if (_listHorizontalContent.gameObject.activeInHierarchy)
         {
             StartCoroutine(ShowSelectedItem(stepId));
         }
@@ -467,8 +467,8 @@ public class StepsListView_v2 : BaseView
     {
         yield return new WaitForEndOfFrame();
 
-        string filePath = Path.Combine(Application.temporaryCachePath, calibrationImageFileName);
-        File.WriteAllBytes(filePath, calibrationImage.bytes);
+        var filePath = Path.Combine(Application.temporaryCachePath, calibrationImageFileName);
+        File.WriteAllBytes(filePath, brandManager.CalibrationMarkerPdf.bytes);
         new NativeShare().AddFile(filePath).Share();
     }
 
@@ -498,18 +498,24 @@ public class StepsListView_v2 : BaseView
 
         for (var i = 0; i < _stepsList.Count; i++)
         {
-            _stepsList[i].transform.parent = _listHorizontalContent;
+            _stepsList[i].transform.SetParent(_listHorizontalContent);
+            _stepsList[i].transform.localPosition = Vector3.zero;
         }
 
         Canvas.ForceUpdateCanvases();
-        StartCoroutine(ShowSelectedItem(_currentStepId));
+        var stepsCount = activityManager.ActionsOfTypeAction.Count;
+        if (stepsCount != 1)
+        {
+            StartCoroutine(ShowSelectedItem(_currentStepId));
+        }
     }
 
     public void MoveStepsToVerticalScroll()
     {
         for (var i = 0; i < _stepsList.Count; i++)
         {
-            _stepsList[i].transform.parent = _listVerticalContent;
+            _stepsList[i].transform.SetParent(_listVerticalContent);
+            _stepsList[i].transform.localPosition = Vector3.zero;
         }
 
         _addStep.SetSiblingIndex(_addStepSiblingIndex);

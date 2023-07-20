@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 public class ActionListItem : MonoBehaviour
 {
+    private static BrandManager brandManager => RootObject.Instance.brandManager;
+
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
     [SerializeField] private Image backgroundImage;
@@ -67,7 +69,7 @@ public class ActionListItem : MonoBehaviour
 
             if (isActive)
             {
-                backgroundImage.color = BrandManager.Instance.DefaultSecondaryColor;
+                backgroundImage.color = brandManager.DefaultSecondaryColor;
                 checkIcon.gameObject.SetActive(false);
             }
             else if (Content.isCompleted)

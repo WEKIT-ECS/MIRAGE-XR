@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using DG.Tweening;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +11,9 @@ public class VideoEditorView : PopupEditorBase
     private const string HTTP_PREFIX = "http://";
     private const string LANDSCAPE = "L";
     private const string PORTRAIT = "P";
+    private const float HIDED_SIZE = 100f;
+    private const float HIDE_ANIMATION_TIME = 0.5f;
+    private const float IMAGE_HEIGHT = 630f;
 
     public override ContentType editorForType => ContentType.VIDEO;
 
@@ -19,6 +23,13 @@ public class VideoEditorView : PopupEditorBase
     [SerializeField] private Button _btnOpenGallery;
     [SerializeField] private Toggle _toggleTrigger;
     [SerializeField] private Toggle _toggleOrientation;
+    [Space]
+    [SerializeField] private Button _btnArrow;
+    [SerializeField] private RectTransform _panel;
+    [SerializeField] private GameObject _arrowDown;
+    [SerializeField] private GameObject _arrowUp;
+    [Space]
+    [SerializeField] private HintViewWithButtonAndToggle _hintPrefab;
 
     private string _newFileName;
     private bool _videoWasRecorded;
@@ -26,6 +37,7 @@ public class VideoEditorView : PopupEditorBase
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
+        _showBackground = false;
         base.Initialization(onClose, args);
         _btnCaptureVideo.onClick.AddListener(OnStartRecordingVideo);
         _btnOpenGallery.onClick.AddListener(OpenGallery);
@@ -33,8 +45,18 @@ public class VideoEditorView : PopupEditorBase
         _toggleTrigger.onValueChanged.AddListener(OnToggleTriggerValueChanged);
         _orientation = true;
         _toggleOrientation.isOn = _orientation;
-        UpdateView();
 
+        _btnArrow.onClick.AddListener(OnArrowButtonPressed);
+        _arrowDown.SetActive(true);
+        _arrowUp.SetActive(false);
+
+        RootView_v2.Instance.HideBaseView();
+        UpdateView();
+    }
+
+    private void OnDestroy()
+    {
+        RootView_v2.Instance.ShowBaseView();
     }
 
     private void UpdateView()
@@ -127,6 +149,11 @@ public class VideoEditorView : PopupEditorBase
             _content.predicate = editorForType.GetName().ToLower();
         }
 
+        if (!DBManager.dontShowNewAugmentationHint)
+        {
+            PopupsViewer.Instance.Show(_hintPrefab);
+        }
+
         // saving of the movie file has already happened since it has been written to file while recording
         _content.url = HTTP_PREFIX + _newFileName;
         _content.key = _orientation ? LANDSCAPE : PORTRAIT;
@@ -160,8 +187,9 @@ public class VideoEditorView : PopupEditorBase
 
         var rtImageHolder = (RectTransform)_imageHolder.transform;
         var rtImage = (RectTransform)_image.transform;
-        var height = rtImage.rect.width / texture2D.width * texture2D.height + (rtImage.sizeDelta.y * -1);
-        rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+        var width = (float)texture2D.width / texture2D.height * IMAGE_HEIGHT;
+        rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, IMAGE_HEIGHT);
+        rtImage.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
 
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
     }
@@ -189,5 +217,22 @@ public class VideoEditorView : PopupEditorBase
                 File.Move(sourcePath, destPath);
             }
         });
+    }
+
+    private void OnArrowButtonPressed()
+    {
+        if (_arrowDown.activeSelf)
+        {
+            var hidedSize = HIDED_SIZE;
+            _panel.DOAnchorPosY(-_panel.rect.height + hidedSize, HIDE_ANIMATION_TIME);
+            _arrowDown.SetActive(false);
+            _arrowUp.SetActive(true);
+        }
+        else
+        {
+            _panel.DOAnchorPosY(0.0f, HIDE_ANIMATION_TIME);
+            _arrowDown.SetActive(true);
+            _arrowUp.SetActive(false);
+        }
     }
 }
