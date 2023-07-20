@@ -11,19 +11,19 @@ namespace MirageXR
             // Check that all the sensor related crap is defined.
             if (string.IsNullOrEmpty(obj.sensor))
             {
-                AppLog.LogWarning("Sensor is not defined.");
+                Debug.LogWarning("Sensor is not defined.");
                 return false;
             }
 
             if (string.IsNullOrEmpty(obj.key))
             {
-                AppLog.LogWarning("Sensor key is not defined.");
+                Debug.LogWarning("Sensor key is not defined.");
                 return false;
             }
 
             if (string.IsNullOrEmpty(obj.option))
             {
-                AppLog.LogWarning("Sensor option string is not defined.");
+                Debug.LogWarning("Sensor option string is not defined.");
                 return false;
             }
 
@@ -31,20 +31,20 @@ namespace MirageXR
 
             if (limits.Length != 2)
             {
-                AppLog.LogWarning("Sensor limits not properly set.");
+                Debug.LogWarning("Sensor limits not properly set.");
                 return false;
             }
 
             if (!float.TryParse(limits[0], out float min))
             {
-                AppLog.LogWarning("Minimum value is not a float.");
+                Debug.LogWarning("Minimum value is not a float.");
                 return false;
             }
 
 
             if (!float.TryParse(limits[1], out float max))
             {
-                AppLog.LogWarning("Maximum value is not a float.");
+                Debug.LogWarning("Maximum value is not a float.");
                 return false;
             }
 
@@ -52,14 +52,14 @@ namespace MirageXR
 
             if (!controller.AttachStream(obj.sensor, obj.key, min, max))
             {
-                AppLog.LogWarning("Couldn't attach sensor stream.");
+                Debug.LogWarning("Couldn't attach sensor stream.");
                 return false;
             }
 
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
-                AppLog.LogWarning("Couldn't set the parent.");
+                Debug.LogWarning("Couldn't set the parent.");
                 return false;
             }
 

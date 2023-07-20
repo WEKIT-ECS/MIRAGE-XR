@@ -117,7 +117,7 @@ public class Tutorial : MonoBehaviour
             }
             else
             {
-                AppLog.LogError($"Can't find TutorialModel with id = '{model.id}'");
+                Debug.LogError($"Can't find TutorialModel with id = '{model.id}'");
                 model.id = null;
             }
         }

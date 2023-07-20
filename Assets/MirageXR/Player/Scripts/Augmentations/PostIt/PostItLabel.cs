@@ -25,14 +25,14 @@ namespace MirageXR
             // Check if the label text is set.
             if (string.IsNullOrEmpty(obj.text))
             {
-                AppLog.LogWarning("Label text not provided.");
+                Debug.LogWarning("Label text not provided.");
                 return false;
             }
 
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
-                AppLog.LogWarning("Couldn't set the parent.");
+                Debug.LogWarning("Couldn't set the parent.");
                 return false;
             }
 
