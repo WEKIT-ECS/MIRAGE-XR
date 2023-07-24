@@ -62,7 +62,7 @@ namespace MirageXR
 
             if (!editModeState)
             {
-                SavePositions();
+                EventManager.ActivitySaved();
             }
         }
 
