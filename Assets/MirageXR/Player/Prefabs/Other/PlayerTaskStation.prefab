@@ -27,6 +27,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7620666327346022297}
   m_Father: {fileID: 1564862708021636292}
@@ -72,6 +73,7 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.056900024, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2175097658723196317}
   m_RootOrder: 0
@@ -102,6 +104,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.45, y: -0.0321, z: 0.001}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1564862708021636292}
   m_RootOrder: 2
@@ -132,6 +135,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.226, y: 0, z: 0.001}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1564862708021636292}
   m_RootOrder: 0
@@ -162,6 +166,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.0567, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1564862708021636292}
   m_RootOrder: 1
@@ -240,9 +245,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 080088a3ed6793d46952dfa35f9bf0ac, type: 3}
---- !u!1 &2232750753583396478 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 080088a3ed6793d46952dfa35f9bf0ac,
+--- !u!23 &431411576981772203 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 080088a3ed6793d46952dfa35f9bf0ac,
     type: 3}
   m_PrefabInstance: {fileID: 1314271721986968367}
   m_PrefabAsset: {fileID: 0}
@@ -252,9 +257,9 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1314271721986968367}
   m_PrefabAsset: {fileID: 0}
---- !u!23 &431411576981772203 stripped
-MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 080088a3ed6793d46952dfa35f9bf0ac,
+--- !u!1 &2232750753583396478 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 080088a3ed6793d46952dfa35f9bf0ac,
     type: 3}
   m_PrefabInstance: {fileID: 1314271721986968367}
   m_PrefabAsset: {fileID: 0}
@@ -321,19 +326,7 @@ MonoBehaviour:
       m_Calls: []
   onManipulationEnded:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1899842224238348803}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: OnManipulationEnded
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   onHoverEntered:
     m_PersistentCalls:
       m_Calls: []
@@ -352,7 +345,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24c2e9a7c8c568c4bacbfb271b223ca4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  taskStationMover: {fileID: 1671793771436416733}
 --- !u!114 &2467590269829450743
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -367,6 +359,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 3
   proximityType: 3
+  executionOrder: 0
 --- !u!114 &5090513018016203518
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -392,17 +385,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9aa67e79450bcf64aa38d00dd685e07b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &7761806264468373311
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2232750753583396478}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5afd5316c63705643b3daba5a6e923bd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTetherWhenManipulating: 0
-  IsBoundsHandles: 0

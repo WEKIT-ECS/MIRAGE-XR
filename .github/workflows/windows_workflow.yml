@@ -19,9 +19,14 @@ jobs:
     outputs:
       buildVersion: ${{ steps.buildStep.outputs.buildVersion }}
     steps:
+    
       # Activation stage
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          lfs: 'true'
+      - name: LFS pull
+        run: git lfs pull
 
       - name: Set up IBM Watson credentials
         env:
@@ -91,6 +96,10 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          lfs: 'true'
+      - name: LFS pull
+        run: git lfs pull
 
       - name: Setup Unity UWP
         uses: kuler90/setup-unity@v1

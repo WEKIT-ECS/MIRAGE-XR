@@ -1,17 +1,17 @@
 ﻿using System.Collections.Generic;
+using MirageXR;
 using UnityEngine;
 
-
-namespace MirageXR
+/// <summary>
+/// Handles the aura placement
+/// Follows a target object and places the aura underneath its
+/// </summary>
+public class UIOrigin : MonoBehaviour
 {
-    /// <summary>
-    /// Handles the aura placement
-    /// Follows a target object and places the aura underneath its
-    /// </summary>
-    public class UIOrigin : MonoBehaviour
-    {
-        [Tooltip("Layer mask that filters for objects belonging to the floor, e.g. the spatial mapping")]
-        [SerializeField] private LayerMask floorLayer;
+    private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
+
+    [Tooltip("Layer mask that filters for objects belonging to the floor, e.g. the spatial mapping")]
+    [SerializeField] private LayerMask floorLayer;
 
     // the object that the placement should follow
     private Transform _followTarget;
@@ -51,7 +51,14 @@ namespace MirageXR
         _currentPosition.x = _followTarget.position.x;
         _currentPosition.z = _followTarget.position.z;
 
-        _currentPosition.y = GetFloorHeight(_followTarget.position, 0.75f, 6) + 0.03f;
+        if (floorManager.isFloorDetected)
+        {
+            _currentPosition.y = floorManager.floorLevel;
+        }
+        else
+        {
+            _currentPosition.y = GetFloorHeight(_followTarget.position, 0.75f, 6) + 0.03f;
+        }
 
         transform.position = _currentPosition;
         transform.rotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(_followTarget.forward, Vector3.up).normalized, Vector3.up);

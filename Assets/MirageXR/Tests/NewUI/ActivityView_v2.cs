@@ -25,6 +25,7 @@ public class ActivityView_v2 : BaseView
     [SerializeField] private GameObject _header;
     [SerializeField] private RectTransform _tabs;
     [SerializeField] private Toggle _toggleSteps;
+    [SerializeField] private RectTransform _contentHorizontal;
 
     private SessionContainer _container;
     private int _infoStepNumber;
@@ -35,6 +36,10 @@ public class ActivityView_v2 : BaseView
     public SessionContainer container => _container;
 
     private RootView_v2 rootView => (RootView_v2)_parentView;
+
+    public RectTransform Tabs => _tabs;
+
+    public Button BtnArrow => _btnArrow;
 
     public override void Initialization(BaseView parentView)
     {
@@ -149,6 +154,7 @@ public class ActivityView_v2 : BaseView
             {
                 _stepsListView.MoveStepsToHorizontalScroll();
                 _tabs.offsetMax = new Vector2(0f, 0f);
+                _contentHorizontal.anchoredPosition = Vector3.zero; // the fix when horizontal content becomes NaN with minimazing
             }
             else
             {

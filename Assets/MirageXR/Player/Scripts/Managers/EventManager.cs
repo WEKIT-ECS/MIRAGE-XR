@@ -1,5 +1,4 @@
 ﻿using i5.Toolkit.Core.VerboseLogging;
-using System;
 using UnityEngine;
 
 namespace MirageXR
@@ -861,6 +860,15 @@ namespace MirageXR
         public static void NotifyMobileHelpPageChanged(RootView_v2.HelpPage value)
         {
             OnMobileHelpPageChanged?.Invoke(value);
+        }
+
+        public delegate void PickPlacedCorrectly();
+
+        public static event PickPlacedCorrectly OnPickPlacedCorrectly;
+
+        public static void NotifyOnPickPlacedCorrectly()
+        {
+            OnPickPlacedCorrectly?.Invoke();
         }
     }
 }
