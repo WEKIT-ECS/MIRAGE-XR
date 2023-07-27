@@ -2,6 +2,7 @@
 using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 namespace MirageXR
 {
@@ -12,7 +13,7 @@ namespace MirageXR
     {
         [SerializeField] private GameObject TextLabelPrefab;
         private GameObject textLabel;
-        private static Text textbox; // the label textMesh
+        private static TMP_Text textbox; // the label textMesh
         private Image _triggerIcon;
 
         private ToggleObject _myAnnotation;
@@ -85,7 +86,7 @@ namespace MirageXR
                 }
             }
 
-            textbox = textLabel.GetComponentInChildren<Text>();
+            textbox = textLabel.GetComponentInChildren<TMP_Text>();
         }
 
     }
