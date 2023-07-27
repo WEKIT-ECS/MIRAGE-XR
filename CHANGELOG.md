@@ -6,7 +6,7 @@
 
 ## Featured:
 - **Grid**. We created a new visual grid system and a snap-to-grid feature which significantly improves the usability of augmentation placement. The drop position is indicated with a 'ghost preview' of the currently selected augmentation. Grid spacing, default rotation angles, and default resizing steps can now be configured.
-- **Better editors**. We redesigned the model editors of the image, video, audio, label, and model augmentations.
+- **Better editors**. We redesigned the editors of the image, video, audio, label, and model augmentations.
 - **HoloLens is back**. We updated the world space implementation to bring the HoloLens 2 application back in line with current developments.
 ## Added:
 - We rewrote the calibration routines for both edit mode and view mode, adding a floor manager to allow setting the floor plane.
