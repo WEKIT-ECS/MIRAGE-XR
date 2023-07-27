@@ -90,7 +90,7 @@ namespace MirageXR
             AddPromptsToKeyword("Add Glyph", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.ACT); });
             AddPromptsToKeyword("Add Audio", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.AUDIO); });
             AddPromptsToKeyword("Add Video", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.VIDEO); });
-            AddPromptsToKeyword("Add Visual effect", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.VFX); });
+            AddPromptsToKeyword("Add Visual effect", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.EFFECTS); });
             AddPromptsToKeyword("Add Character", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.CHARACTER); });
             AddPromptsToKeyword("Add Ghost", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.GHOST); });
             AddPromptsToKeyword("Add Label", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.LABEL); });

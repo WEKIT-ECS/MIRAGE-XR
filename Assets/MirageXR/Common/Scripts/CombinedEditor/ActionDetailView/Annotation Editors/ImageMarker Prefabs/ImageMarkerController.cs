@@ -1,7 +1,8 @@
-﻿using System.IO;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
 
 namespace MirageXR
@@ -12,6 +13,7 @@ namespace MirageXR
 
         private string _imageName;
         private ToggleObject _content;
+        public IImageTarget _target;
 
         public override bool Init(ToggleObject content)
         {
@@ -82,7 +84,9 @@ namespace MirageXR
                 useLimitedTracking = true,
             };
 
-            return await RootObject.Instance.imageTargetManager.AddImageTarget(model) as ImageTargetBase;
+            _target = await RootObject.Instance.imageTargetManager.AddImageTarget(model);
+
+            return _target as ImageTargetBase;
         }
 
         private void MoveDetectableToImage(Transform targetHolder)
@@ -102,7 +106,7 @@ namespace MirageXR
             }
         }
 
-        private void MoveDetectableBack()
+        public void MoveDetectableBack()
         {
             var place = RootObject.Instance.workplaceManager.GetPlaceFromTaskStationId(_content.id);
             var detectable = RootObject.Instance.workplaceManager.GetDetectable(place);
@@ -118,15 +122,25 @@ namespace MirageXR
             }
         }
 
-        public void PlatformOnDestroy()
-        {
-            MoveDetectableBack();
-            Destroy(gameObject);
-        }
-
         public override void Delete()
         {
             // changed Delete to a virtual method so I could overide it for Image markers as they were being deleted twice when changing activities causeing the new activity not to load
+        }
+
+        private void OnDestroy()
+        {
+            try
+            {
+                if (PlatformManager.Instance.WorldSpaceUi)
+                {
+                    MoveDetectableBack();
+                    RootObject.Instance.imageTargetManager.RemoveImageTarget(_target);
+                }
+            }
+            catch (Exception e)
+            {
+                AppLog.LogError("Error when destroying image marker controller" + e.ToString());
+            }
         }
     }
 }

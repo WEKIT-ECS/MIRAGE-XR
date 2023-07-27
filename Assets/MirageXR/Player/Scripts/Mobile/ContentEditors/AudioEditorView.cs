@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
+using DG.Tweening;
 using MirageXR;
 using TMPro;
 using UnityEngine;
@@ -8,13 +9,21 @@ using UnityEngine.UI;
 
 public class AudioEditorView : PopupEditorBase
 {
+    public class IntHolder : ObjectHolder<int> { }
+
     private const float DEFAULT_RANGE = 3.0f;
     private const float MIN_RANGE = 0.0f;
     private const float MAX_RANGE = 10.0f;
     private const float REWIND_VALUE = 10f;
+    private const float HIDED_SIZE = 100f;
+    private const float HIDE_ANIMATION_TIME = 0.5f;
+
+    private float _currentRangeValue;
 
     public override ContentType editorForType => ContentType.AUDIO;
 
+    [SerializeField] private Button _btnAudioSettings;
+    [SerializeField] private Button _btnCancel;
     [SerializeField] private Button _btnRecord;
     [SerializeField] private Button _btnStop;
     [SerializeField] private Button _btnPlay;
@@ -22,19 +31,37 @@ public class AudioEditorView : PopupEditorBase
     [SerializeField] private Button _btnRewindBack;
     [SerializeField] private Button _btnRewindForward;
 
-    [SerializeField] private Toggle _toggleTrigger;
     [SerializeField] private Toggle _toggle3D;
-    [SerializeField] private Toggle _toggle2D;
+    //[SerializeField] private Toggle _toggle2D;
     [SerializeField] private Toggle _toggleLoop;
-    [SerializeField] private Slider _sliderRange;
+    [SerializeField] private Button _btnIncreaseRange;
+    [SerializeField] private Button _btnDecreaseRange;
+
     [SerializeField] private TMP_Text _txtSliderRangeValue;
     [SerializeField] private GameObject _panelRange;
-    [SerializeField] private TMP_InputField _inputTriggerStepNumber;
-
+    [SerializeField] private ClampedScrollRect _clampedScrollJumpToStep;
+    [SerializeField] private GameObject _templatePrefab;
+    [Space]
     [SerializeField] private TMP_Text _txtTimer;
     [SerializeField] private Slider _sliderPlayer;
     [SerializeField] private Image _imgRecordingIcon;
     [SerializeField] private CanvasGroup _groupPlayControls;
+    [Space]
+    [SerializeField] private TMP_Text _txtTimerFrom;
+    [SerializeField] private TMP_Text _txtTimerTo;
+    [Space]
+    [SerializeField] private GameObject _panelRecordControls;
+    [SerializeField] private GameObject _panelPlayRecord;
+    [SerializeField] private GameObject _panelAudioSettings;
+    [SerializeField] private GameObject _panelRecordComplete;
+    [SerializeField] private GameObject _panelBottomButtons;
+    [SerializeField] private Button _btnRecordComplete;
+    [Space]
+    [SerializeField] private Button _btnArrow;
+    [SerializeField] private RectTransform _panel;
+    [SerializeField] private GameObject _arrowDown;
+    [SerializeField] private GameObject _arrowUp;
+    [Space]
     [SerializeField] private AudioSource _audioSource;
 
     private AudioClip _audioClip;
@@ -43,36 +70,48 @@ public class AudioEditorView : PopupEditorBase
     private Coroutine _updateRecordTimerCoroutine;
     private float _recordStartTime;
 
-    private bool _isRecording;
-    private bool _isPlaying;
-
+    private string _inputTriggerStepNumber = string.Empty;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
+        _showBackground = false;
         base.Initialization(onClose, args);
 
         _toggle3D.isOn = false;
         _toggleLoop.isOn = false;
-        _sliderRange.minValue = MIN_RANGE;
-        _sliderRange.maxValue = MAX_RANGE;
-        _sliderRange.value = DEFAULT_RANGE;
+        _currentRangeValue = DEFAULT_RANGE;
         _txtSliderRangeValue.text = DEFAULT_RANGE.ToString("0");
+
         _panelRange.SetActive(false);
+        _panelRecordComplete.SetActive(false);
+        _panelPlayRecord.SetActive(false);
+        _panelRecordControls.SetActive(true);
+        _panelBottomButtons.SetActive(false);
+
+        _btnAudioSettings.onClick.AddListener(OnOpenAudioSettings);
+        _btnCancel.onClick.AddListener(OnClickCancel);
 
         _btnRecord.onClick.AddListener(OnRecordStarted);
         _btnStop.onClick.AddListener(OnRecordStopped);
         _btnPlay.onClick.AddListener(OnPlayingStarted);
         _btnPause.onClick.AddListener(OnPlayingPaused);
         _btnRewindBack.onClick.AddListener(OnRewindBack);
+        _btnArrow.onClick.AddListener(OnArrowButtonPressed);
         _btnRewindForward.onClick.AddListener(OnRewindForward);
+        _btnIncreaseRange.onClick.AddListener(OnIncreaseRange);
+        _btnDecreaseRange.onClick.AddListener(OnDecreaseRange);
+        _btnRecordComplete.onClick.AddListener(OnClickRecordComplete);
 
         _sliderPlayer.minValue = 0;
         _sliderPlayer.maxValue = 1f;
         _sliderPlayer.onValueChanged.AddListener(OnSliderPlayerValueChanged);
+        _clampedScrollJumpToStep.onItemChanged.AddListener(OnItemJumpToStepChanged);
 
-        _toggleTrigger.onValueChanged.AddListener(OnToggleTriggerValueChanged);
         _toggle3D.onValueChanged.AddListener(On3DSelected);
-        _sliderRange.onValueChanged.AddListener(OnSliderRangeValueChanged);
+
+        var steps = activityManager.ActionsOfTypeAction;
+        var stepsCount = steps.Count;
+        InitClampedScrollRect(_clampedScrollJumpToStep, _templatePrefab, stepsCount, stepsCount.ToString());
 
         if (_content != null && !string.IsNullOrEmpty(_content.url))
         {
@@ -81,8 +120,7 @@ public class AudioEditorView : PopupEditorBase
             var trigger = _step.triggers.Find(tr => tr.id == _content.poi);
             if (trigger != null)
             {
-                _toggleTrigger.isOn = true;
-                _inputTriggerStepNumber.text = trigger.value;
+                _inputTriggerStepNumber = trigger.value;
             }
         }
         else
@@ -93,6 +131,27 @@ public class AudioEditorView : PopupEditorBase
 
         SetPlayerActive(true);
         UpdateSliderPlayerAndTimer();
+        RootView_v2.Instance.HideBaseView();
+    }
+
+    private void InitClampedScrollRect(ClampedScrollRect clampedScrollRect, GameObject templatePrefab, int maxCount, string text)
+    {
+        var currentActionId = activityManager.ActiveAction.id;
+        var steps = activityManager.ActionsOfTypeAction;
+
+        for (int i = 1; i <= maxCount; i++)
+        {
+            var obj = Instantiate(templatePrefab, clampedScrollRect.content, false);
+            obj.name = i.ToString();
+            obj.SetActive(true);
+            obj.AddComponent<IntHolder>().item = i;
+            obj.GetComponentInChildren<TMP_Text>().text = $"   {i}/{text}     {steps[i - 1].instruction.title}";
+
+            if (steps[i - 1].id == currentActionId)
+            {
+                _clampedScrollJumpToStep.currentItemIndex = i;
+            }
+        }
     }
 
     private void OnDestroy()
@@ -102,6 +161,7 @@ public class AudioEditorView : PopupEditorBase
             Destroy(_audioClip);
             _audioClip = null;
         }
+        RootView_v2.Instance.ShowBaseView();
     }
 
     private void LoadContent()
@@ -114,13 +174,13 @@ public class AudioEditorView : PopupEditorBase
         if (parameters.Length == 3)
         {
             _toggle3D.isOn = parameters[0] == "3d";
-            _toggle2D.isOn = !_toggle3D.isOn;
+            //_toggle2D.isOn = !_toggle3D.isOn;
             _panelRange.SetActive(_toggle3D.isOn);
             _toggleLoop.isOn = parameters[1] == "1";
             if (int.TryParse(parameters[2], out var value))
             {
                 _txtSliderRangeValue.text = parameters[2];
-                _sliderRange.value = value;
+                _currentRangeValue = value;
             }
         }
     }
@@ -168,6 +228,7 @@ public class AudioEditorView : PopupEditorBase
 
     private void OnRecordStarted()
     {
+        _panelRecordComplete.SetActive(false);
         _audioSource.clip = null;
         if (_audioClip)
         {
@@ -189,7 +250,17 @@ public class AudioEditorView : PopupEditorBase
         _audioClip = AudioRecorder.Stop();
         _groupPlayControls.interactable = true;
         StopCoroutine(_updateRecordTimerCoroutine);
-        UpdateSliderPlayerAndTimer();
+
+        _panelRecordComplete.SetActive(true);
+    }
+
+    private void OnClickRecordComplete()
+    {
+        _panelPlayRecord.SetActive(true);
+        _panelRecordControls.SetActive(false);
+        _panelBottomButtons.SetActive(true);
+        _panelRecordComplete.SetActive(false);
+        _txtTimerTo.text = ToTimeFormatMinutes(_audioClip.length);
     }
 
     private void StartUpdateSliderPlayerAndTimer()
@@ -215,10 +286,10 @@ public class AudioEditorView : PopupEditorBase
             var percent = _audioSource.time / clip.length;
             _sliderPlayer.onValueChanged.RemoveListener(OnSliderPlayerValueChanged);
             _sliderPlayer.value = percent;
-            _txtTimer.text = ToTimeFormat(_audioSource.time);
+            _txtTimerFrom.text = ToTimeFormatMinutes(_audioSource.time);
             _sliderPlayer.onValueChanged.AddListener(OnSliderPlayerValueChanged);
 
-            if (Math.Abs(_audioSource.time - clip.length) <= float.Epsilon)
+            if (Math.Abs((int)_audioSource.time - (int)clip.length) <= float.Epsilon)
             {
                 OnPlayingFinished();
             }
@@ -237,6 +308,7 @@ public class AudioEditorView : PopupEditorBase
         _audioSource.clip = null;
         _btnPlay.gameObject.SetActive(true);
         _btnPause.gameObject.SetActive(false);
+        _txtTimerFrom.text = ToTimeFormatMinutes(0);
         ResetPlayerTimer();
         if (_updateSliderPlayerCoroutine != null)
         {
@@ -276,16 +348,22 @@ public class AudioEditorView : PopupEditorBase
 
     private static string ToTimeFormat(float time)
     {
-        var minutes = time / 60;
-        var seconds = time % 60;
+        var hours = (int)time / 3600;
+        var minutes = ((int)time / 60) % 60;
+        var seconds = (int)time % 60;
+        return $"{hours:00}:{minutes:00}:{seconds:00}";
+    }
+
+    private static string ToTimeFormatMinutes(float time)
+    {
+        var minutes = ((int)time / 60) % 60;
+        var seconds = (int)time % 60;
         return $"{minutes:00}:{seconds:00}";
     }
 
     private void SetPlayerActive(bool value)
     {
         _imgRecordingIcon.gameObject.SetActive(!value);
-        _groupPlayControls.gameObject.SetActive(value);
-        _sliderPlayer.gameObject.SetActive(value);
     }
 
     private void On3DSelected(bool value)
@@ -298,32 +376,48 @@ public class AudioEditorView : PopupEditorBase
         _txtSliderRangeValue.text = value.ToString("0");
     }
 
+    private void OnIncreaseRange()
+    {
+        if (_currentRangeValue < MAX_RANGE)
+        {
+            _currentRangeValue++;
+        }
+
+        _txtSliderRangeValue.text = _currentRangeValue.ToString("0");
+    }
+
+    private void OnDecreaseRange()
+    {
+        if (_currentRangeValue > MIN_RANGE)
+        {
+            _currentRangeValue--;
+        }
+        _txtSliderRangeValue.text = _currentRangeValue.ToString("0");
+    }
+
     private void OnSliderPlayerValueChanged(float value)
     {
         _audioSource.time = _audioClip.length * value;
     }
 
-    private void OnToggleTriggerValueChanged(bool value)
+    private void OnItemJumpToStepChanged(Component item)
     {
-        if (value && activityManager.IsLastAction(_step))
-        {
-            Toast.Instance.Show("This is the last step. The trigger is disabled!\n Add a new step and try again.");
-            _toggleTrigger.onValueChanged.RemoveListener(OnToggleTriggerValueChanged);
-            _toggleTrigger.isOn = false;
-            _toggleTrigger.onValueChanged.AddListener(OnToggleTriggerValueChanged);
-            return;
-        }
+        _inputTriggerStepNumber = item.GetComponent<ObjectHolder<int>>().item.ToString();
+    }
 
-        if (value)
-        {
-            _toggleLoop.isOn = false;
-            _inputTriggerStepNumber.transform.parent.gameObject.SetActive(true);
-        }
-        else
-        {
-            _inputTriggerStepNumber.transform.parent.gameObject.SetActive(false);
-        }
-        _toggleLoop.interactable = _toggle3D.isOn && !value;
+    private void OnOpenAudioSettings()
+    {
+        _panelPlayRecord.SetActive(false);
+        _panelBottomButtons.SetActive(false);
+        _panelAudioSettings.SetActive(true);
+    }
+
+    private void OnClickCancel()
+    {
+        _panelPlayRecord.SetActive(false);
+        _panelBottomButtons.SetActive(false);
+        _panelRecordControls.SetActive(true);
+        _txtTimer.text = ToTimeFormat(0);
     }
 
     protected override void OnAccept()
@@ -357,20 +451,7 @@ public class AudioEditorView : PopupEditorBase
         _content.scale = 0.5f;
         _content.url = $"http://{_fileName}";
 
-        if (_inputTriggerStepNumber.text == "" && _toggleTrigger.isOn)
-        {
-            Toast.Instance.Show("Input field is empty.");
-            return;
-        }
-
-        if (_toggleTrigger.isOn)
-        {
-            _step.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, _content.poi, _audioClip.length, _inputTriggerStepNumber.text);
-        }
-        else
-        {
-            _step.RemoveArlemTrigger(_content);
-        }
+        _step.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, _content.poi, _audioClip.length, _inputTriggerStepNumber);
 
         SaveLoadAudioUtilities.Save(filePath, _audioClip);
 
@@ -378,5 +459,22 @@ public class AudioEditorView : PopupEditorBase
         EventManager.NotifyActionModified(_step);
 
         Close();
+    }
+
+    private void OnArrowButtonPressed()
+    {
+        if (_arrowDown.activeSelf)
+        {
+            var hidedSize = HIDED_SIZE;
+            _panel.DOAnchorPosY(-_panel.rect.height + hidedSize, HIDE_ANIMATION_TIME);
+            _arrowDown.SetActive(false);
+            _arrowUp.SetActive(true);
+        }
+        else
+        {
+            _panel.DOAnchorPosY(0.0f, HIDE_ANIMATION_TIME);
+            _arrowDown.SetActive(true);
+            _arrowUp.SetActive(false);
+        }
     }
 }

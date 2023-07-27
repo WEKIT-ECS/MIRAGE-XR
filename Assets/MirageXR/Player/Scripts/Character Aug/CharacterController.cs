@@ -145,7 +145,7 @@ namespace MirageXR
             var poiEditor = transform.parent.GetComponent<PoiEditor>();
             if (poiEditor)
             {
-                poiEditor.ICanRotate = true;
+                poiEditor.canRotate = true;
             }
 
             _agent.enabled = false;

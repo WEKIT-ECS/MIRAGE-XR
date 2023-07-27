@@ -1,67 +1,79 @@
-﻿using MirageXR;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-public class BrandCustomizer : MonoBehaviour
+
+namespace MirageXR
 {
-
-    private void Start()
+    public class BrandCustomizer : MonoBehaviour
     {
-        StartCoroutine(Init());
-    }
+        private static BrandManager brandManager => RootObject.Instance.brandManager;
 
-
-    IEnumerator Init()
-    {
-        yield return new WaitForSeconds(1);
-
-        if (!BrandManager.Instance || !BrandManager.Instance.Customizable) yield break;
-
-        if (GetComponent<Button>())
+        private void Start()
         {
-            Color newSecondaryColor = BrandManager.Instance.GetSecondaryColor();
-            Button btn = GetComponent<Button>();
-            ColorBlock colors = btn.colors;
+            StartCoroutine(Init());
+        }
 
-            var factor = 0.7f;
-            Color darkerColor = new Color(newSecondaryColor.r * factor, newSecondaryColor.g * factor, newSecondaryColor.b * factor, newSecondaryColor.a);
-            colors.pressedColor = darkerColor;
-            colors.highlightedColor = newSecondaryColor;
 
-            if (!GetComponent<SessionButton>() && !GetComponent<ActionListItem>())
+        private IEnumerator Init()
+        {
+            yield return new WaitForSeconds(1);
+
+            if (!brandManager || !brandManager.Customizable)
             {
-                colors.normalColor = newSecondaryColor;
-                colors.highlightedColor = darkerColor;
+                yield break;
             }
 
-            btn.colors = colors;
-        }
-        if (GetComponent<Image>())
-        {
-            if (GetComponent<Button>() && GetComponent<Button>().interactable)
-                GetComponent<Image>().color = Color.white;
-            else
-                GetComponent<Image>().color = BrandManager.Instance.GetIconColor();
-        }
-
-        if (GetComponent<Text>())
-        {
-            if (GetComponentInParent<Button>())
+            if (GetComponent<Button>())
             {
-                if (GetComponentInParent<Button>().interactable)
+                var newSecondaryColor = brandManager.SecondaryColor;
+                var btn = GetComponent<Button>();
+                var colors = btn.colors;
+
+                var factor = 0.7f;
+                var darkerColor = new Color(newSecondaryColor.r * factor, newSecondaryColor.g * factor, newSecondaryColor.b * factor, newSecondaryColor.a);
+                colors.pressedColor = darkerColor;
+                colors.highlightedColor = newSecondaryColor;
+
+                if (!GetComponent<SessionButton>() && !GetComponent<ActionListItem>())
                 {
-                    GetComponent<Text>().color = BrandManager.Instance.GetTextColor();
+                    colors.normalColor = newSecondaryColor;
+                    colors.highlightedColor = darkerColor;
+                }
+
+                btn.colors = colors;
+            }
+            if (GetComponent<Image>())
+            {
+                if (GetComponent<Button>() && GetComponent<Button>().interactable)
+                {
+                    GetComponent<Image>().color = Color.white;
+                }
+                else
+                {
+                    GetComponent<Image>().color = brandManager.IconColor;
                 }
             }
-            else
+
+            if (GetComponent<Text>())
             {
-                GetComponent<Text>().color = BrandManager.Instance.GetTextColor();
+                if (GetComponentInParent<Button>())
+                {
+                    if (GetComponentInParent<Button>().interactable)
+                    {
+                        GetComponent<Text>().color = brandManager.TextColor;
+                    }
+                }
+                else
+                {
+                    GetComponent<Text>().color = brandManager.TextColor;
+                }
+            }
+
+            if (name == "floorTarget" && GetComponent<SpriteRenderer>())
+            {
+                GetComponent<SpriteRenderer>().color = brandManager.TaskStationColor;
             }
         }
-
-        if (name == "floorTarget" && GetComponent<SpriteRenderer>())
-            GetComponent<SpriteRenderer>().color = BrandManager.Instance.GetTaskStationColor();
     }
-
 }

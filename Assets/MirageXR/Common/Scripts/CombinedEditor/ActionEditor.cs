@@ -1,13 +1,13 @@
 ﻿using MirageXR;
-using System;
 using System.Collections;
-using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(ActionDetailView))]
 public class ActionEditor : MonoBehaviour
 {
+    private static BrandManager brandManager => RootObject.Instance.brandManager;
+
     private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
     [SerializeField] private GameObject TaskStationMenuPanel;
@@ -139,23 +139,20 @@ public class ActionEditor : MonoBehaviour
         }
 
         // Get the list of augmentations from txt file depends on platform
-        var listOfAugmentations = BrandManager.Instance.GetListOfAugmentations();
+        var listOfAugmentations = brandManager.GetListOfAugmentations();
 
 
-        augmentationsButtons = new GameObject[listOfAugmentations.Length];
-        for (int i = 0; i < listOfAugmentations.Length; i++)
+        augmentationsButtons = new GameObject[listOfAugmentations.Count];
+        for (var i = 0; i < listOfAugmentations.Count; i++)
         {
-            var augmentationCorrectTypeName = listOfAugmentations[i].Replace("&", "and").Replace(" ", string.Empty).ToUpper();
-            var augmentationIndexOnEnum = (int)Enum.Parse(typeof(ContentType), augmentationCorrectTypeName);
-            var type = (ContentType)augmentationIndexOnEnum;
+            var type = listOfAugmentations[i];
             var addItemInstance = Instantiate(poiAddItemPrefab, annotationAddMenu.transform);
             var listItem = addItemInstance.GetComponent<PoiAddItem>();
-            listItem.Initialize(type, i, listOfAugmentations[i], type.GetIcon());
+            listItem.Initialize(type, i, type.GetName(), type.GetIcon());
             listItem.OnPoiAddItemClicked += OnAnnotationAddItemSelected;
             listItem.OnPoiHover += OnAnnotationHover;
 
-            var annotationName = listOfAugmentations[i] == "effects" ? "Visual Effect" : $"{char.ToUpper(listOfAugmentations[i][0])}{listOfAugmentations[i].Substring(1)}";
-            listItem.GetComponent<ToolTipCaster>().SetTooltipText($"Add {annotationName}");
+            listItem.GetComponent<ToolTipCaster>().SetTooltipText($"Add {type.GetName()}");
 
             augmentationsButtons[i] = listItem.gameObject;
         }
@@ -171,9 +168,6 @@ public class ActionEditor : MonoBehaviour
             CloseTaskStationMenu();
         }
     }
-
-
-
 
     public Transform GetDefaultAugmentationStartingPoint()
     {
@@ -197,7 +191,6 @@ public class ActionEditor : MonoBehaviour
             StartCoroutine(NavigatorNotification("Now click on an augmentation button", 5));
         }
     }
-
 
     /// <summary>
     /// Control the helper text under the target button
@@ -286,6 +279,7 @@ public class ActionEditor : MonoBehaviour
         var newModelClone = Instantiate(sketchfabModel.gameObject, pick.transform.position, pick.transform.rotation);
         newModelClone.transform.SetParent(pick.transform);
         newModelClone.name = "ArrowModel_" + sketchfabModel.MyToggleObject.poi;
+        newModelClone.GetComponentInParent<PoiEditor>().EnableBoxCollider(false);
 
         // move the model augmentation somewhere invisible(Cannot deactivate it)
         newModel.transform.position = new Vector3(9999, 9999, 9999);
