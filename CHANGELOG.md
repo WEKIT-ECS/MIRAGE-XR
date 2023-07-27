@@ -2,7 +2,7 @@
 
 # Change Log
 
-# v2.2 (2023-05-04)
+# v2.3 (2023-07-24)
 
 ## Featured:
 - **Grid**. We created a new visual grid system and a snap-to-grid feature which significantly improves the usability of augmentation placement. The drop position is indicated with a 'ghost preview' of the currently selected augmentation. Grid spacing, default rotation angles, and default resizing steps can now be configured.
