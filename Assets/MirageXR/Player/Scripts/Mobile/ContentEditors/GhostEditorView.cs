@@ -9,6 +9,7 @@ public class GhostEditorView : PopupEditorBase
 {
     private const string MALE_TYPE = "GhosttrackPrefab";
     private const string FEMALE_TYPE = "GhosttrackPrefabFemale";
+
     public override ContentType editorForType => ContentType.GHOST;
 
     [SerializeField] private Toggle _toggleMale;
@@ -131,6 +132,7 @@ public class GhostEditorView : PopupEditorBase
         {
             File.Delete(filePath);
         }
+
         EventManager.DeactivateObject(content);
     }
 }

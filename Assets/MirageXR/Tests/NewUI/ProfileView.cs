@@ -26,8 +26,11 @@ public class ProfileView : PopupBase
     [SerializeField] private TMP_Text _txtConnectedLRS;
     [SerializeField] private TMP_Text _txtVersion;
     [SerializeField] private ClickCounter _versionClickCounter;
+    [SerializeField] private Button _btnGrid;
+
     [Space]
     [SerializeField] private LoginView_v2 _loginViewPrefab;
+    [SerializeField] private GridView _gridViewPrefab;
 
     private bool _isShownDevelopModeMessage;
 
@@ -42,6 +45,7 @@ public class ProfileView : PopupBase
         _btnPrivacyPolicy.onClick.AddListener(OnClickPrivacyPolicy);
         _btnLogin.onClick.AddListener(OnClickLogin);
         _btnLogout.onClick.AddListener(OnClickLogout);
+        _btnGrid.onClick.AddListener(OnClickGrid);
         _developToggle.onValueChanged.AddListener(OnDevelopToggleValueChanged);
         _btnSelectServer.onClick.AddListener(ShowChangeServerPanel);
         _btnSelectLRS.onClick.AddListener(ShowLRSPanel);
@@ -135,6 +139,11 @@ public class ProfileView : PopupBase
         ShowLogin();
     }
 
+    private void OnClickGrid()
+    {
+        PopupsViewer.Instance.Show(_gridViewPrefab);
+    }
+
     private static bool IsValidUrl(string urlString)
     {
         const string regexExpression = "^(?:http(s)?:\\/\\/)?[\\w.-]+(?:\\.[\\w\\.-]+)+[\\w\\-\\._~:/?#[\\]@!\\$&'\\(\\)\\*\\+,;=.]+$";
@@ -165,8 +174,7 @@ public class ProfileView : PopupBase
     private void ShowLRSPanel()
     {
         RootView_v2.Instance.dialog.ShowBottomMultiline("Select Learning Record Store:",
-            ("WEKIT", () => ChangeRecordStore(DBManager.LearningRecordStores.WEKIT)),
-            ("ARETE", () => ChangeRecordStore(DBManager.LearningRecordStores.ARETE)));
+            ("WEKIT", () => ChangeRecordStore(DBManager.LearningRecordStores.WEKIT)));
     }
 
     private static void ChangeRecordStore(DBManager.LearningRecordStores recordStores)
@@ -232,9 +240,6 @@ public class ProfileView : PopupBase
         {
             case DBManager.LearningRecordStores.WEKIT:
                 _txtConnectedLRS.text = "WEKIT";
-                break;
-            case DBManager.LearningRecordStores.ARETE:
-                _txtConnectedLRS.text = "ARETE";
                 break;
         }
     }

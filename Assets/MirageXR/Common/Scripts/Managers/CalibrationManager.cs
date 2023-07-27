@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
@@ -8,12 +7,16 @@ using UnityEngine.Events;
 
 public class CalibrationManager : MonoBehaviour
 {
+    private static BrandManager brandManager => RootObject.Instance.brandManager;
+
     private static ImageTargetManagerWrapper imageTargetManager => RootObject.Instance.imageTargetManager;
 
+    private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
+
     private static float ANIMATION_TIME = 5f;
+    private static float IMAGE_TARGET_WIGTH = 0.19f;
 
     [SerializeField] private GameObject _calibrationImageTargetPrefab;
-    [SerializeField] private Texture2D _targetImage;
     [SerializeField] private UnityEvent _onCalibrationStarted = new UnityEvent();
     [SerializeField] private UnityEvent _onCalibrationCanceled = new UnityEvent();
     [SerializeField] private UnityEvent _onCalibrationFinished = new UnityEvent();
@@ -35,18 +38,30 @@ public class CalibrationManager : MonoBehaviour
     private bool _isRecalibration;
     private bool _isWaitingForImageTarget;
     private CalibrationTool _calibrationTool;
+    private Transform _arAnchor;
+    private GameObject _debugSphere;
 
-    public void Initialization()
+    public async Task<bool> InitializationAsync()
     {
+        var mainCamera = Camera.main;
+
+        if (!mainCamera)
+        {
+            Debug.Log("Can't find camera main");
+            return false;
+        }
+
         _anchor = CreateAnchor();
         _imageTargetModel = new ImageTargetModel
         {
             name = "calibrationImageTarget",
-            width = 0.3f,
-            texture2D = _targetImage,
+            width = IMAGE_TARGET_WIGTH,
+            texture2D = brandManager.CalibrationMarker,
             prefab = _calibrationImageTargetPrefab,
             useLimitedTracking = false,
         };
+
+        return true;
     }
 
     public void EnableCalibration(bool isRecalibration = false)
@@ -175,8 +190,40 @@ public class CalibrationManager : MonoBehaviour
 
     private void UpdateAnchorPosition()
     {
-        _anchor.transform.position = _calibrationTool.transform.position;
-        //_anchor.transform.rotation = Quaternion.AngleAxis(_calibrationTool.transform.rotation.eulerAngles.y, Vector3.up);
+        var eulerAngles = _calibrationTool.transform.eulerAngles;
+        var rotation = new Vector3(0, eulerAngles.x + eulerAngles.y + eulerAngles.z - 90f, 0);
+        var position = _calibrationTool.transform.position;
+
+        var arAnchor = floorManager.CreateAnchor(new Pose(position, Quaternion.Euler(rotation)));
+
+        if (!arAnchor)
+        {
+            Debug.LogError("Can't create arAnchor");
+            return;
+        }
+
+        if (DBManager.developMode)
+        {
+            if (_debugSphere)
+            {
+                Destroy(_debugSphere);
+            }
+
+            _debugSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            _debugSphere.transform.position = _calibrationTool.transform.position;
+            _debugSphere.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
+        }
+
+        _anchor.SetParent(arAnchor.transform);
+        _anchor.localPosition = Vector3.zero;
+        _anchor.localRotation = Quaternion.identity;
+
+        if (_arAnchor)
+        {
+            Destroy(_arAnchor.gameObject);
+        }
+
+        _arAnchor = arAnchor;
     }
 
     private static Transform CreateAnchor()
@@ -187,11 +234,13 @@ public class CalibrationManager : MonoBehaviour
         anchorTransform.rotation = Quaternion.identity;
         anchorTransform.localScale = Vector3.one;
 
-#if UNITY_EDITOR
-        var capsule = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-        capsule.transform.SetParent(anchorTransform, true);
-        capsule.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-#endif
+        if (DBManager.developMode)
+        {
+            var capsule = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            capsule.transform.SetParent(anchorTransform, true);
+            capsule.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
+        }
+
         return anchorTransform;
     }
 }

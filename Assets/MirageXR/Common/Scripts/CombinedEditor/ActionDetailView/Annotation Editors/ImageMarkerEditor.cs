@@ -189,8 +189,17 @@ public class ImageMarkerEditor : MonoBehaviour
         Debug.Log("Annotation to edit: " + annotationToEdit.predicate);
 
         annotationToEdit.url = "resources://" + saveFileName;
-        float s = float.Parse(Size.text) / 100;
-        annotationToEdit.scale = s;
+        float size;
+        if (Size.text == "")
+        {
+            size = 1f;
+        }
+        else
+        {
+            size = float.Parse(Size.text) / 100;
+        }
+
+        annotationToEdit.scale = size;
 
         EventManager.ActivateObject(annotationToEdit);
         EventManager.NotifyActionModified(action);

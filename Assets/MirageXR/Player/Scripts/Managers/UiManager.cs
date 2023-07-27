@@ -9,6 +9,7 @@ namespace MirageXR
     public class UiManager : MonoBehaviour
     {
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static CalibrationManager calibrationManager => RootObject.Instance.calibrationManager;
 
         [SerializeField] private bool IsMenuVisible;
         private bool _inAction;
@@ -271,6 +272,11 @@ namespace MirageXR
                 // Maggie.Speak("Workplace anchors have not been calibrated. Please run the calibration before starting the activity.");
                 CreateCalibrationGuide();
 
+                if (PlatformManager.Instance.WorldSpaceUi)
+                {
+                    RootObject.Instance.calibrationManager.EnableCalibration();
+                }
+
                 // Hile loading text
                 Loading.Instance.LoadingVisibility(false);
             }
@@ -281,7 +287,6 @@ namespace MirageXR
         private void ActivityStarted()
         {
             //WelcomeMessage = activityManager.Activity;
-            RootObject.Instance.calibrationManager.DisableCalibration();
 
             switch (PlayerPrefs.GetString("uistyle"))
             {

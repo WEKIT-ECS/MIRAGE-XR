@@ -51,7 +51,10 @@ public class GhostRecorder
     {
         ghostDataFrames = null;
 
-        if (!File.Exists(filePath)) return false;
+        if (!File.Exists(filePath))
+        {
+            return false;
+        }
 
         using (var file = File.Open(filePath, FileMode.Open))
         using (TextReader textReader = new StreamReader(file))
@@ -107,7 +110,7 @@ public class GhostRecorder
     {
         while (!_cancellationTokenSource.IsCancellationRequested)
         {
-            rec();
+            RecordFrame();
             try
             {
                 await Task.Delay(_cooldown, _cancellationTokenSource.Token);
@@ -116,20 +119,22 @@ public class GhostRecorder
         }
     }
 
-    private void rec()
+    private void RecordFrame()
     {
-        if (!_isRecording) return;
+        if (!_isRecording)
+        {
+            return;
+        }
 
         var cameraRotation = _cameraTransform.rotation;
-        var defaultRotation = Quaternion.Inverse(_anchor.localRotation) * cameraRotation;
 
         _lastFrame = new GhostDataFrame
         {
-            head = CreateLocalPose(_anchor, GetHeadPosition(_cameraTransform), defaultRotation),
-            rightHand = CreateLocalPose(_anchor, GetRightHandPosition(_cameraTransform), defaultRotation),
-            leftHand = CreateLocalPose(_anchor, GetLeftHandPosition(_cameraTransform), defaultRotation),
-            upperSpine = CreateLocalPose(_anchor, GetUpperSpinPosition(_cameraTransform), defaultRotation),
-            lowerSpine = CreateLocalPose(_anchor, GetLowerSpinPosition(_cameraTransform), defaultRotation)
+            head = CreateLocalPose(_anchor, GetHeadPosition(_cameraTransform), cameraRotation),
+            rightHand = CreateLocalPose(_anchor, GetRightHandPosition(_cameraTransform), cameraRotation),
+            leftHand = CreateLocalPose(_anchor, GetLeftHandPosition(_cameraTransform), cameraRotation),
+            upperSpine = CreateLocalPose(_anchor, GetUpperSpinPosition(_cameraTransform), cameraRotation),
+            lowerSpine = CreateLocalPose(_anchor, GetLowerSpinPosition(_cameraTransform), cameraRotation),
         };
 
         if (InputRayUtils.TryGetHandRay(Handedness.Right, out var rightHandRay))
@@ -152,7 +157,7 @@ public class GhostRecorder
         return new Pose
         {
             position = anchor.InverseTransformPoint(position),
-            rotation = Quaternion.Inverse(anchor.localRotation) * rotation
+            rotation = Quaternion.Inverse(anchor.parent.localRotation) * rotation,
         };
     }
 
@@ -163,21 +168,21 @@ public class GhostRecorder
 
     private static Vector3 GetRightHandPosition(Transform camera)
     {
-        return camera.position + camera.forward * 0.15f + camera.right * 0.35f + camera.up * -0.35f;
+        return camera.position + (camera.forward * 0.15f) + (camera.right * 0.35f) + (camera.up * -0.35f);
     }
 
     private static Vector3 GetLeftHandPosition(Transform camera)
     {
-        return camera.position + camera.forward * 0.15f + camera.right * -0.35f + camera.up * -0.35f;
+        return camera.position + (camera.forward * 0.15f) + (camera.right * -0.35f) + (camera.up * -0.35f);
     }
 
     private static Vector3 GetUpperSpinPosition(Transform camera)
     {
-        return camera.position + camera.up * -0.2f;
+        return camera.position + (camera.up * -0.2f);
     }
 
     private static Vector3 GetLowerSpinPosition(Transform camera)
     {
-        return camera.position + camera.up * -0.45f;
+        return camera.position + (camera.up * -0.45f);
     }
 }

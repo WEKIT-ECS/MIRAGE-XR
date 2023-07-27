@@ -5,6 +5,8 @@ namespace MirageXR
 {
     public class TaskStationStateController : MonoBehaviour
     {
+        private static BrandManager brandManager => RootObject.Instance.brandManager;
+
         [SerializeField] private Renderer taskStationRenderer;
 
         private string actionId;
@@ -57,7 +59,7 @@ namespace MirageXR
             if (IsCurrent())
             {
                 gameObject.SetActive(true);
-                taskStationColor = BrandManager.Instance.GetTaskStationColor();
+                taskStationColor = brandManager.TaskStationColor;
                 if (TaskStationDetailMenu.Instance)
                 {
                     TaskStationDetailMenu.Instance.ResetTaskStationMenu(this);
@@ -66,7 +68,7 @@ namespace MirageXR
             else if (IsNext())
             {
                 gameObject.SetActive(true);
-                taskStationColor = BrandManager.Instance.GetNextPathColor();
+                taskStationColor = brandManager.NextPathColor;
             }
             else
             {

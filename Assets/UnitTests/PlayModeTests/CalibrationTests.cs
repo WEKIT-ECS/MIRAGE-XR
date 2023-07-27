@@ -436,7 +436,6 @@ namespace Tests
             Assert.AreEqual(testDetectCount, actlDetectCount);
         }
 
-
         [UnityTest, Order(4)]
         public IEnumerator FocusOnDetectables_CheckLocalPositions_x()
         {
@@ -444,9 +443,9 @@ namespace Tests
 
             for (int d = 0; d < rootObject.workplaceManager.workplace.detectables.Count; d++)
             {
-                float testDetectablePosition = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).x;
-                Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).localPosition);
-                float actualLocalPositionComponent = objectInWorld.x;
+                var testDetectablePosition = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).x;
+                var position = detectableContainer.transform.GetChild(d).localPosition;
+                var actualLocalPositionComponent = position.x;
 
                 Assert.AreEqual(testDetectablePosition, actualLocalPositionComponent, 0.001f);
             }
@@ -459,9 +458,9 @@ namespace Tests
 
             for (int d = 0; d < rootObject.workplaceManager.workplace.detectables.Count; d++)
             {
-                float testDetectablePosition = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).y;
-                Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).localPosition);
-                float actualLocalPositionComponent = objectInWorld.y;
+                var testDetectablePosition = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).y;
+                var position = detectableContainer.transform.GetChild(d).localPosition;
+                var actualLocalPositionComponent = position.y;
 
                 Assert.AreEqual(testDetectablePosition, actualLocalPositionComponent, 0.001f);
             }
@@ -475,8 +474,8 @@ namespace Tests
             for (int d = 0; d < rootObject.workplaceManager.workplace.detectables.Count; d++)
             {
                 float testDetectablePosition = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).z;
-                Vector3 objectInWorld = WorldTestOrigin.InverseTransformPoint(detectableContainer.transform.GetChild(d).localPosition);
-                float actualLocalPositionComponent = objectInWorld.z;
+                var position = detectableContainer.transform.GetChild(d).localPosition;
+                var actualLocalPositionComponent = position.z;
 
                 Assert.AreEqual(testDetectablePosition, actualLocalPositionComponent, 0.001f);
             }
@@ -489,16 +488,9 @@ namespace Tests
 
             for (int d = 0; d < rootObject.workplaceManager.workplace.detectables.Count; d++)
             {
-                // examine test script for expected value
-                Vector3 testDetectableRotation = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_rotation);
-
-                // calculate the relative position of the detectable
-                Quaternion objectInWorld = Quaternion.Inverse(WorldTestOrigin.rotation) * detectableContainer.transform.GetChild(d).localRotation;
-
-                // use the euler angle representation for comparison
-                Vector3 actualDetectableRotation = objectInWorld.eulerAngles;
-
-                // check the euler angular separation (cannot just compare numbers!)
+                var testDetectableRotation = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_rotation);
+                var localRotation = detectableContainer.transform.GetChild(d).localRotation;
+                var actualDetectableRotation = localRotation.eulerAngles;
                 Assert.IsTrue(Utilities.EulerAnglesAreTheSame(testDetectableRotation, actualDetectableRotation, 0.01f));
             }
         }
