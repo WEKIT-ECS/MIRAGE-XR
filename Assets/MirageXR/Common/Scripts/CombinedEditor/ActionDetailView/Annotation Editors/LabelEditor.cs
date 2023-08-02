@@ -69,7 +69,7 @@ namespace MirageXR
                 var stepNumber = trigger != null ? trigger.value : "1";
                 stepTrigger.Initiate(annotationToEdit, duration, stepNumber);
 
-                if (annotationToEdit.option != null)
+                if (annotationToEdit.option != "")
                 {
                     string[] splitArray = annotationToEdit.option.Split(char.Parse("-"));
 

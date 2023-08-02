@@ -67,7 +67,7 @@ namespace MirageXR
                 gameObject.AddComponent<Billboard>();
             }
 
-            if (obj.option != null)
+            if (obj.option != "")
             {
                 string[] splitArray = obj.option.Split(char.Parse("-"));
 
