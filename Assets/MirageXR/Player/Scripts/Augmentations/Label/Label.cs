@@ -15,6 +15,7 @@ namespace MirageXR
         private GameObject textLabel;
         private static TMP_Text textbox; // the label textMesh
         private Image _triggerIcon;
+        private Image _labelBackground;
 
         private ToggleObject _myAnnotation;
 
@@ -66,6 +67,16 @@ namespace MirageXR
                 gameObject.AddComponent<Billboard>();
             }
 
+            if (obj.option != null)
+            {
+                string[] splitArray = obj.option.Split(char.Parse("-"));
+
+                textbox.fontSize = int.Parse(splitArray[0]);
+
+                textbox.color = GetColorFromString(splitArray[1]);
+                _labelBackground.color = GetColorFromString(splitArray[2]);
+            }
+
             // Set scaling if defined in action configuration.
             var myPoiEditor = transform.parent.gameObject.GetComponent<PoiEditor>();
             transform.parent.localScale = GetPoiScale(myPoiEditor, Vector3.one);
@@ -87,7 +98,15 @@ namespace MirageXR
             }
 
             textbox = textLabel.GetComponentInChildren<TMP_Text>();
+            _labelBackground = textLabel.GetComponentInChildren<Image>();
         }
 
+        private Color GetColorFromString(string rgb)
+        {
+            string[] rgba = rgb.Substring(5, rgb.Length - 6).Split(", ");
+            Color color = new Color(float.Parse(rgba[0]), float.Parse(rgba[1]), float.Parse(rgba[2]), float.Parse(rgba[3]));
+
+            return color;
+        }
     }
 }
