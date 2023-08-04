@@ -110,6 +110,7 @@ public class LabelEditorView : PopupEditorBase
                 _exampleLabelBackground.color = GetColorFromString(splitArray[2]);
             }
         }
+        UpdateButtonColours();
     }
 
     private void InitClampedScrollRect(ClampedScrollRect clampedScrollRect, GameObject templatePrefab, int maxCount, string text)
@@ -237,6 +238,7 @@ public class LabelEditorView : PopupEditorBase
     public void OnFontColourChange()
     {
         // _colourPickerObject.SetActive(true);
+        _settingsPannel.SetActive(false);
         _colourPickerScript.Open();
         _colourPickerOption = ColourPickerOption.Font;
     }
@@ -244,6 +246,7 @@ public class LabelEditorView : PopupEditorBase
     public void OnBackgroundColourChanged()
     {
         //_colourPickerObject.SetActive(true);
+        _settingsPannel.SetActive(false);
         _colourPickerScript.Open();
         _colourPickerOption = ColourPickerOption.Background;
     }
@@ -263,6 +266,7 @@ public class LabelEditorView : PopupEditorBase
         }
 
         UpdateButtonColours();
+        _settingsPannel.SetActive(true);
 
         _colourPickerOption = ColourPickerOption.NA;
     }
