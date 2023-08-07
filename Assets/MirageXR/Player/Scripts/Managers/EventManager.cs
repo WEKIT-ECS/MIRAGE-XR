@@ -850,5 +850,14 @@ namespace MirageXR
         {
             OnPickPlacedCorrectly?.Invoke();
         }
+
+        public delegate void AugmentationLocked(string id, bool locked);
+
+        public static event AugmentationLocked OnAugmentationLocked;
+
+        public static void NotifyAugmentationLocked(string id, bool locked)
+        {
+            OnAugmentationLocked?.Invoke(id, locked);
+        }
     }
 }
