@@ -34,7 +34,7 @@ public class AnnotationListItem : MonoBehaviour
 
     private void Start()
     {
-        OnEditModeChanged(activityManager.EditModeActive);
+        //OnEditModeChanged(activityManager.EditModeActive);
 
         startStepInput.onEndEdit.AddListener(delegate { AdjustPoiLifetime(); });
         endStepInput.onEndEdit.AddListener(delegate { AdjustPoiLifetime(); });
@@ -45,6 +45,7 @@ public class AnnotationListItem : MonoBehaviour
     private void OnEnable()
     {
         EventManager.OnEditModeChanged += OnEditModeChanged;
+
         OnEditModeChanged(activityManager.EditModeActive);
     }
 
@@ -57,7 +58,13 @@ public class AnnotationListItem : MonoBehaviour
     {
         button.interactable = editModeActive;
         targetIcon.GetComponent<Button>().interactable = editModeActive;
-        lockIcon.SetActive(editModeActive);
+        if (DisplayedAnnotation != null)
+        {
+            if (SetLockActive())
+            {
+                lockIcon.SetActive(editModeActive);
+            }
+        }
     }
 
     public void SetUp(ActionDetailView parentView, ToggleObject annotation)
@@ -82,6 +89,7 @@ public class AnnotationListItem : MonoBehaviour
         endStepInput.text = (lastStep + 1).ToString();
 
         targetIcon.SetActive(DisplayedAnnotation.state == "target");
+        lockIcon.SetActive(SetLockActive());
     }
 
 
@@ -132,5 +140,37 @@ public class AnnotationListItem : MonoBehaviour
     {
         OnAnnotationItemClicked?.Invoke(DisplayedAnnotation);
         TaskStationDetailMenu.Instance.SelectedButton = GetComponent<Button>();
+    }
+
+    private bool SetLockActive()
+    {
+        bool lockIconOn;
+
+        switch (DisplayedAnnotation.predicate)
+        {
+            case string a when a.Contains("label"):
+                lockIconOn = true;
+                break;
+            case string a when a.Contains("effect"):
+                lockIconOn = true;
+                break;
+            case string a when a.Contains("act"):
+                lockIconOn = true;
+                break;
+            case string a when a.Contains("image"):
+                lockIconOn = true;
+                break;
+            case string a when a.Contains("video"):
+                lockIconOn = true;
+                break;
+            case string a when a.Contains("model"):
+                lockIconOn = true;
+                break;
+            default:
+                lockIconOn = false;
+                break;
+        }
+
+        return lockIconOn;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using i5.Toolkit.Core.VerboseLogging;
+using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using UnityEngine;
 
@@ -7,7 +8,7 @@ namespace MirageXR
     public class GlyphItems : MirageXRPrefab
     {
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
-        private ToggleObject myObj;
+        private ToggleObject _obj;
         [SerializeField] private GameObject icon;
 
         private void OnEnable()
@@ -18,6 +19,7 @@ namespace MirageXR
         private void OnDisable()
         {
             EventManager.OnEditModeChanged -= SetEditorState;
+            EventManager.OnAugmentationLocked -= OnLock;
         }
 
         private void Start()
@@ -32,16 +34,12 @@ namespace MirageXR
                 icon.SetActive(editModeActive);
             }
 
-            var boundsControl = GetComponent<BoundsControl>();
-            if (boundsControl != null)
-            {
-                boundsControl.Active = editModeActive;
-            }
+            SetBoundsControl(editModeActive);
         }
 
         public override bool Init(ToggleObject obj)
         {
-            myObj = obj;
+            _obj = obj;
 
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
@@ -54,8 +52,31 @@ namespace MirageXR
             obj.text = name;
             transform.localScale = obj.scale != 0 ? new Vector3(obj.scale, obj.scale, obj.scale) : Vector3.one;
 
+            OnLock(_obj.poi, _obj.positionLock);
+            EventManager.OnAugmentationLocked += OnLock;
+
             // If everything was ok, return base result.
             return base.Init(obj);
+        }
+
+        private void OnLock(string id, bool locked)
+        {
+            if (id == _obj.poi)
+            {
+                _obj.positionLock = locked;
+
+                SetBoundsControl(!_obj.positionLock);
+                this.GetComponentInParent<ObjectManipulator>().enabled = !_obj.positionLock;
+            }
+        }
+
+        private void SetBoundsControl(bool bounds)
+        {
+            var boundsControl = GetComponent<BoundsControl>();
+            if (boundsControl != null)
+            {
+                boundsControl.Active = bounds;
+            }
         }
     }
 }
