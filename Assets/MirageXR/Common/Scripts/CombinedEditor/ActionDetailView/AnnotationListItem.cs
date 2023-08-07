@@ -9,6 +9,7 @@ public class AnnotationListItem : MonoBehaviour
     [SerializeField] private InputField startStepInput;
     [SerializeField] private InputField endStepInput;
     [SerializeField] private GameObject targetIcon;
+    [SerializeField] private GameObject lockIcon;
 
     private Button button;
 
@@ -56,6 +57,7 @@ public class AnnotationListItem : MonoBehaviour
     {
         button.interactable = editModeActive;
         targetIcon.GetComponent<Button>().interactable = editModeActive;
+        lockIcon.SetActive(editModeActive);
     }
 
     public void SetUp(ActionDetailView parentView, ToggleObject annotation)
