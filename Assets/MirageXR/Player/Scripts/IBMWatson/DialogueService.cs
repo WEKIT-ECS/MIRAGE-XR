@@ -232,6 +232,23 @@ public class DialogueService : MonoBehaviour
                             var charName = _character.name.Contains(":") ? _character.name.Split(':')[1] : _character.name;
                             res = res.Replace("%%charactername%%", charName);
                         }
+                        else if (res.Contains("%%triggerstep%%"))
+                        {
+                            string[] splitArray = res.Split(char.Parse("%%"));
+
+                            res = res.Replace("%%triggerstep%%", " ");
+                            dAImgr.mySpeechInputMgr.Active = false;
+                            dAImgr.triggerStep = true;
+
+                            if (int.TryParse(splitArray[3], out int step))
+                            {
+                                dAImgr.triggerStepNo = step;
+                            }
+                            else
+                            {
+                                Debug.Log("Error getting step number, check format");
+                            }
+                        }
                         else if (res.Contains("%%trigger%%"))
                         {
                             res = res.Replace("%%trigger%%", " ");
