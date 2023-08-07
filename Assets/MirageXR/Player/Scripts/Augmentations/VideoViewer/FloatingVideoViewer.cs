@@ -1,5 +1,7 @@
 ﻿using i5.Toolkit.Core.ServiceCore;
 using i5.Toolkit.Core.VerboseLogging;
+using Microsoft.MixedReality.Toolkit.UI;
+using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Collections;
 using System.IO;
 using UnityEngine;
@@ -164,6 +166,9 @@ namespace MirageXR
             {
                 _audioSource.Play();
             }
+
+            OnLock(_obj.poi, _obj.positionLock);
+            EventManager.OnAugmentationLocked += OnLock;
 
             // Check if trigger is active
             StartCoroutine(ActivateTrigger());
@@ -557,6 +562,21 @@ namespace MirageXR
                 if (_thinLine != null)
                     _thinLine.SetActive(_originalGuideState);
             }
+        }
+
+        private void OnLock(string id, bool locked)
+        {
+            if (id == _obj.poi)
+            {
+                _obj.positionLock = locked;
+                this.GetComponentInParent<ObjectManipulator>().enabled = !_obj.positionLock;
+                this.GetComponentInParent<BoundsControl>().enabled = !_obj.positionLock;
+            }
+        }
+
+        private void OnDisable()
+        {
+            EventManager.OnAugmentationLocked -= OnLock;
         }
     }
 }

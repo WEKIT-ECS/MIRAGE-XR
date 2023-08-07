@@ -15,7 +15,7 @@ namespace MirageXR
         private static Text textbox; // the label textMesh
         private Image _triggerIcon;
 
-        private ToggleObject _myAnnotation;
+        private ToggleObject _obj;
 
         /// <summary>
         /// Initialization method.
@@ -38,7 +38,7 @@ namespace MirageXR
                 return false;
             }
 
-            _myAnnotation = obj;
+            _obj = obj;
 
             // Set name.
             name = $"{obj.predicate}_{obj.text.Split(' ')[0]}";
@@ -69,6 +69,9 @@ namespace MirageXR
             var myPoiEditor = transform.parent.gameObject.GetComponent<PoiEditor>();
             transform.parent.localScale = GetPoiScale(myPoiEditor, Vector3.one);
 
+            OnLock(_obj.poi, _obj.positionLock);
+            EventManager.OnAugmentationLocked += OnLock;
+
             // If everything was ok, return base result.
             return base.Init(obj);
         }
@@ -79,7 +82,7 @@ namespace MirageXR
             {
                 textLabel = Instantiate(TextLabelPrefab);
                 _triggerIcon = textLabel.GetComponentsInChildren<Image>()[1]; // TODO: possible NRE
-                if (_triggerIcon && RootObject.Instance.activityManager.ActiveAction.triggers.Find(t => t.id == _myAnnotation.poi) != null)
+                if (_triggerIcon && RootObject.Instance.activityManager.ActiveAction.triggers.Find(t => t.id == _obj.poi) != null)
                 {
                     _triggerIcon.enabled = true;
                 }
@@ -88,5 +91,23 @@ namespace MirageXR
             textbox = textLabel.GetComponentInChildren<Text>();
         }
 
+        private void OnLock(string id, bool locked)
+        {
+            if (id == _obj.poi)
+            {
+                _obj.positionLock = locked;
+
+                var objectManiulator = this.GetComponentInParent<ObjectManipulator>();
+                if (objectManiulator)
+                {
+                    objectManiulator.enabled = !_obj.positionLock;
+                }
+            }
+        }
+
+        private void OnDisable()
+        {
+            EventManager.OnAugmentationLocked -= OnLock;
+        }
     }
 }
