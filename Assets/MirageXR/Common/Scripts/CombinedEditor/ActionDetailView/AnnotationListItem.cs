@@ -148,22 +148,22 @@ public class AnnotationListItem : MonoBehaviour
 
         switch (DisplayedAnnotation.predicate)
         {
-            case string a when a.Contains("label"):
+            case string a when a.StartsWith("label"):
                 lockIconOn = true;
                 break;
-            case string a when a.Contains("effect"):
+            case string a when a.StartsWith("effect"):
                 lockIconOn = true;
                 break;
-            case string a when a.Contains("act"):
+            case string a when a.StartsWith("act"):
                 lockIconOn = true;
                 break;
-            case string a when a.Contains("image"):
+            case string a when a.StartsWith("image"):
                 lockIconOn = true;
                 break;
-            case string a when a.Contains("video"):
+            case string a when a.StartsWith("video"):
                 lockIconOn = true;
                 break;
-            case string a when a.Contains("model"):
+            case string a when a.StartsWith("3d"):
                 lockIconOn = true;
                 break;
             default:

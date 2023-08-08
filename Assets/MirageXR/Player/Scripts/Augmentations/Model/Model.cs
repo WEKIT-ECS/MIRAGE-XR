@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using UnityEngine;
-using Siccity.GLTFUtility;
-using i5.Toolkit.Core.VerboseLogging;
+﻿using i5.Toolkit.Core.VerboseLogging;
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
+using Siccity.GLTFUtility;
+using System.Collections.Generic;
+using System.IO;
+using UnityEngine;
 
 namespace MirageXR
 {
     public class Model : MirageXRPrefab
-    { 
+    {
         private static ActivityManager _activityManager => RootObject.Instance.activityManager;
 
         private float startLoadTime = 0.0f;
@@ -197,6 +197,8 @@ namespace MirageXR
                     gridManager.onTranslateStopped?.Invoke(boundsControl.Target);
                     poiEditor.OnChanged();
                 });
+
+                boundsControl.enabled = !_obj.positionLock;
             }
         }
 
@@ -341,8 +343,21 @@ namespace MirageXR
             if (id == _obj.poi)
             {
                 _obj.positionLock = locked;
-                this.GetComponentInParent<ObjectManipulator>().enabled = !_obj.positionLock;
-                this.GetComponentInParent<BoundsControl>().enabled = !_obj.positionLock;
+
+                var bounds = this.GetComponentInParent<BoundsControl>();
+
+                if (bounds != null)
+                {
+                    this.GetComponentInParent<BoundsControl>().enabled = !_obj.positionLock;
+                }
+
+                var objectManipulator = this.GetComponentInParent<ObjectManipulator>();
+
+                if (objectManipulator != null)
+                {
+                    this.GetComponentInParent<ObjectManipulator>().enabled = !_obj.positionLock;
+
+                }
             }
         }
 
