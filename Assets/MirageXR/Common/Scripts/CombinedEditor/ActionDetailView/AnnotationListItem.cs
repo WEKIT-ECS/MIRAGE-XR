@@ -144,33 +144,29 @@ public class AnnotationListItem : MonoBehaviour
 
     private bool SetLockActive()
     {
-        bool lockIconOn;
-
         switch (DisplayedAnnotation.predicate)
         {
             case string a when a.StartsWith("label"):
-                lockIconOn = true;
+                return true;
                 break;
             case string a when a.StartsWith("effect"):
-                lockIconOn = true;
+                return true;
                 break;
             case string a when a.StartsWith("act"):
-                lockIconOn = true;
+                return true;
                 break;
             case string a when a.StartsWith("image"):
-                lockIconOn = true;
+                return true;
                 break;
             case string a when a.StartsWith("video"):
-                lockIconOn = true;
+                return true;
                 break;
             case string a when a.StartsWith("3d"):
-                lockIconOn = true;
+                return true;
                 break;
             default:
-                lockIconOn = false;
+                return false;
                 break;
         }
-
-        return lockIconOn;
     }
 }
