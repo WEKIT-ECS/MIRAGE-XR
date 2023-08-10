@@ -34,7 +34,7 @@ namespace MirageXR
             catch (Exception e)
             {
                 EventManager.DebugLog($"Error: Workplace manager: Couldn't create {debug}.");
-                AppLog.LogException(e);
+                Debug.LogException(e);
             }
 
             EventManager.DebugLog($"Workplace manager: {debug} created.");
@@ -52,7 +52,7 @@ namespace MirageXR
             catch (Exception e)
             {
                 EventManager.DebugLog($"Error: Workplace manager: Couldn't create {debug}.");
-                AppLog.LogException(e);
+                Debug.LogException(e);
             }
 
             EventManager.DebugLog($"Workplace manager: {debug} created.");
@@ -112,7 +112,7 @@ namespace MirageXR
                 {
                     Maggie.Speak("Error while trying to connect to sensor " + sensor.id);
                     EventManager.DebugLog("Error: Workplace manager: Couldn't create sensor objects.");
-                    AppLog.LogException(e);
+                    Debug.LogException(e);
                     throw;
                 }
             }
@@ -231,7 +231,7 @@ namespace MirageXR
                         {
                             // If sensor poi found, link sensor display to sensor poi.
                             sensor.GetComponent<DeviceMqttBehaviour>().LinkDisplay(sensorPoi.transform);
-                            AppLog.LogDebug("Sensor poi");
+                            Debug.LogDebug("Sensor poi");
                         }
 
                         else
@@ -239,14 +239,14 @@ namespace MirageXR
                             // If sensor poi not found, link to default poi.
                             var defaultPoi = GameObject.Find(thing.id + "/default");
                             sensor.GetComponent<DeviceMqttBehaviour>().LinkDisplay(defaultPoi.transform);
-                            AppLog.LogDebug("Default poi");
+                            Debug.LogDebug("Default poi");
                         }
                     }
                 }
                 catch (Exception e)
                 {
                     EventManager.DebugLog("Error: Workplace manager: Couldn't create thing object: " + thing.id);
-                    AppLog.LogException(e);
+                    Debug.LogException(e);
                     throw;
                 }
             }
@@ -352,7 +352,7 @@ namespace MirageXR
                 catch (Exception e)
                 {
                     EventManager.DebugLog("Error: Workplace manager: Couldn't create person objects.");
-                    AppLog.LogException(e);
+                    Debug.LogException(e);
                     throw;
                 }
             }
@@ -382,7 +382,7 @@ namespace MirageXR
                 catch (Exception e)
                 {
                     EventManager.DebugLog("Error: Workplace manager: Couldn't attach user to current device.");
-                    AppLog.LogException(e);
+                    Debug.LogException(e);
                     throw;
                 }
             }
@@ -398,7 +398,7 @@ namespace MirageXR
                 return;
             }
 
-            AppLog.LogInfo($"Creating Detectable Object:{detectable.id}\nPosition:{detectable.origin_position}\nRotation:{detectable.origin_rotation}");
+            Debug.LogInfo($"Creating Detectable Object:{detectable.id}\nPosition:{detectable.origin_position}\nRotation:{detectable.origin_rotation}");
 
             switch (detectable.type)
             {
@@ -447,11 +447,11 @@ namespace MirageXR
                 // Vuforia image targets.
                 case "image":
                 {
-                    AppLog.LogError("Support for Vuforia image targets has been removed");
+                    Debug.LogError("Support for Vuforia image targets has been removed");
 
                     /*var path = Path.Combine(Application.persistentDataPath, workplaceManager.workplace.id, "/detectables/", detectable.id, detectable.id, ".xml");
 
-                    AppLog.LogDebug("VUFORIA PATH: " + path);
+                    Debug.LogDebug("VUFORIA PATH: " + path);
 
                     // Check that we have the data set file.
                     if (!DataSet.Exists(path, VuforiaUnity.StorageType.STORAGE_ABSOLUTE))
@@ -651,7 +651,7 @@ namespace MirageXR
                 }
                 else
                 {
-                    AppLog.LogError("Problem interpreting rotation value");
+                    Debug.LogError("Problem interpreting rotation value");
                 }
             }
 
@@ -663,7 +663,7 @@ namespace MirageXR
                 }
                 else
                 {
-                    AppLog.LogError("Problem interpreting poi scale value");
+                    Debug.LogError("Problem interpreting poi scale value");
                 }
             }
 

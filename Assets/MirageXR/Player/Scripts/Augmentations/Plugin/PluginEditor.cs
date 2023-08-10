@@ -67,7 +67,7 @@ namespace MirageXR
                 var rect = new Rect(0, 0, pluginTex.width, pluginTex.height);
                 var pivot = new Vector2(0.5f, 0.5f);
 
-                AppLog.LogDebug("Plugin Name: " + plugin.name);
+                Debug.LogDebug("Plugin Name: " + plugin.name);
 
                 var icon = Instantiate(iconPrefab, Vector3.zero, Quaternion.identity);
                 icon.transform.FindDeepChild("Image").GetComponent<Image>().sprite = Sprite.Create(pluginTex, rect, pivot);
@@ -108,7 +108,7 @@ namespace MirageXR
             _action.appIDs.Add(plugin.id);
 
 
-            AppLog.LogDebug("ACTION ID = " + _annotationToEdit.url);
+            Debug.LogDebug("ACTION ID = " + _annotationToEdit.url);
 
             EventManager.ActivateObject(_annotationToEdit);
             EventManager.NotifyActionModified(_action);

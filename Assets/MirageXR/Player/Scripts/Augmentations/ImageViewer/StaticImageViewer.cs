@@ -32,7 +32,7 @@ namespace MirageXR
             {
                 string dataPath = Application.persistentDataPath;
                 string completeImageName = "file://" + dataPath + "/" + ImageName;
-                AppLog.LogTrace("Trying to load static image from:" + completeImageName);
+                Debug.LogTrace("Trying to load static image from:" + completeImageName);
                 WWW www = new WWW(completeImageName);
                 yield return www;
                 Texture2D imageTex = new Texture2D(4, 4, TextureFormat.DXT1, false);
@@ -47,7 +47,7 @@ namespace MirageXR
 
                 var completeImageName = $"file://{RootObject.Instance.activityManager.ActivityPath}/{filename}";
 
-                AppLog.LogTrace("Trying to load image from:" + completeImageName);
+                Debug.LogTrace("Trying to load image from:" + completeImageName);
 
                 WWW www = new WWW(completeImageName);
                 yield return www;

@@ -20,13 +20,13 @@ namespace MirageXR
         {
             if (string.IsNullOrEmpty(target))
             {
-                AppLog.LogWarning("Message target not set.");
+                Debug.LogWarning("Message target not set.");
                 return;
             }
 
             if (string.IsNullOrEmpty(message))
             {
-                AppLog.LogWarning("Message text not set.");
+                Debug.LogWarning("Message text not set.");
                 return;
             }
 
