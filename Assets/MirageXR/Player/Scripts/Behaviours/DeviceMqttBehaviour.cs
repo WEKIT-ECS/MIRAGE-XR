@@ -106,7 +106,7 @@ public class DeviceMqttBehaviour : MonoBehaviour
             try
             {
                 await _mqtt.ConnectAsync(url, port, _sensor.username, _sensor.password, clientId);
-                AppLog.LogInfo(_sensor.id + " connected.");
+                Debug.LogInfo(_sensor.id + " connected.");
             }
             catch
             {
@@ -120,7 +120,7 @@ public class DeviceMqttBehaviour : MonoBehaviour
             try
             {
                 await _mqtt.ConnectAsync(url, port, _sensor.username, _sensor.password, clientId);
-                AppLog.LogInfo(_sensor.id + " connected.");
+                Debug.LogInfo(_sensor.id + " connected.");
             }
             catch
             {
@@ -150,7 +150,7 @@ public class DeviceMqttBehaviour : MonoBehaviour
 
     private async void ConnectionEstablishedRoutine()
     {
-        AppLog.LogInfo("Connection established.");
+        Debug.LogInfo("Connection established.");
         // Instantiate a sensor container.
 
         // _sensorDisplay.name = _sensor.id;

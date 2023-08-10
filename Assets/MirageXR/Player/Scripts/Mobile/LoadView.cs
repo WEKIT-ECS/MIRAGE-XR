@@ -15,7 +15,7 @@ public class LoadView : MonoBehaviour
     {
         if (Instance != null)
         {
-            AppLog.LogError($"{nameof(LoadView)} must only be a single copy!");
+            Debug.LogError($"{nameof(LoadView)} must only be a single copy!");
             return;
         }
 

@@ -87,14 +87,14 @@ namespace MirageXR
             // Check that url is not empty.
             if (string.IsNullOrEmpty(obj.url))
             {
-                AppLog.LogWarning("Content URL not provided.");
+                Debug.LogWarning("Content URL not provided.");
                 return false;
             }
 
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
-                AppLog.LogWarning("Couldn't set the parent.");
+                Debug.LogWarning("Couldn't set the parent.");
                 return false;
             }
 
@@ -148,7 +148,7 @@ namespace MirageXR
             }
             catch (Exception e)
             {
-                AppLog.LogError("An error occured during import of drawing file. Aborting. Error: " + e.Message);
+                Debug.LogError("An error occured during import of drawing file. Aborting. Error: " + e.Message);
                 return false;
             }
         }

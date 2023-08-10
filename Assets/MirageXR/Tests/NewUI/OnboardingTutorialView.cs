@@ -104,7 +104,7 @@ public class OnboardingTutorialView : PopupBase
                 _btnSkipTutorials.gameObject.SetActive(true);
                 break;
             default:
-                AppLog.LogError("Page View: Out of range");
+                Debug.LogError("Page View: Out of range");
                 break;
         }
 

@@ -32,7 +32,7 @@ namespace MirageXR
             }
             catch
             {
-                AppLog.LogError("SpriteToggle component missing in Lock for StepUnlockActivityMenu in Tutorial.");
+                Debug.LogError("SpriteToggle component missing in Lock for StepUnlockActivityMenu in Tutorial.");
                 ExitStep();
             }
 

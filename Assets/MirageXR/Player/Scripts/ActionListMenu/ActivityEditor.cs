@@ -138,7 +138,7 @@ public class ActivityEditor : MonoBehaviour
 
     public void OnEditToggleChanged(bool value)
     {
-        AppLog.LogDebug("Toggle changed " + value);
+        Debug.LogDebug("Toggle changed " + value);
         if (RootObject.Instance.activityManager != null)
         {
             RootObject.Instance.activityManager.EditModeActive = value;

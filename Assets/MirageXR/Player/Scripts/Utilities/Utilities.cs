@@ -168,7 +168,7 @@ namespace MirageXR
             }
             catch (Exception e)
             {
-                AppLog.LogException(e);
+                Debug.LogException(e);
                 return null;
             }
         }
@@ -242,7 +242,7 @@ namespace MirageXR
             var sameRotation = Mathf.Abs(difference) < tolerance;
             if (!sameRotation)
             {
-                AppLog.LogDebug("Angles not the same, separated by " + difference + " degrees");
+                Debug.LogDebug("Angles not the same, separated by " + difference + " degrees");
             }
 
             return sameRotation;
@@ -300,7 +300,7 @@ namespace MirageXR
             }
             catch (IOException e)
             {
-                AppLog.LogException(e);
+                Debug.LogException(e);
             }
         }
 
@@ -312,7 +312,7 @@ namespace MirageXR
             }
             catch (Exception e)
             {
-                AppLog.LogError(e.ToString());
+                Debug.LogError(e.ToString());
             }
         }
 

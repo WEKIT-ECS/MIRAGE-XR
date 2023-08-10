@@ -102,14 +102,14 @@ public class CalibrationManager : MonoBehaviour
             var value = await CreateCalibrationTool(isRecalibration);
             if (!value)
             {
-                AppLog.LogError("Unable to create imageTarget");
+                Debug.LogError("Unable to create imageTarget");
                 return;
             }
         }
 
         if (!InitCalibrationTool(_imageTarget))
         {
-            AppLog.LogError("Unable to create calibrationTool");
+            Debug.LogError("Unable to create calibrationTool");
             return;
         }
 
@@ -136,7 +136,7 @@ public class CalibrationManager : MonoBehaviour
         }
         catch (Exception e)
         {
-            AppLog.LogError(e.ToString());
+            Debug.LogError(e.ToString());
             return false;
         }
         finally
@@ -150,7 +150,7 @@ public class CalibrationManager : MonoBehaviour
         _calibrationTool = imageTarget.targetObject.GetComponent<CalibrationTool>();
         if (!_calibrationTool)
         {
-            AppLog.LogError($"{nameof(CalibrationTool)} cannot be found");
+            Debug.LogError($"{nameof(CalibrationTool)} cannot be found");
             return false;
         }
 

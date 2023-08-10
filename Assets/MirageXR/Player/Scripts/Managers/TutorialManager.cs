@@ -97,7 +97,7 @@ namespace MirageXR
         {
             if (Instance != null)
             {
-                AppLog.LogError($"{Instance.GetType().FullName} must only be a single copy!");
+                Debug.LogError($"{Instance.GetType().FullName} must only be a single copy!");
                 return;
             }
 
@@ -163,7 +163,7 @@ namespace MirageXR
             }
             else
             {
-                AppLog.LogError("Tried to start unknown tutorial type.");
+                Debug.LogError("Tried to start unknown tutorial type.");
             }
         }
 

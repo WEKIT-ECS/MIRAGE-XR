@@ -78,7 +78,7 @@ public class ActionListMenu : MonoBehaviour
             }
         }
 
-        AppLog.LogTrace("Action list menu start called");
+        Debug.LogTrace("Action list menu start called");
         EventManager.OnInitUi += Init;
         EventManager.OnActivateAction += OnActivateAction;
         EventManager.OnDeactivateAction += OnDeactivateAction;
