@@ -225,12 +225,43 @@ public class DialogueService : MonoBehaviour
                 try
                 {
                     var res = response.Result.Output.Generic[0].Text;
+
                     if (!string.IsNullOrEmpty(res))
                     {
                         if (res.Contains("%%charactername%%"))
                         {
                             var charName = _character.name.Contains(":") ? _character.name.Split(':')[1] : _character.name;
                             res = res.Replace("%%charactername%%", charName);
+                        }
+                        else if (res.Contains("%%trigger:step="))
+                        {
+                            int commandKeyCount = res.Split("%%").Length - 1;
+
+                            if (commandKeyCount == 2)
+                            {
+                                var keyEnd = res.IndexOf("%%trigger:step=") + "%%trigger:step=".Length;
+                                var stepNumberEnd = res.LastIndexOf("%%");
+
+                                var stepNumber = res.Substring(keyEnd, stepNumberEnd - keyEnd);
+
+                                res = res.Replace("%%trigger:step=" + stepNumber + "%%", " ");
+
+                                dAImgr.mySpeechInputMgr.Active = false;
+                                dAImgr.triggerStep = true;
+
+                                if (int.TryParse(stepNumber, out int step))
+                                {
+                                    dAImgr.triggerStepNo = step;
+                                }
+                                else
+                                {
+                                    Debug.LogError("Error getting step number, check the watson response format. For example %%trigger:step=2%% will trigger a jump to step 2.");
+                                }
+                            }
+                            else
+                            {
+                                Debug.LogError("Error, %% has been detected " + commandKeyCount.ToString() + " times. The %% can only be used at the begining and end of a comand. Please edit the watson response");
+                            }
                         }
                         else if (res.Contains("%%trigger%%"))
                         {
