@@ -23,6 +23,8 @@ public class DaimonManager : MonoBehaviour
     public bool check = false;
     public bool play = false;
     public bool triggerNext = false;
+    public bool triggerStep = false;
+    public int triggerStepNo = 0;
 
 
 
@@ -66,6 +68,12 @@ public class DaimonManager : MonoBehaviour
             {
                 triggerNext = false;
                 activityManager.ActivateNextAction();
+
+            }
+            if (triggerStep)
+            {
+                triggerStep = false;
+                activityManager.ActivateActionByIndex(triggerStepNo);
             }
 
             //Now let's start listening again.....

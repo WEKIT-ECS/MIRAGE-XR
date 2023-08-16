@@ -595,8 +595,15 @@ namespace MirageXR
 
         public async Task ActivateActionByIndex(int index)
         {
-            await DeactivateAction(ActiveAction.id, true);
-            await ActivateAction(ActionsOfTypeAction[index].id);
+            if (Activity.actions.Count - 1 < index || index < 0)
+            {
+                await DeactivateAction(ActiveAction.id, true);
+                await ActivateAction(ActionsOfTypeAction[index].id);
+            }
+            else
+            {
+                Debug.LogError("Step index" + index.ToString() + " does not exist");
+            }
         }
 
         public async Task ActivateActionByID(string id)
