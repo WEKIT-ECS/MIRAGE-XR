@@ -104,10 +104,5 @@ namespace MirageXR
                 }
             }
         }
-
-        private void OnDisable()
-        {
-            EventManager.OnAugmentationLocked -= OnLock;
-        }
     }
 }
