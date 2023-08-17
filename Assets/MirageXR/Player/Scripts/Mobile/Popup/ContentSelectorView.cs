@@ -42,7 +42,7 @@ public class ContentSelectorView : PopupBase
         var editor = _editors.FirstOrDefault(t => t.editorForType == type);
         if (editor == null)
         {
-            AppLog.LogError($"there is no editor for the type {type}");
+            Debug.LogError($"there is no editor for the type {type}");
             return;
         }
         PopupsViewer.Instance.Show(editor, _currentStep);

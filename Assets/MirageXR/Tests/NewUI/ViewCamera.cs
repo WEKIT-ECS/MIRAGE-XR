@@ -38,7 +38,7 @@ namespace MirageXR
                     break;
                 case DeviceFormat.Unknown:
                 default:
-                    AppLog.LogWarning("Unknown format");
+                    Debug.LogWarning("Unknown format");
                     break;
             }
         }

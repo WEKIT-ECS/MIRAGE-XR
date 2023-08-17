@@ -25,6 +25,17 @@ public class LabelEditorView : PopupEditorBase
     [SerializeField] private GameObject _gazeDurationPanel;
     [SerializeField] private ClampedScrollRect _clampedScrollJumpToStep;
     [SerializeField] private GameObject _templatePrefab;
+    [SerializeField] private GameObject _settingsPannel;
+    [SerializeField] private GameObject _mainPannel;
+
+    [SerializeField] private TMP_Text _exampleLabel;
+    [SerializeField] private Image _exampleLabelBackground;
+    [SerializeField] private TMP_InputField _fontSize;
+
+    [SerializeField] private Image _fontColourButtonImage;
+    [SerializeField] private Image _backgroundColourButtonImage;
+
+    [SerializeField] private ColourSelector _colourPickerScript;
     [Space]
     [SerializeField] private Button _btnArrow;
     [SerializeField] private RectTransform _panel;
@@ -34,9 +45,13 @@ public class LabelEditorView : PopupEditorBase
     private Trigger _trigger;
     private float _gazeDuration;
     private int _triggerStepIndex;
+    private enum ColourPickerOption { NA, Font, Background };
+
+    private ColourPickerOption _colourPickerOption = ColourPickerOption.NA;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
+        _colourPickerScript.onColourSelected.AddListener(OnColourPickerChange);
         _showBackground = false;
         base.Initialization(onClose, args);
         _toggleTrigger.onValueChanged.AddListener(OnTriggerValueChanged);
@@ -75,13 +90,27 @@ public class LabelEditorView : PopupEditorBase
         {
             _inputField.text = _content.text;
             _trigger = _step.triggers.Find(tr => tr.id == _content.poi);
+
             if (_trigger != null)
             {
                 _toggleTrigger.isOn = true;
                 _triggerStepIndex = int.Parse(_trigger.value) - 1;
                 _gazeDuration = _trigger.duration;
             }
+
+            if (_content.option != "")
+            {
+                string[] splitArray = _content.option.Split(char.Parse("-"));
+
+                _exampleLabel.text = _content.text;
+
+                _exampleLabel.fontSize = int.Parse(splitArray[0]);
+
+                _exampleLabel.color = GetColorFromString(splitArray[1]);
+                _exampleLabelBackground.color = GetColorFromString(splitArray[2]);
+            }
         }
+        UpdateButtonColours();
     }
 
     private void InitClampedScrollRect(ClampedScrollRect clampedScrollRect, GameObject templatePrefab, int maxCount, string text)
@@ -152,6 +181,7 @@ public class LabelEditorView : PopupEditorBase
             _content.predicate = editorForType.GetPredicate();
         }
         _content.text = _inputField.text;
+        _content.option = _exampleLabel.fontSize.ToString() + "-" + _exampleLabel.color.ToString() + "-" + _exampleLabelBackground.color.ToString();
 
         if (_toggleTrigger.isOn)
         {
@@ -187,5 +217,76 @@ public class LabelEditorView : PopupEditorBase
     private void OnDestroy()
     {
         RootView_v2.Instance.ShowBaseView();
+    }
+
+    public void OpenSettings(bool open)
+    {
+        _settingsPannel.SetActive(open);
+        _mainPannel.SetActive(!open);
+    }
+
+    public void OnFontSizeChanged()
+    {
+        var size = 36;
+
+        int.TryParse(_fontSize.text, out size);
+
+        _exampleLabel.fontSize = size;
+    }
+
+
+    public void OnFontColourChange()
+    {
+        // _colourPickerObject.SetActive(true);
+        _settingsPannel.SetActive(false);
+        _colourPickerScript.Open();
+        _colourPickerOption = ColourPickerOption.Font;
+    }
+
+    public void OnBackgroundColourChanged()
+    {
+        //_colourPickerObject.SetActive(true);
+        _settingsPannel.SetActive(false);
+        _colourPickerScript.Open();
+        _colourPickerOption = ColourPickerOption.Background;
+    }
+
+    public void OnColourPickerChange()
+    {
+        switch (_colourPickerOption)
+        {
+            case ColourPickerOption.Font:
+                _exampleLabel.color = _colourPickerScript._selectedColour;
+                break;
+            case ColourPickerOption.Background:
+                _exampleLabelBackground.color = _colourPickerScript._selectedColour;
+                break;
+            default:
+                break;
+        }
+
+        UpdateButtonColours();
+        _settingsPannel.SetActive(true);
+
+        _colourPickerOption = ColourPickerOption.NA;
+    }
+
+    private Color GetColorFromString(string rgb)
+    {
+        string[] rgba = rgb.Substring(5, rgb.Length - 6).Split(", ");
+        Color color = new Color(float.Parse(rgba[0]), float.Parse(rgba[1]), float.Parse(rgba[2]), float.Parse(rgba[3]));
+
+        return color;
+    }
+
+    public void onInputChanged()
+    {
+        _exampleLabel.text = _inputField.text;
+    }
+
+    private void UpdateButtonColours()
+    {
+        _fontColourButtonImage.color = _exampleLabel.color;
+        _backgroundColourButtonImage.color = _exampleLabelBackground.color;
     }
 }
