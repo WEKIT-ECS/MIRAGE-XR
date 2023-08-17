@@ -183,6 +183,7 @@ namespace MirageXR
         public string position = string.Empty; // Vector3 format 0, 0, 0
         public string rotation = string.Empty; // Vector3 format 0, 0, 0
         public float scale = 0f;
+        public bool positionLock = false;
 
         // NOT IN ARLEM SPEC. For the detect symbol.
         public float duration = 0f;

@@ -1,22 +1,22 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using UnityEngine;
-using Siccity.GLTFUtility;
-using i5.Toolkit.Core.VerboseLogging;
+﻿using i5.Toolkit.Core.VerboseLogging;
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
+using Siccity.GLTFUtility;
+using System.Collections.Generic;
+using System.IO;
+using UnityEngine;
 
 namespace MirageXR
 {
     public class Model : MirageXRPrefab
-    { 
+    {
         private static ActivityManager _activityManager => RootObject.Instance.activityManager;
 
         private float startLoadTime = 0.0f;
-        private ToggleObject myToggleObject;
+        private ToggleObject _obj;
         private Animation animation;
 
-        public ToggleObject MyToggleObject => myToggleObject;
+        public ToggleObject MyToggleObject => _obj;
 
 
         private void Start()
@@ -58,7 +58,7 @@ namespace MirageXR
         /// <returns>Returns true if initialization successful.</returns>
         public override bool Init(ToggleObject obj)
         {
-            myToggleObject = obj;
+            _obj = obj;
 
             // Check that url is not empty.
             if (string.IsNullOrEmpty(obj.url))
@@ -84,6 +84,9 @@ namespace MirageXR
                 // Setup guide line feature.
                 if (!SetGuide(obj)) return false;
             }
+
+            OnLock(_obj.poi, _obj.positionLock);
+            EventManager.OnAugmentationLocked += OnLock;
 
             // If all went well, return true.
 
@@ -120,7 +123,7 @@ namespace MirageXR
             model.transform.position = startPos;
             model.transform.localRotation = Quaternion.identity;
 
-            model.name = myToggleObject.option;
+            model.name = _obj.option;
             model.transform.localRotation *= Quaternion.Euler(-90f, 0f, 0f);
 
             ConfigureModel(model, clip);
@@ -194,6 +197,8 @@ namespace MirageXR
                     gridManager.onTranslateStopped?.Invoke(boundsControl.Target);
                     poiEditor.OnChanged();
                 });
+
+                boundsControl.enabled = !_obj.positionLock;
             }
         }
 
@@ -306,7 +311,7 @@ namespace MirageXR
 
         private void DeleteModelData(ToggleObject augmentation)
         {
-            if (augmentation != myToggleObject) return;
+            if (augmentation != _obj) return;
 
             // check for existing model folder and delete if necessary
             var arlemPath = RootObject.Instance.activityManager.ActivityPath;
@@ -331,6 +336,34 @@ namespace MirageXR
                     }
                 }
             }
+        }
+
+        private void OnLock(string id, bool locked)
+        {
+            if (id == _obj.poi)
+            {
+                _obj.positionLock = locked;
+
+                var bounds = this.GetComponentInParent<BoundsControl>();
+
+                if (bounds != null)
+                {
+                    this.GetComponentInParent<BoundsControl>().enabled = !_obj.positionLock;
+                }
+
+                var objectManipulator = this.GetComponentInParent<ObjectManipulator>();
+
+                if (objectManipulator != null)
+                {
+                    this.GetComponentInParent<ObjectManipulator>().enabled = !_obj.positionLock;
+
+                }
+            }
+        }
+
+        private void OnDisable()
+        {
+            EventManager.OnAugmentationLocked -= OnLock;
         }
     }
 }
