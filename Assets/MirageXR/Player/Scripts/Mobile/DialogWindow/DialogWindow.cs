@@ -29,7 +29,7 @@ public abstract class DialogWindow : MonoBehaviour
     {
         if (Instance != null)
         {
-            AppLog.LogError($"{Instance.GetType().FullName} must only be a single copy!");
+            Debug.LogError($"{Instance.GetType().FullName} must only be a single copy!");
             return;
         }
 

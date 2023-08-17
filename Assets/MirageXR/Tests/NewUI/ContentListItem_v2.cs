@@ -104,7 +104,7 @@ public class ContentListItem_v2 : MonoBehaviour
         var editor = _parentView.editors.FirstOrDefault(t => t.editorForType == type);
         if (editor == null)
         {
-            AppLog.LogError($"there is no editor for the type {type}");
+            Debug.LogError($"there is no editor for the type {type}");
             return;
         }
 

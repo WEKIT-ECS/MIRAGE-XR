@@ -57,7 +57,7 @@ public class NativeCameraTest : MonoBehaviour
 
     private void OnVideoRecorded(bool result, string path)
     {
-        AppLog.LogDebug("Video record path: " + path);
+        Debug.LogDebug("Video record path: " + path);
         _rawImage.texture = _renderTexture;
         _pathTxt.text = path;
         _videoPlayer.url = path;

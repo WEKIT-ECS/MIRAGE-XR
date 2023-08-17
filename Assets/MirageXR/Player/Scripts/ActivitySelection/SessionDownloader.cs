@@ -26,7 +26,7 @@ namespace MirageXR
             using (UnityWebRequest req = new UnityWebRequest(_downloadUrl))
             {
                 req.method = UnityWebRequest.kHttpVerbGET;
-                AppLog.LogInfo($"Downloading zip file to " + _zipFilePath);
+                Debug.LogInfo($"Downloading zip file to " + _zipFilePath);
                 DownloadHandlerFile downloadHandler = new DownloadHandlerFile(_zipFilePath) { removeFileOnAbort = true };
                 req.downloadHandler = downloadHandler;
                 await req.SendWebRequest();
@@ -38,8 +38,8 @@ namespace MirageXR
 
         public async Task UnzipFileAsync()
         {
-            AppLog.LogDebug($"Application persistent data path is {Application.persistentDataPath}");
-            AppLog.LogInfo($"Unzipping zip file from {_zipFilePath} to {_targetFolder}");
+            Debug.LogDebug($"Application persistent data path is {Application.persistentDataPath}");
+            Debug.LogInfo($"Unzipping zip file from {_zipFilePath} to {_targetFolder}");
             using (Stream stream = new FileStream(_zipFilePath, FileMode.Open))
             {
                 await ZipUtilities.ExtractZipFileAsync(stream, _targetFolder);
@@ -48,10 +48,10 @@ namespace MirageXR
 
         public void Dispose()
         {
-            AppLog.LogTrace("Disposing session downloader");
+            Debug.LogTrace("Disposing session downloader");
             if (File.Exists(_zipFilePath))
             {
-                AppLog.LogDebug($"Clean up: Deleting zip file at {_zipFilePath}");
+                Debug.LogDebug($"Clean up: Deleting zip file at {_zipFilePath}");
                 File.Delete(_zipFilePath);
             }
         }
