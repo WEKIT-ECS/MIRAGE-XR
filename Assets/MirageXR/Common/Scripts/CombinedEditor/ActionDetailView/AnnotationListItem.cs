@@ -34,7 +34,7 @@ public class AnnotationListItem : MonoBehaviour
 
     private void Start()
     {
-        //OnEditModeChanged(activityManager.EditModeActive);
+        OnEditModeChanged(activityManager.EditModeActive);
 
         startStepInput.onEndEdit.AddListener(delegate { AdjustPoiLifetime(); });
         endStepInput.onEndEdit.AddListener(delegate { AdjustPoiLifetime(); });
@@ -144,6 +144,11 @@ public class AnnotationListItem : MonoBehaviour
 
     private bool SetLockActive()
     {
+        if (!activityManager.EditModeActive)
+        {
+            return false;
+        }
+
         switch (DisplayedAnnotation.predicate)
         {
             case string a when a.StartsWith("label"):
