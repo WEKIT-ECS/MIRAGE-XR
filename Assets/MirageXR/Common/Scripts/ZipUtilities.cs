@@ -130,7 +130,7 @@ public static class ZipUtilities
     /// <param name="fileName">The file name to be checked</param>
     public static string CheckFileForIllegalCharacters(string fileName)
     {
-        const string characters = "[\\:*?\"<>|]";
+        const string characters = "[\\:*?\"<>|]/";
         return Regex.Replace(fileName, characters, string.Empty);
     }
 }
