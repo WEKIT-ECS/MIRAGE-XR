@@ -3,6 +3,7 @@ using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 
 namespace MirageXR
@@ -34,7 +35,9 @@ namespace MirageXR
         private GameObject _thinLine;
         private GameObject _contentObject;
         private Texture2D _texture;
-
+        private string tmp_text;
+        [SerializeField] private TMP_Text _captionTextlandscape;
+        [SerializeField] private TMP_Text _captionTextPortrait;
         public ToggleObject ToggleObject => _obj;
 
         /// <summary>
@@ -175,6 +178,22 @@ namespace MirageXR
             _texture = new Texture2D(2, 2, TextureFormat.RGB24, false);
             _texture.LoadImage(data);
             meshRenderer.sharedMaterial.SetTexture(MAIN_TEXTUERE, _texture);
+
+            // Search for text files with names containing "MirageXR_Image_" in the directory where the image is located.
+            var directory = Path.GetDirectoryName(path);
+            var matchingFiles = Directory.GetFiles(directory, "*MirageXR_Image_*.txt");
+
+            if (matchingFiles.Length > 0)
+            {
+                string textPath = matchingFiles[0]; // Take the first matching file, if you want to handle multiple files, you'd need to expand on this logic.
+                tmp_text = await File.ReadAllTextAsync(textPath);
+                _captionTextlandscape.text = tmp_text;
+                _captionTextPortrait.text = tmp_text;
+            }
+            else
+            {
+                AppLog.LogError($"No text file containing 'MirageXR_Image_' found in {directory}");
+            }
         }
 
         private void SetOrientation(GameObject activeFrame, GameObject unusedFrame, GameObject background)

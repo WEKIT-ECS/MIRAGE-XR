@@ -1,19 +1,18 @@
 ﻿using System;
 using System.IO;
-using DG.Tweening;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
 using Image = UnityEngine.UI.Image;
+using UnityEngine.Video;
+using IBM.Watsson.Examples;
+using TMPro;
 
 public class VideoEditorView : PopupEditorBase
 {
     private const string HTTP_PREFIX = "http://";
     private const string LANDSCAPE = "L";
     private const string PORTRAIT = "P";
-    private const float HIDED_SIZE = 100f;
-    private const float HIDE_ANIMATION_TIME = 0.5f;
-    private const float IMAGE_HEIGHT = 630f;
 
     public override ContentType editorForType => ContentType.VIDEO;
 
@@ -23,40 +22,42 @@ public class VideoEditorView : PopupEditorBase
     [SerializeField] private Button _btnOpenGallery;
     [SerializeField] private Toggle _toggleTrigger;
     [SerializeField] private Toggle _toggleOrientation;
-    [Space]
-    [SerializeField] private Button _btnArrow;
-    [SerializeField] private RectTransform _panel;
-    [SerializeField] private GameObject _arrowDown;
-    [SerializeField] private GameObject _arrowUp;
-    [Space]
-    [SerializeField] private HintViewWithButtonAndToggle _hintPrefab;
+    
+    [SerializeField] private VideoPlayer videoPlayer;
+    [SerializeField] private Button playButton;
+    [SerializeField] private Button editCaption;
+    [SerializeField] private Button doneEditCaption;
+    [SerializeField] private GameObject obj1;
+    [SerializeField] private GameObject obj2;
+    [SerializeField] private GameObject obj3;
+    [SerializeField] private GameObject obj4;
+    [SerializeField] private GameObject obj5;
+    [SerializeField]
+    private CaptionGenerator captionGenerator;
+    [SerializeField] private TMP_InputField _captionEdit;
 
     private string _newFileName;
     private bool _videoWasRecorded;
     private bool _orientation;
-
+    
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        _showBackground = false;
+        //captionGenerator = GetComponent<CaptionGenerator>();
+        playButton.onClick.AddListener(OnPlayButtonClick);
+        editCaption.onClick.AddListener(OnEditButtonClick);
+        doneEditCaption.onClick.AddListener(OnDoneButtonClick);
+
+        
         base.Initialization(onClose, args);
         _btnCaptureVideo.onClick.AddListener(OnStartRecordingVideo);
+        
         _btnOpenGallery.onClick.AddListener(OpenGallery);
         _toggleOrientation.onValueChanged.AddListener(OnToggleOrientationValueChanged);
         _toggleTrigger.onValueChanged.AddListener(OnToggleTriggerValueChanged);
         _orientation = true;
         _toggleOrientation.isOn = _orientation;
-
-        _btnArrow.onClick.AddListener(OnArrowButtonPressed);
-        _arrowDown.SetActive(true);
-        _arrowUp.SetActive(false);
-
-        RootView_v2.Instance.HideBaseView();
         UpdateView();
-    }
 
-    private void OnDestroy()
-    {
-        RootView_v2.Instance.ShowBaseView();
     }
 
     private void UpdateView()
@@ -78,7 +79,7 @@ public class VideoEditorView : PopupEditorBase
             SetPreview(NativeCameraController.GetVideoThumbnail(originalFilePath));
         }
     }
-
+   
     private void OnStartRecordingVideo()
     {
         StartRecordingVideo();
@@ -149,11 +150,6 @@ public class VideoEditorView : PopupEditorBase
             _content.predicate = editorForType.GetName().ToLower();
         }
 
-        if (!DBManager.dontShowNewAugmentationHint)
-        {
-            PopupsViewer.Instance.Show(_hintPrefab);
-        }
-
         // saving of the movie file has already happened since it has been written to file while recording
         _content.url = HTTP_PREFIX + _newFileName;
         _content.key = _orientation ? LANDSCAPE : PORTRAIT;
@@ -187,12 +183,45 @@ public class VideoEditorView : PopupEditorBase
 
         var rtImageHolder = (RectTransform)_imageHolder.transform;
         var rtImage = (RectTransform)_image.transform;
-        var width = (float)texture2D.width / texture2D.height * IMAGE_HEIGHT;
-        rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, IMAGE_HEIGHT);
-        rtImage.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
+        var height = rtImage.rect.width / texture2D.width * texture2D.height + (rtImage.sizeDelta.y * -1);
+        rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
 
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
     }
+private void OnPlayButtonClick()
+{
+    obj1.SetActive(false);
+    obj2.SetActive(false);
+    obj4.SetActive(true);
+    obj5.SetActive(true);
+    if (_videoWasRecorded)
+    {
+        string videoPath = Path.Combine(activityManager.ActivityPath, _newFileName);
+        PlayVideo(videoPath);
+    }
+    else
+    {
+        Debug.Log("Video not recorded or fetched yet.");
+    }
+}
+
+public void OnEditButtonClick(){
+    
+    obj4.SetActive(false);
+    obj5.SetActive(false);
+    obj3.SetActive(true);
+    string savedText = captionGenerator.AllGeneratedCaptions();
+    _captionEdit.text = savedText;
+     Debug.Log(savedText);
+    }
+private void OnDoneButtonClick(){
+    obj1.SetActive(true);
+    obj2.SetActive(true);
+    obj4.SetActive(false);
+    obj5.SetActive(false);
+    obj3.SetActive(false);
+        SaveTextToFile();
+}
 
     private void OpenGallery()
     {
@@ -200,39 +229,61 @@ public class VideoEditorView : PopupEditorBase
     }
 
     private void PickVideo()
+{
+    NativeGallery.Permission permission = NativeGallery.GetVideoFromGallery((path) =>
     {
-        NativeGallery.Permission permission = NativeGallery.GetVideoFromGallery((path) =>
+        Debug.Log("Video path: " + path);
+        if (path != null)
         {
-            Debug.Log("Video path: " + path);
-            if (path != null)
+            _videoWasRecorded = true;
+            SetPreview(NativeGallery.GetVideoThumbnail(path));
+
+            _newFileName = $"MirageXR_Video_{DateTime.Now.ToFileTimeUtc()}.mp4";
+            var newFilePath = Path.Combine(activityManager.ActivityPath, _newFileName);
+
+            var sourcePath = Path.Combine(Application.persistentDataPath, path);
+            var destPath = Path.Combine(Application.persistentDataPath, newFilePath);
+            File.Move(sourcePath, destPath);
+
+            // Removed the PlayVideo(destPath); line from here
+        }
+
+    });
+}
+
+
+   private void PlayVideo(string path)
+{
+    if (videoPlayer == null) return;
+
+    videoPlayer.url = path;
+    videoPlayer.Play();
+}
+public string GetVideoPath()
+{
+    return Path.Combine(activityManager.ActivityPath);
+}
+    private void SaveTextToFile()
+    {
+        string inputText = _captionEdit.text;
+        string captionfilePath = Path.Combine(activityManager.ActivityPath, $"MirageXR_Video_{DateTime.Now.ToFileTimeUtc()}.txt");
+        // Check if the input text is not empty
+        if (!string.IsNullOrEmpty(inputText))
+        {
+            // Write the input text to the text file
+            using (StreamWriter writer = new StreamWriter(captionfilePath, true))
             {
-                _videoWasRecorded = true;
-                SetPreview(NativeGallery.GetVideoThumbnail(path));
-
-                _newFileName = $"MirageXR_Video_{DateTime.Now.ToFileTimeUtc()}.mp4";
-                var newFilePath = Path.Combine(activityManager.ActivityPath, _newFileName);
-
-                var sourcePath = Path.Combine(Application.persistentDataPath, path);
-                var destPath = Path.Combine(Application.persistentDataPath, newFilePath);
-                File.Move(sourcePath, destPath);
+                writer.WriteLine(inputText);
             }
-        });
-    }
 
-    private void OnArrowButtonPressed()
-    {
-        if (_arrowDown.activeSelf)
-        {
-            var hidedSize = HIDED_SIZE;
-            _panel.DOAnchorPosY(-_panel.rect.height + hidedSize, HIDE_ANIMATION_TIME);
-            _arrowDown.SetActive(false);
-            _arrowUp.SetActive(true);
+            Debug.Log("Text saved to file: " + captionfilePath);
         }
         else
         {
-            _panel.DOAnchorPosY(0.0f, HIDE_ANIMATION_TIME);
-            _arrowDown.SetActive(true);
-            _arrowUp.SetActive(false);
+            Debug.LogWarning("Input text is empty. Cannot save to file.");
         }
     }
+
 }
+   
+
