@@ -39,19 +39,26 @@ namespace MirageXR
             siteConfigurationStatusLabel.text = string.Empty;
             publicUploadToggle.isOn = DBManager.publicUploadPrivacy;
 
-            if (PlayerPrefs.HasKey("MoodleURL"))
+            if (PlatformManager.Instance.WorldSpaceUi)
             {
-                ShowPanel(null); // hide login panel
+                if (PlayerPrefs.HasKey("MoodleURL"))
+                {
+                    ShowPanel(null); // hide login panel
+                }
+                else
+                {
+                    OpenURLConfigurationPanel();
+                }
+
+                EventManager.OnHideActivitySelectionMenu += HideLoginPanel;
+                EventManager.OnEditorLoaded += HideLoginPanel;
+
+                AutoLogin();
             }
             else
             {
-                OpenURLConfigurationPanel();
+                ShowPanel(null);
             }
-
-            EventManager.OnHideActivitySelectionMenu += HideLoginPanel;
-            EventManager.OnEditorLoaded += HideLoginPanel;
-
-            AutoLogin();
         }
 
         private void OnDestroy()
