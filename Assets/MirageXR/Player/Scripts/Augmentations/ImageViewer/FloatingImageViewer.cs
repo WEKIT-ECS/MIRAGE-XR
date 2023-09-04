@@ -35,8 +35,14 @@ namespace MirageXR
         private GameObject _thinLine;
         private GameObject _contentObject;
         private Texture2D _texture;
+        private ObjectManipulator objectManipulator;
 
         public ToggleObject ToggleObject => _obj;
+
+        private void Awake()
+        {
+            objectManipulator = gameObject.GetComponent<ObjectManipulator>() ? gameObject.GetComponent<ObjectManipulator>() : gameObject.AddComponent<ObjectManipulator>();
+        }
 
         /// <summary>
         /// Initialization method.
@@ -246,21 +252,27 @@ namespace MirageXR
             {
                 Destroy(_texture);
             }
+            EventManager.OnAugmentationLocked -= OnLock;
         }
 
         private void OnLock(string id, bool locked)
         {
             if (id == _obj.poi)
             {
-                _obj.positionLock = locked;
-                this.GetComponentInParent<ObjectManipulator>().enabled = !_obj.positionLock;
-                this.GetComponentInParent<BoundsControl>().enabled = !_obj.positionLock;
+                objectManipulator.enabled = !_obj.positionLock;
+               // gameObject.GetComponent<BoundsControl>().enabled = !_obj.positionLock;
+                GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock, false);
+
+                if (gameObject.GetComponent<ObjectManipulator>())
+                {
+                    gameObject.GetComponent<ObjectManipulator>().enabled = !_obj.positionLock;
+                }
             }
         }
 
-        private void OnDisable()
+        public override void Delete()
         {
-            EventManager.OnAugmentationLocked -= OnLock;
+
         }
     }
 }

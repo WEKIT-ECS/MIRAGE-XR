@@ -1,6 +1,7 @@
 ﻿using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using MirageXR;
+using System.Linq;
 using UnityEngine;
 
 public class PoiEditor : MonoBehaviour
@@ -8,9 +9,13 @@ public class PoiEditor : MonoBehaviour
     private ObjectManipulator _objectManipulator;
 
     private BoundsControl _boundsControl;
+    private ToggleObject _obj;
+    private bool isLocked = false;
     private bool _boundsControlActive = false;
 
     private float _modelMagnification = 0.0f;
+
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
     public float ModelMagnification
     {
@@ -61,16 +66,19 @@ public class PoiEditor : MonoBehaviour
 
     private void OnEditModeChanged(bool editModeActive)
     {
-        if (!_objectManipulator)
+        if (!isLocked)
         {
-            _objectManipulator = GetOrAddComponent<ObjectManipulator>();
-        }
+            if (!_objectManipulator)
+            {
+                _objectManipulator = GetOrAddComponent<ObjectManipulator>();
+            }
 
-        _objectManipulator.enabled = editModeActive;
+            _objectManipulator.enabled = editModeActive;
 
-        if (_boundsControl && _boundsControlActive)
-        {
-            _boundsControl.enabled = editModeActive;
+            if (_boundsControl && _boundsControlActive)
+            {
+                _boundsControl.enabled = editModeActive;
+            }
         }
     }
 
@@ -197,6 +205,17 @@ public class PoiEditor : MonoBehaviour
         if (collider)
         {
             collider.enabled = enabled;
+        }
+    }
+
+    public void IsLocked(bool locked, bool bounds)
+    {
+        isLocked = locked;
+        GetOrAddComponent<ObjectManipulator>().enabled = !locked;
+
+        if (bounds)
+        {
+            EnableBoundsControl(!locked);
         }
     }
 }

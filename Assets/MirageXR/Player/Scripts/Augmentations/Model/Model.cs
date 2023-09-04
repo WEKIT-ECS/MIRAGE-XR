@@ -18,6 +18,12 @@ namespace MirageXR
 
         public ToggleObject MyToggleObject => _obj;
 
+        private ObjectManipulator objectManipulator;
+
+        private void Awake()
+        {
+            objectManipulator = gameObject.GetComponent<ObjectManipulator>() ? gameObject.GetComponent<ObjectManipulator>() : gameObject.AddComponent<ObjectManipulator>();
+        }
 
         private void Start()
         {
@@ -344,19 +350,12 @@ namespace MirageXR
             {
                 _obj.positionLock = locked;
 
-                var bounds = this.GetComponentInParent<BoundsControl>();
+                objectManipulator.enabled = !_obj.positionLock;
+                GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock, true);
 
-                if (bounds != null)
+                if (gameObject.GetComponent<ObjectManipulator>())
                 {
-                    this.GetComponentInParent<BoundsControl>().enabled = !_obj.positionLock;
-                }
-
-                var objectManipulator = this.GetComponentInParent<ObjectManipulator>();
-
-                if (objectManipulator != null)
-                {
-                    this.GetComponentInParent<ObjectManipulator>().enabled = !_obj.positionLock;
-
+                    gameObject.GetComponent<ObjectManipulator>().enabled = !_obj.positionLock;
                 }
             }
         }
@@ -364,6 +363,11 @@ namespace MirageXR
         private void OnDisable()
         {
             EventManager.OnAugmentationLocked -= OnLock;
+        }
+
+        public override void Delete()
+        {
+
         }
     }
 }

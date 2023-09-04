@@ -419,6 +419,11 @@ namespace MirageXR
                     boundingBox.CustomRotationHandlesConfiguration = Resources.Load<RotationHandlesConfiguration>("Prefabs/CustomBoundingRotationHandlesConfiguration");
                     await boundingBox.AddBoundingBox(annotationToggleObject, BoundsCalculationMethod.RendererOverCollider, false, true, BoundingRotationType.ALL, true);
 
+                        if (annotationToggleObject.positionLock) 
+                        {
+                            go.GetComponent<ObjectManipulator>().enabled = false;
+                        }
+
                     // disable rotation for image
                     if (DisableBoundingRotation(annotationToggleObject))
                     {
