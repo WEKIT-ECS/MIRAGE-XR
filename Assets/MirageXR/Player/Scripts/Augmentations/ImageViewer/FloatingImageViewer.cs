@@ -35,14 +35,8 @@ namespace MirageXR
         private GameObject _thinLine;
         private GameObject _contentObject;
         private Texture2D _texture;
-        private ObjectManipulator objectManipulator;
 
         public ToggleObject ToggleObject => _obj;
-
-        private void Awake()
-        {
-            objectManipulator = gameObject.GetComponent<ObjectManipulator>() ? gameObject.GetComponent<ObjectManipulator>() : gameObject.AddComponent<ObjectManipulator>();
-        }
 
         /// <summary>
         /// Initialization method.
@@ -259,7 +253,6 @@ namespace MirageXR
         {
             if (id == _obj.poi)
             {
-                objectManipulator.enabled = !_obj.positionLock;
                // gameObject.GetComponent<BoundsControl>().enabled = !_obj.positionLock;
                 GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock, false);
 

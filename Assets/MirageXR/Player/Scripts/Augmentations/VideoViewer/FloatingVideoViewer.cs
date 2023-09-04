@@ -57,13 +57,6 @@ namespace MirageXR
         public bool VideoClipLoaded => _videoPlayer.clip != null;
         public float VideoDuration => (float)_videoPlayer.length;
 
-        private ObjectManipulator objectManipulator;
-
-        private void Awake()
-        {
-            objectManipulator = gameObject.GetComponent<ObjectManipulator>() ? gameObject.GetComponent<ObjectManipulator>() : gameObject.AddComponent<ObjectManipulator>();
-        }
-
         /// <summary>
         /// Initialization method.
         /// </summary>
@@ -574,7 +567,6 @@ namespace MirageXR
             if (id == _obj.poi)
             {
                 _obj.positionLock = locked;
-                objectManipulator.enabled = !_obj.positionLock;
                 GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock, false);
 
                 if (gameObject.GetComponent<ObjectManipulator>())
