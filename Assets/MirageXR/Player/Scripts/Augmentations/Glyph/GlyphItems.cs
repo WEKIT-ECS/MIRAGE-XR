@@ -57,17 +57,8 @@ namespace MirageXR
 
             EventManager.OnAugmentationLocked += OnLock;
 
-            StartCoroutine(waitForEndOfFrame());
-
             // If everything was ok, return base result.
             return base.Init(obj);
-        }
-
-        private IEnumerator waitForEndOfFrame()
-        {
-            yield return 0;
-
-            OnLock(_obj.poi, _obj.positionLock);
         }
 
         private void OnLock(string id, bool locked)
@@ -94,11 +85,6 @@ namespace MirageXR
             {
                 boundsControl.Active = bounds;
             }
-        }
-
-        public bool isLocked()
-        {
-            return _obj.positionLock;
         }
     }
 }
