@@ -59,8 +59,6 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public Material ghostMaterial => _ghostMaterial;
 
-    public bool gridShown => _grid.gameObject.activeInHierarchy;
-
     public bool gridEnabled => _gridEnabled;
 
     public bool snapEnabled => _snapEnabled;
