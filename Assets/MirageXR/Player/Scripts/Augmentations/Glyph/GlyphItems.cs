@@ -1,6 +1,7 @@
-﻿using i5.Toolkit.Core.VerboseLogging;
-using Microsoft.MixedReality.Toolkit.UI;
+﻿using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MirageXR
@@ -10,6 +11,7 @@ namespace MirageXR
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
         private ToggleObject _obj;
         [SerializeField] private GameObject icon;
+
 
         private void OnEnable()
         {
@@ -35,6 +37,7 @@ namespace MirageXR
             }
 
             SetBoundsControl(editModeActive);
+            OnLock(_obj.poi, _obj.positionLock);
         }
 
         public override bool Init(ToggleObject obj)
@@ -52,11 +55,19 @@ namespace MirageXR
             obj.text = name;
             transform.localScale = obj.scale != 0 ? new Vector3(obj.scale, obj.scale, obj.scale) : Vector3.one;
 
-            OnLock(_obj.poi, _obj.positionLock);
             EventManager.OnAugmentationLocked += OnLock;
+
+            StartCoroutine(waitForEndOfFrame());
 
             // If everything was ok, return base result.
             return base.Init(obj);
+        }
+
+        private IEnumerator waitForEndOfFrame()
+        {
+            yield return 0;
+
+            OnLock(_obj.poi, _obj.positionLock);
         }
 
         private void OnLock(string id, bool locked)
@@ -66,7 +77,13 @@ namespace MirageXR
                 _obj.positionLock = locked;
 
                 SetBoundsControl(!_obj.positionLock);
-                this.GetComponentInParent<ObjectManipulator>().enabled = !_obj.positionLock;
+
+                if (gameObject.GetComponent<ObjectManipulator>())
+                {
+                    gameObject.GetComponent<ObjectManipulator>().enabled = !_obj.positionLock;
+                }
+
+                GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock, false);
             }
         }
 
@@ -77,6 +94,11 @@ namespace MirageXR
             {
                 boundsControl.Active = bounds;
             }
+        }
+
+        public bool isLocked()
+        {
+            return _obj.positionLock;
         }
     }
 }

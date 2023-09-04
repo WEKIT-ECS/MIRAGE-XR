@@ -1,7 +1,5 @@
 ﻿using i5.Toolkit.Core.ServiceCore;
-using i5.Toolkit.Core.VerboseLogging;
 using Microsoft.MixedReality.Toolkit.UI;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Collections;
 using System.IO;
 using UnityEngine;
@@ -58,6 +56,13 @@ namespace MirageXR
 
         public bool VideoClipLoaded => _videoPlayer.clip != null;
         public float VideoDuration => (float)_videoPlayer.length;
+
+        private ObjectManipulator objectManipulator;
+
+        private void Awake()
+        {
+            objectManipulator = gameObject.GetComponent<ObjectManipulator>() ? gameObject.GetComponent<ObjectManipulator>() : gameObject.AddComponent<ObjectManipulator>();
+        }
 
         /// <summary>
         /// Initialization method.
@@ -569,14 +574,24 @@ namespace MirageXR
             if (id == _obj.poi)
             {
                 _obj.positionLock = locked;
-                this.GetComponentInParent<ObjectManipulator>().enabled = !_obj.positionLock;
-                this.GetComponentInParent<BoundsControl>().enabled = !_obj.positionLock;
+                objectManipulator.enabled = !_obj.positionLock;
+                GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock, false);
+
+                if (gameObject.GetComponent<ObjectManipulator>())
+                {
+                    gameObject.GetComponent<ObjectManipulator>().enabled = !_obj.positionLock;
+                }
             }
         }
 
-        private void OnDisable()
+        private void OnDestroy()
         {
             EventManager.OnAugmentationLocked -= OnLock;
+        }
+
+        public override void Delete()
+        {
+
         }
     }
 }
