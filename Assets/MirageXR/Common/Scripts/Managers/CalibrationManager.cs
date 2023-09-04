@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.Events;
