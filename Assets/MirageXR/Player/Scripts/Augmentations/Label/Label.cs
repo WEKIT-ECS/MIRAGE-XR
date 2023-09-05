@@ -110,7 +110,7 @@ namespace MirageXR
             {
                 _obj.positionLock = locked;
 
-                GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock, false);
+                GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock);
             }
         }
 

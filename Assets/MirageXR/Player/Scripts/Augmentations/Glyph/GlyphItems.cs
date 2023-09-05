@@ -74,7 +74,7 @@ namespace MirageXR
                     gameObject.GetComponent<ObjectManipulator>().enabled = !_obj.positionLock;
                 }
 
-                GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock, false);
+                GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock);
             }
         }
 

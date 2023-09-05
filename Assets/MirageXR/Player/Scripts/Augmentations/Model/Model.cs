@@ -165,7 +165,7 @@ namespace MirageXR
 
             if (poiEditor)
             {
-                poiEditor.EnableBoundsControl(true);
+                poiEditor.EnableBoundsControl(!_obj.positionLock);
             }
 
             var gridManager = RootObject.Instance.gridManager;
@@ -351,7 +351,18 @@ namespace MirageXR
                 _obj.positionLock = locked;
 
                 objectManipulator.enabled = !_obj.positionLock;
-                GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock, true);
+
+                var poiEditor = GetComponentInParent<PoiEditor>();
+
+                if (poiEditor)
+                {
+                    poiEditor.IsLocked(_obj.positionLock);
+
+                    if(poiEditor.transform.GetComponent<BoundsControl>())
+                    {
+                        poiEditor.EnableBoundsControl(!_obj.positionLock);
+                    }
+                }
 
                 if (gameObject.GetComponent<ObjectManipulator>())
                 {
