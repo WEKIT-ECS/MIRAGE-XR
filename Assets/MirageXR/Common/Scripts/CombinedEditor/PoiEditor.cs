@@ -208,14 +208,9 @@ public class PoiEditor : MonoBehaviour
         }
     }
 
-    public void IsLocked(bool locked, bool bounds)
+    public void IsLocked(bool locked)
     {
         isLocked = locked;
         GetOrAddComponent<ObjectManipulator>().enabled = !locked;
-
-        if (bounds)
-        {
-            EnableBoundsControl(!locked);
-        }
     }
 }
