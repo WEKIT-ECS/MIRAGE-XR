@@ -65,21 +65,7 @@ public class PoiEditor : MonoBehaviour
 
     private void OnEditModeChanged(bool editModeActive)
     {
-/*        if (isLocked)
-        {
-            if (!_objectManipulator)
-             {
-                 _objectManipulator = GetOrAddComponent<ObjectManipulator>();
-             }
-
-             _objectManipulator.enabled = editModeActive;
-
-             if (_boundsControl && _boundsControlActive)
-             {
-                 _boundsControl.enabled = editModeActive;
-             }
-        }*/
-           if (_boundsControl && _boundsControlActive)
+        if (_boundsControl && _boundsControlActive)
         {
             if (isLocked)
             {
