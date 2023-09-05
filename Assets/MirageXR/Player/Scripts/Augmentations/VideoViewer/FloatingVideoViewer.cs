@@ -1,5 +1,6 @@
 ﻿using i5.Toolkit.Core.ServiceCore;
 using Microsoft.MixedReality.Toolkit.UI;
+using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Collections;
 using System.IO;
 using UnityEngine;
@@ -567,6 +568,9 @@ namespace MirageXR
             if (id == _obj.poi)
             {
                 _obj.positionLock = locked;
+
+                GetComponent<BoundsControl>().enabled = !_obj.positionLock;
+
                 GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock);
 
                 if (gameObject.GetComponent<ObjectManipulator>())
