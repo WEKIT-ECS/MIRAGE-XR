@@ -81,9 +81,13 @@ namespace MirageXR
         private void SetBoundsControl(bool bounds)
         {
             var boundsControl = GetComponent<BoundsControl>();
+            Debug.Log("setting Bounds = " + bounds);
+            // gameObject.GetComponent<BoundsControl>() ? gameObject.GetComponent<BoundsControl>() : gameObject.AddComponent<BoundsControl>();
             if (boundsControl != null)
             {
-                boundsControl.Active = bounds;
+                boundsControl.enabled = bounds;
+
+                Debug.Log("Bounds set = " + bounds);
             }
         }
     }
