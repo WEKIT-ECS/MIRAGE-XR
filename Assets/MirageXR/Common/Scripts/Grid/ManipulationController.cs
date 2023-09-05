@@ -95,7 +95,7 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void OnManipulationStarted(GameObject source)
     {
-        if (!_gridManager.gridShown || !_gridManager.gridEnabled || !_gridManager.snapEnabled)
+        if (!_gridManager.snapEnabled || !RootObject.Instance.floorManager.isFloorDetected)
         {
             return;
         }
@@ -113,7 +113,7 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void OnManipulationUpdated(GameObject source)
     {
-        if (!_gridManager.gridShown || !_gridManager.gridEnabled || !_gridManager.snapEnabled)
+        if (!_gridManager.snapEnabled || !RootObject.Instance.floorManager.isFloorDetected)
         {
             return;
         }
