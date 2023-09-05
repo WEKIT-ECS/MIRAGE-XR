@@ -358,7 +358,7 @@ namespace MirageXR
                 {
                     poiEditor.IsLocked(_obj.positionLock);
 
-                    if(poiEditor.transform.GetComponent<BoundsControl>())
+                    if(poiEditor.transform.GetComponent<BoundsControl>() && _activityManager.EditModeActive)
                     {
                         poiEditor.EnableBoundsControl(!_obj.positionLock);
                     }

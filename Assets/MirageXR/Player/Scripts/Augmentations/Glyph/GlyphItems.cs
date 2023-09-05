@@ -37,7 +37,9 @@ namespace MirageXR
             }
 
             SetBoundsControl(editModeActive);
+
             OnLock(_obj.poi, _obj.positionLock);
+
         }
 
         public override bool Init(ToggleObject obj)
@@ -81,13 +83,9 @@ namespace MirageXR
         private void SetBoundsControl(bool bounds)
         {
             var boundsControl = GetComponent<BoundsControl>();
-            Debug.Log("setting Bounds = " + bounds);
-            // gameObject.GetComponent<BoundsControl>() ? gameObject.GetComponent<BoundsControl>() : gameObject.AddComponent<BoundsControl>();
             if (boundsControl != null)
             {
                 boundsControl.enabled = bounds;
-
-                Debug.Log("Bounds set = " + bounds);
             }
         }
     }
