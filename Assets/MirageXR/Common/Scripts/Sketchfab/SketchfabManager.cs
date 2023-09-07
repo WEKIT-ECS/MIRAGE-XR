@@ -392,6 +392,19 @@ namespace MirageXR
             yield return null;
         }
 
+        public void OnLogoutClicked()
+        {
+            DialogWindow.Instance.Show("Are you sure you want to logout?", new DialogButtonContent("Yes", Logout),
+                new DialogButtonContent("No"));
+        }
+
+
+        private void Logout()
+        {
+            LocalFiles.RemoveKey("sketchfab");
+            ToggleDisplayPanels("login");
+        }
+
         #endregion Authentication and Login
 
         #region Search Functions
