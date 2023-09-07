@@ -1,13 +1,13 @@
 ﻿using i5.Toolkit.Core.OpenIDConnectClient;
+using i5.Toolkit.Core.ServiceCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
-using System.Collections.Generic;
-using System.IO;
-using i5.Toolkit.Core.ServiceCore;
-using Newtonsoft.Json;
 
 
 namespace MirageXR
@@ -541,6 +541,8 @@ namespace MirageXR
             }
             else
             {
+                DialogWindow.Instance.Show("Error downloading model, try re-logging in");
+
                 Debug.Log(www.error);
             }
         }
