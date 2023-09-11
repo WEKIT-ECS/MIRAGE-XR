@@ -541,7 +541,7 @@ namespace MirageXR
             }
             else
             {
-                DialogWindow.Instance.Show("Error downloading model, try re-logging in");
+                DialogWindow.Instance.Show("Error downloading model, try re-logging in", new DialogButtonContent("Ok"));
 
                 Debug.Log(www.error);
             }

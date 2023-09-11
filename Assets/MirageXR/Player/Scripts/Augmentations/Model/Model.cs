@@ -18,13 +18,6 @@ namespace MirageXR
 
         public ToggleObject MyToggleObject => _obj;
 
-        private ObjectManipulator objectManipulator;
-
-        private void Awake()
-        {
-            objectManipulator = gameObject.GetComponent<ObjectManipulator>() ? gameObject.GetComponent<ObjectManipulator>() : gameObject.AddComponent<ObjectManipulator>();
-        }
-
         private void Start()
         {
             Subscribe();
@@ -203,8 +196,6 @@ namespace MirageXR
                     gridManager.onTranslateStopped?.Invoke(boundsControl.Target);
                     poiEditor.OnChanged();
                 });
-
-                boundsControl.enabled = !_obj.positionLock;
             }
         }
 
@@ -349,8 +340,6 @@ namespace MirageXR
             if (id == _obj.poi)
             {
                 _obj.positionLock = locked;
-
-                objectManipulator.enabled = !_obj.positionLock;
 
                 var poiEditor = GetComponentInParent<PoiEditor>();
 
