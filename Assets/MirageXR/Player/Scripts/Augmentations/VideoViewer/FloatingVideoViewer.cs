@@ -1,5 +1,4 @@
 ﻿using i5.Toolkit.Core.ServiceCore;
-using i5.Toolkit.Core.VerboseLogging;
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Collections;
@@ -569,14 +568,26 @@ namespace MirageXR
             if (id == _obj.poi)
             {
                 _obj.positionLock = locked;
-                this.GetComponentInParent<ObjectManipulator>().enabled = !_obj.positionLock;
-                this.GetComponentInParent<BoundsControl>().enabled = !_obj.positionLock;
+
+                GetComponent<BoundsControl>().enabled = !_obj.positionLock;
+
+                GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock);
+
+                if (gameObject.GetComponent<ObjectManipulator>())
+                {
+                    gameObject.GetComponent<ObjectManipulator>().enabled = !_obj.positionLock;
+                }
             }
         }
 
-        private void OnDisable()
+        private void OnDestroy()
         {
             EventManager.OnAugmentationLocked -= OnLock;
+        }
+
+        public override void Delete()
+        {
+
         }
     }
 }

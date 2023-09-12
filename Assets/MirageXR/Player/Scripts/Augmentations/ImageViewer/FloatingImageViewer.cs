@@ -246,6 +246,7 @@ namespace MirageXR
             {
                 Destroy(_texture);
             }
+            EventManager.OnAugmentationLocked -= OnLock;
         }
 
         private void OnLock(string id, bool locked)
@@ -253,14 +254,19 @@ namespace MirageXR
             if (id == _obj.poi)
             {
                 _obj.positionLock = locked;
-                this.GetComponentInParent<ObjectManipulator>().enabled = !_obj.positionLock;
-                this.GetComponentInParent<BoundsControl>().enabled = !_obj.positionLock;
+
+                GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock);
+
+                if (gameObject.GetComponent<ObjectManipulator>())
+                {
+                    gameObject.GetComponent<ObjectManipulator>().enabled = !_obj.positionLock;
+                }
             }
         }
 
-        private void OnDisable()
+        public override void Delete()
         {
-            EventManager.OnAugmentationLocked -= OnLock;
+
         }
     }
 }

@@ -595,7 +595,7 @@ namespace MirageXR
 
         public async Task ActivateActionByIndex(int index)
         {
-            if (Activity.actions.Count - 1 < index || index < 0)
+            if (Activity.actions.Count > index || index < 0)
             {
                 await DeactivateAction(ActiveAction.id, true);
                 await ActivateAction(ActionsOfTypeAction[index].id);

@@ -56,7 +56,7 @@ public class PickAndPlaceEditor : MonoBehaviour
             _annotationToEdit.predicate = "pickandplace";
         }
         _annotationToEdit.text = _textInputField.text;
-        _annotationToEdit.key = _resetOption.ToString();
+        _annotationToEdit.key = "1";
 
         CreateOrRemoveTrigger(_isCorrectTrigger, TriggerMode.PickAndPlace, "correct", _correctStepIndex.text);
         CreateOrRemoveTrigger(_isIncorrectTrigger, TriggerMode.IncorrectPickAndPlace, "incorrect", _incorrectStepIndex.text);
