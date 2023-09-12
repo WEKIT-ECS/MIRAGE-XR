@@ -18,7 +18,6 @@ namespace MirageXR
 
         public ToggleObject MyToggleObject => _obj;
 
-
         private void Start()
         {
             Subscribe();
@@ -159,7 +158,7 @@ namespace MirageXR
 
             if (poiEditor)
             {
-                poiEditor.EnableBoundsControl(true);
+                poiEditor.EnableBoundsControl(!_obj.positionLock);
             }
 
             var gridManager = RootObject.Instance.gridManager;
@@ -197,8 +196,6 @@ namespace MirageXR
                     gridManager.onTranslateStopped?.Invoke(boundsControl.Target);
                     poiEditor.OnChanged();
                 });
-
-                boundsControl.enabled = !_obj.positionLock;
             }
         }
 
@@ -344,19 +341,21 @@ namespace MirageXR
             {
                 _obj.positionLock = locked;
 
-                var bounds = this.GetComponentInParent<BoundsControl>();
+                var poiEditor = GetComponentInParent<PoiEditor>();
 
-                if (bounds != null)
+                if (poiEditor)
                 {
-                    this.GetComponentInParent<BoundsControl>().enabled = !_obj.positionLock;
+                    poiEditor.IsLocked(_obj.positionLock);
+
+                    if(poiEditor.transform.GetComponent<BoundsControl>() && _activityManager.EditModeActive)
+                    {
+                        poiEditor.EnableBoundsControl(!_obj.positionLock);
+                    }
                 }
 
-                var objectManipulator = this.GetComponentInParent<ObjectManipulator>();
-
-                if (objectManipulator != null)
+                if (gameObject.GetComponent<ObjectManipulator>())
                 {
-                    this.GetComponentInParent<ObjectManipulator>().enabled = !_obj.positionLock;
-
+                    gameObject.GetComponent<ObjectManipulator>().enabled = !_obj.positionLock;
                 }
             }
         }
@@ -364,6 +363,11 @@ namespace MirageXR
         private void OnDisable()
         {
             EventManager.OnAugmentationLocked -= OnLock;
+        }
+
+        public override void Delete()
+        {
+
         }
     }
 }

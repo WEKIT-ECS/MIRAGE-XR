@@ -1,13 +1,13 @@
 ﻿using i5.Toolkit.Core.OpenIDConnectClient;
+using i5.Toolkit.Core.ServiceCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
-using System.Collections.Generic;
-using System.IO;
-using i5.Toolkit.Core.ServiceCore;
-using Newtonsoft.Json;
 
 
 namespace MirageXR
@@ -392,6 +392,19 @@ namespace MirageXR
             yield return null;
         }
 
+        public void OnLogoutClicked()
+        {
+            DialogWindow.Instance.Show("Are you sure you want to logout?", new DialogButtonContent("Yes", Logout),
+                new DialogButtonContent("No"));
+        }
+
+
+        private void Logout()
+        {
+            LocalFiles.RemoveKey("sketchfab");
+            ToggleDisplayPanels("login");
+        }
+
         #endregion Authentication and Login
 
         #region Search Functions
@@ -528,6 +541,8 @@ namespace MirageXR
             }
             else
             {
+                DialogWindow.Instance.Show("Error downloading model, try re-logging in", new DialogButtonContent("Ok"));
+
                 Debug.Log(www.error);
             }
         }

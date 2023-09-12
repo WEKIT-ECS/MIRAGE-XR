@@ -110,11 +110,7 @@ namespace MirageXR
             {
                 _obj.positionLock = locked;
 
-                var objectManiulator = this.GetComponentInParent<ObjectManipulator>();
-                if (objectManiulator)
-                {
-                    objectManiulator.enabled = !_obj.positionLock;
-                }
+                GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock);
             }
         }
 
@@ -124,6 +120,11 @@ namespace MirageXR
             Color color = new Color(float.Parse(rgba[0]), float.Parse(rgba[1]), float.Parse(rgba[2]), float.Parse(rgba[3]));
 
             return color;
+        }
+
+        private void OnDisable()
+        {
+            EventManager.OnAugmentationLocked -= OnLock;
         }
     }
 }
