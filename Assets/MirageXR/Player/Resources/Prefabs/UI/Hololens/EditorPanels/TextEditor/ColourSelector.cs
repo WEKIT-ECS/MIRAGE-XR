@@ -19,7 +19,7 @@ public class ColourSelector : MonoBehaviour
     {
         _selectedColour = image.color;
         _onColourSelected.Invoke();
-        Close();
+        //Close();
     }
 
     public void Open()
