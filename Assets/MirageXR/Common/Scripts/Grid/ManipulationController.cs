@@ -118,9 +118,12 @@ public class ManipulationController : MonoBehaviour, IDisposable
             return;
         }
 
-        UpdateCopyPosition(source);
-        SnapToGrid(_copy);
-        UpdateGridLines(_copy);
+        if (_copy)
+        {
+            UpdateCopyPosition(source);
+            SnapToGrid(_copy);
+            UpdateGridLines(_copy);
+        }
     }
 
     private void OnManipulationEnded(GameObject source)
@@ -276,8 +279,11 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void UpdateCopyPosition(GameObject source)
     {
-        _copy.SetPose(source.GetPose());
-        _copy.transform.localScale = source.transform.lossyScale;
+        if (_copy)
+        {
+            _copy.SetPose(source.GetPose());
+            _copy.transform.localScale = source.transform.lossyScale;
+        }
     }
 
     private void HideCopy()
