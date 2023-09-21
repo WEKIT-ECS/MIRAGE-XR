@@ -42,8 +42,8 @@ namespace MirageXR
         /// <summary>
         /// Logs in a user with the given credentials
         /// </summary>
-        /// <param name="username">The username of the user which should be logged in</param>
-        /// <param name="password">The password of the user which should be logged in</param>
+        /// <param name="username">The username of the user to log in</param>
+        /// <param name="password">The password of the user to log in</param>
         /// <returns>Returns true if the login was successful, otherwise false</returns>
         public async Task<bool> Login(string username, string password)
         {
@@ -85,7 +85,7 @@ namespace MirageXR
 
             if (!DBManager.LoggedIn)
             {
-                Debug.LogError("You are not logged in");
+                Debug.LogError("[MoodleManager] Moodle upload failed: User not logged in");
                 return (false, "Error: You are not logged in");
             }
 
@@ -125,12 +125,12 @@ namespace MirageXR
             // The file handling response should be displayed as Log, not LogError
             if (response.Contains("File exist"))
             {
-                Debug.LogError($"Error on uploading: {response}");
+                Debug.LogError($"[MoodleManager] Error on uploading: {response}");
             }
             else
             {
-                Maggie.Speak("Uploading ARLEM failed. Check your system administrator.");
-                Debug.LogError($"Error on uploading: {response}");
+                Maggie.Speak("Upload of the activity failed. Please check with your system administrator.");
+                Debug.LogError($"[MoodleManager] Error on uploading: {response}");
             }
 
             if (_progressText)
@@ -164,7 +164,7 @@ namespace MirageXR
             var (result, response) = await Network.GetCustomDataFromAPIRequestAsync(DBManager.token, DBManager.domain, requestValue, function, parametersValueFormat);
             if (!result)
             {
-                Debug.LogError($"Can't get UserId, error: {response}");
+                Debug.LogError($"[MoodleManager] Can't get UserId, error: {response}");
                 return null;
             }
             DBManager.userid = Regex.Replace(response, "[^0-9]+", string.Empty); // only numbers
@@ -184,7 +184,7 @@ namespace MirageXR
             var (result, response) = await Network.GetCustomDataFromAPIRequestAsync(DBManager.token, DBManager.domain, requestValue, function, parametersValueFormat);
             if (!result)
             {
-                Debug.LogError($"Can't get Usermail, error: {response}");
+                Debug.LogError($"[MoodleManager] Can't get Usermail, error: {response}");
                 return null;
             }
 
@@ -228,7 +228,7 @@ namespace MirageXR
 
             if (!result || response.StartsWith("Error"))
             {
-                Debug.LogError($"Network error\nmessage: {response}");
+                Debug.LogError($"[MoodleManager] Network error: {response}");
                 return null;
             }
 
@@ -246,7 +246,7 @@ namespace MirageXR
 
                 if (json == emptyJson)
                 {
-                    Debug.LogWarning("Probably there is no public activity on the server.");
+                    Debug.LogWarning("[MoodleManager] Probably there is no public activity on the server.");
                     return arlemList;
                 }
 
@@ -264,7 +264,7 @@ namespace MirageXR
             }
             catch (Exception e)
             {
-                Debug.LogError($"ParseArlemListJson error\nmessage: {e}");
+                Debug.LogError($"[MoodleManager] ParseArlemListJson error\nmessage: {e}");
                 return null;
             }
         }
@@ -282,11 +282,11 @@ namespace MirageXR
             var value = result && !response.StartsWith("Error");
             if (value)
             {
-                Debug.LogInfo(sessionID + " is deleted from server");
+                Debug.LogInfo("[MoodleManager] " + sessionID + " is deleted from server");
             }
             else
             {
-                Debug.LogError(response);
+                Debug.LogError("[MoodleManager] error deleting:" + response);
             }
 
             return value;
@@ -304,11 +304,11 @@ namespace MirageXR
             if (!result || response.StartsWith("Error"))
             {
                 var maxLenght = 200;
-                Debug.LogError(response.Length > maxLenght ? response.Substring(0, maxLenght) : response);
+                Debug.LogError("[MoodleManager] error while increasing the hit counter of the activity:" + response.Length > maxLenght ? response.Substring(0, maxLenght) : response);
             }
             else
             {
-                Debug.LogTrace(" Views column of the activity is increased");
+                Debug.LogTrace("[MoodleManager] hit counter of activity successfully increased");
             }
         }
 
@@ -336,7 +336,7 @@ namespace MirageXR
             }
             catch (Exception e)
             {
-                Debug.LogError($"compression error: {e}");
+                Debug.LogError($"[MoodleManager] compression error: {e}");
             }
 
             return bytes;
@@ -379,7 +379,7 @@ namespace MirageXR
                 }
                 else
                 {
-                    Debug.LogError(error);
+                    Debug.LogError("[MoodleManager] error during download of activity: " + error);
                 }
             }
             catch (Exception e)
