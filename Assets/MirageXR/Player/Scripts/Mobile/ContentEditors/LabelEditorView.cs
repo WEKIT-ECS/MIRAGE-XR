@@ -1,6 +1,6 @@
-﻿using System;
-using DG.Tweening;
+﻿using DG.Tweening;
 using MirageXR;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,6 +19,7 @@ public class LabelEditorView : PopupEditorBase
 
     [SerializeField] private TMP_InputField _inputField;
     [SerializeField] private Toggle _toggleTrigger;
+    [SerializeField] private Toggle _toggleBillboard;
     [SerializeField] private Button _btnIncreaseGazeDuration;
     [SerializeField] private Button _btnDecreaseGazeDuration;
     [SerializeField] private TMP_Text _txtGazeDurationValue;
@@ -45,8 +46,9 @@ public class LabelEditorView : PopupEditorBase
     private Trigger _trigger;
     private float _gazeDuration;
     private int _triggerStepIndex;
+    private bool _isBillboarded;
 
-    public enum SettingsPanel {Size, Font, Background};
+    public enum SettingsPanel { Size, Font, Background };
     public SettingsPanel _settingsPanelStart = SettingsPanel.Background;
 
 
@@ -55,6 +57,7 @@ public class LabelEditorView : PopupEditorBase
         _showBackground = false;
         base.Initialization(onClose, args);
         _toggleTrigger.onValueChanged.AddListener(OnTriggerValueChanged);
+        _toggleBillboard.onValueChanged.AddListener(OnBillboardValueChanged);
         _btnIncreaseGazeDuration.onClick.AddListener(OnIncreaseGazeDuration);
         _btnDecreaseGazeDuration.onClick.AddListener(OnDecreaseGazeDuration);
         _btnArrow.onClick.AddListener(OnArrowButtonPressed);
@@ -94,6 +97,8 @@ public class LabelEditorView : PopupEditorBase
         {
             _inputField.text = _content.text;
             _trigger = _step.triggers.Find(tr => tr.id == _content.poi);
+            _isBillboarded = _content.billboarded;
+            _toggleBillboard.isOn = _content.billboarded;
 
             if (_trigger != null)
             {
@@ -168,6 +173,11 @@ public class LabelEditorView : PopupEditorBase
         _clampedScrollObject.SetActive(value);
     }
 
+    private void OnBillboardValueChanged(bool value)
+    {
+        _isBillboarded = value;
+    }
+
     protected override void OnAccept()
     {
         if (string.IsNullOrEmpty(_inputField.text))
@@ -187,6 +197,7 @@ public class LabelEditorView : PopupEditorBase
         }
         _content.text = _inputField.text;
         _content.option = _exampleLabel.fontSize.ToString() + "-" + _exampleLabel.color.ToString() + "-" + _exampleLabelBackground.color.ToString();
+        _content.billboarded = _isBillboarded;
 
         if (_toggleTrigger.isOn)
         {

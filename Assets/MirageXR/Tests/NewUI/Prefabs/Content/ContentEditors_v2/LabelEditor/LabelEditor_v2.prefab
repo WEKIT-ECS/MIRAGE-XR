@@ -3817,6 +3817,7 @@ MonoBehaviour:
   _btnClose: {fileID: 5637056101906075783}
   _inputField: {fileID: 8167633506762017616}
   _toggleTrigger: {fileID: 1055088439722373923}
+  _toggleBillboard: {fileID: 6677569699273963298}
   _btnIncreaseGazeDuration: {fileID: 5740265520945019918}
   _btnDecreaseGazeDuration: {fileID: 187219639351340815}
   _txtGazeDurationValue: {fileID: 1003014679005250591}
@@ -5183,8 +5184,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7849080908092523393, guid: 2d5259a1589303e46990babb5e689f37,
         type: 3}
+      propertyPath: m_IsOn
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7849080908092523393, guid: 2d5259a1589303e46990babb5e689f37,
+        type: 3}
       propertyPath: m_Interactable
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2d5259a1589303e46990babb5e689f37, type: 3}
@@ -5194,6 +5200,18 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 3478739602683278499}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &6677569699273963298 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7849080908092523393, guid: 2d5259a1589303e46990babb5e689f37,
+    type: 3}
+  m_PrefabInstance: {fileID: 3478739602683278499}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &3953146289425516845
 PrefabInstance:
   m_ObjectHideFlags: 0
