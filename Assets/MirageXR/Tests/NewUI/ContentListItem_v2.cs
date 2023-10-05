@@ -41,7 +41,16 @@ public class ContentListItem_v2 : MonoBehaviour
         _content = content;
         _type = ContentTypeExtenstion.ParsePredicate(_content.predicate);
         _txtType.text = _content.predicate;
-        _txtName.text = _type.GetName();
+
+        if (_type == ContentType.LABEL || _type == ContentType.PICKANDPLACE)
+        {
+            _txtName.text = $"{_type.GetName()}: {_content.text}";
+        }
+        else
+        {
+            _txtName.text = _type.GetName();
+        }
+
         _imgType.sprite = _type.GetIcon();
 
         var stepList = activityManager.ActionsOfTypeAction;
