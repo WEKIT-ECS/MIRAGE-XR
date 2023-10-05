@@ -44,7 +44,7 @@ public class ContentListItem_v2 : MonoBehaviour
 
         if (_type == ContentType.LABEL || _type == ContentType.PICKANDPLACE)
         {
-            _txtName.text = _type.GetName() + ": " + _content.text;
+            _txtName.text = $"{_type.GetName()}: {_content.text}";
         }
         else
         {
