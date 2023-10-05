@@ -23,8 +23,8 @@ public class GlyphEditorView : PopupEditorBase
     [SerializeField] private ActionObject[] _actionObjects;
     [Space]
     [SerializeField] private Button _accept;
-    [SerializeField] private GameObject _acceptBtnOb;
-    [SerializeField] private GameObject _closeBtnOb;
+    [SerializeField] private GameObject _acceptButtonObject;
+    [SerializeField] private GameObject _closeButtonObject;
 
     private Trigger _trigger;
     private float _gazeDuration;
@@ -79,8 +79,8 @@ public class GlyphEditorView : PopupEditorBase
 
         if (_content != null)
         {
-            _closeBtnOb.SetActive(false);
-            _acceptBtnOb.SetActive(true);
+            _closeButtonObject.SetActive(false);
+            _acceptButtonObject.SetActive(true);
 
             _trigger = _step.triggers.Find(tr => tr.id == _content.poi);
             if (_trigger != null)
