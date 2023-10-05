@@ -1,8 +1,7 @@
-﻿using i5.Toolkit.Core.VerboseLogging;
-using Microsoft.MixedReality.Toolkit.UI;
+﻿using Microsoft.MixedReality.Toolkit.UI;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 namespace MirageXR
 {
@@ -61,7 +60,6 @@ namespace MirageXR
                     return false;
                 }
             }
-
             else
             {
                 gameObject.AddComponent<Billboard>();
@@ -77,9 +75,17 @@ namespace MirageXR
                 _labelBackground.color = GetColorFromString(splitArray[2]);
             }
 
+            GetComponentInChildren<Billboard>().enabled = obj.billboarded;
+
             // Set scaling if defined in action configuration.
             var myPoiEditor = transform.parent.gameObject.GetComponent<PoiEditor>();
-            transform.parent.localScale = GetPoiScale(myPoiEditor, Vector3.one);
+
+
+            if (!_obj.billboarded)
+            {
+                myPoiEditor = transform.parent.gameObject.GetComponent<PoiEditor>();
+                transform.localEulerAngles = GetPoiRotation(myPoiEditor);
+            }
 
             OnLock(_obj.poi, _obj.positionLock);
             EventManager.OnAugmentationLocked += OnLock;
