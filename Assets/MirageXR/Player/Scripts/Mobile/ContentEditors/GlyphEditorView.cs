@@ -21,11 +21,16 @@ public class GlyphEditorView : PopupEditorBase
     [SerializeField] private Button _btnNextStep;
     [SerializeField] private Button _btnPreviousStep;
     [SerializeField] private ActionObject[] _actionObjects;
+    [Space]
+    [SerializeField] private Button _accept;
+    [SerializeField] private GameObject _acceptBtnOb;
+    [SerializeField] private GameObject _closeBtnOb;
 
     private Trigger _trigger;
     private float _gazeDuration;
     private int _triggerStepIndex;
     private string _prefabName;
+    private bool _editing;
 
     private int _maxStepIndex => activityManager.ActionsOfTypeAction.Count - 1;
 
@@ -36,6 +41,9 @@ public class GlyphEditorView : PopupEditorBase
         _slider.onValueChanged.AddListener(OnSliderValueChanged);
         _btnNextStep.onClick.AddListener(OnNextToClick);
         _btnPreviousStep.onClick.AddListener(OnPreviousToClick);
+        _accept.onClick.AddListener(Edit);
+
+        _editing = false;
 
         UpdateView();
     }
@@ -71,6 +79,9 @@ public class GlyphEditorView : PopupEditorBase
 
         if (_content != null)
         {
+            _closeBtnOb.SetActive(false);
+            _acceptBtnOb.SetActive(true);
+
             _trigger = _step.triggers.Find(tr => tr.id == _content.poi);
             if (_trigger != null)
             {
@@ -118,14 +129,20 @@ public class GlyphEditorView : PopupEditorBase
     {
         if (_content != null)
         {
-            EventManager.DeactivateObject(_content);
+            if (!_editing)
+            {
+                EventManager.DeactivateObject(_content);
+            }
         }
         else
         {
             _content = augmentationManager.AddAugmentation(_step, GetOffset());
         }
 
-        _content.predicate = $"act:{_prefabName}";
+        if (!_editing)
+        {
+            _content.predicate = $"act:{_prefabName}";
+        }
 
         if (_toggleTrigger.isOn)
         {
@@ -136,9 +153,19 @@ public class GlyphEditorView : PopupEditorBase
             _step.RemoveArlemTrigger(_content);
         }
 
-        EventManager.ActivateObject(_content);
+        if (!_editing)
+        {
+            EventManager.ActivateObject(_content);
+        }
+
         EventManager.NotifyActionModified(_step);
 
         Close();
+    }
+
+    public void Edit()
+    {
+        _editing = true;
+        OnAccept();
     }
 }
