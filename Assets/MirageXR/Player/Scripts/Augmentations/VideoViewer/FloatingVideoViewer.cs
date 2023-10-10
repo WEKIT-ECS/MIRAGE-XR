@@ -1,12 +1,7 @@
 ﻿using i5.Toolkit.Core.ServiceCore;
 using i5.Toolkit.Core.VerboseLogging;
-using System;
-using Microsoft.MixedReality.Toolkit.UI;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Collections;
 using System.IO;
-using System.Xml;
-using TMPro;
 using UnityEngine;
 using UnityEngine.Video;
 
@@ -59,15 +54,8 @@ namespace MirageXR
         [SerializeField] private AudioSource _audioSourceLandscape;
         [SerializeField] private AudioSource _audioSourcePortrait;
 
-        private int currentTextPosition = 0;
-        private string allText = "";
-
-        [SerializeField] private TMP_Text textCaption;
-
         public bool VideoClipLoaded => _videoPlayer.clip != null;
         public float VideoDuration => (float)_videoPlayer.length;
-        private Coroutine textPickingCoroutine;
-        private string textFilePath = @"C:\Users\arws2\AppData\LocalLow\WEKIT\MirageXR\session-2023-08-21_11-44-51\MirageXR_Video_133370919088234435.txt";
 
         /// <summary>
         /// Initialization method.
@@ -106,7 +94,7 @@ namespace MirageXR
             // Check that url is not empty.
             if (string.IsNullOrEmpty(content.url))
             {
-                Debug.LogWarning("Content URL not provided.");
+                AppLog.LogWarning("Content URL not provided.");
                 return false;
             }
 
@@ -177,83 +165,10 @@ namespace MirageXR
                 _audioSource.Play();
             }
 
-            OnLock(_obj.poi, _obj.positionLock);
-            EventManager.OnAugmentationLocked += OnLock;
-            string videoDirectoryPath = Path.GetDirectoryName(videoFilePath);
-            videoDirectoryPath = videoDirectoryPath.Replace("http:/", "");
-
-            // Search for a text file in the same directory with a name starting with "MirageXR_Video_"
-            string[] textFiles = Directory.GetFiles(videoDirectoryPath, "MirageXR_Video_*.txt");
-
-            if (textFiles.Length > 0)
-            {
-                // Assuming there's only one matching text file, pick the first one
-                textFilePath = textFiles[0];
-                LoadTextFromFile(textFilePath);
-
-                // Start the coroutine to pick and update text
-                textPickingCoroutine = StartCoroutine(PickAndDisplayText());
-            }
-            else
-            {
-                Debug.LogWarning("No matching text file found for the video.");
-            }
-
             // Check if trigger is active
             StartCoroutine(ActivateTrigger());
             // If all went well, return true.
             return base.Init(content);
-
-
-            
-        }
-        private void LoadTextFromFile(string filePath)
-        {
-            try
-            {
-                allText = File.ReadAllText(filePath);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError("Error reading text file: " + e.Message);
-            }
-        }
-        private IEnumerator PickAndDisplayText()
-        {
-            while (true)
-            {
-                yield return new WaitForSeconds(6.0f); // Wait for 6 seconds
-
-                // Ensure we don't exceed the text length
-                if (currentTextPosition >= allText.Length)
-                {
-                    // Reached the end of the text, reset position
-                    currentTextPosition = 0;
-                }
-
-                // Pick the next 47 characters
-                int length = Mathf.Min(47, allText.Length - currentTextPosition);
-                string pickedText = allText.Substring(currentTextPosition, length);
-
-                // Update the TMP_Text component
-                textCaption.text = pickedText;
-
-                // Increment the position for the next iteration
-                currentTextPosition += length;
-
-                // If video is playing, synchronize text picking with video playing
-                if (isPlaying)
-                {
-                    // Get the current time of the video player
-                    double currentTime = _videoPlayer.time;
-
-                    // Calculate the delay to match the next 6-second interval
-                    float delay = 6.0f - (float)(currentTime % 6.0);
-
-                    // Wait for the calculated delay before picking new text
-                    yield return new WaitForSeconds(delay);
-                }
-            }
         }
 
         private void SetupNewRenderTexture()
@@ -642,33 +557,6 @@ namespace MirageXR
                 if (_thinLine != null)
                     _thinLine.SetActive(_originalGuideState);
             }
-        }
-
-        private void OnLock(string id, bool locked)
-        {
-            if (id == _obj.poi)
-            {
-                _obj.positionLock = locked;
-
-                GetComponent<BoundsControl>().enabled = !_obj.positionLock;
-
-                GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock);
-
-                if (gameObject.GetComponent<ObjectManipulator>())
-                {
-                    gameObject.GetComponent<ObjectManipulator>().enabled = !_obj.positionLock;
-                }
-            }
-        }
-
-        private void OnDestroy()
-        {
-            EventManager.OnAugmentationLocked -= OnLock;
-        }
-
-        public override void Delete()
-        {
-
         }
     }
 }
