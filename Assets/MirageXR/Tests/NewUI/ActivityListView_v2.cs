@@ -257,7 +257,7 @@ public class ActivityListView_v2 : BaseView
                 }
                 else
                 {
-                    AppLog.LogError("Cannot convert date");
+                    Debug.LogError("Cannot convert date");
                 }
             }
         }

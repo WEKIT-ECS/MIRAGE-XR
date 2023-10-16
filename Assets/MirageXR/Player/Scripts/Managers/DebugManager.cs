@@ -29,12 +29,12 @@ namespace MirageXR
         {
             if (DebugText == null)
             {
-                AppLog.LogError("Debug manager error: Debug text not found. Please add one in editor.");
+                Debug.LogError("Debug manager error: Debug text not found. Please add one in editor.");
             }
 
             if (DeviceInfo == null)
             {
-                AppLog.LogError("Debug manager error: Device info text not found. Please add one in editor.");
+                Debug.LogError("Debug manager error: Device info text not found. Please add one in editor.");
             }
 
             DeviceInfo.text = SystemInfo.deviceUniqueIdentifier;

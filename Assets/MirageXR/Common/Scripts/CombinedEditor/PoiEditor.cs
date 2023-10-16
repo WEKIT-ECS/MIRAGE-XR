@@ -8,9 +8,13 @@ public class PoiEditor : MonoBehaviour
     private ObjectManipulator _objectManipulator;
 
     private BoundsControl _boundsControl;
+    private ToggleObject _obj;
+    private bool isLocked = false;
     private bool _boundsControlActive = false;
 
     private float _modelMagnification = 0.0f;
+
+    private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
     public float ModelMagnification
     {
@@ -61,16 +65,28 @@ public class PoiEditor : MonoBehaviour
 
     private void OnEditModeChanged(bool editModeActive)
     {
-        if (!_objectManipulator)
-        {
-            _objectManipulator = GetOrAddComponent<ObjectManipulator>();
-        }
-
-        _objectManipulator.enabled = editModeActive;
-
         if (_boundsControl && _boundsControlActive)
         {
-            _boundsControl.enabled = editModeActive;
+            if (isLocked)
+            {
+                _boundsControl.enabled = false;
+            }
+            else
+            {
+                _boundsControl.enabled = editModeActive;
+            }
+        }
+
+        if (_objectManipulator)
+        {
+            if (isLocked)
+            {
+                _objectManipulator.enabled = false;
+            }
+            else
+            {
+                _objectManipulator.enabled = editModeActive;
+            }
         }
     }
 
@@ -197,6 +213,15 @@ public class PoiEditor : MonoBehaviour
         if (collider)
         {
             collider.enabled = enabled;
+        }
+    }
+
+    public void IsLocked(bool locked)
+    {
+        isLocked = locked;
+        if (activityManager.EditModeActive)
+        {
+            GetOrAddComponent<ObjectManipulator>().enabled = !locked;
         }
     }
 }

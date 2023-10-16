@@ -70,7 +70,7 @@ public class PickAndPlaceEditorView : PopupEditorBase
             _content.predicate = editorForType.GetPredicate();
         }
         _content.text = _inputField.text;
-        _content.key = _resetOption.ToString();
+        _content.key = "1";
 
         CreateOrRemoveTrigger(_isCorrectTrigger, TriggerMode.PickAndPlace, "correct", _correctStepIndex.text);
         CreateOrRemoveTrigger(_isIncorrectTrigger, TriggerMode.IncorrectPickAndPlace, "incorrect", _incorrectStepIndex.text);

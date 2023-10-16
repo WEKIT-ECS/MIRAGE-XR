@@ -45,4 +45,9 @@ public class AnnotationEditor : MonoBehaviour
         RootObject.Instance.augmentationManager.DeleteAugmentation(annotationListItem.DisplayedAnnotation);
 
     }
+
+    public void LockAugmentation()
+    {
+        EventManager.NotifyAugmentationLocked(annotationListItem.DisplayedAnnotation.poi, !annotationListItem.DisplayedAnnotation.positionLock);
+    }
 }

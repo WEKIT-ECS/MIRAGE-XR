@@ -16,7 +16,7 @@ public class PopupsViewer : MonoBehaviour
     {
         if (Instance != null)
         {
-            AppLog.LogError($"{Instance.GetType().FullName} must only be a single copy!");
+            Debug.LogError($"{Instance.GetType().FullName} must only be a single copy!");
             return;
         }
 
@@ -93,7 +93,7 @@ public class PopupsViewer : MonoBehaviour
     {
         if (_stack.Count <= 0)
         {
-            AppLog.LogError("Stack is empty!");
+            Debug.LogError("Stack is empty!");
             return;
         }
 

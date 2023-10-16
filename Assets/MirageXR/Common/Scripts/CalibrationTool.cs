@@ -30,7 +30,7 @@ namespace MirageXR
 
             if (imageTarget == null)
             {
-                AppLog.LogError("Can't find IImageTarget");
+                Debug.LogError("Can't find IImageTarget");
                 return;
             }
 

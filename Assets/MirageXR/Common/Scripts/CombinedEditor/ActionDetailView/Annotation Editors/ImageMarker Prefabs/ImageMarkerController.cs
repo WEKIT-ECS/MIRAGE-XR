@@ -26,13 +26,13 @@ namespace MirageXR
         {
             if (string.IsNullOrEmpty(_content.url))
             {
-                AppLog.LogError("Content URL not provided.");
+                Debug.LogError("Content URL not provided.");
                 return false;
             }
 
             if (!SetParent(_content))
             {
-                AppLog.LogError("Couldn't set the parent.");
+                Debug.LogError("Couldn't set the parent.");
                 return false;
             }
 
@@ -53,7 +53,7 @@ namespace MirageXR
 
                 if (imageTarget == null)
                 {
-                    AppLog.LogError("Can't add image target");
+                    Debug.LogError("Can't add image target");
                     return false;
                 }
             }
@@ -71,7 +71,7 @@ namespace MirageXR
 
             if (!texture.LoadImage(byteArray))
             {
-                AppLog.LogError($"Can't load image. path: {imagePath}");
+                Debug.LogError($"Can't load image. path: {imagePath}");
                 return null;
             }
 
@@ -102,7 +102,7 @@ namespace MirageXR
             }
             else
             {
-                AppLog.LogError($"Can't find detectable {detectable.id}");
+                Debug.LogError($"Can't find detectable {detectable.id}");
             }
         }
 
@@ -118,7 +118,7 @@ namespace MirageXR
             }
             else
             {
-                AppLog.LogError($"Can't find detectable {detectable.id}");
+                Debug.LogError($"Can't find detectable {detectable.id}");
             }
         }
 
@@ -139,7 +139,7 @@ namespace MirageXR
             }
             catch (Exception e)
             {
-                AppLog.LogError("Error when destroying image marker controller" + e.ToString());
+                Debug.LogError("Error when destroying image marker controller" + e.ToString());
             }
         }
     }
