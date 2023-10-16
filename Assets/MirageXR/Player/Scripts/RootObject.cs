@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
 
 namespace MirageXR
@@ -15,6 +14,8 @@ namespace MirageXR
         [SerializeField] private PointCloudManager _pointCloudManager;
         [SerializeField] private BrandManager _brandManager;
         [SerializeField] private GridManager _gridManager;
+        [SerializeField] private CameraCalibrationChecker _cameraCalibrationChecker;
+        [SerializeField] private PlatformManager _platformManager;
 
         private ActivityManager _activityManager;
         private AugmentationManager _augmentationManager;
@@ -41,6 +42,10 @@ namespace MirageXR
         public EditorSceneService editorSceneService => _editorSceneService;
 
         public WorkplaceManager workplaceManager => _workplaceManager;
+
+        public CameraCalibrationChecker cameraCalibrationChecker => _cameraCalibrationChecker;
+
+        public PlatformManager platformManager => _platformManager;
 
         private bool _isInitialized;
 
@@ -101,8 +106,9 @@ namespace MirageXR
 #if UNITY_IOS || UNITY_ANDROID || UNITY_EDITOR
                 await _pointCloudManager.InitializationAsync();
 #endif
-
                 _gridManager.Initialization();
+                _cameraCalibrationChecker.Initialization();
+                _platformManager.Initialization();
 
                 _activityManager.Subscription();
 

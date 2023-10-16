@@ -131,7 +131,7 @@ namespace MirageXR
         {
             try
             {
-                if (PlatformManager.Instance.WorldSpaceUi)
+                if (RootObject.Instance.platformManager.WorldSpaceUi)
                 {
                     MoveDetectableBack();
                     RootObject.Instance.imageTargetManager.RemoveImageTarget(_target);
