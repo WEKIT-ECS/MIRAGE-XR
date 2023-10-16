@@ -268,7 +268,7 @@ namespace MirageXR
             }
             catch (Exception e)
             {
-                AppLog.LogException(e);
+                Debug.LogException(e);
                 return false;
             }
         }
@@ -455,7 +455,7 @@ namespace MirageXR
                 }
                 catch (Exception e)
                 {
-                    AppLog.LogException(e);
+                    Debug.LogException(e);
                     throw;
                 }
             }

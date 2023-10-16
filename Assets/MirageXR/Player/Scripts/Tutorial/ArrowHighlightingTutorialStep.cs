@@ -66,7 +66,7 @@ namespace MirageXR
             }
             else
             {
-                AppLog.LogError("Highlighted object missing in tutorial step: " + this.GetType().Name);
+                Debug.LogError("Highlighted object missing in tutorial step: " + this.GetType().Name);
                 manager.CloseTutorial();
             }
         }

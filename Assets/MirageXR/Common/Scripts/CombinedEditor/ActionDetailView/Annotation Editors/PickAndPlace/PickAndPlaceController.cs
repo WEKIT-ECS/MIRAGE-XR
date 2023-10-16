@@ -92,12 +92,13 @@ namespace MirageXR
             }
 
             _pickComponent = _pickObject.GetComponent<Pick>();
-            EditModeChanges(_activityManager.EditModeActive);
 
             if (File.Exists(Path.Combine(_activityManager.ActivityPath, $"pickandplaceinfo/{_myObj.poi}.json")))
             {
                 LoadPickAndPlacePositions();
             }
+
+            EditModeChanges(_activityManager.EditModeActive);
 
             CheckTrigger("correct");
             CheckTrigger("incorrect");

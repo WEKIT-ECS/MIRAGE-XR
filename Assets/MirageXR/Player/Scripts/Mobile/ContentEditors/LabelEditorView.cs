@@ -1,6 +1,6 @@
-﻿using System;
-using DG.Tweening;
+﻿using DG.Tweening;
 using MirageXR;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,31 +19,53 @@ public class LabelEditorView : PopupEditorBase
 
     [SerializeField] private TMP_InputField _inputField;
     [SerializeField] private Toggle _toggleTrigger;
+    [SerializeField] private Toggle _toggleBillboard;
     [SerializeField] private Button _btnIncreaseGazeDuration;
     [SerializeField] private Button _btnDecreaseGazeDuration;
     [SerializeField] private TMP_Text _txtGazeDurationValue;
     [SerializeField] private GameObject _gazeDurationPanel;
     [SerializeField] private ClampedScrollRect _clampedScrollJumpToStep;
+    [SerializeField] private GameObject _clampedScrollObject;
     [SerializeField] private GameObject _templatePrefab;
+    [Space]
+    [SerializeField] public TMP_Text _exampleLabel;
+    [SerializeField] public Image _exampleLabelBackground;
+    [SerializeField] private Button _fontSizeButton;
+    [SerializeField] private Button _fontColorButton;
+    [SerializeField] private Button _backgroundColorButton;
+    [SerializeField] private Image _fontColourButtonImage;
+    [SerializeField] private Image _backgroundColourButtonImage;
+    [SerializeField] private TMP_Text _fontSizeText;
     [Space]
     [SerializeField] private Button _btnArrow;
     [SerializeField] private RectTransform _panel;
     [SerializeField] private GameObject _arrowDown;
     [SerializeField] private GameObject _arrowUp;
+    [SerializeField] private LabelSettings _labelSettings;
 
     private Trigger _trigger;
     private float _gazeDuration;
     private int _triggerStepIndex;
+    private bool _isBillboarded;
+
+    public enum SettingsPanel { Size, Font, Background };
+    public SettingsPanel _settingsPanelStart = SettingsPanel.Background;
+
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
         _showBackground = false;
         base.Initialization(onClose, args);
         _toggleTrigger.onValueChanged.AddListener(OnTriggerValueChanged);
+        _toggleBillboard.onValueChanged.AddListener(OnBillboardValueChanged);
         _btnIncreaseGazeDuration.onClick.AddListener(OnIncreaseGazeDuration);
         _btnDecreaseGazeDuration.onClick.AddListener(OnDecreaseGazeDuration);
         _btnArrow.onClick.AddListener(OnArrowButtonPressed);
         _clampedScrollJumpToStep.onItemChanged.AddListener(OnItemJumpToStepChanged);
+
+        _fontSizeButton.onClick.AddListener(ShowFontSizePanel);
+        _fontColorButton.onClick.AddListener(ShowFontColorPanel);
+        _backgroundColorButton.onClick.AddListener(ShowBackgroundColorPanel);
 
         var steps = activityManager.ActionsOfTypeAction;
         var stepsCount = steps.Count;
@@ -75,13 +97,29 @@ public class LabelEditorView : PopupEditorBase
         {
             _inputField.text = _content.text;
             _trigger = _step.triggers.Find(tr => tr.id == _content.poi);
+            _isBillboarded = _content.billboarded;
+            _toggleBillboard.isOn = _content.billboarded;
+
             if (_trigger != null)
             {
                 _toggleTrigger.isOn = true;
                 _triggerStepIndex = int.Parse(_trigger.value) - 1;
                 _gazeDuration = _trigger.duration;
             }
+
+            if (_content.option != "")
+            {
+                string[] splitArray = _content.option.Split(char.Parse("-"));
+
+                _exampleLabel.text = _content.text;
+
+                _exampleLabel.fontSize = int.Parse(splitArray[0]);
+
+                _exampleLabel.color = GetColorFromString(splitArray[1]);
+                _exampleLabelBackground.color = GetColorFromString(splitArray[2]);
+            }
         }
+        UpdateButtonColours();
     }
 
     private void InitClampedScrollRect(ClampedScrollRect clampedScrollRect, GameObject templatePrefab, int maxCount, string text)
@@ -132,6 +170,12 @@ public class LabelEditorView : PopupEditorBase
     private void OnTriggerValueChanged(bool value)
     {
         _gazeDurationPanel.SetActive(value);
+        _clampedScrollObject.SetActive(value);
+    }
+
+    private void OnBillboardValueChanged(bool value)
+    {
+        _isBillboarded = value;
     }
 
     protected override void OnAccept()
@@ -152,6 +196,8 @@ public class LabelEditorView : PopupEditorBase
             _content.predicate = editorForType.GetPredicate();
         }
         _content.text = _inputField.text;
+        _content.option = _exampleLabel.fontSize.ToString() + "-" + _exampleLabel.color.ToString() + "-" + _exampleLabelBackground.color.ToString();
+        _content.billboarded = _isBillboarded;
 
         if (_toggleTrigger.isOn)
         {
@@ -187,5 +233,57 @@ public class LabelEditorView : PopupEditorBase
     private void OnDestroy()
     {
         RootView_v2.Instance.ShowBaseView();
+    }
+
+    private Color GetColorFromString(string rgb)
+    {
+        string[] rgba = rgb.Substring(5, rgb.Length - 6).Split(", ");
+        Color color = new Color(float.Parse(rgba[0]), float.Parse(rgba[1]), float.Parse(rgba[2]), float.Parse(rgba[3]));
+
+        return color;
+    }
+
+    public void onInputChanged()
+    {
+        _exampleLabel.text = _inputField.text;
+    }
+
+    private void UpdateButtonColours()
+    {
+        _fontColourButtonImage.color = _exampleLabel.color;
+        _backgroundColourButtonImage.color = _exampleLabelBackground.color;
+        _fontSizeText.text = _exampleLabel.fontSize.ToString();
+    }
+
+    private void ShowFontSizePanel()
+    {
+        _settingsPanelStart = SettingsPanel.Size;
+        ShowSettings();
+    }
+
+    private void ShowFontColorPanel()
+    {
+        _settingsPanelStart = SettingsPanel.Font;
+        ShowSettings();
+    }
+
+    private void ShowBackgroundColorPanel()
+    {
+        _settingsPanelStart = SettingsPanel.Background;
+        ShowSettings();
+    }
+
+    private void ShowSettings()
+    {
+        PopupsViewer.Instance.Show(_labelSettings, this);
+    }
+
+    public void LabelSettingsChanged(Color font, Color background, float size)
+    {
+        _exampleLabelBackground.color = background;
+        _exampleLabel.color = font;
+        _exampleLabel.fontSize = size;
+
+        UpdateButtonColours();
     }
 }

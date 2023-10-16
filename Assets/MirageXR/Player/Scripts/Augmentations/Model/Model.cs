@@ -1,23 +1,22 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using UnityEngine;
-using Siccity.GLTFUtility;
-using i5.Toolkit.Core.VerboseLogging;
+﻿using i5.Toolkit.Core.VerboseLogging;
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
+using Siccity.GLTFUtility;
+using System.Collections.Generic;
+using System.IO;
+using UnityEngine;
 
 namespace MirageXR
 {
     public class Model : MirageXRPrefab
-    { 
+    {
         private static ActivityManager _activityManager => RootObject.Instance.activityManager;
 
         private float startLoadTime = 0.0f;
-        private ToggleObject myToggleObject;
+        private ToggleObject _obj;
         private Animation animation;
 
-        public ToggleObject MyToggleObject => myToggleObject;
-
+        public ToggleObject MyToggleObject => _obj;
 
         private void Start()
         {
@@ -58,19 +57,19 @@ namespace MirageXR
         /// <returns>Returns true if initialization successful.</returns>
         public override bool Init(ToggleObject obj)
         {
-            myToggleObject = obj;
+            _obj = obj;
 
             // Check that url is not empty.
             if (string.IsNullOrEmpty(obj.url))
             {
-                AppLog.LogWarning("Content URL not provided.");
+                Debug.LogWarning("Content URL not provided.");
                 return false;
             }
 
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
-                AppLog.LogWarning("Couldn't set the parent.");
+                Debug.LogWarning("Couldn't set the parent.");
                 return false;
             }
 
@@ -85,6 +84,9 @@ namespace MirageXR
                 if (!SetGuide(obj)) return false;
             }
 
+            OnLock(_obj.poi, _obj.positionLock);
+            EventManager.OnAugmentationLocked += OnLock;
+
             // If all went well, return true.
 
             return true;
@@ -98,7 +100,7 @@ namespace MirageXR
 
             var loadPath = Path.Combine(RootObject.Instance.activityManager.ActivityPath, obj.option, "scene.gltf");
 
-            AppLog.LogTrace($"Loading model: {loadPath}");
+            Debug.LogTrace($"Loading model: {loadPath}");
 
             Importer.ImportGLTFAsync(loadPath, new ImportSettings(), OnFinishLoadingAsync);
         }
@@ -111,7 +113,7 @@ namespace MirageXR
                 return;
             }
 
-            AppLog.LogTrace($"Imported {model.name} in {Time.time - startLoadTime} seconds");
+            Debug.LogTrace($"Imported {model.name} in {Time.time - startLoadTime} seconds");
 
             var startPos = transform.position + transform.forward * -0.5f + transform.up * -0.1f;
 
@@ -120,7 +122,7 @@ namespace MirageXR
             model.transform.position = startPos;
             model.transform.localRotation = Quaternion.identity;
 
-            model.name = myToggleObject.option;
+            model.name = _obj.option;
             model.transform.localRotation *= Quaternion.Euler(-90f, 0f, 0f);
 
             ConfigureModel(model, clip);
@@ -137,7 +139,7 @@ namespace MirageXR
 
             if (clip.Length > 0)
             {
-                AppLog.LogDebug($"Animation(s) found ({clip.Length})...isLegacy? {clip[0].legacy}");
+                Debug.LogDebug($"Animation(s) found ({clip.Length})...isLegacy? {clip[0].legacy}");
 
                 animation = model.AddComponent<Animation>();
                 animation.AddClip(clip[0], "leaning");
@@ -156,7 +158,7 @@ namespace MirageXR
 
             if (poiEditor)
             {
-                poiEditor.EnableBoundsControl(true);
+                poiEditor.EnableBoundsControl(!_obj.positionLock);
             }
 
             var gridManager = RootObject.Instance.gridManager;
@@ -276,7 +278,7 @@ namespace MirageXR
                 }
             }
 
-            AppLog.LogDebug($"largest collider: {largestColliderIndex} ({colliderSize.ToString("F4")})");
+            Debug.LogDebug($"largest collider: {largestColliderIndex} ({colliderSize.ToString("F4")})");
 
             // set magnification and translation factors based on gltf info.
             float magnificationFactor = 0.5f / colliderSize.magnitude;
@@ -298,7 +300,7 @@ namespace MirageXR
             }
 
             myPoiEditor.ModelMagnification = magnificationFactor;
-            AppLog.LogDebug($"{modelToAdjust.name} has file mag. factor {magnificationFactor:F4}");
+            Debug.LogDebug($"{modelToAdjust.name} has file mag. factor {magnificationFactor:F4}");
 
             modelToAdjust.transform.localScale *= myPoiEditor.ModelMagnification;
             modelToAdjust.transform.localPosition = Vector3.zero;
@@ -306,7 +308,7 @@ namespace MirageXR
 
         private void DeleteModelData(ToggleObject augmentation)
         {
-            if (augmentation != myToggleObject) return;
+            if (augmentation != _obj) return;
 
             // check for existing model folder and delete if necessary
             var arlemPath = RootObject.Instance.activityManager.ActivityPath;
@@ -315,7 +317,7 @@ namespace MirageXR
 
             if (Directory.Exists(modelFolderPath))
             {
-                AppLog.LogTrace("found model folder (" + modelFolderPath + "). Deleting...");
+                Debug.LogTrace("found model folder (" + modelFolderPath + "). Deleting...");
                 Utilities.DeleteAllFilesInDirectory(modelFolderPath);
                 Directory.Delete(modelFolderPath);
             }
@@ -331,6 +333,41 @@ namespace MirageXR
                     }
                 }
             }
+        }
+
+        private void OnLock(string id, bool locked)
+        {
+            if (id == _obj.poi)
+            {
+                _obj.positionLock = locked;
+
+                var poiEditor = GetComponentInParent<PoiEditor>();
+
+                if (poiEditor)
+                {
+                    poiEditor.IsLocked(_obj.positionLock);
+
+                    if(poiEditor.transform.GetComponent<BoundsControl>() && _activityManager.EditModeActive)
+                    {
+                        poiEditor.EnableBoundsControl(!_obj.positionLock);
+                    }
+                }
+
+                if (gameObject.GetComponent<ObjectManipulator>())
+                {
+                    gameObject.GetComponent<ObjectManipulator>().enabled = !_obj.positionLock;
+                }
+            }
+        }
+
+        private void OnDisable()
+        {
+            EventManager.OnAugmentationLocked -= OnLock;
+        }
+
+        public override void Delete()
+        {
+
         }
     }
 }

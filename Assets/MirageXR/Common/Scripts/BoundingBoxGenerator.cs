@@ -20,6 +20,7 @@ namespace MirageXR
     {
         [Tooltip("Check this if you will disable only bounding box of some of the children of this object when editmode is disabled. Or if you do not want enable bounding box when edit mode is on. ")]
         [SerializeField] private bool manualEditModeHandling;
+        private bool _isLocked = false;
 
         public ScaleHandlesConfiguration CustomScaleHandlesConfiguration
         {
@@ -64,6 +65,8 @@ namespace MirageXR
             BoundingRotationType boundingRotationType = BoundingRotationType.ALL,
             bool AddManipulator = false)
         {
+            _isLocked = annotationToggleObject.positionLock;
+
             if (!hasConstraintManager && !GetComponent<ConstraintManager>())
             {
                 gameObject.AddComponent<ConstraintManager>();
@@ -148,14 +151,29 @@ namespace MirageXR
             {
                 var boundsControl = GetComponent<BoundsControl>();
                 var objectManipulator = GetComponent<ObjectManipulator>();
+
                 if (boundsControl)
                 {
-                    boundsControl.enabled = editMode;
+                    if (_isLocked)
+                    {
+                        boundsControl.enabled = false;
+                    }
+                    else
+                    {
+                        boundsControl.enabled = editMode;
+                    }
                 }
 
                 if (objectManipulator)
                 {
-                    objectManipulator.enabled = editMode;
+                    if (_isLocked)
+                    {
+                        objectManipulator.enabled = false;
+                    }
+                    else
+                    {
+                        objectManipulator.enabled = editMode;
+                    }
                 }
             }
         }

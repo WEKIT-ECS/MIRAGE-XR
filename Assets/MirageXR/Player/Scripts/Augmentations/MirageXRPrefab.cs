@@ -230,7 +230,7 @@ namespace MirageXR
         /// </summary>
         public virtual void Delete()
         {
-            if (gameObject != null)
+            if (gameObject)
                 Destroy(gameObject);
         }
 

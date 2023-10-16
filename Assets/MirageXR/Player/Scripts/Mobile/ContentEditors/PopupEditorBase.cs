@@ -49,7 +49,7 @@ public abstract class PopupEditorBase : PopupBase
         var originT = GameObject.Find(detectable.id);   // TODO: replace by direct reference to the object
         if (!originT)
         {
-            AppLog.LogError($"Can't find detectable {detectable.id}");
+            Debug.LogError($"Can't find detectable {detectable.id}");
             return annotationStartingPoint.transform.position;
         }
 
@@ -57,7 +57,7 @@ public abstract class PopupEditorBase : PopupBase
 
         if (!detectableBehaviour)
         {
-            AppLog.LogError($"Can't find DetectableBehaviour");
+            Debug.LogError($"Can't find DetectableBehaviour");
             return annotationStartingPoint.transform.position;
         }
 

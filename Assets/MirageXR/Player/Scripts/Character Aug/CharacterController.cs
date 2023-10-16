@@ -136,7 +136,7 @@ namespace MirageXR
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
-                AppLog.LogWarning("Couldn't set the parent.");
+                Debug.LogWarning("Couldn't set the parent.");
                 return false;
             }
 
@@ -903,7 +903,7 @@ namespace MirageXR
 
             if (animationMenu.value >= animationMenu.options.Count || animationMenu.value < 0)
             {
-                AppLog.LogError("animationMenu.options: out of range");
+                Debug.LogError("animationMenu.options: out of range");
                 return;
             }
             var clipName = animationMenu.options[animationMenu.value].text;
@@ -1095,7 +1095,7 @@ namespace MirageXR
             if (character.steps.Count == 0)
             {
                 gameObject.SetActive(false);
-                AppLog.LogError("The character augmentation has had a major change. Please recreate the existing characters.");
+                Debug.LogError("The character augmentation has had a major change. Please recreate the existing characters.");
                 return false;
             }
 
@@ -1326,7 +1326,7 @@ namespace MirageXR
             }
             catch (NullReferenceException e)
             {
-                AppLog.LogError($"Some references are missing on display image animation part. f.exp imageContainer,MyImageAnnotation ,etc. {e}");
+                Debug.LogError($"Some references are missing on display image animation part. f.exp imageContainer,MyImageAnnotation ,etc. {e}");
             }
 
         }

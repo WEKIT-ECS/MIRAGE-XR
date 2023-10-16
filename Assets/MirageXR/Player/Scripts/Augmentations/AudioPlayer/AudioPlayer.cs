@@ -66,14 +66,14 @@ namespace MirageXR
             // Check that url is not empty.
             if (string.IsNullOrEmpty(obj.url))
             {
-                AppLog.LogWarning("Content URL not provided.");
+                Debug.LogWarning("Content URL not provided.");
                 return false;
             }
 
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
-                AppLog.LogWarning("Couldn't set the parent.");
+                Debug.LogWarning("Couldn't set the parent.");
                 return false;
             }
 
@@ -350,7 +350,7 @@ namespace MirageXR
                 {
                     audioName = audioName.Substring(0, audioName.Length - 4);
                 }
-                AppLog.LogTrace("Trying to load audio: " + audioName);
+                Debug.LogTrace("Trying to load audio: " + audioName);
                 AudioClip audioClip = Resources.Load(audioName, typeof(AudioClip)) as AudioClip;
                 audioPlayer.clip = audioClip;
                 audioPlayer.playOnAwake = false;
@@ -368,7 +368,7 @@ namespace MirageXR
                 // Local file
                 string dataPath = Application.persistentDataPath;
                 string completeAudioName = "file://" + dataPath + "/" + audioName;
-                AppLog.LogTrace("Trying to load audio: " + completeAudioName);
+                Debug.LogTrace("Trying to load audio: " + completeAudioName);
                 WWW www = new WWW(completeAudioName);
                 yield return www;
                 AudioClip audioClip = www.GetAudioClip(false, false, AudioType.WAV);
@@ -384,7 +384,7 @@ namespace MirageXR
                 var filename = url[url.Length - 1];
 
                 var completeAudioName = "file://" + activityManager.ActivityPath + "/" + filename;
-                AppLog.LogTrace("Trying to load audio: " + completeAudioName);
+                Debug.LogTrace("Trying to load audio: " + completeAudioName);
                 WWW www = new WWW(completeAudioName);
                 yield return www;
 
@@ -401,7 +401,7 @@ namespace MirageXR
                 }
                 else
                 {
-                    AppLog.LogWarning("The file: \n" + completeAudioName + "\n has an unknown audio type. Please use .wav or .mp3");
+                    Debug.LogWarning("The file: \n" + completeAudioName + "\n has an unknown audio type. Please use .wav or .mp3");
                 }
 
                 // Online file
