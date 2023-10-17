@@ -156,12 +156,6 @@ public class GhostRecorder
                 _lastFrame.rightMiddleTip = CreateLocalPose(_anchor, handJointService.RequestJointTransform(TrackedHandJoint.MiddleTip, Handedness.Right));
                 _lastFrame.rightRingTip = CreateLocalPose(_anchor, handJointService.RequestJointTransform(TrackedHandJoint.RingTip, Handedness.Right));
                 _lastFrame.rightPinkyTip = CreateLocalPose(_anchor, handJointService.RequestJointTransform(TrackedHandJoint.PinkyTip, Handedness.Right));
-
-
-                Debug.Log("right index " + _lastFrame.rightIndexTip.position);
-                Debug.Log("right thumb " + _lastFrame.rightThumbTip.position);
-                Debug.Log("right Pinky " + _lastFrame.rightPinkyTip.position);
-
             }
             else
             {
