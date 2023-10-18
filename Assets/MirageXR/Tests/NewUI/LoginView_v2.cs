@@ -1,7 +1,7 @@
-﻿using System;
+﻿using MirageXR;
+using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -159,7 +159,26 @@ public class LoginView_v2 : PopupBase
     {
         const string regexExpression = "^\\S{3,}$";
         var regex = new Regex(regexExpression);
-        return regex.IsMatch(value);
+        var isValid = regex.IsMatch(value);
+
+        const string MatchEmailPattern =
+                            @"^(([\w-]+\.)+[\w-]+|([a-zA-Z]{1}|[\w-]{2,}))@"
+                            + @"((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\."
+                            + @"([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|"
+                            + @"([a-zA-Z]+[\w-]+\.)+[a-zA-Z]{2,4})$";
+
+        regex = new Regex(MatchEmailPattern);
+
+        var isEmail = regex.IsMatch(value);
+
+        if (isEmail || !isValid)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
 
     private static bool IsValidPassword(string value)
@@ -167,5 +186,25 @@ public class LoginView_v2 : PopupBase
         const string regexExpression = "^\\S{8,}$";
         var regex = new Regex(regexExpression);
         return regex.IsMatch(value);
+    }
+
+    private static bool IsAnEmail(string email)
+    {
+        const string MatchEmailPattern =
+        @"^(([\w-]+\.)+[\w-]+|([a-zA-Z]{1}|[\w-]{2,}))@"
+        + @"((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\."
+        + @"([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|"
+        + @"([a-zA-Z]+[\w-]+\.)+[a-zA-Z]{2,4})$";
+
+        var regex = new Regex(MatchEmailPattern);
+
+        if (email != null)
+        {
+            return regex.IsMatch(email);
+        }
+        else
+        {
+            return false;
+        }
     }
 }
