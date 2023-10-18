@@ -69,10 +69,10 @@ public class LabelEditorView : PopupEditorBase
         var stepsCount = steps.Count;
         InitClampedScrollRect(_clampedScrollJumpToStep, _templatePrefab, stepsCount, stepsCount.ToString());
 
-        _toggleTrigger.isOn = false;
         _gazeDurationPanel.SetActive(false);
 
         UpdateView();
+        _clampedScrollObject.SetActive(_toggleTrigger.isOn);
         RootView_v2.Instance.HideBaseView();
     }
 
@@ -103,6 +103,7 @@ public class LabelEditorView : PopupEditorBase
                 _toggleTrigger.isOn = true;
                 _triggerStepIndex = int.Parse(_trigger.value) - 1;
                 _gazeDuration = _trigger.duration;
+                _clampedScrollJumpToStep.currentItemIndex = _triggerStepIndex;
             }
 
             if (_content.option != "")
@@ -135,7 +136,7 @@ public class LabelEditorView : PopupEditorBase
 
             if (steps[i - 1].id == currentActionId)
             {
-                _clampedScrollJumpToStep.currentItemIndex = i;
+                _clampedScrollJumpToStep.currentItemIndex = i - 1;
             }
         }
     }
