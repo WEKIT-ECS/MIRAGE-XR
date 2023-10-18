@@ -120,6 +120,7 @@ public class AudioEditorView : PopupEditorBase
         {
             LoadContent();
             _groupPlayControls.interactable = true;
+            OnClickRecordComplete();
             var trigger = _step.triggers.Find(tr => tr.id == _content.poi);
             if (trigger != null)
             {
