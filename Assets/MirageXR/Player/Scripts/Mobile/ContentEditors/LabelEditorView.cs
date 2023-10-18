@@ -37,7 +37,6 @@ public class LabelEditorView : PopupEditorBase
     [SerializeField] private Image _backgroundColourButtonImage;
     [SerializeField] private TMP_Text _fontSizeText;
     [Space]
-    [SerializeField] private Button _btnArrow;
     [SerializeField] private RectTransform _panel;
     [SerializeField] private GameObject _arrowDown;
     [SerializeField] private GameObject _arrowUp;
@@ -60,7 +59,6 @@ public class LabelEditorView : PopupEditorBase
         _toggleBillboard.onValueChanged.AddListener(OnBillboardValueChanged);
         _btnIncreaseGazeDuration.onClick.AddListener(OnIncreaseGazeDuration);
         _btnDecreaseGazeDuration.onClick.AddListener(OnDecreaseGazeDuration);
-        _btnArrow.onClick.AddListener(OnArrowButtonPressed);
         _clampedScrollJumpToStep.onItemChanged.AddListener(OnItemJumpToStepChanged);
 
         _fontSizeButton.onClick.AddListener(ShowFontSizePanel);
