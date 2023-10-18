@@ -1,8 +1,8 @@
-﻿using System;
+﻿using DG.Tweening;
+using MirageXR;
+using System;
 using System.Collections;
 using System.IO;
-using DG.Tweening;
-using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -71,6 +71,7 @@ public class AudioEditorView : PopupEditorBase
     private Coroutine _updateSliderPlayerCoroutine;
     private Coroutine _updateRecordTimerCoroutine;
     private float _recordStartTime;
+    private int _scrollRectStep;
 
     private string _inputTriggerStepNumber = string.Empty;
 
@@ -120,17 +121,20 @@ public class AudioEditorView : PopupEditorBase
         {
             LoadContent();
             _groupPlayControls.interactable = true;
-            OnClickRecordComplete();
             var trigger = _step.triggers.Find(tr => tr.id == _content.poi);
             if (trigger != null)
             {
                 _inputTriggerStepNumber = trigger.value;
+                _scrollRectStep = int.Parse(_inputTriggerStepNumber) - 1;
+                _toggleTrigger.isOn = true;
             }
+            OnClickRecordComplete();
         }
         else
         {
             _fileName = $"MirageXR_Audio_{DateTime.Now.ToFileTimeUtc()}.wav";
             _groupPlayControls.interactable = false;
+            OnClickCancel();
         }
 
         SetPlayerActive(true);
@@ -153,7 +157,7 @@ public class AudioEditorView : PopupEditorBase
 
             if (steps[i - 1].id == currentActionId)
             {
-                _clampedScrollJumpToStep.currentItemIndex = i;
+                _scrollRectStep = i - 1;
             }
         }
     }
@@ -264,6 +268,7 @@ public class AudioEditorView : PopupEditorBase
         _panelRecordControls.SetActive(false);
         _panelBottomButtons.SetActive(true);
         _panelRecordComplete.SetActive(false);
+        _panelAudioSettings.SetActive(false);
         _txtTimerTo.text = ToTimeFormatMinutes(_audioClip.length);
     }
 
@@ -414,12 +419,18 @@ public class AudioEditorView : PopupEditorBase
         _panelPlayRecord.SetActive(false);
         _panelBottomButtons.SetActive(false);
         _panelAudioSettings.SetActive(true);
+
+        _objJumpToStep.SetActive(true);
+        _clampedScrollJumpToStep.currentItemIndex = _scrollRectStep;
+        _objJumpToStep.SetActive(_toggleTrigger.isOn);
+
     }
 
     private void OnClickCancel()
     {
         _panelPlayRecord.SetActive(false);
         _panelBottomButtons.SetActive(false);
+        _panelAudioSettings.SetActive(false);
         _panelRecordControls.SetActive(true);
         _txtTimer.text = ToTimeFormat(0);
     }
@@ -454,7 +465,7 @@ public class AudioEditorView : PopupEditorBase
         _content.option += $"#{_txtSliderRangeValue.text}";
         _content.scale = 0.5f;
         _content.url = $"http://{_fileName}";
-       
+
         if (_toggleTrigger.isOn)
         {
             _step.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, _content.poi, _audioClip.length, _inputTriggerStepNumber);
