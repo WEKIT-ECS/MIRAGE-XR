@@ -1,5 +1,5 @@
-﻿using i5.Toolkit.Core.VerboseLogging;
-using Microsoft.MixedReality.Toolkit.UI;
+﻿using Microsoft.MixedReality.Toolkit.UI;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,10 +12,11 @@ namespace MirageXR
     {
         [SerializeField] private GameObject TextLabelPrefab;
         private GameObject textLabel;
-        private static Text textbox; // the label textMesh
+        private static TMP_Text textbox; // the label textMesh
         private Image _triggerIcon;
+        private Image _labelBackground;
 
-        private ToggleObject _myAnnotation;
+        private ToggleObject _obj;
 
         /// <summary>
         /// Initialization method.
@@ -27,18 +28,18 @@ namespace MirageXR
             // Check if the label text is set.
             if (string.IsNullOrEmpty(obj.text))
             {
-                AppLog.LogWarning("Label text not provided.");
+                Debug.LogWarning("Label text not provided.");
                 return false;
             }
 
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
-                AppLog.LogWarning("Couldn't set the parent.");
+                Debug.LogWarning("Couldn't set the parent.");
                 return false;
             }
 
-            _myAnnotation = obj;
+            _obj = obj;
 
             // Set name.
             name = $"{obj.predicate}_{obj.text.Split(' ')[0]}";
@@ -59,15 +60,35 @@ namespace MirageXR
                     return false;
                 }
             }
-
             else
             {
                 gameObject.AddComponent<Billboard>();
             }
 
+            if (obj.option != "")
+            {
+                string[] splitArray = obj.option.Split(char.Parse("-"));
+
+                textbox.fontSize = int.Parse(splitArray[0]);
+
+                textbox.color = GetColorFromString(splitArray[1]);
+                _labelBackground.color = GetColorFromString(splitArray[2]);
+            }
+
+            GetComponentInChildren<Billboard>().enabled = obj.billboarded;
+
             // Set scaling if defined in action configuration.
             var myPoiEditor = transform.parent.gameObject.GetComponent<PoiEditor>();
-            transform.parent.localScale = GetPoiScale(myPoiEditor, Vector3.one);
+
+
+            if (!_obj.billboarded)
+            {
+                myPoiEditor = transform.parent.gameObject.GetComponent<PoiEditor>();
+                transform.localEulerAngles = GetPoiRotation(myPoiEditor);
+            }
+
+            OnLock(_obj.poi, _obj.positionLock);
+            EventManager.OnAugmentationLocked += OnLock;
 
             // If everything was ok, return base result.
             return base.Init(obj);
@@ -79,14 +100,37 @@ namespace MirageXR
             {
                 textLabel = Instantiate(TextLabelPrefab);
                 _triggerIcon = textLabel.GetComponentsInChildren<Image>()[1]; // TODO: possible NRE
-                if (_triggerIcon && RootObject.Instance.activityManager.ActiveAction.triggers.Find(t => t.id == _myAnnotation.poi) != null)
+                if (_triggerIcon && RootObject.Instance.activityManager.ActiveAction.triggers.Find(t => t.id == _obj.poi) != null)
                 {
                     _triggerIcon.enabled = true;
                 }
             }
 
-            textbox = textLabel.GetComponentInChildren<Text>();
+            textbox = textLabel.GetComponentInChildren<TMP_Text>();
+            _labelBackground = textLabel.GetComponentInChildren<Image>();
         }
 
+        private void OnLock(string id, bool locked)
+        {
+            if (id == _obj.poi)
+            {
+                _obj.positionLock = locked;
+
+                GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock);
+            }
+        }
+
+        private Color GetColorFromString(string rgb)
+        {
+            string[] rgba = rgb.Substring(5, rgb.Length - 6).Split(", ");
+            Color color = new Color(float.Parse(rgba[0]), float.Parse(rgba[1]), float.Parse(rgba[2]), float.Parse(rgba[3]));
+
+            return color;
+        }
+
+        private void OnDisable()
+        {
+            EventManager.OnAugmentationLocked -= OnLock;
+        }
     }
 }

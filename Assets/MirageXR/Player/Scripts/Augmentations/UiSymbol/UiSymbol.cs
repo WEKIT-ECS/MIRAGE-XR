@@ -27,7 +27,7 @@ namespace MirageXR
             // If symbol couldn't be found, terminate initialization.
             if (symbol == null)
             {
-                AppLog.LogWarning("Symbol couldn't be found. " + content.predicate);
+                Debug.LogWarning("Symbol couldn't be found. " + content.predicate);
                 return false;
             }
 

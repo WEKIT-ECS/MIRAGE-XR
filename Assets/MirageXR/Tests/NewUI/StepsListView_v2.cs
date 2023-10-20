@@ -336,6 +336,8 @@ public class StepsListView_v2 : BaseView
         _isEditMode = value;
         _btnAddStep.transform.parent.gameObject.SetActive(value);
         _btnThumbnail.interactable = value;
+        _inputFieldActivityName.interactable = value;
+        _inputFieldActivityDescription.interactable = value;
 
         _stepsList.ForEach(t => t.OnEditModeChanged(value));
     }

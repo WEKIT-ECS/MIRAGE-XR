@@ -87,7 +87,7 @@ public class ModelEditorView : PopupEditorBase
         }
         catch (Exception e)
         {
-            AppLog.LogError(e.ToString());
+            Debug.LogError(e.ToString());
         }
     }
 
@@ -116,7 +116,7 @@ public class ModelEditorView : PopupEditorBase
         }
         catch (Exception e)
         {
-            AppLog.LogError(e.ToString());
+            Debug.LogError(e.ToString());
         }
     }
 
@@ -147,7 +147,7 @@ public class ModelEditorView : PopupEditorBase
         }
         catch (Exception e)
         {
-            AppLog.LogError(e.ToString());
+            Debug.LogError(e.ToString());
         }
     }
 
@@ -179,7 +179,7 @@ public class ModelEditorView : PopupEditorBase
         }
         catch (Exception e)
         {
-            AppLog.LogError(e.ToString());
+            Debug.LogError(e.ToString());
             return false;
         }
     }
@@ -317,7 +317,7 @@ public class ModelEditorView : PopupEditorBase
         }
         catch (Exception e)
         {
-            AppLog.LogError(e.ToString());
+            Debug.LogError(e.ToString());
         }
     }
 
@@ -359,7 +359,7 @@ public class ModelEditorView : PopupEditorBase
         }
         catch (Exception e)
         {
-            AppLog.LogError(e.ToString());
+            Debug.LogError(e.ToString());
         }
     }
 
@@ -385,7 +385,7 @@ public class ModelEditorView : PopupEditorBase
         }
         catch (Exception e)
         {
-            AppLog.LogError(e.ToString());
+            Debug.LogError(e.ToString());
         }
     }
 
@@ -480,7 +480,7 @@ public class ModelEditorView : PopupEditorBase
         }
         catch (Exception e)
         {
-            AppLog.LogError(e.ToString());
+            Debug.LogError(e.ToString());
         }
     }
 
@@ -566,7 +566,7 @@ public class ModelEditorView : PopupEditorBase
         }
         catch (Exception e)
         {
-            AppLog.LogError(e.ToString());
+            Debug.LogError(e.ToString());
         }
 
         Toast.Instance.Show("Download error. Please, try again.");

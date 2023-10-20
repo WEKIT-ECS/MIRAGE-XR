@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Microsoft.MixedReality.Toolkit.UI;
+using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
+using System;
 using System.Collections;
 using System.IO;
-using Microsoft.MixedReality.Toolkit.UI;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -92,12 +92,13 @@ namespace MirageXR
             }
 
             _pickComponent = _pickObject.GetComponent<Pick>();
-            EditModeChanges(_activityManager.EditModeActive);
 
             if (File.Exists(Path.Combine(_activityManager.ActivityPath, $"pickandplaceinfo/{_myObj.poi}.json")))
             {
                 LoadPickAndPlacePositions();
             }
+
+            EditModeChanges(_activityManager.EditModeActive);
 
             CheckTrigger("correct");
             CheckTrigger("incorrect");
@@ -188,6 +189,13 @@ namespace MirageXR
             while (newModel == null)
             {
                 newModel = GameObject.Find(MyModelID);
+
+                yield return null;
+            }
+
+            //wait for model component to be added
+            while (!newModel.GetComponentInChildren<Model>())
+            {
                 yield return null;
             }
 

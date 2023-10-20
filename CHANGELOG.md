@@ -2,6 +2,40 @@
 
 # Change Log
 
+# v2.3 (2023-07-24)
+
+## Featured:
+- **Grid**. We created a new visual grid system and a snap-to-grid feature which significantly improves the usability of augmentation placement. The drop position is indicated with a 'ghost preview' of the currently selected augmentation. Grid spacing, default rotation angles, and default resizing steps can now be configured.
+- **Better editors**. We redesigned the editors of the image, video, audio, label, and model augmentations.
+- **HoloLens is back**. We updated the world space implementation to bring the HoloLens 2 application back in line with current developments.
+## Added:
+- We rewrote the calibration routines for both edit mode and view mode, adding a floor manager to allow setting the floor plane.
+- We added gallery upload functionality on mobiles for the step marker feature of task stations and for the image/video augmentations.
+- We added a player tutorial for mobiles and smart glasses which uses a tutorial activity that is written out internally every time the tutorial is started to ensure the viewer tutorial is not modified by the user.
+- The marker feature of task stations now shows up with a preview thumbnail button in view mode.
+- We added auto-saving of the activity title.
+## Changed:
+- We simplified the functionality of the pick and place augmentation, added a trigger for incorrect placement, and improved its manipulation when using a 3D model instead of the default arrow.
+- We added auto-detection of orientation for images.
+- We removed the 'Search' button from the bottom panel on all screens except the 'Home' screen.
+- The ARETE learning record store has now been taken offline, so we removed this LRS option. Please switch to WEKIT learning record store.
+## Fixed:
+- We fixed the bug that prevented re-editing of effect augmentations.
+- The bottom panel now always shows the current step, and we fixed a bug here throwing an error when minimizing the curtain.
+- We made SketchFab authentication a tad more robust.
+- The calibration marker is now no longer orientation sensitive (hanging upright vs laying flat).
+- Deleting an action step now removes it from the workplace model.
+## Enterprise:
+- We added new settings to BrandManager and BrandConfiguration, now allowing for the activation and deactivation of augmentation types, as well as for setting the calibration marker.
+## Developer:
+- We retired Vuforia on mobile platforms and replaced it with ARfoundation.
+- We updated OpenXR and Vuforia in the HoloLens implementation.
+- We fixed the action linux and windows workflows to support LFS.
+- We added a debug log window to the smart glasses implementation (click person icon, click "{}").
+- We added tutorial manager facilities for 'world space' hints on mobile.
+- We now have a new bottom multiline dialog with toggles.
+- Long tap on mobiles now brings up the context menu (see new model augmentation editor).
+
 # v2.2 (2023-05-04)
 
 ## Featured:

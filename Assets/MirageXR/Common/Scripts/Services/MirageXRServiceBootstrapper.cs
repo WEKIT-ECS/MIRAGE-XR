@@ -31,9 +31,9 @@ namespace MirageXR
         protected override void RegisterServices()
         {
 #if UNITY_EDITOR
-            AppLog.MinimumLogLevel = LogLevel.TRACE;
+            Debug.MinimumLogLevel = LogLevel.TRACE;
 #else
-            AppLog.MinimumLogLevel = LogLevel.INFO;
+            Debug.MinimumLogLevel = LogLevel.INFO;
 #endif
 
             ServiceManager.RegisterService(new WorldAnchorService());

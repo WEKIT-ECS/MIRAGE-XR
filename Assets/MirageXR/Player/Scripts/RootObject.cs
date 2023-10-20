@@ -112,7 +112,7 @@ namespace MirageXR
             }
             catch (Exception e)
             {
-                AppLog.LogError(e.ToString());
+                Debug.LogError(e.ToString());
             }
         }
 

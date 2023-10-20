@@ -115,7 +115,7 @@ namespace MirageXR
                     {
                         if (!Enum.TryParse(triggerType, true, out ActionType type))
                         {
-                            AppLog.LogWarning($"can't parse {triggerType} to ActionType");
+                            Debug.LogWarning($"can't parse {triggerType} to ActionType");
                             type = ActionType.Action;
                         }
                         activeAction.AddArlemTrigger(TriggerMode.Detect, type, MyPoi.poi, float.Parse(durationInputField.text), stepNumberInputField.text);

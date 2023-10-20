@@ -85,7 +85,7 @@ public class ActivitySettings : PopupBase
                 "Public Upload",
                 "You have selected public upload. Once uploaded, this activity will be visable to all users.",
                 "Don't show again", () => DontShowPublicUploadWarning(),
-                "OK", () => AppLog.LogTrace("Ok!"),
+                "OK", () => Debug.LogTrace("Ok!"),
                 true);
         }
 
