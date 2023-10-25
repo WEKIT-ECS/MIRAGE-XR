@@ -304,7 +304,8 @@ namespace MirageXR
             if (!result || response.StartsWith("Error"))
             {
                 var maxLenght = 200;
-                Debug.LogError("[MoodleManager] error while increasing the hit counter of the activity: " + (response.Length > maxLenght ? response.Substring(0, maxLenght) : response));
+                var responseLength = response.Length > maxLenght ? response.Substring(0, maxLenght) : response;
+                Debug.LogError("[MoodleManager] error while increasing the hit counter of the activity:" + responseLength);
             }
             else
             {

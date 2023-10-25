@@ -136,7 +136,7 @@ public class LabelSettings : PopupBase
 
     private void OnFontSizeChanged(Component item)
     {
-        _fontSize = item.GetComponent<ObjectHolder<int>>().item - 1;
+        _fontSize = item.GetComponent<ObjectHolder<int>>().item;
         UpdateLabelPreview();
     }
 
