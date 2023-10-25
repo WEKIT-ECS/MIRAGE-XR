@@ -274,7 +274,7 @@ namespace MirageXR
 
                 if (PlatformManager.Instance.WorldSpaceUi)
                 {
-                    RootObject.Instance.calibrationManager.EnableCalibration();
+                    RootObject.Instance.calibrationManager.EnableCalibration(true);
                 }
 
                 // Hile loading text
