@@ -1,5 +1,4 @@
-﻿using i5.Toolkit.Core.VerboseLogging;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 namespace MirageXR
@@ -192,20 +191,19 @@ namespace MirageXR
                 var triggerDuration = trigger.duration;
                 yield return new WaitForSeconds(triggerDuration);
 
-                if (!activityManager.IsLastAction(activityManager.ActiveAction))
+
+                if (activityManager.ActiveAction != null)
                 {
-                    if (activityManager.ActiveAction != null)
-                    {
-                        activityManager.ActiveAction.isCompleted = true;
-                    }
-
-                    if (int.TryParse(trigger.value, out var stepNumber))
-                    {
-                        activityManager.ActivateActionByIndex(stepNumber - 1);
-                    }
-
-                    TaskStationDetailMenu.Instance.SelectedButton = null;
+                    activityManager.ActiveAction.isCompleted = true;
                 }
+
+                if (int.TryParse(trigger.value, out var stepNumber))
+                {
+                    activityManager.ActivateActionByIndex(stepNumber - 1);
+                }
+
+                TaskStationDetailMenu.Instance.SelectedButton = null;
+
             }
         }
 
