@@ -1,10 +1,13 @@
-﻿using i5.Toolkit.Core.VerboseLogging;
+﻿using System;
+using i5.Toolkit.Core.VerboseLogging;
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using Siccity.GLTFUtility;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace MirageXR
 {
@@ -76,7 +79,15 @@ namespace MirageXR
             // Set name.
             name = obj.predicate;
 
-            LoadModel(obj);
+            if (obj.text.Equals("library"))
+            {
+                LoadLibraryModel($"Library/{obj.option}");
+            }
+            else
+            {
+                LoadModel(obj);
+            }
+
 
             if (!obj.id.Equals("UserViewport"))
             {
@@ -137,7 +148,7 @@ namespace MirageXR
 
             // configure and play animation
 
-            if (clip.Length > 0)
+            if (clip is { Length: > 0 })
             {
                 Debug.LogDebug($"Animation(s) found ({clip.Length})...isLegacy? {clip[0].legacy}");
 
@@ -151,6 +162,27 @@ namespace MirageXR
 
             InitManipulators();
         }
+
+
+
+        public void LoadLibraryModel(string libraryModelPrefabName)
+        {
+            Addressables.LoadAssetAsync<GameObject>(libraryModelPrefabName).Completed += OnLibraryModelLoaded;
+        }
+
+        private void OnLibraryModelLoaded(AsyncOperationHandle<GameObject> obj)
+        {
+            if (obj.Status == AsyncOperationStatus.Succeeded)
+            {
+                GameObject instantiatedModel = Instantiate(obj.Result, transform);
+                OnFinishLoadingAsync(instantiatedModel, null); // Handle the loaded LibraryModel as needed
+            }
+            else
+            {
+                Debug.LogError($"Failed to load LibraryModel from Addressables");
+            }
+        }
+
 
         private void InitManipulators()
         {

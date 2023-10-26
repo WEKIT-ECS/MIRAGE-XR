@@ -14,7 +14,7 @@ class SketchfabImporter : EditorWindow
 {
     /*
     [MenuItem("Sketchfab/Import glTF")]
-    static void Init()
+    static void InitCategoryButton()
     {
 #if UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX || UNITY_STANDALONE_LINUX
         SketchfabImporter window = (SketchfabImporter)EditorWindow.GetWindow(typeof(SketchfabImporter));
