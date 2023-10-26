@@ -92,6 +92,8 @@ namespace MirageXR
                 _floorManager ??= new GameObject("FloorManagerWrapper").AddComponent<FloorManagerWrapper>();
                 _pointCloudManager ??= new GameObject("PointCloudManager").AddComponent<PointCloudManager>();
                 _gridManager ??= new GameObject("GridManager").AddComponent<GridManager>();
+                _cameraCalibrationChecker ??= new GameObject("CameraCalibrationChecker").AddComponent<CameraCalibrationChecker>();
+                _platformManager ??= new GameObject("PlatformManager").AddComponent<PlatformManager>();
 
                 _activityManager = new ActivityManager();
                 _augmentationManager = new AugmentationManager();
