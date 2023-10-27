@@ -235,8 +235,8 @@ namespace MirageXR
 
         private void ConfigureModel(GameObject _model, AnimationClip[] clips)
         {
-            _model.AddComponent<Rigidbody>();
-            _model.GetComponent<Rigidbody>().isKinematic = true;
+            var rb = _model.AddComponent<Rigidbody>();
+            rb.isKinematic = true;
             _model.SetActive(true);
 
             var renderers = _model.GetComponentsInChildren<Renderer>();
@@ -247,12 +247,13 @@ namespace MirageXR
             {
                 var g = r.gameObject;
 
-                if (!g.GetComponent<MeshCollider>())
+                g.TryGetComponent<MeshCollider>(out var meshCollider);
+                if (!meshCollider)
                 {
-
-                    if (g.GetComponent<SkinnedMeshRenderer>())
+                    g.TryGetComponent<SkinnedMeshRenderer>(out var skinnedMeshRenderer);
+                    if (skinnedMeshRenderer && skinnedMeshRenderer.rootBone)
                     {
-                        var rootBone = g.GetComponent<SkinnedMeshRenderer>().rootBone.transform;
+                        var rootBone = skinnedMeshRenderer.rootBone.transform;
 
                         // for skinned mesh renderers, add capsule colliders to main bones (2 levels) and scale list entry
                         AddCapsuleCollidersToPatient(rootBone);
@@ -270,7 +271,7 @@ namespace MirageXR
                 }
                 else
                 {
-                    colliders.Add(g.GetComponent<MeshCollider>().bounds);
+                    colliders.Add(meshCollider.bounds);
                 }
             }
         }
