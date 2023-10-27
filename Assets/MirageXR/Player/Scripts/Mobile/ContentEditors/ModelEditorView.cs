@@ -207,6 +207,7 @@ public class ModelEditorView : PopupEditorBase
                 ResetView();
                 return;
             }
+
             _currentTab = ModelEditorTabs.Local;
             _localTab.SetActive(true);
             _sketchfabTab.SetActive(false);
@@ -621,8 +622,6 @@ public class ModelEditorView : PopupEditorBase
     {
         _previewItem.name = ZipUtilities.CheckFileForIllegalCharacters(_previewItem.name);
         AddAugmentation(_previewItem.name);
-
-        Close();
     }
 
 
@@ -646,6 +645,8 @@ public class ModelEditorView : PopupEditorBase
         _content.predicate = predicate;
         EventManager.ActivateObject(_content);
         EventManager.NotifyActionModified(_step);
+
+        Close();
     }
 
 
