@@ -79,7 +79,7 @@ namespace MirageXR
             // Set name.
             name = obj.predicate;
 
-            if (obj.text.Equals("library"))
+            if (obj.text.Equals(ModelLibraryManager.LibraryKeyword))
             {
                 LoadLibraryModel($"Library/{obj.option}");
             }
@@ -126,12 +126,18 @@ namespace MirageXR
 
             Debug.LogTrace($"Imported {model.name} in {Time.time - startLoadTime} seconds");
 
-            var startPos = transform.position + transform.forward * -0.5f + transform.up * -0.1f;
+            var modelTransform = transform;
+            var startPos = modelTransform.position + modelTransform.forward * -0.5f + modelTransform.up * -0.1f;
 
-            model.transform.SetParent(transform);
-            model.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
-            model.transform.position = startPos;
-            model.transform.localRotation = Quaternion.identity;
+            model.transform.SetParent(modelTransform);
+
+            //Do not manipulate the library models at the start
+            if (!_obj.option.Equals(ModelLibraryManager.LibraryKeyword))
+            {
+                model.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+                model.transform.position = startPos;
+                model.transform.localRotation = Quaternion.identity;
+            }
 
             model.name = _obj.option;
             model.transform.localRotation *= Quaternion.Euler(-90f, 0f, 0f);
