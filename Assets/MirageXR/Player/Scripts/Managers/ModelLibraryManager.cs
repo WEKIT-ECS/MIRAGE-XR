@@ -9,6 +9,8 @@ namespace MirageXR
 {
     public class ModelLibraryManager : MonoBehaviour
     {
+        public const string LibraryKeyword = "library";
+
         [SerializeField] private GameObject[] items;
         [SerializeField] private LibraryObject[] objects;
         [SerializeField] private GameObject itemPrefab;

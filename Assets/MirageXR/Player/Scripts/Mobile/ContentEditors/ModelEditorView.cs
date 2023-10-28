@@ -639,7 +639,7 @@ public class ModelEditorView : PopupEditorBase
             _content.option = prefabName;
             _content.predicate = predicate;
             _content.url = predicate;
-            _content.text = libraryModel ? "library" : string.Empty;
+            _content.text = libraryModel ? ModelLibraryManager.LibraryKeyword : string.Empty;
         }
 
         _content.predicate = predicate;
