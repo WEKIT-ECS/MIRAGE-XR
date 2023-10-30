@@ -114,7 +114,7 @@ public class ActionEditor : MonoBehaviour
             SetEditModeState(activityManager.EditModeActive);
         }
 
-        if (!PlatformManager.Instance.WorldSpaceUi)
+        if (!RootObject.Instance.platformManager.WorldSpaceUi)
         {
             CloseTaskStationMenu();
         }
@@ -163,7 +163,7 @@ public class ActionEditor : MonoBehaviour
         navigationTargetButton.onClick.AddListener(OnToggleActionTargetCapture);
         addButton.onClick.AddListener(OnAddButtonToggle);
 
-        if (!PlatformManager.Instance.WorldSpaceUi)
+        if (!RootObject.Instance.platformManager.WorldSpaceUi)
         {
             CloseTaskStationMenu();
         }
@@ -562,7 +562,7 @@ public class ActionEditor : MonoBehaviour
 
         DisableAllPoiEditors();
 
-        if (!PlatformManager.Instance.WorldSpaceUi)
+        if (!RootObject.Instance.platformManager.WorldSpaceUi)
         {
             CloseTaskStationMenu();
         }
@@ -580,7 +580,7 @@ public class ActionEditor : MonoBehaviour
     {
         gameObject.GetComponent<Canvas>().enabled = false;
         TaskStationMenuPanel.SetActive(false);
-        TaskStationOpenButton.SetActive(PlatformManager.Instance.WorldSpaceUi);
+        TaskStationOpenButton.SetActive(RootObject.Instance.platformManager.WorldSpaceUi);
     }
 
     private bool InstanceOfAugmentationExist(ContentType type)

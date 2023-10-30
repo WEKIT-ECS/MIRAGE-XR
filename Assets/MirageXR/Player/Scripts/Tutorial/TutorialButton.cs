@@ -15,7 +15,7 @@ namespace MirageXR
         {
             helpButton = GetComponent<Button>();
 
-            if (!PlatformManager.Instance.WorldSpaceUi) // this if statment should be removed after creating the non headset tutorial
+            if (!RootObject.Instance.platformManager.WorldSpaceUi) // this if statment should be removed after creating the non headset tutorial
             {
                 helpButton.interactable = false;
                 icon.sprite = _unselectedIcon;
@@ -26,7 +26,7 @@ namespace MirageXR
         {
             int tutorialStatus = PlayerPrefs.GetInt(TutorialManager.PLAYER_PREFS_STATUS_KEY);
             Debug.LogDebug(tutorialStatus.ToString());
-            if (tutorialStatus == TutorialManager.STATUS_LOAD_ON_START && PlatformManager.Instance.WorldSpaceUi)
+            if (tutorialStatus == TutorialManager.STATUS_LOAD_ON_START && RootObject.Instance.platformManager.WorldSpaceUi)
             {
                 // TODO: In the future, this should be changed to an event. Like: OnEverythingLoaded
                 Invoke(nameof(StartTutorial), 0.2f);

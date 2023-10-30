@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
 
 namespace MirageXR
@@ -16,6 +15,8 @@ namespace MirageXR
         [SerializeField] private PointCloudManager _pointCloudManager;
         [SerializeField] private BrandManager _brandManager;
         [SerializeField] private GridManager _gridManager;
+        [SerializeField] private CameraCalibrationChecker _cameraCalibrationChecker;
+        [SerializeField] private PlatformManager _platformManager;
 
         private ActivityManager _activityManager;
         private AugmentationManager _augmentationManager;
@@ -44,6 +45,10 @@ namespace MirageXR
         public EditorSceneService editorSceneService => _editorSceneService;
 
         public WorkplaceManager workplaceManager => _workplaceManager;
+
+        public CameraCalibrationChecker cameraCalibrationChecker => _cameraCalibrationChecker;
+
+        public PlatformManager platformManager => _platformManager;
 
         private bool _isInitialized;
 
@@ -90,6 +95,8 @@ namespace MirageXR
                 _floorManager ??= new GameObject("FloorManagerWrapper").AddComponent<FloorManagerWrapper>();
                 _pointCloudManager ??= new GameObject("PointCloudManager").AddComponent<PointCloudManager>();
                 _gridManager ??= new GameObject("GridManager").AddComponent<GridManager>();
+                _cameraCalibrationChecker ??= new GameObject("CameraCalibrationChecker").AddComponent<CameraCalibrationChecker>();
+                _platformManager ??= new GameObject("PlatformManager").AddComponent<PlatformManager>();
                 _planeManager ??= new GameObject("PlaneManager").AddComponent<PlaneManagerWrapper>();
 
                 _activityManager = new ActivityManager();
@@ -104,8 +111,9 @@ namespace MirageXR
                 await _calibrationManager.InitializationAsync();
                 await _pointCloudManager.InitializationAsync();
                 await _planeManager.InitializationAsync();
-
                 _gridManager.Initialization();
+                _cameraCalibrationChecker.Initialization();
+                _platformManager.Initialization();
 
                 _activityManager.Subscription();
 

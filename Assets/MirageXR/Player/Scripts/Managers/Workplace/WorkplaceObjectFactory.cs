@@ -414,7 +414,7 @@ namespace MirageXR
 
                     if (newObject)
                     {
-                        anchorFrame.transform.position = PlatformManager.Instance.GetTaskStationPosition();
+                        anchorFrame.transform.position = RootObject.Instance.platformManager.GetTaskStationPosition();
                         anchorFrame.transform.localRotation = Quaternion.identity;
                         anchorFrame.transform.localScale = Vector3.one;
 
@@ -701,7 +701,7 @@ namespace MirageXR
             //only for the first taskstation in this step move it to the right of the player
             var taskStationPos = RootObject.Instance.activityManager.ActionsOfTypeAction.Count == 0 ? Camera.main.transform.right * offsetFromPlayer : Vector3.zero;
 
-            var isFirstTaskStation = PlatformManager.Instance.WorldSpaceUi && RootObject.Instance.activityManager.EditModeActive;
+            var isFirstTaskStation = RootObject.Instance.platformManager.WorldSpaceUi && RootObject.Instance.activityManager.EditModeActive;
             instance.transform.localPosition = isFirstTaskStation ? taskStationPos : Vector3.zero;
             instance.transform.localRotation = Quaternion.identity;
         }
