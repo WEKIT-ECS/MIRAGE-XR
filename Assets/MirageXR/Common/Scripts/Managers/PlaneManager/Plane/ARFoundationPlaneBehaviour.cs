@@ -1,5 +1,5 @@
+using System;
 using Microsoft.MixedReality.Toolkit.Input;
-using MirageXR;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
@@ -7,9 +7,12 @@ using UnityEngine.XR.ARSubsystems;
 [RequireComponent(typeof(ARPlane), typeof(MeshCollider), typeof(MeshRenderer))]
 public class ARFoundationPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IMixedRealityPointerHandler
 {
-    private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
-
     private static readonly int _textureTintColor = Shader.PropertyToID("_TexTintColor");
+
+    private static bool _isActive = false;
+    private static bool _isCollidersEnabled = false;
+    private static Action<PlaneId, Vector3> _onClicked;
+    private static TrackableId _specialPlaneId = TrackableId.invalidId;
 
     [SerializeField] private Color _colorDefault = new Color(1f, 1f, 1f, 0.7f);
     [SerializeField] private Color _colorFloor = new Color(0.03f, 1f, 0.09f, 0.7f);
@@ -18,16 +21,27 @@ public class ARFoundationPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IMixed
     private MeshRenderer _meshRenderer;
     private ARPlane _arPlane;
 
-    public TrackableId trackableId =>  _arPlane.trackableId;
+    public TrackableId trackableId => _arPlane.trackableId;
+
+    public static void SetSelectedPlane(PlaneId planeId)
+    {
+        _specialPlaneId = new TrackableId(planeId.subId1, planeId.subId2);
+    }
+
+    public static void UpdatePlanesState(bool isActive, bool isCollidersEnabled, Action<PlaneId, Vector3> onClicked)
+    {
+        _isActive = isActive;
+        _isCollidersEnabled = isCollidersEnabled;
+        _onClicked = onClicked;
+    }
 
     public void UpdateState()
     {
-        _meshCollider.enabled = floorManager.enableColliders;
+        _meshCollider.enabled = _isCollidersEnabled;
 
-        var manager = floorManager.manager as FloorManagerARFoundation;
-        if (trackableId != manager.floorId)
+        if (trackableId != _specialPlaneId)
         {
-            gameObject.SetActive(floorManager.showPlanes);
+            gameObject.SetActive(_isActive);
             _meshRenderer.material.color = _colorDefault;
         }
         else
@@ -57,7 +71,7 @@ public class ARFoundationPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IMixed
 
     public void OnPointerClicked(MixedRealityPointerEventData eventData)
     {
-        floorManager.SetFloor(this);
+        _onClicked?.Invoke(new PlaneId(trackableId.subId1, trackableId.subId2), eventData.Pointer.Result.Details.Point);
     }
 
     public Vector3 GetPosition()
