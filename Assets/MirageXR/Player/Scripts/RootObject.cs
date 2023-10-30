@@ -12,6 +12,7 @@ namespace MirageXR
         [SerializeField] private ImageTargetManagerWrapper _imageTargetManager;
         [SerializeField] private CalibrationManager _calibrationManager;
         [SerializeField] private FloorManagerWrapper _floorManager;
+        [SerializeField] private PlaneManagerWrapper _planeManager;
         [SerializeField] private PointCloudManager _pointCloudManager;
         [SerializeField] private BrandManager _brandManager;
         [SerializeField] private GridManager _gridManager;
@@ -27,6 +28,8 @@ namespace MirageXR
         public CalibrationManager calibrationManager => _calibrationManager;
 
         public FloorManagerWrapper floorManager => _floorManager;
+
+        public PlaneManagerWrapper planeManager => _planeManager;
 
         public BrandManager brandManager => _brandManager;
 
@@ -87,6 +90,7 @@ namespace MirageXR
                 _floorManager ??= new GameObject("FloorManagerWrapper").AddComponent<FloorManagerWrapper>();
                 _pointCloudManager ??= new GameObject("PointCloudManager").AddComponent<PointCloudManager>();
                 _gridManager ??= new GameObject("GridManager").AddComponent<GridManager>();
+                _planeManager ??= new GameObject("PlaneManager").AddComponent<PlaneManagerWrapper>();
 
                 _activityManager = new ActivityManager();
                 _augmentationManager = new AugmentationManager();
@@ -98,9 +102,8 @@ namespace MirageXR
                 await _imageTargetManager.InitializationAsync();
                 await _floorManager.InitializationAsync();
                 await _calibrationManager.InitializationAsync();
-#if UNITY_IOS || UNITY_ANDROID || UNITY_EDITOR
                 await _pointCloudManager.InitializationAsync();
-#endif
+                await _planeManager.InitializationAsync();
 
                 _gridManager.Initialization();
 
@@ -124,18 +127,17 @@ namespace MirageXR
         private async Task ResetManagersAsync()
         {
             await _floorManager.ResetAsync();
-#if UNITY_IOS || UNITY_ANDROID || UNITY_EDITOR
+            await planeManager.ResetAsync();
             await _pointCloudManager.ResetAsync();
-#endif
             await _imageTargetManager.ResetAsync();
         }
 
         private void OnDestroy()
         {
-            _floorManager.Dispose();
             _activityManager.Unsubscribe();
             _pointCloudManager.Unsubscribe();
             _activityManager.OnDestroy();
+            _planeManager.Dispose();
         }
     }
 }
