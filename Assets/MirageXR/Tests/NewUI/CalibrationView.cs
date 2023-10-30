@@ -15,6 +15,8 @@ public class CalibrationView : PopupBase
 
     private static PlaneManagerWrapper planeManager => RootObject.Instance.planeManager;
 
+    private static CameraCalibrationChecker cameraCalibrationChecker => RootObject.Instance.cameraCalibrationChecker;
+
     private static GridManager gridManager => RootObject.Instance.gridManager;
 
     private string CALIBRATION_TEXT = "Calibration";
@@ -83,6 +85,7 @@ public class CalibrationView : PopupBase
 
         _hideBaseView?.Invoke();
 
+        cameraCalibrationChecker.StopChecker();
         _startPose = calibrationManager.GetAnchorPositionAsync();
 
         if (_isFloorOnly || !floorManager.isFloorDetected)
@@ -260,6 +263,7 @@ public class CalibrationView : PopupBase
         calibrationManager.DisableCalibration();
         planeManager.DisablePlanes();
         _showBaseView?.Invoke();
+        cameraCalibrationChecker.RunChecker();
         base.Close();
     }
 
