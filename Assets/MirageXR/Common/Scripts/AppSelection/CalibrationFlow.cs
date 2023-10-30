@@ -14,6 +14,8 @@ public class CalibrationFlow : MonoBehaviour
 
     private static GridManager gridManager => RootObject.Instance.gridManager;
 
+    private static CameraCalibrationChecker cameraCalibrationChecker => RootObject.Instance.cameraCalibrationChecker;
+
 
     private string CALIBRATION_TEXT = "Calibration";
     private string SELECT_CALIBRATION_TEXT = "Select calibration type";
@@ -55,6 +57,7 @@ public class CalibrationFlow : MonoBehaviour
         _btnManualPlacement.OnClick.AddListener(OnButtonManualPlacementClicked);
         _btnApply.OnClick.AddListener(OnApplyButtonPressed);
 
+        cameraCalibrationChecker.RunChecker();
         StartFloorDetectionAsync().AsAsyncVoid();
     }
 
@@ -170,6 +173,7 @@ public class CalibrationFlow : MonoBehaviour
         calibrationManager.DisableCalibration();
         planeManager.DisablePlanes();
         _onCloseAction?.Invoke();
+        cameraCalibrationChecker.StopChecker();
         Destroy(gameObject);
     }
 }
