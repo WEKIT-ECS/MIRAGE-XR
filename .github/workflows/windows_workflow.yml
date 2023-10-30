@@ -1,15 +1,7 @@
-name: Windows workflow
+name: Windows Workflow (HoloLens Builds)
 on: 
-  push:
-    branches:
-    - master
-    - develop
-  pull_request:
-    types:
-      - opened
-    branches:
-    - master
-    - develop
+  schedule:
+    - cron: 0 19 * * 5
   release:
     types: [published]
 jobs:
