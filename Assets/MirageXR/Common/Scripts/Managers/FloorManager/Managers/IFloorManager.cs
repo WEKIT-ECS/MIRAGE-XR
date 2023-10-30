@@ -1,38 +1,17 @@
-using System;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public interface IFloorManager : IDisposable
+public interface IFloorManager
 {
-    public bool enableColliders
-    {
-        get;
-    }
+    public float floorLevel { get; }
 
-    public bool showPlanes
-    {
-        get;
-    }
+    public bool isFloorDetected { get; }
 
-    public float floorLevel
-    {
-        get;
-    }
+    public Task<bool> InitializationAsync();
 
-    public bool isFloorDetected
-    {
-        get;
-    }
+    public Task<bool> ResetAsync();
 
-    Task<bool> InitializationAsync();
+    public Transform CreateAnchor(Pose pose);
 
-    Task<bool> ResetAsync();
-
-    Transform CreateAnchor(Pose pose);
-
-    void SetFloor(IPlaneBehaviour floor);
-
-    void EnableFloorDetection(Action onFloorDetected);
-
-    void DisableFloorDetection();
+    public void SetFloor(PlaneId planeId, Vector3 position);
 }

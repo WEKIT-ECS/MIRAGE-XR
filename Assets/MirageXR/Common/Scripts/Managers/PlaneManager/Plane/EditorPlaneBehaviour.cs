@@ -1,33 +1,47 @@
+using System;
 using Microsoft.MixedReality.Toolkit.Input;
-using MirageXR;
 using UnityEngine;
 
 [RequireComponent(typeof(MeshCollider), typeof(MeshRenderer))]
 public class EditorPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IMixedRealityPointerHandler
 {
-    private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
-
-    private static readonly int _textureTintColor = Shader.PropertyToID("_TexTintColor");
+    private static bool _isActive = false;
+    private static bool _isCollidersEnabled = false;
+    private static Action<PlaneId, Vector3> _onClicked;
+    private static PlaneId _specialPlaneId = PlaneId.InvalidId;
 
     [SerializeField] private Color _colorDefault = new Color(1f, 1f, 1f, 0.7f);
     [SerializeField] private Color _colorFloor = new Color(0.03f, 1f, 0.09f, 0.7f);
 
     private MeshCollider _meshCollider;
     private MeshRenderer _meshRenderer;
+    private PlaneId _planeId = new PlaneId(1, 1);
+
+    public static void SetSelectedPlane(PlaneId planeId)
+    {
+        _specialPlaneId = planeId;
+    }
+
+    public static void UpdatePlanesState(bool isActive, bool isCollidersEnabled, Action<PlaneId, Vector3> onClicked)
+    {
+        _isActive = isActive;
+        _isCollidersEnabled = isCollidersEnabled;
+        _onClicked = onClicked;
+    }
 
     public void UpdateState()
     {
-        _meshCollider.enabled = floorManager.enableColliders;
+        _meshCollider.enabled = _isCollidersEnabled;
 
-        if (!floorManager.manager.isFloorDetected)
+        if (_planeId != _specialPlaneId)
         {
-            gameObject.SetActive(floorManager.showPlanes);
+            gameObject.SetActive(_isActive);
             _meshRenderer.material.color = _colorDefault;
         }
         else
         {
             gameObject.SetActive(true);
-            _meshRenderer.material.SetColor(_textureTintColor, _colorFloor);
+            _meshRenderer.material.color = _colorFloor;
         }
     }
 
@@ -50,7 +64,7 @@ public class EditorPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IMixedRealit
 
     public void OnPointerClicked(MixedRealityPointerEventData eventData)
     {
-        floorManager.SetFloor(this);
+        _onClicked?.Invoke(_planeId, eventData.Pointer.Result.Details.Point);
     }
 
     public Vector3 GetPosition()
