@@ -3,7 +3,9 @@ using System.Threading.Tasks;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.Events;
+#if UNITY_EDITOR
 using Random = UnityEngine.Random;
+#endif
 
 public class CalibrationManager : MonoBehaviour
 {
