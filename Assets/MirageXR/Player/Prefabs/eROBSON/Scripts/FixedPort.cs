@@ -72,7 +72,7 @@ public class FixedPort : MonoBehaviour
 
     private void OnMovingStart(ManipulationEventData data)
     {
-        _moving = true;
+        _moving = _eROBSONItems && !_eROBSONItems.BitIsLocked;
     }
 
     private void OnMovingStop(ManipulationEventData data)
@@ -89,12 +89,6 @@ public class FixedPort : MonoBehaviour
             return;
         }
 
-
-        if (_eROBSONItems.BitIsLocked)
-        {
-            return;
-        }
-
         //if the main bit is moving do not store movable part position
         if (!_eROBSONItems.IsMoving && !_moving)
         {
@@ -104,18 +98,18 @@ public class FixedPort : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (_eROBSONItems && _eROBSONItems.BitIsLocked && !IsLock)
+        {
+            lockToggle.isOn = true;
+        }
+
+
         if (_objectManipulator && !_objectManipulator.enabled)
         {
             return;
         }
 
         if (!_circuitDataLoaded || _moving)
-        {
-            return;
-        }
-
-
-        if (_eROBSONItems && _eROBSONItems.BitIsLocked)
         {
             return;
         }

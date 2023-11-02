@@ -30,7 +30,7 @@ public class eROBSONItems : MirageXRPrefab
 
     public BitID ID => id;
 
-    private BitsBehaviourController MyBehaviourController;
+
 
     public bool BitIsLocked => _myObj is { positionLock: true };
 
@@ -109,7 +109,6 @@ public class eROBSONItems : MirageXRPrefab
         _connectedBits = new List<eROBSONItems>();
         indicatorLight = GetComponentInChildren<IndicatorLight>();
         ports = GetComponentsInChildren<Port>();
-        MyBehaviourController = GetComponent<BitsBehaviourController>();
         gameObject.GetComponentInParent<ObjectManipulator>().OnManipulationStarted.AddListener(OnMovingItem);
         gameObject.GetComponentInParent<ObjectManipulator>().OnManipulationEnded.AddListener(OnItemStoppedMoving);
 
@@ -153,6 +152,10 @@ public class eROBSONItems : MirageXRPrefab
     /// </summary>
     public void EnableManipulation()
     {
+        if (BitIsLocked)
+        {
+            return;
+        }
         var objectManipulator = GetComponentInParent<ObjectManipulator>();
         objectManipulator.TwoHandedManipulationType = Microsoft.MixedReality.Toolkit.Utilities.TransformFlags.Move;
         objectManipulator.enabled = true;
