@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using DG.Tweening;
 using i5.Toolkit.Core.OpenIDConnectClient;
 using i5.Toolkit.Core.ServiceCore;
-using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using Newtonsoft.Json;
 using TMPro;
@@ -17,6 +16,13 @@ public class ModelEditorView : PopupEditorBase
     private const int RESULTS_PER_PAGE = 20;
     private const float HIDED_SIZE = 100f;
     private const float HIDE_ANIMATION_TIME = 0.5f;
+
+    public enum ModelEditorTabs
+    {
+        Local,
+        Sketchfab,
+        Library
+    }
 
     public override ContentType editorForType => ContentType.MODEL;
 
@@ -50,6 +56,8 @@ public class ModelEditorView : PopupEditorBase
     [SerializeField] private RectTransform _panel;
     [SerializeField] private GameObject _arrowDown;
     [SerializeField] private GameObject _arrowUp;
+    [Space]
+    [SerializeField] private ModelLibraryManager _libraryManager;
 
     private string _token;
     private string _renewToken;
@@ -62,17 +70,19 @@ public class ModelEditorView : PopupEditorBase
     private readonly List<ModelListItem> _items = new List<ModelListItem>();
     private string _modelFileType;
     private ModelListItem _currentItem;
+    private ModelEditorTabs _currentTab;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
+        _toggleLocal.onValueChanged.RemoveAllListeners();
+        _toggleSketchfab.onValueChanged.RemoveAllListeners();
+        _toggleLibraries.onValueChanged.RemoveAllListeners();
+
         try
         {
             _showBackground = false;
             base.Initialization(onClose, args);
 
-            if (!CheckAndLoadCredentials()) return;
-
-            //_btnSearch.onClick.AddListener(OnSearchClicked);
             _btnLogout.onClick.AddListener(OnLogoutClicked);
             _btnAddFile.onClick.AddListener(OnAddLocalFile);
             _clearSearchBtn.onClick.AddListener(ClearSearchField);
@@ -81,9 +91,12 @@ public class ModelEditorView : PopupEditorBase
             _toggleSketchfab.onValueChanged.AddListener(OnToggleSketchfabValueChanged);
             _toggleLibraries.onValueChanged.AddListener(OnToggleLibrariesValueChanged);
             _inputSearch.onValueChanged.AddListener(OnInputFieldSearchChanged);
-            ResetView();
+            _pageIndex = 0;
             RootView_v2.Instance.HideBaseView();
             _modelFileType = NativeFilePicker.ConvertExtensionToFileType("fbx");
+
+            _toggleLocal.isOn = true;
+            _toggleLibraries.isOn = false;
         }
         catch (Exception e)
         {
@@ -95,8 +108,6 @@ public class ModelEditorView : PopupEditorBase
     {
         try
         {
-            _pageIndex = 0;
-            _toggleLocal.isOn = false;
             if (LocalFiles.TryGetPassword("sketchfab", out _renewToken, out _token))
             {
                 if (!string.IsNullOrEmpty(_renewToken) && DBManager.isNeedToRenewSketchfabToken)
@@ -188,6 +199,13 @@ public class ModelEditorView : PopupEditorBase
     {
         if (value)
         {
+            if (!CheckAndLoadCredentials())
+            {
+                ResetView();
+                return;
+            }
+
+            _currentTab = ModelEditorTabs.Local;
             _localTab.SetActive(true);
             _sketchfabTab.SetActive(false);
             _librariesTab.SetActive(false);
@@ -201,6 +219,13 @@ public class ModelEditorView : PopupEditorBase
         _inputSearch.text = string.Empty;
         if (value)
         {
+            if (!CheckAndLoadCredentials())
+            {
+                ResetView();
+                return;
+            }
+
+            _currentTab = ModelEditorTabs.Sketchfab;
             _localTab.SetActive(false);
             _sketchfabTab.SetActive(true);
             _librariesTab.SetActive(false);
@@ -213,10 +238,12 @@ public class ModelEditorView : PopupEditorBase
     {
         if (value)
         {
+            _currentTab = ModelEditorTabs.Library;
             _localTab.SetActive(false);
             _sketchfabTab.SetActive(false);
             _librariesTab.SetActive(true);
             _bottomButtonsPanel.SetActive(false);
+            _libraryManager.EnableCategoryButtons(this);
         }
     }
 
@@ -248,7 +275,7 @@ public class ModelEditorView : PopupEditorBase
 
     private void OnSearchClicked()
     {
-        if (_toggleLocal.isOn)
+        if (_currentTab == ModelEditorTabs.Local)
         {
             SearchLocal();
         }
@@ -367,6 +394,9 @@ public class ModelEditorView : PopupEditorBase
     {
         try
         {
+            //disable the library items
+            _libraryManager.DisableCategoryButtons();
+
             _pageIndex = 0;
             _scroll.normalizedPosition = Vector2.up;
             for (int i = _contentContainer.childCount - 1; i >= 0; i--)
@@ -393,13 +423,13 @@ public class ModelEditorView : PopupEditorBase
     {
         foreach (var item in previewItems)
         {
-            if (_toggleSketchfab.isOn)
+            if (_currentTab == ModelEditorTabs.Sketchfab)
             {
                 var model = Instantiate(_modelListItemPrefab, _contentContainer);
                 model.Init(item, isDownloaded, DownloadItem, Accept, null, null);
                 _items.Add(model);
             }
-            else if (_toggleLocal.isOn)
+            else if (_currentTab == ModelEditorTabs.Local)
             {
                 var model = Instantiate(_modelListItemPrefab, _contentLocalContainer);
                 model.Init(item, isDownloaded, DownloadItem, Accept, RemoveLocalItemAsync, RenameLocalItemAsync);
@@ -588,8 +618,14 @@ public class ModelEditorView : PopupEditorBase
     protected override void OnAccept()
     {
         _previewItem.name = ZipUtilities.CheckFileForIllegalCharacters(_previewItem.name);
+        AddAugmentation(_previewItem.name);
+    }
 
-        var predicate = $"3d:{_previewItem.name}";
+
+
+    public void AddAugmentation(string prefabName, bool libraryModel = false)
+    {
+        var predicate = $"3d:{prefabName}";
         if (_content != null)
         {
             EventManager.DeactivateObject(_content);
@@ -597,9 +633,10 @@ public class ModelEditorView : PopupEditorBase
         else
         {
             _content = augmentationManager.AddAugmentation(_step, GetOffset());
-            _content.option = _previewItem.name;
+            _content.option = prefabName;
             _content.predicate = predicate;
             _content.url = predicate;
+            _content.text = libraryModel ? ModelLibraryManager.LibraryKeyword : string.Empty;
         }
 
         _content.predicate = predicate;
@@ -608,6 +645,8 @@ public class ModelEditorView : PopupEditorBase
 
         Close();
     }
+
+
 
     private void OnArrowButtonPressed()
     {
