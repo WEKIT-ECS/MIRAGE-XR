@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.Events;
+#if UNITY_EDITOR
+using Random = UnityEngine.Random;
+#endif
 
 public class CalibrationManager : MonoBehaviour
 {
@@ -232,6 +235,11 @@ public class CalibrationManager : MonoBehaviour
         anchorTransform.position = Vector3.zero;
         anchorTransform.rotation = Quaternion.identity;
         anchorTransform.localScale = Vector3.one;
+
+#if UNITY_EDITOR
+        anchorTransform.rotation = Quaternion.Euler(0, Random.Range(0, 360f), 0);
+        anchorTransform.position = new Vector3(Random.Range(-3f, 3f), Random.Range(0f, 2f), Random.Range(-3f, 3f));
+#endif
 
         //var capsule = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         //capsule.transform.SetParent(anchorTransform, true);
