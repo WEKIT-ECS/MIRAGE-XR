@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using DG.Tweening;
 using i5.Toolkit.Core.OpenIDConnectClient;
 using i5.Toolkit.Core.ServiceCore;
-using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using Newtonsoft.Json;
 using TMPro;
@@ -75,7 +74,6 @@ public class ModelEditorView : PopupEditorBase
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        //unregister events
         _toggleLocal.onValueChanged.RemoveAllListeners();
         _toggleSketchfab.onValueChanged.RemoveAllListeners();
         _toggleLibraries.onValueChanged.RemoveAllListeners();
@@ -85,10 +83,6 @@ public class ModelEditorView : PopupEditorBase
             _showBackground = false;
             base.Initialization(onClose, args);
 
-            //set the default tab
-            OnToggleLibrariesValueChanged(true);
-
-            //_btnSearch.onClick.AddListener(OnSearchClicked);
             _btnLogout.onClick.AddListener(OnLogoutClicked);
             _btnAddFile.onClick.AddListener(OnAddLocalFile);
             _clearSearchBtn.onClick.AddListener(ClearSearchField);
@@ -100,6 +94,9 @@ public class ModelEditorView : PopupEditorBase
             _pageIndex = 0;
             RootView_v2.Instance.HideBaseView();
             _modelFileType = NativeFilePicker.ConvertExtensionToFileType("fbx");
+
+            _toggleLocal.isOn = true;
+            _toggleLibraries.isOn = false;
         }
         catch (Exception e)
         {
