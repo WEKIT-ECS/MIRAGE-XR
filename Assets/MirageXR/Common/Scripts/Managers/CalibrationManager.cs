@@ -238,7 +238,7 @@ public class CalibrationManager : MonoBehaviour
 
 #if UNITY_EDITOR
         anchorTransform.rotation = Quaternion.Euler(0, Random.Range(0, 360f), 0);
-        anchorTransform.position = new Vector3(Random.Range(-1f, 1f), 0, Random.Range(-1f, 1f));
+        anchorTransform.position = new Vector3(Random.Range(-3f, 3f), Random.Range(0f, 2f), Random.Range(-3f, 3f));
 #endif
 
         //var capsule = GameObject.CreatePrimitive(PrimitiveType.Sphere);
