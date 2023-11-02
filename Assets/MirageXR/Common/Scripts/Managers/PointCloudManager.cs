@@ -13,7 +13,7 @@ public class PointCloudManager : MonoBehaviour
     public async Task<bool> InitializationAsync()
     {
 #if !UNITY_ANDROID && !UNITY_IOS
-        return false;
+        return true;
 #endif
 
         var mainCamera = Camera.main;
@@ -44,6 +44,9 @@ public class PointCloudManager : MonoBehaviour
 
     public async Task<bool> ResetAsync()
     {
+#if !UNITY_ANDROID && !UNITY_IOS
+        return true;
+#endif
         if (!_arSession)
         {
             Debug.LogError("ARSession is null");

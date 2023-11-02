@@ -97,6 +97,8 @@ public class RootView_v2 : BaseView
             var dontShowLoginMenu = false;
             PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu, null);
         }
+
+        RootObject.Instance.cameraCalibrationChecker.onAnchorLost.AddListener(ShowCalibrationAlert);
     }
 
     private void OnDestroy()
@@ -104,6 +106,7 @@ public class RootView_v2 : BaseView
         EventManager.OnWorkplaceLoaded -= OnWorkplaceLoaded;
         EventManager.OnActivityStarted -= OnActivityLoaded;
         EventManager.OnMobileHelpPageChanged -= UpdateHelpPage;
+        RootObject.Instance.cameraCalibrationChecker.onAnchorLost.RemoveListener(ShowCalibrationAlert);
     }
 
     private void OnWorkplaceLoaded()
@@ -112,6 +115,11 @@ public class RootView_v2 : BaseView
         {
             PopupsViewer.Instance.Show(_calibrationGuideViewPrefab);
         }
+    }
+
+    private void ShowCalibrationAlert(float distance)
+    {
+        Toast.Instance.Show("The space anchor may have shifted.\nPlease check the position of the anchor.");
     }
 
     private async Task AutoLogin()
