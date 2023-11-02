@@ -1,20 +1,22 @@
-﻿using i5.Toolkit.Core.VerboseLogging;
-using Microsoft.MixedReality.Toolkit.UI;
+﻿using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
-using Siccity.GLTFUtility;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
+using GLTFast;
 using UnityEngine;
 
 namespace MirageXR
 {
     public class Model : MirageXRPrefab
     {
+        private const string GLTF_NAME = "scene.gltf";
+
         private static ActivityManager _activityManager => RootObject.Instance.activityManager;
 
-        private float startLoadTime = 0.0f;
         private ToggleObject _obj;
-        private Animation animation;
+        private Animation _animation;
+        private GltfImport _gltf;
 
         public ToggleObject MyToggleObject => _obj;
 
@@ -33,6 +35,8 @@ namespace MirageXR
             }
 
             UnSubscribe();
+
+            _gltf?.Dispose();
         }
 
         private void Subscribe()
@@ -76,7 +80,7 @@ namespace MirageXR
             // Set name.
             name = obj.predicate;
 
-            LoadModel(obj);
+            LoadGltf(obj).AsAsyncVoid();
 
             if (!obj.id.Equals("UserViewport"))
             {
@@ -92,17 +96,25 @@ namespace MirageXR
             return true;
         }
 
-        private void LoadModel(ToggleObject obj)
+        private async Task<bool> LoadGltf(ToggleObject content)
         {
-            startLoadTime = Time.time;
+            content.option = ZipUtilities.CheckFileForIllegalCharacters(content.option);
+            var loadPath = Path.Combine(RootObject.Instance.activityManager.ActivityPath, content.option, GLTF_NAME);
+            _gltf = new GltfImport();
+            var success = await _gltf.Load(loadPath);
+            if (success)
+            {
+                success = await _gltf.InstantiateMainSceneAsync(transform);
+            }
 
-            obj.option = ZipUtilities.CheckFileForIllegalCharacters(obj.option);
+            if (!success)
+            {
+                UnityEngine.Debug.Log($"Can't load model on the path {loadPath}");
+                return false;
+            }
 
-            var loadPath = Path.Combine(RootObject.Instance.activityManager.ActivityPath, obj.option, "scene.gltf");
-
-            Debug.LogTrace($"Loading model: {loadPath}");
-
-            Importer.ImportGLTFAsync(loadPath, new ImportSettings(), OnFinishLoadingAsync);
+            OnFinishLoadingAsync(transform.Find("Sketchfab_model").gameObject, _gltf.GetAnimationClips());
+            return true;
         }
 
         private void OnFinishLoadingAsync(GameObject model, AnimationClip[] clip)
@@ -112,8 +124,6 @@ namespace MirageXR
                 Destroy(model);
                 return;
             }
-
-            Debug.LogTrace($"Imported {model.name} in {Time.time - startLoadTime} seconds");
 
             var startPos = transform.position + transform.forward * -0.5f + transform.up * -0.1f;
 
@@ -137,16 +147,16 @@ namespace MirageXR
 
             // configure and play animation
 
-            if (clip.Length > 0)
+            if (clip is { Length: > 0 })
             {
                 Debug.LogDebug($"Animation(s) found ({clip.Length})...isLegacy? {clip[0].legacy}");
 
-                animation = model.AddComponent<Animation>();
-                animation.AddClip(clip[0], "leaning");
-                animation.playAutomatically = true;
-                animation.clip = clip[0];
-                animation.clip.legacy = true;
-                animation.Play();
+                _animation = model.AddComponent<Animation>();
+                _animation.AddClip(clip[0], "leaning");
+                _animation.playAutomatically = true;
+                _animation.clip = clip[0];
+                _animation.clip.legacy = true;
+                _animation.Play();
             }
 
             InitManipulators();
