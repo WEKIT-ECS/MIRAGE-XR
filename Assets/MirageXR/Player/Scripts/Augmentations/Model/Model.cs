@@ -1,6 +1,4 @@
 using Microsoft.MixedReality.Toolkit.UI;
-using System;
-using i5.Toolkit.Core.VerboseLogging;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Collections.Generic;
 using System.IO;
@@ -86,11 +84,11 @@ namespace MirageXR
 
             if (obj.text.Equals(ModelLibraryManager.LibraryKeyword))
             {
-                LoadGltf(obj).AsAsyncVoid();
+                LoadLibraryModel($"Library/{obj.option}");
             }
             else
             {
-                LoadModel(obj);
+                LoadGltf(obj).AsAsyncVoid();
             }
 
 
