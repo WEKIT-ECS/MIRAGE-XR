@@ -89,6 +89,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           lfs: 'true'
+          ref: develop
       - name: LFS pull
         run: git lfs pull
 
