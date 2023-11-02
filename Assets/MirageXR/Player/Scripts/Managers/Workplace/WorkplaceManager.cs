@@ -266,7 +266,7 @@ namespace MirageXR
         /// performs changes to the model using the WorkplaceManager's functionality.
         /// </summary>
         /// <param name="origin">Origin transform from the calibration target.</param>
-        public async Task CalibrateWorkplace(Transform origin, bool isNewPosition = false)
+        public async Task CalibrateWorkplace(bool isNewPosition = false)
         {
             await activityManager.ActivateFirstAction();
 
