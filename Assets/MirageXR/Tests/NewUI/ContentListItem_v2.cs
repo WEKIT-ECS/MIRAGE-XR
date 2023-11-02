@@ -179,29 +179,13 @@ public class ContentListItem_v2 : MonoBehaviour
 
     private bool SetLockActive()
     {
-        switch (_content.predicate)
-        {
-            case string a when a.StartsWith("label"):
-                return true;
-                break;
-            case string a when a.StartsWith("effect"):
-                return true;
-                break;
-            case string a when a.StartsWith("act"):
-                return true;
-                break;
-            case string a when a.StartsWith("image"):
-                return true;
-                break;
-            case string a when a.StartsWith("video"):
-                return true;
-                break;
-            case string a when a.StartsWith("3d"):
-                return true;
-                break;
-            default:
-                return false;
-                break;
-        }
+        string predicate = _content.predicate;
+        return predicate.StartsWith("label") ||
+               predicate.StartsWith("effect") ||
+               predicate.StartsWith("act") ||
+               predicate.StartsWith("image") ||
+               predicate.StartsWith("video") ||
+               predicate.StartsWith("3d") ||
+               predicate.StartsWith("eRobson");
     }
 }

@@ -22,6 +22,8 @@ public class FixedPort : MonoBehaviour
 
     private bool _circuitDataLoaded;
 
+    private eROBSONItems _eROBSONItems;
+
     public IEnumerator LetConnect(float snappingDuration, Vector3 detectedPortPosition)
     {
         transform.position = detectedPortPosition;
@@ -39,6 +41,8 @@ public class FixedPort : MonoBehaviour
         {
             yield return null;
         }
+
+        bitObject.TryGetComponent(out _eROBSONItems);
 
         _myTransform = transform;
         _tempPosition = _myTransform.position;
@@ -80,13 +84,19 @@ public class FixedPort : MonoBehaviour
 
     private void Update()
     {
-        if (!lockToggle || lockToggle.isOn || !_objectManipulator || !_objectManipulator.enabled)
+        if (!lockToggle || lockToggle.isOn || !_objectManipulator || !_objectManipulator.enabled || !_eROBSONItems)
+        {
+            return;
+        }
+
+
+        if (_eROBSONItems.BitIsLocked)
         {
             return;
         }
 
         //if the main bit is moving do not store movable part position
-        if (!bitObject.GetComponent<eROBSONItems>().IsMoving && !_moving)
+        if (!_eROBSONItems.IsMoving && !_moving)
         {
             _tempPosition = _myTransform.position;
         }
@@ -100,6 +110,12 @@ public class FixedPort : MonoBehaviour
         }
 
         if (!_circuitDataLoaded || _moving)
+        {
+            return;
+        }
+
+
+        if (_eROBSONItems && _eROBSONItems.BitIsLocked)
         {
             return;
         }

@@ -1,4 +1,5 @@
 using Microsoft.MixedReality.Toolkit.UI;
+using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using MirageXR;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,7 @@ public class eROBSONItems : MirageXRPrefab
 
     private BitsBehaviourController MyBehaviourController;
 
+    public bool BitIsLocked => _myObj is { positionLock: true };
 
     private Port[] ports;
     private List<eROBSONItems> _connectedBits;
@@ -75,11 +77,13 @@ public class eROBSONItems : MirageXRPrefab
     private void OnEnable()
     {
         EventManager.OnEditModeChanged += EditModeState;
+        EventManager.OnAugmentationLocked += OnLock;
     }
 
     private void OnDisable()
     {
         EventManager.OnEditModeChanged -= EditModeState;
+        EventManager.OnAugmentationLocked -= OnLock;
     }
 
 
@@ -119,7 +123,7 @@ public class eROBSONItems : MirageXRPrefab
     /// <param name="arg0"></param>
     private void OnMovingItem(ManipulationEventData arg0)
     {
-        IsMoving = true;
+        IsMoving = !_myObj.positionLock;
 
     }
 
@@ -206,5 +210,26 @@ public class eROBSONItems : MirageXRPrefab
     {
         //Manipulation should be enabled always for eRobson
         EnableManipulation();
+    }
+
+
+    private void OnLock(string id, bool locked)
+    {
+        if (id == _myObj.poi)
+        {
+            _myObj.positionLock = locked;
+
+            var poiEditor = GetComponentInParent<PoiEditor>();
+
+            if (poiEditor)
+            {
+                poiEditor.IsLocked(_myObj.positionLock);
+
+                if (poiEditor.transform.GetComponent<BoundsControl>() && RootObject.Instance.activityManager.EditModeActive)
+                {
+                    poiEditor.EnableBoundsControl(!_myObj.positionLock);
+                }
+            }
+        }
     }
 }
