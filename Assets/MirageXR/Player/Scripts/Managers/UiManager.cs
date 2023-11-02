@@ -224,13 +224,13 @@ namespace MirageXR
         private void CreateCalibrationGuide()
         {
             // do not create if it is exist already
-            if (!PlatformManager.Instance.WorldSpaceUi || GameObject.Find("CalibrationGuide(Clone)") || GameObject.Find("CalibrationGuide"))
+            if (!RootObject.Instance.platformManager.WorldSpaceUi || GameObject.Find("CalibrationGuide(Clone)") || GameObject.Find("CalibrationGuide"))
                 return;
 
             if (IsCalibrated) // create the guild if activity is not calibrated.
             {
                 var prefab = Resources.Load<GameObject>("Prefabs/Calibration/CalibrationGuide");
-                var position = PlatformManager.Instance.GetTaskStationPosition() - Vector3.forward * 0.1f;
+                var position = RootObject.Instance.platformManager.GetTaskStationPosition() - Vector3.forward * 0.1f;
                 var guildeObject = Instantiate(prefab, position, Camera.main.transform.rotation);
                 guildeObject.name = "CalibrationGuide";
                 var okButton = guildeObject.transform.FindDeepChild("OKButton");
@@ -257,7 +257,7 @@ namespace MirageXR
             // Add a small delay just be sure that the message is stopped.
             await Task.Delay(250);
 
-            if (PlatformManager.Instance.WorldSpaceUi)
+            if (RootObject.Instance.platformManager.WorldSpaceUi)
             {
                 RootObject.Instance.calibrationManager.DisableCalibration();
             }
@@ -272,9 +272,9 @@ namespace MirageXR
                 // Maggie.Speak("Workplace anchors have not been calibrated. Please run the calibration before starting the activity.");
                 CreateCalibrationGuide();
 
-                if (PlatformManager.Instance.WorldSpaceUi)
+                if (RootObject.Instance.platformManager.WorldSpaceUi)
                 {
-                    RootObject.Instance.calibrationManager.EnableCalibration();
+                    RootObject.Instance.calibrationManager.EnableCalibration(true);
                 }
 
                 // Hile loading text
@@ -379,7 +379,7 @@ namespace MirageXR
             if (activityManager.ActiveAction == null) return;
 
             activityManager.SaveData();
-            if (PlatformManager.Instance.WorldSpaceUi)
+            if (RootObject.Instance.platformManager.WorldSpaceUi)
                 Maggie.Speak("Save completed");
         }
 
