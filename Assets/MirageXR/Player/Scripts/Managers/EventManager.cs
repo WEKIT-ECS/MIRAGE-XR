@@ -295,7 +295,7 @@ namespace MirageXR
 
         public static void InitUi()
         {
-            Debug.LogTrace("Init UI invoked");
+            Debug.LogTrace("InitCategoryButton UI invoked");
             OnInitUi?.Invoke();
         }
 

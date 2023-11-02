@@ -2,6 +2,7 @@
 using i5.Toolkit.Core.VerboseLogging;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
 using UnityEngine.AI;
@@ -342,7 +343,7 @@ namespace MirageXR
             GameObject temp = null;
             var activeActionIndex = actionList.IndexOf(activityManager.ActiveAction);
 
-            // if we are in the active step and the annotaiton exists in this step
+            // if we are in the active step and the annotation exists in this step
             if (actionList[activeActionIndex] == activityManager.ActiveAction
                 && actionList[activeActionIndex].enter.activates.Find(p => p.poi == obj.poi) != null)
             {
@@ -365,7 +366,7 @@ namespace MirageXR
                 if (prefabInAddressable != null)
                 {
                     temp = Instantiate(prefabInAddressable, Vector3.zero, Quaternion.identity);
-                    AddExtraComponents(temp, obj);
+                    _ = AddExtraComponents(temp, obj);
                 }
                 else
                 {
@@ -396,7 +397,14 @@ namespace MirageXR
             }
         }
 
-        private static async void AddExtraComponents(GameObject go, ToggleObject annotationToggleObject)
+
+        /// <summary>
+        /// All post creation component will be added to the augmentation objects in this method
+        /// </summary>
+        /// <param name="go"></param>
+        /// <param name="annotationToggleObject"></param>
+        /// <returns></returns>
+        private static async Task AddExtraComponents(GameObject go, ToggleObject annotationToggleObject)
         {
             switch (annotationToggleObject.predicate)
             {
@@ -414,23 +422,38 @@ namespace MirageXR
                         return;
                     }
 
-                    var boundingBox = go.AddComponent<BoundingBoxGenerator>();
-                    boundingBox.CustomScaleHandlesConfiguration = Resources.Load<ScaleHandlesConfiguration>("Prefabs/CustomBoundingScaleHandlesConfiguration");
-                    boundingBox.CustomRotationHandlesConfiguration = Resources.Load<RotationHandlesConfiguration>("Prefabs/CustomBoundingRotationHandlesConfiguration");
-                    await boundingBox.AddBoundingBox(annotationToggleObject, BoundsCalculationMethod.RendererOverCollider, false, true, BoundingRotationType.ALL, true);
-
-                    // disable rotation for image
-                    if (DisableBoundingRotation(annotationToggleObject))
-                    {
-                        boundingBox.CustomRotationHandlesConfiguration.ShowHandleForX = false;
-                        boundingBox.CustomRotationHandlesConfiguration.ShowHandleForY = false;
-                        boundingBox.CustomRotationHandlesConfiguration.ShowHandleForZ = false;
-                    }
+                    await AddBoundingBox(go, annotationToggleObject);
 
                     break;
                 }
             }
         }
+
+
+        /// <summary>
+        /// Add bounding box to the augmentation that need that
+        /// </summary>
+        /// <param name="go"></param>
+        /// <param name="annotationToggleObject"></param>
+        /// <returns></returns>
+        private static async Task AddBoundingBox(GameObject go, ToggleObject annotationToggleObject)
+        {
+            var boundingBox = go.AddComponent<BoundingBoxGenerator>();
+            boundingBox.CustomScaleHandlesConfiguration = Resources.Load<ScaleHandlesConfiguration>("Prefabs/CustomBoundingScaleHandlesConfiguration");
+            boundingBox.CustomRotationHandlesConfiguration = Resources.Load<RotationHandlesConfiguration>("Prefabs/CustomBoundingRotationHandlesConfiguration");
+            await boundingBox.AddBoundingBox(annotationToggleObject, BoundsCalculationMethod.RendererOverCollider, false, true, BoundingRotationType.ALL, true);
+
+            // disable rotation for image
+            if (DisableBoundingRotation(annotationToggleObject))
+            {
+                boundingBox.CustomRotationHandlesConfiguration.ShowHandleForX = false;
+                boundingBox.CustomRotationHandlesConfiguration.ShowHandleForY = false;
+                boundingBox.CustomRotationHandlesConfiguration.ShowHandleForZ = false;
+            }
+
+            await Task.CompletedTask;
+        }
+
 
         private static IEnumerator WaitForParent(GameObject gameObject, System.Action callback)
         {

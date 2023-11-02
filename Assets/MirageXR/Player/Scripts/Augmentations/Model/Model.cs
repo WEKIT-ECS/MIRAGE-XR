@@ -1,10 +1,12 @@
-﻿using Microsoft.MixedReality.Toolkit.UI;
+using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using GLTFast;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace MirageXR
 {
@@ -80,7 +82,15 @@ namespace MirageXR
             // Set name.
             name = obj.predicate;
 
-            LoadGltf(obj).AsAsyncVoid();
+            if (obj.text.Equals(ModelLibraryManager.LibraryKeyword))
+            {
+                LoadLibraryModel($"Library/{obj.option}");
+            }
+            else
+            {
+                LoadGltf(obj).AsAsyncVoid();
+            }
+
 
             if (!obj.id.Equals("UserViewport"))
             {
@@ -125,12 +135,18 @@ namespace MirageXR
                 return;
             }
 
-            var startPos = transform.position + transform.forward * -0.5f + transform.up * -0.1f;
+            var modelTransform = transform;
+            var startPos = modelTransform.position + modelTransform.forward * -0.5f + modelTransform.up * -0.1f;
 
-            model.transform.SetParent(transform);
-            model.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
-            model.transform.position = startPos;
-            model.transform.localRotation = Quaternion.identity;
+            model.transform.SetParent(modelTransform);
+
+            //Do not manipulate the library models at the start
+            if (!_obj.option.Equals(ModelLibraryManager.LibraryKeyword))
+            {
+                model.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+                model.transform.position = startPos;
+                model.transform.localRotation = Quaternion.identity;
+            }
 
             model.name = _obj.option;
             model.transform.localRotation *= Quaternion.Euler(-90f, 0f, 0f);
@@ -161,6 +177,27 @@ namespace MirageXR
 
             InitManipulators();
         }
+
+
+
+        public void LoadLibraryModel(string libraryModelPrefabName)
+        {
+            Addressables.LoadAssetAsync<GameObject>(libraryModelPrefabName).Completed += OnLibraryModelLoaded;
+        }
+
+        private void OnLibraryModelLoaded(AsyncOperationHandle<GameObject> obj)
+        {
+            if (obj.Status == AsyncOperationStatus.Succeeded)
+            {
+                GameObject instantiatedModel = Instantiate(obj.Result, transform);
+                OnFinishLoadingAsync(instantiatedModel, null); // Handle the loaded LibraryModel as needed
+            }
+            else
+            {
+                Debug.LogError($"Failed to load LibraryModel from Addressables");
+            }
+        }
+
 
         private void InitManipulators()
         {
@@ -213,8 +250,8 @@ namespace MirageXR
 
         private void ConfigureModel(GameObject _model, AnimationClip[] clips)
         {
-            _model.AddComponent<Rigidbody>();
-            _model.GetComponent<Rigidbody>().isKinematic = true;
+            var rb = _model.AddComponent<Rigidbody>();
+            rb.isKinematic = true;
             _model.SetActive(true);
 
             var renderers = _model.GetComponentsInChildren<Renderer>();
@@ -225,12 +262,13 @@ namespace MirageXR
             {
                 var g = r.gameObject;
 
-                if (!g.GetComponent<MeshCollider>())
+                g.TryGetComponent<MeshCollider>(out var meshCollider);
+                if (!meshCollider)
                 {
-
-                    if (g.GetComponent<SkinnedMeshRenderer>())
+                    g.TryGetComponent<SkinnedMeshRenderer>(out var skinnedMeshRenderer);
+                    if (skinnedMeshRenderer && skinnedMeshRenderer.rootBone)
                     {
-                        var rootBone = g.GetComponent<SkinnedMeshRenderer>().rootBone.transform;
+                        var rootBone = skinnedMeshRenderer.rootBone.transform;
 
                         // for skinned mesh renderers, add capsule colliders to main bones (2 levels) and scale list entry
                         AddCapsuleCollidersToPatient(rootBone);
@@ -248,7 +286,7 @@ namespace MirageXR
                 }
                 else
                 {
-                    colliders.Add(g.GetComponent<MeshCollider>().bounds);
+                    colliders.Add(meshCollider.bounds);
                 }
             }
         }
