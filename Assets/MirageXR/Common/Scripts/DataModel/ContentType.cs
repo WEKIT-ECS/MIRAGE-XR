@@ -185,6 +185,8 @@ public static class ContentTypeExtenstion
     public static ContentType ParsePredicate(string predicate)
     {
         var predicateLowCase = predicate.ToLower();
+        if (predicateLowCase.StartsWith(PREDICATE_IMAGEMARKER))
+            return ContentType.IMAGEMARKER;
         if (predicateLowCase.StartsWith(PREDICATE_IMAGE))
             return ContentType.IMAGE;
         if (predicateLowCase.StartsWith(PREDICATE_VIDEO))
@@ -205,8 +207,6 @@ public static class ContentTypeExtenstion
             return ContentType.CHARACTER;
         if (predicateLowCase.StartsWith(PREDICATE_PICKANDPLACE) || predicateLowCase.StartsWith(PREDICATE_PICKANDPLACE_V2))
             return ContentType.PICKANDPLACE;
-        if (predicateLowCase.StartsWith(PREDICATE_IMAGEMARKER))
-            return ContentType.IMAGEMARKER;
         if (predicateLowCase.StartsWith(PREDICATE_PLUGIN))
             return ContentType.PLUGIN;
         if (predicateLowCase.StartsWith(PREDICATE_DRAWING))

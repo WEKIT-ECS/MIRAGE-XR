@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Threading.Tasks;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using MirageXR;
 using UnityEngine;
@@ -184,6 +185,12 @@ public class ManipulationController : MonoBehaviour, IDisposable
         {
             meshRenderer.enabled = true;
         }
+
+        var skinnedRenderers = source.GetComponentsInChildren<SkinnedMeshRenderer>();
+        foreach (var meshRenderer in skinnedRenderers)
+        {
+            meshRenderer.enabled = true;
+        }
     }
 
     private void HideOriginalObject(GameObject source)
@@ -196,6 +203,12 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
         var renderers = source.GetComponentsInChildren<MeshRenderer>();
         foreach (var meshRenderer in renderers)
+        {
+            meshRenderer.enabled = false;
+        }
+
+        var skinnedRenderers = source.GetComponentsInChildren<SkinnedMeshRenderer>();
+        foreach (var meshRenderer in skinnedRenderers)
         {
             meshRenderer.enabled = false;
         }
@@ -235,6 +248,19 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
             var renderers = _copy.GetComponentsInChildren<MeshRenderer>(true);
             foreach (var render in renderers)
+            {
+                var materials = new Material[render.materials.Length];
+
+                for (var i = 0; i < materials.Length; i++)
+                {
+                    materials[i] = _gridManager.ghostMaterial;
+                }
+
+                render.materials = materials;
+            }
+
+            var skinnedRenderers = _copy.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+            foreach (var render in skinnedRenderers)
             {
                 var materials = new Material[render.materials.Length];
 

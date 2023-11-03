@@ -72,7 +72,7 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Remove listeners from events that were enabled in Init().
+        /// Remove listeners from events that were enabled in InitCategoryButton().
         /// </summary>
         protected abstract void Detach();
 

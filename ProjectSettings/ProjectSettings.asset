@@ -143,7 +143,6 @@ PlayerSettings:
   preloadedAssets:
   - {fileID: 11400000, guid: 5af8949b7209364499abc8979cef0d21, type: 2}
   - {fileID: 0}
-  - {fileID: 2391711983362963604, guid: b3a3cc9ae17858f4a9346913737e2188, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -257,7 +256,7 @@ PlayerSettings:
   useCustomBaseGradleTemplate: 0
   useCustomGradlePropertiesTemplate: 0
   useCustomProguardFile: 0
-  AndroidTargetArchitectures: 3
+  AndroidTargetArchitectures: 2
   AndroidTargetDevices: 0
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
@@ -823,7 +822,7 @@ PlayerSettings:
   webGLThreadsSupport: 0
   webGLDecompressionFallback: 0
   scriptingDefineSymbols:
-    Android: VUFORIA_ANDROID_SETTINGS;ARFOUNDATION_PRESENT
+    Android: VUFORIA_ANDROID_SETTINGS;ARFOUNDATION_PRESENT;MRTK_GLTF_IMPORTER_OFF
     Standalone: DOTNETWINRT_PRESENT
     Windows Store Apps: release;VUFORIA_WSA_SETTINGS;DOTNETWINRT_PRESENT
     iPhone: VUFORIA_IOS_SETTINGS;ARFOUNDATION_PRESENT;UNITY_XR_ARKIT_LOADER_ENABLED

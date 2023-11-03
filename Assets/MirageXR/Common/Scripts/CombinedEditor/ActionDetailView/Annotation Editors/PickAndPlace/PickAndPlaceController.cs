@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Microsoft.MixedReality.Toolkit.UI;
+using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
+using System;
 using System.Collections;
 using System.IO;
-using Microsoft.MixedReality.Toolkit.UI;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -189,6 +189,13 @@ namespace MirageXR
             while (newModel == null)
             {
                 newModel = GameObject.Find(MyModelID);
+
+                yield return null;
+            }
+
+            //wait for model component to be added
+            while (!newModel.GetComponentInChildren<Model>())
+            {
                 yield return null;
             }
 

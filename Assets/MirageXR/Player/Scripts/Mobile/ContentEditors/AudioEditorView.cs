@@ -1,8 +1,8 @@
-﻿using System;
+﻿using DG.Tweening;
+using MirageXR;
+using System;
 using System.Collections;
 using System.IO;
-using DG.Tweening;
-using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -36,6 +36,8 @@ public class AudioEditorView : PopupEditorBase
     [SerializeField] private Toggle _toggleLoop;
     [SerializeField] private Button _btnIncreaseRange;
     [SerializeField] private Button _btnDecreaseRange;
+    [SerializeField] private Toggle _toggleTrigger;
+    [SerializeField] private GameObject _objJumpToStep;
 
     [SerializeField] private TMP_Text _txtSliderRangeValue;
     [SerializeField] private GameObject _panelRange;
@@ -69,6 +71,7 @@ public class AudioEditorView : PopupEditorBase
     private Coroutine _updateSliderPlayerCoroutine;
     private Coroutine _updateRecordTimerCoroutine;
     private float _recordStartTime;
+    private int _scrollRectStep;
 
     private string _inputTriggerStepNumber = string.Empty;
 
@@ -101,6 +104,7 @@ public class AudioEditorView : PopupEditorBase
         _btnIncreaseRange.onClick.AddListener(OnIncreaseRange);
         _btnDecreaseRange.onClick.AddListener(OnDecreaseRange);
         _btnRecordComplete.onClick.AddListener(OnClickRecordComplete);
+        _toggleTrigger.onValueChanged.AddListener(OnToggleTriggerValueChanged);
 
         _sliderPlayer.minValue = 0;
         _sliderPlayer.maxValue = 1f;
@@ -121,12 +125,16 @@ public class AudioEditorView : PopupEditorBase
             if (trigger != null)
             {
                 _inputTriggerStepNumber = trigger.value;
+                _scrollRectStep = int.Parse(_inputTriggerStepNumber) - 1;
+                _toggleTrigger.isOn = true;
             }
+            OnClickRecordComplete();
         }
         else
         {
             _fileName = $"MirageXR_Audio_{DateTime.Now.ToFileTimeUtc()}.wav";
             _groupPlayControls.interactable = false;
+            OnClickCancel();
         }
 
         SetPlayerActive(true);
@@ -149,7 +157,7 @@ public class AudioEditorView : PopupEditorBase
 
             if (steps[i - 1].id == currentActionId)
             {
-                _clampedScrollJumpToStep.currentItemIndex = i;
+                _scrollRectStep = i - 1;
             }
         }
     }
@@ -260,6 +268,7 @@ public class AudioEditorView : PopupEditorBase
         _panelRecordControls.SetActive(false);
         _panelBottomButtons.SetActive(true);
         _panelRecordComplete.SetActive(false);
+        _panelAudioSettings.SetActive(false);
         _txtTimerTo.text = ToTimeFormatMinutes(_audioClip.length);
     }
 
@@ -410,12 +419,18 @@ public class AudioEditorView : PopupEditorBase
         _panelPlayRecord.SetActive(false);
         _panelBottomButtons.SetActive(false);
         _panelAudioSettings.SetActive(true);
+
+        _objJumpToStep.SetActive(true);
+        _clampedScrollJumpToStep.currentItemIndex = _scrollRectStep;
+        _objJumpToStep.SetActive(_toggleTrigger.isOn);
+
     }
 
     private void OnClickCancel()
     {
         _panelPlayRecord.SetActive(false);
         _panelBottomButtons.SetActive(false);
+        _panelAudioSettings.SetActive(false);
         _panelRecordControls.SetActive(true);
         _txtTimer.text = ToTimeFormat(0);
     }
@@ -451,7 +466,14 @@ public class AudioEditorView : PopupEditorBase
         _content.scale = 0.5f;
         _content.url = $"http://{_fileName}";
 
-        _step.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, _content.poi, _audioClip.length, _inputTriggerStepNumber);
+        if (_toggleTrigger.isOn)
+        {
+            _step.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, _content.poi, _audioClip.length, _inputTriggerStepNumber);
+        }
+        else
+        {
+            _step.RemoveArlemTrigger(_content);
+        }
 
         SaveLoadAudioUtilities.Save(filePath, _audioClip);
 
@@ -476,5 +498,10 @@ public class AudioEditorView : PopupEditorBase
             _arrowDown.SetActive(true);
             _arrowUp.SetActive(false);
         }
+    }
+
+    private void OnToggleTriggerValueChanged(bool value)
+    {
+        _objJumpToStep.SetActive(value);
     }
 }

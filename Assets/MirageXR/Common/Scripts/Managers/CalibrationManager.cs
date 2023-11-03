@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.Events;
+#if UNITY_EDITOR
+using Random = UnityEngine.Random;
+#endif
 
 public class CalibrationManager : MonoBehaviour
 {
@@ -78,7 +81,7 @@ public class CalibrationManager : MonoBehaviour
         _isRecalibration = false;
         _isEnabled = false;
 
-        if (_imageTarget != null && _calibrationTool)
+        if (_imageTarget != null && _calibrationTool != null)
         {
             _calibrationTool.Disable();
         }
@@ -154,46 +157,46 @@ public class CalibrationManager : MonoBehaviour
         }
 
         _calibrationTool.Initialization(ANIMATION_TIME);
-        _calibrationTool.onCalibrationStarted.RemoveAllListeners();
-        _calibrationTool.onCalibrationStarted.AddListener(OnCalibrationStarted);
-        _calibrationTool.onCalibrationCanceled.RemoveAllListeners();
-        _calibrationTool.onCalibrationCanceled.AddListener(OnCalibrationCanceled);
-        _calibrationTool.onCalibrationFinished.RemoveAllListeners();
-        _calibrationTool.onCalibrationFinished.AddListener(OnCalibrationFinished);
 
         return true;
     }
 
-    private void OnCalibrationStarted()
+    public void OnCalibrationStarted()
     {
         _onCalibrationStarted.Invoke();
     }
 
-    private void OnCalibrationCanceled()
+    public void OnCalibrationCanceled()
     {
         _onCalibrationCanceled.Invoke();
     }
 
-    private void OnCalibrationFinished()
+    public void OnCalibrationFinished(Pose pose)
     {
-        OnCalibrationFinishedAsync().AsAsyncVoid();
+        OnCalibrationFinishedAsync(pose).AsAsyncVoid();
     }
 
-    private async Task OnCalibrationFinishedAsync()
+    public Pose GetAnchorPositionAsync()
     {
-        UpdateAnchorPosition();
-        await RootObject.Instance.workplaceManager.CalibrateWorkplace(_anchor, _isRecalibration);
+        return _anchor.GetPose();
+    }
+
+    public async Task SetAnchorPositionAsync(Pose pose, bool resetAnchor)
+    {
+        UpdateAnchorPosition(pose);
+        await RootObject.Instance.workplaceManager.CalibrateWorkplace(resetAnchor);
+    }
+
+    private async Task OnCalibrationFinishedAsync(Pose pose)
+    {
+        await SetAnchorPositionAsync(pose, _isRecalibration);
         DisableCalibration();
         _onCalibrationFinished.Invoke();
     }
 
-    private void UpdateAnchorPosition()
+    private void UpdateAnchorPosition(Pose pose)
     {
-        var eulerAngles = _calibrationTool.transform.eulerAngles;
-        var rotation = new Vector3(0, eulerAngles.x + eulerAngles.y + eulerAngles.z - 90f, 0);
-        var position = _calibrationTool.transform.position;
-
-        var arAnchor = floorManager.CreateAnchor(new Pose(position, Quaternion.Euler(rotation)));
+        var arAnchor = floorManager.CreateAnchor(pose);
 
         if (!arAnchor)
         {
@@ -209,7 +212,7 @@ public class CalibrationManager : MonoBehaviour
             }
 
             _debugSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            _debugSphere.transform.position = _calibrationTool.transform.position;
+            _debugSphere.transform.position = pose.position;
             _debugSphere.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
         }
 
@@ -233,12 +236,14 @@ public class CalibrationManager : MonoBehaviour
         anchorTransform.rotation = Quaternion.identity;
         anchorTransform.localScale = Vector3.one;
 
-        if (DBManager.developMode)
-        {
-            var capsule = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            capsule.transform.SetParent(anchorTransform, true);
-            capsule.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
-        }
+#if UNITY_EDITOR
+        anchorTransform.rotation = Quaternion.Euler(0, Random.Range(0, 360f), 0);
+        anchorTransform.position = new Vector3(Random.Range(-3f, 3f), Random.Range(0f, 2f), Random.Range(-3f, 3f));
+#endif
+
+        //var capsule = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        //capsule.transform.SetParent(anchorTransform, true);
+        //capsule.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
 
         return anchorTransform;
     }

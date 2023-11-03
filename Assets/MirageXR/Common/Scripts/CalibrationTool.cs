@@ -1,22 +1,11 @@
 ﻿using System.Collections;
-using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace MirageXR
 {
     public class CalibrationTool : MonoBehaviour
     {
         [SerializeField] private CalibrationAnimation _calibrationAnimation;
-        [SerializeField] private UnityEvent _onCalibrationStarted = new UnityEvent();
-        [SerializeField] private UnityEvent _onCalibrationCanceled = new UnityEvent();
-        [SerializeField] private UnityEvent _onCalibrationFinished = new UnityEvent();
-
-        public UnityEvent onCalibrationStarted => _onCalibrationStarted;
-
-        public UnityEvent onCalibrationCanceled => _onCalibrationCanceled;
-
-        public UnityEvent onCalibrationFinished => _onCalibrationFinished;
 
         private IImageTarget _imageTarget;
         private float _animationTime = 5f;
@@ -66,7 +55,7 @@ namespace MirageXR
             }
 
             _isTargetFound = true;
-            _onCalibrationStarted.Invoke();
+            RootObject.Instance.calibrationManager.OnCalibrationStarted();
             _calibrationAnimation.PlayAnimation();
             _countdownToEnd = StartCoroutine(WaitAndDo(_animationTime, Calibrate));
         }
@@ -79,7 +68,7 @@ namespace MirageXR
             }
 
             _isTargetFound = false;
-            _onCalibrationCanceled.Invoke();
+            RootObject.Instance.calibrationManager.OnCalibrationCanceled();
             _calibrationAnimation.StopAnimation();
             if (_countdownToEnd != null)
             {
@@ -93,7 +82,10 @@ namespace MirageXR
             _calibrationAnimation.StopAnimation();
             if (_isTargetFound)
             {
-                _onCalibrationFinished.Invoke();
+                var eulerAngles = transform.rotation.eulerAngles;
+                var rotation = new Vector3(0, eulerAngles.x + eulerAngles.y + eulerAngles.z - 90f, 0);
+                var position = transform.position;
+                RootObject.Instance.calibrationManager.OnCalibrationFinished(new Pose(position, Quaternion.Euler(rotation)));
             }
 
             if (_countdownToEnd != null)

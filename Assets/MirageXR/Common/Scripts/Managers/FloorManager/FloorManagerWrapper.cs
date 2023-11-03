@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
+using MirageXR;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class FloorManagerWrapper : MonoBehaviour
 {
@@ -16,20 +16,9 @@ public class FloorManagerWrapper : MonoBehaviour
 
     [SerializeField] private ForceManagerType _forceManagerType = ForceManagerType.Default;
     [SerializeField] private GameObject _prefabARFoundationAnchor;
-    [SerializeField] private GameObject _prefabARFoundationPlane;
     [SerializeField] private GameObject _prefabEditorAnchor;
-    [SerializeField] private GameObject _prefabEditorPlane;
-
-    [SerializeField] private UnityEvent _onDetectionEnabled = new UnityEvent();
-    [SerializeField] private UnityEvent _onDetectionDisabled = new UnityEvent();
-
-    public UnityEvent onDetectionEnabled => _onDetectionEnabled;
-
-    public UnityEvent onDetectionDisabled => _onDetectionDisabled;
 
     private IFloorManager _floorManager;
-
-    public IFloorManager manager => _floorManager;
 
     public async Task InitializationAsync()
     {
@@ -54,10 +43,6 @@ public class FloorManagerWrapper : MonoBehaviour
         }
     }
 
-    public bool enableColliders => _floorManager.enableColliders;
-
-    public bool showPlanes => _floorManager.showPlanes;
-
     public float floorLevel => _floorManager.floorLevel;
 
     public bool isFloorDetected => _floorManager.isFloorDetected;
@@ -72,26 +57,10 @@ public class FloorManagerWrapper : MonoBehaviour
         return _floorManager.CreateAnchor(pose);
     }
 
-    public void SetFloor(IPlaneBehaviour floor)
+    public void SetFloor(PlaneId planeId, Vector3 position)
     {
-        _floorManager.SetFloor(floor);
-    }
-
-    public void EnableFloorDetection(Action onFloorDetected)
-    {
-        _onDetectionEnabled.Invoke();
-        _floorManager.EnableFloorDetection(onFloorDetected);
-    }
-
-    public void DisableFloorDetection()
-    {
-        onDetectionDisabled.Invoke();
-        _floorManager.DisableFloorDetection();
-    }
-
-    public void Dispose()
-    {
-        _floorManager?.Dispose();
+        _floorManager.SetFloor(planeId, position);
+        RootObject.Instance.planeManager.SelectPlane(planeId);
     }
 
     private IFloorManager CreateFloorManager()
@@ -103,12 +72,10 @@ public class FloorManagerWrapper : MonoBehaviour
             case ForceManagerType.Editor:
                 var managerEditor = gameObject.AddComponent<FloorManagerEditor>();
                 managerEditor.prefabAnchor = _prefabEditorAnchor;
-                managerEditor.prefabPlane = _prefabEditorPlane;
                 return managerEditor;
             case ForceManagerType.ARFoundation:
                 var managerARFoundation = gameObject.AddComponent<FloorManagerARFoundation>();
                 managerARFoundation.prefabAnchor = _prefabARFoundationAnchor;
-                managerARFoundation.prefabPlane = _prefabARFoundationPlane;
                 return managerARFoundation;
             case ForceManagerType.MRTK:
                 return gameObject.AddComponent<FloorManagerMRTK>();
@@ -122,11 +89,9 @@ public class FloorManagerWrapper : MonoBehaviour
 #if UNITY_EDITOR
         var floorManager = gameObject.AddComponent<FloorManagerEditor>();
         floorManager.prefabAnchor = _prefabEditorAnchor;
-        floorManager.prefabPlane = _prefabEditorPlane;
 #elif UNITY_IOS || UNITY_ANDROID
         var floorManager = gameObject.AddComponent<FloorManagerARFoundation>();
         floorManager.prefabAnchor = _prefabARFoundationAnchor;
-        floorManager.prefabPlane = _prefabARFoundationPlane;
 #else
         var floorManager = gameObject.AddComponent<FloorManagerMRTK>();
 #endif

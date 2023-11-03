@@ -47,7 +47,7 @@ namespace MirageXR
                 PlayerPrefs.Save();
 
                 // Once the filename is stored, simply load the main player scene.
-                //SceneManager.LoadScene(PlatformManager.Instance.GetPlayerSceneName);
+                //SceneManager.LoadScene(RootObject.Instance.platformManager.GetPlayerSceneName);
                 await RootObject.Instance.activityManager.LoadActivity(url);
             }
         }
