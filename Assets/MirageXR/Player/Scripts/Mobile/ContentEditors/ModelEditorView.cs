@@ -80,6 +80,8 @@ public class ModelEditorView : PopupEditorBase
 
         try
         {
+            LocalFiles.TryGetPassword("sketchfab", out _renewToken, out _token);
+
             _showBackground = false;
             base.Initialization(onClose, args);
 
