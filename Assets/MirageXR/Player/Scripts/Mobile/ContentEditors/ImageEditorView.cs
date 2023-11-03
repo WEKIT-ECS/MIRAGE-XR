@@ -1,7 +1,7 @@
-﻿using System;
-using System.IO;
-using DG.Tweening;
+﻿using DG.Tweening;
 using MirageXR;
+using System;
+using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,15 +28,15 @@ public class ImageEditorView : PopupEditorBase
     [SerializeField] private Button _btnCaptureImage;
     [SerializeField] private Button _btnOpenGallery;
     [SerializeField] private Toggle _toggleOrientation;
-	private string text;
-	[SerializeField] private TMP_InputField _captionText;
+    private string text;
+    [SerializeField] private TMP_InputField _captionText;
     [SerializeField] private TMP_Text _captionPreview;
-	[SerializeField] private Button _captionAdd;
+    [SerializeField] private Button _captionAdd;
     [SerializeField] private Button _captionDone;
     [SerializeField] private Button _captionEditBtn;
     [SerializeField] private Button _captionSaveBtn;
     [SerializeField] private Button _captionSaveBackBtn;
-	[SerializeField] private GameObject TopPanel;
+    [SerializeField] private GameObject TopPanel;
     [SerializeField] private GameObject BottomPanel;
     [SerializeField] private GameObject ImageCaptionEditorPrefab;
     [SerializeField] private GameObject ImageCaptionPreviewPrefab;
@@ -49,6 +49,7 @@ public class ImageEditorView : PopupEditorBase
     [SerializeField] private HintViewWithButtonAndToggle _hintPrefab;
 
     private Texture2D _capturedImage;
+    private string _imageCaption = string.Empty;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -58,10 +59,10 @@ public class ImageEditorView : PopupEditorBase
         _btnCaptureImage.onClick.AddListener(OnCaptureImage);
         _btnOpenGallery.onClick.AddListener(OpenGallery);
         _btnArrow.onClick.AddListener(OnArrowButtonPressed);
-        
+
         _arrowDown.SetActive(true);
         _arrowUp.SetActive(false);
-	_captionAdd.onClick.AddListener(OnCaptionAddClicked);
+        _captionAdd.onClick.AddListener(OnCaptionAddClicked);
         _captionDone.onClick.AddListener(DoneaddingCaption);
         _captionEditBtn.onClick.AddListener(OnEditButtonClicked);
         _captionSaveBtn.onClick.AddListener(OnDoneButtonSaveCaption);
@@ -121,6 +122,7 @@ public class ImageEditorView : PopupEditorBase
 
         _content.url = HTTP_PREFIX + saveFileName;
         _content.scale = 0.5f;
+        _content.caption = _imageCaption;
         EventManager.ActivateObject(_content);
         EventManager.NotifyActionModified(_step);
         Close();
@@ -215,16 +217,16 @@ public class ImageEditorView : PopupEditorBase
 
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
     }
-	public void OnCaptionAddClicked() 
+    public void OnCaptionAddClicked()
     {
         TopPanel.SetActive(false);
         BottomPanel.SetActive(false);
         ImageCaptionEditorPrefab.SetActive(true);
-        
+
     }
     public void DoneaddingCaption()
     {
-        
+
         ImageCaptionPreviewPrefab.SetActive(true);
         ImageCaptionEditorPrefab.SetActive(false);
         text = _captionText.text;
@@ -233,48 +235,25 @@ public class ImageEditorView : PopupEditorBase
     }
     public void OnEditButtonClicked()
     {
-        
+
         ImageCaptionPreviewPrefab.SetActive(false);
         ImageCaptionEditorPrefab.SetActive(true);
-       // _captionText.text = _captionPreview.text;
-       // _captionPreview.text = text;
-        //Debug.Log(text);
     }
     private void OnDoneButtonClick()
     {
         TopPanel.SetActive(true);
         BottomPanel.SetActive(true);
         ImageCaptionEditorPrefab.SetActive(false);
-        //SaveTextToFile();
     }
-     private void OnDoneButtonSaveCaption()
+    private void OnDoneButtonSaveCaption()
     {
         TopPanel.SetActive(true);
         BottomPanel.SetActive(true);
         ImageCaptionEditorPrefab.SetActive(false);
         ImageCaptionPreviewPrefab.SetActive(false);
-        SaveTextToFile();
+        _imageCaption = _captionText.text;
     }
-	 private void SaveTextToFile()
-    {
-        string inputText = _captionText.text;
-        string captionfilePath = Path.Combine(activityManager.ActivityPath, $"MirageXR_Image_{DateTime.Now.ToFileTimeUtc()}.txt");
-        // Check if the input text is not empty
-        if (!string.IsNullOrEmpty(inputText))
-        {
-            // Write the input text to the text file
-            using (StreamWriter writer = new StreamWriter(captionfilePath, true))
-            {
-                writer.WriteLine(inputText);
-            }
 
-            Debug.Log("Text saved to file: " + captionfilePath);
-        }
-        else
-        {
-            Debug.LogWarning("Input text is empty. Cannot save to file.");
-        }
-    }
     private void OnArrowButtonPressed()
     {
         if (_arrowDown.activeSelf)

@@ -56,8 +56,10 @@ MonoBehaviour:
   FramePortrait: {fileID: 6891243330193591539}
   FrameLandscape: {fileID: 864372557295082741}
   Background: {fileID: 0}
-  _captionTextlandscape: {fileID: 2219257735803268668}
+  _captionTextLandscape: {fileID: 2219257735803268668}
+  _captionObjectLandscape: {fileID: 586438261752616001}
   _captionTextPortrait: {fileID: 4528537365704738992}
+  _captionObjectPortrait: {fileID: 6707526566979141291}
 --- !u!65 &2781467657699348091
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -97,12 +99,12 @@ GameObject:
   - component: {fileID: 4090023671393300958}
   - component: {fileID: 4697628962132436673}
   m_Layer: 5
-  m_Name: Image
+  m_Name: LandscapeCaptionOb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8752768788025413968
 RectTransform:
   m_ObjectHideFlags: 0
@@ -888,12 +890,12 @@ GameObject:
   - component: {fileID: 6307090352962193727}
   - component: {fileID: 263994519247892252}
   m_Layer: 5
-  m_Name: Image
+  m_Name: PortraitCaptionOb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7467615337748235577
 RectTransform:
   m_ObjectHideFlags: 0
