@@ -26,6 +26,11 @@ namespace MirageXR
         [SerializeField] private GameObject FrameLandscape;
 
         [SerializeField] private GameObject Background;
+        [Space]
+        [SerializeField] private TMP_Text _captionTextLandscape;
+        [SerializeField] private GameObject _captionObjectLandscape;
+        [SerializeField] private TMP_Text _captionTextPortrait;
+        [SerializeField] private GameObject _captionObjectPortrait;
 
         private Vector3 _originalPosition = Vector3.zero;
         private Quaternion _originalRotation = Quaternion.identity;
@@ -35,9 +40,7 @@ namespace MirageXR
         private GameObject _thinLine;
         private GameObject _contentObject;
         private Texture2D _texture;
-        private string tmp_text;
-        [SerializeField] private TMP_Text _captionTextlandscape;
-        [SerializeField] private TMP_Text _captionTextPortrait;
+
         public ToggleObject ToggleObject => _obj;
 
         /// <summary>
@@ -116,6 +119,16 @@ namespace MirageXR
                 poiEditor.UpdateManipulationOptions(gameObject);
             }
 
+            var caption = obj.caption;
+
+            if (caption != string.Empty)
+            {
+                _captionObjectLandscape.SetActive(true);
+                _captionObjectPortrait.SetActive(true);
+                _captionTextLandscape.text = caption;
+                _captionTextPortrait.text = caption;
+            }
+
             return base.Init(obj);
         }
 
@@ -178,22 +191,6 @@ namespace MirageXR
             _texture = new Texture2D(2, 2, TextureFormat.RGB24, false);
             _texture.LoadImage(data);
             meshRenderer.sharedMaterial.SetTexture(MAIN_TEXTUERE, _texture);
-
-            // Search for text files with names containing "MirageXR_Image_" in the directory where the image is located.
-            var directory = Path.GetDirectoryName(path);
-            var matchingFiles = Directory.GetFiles(directory, "*MirageXR_Image_*.txt");
-
-            if (matchingFiles.Length > 0)
-            {
-                string textPath = matchingFiles[0]; // Take the first matching file, if you want to handle multiple files, you'd need to expand on this logic.
-                tmp_text = await File.ReadAllTextAsync(textPath);
-                _captionTextlandscape.text = tmp_text;
-                _captionTextPortrait.text = tmp_text;
-            }
-            else
-            {
-                AppLog.LogError($"No text file containing 'MirageXR_Image_' found in {directory}");
-            }
         }
 
         private void SetOrientation(GameObject activeFrame, GameObject unusedFrame, GameObject background)
