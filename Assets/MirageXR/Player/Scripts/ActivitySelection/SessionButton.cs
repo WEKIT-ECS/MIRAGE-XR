@@ -112,7 +112,7 @@ namespace MirageXR
 
         // private IEnumerator SwitchToPlayerScene(string activityJsonFileName)
         // {
-        // yield return SceneManager.LoadSceneAsync(PlatformManager.Instance.GetPlayerSceneName, LoadSceneMode.Additive);
+        // yield return SceneManager.LoadSceneAsync(RootObject.Instance.platformManager.GetPlayerSceneName, LoadSceneMode.Additive);
         // // wait one more frame for everything to set up
         // yield return null;
         // EventManager.ParseActivity(activityJsonFileName);

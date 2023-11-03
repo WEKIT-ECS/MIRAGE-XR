@@ -14,7 +14,7 @@ public class EditorSceneService
         await UnloadExistingScene();
 
         SceneManager.sceneLoaded += SceneManager_sceneLoaded;
-        await SceneManager.LoadSceneAsync(PlatformManager.Instance.PlayerSceneName, LoadSceneMode.Additive);
+        await SceneManager.LoadSceneAsync(RootObject.Instance.platformManager.PlayerSceneName, LoadSceneMode.Additive);
         SceneManager.sceneLoaded -= SceneManager_sceneLoaded;
 
         EventManager.NotifyEditorLoaded();
@@ -37,7 +37,7 @@ public class EditorSceneService
             brandManager.AddCustomColors();
         }
 
-        if (scene.name == PlatformManager.Instance.PlayerSceneName)
+        if (scene.name == RootObject.Instance.platformManager.PlayerSceneName)
         {
             editorScene = scene;
         }

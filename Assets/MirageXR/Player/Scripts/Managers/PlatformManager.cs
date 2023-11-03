@@ -32,16 +32,21 @@ namespace MirageXR
         private string _activitySelectionScene = "ActivitySelection";
         private Camera _mainCamera;
 
-        public static PlatformManager Instance { get; private set; }
-
         public bool WorldSpaceUi => _worldSpaceUi;
 
         public string PlayerSceneName => _playerScene;
 
         public string ActivitySelectionScene => _activitySelectionScene;
 
-        private void Awake()
+        public Vector3 GetTaskStationPosition()
         {
+            return _mainCamera.transform.TransformPoint(Vector3.forward);
+        }
+
+        public void Initialization()
+        {
+            _mainCamera = Camera.main;
+
             if (DBManager.developMode)
             {
                 if (_screenSpaceDebugTool)
@@ -49,27 +54,6 @@ namespace MirageXR
                     Instantiate(_screenSpaceDebugTool);
                 }
             }
-
-            //Singleton
-            if (Instance == null)
-            {
-                Instance = this;
-            }
-            else if (Instance != this)
-            {
-                Destroy(gameObject);
-            }
-        }
-
-        public Vector3 GetTaskStationPosition()
-        {
-            return _mainCamera.transform.TransformPoint(Vector3.forward);
-        }
-
-        private void Start()
-        {
-            DontDestroyOnLoad(gameObject);
-            _mainCamera = Camera.main;
 
 #if UNITY_ANDROID || UNITY_IOS
             _worldSpaceUi = forceWorldSpaceUi;
@@ -112,7 +96,7 @@ namespace MirageXR
 
         public static DeviceFormat GetDeviceFormat()
         {
-            if (Instance != null && Instance.forceToTabletView) return DeviceFormat.Tablet;
+            if (RootObject.Instance.platformManager.forceToTabletView) return DeviceFormat.Tablet;
 #if UNITY_IOS && !UNITY_EDITOR
             return UnityEngine.iOS.Device.generation.ToString().Contains("iPad") ? DeviceFormat.Tablet : DeviceFormat.Phone;
 #elif UNITY_ANDROID && !UNITY_EDITOR

@@ -37,7 +37,6 @@ public class LabelEditorView : PopupEditorBase
     [SerializeField] private Image _backgroundColourButtonImage;
     [SerializeField] private TMP_Text _fontSizeText;
     [Space]
-    [SerializeField] private Button _btnArrow;
     [SerializeField] private RectTransform _panel;
     [SerializeField] private GameObject _arrowDown;
     [SerializeField] private GameObject _arrowUp;
@@ -60,7 +59,6 @@ public class LabelEditorView : PopupEditorBase
         _toggleBillboard.onValueChanged.AddListener(OnBillboardValueChanged);
         _btnIncreaseGazeDuration.onClick.AddListener(OnIncreaseGazeDuration);
         _btnDecreaseGazeDuration.onClick.AddListener(OnDecreaseGazeDuration);
-        _btnArrow.onClick.AddListener(OnArrowButtonPressed);
         _clampedScrollJumpToStep.onItemChanged.AddListener(OnItemJumpToStepChanged);
 
         _fontSizeButton.onClick.AddListener(ShowFontSizePanel);
@@ -71,10 +69,10 @@ public class LabelEditorView : PopupEditorBase
         var stepsCount = steps.Count;
         InitClampedScrollRect(_clampedScrollJumpToStep, _templatePrefab, stepsCount, stepsCount.ToString());
 
-        _toggleTrigger.isOn = false;
         _gazeDurationPanel.SetActive(false);
 
         UpdateView();
+        _clampedScrollObject.SetActive(_toggleTrigger.isOn);
         RootView_v2.Instance.HideBaseView();
     }
 
@@ -105,6 +103,7 @@ public class LabelEditorView : PopupEditorBase
                 _toggleTrigger.isOn = true;
                 _triggerStepIndex = int.Parse(_trigger.value) - 1;
                 _gazeDuration = _trigger.duration;
+                _clampedScrollJumpToStep.currentItemIndex = _triggerStepIndex;
             }
 
             if (_content.option != "")
@@ -137,7 +136,7 @@ public class LabelEditorView : PopupEditorBase
 
             if (steps[i - 1].id == currentActionId)
             {
-                _clampedScrollJumpToStep.currentItemIndex = i;
+                _clampedScrollJumpToStep.currentItemIndex = i - 1;
             }
         }
     }

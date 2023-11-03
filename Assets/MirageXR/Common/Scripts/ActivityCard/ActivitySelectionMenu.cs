@@ -23,7 +23,7 @@ namespace MirageXR
 
         private void Start()
         {
-            if (!PlatformManager.Instance.WorldSpaceUi)
+            if (!RootObject.Instance.platformManager.WorldSpaceUi)
             {
                 GetComponent<Canvas>().enabled = false;
                 return;

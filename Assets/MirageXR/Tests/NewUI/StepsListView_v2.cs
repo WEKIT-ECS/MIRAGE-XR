@@ -7,6 +7,7 @@ using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Action = System.Action;
 using Content = MirageXR.Action;
 
 public class StepsListView_v2 : BaseView
@@ -336,6 +337,8 @@ public class StepsListView_v2 : BaseView
         _isEditMode = value;
         _btnAddStep.transform.parent.gameObject.SetActive(value);
         _btnThumbnail.interactable = value;
+        _inputFieldActivityName.interactable = value;
+        _inputFieldActivityDescription.interactable = value;
 
         _stepsList.ForEach(t => t.OnEditModeChanged(value));
     }
@@ -443,17 +446,17 @@ public class StepsListView_v2 : BaseView
 
     private void OnCalibrationPressed()
     {
-        if (_isEditMode)
+        if (RootObject.Instance.floorManager.isFloorDetected)
         {
             RootView_v2.Instance.dialog.ShowBottomMultiline(null,
-                ("Start Calibration", ShowCalibrationView),
-                ("New position of the calibration image", ShowNewPositionCalibrationView),
+                ("Start Calibration", ShowImageTargetCalibrationView),
+                ("Start Floor Detection", ShowFloorDetectionOnlyView),
                 ("Get Calibration Image", ShareCalibrationImage));
         }
         else
         {
             RootView_v2.Instance.dialog.ShowBottomMultiline(null,
-                ("Start Calibration", ShowCalibrationView),
+                ("Start Calibration", ShowImageTargetCalibrationView),
                 ("Get Calibration Image", ShareCalibrationImage));
         }
     }
@@ -472,14 +475,14 @@ public class StepsListView_v2 : BaseView
         new NativeShare().AddFile(filePath).Share();
     }
 
-    private void ShowNewPositionCalibrationView()
+    private void ShowImageTargetCalibrationView()
     {
-        PopupsViewer.Instance.Show(_calibrationViewPrefab, (System.Action)OnCalibrationViewOpened, (System.Action)OnCalibrationViewClosed, true);
+        PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, false, false);
     }
 
-    private void ShowCalibrationView()
+    private void ShowFloorDetectionOnlyView()
     {
-        PopupsViewer.Instance.Show(_calibrationViewPrefab, (System.Action)OnCalibrationViewOpened, (System.Action)OnCalibrationViewClosed, false);
+        PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, false, true);
     }
 
     private void OnCalibrationViewOpened()
