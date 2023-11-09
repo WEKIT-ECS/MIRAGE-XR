@@ -15,6 +15,8 @@ public class eROBSONItems : MirageXRPrefab
     [SerializeField] private BitID id;
     [SerializeField] private TextMeshProUGUI valueText;
     [SerializeField] private bool hasWire;
+    [SerializeField] private Interactable cwArrowButton;
+    [SerializeField] private Interactable ccwArrowButton;
 
     private IndicatorLight indicatorLight;
 
@@ -74,6 +76,8 @@ public class eROBSONItems : MirageXRPrefab
         get; set;
     }
 
+    public List<eROBSONItems> ConnectedBits => _connectedBits;
+
     private void OnEnable()
     {
         EventManager.OnEditModeChanged += EditModeState;
@@ -86,8 +90,8 @@ public class eROBSONItems : MirageXRPrefab
         EventManager.OnAugmentationLocked -= OnLock;
     }
 
+    private ObjectManipulator _manipulator;
 
-    public List<eROBSONItems> ConnectedBits => _connectedBits;
 
     private async void Awake()
     {
@@ -109,17 +113,37 @@ public class eROBSONItems : MirageXRPrefab
         _connectedBits = new List<eROBSONItems>();
         indicatorLight = GetComponentInChildren<IndicatorLight>();
         ports = GetComponentsInChildren<Port>();
-        gameObject.GetComponentInParent<ObjectManipulator>().OnManipulationStarted.AddListener(OnMovingItem);
-        gameObject.GetComponentInParent<ObjectManipulator>().OnManipulationEnded.AddListener(OnItemStoppedMoving);
+        cwArrowButton.OnClick.AddListener(ClockWiseRotation);
+        ccwArrowButton.OnClick.AddListener(CounterClockWiseRotation);
+
+        _manipulator = gameObject.GetComponentInParent<ObjectManipulator>();
+        if (_manipulator)
+        {
+            _manipulator.OnManipulationStarted.AddListener(OnMovingItem);
+            _manipulator.OnManipulationEnded.AddListener(OnItemStoppedMoving);
+        }
 
         EnableManipulation();
     }
 
 
+
+    private void ClockWiseRotation()
+    {
+        _manipulator.transform.Rotate(0, 90, 0, Space.Self);
+    }
+
+    private void CounterClockWiseRotation()
+    {
+        _manipulator.transform.Rotate(0, -90, 0, Space.Self);
+    }
+
+
+
     /// <summary>
     /// When the user moves this item
     /// </summary>
-    /// <param name="arg0"></param>
+
     private void OnMovingItem(ManipulationEventData arg0)
     {
         IsMoving = !_myObj.positionLock;
@@ -152,13 +176,13 @@ public class eROBSONItems : MirageXRPrefab
     /// </summary>
     public void EnableManipulation()
     {
-        if (BitIsLocked)
+        if (BitIsLocked || !_manipulator)
         {
             return;
         }
-        var objectManipulator = GetComponentInParent<ObjectManipulator>();
-        objectManipulator.TwoHandedManipulationType = Microsoft.MixedReality.Toolkit.Utilities.TransformFlags.Move;
-        objectManipulator.enabled = true;
+
+        _manipulator.TwoHandedManipulationType = Microsoft.MixedReality.Toolkit.Utilities.TransformFlags.Move;
+        _manipulator.enabled = true;
     }
 
 
@@ -221,6 +245,9 @@ public class eROBSONItems : MirageXRPrefab
         if (id == _myObj.poi)
         {
             _myObj.positionLock = locked;
+
+            //The rotation arrow is visible when the bit is unlocked
+            ccwArrowButton.transform.parent.parent.gameObject.SetActive(!locked); //"degreeArrows" object
 
             var poiEditor = GetComponentInParent<PoiEditor>();
 
