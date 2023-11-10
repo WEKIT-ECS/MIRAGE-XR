@@ -310,11 +310,17 @@ public class Port : MonoBehaviour
 
             //Move the bit to the detected port
             transform.SetPositionAndRotation(detectedPortTransform.position, detectedPortTransform.rotation);
+
+            if (ERobsonItem.IsMoving)
+            {
+                ERobsonItem.PlaySnapSound(true);
+            }
         }
         else
         {
             try
             {
+                //fixedPort e.q. usb power connection
                 //Move the port to the detected port
                 StartCoroutine(fixedPort.LetConnect(SNAPPING_DURATION, DetectedPortPole.transform.position));
             }
@@ -339,6 +345,11 @@ public class Port : MonoBehaviour
         if (!DetectedPortPole)
         {
             return;
+        }
+
+        if (ERobsonItem.IsMoving)
+        {
+            ERobsonItem.PlaySnapSound(false);
         }
 
         //Add connected bit to my list

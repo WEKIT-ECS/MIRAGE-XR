@@ -1,10 +1,14 @@
+using CSCore;
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using MirageXR;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UI;
 
 
 public class eROBSONItems : MirageXRPrefab
@@ -15,12 +19,19 @@ public class eROBSONItems : MirageXRPrefab
     [SerializeField] private BitID id;
     [SerializeField] private TextMeshProUGUI valueText;
     [SerializeField] private bool hasWire;
-    [SerializeField] private Interactable cwArrowButton;
-    [SerializeField] private Interactable ccwArrowButton;
+    [SerializeField] private Button cwArrowButton;
+    [SerializeField] private Button ccwArrowButton;
 
-    private IndicatorLight indicatorLight;
+    [Header("Sounds")] 
+    [SerializeField] private AudioClip snapIn;
+    [SerializeField] private AudioClip snapOut;
+
 
     public IndicatorLight IndicatorLight => indicatorLight;
+
+    private IndicatorLight indicatorLight;
+    private AudioSource _audioSource;
+
 
     public string poiID
     {
@@ -92,11 +103,9 @@ public class eROBSONItems : MirageXRPrefab
 
     private ObjectManipulator _manipulator;
 
-
     private async void Awake()
     {
         if (ErobsonItemManager.Instance != null) return;
-
 
         //Create the eRobson managers
         // Get the prefab from the references
@@ -112,9 +121,10 @@ public class eROBSONItems : MirageXRPrefab
     {
         _connectedBits = new List<eROBSONItems>();
         indicatorLight = GetComponentInChildren<IndicatorLight>();
+        _audioSource = GetComponent<AudioSource>();
         ports = GetComponentsInChildren<Port>();
-        cwArrowButton.OnClick.AddListener(ClockWiseRotation);
-        ccwArrowButton.OnClick.AddListener(CounterClockWiseRotation);
+        cwArrowButton.onClick.AddListener(ClockWiseRotation);
+        ccwArrowButton.onClick.AddListener(CounterClockWiseRotation);
 
         _manipulator = gameObject.GetComponentInParent<ObjectManipulator>();
         if (_manipulator)
@@ -240,6 +250,22 @@ public class eROBSONItems : MirageXRPrefab
     }
 
 
+
+    /// <summary>
+    /// Play a sound on connection or disconnecting.
+    /// </summary>
+    /// <param name="snapped">Whether the snap is connecting or disconnecting.</param>
+    public void PlaySnapSound(bool snapped)
+    {
+        if (!_audioSource || !snapIn || !snapOut || _audioSource.isPlaying)
+        {
+            return;
+        }
+
+        _audioSource.PlayOneShot(snapped ? snapIn : snapOut);
+    }
+
+
     private void OnLock(string id, bool locked)
     {
         if (id == _myObj.poi)
@@ -247,7 +273,7 @@ public class eROBSONItems : MirageXRPrefab
             _myObj.positionLock = locked;
 
             //The rotation arrow is visible when the bit is unlocked
-            ccwArrowButton.transform.parent.parent.gameObject.SetActive(!locked); //"degreeArrows" object
+            ccwArrowButton.transform.parent.gameObject.SetActive(!locked); //"degreeArrows" object
 
             var poiEditor = GetComponentInParent<PoiEditor>();
 
