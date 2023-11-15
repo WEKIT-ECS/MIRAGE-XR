@@ -1,3 +1,4 @@
+using System;
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Collections.Generic;
@@ -65,21 +66,18 @@ namespace MirageXR
         {
             _obj = obj;
 
-            // Check that url is not empty.
             if (string.IsNullOrEmpty(obj.url))
             {
                 Debug.LogWarning("Content URL not provided.");
                 return false;
             }
 
-            // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
                 Debug.LogWarning("Couldn't set the parent.");
                 return false;
             }
 
-            // Set name.
             name = obj.predicate;
 
             if (obj.text.Equals(ModelLibraryManager.LibraryKeyword))
@@ -94,14 +92,14 @@ namespace MirageXR
 
             if (!obj.id.Equals("UserViewport"))
             {
-                // Setup guide line feature.
-                if (!SetGuide(obj)) return false;
+                if (!SetGuide(obj))
+                {
+                    return false;
+                }
             }
 
             OnLock(_obj.poi, _obj.positionLock);
             EventManager.OnAugmentationLocked += OnLock;
-
-            // If all went well, return true.
 
             return true;
         }
@@ -111,7 +109,7 @@ namespace MirageXR
             content.option = ZipUtilities.CheckFileForIllegalCharacters(content.option);
             var loadPath = Path.Combine(RootObject.Instance.activityManager.ActivityPath, content.option, GLTF_NAME);
             _gltf = new GltfImport();
-            var success = await _gltf.Load(loadPath);
+            var success = await _gltf.Load(new Uri(loadPath));
             if (success)
             {
                 success = await _gltf.InstantiateMainSceneAsync(transform);
@@ -119,15 +117,15 @@ namespace MirageXR
 
             if (!success)
             {
-                UnityEngine.Debug.Log($"Can't load model on the path {loadPath}");
+                UnityEngine.Debug.LogError($"Can't load model on the path {loadPath}");
                 return false;
             }
 
-            OnFinishLoadingAsync(transform.Find("Sketchfab_model").gameObject, _gltf.GetAnimationClips());
+            OnFinishLoading(transform.Find("Sketchfab_model").gameObject, _gltf.GetAnimationClips());
             return true;
         }
 
-        private void OnFinishLoadingAsync(GameObject model, AnimationClip[] clip)
+        private void OnFinishLoading(GameObject model, AnimationClip[] clip)
         {
             if (this == null)
             {
@@ -190,7 +188,7 @@ namespace MirageXR
             if (obj.Status == AsyncOperationStatus.Succeeded)
             {
                 GameObject instantiatedModel = Instantiate(obj.Result, transform);
-                OnFinishLoadingAsync(instantiatedModel, null); // Handle the loaded LibraryModel as needed
+                OnFinishLoading(instantiatedModel, null); // Handle the loaded LibraryModel as needed
             }
             else
             {
