@@ -1,5 +1,6 @@
 using Microsoft.MixedReality.Toolkit.UI;
 using MirageXR;
+using Obi;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -340,7 +341,7 @@ public class BitsBehaviourController : MonoBehaviour
     /// </summary>
     /// <param name="bit">The bit which will do some actions</param>
     /// <param name="status">the status of the bit sensor, e.g. on or off</param>
-    private static async void BitActionToggle(eROBSONItems bit, bool status)
+    private async void BitActionToggle(eROBSONItems bit, bool status)
     {
         //Turn on/off the power indicators
         SwitchPowerIndicatorLight(bit);
@@ -359,25 +360,10 @@ public class BitsBehaviourController : MonoBehaviour
             case BitID.I18MOTIONSENSOR:
                 break;
             case BitID.O2LONGLED:
-                var light = bit.GetComponentInChildren<Light>();
-                light.enabled = status;
-                light.intensity = averageValue;
-
-                //Change the material of the light bulb
-                var lightMeshRenderer = light.GetComponentInParent<MeshRenderer>();
-                Material lightMaterial;
-                if (status)
-                {
-                    lightMaterial = await ReferenceLoader.GetAssetReferenceAsync<Material>("eROBSON/Materials/LightOnMaterial");
-                }
-                else
-                {
-                    lightMaterial = await ReferenceLoader.GetAssetReferenceAsync<Material>("eROBSON/Materials/LightOffMaterial");
-                }
-
-                lightMeshRenderer.material = lightMaterial;
+                await ControlLedLight(bit, status, averageValue);
                 break;
             case BitID.O6BUZZER:
+                await ControlBuzzerSound(bit, status, averageValue);
                 break;
             case BitID.O9BARGRAPH:
                 break;
@@ -397,6 +383,58 @@ public class BitsBehaviourController : MonoBehaviour
                 break;
         }
     }
+
+
+
+    private async Task ControlLedLight(eROBSONItems bit, bool status, float averageValue)
+    {
+        var light = bit.GetComponentInChildren<Light>();
+        light.enabled = status;
+        light.intensity = averageValue;
+
+        //Change the material of the light bulb
+        var lightMeshRenderer = light.GetComponentInParent<MeshRenderer>();
+        Material lightMaterial;
+        if (status)
+        {
+            lightMaterial = await ReferenceLoader.GetAssetReferenceAsync<Material>("eROBSON/Materials/LightOnMaterial");
+        }
+        else
+        {
+            lightMaterial = await ReferenceLoader.GetAssetReferenceAsync<Material>("eROBSON/Materials/LightOffMaterial");
+        }
+
+        lightMeshRenderer.material = lightMaterial;
+    }
+
+
+
+
+    private async Task ControlBuzzerSound(eROBSONItems bit, bool status, float averageValue)
+    {
+        var audios = bit.GetComponentsInChildren<AudioSource>();
+        var buzzAudioSource = audios.FirstOrDefault(a => a.gameObject != bit.gameObject);
+
+        if (!buzzAudioSource)
+        {
+            Debug.LogError("Buzzer needs an audio source in one of the children, in addition to the main game object");
+            return;
+        }
+
+        buzzAudioSource.enabled = status;
+        buzzAudioSource.volume = averageValue / 2; //normalized
+
+        if (status)
+        {
+            buzzAudioSource.Play();
+        }
+
+        await Task.CompletedTask;
+    }
+
+
+
+
 
 
     /// <summary>

@@ -14,8 +14,8 @@ public enum Pole
 
 public class Port : MonoBehaviour
 {
-    private const float RAY_DISTANCE = 0.03f;
-    private const float SNAPPING_DURATION = 2f;
+    public const float RayDistance = 0.03f;
+    public const float SnappingDuration = 2f;
 
     [SerializeField] private Pole pole;
     [SerializeField] private GameObject IncorrectIconPrefab;
@@ -28,6 +28,12 @@ public class Port : MonoBehaviour
     /// Check if the port is moving by the user
     /// </summary>
     public bool PortIsMovable => portMovesSeparate;
+
+
+    /// <summary>
+    /// Port's forward is reversed
+    /// </summary>
+    public bool ReverseRay => reverseRay;
 
 
     /// <summary>
@@ -77,7 +83,7 @@ public class Port : MonoBehaviour
         var ray = new Ray(myTransform.position, myTransform.forward * (reverseRay ? -1 : 1));
 
         // Check if the ray hits any GameObjects within the specified distance
-        if (Physics.Raycast(ray, out var hit, RAY_DISTANCE, LayerMask.GetMask("eRobsonPort")))
+        if (Physics.Raycast(ray, out var hit, RayDistance, LayerMask.GetMask("eRobsonPort")))
         {
             ControlPortCollision(hit.collider.gameObject);
         }
@@ -86,7 +92,7 @@ public class Port : MonoBehaviour
             Disconnect();
         }
 
-        Debug.DrawRay(myTransform.position, myTransform.forward * (RAY_DISTANCE * (reverseRay ? -1 : 1)), Color.yellow);
+        Debug.DrawRay(myTransform.position, myTransform.forward * (RayDistance * (reverseRay ? -1 : 1)), Color.yellow);
     }
 
 
@@ -95,7 +101,7 @@ public class Port : MonoBehaviour
     /// make a dissection for their connecting regarding to their information
     /// </summary>
     /// <param name="collidedPort">The GameObject of the port which is detected and will connected to this port</param>
-    private void ControlPortCollision(GameObject collidedPort)
+    public void ControlPortCollision(GameObject collidedPort)
     {
         DetectedPortPole = collidedPort.GetComponent<Port>();
 
@@ -261,7 +267,7 @@ public class Port : MonoBehaviour
         if (PortIsMovable)
         {
             //Make snap effect be more clear
-            yield return new WaitForSeconds(SNAPPING_DURATION);
+            yield return new WaitForSeconds(SnappingDuration);
             ERobsonItem.EnableManipulation();
             yield break;
         }
@@ -276,7 +282,7 @@ public class Port : MonoBehaviour
         }
 
         //Make snap effect be more clear
-        yield return new WaitForSeconds(SNAPPING_DURATION);
+        yield return new WaitForSeconds(SnappingDuration);
 
         ERobsonItem.EnableManipulation();
     }
@@ -322,7 +328,7 @@ public class Port : MonoBehaviour
             {
                 //fixedPort e.q. usb power connection
                 //Move the port to the detected port
-                StartCoroutine(fixedPort.LetConnect(SNAPPING_DURATION, DetectedPortPole.transform.position));
+                StartCoroutine(fixedPort.LetConnect(SnappingDuration, DetectedPortPole.transform.position));
             }
             catch (NullReferenceException)
             {
@@ -340,7 +346,7 @@ public class Port : MonoBehaviour
     /// <summary>
     /// When the port is disconnected
     /// </summary>
-    private void Disconnect()
+    public void Disconnect()
     {
         if (!DetectedPortPole)
         {

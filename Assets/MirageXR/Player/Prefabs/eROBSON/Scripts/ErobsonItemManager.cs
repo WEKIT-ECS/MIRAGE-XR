@@ -371,8 +371,9 @@ public class ErobsonItemManager : MonoBehaviour
                         //Apply the loaded info to the bits in editmode
                         if (RootObject.Instance.activityManager.EditModeActive)
                         {
-                            ApplySettings(eRobsonItem, connectedBit);
+
                         }
+                        ApplySettings(eRobsonItem, connectedBit);
                     }
                 }
                 catch (Exception e)
@@ -468,11 +469,25 @@ public class ErobsonItemManager : MonoBehaviour
                 {
                     continue;
                 }
+
                 var connectedBitToPort = connectedBitToPortGameObject.GetComponentInChildren<eROBSONItems>();
                 if (connectedBitToPort && connectedBitToPort.Ports.Length > portToLoad.index)
                 {
                     bitPort.DetectedPortPole = connectedBitToPort.Ports[portToLoad.index];
                 }
+
+                bitPort.ControlPortCollision(connectedBitToPortGameObject);
+            }
+        }
+
+        //Check again that after loading the step, is the bit really connected or just json info shows it is connected
+        foreach (var bitPort in eRobsonItem.Ports)
+        {
+            var ray = new Ray(bitPort.transform.position, bitPort.transform.forward * (bitPort.ReverseRay ? -1 : 1));
+            // Check if the ray hits any GameObjects within the specified distance
+            if (!Physics.Raycast(ray, out var hit, Port.RayDistance, LayerMask.GetMask("eRobsonPort")) && bitPort.Connected)
+            {
+                bitPort.Disconnect();
             }
         }
     }

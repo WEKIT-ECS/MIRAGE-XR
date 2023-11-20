@@ -15,7 +15,6 @@ public class FixedPort : MonoBehaviour
 
     private Vector3 _tempPosition;
 
-    private Transform _myTransform;
     private Port _myPort;
     private ObjectManipulator _objectManipulator;
     private bool _moving;
@@ -27,7 +26,7 @@ public class FixedPort : MonoBehaviour
     public IEnumerator LetConnect(float snappingDuration, Vector3 detectedPortPosition)
     {
         transform.position = detectedPortPosition;
-        _tempPosition = _myTransform.position;
+        _tempPosition = transform.position;
         var manipulationStatus = _objectManipulator.enabled;
         _objectManipulator.enabled = false;
         yield return new WaitForSeconds(snappingDuration);
@@ -44,8 +43,7 @@ public class FixedPort : MonoBehaviour
 
         bitObject.TryGetComponent(out _eROBSONItems);
 
-        _myTransform = transform;
-        _tempPosition = _myTransform.position;
+        _tempPosition = transform.position;
         _myPort = GetComponentInChildren<Port>();
         _circuitDataLoaded = true;
 
@@ -77,7 +75,7 @@ public class FixedPort : MonoBehaviour
 
     private void OnMovingStop(ManipulationEventData data)
     {
-        _tempPosition = _myTransform.position;
+        _tempPosition = transform.position;
         _moving = false;
         ErobsonItemManager.Instance.SaveJson();
     }
@@ -92,7 +90,7 @@ public class FixedPort : MonoBehaviour
         //if the main bit is moving do not store movable part position
         if (!_eROBSONItems.IsMoving && !_moving)
         {
-            _tempPosition = _myTransform.position;
+            _tempPosition = transform.position;
         }
     }
 
@@ -114,6 +112,6 @@ public class FixedPort : MonoBehaviour
             return;
         }
 
-        _myTransform.position = _tempPosition;
+        transform.position = _tempPosition;
     }
 }
