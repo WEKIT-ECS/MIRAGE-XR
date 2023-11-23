@@ -40,7 +40,7 @@ namespace MirageXR
 
         public Vector3 GetTaskStationPosition()
         {
-            return _mainCamera.transform.TransformPoint(Vector3.forward);
+            return _mainCamera.transform.TransformPoint(0.25f * Vector3.forward);
         }
 
         public void Initialization()
