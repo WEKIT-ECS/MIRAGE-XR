@@ -108,7 +108,7 @@ namespace MirageXR
                 detectableContainer.SetParent(holder.transform, true);
             }
 
-            var poseСopier = detectableContainer.parent.gameObject.AddComponent<PoseСopier>();
+            var poseСopier = detectableContainer.parent.gameObject.AddComponent<PoseSynchronizer>();
             poseСopier.target = RootObject.Instance.calibrationManager.anchor;
             poseСopier.localSpace = false;
         }
@@ -140,7 +140,7 @@ namespace MirageXR
 
             await Task.Yield();
 
-            UiManager.Instance.IsCalibrated = true;
+            await PerformPlayModeCalibration();
         }
 
         private async Task PerformPlayModeCalibration()
@@ -273,6 +273,7 @@ namespace MirageXR
             if (isNewPosition)
             {
                 await PerformEditModeCalibration();
+                await PerformPlayModeCalibration();
             }
             else
             {

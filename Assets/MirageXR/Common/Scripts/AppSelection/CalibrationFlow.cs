@@ -103,6 +103,7 @@ public class CalibrationFlow : MonoBehaviour
 
     private async Task OnCalibrationFinishedAsync()
     {
+        await calibrationManager.ApplyCalibrationAsync(false);
         var activityManager = RootObject.Instance.activityManager;
         if (gridManager.gridEnabled && activityManager.EditModeActive)
         {
@@ -124,7 +125,8 @@ public class CalibrationFlow : MonoBehaviour
         var rotation = Quaternion.LookRotation(direction, Vector3.up);
         rotation.x = 0;
         rotation.z = 0;
-        calibrationManager.SetAnchorPositionAsync(new Pose(position, rotation), false);
+
+        calibrationManager.SetAnchorPosition(new Pose(position, rotation));
     }
 
     private void OnButtonImageTargetClicked()
@@ -161,7 +163,8 @@ public class CalibrationFlow : MonoBehaviour
         var pose = calibrationManager.GetAnchorPositionAsync();
         if (pose != _startPose)
         {
-            calibrationManager.SetAnchorPositionAsync(_startPose, false);
+            calibrationManager.SetAnchorPosition(_startPose);
+            calibrationManager.ApplyCalibrationAsync(false).AsAsyncVoid();
         }
 
         Close();

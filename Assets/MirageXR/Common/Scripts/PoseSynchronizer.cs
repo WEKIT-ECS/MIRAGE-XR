@@ -1,7 +1,7 @@
 using MirageXR;
 using UnityEngine;
 
-public class PoseСopier : MonoBehaviour
+public class PoseSynchronizer : MonoBehaviour
 {
     [SerializeField] private Transform _target;
     [SerializeField] private bool _localSpace = false;
