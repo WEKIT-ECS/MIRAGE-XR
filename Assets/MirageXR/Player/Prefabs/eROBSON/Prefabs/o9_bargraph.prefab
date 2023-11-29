@@ -341,7 +341,7 @@ GameObject:
   - component: {fileID: 3602013116561168751}
   - component: {fileID: 8365970246065829508}
   m_Layer: 0
-  m_Name: Line003
+  m_Name: led5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -507,7 +507,7 @@ GameObject:
   - component: {fileID: 2250746998940470243}
   - component: {fileID: 3878434631385909016}
   m_Layer: 0
-  m_Name: Line005
+  m_Name: led4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -590,7 +590,7 @@ GameObject:
   - component: {fileID: 6502004952187121599}
   - component: {fileID: 1276829913763581589}
   m_Layer: 0
-  m_Name: Line007
+  m_Name: led3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -839,7 +839,7 @@ GameObject:
   - component: {fileID: 7408299993418523812}
   - component: {fileID: 7380300605935270615}
   m_Layer: 0
-  m_Name: Line011
+  m_Name: led1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1287,7 +1287,7 @@ GameObject:
   - component: {fileID: 6127392726229386877}
   - component: {fileID: 8225208080581790013}
   m_Layer: 0
-  m_Name: Line009
+  m_Name: led2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1404,6 +1404,7 @@ GameObject:
   - component: {fileID: 5018361853446732302}
   - component: {fileID: 5104182535571999677}
   - component: {fileID: 484503428188708966}
+  - component: {fileID: 91869103912858566}
   m_Layer: 0
   m_Name: o9_bargraph
   m_TagString: Untagged
@@ -1584,6 +1585,26 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &91869103912858566
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8503723872563970172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7aa4ce0f82cc57145a4ca433e2a551c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lightRenderers:
+  - {fileID: 7380300605935270615}
+  - {fileID: 8225208080581790013}
+  - {fileID: 1276829913763581589}
+  - {fileID: 3878434631385909016}
+  - {fileID: 8365970246065829508}
+  onMaterial: {fileID: 2100000, guid: 57315aa7aea1fd948b6f2ead88d80900, type: 2}
+  offMaterial: {fileID: 2100000, guid: 877908f016616ae409870e24c1a4147b, type: 2}
 --- !u!1 &8824843978635763748
 GameObject:
   m_ObjectHideFlags: 0

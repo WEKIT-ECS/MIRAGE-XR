@@ -366,6 +366,7 @@ public class BitsBehaviourController : MonoBehaviour
                 await ControlBuzzerSound(bit, status, averageValue);
                 break;
             case BitID.O9BARGRAPH:
+                await ControlBarGraph(bit, status, averageValue);
                 break;
             case BitID.O13FAN:
             case BitID.O25DCMOTOR:
@@ -386,6 +387,13 @@ public class BitsBehaviourController : MonoBehaviour
 
 
 
+    /// <summary>
+    /// Turn on/off the led light
+    /// </summary>
+    /// <param name="bit"></param>
+    /// <param name="status"></param>
+    /// <param name="averageValue"></param>
+    /// <returns></returns>
     private async Task ControlLedLight(eROBSONItems bit, bool status, float averageValue)
     {
         var light = bit.GetComponentInChildren<Light>();
@@ -410,6 +418,13 @@ public class BitsBehaviourController : MonoBehaviour
 
 
 
+    /// <summary>
+    /// control the buzzer and play the buzz sound regarding to the power
+    /// </summary>
+    /// <param name="bit"></param>
+    /// <param name="status"></param>
+    /// <param name="averageValue"></param>
+    /// <returns></returns>
     private async Task ControlBuzzerSound(eROBSONItems bit, bool status, float averageValue)
     {
         var audios = bit.GetComponentsInChildren<AudioSource>();
@@ -433,6 +448,26 @@ public class BitsBehaviourController : MonoBehaviour
     }
 
 
+
+    /// <summary>
+    /// Control the bargraph and turn on/off the lights
+    /// </summary>
+    /// <param name="bit"></param>
+    /// <param name="averageValue"></param>
+    /// <returns></returns>
+    private async Task ControlBarGraph(eROBSONItems bit, bool status, float averageValue)
+    {
+        bit.TryGetComponent<BargraphController>(out var bargraphController);
+        if (!bargraphController)
+        {
+            return;
+        }
+
+        var power = averageValue / 2; //normalized
+        bargraphController.TurnOnLights(status, power);
+
+        await Task.CompletedTask;
+    }
 
 
 
