@@ -14,7 +14,7 @@ public class ProfileView : PopupBase
     [SerializeField] private Button _btnLogin;
     [SerializeField] private Button _btnRegister;
     [SerializeField] private Button _btnPrivacyPolicy;
-    [SerializeField] private Toggle _developToggle;
+    [SerializeField] private Toggle _developToggle; // TODO: remove
     [SerializeField] private GameObject _developTogglePanel;
     [SerializeField] private GameObject LoginObjects;
     [SerializeField] private Button _btnLogout;
@@ -27,10 +27,12 @@ public class ProfileView : PopupBase
     [SerializeField] private TMP_Text _txtVersion;
     [SerializeField] private ClickCounter _versionClickCounter;
     [SerializeField] private Button _btnGrid;
+    [SerializeField] private Button _btnDev;
 
     [Space]
     [SerializeField] private LoginView_v2 _loginViewPrefab;
     [SerializeField] private GridView _gridViewPrefab;
+    [SerializeField] private DevelopView _developViewPrefab;
 
     private bool _isShownDevelopModeMessage;
 
@@ -46,6 +48,7 @@ public class ProfileView : PopupBase
         _btnLogin.onClick.AddListener(OnClickLogin);
         _btnLogout.onClick.AddListener(OnClickLogout);
         _btnGrid.onClick.AddListener(OnClickGrid);
+        _btnDev.onClick.AddListener(OnClickDev);
         _developToggle.onValueChanged.AddListener(OnDevelopToggleValueChanged);
         _btnSelectServer.onClick.AddListener(ShowChangeServerPanel);
         _btnSelectLRS.onClick.AddListener(ShowLRSPanel);
@@ -142,6 +145,11 @@ public class ProfileView : PopupBase
     private void OnClickGrid()
     {
         PopupsViewer.Instance.Show(_gridViewPrefab);
+    }
+
+    private void OnClickDev()
+    {
+        PopupsViewer.Instance.Show(_developViewPrefab);
     }
 
     private static bool IsValidUrl(string urlString)
