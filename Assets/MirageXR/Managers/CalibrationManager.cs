@@ -32,6 +32,7 @@ public class CalibrationManager : MonoBehaviour
     public Transform anchor => _anchor;
 
     public float animationTime => ANIMATION_TIME;
+    public bool isCalibrated => _isCalibrated;
 
     private Transform _anchor;
     private ImageTargetModel _imageTargetModel;
@@ -42,6 +43,7 @@ public class CalibrationManager : MonoBehaviour
     private CalibrationTool _calibrationTool;
     private Transform _arAnchor;
     private GameObject _debugSphere;
+    public bool _isCalibrated;
 
     public async Task<bool> InitializationAsync()
     {
@@ -181,15 +183,21 @@ public class CalibrationManager : MonoBehaviour
         return _anchor.GetPose();
     }
 
-    public async Task SetAnchorPositionAsync(Pose pose, bool resetAnchor)
+    public void SetAnchorPosition(Pose pose)
     {
         UpdateAnchorPosition(pose);
+    }
+
+    public async Task ApplyCalibrationAsync(bool resetAnchor)
+    {
         await RootObject.Instance.workplaceManager.CalibrateWorkplace(resetAnchor);
+        _isCalibrated = true;
     }
 
     private async Task OnCalibrationFinishedAsync(Pose pose)
     {
-        await SetAnchorPositionAsync(pose, _isRecalibration);
+        SetAnchorPosition(pose);
+        await ApplyCalibrationAsync(_isRecalibration);
         DisableCalibration();
         _onCalibrationFinished.Invoke();
     }

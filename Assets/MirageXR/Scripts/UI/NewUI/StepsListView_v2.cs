@@ -477,7 +477,9 @@ public class StepsListView_v2 : BaseView
 
     private void ShowImageTargetCalibrationView()
     {
-        PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, false, false);
+        var isEditMode = RootObject.Instance.activityManager.EditModeActive;
+        var isCalibration = RootObject.Instance.calibrationManager.isCalibrated;
+        PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode && !isCalibration, false);
     }
 
     private void ShowFloorDetectionOnlyView()

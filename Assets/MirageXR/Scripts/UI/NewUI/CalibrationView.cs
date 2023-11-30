@@ -165,6 +165,11 @@ public class CalibrationView : PopupBase
 
     private async Task StartPlaceCalibrationAsync()
     {
+        if (_isNewPosition)
+        {
+            var synchronizer = RootObject.Instance.workplaceManager.detectableContainer.GetComponentInParent<PoseSynchronizer>();
+            synchronizer.enabled = false;
+        }
         await Task.Delay(DELAY_TIME);
         _textTop.text = _isNewPosition ? NEW_POSITION_TEXT : CALIBRATION_TEXT;
         _footer.gameObject.SetActive(true);
@@ -185,11 +190,17 @@ public class CalibrationView : PopupBase
         var rotation = Quaternion.LookRotation(direction, Vector3.up);
         rotation.x = 0;
         rotation.z = 0;
-        calibrationManager.SetAnchorPositionAsync(new Pose(position, rotation), _isNewPosition);
+
+        calibrationManager.SetAnchorPosition(new Pose(position, rotation));
     }
 
     private void StartCalibration()
     {
+        if (_isNewPosition)
+        {
+            var synchronizer = RootObject.Instance.workplaceManager.detectableContainer.GetComponentInParent<PoseSynchronizer>();
+            synchronizer.enabled = false;
+        }
         _textTop.text = _isNewPosition ? NEW_POSITION_TEXT : CALIBRATION_TEXT;
         _footer.gameObject.SetActive(true);
         _panelSelectType.SetActive(false);
@@ -221,6 +232,7 @@ public class CalibrationView : PopupBase
 
     private async Task OnCalibrationFinishedAsync()
     {
+        await calibrationManager.ApplyCalibrationAsync(_isNewPosition);
         _textDone.gameObject.SetActive(true);
         _imageTarget.gameObject.SetActive(false);
         _imageCalibrationAnimation.gameObject.SetActive(false);
@@ -230,6 +242,12 @@ public class CalibrationView : PopupBase
         if (gridManager.gridEnabled && activityManager.EditModeActive)
         {
             gridManager.ShowGrid();
+        }
+
+        if (_isNewPosition)
+        {
+            var synchronizer = RootObject.Instance.workplaceManager.detectableContainer.GetComponentInParent<PoseSynchronizer>();
+            synchronizer.enabled = true;
         }
 
         await Task.Delay(CLOSE_TIME);
@@ -251,7 +269,14 @@ public class CalibrationView : PopupBase
         var pose = calibrationManager.GetAnchorPositionAsync();
         if (pose != _startPose)
         {
-            calibrationManager.SetAnchorPositionAsync(_startPose, false);
+            calibrationManager.SetAnchorPosition(_startPose);
+            calibrationManager.ApplyCalibrationAsync(false).AsAsyncVoid();
+        }
+
+        if (_isNewPosition)
+        {
+            var synchronizer = RootObject.Instance.workplaceManager.detectableContainer.GetComponentInParent<PoseSynchronizer>();
+            synchronizer.enabled = true;
         }
 
         Close();
