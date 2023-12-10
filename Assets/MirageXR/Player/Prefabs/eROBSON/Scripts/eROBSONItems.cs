@@ -5,6 +5,7 @@ using MirageXR;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TiltBrush;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -158,6 +159,8 @@ public class eROBSONItems : MirageXRPrefab
     {
         IsMoving = !_myObj.positionLock;
 
+        //lets allow to check the circuit control on play mode again
+        ErobsonItemManager.Instance.PromptMessageIsOpen = false;
     }
 
     /// <summary>

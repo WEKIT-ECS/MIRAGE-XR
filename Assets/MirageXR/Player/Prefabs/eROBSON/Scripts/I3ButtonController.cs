@@ -26,7 +26,6 @@ public class I3ButtonController : MonoBehaviour
         pressButton.onClick.AddListener(OnButtonPressed);
     }
 
-
     private void OnButtonPressed()
     {
         _isPressed = !_isPressed;

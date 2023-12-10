@@ -1,7 +1,7 @@
 using Microsoft.MixedReality.Toolkit.UI;
 using MirageXR;
-using Obi;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,14 +14,7 @@ public class BitsBehaviourController : MonoBehaviour
 
     private eROBSONItems _eRobsonItem;
 
-
-    /// <summary>
-    /// Circuit is under control and should not another control starts
-    /// </summary>
-    private bool CircuitControlling
-    {
-        get; set;
-    }
+    private bool _circuitControlling;
 
     /// <summary>
     /// Initiate the bits at the start
@@ -84,6 +77,7 @@ public class BitsBehaviourController : MonoBehaviour
     /// </summary>
     public void BitActivatingToggle()
     {
+        _circuitControlling = false;
         _eRobsonItem.IsActive = !_eRobsonItem.IsActive;
         ControlCircuit();
     }
@@ -93,17 +87,17 @@ public class BitsBehaviourController : MonoBehaviour
     /// <summary>
     /// Control every bit in this circuit and activate/deactivate it if it is not connected to power source
     /// </summary>
-    public async void ControlCircuit()
+    public async void ControlCircuit(bool checkConnections = false)
     {
         try
         {
-            if (CircuitControlling)
+            if (_circuitControlling)
             {
                 return;
             }
 
             //We are controlling, just wait
-            CircuitControlling = true;
+            _circuitControlling = true;
 
             var eRobsonItemsList = ErobsonItemManager.ERobsonItemsList;
 
@@ -114,7 +108,7 @@ public class BitsBehaviourController : MonoBehaviour
             var idx = eRobsonItemsList.FindIndex(i => i.ID == BitID.USBPOWER);
 
             // Move power source item to first if it is not already and it is connected to the circuit
-            if (idx > 0 && ErobsonItemManager.ERobsonConnectedItemsList.Contains(eRobsonItemsList[idx]))
+            if (idx > 0 && ErobsonItemManager.ERobsonActiveConnectedItemsList.Contains(eRobsonItemsList[idx]))
             {
                 MoveToTop(eRobsonItemsList, idx);
             }
@@ -134,6 +128,7 @@ public class BitsBehaviourController : MonoBehaviour
                         eRobsonItem.HasPower = false;
                     }
 
+                    eRobsonItem.connectedTime = DateTime.MinValue;
                     ErobsonItemManager.AddOrRemoveFromConnectedList(eRobsonItem, AddOrRemove.REMOVE);
                     BitActionToggle(eRobsonItem, false);
                     continue;
@@ -141,9 +136,12 @@ public class BitsBehaviourController : MonoBehaviour
 
                 //Add into the connected list and activate
                 eRobsonItem.HasPower = true;
+
+                eRobsonItem.connectedTime = DateTime.Now;
                 ErobsonItemManager.AddOrRemoveFromConnectedList(eRobsonItem, AddOrRemove.ADD);
                 BitActionToggle(eRobsonItem, true);
             }
+
 
             //set the value text
             _eRobsonItem.SetValueText(_eRobsonItem.ID);
@@ -154,9 +152,84 @@ public class BitsBehaviourController : MonoBehaviour
         }
         finally
         {
-            CircuitControlling = false;
+            // In play mode
+            if (!RootObject.Instance.activityManager.EditModeActive && checkConnections)
+            {
+                if (ErobsonItemManager.ERobsonConnectedItemsListByPlayer.Count == ErobsonItemManager.ERobsonConnectedItemsListByTeacher.Count)
+                {
+                    ComparePlayerCircuit();
+                }
+            }
+
+            _circuitControlling = false;
         }
     }
+
+
+
+    /// <summary>
+    /// Control if the user in playmode has connected the bits same as the editor
+    /// </summary>
+    private void ComparePlayerCircuit()
+    {
+        var eRobsonConnectedItemsListByTeacher = ErobsonItemManager.ERobsonConnectedItemsListByTeacher.OrderBy(e => e.connectedTime).ToList();
+        var eRobsonConnectedItemsListByPlayer = ErobsonItemManager.ERobsonConnectedItemsListByPlayer.OrderBy(e => e.connectedTime).ToList();
+
+        // Find index for USBPOWER
+        var idx = eRobsonConnectedItemsListByTeacher.FindIndex(i => i.ID == BitID.USBPOWER);
+
+        // Move power source item to first if it is not already and it is connected to the circuit
+        if (idx > 0 && eRobsonConnectedItemsListByTeacher.Contains(eRobsonConnectedItemsListByTeacher[idx]))
+        {
+            MoveToTop(eRobsonConnectedItemsListByTeacher, idx);
+        }
+
+        // Find index for USBPOWER
+        idx = eRobsonConnectedItemsListByPlayer.FindIndex(i => i.ID == BitID.USBPOWER);
+
+        // Move power source item to first if it is not already and it is connected to the circuit
+        if (idx > 0 && eRobsonConnectedItemsListByPlayer.Contains(eRobsonConnectedItemsListByPlayer[idx]))
+        {
+            MoveToTop(eRobsonConnectedItemsListByPlayer, idx);
+        }
+
+        bool allConnectedCorrectly = true;
+
+        for (int i = 0; i < eRobsonConnectedItemsListByTeacher.Count; i++)
+        {
+            var bit = eRobsonConnectedItemsListByTeacher[i];
+
+            if (!eRobsonConnectedItemsListByPlayer.Contains(bit))
+            {
+                return;
+            }
+
+            if (bit != eRobsonConnectedItemsListByPlayer[i])
+            {
+                allConnectedCorrectly = false;
+                break;
+            }
+        }
+
+        if (ErobsonItemManager.Instance.PromptMessageIsOpen)
+        {
+            return;
+        }
+
+        ErobsonItemManager.Instance.PromptMessageIsOpen = true;
+
+        // Display result
+        if (allConnectedCorrectly)
+        {
+            DialogWindow.Instance.Show("Success!", "Circuit connected correctly", new DialogButtonContent("Close"));
+        }
+        else
+        {
+            DialogWindow.Instance.Show("Warning!", "You connected the bits wrong", new DialogButtonContent("OK"));
+        }
+    }
+
+
 
 
     private void Awake()
@@ -190,8 +263,8 @@ public class BitsBehaviourController : MonoBehaviour
     /// <returns>float</returns>
     public static float CalculateValue(eROBSONItems eRobsonItem)
     {
-        var eRobsonConnectedItemsList = ErobsonItemManager.ERobsonConnectedItemsList;
-        var dimmingToBeCalculated = eRobsonConnectedItemsList.FindAll(b => b.Dimmable && eRobsonConnectedItemsList.IndexOf(b) < eRobsonConnectedItemsList.IndexOf(eRobsonItem));
+        var ERobsonActiveConnectedItemsList = ErobsonItemManager.ERobsonActiveConnectedItemsList;
+        var dimmingToBeCalculated = ERobsonActiveConnectedItemsList.FindAll(b => b.Dimmable && ERobsonActiveConnectedItemsList.IndexOf(b) < ERobsonActiveConnectedItemsList.IndexOf(eRobsonItem));
 
         if (dimmingToBeCalculated.Count == 0)
         {
@@ -233,6 +306,8 @@ public class BitsBehaviourController : MonoBehaviour
             if ((bit.ID == BitID.USBPOWER && connectedBit.ID == BitID.P3USBPOWERCONNECTOR) ||
                 (bit.ID == BitID.P3USBPOWERCONNECTOR && connectedBit.ID == BitID.USBPOWER))
             {
+                bit.Ports[0].Connected = true; //usb port of usb power connecting
+                connectedBit.Ports[0].Connected = true; //usb power of p3 use power is connecting
                 return true;
             }
 
@@ -278,7 +353,15 @@ public class BitsBehaviourController : MonoBehaviour
             return;
         }
 
-        ControlCircuit();
+        if (!ErobsonItemManager.ERobsonConnectedItemsListByPlayer.Contains(bit))
+        {
+            if (bit.IsMoving || bit.ID == BitID.USBPOWER)
+            {
+                ErobsonItemManager.ERobsonConnectedItemsListByPlayer.Add(bit);
+            }
+        }
+
+        ControlCircuit(true);
     }
 
 
@@ -294,9 +377,21 @@ public class BitsBehaviourController : MonoBehaviour
         }
 
         //No power source any more
-        if (bit.ID == BitID.USBPOWER && !ErobsonItemManager.ERobsonConnectedItemsList.Exists(b => b.ID == BitID.USBPOWER))
+        if (bit.ID == BitID.USBPOWER && !ErobsonItemManager.ERobsonActiveConnectedItemsList.Exists(b => b.ID == BitID.USBPOWER))
         {
+            if (bit.ID is BitID.USBPOWER or BitID.P3USBPOWERCONNECTOR)
+            {
+                bit.Ports[0].Connected = false;
+            }
             ErobsonItemManager.Instance.CutCircuitPower();
+        }
+
+        if (ErobsonItemManager.ERobsonConnectedItemsListByPlayer.Contains(bit))
+        {
+            if (bit.IsMoving || bit.ID == BitID.USBPOWER)
+            {
+                ErobsonItemManager.ERobsonConnectedItemsListByPlayer.Remove(bit);
+            }
         }
 
         ControlCircuit();

@@ -45,9 +45,11 @@ public class Port : MonoBehaviour
     /// <summary>
     /// Checks if ports are USB power and P3. They can't be same neither
     /// </summary>
-    private bool UsbPowerConnectionCheck => (DetectedPortPole.pole == Pole.USB && pole == Pole.USB) &&
-                                            ((DetectedPortPole.ERobsonItem.ID == BitID.USBPOWER && ERobsonItem.ID != BitID.USBPOWER) ||
-                                             (DetectedPortPole.ERobsonItem.ID != BitID.USBPOWER && ERobsonItem.ID == BitID.USBPOWER));
+    private bool UsbPowerConnectionCheck =>
+        (DetectedPortPole.pole == Pole.USB && pole == Pole.USB) &&
+        !(DetectedPortPole.ERobsonItem.ID == BitID.USBPOWER && ERobsonItem.ID == BitID.USBPOWER) &&
+        !(DetectedPortPole.ERobsonItem.ID == BitID.P3USBPOWERCONNECTOR && ERobsonItem.ID == BitID.P3USBPOWERCONNECTOR);
+
 
     /// <summary>
     /// If the port is connected
@@ -221,18 +223,21 @@ public class Port : MonoBehaviour
 
         if (RootObject.Instance.activityManager.EditModeActive || ERobsonItem.LoadedData == null)
         {
-            var hasDifferentPole = DetectedPortPole.pole != pole && (DetectedPortPole.pole != Pole.USB && pole != Pole.USB);
+            var hasDifferentPole = DetectedPortPole.pole != pole;
+            var neitherPortIsUSB = DetectedPortPole.pole != Pole.USB && pole != Pole.USB;
             var isAlreadyConnected = ERobsonItem.ConnectedBits.Contains(DetectedPortPole.ERobsonItem);
-
-            connectIt = (UsbPowerConnectionCheck || hasDifferentPole) && !isAlreadyConnected;
+            connectIt = (UsbPowerConnectionCheck || (hasDifferentPole && neitherPortIsUSB)) && !isAlreadyConnected;
         }
         else
         {
-            if (ERobsonItem.LoadedData.connectedbitsID.Contains(DetectedPortPole.ERobsonItem.poiID))
+            bool isP3DifferentPoleConnectionValid = ERobsonItem.ID == BitID.P3USBPOWERCONNECTOR && DetectedPortPole.pole != pole && DetectedPortPole.pole != Pole.USB;                          
+
+            if (ERobsonItem.LoadedData.connectedbitsID.Contains(DetectedPortPole.ERobsonItem.poiID) || isP3DifferentPoleConnectionValid)
             {
                 connectIt = true;
             }
         }
+
 
         return connectIt;
     }
@@ -306,7 +311,6 @@ public class Port : MonoBehaviour
 
         ERobsonItem.ConnectedBits.Add(detectedPort.ERobsonItem);
         detectedPort.ERobsonItem.ConnectedBits.Add(ERobsonItem);
-        ERobsonItem.connectedTime = new DateTime();
         ERobsonItem.DisableManipulation();
 
         //Move the bit port to the port of the other bit (Snapping)

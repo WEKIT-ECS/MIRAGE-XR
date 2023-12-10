@@ -1,11 +1,13 @@
 using Microsoft.MixedReality.Toolkit.UI;
 using MirageXR;
+using Obi;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using TiltBrush;
 using UnityEngine;
 using Action = MirageXR.Action;
 
@@ -48,8 +50,6 @@ public class ErobsonItemManager : MonoBehaviour
         OnBitConnected?.Invoke(eROBSONItem);
     }
 
-
-
     public delegate void BitDisconnectedDelegate(eROBSONItems eROBSONItem);
 
     public static event BitDisconnectedDelegate OnBitDisconnected;
@@ -60,15 +60,47 @@ public class ErobsonItemManager : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// all bits in the scene
+    /// </summary>
     public static List<eROBSONItems> ERobsonItemsList
     {
         get; private set;
     }
 
-    public static List<eROBSONItems> ERobsonConnectedItemsList
+
+    /// <summary>
+    /// the bits which are connected by player in any mode (the active bits)
+    /// </summary>
+    public static List<eROBSONItems> ERobsonActiveConnectedItemsList
     {
         get; private set;
     }
+
+
+    /// <summary>
+    /// the bits which are connected by player in play mode (either active or not)
+    /// </summary>
+    public static List<eROBSONItems> ERobsonConnectedItemsListByPlayer
+    {
+        get; private set;
+    }
+
+
+    /// <summary>
+    /// the bits which are connected by teacher in edit mode (either active or not)
+    /// </summary>
+    public static List<eROBSONItems> ERobsonConnectedItemsListByTeacher
+    {
+        get; private set;
+    }
+
+
+    public bool PromptMessageIsOpen
+    {
+        get; set;
+    }
+
 
     public static ErobsonItemManager Instance
     {
@@ -98,12 +130,12 @@ public class ErobsonItemManager : MonoBehaviour
                 connectedbitsList = new List<ERobsonItem>(),
             };
 
-            foreach (var bit in ERobsonConnectedItemsList)
+            foreach (var bit in ERobsonActiveConnectedItemsList)
             {
                 //When OnActivitySaved is invoked not by pressing save button
                 if (bit == null)
                 {
-                    ERobsonConnectedItemsList.Clear();
+                    ERobsonActiveConnectedItemsList.Clear();
                     return;
                 }
 
@@ -211,27 +243,29 @@ public class ErobsonItemManager : MonoBehaviour
         {
             case AddOrRemove.ADD:
             {
-                if (!ERobsonConnectedItemsList.Contains(bit))
+                if (!ERobsonActiveConnectedItemsList.Contains(bit))
                 {
-                    ERobsonConnectedItemsList.Add(bit);
+                    ERobsonActiveConnectedItemsList.Add(bit);
                 }
 
                 break;
             }
             case AddOrRemove.REMOVE:
             {
-                if (ERobsonConnectedItemsList.Contains(bit))
+                if (ERobsonActiveConnectedItemsList.Contains(bit))
                 {
-                    ERobsonConnectedItemsList.Remove(bit);
+                    ERobsonActiveConnectedItemsList.Remove(bit);
                 }
 
                 break;
             }
         }
 
-        //Debug.LogError(eRobsonConnectedItemsList.Count);
+        //Debug.LogError(ERobsonActiveConnectedItemsList.Count);
         //Debug.LogError(bit.ID + " " + addOrRemove);
     }
+
+
 
 
     /// <summary>
@@ -239,7 +273,7 @@ public class ErobsonItemManager : MonoBehaviour
     /// </summary>
     public void CutCircuitPower()
     {
-        foreach (var bit in ERobsonConnectedItemsList.Where(bit => bit.ID != BitID.USBPOWER))
+        foreach (var bit in ERobsonActiveConnectedItemsList.Where(bit => bit.ID != BitID.USBPOWER))
         {
             bit.HasPower = false;
         }
@@ -259,7 +293,9 @@ public class ErobsonItemManager : MonoBehaviour
         }
 
         ERobsonItemsList = new List<eROBSONItems>();
-        ERobsonConnectedItemsList = new List<eROBSONItems>();
+        ERobsonActiveConnectedItemsList = new List<eROBSONItems>();
+        ERobsonConnectedItemsListByTeacher = new List<eROBSONItems>();
+        ERobsonConnectedItemsListByPlayer = new List<eROBSONItems>();
 
         Subscribe();
 
@@ -281,7 +317,7 @@ public class ErobsonItemManager : MonoBehaviour
         EventManager.OnAugmentationObjectCreated += OnERobsonItemAdded;
         EventManager.OnAugmentationDeleted += OnERobsonItemDeleted;
         EventManager.OnActivitySaved += SaveJson;
-        EventManager.OnStepActivatedStamp += OnActivateAction;
+        EventManager.OnActivateAction += OnActivateAction;
     }
 
 
@@ -293,15 +329,18 @@ public class ErobsonItemManager : MonoBehaviour
         EventManager.OnAugmentationObjectCreated -= OnERobsonItemAdded;
         EventManager.OnAugmentationDeleted -= OnERobsonItemDeleted;
         EventManager.OnActivitySaved -= SaveJson;
-        EventManager.OnStepActivatedStamp -= OnActivateAction;
+        EventManager.OnActivateAction -= OnActivateAction;
     }
 
 
     /// <summary>
     /// Load the circuit data from json file
     /// </summary>
-    private async void LoadRobsonCircuit()
+    private async void LoadERobsonCircuit()
     {
+        //wait a bit for Mirage XR to load anything in the step
+        await Task.Delay(500);
+
         //Load json file
         ERobsonCircuit circuit = null;
         var jsonPath = $"{_eRobsonDataFolder}/eRobsonCircuit.json";
@@ -371,9 +410,8 @@ public class ErobsonItemManager : MonoBehaviour
                         //Apply the loaded info to the bits in editmode
                         if (RootObject.Instance.activityManager.EditModeActive)
                         {
-
+                            ApplySettings(eRobsonItem, connectedBit);
                         }
-                        ApplySettings(eRobsonItem, connectedBit);
                     }
                 }
                 catch (Exception e)
@@ -387,6 +425,19 @@ public class ErobsonItemManager : MonoBehaviour
             {
                 AddOrRemoveFromConnectedList(eRobsonItem, AddOrRemove.ADD);
             }
+
+            if (!RootObject.Instance.activityManager.EditModeActive)
+            {
+                if (!ERobsonConnectedItemsListByTeacher.Contains(eRobsonItem))
+                {
+                    ERobsonConnectedItemsListByTeacher.Add(eRobsonItem);
+                }
+            }
+        }
+
+        if (!RootObject.Instance.activityManager.EditModeActive)
+        {
+            DialogWindow.Instance.Show("Info", "Circuit order is essential for meeting test requirements.", new DialogButtonContent("Close"));
         }
 
         CircuitParsed = true;
@@ -396,7 +447,7 @@ public class ErobsonItemManager : MonoBehaviour
     //This is for debugging
     //private void Update()
     //{
-    //    var temp = ERobsonConnectedItemsList.FindAll(e => e.HasPower).Select(e => e.ID.ToString());
+    //    var temp = ERobsonActiveConnectedItemsList.FindAll(e => e.HasPower).Select(e => e.ID.ToString());
     //    Debug.LogError(string.Join(", ", temp.ToArray()));
     //}
 
@@ -408,7 +459,7 @@ public class ErobsonItemManager : MonoBehaviour
     /// <param name="bitFromJson">The data as ERobson class from json file</param>
     private static void ApplySettings(eROBSONItems eRobsonItem, ERobsonItem bitFromJson)
     {
-        eRobsonItem.IsActive = bitFromJson.isActive;
+        eRobsonItem.IsActive = bitFromJson.isActive && !InactiveBitsByDefault(eRobsonItem.ID);
 
         eRobsonItem.Value = bitFromJson.value;
 
@@ -495,6 +546,18 @@ public class ErobsonItemManager : MonoBehaviour
 
 
     /// <summary>
+    /// the bits which needs to be in active at start of step e.q. button
+    /// </summary>
+    /// <param name="bit"></param>
+    /// <returns></returns>
+    private static bool InactiveBitsByDefault(BitID bit)
+    {
+        return bit == BitID.I3BUTTON;
+    }
+
+
+
+    /// <summary>
     /// When a new eRobson augmentation is added to the scene
     /// </summary>
     /// <param name="eRobsonGameObject">eRobson toggleObject which is added</param>
@@ -534,8 +597,8 @@ public class ErobsonItemManager : MonoBehaviour
             {
                 //If power source is deleted initiate all bits
                 if (eRobsonItem.ID == BitID.USBPOWER &&
-                    ERobsonConnectedItemsList.Contains(eRobsonItem) &&
-                    ERobsonConnectedItemsList.FindAll(b => b.ID == BitID.USBPOWER).Count == 1)
+                    ERobsonActiveConnectedItemsList.Contains(eRobsonItem) &&
+                    ERobsonActiveConnectedItemsList.FindAll(b => b.ID == BitID.USBPOWER).Count == 1)
                 {
                     foreach (var bit in ERobsonItemsList)
                     {
@@ -561,7 +624,7 @@ public class ErobsonItemManager : MonoBehaviour
     /// <summary>
     /// When a step is activated
     /// </summary>
-    private void OnActivateAction(string deviceId, Action activatedAction, string timestamp)
+    private void OnActivateAction(string actionID)
     {
         StartCoroutine(Init());
     }
@@ -581,9 +644,11 @@ public class ErobsonItemManager : MonoBehaviour
         _eRobsonDataFolder = Path.Combine(ActivityManager.ActivityPath, $"eRobson/{ActivityManager.ActiveAction.id}");
 
         ERobsonItemsList.Clear();
-        ERobsonConnectedItemsList.Clear();
+        ERobsonActiveConnectedItemsList.Clear();
+        ERobsonConnectedItemsListByTeacher.Clear();
+        ERobsonConnectedItemsListByPlayer.Clear();
 
-        LoadRobsonCircuit();
+        LoadERobsonCircuit();
     }
 }
 
