@@ -7,11 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using TiltBrush;
 using UnityEngine;
-using Action = MirageXR.Action;
-
-
 
 public enum BitID
 {
@@ -412,6 +408,14 @@ public class ErobsonItemManager : MonoBehaviour
                         {
                             ApplySettings(eRobsonItem, connectedBit);
                         }
+                        else
+                        {
+                            //In play mode add the connected bit in a list to let us compare the player circuit with that
+                            if (!ERobsonConnectedItemsListByTeacher.Contains(eRobsonItem) && connectedBit.connectedbitsID.Count > 0)
+                            {
+                                ERobsonConnectedItemsListByTeacher.Add(eRobsonItem);
+                            }
+                        }
                     }
                 }
                 catch (Exception e)
@@ -425,31 +429,11 @@ public class ErobsonItemManager : MonoBehaviour
             {
                 AddOrRemoveFromConnectedList(eRobsonItem, AddOrRemove.ADD);
             }
-
-            if (!RootObject.Instance.activityManager.EditModeActive)
-            {
-                if (!ERobsonConnectedItemsListByTeacher.Contains(eRobsonItem))
-                {
-                    ERobsonConnectedItemsListByTeacher.Add(eRobsonItem);
-                }
-            }
-        }
-
-        if (!RootObject.Instance.activityManager.EditModeActive)
-        {
-            DialogWindow.Instance.Show("Info", "Circuit order is essential for meeting test requirements.", new DialogButtonContent("Close"));
         }
 
         CircuitParsed = true;
     }
 
-
-    //This is for debugging
-    //private void Update()
-    //{
-    //    var temp = ERobsonActiveConnectedItemsList.FindAll(e => e.HasPower).Select(e => e.ID.ToString());
-    //    Debug.LogError(string.Join(", ", temp.ToArray()));
-    //}
 
 
     /// <summary>

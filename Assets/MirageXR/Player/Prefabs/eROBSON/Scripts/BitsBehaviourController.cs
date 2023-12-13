@@ -1,7 +1,7 @@
+using Castle.Core.Internal;
 using Microsoft.MixedReality.Toolkit.UI;
 using MirageXR;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,6 +15,29 @@ public class BitsBehaviourController : MonoBehaviour
     private eROBSONItems _eRobsonItem;
 
     private bool _circuitControlling;
+
+    private void Awake()
+    {
+        _eRobsonItem = GetComponent<eROBSONItems>();
+    }
+
+    private void Start()
+    {
+        Init();
+    }
+
+    private void OnEnable()
+    {
+        ErobsonItemManager.OnBitConnected += OnItemConnected;
+        ErobsonItemManager.OnBitDisconnected += OnItemDisconnected;
+    }
+
+    private void OnDisable()
+    {
+        ErobsonItemManager.OnBitConnected -= OnItemConnected;
+        ErobsonItemManager.OnBitDisconnected -= OnItemDisconnected;
+    }
+
 
     /// <summary>
     /// Initiate the bits at the start
@@ -142,7 +165,6 @@ public class BitsBehaviourController : MonoBehaviour
                 BitActionToggle(eRobsonItem, true);
             }
 
-
             //set the value text
             _eRobsonItem.SetValueText(_eRobsonItem.ID);
         }
@@ -168,49 +190,97 @@ public class BitsBehaviourController : MonoBehaviour
 
 
     /// <summary>
+    /// Sorts the bits based on their pole connections, starting from the USB power bit.
+    /// </summary>
+    /// <param name="unsortedBits">A list of unsorted eROBSONItems bits.</param>
+    /// <returns>A list of eROBSONItems bits sorted according to their pole connections.</returns>
+    public List<eROBSONItems> SortBitsByPoleConnection(List<eROBSONItems> unsortedBits)
+    {
+        List<eROBSONItems> sortedBits = new List<eROBSONItems>();
+        eROBSONItems currentBit = FindUsbPowerBit(); // Find Usb power
+
+        while (currentBit != null)
+        {
+            sortedBits.Add(currentBit);
+            currentBit = FindNextBit(currentBit); // Find next connected bit
+        }
+
+        // Check if the last bit needs to be added separately
+        var lastBit = unsortedBits.Except(sortedBits)
+            .FirstOrDefault(b => b.ID != BitID.USBPOWER);
+        if (lastBit != null)
+        {
+            sortedBits.Add(lastBit);
+        }
+
+        return sortedBits;
+    }
+
+
+    /// <summary>
+    /// Finds the USB power bit from the list of connected items.
+    /// </summary>
+    /// <returns>The USB power bit if found, otherwise null.</returns>
+    private eROBSONItems FindUsbPowerBit()
+    {
+        var usbPower = ErobsonItemManager.ERobsonConnectedItemsListByPlayer.FirstOrDefault(b => b.ID == BitID.USBPOWER);
+
+        return usbPower;
+    }
+
+
+
+    /// <summary>
+    /// Finds the next bit connected to the current bit based on pole connection rules.
+    /// </summary>
+    /// <param name="currentBit">The current bit from which to find the next connected bit.</param>
+    /// <returns>The next connected bit if found, otherwise null.</returns>
+    private eROBSONItems FindNextBit(eROBSONItems currentBit)
+    {
+        // Assuming each bit has a list of ports and each port knows what it's connected to
+        foreach (var port in currentBit.Ports)
+        {
+            if ((port.Pole == Pole.NEGATIVE || port.DetectedPortPole.Pole == Pole.USB) && port.Connected)
+            {
+                // Assuming the connected port has a reference to the bit it's part of
+                var connectedBit = port.DetectedPortPole.ERobsonItem;
+
+                // Verify that the connected port is positive
+                if (connectedBit != null && (port.DetectedPortPole.Pole == Pole.POSITIVE || port.DetectedPortPole.Pole == Pole.USB))
+                {
+                    return connectedBit;
+                }
+            }
+        }
+
+        return null; // No next bit found
+    }
+
+
+
+
+    /// <summary>
     /// Control if the user in playmode has connected the bits same as the editor
     /// </summary>
     private void ComparePlayerCircuit()
     {
-        var eRobsonConnectedItemsListByTeacher = ErobsonItemManager.ERobsonConnectedItemsListByTeacher.OrderBy(e => e.connectedTime).ToList();
-        var eRobsonConnectedItemsListByPlayer = ErobsonItemManager.ERobsonConnectedItemsListByPlayer.OrderBy(e => e.connectedTime).ToList();
-
-        // Find index for USBPOWER
-        var idx = eRobsonConnectedItemsListByTeacher.FindIndex(i => i.ID == BitID.USBPOWER);
-
-        // Move power source item to first if it is not already and it is connected to the circuit
-        if (idx > 0 && eRobsonConnectedItemsListByTeacher.Contains(eRobsonConnectedItemsListByTeacher[idx]))
-        {
-            MoveToTop(eRobsonConnectedItemsListByTeacher, idx);
-        }
-
-        // Find index for USBPOWER
-        idx = eRobsonConnectedItemsListByPlayer.FindIndex(i => i.ID == BitID.USBPOWER);
-
-        // Move power source item to first if it is not already and it is connected to the circuit
-        if (idx > 0 && eRobsonConnectedItemsListByPlayer.Contains(eRobsonConnectedItemsListByPlayer[idx]))
-        {
-            MoveToTop(eRobsonConnectedItemsListByPlayer, idx);
-        }
-
         bool allConnectedCorrectly = true;
 
-        for (int i = 0; i < eRobsonConnectedItemsListByTeacher.Count; i++)
+        var sortedERobsonConnectedItemsListByPlayer = SortBitsByPoleConnection(ErobsonItemManager.ERobsonConnectedItemsListByPlayer);
+
+        // Assuming that the counts of both lists are already verified to be equal before calling this method.
+        for (int i = 0; i < ErobsonItemManager.ERobsonConnectedItemsListByTeacher.Count; i++)
         {
-            var bit = eRobsonConnectedItemsListByTeacher[i];
+            var teacherBit = ErobsonItemManager.ERobsonConnectedItemsListByTeacher[i];
+            var playerBit = sortedERobsonConnectedItemsListByPlayer[i];
 
-            if (!eRobsonConnectedItemsListByPlayer.Contains(bit))
-            {
-                return;
-            }
-
-            if (bit != eRobsonConnectedItemsListByPlayer[i])
+            // Check if the playerBit is connected correctly and in the same order as the teacherBit.
+            if (!IsBitConnectedCorrectlyAndInOrder(playerBit, teacherBit))
             {
                 allConnectedCorrectly = false;
                 break;
             }
         }
-
         if (ErobsonItemManager.Instance.PromptMessageIsOpen)
         {
             return;
@@ -231,28 +301,40 @@ public class BitsBehaviourController : MonoBehaviour
 
 
 
-
-    private void Awake()
+    /// <summary>
+    /// Checks if a bit in the player's circuit is connected correctly and in the same order as in the teacher's circuit.
+    /// </summary>
+    /// <param name="playerBit">The bit from the player's circuit to be validated.</param>
+    /// <param name="teacherBit">The corresponding bit from the teacher's circuit that serves as a reference for the correct connections and order.</param>
+    /// <returns>
+    /// Returns true if the playerBit is connected in the same way and order as the teacherBit.
+    /// Specifically, it verifies that each bit connected to the teacherBit is also connected to the player
+    /// Bit at the same index, ensuring the order of connections is consistent.
+    /// Returns false if the playerBit is missing, if any of the required connections are missing, or if the connections are not in the correct order.
+    /// </returns>
+    private bool IsBitConnectedCorrectlyAndInOrder(eROBSONItems playerBit, eROBSONItems teacherBit)
     {
-        _eRobsonItem = GetComponent<eROBSONItems>();
+        if (playerBit == null || teacherBit == null || playerBit.ID != teacherBit.ID)
+        {
+            return false; // Either player bit or teacher bit is not present or they are not the same bit
+        }
+
+        if (playerBit.ConnectedBits.Count != teacherBit.ConnectedBits.Count)
+        {
+            return false; // The number of connections does not match
+        }
+
+        for (int i = 0; i < teacherBit.ConnectedBits.Count; i++)
+        {
+            if (playerBit.ConnectedBits[i].ID != teacherBit.ConnectedBits[i].ID)
+            {
+                return false; // A connection is not in the correct order
+            }
+        }
+
+        return true; // All connections are present and in the correct order
     }
 
-    private void Start()
-    {
-        Init();
-    }
-
-    private void OnEnable()
-    {
-        ErobsonItemManager.OnBitConnected += OnItemConnected;
-        ErobsonItemManager.OnBitDisconnected += OnItemDisconnected;
-    }
-
-    private void OnDisable()
-    {
-        ErobsonItemManager.OnBitConnected -= OnItemConnected;
-        ErobsonItemManager.OnBitDisconnected -= OnItemDisconnected;
-    }
 
 
     /// <summary>
@@ -292,25 +374,28 @@ public class BitsBehaviourController : MonoBehaviour
     /// <returns>true if the bit has power</returns>
     private static async Task<bool> HasConnectedPowerUpToCurrentModule(eROBSONItems bit)
     {
-        // Check each connected bit
+        // Check if the current bit is the power source itself
+        if (bit.ID == BitID.USBPOWER)
+        {
+            return true; // Power source always has power
+        }
+
+        // Iterate through each connected bit to check for power
         foreach (var connectedBit in bit.ConnectedBits)
         {
             if (connectedBit == null)
             {
-                // If the connected bit is null, continue to the next bit
-                continue;
+                continue; // Skip null connected bits
             }
 
-
-            //if USBPOWER connecting into P3USBPOWERCONNECTOR
-            if ((bit.ID == BitID.USBPOWER && connectedBit.ID == BitID.P3USBPOWERCONNECTOR) ||
-                (bit.ID == BitID.P3USBPOWERCONNECTOR && connectedBit.ID == BitID.USBPOWER))
+            // Special case for USB power connector
+            if ((bit.ID == BitID.P3USBPOWERCONNECTOR && connectedBit.ID == BitID.USBPOWER) ||
+            (bit.ID == BitID.USBPOWER && connectedBit.ID == BitID.P3USBPOWERCONNECTOR))
             {
                 bit.Ports[0].Connected = true; //usb port of usb power connecting
                 connectedBit.Ports[0].Connected = true; //usb power of p3 use power is connecting
                 return true;
             }
-
 
             // If the connected bit is not activated or does not have power, continue to the next bit
             if (!connectedBit.HasPower)
@@ -338,6 +423,7 @@ public class BitsBehaviourController : MonoBehaviour
             }
         }
 
+        // No connected bit has power
         return false;
     }
 
@@ -377,13 +463,22 @@ public class BitsBehaviourController : MonoBehaviour
         }
 
         //No power source any more
-        if (bit.ID == BitID.USBPOWER && !ErobsonItemManager.ERobsonActiveConnectedItemsList.Exists(b => b.ID == BitID.USBPOWER))
+        if ((bit.ID == BitID.USBPOWER || bit.ID == BitID.P3USBPOWERCONNECTOR) && !ErobsonItemManager.ERobsonActiveConnectedItemsList.Exists(b => b.ID == BitID.USBPOWER))
         {
-            if (bit.ID is BitID.USBPOWER or BitID.P3USBPOWERCONNECTOR)
+            //disconnect the output ports
+            var portsToDisconnect = bit.Ports.FindAll(p => p.Pole == Pole.USB || p.Pole == Pole.NEGATIVE);
+            foreach (var port in portsToDisconnect)
             {
-                bit.Ports[0].Connected = false;
+                port.Connected = false;
             }
+
             ErobsonItemManager.Instance.CutCircuitPower();
+
+            //by disconnecting usb power the circuit should be rebuilded agin from start
+            if (bit.ID is BitID.USBPOWER)
+            {
+                ErobsonItemManager.ERobsonConnectedItemsListByPlayer.Clear();
+            }
         }
 
         if (ErobsonItemManager.ERobsonConnectedItemsListByPlayer.Contains(bit))
@@ -394,8 +489,9 @@ public class BitsBehaviourController : MonoBehaviour
             }
         }
 
-        ControlCircuit();
+        ControlCircuit(true);
     }
+
 
 
     /// <summary>
@@ -566,7 +662,6 @@ public class BitsBehaviourController : MonoBehaviour
 
 
 
-
     /// <summary>
     /// Move an item from "index" to "0" in a list
     /// </summary>
@@ -581,5 +676,4 @@ public class BitsBehaviourController : MonoBehaviour
         }
         list[0] = item;
     }
-
 }

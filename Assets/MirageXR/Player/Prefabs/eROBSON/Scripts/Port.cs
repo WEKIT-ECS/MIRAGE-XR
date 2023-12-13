@@ -30,6 +30,9 @@ public class Port : MonoBehaviour
     public bool PortIsMovable => portMovesSeparate;
 
 
+    public Pole Pole => pole;
+
+
     /// <summary>
     /// Port's forward is reversed
     /// </summary>
@@ -47,8 +50,8 @@ public class Port : MonoBehaviour
     /// </summary>
     private bool UsbPowerConnectionCheck =>
         (DetectedPortPole.pole == Pole.USB && pole == Pole.USB) &&
-        !(DetectedPortPole.ERobsonItem.ID == BitID.USBPOWER && ERobsonItem.ID == BitID.USBPOWER) &&
-        !(DetectedPortPole.ERobsonItem.ID == BitID.P3USBPOWERCONNECTOR && ERobsonItem.ID == BitID.P3USBPOWERCONNECTOR);
+        !((DetectedPortPole.ERobsonItem.ID == BitID.USBPOWER && ERobsonItem.ID == BitID.USBPOWER) ||
+        (DetectedPortPole.ERobsonItem.ID == BitID.P3USBPOWERCONNECTOR && ERobsonItem.ID == BitID.P3USBPOWERCONNECTOR));
 
 
     /// <summary>
@@ -214,32 +217,64 @@ public class Port : MonoBehaviour
 
 
     /// <summary>
-    /// Check if the bits can be connected
+    /// Determines if a connection between two ports can be made based on game rules.
     /// </summary>
-    /// <returns>a boolean that says the bit can be connected or not to the detected port</returns>
+    /// <returns>True if the connection is valid, otherwise false.</returns>
     private bool CanBeConnected()
     {
-        var connectIt = false;
-
+        // Check for Edit Mode or absence of preloaded data
         if (RootObject.Instance.activityManager.EditModeActive || ERobsonItem.LoadedData == null)
         {
-            var hasDifferentPole = DetectedPortPole.pole != pole;
-            var neitherPortIsUSB = DetectedPortPole.pole != Pole.USB && pole != Pole.USB;
-            var isAlreadyConnected = ERobsonItem.ConnectedBits.Contains(DetectedPortPole.ERobsonItem);
-            connectIt = (UsbPowerConnectionCheck || (hasDifferentPole && neitherPortIsUSB)) && !isAlreadyConnected;
+            return CheckEditModeConnectionRules();
         }
         else
         {
-            bool isP3DifferentPoleConnectionValid = ERobsonItem.ID == BitID.P3USBPOWERCONNECTOR && DetectedPortPole.pole != pole && DetectedPortPole.pole != Pole.USB;                          
-
-            if (ERobsonItem.LoadedData.connectedbitsID.Contains(DetectedPortPole.ERobsonItem.poiID) || isP3DifferentPoleConnectionValid)
-            {
-                connectIt = true;
-            }
+            return CheckPlayModeConnectionRules();
         }
+    }
 
 
-        return connectIt;
+    /// <summary>
+    /// Checks connection rules in edit mode or when no preloaded data is available.
+    /// </summary>
+    /// <returns>True if the connection satisfies edit mode rules, otherwise false.</returns>
+    private bool CheckEditModeConnectionRules()
+    {
+        bool hasDifferentPole = DetectedPortPole.pole != pole;
+        bool neitherPortIsUSB = DetectedPortPole.pole != Pole.USB && pole != Pole.USB;
+        bool isAlreadyConnected = ERobsonItem.ConnectedBits.Contains(DetectedPortPole.ERobsonItem);
+
+        // Valid connection if USB check passes or if different poles and not USB, ensuring not already connected
+        return (UsbPowerConnectionCheck || (hasDifferentPole && neitherPortIsUSB)) && !isAlreadyConnected;
+    }
+
+
+    /// <summary>
+    /// Checks connection rules in play mode based on preloaded data and specific game logic.
+    /// </summary>
+    /// <returns>True if the connection satisfies play mode rules, otherwise false.</returns>
+    private bool CheckPlayModeConnectionRules()
+    {
+        // Special checks for P3USBPOWERCONNECTOR
+        bool isP3USBPortValid = ERobsonItem.ID == BitID.P3USBPOWERCONNECTOR && pole == Pole.USB &&
+                                DetectedPortPole.ERobsonItem.ID == BitID.USBPOWER;
+        bool isP3NegativePortValid = CheckP3USBPowerConnectorNegativePort();
+
+        // Check if the attempted connection matches saved data or special P3USBPOWERCONNECTOR rules
+        return ERobsonItem.LoadedData.connectedbitsID.Contains(DetectedPortPole.ERobsonItem.poiID) ||
+               isP3USBPortValid || isP3NegativePortValid;
+    }
+
+
+    /// <summary>
+    /// Validates connection rules for P3USBPOWERCONNECTOR's negative port.
+    /// </summary>
+    /// <returns>True if the negative port of P3USBPOWERCONNECTOR can be validly connected, otherwise false.</returns>
+    private bool CheckP3USBPowerConnectorNegativePort()
+    {
+        // Allow P3USBPOWERCONNECTOR's negative port to connect to any positive port (and vice versa)
+        return (ERobsonItem.ID == BitID.P3USBPOWERCONNECTOR && pole == Pole.NEGATIVE && DetectedPortPole.pole == Pole.POSITIVE)
+               || (DetectedPortPole.ERobsonItem.ID == BitID.P3USBPOWERCONNECTOR && DetectedPortPole.pole == Pole.NEGATIVE && pole == Pole.POSITIVE);
     }
 
 
