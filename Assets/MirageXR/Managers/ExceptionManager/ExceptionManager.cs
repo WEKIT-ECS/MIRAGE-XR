@@ -34,8 +34,8 @@ namespace MirageXR
            if (logType == LogType.Exception)
            {
 
-              AppLog.Log("ExceptionManager: ["+logType+"]" + logText + ", trace: " + stackTrace, LogLevel.CRITICAL);
-              SentrySdk.CaptureMessage("ExceptionManager: ["+logType+"]" + logText + ", trace: " + stackTrace);
+        AppLog.Log($"ExceptionManager: [{logType}] {logText}, trace: {stackTrace}", LogLevel.CRITICAL);
+        SentrySdk.CaptureMessage($"ExceptionManager: [{logType}] {logText}, trace: {stackTrace}");
 /*
               RootView_v2.Instance.dialog.ShowMiddle(
                  "A serious error happened!",
