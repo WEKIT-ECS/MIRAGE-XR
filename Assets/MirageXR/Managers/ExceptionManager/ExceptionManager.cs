@@ -18,7 +18,7 @@ namespace MirageXR
        // the Sentry instance
        public SentrySdk sentry; 
 
-       void Awake()
+       private void Awake()
        {
            AppLog.Log("Installing hook for exceptions", LogLevel.INFO );
            sentry ??= new GameObject("ExceptionManagerSentry").AddComponent<SentrySdk>();
