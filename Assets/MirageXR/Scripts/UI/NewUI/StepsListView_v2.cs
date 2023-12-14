@@ -12,6 +12,7 @@ using Content = MirageXR.Action;
 
 public class StepsListView_v2 : BaseView
 {
+    private const string CALIBRATION_IMAGE_FILE_NAME = "MirageXR_calibration_image_pdf.pdf";
     private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg";
     private const int MAX_PICTURE_SIZE = 1024;
 
@@ -22,12 +23,8 @@ public class StepsListView_v2 : BaseView
     [Space]
     [SerializeField] private RectTransform _listVerticalContent;
     [SerializeField] private RectTransform _listHorizontalContent;
-
     [SerializeField] private float _moveTimeHorizontalScroll = 0.9f;
     [SerializeField] private AnimationCurve _animationCurve = AnimationCurve.Linear(0, 0, 1, 1);
-    private int _currentStepIndex;
-    private string _currentStepId;
-    private Coroutine _coroutine;
 
     [Space]
     [SerializeField] private TMP_Text _textActivityName;
@@ -38,8 +35,10 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private Button _btnBack;
     [SerializeField] private Button _btnSettings;
     [SerializeField] private Button _btnThumbnail;
-    [SerializeField] private Button _btnCalibration;
-    [SerializeField] private Button _btnRecalibration;
+    [SerializeField] private Button _btnFloorLevel;
+    [SerializeField] private Button _btnWithMarker;
+    [SerializeField] private Button _btnMarkerLess;
+    [SerializeField] private Button _btnShareImageMarker;
     [SerializeField] private Image _imgThumbnail;
     [SerializeField] private GameObject _defaultThumbnail;
     [SerializeField] private Toggle _toggleSteps;
@@ -48,8 +47,8 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private GameObject _steps;
     [SerializeField] private GameObject _info;
     [SerializeField] private GameObject _calibration;
-    [SerializeField] private GameObject _first;
-    [SerializeField] private GameObject _second;
+    [SerializeField] private GameObject _statusCalibrated;
+    [SerializeField] private GameObject _statusNotCalibrated;
     [SerializeField] private CalibrationView _calibrationViewPrefab;
     [SerializeField] private ActivitySettings _settingsViewPrefab;
     [SerializeField] private StepsListItem_v2 _stepsListItemPrefab;
@@ -59,21 +58,25 @@ public class StepsListView_v2 : BaseView
 
     private ActivityView_v2 _activityView => (ActivityView_v2)_parentView;
 
-    private bool _isEditMode;
     private int _addStepSiblingIndex = 0;
-
-    private static string calibrationImageFileName = "MirageXR_calibration_image_pdf.pdf";
+    private int _currentStepIndex;
+    private string _currentStepId;
+    private Coroutine _coroutine;
 
     public override void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
+
         _inputFieldActivityName.onEndEdit.AddListener(OnActivityNameEndEdit);
         _inputFieldActivityDescription.onEndEdit.AddListener(OnActivityDescriptionEndEdit);
 
         _btnAddStep.onClick.AddListener(OnAddStepClick);
         _btnThumbnail.onClick.AddListener(OnThumbnailButtonPressed);
-        _btnCalibration.onClick.AddListener(OnCalibrationPressed);
-        _btnRecalibration.onClick.AddListener(OnCalibrationPressed);
+
+        _btnFloorLevel.onClick.AddListener(ShowFloorDetectionOnlyView);
+        _btnWithMarker.onClick.AddListener(ShowImageTargetCalibrationView);
+        _btnMarkerLess.onClick.AddListener(ShowMarkerLessCalibrationView);
+        _btnShareImageMarker.onClick.AddListener(ShareCalibrationImage);
 
         _toggleSteps.onValueChanged.AddListener(OnToggleStepValueChanged);
         _toggleInfo.onValueChanged.AddListener(OnToggleInfoValueChanged);
@@ -137,6 +140,8 @@ public class StepsListView_v2 : BaseView
 
             OnEditModeChanged(activityManager.EditModeActive);
             LoadThumbnail();
+
+            _btnFloorLevel.gameObject.SetActive(RootObject.Instance.floorManager.isFloorDetected);
         }
         else
         {
@@ -184,7 +189,7 @@ public class StepsListView_v2 : BaseView
         _coroutine = StartCoroutine(MoveToEnumerator(_listHorizontalContent, newPosition, _moveTimeHorizontalScroll, _animationCurve));
     }
 
-    private IEnumerator MoveToEnumerator(RectTransform rectTransform, Vector3 endPosition, float time, AnimationCurve curve = null, System.Action callback = null)
+    private IEnumerator MoveToEnumerator(RectTransform rectTransform, Vector3 endPosition, float time, AnimationCurve curve = null, Action callback = null)
     {
         curve ??= AnimationCurve.Linear(0f, 0f, 1f, 1f);
 
@@ -268,7 +273,7 @@ public class StepsListView_v2 : BaseView
         _imgThumbnail.sprite = sprite;
     }
 
-    public void OnDeleteStepClick(Content step, System.Action deleteCallback = null)
+    public void OnDeleteStepClick(Content step, Action deleteCallback = null)
     {
         if (activityManager.ActionsOfTypeAction.Count > 1)
         {
@@ -334,7 +339,6 @@ public class StepsListView_v2 : BaseView
 
     private void OnEditModeChanged(bool value)
     {
-        _isEditMode = value;
         _btnAddStep.transform.parent.gameObject.SetActive(value);
         _btnThumbnail.interactable = value;
         _inputFieldActivityName.interactable = value;
@@ -345,8 +349,9 @@ public class StepsListView_v2 : BaseView
 
     private void OnWorkplaceCalibrated()
     {
-        _first.SetActive(false);
-        _second.SetActive(true);
+        _statusNotCalibrated.SetActive(false);
+        _statusCalibrated.SetActive(true);
+        _btnFloorLevel.gameObject.SetActive(RootObject.Instance.floorManager.isFloorDetected);
     }
 
     private void OnActionCreated(Content action)
@@ -361,8 +366,8 @@ public class StepsListView_v2 : BaseView
 
     private void OnActivityStarted()
     {
-        _first.SetActive(true);
-        _second.SetActive(false);
+        _statusNotCalibrated.SetActive(true);
+        _statusCalibrated.SetActive(false);
         UpdateView();
         _addStep.SetAsLastSibling();
     }
@@ -444,23 +449,6 @@ public class StepsListView_v2 : BaseView
         activityManager.SaveData();
     }
 
-    private void OnCalibrationPressed()
-    {
-        if (RootObject.Instance.floorManager.isFloorDetected)
-        {
-            RootView_v2.Instance.dialog.ShowBottomMultiline(null,
-                ("Start Calibration", ShowImageTargetCalibrationView),
-                ("Start Floor Detection", ShowFloorDetectionOnlyView),
-                ("Get Calibration Image", ShareCalibrationImage));
-        }
-        else
-        {
-            RootView_v2.Instance.dialog.ShowBottomMultiline(null,
-                ("Start Calibration", ShowImageTargetCalibrationView),
-                ("Get Calibration Image", ShareCalibrationImage));
-        }
-    }
-
     private void ShareCalibrationImage()
     {
         StartCoroutine(SharePDFFile());
@@ -470,7 +458,7 @@ public class StepsListView_v2 : BaseView
     {
         yield return new WaitForEndOfFrame();
 
-        var filePath = Path.Combine(Application.temporaryCachePath, calibrationImageFileName);
+        var filePath = Path.Combine(Application.temporaryCachePath, CALIBRATION_IMAGE_FILE_NAME);
         File.WriteAllBytes(filePath, brandManager.CalibrationMarkerPdf.bytes);
         new NativeShare().AddFile(filePath).Share();
     }
@@ -479,12 +467,19 @@ public class StepsListView_v2 : BaseView
     {
         var isEditMode = RootObject.Instance.activityManager.EditModeActive;
         var isCalibration = RootObject.Instance.calibrationManager.isCalibrated;
-        PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode && !isCalibration, false);
+        PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode && !isCalibration, false, false);
+    }
+
+    private void ShowMarkerLessCalibrationView()
+    {
+        var isEditMode = RootObject.Instance.activityManager.EditModeActive;
+        var isCalibration = RootObject.Instance.calibrationManager.isCalibrated;
+        PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode && !isCalibration, false, true);
     }
 
     private void ShowFloorDetectionOnlyView()
     {
-        PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, false, true);
+        PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, false, true, true);
     }
 
     private void OnCalibrationViewOpened()
@@ -495,6 +490,7 @@ public class StepsListView_v2 : BaseView
     private void OnCalibrationViewClosed()
     {
         RootView_v2.Instance.ShowBaseView();
+        UpdateView();
     }
 
     public void MoveStepsToHorizontalScroll()

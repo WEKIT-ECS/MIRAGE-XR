@@ -26,58 +26,71 @@ public class CalibrationView : PopupBase
     private string HINT_MARKER_TEXT = "Look at the calibration image on a printed paper or a screen to calibrate the activity.";
     private string HINT_PLACEMENT_TEXT = "Tap on the plane to place the anchor.";
     private string HINT_FLOOR_TEXT = "Look at the floor while moving your device. As a plane appears, click on it.";
-    private int DELAY_TIME = 500;
-    private int CLOSE_TIME = 1000;
+    private string HINT_MOVE_ORIGIN = "The origin is the single main anchor point of the activity. 'Set origin' only if you are first-time editing the activity.";
+    private string HINT_RESTORE_POSITION = "Positions are the locations of all contents relative to the origin. ‘Restore positions’ if you view an activity or re-edit.";
+    private int DELAY_TIME = 250;
+    private int CLOSE_TIME = 500;
 
-    [SerializeField] private GameObject _footer;
     [SerializeField] private Image _imageTarget;
     [SerializeField] private Transform _imageCalibrationAnimation;
     [SerializeField] private Transform _imageDetectionAnimation;
-    [SerializeField] private TMP_Text _textTop;
     [SerializeField] private TMP_Text _textDone;
-    [SerializeField] private TMP_Text _textHint;
-    [SerializeField] private GameObject _calibrationAnimation;
-    [SerializeField] private GameObject _floorDetectionAnimation;
-    [SerializeField] private GameObject _planeAnimation;
-    [SerializeField] private GameObject _panelSelectType;
-    [SerializeField] private Button _btnImageTarget;
-    [SerializeField] private Button _btnManualPlacement;
-    [SerializeField] private Toggle _toggleResetPosition;
-    [SerializeField] private Button _btnBack;
+    [SerializeField] private TMP_Text _textDescroptionImage;
+    [SerializeField] private TMP_Text _textDescroptionManual;
+    [SerializeField] private GameObject _panelFloor;
+    [SerializeField] private GameObject _panelFloorAnimation;
+    [SerializeField] private GameObject _panelImage;
+    [SerializeField] private GameObject _panelManual;
+    [SerializeField] private Toggle _toggleManualResetPosition;
+    [SerializeField] private Toggle _toggleImageResetPosition;
+    [SerializeField] private Button _btnFloorBack;
+    [SerializeField] private Button _btnManualBack;
+    [SerializeField] private Button _btnImageBack;
     [SerializeField] private Button _btnApply;
+    [SerializeField] private Button _btnFloorNext;
     [SerializeField] private Color _colorRed;
     [SerializeField] private Color _colorBlue;
 
     private Action _showBaseView;
     private Action _hideBaseView;
-    private bool _isNewPosition;
+    private bool _isMoveOrigin;
     private bool _isFloorOnly;
+    private bool _isMarkerLess;
     private Tweener _tweenerCalibration;
     private Sequence _tweenerDetection;
     private Pose _startPose;
+    private PoseSynchronizer _poseSynchronizer;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
         base.Initialization(onClose, args);
+
+        _poseSynchronizer = RootObject.Instance.workplaceManager.detectableContainer.GetComponentInParent<PoseSynchronizer>();
         _canBeClosedByOutTap = false;
         _showBackground = false;
 
-        _calibrationAnimation.SetActive(false);
-        _floorDetectionAnimation.SetActive(false);
-        _panelSelectType.SetActive(false);
-        _planeAnimation.SetActive(false);
+        _panelFloor.SetActive(false);
+        _panelImage.SetActive(false);
+        _panelManual.SetActive(false);
 
-        _btnBack.onClick.AddListener(OnCloseButtonPressed);
+        _btnFloorNext.gameObject.SetActive(false);
+        _btnFloorNext.onClick.AddListener(OnFloorNextButtonClicked);
+
+        _btnFloorBack.onClick.AddListener(OnCloseButtonPressed);
+        _btnManualBack.onClick.AddListener(OnCloseButtonPressed);
+        _btnImageBack.onClick.AddListener(OnCloseButtonPressed);
         _btnApply.onClick.AddListener(OnApplyButtonPressed);
-        _btnImageTarget.onClick.AddListener(OnButtonImageTargetClicked);
-        _btnManualPlacement.onClick.AddListener(OnButtonManualPlacementClicked);
-        _toggleResetPosition.isOn = _isNewPosition;
-        _toggleResetPosition.onValueChanged.AddListener(OnToggleResetPositionValueChanged);
+        _toggleManualResetPosition.isOn = !_isMoveOrigin;
+        _toggleImageResetPosition.isOn = !_isMoveOrigin;
+        _toggleManualResetPosition.onValueChanged.AddListener(OnToggleResetPositionValueChanged);
+        _toggleImageResetPosition.onValueChanged.AddListener(OnToggleResetPositionValueChanged);
+        _textDescroptionImage.text = _isMoveOrigin ? HINT_MOVE_ORIGIN : HINT_RESTORE_POSITION;
+        _textDescroptionManual.text = _isMoveOrigin ? HINT_MOVE_ORIGIN : HINT_RESTORE_POSITION;
+        _poseSynchronizer.enabled = !_isMoveOrigin;
+        
         _btnApply.gameObject.SetActive(false);
 
         ResetCalibration();
-
-        _textTop.text = _isNewPosition ? NEW_POSITION_TEXT : CALIBRATION_TEXT;
 
         calibrationManager.onCalibrationStarted.AddListener(OnCalibrationStarted);
         calibrationManager.onCalibrationCanceled.AddListener(OnCalibrationCanceled);
@@ -94,28 +107,29 @@ public class CalibrationView : PopupBase
         }
         else
         {
-            ShowSelectTypePanel();
+            if (_isMarkerLess)
+            {
+                StartPlaceCalibrationAsync().AsAsyncVoid();
+            }
+            else
+            {
+                StartCalibration();
+            }
         }
-    }
-
-    private void OnButtonImageTargetClicked()
-    {
-        StartCalibration();
-    }
-
-    private void OnButtonManualPlacementClicked()
-    {
-        StartPlaceCalibrationAsync().AsAsyncVoid();
     }
 
     private void OnToggleResetPositionValueChanged(bool value)
     {
-        _isNewPosition = value;
+        _isMoveOrigin = !value;
+        _poseSynchronizer.enabled = !_isMoveOrigin;
+        _textDescroptionImage.text = _isMoveOrigin ? HINT_MOVE_ORIGIN : HINT_RESTORE_POSITION;
+        _textDescroptionManual.text = _isMoveOrigin ? HINT_MOVE_ORIGIN : HINT_RESTORE_POSITION;
     }
 
     private async Task StartFloorDetectionAsync()
     {
-        _floorDetectionAnimation.SetActive(true);
+        _panelFloor.SetActive(true);
+        _panelFloorAnimation.SetActive(true);
         _imageDetectionAnimation.eulerAngles = new Vector3(0, 0, -10);
 
         _tweenerDetection = DOTween.Sequence();
@@ -123,9 +137,6 @@ public class CalibrationView : PopupBase
         _tweenerDetection.Append(_imageDetectionAnimation.DOLocalRotate(new Vector3(0, 0, -10), 1f));
         _tweenerDetection.SetLoops(-1);
         _tweenerDetection.SetEase(Ease.Linear);
-
-        _textTop.text = FLOOR_DETECTION_TEXT;
-        _textHint.text = HINT_FLOOR_TEXT;
 
         await Task.Delay(DELAY_TIME);
         planeManager.EnablePlanes();
@@ -135,14 +146,25 @@ public class CalibrationView : PopupBase
     private void OnFloorDetected(PlaneId planeId, Vector3 position)
     {
         planeManager.onPlaneClicked.RemoveListener(OnFloorDetected);
-        OnFloorDetectedAsync(planeId, position).AsAsyncVoid();
+        OnFloorDetectedAsync(planeId, position);
     }
 
-    private async Task OnFloorDetectedAsync(PlaneId planeId, Vector3 position)
+    private void OnFloorDetectedAsync(PlaneId planeId, Vector3 position)
     {
         floorManager.SetFloor(planeId, position);
-        _floorDetectionAnimation.SetActive(false);
+        _panelFloorAnimation.SetActive(false);
+        _btnFloorNext.gameObject.SetActive(true);
+    }
+
+    private void OnFloorNextButtonClicked()
+    {
+        OnFloorNextButtonClickedAsync().AsAsyncVoid();
+    }
+
+    private async Task OnFloorNextButtonClickedAsync()
+    {
         _tweenerDetection?.Kill();
+        _panelFloor.SetActive(false);
         await Task.Delay(DELAY_TIME);
         planeManager.DisablePlanes();
 
@@ -152,31 +174,22 @@ public class CalibrationView : PopupBase
         }
         else
         {
-            ShowSelectTypePanel();
+            if (_isMarkerLess)
+            {
+                StartPlaceCalibrationAsync().AsAsyncVoid();
+            }
+            else
+            {
+                StartCalibration();
+            }
         }
     }
-
-    private void ShowSelectTypePanel()
-    {
-        _footer.SetActive(false);
-        _textTop.text = SELECT_CALIBRATION_TEXT;
-        _panelSelectType.SetActive(true);
-    }
-
+    
     private async Task StartPlaceCalibrationAsync()
     {
-        if (_isNewPosition)
-        {
-            var synchronizer = RootObject.Instance.workplaceManager.detectableContainer.GetComponentInParent<PoseSynchronizer>();
-            synchronizer.enabled = false;
-        }
         await Task.Delay(DELAY_TIME);
-        _textTop.text = _isNewPosition ? NEW_POSITION_TEXT : CALIBRATION_TEXT;
-        _footer.gameObject.SetActive(true);
-        _panelSelectType.SetActive(false);
-        _planeAnimation.SetActive(true);
+        _panelManual.SetActive(true);
         planeManager.EnablePlanes();
-        _textHint.text = HINT_PLACEMENT_TEXT;
         planeManager.onPlaneClicked.AddListener(OnCalibrationPlaceDetected);
     }
 
@@ -196,22 +209,12 @@ public class CalibrationView : PopupBase
 
     private void StartCalibration()
     {
-        if (_isNewPosition)
-        {
-            var synchronizer = RootObject.Instance.workplaceManager.detectableContainer.GetComponentInParent<PoseSynchronizer>();
-            synchronizer.enabled = false;
-        }
-        _textTop.text = _isNewPosition ? NEW_POSITION_TEXT : CALIBRATION_TEXT;
-        _footer.gameObject.SetActive(true);
-        _panelSelectType.SetActive(false);
-        _calibrationAnimation.SetActive(true);
-        _textHint.text = HINT_MARKER_TEXT;
-        calibrationManager.EnableCalibration(_isNewPosition);
+        _panelImage.SetActive(true);
+        calibrationManager.EnableCalibration(_isMoveOrigin);
     }
 
     private void OnCalibrationStarted()
     {
-        _footer.SetActive(false);
         _imageTarget.color = _colorBlue;
         _imageCalibrationAnimation.gameObject.SetActive(true);
         _textDone.gameObject.SetActive(false);
@@ -232,11 +235,10 @@ public class CalibrationView : PopupBase
 
     private async Task OnCalibrationFinishedAsync()
     {
-        await calibrationManager.ApplyCalibrationAsync(_isNewPosition);
+        await calibrationManager.ApplyCalibrationAsync(_isMoveOrigin);
         _textDone.gameObject.SetActive(true);
         _imageTarget.gameObject.SetActive(false);
         _imageCalibrationAnimation.gameObject.SetActive(false);
-        _footer.SetActive(false);
 
         var activityManager = RootObject.Instance.activityManager;
         if (gridManager.gridEnabled && activityManager.EditModeActive)
@@ -244,11 +246,7 @@ public class CalibrationView : PopupBase
             gridManager.ShowGrid();
         }
 
-        if (_isNewPosition)
-        {
-            var synchronizer = RootObject.Instance.workplaceManager.detectableContainer.GetComponentInParent<PoseSynchronizer>();
-            synchronizer.enabled = true;
-        }
+        _poseSynchronizer.enabled = true;
 
         await Task.Delay(CLOSE_TIME);
         Close();
@@ -259,7 +257,6 @@ public class CalibrationView : PopupBase
         _imageTarget.color = _colorRed;
         _imageCalibrationAnimation.gameObject.SetActive(false);
         _textDone.gameObject.SetActive(false);
-        _footer.SetActive(true);
         _tweenerCalibration?.Kill();
         _tweenerDetection?.Kill();
     }
@@ -273,7 +270,7 @@ public class CalibrationView : PopupBase
             calibrationManager.ApplyCalibrationAsync(false).AsAsyncVoid();
         }
 
-        if (_isNewPosition)
+        if (_isMoveOrigin)
         {
             var synchronizer = RootObject.Instance.workplaceManager.detectableContainer.GetComponentInParent<PoseSynchronizer>();
             synchronizer.enabled = true;
@@ -297,7 +294,7 @@ public class CalibrationView : PopupBase
         _btnApply.gameObject.SetActive(false);
         planeManager.onPlaneClicked.RemoveListener(OnCalibrationPlaceDetected);
         planeManager.DisablePlanes();
-        OnCalibrationFinishedAsync();
+        OnCalibrationFinishedAsync().AsAsyncVoid();
     }
 
     protected override bool TryToGetArguments(params object[] args)
@@ -306,8 +303,9 @@ public class CalibrationView : PopupBase
         {
             _hideBaseView = (Action)args[0];
             _showBaseView = (Action)args[1];
-            _isNewPosition = (bool)args[2];
+            _isMoveOrigin = (bool)args[2];
             _isFloorOnly = (bool)args[3];
+            _isMarkerLess = (bool)args[4];
             return true;
         }
         catch (Exception)
