@@ -185,6 +185,7 @@ namespace MirageXR
         public float scale = 0f;
         public bool positionLock = false;
         public bool billboarded = true;
+        public string caption = string.Empty;
 
         // NOT IN ARLEM SPEC. For the detect symbol.
         public float duration = 0f;
