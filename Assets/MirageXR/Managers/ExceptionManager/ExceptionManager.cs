@@ -28,7 +28,7 @@ namespace MirageXR
            DontDestroyOnLoad(gameObject); 
        }
 
-       void LogCaughtException(string logText, string stackTrace, LogType logType)
+       private void LogCaughtException(string logText, string stackTrace, LogType logType)
        {
 
            if (logType == LogType.Exception)
