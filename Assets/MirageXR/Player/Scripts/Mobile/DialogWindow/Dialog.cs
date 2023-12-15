@@ -101,6 +101,12 @@ public class Dialog : MonoBehaviour
         Show(DialogType.Middle, label, description, contents, canBeClosedByOutTap);
     }
 
+    public void ShowMiddle(string label, string description, string buttonText, Action onButtonClick, bool canBeClosedByOutTap = true)
+    {
+        var contents = new List<DialogButtonContent> { new DialogButtonContent(buttonText, onButtonClick) };
+        Show(DialogType.Middle, label, description, contents, canBeClosedByOutTap);
+    }
+
     private void Show(DialogType type, string label, string description, List<DialogButtonContent> buttonContents, bool canBeClosedByOutTap = true)
     {
         _queue.Enqueue(new DialogModel(type, label, description, Close, buttonContents, canBeClosedByOutTap));
