@@ -10,6 +10,7 @@ using UnityEngine.UI;
 using OpenAI_API;
 using System.Threading.Tasks;
 using OpenAI_API.Models;
+using System.Collections.Generic;
 
 public enum AIservice
 {
@@ -90,15 +91,38 @@ public class DialogueService : MonoBehaviour
 
         if (AI == AIservice.openAI)
         {
-            AppLog.Log("Switching AI provider to openAI.", LogLevel.INFO);
-
             _openAIinterface = new OpenAI_API.OpenAIAPI();
-            _chat = _openAIinterface.Chat.CreateConversation();
-            createSessionTested = true;
+            AppLog.Log("[DialogueService] setting AI provider to openAI for organization = '" + _openAIinterface.Auth.OpenAIOrganization + "' and key='" + _openAIinterface.Auth.ApiKey + "'", LogLevel.INFO);
+
+            createSessionTested = _openAIinterface.Auth.OpenAIOrganization != null;
+            if (!createSessionTested)
+            {
+                AppLog.Log("[DialogueService] could not establish OpenAI connection. AI service not working.", LogLevel.CRITICAL);
+            }
+            else
+            {
+                AppLog.Log("[DialogueService] OpenAI connection established. ", LogLevel.INFO);
+
+                _chat = _openAIinterface.Chat.CreateConversation();
+                _chat.Model = Model.ChatGPTTurbo;
+                _chat.RequestParameters.Temperature = 0;
+
+                // prompt injection
+                _chat.AppendSystemMessage("You are a teacher who helps children understand if things are animals or not.  If the user tells you an animal, you say \"yes\".  If the user tells you something that is not an animal, you say \"no\".  You only ever respond with \"yes\" or \"no\".  You do not say anything else.");
+
+                // give a few examples as user and assistant
+                _chat.AppendUserInput("Is this an animal? Cat");
+                _chat.AppendExampleChatbotOutput("Yes");
+                _chat.AppendUserInput("Is this an animal? House");
+                _chat.AppendExampleChatbotOutput("No");
+
+                AppLog.Log("[DialogueService] chatGPT: prompt set up.", LogLevel.INFO);
+
+            }
         }
         else if (AI == AIservice.Watson)
         {
-            AppLog.Log("Switching AI provider to IBM Watson.", LogLevel.INFO);
+            AppLog.Log("[DialogueService] Switching AI provider to IBM Watson.", LogLevel.INFO);
             service = new AssistantService(versionDate);
             while (!service.Authenticator.CanAuthenticate())
             {
@@ -108,7 +132,7 @@ public class DialogueService : MonoBehaviour
         }
         else
         {
-            AppLog.Log("ERROR: AI service provider " + AI.ToString() + " does not exist.", LogLevel.CRITICAL);
+            AppLog.Log("[DialogueService] ERROR: AI service provider " + AI.ToString() + " does not exist.", LogLevel.CRITICAL);
         }
 
     }
@@ -116,7 +140,7 @@ public class DialogueService : MonoBehaviour
 
     private IEnumerator WatsonCreateSession()
     {
-        AppLog.Log("Watson: Connecting to assistant with id = " + assistantId, LogLevel.INFO);
+        AppLog.Log("[DialogueService] Watson: Connecting to assistant with id = " + assistantId, LogLevel.INFO);
         service.CreateSession(OnWatsonCreateSession, assistantId);
 
         while (!createSessionTested)
@@ -132,41 +156,32 @@ public class DialogueService : MonoBehaviour
 
     private void OnWatsonCreateSession(DetailedResponse<SessionResponse> response, IBMError error)
     {
-        Log.Debug("OnWatsonCreateSession()", "Session: {0}", response.Result.SessionId);
+        Log.Debug("[DialogueService] OnWatsonCreateSession()", "Session: {0}", response.Result.SessionId);
         sessionId = response.Result.SessionId;
         createSessionTested = true;
     }
 
     public async Task SendMessageToAssistantAsync(string theText)
     {
-        Debug.LogDebug("[DialogueService] Sending the following transcribed input to the chosen dialogue service (" + AI.ToString() + "): '" + theText +"'");
+        Debug.LogDebug("[DialogueService] Sending transcribed input to " + AI.ToString() + ", text = '" + theText + "'");
 
         if (createSessionTested)
         {
-            Debug.Log("[DialogueService] Session found");
+            Debug.Log("[DialogueService] Existing session available");
             if (AI == AIservice.openAI)
             {
-                Debug.Log("[DialogueService] sending message to chatGPT = '" + theText + "'");
-
-                _chat = _openAIinterface.Chat.CreateConversation();
-                _chat.Model = Model.ChatGPTTurbo;
-                _chat.RequestParameters.Temperature = 0;
-
-                // prompt injection
-                _chat.AppendSystemMessage("You are a teacher who helps children understand if things are animals or not.  If the user tells you an animal, you say \"yes\".  If the user tells you something that is not an animal, you say \"no\".  You only ever respond with \"yes\" or \"no\".  You do not say anything else.");
-
-                // give a few examples as user and assistant
-                _chat.AppendUserInput("Is this an animal? Cat");
-                _chat.AppendExampleChatbotOutput("Yes");
-                _chat.AppendUserInput("Is this an animal? House");
-                _chat.AppendExampleChatbotOutput("No");
-
-                // now let's ask it a question
+                AppLog.Log("[DialogueService] sending message to chatGPT", LogLevel.INFO);
+                AppLog.Log("[DialogueService] sending message to chatGPT = '" + theText + "'", LogLevel.INFO);
                 _chat.AppendUserInput(theText);
+
+                AppLog.Log("[DialogueService] starting await", LogLevel.INFO);
                 // and get the response
                 string response = await _chat.GetResponseFromChatbotAsync();
-                Console.WriteLine(response); // "Yes"
+                AppLog.Log("[DialogueService] returned from await: '" + response + "'", LogLevel.INFO);
+                Console.WriteLine(response);
 
+                AppLog.Log("[DialogueService] starting to parse", LogLevel.INFO);
+                ParseResponse(response);
             }
             else if (AI == AIservice.Watson)
             {
@@ -185,11 +200,6 @@ public class DialogueService : MonoBehaviour
     private void NextStep()
     {
         activityManager.ActivateNextAction();
-    }
-
-    private void OnOpenAIResponseReceived(string result)
-    {
-        Debug.Log("[ChatGPT]" + result);
     }
 
     private void OnWatsonResponseReceived(DetailedResponse<MessageResponse> response, IBMError error)
@@ -303,7 +313,7 @@ public class DialogueService : MonoBehaviour
 
     public void OnInputReceived(string text)
     {
-        //Debug.Log("onInputReceived arrived in DialogueService: '" + text + "'");
+        AppLog.LogWarning("[Dialogue Service] onInputReceived arrived in DialogueService ='" + text + "'", LogLevel.INFO);
         ResponseTextField.text = text;
         SendMessageToAssistantAsync(text);
     }
