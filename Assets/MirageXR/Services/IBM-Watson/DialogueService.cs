@@ -7,9 +7,9 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-//using OpenAI.OpenAIApi;
-//using OpenAI;
+using OpenAI_API;
 using System.Threading.Tasks;
+using OpenAI_API.Models;
 
 public enum AIservice
 {
@@ -34,8 +34,8 @@ public class DialogueService : MonoBehaviour
 
     public AIservice AI = AIservice.openAI;
 
-    private OpenAI.OpenAIApi _openAIapi;
-    private OpenAI_API.Chat.Conversation _chatGPT;
+    private OpenAIAPI _openAIinterface;
+    private OpenAI_API.Chat.Conversation _chat;
 
     [Space(10)]
 
@@ -60,6 +60,7 @@ public class DialogueService : MonoBehaviour
         {
             return assistantId;
         }
+
         set
         {
             assistantId = value;
@@ -90,12 +91,10 @@ public class DialogueService : MonoBehaviour
         if (AI == AIservice.openAI)
         {
             AppLog.Log("Switching AI provider to openAI.", LogLevel.INFO);
-            //_openAIapi = new OpenAI_API.OpenAIAPI();
-            _openAIapi = new OpenAI.OpenAIApi();
-            _chatGPT = _openAIapi.Chat.CreateConversation();
+
+            _openAIinterface = new OpenAI_API.OpenAIAPI();
+            _chat = _openAIinterface.Chat.CreateConversation();
             createSessionTested = true;
-            //var result = await openAIapi.Chat.CreateChatCompletionAsync("Hello!");
-            //Console.WriteLine(result);
         }
         else if (AI == AIservice.Watson)
         {
@@ -140,16 +139,34 @@ public class DialogueService : MonoBehaviour
 
     public async Task SendMessageToAssistantAsync(string theText)
     {
-        Debug.LogDebug("Sending to assistant service: " + theText);
+        Debug.LogDebug("[DialogueService] Sending the following transcribed input to the chosen dialogue service (" + AI.ToString() + "): '" + theText +"'");
 
         if (createSessionTested)
         {
+            Debug.Log("[DialogueService] Session found");
             if (AI == AIservice.openAI)
             {
-                Debug.Log("openAI sending message = " + theText);
-                //await _openAIapi.Chat.CreateChatCompletionAsync("Hello!");
-                //_chatGPT.StreamResponseFromChatbotAsync(OnOpenAIResponseReceived);
-                //_openAIapi.CreateChatCompletionAsync
+                Debug.Log("[DialogueService] sending message to chatGPT = '" + theText + "'");
+
+                _chat = _openAIinterface.Chat.CreateConversation();
+                _chat.Model = Model.ChatGPTTurbo;
+                _chat.RequestParameters.Temperature = 0;
+
+                // prompt injection
+                _chat.AppendSystemMessage("You are a teacher who helps children understand if things are animals or not.  If the user tells you an animal, you say \"yes\".  If the user tells you something that is not an animal, you say \"no\".  You only ever respond with \"yes\" or \"no\".  You do not say anything else.");
+
+                // give a few examples as user and assistant
+                _chat.AppendUserInput("Is this an animal? Cat");
+                _chat.AppendExampleChatbotOutput("Yes");
+                _chat.AppendUserInput("Is this an animal? House");
+                _chat.AppendExampleChatbotOutput("No");
+
+                // now let's ask it a question
+                _chat.AppendUserInput(theText);
+                // and get the response
+                string response = await _chat.GetResponseFromChatbotAsync();
+                Console.WriteLine(response); // "Yes"
+
             }
             else if (AI == AIservice.Watson)
             {
@@ -177,23 +194,19 @@ public class DialogueService : MonoBehaviour
 
     private void OnWatsonResponseReceived(DetailedResponse<MessageResponse> response, IBMError error)
     {
-
-        if (response.Result.Output.Generic != null && response.Result.Output.Generic.Count > 0)
-        {
-            Debug.LogDebug("DialogueService response: " + response.Result.Output.Generic[0].Text);
-            if (response.Result.Output.Intents.Capacity > 0) Debug.LogDebug("    -> " + response.Result.Output.Intents[0].Intent.ToString());
-        }
+        //if (response.Result.Output.Generic != null && response.Result.Output.Generic.Count > 0)
+        //{
+        //    Debug.LogDebug("DialogueService response: " + response.Result.Output.Generic[0].Text);
+        //    if (response.Result.Output.Intents.Capacity > 0) Debug.LogDebug("    -> " + response.Result.Output.Intents[0].Intent.ToString());
+        //}
 
         // check if Watson was able to make sense of the user input, otherwise ask to repeat the input
         if (response.Result.Output.Intents == null && response.Result.Output.Actions == null)
         {
             Debug.LogDebug("I did not understand");
             dSpeechOutputMgr.Speak("I don't understand, can you rephrase?");
-
-        }
-        else
+        } else
         {
-
             if (response.Result.Output.Intents != null && response.Result.Output.Intents.Count > 0)
             {
                 string answerIntent = response.Result.Output.Intents[0].Intent.ToString();
@@ -245,48 +258,7 @@ public class DialogueService : MonoBehaviour
 
                     if (!string.IsNullOrEmpty(res))
                     {
-                        if (res.Contains("%%charactername%%"))
-                        {
-                            var charName = _character.name.Contains(":") ? _character.name.Split(':')[1] : _character.name;
-                            res = res.Replace("%%charactername%%", charName);
-                        }
-                        else if (res.Contains("%%trigger:step="))
-                        {
-                            int commandKeyCount = res.Split("%%").Length - 1;
-
-                            if (commandKeyCount == 2)
-                            {
-                                var keyEnd = res.IndexOf("%%trigger:step=") + "%%trigger:step=".Length;
-                                var stepNumberEnd = res.LastIndexOf("%%");
-
-                                var stepNumber = res.Substring(keyEnd, stepNumberEnd - keyEnd);
-
-                                res = res.Replace("%%trigger:step=" + stepNumber + "%%", " ");
-
-                                dAImgr.mySpeechInputMgr.Active = false;
-                                dAImgr.triggerStep = true;
-
-                                if (int.TryParse(stepNumber, out int step))
-                                {
-                                    dAImgr.triggerStepNo = step;
-                                }
-                                else
-                                {
-                                    Debug.LogError("Error getting step number, check the watson response format. For example %%trigger:step=2%% will trigger a jump to step 2.");
-                                }
-                            }
-                            else
-                            {
-                                Debug.LogError("Error, %% has been detected " + commandKeyCount.ToString() + " times. The %% can only be used at the begining and end of a comand. Please edit the watson response");
-                            }
-                        }
-                        else if (res.Contains("%%trigger%%"))
-                        {
-                            res = res.Replace("%%trigger%%", " ");
-                            dAImgr.mySpeechInputMgr.Active = false;
-                            dAImgr.triggerNext = true;
-                        }
-                        dSpeechOutputMgr.Speak(res); // + ", " + username
+                        ParseResponse(res);
                     }
                     else
                     {
@@ -300,7 +272,6 @@ public class DialogueService : MonoBehaviour
                     dSpeechOutputMgr.Speak("I don't understand, can you rephrase?");
                     Debug.LogError($"Somthing went wrong but the conversiontion will be continued. The error is:\n {e}");
                 }
-
             }
             else // no Generic response coming back, so say something diplomatic
             {
@@ -309,14 +280,11 @@ public class DialogueService : MonoBehaviour
 
             // now all data has been extracted, so we can run through the list of exclusions
             UpdateExercises();
-
         } // Watson did understand the user
-
     } // end of method OnResponseReceived
 
     public void UpdateExercises()
     {
-
         if ((dUser.Weight != 0) && (dUser.Height != 0))
         {
             dUser.bmi = dUser.Weight / (dUser.Height / 100) ^ 2;
@@ -330,9 +298,7 @@ public class DialogueService : MonoBehaviour
                 dEC.RemoveExercise("B84");
                 dEC.RemoveExercise("C11");
             }
-
         } // user profile contains weight and height
-
     }
 
     public void OnInputReceived(string text)
@@ -340,6 +306,54 @@ public class DialogueService : MonoBehaviour
         //Debug.Log("onInputReceived arrived in DialogueService: '" + text + "'");
         ResponseTextField.text = text;
         SendMessageToAssistantAsync(text);
+    }
+
+    private void ParseResponse(string text)
+    {
+        if (text.Contains("%%charactername%%"))
+        {
+            var charName = _character.name.Contains(":") ? _character.name.Split(':')[1] : _character.name;
+            text = text.Replace("%%charactername%%", charName);
+        }
+        else if (text.Contains("%%trigger:step="))
+        {
+            int commandKeyCount = text.Split("%%").Length - 1;
+
+            if (commandKeyCount == 2)
+            {
+                var keyEnd = text.IndexOf("%%trigger:step=") + "%%trigger:step=".Length;
+                var stepNumberEnd = text.LastIndexOf("%%");
+                var stepNumber = text.Substring(keyEnd, stepNumberEnd - keyEnd);
+
+                text = text.Replace("%%trigger:step=" + stepNumber + "%%", " ");
+
+                dAImgr.mySpeechInputMgr.Active = false;
+                dAImgr.triggerStep = true;
+
+                if (int.TryParse(stepNumber, out int step))
+                {
+                    dAImgr.triggerStepNo = step;
+                }
+                else
+                {
+                    Debug.LogWarning("[DialogueService] Warning: Could not parse step number from %%trigger:step=xx%% control command in the AI response. Check the response format. For example %%trigger:step=2%% will trigger to jump to step 2.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[DialogueService] Warning: AI response contained control sequence '%%' more than twice (" + commandKeyCount.ToString() + " times). The %% can only be used at the begining and end of a comand. Please update the AI response pattern!");
+            }
+        }
+        else if (text.Contains("%%trigger%%"))
+        {
+            text = text.Replace("%%trigger%%", " ");
+            dAImgr.mySpeechInputMgr.Active = false;
+            dAImgr.triggerNext = true;
+        }
+
+        // Speak out the response after cleaning the response from any control commands
+        // exerting workflow control or calling procedural animations.
+        dSpeechOutputMgr.Speak(text);
     }
 
     public void OnDestroy()
