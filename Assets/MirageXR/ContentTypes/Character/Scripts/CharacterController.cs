@@ -416,7 +416,7 @@ namespace MirageXR
 
             DialogRecorder.StopDialog();
 
-            // destroy all Watson services in the scene
+            // destroy all Watson services in the scene // TO DO: seems bit harsh?
             foreach (var dialogService in FindObjectsOfType<DialogueService>())
             {
                 Destroy(dialogService.transform.parent.gameObject);

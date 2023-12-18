@@ -7,6 +7,15 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+//using OpenAI.OpenAIApi;
+//using OpenAI;
+using System.Threading.Tasks;
+
+public enum AIservice
+{
+    openAI,
+    Watson
+};
 
 public class DialogueService : MonoBehaviour
 {
@@ -22,22 +31,23 @@ public class DialogueService : MonoBehaviour
     private static MirageXR.ActivityManager activityManager => MirageXR.RootObject.Instance.activityManager;
 
     [Space(10)]
-    // [Tooltip("The IAM apikey.")]
-    // [SerializeField]
-    // private string iamApikey = "X4udGLROceeDWMxy8aZ85p_AJLghkkwPtzYwF5IN5NVS";
-    // [Tooltip("The service URL (optional). This defaults to \"https://gateway.watsonplatform.net/assistant/api\"")]
-    // [SerializeField]
-    // private string serviceUrl = "https://gateway-lon.watsonplatform.net/assistant/api";
 
-    [Tooltip("The version date with which you would like to use the service in the form YYYY-MM-DD.")]
+    public AIservice AI = AIservice.openAI;
+
+    private OpenAI.OpenAIApi _openAIapi;
+    private OpenAI_API.Chat.Conversation _chatGPT;
+
+    [Space(10)]
+
+    [Tooltip("The IBM Watson version date with which you would like to use the service in the form YYYY-MM-DD.")]
     [SerializeField]
     private string versionDate = "2019-02-28";//"2021-11-27"
-    [Tooltip("The assistantId to run the example.")]
+    [Tooltip("The IBM Watson assistant ID to run the example.")]
     [SerializeField]
     private string assistantId = "b392e763-cfde-44c4-b24a-275c92fc4f9b";
     private AssistantService service;
-    private DaimonManager dAImgr;
 
+    private DaimonManager dAImgr;
     private string username;
 
     private bool createSessionTested = false;
@@ -55,7 +65,6 @@ public class DialogueService : MonoBehaviour
             assistantId = value;
         }
     }
-
 
     void Start()
     {
@@ -77,42 +86,39 @@ public class DialogueService : MonoBehaviour
 
     private IEnumerator CreateService()
     {
-        /*
-        if (string.IsNullOrEmpty(iamApikey))
+
+        if (AI == AIservice.openAI)
         {
-            throw new IBMException("Please provide IAM ApiKey for the service.");
+            AppLog.Log("Switching AI provider to openAI.", LogLevel.INFO);
+            //_openAIapi = new OpenAI_API.OpenAIAPI();
+            _openAIapi = new OpenAI.OpenAIApi();
+            _chatGPT = _openAIapi.Chat.CreateConversation();
+            createSessionTested = true;
+            //var result = await openAIapi.Chat.CreateChatCompletionAsync("Hello!");
+            //Console.WriteLine(result);
+        }
+        else if (AI == AIservice.Watson)
+        {
+            AppLog.Log("Switching AI provider to IBM Watson.", LogLevel.INFO);
+            service = new AssistantService(versionDate);
+            while (!service.Authenticator.CanAuthenticate())
+            {
+                yield return null;
+            }
+            Runnable.Run(WatsonCreateSession());
+        }
+        else
+        {
+            AppLog.Log("ERROR: AI service provider " + AI.ToString() + " does not exist.", LogLevel.CRITICAL);
         }
 
-        //  Create credential and instantiate service
-        Credentials credentials = null;
-
-        //  Authenticate using iamApikey
-        TokenOptions tokenOptions = new TokenOptions()
-        {
-            IamApiKey = iamApikey
-        };
-
-        credentials = new Credentials(tokenOptions, serviceUrl);
-
-        //  Wait for tokendata
-        while (!credentials.HasIamTokenData())
-            yield return null;
-		*/
-
-        service = new AssistantService(versionDate); // , credentials);
-
-        while (!service.Authenticator.CanAuthenticate()) // .Credentials.HasIamTokenData()
-            yield return null;
-
-        Runnable.Run(CreateSession());
-
-        // Runnable.Run(Examples());
     }
 
-    private IEnumerator CreateSession()
+
+    private IEnumerator WatsonCreateSession()
     {
-        Debug.LogInfo("CONNECTING TO ASSISTANT: " + assistantId);
-        service.CreateSession(OnCreateSession, assistantId);
+        AppLog.Log("Watson: Connecting to assistant with id = " + assistantId, LogLevel.INFO);
+        service.CreateSession(OnWatsonCreateSession, assistantId);
 
         while (!createSessionTested)
         {
@@ -120,32 +126,40 @@ public class DialogueService : MonoBehaviour
         }
     }
 
-    private void OnDeleteSession(DetailedResponse<object> response, IBMError error)
+    private void OnWatsonDeleteSession(DetailedResponse<object> response, IBMError error)
     {
-        // Log.Debug("ExampleAssistantV2.OnDeleteSession()", "Session deleted.");
         deleteSessionTested = true;
     }
 
+    private void OnWatsonCreateSession(DetailedResponse<SessionResponse> response, IBMError error)
+    {
+        Log.Debug("OnWatsonCreateSession()", "Session: {0}", response.Result.SessionId);
+        sessionId = response.Result.SessionId;
+        createSessionTested = true;
+    }
 
-    public void SendMessageToAssistant(string theText)
+    public async Task SendMessageToAssistantAsync(string theText)
     {
         Debug.LogDebug("Sending to assistant service: " + theText);
+
         if (createSessionTested)
         {
-            service.Message(OnResponseReceived, assistantId, sessionId, input: new MessageInput()
+            if (AI == AIservice.openAI)
             {
-                Text = theText,
-                Options = new MessageInputOptions()
-                {
-                    ReturnContext = true
-                }
+                Debug.Log("openAI sending message = " + theText);
+                //await _openAIapi.Chat.CreateChatCompletionAsync("Hello!");
+                //_chatGPT.StreamResponseFromChatbotAsync(OnOpenAIResponseReceived);
+                //_openAIapi.CreateChatCompletionAsync
             }
-            );
-
+            else if (AI == AIservice.Watson)
+            {
+                service.Message(OnWatsonResponseReceived, assistantId, sessionId, input: new MessageInput()
+                { Text = theText, Options = new MessageInputOptions() { ReturnContext = true } });
+            }
         }
         else
         {
-            Debug.LogWarning("trying to SendMessageToAssistant before session is established.");
+            Debug.LogWarning("AI service: SendMessageToAssistant(): trying to send message to assistant before session is established.");
         }
 
     }
@@ -153,12 +167,15 @@ public class DialogueService : MonoBehaviour
 
     private void NextStep()
     {
-
         activityManager.ActivateNextAction();
-
     }
 
-    private void OnResponseReceived(DetailedResponse<MessageResponse> response, IBMError error)
+    private void OnOpenAIResponseReceived(string result)
+    {
+        Debug.Log("[ChatGPT]" + result);
+    }
+
+    private void OnWatsonResponseReceived(DetailedResponse<MessageResponse> response, IBMError error)
     {
 
         if (response.Result.Output.Generic != null && response.Result.Output.Generic.Count > 0)
@@ -297,71 +314,6 @@ public class DialogueService : MonoBehaviour
 
     } // end of method OnResponseReceived
 
-    //dSpeechInputMgr.Active = false;
-
-    //myTTS.myVoice = "de-DE_DieterV3Voice";
-    //myTTS.Speak(myTranslator.lastTranslationResult);
-    //myTTS.myVoice = "en-GB_KateV3Voice";
-
-
-    // Convert resp to fsdata
-    //fsData fsdata = null;
-    //fsResult r = _serializer.TrySerialize(response.GetType(), response, out fsdata);
-    //if (!r.Succeeded)
-    //    throw new IBMException(r.FormattedMessages);
-
-    ////  Convert fsdata to MessageResponse
-    //MessageResponse messageResponse = new MessageResponse();
-    //object obj = messageResponse;
-    //r = _serializer.TryDeserialize(fsdata, obj.GetType(), ref obj);
-    //if (!r.Succeeded)
-    //    throw new IBMException(r.FormattedMessages);
-
-    //object _tempContext = null;
-    //(resp as Dictionary<string, object>).TryGetValue("context", out _tempContext);
-    //if (_tempContext != null)
-    //{
-
-    //    _tempContext = _tempContext as Dictionary<string, object>;
-    //}
-    //else
-    //{
-    //    Log.Debug("ExampleConversation.Dialogue()", "Failed to get context");
-    //}
-
-    ////object tempIntentsObj = null;
-    ////(response as Dictionary<string, object>).TryGetValue("intents", out tempIntentsObj);
-
-
-    //object _tempText = null;
-    //object _tempTextObj = (_tempText as List<object>)[0];
-    //string output = _tempTextObj.ToString();
-    //if (output != null)
-    //{
-    //    //replace any <waitX> tags with the value expected by the TTS service
-    //    string replaceActionTags = output.ToString();
-    //    int pos3 = replaceActionTags.IndexOf("<wait3>");
-    //    if (pos3 != -1)
-    //    {
-    //        replaceActionTags = output.Replace("<wait3>", "<break time='3s'/>");
-    //    }
-    //    int pos4 = replaceActionTags.IndexOf("<wait4>");
-    //    if (pos4 != -1)
-    //    {
-    //        replaceActionTags = output.Replace("<wait4>", "<break time='4s'/>");
-    //    }
-    //    int pos5 = replaceActionTags.IndexOf("<wait5>");
-    //    if (pos5 != -1)
-    //    {
-    //        replaceActionTags = output.Replace("<wait5>", "<break time='5s'/>");
-    //    }
-    //    output = replaceActionTags;
-    //}
-    //else
-    //{
-    //    Log.Debug("Extract outputText", "Failed to extract outputText and set for speaking");
-    //}
-
     public void UpdateExercises()
     {
 
@@ -381,33 +333,26 @@ public class DialogueService : MonoBehaviour
 
         } // user profile contains weight and height
 
-
-
     }
 
     public void OnInputReceived(string text)
     {
         //Debug.Log("onInputReceived arrived in DialogueService: '" + text + "'");
         ResponseTextField.text = text;
-        SendMessageToAssistant(text);
+        SendMessageToAssistantAsync(text);
     }
 
     public void OnDestroy()
     {
-
         Debug.LogTrace("DialogueService: deregestering callback for speech2text input");
         dSpeechInputMgr.onInputReceived -= OnInputReceived;
 
-        Debug.LogTrace("DialogueService: Attempting to delete session");
-        service.DeleteSession(OnDeleteSession, assistantId, sessionId);
-
+        if (AI == AIservice.Watson)
+        {
+            Debug.LogTrace("DialogueService: Attempting to delete session");
+            service.DeleteSession(OnWatsonDeleteSession, assistantId, sessionId);
+        }
     }
 
-    private void OnCreateSession(DetailedResponse<SessionResponse> response, IBMError error)
-    {
-        Log.Debug("ExampleAssistantV2.OnCreateSession()", "Session: {0}", response.Result.SessionId);
-        sessionId = response.Result.SessionId;
-        createSessionTested = true;
-    }
-
+// end of class
 }
