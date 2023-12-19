@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
+using IBM.Cloud.SDK.Utilities;
 using i5.Toolkit.Core.VerboseLogging;
 
 namespace MirageXR
@@ -16,6 +17,7 @@ namespace MirageXR
     public class CharacterController : MirageXRPrefab
     {
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
+
         [SerializeField] private Transform rightHandBone;
 
         [Tooltip("You need to play with this to set the correct start rotation of the image container")]
@@ -34,6 +36,7 @@ namespace MirageXR
         // Animation variables
         private bool animationClipPlaying;
         private bool animationPlayedOnce;
+
         public bool CharacterParsed
         {
             get; private set;
@@ -41,6 +44,8 @@ namespace MirageXR
 
         // Watson assistant
         private GameObject watsonService;
+        private bool _useWatson;
+
         public bool AIActivated { get; private set; }
 
         // character settings
@@ -60,6 +65,7 @@ namespace MirageXR
             {
                 return isImageAssignModeActive;
             }
+
             set
             {
                 if (isImageAssignModeActive)
@@ -74,17 +80,24 @@ namespace MirageXR
                 {
                     // turn of all other assign button if is on
                     foreach (var character in FindObjectsOfType<CharacterController>())
+                    {
                         if (character != this && character.IsImageAssignModeActive)
+                        {
                             character.IsImageAssignModeActive = false;
-
+                        }
+                    }
                     _characterSetting.AssignImageButton.GetComponent<Image>().color = Color.red;
                 }
-                else _characterSetting.AssignImageButton.GetComponent<Image>().color = Color.white;
+                else
+                {
+                    _characterSetting.AssignImageButton.GetComponent<Image>().color = Color.white;
+                }
             }
         }
 
         // Check the character gender
         private List<string> _maleNames = new List<string> { "Boy_A", "Boy_B", "Boy_C", "Fridolin", "Man_A", "Man_B", "Man_C", "Alien" };
+
         private bool IAmMale
         {
             get
@@ -218,6 +231,10 @@ namespace MirageXR
                 _characterSetting.ResetImageButton.onClick.AddListener(ResetImage);
                 _characterSetting.Trigger.onValueChanged.AddListener(delegate { OnTriggerValueChanged(); });
 
+                // register callback for when the user stops entering a new prompt
+                _characterSetting.AIprompt.onEndEdit.AddListener(delegate { OnUpdatePrompt(); });
+                //_characterSetting.AIprompt.OnPointerClick.AddListener(delegate { OnChatGPTpromptClicked(); });
+
                 movementManger = _characterSetting.MovementManager;
                 movementManger.PathLoop.onValueChanged.AddListener(delegate { LoopPath(); });
                 movementManger.FollowPlayer.onValueChanged.AddListener(delegate { FollowPlayer(); });
@@ -245,7 +262,8 @@ namespace MirageXR
                 DialogRecorder.MyCharacter = this;
             }
 
-            _characterSetting.AIToggle.onValueChanged.AddListener(delegate { AddWatsonAssistant(); });
+            _characterSetting.AIToggle.onValueChanged.AddListener(delegate { ActivateAI(true); });
+            _characterSetting.ChatGPTtoggle.onValueChanged.AddListener(delegate { ActivateAI(false); });
             _characterSetting.PreRecordToggle.onValueChanged.AddListener(delegate { DeactivateAI(); });
 
             // Do not remove this
@@ -404,9 +422,9 @@ namespace MirageXR
             }
         }
 
-        private async void AddWatsonAssistant()
+        private async void ActivateAI(bool useWatson = true)
         {
-            if (AIActivated && CharacterParsed) return;
+            if (AIActivated && CharacterParsed && (_useWatson == useWatson)) return;
 
             // stop dialog recording before activating AI
             if (DialogRecorder.isRecording)
@@ -423,6 +441,7 @@ namespace MirageXR
             }
 
             // Set back the audio mode for all characters to pre-record, except for me
+            // TO DO: this seems buggy - can cause all others to roll back to different mode without user notification!
             foreach (var character in FindObjectsOfType<CharacterController>())
             {
                 if (character != this)
@@ -443,6 +462,39 @@ namespace MirageXR
                 speechOutputService.myCharacter = _anim.gameObject;
                 speechOutputService.myVoice = IAmMale ? "en-US_KevinV3Voice" : "en-US_AllisonVoice";
                 AIActivated = true;
+            }
+
+            // switch provider if needed
+            var dialogueService = watsonService.transform.Find("WatsonServices").GetComponent<DialogueService>();
+            if (!useWatson)
+            {
+                dialogueService.AI = DialogueService.AIservice.openAI;
+                _useWatson = false;
+                Runnable.Run(dialogueService.CreateService());
+            }
+            else if (useWatson)
+            {
+                dialogueService.AI = DialogueService.AIservice.Watson;
+                _useWatson = true;
+                Runnable.Run(dialogueService.CreateService());
+            }
+        }
+
+        private void OnUpdatePrompt()
+        {
+            if (!AIActivated)
+            {
+                RootView_v2.Instance.dialog.ShowMiddle(
+                 "Warning",
+                 "You first have to select AI (chatGPT) mode. Only then you can edit the prompt.",
+                 "OK", () => AppLog.Log("Prompt edited, but chatGPT AI mode not selected", LogLevel.INFO),
+                 "Cancel", () => AppLog.Log("Prompt edited, but chatGPT AI mode not selected", LogLevel.INFO),
+                 true);
+            }
+            else
+            {
+                var dialogueService = watsonService.transform.Find("WatsonServices").GetComponent<DialogueService>();
+                dialogueService.SetPrompt(_characterSetting.AIprompt.text);
             }
         }
 
