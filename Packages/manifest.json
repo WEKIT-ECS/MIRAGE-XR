@@ -1,30 +1,39 @@
 {
-    "scopedRegistries": [
-        {
-            "name": "Microsoft Mixed Reality",
-            "url": "https://pkgs.dev.azure.com/aipmr/MixedReality-Unity-Packages/_packaging/Unity-packages/npm/registry/",
-            "scopes": [
-                "com.microsoft.mixedreality",
-                "com.microsoft.spatialaudio"
-            ]
-        },
-        {
-            "name": "com.i5.toolkit.core",
-            "url": "https://package.openupm.com",
-            "scopes": [
-                "com.i5.toolkit.core"
-            ]
-        },
-        {
-            "name": "Packages from jillejr",
-            "url": "https://npm.cloudsmith.io/jillejr/newtonsoft-json-for-unity/",
-            "scopes": [
-                "jillejr"
-            ]
-        }
-    ],
-    "dependencies": {
+  "scopedRegistries": [
+    {
+      "name": "Microsoft Mixed Reality",
+      "url": "https://pkgs.dev.azure.com/aipmr/MixedReality-Unity-Packages/_packaging/Unity-packages/npm/registry/",
+      "scopes": [
+        "com.microsoft.mixedreality",
+        "com.microsoft.spatialaudio"
+      ]
+    },
+    {
+      "name": "com.i5.toolkit.core",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.i5.toolkit.core"
+      ]
+    },
+    {
+      "name": "Packages from jillejr",
+      "url": "https://npm.cloudsmith.io/jillejr/newtonsoft-json-for-unity/",
+      "scopes": [
+        "jillejr"
+      ]
+    },
+    {
+      "name": "OpenUPM",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.atteneder"
+      ]
+    }
+  ],
+  "dependencies": {
+    "com.atteneder.gltfast": "6.0.1",
     "com.i5.toolkit.core": "1.9.0",
+    "com.microsoft.mixedreality.openxr": "file:MixedReality/com.microsoft.mixedreality.openxr-1.7.0.tgz",
     "com.microsoft.mixedreality.toolkit.examples": "2.8.2",
     "com.microsoft.mixedreality.toolkit.foundation": "2.8.2",
     "com.microsoft.mixedreality.toolkit.tools": "2.8.2",
@@ -78,7 +87,6 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0",
-    "com.microsoft.mixedreality.openxr": "file:MixedReality/com.microsoft.mixedreality.openxr-1.7.0.tgz"
+    "com.unity.modules.xr": "1.0.0"
   }
 }
