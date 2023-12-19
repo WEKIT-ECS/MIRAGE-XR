@@ -12,14 +12,14 @@ using System.Threading.Tasks;
 using OpenAI_API.Models;
 using System.Collections.Generic;
 
-public enum AIservice
-{
-    openAI,
-    Watson
-};
-
 public class DialogueService : MonoBehaviour
 {
+
+    public enum AIservice
+    {
+        openAI,
+        Watson
+    };
 
     [SerializeField] private Text ResponseTextField; // inspector slot for drag & drop of the Canvas > Text gameobject
     private SpeechOutputService dSpeechOutputMgr;
@@ -37,6 +37,7 @@ public class DialogueService : MonoBehaviour
 
     private OpenAIAPI _openAIinterface;
     private OpenAI_API.Chat.Conversation _chat;
+    private string _aiprompt = "You are a baker in a small Irish bakery. You will be asked questions about your bakery products. Try and sell them well. You speak only English with a Dublin accent.";
 
     [Space(10)]
 
@@ -86,7 +87,7 @@ public class DialogueService : MonoBehaviour
 
     }
 
-    private IEnumerator CreateService()
+    public IEnumerator CreateService()
     {
 
         if (AI == AIservice.openAI)
@@ -108,13 +109,13 @@ public class DialogueService : MonoBehaviour
                 _chat.RequestParameters.Temperature = 0;
 
                 // prompt injection
-                _chat.AppendSystemMessage("You are a teacher who helps children understand if things are animals or not.  If the user tells you an animal, you say \"yes\".  If the user tells you something that is not an animal, you say \"no\".  You only ever respond with \"yes\" or \"no\".  You do not say anything else.");
+                _chat.AppendSystemMessage(_aiprompt);
 
                 // give a few examples as user and assistant
-                _chat.AppendUserInput("Is this an animal? Cat");
-                _chat.AppendExampleChatbotOutput("Yes");
-                _chat.AppendUserInput("Is this an animal? House");
-                _chat.AppendExampleChatbotOutput("No");
+                //_chat.AppendUserInput("Is this an animal? Cat");
+                //_chat.AppendExampleChatbotOutput("Yes");
+                //_chat.AppendUserInput("Is this an animal? House");
+                //_chat.AppendExampleChatbotOutput("No");
 
                 AppLog.Log("[DialogueService] chatGPT: prompt set up.", LogLevel.INFO);
 
@@ -316,6 +317,25 @@ public class DialogueService : MonoBehaviour
         AppLog.LogWarning("[Dialogue Service] onInputReceived arrived in DialogueService ='" + text + "'", LogLevel.INFO);
         ResponseTextField.text = text;
         SendMessageToAssistantAsync(text);
+    }
+
+    public void SetPrompt(string text)
+    {
+
+        AppLog.LogInfo("[DialogueService] Received prompt ='" + text + "'");
+        // store the prompt
+        _aiprompt = text;
+
+        // reset the conversation
+        if (createSessionTested && AI == AIservice.openAI)
+        {
+            AppLog.LogInfo("[DialogueService] resetting conversation");
+            _chat = _openAIinterface.Chat.CreateConversation();
+            _chat.Model = Model.ChatGPTTurbo;
+            _chat.RequestParameters.Temperature = 0;
+            _chat.AppendSystemMessage(_aiprompt); // prompt injection
+            AppLog.LogInfo("[DialogueService] conversation reset done");
+        }
     }
 
     private void ParseResponse(string text)
