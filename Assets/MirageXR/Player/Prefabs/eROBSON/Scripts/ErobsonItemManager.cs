@@ -108,6 +108,7 @@ public class ErobsonItemManager : MonoBehaviour
     private string _eRobsonDataFolder;
 
 
+
     /// <summary>
     /// Save the circuit data into a json file
     /// </summary>
@@ -276,7 +277,7 @@ public class ErobsonItemManager : MonoBehaviour
     }
 
 
-    private void Start()
+    private void Awake()
     {
         //Singleton
         if (Instance == null)
@@ -292,7 +293,11 @@ public class ErobsonItemManager : MonoBehaviour
         ERobsonActiveConnectedItemsList = new List<eROBSONItems>();
         ERobsonConnectedItemsListByTeacher = new List<eROBSONItems>();
         ERobsonConnectedItemsListByPlayer = new List<eROBSONItems>();
+    }
 
+
+    private void Start()
+    {
         Subscribe();
 
         StartCoroutine(Init());
@@ -334,9 +339,6 @@ public class ErobsonItemManager : MonoBehaviour
     /// </summary>
     private async void LoadERobsonCircuit()
     {
-        //wait a bit for Mirage XR to load anything in the step
-        await Task.Delay(500);
-
         //Load json file
         ERobsonCircuit circuit = null;
         var jsonPath = $"{_eRobsonDataFolder}/eRobsonCircuit.json";
@@ -626,6 +628,14 @@ public class ErobsonItemManager : MonoBehaviour
             yield return null;
         }
         _eRobsonDataFolder = Path.Combine(ActivityManager.ActivityPath, $"eRobson/{ActivityManager.ActiveAction.id}");
+
+        foreach (var bit in ERobsonActiveConnectedItemsList)
+        {
+            foreach (var port in bit.Ports)
+            {
+                port.Disconnect();
+            }
+        }
 
         ERobsonItemsList.Clear();
         ERobsonActiveConnectedItemsList.Clear();

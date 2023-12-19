@@ -102,7 +102,7 @@ public class BitsBehaviourController : MonoBehaviour
     {
         _circuitControlling = false;
         _eRobsonItem.IsActive = !_eRobsonItem.IsActive;
-        ControlCircuit();
+        _ = ControlCircuit();
     }
 
 
@@ -110,7 +110,7 @@ public class BitsBehaviourController : MonoBehaviour
     /// <summary>
     /// Control every bit in this circuit and activate/deactivate it if it is not connected to power source
     /// </summary>
-    public async void ControlCircuit(bool checkConnections = false)
+    public async Task ControlCircuit(bool checkConnections = false)
     {
         try
         {
@@ -179,7 +179,7 @@ public class BitsBehaviourController : MonoBehaviour
             {
                 if (ErobsonItemManager.ERobsonConnectedItemsListByPlayer.Count == ErobsonItemManager.ERobsonConnectedItemsListByTeacher.Count)
                 {
-                    ComparePlayerCircuit();
+                    await ComparePlayerCircuit();
                 }
             }
 
@@ -237,23 +237,38 @@ public class BitsBehaviourController : MonoBehaviour
     /// <returns>The next connected bit if found, otherwise null.</returns>
     private eROBSONItems FindNextBit(eROBSONItems currentBit)
     {
-        // Assuming each bit has a list of ports and each port knows what it's connected to
+        if (!currentBit)
+        {
+            return null;
+        }
+
+        // Check each port of the current bit
         foreach (var port in currentBit.Ports)
         {
-            if ((port.Pole == Pole.NEGATIVE || port.DetectedPortPole.Pole == Pole.USB) && port.Connected)
+            // Skip if the port is not negative or USB, or if it's not connected
+            if ((port.Pole != Pole.NEGATIVE && port.Pole != Pole.USB) || !port.Connected)
             {
-                // Assuming the connected port has a reference to the bit it's part of
-                var connectedBit = port.DetectedPortPole.ERobsonItem;
+                continue;
+            }
 
-                // Verify that the connected port is positive
-                if (connectedBit != null && (port.DetectedPortPole.Pole == Pole.POSITIVE || port.DetectedPortPole.Pole == Pole.USB))
-                {
-                    return connectedBit;
-                }
+            // Check if the DetectedPortPole is null to avoid null reference error
+            if (port.DetectedPortPole == null)
+            {
+                continue;
+            }
+
+            // Get the bit connected to this port
+            var connectedBit = port.DetectedPortPole.ERobsonItem;
+
+            // Verify that the connected bit's port is either positive or USB
+            if (connectedBit != null && (port.DetectedPortPole.Pole == Pole.POSITIVE || port.DetectedPortPole.Pole == Pole.USB))
+            {
+                return connectedBit;
             }
         }
 
-        return null; // No next bit found
+        // If no next bit found or if all next bits have null DetectedPortPole
+        return null;
     }
 
 
@@ -262,7 +277,7 @@ public class BitsBehaviourController : MonoBehaviour
     /// <summary>
     /// Control if the user in playmode has connected the bits same as the editor
     /// </summary>
-    private void ComparePlayerCircuit()
+    private async Task ComparePlayerCircuit()
     {
         bool allConnectedCorrectly = true;
 
@@ -283,6 +298,7 @@ public class BitsBehaviourController : MonoBehaviour
         }
         if (ErobsonItemManager.Instance.PromptMessageIsOpen)
         {
+            await Task.CompletedTask;
             return;
         }
 
@@ -291,12 +307,19 @@ public class BitsBehaviourController : MonoBehaviour
         // Display result
         if (allConnectedCorrectly)
         {
-            DialogWindow.Instance.Show("Success!", "Circuit connected correctly", new DialogButtonContent("Close"));
+            RootView_v2.Instance.dialog.ShowMiddle(
+           "Success!",
+           "Circuit connected correctly",
+           "OK", () => Debug.Log("Left - click!"),
+           "OK", () => Debug.Log("Left - click!"),
+           true);
         }
         else
         {
             DialogWindow.Instance.Show("Warning!", "You connected the bits wrong", new DialogButtonContent("OK"));
         }
+
+        await Task.CompletedTask;
     }
 
 
@@ -447,7 +470,7 @@ public class BitsBehaviourController : MonoBehaviour
             }
         }
 
-        ControlCircuit(true);
+        _ = ControlCircuit(true);
     }
 
 
@@ -489,7 +512,7 @@ public class BitsBehaviourController : MonoBehaviour
             }
         }
 
-        ControlCircuit(true);
+        _ = ControlCircuit(true);
     }
 
 
@@ -507,7 +530,7 @@ public class BitsBehaviourController : MonoBehaviour
 
         _eRobsonItem.Value = pinchSlider.SliderValue;
 
-        ControlCircuit();
+        await ControlCircuit();
 
         await Task.Delay(100);
     }
@@ -587,6 +610,11 @@ public class BitsBehaviourController : MonoBehaviour
     /// <returns></returns>
     private async Task ControlLedLight(eROBSONItems bit, bool status, float averageValue)
     {
+        if (!bit)
+        {
+            return;
+        }
+
         var light = bit.GetComponentInChildren<Light>();
         light.enabled = status;
         light.intensity = averageValue;

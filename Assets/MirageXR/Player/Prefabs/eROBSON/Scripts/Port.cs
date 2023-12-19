@@ -385,7 +385,7 @@ public class Port : MonoBehaviour
     /// <summary>
     /// When the port is disconnected
     /// </summary>
-    public void Disconnect()
+    public void Disconnect(bool withoutEventTrigger = false)
     {
         if (!DetectedPortPole)
         {
@@ -403,8 +403,11 @@ public class Port : MonoBehaviour
             ERobsonItem.ConnectedBits.Remove(DetectedPortPole.ERobsonItem);
         }
 
-        ErobsonItemManager.BitDisconnected(ERobsonItem);
-        ErobsonItemManager.BitDisconnected(DetectedPortPole.ERobsonItem);
+        if (!withoutEventTrigger)
+        {
+            ErobsonItemManager.BitDisconnected(ERobsonItem);
+            ErobsonItemManager.BitDisconnected(DetectedPortPole.ERobsonItem);
+        }
 
         DetectedPortPole = null;
 
