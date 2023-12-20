@@ -17,6 +17,8 @@ namespace MirageXR
         [SerializeField] private GridManager _gridManager;
         [SerializeField] private CameraCalibrationChecker _cameraCalibrationChecker;
         [SerializeField] private PlatformManager _platformManager;
+        [SerializeField] private ExceptionManager _exceptionManager;
+
 
         private ActivityManager _activityManager;
         private AugmentationManager _augmentationManager;
@@ -49,6 +51,8 @@ namespace MirageXR
         public CameraCalibrationChecker cameraCalibrationChecker => _cameraCalibrationChecker;
 
         public PlatformManager platformManager => _platformManager;
+
+	public ExceptionManager exceptionManager => _exceptionManager;
 
         private bool _isInitialized;
 
@@ -98,6 +102,7 @@ namespace MirageXR
                 _cameraCalibrationChecker ??= new GameObject("CameraCalibrationChecker").AddComponent<CameraCalibrationChecker>();
                 _platformManager ??= new GameObject("PlatformManager").AddComponent<PlatformManager>();
                 _planeManager ??= new GameObject("PlaneManager").AddComponent<PlaneManagerWrapper>();
+                _exceptionManager ??= new GameObject("ExceptionManager").AddComponent<ExceptionManager>();
 
                 _activityManager = new ActivityManager();
                 _augmentationManager = new AugmentationManager();
