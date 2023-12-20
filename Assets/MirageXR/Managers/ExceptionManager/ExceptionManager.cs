@@ -18,17 +18,20 @@ namespace MirageXR
        // the Sentry instance
        public SentrySdk sentry; 
 
+       // Sentry key
+       private const string SentryDsn = "https://b23911205078e7a81bf1489e8aa0fabe@o4506320008118272.ingest.sentry.io/4506320009428992";
+
        private void Awake()
        {
            AppLog.Log("Installing hook for exceptions", LogLevel.INFO );
            sentry ??= new GameObject("ExceptionManagerSentry").AddComponent<SentrySdk>();
-           sentry.Dsn = "https://b23911205078e7a81bf1489e8aa0fabe@o4506320008118272.ingest.sentry.io/4506320009428992"; // our DSN
+           sentry.Dsn = SentryDsn;
 
            Application.logMessageReceived += LogCaughtException;
            DontDestroyOnLoad(gameObject); 
        }
 
-       private void LogCaughtException(string logText, string stackTrace, LogType logType)
+       public void LogCaughtException(string logText, string stackTrace, LogType logType)
        {
 
            if (logType == LogType.Exception)
