@@ -130,7 +130,7 @@ namespace MirageXR
             aiSettingsPanel.SetActive(chatGPTtoggle.isOn);
         }
 
-        /*
+        /* // not needed, callback registered in CharacterController directly
         public void OnChatGPTpromptValueChanged()
         {
             Debug.Log("Prompt changed to: " + aiPrompt.text);

@@ -468,13 +468,13 @@ namespace MirageXR
             var dialogueService = watsonService.transform.Find("WatsonServices").GetComponent<DialogueService>();
             if (!useWatson)
             {
-                dialogueService.AI = DialogueService.AIservice.openAI;
+                dialogueService.AI = AIservice.openAI;
                 _useWatson = false;
                 Runnable.Run(dialogueService.CreateService());
             }
             else if (useWatson)
             {
-                dialogueService.AI = DialogueService.AIservice.Watson;
+                dialogueService.AI = AIservice.Watson;
                 _useWatson = true;
                 Runnable.Run(dialogueService.CreateService());
             }
@@ -773,13 +773,22 @@ namespace MirageXR
             //then save it only for this char if it is set to true
             character.AIActive = AIActivated;
 
-            //Save default assistant id if the json has empty assistant id
+            //if AI mode active, write out the AI parameters (service provider chosen, assistantID (watson), prompt (chatGPT)
             if (AIActivated)
             {
-                var defaultAssisID = watsonService.transform.Find("WatsonServices").GetComponent<DialogueService>().AssistantID;
-                character.AssistantID = defaultAssisID;
-            }
+                var ds = watsonService.transform.Find("WatsonServices").GetComponent<DialogueService>();
+                if (ds.AI == AIservice.openAI)
+                {
+                    character.AIProvider = "chatgpt";
+                }
+                else if (ds.AI == AIservice.Watson)
+                {
+                    character.AIProvider = "watson";
+                }
 
+                character.AIprompt = ds.AIprompt; // will be ignored by watson
+                character.AssistantID = ds.AssistantID;
+            } // if AI activated
 
             //create characterinfo folder if not exist
             string characterJson = JsonUtility.ToJson(character);
@@ -1243,11 +1252,25 @@ namespace MirageXR
             //Activate AI if is activated for this character
             if (character.AIActive)
             {
-                _characterSetting.AIToggle.isOn = true;
+                if (character.AIProvider == "watson")
+                {
+                    _characterSetting.AIToggle.isOn = true;
+                }
+                else if (character.AIProvider == "chatgpt")
+                {
+                    _characterSetting.ChatGPTtoggle.isOn = true;
+                }
+            }
+
+            // prompt restore
+            if (!string.IsNullOrEmpty(character.AIprompt))
+            {
+                watsonService.transform.Find("WatsonServices").GetComponent<DialogueService>().AIprompt = character.AIprompt;
+                _characterSetting.AIprompt.text = character.AIprompt;
             }
 
             //Set the assistant ID
-            if (!string.IsNullOrEmpty(character.AssistantID))
+            if (character.AIProvider == "watson" && !string.IsNullOrEmpty(character.AssistantID))
             {
                 watsonService.transform.Find("WatsonServices").GetComponent<DialogueService>().AssistantID = character.AssistantID;
             }
@@ -1446,6 +1469,8 @@ namespace MirageXR
         public float scale;
         public bool AIActive;
         public string AssistantID;
+        public string AIProvider;
+        public string AIprompt;
     }
 
     [Serializable]
