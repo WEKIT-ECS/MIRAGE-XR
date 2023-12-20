@@ -12,14 +12,14 @@ using System.Threading.Tasks;
 using OpenAI_API.Models;
 using System.Collections.Generic;
 
+public enum AIservice
+{
+    openAI,
+    Watson
+};
+
 public class DialogueService : MonoBehaviour
 {
-
-    public enum AIservice
-    {
-        openAI,
-        Watson
-    };
 
     [SerializeField] private Text ResponseTextField; // inspector slot for drag & drop of the Canvas > Text gameobject
     private SpeechOutputService dSpeechOutputMgr;
@@ -37,7 +37,7 @@ public class DialogueService : MonoBehaviour
 
     private OpenAIAPI _openAIinterface;
     private OpenAI_API.Chat.Conversation _chat;
-    private string _aiprompt = "You are a baker in a small Irish bakery. You will be asked questions about your bakery products. Try and sell them well. You speak only English with a Dublin accent.";
+    public string AIprompt = "You are a baker in a small Irish bakery. You will be asked questions about your bakery products. Try and sell them well. You speak only English with a Dublin accent.";
 
     [Space(10)]
 
@@ -109,7 +109,7 @@ public class DialogueService : MonoBehaviour
                 _chat.RequestParameters.Temperature = 0;
 
                 // prompt injection
-                _chat.AppendSystemMessage(_aiprompt);
+                _chat.AppendSystemMessage(AIprompt);
 
                 // give a few examples as user and assistant
                 //_chat.AppendUserInput("Is this an animal? Cat");
@@ -324,7 +324,7 @@ public class DialogueService : MonoBehaviour
 
         AppLog.LogInfo("[DialogueService] Received prompt ='" + text + "'");
         // store the prompt
-        _aiprompt = text;
+        AIprompt = text;
 
         // reset the conversation
         if (createSessionTested && AI == AIservice.openAI)
@@ -333,7 +333,7 @@ public class DialogueService : MonoBehaviour
             _chat = _openAIinterface.Chat.CreateConversation();
             _chat.Model = Model.ChatGPTTurbo;
             _chat.RequestParameters.Temperature = 0;
-            _chat.AppendSystemMessage(_aiprompt); // prompt injection
+            _chat.AppendSystemMessage(AIprompt); // prompt injection
             AppLog.LogInfo("[DialogueService] conversation reset done");
         }
     }
