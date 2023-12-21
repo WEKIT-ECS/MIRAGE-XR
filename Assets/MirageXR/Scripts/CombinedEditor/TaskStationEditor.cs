@@ -64,7 +64,9 @@ public class TaskStationEditor : MonoBehaviour
 
         _detectable.origin_position = Utilities.Vector3ToString(position);
         _detectable.origin_rotation = Utilities.Vector3ToString(rotation.eulerAngles);
-
+        
+        activityManager.SaveData();
+        
         EventManager.NotifyOnTaskStationEditorDragEnd();
     }
 
