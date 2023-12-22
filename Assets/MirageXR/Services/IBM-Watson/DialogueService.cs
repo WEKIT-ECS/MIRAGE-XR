@@ -69,7 +69,7 @@ public class DialogueService : MonoBehaviour
         }
     }
 
-    void Start()
+    public async void Start()
     {
         LogSystem.InstallDefaultReactors();
 
@@ -84,26 +84,34 @@ public class DialogueService : MonoBehaviour
         _character = dSpeechOutputMgr.myCharacter.GetComponentInParent<MirageXR.CharacterController>();
 
         Runnable.Run(CreateService());
-
     }
 
     public IEnumerator CreateService()
     {
-
         if (AI == AIservice.openAI)
         {
-            _openAIinterface = new OpenAI_API.OpenAIAPI();
-            AppLog.Log("[DialogueService] setting AI provider to openAI for organization = '" + _openAIinterface.Auth.OpenAIOrganization + "' and key='" + _openAIinterface.Auth.ApiKey + "'", LogLevel.INFO);
-
-            createSessionTested = _openAIinterface.Auth.OpenAIOrganization != null;
-            if (!createSessionTested)
+            try
             {
-                AppLog.Log("[DialogueService] could not establish OpenAI connection. AI service not working.", LogLevel.CRITICAL);
+                _openAIinterface = new OpenAI_API.OpenAIAPI();
+                var auth = new OpenAI_API.APIAuthentication(_openAIinterface.Auth.ApiKey);
+                //createSessionTested = await auth.ValidateAPIKey();
+                createSessionTested = _openAIinterface.Auth.OpenAIOrganization != null;
             }
-            else
+            catch (Exception ex)
             {
-                AppLog.Log("[DialogueService] OpenAI connection established. ", LogLevel.INFO);
+                createSessionTested = false;
+                AppLog.Log($"DialogueService: AI provider initialisation failed: {ex.Message}, trace: {ex.StackTrace}", LogLevel.CRITICAL);
+                RootView_v2.Instance.dialog.ShowMiddle(
+                   "Error: connection failed",
+                   "Could not connect to the AI provider (OpenAI), it seems the API key is missing?",
+                   "OK", () => AppLog.Log("DialogueService: Connection error acknowledge by user (OK)", LogLevel.INFO),
+                   "Cancel", () => AppLog.Log("DialogueService: Connection error acknowledge by user (Cancel)", LogLevel.INFO),
+                   true);
+            }
 
+            AppLog.Log($"DialogueService: connected to openAI with organization ID = '" + _openAIinterface.Auth.OpenAIOrganization, LogLevel.INFO);
+            if (createSessionTested)
+            {
                 _chat = _openAIinterface.Chat.CreateConversation();
                 _chat.Model = Model.ChatGPTTurbo;
                 _chat.RequestParameters.Temperature = 0;
@@ -116,9 +124,7 @@ public class DialogueService : MonoBehaviour
                 //_chat.AppendExampleChatbotOutput("Yes");
                 //_chat.AppendUserInput("Is this an animal? House");
                 //_chat.AppendExampleChatbotOutput("No");
-
-                AppLog.Log("[DialogueService] chatGPT: prompt set up.", LogLevel.INFO);
-
+                //AppLog.Log("DialogueService: chatGPT prompt now set.", LogLevel.INFO);
             }
         }
         else if (AI == AIservice.Watson)
@@ -133,17 +139,15 @@ public class DialogueService : MonoBehaviour
         }
         else
         {
-            AppLog.Log("[DialogueService] ERROR: AI service provider " + AI.ToString() + " does not exist.", LogLevel.CRITICAL);
+            AppLog.Log("DialogueService: ERROR: AI service provider " + AI.ToString() + " does not exist.", LogLevel.CRITICAL);
         }
-
     }
 
 
     private IEnumerator WatsonCreateSession()
     {
-        AppLog.Log("[DialogueService] Watson: Connecting to assistant with id = " + assistantId, LogLevel.INFO);
+        AppLog.Log("DialogueService: Connecting to Watson assistant with id = " + assistantId, LogLevel.INFO);
         service.CreateSession(OnWatsonCreateSession, assistantId);
-
         while (!createSessionTested)
         {
             yield return null;
