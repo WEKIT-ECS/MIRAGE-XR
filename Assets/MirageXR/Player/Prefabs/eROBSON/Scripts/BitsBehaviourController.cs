@@ -2,6 +2,7 @@ using Castle.Core.Internal;
 using Microsoft.MixedReality.Toolkit.UI;
 using MirageXR;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,11 +15,18 @@ public class BitsBehaviourController : MonoBehaviour
 
     private eROBSONItems _eRobsonItem;
 
+    private List<eROBSONItems> sortedBits;
+
     private bool _circuitControlling;
+
+    private bool _userConnectionChecking;
+
+    private bool _circuitIsSorted;
 
     private void Awake()
     {
         _eRobsonItem = GetComponent<eROBSONItems>();
+        sortedBits = new List<eROBSONItems>();
     }
 
     private void Start()
@@ -125,7 +133,8 @@ public class BitsBehaviourController : MonoBehaviour
             var eRobsonItemsList = ErobsonItemManager.ERobsonItemsList;
 
             //Order the list of bits by "connectedTime" variable
-            eRobsonItemsList = eRobsonItemsList.OrderBy(e => e.connectedTime).ToList();
+            // Order only once and avoid unnecessary list creation
+            eRobsonItemsList.Sort((x, y) => x.connectedTime.CompareTo(y.connectedTime));
 
             // Find index for USBPOWER
             var idx = eRobsonItemsList.FindIndex(i => i.ID == BitID.USBPOWER);
@@ -170,16 +179,17 @@ public class BitsBehaviourController : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.LogError(e);
+            Debug.LogError($"Error in ControlCircuit: {e.Message}");
         }
         finally
         {
             // In play mode
             if (!RootObject.Instance.activityManager.EditModeActive && checkConnections)
             {
-                if (ErobsonItemManager.ERobsonConnectedItemsListByPlayer.Count == ErobsonItemManager.ERobsonConnectedItemsListByTeacher.Count)
+                if (!_userConnectionChecking && ErobsonItemManager.ERobsonConnectedItemsListByPlayer.Count == ErobsonItemManager.ERobsonConnectedItemsListByTeacher.Count)
                 {
-                    await ComparePlayerCircuit();
+                    _userConnectionChecking = true;
+                    ComparePlayerCircuit();
                 }
             }
 
@@ -196,11 +206,22 @@ public class BitsBehaviourController : MonoBehaviour
     /// <returns>A list of eROBSONItems bits sorted according to their pole connections.</returns>
     public List<eROBSONItems> SortBitsByPoleConnection(List<eROBSONItems> unsortedBits)
     {
-        List<eROBSONItems> sortedBits = new List<eROBSONItems>();
+        if (_circuitIsSorted)
+        {
+            return sortedBits;
+        }
+
+        sortedBits.Clear();
         eROBSONItems currentBit = FindUsbPowerBit(); // Find Usb power
 
         while (currentBit != null)
         {
+            if (sortedBits.Contains(currentBit))
+            {
+                // Break the loop if the currentBit is already in sortedBits to avoid an infinite loop
+                break;
+            }
+
             sortedBits.Add(currentBit);
             currentBit = FindNextBit(currentBit); // Find next connected bit
         }
@@ -277,11 +298,12 @@ public class BitsBehaviourController : MonoBehaviour
     /// <summary>
     /// Control if the user in playmode has connected the bits same as the editor
     /// </summary>
-    private async Task ComparePlayerCircuit()
+    private void ComparePlayerCircuit()
     {
         bool allConnectedCorrectly = true;
 
         var sortedERobsonConnectedItemsListByPlayer = SortBitsByPoleConnection(ErobsonItemManager.ERobsonConnectedItemsListByPlayer);
+        _circuitIsSorted = transform;
 
         // Assuming that the counts of both lists are already verified to be equal before calling this method.
         for (int i = 0; i < ErobsonItemManager.ERobsonConnectedItemsListByTeacher.Count; i++)
@@ -298,7 +320,6 @@ public class BitsBehaviourController : MonoBehaviour
         }
         if (ErobsonItemManager.Instance.PromptMessageIsOpen)
         {
-            await Task.CompletedTask;
             return;
         }
 
@@ -310,16 +331,21 @@ public class BitsBehaviourController : MonoBehaviour
             RootView_v2.Instance.dialog.ShowMiddle(
            "Success!",
            "Circuit connected correctly",
-           "OK", () => Debug.Log("Left - click!"),
-           "OK", () => Debug.Log("Left - click!"),
+           "OK", () => _userConnectionChecking = false,
+           "OK", () => _userConnectionChecking = false,
            true);
         }
         else
         {
-            DialogWindow.Instance.Show("Warning!", "You connected the bits wrong", new DialogButtonContent("OK"));
+            RootView_v2.Instance.dialog.ShowMiddle(
+            "Warning!",
+            "You connected the bits wrong",
+            "OK", () => _userConnectionChecking = false,
+            "OK", () => _userConnectionChecking = false,
+            true);
         }
 
-        await Task.CompletedTask;
+        _userConnectionChecking = false;
     }
 
 
@@ -470,6 +496,8 @@ public class BitsBehaviourController : MonoBehaviour
             }
         }
 
+        _circuitIsSorted = false;
+
         _ = ControlCircuit(true);
     }
 
@@ -511,6 +539,8 @@ public class BitsBehaviourController : MonoBehaviour
                 ErobsonItemManager.ERobsonConnectedItemsListByPlayer.Remove(bit);
             }
         }
+
+        _circuitIsSorted = false;
 
         _ = ControlCircuit(true);
     }

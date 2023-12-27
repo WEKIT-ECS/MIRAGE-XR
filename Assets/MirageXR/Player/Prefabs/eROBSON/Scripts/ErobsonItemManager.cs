@@ -629,10 +629,26 @@ public class ErobsonItemManager : MonoBehaviour
         }
         _eRobsonDataFolder = Path.Combine(ActivityManager.ActivityPath, $"eRobson/{ActivityManager.ActiveAction.id}");
 
+
+        if(ERobsonActiveConnectedItemsList == null)
+        {
+            ERobsonActiveConnectedItemsList = new List<eROBSONItems>();
+        }
+
         foreach (var bit in ERobsonActiveConnectedItemsList)
         {
+            if (!bit)
+            {
+                continue;
+            }
+
             foreach (var port in bit.Ports)
             {
+                if (!port)
+                {
+                    continue;
+                }
+
                 port.Disconnect();
             }
         }

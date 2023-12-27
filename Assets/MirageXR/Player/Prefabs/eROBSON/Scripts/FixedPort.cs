@@ -112,6 +112,10 @@ public class FixedPort : MonoBehaviour
             return;
         }
 
-        transform.position = _tempPosition;
+        // Only update the position if the port is locked
+        if (IsLock)
+        {
+            transform.position = _tempPosition;
+        }
     }
 }
