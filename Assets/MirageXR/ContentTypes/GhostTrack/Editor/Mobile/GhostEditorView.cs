@@ -108,7 +108,8 @@ public class GhostEditorView : PopupEditorBase
         }
 
         EventManager.ActivateObject(_content);
-        EventManager.NotifyActionModified(_step);
+
+        base.OnAccept();
         Close();
     }
 

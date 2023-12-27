@@ -52,7 +52,8 @@ public class VfxEditorView : PopupEditorBase
 
         _content.predicate = $"effect:{_prefabName}";
         EventManager.ActivateObject(_content);
-        EventManager.NotifyActionModified(_step);
+
+        base.OnAccept();
 
         Close();
     }
