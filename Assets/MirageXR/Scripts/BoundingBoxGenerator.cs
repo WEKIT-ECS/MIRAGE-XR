@@ -204,11 +204,11 @@ namespace MirageXR
             if (boundsControl)
             {
                 boundsControl.RotateStarted.AddListener(() => gridManager.onRotateStarted?.Invoke(boundsControl.Target));
-                boundsControl.RotateStopped.AddListener(() => gridManager.onRotateStopped?.Invoke(boundsControl.Target));
+                boundsControl.RotateStopped.AddListener(OnTranslateStopped);
                 boundsControl.ScaleStarted.AddListener(() => gridManager.onScaleStarted?.Invoke(boundsControl.Target));
-                boundsControl.ScaleStopped.AddListener(() => gridManager.onScaleStopped?.Invoke(boundsControl.Target));
+                boundsControl.ScaleStopped.AddListener(OnTranslateStopped);
                 boundsControl.TranslateStarted.AddListener(() => gridManager.onTranslateStarted?.Invoke(boundsControl.Target));
-                boundsControl.TranslateStopped.AddListener(() => gridManager.onTranslateStopped?.Invoke(boundsControl.Target));
+                boundsControl.TranslateStopped.AddListener(OnTranslateStopped);
             }
 
             EditModeState(RootObject.Instance.activityManager.EditModeActive);
@@ -220,6 +220,17 @@ namespace MirageXR
             gridManager.onManipulationEnded(eventData.ManipulationSource);
 
             SaveTransform(annotation);
+
+            RootObject.Instance.activityManager.SaveData();
+        }
+
+        private void OnTranslateStopped()
+        {
+            var boundsControl = GetComponent<BoundsControl>();
+            var gridManager = RootObject.Instance.gridManager;
+            gridManager.onTranslateStopped?.Invoke(boundsControl.Target);
+
+            RootObject.Instance.activityManager.SaveData();
         }
 
         private void SaveTransform(ToggleObject annotation)
