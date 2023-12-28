@@ -352,7 +352,7 @@ MonoBehaviour:
   - {fileID: 3002710474976880985}
   - {fileID: 4739367402297074877}
   - {fileID: 7102363037437138818}
-  - {fileID: -6235939609317481821}
+  - {fileID: -1340456607888585590}
   - {fileID: -3305773540426676705}
   - {fileID: -2911612877723741141}
   - {fileID: 5913129745147940730}
@@ -493,6 +493,26 @@ MonoBehaviour:
   company: Unity
   priority: 0
   required: 0
+--- !u!114 &-1340456607888585590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfdd10eb548aba844b314776fb1b65bd, type: 3}
+  m_Name: MicrosoftHandInteractionLegacy WSA
+  m_EditorClassIdentifier: 
+  m_enabled: 0
+  nameUi: Microsoft Hand Interaction Profile (Legacy)
+  version: 0.0.1
+  featureIdInternal: com.microsoft.openxr.feature.interaction.handtrackinglegacy
+  openxrExtensionStrings: XR_MSFT_hand_interaction
+  company: Microsoft
+  priority: 0
+  required: 0
 --- !u!114 &-1042485001625716986
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -623,6 +643,26 @@ MonoBehaviour:
   required: 0
   cacheSize: 1048576
   perThreadCacheSize: 51200
+--- !u!114 &779859999766769413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfdd10eb548aba844b314776fb1b65bd, type: 3}
+  m_Name: MicrosoftHandInteractionLegacy Standalone
+  m_EditorClassIdentifier: 
+  m_enabled: 0
+  nameUi: Microsoft Hand Interaction Profile (Legacy)
+  version: 0.0.1
+  featureIdInternal: com.microsoft.openxr.feature.interaction.handtrackinglegacy
+  openxrExtensionStrings: XR_MSFT_hand_interaction
+  company: Microsoft
+  priority: 0
+  required: 0
 --- !u!114 &1520346850177834740
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -912,7 +952,7 @@ MonoBehaviour:
   - {fileID: -3216524099293865852}
   - {fileID: -7443786575549762711}
   - {fileID: 4901764027742951656}
-  - {fileID: -1659739401540213867}
+  - {fileID: 779859999766769413}
   - {fileID: -8322672823589641000}
   - {fileID: -5759778117851042779}
   - {fileID: 3151990773071339151}

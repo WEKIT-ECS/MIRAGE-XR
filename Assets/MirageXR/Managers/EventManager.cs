@@ -859,5 +859,16 @@ namespace MirageXR
         {
             OnAugmentationLocked?.Invoke(id, locked);
         }
+
+
+        public delegate void AugmentationObjectCreatedDelegate(GameObject augmentationGameObject);
+
+        public static event AugmentationObjectCreatedDelegate OnAugmentationObjectCreated;
+
+        public static void AugmentationObjectCreated(GameObject augmentationGameObject)
+        {
+            OnAugmentationObjectCreated?.Invoke(augmentationGameObject);
+        }
+
     }
 }

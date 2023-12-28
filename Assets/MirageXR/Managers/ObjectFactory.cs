@@ -2,7 +2,6 @@
 using i5.Toolkit.Core.VerboseLogging;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.IO;
-using System.Threading.Tasks;
 using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
 using UnityEngine.AI;
@@ -13,6 +12,7 @@ namespace MirageXR
 
     public class ObjectFactory : MonoBehaviour
     {
+
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
         private void OnEnable()
         {
@@ -25,6 +25,8 @@ namespace MirageXR
             // Unregister from event manager events.
             EventManager.OnToggleObject -= Toggle;
         }
+
+        private static GameObject lastAddedPrefab;
 
         /// <summary>
         /// Toggle on/off action toggle object.
@@ -96,6 +98,13 @@ namespace MirageXR
 
                                             ActivatePrefab(obj.option, obj);
                                         }
+                                        else if (obj.predicate.StartsWith("eRobson:"))
+                                        {
+                                            obj.option = obj.predicate.Replace("eRobson:", "");
+                                            obj.url = "resources://" + obj.predicate;
+                                            var eRobsonModel = $"eROBSON/{obj.option}";
+                                            ActivatePrefab(eRobsonModel, obj);
+                                        }
                                         // True and tested 2D symbols.
                                         else
                                         {
@@ -150,6 +159,10 @@ namespace MirageXR
                                             DestroyPrefab(obj);
                                         }
                                         else if (obj.predicate.StartsWith("plugin:"))
+                                        {
+                                            DestroyPrefab(obj);
+                                        }
+                                        else if (obj.predicate.StartsWith("eRobson:"))
                                         {
                                             DestroyPrefab(obj);
                                         }
@@ -343,7 +356,7 @@ namespace MirageXR
             GameObject temp = null;
             var activeActionIndex = actionList.IndexOf(activityManager.ActiveAction);
 
-            // if we are in the active step and the annotation exists in this step
+            // if we are in the active step and the annotaiton exists in this step
             if (actionList[activeActionIndex] == activityManager.ActiveAction
                 && actionList[activeActionIndex].enter.activates.Find(p => p.poi == obj.poi) != null)
             {
@@ -366,7 +379,9 @@ namespace MirageXR
                 if (prefabInAddressable != null)
                 {
                     temp = Instantiate(prefabInAddressable, Vector3.zero, Quaternion.identity);
-                    _ = AddExtraComponents(temp, obj);
+                    AddExtraComponents(temp, obj);
+                    lastAddedPrefab = temp;
+                    EventManager.AugmentationObjectCreated(temp);
                 }
                 else
                 {
@@ -398,62 +413,41 @@ namespace MirageXR
         }
 
 
-        /// <summary>
-        /// All post creation component will be added to the augmentation objects in this method
-        /// </summary>
-        /// <param name="go"></param>
-        /// <param name="annotationToggleObject"></param>
-        /// <returns></returns>
-        private static async Task AddExtraComponents(GameObject go, ToggleObject annotationToggleObject)
+        private static async void AddExtraComponents(GameObject go, ToggleObject annotationToggleObject)
         {
             switch (annotationToggleObject.predicate)
             {
                 case { } p when p.Contains("3d"):
-                {
-                    var obstacle = go.AddComponent<NavMeshObstacle>();
-                    obstacle.size = go.transform.localScale / 4;
-                    break;
-                }
-
-                case { } p when p.StartsWith("act") || p.StartsWith("effect") || p.Equals("image") || p.Equals("video"):
-                {
-                    if (DisableBounding(annotationToggleObject))
                     {
-                        return;
+                        var obstacle = go.AddComponent<NavMeshObstacle>();
+                        obstacle.size = go.transform.localScale / 4;
+                        break;
                     }
 
-                    await AddBoundingBox(go, annotationToggleObject);
+                case { } p when p.StartsWith("act") || p.StartsWith("effect") || p.Equals("image") || p.Equals("video"):
+                    {
+                        if (DisableBounding(annotationToggleObject))
+                        {
+                            return;
+                        }
 
-                    break;
-                }
+                        var boundingBox = go.AddComponent<BoundingBoxGenerator>();
+                        boundingBox.CustomScaleHandlesConfiguration = Resources.Load<ScaleHandlesConfiguration>("Prefabs/CustomBoundingScaleHandlesConfiguration");
+                        boundingBox.CustomRotationHandlesConfiguration = Resources.Load<RotationHandlesConfiguration>("Prefabs/CustomBoundingRotationHandlesConfiguration");
+                        await boundingBox.AddBoundingBox(annotationToggleObject, BoundsCalculationMethod.RendererOverCollider, false, true, BoundingRotationType.ALL, true);
+
+                        // disable rotation for image
+                        if (DisableBoundingRotation(annotationToggleObject))
+                        {
+                            boundingBox.CustomRotationHandlesConfiguration.ShowHandleForX = false;
+                            boundingBox.CustomRotationHandlesConfiguration.ShowHandleForY = false;
+                            boundingBox.CustomRotationHandlesConfiguration.ShowHandleForZ = false;
+                        }
+
+                        break;
+                    }
             }
         }
-
-
-        /// <summary>
-        /// Add bounding box to the augmentation that need that
-        /// </summary>
-        /// <param name="go"></param>
-        /// <param name="annotationToggleObject"></param>
-        /// <returns></returns>
-        private static async Task AddBoundingBox(GameObject go, ToggleObject annotationToggleObject)
-        {
-            var boundingBox = go.AddComponent<BoundingBoxGenerator>();
-            boundingBox.CustomScaleHandlesConfiguration = Resources.Load<ScaleHandlesConfiguration>("Prefabs/CustomBoundingScaleHandlesConfiguration");
-            boundingBox.CustomRotationHandlesConfiguration = Resources.Load<RotationHandlesConfiguration>("Prefabs/CustomBoundingRotationHandlesConfiguration");
-            await boundingBox.AddBoundingBox(annotationToggleObject, BoundsCalculationMethod.RendererOverCollider, false, true, BoundingRotationType.ALL, true);
-
-            // disable rotation for image
-            if (DisableBoundingRotation(annotationToggleObject))
-            {
-                boundingBox.CustomRotationHandlesConfiguration.ShowHandleForX = false;
-                boundingBox.CustomRotationHandlesConfiguration.ShowHandleForY = false;
-                boundingBox.CustomRotationHandlesConfiguration.ShowHandleForZ = false;
-            }
-
-            await Task.CompletedTask;
-        }
-
 
         private static IEnumerator WaitForParent(GameObject gameObject, System.Action callback)
         {
@@ -543,7 +537,8 @@ namespace MirageXR
 
                 //for all type of glyphs icons
                 if (obj.predicate.StartsWith("act") || obj.predicate.StartsWith("effect") ||
-                    obj.predicate.StartsWith("char") || obj.predicate.StartsWith("plugin"))
+                    obj.predicate.StartsWith("char") || obj.predicate.StartsWith("plugin") ||
+                    obj.predicate.StartsWith("eRobson"))
                 {
                     temp = GameObject.Find(path + obj.predicate);
                 }
