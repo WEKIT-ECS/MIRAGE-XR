@@ -478,7 +478,8 @@ public class AudioEditorView : PopupEditorBase
         SaveLoadAudioUtilities.Save(filePath, _audioClip);
 
         EventManager.ActivateObject(_content);
-        EventManager.NotifyActionModified(_step);
+
+        base.OnAccept();
 
         Close();
     }

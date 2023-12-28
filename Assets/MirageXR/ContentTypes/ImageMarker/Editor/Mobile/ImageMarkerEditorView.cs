@@ -76,7 +76,8 @@ public class ImageMarkerEditorView : PopupEditorBase
         _content.scale = size / 100;
 
         EventManager.ActivateObject(_content);
-        EventManager.NotifyActionModified(_step);
+
+        base.OnAccept();
         Close();
     }
 
