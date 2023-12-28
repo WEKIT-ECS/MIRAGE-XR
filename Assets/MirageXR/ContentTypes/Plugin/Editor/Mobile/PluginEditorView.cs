@@ -57,7 +57,8 @@ public class PluginEditorView : PopupEditorBase
         RootObject.Instance.workplaceManager.workplace.apps.Add(_app);
 
         EventManager.ActivateObject(_content);
-        EventManager.NotifyActionModified(_step);
+
+        base.OnAccept();
 
         Close();
     }

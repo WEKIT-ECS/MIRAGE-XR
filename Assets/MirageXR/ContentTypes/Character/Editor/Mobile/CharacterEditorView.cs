@@ -87,7 +87,8 @@ public class CharacterEditorView : PopupEditorBase
 
         _content.predicate = $"char:{_prefabName}";
         EventManager.ActivateObject(_content);
-        EventManager.NotifyActionModified(_step);
+
+        base.OnAccept();
 
         SetupCharacter();
         Close();

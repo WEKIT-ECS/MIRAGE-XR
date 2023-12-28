@@ -146,6 +146,7 @@ namespace MirageXR
             annotationToEdit.url = $"http://{filename}";
             EventManager.ActivateObject(annotationToEdit);
             EventManager.NotifyActionModified(action);
+            RootObject.Instance.activityManager.SaveData();
 
             Close();
         }

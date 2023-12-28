@@ -108,6 +108,7 @@ public class PoiEditor : MonoBehaviour
     public void OnChanged()
     {
         SetPoiData();
+        activityManager.SaveData();
         EventManager.NotifyOnAugmentationPoiChanged();
     }
 
