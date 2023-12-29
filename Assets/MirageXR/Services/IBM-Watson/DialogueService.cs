@@ -5,12 +5,13 @@ using IBM.Watson.Assistant.V2;
 using IBM.Watson.Assistant.V2.Model;
 using System;
 using System.Collections;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using OpenAI_API;
 using System.Threading.Tasks;
-using OpenAI_API.Models;
-using System.Collections.Generic;
+using MirageXR;
+using Model = OpenAI_API.Models.Model;
 
 public enum AIservice
 {
@@ -56,20 +57,15 @@ public class DialogueService : MonoBehaviour
     private bool deleteSessionTested = false;
     private string sessionId;
 
+    private APIAuthentication _openIaApiKey; 
+    
     public string AssistantID
     {
-        get
-        {
-            return assistantId;
-        }
-
-        set
-        {
-            assistantId = value;
-        }
+        get => assistantId;
+        set => assistantId = value;
     }
 
-    public async void Start()
+    public void Start()
     {
         LogSystem.InstallDefaultReactors();
 
@@ -83,66 +79,106 @@ public class DialogueService : MonoBehaviour
 
         _character = dSpeechOutputMgr.myCharacter.GetComponentInParent<MirageXR.CharacterController>();
 
-        Runnable.Run(CreateService());
+        CreateService();
     }
 
-    public IEnumerator CreateService()
+    public void CreateService()
     {
-        if (AI == AIservice.openAI)
+        switch (AI)
         {
-            try
-            {
-                _openAIinterface = new OpenAI_API.OpenAIAPI();
-                var auth = new OpenAI_API.APIAuthentication(_openAIinterface.Auth.ApiKey);
-                //createSessionTested = await auth.ValidateAPIKey();
-                createSessionTested = _openAIinterface.Auth.OpenAIOrganization != null;
-            }
-            catch (Exception ex)
-            {
-                createSessionTested = false;
-                AppLog.Log($"DialogueService: AI provider initialisation failed: {ex.Message}, trace: {ex.StackTrace}", LogLevel.CRITICAL);
-                RootView_v2.Instance.dialog.ShowMiddle(
-                   "Error: connection failed",
-                   "Could not connect to the AI provider (OpenAI), it seems the API key is missing?",
-                   "OK", () => AppLog.Log("DialogueService: Connection error acknowledge by user (OK)", LogLevel.INFO),
-                   "Cancel", () => AppLog.Log("DialogueService: Connection error acknowledge by user (Cancel)", LogLevel.INFO),
-                   true);
-            }
-
-            AppLog.Log($"DialogueService: connected to openAI with organization ID = '" + _openAIinterface.Auth.OpenAIOrganization, LogLevel.INFO);
-            if (createSessionTested)
-            {
-                _chat = _openAIinterface.Chat.CreateConversation();
-                _chat.Model = Model.ChatGPTTurbo;
-                _chat.RequestParameters.Temperature = 0;
-
-                // prompt injection
-                _chat.AppendSystemMessage(AIprompt);
-
-                // give a few examples as user and assistant
-                //_chat.AppendUserInput("Is this an animal? Cat");
-                //_chat.AppendExampleChatbotOutput("Yes");
-                //_chat.AppendUserInput("Is this an animal? House");
-                //_chat.AppendExampleChatbotOutput("No");
-                //AppLog.Log("DialogueService: chatGPT prompt now set.", LogLevel.INFO);
-            }
-        }
-        else if (AI == AIservice.Watson)
-        {
-            AppLog.Log("[DialogueService] Switching AI provider to IBM Watson.", LogLevel.INFO);
-            service = new AssistantService(versionDate);
-            while (!service.Authenticator.CanAuthenticate())
-            {
-                yield return null;
-            }
-            Runnable.Run(WatsonCreateSession());
-        }
-        else
-        {
-            AppLog.Log("DialogueService: ERROR: AI service provider " + AI.ToString() + " does not exist.", LogLevel.CRITICAL);
+            case AIservice.openAI:
+                CreateOpenAIServiceAsync().AsAsyncVoid();
+                break;
+            case AIservice.Watson:
+                Runnable.Run(CreateWatsonService());
+                break;
+            default:
+                AppLog.Log($"DialogueService: ERROR: AI service provider {AI} does not exist.", LogLevel.CRITICAL);
+                break;
         }
     }
 
+    private static async Task<APIAuthentication> ReadOpenIaAuthKeyAsync()
+    {
+        const string openaiFileName = "openai";
+        const string openaiKey = "OPENAI_KEY";
+        const string openaiApiKey = "OPENAI_API_KEY";
+        const string openaiOrganizationKey = "OPENAI_ORGANIZATION";
+
+        var openai = Resources.Load(openaiFileName) as TextAsset;
+        string key = null; 
+        string org = null; 
+        if (openai != null)
+        {
+            using var sr = new StringReader(openai.text);
+            while (await sr.ReadLineAsync() is { } line)
+            {
+                var parts = line.Split('=', ':');
+                if (parts.Length == 2)
+                {
+                    switch (parts[0].ToUpper())
+                    {
+                        case openaiKey:
+                            key = parts[1].Trim();
+                            break;
+                        case openaiApiKey:
+                            key = parts[1].Trim();
+                            break;
+                        case openaiOrganizationKey:
+                            org = parts[1].Trim();
+                            break;
+                    }
+                }
+            }
+        }
+
+        if (key == null || org == null)
+        {
+            throw new Exception("can't get openAI's api key");
+        }
+
+        return new APIAuthentication(key, org);
+    }
+
+    private async Task CreateOpenAIServiceAsync()
+    {
+        try
+        {
+            _openIaApiKey ??= await ReadOpenIaAuthKeyAsync();
+            
+            if (!await _openIaApiKey.ValidateAPIKey())
+            {
+                throw new Exception("can't Validate openAI's api key");
+            }
+
+            _openAIinterface = new OpenAIAPI(_openIaApiKey);
+
+            AppLog.Log($"DialogueService: connected to openAI with organization ID = '{_openAIinterface.Auth.OpenAIOrganization}", LogLevel.INFO);
+
+            _chat = _openAIinterface.Chat.CreateConversation();
+            _chat.Model = Model.ChatGPTTurbo;
+            _chat.RequestParameters.Temperature = 0;
+
+            _chat.AppendSystemMessage(AIprompt);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Log($"DialogueService: AI provider initialisation failed: {ex.Message}, trace: {ex.StackTrace}", LogLevel.CRITICAL);
+            RootView_v2.Instance.dialog.ShowMiddle(
+                "Error: connection failed",
+                "Could not connect to the AI provider (OpenAI), it seems the API key is missing?",
+                "OK", () => AppLog.Log("DialogueService: Connection error acknowledge by user (OK)", LogLevel.INFO));
+        }
+    }
+
+    private IEnumerator CreateWatsonService()
+    {
+        AppLog.Log("[DialogueService] Switching AI provider to IBM Watson.", LogLevel.INFO);
+        service = new AssistantService(versionDate);
+        yield return new WaitUntil(service.Authenticator.CanAuthenticate);  //TODO: possible infinite loop
+    
+        Runnable.Run(WatsonCreateSession());
+    }
 
     private IEnumerator WatsonCreateSession()
     {
@@ -198,9 +234,7 @@ public class DialogueService : MonoBehaviour
         {
             Debug.LogWarning("AI service: SendMessageToAssistant(): trying to send message to assistant before session is established.");
         }
-
     }
-
 
     private void NextStep()
     {
@@ -318,9 +352,9 @@ public class DialogueService : MonoBehaviour
 
     public void OnInputReceived(string text)
     {
-        AppLog.LogWarning("[Dialogue Service] onInputReceived arrived in DialogueService ='" + text + "'", LogLevel.INFO);
+        AppLog.LogWarning($"[Dialogue Service] onInputReceived arrived in DialogueService ='{text}'", LogLevel.INFO);
         ResponseTextField.text = text;
-        SendMessageToAssistantAsync(text);
+        SendMessageToAssistantAsync(text).AsAsyncVoid();
     }
 
     public void SetPrompt(string text)
