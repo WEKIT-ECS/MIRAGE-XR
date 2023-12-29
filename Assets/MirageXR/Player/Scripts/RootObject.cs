@@ -52,7 +52,7 @@ namespace MirageXR
 
         public PlatformManager platformManager => _platformManager;
 
-	    public ExceptionManager exceptionManager => _exceptionManager;
+        public ExceptionManager exceptionManager => _exceptionManager;
 
         private bool _isInitialized;
 
