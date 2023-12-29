@@ -470,13 +470,13 @@ namespace MirageXR
             {
                 dialogueService.AI = AIservice.openAI;
                 _useWatson = false;
-                Runnable.Run(dialogueService.CreateService());
+                dialogueService.CreateService();
             }
-            else if (useWatson)
+            else
             {
                 dialogueService.AI = AIservice.Watson;
                 _useWatson = true;
-                Runnable.Run(dialogueService.CreateService());
+                dialogueService.CreateService();
             }
         }
 
