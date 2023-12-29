@@ -1,12 +1,9 @@
 using i5.Toolkit.Core.VerboseLogging;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace MirageXR
 {
-
-   /// <summary>
+    /// <summary>
    /// Class <c>ExceptionManager</c> registers for all serious exceptions and opens a user dialogue 
    /// to ask to send a report to sentry.io; the main exceptions registered for are:
    /// Null Reference, Divide by Zero, Out of Memory, Index Out of Range.
