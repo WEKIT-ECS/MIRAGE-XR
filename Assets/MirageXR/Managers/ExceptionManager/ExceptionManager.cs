@@ -34,20 +34,20 @@ namespace MirageXR
            if (logType == LogType.Exception)
            {
                 SentrySdk.CaptureMessage($"ExceptionManager: [{logType}] {logText}, trace: {stackTrace}");
-/*
+                /*
                 RootView_v2.Instance.dialog.ShowMiddle(
                    "A serious error happened!",
                    "This may cause the app to become unstable and we recommend restarting the app, especially if not editing. Send error report to the development team?",
                    "OK", () => SentrySdk.CaptureMessage("ExceptionManager: ["+logType+"]" + logText + ", trace: " + stackTrace),
                    "Cancel", () => AppLog.Log("-> User chose not to report this serious exception", LogLevel.INFO),
                    true);
-*/
+                */
            }
        }
 
-      private void OnDestroy()
-      {
-         Application.logMessageReceived -= LogCaughtException;
-      }
+       private void OnDestroy()
+       {
+           Application.logMessageReceived -= LogCaughtException;
+       }
    }
 }
