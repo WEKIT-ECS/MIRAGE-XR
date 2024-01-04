@@ -215,7 +215,6 @@ namespace MirageXR
 
             //Comented out the below debug log due to the size of the message
             //Debug.LogDebug(response);
-
             return ParseArlemListJson(response);
         }
 
@@ -296,24 +295,37 @@ namespace MirageXR
         /// Increase the views of the activity on server by 1
         /// </summary>
         /// <param name="itemID">The id of the item for which the activity views should be increased</param>
-        public async Task UpdateViewsOfActivity(string itemID)
+        /// <param name="existsRemotely">Boolean indicating whether the item was already uploaded and exists on the server at all</param>
+        public async Task UpdateViewsOfActivity(string itemID, bool existsRemotely = false)
         {
-            var (result, response) = await Network.GetCustomDataFromDBRequestAsync(DBManager.userid, DBManager.domain, "updateViews", DBManager.token, itemID);
-
-            // Return null if some error happened
-            if (!result || response.StartsWith("Error"))
+            if (existsRemotely)
             {
-                var maxLenght = 200;
-                var responseLength = response.Length > maxLenght ? response.Substring(0, maxLenght) : response;
-                Debug.LogError("[MoodleManager] error while increasing the hit counter of the activity:" + responseLength);
+                var (result, response) = await Network.GetCustomDataFromDBRequestAsync(DBManager.userid, DBManager.domain, "updateViews", DBManager.token, itemID);
+
+                // Return null if some error happened
+                if (!result || response.StartsWith("Error"))
+                {
+                    var maxLenght = 200;
+                    var responseLength = response.Length > maxLenght ? response.Substring(0, maxLenght) : response;
+                    AppLog.LogError("[MoodleManager] error while increasing the hit counter of the activity:" + responseLength);
+                }
+                else
+                {
+                    AppLog.LogInfo("[MoodleManager] hit counter of activity successfully increased");
+                }
             }
             else
             {
-                Debug.LogTrace("[MoodleManager] hit counter of activity successfully increased");
+                AppLog.LogInfo("[MoodleManager] this is a local activity, so I have NOT updated the online hit counter");
             }
         }
 
-        // Zips the workshop files
+        /// <summary>
+        /// Zips ARLEM files into archive
+        /// </summary>
+        /// <param name="path">Target location</param>
+        /// <param name="recordingId">Session ID (part of the filename), appending -activity.json/-workplace.json</param>
+        /// <returns>Returns the compressed file as byte code</returns>
         private static async Task<byte[]> CompressRecord(string path, string recordingId)
         {
             byte[] bytes = null;
