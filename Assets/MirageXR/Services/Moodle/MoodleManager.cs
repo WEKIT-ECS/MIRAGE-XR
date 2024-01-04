@@ -222,15 +222,23 @@ namespace MirageXR
         private static async Task<string> GetArlemListJson(string serverUrl)
         {
             const string responseValue = "arlemlist";
+            bool result = false;
+            string response = null;
 
-            var (result, response) = await Network.GetCustomDataFromDBRequestAsync(DBManager.userid, serverUrl, responseValue, DBManager.token);
+            try
+            {
+                (result, response) = await Network.GetCustomDataFromDBRequestAsync(DBManager.userid, serverUrl, responseValue, DBManager.token);
+            }
+            catch (System.Net.WebException ex)
+            {
+                AppLog.LogError($"[MoodleManager] More significant network error caught in GetArlemListJson(): {ex.Response}");
+            }
 
             if (!result || response.StartsWith("Error"))
             {
-                Debug.LogError($"[MoodleManager] Network error: {response}");
+                AppLog.LogWarning($"[MoodleManager] Network error: {response}");
                 return null;
             }
-
             return response;
         }
 
@@ -263,7 +271,13 @@ namespace MirageXR
             }
             catch (Exception e)
             {
-                Debug.LogError($"[MoodleManager] ParseArlemListJson error\nmessage: {e}");
+                RootView_v2.Instance.dialog.ShowMiddle(
+                    "Network Error",
+                    "Could not connect to server, showing local activities only.",
+                    "OK", () => AppLog.LogInfo("[MoodleManager] User acknowledged network error"),
+                    "Cancel", () => AppLog.LogInfo("[MoodleManager] User acknowledged network error"),
+                    true);
+                Debug.LogWarning($"[MoodleManager] ParseArlemListJson error\nmessage: {e}");
                 return null;
             }
         }
