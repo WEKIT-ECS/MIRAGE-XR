@@ -1,4 +1,5 @@
-﻿using i5.Toolkit.Core.DeepLinkAPI;
+﻿using System;
+using i5.Toolkit.Core.DeepLinkAPI;
 using i5.Toolkit.Core.ExperienceAPI;
 using i5.Toolkit.Core.OpenIDConnectClient;
 using i5.Toolkit.Core.ServiceCore;
@@ -81,8 +82,8 @@ namespace MirageXR
             ServiceManager.RemoveService<DeepLinkingService>();
         }
 
-        private ExperienceAPIClient CreateXAPIClient(string client) {
-
+        private ExperienceAPIClient CreateXAPIClient(string client)
+        {
             ExperienceAPIClient xAPIClient = null;
 
             switch (client)
@@ -111,7 +112,14 @@ namespace MirageXR
 
         private void ChangeXAPI(DBManager.LearningRecordStores selectedLRS)
         {
-            ServiceManager.RemoveService<ExperienceService>();
+            try
+            {
+                ServiceManager.RemoveService<ExperienceService>();
+            }
+            catch (Exception ex)
+            {
+                AppLog.LogError($"[MirageXRServiceBootstrapper] Tried to unregister xAPI service via i5 ServiceManager, but failed to unregister: {ex.Message}");
+            }
 
             switch (selectedLRS)
             {
