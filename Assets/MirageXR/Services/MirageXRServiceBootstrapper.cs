@@ -47,11 +47,12 @@ namespace MirageXR
 
             if (xAPICredentialsWEKIT != null)
             {
+                AppLog.LogTrace("[MirageXRServiceBootstrapper] registering xAPI service");
                 ServiceManager.RegisterService(new ExperienceService(CreateXAPIClient("WEKIT")));
             }
             else
             {
-                Debug.LogWarning("xAPI credentials not set. You will not be able to use the ExperienceService and xAPI analytics");
+                AppLog.LogWarning("xAPI credentials not set. You will not be able to use the ExperienceService and xAPI analytics");
             }
 
             ServiceManager.RegisterService(new VideoAudioTrackGlobalService());
@@ -62,7 +63,7 @@ namespace MirageXR
             };
 
 #if !UNITY_EDITOR
-            oidc.RedirectURI = "https://wekit-community.org/sketchfab/callback.php";
+            oidc.RedirectURI = "https://wekit-ecs.com/sso/callback.php";
 #else
             // here could be the link to a nicer web page that tells the user to return to the app
 #endif
@@ -93,14 +94,6 @@ namespace MirageXR
                     {
                         XApiEndpoint = new System.Uri("https://lrs.wekit-ecs.com/data/xAPI"),
                         AuthorizationToken = xAPICredentialsWEKIT.authToken,
-                        Version = "1.0.3",
-                    };
-                    break;
-                case "ARETE":
-                    xAPIClient = new ExperienceAPIClient
-                    {
-                        XApiEndpoint = new System.Uri("https://learninglocker.vicomtech.org/data/xAPI"),
-                        AuthorizationToken = xAPICredentialsARETE.authToken,
                         Version = "1.0.3",
                     };
                     break;
