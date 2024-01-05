@@ -1,0 +1,63 @@
+{
+    "id": "WEKIT-Vest",
+    "type": "human",
+    "uri": "mqtt://http://test.mosquitto.org/:1883",
+    "username": "",
+    "password": "",
+    "data": [
+        {
+            "name": "GSR",
+            "key": "wekit/vest/GSR_Raw",
+            "type": "int",
+            "unit": "gsr",
+            "range": "0;2048",
+            "green": "between:0;1024",
+            "yellow": "between:1025;1500"
+        },
+        {
+            "name": "Pulse",
+            "key": "wekit/vest/Pulse_Raw",
+            "type": "int",
+            "unit": "bpm",
+            "range": "0;200",
+            "green": "between:0;120",
+            "yellow": "between:120;180"
+        },
+        {
+            "name": "Ext. Temp",
+            "key": "wekit/vest/Sht0_Temp",
+            "type": "int",
+            "unit": "°C",
+            "range": "0;100",
+            "green": "between:30;39",
+            "yellow": "between:40;100"
+        },
+        {
+            "name": "Ext. Humidity",
+            "key": "wekit/vest/Sht0_Hum",
+            "type": "int",
+            "unit": "%",
+            "range": "0;100",
+            "green": "between:60;80",
+            "yellow": "between:0;59"
+        },
+        {
+            "name": "Int. Temp",
+            "key": "wekit/vest/Sht1_Temp",
+            "type": "int",
+            "unit": "°C",
+            "range": "0;100",
+            "green": "between:30;39",
+            "yellow": "between:40;100"
+        },
+        {
+            "name": "Int. Humidity",
+            "key": "wekit/vest/Sht1_Hum",
+            "type": "int",
+            "unit": "%",
+            "range": "0;100",
+            "green": "between:60;80",
+            "yellow": "between:0;59"
+        }
+    ]
+}
