@@ -43,7 +43,7 @@ public class ActionListMenu : MonoBehaviour
         else if (Instance != this)
             Destroy(gameObject);
 
-        if (!PlatformManager.Instance.WorldSpaceUi)
+        if (!RootObject.Instance.platformManager.WorldSpaceUi)
         {
             GetComponent<Canvas>().enabled = false;
             return;
@@ -78,7 +78,7 @@ public class ActionListMenu : MonoBehaviour
             }
         }
 
-        AppLog.LogTrace("Action list menu start called");
+        Debug.LogTrace("Action list menu start called");
         EventManager.OnInitUi += Init;
         EventManager.OnActivateAction += OnActivateAction;
         EventManager.OnDeactivateAction += OnDeactivateAction;

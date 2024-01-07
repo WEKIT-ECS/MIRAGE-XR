@@ -18,26 +18,35 @@ public class DialogViewMiddle : DialogView
         _description.text = model.description;
         _buttonClose.onClick.AddListener(() => model.onClose?.Invoke());
 
-        if (model.contents.Count != 2)
+        if (model.contents.Count >= 1)
         {
-            AppLog.LogError("buttons content does not equal 2");
+            _buttonLeft.onClick.AddListener(() => model.contents[0].action?.Invoke());
+            _buttonLeft.onClick.AddListener(() => model.onClose?.Invoke());
+            var textLeft = _buttonLeft.GetComponentInChildren<TMP_Text>();
+            if (textLeft)
+            {
+                textLeft.text = model.contents[0].text;
+            }
+        }
+        else
+        {
+            Debug.LogError("buttons content does not equal 1 or 2");
             return;
         }
 
-        _buttonLeft.onClick.AddListener(() => model.contents[0].action?.Invoke());
-        _buttonLeft.onClick.AddListener(() => model.onClose?.Invoke());
-        var textLeft = _buttonLeft.GetComponentInChildren<TMP_Text>();
-        if (textLeft)
+        if (model.contents.Count >= 2)
         {
-            textLeft.text = model.contents[0].text;
+            _buttonRight.onClick.AddListener(() => model.contents[1].action?.Invoke());
+            _buttonRight.onClick.AddListener(() => model.onClose?.Invoke());
+            var textRight = _buttonRight.GetComponentInChildren<TMP_Text>();
+            if (textRight)
+            {
+                textRight.text = model.contents[1].text;
+            }
         }
-
-        _buttonRight.onClick.AddListener(() => model.contents[1].action?.Invoke());
-        _buttonRight.onClick.AddListener(() => model.onClose?.Invoke());
-        var textRight = _buttonRight.GetComponentInChildren<TMP_Text>();
-        if (textRight)
+        else
         {
-            textRight.text = model.contents[1].text;
+            _buttonRight.gameObject.SetActive(false);
         }
     }
 

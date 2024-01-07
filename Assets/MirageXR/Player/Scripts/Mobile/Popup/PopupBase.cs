@@ -21,7 +21,7 @@ public abstract class PopupBase : MonoBehaviour
         _onClose = onClose;
         if (!TryToGetArguments(args))
         {
-            AppLog.LogError("error when trying to get arguments!");
+            Debug.LogError("error when trying to get arguments!");
         }
     }
 

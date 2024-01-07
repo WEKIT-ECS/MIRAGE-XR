@@ -22,13 +22,14 @@ public class Toast : MonoBehaviour
 
     private readonly Queue<string> _queue = new Queue<string>();
     private bool _isActive;
+    private string _activeMessage;
     private Coroutine _coroutine;
 
     private void Awake()
     {
         if (Instance != null)
         {
-            AppLog.LogError($"{Instance.GetType().FullName} must only be a single copy!");
+            Debug.LogError($"{Instance.GetType().FullName} must only be a single copy!");
             return;
         }
 
@@ -43,11 +44,19 @@ public class Toast : MonoBehaviour
 
     private void Update()
     {
-        if (!_isActive && _queue.Count > 0) ViewMessage(_queue.Dequeue());
+        if (!_isActive && _queue.Count > 0)
+        {
+            ViewMessage(_queue.Dequeue());
+        }
     }
 
     public void Show(string message, bool showIcon = false)
     {
+        if (_activeMessage == message)
+        {
+            return;
+        }
+        
         _icon.SetActive(showIcon);
         _queue.Enqueue(message);
     }
@@ -65,6 +74,7 @@ public class Toast : MonoBehaviour
     private IEnumerator ViewMessageIEnumerator(string message)
     {
         _message.text = message;
+        _activeMessage = message;
         _isActive = true;
         _canvasGroup.gameObject.SetActive(true);
 
@@ -74,6 +84,7 @@ public class Toast : MonoBehaviour
         yield return new WaitForSeconds(_queue.Count >= MAX_MESSAGE_QUEUE ? SHOW_TIME_SHORT : SHOW_TIME);
         yield return FadeTo(_canvasGroup, 0.0f, FADE_TIME);
         _canvasGroup.gameObject.SetActive(false);
+        _activeMessage = null;
         _message.text = string.Empty;
         _isActive = false;
     }
