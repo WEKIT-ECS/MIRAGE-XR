@@ -1,5 +1,4 @@
 using System;
-using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using TMPro;
 using UnityEngine;
@@ -33,7 +32,11 @@ public abstract class PopupEditorBase : PopupBase
         UpdateBaseView();
     }
 
-    protected abstract void OnAccept();
+    protected virtual void OnAccept()
+    {
+        EventManager.NotifyActionModified(_step);
+        RootObject.Instance.activityManager.SaveData();
+    }
 
     protected virtual void UpdateBaseView()
     {
@@ -49,7 +52,7 @@ public abstract class PopupEditorBase : PopupBase
         var originT = GameObject.Find(detectable.id);   // TODO: replace by direct reference to the object
         if (!originT)
         {
-            AppLog.LogError($"Can't find detectable {detectable.id}");
+            Debug.LogError($"Can't find detectable {detectable.id}");
             return annotationStartingPoint.transform.position;
         }
 
@@ -57,7 +60,7 @@ public abstract class PopupEditorBase : PopupBase
 
         if (!detectableBehaviour)
         {
-            AppLog.LogError($"Can't find DetectableBehaviour");
+            Debug.LogError($"Can't find DetectableBehaviour");
             return annotationStartingPoint.transform.position;
         }
 

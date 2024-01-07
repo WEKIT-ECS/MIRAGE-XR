@@ -85,7 +85,7 @@ namespace MirageXR
             }
             catch
             {
-                AppLog.LogError("Augmentation Creation Button not found on Task Station Menu. Tutorial will not work.");
+                Debug.LogError("Augmentation Creation Button not found on Task Station Menu. Tutorial will not work.");
             }
 
             //Setup Title and Description Field listeners. Created for tutorial.
@@ -103,7 +103,7 @@ namespace MirageXR
             }
             catch
             {
-                AppLog.LogError("Action Title Input Field not found on Task Station Menu. Tutorial will not work.");
+                Debug.LogError("Action Title Input Field not found on Task Station Menu. Tutorial will not work.");
             }
 
             SetupActionDescriptionInputField();
@@ -127,7 +127,7 @@ namespace MirageXR
             }
             catch
             {
-                AppLog.LogError("Action Description Input Field not found on Task Station Menu. Tutorial will not work.");
+                Debug.LogError("Action Description Input Field not found on Task Station Menu. Tutorial will not work.");
             }
         }
 

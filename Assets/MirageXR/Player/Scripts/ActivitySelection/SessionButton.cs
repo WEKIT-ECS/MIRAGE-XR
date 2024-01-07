@@ -26,14 +26,14 @@ namespace MirageXR
                 // show loading label
                 Loading.Instance.LoadingVisibility(true);
 
-                AppLog.LogInfo("Playing activity...");
+                Debug.LogInfo("Playing activity...");
                 Play();
             }
         }
 
         private async Task DownloadAsync()
         {
-            AppLog.LogInfo("Downloading session...");
+            Debug.LogInfo("Downloading session...");
             // reset any error
             _selectedListViewItem.Content.HasError = false;
             // indicate that the system is working
@@ -42,7 +42,7 @@ namespace MirageXR
 
             bool success;
             Session arlemFile = _selectedListViewItem.Content.Session;
-            AppLog.LogInfo($"Downloading from {arlemFile.contextid}/{arlemFile.component}/{arlemFile.filearea}/{arlemFile.itemid}/{arlemFile.filename}");
+            Debug.LogInfo($"Downloading from {arlemFile.contextid}/{arlemFile.component}/{arlemFile.filearea}/{arlemFile.itemid}/{arlemFile.filename}");
             using (SessionDownloader downloader = new SessionDownloader($"{DBManager.domain}/pluginfile.php/{arlemFile.contextid}/{arlemFile.component}/{arlemFile.filearea}/{arlemFile.itemid}/{arlemFile.filename}", arlemFile.sessionid + ".zip"))
             {
                 success = await downloader.DownloadZipFileAsync();
@@ -55,7 +55,7 @@ namespace MirageXR
                     }
                     catch (Exception e)
                     {
-                        AppLog.LogException(e);
+                        Debug.LogException(e);
                         success = false;
                     }
                 }
@@ -112,7 +112,7 @@ namespace MirageXR
 
         // private IEnumerator SwitchToPlayerScene(string activityJsonFileName)
         // {
-        // yield return SceneManager.LoadSceneAsync(PlatformManager.Instance.GetPlayerSceneName, LoadSceneMode.Additive);
+        // yield return SceneManager.LoadSceneAsync(RootObject.Instance.platformManager.GetPlayerSceneName, LoadSceneMode.Additive);
         // // wait one more frame for everything to set up
         // yield return null;
         // EventManager.ParseActivity(activityJsonFileName);

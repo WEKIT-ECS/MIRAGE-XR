@@ -228,7 +228,7 @@ namespace Tests
             string targetPath = Path.Combine(Application.persistentDataPath, "calibrationTest");
 
             if (!Directory.Exists(sourcePath)) {
-                AppLog.LogError("Calibration testing files not found");
+                Debug.LogError("Calibration testing files not found");
                 return;
             }
 
@@ -310,7 +310,7 @@ namespace Tests
             rootObject.activityManager.EditModeActive = isEditMode;
 
             // then run the player calibration routine to move objects (as though the camera is the marker)
-            await rootObject.workplaceManager.CalibrateWorkplace(WorldTestOrigin);
+            await rootObject.workplaceManager.CalibrateWorkplace();
         }
 
         private void CalibrationComplete()
@@ -676,7 +676,7 @@ namespace Tests
             // make sure test is runnable
             yield return EnsureTestReadiness();
 
-            AppLog.LogInfo("press space bar to end testing");
+            Debug.LogInfo("press space bar to end testing");
 
             // pause for shutdown or debugging
             yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
