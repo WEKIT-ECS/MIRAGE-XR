@@ -1,10 +1,12 @@
 ﻿using i5.Toolkit.Core.ServiceCore;
+using System;
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Collections;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Video;
+using TMPro;
 
 namespace MirageXR
 {
@@ -40,7 +42,8 @@ namespace MirageXR
 
         [SerializeField] private GameObject _landscapePlayerObject;
         [SerializeField] private GameObject _portraitPlayerObject;
-
+        [SerializeField] private TMP_Text _captionTextLandscape;
+        [SerializeField] private TMP_Text _captionTextPortrait;
 
         [Tooltip("The video texture component")]
         private UnityEngine.UI.RawImage _renderTexture;
@@ -55,8 +58,17 @@ namespace MirageXR
         [SerializeField] private AudioSource _audioSourceLandscape;
         [SerializeField] private AudioSource _audioSourcePortrait;
 
+        private int currentTextPosition = 0;
+        //private string allText = "";
+
+       // [SerializeField] private TMP_Text textCaptionPotrait;
+       // [SerializeField] private TMP_Text textCaptionLandscape;
+
         public bool VideoClipLoaded => _videoPlayer.clip != null;
         public float VideoDuration => (float)_videoPlayer.length;
+        private Coroutine textPickingCoroutine;
+        //private string textFilePath = @"C:\Users\arws2\AppData\LocalLow\WEKIT\MirageXR\session-2023-08-21_11-44-51\MirageXR_Video_133370919088234435.txt";
+
 
         /// <summary>
         /// Initialization method.
@@ -65,7 +77,16 @@ namespace MirageXR
         /// <returns>Returns true if initialization successful.</returns>
         public override bool Init(ToggleObject content)
         {
-            _obj = content;
+            _obj = content; // Make sure _obj is assigned
+
+            var caption = _obj.caption; // Use the caption from _obj
+
+            if (!string.IsNullOrEmpty(caption))
+            {
+                
+                _captionTextLandscape.text = caption;
+                _captionTextPortrait.text = caption;
+            }
 
             if (_obj.key == "P")
             {
@@ -75,6 +96,11 @@ namespace MirageXR
                 _videoPlayer = _videoPlayerPortrait;
                 _audioSource = _audioSourcePortrait;
                 _renderTexture = _renderTexturePort;
+                if (!string.IsNullOrEmpty(caption))
+                {
+                    _captionTextPortrait.text = caption;
+                    textPickingCoroutine = StartCoroutine(PickAndDisplayText());
+                }
             }
             else
             {
@@ -83,6 +109,11 @@ namespace MirageXR
                 _videoPlayer = _videoPlayerLandscape;
                 _audioSource = _audioSourceLandscape;
                 _renderTexture = _renderTextureLand;
+                if (!string.IsNullOrEmpty(caption))
+                {
+                    _captionTextLandscape.text = caption;
+                    textPickingCoroutine = StartCoroutine(PickAndDisplayText());
+                }
             }
 
             if (ServiceManager.GetService<VideoAudioTrackGlobalService>().UseAudioTrack)
@@ -169,10 +200,56 @@ namespace MirageXR
             OnLock(_obj.poi, _obj.positionLock);
             EventManager.OnAugmentationLocked += OnLock;
 
+            
+
             // Check if trigger is active
             StartCoroutine(ActivateTrigger());
             // If all went well, return true.
             return base.Init(content);
+        }
+        
+        private IEnumerator PickAndDisplayText()
+        {
+            while (true)
+            {
+                yield return new WaitForSeconds(4.0f); // Wait for 4 seconds
+
+                TMP_Text targetText = _landscapePlayerObject.activeSelf ? _captionTextLandscape : _captionTextPortrait;
+
+                // Ensure we don't exceed the text length
+                if (currentTextPosition >= targetText.text.Length)
+                {
+                    // Reached the end of the text, reset position
+                    currentTextPosition = 0;
+                }
+
+                // Split the text into words
+                string[] words = targetText.text.Split(' ');
+
+                // Calculate how many words to pick, ensuring we don't exceed the array's length
+                int wordCount = Mathf.Min(12, words.Length - currentTextPosition / 2);
+                string pickedText = string.Join(" ", words, currentTextPosition / 2, wordCount);
+
+                // Update both TMP_Text components
+                _captionTextPortrait.text = pickedText;
+                _captionTextLandscape.text = pickedText;
+
+                // Increment the position for the next iteration, considering two characters per word (on average) plus one space
+                currentTextPosition += wordCount * 3;
+
+                // If video is playing, synchronize text picking with video playing
+                if (isPlaying)
+                {
+                    // Get the current time of the video player
+                    double currentTime = _videoPlayer.time;
+
+                    // Calculate the delay to match the next 4-second interval
+                    float delay = 4.0f - (float)(currentTime % 4.0);
+
+                    // Wait for the calculated delay before picking new text
+                    yield return new WaitForSeconds(delay);
+                }
+            }
         }
 
         private void SetupNewRenderTexture()
