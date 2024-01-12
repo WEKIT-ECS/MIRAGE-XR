@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DG.Tweening;
 using i5.Toolkit.Core.OpenIDConnectClient;
 using i5.Toolkit.Core.ServiceCore;
+using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using Newtonsoft.Json;
 using TMPro;
@@ -160,7 +161,7 @@ public class ModelEditorView : PopupEditorBase
         }
         catch (Exception e)
         {
-            Debug.LogError(e.ToString());
+            AppLog.LogWarning("[ModelEditorView] Could not renew sketchfab token " + e.ToString());
         }
     }
 
@@ -346,7 +347,7 @@ public class ModelEditorView : PopupEditorBase
         }
         catch (Exception e)
         {
-            Debug.LogError(e.ToString());
+            Debug.LogError("[ModelEditorView] error occurred during search: " + e.ToString());
         }
     }
 
@@ -598,7 +599,7 @@ public class ModelEditorView : PopupEditorBase
         }
         catch (Exception e)
         {
-            Debug.LogError(e.ToString());
+            Debug.LogWarning("[ModelViewEditor] encounter download error, probably user needs to renew token by logging in fresh: " + e.ToString());
         }
 
         Toast.Instance.Show("Download error. Please, try again.");
