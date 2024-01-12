@@ -54,7 +54,7 @@ namespace MirageXR
         {
             var previewList = new List<ModelPreviewItem>();
 
-            Debug.Log($"search raw {searchOption} result:\n{result}");
+            //Debug.Log($"search raw {searchOption} result:\n{result}");
 
             switch (searchOption.ToLower())
             {
