@@ -274,8 +274,7 @@ namespace MirageXR
                 RootView_v2.Instance.dialog.ShowMiddle(
                     "Network Error",
                     "Could not connect to server, showing local activities only.",
-                    "OK", () => AppLog.LogInfo("[MoodleManager] User acknowledged network error"),
-                    "Cancel", () => AppLog.LogInfo("[MoodleManager] User acknowledged network error"),
+                    "OK", () => AppLog.LogInfo("[MoodleManager] User acknowledged network error")
                     true);
                 Debug.LogWarning($"[MoodleManager] ParseArlemListJson error\nmessage: {e}");
                 return null;
