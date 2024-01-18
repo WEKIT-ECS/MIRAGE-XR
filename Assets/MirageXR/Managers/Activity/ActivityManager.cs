@@ -277,6 +277,7 @@ namespace MirageXR
                 }
                 else
                 {
+                    Debug.LogTrace("=====> ActivateAction for string = " + id);
                     var action = _activity.actions.FirstOrDefault(action => action.id == id);
                     if (action == null)
                     {
@@ -299,8 +300,30 @@ namespace MirageXR
             const string jsonExtension = ".json";
 
             ActiveAction = step;
+            Debug.LogTrace("=====> ActivateAction for action = " + step.id);
             step.isActive = true;
             Trigger.SetupTriggers(step);
+
+            foreach (var deactivate in step.enter.deactivates)
+            {
+                Debug.Log("[ActivityManager] ActivateAction(): executing step.enter.deactives");
+                switch (deactivate.type)
+                {
+                    case ActionType.Action:
+                    case ActionType.Reaction:
+                        {
+                            Debug.Log("[ActivityManager] ActivateAction(): calling DeactivateAction");
+                            await DeactivateAction(step.id, deactivate);
+                            break;
+                        }
+                    default:
+                        {
+                            Debug.LogTrace("[ActivityManager] ActivateAction(): Deactivate loop - object");
+                            EventManager.DeactivateObject(deactivate);
+                            break;
+                        }
+                }
+            }
 
             foreach (var content in step.enter.activates)
             {
@@ -309,19 +332,20 @@ namespace MirageXR
                     case ActionType.Action:
                     case ActionType.Reaction:
                         {
-                            if (content.id.EndsWith(jsonExtension)) //External activity reference!
+                            if (content.id.EndsWith(jsonExtension)) // External activity reference!
                             {
                                 _isSwitching = true;
                                 await LoadActivity(content.id);
                                 break;
                             }
-
+                            Debug.Log("[ActivityManager] ActivateAction(): step.enter.activates: activating action with id " + step.id + " action " + content + " and content type: " + content.type.ToString());
                             await ActivateAction(step.id, content);
                             break;
                         }
 
                     default:
                         {
+                            Debug.Log("[ActivityManager] ActivateAction(): Activate object: " + content);
                             EventManager.ActivateObject(content);
                             break;
                         }
@@ -333,26 +357,8 @@ namespace MirageXR
                 }
             }
 
-            foreach (var deactivate in step.enter.deactivates)
-            {
-                switch (deactivate.type)
-                {
-                    case ActionType.Action:
-                    case ActionType.Reaction:
-                        {
-                            await DeactivateAction(step.id, deactivate);
-                            break;
-                        }
-                    default:
-                        {
-                            EventManager.DeactivateObject(deactivate);
-                            break;
-                        }
-                }
-            }
-
             var dateStamp = DateTime.UtcNow.ToUniversalTime().ToString(CultureInfo.InvariantCulture);
-
+            Debug.LogTrace("[ActivityManager] ActivateAction(): calling EventManager.ActivateAction() for id " + step.id);
             EventManager.ActivateAction(step.id);
             EventManager.StepActivatedStamp(SystemInfo.deviceUniqueIdentifier, step, dateStamp);
             EventManager.DebugLog($"Activity manager: Action {step.id} activated.");
@@ -364,10 +370,11 @@ namespace MirageXR
         /// </summary>
         public async Task DeactivateAction(string id, bool doNotActivateNextStep = false)
         {
+            //Debug.LogTrace("[ActivityManager] DeactivateAction(): possibly saving data now for action with id = " + id);
             if (!_isSwitching)
             {
                 //Save augmentations extra data(character, pick&place,...) for be carried over to the new action if the augmentation exists in that action
-                SaveData();
+                SaveData(); // maybe only for those where doNotActivateNextStep == true?
                 await ActivityDeactivator(id, doNotActivateNextStep);
             }
         }
@@ -545,6 +552,7 @@ namespace MirageXR
         /// <param name="id">Action id to be activated.</param>
         private async Task BackAction(string id)
         {
+            Debug.LogTrace("[ActionManager] BackAction with id = " + id);
             // First clear out the scene.
             try
             {
@@ -595,6 +603,7 @@ namespace MirageXR
 
         public async Task ActivateActionByIndex(int index)
         {
+            Debug.LogTrace("[ActionManager] ActivateActionByIndex index = " + index);
             if (Activity.actions.Count > index || index < 0)
             {
                 await DeactivateAction(ActiveAction.id, true);
@@ -608,6 +617,7 @@ namespace MirageXR
 
         public async Task ActivateActionByID(string id)
         {
+            Debug.LogTrace("[ActionManager] ActivateActionByID id = " + id);
             await DeactivateAction(ActiveAction.id, true);
             await ActivateAction(id);
         }
@@ -620,10 +630,13 @@ namespace MirageXR
             {
                 if (ActiveAction != null)
                 {
+                    Debug.LogTrace("[ActionManager] ActivateNextAction(): active action #" + indexOfActivated + " with id " + ActiveAction.id);
+                    Debug.LogTrace("[ActionManager] ----> active action is not null, so deactivating active action; this should activate in the exit loop the next action");
                     await DeactivateAction(ActiveAction.id);
                 }
                 else
                 {
+                    Debug.LogTrace("[ActionManager] ----> no active action, so restarting ???");
                     await ActivateAction(_activity.start);
                 }
             }
@@ -634,6 +647,7 @@ namespace MirageXR
             int indexOfActivated = ActionsOfTypeAction.IndexOf(ActiveAction);
             if (indexOfActivated > 0)
             {
+                Debug.LogTrace("[ActionManager] ActivePreviousAction(): current action #" + indexOfActivated + " with id " + ActionsOfTypeAction[indexOfActivated].id + " and jumping to " + (indexOfActivated-1) + " with id = " + ActionsOfTypeAction[indexOfActivated -1].id);
                 await BackAction(ActionsOfTypeAction[indexOfActivated - 1].id);
             }
         }

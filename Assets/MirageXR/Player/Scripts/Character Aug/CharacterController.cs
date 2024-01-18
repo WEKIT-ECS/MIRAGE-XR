@@ -60,6 +60,7 @@ namespace MirageXR
             {
                 return isImageAssignModeActive;
             }
+
             set
             {
                 if (isImageAssignModeActive)
@@ -74,12 +75,19 @@ namespace MirageXR
                 {
                     // turn of all other assign button if is on
                     foreach (var character in FindObjectsOfType<CharacterController>())
+                    {
                         if (character != this && character.IsImageAssignModeActive)
+                        {
                             character.IsImageAssignModeActive = false;
+                        }
+                    }
 
                     _characterSetting.AssignImageButton.GetComponent<Image>().color = Color.red;
                 }
-                else _characterSetting.AssignImageButton.GetComponent<Image>().color = Color.white;
+                else
+                {
+                    _characterSetting.AssignImageButton.GetComponent<Image>().color = Color.white;
+                }
             }
         }
 
@@ -201,6 +209,8 @@ namespace MirageXR
 
         private async void OnEnable()
         {
+            Debug.LogTrace("[CharacterController] OnEnable(): start");
+
             stepsSettings = new List<StepSettings>();
 
             _anim = GetComponentInChildren<Animator>();
@@ -254,8 +264,7 @@ namespace MirageXR
             // sometimes the character be destroyed by keep alive during the delay above
             if (this == null) return;
 
-
-            // Remove animation clips which not exist for this character from the drobdown list
+            // Remove animation clips which not exist for this character from the dropdown list
             for (int i = animationMenu.options.Count - 1; i > 0; i--)
             {
                 if (_anim.parameters.ToList().Find(c => c.name == animationMenu.options[i].text) == null)
@@ -266,6 +275,7 @@ namespace MirageXR
 
             // wait for the character be setup by using JSON data
             await ActivateCharacterOnEnable();
+            Debug.LogTrace("[CharacterController] OnEnable(): await ActivateCharacterOnEnable() done.");
             CharacterParsed = true;
 
             // if the movement type was not found in the json file use followpath as default(with one node)
@@ -283,6 +293,7 @@ namespace MirageXR
             // If animation clip is display image, move the image annotation to the character poster
             MoveImageToHandPos();
 
+            Debug.LogTrace("[CharacterController] OnEnable(): restoring step settings to menu panel.");
             SetEditModeState(activityManager.EditModeActive);
 
             // if movement is inplace play the audio at the start
@@ -306,8 +317,8 @@ namespace MirageXR
         {
             EventManager.OnEditModeChanged += SetEditModeState;
             EventManager.OnAugmentationDeleted += DeleteCharacterData;
-            EventManager.OnActivitySaved += SaveJson;
-            EventManager.OnToggleObject += OnToggleObjectActivated;
+            EventManager.OnActivitySaved += SaveJson; // this is likely saving twice now, as it will also save whenever the character aug is deactivated (= step changes)
+            EventManager.OnToggleObject += OnToggleObjectActivated; // reacts to both Activate AND Deactivate calls!
         }
 
         private void Unsubscribe()
@@ -318,11 +329,20 @@ namespace MirageXR
             EventManager.OnToggleObject -= OnToggleObjectActivated;
         }
 
-        private void OnToggleObjectActivated(ToggleObject toggleObject, bool value)
+        private async void OnToggleObjectActivated(ToggleObject toggleObject, bool activate)
         {
-            if (!value && _myObj.poi == toggleObject.poi)
+            // save only if step is changing (= this augmentation is deactivated) and edit mode is on
+            // !activate = augmentation is deactivating
+            if (!activate && _myObj.poi == toggleObject.poi && activityManager.EditModeActive == true)
             {
+                Debug.LogTrace("[CharacterController] OnToggleObjectActivated(): on activate: calling SaveJson()");
                 SaveJson();
+            }
+            else
+            {
+                Debug.LogTrace("[CharacterController] OnToggleObjectActivated(): on activate: this is where we might need to restore step settings to the menu");
+                //await ActivateCharacterOnEnable();
+                //shouldn't here be some code to restore character data to the settings menu?
             }
         }
 
@@ -629,130 +649,181 @@ namespace MirageXR
             _agent.stoppingDistance = characterSize * _agent.stoppingDistance;
         }
 
+        // the BUG with overwriting step animation settings when moving back with the back arrow button seems not to happen here, it has to do with not correctly restoring values when activating 
         public void SaveJson()
         {
-            if (_myObj == null || string.IsNullOrEmpty(_myObj.poi) || !CharacterParsed) return; //only if the character is instantiated not the prefab
-
-            var character = new Character();
-
-            //add settings of all steps(which contains me) in json file
-            foreach (var action in activityManager.ActionsOfTypeAction)
+            Debug.LogTrace("[CharacterController] SaveJson(): - - - - - - - - - - - START - - - - - - - -");
+            if (activityManager.EditModeActive)
             {
-                if (action.enter.activates.Find(p => p.poi == _myObj.poi) != null)
+                Debug.LogTrace("[CharacterController] SaveJson(): EditMode is active, continuing to save");
+
+                // only if the character is instantiated not the prefab
+                if (_myObj == null || string.IsNullOrEmpty(_myObj.poi) || !CharacterParsed)
                 {
-                    // create a new step to keep current step settings for this character
-                    var step = new StepSettings
-                    {
-                        actionId = action.id
-                    };
-
-                    // Each time we call this method the json file will be regenrated with all steps settings the:
-                    // save the active step settings for the character
-                    if (step.actionId == activityManager.ActiveActionId)
-                    {
-                        var (destinationPoints, movementType) = PrepareNodesToSave();
-                        step.movementType = movementType;
-                        step.destinations = destinationPoints; //null if not followpath
-                        step.animationType = animationMenu.options[animationMenu.value].text;   //TODO: possible Out Of Range Error
-                        step.animationLoop = _characterSetting.AnimationLoopToggle.isOn;
-
-                        //if character has a dialog recorder
-                        if (DialogRecorder)
-                        {
-                            step.dialogLoop = DialogRecorder.LoopToggle.isOn;
-                            step.dialSaveName = activityManager.ActiveActionId + "_" + _myObj.poi + ".wav";
-                        }
-
-                        //if character has an image and animation type is image display
-                        step.imagePoiId = MyImageAnnotation != null ? MyImageAnnotation.poi : string.Empty;
-                    }
-                    //save the setting on other steps
-                    else
-                    {
-                        var otherStep = stepsSettings.Find(a => a.actionId == action.id);
-                        if (otherStep == null) continue;
-
-                        step.movementType = otherStep.movementType;
-                        step.destinations = otherStep.destinations;
-                        step.animationType = otherStep.animationType;
-                        step.animationLoop = otherStep.animationLoop;
-
-                        //if character has a dialog recorder
-                        if (DialogRecorder)
-                        {
-                            step.dialogLoop = otherStep.dialogLoop;
-                            step.dialSaveName = otherStep.actionId + "_" + _myObj.poi + ".wav";
-                        }
-
-                        //if character has an image and animation type is image display
-                        step.imagePoiId = otherStep.imagePoiId;
-                    }
-
-                    //Replace the step if exists, otherwise add
-                    if (stepsSettings.Find(a => a.actionId == step.actionId) != null)
-                        stepsSettings[stepsSettings.FindIndex(a => a.actionId == step.actionId)] = step;
-                    else
-                        stepsSettings.Add(step);
+                    Debug.LogError("[CharacterController] SaveJson(): ERROR: no character instantiated or parsing not finished");
+                    return;
                 }
-            }
 
-            //add our saved stepsSettings list to this character
-            character.steps = stepsSettings;
+                var character = new Character();
 
-            //save the size of the character (x,y and z is same)
-            character.scale = transform.localScale.x;
+                Debug.LogTrace("[CharacterController] SaveJson(): - - - start going through all action steps - - - ");
+                //add settings of all steps(which contains me) in json file
+                //each time we call this method the json file will be regenerated with all the steps settings:
+                foreach (var action in activityManager.ActionsOfTypeAction)
+                {
+                    // if augmentation activate data does not exist yet for this step, then create
+                    if (action.enter.activates.Find(p => p.poi == _myObj.poi) != null)
+                    {
+                        Debug.LogTrace("[CharacterController] SaveJson(): activate statement does not yet exist in step for this augmentation in this step with id " + action.id + ", therefore creating data to store");
+                        var step = new StepSettings { actionId = action.id };
 
-            //save AI activation status
-            //remove AI for all characters from jsons
-            foreach (var ch in FindObjectsOfType<CharacterController>())
-            {
-                //Save all other characters AIActive to false
-                if (ch == this) continue;
-                var jsonpath = $"{characterDataFolder}/{ch.ToggleObject.poi}.json";
+                        // if this is the current step, save the step settings from the context menu
+                        // or if the step has not yet any step settings saved (= keep alive was set from other step without editing the step yet)
+                        if (step.actionId == activityManager.ActiveActionId || (stepsSettings.Find(a => a.actionId == action.id) == null))
+                        {
+                            if (step.actionId == activityManager.ActiveActionId)
+                            {
+                                Debug.LogTrace("[CharacterController] SaveJson(): Storing step settings from menu for the currently active step with id " + step.actionId);
+                            } 
+                            if (stepsSettings.Find(a => a.actionId == action.id) == null)
+                            {
+                                Debug.LogTrace("[CharacterController] SaveJson(): Storing step settings from current menu for the step with id " + step.actionId + " because it does not have prior settings");
+                            }
+                            var (destinationPoints, movementType) = PrepareNodesToSave();
+                            step.movementType = movementType;
+                            step.destinations = destinationPoints; //null if not followpath
+                            step.animationType = _characterSetting.AnimationMenu.options[_characterSetting.AnimationMenu.value].text;
+                            Debug.LogTrace("[CharacterController] animation type = " + step.animationType);
+                            step.animationLoop = _characterSetting.AnimationLoopToggle.isOn;
 
-                if (!File.Exists(jsonpath)) continue;
+                            //if character has a dialog recorder
+                            if (DialogRecorder)
+                            {
+                                step.dialogLoop = DialogRecorder.LoopToggle.isOn;
+                                step.dialSaveName = activityManager.ActiveActionId + "_" + _myObj.poi + ".wav";
+                            }
 
-                var anotherCharacter = JsonUtility.FromJson<Character>(File.ReadAllText(jsonpath));
-                anotherCharacter.AIActive = false;
-                string anotherCharacterNewJson = JsonUtility.ToJson(anotherCharacter);
-                File.WriteAllText(jsonpath, anotherCharacterNewJson);
-            }
+                            //if character has an image and animation type is image display
+                            step.imagePoiId = MyImageAnnotation != null ? MyImageAnnotation.poi : string.Empty;
+                        }
+                        else
+                        {
+                            // if step already exists, then store the previously stored step settings (again)
+                            // REM: not sure this is really needed, what would it change, if later the same step is removed from this.stepsSettings and then this temp step added again?
+                            var otherStep = stepsSettings.Find(a => a.actionId == action.id);
+                            if (otherStep != null)
+                            {
+                                step.movementType = otherStep.movementType;
+                                step.destinations = otherStep.destinations;
+                                step.animationType = otherStep.animationType;
+                                Debug.LogTrace("[CharacterController] saving previously existing step setting with animation type = " + step.animationType);
+                                step.animationLoop = otherStep.animationLoop;
 
-            //then save it only for this char if it is set to true
-            character.AIActive = AIActivated;
+                                //if character has a dialog recorder
+                                if (DialogRecorder)
+                                {
+                                    step.dialogLoop = otherStep.dialogLoop;
+                                    step.dialSaveName = otherStep.actionId + "_" + _myObj.poi + ".wav";
+                                }
 
-            //Save default assistant id if the json has empty assistant id
-            if (AIActivated)
-            {
-                var defaultAssisID = watsonService.transform.Find("WatsonServices").GetComponent<DialogueService>().AssistantID;
-                character.AssistantID = defaultAssisID;
-            }
+                                //if character has an image and animation type is image display
+                                step.imagePoiId = otherStep.imagePoiId;
+                            }
+                            else // if the step has the character augmentation, but has no pre-existing settings
+                            {
+                                Debug.LogError("[CharacterController] SaveJson(): could not save step settings, something went wrong. ");
+                            }
+                        }
 
+                        //Replace the step if exists, otherwise add
+                        if (stepsSettings.Find(a => a.actionId == step.actionId) != null)
+                        {
+                            Debug.LogTrace("[CharacterController] SaveJson(): overwriting existing step setting");
+                            stepsSettings[stepsSettings.FindIndex(a => a.actionId == step.actionId)] = step;
+                        }
+                        else
+                        {
+                            Debug.LogTrace("[CharacterController] SaveJson(): adding new step setting");
+                            stepsSettings.Add(step);
+                        }
+                    }
+                    Debug.LogTrace("Current stepSettings json = " + JsonUtility.ToJson(stepsSettings));
+                }
+                Debug.LogTrace("[CharacterController] SaveJson(): - - - finished going through all action steps - - - ");
 
-            //create characterinfo folder if not exist
-            string characterJson = JsonUtility.ToJson(character);
-            if (!Directory.Exists(characterDataFolder))
-                Directory.CreateDirectory(characterDataFolder);
+                //add our saved stepsSettings list to this character
+                character.steps = stepsSettings;
 
-            string jsonPath = $"{characterDataFolder}/{_myObj.poi}.json";
+                //save the size of the character (x,y and z is same)
+                character.scale = transform.localScale.x;
 
-            //delete the exsiting file first
-            if (File.Exists(jsonPath))
-                File.Delete(jsonPath);
+                //save AI activation status:
+                //remove AI for all characters from jsons
+                foreach (var ch in FindObjectsOfType<CharacterController>())
+                {
+                    Debug.LogTrace($"[CharacterController] SaveJson(): purging AI mode from other character augmentations with poi {ch.ToggleObject.poi}");
+                    //Save all other characters AIActive to false
+                    if (ch == this)
+                    {
+                        Debug.LogTrace($"[CharacterController] SaveJson(): but not purging AI mode from myself with poi {ch.ToggleObject.poi}");
+                        continue;
+                    }
 
-            var assetBundlePath = $"{characterDataFolder}/{_myObj.option}";
-            if (!File.Exists(assetBundlePath))
-            {
-                var manifestFilePath = $"{Application.dataPath}/MirageXR/Common/AssetBundles/{_myObj.option}.manifest";
-                var bundleFilePath = $"{Application.dataPath}/MirageXR/Common/AssetBundles/{_myObj.option}";
-                if (File.Exists(manifestFilePath))
-                    File.Copy(manifestFilePath, assetBundlePath + ".manifest");
-                if (File.Exists(bundleFilePath))
-                    File.Copy(bundleFilePath, assetBundlePath);
-            }
+                    var jsonpath = $"{characterDataFolder}/{ch.ToggleObject.poi}.json";
 
-            //write the json file
-            File.WriteAllText(jsonPath, characterJson);
+                    if (!File.Exists(jsonpath))
+                    {
+                        Debug.LogTrace($"[CharacterController] SaveJson(): and not where there is not Json file (yet) with poi {ch.ToggleObject.poi}");
+                        continue;
+                    }
+
+                    var anotherCharacter = JsonUtility.FromJson<Character>(File.ReadAllText(jsonpath));
+                    anotherCharacter.AIActive = false;
+                    string anotherCharacterNewJson = JsonUtility.ToJson(anotherCharacter);
+                    File.WriteAllText(jsonpath, anotherCharacterNewJson);
+                }
+
+                //then save it only for this char if it is set to true
+                character.AIActive = AIActivated;
+
+                //Save default assistant id if the json has empty assistant id
+                if (AIActivated)
+                {
+                    var defaultAssistID = watsonService.transform.Find("WatsonServices").GetComponent<DialogueService>().AssistantID;
+                    character.AssistantID = defaultAssistID;
+                }
+
+                //create characterinfo folder if not exist
+                string characterJson = JsonUtility.ToJson(character);
+                Debug.LogTrace("[CharacterController] SaveJson(): final json = " + characterJson);
+                if (!Directory.Exists(characterDataFolder))
+                {
+                    Directory.CreateDirectory(characterDataFolder);
+                }
+                string jsonPath = $"{characterDataFolder}/{_myObj.poi}.json";
+                if (File.Exists(jsonPath))
+                {
+                    //delete the existing file first
+                    File.Delete(jsonPath);
+                }
+                var assetBundlePath = $"{characterDataFolder}/{_myObj.option}";
+                if (!File.Exists(assetBundlePath))
+                {
+                    var manifestFilePath = $"{Application.dataPath}/MirageXR/Common/AssetBundles/{_myObj.option}.manifest";
+                    var bundleFilePath = $"{Application.dataPath}/MirageXR/Common/AssetBundles/{_myObj.option}";
+                    if (File.Exists(manifestFilePath))
+                    {
+                        File.Copy(manifestFilePath, assetBundlePath + ".manifest");
+                    }
+                    if (File.Exists(bundleFilePath))
+                    {
+                        File.Copy(bundleFilePath, assetBundlePath);
+                    }
+                }
+                // and finally write out the json file
+                File.WriteAllText(jsonPath, characterJson);
+            } // save only if in EditMode
+            Debug.LogTrace("[CharacterController] SaveJson(): - - - - - - - - - - - END - - - - - - - -");
         }
 
         private IEnumerator FollowThePlayer()
@@ -947,6 +1018,7 @@ namespace MirageXR
 
             var time = 0f;
             if (_anim != null)
+            {
                 foreach (var animationClip in _anim.runtimeAnimatorController.animationClips)
                 {
                     if (animationClip.name == AnimationType)
@@ -954,8 +1026,8 @@ namespace MirageXR
                         time = animationClip.length;
                         animationLength = animationClip.length;
                     }
-
                 }
+            }
 
             //Do not wait for idle because the idle is default one anyway
             if (AnimationType != "Idle")
@@ -1001,27 +1073,35 @@ namespace MirageXR
 
         public async Task<bool> ActivateCharacterOnEnable()
         {
+            Debug.LogTrace("[CharacterController] ActivateCharacterOnEnable(): start");
             var characterLoaded = false;
             //if any character path has been found parse it
 
             var jsonpath = $"{characterDataFolder}/{_myObj.poi}.json";
             if (File.Exists(jsonpath))
             {
+                Debug.LogTrace("[CharacterController] ActivateCharacterOnEnable(): Parsing character json");
                 characterLoaded = await ParseCharacters(jsonpath);
             }
+            Debug.LogTrace("[CharacterController] ActivateCharacterOnEnable(): end");
 
             return characterLoaded;
         }
 
         private void SetEditModeState(bool editModeActive)
         {
-            //hilde all nodes(the root object of node, Destination.cs,  will not be deactivated)
-            foreach (var des in Destinations)
+            Debug.LogTrace("[CharacterController]: SetEditModeState(): Destinations");
+            //hide all nodes(the root object of node, Destination.cs,  will not be deactivated)
+            if (Destinations != null)
             {
-                if (des)
+                foreach (var des in Destinations)
                 {
-                    des.transform.GetChild(0).gameObject.SetActive(editModeActive); //TODO: Possible NRE
+                    if (des)
+                    {
+                        des.transform.GetChild(0).gameObject.SetActive(editModeActive); //TODO: Possible NRE
+                    }
                 }
+
             }
 
             //separate the dialog player and hide other settings
@@ -1039,7 +1119,7 @@ namespace MirageXR
                 //disable all bound box
                 Destinations.ForEach(d => d.GetComponent<BoundsControl>().Active = false);
             }
-            else
+            else // if editModeActive
             {
                 if (DialogRecorder)
                 {
@@ -1095,32 +1175,37 @@ namespace MirageXR
             if (character.steps.Count == 0)
             {
                 gameObject.SetActive(false);
-                Debug.LogError("The character augmentation has had a major change. Please recreate the existing characters.");
+                Debug.LogError("Restoring values for the character augmentation yielded a major error. Please remove and recreate the character.");
                 return false;
             }
 
             string myActionID = string.Empty;
-            if (stepsSettings.Find(a => a.actionId == activityManager.ActiveActionId) != null)
+            StepSettings theStep = stepsSettings.Find(a => a.actionId == activityManager.ActiveActionId);
+
+            if (theStep != null)
             {
+                Debug.LogTrace("[CharacterController] ParseCharacter(): found current step " + activityManager.ActiveActionId);
                 myActionID = activityManager.ActiveActionId;
             }
             else
             {
-                var stepSetting = stepsSettings.FirstOrDefault();
-                if (stepSetting != null)
+                Debug.LogTrace("[CharacterController] ParseCharacter(): could not find current step " + activityManager.ActiveActionId + ", picking first instead");
+                theStep = stepsSettings.FirstOrDefault();
+                if (theStep != null)
                 {
-                    myActionID = stepSetting.actionId;
+                    myActionID = theStep.actionId;
                 }
             }
 
             //get the info for the active step
-            var movementType = stepsSettings.Find(a => a.actionId == myActionID).movementType;
-            var destinationPoint = stepsSettings.Find(a => a.actionId == myActionID).destinations;
-            var animationType = stepsSettings.Find(a => a.actionId == myActionID).animationType;
-            var animationLoop = stepsSettings.Find(a => a.actionId == myActionID).animationLoop;
-            var imagePoi = stepsSettings.Find(a => a.actionId == myActionID).imagePoiId;
-            var dialogLoop = stepsSettings.Find(a => a.actionId == myActionID).dialogLoop;
-            var dialogSaveName = stepsSettings.Find(a => a.actionId == myActionID).dialSaveName;
+            var movementType = theStep.movementType;
+            var destinationPoint = theStep.destinations;
+            var animationType = theStep.animationType;
+            Debug.LogTrace("[CharacterController] ParseCharacters(): read the following animation type for current step: " + animationType);
+            var animationLoop = theStep.animationLoop;
+            var imagePoi = theStep.imagePoiId;
+            var dialogLoop = theStep.dialogLoop;
+            var dialogSaveName = theStep.dialSaveName;
 
             //set the movement panel toggles
             movementManger.PathLoop.isOn = destinationPoint.returnPath;
@@ -1158,7 +1243,7 @@ namespace MirageXR
             }
             else if (animationType == _characterSetting.defaultImageDisplayAnimationName)
             {
-                StartCoroutine(OnImageDisplayIntro(destinations.Count == 1)); //show immidiatly if there is no path to follow
+                StartCoroutine(OnImageDisplayIntro(destinations.Count == 1)); //show immediately if there is no path to follow
             }
 
             AnimationType = animationType;
@@ -1234,6 +1319,10 @@ namespace MirageXR
                 var triggerDuration = myTrigger.duration;
                 yield return new WaitForSeconds(triggerDuration);
                 ActionListMenu.Instance.NextAction();
+                //this is what is called inside the NextAction:
+                //   RootObject.Instance.activityManager.ActivateNextAction();
+                //this is what the onClick handler of the step button calls (cannot be called, would violate ARLEM standard:
+                //   RootObject.Instance.activityManager.ActivateActionByID(step.id).AsAsyncVoid();
             }
         }
 
