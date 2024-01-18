@@ -20,6 +20,7 @@ namespace MirageXR
            AppLog.Log("Installing hook for exceptions", LogLevel.INFO );
            sentry ??= new GameObject("ExceptionManagerSentry").AddComponent<SentrySdk>();
            sentry.Dsn = SENTRY_DSN;
+           sentry.Debug = false;
 
            Application.logMessageReceived += LogCaughtException;
        }
