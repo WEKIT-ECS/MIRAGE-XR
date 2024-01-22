@@ -300,6 +300,10 @@ public class ActionEditor : MonoBehaviour
         {
             detailView.DisplayedAction.instruction.title = newTitle;
             EventManager.NotifyActionModified(detailView.DisplayedAction);
+<<<<<<< HEAD
+=======
+            RootObject.Instance.activityManager.SaveData();
+>>>>>>> develop
         }
     }
 

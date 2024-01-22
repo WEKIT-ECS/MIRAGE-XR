@@ -124,7 +124,12 @@ public class ImageEditorView : PopupEditorBase
         _content.scale = 0.5f;
         _content.caption = _imageCaption;
         EventManager.ActivateObject(_content);
+<<<<<<< HEAD
         EventManager.NotifyActionModified(_step);
+=======
+
+        base.OnAccept();
+>>>>>>> develop
         Close();
     }
 

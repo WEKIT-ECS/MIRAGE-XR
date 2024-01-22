@@ -1,12 +1,19 @@
 using i5.Toolkit.Core.VerboseLogging;
+<<<<<<< HEAD
 using System.Collections;
 using System.Collections.Generic;
+=======
+>>>>>>> develop
 using UnityEngine;
 
 namespace MirageXR
 {
+<<<<<<< HEAD
 
    /// <summary>
+=======
+    /// <summary>
+>>>>>>> develop
    /// Class <c>ExceptionManager</c> registers for all serious exceptions and opens a user dialogue 
    /// to ask to send a report to sentry.io; the main exceptions registered for are:
    /// Null Reference, Divide by Zero, Out of Memory, Index Out of Range.
@@ -14,6 +21,7 @@ namespace MirageXR
 
    public class ExceptionManager : MonoBehaviour
    {
+<<<<<<< HEAD
 
        // the Sentry instance
        public SentrySdk sentry; 
@@ -60,3 +68,33 @@ namespace MirageXR
    }
 
 }
+=======
+       [SerializeField] private SentrySdk sentry; 
+
+       private const string SENTRY_DSN = "https://b23911205078e7a81bf1489e8aa0fabe@o4506320008118272.ingest.sentry.io/4506320009428992";
+
+       public void Initialize()
+       {
+           AppLog.Log("Installing hook for exceptions", LogLevel.INFO );
+           sentry ??= new GameObject("ExceptionManagerSentry").AddComponent<SentrySdk>();
+           sentry.Dsn = SENTRY_DSN;
+           sentry.Debug = false;
+
+           Application.logMessageReceived += LogCaughtException;
+       }
+
+       private static void LogCaughtException(string logText, string stackTrace, LogType logType)
+       {
+           if (logType == LogType.Exception)
+           {
+                SentrySdk.CaptureMessage($"ExceptionManager: [{logType}] {logText}, trace: {stackTrace}");
+           }
+       }
+
+       private void OnDestroy()
+       {
+           Application.logMessageReceived -= LogCaughtException;
+       }
+   }
+}
+>>>>>>> develop

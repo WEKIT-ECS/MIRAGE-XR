@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 ﻿using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
+=======
+﻿using UnityEngine;
+>>>>>>> develop
 
 namespace MirageXR
 {
@@ -859,6 +863,7 @@ namespace MirageXR
         {
             OnAugmentationLocked?.Invoke(id, locked);
         }
+<<<<<<< HEAD
 
 
         public delegate void AugmentationObjectCreatedDelegate(GameObject augmentationGameObject);
@@ -870,5 +875,7 @@ namespace MirageXR
             OnAugmentationObjectCreated?.Invoke(augmentationGameObject);
         }
 
+=======
+>>>>>>> develop
     }
 }

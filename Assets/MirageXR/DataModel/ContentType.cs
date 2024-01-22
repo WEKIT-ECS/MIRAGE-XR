@@ -16,8 +16,7 @@ public enum ContentType
     PICKANDPLACE,
     IMAGEMARKER,
     PLUGIN,
-    DRAWING,
-    EROBSON
+    DRAWING
 }
 
 public static class ContentTypeExtenstion
@@ -36,7 +35,6 @@ public static class ContentTypeExtenstion
     private const string IMAGEMARKER = "Image marker";
     private const string PLUGIN = "Plugin";
     private const string DRAWING = "Drawing";
-    private const string EROBSON = "eROBSON";
 
     private const string PREDICATE_UNKNOWN = "unknown";
     private const string PREDICATE_LABEL = "label";
@@ -57,7 +55,6 @@ public static class ContentTypeExtenstion
     private const string PREDICATE_IMAGEMARKER = "imagemarker";
     private const string PREDICATE_PLUGIN = "plugin";
     private const string PREDICATE_DRAWING = "drawing";
-    private const string PREDICATE_EROBSON = "erobson";
 
     private const string UNKNOWN_HINT = "Unknown";
     private const string IMAGE_HINT = "Take a photo and add it as an augmentation to this action step.";
@@ -73,7 +70,6 @@ public static class ContentTypeExtenstion
     private const string IMAGEMARKER_HINT = "Image marker allows to take a photo of an object (or select a pretrained image target) and thus allow to move task stations with the marker around.";
     private const string PLUGIN_HINT = "Augmentations that are created for specific activities";
     private const string DRAWING_HINT = "Draw in 3d space";
-    private const string EROBSON_HINT = "Simulate modular electronics which snap together with small magnets for prototyping and learning.";
 
     private const string IMAGE_IMAGE_PATH = "Icons/Editors/image";
     private const string VIDEO_IMAGE_PATH = "Icons/Editors/video";
@@ -88,7 +84,6 @@ public static class ContentTypeExtenstion
     private const string IMAGEMARKER_IMAGE_PATH = "Icons/Editors/imagemarker";
     private const string PLUGIN_IMAGE_PATH = "Materials/Textures/plugineditor";
     private const string DRAWING_IMAGE_PATH = "Materials/Textures/drawingeditor";
-    private const string EROBSON_IMAGE_PATH = "Icons/Editors/erobson";
 
     public static string GetName(this ContentType type)
     {
@@ -105,10 +100,9 @@ public static class ContentTypeExtenstion
             case ContentType.MODEL: return MODEL;
             case ContentType.CHARACTER: return CHARACTER;
             case ContentType.PICKANDPLACE: return PICKANDPLACE;
-            case ContentType.IMAGEMARKER:  return IMAGEMARKER;
-            case ContentType.PLUGIN:       return PLUGIN;
-            case ContentType.DRAWING:      return DRAWING;
-            case ContentType.EROBSON:      return EROBSON;
+            case ContentType.IMAGEMARKER: return IMAGEMARKER;
+            case ContentType.PLUGIN: return PLUGIN;
+            case ContentType.DRAWING: return DRAWING;
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
@@ -133,11 +127,10 @@ public static class ContentTypeExtenstion
             case ContentType.MODEL: return MODEL_IMAGE_PATH;
             case ContentType.CHARACTER: return CHARACTER_IMAGE_PATH;
             case ContentType.PICKANDPLACE: return PICKANDPLACE_IMAGE_PATH;
-            case ContentType.IMAGEMARKER:  return IMAGEMARKER_IMAGE_PATH;
-            case ContentType.PLUGIN:       return PLUGIN_IMAGE_PATH;
-            case ContentType.UNKNOWN:      return MODEL_IMAGE_PATH; // TODO: add icon for unknown content type
-            case ContentType.DRAWING:      return DRAWING_IMAGE_PATH;
-            case ContentType.EROBSON:      return EROBSON_IMAGE_PATH;
+            case ContentType.IMAGEMARKER: return IMAGEMARKER_IMAGE_PATH;
+            case ContentType.PLUGIN: return PLUGIN_IMAGE_PATH;
+            case ContentType.UNKNOWN: return MODEL_IMAGE_PATH; // TODO: add icon for unknown content type
+            case ContentType.DRAWING: return DRAWING_IMAGE_PATH;
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
@@ -158,10 +151,9 @@ public static class ContentTypeExtenstion
             case ContentType.MODEL: return MODEL_HINT;
             case ContentType.CHARACTER: return CHARACTER_HINT;
             case ContentType.PICKANDPLACE: return PICKANDPLACE_HINT;
-            case ContentType.IMAGEMARKER:  return IMAGEMARKER_HINT;
-            case ContentType.PLUGIN:       return PLUGIN_HINT;
-            case ContentType.DRAWING:      return DRAWING_HINT;
-            case ContentType.EROBSON:      return EROBSON_HINT;
+            case ContentType.IMAGEMARKER: return IMAGEMARKER_HINT;
+            case ContentType.PLUGIN: return PLUGIN_HINT;
+            case ContentType.DRAWING: return DRAWING_HINT;
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
@@ -182,10 +174,9 @@ public static class ContentTypeExtenstion
             case ContentType.MODEL: return PREDICATE_MODEL;
             case ContentType.CHARACTER: return PREDICATE_CHARACTER;
             case ContentType.PICKANDPLACE: return PREDICATE_PICKANDPLACE;
-            case ContentType.IMAGEMARKER:  return PREDICATE_IMAGEMARKER;
-            case ContentType.PLUGIN:       return PREDICATE_PLUGIN;
-            case ContentType.DRAWING:      return PREDICATE_DRAWING;
-            case ContentType.EROBSON:      return PREDICATE_EROBSON;
+            case ContentType.IMAGEMARKER: return PREDICATE_IMAGEMARKER;
+            case ContentType.PLUGIN: return PREDICATE_PLUGIN;
+            case ContentType.DRAWING: return PREDICATE_DRAWING;
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
@@ -220,8 +211,6 @@ public static class ContentTypeExtenstion
             return ContentType.PLUGIN;
         if (predicateLowCase.StartsWith(PREDICATE_DRAWING))
             return ContentType.DRAWING;
-        if (predicateLowCase.Contains(PREDICATE_EROBSON))
-            return ContentType.EROBSON;
 
         return ContentType.UNKNOWN;
     }

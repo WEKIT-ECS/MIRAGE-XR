@@ -170,7 +170,12 @@ public class VideoEditorView : PopupEditorBase
         }
 
         EventManager.ActivateObject(_content);
+<<<<<<< HEAD
         EventManager.NotifyActionModified(_step);
+=======
+
+        base.OnAccept();
+>>>>>>> develop
 
         Close();
     }

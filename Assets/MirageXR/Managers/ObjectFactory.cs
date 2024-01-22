@@ -2,6 +2,10 @@
 using i5.Toolkit.Core.VerboseLogging;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.IO;
+<<<<<<< HEAD
+=======
+using System.Threading.Tasks;
+>>>>>>> develop
 using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
 using UnityEngine.AI;
@@ -12,7 +16,10 @@ namespace MirageXR
 
     public class ObjectFactory : MonoBehaviour
     {
+<<<<<<< HEAD
 
+=======
+>>>>>>> develop
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
         private void OnEnable()
         {
@@ -26,8 +33,11 @@ namespace MirageXR
             EventManager.OnToggleObject -= Toggle;
         }
 
+<<<<<<< HEAD
         private static GameObject lastAddedPrefab;
 
+=======
+>>>>>>> develop
         /// <summary>
         /// Toggle on/off action toggle object.
         /// </summary>
@@ -98,6 +108,7 @@ namespace MirageXR
 
                                             ActivatePrefab(obj.option, obj);
                                         }
+<<<<<<< HEAD
                                         else if (obj.predicate.StartsWith("eRobson:"))
                                         {
                                             obj.option = obj.predicate.Replace("eRobson:", "");
@@ -105,6 +116,8 @@ namespace MirageXR
                                             var eRobsonModel = $"eROBSON/{obj.option}";
                                             ActivatePrefab(eRobsonModel, obj);
                                         }
+=======
+>>>>>>> develop
                                         // True and tested 2D symbols.
                                         else
                                         {
@@ -162,10 +175,13 @@ namespace MirageXR
                                         {
                                             DestroyPrefab(obj);
                                         }
+<<<<<<< HEAD
                                         else if (obj.predicate.StartsWith("eRobson:"))
                                         {
                                             DestroyPrefab(obj);
                                         }
+=======
+>>>>>>> develop
                                         // True and tested 2D symbol option.
                                         else
                                             DestroyPrefab(obj);
@@ -356,7 +372,11 @@ namespace MirageXR
             GameObject temp = null;
             var activeActionIndex = actionList.IndexOf(activityManager.ActiveAction);
 
+<<<<<<< HEAD
             // if we are in the active step and the annotaiton exists in this step
+=======
+            // if we are in the active step and the annotation exists in this step
+>>>>>>> develop
             if (actionList[activeActionIndex] == activityManager.ActiveAction
                 && actionList[activeActionIndex].enter.activates.Find(p => p.poi == obj.poi) != null)
             {
@@ -379,9 +399,13 @@ namespace MirageXR
                 if (prefabInAddressable != null)
                 {
                     temp = Instantiate(prefabInAddressable, Vector3.zero, Quaternion.identity);
+<<<<<<< HEAD
                     AddExtraComponents(temp, obj);
                     lastAddedPrefab = temp;
                     EventManager.AugmentationObjectCreated(temp);
+=======
+                    _ = AddExtraComponents(temp, obj);
+>>>>>>> develop
                 }
                 else
                 {
@@ -413,11 +437,22 @@ namespace MirageXR
         }
 
 
+<<<<<<< HEAD
         private static async void AddExtraComponents(GameObject go, ToggleObject annotationToggleObject)
+=======
+        /// <summary>
+        /// All post creation component will be added to the augmentation objects in this method
+        /// </summary>
+        /// <param name="go"></param>
+        /// <param name="annotationToggleObject"></param>
+        /// <returns></returns>
+        private static async Task AddExtraComponents(GameObject go, ToggleObject annotationToggleObject)
+>>>>>>> develop
         {
             switch (annotationToggleObject.predicate)
             {
                 case { } p when p.Contains("3d"):
+<<<<<<< HEAD
                     {
                         var obstacle = go.AddComponent<NavMeshObstacle>();
                         obstacle.size = go.transform.localScale / 4;
@@ -449,6 +484,54 @@ namespace MirageXR
             }
         }
 
+=======
+                {
+                    var obstacle = go.AddComponent<NavMeshObstacle>();
+                    obstacle.size = go.transform.localScale / 4;
+                    break;
+                }
+
+                case { } p when p.StartsWith("act") || p.StartsWith("effect") || p.Equals("image") || p.Equals("video"):
+                {
+                    if (DisableBounding(annotationToggleObject))
+                    {
+                        return;
+                    }
+
+                    await AddBoundingBox(go, annotationToggleObject);
+
+                    break;
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Add bounding box to the augmentation that need that
+        /// </summary>
+        /// <param name="go"></param>
+        /// <param name="annotationToggleObject"></param>
+        /// <returns></returns>
+        private static async Task AddBoundingBox(GameObject go, ToggleObject annotationToggleObject)
+        {
+            var boundingBox = go.AddComponent<BoundingBoxGenerator>();
+            boundingBox.CustomScaleHandlesConfiguration = Resources.Load<ScaleHandlesConfiguration>("Prefabs/CustomBoundingScaleHandlesConfiguration");
+            boundingBox.CustomRotationHandlesConfiguration = Resources.Load<RotationHandlesConfiguration>("Prefabs/CustomBoundingRotationHandlesConfiguration");
+            await boundingBox.AddBoundingBox(annotationToggleObject, BoundsCalculationMethod.RendererOverCollider, false, true, BoundingRotationType.ALL, true);
+
+            // disable rotation for image
+            if (DisableBoundingRotation(annotationToggleObject))
+            {
+                boundingBox.CustomRotationHandlesConfiguration.ShowHandleForX = false;
+                boundingBox.CustomRotationHandlesConfiguration.ShowHandleForY = false;
+                boundingBox.CustomRotationHandlesConfiguration.ShowHandleForZ = false;
+            }
+
+            await Task.CompletedTask;
+        }
+
+
+>>>>>>> develop
         private static IEnumerator WaitForParent(GameObject gameObject, System.Action callback)
         {
             yield return new WaitWhile(() => gameObject.transform.parent);
@@ -537,8 +620,12 @@ namespace MirageXR
 
                 //for all type of glyphs icons
                 if (obj.predicate.StartsWith("act") || obj.predicate.StartsWith("effect") ||
+<<<<<<< HEAD
                     obj.predicate.StartsWith("char") || obj.predicate.StartsWith("plugin") ||
                     obj.predicate.StartsWith("eRobson"))
+=======
+                    obj.predicate.StartsWith("char") || obj.predicate.StartsWith("plugin"))
+>>>>>>> develop
                 {
                     temp = GameObject.Find(path + obj.predicate);
                 }
