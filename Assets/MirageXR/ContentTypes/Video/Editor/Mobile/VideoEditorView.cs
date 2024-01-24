@@ -43,8 +43,8 @@ public class VideoEditorView : PopupEditorBase
     [SerializeField] private GameObject _speechToText;
     [SerializeField] private GameObject Toppanel;
     [SerializeField] private GameObject Bottompanel;
-    [SerializeField] private GameObject VideoEditorPrefab;
-    [SerializeField] private GameObject VideoPreviePrefab;
+    [SerializeField] private GameObject _videoCaptionEdit;
+    [SerializeField] private GameObject _videoCaptionPreview;
     [SerializeField] private GameObject _videoplayer;
     [SerializeField]
     private CaptionGenerator captionGenerator;
@@ -85,12 +85,12 @@ public class VideoEditorView : PopupEditorBase
     {
         Toppanel.SetActive(true);
         Bottompanel.SetActive(true);
-        VideoPreviePrefab.SetActive(false);
+        _videoCaptionPreview.SetActive(false);
     }
     private void OnBackEditButtonClick()
     {
-        VideoEditorPrefab.SetActive(false);
-        VideoPreviePrefab.SetActive(true);
+        _videoCaptionEdit.SetActive(false);
+        _videoCaptionPreview.SetActive(true);
     }
     private void OnDestroy()
     {
@@ -237,7 +237,7 @@ public class VideoEditorView : PopupEditorBase
         _speechToText.SetActive(true);
         Toppanel.SetActive(false);
         Bottompanel.SetActive(false);
-        VideoPreviePrefab.SetActive(true);
+        _videoCaptionPreview.SetActive(true);
         _videoplayer.SetActive(true);
         if (_videoWasRecorded)
         {
@@ -253,9 +253,9 @@ public class VideoEditorView : PopupEditorBase
     public void OnEditButtonClick()
     {
         _speechToText.SetActive(false);
-        VideoPreviePrefab.SetActive(false);
+        _videoCaptionPreview.SetActive(false);
         _videoplayer.SetActive(false);
-        VideoEditorPrefab.SetActive(true);
+        _videoCaptionEdit.SetActive(true);
         string savedText = captionGenerator.AllGeneratedCaptions();
         _captionEdit.text = savedText;
         Debug.Log(savedText);
@@ -264,9 +264,9 @@ public class VideoEditorView : PopupEditorBase
     {
         Toppanel.SetActive(true);
         Bottompanel.SetActive(true);
-        VideoPreviePrefab.SetActive(false);
+        _videoCaptionPreview.SetActive(false);
         _speechToText.SetActive(false);
-        VideoEditorPrefab.SetActive(false);
+        _videoCaptionEdit.SetActive(false);
         SaveTextToFile();
     }
 
