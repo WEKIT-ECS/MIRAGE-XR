@@ -1,5 +1,3 @@
-#pragma warning disable 0649
-
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -17,17 +15,11 @@ namespace IBM.Watsson.Examples
 {
     public class CaptionGenerator : MonoBehaviour
     {
-        #region PLEASE SET THESE VARIABLES IN THE INSPECTOR
-
+        [SerializeField] private TMP_Text ResultsField;
+        [SerializeField] private Button _stopButton;
         private string _serviceUrl;
-        [Tooltip("Text field to display the results of streaming.")]
-        [SerializeField]
-        private TMP_Text ResultsField;
         private string _iamApikey;
         private string _recognizeModel;
-
-        #endregion
-
         private int _recordingRoutine = 0;
         private string _microphoneID = null;
         private AudioClip _recording = null;
@@ -35,7 +27,7 @@ namespace IBM.Watsson.Examples
         private int _recordingHZ = 22050;
         private SpeechToTextService _service;
         private string accumulatedText = "";
-        [SerializeField] private Button _stopButton;
+        
         void Start()
         {
             _stopButton.onClick.AddListener(StopService);
