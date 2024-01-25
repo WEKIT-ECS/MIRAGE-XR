@@ -139,8 +139,6 @@ namespace MirageXR
             }
 
             await Task.Yield();
-
-            await PerformPlayModeCalibration();
         }
 
         private async Task PerformPlayModeCalibration()
@@ -268,7 +266,7 @@ namespace MirageXR
         /// <param name="origin">Origin transform from the calibration target.</param>
         public async Task CalibrateWorkplace(bool isNewPosition = false)
         {
-            await activityManager.ActivateFirstAction();
+            //await activityManager.ActivateFirstAction();
 
             if (isNewPosition)
             {
@@ -280,9 +278,6 @@ namespace MirageXR
                 await PerformPlayModeCalibration();
             }
 
-            //await activityManager.StartActivity();
-
-            EventManager.WorkplaceCalibrated();
             Maggie.Speak("Workplace is now calibrated.");
         }
     }

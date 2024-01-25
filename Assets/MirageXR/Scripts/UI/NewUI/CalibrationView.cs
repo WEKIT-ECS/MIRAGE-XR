@@ -249,6 +249,7 @@ public class CalibrationView : PopupBase
         _poseSynchronizer.enabled = true;
 
         await Task.Delay(CLOSE_TIME);
+        EventManager.WorkplaceCalibrated();
         Close();
     }
 

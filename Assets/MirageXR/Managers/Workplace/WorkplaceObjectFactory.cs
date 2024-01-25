@@ -22,9 +22,9 @@ namespace MirageXR
 
             try
             {
-                var rotation = Utilities.ParseStringToVector3(list[0].origin_rotation);
-                var quaternion = Quaternion.Euler(rotation);
-                workplaceManager.detectableContainer.rotation = Quaternion.Inverse(quaternion);
+                //var rotation = Utilities.ParseStringToVector3(list[0].origin_rotation);
+                //var quaternion = Quaternion.Euler(rotation);
+                //workplaceManager.detectableContainer.rotation = Quaternion.Inverse(quaternion);
 
                 foreach (var detectable in list)
                 {
@@ -680,17 +680,13 @@ namespace MirageXR
         /// <returns></returns>
         public static (Vector3, Vector3) GetPoseRelativeToCalibrationOrigin(GameObject objectOfInterest)
         {
-            var calibrationOrigin = RootObject.Instance.calibrationManager.anchor;
-            var originalParent = objectOfInterest.transform.parent;
+            var source = objectOfInterest.gameObject;
+            var anchor = RootObject.Instance.calibrationManager.anchor;
 
-            objectOfInterest.transform.SetParent(calibrationOrigin);
+            var position = anchor.InverseTransformPoint(source.transform.position);
+            var rotation = Quaternion.Inverse(anchor.rotation) * source.transform.rotation;
 
-            var relativePosition = objectOfInterest.transform.localPosition;
-            var relativeOrientation = objectOfInterest.transform.localEulerAngles;
-
-            objectOfInterest.transform.SetParent(originalParent);
-
-            return (relativePosition, relativeOrientation);
+            return (position, rotation.eulerAngles);
         }
 
         private static async Task PopulateTaskStation(GameObject parent)
