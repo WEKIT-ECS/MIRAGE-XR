@@ -5,6 +5,8 @@ using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
 using Image = UnityEngine.UI.Image;
+using UnityEngine.Video;
+using TMPro;
 
 public class VideoEditorView : PopupEditorBase
 {
@@ -30,13 +32,36 @@ public class VideoEditorView : PopupEditorBase
     [SerializeField] private GameObject _arrowUp;
     [Space]
     [SerializeField] private HintViewWithButtonAndToggle _hintPrefab;
+    [SerializeField] private Button _backEditButton;
+    [SerializeField] private Button _backPreviewButton;
+    [Space]
+    [SerializeField] private VideoPlayer videoPlayer;
+    [SerializeField] private Button playButton;
+    [SerializeField] private Button editCaption;
+    [SerializeField] private Button doneEditCaption;
+    [SerializeField] private GameObject _speechToText;
+    [SerializeField] private GameObject Toppanel;
+    [SerializeField] private GameObject Bottompanel;
+    [SerializeField] private GameObject _videoCaptionEdit;
+    [SerializeField] private GameObject _videoCaptionPreview;
+    [SerializeField] private GameObject _videoplayer;
+    [SerializeField]
+    private CaptionGenerator captionGenerator;
+    [SerializeField] private TMP_InputField _captionEdit;
 
     private string _newFileName;
     private bool _videoWasRecorded;
     private bool _orientation;
-
+    private string _videoCaption = string.Empty;
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
+        //captionGenerator = GetComponent<CaptionGenerator>();
+        playButton.onClick.AddListener(OnPlayButtonClick);
+        editCaption.onClick.AddListener(OnEditButtonClick);
+        doneEditCaption.onClick.AddListener(OnDoneButtonClick);
+        _backEditButton.onClick.AddListener(OnBackEditButtonClick);
+        _backPreviewButton.onClick.AddListener(OnPreviewButtonClick);
+
         _showBackground = false;
         base.Initialization(onClose, args);
         _btnCaptureVideo.onClick.AddListener(OnStartRecordingVideo);
@@ -55,7 +80,17 @@ public class VideoEditorView : PopupEditorBase
         RootView_v2.Instance.HideBaseView();
         UpdateView();
     }
-
+    private void OnPreviewButtonClick()
+    {
+        Toppanel.SetActive(true);
+        Bottompanel.SetActive(true);
+        _videoCaptionPreview.SetActive(false);
+    }
+    private void OnBackEditButtonClick()
+    {
+        _videoCaptionEdit.SetActive(false);
+        _videoCaptionPreview.SetActive(true);
+    }
     private void OnDestroy()
     {
         RootView_v2.Instance.ShowBaseView();
@@ -159,7 +194,7 @@ public class VideoEditorView : PopupEditorBase
         // saving of the movie file has already happened since it has been written to file while recording
         _content.url = HTTP_PREFIX + _newFileName;
         _content.key = _orientation ? LANDSCAPE : PORTRAIT;
-
+        _content.caption = _videoCaption;
         if (_toggleTrigger.isOn)
         {
             _step.AddOrReplaceArlemTrigger(TriggerMode.Video, ActionType.Video, _content.poi, 0, string.Empty);
@@ -195,6 +230,43 @@ public class VideoEditorView : PopupEditorBase
         rtImage.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
 
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
+    }
+    private void OnPlayButtonClick()
+    {
+        _speechToText.SetActive(true);
+        Toppanel.SetActive(false);
+        Bottompanel.SetActive(false);
+        _videoCaptionPreview.SetActive(true);
+        _videoplayer.SetActive(true);
+        if (_videoWasRecorded)
+        {
+            string videoPath = Path.Combine(activityManager.ActivityPath, _newFileName);
+            PlayVideo(videoPath);
+        }
+        else
+        {
+            Debug.Log("Video not recorded or fetched yet.");
+        }
+    }
+
+    public void OnEditButtonClick()
+    {
+        _speechToText.SetActive(false);
+        _videoCaptionPreview.SetActive(false);
+        _videoplayer.SetActive(false);
+        _videoCaptionEdit.SetActive(true);
+        string savedText = captionGenerator.AllGeneratedCaptions();
+        _captionEdit.text = savedText;
+        Debug.Log(savedText);
+    }
+    private void OnDoneButtonClick()
+    {
+        Toppanel.SetActive(true);
+        Bottompanel.SetActive(true);
+        _videoCaptionPreview.SetActive(false);
+        _speechToText.SetActive(false);
+        _videoCaptionEdit.SetActive(false);
+        SaveTextToFile();
     }
 
     private void OpenGallery()
@@ -237,5 +309,37 @@ public class VideoEditorView : PopupEditorBase
             _arrowDown.SetActive(true);
             _arrowUp.SetActive(false);
         }
+    }
+    private void PlayVideo(string path)
+    {
+        if (videoPlayer == null) return;
+
+        videoPlayer.url = path;
+        videoPlayer.Play();
+    }
+    public string GetVideoPath()
+    {
+        return Path.Combine(activityManager.ActivityPath);
+    }
+    private void SaveTextToFile()
+    {
+        _videoCaption = _captionEdit.text;
+       /* string inputText = _captionEdit.text;
+        string captionfilePath = Path.Combine(activityManager.ActivityPath, $"MirageXR_Video_{DateTime.Now.ToFileTimeUtc()}.txt");
+        // Check if the input text is not empty
+        if (!string.IsNullOrEmpty(inputText))
+        {
+            // Write the input text to the text file
+            using (StreamWriter writer = new StreamWriter(captionfilePath, true))
+            {
+                writer.WriteLine(inputText);
+            }
+
+            Debug.Log("Text saved to file: " + captionfilePath);
+        }
+        else
+        {
+            Debug.LogWarning("Input text is empty. Cannot save to file.");
+        }*/
     }
 }
