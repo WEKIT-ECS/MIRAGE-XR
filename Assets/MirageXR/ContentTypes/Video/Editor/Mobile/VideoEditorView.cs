@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using Image = UnityEngine.UI.Image;
 using UnityEngine.Video;
-using IBM.Watsson.Examples;
 using TMPro;
 
 public class VideoEditorView : PopupEditorBase
