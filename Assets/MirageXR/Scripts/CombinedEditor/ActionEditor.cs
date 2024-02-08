@@ -41,6 +41,7 @@ public class ActionEditor : MonoBehaviour
     [SerializeField] private GameObject imageMarkerPrefab;
     [SerializeField] private GameObject pluginPrefab;
     [SerializeField] private GameObject drawingEditorPrefab;
+    [SerializeField] private GameObject eRobsonSelectorPrefab;
 
     private LabelEditor labelEditor;
     private AudioEditor audioEditor;
@@ -56,6 +57,7 @@ public class ActionEditor : MonoBehaviour
     private PickAndPlaceEditor pickAndPlaceEditor;
     private ImageMarkerEditor imageMarkerEditor;
     private PluginEditor pluginEditor;
+    private ERobsonEditor erobsonSelector;
 
     private ActionDetailView detailView;
     private GameObject[] augmentationsButtons;
@@ -300,10 +302,7 @@ public class ActionEditor : MonoBehaviour
         {
             detailView.DisplayedAction.instruction.title = newTitle;
             EventManager.NotifyActionModified(detailView.DisplayedAction);
-<<<<<<< HEAD
-=======
             RootObject.Instance.activityManager.SaveData();
->>>>>>> develop
         }
     }
 
@@ -394,6 +393,11 @@ public class ActionEditor : MonoBehaviour
                     drawingEditor.SetAnnotationStartingPoint(DefaultAugmentationStartingPoint);
                     drawingEditor.Open(detailView.DisplayedAction, null);
                 }
+                break;
+            case ContentType.EROBSON:
+                erobsonSelector = LoadEditorPanel<ERobsonEditor>(eRobsonSelectorPrefab);
+                erobsonSelector.SetAnnotationStartingPoint(DefaultAugmentationStartingPoint);
+                erobsonSelector.Open(detailView.DisplayedAction, null);
                 break;
         }
     }
@@ -509,6 +513,10 @@ public class ActionEditor : MonoBehaviour
                 pluginEditor = LoadEditorPanel<PluginEditor>(pluginPrefab);
                 pluginEditor.Open(detailView.DisplayedAction, annotation);
                 break;
+            case { } annotationType when annotationType.StartsWith("eRobson"):
+                erobsonSelector = LoadEditorPanel<ERobsonEditor>(eRobsonSelectorPrefab);
+                erobsonSelector.Open(detailView.DisplayedAction, annotation);
+                break;
             default:
                 Debug.LogWarning("Unknown annotation predicate");
                 break;
@@ -544,7 +552,8 @@ public class ActionEditor : MonoBehaviour
             pluginEditor.Close();
         if (drawingEditor)
             drawingEditor.Close();
-
+        if (erobsonSelector)
+            erobsonSelector.Close();
 
         ShowHelpText();
     }

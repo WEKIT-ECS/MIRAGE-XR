@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-﻿using i5.Toolkit.Core.VerboseLogging;
+using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
-=======
-﻿using UnityEngine;
->>>>>>> develop
 
 namespace MirageXR
 {
@@ -180,6 +176,25 @@ namespace MirageXR
             OnToggleObject?.Invoke(action, true);
         }
 
+
+
+        // Gameobject of toggleobject is created
+        public delegate void AugmentationObjectCreatedDelegate(GameObject augmentationGameObject);
+
+        public static event AugmentationObjectCreatedDelegate OnAugmentationObjectCreated;
+
+        /// <summary>
+        /// The gameobject of toggleobject is instantiated
+        /// </summary>
+        /// <param name="augmentationGameObject"></param>
+        public static void AugmentationObjectCreated(GameObject augmentationGameObject)
+        {
+            OnAugmentationObjectCreated?.Invoke(augmentationGameObject);
+        }
+
+
+
+
         /// <summary>
         /// Deactivates an object.
         /// </summary>
@@ -299,7 +314,7 @@ namespace MirageXR
 
         public static void InitUi()
         {
-            Debug.LogTrace("InitCategoryButton UI invoked");
+            Debug.LogTrace("Init UI invoked");
             OnInitUi?.Invoke();
         }
 
@@ -632,6 +647,7 @@ namespace MirageXR
         }
 
 
+
         public delegate void ActivitySaveDelegate();
 
         public static event ActivitySaveDelegate OnActivitySaved;
@@ -863,19 +879,5 @@ namespace MirageXR
         {
             OnAugmentationLocked?.Invoke(id, locked);
         }
-<<<<<<< HEAD
-
-
-        public delegate void AugmentationObjectCreatedDelegate(GameObject augmentationGameObject);
-
-        public static event AugmentationObjectCreatedDelegate OnAugmentationObjectCreated;
-
-        public static void AugmentationObjectCreated(GameObject augmentationGameObject)
-        {
-            OnAugmentationObjectCreated?.Invoke(augmentationGameObject);
-        }
-
-=======
->>>>>>> develop
     }
 }

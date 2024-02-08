@@ -26,6 +26,7 @@ public class ContentSelectorView_v2 : PopupBase
     {
         // Get the list of augmentations from txt file depends on platform
         var listOfAugmentations = brandManager.GetListOfAugmentations();
+
         foreach (var type in _editors.Select(t => t.editorForType).Distinct())
         {
             if (listOfAugmentations.Contains(type) && type != ContentType.IMAGEMARKER)
