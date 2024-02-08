@@ -82,10 +82,10 @@ namespace MirageXR
             _calibrationAnimation.StopAnimation();
             if (_isTargetFound)
             {
-                var eulerAngles = transform.rotation.eulerAngles;
-                var rotation = new Vector3(0, eulerAngles.x + eulerAngles.y + eulerAngles.z - 90f, 0);
-                var position = transform.position;
-                RootObject.Instance.calibrationManager.OnCalibrationFinished(new Pose(position, Quaternion.Euler(rotation)));
+                var pose = transform.GetPose();
+                var eulerAngles = pose.rotation.eulerAngles;
+                var rotation = new Vector3(0, eulerAngles.y + eulerAngles.z, 0);
+                RootObject.Instance.calibrationManager.OnCalibrationFinished(new Pose(pose.position, Quaternion.Euler(rotation)));
             }
 
             if (_countdownToEnd != null)

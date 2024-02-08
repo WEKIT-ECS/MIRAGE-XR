@@ -418,7 +418,7 @@ namespace MirageXR
                         anchorFrame.transform.localRotation = Quaternion.identity;
                         anchorFrame.transform.localScale = Vector3.one;
 
-                        detectable.origin_position = Utilities.Vector3ToString(anchorFrame.transform.position);
+                        detectable.origin_position = Utilities.Vector3ToString(anchorFrame.transform.localPosition);
                         detectable.origin_rotation = Utilities.Vector3ToString(anchorFrame.transform.localRotation.eulerAngles);
                     }
                     else
@@ -676,11 +676,10 @@ namespace MirageXR
         /// <summary>
         /// Returns a 2-entry array, containing the position [0] and euler angles [1] of an object, relative to the calibration origin.
         /// </summary>
-        /// <param name="objectOfInterest"></param>
+        /// <param name="source"></param>
         /// <returns></returns>
-        public static (Vector3, Vector3) GetPoseRelativeToCalibrationOrigin(GameObject objectOfInterest)
+        public static (Vector3, Vector3) GetPoseRelativeToCalibrationOrigin(GameObject source)
         {
-            var source = objectOfInterest.gameObject;
             var anchor = RootObject.Instance.calibrationManager.anchor;
 
             var position = anchor.InverseTransformPoint(source.transform.position);
