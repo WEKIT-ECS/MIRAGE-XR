@@ -143,11 +143,6 @@ namespace MirageXR
 
         private async Task PerformPlayModeCalibration()
         {
-            if (calibrationPairs.Count == 0)
-            {
-                return;
-            }
-
             foreach (var pair in calibrationPairs)
             {
                 var localPosition = Utilities.ParseStringToVector3(pair.DetectableConfiguration.origin_position);
