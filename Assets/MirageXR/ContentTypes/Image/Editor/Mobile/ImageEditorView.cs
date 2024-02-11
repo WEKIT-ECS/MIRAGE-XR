@@ -1,8 +1,7 @@
-﻿using DG.Tweening;
-using MirageXR;
-using System;
+﻿using System;
 using System.IO;
-using TMPro;
+using DG.Tweening;
+using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
 using Image = UnityEngine.UI.Image;
@@ -28,18 +27,6 @@ public class ImageEditorView : PopupEditorBase
     [SerializeField] private Button _btnCaptureImage;
     [SerializeField] private Button _btnOpenGallery;
     [SerializeField] private Toggle _toggleOrientation;
-    private string text;
-    [SerializeField] private TMP_InputField _captionText;
-    [SerializeField] private TMP_Text _captionPreview;
-    [SerializeField] private Button _captionAdd;
-    [SerializeField] private Button _captionDone;
-    [SerializeField] private Button _captionEditBtn;
-    [SerializeField] private Button _captionSaveBtn;
-    [SerializeField] private Button _captionSaveBackBtn;
-    [SerializeField] private GameObject TopPanel;
-    [SerializeField] private GameObject BottomPanel;
-    [SerializeField] private GameObject ImageCaptionEditorPrefab;
-    [SerializeField] private GameObject ImageCaptionPreviewPrefab;
     [Space]
     [SerializeField] private Button _btnArrow;
     [SerializeField] private RectTransform _panel;
@@ -49,7 +36,6 @@ public class ImageEditorView : PopupEditorBase
     [SerializeField] private HintViewWithButtonAndToggle _hintPrefab;
 
     private Texture2D _capturedImage;
-    private string _imageCaption = string.Empty;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -59,14 +45,10 @@ public class ImageEditorView : PopupEditorBase
         _btnCaptureImage.onClick.AddListener(OnCaptureImage);
         _btnOpenGallery.onClick.AddListener(OpenGallery);
         _btnArrow.onClick.AddListener(OnArrowButtonPressed);
-
+        
         _arrowDown.SetActive(true);
         _arrowUp.SetActive(false);
-        _captionAdd.onClick.AddListener(OnCaptionAddClicked);
-        _captionDone.onClick.AddListener(DoneaddingCaption);
-        _captionEditBtn.onClick.AddListener(OnEditButtonClicked);
-        _captionSaveBtn.onClick.AddListener(OnDoneButtonSaveCaption);
-        _captionSaveBackBtn.onClick.AddListener(OnDoneButtonClick);
+
         _toggleOrientation.onValueChanged.AddListener(OnToggleOrientationValueChanged);
         _toggleOrientation.isOn = _orientation;
 
@@ -122,7 +104,6 @@ public class ImageEditorView : PopupEditorBase
 
         _content.url = HTTP_PREFIX + saveFileName;
         _content.scale = 0.5f;
-        _content.caption = _imageCaption;
         EventManager.ActivateObject(_content);
 
         base.OnAccept();
@@ -217,42 +198,6 @@ public class ImageEditorView : PopupEditorBase
         rtImage.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
 
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
-    }
-    public void OnCaptionAddClicked()
-    {
-        TopPanel.SetActive(false);
-        BottomPanel.SetActive(false);
-        ImageCaptionEditorPrefab.SetActive(true);
-
-    }
-    public void DoneaddingCaption()
-    {
-
-        ImageCaptionPreviewPrefab.SetActive(true);
-        ImageCaptionEditorPrefab.SetActive(false);
-        text = _captionText.text;
-        _captionPreview.text = text;
-        //Debug.Log(text);
-    }
-    public void OnEditButtonClicked()
-    {
-
-        ImageCaptionPreviewPrefab.SetActive(false);
-        ImageCaptionEditorPrefab.SetActive(true);
-    }
-    private void OnDoneButtonClick()
-    {
-        TopPanel.SetActive(true);
-        BottomPanel.SetActive(true);
-        ImageCaptionEditorPrefab.SetActive(false);
-    }
-    private void OnDoneButtonSaveCaption()
-    {
-        TopPanel.SetActive(true);
-        BottomPanel.SetActive(true);
-        ImageCaptionEditorPrefab.SetActive(false);
-        ImageCaptionPreviewPrefab.SetActive(false);
-        _imageCaption = _captionText.text;
     }
 
     private void OnArrowButtonPressed()
