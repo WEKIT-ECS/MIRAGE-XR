@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
 
 namespace MirageXR
@@ -12,9 +11,14 @@ namespace MirageXR
         [SerializeField] private ImageTargetManagerWrapper _imageTargetManager;
         [SerializeField] private CalibrationManager _calibrationManager;
         [SerializeField] private FloorManagerWrapper _floorManager;
+        [SerializeField] private PlaneManagerWrapper _planeManager;
         [SerializeField] private PointCloudManager _pointCloudManager;
         [SerializeField] private BrandManager _brandManager;
         [SerializeField] private GridManager _gridManager;
+        [SerializeField] private CameraCalibrationChecker _cameraCalibrationChecker;
+        [SerializeField] private PlatformManager _platformManager;
+        [SerializeField] private ExceptionManager _exceptionManager;
+
 
         private ActivityManager _activityManager;
         private AugmentationManager _augmentationManager;
@@ -27,6 +31,8 @@ namespace MirageXR
         public CalibrationManager calibrationManager => _calibrationManager;
 
         public FloorManagerWrapper floorManager => _floorManager;
+
+        public PlaneManagerWrapper planeManager => _planeManager;
 
         public BrandManager brandManager => _brandManager;
 
@@ -41,6 +47,12 @@ namespace MirageXR
         public EditorSceneService editorSceneService => _editorSceneService;
 
         public WorkplaceManager workplaceManager => _workplaceManager;
+
+        public CameraCalibrationChecker cameraCalibrationChecker => _cameraCalibrationChecker;
+
+        public PlatformManager platformManager => _platformManager;
+
+        public ExceptionManager exceptionManager => _exceptionManager;
 
         private bool _isInitialized;
 
@@ -87,6 +99,10 @@ namespace MirageXR
                 _floorManager ??= new GameObject("FloorManagerWrapper").AddComponent<FloorManagerWrapper>();
                 _pointCloudManager ??= new GameObject("PointCloudManager").AddComponent<PointCloudManager>();
                 _gridManager ??= new GameObject("GridManager").AddComponent<GridManager>();
+                _cameraCalibrationChecker ??= new GameObject("CameraCalibrationChecker").AddComponent<CameraCalibrationChecker>();
+                _platformManager ??= new GameObject("PlatformManager").AddComponent<PlatformManager>();
+                _planeManager ??= new GameObject("PlaneManager").AddComponent<PlaneManagerWrapper>();
+                _exceptionManager ??= new GameObject("ExceptionManager").AddComponent<ExceptionManager>();
 
                 _activityManager = new ActivityManager();
                 _augmentationManager = new AugmentationManager();
@@ -94,15 +110,18 @@ namespace MirageXR
                 _editorSceneService = new EditorSceneService();
                 _workplaceManager = new WorkplaceManager();
 
+#if !UNITY_EDITOR
+                _exceptionManager.Initialize();
+#endif
                 _brandManager.Initialization();
                 await _imageTargetManager.InitializationAsync();
                 await _floorManager.InitializationAsync();
-                await _calibrationManager.InitializationAsync();
-#if UNITY_IOS || UNITY_ANDROID || UNITY_EDITOR
+                _calibrationManager.Initialization();
                 await _pointCloudManager.InitializationAsync();
-#endif
-
+                await _planeManager.InitializationAsync();
                 _gridManager.Initialization();
+                _cameraCalibrationChecker.Initialization();
+                _platformManager.Initialization();
 
                 _activityManager.Subscription();
 
@@ -124,18 +143,17 @@ namespace MirageXR
         private async Task ResetManagersAsync()
         {
             await _floorManager.ResetAsync();
-#if UNITY_IOS || UNITY_ANDROID || UNITY_EDITOR
+            await planeManager.ResetAsync();
             await _pointCloudManager.ResetAsync();
-#endif
             await _imageTargetManager.ResetAsync();
         }
 
         private void OnDestroy()
         {
-            _floorManager.Dispose();
             _activityManager.Unsubscribe();
             _pointCloudManager.Unsubscribe();
             _activityManager.OnDestroy();
+            _planeManager.Dispose();
         }
     }
 }

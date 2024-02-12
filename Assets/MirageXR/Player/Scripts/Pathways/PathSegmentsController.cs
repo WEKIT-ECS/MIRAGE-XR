@@ -38,8 +38,10 @@ namespace MirageXR
 
         private void Start()
         {
-            if (!PlatformManager.Instance.WorldSpaceUi)
+            if (!RootObject.Instance.platformManager.WorldSpaceUi)
             {
+                lowerDisplay.gameObject.SetActive(false);
+
                 if (calibrationButton)
                 {
                     calibrationButton.gameObject.SetActive(false);

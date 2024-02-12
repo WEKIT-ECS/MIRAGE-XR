@@ -1,0 +1,25 @@
+using System.Threading.Tasks;
+using UnityEngine;
+
+public abstract class PlaneManagerBase : MonoBehaviour, IPlaneManager
+{
+    public abstract UnityEventPlaneIdVector3 onPlaneClicked { get; }
+
+    public abstract Task<bool> InitializationAsync();
+
+    public abstract Task<bool> ResetAsync();
+
+    public abstract void OnPlaneClicked(PlaneId planeId, Vector3 position);
+
+    public abstract void EnablePlanes();
+
+    public abstract void DisablePlanes();
+
+    public abstract void SelectPlane(PlaneId planeId);
+
+    public abstract GameObject GetPlane(PlaneId planeId);
+
+    public abstract void UpdatePlanes();
+
+    public abstract void Dispose();
+}
