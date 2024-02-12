@@ -9,6 +9,7 @@ public class AnnotationListItem : MonoBehaviour
     [SerializeField] private InputField startStepInput;
     [SerializeField] private InputField endStepInput;
     [SerializeField] private GameObject targetIcon;
+    [SerializeField] private GameObject lockIcon;
 
     private Button button;
 
@@ -44,6 +45,7 @@ public class AnnotationListItem : MonoBehaviour
     private void OnEnable()
     {
         EventManager.OnEditModeChanged += OnEditModeChanged;
+
         OnEditModeChanged(activityManager.EditModeActive);
     }
 
@@ -56,6 +58,13 @@ public class AnnotationListItem : MonoBehaviour
     {
         button.interactable = editModeActive;
         targetIcon.GetComponent<Button>().interactable = editModeActive;
+        if (DisplayedAnnotation != null)
+        {
+            if (SetLockActive())
+            {
+                lockIcon.SetActive(editModeActive);
+            }
+        }
     }
 
     public void SetUp(ActionDetailView parentView, ToggleObject annotation)
@@ -80,6 +89,7 @@ public class AnnotationListItem : MonoBehaviour
         endStepInput.text = (lastStep + 1).ToString();
 
         targetIcon.SetActive(DisplayedAnnotation.state == "target");
+        lockIcon.SetActive(SetLockActive());
     }
 
 
@@ -130,5 +140,38 @@ public class AnnotationListItem : MonoBehaviour
     {
         OnAnnotationItemClicked?.Invoke(DisplayedAnnotation);
         TaskStationDetailMenu.Instance.SelectedButton = GetComponent<Button>();
+    }
+
+    private bool SetLockActive()
+    {
+        if (!activityManager.EditModeActive)
+        {
+            return false;
+        }
+
+        switch (DisplayedAnnotation.predicate)
+        {
+            case string a when a.StartsWith("label"):
+                return true;
+                break;
+            case string a when a.StartsWith("effect"):
+                return true;
+                break;
+            case string a when a.StartsWith("act"):
+                return true;
+                break;
+            case string a when a.StartsWith("image"):
+                return true;
+                break;
+            case string a when a.StartsWith("video"):
+                return true;
+                break;
+            case string a when a.StartsWith("3d"):
+                return true;
+                break;
+            default:
+                return false;
+                break;
+        }
     }
 }

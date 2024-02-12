@@ -133,7 +133,7 @@ public class ContentListView_v2 : BaseView
         var editor = _editors.FirstOrDefault(t => t.editorForType == ContentType.IMAGEMARKER);
         if (editor == null)
         {
-            AppLog.LogError("there is no editor for the type ContentType.IMAGEMARKER");
+            Debug.LogError("there is no editor for the type ContentType.IMAGEMARKER");
             return;
         }
         PopupsViewer.Instance.Show(editor, _currentStep);

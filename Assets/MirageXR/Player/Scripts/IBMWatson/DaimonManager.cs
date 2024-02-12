@@ -23,6 +23,8 @@ public class DaimonManager : MonoBehaviour
     public bool check = false;
     public bool play = false;
     public bool triggerNext = false;
+    public bool triggerStep = false;
+    public int triggerStepNo = 0;
 
 
 
@@ -39,7 +41,7 @@ public class DaimonManager : MonoBehaviour
     {
         yield return new WaitForSeconds(preDelay);
 
-        AppLog.LogTrace("Look=" + "LEFT/RIGHT");
+        Debug.LogTrace("Look=" + "LEFT/RIGHT");
         yield return new WaitForSeconds(duration);
 
     }
@@ -59,13 +61,19 @@ public class DaimonManager : MonoBehaviour
         {
 
             //check that clip is not playing
-            AppLog.LogInfo("-------------------- Speech Output has finished playing, now reactivating SpeechInput.");
+            Debug.LogInfo("-------------------- Speech Output has finished playing, now reactivating SpeechInput.");
             check = false;
 
             if (triggerNext)
             {
                 triggerNext = false;
                 activityManager.ActivateNextAction();
+
+            }
+            if (triggerStep)
+            {
+                triggerStep = false;
+                activityManager.ActivateActionByIndex(triggerStepNo);
             }
 
             //Now let's start listening again.....

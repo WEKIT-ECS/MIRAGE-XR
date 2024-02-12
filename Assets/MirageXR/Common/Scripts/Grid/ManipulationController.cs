@@ -95,7 +95,7 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void OnManipulationStarted(GameObject source)
     {
-        if (!_gridManager.gridShown || !_gridManager.gridEnabled || !_gridManager.snapEnabled)
+        if (!_gridManager.snapEnabled || !RootObject.Instance.floorManager.isFloorDetected)
         {
             return;
         }
@@ -113,14 +113,17 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void OnManipulationUpdated(GameObject source)
     {
-        if (!_gridManager.gridShown || !_gridManager.gridEnabled || !_gridManager.snapEnabled)
+        if (!_gridManager.snapEnabled || !RootObject.Instance.floorManager.isFloorDetected)
         {
             return;
         }
 
-        UpdateCopyPosition(source);
-        SnapToGrid(_copy);
-        UpdateGridLines(_copy);
+        if (_copy)
+        {
+            UpdateCopyPosition(source);
+            SnapToGrid(_copy);
+            UpdateGridLines(_copy);
+        }
     }
 
     private void OnManipulationEnded(GameObject source)
@@ -276,8 +279,11 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void UpdateCopyPosition(GameObject source)
     {
-        _copy.SetPose(source.GetPose());
-        _copy.transform.localScale = source.transform.lossyScale;
+        if (_copy)
+        {
+            _copy.SetPose(source.GetPose());
+            _copy.transform.localScale = source.transform.lossyScale;
+        }
     }
 
     private void HideCopy()

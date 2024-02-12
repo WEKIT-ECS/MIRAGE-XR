@@ -39,19 +39,26 @@ namespace MirageXR
             siteConfigurationStatusLabel.text = string.Empty;
             publicUploadToggle.isOn = DBManager.publicUploadPrivacy;
 
-            if (PlayerPrefs.HasKey("MoodleURL"))
+            if (PlatformManager.Instance.WorldSpaceUi)
             {
-                ShowPanel(null); // hide login panel
+                if (PlayerPrefs.HasKey("MoodleURL"))
+                {
+                    ShowPanel(null); // hide login panel
+                }
+                else
+                {
+                    OpenURLConfigurationPanel();
+                }
+
+                EventManager.OnHideActivitySelectionMenu += HideLoginPanel;
+                EventManager.OnEditorLoaded += HideLoginPanel;
+
+                AutoLogin();
             }
             else
             {
-                OpenURLConfigurationPanel();
+                ShowPanel(null);
             }
-
-            EventManager.OnHideActivitySelectionMenu += HideLoginPanel;
-            EventManager.OnEditorLoaded += HideLoginPanel;
-
-            AutoLogin();
         }
 
         private void OnDestroy()
@@ -115,7 +122,7 @@ namespace MirageXR
             }
             else
             {
-                AppLog.LogError($"User login failed. Error: {response}");
+                Debug.LogError($"User login failed. Error: {response}");
                 status.color = Color.red;
                 status.text = "Invalid login, please try again";
             }
@@ -133,7 +140,7 @@ namespace MirageXR
             DBManager.username = usernameField.text;
             welcomUserText.text = $"Welcome {DBManager.username}";
             welcomUserText.gameObject.SetActive(true);
-            AppLog.LogInfo($"{DBManager.username} logged in successfully.");
+            Debug.LogInfo($"{DBManager.username} logged in successfully.");
             status.text = string.Empty;
             // close login menu
             ShowPanel(null);

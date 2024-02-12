@@ -58,7 +58,7 @@ namespace MirageXR
         {
             _sensor = sensor;
 
-            AppLog.LogTrace("Starting connection to sensors...");
+            Debug.LogTrace("Starting connection to sensors...");
 
             // Generate randomized client id.
             var clientId = "WEKIT-";
@@ -68,7 +68,7 @@ namespace MirageXR
 
             if (!fullUri.StartsWith("mqtt://"))
             {
-                AppLog.LogWarning("Tried to create sensor without mqtt connection: " + _sensor.id);
+                Debug.LogWarning("Tried to create sensor without mqtt connection: " + _sensor.id);
                 return false;
             }
 
@@ -79,7 +79,7 @@ namespace MirageXR
 
             if (uriComponents.Length != 2)
             {
-                AppLog.LogWarning("Sensor uri doesn't contain proper url + port definition: " + _sensor.id);
+                Debug.LogWarning("Sensor uri doesn't contain proper url + port definition: " + _sensor.id);
                 return false;
             }
 
@@ -90,7 +90,7 @@ namespace MirageXR
             {
                 if (string.IsNullOrEmpty(_sensor.password))
                 {
-                    AppLog.LogWarning("Sensor connection username without a password: " + _sensor.id);
+                    Debug.LogWarning("Sensor connection username without a password: " + _sensor.id);
                     return false;
                 }
 

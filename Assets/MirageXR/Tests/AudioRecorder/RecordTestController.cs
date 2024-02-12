@@ -41,7 +41,7 @@ public class RecordTestController : MonoBehaviour
 
     private void Awake()
     {
-        AppLog.LogDebug("Number of microphones found: " + Microphone.devices.Length);
+        Debug.LogDebug("Number of microphones found: " + Microphone.devices.Length);
     }
 
     private void Start()
