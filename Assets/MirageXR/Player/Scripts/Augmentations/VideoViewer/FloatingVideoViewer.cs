@@ -1,5 +1,6 @@
 ﻿using i5.Toolkit.Core.ServiceCore;
-using i5.Toolkit.Core.VerboseLogging;
+using Microsoft.MixedReality.Toolkit.UI;
+using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Collections;
 using System.IO;
 using UnityEngine;
@@ -94,7 +95,7 @@ namespace MirageXR
             // Check that url is not empty.
             if (string.IsNullOrEmpty(content.url))
             {
-                AppLog.LogWarning("Content URL not provided.");
+                Debug.LogWarning("Content URL not provided.");
                 return false;
             }
 
@@ -164,6 +165,9 @@ namespace MirageXR
             {
                 _audioSource.Play();
             }
+
+            OnLock(_obj.poi, _obj.positionLock);
+            EventManager.OnAugmentationLocked += OnLock;
 
             // Check if trigger is active
             StartCoroutine(ActivateTrigger());
@@ -557,6 +561,33 @@ namespace MirageXR
                 if (_thinLine != null)
                     _thinLine.SetActive(_originalGuideState);
             }
+        }
+
+        private void OnLock(string id, bool locked)
+        {
+            if (id == _obj.poi)
+            {
+                _obj.positionLock = locked;
+
+                GetComponent<BoundsControl>().enabled = !_obj.positionLock;
+
+                GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock);
+
+                if (gameObject.GetComponent<ObjectManipulator>())
+                {
+                    gameObject.GetComponent<ObjectManipulator>().enabled = !_obj.positionLock;
+                }
+            }
+        }
+
+        private void OnDestroy()
+        {
+            EventManager.OnAugmentationLocked -= OnLock;
+        }
+
+        public override void Delete()
+        {
+
         }
     }
 }

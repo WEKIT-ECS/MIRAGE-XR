@@ -157,7 +157,7 @@ public class GhostRecorder
         return new Pose
         {
             position = anchor.InverseTransformPoint(position),
-            rotation = Quaternion.Inverse(anchor.parent.localRotation) * rotation,
+            rotation = Quaternion.Inverse(anchor.localRotation) * rotation,
         };
     }
 

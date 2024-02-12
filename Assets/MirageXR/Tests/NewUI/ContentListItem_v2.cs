@@ -1,7 +1,7 @@
-using System;
-using System.Linq;
 using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
+using System;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -53,16 +53,44 @@ public class ContentListItem_v2 : MonoBehaviour
         {
             TaskStationDetailMenu.Instance.NavigatorTarget = ActionListMenu.CorrectTargetObject(_content);
         }
+
+
     }
 
     private void OnSettingsPressed()
     {
-        RootView_v2.Instance.dialog.ShowBottomMultiline("Settings",
-            ("Edit", EditContent, false),
-            ("Locate", LocateContent, false),
-            ("Rename", RenameContent, false),
-            ($"Keep alive {_from + 1}-{_to + 1}", ChangeKeepAlive, false),
-            ("Delete", DeleteContent, true));
+        if (SetLockActive())
+        {
+            if (!_content.positionLock)
+            {
+                RootView_v2.Instance.dialog.ShowBottomMultiline("Settings",
+                    ("Edit", EditContent, false),
+                    ("Locate", LocateContent, false),
+                    ("Rename", RenameContent, false),
+                    ("Lock", Lock, false),
+                    ($"Keep alive {_from + 1}-{_to + 1}", ChangeKeepAlive, false),
+                    ("Delete", DeleteContent, true));
+            }
+            else
+            {
+                RootView_v2.Instance.dialog.ShowBottomMultiline("Settings",
+                    ("Edit", EditContent, false),
+                    ("Locate", LocateContent, false),
+                    ("Rename", RenameContent, false),
+                    ("Unlock", Lock, false),
+                    ($"Keep alive {_from + 1}-{_to + 1}", ChangeKeepAlive, false),
+                    ("Delete", DeleteContent, true));
+            }
+        }
+        else
+        {
+            RootView_v2.Instance.dialog.ShowBottomMultiline("Settings",
+                ("Edit", EditContent, false),
+                ("Locate", LocateContent, false),
+                ("Rename", RenameContent, false),
+                ($"Keep alive {_from + 1}-{_to + 1}", ChangeKeepAlive, false),
+                ("Delete", DeleteContent, true));
+        }
     }
 
     private void OnListItemPressed()
@@ -76,7 +104,7 @@ public class ContentListItem_v2 : MonoBehaviour
         var editor = _parentView.editors.FirstOrDefault(t => t.editorForType == type);
         if (editor == null)
         {
-            AppLog.LogError($"there is no editor for the type {type}");
+            Debug.LogError($"there is no editor for the type {type}");
             return;
         }
 
@@ -133,5 +161,38 @@ public class ContentListItem_v2 : MonoBehaviour
         }
 
         _parentView.UpdateView();
+    }
+
+    private void Lock()
+    {
+        EventManager.NotifyAugmentationLocked(_content.poi, !_content.positionLock);
+    }
+
+    private bool SetLockActive()
+    {
+        switch (_content.predicate)
+        {
+            case string a when a.StartsWith("label"):
+                return true;
+                break;
+            case string a when a.StartsWith("effect"):
+                return true;
+                break;
+            case string a when a.StartsWith("act"):
+                return true;
+                break;
+            case string a when a.StartsWith("image"):
+                return true;
+                break;
+            case string a when a.StartsWith("video"):
+                return true;
+                break;
+            case string a when a.StartsWith("3d"):
+                return true;
+                break;
+            default:
+                return false;
+                break;
+        }
     }
 }
