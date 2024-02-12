@@ -2,6 +2,32 @@
 
 # Change Log
 
+
+# v2.4.2 (2023-10-10)
+
+# v2.4.1 (2023-10-09)
+
+# v2.4 (2023-09-24)
+
+## Featured:
+- **Improved label**. Label augmentations can now be customized with changing font sizes and different background and font color.
+- **Augmentation lock**. Augmentations can now be locked, fixing them in place while in edit mode, avoiding accidentally moving them. 
+- **Grid improvement**. The placement layout grid can now be switched to invisible, hiding the grid, while still snapping to grid positions.
+## Added:
+- We added a logout button for Sketchfab for the worldspace UI.
+## Changed:
+-  Character model triggers can now trigger any step by using the “%%trigger:step=X%%” (where X is the step number to jump to) keyword in a Watson output.
+- We cleaned up code for glyph, image, and audio augmentations.
+## Fixed:
+- We fixed a bug where Sketchfab models containing the “/” character would cause the app to crash.
+- We removed world space UI remnants from mobile builds.
+- We fixed a bug for the custom 3D models in the Pick and place augmentation.
+- We fixed a bug with triggers, causing the jump to action step to interpret the wrong step index.
+## Enterprise:
+- No changes
+## Developer:
+-  The default unity Debug.Log() is now replaced by a new custom logging system which filters messages based on their importance level. The changes to the UI for setting the desired filter level will be added in a later version. For now, it is possible to change the filter level using Debug.MinimumLogLevel.
+
 # v2.3 (2023-07-24)
 
 ## Featured:
