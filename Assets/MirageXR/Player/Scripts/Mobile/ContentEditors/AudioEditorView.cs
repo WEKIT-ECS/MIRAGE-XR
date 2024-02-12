@@ -36,6 +36,8 @@ public class AudioEditorView : PopupEditorBase
     [SerializeField] private Toggle _toggleLoop;
     [SerializeField] private Button _btnIncreaseRange;
     [SerializeField] private Button _btnDecreaseRange;
+    [SerializeField] private Toggle _toggleTrigger;
+    [SerializeField] private GameObject _objJumpToStep;
 
     [SerializeField] private TMP_Text _txtSliderRangeValue;
     [SerializeField] private GameObject _panelRange;
@@ -101,6 +103,7 @@ public class AudioEditorView : PopupEditorBase
         _btnIncreaseRange.onClick.AddListener(OnIncreaseRange);
         _btnDecreaseRange.onClick.AddListener(OnDecreaseRange);
         _btnRecordComplete.onClick.AddListener(OnClickRecordComplete);
+        _toggleTrigger.onValueChanged.AddListener(OnToggleTriggerValueChanged);
 
         _sliderPlayer.minValue = 0;
         _sliderPlayer.maxValue = 1f;
@@ -450,8 +453,15 @@ public class AudioEditorView : PopupEditorBase
         _content.option += $"#{_txtSliderRangeValue.text}";
         _content.scale = 0.5f;
         _content.url = $"http://{_fileName}";
-
-        _step.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, _content.poi, _audioClip.length, _inputTriggerStepNumber);
+       
+        if (_toggleTrigger.isOn)
+        {
+            _step.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, _content.poi, _audioClip.length, _inputTriggerStepNumber);
+        }
+        else
+        {
+            _step.RemoveArlemTrigger(_content);
+        }
 
         SaveLoadAudioUtilities.Save(filePath, _audioClip);
 
@@ -476,5 +486,10 @@ public class AudioEditorView : PopupEditorBase
             _arrowDown.SetActive(true);
             _arrowUp.SetActive(false);
         }
+    }
+
+    private void OnToggleTriggerValueChanged(bool value)
+    {
+        _objJumpToStep.SetActive(value);
     }
 }
