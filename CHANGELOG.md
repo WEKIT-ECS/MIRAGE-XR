@@ -2,6 +2,49 @@
 
 # Change Log
 
+# v2.5 (2024-02-14)
+
+## Featured:
+- **Markerless calibration**. We redesigned calibration, adding markerless manual placement as the new alternative to precision calibration with the calibration marker. The ‘world origin’ will now also be remembered across activities, reducing the need to calibrate overall. As part of the overall improvement, we have also added a tracking tool to alert the user when tracking is lost.
+- **3D model collections**. We redesigned the editor panel for 3D model augmentations, adding quick access to already downloaded models and implementing a model library section (with food and construction tools as the first categories available). 
+- **Online error reporting**. We track errors now online, so we can diagnose problems better and react more quickly. 
+## Added:
+- The Ghost augmentation now additionally records finger movement on HoloLens 2 into the data model, but does not yet display it.
+- We improved accessibility by implementing an experimental feature for image captions.
+## Changed:
+- Character models can now react to control commands parsed from any dialogue text returned from the AI (%%trigger%% and %%trigger:step=5%%).
+- The editor 3D grid and the snap-to-grid placement support are now active by default. 
+- We redesigned the user interface of the label editor.
+- We redesigned the user interface for the audio augmentation editor panel.
+- We refactored the autosave functionality, which stores data locally immediately, which had shown some erratic behavior, sometimes missing saving changes. 
+## Fixed:
+- We improved handling of 3D models to prevent them from slipping under the floor level. On rare occasions, as a result of calibration or tracking errors, models may still end up under the floor level, but this can now be fixed using the markerless calibration.
+- We fixed a bug with re-editing image augmentations, where confirming without changing the image would produce an exception.
+- The handle for rotating an action glyph (left and right) is now switched on again.
+- Activity title and description can no longer be edited in view mode.
+- We removed the zombie ‘home’ button on the aura from the mobile UI.
+- Values for gaze triggers are now properly saved for Action augmentations. 
+- We refactored the Sketchfab communication, reducing debug log output and phasing out reporting of hard exceptions from expired credentials.
+- We fixed a few bugs for the label augmentation: Minimizing the edit panel no longer makes the whole menu disappear, re-editing of the step target now recovers the stored value correctly, and pre-selects it in the list; labels of old activities are imported correctly again, and,  additionally, label text is now displayed in the list of augmentations, making it easier to identify the right item.
+## Enterprise:
+- We set up sponsorship support for our GitHub project – please donate large and plenty :)
+- We fixed the xAPI implementation, also modifying the underlying i5 service, which prevented LRS communication from running, also improving the overall error handling (e.g. LRS selection under profile triggered an error). 
+- We fixed the sensor communication framework (VestService.cs and vestconfig.json), which failed to find its config file, and set http://test.mosquitto.org:1883 as default service, which can be used to test communication with sensors from within activities. 
+- We improved the update and clone dialogue messages for the Moodle cloud uploads.
+- We fixed a bug, where login with the Moodle username (instead of the registered email) would allow logging in, but prevent publishing. Users now need to log in with the registered email address.
+- Activities that exist only locally (and are not uploaded to the cloud) now no longer try to increase the Moodle hit counter, previously yielding an error.
+- We added the possibility to configure the calibration marker to the BrandManager.
+## Developer:
+- We implemented a new Exception Manager that captures exceptions globally and logs them live to Sentry.io for improved online error reporting.
+- We reorganized the folder structure and location of project files to be more logical.
+- We improved debug logging, now supporting the setting of different levels of verbosity.
+- We changed the glTF plugin implementation to gltfast, which also resolves issues with animations.
+- xAPI calls are now suppressed when running in the editor, to avoid spamming the record store, while still maintaining their execution for testing purposes.
+- To ease in-editor testing, we now assume a random world-origin position during play-mode. This makes it easier to spot problems in restoring positions following calibration.
+- We introduced one-button dialogues.
+- We switched the CI pipeline to scheduled builds, to prevent disk space on the container from overflowing quickly in periods of heightened commits.
+- We added several new wiki pages and updated existing ones (Exception Manager, Experience Manager, Events, Character Model, Compiling MirageXR, File Organisation, UI 2.0).
+
 # v2.4.2 (2023-10-10)
 # v2.4.1 (2023-10-09)
 # v2.4 (2023-09-24)
