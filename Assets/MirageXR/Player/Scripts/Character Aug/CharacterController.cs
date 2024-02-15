@@ -653,6 +653,7 @@ namespace MirageXR
         public void SaveJson()
         {
             Debug.LogTrace("[CharacterController] SaveJson(): - - - - - - - - - - - START - - - - - - - -");
+            Debug.LogTrace("[CharacterController] SaveJson(): ActiveActionId = " + activityManager.ActiveActionId);
             if (activityManager.EditModeActive)
             {
                 Debug.LogTrace("[CharacterController] SaveJson(): EditMode is active, continuing to save");
@@ -823,6 +824,7 @@ namespace MirageXR
                 // and finally write out the json file
                 File.WriteAllText(jsonPath, characterJson);
             } // save only if in EditMode
+            Debug.LogTrace("[CharacterController] SaveJson(): ActiveActionId = " + activityManager.ActiveActionId);
             Debug.LogTrace("[CharacterController] SaveJson(): - - - - - - - - - - - END - - - - - - - -");
         }
 
