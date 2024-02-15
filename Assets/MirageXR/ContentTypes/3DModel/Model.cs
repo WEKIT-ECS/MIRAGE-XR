@@ -8,7 +8,6 @@ using GLTFast;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace MirageXR
 {
@@ -158,8 +157,9 @@ namespace MirageXR
             if (!_isLibraryModel)
             {
                 ConfigureModel(model, clip);
-                MoveAndScaleModel(model);
             }
+
+            MoveAndScaleModel(model);
 
             var parent = transform.parent;
             var myPoiEditor = parent.gameObject.GetComponent<PoiEditor>();
@@ -316,12 +316,16 @@ namespace MirageXR
             // get maximum extents
             var colliderSize = new Vector3(0f, 0f, 0f);
             int largestColliderIndex = 0;
-            foreach (Bounds meshColl in _colliders)
+            
+            if (_colliders != null)
             {
-                if (meshColl.size.sqrMagnitude > colliderSize.sqrMagnitude)
+                foreach (Bounds meshColl in _colliders)
                 {
-                    colliderSize = meshColl.size;
-                    largestColliderIndex = _colliders.IndexOf(meshColl);
+                    if (meshColl.size.sqrMagnitude > colliderSize.sqrMagnitude)
+                    {
+                        colliderSize = meshColl.size;
+                        largestColliderIndex = _colliders.IndexOf(meshColl);
+                    }
                 }
             }
 
