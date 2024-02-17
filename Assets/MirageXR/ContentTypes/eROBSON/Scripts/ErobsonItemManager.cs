@@ -599,7 +599,7 @@ public class ErobsonItemManager : MonoBehaviour
                 AddOrRemoveFromConnectedList(eRobsonItem, AddOrRemove.REMOVE);
 
                 //Let adjust the circuit again after deleting this bit
-                eRobsonItem.GetComponent<BitsBehaviourController>().ControlCircuit();
+                _=eRobsonItem.GetComponent<BitsBehaviourController>().ControlCircuit();
 
                 Debug.Log(eRobsonItem.ID + " deleted");
             }

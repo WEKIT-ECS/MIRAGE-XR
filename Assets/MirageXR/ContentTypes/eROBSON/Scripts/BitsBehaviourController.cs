@@ -1,6 +1,7 @@
 using Castle.Core.Internal;
 using Microsoft.MixedReality.Toolkit.UI;
 using MirageXR;
+using Obi;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,6 +13,8 @@ public class BitsBehaviourController : MonoBehaviour
 {
     private static readonly int SpeedString = Animator.StringToHash("SpeedString");
     private static readonly int OnString = Animator.StringToHash("ON");
+
+    private static HashSet<eROBSONItems> controlledBit = new HashSet<eROBSONItems>(); // Define this at a higher scope to keep track during recursion
 
     private eROBSONItems _eRobsonItem;
 
@@ -148,6 +151,14 @@ public class BitsBehaviourController : MonoBehaviour
             //Check all bits and deactivate all bits after this deactivated bit
             foreach (var eRobsonItem in eRobsonItemsList)
             {
+                //check each bit once
+                if (controlledBit.Contains(eRobsonItem))
+                {
+                    continue;
+                }
+
+                controlledBit.Add(eRobsonItem); // Mark this bit as visited
+
                 //Check the bits which are connected to this bit
                 var hasConnectedPower = await HasConnectedPowerUpToCurrentModule(eRobsonItem);
 
@@ -183,6 +194,10 @@ public class BitsBehaviourController : MonoBehaviour
         }
         finally
         {
+            _circuitControlling = false;
+
+            controlledBit.Clear();
+
             // In play mode
             if (!RootObject.Instance.activityManager.EditModeActive && checkConnections)
             {
@@ -192,8 +207,6 @@ public class BitsBehaviourController : MonoBehaviour
                     ComparePlayerCircuit();
                 }
             }
-
-            _circuitControlling = false;
         }
     }
 
@@ -423,58 +436,72 @@ public class BitsBehaviourController : MonoBehaviour
     /// <returns>true if the bit has power</returns>
     private static async Task<bool> HasConnectedPowerUpToCurrentModule(eROBSONItems bit)
     {
-        // Check if the current bit is the power source itself
+        // Base case: if the current bit is the USB power source, it always has power.
         if (bit.ID == BitID.USBPOWER)
         {
-            return true; // Power source always has power
+            return true;
         }
 
-        // Iterate through each connected bit to check for power
+        // If this bit is not active or does not have power directly, check if it can receive power from connected bits.
+        if (!bit.IsActive || !bit.HasPower || !hasBitConnectedNeighborBits(bit))
+        {
+            // If the bit is dimmable and its value is 0, treat it as inactive.
+            if (bit.Dimmable && bit.Value == 0)
+            {
+                return false;
+            }
+
+            bool hasPowerSource = false;
+            foreach (var connectedBit in bit.ConnectedBits)
+            {
+                // Avoid null bits.
+                if (connectedBit == null) continue;
+
+                // Directly connected to the USB power source or a powered and active component.
+                if (connectedBit.HasPower && connectedBit.IsActive)
+                {
+                    // For dimmable bits, also check the value is not zero.
+                    if (!connectedBit.Dimmable || (connectedBit.Dimmable && connectedBit.Value > 0))
+                    {
+                        // Recursively check if this connected bit can trace power back to the USB source.
+                        if (await HasConnectedPowerUpToCurrentModule(connectedBit))
+                        {
+                            hasPowerSource = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return hasPowerSource;
+        }
+
+        // If the bit itself is active and has power, no need to check further.
+        return true;
+    }
+
+
+
+    private static bool hasBitConnectedNeighborBits(eROBSONItems bit)
+    {
         foreach (var connectedBit in bit.ConnectedBits)
         {
-            if (connectedBit == null)
+            foreach (var connectedPort in connectedBit.Ports)
             {
-                continue; // Skip null connected bits
-            }
-
-            // Special case for USB power connector
-            if ((bit.ID == BitID.P3USBPOWERCONNECTOR && connectedBit.ID == BitID.USBPOWER) ||
-            (bit.ID == BitID.USBPOWER && connectedBit.ID == BitID.P3USBPOWERCONNECTOR))
-            {
-                bit.Ports[0].Connected = true; //usb port of usb power connecting
-                connectedBit.Ports[0].Connected = true; //usb power of p3 use power is connecting
-                return true;
-            }
-
-            // If the connected bit is not activated or does not have power, continue to the next bit
-            if (!connectedBit.HasPower)
-            {
-                continue;
-            }
-
-            // If the connected bit has power and is activated, increment the count of connected bits with power
-            if (connectedBit.HasPower)
-            {
-                return true;
-            }
-
-
-            //No more connected bits
-            if (connectedBit == bit)
-            {
-                continue;
-            }
-
-            // If the connected bit is not the current bit, recursively check all of its connected bits
-            if (await HasConnectedPowerUpToCurrentModule(connectedBit))
-            {
-                return true;
+                //if the positive port is connected to a bit which is active and has power
+                if (connectedPort.Pole == Pole.NEGATIVE && connectedPort.DetectedPortPole &&
+                    connectedPort.DetectedPortPole.ERobsonItem.HasPower &&
+                    connectedPort.DetectedPortPole.ERobsonItem.IsActive)
+                {
+                    return true;
+                }
             }
         }
 
-        // No connected bit has power
         return false;
     }
+
+
 
 
     /// <summary>
@@ -512,6 +539,7 @@ public class BitsBehaviourController : MonoBehaviour
         {
             return;
         }
+
 
         //No power source any more
         if ((bit.ID == BitID.USBPOWER || bit.ID == BitID.P3USBPOWERCONNECTOR) && !ErobsonItemManager.ERobsonActiveConnectedItemsList.Exists(b => b.ID == BitID.USBPOWER))

@@ -102,7 +102,7 @@ namespace MirageXR
                                         {
                                             obj.option = obj.predicate.Replace("eRobson:", "");
                                             obj.url = "resources://" + obj.predicate;
-                                            var eRobsonModel = $"eROBSON/Prefabs/{obj.option}";
+                                            var eRobsonModel = $"eROBSON/{obj.option}";
                                             ActivatePrefab(eRobsonModel, obj);
                                         }
                                         // True and tested 2D symbols.

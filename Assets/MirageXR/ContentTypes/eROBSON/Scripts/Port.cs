@@ -92,7 +92,8 @@ public class Port : MonoBehaviour
         {
             ControlPortCollision(hit.collider.gameObject);
         }
-        else
+        else if(ErobsonItemManager.ERobsonActiveConnectedItemsList != null && ERobsonItem != null &&
+            ErobsonItemManager.ERobsonActiveConnectedItemsList.Contains(ERobsonItem))
         {
             Disconnect();
         }
@@ -385,7 +386,7 @@ public class Port : MonoBehaviour
     /// <summary>
     /// When the port is disconnected
     /// </summary>
-    public void Disconnect(bool withoutEventTrigger = false)
+    public void Disconnect()
     {
         if (!DetectedPortPole)
         {
@@ -397,17 +398,14 @@ public class Port : MonoBehaviour
             ERobsonItem.PlaySnapSound(false);
         }
 
-        //Add connected bit to my list
+        //remove connected bit to my list
         if (ERobsonItem.ConnectedBits.Contains(DetectedPortPole.ERobsonItem))
         {
             ERobsonItem.ConnectedBits.Remove(DetectedPortPole.ERobsonItem);
         }
 
-        if (!withoutEventTrigger)
-        {
-            ErobsonItemManager.BitDisconnected(ERobsonItem);
-            ErobsonItemManager.BitDisconnected(DetectedPortPole.ERobsonItem);
-        }
+        ErobsonItemManager.BitDisconnected(ERobsonItem);
+        ErobsonItemManager.BitDisconnected(DetectedPortPole.ERobsonItem);
 
         DetectedPortPole = null;
 
