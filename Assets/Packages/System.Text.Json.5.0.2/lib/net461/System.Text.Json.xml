@@ -496,7 +496,7 @@ The current <paramref name="reader" /> token does not start or represent a value
     </member>
     <member name="P:System.Text.Json.JsonElement.Item(System.Int32)">
       <summary>Gets the value at the specified index if the current value is an <see cref="F:System.Text.Json.JsonValueKind.Array" />.</summary>
-      <param name="index">The item index.</param>
+      <param name="index">The category index.</param>
       <exception cref="T:System.InvalidOperationException">This value's <see cref="P:System.Text.Json.JsonElement.ValueKind" /> is not <see cref="F:System.Text.Json.JsonValueKind.Array" />.</exception>
       <exception cref="T:System.IndexOutOfRangeException">
         <paramref name="index" /> is not in the range [0, <see cref="M:System.Text.Json.JsonElement.GetArrayLength" />()).</exception>

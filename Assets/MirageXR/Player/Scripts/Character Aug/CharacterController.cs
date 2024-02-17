@@ -417,10 +417,10 @@ namespace MirageXR
             DialogRecorder.StopDialog();
 
             // destroy all Watson services in the scene
-            foreach (var dialogService in FindObjectsOfType<DialogueService>())
-            {
-                Destroy(dialogService.transform.parent.gameObject);
-            }
+            //foreach (var dialogService in FindObjectsOfType<DialogueService>())
+            //{
+            //    Destroy(dialogService.transform.parent.gameObject);
+            //}
 
             // Set back the audio mode for all characters to pre-record, except for me
             foreach (var character in FindObjectsOfType<CharacterController>())
@@ -438,10 +438,10 @@ namespace MirageXR
                 watsonService = Instantiate(watsonServicePrefab, Vector3.zero, Quaternion.Euler(0, 180, 0));
                 watsonService.transform.SetParent(transform);
                 watsonService.transform.localPosition = new Vector3(0, 2, 0);
-                watsonService.transform.Find("WatsonServices").GetComponent<DaimonManager>().myCharacter = _anim.gameObject;
-                var speechOutputService = watsonService.transform.Find("WatsonServices").GetComponent<SpeechOutputService>();
-                speechOutputService.myCharacter = _anim.gameObject;
-                speechOutputService.myVoice = IAmMale ? "en-US_KevinV3Voice" : "en-US_AllisonVoice";
+                //watsonService.transform.Find("WatsonServices").GetComponent<DaimonManager>().myCharacter = _anim.gameObject;
+                //var speechOutputService = watsonService.transform.Find("WatsonServices").GetComponent<SpeechOutputService>();
+                //speechOutputService.myCharacter = _anim.gameObject;
+                //speechOutputService.myVoice = IAmMale ? "en-US_KevinV3Voice" : "en-US_AllisonVoice";
                 AIActivated = true;
             }
         }
@@ -460,8 +460,8 @@ namespace MirageXR
 
             if (watsonService)
             {
-                watsonService.transform.Find("WatsonServices").GetComponent<SpeechInputService>().StopRecording();
-                Destroy(watsonService);
+                //watsonService.transform.Find("WatsonServices").GetComponent<SpeechInputService>().StopRecording();
+                //Destroy(watsonService);
             }
             AIActivated = false;
         }
@@ -724,8 +724,8 @@ namespace MirageXR
             //Save default assistant id if the json has empty assistant id
             if (AIActivated)
             {
-                var defaultAssisID = watsonService.transform.Find("WatsonServices").GetComponent<DialogueService>().AssistantID;
-                character.AssistantID = defaultAssisID;
+                //var defaultAssisID = watsonService.transform.Find("WatsonServices").GetComponent<DialogueService>().AssistantID;
+                //character.AssistantID = defaultAssisID;
             }
 
 
@@ -1197,7 +1197,7 @@ namespace MirageXR
             //Set the assistant ID
             if (!string.IsNullOrEmpty(character.AssistantID))
             {
-                watsonService.transform.Find("WatsonServices").GetComponent<DialogueService>().AssistantID = character.AssistantID;
+                //watsonService.transform.Find("WatsonServices").GetComponent<DialogueService>().AssistantID = character.AssistantID;
             }
 
             //inplace is added here only for the old character in the repo. There is no inplace mode longer

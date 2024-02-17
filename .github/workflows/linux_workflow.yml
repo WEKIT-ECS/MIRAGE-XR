@@ -1,5 +1,7 @@
-name: Linux workflow
-on: [push, pull_request]
+name: Linux Workflow (Unit tests and Android build)
+on:
+  schedule:
+    - cron: 0 19 * * 5
 jobs:
   test:
     name: Test Unity

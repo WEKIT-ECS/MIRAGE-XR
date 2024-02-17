@@ -67,7 +67,7 @@ internal class ThreeLS
 
     private void init()
     {
-        // Init frequency bins
+        // InitCategoryButton frequency bins
         updateFrequencyBins(vocalTractFactor);
         // Initialize FFT
         spectrum = new float[fftSize / 2];

@@ -33,7 +33,7 @@ namespace MirageXR
 
         private async void Start()
         {
-            if (PlatformManager.Instance.WorldSpaceUi)
+            if (RootObject.Instance.platformManager.WorldSpaceUi)
             {
                 RefreshActivityList();
                 await Task.Delay(1);

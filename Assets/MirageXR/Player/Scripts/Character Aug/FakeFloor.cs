@@ -7,19 +7,22 @@ namespace MirageXR
     {
         private const float OFFSET = -0.05f;
 
+        private static PlaneManagerWrapper planeManager => RootObject.Instance.planeManager;
+
         private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
+
 
         private void Start()
         {
             gameObject.GetComponent<BoxCollider>().enabled = true;
-            floorManager.onDetectionEnabled.AddListener(OnDetectionEnabled);
-            floorManager.onDetectionDisabled.AddListener(OnDetectionDisabled);
+            planeManager.onDetectionEnabled.AddListener(OnDetectionEnabled);
+            planeManager.onDetectionDisabled.AddListener(OnDetectionDisabled);
         }
 
         private void OnDestroy()
         {
-            floorManager.onDetectionEnabled.RemoveListener(OnDetectionEnabled);
-            floorManager.onDetectionDisabled.RemoveListener(OnDetectionDisabled);
+            planeManager.onDetectionEnabled.RemoveListener(OnDetectionEnabled);
+            planeManager.onDetectionDisabled.RemoveListener(OnDetectionDisabled);
         }
 
         private void Update()

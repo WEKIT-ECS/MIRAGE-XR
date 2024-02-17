@@ -310,7 +310,7 @@ namespace Tests
             rootObject.activityManager.EditModeActive = isEditMode;
 
             // then run the player calibration routine to move objects (as though the camera is the marker)
-            await rootObject.workplaceManager.CalibrateWorkplace(WorldTestOrigin);
+            await rootObject.workplaceManager.CalibrateWorkplace();
         }
 
         private void CalibrationComplete()

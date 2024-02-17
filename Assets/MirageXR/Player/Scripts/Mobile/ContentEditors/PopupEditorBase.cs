@@ -1,5 +1,4 @@
 using System;
-using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using TMPro;
 using UnityEngine;
@@ -33,7 +32,11 @@ public abstract class PopupEditorBase : PopupBase
         UpdateBaseView();
     }
 
-    protected abstract void OnAccept();
+    protected virtual void OnAccept()
+    {
+        EventManager.NotifyActionModified(_step);
+        RootObject.Instance.activityManager.SaveData();
+    }
 
     protected virtual void UpdateBaseView()
     {

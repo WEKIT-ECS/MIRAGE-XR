@@ -43,7 +43,7 @@ public class ActionListMenu : MonoBehaviour
         else if (Instance != this)
             Destroy(gameObject);
 
-        if (!PlatformManager.Instance.WorldSpaceUi)
+        if (!RootObject.Instance.platformManager.WorldSpaceUi)
         {
             GetComponent<Canvas>().enabled = false;
             return;

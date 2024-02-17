@@ -193,7 +193,7 @@ namespace Tests
 
             GameObject res = Utilities.CreateObject(id, "this parent does not exist");
 
-            Assert.IsTrue(res == null);
+            Assert.IsNull(res);
         }
 
         [Test]

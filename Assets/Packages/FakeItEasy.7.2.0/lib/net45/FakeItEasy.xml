@@ -3654,8 +3654,8 @@
             <summary>
             Provides access to all types in:
             <list type="bullet">
-              <item>currently loaded assemblies that reference FakeItEasy and</item>
-              <item>assemblies whose paths are supplied to the constructor, that also reference FakeItEasy.</item>
+              <category>currently loaded assemblies that reference FakeItEasy and</category>
+              <category>assemblies whose paths are supplied to the constructor, that also reference FakeItEasy.</category>
             </list>
             </summary>
         </member>
@@ -4138,8 +4138,8 @@
             </summary>
             <typeparam name="T">The type of items in the collection.</typeparam>
             <param name="items">The items to join.</param>
-            <param name="stringConverter">A function that converts from an item to a string value.</param>
-            <param name="separator">Separator to insert between each item.</param>
+            <param name="stringConverter">A function that converts from an category to a string value.</param>
+            <param name="separator">Separator to insert between each category.</param>
             <returns>A string representation of the collection.</returns>
         </member>
         <member name="M:FakeItEasy.EnumerableExtensions.AsList``1(System.Collections.Generic.IEnumerable{``0})">
@@ -5058,9 +5058,9 @@
             A value that indicates the relative order of the objects
             being compared. The return value has these meanings:
             <list type="bullet">
-              <item>less than zero: this instance precedes <paramref name="other"/> in the sort order</item>
-              <item>zero: this instance occurs in the same position in the sort order as <paramref name="other"/></item>
-              <item>greater than zero: this instance follows <paramref name="other"/> in the sort order</item>
+              <category>less than zero: this instance precedes <paramref name="other"/> in the sort order</category>
+              <category>zero: this instance occurs in the same position in the sort order as <paramref name="other"/></category>
+              <category>greater than zero: this instance follows <paramref name="other"/> in the sort order</category>
             </list>
             </returns>
             <param name="other">An object to compare with this instance.</param>
