@@ -856,8 +856,12 @@ namespace MirageXR
 
             if (index < 0) return true; //go to the next point
 
-            _agent.SetDestination(Destinations[index].transform.position);
-            while (_agent && _agent.isActiveAndEnabled && _agent.remainingDistance > _agent.stoppingDistance)
+            if (_agent && _agent.isOnNavMesh)
+            {
+                _agent.SetDestination(Destinations[index].transform.position);
+            }
+
+            while (_agent && _agent.isActiveAndEnabled && _agent.isOnNavMesh && _agent.remainingDistance > _agent.stoppingDistance)
             {
                 await Task.Delay(10);
             }
