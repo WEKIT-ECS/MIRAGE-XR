@@ -7,7 +7,7 @@ public class SpatialMapManager : MonoBehaviour
 {
     private MeshCollider[] spatialMapMeshs;
     
-    private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
+    private static PlaneManagerWrapper planeManager => RootObject.Instance.planeManager;
 
 #if UNITY_WSA
     private void Start()
@@ -15,8 +15,8 @@ public class SpatialMapManager : MonoBehaviour
         UpdateSpatialMapColliders(RootObject.Instance.activityManager.EditModeActive);
         //set colliders when first loading an activity
 
-        floorManager.onDetectionEnabled.AddListener(OnDetectionEnabled);
-        floorManager.onDetectionDisabled.AddListener(OnDetectionDisabled);
+        planeManager.onDetectionEnabled.AddListener(OnDetectionEnabled);
+        planeManager.onDetectionDisabled.AddListener(OnDetectionDisabled);
     }
 
     private void OnDetectionDisabled()
