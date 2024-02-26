@@ -76,7 +76,8 @@ public class PickAndPlaceEditorView : PopupEditorBase
         CreateOrRemoveTrigger(_isIncorrectTrigger, TriggerMode.IncorrectPickAndPlace, "incorrect", _incorrectStepIndex.text);
 
         EventManager.ActivateObject(_content);
-        EventManager.NotifyActionModified(_step);
+
+        base.OnAccept();
         Close();
     }
 

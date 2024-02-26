@@ -43,8 +43,8 @@ platforms, IoT sensors, and wearables to suit the training needs of any
 organisation. It implements the IEEE P1589-2020 standard for augmented reality 
 learning experience models, which allows for the automated extraction and 
 transformation of content from legacy systems (such as, e.g., an Oasis DITA 
-or S1000D compliant technical documentation system) - compatible with an ecosystem 
-of tools, future proofing your content, to the highest, approved standard.
+or S1000D-compliant technical documentation system) - compatible with an ecosystem 
+of tools, future-proofing your content, to the highest, approved standard.
 
 * Cognitive methods in performance measurement - MirageXR supports established 
 Cognitive Science research methodologies such as cognitive task analysis to 
@@ -53,16 +53,19 @@ a training session, performance analysis can be prepared from the measured data,
 stored via the interface with the IEEE Experience API (xAPI).
 
 * Scientifically validated method - the MirageXR Open Source core is based on 
-project results of the Horizon 2020 project WEKIT, validated in two waves with 
-over 550 participants in pilot trials in medicine, aviation, and space. 
+project results of the Horizon 2020 project WEKIT (grant agreement No 687669),
+validated in two waves with over 550 participants in pilot trials in medicine,
+aviation, and space. The contributing partners from the WEKIT consortium were
+Oxford Brookes University, Open University of the Netherlands, and VTT Technical
+Research Centre of Finland. 
 
-MirageXR provides enhanced, location-based experience for learners with the promise 
+MirageXR provides an enhanced, location-based experience for learners with the promise 
 to get access to expert knowledge faster, better, and more engaging than ever before. 
 Better engagement means more effective education and training which translates 
 real social and economic benefits to the market.
 
 MirageXR has received funding from the European Union’s Horizon 2020 research 
-and innovation programme through the XR4ALL project with grant agreement 
+and innovation programme through the XR4ALL project with the grant agreement 
 No 825545, through the OpenReal project funded by The Open University of the UK, 
 and through the ARETE project with the grant agreement No 856533.
 

@@ -58,6 +58,8 @@ namespace MirageXR
 
             EventManager.ActivateObject(annotationToEdit);
             EventManager.NotifyActionModified(action);
+            
+            RootObject.Instance.activityManager.SaveData();
 
             Close();
         }

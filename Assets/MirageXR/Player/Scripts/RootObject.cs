@@ -52,7 +52,7 @@ namespace MirageXR
 
         public PlatformManager platformManager => _platformManager;
 
-	public ExceptionManager exceptionManager => _exceptionManager;
+        public ExceptionManager exceptionManager => _exceptionManager;
 
         private bool _isInitialized;
 
@@ -110,10 +110,13 @@ namespace MirageXR
                 _editorSceneService = new EditorSceneService();
                 _workplaceManager = new WorkplaceManager();
 
+#if !UNITY_EDITOR
+                _exceptionManager.Initialize();
+#endif
                 _brandManager.Initialization();
                 await _imageTargetManager.InitializationAsync();
                 await _floorManager.InitializationAsync();
-                await _calibrationManager.InitializationAsync();
+                _calibrationManager.Initialization();
                 await _pointCloudManager.InitializationAsync();
                 await _planeManager.InitializationAsync();
                 _gridManager.Initialization();

@@ -158,8 +158,7 @@ public class GlyphEditorView : PopupEditorBase
             EventManager.ActivateObject(_content);
         }
 
-        EventManager.NotifyActionModified(_step);
-
+        base.OnAccept();
         Close();
     }
 

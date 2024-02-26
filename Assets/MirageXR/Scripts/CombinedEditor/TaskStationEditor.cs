@@ -14,6 +14,7 @@ public class TaskStationEditor : MonoBehaviour
     private TaskStationStateController _taskStationStateController;
     private PlaceBehaviour _placeBehaviour;
     private Detectable _detectable;
+    private bool _isInitialized;
 
     private void Awake()
     {
@@ -23,18 +24,31 @@ public class TaskStationEditor : MonoBehaviour
 
     private void Start()
     {
+        Init();
+    }
+
+    private void Init()
+    {
+        if (_isInitialized)
+        {
+            return;
+        }
+        
         _placeBehaviour = transform.parent.parent.gameObject.GetComponent<PlaceBehaviour>();
         _detectable = RootObject.Instance.workplaceManager.GetDetectable(_placeBehaviour.Place);
         _objectManipulator.HostTransform = GameObject.Find(_detectable.id).transform;
         _objectManipulator.enabled = activityManager.EditModeActive;
         _objectManipulator.OnManipulationStarted.AddListener(_ => gridManager.onManipulationStarted(_objectManipulator.HostTransform.gameObject));
         _objectManipulator.OnManipulationEnded.AddListener(OnManipulationEnded);
+        _isInitialized = true;
     }
 
     private void OnEnable()
     {
         EventManager.OnActionModified += OnActionChanged;
         EventManager.OnEditModeChanged += OnEditModeChanged;
+
+        EventManager.OnWorkplaceCalibrated += OnCalibrationFinished;
 
         _objectManipulator.enabled = activityManager.EditModeActive;
 
@@ -45,6 +59,7 @@ public class TaskStationEditor : MonoBehaviour
     {
         EventManager.OnActionModified -= OnActionChanged;
         EventManager.OnEditModeChanged -= OnEditModeChanged;
+        EventManager.OnWorkplaceCalibrated -= OnCalibrationFinished;
     }
 
     private void OnEditModeChanged(bool editModeActive)
@@ -52,11 +67,29 @@ public class TaskStationEditor : MonoBehaviour
         _objectManipulator.enabled = _taskStationStateController.IsCurrent() && editModeActive;
     }
 
+    private void OnCalibrationFinished()
+    {
+        RecordTaskStationPosition();
+    }
+
     private void OnManipulationEnded(ManipulationEventData eventData)
     {
         var source = _objectManipulator.HostTransform.gameObject;
         gridManager.onManipulationEnded(source);
 
+        RecordTaskStationPosition();
+        EventManager.NotifyOnTaskStationEditorDragEnd();
+    }
+
+    private void RecordTaskStationPosition()
+    {
+        if (_detectable == null)
+        {
+            Debug.LogError("can't find '_detectable'");
+            return;
+        }
+        
+        var source = _objectManipulator.HostTransform.gameObject;
         var anchor = RootObject.Instance.calibrationManager.anchor;
 
         var position = anchor.InverseTransformPoint(source.transform.position);
@@ -65,9 +98,9 @@ public class TaskStationEditor : MonoBehaviour
         _detectable.origin_position = Utilities.Vector3ToString(position);
         _detectable.origin_rotation = Utilities.Vector3ToString(rotation.eulerAngles);
 
-        EventManager.NotifyOnTaskStationEditorDragEnd();
+        activityManager.SaveData();
     }
-
+    
     private void OnActionChanged(Action action)
     {
         _objectManipulator.enabled = _taskStationStateController.IsCurrent() && activityManager.EditModeActive;

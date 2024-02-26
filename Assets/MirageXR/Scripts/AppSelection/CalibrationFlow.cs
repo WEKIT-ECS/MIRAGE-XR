@@ -110,6 +110,7 @@ public class CalibrationFlow : MonoBehaviour
             gridManager.ShowGrid();
         }
 
+        EventManager.WorkplaceCalibrated();
         _textMain.text = DONE_TEXT;
         await Task.Delay(CLOSE_TIME);
         Close();
@@ -155,7 +156,7 @@ public class CalibrationFlow : MonoBehaviour
         _btnApply.gameObject.SetActive(false);
         planeManager.onPlaneClicked.RemoveListener(OnCalibrationPlaceDetected);
         planeManager.DisablePlanes();
-        OnCalibrationFinishedAsync();
+        OnCalibrationFinishedAsync().AsAsyncVoid();
     }
 
     public void OnCloseButtonPressed()
