@@ -22,9 +22,9 @@ namespace MirageXR
 
             try
             {
-                var rotation = Utilities.ParseStringToVector3(list[0].origin_rotation);
-                var quaternion = Quaternion.Euler(rotation);
-                workplaceManager.detectableContainer.rotation = Quaternion.Inverse(quaternion);
+                //var rotation = Utilities.ParseStringToVector3(list[0].origin_rotation);
+                //var quaternion = Quaternion.Euler(rotation);
+                //workplaceManager.detectableContainer.rotation = Quaternion.Inverse(quaternion);
 
                 foreach (var detectable in list)
                 {
@@ -418,7 +418,7 @@ namespace MirageXR
                         anchorFrame.transform.localRotation = Quaternion.identity;
                         anchorFrame.transform.localScale = Vector3.one;
 
-                        detectable.origin_position = Utilities.Vector3ToString(anchorFrame.transform.position);
+                        detectable.origin_position = Utilities.Vector3ToString(anchorFrame.transform.localPosition);
                         detectable.origin_rotation = Utilities.Vector3ToString(anchorFrame.transform.localRotation.eulerAngles);
                     }
                     else
@@ -676,21 +676,16 @@ namespace MirageXR
         /// <summary>
         /// Returns a 2-entry array, containing the position [0] and euler angles [1] of an object, relative to the calibration origin.
         /// </summary>
-        /// <param name="objectOfInterest"></param>
+        /// <param name="source"></param>
         /// <returns></returns>
-        public static (Vector3, Vector3) GetPoseRelativeToCalibrationOrigin(GameObject objectOfInterest)
+        public static (Vector3, Vector3) GetPoseRelativeToCalibrationOrigin(GameObject source)
         {
-            var calibrationOrigin = RootObject.Instance.calibrationManager.anchor;
-            var originalParent = objectOfInterest.transform.parent;
+            var anchor = RootObject.Instance.calibrationManager.anchor;
 
-            objectOfInterest.transform.SetParent(calibrationOrigin);
+            var position = anchor.InverseTransformPoint(source.transform.position);
+            var rotation = Quaternion.Inverse(anchor.rotation) * source.transform.rotation;
 
-            var relativePosition = objectOfInterest.transform.localPosition;
-            var relativeOrientation = objectOfInterest.transform.localEulerAngles;
-
-            objectOfInterest.transform.SetParent(originalParent);
-
-            return (relativePosition, relativeOrientation);
+            return (position, rotation.eulerAngles);
         }
 
         private static async Task PopulateTaskStation(GameObject parent)

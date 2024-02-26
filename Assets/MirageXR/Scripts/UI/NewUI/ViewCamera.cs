@@ -1,5 +1,4 @@
-﻿using i5.Toolkit.Core.VerboseLogging;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using UnityEngine;
 
 namespace MirageXR
@@ -45,11 +44,6 @@ namespace MirageXR
 
         private async Task SetupViewForLandscape()
         {
-            if (_format == DeviceFormat.Tablet)
-            {
-                return;
-            }
-
             var canvas = RootView_v2.Instance.canvas;
             canvas.enabled = false;
             Screen.orientation = ScreenOrientation.LandscapeLeft;
@@ -62,11 +56,6 @@ namespace MirageXR
 
         private async Task SetupViewForPortrait()
         {
-            if (_format == DeviceFormat.Phone)
-            {
-                return;
-            }
-
             var canvas = RootView_v2.Instance.canvas;
             canvas.enabled = false;
             Screen.orientation = ScreenOrientation.Portrait;

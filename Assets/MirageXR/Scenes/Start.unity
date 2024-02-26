@@ -371,6 +371,69 @@ Transform:
   m_Father: {fileID: 1888399833}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &310166496
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 310166499}
+  - component: {fileID: 310166497}
+  - component: {fileID: 310166498}
+  m_Layer: 0
+  m_Name: ExceptionManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &310166497
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 310166496}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 265fcd7d324d743bfb7e16dd2e73412f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sentry: {fileID: 310166498}
+--- !u!114 &310166498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 310166496}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60f8c69dbe1674068920d2679c48cb62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Dsn: 
+  SendDefaultPii: 1
+  AutoGenerateBreadcrumb: 0
+  Debug: 0
+  Version: 
+--- !u!4 &310166499
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 310166496}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1888399833}
+  m_RootOrder: 15
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &383528544
 GameObject:
   m_ObjectHideFlags: 0
@@ -490,6 +553,7 @@ MonoBehaviour:
     scale: 0
     positionLock: 0
     billboarded: 1
+    caption: 
     duration: 0
     guide: 0
   _helpSelectionPopup: {fileID: 5322029663912086542, guid: ce6c1efdd8b1ca34aab20e8018664f11,
@@ -1056,6 +1120,7 @@ MonoBehaviour:
   _onCalibrationFinished:
     m_PersistentCalls:
       m_Calls: []
+  _isCalibrated: 0
 --- !u!4 &1209410221
 Transform:
   m_ObjectHideFlags: 0
@@ -1292,6 +1357,7 @@ MonoBehaviour:
   _gridManager: {fileID: 141412590}
   _cameraCalibrationChecker: {fileID: 1370046045}
   _platformManager: {fileID: 8856608567612908827}
+  _exceptionManager: {fileID: 310166497}
 --- !u!4 &1888399833
 Transform:
   m_ObjectHideFlags: 0
@@ -1319,6 +1385,7 @@ Transform:
   - {fileID: 693219915}
   - {fileID: 1901844726}
   - {fileID: 1370046044}
+  - {fileID: 310166499}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

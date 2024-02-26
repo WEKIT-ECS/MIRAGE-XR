@@ -28,7 +28,12 @@ namespace MirageXR
             {
                 var filePath = activityId.Replace(RESOURCES_PREFIX, string.Empty);
                 var textAsset = Resources.Load(filePath) as TextAsset;
-                return textAsset ? textAsset.text : null;
+                if (textAsset != null)
+                {
+                    return textAsset ? textAsset.text : null;
+                }
+
+                return null;
             }
 
             if (activityId.StartsWith(HTTP_PREFIX))

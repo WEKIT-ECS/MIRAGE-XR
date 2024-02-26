@@ -90,7 +90,7 @@ namespace MirageXR
             PlayerPrefs.Save();
 
             // update the view of the activity on Moodle server after loading
-            await RootObject.Instance.moodleManager.UpdateViewsOfActivity(_selectedListViewItem.Content.ItemID);
+            await RootObject.Instance.moodleManager.UpdateViewsOfActivity(_selectedListViewItem.Content.ItemID, _selectedListViewItem.Content.ExistsRemotely);
 
             //StartCoroutine(SwitchToPlayerScene(activityJsonFileName));
             await RootObject.Instance.editorSceneService.LoadEditorAsync();
