@@ -137,6 +137,8 @@ public class DialogueService : MonoBehaviour
             throw new Exception("can't get openAI's api key");
         }
 
+        Debug.Log("openAI keys: " + key + ", org = " + org);
+
         return new APIAuthentication(key, org);
     }
 
@@ -152,6 +154,7 @@ public class DialogueService : MonoBehaviour
             }
 
             _openAIinterface = new OpenAIAPI(_openIaApiKey);
+            createSessionTested = true;
 
             AppLog.Log($"DialogueService: connected to openAI with organization ID = '{_openAIinterface.Auth.OpenAIOrganization}", LogLevel.INFO);
 
@@ -169,6 +172,7 @@ public class DialogueService : MonoBehaviour
                 "Could not connect to the AI provider (OpenAI), it seems the API key is missing?",
                 "OK", () => AppLog.Log("DialogueService: Connection error acknowledge by user (OK)", LogLevel.INFO));
         }
+        
     }
 
     private IEnumerator CreateWatsonService()
