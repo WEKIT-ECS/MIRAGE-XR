@@ -25,7 +25,6 @@ jobs:
           export IBM_CREDENTIALS_FILE="$GITHUB_WORKSPACE/ibm-credentials.env"
           echo -n "$OAIKEYS" > $GITHUB_WORKSPACE/Assets/Resources/openai.txt
           echo "path of the OAI credentials resource $GITHUB_WORKSPACE/Assets/Resources/openai.txt"
-          export IBM_CREDENTIALS_FILE="$GITHUB_WORKSPACE/ibm-credentials.env"
 
       # Fonts
       - name: Install fonts
@@ -73,11 +72,13 @@ jobs:
       - name: Set up IBM Watson credentials
         env:
           ASSISTANTKEYS: ${{ secrets.ASSISTANTKEYS }}
+          OAIKEYS: ${{ secrets.AISECRET }}
         run: |
           echo -n "$ASSISTANTKEYS" > $GITHUB_WORKSPACE/ibm-credentials.env
-          ls -la
           echo "path of the credentials resource $GITHUB_WORKSPACE/ibm-credentials.txt"
           export IBM_CREDENTIALS_FILE="$GITHUB_WORKSPACE/ibm-credentials.env"
+          echo -n "$OAIKEYS" > $GITHUB_WORKSPACE/Assets/Resources/openai.txt
+          echo "path of the OAI credentials resource $GITHUB_WORKSPACE/Assets/Resources/openai.txt"
           export TARGET_PLATFORM="Android"
 
       # Fonts
