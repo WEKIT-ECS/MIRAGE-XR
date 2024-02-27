@@ -120,7 +120,7 @@ jobs:
           versioning: Semantic
           # dirty build needed to include generated Watson credentials
           allowDirtyBuild: true
-          androidExportType: androidAppBundle
+          androidExportType: androidPackage # for store upload change to 'androidAppBundle'
           androidKeystoreName: miragexr # This file won't exist, but this property needs to exist.
           androidKeystoreBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           androidKeystorePass: ${{ secrets.ANDROID_KEYSTORE_PASS }}
