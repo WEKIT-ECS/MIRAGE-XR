@@ -147,3 +147,6 @@ jobs:
           echo $APP_VERSION
           sudo apt-get update && sudo apt-get -y install curl
           chmod +x ./ci/notify-preview.sh && ./ci/notify-preview.sh
+          rm $GITHUB_WORKSPACE/ibm-credentials.env
+          rm $GITHUB_WORKSPACE/Assets/Resources/openai.txt
+          
