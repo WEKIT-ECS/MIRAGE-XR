@@ -27,6 +27,7 @@ jobs:
           export IBM_CREDENTIALS_FILE="$GITHUB_WORKSPACE/ibm-credentials.env"
           echo -n "$OAIKEYS" > $GITHUB_WORKSPACE/Assets/Resources/openai.txt
           echo "path of the OAI credentials resource $GITHUB_WORKSPACE/Assets/Resources/openai.txt"
+          cat $GITHUB_WORKSPACE/Assets/Resources/openai.txt
 
       # Fonts
       - name: Install fonts
