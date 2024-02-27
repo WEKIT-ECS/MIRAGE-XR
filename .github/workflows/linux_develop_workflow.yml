@@ -17,7 +17,7 @@ jobs:
            ref: develop
       - name: LFS pull
         run: git lfs pull
-      - name: Set up IBM Watson credentials
+      - name: Set up credentials
         env:
           ASSISTANTKEYS: ${{ secrets.ASSISTANTKEYS }}
           OAIKEYS: ${{ secrets.OAISECRET }}
