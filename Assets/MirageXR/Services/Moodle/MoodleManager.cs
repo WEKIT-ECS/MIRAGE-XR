@@ -125,7 +125,7 @@ namespace MirageXR
             // The file handling response should be displayed as Log, not LogError
             if (response.Contains("File exist"))
             {
-                Debug.LogError($"[MoodleManager] Error on uploading: {response}");
+                Debug.Log($"[MoodleManager] Warning on uploading: {response}");
             }
             else
             {
