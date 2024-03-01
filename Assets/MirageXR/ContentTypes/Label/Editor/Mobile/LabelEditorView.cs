@@ -80,6 +80,7 @@ public class LabelEditorView : PopupEditorBase
     {
         _inputField.text = string.Empty;
         _toggleTrigger.isOn = false;
+        _isBillboarded = true;
         _gazeDuration = DEFAULT_SLIDER_VALUE;
         _txtGazeDurationValue.text = DEFAULT_SLIDER_VALUE.ToString("0");
 
