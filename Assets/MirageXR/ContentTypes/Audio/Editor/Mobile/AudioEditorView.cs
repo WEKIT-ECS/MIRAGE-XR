@@ -52,13 +52,14 @@ public class AudioEditorView : PopupEditorBase
     [SerializeField] private TMP_Text _txtTimerFrom;
     [SerializeField] private TMP_Text _txtTimerTo;
     [Space]
+    [Header("Panels:")]
     [SerializeField] private GameObject _panelRecordControls;
     [SerializeField] private GameObject _panelPlayRecord;
     [SerializeField] private GameObject _panelAudioSettings;
     [SerializeField] private GameObject _panelRecordComplete;
     [SerializeField] private GameObject _panelBottomButtons;
-    [SerializeField] private Button _btnRecordComplete;
     [Space]
+    [SerializeField] private Button _btnRecordComplete;
     [SerializeField] private Button _btnArrow;
     [SerializeField] private RectTransform _panel;
     [SerializeField] private GameObject _arrowDown;
@@ -77,6 +78,7 @@ public class AudioEditorView : PopupEditorBase
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
+        UnityEngine.Debug.LogError("[111] Initialization");
         _showBackground = false;
         base.Initialization(onClose, args);
 
@@ -88,11 +90,13 @@ public class AudioEditorView : PopupEditorBase
         _panelRange.SetActive(false);
         _panelRecordComplete.SetActive(false);
         _panelPlayRecord.SetActive(false);
-        _panelRecordControls.SetActive(true);
+        _panelRecordControls.SetActive(false); //
         _panelBottomButtons.SetActive(false);
+        
+        _panelAudioSettings.SetActive(true); //
 
         _btnAudioSettings.onClick.AddListener(OnOpenAudioSettings);
-        _btnCancel.onClick.AddListener(OnClickCancel);
+        _btnCancel.onClick.AddListener(OnOpenRecordControlsPanel);
 
         _btnRecord.onClick.AddListener(OnRecordStarted);
         _btnStop.onClick.AddListener(OnRecordStopped);
@@ -134,7 +138,7 @@ public class AudioEditorView : PopupEditorBase
         {
             _fileName = $"MirageXR_Audio_{DateTime.Now.ToFileTimeUtc()}.wav";
             _groupPlayControls.interactable = false;
-            OnClickCancel();
+            //OnOpenRecordControlsPanel();
         }
 
         SetPlayerActive(true);
@@ -264,6 +268,7 @@ public class AudioEditorView : PopupEditorBase
 
     private void OnClickRecordComplete()
     {
+        UnityEngine.Debug.LogError("[111] OnClickRecordComplete");
         _panelPlayRecord.SetActive(true);
         _panelRecordControls.SetActive(false);
         _panelBottomButtons.SetActive(true);
@@ -416,6 +421,7 @@ public class AudioEditorView : PopupEditorBase
 
     private void OnOpenAudioSettings()
     {
+        UnityEngine.Debug.LogError("[111] OnOpenAudioSettings");
         _panelPlayRecord.SetActive(false);
         _panelBottomButtons.SetActive(false);
         _panelAudioSettings.SetActive(true);
@@ -426,8 +432,9 @@ public class AudioEditorView : PopupEditorBase
 
     }
 
-    private void OnClickCancel()
+    private void OnOpenRecordControlsPanel()
     {
+        UnityEngine.Debug.LogError("[111] OnOpenRecordControlsPanel");
         _panelPlayRecord.SetActive(false);
         _panelBottomButtons.SetActive(false);
         _panelAudioSettings.SetActive(false);
