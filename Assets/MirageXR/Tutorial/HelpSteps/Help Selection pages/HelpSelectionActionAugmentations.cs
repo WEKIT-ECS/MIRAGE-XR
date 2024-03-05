@@ -30,7 +30,7 @@ namespace MirageXR
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { message = "Augmentations in MirageXR are primitives that comprise the holographic part of the training experience of the user. A trainer can use different types of augmentations to construct the holographic experience, while the trainee perceives them as part of the learning experience." });
+            queue.Enqueue(new TutorialModel { message = "Augmentations in eROBSON are primitives that comprise the holographic part of the training experience of the user. A trainer can use different types of augmentations to construct the holographic experience, while the trainee perceives them as part of the learning experience." });
             _mobileTutorial.Show(queue);
         }
 
