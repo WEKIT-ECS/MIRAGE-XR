@@ -33,10 +33,11 @@ namespace MirageXR
 #if UNITY_EDITOR
             Debug.MinimumLogLevel = LogLevel.TRACE;
 #else
-            Debug.MinimumLogLevel = LogLevel.INFO;
+            int logLevel = PlayerPrefs.GetInt("logLevel", 3);
+            Debug.MinimumLogLevel = (LogLevel)logLevel;
 #endif
 
-            ServiceManager.RegisterService(new WorldAnchorService());
+			ServiceManager.RegisterService(new WorldAnchorService());
             ServiceManager.RegisterService(new KeywordService());
 
             ServiceManager.RegisterService(new VestService
