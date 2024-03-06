@@ -19,6 +19,7 @@ namespace MirageXR
 		private readonly Color activeColor = Color.white;
 
 		private int _logLevel;
+		private bool initialized = false;
 
 		private void Awake()
 		{
@@ -30,19 +31,27 @@ namespace MirageXR
 				_labels[i] = _labelContainers[i].GetComponentInChildren<TextMeshProUGUI>();
 				_labelIcons[i] = _labelContainers[i].GetComponentInChildren<Image>();
 			}
+			initialized = true;
 		}
 
 		private void OnEnable()
 		{
-			_logLevel = (int)AppLog.MinimumLogLevel;
+			_logLevel = (int)Debug.MinimumLogLevel;
+			_slider.SetValueWithoutNotify(_logLevel);
 			AdjustUI();
 		}
 
 		public void OnSliderValueChanged()
 		{
+			if (!initialized)
+			{
+				return;
+			}
 			_logLevel = (int)_slider.value;
-			AppLog.MinimumLogLevel = (LogLevel)_logLevel;
-			AppLog.LogInfo("Changed log level to " + _logLevel, this);
+			Debug.MinimumLogLevel = (LogLevel)_logLevel;
+			Debug.LogInfo("Changed log level to " + _logLevel, this);
+			PlayerPrefs.SetInt("logLevel", _logLevel);
+			PlayerPrefs.Save();
 			AdjustUI();
 		}
 
