@@ -428,7 +428,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 100}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &2133502042221362928
 CanvasRenderer:
@@ -481,7 +481,7 @@ RectTransform:
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2133502042527320505
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -538,11 +538,11 @@ MonoBehaviour:
     m_Top: 75
     m_Bottom: 75
   m_ChildAlignment: 1
-  m_Spacing: 0
+  m_Spacing: 25
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
-  m_ChildControlHeight: 0
+  m_ChildControlHeight: 1
   m_ChildScaleWidth: 1
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
@@ -1023,7 +1023,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 800}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &7335739917436522606
 CanvasRenderer:
@@ -1071,14 +1071,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c15cfca4c45b88e46b4d166de181ce8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _slider: {fileID: 0}
+  _slider: {fileID: 632171140106889200}
   _labelContainers:
-  - {fileID: 4066783004697209181}
-  - {fileID: 6251350775573275753}
-  - {fileID: 492993676719778257}
-  - {fileID: 4674599584787194597}
-  - {fileID: 1107901306906068273}
   - {fileID: 3860887036312133436}
+  - {fileID: 1107901306906068273}
+  - {fileID: 4674599584787194597}
+  - {fileID: 492993676719778257}
+  - {fileID: 6251350775573275753}
+  - {fileID: 4066783004697209181}
 --- !u!1 &7994897249610460687
 GameObject:
   m_ObjectHideFlags: 0
@@ -1170,7 +1170,7 @@ PrefabInstance:
     - target: {fileID: 1630011640178941121, guid: 3f3cadeaf4bc4f442a039178ba730497,
         type: 3}
       propertyPath: m_Name
-      value: LabelContainer (3)
+      value: LabelContainer Warning
       objectReference: {fileID: 0}
     - target: {fileID: 5389491672440272518, guid: 3f3cadeaf4bc4f442a039178ba730497,
         type: 3}
@@ -1350,7 +1350,7 @@ PrefabInstance:
     - target: {fileID: 1630011640178941121, guid: 3f3cadeaf4bc4f442a039178ba730497,
         type: 3}
       propertyPath: m_Name
-      value: LabelContainer (1)
+      value: LabelContainer Debug
       objectReference: {fileID: 0}
     - target: {fileID: 5389491672440272518, guid: 3f3cadeaf4bc4f442a039178ba730497,
         type: 3}
@@ -1570,7 +1570,7 @@ PrefabInstance:
     - target: {fileID: 5848273553044212588, guid: 92f7efb0c552b664d8d053441ef82c2f,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 80
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5848273553044212588, guid: 92f7efb0c552b664d8d053441ef82c2f,
         type: 3}
@@ -1677,7 +1677,7 @@ PrefabInstance:
     - target: {fileID: 1630011640178941121, guid: 3f3cadeaf4bc4f442a039178ba730497,
         type: 3}
       propertyPath: m_Name
-      value: LabelContainer (4)
+      value: LabelContainer Error
       objectReference: {fileID: 0}
     - target: {fileID: 5389491672440272518, guid: 3f3cadeaf4bc4f442a039178ba730497,
         type: 3}
@@ -1857,7 +1857,7 @@ PrefabInstance:
     - target: {fileID: 1630011640178941121, guid: 3f3cadeaf4bc4f442a039178ba730497,
         type: 3}
       propertyPath: m_Name
-      value: LabelContainer (2)
+      value: LabelContainer Info
       objectReference: {fileID: 0}
     - target: {fileID: 5389491672440272518, guid: 3f3cadeaf4bc4f442a039178ba730497,
         type: 3}
@@ -2037,7 +2037,8 @@ PrefabInstance:
     - target: {fileID: 1583494373861945162, guid: e3dd512c2ee03da489b03ab37c3bb5b5,
         type: 3}
       propertyPath: m_text
-      value: Filter which events should be written to a log file
+      value: 'Adjust log verbosity: Slide to increase the level of detail in the
+        log file'
       objectReference: {fileID: 0}
     - target: {fileID: 1583494373861945163, guid: e3dd512c2ee03da489b03ab37c3bb5b5,
         type: 3}
@@ -2082,7 +2083,7 @@ PrefabInstance:
     - target: {fileID: 1583494373861945163, guid: e3dd512c2ee03da489b03ab37c3bb5b5,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 44.66
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1583494373861945163, guid: e3dd512c2ee03da489b03ab37c3bb5b5,
         type: 3}
@@ -2162,7 +2163,7 @@ PrefabInstance:
     - target: {fileID: 1630011640178941121, guid: 3f3cadeaf4bc4f442a039178ba730497,
         type: 3}
       propertyPath: m_Name
-      value: LabelContainer
+      value: LabelContainer Trace
       objectReference: {fileID: 0}
     - target: {fileID: 5389491672440272518, guid: 3f3cadeaf4bc4f442a039178ba730497,
         type: 3}
@@ -2337,7 +2338,7 @@ PrefabInstance:
     - target: {fileID: 1630011640178941121, guid: 3f3cadeaf4bc4f442a039178ba730497,
         type: 3}
       propertyPath: m_Name
-      value: LabelContainer (5)
+      value: LabelContainer Fatal
       objectReference: {fileID: 0}
     - target: {fileID: 5389491672440272518, guid: 3f3cadeaf4bc4f442a039178ba730497,
         type: 3}
