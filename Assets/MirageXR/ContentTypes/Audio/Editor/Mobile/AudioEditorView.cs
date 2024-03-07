@@ -24,7 +24,7 @@ public class AudioEditorView : PopupEditorBase
     public override ContentType editorForType => ContentType.AUDIO;
 
     [SerializeField] private Button _btnAudioSettings;
-    [SerializeField] private Button _btnMicRecording1, _btnMicRecording2;
+    [SerializeField] private Button _btnMicRecording, _btnMicReRecording;
     [SerializeField] private Button _btnRecord;
     [SerializeField] private Button _btnStop;
     [SerializeField] private Button _btnPlay;
@@ -79,7 +79,6 @@ public class AudioEditorView : PopupEditorBase
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        UnityEngine.Debug.LogError("[111] Initialization");
         _showBackground = false;
         base.Initialization(onClose, args);
 
@@ -96,8 +95,8 @@ public class AudioEditorView : PopupEditorBase
         _panelAudioSettings.SetActive(true);
 
         _btnAudioSettings.onClick.AddListener(OnOpenAudioSettings);
-        _btnMicRecording1.onClick.AddListener(OnOpenRecordControlsPanel);
-        _btnMicRecording2.onClick.AddListener(OnOpenRecordControlsPanel);
+        _btnMicRecording.onClick.AddListener(OnOpenRecordControlsPanel);
+        _btnMicReRecording.onClick.AddListener(OnOpenRecordControlsPanel);
 
         _btnRecord.onClick.AddListener(OnRecordStarted);
         _btnStop.onClick.AddListener(OnRecordStopped);
