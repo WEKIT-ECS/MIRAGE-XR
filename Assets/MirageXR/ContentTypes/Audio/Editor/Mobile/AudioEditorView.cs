@@ -5,6 +5,7 @@ using System.Collections;
 using System.IO;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class AudioEditorView : PopupEditorBase
@@ -23,7 +24,8 @@ public class AudioEditorView : PopupEditorBase
     public override ContentType editorForType => ContentType.AUDIO;
 
     [SerializeField] private Button _btnAudioSettings;
-    [SerializeField] private Button _btnCancel;
+    [SerializeField] private Button _btnMicRecording;
+    [SerializeField] private Button _btnMicReRecording;
     [SerializeField] private Button _btnRecord;
     [SerializeField] private Button _btnStop;
     [SerializeField] private Button _btnPlay;
@@ -52,12 +54,13 @@ public class AudioEditorView : PopupEditorBase
     [SerializeField] private TMP_Text _txtTimerFrom;
     [SerializeField] private TMP_Text _txtTimerTo;
     [Space]
+    [Header("Panels:")]
     [SerializeField] private GameObject _panelRecordControls;
-    [SerializeField] private GameObject _panelPlayRecord;
     [SerializeField] private GameObject _panelAudioSettings;
-    [SerializeField] private GameObject _panelRecordComplete;
     [SerializeField] private GameObject _panelBottomButtons;
-    [SerializeField] private Button _btnRecordComplete;
+    [Space]
+    [SerializeField] private GameObject _topContainer;
+    [SerializeField] private GameObject _topContainerPlayAudio;
     [Space]
     [SerializeField] private Button _btnArrow;
     [SerializeField] private RectTransform _panel;
@@ -86,13 +89,15 @@ public class AudioEditorView : PopupEditorBase
         _txtSliderRangeValue.text = DEFAULT_RANGE.ToString("0");
 
         _panelRange.SetActive(false);
-        _panelRecordComplete.SetActive(false);
-        _panelPlayRecord.SetActive(false);
-        _panelRecordControls.SetActive(true);
+        _topContainer.SetActive(true);
+        _topContainerPlayAudio.SetActive(false); 
+        _panelRecordControls.SetActive(false);
         _panelBottomButtons.SetActive(false);
+        _panelAudioSettings.SetActive(true);
 
         _btnAudioSettings.onClick.AddListener(OnOpenAudioSettings);
-        _btnCancel.onClick.AddListener(OnClickCancel);
+        _btnMicRecording.onClick.AddListener(OnOpenRecordControlsPanel);
+        _btnMicReRecording.onClick.AddListener(OnOpenRecordControlsPanel);
 
         _btnRecord.onClick.AddListener(OnRecordStarted);
         _btnStop.onClick.AddListener(OnRecordStopped);
@@ -103,7 +108,6 @@ public class AudioEditorView : PopupEditorBase
         _btnRewindForward.onClick.AddListener(OnRewindForward);
         _btnIncreaseRange.onClick.AddListener(OnIncreaseRange);
         _btnDecreaseRange.onClick.AddListener(OnDecreaseRange);
-        _btnRecordComplete.onClick.AddListener(OnClickRecordComplete);
         _toggleTrigger.onValueChanged.AddListener(OnToggleTriggerValueChanged);
 
         _sliderPlayer.minValue = 0;
@@ -119,6 +123,8 @@ public class AudioEditorView : PopupEditorBase
 
         if (_content != null && !string.IsNullOrEmpty(_content.url))
         {
+            _topContainer.SetActive(false);
+            _topContainerPlayAudio.SetActive(true);
             LoadContent();
             _groupPlayControls.interactable = true;
             var trigger = _step.triggers.Find(tr => tr.id == _content.poi);
@@ -134,7 +140,9 @@ public class AudioEditorView : PopupEditorBase
         {
             _fileName = $"MirageXR_Audio_{DateTime.Now.ToFileTimeUtc()}.wav";
             _groupPlayControls.interactable = false;
-            OnClickCancel();
+
+            _topContainer.SetActive(true);
+            _topContainerPlayAudio.SetActive(false);
         }
 
         SetPlayerActive(true);
@@ -236,7 +244,6 @@ public class AudioEditorView : PopupEditorBase
 
     private void OnRecordStarted()
     {
-        _panelRecordComplete.SetActive(false);
         _audioSource.clip = null;
         if (_audioClip)
         {
@@ -258,16 +265,16 @@ public class AudioEditorView : PopupEditorBase
         _audioClip = AudioRecorder.Stop();
         _groupPlayControls.interactable = true;
         StopCoroutine(_updateRecordTimerCoroutine);
-
-        _panelRecordComplete.SetActive(true);
+        
+        OnClickRecordComplete();
+        OnOpenAudioSettings();
+        _topContainer.SetActive(false);
+        _topContainerPlayAudio.SetActive(true);
     }
 
     private void OnClickRecordComplete()
     {
-        _panelPlayRecord.SetActive(true);
         _panelRecordControls.SetActive(false);
-        _panelBottomButtons.SetActive(true);
-        _panelRecordComplete.SetActive(false);
         _panelAudioSettings.SetActive(false);
         _txtTimerTo.text = ToTimeFormatMinutes(_audioClip.length);
     }
@@ -416,7 +423,6 @@ public class AudioEditorView : PopupEditorBase
 
     private void OnOpenAudioSettings()
     {
-        _panelPlayRecord.SetActive(false);
         _panelBottomButtons.SetActive(false);
         _panelAudioSettings.SetActive(true);
 
@@ -426,9 +432,8 @@ public class AudioEditorView : PopupEditorBase
 
     }
 
-    private void OnClickCancel()
+    private void OnOpenRecordControlsPanel()
     {
-        _panelPlayRecord.SetActive(false);
         _panelBottomButtons.SetActive(false);
         _panelAudioSettings.SetActive(false);
         _panelRecordControls.SetActive(true);
