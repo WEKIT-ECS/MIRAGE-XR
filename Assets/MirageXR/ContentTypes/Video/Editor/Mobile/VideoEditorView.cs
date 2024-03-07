@@ -50,6 +50,8 @@ public class VideoEditorView : PopupEditorBase
         _arrowDown.SetActive(true);
         _arrowUp.SetActive(false);
 
+        _toggleTrigger.interactable = !activityManager.IsLastAction(_step);
+        
         RootView_v2.Instance.HideBaseView();
         UpdateView();
     }
@@ -168,7 +170,8 @@ public class VideoEditorView : PopupEditorBase
         }
 
         EventManager.ActivateObject(_content);
-        EventManager.NotifyActionModified(_step);
+
+        base.OnAccept();
 
         Close();
     }

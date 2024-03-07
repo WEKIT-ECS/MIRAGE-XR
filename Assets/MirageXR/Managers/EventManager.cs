@@ -1,5 +1,4 @@
-﻿using i5.Toolkit.Core.VerboseLogging;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace MirageXR
 {

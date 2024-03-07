@@ -105,7 +105,8 @@ public class ImageEditorView : PopupEditorBase
         _content.url = HTTP_PREFIX + saveFileName;
         _content.scale = 0.5f;
         EventManager.ActivateObject(_content);
-        EventManager.NotifyActionModified(_step);
+
+        base.OnAccept();
         Close();
     }
 
