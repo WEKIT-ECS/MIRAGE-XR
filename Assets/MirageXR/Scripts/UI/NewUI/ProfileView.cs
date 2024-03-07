@@ -1,5 +1,6 @@
 using MirageXR;
 using System;
+using System.Collections;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
@@ -27,6 +28,7 @@ public class ProfileView : PopupBase
     [SerializeField] private ClickCounter _versionClickCounter;
     [SerializeField] private Button _btnGrid;
     [SerializeField] private Button _btnDev;
+    [SerializeField] private ScrollRect _scrollRect;
 
     [Space]
     [SerializeField] private LoginView_v2 _loginViewPrefab;
@@ -70,7 +72,10 @@ public class ProfileView : PopupBase
 
     private void OnVersionClickAmountReached(int count)
     {
-        EnterDevMode();
+        if (!DBManager.developMode)
+        {
+            EnterDevMode();
+        }
     }
 
     private void EnterDevMode()
@@ -78,6 +83,15 @@ public class ProfileView : PopupBase
         DBManager.developMode = true;
         _btnDevelopMode.SetActive(true);
 		Toast.Instance.Show($"Developer mode has been activated.");
+        StartCoroutine(ScrollToBottom());
+	}
+
+    private IEnumerator ScrollToBottom()
+    {
+		yield return new WaitForEndOfFrame();
+        Canvas.ForceUpdateCanvases();
+        _scrollRect.verticalNormalizedPosition = 0f;
+        Canvas.ForceUpdateCanvases();
 	}
 
     private void ShowLogin()
