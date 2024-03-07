@@ -1,5 +1,6 @@
 using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
+using Sentry;
 
 namespace MirageXR
 {
@@ -11,18 +12,15 @@ namespace MirageXR
 
    public class ExceptionManager : MonoBehaviour
    {
-       [SerializeField] private SentrySdk sentry; 
-
-       private const string SENTRY_DSN = "https://b23911205078e7a81bf1489e8aa0fabe@o4506320008118272.ingest.sentry.io/4506320009428992";
-
+       //[SerializeField] private SentrySdk sentry; 
+       //private const string SENTRY_DSN = "https://b23911205078e7a81bf1489e8aa0fabe@o4506320008118272.ingest.sentry.io/4506320009428992";
        public void Initialize()
        {
-           AppLog.Log("Installing hook for exceptions", LogLevel.INFO );
-           sentry ??= new GameObject("ExceptionManagerSentry").AddComponent<SentrySdk>();
-           sentry.Dsn = SENTRY_DSN;
-           sentry.Debug = false;
-
-           Application.logMessageReceived += LogCaughtException;
+            //sentry ??= new GameObject("ExceptionManagerSentry").AddComponent<SentrySdk>();
+            //sentry.Dsn = SENTRY_DSN;
+            //SentrySdk.Debug = false;
+            AppLog.Log("Installing hook for exceptions", LogLevel.INFO);
+            Application.logMessageReceived += LogCaughtException;
        }
 
        private static void LogCaughtException(string logText, string stackTrace, LogType logType)
