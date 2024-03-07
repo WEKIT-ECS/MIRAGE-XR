@@ -1,5 +1,6 @@
 name: Linux Develop Workflow (Unit tests and Android build)
 on:
+  workflow_dispatch:
   schedule:
     - cron: 0 19 * * 5
 jobs:
@@ -16,13 +17,17 @@ jobs:
            ref: develop
       - name: LFS pull
         run: git lfs pull
-      - name: Set up IBM Watson credentials
+      - name: Set up credentials
         env:
           ASSISTANTKEYS: ${{ secrets.ASSISTANTKEYS }}
+          OAIKEYS: ${{ secrets.OAISECRET }}
         run: |
           echo -n "$ASSISTANTKEYS" > $GITHUB_WORKSPACE/ibm-credentials.env
           echo "path of the credentials resource $GITHUB_WORKSPACE/ibm-credentials.txt"
           export IBM_CREDENTIALS_FILE="$GITHUB_WORKSPACE/ibm-credentials.env"
+          echo -n "$OAIKEYS" > $GITHUB_WORKSPACE/Assets/Resources/openai.txt
+          echo "path of the OAI credentials resource $GITHUB_WORKSPACE/Assets/Resources/openai.txt"
+          ls -la $GITHUB_WORKSPACE/Assets/Resources/openai.txt
 
       # Fonts
       - name: Install fonts
@@ -60,9 +65,11 @@ jobs:
       buildVersion: ${{ steps.buildStep.outputs.buildVersion }}
     steps:
     
+      # Free up disk space
+      - uses: jlumbroso/free-disk-space@v1.3.1
       # Activation stage
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
            lfs: 'true'
            ref: develop
@@ -71,11 +78,13 @@ jobs:
       - name: Set up IBM Watson credentials
         env:
           ASSISTANTKEYS: ${{ secrets.ASSISTANTKEYS }}
+          OAIKEYS: ${{ secrets.OAISECRET }}
         run: |
           echo -n "$ASSISTANTKEYS" > $GITHUB_WORKSPACE/ibm-credentials.env
-          ls -la
           echo "path of the credentials resource $GITHUB_WORKSPACE/ibm-credentials.txt"
           export IBM_CREDENTIALS_FILE="$GITHUB_WORKSPACE/ibm-credentials.env"
+          echo -n "$OAIKEYS" > $GITHUB_WORKSPACE/Assets/Resources/openai.txt
+          echo "path of the OAI credentials resource $GITHUB_WORKSPACE/Assets/Resources/openai.txt"
           export TARGET_PLATFORM="Android"
 
       # Fonts
@@ -99,7 +108,7 @@ jobs:
 
       # Build stage
       - name: Unity builder
-        uses: game-ci/unity-builder@v2.1.1
+        uses: game-ci/unity-builder@v4
         id: buildStep
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -111,6 +120,13 @@ jobs:
           versioning: Semantic
           # dirty build needed to include generated Watson credentials
           allowDirtyBuild: true
+          androidExportType: androidPackage # for store upload change to 'androidAppBundle'
+          androidKeystoreName: miragexr # This file won't exist, but this property needs to exist.
+          androidKeystoreBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          androidKeystorePass: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+          androidKeyaliasName: ${{ secrets.ANDROID_KEYALIAS_NAME }}
+          androidKeyaliasPass: ${{ secrets.ANDROID_KEYALIAS_PASS }}
+          androidTargetSdkVersion: AndroidApiLevel33
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v2
@@ -140,3 +156,4 @@ jobs:
           echo $APP_VERSION
           sudo apt-get update && sudo apt-get -y install curl
           chmod +x ./ci/notify-preview.sh && ./ci/notify-preview.sh
+          

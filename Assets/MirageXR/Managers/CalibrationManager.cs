@@ -45,7 +45,7 @@ public class CalibrationManager : MonoBehaviour
     private GameObject _debugSphere;
     public bool _isCalibrated;
 
-    public async Task<bool> InitializationAsync()
+    public bool Initialization()
     {
         var mainCamera = Camera.main;
 
@@ -175,7 +175,7 @@ public class CalibrationManager : MonoBehaviour
 
     public void OnCalibrationFinished(Pose pose)
     {
-        OnCalibrationFinishedAsync(pose).AsAsyncVoid();
+        OnCalibrationFinishedAsync(pose);
     }
 
     public Pose GetAnchorPositionAsync()
@@ -194,10 +194,10 @@ public class CalibrationManager : MonoBehaviour
         _isCalibrated = true;
     }
 
-    private async Task OnCalibrationFinishedAsync(Pose pose)
+    private void OnCalibrationFinishedAsync(Pose pose)
     {
         SetAnchorPosition(pose);
-        await ApplyCalibrationAsync(_isRecalibration);
+        //await ApplyCalibrationAsync(_isRecalibration);
         DisableCalibration();
         _onCalibrationFinished.Invoke();
     }
@@ -210,18 +210,6 @@ public class CalibrationManager : MonoBehaviour
         {
             Debug.LogError("Can't create arAnchor");
             return;
-        }
-
-        if (DBManager.developMode)
-        {
-            if (_debugSphere)
-            {
-                Destroy(_debugSphere);
-            }
-
-            _debugSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            _debugSphere.transform.position = pose.position;
-            _debugSphere.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
         }
 
         _anchor.SetParent(arAnchor.transform);
@@ -244,10 +232,10 @@ public class CalibrationManager : MonoBehaviour
         anchorTransform.rotation = Quaternion.identity;
         anchorTransform.localScale = Vector3.one;
 
-#if UNITY_EDITOR
-        anchorTransform.rotation = Quaternion.Euler(0, Random.Range(0, 360f), 0);
-        anchorTransform.position = new Vector3(Random.Range(-3f, 3f), Random.Range(0f, 2f), Random.Range(-3f, 3f));
-#endif
+//#if UNITY_EDITOR
+//        anchorTransform.rotation = Quaternion.Euler(0, Random.Range(0, 360f), 0);
+//        anchorTransform.position = new Vector3(Random.Range(-3f, 3f), Random.Range(0f, 2f), Random.Range(-3f, 3f));
+//#endif
 
         //var capsule = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         //capsule.transform.SetParent(anchorTransform, true);

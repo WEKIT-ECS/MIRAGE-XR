@@ -5,15 +5,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using GLTFast;
+using Microsoft.MixedReality.Toolkit.Utilities;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace MirageXR
 {
     public class Model : MirageXRPrefab
     {
         private const string GLTF_NAME = "scene.gltf";
+        private const float LIBRARY_MODEL_SCALE = 2f;
 
         private static ActivityManager _activityManager => RootObject.Instance.activityManager;
 
@@ -22,6 +23,9 @@ namespace MirageXR
         private GltfImport _gltf;
 
         public ToggleObject MyToggleObject => _obj;
+
+        private List<Bounds> _colliders;
+        private bool _isLibraryModel;
 
         private void Start()
         {
@@ -66,6 +70,8 @@ namespace MirageXR
         {
             _obj = obj;
 
+            _isLibraryModel = _obj.text.Equals(ModelLibraryManager.LibraryKeyword);
+            
             if (string.IsNullOrEmpty(obj.url))
             {
                 Debug.LogWarning("Content URL not provided.");
@@ -80,15 +86,14 @@ namespace MirageXR
 
             name = obj.predicate;
 
-            if (obj.text.Equals(ModelLibraryManager.LibraryKeyword))
+            if (_isLibraryModel)
             {
-                LoadLibraryModel($"Library/{obj.option}");
+                LoadLibraryModel($"Library/{obj.option}").AsAsyncVoid();
             }
             else
             {
                 LoadGltf(obj).AsAsyncVoid();
             }
-
 
             if (!obj.id.Equals("UserViewport"))
             {
@@ -139,7 +144,7 @@ namespace MirageXR
             model.transform.SetParent(modelTransform);
 
             //Do not manipulate the library models at the start
-            if (!_obj.option.Equals(ModelLibraryManager.LibraryKeyword))
+            if (!_isLibraryModel)
             {
                 model.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
                 model.transform.position = startPos;
@@ -149,13 +154,19 @@ namespace MirageXR
             model.name = _obj.option;
             model.transform.localRotation *= Quaternion.Euler(-90f, 0f, 0f);
 
-            ConfigureModel(model, clip);
+            if (!_isLibraryModel)
+            {
+                ConfigureModel(model, clip);
+            }
+
             MoveAndScaleModel(model);
 
-            var myPoiEditor = transform.parent.gameObject.GetComponent<PoiEditor>();
+            var parent = transform.parent;
+            var myPoiEditor = parent.gameObject.GetComponent<PoiEditor>();
 
-            transform.parent.localScale = GetPoiScale(myPoiEditor, Vector3.one);
-            transform.parent.localEulerAngles = GetPoiRotation(myPoiEditor);
+            var defaultScale = _isLibraryModel ? new Vector3(LIBRARY_MODEL_SCALE, LIBRARY_MODEL_SCALE, LIBRARY_MODEL_SCALE) : Vector3.one;
+            parent.localScale = GetPoiScale(myPoiEditor, defaultScale);
+            parent.localEulerAngles = GetPoiRotation(myPoiEditor);
 
             LoadingCompleted = true;
 
@@ -176,26 +187,19 @@ namespace MirageXR
             InitManipulators();
         }
 
-
-
-        public void LoadLibraryModel(string libraryModelPrefabName)
+        private async Task LoadLibraryModel(string libraryModelPrefabName)
         {
-            Addressables.LoadAssetAsync<GameObject>(libraryModelPrefabName).Completed += OnLibraryModelLoaded;
-        }
-
-        private void OnLibraryModelLoaded(AsyncOperationHandle<GameObject> obj)
-        {
-            if (obj.Status == AsyncOperationStatus.Succeeded)
+            try
             {
-                GameObject instantiatedModel = Instantiate(obj.Result, transform);
-                OnFinishLoading(instantiatedModel, null); // Handle the loaded LibraryModel as needed
+                var model = await Addressables.LoadAssetAsync<GameObject>(libraryModelPrefabName);
+                var instantiatedModel = Instantiate((GameObject)model, transform);
+                OnFinishLoading(instantiatedModel, null);
             }
-            else
+            catch (Exception e)
             {
-                Debug.LogError($"Failed to load LibraryModel from Addressables");
+                Debug.LogError($"Failed to load LibraryModel from Addressables\nerror:{e}");
             }
         }
-
 
         private void InitManipulators()
         {
@@ -244,16 +248,14 @@ namespace MirageXR
             }
         }
 
-        private List<Bounds> colliders;
-
-        private void ConfigureModel(GameObject _model, AnimationClip[] clips)
+        private void ConfigureModel(GameObject model, AnimationClip[] clips)
         {
-            var rb = _model.AddComponent<Rigidbody>();
+            var rb = model.AddComponent<Rigidbody>();
             rb.isKinematic = true;
-            _model.SetActive(true);
+            model.SetActive(true);
 
-            var renderers = _model.GetComponentsInChildren<Renderer>();
-            colliders = new List<Bounds>();
+            var renderers = model.GetComponentsInChildren<Renderer>();
+            _colliders = new List<Bounds>();
 
             // add colliders to meshes
             foreach (var r in renderers)
@@ -272,19 +274,18 @@ namespace MirageXR
                         AddCapsuleCollidersToPatient(rootBone);
                         Bounds capsuleBounds = rootBone.GetChild(0).GetComponent<CapsuleCollider>().bounds;
                         capsuleBounds.size *= 2.5f;
-                        colliders.Add(capsuleBounds);
+                        _colliders.Add(capsuleBounds);
                     }
                     else
                     {
                         // for all other types, add a mesh collider
                         var newCollider = g.AddComponent<MeshCollider>();
-                        colliders.Add(newCollider.bounds);
+                        _colliders.Add(newCollider.bounds);
                     }
-
                 }
                 else
                 {
-                    colliders.Add(meshCollider.bounds);
+                    _colliders.Add(meshCollider.bounds);
                 }
             }
         }
@@ -302,10 +303,10 @@ namespace MirageXR
                 for (int grandchild = 0; grandchild < childBone.childCount; grandchild++)
                 {
                     Transform grandchildBone = childBone.GetChild(grandchild);
-                    var capcoll2 = grandchildBone.gameObject.AddComponent<CapsuleCollider>();
-                    capcoll2.center = new Vector3(0f, 1f, 0f);
-                    capcoll2.radius = 0.5f;
-                    capcoll2.height = 1.5f;
+                    var collider = grandchildBone.gameObject.AddComponent<CapsuleCollider>();
+                    collider.center = new Vector3(0f, 1f, 0f);
+                    collider.radius = 0.5f;
+                    collider.height = 1.5f;
                 }
             }
         }
@@ -315,12 +316,16 @@ namespace MirageXR
             // get maximum extents
             var colliderSize = new Vector3(0f, 0f, 0f);
             int largestColliderIndex = 0;
-            foreach (Bounds meshColl in colliders)
+            
+            if (_colliders != null)
             {
-                if (meshColl.size.sqrMagnitude > colliderSize.sqrMagnitude)
+                foreach (Bounds meshColl in _colliders)
                 {
-                    colliderSize = meshColl.size;
-                    largestColliderIndex = colliders.IndexOf(meshColl);
+                    if (meshColl.size.sqrMagnitude > colliderSize.sqrMagnitude)
+                    {
+                        colliderSize = meshColl.size;
+                        largestColliderIndex = _colliders.IndexOf(meshColl);
+                    }
                 }
             }
 

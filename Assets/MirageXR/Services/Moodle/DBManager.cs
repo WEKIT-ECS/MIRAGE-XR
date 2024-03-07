@@ -121,10 +121,10 @@ namespace MirageXR
         private const bool SHOW_PUBLIC_UPLOAD_WARNING_DEFAULT = true;
 
         private const string SHOW_GRID_KEY = "show_grid";
-        private const bool SHOW_GRID_DEFAULT = false;
+        private const bool SHOW_GRID_DEFAULT = true;
 
         private const string SNAP_TO_GRID_KEY = "snap_to_grid";
-        private const bool SNAP_TO_GRID_DEFAULT = false;
+        private const bool SNAP_TO_GRID_DEFAULT = true;
 
         private const string GRID_CELL_WIDTH_KEY = "grid_cell_width";
         private const float GRID_CELL_WIDTH_DEFAULT = 10f;

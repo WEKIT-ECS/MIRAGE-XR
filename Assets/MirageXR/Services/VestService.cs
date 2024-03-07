@@ -1,6 +1,6 @@
 ﻿using i5.Toolkit.Core.ServiceCore;
+using i5.Toolkit.Core.VerboseLogging;
 using System.IO;
-using TiltBrush;
 using UnityEngine;
 
 namespace MirageXR
@@ -30,11 +30,11 @@ namespace MirageXR
 
                 VestConfig = JsonUtility.FromJson<Sensor>(sensorConfig);
 
-                Debug.Log("VEST CONFIG LOADED!");
+                AppLog.LogInfo($"[VestService] Sensor config file loaded from {filePath}");
             }
             catch
             {
-                Maggie.Speak("Vest configuration doesn't seem to be valid. You will not be able to enable vest.");
+                AppLog.LogInfo("[VestService] Sensor config file doesn't seem to be valid");
             }
         }
 
@@ -48,10 +48,12 @@ namespace MirageXR
             {
                 VestEnabled = true;
                 RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
-                Maggie.Speak("Vest enabled.");
+                AppLog.LogInfo("[VestService] Sensor communication is now enabled.");
             }
             else
-                Maggie.Speak("Can not enable vest since a valid configuration file was not found.");
+            {
+                AppLog.LogInfo("[VestService] Can not enable sensor communication because no valid configuration file could be found.");
+            }
         }
 
         private void DisableVest()
@@ -60,10 +62,12 @@ namespace MirageXR
             {
                 VestEnabled = false;
                 RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
-                Maggie.Speak("Vest disabled.");
+                AppLog.LogInfo("[VestService] Sensor communication disabled.");
             }
             else
-                Maggie.Speak("Vest already disabled since a valid configuration file was not found.");
+            {
+                AppLog.LogInfo("[VestService] Sensor communication already disabled since no valid configuration file could be found.");
+            }
         }
     }
 }

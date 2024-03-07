@@ -4,6 +4,8 @@ using MirageXR;
 using i5.Toolkit.Core.ServiceCore;
 using i5.Toolkit.Core.ExperienceAPI;
 using Newtonsoft.Json.Linq;
+using i5.Toolkit.Core.Utilities;
+using i5.Toolkit.Core.VerboseLogging;
 
 namespace MirageXR
 {
@@ -317,7 +319,11 @@ namespace MirageXR
                         context.AddParentActivity(parentActivityIRI);
                         statement.context = context;
 
-                        await xAPIClient.SendStatementAsync(statement);
+                        WebResponse<string> resp = await xAPIClient.SendStatementAsync(statement);
+                        if (resp.Code >= 400)
+                        {
+                            AppLog.LogError("[ExperienceService] xAPI endpoint reports error in response to the statement sent: " + resp.ErrorMessage + ", xAPI endpoint: " + xAPIClient.XApiEndpoint);
+                        }
                     }
                 }
                 else
@@ -339,7 +345,12 @@ namespace MirageXR
             result.AddMeasurementAttempt(measurementIRI, measurementValue);
             statement.result = result;
 
-            await xAPIClient.SendStatementAsync(statement);
+            //await xAPIClient.SendStatementAsync(statement);
+            WebResponse<string> resp = await xAPIClient.SendStatementAsync(statement);
+            if (resp.Code >= 400)
+            {
+                AppLog.LogError("[ExperienceService] xAPI endpoint reports error in response to the statement sent: " + resp.ErrorMessage + ", xAPI endpoint: " + xAPIClient.XApiEndpoint);
+            }
         }
 
         // called if an activity is completed
@@ -352,7 +363,12 @@ namespace MirageXR
             obj.AddName(activityManager.Activity.name);
             Statement statement = GenerateStatement(verb, obj);
 
-            await xAPIClient.SendStatementAsync(statement);
+            //await xAPIClient.SendStatementAsync(statement);
+            WebResponse<string> resp = await xAPIClient.SendStatementAsync(statement);
+            if (resp.Code >= 400)
+            {
+                AppLog.LogError("[ExperienceService] xAPI endpoint reports error in response to the statement sent: " + resp.ErrorMessage + ", xAPI endpoint: " + xAPIClient.XApiEndpoint);
+            }
         }
 
         // called if an activity is loaded
@@ -364,7 +380,12 @@ namespace MirageXR
             obj.AddName(activityManager.Activity.name);
             Statement statement = GenerateStatement(verb, obj);
 
-            await xAPIClient.SendStatementAsync(statement);
+            //await xAPIClient.SendStatementAsync(statement);
+            WebResponse<string> resp = await xAPIClient.SendStatementAsync(statement);
+            if (resp.Code >= 400)
+            {
+                AppLog.LogError("[ExperienceService] xAPI endpoint reports error in response to the statement sent: " + resp.ErrorMessage + ", xAPI endpoint: " + xAPIClient.XApiEndpoint);
+            }
         }
 
         // called if an action step is activated
@@ -389,7 +410,12 @@ namespace MirageXR
             context.AddParentActivity(parentActivityIRI);
             statement.context = context;
 
-            await xAPIClient.SendStatementAsync(statement);
+            //await xAPIClient.SendStatementAsync(statement);
+            WebResponse<string> resp = await xAPIClient.SendStatementAsync(statement);
+            if (resp.Code >= 400)
+            {
+                AppLog.LogError("[ExperienceService] xAPI endpoint reports error in response to the statement sent: " + resp.ErrorMessage + ", xAPI endpoint: " + xAPIClient.XApiEndpoint);
+            }
         }
 
         // called if an action step is deactivated
@@ -414,7 +440,12 @@ namespace MirageXR
             context.AddParentActivity(parentActivityIRI);
             statement.context = context;
 
-            await xAPIClient.SendStatementAsync(statement);
+            //await xAPIClient.SendStatementAsync(statement);
+            WebResponse<string> resp = await xAPIClient.SendStatementAsync(statement);
+            if (resp.Code >= 400)
+            {
+                AppLog.LogError("[ExperienceService] xAPI endpoint reports error in response to the statement sent: " + resp.ErrorMessage + ", xAPI endpoint: " + xAPIClient.XApiEndpoint);
+            }
         }
 
 

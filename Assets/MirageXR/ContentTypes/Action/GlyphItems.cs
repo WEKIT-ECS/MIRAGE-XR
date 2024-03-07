@@ -1,7 +1,5 @@
 ﻿using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace MirageXR
@@ -10,6 +8,8 @@ namespace MirageXR
     {
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
         private ToggleObject _obj;
+        private ObjectManipulator _objectManipulator;
+        
         [SerializeField] private GameObject icon;
 
 
@@ -26,6 +26,7 @@ namespace MirageXR
 
         private void Start()
         {
+            _objectManipulator = GetComponent<ObjectManipulator>();
             SetEditorState(activityManager.EditModeActive);
         }
 
@@ -71,9 +72,9 @@ namespace MirageXR
 
                 SetBoundsControl(!_obj.positionLock);
 
-                if (gameObject.GetComponent<ObjectManipulator>())
+                if (_objectManipulator)
                 {
-                    gameObject.GetComponent<ObjectManipulator>().enabled = !_obj.positionLock;
+                    _objectManipulator.enabled = !_obj.positionLock;
                 }
 
                 GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock);
@@ -86,6 +87,9 @@ namespace MirageXR
             if (boundsControl != null)
             {
                 boundsControl.enabled = bounds;
+                boundsControl.RotationHandlesConfig.ShowHandleForX = bounds;
+                boundsControl.RotationHandlesConfig.ShowHandleForY = bounds;
+                boundsControl.RotationHandlesConfig.ShowHandleForZ = bounds;
             }
         }
     }
