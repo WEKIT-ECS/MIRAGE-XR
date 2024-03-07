@@ -38,7 +38,7 @@ public class DevelopView : PopupBase
 		}
 
 		var valueString = value ? "enabled" : "disabled";
-		Toast.Instance.Show($"Developer mode has been {valueString}.Restart the application to activate it.");
+		Toast.Instance.Show($"Developer mode has been {valueString}.Restart the application for it take effect.");
 		_isShownDevelopModeMessage = true;
 	}
 }
