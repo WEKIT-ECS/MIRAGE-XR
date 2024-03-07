@@ -24,7 +24,8 @@ public class AudioEditorView : PopupEditorBase
     public override ContentType editorForType => ContentType.AUDIO;
 
     [SerializeField] private Button _btnAudioSettings;
-    [SerializeField] private Button _btnMicRecording, _btnMicReRecording;
+    [SerializeField] private Button _btnMicRecording;
+    [SerializeField] private Button _btnMicReRecording;
     [SerializeField] private Button _btnRecord;
     [SerializeField] private Button _btnStop;
     [SerializeField] private Button _btnPlay;
