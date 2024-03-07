@@ -27,6 +27,8 @@ namespace MirageXR
        {
            if (logType == LogType.Exception)
            {
+                // might want to add a dialogue to capture feedback?
+                // SentrySdk.CaptureUserFeedback(eventId, "user@example.com", "It broke.", "The User");
                 SentrySdk.CaptureMessage($"ExceptionManager: [{logType}] {logText}, trace: {stackTrace}");
            }
        }
