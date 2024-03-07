@@ -15,8 +15,8 @@ namespace MirageXR
             {
                 queue.Enqueue(new TutorialModel { id = "calibration_guide_ok", message = "This popup serves as a reminder on how to complete calibration. As this tutorial will explain it anyway, click Ok for now.", position = TutorialModel.MessagePosition.Top });
             }
-            queue.Enqueue(new TutorialModel { id = "activity_calibrate", message = "We begin calibration by clicking the button below...", position = TutorialModel.MessagePosition.Top });
-            queue.Enqueue(new TutorialModel { id = "dialog_bottom_multiline_0", message = "and selecting Start Calibration.", position = TutorialModel.MessagePosition.Middle });
+            queue.Enqueue(new TutorialModel { id = "activity_calibration", message = "We begin calibration by clicking the button below...", position = TutorialModel.MessagePosition.Top });
+            queue.Enqueue(new TutorialModel { id = "activity_calibrationWithMarker", message = "and selecting Start Calibration.", position = TutorialModel.MessagePosition.Top });
             this.manager.MobileTutorial.Show(queue);
         }
 

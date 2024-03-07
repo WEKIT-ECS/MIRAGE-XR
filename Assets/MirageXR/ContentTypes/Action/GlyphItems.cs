@@ -87,6 +87,9 @@ namespace MirageXR
             if (boundsControl != null)
             {
                 boundsControl.enabled = bounds;
+                boundsControl.RotationHandlesConfig.ShowHandleForX = bounds;
+                boundsControl.RotationHandlesConfig.ShowHandleForY = bounds;
+                boundsControl.RotationHandlesConfig.ShowHandleForZ = bounds;
             }
         }
     }

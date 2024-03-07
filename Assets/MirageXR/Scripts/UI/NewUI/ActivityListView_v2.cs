@@ -297,7 +297,7 @@ public class ActivityListView_v2 : BaseView
     public async Task CreateTutorialActivity()
     {
         await DeleteTutorialActivity();
-#if UNITY_ANDROID
+#if UNITY_ANDROID || UNITY_EDITOR
         StartCoroutine(MoveTutorialActivityToLocalFilesAndroid());
 #elif UNITY_IOS
         MoveTutorialActivityToLocalFilesIOS();
@@ -318,9 +318,14 @@ public class ActivityListView_v2 : BaseView
 
     private IEnumerator MoveTutorialActivityToLocalFilesAndroid()
     {
-        using (UnityWebRequest www = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "TutorialActivity.zip")))
+        string zipPath = Path.Combine(Application.streamingAssetsPath, "TutorialActivity.zip");
+#if UNITY_EDITOR
+        zipPath = "file://" + zipPath;
+#endif
+        Debug.Log("[ActivtyListView_v2] Loading tutorial zip from location '" + zipPath + "'");
+        using (UnityWebRequest www = UnityWebRequest.Get(zipPath))
         {
-            yield return www.Send();
+            yield return www.SendWebRequest();
 
             MoveAndUnpackTutorialZipFileAndroid(www);
         }
@@ -329,7 +334,13 @@ public class ActivityListView_v2 : BaseView
     private async void MoveAndUnpackTutorialZipFileAndroid(UnityWebRequest www)
     {
         string savePath = Path.Combine(Application.persistentDataPath, "TutorialActivity.zip");
+        Debug.Log("[ActivtyListView_v2] Copying file to location '" + savePath.ToString() + "'");
 
+        // clear out any previous download attempts
+        if (File.Exists(savePath))
+        {
+            File.Delete(savePath);
+        }
         var stream = new FileStream(savePath, FileMode.OpenOrCreate);
 
         await stream.WriteAsync(www.downloadHandler.data);
@@ -345,7 +356,7 @@ public class ActivityListView_v2 : BaseView
 
     private async void MoveTutorialActivityToLocalFilesIOS()
     {
-        var stream = new FileStream(Path.Combine(Application.streamingAssetsPath, "TutorialActivity.zip"), FileMode.OpenOrCreate);
+        var stream = new FileStream(Path.Combine(Application.streamingAssetsPath, "TutorialActivity.zip"), FileMode.Open);
 
         await ZipUtilities.ExtractZipFileAsync(stream, Application.persistentDataPath);
 
