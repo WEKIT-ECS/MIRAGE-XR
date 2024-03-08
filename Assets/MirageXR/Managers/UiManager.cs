@@ -90,8 +90,6 @@ namespace MirageXR
 
         private void PlayerReset()
         {
-            ClearDebug();
-            HideDebug();
             HideMenu();
             WelcomeMessage = string.Empty;
             RootObject.Instance.calibrationManager.DisableCalibration();
@@ -147,30 +145,6 @@ namespace MirageXR
             //Menu.GetComponent<CanvasGroup> ().alpha = 0;
             //Menu.GetComponent<GraphicRaycaster> ().enabled = false;
             ActionList.gameObject.SetActive(false);
-        }
-
-        /// <summary>
-        /// Clear debug console. Called from Hololens keyword manager.
-        /// </summary>
-        public void ClearDebug()
-        {
-            DebugConsole.transform.parent.SendMessage("ClearDebug", SendMessageOptions.DontRequireReceiver);
-        }
-
-        /// <summary>
-        /// Show debug console. Called from Hololens keyword manager.
-        /// </summary>
-        public void ShowDebug()
-        {
-            DebugConsole.SetActive(true);
-        }
-
-        /// <summary>
-        /// Hide debug console. Called from Hololens keyword manager.
-        /// </summary>
-        public void HideDebug()
-        {
-            DebugConsole.SetActive(false);
         }
 
         /// <summary>
@@ -398,8 +372,11 @@ namespace MirageXR
         /// </summary>
         public void HideMenu()
         {
-            ActionList.gameObject.SetActive(false);
-            IsMenuVisible = false;
+            if (ActionList != null)
+            {
+                ActionList.gameObject.SetActive(false);
+                IsMenuVisible = false;
+            }
         }
 
         /// <summary>
