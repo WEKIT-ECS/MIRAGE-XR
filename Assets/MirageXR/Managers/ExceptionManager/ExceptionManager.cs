@@ -12,13 +12,14 @@ namespace MirageXR
    /// </summary>
    public class ExceptionManager : MonoBehaviour
    {
-       //[SerializeField] private SentrySdk sentry; 
-       //private const string SENTRY_DSN = "https://b23911205078e7a81bf1489e8aa0fabe@o4506320008118272.ingest.sentry.io/4506320009428992";
+        //[SerializeField] private SentrySdk sentry; 
+        //private const string SENTRY_DSN = "https://b23911205078e7a81bf1489e8aa0fabe@o4506320008118272.ingest.sentry.io/4506320009428992";
+        // test account for exception manager testing: https://d453859222cb87c3b20ffb6813e10801@o4506874936098816.ingest.us.sentry.io/4506874937147392
 
-       /// <summary>
-       /// Initialize takes care of setting up the hook for receiving log messages.
-       /// </summary>
-       public void Initialize()
+        /// <summary>
+        /// Initialize takes care of setting up the hook for receiving log messages.
+        /// </summary>
+        public void Initialize()
        {
             //sentry ??= new GameObject("ExceptionManagerSentry").AddComponent<SentrySdk>();
             //sentry.Dsn = SENTRY_DSN;
