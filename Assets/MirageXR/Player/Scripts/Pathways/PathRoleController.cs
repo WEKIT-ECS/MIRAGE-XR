@@ -85,13 +85,16 @@ public class PathRoleController : MonoBehaviour
                 string positionCaption;
                 if (IsCurrent())
                 {
-                    gameObject.SetActive(true);
+                    gameObject.SetActive(false);
                     positionCaption = "Current";
                     pathColor = brandManager.TaskStationColor;
                 }
                 else if (IsNext())
                 {
-                    gameObject.SetActive(true);
+                    // if this is switched to true, the next task station will
+                    // be displayed in turquoise; needs to be complemented
+                    // with update of line 72 set to true in TaskStationStateController.cs
+                    gameObject.SetActive(false);
                     positionCaption = "Next";
                     pathColor = brandManager.NextPathColor;
                 }
