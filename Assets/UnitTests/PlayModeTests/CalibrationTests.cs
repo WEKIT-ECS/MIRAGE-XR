@@ -303,20 +303,9 @@ namespace Tests
 
         private async Task PerformCalibration(bool isEditMode)
         {
-            // set event for completed calibration
-            EventManager.OnWorkplaceCalibrated += CalibrationComplete;
-
-            // put in to play mode
             rootObject.activityManager.EditModeActive = isEditMode;
-
-            // then run the player calibration routine to move objects (as though the camera is the marker)
             await rootObject.workplaceManager.CalibrateWorkplace();
-        }
-
-        private void CalibrationComplete()
-        {
             isCalibrated = true;
-            EventManager.OnWorkplaceCalibrated -= CalibrationComplete;
         }
 
         /// <summary>
