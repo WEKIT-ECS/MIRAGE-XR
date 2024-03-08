@@ -26,6 +26,8 @@ public class AudioEditorView : PopupEditorBase
     [SerializeField] private Button _btnAudioSettings;
     [SerializeField] private Button _btnMicRecording;
     [SerializeField] private Button _btnMicReRecording;
+    [SerializeField] private Button _btnDeviceFolder;
+    [SerializeField] private Button _btnDeviceFolderPlayAudioPanel;
     [SerializeField] private Button _btnRecord;
     [SerializeField] private Button _btnStop;
     [SerializeField] private Button _btnPlay;
@@ -75,6 +77,7 @@ public class AudioEditorView : PopupEditorBase
     private Coroutine _updateRecordTimerCoroutine;
     private float _recordStartTime;
     private int _scrollRectStep;
+    private string _audioFileType;
 
     private string _inputTriggerStepNumber = string.Empty;
 
@@ -98,6 +101,8 @@ public class AudioEditorView : PopupEditorBase
         _btnAudioSettings.onClick.AddListener(OnOpenAudioSettings);
         _btnMicRecording.onClick.AddListener(OnOpenRecordControlsPanel);
         _btnMicReRecording.onClick.AddListener(OnOpenRecordControlsPanel);
+        _btnDeviceFolder.onClick.AddListener(OnOpenDeviceFolder);
+        _btnDeviceFolderPlayAudioPanel.onClick.AddListener(OnOpenDeviceFolder);
 
         _btnRecord.onClick.AddListener(OnRecordStarted);
         _btnStop.onClick.AddListener(OnRecordStopped);
@@ -116,6 +121,8 @@ public class AudioEditorView : PopupEditorBase
         _clampedScrollJumpToStep.onItemChanged.AddListener(OnItemJumpToStepChanged);
 
         _toggle3D.onValueChanged.AddListener(On3DSelected);
+        
+        _audioFileType = NativeFilePicker.ConvertExtensionToFileType("wav");
 
         var steps = activityManager.ActionsOfTypeAction;
         var stepsCount = steps.Count;
@@ -438,6 +445,26 @@ public class AudioEditorView : PopupEditorBase
         _panelAudioSettings.SetActive(false);
         _panelRecordControls.SetActive(true);
         _txtTimer.text = ToTimeFormat(0);
+    }
+
+    private void OnOpenDeviceFolder()
+    {
+        if (NativeFilePicker.IsFilePickerBusy())
+        {
+            return;
+        }
+        NativeFilePicker.Permission permission = NativeFilePicker.PickFile(
+            (path) =>
+            {
+                if (path == null)
+                {
+                    Debug.Log("Operation cancelled");
+                }
+                else
+                {
+                    Debug.Log("Picked file: " + path);
+                }
+            }, new string[] { _audioFileType });
     }
 
     protected override void OnAccept()
