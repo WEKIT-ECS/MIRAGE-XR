@@ -463,8 +463,36 @@ public class AudioEditorView : PopupEditorBase
                 else
                 {
                     Debug.Log("Picked file: " + path);
+                    StartCoroutine(LoadAudioClip(path));
                 }
             }, new string[] { _audioFileType });
+    }
+    
+    IEnumerator LoadAudioClip(string path)
+    {
+        var correctedPath = "file://" + path;
+        using (WWW www = new WWW(correctedPath))
+        {
+            yield return www;
+
+            if (www.error != null)
+            {
+                Debug.LogError("Failed to load audio: " + www.error);
+            }
+            else
+            {
+                _audioClip = www.GetAudioClip(false, false, AudioType.WAV);
+                
+                _recordStartTime = 0;
+                SetPlayerActive(true);
+                _groupPlayControls.interactable = true;
+        
+                OnClickRecordComplete();
+                OnOpenAudioSettings();
+                _topContainer.SetActive(false);
+                _topContainerPlayAudio.SetActive(true);
+            }
+        }
     }
 
     protected override void OnAccept()
