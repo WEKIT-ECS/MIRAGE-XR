@@ -75,11 +75,13 @@ public class VideoEditor : MonoBehaviour
 
     public void OnAccept()
     {
+        Debug.Log("Video: Accept called");
         if (IsRecording)
         {
             StopRecording();
         }
 
+        /*
 #if UNITY_EDITOR
         if (annotationToEdit == null)
         {
@@ -104,15 +106,17 @@ public class VideoEditor : MonoBehaviour
         }
         else
         {
-            Debug.LogError("OBS! In editor you are able only edit the trigger setting. Video recording is not possible in the editor.");
+            Debug.LogError("Oops! In editor you are only able to edit the trigger setting. Video recording is not possible in the editor.");
             SaveTriggerValue();
             Close();
             return;
         }
 #endif
-
+        */
+        Debug.Log("videowasrecorded = " + videoWasRecorded);
         if (!videoWasRecorded)
         {
+            Debug.Log("just closing, no content was recorded.");
             // just close if no content was recorded
             SaveTriggerValue();
             Close();
@@ -184,12 +188,11 @@ public class VideoEditor : MonoBehaviour
         var filepath = Path.Combine(activityManager.ActivityPath, newFileName);
 
         NativeCameraController.StartRecordingVideo(filepath, OnVideoRecordingStopped);
-        Maggie.Speak("Recording");
     }
 
     private void OnVideoRecordingStopped(bool result, string path)
     {
-        Maggie.Speak("Stopped recording");
+        Debug.Log("recording was stopped");
         videoWasRecorded = result;
         IsRecording = false;
 
