@@ -88,7 +88,7 @@ namespace MirageXR
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { id = "activity_save", message = "Activities are automatically saved locally, but you need to save them to the cloud if you want a backup online. You have to mark them as 'Public upload', if you want others to see and access your activity.", position = TutorialModel.MessagePosition.Middle });
+            queue.Enqueue(new TutorialModel { id = "activity_publish", message = "Activities are automatically saved locally, but you need to publish them to the cloud, if you want an online backup or want to share them. You have to mark them as 'public', if you want others to see and access your activity.", position = TutorialModel.MessagePosition.Middle });
             _mobileTutorial.Show(queue);
         }
     }
