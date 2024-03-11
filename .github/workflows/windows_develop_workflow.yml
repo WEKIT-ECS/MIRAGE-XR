@@ -1,5 +1,6 @@
 name: Windows Develop Workflow (HoloLens Builds)
 on: 
+  workflow_dispatch:
   schedule:
     - cron: 0 19 * * 5
 jobs:
