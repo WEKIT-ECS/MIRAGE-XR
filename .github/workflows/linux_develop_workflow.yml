@@ -21,12 +21,15 @@ jobs:
         env:
           ASSISTANTKEYS: ${{ secrets.ASSISTANTKEYS }}
           OAIKEYS: ${{ secrets.OAISECRET }}
+          SENTRYCFG: ${{ secrets.SENTRYCFG }}
         run: |
           echo -n "$ASSISTANTKEYS" > $GITHUB_WORKSPACE/ibm-credentials.env
           echo "path of the credentials resource $GITHUB_WORKSPACE/ibm-credentials.txt"
           export IBM_CREDENTIALS_FILE="$GITHUB_WORKSPACE/ibm-credentials.env"
           echo -n "$OAIKEYS" > $GITHUB_WORKSPACE/Assets/Resources/openai.txt
           echo "path of the OAI credentials resource $GITHUB_WORKSPACE/Assets/Resources/openai.txt"
+          echo -n "$SENTRYCFG" > $GITHUB_WORKSPACE/Assets/Resources/Sentry/SentryOptions.asset
+          echo "path of the Sentry options yaml file $GITHUB_WORKSPACE/Assets/Resources/Sentry/SentryOptions.asset"
 
       # Fonts
       - name: Install fonts
@@ -76,12 +79,15 @@ jobs:
         env:
           ASSISTANTKEYS: ${{ secrets.ASSISTANTKEYS }}
           OAIKEYS: ${{ secrets.OAISECRET }}
+          SENTRYCFG: ${{ secrets.SENTRYCFG }}
         run: |
           echo -n "$ASSISTANTKEYS" > $GITHUB_WORKSPACE/ibm-credentials.env
           echo "path of the credentials resource $GITHUB_WORKSPACE/ibm-credentials.txt"
           export IBM_CREDENTIALS_FILE="$GITHUB_WORKSPACE/ibm-credentials.env"
           echo -n "$OAIKEYS" > $GITHUB_WORKSPACE/Assets/Resources/openai.txt
           echo "path of the OAI credentials resource $GITHUB_WORKSPACE/Assets/Resources/openai.txt"
+          echo -n "$SENTRYCFG" > $GITHUB_WORKSPACE/Assets/Resources/Sentry/SentryOptions.asset
+          echo "path of the Sentry options yaml file $GITHUB_WORKSPACE/Assets/Resources/Sentry/SentryOptions.asset"
           export TARGET_PLATFORM="Android"
 
       # Fonts
