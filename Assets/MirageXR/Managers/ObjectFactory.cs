@@ -14,6 +14,7 @@ namespace MirageXR
     public class ObjectFactory : MonoBehaviour
     {
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
+
         private void OnEnable()
         {
             // Register to event manager events.
@@ -292,21 +293,6 @@ namespace MirageXR
                                 else
                                     DestroyPrefab(obj);
                                 break;
-
-                            // VTT demo specific hacks.
-                            //case "filterIn":
-                            //    if (isActivating)
-                            //        ActivatePrefab("FilterIn", obj);
-                            //    else
-                            //        DestroyPrefab(obj);
-                            //    break;
-
-                            //case "filterOut":
-                            //    if (isActivating)
-                            //        ActivatePrefab("FilterOut", obj);
-                            //    else
-                            //        DestroyPrefab(obj);
-                            //    break;
                             case "pickandplace":
                                 if (isActivating)
                                     ActivatePrefab("pickandplaceprefab", obj);
