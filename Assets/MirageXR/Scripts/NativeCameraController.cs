@@ -90,10 +90,13 @@ public class NativeCameraController
                     callback.Invoke(false, null);
                 }
 #else
-                if (path != null) {
+                if (path != null)
+                {
                     File.Move(path, filePath);
                     callback.Invoke(true, filePath);
-                } else {
+                }
+                else
+                {
                     Debug.LogWarning("No file was selected.");
                     callback.Invoke(false, null);
                 }
