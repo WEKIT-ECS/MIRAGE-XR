@@ -68,6 +68,7 @@ public class VideoEditorView : PopupEditorBase
             var originalFileName = Path.GetFileName(_content.url.Remove(0, HTTP_PREFIX.Length));
             var originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
 
+            Debug.Log("OriginalFilePath = " + originalFilePath);
             if (!File.Exists(originalFilePath)) return;
 
             var trigger = _step.triggers.Find(tr => tr.id == _content.poi);
@@ -129,8 +130,11 @@ public class VideoEditorView : PopupEditorBase
     {
         if (!_videoWasRecorded)
         {
-            Toast.Instance.Show("The video has not been recorded");
-            return;
+            Toast.Instance.Show("No video recorded.");
+            if (_content == null || string.IsNullOrEmpty(_content.url))
+            {
+                return;
+            }
         }
 
         if (_content != null)
@@ -140,9 +144,24 @@ public class VideoEditorView : PopupEditorBase
             // delete the previous video file
             var originalFileName = Path.GetFileName(_content.url.Remove(0, HTTP_PREFIX.Length));
             var originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
-            if (File.Exists(originalFilePath))
+            Debug.Log("Will now delete file at originalFilePath = " + originalFilePath);
+            Debug.Log("New file = " + _newFileName);
+            if (File.Exists(originalFilePath) && !string.IsNullOrEmpty(_newFileName) && _videoWasRecorded)
             {
-                File.Delete(originalFilePath);
+                Debug.Log("Deleting old video recording file, as replacing with new one.");
+                if (Path.Combine(activityManager.ActivityPath, _newFileName) != originalFilePath)
+                {
+                    File.Delete(originalFilePath);
+                    Debug.Log("deleted");
+                }
+            }
+            else
+            {
+                Debug.Log("Old video recording file did not exist or was the same as the new one.");
+            }
+            if (string.IsNullOrEmpty(_newFileName) || !_videoWasRecorded)
+            {
+                _newFileName = originalFileName;
             }
         }
         else
