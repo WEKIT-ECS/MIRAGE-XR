@@ -106,7 +106,7 @@ public class VideoEditor : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Oops! In editor you are only able to edit the trigger setting. Video recording is not possible in the editor.");
+            Debug.LogError("In editor you are only able to edit the trigger setting. Video recording is not possible in the editor.");
             SaveTriggerValue();
             Close();
             return;
