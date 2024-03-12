@@ -194,7 +194,8 @@ public class NativeCameraController
         string pickedFile = UnityEditor.EditorUtility.OpenFilePanelWithFilters("Select video", "", new string[] { "Video files", "mp4,mov,wav,avi", "All files", "*" });
         if (callback != null)
         {
-            callback.Invoke( pickedFile != "" ? true:false, pickedFile != "" ? pickedFile : null);
+            var isValidPath = !string.IsNullOrEmpty(pickedFile);
+            callback.Invoke(isValidPath, isValidPath ? pickedFile : null);
             ResetVideoRecorder();
         }
         return;
