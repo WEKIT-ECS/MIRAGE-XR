@@ -1,5 +1,6 @@
 name: Windows Workflow (HoloLens Builds)
 on: 
+  workflow_dispatch:
   schedule:
     - cron: 0 19 * * 5
   release:
@@ -23,11 +24,14 @@ jobs:
       - name: Set up IBM Watson credentials
         env:
           ASSISTANTKEYS: ${{ secrets.ASSISTANTKEYS }}
+          OAIKEYS: ${{ secrets.OAISECRET }}
         run: |
           echo -n "$env:ASSISTANTKEYS" > $env:GITHUB_WORKSPACE/ibm-credentials.env
           echo "path of the credentials resource $env:GITHUB_WORKSPACE/Assets/Resources/ibm-credentials.txt"
           $env:IBM_CREDENTIALS_FILE="$env:GITHUB_WORKSPACE/ibm-credentials.env"
           $env:TARGET_PLATFORM="Hololens"
+          echo -n "$OAIKEYS" > $env:GITHUB_WORKSPACE/Assets/Resources/openai.txt
+          echo "path of the OAI credentials resource $env:GITHUB_WORKSPACE/Assets/Resources/openai.txt"
 
       # Cache
       - name: Caching
@@ -86,12 +90,26 @@ jobs:
       JobID: ${{ github.event.release.body }}
 
     steps:
+    
       - name: Checkout repo
         uses: actions/checkout@v3
         with:
           lfs: 'true'
+          
       - name: LFS pull
         run: git lfs pull
+
+      - name: Set up IBM Watson credentials
+        env:
+          ASSISTANTKEYS: ${{ secrets.ASSISTANTKEYS }}
+          OAIKEYS: ${{ secrets.OAISECRET }}
+        run: |
+          echo -n "$env:ASSISTANTKEYS" > $env:GITHUB_WORKSPACE/ibm-credentials.env
+          echo "path of the credentials resource $env:GITHUB_WORKSPACE/Assets/Resources/ibm-credentials.txt"
+          $env:IBM_CREDENTIALS_FILE="$env:GITHUB_WORKSPACE/ibm-credentials.env"
+          $env:TARGET_PLATFORM="Hololens"
+          echo -n "$OAIKEYS" > $env:GITHUB_WORKSPACE/Assets/Resources/openai.txt
+          echo "path of the OAI credentials resource $env:GITHUB_WORKSPACE/Assets/Resources/openai.txt"
 
       - name: Setup Unity UWP
         uses: kuler90/setup-unity@v1
