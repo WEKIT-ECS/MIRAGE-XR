@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using Sentry;
 using UnityEngine;
 
 namespace MirageXR
@@ -342,6 +343,12 @@ namespace MirageXR
             usermail = null;
             rememberUser = false;
             LocalFiles.RemoveUsernameAndPassword();
+            SentrySdk.ConfigureScope(scope =>
+            {
+                Debug.LogInfo("SentrySdk: payload username/email emptied");
+                scope.User.Email = null;
+                scope.User.Username = null;
+            });
         }
 
     }
