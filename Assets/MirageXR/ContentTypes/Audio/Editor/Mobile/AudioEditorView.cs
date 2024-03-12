@@ -463,7 +463,7 @@ public class AudioEditorView : PopupEditorBase
                 else
                 {
                     Debug.Log("Picked file: " + path);
-                    StartCoroutine(LoadAudioClip(path));
+                    //StartCoroutine(LoadAudioClip(path));
                 }
             }, new string[] { _audioFileType });
     }
