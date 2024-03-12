@@ -4,6 +4,7 @@ using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 
 namespace MirageXR
@@ -26,6 +27,13 @@ namespace MirageXR
         [SerializeField] private GameObject FrameLandscape;
 
         [SerializeField] private GameObject Background;
+        [Space]
+        //Variables for caption handling <start>
+        [SerializeField] TMP_Text _captionTextLandscape;
+        [SerializeField] private GameObject _captionObjectLandscape;
+        [SerializeField] private TMP_Text _captionTextPortrait;
+        [SerializeField] private GameObject _captionObjectPortrait;
+        //Variable for caption handling <end>
 
         private Vector3 _originalPosition = Vector3.zero;
         private Quaternion _originalRotation = Quaternion.identity;
@@ -35,7 +43,7 @@ namespace MirageXR
         private GameObject _thinLine;
         private GameObject _contentObject;
         private Texture2D _texture;
-
+       
         public ToggleObject ToggleObject => _obj;
 
         /// <summary>
@@ -116,6 +124,17 @@ namespace MirageXR
 
             OnLock(_obj.poi, _obj.positionLock);
             EventManager.OnAugmentationLocked += OnLock;
+       
+            //caption logic
+            var caption = obj.caption;
+
+            if (caption != string.Empty)
+            {
+                _captionObjectLandscape.SetActive(true);
+                _captionObjectPortrait.SetActive(true);
+                _captionTextLandscape.text = caption;
+                _captionTextPortrait.text = caption;
+            }
 
             return base.Init(obj);
         }
