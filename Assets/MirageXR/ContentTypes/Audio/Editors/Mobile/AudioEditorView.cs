@@ -463,9 +463,10 @@ public class AudioEditorView : PopupEditorBase
                 else
                 {
                     Debug.Log("Picked file: " + path);
-                    //StartCoroutine(LoadAudioClip(path));
+                    StartCoroutine(LoadAudioClip(path));
                 }
             }, new string[] { _audioFileType });
+        Debug.Log("Permission result: " + permission);
     }
     
     IEnumerator LoadAudioClip(string path)
@@ -486,7 +487,6 @@ public class AudioEditorView : PopupEditorBase
                 _recordStartTime = 0;
                 SetPlayerActive(true);
                 _groupPlayControls.interactable = true;
-        
                 OnClickRecordComplete();
                 OnOpenAudioSettings();
                 _topContainer.SetActive(false);
