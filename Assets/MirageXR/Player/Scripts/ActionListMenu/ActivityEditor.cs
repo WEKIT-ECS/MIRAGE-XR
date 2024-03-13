@@ -94,7 +94,7 @@ public class ActivityEditor : MonoBehaviour
         };
 
         optionsDropDown.AddOptions(options);
-        ConfirmPanelText.text = "You are not the original author of this activity. Please select an option:";
+        ConfirmPanelText.text = "Not activity owner. Please choose:";
         updateConfirmPanel.SetActive(true);
     }
 
@@ -108,7 +108,7 @@ public class ActivityEditor : MonoBehaviour
         };
 
         optionsDropDown.AddOptions(options);
-        ConfirmPanelText.text = "The activity you are trying to upload already exists on the server. Please select an option:";
+        ConfirmPanelText.text = "Activity already exists on the cloud. Please choose:";
         updateConfirmPanel.SetActive(true);
     }
 

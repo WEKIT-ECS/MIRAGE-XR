@@ -223,7 +223,7 @@ public class ActivitySettings : PopupBase
         var (result, response) = await moodleManager.UploadFile(activityManager.ActivityPath, activityManager.Activity.name, 0);
         if (response == "Error: File exist, update")
         {
-            RootView_v2.Instance.dialog.ShowBottomMultiline("This file is exist! Please select an option:", 
+            RootView_v2.Instance.dialog.ShowBottomMultiline("Activity already exists on the cloud. Please choose:", 
                 ("Update", UploadAndUpdate),
                 ("Clone", UploadAndCopy),
                 ("Cancel", null));
@@ -231,25 +231,25 @@ public class ActivitySettings : PopupBase
 
         if (response == "Error: File exist, clone")
         {
-            RootView_v2.Instance.dialog.ShowBottomMultiline("You are not the original author of this file! Please select an option:",
+            RootView_v2.Instance.dialog.ShowBottomMultiline("Not activity owner! Please choose:",
                 ("Clone", UploadAndCopy),
                 ("Cancel", null));
         }
 
-        if (result) Toast.Instance.Show("upload completed successfully");
+        if (result) Toast.Instance.Show("Upload completed successfully");
     }
 
     private async void UploadAndUpdate()
     {
         var (result, response) = await moodleManager.UploadFile(activityManager.ActivityPath, activityManager.Activity.name, 1);
-        Toast.Instance.Show(result ? "upload completed successfully" : response);
+        Toast.Instance.Show(result ? "Upload completed successfully" : response);
     }
 
     private async void UploadAndCopy()
     {
         activityManager.CloneActivity();
         var (result, response) = await moodleManager.UploadFile(activityManager.ActivityPath, activityManager.Activity.name, 2);
-        Toast.Instance.Show(result ? "upload completed successfully" : response);
+        Toast.Instance.Show(result ? "Upload completed successfully" : response);
     }
 
     private async void DeleteFromServer()

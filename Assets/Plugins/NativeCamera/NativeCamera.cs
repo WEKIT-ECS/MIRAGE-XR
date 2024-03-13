@@ -253,9 +253,9 @@ public static class NativeCamera
 		{
 #if UNITY_EDITOR
 			string pickedFile = UnityEditor.EditorUtility.OpenFilePanelWithFilters( "Select video", "", new string[] { "Video files", "mp4,mov,wav,avi", "All files", "*" } );
-
+			Debug.Log("picked File = " + pickedFile);
 			if( callback != null )
-				callback( pickedFile != "" ? pickedFile : null );
+				callback(!string.IsNullOrEmpty(pickedFile)? pickedFile : null );
 #elif UNITY_ANDROID
 			AJC.CallStatic( "RecordVideo", Context, new NCCameraCallbackAndroid( callback ), (int) preferredCamera, (int) quality, maxDuration, maxSizeBytes );
 #elif UNITY_IOS
