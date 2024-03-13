@@ -9,6 +9,7 @@ using ICSharpCode.SharpZipLib.Zip;
 using System.Threading.Tasks;
 using Object = UnityEngine.Object;
 using i5.Toolkit.Core.VerboseLogging;
+using Sentry;
 
 namespace MirageXR
 {
@@ -18,6 +19,7 @@ namespace MirageXR
     public class MoodleManager
     {
         private const long MAX_FILE_SIZE_FOR_MEMORY = 150 * 1024 * 1024; // 150 mb
+
         private static ActivityManager activityManager => RootObject.Instance.activityManager;
 
         private GameObject _progressText;   //TODO: remove ui logic
@@ -55,6 +57,14 @@ namespace MirageXR
                 DBManager.username = username;
                 await GetUserId();
                 await GetUserMail();
+
+                // set sentry context
+                SentrySdk.ConfigureScope(scope =>
+                {
+                    Debug.LogInfo("Setting SentrySdk payload usermail to " + DBManager.usermail);
+                    scope.User.Email = DBManager.usermail;
+                    scope.User.Username = DBManager.username;
+                });
             }
 
             return result;
