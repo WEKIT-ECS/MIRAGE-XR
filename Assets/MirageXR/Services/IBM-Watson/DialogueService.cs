@@ -15,7 +15,7 @@ using Model = OpenAI_API.Models.Model;
 
 public enum AIservice
 {
-    openAI,
+    OpenAI,
     Watson
 };
 
@@ -34,7 +34,7 @@ public class DialogueService : MonoBehaviour
 
     [Space(10)]
 
-    public AIservice AI = AIservice.openAI;
+    public AIservice AI = AIservice.OpenAI;
 
     private OpenAIAPI _openAIinterface;
     private OpenAI_API.Chat.Conversation _chat;
@@ -79,23 +79,7 @@ public class DialogueService : MonoBehaviour
 
         _character = dSpeechOutputMgr.myCharacter.GetComponentInParent<MirageXR.CharacterController>();
 
-        CreateService();
-    }
-
-    public void CreateService()
-    {
-        switch (AI)
-        {
-            case AIservice.openAI:
-                CreateOpenAIServiceAsync().AsAsyncVoid();
-                break;
-            case AIservice.Watson:
-                Runnable.Run(CreateWatsonService());
-                break;
-            default:
-                AppLog.Log($"DialogueService: ERROR: AI service provider {AI} does not exist.", LogLevel.CRITICAL);
-                break;
-        }
+        CreateOpenAIServiceAsync().AsAsyncVoid();
     }
 
     private static async Task<APIAuthentication> ReadOpenIaAuthKeyAsync()
@@ -142,7 +126,7 @@ public class DialogueService : MonoBehaviour
         return new APIAuthentication(key, org);
     }
 
-    private async Task CreateOpenAIServiceAsync()
+    public async Task CreateOpenAIServiceAsync()
     {
         try
         {
@@ -208,30 +192,44 @@ public class DialogueService : MonoBehaviour
 
     public async Task SendMessageToAssistantAsync(string theText)
     {
-        Debug.LogDebug("[DialogueService] Sending transcribed input to " + AI.ToString() + ", text = '" + theText + "'");
+        Debug.LogDebug($"[DialogueService] Sending transcribed input to {AI}, text = '{theText}'");
 
         if (createSessionTested)
         {
             Debug.Log("[DialogueService] Existing session available");
-            if (AI == AIservice.openAI)
+            if (AI == AIservice.OpenAI)
             {
                 AppLog.Log("[DialogueService] sending message to chatGPT", LogLevel.INFO);
-                AppLog.Log("[DialogueService] sending message to chatGPT = '" + theText + "'", LogLevel.INFO);
+                AppLog.Log($"[DialogueService] sending message to chatGPT = '{theText}'", LogLevel.INFO);
                 _chat.AppendUserInput(theText);
 
                 AppLog.Log("[DialogueService] starting await", LogLevel.INFO);
                 // and get the response
-                string response = await _chat.GetResponseFromChatbotAsync();
-                AppLog.Log("[DialogueService] returned from await: '" + response + "'", LogLevel.INFO);
-                Console.WriteLine(response);
+                try
+                {
+                    var response = await _chat.GetResponseFromChatbotAsync();
 
-                AppLog.Log("[DialogueService] starting to parse", LogLevel.INFO);
-                ParseResponse(response);
+                    AppLog.Log($"[DialogueService] returned from await: '{response}'", LogLevel.INFO);
+                    Console.WriteLine(response);
+
+                    AppLog.Log("[DialogueService] starting to parse", LogLevel.INFO);
+                    ParseResponse(response);
+                }
+                catch (TaskCanceledException e)
+                {
+                    AppLog.LogWarning(e.ToString());
+                }
+                catch (Exception e)
+                {
+                    AppLog.LogError(e.ToString());
+                }
             }
             else if (AI == AIservice.Watson)
             {
-                service.Message(OnWatsonResponseReceived, assistantId, sessionId, input: new MessageInput()
-                { Text = theText, Options = new MessageInputOptions() { ReturnContext = true } });
+                service.Message(OnWatsonResponseReceived, assistantId, sessionId, input: new MessageInput
+                {
+                    Text = theText, Options = new MessageInputOptions { ReturnContext = true }
+                });
             }
         }
         else
@@ -242,7 +240,7 @@ public class DialogueService : MonoBehaviour
 
     private void NextStep()
     {
-        activityManager.ActivateNextAction();
+        activityManager.ActivateNextAction().AsAsyncVoid();
     }
 
     private void OnWatsonResponseReceived(DetailedResponse<MessageResponse> response, IBMError error)
@@ -369,7 +367,7 @@ public class DialogueService : MonoBehaviour
         AIprompt = text;
 
         // reset the conversation
-        if (createSessionTested && AI == AIservice.openAI)
+        if (createSessionTested && AI == AIservice.OpenAI)
         {
             AppLog.LogInfo("[DialogueService] resetting conversation");
             _chat = _openAIinterface.Chat.CreateConversation();

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using System.Threading.Tasks;
 using System;
+using MirageXR;
 
 public class OpenAITests
 {
@@ -23,9 +23,9 @@ public class OpenAITests
         {
             var go = new GameObject();
             ds = go.AddComponent<DialogueService>();
-            ds.AI = AIservice.openAI;
+            ds.AI = AIservice.OpenAI;
             ds.AIprompt = "You are shakespeare";
-            ds.CreateService();
+            ds.CreateOpenAIServiceAsync().AsAsyncVoid();
 
             //ds.SendMessageToAssistantAsync("TEST");
 
