@@ -471,7 +471,7 @@ public class AudioEditorView : PopupEditorBase
         Debug.Log("Permission result: " + permission);
     }
     
-    IEnumerator LoadAudioClip(string path)
+    private  IEnumerator LoadAudioClip(string path)
     {
         var correctedPath = "file://" + path;
         using (WWW www = new WWW(correctedPath))
