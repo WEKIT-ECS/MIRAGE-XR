@@ -410,38 +410,32 @@ namespace MirageXR
 
         private static async Task<(bool, string)> GetRequestToStreamAsync(string uri, Stream stream, int timeout, CancellationToken cancellationToken = default)
         {
-            using (var client = new HttpClient())
+            using var httpClient = new HttpClient();
+            httpClient.Timeout = TimeSpan.FromSeconds(timeout);
+            try
             {
-                client.Timeout = TimeSpan.FromSeconds(timeout);
-                try
-                {
-                    using (var response = await client.GetAsync(uri, cancellationToken))
-                    {
-                        await response.Content.CopyToAsync(stream);
-                        return (true, string.Empty);
-                    }
-                }
-                catch (Exception e)
-                {
-                    return (false, e.ToString());
-                }
+                using var response = await httpClient.GetAsync(uri, cancellationToken);
+                await response.Content.CopyToAsync(stream);
+                return (true, string.Empty);
+            }
+            catch (Exception e)
+            {
+                return (false, e.ToString());
             }
         }
 
         public static async Task<(bool, string)> DownloadToStreamAsync(string uri, Stream stream, int timeout, IProgress<float> progress = null, CancellationToken cancellationToken = default)
         {
-            using (var client = new HttpClient())
+            using var httpClient = new HttpClient();
+            httpClient.Timeout = TimeSpan.FromSeconds(timeout);
+            try
             {
-                client.Timeout = TimeSpan.FromSeconds(timeout);
-                try
-                {
-                    await client.DownloadAsync(uri, stream, progress, cancellationToken);
-                    return (true, string.Empty);
-                }
-                catch (Exception e)
-                {
-                    return (false, e.ToString());
-                }
+                await httpClient.DownloadAsync(uri, stream, progress, cancellationToken);
+                return (true, string.Empty);
+            }
+            catch (Exception e)
+            {
+                return (false, e.ToString());
             }
         }
     }
@@ -451,24 +445,19 @@ namespace MirageXR
         public static async Task DownloadAsync(this HttpClient client, string requestUri, Stream destination, IProgress<float> progress = null, CancellationToken cancellationToken = default)
         {
             const int bufferSize = 81920;
-            using (var response = await client.GetAsync(requestUri, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
+            using var response = await client.GetAsync(requestUri, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            var contentLength = response.Content.Headers.ContentLength;
+
+            await using var download = await response.Content.ReadAsStreamAsync();
+            if (progress == null || !contentLength.HasValue)
             {
-                var contentLength = response.Content.Headers.ContentLength;
-
-                using (var download = await response.Content.ReadAsStreamAsync())
-                {
-
-                    if (progress == null || !contentLength.HasValue)
-                    {
-                        await download.CopyToAsync(destination);
-                        return;
-                    }
-
-                    var relativeProgress = new Progress<long>(totalBytes => progress.Report((float)totalBytes / contentLength.Value));
-                    await download.CopyToAsync(destination, bufferSize, relativeProgress, cancellationToken);
-                    progress.Report(1f);
-                }
+                await download.CopyToAsync(destination, cancellationToken);
+                return;
             }
+
+            var relativeProgress = new Progress<long>(totalBytes => progress.Report((float)totalBytes / contentLength.Value));
+            await download.CopyToAsync(destination, bufferSize, relativeProgress, cancellationToken);
+            progress.Report(1f);
         }
     }
 
