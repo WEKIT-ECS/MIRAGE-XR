@@ -19,6 +19,8 @@ public class AudioEditorView : PopupEditorBase
     private const float HIDED_SIZE = 100f;
     private const float HIDE_ANIMATION_TIME = 0.5f;
 
+    private const string AUDIO_FILE_EXTENSION = "wav";
+
     private float _currentRangeValue;
 
     public override ContentType editorForType => ContentType.AUDIO;
@@ -122,7 +124,7 @@ public class AudioEditorView : PopupEditorBase
 
         _toggle3D.onValueChanged.AddListener(On3DSelected);
         
-        _audioFileType = NativeFilePicker.ConvertExtensionToFileType("wav");
+        _audioFileType = NativeFilePicker.ConvertExtensionToFileType(AUDIO_FILE_EXTENSION);
 
         var steps = activityManager.ActionsOfTypeAction;
         var stepsCount = steps.Count;
