@@ -9,6 +9,7 @@ public class PlaneManagerARFoundation : PlaneManagerBase
     private const PlaneDetectionMode DETECTION_MODE = PlaneDetectionMode.Horizontal | PlaneDetectionMode.Vertical;
 
     public override UnityEventPlaneIdVector3 onPlaneClicked => _onPlaneClicked;
+    public override UnityEventPlaneIdPlaneId onPlaneRemoved => _onPlaneRemoved;
 
     private GameObject _prefabPlane;
     private ARPlaneManager _arPlaneManager;
@@ -17,6 +18,7 @@ public class PlaneManagerARFoundation : PlaneManagerBase
     private bool _showPlanes;
     private ARFoundationPlaneBehaviour _debugARFoundationPlane;
     private UnityEventPlaneIdVector3 _onPlaneClicked = new UnityEventPlaneIdVector3();
+    private UnityEventPlaneIdPlaneId _onPlaneRemoved = new UnityEventPlaneIdPlaneId();
 
     public GameObject prefabPlane
     {
@@ -47,9 +49,28 @@ public class PlaneManagerARFoundation : PlaneManagerBase
         _enableColliders = false;
         _showPlanes = false;
 
+        _arPlaneManager.planesChanged += ArPlaneManagerOnPlanesChanged;
+
         EventManager.OnEditModeChanged += OnEditModeChanged;
 
         return true;
+    }
+
+    private void ArPlaneManagerOnPlanesChanged(ARPlanesChangedEventArgs eventArgs)
+    {
+        foreach (var arPlane in eventArgs.removed)
+        {
+            var id = arPlane.trackableId;
+            if (arPlane.subsumedBy == null)
+            {
+                _onPlaneRemoved.Invoke(new PlaneId(id.subId1, id.subId2), PlaneId.InvalidId);
+            }
+            else
+            {
+                var subsumedById = arPlane.subsumedBy.trackableId;
+                _onPlaneRemoved.Invoke(new PlaneId(id.subId1, id.subId2), new PlaneId(subsumedById.subId1, subsumedById.subId2));
+            }
+        }
     }
 
     public override async Task<bool> ResetAsync()
@@ -82,7 +103,11 @@ public class PlaneManagerARFoundation : PlaneManagerBase
 
     public override void OnPlaneClicked(PlaneId planeId, Vector3 position)
     {
-        _onPlaneClicked.Invoke(planeId, position);
+        var plane = _arPlaneManager.GetPlane(new TrackableId(planeId.subId1, planeId.subId2));
+        if (plane != null)
+        {
+            _onPlaneClicked.Invoke(planeId, position);
+        }
     }
 
     public override void EnablePlanes()
@@ -119,13 +144,7 @@ public class PlaneManagerARFoundation : PlaneManagerBase
     public override GameObject GetPlane(PlaneId planeId)
     {
         var plane = _arPlaneManager.GetPlane(new TrackableId(planeId.subId1, planeId.subId2));
-        if (plane == null)
-        {
-            Debug.LogError($"Can't find plane with id: {planeId}");
-            return null;
-        }
-
-        return plane.gameObject;
+        return plane == null ? null : plane.gameObject;
     }
 
     public override void UpdatePlanes()
@@ -140,6 +159,19 @@ public class PlaneManagerARFoundation : PlaneManagerBase
                 planeBehaviour.UpdateState();
             }
         }
+    }
+
+    public override GameObject GetRandomPlane()
+    {
+        foreach (var arPlane in _arPlaneManager.trackables)
+        {
+            if (arPlane != null)
+            {
+                return arPlane.gameObject;
+            }
+        }
+
+        return null;
     }
 
     public override void Dispose()
