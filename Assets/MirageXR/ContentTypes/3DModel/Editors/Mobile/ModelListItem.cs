@@ -21,7 +21,9 @@ public class ModelListItem : MonoBehaviour
             _imageDownloaded.gameObject.SetActive(value);
         }
     }
+
     public ModelPreviewItem previewItem => _previewItem;
+
     public bool interactable
     {
         get => _btn.interactable;
@@ -82,7 +84,6 @@ public class ModelListItem : MonoBehaviour
         _removeAction(this);
     }
 
-
     public async Task LoadImage()
     {
         if (!_isImageDownloaded)
@@ -105,7 +106,10 @@ public class ModelListItem : MonoBehaviour
 
     public void OnDownload(float progress)
     {
-        _imageProgress.fillAmount = progress;
+        if (_imageProgress != null)
+        {
+            _imageProgress.fillAmount = progress;
+        }
     }
 
     public void OnEndDownload()
