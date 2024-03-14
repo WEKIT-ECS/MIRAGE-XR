@@ -466,18 +466,9 @@ namespace MirageXR
 
             // switch provider if needed
             var dialogueService = watsonService.transform.Find("WatsonServices").GetComponent<DialogueService>();
-            if (!useWatson)
-            {
-                dialogueService.AI = AIservice.openAI;
-                _useWatson = false;
-                dialogueService.CreateService();
-            }
-            else
-            {
-                dialogueService.AI = AIservice.Watson;
-                _useWatson = true;
-                dialogueService.CreateService();
-            }
+            dialogueService.AI = AIservice.OpenAI;
+            _useWatson = false;
+            dialogueService.CreateOpenAIServiceAsync().AsAsyncVoid();
         }
 
         private void OnUpdatePrompt()
@@ -777,7 +768,7 @@ namespace MirageXR
             if (AIActivated)
             {
                 var ds = watsonService.transform.Find("WatsonServices").GetComponent<DialogueService>();
-                if (ds.AI == AIservice.openAI)
+                if (ds.AI == AIservice.OpenAI)
                 {
                     character.AIProvider = "chatgpt";
                 }
