@@ -5,6 +5,8 @@ using UnityEngine.Events;
 
 public class UnityEventPlaneIdVector3 : UnityEvent<PlaneId, Vector3> { }
 
+public class UnityEventPlaneIdPlaneId : UnityEvent<PlaneId, PlaneId> { }
+
 public struct PlaneId
 {
     public static PlaneId InvalidId = new PlaneId(0, 0);
@@ -41,6 +43,7 @@ public class PlaneManagerWrapper : MonoBehaviour
     [SerializeField] private UnityEvent _onDetectionDisabled = new UnityEvent();
 
     public UnityEventPlaneIdVector3 onPlaneClicked => _manager.onPlaneClicked;
+    public UnityEventPlaneIdPlaneId onPlaneRemoved => _manager.onPlaneRemoved;
 
     public UnityEvent onDetectionEnabled => _onDetectionEnabled;
 
@@ -96,6 +99,11 @@ public class PlaneManagerWrapper : MonoBehaviour
     public GameObject GetPlane(PlaneId planeId)
     {
         return _manager.GetPlane(planeId);
+    }
+
+    public GameObject GetRandomPlane()
+    {
+        return _manager.GetRandomPlane();
     }
 
     public void UpdatePlanes()
