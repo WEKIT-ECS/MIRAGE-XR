@@ -21,7 +21,7 @@ public class ARFoundationPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IMixed
     private MeshRenderer _meshRenderer;
     private ARPlane _arPlane;
 
-    public TrackableId trackableId => _arPlane.trackableId;
+    public TrackableId TrackableId => _arPlane != null ? _arPlane.trackableId : TrackableId.invalidId;
 
     public static void SetSelectedPlane(PlaneId planeId)
     {
@@ -39,7 +39,7 @@ public class ARFoundationPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IMixed
     {
         _meshCollider.enabled = _isCollidersEnabled;
 
-        if (trackableId != _specialPlaneId)
+        if (TrackableId != _specialPlaneId || TrackableId == TrackableId.invalidId)
         {
             gameObject.SetActive(_isActive);
             _meshRenderer.material.color = _colorDefault;
@@ -71,7 +71,12 @@ public class ARFoundationPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IMixed
 
     public void OnPointerClicked(MixedRealityPointerEventData eventData)
     {
-        _onClicked?.Invoke(new PlaneId(trackableId.subId1, trackableId.subId2), eventData.Pointer.Result.Details.Point);
+        if (TrackableId == TrackableId.invalidId || eventData?.Pointer?.Result?.Details.Point == null)
+        {
+            return;
+        }
+
+        _onClicked?.Invoke(new PlaneId(TrackableId.subId1, TrackableId.subId2), eventData.Pointer.Result.Details.Point);
     }
 
     public Vector3 GetPosition()

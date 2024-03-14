@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
-using UnityEngine.XR.ARSubsystems;
 
 public class FloorManagerARFoundation : FloorManagerBase
 {
@@ -56,9 +55,39 @@ public class FloorManagerARFoundation : FloorManagerBase
         _arSession = Utilities.FindOrCreateComponent<ARSession>(cameraParent);
         _arAnchorManager = Utilities.FindOrCreateComponent<ARAnchorManager>(cameraParent);
 
+        RootObject.Instance.planeManager.onPlaneRemoved.AddListener(OnPlaneRemoved);
+        
         await Task.Yield();
 
         return true;
+    }
+
+    private void OnPlaneRemoved(PlaneId planeId, PlaneId subsumedByPlaneId)
+    {
+        if (_planeId != planeId)
+        {
+            return;
+        }
+
+        var plane = RootObject.Instance.planeManager.GetPlane(subsumedByPlaneId);
+        if (plane != null)
+        {
+            _planeId = subsumedByPlaneId;
+            return;
+        }
+
+        plane = RootObject.Instance.planeManager.GetRandomPlane();
+        if (plane)
+        {
+            var arPlane = plane.GetComponent<ARPlane>();
+            if (arPlane)
+            {
+                var id = arPlane.trackableId;
+                _planeId = new PlaneId(id.subId1, id.subId2);
+            }
+        }
+
+        RootObject.Instance.planeManager.UpdatePlanes();
     }
 
     public override async Task<bool> ResetAsync()

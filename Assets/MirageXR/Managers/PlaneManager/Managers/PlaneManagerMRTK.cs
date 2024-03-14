@@ -8,11 +8,13 @@ public class PlaneManagerMRTK : PlaneManagerBase
     private const string SPATIAL_AWARENESS = "Spatial Awareness";
 
     public override UnityEventPlaneIdVector3 onPlaneClicked => _onPlaneClicked;
+    public override UnityEventPlaneIdPlaneId onPlaneRemoved => _onPlaneRemoved;
 
     private GlobalClickListener _globalClickListener;
     private MRTKPlaneBehavior _floorPoint;
     private int _planeLayer;
     private UnityEventPlaneIdVector3 _onPlaneClicked = new UnityEventPlaneIdVector3();
+    private UnityEventPlaneIdPlaneId _onPlaneRemoved = new UnityEventPlaneIdPlaneId();
 
 
     public override Task<bool> InitializationAsync()
@@ -58,6 +60,11 @@ public class PlaneManagerMRTK : PlaneManagerBase
     public override void UpdatePlanes()
     {
          /* ignore */
+    }
+
+    public override GameObject GetRandomPlane()
+    {
+        return null;
     }
 
     public override void Dispose()
