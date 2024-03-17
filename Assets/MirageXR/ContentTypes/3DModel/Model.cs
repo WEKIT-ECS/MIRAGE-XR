@@ -256,7 +256,7 @@ namespace MirageXR
 
             var renderers = model.GetComponentsInChildren<Renderer>();
             _colliders = new List<Bounds>();
-
+            
             // add colliders to meshes
             foreach (var r in renderers)
             {
@@ -278,15 +278,33 @@ namespace MirageXR
                     }
                     else
                     {
-                        // for all other types, add a mesh collider
-                        var newCollider = g.AddComponent<MeshCollider>();
-                        _colliders.Add(newCollider.bounds);
+                        if (IsMeshValid(r.GetComponent<MeshFilter>()))
+                        {
+                            var newCollider = g.AddComponent<MeshCollider>();
+                            _colliders.Add(newCollider.bounds);
+                        }
                     }
                 }
                 else
                 {
                     _colliders.Add(meshCollider.bounds);
                 }
+            }
+        }
+
+        private static bool IsMeshValid(MeshFilter meshFilter)
+        {
+            try
+            {
+                var value = UnityEngine.Debug.unityLogger.logEnabled;
+                UnityEngine.Debug.unityLogger.logEnabled = false;
+                var triangles = meshFilter.mesh.GetTriangles(0);
+                UnityEngine.Debug.unityLogger.logEnabled = value;
+                return triangles.Length != 0;
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
 
