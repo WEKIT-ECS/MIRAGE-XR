@@ -336,12 +336,18 @@ namespace MirageXR
             var modelPath = Path.Combine(modelFolderPath, MODEL_NAME);
             var imagePath = Path.Combine(modelFolderPath, imageName);
 
-            using (var stream = new FileStream(archivePath, FileMode.OpenOrCreate))
+            await using (var stream = new FileStream(archivePath, FileMode.OpenOrCreate))
             {
                 Progress<float> progress = null;
-                if (onProgressChanged != null) progress = new Progress<float>(onProgressChanged.Invoke);
+                if (onProgressChanged != null)
+                {
+                    progress = new Progress<float>(onProgressChanged.Invoke);
+                }
                 var (result, _) = await Network.DownloadToStreamAsync(url, stream, timeout, progress);
-                if (!result) return false;
+                if (!result)
+                {
+                    return false;
+                }
 
                 modelPreview.fileSize = stream.Length;
             }
