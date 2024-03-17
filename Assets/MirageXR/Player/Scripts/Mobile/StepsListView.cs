@@ -222,7 +222,7 @@ public class StepsListView : BaseView
         var (result, response) = await moodleManager.UploadFile(activityManager.ActivityPath, activityManager.Activity.name, 0);
         if (response == "Error: File exist, update")
         {
-            DialogWindow.Instance.Show("This file is exist! Please select an option:",
+            DialogWindow.Instance.Show("Activity already exists on the cloud. Please choose:",
                 new DialogButtonContent("Update", UploadAndUpdate),
                 new DialogButtonContent("Clone", UploadAndCopy),
                 new DialogButtonContent("Cancel", null));
@@ -231,20 +231,20 @@ public class StepsListView : BaseView
 
         if (response == "Error: File exist, clone")
         {
-            DialogWindow.Instance.Show("You are not the original author of this file! Please select an option:",
+            DialogWindow.Instance.Show("Not activity owner. Please choose:",
                 new DialogButtonContent("Clone", UploadAndCopy),
                 new DialogButtonContent("Cancel", null));
             return;
         }
 
-        if (result) Toast.Instance.Show("upload completed successfully");
+        if (result) Toast.Instance.Show("Upload completed successfully");
         rootView.activityListView.UpdateListView();
     }
 
     private async void UploadAndUpdate()
     {
         var (result, response) = await moodleManager.UploadFile(activityManager.ActivityPath, activityManager.Activity.name, 1);
-        Toast.Instance.Show(result ? "upload completed successfully" : response);
+        Toast.Instance.Show(result ? "Upload completed successfully" : response);
         if (result) rootView.activityListView.UpdateListView();
     }
 
@@ -252,7 +252,7 @@ public class StepsListView : BaseView
     {
         activityManager.CloneActivity();
         var (result, response) = await moodleManager.UploadFile(activityManager.ActivityPath, activityManager.Activity.name, 2);
-        Toast.Instance.Show(result ? "upload completed successfully" : response);
+        Toast.Instance.Show(result ? "Upload completed successfully" : response);
         if (result) rootView.activityListView.UpdateListView();
     }
 }

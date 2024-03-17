@@ -6,6 +6,8 @@ public class PlaneManagerEditor : PlaneManagerBase
 {
     public override UnityEventPlaneIdVector3 onPlaneClicked => _onPlaneClicked;
 
+    public override UnityEventPlaneIdPlaneId onPlaneRemoved => _onPlaneRemoved;
+
     private GameObject _prefabPlane;
     private EditorPlaneBehaviour _plane;
     private Vector3 _floorLevel;
@@ -14,6 +16,7 @@ public class PlaneManagerEditor : PlaneManagerBase
     private bool _isFloorDetected;
     private GameObject _anchor;
     private UnityEventPlaneIdVector3 _onPlaneClicked = new UnityEventPlaneIdVector3();
+    private UnityEventPlaneIdPlaneId _onPlaneRemoved = new UnityEventPlaneIdPlaneId();
 
     public GameObject prefabPlane
     {
@@ -77,6 +80,11 @@ public class PlaneManagerEditor : PlaneManagerBase
         {
             _plane.UpdateState();
         }
+    }
+
+    public override GameObject GetRandomPlane()
+    {
+        return null;
     }
 
     public override void Dispose()

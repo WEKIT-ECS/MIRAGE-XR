@@ -67,7 +67,10 @@ namespace MirageXR
             }
             else if (IsNext())
             {
-                gameObject.SetActive(true);
+                // this turns the seconddary task station color to default blue;
+                // there is a second reference in PathRoleController.cs (line 96),
+                // where the original path is set up and switched on/off
+                gameObject.SetActive(false);
                 taskStationColor = brandManager.NextPathColor;
             }
             else
