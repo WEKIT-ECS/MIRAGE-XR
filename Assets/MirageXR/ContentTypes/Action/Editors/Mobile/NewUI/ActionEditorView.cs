@@ -3,14 +3,10 @@ using DG.Tweening;
 using MirageXR;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class ActionEditorView : PopupEditorBase
 {
-    //private const float MIN_SLIDER_VALUE = 1; // del
-    //private const float MAX_SLIDER_VALUE = 10; // del
-    //private const float DEFAULT_SLIDER_VALUE = 3; // del
     private const float HIDED_SIZE = 100f;
     private const float HIDE_ANIMATION_TIME = 0.5f;
      
@@ -27,7 +23,6 @@ public class ActionEditorView : PopupEditorBase
     [SerializeField] private Transform _contentContainer;
     [SerializeField] private GlyphListItem _glyphListItemPrefab;
     [SerializeField] private Toggle _toggleGazeTrigger;
-    //[SerializeField] private Slider _slider;// del
     [SerializeField] private Button _btnAccept;
     [SerializeField] private Button _btnIncreaseGazeDuration;
     [SerializeField] private Button _btnDecreaseGazeDuration;
@@ -48,15 +43,8 @@ public class ActionEditorView : PopupEditorBase
     [SerializeField] private RectTransform _panel;
     [SerializeField] private GameObject _arrowDown;
     [SerializeField] private GameObject _arrowUp;
-    //[SerializeField] private TMP_Text _txtStep;
-    //[SerializeField] private Button _btnNextStep;
-    //[SerializeField] private Button _btnPreviousStep;
     [SerializeField] private ActionObject[] _actionObjects;
     
-    //[SerializeField] private Button _accept;
-    //[SerializeField] private GameObject _acceptButtonObject;
-    //[SerializeField] private GameObject _closeButtonObject;
-
     private Trigger _trigger;
     private float _gazeDuration;
     private string _inputTriggerStepNumber = string.Empty;
@@ -64,14 +52,11 @@ public class ActionEditorView : PopupEditorBase
     private string _prefabName;
     private bool _editing;
 
-    private int _maxStepIndex => activityManager.ActionsOfTypeAction.Count - 1;
-
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
         _showBackground = false;
         base.Initialization(onClose, args);
         _toggleGazeTrigger.onValueChanged.AddListener(OnTriggerValueChanged);
-        //_slider.onValueChanged.AddListener(OnSliderValueChanged); // del
         _btnIncreaseGazeDuration.onClick.AddListener(OnIncreaseGazeDuration);
         _btnDecreaseGazeDuration.onClick.AddListener(OnDecreaseGazeDuration);
         _btnAccept.onClick.AddListener(OnAccept);
@@ -80,9 +65,6 @@ public class ActionEditorView : PopupEditorBase
         _actionScrollPanel.SetActive(true);
         _actionSettingsPanel.SetActive(false);
         _bottomButtonPanel.SetActive(false);
-        //_btnNextStep.onClick.AddListener(OnNextToClick); // del
-        //_btnPreviousStep.onClick.AddListener(OnPreviousToClick);  //del
-        //_accept.onClick.AddListener(Edit);
 
         _editing = false;
         _currentGazeDurationValue = DEFAULT_GAZE_DURATION_VALUE;
@@ -118,12 +100,7 @@ public class ActionEditorView : PopupEditorBase
 
     private void UpdateView()
     {
-        //_slider.minValue = MIN_SLIDER_VALUE;
-        //_slider.maxValue = MAX_SLIDER_VALUE;
-
         _toggleGazeTrigger.isOn = true;
-        //_slider.value = DEFAULT_SLIDER_VALUE; // del
-        //OnSliderValueChanged(_slider.value); // del
         _txtSliderValue.text = _currentGazeDurationValue.ToString("0");;
 
         for (int i = _contentContainer.childCount - 1; i >= 0; i--)
@@ -148,27 +125,18 @@ public class ActionEditorView : PopupEditorBase
 
         if (_content != null)
         {
-            //_closeButtonObject.SetActive(false);
-            //_acceptButtonObject.SetActive(true);
-
             _trigger = _step.triggers.Find(tr => tr.id == _content.poi);
             if (_trigger != null)
             {
                 _toggleGazeTrigger.isOn = true;
                 _inputTriggerStepNumber = _trigger.value;
                 _scrollRectStep = int.Parse(_inputTriggerStepNumber) - 1;
-                //_slider.value = _trigger.duration;
-                //OnSliderValueChanged(_trigger.duration);
             }
         }
-        //_txtStep.text = (_inputTriggerStepNumber + 1).ToString();
     }
 
     private void OnTriggerValueChanged(bool value)
     {
-        UnityEngine.Debug.LogError("[111] OnTriggerValueChanged value = " + value);
-        //_slider.interactable = value;
-        // Disable +/- and jump to step
         _panelGazeDuration.SetActive(value);
         _underline.SetActive(value);
         _panelJumpToStep.SetActive(value);
@@ -178,12 +146,6 @@ public class ActionEditorView : PopupEditorBase
     {
         _inputTriggerStepNumber = item.GetComponent<ObjectHolder<int>>().item.ToString();
     }
-
-    /*private void OnSliderValueChanged(float value)
-    {
-        _gazeDuration = value;
-        _txtSliderValue.text = $"{_gazeDuration} sec";
-    }*/
 
     private void OnIncreaseGazeDuration()
     {
@@ -205,26 +167,10 @@ public class ActionEditorView : PopupEditorBase
         _txtSliderValue.text = _currentGazeDurationValue.ToString("0");
     }
 
-    /*private void OnNextToClick()
-    {
-        if (_scrollRectStep >= _maxStepIndex) return;
-        _scrollRectStep++;
-        _txtStep.text = (_inputTriggerStepNumber + 1).ToString(); // ?
-    }*/
-
-    /*private void OnPreviousToClick()
-    {
-        if (_scrollRectStep <= 0) return;
-        _scrollRectStep--;
-        _txtStep.text = (_inputTriggerStepNumber + 1).ToString();
-    }*/
-
-    private void OnAccept(string prefabName)
+    private void OnAccept(string prefabName, Sprite sprite)
     {
         _prefabName = prefabName;
-        Debug.LogError("[111] OnAccept prefabName = " + prefabName);
-        //OnAccept();
-        //_thumbnailImage = 
+        _thumbnailImage.sprite = sprite;
         _thumbnailLabel.text = prefabName;
         OpenActionSettingsPanel();
     }
