@@ -11,9 +11,9 @@ public class GlyphListItem : MonoBehaviour
     [SerializeField] private TMP_Text _tmpText;
 
     private ActionObject _actionObject;
-    private Action<string> _onClick;
+    private Action<string, Sprite> _onClick;
 
-    public void Init(ActionObject actionObject, Action<string> onClick)
+    public void Init(ActionObject actionObject, Action<string, Sprite> onClick)
     {
         _actionObject = actionObject;
         _onClick = onClick;
@@ -25,6 +25,6 @@ public class GlyphListItem : MonoBehaviour
 
     private void OnClick()
     {
-        _onClick?.Invoke(_actionObject.prefabName);
+        _onClick?.Invoke(_actionObject.prefabName, _actionObject.sprite);
     }
 }
