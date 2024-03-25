@@ -23,7 +23,6 @@ public class ActionEditorView : PopupEditorBase
     [SerializeField] private Transform _contentContainer;
     [SerializeField] private GlyphListItem _glyphListItemPrefab;
     [SerializeField] private Toggle _toggleGazeTrigger;
-    [SerializeField] private Button _btnAccept;
     [SerializeField] private Button _btnIncreaseGazeDuration;
     [SerializeField] private Button _btnDecreaseGazeDuration;
     [SerializeField] private GameObject _panelGazeDuration;
