@@ -119,7 +119,7 @@ public class GlyphEditorView : PopupEditorBase
         _txtStep.text = (_triggerStepIndex + 1).ToString();
     }
 
-    private void OnAccept(string prefabName)
+    private void OnAccept(string prefabName, Sprite sprite)
     {
         _prefabName = prefabName;
         OnAccept();
