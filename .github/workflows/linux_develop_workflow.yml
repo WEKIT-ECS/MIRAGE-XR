@@ -22,6 +22,7 @@ jobs:
           ASSISTANTKEYS: ${{ secrets.ASSISTANTKEYS }}
           OAIKEYS: ${{ secrets.OAISECRET }}
           SENTRYCFG: ${{ secrets.SENTRYCFG }}
+          SENTRYCLI: ${{secrets.SENTRYCLI}}
         run: |
           echo -n "$ASSISTANTKEYS" > $GITHUB_WORKSPACE/ibm-credentials.env
           echo "path of the credentials resource $GITHUB_WORKSPACE/ibm-credentials.txt"
@@ -30,6 +31,8 @@ jobs:
           echo "path of the OAI credentials resource $GITHUB_WORKSPACE/Assets/Resources/openai.txt"
           echo -n "$SENTRYCFG" > $GITHUB_WORKSPACE/Assets/Resources/Sentry/SentryOptions.asset
           echo "path of the Sentry options yaml file $GITHUB_WORKSPACE/Assets/Resources/Sentry/SentryOptions.asset"
+          echo -n "$SENTRYCLI" > $GITHUB_WORKSPACE/Assets/Plugins/Sentry/SentryCliOptions.asset
+          echo "path of the Sentry CLI options yaml file $GITHUB_WORKSPACE/Assets/Plugins/Sentry/SentryCliOptions.asset"
 
       # Fonts
       - name: Install fonts
