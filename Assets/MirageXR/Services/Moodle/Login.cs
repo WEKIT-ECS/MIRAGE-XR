@@ -6,6 +6,11 @@ using UnityEngine.UI;
 
 namespace MirageXR
 {
+    /// <summary>
+    /// Login View (Worldspace UI): This class is the interface to the prefab with
+    /// the UI elements for the login dialogue, including username/password/etc.,
+    /// Moodle and LRS configuration, and developer mode options.
+    /// </summary>
     public class Login : MonoBehaviour
     {
         [SerializeField] private GameObject loginCanvas;
@@ -33,6 +38,9 @@ namespace MirageXR
 
         public Text status;
 
+        /// <summary>
+        /// Initializes the view.
+        /// </summary>
         private void Start()
         {
             status.text = string.Empty;
