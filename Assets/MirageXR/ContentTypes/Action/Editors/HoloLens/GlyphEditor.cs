@@ -57,7 +57,7 @@ namespace MirageXR
         }
 
 
-        public void Create(string iconName)
+        public void Create(string iconName, Sprite sprite)
         {
             if (_annotationToEdit != null)
             {
