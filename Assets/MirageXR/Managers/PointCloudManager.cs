@@ -39,7 +39,9 @@ public class PointCloudManager : MonoBehaviour
 
     public void Unsubscribe()
     {
+#if UNITY_ANDROID || UNITY_IOS
         EventManager.OnEditModeChanged -= SetAllPointCloudsActive;
+#endif
     }
 
     public async Task<bool> ResetAsync()

@@ -156,6 +156,7 @@ namespace MirageXR
             _pointCloudManager.Unsubscribe();
             _activityManager.OnDestroy();
             _planeManager.Dispose();
+            Instance = null;
         }
     }
 }

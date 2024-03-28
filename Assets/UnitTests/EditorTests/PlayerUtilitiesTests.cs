@@ -189,7 +189,7 @@ namespace Tests
         {
             const string id = "My ID";
 
-            LogAssert.Expect(LogType.Exception, new Regex(@".*Object.*not found"));
+            LogAssert.Expect(LogType.Exception, new Regex(@".*Object.*not found.*"));
 
             GameObject res = Utilities.CreateObject(id, "this parent does not exist");
 
