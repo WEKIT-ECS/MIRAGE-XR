@@ -148,7 +148,7 @@ public class ImageEditorView : PopupEditorBase
 
             if (!File.Exists(originalFilePath)) return;
 
-            var texture2D = Utilities.LoadTexture(originalFilePath);
+            var texture2D = MirageXR.Utilities.LoadTexture(originalFilePath);
             SetPreview(texture2D);
         }
     }
@@ -185,7 +185,7 @@ public class ImageEditorView : PopupEditorBase
                 }
 
                 // Set picture
-                var sprite = Utilities.TextureToSprite(texture2D);
+                var sprite = MirageXR.Utilities.TextureToSprite(texture2D);
                 SetPreview(sprite.texture);
             }
         });
@@ -216,7 +216,7 @@ public class ImageEditorView : PopupEditorBase
         }
 
         _capturedImage = texture2D;
-        var sprite = Utilities.TextureToSprite(_capturedImage);
+        var sprite = MirageXR.Utilities.TextureToSprite(_capturedImage);
         _image.sprite = sprite;
 
         var rtImageHolder = (RectTransform)_imageHolder.transform;

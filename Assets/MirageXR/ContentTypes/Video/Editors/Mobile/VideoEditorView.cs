@@ -203,7 +203,7 @@ public class VideoEditorView : PopupEditorBase
             Destroy(_image.sprite.texture);
         }
 
-        var sprite = Utilities.TextureToSprite(texture2D);
+        var sprite = MirageXR.Utilities.TextureToSprite(texture2D);
         _image.sprite = sprite;
 
         var rtImageHolder = (RectTransform)_imageHolder.transform;

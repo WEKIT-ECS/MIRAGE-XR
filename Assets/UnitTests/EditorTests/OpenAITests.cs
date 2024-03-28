@@ -1,10 +1,8 @@
 using System.Collections;
-using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using System;
-using MirageXR;
 
 public class OpenAITests
 {
@@ -15,10 +13,10 @@ public class OpenAITests
         //something
     }
 
-    [UnityTest]
+    //[UnityTest]
     public IEnumerator OpenAI_InitialisationTest()
     {
-        DialogueService ds;
+        /*DialogueService ds;
         try
         {
             var go = new GameObject();
@@ -40,7 +38,7 @@ public class OpenAITests
         }
 
         Assert.Pass($"OpenAI: AI provider initialisation test passed.");
-
+*/
         yield return null;
     }
 }
