@@ -324,7 +324,7 @@ public class AudioEditor : MonoBehaviour
             // move the audio player to the spawn point
             var annotationStartingPoint = GameObject.Find("AnnotationSpawnPoint");
 
-            var offset = Utilities.CalculateOffset(annotationStartingPoint.transform.position,
+            var offset = MirageXR.Utilities.CalculateOffset(annotationStartingPoint.transform.position,
                 annotationStartingPoint.transform.rotation,
                 originT.transform.position,
                 originT.transform.rotation);
