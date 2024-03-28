@@ -9,7 +9,6 @@ using System.IO;
 using System.Linq;
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
-using IBM.Cloud.SDK.Utilities;
 using i5.Toolkit.Core.VerboseLogging;
 
 namespace MirageXR
@@ -468,7 +467,6 @@ namespace MirageXR
             var dialogueService = watsonService.transform.Find("WatsonServices").GetComponent<DialogueService>();
             dialogueService.AI = AIservice.OpenAI;
             _useWatson = false;
-            dialogueService.CreateOpenAIServiceAsync().AsAsyncVoid();
         }
 
         private void OnUpdatePrompt()

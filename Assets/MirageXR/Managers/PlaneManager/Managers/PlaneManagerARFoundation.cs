@@ -38,8 +38,8 @@ public class PlaneManagerARFoundation : PlaneManagerBase
 
         var cameraParent = mainCamera.transform.parent ? mainCamera.transform.parent.gameObject : mainCamera.gameObject;
 
-        _arSession = Utilities.FindOrCreateComponent<ARSession>(cameraParent);
-        _arPlaneManager = Utilities.FindOrCreateComponent<ARPlaneManager>(cameraParent);
+        _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>(cameraParent);
+        _arPlaneManager = MirageXR.Utilities.FindOrCreateComponent<ARPlaneManager>(cameraParent);
 
         _arPlaneManager.requestedDetectionMode = DETECTION_MODE;
         _arPlaneManager.planePrefab = _prefabPlane;
