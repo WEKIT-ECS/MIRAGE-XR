@@ -266,8 +266,8 @@ public class StepsListView_v2 : BaseView
             return;
         }
 
-        var texture = Utilities.LoadTexture(path);
-        var sprite = Utilities.TextureToSprite(texture);
+        var texture = MirageXR.Utilities.LoadTexture(path);
+        var sprite = MirageXR.Utilities.TextureToSprite(texture);
         _defaultThumbnail.SetActive(false);
         _imgThumbnail.gameObject.SetActive(true);
         _imgThumbnail.sprite = sprite;
@@ -415,7 +415,7 @@ public class StepsListView_v2 : BaseView
                 }
 
                 // Set picture
-                var sprite = Utilities.TextureToSprite(texture2D);
+                var sprite = MirageXR.Utilities.TextureToSprite(texture2D);
                 _defaultThumbnail.SetActive(false);
                 _imgThumbnail.gameObject.SetActive(true);
                 _imgThumbnail.sprite = sprite;

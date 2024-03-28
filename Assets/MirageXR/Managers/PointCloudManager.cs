@@ -26,8 +26,8 @@ public class PointCloudManager : MonoBehaviour
 
         var cameraParent = mainCamera.transform.parent ? mainCamera.transform.parent.gameObject : mainCamera.gameObject;
 
-        _arSession = Utilities.FindOrCreateComponent<ARSession>(cameraParent);
-        _arPointCloudManager = Utilities.FindOrCreateComponent<ARPointCloudManager>(cameraParent);
+        _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>(cameraParent);
+        _arPointCloudManager = MirageXR.Utilities.FindOrCreateComponent<ARPointCloudManager>(cameraParent);
 
         _arPointCloudManager.pointCloudPrefab = _prefabPointCloud;
 

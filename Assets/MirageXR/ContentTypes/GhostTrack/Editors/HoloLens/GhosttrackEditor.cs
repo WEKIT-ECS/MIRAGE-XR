@@ -87,7 +87,7 @@ public class GhosttrackEditor : MonoBehaviour
         var workplaceManager = RootObject.Instance.workplaceManager;
         Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
         var originT = GameObject.Find(detectable.id);
-        var offset = Utilities.CalculateOffset(_augOrigin.position, _augOrigin.rotation, originT.transform.position, originT.transform.rotation);
+        var offset = MirageXR.Utilities.CalculateOffset(_augOrigin.position, _augOrigin.rotation, originT.transform.position, originT.transform.rotation);
 
         StopRecording();
         if (_annotationToEdit != null)
