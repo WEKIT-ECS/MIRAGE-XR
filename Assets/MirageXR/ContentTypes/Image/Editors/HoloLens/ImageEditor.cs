@@ -55,7 +55,7 @@ public class ImageEditor : MonoBehaviour
             var thumbnailPath = Path.Combine(activityManager.ActivityPath, "thumbnail.jpg");
             if (File.Exists(thumbnailPath))
             {
-                var spriteTexture = Utilities.LoadTexture(thumbnailPath);
+                var spriteTexture = MirageXR.Utilities.LoadTexture(thumbnailPath);
                 var thumbSprite = Sprite.Create(spriteTexture, new Rect(0, 0, spriteTexture.width, spriteTexture.height), new Vector2(0, 0), 100.0f);
                 previewImage.sprite = thumbSprite;
             }
@@ -117,7 +117,7 @@ public class ImageEditor : MonoBehaviour
             var originT = GameObject.Find(detectable.id);
 
             var startPointTr = annotationStartingPoint.transform;
-            var offset = Utilities.CalculateOffset(startPointTr.position, startPointTr.rotation,
+            var offset = MirageXR.Utilities.CalculateOffset(startPointTr.position, startPointTr.rotation,
                 originT.transform.position, originT.transform.rotation);
 
             _annotationToEdit = augmentationManager.AddAugmentation(_action, offset);
