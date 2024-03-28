@@ -47,7 +47,7 @@ public class PickAndPlaceEditor : MonoBehaviour
             Detectable detectable = _workplaceManager.GetDetectable(_workplaceManager.GetPlaceFromTaskStationId(_action.id));
             GameObject originT = GameObject.Find(detectable.id);
 
-            var offset = Utilities.CalculateOffset(_annotationStartingPoint.transform.position,
+            var offset = MirageXR.Utilities.CalculateOffset(_annotationStartingPoint.transform.position,
                 _annotationStartingPoint.transform.rotation,
                 originT.transform.position,
                 originT.transform.rotation);
