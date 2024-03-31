@@ -58,7 +58,6 @@ public class ActionEditorView : PopupEditorBase
         _toggleGazeTrigger.onValueChanged.AddListener(OnTriggerValueChanged);
         _btnIncreaseGazeDuration.onClick.AddListener(OnIncreaseGazeDuration);
         _btnDecreaseGazeDuration.onClick.AddListener(OnDecreaseGazeDuration);
-        _btnAccept.onClick.AddListener(OnAccept);
         _btnArrow.onClick.AddListener(OnArrowButtonPressed);
         
         _actionScrollPanel.SetActive(true);
