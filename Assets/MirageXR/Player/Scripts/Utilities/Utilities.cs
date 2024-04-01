@@ -310,6 +310,10 @@ namespace MirageXR
             {
                 await task;
             }
+            catch (TaskCanceledException e)
+            {
+                Debug.Log(e.ToString());
+            }
             catch (Exception e)
             {
                 Debug.LogError(e.ToString());

@@ -32,7 +32,7 @@ public class CameraCalibrationChecker : MonoBehaviour
     {
         _anchor = RootObject.Instance.calibrationManager.anchor;
 #if UNITY_ANDROID || UNITY_IOS
-        _arSession = Utilities.FindOrCreateComponent<ARSession>();
+        _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>();
 #endif
     }
 

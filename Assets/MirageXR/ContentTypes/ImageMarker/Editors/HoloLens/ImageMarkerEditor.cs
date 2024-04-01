@@ -177,7 +177,7 @@ public class ImageMarkerEditor : MonoBehaviour
             Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
             GameObject originT = GameObject.Find(detectable.id);
 
-            var offset = Utilities.CalculateOffset(annotationStartingPoint.transform.position,
+            var offset = MirageXR.Utilities.CalculateOffset(annotationStartingPoint.transform.position,
                 annotationStartingPoint.transform.rotation,
                 originT.transform.position,
                 originT.transform.rotation);

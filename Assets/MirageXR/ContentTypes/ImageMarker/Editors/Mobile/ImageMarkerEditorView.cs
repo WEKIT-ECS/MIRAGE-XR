@@ -92,7 +92,7 @@ public class ImageMarkerEditorView : PopupEditorBase
 
             _tmpInputSize.text = (_content.scale * 100).ToString(CultureInfo.InvariantCulture);
 
-            var texture2D = Utilities.LoadTexture(originalFilePath);
+            var texture2D = MirageXR.Utilities.LoadTexture(originalFilePath);
             SetPreview(texture2D);
         }
     }
@@ -124,7 +124,7 @@ public class ImageMarkerEditorView : PopupEditorBase
                 }
 
                 // Set picture
-                var sprite = Utilities.TextureToSprite(texture2D);
+                var sprite = MirageXR.Utilities.TextureToSprite(texture2D);
                 SetPreview(sprite.texture);
             }
         });
@@ -152,7 +152,7 @@ public class ImageMarkerEditorView : PopupEditorBase
         if (_capturedImage) Destroy(_capturedImage);
 
         _capturedImage = texture2D;
-        var sprite = Utilities.TextureToSprite(_capturedImage);
+        var sprite = MirageXR.Utilities.TextureToSprite(_capturedImage);
         _image.sprite = sprite;
 
         var rtImageHolder = (RectTransform)_imageHolder.transform;
