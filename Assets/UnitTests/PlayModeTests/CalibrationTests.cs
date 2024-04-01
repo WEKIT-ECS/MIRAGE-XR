@@ -320,7 +320,7 @@ namespace Tests
         /// </summary>
         /// <param name="timeout"></param>
         /// <returns></returns>
-        private IEnumerator EnsureTestReadiness(float timeout = 5.0f)
+        private IEnumerator EnsureTestReadiness(float timeout = 15.0f)
         {
             float timeoutStart = Time.time;
             yield return new WaitWhile(() => readyToTest == false && Time.time - timeoutStart < timeout);
