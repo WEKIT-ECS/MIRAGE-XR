@@ -117,7 +117,7 @@ namespace CSE.MRTK.Toolkit.DebugConsole
         /// <param name="message">Message.</param>
         public void WriteMessage(string message)
         {
-            if (_dialogUI.gameObject.activeSelf)
+            if (_dialogUI != null && _dialogUI.gameObject.activeSelf)
             {
                 OnMessage?.Invoke(message);
             }

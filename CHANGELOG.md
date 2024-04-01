@@ -2,6 +2,60 @@
 
 # Change Log
 
+# v2.6 (2024-04-01)
+
+## Featured:
+- **Improved calibration**. We improved exception handling for merged planes in the calibration process
+- **New action editor**. We redesigned the user interface for the action augmentation editor
+- **chatGPT support for characters**. Character models now have chatGPT support and can store a prompt
+
+## Added:
+
+- We added file upload via file picker for audio augmentations, creating an alternative to recordings
+- We now support editing and displaying of captions for the image augmentation to improve accessibility, adding a new field to the data model accordin
+
+## Changed:
+
+- We redesigned the user interface for the audio editor
+- We remove the second (turquoise) task-station diamond indicating the position of the next step
+- We removed the lines leading from the aura to the task station
+- We improved the dialogue messages when publishing to Moodle
+- We added rotation handles to the action augmentation
+- Character augmentations can now also be placed onto 3D objects, and no longer have to be placed directly onto the spatial map, remediating a "GetRemainingDistance" error that would be flagged every frame otherwise
+- We renamed the ‘apply’ button to ‘done’ in the calibration dialogue to be more precise
+
+## Fixed:
+
+- We fixed bugs in the video augmentation that would overwrite the currently selected video when cancelling the camera dialogue
+- We fixed both create and view tutorials, including fixing the way the tutorial activity for the viewing tutorial is downloaded from a resource folder
+- We fixed the help tutorial for publishing activities
+- We fixed an error with deregistering event handlers during application shutdown
+- We fixed a bug where broken 3D models from Sketchfab would trigger an error
+- We fixed a bug where a Moodle upload of an existing resource would result in an error when asking the user whether to overwrite or clone, now issuing only a warning
+- We fixed a bug in the Sketchfab search, which would produce errors when you search a second time
+- We fixed a bug in the label augmentation where default values for ‘turn to user’ would not be set, thus only storing the value correctly when the toggle switch would be turned on/off twice
+- We fixed the materials for some character models, which seemed not to be set to the right rendering pipeline
+- We fixed a bug in character models complaining about a missing FollowMeToggle
+
+## Enterprise:
+
+- The MoodleUrl can now be set from the brand configuration file unless there already is a user preference set overriding which URL to use
+- We excluded Sentry settings and sentry client settings via .gitignore so that auth tokens and DSN values are not stored on GitHub
+
+## Developer:
+
+- We migrated the project to Unity 2022 LTS (2022.3.7f1)
+- We decommissioned the IBM Watson assistant service and replaced it with openAI's chatGPT
+- We upgraded online error handling to the full Sentry package, improving breadcrumbs and the stack trace, as well as adding session and user info for authenticated users
+- We implemented a slider for verbosity levels for in-app bug tracking
+- We reduced StyleCop to documentation checks in the MirageXR assembly, and disabled a large portion of warnings on external projects and packages
+- We removed the dummy video in the root directory from the video augmentation, which was used to simulate video recording in-editor on Hololens before we introduced the file picker upload
+- We fixed the calibration PlayMode test and several others that were suffering from multiple audio listeners being created in the scene
+- We improved the test and build pipelines for Android and Windows
+- We renamed the editor folders of all content types (to ‘editors’), to avoid confusion with the reserved folder name of Unity
+- We created an openAI manager, primarily as interface for character models, but with further reaching plans
+- We fixed the build for Hololens 2
+
 # v2.5 (2024-02-14)
 
 ## Featured:

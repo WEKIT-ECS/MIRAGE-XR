@@ -38,7 +38,7 @@ TIP: If the Android build pipeline fails with a signing error (```UnityException
 
 Once you completed the implementation of an issue, create a pull request (aka 'merge request') that asks to merge your feature branch into the **develop** branch again. You can also reference the number of the original issue - it will create a link between the issue and the merge request which helps with transparency. When you create the merge request, the CI pipeline will check your work to make sure it compiles. We generally should only accept merge requests where the CI pipeline works.
 
-We are generating the (Changelog.md)[https://github.com/WEKIT-ECS/MIRAGE-XR/blob/develop/CHANGELOG.md] for each release from the pull request messages and issues closed over the period, so it helps if you match the style of what we write in the change log in the pull request message!
+We are generating the [Changelog.md](https://github.com/WEKIT-ECS/MIRAGE-XR/blob/develop/CHANGELOG.md) for each release from the pull request messages and issues closed over the period, so it helps if you match the style of what we write in the change log in the pull request message!
 
 ### Resolve merge conflicts
 
