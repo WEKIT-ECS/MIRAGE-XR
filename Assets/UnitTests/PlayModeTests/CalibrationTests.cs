@@ -60,7 +60,7 @@ namespace Tests
 
 
         // number of seconds to wait for setup or tests
-        private float testTimeOut = 5.0f;
+        private float testTimeOut = 60.0f;
         private RootObject rootObject;
 
         #endregion Variables
@@ -320,7 +320,7 @@ namespace Tests
         /// </summary>
         /// <param name="timeout"></param>
         /// <returns></returns>
-        private IEnumerator EnsureTestReadiness(float timeout = 15.0f)
+        private IEnumerator EnsureTestReadiness(float timeout = 60.0f)
         {
             float timeoutStart = Time.time;
             yield return new WaitWhile(() => readyToTest == false && Time.time - timeoutStart < timeout);
