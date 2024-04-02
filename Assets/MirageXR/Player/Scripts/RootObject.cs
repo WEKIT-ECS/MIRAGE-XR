@@ -152,7 +152,7 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-            if (_isInitialized)
+            if (!_isInitialized)
             {
                 return;
             }
