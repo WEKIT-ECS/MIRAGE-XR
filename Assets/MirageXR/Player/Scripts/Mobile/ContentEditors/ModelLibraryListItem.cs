@@ -8,10 +8,12 @@ namespace MirageXR
     public class ModelLibraryListItem : MonoBehaviour
     {
         [SerializeField] private TextMeshProUGUI title;
+        [SerializeField] private TextMeshProUGUI txtSize;
         [SerializeField] private Image thumbnail;
         [SerializeField] private Button itemButton;
 
         public TextMeshProUGUI Title => title;
+        public TextMeshProUGUI TxtSize => txtSize;
         public Image Thumbnail => thumbnail;
 
         public void AddButtonListener(UnityAction action)

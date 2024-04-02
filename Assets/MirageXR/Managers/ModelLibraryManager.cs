@@ -1,7 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,6 +22,10 @@ namespace MirageXR
 
         private ModelEditorView _modelEditorView;
 
+        [SerializeField] private GameObject listOfLibrariesTab;
+        [SerializeField] private GameObject libraryTab;
+        [SerializeField] private Transform libraryContent;
+
         public enum ModelLibraryCategory
         {
             Foods = 0,
@@ -29,6 +36,8 @@ namespace MirageXR
         public void OnItemClicked(ModelLibraryCategory category)
         {
             DisableCategoryButtons();
+            listOfLibrariesTab.SetActive(false);
+            libraryTab.SetActive(true);
             GenerateLibrary(category);
         }
 
@@ -64,6 +73,8 @@ namespace MirageXR
             {
                 Destroy(child.gameObject);
             }
+            listOfLibrariesTab.SetActive(true);
+            libraryTab.SetActive(false);
         }
 
 
@@ -82,13 +93,20 @@ namespace MirageXR
             {
                 if (obj.category == selectedCategory)
                 {
-                    var item = Instantiate(itemPrefab, transform);
+                    var item = Instantiate(itemPrefab, libraryContent);
                     item.TryGetComponent<ModelLibraryListItem>(out var libraryListItem);
 
                     if (libraryListItem)
                     {
-                        libraryListItem.Title.text = obj.label;
+                        libraryListItem.Title.text = " " + obj.label;
                         libraryListItem.Thumbnail.sprite = obj.sprite;
+                       
+                        var fbxFilePath = AssetDatabase.GetAssetPath(obj.model);
+                        var fileInfo = new FileInfo(fbxFilePath);
+                        var byteSize = fileInfo.Length;
+                        var kilobyteSize = Math.Round(byteSize / 1024f , 1);
+                        libraryListItem.TxtSize.text = " " + kilobyteSize.ToString(CultureInfo.InvariantCulture) + " Kb";
+                        
                         libraryListItem.AddButtonListener(() => _modelEditorView.AddAugmentation(obj.prefabName, true));
                         _instantiatedItems.Add(item);
                     }
