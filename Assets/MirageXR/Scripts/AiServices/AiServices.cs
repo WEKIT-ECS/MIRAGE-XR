@@ -93,7 +93,7 @@ namespace MirageXR
             return true;
         }
 
-        public IEnumerator Speak(string speakOut, string voice, string model, Action<AudioClip> onSuccess, Action<string> onError) // @todo!
+        public IEnumerator Speak(string speakOut, string voice, string model, Action<AudioClip> onSuccess, Action<string> onError)
         {
             var apiURL = _config.ApiURL + "speak/";
             var requestBody = new
