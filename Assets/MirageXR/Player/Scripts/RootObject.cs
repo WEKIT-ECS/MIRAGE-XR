@@ -145,13 +145,18 @@ namespace MirageXR
         private async Task ResetManagersAsync()
         {
             await _floorManager.ResetAsync();
-            await planeManager.ResetAsync();
+            await _planeManager.ResetAsync();
             await _pointCloudManager.ResetAsync();
             await _imageTargetManager.ResetAsync();
         }
 
         private void OnDestroy()
         {
+            if (!_isInitialized)
+            {
+                return;
+            }
+
             _activityManager.Unsubscribe();
             _pointCloudManager.Unsubscribe();
             _activityManager.OnDestroy();
