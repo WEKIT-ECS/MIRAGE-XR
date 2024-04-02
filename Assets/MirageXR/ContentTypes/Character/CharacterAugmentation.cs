@@ -2,16 +2,15 @@
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
-using MirageXR.Services.AI_service_backend;
 
 namespace MirageXR
 {
     public class CharacterAugmentation : MonoBehaviour
     {
         [SerializeField] private GameObject pointCont;
-        ConfigurationManager myConfig1 = new ConfigurationManager(); // Der hier wird gerufen aber das war es aucb. 
 
         [SerializeField] private GameObject thumbnailContainer;
+
         private const float _distanceToTaskSTation = 0.6f;
         private const float _distanceFromGround = 0.6f;  // Increase to move the character down
         private const float _defaultScaleFactor = 0.8f;
@@ -25,16 +24,10 @@ namespace MirageXR
 
         private void Start()
         {
-            FindObjectOfType<ConfigurationManager>().LoadEndpointConfiguration("hi", );
             foreach (var btn in thumbnailContainer.GetComponentsInChildren<Button>())
             {
                 btn.onClick.AddListener(() => CreateCharacter(btn.name));
             }
-        }
-
-        private void (string[] obj)
-        {
-            throw new System.NotImplementedException();
         }
 
         public void SetMovementType()
@@ -131,4 +124,3 @@ namespace MirageXR
         }
     }
 }
-
