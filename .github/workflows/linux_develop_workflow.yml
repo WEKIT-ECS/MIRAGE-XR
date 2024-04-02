@@ -22,8 +22,10 @@ jobs:
           ASSISTANTKEYS: ${{ secrets.ASSISTANTKEYS }}
           OAIKEYS: ${{ secrets.OAISECRET }}
           SENTRYCFG: ${{ secrets.SENTRYCFG }}
-          SENTRYCLI: ${{secrets.SENTRYCLI}}
+          SENTRYCLI: ${{ secrets.SENTRYCLI }}
+          UNITYEMAIL: ${{ secrets.UNITY_EMAIL }}
         run: |
+          echo -n "Unity account: $UNITYEMAIL"
           echo -n "$ASSISTANTKEYS" > $GITHUB_WORKSPACE/ibm-credentials.env
           echo "path of the credentials resource $GITHUB_WORKSPACE/ibm-credentials.txt"
           export IBM_CREDENTIALS_FILE="$GITHUB_WORKSPACE/ibm-credentials.env"
