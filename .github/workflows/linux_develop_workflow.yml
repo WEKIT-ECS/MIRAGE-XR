@@ -48,8 +48,6 @@ jobs:
       - name: Caching
         uses: actions/cache@v3
         with:
-          testMode: 
-            - EditMode
           path: Library
           key: Library-linux-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
@@ -61,6 +59,8 @@ jobs:
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
+          testMode: 
+            - EditMode
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           unityVersion: 2022.3.7f1
       
