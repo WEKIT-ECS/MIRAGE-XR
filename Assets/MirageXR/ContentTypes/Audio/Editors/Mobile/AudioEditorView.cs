@@ -37,6 +37,8 @@ public class AudioEditorView : PopupEditorBase
     [SerializeField] private Button _btnRewindBack;
     [SerializeField] private Button _btnRewindForward;
 
+    [SerializeField] private Button _btnGenerateCaptions;
+    
     [SerializeField] private Toggle _toggle3D;
     //[SerializeField] private Toggle _toggle2D;
     [SerializeField] private Toggle _toggleLoop;
@@ -55,6 +57,7 @@ public class AudioEditorView : PopupEditorBase
     [SerializeField] private Image _imgRecordingIcon;
     [SerializeField] private CanvasGroup _groupPlayControls;
     [Space]
+    
     [SerializeField] private TMP_Text _txtTimerFrom;
     [SerializeField] private TMP_Text _txtTimerTo;
     [Space]
@@ -65,6 +68,11 @@ public class AudioEditorView : PopupEditorBase
     [Space]
     [SerializeField] private GameObject _topContainer;
     [SerializeField] private GameObject _topContainerPlayAudio;
+    [Space]
+    [SerializeField] private GameObject _panelMain;
+    [SerializeField] private GameObject _panelCaptionPreview;
+    [SerializeField] private GameObject _generateCaption;
+   
     [Space]
     [SerializeField] private Button _btnArrow;
     [SerializeField] private RectTransform _panel;
@@ -82,6 +90,10 @@ public class AudioEditorView : PopupEditorBase
     private string _audioFileType;
 
     private string _inputTriggerStepNumber = string.Empty;
+    //string captions 
+    private string _audioCaption = string.Empty;
+
+    [SerializeField] private AudioCaptionEdit _audioCaptionEdit;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -99,8 +111,13 @@ public class AudioEditorView : PopupEditorBase
         _panelRecordControls.SetActive(false);
         _panelBottomButtons.SetActive(false);
         _panelAudioSettings.SetActive(true);
+        _generateCaption.SetActive(false);
 
-        _btnAudioSettings.onClick.AddListener(OnOpenAudioSettings);
+        _panelCaptionPreview.SetActive(false);
+        _panelMain.SetActive(true);
+        _btnGenerateCaptions.onClick.AddListener(OnClickCaptionGenerate);
+       
+        _btnAudioSettings.onClick.AddListener(OnOpenAudioSettings); 
         _btnMicRecording.onClick.AddListener(OnOpenRecordControlsPanel);
         _btnMicReRecording.onClick.AddListener(OnOpenRecordControlsPanel);
         _btnDeviceFolder.onClick.AddListener(OnOpenDeviceFolder);
@@ -123,7 +140,7 @@ public class AudioEditorView : PopupEditorBase
         _clampedScrollJumpToStep.onItemChanged.AddListener(OnItemJumpToStepChanged);
 
         _toggle3D.onValueChanged.AddListener(On3DSelected);
-        
+
         _audioFileType = NativeFilePicker.ConvertExtensionToFileType(AUDIO_FILE_EXTENSION);
 
         var steps = activityManager.ActionsOfTypeAction;
@@ -272,6 +289,7 @@ public class AudioEditorView : PopupEditorBase
         _recordStartTime = 0;
         SetPlayerActive(true);
         _audioClip = AudioRecorder.Stop();
+        _fileName = SaveAndReturnAudioClipPath();
         _groupPlayControls.interactable = true;
         StopCoroutine(_updateRecordTimerCoroutine);
         
@@ -448,7 +466,7 @@ public class AudioEditorView : PopupEditorBase
         _panelRecordControls.SetActive(true);
         _txtTimer.text = ToTimeFormat(0);
     }
-
+    
     private void OnOpenDeviceFolder()
     {
         if (NativeFilePicker.IsFilePickerBusy())
@@ -470,8 +488,8 @@ public class AudioEditorView : PopupEditorBase
             }, new string[] { _audioFileType });
         Debug.Log("Permission result: " + permission);
     }
-    
-    private  IEnumerator LoadAudioClip(string path)
+
+        private  IEnumerator LoadAudioClip(string path)
     {
         var correctedPath = "file://" + path;
         using (WWW www = new WWW(correctedPath))
@@ -527,7 +545,9 @@ public class AudioEditorView : PopupEditorBase
         _content.option += $"#{_txtSliderRangeValue.text}";
         _content.scale = 0.5f;
         _content.url = $"http://{_fileName}";
-
+        _audioCaption = _audioCaptionEdit.EditedCaption();
+        _content.caption = _audioCaption;
+        Debug.Log("This is the caption stored" + _audioCaption);
         if (_toggleTrigger.isOn)
         {
             _step.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, _content.poi, _audioClip.length, _inputTriggerStepNumber);
@@ -567,4 +587,46 @@ public class AudioEditorView : PopupEditorBase
     {
         _objJumpToStep.SetActive(value);
     }
+
+    private string GetFilePath()
+{
+    return Path.Combine(activityManager.ActivityPath, _fileName);
+}
+
+    private void OnClickCaptionGenerate()
+    {
+        
+        _generateCaption.SetActive(true);
+        _panelMain.SetActive(false);
+        _panelCaptionPreview.SetActive(true);
+        
+    }
+    /*public string AudioFileName()
+    {
+        // Checks if the _fileName is not null or empty, indicating an audio file exists.
+        if (!string.IsNullOrEmpty(_fileName))
+        {
+            return _fileName;
+        }
+        else
+        {
+            // Returns a default or error message if no audio file name is set.
+            return "No audio file available";
+        }
+    }*/
+    public string SaveAndReturnAudioClipPath()
+    {
+        if (_audioClip != null)
+        {
+            var tempFileName = $"TempAudio_{DateTime.Now.ToFileTimeUtc()}.wav";
+            var tempFilePath = Path.Combine(Path.GetTempPath(), tempFileName);
+            SaveLoadAudioUtilities.Save(tempFilePath, _audioClip);
+            return tempFilePath;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
 }
