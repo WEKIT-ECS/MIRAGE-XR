@@ -1,4 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Linq; 
+using TMPro;
 using UnityEngine;
 
 namespace MirageXR
@@ -18,9 +21,10 @@ namespace MirageXR
         private bool audio3dMode;
         public bool Loop { get; private set; }
 
-
         [SerializeField] private GameObject icon;
         [SerializeField] private Sprite iconSprite;
+        [SerializeField] private TMP_Text _captionText;
+        [SerializeField] private GameObject _captionObj;
         public Sprite IconSprite => iconSprite;
 
         [SerializeField] private Sprite pauseIcon;
@@ -30,10 +34,7 @@ namespace MirageXR
 
         public string AudioSpatialType { get; private set; }
 
-        public DialogRecorder DialogRecorderPanel
-        {
-            get; set;
-        }
+        public DialogRecorder DialogRecorderPanel { get; set; }
 
         private bool isReady = false;
         private bool isPlaying = false;
@@ -46,54 +47,35 @@ namespace MirageXR
 
         private void Awake()
         {
-            // Makes no sense to use gaze guide with audio...
             UseGuide = false;
 
             var actionEditor = FindObjectOfType<ActionEditor>();
             audioEditor = (AudioEditor)actionEditor.CreateEditorView(ContentType.AUDIO);
         }
 
-        /// <summary>
-        /// Initialization method.
-        /// </summary>
-        /// <param name="obj">Action toggle object.</param>
-        /// <returns>Returns true if initialization succesfull.</returns>
         public override bool Init(ToggleObject obj)
         {
             _obj = obj;
 
-            // Check that url is not empty.
             if (string.IsNullOrEmpty(obj.url))
             {
                 Debug.LogWarning("Content URL not provided.");
                 return false;
             }
 
-            // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
                 Debug.LogWarning("Couldn't set the parent.");
                 return false;
             }
 
-            // Set name.
             name = obj.predicate;
 
-            // check audio is 2d or 3d
             audio3dMode = obj.option.Split('#')[0] == "3d";
-
             float radius = 0f;
-
-            // 3d
             if (audio3dMode)
             {
-                // loop is off for 2d and load the status of loop if it is 3d audio
-                Loop = false;
-                if (audio3dMode)
-                {
-                    Loop = obj.option.Split('#')[1] == "1";
-                }
-                // get the radius if it is 3d audio
+                Loop = obj.option.Split('#')[1] == "1";
                 if (audio3dMode)
                 {
                     radius = float.Parse(obj.option.Split('#')[2]);
@@ -104,23 +86,59 @@ namespace MirageXR
                 Destroy(icon);
             }
 
-            // Load audio from resources.
             if (obj.url.StartsWith("resources://"))
             {
                 audioName = obj.url.Replace("resources://", "");
                 CreateAudioPlayer(false, audio3dMode, radius, Loop);
             }
-
-            // Load audio from server.
             else
             {
                 audioName = obj.url;
                 CreateAudioPlayer(true, audio3dMode, radius, Loop);
             }
 
-            // If all went well, return true.
+            var caption = obj.caption;
+            if (caption != string.Empty)
+            {
+                StartCaptionDisplay(caption);
+            }
+
             return true;
         }
+
+        private void StartCaptionDisplay(string caption)
+        {
+            StartCoroutine(DisplayCaptionWithDelay(caption));
+        }
+
+private IEnumerator DisplayCaptionWithDelay(string fullCaption)
+{
+    // Split the full caption into words
+    string[] words = fullCaption.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+    // Calculate the number of sections
+    int numberOfWords = 12;
+    int numberOfSections = (int)Math.Ceiling((double)words.Length / numberOfWords);
+
+    for (int i = 0; i < numberOfSections; i++)
+    {
+        // Get the words for the current section
+        string[] sectionWords = words.Skip(i * numberOfWords).Take(numberOfWords).ToArray();
+
+        // Join the words back into a string
+        string sectionText = string.Join(" ", sectionWords);
+
+        // Display the text section
+        _captionText.text = sectionText.Trim();
+        _captionObj.SetActive(true);
+
+        // Wait for 4 seconds before moving to the next section
+        yield return new WaitForSeconds(4);
+    }
+
+    // Optionally hide or clear the caption object after all sections have been displayed
+    _captionObj.SetActive(false); // Or _captionText.text = string.Empty; to clear the text
+}
 
 
         private void Update()
@@ -146,11 +164,6 @@ namespace MirageXR
             }
         }
 
-        /// <summary>
-        /// This method starts playback of the audio file, unmuted and on full volume.
-        /// If the audio track is already being played, it will be restarted from the beginning.
-        /// If audio source doesn't exist, or hasn't finished loading, the method returns without doing anything
-        /// </summary>
         public void PlayAudio()
         {
             if (isReady == false)
@@ -167,9 +180,10 @@ namespace MirageXR
                 }
                 audioSource.mute = false;
                 audioSource.volume = 1.0f;
+                _captionObj.SetActive(true);
                 audioSource.Play();
                 isPlaying = true;
-
+                
                 audioLength = audioSource.clip.length;
                 var myTrigger = activityManager.ActiveAction.triggers.Find(t => t.id == _obj.poi);
                 if (myTrigger != null)
@@ -451,5 +465,6 @@ namespace MirageXR
             AudioSource audioSource = gameObject.GetComponent<AudioSource>();
             return audioSource.time;
         }
+
     }
 }
