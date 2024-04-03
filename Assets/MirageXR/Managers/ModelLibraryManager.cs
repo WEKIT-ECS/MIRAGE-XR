@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -25,6 +26,7 @@ namespace MirageXR
         [SerializeField] private GameObject listOfLibrariesTab;
         [SerializeField] private GameObject libraryTab;
         [SerializeField] private Transform libraryContent;
+        [SerializeField] private TMP_Text _topLabel;
 
         public enum ModelLibraryCategory
         {
@@ -38,6 +40,7 @@ namespace MirageXR
             DisableCategoryButtons();
             listOfLibrariesTab.SetActive(false);
             libraryTab.SetActive(true);
+            _topLabel.text = category.ToString();
             GenerateLibrary(category);
         }
 
