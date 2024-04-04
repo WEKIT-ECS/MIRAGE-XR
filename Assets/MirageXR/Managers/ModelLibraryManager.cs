@@ -20,6 +20,8 @@ namespace MirageXR
         [SerializeField] private GameObject itemPrefab;
 
         private readonly List<GameObject> _instantiatedItems = new List<GameObject>();
+        private readonly List<ModelLibraryListItem> _currentLibraryItems = new List<ModelLibraryListItem>();
+        private GameObject emptyItem;
 
         private ModelEditorView _modelEditorView;
 
@@ -27,6 +29,7 @@ namespace MirageXR
         [SerializeField] private GameObject libraryTab;
         [SerializeField] private Transform libraryContent;
         [SerializeField] private TMP_Text _topLabel;
+        [SerializeField] private TMP_InputField _inputSearch;
 
         public enum ModelLibraryCategory
         {
@@ -43,7 +46,31 @@ namespace MirageXR
             _topLabel.text = category.ToString();
             GenerateLibrary(category);
         }
+        
+        public void OnStartSearch()
+        {
+            SearchLocal();
+        }
+        
+        public void ClearSearchField()
+        {
+            _inputSearch.text = "";
+        }
 
+        private void SearchLocal()
+        {
+            foreach (var item in _instantiatedItems)
+            {
+                item.TryGetComponent<ModelLibraryListItem>(out var libraryListItem);
+                var active = string.IsNullOrEmpty(_inputSearch.text) || libraryListItem.Title.text.ToLower().Contains(_inputSearch.text.ToLower());
+                item.SetActive(active);
+            }
+        }
+        
+        private void OnInputFieldSearchChanged(string text)
+        {
+            SearchLocal();
+        }
 
 
         /// <summary>
@@ -52,6 +79,7 @@ namespace MirageXR
         public void EnableCategoryButtons(ModelEditorView modelEditorView)
         {
             _modelEditorView = modelEditorView;
+            _inputSearch.onValueChanged.AddListener(OnInputFieldSearchChanged);
             
             DisableCategoryButtons();
             for (var i = 0; i < items.Length; i++)
@@ -91,6 +119,12 @@ namespace MirageXR
                 }
             }
             _instantiatedItems.Clear();
+            if (emptyItem)
+            {
+                Destroy(emptyItem);
+            }
+
+            _inputSearch.text = "";
 
             foreach (var obj in objects)
             {
@@ -112,8 +146,14 @@ namespace MirageXR
                         
                         libraryListItem.AddButtonListener(() => _modelEditorView.AddAugmentation(obj.prefabName, true));
                         _instantiatedItems.Add(item);
+                        _currentLibraryItems.Add(libraryListItem);
                     }
                 }
+            }
+            emptyItem = Instantiate(itemPrefab, libraryContent);
+            foreach (Transform child in emptyItem.transform)
+            {
+                child.gameObject.SetActive(false);
             }
         }
     }
