@@ -66,6 +66,8 @@ and innovation programme through the XR4ALL project with grant agreement
 No 825545, through the OpenReal project funded by The Open University of the UK, 
 and through the ARETE project with the grant agreement No 856533.
 
+The work on the eROBSON branch of the code is supported by the Educational Robotics at Schools Online with Augmented Reality - eROBSON project which has received funding from the European Union’s Erasmus Plus programme, grant agreement 2020-1-NO01-KA226-SCH-094120.
+
 The Alien character model is licensed under a [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-nc-sa/4.0/). Any reuse of this model must acknowledge the work of the ARETE team at [Consiglio Nazionale delle Ricerche - Istituto per le Tecnologie Didattiche, Palermo Italy](https://www.itd.cnr.it/).
 
 IBM Cloud Unity SDK Core (Assets/IBMWatsonSDK/IBMSdkCore) and IBM Cloud Unity SDK Core (Assets/IBMWatsonSDK/Watson) are licensed under Apache 2.0. The full license text is available in /Assets/IBMWatsonSDK/Watson/LICENSE and /Assets/IBMWatsonSDK/IBMSdkCore/README.md
