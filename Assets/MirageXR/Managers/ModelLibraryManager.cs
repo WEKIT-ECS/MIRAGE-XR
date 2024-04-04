@@ -150,6 +150,7 @@ namespace MirageXR
                     }
                 }
             }
+            // Empty element added for left alignment in case only 1 element is active.
             emptyItem = Instantiate(itemPrefab, libraryContent);
             foreach (Transform child in emptyItem.transform)
             {
