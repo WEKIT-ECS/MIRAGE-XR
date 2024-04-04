@@ -85,8 +85,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - hlversion: 1
-            hlplatform: x86
           - hlversion: 2
             hlplatform: ARM64
     env:
