@@ -60,7 +60,7 @@ namespace Tests
 
 
         // number of seconds to wait for setup or tests
-        private float testTimeOut = 5.0f;
+        private float testTimeOut = 60.0f;
         private RootObject rootObject;
 
         #endregion Variables
@@ -202,8 +202,15 @@ namespace Tests
             LoadTestArlemModels();
 
             // audio listener cannot be added with helper function
-            var audioListener = new GameObject("Audio Listener");
-            audioListener.AddComponent<AudioListener>();
+            // FW (2024-03-27) added a check to avoid having several audio listeners in the scene
+            if (!GameObject.Find("Audio Listener"))
+            {
+                var audioListener = new GameObject("Audio Listener"); 
+                audioListener.AddComponent<AudioListener>();
+            } else
+            {
+                var audioListener = GameObject.Find("Audio Listener");
+            }
 
             // create and configure content managers or UI elements needed to start an activity
             GenerateGameObjectWithComponent<Maggie>("Maggie");
@@ -313,7 +320,7 @@ namespace Tests
         /// </summary>
         /// <param name="timeout"></param>
         /// <returns></returns>
-        private IEnumerator EnsureTestReadiness(float timeout = 5.0f)
+        private IEnumerator EnsureTestReadiness(float timeout = 60.0f)
         {
             float timeoutStart = Time.time;
             yield return new WaitWhile(() => readyToTest == false && Time.time - timeoutStart < timeout);

@@ -1,5 +1,6 @@
 using MirageXR;
 using System;
+using System.Collections;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
@@ -14,8 +15,7 @@ public class ProfileView : PopupBase
     [SerializeField] private Button _btnLogin;
     [SerializeField] private Button _btnRegister;
     [SerializeField] private Button _btnPrivacyPolicy;
-    [SerializeField] private Toggle _developToggle;
-    [SerializeField] private GameObject _developTogglePanel;
+    [SerializeField] private GameObject _btnDevelopMode;
     [SerializeField] private GameObject LoginObjects;
     [SerializeField] private Button _btnLogout;
     [SerializeField] private TMP_Text _txtUserName;
@@ -27,18 +27,17 @@ public class ProfileView : PopupBase
     [SerializeField] private TMP_Text _txtVersion;
     [SerializeField] private ClickCounter _versionClickCounter;
     [SerializeField] private Button _btnGrid;
+    [SerializeField] private Button _btnDev;
+    [SerializeField] private ScrollRect _scrollRect;
 
     [Space]
     [SerializeField] private LoginView_v2 _loginViewPrefab;
     [SerializeField] private GridView _gridViewPrefab;
-
-    private bool _isShownDevelopModeMessage;
+    [SerializeField] private DevelopView _developViewPrefab;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
         base.Initialization(onClose, args);
-
-        _developToggle.isOn = DBManager.developMode;
 
         _btnClose.onClick.AddListener(Close);
         _btnRegister.onClick.AddListener(OnClickRegister);
@@ -46,7 +45,7 @@ public class ProfileView : PopupBase
         _btnLogin.onClick.AddListener(OnClickLogin);
         _btnLogout.onClick.AddListener(OnClickLogout);
         _btnGrid.onClick.AddListener(OnClickGrid);
-        _developToggle.onValueChanged.AddListener(OnDevelopToggleValueChanged);
+        _btnDev.onClick.AddListener(OnClickDev);
         _btnSelectServer.onClick.AddListener(ShowChangeServerPanel);
         _btnSelectLRS.onClick.AddListener(ShowLRSPanel);
         _versionClickCounter.onClickAmountReached.AddListener(OnVersionClickAmountReached);
@@ -57,7 +56,8 @@ public class ProfileView : PopupBase
 
         _txtVersion.text = string.Format(VERSION_TEXT, Application.version);
 
-        _developTogglePanel.SetActive(DBManager.developMode);
+        // only show link to develop mode settings if developMode is active
+        _btnDevelopMode.SetActive(DBManager.developMode);
 
         UpdateConnectedServerText();
         UpdatePrivacyPolicyButtonActive();
@@ -70,29 +70,29 @@ public class ProfileView : PopupBase
         return true;
     }
 
-    private void OnDevelopToggleValueChanged(bool value)
-    {
-        DBManager.developMode = value;
-
-        if (_isShownDevelopModeMessage)
-        {
-            return;
-        }
-
-        var valueString = value ? "enabled" : "disabled";
-        Toast.Instance.Show($"Developer mode has been {valueString}.Restart the application to activate it.");
-        _isShownDevelopModeMessage = true;
-    }
-
     private void OnVersionClickAmountReached(int count)
     {
-        ShowDevelopToggle();
+        if (!DBManager.developMode)
+        {
+            EnterDevMode();
+        }
     }
 
-    private void ShowDevelopToggle()
+    private void EnterDevMode()
     {
-        _developTogglePanel.SetActive(true);
-    }
+        DBManager.developMode = true;
+        _btnDevelopMode.SetActive(true);
+		Toast.Instance.Show($"Developer mode has been activated.");
+        StartCoroutine(ScrollToBottom());
+	}
+
+    private IEnumerator ScrollToBottom()
+    {
+		yield return new WaitForEndOfFrame();
+        Canvas.ForceUpdateCanvases();
+        _scrollRect.verticalNormalizedPosition = 0f;
+        Canvas.ForceUpdateCanvases();
+	}
 
     private void ShowLogin()
     {
@@ -142,6 +142,11 @@ public class ProfileView : PopupBase
     private void OnClickGrid()
     {
         PopupsViewer.Instance.Show(_gridViewPrefab);
+    }
+
+    private void OnClickDev()
+    {
+        PopupsViewer.Instance.Show(_developViewPrefab);
     }
 
     private static bool IsValidUrl(string urlString)

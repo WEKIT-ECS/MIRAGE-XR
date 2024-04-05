@@ -185,6 +185,7 @@ namespace MirageXR
                     segmentsController.startTransform = ServiceManager.GetService<ActivitySelectionSceneReferenceService>().References.floorTarget;
                     segmentsController.endTransform = guide.transform.parent;
 
+                    // this should be removed once the ribbons are no longer needed.
                     guide.GetComponent<PathRoleController>().Role = PathRole.TASKSTATION;
 
                     // Hide by default.
@@ -319,7 +320,7 @@ namespace MirageXR
                     segmentsController.startTransform = ServiceManager.GetService<ActivitySelectionSceneReferenceService>().References.floorTarget;
                     segmentsController.endTransform = guide.transform.parent;
 
-                    // TODO: change this to find the actual next task station
+                    // this should be removed once the ribbons are no longer needed.
                     guide.GetComponent<PathRoleController>().Role = PathRole.TASKSTATION;
 
                     // Hide by default.
@@ -591,6 +592,7 @@ namespace MirageXR
             segmentsController.startTransform = ServiceManager.GetService<ActivitySelectionSceneReferenceService>().References.floorTarget;
             segmentsController.endTransform = guide.transform.parent.GetChild(0);
 
+            // this should be removed once the ribbons are no longer needed.
             guide.GetComponent<PathRoleController>().Role = PathRole.TASKSTATION;
 
             // Hide by default.

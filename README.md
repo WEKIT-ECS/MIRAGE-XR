@@ -91,3 +91,11 @@ Preview releases are for testing purposes only and should not be used in product
 Preview Build status for HoloLens builds: ![example workflow](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/workflows/windows_develop_workflow.yml/badge.svg?branch=develop)
 
 Preview Build status for Android builds: ![example workflow](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/workflows/linux_develop_workflow.yml/badge.svg?branch=develop)
+
+## Getting started
+
+1. Install [Unity Hub](https://unity.com/download)
+2. This repository contains several large files, so you need to install [git lfs](https://git-lfs.com/), e.g., `brew install git-lfs`
+4. Clone the project from here in your favourite way, e.g., `git clone git@github.com:WEKIT-ECS/MIRAGE-XR.git`
+5. Place the API keys as described in [compiling MirageXR](https://github.com/WEKIT-ECS/MIRAGE-XR/wiki/Compiling-MirageXR)
+6. Add the project to Unity Hub, open it, and install the editor version prompted for.

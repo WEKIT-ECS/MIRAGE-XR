@@ -26,14 +26,17 @@ jobs:
           ASSISTANTKEYS: ${{ secrets.ASSISTANTKEYS }}
           OAIKEYS: ${{ secrets.OAISECRET }}
           SENTRYCFG: ${{ secrets.SENTRYCFG }}
+          SENTRYCLI: ${{ secrets.SENTRYCLI }}
         run: |
           echo -n "$env:ASSISTANTKEYS" > $env:GITHUB_WORKSPACE/ibm-credentials.env
           echo "path of the credentials resource $env:GITHUB_WORKSPACE/Assets/Resources/ibm-credentials.txt"
           $env:IBM_CREDENTIALS_FILE="$env:GITHUB_WORKSPACE/ibm-credentials.env"
-          echo -n "$OAIKEYS" > $env:GITHUB_WORKSPACE/Assets/Resources/openai.txt
+          echo -n "$env:OAIKEYS" > $env:GITHUB_WORKSPACE/Assets/Resources/openai.txt
           echo "path of the OAI credentials resource $env:GITHUB_WORKSPACE/Assets/Resources/openai.txt"
-          echo -n "$SENTRYCFG" > $env:GITHUB_WORKSPACE/Assets/Resources/Sentry/SentryOptions.asset
+          echo -n "$env:SENTRYCFG" > $env:GITHUB_WORKSPACE/Assets/Resources/Sentry/SentryOptions.asset
           echo "path of the Sentry options yaml file $env:GITHUB_WORKSPACE/Assets/Resources/Sentry/SentryOptions.asset"
+          echo -n "$env:SENTRYCLI" > $env:GITHUB_WORKSPACE/Assets/Plugins/Sentry/SentryCliOptions.asset
+          echo "path of the Sentry CLI options yaml file $env:GITHUB_WORKSPACE/Assets/Plugins/Sentry/SentryCliOptions.asset"
           $env:TARGET_PLATFORM="Hololens"
           
       # Cache
@@ -60,7 +63,7 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE_WINDOWS }}
         with:
           targetPlatform: WSAPlayer
-          unityVersion: 2021.3.8f1
+          unityVersion: 2022.3.7f1
           versioning: Semantic
           # dirty build needed to include generated Watson credentials
           allowDirtyBuild: true
@@ -107,14 +110,17 @@ jobs:
           ASSISTANTKEYS: ${{ secrets.ASSISTANTKEYS }}
           OAIKEYS: ${{ secrets.OAISECRET }}
           SENTRYCFG: ${{ secrets.SENTRYCFG }}
+          SENTRYCLI: ${{ secrets.SENTRYCLI }}
         run: |
           echo -n "$env:ASSISTANTKEYS" > $env:GITHUB_WORKSPACE/ibm-credentials.env
           echo "path of the credentials resource $env:GITHUB_WORKSPACE/Assets/Resources/ibm-credentials.txt"
           $env:IBM_CREDENTIALS_FILE="$env:GITHUB_WORKSPACE/ibm-credentials.env"
-          echo -n "$OAIKEYS" > $env:GITHUB_WORKSPACE/Assets/Resources/openai.txt
+          echo -n "$env:OAIKEYS" > $env:GITHUB_WORKSPACE/Assets/Resources/openai.txt
           echo "path of the OAI credentials resource $env:GITHUB_WORKSPACE/Assets/Resources/openai.txt"
-          echo -n "$SENTRYCFG" > $env:GITHUB_WORKSPACE/Assets/Resources/Sentry/SentryOptions.asset
+          echo -n "$env:SENTRYCFG" > $env:GITHUB_WORKSPACE/Assets/Resources/Sentry/SentryOptions.asset
           echo "path of the Sentry options yaml file $env:GITHUB_WORKSPACE/Assets/Resources/Sentry/SentryOptions.asset"
+          echo -n "$env:SENTRYCLI" > $env:GITHUB_WORKSPACE/Assets/Plugins/Sentry/SentryCliOptions.asset
+          echo "path of the Sentry CLI options yaml file $env:GITHUB_WORKSPACE/Assets/Plugins/Sentry/SentryCliOptions.asset"
           $env:TARGET_PLATFORM="Hololens"
 
       - name: Setup Unity UWP
