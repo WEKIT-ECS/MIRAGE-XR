@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Net.Http;
@@ -14,9 +13,10 @@ namespace MirageXR
 {
     public class AiServices
     {
+        public OptionsResponse Options;
         private AiServicesConfig _config;
         private TokenResponse _token;
-        public OptionsResponse _options;
+
 
         /// <summary>
         /// Provides multiple Transcription models.
@@ -89,11 +89,19 @@ namespace MirageXR
             {
                 throw new HttpRequestException($"Error while receiving the result of the Options endpoint: {webRequest.error}");
             }
-            _options = new OptionsResponse(webRequest.downloadHandler.text);
+            Options = new OptionsResponse(webRequest.downloadHandler.text);
             return true;
         }
 
-        public IEnumerator Speak(string speakOut, string voice, string model, Action<AudioClip> onSuccess, Action<string> onError)
+        /// <summary>
+        /// Get you a audio based on your text
+        /// </summary>
+        /// <param name="speakOut"> That is the text that you want to turn in to an audio</param>
+        /// <param name="voice">The voice that you wan to use. Check options json for legal parameters </param>
+        /// <param name="model">The model that use. Check options json for legal parameters</param>
+        /// <param name="onSuccess">Function that get invoke onSuccess</param>
+        /// <param name="onError">Well if it dosed work, we do this. </param>
+        public async Task Speak(string speakOut, string voice, string model, Action<AudioClip> onSuccess, Action<string> onError)
         {
             var apiURL = _config.ApiURL + "speak/";
             var requestBody = new
@@ -110,15 +118,21 @@ namespace MirageXR
             webRequest.downloadHandler = new DownloadHandlerBuffer();
             webRequest.SetRequestHeader("Content-Type", "application/json");
 
-            yield return webRequest.SendWebRequest();
-
-
-            if (webRequest.result != UnityWebRequest.Result.Success)
+            try
             {
-                throw new HttpRequestException($"Error while receiving the result of the Speak endpoint: {webRequest.error}");
+                await webRequest.SendWebRequest();
+                if (webRequest.result != UnityWebRequest.Result.Success)
+                {
+                    throw new HttpRequestException($"Error while receiving the result of the Speak endpoint: {webRequest.error}");
+                }
+                var audioClip = DownloadHandlerAudioClip.GetContent(webRequest);
+                onSuccess?.Invoke(audioClip);
             }
-            var audioClip = DownloadHandlerAudioClip.GetContent(webRequest);
-            onSuccess?.Invoke(audioClip);
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         /// <summary>
@@ -195,7 +209,7 @@ namespace MirageXR
             var jsonBody = JsonUtility.ToJson(requestBody);
 
             using var webRequest = UnityWebRequest.Post(apiURL, string.Empty);
-            var jsonToSend = new System.Text.UTF8Encoding().GetBytes(jsonBody);
+            var jsonToSend = new UTF8Encoding().GetBytes(jsonBody);
             webRequest.uploadHandler = new UploadHandlerRaw(jsonToSend);
             webRequest.downloadHandler = new DownloadHandlerBuffer();
             webRequest.SetRequestHeader("Content-Type", "application/json");
@@ -238,12 +252,12 @@ namespace MirageXR
         /// </summary>
         private readonly struct TokenResponse
         {
-            public string Token { get; }
-
             public TokenResponse(string token)
             {
                 Token = token;
             }
+
+            public string Token { get; }
         }
 
         /// <summary>
