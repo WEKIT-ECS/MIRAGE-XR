@@ -20,7 +20,7 @@ Tasks are created as issues in the Gitlab repository. Every intent to change cod
 
 ### Branches
 
-After assigning yourself to the issue to develop the feature, you need to create a branch which is based on the develop branch. How you do this is up to you - you can create it using your Git client but there is also a button on each issue that can be used to generate the branch for you. The important part during the creation of the branch is that it should be based on the **develop** branch and not the master branch. Branches which introduce new features should have the prefix "features/" to group them. Implementations which are concerned with maintaining existing code can be given a "maintenance/" prefix. To indicate to which issue a branch belongs, you can start the name of the branch after the prefix with the issue's ID, followed by a short name of the issue. For instance, an issue with the ID 42 which states that a login solution should be implemented can be implemented on a branch "features/42-login-solution".
+After assigning yourself to the issue to develop the feature, you need to create a branch which is based on the develop branch. How you do this is up to you - you can create it using your Git client but there is also a button on each issue that can be used to generate the branch for you. The important part during the creation of the branch is that it should be based on the **develop** branch and not the master branch. Branches which introduce new features should start with the username of who implements it (e.g., "fwild") to group them. To indicate to which issue a branch belongs, you can start the name of the branch after the prefix with the issue's ID, followed by a short name of the issue. For instance, an issue with the ID 42 which states that a login solution should be implemented can be implemented on a branch "fwild/42-login-solution".
 
 ### Commit messages
 
@@ -38,7 +38,7 @@ TIP: If the Android build pipeline fails with a signing error (```UnityException
 
 Once you completed the implementation of an issue, create a pull request (aka 'merge request') that asks to merge your feature branch into the **develop** branch again. You can also reference the number of the original issue - it will create a link between the issue and the merge request which helps with transparency. When you create the merge request, the CI pipeline will check your work to make sure it compiles. We generally should only accept merge requests where the CI pipeline works.
 
-We are generating the (Changelog.md)[https://github.com/WEKIT-ECS/MIRAGE-XR/blob/develop/CHANGELOG.md] for each release from the pull request messages and issues closed over the period, so it helps if you match the style of what we write in the change log in the pull request message!
+We are generating the [Changelog.md](https://github.com/WEKIT-ECS/MIRAGE-XR/blob/develop/CHANGELOG.md) for each release from the pull request messages and issues closed over the period, so it helps if you match the style of what we write in the change log in the pull request message!
 
 ### Resolve merge conflicts
 

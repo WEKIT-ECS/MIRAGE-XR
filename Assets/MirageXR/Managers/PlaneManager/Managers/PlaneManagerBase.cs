@@ -5,6 +5,8 @@ public abstract class PlaneManagerBase : MonoBehaviour, IPlaneManager
 {
     public abstract UnityEventPlaneIdVector3 onPlaneClicked { get; }
 
+    public abstract UnityEventPlaneIdPlaneId onPlaneRemoved { get; }
+
     public abstract Task<bool> InitializationAsync();
 
     public abstract Task<bool> ResetAsync();
@@ -20,6 +22,8 @@ public abstract class PlaneManagerBase : MonoBehaviour, IPlaneManager
     public abstract GameObject GetPlane(PlaneId planeId);
 
     public abstract void UpdatePlanes();
+
+    public abstract GameObject GetRandomPlane();
 
     public abstract void Dispose();
 }

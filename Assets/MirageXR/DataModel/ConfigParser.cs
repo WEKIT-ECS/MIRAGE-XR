@@ -38,8 +38,25 @@ namespace MirageXR
 
             var configItems = ConfigFile.text.Split(new[] { '\r', '\n' }).ToList();
 
-            MoodleUrl = configItems.FirstOrDefault(t => t.StartsWith("moodleUrl"))?.Split(":").LastOrDefault();
-            XApiUrl = configItems.FirstOrDefault(t => t.StartsWith("xApiUrl"))?.Split(":").LastOrDefault();
+            MoodleUrl = configItems.FirstOrDefault(t => t.StartsWith("moodleUrl"))?.Substring(10);
+            //PlayerPrefs.DeleteKey("MoodleURL"); // uncomment if you ever have to delete in editor for testing
+            if (!PlayerPrefs.HasKey("MoodleURL"))
+            {
+                Debug.LogTrace("[ConfigParser] No Moodle endpoint URL stored in PlayerPrefs, setting Moodle endpoint from brand configuration: " + MoodleUrl);
+                DBManager.domain = MoodleUrl;
+            } else
+            {
+                Debug.LogTrace("[ConfigParser] Moodle endpoint already stored in PlayerPrefs, ignoring Moodle endpoint from brand configuration: " + MoodleUrl);
+            }
+            XApiUrl = configItems.FirstOrDefault(t => t.StartsWith("xApiUrl"))?.Substring(8);
+            if (XApiUrl != "https://lrs.wekit-ecs.com/data/xAPI")
+            {
+                Debug.LogError("BrandConfiguration faulty: currently only https://lrs.wekit-ecs.com/data/xAPI supported as XApiUrl");
+            } else
+            {
+                Debug.LogTrace("[ConfigParser] xAPI endpoint URL from brand configuration: " + XApiUrl + " ignored as already set");
+                // would have to set DBManager.publicCurrentLearningRecordStore and send Eventmanager.XAPIChanged?.Invoke(DBManager.publicCurrentLearningRecordStore);
+            }
             PrimaryColor = configItems.FirstOrDefault(t => t.StartsWith("primaryColor"))?.Split(":").LastOrDefault();
             SecondaryColor = configItems.FirstOrDefault(t => t.StartsWith("secondaryColor"))?.Split(":").LastOrDefault();
             TextColor = configItems.FirstOrDefault(t => t.StartsWith("textColor"))?.Split(":").LastOrDefault();
