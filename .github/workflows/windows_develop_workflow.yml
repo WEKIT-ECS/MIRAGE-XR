@@ -54,7 +54,7 @@ jobs:
 
       # Build stage
       - name: Unity builder
-        uses: game-ci/unity-builder@v4 # 2.1.1
+        uses: game-ci/unity-builder@v2.1.1
         id: buildStep
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
