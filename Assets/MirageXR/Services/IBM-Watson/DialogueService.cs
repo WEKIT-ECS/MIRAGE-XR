@@ -48,6 +48,7 @@ public class DialogueService : MonoBehaviour
     private DaimonManager dAImgr;
     private string username;
     private string sessionId;
+    private string openAIassistantId;
 
     //private SAuthArgsV1 _openIaApiKey; 
     
@@ -111,10 +112,13 @@ public class DialogueService : MonoBehaviour
 
             try
             {
-                var response = await RootObject.Instance.openAIManager.GetChatCompletionAsync(text);
-
-                AppLog.Log("[DialogueService] starting to parse", LogLevel.INFO);
-                ParseResponse(response);
+                var openAIManager = RootObject.Instance.openAIManager;
+                if (openAIManager.IsAssistantExists(openAIassistantId))
+                {
+                    var response = await openAIManager.SendMessageToAssistant(openAIassistantId, text);
+                    AppLog.Log("[DialogueService] starting to parse", LogLevel.INFO);
+                    ParseResponse(response);
+                }
             }
             catch (TaskCanceledException e)
             {
@@ -255,21 +259,31 @@ public class DialogueService : MonoBehaviour
         SendMessageToAssistantAsync(text).AsAsyncVoid();
     }
 
-    public void SetPrompt(string text)
+    public async Task SetPromptAsync(string text)
     {
+        if (!string.IsNullOrEmpty(openAIassistantId))
+        {
+            RootObject.Instance.openAIManager.DeleteAssistantAsync(openAIassistantId);
+            openAIassistantId = null;
+        }
+
         AppLog.LogInfo($"[DialogueService] Received prompt ='{text}'");
         // store the prompt
         AIprompt = text;
-
-        // reset the conversation
-        //if (createSessionTested && AI == AIservice.OpenAI)
-        //{
-            RootObject.Instance.openAIManager.SetChatPromptAsync(AIprompt).AsAsyncVoid();
-        //}
+        var assistant = await RootObject.Instance.openAIManager.CreateAssistantAsync("assistant", AIprompt);
+        if (assistant != null)
+        {
+            openAIassistantId = assistant.Id;
+        }
     }
 
     private void ParseResponse(string text)
     {
+        if (text == null)
+        {
+            return;
+        }
+        
         if (text.Contains("%%charactername%%"))
         {
             var charName = _character.name.Contains(":") ? _character.name.Split(':')[1] : _character.name;
