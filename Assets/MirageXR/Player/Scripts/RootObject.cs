@@ -25,8 +25,11 @@ namespace MirageXR
         private MoodleManager _moodleManager;
         private EditorSceneService _editorSceneService;
         private WorkplaceManager _workplaceManager;
+        private AiServices _aiServices;
 
         public ImageTargetManagerWrapper imageTargetManager => _imageTargetManager;
+
+        public AiServices aiServices => _aiServices;
 
         public CalibrationManager calibrationManager => _calibrationManager;
 
@@ -109,6 +112,7 @@ namespace MirageXR
                 _moodleManager = new MoodleManager();
                 _editorSceneService = new EditorSceneService();
                 _workplaceManager = new WorkplaceManager();
+                _aiServices = new AiServices();
 
 #if !UNITY_EDITOR
                 _exceptionManager.Initialize();
@@ -122,7 +126,7 @@ namespace MirageXR
                 _gridManager.Initialization();
                 _cameraCalibrationChecker.Initialization();
                 _platformManager.Initialization();
-
+                await _aiServices.ReadConfig();
                 _activityManager.Subscription();
 
                 _isInitialized = true;
