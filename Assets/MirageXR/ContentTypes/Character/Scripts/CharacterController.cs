@@ -206,9 +206,7 @@ namespace MirageXR
                     var navmeshObstacle = Instantiate(navmeshObstaclePrefab, cam.transform.position, cam.transform.rotation);
                     navmeshObstacle.transform.SetParent(cam.transform);
                 }
-
             }
-
         }
 
         private async void OnEnable()
@@ -465,6 +463,7 @@ namespace MirageXR
 
             // switch provider if needed
             var dialogueService = watsonService.transform.Find("WatsonServices").GetComponent<DialogueService>();
+            dialogueService.SetPromptAsync(_characterSetting.AIprompt.text).AsAsyncVoid();
             dialogueService.AI = AIservice.OpenAI;
             _useWatson = false;
         }
@@ -483,7 +482,7 @@ namespace MirageXR
             else
             {
                 var dialogueService = watsonService.transform.Find("WatsonServices").GetComponent<DialogueService>();
-                dialogueService.SetPrompt(_characterSetting.AIprompt.text);
+                dialogueService.SetPromptAsync(_characterSetting.AIprompt.text).AsAsyncVoid();
             }
         }
 
