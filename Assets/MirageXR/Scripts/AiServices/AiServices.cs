@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
+using System.IO;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.MixedReality.Toolkit.Utilities;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 using StringReader = System.IO.StringReader;
@@ -13,10 +13,10 @@ namespace MirageXR
 {
     public class AiServices
     {
-        public OptionsResponse Options;
-        private AiServicesConfig _config;
+        public List<OptionsResponse> Options;
+        public AiServicesConfig _config;
         private TokenResponse _token;
-
+        private JsonConfig _jsonConfig;
 
         /// <summary>
         /// Provides multiple Transcription models.
@@ -26,13 +26,16 @@ namespace MirageXR
         /// <returns>A String with the result of task or an error if an network error appears</returns>
         public async Task<string> Listen(AudioClip audioClip, string model)
         {
-            var apiURL = _config.ApiURL + "listen/";
-            var audioInBase64String = Convert.ToBase64String(SaveLoadAudioUtilities.AudioClipToByteArray(audioClip));
-            var jsonBody = "{\"model\":\"" + model + "\",\"audio\":\"" + audioInBase64String + "\"}";
-            var jsonToSend = Encoding.UTF8.GetBytes(jsonBody);
-            using var webRequest = UnityWebRequest.Post(apiURL, string.Empty);
-            webRequest.SetRequestHeader("Authorization", _config.Token);
-            webRequest.uploadHandler = new UploadHandlerRaw(jsonToSend);
+            UnityEngine.Debug.LogError("Speak");
+            var apiURL = _config.AiApiUrl + "/listen/";
+            var audioInBase64String = SaveLoadAudioUtilities.AudioClipToByteArray(audioClip);
+            var fromData = new List<IMultipartFormSection>
+            {
+                new MultipartFormDataSection("model", model),
+                new MultipartFormFileSection("audio", audioInBase64String),
+            };
+            using var webRequest = UnityWebRequest.Post(apiURL, fromData);
+            webRequest.SetRequestHeader("Authorization", _config.AiToken);
             await webRequest.SendWebRequest();
             if (webRequest.result != UnityWebRequest.Result.Success)
             {
@@ -42,7 +45,7 @@ namespace MirageXR
             return webRequest.downloadHandler.text;
         }
 
-        /// <summary>
+        /// <summary> Done!
         /// Processes user input in an LLM.
         /// </summary>
         /// <param name="model">The target model</param>
@@ -51,20 +54,15 @@ namespace MirageXR
         /// <returns>A String with the result of the operation.</returns>
         public async Task<string> Think(string model, string message, string context)
         {
-            var apiURL = _config.ApiURL + "think/";
-            var requestBody = new
+            var apiURL = _config.AiApiUrl + "/think/";
+            var fromData = new List<IMultipartFormSection>
             {
-                message = message,
-                context = context,
-                model = model,
+                new MultipartFormDataSection("model", model),
+                new MultipartFormDataSection("message", message),
+                new MultipartFormDataSection("context", context),
             };
-            var jsonBody = JsonUtility.ToJson(requestBody);
-            using var webRequest = UnityWebRequest.Post(apiURL, string.Empty);
-            webRequest.SetRequestHeader("Authorization", _config.Token);
-            var jsonToSend = new UTF8Encoding().GetBytes(jsonBody);
-            webRequest.uploadHandler = new UploadHandlerRaw(jsonToSend);
-            webRequest.downloadHandler = new DownloadHandlerBuffer();
-            webRequest.SetRequestHeader("Content-Type", "application/json");
+            using var webRequest = UnityWebRequest.Post(apiURL, fromData);
+            webRequest.SetRequestHeader("Authorization", "Token " + _config.AiToken);
             await webRequest.SendWebRequest();
 
             if (webRequest.result != UnityWebRequest.Result.Success)
@@ -78,18 +76,25 @@ namespace MirageXR
         /// Downloads the available option from the Server.
         /// </summary>
         /// <returns>A boolean. True if the operations was successful, falls if it wasn't.</returns>
-        public async Task<bool> GetOptions()
+        private async Task<bool> GetOptions()
         {
-            var apiURL = _config.ApiURL + "options/";
-            using var webRequest = UnityWebRequest.Get(apiURL);
-            webRequest.SetRequestHeader("Authorization", _config.Token);
-            webRequest.downloadHandler = new DownloadHandlerBuffer();
-            await webRequest.SendWebRequest();
-            if (webRequest.result != UnityWebRequest.Result.Success)
+            UnityEngine.Debug.LogError("GetOptions");
+            var apiURL = _config.AiApiUrl + "/options/";
+            var request = UnityWebRequest.Get(apiURL);
+            request.SetRequestHeader("Authorization", $"Token {_config.AiToken}");
+            await request.SendWebRequest();
+            if (request.result != UnityWebRequest.Result.Success)
             {
-                throw new HttpRequestException($"Error while receiving the result of the Options endpoint: {webRequest.error}");
+                throw new HttpRequestException($"Error while receiving the token: {request.error}!");
             }
-            Options = new OptionsResponse(webRequest.downloadHandler.text);
+
+            var r = request.downloadHandler.text;
+            UnityEngine.Debug.LogError(r);
+            var myDeserializedClass = JsonConvert.DeserializeObject<List<OptionsResponse>>(r);
+            UnityEngine.Debug.LogError(myDeserializedClass.ToString());
+            Options = myDeserializedClass;
+            await Think("gpt-3.5-turbo", "Write test", "Write test");
+            var audio = await Speak("Hallo andreas", "onyx", "default");
             return true;
         }
 
@@ -101,98 +106,115 @@ namespace MirageXR
         /// <param name="model">The model that use. Check options json for legal parameters</param>
         /// <param name="onSuccess">Function that get invoke onSuccess</param>
         /// <param name="onError">Well if it dosed work, we do this. </param>
-        public async Task Speak(string speakOut, string voice, string model, Action<AudioClip> onSuccess, Action<string> onError)
+        /// <returns><placeholder>A <see cref="Tasks.Task"/> representing the asynchronous operation.</placeholder></returns>
+        public async Task<AudioClip> Speak(string speakOut, string voice, string model)
         {
-            var apiURL = _config.ApiURL + "speak/";
-            var requestBody = new
+            UnityEngine.Debug.LogError("Speak");
+            var apiURL = _config.AiApiUrl + "/speak/";
+            using var webRequest = UnityWebRequestMultimedia.GetAudioClip(apiURL, AudioType.UNKNOWN);
+            webRequest.SetRequestHeader("Authorization", "Token " + _config.AiToken);
+            webRequest.SetRequestHeader("speakOut", speakOut);
+            webRequest.SetRequestHeader("voice", voice);
+            webRequest.SetRequestHeader("model", model);
+            await webRequest.SendWebRequest();
+            UnityEngine.Debug.LogError("Send Speak request");
+            if (webRequest.result != UnityWebRequest.Result.Success)
             {
-                speakOut = speakOut,
-                voice = voice,
-                model = model,
-            };
-            var jsonBody = JsonUtility.ToJson(requestBody);
-            var jsonToSend = new UTF8Encoding().GetBytes(jsonBody);
-            using var webRequest = UnityWebRequest.Post(apiURL, string.Empty);
-            webRequest.SetRequestHeader("Authorization", _config.Token);
-            webRequest.uploadHandler = new UploadHandlerRaw(jsonToSend);
-            webRequest.downloadHandler = new DownloadHandlerBuffer();
-            webRequest.SetRequestHeader("Content-Type", "application/json");
-
-            try
-            {
-                await webRequest.SendWebRequest();
-                if (webRequest.result != UnityWebRequest.Result.Success)
-                {
-                    throw new HttpRequestException($"Error while receiving the result of the Speak endpoint: {webRequest.error}");
-                }
-                var audioClip = DownloadHandlerAudioClip.GetContent(webRequest);
-                onSuccess?.Invoke(audioClip);
+                throw new HttpRequestException($"Error while receiving the result of the Speak endpoint: {webRequest.error} {webRequest.result}");
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+            AudioClip audioClip;
+            audioClip = DownloadHandlerAudioClip.GetContent(webRequest);
+            return audioClip;
         }
 
         /// <summary>
         /// Loads the config and set everything up.
         /// </summary>
         /// <returns> A Config object</returns>
-        private static async Task<AiServicesConfig> ReadConfig()
+        public async Task<AiServicesConfig> ReadConfig()
         {
-            const string configFileName = "AiServicesConfig";
-            const string apiURLKey = "API_URL";
-            const string usernameKey = "USERNAME";
-            const string passwordKey = "PASSWORD";
-
-            var config = Resources.Load<TextAsset>(configFileName); // Read the file name.
+            const string configFileName = "MirageXRConfig.txt";
+            const string apiURLKey = "AI_API_URL";
+            const string usernameKey = "AI_USERNAME";
+            const string passwordKey = "AI_PASSWORD";
+            const string apiPort = ":8000";
+            //var filepath = Path.Combine(Application.streamingAssetsPath, "MirageXRConfig.txt");
+            var filepath = Path.Combine(Application.streamingAssetsPath, "config.json");
             string apiURL = null;
             string username = null;
             string password = null;
             string token = null;
-
-            if (config != null)
+            if (!File.Exists(filepath))
             {
-                using var sr = new StringReader(config.text);
-                while (await sr.ReadLineAsync() is { } line)
-                {
-                    var parts = line.Split('=', ':');
-                    if (parts.Length == 2)
-                    {
-                        switch (parts[0].ToUpper())
-                        {
-                            case apiURLKey:
-                                apiURL = parts[1].Trim();
-                                break;
-                            case usernameKey:
-                                username = parts[1].Trim();
-                                break;
-                            case passwordKey:
-                                password = parts[1].Trim();
-                                break;
-                        }
-                    }
-                }
-
-                token = await AuthenticateUser(apiURL, username, password);
+                UnityEngine.Debug.LogError($"Failed to load config file: {configFileName}");
             }
+            //if (File.Exists(filepath))
+            //{
+            //    var configText = await File.ReadAllTextAsync(filepath);
+            //    using var sr = new StringReader(configText);
+            //    while (await sr.ReadLineAsync() is { } line)
+            //    {
+            //        var parts = line.Split('=', ':');
+            //        if (parts.Length == 2)
+            //        {
+            //           switch (parts[0].ToUpper())
+            //            {
+            //                case apiURLKey:
+            //                    apiURL = parts[1].Trim();
+            //                    break;
+            //                case usernameKey:
+            //                    username = parts[1].Trim();
+            //                    break;
+            //                case passwordKey:
+            //                    password = parts[1].Trim();
+            //                    break;
+            //            }
+            //        }
+            //    }
+            //
+            // if (apiURL == null)
+            // {
+            //    UnityEngine.Debug.LogError("apiURL is null");
+            // }
+            // }
 
+            if (File.Exists(filepath))
+            {
+                UnityEngine.Debug.LogError("1");
+                var configJson = await File.ReadAllTextAsync(filepath);
+                var config = JsonUtility.FromJson<JsonConfig>(configJson);
+                apiURL = config.AiApiUrl;
+                username = config.AiUsername;
+                password = config.AiPassword;
+            }
+            apiURL = "http://" + apiURL + apiPort; //Need to be updated! @todo...
+            token = await AuthenticateUser(apiURL, username, password);
+            UnityEngine.Debug.LogError("2");
             if (apiURL == null || username == null || password == null || token == null)
             {
                 throw new InvalidOperationException(
                     $"Can't find a parameter for the AI Serves configuration -> " +
                     $"Path = {configFileName}, " +
-                    $"API_URL = {apiURL}" +
-                    $"Username = {username}" +
-                    $"Password = {password}" +
+                    $"API_URL = {apiURL}," +
+                    $"Username = {username}," +
+                    $"Password = {password}," +
                     $"Token = {token}");
             }
-
-            return new AiServicesConfig(apiURL, username, password, token);
+            UnityEngine.Debug.LogError(apiURL+ username+ password);
+            var r = new AiServicesConfig(apiURL, username, password);
+            r.SetToken(token);
+            _config = r;
+            UnityEngine.Debug.LogError("Config is done with " + _config.AiToken + _config.AiApiUrl + _config.AiPassword + _config.AiUsername);
+            var options = await GetOptions();
+            if (options)
+            {
+                return r;
+            }
+            UnityEngine.Debug.LogError("Configuration of the AI Services failed! Unable to load the options!");
+            throw new InvalidOperationException();
         }
 
-        /// <summary>
+        /// <summary> DONE!
         /// Get the token
         /// </summary>
         /// <param name="apiURL"> URL of the Server</param>
@@ -201,82 +223,112 @@ namespace MirageXR
         /// <returns>The token as struct</returns>
         private static async Task<string> AuthenticateUser(string apiURL, string user, string pass)
         {
-            var requestBody = new
+            apiURL += "/authentication/";
+            var formData = new List<IMultipartFormSection>
             {
-                username = user,
-                password = pass,
+                new MultipartFormDataSection("username", user),
+                new MultipartFormDataSection("password", pass),
             };
-            var jsonBody = JsonUtility.ToJson(requestBody);
-
-            using var webRequest = UnityWebRequest.Post(apiURL, string.Empty);
-            var jsonToSend = new UTF8Encoding().GetBytes(jsonBody);
-            webRequest.uploadHandler = new UploadHandlerRaw(jsonToSend);
-            webRequest.downloadHandler = new DownloadHandlerBuffer();
-            webRequest.SetRequestHeader("Content-Type", "application/json");
-
-            await webRequest.SendWebRequest();
-
-            if (webRequest.result != UnityWebRequest.Result.Success)
+            var request = UnityWebRequest.Post(apiURL, formData);
+            await request.SendWebRequest();
+            if (request.result != UnityWebRequest.Result.Success)
             {
-                throw new HttpRequestException($"Error while receiving the token: {webRequest.error}");
+                throw new HttpRequestException($"Error while receiving the token: {request.error}!");
             }
-            var response = JsonUtility.FromJson<TokenResponse>(webRequest.downloadHandler.text);
-            return response.Token;
-        }
-
-        /// <summary>
-        /// Stores the Options JSON
-        /// </summary>
-        public struct OptionsResponse
-        {
-            public OptionsResponse(string json)
+            var r = request.downloadHandler.text;
+            if (r.Length < 13)
             {
-                Listen = new List<string>();
-                Speak = new List<string>();
-                Think = new List<string>();
-                var deserialized = JsonSerializer.Deserialize<OptionsResponse>(json);
-                Listen = deserialized.Listen ?? new List<string>();
-                Speak = deserialized.Speak ?? new List<string>();
-                Think = deserialized.Think ?? new List<string>();
+                throw new HttpRequestException($"Error while receiving the token! Got ' {r} 'and that is too short!");
             }
-
-            public List<string> Listen { get; set; }
-
-            public List<string> Speak{ get; set; }
-
-            public List<string> Think { get; set; }
+            r = r.Substring(10, r.Length - 10 - 2);
+            return r;
         }
 
         /// <summary>
         /// Stores the Toke for the API
         /// </summary>
-        private readonly struct TokenResponse
+        private readonly struct TokenResponse // still needed? @todo..
         {
-            public TokenResponse(string token)
+            public TokenResponse(string t)
             {
-                Token = token;
+                token = t;
             }
 
-            public string Token { get; }
+            public string token { get; }
         }
 
         /// <summary>
         /// Stores the Config
         /// </summary>
-        private struct AiServicesConfig
+        public struct AiServicesConfig
         {
-            public string ApiURL;
-            public string Username;
-            public string Password;
-            public string Token;
+            public string AiApiUrl;
+            public string AiUsername;
+            public string AiPassword;
+            public string AiToken;
 
-            public AiServicesConfig(string apiURL, string username, string password, string token)
+            public AiServicesConfig(string apiURL, string username, string password)
             {
-                ApiURL = apiURL;
-                Username = username;
-                Password = password;
-                Token = token;
+                AiApiUrl = apiURL;
+                AiUsername = username;
+                AiPassword = password;
+                AiToken = null;
+            }
+
+            public void SetToken(string token)
+            {
+                AiToken = token;
             }
         }
+    }
+
+    public class OptionsResponse
+    {
+        public string name { get; set; }
+
+        public List<string> models { get; set; }
+    }
+
+    public class JsonConfig
+    {
+        public string CompanyName { get; set; }
+
+        public string ProductName { get; set; }
+
+        public string MoodleUrl { get; set; }
+
+        public string XApiUrl { get; set; }
+
+        public string Version { get; set; }
+
+        public string SplashScreen { get; set; }
+
+        public string Logo { get; set; }
+
+        public string SplashBackgroundColor { get; set; }
+
+        public string PrimaryColor { get; set; }
+
+        public string SecondaryColor { get; set; }
+
+        public string TextColor { get; set; }
+
+        public string IconColor { get; set; }
+
+        public string TaskStationColor { get; set; }
+
+        public string PathColor { get; set; }
+
+        public string NextPathColor { get; set; }
+
+        public string CalibrationMarker { get; set; }
+
+        public string PdfCalibrationMarker { get; set; }
+
+        public string AiApiUrl { get; set; }
+
+        public string AiUsername { get; set; }
+
+        public string AiPassword { get; set; }
     }
 }
