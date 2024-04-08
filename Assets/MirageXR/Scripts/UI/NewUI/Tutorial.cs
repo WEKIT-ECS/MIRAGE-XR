@@ -18,7 +18,7 @@ public class TutorialModel
     public string id;
     public string message;
     public MessagePosition position = MessagePosition.Middle;
-    public string btnText = "Got it";
+    public string btnText = "Cancel";
 
     public bool HasId => !string.IsNullOrEmpty(id);
 

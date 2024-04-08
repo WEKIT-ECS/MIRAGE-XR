@@ -19,17 +19,15 @@ namespace MirageXR
         [SerializeField] private PlatformManager _platformManager;
         [SerializeField] private ExceptionManager _exceptionManager;
 
-
         private ActivityManager _activityManager;
         private AugmentationManager _augmentationManager;
         private MoodleManager _moodleManager;
         private EditorSceneService _editorSceneService;
         private WorkplaceManager _workplaceManager;
         private AiServices _aiServices;
+        private OpenAIManager _openAIManager;
 
         public ImageTargetManagerWrapper imageTargetManager => _imageTargetManager;
-
-        public AiServices aiServices => _aiServices;
 
         public CalibrationManager calibrationManager => _calibrationManager;
 
@@ -56,6 +54,8 @@ namespace MirageXR
         public PlatformManager platformManager => _platformManager;
 
         public ExceptionManager exceptionManager => _exceptionManager;
+
+        public OpenAIManager openAIManager => _openAIManager;
 
         private bool _isInitialized;
 
@@ -112,11 +112,10 @@ namespace MirageXR
                 _moodleManager = new MoodleManager();
                 _editorSceneService = new EditorSceneService();
                 _workplaceManager = new WorkplaceManager();
+                _openAIManager = new OpenAIManager();
                 _aiServices = new AiServices();
 
-#if !UNITY_EDITOR
                 _exceptionManager.Initialize();
-#endif
                 _brandManager.Initialization();
                 await _imageTargetManager.InitializationAsync();
                 await _floorManager.InitializationAsync();
@@ -126,6 +125,8 @@ namespace MirageXR
                 _gridManager.Initialization();
                 _cameraCalibrationChecker.Initialization();
                 _platformManager.Initialization();
+                await _openAIManager.InitializeAsync();
+
                 await _aiServices.ReadConfig();
                 _activityManager.Subscription();
 
@@ -147,13 +148,18 @@ namespace MirageXR
         private async Task ResetManagersAsync()
         {
             await _floorManager.ResetAsync();
-            await planeManager.ResetAsync();
+            await _planeManager.ResetAsync();
             await _pointCloudManager.ResetAsync();
             await _imageTargetManager.ResetAsync();
         }
 
         private void OnDestroy()
         {
+            if (!_isInitialized)
+            {
+                return;
+            }
+
             _activityManager.Unsubscribe();
             _pointCloudManager.Unsubscribe();
             _activityManager.OnDestroy();

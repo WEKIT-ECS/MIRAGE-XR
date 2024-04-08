@@ -79,11 +79,29 @@ public class NativeCameraController
             try
             {
 #if UNITY_EDITOR
-                File.Copy(path, filePath);
+                if (path != null)
+                {
+                    File.Copy(path, filePath);
+                    callback.Invoke(true, filePath);
+                }
+                else
+                {
+                    Debug.LogWarning("Fake video-recording in editor: No file was selected. Returning false");
+                    callback.Invoke(false, null);
+                }
 #else
-                File.Move(path, filePath);
+                if (path != null)
+                {
+                    File.Move(path, filePath);
+                    callback.Invoke(true, filePath);
+                }
+                else
+                {
+                    Debug.LogWarning("No file was selected.");
+                    callback.Invoke(false, null);
+                }
 #endif
-                callback.Invoke(true, filePath);
+
             }
             catch (Exception e)
             {
@@ -171,6 +189,19 @@ public class NativeCameraController
     private static void StartVideoRecordingUWPAsync(string filePath, Action<bool, string> callback,
         VideoCapture.AudioState audioState = VideoCapture.AudioState.MicAudio, bool showHolograms = false)
     {
+
+#if UNITY_EDITOR
+        string pickedFile = UnityEditor.EditorUtility.OpenFilePanelWithFilters("Select video", "", new string[] { "Video files", "mp4,mov,wav,avi", "All files", "*" });
+        if (callback != null)
+        {
+            var isValidPath = !string.IsNullOrEmpty(pickedFile);
+            callback.Invoke(isValidPath, isValidPath ? pickedFile : null);
+            ResetVideoRecorder();
+        }
+        return;
+#endif
+
+
         if (_videoCapture != null && _videoCapture.IsRecording)
         {
             Debug.Log("Is already recording");
