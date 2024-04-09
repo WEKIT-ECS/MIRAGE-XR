@@ -137,13 +137,16 @@ namespace MirageXR
             if (legacyAnimation != null)
             {
                 Debug.Log("playing animation (with data from gltfast scene instantiator).");
-
-                legacyAnimation.clip = _gltf.GetAnimationClips()[0];
-                legacyAnimation.clip.wrapMode = UnityEngine.WrapMode.Loop;
-                legacyAnimation.clip.legacy = true;
-                legacyAnimation.clip.EnsureQuaternionContinuity();
-                legacyAnimation.playAutomatically = true;
-                legacyAnimation.Play(_gltf.GetAnimationClips()[0].name);
+                AnimationClip[] clips = _gltf.GetAnimationClips();
+                if (clips.Length > 0)
+                {
+                    legacyAnimation.clip = clips[0];
+                    legacyAnimation.clip.wrapMode = UnityEngine.WrapMode.Loop;
+                    legacyAnimation.clip.legacy = true;
+                    legacyAnimation.clip.EnsureQuaternionContinuity();
+                    legacyAnimation.playAutomatically = true;
+                    legacyAnimation.Play(clips[0].name);
+                }
             }
 
             OnFinishLoading(transform.Find("Sketchfab_model").gameObject); // , _gltf.GetAnimationClips()
@@ -163,11 +166,8 @@ namespace MirageXR
             var startPos = modelTransform.position + modelTransform.forward * -0.5f + modelTransform.up * -0.1f;
             
             model.transform.SetParent(modelTransform);
+            //model.name = _obj.option;
 
-            /*
-             * ALEX: please check this - I don't think it is needed and it prevented the animation 
-             * from being played
-             * 
             //Do not manipulate the library models at the start
             if (!_isLibraryModel)
             {
@@ -175,10 +175,8 @@ namespace MirageXR
                 model.transform.position = startPos;
                 model.transform.localRotation = Quaternion.identity;
             }
-            
-            model.name = _obj.option;
+                        
             model.transform.localRotation *= Quaternion.Euler(-90f, 0f, 0f);
-            */
 
             if (!_isLibraryModel)
             {
