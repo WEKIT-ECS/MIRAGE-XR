@@ -245,7 +245,7 @@ namespace MirageXR
             }
         }
 
-        public async Task DeleteAssistantAsync(string assistantId)
+        public async Task DeleteAssistantAsync(string assistantId, CancellationToken cancellationToken = default)
         {
             if (!_assistants.ContainsKey(assistantId))
             {
@@ -254,11 +254,11 @@ namespace MirageXR
 
             try
             {
-                _aiClient.AssistantsEndpoint.DeleteAssistantAsync(assistantId);
+                await _aiClient.AssistantsEndpoint.DeleteAssistantAsync(assistantId, cancellationToken);
                 _assistants.Remove(assistantId);
                 if (_threads.ContainsKey(assistantId))
                 {
-                    _aiClient.ThreadsEndpoint.DeleteThreadAsync(_threads[assistantId].Id);
+                    await _aiClient.ThreadsEndpoint.DeleteThreadAsync(_threads[assistantId].Id, cancellationToken);
                     _threads.Remove(assistantId);
                 }
             }
