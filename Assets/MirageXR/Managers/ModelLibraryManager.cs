@@ -135,14 +135,14 @@ namespace MirageXR
 
                     if (libraryListItem)
                     {
-                        libraryListItem.Title.text = " " + obj.label;
+                        libraryListItem.Title.text = "  " + obj.label;
                         libraryListItem.Thumbnail.sprite = obj.sprite;
                        
                         var fbxFilePath = AssetDatabase.GetAssetPath(obj.model);
                         var fileInfo = new FileInfo(fbxFilePath);
                         var byteSize = fileInfo.Length;
                         var kilobyteSize = Math.Round(byteSize / 1024f , 1);
-                        libraryListItem.TxtSize.text = " " + kilobyteSize.ToString(CultureInfo.InvariantCulture) + " Kb";
+                        libraryListItem.TxtSize.text = "   " + kilobyteSize.ToString(CultureInfo.InvariantCulture) + " Kb";
                         
                         libraryListItem.AddButtonListener(() => _modelEditorView.AddAugmentation(obj.prefabName, true));
                         _instantiatedItems.Add(item);
