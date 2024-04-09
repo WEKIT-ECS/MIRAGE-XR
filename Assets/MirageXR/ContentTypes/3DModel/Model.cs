@@ -137,8 +137,8 @@ namespace MirageXR
             if (legacyAnimation != null)
             {
                 Debug.Log("playing animation (with data from gltfast scene instantiator).");
-                AnimationClip[] clips = _gltf.GetAnimationClips();
-                if (clips.Length > 0)
+                var clips = _gltf.GetAnimationClips();
+                if (clips != null && clips.Length > 0 && clips[0] != null)
                 {
                     legacyAnimation.clip = clips[0];
                     legacyAnimation.clip.wrapMode = UnityEngine.WrapMode.Loop;
