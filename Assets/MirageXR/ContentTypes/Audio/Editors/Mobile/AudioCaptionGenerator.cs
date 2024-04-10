@@ -16,7 +16,7 @@ public class AudioCaptionGenerator : MonoBehaviour
     private string _serviceUrl;
     private string _iamApikey;
     [SerializeField] private TMP_Text transcribedSpeech;
-    [SerializeField] private Button convertAudioToTextButton;
+   // [SerializeField] private Button convertAudioToTextButton;
     
     [SerializeField] private GameObject _spinner;
     // Make sure you have a reference to the AudioEditorView
@@ -33,72 +33,23 @@ public class AudioCaptionGenerator : MonoBehaviour
 
     void Start()
     {
-        LoadKeysFromEnvFile(out var apiKey, out var serviceUrl);
+        _iamApikey = _audioEditView._iamApikey_();
+        _serviceUrl = _audioEditView._serviceUrl_();
+         
 
-        if (apiKey == null)
-        {
-            Debug.LogError($"Couldn't load 'apiKey' for {nameof(AudioCaptionGenerator)}");
-            return;
-        }
-
-        if (serviceUrl == null)
-        {
-            Debug.LogError($"Couldn't load 'serviceUrl' for {nameof(AudioCaptionGenerator)}");
-            return;
-        }
-
-        _iamApikey = apiKey;
-        _serviceUrl = serviceUrl;
-
-        Debug.Log("API Key: " + _iamApikey);
-        Debug.Log("URL: " + _serviceUrl);
-
-        StartCoroutine(CreateService());
+    StartCoroutine(CreateService());
 
         if(_audioEditView.SaveAndReturnAudioClipPath() != null)
         {
             string audioFileName = _audioEditView.SaveAndReturnAudioClipPath();
             soundPath = Path.Combine(audioFileName);
-            convertAudioToTextButton.onClick.AddListener(delegate { StartCoroutine(ConvertAudioFileToText(soundPath)); });
+            //convertAudioToTextButton.onClick.AddListener(delegate { 
+            StartCoroutine(ConvertAudioFileToText(soundPath)); 
+            //});
         }
     }
 
-    private static void LoadKeysFromEnvFile(out string apiKey, out string serviceUrl)
-    {
-        const string ibmFileName = "caption-ibm-credentials";
-        const string speechToTextApikey = "SPEECH_TO_TEXT_IAM_APIKEY";
-        const string speechToTextURL = "SPEECH_TO_TEXT_URL";
-
-        apiKey = null;
-        serviceUrl = null;
-
-        var ibmCredentials = Resources.Load(ibmFileName) as TextAsset;
-        if (ibmCredentials == null)
-        {
-            Debug.LogError($"'{ibmFileName}' file not found");
-            return;
-        }
-
-        using var sr = new StringReader(ibmCredentials.text);
-        while (sr.ReadLine() is { } line)
-        {
-            var split = line.Split('=');
-            if (split.Length != 2)
-            {
-                continue;
-            }
-
-            if (split[0] == speechToTextApikey)
-            {
-                apiKey = split[1].Trim();
-            }
-
-            if (split[0] == speechToTextURL)
-            {
-                serviceUrl = split[1].Trim();
-            }
-        }
-    }
+    
 
     private IEnumerator CreateService()
     {
@@ -117,6 +68,7 @@ public class AudioCaptionGenerator : MonoBehaviour
         Debug.Log("ConvertAudioFileToText");
 
         transcribedSpeech.text = "";
+           
 
         if (speechToText == null)
         {
@@ -150,15 +102,17 @@ public class AudioCaptionGenerator : MonoBehaviour
         }
 
         transcribedSpeech.text = "";
+        
         foreach (var res in recognizeResponse.Results)
         {
             foreach (var alt in res.Alternatives)
             {
                 Debug.Log(alt.Transcript);
                 transcribedSpeech.text += alt.Transcript + "\n";
+                
             }
         }
-        text = transcribedSpeech.text;
+       text = transcribedSpeech.text;
         Debug.Log("These are generated captions" + text);
     
         _spinner.SetActive(false);
