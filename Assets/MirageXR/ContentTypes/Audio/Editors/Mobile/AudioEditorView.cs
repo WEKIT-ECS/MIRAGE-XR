@@ -23,6 +23,9 @@ public class AudioEditorView : PopupEditorBase
 
     private float _currentRangeValue;
 
+    private string _serviceUrl;
+    private string _iamApikey;
+
     public override ContentType editorForType => ContentType.AUDIO;
 
     [SerializeField] private Button _btnAudioSettings;
@@ -97,6 +100,28 @@ public class AudioEditorView : PopupEditorBase
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
+        LoadKeysFromEnvFile(out var apiKey, out var serviceUrl);
+
+        if (apiKey == null)
+        {
+            Debug.LogError($"Couldn't load 'apiKey' for {nameof(AudioCaptionGenerator)}");
+            return;
+        }
+
+        if (serviceUrl == null)
+        {
+            Debug.LogError($"Couldn't load 'serviceUrl' for {nameof(AudioCaptionGenerator)}");
+            return;
+        }
+
+        _iamApikey = apiKey;
+        _serviceUrl = serviceUrl;
+        Debug.Log("API Key: " + _iamApikey);
+        Debug.Log("URL: " + _serviceUrl);
+
+
+
+
         _showBackground = false;
         base.Initialization(onClose, args);
 
@@ -175,7 +200,54 @@ public class AudioEditorView : PopupEditorBase
         UpdateSliderPlayerAndTimer();
         RootView_v2.Instance.HideBaseView();
     }
+    private static void LoadKeysFromEnvFile(out string apiKey, out string serviceUrl)
+    {
+        const string ibmFileName = "caption-ibm-credentials";
+        const string speechToTextApikey = "SPEECH_TO_TEXT_IAM_APIKEY";
+        const string speechToTextURL = "SPEECH_TO_TEXT_URL";
 
+        apiKey = null;
+        serviceUrl = null;
+
+        var ibmCredentials = Resources.Load(ibmFileName) as TextAsset;
+        if (ibmCredentials == null)
+        {
+            Debug.LogError($"'{ibmFileName}' file not found");
+            return;
+        }
+
+        using var sr = new StringReader(ibmCredentials.text);
+        while (sr.ReadLine() is { } line)
+        {
+            var split = line.Split('=');
+            if (split.Length != 2)
+            {
+                continue;
+            }
+
+            if (split[0] == speechToTextApikey)
+            {
+                apiKey = split[1].Trim();
+            }
+
+            if (split[0] == speechToTextURL)
+            {
+                serviceUrl = split[1].Trim();
+            }
+        }
+    }
+    public string _iamApikey_()
+    {
+
+       
+        return _iamApikey;
+        
+    }
+    public string _serviceUrl_()
+    {
+        
+        return _serviceUrl;
+    }
     private void InitClampedScrollRect(ClampedScrollRect clampedScrollRect, GameObject templatePrefab, int maxCount, string text)
     {
         var currentActionId = activityManager.ActiveAction.id;
