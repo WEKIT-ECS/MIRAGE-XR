@@ -141,19 +141,19 @@ public class PoiEditor : MonoBehaviour
     {
         var offset = GetOffset();
 
-        _poi.offset = Utilities.Vector3ToString(offset);
+        _poi.offset = MirageXR.Utilities.Vector3ToString(offset);
         _poi.x_offset = offset.x;
         _poi.y_offset = offset.y;
         _poi.z_offset = offset.z;
 
         if (canRotate)
         {
-            _poi.rotation = Utilities.Vector3ToString(transform.localEulerAngles);
+            _poi.rotation = MirageXR.Utilities.Vector3ToString(transform.localEulerAngles);
         }
 
         if (canScale)
         {
-            _poi.scale = Utilities.Vector3ToString(transform.localScale);
+            _poi.scale = MirageXR.Utilities.Vector3ToString(transform.localScale);
         }
     }
 

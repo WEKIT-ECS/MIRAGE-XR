@@ -1,17 +1,12 @@
 using i5.Toolkit.Core.VerboseLogging;
 using IBM.Cloud.SDK;
-using IBM.Cloud.SDK.Utilities;
 using IBM.Watson.Assistant.V2;
 using IBM.Watson.Assistant.V2.Model;
 using System;
-using System.Collections;
-using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
-using OpenAI_API;
 using System.Threading.Tasks;
 using MirageXR;
-using Model = OpenAI_API.Models.Model;
 
 public enum AIservice
 {
@@ -36,8 +31,8 @@ public class DialogueService : MonoBehaviour
 
     public AIservice AI = AIservice.OpenAI;
 
-    private OpenAIAPI _openAIinterface;
-    private OpenAI_API.Chat.Conversation _chat;
+    //private OpenAIAPI _openAIinterface;
+    //private OpenAI_API.Chat.Conversation _chat;
     public string AIprompt = "You are a baker in a small Irish bakery. You will be asked questions about your bakery products. Try and sell them well. You speak only English with a Dublin accent.";
 
     [Space(10)]
@@ -52,12 +47,9 @@ public class DialogueService : MonoBehaviour
 
     private DaimonManager dAImgr;
     private string username;
-
-    private bool createSessionTested = false;
-    private bool deleteSessionTested = false;
     private string sessionId;
 
-    private APIAuthentication _openIaApiKey; 
+    //private SAuthArgsV1 _openIaApiKey; 
     
     public string AssistantID
     {
@@ -67,6 +59,7 @@ public class DialogueService : MonoBehaviour
 
     public void Start()
     {
+        
         LogSystem.InstallDefaultReactors();
 
         dSpeechOutputMgr = GetComponent<SpeechOutputService>();
@@ -78,87 +71,8 @@ public class DialogueService : MonoBehaviour
         dSpeechInputMgr.onInputReceived += OnInputReceived;
 
         _character = dSpeechOutputMgr.myCharacter.GetComponentInParent<MirageXR.CharacterController>();
-
-        CreateOpenAIServiceAsync().AsAsyncVoid();
     }
-
-    private static async Task<APIAuthentication> ReadOpenIaAuthKeyAsync()
-    {
-        const string openaiFileName = "openai";
-        const string openaiKey = "OPENAI_KEY";
-        const string openaiApiKey = "OPENAI_API_KEY";
-        const string openaiOrganizationKey = "OPENAI_ORGANIZATION";
-
-        var openai = Resources.Load(openaiFileName) as TextAsset;
-        string key = null; 
-        string org = null; 
-        if (openai != null)
-        {
-            using var sr = new StringReader(openai.text);
-            while (await sr.ReadLineAsync() is { } line)
-            {
-                var parts = line.Split('=', ':');
-                if (parts.Length == 2)
-                {
-                    switch (parts[0].ToUpper())
-                    {
-                        case openaiKey:
-                            key = parts[1].Trim();
-                            break;
-                        case openaiApiKey:
-                            key = parts[1].Trim();
-                            break;
-                        case openaiOrganizationKey:
-                            org = parts[1].Trim();
-                            break;
-                    }
-                }
-            }
-        }
-
-        if (key == null || org == null)
-        {
-            throw new Exception("can't get openAI's api key");
-        }
-
-        Debug.Log("openAI keys: " + key + ", org = " + org);
-
-        return new APIAuthentication(key, org);
-    }
-
-    public async Task CreateOpenAIServiceAsync()
-    {
-        try
-        {
-            _openIaApiKey ??= await ReadOpenIaAuthKeyAsync();
-            
-            if (!await _openIaApiKey.ValidateAPIKey())
-            {
-                throw new Exception("can't Validate openAI's api key");
-            }
-
-            _openAIinterface = new OpenAIAPI(_openIaApiKey);
-            createSessionTested = true;
-
-            AppLog.Log($"DialogueService: connected to openAI with organization ID = '{_openAIinterface.Auth.OpenAIOrganization}", LogLevel.INFO);
-
-            _chat = _openAIinterface.Chat.CreateConversation();
-            _chat.Model = Model.ChatGPTTurbo;
-            _chat.RequestParameters.Temperature = 0;
-
-            _chat.AppendSystemMessage(AIprompt);
-        }
-        catch (Exception ex)
-        {
-            AppLog.Log($"DialogueService: AI provider initialisation failed: {ex.Message}, trace: {ex.StackTrace}", LogLevel.CRITICAL);
-            RootView_v2.Instance.dialog.ShowMiddle(
-                "Error: connection failed",
-                "Could not connect to the AI provider (OpenAI), it seems the API key is missing?",
-                "OK", () => AppLog.Log("DialogueService: Connection error acknowledge by user (OK)", LogLevel.INFO));
-        }
-        
-    }
-
+/*
     private IEnumerator CreateWatsonService()
     {
         AppLog.Log("[DialogueService] Switching AI provider to IBM Watson.", LogLevel.INFO);
@@ -172,69 +86,51 @@ public class DialogueService : MonoBehaviour
     {
         AppLog.Log("DialogueService: Connecting to Watson assistant with id = " + assistantId, LogLevel.INFO);
         service.CreateSession(OnWatsonCreateSession, assistantId);
-        while (!createSessionTested)
-        {
-            yield return null;
-        }
     }
-
-    private void OnWatsonDeleteSession(DetailedResponse<object> response, IBMError error)
+*/
+    /*private void OnWatsonDeleteSession(DetailedResponse<object> response, IBMError error)
     {
         deleteSessionTested = true;
-    }
+    }*/
 
-    private void OnWatsonCreateSession(DetailedResponse<SessionResponse> response, IBMError error)
+    /*private void OnWatsonCreateSession(DetailedResponse<SessionResponse> response, IBMError error)
     {
         Log.Debug("[DialogueService] OnWatsonCreateSession()", "Session: {0}", response.Result.SessionId);
         sessionId = response.Result.SessionId;
         createSessionTested = true;
-    }
+    }*/
 
-    public async Task SendMessageToAssistantAsync(string theText)
+    public async Task SendMessageToAssistantAsync(string text)
     {
-        Debug.LogDebug($"[DialogueService] Sending transcribed input to {AI}, text = '{theText}'");
+        Debug.LogDebug($"[DialogueService] Sending transcribed input to {AI}, text = '{text}'");
 
-        if (createSessionTested)
+        Debug.Log("[DialogueService] Existing session available");
+        if (AI == AIservice.OpenAI)
         {
-            Debug.Log("[DialogueService] Existing session available");
-            if (AI == AIservice.OpenAI)
+            AppLog.Log($"[DialogueService] sending message to chatGPT = '{text}'", LogLevel.INFO);
+
+            try
             {
-                AppLog.Log("[DialogueService] sending message to chatGPT", LogLevel.INFO);
-                AppLog.Log($"[DialogueService] sending message to chatGPT = '{theText}'", LogLevel.INFO);
-                _chat.AppendUserInput(theText);
+                var response = await RootObject.Instance.openAIManager.GetChatCompletionAsync(text);
 
-                AppLog.Log("[DialogueService] starting await", LogLevel.INFO);
-                // and get the response
-                try
-                {
-                    var response = await _chat.GetResponseFromChatbotAsync();
-
-                    AppLog.Log($"[DialogueService] returned from await: '{response}'", LogLevel.INFO);
-                    Console.WriteLine(response);
-
-                    AppLog.Log("[DialogueService] starting to parse", LogLevel.INFO);
-                    ParseResponse(response);
-                }
-                catch (TaskCanceledException e)
-                {
-                    AppLog.LogWarning(e.ToString());
-                }
-                catch (Exception e)
-                {
-                    AppLog.LogError(e.ToString());
-                }
+                AppLog.Log("[DialogueService] starting to parse", LogLevel.INFO);
+                ParseResponse(response);
             }
-            else if (AI == AIservice.Watson)
+            catch (TaskCanceledException e)
             {
-                service.Message(OnWatsonResponseReceived, assistantId, sessionId, input: new MessageInput
-                {
-                    Text = theText, Options = new MessageInputOptions { ReturnContext = true }
-                });
+                AppLog.LogWarning(e.ToString());
+            }
+            catch (Exception e)
+            {
+                AppLog.LogError(e.ToString());
             }
         }
-        else
+        else if (AI == AIservice.Watson)
         {
-            Debug.LogWarning("AI service: SendMessageToAssistant(): trying to send message to assistant before session is established.");
+            service.Message(OnWatsonResponseReceived, assistantId, sessionId, input: new MessageInput
+            {
+                Text = text, Options = new MessageInputOptions { ReturnContext = true }
+            });
         }
     }
 
@@ -361,21 +257,15 @@ public class DialogueService : MonoBehaviour
 
     public void SetPrompt(string text)
     {
-
-        AppLog.LogInfo("[DialogueService] Received prompt ='" + text + "'");
+        AppLog.LogInfo($"[DialogueService] Received prompt ='{text}'");
         // store the prompt
         AIprompt = text;
 
         // reset the conversation
-        if (createSessionTested && AI == AIservice.OpenAI)
-        {
-            AppLog.LogInfo("[DialogueService] resetting conversation");
-            _chat = _openAIinterface.Chat.CreateConversation();
-            _chat.Model = Model.ChatGPTTurbo;
-            _chat.RequestParameters.Temperature = 0;
-            _chat.AppendSystemMessage(AIprompt); // prompt injection
-            AppLog.LogInfo("[DialogueService] conversation reset done");
-        }
+        //if (createSessionTested && AI == AIservice.OpenAI)
+        //{
+            RootObject.Instance.openAIManager.SetChatPromptAsync(AIprompt).AsAsyncVoid();
+        //}
     }
 
     private void ParseResponse(string text)
@@ -428,14 +318,14 @@ public class DialogueService : MonoBehaviour
 
     public void OnDestroy()
     {
-        Debug.LogTrace("DialogueService: deregestering callback for speech2text input");
+        //Debug.LogTrace("DialogueService: deregestering callback for speech2text input");
         dSpeechInputMgr.onInputReceived -= OnInputReceived;
 
-        if (AI == AIservice.Watson)
+        /*if (AI == AIservice.Watson)
         {
             Debug.LogTrace("DialogueService: Attempting to delete session");
             service.DeleteSession(OnWatsonDeleteSession, assistantId, sessionId);
-        }
+        }*/
     }
 
 // end of class

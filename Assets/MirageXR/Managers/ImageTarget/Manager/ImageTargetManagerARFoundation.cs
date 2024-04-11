@@ -139,20 +139,20 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
             cameraParent = mainCamera.transform;
         }
 
-        var arSession = Utilities.FindOrCreateComponent<ARSession>();
-        var arInputManager = Utilities.FindOrCreateComponent<ARInputManager>(arSession.gameObject);
+        var arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>();
+        var arInputManager = MirageXR.Utilities.FindOrCreateComponent<ARInputManager>(arSession.gameObject);
 
         await Task.Yield();
 
-        var arSessionOrigin = Utilities.FindOrCreateComponent<ARSessionOrigin>(cameraParent.gameObject);
-        _arTrackedImageManager = Utilities.FindOrCreateComponent<ARTrackedImageManager>(cameraParent.gameObject);
+        var arSessionOrigin = MirageXR.Utilities.FindOrCreateComponent<ARSessionOrigin>(cameraParent.gameObject);
+        _arTrackedImageManager = MirageXR.Utilities.FindOrCreateComponent<ARTrackedImageManager>(cameraParent.gameObject);
 
         arSessionOrigin.camera = mainCamera;
         await Task.Yield();
 
-        var arCameraManager = Utilities.FindOrCreateComponent<ARCameraManager>(mainCamera.gameObject);
-        var arCameraBackground = Utilities.FindOrCreateComponent<ARCameraBackground>(mainCamera.gameObject);
-        var arPoseDriver = Utilities.FindOrCreateComponent<ARPoseDriver>(mainCamera.gameObject);
+        var arCameraManager = MirageXR.Utilities.FindOrCreateComponent<ARCameraManager>(mainCamera.gameObject);
+        var arCameraBackground = MirageXR.Utilities.FindOrCreateComponent<ARCameraBackground>(mainCamera.gameObject);
+        var arPoseDriver = MirageXR.Utilities.FindOrCreateComponent<ARPoseDriver>(mainCamera.gameObject);
 
         //await Task.Delay(DELAY);
 

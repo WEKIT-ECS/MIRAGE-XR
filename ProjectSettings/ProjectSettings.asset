@@ -51,7 +51,7 @@ PlayerSettings:
   defaultScreenHeight: 768
   defaultScreenWidthWeb: 960
   defaultScreenHeightWeb: 600
-  m_StereoRenderingPath: 0
+  m_StereoRenderingPath: 2
   m_ActiveColorSpace: 0
   m_SpriteBatchVertexThreshold: 300
   m_MTRendering: 1
@@ -68,7 +68,7 @@ PlayerSettings:
   allowedAutorotateToLandscapeLeft: 1
   useOSAutorotation: 1
   use32BitDisplayBuffer: 1
-  preserveFramebufferAlpha: 0
+  preserveFramebufferAlpha: 1
   disableDepthAndStencilBuffers: 0
   androidStartInFullscreen: 1
   androidRenderOutsideSafeArea: 1
@@ -138,12 +138,9 @@ PlayerSettings:
   vulkanEnableLateAcquireNextImage: 0
   vulkanEnableCommandBufferRecycling: 1
   loadStoreDebugModeEnabled: 0
-  bundleVersion: 2.2
+  bundleVersion: 2.6
   preloadedAssets:
-  - {fileID: 11400000, guid: 5af8949b7209364499abc8979cef0d21, type: 2}
   - {fileID: 0}
-  - {fileID: -1320681756008391923, guid: c24e8192fb4aadc4bbfb2072bb2399b0, type: 2}
-  - {fileID: -3831414650097208346, guid: b3a3cc9ae17858f4a9346913737e2188, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -174,7 +171,7 @@ PlayerSettings:
   overrideDefaultApplicationIdentifier: 1
   AndroidBundleVersionCode: 2222
   AndroidMinSdkVersion: 24
-  AndroidTargetSdkVersion: 33
+  AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1
   aotOptions: 
   stripEngineCode: 0
@@ -277,7 +274,7 @@ PlayerSettings:
   AndroidEnableTango: 0
   androidEnableBanner: 1
   androidUseLowAccuracyLocation: 0
-  androidUseCustomKeystore: 0
+  androidUseCustomKeystore: 1
   m_AndroidBanners:
   - width: 320
     height: 180
@@ -855,7 +852,7 @@ PlayerSettings:
     Android: VUFORIA_ANDROID_SETTINGS;ARFOUNDATION_PRESENT;MRTK_GLTF_IMPORTER_OFF
     Standalone: DOTNETWINRT_PRESENT
     Windows Store Apps: release;VUFORIA_WSA_SETTINGS;DOTNETWINRT_PRESENT
-    iPhone: VUFORIA_IOS_SETTINGS;ARFOUNDATION_PRESENT;UNITY_XR_ARKIT_LOADER_ENABLED
+    iPhone: VUFORIA_IOS_SETTINGS;ARFOUNDATION_PRESENT;UNITY_XR_ARKIT_LOADER_ENABLED;MRTK_GLTF_IMPORTER_OFF
   additionalCompilerArguments: {}
   platformArchitecture:
     iPhone: 1
@@ -884,7 +881,7 @@ PlayerSettings:
   suppressCommonWarnings: 1
   allowUnsafeCode: 0
   useDeterministicCompilation: 1
-  additionalIl2CppArgs: 
+  additionalIl2CppArgs: ' --emit-source-mapping'
   scriptingRuntimeVersion: 1
   gcIncremental: 1
   gcWBarrierValidation: 0
