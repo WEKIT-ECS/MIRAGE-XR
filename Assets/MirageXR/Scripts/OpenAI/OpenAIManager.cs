@@ -1,19 +1,25 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using OpenAI;
+using OpenAI.Assistants;
 using OpenAI.Audio;
 using OpenAI.Chat;
+using OpenAI.Threads;
 using UnityEngine;
+using Utilities.WebRequestRest;
 
 namespace MirageXR
 {
     public class OpenAIManager  //TODO: add wrapper for all ai tools
     {
         private OpenAIClient _aiClient;
+        private readonly Dictionary<string, AssistantResponse> _assistants = new Dictionary<string, AssistantResponse>();
+        private readonly Dictionary<string, ThreadResponse> _threads = new Dictionary<string, ThreadResponse>();
 
         private static async Task<OpenAIAuthInfo> ReadOpenIaAuthKeyAsync()
         {
@@ -54,25 +60,55 @@ namespace MirageXR
                 throw new Exception("can't get openAI's api key");
             }
 
-            Debug.Log($"openAI keys: {key}, org = {org}");
-
             return new OpenAIAuthInfo(key, org);
         }
 
         public async Task InitializeAsync()
         {
-            var keys = await ReadOpenIaAuthKeyAsync();
-            _aiClient = new OpenAIClient(new OpenAIAuthentication(keys));
+            try
+            {
+                var keys = await ReadOpenIaAuthKeyAsync();
+                _aiClient = new OpenAIClient(new OpenAIAuthentication(keys));
+            }
+            catch (RestException e)
+            {
+                if (e.Response.Code == 403)
+                {
+                    AppLog.LogWarning(e.ToString());
+                    return;
+                }
+
+                AppLog.LogError(e.ToString());
+            }
+            catch (Exception e)
+            {
+                AppLog.LogError(e.ToString());
+            }
         }
 
-        public async Task<string> SetChatPromptAsync(string prompt, CancellationToken cancellationToken = default)
+        public async Task<AssistantResponse> CreateAssistantAsync(string name, string instructions,
+            OpenAI.Models.Model model = null, CancellationToken cancellationToken = default)
         {
             try
             {
-                var messages = new List<OpenAI.Chat.Message> { new (Role.System, prompt) };
-                var chatRequest = new ChatRequest(messages, OpenAI.Models.Model.GPT3_5_Turbo);
-                var response = await _aiClient.ChatEndpoint.GetCompletionAsync(chatRequest, cancellationToken);
-                return response.FirstChoice.Message;
+                model ??= OpenAI.Models.Model.GPT3_5_Turbo;
+
+                var request = new CreateAssistantRequest(model, name, null, instructions);
+                var assistant = await _aiClient.AssistantsEndpoint.CreateAssistantAsync(request, cancellationToken);
+                _assistants.TryAdd(assistant.Id, assistant);
+
+                return assistant;
+            }
+            catch (RestException e)
+            {
+                if (e.Response.Code == 403)
+                {
+                    AppLog.LogWarning(e.ToString());
+                    return null;
+                }
+
+                AppLog.LogError(e.ToString());
+                return null;
             }
             catch (Exception e)
             {
@@ -81,14 +117,75 @@ namespace MirageXR
             }
         }
 
-        public async Task<string> GetChatCompletionAsync(string message, CancellationToken cancellationToken = default)
+        public bool IsAssistantExists(string assistantId)
+        {
+            return _assistants.ContainsKey(assistantId);
+        }
+
+        public async Task<string> SendMessageToAssistant(string assistantId, string message, CancellationToken cancellationToken = default)
         {
             try
             {
-                var messages = new List<OpenAI.Chat.Message> { new (Role.User, message) };
+                if (!_assistants.ContainsKey(assistantId))
+                {
+                    AppLog.LogError($"assistantId '{assistantId}' doesn't exists");
+                    return null;
+                }
+
+                if (!_threads.TryGetValue(assistantId, out var thread))
+                {
+                    thread = await _aiClient.ThreadsEndpoint.CreateThreadAsync(cancellationToken: cancellationToken);
+                    _threads.TryAdd(assistantId, thread);
+                }
+                
+                var messageResponse = await thread.CreateMessageAsync(new CreateMessageRequest(message), cancellationToken: cancellationToken);
+                var runResponse = await _aiClient.ThreadsEndpoint.CreateRunAsync(thread.Id, new CreateRunRequest(assistantId), cancellationToken);
+                runResponse = await runResponse.WaitForStatusChangeAsync(cancellationToken: cancellationToken);
+                var messages = await thread.ListMessagesAsync(cancellationToken: cancellationToken);
+                var response = messages.Items.FirstOrDefault(t => t.Role == Role.Assistant);
+                return response?.PrintContent();
+            }
+            catch (RestException e)
+            {
+                if (e.Response.Code == 403)
+                {
+                    AppLog.LogWarning(e.ToString());
+                    return null;
+                }
+
+                AppLog.LogError(e.ToString());
+                return null;
+            }
+            catch (Exception e)
+            {
+                AppLog.LogError(e.ToString());
+                return null;
+            }
+        }
+
+        public async Task<string> GetChatCompletionAsync(string message, string instructions, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var messages = new List<OpenAI.Chat.Message>
+                {
+                    new (Role.System, instructions),
+                    new (Role.User, message),
+                };
                 var chatRequest = new ChatRequest(messages, OpenAI.Models.Model.GPT3_5_Turbo);
                 var response = await _aiClient.ChatEndpoint.GetCompletionAsync(chatRequest, cancellationToken);
                 return response.FirstChoice.Message;
+            }
+            catch (RestException e)
+            {
+                if (e.Response.Code == 403)
+                {
+                    AppLog.LogWarning(e.ToString());
+                    return null;
+                }
+
+                AppLog.LogError(e.ToString());
+                return null;
             }
             catch (Exception e)
             {
@@ -105,6 +202,17 @@ namespace MirageXR
                 var (_, clip) = await _aiClient.AudioEndpoint.CreateSpeechAsync(request, cancellationToken); //TODO: delete cashed audio files
                 return clip;
             }
+            catch (RestException e)
+            {
+                if (e.Response.Code == 403)
+                {
+                    AppLog.LogWarning(e.ToString());
+                    return null;
+                }
+
+                AppLog.LogError(e.ToString());
+                return null;
+            }
             catch (Exception e)
             {
                 AppLog.LogError(e.ToString());
@@ -119,10 +227,54 @@ namespace MirageXR
                 var request = new AudioTranscriptionRequest(audioClip);
                 return await _aiClient.AudioEndpoint.CreateTranscriptionTextAsync(request, cancellationToken);
             }
+            catch (RestException e)
+            {
+                if (e.Response.Code == 403)
+                {
+                    AppLog.LogWarning(e.ToString());
+                    return null;
+                }
+
+                AppLog.LogError(e.ToString());
+                return null;
+            }
             catch (Exception e)
             {
                 AppLog.LogError(e.ToString());
                 return null;
+            }
+        }
+
+        public async Task DeleteAssistantAsync(string assistantId, CancellationToken cancellationToken = default)
+        {
+            if (!_assistants.ContainsKey(assistantId))
+            {
+                return;
+            }
+
+            try
+            {
+                await _aiClient.AssistantsEndpoint.DeleteAssistantAsync(assistantId, cancellationToken);
+                _assistants.Remove(assistantId);
+                if (_threads.ContainsKey(assistantId))
+                {
+                    await _aiClient.ThreadsEndpoint.DeleteThreadAsync(_threads[assistantId].Id, cancellationToken);
+                    _threads.Remove(assistantId);
+                }
+            }
+            catch (RestException e)
+            {
+                if (e.Response.Code == 403)
+                {
+                    AppLog.LogWarning(e.ToString());
+                    return;
+                }
+
+                AppLog.LogError(e.ToString());
+            }
+            catch (Exception e)
+            {
+                AppLog.LogError(e.ToString());
             }
         }
     }
