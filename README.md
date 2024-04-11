@@ -92,6 +92,8 @@ Preview Build status for HoloLens builds: ![example workflow](https://github.com
 
 Preview Build status for Android builds: ![example workflow](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/workflows/linux_develop_workflow.yml/badge.svg?branch=develop)
 
+![monitored by sentry](https://img.shields.io/badge/monitored%20by-sentry-purple)
+
 ## Getting started
 
 1. Install [Unity Hub](https://unity.com/download)
