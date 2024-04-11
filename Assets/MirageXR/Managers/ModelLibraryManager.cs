@@ -1,11 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -28,6 +24,7 @@ namespace MirageXR
         [SerializeField] private GameObject listOfLibrariesTab;
         [SerializeField] private GameObject libraryTab;
         [SerializeField] private Transform libraryContent;
+        [SerializeField] private Transform listOfLibraryContent;
         [SerializeField] private TMP_Text _topLabel;
         [SerializeField] private TMP_InputField _inputSearch;
 
@@ -71,8 +68,7 @@ namespace MirageXR
         {
             SearchLocal();
         }
-
-
+        
         /// <summary>
         /// Enable the category buttons
         /// </summary>
@@ -81,10 +77,9 @@ namespace MirageXR
             _modelEditorView = modelEditorView;
             _inputSearch.onValueChanged.AddListener(OnInputFieldSearchChanged);
             
-            DisableCategoryButtons();
             for (var i = 0; i < items.Length; i++)
             {
-                var categoryButton = Instantiate(items[i], transform);
+                var categoryButton = Instantiate(items[i], listOfLibraryContent);
                 categoryButton.TryGetComponent<Button>(out var button);
 
                 if (button)
@@ -94,9 +89,7 @@ namespace MirageXR
                 }
             }
         }
-
-
-
+        
         public void DisableCategoryButtons()
         {
             //destroy the existing items
@@ -108,7 +101,11 @@ namespace MirageXR
             libraryTab.SetActive(false);
         }
 
-
+        public void CloseLibraryTab()
+        {
+            libraryTab.SetActive(false);
+        }
+        
         private void GenerateLibrary(ModelLibraryCategory selectedCategory)
         {
             foreach (var item in _instantiatedItems)
@@ -137,12 +134,9 @@ namespace MirageXR
                     {
                         libraryListItem.Title.text = "  " + obj.label;
                         libraryListItem.Thumbnail.sprite = obj.sprite;
-                       
-                        var fbxFilePath = AssetDatabase.GetAssetPath(obj.model);
-                        var fileInfo = new FileInfo(fbxFilePath);
-                        var byteSize = fileInfo.Length;
-                        var kilobyteSize = Math.Round(byteSize / 1024f , 1);
-                        libraryListItem.TxtSize.text = "   " + kilobyteSize.ToString(CultureInfo.InvariantCulture) + " Kb";
+
+                        // TODO: get fbx file size
+                        libraryListItem.TxtSize.text = "   "; // + kilobyteSize.ToString(CultureInfo.InvariantCulture) + " Kb";
                         
                         libraryListItem.AddButtonListener(() => _modelEditorView.AddAugmentation(obj.prefabName, true));
                         _instantiatedItems.Add(item);
