@@ -5,7 +5,6 @@ using UnityEngine;
 public class LibraryObject : ScriptableObject
 {
     public Sprite sprite;
-    public Object model;
     public string label;
     public string prefabName;
     public ModelLibraryManager.ModelLibraryCategory category;
