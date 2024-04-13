@@ -11,31 +11,57 @@ using StringReader = System.IO.StringReader;
 
 namespace MirageXR
 {
+    /// <summary>
+    /// Provides AI services such as transcription, conversation, and speech synthesis.
+    /// </summary>
     public class AiServices
     {
+        /// <summary>
+        /// Represents the variable "Options" in the AiServices class.
+        /// </summary>
         public List<OptionsResponse> Options;
+
+        /// <summary>
+        /// Stores the Config for the AI services.
+        /// </summary>
         public AiServicesConfig _config;
+
+        /// <summary>
+        /// Stores the token for the API.
+        /// </summary>
         private TokenResponse _token;
+
+        /// <summary>
+        /// Represents the JSON configuration used by the AiServices class.
+        /// </summary>
         private JsonConfig _jsonConfig;
 
         /// <summary>
         /// Provides multiple Transcription models.
         /// </summary>
-        /// <param name="audioClip"> The audio clip that should be transcribe</param>
-        /// <param name="model"> The Model that should transcribe the audio</param>
-        /// <returns>A String with the result of task or an error if an network error appears</returns>
+        /// <param name="audioClip"> The audio clip that should be transcribed. </param>
+        /// <param name="model"> The model that should transcribe the audio. </param>
+        /// <returns> A String with the result of the task or an error if a network error appears. </returns>
         public async Task<string> Listen(AudioClip audioClip, string model)
         {
-            UnityEngine.Debug.LogError("Speak");
+            UnityEngine.Debug.LogError("Listen");
             var apiURL = _config.AiApiUrl + "/listen/";
-            var audioInBase64String = SaveLoadAudioUtilities.AudioClipToByteArray(audioClip);
-            var fromData = new List<IMultipartFormSection>
+           // var audioBytArray = await SaveLoadAudioUtilities.AudioClipToByteArray(audioClip);
+
+            if (audioClip == null || string.IsNullOrEmpty(model))
+            {
+                UnityEngine.Debug.LogError($"AudioClip or Model is  null! (Model: {model})");
+            }
+
+
+            List <IMultipartFormSection> fromData = new List<IMultipartFormSection>
             {
                 new MultipartFormDataSection("model", model),
-                new MultipartFormFileSection("audio", audioInBase64String),
+                //new MultipartFormFileSection("audio", audioBytArray),
+                new MultipartFormDataSection("dfsdfjk", "dsfsdfkhsdfksdfh"),
             };
             using var webRequest = UnityWebRequest.Post(apiURL, fromData);
-            webRequest.SetRequestHeader("Authorization", _config.AiToken);
+            webRequest.SetRequestHeader("Authorization", $"Token {_config.AiToken}");
             await webRequest.SendWebRequest();
             if (webRequest.result != UnityWebRequest.Result.Success)
             {
@@ -45,7 +71,7 @@ namespace MirageXR
             return webRequest.downloadHandler.text;
         }
 
-        /// <summary> Done!
+        /// <summary>
         /// Processes user input in an LLM.
         /// </summary>
         /// <param name="model">The target model</param>
@@ -73,12 +99,12 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Downloads the available option from the Server.
+        /// Downloads the available options from the server.
         /// </summary>
-        /// <returns>A boolean. True if the operations was successful, falls if it wasn't.</returns>
+        /// <returns>A boolean. True if the operation was successful, false if it wasn't.</returns>
+        /// 
         private async Task<bool> GetOptions()
         {
-            UnityEngine.Debug.LogError("GetOptions");
             var apiURL = _config.AiApiUrl + "/options/";
             var request = UnityWebRequest.Get(apiURL);
             request.SetRequestHeader("Authorization", $"Token {_config.AiToken}");
@@ -88,36 +114,32 @@ namespace MirageXR
                 throw new HttpRequestException($"Error while receiving the token: {request.error}!");
             }
 
-            var r = request.downloadHandler.text;
-            UnityEngine.Debug.LogError(r);
-            var myDeserializedClass = JsonConvert.DeserializeObject<List<OptionsResponse>>(r);
-            UnityEngine.Debug.LogError(myDeserializedClass.ToString());
+            var optionsText = request.downloadHandler.text;
+            var myDeserializedClass = JsonConvert.DeserializeObject<List<OptionsResponse>>(optionsText);
             Options = myDeserializedClass;
             await Think("gpt-3.5-turbo", "Write test", "Write test");
             var audio = await Speak("Hallo andreas", "onyx", "default");
+            var text = await Listen(audio, "whisperOpenAILocal");
+            UnityEngine.Debug.LogError(text);
             return true;
         }
 
         /// <summary>
-        /// Get you a audio based on your text
+        /// Get you an audio based on your text
         /// </summary>
-        /// <param name="speakOut"> That is the text that you want to turn in to an audio</param>
-        /// <param name="voice">The voice that you wan to use. Check options json for legal parameters </param>
-        /// <param name="model">The model that use. Check options json for legal parameters</param>
-        /// <param name="onSuccess">Function that get invoke onSuccess</param>
-        /// <param name="onError">Well if it dosed work, we do this. </param>
-        /// <returns><placeholder>A <see cref="Tasks.Task"/> representing the asynchronous operation.</placeholder></returns>
+        /// <param name="speakOut">The text that you want to turn into an audio</param>
+        /// <param name="voice">The voice that you want to use. Check options json for legal parameters </param>
+        /// <param name="model">The model that you use. Check options json for legal parameters</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation. The task will return an <see cref="AudioClip"/>.</returns>
         public async Task<AudioClip> Speak(string speakOut, string voice, string model)
         {
-            UnityEngine.Debug.LogError("Speak");
             var apiURL = _config.AiApiUrl + "/speak/";
-            using var webRequest = UnityWebRequestMultimedia.GetAudioClip(apiURL, AudioType.UNKNOWN);
+            using var webRequest = UnityWebRequestMultimedia.GetAudioClip(apiURL, AudioType.MPEG);
             webRequest.SetRequestHeader("Authorization", "Token " + _config.AiToken);
             webRequest.SetRequestHeader("speakOut", speakOut);
             webRequest.SetRequestHeader("voice", voice);
             webRequest.SetRequestHeader("model", model);
             await webRequest.SendWebRequest();
-            UnityEngine.Debug.LogError("Send Speak request");
             if (webRequest.result != UnityWebRequest.Result.Success)
             {
                 throw new HttpRequestException($"Error while receiving the result of the Speak endpoint: {webRequest.error} {webRequest.result}");
@@ -130,104 +152,108 @@ namespace MirageXR
         /// <summary>
         /// Loads the config and set everything up.
         /// </summary>
-        /// <returns> A Config object</returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation. It returns a <see cref="AiServicesConfig"/> object.</returns>
         public async Task<AiServicesConfig> ReadConfig()
         {
-            const string configFileName = "MirageXRConfig.txt";
+            const string miragexrFileName = "MirageXRConfig";
+            const string aiServicesFileName = "aiServices";
             const string apiURLKey = "AI_API_URL";
             const string usernameKey = "AI_USERNAME";
             const string passwordKey = "AI_PASSWORD";
             const string apiPort = ":8000";
-            //var filepath = Path.Combine(Application.streamingAssetsPath, "MirageXRConfig.txt");
-            var filepath = Path.Combine(Application.streamingAssetsPath, "config.json");
+            var filepath = Resources.Load(miragexrFileName) as TextAsset; //Path.Combine(Application.streamingAssetsPath, "MirageXRConfig.txt");
+            //var filepath = Path.Combine(Application.streamingAssetsPath, "config.json");
             string apiURL = null;
             string username = null;
             string password = null;
             string token = null;
-            if (!File.Exists(filepath))
+            if (filepath == null)
             {
-                UnityEngine.Debug.LogError($"Failed to load config file: {configFileName}");
+                UnityEngine.Debug.LogError($"Failed to load config file: {miragexrFileName}");
             }
-            //if (File.Exists(filepath))
-            //{
-            //    var configText = await File.ReadAllTextAsync(filepath);
-            //    using var sr = new StringReader(configText);
-            //    while (await sr.ReadLineAsync() is { } line)
-            //    {
-            //        var parts = line.Split('=', ':');
-            //        if (parts.Length == 2)
-            //        {
-            //           switch (parts[0].ToUpper())
-            //            {
-            //                case apiURLKey:
-            //                    apiURL = parts[1].Trim();
-            //                    break;
-            //                case usernameKey:
-            //                    username = parts[1].Trim();
-            //                    break;
-            //                case passwordKey:
-            //                    password = parts[1].Trim();
-            //                    break;
-            //            }
-            //        }
-            //    }
-            //
-            // if (apiURL == null)
-            // {
-            //    UnityEngine.Debug.LogError("apiURL is null");
-            // }
-            // }
+            if (filepath != null)
+            {
+                using var sr = new StringReader(filepath.text);
+                while (await sr.ReadLineAsync() is { } line)
+                {
+                    var parts = line.Split('=', ':');
+                    if (parts.Length == 2)
+                    {
+                        if (parts[0].ToUpper() == apiURLKey)
+                        {
+                            apiURL = parts[1].Trim();
+                        }
+                    }
+                }
+            }
+            filepath = Resources.Load(miragexrFileName) as TextAsset; 
+            if (filepath != null)
+            {
+                using var sr = new StringReader(filepath.text);
+                while (await sr.ReadLineAsync() is { } line)
+                {
+                    var parts = line.Split('=', ':');
+                    if (parts.Length == 2)
+                    {
+                        switch (parts[0].ToUpper())
+                        {
+                            case usernameKey:
+                                username = parts[1].Trim();
+                                break;
+                            case passwordKey:
+                                password = parts[1].Trim();
+                                break;
+                        }
+                    }
+                }
+            }
+            UnityEngine.Debug.LogError(apiURL + username +password);
+            if (apiURL == null)
+            {
+                UnityEngine.Debug.LogError("apiURL is null");
+                throw new InvalidOperationException();
+            }
 
-            if (File.Exists(filepath))
+            if (apiURL != null)
             {
-                UnityEngine.Debug.LogError("1");
-                var configJson = await File.ReadAllTextAsync(filepath);
-                var config = JsonUtility.FromJson<JsonConfig>(configJson);
-                apiURL = config.AiApiUrl;
-                username = config.AiUsername;
-                password = config.AiPassword;
+                apiURL = "http://" + apiURL + apiPort; //@todo Need to be updated!
+                token = await AuthenticateUser(apiURL, username, password);
+                if (apiURL == null || username == null || password == null || token == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Can't find a parameter for the AI Serves configuration -> " +
+                        $"Path = {miragexrFileName}, " +
+                        $"API_URL = {apiURL}," +
+                        $"Username = {username}," +
+                        $"Password = {password}," +
+                        $"Token = {token}");
+                }
+                _config = new AiServicesConfig(apiURL, username, password);
+                _config.SetToken(token);
             }
-            apiURL = "http://" + apiURL + apiPort; //Need to be updated! @todo...
-            token = await AuthenticateUser(apiURL, username, password);
-            UnityEngine.Debug.LogError("2");
-            if (apiURL == null || username == null || password == null || token == null)
-            {
-                throw new InvalidOperationException(
-                    $"Can't find a parameter for the AI Serves configuration -> " +
-                    $"Path = {configFileName}, " +
-                    $"API_URL = {apiURL}," +
-                    $"Username = {username}," +
-                    $"Password = {password}," +
-                    $"Token = {token}");
-            }
-            UnityEngine.Debug.LogError(apiURL+ username+ password);
-            var r = new AiServicesConfig(apiURL, username, password);
-            r.SetToken(token);
-            _config = r;
-            UnityEngine.Debug.LogError("Config is done with " + _config.AiToken + _config.AiApiUrl + _config.AiPassword + _config.AiUsername);
             var options = await GetOptions();
             if (options)
             {
-                return r;
+                return _config;
             }
             UnityEngine.Debug.LogError("Configuration of the AI Services failed! Unable to load the options!");
             throw new InvalidOperationException();
         }
 
-        /// <summary> DONE!
-        /// Get the token
+        /// <summary>
+        /// Authenticates the user and returns a token.
         /// </summary>
-        /// <param name="apiURL"> URL of the Server</param>
-        /// <param name="user"> Username</param>
-        /// <param name="pass"> Password</param>
-        /// <returns>The token as struct</returns>
-        private static async Task<string> AuthenticateUser(string apiURL, string user, string pass)
+        /// <param name="apiURL">URL of the server</param>
+        /// <param name="user">Username</param>
+        /// <param name="password">Password</param>
+        /// <returns>The authentication token</returns>
+        private static async Task<string> AuthenticateUser(string apiURL, string user, string password)
         {
             apiURL += "/authentication/";
             var formData = new List<IMultipartFormSection>
             {
                 new MultipartFormDataSection("username", user),
-                new MultipartFormDataSection("password", pass),
+                new MultipartFormDataSection("password", password),
             };
             var request = UnityWebRequest.Post(apiURL, formData);
             await request.SendWebRequest();
@@ -235,25 +261,28 @@ namespace MirageXR
             {
                 throw new HttpRequestException($"Error while receiving the token: {request.error}!");
             }
-            var r = request.downloadHandler.text;
-            if (r.Length < 13)
+            var text = request.downloadHandler.text;
+            if (text.Length < 13)
             {
-                throw new HttpRequestException($"Error while receiving the token! Got ' {r} 'and that is too short!");
+                throw new HttpRequestException($"Error while receiving the token! Got ' {text} 'and that is too short!");
             }
-            r = r.Substring(10, r.Length - 10 - 2);
-            return r;
+            text = text.Substring(10, text.Length - 10 - 2);
+            return text;
         }
 
         /// <summary>
-        /// Stores the Toke for the API
+        /// Struct that stores the token for the API.
         /// </summary>
         private readonly struct TokenResponse // still needed? @todo..
         {
-            public TokenResponse(string t)
+            public TokenResponse(string inputToken)
             {
-                token = t;
+                token = inputToken;
             }
 
+            /// <summary>
+            /// Stores the Token for the API.
+            /// </summary>
             public string token { get; }
         }
 
@@ -262,11 +291,29 @@ namespace MirageXR
         /// </summary>
         public struct AiServicesConfig
         {
+            /// <summary>
+            /// The URL of the AI API.
+            /// </summary>
             public string AiApiUrl;
+
+            /// <summary>
+            /// The username for the AI services.
+            /// </summary>
             public string AiUsername;
+
+            /// <summary>
+            /// Represents the password for accessing the AI services.
+            /// </summary>
             public string AiPassword;
+
+            /// <summary>
+            /// Represents the AI Token used for authorization in AiServices.
+            /// </summary>
             public string AiToken;
 
+            /// <summary>
+            /// Represents the configuration for AI services.
+            /// </summary>
             public AiServicesConfig(string apiURL, string username, string password)
             {
                 AiApiUrl = apiURL;
@@ -275,6 +322,10 @@ namespace MirageXR
                 AiToken = null;
             }
 
+            /// <summary>
+            /// Sets the authentication token in the AiServicesConfig struct.
+            /// </summary>
+            /// <param name="token">The authentication token to be set</param>
             public void SetToken(string token)
             {
                 AiToken = token;
@@ -282,53 +333,147 @@ namespace MirageXR
         }
     }
 
+    /// <summary>
+    /// Represents a response object for options received from the server.
+    /// </summary>
     public class OptionsResponse
     {
+        /// <summary>
+        /// Gets or sets the name of the property.
+        /// </summary>
         public string name { get; set; }
 
+        /// <summary>
+        /// Provides AI services such as listening, thinking, and speaking.
+        /// </summary>
         public List<string> models { get; set; }
     }
 
+    /// <summary>
+    /// Represents the configuration parameters for the JsonConfig class.
+    /// This class stores various configuration settings for the application.
+    /// </summary>
     public class JsonConfig
     {
+        /// <summary>
+        /// The name of the property holding the company name.
+        /// </summary>
         public string CompanyName { get; set; }
 
+        /// <summary>
+        /// Represents the product name.
+        /// </summary>
         public string ProductName { get; set; }
 
+        /// <summary>
+        /// Represents the URL associated with the Moodle server.
+        /// </summary>
+        /// <value>
+        /// The URL of the Moodle server.
+        /// </value>
         public string MoodleUrl { get; set; }
 
+        /// <summary>
+        /// Represents the URL for the X API.
+        /// </summary>
         public string XApiUrl { get; set; }
 
+        /// <summary>
+        /// Provides information about the version of the software.
+        /// </summary>
+        /// <remarks>
+        /// The Version property is a string that represents the version of the software.
+        /// It is included in the JsonConfig object, which is used to store the configuration settings for the application.
+        /// The value of the Version property can be accessed and modified as needed.
+        /// </remarks>
         public string Version { get; set; }
 
+        /// <summary>
+        /// Represents the configuration for the splash screen of the application.
+        /// </summary>
         public string SplashScreen { get; set; }
 
+        /// *Name**: `Logo`
+        /// *Type**: `string`
+        /// *Access Modifier**: `public`
         public string Logo { get; set; }
 
+        /// Represents the background color of the splash screen.
+        /// This property is a part of the `JsonConfig` class, which is used for configuring various settings of the application.
+        /// The `SplashBackgroundColor` property defines the background color of the splash screen displayed when the application starts up.
+        /// It can be set to any valid color value.
+        /// Example usage:
+        /// ```csharp
+        /// JsonConfig config = new JsonConfig();
+        /// config.SplashBackgroundColor = "#FF0000"; // Set the splash screen background color to red
+        /// ```
+        /// /
         public string SplashBackgroundColor { get; set; }
 
+        /// <summary>
+        /// Represents the primary color property for the application.
+        /// </summary>
         public string PrimaryColor { get; set; }
 
+        /// <summary>
+        /// Gets or sets the secondary color for the application.
+        /// </summary>
+        /// <value>
+        /// The secondary color specified in the JSON configuration file.
+        /// </value>
         public string SecondaryColor { get; set; }
 
+        /// <summary>
+        /// Gets or sets the color of the text.
+        /// </summary>
         public string TextColor { get; set; }
 
+        /// <summary>
+        /// The color of the icon.
+        /// </summary>
         public string IconColor { get; set; }
 
+        /// <summary>
+        /// Represents the color configuration for the task station.
+        /// </summary>
         public string TaskStationColor { get; set; }
 
+        /// <summary>
+        /// The color of the path in the application.
+        /// </summary>
         public string PathColor { get; set; }
 
+        /// <summary>
+        /// Gets or sets the color of the next path.
+        /// </summary>
+        /// <value>
+        /// The color of the next path.
+        /// </value>
         public string NextPathColor { get; set; }
 
+        /// <summary>
+        /// Represents a calibration marker for the application.
+        /// </summary>
         public string CalibrationMarker { get; set; }
 
+        /// <summary>
+        /// Represents a class for working with PDF calibration markers.
+        /// </summary>
         public string PdfCalibrationMarker { get; set; }
 
+        /// <summary>
+        /// The URL of the AI API.
+        /// </summary>
         public string AiApiUrl { get; set; }
 
+        /// <summary>
+        /// The username used for authentication with the AI services.
+        /// </summary>
         public string AiUsername { get; set; }
 
+        /// <summary>
+        /// Represents the password property for the AiServicesConfig class.
+        /// </summary>
         public string AiPassword { get; set; }
     }
 }
