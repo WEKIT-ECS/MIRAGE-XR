@@ -39,6 +39,7 @@ namespace MirageXR
             switch (deviceFormat)
             {
                 case DeviceFormat.Phone:
+                    SetupCameraPipeline();
                     await SetupViewForPortrait();
                     break;
                 case DeviceFormat.Tablet:

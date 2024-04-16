@@ -64,7 +64,6 @@ public class RootView_v2 : BaseView
 
     private async void Start()
     {
-        _viewCamera.SetupCameraPipeline();
         await _viewCamera.SetupFormat(PlatformManager.GetDeviceFormat());
         Initialization(null);
         EventManager.OnEditModeChanged += EditModeChangedForHelp;
