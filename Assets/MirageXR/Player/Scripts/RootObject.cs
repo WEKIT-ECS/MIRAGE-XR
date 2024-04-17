@@ -8,6 +8,7 @@ namespace MirageXR
     {
         public static RootObject Instance { get; private set; }
 
+        [SerializeField] private Camera _baseCamera;
         [SerializeField] private ImageTargetManagerWrapper _imageTargetManager;
         [SerializeField] private CalibrationManager _calibrationManager;
         [SerializeField] private FloorManagerWrapper _floorManager;
@@ -25,6 +26,8 @@ namespace MirageXR
         private EditorSceneService _editorSceneService;
         private WorkplaceManager _workplaceManager;
         private OpenAIManager _openAIManager;
+
+        public Camera baseCamera => _baseCamera;
 
         public ImageTargetManagerWrapper imageTargetManager => _imageTargetManager;
 
@@ -95,6 +98,7 @@ namespace MirageXR
 
             try
             {
+                _baseCamera ??= Camera.main;
                 _brandManager ??= new GameObject("BrandManager").AddComponent<BrandManager>();
                 _imageTargetManager ??= new GameObject("ImageTargetManagerWrapper").AddComponent<ImageTargetManagerWrapper>();
                 _calibrationManager ??= new GameObject("CalibrationManager").AddComponent<CalibrationManager>();
