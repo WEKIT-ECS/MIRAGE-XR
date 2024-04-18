@@ -23,9 +23,6 @@ public class AudioEditorView : PopupEditorBase
 
     private float _currentRangeValue;
 
-    private string _serviceUrl;
-    private string _iamApikey;
-
     public override ContentType editorForType => ContentType.AUDIO;
 
     [SerializeField] private Button _btnAudioSettings;
@@ -83,7 +80,9 @@ public class AudioEditorView : PopupEditorBase
     [SerializeField] private GameObject _arrowUp;
     [Space]
     [SerializeField] private AudioSource _audioSource;
-
+    [SerializeField] private AudioCaptionEdit _audioCaptionEdit;
+    private string _serviceUrl;
+    private string _iamApikey;
     private AudioClip _audioClip;
     private string _fileName;
     private Coroutine _updateSliderPlayerCoroutine;
@@ -96,10 +95,9 @@ public class AudioEditorView : PopupEditorBase
     //string captions 
     private string _audioCaption = string.Empty;
 
-    [SerializeField] private AudioCaptionEdit _audioCaptionEdit;
-
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
+        //Loading IBM Watson keys
         LoadKeysFromEnvFile(out var apiKey, out var serviceUrl);
 
         if (apiKey == null)
@@ -116,11 +114,6 @@ public class AudioEditorView : PopupEditorBase
 
         _iamApikey = apiKey;
         _serviceUrl = serviceUrl;
-        Debug.Log("API Key: " + _iamApikey);
-        Debug.Log("URL: " + _serviceUrl);
-
-
-
 
         _showBackground = false;
         base.Initialization(onClose, args);
@@ -686,6 +679,8 @@ public class AudioEditorView : PopupEditorBase
             return "No audio file available";
         }
     }*/
+    
+    //Saving and returning the temporary path
     public string SaveAndReturnAudioClipPath()
     {
         if (_audioClip != null)
