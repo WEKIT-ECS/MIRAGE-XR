@@ -12,19 +12,17 @@ using System.IO;
 using UnityEngine.UI;
 
 public class AudioCaptionGenerator : MonoBehaviour
-{
-    private string _serviceUrl;
-    private string _iamApikey;
+{ 
     [SerializeField] private TMP_Text transcribedSpeech;
-   // [SerializeField] private Button convertAudioToTextButton;
     
     [SerializeField] private GameObject _spinner;
-    // Make sure you have a reference to the AudioEditorView
     [SerializeField] private AudioEditorView _audioEditView;
 
     private SpeechToTextService speechToText;
     private string soundPath;
     private string text = string.Empty;
+    private string _serviceUrl;
+    private string _iamApikey;
 
     private AudioSource audioSource;
     byte[] audioBytes;
@@ -43,9 +41,7 @@ public class AudioCaptionGenerator : MonoBehaviour
         {
             string audioFileName = _audioEditView.SaveAndReturnAudioClipPath();
             soundPath = Path.Combine(audioFileName);
-            //convertAudioToTextButton.onClick.AddListener(delegate { 
             StartCoroutine(ConvertAudioFileToText(soundPath)); 
-            //});
         }
     }
 

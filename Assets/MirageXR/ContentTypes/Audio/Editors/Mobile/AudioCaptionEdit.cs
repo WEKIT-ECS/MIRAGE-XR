@@ -75,7 +75,6 @@ public class AudioCaptionEdit : MonoBehaviour
 
     public string EditedCaption()
     {
-        //"Hello this is caption testing now"
         if (_captionEditText != null) 
         {
             text = _captionEditText.text;
