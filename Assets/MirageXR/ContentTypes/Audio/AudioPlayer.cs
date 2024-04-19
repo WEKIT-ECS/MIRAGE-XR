@@ -25,24 +25,19 @@ namespace MirageXR
         [SerializeField] private Sprite iconSprite;
         [SerializeField] private TMP_Text _captionText;
         [SerializeField] private GameObject _captionObj;
-        public Sprite IconSprite => iconSprite;
-
         [SerializeField] private Sprite pauseIcon;
-
         [SerializeField] private SpriteRenderer iconImage;
+        
+        public Sprite IconSprite => iconSprite;
         public SpriteRenderer IconImage => iconImage;
-
         public string AudioSpatialType { get; private set; }
-
         public DialogRecorder DialogRecorderPanel { get; set; }
 
         private bool isReady = false;
         private bool isPlaying = false;
 
         private ToggleObject _obj;
-
         public ToggleObject MyAnnotation => _obj;
-
         private GameObject _contentObject;
 
         private void Awake()
@@ -111,34 +106,53 @@ namespace MirageXR
             StartCoroutine(DisplayCaptionWithDelay(caption));
         }
 
-private IEnumerator DisplayCaptionWithDelay(string fullCaption)
-{
-    // Split the full caption into words
-    string[] words = fullCaption.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        private IEnumerator DisplayCaptionWithDelay(string fullCaption)
+        {
+            // Split the full caption into words
+            string[] words = fullCaption.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            // number of words after split
+            int check = words.Length;
 
-    // Calculate the number of sections
-    int numberOfWords = 12;
-    int numberOfSections = (int)Math.Ceiling((double)words.Length / numberOfWords);
+            // Determine the number of words to display per section
+            int numberOfWords = 12;
 
-    for (int i = 0; i < numberOfSections; i++)
-    {
-        // Get the words for the current section
-        string[] sectionWords = words.Skip(i * numberOfWords).Take(numberOfWords).ToArray();
+            if (check <= numberOfWords)
+            {
+                // If the total number of words is less than or equal to numberOfWords, display all at once
+                string allWords = string.Join(" ", words);
+                _captionText.text = allWords.Trim();
+                _captionObj.SetActive(true);
 
-        // Join the words back into a string
-        string sectionText = string.Join(" ", sectionWords);
+                // Wait for a time before hiding the caption object
+                yield return new WaitForSeconds(4);
+                _captionObj.SetActive(false);
+            }
+            else
+            {
+                // Calculate the number of sections
+                int numberOfSections = (int)Math.Ceiling((double)check / numberOfWords);
 
-        // Display the text section
-        _captionText.text = sectionText.Trim();
-        _captionObj.SetActive(true);
+                for (int i = 0; i < numberOfSections; i++)
+                {
+                    // Get the words for the current section
+                    string[] sectionWords = words.Skip(i * numberOfWords).Take(numberOfWords).ToArray();
 
-        // Wait for 4 seconds before moving to the next section
-        yield return new WaitForSeconds(4);
-    }
+                    // Join the words back into a string
+                    string sectionText = string.Join(" ", sectionWords);
 
-    // Optionally hide or clear the caption object after all sections have been displayed
-    _captionObj.SetActive(false); // Or _captionText.text = string.Empty; to clear the text
-}
+                    // Display the text section
+                    _captionText.text = sectionText.Trim();
+                    _captionObj.SetActive(true);
+
+                    // Wait for 4 seconds before moving to the next section
+                    yield return new WaitForSeconds(4);
+                }
+
+                // hide the caption object after all sections have been displayed
+                _captionObj.SetActive(false); 
+            }
+        }
+
 
 
         private void Update()

@@ -18,7 +18,6 @@ public class AudioEditorView : PopupEditorBase
     private const float REWIND_VALUE = 10f;
     private const float HIDED_SIZE = 100f;
     private const float HIDE_ANIMATION_TIME = 0.5f;
-
     private const string AUDIO_FILE_EXTENSION = "wav";
 
     private float _currentRangeValue;
@@ -36,7 +35,6 @@ public class AudioEditorView : PopupEditorBase
     [SerializeField] private Button _btnPause;
     [SerializeField] private Button _btnRewindBack;
     [SerializeField] private Button _btnRewindForward;
-
     [SerializeField] private Button _btnGenerateCaptions;
     
     [SerializeField] private Toggle _toggle3D;
@@ -81,6 +79,7 @@ public class AudioEditorView : PopupEditorBase
     [Space]
     [SerializeField] private AudioSource _audioSource;
     [SerializeField] private AudioCaptionEdit _audioCaptionEdit;
+
     private string _serviceUrl;
     private string _iamApikey;
     private AudioClip _audioClip;
@@ -229,16 +228,14 @@ public class AudioEditorView : PopupEditorBase
             }
         }
     }
+    // returning IBM Watson API key
     public string _iamApikey_()
-    {
-
-       
+    {       
         return _iamApikey;
-        
     }
+    // returning IBM Watson url
     public string _serviceUrl_()
     {
-        
         return _serviceUrl;
     }
     private void InitClampedScrollRect(ClampedScrollRect clampedScrollRect, GameObject templatePrefab, int maxCount, string text)
@@ -554,7 +551,7 @@ public class AudioEditorView : PopupEditorBase
         Debug.Log("Permission result: " + permission);
     }
 
-        private  IEnumerator LoadAudioClip(string path)
+    private  IEnumerator LoadAudioClip(string path)
     {
         var correctedPath = "file://" + path;
         using (WWW www = new WWW(correctedPath))
@@ -653,32 +650,13 @@ public class AudioEditorView : PopupEditorBase
         _objJumpToStep.SetActive(value);
     }
 
-    private string GetFilePath()
-{
-    return Path.Combine(activityManager.ActivityPath, _fileName);
-}
-
+    //The Method is called when generate caption button is pressed
     private void OnClickCaptionGenerate()
-    {
-        
+    { 
         _generateCaption.SetActive(true);
         _panelMain.SetActive(false);
         _panelCaptionPreview.SetActive(true);
-        
     }
-    /*public string AudioFileName()
-    {
-        // Checks if the _fileName is not null or empty, indicating an audio file exists.
-        if (!string.IsNullOrEmpty(_fileName))
-        {
-            return _fileName;
-        }
-        else
-        {
-            // Returns a default or error message if no audio file name is set.
-            return "No audio file available";
-        }
-    }*/
     
     //Saving and returning the temporary path
     public string SaveAndReturnAudioClipPath()
@@ -695,5 +673,4 @@ public class AudioEditorView : PopupEditorBase
             return null;
         }
     }
-
 }
