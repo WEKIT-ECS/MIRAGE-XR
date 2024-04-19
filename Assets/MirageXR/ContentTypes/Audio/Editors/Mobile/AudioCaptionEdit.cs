@@ -23,29 +23,29 @@ public class AudioCaptionEdit : MonoBehaviour
         // Ensure all objects are properly assigned in the Unity Inspector
         if (_panelCaptionPreview == null )
         {
-            Debug.LogError("_panelCaptionPreview");
+            Debug.LogError("_panelCaptionPreview is not assigned ");
             return; // Early exit to prevent accessing null references
         }if (_panelMain == null )
         {
-            Debug.LogError("_panelMain");
+            Debug.LogError("_panelMain  is not assigned ");
             return; // Early exit to prevent accessing null references
         }if (_btnBackPreview == null )
         {
-            Debug.LogError("_btnBackPreview.");
+            Debug.LogError("_btnBackPreview  is not assigned ");
             return; // Early exit to prevent accessing null references
         }
         if (_btnDoneEditing == null )
         {
-        Debug.LogError("_btnDoneEditing.");
+        Debug.LogError("_btnDoneEditing  is not assigned ");
             return; // Early exit to prevent accessing null references
         }
-    if (_captionEditText == null )
+        if (_captionEditText == null )
         {
-            Debug.LogError("_captionEditText");
+            Debug.LogError("_captionEditText  is not assigned ");
             return; // Early exit to prevent accessing null references
         }if ( audioCaptionPreview == null)
         {
-            Debug.LogError("audioCaptionPreview.");
+            Debug.LogError("audioCaptionPreview  is not assigned ");
             return; // Early exit to prevent accessing null references
         }
 
@@ -59,7 +59,8 @@ public class AudioCaptionEdit : MonoBehaviour
         _captionEditText.text = audioCaptionPreview.Captions();
     }
 
-    // Update is called once per frame
+    //When the back button from caption preview is clicked!
+    //Hide the editing panel and show the preview panel
     private void OnClickBackPreview()
     {   
         _panelCaptionEdit.SetActive(false);
@@ -67,12 +68,15 @@ public class AudioCaptionEdit : MonoBehaviour
         
     }    
 
+    //When caption editing is complete
+    //Hide the editing panel and show the main panel
     private void doneEditing()
     {
         _panelCaptionEdit.SetActive(false);
         _panelMain.SetActive(true);
     }
 
+    // This method retrieves and returns the edited caption text
     public string EditedCaption()
     {
         if (_captionEditText != null) 

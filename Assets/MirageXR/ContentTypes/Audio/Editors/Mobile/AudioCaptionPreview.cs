@@ -37,6 +37,7 @@ public class AudioCaptionPreview : MonoBehaviour
         _panelCaptionPreview.SetActive(false);
     }
 
+    //Returns the caption text
     public string Captions() 
     {
         return _captionTextPreview.text;
