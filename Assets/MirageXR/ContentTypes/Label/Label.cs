@@ -1,4 +1,5 @@
-﻿using Microsoft.MixedReality.Toolkit.UI;
+﻿using System.Globalization;
+using Microsoft.MixedReality.Toolkit.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -123,7 +124,7 @@ namespace MirageXR
         private Color GetColorFromString(string rgb)
         {
             string[] rgba = rgb.Substring(5, rgb.Length - 6).Split(", ");
-            Color color = new Color(float.Parse(rgba[0]), float.Parse(rgba[1]), float.Parse(rgba[2]), float.Parse(rgba[3]));
+            Color color = new Color(float.Parse(rgba[0], CultureInfo.InvariantCulture), float.Parse(rgba[1], CultureInfo.InvariantCulture), float.Parse(rgba[2], CultureInfo.InvariantCulture), float.Parse(rgba[3], CultureInfo.InvariantCulture));
 
             return color;
         }
