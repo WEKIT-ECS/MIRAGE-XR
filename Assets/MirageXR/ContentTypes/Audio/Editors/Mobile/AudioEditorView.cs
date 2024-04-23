@@ -19,8 +19,7 @@ public class AudioEditorView : PopupEditorBase
     private const float HIDED_SIZE = 100f;
     private const float HIDE_ANIMATION_TIME = 0.5f;
 
-    private const string AUDIO_FILE_EXTENSION_WAV = "wav";
-    private const string AUDIO_FILE_EXTENSION_MP3 = "mp3";
+    private const string AUDIO_FILE_EXTENSION = "wav";
 
     private float _currentRangeValue;
 
@@ -80,7 +79,7 @@ public class AudioEditorView : PopupEditorBase
     private Coroutine _updateRecordTimerCoroutine;
     private float _recordStartTime;
     private int _scrollRectStep;
-    private string[] _audioFileType;
+    private string _audioFileType;
 
     private string _inputTriggerStepNumber = string.Empty;
 
@@ -125,9 +124,7 @@ public class AudioEditorView : PopupEditorBase
 
         _toggle3D.onValueChanged.AddListener(On3DSelected);
         
-        _audioFileType = new string[] { NativeFilePicker.ConvertExtensionToFileType(AUDIO_FILE_EXTENSION_WAV),
-            NativeFilePicker.ConvertExtensionToFileType(AUDIO_FILE_EXTENSION_MP3) };
-        
+        _audioFileType = NativeFilePicker.ConvertExtensionToFileType(AUDIO_FILE_EXTENSION);
 
         var steps = activityManager.ActionsOfTypeAction;
         var stepsCount = steps.Count;
@@ -470,7 +467,7 @@ public class AudioEditorView : PopupEditorBase
                     Debug.Log("Picked file: " + path);
                     StartCoroutine(LoadAudioClip(path));
                 }
-            }, _audioFileType );
+            }, new string[] { _audioFileType });
         Debug.Log("Permission result: " + permission);
     }
     
@@ -487,13 +484,7 @@ public class AudioEditorView : PopupEditorBase
             }
             else
             {
-                AudioType myAudioType = AudioType.WAV;
-                if (Path.GetExtension(path).ToLower() == ".mp3")
-                {
-                    myAudioType = AudioType.MPEG;
-                }
-                Debug.Log("File format: " + myAudioType);
-                _audioClip = www.GetAudioClip(false, false, myAudioType);
+                _audioClip = www.GetAudioClip(false, false, AudioType.WAV);
                 
                 _recordStartTime = 0;
                 SetPlayerActive(true);
