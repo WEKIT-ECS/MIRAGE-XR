@@ -610,6 +610,7 @@ public class AudioEditorView : PopupEditorBase
         _audioCaption = _audioCaptionEdit.EditedCaption();
         _content.caption = _audioCaption;
         Debug.Log("This is the caption stored" + _audioCaption);
+        
         if (_toggleTrigger.isOn)
         {
             _step.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, _content.poi, _audioClip.length, _inputTriggerStepNumber);
