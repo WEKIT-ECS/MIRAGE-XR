@@ -22,6 +22,11 @@ public class VirtualInstructorView : PopupEditorBase
     [SerializeField] private Transform _contentContainer;
     [SerializeField] private CharacterListItem _characterListItemPrefab;
     [SerializeField] private CharacterObject[] _characterObjects;
+    [Space] 
+    [SerializeField] private GameObject _settingsPanel;
+    [SerializeField] private GameObject _togglePanel;
+    [SerializeField] private GameObject _tabsPanel;
+    
 
     private string _prefabName;
     public override ContentType editorForType => ContentType.VIRTUALINSTRUCTOR; 
@@ -34,6 +39,9 @@ public class VirtualInstructorView : PopupEditorBase
         
         _btnArrow.onClick.AddListener(OnArrowButtonPressed);
 
+        _settingsPanel.SetActive(false);
+        _togglePanel.SetActive(true);
+        _tabsPanel.SetActive(true);
         RootView_v2.Instance.HideBaseView();
     }
     
@@ -86,7 +94,14 @@ public class VirtualInstructorView : PopupEditorBase
     private void OnAccept(string prefabName)
     {
         _prefabName = prefabName;
-        OnAccept();
+        OpenSettingsPanel();
+    }
+
+    private void OpenSettingsPanel()
+    {
+        _settingsPanel.SetActive(true);
+        _togglePanel.SetActive(false);
+        _tabsPanel.SetActive(false);
     }
 
     protected override void OnAccept()
