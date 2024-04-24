@@ -100,10 +100,5 @@ namespace MirageXR
 
             return ActionId.Equals(actions[index + 1].id);
         }
-
-        public void ToggleVisibility()
-        {
-            taskStationRenderer.enabled = !taskStationRenderer.enabled;
-        }
     }
 }
