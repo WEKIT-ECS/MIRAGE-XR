@@ -26,7 +26,13 @@ public class VirtualInstructorView : PopupEditorBase
     [SerializeField] private GameObject _settingsPanel;
     [SerializeField] private GameObject _togglePanel;
     [SerializeField] private GameObject _tabsPanel;
-    
+    [Space]
+    [SerializeField] private Toggle _toggleMyCharacters;
+    [SerializeField] private Toggle _toggleLibrary;
+    [Header("Tabs")] 
+    [SerializeField] private GameObject _charactersTab;
+    [SerializeField] private GameObject _libraryTab;
+
 
     private string _prefabName;
     public override ContentType editorForType => ContentType.VIRTUALINSTRUCTOR; 
@@ -38,6 +44,8 @@ public class VirtualInstructorView : PopupEditorBase
         UpdateView();
         
         _btnArrow.onClick.AddListener(OnArrowButtonPressed);
+        _toggleMyCharacters.onValueChanged.AddListener(OnToggleMyCharactersValueChanged);
+        _toggleLibrary.onValueChanged.AddListener(OnToggleLibrariesValueChanged);
 
         _settingsPanel.SetActive(false);
         _togglePanel.SetActive(true);
@@ -140,9 +148,29 @@ public class VirtualInstructorView : PopupEditorBase
         }
     }
     
+    private void OnToggleLibrariesValueChanged(bool value)
+    {
+        if (value)
+        {
+            _charactersTab.SetActive(false);
+            _libraryTab.SetActive(true);
+        }
+    }
+    
+    private void OnToggleMyCharactersValueChanged(bool value)
+    {
+        if (value)
+        {
+            _charactersTab.SetActive(true);
+            _libraryTab.SetActive(false);
+        }
+    }
+    
     private void OnDestroy()
     {
         RootView_v2.Instance.ShowBaseView();
+        _toggleMyCharacters.onValueChanged.RemoveAllListeners();
+        _toggleLibrary.onValueChanged.RemoveAllListeners();
     }
 
 }
