@@ -25,11 +25,13 @@ public class AudioCaptionEdit : MonoBehaviour
         {
             Debug.LogError("_panelCaptionPreview is not assigned ");
             return; // Early exit to prevent accessing null references
-        }if (_panelMain == null )
+        }
+        if (_panelMain == null )
         {
             Debug.LogError("_panelMain  is not assigned ");
             return; // Early exit to prevent accessing null references
-        }if (_btnBackPreview == null )
+        }
+        if (_btnBackPreview == null )
         {
             Debug.LogError("_btnBackPreview  is not assigned ");
             return; // Early exit to prevent accessing null references
