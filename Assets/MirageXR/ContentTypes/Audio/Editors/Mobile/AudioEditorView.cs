@@ -229,7 +229,7 @@ public class AudioEditorView : PopupEditorBase
         }
     }
     // returning IBM Watson API key
-    public string _iamApikey_()
+    public string GetApiKey()
     {       
         return _iamApikey;
     }
