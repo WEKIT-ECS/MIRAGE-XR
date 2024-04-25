@@ -192,6 +192,7 @@ public class AudioEditorView : PopupEditorBase
         UpdateSliderPlayerAndTimer();
         RootView_v2.Instance.HideBaseView();
     }
+
     private static void LoadKeysFromEnvFile(out string apiKey, out string serviceUrl)
     {
         const string ibmFileName = "caption-ibm-credentials";
