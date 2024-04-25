@@ -238,6 +238,7 @@ public class AudioEditorView : PopupEditorBase
     {
         return _serviceUrl;
     }
+
     private void InitClampedScrollRect(ClampedScrollRect clampedScrollRect, GameObject templatePrefab, int maxCount, string text)
     {
         var currentActionId = activityManager.ActiveAction.id;
