@@ -234,7 +234,7 @@ public class AudioEditorView : PopupEditorBase
         return _iamApikey;
     }
     // returning IBM Watson url
-    public string _serviceUrl_()
+    public string GetServiceUrl()
     {
         return _serviceUrl;
     }
