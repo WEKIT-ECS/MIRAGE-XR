@@ -43,7 +43,8 @@ public class AudioCaptionEdit : MonoBehaviour
         {
             Debug.LogError("_captionEditText  is not assigned ");
             return; // Early exit to prevent accessing null references
-        }if ( audioCaptionPreview == null)
+        }
+        if ( audioCaptionPreview == null)
         {
             Debug.LogError("audioCaptionPreview  is not assigned ");
             return; // Early exit to prevent accessing null references
