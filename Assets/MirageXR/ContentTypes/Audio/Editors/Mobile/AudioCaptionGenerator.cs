@@ -21,7 +21,7 @@ public class AudioCaptionGenerator : MonoBehaviour
     private string _iamApikey;
 
     private AudioSource audioSource;
-    byte[] audioBytes;
+    private byte[] audioBytes;
     // The AudioClip of the speech
     AudioClip speechClip; 
 
