@@ -18,7 +18,7 @@ namespace MirageXR
             else
             {
                 Instance = this;
-                DontDestroyOnLoad(gameObject);  // Optional, wenn der Manager über Szenen hinweg bestehen bleiben soll
+                DontDestroyOnLoad(gameObject); 
             }
         }
 
