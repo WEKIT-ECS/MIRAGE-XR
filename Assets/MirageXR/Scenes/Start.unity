@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44407052, g: 0.49331468, b: 0.57239574, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481676, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -371,6 +371,24 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1888399833}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &305906481 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3697567433863410390, guid: b27088da040df476b92f57a0cf3627c9,
+    type: 3}
+  m_PrefabInstance: {fileID: 328025326}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &305906483
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 305906481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89185a2ac7224155b66c7e1d7f5ac867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &310166496
 GameObject:
   m_ObjectHideFlags: 0
@@ -415,6 +433,78 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1888399833}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &328025326
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1592552940681650009, guid: b27088da040df476b92f57a0cf3627c9,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1592552940681650009, guid: b27088da040df476b92f57a0cf3627c9,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1592552940681650009, guid: b27088da040df476b92f57a0cf3627c9,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1592552940681650009, guid: b27088da040df476b92f57a0cf3627c9,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1592552940681650009, guid: b27088da040df476b92f57a0cf3627c9,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1592552940681650009, guid: b27088da040df476b92f57a0cf3627c9,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1592552940681650009, guid: b27088da040df476b92f57a0cf3627c9,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1592552940681650009, guid: b27088da040df476b92f57a0cf3627c9,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1592552940681650009, guid: b27088da040df476b92f57a0cf3627c9,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1592552940681650009, guid: b27088da040df476b92f57a0cf3627c9,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3697567433863410390, guid: b27088da040df476b92f57a0cf3627c9,
+        type: 3}
+      propertyPath: m_Name
+      value: VisibilityManagerPrefab
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3697567433863410390, guid: b27088da040df476b92f57a0cf3627c9,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 305906483}
+  m_SourcePrefab: {fileID: 100100000, guid: b27088da040df476b92f57a0cf3627c9, type: 3}
 --- !u!1 &383528544
 GameObject:
   m_ObjectHideFlags: 0
@@ -1692,3 +1782,4 @@ SceneRoots:
   - {fileID: 1888399833}
   - {fileID: 890496492}
   - {fileID: 1378881399}
+  - {fileID: 328025326}
