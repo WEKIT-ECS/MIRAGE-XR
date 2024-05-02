@@ -6,60 +6,52 @@ using Microsoft.MixedReality.Toolkit.Utilities;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
-using StringReader = System.IO.StringReader;
 
 namespace MirageXR
 {
     /// <summary>
     /// Provides AI services such as transcription, conversation, and speech synthesis.
     /// </summary>
-    public class AiServices
+    public static class AiServices
     {
-        /// <summary>
-        /// Represents the variable "Options" in the AiServices class.
-        /// </summary>
-        public List<OptionsResponse> Options;
-
-        /// <summary>
-        /// Stores the Config for the AI services.
-        /// </summary>
-        private AiServicesConfig _config;
-
-        /// <summary>
-        /// Stores the token for the API.
-        /// </summary>
-        private TokenResponse _token;
-
-        /// <summary>
-        /// Represents the JSON configuration used by the AiServices class.
-        /// </summary>
-        private JsonConfig _jsonConfig;
-
         /// <summary>
         /// Provides multiple Transcription models.
         /// </summary>
         /// <param name="audioClip"> The audio clip that should be transcribed. </param>
         /// <param name="model"> The model that should transcribe the audio. </param>
+        /// <param name="url">server url</param>
+        /// <param name="token">user token</param>
         /// <returns> A String with the result of the task or an error if a network error appears. </returns>
-        public async Task<string> ConvertSpeechToTextAsync(AudioClip audioClip, string model)
+        public static async Task<string> ConvertSpeechToTextAsync(AudioClip audioClip, string model, string url, string token)
         {
-            if (audioClip == null || string.IsNullOrEmpty(model))
+            if (audioClip == null)
             {
-                UnityEngine.Debug.LogError($"AudioClip or Model is  null! (Model: {model})");
+                throw new ArgumentException("audioClip is null");
             }
 
-            var apiURL = _config.AiApiUrl + "/listen/";
-            var audioBytArray = SaveLoadAudioUtilities.AudioClipToByteArray(audioClip);
-            UnityEngine.Debug.LogError(audioBytArray.GetType() == typeof(byte[])
-                ? "audioByteArray ist ein byte-Array"
-                : "audioByteArray ist kein byte-Array");
+            if (string.IsNullOrEmpty(model))
+            {
+                throw new ArgumentException("model is null");
+            }
 
-            WWWForm fromData = new WWWForm();
+            if (string.IsNullOrEmpty(url))
+            {
+                throw new ArgumentException("url is null");
+            }
+
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new ArgumentException("token is null");
+            }
+
+            var apiURL = $"{url}/listen/";
+            var bytes = SaveLoadAudioUtilities.AudioClipToByteArray(audioClip);
+            var fromData = new WWWForm();
             fromData.AddField("model", model);
-            fromData.AddBinaryData("message", audioBytArray);
+            fromData.AddBinaryData("message", bytes);
 
             using var webRequest = UnityWebRequest.Post(apiURL, fromData);
-            webRequest.SetRequestHeader("Authorization", $"Token {_config.AiToken}");
+            webRequest.SetRequestHeader("Authorization", $"Token {token}");
             await webRequest.SendWebRequest();
             if (webRequest.result != UnityWebRequest.Result.Success)
             {
@@ -76,10 +68,32 @@ namespace MirageXR
         /// <param name="model">The target model</param>
         /// <param name="message">The message of the User</param>
         /// <param name="context">The message of the Instructor</param>
+        /// <param name="url">server url</param>
+        /// <param name="token">user token</param>
         /// <returns>A String with the result of the operation.</returns>
-        public async Task<string> SendMessageToLlm(string model, string message, string context)
+        public static async Task<string> SendMessageToAssistantAsync(string model, string message, string context, string url, string token)
         {
-            var apiURL = _config.AiApiUrl + "/think/";
+            if (string.IsNullOrEmpty(model))
+            {
+                throw new ArgumentException("message is null");
+            }
+
+            if (string.IsNullOrEmpty(model))
+            {
+                throw new ArgumentException("model is null");
+            }
+
+            if (string.IsNullOrEmpty(url))
+            {
+                throw new ArgumentException("url is null");
+            }
+
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new ArgumentException("token is null");
+            }
+
+            var apiURL = $"{url}/think/";
             var fromData = new List<IMultipartFormSection>
             {
                 new MultipartFormDataSection("model", model),
@@ -87,7 +101,7 @@ namespace MirageXR
                 new MultipartFormDataSection("context", context),
             };
             using var webRequest = UnityWebRequest.Post(apiURL, fromData);
-            webRequest.SetRequestHeader("Authorization", "Token " + _config.AiToken);
+            webRequest.SetRequestHeader("Authorization", $"Token {token}");
             await webRequest.SendWebRequest();
 
             if (webRequest.result != UnityWebRequest.Result.Success)
@@ -104,11 +118,21 @@ namespace MirageXR
         /// </summary>
         /// <returns>A boolean. True if the operation was successful, false if it wasn't.</returns>
         /// 
-        private async Task<bool> GetAvailableModels()
+        public static async Task<List<OptionsResponse>> GetAvailableModelsAsync(string url, string token)
         {
-            var apiURL = $"{_config.AiApiUrl}/options/";
+            if (string.IsNullOrEmpty(url))
+            {
+                throw new ArgumentException("url is null");
+            }
+
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new ArgumentException("token is null");
+            }
+
+            var apiURL = $"{url}/options/";
             var request = UnityWebRequest.Get(apiURL);
-            request.SetRequestHeader("Authorization", $"Token {_config.AiToken}");
+            request.SetRequestHeader("Authorization", $"Token {token}");
             await request.SendWebRequest();
             if (request.result != UnityWebRequest.Result.Success)
             {
@@ -117,13 +141,7 @@ namespace MirageXR
 
             var optionsText = request.downloadHandler.text;
             var myDeserializedClass = JsonConvert.DeserializeObject<List<OptionsResponse>>(optionsText);
-            Options = myDeserializedClass;
-
-            //await SendMessageToLlm("gpt-3.5-turbo", "Write test", "Write test");
-            //var audio = await ConvertTextToSpeechAsync("Hallo andreas", "onyx", "default");
-            //var text = await ConvertSpeechToTextAsync(audio, "default");
-            //UnityEngine.Debug.LogError(text);
-            return true;
+            return myDeserializedClass;
         }
 
         /// <summary>
@@ -132,116 +150,50 @@ namespace MirageXR
         /// <param name="speakOut">The text that you want to turn into an audio</param>
         /// <param name="voice">The voice that you want to use. Check options json for legal parameters </param>
         /// <param name="model">The model that you use. Check options json for legal parameters</param>
+        /// <param name="url">server url</param>
+        /// <param name="token">user token</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation. The task will return an <see cref="AudioClip"/>.</returns>
-        public async Task<AudioClip> ConvertTextToSpeechAsync(string speakOut, string voice, string model)
+        public static async Task<AudioClip> ConvertTextToSpeechAsync(string speakOut, string voice, string model, string url, string token)
         {
-            var apiURL = $"{_config.AiApiUrl}/speak/";
+            if (string.IsNullOrEmpty(voice))
+            {
+                throw new ArgumentException("voice is null");
+            }
+
+            if (string.IsNullOrEmpty(speakOut))
+            {
+                throw new ArgumentException("speakOut is null");
+            }
+
+            if (string.IsNullOrEmpty(model))
+            {
+                throw new ArgumentException("model is null");
+            }
+
+            if (string.IsNullOrEmpty(url))
+            {
+                throw new ArgumentException("url is null");
+            }
+
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new ArgumentException("token is null");
+            }
+
+            var apiURL = $"{url}/speak/";
             using var webRequest = UnityWebRequestMultimedia.GetAudioClip(apiURL, AudioType.MPEG);
-            webRequest.SetRequestHeader("Authorization", "Token " + _config.AiToken);
+            webRequest.SetRequestHeader("Authorization", $"Token {token}");
             webRequest.SetRequestHeader("message", speakOut);
             webRequest.SetRequestHeader("submodel", voice);
             webRequest.SetRequestHeader("model", model);
             await webRequest.SendWebRequest();
             if (webRequest.result != UnityWebRequest.Result.Success)
             {
-                throw new HttpRequestException(
-                    $"Error while receiving the result of the Speak endpoint: {webRequest.error} {webRequest.result}");
+                throw new HttpRequestException($"Error while receiving the result of the Speak endpoint: {webRequest.error} {webRequest.result}");
             }
 
-            AudioClip audioClip;
-            audioClip = DownloadHandlerAudioClip.GetContent(webRequest);
+            var audioClip = DownloadHandlerAudioClip.GetContent(webRequest);
             return audioClip;
-        }
-
-        /// <summary>
-        /// Loads the config and set everything up.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation. It returns a <see cref="AiServicesConfig"/> object.</returns>
-        public async Task<AiServicesConfig> ReadConfig()
-        {
-            const string miragexrFileName = "MirageXRConfig";
-            const string aiServicesFileName = "aiServices";
-            const string apiURLKey = "AI_API_URL";
-            const string usernameKey = "AI_USERNAME";
-            const string passwordKey = "AI_PASSWORD";
-            const string apiPort = ":8000";
-            var filepath = Resources.Load(miragexrFileName) as TextAsset;
-            string apiURL = null;
-            string username = null;
-            string password = null;
-            string token = null;
-            if (filepath == null)
-            {
-                UnityEngine.Debug.LogError($"Failed to load config file: {miragexrFileName}");
-            }
-
-            if (filepath != null)
-            {
-                using var sr = new StringReader(filepath.text);
-                while (await sr.ReadLineAsync() is { } line)
-                {
-                    var parts = line.Split('=', ':');
-                    if (parts.Length == 2)
-                    {
-                        if (parts[0].ToUpper() == apiURLKey)
-                        {
-                            apiURL = parts[1].Trim();
-                        }
-                    }
-                }
-            }
-
-            filepath = Resources.Load(miragexrFileName) as TextAsset;
-            if (filepath != null)
-            {
-                using var sr = new StringReader(filepath.text);
-                while (await sr.ReadLineAsync() is { } line)
-                {
-                    var parts = line.Split('=', ':');
-                    if (parts.Length == 2)
-                    {
-                        switch (parts[0].ToUpper())
-                        {
-                            case usernameKey:
-                                username = parts[1].Trim();
-                                break;
-                            case passwordKey:
-                                password = parts[1].Trim();
-                                break;
-                        }
-                    }
-                }
-            }
-
-            UnityEngine.Debug.LogError(apiURL + username + password);
-            if (apiURL == null)
-            {
-                UnityEngine.Debug.LogError("apiURL is null");
-                throw new InvalidOperationException();
-            }
-
-            apiURL = $"http://{apiURL}{apiPort}"; //@todo Need to be updated!
-            token = await AuthenticateUser(apiURL, username, password);
-            if (apiURL == null || username == null || password == null || token == null)
-            {
-                throw new InvalidOperationException(
-                    $"Can't find a parameter for the AI Serves configuration -> " +
-                    $"Path = {miragexrFileName}, " +
-                    $"API_URL = {apiURL}," +
-                    $"Username = {username}," +
-                    $"Password = {password}," +
-                    $"Token = {token}");
-            }
-
-            _config = new AiServicesConfig(apiURL, username, password);
-            _config.SetToken(token);
-            var options = await GetAvailableModels();
-            if (options)
-            {
-                return _config;
-            }
-
-            throw new InvalidOperationException("Configuration of the AI Services failed! Unable to load the options!");
         }
 
         /// <summary>
@@ -251,15 +203,15 @@ namespace MirageXR
         /// <param name="user">Username</param>
         /// <param name="password">Password</param>
         /// <returns>The authentication token</returns>
-        private static async Task<string> AuthenticateUser(string apiURL, string user, string password)
+        public static async Task<string> AuthenticateUserAsync(string apiURL, string user, string password)
         {
-            apiURL += "/authentication/";
             var formData = new List<IMultipartFormSection>
             {
                 new MultipartFormDataSection("username", user),
                 new MultipartFormDataSection("password", password),
             };
-            var request = UnityWebRequest.Post(apiURL, formData);
+
+            var request = UnityWebRequest.Post($"{apiURL}/authentication/", formData);
             await request.SendWebRequest();
             if (request.result != UnityWebRequest.Result.Success)
             {
@@ -269,77 +221,26 @@ namespace MirageXR
             var text = request.downloadHandler.text;
             if (text.Length < 13)
             {
-                throw new HttpRequestException(
-                    $"Error while receiving the token! Got ' {text} 'and that is too short!");
+                throw new HttpRequestException($"Error while receiving the token! Got '{text}' and that is too short!");
             }
 
             text = text.Substring(10, text.Length - 10 - 2);
             return text;
         }
-
-        /// <summary>
-        /// Struct that stores the token for the API.
-        /// </summary>
-        private readonly struct TokenResponse // still needed? @todo..
-        {
-            public TokenResponse(string inputToken)
-            {
-                token = inputToken;
-            }
-
-            /// <summary>
-            /// Stores the Token for the API.
-            /// </summary>
-            public string token { get; }
-        }
-
-        /// <summary>
-        /// Stores the Config
-        /// </summary>
-        public struct AiServicesConfig
-        {
-            public string AiApiUrl;
-
-
-            public string AiUsername;
-
-
-            public string AiPassword;
-
-
-            public string AiToken;
-
-
-            public AiServicesConfig(string apiURL, string username, string password)
-            {
-                AiApiUrl = apiURL;
-                AiUsername = username;
-                AiPassword = password;
-                AiToken = null;
-            }
-
-
-            public void SetToken(string token)
-            {
-                AiToken = token;
-            }
-        }
     }
-
 
     public class OptionsResponse
     {
         /// <summary>
         /// Gets or sets the name of the property.
         /// </summary>
-        public string name { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Provides AI services such as listening, thinking, and speaking.
         /// </summary>
-        public List<string> models { get; set; }
+        public List<string> Models { get; set; }
     }
-
 
     public class JsonConfig
     {
@@ -448,20 +349,5 @@ namespace MirageXR
         /// Represents a class for working with PDF calibration markers.
         /// </summary>
         public string PdfCalibrationMarker { get; set; }
-
-        /// <summary>
-        /// The URL of the AI API.
-        /// </summary>
-        public string AiApiUrl { get; set; }
-
-        /// <summary>
-        /// The username used for authentication with the AI services.
-        /// </summary>
-        public string AiUsername { get; set; }
-
-        /// <summary>
-        /// Represents the password property for the AiServicesConfig class.
-        /// </summary>
-        public string AiPassword { get; set; }
     }
 }

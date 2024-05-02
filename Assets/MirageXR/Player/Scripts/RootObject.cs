@@ -24,7 +24,7 @@ namespace MirageXR
         private MoodleManager _moodleManager;
         private EditorSceneService _editorSceneService;
         private WorkplaceManager _workplaceManager;
-        private AiServices _aiServices;
+        private AIManager _aiManager;
         private OpenAIManager _openAIManager;
 
         public ImageTargetManagerWrapper imageTargetManager => _imageTargetManager;
@@ -56,6 +56,7 @@ namespace MirageXR
         public ExceptionManager exceptionManager => _exceptionManager;
 
         public OpenAIManager openAIManager => _openAIManager;
+        public AIManager aiManager => _aiManager;
 
         private bool _isInitialized;
 
@@ -113,7 +114,7 @@ namespace MirageXR
                 _editorSceneService = new EditorSceneService();
                 _workplaceManager = new WorkplaceManager();
                 _openAIManager = new OpenAIManager();
-                _aiServices = new AiServices();
+                _aiManager = new AIManager();
 
                 _exceptionManager.Initialize();
                 _brandManager.Initialization();
@@ -126,8 +127,7 @@ namespace MirageXR
                 _cameraCalibrationChecker.Initialization();
                 _platformManager.Initialization();
                 await _openAIManager.InitializeAsync();
-
-                await _aiServices.ReadConfig();
+                await _aiManager.InitializeAsync();
                 _activityManager.Subscription();
 
                 _isInitialized = true;
