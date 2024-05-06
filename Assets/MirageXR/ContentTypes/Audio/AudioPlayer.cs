@@ -37,40 +37,61 @@ namespace MirageXR
         private bool isPlaying = false;
 
         private ToggleObject _obj;
+
         public ToggleObject MyAnnotation => _obj;
+
         private GameObject _contentObject;
 
         private void Awake()
         {
+            // Makes no sense to use gaze guide with audio...
             UseGuide = false;
 
             var actionEditor = FindObjectOfType<ActionEditor>();
             audioEditor = (AudioEditor)actionEditor.CreateEditorView(ContentType.AUDIO);
         }
 
+        /// <summary>
+        /// Initialization method.
+        /// </summary>
+        /// <param name="obj">Action toggle object.</param>
+        /// <returns>Returns true if initialization succesfull.</returns>
         public override bool Init(ToggleObject obj)
         {
             _obj = obj;
 
+            // Check that url is not empty.
             if (string.IsNullOrEmpty(obj.url))
             {
                 Debug.LogWarning("Content URL not provided.");
                 return false;
             }
 
+            // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
             {
                 Debug.LogWarning("Couldn't set the parent.");
                 return false;
             }
 
+            // Set name.
             name = obj.predicate;
 
+            // check audio is 2d or 3d
             audio3dMode = obj.option.Split('#')[0] == "3d";
+
             float radius = 0f;
+
+            // 3d
             if (audio3dMode)
             {
-                Loop = obj.option.Split('#')[1] == "1";
+                // loop is off for 2d and load the status of loop if it is 3d audio
+                Loop = false;
+                if (audio3dMode)
+                {
+                    Loop = obj.option.Split('#')[1] == "1";
+                }
+                // get the radius if it is 3d audio
                 if (audio3dMode)
                 {
                     radius = float.Parse(obj.option.Split('#')[2]);
@@ -81,11 +102,14 @@ namespace MirageXR
                 Destroy(icon);
             }
 
+            // Load audio from resources.
             if (obj.url.StartsWith("resources://"))
             {
                 audioName = obj.url.Replace("resources://", "");
                 CreateAudioPlayer(false, audio3dMode, radius, Loop);
             }
+
+            // Load audio from server.
             else
             {
                 audioName = obj.url;
@@ -98,6 +122,7 @@ namespace MirageXR
                 StartCaptionDisplay(caption);
             }
 
+            // If all went well, return true.
             return true;
         }
 
@@ -178,6 +203,11 @@ namespace MirageXR
             }
         }
 
+        /// <summary>
+        /// This method starts playback of the audio file, unmuted and on full volume.
+        /// If the audio track is already being played, it will be restarted from the beginning.
+        /// If audio source doesn't exist, or hasn't finished loading, the method returns without doing anything
+        /// </summary>
         public void PlayAudio()
         {
             if (isReady == false)

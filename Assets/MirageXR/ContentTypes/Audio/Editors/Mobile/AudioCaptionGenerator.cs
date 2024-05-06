@@ -27,8 +27,8 @@ public class AudioCaptionGenerator : MonoBehaviour
 
     void Start()
     {
-        _iamApikey = _audioEditView._iamApikey_();
-        _serviceUrl = _audioEditView._serviceUrl_();
+        _iamApikey = _audioEditView.GetApiKey();
+        _serviceUrl = _audioEditView.GetServiceUrl();
         
         StartCoroutine(CreateService());
 
