@@ -46,7 +46,7 @@ public class ThumbnailEditorView : PopupBase
         _btnClose.onClick.AddListener(Close);
         if (File.Exists(_imagePath))
         {
-            SetPreview(Utilities.LoadTexture(_imagePath));
+            SetPreview(MirageXR.Utilities.LoadTexture(_imagePath));
         }
     }
 
@@ -96,7 +96,7 @@ public class ThumbnailEditorView : PopupBase
         if (_texture2D) Destroy(_texture2D);
 
         _texture2D = texture2D;
-        var sprite = Utilities.TextureToSprite(_texture2D);
+        var sprite = MirageXR.Utilities.TextureToSprite(_texture2D);
         _image.sprite = sprite;
 
         var rtImageHolder = (RectTransform)_imageHolder.transform;

@@ -98,6 +98,8 @@ MonoBehaviour:
   - {fileID: -3334077002229979124}
   m_renderMode: 1
   m_depthSubmissionMode: 0
+  m_optimizeBufferDiscards: 0
+  m_symmetricProjection: 0
 --- !u!114 &-8134980917825205526
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -339,6 +341,23 @@ MonoBehaviour:
   company: Unity
   priority: 0
   required: 0
+--- !u!114 &-3855659099270505829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5a1f07dc5afe854f9f12a4194aca3fb, type: 3}
+  m_Name: VisionOS
+  m_EditorClassIdentifier: 
+  features: []
+  m_renderMode: 1
+  m_depthSubmissionMode: 0
+  m_optimizeBufferDiscards: 0
+  m_symmetricProjection: 0
 --- !u!114 &-3831414650097208346
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -370,6 +389,8 @@ MonoBehaviour:
   - {fileID: 6050795683096122362}
   m_renderMode: 1
   m_depthSubmissionMode: 0
+  m_optimizeBufferDiscards: 0
+  m_symmetricProjection: 0
 --- !u!114 &-3525728155585453596
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -534,6 +555,8 @@ MonoBehaviour:
   features: []
   m_renderMode: 1
   m_depthSubmissionMode: 0
+  m_optimizeBufferDiscards: 0
+  m_symmetricProjection: 0
 --- !u!114 &-1192220062060986636
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -669,13 +692,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f0ebc320a151d3408ea1e9fce54d40e, type: 3}
   m_Name: Open XR Package Settings
   m_EditorClassIdentifier: 
-  Keys: 01000000070000000d0000000e00000004000000
+  Keys: 01000000070000000d0000000e0000000400000024000000
   Values:
   - {fileID: -8237969927764726257}
   - {fileID: -3831414650097208346}
   - {fileID: -1204719895838312839}
   - {fileID: 2391711983362963604}
   - {fileID: 686233375705472787}
+  - {fileID: -3855659099270505829}
 --- !u!114 &353372707612329968
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -764,6 +788,8 @@ MonoBehaviour:
   features: []
   m_renderMode: 1
   m_depthSubmissionMode: 0
+  m_optimizeBufferDiscards: 0
+  m_symmetricProjection: 0
 --- !u!114 &703378005999766676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1004,6 +1030,11 @@ MonoBehaviour:
     manifestName: cambria
     enabled: 1
   forceRemoveInternetPermission: 1
+  symmetricProjection: 0
+  systemSplashScreen: {fileID: 0}
+  optimizeBufferDiscards: 1
+  lateLatchingMode: 0
+  lateLatchingDebug: 0
 --- !u!114 &2391711983362963604
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1040,6 +1071,8 @@ MonoBehaviour:
   - {fileID: -4572464452065702350}
   m_renderMode: 0
   m_depthSubmissionMode: 2
+  m_optimizeBufferDiscards: 0
+  m_symmetricProjection: 0
 --- !u!114 &2799582743683373778
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -349,20 +349,20 @@ public class ManipulationController : MonoBehaviour, IDisposable
     private Vector3 CalculateSnapPosition(Vector3 position)
     {
         var point = _gridManager.grid.transform.InverseTransformPoint(position);
-        return _gridManager.grid.transform.TransformPoint(Utilities.ToClosestToStepVector3(point, _gridManager.cellWidth / 100f));
+        return _gridManager.grid.transform.TransformPoint(MirageXR.Utilities.ToClosestToStepVector3(point, _gridManager.cellWidth / 100f));
     }
 
     private Quaternion CalculateSnapRotation(Quaternion rotation)
     {
         var parentRotation = _gridManager.grid.transform.parent ? _gridManager.grid.transform.parent.rotation : Quaternion.identity;
         var localRotation = Quaternion.Inverse(parentRotation) * rotation;
-        localRotation = Quaternion.Euler(Utilities.ToClosestToStepVector3(localRotation.eulerAngles, _gridManager.angleStep));
+        localRotation = Quaternion.Euler(MirageXR.Utilities.ToClosestToStepVector3(localRotation.eulerAngles, _gridManager.angleStep));
         return parentRotation * localRotation;
     }
 
     private Vector3 CalculateSnapScale(Vector3 scale)
     {
-        return Utilities.ToClosestToStepVector3(scale, _gridManager.scaleStep / 100f);
+        return MirageXR.Utilities.ToClosestToStepVector3(scale, _gridManager.scaleStep / 100f);
     }
 
     public void Dispose()

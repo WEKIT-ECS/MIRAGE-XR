@@ -141,7 +141,6 @@ public class VideoEditorView : PopupEditorBase
         {
             EventManager.DeactivateObject(_content);
 
-            // delete the previous video file
             var originalFileName = Path.GetFileName(_content.url.Remove(0, HTTP_PREFIX.Length));
             var originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
             Debug.Log("Will now delete file at originalFilePath = " + originalFilePath);
@@ -204,7 +203,7 @@ public class VideoEditorView : PopupEditorBase
             Destroy(_image.sprite.texture);
         }
 
-        var sprite = Utilities.TextureToSprite(texture2D);
+        var sprite = MirageXR.Utilities.TextureToSprite(texture2D);
         _image.sprite = sprite;
 
         var rtImageHolder = (RectTransform)_imageHolder.transform;

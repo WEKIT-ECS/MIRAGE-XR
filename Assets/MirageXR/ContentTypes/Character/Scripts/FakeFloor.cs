@@ -21,8 +21,11 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-            planeManager.onDetectionEnabled.RemoveListener(OnDetectionEnabled);
-            planeManager.onDetectionDisabled.RemoveListener(OnDetectionDisabled);
+            if (RootObject.Instance != null)
+            {
+                planeManager.onDetectionEnabled.RemoveListener(OnDetectionEnabled);
+                planeManager.onDetectionDisabled.RemoveListener(OnDetectionDisabled);   
+            }
         }
 
         private void Update()

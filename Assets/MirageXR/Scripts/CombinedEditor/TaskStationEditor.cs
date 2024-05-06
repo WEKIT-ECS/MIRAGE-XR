@@ -95,8 +95,8 @@ public class TaskStationEditor : MonoBehaviour
         var position = anchor.InverseTransformPoint(source.transform.position);
         var rotation = Quaternion.Inverse(anchor.rotation) * source.transform.rotation;
 
-        _detectable.origin_position = Utilities.Vector3ToString(position);
-        _detectable.origin_rotation = Utilities.Vector3ToString(rotation.eulerAngles);
+        _detectable.origin_position = MirageXR.Utilities.Vector3ToString(position);
+        _detectable.origin_rotation = MirageXR.Utilities.Vector3ToString(rotation.eulerAngles);
 
         activityManager.SaveData();
     }

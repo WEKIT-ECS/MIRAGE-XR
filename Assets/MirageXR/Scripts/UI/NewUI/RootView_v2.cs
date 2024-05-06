@@ -105,7 +105,10 @@ public class RootView_v2 : BaseView
         EventManager.OnWorkplaceLoaded -= OnWorkplaceLoaded;
         EventManager.OnActivityStarted -= OnActivityLoaded;
         EventManager.OnMobileHelpPageChanged -= UpdateHelpPage;
-        RootObject.Instance.cameraCalibrationChecker.onAnchorLost.RemoveListener(ShowCalibrationAlert);
+        if (RootObject.Instance != null)
+        {
+            RootObject.Instance.cameraCalibrationChecker.onAnchorLost.RemoveListener(ShowCalibrationAlert);
+        }
     }
 
     private void OnWorkplaceLoaded()

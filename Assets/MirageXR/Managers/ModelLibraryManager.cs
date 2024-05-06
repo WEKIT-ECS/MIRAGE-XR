@@ -1,7 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,8 +16,17 @@ namespace MirageXR
         [SerializeField] private GameObject itemPrefab;
 
         private readonly List<GameObject> _instantiatedItems = new List<GameObject>();
+        private readonly List<ModelLibraryListItem> _currentLibraryItems = new List<ModelLibraryListItem>();
+        private GameObject emptyItem;
 
         private ModelEditorView _modelEditorView;
+
+        [SerializeField] private GameObject listOfLibrariesTab;
+        [SerializeField] private GameObject libraryTab;
+        [SerializeField] private Transform libraryContent;
+        [SerializeField] private Transform listOfLibraryContent;
+        [SerializeField] private TMP_Text _topLabel;
+        [SerializeField] private TMP_InputField _inputSearch;
 
         public enum ModelLibraryCategory
         {
@@ -29,22 +38,48 @@ namespace MirageXR
         public void OnItemClicked(ModelLibraryCategory category)
         {
             DisableCategoryButtons();
+            listOfLibrariesTab.SetActive(false);
+            libraryTab.SetActive(true);
+            _topLabel.text = category.ToString();
             GenerateLibrary(category);
         }
+        
+        public void OnStartSearch()
+        {
+            SearchLocal();
+        }
+        
+        public void ClearSearchField()
+        {
+            _inputSearch.text = "";
+        }
 
-
-
+        private void SearchLocal()
+        {
+            foreach (var item in _instantiatedItems)
+            {
+                item.TryGetComponent<ModelLibraryListItem>(out var libraryListItem);
+                var active = string.IsNullOrEmpty(_inputSearch.text) || libraryListItem.Title.text.ToLower().Contains(_inputSearch.text.ToLower());
+                item.SetActive(active);
+            }
+        }
+        
+        private void OnInputFieldSearchChanged(string text)
+        {
+            SearchLocal();
+        }
+        
         /// <summary>
         /// Enable the category buttons
         /// </summary>
         public void EnableCategoryButtons(ModelEditorView modelEditorView)
         {
             _modelEditorView = modelEditorView;
+            _inputSearch.onValueChanged.AddListener(OnInputFieldSearchChanged);
             
-            DisableCategoryButtons();
             for (var i = 0; i < items.Length; i++)
             {
-                var categoryButton = Instantiate(items[i], transform);
+                var categoryButton = Instantiate(items[i], listOfLibraryContent);
                 categoryButton.TryGetComponent<Button>(out var button);
 
                 if (button)
@@ -54,9 +89,7 @@ namespace MirageXR
                 }
             }
         }
-
-
-
+        
         public void DisableCategoryButtons()
         {
             //destroy the existing items
@@ -64,9 +97,15 @@ namespace MirageXR
             {
                 Destroy(child.gameObject);
             }
+            listOfLibrariesTab.SetActive(true);
+            libraryTab.SetActive(false);
         }
 
-
+        public void CloseLibraryTab()
+        {
+            libraryTab.SetActive(false);
+        }
+        
         private void GenerateLibrary(ModelLibraryCategory selectedCategory)
         {
             foreach (var item in _instantiatedItems)
@@ -77,22 +116,39 @@ namespace MirageXR
                 }
             }
             _instantiatedItems.Clear();
+            if (emptyItem)
+            {
+                Destroy(emptyItem);
+            }
+
+            _inputSearch.text = "";
 
             foreach (var obj in objects)
             {
                 if (obj.category == selectedCategory)
                 {
-                    var item = Instantiate(itemPrefab, transform);
+                    var item = Instantiate(itemPrefab, libraryContent);
                     item.TryGetComponent<ModelLibraryListItem>(out var libraryListItem);
 
                     if (libraryListItem)
                     {
-                        libraryListItem.Title.text = obj.label;
+                        libraryListItem.Title.text = "  " + obj.label;
                         libraryListItem.Thumbnail.sprite = obj.sprite;
+
+                        // TODO: get fbx file size
+                        libraryListItem.TxtSize.text = "   "; // + kilobyteSize.ToString(CultureInfo.InvariantCulture) + " Kb";
+                        
                         libraryListItem.AddButtonListener(() => _modelEditorView.AddAugmentation(obj.prefabName, true));
                         _instantiatedItems.Add(item);
+                        _currentLibraryItems.Add(libraryListItem);
                     }
                 }
+            }
+            // Empty element added for left alignment in case only 1 element is active.
+            emptyItem = Instantiate(itemPrefab, libraryContent);
+            foreach (Transform child in emptyItem.transform)
+            {
+                child.gameObject.SetActive(false);
             }
         }
     }

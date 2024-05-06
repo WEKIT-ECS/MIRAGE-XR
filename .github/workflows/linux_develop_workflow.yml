@@ -22,6 +22,7 @@ jobs:
           ASSISTANTKEYS: ${{ secrets.ASSISTANTKEYS }}
           OAIKEYS: ${{ secrets.OAISECRET }}
           SENTRYCFG: ${{ secrets.SENTRYCFG }}
+          SENTRYCLI: ${{ secrets.SENTRYCLI }}
         run: |
           echo -n "$ASSISTANTKEYS" > $GITHUB_WORKSPACE/ibm-credentials.env
           echo "path of the credentials resource $GITHUB_WORKSPACE/ibm-credentials.txt"
@@ -30,6 +31,8 @@ jobs:
           echo "path of the OAI credentials resource $GITHUB_WORKSPACE/Assets/Resources/openai.txt"
           echo -n "$SENTRYCFG" > $GITHUB_WORKSPACE/Assets/Resources/Sentry/SentryOptions.asset
           echo "path of the Sentry options yaml file $GITHUB_WORKSPACE/Assets/Resources/Sentry/SentryOptions.asset"
+          echo -n "$SENTRYCLI" > $GITHUB_WORKSPACE/Assets/Plugins/Sentry/SentryCliOptions.asset
+          echo "path of the Sentry CLI options yaml file $GITHUB_WORKSPACE/Assets/Plugins/Sentry/SentryCliOptions.asset"
 
       # Fonts
       - name: Install fonts
@@ -52,12 +55,15 @@ jobs:
 
       # Test stage
       - name: Unity Test runner (edit and play mode)
-        uses: game-ci/unity-test-runner@v2.0.3
+        uses: game-ci/unity-test-runner@v4.1.1
         env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
+          testMode: EditMode
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          unityVersion: 2021.3.8f1
+          unityVersion: 2022.3.7f1
       
   build:
     name: Build Unity
@@ -121,7 +127,7 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: Android
-          unityVersion: 2021.3.8f1
+          unityVersion: 2022.3.7f1
           versioning: Semantic
           # dirty build needed to include generated Watson credentials
           allowDirtyBuild: true
