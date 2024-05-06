@@ -1,0 +1,40 @@
+<Project>
+  <PropertyGroup>
+    <!--All extra resources for this package will be placed under this folder in the output directory.-->
+    <DotNetWinRT-PackageDestinationFolder>$(MSBuildThisFileName)</DotNetWinRT-PackageDestinationFolder>
+  </PropertyGroup>
+  
+  <ItemGroup Condition="'$(MSBuildForUnityVersion)' != ''">
+    <Content Include="$(MSBuildThisFileDirectory)..\Unity\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <!-- Don't show .meta files in Solution Explorer - it's not useful. -->
+      <Visible Condition="'%(Extension)' == '.meta'">false</Visible>
+      <Link>$(DotNetWinRT-PackageDestinationFolder)\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
+  </ItemGroup>
+
+  <!-- Force Unity to use the UAP-compatible version of binaries when targeting WSA -->
+  <Target Condition="'$(MSBuildForUnityVersion)' != '' AND '$(UnityCurrentPlatform)' == 'WSA'" Name="PostBuildEvent">
+    <ItemGroup>
+      <MetaOverrides Include="$(MSBuildThisFileDirectory)..\MSBuildForUnity\MetaOverrides\**\*.meta" /> 
+    </ItemGroup>
+
+    <Copy
+      SourceFiles="$(MSBuildThisFileDirectory)..\lib\netstandard1.3\Microsoft.Windows.MixedReality.DotNetWinRT.dll"
+      DestinationFolder="$(OutDir)" />
+
+    <Copy
+      SourceFiles="$(MSBuildThisFileDirectory)..\lib\netstandard2.0\Microsoft.Windows.MixedReality.DotNetWinRT.dll"
+      DestinationFolder="$(OutDir)\InEditor" />
+
+    <Copy
+      SourceFiles="$(MSBuildThisFileDirectory)..\..\..\System.Drawing.Primitives\4.3.0\lib\netstandard1.1\System.Drawing.Primitives.dll"
+      DestinationFolder="$(OutDir)" />
+
+    <Copy
+      SourceFiles="@(MetaOverrides)"
+      DestinationFolder="$(OutDir)%(RecursiveDir)" />
+
+  </Target>
+
+</Project>

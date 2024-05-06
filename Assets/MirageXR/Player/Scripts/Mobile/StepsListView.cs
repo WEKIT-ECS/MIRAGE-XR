@@ -92,8 +92,8 @@ public class StepsListView : BaseView
             return;
         }
 
-        var texture = Utilities.LoadTexture(path);
-        var sprite = Utilities.TextureToSprite(texture);
+        var texture = MirageXR.Utilities.LoadTexture(path);
+        var sprite = MirageXR.Utilities.TextureToSprite(texture);
         _imgThumbnail.sprite = sprite;
     }
 

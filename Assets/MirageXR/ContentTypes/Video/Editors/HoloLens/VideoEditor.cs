@@ -135,7 +135,7 @@ public class VideoEditor : MonoBehaviour
             GameObject originT = GameObject.Find(detectable.id);
 
             var startPointTr = annotationStartingPoint.transform;
-            var offset = Utilities.CalculateOffset(startPointTr.position, startPointTr.rotation, originT.transform.position, originT.transform.rotation);
+            var offset = MirageXR.Utilities.CalculateOffset(startPointTr.position, startPointTr.rotation, originT.transform.position, originT.transform.rotation);
 
             annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
             annotationToEdit.predicate = "video";

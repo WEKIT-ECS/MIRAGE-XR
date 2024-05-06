@@ -8,6 +8,7 @@ namespace MirageXR
     {
         public static RootObject Instance { get; private set; }
 
+        [SerializeField] private Camera _baseCamera;
         [SerializeField] private ImageTargetManagerWrapper _imageTargetManager;
         [SerializeField] private CalibrationManager _calibrationManager;
         [SerializeField] private FloorManagerWrapper _floorManager;
@@ -19,12 +20,14 @@ namespace MirageXR
         [SerializeField] private PlatformManager _platformManager;
         [SerializeField] private ExceptionManager _exceptionManager;
 
-
         private ActivityManager _activityManager;
         private AugmentationManager _augmentationManager;
         private MoodleManager _moodleManager;
         private EditorSceneService _editorSceneService;
         private WorkplaceManager _workplaceManager;
+        private OpenAIManager _openAIManager;
+
+        public Camera baseCamera => _baseCamera;
 
         public ImageTargetManagerWrapper imageTargetManager => _imageTargetManager;
 
@@ -53,6 +56,8 @@ namespace MirageXR
         public PlatformManager platformManager => _platformManager;
 
         public ExceptionManager exceptionManager => _exceptionManager;
+
+        public OpenAIManager openAIManager => _openAIManager;
 
         private bool _isInitialized;
 
@@ -93,6 +98,7 @@ namespace MirageXR
 
             try
             {
+                _baseCamera ??= Camera.main;
                 _brandManager ??= new GameObject("BrandManager").AddComponent<BrandManager>();
                 _imageTargetManager ??= new GameObject("ImageTargetManagerWrapper").AddComponent<ImageTargetManagerWrapper>();
                 _calibrationManager ??= new GameObject("CalibrationManager").AddComponent<CalibrationManager>();
@@ -109,7 +115,7 @@ namespace MirageXR
                 _moodleManager = new MoodleManager();
                 _editorSceneService = new EditorSceneService();
                 _workplaceManager = new WorkplaceManager();
-
+                _openAIManager = new OpenAIManager();
 
                 _exceptionManager.Initialize();
                 _brandManager.Initialization();
@@ -121,6 +127,7 @@ namespace MirageXR
                 _gridManager.Initialization();
                 _cameraCalibrationChecker.Initialization();
                 _platformManager.Initialization();
+                await _openAIManager.InitializeAsync();
 
                 _activityManager.Subscription();
 
@@ -142,13 +149,18 @@ namespace MirageXR
         private async Task ResetManagersAsync()
         {
             await _floorManager.ResetAsync();
-            await planeManager.ResetAsync();
+            await _planeManager.ResetAsync();
             await _pointCloudManager.ResetAsync();
             await _imageTargetManager.ResetAsync();
         }
 
         private void OnDestroy()
         {
+            if (!_isInitialized)
+            {
+                return;
+            }
+
             _activityManager.Unsubscribe();
             _pointCloudManager.Unsubscribe();
             _activityManager.OnDestroy();

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
