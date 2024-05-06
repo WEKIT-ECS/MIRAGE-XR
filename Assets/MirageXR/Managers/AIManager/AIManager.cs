@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
+using MirageXR.AIManagerDataModel;
 using UnityEngine;
 
 namespace MirageXR
@@ -12,8 +13,14 @@ namespace MirageXR
         private string _url;
         private string _username;
         private string _password;
-        private string _token;
-        private List<OptionsResponse> _models;
+
+        private Token _token;
+
+        //private List<OptionsResponse> _models;
+        private List<AIModel> _llmModels = new();
+        private List<AIModel> _sttModels = new();
+        private List<AIModel> _ttsModels = new();
+
 
         public async Task InitializeAsync()
         {
@@ -21,11 +28,54 @@ namespace MirageXR
             {
                 await ReadConfig();
                 _token = await AiServices.AuthenticateUserAsync(_url, _username, _password);
-                _models = await AiServices.GetAvailableModelsAsync(_url, _token);
+                SetModels(await AiServices.GetAvailableModelsAsync(_url, _token));
             }
             catch (Exception e)
             {
                 AppLog.LogWarning(e.ToString());
+            }
+        }
+
+        public List<AIModel> GetLLMModels()
+        {
+            return _llmModels;
+        }
+        
+        public List<AIModel> GetSTTModels()
+        {
+            return _sttModels;
+        }
+        
+        public List<AIModel> GetTTSModels()
+        {
+            return _ttsModels;
+        }
+
+        private void SetModels(List<AIModel> endpointModels)
+        {
+            
+            foreach (var model in endpointModels)
+            {
+                AddModelBasedOnEndpointName(model);
+                UnityEngine.Debug.Log("Model "+model);
+            }
+            UnityEngine.Debug.Log("Set models done! LLM:"+_llmModels.Count+" TTS:"+_ttsModels.Count+ "STT:"+_sttModels.Count );
+
+        }
+
+        private void AddModelBasedOnEndpointName(AIModel model)
+        {
+            if (model.EndpointName == "listen/")
+            {
+                _sttModels.Add(model);
+            }
+            else if (model.EndpointName == "speak/")
+            {
+                _ttsModels.Add(model);
+            }
+            else if (model.EndpointName == "think/")
+            {
+                _llmModels.Add(model);
             }
         }
 
@@ -39,7 +89,7 @@ namespace MirageXR
             string url = null;
             string username = null;
             string password = null;
-            
+
             var filepath = Resources.Load(fileName) as TextAsset;
             if (filepath == null)
             {
@@ -85,7 +135,10 @@ namespace MirageXR
             _password = password;
         }
 
-        public async Task<List<OptionsResponse>> GetModelsAsync()
+        /** Do we need that one?
+         *  See GetLLMModels, GetSTTModels and GetTTSModels.
+         * public async Task<List<OptionsResponse>> GetModelsAsync()
+        
         {
             try
             {
@@ -98,7 +151,7 @@ namespace MirageXR
                 return null;
             }
         }
-
+         */
         public async Task<string> ConvertSpeechToTextAsync(AudioClip audioClip, string model)
         {
             try
@@ -125,11 +178,11 @@ namespace MirageXR
             }
         }
 
-        public async Task<AudioClip> ConvertTextToSpeechAsync(string speakOut, string voice, string model)
+        public async Task<AudioClip> ConvertTextToSpeechAsync(string message, string model)
         {
             try
             {
-                return await AiServices.ConvertTextToSpeechAsync(speakOut, voice, model, _url, _token);
+                return await AiServices.ConvertTextToSpeechAsync(message, model, _url, _token);
             }
             catch (Exception e)
             {
