@@ -25,11 +25,8 @@ public class GlyphListItem : MonoBehaviour
         if (_tmpText) _tmpText.text = " " + _actionObject.label;
         if (_tmpSize)
         {
-            var texture = _actionObject.sprite.texture;
-            var byteSize = texture.GetRawTextureData().Length;
-            var kilobyteSize = Math.Round(byteSize / 1024f , 1);
-
-            _tmpSize.text = " " + kilobyteSize.ToString(CultureInfo.InvariantCulture) + " Kb";
+            // TODO: get fbx file size
+            _tmpSize.text = " ";
         }
     }
 

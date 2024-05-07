@@ -105,7 +105,7 @@ namespace MirageXR
 #elif UNITY_WSA && !UNITY_EDITOR
             return DeviceFormat.Unknown;
 #else
-            return Screen.width > Screen.height ? DeviceFormat.Tablet : DeviceFormat.Unknown;
+            return Screen.width > Screen.height ? DeviceFormat.Tablet : DeviceFormat.Phone;
 #endif
         }
 

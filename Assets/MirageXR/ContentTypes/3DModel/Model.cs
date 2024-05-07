@@ -113,11 +113,18 @@ namespace MirageXR
         {
             content.option = ZipUtilities.CheckFileForIllegalCharacters(content.option);
             var loadPath = Path.Combine(RootObject.Instance.activityManager.ActivityPath, content.option, GLTF_NAME);
+
+            ImportSettings _importSettings = new()
+            {
+                AnimationMethod = AnimationMethod.Legacy
+            };
+
             _gltf = new GltfImport();
-            var success = await _gltf.Load(new Uri(loadPath));
+            var success = await _gltf.Load(new Uri(loadPath), _importSettings);
+            var instantiator = new GameObjectInstantiator(_gltf, transform);
             if (success)
             {
-                success = await _gltf.InstantiateMainSceneAsync(transform);
+                success = await _gltf.InstantiateMainSceneAsync(instantiator); // was: transform
             }
 
             if (!success)
@@ -126,11 +133,27 @@ namespace MirageXR
                 return false;
             }
 
-            OnFinishLoading(transform.Find("Sketchfab_model").gameObject, _gltf.GetAnimationClips());
+            var legacyAnimation = instantiator.SceneInstance.LegacyAnimation;
+            if (legacyAnimation != null)
+            {
+                Debug.Log("playing animation (with data from gltfast scene instantiator).");
+                var clips = _gltf.GetAnimationClips();
+                if (clips != null && clips.Length > 0 && clips[0] != null)
+                {
+                    legacyAnimation.clip = clips[0];
+                    legacyAnimation.clip.wrapMode = UnityEngine.WrapMode.Loop;
+                    legacyAnimation.clip.legacy = true;
+                    legacyAnimation.clip.EnsureQuaternionContinuity();
+                    legacyAnimation.playAutomatically = true;
+                    legacyAnimation.Play(clips[0].name);
+                }
+            }
+
+            OnFinishLoading(transform.Find("Sketchfab_model").gameObject); // , _gltf.GetAnimationClips()
             return true;
         }
 
-        private void OnFinishLoading(GameObject model, AnimationClip[] clip)
+        private void OnFinishLoading(GameObject model) // , AnimationClip[] clip
         {
             if (this == null)
             {
@@ -138,10 +161,12 @@ namespace MirageXR
                 return;
             }
 
+            
             var modelTransform = transform;
             var startPos = modelTransform.position + modelTransform.forward * -0.5f + modelTransform.up * -0.1f;
-
+            
             model.transform.SetParent(modelTransform);
+            //model.name = _obj.option;
 
             //Do not manipulate the library models at the start
             if (!_isLibraryModel)
@@ -150,41 +175,48 @@ namespace MirageXR
                 model.transform.position = startPos;
                 model.transform.localRotation = Quaternion.identity;
             }
-
-            model.name = _obj.option;
+                        
             model.transform.localRotation *= Quaternion.Euler(-90f, 0f, 0f);
 
             if (!_isLibraryModel)
             {
-                ConfigureModel(model, clip);
+                ConfigureModel(model); // , clip
             }
+            
 
             MoveAndScaleModel(model);
-
+            
             var parent = transform.parent;
             var myPoiEditor = parent.gameObject.GetComponent<PoiEditor>();
 
             var defaultScale = _isLibraryModel ? new Vector3(LIBRARY_MODEL_SCALE, LIBRARY_MODEL_SCALE, LIBRARY_MODEL_SCALE) : Vector3.one;
             parent.localScale = GetPoiScale(myPoiEditor, defaultScale);
             parent.localEulerAngles = GetPoiRotation(myPoiEditor);
+            
 
             LoadingCompleted = true;
 
+            /*
             // configure and play animation
-
             if (clip is { Length: > 0 })
             {
-                Debug.LogDebug($"Animation(s) found ({clip.Length})...isLegacy? {clip[0].legacy}");
+                Debug.LogDebug($"Animation(s) found ({clip.Length})...isLegacy? {clip[0].legacy}, clip[0]: {clip[0].name}");
 
                 _animation = model.AddComponent<Animation>();
-                _animation.AddClip(clip[0], "leaning");
-                _animation.playAutomatically = true;
-                _animation.clip = clip[0];
+                _animation.AddClip(clip[0], clip[0].name);
+                _animation.clip = _animation.GetClip(clip[0].name);
+                _animation.clip.wrapMode = UnityEngine.WrapMode.Loop;
                 _animation.clip.legacy = true;
-                _animation.Play();
+                _animation.clip.EnsureQuaternionContinuity();
+                //_animation.clip.SetCurve("", typeof(Camera), "field of view", AnimationCurve.Linear(0.0f, 60.0f, 10.0f, 90.0f));
+                _animation.playAutomatically = true;
+                _animation.Play(clip[0].name);
+                Debug.Log("Playing? " + _animation.isPlaying);
             }
-
+            */
+            
             InitManipulators();
+            
         }
 
         private async Task LoadLibraryModel(string libraryModelPrefabName)
@@ -193,7 +225,7 @@ namespace MirageXR
             {
                 var model = await Addressables.LoadAssetAsync<GameObject>(libraryModelPrefabName);
                 var instantiatedModel = Instantiate((GameObject)model, transform);
-                OnFinishLoading(instantiatedModel, null);
+                OnFinishLoading(instantiatedModel); // , null
             }
             catch (Exception e)
             {
@@ -209,7 +241,7 @@ namespace MirageXR
             {
                 poiEditor.EnableBoundsControl(!_obj.positionLock);
             }
-
+            
             var gridManager = RootObject.Instance.gridManager;
             var objectManipulator = GetComponentInParent<ObjectManipulator>();
             if (objectManipulator)
@@ -223,7 +255,7 @@ namespace MirageXR
                     poiEditor.OnChanged();
                 });
             }
-
+            
             var boundsControl = GetComponentInParent<BoundsControl>();
             if (boundsControl)
             {
@@ -246,9 +278,11 @@ namespace MirageXR
                     poiEditor.OnChanged();
                 });
             }
+            /*
+            */
         }
 
-        private void ConfigureModel(GameObject model, AnimationClip[] clips)
+        private void ConfigureModel(GameObject model) // , AnimationClip[] clips
         {
             var rb = model.AddComponent<Rigidbody>();
             rb.isKinematic = true;

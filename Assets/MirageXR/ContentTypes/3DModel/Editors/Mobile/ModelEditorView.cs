@@ -97,9 +97,7 @@ public class ModelEditorView : PopupEditorBase
             _pageIndex = 0;
             RootView_v2.Instance.HideBaseView();
             _modelFileType = NativeFilePicker.ConvertExtensionToFileType("fbx");
-
             _toggleLocal.isOn = true;
-            _toggleLibraries.isOn = false;
         }
         catch (Exception e)
         {
@@ -213,6 +211,7 @@ public class ModelEditorView : PopupEditorBase
             _sketchfabTab.SetActive(false);
             _librariesTab.SetActive(false);
             _bottomButtonsPanel.SetActive(true);
+            _libraryManager.CloseLibraryTab();
             ShowLocalModels();
         }
     }
@@ -233,6 +232,7 @@ public class ModelEditorView : PopupEditorBase
             _sketchfabTab.SetActive(true);
             _librariesTab.SetActive(false);
             _bottomButtonsPanel.SetActive(false);
+            _libraryManager.CloseLibraryTab();
             ShowRemoteModels();
         }
     }
@@ -398,7 +398,7 @@ public class ModelEditorView : PopupEditorBase
         try
         {
             //disable the library items
-            _libraryManager.DisableCategoryButtons();
+            //_libraryManager.DisableCategoryButtons();
 
             _pageIndex = 0;
             _scroll.normalizedPosition = Vector2.up;

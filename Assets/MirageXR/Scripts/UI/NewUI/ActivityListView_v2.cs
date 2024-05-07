@@ -121,10 +121,10 @@ public class ActivityListView_v2 : BaseView
 
     public async void FetchAndUpdateView()
     {
-        LoadView.Instance.Show(true);
+        LoadView.Instance?.Show(true);
         _content = await FetchContent();
         UpdateView();
-        LoadView.Instance.Hide();
+        LoadView.Instance?.Hide();
     }
 
     public void UpdateView()
