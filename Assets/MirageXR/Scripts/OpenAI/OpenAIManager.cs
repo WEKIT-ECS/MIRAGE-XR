@@ -119,7 +119,7 @@ namespace MirageXR
 
         public bool IsAssistantExists(string assistantId)
         {
-            return _assistants.ContainsKey(assistantId);
+            return assistantId != null && _assistants.ContainsKey(assistantId);
         }
 
         public async Task<string> SendMessageToAssistant(string assistantId, string message, CancellationToken cancellationToken = default)
@@ -137,7 +137,7 @@ namespace MirageXR
                     thread = await _aiClient.ThreadsEndpoint.CreateThreadAsync(cancellationToken: cancellationToken);
                     _threads.TryAdd(assistantId, thread);
                 }
-                
+
                 var messageResponse = await thread.CreateMessageAsync(new CreateMessageRequest(message), cancellationToken: cancellationToken);
                 var runResponse = await _aiClient.ThreadsEndpoint.CreateRunAsync(thread.Id, new CreateRunRequest(assistantId), cancellationToken);
                 runResponse = await runResponse.WaitForStatusChangeAsync(cancellationToken: cancellationToken);
