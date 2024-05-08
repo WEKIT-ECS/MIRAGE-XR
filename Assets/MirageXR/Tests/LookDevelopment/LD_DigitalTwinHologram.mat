@@ -38,6 +38,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _BaseColor:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -74,6 +78,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Triplanar_4c3fb2bf9c09440cb2e2f036716a19a0_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: a58e229387fd8a441b9aa01b79ff40a2, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -88,22 +96,23 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _Blend: 0.203
     - _BlendOp: 0
     - _BumpScale: 1
     - _ColorWriteMask: 15
     - _CullMode: 2
     - _CustomMode: 0
     - _Cutoff: 0.5
-    - _Debug_Blend: 0.468
+    - _Debug_Blend: 0.368
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _Fade_Depth: 47.5
-    - _Fade_Distance: 4.7
-    - _Fade_Falloff: 4
+    - _Fade_Distance: 4.4
+    - _Fade_Falloff: 3
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _GridPeriod: 100
+    - _GridPeriod: 0.36
     - _Metallic: 0
     - _Mode: 0
     - _Multiplier: 337
@@ -112,9 +121,14 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _RenderQueueOverride: -1
+    - _Secondary_Grid_Blend: 0.333
+    - _Secondary_Grid_Scale: 10
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _SubGrid_Blend: 0.33
+    - _Sub_Grid_Pixels_Blend: 0.175
+    - _Sub_Grid_Scale: 10
     - _UVSec: 0
     - _WireThickness: 0
     - _Wire_Thickness: 0.1
@@ -127,7 +141,7 @@ Material:
     - _Base_Colour: {r: 0.1647059, g: 0.1019608, b: 0.4196079, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _LineWidth: {r: 0.1, g: 0.1, b: 0, a: 0}
+    - _LineWidth: {r: 0.1, g: 0.02, b: 0, a: 0}
     - _WireColor: {r: 0.07450981, g: 0.73333335, b: 0.8235295, a: 1}
     - _Wire_Colour: {r: 0.07450981, g: 0.7333333, b: 0.8235295, a: 1}
   m_BuildTextureStacks: []
