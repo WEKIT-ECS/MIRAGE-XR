@@ -1,0 +1,1698 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <assembly>
+    <name>Microsoft.Windows.MixedReality.DotNetWinRT</name>
+  </assembly>
+  <members>
+    <member name="T:Microsoft.Windows.Perception.PerceptionTimestamp">
+      <summary>Represents a particular prediction of the future, or a snapshot of the past.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.PerceptionTimestamp.PredictionAmount">
+      <summary>For timestamps about the future, gets the span of time between when the prediction was made and TargetTime.</summary>
+      <returns>The prediction duration.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.PerceptionTimestamp.SystemRelativeTargetTime">
+      <summary>Gets the specific time that is the subject of this timestamp, represented in the system-relative QueryPerformanceCounter (QPC) time domain.</summary>
+      <returns>The system-relative QPC time.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.PerceptionTimestamp.TargetTime">
+      <summary>Gets the specific time that is the subject of this timestamp.</summary>
+      <returns>The time.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.PerceptionTimestampHelper">
+      <summary>Static methods for working with PerceptionTimestamp objects.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.PerceptionTimestampHelper.FromHistoricalTargetTime(Windows.Foundation.DateTime)">
+      <summary>Gets a timestamp that targets the specified time in the past.</summary>
+      <param name="targetTime">The moment in the past to target with the timestamp.</param>
+      <returns>The timestamp.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.PerceptionTimestampHelper.FromSystemRelativeTargetTime(Windows.Foundation.TimeSpan)">
+      <summary>Gets a timestamp that targets the specified system-relative time, represented in the system-relative QueryPerformanceCounter (QPC) time domain.</summary>
+      <param name="targetTime">The system-relative moment in QPC time to target with the timestamp.</param>
+      <returns>The timestamp.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.People.EyesPose">
+      <summary>Represents the user's eye gaze in relation to their surroundings.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.People.EyesPose.Gaze">
+      <summary>Gets the user's eye gaze in the specified coordinate system.</summary>
+      <returns>The eye gaze, if calibration is valid for the current user; otherwise, null.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.People.EyesPose.IsCalibrationValid">
+      <summary>Gets whether eye gaze has been calibrated for the current user in the headset.</summary>
+      <returns>Whether eye gaze has been calibrated for the current user.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.People.EyesPose.UpdateTimestamp">
+      <summary>Gets the timestamp at which this eye gaze snapshot was taken.</summary>
+      <returns>The timestamp.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.People.EyesPose.IsSupported">
+      <summary>Gets whether eye gaze is supported by the current headset.</summary>
+      <returns>Whether eye gaze is supported.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.People.EyesPose.RequestAccessAsync">
+      <summary>Requests access for an app to use spatial eye gaze. This requires the **gazeInput** capability.</summary>
+      <returns>Operation that triggers once the user has completed any consent dialog, providing the access status.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.People.HandJointKind">
+      <summary>Specifies a joint within the user's hand.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.IndexDistal">
+      <summary>The third knuckle that poses the index finger's distal phalanx.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.IndexIntermediate">
+      <summary>The second knuckle that poses the index finger's intermediate phalanx.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.IndexMetacarpal">
+      <summary>The joint in the base of the hand that poses the index finger's metacarpal bone.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.IndexProximal">
+      <summary>The first knuckle that poses the index finger's proximal phalanx.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.IndexTip">
+      <summary>The point on the surface of the index finger at the tip.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.LittleDistal">
+      <summary>The third knuckle that poses the little finger's (pinky's) distal phalanx.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.LittleIntermediate">
+      <summary>The second knuckle that poses the little finger's (pinky's) intermediate phalanx.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.LittleMetacarpal">
+      <summary>The joint in the base of hand that poses the little finger's (pinky's) metacarpal bone.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.LittleProximal">
+      <summary>The first knuckle that poses the little finger's (pinky's) proximal phalanx.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.LittleTip">
+      <summary>The point on the surface of the little finger's (pinky's) at the tip.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.MiddleDistal">
+      <summary>The third knuckle that poses the middle finger's distal phalanx.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.MiddleIntermediate">
+      <summary>The second knuckle that poses the middle finger's intermediate phalanx.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.MiddleMetacarpal">
+      <summary>The joint in the base of the hand that poses the middle finger's metacarpal bone.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.MiddleProximal">
+      <summary>The first knuckle that poses the middle finger's proximal phalanx.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.MiddleTip">
+      <summary>The point on the surface of the middle finger at the tip.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.Palm">
+      <summary>The center of the palm.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.RingDistal">
+      <summary>The third knuckle that poses the ring finger's distal phalanx.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.RingIntermediate">
+      <summary>The second knuckle that poses the ring finger's intermediate phalanx.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.RingMetacarpal">
+      <summary>The joint in the base of hand that poses the ring finger's metacarpal bone.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.RingProximal">
+      <summary>The first knuckle that poses the ring finger's proximal phalanx.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.RingTip">
+      <summary>The point on the surface of the ring finger at the tip.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.ThumbDistal">
+      <summary>The second knuckle that poses the thumb's distal phalanx.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.ThumbMetacarpal">
+      <summary>The joint in the base of the hand that poses the thumb's metacarpal bone.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.ThumbProximal">
+      <summary>The first knuckle that poses the thumb's proximal phalanx.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.ThumbTip">
+      <summary>The point on the surface of the thumb at the tip.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandJointKind.Wrist">
+      <summary>The center of the wrist.</summary>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.People.HandMeshObserver">
+      <summary>Provides mesh updates each frame that track the detected shape of a hand.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.People.HandMeshObserver.ModelId">
+      <summary>Gets a hand mesh model ID to identify the same index buffer across multiple source detection and loss events.</summary>
+      <returns>The hand mesh model ID.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.People.HandMeshObserver.NeutralPose">
+      <summary>Gets the current neutral HandPose for this hand.</summary>
+      <returns>The neutral hand pose.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.People.HandMeshObserver.NeutralPoseVersion">
+      <summary>Gets the version of the NeutralPose for this hand.</summary>
+      <returns>The neutral hand pose version.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.People.HandMeshObserver.Source">
+      <summary>The SpatialInteractionSource whose hand mesh is tracked by this HandMeshObserver.</summary>
+      <returns>The source.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.People.HandMeshObserver.TriangleIndexCount">
+      <summary>Gets the number of elements in the index buffer for this hand mesh model.</summary>
+      <returns>The index buffer size.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.People.HandMeshObserver.VertexCount">
+      <summary>Gets the count of vertices for this hand.</summary>
+      <returns>The count of vertices for this hand.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.People.HandMeshObserver.GetTriangleIndices(System.UInt16[])">
+      <summary>Fills an index buffer for this hand mesh model.</summary>
+      <param name="indices">The index buffer to fill.</param>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.People.HandMeshObserver.GetVertexStateForPose(Microsoft.Windows.Perception.People.HandPose)">
+      <summary>Gets the vertex buffer and other state needed to render the hand mesh for a given frame's hand pose, or for the hand mesh's neutral pose.</summary>
+      <param name="handPose">The hand pose for which to get the vertex state.</param>
+      <returns>The vertex state.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.People.HandMeshVertex">
+      <summary>Represents an individual vertex in a hand mesh vertex buffer.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandMeshVertex.Normal">
+      <summary>The normal of the vertex.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.HandMeshVertex.Position">
+      <summary>The position of the vertex.</summary>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.People.HandMeshVertexState">
+      <summary>Represents the vertex buffer and other state needed to render the hand mesh.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.People.HandMeshVertexState.CoordinateSystem">
+      <summary>Gets the coordinate system within which this frame's vertex positions and normals are expressed.</summary>
+      <returns>The coordinate system.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.People.HandMeshVertexState.UpdateTimestamp">
+      <summary>Gets the timestamp at which the vertex positions and normals were last updated.</summary>
+      <returns>The update timestamp.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.People.HandMeshVertexState.GetVertices(Microsoft.Windows.Perception.People.HandMeshVertex[])">
+      <summary>Fills a vertex buffer for this hand mesh model.</summary>
+      <param name="vertices">The vertex buffer to fill.</param>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.People.HandPose">
+      <summary>Represents the poses of the user's hand joints in relation to their surroundings.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.People.HandPose.GetRelativeJoint(Microsoft.Windows.Perception.People.HandJointKind,Microsoft.Windows.Perception.People.HandJointKind)">
+      <summary>Gets the pose of a hand joint, expressed relative to a reference joint.</summary>
+      <param name="joint">The hand joint kind to locate.</param>
+      <param name="referenceJoint">The reference hand joint kind, relative to which the joint will be located.</param>
+      <returns>The relative pose of the joint.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.People.HandPose.GetRelativeJoints(Microsoft.Windows.Perception.People.HandJointKind[],Microsoft.Windows.Perception.People.HandJointKind[],Microsoft.Windows.Perception.People.JointPose[])">
+      <summary>Gets the pose of multiple hand joints, each expressed relative to its matching reference joint.</summary>
+      <param name="joints">The array of hand joint kinds to locate.</param>
+      <param name="referenceJoints">The array of reference hand joint kinds, relative to which each matching joint in the *joints* array will be located.</param>
+      <param name="jointPoses">The array of relative poses to fill, one for each matching element in the *joints* and *referenceJoints* arrays.</param>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.People.HandPose.TryGetJoint(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem,Microsoft.Windows.Perception.People.HandJointKind,Microsoft.Windows.Perception.People.JointPose@)">
+      <summary>Gets the pose of a hand joint, expressed in the specified coordinate system.</summary>
+      <param name="coordinateSystem">The coordinate system in which to express the joint pose.</param>
+      <param name="joint">The hand joint kind to locate.</param>
+      <param name="jointPose">The pose to fill for the specified joint.</param>
+      <returns>True if the hand can be located within the specified coordinate system; otherwise, false.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.People.HandPose.TryGetJoints(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem,Microsoft.Windows.Perception.People.HandJointKind[],Microsoft.Windows.Perception.People.JointPose[])">
+      <summary>Gets the pose of multiple hand joints, expressed in the specified coordinate system.</summary>
+      <param name="coordinateSystem">The coordinate system in which to express the joint poses.</param>
+      <param name="joints">The array of hand joint kinds to locate.</param>
+      <param name="jointPoses">The array of poses to fill, one for each matching element in the joints array.</param>
+      <returns>True if the hand can be located within the specified coordinate system; otherwise, false.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.People.HeadPose">
+      <summary>Represents the user's head gaze in relation to their surroundings.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.People.HeadPose.ForwardDirection">
+      <summary>Gets the forward direction of the user's head gaze in the specified coordinate system, as a unit vector.</summary>
+      <returns>The forward direction unit vector.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.People.HeadPose.Position">
+      <summary>Gets the position of the user's head in the specified coordinate system.</summary>
+      <returns>The position.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.People.HeadPose.UpDirection">
+      <summary>Gets the up direction that orients the user's head gaze in the specified coordinate system, as a unit vector.</summary>
+      <returns>The up direction unit vector.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.People.JointPose">
+      <summary>The pose of a hand joint.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.JointPose.Accuracy">
+      <summary>The accuracy of this joint pose.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.JointPose.Orientation">
+      <summary>The joint's orientation, with forward (-z) pointing towards the tip of each finger, up (+y) pointing out of the back of the hand or finger, and right (+x) pointing perpendicular to forward and up.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.JointPose.Position">
+      <summary>The joint's position.  All joints except for tip joints are interior to the hand.  Finger joint poses represent the base of the named bone.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.JointPose.Radius">
+      <summary>The distance from the joint position to the surface of the hand.</summary>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.People.JointPoseAccuracy">
+      <summary>Specifies the accuracy of a hand joint's position and orientation.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.JointPoseAccuracy.Approximate">
+      <summary>The hand joint is only being tracked approximately, perhaps due to occlusion.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.People.JointPoseAccuracy.High">
+      <summary>The hand joint is being tracked at its nominal accuracy.</summary>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialAnchor">
+      <summary>Represents a coordinate system that is strongly anchored to a point in the user's surroundings.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialAnchor.CoordinateSystem">
+      <summary>Gets the coordinate system of the anchor, with easing adjustments applied.</summary>
+      <returns>The eased coordinate system.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialAnchor.RawCoordinateSystem">
+      <summary>Gets the coordinate system of the anchor, without easing applied.</summary>
+      <returns>The raw coordinate system.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialAnchor.RemovedByUser">
+      <summary>Gets a value indicating whether the persisted anchor was removed by the user.</summary>
+      <returns>**True**, if the anchor was removed; otherwise, **false**.</returns>
+    </member>
+    <member name="E:Microsoft.Windows.Perception.Spatial.SpatialAnchor.RawCoordinateSystemAdjusted">
+      <summary>Occurs when the device adjusts the anchor's precise location, which updates the RawCoordinateSystem.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialAnchor.TryCreateRelativeTo(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem)">
+      <summary>Creates an anchor at the origin of the specified coordinate system.</summary>
+      <param name="coordinateSystem">The reference SpatialCoordinateSystem object.</param>
+      <returns>The new anchor, if the creation attempt is successful; otherwise, null.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialAnchor.TryCreateRelativeTo(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem,Windows.Foundation.Numerics.Vector3)">
+      <summary>Creates an anchor at a specific position within the specified coordinate system.</summary>
+      <param name="coordinateSystem">The reference SpatialCoordinateSystem object.</param>
+      <param name="position">A point specified relative to the coordinate system of the source SpatialCoordinateSystem object.</param>
+      <returns>The new anchor, if the creation attempt is successful; otherwise, null.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialAnchor.TryCreateRelativeTo(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem,Windows.Foundation.Numerics.Vector3,Windows.Foundation.Numerics.Quaternion)">
+      <summary>Creates an anchor at a specific position and orientation within the specified coordinate system.</summary>
+      <param name="coordinateSystem">The reference SpatialCoordinateSystem object.</param>
+      <param name="position">A point specified relative to the coordinate system of the source SpatialCoordinateSystem object.</param>
+      <param name="orientation">A rotation specified relative to the coordinate system of the source SpatialCoordinateSystem object. The orientation of the created anchor's coordinate system is offset by this rotation relative to the source coordinate system.</param>
+      <returns>The new anchor, if the creation attempt is successful; otherwise, null.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialAnchorExporter">
+      <summary>Allows apps to export spatial anchors for sharing and relocalization across devices, so that both devices can reason about the same locations in their users' surroundings.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialAnchorExporter.GetAnchorExportSufficiencyAsync(Microsoft.Windows.Perception.Spatial.SpatialAnchor,Microsoft.Windows.Perception.Spatial.SpatialAnchorExportPurpose)">
+      <summary>Returns information about whether a spatial anchor's data is sufficient for sharing or relocalization.</summary>
+      <param name="anchor">The spatial anchor that will be exported.</param>
+      <param name="purpose">The purpose of the export, sharing or relocalization.</param>
+      <returns>The anchor's export sufficiency.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialAnchorExporter.GetDefault">
+      <summary>Gets the default **SpatialAnchorExporter** instance for the current device.</summary>
+      <returns>The exporter.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialAnchorExporter.RequestAccessAsync">
+      <summary>Requests access for an app to export spatial anchors. This requires the **spatialPerception** capability.</summary>
+      <returns>Operation that triggers once the user has completed any consent dialog, providing the access status.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialAnchorExporter.TryExportAnchorAsync(Microsoft.Windows.Perception.Spatial.SpatialAnchor,Microsoft.Windows.Perception.Spatial.SpatialAnchorExportPurpose,Windows.Storage.Streams.IOutputStream)">
+      <summary>Exports a spatial anchor to a stream for sharing or relocalization. This allows multiple devices to reason about the same locations in their users' surroundings.</summary>
+      <param name="anchor">The spatial anchor to export.</param>
+      <param name="purpose">The purpose of the export, sharing or relocalization.</param>
+      <param name="stream">The stream to export the anchor to.</param>
+      <returns>Operation that triggers once the export has been attempted, providing true if the export succeeded; otherwise, false.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialAnchorExportPurpose">
+      <summary>Specifies the purpose of a given spatial anchor export, sharing or relocalization.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialAnchorExportPurpose.Relocalization">
+      <summary>This export is to relocalize an existing spatial anchor.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialAnchorExportPurpose.Sharing">
+      <summary>This export is to share a new spatial anchor.</summary>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialAnchorExportSufficiency">
+      <summary>Represents information about whether a spatial anchor's data is sufficient for sharing or relocalization.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialAnchorExportSufficiency.IsMinimallySufficient">
+      <summary>Gets whether the spatial anchor has gathered enough data to successfully export for the specified purpose.</summary>
+      <returns>Whether the export will succeed.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialAnchorExportSufficiency.RecommendedSufficiencyLevel">
+      <summary>Gets the SufficiencyLevel value that is ideal for an export for the specified purpose.</summary>
+      <returns>The ideal sufficiency level.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialAnchorExportSufficiency.SufficiencyLevel">
+      <summary>Gets the amount of data the spatial anchor has gathered relative to the minimal amount needed to successfully export for the specified purpose.</summary>
+      <returns>The amount of data gathered for this export.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialAnchorManager">
+      <summary>Static methods for getting the spatial anchor store for the current app.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialAnchorManager.RequestStoreAsync">
+      <summary>Retrieves the anchor store for the current app.</summary>
+      <returns>The anchor store.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialAnchorRawCoordinateSystemAdjustedEventArgs">
+      <summary>Provides data for the SpatialAnchor.RawCoordinateSystemAdjusted event.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialAnchorRawCoordinateSystemAdjustedEventArgs.OldRawCoordinateSystemToNewRawCoordinateSystemTransform">
+      <summary>Gets a transform representing the adjustment of this SpatialAnchor relative to its previous location.</summary>
+      <returns>The transform.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialAnchorStore">
+      <summary>Represents a collection of SpatialAnchor objects stored by Windows on behalf of an app.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialAnchorStore.Clear">
+      <summary>Clears all anchors in the app's anchor store.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialAnchorStore.GetAllSavedAnchors">
+      <summary>Gets a map of all anchors saved in the store, with their identifiers as the keys.</summary>
+      <returns>The map of anchors.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialAnchorStore.Remove(System.String)">
+      <summary>Removes a specific anchor from the store. The anchor is specified by its identifier.</summary>
+      <param name="id">The identifier of the anchor to remove.</param>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialAnchorStore.TrySave(System.String,Microsoft.Windows.Perception.Spatial.SpatialAnchor)">
+      <summary>Persists an anchor to the store.</summary>
+      <param name="id">An identifier for the anchor. The identifier must be unique within your app.</param>
+      <param name="anchor">The anchor to save.</param>
+      <returns>True, if the save succeeded; otherwise, false.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialAnchorTransferManager">
+      <summary>Static methods for transferring spatial anchors between devices, so that both devices can reason about the same locations in their users' surroundings.</summary>
+      <deprecated type="deprecate">Use SpatialEntityStore instead of SpatialAnchorTransferManager. For more info, see MSDN.</deprecated>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialAnchorTransferManager.RequestAccessAsync">
+      <summary>Requests access for an app to export or import spatial anchors. This requires the spatialPerception capability.</summary>
+      <deprecated type="deprecate">Use SpatialEntityStore instead of SpatialAnchorTransferManager. For more info, see MSDN.</deprecated>
+      <returns>Operation that triggers once the user has completed any consent dialog, providing the access status.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialAnchorTransferManager.TryExportAnchorsAsync(Windows.Foundation.Collections.IIterable{Windows.Foundation.Collections.IKeyValuePair{System.String,Microsoft.Windows.Perception.Spatial.SpatialAnchor}},Windows.Storage.Streams.IOutputStream)">
+      <summary>Exports spatial anchors to a stream, which can later be imported on another device. This allows both devices to reason about the same locations in their users' surroundings.</summary>
+      <deprecated type="deprecate">Use SpatialEntityStore instead of SpatialAnchorTransferManager. For more info, see MSDN.</deprecated>
+      <param name="anchors">The collection of anchors to export, each identified by an app-specified string key.</param>
+      <param name="stream">The stream to export anchors to.</param>
+      <returns>Operation that triggers once the export is complete.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialAnchorTransferManager.TryImportAnchorsAsync(Windows.Storage.Streams.IInputStream)">
+      <summary>Imports a stream of spatial anchors that was previously exported from another device. This allows both devices to reason about the same locations in their users' surroundings.</summary>
+      <deprecated type="deprecate">Use SpatialEntityStore instead of SpatialAnchorTransferManager. For more info, see MSDN.</deprecated>
+      <param name="stream">The stream to import anchors from.</param>
+      <returns>The operation that triggers once the import is complete, providing the imported anchors.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialBoundingBox">
+      <summary>An axis-aligned bounding box in the user's surroundings, with coordinates expressed in meters.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialBoundingBox.Center">
+      <summary>The position of the center of the bounding box.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialBoundingBox.Extents">
+      <summary>The distance from the center of the bounding box to its edges, along each axis.</summary>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialBoundingFrustum">
+      <summary>A bounding frustum in the user's surroundings defined as a set of 6 planes, with coordinates expressed in meters.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialBoundingFrustum.Bottom">
+      <summary>The bottom Plane defines the boundary for the bottommost content within the frustum.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialBoundingFrustum.Far">
+      <summary>The far Plane defines the boundary for the farthest content within the frustum.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialBoundingFrustum.Left">
+      <summary>The left Plane defines the boundary for the leftmost content within the frustum.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialBoundingFrustum.Near">
+      <summary>The near Plane defines the boundary for the closest content within the frustum.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialBoundingFrustum.Right">
+      <summary>The right Plane defines the boundary for the rightmost content within the frustum.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialBoundingFrustum.Top">
+      <summary>The top Plane defines the boundary for the topmost content within the frustum.</summary>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialBoundingOrientedBox">
+      <summary>An oriented bounding box in the user's surroundings, with coordinates expressed in meters.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialBoundingOrientedBox.Center">
+      <summary>The position of the center of the bounding box.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialBoundingOrientedBox.Extents">
+      <summary>The size of the bounding box along each axis, prior to rotation.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialBoundingOrientedBox.Orientation">
+      <summary>The rotation of the bounding box, relative to the coordinate system's axes.</summary>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialBoundingSphere">
+      <summary>A bounding sphere in the user's surroundings, with coordinates expressed in meters.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialBoundingSphere.Center">
+      <summary>The position of the center of the sphere.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialBoundingSphere.Radius">
+      <summary>The radius of the sphere.</summary>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialBoundingVolume">
+      <summary>Represents a bounding volume of some kind in the user's surroundings, for example, a box, oriented box, sphere or frustum.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialBoundingVolume.FromBox(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem,Microsoft.Windows.Perception.Spatial.SpatialBoundingBox)">
+      <summary>Creates a bounding volume from the specified box, with its coordinates interpreted within the specified coordinate system.</summary>
+      <param name="coordinateSystem">The coordinate system within which to interpret the bounding box's coordinates.</param>
+      <param name="box">The bounding box.</param>
+      <returns>The new bounding volume.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialBoundingVolume.FromFrustum(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem,Microsoft.Windows.Perception.Spatial.SpatialBoundingFrustum)">
+      <summary>Creates a bounding volume from the specified frustum, with its coordinates interpreted within the specified coordinate system.</summary>
+      <param name="coordinateSystem">The coordinate system within which to interpret the bounding frustum's coordinates.</param>
+      <param name="frustum">The bounding frustum.</param>
+      <returns>The new bounding volume.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialBoundingVolume.FromOrientedBox(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem,Microsoft.Windows.Perception.Spatial.SpatialBoundingOrientedBox)">
+      <summary>Creates a bounding volume from the specified oriented box, with its coordinates interpreted within the specified coordinate system.</summary>
+      <param name="coordinateSystem">The coordinate system within which to interpret the bounding box's coordinates.</param>
+      <param name="box">The oriented bounding box.</param>
+      <returns>The new bounding volume.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialBoundingVolume.FromSphere(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem,Microsoft.Windows.Perception.Spatial.SpatialBoundingSphere)">
+      <summary>Creates a bounding volume from the specified sphere, with its coordinates interpreted within the specified coordinate system.</summary>
+      <param name="coordinateSystem">The coordinate system within which to interpret the bounding sphere's coordinates.</param>
+      <param name="sphere">The bounding sphere.</param>
+      <returns>The new bounding volume.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem">
+      <summary>Represents a coordinate system used to reason about the user's surroundings.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem.TryGetTransformTo(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem)">
+      <summary>Provides a transform matrix that you can use to convert geometry expressed in one coordinate system to another coordinate system.</summary>
+      <param name="target">The target coordinate system that you want to transform geometry to.</param>
+      <returns>If the transformation is successful, this parameter returns the Matrix4x4 structure that you can use to transform geometry from being represented in the source SpatialCoordinateSystem to the specified target coordinate system.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialEntity">
+      <summary>Represents a physical location in the user's surroundings and its metadata, which an app intends to share with other devices.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialEntity.#ctor(Microsoft.Windows.Perception.Spatial.SpatialAnchor)">
+      <summary>Creates a new spatial entity to share the provided spatial anchor.</summary>
+      <param name="spatialAnchor">The spatial anchor to share.</param>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialEntity.#ctor(Microsoft.Windows.Perception.Spatial.SpatialAnchor,Windows.Foundation.Collections.ValueSet)">
+      <summary>Creates a new spatial entity to share the provided spatial anchor and metadata.</summary>
+      <param name="spatialAnchor">The spatial anchor to share.</param>
+      <param name="propertySet">The metadata to share for this anchor.</param>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialEntity.Anchor">
+      <summary>Gets the spatial anchor representing the shared location in the user's surroundings.</summary>
+      <returns>The anchor.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialEntity.Id">
+      <summary>Gets the globally-unique ID for this spatial entity.</summary>
+      <returns>The ID.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialEntity.Properties">
+      <summary>Gets the key/value store of metadata for this spatial entity.</summary>
+      <returns>The metadata.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialEntityAddedEventArgs">
+      <summary>Event data for spatial entity added events.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialEntityAddedEventArgs.Entity">
+      <summary>Gets the spatial entity that was added.</summary>
+      <returns>The added entity.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialEntityRemovedEventArgs">
+      <summary>Event data for spatial entity removed events.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialEntityRemovedEventArgs.Entity">
+      <summary>Gets the spatial entity that was removed.</summary>
+      <returns>The removed entity.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialEntityStore">
+      <summary>Represents a shared pool of spatial entities, synchronized automatically among the participants in a remote session.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialEntityStore.IsSupported">
+      <summary>Gets whether spatial entity sharing is supported on this system.</summary>
+      <returns>Whether spatial entity sharing is supported on this system.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialEntityStore.CreateEntityWatcher">
+      <summary>Gets a watcher that lets an app observe when participants add, update or remove entities in the store.</summary>
+      <returns>The entity watcher.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialEntityStore.RemoveAsync(Microsoft.Windows.Perception.Spatial.SpatialEntity)">
+      <summary>Removes a spatial entity from the store for all participants.</summary>
+      <param name="entity">The spatial entity to remove.</param>
+      <returns>Action that triggers once the entity removal has been communicated to the host.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialEntityStore.SaveAsync(Microsoft.Windows.Perception.Spatial.SpatialEntity)">
+      <summary>Saves a new or updated spatial entity into the store, to be synchronized with all participants.</summary>
+      <param name="entity">The new or updated spatial entity.</param>
+      <returns>Action that triggers once the entity data has been communicated to the host.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialEntityStore.TryGet(Windows.System.RemoteSystems.RemoteSystemSession)">
+      <summary>Establishes or retrieves an automatically-synchronized pool of spatial entities for a remote session.</summary>
+      <param name="session">The remote session with the participants that will share spatial entities.</param>
+      <returns>The spatial entity store.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialEntityUpdatedEventArgs">
+      <summary>Event data for spatial entity updated events.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialEntityUpdatedEventArgs.Entity">
+      <summary>Gets the spatial entity that was updated.</summary>
+      <returns>The updated entity.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialEntityWatcher">
+      <summary>Monitors changes to the set of entities that participants add, update, or remove within a spatial entity store, and provides notifications when that set changes.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialEntityWatcher.Status">
+      <summary>Gets the operational status of the spatial entity watcher.</summary>
+      <returns>The status.</returns>
+    </member>
+    <member name="E:Microsoft.Windows.Perception.Spatial.SpatialEntityWatcher.Added">
+      <summary>The event that is raised when a new spatial entity is added to the store by a participant.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.Perception.Spatial.SpatialEntityWatcher.EnumerationCompleted">
+      <summary>The event that is raised when the initial replay of prior changes to the spatial entity store has completed.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.Perception.Spatial.SpatialEntityWatcher.Removed">
+      <summary>The event that is raised when a spatial entity is removed from the store by a participant.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.Perception.Spatial.SpatialEntityWatcher.Updated">
+      <summary>The event that is raised when an existing spatial entity has its metadata updated by a participant.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialEntityWatcher.Start">
+      <summary>Starts watching for changes to the set of spatial entities in the store.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialEntityWatcher.Stop">
+      <summary>Stops watching for changes to the set of spatial entities in the store.</summary>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialEntityWatcherStatus">
+      <summary>Describes the state of a SpatialEntityWatcher object.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialEntityWatcherStatus.Aborted">
+      <summary>The watcher has aborted operation. No subsequent events will be raised.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialEntityWatcherStatus.Created">
+      <summary>This is the initial state of a Watcher object. During this state clients can register event handlers.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialEntityWatcherStatus.EnumerationCompleted">
+      <summary>The watcher has completed enumerating the initial collection. Items can still be added, updated or removed from the collection.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialEntityWatcherStatus.Started">
+      <summary>The watcher transitions to the Started state once Start is called. The watcher is enumerating the initial collection. Note that during this enumeration phase it is possible to receive Updated and Removed notifications but only to items that have already been Added.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialEntityWatcherStatus.Stopped">
+      <summary>The client has called Stop and the watcher has completed all outstanding events. No further events will be raised.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialEntityWatcherStatus.Stopping">
+      <summary>The client has called Stop and the watcher is still in the process of stopping. Events may still be raised.</summary>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialLocatability">
+      <summary>Indicates the lifecycle state of the device's spatial location system. This lets an app know whether it can reason about the device's orientation or its position in the user's surroundings.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialLocatability.OrientationOnly">
+      <summary>The device is reporting its orientation, and has not been asked to report its position in the user's surroundings.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialLocatability.PositionalTrackingActivating">
+      <summary>The device is reporting its orientation, and is preparing to locate its position in the user's surroundings.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialLocatability.PositionalTrackingActive">
+      <summary>The device is reporting its orientation and position in the user's surroundings.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialLocatability.PositionalTrackingInhibited">
+      <summary>The device is reporting its orientation, but cannot locate its position in the user's surroundings due to external factors, like lighting conditions.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialLocatability.Unavailable">
+      <summary>The device's spatial location system is not available.</summary>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialLocation">
+      <summary>Represents the location of the device in the user's surroundings at a point in time.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialLocation.AbsoluteAngularAcceleration">
+      <summary>Gets the absolute angular acceleration of the device in a clamped quaternion representation of the rotation per second squared. This acceleration is expressed in the supplied coordinate system, although the motion is measured relative to the user's surroundings.</summary>
+      <returns>The angular acceleration as a clamped quaternion.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialLocation.AbsoluteAngularAccelerationAxisAngle">
+      <summary>Gets the absolute angular acceleration of the device in an axis-angle representation in units of radians per second squared. This acceleration is expressed in the supplied coordinate system, although the motion is measured relative to the user's surroundings.</summary>
+      <returns>The angular acceleration as an axis-angle.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialLocation.AbsoluteAngularVelocity">
+      <summary>Gets the absolute angular velocity of the device in a clamped quaternion representation of the rotation per second. This velocity is expressed in the supplied coordinate system, although the motion is measured relative to the user's surroundings.</summary>
+      <returns>The angular velocity as a clamped quaternion.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialLocation.AbsoluteAngularVelocityAxisAngle">
+      <summary>Gets the absolute angular velocity of the device in an axis-angle representation in units of radians per second. This velocity is expressed in the supplied coordinate system, although the motion is measured relative to the user's surroundings.</summary>
+      <returns>The angular velocity as an axis-angle.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialLocation.AbsoluteLinearAcceleration">
+      <summary>Gets the absolute acceleration vector of the device in units of meters per second squared. This acceleration is expressed in the supplied coordinate system, although the motion is measured relative to the user's surroundings.</summary>
+      <returns>The acceleration.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialLocation.AbsoluteLinearVelocity">
+      <summary>Gets the absolute velocity vector of the device in units of meters per second. This velocity is expressed in the supplied coordinate system, although the motion is measured relative to the user's surroundings.</summary>
+      <returns>The velocity.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialLocation.Orientation">
+      <summary>Gets the orientation of the device within the supplied coordinate system.</summary>
+      <returns>The orientation.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialLocation.Position">
+      <summary>Gets the position of the device within the supplied coordinate system.</summary>
+      <returns>The position.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialLocator">
+      <summary>Provides access to the location of a device that's tracked relative to the user's surroundings, such as a HoloLens or other Mixed Reality headset.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialLocator.Locatability">
+      <summary>Gets the current state of the device's spatial location system.</summary>
+      <returns>The locatability.</returns>
+    </member>
+    <member name="E:Microsoft.Windows.Perception.Spatial.SpatialLocator.LocatabilityChanged">
+      <summary>Occurs when the state of the spatial location system changes.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.Perception.Spatial.SpatialLocator.PositionalTrackingDeactivating">
+      <summary>Occurs when the device's spatial location system is deactivating due to inactivity.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialLocator.CreateAttachedFrameOfReferenceAtCurrentHeading">
+      <summary>Creates a frame of reference that's positionally attached to this SpatialLocator with the current orientation as its fixed heading.</summary>
+      <returns>The locator-attached frame of reference.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialLocator.CreateAttachedFrameOfReferenceAtCurrentHeading(Windows.Foundation.Numerics.Vector3)">
+      <summary>Creates a frame of reference that's positionally attached to this SpatialLocator with the current orientation as its fixed heading and with its origin offset by the specified relative position.</summary>
+      <param name="relativePosition">The positional offset of the origin of the frame of reference, expressed within its coordinate system.</param>
+      <returns>The locator-attached frame of reference.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialLocator.CreateAttachedFrameOfReferenceAtCurrentHeading(Windows.Foundation.Numerics.Vector3,Windows.Foundation.Numerics.Quaternion)">
+      <summary>Creates a frame of reference that's positionally attached to this SpatialLocator with the current orientation as its fixed heading and with its origin offset and rotated by the specified relative position and orientation.</summary>
+      <param name="relativePosition">The positional offset of the origin of the frame of reference, expressed within its coordinate system.</param>
+      <param name="relativeOrientation">The rotation of the origin of the frame of reference, relative to the direction of the heading.</param>
+      <returns>The locator-attached frame of reference.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialLocator.CreateAttachedFrameOfReferenceAtCurrentHeading(Windows.Foundation.Numerics.Vector3,Windows.Foundation.Numerics.Quaternion,System.Double)">
+      <summary>Creates a frame of reference that's positionally attached to this SpatialLocator with the supplied heading in radians relative to the current orientation and with its origin offset by the specified relative position and orientation.</summary>
+      <param name="relativePosition">The positional offset of the origin of the frame of reference, expressed within its coordinate system.</param>
+      <param name="relativeOrientation">The rotation of the origin of the frame of reference, relative to the direction of the heading.</param>
+      <param name="relativeHeadingInRadians">The amount to rotate the fixed heading from the SpatialLocator's current orientation, in radians.</param>
+      <returns>The locator-attached frame of reference.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialLocator.CreateStationaryFrameOfReferenceAtCurrentLocation">
+      <summary>Creates a frame of reference that remains stationary relative to the user's surroundings, with its initial origin at the SpatialLocator's current location.</summary>
+      <returns>The stationary frame of reference.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialLocator.CreateStationaryFrameOfReferenceAtCurrentLocation(Windows.Foundation.Numerics.Vector3)">
+      <summary>Creates a frame of reference that remains stationary relative to the user's surroundings, with its initial origin at the specified offset from the SpatialLocator's current location.</summary>
+      <param name="relativePosition">The positional offset of the origin of the frame of reference, expressed within its coordinate system.</param>
+      <returns>The stationary frame of reference.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialLocator.CreateStationaryFrameOfReferenceAtCurrentLocation(Windows.Foundation.Numerics.Vector3,Windows.Foundation.Numerics.Quaternion)">
+      <summary>Creates a frame of reference that remains stationary relative to the user's surroundings, with its initial origin at the specified offset from the SpatialLocator's current location, and then rotated at the specified rotation.</summary>
+      <param name="relativePosition">The positional offset of the origin of the frame of reference, expressed within its coordinate system.</param>
+      <param name="relativeOrientation">The rotation of the origin of the frame of reference, relative to the orientation of the SpatialLocator.</param>
+      <returns>The stationary frame of reference.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialLocator.CreateStationaryFrameOfReferenceAtCurrentLocation(Windows.Foundation.Numerics.Vector3,Windows.Foundation.Numerics.Quaternion,System.Double)">
+      <summary>Creates a frame of reference that remains stationary relative to the user's surroundings, with its initial origin at the specified offset from the SpatialLocator's current location along the specified relative heading in radians, and then rotated at the specified rotation.</summary>
+      <param name="relativePosition">The positional offset of the origin of the frame of reference, expressed within its coordinate system.</param>
+      <param name="relativeOrientation">The rotation of the origin of the frame of reference, relative to the direction of the heading.</param>
+      <param name="relativeHeadingInRadians">The amount to rotate the fixed heading from the SpatialLocator's current orientation, in radians, before the positional offset.</param>
+      <returns>The stationary frame of reference.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialLocator.GetDefault">
+      <summary>Gets the SpatialLocator instance that tracks the location of the current device, such as a HoloLens, relative to the user's surroundings.</summary>
+      <returns>The spatial locator.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialLocator.TryLocateAtTimestamp(Microsoft.Windows.Perception.PerceptionTimestamp,Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem)">
+      <summary>Returns a SpatialLocation representing the device's location at the specified timestamp. The coordinates within are expressed relative to the supplied coordinate system. If the device cannot be located in that coordinate system at the specified timestamp, the return value will be null. This can happen when the device has lost tracking, for example.</summary>
+      <param name="timestamp">The timestamp at which to locate the device.</param>
+      <param name="coordinateSystem">The coordinate system in which to express the location's coordinates.</param>
+      <returns>The location.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialLocatorAttachedFrameOfReference">
+      <summary>Represents a frame of reference that is positionally attached to the device.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialLocatorAttachedFrameOfReference.RelativeOrientation">
+      <summary>Gets or sets the orientation of this frame of reference's origin relative to the direction of the heading.</summary>
+      <returns>The orientation.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialLocatorAttachedFrameOfReference.RelativePosition">
+      <summary>Gets or sets the position of this frame of reference's origin relative to the SpatialLocator that it is tracking.</summary>
+      <returns>The offset.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialLocatorAttachedFrameOfReference.AdjustHeading(System.Double)">
+      <summary>Adjusts the fixed heading of this frame of reference relative to its current heading.</summary>
+      <param name="headingOffsetInRadians">The amount to change the heading, in radians.</param>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialLocatorAttachedFrameOfReference.GetStationaryCoordinateSystemAtTimestamp(Microsoft.Windows.Perception.PerceptionTimestamp)">
+      <summary>Gets a coordinate system whose origin is the position of the device at the specified timestamp, oriented at this frame of reference's fixed heading. This coordinate system stays stationary and does not track any further movement of the device.</summary>
+      <param name="timestamp">The timestamp to compute the coordinate system for.</param>
+      <returns>The coordinate system that corresponds with the timestamp.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialLocatorAttachedFrameOfReference.TryGetRelativeHeadingAtTimestamp(Microsoft.Windows.Perception.PerceptionTimestamp)">
+      <summary>Computes the device's heading in radians for the specified timestamp, relative to this frame's fixed heading.</summary>
+      <param name="timestamp">The timestamp to compute the relative heading for.</param>
+      <returns>The relative heading in radians that corresponds with the timestamp, or null if it is not available for the specified time.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialLocatorPositionalTrackingDeactivatingEventArgs">
+      <summary>Provides data for the SpatialLocator.PositionalTrackingDeactivating event.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialLocatorPositionalTrackingDeactivatingEventArgs.Canceled">
+      <summary>Gets or sets a value indicating whether to cancel the deactivation of positional tracking due to inactivity.</summary>
+      <returns>A boolean value indicating whether to cancel the deactivation of positional tracking due to inactivity.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialLookDirectionRange">
+      <summary>The extent to which the user can look around with their headset.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialLookDirectionRange.ForwardOnly">
+      <summary>The user will generally be looking forward as defined by the CoordinateSystem property.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialLookDirectionRange.Omnidirectional">
+      <summary>The user may look in any direction.</summary>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialMovementRange">
+      <summary>The extent to which the user can move while wearing their headset.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialMovementRange.Bounded">
+      <summary>The user can walk around within the bounds returned by TryGetMovementBounds.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialMovementRange.NoMovement">
+      <summary>The user can stand but has not defined a boundary within which they intend to walk while using the headset.</summary>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialPerceptionAccessStatus">
+      <summary>This enumeration describes an app's ability to see the user's surroundings in ways that require the spatialPerception capability. This includes use of either SpatialSurfaceObserver or SpatialAnchorTransferManager.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialPerceptionAccessStatus.Allowed">
+      <summary>The user has allowed the app to use this spatial perception functionality.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialPerceptionAccessStatus.DeniedBySystem">
+      <summary>The system has denied the app use of this spatial perception functionality.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialPerceptionAccessStatus.DeniedByUser">
+      <summary>The user has denied the app use of this spatial perception functionality.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialPerceptionAccessStatus.Unspecified">
+      <summary>The user has not yet decided whether the app can use this spatial perception functionality.</summary>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialRay">
+      <summary>A ray in the user's surroundings, with coordinates expressed in meters.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialRay.Direction">
+      <summary>The unit vector pointing in the direction of the ray.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.Perception.Spatial.SpatialRay.Origin">
+      <summary>The origin of the ray.</summary>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialStageFrameOfReference">
+      <summary>Represents a spatial stage, defined by the user to establish the physical space in which they intend to use a Mixed Reality headset.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialStageFrameOfReference.CoordinateSystem">
+      <summary>Gets a floor-level coordinate system located at the stage origin defined by the user.</summary>
+      <returns>The coordinate system.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialStageFrameOfReference.Current">
+      <summary>Gets the current spatial stage, if one has been defined by the user.</summary>
+      <returns>The current spatial stage.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialStageFrameOfReference.LookDirectionRange">
+      <summary>Gets the extent to which the user can look around with their headset.</summary>
+      <returns>The look direction range.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialStageFrameOfReference.MovementRange">
+      <summary>Gets the extent to which the user can move while wearing their headset.</summary>
+      <returns>The movement range.</returns>
+    </member>
+    <member name="E:Microsoft.Windows.Perception.Spatial.SpatialStageFrameOfReference.CurrentChanged">
+      <summary>Occurs when the user changes or redefines the current spatial stage.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialStageFrameOfReference.GetCoordinateSystemAtCurrentLocation(Microsoft.Windows.Perception.Spatial.SpatialLocator)">
+      <summary>Gets a floor-level coordinate system at the user's current position and orientation.</summary>
+      <param name="locator">The spatial locator with the position and orientation to use as the origin for the returned coordinate system.</param>
+      <returns>The coordinate system.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialStageFrameOfReference.RequestNewStageAsync">
+      <summary>Shows system UI to guide the user in defining a new stage to replace the current stage.</summary>
+      <returns>An app may call RequestNewStageAsync if there is no stage defined or if the current stage is insufficient to meet the app's needs, such as not defining movement bounds.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.SpatialStageFrameOfReference.TryGetMovementBounds(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem)">
+      <summary>Gets the boundary vertices of the open area defined by the user where they intend to move while using their headset.</summary>
+      <param name="coordinateSystem">The coordinate system in which to express the boundary vertices.</param>
+      <returns>The boundary vertices.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.SpatialStationaryFrameOfReference">
+      <summary>Represents a frame of reference that remains stationary relative to the user's surroundings at a point in time.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.SpatialStationaryFrameOfReference.CoordinateSystem">
+      <summary>Gets a stationary coordinate system with an origin at the position and orientation of the device at the time this frame was created.</summary>
+      <returns>The coordinate system.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.Preview.SpatialGraphInteropFrameOfReferencePreview">
+      <summary>Represents a spatial node created for interop based on a spatial coordinate system from the app.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Preview.SpatialGraphInteropFrameOfReferencePreview.CoordinateSystem">
+      <summary>Gets the coordinate system on which this interop frame of reference is based.</summary>
+      <returns>The coordinate system.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Preview.SpatialGraphInteropFrameOfReferencePreview.CoordinateSystemToNodeTransform">
+      <summary>Gets the transform from the basis coordinate system to the static node.</summary>
+      <returns>The transform.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Preview.SpatialGraphInteropFrameOfReferencePreview.NodeId">
+      <summary>Gets the spatial node ID created for this interop frame of reference.</summary>
+      <returns>The spatial node's ID.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.Preview.SpatialGraphInteropPreview">
+      <summary>Provides preview functionality that lets apps track spatial nodes, allowing the user to reason about places and things in their surroundings.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.Preview.SpatialGraphInteropPreview.CreateCoordinateSystemForNode(System.Guid)">
+      <summary>Creates a spatial coordinate system that tracks adjustments to a static spatial node.</summary>
+      <param name="nodeId">The static spatial node's ID.</param>
+      <returns>The spatial coordinate system.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.Preview.SpatialGraphInteropPreview.CreateCoordinateSystemForNode(System.Guid,Windows.Foundation.Numerics.Vector3)">
+      <summary>Creates a spatial coordinate system that tracks adjustments to a static spatial node with its origin offset by the specified relative position.</summary>
+      <param name="nodeId">The static spatial node's ID.</param>
+      <param name="relativePosition">The rigid positional offset from the spatial node origin to this coordinate system's origin, expressed within the coordinate system of the node origin.</param>
+      <returns>The spatial coordinate system.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.Preview.SpatialGraphInteropPreview.CreateCoordinateSystemForNode(System.Guid,Windows.Foundation.Numerics.Vector3,Windows.Foundation.Numerics.Quaternion)">
+      <summary>Creates a spatial coordinate system that tracks adjustments to a static spatial node with its origin offset and rotated by the specified relative position and orientation.</summary>
+      <param name="nodeId">The static spatial node's ID.</param>
+      <param name="relativePosition">The rigid positional offset from the spatial node origin to this coordinate system's origin, expressed within the coordinate system of the node origin.</param>
+      <param name="relativeOrientation">The rigid rotation from the spatial node origin to the coordinate system's origin, expressed within the coordinate system of the node origin.</param>
+      <returns>The spatial coordinate system.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.Preview.SpatialGraphInteropPreview.CreateLocatorForNode(System.Guid)">
+      <summary>Creates a spatial locator that tracks the motion of a dynamic spatial node.</summary>
+      <param name="nodeId">The dynamic spatial node's ID.</param>
+      <returns>The spatial locator.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.Preview.SpatialGraphInteropPreview.TryCreateFrameOfReference(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem)">
+      <summary>Creates an interop frame of reference based on a given spatial coordinate system.</summary>
+      <param name="coordinateSystem">The coordinate system.</param>
+      <returns>The interop frame of reference.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.Preview.SpatialGraphInteropPreview.TryCreateFrameOfReference(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem,Windows.Foundation.Numerics.Vector3)">
+      <summary>Creates an interop frame of reference based on a given spatial coordinate system with its origin offset by the specified relative position.</summary>
+      <param name="coordinateSystem">The coordinate system.</param>
+      <param name="relativePosition">The position of the interop frame's origin relative to the origin of the coordinate system.</param>
+      <returns>The interop frame of reference.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.Preview.SpatialGraphInteropPreview.TryCreateFrameOfReference(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem,Windows.Foundation.Numerics.Vector3,Windows.Foundation.Numerics.Quaternion)">
+      <summary>Creates an interop frame of reference based on a given spatial coordinate system with its origin offset and rotated by the specified relative position and orientation.</summary>
+      <param name="coordinateSystem">The coordinate system.</param>
+      <param name="relativePosition">The rigid positional offset from the coordinate system's origin to the interop frame of reference's origin, expressed within the coordinate system.</param>
+      <param name="relativeOrientation">The rigid rotation from the coordinate system's origin to the interop frame of reference's origin, expressed within the coordinate system.</param>
+      <returns>The interop frame of reference.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceInfo">
+      <summary>Represents a snapshot of metadata for a surface observed in the user's surroundings.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceInfo.Id">
+      <summary>Gets the persistent identifier for this surface.</summary>
+      <returns>The identifier.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceInfo.UpdateTime">
+      <summary>Gets the last update time represented by this surface metadata snapshot.</summary>
+      <returns>The update time.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceInfo.TryComputeLatestMeshAsync(System.Double)">
+      <summary>Generates a mesh object and its vertex and index buffers for this surface. This chooses the most detailed mesh that does not exceed the specified triangle density, in triangles per cubic meter.</summary>
+      <param name="maxTrianglesPerCubicMeter">The maximum triangle density that the app can accept, in triangles per cubic meter.</param>
+      <returns>The operation that triggers once the mesh is ready.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceInfo.TryComputeLatestMeshAsync(System.Double,Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMeshOptions)">
+      <summary>Generates a mesh object and its vertex and index buffers for this surface, with the specified mesh generation options. This chooses the most detailed mesh that does not exceed the specified triangle density, in triangles per cubic meter.</summary>
+      <param name="maxTrianglesPerCubicMeter">The maximum triangle density that the app can accept, in triangles per cubic meter.</param>
+      <param name="options">The mesh generation options.</param>
+      <returns>The operation that triggers once the mesh is ready.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceInfo.TryGetBounds(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem)">
+      <summary>Gets the bounds of this surface, expressed in the specified coordinate system.</summary>
+      <param name="coordinateSystem">The coordinate system in which to express the bounds.</param>
+      <returns>The bounds.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMesh">
+      <summary>Represents the mesh data for a surface observed in the user's surroundings.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMesh.CoordinateSystem">
+      <summary>Gets the coordinate system in which the VertexPositions and VertexNormals buffers express their coordinates.</summary>
+      <returns>The vertex coordinate system.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMesh.SurfaceInfo">
+      <summary>Gets the surface metadata that's associated with this mesh.</summary>
+      <returns>The surface info.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMesh.TriangleIndices">
+      <summary>Gets the buffer object representing the mesh's index buffer.</summary>
+      <returns>The mesh buffer.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMesh.VertexNormals">
+      <summary>Gets the buffer object representing the mesh's normal buffer, if IncludeVertexNormals was set as a mesh option in the call to SpatialSurfaceInfo.TryComputeLatestMeshAsync. Otherwise, this property is null.</summary>
+      <returns>The mesh buffer if available; otherwise null.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMesh.VertexPositions">
+      <summary>Gets the buffer object representing the mesh's vertex buffer.</summary>
+      <returns>The mesh buffer.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMesh.VertexPositionScale">
+      <summary>Gets the scale vector that you must use to scale the elements of VertexPositions.</summary>
+      <returns>The scale vector.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMeshBuffer">
+      <summary>Represents a vertex, index, or normal buffer that holds mesh data for surfaces in the user's surroundings.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMeshBuffer.Data">
+      <summary>The memory buffer containing the mesh data.</summary>
+      <returns>The data.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMeshBuffer.ElementCount">
+      <summary>Gets the number of elements in the buffer.</summary>
+      <returns>The element count.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMeshBuffer.Format">
+      <summary>Gets the DXGI format to use when creating a GPU buffer to hold this mesh data or when otherwise interpreting the mesh elements. This enum value can be reinterpreted as a DXGI_FORMAT value.</summary>
+      <returns>The format.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMeshBuffer.Stride">
+      <summary>Gets the size, in bytes, between the start of each element in the buffer.</summary>
+      <returns>The stride.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMeshOptions">
+      <summary>Provides options to customize the SpatialSurfaceMesh objects you get back from SpatialSurfaceInfo.TryComputeLatestMeshAsync.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMeshOptions.#ctor">
+      <summary>Initializes a new instance of the SpatialSurfaceMeshOptions class.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMeshOptions.IncludeVertexNormals">
+      <summary>Gets or sets whether to compute a normal buffer.</summary>
+      <returns>Whether to compute normals.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMeshOptions.SupportedTriangleIndexFormats">
+      <summary>Gets a list of the triangle index formats that the system can generate an index buffer in.</summary>
+      <returns>The supported index buffer formats.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMeshOptions.SupportedVertexNormalFormats">
+      <summary>Gets a list of the vertex normal formats that the system can generate a normal buffer in.</summary>
+      <returns>The supported normal buffer formats.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMeshOptions.SupportedVertexPositionFormats">
+      <summary>Gets a list of the vertex position formats that the system can generate a vertex buffer in.</summary>
+      <returns>The supported vertex buffer formats.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMeshOptions.TriangleIndexFormat">
+      <summary>Gets or sets the element format for generated index buffers.</summary>
+      <returns>The triangle index format.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMeshOptions.VertexNormalFormat">
+      <summary>Gets or sets the element format for generated normal buffers.</summary>
+      <returns>The vertex normal format.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceMeshOptions.VertexPositionFormat">
+      <summary>Gets or sets the element format for generated vertex buffers.</summary>
+      <returns>The vertex position format.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceObserver">
+      <summary>Provides methods for observing surfaces in the user's surroundings.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceObserver.#ctor">
+      <summary>Initializes a new instance of the SpatialSurfaceObserver class.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceObserver.ObservedSurfacesChanged">
+      <summary>Occurs when the set of surface metadata observed within the bounding volume has changed.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceObserver.GetObservedSurfaces">
+      <summary>Gets metadata for the set of surfaces observed within the bounding volume at the moment.</summary>
+      <returns>The observed surfaces.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceObserver.IsSupported">
+      <summary>Gets whether spatial mapping is supported on the current system.</summary>
+      <returns>Whether spatial mapping is supported.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceObserver.RequestAccessAsync">
+      <summary>Requests access for an app to use spatial mapping. This requires the spatialPerception capability.</summary>
+      <returns>Operation that triggers once the user has completed any consent dialog, providing the access status.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceObserver.SetBoundingVolume(Microsoft.Windows.Perception.Spatial.SpatialBoundingVolume)">
+      <summary>Sets the single bounding volume that this observer will track for new, updated or removed surfaces.</summary>
+      <param name="bounds">The new bounding volume for this observer to track for surface updates.</param>
+    </member>
+    <member name="M:Microsoft.Windows.Perception.Spatial.Surfaces.SpatialSurfaceObserver.SetBoundingVolumes(Windows.Foundation.Collections.IIterable{Microsoft.Windows.Perception.Spatial.SpatialBoundingVolume})">
+      <summary>Sets the list of bounding volumes that this observer will track for new, updated or removed surfaces.</summary>
+      <param name="bounds">The bounding volumes.</param>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialGestureRecognizer">
+      <summary>Interprets user interactions from hands, motion controllers, and system voice commands to surface spatial gesture events, which users target using their gaze or a motion controller's pointing ray.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialGestureRecognizer.#ctor(Microsoft.Windows.UI.Input.Spatial.SpatialGestureSettings)">
+      <summary>Initializes a new SpatialGestureRecognizer with the specified gesture settings.</summary>
+      <param name="settings">The gesture settings for the new recognizer.</param>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialGestureRecognizer.GestureSettings">
+      <summary>Gets the current SpatialGestureSettings for this recognizer.</summary>
+      <returns>The gesture settings.</returns>
+    </member>
+    <member name="E:Microsoft.Windows.UI.Input.Spatial.SpatialGestureRecognizer.HoldCanceled">
+      <summary>Occurs when a Hold gesture is canceled.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.UI.Input.Spatial.SpatialGestureRecognizer.HoldCompleted">
+      <summary>Occurs when a Hold gesture completes.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.UI.Input.Spatial.SpatialGestureRecognizer.HoldStarted">
+      <summary>Occurs when an interaction becomes a Hold gesture.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.UI.Input.Spatial.SpatialGestureRecognizer.ManipulationCanceled">
+      <summary>Occurs when a Manipulation gesture is canceled.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.UI.Input.Spatial.SpatialGestureRecognizer.ManipulationCompleted">
+      <summary>Occurs when a Manipulation gesture is completed.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.UI.Input.Spatial.SpatialGestureRecognizer.ManipulationStarted">
+      <summary>Occurs when an interaction becomes a Manipulation gesture.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.UI.Input.Spatial.SpatialGestureRecognizer.ManipulationUpdated">
+      <summary>Occurs when a Manipulation gesture is updated due to hand movement.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.UI.Input.Spatial.SpatialGestureRecognizer.NavigationCanceled">
+      <summary>Occurs when a Navigation gesture is canceled.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.UI.Input.Spatial.SpatialGestureRecognizer.NavigationCompleted">
+      <summary>Occurs when a Navigation gesture is completed.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.UI.Input.Spatial.SpatialGestureRecognizer.NavigationStarted">
+      <summary>Occurs when an interaction becomes a Navigation gesture.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.UI.Input.Spatial.SpatialGestureRecognizer.NavigationUpdated">
+      <summary>Occurs when a Navigation gesture is updated due to hand or motion controller movement.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.UI.Input.Spatial.SpatialGestureRecognizer.RecognitionEnded">
+      <summary>Occurs when gesture recognition ends, due to completion or cancellation of a gesture (this is the last event to fire).</summary>
+    </member>
+    <member name="E:Microsoft.Windows.UI.Input.Spatial.SpatialGestureRecognizer.RecognitionStarted">
+      <summary>Occurs when gesture recognition begins (this is the first event to fire).</summary>
+    </member>
+    <member name="E:Microsoft.Windows.UI.Input.Spatial.SpatialGestureRecognizer.Tapped">
+      <summary>Occurs when a Tap or DoubleTap gesture is recognized.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialGestureRecognizer.CancelPendingGestures">
+      <summary>Cancels all in-progress gestures and abandons any captured interactions.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialGestureRecognizer.CaptureInteraction(Microsoft.Windows.UI.Input.Spatial.SpatialInteraction)">
+      <summary>Track all input events that occur as part of the specified interaction.</summary>
+      <param name="interaction">The interaction to capture from the InteractionDetected event.</param>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialGestureRecognizer.TrySetGestureSettings(Microsoft.Windows.UI.Input.Spatial.SpatialGestureSettings)">
+      <summary>Attempts to change the gesture settings for this recognizer.</summary>
+      <param name="settings">The new SpatialGestureSettings to switch to.</param>
+      <returns>True if the switch was successful; otherwise, false.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialGestureSettings">
+      <summary>This enumeration represents the set of gestures that may be recognized by a SpatialGestureRecognizer.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialGestureSettings.DoubleTap">
+      <summary>Enable support for the double-tap gesture.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialGestureSettings.Hold">
+      <summary>Enable support for the hold gesture.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialGestureSettings.ManipulationTranslate">
+      <summary>Enable support for the manipulation gesture, tracking changes to the hand's position.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialGestureSettings.NavigationRailsX">
+      <summary>Enable support for the navigation gesture, in the horizontal axis using rails (guides).</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialGestureSettings.NavigationRailsY">
+      <summary>Enable support for the navigation gesture, in the vertical axis using rails (guides).</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialGestureSettings.NavigationRailsZ">
+      <summary>Enable support for the navigation gesture, in the depth axis using rails (guides).</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialGestureSettings.NavigationX">
+      <summary>Enable support for the navigation gesture, in the horizontal axis.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialGestureSettings.NavigationY">
+      <summary>Enable support for the navigation gesture, in the vertical axis.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialGestureSettings.NavigationZ">
+      <summary>Enable support for the navigation gesture, in the depth axis.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialGestureSettings.None">
+      <summary>Disable support for gestures.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialGestureSettings.Tap">
+      <summary>Enable support for the tap gesture.</summary>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialHoldCanceledEventArgs">
+      <summary>Provides data for the SpatialGestureRecognizer.HoldCanceled event.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialHoldCanceledEventArgs.InteractionSourceKind">
+      <summary>Gets the kind of interaction source associated with this gesture.</summary>
+      <returns>The interaction source kind.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialHoldCompletedEventArgs">
+      <summary>Provides data for the SpatialGestureRecognizer.HoldCompleted event.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialHoldCompletedEventArgs.InteractionSourceKind">
+      <summary>Gets the kind of interaction source associated with this gesture.</summary>
+      <returns>The interaction source kind.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialHoldStartedEventArgs">
+      <summary>Provides data for the SpatialGestureRecognizer.HoldStarted event.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialHoldStartedEventArgs.InteractionSourceKind">
+      <summary>Gets the kind of interaction source associated with this gesture.</summary>
+      <returns>The interaction source kind.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialHoldStartedEventArgs.TryGetPointerPose(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem)">
+      <summary>Gets the available pointer poses, such as the user's head gaze and each motion controller's pointing ray, for use in targeting this gesture.</summary>
+      <param name="coordinateSystem">The coordinate system in which to express the pointer poses.</param>
+      <returns>The pointer poses.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialInteraction">
+      <summary>Represents an interaction caused by a hand, motion controller, or the user's voice.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteraction.SourceState">
+      <summary>Gets the state associated with the source update that triggered this gesture.</summary>
+      <returns>The state.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionController">
+      <summary>Represents the specifics of a motion controller.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionController.HasThumbstick">
+      <summary>Gets whether the motion controller has a thumbstick.</summary>
+      <returns>Whether the controller has a thumbstick.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionController.HasTouchpad">
+      <summary>Gets whether the motion controller has a touchpad.</summary>
+      <returns>Whether the controller has a touchpad.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionController.ProductId">
+      <summary>Gets the product identifier for this motion controller.</summary>
+      <returns>The product identifier.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionController.SimpleHapticsController">
+      <summary>Provides access to the motion controller's ability to vibrate in the user's hand.</summary>
+      <returns>The simple haptics controller.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionController.VendorId">
+      <summary>Gets the vendor identifier for this motion controller.</summary>
+      <returns>The vendor identifier.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionController.Version">
+      <summary>Gets the version, or revision, number for this motion controller.</summary>
+      <returns>The version number.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionController.TryGetBatteryReport">
+      <summary>Gets information about the motion controller's current battery state.</summary>
+      <returns>Information about the motion controller's current battery state, if available; otherwise, null.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionController.TryGetRenderableModelAsync">
+      <summary>Gets a renderable model stream for this controller, which can be unpacked and rendered to represent this controller.</summary>
+      <returns>Operation that triggers once the renderable model stream is loaded, yielding the stream or null if there is no model available.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionControllerProperties">
+      <summary>Represents state specific to motion controllers.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionControllerProperties.IsThumbstickPressed">
+      <summary>Gets whether a motion controller is experiencing a thumbstick press.</summary>
+      <returns>Whether the source is experiencing a thumbstick press.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionControllerProperties.IsTouchpadPressed">
+      <summary>Gets whether a motion controller is experiencing a touchpad press.</summary>
+      <returns>Whether the source is experiencing a touchpad press.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionControllerProperties.IsTouchpadTouched">
+      <summary>Gets whether a motion controller is experiencing a touchpad touch.</summary>
+      <returns>Whether the source is experiencing a touchpad touch.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionControllerProperties.ThumbstickX">
+      <summary>Gets a value between -1.0 and 1.0 representing the horizontal position of the thumbstick.</summary>
+      <returns>The thumbstick X value.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionControllerProperties.ThumbstickY">
+      <summary>Gets a value between -1.0 and 1.0 representing the vertical position of the thumbstick.</summary>
+      <returns>The thumbstick Y value.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionControllerProperties.TouchpadX">
+      <summary>Gets a value between -1.0 and 1.0 representing the horizontal position of the user's finger on the touchpad.</summary>
+      <returns>The touchpad X value.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionControllerProperties.TouchpadY">
+      <summary>Gets a value between -1.0 and 1.0 representing the vertical position of the user's finger on the touchpad.</summary>
+      <returns>The touchpad Y value.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionDetectedEventArgs">
+      <summary>Provides data for the SpatialInteractionManager.InteractionDetected event.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionDetectedEventArgs.Interaction">
+      <summary>Gets the detected interaction, for routing to a SpatialGestureRecognizer.</summary>
+      <returns>The interaction.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionDetectedEventArgs.InteractionSource">
+      <summary>Gets the specific source associated with the detected interaction.</summary>
+      <returns>The interaction source.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionDetectedEventArgs.InteractionSourceKind">
+      <summary>Gets the kind of source associated with the detected interaction.</summary>
+      <returns>The interaction source kind.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionDetectedEventArgs.TryGetPointerPose(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem)">
+      <summary>Gets the available pointer poses, such as the user's head gaze and each motion controller's pointer pose, for use in routing this interaction to a SpatialGestureRecognizer.</summary>
+      <param name="coordinateSystem">The coordinate system in which to express the pointer poses.</param>
+      <returns>The pointer poses.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionManager">
+      <summary>Provides access to user input from hands, motion controllers, and system voice commands.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionManager.InteractionDetected">
+      <summary>Occurs when a new interaction is available for routing to a SpatialGestureRecognizer.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionManager.SourceDetected">
+      <summary>Occurs when a new hand, motion controller, or speech source has been detected.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionManager.SourceLost">
+      <summary>Occurs when a hand, motion controller, or speech source is no longer available.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionManager.SourcePressed">
+      <summary>Occurs when a hand, motion controller, or speech source has entered a pressed state.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionManager.SourceReleased">
+      <summary>Occurs when a hand, motion controller, or speech source has exited a pressed state.</summary>
+    </member>
+    <member name="E:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionManager.SourceUpdated">
+      <summary>Occurs when a hand, motion controller, or speech source has experienced a change to its SpatialInteractionSourceState.</summary>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionManager.GetDetectedSourcesAtTimestamp(Microsoft.Windows.Perception.PerceptionTimestamp)">
+      <summary>Get the state of all interaction sources detected for the specified timestamp.</summary>
+      <param name="timeStamp">The time to query the state of interaction sources.</param>
+      <returns>The source states detected.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionManager.GetForCurrentView">
+      <summary>Get the SpatialInteractionManager associated with the current CoreWindow.</summary>
+      <returns>The spatial interaction manager.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionManager.IsSourceKindSupported(Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceKind)">
+      <summary>Gets whether the specified interaction source is supported on this device.</summary>
+      <param name="kind">The interaction source.</param>
+      <returns>Whether the interaction source is supported.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionPressKind">
+      <summary>Specifies the kind of press represented by a SourcePressed or SourceReleased event.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionPressKind.Grasp">
+      <summary>For motion controllers, a grasp represents the user squeezing their fist tightly.  This may be detected by grip buttons or a palm trigger.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionPressKind.Menu">
+      <summary>For motion controllers, a Menu press represents the controller's Menu button being pressed.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionPressKind.None">
+      <summary>This is a SourceDetected, SourceLost or SourceUpdated event, which does not represent a press or a release.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionPressKind.Select">
+      <summary>Select represents the primary press for a spatial interaction source:</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionPressKind.Thumbstick">
+      <summary>For motion controllers, a thumbstick press represents the user clicking down on the thumbstick.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionPressKind.Touchpad">
+      <summary>For motion controllers, a touchpad press represents the user clicking down on the touchpad.</summary>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSource">
+      <summary>Represents one detected instance of a hand, motion controller, or speech source that can cause interactions and gestures.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSource.Controller">
+      <summary>Represents the specifics of a detected motion controller.</summary>
+      <returns>The motion controller, or null if the source is not a motion controller.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSource.Handedness">
+      <summary>Gets whether the interaction source represents the user's left hand or right hand.</summary>
+      <returns>The handedness.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSource.Id">
+      <summary>Gets the identifier for the hand, motion controller, or speech source.</summary>
+      <returns>The ID.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSource.IsGraspSupported">
+      <summary>Gets whether the source supports grasps.</summary>
+      <returns>True for some motion controllers, and false for other interaction sources.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSource.IsMenuSupported">
+      <summary>Gets whether the source supports Menu presses.</summary>
+      <returns>Whether the source supports Menu presses.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSource.IsPointingSupported">
+      <summary>Gets whether the source can provide pointer poses.</summary>
+      <returns>Returns true for motion controllers that support positional tracking and false for other interaction sources.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSource.Kind">
+      <summary>Gets the interaction source type.</summary>
+      <returns>The interaction source type.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSource.TryCreateHandMeshObserver">
+      <summary>Synchronously requests a HandMeshObserver to provide mesh updates for each frame that tracks the detected shape of a hand.</summary>
+      <returns>A hand mesh observer if this source supports hand meshes; otherwise, null.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSource.TryCreateHandMeshObserverAsync">
+      <summary>Requests a HandMeshObserver to provide mesh updates for each frame that tracks the detected shape of a hand.</summary>
+      <returns>An operation that triggers with a hand mesh observer (if this source supports hand meshes); otherwise, an operation that returns null.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSource.TryGetStateAtTimestamp(Microsoft.Windows.Perception.PerceptionTimestamp)">
+      <summary>Get the state of this source as of the specified timestamp.</summary>
+      <param name="timestamp">The time to query for the state of this interaction source.</param>
+      <returns>The state.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceEventArgs">
+      <summary>Provides data for the SpatialInteractionSource Source events.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceEventArgs.PressKind">
+      <summary>Gets the kind of press or release associated with the event.</summary>
+      <returns>The press kind.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceEventArgs.State">
+      <summary>Gets the interaction source state associated with the event.</summary>
+      <returns>The interaction source state.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceHandedness">
+      <summary>Specifies whether the interaction source represents the user's left hand or right hand.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceHandedness.Left">
+      <summary>The interaction source represents the user's left hand.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceHandedness.Right">
+      <summary>The interaction source represents the user's right hand.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceHandedness.Unspecified">
+      <summary>The interaction source does not represent a specific hand.</summary>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceKind">
+      <summary>Specifies the kind of an interaction source.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceKind.Controller">
+      <summary>The interaction source is a motion controller.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceKind.Hand">
+      <summary>The interaction source is one of the user's hands.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceKind.Other">
+      <summary>The interaction source is of a kind not known in this version of the API.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceKind.Voice">
+      <summary>The interaction source is the user's speech, when speaking a system command such as "Select".</summary>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceLocation">
+      <summary>Represents the grip pose and pointer pose of a hand or motion controller.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceLocation.AngularVelocity">
+      <summary>Gets the angular velocity of a hand or motion controller.</summary>
+      <returns>The angular velocity.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceLocation.Orientation">
+      <summary>Gets the grip pose orientation, representing the orientation of the user's hand as it holds a motion controller.</summary>
+      <returns>The orientation.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceLocation.Position">
+      <summary>Gets the grip pose position, representing the position of the user's hand, either directly or where it holds a motion controller.</summary>
+      <returns>The position.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceLocation.PositionAccuracy">
+      <summary>Gets the accuracy of an interaction source's positional tracking.</summary>
+      <returns>The position accuracy.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceLocation.SourcePointerPose">
+      <summary>Gets the pointer pose for a particular spatial interaction source, such as a motion controller, at a given timestamp.</summary>
+      <returns>The interaction source pointer pose.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceLocation.Velocity">
+      <summary>Gets the velocity of a hand or motion controller.</summary>
+      <returns>The velocity.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourcePositionAccuracy">
+      <summary>Specifies the accuracy of an interaction source's positional tracking.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourcePositionAccuracy.Approximate">
+      <summary>The interaction source's position is only being tracked approximately, with either an inferred or body-locked position.</summary>
+    </member>
+    <member name="F:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourcePositionAccuracy.High">
+      <summary>The interaction source's position is being tracked at its nominal accuracy.</summary>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceProperties">
+      <summary>Represents advanced state of a hand or motion controller.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceProperties.SourceLossRisk">
+      <summary>Gets the risk that detection of a hand or motion controller will be lost as a value from 0.0 to 1.0.</summary>
+      <returns>The source loss risk.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceProperties.TryGetLocation(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem)">
+      <summary>Get the position, orientation and velocity of the hand or motion controller, expressed in the specified coordinate system.</summary>
+      <param name="coordinateSystem">The coordinate system in which to express the hand's location.</param>
+      <returns>The location.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceProperties.TryGetSourceLossMitigationDirection(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem)">
+      <summary>Gets the direction you should suggest that the user move their hand or motion controller if it is nearing the edge of the detection area.</summary>
+      <param name="coordinateSystem">The coordinate system in which to express the mitigation direction.</param>
+      <returns>The mitigation direction vector, or null if there is no mitigation direction.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceState">
+      <summary>Represents a snapshot of the state of a spatial interaction source (hand, motion controller, or speech) at a given time.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceState.ControllerProperties">
+      <summary>Gets state specific to motion controllers.</summary>
+      <returns>The motion controller properties.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceState.IsGrasped">
+      <summary>Gets whether a motion controller is experiencing a grasp.</summary>
+      <returns>Whether the source is experiencing a grasp.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceState.IsMenuPressed">
+      <summary>Gets whether a motion controller is experiencing a Menu press.</summary>
+      <returns>Whether the source is experiencing a Menu press.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceState.IsPressed">
+      <summary>Gets whether a hand or motion controller is experiencing any press.</summary>
+      <returns>Whether the source is experiencing any press.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceState.IsSelectPressed">
+      <summary>Gets whether a hand or motion controller is experiencing a primary Select press.</summary>
+      <returns>Whether the source is experiencing a Select press.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceState.Properties">
+      <summary>Gets advanced state of the interaction source.</summary>
+      <returns>The properties.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceState.SelectPressedValue">
+      <summary>Gets the amount to which a hand or motion controller is experiencing a primary Select press, as a value between 0.0 and 1.0.</summary>
+      <returns>The amount to which the source is experiencing a Select press.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceState.Source">
+      <summary>Gets the interaction source that this state describes.</summary>
+      <returns>The source.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceState.Timestamp">
+      <summary>Gets the timestamp at which this state snapshot was taken.</summary>
+      <returns>The timestamp.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceState.TryGetHandPose">
+      <summary>Gets the poses of the user's joints for this hand.</summary>
+      <returns>The poses of the user's hand joints if supported for this source; otherwise null.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSourceState.TryGetPointerPose(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem)">
+      <summary>Gets the available pointer poses, such as the user's head gaze, eye gaze and each motion controller's pointer pose, for the timestamp when this state snapshot was taken.</summary>
+      <param name="coordinateSystem">The coordinate system in which to express the pointer poses.</param>
+      <returns>The pointer poses.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialManipulationCanceledEventArgs">
+      <summary>Provides data for the SpatialGestureRecognizer.ManipulationCanceled event.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialManipulationCanceledEventArgs.InteractionSourceKind">
+      <summary>Gets the kind of interaction source associated with this gesture.</summary>
+      <returns>The interaction source kind.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialManipulationCompletedEventArgs">
+      <summary>Provides data for the SpatialGestureRecognizer.ManipulationCompleted event.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialManipulationCompletedEventArgs.InteractionSourceKind">
+      <summary>Gets the kind of interaction source associated with this gesture.</summary>
+      <returns>The interaction source kind.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialManipulationCompletedEventArgs.TryGetCumulativeDelta(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem)">
+      <summary>Get the relative motion of the hand since the start of the Manipulation gesture.</summary>
+      <param name="coordinateSystem">The coordinate system in which to express the delta.</param>
+      <returns>The delta.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialManipulationDelta">
+      <summary>Represents the relative motion of the hand since the start of a Manipulation gesture.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialManipulationDelta.Translation">
+      <summary>Get the relative translation of the hand since the start of a Manipulation gesture.</summary>
+      <returns>The translation.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialManipulationStartedEventArgs">
+      <summary>Provides data for the SpatialGestureRecognizer.ManipulationStarted event.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialManipulationStartedEventArgs.InteractionSourceKind">
+      <summary>Gets the kind of interaction source associated with this gesture.</summary>
+      <returns>The interaction source kind.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialManipulationStartedEventArgs.TryGetPointerPose(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem)">
+      <summary>Gets the available pointer poses, such as the user's head gaze and each motion controller's pointer pose, for use in targeting this gesture.</summary>
+      <param name="coordinateSystem">The coordinate system in which to express the pointer poses.</param>
+      <returns>The pointer poses.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialManipulationUpdatedEventArgs">
+      <summary>Provides data for the SpatialGestureRecognizer.ManipulationUpdated event.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialManipulationUpdatedEventArgs.InteractionSourceKind">
+      <summary>Gets the kind of interaction source associated with this gesture.</summary>
+      <returns>The interaction source kind.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialManipulationUpdatedEventArgs.TryGetCumulativeDelta(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem)">
+      <summary>Get the relative motion of the hand since the start of the Manipulation gesture.</summary>
+      <param name="coordinateSystem">The coordinate system in which to express the delta.</param>
+      <returns>The delta.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialNavigationCanceledEventArgs">
+      <summary>Provides data for the SpatialGestureRecognizer.NavigationCanceled event.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialNavigationCanceledEventArgs.InteractionSourceKind">
+      <summary>Gets the kind of interaction source associated with this gesture.</summary>
+      <returns>The interaction source kind.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialNavigationCompletedEventArgs">
+      <summary>Provides data for the SpatialGestureRecognizer.NavigationCompleted event.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialNavigationCompletedEventArgs.InteractionSourceKind">
+      <summary>Gets the kind of interaction source associated with this gesture.</summary>
+      <returns>The interaction source kind.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialNavigationCompletedEventArgs.NormalizedOffset">
+      <summary>Gets the normalized offset of the hand or motion controller within the unit cube for all axes for this Navigation gesture.</summary>
+      <returns>The normalized offset.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialNavigationStartedEventArgs">
+      <summary>Provides data for the SpatialGestureRecognizer.NavigationStarted event.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialNavigationStartedEventArgs.InteractionSourceKind">
+      <summary>Gets the kind of interaction source associated with this gesture.</summary>
+      <returns>The interaction source kind.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialNavigationStartedEventArgs.IsNavigatingX">
+      <summary>Gets whether the navigation gesture the user is performing involves motion on the horizontal axis.</summary>
+      <returns>Whether the gesture involves horizontal navigation.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialNavigationStartedEventArgs.IsNavigatingY">
+      <summary>Gets whether the navigation gesture the user is performing involves motion on the vertical axis.</summary>
+      <returns>Whether the gesture involves vertical navigation.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialNavigationStartedEventArgs.IsNavigatingZ">
+      <summary>Gets whether the navigation gesture the user is performing involves motion on the depth axis.</summary>
+      <returns>Whether the gesture involves depth navigation.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialNavigationStartedEventArgs.TryGetPointerPose(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem)">
+      <summary>Gets the available pointer poses, such as the user's head gaze and each motion controller's pointer pose, for use in targeting this gesture.</summary>
+      <param name="coordinateSystem">The coordinate system in which to express the pointer poses.</param>
+      <returns>The pointer poses.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialNavigationUpdatedEventArgs">
+      <summary>Provides data for the SpatialGestureRecognizer.NavigationUpdated event.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialNavigationUpdatedEventArgs.InteractionSourceKind">
+      <summary>Gets the kind of interaction source associated with this gesture.</summary>
+      <returns>The interaction source kind.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialNavigationUpdatedEventArgs.NormalizedOffset">
+      <summary>Gets the normalized offset of the hand or motion controller within the unit cube for all axes for this Navigation gesture.</summary>
+      <returns>The normalized offset.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialPointerInteractionSourcePose">
+      <summary>Represents a motion controller's pointer pose in relation to its surroundings.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialPointerInteractionSourcePose.ForwardDirection">
+      <summary>Gets the forward direction of the motion controller's pointer pose in the specified coordinate system, as a unit vector.</summary>
+      <returns>The forward direction unit vector.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialPointerInteractionSourcePose.Orientation">
+      <summary>Gets the orientation of the motion controller's pointer pose in the specified coordinate system.</summary>
+      <returns>The orientation.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialPointerInteractionSourcePose.Position">
+      <summary>Gets the position of the motion controller's pointer pose in the specified coordinate system.</summary>
+      <returns>The position.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialPointerInteractionSourcePose.PositionAccuracy">
+      <summary>Gets the accuracy of an interaction source's positional tracking.</summary>
+      <returns>The position accuracy.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialPointerInteractionSourcePose.UpDirection">
+      <summary>Gets the up direction that orients the motion controller's pointer pose in the specified coordinate system, as a unit vector.</summary>
+      <returns>The up direction unit vector.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialPointerPose">
+      <summary>Represents the available spatial pointer poses, such as the user's head gaze, eye gaze and each motion controller's pointer pose, for use in targeting hand gestures, motion controller presses, and speech interactions.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialPointerPose.Eyes">
+      <summary>Gets the user's eye gaze for this timestamp.</summary>
+      <returns>The eye gaze if supported by the current headset; otherwise, null.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialPointerPose.Head">
+      <summary>Gets the user's head gaze for this timestamp.</summary>
+      <returns>The head gaze.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialPointerPose.IsHeadCapturedBySystem">
+      <summary>Gets whether the user's head gaze is being captured by system UI at the moment (preventing gaze-driven presses from being delivered to the view associated with this SpatialPointerPose ).</summary>
+      <returns>Whether head gaze is being captured by the system.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialPointerPose.Timestamp">
+      <summary>Gets the timestamp when the pointing rays are determined.</summary>
+      <returns>The timestamp.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialPointerPose.TryGetAtTimestamp(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem,Microsoft.Windows.Perception.PerceptionTimestamp)">
+      <summary>Gets the head gaze and motion controller pointer poses for the specified timestamp.</summary>
+      <param name="coordinateSystem">The coordinate system in which to express the pointer poses.</param>
+      <param name="timestamp">The timestamp, past or future.</param>
+      <returns>The pointer poses, or null if the specified coordinate system cannot be located.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialPointerPose.TryGetInteractionSourcePose(Microsoft.Windows.UI.Input.Spatial.SpatialInteractionSource)">
+      <summary>Gets the pointer pose for a particular spatial interaction source, such as a motion controller, at a given timestamp.</summary>
+      <param name="source">The spatial interaction source for which a pointer pose should be determined.</param>
+      <returns>The interaction source pointer pose.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialRecognitionEndedEventArgs">
+      <summary>Provides data for the SpatialGestureRecognizer.RecognitionEnded event.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialRecognitionEndedEventArgs.InteractionSourceKind">
+      <summary>Gets the kind of interaction source associated with this gesture.</summary>
+      <returns>The interaction source kind.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialRecognitionStartedEventArgs">
+      <summary>Provides data for the SpatialGestureRecognizer.RecognitionStarted event.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialRecognitionStartedEventArgs.InteractionSourceKind">
+      <summary>Gets the kind of interaction source associated with this gesture.</summary>
+      <returns>The interaction source kind.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialRecognitionStartedEventArgs.IsGesturePossible(Microsoft.Windows.UI.Input.Spatial.SpatialGestureSettings)">
+      <summary>Returns whether the specified gesture is possible, given the capabilities of the relevant interaction source. For example, Voice cannot be used for Manipulation gestures.</summary>
+      <param name="gesture">The specific single gesture to test for.</param>
+      <returns>Whether the gesture is still possible.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialRecognitionStartedEventArgs.TryGetPointerPose(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem)">
+      <summary>Gets the available pointer poses, such as the user's head gaze and each motion controller's pointer pose, for use in targeting this gesture.</summary>
+      <param name="coordinateSystem">The coordinate system in which to express the pointer poses.</param>
+      <returns>The pointer poses.</returns>
+    </member>
+    <member name="T:Microsoft.Windows.UI.Input.Spatial.SpatialTappedEventArgs">
+      <summary>Provides data for the SpatialGestureRecognizer.Tapped event.</summary>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialTappedEventArgs.InteractionSourceKind">
+      <summary>Gets the kind of interaction source associated with this gesture.</summary>
+      <returns>The interaction source kind.</returns>
+    </member>
+    <member name="P:Microsoft.Windows.UI.Input.Spatial.SpatialTappedEventArgs.TapCount">
+      <summary>The tap number represented by this gesture, either 1 or 2.</summary>
+      <returns>The tap count.</returns>
+    </member>
+    <member name="M:Microsoft.Windows.UI.Input.Spatial.SpatialTappedEventArgs.TryGetPointerPose(Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem)">
+      <summary>Gets the available pointer poses, such as the user's head gaze and each motion controller's pointer pose, for use in targeting this gesture.</summary>
+      <param name="coordinateSystem">The coordinate system in which to express the pointer poses.</param>
+      <returns>The pointer poses.</returns>
+    </member>
+  </members>
+</doc>
