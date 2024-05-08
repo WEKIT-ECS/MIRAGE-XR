@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 namespace MirageXR
 {
@@ -25,11 +26,20 @@ namespace MirageXR
             _camera = GetComponent<Camera>();
         }
 
+        public void SetupCameraPipeline()
+        {
+            var uiCameraData = _camera.GetUniversalAdditionalCameraData();
+            uiCameraData.renderType = CameraRenderType.Overlay;
+            var baseCameraData = RootObject.Instance.baseCamera.GetUniversalAdditionalCameraData();
+            baseCameraData.cameraStack.Insert(0, _camera);
+        }
+        
         public async Task SetupFormat(DeviceFormat deviceFormat)
         {
             switch (deviceFormat)
             {
                 case DeviceFormat.Phone:
+                    SetupCameraPipeline();
                     await SetupViewForPortrait();
                     break;
                 case DeviceFormat.Tablet:
