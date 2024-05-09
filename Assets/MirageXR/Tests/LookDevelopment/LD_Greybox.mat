@@ -1,18 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-7479255971908291577
-MonoBehaviour:
-  m_ObjectHideFlags: 11
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 7
 --- !u!21 &2100000
 Material:
   serializedVersion: 8
@@ -20,15 +7,14 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: LD_DigitalTwinHologram
+  m_Name: LD_Greybox
   m_Shader: {fileID: -6465566751694194690, guid: e5a2cd30f0cbf184bbbbc00511b3f4aa,
     type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
-  m_InvalidKeywords:
-  - ETC1_EXTERNAL_ALPHA
-  m_LightmapFlags: 2
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -38,13 +24,9 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _BaseColor:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _BaseMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
+        m_Texture: {fileID: 10309, guid: 0000000000000000f000000000000000, type: 0}
+        m_Scale: {x: 10, y: 10}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
@@ -67,8 +49,8 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
+        m_Texture: {fileID: 10309, guid: 0000000000000000f000000000000000, type: 0}
+        m_Scale: {x: 10, y: 10}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
@@ -79,6 +61,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpecGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -100,57 +86,70 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Blend: 0.203
-    - _BlendOp: 0
+    - _AlphaClip: 0
+    - _AlphaToMask: 0
+    - _Blend: 0
+    - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
-    - _ColorWriteMask: 15
-    - _CullMode: 2
-    - _CustomMode: 0
+    - _ClearCoatMask: 0
+    - _ClearCoatSmoothness: 0
+    - _Cull: 2
     - _Cutoff: 0.5
-    - _Debug_Blend: 0.368
+    - _Debug_Blend: 0.133
+    - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
-    - _Distance_Mask_Opacity: 0
+    - _Distance_Mask_Opacity: 1
     - _DstBlend: 0
-    - _Fade_Depth: 47.5
-    - _Fade_Distance: 19.5
-    - _Fade_Falloff: 9.93
-    - _GlossMapScale: 1
-    - _Glossiness: 0.5
-    - _GlossyReflections: 1
-    - _GridPeriod: 0.09
+    - _DstBlendAlpha: 0
+    - _EnvironmentReflections: 1
+    - _Fade_Distance: 12.2
+    - _Fade_Falloff: 1.7
+    - _GlossMapScale: 0
+    - _Glossiness: 0
+    - _GlossyReflections: 0
+    - _GridPeriod: 9.37
     - _Metallic: 0
-    - _Mode: 0
-    - _Multiplier: 337
+    - _Multiplier: 258
     - _OcclusionStrength: 1
-    - _Parallax: 0.02
-    - _Peephole_Angle: 37.4
+    - _Parallax: 0.005
+    - _Peephole_Angle: 1
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _RenderQueueOverride: -1
-    - _Secondary_Grid_Blend: 0.333
-    - _Secondary_Grid_Scale: 10
+    - _ReceiveShadows: 1
+    - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _SubGrid_Blend: 0.33
-    - _Sub_Grid_Pixels_Blend: 0.175
+    - _SrcBlendAlpha: 1
+    - _SubGrid_Blend: 0.27
+    - _Sub_Grid_Pixels_Blend: 0.5
     - _Sub_Grid_Scale: 10
-    - _UVSec: 0
-    - _Vignette_Mask_Angle: 3.51
-    - _Vignette_Mask_Opacity: 1
-    - _WireThickness: 0
-    - _Wire_Thickness: 0.1
-    - _ZOffsetFactor: 0
-    - _ZOffsetUnits: 0
-    - _ZTest: 4
+    - _Surface: 0
+    - _Vignette_Mask_Angle: 3
+    - _Vignette_Mask_Opacity: 0.077
+    - _Wire_Thickness: 0.213
+    - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.6603774, g: 0.6603774, b: 0.6603774, a: 1}
+    - _BaseColor: {r: 0.37079212, g: 0.31527236, b: 0.38679248, a: 1}
     - _Base_Colour: {r: 0.1647059, g: 0.1019608, b: 0.4196079, a: 1}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.2924528, g: 0.2924528, b: 0.2924528, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Grid_Colour: {r: 0.07450981, g: 0.7333333, b: 0.8235295, a: 1}
-    - _LineWidth: {r: 0.1, g: 0.02, b: 0, a: 0}
-    - _WireColor: {r: 0.07450981, g: 0.73333335, b: 0.8235295, a: 1}
+    - _LineWidth: {r: 0.1, g: 0.1, b: 0, a: 0}
+    - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _Wire_Colour: {r: 0.07450981, g: 0.7333333, b: 0.8235295, a: 1}
   m_BuildTextureStacks: []
+--- !u!114 &3686916634382413771
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 7
