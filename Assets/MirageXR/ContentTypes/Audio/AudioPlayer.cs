@@ -1,4 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Linq; 
+using TMPro;
 using UnityEngine;
 
 namespace MirageXR
@@ -18,22 +21,17 @@ namespace MirageXR
         private bool audio3dMode;
         public bool Loop { get; private set; }
 
-
         [SerializeField] private GameObject icon;
         [SerializeField] private Sprite iconSprite;
-        public Sprite IconSprite => iconSprite;
-
+        [SerializeField] private TMP_Text _captionText;
+        [SerializeField] private GameObject _captionObj;
         [SerializeField] private Sprite pauseIcon;
-
         [SerializeField] private SpriteRenderer iconImage;
+        
+        public Sprite IconSprite => iconSprite;
         public SpriteRenderer IconImage => iconImage;
-
         public string AudioSpatialType { get; private set; }
-
-        public DialogRecorder DialogRecorderPanel
-        {
-            get; set;
-        }
+        public DialogRecorder DialogRecorderPanel { get; set; }
 
         private bool isReady = false;
         private bool isPlaying = false;
@@ -118,9 +116,68 @@ namespace MirageXR
                 CreateAudioPlayer(true, audio3dMode, radius, Loop);
             }
 
+            var caption = obj.caption;
+            if (caption != string.Empty)
+            {
+                StartCaptionDisplay(caption);
+            }
+
             // If all went well, return true.
             return true;
         }
+
+        private void StartCaptionDisplay(string caption)
+        {
+            StartCoroutine(DisplayCaptionWithDelay(caption));
+        }
+
+        private IEnumerator DisplayCaptionWithDelay(string fullCaption)
+        {
+            // Split the full caption into words
+            string[] words = fullCaption.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            // number of words after split
+            int check = words.Length;
+
+            // Determine the number of words to display per section
+            int numberOfWords = 12;
+
+            if (check <= numberOfWords)
+            {
+                // If the total number of words is less than or equal to numberOfWords, display all at once
+                string allWords = string.Join(" ", words);
+                _captionText.text = allWords.Trim();
+                _captionObj.SetActive(true);
+
+                // Wait for a time before hiding the caption object
+                yield return new WaitForSeconds(4);
+                _captionObj.SetActive(false);
+            }
+            else
+            {
+                // Calculate the number of sections
+                int numberOfSections = (int)Math.Ceiling((double)check / numberOfWords);
+
+                for (int i = 0; i < numberOfSections; i++)
+                {
+                    // Get the words for the current section
+                    string[] sectionWords = words.Skip(i * numberOfWords).Take(numberOfWords).ToArray();
+
+                    // Join the words back into a string
+                    string sectionText = string.Join(" ", sectionWords);
+
+                    // Display the text section
+                    _captionText.text = sectionText.Trim();
+                    _captionObj.SetActive(true);
+
+                    // Wait for 4 seconds before moving to the next section
+                    yield return new WaitForSeconds(4);
+                }
+
+                // hide the caption object after all sections have been displayed
+                _captionObj.SetActive(false); 
+            }
+        }
+
 
 
         private void Update()
@@ -167,9 +224,10 @@ namespace MirageXR
                 }
                 audioSource.mute = false;
                 audioSource.volume = 1.0f;
+                _captionObj.SetActive(true);
                 audioSource.Play();
                 isPlaying = true;
-
+                
                 audioLength = audioSource.clip.length;
                 var myTrigger = activityManager.ActiveAction.triggers.Find(t => t.id == _obj.poi);
                 if (myTrigger != null)
@@ -451,5 +509,6 @@ namespace MirageXR
             AudioSource audioSource = gameObject.GetComponent<AudioSource>();
             return audioSource.time;
         }
+
     }
 }
