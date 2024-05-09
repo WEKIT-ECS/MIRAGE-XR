@@ -1,66 +1,153 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 namespace MirageXR
 {
-    public class Speechsettings : MonoBehaviour
+    /// <summary>
+    /// Speech settings class for managing AI prompt, voice, model and language settings.
+    /// </summary>
+    public class SpeechSettings : MonoBehaviour
     {
-        [SerializeField] private GameObject aiPromt;
-        [SerializeField] private GameObject vcoice;
-        [SerializeField] private GameObject model;
-        [SerializeField] private GameObject language;
-        private string aiPromtData = "Enter text";
-        private ObjectData vcoiceData  = new ObjectData();
-        private ObjectData modelData  = new ObjectData();
-        private ObjectData languageData  = new ObjectData();
+        /// <summary>
+        /// Represents the AI prompt in the Speech Settings.
+        /// </summary>
+        [SerializeField]
+        private GameObject aiPrompt;
+        [SerializeField]
+        private GameObject voice;
 
-        public void Start()
+        /// <summary>
+        /// The GameObject representing the model.
+        /// </summary>
+        [SerializeField]
+        private GameObject model;
+
+        /// <summary>
+        /// Reference to the GameObject representing the language.
+        /// </summary>
+        [SerializeField]
+        private GameObject language;
+
+        /// <summary>
+        /// The AI prompt data variable represents the text entered by the user.
+        /// </summary>
+        private string _aiPromptData = "Enter text";
+
+        /// <summary>
+        /// Represents voice data used for AI processing.
+        /// </summary>
+        private AIModel _voiceData;
+
+        /// <summary>
+        /// Represents the data of an AI model.
+        /// </summary>
+        private AIModel _modelData;
+
+        /// <summary>
+        /// Represents the language data for an AI model.
+        /// </summary>
+        private AIModel _languageData;
+
+
+        /// <summary>
+        /// Updates the AI prompt with the provided new string.
+        /// </summary>
+        /// <param name="newString">The new string to update the AI prompt with.</param>
+        public void UpdateAIPrompt(string newString)
         {
-            // todo Call to the Data model and set the data objeckts
-            
-            
+            _aiPromptData = newString;
+            UpdateText(aiPrompt, null, _aiPromptData);
         }
 
-        public void UpdateAIPromt(string newText)
+        /// <summary>
+        /// Updates the voice for the AI.
+        /// </summary>
+        /// <param name="obj">The AI model containing the voice data.</param>
+        public void UpdateVoice(AIModel obj)
         {
-            
-        }
-        
-        public void UpdateVcoice(ObjectData obj)
-        {
-            
-        }
-        
-        public void UpdateModel(ObjectData obj)
-        {
-            
-        }
-        
-        public void UpdateLanguage(ObjectData obj)
-        {
-            
+            _voiceData = obj;
+            UpdateText(voice, _voiceData);
         }
 
-        
-        
-       
-        public String GetAiPromt()
+        /// <summary>
+        /// Updates the model for the AI service.
+        /// </summary>
+        /// <param name="obj">The new AI model to update to.</param>
+        public void UpdateModel(AIModel obj)
         {
-            return aiPromtData;
+            _modelData = obj;
+            UpdateText(model, _modelData);
         }
-        public ObjectData GetVocie()
+
+        /// <summary>
+        /// Updates the language in the speech settings.
+        /// </summary>
+        /// <param name="obj">The AIModel object representing the new language.</param>
+        public void UpdateLanguage(AIModel obj)
         {
-            return modelData
+            _languageData = obj;
+            UpdateText(language, _languageData);
         }
-        public ObjectData GetModel()
+
+        /// <summary>
+        /// Update the text of a given GameObject using either an AIModel object or a string prompt.
+        /// </summary>
+        /// <param name="prefab">The GameObject to update the text on.</param>
+        /// <param name="newObj">An AIModel object containing the new text to be displayed. If null, the prompt parameter will be used.</param>
+        /// <param name="prompt">A string prompt to be used as the new text. Only used if newObj is null.</param>
+        private void UpdateText(GameObject prefab, AIModel newObj = null, string prompt = null)
         {
-            return vcoiceData;
+            string text = string.IsNullOrEmpty(prompt) ? newObj?.Name ?? string.Empty : prompt;
+            SetTextMeshProComponents(prefab, text.Substring(0, Math.Min(10, text.Length)));
         }
-        public ObjectData GetLanguage()
+
+        /// <summary>
+        /// Sets the text of the TMP_Text components in the given prefab.
+        /// </summary>
+        /// <param name="prefab">The prefab containing the TMP_Text components.</param>
+        /// <param name="text">The new text to set.</param>
+        private void SetTextMeshProComponents(GameObject prefab, string text)
         {
-            return languageData; 
+            var texts = prefab.GetComponentsInChildren<TMP_Text>();
+            texts[1].text = text;
+        }
+
+
+        /// <summary>
+        /// Retrieves the AI prompt.
+        /// </summary>
+        /// <returns>The AI prompt data as a string.</returns>
+        public String GetAIPrompt()
+        {
+            return _aiPromptData;
+        }
+
+        /// <summary>
+        /// Retrieves the AIModel object representing the voice data.
+        /// </summary>
+        /// <returns>The AIModel object representing the voice data.</returns>
+        public AIModel GetVoice()
+        {
+            return _modelData;
+        }
+
+        /// <summary>
+        /// Retrieves the AIModel object. </summary> <returns>
+        /// The AIModel object. </returns>
+        /// /
+        public AIModel GetModel()
+        {
+            return _voiceData;
+        }
+
+        /// <summary>
+        /// Retrieves the language model.
+        /// </summary>
+        /// <returns>The language model.</returns>
+        public AIModel GetLanguage()
+        {
+            return _languageData;
         }
     }
 }
