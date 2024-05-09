@@ -1,7 +1,7 @@
 
 using Newtonsoft.Json;
 
-namespace MirageXR.AIManagerDataModel
+namespace MirageXR
 {
     /// <summary>
     /// Represents an AI model for the AiServices.
