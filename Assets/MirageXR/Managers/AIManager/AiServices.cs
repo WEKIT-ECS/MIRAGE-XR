@@ -18,12 +18,13 @@ namespace MirageXR
         /// <summary>
         /// Provides multiple Transcription models.
         /// </summary>
-        /// <param name="audioClip"> The audio clip that should be transcribed. </param>
-        /// <param name="model"> The model that should transcribe the audio. </param>
-        /// <param name="url">server url</param>
-        /// <param name="token">user token</param>
-        /// <returns> A String with the result of the task or an error if a network error appears. </returns>
-        public static async Task<string> ConvertSpeechToTextAsync(AudioClip audioClip, string model, string url, Token token)
+        /// <param name="audioClip">The audio clip that should be transcribed.</param>
+        /// <param name="model">The model that should transcribe the audio.</param>
+        /// <param name="url">The server URL.</param>
+        /// <param name="token">The user token.</param>
+        /// <returns>A string with the result of the task or an error if a network error appears.</returns>
+        public static async Task<string> ConvertSpeechToTextAsync(AudioClip audioClip, string model, string url,
+            string token)
         {
             if (audioClip == null)
             {
@@ -40,7 +41,7 @@ namespace MirageXR
                 throw new ArgumentException("url is null");
             }
 
-            if (string.IsNullOrEmpty(token.BackendToken))
+            if (string.IsNullOrEmpty(token))
             {
                 throw new ArgumentException("token is null");
             }
@@ -64,15 +65,16 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Processes user input in an LLM.
+        /// Sends a user message to the assistant for processing in an LLM (Language and Learning Model).
         /// </summary>
-        /// <param name="model">The target model</param>
-        /// <param name="message">The message of the User</param>
-        /// <param name="context">The message of the Instructor</param>
-        /// <param name="url">server url</param>
-        /// <param name="token">user token</param>
-        /// <returns>A String with the result of the operation.</returns>
-        public static async Task<string> SendMessageToAssistantAsync(string model, string message, string context, string url, Token token)
+        /// <param name="model">The target model used for processing the message.</param>
+        /// <param name="message">The message sent by the user for processing.</param>
+        /// <param name="context">The context provided by the instructor.</param>
+        /// <param name="url">The server URL where the assistant is hosted.</param>
+        /// <param name="token">The token required for authorization.</param>
+        /// <returns>A string with the result of the operation.</returns>
+        public static async Task<string> SendMessageToAssistantAsync(string model, string message, string context,
+            string url, string token)
         {
             if (string.IsNullOrEmpty(model))
             {
@@ -89,7 +91,7 @@ namespace MirageXR
                 throw new ArgumentException("url is null");
             }
 
-            if (string.IsNullOrEmpty(token.BackendToken))
+            if (string.IsNullOrEmpty(token))
             {
                 throw new ArgumentException("token is null");
             }
@@ -107,7 +109,7 @@ namespace MirageXR
 
             if (webRequest.result != UnityWebRequest.Result.Success)
             {
-                UnityEngine.Debug.LogError(
+                throw new HttpRequestException(
                     $"Error while receiving the result of the Think endpoint: {webRequest.error}");
             }
 
@@ -115,11 +117,12 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Downloads the available options from the server.
+        /// Downloads the Configuration from the server and Deserialize the JSON.
         /// </summary>
-        /// <returns>A boolean. True if the operation was successful, false if it wasn't.</returns>
-        /// 
-        public static async Task<List<AIModel>> GetAvailableModelsAsync(string url, Token token)
+        /// <param name="url">The server URL to download the options from.</param>
+        /// <param name="token">The user token for authentication.</param>
+        /// <returns>A list of AIModel objects representing the available options downloaded from the server.</returns>
+        public static async Task<List<AIModel>> GetAvailableModelsAsync(string url, string token)
         {
             if (string.IsNullOrEmpty(url))
             {
@@ -128,7 +131,7 @@ namespace MirageXR
 
             var apiURL = $"{url}/options/";
             var request = UnityWebRequest.Get(apiURL);
-            request.SetRequestHeader("Authorization", $"Token {token.BackendToken}");
+            request.SetRequestHeader("Authorization", $"Token {token}");
             await request.SendWebRequest();
             if (request.result != UnityWebRequest.Result.Success)
             {
@@ -144,8 +147,7 @@ namespace MirageXR
             }
             catch (Exception e)
             {
-                UnityEngine.Debug.LogError("Error fetching or deserializing data: " + e.Message);
-                return null;
+                throw new HttpRequestException("Error fetching or deserializing data: " + e.Message);
             }
         }
 
@@ -153,14 +155,13 @@ namespace MirageXR
         /// Get you an audio based on your text
         /// </summary>
         /// <param name="message">The text that you want to turn into an audio</param>
-        /// <param name="voice">The voice that you want to use. Check options json for legal parameters </param>
         /// <param name="model">The model that you use. Check options json for legal parameters</param>
         /// <param name="url">server url</param>
         /// <param name="token">user token</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation. The task will return an <see cref="AudioClip"/>.</returns>
-        public static async Task<AudioClip> ConvertTextToSpeechAsync(string message, string model, string url, Token token)
+        public static async Task<AudioClip> ConvertTextToSpeechAsync(string message, string model, string url,
+            string token)
         {
-
             if (string.IsNullOrEmpty(message))
             {
                 throw new ArgumentException("speakOut is null");
@@ -176,20 +177,20 @@ namespace MirageXR
                 throw new ArgumentException("url is null");
             }
 
-            if (string.IsNullOrEmpty(token.BackendToken))
+            if (string.IsNullOrEmpty(token))
             {
                 throw new ArgumentException("token is null");
             }
 
             var apiURL = $"{url}/speak/";
             using var webRequest = UnityWebRequestMultimedia.GetAudioClip(apiURL, AudioType.MPEG);
-            webRequest.SetRequestHeader("Authorization", $"Token {token.BackendToken}");
+            webRequest.SetRequestHeader("Authorization", $"Token {token}");
             webRequest.SetRequestHeader("message", message);
             webRequest.SetRequestHeader("model", model);
             await webRequest.SendWebRequest();
             if (webRequest.result != UnityWebRequest.Result.Success)
             {
-                UnityEngine.Debug.LogError($"Error while receiving the result of the Speak endpoint: {webRequest.error} {webRequest.result}");
+                throw new HttpRequestException($"Error while receiving the result of the Speak endpoint: {webRequest.error} {webRequest.result}");
             }
 
             var audioClip = DownloadHandlerAudioClip.GetContent(webRequest);
@@ -199,11 +200,11 @@ namespace MirageXR
         /// <summary>
         /// Authenticates the user and returns a token.
         /// </summary>
-        /// <param name="apiURL">URL of the server</param>
-        /// <param name="user">Username</param>
-        /// <param name="password">Password</param>
-        /// <returns>The authentication token</returns>
-        public static async Task<Token> AuthenticateUserAsync(string apiURL, string user, string password)
+        /// <param name="apiURL">The URL of the server.</param>
+        /// <param name="user">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns>The authentication token.</returns>
+        public static async Task<string> AuthenticateUserAsync(string apiURL, string user, string password)
         {
             var formData = new List<IMultipartFormSection>
             {
@@ -215,18 +216,17 @@ namespace MirageXR
             await request.SendWebRequest();
             if (request.result != UnityWebRequest.Result.Success)
             {
-                UnityEngine.Debug.LogError($"Error while receiving the token: {request.error}!");
+                throw new HttpRequestException($"Error while receiving the token: {request.error}!");
             }
-
-            var text = request.downloadHandler.text;
-            if (text.Length < 13)
+            try
             {
-                UnityEngine.Debug.LogError($"Error while receiving the token! Got '{text}' and that is too short!");
+                var token = JsonConvert.DeserializeObject<Token>(request.downloadHandler.text);
+                return token.BackendToken;
             }
-
-            text = text.Substring(10, text.Length - 10 - 2);
-            Token token = new Token(text);
-            return token;
+            catch (Exception e)
+            {
+                throw new HttpRequestException("Error fetching or deserializing data: " + e.Message);
+            }
         }
     }
 }

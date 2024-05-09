@@ -1,17 +1,12 @@
-using UnityEngine;
+using Newtonsoft.Json;
 
 namespace MirageXR.AIManagerDataModel
 {
+    /// <summary>
+    /// Represents a token used for authentication in AiServices.
+    /// </summary>
     public class Token
     {
-        public string BackendToken { get; }
-        public Token(string text)
-        {
-            if (string.IsNullOrEmpty(text))
-            {
-                UnityEngine.Debug.LogError("Text cannot be null or empty");
-            }
-            BackendToken = text;
-        }
+        [JsonProperty("token")] public string BackendToken { get; set; }
     }
 }
