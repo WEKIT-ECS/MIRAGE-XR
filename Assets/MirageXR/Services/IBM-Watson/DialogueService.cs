@@ -116,6 +116,12 @@ public class DialogueService : MonoBehaviour
                 if (openAIManager.IsAssistantExists(openAIassistantId))
                 {
                     var response = await openAIManager.SendMessageToAssistant(openAIassistantId, text);
+                    if (response == null)
+                    {
+                        AppLog.LogWarning("[DialogueService] Assistant response is null");
+                        return;
+                    }
+                    
                     AppLog.Log("[DialogueService] starting to parse", LogLevel.INFO);
                     ParseResponse(response);
                 }
@@ -263,7 +269,7 @@ public class DialogueService : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(openAIassistantId))
         {
-            RootObject.Instance.openAIManager.DeleteAssistantAsync(openAIassistantId);
+            await RootObject.Instance.openAIManager.DeleteAssistantAsync(openAIassistantId);
             openAIassistantId = null;
         }
 
@@ -274,6 +280,10 @@ public class DialogueService : MonoBehaviour
         if (assistant != null)
         {
             openAIassistantId = assistant.Id;
+        }
+        else
+        {
+            AppLog.LogWarning("can't create ai assistant");
         }
     }
 
