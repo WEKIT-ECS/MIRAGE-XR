@@ -56,7 +56,7 @@ namespace MirageXR
         /// <summary>
         /// Represents a container for scene objects.
         /// </summary>
-        public Transform sceneContainer;
+        public RectTransform sceneContainer;
 
         /// <summary>
         /// Represents an audio player.
