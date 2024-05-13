@@ -154,9 +154,9 @@ public class VirtualInstructorView : PopupEditorBase
 
     private void OnNoSpeechButtonPressed()
     {
-        RootView_v2.Instance.dialog.ShowBottomMultilineToggles("Communication settings", ("No speech", () => NoSpeechSelected(), false, true),
+        /*RootView_v2.Instance.dialog.ShowBottomMultilineToggles("Communication settings", ("No speech", () => NoSpeechSelected(), false, true),
             ("Audio recording", () => AudioRecordingSelected(), false, false),
-            ("AI", () => AIhSelected(), false, false));
+            ("AI", () => AIhSelected(), false, false));*/
     }
 
     private void NoSpeechSelected()
