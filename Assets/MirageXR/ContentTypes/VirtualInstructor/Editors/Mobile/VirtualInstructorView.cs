@@ -33,6 +33,9 @@ public class VirtualInstructorView : PopupEditorBase
     [SerializeField] private GameObject _charactersTab;
     [SerializeField] private GameObject _libraryTab;
 
+    [Header("Settings panel")] [SerializeField]
+    private Button _btnNoSpeech;
+
 
     private string _prefabName;
     public override ContentType editorForType => ContentType.VIRTUALINSTRUCTOR; 
@@ -44,6 +47,7 @@ public class VirtualInstructorView : PopupEditorBase
         UpdateView();
         
         _btnArrow.onClick.AddListener(OnArrowButtonPressed);
+        _btnNoSpeech.onClick.AddListener(OnNoSpeechButtonPressed);
         _toggleMyCharacters.onValueChanged.AddListener(OnToggleMyCharactersValueChanged);
         _toggleLibrary.onValueChanged.AddListener(OnToggleLibrariesValueChanged);
 
@@ -146,6 +150,28 @@ public class VirtualInstructorView : PopupEditorBase
             _arrowDown.SetActive(true);
             _arrowUp.SetActive(false);
         }
+    }
+
+    private void OnNoSpeechButtonPressed()
+    {
+        /*RootView_v2.Instance.dialog.ShowBottomMultilineToggles("Communication settings", ("No speech", () => NoSpeechSelected(), false, true),
+            ("Audio recording", () => AudioRecordingSelected(), false, false),
+            ("AI", () => AIhSelected(), false, false));*/
+    }
+
+    private void NoSpeechSelected()
+    {
+        // TODO
+    }
+    
+    private void AudioRecordingSelected()
+    {
+        // TODO
+    }
+    
+    private void AIhSelected()
+    {
+        // TODO
     }
     
     private void OnToggleLibrariesValueChanged(bool value)
