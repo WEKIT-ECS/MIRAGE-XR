@@ -576,8 +576,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'With a prompt, your virtual instructor can become interactive, follow
-    these three steps: '
+  m_text: 'With a prompt, your virtual instructor can become interactive, follow these
+    three steps: '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -681,7 +681,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 360, y: -39.87415}
+  m_AnchoredPosition: {x: 540, y: -39.87415}
   m_SizeDelta: {x: 720, y: 79.7483}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &679257862551154524
@@ -1730,8 +1730,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'With a prompt, your virtual instructor can become interactive, follow
-    these three steps: '
+  m_text: 'With a prompt, your virtual instructor can become interactive, follow these
+    three steps: '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -5644,7 +5644,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 360, y: -442.82132}
+  m_AnchoredPosition: {x: 540, y: -442.82132}
   m_SizeDelta: {x: 720, y: 172.77}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &5006828655465949850
@@ -6190,7 +6190,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 360, y: -218.0923}
+  m_AnchoredPosition: {x: 540, y: -218.0923}
   m_SizeDelta: {x: 720, y: 236.688}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &5229636524516992771
@@ -8932,7 +8932,7 @@ GameObject:
   - component: {fileID: 5750940816021280616}
   - component: {fileID: 5060368294501565320}
   m_Layer: 5
-  m_Name: GenerateCaptionsBtn
+  m_Name: NoSpeechBtn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9040,7 +9040,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 3456355499992868335}
+      - m_Target: {fileID: 3948665378746534031}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
         m_Mode: 6
@@ -10003,7 +10003,7 @@ MonoBehaviour:
   m_PreferredWidth: -1
   m_PreferredHeight: -1
   m_FlexibleWidth: -1
-  m_FlexibleHeight: 10000
+  m_FlexibleHeight: 1000
   m_LayoutPriority: 1
 --- !u!114 &9118480070155303468
 MonoBehaviour:
@@ -10038,7 +10038,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8125044436455001389}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
   m_Name: 
@@ -10324,6 +10324,7 @@ MonoBehaviour:
   _toggleLibrary: {fileID: 8328717272396637624}
   _charactersTab: {fileID: 8450033717551307080}
   _libraryTab: {fileID: 4723717329037562414}
+  _btnNoSpeech: {fileID: 5060368294501565320}
 --- !u!82 &6989242388783794570
 AudioSource:
   m_ObjectHideFlags: 0
@@ -13441,12 +13442,12 @@ PrefabInstance:
     - target: {fileID: 4726057645834349796, guid: b1a15d700dc4b1c468683579d3dacc6a,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 620
+      value: 980
       objectReference: {fileID: 0}
     - target: {fileID: 4726057645834349796, guid: b1a15d700dc4b1c468683579d3dacc6a,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 360
+      value: 540
       objectReference: {fileID: 0}
     - target: {fileID: 4726057645834349796, guid: b1a15d700dc4b1c468683579d3dacc6a,
         type: 3}
@@ -14258,7 +14259,7 @@ PrefabInstance:
     - target: {fileID: 1903363402314697438, guid: 304f2c325dc2aa04e8bbb8d2a896350f,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 620
+      value: 980
       objectReference: {fileID: 0}
     - target: {fileID: 1903363402314697438, guid: 304f2c325dc2aa04e8bbb8d2a896350f,
         type: 3}
@@ -14303,7 +14304,7 @@ PrefabInstance:
     - target: {fileID: 1903363402314697438, guid: 304f2c325dc2aa04e8bbb8d2a896350f,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 360
+      value: 540
       objectReference: {fileID: 0}
     - target: {fileID: 1903363402314697438, guid: 304f2c325dc2aa04e8bbb8d2a896350f,
         type: 3}
@@ -14778,7 +14779,7 @@ PrefabInstance:
     - target: {fileID: 1903363402314697438, guid: 304f2c325dc2aa04e8bbb8d2a896350f,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 620
+      value: 980
       objectReference: {fileID: 0}
     - target: {fileID: 1903363402314697438, guid: 304f2c325dc2aa04e8bbb8d2a896350f,
         type: 3}
@@ -14823,7 +14824,7 @@ PrefabInstance:
     - target: {fileID: 1903363402314697438, guid: 304f2c325dc2aa04e8bbb8d2a896350f,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 360
+      value: 540
       objectReference: {fileID: 0}
     - target: {fileID: 1903363402314697438, guid: 304f2c325dc2aa04e8bbb8d2a896350f,
         type: 3}
@@ -15759,7 +15760,7 @@ PrefabInstance:
     - target: {fileID: 1903363402314697438, guid: 304f2c325dc2aa04e8bbb8d2a896350f,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 620
+      value: 980
       objectReference: {fileID: 0}
     - target: {fileID: 1903363402314697438, guid: 304f2c325dc2aa04e8bbb8d2a896350f,
         type: 3}
@@ -15804,7 +15805,7 @@ PrefabInstance:
     - target: {fileID: 1903363402314697438, guid: 304f2c325dc2aa04e8bbb8d2a896350f,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 360
+      value: 540
       objectReference: {fileID: 0}
     - target: {fileID: 1903363402314697438, guid: 304f2c325dc2aa04e8bbb8d2a896350f,
         type: 3}
