@@ -18,16 +18,6 @@ namespace MirageXR
         public enum ObjectDataFunctionEnum
         {
             /// <summary>
-            /// Represents a demo data object with a name.
-            /// </summary>
-            DemoDataWithName,
-
-            /// <summary>
-            /// Represents a demo data member in the ObjectDataFunctionEnum enum with a name and description.
-            /// </summary>
-            DemoDataWithNameAndDescription,
-
-            /// <summary>
             /// Represents the voice endpoint for the AIManager's TTS (Text-to-Speech) models.
             /// </summary>
             VoiceEndpoint,
@@ -85,8 +75,6 @@ namespace MirageXR
         {
             var actions = new Dictionary<ObjectDataFunctionEnum, Func<List<AIModel>>>
             {
-                { ObjectDataFunctionEnum.DemoDataWithName, DemoWithOne },
-                { ObjectDataFunctionEnum.DemoDataWithNameAndDescription, DemoWithTow },
                 { ObjectDataFunctionEnum.ModelEndpoint, () => RootObject.Instance.aiManager.GetLlmModels() },
                 { ObjectDataFunctionEnum.LanguageEndpoint, () => RootObject.Instance.aiManager.GetSttModels() },
                 { ObjectDataFunctionEnum.VoiceEndpoint, () => RootObject.Instance.aiManager.GetTtsModels() },
@@ -251,51 +239,6 @@ namespace MirageXR
                     break;
             }
             
-        }
-
-
-        /// <summary>
-        /// Generates a demo list of AIModel objects based on a specified condition.
-        /// </summary>
-        private List<AIModel> DemoWithOne()
-        {
-            return CreateDemo(false, 5);
-        }
-
-
-        /// <summary>
-        /// Creates a demo with two AIModel objects based on the given parameters.
-        /// </summary>
-        private List<AIModel> DemoWithTow()
-        {
-            return CreateDemo(true, 5);
-        }
-
-
-        /// <summary>
-        /// Create a demo list of AIModel objects.
-        /// </summary>
-        private List<AIModel> CreateDemo(bool b, int i)
-        {
-            var temp = new List<AIModel>();
-            if (b)
-            {
-                for (var j = 0; j < i; j++)
-                {
-                    var t = new AIModel("think/", "Lorem ipus" + j, "Description" + j);
-                    temp.Add(t);
-                }
-            }
-            else
-            {
-                for (var j = 0; j < i; j++)
-                {
-                    var t = new AIModel("think/", "Lorem ipus" + j);
-                    temp.Add(t);
-                }
-            }
-
-            return temp;
         }
     }
 }
