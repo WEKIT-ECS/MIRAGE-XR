@@ -148,6 +148,22 @@ namespace MirageXR
                 Debug.LogError("Prefab does not contain a Toggle component.");
             }
 
+            Button button = instantiatedObject.GetComponentInChildren<Button>();
+            if (button != null)
+            {
+                button.onClick.AddListener(() =>
+                {
+                    audioPlayer.SetActive(true);
+
+                    // AudioPlayer-Komponente hinzufügen
+                    AudioStreamPlayer audioStreamPlayerComponent = audioPlayer.GetComponent<AudioStreamPlayer>();
+                    if (audioStreamPlayerComponent == null)
+                    {
+                        audioStreamPlayerComponent = audioPlayer.AddComponent<AudioStreamPlayer>();
+                    }
+                    audioStreamPlayerComponent.Setup(objectData);
+                });
+            }
             _allChildGameObjects.Add(instantiatedObject);
         }
 
