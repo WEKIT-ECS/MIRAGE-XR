@@ -4,7 +4,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-
 namespace MirageXR
 {
     /// <summary>
@@ -79,80 +78,32 @@ namespace MirageXR
                 { ObjectDataFunctionEnum.LanguageEndpoint, () => RootObject.Instance.aiManager.GetSttModels() },
                 { ObjectDataFunctionEnum.VoiceEndpoint, () => RootObject.Instance.aiManager.GetTtsModels() },
             };
-
             _objectDataSet = actions[selectedFunctionEnum]();
+            InstantiateObjectData();
+        }
 
-            if (selectedFunctionEnum == ObjectDataFunctionEnum.VoiceEndpoint)
+        /// <summary>
+        /// Instantiates object data.
+        /// </summary>
+        private void InstantiateObjectData()
+        {
+            if (_objectDataSet.Count != 0)
             {
-                InstantiateObjectDataWithTwoButtons();
+                foreach (AIModel objectData in _objectDataSet)
+                {
+                    InstantiateObjectData(objectData);
+                }
             }
             else
             {
-                InstantiateObjectDataWithOneButton();
+                UnityEngine.Debug.LogError("Fail to load the models. Is the server online?");
             }
         }
 
         /// <summary>
-        /// Instantiates data objects with two buttons.
+        /// Instantiates an object and sets the text components and toggle listeners based on the provided AIModel data.
         /// </summary>
-        private void InstantiateObjectDataWithTwoButtons()
-        {
-            foreach (AIModel objectData in _objectDataSet)
-            {
-                InstantiateObjectDataWithTowButton(objectData);
-            }
-        }
-
-        /// <summary>
-        /// Instantiates object data with a single button.
-        /// </summary>
-        private void InstantiateObjectDataWithOneButton()
-        {
-            foreach (AIModel objectData in _objectDataSet)
-            {
-                InstantiateObjectDataWithOneButton(objectData);
-            }
-        }
-
-        /// <summary>
-        /// Instantiates an object with two buttons and sets the text components and button listeners based on the provided AIModel data.
-        /// </summary>
-        private void InstantiateObjectDataWithTowButton(AIModel objectData)
-        {
-            GameObject instantiatedObject = Instantiate(prefabTemplate, sceneContainer);
-            TMP_Text[] textComponents = instantiatedObject.GetComponentsInChildren<TMP_Text>();
-
-            if (textComponents.Length == 2)
-            {
-                textComponents[0].text = objectData.Name;
-                textComponents[1].text = objectData.Description;
-            }
-            else
-            {
-                UnityEngine.Debug.LogError("Wrong Prefab in ContentContainer");
-            }
-
-            Button[] buttons = instantiatedObject.GetComponentsInChildren<Button>();
-            UnityEngine.Debug.LogWarning(buttons.Length);
-            if (buttons[0] != null && buttons[1] != null)
-            {
-                buttons[0].onClick.AddListener(() => OpenAudioPrefab(objectData));
-                buttons[1].onClick.AddListener(() => OnPrefabClicked(objectData));
-
-                GameObject child = buttons[1].transform.GetChild(0).gameObject;
-                _allChildGameObjects.Add(child);
-                buttons[1].onClick.AddListener(() => ToggleChildObjects(child));
-            }
-            else
-            {
-                UnityEngine.Debug.LogError("Button-Component one is missing in Prefab");
-            }
-        }
-
-        /// <summary>
-        /// Instantiate an object data with a button.
-        /// </summary>
-        private void InstantiateObjectDataWithOneButton(AIModel objectData)
+        private void InstantiateObjectData(AIModel objectData)
         {
             GameObject instantiatedObject = Instantiate(prefabTemplate, sceneContainer);
             TMP_Text[] textComponents = instantiatedObject.GetComponentsInChildren<TMP_Text>();
@@ -168,53 +119,37 @@ namespace MirageXR
             }
             else
             {
-                UnityEngine.Debug.LogError("Wrong Prefab in ContentContainer");
+                Debug.LogError("Wrong Prefab in ContentContainer");
             }
 
-            Button button = instantiatedObject.GetComponentInChildren<Button>();
-            if (button != null)
+            Toggle toggle = instantiatedObject.GetComponentInChildren<Toggle>();
+            if (toggle != null)
             {
-                button.onClick.AddListener(() => OnPrefabClicked(objectData));
-                GameObject child = button.transform.GetChild(0).gameObject;
-                _allChildGameObjects.Add(child);
-                button.onClick.AddListener(() => ToggleChildObjects(child));
+                ToggleGroup toggleGroup = sceneContainer.GetComponentInChildren<ToggleGroup>();
+                if (toggleGroup != null)
+                {
+                    toggle.group = toggleGroup;
+                }
+                else
+                {
+                    Debug.LogError("ToggleGroup component is missing in sceneContainer.");
+                }
+
+                toggle.onValueChanged.AddListener(isOn =>
+                {
+                    if (isOn)
+                    {
+                        OnPrefabClicked(objectData);
+                    }
+                });
             }
             else
             {
-                UnityEngine.Debug.LogError("Button-Component is missing in Prefab");
+                Debug.LogError("Prefab does not contain a Toggle component.");
             }
+
+            _allChildGameObjects.Add(instantiatedObject);
         }
-
-        /// <summary>
-        /// Toggles the visibility of child objects in the ContentContainer.
-        /// </summary>
-        private void ToggleChildObjects(GameObject activeChild)
-        {
-            foreach (var child in _allChildGameObjects)
-            {
-                child.SetActive(false); 
-            }
-            activeChild.SetActive(true); 
-        }
-
-
-        /// <summary>
-        /// Opens the audio player.
-        /// </summary>
-        private void OpenAudioPrefab(AIModel objectData)
-        {
-            audioPlayer.SetActive(true);
-            var tmpTextComponent = audioPlayer.GetComponentInChildren<TMP_Text>();
-            if (tmpTextComponent != null)
-            {
-                tmpTextComponent.text = objectData.Name;
-            }
-            else
-            {
-                UnityEngine.Debug.LogError("TMP_Text component is missing in audioPlayer");
-            }
-        }
-
 
         /// <summary>
         /// Handles the click event of a prefab object.
@@ -235,10 +170,9 @@ namespace MirageXR
                     speechSettings.UpdateModel(objectData);
                     break;
                 default:
-                    UnityEngine.Debug.LogError("Endpunkt nicht gefuden!");
+                    Debug.LogError("Did not found the endpoint. Bad configuration from Server!");
                     break;
             }
-            
         }
     }
 }
