@@ -35,27 +35,32 @@ namespace MirageXR
         /// <summary>
         /// Represents an enumeration of selected functions for the ContentContainer class.
         /// </summary>
-        public ObjectDataFunctionEnum selectedFunctionEnum;
+        [SerializeField]
+        private ObjectDataFunctionEnum selectedFunctionEnum;
 
         /// <summary>
         /// The prefab template to instantiate for each object data.
         /// </summary>
-        public GameObject prefabTemplate;
+        [SerializeField]
+        private GameObject prefabTemplate;
 
         /// <summary>
         /// Represents a container for scene objects.
         /// </summary>
-        public RectTransform sceneContainer;
+        [SerializeField]
+        private RectTransform sceneContainer;
 
         /// <summary>
         /// Represents an audio player.
         /// </summary>
-        public GameObject audioPlayer;
+        [SerializeField]
+        private GameObject audioPlayer;
 
         /// <summary>
         /// Speech settings class for managing AI prompt, voice, model, and language settings.
         /// </summary>
-        public SpeechSettings speechSettings;
+        [SerializeField]
+        private SpeechSettings speechSettings;
 
         /// <summary>
         /// Represents a data set of AI models.
