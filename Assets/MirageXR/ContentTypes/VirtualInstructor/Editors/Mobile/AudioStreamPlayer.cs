@@ -63,7 +63,6 @@ public class AudioStreamPlayer : MonoBehaviour
     /// Represents an AI model for the AiServices.
     /// </summary>
     private AIModel _model;
-    private TMP_Text[] _textComponents;
 
     /// <summary>
     /// An array of Button objects representing the interactive buttons in the AudioStreamPlayer script. 
@@ -75,6 +74,10 @@ public class AudioStreamPlayer : MonoBehaviour
     /// </summary>
     private bool _isPlaying;
 
+    private const float TimeFactor = 0.1f;
+    private const float AudioVolume = 1.0f; 
+    
+
 
     /// <summary>
     /// Initializes the AudioStreamPlayer by assigning references to its required components.
@@ -82,7 +85,6 @@ public class AudioStreamPlayer : MonoBehaviour
     void Awake()
     {
         _audioSource = GetComponent<AudioSource>();
-        _textComponents = gameObject.GetComponentsInChildren<TMP_Text>();
     }
 
 
@@ -93,19 +95,17 @@ public class AudioStreamPlayer : MonoBehaviour
     public async void Setup(AIModel model)
     {
         _model = model;
-        if (_textComponents.Length == 3)
-        {
-            _name.text = _model.Name;
-            _currentTimeText.text = "0.00";
-            _audioSource.clip = await LoadAudioAsync();
-            play.gameObject.SetActive(true);
-            _playButton.onClick.AddListener(PlayAudio);
-            _pauseButton.onClick.AddListener(PauseAudio);
-            _backward.onClick.AddListener(MoveBackward);
-            _forward.onClick.AddListener(MoveForward);
-            _progressSlider.onValueChanged.AddListener(OnSliderValueChanged);
-            _durationText.text = _audioSource.clip.length.ToString("F2", CultureInfo.CurrentCulture);
-        }
+        _name.text = _model.Name;
+        _currentTimeText.text = "0.00";
+        _audioSource.clip = await LoadAudioAsync();
+        play.gameObject.SetActive(true);
+        _playButton.onClick.AddListener(PlayAudio);
+        _pauseButton.onClick.AddListener(PauseAudio);
+        _backward.onClick.AddListener(MoveBackward);
+        _forward.onClick.AddListener(MoveForward);
+        _progressSlider.onValueChanged.AddListener(OnSliderValueChanged);
+        _durationText.text = _audioSource.clip.length.ToString("F2", CultureInfo.CurrentCulture);
+        
     }
 
     private void PauseAudio()
@@ -120,7 +120,7 @@ public class AudioStreamPlayer : MonoBehaviour
     {
         if (_audioSource != null)
         {
-            float newTime = _audioSource.time + (_audioSource.clip.length * 0.1f);
+            float newTime = _audioSource.time + (_audioSource.clip.length * TimeFactor);
             _audioSource.time = Mathf.Clamp(newTime, 0, _audioSource.clip.length);
             _audioSource.Play();
         }
@@ -133,7 +133,7 @@ public class AudioStreamPlayer : MonoBehaviour
     {
         if (_audioSource != null)
         {
-            float newTime = _audioSource.time - (_audioSource.clip.length * 0.1f);
+            float newTime = _audioSource.time - (_audioSource.clip.length * TimeFactor);
             _audioSource.time = Mathf.Clamp(newTime, 0, _audioSource.clip.length);
             _audioSource.Play();
         }
@@ -161,14 +161,12 @@ public class AudioStreamPlayer : MonoBehaviour
     /// <summary>
     /// Plays the audio clip attached to the audio source. If there is no audio clip attached or the audio source is already playing, this method does nothing.
     /// </summary>
-    /// <param name="/*START_USER_CODE*/args/*END_USER_CODE*/">Optional arguments.</param>
     private void PlayAudio()
     {
-        UnityEngine.Debug.Log("PlayAudio");
         if (_audioSource.clip != null)
         {
             _audioSource.mute = false;
-            _audioSource.volume = 1.0f;
+            _audioSource.volume = AudioVolume;
             _audioSource.Play();
         }
     }
@@ -216,7 +214,7 @@ public class AudioStreamPlayer : MonoBehaviour
     {
         pause.gameObject.SetActive(false);
         play.gameObject.SetActive(true);
-        _audioSource.time = 0;
+        _audioSource.time = 0; 
 
     }
 }
