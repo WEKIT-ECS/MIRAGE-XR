@@ -121,7 +121,10 @@ public class AudioStreamPlayer : MonoBehaviour
         if (_audioSource != null)
         {
             float newTime = _audioSource.time + (_audioSource.clip.length * TimeFactor);
-            _audioSource.time = Mathf.Clamp(newTime, 0, _audioSource.clip.length);
+            if (_audioSource.time >= Mathf.Clamp(newTime, 0, _audioSource.clip.length))
+            {
+                _audioSource.time = Mathf.Clamp(newTime, 0, _audioSource.clip.length);
+            }
             _audioSource.Play();
         }
     }

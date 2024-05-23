@@ -582,7 +582,7 @@ GameObject:
   - component: {fileID: 1027116464802633249}
   - component: {fileID: 8215346030402886104}
   - component: {fileID: 1111552223042547998}
-  - component: {fileID: 8052623752465123387}
+  - component: {fileID: 493580745212246161}
   m_Layer: 5
   m_Name: Audio
   m_TagString: Untagged
@@ -744,7 +744,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &8052623752465123387
+--- !u!114 &493580745212246161
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2239,8 +2239,8 @@ GameObject:
   - component: {fileID: 1560016954427658108}
   - component: {fileID: 2092387783790937108}
   - component: {fileID: 7540963793758098169}
-  - component: {fileID: 7257560003095944513}
   - component: {fileID: 3443617670838099526}
+  - component: {fileID: 7859736915683062104}
   m_Layer: 5
   m_Name: ContentContainer
   m_TagString: Untagged
@@ -2331,7 +2331,20 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &7257560003095944513
+--- !u!114 &3443617670838099526
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1862787796795121401}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fafe2cfe61f6974895a912c3755e8f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AllowSwitchOff: 0
+--- !u!114 &7859736915683062104
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2347,21 +2360,8 @@ MonoBehaviour:
   prefabTemplate: {fileID: 2702244076659645965, guid: f226a1263b8924e1182a3bd7cc805020,
     type: 3}
   sceneContainer: {fileID: 3501025539294293019}
-  audioPlayer: {fileID: 0}
-  speechSettings: {fileID: 4483438563139505725}
---- !u!114 &3443617670838099526
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1862787796795121401}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2fafe2cfe61f6974895a912c3755e8f1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AllowSwitchOff: 0
+  audioPlayer: {fileID: 879057073930761882}
+  speechSettings: {fileID: 8952391053434976881}
 --- !u!1 &2046541418975719977
 GameObject:
   m_ObjectHideFlags: 0
@@ -2724,8 +2724,8 @@ GameObject:
   - component: {fileID: 1288264161912494619}
   - component: {fileID: 341726417159009193}
   - component: {fileID: 8215616709125770748}
-  - component: {fileID: 5251420785169859772}
   - component: {fileID: 1283539183341188459}
+  - component: {fileID: 507926252225590936}
   m_Layer: 5
   m_Name: ContentContainer
   m_TagString: Untagged
@@ -2816,7 +2816,20 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &5251420785169859772
+--- !u!114 &1283539183341188459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2322792349148425064}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fafe2cfe61f6974895a912c3755e8f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AllowSwitchOff: 0
+--- !u!114 &507926252225590936
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2833,20 +2846,7 @@ MonoBehaviour:
     type: 3}
   sceneContainer: {fileID: 588013922790134946}
   audioPlayer: {fileID: 879057073930761882}
-  speechSettings: {fileID: 4483438563139505725}
---- !u!114 &1283539183341188459
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2322792349148425064}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2fafe2cfe61f6974895a912c3755e8f1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AllowSwitchOff: 0
+  speechSettings: {fileID: 8952391053434976881}
 --- !u!1 &2324214302761492077
 GameObject:
   m_ObjectHideFlags: 0
@@ -3982,7 +3982,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &932359458572720341
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5220,7 +5220,7 @@ GameObject:
   - component: {fileID: 2227870695096471302}
   - component: {fileID: 5040526185324642669}
   - component: {fileID: 6039358683386823207}
-  - component: {fileID: 4483438563139505725}
+  - component: {fileID: 8952391053434976881}
   m_Layer: 0
   m_Name: SpeechSettings
   m_TagString: Untagged
@@ -5287,7 +5287,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &4483438563139505725
+--- !u!114 &8952391053434976881
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5493,7 +5493,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 8052623752465123387}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: AudioStreamPlayer, MirageXR
         m_MethodName: ResetAudio
         m_Mode: 1
@@ -7138,8 +7138,8 @@ GameObject:
   - component: {fileID: 3136386819038258516}
   - component: {fileID: 8245797164695187424}
   - component: {fileID: 8345028968768660820}
-  - component: {fileID: 3380155963273140853}
   - component: {fileID: 2795920446509761634}
+  - component: {fileID: 730810624643999131}
   m_Layer: 5
   m_Name: ContentContainer
   m_TagString: Untagged
@@ -7230,7 +7230,20 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &3380155963273140853
+--- !u!114 &2795920446509761634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5091525996049712779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fafe2cfe61f6974895a912c3755e8f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AllowSwitchOff: 0
+--- !u!114 &730810624643999131
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -7246,21 +7259,8 @@ MonoBehaviour:
   prefabTemplate: {fileID: 2702244076659645965, guid: f4302ed060da0489483c73c28b878e7a,
     type: 3}
   sceneContainer: {fileID: 7974136773937866286}
-  audioPlayer: {fileID: 0}
-  speechSettings: {fileID: 4483438563139505725}
---- !u!114 &2795920446509761634
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5091525996049712779}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2fafe2cfe61f6974895a912c3755e8f1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AllowSwitchOff: 0
+  audioPlayer: {fileID: 879057073930761882}
+  speechSettings: {fileID: 8952391053434976881}
 --- !u!1 &5229636524516992771
 GameObject:
   m_ObjectHideFlags: 0
@@ -12281,7 +12281,7 @@ RectTransform:
   m_Father: {fileID: 1641428247509514694}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -13461,9 +13461,9 @@ GameObject:
   - component: {fileID: 322066184589243536}
   - component: {fileID: 5787374504369403144}
   - component: {fileID: 6761041117177981700}
-  - component: {fileID: 6872296992284816258}
   - component: {fileID: 4901631787915602066}
   - component: {fileID: 6743728477399399151}
+  - component: {fileID: 8166822676981317595}
   m_Layer: 5
   m_Name: InputField (TMP)
   m_TagString: Untagged
@@ -13591,7 +13591,7 @@ MonoBehaviour:
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 4483438563139505725}
+      - m_Target: {fileID: 8952391053434976881}
         m_TargetAssemblyTypeName: MirageXR.SpeechSettings, MirageXR
         m_MethodName: UpdateAIPrompt
         m_Mode: 0
@@ -13639,20 +13639,6 @@ MonoBehaviour:
   m_isRichTextEditingAllowed: 0
   m_LineLimit: 100
   m_InputValidator: {fileID: 0}
---- !u!114 &6872296992284816258
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8474850046133759972}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0aa065894dbd24bcdb366d53eefb3c8a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _tmpInputField: {fileID: 6761041117177981700}
-  _contentSizeFitter: {fileID: 4901631787915602066}
 --- !u!114 &4901631787915602066
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13687,6 +13673,20 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &8166822676981317595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8474850046133759972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0aa065894dbd24bcdb366d53eefb3c8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _tmpInputField: {fileID: 6761041117177981700}
+  _contentSizeFitter: {fileID: 4901631787915602066}
 --- !u!1 &8533058587262013541
 GameObject:
   m_ObjectHideFlags: 0
