@@ -198,7 +198,7 @@ public class AudioEditorView : PopupEditorBase
 
     private static void LoadKeysFromEnvFile(out string apiKey, out string serviceUrl)
     {
-        const string ibmFileName = "caption-ibm-credentials";
+        const string ibmFileName = "ibm-credentials";
         const string speechToTextApikey = "SPEECH_TO_TEXT_IAM_APIKEY";
         const string speechToTextURL = "SPEECH_TO_TEXT_URL";
 
