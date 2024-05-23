@@ -17,33 +17,46 @@ public class AudioStreamPlayer : MonoBehaviour
     /// <summary>
     /// Represents a progress slider control used for audio streaming.
     /// </summary>
+    [SerializeField]
     private Slider _progressSlider;
 
     /// <summary>
     /// The text component used to display the current time of the audio clip being played.
     /// </summary>
+    [SerializeField]
     private TMP_Text _currentTimeText;
+    [SerializeField]
     private TMP_Text _durationText;
+
+    [SerializeField] private TMP_Text _name;
 
     /// <summary>
     /// Represents a play button used for audio streaming.
     /// </summary>
+    [SerializeField]
     private Button _playButton;
+    
+    [SerializeField]
+    private Button _pauseButton;
     /// <summary>
     /// Reference to the forward button in the UI.
     /// </summary>
+    [SerializeField]
     private Button _forward;
 
     /// <summary>
     /// Reference to the backward button in the UI.
     /// </summary>
+    [SerializeField]
     private Button _backward;
 
     /// <summary>
     /// Represents the game object for the play button in the UI.
     /// </summary>
-    public GameObject play;
-    public GameObject pause;
+    [SerializeField]
+    private GameObject play;
+    [SerializeField]
+    private GameObject pause;
 
 
     /// <summary>
@@ -68,16 +81,8 @@ public class AudioStreamPlayer : MonoBehaviour
     /// </summary>
     void Awake()
     {
-        
         _audioSource = GetComponent<AudioSource>();
-        _progressSlider = gameObject.GetComponentInChildren<Slider>(); // ist null !
         _textComponents = gameObject.GetComponentsInChildren<TMP_Text>();
-        _currentTimeText = _textComponents[1];
-        _durationText = _textComponents[2];
-        _buttons = gameObject.GetComponentsInChildren<Button>();
-        _backward = _buttons[1];
-        _playButton = _buttons[2];
-        _forward = _buttons[3];
     }
 
 
@@ -90,16 +95,22 @@ public class AudioStreamPlayer : MonoBehaviour
         _model = model;
         if (_textComponents.Length == 3)
         {
-            _textComponents[0].text = _model.Name;
+            _name.text = _model.Name;
             _currentTimeText.text = "0.00";
             _audioSource.clip = await LoadAudioAsync();
             play.gameObject.SetActive(true);
             _playButton.onClick.AddListener(PlayAudio);
+            _pauseButton.onClick.AddListener(PauseAudio);
             _backward.onClick.AddListener(MoveBackward);
             _forward.onClick.AddListener(MoveForward);
             _progressSlider.onValueChanged.AddListener(OnSliderValueChanged);
             _durationText.text = _audioSource.clip.length.ToString("F2", CultureInfo.CurrentCulture);
         }
+    }
+
+    private void PauseAudio()
+    {
+        _audioSource.Stop();
     }
 
     /// <summary>
@@ -156,11 +167,6 @@ public class AudioStreamPlayer : MonoBehaviour
         UnityEngine.Debug.Log("PlayAudio");
         if (_audioSource.clip != null)
         {
-            if (_audioSource.isPlaying)
-            {
-                _audioSource.Stop();
-            }
-
             _audioSource.mute = false;
             _audioSource.volume = 1.0f;
             _audioSource.Play();
