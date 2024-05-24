@@ -30,7 +30,7 @@ public class Tutorial : MonoBehaviour
     private const int MAX_TRY_COUNT = 40;
     private const int WAIT_IN_MILLISECONDS = 250;
 
-    [SerializeField] private CanvasGroup _backgroundCanvasGroup;
+    [SerializeField] private GameObject _background;
     [SerializeField] private RectTransform _panel;
     [SerializeField] private TutorialMessageView _tutorialMessageViewPrefab;
     [SerializeField] private RectTransform[] _searchRoots;
@@ -56,7 +56,7 @@ public class Tutorial : MonoBehaviour
 
     public void Show(Queue<TutorialModel> queue)
     {
-        _backgroundCanvasGroup.gameObject.SetActive(true);
+        _background.SetActive(true);
         _panel.gameObject.SetActive(true);
         _isActivated = true;
         _queue = queue;
@@ -77,7 +77,7 @@ public class Tutorial : MonoBehaviour
             _lastCopy = null;
         }
 
-        _backgroundCanvasGroup.gameObject.SetActive(false);
+        _background.SetActive(false);
         _panel.gameObject.SetActive(false);
         _isActivated = false;
     }
@@ -112,8 +112,9 @@ public class Tutorial : MonoBehaviour
                     await Task.Delay(TimeSpan.FromSeconds(item.Delay));
                 }
 
-                _lastCopy = CopyTutorialItem(item);
-                SetUpTargetCopy(item, _lastCopy);
+                // TODO: New logic goes here
+                //_lastCopy = CopyTutorialItem(item);
+                //SetUpTargetCopy(item, _lastCopy);
             }
             else
             {
