@@ -27,6 +27,7 @@ namespace MirageXR
         private WorkplaceManager _workplaceManager;
         private AIManager _aiManager;
         private OpenAIManager _openAIManager;
+        private VirtualInstructorManager _VirtualInstructorManager; 
 
         public Camera baseCamera => _baseCamera;
 
@@ -60,6 +61,7 @@ namespace MirageXR
 
         public OpenAIManager openAIManager => _openAIManager;
         public AIManager aiManager => _aiManager;
+        public VirtualInstructorManager virtualInstructorManager => _VirtualInstructorManager;
 
         private bool _isInitialized;
 
@@ -119,6 +121,7 @@ namespace MirageXR
                 _workplaceManager = new WorkplaceManager();
                 _openAIManager = new OpenAIManager();
                 _aiManager = new AIManager();
+                _VirtualInstructorManager = new VirtualInstructorManager();
 
                 _exceptionManager.Initialize();
                 _brandManager.Initialization();
@@ -133,7 +136,7 @@ namespace MirageXR
                 await _openAIManager.InitializeAsync();
                 await _aiManager.InitializeAsync();
                 _activityManager.Subscription();
-
+                _VirtualInstructorManager.Initialize(); 
                 _isInitialized = true;
 
                 //EventManager.OnClearAll += ResetManagers;
