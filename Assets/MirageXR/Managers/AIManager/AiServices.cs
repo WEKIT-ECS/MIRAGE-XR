@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using MirageXR.AIManagerDataModel;
@@ -50,7 +51,7 @@ namespace MirageXR
             var bytes = SaveLoadAudioUtilities.AudioClipToByteArray(audioClip);
             var fromData = new WWWForm();
             fromData.AddField("model", model);
-            fromData.AddBinaryData("message", bytes);
+            fromData.AddBinaryData("message", bytes, "audio.wav", "audio/wav");
 
             using var webRequest = UnityWebRequest.Post(apiURL, fromData);
             webRequest.SetRequestHeader("Authorization", $"Token {token}");
@@ -164,7 +165,7 @@ namespace MirageXR
         {
             if (string.IsNullOrEmpty(message))
             {
-                throw new ArgumentException("speakOut is null");
+                throw new ArgumentException("message is null");
             }
 
             if (string.IsNullOrEmpty(model))
@@ -181,11 +182,14 @@ namespace MirageXR
             {
                 throw new ArgumentException("token is null");
             }
+            
+            byte[] messageBytes = Encoding.UTF8.GetBytes(message);
+            string base64Message = Convert.ToBase64String(messageBytes);
 
             var apiURL = $"{url}/speak/";
             using var webRequest = UnityWebRequestMultimedia.GetAudioClip(apiURL, AudioType.MPEG);
             webRequest.SetRequestHeader("Authorization", $"Token {token}");
-            webRequest.SetRequestHeader("message", message);
+            webRequest.SetRequestHeader("message", base64Message);
             webRequest.SetRequestHeader("model", model);
             await webRequest.SendWebRequest();
             if (webRequest.result != UnityWebRequest.Result.Success)

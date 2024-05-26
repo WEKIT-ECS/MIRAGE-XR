@@ -4,7 +4,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-
 namespace MirageXR
 {
     /// <summary>
@@ -17,16 +16,6 @@ namespace MirageXR
         /// </summary>
         public enum ObjectDataFunctionEnum
         {
-            /// <summary>
-            /// Represents a demo data object with a name.
-            /// </summary>
-            DemoDataWithName,
-
-            /// <summary>
-            /// Represents a demo data member in the ObjectDataFunctionEnum enum with a name and description.
-            /// </summary>
-            DemoDataWithNameAndDescription,
-
             /// <summary>
             /// Represents the voice endpoint for the AIManager's TTS (Text-to-Speech) models.
             /// </summary>
@@ -46,27 +35,32 @@ namespace MirageXR
         /// <summary>
         /// Represents an enumeration of selected functions for the ContentContainer class.
         /// </summary>
-        public ObjectDataFunctionEnum selectedFunctionEnum;
+        [SerializeField]
+        private ObjectDataFunctionEnum selectedFunctionEnum;
 
         /// <summary>
         /// The prefab template to instantiate for each object data.
         /// </summary>
-        public GameObject prefabTemplate;
+        [SerializeField]
+        private GameObject prefabTemplate;
 
         /// <summary>
         /// Represents a container for scene objects.
         /// </summary>
-        public RectTransform sceneContainer;
+        [SerializeField]
+        private RectTransform sceneContainer;
 
         /// <summary>
         /// Represents an audio player.
         /// </summary>
-        public GameObject audioPlayer;
+        [SerializeField]
+        private GameObject audioPlayer;
 
         /// <summary>
         /// Speech settings class for managing AI prompt, voice, model, and language settings.
         /// </summary>
-        public SpeechSettings speechSettings;
+        [SerializeField]
+        private SpeechSettings speechSettings;
 
         /// <summary>
         /// Represents a data set of AI models.
@@ -85,86 +79,36 @@ namespace MirageXR
         {
             var actions = new Dictionary<ObjectDataFunctionEnum, Func<List<AIModel>>>
             {
-                { ObjectDataFunctionEnum.DemoDataWithName, DemoWithOne },
-                { ObjectDataFunctionEnum.DemoDataWithNameAndDescription, DemoWithTow },
                 { ObjectDataFunctionEnum.ModelEndpoint, () => RootObject.Instance.aiManager.GetLlmModels() },
                 { ObjectDataFunctionEnum.LanguageEndpoint, () => RootObject.Instance.aiManager.GetSttModels() },
                 { ObjectDataFunctionEnum.VoiceEndpoint, () => RootObject.Instance.aiManager.GetTtsModels() },
             };
-
             _objectDataSet = actions[selectedFunctionEnum]();
+            InstantiateObjectData();
+        }
 
-            if (selectedFunctionEnum == ObjectDataFunctionEnum.VoiceEndpoint)
+        /// <summary>
+        /// Instantiates object data.
+        /// </summary>
+        private void InstantiateObjectData()
+        {
+            if (_objectDataSet.Count != 0)
             {
-                InstantiateObjectDataWithTwoButtons();
+                foreach (AIModel objectData in _objectDataSet)
+                {
+                    InstantiateObjectData(objectData);
+                }
             }
             else
             {
-                InstantiateObjectDataWithOneButton();
+                UnityEngine.Debug.LogError("Fail to load the models. Is the server online?");
             }
         }
 
         /// <summary>
-        /// Instantiates data objects with two buttons.
+        /// Instantiates an object and sets the text components and toggle listeners based on the provided AIModel data.
         /// </summary>
-        private void InstantiateObjectDataWithTwoButtons()
-        {
-            foreach (AIModel objectData in _objectDataSet)
-            {
-                InstantiateObjectDataWithTowButton(objectData);
-            }
-        }
-
-        /// <summary>
-        /// Instantiates object data with a single button.
-        /// </summary>
-        private void InstantiateObjectDataWithOneButton()
-        {
-            foreach (AIModel objectData in _objectDataSet)
-            {
-                InstantiateObjectDataWithOneButton(objectData);
-            }
-        }
-
-        /// <summary>
-        /// Instantiates an object with two buttons and sets the text components and button listeners based on the provided AIModel data.
-        /// </summary>
-        private void InstantiateObjectDataWithTowButton(AIModel objectData)
-        {
-            GameObject instantiatedObject = Instantiate(prefabTemplate, sceneContainer);
-            TMP_Text[] textComponents = instantiatedObject.GetComponentsInChildren<TMP_Text>();
-
-            if (textComponents.Length == 2)
-            {
-                textComponents[0].text = objectData.Name;
-                textComponents[1].text = objectData.Description;
-            }
-            else
-            {
-                UnityEngine.Debug.LogError("Wrong Prefab in ContentContainer");
-            }
-
-            Button[] buttons = instantiatedObject.GetComponentsInChildren<Button>();
-            UnityEngine.Debug.LogWarning(buttons.Length);
-            if (buttons[0] != null && buttons[1] != null)
-            {
-                buttons[0].onClick.AddListener(() => OpenAudioPrefab(objectData));
-                buttons[1].onClick.AddListener(() => OnPrefabClicked(objectData));
-
-                GameObject child = buttons[1].transform.GetChild(0).gameObject;
-                _allChildGameObjects.Add(child);
-                buttons[1].onClick.AddListener(() => ToggleChildObjects(child));
-            }
-            else
-            {
-                UnityEngine.Debug.LogError("Button-Component one is missing in Prefab");
-            }
-        }
-
-        /// <summary>
-        /// Instantiate an object data with a button.
-        /// </summary>
-        private void InstantiateObjectDataWithOneButton(AIModel objectData)
+        private void InstantiateObjectData(AIModel objectData)
         {
             GameObject instantiatedObject = Instantiate(prefabTemplate, sceneContainer);
             TMP_Text[] textComponents = instantiatedObject.GetComponentsInChildren<TMP_Text>();
@@ -180,53 +124,53 @@ namespace MirageXR
             }
             else
             {
-                UnityEngine.Debug.LogError("Wrong Prefab in ContentContainer");
+                Debug.LogError("Wrong Prefab in ContentContainer");
+            }
+
+            Toggle toggle = instantiatedObject.GetComponentInChildren<Toggle>();
+            if (toggle != null)
+            {
+                ToggleGroup toggleGroup = sceneContainer.GetComponentInChildren<ToggleGroup>();
+                if (toggleGroup != null)
+                {
+                    toggle.group = toggleGroup;
+                }
+                else
+                {
+                    Debug.LogError("ToggleGroup component is missing in sceneContainer.");
+                }
+
+                toggle.onValueChanged.AddListener(isOn =>
+                {
+                    if (isOn)
+                    {
+                        OnPrefabClicked(objectData);
+                    }
+                });
+            }
+            else
+            {
+                Debug.LogError("Prefab does not contain a Toggle component.");
             }
 
             Button button = instantiatedObject.GetComponentInChildren<Button>();
             if (button != null)
             {
-                button.onClick.AddListener(() => OnPrefabClicked(objectData));
-                GameObject child = button.transform.GetChild(0).gameObject;
-                _allChildGameObjects.Add(child);
-                button.onClick.AddListener(() => ToggleChildObjects(child));
+                button.onClick.AddListener(() =>
+                {
+                    audioPlayer.SetActive(true);
+
+                    // AudioPlayer-Komponente hinzufügen
+                    AudioStreamPlayer audioStreamPlayerComponent = audioPlayer.GetComponent<AudioStreamPlayer>();
+                    if (audioStreamPlayerComponent == null)
+                    {
+                        audioStreamPlayerComponent = audioPlayer.AddComponent<AudioStreamPlayer>();
+                    }
+                    audioStreamPlayerComponent.Setup(objectData);
+                });
             }
-            else
-            {
-                UnityEngine.Debug.LogError("Button-Component is missing in Prefab");
-            }
+            _allChildGameObjects.Add(instantiatedObject);
         }
-
-        /// <summary>
-        /// Toggles the visibility of child objects in the ContentContainer.
-        /// </summary>
-        private void ToggleChildObjects(GameObject activeChild)
-        {
-            foreach (var child in _allChildGameObjects)
-            {
-                child.SetActive(false); 
-            }
-            activeChild.SetActive(true); 
-        }
-
-
-        /// <summary>
-        /// Opens the audio player.
-        /// </summary>
-        private void OpenAudioPrefab(AIModel objectData)
-        {
-            audioPlayer.SetActive(true);
-            var tmpTextComponent = audioPlayer.GetComponentInChildren<TMP_Text>();
-            if (tmpTextComponent != null)
-            {
-                tmpTextComponent.text = objectData.Name;
-            }
-            else
-            {
-                UnityEngine.Debug.LogError("TMP_Text component is missing in audioPlayer");
-            }
-        }
-
 
         /// <summary>
         /// Handles the click event of a prefab object.
@@ -247,55 +191,9 @@ namespace MirageXR
                     speechSettings.UpdateModel(objectData);
                     break;
                 default:
-                    UnityEngine.Debug.LogError("Endpunkt nicht gefuden!");
+                    Debug.LogError("Did not found the endpoint. Bad configuration from Server!");
                     break;
             }
-            
-        }
-
-
-        /// <summary>
-        /// Generates a demo list of AIModel objects based on a specified condition.
-        /// </summary>
-        private List<AIModel> DemoWithOne()
-        {
-            return CreateDemo(false, 5);
-        }
-
-
-        /// <summary>
-        /// Creates a demo with two AIModel objects based on the given parameters.
-        /// </summary>
-        private List<AIModel> DemoWithTow()
-        {
-            return CreateDemo(true, 5);
-        }
-
-
-        /// <summary>
-        /// Create a demo list of AIModel objects.
-        /// </summary>
-        private List<AIModel> CreateDemo(bool b, int i)
-        {
-            var temp = new List<AIModel>();
-            if (b)
-            {
-                for (var j = 0; j < i; j++)
-                {
-                    var t = new AIModel("think/", "Lorem ipus" + j, "Description" + j);
-                    temp.Add(t);
-                }
-            }
-            else
-            {
-                for (var j = 0; j < i; j++)
-                {
-                    var t = new AIModel("think/", "Lorem ipus" + j);
-                    temp.Add(t);
-                }
-            }
-
-            return temp;
         }
     }
 }
