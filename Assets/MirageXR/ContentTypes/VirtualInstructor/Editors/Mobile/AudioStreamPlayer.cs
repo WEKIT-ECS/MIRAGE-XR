@@ -17,65 +17,50 @@ public class AudioStreamPlayer : MonoBehaviour
     /// <summary>
     /// Represents a progress slider control used for audio streaming.
     /// </summary>
-    [SerializeField]
-    private Slider _progressSlider;
+    [SerializeField] private Slider _progressSlider;
 
     /// <summary>
     /// The text component used to display the current time of the audio clip being played.
     /// </summary>
-    [SerializeField]
-    private TMP_Text _currentTimeText;
-    [SerializeField]
-    private TMP_Text _durationText;
+    [SerializeField] private TMP_Text _currentTimeText;
+    [SerializeField] private TMP_Text _durationText;
 
     [SerializeField] private TMP_Text _name;
 
     /// <summary>
     /// Represents a play button used for audio streaming.
     /// </summary>
-    [SerializeField]
-    private Button _playButton;
+    [SerializeField] private Button _playButton;
     
-    [SerializeField]
-    private Button _pauseButton;
+    [SerializeField] private Button _pauseButton;
     /// <summary>
     /// Reference to the forward button in the UI.
     /// </summary>
-    [SerializeField]
-    private Button _forward;
+    [SerializeField] private Button _forward;
 
     /// <summary>
     /// Reference to the backward button in the UI.
     /// </summary>
-    [SerializeField]
-    private Button _backward;
+    [SerializeField] private Button _backward;
 
     /// <summary>
     /// Represents the game object for the play button in the UI.
     /// </summary>
-    [SerializeField]
-    private GameObject play;
-    [SerializeField]
-    private GameObject pause;
-
-
+    [SerializeField] private GameObject play;
+    [SerializeField] private GameObject pause;
+    
     /// <summary>
     /// Represents an AI model for the AiServices.
     /// </summary>
     private AIModel _model;
-
-    /// <summary>
-    /// An array of Button objects representing the interactive buttons in the AudioStreamPlayer script. 
-    /// </summary>
-    private Button[] _buttons;
-
+    
     /// <summary>
     /// Represents the current playing state of the AudioStreamPlayer.
     /// </summary>
     private bool _isPlaying;
 
-    private const float TimeFactor = 0.1f;
-    private const float AudioVolume = 1.0f; 
+    private const float TIME_FACTOR = 0.1f;
+    private const float AUDIO_VOLUME = 1.0f; 
     
 
 
@@ -120,7 +105,7 @@ public class AudioStreamPlayer : MonoBehaviour
     {
         if (_audioSource != null)
         {
-            float newTime = _audioSource.time + (_audioSource.clip.length * TimeFactor);
+            float newTime = _audioSource.time + (_audioSource.clip.length * TIME_FACTOR);
             if (_audioSource.time >= Mathf.Clamp(newTime, 0, _audioSource.clip.length))
             {
                 _audioSource.time = Mathf.Clamp(newTime, 0, _audioSource.clip.length);
@@ -136,7 +121,7 @@ public class AudioStreamPlayer : MonoBehaviour
     {
         if (_audioSource != null)
         {
-            float newTime = _audioSource.time - (_audioSource.clip.length * TimeFactor);
+            float newTime = _audioSource.time - (_audioSource.clip.length * TIME_FACTOR);
             _audioSource.time = Mathf.Clamp(newTime, 0, _audioSource.clip.length);
             _audioSource.Play();
         }
@@ -169,7 +154,7 @@ public class AudioStreamPlayer : MonoBehaviour
         if (_audioSource.clip != null)
         {
             _audioSource.mute = false;
-            _audioSource.volume = AudioVolume;
+            _audioSource.volume = AUDIO_VOLUME;
             _audioSource.Play();
         }
     }
@@ -218,6 +203,5 @@ public class AudioStreamPlayer : MonoBehaviour
         pause.gameObject.SetActive(false);
         play.gameObject.SetActive(true);
         _audioSource.time = 0; 
-
     }
 }
