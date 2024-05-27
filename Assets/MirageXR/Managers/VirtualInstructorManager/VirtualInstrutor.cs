@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using UnityEngine;
 using MirageXR;
@@ -55,6 +56,7 @@ public class VirtualInstructor : MonoBehaviour
             TextToSpeechModel = textToSpeechModel;
             SpeechToTextModel = speechToTextModel;
             Prompt = prompt;
+            RootObject.Instance.virtualInstructorManager.AddInstrutor(this);
         }
 
         /// <summary>
@@ -62,12 +64,11 @@ public class VirtualInstructor : MonoBehaviour
         /// </summary>
         /// <param name="inputAudio">The input audio clip representing the question of the user.</param>
         /// <returns>A clip containing the response from the virtual instructor.</returns>
-        public async Task<AudioClip> AskVirtualInstructor(AudioClip inputAudio ) // input fehlt
+        public async Task<AudioClip> AskVirtualInstructor(AudioClip inputAudio )
         {
             string context = CreateContext();
             var question = await RootObject.Instance.aiManager.ConvertSpeechToTextAsync(inputAudio, SpeechToTextModel.ApiName);
             var response = await RootObject.Instance.aiManager.SendMessageToAssistantAsync(LanguageLanguageModel.ApiName, question, context);
-            UnityEngine.Debug.Log("Response :"+response);
             var clip = await RootObject.Instance.aiManager.ConvertTextToSpeechAsync(response, TextToSpeechModel.ApiName);
             UpdateHistory(question, response);
             return clip;
@@ -82,4 +83,9 @@ public class VirtualInstructor : MonoBehaviour
         /// Updates the conversation history with the question and response.
         /// </summary>
         private void UpdateHistory(string question, string response) => _history = string.Format(HistoryFormat, question, response);
+
+        private void OnDestroy()
+        {
+            RootObject.Instance.virtualInstructorManager.RemoveInstrutor(this);
+        }
     }

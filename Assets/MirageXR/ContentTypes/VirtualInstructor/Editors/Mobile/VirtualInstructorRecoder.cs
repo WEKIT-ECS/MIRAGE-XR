@@ -55,26 +55,35 @@ namespace MirageXR
         /// Flag indicating if the recording is currently being done.
         /// </summary>
         private bool recoding;
-
-
-          
-        private AIModel speechToTextModel; // @todo remove when done 
-
-        private AIModel textToSpeechModel; // @todo remove when done 
-
-        private AIModel languageLanguageModel; // @todo remove when done 
-
-        private VirtualInstructor demo; // @todo remove when done 
-
+        
   
-        void Awake()
+        void Update() // Kann man das günstiger lösen? Jeder 50 frame reicht ja auch... 
         {
-            /// Demo for Testing
-            speechToTextModel = new AIModel("listen/", "f", "f", "f");  // @todo remove when done 
-            textToSpeechModel = new AIModel("speak/", "Alloy", "Female human voice", "alloy");  // @todo remove when done 
-            languageLanguageModel = new AIModel("think/", "gpt-3.5-turbo", "gpt-3.5-turbo", "gpt-3.5-turbo");  // @todo remove when done 
-            demo = new VirtualInstructor(_Record, languageLanguageModel, textToSpeechModel, speechToTextModel, "This is a Test, Test!");// @todo remove when done 
-            /// Demo for Testing
+            if (RootObject.Instance.virtualInstructorManager.IsVirtualInstructorInList())
+            {
+                SetUp(); 
+            }
+            else
+            {
+                Hide(); 
+            }
+        }
+        /// <summary>
+        /// Hides the buttons for send recording and record.
+        /// </summary>
+        private void Hide()
+        {
+            _SendRecord.gameObject.SetActive(false);
+            _Record.gameObject.SetActive(false);
+        }
+
+        /// <summary>
+        /// Sets up the virtual instructor  and the recorder buttons.
+        /// </summary>
+        public void SetUp()
+        {
+            _SendRecord.gameObject.SetActive(false);
+            _Record.gameObject.SetActive(true);
             _btnRecord.onClick.AddListener(StartRecording);
             _btnSendRecord.onClick.AddListener(SendRecording);
         }
@@ -113,10 +122,8 @@ namespace MirageXR
             recoding = false;
             _SendRecord.gameObject.SetActive(false);
             _Record.gameObject.SetActive(true);
-            responseClip.clip =  await demo.AskVirtualInstructor(questionClip); 
+            responseClip.clip =  await RootObject.Instance.virtualInstructorManager.AskCloserstInstructor(questionClip); 
             responseClip.Play();
-             
-            
         }
     }
 }
