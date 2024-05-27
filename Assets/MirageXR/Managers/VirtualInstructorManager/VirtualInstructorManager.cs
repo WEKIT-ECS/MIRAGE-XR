@@ -14,7 +14,7 @@ namespace MirageXR
         /// <summary>
         /// Represents a list of all virtual instructors.
         /// </summary>
-        private List<VirtualInstructor> _Instrutors;
+        private List<VirtualInstructor> _Instrutors = new();
 
         /// <summary>
         /// Adds a virtual instructor to the list of instructors in the VirtualInstructorManager.
