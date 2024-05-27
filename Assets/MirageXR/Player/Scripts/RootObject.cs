@@ -136,7 +136,6 @@ namespace MirageXR
                 await _openAIManager.InitializeAsync();
                 await _aiManager.InitializeAsync();
                 _activityManager.Subscription();
-                _VirtualInstructorManager.Initialize(); 
                 _isInitialized = true;
 
                 //EventManager.OnClearAll += ResetManagers;
