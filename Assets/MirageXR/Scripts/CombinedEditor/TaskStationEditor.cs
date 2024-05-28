@@ -1,5 +1,7 @@
-﻿using Microsoft.MixedReality.Toolkit.UI;
+﻿using System;
+using Microsoft.MixedReality.Toolkit.UI;
 using MirageXR;
+using Newtonsoft.Json;
 using UnityEngine;
 using Action = MirageXR.Action;
 
@@ -12,52 +14,37 @@ public class TaskStationEditor : MonoBehaviour
 
     private ObjectManipulator _objectManipulator;
     private TaskStationStateController _taskStationStateController;
-    private PlaceBehaviour _placeBehaviour;
+    private MeshRenderer _meshRenderer;
     private Detectable _detectable;
-    private bool _isInitialized;
+    private Action _action;
 
-    private void Awake()
+    public void Init(Action action)
     {
         _objectManipulator = GetComponent<ObjectManipulator>();
         _taskStationStateController = GetComponent<TaskStationStateController>();
-    }
-
-    private void Start()
-    {
-        Init();
-    }
-
-    private void Init()
-    {
-        if (_isInitialized)
-        {
-            return;
-        }
-        
-        _placeBehaviour = transform.parent.parent.gameObject.GetComponent<PlaceBehaviour>();
-        _detectable = RootObject.Instance.workplaceManager.GetDetectable(_placeBehaviour.Place);
-        _objectManipulator.HostTransform = GameObject.Find(_detectable.id).transform;
+        _meshRenderer = GetComponent<MeshRenderer>();
         _objectManipulator.enabled = activityManager.EditModeActive;
         _objectManipulator.OnManipulationStarted.AddListener(_ => gridManager.onManipulationStarted(_objectManipulator.HostTransform.gameObject));
         _objectManipulator.OnManipulationEnded.AddListener(OnManipulationEnded);
-        _isInitialized = true;
+        _action = action;
+
+        var detectableId = _action.id.Replace("TS-", "WA-");
+        _detectable = RootObject.Instance.workplaceManager.GetDetectable(detectableId);
+        _objectManipulator.HostTransform = GameObject.Find(_detectable.id).transform;
+
+        UpdateView();
     }
 
     private void OnEnable()
     {
-        EventManager.OnActionModified += OnActionChanged;
         EventManager.OnEditModeChanged += OnEditModeChanged;
-
         EventManager.OnWorkplaceCalibrated += OnCalibrationFinished;
-
-        _objectManipulator.enabled = activityManager.EditModeActive;
 
         EventManager.NotifyOnTaskStationEditorEnabled();
     }
 
     private void OnDisable()
     {
-        EventManager.OnActionModified -= OnActionChanged;
         EventManager.OnEditModeChanged -= OnEditModeChanged;
         EventManager.OnWorkplaceCalibrated -= OnCalibrationFinished;
     }
@@ -65,6 +52,35 @@ public class TaskStationEditor : MonoBehaviour
     private void OnEditModeChanged(bool editModeActive)
     {
         _objectManipulator.enabled = _taskStationStateController.IsCurrent() && editModeActive;
+    }
+
+    private void UpdateView()
+    {
+        ActionExtension extension = null;
+        try
+        {
+            extension = JsonConvert.DeserializeObject<ActionExtension>(_action.predicate);
+        }
+        catch (Exception) { /*ignore*/ }
+
+        extension ??= new ActionExtension { isDiamondVisible = true };
+        _meshRenderer.enabled = extension.isDiamondVisible;
+    }
+
+    public void OnVisibilityChanged(bool value)
+    {
+        if (_action != null)
+        {
+            var extension = new ActionExtension
+            {
+                isDiamondVisible = value
+            };
+
+            _action.predicate = JsonConvert.SerializeObject(extension);
+        }
+
+        _meshRenderer.enabled = value;
+        activityManager.SaveData();
     }
 
     private void OnCalibrationFinished()
@@ -83,12 +99,6 @@ public class TaskStationEditor : MonoBehaviour
 
     private void RecordTaskStationPosition()
     {
-        if (_detectable == null)
-        {
-            Debug.LogError("can't find '_detectable'");
-            return;
-        }
-        
         var source = _objectManipulator.HostTransform.gameObject;
         var anchor = RootObject.Instance.calibrationManager.anchor;
 
@@ -99,10 +109,5 @@ public class TaskStationEditor : MonoBehaviour
         _detectable.origin_rotation = MirageXR.Utilities.Vector3ToString(rotation.eulerAngles);
 
         activityManager.SaveData();
-    }
-    
-    private void OnActionChanged(Action action)
-    {
-        _objectManipulator.enabled = _taskStationStateController.IsCurrent() && activityManager.EditModeActive;
     }
 }
