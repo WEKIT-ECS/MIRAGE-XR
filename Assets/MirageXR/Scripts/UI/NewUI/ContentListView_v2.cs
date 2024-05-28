@@ -1,7 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
+using Newtonsoft.Json;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,6 +25,7 @@ public class ContentListView_v2 : BaseView
     [SerializeField] private Toggle _toggleAugmentations;
     [SerializeField] private Toggle _toggleInfo;
     [SerializeField] private Toggle _toggleMarker;
+    [SerializeField] private Toggle _toggleDiamondVisibility;
     [SerializeField] private GameObject _augmentations;
     [SerializeField] private GameObject _info;
     [SerializeField] private GameObject _marker;
@@ -82,11 +84,25 @@ public class ContentListView_v2 : BaseView
 
         _inputFieldStepName.onEndEdit.AddListener(OnStepNameChanged);
         _inputFieldDescription.onEndEdit.AddListener(OnStepDescriptionChanged);
+        _toggleDiamondVisibility.onValueChanged.AddListener(OnDiamondVisibilityChanged);
 
         EventManager.OnActionCreated += OnActionCreated;
         EventManager.OnActivateAction += OnActionActivated;
         EventManager.OnEditModeChanged += OnEditModeChanged;
         EventManager.OnActionModified += OnActionChanged;
+    }
+
+    private void OnDiamondVisibilityChanged(bool value)
+    {
+        var taskStation = GameObject.Find(activityManager.ActiveAction.id); //temp
+        if (taskStation != null)
+        {
+            var taskStationEditor = taskStation.GetComponentInChildren<TaskStationEditor>();
+            if (taskStationEditor != null)
+            {
+                taskStationEditor.OnVisibilityChanged(value);
+            }
+        }
     }
 
     private void OnDestroy()
@@ -183,6 +199,17 @@ public class ContentListView_v2 : BaseView
 
     public void UpdateView()
     {
+        ActionExtension extension = null;
+        try
+        {
+            extension = JsonConvert.DeserializeObject<ActionExtension>(_currentStep.predicate);
+        }
+        catch (Exception) { /*ignore*/ }
+
+        extension ??= new ActionExtension { isDiamondVisible = true };
+
+        _toggleDiamondVisibility.isOn = extension.isDiamondVisible;
+        
         int currentIndex = activityManager.ActionsOfTypeAction.IndexOf(_currentStep) + 1;
         int maxIndex = activityManager.ActionsOfTypeAction.Count;
 

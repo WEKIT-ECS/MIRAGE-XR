@@ -23,6 +23,12 @@ namespace MirageXR
     }
 
     [Serializable]
+    public class ActionExtension
+    {
+        public bool isDiamondVisible;
+    }
+
+    [Serializable]
     public class Action // is a task station
     {
         // NOT IN ARLEM SPEC. For storing current action state.
