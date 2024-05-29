@@ -6,6 +6,8 @@ using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using UnityEngine;
 using Coffee.UIExtensions;
+using UnityEngine.UI;
+using static UnityEditor.Progress;
 
 public class TutorialModel
 {
@@ -31,6 +33,7 @@ public class Tutorial : MonoBehaviour
     private const int MAX_TRY_COUNT = 40;
     private const int WAIT_IN_MILLISECONDS = 250;
 
+    [SerializeField] private Image _maskingImage;
     [SerializeField] private Unmask _unmaskPanel;
     [SerializeField] private GameObject _background;
     [SerializeField] private RectTransform _panel;
@@ -43,8 +46,9 @@ public class Tutorial : MonoBehaviour
 
     private bool _toggleIsFirstPass;
     private bool _isActivated;
+    private TutorialItem _currentTutorialItem;
 
-    public bool isActivated => _isActivated;
+    public bool IsActivated => _isActivated;
 
     protected void Start()
     {
@@ -53,17 +57,20 @@ public class Tutorial : MonoBehaviour
 
     protected virtual void Init()
     {
+        Debug.LogDebug("Hiding tutorial because of Init");
         Hide();
     }
 
     public void Show(Queue<TutorialModel> queue)
     {
-        this.gameObject.SetActive(true);
+        _maskingImage.enabled = true;
         _unmaskPanel.gameObject.SetActive(true);
         _background.SetActive(true);
         _panel.gameObject.SetActive(true);
         _isActivated = true;
         _queue = queue;
+        _currentTutorialItem = null;
+        Debug.LogDebug("Showing Tutorial, status: " + this.gameObject.activeSelf);
         Next();
     }
 
@@ -84,8 +91,9 @@ public class Tutorial : MonoBehaviour
         _background.SetActive(false);
         _panel.gameObject.SetActive(false);
         _unmaskPanel.gameObject.SetActive(false);
-        this.gameObject.SetActive(false);
+        _maskingImage.enabled = false;
         _isActivated = false;
+        Debug.LogDebug("Hiding Tutorial, status: " + this.gameObject.activeSelf);
     }
 
     private void Next()
@@ -101,6 +109,7 @@ public class Tutorial : MonoBehaviour
         }
         else
         {
+            Debug.LogDebug("Hiding because queue count is 0");
             Hide();
         }
     }
@@ -109,6 +118,7 @@ public class Tutorial : MonoBehaviour
     {
         if (model.HasId)
         {
+            Debug.LogDebug("New show item: " + model.id);
             var item = await FindTutorialItem(model.id);
             if (item)
             {
@@ -118,17 +128,24 @@ public class Tutorial : MonoBehaviour
                     await Task.Delay(TimeSpan.FromSeconds(item.Delay));
                 }
 
-                _unmaskPanel.fitTarget = (RectTransform) item.transform;
+                _unmaskPanel.fitTarget = (RectTransform)item.transform;
                 _unmaskPanel.fitOnLateUpdate = true;
+                _unmaskPanel.gameObject.SetActive(true);
                 MarkTarget(item);
-
-                //_lastCopy = CopyTutorialItem(item);
-                //SetUpTargetCopy(item, _lastCopy);
+                _currentTutorialItem = item;
             }
             else
             {
                 Debug.LogError($"Can't find TutorialModel with id = '{model.id}'");
                 model.id = null;
+            }
+        }
+        else
+        {
+            // This is in case the last model was targeted, so that it does not leave behind a mark
+            if (_unmaskPanel.fitTarget != null)
+            {
+                _unmaskPanel.gameObject.SetActive(false);
             }
         }
 
@@ -148,6 +165,7 @@ public class Tutorial : MonoBehaviour
     private void OnMessageViewButtonClicked(TutorialModel model)
     {
         Hide();
+        Debug.LogDebug("Hiding tutorial because of Skip");
     }
 
     private async Task<TutorialItem> FindTutorialItem(string id)
@@ -180,49 +198,66 @@ public class Tutorial : MonoBehaviour
     {
         if (item.Button)
         {
-            item.Button.onClick.AddListener(() => OnTargetClicked(item));
+            item.Button.onClick.AddListener(OnButtonClicked);
+            Debug.LogDebug("Marked button: " + item.Id);
         }
 
         if (item.Toggle)
         {
-            item.Toggle.onValueChanged.AddListener(value => OnTargetClicked(item));
+            item.Toggle.onValueChanged.AddListener(OnToggleValueChanged);
             //_toggleIsFirstPass = true;
+            Debug.LogDebug("Marked toggle: " + item.Id);
         }
 
         if (item.InputField)
         {
-            //TODO: Add for input field
+            item.InputField.onValueChanged.AddListener(OnInputFieldValueChanged);
+            Debug.LogDebug("Marked input field: " + item.Id);
         }
     }
 
-    private void OnTargetClicked(TutorialItem item)
+    private void OnButtonClicked()
     {
-        if (item.Button)
+        if (_currentTutorialItem.Button)
         {
-            item.Button.onClick.RemoveListener(() => OnTargetClicked(item));
+            _currentTutorialItem.Button.onClick.RemoveListener(OnButtonClicked);
         }
 
-        if (item.Toggle)
+        OnFinishedTargetInteraction();
+    }
+
+    private void OnToggleValueChanged(bool isOn)
+    {
+        if (_currentTutorialItem.Toggle)
         {
             /*
             if (_toggleIsFirstPass)
             {
                 _toggleIsFirstPass = false;
-                item.Toggle.isOn = true;
+                _currentTutorialItem.Toggle.isOn = true;
             }
             else
             {
                 return;
             }*/
 
-            item.Toggle.onValueChanged.RemoveListener(value => OnTargetClicked(item));
+            _currentTutorialItem.Toggle.onValueChanged.RemoveListener(OnToggleValueChanged);
         }
 
-        if (item.InputField)
+        OnFinishedTargetInteraction();
+    }
+    private void OnInputFieldValueChanged(string value)
+    {
+        if (_currentTutorialItem.InputField)
         {
-            //TODO: Add removal
+            _currentTutorialItem.InputField.onValueChanged.RemoveListener(OnInputFieldValueChanged);
         }
 
+        OnFinishedTargetInteraction();
+    }
+
+    private void OnFinishedTargetInteraction()
+    {
         if (_lastMessageView)
         {
             Destroy(_lastMessageView.gameObject);
