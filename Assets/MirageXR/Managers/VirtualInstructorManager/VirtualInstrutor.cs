@@ -18,25 +18,13 @@ public class VirtualInstructor : MonoBehaviour
         /// </summary>
         private GameObject Instructor { get; }
 
-        /// <summary>
-        /// Represents the LanguageLanguageModel used by the VirtualInstructor to communicate with an AI assistant.
+        /// Represents the data model for a virtual instructor in the MirageXR application.
         /// </summary>
-        private AIModel LanguageLanguageModel { get; }
-
-        /// <summary>
-        /// Represents a text-to-speech AI model.
-        /// </summary>
-        private AIModel TextToSpeechModel { get; }
-
-        /// <summary>
-        /// Represents a speech-to-text AI model for converting speech audio into text.
-        /// </summary>
-        private AIModel SpeechToTextModel { get; }
-
-        /// <summary>
-        /// Represents the prompt given to the VirtualInstructor.
-        /// </summary>
-        private string Prompt { get; }
+        /// <remarks>
+        /// The InstructorData class stores information about the language models and prompts used by the virtual instructor.
+        /// </remarks>
+        private VirtualInstructorDataModel InstructorData { get; set; }
+        
         /// <summary>
         /// Represents the history of a conversation with the VirtualInstructor.
         /// This variable keeps track of the conversation history between the user and the VirtualInstructor.
@@ -52,11 +40,45 @@ public class VirtualInstructor : MonoBehaviour
             AIModel speechToTextModel, string prompt)
         {
             Instructor = instructor;
-            LanguageLanguageModel = languageLanguageModel;
-            TextToSpeechModel = textToSpeechModel;
-            SpeechToTextModel = speechToTextModel;
-            Prompt = prompt;
+            InstructorData =
+                new VirtualInstructorDataModel(languageLanguageModel, textToSpeechModel, speechToTextModel, prompt);
             RootObject.Instance.virtualInstructorManager.AddInstrutor(this);
+        }
+
+        /// <summary>
+        /// Gets the language model associated with the virtual instructor.
+        /// </summary>
+        /// <returns>The language model.</returns>
+        public AIModel getLanguageLanguageModel()
+        {
+            return InstructorData.LanguageModel;
+        }
+
+        /// <summary>
+        /// Retrieves the AI model for text-to-speech functionality.
+        /// </summary>
+        /// <returns>The AI model for text-to-speech functionality.</returns>
+        public AIModel getTextToSpeechModel()
+        {
+            return InstructorData.TextToSpeechModel;
+        }
+
+        /// <summary>
+        /// Retrieves the SpeechToTextModel associated with the virtual instructor.
+        /// </summary>
+        /// <returns>The SpeechToTextModel for the virtual instructor.</returns>
+        public AIModel getSpeechToTextModel()
+        {
+            return InstructorData.SpeechToTextModel;
+        }
+
+        /// <summary>
+        /// Gets the prompt associated with the virtual instructor.
+        /// </summary>
+        /// <returns>The prompt string.</returns>
+        public string getPromt()
+        {
+            return InstructorData.Prompt;
         }
 
         /// <summary>
@@ -67,9 +89,9 @@ public class VirtualInstructor : MonoBehaviour
         public async Task<AudioClip> AskVirtualInstructor(AudioClip inputAudio )
         {
             string context = CreateContext();
-            var question = await RootObject.Instance.aiManager.ConvertSpeechToTextAsync(inputAudio, SpeechToTextModel.ApiName);
-            var response = await RootObject.Instance.aiManager.SendMessageToAssistantAsync(LanguageLanguageModel.ApiName, question, context);
-            var clip = await RootObject.Instance.aiManager.ConvertTextToSpeechAsync(response, TextToSpeechModel.ApiName);
+            var question = await RootObject.Instance.aiManager.ConvertSpeechToTextAsync(inputAudio, InstructorData.SpeechToTextModel.ApiName);
+            var response = await RootObject.Instance.aiManager.SendMessageToAssistantAsync(InstructorData.LanguageModel.ApiName, question, context);
+            var clip = await RootObject.Instance.aiManager.ConvertTextToSpeechAsync(response, InstructorData.TextToSpeechModel.ApiName);
             UpdateHistory(question, response);
             return clip;
         }
@@ -77,7 +99,7 @@ public class VirtualInstructor : MonoBehaviour
         /// <summary>
         /// CreateContext method is responsible for concatinactein the history  and the Promt to a String.
         /// </summary>
-        private string CreateContext() => _history != "" ? Prompt + _history : Prompt;
+        private string CreateContext() => _history != "" ? InstructorData.Prompt + _history : InstructorData.Prompt;
 
         /// <summary>
         /// Updates the conversation history with the question and response.
