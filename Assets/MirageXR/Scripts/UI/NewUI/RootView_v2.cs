@@ -113,7 +113,7 @@ public class RootView_v2 : BaseView
 
     private void OnWorkplaceLoaded()
     {
-        if (!DBManager.dontShowCalibrationGuide && !_tutorial.isActivated)
+        if (!DBManager.dontShowCalibrationGuide && !_tutorial.IsActivated)
         {
             PopupsViewer.Instance.Show(_calibrationGuideViewPrefab);
         }
