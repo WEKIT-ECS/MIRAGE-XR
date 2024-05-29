@@ -18,7 +18,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8258015959349505206
 RectTransform:
   m_ObjectHideFlags: 0
@@ -188,7 +188,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5364938231579757060
 RectTransform:
   m_ObjectHideFlags: 0
@@ -201,9 +201,9 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 8258015959349505206}
   - {fileID: 890824487217600677}
   - {fileID: 7660838002049821157}
-  - {fileID: 8258015959349505206}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -231,6 +231,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9c1f8fe97c765947862923899e63f49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _unmaskPanel: {fileID: 998873580322620948}
   _background: {fileID: 4983744487731437178}
   _panel: {fileID: 7660838002049821157}
   _tutorialMessageViewPrefab: {fileID: 8958691305538200656, guid: 8e697864facca9e48b5bf9c8406f78d6,

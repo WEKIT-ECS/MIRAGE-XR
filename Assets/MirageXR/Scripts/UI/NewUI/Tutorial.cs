@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using UnityEngine;
+using Coffee.UIExtensions;
 
 public class TutorialModel
 {
@@ -30,6 +31,7 @@ public class Tutorial : MonoBehaviour
     private const int MAX_TRY_COUNT = 40;
     private const int WAIT_IN_MILLISECONDS = 250;
 
+    [SerializeField] private Unmask _unmaskPanel;
     [SerializeField] private GameObject _background;
     [SerializeField] private RectTransform _panel;
     [SerializeField] private TutorialMessageView _tutorialMessageViewPrefab;
@@ -56,6 +58,8 @@ public class Tutorial : MonoBehaviour
 
     public void Show(Queue<TutorialModel> queue)
     {
+        this.gameObject.SetActive(true);
+        _unmaskPanel.gameObject.SetActive(true);
         _background.SetActive(true);
         _panel.gameObject.SetActive(true);
         _isActivated = true;
@@ -79,6 +83,8 @@ public class Tutorial : MonoBehaviour
 
         _background.SetActive(false);
         _panel.gameObject.SetActive(false);
+        _unmaskPanel.gameObject.SetActive(false);
+        this.gameObject.SetActive(false);
         _isActivated = false;
     }
 
@@ -112,7 +118,10 @@ public class Tutorial : MonoBehaviour
                     await Task.Delay(TimeSpan.FromSeconds(item.Delay));
                 }
 
-                // TODO: New logic goes here
+                _unmaskPanel.fitTarget = (RectTransform) item.transform;
+                _unmaskPanel.fitOnLateUpdate = true;
+                MarkTarget(item);
+
                 //_lastCopy = CopyTutorialItem(item);
                 //SetUpTargetCopy(item, _lastCopy);
             }
@@ -166,79 +175,36 @@ public class Tutorial : MonoBehaviour
         return null;
     }
 
-    private TutorialItem CopyTutorialItem(TutorialItem item)
-    {
-        if (item.IsPartOfScrollView)
-        {
-            item.ScrollToTop();
-        }
 
-        if (item.InputField)
-        {
-            GameObject hbPrefab = Resources.Load("prefabs/UI/Mobile/Tutorial/HighlightButton", typeof(GameObject)) as GameObject;
-            GameObject target = item.gameObject;
-            var highlightButton = Instantiate(hbPrefab, target.transform.position, target.transform.rotation);
-            highlightButton.transform.SetParent(RootView_v2.Instance.transform);
-            highlightButton.transform.SetPositionAndRotation(target.transform.position, target.transform.rotation);
-            highlightButton.transform.localScale = target.transform.localScale;
-
-            var rectTransform = (RectTransform)target.transform;
-
-            if (rectTransform)
-            {
-                var height = rectTransform.rect.height;
-                var width = rectTransform.rect.width;
-
-                var copyRectTransform = (RectTransform)highlightButton.transform;
-                copyRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
-                copyRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
-                copyRectTransform.SetPositionAndRotation(target.transform.position, target.transform.rotation);
-            }
-
-            var copyItem = highlightButton.AddComponent<TutorialItem>();
-            return copyItem;
-        }
-        else
-        {
-            var copyItem = Instantiate(item, _panel, true);
-            return copyItem;
-        }
-    }
-
-    private void SetUpTargetCopy(TutorialItem item, TutorialItem copy)
+    private void MarkTarget(TutorialItem item)
     {
         if (item.Button)
         {
-            copy.Button.onClick.RemoveAllListeners();
-            copy.Button.onClick.AddListener(() => OnTargetCopyClicked(item, copy));
+            item.Button.onClick.AddListener(() => OnTargetClicked(item));
         }
 
         if (item.Toggle)
         {
-            copy.Toggle.onValueChanged.RemoveAllListeners();
-            copy.Toggle.onValueChanged.AddListener(value => OnTargetCopyClicked(item, copy));
-            _toggleIsFirstPass = true;
+            item.Toggle.onValueChanged.AddListener(value => OnTargetClicked(item));
+            //_toggleIsFirstPass = true;
         }
 
         if (item.InputField)
         {
-            HighlightingButton higBtn = copy.gameObject.GetComponent<HighlightingButton>();
-            higBtn.SetTarget(item.InputField);
-            higBtn.Btn.onClick.AddListener(() => OnTargetCopyClicked(item, copy));
+            //TODO: Add for input field
         }
-
-        copy.StartTracking(item.transform);
     }
 
-    private void OnTargetCopyClicked(TutorialItem item, TutorialItem copy)
+    private void OnTargetClicked(TutorialItem item)
     {
         if (item.Button)
         {
-            item.Button.onClick.Invoke();
+            item.Button.onClick.RemoveListener(() => OnTargetClicked(item));
         }
 
         if (item.Toggle)
         {
+            /*
             if (_toggleIsFirstPass)
             {
                 _toggleIsFirstPass = false;
@@ -247,17 +213,16 @@ public class Tutorial : MonoBehaviour
             else
             {
                 return;
-            }
+            }*/
+
+            item.Toggle.onValueChanged.RemoveListener(value => OnTargetClicked(item));
         }
 
-        copy.StopTracking();
-
-        if (_lastCopy == copy)
+        if (item.InputField)
         {
-            _lastCopy = null;
+            //TODO: Add removal
         }
 
-        Destroy(copy.gameObject);
         if (_lastMessageView)
         {
             Destroy(_lastMessageView.gameObject);
