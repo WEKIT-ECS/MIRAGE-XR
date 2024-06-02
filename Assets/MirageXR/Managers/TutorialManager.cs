@@ -64,11 +64,6 @@ namespace MirageXR
         /// </summary>
         public ToggleObject CreatedLabel;
 
-        /// <summary>
-        /// Object Highlighter used in the mobile tutorial.
-        /// </summary>
-        public TutorialObjectHighlighter MobileHighlighter { get; private set; }
-
         [SerializeField] private HelpSelectionPopup _helpSelectionPopup;
         /// <summary>
         /// The Popup that states the instruction text of a mobile tutorial step.
@@ -105,7 +100,6 @@ namespace MirageXR
         {
             IsTutorialRunning = false;
             _steps = new List<TutorialStep>();
-            MobileHighlighter = new TutorialObjectHighlighter();
             EventManager.OnEditModeChanged += EditModeListener;
         }
 
@@ -134,16 +128,6 @@ namespace MirageXR
                 }
 
                 PopulateStepListForHololens();
-                _currentStepNumber = -1;
-
-                NextStep();
-            }
-            else if (type == TutorialType.MOBILE_EDITING)
-            {
-                IsTutorialRunning = true;
-
-                PopulateStepListForMobileEditing();
-
                 _currentStepNumber = -1;
 
                 NextStep();
@@ -184,27 +168,6 @@ namespace MirageXR
             _steps.Add(new StepSaveActivity());
             _steps.Add(new StepUploadActivity());
         }
-
-        private void PopulateStepListForMobileEditing()
-        {
-            _steps.Clear();
-            _steps.Add(new MobileStepCreateActivity());
-            _steps.Add(new MobileStepClickActivityInfo());
-            _steps.Add(new WaitForMobilePageChangeStep());
-            _steps.Add(new MobileStepAddActivityName());
-            _steps.Add(new MobileStepCreateActionStep());
-            _steps.Add(new MobileStepClickActionStepDetails());
-            _steps.Add(new WaitForMobilePageChangeStep());
-            _steps.Add(new MobileStepAddActionStepTitle());
-            _steps.Add(new MobileStepExpandStepDetails());
-            _steps.Add(new MobileStepAddActionStepDescription());
-            _steps.Add(new MobileStepClickAddStepContent());
-            string message = "This concludes the tutorial! From here " +
-                "you can choose and add different types of augmentations. " +
-                "Have fun trying them all out.";
-            _steps.Add(new MobileOnlyDialogStep(message));
-        }
-
 
         private void PopulateStepListForMobileViewing()
         {
