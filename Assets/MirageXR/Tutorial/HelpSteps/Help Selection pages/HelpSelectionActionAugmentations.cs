@@ -30,7 +30,7 @@ namespace MirageXR
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { message = "Augmentations in MirageXR are primitives that comprise the holographic part of the training experience of the user. A trainer can use different types of augmentations to construct the holographic experience, while the trainee perceives them as part of the learning experience." });
+            queue.Enqueue(new TutorialModel { Message = "Augmentations in MirageXR are primitives that comprise the holographic part of the training experience of the user. A trainer can use different types of augmentations to construct the holographic experience, while the trainee perceives them as part of the learning experience." });
             _mobileTutorial.Show(queue);
         }
 
@@ -38,7 +38,7 @@ namespace MirageXR
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { message = "Look down to your feet and you will see an aura surrounding you, with connecting lines leading to where the action happens." });
+            queue.Enqueue(new TutorialModel { Message = "Look down to your feet and you will see an aura surrounding you, with connecting lines leading to where the action happens." });
             _mobileTutorial.Show(queue);
         }
 
@@ -46,7 +46,7 @@ namespace MirageXR
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { id = "step_info", message = "You can add or change the title and description of any step, just switch to the info tab." });
+            queue.Enqueue(new TutorialModel { Id = "step_info", Message = "You can add or change the title and description of any step, just switch to the info tab." });
             _mobileTutorial.Show(queue);
         }
 
@@ -54,7 +54,7 @@ namespace MirageXR
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { id = "step_add_augmentation", message = "Additional options for added augmentations can be accessed by pressing the three dots on the right side of an augmentation tile.", position = TutorialModel.MessagePosition.Bottom });
+            queue.Enqueue(new TutorialModel { Id = "step_add_augmentation", Message = "Additional options for added augmentations can be accessed by pressing the three dots on the right side of an augmentation tile.", Position = TutorialModel.MessagePosition.Bottom });
             _mobileTutorial.Show(queue);
         }
 
@@ -62,7 +62,7 @@ namespace MirageXR
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { message = "Additional options for added augmentations can be accessed by pressing the three dots on the right side of an augmentation tile." });
+            queue.Enqueue(new TutorialModel { Message = "Additional options for added augmentations can be accessed by pressing the three dots on the right side of an augmentation tile." });
             _mobileTutorial.Show(queue);
         }
 
@@ -70,7 +70,7 @@ namespace MirageXR
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { message = "You can make the same augmentation to be present in multiple steps. Tap on the settings of the augmentation, choose keep-alive, and select the range of steps." });
+            queue.Enqueue(new TutorialModel { Message = "You can make the same augmentation to be present in multiple steps. Tap on the settings of the augmentation, choose keep-alive, and select the range of steps." });
             _mobileTutorial.Show(queue);
         }
     }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,8 +11,21 @@ namespace MirageXR
         protected override void Init()
         {
             this.instructionText = "Tap the plus button below to start a new activity.";
-            this.highlightedObject = RootView.Instance.activityListView.BtnAddActivity.gameObject;
-            EventManager.NewActivityCreationButtonPressed += DefaultExitEventListener;
+            var target = RootView_v2.Instance.bottomPanelView.btnCreate;
+            this.highlightedObject = target.gameObject;
+            target.onValueChanged.AddListener(onToggleValueChanged);
+        }
+
+        private void onToggleValueChanged(bool isOn)
+        {
+            if (isOn)
+            {
+                Console.WriteLine("Sam Says");
+            }
+            else
+            {
+                Console.WriteLine("Simon Says");
+            }
         }
 
         protected override void Detach()

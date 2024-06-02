@@ -16,9 +16,9 @@ public class TutorialMessageView : MonoBehaviour
     {
         _action = onButtonClicked;
         _model = model;
-        _message.text = model.message;
+        _message.text = model.Message;
         _btnGotIt.onClick.AddListener(OnGotItButtonClicked);
-        _btnText.text = model.btnText;
+        _btnText.text = model.BtnText;
         transform.localPosition = new Vector3(0, GetPositionByY(), 0);
     }
 
@@ -26,7 +26,7 @@ public class TutorialMessageView : MonoBehaviour
     {
         var parentSize = ((RectTransform)transform.parent).rect.size;
         float k;
-        switch (_model.position)
+        switch (_model.Position)
         {
             case TutorialModel.MessagePosition.Top:
                 k = 0.3f;

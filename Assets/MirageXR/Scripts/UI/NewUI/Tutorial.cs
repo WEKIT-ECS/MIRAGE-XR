@@ -2,31 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using UnityEngine;
 using Coffee.UIExtensions;
 using UnityEngine.UI;
-using static UnityEditor.Progress;
-
-public class TutorialModel
-{
-    public enum MessagePosition
-    {
-        Top,
-        Middle,
-        Bottom
-    }
-
-    public string id;
-    public string message;
-    public MessagePosition position = MessagePosition.Middle;
-    public string btnText = "Cancel";
-
-    public bool HasId => !string.IsNullOrEmpty(id);
-
-    public bool HasMessage => !string.IsNullOrEmpty(message);
-}
 
 public class Tutorial : MonoBehaviour
 {
@@ -118,8 +97,8 @@ public class Tutorial : MonoBehaviour
     {
         if (model.HasId)
         {
-            Debug.LogDebug("New show item: " + model.id);
-            var item = await FindTutorialItem(model.id);
+            Debug.LogDebug("New show item: " + model.Id);
+            var item = await FindTutorialItem(model.Id);
             if (item)
             {
                 await Task.Yield();
@@ -136,8 +115,8 @@ public class Tutorial : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"Can't find TutorialModel with id = '{model.id}'");
-                model.id = null;
+                Debug.LogError($"Can't find TutorialModel with id = '{model.Id}'");
+                model.Id = null;
             }
         }
         else
@@ -145,6 +124,7 @@ public class Tutorial : MonoBehaviour
             // This is in case the last model was targeted, so that it does not leave behind a mark
             if (_unmaskPanel.fitTarget != null)
             {
+                Debug.LogDebug("Disabling unmask panel.");
                 _unmaskPanel.gameObject.SetActive(false);
             }
         }
@@ -164,7 +144,27 @@ public class Tutorial : MonoBehaviour
 
     private void OnMessageViewButtonClicked(TutorialModel model)
     {
+        if (model.HasId)
+        {
+            // If the user skipped, we still need to remove set up listeners
+            if (_currentTutorialItem.Button)
+            {
+                _currentTutorialItem.Button.onClick.RemoveListener(OnButtonClicked);
+            }
+
+            if (_currentTutorialItem.Toggle)
+            {
+                _currentTutorialItem.Toggle.onValueChanged.RemoveListener(OnToggleValueChanged);
+            }
+
+            if (_currentTutorialItem.InputField)
+            {
+                _currentTutorialItem.InputField.onValueChanged.RemoveListener(OnInputFieldValueChanged);
+            }
+        }
         Hide();
+        // If being used in a mixed tutorial, close the calling tutorial step
+        TutorialManager.Instance.CloseTutorial();
         Debug.LogDebug("Hiding tutorial because of Skip");
     }
 
@@ -221,6 +221,7 @@ public class Tutorial : MonoBehaviour
         if (_currentTutorialItem.Button)
         {
             _currentTutorialItem.Button.onClick.RemoveListener(OnButtonClicked);
+            Debug.LogDebug("Removed listener from button: " + _currentTutorialItem.Id);
         }
 
         OnFinishedTargetInteraction();
@@ -242,6 +243,7 @@ public class Tutorial : MonoBehaviour
             }*/
 
             _currentTutorialItem.Toggle.onValueChanged.RemoveListener(OnToggleValueChanged);
+            Debug.LogDebug("Removed listener from toggle: " + _currentTutorialItem.Id);
         }
 
         OnFinishedTargetInteraction();
@@ -251,6 +253,7 @@ public class Tutorial : MonoBehaviour
         if (_currentTutorialItem.InputField)
         {
             _currentTutorialItem.InputField.onValueChanged.RemoveListener(OnInputFieldValueChanged);
+            Debug.LogDebug("Removed listener from input field: " + _currentTutorialItem.Id);
         }
 
         OnFinishedTargetInteraction();
@@ -264,6 +267,7 @@ public class Tutorial : MonoBehaviour
             _lastMessageView = null;
         }
 
+        Debug.LogDebug("Finisihed interaction with: " + _currentTutorialItem.Id);
         Next();
     }
 }
