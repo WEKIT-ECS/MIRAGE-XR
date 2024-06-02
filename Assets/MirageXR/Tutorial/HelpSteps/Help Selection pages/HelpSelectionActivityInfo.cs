@@ -22,7 +22,7 @@ namespace MirageXR
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { message = "Titles allow you to name your activities, making it clearer for creator and learner what an activity is about. Descriptions allow you to go into even more detail, for example by adding information on the content." });
+            queue.Enqueue(new TutorialModel { Message = "Titles allow you to name your activities, making it clearer for creator and learner what an activity is about. Descriptions allow you to go into even more detail, for example by adding information on the content." });
             _mobileTutorial.Show(queue);
         }
     }

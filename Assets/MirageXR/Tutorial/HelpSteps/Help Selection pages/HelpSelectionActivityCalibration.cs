@@ -25,7 +25,7 @@ namespace MirageXR
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { message = "Learning in the real world is most effective when the activities are responsive to points of interest and events in the real world. MirageXR uses a single calibration marker to tie the digital augmentations to points of interest in the physical environment of the user." });
+            queue.Enqueue(new TutorialModel { Message = "Learning in the real world is most effective when the activities are responsive to points of interest and events in the real world. MirageXR uses a single calibration marker to tie the digital augmentations to points of interest in the physical environment of the user." });
             _mobileTutorial.Show(queue);
         }
 
@@ -33,7 +33,7 @@ namespace MirageXR
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { message = "To calibrate, you need to download the calibration marker from https://wekit-ecs.com/documents/calibration, print it on paper, and hang in your workspace. Calibration itself is run simply by gazing at the calibration marker." });
+            queue.Enqueue(new TutorialModel { Message = "To calibrate, you need to download the calibration marker from https://wekit-ecs.com/documents/calibration, print it on paper, and hang in your workspace. Calibration itself is run simply by gazing at the calibration marker." });
             _mobileTutorial.Show(queue);
         }
 
@@ -41,7 +41,7 @@ namespace MirageXR
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { message = "Calibration is needed to tie the digital augmentations to points of interest in the physical environment. Where locations do not matter, the calibration marker can be hung somewhere where enough open space is provided to place the holograms. Where locations matter, like, for example, when instructing in a maker's lab on how to handle a 3D printer, the activity will either include instruction on where to place the calibration marker directly or a hand -out will show students or teachers how to." });
+            queue.Enqueue(new TutorialModel { Message = "Calibration is needed to tie the digital augmentations to points of interest in the physical environment. Where locations do not matter, the calibration marker can be hung somewhere where enough open space is provided to place the holograms. Where locations matter, like, for example, when instructing in a maker's lab on how to handle a 3D printer, the activity will either include instruction on where to place the calibration marker directly or a hand -out will show students or teachers how to." });
             _mobileTutorial.Show(queue);
         }
 
@@ -49,7 +49,7 @@ namespace MirageXR
         {
             _popup.Close();
             var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { message = "The calibration marker can be downloaded from https://wekit-ecs.com/documents/calibration. More images will be available as markers soon." });
+            queue.Enqueue(new TutorialModel { Message = "The calibration marker can be downloaded from https://wekit-ecs.com/documents/calibration. More images will be available as markers soon." });
             _mobileTutorial.Show(queue);
         }
     }
