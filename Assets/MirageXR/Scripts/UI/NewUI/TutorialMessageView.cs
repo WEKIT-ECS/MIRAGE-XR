@@ -9,10 +9,10 @@ public class TutorialMessageView : MonoBehaviour
     [SerializeField] private Button _btnGotIt;
     [SerializeField] private TMP_Text _btnText;
 
-    private Action<TutorialModel> _action;
-    private TutorialModel _model;
+    private Action<TutorialModelUI> _action;
+    private TutorialModelUI _model;
 
-    public void Initialization(TutorialModel model, Action<TutorialModel> onButtonClicked)
+    public void Initialization(TutorialModelUI model, Action<TutorialModelUI> onButtonClicked)
     {
         _action = onButtonClicked;
         _model = model;
@@ -28,13 +28,13 @@ public class TutorialMessageView : MonoBehaviour
         float k;
         switch (_model.Position)
         {
-            case TutorialModel.MessagePosition.Top:
+            case TutorialModelUI.MessagePosition.Top:
                 k = 0.3f;
                 break;
-            case TutorialModel.MessagePosition.Middle:
+            case TutorialModelUI.MessagePosition.Middle:
                 k = 0f;
                 break;
-            case TutorialModel.MessagePosition.Bottom:
+            case TutorialModelUI.MessagePosition.Bottom:
                 k = -0.3f;
                 break;
             default:

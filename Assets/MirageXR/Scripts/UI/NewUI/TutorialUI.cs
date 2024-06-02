@@ -7,7 +7,11 @@ using UnityEngine;
 using Coffee.UIExtensions;
 using UnityEngine.UI;
 
-public class Tutorial : MonoBehaviour
+/// <summary>
+/// Defines the functionality of the UI-based tutorial system.
+/// Only functional in UI-space, cannot be used in world-space.
+/// </summary>
+public class TutorialUI : MonoBehaviour
 {
     private const int MAX_TRY_COUNT = 40;
     private const int WAIT_IN_MILLISECONDS = 250;
@@ -19,7 +23,7 @@ public class Tutorial : MonoBehaviour
     [SerializeField] private TutorialMessageView _tutorialMessageViewPrefab;
     [SerializeField] private RectTransform[] _searchRoots;
 
-    private Queue<TutorialModel> _queue;
+    private Queue<TutorialModelUI> _queue;
     private TutorialMessageView _lastMessageView;
     private TutorialItem _lastCopy;
 
@@ -40,7 +44,12 @@ public class Tutorial : MonoBehaviour
         Hide();
     }
 
-    public void Show(Queue<TutorialModel> queue)
+    /// <summary>
+    /// Starts tutorial sequence, beginning with first element of queue.
+    /// Sets up prefab elements for showing.
+    /// </summary>
+    /// <param name="queue">Queue of models to be shown in order.</param>
+    public void Show(Queue<TutorialModelUI> queue)
     {
         _maskingImage.enabled = true;
         _unmaskPanel.gameObject.SetActive(true);
@@ -49,10 +58,13 @@ public class Tutorial : MonoBehaviour
         _isActivated = true;
         _queue = queue;
         _currentTutorialItem = null;
-        Debug.LogDebug("Showing Tutorial, status: " + this.gameObject.activeSelf);
+        Debug.LogDebug("Showing TutorialUI, status: " + this.gameObject.activeSelf);
         Next();
     }
 
+    /// <summary>
+    /// Hides active tutorial as well as cleaning up.
+    /// </summary>
     public void Hide()
     {
         if (_lastMessageView)
@@ -72,7 +84,7 @@ public class Tutorial : MonoBehaviour
         _unmaskPanel.gameObject.SetActive(false);
         _maskingImage.enabled = false;
         _isActivated = false;
-        Debug.LogDebug("Hiding Tutorial, status: " + this.gameObject.activeSelf);
+        Debug.LogDebug("Hiding TutorialUI, status: " + this.gameObject.activeSelf);
     }
 
     private void Next()
@@ -93,7 +105,11 @@ public class Tutorial : MonoBehaviour
         }
     }
 
-    private async Task ShowItem(TutorialModel model)
+    /// <summary>
+    /// Shows individual tutorial steps, based on given tutorial model.
+    /// </summary>
+    /// <param name="model">Information for showing the step.</param>
+    private async Task ShowItem(TutorialModelUI model)
     {
         if (model.HasId)
         {
@@ -115,12 +131,14 @@ public class Tutorial : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"Can't find TutorialModel with id = '{model.Id}'");
+                _unmaskPanel.gameObject.SetActive(false);
+                Debug.LogError($"Can't find TutorialModelUI with id = '{model.Id}'");
                 model.Id = null;
             }
         }
         else
         {
+            _unmaskPanel.gameObject.SetActive(false);
             // This is in case the last model was targeted, so that it does not leave behind a mark
             if (_unmaskPanel.fitTarget != null)
             {
@@ -135,14 +153,23 @@ public class Tutorial : MonoBehaviour
         }
     }
 
-    private TutorialMessageView ShowMessage(TutorialModel model)
+    /// <summary>
+    /// Shows the textual part of the tutorial step, which guides the user.
+    /// </summary>
+    /// <param name="model">Model which holds the message to be shown.</param>
+    /// <returns>The view that this class uses.</returns>
+    private TutorialMessageView ShowMessage(TutorialModelUI model)
     {
         var tutorialMessageView = Instantiate(_tutorialMessageViewPrefab, _panel);
         tutorialMessageView.Initialization(model, OnMessageViewButtonClicked);
         return tutorialMessageView;
     }
 
-    private void OnMessageViewButtonClicked(TutorialModel model)
+    /// <summary>
+    /// Handles what happens if the "Got it" button is clicked.
+    /// </summary>
+    /// <param name="model">The model that was shown.</param>
+    private void OnMessageViewButtonClicked(TutorialModelUI model)
     {
         if (model.HasId)
         {
@@ -168,6 +195,11 @@ public class Tutorial : MonoBehaviour
         Debug.LogDebug("Hiding tutorial because of Skip");
     }
 
+    /// <summary>
+    /// Searches for the needed UI item. The item needs to have a TutorialScript component
+    /// with the given id.
+    /// </summary>
+    /// <param name="id">The id given inn the TutorialScript component.</param>
     private async Task<TutorialItem> FindTutorialItem(string id)
     {
         for (int i = 0; i < MAX_TRY_COUNT; i++)
@@ -193,7 +225,10 @@ public class Tutorial : MonoBehaviour
         return null;
     }
 
-
+    /// <summary>
+    /// Sets up listeners for the given UI item.
+    /// </summary>
+    /// <param name="item">Model for the needed UI item.</param>
     private void MarkTarget(TutorialItem item)
     {
         if (item.Button)

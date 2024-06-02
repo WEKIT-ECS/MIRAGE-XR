@@ -50,10 +50,7 @@ namespace MirageXR
         private List<TutorialStep> _steps;
         private int _currentStepNumber;
 
-        private List<HelpSelection> _helpSelections;
-        private int _currentHelpSelection;
-
-        public Tutorial MobileTutorial { get; private set; }
+        public TutorialUI MobileTutorial { get; private set; }
         private bool _isInEditMode;
 
         /// <summary>
@@ -108,7 +105,6 @@ namespace MirageXR
         {
             IsTutorialRunning = false;
             _steps = new List<TutorialStep>();
-            _helpSelections = new List<HelpSelection>();
             MobileHighlighter = new TutorialObjectHighlighter();
             EventManager.OnEditModeChanged += EditModeListener;
         }
@@ -293,7 +289,12 @@ namespace MirageXR
 
         }
 
-        public void ShowHelpSelection(RootView_v2.HelpPage helpSelection)
+        /// <summary>
+        /// Shows the help selection popup, which is dynamically generated
+        /// for each UI page.
+        /// </summary>
+        /// <param name="page">Page for which to show help, probably current page.</param>
+        public void ShowHelpSelection(RootView_v2.HelpPage page)
         {
             if (MobileTutorial == null)
             {
@@ -303,45 +304,12 @@ namespace MirageXR
             var popup = (HelpSelectionPopup)PopupsViewer.Instance.Show(HelpSelectionPopup);
             bool isEditModeOn = RootObject.Instance.activityManager.EditModeActive;
 
-            popup.LoadHelpSelection(helpSelection, isEditModeOn);
-
-            /*
-            bool isEditModeOn = RootObject.Instance.activityManager.EditModeActive;
-
-            var popup = (HelpSelectionPopup)PopupsViewer.Instance.Show(HelpSelectionPopup);
-            switch (helpSelection)
-            {
-                case RootView_v2.HelpPage.Home:
-                    HelpSelectionActivitySelection hsas = new HelpSelectionActivitySelection();
-                    hsas.Init(popup, MobileTutorial);
-                    break;
-                case RootView_v2.HelpPage.ActivitySteps:
-                    HelpSelectionNewActivity hsna = new HelpSelectionNewActivity();
-                    hsna.Init(popup, MobileTutorial, isEditModeOn);
-                    break;
-                case RootView_v2.HelpPage.ActivityInfo:
-                    HelpSelectionActivityInfo hsai = new HelpSelectionActivityInfo();
-                    hsai.Init(popup, MobileTutorial);
-                    break;
-                case RootView_v2.HelpPage.ActivityCalibration:
-                    HelpSelectionActivityCalibration hsac = new HelpSelectionActivityCalibration();
-                    hsac.Init(popup, MobileTutorial);
-                    break;
-                case RootView_v2.HelpPage.ActionAugmentations:
-                    HelpSelectionActionAugmentations hsaa = new HelpSelectionActionAugmentations();
-                    hsaa.Init(popup, MobileTutorial, isEditModeOn);
-                    break;
-                case RootView_v2.HelpPage.ActionInfo:
-                    HelpSelectionActionInfo hsaci = new HelpSelectionActionInfo();
-                    hsaci.Init(popup, MobileTutorial);
-                    break;
-                case RootView_v2.HelpPage.ActionMarker:
-                    // TODO: maybe add something here?
-                    break;
-            }
-            */
+            popup.LoadHelpSelection(page, isEditModeOn);
         }
 
+        /// <summary>
+        /// Starts the mobile editing tutorial using the UI-based system.
+        /// </summary>
         public void StartNewMobileEditingTutorial()
         {
             if (MobileTutorial == null)
@@ -349,23 +317,28 @@ namespace MirageXR
                 MobileTutorial = RootView_v2.Instance.Tutorial;
             }
 
-            var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { Id = "activity_create", Message = "Welcome to the MirageXR editing tutorial! To start, let's create a new activity by tapping the plus button below.", BtnText = "Skip" });
-            queue.Enqueue(new TutorialModel { Id = "activity_info", Message = "We should add some info about our activity so it's recognisable. To do this, tap the Info tab.", Position = TutorialModel.MessagePosition.Middle, BtnText = "Skip" });
-            queue.Enqueue(new TutorialModel { Id = "activity_title", Message = "To give our activity a new title, we can tap on the field below.", Position = TutorialModel.MessagePosition.Middle, BtnText = "Skip" });
-            queue.Enqueue(new TutorialModel { Id = "activity_description", Message = "Activity descriptions help users understand what an activity is about. To add one, we can tap on the field below.", Position = TutorialModel.MessagePosition.Middle, BtnText = "Skip" });
-            queue.Enqueue(new TutorialModel { Id = "activity_steps", Message = "Now we're going to add some steps to our activity. Tap the Steps tab to continue.", Position = TutorialModel.MessagePosition.Middle, BtnText = "Skip" });
-            queue.Enqueue(new TutorialModel { Id = "activity_add_step", Message = "Activities consist of steps, which hold content for users to experience. Let's create a new step by tapping the plus button below.", Position = TutorialModel.MessagePosition.Top, BtnText = "Skip" });
+            var queue = new Queue<TutorialModelUI>();
+            queue.Enqueue(new TutorialModelUI { Id = "activity_create", Message = "Welcome to the MirageXR editing tutorial! To start, let's create a new activity by tapping the plus button below.", BtnText = "Skip" });
+            queue.Enqueue(new TutorialModelUI { Id = "activity_info", Message = "We should add some info about our activity so it's recognisable. To do this, tap the Info tab.", Position = TutorialModelUI.MessagePosition.Middle, BtnText = "Skip" });
+            queue.Enqueue(new TutorialModelUI { Id = "activity_title", Message = "To give our activity a new title, we can tap on the field below.", Position = TutorialModelUI.MessagePosition.Middle, BtnText = "Skip" });
+            queue.Enqueue(new TutorialModelUI { Id = "activity_description", Message = "Activity descriptions help users understand what an activity is about. To add one, we can tap on the field below.", Position = TutorialModelUI.MessagePosition.Middle, BtnText = "Skip" });
+            queue.Enqueue(new TutorialModelUI { Id = "activity_steps", Message = "Now we're going to add some steps to our activity. Tap the Steps tab to continue.", Position = TutorialModelUI.MessagePosition.Middle, BtnText = "Skip" });
+            queue.Enqueue(new TutorialModelUI { Id = "activity_add_step", Message = "Activities consist of steps, which hold content for users to experience. Let's create a new step by tapping the plus button below.", Position = TutorialModelUI.MessagePosition.Top, BtnText = "Skip" });
             //queue.Enqueue(new TutorialModel { id = "activity_edit_step", message = "Empty steps aren't really entertaining. Let's add some content to our step by tapping the Edit Step button.", position = TutorialModel.MessagePosition.Bottom, btnText = "Skip" });
-            queue.Enqueue(new TutorialModel { Id = "step_info", Message = "First let's name and describe our step so users know what to expect. Tap the Info tab to continue.", Position = TutorialModel.MessagePosition.Middle, BtnText = "Skip" });
-            queue.Enqueue(new TutorialModel { Id = "step_title", Message = "Just like with the Activity, we should add a title...", Position = TutorialModel.MessagePosition.Bottom, BtnText = "Skip" });
-            queue.Enqueue(new TutorialModel { Id = "step_description", Message = "...and a description to our step.", Position = TutorialModel.MessagePosition.Bottom, BtnText = "Skip" });
-            queue.Enqueue(new TutorialModel { Id = "step_augmentations", Message = "Finally, let's add some content to our Step. To do so, tap the Augmentations tab.", Position = TutorialModel.MessagePosition.Middle, BtnText = "Skip" });
-            queue.Enqueue(new TutorialModel { Id = "step_add_augmentation", Message = "Augmentations represent different AR content for our users. A list of possible augmentations can be seen by tapping the plus button.", Position = TutorialModel.MessagePosition.Bottom, BtnText = "Skip" });
-            queue.Enqueue(new TutorialModel { Message = "Here you can choose any of the available augmentations to add to the step. More information on each augmentation is available on their info page. This concludes the tutorial, have fun exploring!", Position = TutorialModel.MessagePosition.Middle, BtnText = "Got it" });
+            queue.Enqueue(new TutorialModelUI { Id = "step_info", Message = "First let's name and describe our step so users know what to expect. Tap the Info tab to continue.", Position = TutorialModelUI.MessagePosition.Middle, BtnText = "Skip" });
+            queue.Enqueue(new TutorialModelUI { Id = "step_title", Message = "Just like with the Activity, we should add a title...", Position = TutorialModelUI.MessagePosition.Bottom, BtnText = "Skip" });
+            queue.Enqueue(new TutorialModelUI { Id = "step_description", Message = "...and a description to our step.", Position = TutorialModelUI.MessagePosition.Bottom, BtnText = "Skip" });
+            queue.Enqueue(new TutorialModelUI { Id = "step_augmentations", Message = "Finally, let's add some content to our Step. To do so, tap the Augmentations tab.", Position = TutorialModelUI.MessagePosition.Middle, BtnText = "Skip" });
+            queue.Enqueue(new TutorialModelUI { Id = "step_add_augmentation", Message = "Augmentations represent different AR content for our users. A list of possible augmentations can be seen by tapping the plus button.", Position = TutorialModelUI.MessagePosition.Bottom, BtnText = "Skip" });
+            queue.Enqueue(new TutorialModelUI { Message = "Here you can choose any of the available augmentations to add to the step. More information on each augmentation is available on their info page. This concludes the tutorial, have fun exploring!", Position = TutorialModelUI.MessagePosition.Middle, BtnText = "Got it" });
             MobileTutorial.Show(queue);
         }
 
+        /// <summary>
+        /// Starts the mobile viewing tutorial, which is a mix of the
+        /// UI-based system and the world-space one. It needs to be async
+        /// because certain parts are delayed.
+        /// </summary>
         public async void StartNewMobileViewingTutorial()
         {
             if (MobileTutorial == null)

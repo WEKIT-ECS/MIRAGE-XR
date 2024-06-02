@@ -17,7 +17,7 @@ namespace MirageXR
     {
         private const string FILE_NAME_ACTIVITY_SELECTION = "activitySelectionHelp.json";
         private const string FILE_NAME_ACTIVITY_STEPS = "activityStepsHelp.json";
-        private const string FILE_NAME_ACTIVITY_INFO = "activityStepsInfo.json";
+        private const string FILE_NAME_ACTIVITY_INFO = "activityInfoHelp.json";
         private const string FILE_NAME_ACTIVITY_CALIBRATION = "activityCalibrationHelp.json";
         private const string FILE_NAME_STEP_AUGMENTATIONS = "stepAugmentationsHelp.json";
         private const string FILE_NAME_STEP_INFO = "stepInfoHelp.json";
@@ -25,12 +25,21 @@ namespace MirageXR
         [SerializeField] private Button _selectionButton;
         [SerializeField] private Button _btnClose;
 
+        /// <summary>
+        /// Initial setup.
+        /// </summary>
         public override void Initialization(Action<PopupBase> onClose, params object[] args)
         {
             base.Initialization(onClose, args);
             _btnClose.onClick.AddListener(Close);
         }
 
+        /// <summary>
+        /// Reads information from resources on which selection of buttons to 
+        /// show the user, based on the given page.
+        /// </summary>
+        /// <param name="page">Which page is the user on.</param>
+        /// <param name="editModeOn">Is the app currently in edit mode.</param>
         public void LoadHelpSelection(RootView_v2.HelpPage page, bool editModeOn)
         {
             string neededFile = "";
@@ -110,6 +119,11 @@ namespace MirageXR
             }
         }
 
+        /// <summary>
+        /// Creates individual buttons for the popup selection.
+        /// </summary>
+        /// <param name="title">Text to be shown on the button.</param>
+        /// <returns>The created button.</returns>
         public Button CreateNewSelectionButton(string title)
         {
             var button = Instantiate(_selectionButton, Vector3.zero, Quaternion.identity);
@@ -130,10 +144,14 @@ namespace MirageXR
             return true;
         }
 
-        private void ShowShortMessageSequence(List<TutorialModel> steps)
+        /// <summary>
+        /// Shows the mini-tutorial.
+        /// </summary>
+        /// <param name="steps">The steps in the mini-tutorial.</param>
+        private void ShowShortMessageSequence(List<TutorialModelUI> steps)
         {
             this.Close();
-            var queue = new Queue<TutorialModel>(steps);
+            var queue = new Queue<TutorialModelUI>(steps);
             TutorialManager.Instance.MobileTutorial.Show(queue);
         }
 

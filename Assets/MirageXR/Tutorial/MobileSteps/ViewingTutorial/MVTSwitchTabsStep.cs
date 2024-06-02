@@ -10,9 +10,9 @@ namespace MirageXR
         {
             RootView_v2.Instance.activityView.BtnArrow.onClick.AddListener(this.ExitListener);
 
-            var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { Id = "activity_steps", Message = "Great, calibration is now complete. Let's move on to the activity's content. First, switch to the Steps tab.", Position = TutorialModel.MessagePosition.Bottom });
-            queue.Enqueue(new TutorialModel { Id = "ui_toggle", Message = "This screen shows all the Steps, the content of an Activity. It serves as an indicator of your progress, which Step you are on. For now let's begin interacting with the first Step's content by lowering the UI.", Position = TutorialModel.MessagePosition.Bottom });
+            var queue = new Queue<TutorialModelUI>();
+            queue.Enqueue(new TutorialModelUI { Id = "activity_steps", Message = "Great, calibration is now complete. Let's move on to the activity's content. First, switch to the Steps tab.", Position = TutorialModelUI.MessagePosition.Bottom });
+            queue.Enqueue(new TutorialModelUI { Id = "ui_toggle", Message = "This screen shows all the Steps, the content of an Activity. It serves as an indicator of your progress, which Step you are on. For now let's begin interacting with the first Step's content by lowering the UI.", Position = TutorialModelUI.MessagePosition.Bottom });
             this.manager.MobileTutorial.Show(queue);
         }
 

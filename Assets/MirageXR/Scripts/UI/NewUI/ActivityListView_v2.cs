@@ -300,7 +300,7 @@ public class ActivityListView_v2 : BaseView
 #if UNITY_ANDROID || UNITY_EDITOR
         await MoveTutorialActivityToLocalFilesAndroidAsync();
 #elif UNITY_IOS
-        MoveTutorialActivityToLocalFilesIOS();
+        await MoveTutorialActivityToLocalFilesIOS();
 #endif
     }
 
@@ -315,21 +315,6 @@ public class ActivityListView_v2 : BaseView
             UpdateView();
         }
     }
-
-    /*private IEnumerator MoveTutorialActivityToLocalFilesAndroid()
-    {
-        string zipPath = Path.Combine(Application.streamingAssetsPath, "TutorialActivity.zip");
-#if UNITY_EDITOR
-        zipPath = "file://" + zipPath;
-#endif
-        Debug.Log("[ActivtyListView_v2] Loading tutorial zip from location '" + zipPath + "'");
-        using (UnityWebRequest www = UnityWebRequest.Get(zipPath))
-        {
-            yield return www.SendWebRequest();
-
-            MoveAndUnpackTutorialZipFileAndroid(www);
-        }
-    }*/
 
     private async Task MoveTutorialActivityToLocalFilesAndroidAsync()
     {
