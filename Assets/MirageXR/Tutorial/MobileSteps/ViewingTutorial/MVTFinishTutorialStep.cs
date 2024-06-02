@@ -10,8 +10,8 @@ namespace MirageXR
         {
             RootView_v2.Instance.activityView.BtnArrow.onClick.AddListener(this.DefaultExitEventListener);
 
-            var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { Id = "ui_toggle", Message = "This ends the Viewing Tutorial! You can press this button to reenter the UI and revisit some of the previous steps of this activity. Enjoy!", Position = TutorialModel.MessagePosition.Middle });
+            var queue = new Queue<TutorialModelUI>();
+            queue.Enqueue(new TutorialModelUI { Id = "ui_toggle", Message = "This ends the Viewing TutorialUI! You can press this button to reenter the UI and revisit some of the previous steps of this activity. Enjoy!", Position = TutorialModelUI.MessagePosition.Middle });
             this.manager.MobileTutorial.Show(queue);
         }
 

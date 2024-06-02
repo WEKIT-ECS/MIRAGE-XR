@@ -19,9 +19,9 @@ namespace MirageXR
             titem.SetInteractableObject(tutorialActivityCard.gameObject);
             titem.SetDelay(1);
 
-            var queue = new Queue<TutorialModel>();
-            queue.Enqueue(new TutorialModel { Id = "tutorial_activity", Message = "Welcome to the MirageXR Viewing Tutorial! To start, click on the specially prepared Tutorial Activity highlighted on your screen.", Position = TutorialModel.MessagePosition.Bottom });
-            queue.Enqueue(new TutorialModel { Id = "dialog_middle_multiline_1", Message = "An activity can be opened in two modes: editing (to make changes to the app) and viewing (read-only). For this tutorial, click Open to View.", Position = TutorialModel.MessagePosition.Bottom });
+            var queue = new Queue<TutorialModelUI>();
+            queue.Enqueue(new TutorialModelUI { Id = "tutorial_activity", Message = "Welcome to the MirageXR Viewing TutorialUI! To start, click on the specially prepared TutorialUI Activity highlighted on your screen.", Position = TutorialModelUI.MessagePosition.Bottom });
+            queue.Enqueue(new TutorialModelUI { Id = "dialog_middle_multiline_1", Message = "An activity can be opened in two modes: editing (to make changes to the app) and viewing (read-only). For this tutorial, click Open to View.", Position = TutorialModelUI.MessagePosition.Bottom });
             this.manager.MobileTutorial.Show(queue);
 
             // Next Step triggered by first step being activated

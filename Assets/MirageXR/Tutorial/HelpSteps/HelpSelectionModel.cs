@@ -7,17 +7,33 @@ using UnityEngine;
 
 namespace MirageXR
 {
+    /// <summary>
+    /// Model for all items in the help selection dialogue.
+    /// Should be serialisable.
+    /// </summary>
     public class HelpSelectionModel
     {
+        /// <summary>
+        /// Text that should be shown in the help popup, when the user is selecting help.
+        /// </summary>
         [JsonProperty("selection_text")] public string SelectionText { get; set; }
-        [JsonProperty("tutorial_steps")] public List<TutorialModel> TutorialSteps { get; set; }
+        /// <summary>
+        /// Items which are to be shown in order. Can also only be one item.
+        /// </summary>
+        [JsonProperty("tutorial_steps")] public List<TutorialModelUI> TutorialSteps { get; set; }
+        /// <summary>
+        /// If given, holds the name of a predefined tutorial from the TutorialManager to be shown
+        /// </summary>
         [JsonProperty("starts_tutorial")] public string StartsTutorial { get; set; }
+        /// <summary>
+        /// Should the selection only be shown in edit mode.
+        /// </summary>
         [JsonProperty("edit_mode_only")] public bool EditModeOnly { get; set; }
 
         public HelpSelectionModel()
         {
             SelectionText = "";
-            TutorialSteps = new List<TutorialModel>();
+            TutorialSteps = new List<TutorialModelUI>();
             StartsTutorial = "";
             EditModeOnly = false;
         }
@@ -31,52 +47,5 @@ namespace MirageXR
             sb.AppendLine($"EditModeOnly: {EditModeOnly}");
             return sb.ToString();
         }
-    }
-
-    public class HelpSelectionMaster
-    {
-        private const string FILE_NAME_ACTIVITY_SELECTION = "activitySelectionHelp.json";
-        private const string FILE_NAME_ACTIVITY_STEPS = "activityStepsHelp.json";
-        private const string FILE_NAME_ACTIVITY_INFO = "activityStepsInfo.json";
-        private const string FILE_NAME_ACTIVITY_CALIBRATION = "activityCalibrationHelp.json";
-        private const string FILE_NAME_STEP_AUGMENTATIONS = "stepAugmentationsHelp.json";
-        private const string FILE_NAME_STEP_INFO = "stepInfoHelp.json";
-
-        public void TestRead()
-        {
-            string path = Path.Combine(Application.dataPath, "MirageXR", "Resources", FILE_NAME_ACTIVITY_SELECTION);
-            // Read the JSON string from the file
-            string jsonString = File.ReadAllText(path);
-
-            HelpSelectionModel hsm = JsonConvert.DeserializeObject<HelpSelectionModel>(jsonString);
-            Debug.Log(hsm);
-        }
-
-        public void TestWrite()
-        {
-            HelpSelectionModel model = new HelpSelectionModel();
-            model.SelectionText = "Select this";
-
-            TutorialModel tutModel = new TutorialModel();
-            model.TutorialSteps.Add(tutModel);
-
-            model.StartsTutorial = "";
-
-            string jsonString = JsonConvert.SerializeObject(model, Formatting.Indented);
-            string path = Path.Combine(Application.dataPath, "MirageXR", "Resources", FILE_NAME_ACTIVITY_SELECTION);
-
-            // Ensure the directory exists
-            Directory.CreateDirectory(Path.GetDirectoryName(path));
-
-            // Write the JSON string to the file
-            File.WriteAllText(path, jsonString);
-
-            // Refresh the AssetDatabase to ensure the file is visible in the Unity Editor
-#if UNITY_EDITOR
-            UnityEditor.AssetDatabase.Refresh();
-#endif
-        }
-
-
     }
 }

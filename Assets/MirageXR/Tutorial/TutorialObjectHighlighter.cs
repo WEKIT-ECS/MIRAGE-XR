@@ -28,7 +28,7 @@ namespace MirageXR
             TMP_InputField inputField = gameObject.GetComponent<TMP_InputField>();
             if (inputField != null)
             {
-                GameObject hbPrefab = Resources.Load("prefabs/UI/Mobile/Tutorial/HighlightButton", typeof(GameObject)) as GameObject;
+                GameObject hbPrefab = Resources.Load("prefabs/UI/Mobile/TutorialUI/HighlightButton", typeof(GameObject)) as GameObject;
                 _copy = Object.Instantiate(hbPrefab, gameObject.transform.position, gameObject.transform.rotation);
                 _copy.transform.SetParent(RootView_v2.Instance.transform);
                 _copy.transform.SetPositionAndRotation(gameObject.transform.position, gameObject.transform.rotation);
