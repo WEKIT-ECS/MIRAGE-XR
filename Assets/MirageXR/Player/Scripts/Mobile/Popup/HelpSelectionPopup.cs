@@ -91,10 +91,10 @@ namespace MirageXR
                             switch (model.StartsTutorial)
                             {
                                 case "mobile_editing":
-                                    button.onClick.AddListener(startMobileEditingTutorial);
+                                    button.onClick.AddListener(StartMobileEditingTutorial);
                                     break;
                                 case "mobile_viewing":
-                                    button.onClick.AddListener(startMobileViewingTutorial);
+                                    button.onClick.AddListener(StartMobileViewingTutorial);
                                     break;
                             }
                         }
@@ -155,13 +155,13 @@ namespace MirageXR
             TutorialManager.Instance.MobileTutorial.Show(queue);
         }
 
-        private void startMobileEditingTutorial()
+        private void StartMobileEditingTutorial()
         {
             this.Close();
             TutorialManager.Instance.StartNewMobileEditingTutorial();
         }
 
-        private void startMobileViewingTutorial()
+        private void StartMobileViewingTutorial()
         {
             this.Close();
             TutorialManager.Instance.StartNewMobileViewingTutorial();
