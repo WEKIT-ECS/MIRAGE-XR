@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DG.Tweening;
 using MirageXR;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
 using CharacterController = MirageXR.CharacterController;
@@ -35,7 +36,6 @@ public class VirtualInstructorView : PopupEditorBase
 
     [Header("Settings panel")] [SerializeField]
     private Button _btnNoSpeech;
-
 
     private string _prefabName;
     public override ContentType editorForType => ContentType.VIRTUALINSTRUCTOR; 
@@ -85,7 +85,7 @@ public class VirtualInstructorView : PopupEditorBase
             await Task.Delay(10);
         }
 
-        var characterController = character.GetComponent<CharacterController>();
+        /*var characterController = character.GetComponent<CharacterController>();
         characterController.MovementType = movementType;
         characterController.AgentReturnAtTheEnd = false;
 
@@ -100,7 +100,7 @@ public class VirtualInstructorView : PopupEditorBase
 
         characterController.Destinations = destinations;
         characterController.AudioEditorCheck();
-        characterController.MyAction = _step;
+        characterController.MyAction = _step;*/
     }
 
     private void OnAccept(string prefabName)
@@ -127,7 +127,19 @@ public class VirtualInstructorView : PopupEditorBase
             _content = augmentationManager.AddAugmentation(_step, GetOffset());
         }
 
-        _content.predicate = $"char:{_prefabName}";
+        _content.predicate = editorForType.GetPredicate();
+
+        var data = new VirtualInstructorDataModel
+        {
+            AnimationClip = "Idle",
+            CharacterName = _prefabName,
+            TextToSpeechModel = new AIModel("endpointName", "name", "description", "apiName"),
+            Prompt = "Prompt",
+            LanguageModel = new AIModel("endpointName", "name", "description", "apiName"),
+            SpeechToTextModel = new AIModel("endpointName", "name", "description", "apiName")
+        };
+
+        _content.option = JsonConvert.SerializeObject(data);
         EventManager.ActivateObject(_content);
 
         base.OnAccept();
