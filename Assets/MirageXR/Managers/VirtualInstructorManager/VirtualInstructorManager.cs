@@ -9,7 +9,7 @@ namespace MirageXR
     /// <summary>
     /// Manages virtual instructors.
     /// </summary>
-    public class VirtualInstructorManager : MonoBehaviour
+    public class VirtualInstructorManager
     {
         /// <summary>
         /// Represents a list of all virtual instructors.
