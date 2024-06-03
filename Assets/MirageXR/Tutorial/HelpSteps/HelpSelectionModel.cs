@@ -16,19 +16,19 @@ namespace MirageXR
         /// <summary>
         /// Text that should be shown in the help popup, when the user is selecting help.
         /// </summary>
-        [JsonProperty("selection_text")] public string SelectionText { get; set; }
+        [JsonProperty] public string SelectionText { get; set; }
         /// <summary>
         /// Items which are to be shown in order. Can also only be one item.
         /// </summary>
-        [JsonProperty("tutorial_steps")] public List<TutorialModelUI> TutorialSteps { get; set; }
+        [JsonProperty] public List<TutorialModelUI> TutorialSteps { get; set; }
         /// <summary>
         /// If given, holds the name of a predefined tutorial from the TutorialManager to be shown
         /// </summary>
-        [JsonProperty("starts_tutorial")] public string StartsTutorial { get; set; }
+        [JsonProperty] public string StartsTutorial { get; set; }
         /// <summary>
         /// Should the selection only be shown in edit mode.
         /// </summary>
-        [JsonProperty("edit_mode_only")] public bool EditModeOnly { get; set; }
+        [JsonProperty] public bool EditModeOnly { get; set; }
 
         public HelpSelectionModel()
         {
