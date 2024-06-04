@@ -33,6 +33,11 @@ public class VirtualInstructorView : PopupEditorBase
     [Header("Tabs")] 
     [SerializeField] private GameObject _charactersTab;
     [SerializeField] private GameObject _libraryTab;
+    
+    private string _aiPromptData = "Enter text";
+    private AIModel _tts;
+    private AIModel _llm;
+    private AIModel _stt;
 
     [Header("Settings panel")] [SerializeField]
     private Button _btnNoSpeech;
@@ -133,12 +138,12 @@ public class VirtualInstructorView : PopupEditorBase
         {
             AnimationClip = "Idle",
             CharacterName = _prefabName,
-            TextToSpeechModel = new AIModel("endpointName", "name", "description", "apiName"),
-            Prompt = "Prompt",
-            LanguageModel = new AIModel("endpointName", "name", "description", "apiName"),
-            SpeechToTextModel = new AIModel("endpointName", "name", "description", "apiName")
+            TextToSpeechModel = _tts,
+            Prompt = _aiPromptData,
+            LanguageModel = _llm,
+            SpeechToTextModel = _stt 
         };
-
+        
         _content.option = JsonConvert.SerializeObject(data);
         EventManager.ActivateObject(_content);
 
@@ -171,20 +176,25 @@ public class VirtualInstructorView : PopupEditorBase
             ("AI", () => AIhSelected(), false, false));*/
     }
 
-    private void NoSpeechSelected()
+    public void SetPromt(String str)
     {
-        // TODO
+        _aiPromptData = str; 
     }
     
-    private void AudioRecordingSelected()
+    public void SetTTS(AIModel tTSModel)
     {
-        // TODO
+        _tts = tTSModel; 
+    }
+    public void SetLLM(AIModel lLMModel)
+    {
+        _llm = lLMModel; 
     }
     
-    private void AIhSelected()
+    public void SetSTT(AIModel sTTModel)
     {
-        // TODO
+        _stt = sTTModel; 
     }
+    
     
     private void OnToggleLibrariesValueChanged(bool value)
     {
