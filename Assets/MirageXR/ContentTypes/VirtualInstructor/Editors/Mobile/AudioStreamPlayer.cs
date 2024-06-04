@@ -94,6 +94,7 @@ public class AudioStreamPlayer : MonoBehaviour
     /// <param name="model">The AIModel to use for setup.</param>
     public async void Setup(AIModel model)
     {
+        _audioSource.Stop();
         _model = model;
         _name.text = _model.Name;
         _currentTimeText.text = "0.00";
