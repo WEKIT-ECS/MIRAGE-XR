@@ -23,7 +23,7 @@ namespace MirageXR
         /// </remarks>
         private VirtualInstructorDataModel InstructorData { get; set; }
 
-        private ToggleObject _toggleObject;
+        [SerializeField] private ToggleObject _toggleObject;
         private Animator _animator;
 
         /// <summary>
@@ -40,6 +40,7 @@ namespace MirageXR
             try
             {
                 InstructorData = JsonConvert.DeserializeObject<VirtualInstructorDataModel>(toggleObject.option);
+
             }
             catch (Exception e)
             {
@@ -90,16 +91,7 @@ namespace MirageXR
                 }
             }
         }
-
-        /// <summary>
-        /// Gets the language model associated with the virtual instructor.
-        /// </summary>
-        /// <returns>The language model.</returns>
-        public AIModel getLanguageLanguageModel()
-        {
-            return InstructorData.LanguageModel;
-        }
-
+        
         /// <summary>
         /// Retrieves the AI model for text-to-speech functionality.
         /// </summary>
@@ -110,30 +102,13 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Retrieves the SpeechToTextModel associated with the virtual instructor.
-        /// </summary>
-        /// <returns>The SpeechToTextModel for the virtual instructor.</returns>
-        public AIModel getSpeechToTextModel()
-        {
-            return InstructorData.SpeechToTextModel;
-        }
-
-        /// <summary>
-        /// Gets the prompt associated with the virtual instructor.
-        /// </summary>
-        /// <returns>The prompt string.</returns>
-        public string getPromt()
-        {
-            return InstructorData.Prompt;
-        }
-
-        /// <summary>
         /// Asks the virtual instructor a question.
         /// </summary>
         /// <param name="inputAudio">The input audio clip representing the question of the user.</param>
         /// <returns>A clip containing the response from the virtual instructor.</returns>
         public async Task<AudioClip> AskVirtualInstructor(AudioClip inputAudio )
         {
+            UnityEngine.Debug.Log("getTextToSpeechModel" + getTextToSpeechModel().ApiName);
             string context = CreateContext();
             var question = await RootObject.Instance.aiManager.ConvertSpeechToTextAsync(inputAudio, InstructorData.SpeechToTextModel.ApiName);
             var response = await RootObject.Instance.aiManager.SendMessageToAssistantAsync(InstructorData.LanguageModel.ApiName, question, context);
