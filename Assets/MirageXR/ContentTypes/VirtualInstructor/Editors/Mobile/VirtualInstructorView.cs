@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DG.Tweening;
 using MirageXR;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
 using CharacterController = MirageXR.CharacterController;
@@ -32,10 +33,14 @@ public class VirtualInstructorView : PopupEditorBase
     [Header("Tabs")] 
     [SerializeField] private GameObject _charactersTab;
     [SerializeField] private GameObject _libraryTab;
+    
+    private string _aiPromptData = "Enter text";
+    private AIModel _tts;
+    private AIModel _llm;
+    private AIModel _stt;
 
     [Header("Settings panel")] [SerializeField]
     private Button _btnNoSpeech;
-
 
     private string _prefabName;
     public override ContentType editorForType => ContentType.VIRTUALINSTRUCTOR; 
@@ -85,7 +90,7 @@ public class VirtualInstructorView : PopupEditorBase
             await Task.Delay(10);
         }
 
-        var characterController = character.GetComponent<CharacterController>();
+        /*var characterController = character.GetComponent<CharacterController>();
         characterController.MovementType = movementType;
         characterController.AgentReturnAtTheEnd = false;
 
@@ -100,7 +105,7 @@ public class VirtualInstructorView : PopupEditorBase
 
         characterController.Destinations = destinations;
         characterController.AudioEditorCheck();
-        characterController.MyAction = _step;
+        characterController.MyAction = _step;*/
     }
 
     private void OnAccept(string prefabName)
@@ -127,7 +132,19 @@ public class VirtualInstructorView : PopupEditorBase
             _content = augmentationManager.AddAugmentation(_step, GetOffset());
         }
 
-        _content.predicate = $"char:{_prefabName}";
+        _content.predicate = editorForType.GetPredicate();
+
+        var data = new VirtualInstructorDataModel
+        {
+            AnimationClip = "Idle",
+            CharacterName = _prefabName,
+            TextToSpeechModel = _tts,
+            Prompt = _aiPromptData,
+            LanguageModel = _llm,
+            SpeechToTextModel = _stt 
+        };
+        
+        _content.option = JsonConvert.SerializeObject(data);
         EventManager.ActivateObject(_content);
 
         base.OnAccept();
@@ -159,20 +176,25 @@ public class VirtualInstructorView : PopupEditorBase
             ("AI", () => AIhSelected(), false, false));*/
     }
 
-    private void NoSpeechSelected()
+    public void SetPromt(String str)
     {
-        // TODO
+        _aiPromptData = str; 
     }
     
-    private void AudioRecordingSelected()
+    public void SetTTS(AIModel tTSModel)
     {
-        // TODO
+        _tts = tTSModel; 
+    }
+    public void SetLLM(AIModel lLMModel)
+    {
+        _llm = lLMModel; 
     }
     
-    private void AIhSelected()
+    public void SetSTT(AIModel sTTModel)
     {
-        // TODO
+        _stt = sTTModel; 
     }
+    
     
     private void OnToggleLibrariesValueChanged(bool value)
     {
