@@ -1,22 +1,20 @@
 using System;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using UnityEngine;
-using MirageXR;
 
-/// <summary>
-/// Represents a virtual instructor that provides language-based assistance.
-/// </summary>
-public class VirtualInstructor : MonoBehaviour
+namespace MirageXR
+{
+    /// <summary>
+    /// Represents a virtual instructor that provides language-based assistance.
+    /// </summary>
+    public class VirtualInstructor : MirageXRPrefab
     {
+        private const float CharacterHeight = 1.8f;
         /// <summary>
         /// Represents the format for displaying the history of a conversation.
         /// </summary>
         private static readonly string HistoryFormat = "This is the History of the conversation so fare: Question :{0} Given answer: {1}";
-
-        /// <summary>
-        /// Represents a virtual instructor.
-        /// </summary>
-        private GameObject Instructor { get; }
 
         /// Represents the data model for a virtual instructor in the MirageXR application.
         /// </summary>
@@ -24,36 +22,76 @@ public class VirtualInstructor : MonoBehaviour
         /// The InstructorData class stores information about the language models and prompts used by the virtual instructor.
         /// </remarks>
         private VirtualInstructorDataModel InstructorData { get; set; }
-        
+
+        [SerializeField] private ToggleObject _toggleObject;
+        private Animator _animator;
+
         /// <summary>
         /// Represents the history of a conversation with the VirtualInstructor.
         /// This variable keeps track of the conversation history between the user and the VirtualInstructor.
         /// It is a string that stores the questions and answers exchanged during the conversation.
         /// </summary>
-        private string _history = "";
+        private string _history;
 
-
-        /// <summary>
-        /// Constructor for a virtual instructor in the MirageXR application.
-        /// </summary>
-        public VirtualInstructor(GameObject instructor, AIModel languageLanguageModel, AIModel textToSpeechModel, 
-            AIModel speechToTextModel, string prompt)
+        public override bool Init(ToggleObject toggleObject)
         {
-            Instructor = instructor;
-            InstructorData =
-                new VirtualInstructorDataModel(languageLanguageModel, textToSpeechModel, speechToTextModel, prompt);
+            _animator = GetComponentInChildren<Animator>();
+            _toggleObject = toggleObject;
+            try
+            {
+                InstructorData = JsonConvert.DeserializeObject<VirtualInstructorDataModel>(toggleObject.option);
+
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+                return false;
+            }
+
+            if (!SetParent(toggleObject))
+            {
+                Debug.LogWarning("Couldn't set the parent.");
+                return false;
+            }
+
+            var poiEditor = transform.parent.GetComponent<PoiEditor>();
+            if (poiEditor)
+            {
+                poiEditor.canRotate = true;
+            }
+            
+            var boxCollider = GetComponentInChildren<BoxCollider>();
+            if (boxCollider != null)
+            {
+                var size = boxCollider.size;
+                boxCollider.size = new Vector3(size.x, CharacterHeight, size.z);
+                var center = boxCollider.center;
+                boxCollider.center = new Vector3(center.x, CharacterHeight * 0.5f, center.z);
+            }
+
+            if (!toggleObject.scale.Equals(0))
+            {
+                transform.localScale = new Vector3(toggleObject.scale, toggleObject.scale, toggleObject.scale);
+            }
+
+            PlayAnimationClip(InstructorData.AnimationClip);
+            
             RootObject.Instance.virtualInstructorManager.AddInstrutor(this);
+
+            return base.Init(toggleObject);
         }
 
-        /// <summary>
-        /// Gets the language model associated with the virtual instructor.
-        /// </summary>
-        /// <returns>The language model.</returns>
-        public AIModel getLanguageLanguageModel()
+        private void PlayAnimationClip(string clipName)     //temp
         {
-            return InstructorData.LanguageModel;
+            if (_animator != null)
+            {
+                foreach (var param in _animator.parameters)
+                {
+                    _animator.SetBool(param.name, param.name == clipName);
+                }
+            }
         }
-
+        
         /// <summary>
         /// Retrieves the AI model for text-to-speech functionality.
         /// </summary>
@@ -64,30 +102,13 @@ public class VirtualInstructor : MonoBehaviour
         }
 
         /// <summary>
-        /// Retrieves the SpeechToTextModel associated with the virtual instructor.
-        /// </summary>
-        /// <returns>The SpeechToTextModel for the virtual instructor.</returns>
-        public AIModel getSpeechToTextModel()
-        {
-            return InstructorData.SpeechToTextModel;
-        }
-
-        /// <summary>
-        /// Gets the prompt associated with the virtual instructor.
-        /// </summary>
-        /// <returns>The prompt string.</returns>
-        public string getPromt()
-        {
-            return InstructorData.Prompt;
-        }
-
-        /// <summary>
         /// Asks the virtual instructor a question.
         /// </summary>
         /// <param name="inputAudio">The input audio clip representing the question of the user.</param>
         /// <returns>A clip containing the response from the virtual instructor.</returns>
         public async Task<AudioClip> AskVirtualInstructor(AudioClip inputAudio )
         {
+            UnityEngine.Debug.Log("getTextToSpeechModel" + getTextToSpeechModel().ApiName);
             string context = CreateContext();
             var question = await RootObject.Instance.aiManager.ConvertSpeechToTextAsync(inputAudio, InstructorData.SpeechToTextModel.ApiName);
             var response = await RootObject.Instance.aiManager.SendMessageToAssistantAsync(InstructorData.LanguageModel.ApiName, question, context);
@@ -99,7 +120,7 @@ public class VirtualInstructor : MonoBehaviour
         /// <summary>
         /// CreateContext method is responsible for concatinactein the history  and the Promt to a String.
         /// </summary>
-        private string CreateContext() => _history != "" ? InstructorData.Prompt + _history : InstructorData.Prompt;
+        private string CreateContext() => !string.IsNullOrEmpty(_history) ? InstructorData.Prompt + _history : InstructorData.Prompt;
 
         /// <summary>
         /// Updates the conversation history with the question and response.
@@ -111,3 +132,4 @@ public class VirtualInstructor : MonoBehaviour
             RootObject.Instance.virtualInstructorManager.RemoveInstrutor(this);
         }
     }
+}

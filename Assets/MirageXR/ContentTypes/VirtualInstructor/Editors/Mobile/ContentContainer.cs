@@ -61,6 +61,9 @@ namespace MirageXR
         /// </summary>
         [SerializeField]
         private SpeechSettings speechSettings;
+        
+        [SerializeField]
+        private VirtualInstructorView VirtualInstructorView;
 
         /// <summary>
         /// Represents a data set of AI models.
@@ -183,12 +186,15 @@ namespace MirageXR
             {
                 case "listen/":
                     speechSettings.UpdateLanguage(objectData);
+                    VirtualInstructorView.SetSTT(objectData);
                     break;
                 case "speak/":
                     speechSettings.UpdateVoice(objectData);
+                    VirtualInstructorView.SetTTS(objectData);
                     break;
                 case "think/":
                     speechSettings.UpdateModel(objectData);
+                    VirtualInstructorView.SetLLM(objectData);
                     break;
                 default:
                     Debug.LogError("Did not found the endpoint. Bad configuration from Server!");

@@ -27,7 +27,7 @@ namespace MirageXR
         private WorkplaceManager _workplaceManager;
         private AIManager _aiManager;
         private OpenAIManager _openAIManager;
-        private VirtualInstructorManager _VirtualInstructorManager; 
+        private VirtualInstructorManager _virtualInstructorManager; 
 
         public Camera baseCamera => _baseCamera;
 
@@ -61,7 +61,7 @@ namespace MirageXR
 
         public OpenAIManager openAIManager => _openAIManager;
         public AIManager aiManager => _aiManager;
-        public VirtualInstructorManager virtualInstructorManager => _VirtualInstructorManager;
+        public VirtualInstructorManager virtualInstructorManager => _virtualInstructorManager;
 
         private bool _isInitialized;
 
@@ -121,7 +121,7 @@ namespace MirageXR
                 _workplaceManager = new WorkplaceManager();
                 _openAIManager = new OpenAIManager();
                 _aiManager = new AIManager();
-                _VirtualInstructorManager = new VirtualInstructorManager();
+                _virtualInstructorManager = new VirtualInstructorManager();
 
                 _exceptionManager.Initialize();
                 _brandManager.Initialization();

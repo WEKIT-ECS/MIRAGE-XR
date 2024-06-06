@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -55,37 +56,38 @@ namespace MirageXR
         /// Flag indicating if the recording is currently being done.
         /// </summary>
         private bool recoding;
-        
-  
-        void Update() // Kann man das günstiger lösen? Jeder 50 frame reicht ja auch... 
+
+        public void Update()
         {
-            if (RootObject.Instance.virtualInstructorManager.IsVirtualInstructorInList())
+            if (!RootObject.Instance.virtualInstructorManager.IsVirtualInstructorInList())
             {
-                SetUp(); 
+                Hide();
             }
             else
             {
-                Hide(); 
+                Show();
             }
         }
-        /// <summary>
-        /// Hides the buttons for send recording and record.
-        /// </summary>
         private void Hide()
         {
-            _SendRecord.gameObject.SetActive(false);
             _Record.gameObject.SetActive(false);
+            _SendRecord.gameObject.SetActive(false);
+        }
+        private void Show()
+        {
+            _Record.gameObject.SetActive(true);
         }
 
         /// <summary>
         /// Sets up the virtual instructor  and the recorder buttons.
         /// </summary>
-        public void SetUp()
+        public void Awake()
         {
-            _SendRecord.gameObject.SetActive(false);
-            _Record.gameObject.SetActive(true);
+            _btnRecord.onClick.RemoveAllListeners();
             _btnRecord.onClick.AddListener(StartRecording);
+            _btnSendRecord.onClick.RemoveAllListeners();
             _btnSendRecord.onClick.AddListener(SendRecording);
+            if (RootObject.Instance.virtualInstructorManager.IsVirtualInstructorInList()) Show();
         }
 
         /// <summary>
@@ -100,28 +102,27 @@ namespace MirageXR
         /// <summary>
         /// Starts the recording process.
         /// </summary>
-        private void StartRecording()
+        public void StartRecording()
         {
             recoding = true;
-            if (Microphone.devices.Length > 0) questionClip = Microphone.Start(null, false, _maxRecordTime, sampleRate);
+            if (Microphone.devices.Length > 0)
+            {
+                questionClip = Microphone.Start(null, false, _maxRecordTime, sampleRate);
+                StartCoroutine(CountdownCoroutine()); 
+            }
             else
             {
                 UnityEngine.Debug.LogError("No microphone detected!");
             }
-            StartCoroutine(CountdownCoroutine()); 
-            _SendRecord.gameObject.SetActive(true);
-            _Record.gameObject.SetActive(false);
         }
 
         /// <summary>
         /// Sends the recording to the virtual instructor and plays back the response.
         /// </summary>
-        private async void SendRecording()
+        public async void SendRecording()
         {
             Microphone.End(null);
             recoding = false;
-            _SendRecord.gameObject.SetActive(false);
-            _Record.gameObject.SetActive(true);
             responseClip.clip =  await RootObject.Instance.virtualInstructorManager.AskCloserstInstructor(questionClip); 
             responseClip.Play();
         }

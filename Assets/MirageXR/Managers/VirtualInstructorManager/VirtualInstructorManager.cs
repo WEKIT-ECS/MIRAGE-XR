@@ -9,7 +9,7 @@ namespace MirageXR
     /// <summary>
     /// Manages virtual instructors.
     /// </summary>
-    public class VirtualInstructorManager : MonoBehaviour
+    public class VirtualInstructorManager
     {
         /// <summary>
         /// Represents a list of all virtual instructors.
@@ -21,6 +21,9 @@ namespace MirageXR
         /// </summary>
         public void AddInstrutor(VirtualInstructor instructor)
         {
+            UnityEngine.Debug.Log("AddInstrutor");
+            UnityEngine.Debug.Log(instructor.getTextToSpeechModel());
+            
             _Instrutors.Add(instructor);
         }
         /// <summary>
@@ -28,6 +31,7 @@ namespace MirageXR
         /// </summary>
         public void RemoveInstrutor(VirtualInstructor instructor)
         {
+            UnityEngine.Debug.Log("RemoveInstrutor");
             _Instrutors.Remove(instructor);
         }
 
@@ -48,6 +52,7 @@ namespace MirageXR
         /// <returns>A task representing the asynchronous operation. The task result is the audio clip response from the virtual instructor.</returns>
         public async Task<AudioClip> AskCloserstInstructor(AudioClip question)
         {
+            UnityEngine.Debug.Log("_Instrutors.Count"+_Instrutors.Count);
             // todo testen wenn die UI so weit ist un ich auch VI in den step packen kann. 
             if (_Instrutors == null) throw new NullReferenceException("_Instrutors is null");
             if (_Instrutors.Count == 0)
@@ -71,7 +76,10 @@ namespace MirageXR
                         if (Vector3.Distance(Camera.main.transform.position, instrutor.gameObject.transform.position) >
                             distance)
                         {
+                            distance = Vector3.Distance(Camera.main.transform.position,
+                                instrutor.gameObject.transform.position);
                             winner = instrutor;
+                            UnityEngine.Debug.Log("winner" + instrutor);
                         }
                     }
                 }
