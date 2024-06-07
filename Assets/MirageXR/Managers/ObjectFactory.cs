@@ -541,6 +541,20 @@ namespace MirageXR
                             temp = GameObject.Find(path + obj.predicate);
                             break;
                         }
+                    case "virtualinstructor":
+                    {
+                            try
+                            {
+                                var data = JsonConvert.DeserializeObject<VirtualInstructorDataModel>(obj.option);
+                                temp = GameObject.Find(path + data.CharacterName);
+                            }
+                            catch (Exception e)
+                            {
+                                Debug.LogError(e);
+                            }
+                            
+                            break;
+                        }
                     default:
                         {
                             temp = GameObject.Find(path + obj.predicate);
