@@ -40,7 +40,6 @@ namespace MirageXR
             try
             {
                 InstructorData = JsonConvert.DeserializeObject<VirtualInstructorDataModel>(toggleObject.option);
-
             }
             catch (Exception e)
             {
@@ -74,6 +73,7 @@ namespace MirageXR
                 transform.localScale = new Vector3(toggleObject.scale, toggleObject.scale, toggleObject.scale);
             }
 
+            gameObject.name = InstructorData.CharacterName;
             PlayAnimationClip(InstructorData.AnimationClip);
             
             RootObject.Instance.virtualInstructorManager.AddInstrutor(this);
