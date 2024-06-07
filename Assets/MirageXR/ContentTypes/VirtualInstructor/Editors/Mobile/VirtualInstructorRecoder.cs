@@ -123,7 +123,7 @@ namespace MirageXR
         {
             Microphone.End(null);
             recoding = false;
-            responseClip.clip =  await RootObject.Instance.virtualInstructorManager.AskCloserstInstructor(questionClip); 
+            responseClip.clip =  await RootObject.Instance.virtualInstructorManager.AskClosestInstructor(questionClip); 
             responseClip.Play();
         }
     }

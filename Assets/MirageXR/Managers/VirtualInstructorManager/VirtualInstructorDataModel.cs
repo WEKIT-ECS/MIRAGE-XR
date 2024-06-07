@@ -14,9 +14,11 @@ namespace MirageXR
         /// </summary>
         /// <value>The language model.</value>
         [JsonProperty] public AIModel LanguageModel { get; set; }
+        
 
+        /// <summary>
         /// Represents a model for text-to-speech functionality.
-        /// /
+        /// </summary>
         [JsonProperty] public AIModel TextToSpeechModel { get; set; }
 
         /// <summary>
@@ -25,12 +27,18 @@ namespace MirageXR
         [JsonProperty] public AIModel SpeechToTextModel { get; set; }
 
         /// <summary>
-        /// Represents a virtual instructor that provides language-based assistance.
+        /// Represents the prompt that is given by the creator of the virtual instructor.
         /// </summary>
         [JsonProperty] public string Prompt { get; set; }
-
+        
+        /// <summary>
+        /// Animation of the character 
+        /// </summary>
         [JsonProperty] public string AnimationClip { get; set; }
-
+        
+        /// <summary>
+        /// The Name of the character. 
+        /// </summary>
         [JsonProperty] public string CharacterName { get; set; }
     }
 }

@@ -176,7 +176,7 @@ public class VirtualInstructorView : PopupEditorBase
             ("AI", () => AIhSelected(), false, false));*/
     }
 
-    public void SetPromt(String str)
+    public void SetPrompt(String str)
     {
         _aiPromptData = str; 
     }

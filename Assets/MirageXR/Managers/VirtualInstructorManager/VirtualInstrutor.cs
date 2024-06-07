@@ -76,7 +76,7 @@ namespace MirageXR
             gameObject.name = InstructorData.CharacterName;
             PlayAnimationClip(InstructorData.AnimationClip);
             
-            RootObject.Instance.virtualInstructorManager.AddInstrutor(this);
+            RootObject.Instance.virtualInstructorManager.AddInstructor(this);
 
             return base.Init(toggleObject);
         }
@@ -129,7 +129,7 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-            RootObject.Instance.virtualInstructorManager.RemoveInstrutor(this);
+            RootObject.Instance.virtualInstructorManager.RemoveInstructor(this);
         }
     }
 }
