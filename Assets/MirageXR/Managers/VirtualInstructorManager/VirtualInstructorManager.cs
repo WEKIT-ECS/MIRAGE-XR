@@ -14,25 +14,23 @@ namespace MirageXR
         /// <summary>
         /// Represents a list of all virtual instructors.
         /// </summary>
-        private List<VirtualInstructor> _Instrutors = new();
+        private List<VirtualInstructor> _instructors = new();
 
         /// <summary>
         /// Adds a virtual instructor to the list of instructors in the VirtualInstructorManager.
         /// </summary>
-        public void AddInstrutor(VirtualInstructor instructor)
+        public void AddInstructor(VirtualInstructor instructor)
         {
-            UnityEngine.Debug.Log("AddInstrutor");
-            UnityEngine.Debug.Log(instructor.getTextToSpeechModel());
-            
-            _Instrutors.Add(instructor);
+            UnityEngine.Debug.LogError("AddInstructor");
+            _instructors.Add(instructor);
         }
         /// <summary>
         /// Removes the specified virtual instructor from the instructor list.
         /// </summary>
-        public void RemoveInstrutor(VirtualInstructor instructor)
+        public void RemoveInstructor(VirtualInstructor instructor)
         {
-            UnityEngine.Debug.Log("RemoveInstrutor");
-            _Instrutors.Remove(instructor);
+            UnityEngine.Debug.Log("RemoveInstructor");
+            if (_instructors.Contains(instructor)) _instructors.Remove(instructor);
         }
 
         /// <summary>
@@ -41,7 +39,7 @@ namespace MirageXR
         /// <returns>Returns true if there is at least one virtual instructor in the list, otherwise returns false.</returns>
         public bool IsVirtualInstructorInList()
         {
-            if (_Instrutors.Count == 0) return false;
+            if (_instructors.Count == 0) return false;
             return true;
         }
 
@@ -50,45 +48,53 @@ namespace MirageXR
         /// </summary>
         /// <param name="question">The audio clip containing the question to ask.</param>
         /// <returns>A task representing the asynchronous operation. The task result is the audio clip response from the virtual instructor.</returns>
-        public async Task<AudioClip> AskCloserstInstructor(AudioClip question)
+        public async Task<AudioClip> AskClosestInstructor(AudioClip question)
         {
-            UnityEngine.Debug.Log("_Instrutors.Count"+_Instrutors.Count);
-            // todo testen wenn die UI so weit ist un ich auch VI in den step packen kann. 
-            if (_Instrutors == null) throw new NullReferenceException("_Instrutors is null");
-            if (_Instrutors.Count == 0)
+            
+            if (_instructors == null) throw new NullReferenceException("_Instructors is null");
+            if (_instructors.Count == 0)
             {
-                UnityEngine.Debug.LogError($"AskCloserstInstructor, No Instructor but _Instrutors count is {_Instrutors.Count}.");
+                UnityEngine.Debug.LogError($"AskClosestInstructor, No Instructor but _Instructors count is {_instructors.Count}.");
                 return null;
             }
-            if (_Instrutors.Count == 1) return await _Instrutors[0].AskVirtualInstructor(question);
-            if (_Instrutors.Count > 1)
+            if (Camera.main == null) 
+            {
+                UnityEngine.Debug.LogError("Main Camera is null");
+                return null;
+            }
+            if (_instructors.Count == 1) return await _instructors[0].AskVirtualInstructor(question);
+            if (_instructors.Count > 1)
             {
                 VirtualInstructor winner = null;
                 float distance = float.MaxValue; 
-                foreach (var instrutor in _Instrutors)
+                foreach (var instructor in _instructors)
                 {
-                    Vector3 viewportPos = Camera.main.WorldToViewportPoint(instrutor.gameObject.transform.position);
+                    if (instructor == null || instructor.gameObject == null) 
+                    {
+                        UnityEngine.Debug.LogError("Instructor or Instructor GameObject is null");
+                        continue;
+                    }
+                    Vector3 viewportPos = Camera.main.WorldToViewportPoint(instructor.gameObject.transform.position);
                     bool isVisible = viewportPos.x >= 0 && viewportPos.x <= 1 &&
                                      viewportPos.y >= 0 && viewportPos.y <= 1 &&
                                      viewportPos.z > 0;
                     if (isVisible)
                     {
-                        if (Vector3.Distance(Camera.main.transform.position, instrutor.gameObject.transform.position) >
+                        if (Vector3.Distance(Camera.main.transform.position, instructor.gameObject.transform.position) >
                             distance)
                         {
                             distance = Vector3.Distance(Camera.main.transform.position,
-                                instrutor.gameObject.transform.position);
-                            winner = instrutor;
-                            UnityEngine.Debug.Log("winner" + instrutor);
+                                instructor.gameObject.transform.position);
+                            winner = instructor;
                         }
                     }
                 }
                 if (!winner.IsNull()) return await winner.AskVirtualInstructor(question);
-                UnityEngine.Debug.LogError($"AskCloserstInstructor, No Instructor but _Instrutors count is {_Instrutors.Count}.");
+                UnityEngine.Debug.LogError($"AskClosestInstructor, No Instructor but _Instructors count is {_instructors.Count}.");
                 return null;
             }
             UnityEngine.Debug.LogError(
-                $"AskCloserstInstructor: {_Instrutors.Count} Instructors in the list but, not found");
+                $"AskClosestInstructor: {_instructors.Count} Instructors in the list but, not found");
 
             return null;
         }
