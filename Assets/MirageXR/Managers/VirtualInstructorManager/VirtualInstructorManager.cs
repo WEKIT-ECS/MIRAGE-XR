@@ -21,7 +21,6 @@ namespace MirageXR
         /// </summary>
         public void AddInstructor(VirtualInstructor instructor)
         {
-            UnityEngine.Debug.LogError("AddInstructor");
             _instructors.Add(instructor);
         }
         /// <summary>
@@ -29,7 +28,6 @@ namespace MirageXR
         /// </summary>
         public void RemoveInstructor(VirtualInstructor instructor)
         {
-            UnityEngine.Debug.Log("RemoveInstructor");
             if (_instructors.Contains(instructor)) _instructors.Remove(instructor);
         }
 

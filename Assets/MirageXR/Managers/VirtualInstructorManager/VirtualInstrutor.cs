@@ -108,7 +108,6 @@ namespace MirageXR
         /// <returns>A clip containing the response from the virtual instructor.</returns>
         public async Task<AudioClip> AskVirtualInstructor(AudioClip inputAudio )
         {
-            UnityEngine.Debug.Log("getTextToSpeechModel" + getTextToSpeechModel().ApiName);
             string context = CreateContext();
             var question = await RootObject.Instance.aiManager.ConvertSpeechToTextAsync(inputAudio, InstructorData.SpeechToTextModel.ApiName);
             var response = await RootObject.Instance.aiManager.SendMessageToAssistantAsync(InstructorData.LanguageModel.ApiName, question, context);

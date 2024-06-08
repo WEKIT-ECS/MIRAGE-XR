@@ -26,6 +26,7 @@ namespace MirageXR
         /// </summary>
         [SerializeField] private GameObject _Record;
         [SerializeField] private GameObject _SendRecord;
+        [SerializeField] private GameObject _Loading;
 
         /// <summary>
         /// Maximum record time in seconds.
@@ -83,10 +84,6 @@ namespace MirageXR
         /// </summary>
         public void Awake()
         {
-            _btnRecord.onClick.RemoveAllListeners();
-            _btnRecord.onClick.AddListener(StartRecording);
-            _btnSendRecord.onClick.RemoveAllListeners();
-            _btnSendRecord.onClick.AddListener(SendRecording);
             if (RootObject.Instance.virtualInstructorManager.IsVirtualInstructorInList()) Show();
         }
 
@@ -121,10 +118,23 @@ namespace MirageXR
         /// </summary>
         public async void SendRecording()
         {
+            _Loading.SetActive(true);
             Microphone.End(null);
             recoding = false;
             responseClip.clip =  await RootObject.Instance.virtualInstructorManager.AskClosestInstructor(questionClip); 
             responseClip.Play();
+            StartCoroutine(WaitForAudioEnd());
+        }
+
+        private IEnumerator WaitForAudioEnd()
+        {
+            yield return new WaitUntil(() => !responseClip.isPlaying);
+            OnAudioClipEnd();
+        }
+
+        private void OnAudioClipEnd()
+        {
+            _Loading.SetActive(false);
         }
     }
 }
