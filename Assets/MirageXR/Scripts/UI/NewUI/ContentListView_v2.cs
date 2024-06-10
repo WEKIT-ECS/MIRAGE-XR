@@ -199,17 +199,8 @@ public class ContentListView_v2 : BaseView
 
     public void UpdateView()
     {
-        ActionExtension extension = null;
-        try
-        {
-            extension = JsonConvert.DeserializeObject<ActionExtension>(_currentStep.predicate);
-        }
-        catch (Exception) { /*ignore*/ }
+        _toggleDiamondVisibility.isOn = _currentStep.isDiamondVisible ?? true;
 
-        extension ??= new ActionExtension { isDiamondVisible = true };
-
-        _toggleDiamondVisibility.isOn = extension.isDiamondVisible;
-        
         int currentIndex = activityManager.ActionsOfTypeAction.IndexOf(_currentStep) + 1;
         int maxIndex = activityManager.ActionsOfTypeAction.Count;
 

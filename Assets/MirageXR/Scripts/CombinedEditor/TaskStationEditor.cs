@@ -56,29 +56,17 @@ public class TaskStationEditor : MonoBehaviour
 
     private void UpdateView()
     {
-        ActionExtension extension = null;
-        try
-        {
-            extension = JsonConvert.DeserializeObject<ActionExtension>(_action.predicate);
-        }
-        catch (Exception) { /*ignore*/ }
-
-        extension ??= new ActionExtension { isDiamondVisible = true };
-        _meshRenderer.enabled = extension.isDiamondVisible;
+        _meshRenderer.enabled = _action.isDiamondVisible ?? true;
     }
 
     public void OnVisibilityChanged(bool value)
     {
-        if (_action != null)
+        if (_action == null)
         {
-            var extension = new ActionExtension
-            {
-                isDiamondVisible = value
-            };
-
-            _action.predicate = JsonConvert.SerializeObject(extension);
+            return;
         }
 
+        _action.isDiamondVisible = value;
         _meshRenderer.enabled = value;
         activityManager.SaveData();
     }
