@@ -166,6 +166,11 @@ namespace MirageXR
             return workplace.detectables.Find((item) => item.id == place.detectable);
         }
 
+        public Detectable GetDetectable(string detectableId)
+        {
+            return workplace.detectables.Find((item) => item.id == detectableId);
+        }
+
         public void SaveWorkplace()
         {
             var recFilePath = Path.Combine(Application.persistentDataPath, workplace.id);
@@ -202,7 +207,7 @@ namespace MirageXR
 
             // TODO move this to the model
             WorkplaceObjectFactory.CreateDetectableObject(detectable, true);
-            await WorkplaceObjectFactory.CreatePlaceObject(place);
+            await WorkplaceObjectFactory.CreatePlaceObject(place, newAction);
         }
 
         public void AddAnnotation(Action action, ToggleObject toggleObject, Vector3 position)
