@@ -117,19 +117,26 @@ namespace MirageXR
             }
 
             var caption = obj.caption;
-            if (caption != string.Empty)
-            {
+            
                 StartCaptionDisplay(caption);
-            }
 
             // If all went well, return true.
             return true;
         }
 
+       
         private void StartCaptionDisplay(string caption)
         {
+            // Check if the caption string is empty or consists only of whitespace
+            if (string.IsNullOrWhiteSpace(caption))
+            {
+                return;  // If the caption is empty, return immediately and do nothing
+            }
+
+            // If the caption is not empty, proceed to display it
             StartCoroutine(DisplayCaptionWithDelay(caption));
         }
+
 
         private IEnumerator DisplayCaptionWithDelay(string fullCaption)
         {
@@ -224,7 +231,6 @@ namespace MirageXR
                 }
                 audioSource.mute = false;
                 audioSource.volume = 1.0f;
-                _captionObj.SetActive(true);
                 audioSource.Play();
                 isPlaying = true;
                 
