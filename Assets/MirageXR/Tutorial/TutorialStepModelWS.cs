@@ -1,9 +1,7 @@
 using MirageXR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 public class TutorialStepModelWS : TutorialStepModel
 {
@@ -34,5 +32,5 @@ public class TutorialStepModelWS : TutorialStepModel
 
     [JsonProperty]
     [JsonConverter(typeof(StringEnumConverter))]
-    public List<TutorialManager.TutorialEvent> CloseEvents { get; set; }
+    public List<TutorialManager.TutorialEvent> CloseEvents { get; set; } = new List<TutorialManager.TutorialEvent>();
 }
