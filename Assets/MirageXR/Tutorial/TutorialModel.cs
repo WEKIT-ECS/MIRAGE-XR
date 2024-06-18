@@ -18,7 +18,8 @@ public class TutorialModel
 public enum StepType
 {
     UI,
-    World
+    World,
+    EventOnly
 }
 
 [JsonConverter(typeof(TutorialStepConverter))]
@@ -50,6 +51,9 @@ public class TutorialStepConverter : JsonConverter
                 break;
             case StepType.World:
                 step = new TutorialStepModelWS();
+                break;
+            case StepType.EventOnly:
+                step = new TutorialStepModelEO();
                 break;
             default:
                 throw new ArgumentException("Invalid step type");

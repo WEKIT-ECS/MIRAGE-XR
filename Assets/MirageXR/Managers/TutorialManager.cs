@@ -47,7 +47,9 @@ namespace MirageXR
         {
             NON_EVENT,
             UI_FINISHED_QUEUE,
-            UI_GOT_IT
+            UI_GOT_IT,
+            CALIBRATION_FINISHED,
+            ACTION_STEP_ACTIVATED
         }
 
         /// <summary>
@@ -109,6 +111,7 @@ namespace MirageXR
             IsTutorialRunning = false;
             _steps = new List<TutorialStep>();
             _handlerWS = new TutorialHandlerWS();
+            _currentClosingEvents = new List<TutorialEvent>();
             EventManager.OnEditModeChanged += EditModeListener;
         }
 
@@ -373,15 +376,15 @@ namespace MirageXR
             }
             catch (FileNotFoundException e)
             {
-                Debug.LogError("File not found while loading Mobile Editing Tutorial: " + e.FileName);
+                Debug.LogError("File not found while loading tutorial: " + e.FileName);
             }
             catch (JsonException e)
             {
-                Debug.LogError("JSON parsing error while loading Mobile Editing Tutorial: " + e.Message);
+                Debug.LogError("JSON parsing error while loading tutorial: " + e.Message);
             }
             catch (Exception e)
             {
-                Debug.LogError("An unexpected error occurred while loading Mobile Editing Tutorial: " + e.Message);
+                Debug.LogError("An unexpected error occurred while loading tutorial: " + e.Message);
             }
 
         }
@@ -478,6 +481,26 @@ namespace MirageXR
                     // Set up finish- and close-events
                     _expectedEvent = wsStep.FinishEvent;
                     _currentClosingEvents = wsStep.CloseEvents;
+                }
+                else if (currentStep is TutorialStepModelEO)
+                {
+                    var eoStep = currentStep as TutorialStepModelEO;
+                    if (eoStep == null)
+                    {
+                        Debug.LogError("Could not cast step to EOStep in TutorialManager.");
+                        CloseTutorial();
+                        return;
+                    }
+                    if (!eoStep.IsValid())
+                    {
+                        Debug.LogError("EOStep is not valid in TutorialManager.");
+                        CloseTutorial();
+                        return;
+                    }
+
+                    // Setu up finish- and close-events
+                    _expectedEvent = eoStep.FinishEvent;
+                    _currentClosingEvents = eoStep.CloseEvents;
                 }
             }
             else
