@@ -11,7 +11,7 @@ using UnityEngine.UI;
 /// Defines the functionality of the UI-based tutorial system.
 /// Only functional in UI-space, cannot be used in world-space.
 /// </summary>
-public class TutorialUI : MonoBehaviour
+public class TutorialHandlerUI : MonoBehaviour
 {
     private const int MAX_TRY_COUNT = 40;
     private const int WAIT_IN_MILLISECONDS = 250;
@@ -23,7 +23,7 @@ public class TutorialUI : MonoBehaviour
     [SerializeField] private TutorialMessageView _tutorialMessageViewPrefab;
     [SerializeField] private RectTransform[] _searchRoots;
 
-    private Queue<TutorialModelUI> _queue;
+    private Queue<TutorialStepModelUI> _queue;
     private TutorialMessageView _lastMessageView;
     private TutorialItem _lastCopy;
 
@@ -49,7 +49,7 @@ public class TutorialUI : MonoBehaviour
     /// Sets up prefab elements for showing.
     /// </summary>
     /// <param name="queue">Queue of models to be shown in order.</param>
-    public void Show(Queue<TutorialModelUI> queue)
+    public void Show(Queue<TutorialStepModelUI> queue)
     {
         _maskingImage.enabled = true;
         _unmaskPanel.gameObject.SetActive(true);
@@ -58,7 +58,7 @@ public class TutorialUI : MonoBehaviour
         _isActivated = true;
         _queue = queue;
         _currentTutorialItem = null;
-        Debug.LogDebug("Showing TutorialUI, status: " + this.gameObject.activeSelf);
+        Debug.LogDebug("Showing TutorialHandlerUI, status: " + this.gameObject.activeSelf);
         Next();
     }
 
@@ -84,7 +84,7 @@ public class TutorialUI : MonoBehaviour
         _unmaskPanel.gameObject.SetActive(false);
         _maskingImage.enabled = false;
         _isActivated = false;
-        Debug.LogDebug("Hiding TutorialUI, status: " + this.gameObject.activeSelf);
+        Debug.LogDebug("Hiding TutorialHandlerUI, status: " + this.gameObject.activeSelf);
     }
 
     private void Next()
@@ -100,8 +100,9 @@ public class TutorialUI : MonoBehaviour
         }
         else
         {
-            Debug.LogDebug("Hiding because queue count is 0");
+            Debug.LogDebug("Hiding TutorialHandlerUI because queue count is 0");
             Hide();
+            TutorialManager.Instance.InvokeEvent(TutorialManager.TutorialEvent.UI_FINISHED_QUEUE);
         }
     }
 
@@ -109,7 +110,7 @@ public class TutorialUI : MonoBehaviour
     /// Shows individual tutorial steps, based on given tutorial model.
     /// </summary>
     /// <param name="model">Information for showing the step.</param>
-    private async Task ShowItem(TutorialModelUI model)
+    private async Task ShowItem(TutorialStepModelUI model)
     {
         if (model.HasId)
         {
@@ -132,7 +133,7 @@ public class TutorialUI : MonoBehaviour
             else
             {
                 _unmaskPanel.gameObject.SetActive(false);
-                Debug.LogError($"Can't find TutorialModelUI with id = '{model.Id}'");
+                Debug.LogError($"Can't find TutorialStepModelUI with id = '{model.Id}'");
                 model.Id = null;
             }
         }
@@ -158,7 +159,7 @@ public class TutorialUI : MonoBehaviour
     /// </summary>
     /// <param name="model">Model which holds the message to be shown.</param>
     /// <returns>The view that this class uses.</returns>
-    private TutorialMessageView ShowMessage(TutorialModelUI model)
+    private TutorialMessageView ShowMessage(TutorialStepModelUI model)
     {
         var tutorialMessageView = Instantiate(_tutorialMessageViewPrefab, _panel);
         tutorialMessageView.Initialization(model, OnMessageViewButtonClicked);
@@ -169,7 +170,7 @@ public class TutorialUI : MonoBehaviour
     /// Handles what happens if the "Got it" button is clicked.
     /// </summary>
     /// <param name="model">The model that was shown.</param>
-    private void OnMessageViewButtonClicked(TutorialModelUI model)
+    private void OnMessageViewButtonClicked(TutorialStepModelUI model)
     {
         if (model.HasId)
         {
@@ -191,7 +192,7 @@ public class TutorialUI : MonoBehaviour
         }
         Hide();
         // If being used in a mixed tutorial, close the calling tutorial step
-        TutorialManager.Instance.CloseTutorial();
+        TutorialManager.Instance.InvokeEvent(TutorialManager.TutorialEvent.UI_GOT_IT);
         Debug.LogDebug("Hiding tutorial because of Skip");
     }
 
@@ -240,7 +241,6 @@ public class TutorialUI : MonoBehaviour
         if (item.Toggle)
         {
             item.Toggle.onValueChanged.AddListener(OnToggleValueChanged);
-            //_toggleIsFirstPass = true;
             Debug.LogDebug("Marked toggle: " + item.Id);
         }
 
@@ -266,17 +266,6 @@ public class TutorialUI : MonoBehaviour
     {
         if (_currentTutorialItem.Toggle)
         {
-            /*
-            if (_toggleIsFirstPass)
-            {
-                _toggleIsFirstPass = false;
-                _currentTutorialItem.Toggle.isOn = true;
-            }
-            else
-            {
-                return;
-            }*/
-
             _currentTutorialItem.Toggle.onValueChanged.RemoveListener(OnToggleValueChanged);
             Debug.LogDebug("Removed listener from toggle: " + _currentTutorialItem.Id);
         }
