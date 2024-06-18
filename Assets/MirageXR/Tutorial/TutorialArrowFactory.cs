@@ -12,6 +12,11 @@ namespace MirageXR
 
         private readonly GameObject arrowPrefab3D;
 
+        public enum ArrowType
+        {
+            DEFAULT
+        }
+
         private TutorialArrowFactory()
         {
             arrowPrefab3D = Resources.Load("prefabs/Tutorial3DArrow", typeof(GameObject)) as GameObject;
@@ -29,13 +34,19 @@ namespace MirageXR
             }
         }
 
-        public GameObject CreateArrow()
+        public TutorialArrow CreateArrow(ArrowType arrowType)
         {
-            GameObject newArrow = null;
-            newArrow = Object.Instantiate(arrowPrefab3D, Vector3.zero, Quaternion.identity);
-            Tutorial3DArrow arrowScript = newArrow.AddComponent<Tutorial3DArrow>();
+            TutorialArrow retVal = null;
+            switch (arrowType)
+            {
+                case ArrowType.DEFAULT:
+                    GameObject newArrow = Object.Instantiate(arrowPrefab3D, Vector3.zero, Quaternion.identity);
+                    retVal = newArrow.AddComponent<Tutorial3DArrow>();
+                    break;
+                // Put new arrow types here
+            }
 
-            return newArrow;
+            return retVal;
         }
 
     }

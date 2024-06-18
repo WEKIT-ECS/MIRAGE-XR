@@ -70,6 +70,8 @@ namespace MirageXR
         public TutorialHandlerUI MobileTutorial { get; private set; }
         private bool _isInEditMode;
 
+        private TutorialHandlerWS _handlerWS;
+
         /// <summary>
         /// TutorialButton on the Hololens UI.
         /// </summary>
@@ -89,6 +91,7 @@ namespace MirageXR
         public HelpSelectionPopup HelpSelectionPopup => _helpSelectionPopup;
 
         private TutorialEvent _expectedEvent = TutorialEvent.NON_EVENT;
+        private List<TutorialEvent> _currentClosingEvents = new List<TutorialEvent>();
 
         private void Awake()
         {
@@ -105,6 +108,7 @@ namespace MirageXR
         {
             IsTutorialRunning = false;
             _steps = new List<TutorialStep>();
+            _handlerWS = new TutorialHandlerWS();
             EventManager.OnEditModeChanged += EditModeListener;
         }
 
@@ -311,13 +315,6 @@ namespace MirageXR
         /// </summary>
         public async void StartNewMobileViewingTutorial()
         {
-
-            string path = Path.Combine(Application.dataPath, "MirageXR", "Resources", "tutorialModelTest.json");
-            string jsonString = File.ReadAllText(path);
-
-            var tmodel = JsonConvert.DeserializeObject<TutorialModel>(jsonString);
-            Debug.Log(tmodel.ToString());
-            /*
             if (MobileTutorial == null)
             {
                 MobileTutorial = RootView_v2.Instance.Tutorial;
@@ -327,7 +324,14 @@ namespace MirageXR
             await alv.CreateTutorialActivity();
             await Task.Delay(1000);
 
-            StartTutorial(TutorialType.MOBILE_VIEWING); */
+            // Here it is necessary that the Tutorial Activity is the first in the list
+            ActivityListItem_v2 tutorialActivityCard = alv.GetComponentsInChildren<ActivityListItem_v2>()[0];
+
+            TutorialItem titem = tutorialActivityCard.gameObject.AddComponent(typeof(TutorialItem)) as TutorialItem;
+            titem.SetId("tutorial_activity");
+            titem.SetInteractableObject(tutorialActivityCard.gameObject);
+
+            NewStartTutorial(TutorialType.MOBILE_VIEWING);
         }
 
         public void NewStartTutorial(TutorialType type)
@@ -406,6 +410,12 @@ namespace MirageXR
                         CloseTutorial();
                         return;
                     }
+                    if (!uiStep.IsValid())
+                    {
+                        Debug.LogError("UIStep is not valid in TutorialManager.");
+                        CloseTutorial();
+                        return;
+                    }
 
                     _expectedEvent = TutorialEvent.UI_FINISHED_QUEUE;
 
@@ -415,7 +425,59 @@ namespace MirageXR
                 }
                 else if (currentStep is TutorialStepModelWS)
                 {
+                    var wsStep = currentStep as TutorialStepModelWS;
+                    if (wsStep == null)
+                    {
+                        Debug.LogError("Could not cast step to UIStep in TutorialManager.");
+                        CloseTutorial();
+                        return;
+                    }
+                    if (!wsStep.IsValid())
+                    {
+                        Debug.LogError("WSStep is not valid in TutorialManager.");
+                        CloseTutorial();
+                        return;
+                    }
 
+                    // Locate target
+                    string objectID = wsStep.FocusObject;
+                    GameObject primaryTarget = GameObject.Find(objectID);
+                    if (primaryTarget == null)
+                    {
+                        Debug.LogError("Could not locate primary target for WS Step in TutorialManager.");
+                        CloseTutorial();
+                        return;
+                    }
+                    else
+                    {
+                        // Check if there is a more specific target
+                        string secondaryID = wsStep.ActualTarget;
+                        if (!string.IsNullOrEmpty(secondaryID))
+                        {
+                            GameObject secondaryTarget = primaryTarget.transform.FindDeepChild(secondaryID).gameObject;
+                            if (secondaryTarget != null)
+                            {
+                                primaryTarget = secondaryTarget;
+                            }
+                        }
+                    }
+                    // Get Message
+                    string tmessage = wsStep.Message;
+
+                    // TODO: Get arrow offsets
+                    // ..
+
+                    // Finally, main call
+                    bool success = _handlerWS.PointTo(primaryTarget, tmessage);
+                    if (!success)
+                    {
+                        Debug.LogError("Could not point to target. Closing tutorial.");
+                        CloseTutorial();
+                    }
+
+                    // Set up finish- and close-events
+                    _expectedEvent = wsStep.FinishEvent;
+                    _currentClosingEvents = wsStep.CloseEvents;
                 }
             }
             else
@@ -442,12 +504,20 @@ namespace MirageXR
             {
                 Debug.LogDebug("TutorialManager closing due to Got It pressed in UI tutorial handler.");
                 CloseTutorial();
+                return false;
             }
 
             if (tevent == _expectedEvent)
             {
                 NewNextStep();
                 return true;
+            }
+
+            if (_currentClosingEvents.Contains(tevent))
+            {
+                Debug.LogDebug("TutorialManager closing due to predefined closing event.");
+                CloseTutorial();
+                return false;
             }
 
             return false;

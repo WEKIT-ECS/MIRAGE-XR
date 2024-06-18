@@ -18,7 +18,6 @@ namespace MirageXR
         public override void PointTo(GameObject target, string instructionText,
             Vector3? positionOffset, Vector3? rotationOffset)
         {
-            gameObject.SetActive(true);
             PositionOffset = positionOffset;
             RotationOffset = rotationOffset;
 
@@ -42,6 +41,8 @@ namespace MirageXR
             }
 
             gameObject.GetComponentInChildren<Text>().text = instructionText;
+
+            gameObject.SetActive(true);
         }
 
         public override void Dissapear()

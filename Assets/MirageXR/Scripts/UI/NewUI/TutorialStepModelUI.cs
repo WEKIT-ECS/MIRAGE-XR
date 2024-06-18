@@ -9,6 +9,15 @@ public class TutorialStepModelUI : TutorialStepModel
     [JsonProperty]
     public override StepType StepType => StepType.UI;
 
+    public override bool IsValid()
+    {
+        if (string.IsNullOrEmpty(Message) && string.IsNullOrEmpty(Id))
+        {
+            return false;
+        }
+        return true;
+    }
+
     /// <summary>
     /// Enum for the vertical positioning of the message popup.
     /// </summary>
