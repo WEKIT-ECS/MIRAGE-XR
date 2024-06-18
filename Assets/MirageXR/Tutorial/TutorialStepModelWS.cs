@@ -10,6 +10,15 @@ public class TutorialStepModelWS : TutorialStepModel
     [JsonProperty]
     public override StepType StepType => StepType.World;
 
+    public override bool IsValid()
+    {
+        if (FinishEvent != TutorialManager.TutorialEvent.NON_EVENT)
+        {
+            return true;
+        }
+        return false;
+    }
+
     [JsonProperty]
     public string FocusObject { get; set; }
 

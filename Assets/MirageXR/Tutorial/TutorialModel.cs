@@ -25,6 +25,8 @@ public enum StepType
 public abstract class TutorialStepModel
 {
     public abstract StepType StepType { get; }
+
+    public abstract bool IsValid();
 }
 
 // Custom converter for TutorialStep to handle the serialization and deserialization of derived types
