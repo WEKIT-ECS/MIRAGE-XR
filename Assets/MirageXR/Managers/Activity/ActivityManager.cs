@@ -284,6 +284,7 @@ namespace MirageXR
                     }
 
                     await ActivateAction(action);
+                    TutorialManager.Instance.InvokeEvent(TutorialManager.TutorialEvent.ACTION_STEP_ACTIVATED);
                 }
             }
             catch (Exception e)
@@ -356,8 +357,6 @@ namespace MirageXR
             EventManager.ActivateAction(step.id);
             EventManager.StepActivatedStamp(SystemInfo.deviceUniqueIdentifier, step, dateStamp);
             EventManager.DebugLog($"Activity manager: Action {step.id} activated.");
-
-            TutorialManager.Instance.InvokeEvent(TutorialManager.TutorialEvent.ACTION_STEP_ACTIVATED);
         }
 
         /// <summary>
