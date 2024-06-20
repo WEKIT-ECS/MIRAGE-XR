@@ -6,9 +6,16 @@ using Newtonsoft.Json.Converters;
 /// </summary>
 public class TutorialStepModelUI : TutorialStepModel
 {
+    /// <summary>
+    /// Always returns UI.
+    /// </summary>
     [JsonProperty]
     public override StepType StepType => StepType.UI;
 
+    /// <summary>
+    /// Determines whether the tutorial step is valid.
+    /// </summary>
+    /// <returns><c>true</c> if the step is valid; otherwise, <c>false</c>.</returns>
     public override bool IsValid()
     {
         if (string.IsNullOrEmpty(Message) && string.IsNullOrEmpty(Id))
@@ -66,6 +73,10 @@ public class TutorialStepModelUI : TutorialStepModel
     [JsonIgnore]
     public bool HasMessage => !string.IsNullOrEmpty(Message);
 
+    /// <summary>
+    /// Formats the class for output.
+    /// </summary>
+    /// <returns>The class in string for output.</returns>
     public override string ToString()
     {
         return $"Id: {Id}, Message: {Message}, Position: {Position}, BtnText: {BtnText}";

@@ -154,7 +154,7 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
         var arCameraBackground = MirageXR.Utilities.FindOrCreateComponent<ARCameraBackground>(mainCamera.gameObject);
         var arPoseDriver = MirageXR.Utilities.FindOrCreateComponent<ARPoseDriver>(mainCamera.gameObject);
 
-        //await Task.Delay(DELAY);
+        //await Task.DelayInMilliseconds(DELAY);
 
         _imageTargetHolder = new GameObject("ImageTargetHolder").transform;
 

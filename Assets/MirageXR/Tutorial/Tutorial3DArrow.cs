@@ -9,6 +9,9 @@ namespace MirageXR
     /// </summary>
     public class Tutorial3DArrow : TutorialArrow
     {
+        /// <summary>
+        /// Position offset put in case none is provided.
+        /// </summary>
         public static readonly Vector3 DEFAULT_POSITION_OFFSET = Vector3.forward * (-0.02f);
         private GameObject target;
 
