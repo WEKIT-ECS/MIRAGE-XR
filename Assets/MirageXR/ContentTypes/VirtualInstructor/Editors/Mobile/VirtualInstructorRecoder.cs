@@ -1,5 +1,5 @@
-using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -57,6 +57,12 @@ namespace MirageXR
         /// Flag indicating if the recording is currently being done.
         /// </summary>
         private bool recoding;
+        
+
+        
+        [SerializeField] private GameObject subtitleBox; // Temp
+        
+        [SerializeField] private TMP_Text subtitleText; // Temp
 
         public void Update()
         {
@@ -121,9 +127,12 @@ namespace MirageXR
             _Loading.SetActive(true);
             Microphone.End(null);
             recoding = false;
-            responseClip.clip =  await RootObject.Instance.virtualInstructorManager.AskClosestInstructor(questionClip); 
+            (string text, AudioClip clip)= await RootObject.Instance.virtualInstructorManager.AskClosestInstructor(questionClip);
+            responseClip.clip = clip;
+            ShowSubtitle(text);
             responseClip.Play();
             StartCoroutine(WaitForAudioEnd());
+            
         }
 
         private IEnumerator WaitForAudioEnd()
@@ -135,6 +144,21 @@ namespace MirageXR
         private void OnAudioClipEnd()
         {
             _Loading.SetActive(false);
+            RemoveSubtitle();
+
         }
+
+        private void ShowSubtitle(string text) // Temp
+        {
+            subtitleText.text = text;
+            subtitleBox.gameObject.SetActive(true);
+        }
+
+        private void RemoveSubtitle() // Temp
+        {
+            subtitleText.text = string.Empty;
+            subtitleBox.gameObject.SetActive(false);
+        }
+        
     }
 }
