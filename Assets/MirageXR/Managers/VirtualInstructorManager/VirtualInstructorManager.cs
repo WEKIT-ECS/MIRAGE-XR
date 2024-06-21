@@ -46,19 +46,19 @@ namespace MirageXR
         /// </summary>
         /// <param name="question">The audio clip containing the question to ask.</param>
         /// <returns>A task representing the asynchronous operation. The task result is the audio clip response from the virtual instructor.</returns>
-        public async Task<AudioClip> AskClosestInstructor(AudioClip question)
+        public async Task<(string, AudioClip)> AskClosestInstructor(AudioClip question)
         {
             
             if (_instructors == null) throw new NullReferenceException("_Instructors is null");
             if (_instructors.Count == 0)
             {
                 UnityEngine.Debug.LogError($"AskClosestInstructor, No Instructor but _Instructors count is {_instructors.Count}.");
-                return null;
+                return (null,null);
             }
             if (Camera.main == null) 
             {
                 UnityEngine.Debug.LogError("Main Camera is null");
-                return null;
+                return (null,null);
             }
             if (_instructors.Count == 1) return await _instructors[0].AskVirtualInstructor(question);
             if (_instructors.Count > 1)
@@ -89,12 +89,12 @@ namespace MirageXR
                 }
                 if (!winner.IsNull()) return await winner.AskVirtualInstructor(question);
                 UnityEngine.Debug.LogError($"AskClosestInstructor, No Instructor but _Instructors count is {_instructors.Count}.");
-                return null;
+                return (null,null);
             }
             UnityEngine.Debug.LogError(
                 $"AskClosestInstructor: {_instructors.Count} Instructors in the list but, not found");
 
-            return null;
+            return (null,null);
         }
     }
 }
