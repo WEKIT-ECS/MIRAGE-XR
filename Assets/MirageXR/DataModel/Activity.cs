@@ -28,6 +28,7 @@ namespace MirageXR
         // NOT IN ARLEM SPEC. For storing current action state.
         public bool isActive;
         public bool isCompleted;
+        public bool? isDiamondVisible;
 
         public string id;
         public string viewport;

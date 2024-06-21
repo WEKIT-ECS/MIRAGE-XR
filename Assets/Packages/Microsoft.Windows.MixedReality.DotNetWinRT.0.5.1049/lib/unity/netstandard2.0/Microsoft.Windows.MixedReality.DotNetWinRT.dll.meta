@@ -1,5 +1,7 @@
 fileFormatVersion: 2
-guid: 16a8c868e7aa59a41be04bd0b5f3c6e7
+guid: 8c4fda6b14a304503861fcf3c94997df
+labels:
+- NuGetForUnity
 PluginImporter:
   externalObjects: {}
   serializedVersion: 2
@@ -16,16 +18,24 @@ PluginImporter:
     second:
       enabled: 0
       settings:
-        Exclude Android: 0
-        Exclude Editor: 0
+        Exclude Android: 1
+        Exclude Editor: 1
         Exclude Linux: 0
         Exclude Linux64: 0
         Exclude LinuxUniversal: 0
         Exclude OSXUniversal: 0
+        Exclude VisionOS: 1
         Exclude Win: 0
         Exclude Win64: 0
         Exclude WindowsStoreApps: 1
-        Exclude iOS: 0
+        Exclude iOS: 1
+  - first:
+      Android: Android
+    second:
+      enabled: 0
+      settings:
+        AndroidSharedLibraryType: Executable
+        CPU: ARMv7
   - first:
       Any: 
     second:
@@ -34,7 +44,7 @@ PluginImporter:
   - first:
       Editor: Editor
     second:
-      enabled: 1
+      enabled: 0
       settings:
         CPU: AnyCPU
         DefaultValueInitialized: true
@@ -87,6 +97,15 @@ PluginImporter:
       settings:
         CPU: AnyCPU
   - first:
+      VisionOS: VisionOS
+    second:
+      enabled: 0
+      settings:
+        AddToEmbeddedBinaries: false
+        CPU: ARM64
+        CompileFlags: 
+        FrameworkDependencies: 
+  - first:
       Windows Store Apps: WindowsStoreApps
     second:
       enabled: 0
@@ -96,6 +115,15 @@ PluginImporter:
         PlaceholderPath: 
         SDK: AnySDK
         ScriptingBackend: AnyScriptingBackend
+  - first:
+      iPhone: iOS
+    second:
+      enabled: 0
+      settings:
+        AddToEmbeddedBinaries: false
+        CPU: AnyCPU
+        CompileFlags: 
+        FrameworkDependencies: 
   userData: 
   assetBundleName: 
   assetBundleVariant: 
