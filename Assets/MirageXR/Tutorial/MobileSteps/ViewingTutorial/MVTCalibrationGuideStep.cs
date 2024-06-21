@@ -10,13 +10,13 @@ namespace MirageXR
         {
             RootObject.Instance.calibrationManager.onCalibrationFinished.AddListener(this.ExitListener);
 
-            var queue = new Queue<TutorialModel>();
+            var queue = new Queue<TutorialModelUI>();
             if (!DBManager.dontShowCalibrationGuide)
             {
-                queue.Enqueue(new TutorialModel { id = "calibration_guide_ok", message = "This popup serves as a reminder on how to complete calibration. As this tutorial will explain it anyway, click Ok for now.", position = TutorialModel.MessagePosition.Top });
+                queue.Enqueue(new TutorialModelUI { Id = "calibration_guide_ok", Message = "This popup serves as a reminder on how to complete calibration. As this tutorial will explain it anyway, click Ok for now.", Position = TutorialModelUI.MessagePosition.Top });
             }
-            queue.Enqueue(new TutorialModel { id = "activity_calibration", message = "We begin calibration by clicking the button below...", position = TutorialModel.MessagePosition.Top });
-            queue.Enqueue(new TutorialModel { id = "activity_calibrationWithMarker", message = "and selecting Start Calibration.", position = TutorialModel.MessagePosition.Top });
+            queue.Enqueue(new TutorialModelUI { Id = "activity_calibration", Message = "We begin calibration by clicking the tab above...", Position = TutorialModelUI.MessagePosition.Bottom });
+            queue.Enqueue(new TutorialModelUI { Id = "activity_calibrationWithMarker", Message = "and selecting Start Calibration.", Position = TutorialModelUI.MessagePosition.Top });
             this.manager.MobileTutorial.Show(queue);
         }
 
