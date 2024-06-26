@@ -131,7 +131,7 @@ namespace MirageXR
                 _cameraCalibrationChecker.Initialization();
                 _platformManager.Initialization();
                 await _openAIManager.InitializeAsync();
-                await _aiManager.InitializeAsync();
+                //await _aiManager.InitializeAsync();
                 _activityManager.Subscription();
 
                 _isInitialized = true;
