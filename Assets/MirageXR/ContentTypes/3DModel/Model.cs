@@ -114,13 +114,13 @@ namespace MirageXR
             content.option = ZipUtilities.CheckFileForIllegalCharacters(content.option);
             var loadPath = Path.Combine(RootObject.Instance.activityManager.ActivityPath, content.option, GLTF_NAME);
 
-            ImportSettings _importSettings = new()
+            ImportSettings importSettings = new()
             {
                 AnimationMethod = AnimationMethod.Legacy
             };
 
             _gltf = new GltfImport();
-            var success = await _gltf.Load(new Uri(loadPath), _importSettings);
+            var success = await _gltf.Load(new Uri(loadPath), importSettings);
             var instantiator = new GameObjectInstantiator(_gltf, transform);
             if (success)
             {
