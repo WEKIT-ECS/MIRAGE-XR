@@ -1,0 +1,1 @@
+The Animation assets in this folder are subject to the Unity Companion License. For a comprehensive understanding of the license terms and conditions, please refer to the following link: https://unity3d.com/legal/licenses/Unity_Companion_License.
