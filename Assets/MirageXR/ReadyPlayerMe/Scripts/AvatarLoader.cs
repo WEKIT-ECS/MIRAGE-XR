@@ -20,6 +20,7 @@ namespace MirageXR
 
 		private void Start()
 		{
+			loadingIndicator.SetActive(false);
 			avatarObjectLoader = new AvatarObjectLoader();
 			if (avatarConfig != null)
 			{
@@ -57,7 +58,7 @@ namespace MirageXR
 			LoadedAvatarUrl = e.Url;
 			e.Avatar.transform.position = transform.position;
 			AvatarMeshHelper.TransferMesh(e.Avatar, gameObject);
-			//Destroy(e.Avatar);
+			Destroy(e.Avatar);
 		}
 
 		public void LoadAvatar(string avatarUrl)
