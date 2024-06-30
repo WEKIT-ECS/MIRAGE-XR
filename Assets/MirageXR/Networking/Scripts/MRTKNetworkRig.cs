@@ -11,6 +11,8 @@ namespace MirageXR
 		[SerializeField] private Transform _head;
 		[SerializeField] private Transform _leftHand;
 		[SerializeField] private Transform _rightHand;
+		[SerializeField] private Pose _leftHandOffset;
+		[SerializeField] private Pose _rightHandOffset;
 
 		private MRTKHardwareRig _hardwareRig;
 		private Pose _leftHandDefaultPoseOffset;
@@ -60,8 +62,8 @@ namespace MirageXR
 			transform.rotation = rigState.playSpacePose.rotation;
 			if (rigState.leftHandState.handPresent)
 			{
-				_leftHand.transform.position = rigState.leftHandState.handPose.position;
-				_leftHand.transform.rotation = rigState.leftHandState.handPose.rotation;
+				_leftHand.transform.position = rigState.leftHandState.handPose.position + _leftHandOffset.position;
+				_leftHand.transform.rotation = rigState.leftHandState.handPose.rotation * _leftHandOffset.rotation;
 			}
 			else
 			{
@@ -71,8 +73,8 @@ namespace MirageXR
 			if (rigState.rightHandState.handPresent)
 			{
 
-				_rightHand.transform.position = rigState.rightHandState.handPose.position;
-				_rightHand.transform.rotation = rigState.rightHandState.handPose.rotation;
+				_rightHand.transform.position = rigState.rightHandState.handPose.position + _rightHandOffset.position;
+				_rightHand.transform.rotation = rigState.rightHandState.handPose.rotation * _rightHandOffset.rotation;
 			}
 			else
 			{
