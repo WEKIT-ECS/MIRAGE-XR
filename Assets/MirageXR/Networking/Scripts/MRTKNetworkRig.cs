@@ -58,8 +58,8 @@ namespace MirageXR
 
 		protected virtual void ApplyLocalStateToRigParts(RigState rigState)
 		{
-			transform.position = rigState.playSpacePose.position;
-			transform.rotation = rigState.playSpacePose.rotation;
+			//transform.position = rigState.playSpacePose.position;
+			//transform.rotation = rigState.playSpacePose.rotation;
 			if (rigState.leftHandState.handPresent)
 			{
 				_leftHand.transform.position = rigState.leftHandState.handPose.position + _leftHandOffset.position;
