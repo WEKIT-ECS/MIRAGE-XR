@@ -298,9 +298,9 @@ public class ActivityListView_v2 : BaseView
     {
         await DeleteTutorialActivity();
 #if UNITY_ANDROID || UNITY_EDITOR
-        StartCoroutine(MoveTutorialActivityToLocalFilesAndroid());
+        await MoveTutorialActivityToLocalFilesAndroidAsync();
 #elif UNITY_IOS
-        MoveTutorialActivityToLocalFilesIOS();
+        await MoveTutorialActivityToLocalFilesIOS();
 #endif
     }
 
@@ -316,18 +316,28 @@ public class ActivityListView_v2 : BaseView
         }
     }
 
-    private IEnumerator MoveTutorialActivityToLocalFilesAndroid()
+    private async Task MoveTutorialActivityToLocalFilesAndroidAsync()
     {
         string zipPath = Path.Combine(Application.streamingAssetsPath, "TutorialActivity.zip");
-#if UNITY_EDITOR
-        zipPath = "file://" + zipPath;
-#endif
-        Debug.Log("[ActivtyListView_v2] Loading tutorial zip from location '" + zipPath + "'");
+        Debug.Log("[ActivityListView_v2] Loading tutorial zip from location '" + zipPath + "'");
+
         using (UnityWebRequest www = UnityWebRequest.Get(zipPath))
         {
-            yield return www.SendWebRequest();
+            var operation = www.SendWebRequest();
 
-            MoveAndUnpackTutorialZipFileAndroid(www);
+            while (!operation.isDone)
+            {
+                await Task.Yield();
+            }
+
+            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.LogError($"Error: {www.error}");
+            }
+            else
+            {
+                MoveAndUnpackTutorialZipFileAndroid(www);
+            }
         }
     }
 
