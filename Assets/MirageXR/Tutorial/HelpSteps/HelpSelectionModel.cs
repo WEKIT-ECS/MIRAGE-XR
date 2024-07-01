@@ -20,7 +20,7 @@ namespace MirageXR
         /// <summary>
         /// Items which are to be shown in order. Can also only be one item.
         /// </summary>
-        [JsonProperty] public List<TutorialModelUI> TutorialSteps { get; set; }
+        [JsonProperty] public List<TutorialStepModelUI> TutorialSteps { get; set; }
         /// <summary>
         /// If given, holds the name of a predefined tutorial from the TutorialManager to be shown
         /// </summary>
@@ -33,7 +33,7 @@ namespace MirageXR
         public HelpSelectionModel()
         {
             SelectionText = "";
-            TutorialSteps = new List<TutorialModelUI>();
+            TutorialSteps = new List<TutorialStepModelUI>();
             StartsTutorial = "";
             EditModeOnly = false;
         }

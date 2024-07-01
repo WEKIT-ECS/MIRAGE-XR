@@ -148,10 +148,10 @@ namespace MirageXR
         /// Shows the mini-tutorial.
         /// </summary>
         /// <param name="steps">The steps in the mini-tutorial.</param>
-        private void ShowShortMessageSequence(List<TutorialModelUI> steps)
+        private void ShowShortMessageSequence(List<TutorialStepModelUI> steps)
         {
             this.Close();
-            var queue = new Queue<TutorialModelUI>(steps);
+            var queue = new Queue<TutorialStepModelUI>(steps);
             TutorialManager.Instance.MobileTutorial.Show(queue);
         }
 

@@ -1,7 +1,12 @@
-using i5.Toolkit.Core.VerboseLogging;
+using System.IO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using Newtonsoft.Json;
+using System.Collections;
+using System.Linq;
+using System;
+using UnityEngine.Android;
 
 namespace MirageXR
 {
@@ -25,6 +30,9 @@ namespace MirageXR
         /// </summary>
         public const int STATUS_DO_NOT_LOAD_ON_START = 1;
 
+        private const string FILE_NAME_TUTORIAL_MOBILE_VIEWING = "tutorialMobileViewing.json";
+        private const string FILE_NAME_TUTORIAL_MOBILE_EDITING = "tutorialMobileEditing.json";
+
         /// <summary>
         /// Types of the Tutorial currently offered.
         /// The type depends heavily on the platform.
@@ -34,6 +42,30 @@ namespace MirageXR
             HOLOLENS,
             MOBILE_EDITING,
             MOBILE_VIEWING
+        }
+
+        public enum TutorialEvent
+        {
+            NON_EVENT,
+            UI_FINISHED_QUEUE,
+            UI_GOT_IT,
+            CALIBRATION_FINISHED,
+            ACTION_STEP_ACTIVATED,
+            PICK_AND_PLACED
+        }
+
+        public enum TutorialExitCode
+        {
+            FINISHED = 0,
+            // Intended exits
+            USER_EXIT = 101,
+            PREDEFINED_EXIT = 102,
+            // Step-related errors
+            STEP_TYPE_UNKNOWN = 201,
+            STEP_INVALID = 202,
+            STEP_NO_SHOW = 203,
+            // Event-related errors
+            NON_EVENT_INVOKED = 301,
         }
 
         /// <summary>
@@ -46,12 +78,18 @@ namespace MirageXR
         /// Set internally by the TutorialManager.
         /// </summary>
         public bool IsTutorialRunning { get; private set; }
+        // TODO: put this as a derived value from if _currentTutorial is null or not
 
         private List<TutorialStep> _steps;
         private int _currentStepNumber;
 
-        public TutorialUI MobileTutorial { get; private set; }
+        private TutorialModel _currentTutorial;
+        private int _newCurrentStepNumber;
+
+        public TutorialHandlerUI MobileTutorial { get; private set; }
         private bool _isInEditMode;
+
+        private TutorialHandlerWS _handlerWS;
 
         /// <summary>
         /// TutorialButton on the Hololens UI.
@@ -71,19 +109,8 @@ namespace MirageXR
         /// </summary>
         public HelpSelectionPopup HelpSelectionPopup => _helpSelectionPopup;
 
-        [SerializeField] private HelpPopup _helpPopup;
-        /// <summary>
-        /// The Popup that states the instruction text of a mobile tutorial step.
-        /// Based on the PopupViewer subsystem.
-        /// </summary>
-        public HelpPopup HelpPopup => _helpPopup;
-
-        [SerializeField] private TutorialPopup _mobilePopup;
-        /// <summary>
-        /// The Popup that states the instruction text of a mobile tutorial step.
-        /// Based on the PopupViewer subsystem.
-        /// </summary>
-        public TutorialPopup MobilePopup => _mobilePopup;
+        private TutorialEvent _expectedEvent = TutorialEvent.NON_EVENT;
+        private List<TutorialEvent> _currentClosingEvents = new List<TutorialEvent>();
 
         private void Awake()
         {
@@ -100,6 +127,8 @@ namespace MirageXR
         {
             IsTutorialRunning = false;
             _steps = new List<TutorialStep>();
+            _handlerWS = new TutorialHandlerWS();
+            _currentClosingEvents = new List<TutorialEvent>();
             EventManager.OnEditModeChanged += EditModeListener;
         }
 
@@ -107,6 +136,10 @@ namespace MirageXR
         {
             _isInEditMode = value;
         }
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////// MOSTLY LEGACY, WILL BE REMOVED WHEN REFACTORING HOLOLENS TUTORIAL /////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
         /// Method that sets up and starts the tutorial.
@@ -128,15 +161,6 @@ namespace MirageXR
                 }
 
                 PopulateStepListForHololens();
-                _currentStepNumber = -1;
-
-                NextStep();
-            }
-            else if (type == TutorialType.MOBILE_VIEWING)
-            {
-                IsTutorialRunning = true;
-
-                PopulateStepListForMobileViewing();
                 _currentStepNumber = -1;
 
                 NextStep();
@@ -252,6 +276,10 @@ namespace MirageXR
 
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////// END OF LEGACY /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         /// <summary>
         /// Shows the help selection popup, which is dynamically generated
         /// for each UI page.
@@ -280,21 +308,7 @@ namespace MirageXR
                 MobileTutorial = RootView_v2.Instance.Tutorial;
             }
 
-            var queue = new Queue<TutorialModelUI>();
-            queue.Enqueue(new TutorialModelUI { Id = "activity_create", Message = "Welcome to the MirageXR editing tutorial! To start, let's create a new activity by tapping the plus button below.", BtnText = "Skip" });
-            queue.Enqueue(new TutorialModelUI { Id = "activity_info", Message = "We should add some info about our activity so it's recognisable. To do this, tap the Info tab.", Position = TutorialModelUI.MessagePosition.Bottom, BtnText = "Skip" });
-            queue.Enqueue(new TutorialModelUI { Id = "activity_title", Message = "To give our activity a new title, we can tap on the field below.", Position = TutorialModelUI.MessagePosition.Top, BtnText = "Skip" });
-            queue.Enqueue(new TutorialModelUI { Id = "activity_description", Message = "Activity descriptions help users understand what an activity is about. To add one, we can tap on the field below.", Position = TutorialModelUI.MessagePosition.Top, BtnText = "Skip" });
-            queue.Enqueue(new TutorialModelUI { Id = "activity_steps", Message = "Now we're going to add some steps to our activity. Tap the Steps tab to continue.", Position = TutorialModelUI.MessagePosition.Bottom, BtnText = "Skip" });
-            queue.Enqueue(new TutorialModelUI { Id = "activity_add_step", Message = "Activities consist of steps, which hold content for users to experience. Let's create a new step by tapping the plus button below.", Position = TutorialModelUI.MessagePosition.Top, BtnText = "Skip" });
-            //queue.Enqueue(new TutorialModel { id = "activity_edit_step", message = "Empty steps aren't really entertaining. Let's add some content to our step by tapping the Edit Step button.", position = TutorialModel.MessagePosition.Bottom, btnText = "Skip" });
-            queue.Enqueue(new TutorialModelUI { Id = "step_info", Message = "First let's name and describe our step so users know what to expect. Tap the Info tab to continue.", Position = TutorialModelUI.MessagePosition.Bottom, BtnText = "Skip" });
-            queue.Enqueue(new TutorialModelUI { Id = "step_title", Message = "Just like with the Activity, we should add a title...", Position = TutorialModelUI.MessagePosition.Bottom, BtnText = "Skip" });
-            queue.Enqueue(new TutorialModelUI { Id = "step_description", Message = "...and a description to our step.", Position = TutorialModelUI.MessagePosition.Bottom, BtnText = "Skip" });
-            queue.Enqueue(new TutorialModelUI { Id = "step_augmentations", Message = "Finally, let's add some content to our Step. To do so, tap the Augmentations tab.", Position = TutorialModelUI.MessagePosition.Bottom, BtnText = "Skip" });
-            queue.Enqueue(new TutorialModelUI { Id = "step_add_augmentation", Message = "Augmentations represent different AR content for our users. A list of possible augmentations can be seen by tapping the plus button.", Position = TutorialModelUI.MessagePosition.Bottom, BtnText = "Skip" });
-            queue.Enqueue(new TutorialModelUI { Message = "Here you can choose any of the available augmentations to add to the step. More information on each augmentation is available on their info page. This concludes the tutorial, have fun exploring!", Position = TutorialModelUI.MessagePosition.Middle, BtnText = "Got it" });
-            MobileTutorial.Show(queue);
+            NewStartTutorial(TutorialType.MOBILE_EDITING);
         }
 
         /// <summary>
@@ -313,7 +327,251 @@ namespace MirageXR
             await alv.CreateTutorialActivity();
             await Task.Delay(1000);
 
-            StartTutorial(TutorialType.MOBILE_VIEWING);
+            // Here it is necessary that the Tutorial Activity is the first in the list
+            ActivityListItem_v2 tutorialActivityCard = alv.GetComponentsInChildren<ActivityListItem_v2>()[0];
+
+            // Add TutorialItem to the dynamically created activity UI element
+            TutorialItem titem = tutorialActivityCard.gameObject.AddComponent(typeof(TutorialItem)) as TutorialItem;
+            titem.SetId("tutorial_activity");
+            titem.SetInteractableObject(tutorialActivityCard.gameObject);
+
+            NewStartTutorial(TutorialType.MOBILE_VIEWING);
+        }
+
+
+        /// <summary>
+        /// Handles tutorials through the JSON deserialising system.
+        /// </summary>
+        /// <param name="type">Type of the tutorial to be started.</param>
+        public void NewStartTutorial(TutorialType type)
+        {
+            if (_currentTutorial != null)
+            {
+                // TODO: Perhaps indicate to the user that a tutorial is already running
+                return;
+            }
+
+            string neededFile = "";
+            switch (type)
+            {
+                case TutorialType.MOBILE_VIEWING:
+                    neededFile = FILE_NAME_TUTORIAL_MOBILE_VIEWING;
+                    break;
+                case TutorialType.MOBILE_EDITING:
+                    neededFile = FILE_NAME_TUTORIAL_MOBILE_EDITING;
+                    break;
+                    // TODO: put others here as well
+            }
+
+            if (neededFile == "")
+            {
+                Debug.LogError("Requested to start unknown tutorial in TutorialManager.");
+                return;
+            }
+
+            try 
+            { 
+                string path = Path.Combine(Application.dataPath, "MirageXR", "Resources", neededFile);
+                string json = File.ReadAllText(path);
+                TutorialModel tmodel = JsonConvert.DeserializeObject<TutorialModel>(json);
+
+                _currentTutorial = tmodel;
+                _newCurrentStepNumber = -1;
+                IsTutorialRunning = true;
+
+                NewNextStep();
+            }
+            catch (FileNotFoundException e)
+            {
+                Debug.LogError("File not found while loading tutorial: " + e.FileName);
+            }
+            catch (JsonException e)
+            {
+                Debug.LogError("JSON parsing error while loading tutorial: " + e.Message);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("An unexpected error occurred while loading tutorial: " + e.Message);
+            }
+
+        }
+
+        private void NewNextStep()
+        {
+            if (_currentTutorial == null)
+            {
+                Debug.LogError("NextStep requested without running tutorial in TutorialManager.");
+                return;
+            }
+
+            // Set to next element
+            _newCurrentStepNumber++;
+
+            if (_newCurrentStepNumber < _currentTutorial.Steps.Count)
+            {
+                TutorialStepModel currentStep = _currentTutorial.Steps[_newCurrentStepNumber];
+                // Coroutine needed to process delays
+                StartCoroutine(HandleStepWithDelay(currentStep));
+            }
+            else
+            {
+                ExitTutorial(TutorialExitCode.FINISHED);
+            }
+        }
+
+        /// <summary>
+        /// Task which handles steps. Sometimes necessary to delay, e.g. when
+        /// items are still loading into the scene.
+        /// </summary>
+        /// <param name="currentStep">The step to be processed.</param>
+        private IEnumerator HandleStepWithDelay(TutorialStepModel currentStep)
+        {
+            // Check if the step has a delay
+            if (currentStep.DelayInMilliseconds > 0)
+            {
+                // Convert to delay in seconds
+                yield return new WaitForSeconds(currentStep.DelayInMilliseconds / 1000f);
+            }
+            
+            // Process steps based on type
+            switch (currentStep)
+            {
+                case TutorialStepModelUI uiStep:
+                    HandleUIStep(uiStep);
+                    break;
+
+                case TutorialStepModelWS wsStep:
+                    HandleWSStep(wsStep);
+                    break;
+
+                case TutorialStepModelEO eoStep:
+                    HandleEOStep(eoStep);
+                    break;
+
+                default:
+                    Debug.LogError("Unknown step type in TutorialManager.");
+                    ExitTutorial(TutorialExitCode.STEP_TYPE_UNKNOWN);
+                    break;
+            }
+        }
+
+        private void HandleUIStep(TutorialStepModelUI uiStep)
+        {
+            if (!uiStep.IsValid())
+            {
+                Debug.LogError("UIStep is not valid in TutorialManager.");
+                ExitTutorial(TutorialExitCode.STEP_INVALID);
+                return;
+            }
+
+            // Set finish event
+            _expectedEvent = TutorialEvent.UI_FINISHED_QUEUE;
+
+            // Show by UI step handler
+            var queue = new Queue<TutorialStepModelUI>();
+            queue.Enqueue(uiStep);
+            MobileTutorial.Show(queue);
+        }
+
+        private void HandleWSStep(TutorialStepModelWS wsStep)
+        {
+            if (!wsStep.IsValid())
+            {
+                Debug.LogError("WSStep is not valid in TutorialManager.");
+                ExitTutorial(TutorialExitCode.STEP_INVALID);
+                return;
+            }
+
+            // Show by WS step handler
+            bool success = _handlerWS.Show(wsStep);
+            if (!success)
+            {
+                Debug.LogError("Unable to show WS Step in Tutorial Manager.");
+                ExitTutorial(TutorialExitCode.STEP_NO_SHOW);
+            }
+
+            _expectedEvent = wsStep.FinishEvent;
+            _currentClosingEvents = wsStep.CloseEvents;
+        }
+
+        private void HandleEOStep(TutorialStepModelEO eoStep)
+        {
+            if (!eoStep.IsValid())
+            {
+                Debug.LogError("EOStep is not valid in TutorialManager.");
+                ExitTutorial(TutorialExitCode.STEP_INVALID);
+                return;
+            }
+
+            _expectedEvent = eoStep.FinishEvent;
+            _currentClosingEvents = eoStep.CloseEvents;
+        }
+
+        /// <summary>
+        /// Does clean-up actions on tutorial exit.
+        /// </summary>
+        /// <param name="code">Indicates why the tutorial exited.</param>
+        private void ExitTutorial(TutorialExitCode code)
+        {
+            _handlerWS.Hide();
+            IsTutorialRunning = false;
+            _currentTutorial = null;
+
+            // This means the tutorial finished successfully
+            if (code == TutorialExitCode.FINISHED)
+            {
+                Debug.LogDebug("Tutorial exited successfully!");
+            }
+            else
+            {
+                Debug.LogDebug("Tutorial closed due to error code: " + code);
+            }
+        }
+
+        /// <summary>
+        /// Method that serves as the TutorialManager's event handler. It should be called to indicate
+        /// that events have occured, which serve as tutorial steps' finish events.
+        /// Effectively also serves as EndEvent for dealing with logic that should happen on step end.
+        /// </summary>
+        /// <param name="tevent">The event that has occured.</param>
+        /// <returns>True if this was the expected event to advance the tutorial or not.</returns>
+        public bool InvokeEvent(TutorialEvent tevent)
+        {
+            if (_currentTutorial == null)
+            {
+                return false;
+            }
+
+            if (tevent == TutorialEvent.NON_EVENT)
+            {
+                Debug.LogError("TutorialManager received invocation of NON_EVENT, this should not happen.");
+                ExitTutorial(TutorialExitCode.NON_EVENT_INVOKED);
+                return false;
+            }
+
+            if (tevent == TutorialEvent.UI_GOT_IT)
+            {
+                Debug.LogDebug("TutorialManager closing due to Got It pressed in UI tutorial handler.");
+                ExitTutorial(TutorialExitCode.USER_EXIT);
+                return false;
+            }
+
+            if (tevent == _expectedEvent)
+            {
+                // Hide any existing elements
+                _handlerWS.Hide();
+                NewNextStep();
+                return true;
+            }
+
+            if (_currentClosingEvents.Contains(tevent))
+            {
+                Debug.LogDebug("TutorialManager closing due to predefined closing event.");
+                ExitTutorial(TutorialExitCode.PREDEFINED_EXIT);
+                return false;
+            }
+
+            return false;
         }
     }
 }
