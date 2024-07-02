@@ -6,16 +6,16 @@ namespace MirageXR
 {
     public class FootController : MonoBehaviour
     {
-		[SerializeField] private Transform _bodyTransform;
+		[SerializeField] private Transform _headTarget;
 
 		private static FloorManagerWithFallback _floorManager => RootObject.Instance.floorManagerWithRaycastFallback;
 
         private Vector3 _currentPosition;
 
-        private void Update()
+		private void Update()
         {
             _currentPosition = transform.position;
-            _currentPosition.y = _floorManager.GetFloorHeight(_bodyTransform.position);
+            _currentPosition.y = _floorManager.GetFloorHeight(_headTarget.position);
             transform.position = _currentPosition;
         }
     }
