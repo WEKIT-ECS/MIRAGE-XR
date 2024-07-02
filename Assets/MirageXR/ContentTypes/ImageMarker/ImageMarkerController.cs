@@ -60,6 +60,12 @@ namespace MirageXR
 
             MoveDetectableToImage(imageTarget.transform);
 
+            // replace this with a dialogue that displays the image target in the main area (ipad) or overlaying the menu (mobile)
+            RootView_v2.Instance.dialog.ShowMiddle("Find Target", "For this step you first have to find the real-world object", "OK", () => Debug.Log("OK"), "Cancel", () => { } );
+            // imageTargetManager.onTargetFound += callbackOnFirstTime
+
+            //RootView_v2.Instance.activityView.
+
             return base.Init(_content);
         }
 
