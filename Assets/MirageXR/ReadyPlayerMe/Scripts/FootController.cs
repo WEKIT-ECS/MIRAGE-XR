@@ -7,16 +7,31 @@ namespace MirageXR
     public class FootController : MonoBehaviour
     {
 		[SerializeField] private Transform _headTarget;
+        [SerializeField] private Transform _kneeHint;
+        [SerializeField] private Transform _bodyTarget;
 
 		private static FloorManagerWithFallback _floorManager => RootObject.Instance.floorManagerWithRaycastFallback;
 
-        private Vector3 _currentPosition;
+        private Vector3 _currentFootTargetPosition, _currentKneeHintPosition;
 
 		private void Update()
         {
-            _currentPosition = transform.position;
-            _currentPosition.y = _floorManager.GetFloorHeight(_headTarget.position);
-            transform.position = _currentPosition;
+            PlaceFootTarget();
+            PlaceKneeHint();
+        }
+
+        private void PlaceFootTarget()
+        {
+			_currentFootTargetPosition = transform.position;
+			_currentFootTargetPosition.y = _floorManager.GetFloorHeight(_headTarget.position);
+			transform.position = _currentFootTargetPosition;
+		}
+
+        private void PlaceKneeHint()
+        {
+            _currentKneeHintPosition = Vector3.Lerp(_bodyTarget.position, _currentFootTargetPosition, 0.5f);
+            _currentKneeHintPosition += _bodyTarget.forward * 0.5f;
+            _kneeHint.position = _currentKneeHintPosition;
         }
     }
 }
