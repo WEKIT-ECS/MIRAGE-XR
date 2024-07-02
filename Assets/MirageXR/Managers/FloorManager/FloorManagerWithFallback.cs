@@ -48,12 +48,12 @@ namespace MirageXR
 				float vertical = Mathf.Sin(radians);
 				float horizontal = Mathf.Cos(radians);
 
-				Vector3 spawnDir = new Vector3(horizontal, centerPos.y, vertical);
+				Vector3 spawnDir = new Vector3(horizontal, 0, vertical);
 
 				Vector3 raycastOrigin = centerPos + spawnDir * radius;
 
 				Ray ray = new Ray(raycastOrigin, Vector3.down);
-				Debug.DrawLine(raycastOrigin, raycastOrigin + 2f * ray.direction);
+				Debug.DrawLine(raycastOrigin, raycastOrigin + 2f * ray.direction, Color.white);
 				if (Physics.Raycast(ray, out RaycastHit hit, 2f, _floorLayer))
 				{
 					_raycastResults.Add(hit.point.y);
