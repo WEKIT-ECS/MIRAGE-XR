@@ -149,7 +149,9 @@ Transform:
   m_LocalPosition: {x: 0, y: -1.0189788, z: 0.023054201}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 5484987610664886806}
+  - {fileID: 8791055353632640704}
   m_Father: {fileID: 1643942553204584291}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7835927100119776379
@@ -394,6 +396,14 @@ MonoBehaviour:
   _headTarget: {fileID: 360743670225142621}
   _kneeHint: {fileID: 7008631806097977838}
   _bodyTarget: {fileID: 1643942553204584291}
+  _otherFoot: {fileID: 370435268556135950}
+  _isLeftFoot: 0
+  _footHeightOffset: 0.04
+  _footSpacing: 0.18
+  _footOffset: {x: 0, y: 0, z: 0}
+  _stepDistance: 0.25
+  _stepHeight: 0.15
+  _stepSpeed: 3.5
 --- !u!1 &2756769933506508778
 GameObject:
   m_ObjectHideFlags: 0
@@ -461,6 +471,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5484987610664886806}
+  - component: {fileID: 2094478968890557490}
   m_Layer: 0
   m_Name: LeftHandIK_target
   m_TagString: Untagged
@@ -476,13 +487,29 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3110426666228956265}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.7321789, y: -0.08221266, z: 0.60353684, w: 0.3047925}
-  m_LocalPosition: {x: -0.44957656, y: 0.050233725, z: 0.01940241}
-  m_LocalScale: {x: 0.09999999, y: 0.09999998, z: 0.09999999}
+  m_LocalRotation: {x: 0.7370453, y: -0.09198919, z: 0.6021038, w: 0.29287064}
+  m_LocalPosition: {x: -0.44957674, y: 1.0687671, z: 0.03107674}
+  m_LocalScale: {x: 0.09999998, y: 0.09999999, z: 0.099999994}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1643942553204584291}
+  m_Father: {fileID: 7785514953818259889}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2094478968890557490
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3110426666228956265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6798587543593a4880a88b97684a28e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _headTarget: {fileID: 360743670225142621}
+  _bodyTarget: {fileID: 1643942553204584291}
+  _elbowHint: {fileID: 8791055353632640704}
+  _isLeftHand: 1
 --- !u!1 &3165768870415788771
 GameObject:
   m_ObjectHideFlags: 0
@@ -507,12 +534,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3165768870415788771}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.01623045, y: -0.000026236532, z: -0.00000042303532, w: 0.9998683}
-  m_LocalPosition: {x: -0.25174972, y: 0.10971172, z: -0.533445}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.25177893, y: 1.1461575, z: -0.51955926}
+  m_LocalScale: {x: 0.1, y: 0.10000001, z: 0.10000001}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1643942553204584291}
+  m_Father: {fileID: 7785514953818259889}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3453229398394840938
 GameObject:
@@ -606,6 +633,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4520198998986699006}
+  - component: {fileID: 794313338588905156}
   m_Layer: 0
   m_Name: RightHandIK_target
   m_TagString: Untagged
@@ -628,6 +656,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1051799478431914223}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &794313338588905156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3924492804379199727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6798587543593a4880a88b97684a28e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _headTarget: {fileID: 360743670225142621}
+  _bodyTarget: {fileID: 1643942553204584291}
+  _elbowHint: {fileID: 7617251048059735792}
+  _isLeftHand: 0
 --- !u!1 &4130932730202783715
 GameObject:
   m_ObjectHideFlags: 0
@@ -726,8 +770,6 @@ Transform:
   m_Children:
   - {fileID: 360743670225142621}
   - {fileID: 7785514953818259889}
-  - {fileID: 5484987610664886806}
-  - {fileID: 8791055353632640704}
   - {fileID: 1051799478431914223}
   - {fileID: 1890546117334866647}
   - {fileID: 5134680547001198473}
@@ -933,6 +975,14 @@ MonoBehaviour:
   _headTarget: {fileID: 360743670225142621}
   _kneeHint: {fileID: 3706368740111528371}
   _bodyTarget: {fileID: 1643942553204584291}
+  _otherFoot: {fileID: 8992500292677929348}
+  _isLeftFoot: 1
+  _footHeightOffset: 0.04
+  _footSpacing: 0.18
+  _footOffset: {x: 0, y: 0, z: 0}
+  _stepDistance: 0.25
+  _stepHeight: 0.15
+  _stepSpeed: 3.5
 --- !u!1 &6598133331303705533
 GameObject:
   m_ObjectHideFlags: 0

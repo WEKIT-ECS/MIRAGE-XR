@@ -21,6 +21,7 @@ namespace MirageXR
 
         private void Update()
         {
+            // move the body into a plausible position based on the head target
             transform.position = _headTarget.position + _headBodyOffset + (_headTarget.rotation * _headPlacementOffset);
             float yaw = _headTarget.eulerAngles.y;
             transform.rotation = Quaternion.Lerp(transform.rotation,
