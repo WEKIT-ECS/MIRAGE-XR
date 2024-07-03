@@ -68,7 +68,7 @@ namespace MirageXR
             try
             {
                 var keys = await ReadOpenIaAuthKeyAsync();
-                _aiClient = new OpenAIClient(new OpenAIAuthentication(keys));
+                _aiClient = new OpenAIClient(new OpenAIAuthentication(keys), new OpenAISettings(new OpenAISettingsInfo()));
             }
             catch (RestException e)
             {
