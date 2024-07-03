@@ -85,8 +85,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - hlversion: 1
-            hlplatform: x86
           - hlversion: 2
             hlplatform: ARM64
     env:
@@ -130,7 +128,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1
+        uses: microsoft/setup-msbuild@v2 # v1
 
       - name: Download WSAPlayer Artifact
         uses: actions/download-artifact@v2

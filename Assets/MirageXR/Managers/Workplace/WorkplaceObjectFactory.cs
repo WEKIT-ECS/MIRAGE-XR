@@ -2,6 +2,7 @@ using i5.Toolkit.Core.ServiceCore;
 using i5.Toolkit.Core.VerboseLogging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -40,13 +41,14 @@ namespace MirageXR
             EventManager.DebugLog($"Workplace manager: {debug} created.");
         }
 
-        public static async Task CreatePlaces<T>(List<T> list, string debug)
+        public static async Task CreatePlaces(List<Place> list, string debug)
         {
             try
             {
                 foreach (var element in list)
                 {
-                    await CreatePlaceObject((Place)(object)element);
+                    var action = RootObject.Instance.activityManager.Activity.actions.FirstOrDefault(t => t.id == element.id);
+                    await CreatePlaceObject(element, action);
                 }
             }
             catch (Exception e)
@@ -131,7 +133,9 @@ namespace MirageXR
                 {
                     // Check for unique object name
                     if (GameObject.Find(thing.id))
+                    {
                         throw new AmbiguousMatchException(thing.id + " id already in use.");
+                    }
 
                     // Create an empty thing object by using the helper function
                     var temp = Utilities.CreateObject(thing.id, workplaceManager.thingContainer);
@@ -154,25 +158,29 @@ namespace MirageXR
                         {
                             // Use the CSV format if available.
                             if (!string.IsNullOrEmpty(poi.offset))
+                            {
                                 poiTemp.transform.localPosition = Utilities.ParseStringToVector3(poi.offset);
+                            }
                         }
 
                         // Parse offset from separate values.
                         else
                         {
-                            poiTemp.transform.localPosition =
-                                new Vector3(poi.x_offset, poi.y_offset, poi.z_offset);
+                            poiTemp.transform.localPosition = new Vector3(poi.x_offset, poi.y_offset, poi.z_offset);
                         }
 
                         if (!string.IsNullOrEmpty(poi.rotation))
+                        {
                             poiTemp.transform.localEulerAngles = Utilities.ParseStringToVector3(poi.rotation);
+                        }
                     }
 
                     // Create default poi if not already defined.
                     if (counter == 0)
                     {
                         var poiTemp = Utilities.CreateObject("default", temp.transform);
-                        await PopulateTaskStation(poiTemp);
+                        var action = RootObject.Instance.activityManager.Activity.actions.FirstOrDefault(t => t.id == thing.id);
+                        await PopulateTaskStation(poiTemp, action);
                     }
 
                     // Add guide line.
@@ -217,14 +225,18 @@ namespace MirageXR
 
                     // Check if there is a sensor attached.
                     if (string.IsNullOrEmpty(thing.sensor))
+                    {
                         continue;
+                    }
 
                     // If sensor attached, go through the sensor container to find a match.
                     foreach (Transform sensor in workplaceManager.sensorContainer)
                     {
                         // Only interested in matching ids...
                         if (sensor.name != thing.sensor)
+                        {
                             continue;
+                        }
 
                         // Check if thing has a sensor poi defined...
                         var sensorPoi = GameObject.Find(thing.id + "/sensor");
@@ -307,7 +319,8 @@ namespace MirageXR
                     if (counter == 0)
                     {
                         var poiTemp = Utilities.CreateObject("default", temp.transform);
-                        await PopulateTaskStation(poiTemp);
+                        var action = RootObject.Instance.activityManager.Activity.actions.FirstOrDefault(t => t.id == person.id);
+                        await PopulateTaskStation(poiTemp, action);
                     }
 
                     // Add guide line.
@@ -550,7 +563,7 @@ namespace MirageXR
             }
         }
 
-        public static async Task CreatePlaceObject(Place place)
+        public static async Task CreatePlaceObject(Place place, Action action)
         {
             // Check for unique object name
             if (GameObject.Find(place.id))
@@ -579,7 +592,7 @@ namespace MirageXR
             if (counter == 0)
             {
                 var poiTemp = Utilities.CreateObject("default", temp.transform);
-                await PopulateTaskStation(poiTemp);
+                await PopulateTaskStation(poiTemp, action);
             }
 
             // Add guide line.
@@ -690,11 +703,14 @@ namespace MirageXR
             return (position, rotation.eulerAngles);
         }
 
-        private static async Task PopulateTaskStation(GameObject parent)
+        private static async Task PopulateTaskStation(GameObject parent, Action action)
         {
             var prefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("PlayerTaskStation");
             var instance = Object.Instantiate(prefab, parent.transform);
 
+            var taskStationEditor = instance.GetComponentInChildren<TaskStationEditor>();
+            taskStationEditor.Init(action);
+            
             //only for the first taskstation in this step move it to the right of the player
             var taskStationPos = RootObject.Instance.activityManager.ActionsOfTypeAction.Count == 0 ? Camera.main.transform.right * offsetFromPlayer : Vector3.zero;
 
