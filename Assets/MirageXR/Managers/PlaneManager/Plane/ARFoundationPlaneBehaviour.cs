@@ -7,19 +7,21 @@ using UnityEngine.XR.ARSubsystems;
 [RequireComponent(typeof(ARPlane), typeof(MeshCollider), typeof(MeshRenderer))]
 public class ARFoundationPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IMixedRealityPointerHandler
 {
-    private static readonly int _textureTintColor = Shader.PropertyToID("_TexTintColor");
-
     private static bool _isActive = false;
     private static bool _isCollidersEnabled = false;
     private static Action<PlaneId, Vector3> _onClicked;
     private static TrackableId _specialPlaneId = TrackableId.invalidId;
 
-    [SerializeField] private Color _colorDefault = new Color(1f, 1f, 1f, 0.7f);
-    [SerializeField] private Color _colorFloor = new Color(0.03f, 1f, 0.09f, 0.7f);
+    [SerializeField] private Material _defaultMaterial;
+    [SerializeField] private Material _selectedMaterial;
+    [SerializeField] private Material _shadowMaterial;
 
     private MeshCollider _meshCollider;
     private MeshRenderer _meshRenderer;
     private ARPlane _arPlane;
+    private readonly Material[] _defaultMaterials = new Material[2];
+    private readonly Material[] _selectedMaterials = new Material[2];
+    private readonly Material[] _shadowOnlyMaterials = new Material[1];
 
     public TrackableId TrackableId => _arPlane != null ? _arPlane.trackableId : TrackableId.invalidId;
 
@@ -41,13 +43,11 @@ public class ARFoundationPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IMixed
 
         if (TrackableId != _specialPlaneId || TrackableId == TrackableId.invalidId)
         {
-            gameObject.SetActive(_isActive);
-            _meshRenderer.material.color = _colorDefault;
+            _meshRenderer.sharedMaterials = _isActive ? _defaultMaterials : _shadowOnlyMaterials;
         }
         else
         {
-            gameObject.SetActive(true);
-            _meshRenderer.material.SetColor(_textureTintColor, _colorFloor);
+            _meshRenderer.sharedMaterials = _selectedMaterials;
         }
     }
 
@@ -56,6 +56,11 @@ public class ARFoundationPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IMixed
         _meshCollider = GetComponent<MeshCollider>();
         _meshRenderer = GetComponent<MeshRenderer>();
         _arPlane = GetComponent<ARPlane>();
+        _defaultMaterials[0] = _defaultMaterial;
+        _defaultMaterials[1] = _shadowMaterial;
+        _selectedMaterials[0] = _selectedMaterial;
+        _selectedMaterials[1] = _shadowMaterial;
+        _shadowOnlyMaterials[0] = _shadowMaterial;
     }
 
     private void Start()
