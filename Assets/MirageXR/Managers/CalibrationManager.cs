@@ -200,6 +200,7 @@ public class CalibrationManager : MonoBehaviour
         //await ApplyCalibrationAsync(_isRecalibration);
         DisableCalibration();
         _onCalibrationFinished.Invoke();
+        //TutorialManager.Instance.InvokeEvent(TutorialManager.TutorialEvent.CALIBRATION_FINISHED);
     }
 
     private void UpdateAnchorPosition(Pose pose)
