@@ -31,13 +31,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1585201990951412}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0.266}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!64 &64925081986755876
 MeshCollider:
@@ -47,9 +47,17 @@ MeshCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1585201990951412}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 4
+  serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
@@ -82,6 +90,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: bb511fd8d9ee69a4796aecdc20c467a2, type: 2}
+  - {fileID: 2100000, guid: 19228e9cf4330474689ba0cb63dffa53, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -155,6 +164,7 @@ SortingGroup:
   m_SortingLayerID: 2030576609
   m_SortingLayer: -1
   m_SortingOrder: 0
+  m_SortAtRoot: 0
 --- !u!114 &-7625037321294548021
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167,5 +177,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4acefc102bad40a4f8b0f8c20fbf5913, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _colorDefault: {r: 1, g: 1, b: 1, a: 0.7}
-  _colorFloor: {r: 0.61130565, g: 0.9056604, b: 0.55108577, a: 0.7}
+  _defaultMaterial: {fileID: 2100000, guid: bb511fd8d9ee69a4796aecdc20c467a2, type: 2}
+  _selectedMaterial: {fileID: 2100000, guid: 761e9f726673cbe4fa36f91fe0cf6135, type: 2}
+  _shadowMaterial: {fileID: 2100000, guid: 19228e9cf4330474689ba0cb63dffa53, type: 2}
