@@ -9,6 +9,9 @@ namespace MirageXR
     /// </summary>
     public class Tutorial3DArrow : TutorialArrow
     {
+        /// <summary>
+        /// Position offset put in case none is provided.
+        /// </summary>
         public static readonly Vector3 DEFAULT_POSITION_OFFSET = Vector3.forward * (-0.02f);
         private GameObject target;
 
@@ -18,7 +21,6 @@ namespace MirageXR
         public override void PointTo(GameObject target, string instructionText,
             Vector3? positionOffset, Vector3? rotationOffset)
         {
-            gameObject.SetActive(true);
             PositionOffset = positionOffset;
             RotationOffset = rotationOffset;
 
@@ -42,6 +44,8 @@ namespace MirageXR
             }
 
             gameObject.GetComponentInChildren<Text>().text = instructionText;
+
+            gameObject.SetActive(true);
         }
 
         public override void Dissapear()
