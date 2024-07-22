@@ -89,6 +89,14 @@ public class SaveLoadAudioUtilities
         return true;
     }
 
+    public static byte[] AudioClipToByteArray(AudioClip audioClip)
+    {
+        using var memoryStream = new MemoryStream();
+        WriteHeader(memoryStream, audioClip);
+        ConvertAndWrite(memoryStream, audioClip);
+        return memoryStream.ToArray();
+    }
+
     private static void ConvertAndWrite(Stream memStream, AudioClip audioClip)
     {
         var samples = new float[audioClip.samples * audioClip.channels];

@@ -37,6 +37,12 @@ public class BottomPanelView : BaseView
     private bool _isFirst = true;
     private bool _isVisible = true;
 
+    public Toggle btnHome => _btnHome;
+    public Toggle btnProfile => _btnProfile;
+    public Toggle btnCreate => _btnCreate;
+    public Toggle btnSearch => _btnSearch;
+    public Toggle btnHelp => _btnHelp;
+
     public virtual void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);

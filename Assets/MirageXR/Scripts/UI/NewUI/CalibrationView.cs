@@ -251,6 +251,8 @@ public class CalibrationView : PopupBase
         await Task.Delay(CLOSE_TIME);
         EventManager.WorkplaceCalibrated();
         Close();
+
+        TutorialManager.Instance.InvokeEvent(TutorialManager.TutorialEvent.CALIBRATION_FINISHED);
     }
 
     private void ResetCalibration()

@@ -106,7 +106,7 @@ public class AppStart : MonoBehaviour
     private static IEnumerator LoadScene()
     {
         var loader = SceneManager.LoadSceneAsync(RootObject.Instance.platformManager.ActivitySelectionScene, LoadSceneMode.Additive);
-        while (!loader.isDone)
+        while (loader is not {isDone: true})
         {
             yield return null;
         }

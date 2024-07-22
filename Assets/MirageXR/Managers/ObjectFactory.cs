@@ -1,9 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using i5.Toolkit.Core.VerboseLogging;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.MixedReality.Toolkit.UI;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -141,15 +143,15 @@ namespace MirageXR
 
                                             DestroyPrefab(obj);
                                         }
-                                        else if (obj.predicate.StartsWith("char:"))
+                                        /*else if (obj.predicate.StartsWith("char:"))
                                         {
-                                            obj.option = obj.predicate.Replace("char:", "");
+                                            //obj.option = obj.predicate.Replace("char:", "");
 
                                             //obj.predicate = "character";
                                             obj.url = "resources:// " + obj.predicate;
 
                                             DestroyPrefab(obj);
-                                        }
+                                        }*/
                                         else if (obj.predicate.StartsWith("plugin:"))
                                         {
                                             DestroyPrefab(obj);
@@ -311,6 +313,25 @@ namespace MirageXR
                                 else
                                     DestroyPrefab(obj);
                                 break;
+                            case "virtualinstructor":
+                                if (isActivating)
+                                {
+                                    VirtualInstructorDataModel dataModel;
+                                    try
+                                    {
+                                        dataModel = JsonConvert.DeserializeObject<VirtualInstructorDataModel>(obj.option);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Debug.LogError(e);
+                                        return;
+                                    }
+                                    var charModel = $"Instructors/{dataModel.CharacterName}_instructor";
+                                    ActivatePrefab(charModel, obj);
+                                }
+                                else
+                                    DestroyPrefab(obj);
+                                break;
                         }
 
                         break;
@@ -354,7 +375,7 @@ namespace MirageXR
                     temp = Instantiate(prefabInAddressable, Vector3.zero, Quaternion.identity);
                     _ = AddExtraComponents(temp, obj);
                 }
-                else
+                /*else
                 {
                     if (obj.predicate.StartsWith("char"))
                     {
@@ -366,7 +387,7 @@ namespace MirageXR
                             loadedAssetBundle.Unload(false);
                         }
                     }
-                }
+                }*/
             }
 
             if (temp == null)
@@ -518,6 +539,20 @@ namespace MirageXR
                     case "pickandplace":
                         {
                             temp = GameObject.Find(path + obj.predicate);
+                            break;
+                        }
+                    case "virtualinstructor":
+                    {
+                            try
+                            {
+                                var data = JsonConvert.DeserializeObject<VirtualInstructorDataModel>(obj.option);
+                                temp = GameObject.Find(path + data.CharacterName);
+                            }
+                            catch (Exception e)
+                            {
+                                Debug.LogError(e);
+                            }
+                            
                             break;
                         }
                     default:

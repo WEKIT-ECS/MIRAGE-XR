@@ -5,7 +5,6 @@ using System.Collections;
 using System.IO;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class AudioEditorView : PopupEditorBase
@@ -279,7 +278,6 @@ public class AudioEditorView : PopupEditorBase
         StopCoroutine(_updateRecordTimerCoroutine);
         
         OnClickRecordComplete();
-        OnOpenAudioSettings();
         _topContainer.SetActive(false);
         _topContainerPlayAudio.SetActive(true);
     }
@@ -289,6 +287,7 @@ public class AudioEditorView : PopupEditorBase
         _panelRecordControls.SetActive(false);
         _panelAudioSettings.SetActive(false);
         _txtTimerTo.text = ToTimeFormatMinutes(_audioClip.length);
+        OnOpenAudioSettings();
     }
 
     private void StartUpdateSliderPlayerAndTimer()
@@ -499,7 +498,6 @@ public class AudioEditorView : PopupEditorBase
                 SetPlayerActive(true);
                 _groupPlayControls.interactable = true;
                 OnClickRecordComplete();
-                OnOpenAudioSettings();
                 _topContainer.SetActive(false);
                 _topContainerPlayAudio.SetActive(true);
             }

@@ -25,7 +25,6 @@ namespace MirageXR
 
         private void Start()
         {
-
             EventManager.OnActivateAction += OnActionActivated;
             EventManager.OnActionDeleted += OnActionDeleted;
             UpdateDisplay();
@@ -76,7 +75,6 @@ namespace MirageXR
             else
             {
                 gameObject.SetActive(false);
-
             }
 
             taskStationRenderer.material.color = taskStationColor;

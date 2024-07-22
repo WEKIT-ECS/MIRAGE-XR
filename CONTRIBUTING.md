@@ -30,7 +30,7 @@ Provide clear commit messages which state exactly what you changed and why you c
 
 Code should be tested by the developer before posting a merge request. The absolut minimum are manual tests in the editor where you use the input simulation of the MRTK to navigate in the application. Preferrably, the feature should also be tested on the target device, too, before creating the merge request. For new features or new code, it would be awesome, if you could already design them with unit tests in mind and create unit tests for your changes. Unit tests speed up the review process. Try to create unit tests during your implementation of a feature since it is difficult to add them to existing code at a later stage.
 
-TIP: Whenever you commit, a GitHub action workflow will execute all edit mode and play mode tests automatically, and list the results as part of the actions output (check the windows workflow or the linux workflow in [this list](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/).
+TIP: Whenever we commit a pull request (PR) onto develop or master, a GitHub action workflow will execute all edit mode and play mode tests automatically, and list the results as part of the actions output (check the windows workflow or the linux workflow in [this list](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/). This can also be called manually, by selecting the desired workflow, and then clicking `run workflow` to run it on the desired branch.
 
 TIP: If the Android build pipeline fails with a signing error (```UnityException: Can not sign the application```), just untick the "custom keystore" checkbox in player publishing settings, and the apk will be signed with an ad hoc development key!
 

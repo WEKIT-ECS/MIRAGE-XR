@@ -9,16 +9,16 @@ public class TutorialMessageView : MonoBehaviour
     [SerializeField] private Button _btnGotIt;
     [SerializeField] private TMP_Text _btnText;
 
-    private Action<TutorialModel> _action;
-    private TutorialModel _model;
+    private Action<TutorialStepModelUI> _action;
+    private TutorialStepModelUI _model;
 
-    public void Initialization(TutorialModel model, Action<TutorialModel> onButtonClicked)
+    public void Initialization(TutorialStepModelUI model, Action<TutorialStepModelUI> onButtonClicked)
     {
         _action = onButtonClicked;
         _model = model;
-        _message.text = model.message;
+        _message.text = model.Message;
         _btnGotIt.onClick.AddListener(OnGotItButtonClicked);
-        _btnText.text = model.btnText;
+        _btnText.text = model.BtnText;
         transform.localPosition = new Vector3(0, GetPositionByY(), 0);
     }
 
@@ -26,15 +26,15 @@ public class TutorialMessageView : MonoBehaviour
     {
         var parentSize = ((RectTransform)transform.parent).rect.size;
         float k;
-        switch (_model.position)
+        switch (_model.Position)
         {
-            case TutorialModel.MessagePosition.Top:
+            case TutorialStepModelUI.MessagePosition.Top:
                 k = 0.3f;
                 break;
-            case TutorialModel.MessagePosition.Middle:
+            case TutorialStepModelUI.MessagePosition.Middle:
                 k = 0f;
                 break;
-            case TutorialModel.MessagePosition.Bottom:
+            case TutorialStepModelUI.MessagePosition.Bottom:
                 k = -0.3f;
                 break;
             default:

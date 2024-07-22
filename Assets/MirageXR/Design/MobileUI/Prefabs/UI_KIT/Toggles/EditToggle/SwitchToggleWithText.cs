@@ -2,8 +2,8 @@
 
 public class SwitchToggleWithText : SwitchToggle
 {
-    [SerializeField] private GameObject _textOff;
-    [SerializeField] private GameObject _textOn;
+    [SerializeField] protected GameObject _textOff;
+    [SerializeField] protected GameObject _textOn;
 
     protected override void UpdateView(bool value)
     {
