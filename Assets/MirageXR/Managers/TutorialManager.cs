@@ -573,5 +573,10 @@ namespace MirageXR
 
             return false;
         }
+
+        public void StartAugmentationTutorial(ContentType contentType)
+        {
+            Debug.LogDebug("Starting Augmentation Tutorial");
+        }
     }
 }
