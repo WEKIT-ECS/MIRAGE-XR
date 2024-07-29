@@ -18,17 +18,18 @@ namespace DataModel
     [Serializable]
     public class Activity : DataModel
     {
-        [JsonProperty] public User Owner { get; set; }
+        [JsonProperty] public User Creator { get; set; }
         [JsonProperty] public string Name { get; set; }
         [JsonProperty] public string Description { get; set; }
         [JsonProperty] public string Language { get; set; } //is it needed?
         [JsonProperty] public File Thumbnail { get; set; }
-        [JsonProperty] public Hierarchy Hierarchy { get; set; }
-        [JsonProperty] public List<Content> Content { get; set; } //todo
+        [JsonProperty] public StepHierarchy Hierarchy { get; set; }
+        [JsonProperty] public List<Content> Content { get; set; }
+        [JsonProperty] public List<ActivityStep> Steps { get; set; }
     }
 
     [Serializable]
-    public class Hierarchy
+    public class StepHierarchy
     {
         [JsonProperty] public List<HierarchyItem> Item { get; set; }
     }
@@ -51,16 +52,10 @@ namespace DataModel
         [JsonProperty] public List<Guid> Contents { get; set; } //Content.Id
         [JsonProperty] public Location Location { get; set; }
         [JsonProperty] public List<Trigger>? Triggers { get; set; } // cannot be null?
-        [JsonProperty] public Comments Comments { get; set; }
-        [JsonProperty] public RequiredTools RequiredTools { get; set; }
-        [JsonProperty] public Media Media { get; set; }
-        [JsonProperty] public Comments PrivateNotes { get; set; }
-    }
-
-    [Serializable]
-    public class Comments
-    {
-        [JsonProperty] public List<Comment> Note { get; set; }
+        [JsonProperty] public List<Comment> Comments { get; set; }
+        [JsonProperty] public List<RequiredToolsPartsMaterial> RequiredToolsPartsMaterials { get; set; }
+        [JsonProperty] public List<File>? Attachment { get; set; }
+        [JsonProperty] public List<Comment> PrivateNotes { get; set; }
     }
 
     [Serializable]
@@ -68,19 +63,14 @@ namespace DataModel
     {
         [JsonProperty] public User User { get; set; }
         [JsonProperty] public string Text { get; set; }
-        [JsonProperty] public Media? Attachment { get; set; }
+        [JsonProperty] public List<File>? Attachment { get; set; }
     }
 
-    [Serializable]
-    public class Media
-    {
-        [JsonProperty] public List<File> File { get; set; } //one or many?
-    }
 
     [Serializable]
-    public class RequiredTools
+    public class RequiredToolsPartsMaterial
     {
-        [JsonProperty] public List<string> Tools { get; set; }
+        [JsonProperty] public string ToolPartMaterial { get; set; }
     }
 
     [Serializable]
@@ -148,30 +138,39 @@ namespace DataModel
         [JsonProperty] public T ContentData { get; set; }
     }
 
+    [Serializable]
     public class Trigger    //todo
     {
         [JsonProperty] public TriggerType Type { get; set; }
         [JsonProperty] public Guid StepId { get; set; } // step.id
         [JsonProperty] public string Event { get; set; } // string needs to be eval’d
         [JsonProperty] public string PromptInjectionText { get; set; } // What text to drop to the AI conversation when the trigger is triggered (e.g. “I pick the Banana”, “I have done that”)
+        [JsonProperty] public string SensorChannel { get; set; }
+        [JsonProperty] public string SensorVariable { get; set; }
+        [JsonProperty] public string SensorVariableType { get; set; }
+        [JsonProperty] public string SensorExpectedValue { get; set; }
+        [JsonProperty] public string SensorEvalOperator { get; set; } // "exceed", "below", "equal", "between" - or ">", "", "=", "[x;y]"
     }
 
+    [Serializable]
     public enum TriggerType     //todo
     {
         Unknown = -1,
-        Next = 1,
+        Click = 1,
         Sensor = 2,
         Detect = 3,
-        Interaction = 4 // maybe? From improved pick&place, that uses events to advance?
+        Event = 4 // maybe? From improved pick&place, that uses events to advance?
         //todo
     }
 
+    [Serializable]
     public class ContentData
     {
         [JsonProperty] public List<Trigger> Triggers { get; set; }
         [JsonProperty] public List<TriggerType> AvailableTriggers { get; set; }
     }
 
+    [Serializable]
     public class Location
     {
         [JsonProperty] public Vector3 Position { get; set; }
@@ -180,6 +179,7 @@ namespace DataModel
         [JsonProperty] public TargetMarker? TargetMarker { get; set; } //can be null
     }
 
+    [Serializable]
     public class TargetMarker
     {
         [JsonProperty] public File Image { get; set; }
