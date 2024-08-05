@@ -33,10 +33,24 @@ public class VirtualInstructorView : PopupEditorBase
     [Header("Tabs")] 
     [SerializeField] private GameObject _charactersTab;
     [SerializeField] private GameObject _libraryTab;
-    
+
+    /// <summary>
+    /// Represents the prompt a for the Virtual Instructor.
+    /// </summary>
     private string _aiPromptData = "Enter text";
+
+    /// <summary>
+    /// Represents the tts model a for the Virtual Instructor.
+    /// </summary>
     private AIModel _tts;
+
+    /// <summary>
+    /// Represents an LLM/RAG model for the AiServices.
+    /// </summary>
     private AIModel _llm;
+    /// <summary>
+    /// Represents the stt model a for the Virtual Instructor.
+    /// </summary>
     private AIModel _stt;
 
     [Header("Settings panel")] [SerializeField]
@@ -176,20 +190,33 @@ public class VirtualInstructorView : PopupEditorBase
             ("AI", () => AIhSelected(), false, false));*/
     }
 
+    /// <summary>
+    /// Sets the prompt for the VirtualInstructor.
+    /// </summary>
     public void SetPrompt(String str)
     {
         _aiPromptData = str; 
     }
-    
+
+    /// <summary>
+    /// Sets the TTS model for the VirtualInstructor.
+    /// </summary>
     public void SetTTS(AIModel tTSModel)
     {
         _tts = tTSModel; 
     }
+
+    /// <summary>
+    /// Sets the LLM / RAG for the VirtualInstructor.
+    /// </summary>
     public void SetLLM(AIModel lLMModel)
     {
         _llm = lLMModel; 
     }
-    
+
+    /// <summary>
+    /// Sets the STT AI model for the VirtualInstructor.
+    /// </summary>
     public void SetSTT(AIModel sTTModel)
     {
         _stt = sTTModel; 

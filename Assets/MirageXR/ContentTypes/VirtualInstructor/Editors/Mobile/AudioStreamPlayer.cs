@@ -109,6 +109,9 @@ public class AudioStreamPlayer : MonoBehaviour
         
     }
 
+    /// <summary>
+    /// Pauses the audio stream player by stopping the audio source.
+    /// </summary>
     private void PauseAudio()
     {
         _audioSource.Stop();

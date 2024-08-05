@@ -89,6 +89,11 @@ public class SaveLoadAudioUtilities
         return true;
     }
 
+    /// <summary>
+    /// Converts an <see cref="AudioClip"/> to a byte array.
+    /// </summary>
+    /// <param name="audioClip">The audio clip to convert.</param>
+    /// <returns>A byte array representing the audio clip.</returns>
     public static byte[] AudioClipToByteArray(AudioClip audioClip)
     {
         using var memoryStream = new MemoryStream();
