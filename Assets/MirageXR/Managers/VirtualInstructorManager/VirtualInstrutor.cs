@@ -9,23 +9,24 @@ namespace MirageXR
     /// Represents a virtual instructor that provides language-based assistance.
     /// </summary>
     public class VirtualInstructor : MirageXRPrefab
-    {
+    {   
+        /// <summary>
+        /// Hardcoded temporally hardcoded variable of the VI. Temporary solution 
+        /// </summary>
         private const float CharacterHeight = 1.8f;
+        [SerializeField] private ToggleObject _toggleObject;
+        private Animator _animator;
+        
         /// <summary>
         /// Represents the format for displaying the history of a conversation.
         /// </summary>
         private static readonly string HistoryFormat = "This is the History of the conversation so fare: Question :{0} Given answer: {1}";
-
+        
+        /// <summary>
         /// Represents the data model for a virtual instructor in the MirageXR application.
         /// </summary>
-        /// <remarks>
-        /// The InstructorData class stores information about the language models and prompts used by the virtual instructor.
-        /// </remarks>
         private VirtualInstructorDataModel InstructorData { get; set; }
-
-        [SerializeField] private ToggleObject _toggleObject;
-        private Animator _animator;
-
+        
         /// <summary>
         /// Represents the history of a conversation with the VirtualInstructor.
         /// This variable keeps track of the conversation history between the user and the VirtualInstructor.
@@ -33,6 +34,11 @@ namespace MirageXR
         /// </summary>
         private string _history;
 
+        /// <summary>
+        /// Initializes the VirtualInstructor by setting the animator, toggleObject, and instructor data.
+        /// </summary>
+        /// <param name="toggleObject">The ToggleObject used to initialize the VirtualInstructor.</param>
+        /// <returns>Returns true if initialization was successful; otherwise, returns false.</returns>
         public override bool Init(ToggleObject toggleObject)
         {
             _animator = GetComponentInChildren<Animator>();
@@ -81,6 +87,9 @@ namespace MirageXR
             return base.Init(toggleObject);
         }
 
+        /// <summary>
+        /// Plays the specified animation clip on the VirtualInstructor.
+        /// </summary>
         private void PlayAnimationClip(string clipName)     //temp
         {
             if (_animator != null)
