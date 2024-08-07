@@ -53,7 +53,7 @@ namespace DataModel
         [JsonProperty] public Location Location { get; set; }
         [JsonProperty] public List<Trigger>? Triggers { get; set; } // cannot be null?
         [JsonProperty] public List<Comment> Comments { get; set; }
-        [JsonProperty] public List<RequiredToolsPartsMaterial> RequiredToolsPartsMaterials { get; set; }
+        [JsonProperty] public List<RequiredToolsPartsMaterials> RequiredToolsPartsMaterials { get; set; }
         [JsonProperty] public List<File>? Attachment { get; set; }
         [JsonProperty] public List<Comment> PrivateNotes { get; set; }
     }
@@ -68,7 +68,7 @@ namespace DataModel
 
 
     [Serializable]
-    public class RequiredToolsPartsMaterial
+    public class RequiredToolsPartsMaterials
     {
         [JsonProperty] public string ToolPartMaterial { get; set; }
     }
