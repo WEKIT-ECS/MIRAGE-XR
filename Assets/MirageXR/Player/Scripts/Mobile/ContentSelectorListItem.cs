@@ -19,6 +19,7 @@ public class ContentSelectorListItem : MonoBehaviour
         _type = type;
         _btnMain.onClick.AddListener(() => onSelected(_type));
         _btnHint.onClick.AddListener(() => onHintClick(_type));
+        _btnTutorial.onClick.AddListener(() => onSelected(_type)); // Augmentation tutorials start as if clicked
         _btnTutorial.onClick.AddListener(() => TutorialManager.Instance.StartAugmentationTutorial(type));
         UpdateView();
     }
