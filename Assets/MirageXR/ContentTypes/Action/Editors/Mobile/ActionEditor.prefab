@@ -399,6 +399,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3802461623017161759}
   - component: {fileID: 5034026291239284275}
+  - component: {fileID: 1334817338117206256}
   m_Layer: 5
   m_Name: PanelGazeDuration
   m_TagString: Untagged
@@ -447,6 +448,23 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &1334817338117206256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1864338816220733172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _getIdFromName: 0
+  _id: augmentation_gazeduration
+  _interactableObject: {fileID: 6310831315824676199}
+  _isPartOfScrollView: 0
+  _delay: 0
 --- !u!1 &2567044415428799768
 GameObject:
   m_ObjectHideFlags: 0
@@ -1694,6 +1712,7 @@ GameObject:
   m_Component:
   - component: {fileID: 591057647206023464}
   - component: {fileID: 6170460301980219635}
+  - component: {fileID: 1780760801775345919}
   m_Layer: 5
   m_Name: GazeTriggerToggle
   m_TagString: Untagged
@@ -1742,6 +1761,23 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &1780760801775345919
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6448219877625679358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _getIdFromName: 0
+  _id: augmentation_gazetoggle
+  _interactableObject: {fileID: 1067497384473715754}
+  _isPartOfScrollView: 0
+  _delay: 0
 --- !u!1 &6495288338383876845
 GameObject:
   m_ObjectHideFlags: 0
@@ -2756,8 +2792,35 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2185933413058721460, guid: 8f9f047aceb85df44af9064409a8647c,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 707241444164465653}
   m_SourcePrefab: {fileID: 100100000, guid: 8f9f047aceb85df44af9064409a8647c, type: 3}
+--- !u!1 &1648083389219664607 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2185933413058721460, guid: 8f9f047aceb85df44af9064409a8647c,
+    type: 3}
+  m_PrefabInstance: {fileID: 615539353030837355}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &707241444164465653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1648083389219664607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _getIdFromName: 0
+  _id: augmentation_accept
+  _interactableObject: {fileID: 1648083389219664607}
+  _isPartOfScrollView: 0
+  _delay: 0
 --- !u!224 &7107882064599119305 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7651212056609272226, guid: 8f9f047aceb85df44af9064409a8647c,
@@ -2770,7 +2833,7 @@ MonoBehaviour:
     type: 3}
   m_PrefabInstance: {fileID: 615539353030837355}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1648083389219664607}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
@@ -3505,7 +3568,7 @@ MonoBehaviour:
     type: 3}
   m_PrefabInstance: {fileID: 5716788757831059971}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 6310831315824676199}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
@@ -3514,6 +3577,12 @@ MonoBehaviour:
 --- !u!224 &5437557974274015147 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 297249932300416424, guid: 610be676db076564e9f1b7757efd4b15,
+    type: 3}
+  m_PrefabInstance: {fileID: 5716788757831059971}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &6310831315824676199 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1784145303441737572, guid: 610be676db076564e9f1b7757efd4b15,
     type: 3}
   m_PrefabInstance: {fileID: 5716788757831059971}
   m_PrefabAsset: {fileID: 0}
@@ -3931,12 +4000,18 @@ MonoBehaviour:
     type: 3}
   m_PrefabInstance: {fileID: 7082442746855829666}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1067497384473715754}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1067497384473715754 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7825399147096495240, guid: 2d5259a1589303e46990babb5e689f37,
+    type: 3}
+  m_PrefabInstance: {fileID: 7082442746855829666}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &5057968627365150794 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2627964235497976040, guid: 2d5259a1589303e46990babb5e689f37,
@@ -4404,6 +4479,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 7871164253090937410}
+    - targetCorrespondingSourceObject: {fileID: 3292675939213960065, guid: 306a3158d8129154789f82f75c313c69,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 610358380004816543}
   m_SourcePrefab: {fileID: 100100000, guid: 306a3158d8129154789f82f75c313c69, type: 3}
 --- !u!114 &2479150800511368539 stripped
 MonoBehaviour:
@@ -4443,6 +4522,23 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &610358380004816543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4946163820521985069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _getIdFromName: 0
+  _id: augmentation_jumptostep
+  _interactableObject: {fileID: 4946163820521985069}
+  _isPartOfScrollView: 0
+  _delay: 0
 --- !u!224 &8996872611347431922 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1571454330773894750, guid: 306a3158d8129154789f82f75c313c69,

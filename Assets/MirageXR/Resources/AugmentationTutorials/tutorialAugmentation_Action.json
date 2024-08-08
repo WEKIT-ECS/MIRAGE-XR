@@ -3,43 +3,30 @@
     "IntendedPlatform": "Mobile",
     "Steps": [
         {
+            "DelayInMilliseconds": 100.0,
             "StepType": "UI",
-            "Id": "",
-            "Message": "Action augmentations are glyphs that serve as a point of interaction or highlighting. Let's try and create one.",
-            "Position": "Bottom",
-            "BtnText": "Cancel"
-        },
-        {
-            "StepType": "UI",
-            "Id": "",
-            "Message": "First, we need to select what the glyph is going to look like. Let's go with the Highlighting glyph.",
+            "Id": "augmentation_ Highlight",
+            "Message": "Action augmentations are glyphs that serve as a point of interaction or highlighting. Let's try and create one. First, we need to select what the glyph is going to look like. Let's go with the Highlighting glyph",
             "Position": "Top",
             "BtnText": "Cancel"
         },
         {
             "StepType": "UI",
-            "Id": "",
+            "Id": "augmentation_gazetoggle",
             "Message": "The main way users can interact with the glyph is by looking into it, gazing. Here you can turn interaction on or off. Let's keep it on for now.",
             "Position": "Bottom",
             "BtnText": "Next"
         },
         {
             "StepType": "UI",
-            "Id": "",
+            "Id": "augmentation_gazeduration",
             "Message": "Here we select how long the user needs to look at the glyph for it to trigger.",
             "Position": "Bottom",
             "BtnText": "Next"
         },
         {
             "StepType": "UI",
-            "Id": "",
-            "Message": "Here you can select what happens when the user triggers the glyph. You can select which Action Step you want to jump to.",
-            "Position": "Top",
-            "BtnText": "Next"
-        },
-        {
-            "StepType": "UI",
-            "Id": "",
+            "Id": "augmentation_accept",
             "Message": "Let's load the glyph into the scene. To do that, just click the Accept button below.",
             "Position": "Top",
             "BtnText": "Cancel"
@@ -52,9 +39,9 @@
             "BtnText": "Cancel"
         },
         {
-            "DelayInMilliseconds": 500.0,
+            "DelayInMilliseconds": 100.0,
             "StepType": "World",
-            "FocusObject": "AN-867c133b-2d2d-4f89-b170-b2838766ff09",
+            "FocusObject": "<<LAST_AUGMENTATION_CREATED>>",
             "ActualTarget": "act:Highlight",
             "Message": "This is the augmentation we just created. You can now hold the middle of it to reposition it, or hold its edges to change its size and rotation. That's it!",
             "FinishEvent": "ACTION_STEP_ACTIVATED",

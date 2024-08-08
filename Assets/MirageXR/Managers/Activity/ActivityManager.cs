@@ -1,4 +1,5 @@
 ﻿using i5.Toolkit.Core.VerboseLogging;
+using NSubstitute.Core;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -915,6 +916,12 @@ namespace MirageXR
         public void CloneActivity()
         {
             GenerateNewId(true);
+        }
+
+        public string GetLastCreatedAugmentationId()
+        {
+            ToggleObject lastAug = ActiveAction.enter.activates.Last();
+            return lastAug.id;
         }
     }
 }
