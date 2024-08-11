@@ -59,7 +59,7 @@ namespace MirageXR
         //for temporary check of change
         private string _termOfUseData;
 
-        [MenuItem("Brand Manager/Settings")]
+        [MenuItem("MirageXR/Brand Manager/Settings")]
         private static void Init()
         {
             var window = GetWindow<BrandConfiguration>();
