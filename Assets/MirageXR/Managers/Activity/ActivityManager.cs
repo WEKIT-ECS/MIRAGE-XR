@@ -284,6 +284,7 @@ namespace MirageXR
                     }
 
                     await ActivateAction(action);
+                    TutorialManager.Instance.InvokeEvent(TutorialManager.TutorialEvent.ACTION_STEP_ACTIVATED);
                 }
             }
             catch (Exception e)
