@@ -51,7 +51,7 @@ namespace MirageXR
             var bytes = SaveLoadAudioUtilities.AudioClipToByteArray(audioClip);
             var fromData = new WWWForm();
             fromData.AddField("model", model);
-            fromData.AddBinaryData("message", bytes);
+            fromData.AddBinaryData("message", bytes, "audio.wav", "audio/wav");
 
             using var webRequest = UnityWebRequest.Post(apiURL, fromData);
             webRequest.SetRequestHeader("Authorization", $"Token {token}");
@@ -165,7 +165,7 @@ namespace MirageXR
         {
             if (string.IsNullOrEmpty(message))
             {
-                throw new ArgumentException("speakOut is null");
+                throw new ArgumentException("message is null");
             }
 
             if (string.IsNullOrEmpty(model))
