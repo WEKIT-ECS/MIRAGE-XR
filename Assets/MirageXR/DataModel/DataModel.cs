@@ -19,6 +19,7 @@ namespace DataModel
     public class Activity : DataModel
     {
         [JsonProperty] public User Creator { get; set; }
+        [JsonProperty] public List<User> Contributors { get; set; }
         [JsonProperty] public string Name { get; set; }
         [JsonProperty] public string Description { get; set; }
         [JsonProperty] public string Language { get; set; } //is it needed?
@@ -46,7 +47,6 @@ namespace DataModel
     [Serializable]
     public class ActivityStep : DataModel
     {
-        [JsonProperty] public uint Order { get; set; } //or it can be based on Activity.Steps?
         [JsonProperty] public string Name { get; set; }
         [JsonProperty] public string Description { get; set; }
         [JsonProperty] public List<Guid> Contents { get; set; } //Content.Id
@@ -142,8 +142,12 @@ namespace DataModel
     public class Trigger    //todo
     {
         [JsonProperty] public TriggerType Type { get; set; }
-        [JsonProperty] public Guid StepId { get; set; } // step.id
-        [JsonProperty] public string Event { get; set; } // string needs to be eval’d
+        [JsonProperty] public Guid? JumpToStepId { get; set; } // step.id
+        [JsonProperty] public Guid ContentId { get; set; } // step.id
+        [JsonProperty] public string InputEvent { get; set; } // string needs to be eval’d
+        [JsonProperty] public string OutputEvent { get; set; }
+        [JsonProperty] public string OutputEventParameter { get; set; }
+        [JsonProperty] public string OutputEventParameterValue { get; set; }
         [JsonProperty] public string PromptInjectionText { get; set; } // What text to drop to the AI conversation when the trigger is triggered (e.g. “I pick the Banana”, “I have done that”)
         [JsonProperty] public string SensorChannel { get; set; }
         [JsonProperty] public string SensorVariable { get; set; }
@@ -159,7 +163,8 @@ namespace DataModel
         Click = 1,
         Sensor = 2,
         Detect = 3,
-        Event = 4 // maybe? From improved pick&place, that uses events to advance?
+        Event = 4, // maybe? From improved pick&place, that uses events to advance?
+        Proximity = 5
         //todo
     }
 
