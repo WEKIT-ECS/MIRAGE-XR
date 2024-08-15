@@ -336,6 +336,7 @@ namespace MirageXR
             if (_currentTutorial != null)
             {
                 // TODO: Perhaps indicate to the user that a tutorial is already running
+                ExitTutorial(TutorialExitCode.USER_EXIT);
                 return;
             }
 
