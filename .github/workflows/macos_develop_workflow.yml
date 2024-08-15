@@ -1,4 +1,4 @@
-name: Linux Develop Workflow (Unit tests and Android build)
+name: MacOs Develop Workflow (Unit tests and iOS build)
 on:
   workflow_dispatch:
   schedule:
@@ -126,7 +126,7 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
-          targetPlatform: Android
+          targetPlatform: iOS
           unityVersion: 2022.3.7f1
           versioning: Semantic
           # dirty build needed to include generated Watson credentials
@@ -142,7 +142,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: Android
+          name: iOS
           path: build
           retention-days: 3
           if-no-files-found: error
