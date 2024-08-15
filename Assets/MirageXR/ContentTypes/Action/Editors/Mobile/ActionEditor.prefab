@@ -1149,6 +1149,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8873940294371081886}
   - component: {fileID: 4259191435130166865}
+  - component: {fileID: 275045069011525242}
   m_Layer: 5
   m_Name: BottomButtonsPanel
   m_TagString: Untagged
@@ -1202,6 +1203,23 @@ MonoBehaviour:
   m_ChildScaleWidth: 1
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &275045069011525242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3640164302138082561}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _getIdFromName: 0
+  _id: augmentation_accept
+  _interactableObject: {fileID: 1648083389219664607}
+  _isPartOfScrollView: 0
+  _delay: 0
 --- !u!1 &3791053032009570300
 GameObject:
   m_ObjectHideFlags: 0
@@ -2792,11 +2810,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 2185933413058721460, guid: 8f9f047aceb85df44af9064409a8647c,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 707241444164465653}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8f9f047aceb85df44af9064409a8647c, type: 3}
 --- !u!1 &1648083389219664607 stripped
 GameObject:
@@ -2804,23 +2818,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 615539353030837355}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &707241444164465653
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1648083389219664607}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _getIdFromName: 0
-  _id: augmentation_accept
-  _interactableObject: {fileID: 1648083389219664607}
-  _isPartOfScrollView: 0
-  _delay: 0
 --- !u!224 &7107882064599119305 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7651212056609272226, guid: 8f9f047aceb85df44af9064409a8647c,

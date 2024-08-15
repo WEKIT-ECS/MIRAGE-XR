@@ -191,8 +191,17 @@ public class TutorialHandlerUI : MonoBehaviour
             }
         }
         Hide();
-        // If being used in a mixed tutorial, close the calling tutorial step
-        TutorialManager.Instance.InvokeEvent(TutorialManager.TutorialEvent.UI_GOT_IT);
+
+        // TODO: When two sepparate buttons exist for Next and Cancel, this should be changed
+        if (model.CanGoNext)
+        {
+            Next();
+        }
+        else
+        {
+            // If being used in a mixed tutorial, close the calling tutorial step
+            TutorialManager.Instance.InvokeEvent(TutorialManager.TutorialEvent.UI_GOT_IT);
+        }
         Debug.LogDebug("Hiding tutorial because of Skip");
     }
 
