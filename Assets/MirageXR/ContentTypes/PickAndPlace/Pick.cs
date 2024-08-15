@@ -171,6 +171,7 @@ namespace MirageXR
             }
 
             EventManager.NotifyOnPickPlacedCorrectly();
+            TutorialManager.Instance.InvokeEvent(TutorialManager.TutorialEvent.PICK_AND_PLACED);
         }
 
         private void PlayAudio(AudioClip clip)

@@ -28,7 +28,9 @@ public class TaskStationEditor : MonoBehaviour
         _objectManipulator.OnManipulationEnded.AddListener(OnManipulationEnded);
         _action = action;
 
-        var detectableId = _action.id.Replace("TS-", "WA-");
+        var id = _action == null ? transform.parent.parent.name : _action.id;
+        
+        var detectableId = id.Replace("TS-", "WA-");
         _detectable = RootObject.Instance.workplaceManager.GetDetectable(detectableId);
         _objectManipulator.HostTransform = GameObject.Find(_detectable.id).transform;
 
@@ -56,7 +58,7 @@ public class TaskStationEditor : MonoBehaviour
 
     private void UpdateView()
     {
-        _meshRenderer.enabled = _action.isDiamondVisible ?? true;
+        _meshRenderer.enabled = _action?.isDiamondVisible ?? true;
     }
 
     public void OnVisibilityChanged(bool value)
