@@ -160,11 +160,13 @@ public class ProfileView : PopupBase
     {
         var isWekitSelected = DBManager.domain == DBManager.WEKIT_URL;
         var isAreteSelected = DBManager.domain == DBManager.ARETE_URL;
+        var isCarateSelected = DBManager.domain == DBManager.CARATE_URL;
 
         RootView_v2.Instance.dialog.ShowBottomMultilineToggles("Moodle servers:",
             (DBManager.WEKIT_URL, () => ChangeServerAndPrivacyPolicyDomain(DBManager.WEKIT_URL, DBManager.WEKIT_PRIVACY_POLICY_URL), false, isWekitSelected),
+            (DBManager.CARATE_URL, () => ChangeServerAndPrivacyPolicyDomain(DBManager.CARATE_URL, DBManager.CARATE_PRIVACY_POLICY_URL), false, isCarateSelected),
             (DBManager.ARETE_URL, () => ChangeServerAndPrivacyPolicyDomain(DBManager.ARETE_URL, DBManager.ARETE_PRIVACY_POLICY_URL), false, isAreteSelected),
-            (CUSTOM_SERVER_TEXT, ShowServerPanel, false, !(isWekitSelected || isAreteSelected)));
+            (CUSTOM_SERVER_TEXT, ShowServerPanel, false, !(isWekitSelected || isAreteSelected || isCarateSelected)));
     }
 
     private void ShowServerPanel()
@@ -232,9 +234,10 @@ public class ProfileView : PopupBase
     {
         var isWekitSelected = DBManager.domain == DBManager.WEKIT_URL;
         var isAreteSelected = DBManager.domain == DBManager.ARETE_URL;
+        var isCarateSelected = DBManager.domain == DBManager.CARATE_URL;
 
         var setActive = !string.IsNullOrEmpty(DBManager.privacyPolicyDomain) &&
-                (isWekitSelected || isAreteSelected);
+                (isWekitSelected || isAreteSelected || isCarateSelected);
         _btnPrivacyPolicy.gameObject.SetActive(setActive);
 
     }
