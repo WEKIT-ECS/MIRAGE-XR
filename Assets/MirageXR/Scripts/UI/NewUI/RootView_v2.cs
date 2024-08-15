@@ -20,7 +20,7 @@ public class RootView_v2 : BaseView
     [SerializeField] private ViewCamera _viewCamera;
     [Space]
     [SerializeField] private Dialog _dialog;
-    [SerializeField] private TutorialUI _tutorial;
+    [SerializeField] private TutorialHandlerUI _tutorial;
 
     public enum HelpPage
     {
@@ -45,7 +45,7 @@ public class RootView_v2 : BaseView
 
     public Dialog dialog => _dialog;
 
-    public TutorialUI Tutorial => _tutorial;
+    public TutorialHandlerUI Tutorial => _tutorial;
 
     public ViewCamera viewCamera => _viewCamera;
 
