@@ -75,7 +75,7 @@ public class TaskStationEditor : MonoBehaviour
         if (_mTaskStationNumberTag != null)
         {
             _mTaskStationNumberTag.SetActive(_action?.isDiamondVisible ?? true);
-            Debug.LogInfo("[tse] visibility of number plate updated");
+            // Debug.LogInfo("[tse] visibility of number plate updated");
         }
     }
 
@@ -91,7 +91,7 @@ public class TaskStationEditor : MonoBehaviour
         _meshRenderer.enabled = value;
         if (_mTaskStationNumberTag != null)
         {
-            Debug.LogInfo("[tse] visibility of number plate changed");
+            // Debug.LogInfo("[tse] visibility of number plate changed");
             _mTaskStationNumberTag.SetActive(value);
         }
         activityManager.SaveData();
