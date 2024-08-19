@@ -130,13 +130,13 @@ namespace MirageXR
         private const bool SNAP_TO_GRID_DEFAULT = true;
 
         private const string GRID_CELL_WIDTH_KEY = "grid_cell_width";
-        private const float GRID_CELL_WIDTH_DEFAULT = 10f;
+        private const float GRID_CELL_WIDTH_DEFAULT = 1f;
 
         private const string GRID_ANGLE_STEP_KEY = "grid_angle_step";
-        private const float GRID_ANGLE_STEP_DEFAULT = 10f;
+        private const float GRID_ANGLE_STEP_DEFAULT = 5f;
 
         private const string GRID_SCALE_STEP_KEY = "grid_scale_step";
-        private const float GRID_SCALE_STEP_DEFAULT = 10f;
+        private const float GRID_SCALE_STEP_DEFAULT = 5f;
 
         private const string GRID_SHOW_ORIGINAL_OBJECT_KEY = "grid_show_original_object";
         private const bool GRID_SHOW_ORIGINAL_OBJECT_DEFAULT = false;

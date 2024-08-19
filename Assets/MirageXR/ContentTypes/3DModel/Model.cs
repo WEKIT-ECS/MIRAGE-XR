@@ -277,6 +277,9 @@ namespace MirageXR
                     gridManager.onTranslateStopped?.Invoke(boundsControl.Target);
                     poiEditor.OnChanged();
                 });
+            } else
+            {
+                Debug.LogWarning("[Model] Could not find boundary box control of the model.");
             }
             /*
             */
