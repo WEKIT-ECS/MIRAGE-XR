@@ -70,18 +70,15 @@ public class TaskStationEditor : MonoBehaviour
 
     private void UpdateView()
     {
-        Debug.LogInfo("[tse] update view");
         _meshRenderer.enabled = _action?.isDiamondVisible ?? true;
         if (_mTaskStationNumberTag != null)
         {
             _mTaskStationNumberTag.SetActive(_action?.isDiamondVisible ?? true);
-            // Debug.LogInfo("[tse] visibility of number plate updated");
         }
     }
 
     public void OnVisibilityChanged(bool value)
     {
-        Debug.LogInfo("[tse] visibility changed");
         if (_action == null)
         {
             return;
@@ -91,7 +88,6 @@ public class TaskStationEditor : MonoBehaviour
         _meshRenderer.enabled = value;
         if (_mTaskStationNumberTag != null)
         {
-            // Debug.LogInfo("[tse] visibility of number plate changed");
             _mTaskStationNumberTag.SetActive(value);
         }
         activityManager.SaveData();
