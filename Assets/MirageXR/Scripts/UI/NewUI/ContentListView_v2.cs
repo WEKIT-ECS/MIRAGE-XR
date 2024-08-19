@@ -94,7 +94,6 @@ public class ContentListView_v2 : BaseView
 
     private void OnDiamondVisibilityChanged(bool value)
     {
-        Debug.Log("diamond visibility toggle value has changed.");
         var taskStation = GameObject.Find(activityManager.ActiveAction.id); //temp
         if (taskStation != null)
         {
