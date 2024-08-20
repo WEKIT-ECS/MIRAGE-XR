@@ -49,6 +49,17 @@ namespace MirageXR
         /// </summary>
         private AIModel _languageData;
 
+        /// <summary>
+        /// Starts the SpeechSettings by setting default values.
+        /// </summary>
+        public void Start()
+        {
+            UpdateModel(RootObject.Instance.aiManager.GetLlmModels()[0]);
+            UpdateLanguage(RootObject.Instance.aiManager.GetSttModels()[0]);
+            UpdateVoice(RootObject.Instance.aiManager.GetTtsModels()[0]);
+            
+        }
+
 
         /// <summary>
         /// Updates the AI prompt with the provided new string.
