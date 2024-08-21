@@ -53,7 +53,8 @@ namespace MirageXR
             UI_GOT_IT,
             CALIBRATION_FINISHED,
             ACTION_STEP_ACTIVATED,
-            PICK_AND_PLACED
+            PICK_AND_PLACED,
+            GHOST_REPLAYED
         }
 
         public enum TutorialExitCode
@@ -572,7 +573,7 @@ namespace MirageXR
 
         public void StartAugmentationTutorial(ContentType contentType)
         {
-            Debug.LogDebug("Starting Augmentation Tutorial");
+            Debug.LogDebug("Starting Augmentation Tutorial: " + contentType.GetName());
             NewStartTutorial(TutorialType.MOBILE_AUGMENTATION, contentType.GetName());
 
         }
