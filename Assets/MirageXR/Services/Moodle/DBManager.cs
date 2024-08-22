@@ -104,10 +104,12 @@ namespace MirageXR
         //public const string MOODLE_URL_DEFAULT = "https://learn.wekit-ecs.com";
         public const string WEKIT_URL = "https://learn.wekit-ecs.com";
         public const string ARETE_URL = "https://arete.ucd.ie";
+        public const string CARATE_URL = "https://learn.carate.space";
 
         private const string PRIVACY_POLICY_URL_KEY = "PrivacyPolicyURL";
         public const string WEKIT_PRIVACY_POLICY_URL = "https://wekit-ecs.com/privacy-policy";
         public const string ARETE_PRIVACY_POLICY_URL = "https://www.areteproject.eu/gdprpolicy/";
+        public const string CARATE_PRIVACY_POLICY_URL = "https://wekit-ecs.com/privacy-policy/";
 
         private const string SKETCHFAB_TOKEN_RENEW_KEY = "Sketchfab_token_last_renew_date";
         private const string SKETCHFAB_TOKEN_RENEW_DEFAULT = "";
@@ -128,13 +130,13 @@ namespace MirageXR
         private const bool SNAP_TO_GRID_DEFAULT = true;
 
         private const string GRID_CELL_WIDTH_KEY = "grid_cell_width";
-        private const float GRID_CELL_WIDTH_DEFAULT = 10f;
+        private const float GRID_CELL_WIDTH_DEFAULT = 1f;
 
         private const string GRID_ANGLE_STEP_KEY = "grid_angle_step";
-        private const float GRID_ANGLE_STEP_DEFAULT = 10f;
+        private const float GRID_ANGLE_STEP_DEFAULT = 5f;
 
         private const string GRID_SCALE_STEP_KEY = "grid_scale_step";
-        private const float GRID_SCALE_STEP_DEFAULT = 10f;
+        private const float GRID_SCALE_STEP_DEFAULT = 5f;
 
         private const string GRID_SHOW_ORIGINAL_OBJECT_KEY = "grid_show_original_object";
         private const bool GRID_SHOW_ORIGINAL_OBJECT_DEFAULT = false;
