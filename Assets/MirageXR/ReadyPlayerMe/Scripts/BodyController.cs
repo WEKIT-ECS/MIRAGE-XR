@@ -9,6 +9,7 @@ namespace MirageXR
         [SerializeField] private float interpolationSpeed = 1f;
 
         [SerializeField] private Transform _headBone;
+        [SerializeField] private Transform _hipBone;
         [SerializeField] private Transform _headTarget;
         [SerializeField] private Vector3 _headPlacementOffset;
 
@@ -16,12 +17,12 @@ namespace MirageXR
 
         private void Start()
         {
-            _headBodyOffset = transform.position - _headBone.position;
+            _headBodyOffset = _hipBone.position - _headBone.position;
         }
 
         private void Update()
         {
-            // move the body into a plausible position based on the head target
+            // move the hip into a plausible position based on the head target
             transform.position = _headTarget.position + _headBodyOffset + (_headTarget.rotation * _headPlacementOffset);
             float yaw = _headTarget.eulerAngles.y;
             transform.rotation = Quaternion.Lerp(transform.rotation,
