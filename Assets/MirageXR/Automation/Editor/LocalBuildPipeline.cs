@@ -7,20 +7,22 @@ using Unity.XR.Management;
 using UnityEditor.XR.Management;
 using UnityEditor.XR.Management.Metadata;
 using UnityEditor.XR.OpenXR;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MirageXR
 {
 
-	/// <summary>
-	/// This class adds new menu items to the editor for compiling MirageXR for specific platforms.
-	/// </summary>
-	public class LocalBuildPipeline
+    /// <summary>
+    /// This class adds new menu items to the editor for compiling MirageXR for specific platforms.
+    /// </summary>
+    public class LocalBuildPipeline
     {
 
         /// <summary>
         /// List of scenes to include in the build
         /// </summary>
-        public static string[] Scenes = { "Assets/MirageXR/Scenes/Start.unity", "Assets/MirageXR/Scenes/Player.unity", "Assets/MirageXR/Scenes/ActivitySelection.unity" };
+        private static List<string> mScenePaths = EditorBuildSettings.scenes.Select(l => l.path).ToList();
 
         /// <summary>
         /// Configure plugin: activate, see https://docs.unity3d.com/Packages/com.unity.xr.management@4.4/manual/EndUser.html#example-configure-plug-ins-per-build-target
@@ -30,17 +32,21 @@ namespace MirageXR
         public static void EnablePlugin(BuildTargetGroup buildTargetGroup, string pluginName)
         {
             var buildTargetSettings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(buildTargetGroup);
-            if (buildTargetSettings != null) {
+            if (buildTargetSettings != null)
+            {
                 Debug.Log($"Successfully retrieved XR General Settings Per Build Target for {buildTargetSettings.name}");
-            } else
+            }
+            else
             {
                 Debug.Log($"Could not retrieve XR General Settings Per Build Target");
             }
 
             var pluginSettings = buildTargetSettings.AssignedSettings;
-            if (pluginSettings != null) {
+            if (pluginSettings != null)
+            {
                 Debug.Log($"Successfully retrieved assigned plugin settings {pluginSettings.name}");
-            } else
+            }
+            else
             {
                 Debug.Log($"Could not retrieve assigned plugin settings");
             }
@@ -49,10 +55,16 @@ namespace MirageXR
             if (success)
             {
                 Debug.Log($"XR Plug-in Management: Enabled {pluginName} plugin on {buildTargetGroup}");
-            } else
+            }
+            else
             {
                 Debug.Log($"XR Plug-in Management: enabling failed for {pluginName} plugin on {buildTargetGroup}");
             }
+
+            // from https://forum.unity.com/threads/editor-programmatically-set-the-vr-system-in-xr-plugin-management.972285/ :
+            //XRGeneralSettingsPerBuildTarget buildTargetSettings = null;
+            //EditorBuildSettings.TryGetConfigObject(XRGeneralSettings.k_SettingsKey, out buildTargetSettings);
+
         }
 
         /// <summary>
@@ -72,45 +84,86 @@ namespace MirageXR
             }
         }
 
-        [MenuItem("MirageXR/Build/Quest 3 (release)")]
-		static void BuildQuest()
-		{
-			Debug.Log("starting: Quest 3 build...");
+        /// <summary>
+        /// Build menu entry for 'Quest 3'
+        /// </summary>
+        [MenuItem("MirageXR/Build/Quest 3")]
+        static void BuildQuest()
+        {
+            Debug.Log("starting a 'Quest 3' build...");
+
+            // change build target if needed
+            if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android)
+            {
+                Debug.Log($"Switching build target to Android");
+                EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
+            }
+            else
+            {
+                Debug.Log($"Didn't need to switch build target, as it was already set to Android");
+            }
 
             BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
 
-            buildPlayerOptions.scenes = Scenes;
-            buildPlayerOptions.locationPathName = "Build/Android/mirageXR.apk";
+            //  Basic build settings
+            buildPlayerOptions.scenes = mScenePaths.ToArray(); // from EditorBuildSettings
+            buildPlayerOptions.locationPathName = "Builds/quest3/mirageXR.apk";
             buildPlayerOptions.target = BuildTarget.Android;
             buildPlayerOptions.options = BuildOptions.None;
 
-            // explicitly change build target (needed?)
-            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
+            //  Texture compression ASTC
+            MobileTextureSubtarget oldEditorUserBuildSettings = EditorUserBuildSettings.androidBuildSubtarget; // temp
+            EditorUserBuildSettings.androidBuildSubtarget = MobileTextureSubtarget.ASTC;
 
-            // see https://forum.unity.com/threads/editor-programmatically-set-the-vr-system-in-xr-plugin-management.972285/
-            //XRGeneralSettingsPerBuildTarget buildTargetSettings = null;
-            //EditorBuildSettings.TryGetConfigObject(XRGeneralSettings.k_SettingsKey, out buildTargetSettings);
-            //XRGeneralSettings settings = buildTargetSettings.SettingsForBuildTarget(BuildTargetGroup.Android);
-            //XRPackageMetadataStore.AssignLoader(settings.Manager, "Unity.XR.OpenXR.OpenXRLoader", BuildTargetGroup.Android);
+            //  Gradle
+            AndroidBuildSystem oldAndroidBuildSystem = EditorUserBuildSettings.androidBuildSystem; // temp
+            EditorUserBuildSettings.androidBuildSystem = AndroidBuildSystem.Gradle;
+
+            // if (!Lightmapping.Bake()) {
+            //      Debug.LogError("Unable to bake lightmaps");
+            //}
+
+            // if (!StaticOcclusionCulling.Compute()) {
+            //      Debug.LogError("Unable to bake occlusion culling maps");
+            // }
+
+            // https://exyte.com/blog/optimization-techniques-for-porting-unity-steamvr-games-to-oculus-quest
+            // FindObjectOfType<OculusQuestOptimizer>()?.Optimize();
+
+            // AR core should be disabled!
+            // DisablePlugin(BuildTargetGroup.Android, "UnityEngine.XR.ARcore.OpenXRLoader");
 
             EnablePlugin(BuildTargetGroup.Android, "UnityEngine.XR.OpenXR.OpenXRLoader");
-            
-            BuildPipeline.BuildPlayer(buildPlayerOptions);
 
+            // TODO: URP pipeline asset renderer: disable postprocessing
+            // TODO: URP pipeline asset: disable terrain holes; disable HDR; shadows max distance: 2.5
+
+            Material oldSkybox = RenderSettings.skybox;
+            RenderSettings.skybox = Resources.Load<Material>("Assets/MirageXR/Automation/Black"); // requires alpha enabled material!
+
+            AssetDatabase.SaveAssets();
+
+            // Build
             BuildReport report = BuildPipeline.BuildPlayer(buildPlayerOptions);
-            BuildSummary summary = report.summary;
 
+            // Report
+            BuildSummary summary = report.summary;
             if (summary.result == BuildResult.Succeeded)
             {
                 Debug.Log("Build succeeded: " + summary.totalSize + " bytes");
             }
-
-            if (summary.result == BuildResult.Failed)
+            else if (summary.result == BuildResult.Failed)
             {
                 Debug.Log("Build failed");
             }
 
-        }
+            // Restore previous values from temp
+            EditorUserBuildSettings.androidBuildSystem = oldAndroidBuildSystem;
+            EditorUserBuildSettings.androidBuildSubtarget = oldEditorUserBuildSettings;
+            RenderSettings.skybox = oldSkybox;
 
-	}
-}
+        } // methodBuildQuest()
+
+    } // class LocalBuildPipeline()
+
+} // namespace

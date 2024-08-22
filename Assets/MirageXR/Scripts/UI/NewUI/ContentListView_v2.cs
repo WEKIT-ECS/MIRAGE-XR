@@ -200,6 +200,7 @@ public class ContentListView_v2 : BaseView
     public void UpdateView()
     {
         _toggleDiamondVisibility.isOn = _currentStep.isDiamondVisible ?? true;
+        _toggleDiamondVisibility.onValueChanged.Invoke(_currentStep.isDiamondVisible ?? true);
 
         int currentIndex = activityManager.ActionsOfTypeAction.IndexOf(_currentStep) + 1;
         int maxIndex = activityManager.ActionsOfTypeAction.Count;

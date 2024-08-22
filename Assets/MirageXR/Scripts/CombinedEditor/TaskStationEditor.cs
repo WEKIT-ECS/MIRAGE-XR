@@ -2,6 +2,8 @@
 using Microsoft.MixedReality.Toolkit.UI;
 using MirageXR;
 using Newtonsoft.Json;
+using UnityEditor;
+using UnityEditor.Search;
 using UnityEngine;
 using Action = MirageXR.Action;
 
@@ -15,6 +17,7 @@ public class TaskStationEditor : MonoBehaviour
     private ObjectManipulator _objectManipulator;
     private TaskStationStateController _taskStationStateController;
     private MeshRenderer _meshRenderer;
+    private GameObject _mTaskStationNumberTag;
     private Detectable _detectable;
     private Action _action;
 
@@ -33,6 +36,15 @@ public class TaskStationEditor : MonoBehaviour
         var detectableId = id.Replace("TS-", "WA-");
         _detectable = RootObject.Instance.workplaceManager.GetDetectable(detectableId);
         _objectManipulator.HostTransform = GameObject.Find(_detectable.id).transform;
+
+        try
+        {
+            _mTaskStationNumberTag = TaskStationDetailMenu.Instance.transform.Find("Pivot/DiamondTopMenu/NumberGB").gameObject;
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[tse] Could not find NumberGB game object to activate/deactivate number displayed above task station diamond: {e.Message}");
+        }
 
         UpdateView();
     }
@@ -59,6 +71,10 @@ public class TaskStationEditor : MonoBehaviour
     private void UpdateView()
     {
         _meshRenderer.enabled = _action?.isDiamondVisible ?? true;
+        if (_mTaskStationNumberTag != null)
+        {
+            _mTaskStationNumberTag.SetActive(_action?.isDiamondVisible ?? true);
+        }
     }
 
     public void OnVisibilityChanged(bool value)
@@ -70,6 +86,10 @@ public class TaskStationEditor : MonoBehaviour
 
         _action.isDiamondVisible = value;
         _meshRenderer.enabled = value;
+        if (_mTaskStationNumberTag != null)
+        {
+            _mTaskStationNumberTag.SetActive(value);
+        }
         activityManager.SaveData();
     }
 
