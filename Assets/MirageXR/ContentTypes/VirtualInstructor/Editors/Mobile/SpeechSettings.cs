@@ -1,6 +1,8 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using System.Linq;
 
 namespace MirageXR
 {
@@ -52,12 +54,92 @@ namespace MirageXR
         /// <summary>
         /// Starts the SpeechSettings by setting default values.
         /// </summary>
+
+        [SerializeField] 
+        private GameObject PromtView; 
+
+        [SerializeField] 
+        private GameObject LLMView;
+
+        [SerializeField]
+        private GameObject STTView;
+
+        [SerializeField]
+        private GameObject TTSView; 
+        
+        [SerializeField]
+        private Button  PromtViewBackBtn; 
+        
+        [SerializeField] 
+        private Button LLMViewBackBtn;
+        
+        [SerializeField] 
+        private Button STTViewBackBtn;
+        
+        [SerializeField] 
+        private Button TTSViewBackBtn; 
+        
+        [SerializeField]
+        private Button AiPromptBtn;
+        
+        [SerializeField] 
+        private Button ModelBtn;
+        
+        [SerializeField] 
+        private Button LanguageBtn;
+        
+        [SerializeField]
+        private Button VoiceBtn;
+
+        
         public void Start()
         {
-            UpdateModel(RootObject.Instance.aiManager.GetLlmModels()[0]);
-            UpdateLanguage(RootObject.Instance.aiManager.GetSttModels()[0]);
-            UpdateVoice(RootObject.Instance.aiManager.GetTtsModels()[0]);
+            if (_modelData == null)
+            {
+                UpdateModel(RootObject.Instance.aiManager.GetLlmModels()[0]);
+            }
+
+            if (_languageData == null)
+            {
+                UpdateLanguage(RootObject.Instance.aiManager.GetSttModels()[0]);
+            }
+
+            if (_voiceData == null)
+            {
+                UpdateVoice(RootObject.Instance.aiManager.GetTtsModels()[0]);
+            }
             
+            if (_modelData != null)
+            {
+                UpdateModel(RootObject.Instance.aiManager.GetLlmModels()[0]);
+            }
+
+            if (_languageData != null)
+            {
+                UpdateLanguage(RootObject.Instance.aiManager.GetSttModels()[0]);
+            }
+
+            if (_voiceData != null)
+            {
+                UpdateVoice(RootObject.Instance.aiManager.GetTtsModels().Last());
+            }
+
+            AiPromptBtn.onClick.AddListener(() =>OpenView(PromtView, true));
+            ModelBtn.onClick.AddListener(() =>OpenView(LLMView, true));
+            LanguageBtn.onClick.AddListener(() => OpenView(STTView, true));
+            VoiceBtn.onClick.AddListener(() => OpenView(TTSView, true));
+            
+            PromtViewBackBtn.onClick.AddListener(() => OpenView(PromtView, false));
+            LLMViewBackBtn.onClick.AddListener(() => OpenView(LLMView, false));
+            STTViewBackBtn.onClick.AddListener(() => OpenView(STTView, false));
+            TTSViewBackBtn.onClick.AddListener(() => OpenView(TTSView, false));
+            
+        }
+
+        private void OpenView(GameObject view, Boolean state)
+        {
+            
+            view.SetActive(state);
         }
 
 
