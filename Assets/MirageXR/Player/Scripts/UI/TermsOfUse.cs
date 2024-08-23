@@ -17,15 +17,15 @@ namespace MirageXR
         [SerializeField] private Image buttonIcon;
         [SerializeField] private Text termsOfUseText;
 
-        private LearningExperienceEngine.BrandManager brandManager /*configParser */ = LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
+        private static LearningExperienceEngine.BrandManager brandManager /*configParser */ => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
 
         private void Start()
         {
             termsOfUseText.supportRichText = true;
 
             string TermsOfUse = string.Empty;
-            if (Resources.Load<TextAsset>(brandManager.CfgParser.Configuration.TermsOfUsePath))
-                TermsOfUse = Resources.Load<TextAsset>(brandManager.CfgParser.Configuration.TermsOfUsePath).text;
+            if (Resources.Load<TextAsset>(brandManager.CfgParser.Configuration.TermsOfUseFileName))
+                TermsOfUse = Resources.Load<TextAsset>(brandManager.CfgParser.Configuration.TermsOfUseFileName).text;
 
             if (TermsOfUse != string.Empty)
                 termsOfUseText.text = TermsOfUse;
