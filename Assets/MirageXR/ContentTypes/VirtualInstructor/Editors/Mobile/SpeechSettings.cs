@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using UnityEngine.Serialization;
 
 namespace MirageXR
 {
@@ -55,8 +56,8 @@ namespace MirageXR
         /// Starts the SpeechSettings by setting default values.
         /// </summary>
 
-        [SerializeField] 
-        private GameObject PromtView; 
+        [FormerlySerializedAs("PromtView")] [SerializeField] 
+        private GameObject PromptView; 
 
         [SerializeField] 
         private GameObject LLMView;
@@ -67,8 +68,8 @@ namespace MirageXR
         [SerializeField]
         private GameObject TTSView; 
         
-        [SerializeField]
-        private Button  PromtViewBackBtn; 
+        [FormerlySerializedAs("PromtViewBackBtn")] [SerializeField]
+        private Button  PromptViewBackBtn; 
         
         [SerializeField] 
         private Button LLMViewBackBtn;
@@ -124,12 +125,12 @@ namespace MirageXR
                 UpdateVoice(RootObject.Instance.aiManager.GetTtsModels().Last());
             }
 
-            AiPromptBtn.onClick.AddListener(() =>OpenView(PromtView, true));
+            AiPromptBtn.onClick.AddListener(() =>OpenView(PromptView, true));
             ModelBtn.onClick.AddListener(() =>OpenView(LLMView, true));
             LanguageBtn.onClick.AddListener(() => OpenView(STTView, true));
             VoiceBtn.onClick.AddListener(() => OpenView(TTSView, true));
             
-            PromtViewBackBtn.onClick.AddListener(() => OpenView(PromtView, false));
+            PromptViewBackBtn.onClick.AddListener(() => OpenView(PromptView, false));
             LLMViewBackBtn.onClick.AddListener(() => OpenView(LLMView, false));
             STTViewBackBtn.onClick.AddListener(() => OpenView(STTView, false));
             TTSViewBackBtn.onClick.AddListener(() => OpenView(TTSView, false));
