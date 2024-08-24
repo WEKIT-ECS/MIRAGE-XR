@@ -631,7 +631,7 @@ public class ModelEditorView : PopupEditorBase
         var predicate = $"3d:{prefabName}";
         if (_content != null)
         {
-            EventManager.DeactivateObject(_content);
+            LearningExperienceEngine.EventManager.DeactivateObject(_content);
         }
         else
         {
@@ -643,7 +643,7 @@ public class ModelEditorView : PopupEditorBase
         }
 
         _content.predicate = predicate;
-        EventManager.ActivateObject(_content);
+        LearningExperienceEngine.EventManager.ActivateObject(_content);
 
         base.OnAccept();
 

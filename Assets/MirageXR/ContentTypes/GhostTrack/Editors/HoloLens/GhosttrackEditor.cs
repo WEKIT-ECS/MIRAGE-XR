@@ -93,7 +93,7 @@ public class GhosttrackEditor : MonoBehaviour
         StopRecording();
         if (_annotationToEdit != null)
         {
-            MirageXR.EventManager.DeactivateObject(_annotationToEdit);
+            LearningExperienceEngine.EventManager.DeactivateObject(_annotationToEdit);
 
             // delete old xml file
             var xmlPath = $"{activityManager.ActivityPath}/MirageXR_Ghost_{_annotationToEdit.poi}.xml";
@@ -159,8 +159,8 @@ public class GhosttrackEditor : MonoBehaviour
         // then add the audio poi to option after the gender
         _annotationToEdit.option += ":" + audioAnnotation.poi;
 
-        MirageXR.EventManager.ActivateObject(_annotationToEdit);
-        MirageXR.EventManager.ActivateObject(audioAnnotation);
+        LearningExperienceEngine.EventManager.ActivateObject(_annotationToEdit);
+        LearningExperienceEngine.EventManager.ActivateObject(audioAnnotation);
         LearningExperienceEngine.EventManager.NotifyActionModified(_action);
         Close();
     }

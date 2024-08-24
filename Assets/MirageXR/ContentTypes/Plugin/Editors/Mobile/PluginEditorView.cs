@@ -43,7 +43,7 @@ public class PluginEditorView : PopupEditorBase
     {
         if (_content != null)
         {
-            EventManager.DeactivateObject(_content);
+            LearningExperienceEngine.EventManager.DeactivateObject(_content);
         }
         else
         {
@@ -56,7 +56,7 @@ public class PluginEditorView : PopupEditorBase
 
         LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.apps.Add(_app);
 
-        EventManager.ActivateObject(_content);
+        LearningExperienceEngine.EventManager.ActivateObject(_content);
 
         base.OnAccept();
 

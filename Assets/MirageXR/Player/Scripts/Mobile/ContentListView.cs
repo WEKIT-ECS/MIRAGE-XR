@@ -87,7 +87,7 @@ public class ContentListView : BaseView
         OnEditModeChanged(false);
 
         LearningExperienceEngine.EventManager.OnActionCreated += OnActionCreated;
-        EventManager.OnActivateAction += OnActionActivated;
+        LearningExperienceEngine.EventManager.OnActivateAction += OnActionActivated;
         EventManager.OnEditModeChanged += OnEditModeChanged;
         LearningExperienceEngine.EventManager.OnActionModified += OnActionChanged;
     }
@@ -95,7 +95,7 @@ public class ContentListView : BaseView
     private void OnDestroy()
     {
         LearningExperienceEngine.EventManager.OnActionCreated -= OnActionCreated;
-        EventManager.OnActivateAction -= OnActionActivated;
+        LearningExperienceEngine.EventManager.OnActivateAction -= OnActionActivated;
         EventManager.OnEditModeChanged -= OnEditModeChanged;
         LearningExperienceEngine.EventManager.OnActionModified -= OnActionChanged;
     }

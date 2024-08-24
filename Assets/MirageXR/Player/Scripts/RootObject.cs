@@ -20,7 +20,8 @@ namespace MirageXR
         //[SerializeField] private LearningExperienceEngine.ExceptionManager _exceptionManager;
 
         private EditorSceneService _editorSceneService;
-        private WorkplaceController _workplaceController; // added
+        private WorkplaceController _workplaceController; // added with lib-lee migration
+        private ContentAugmentationController _contentController; // added with lib-lee migration
 
         private AIManager _aiManager;
         private OpenAIManager _openAIManager;
@@ -41,6 +42,7 @@ namespace MirageXR
         public EditorSceneService editorSceneService => _editorSceneService;
 
         public WorkplaceController workplaceController => _workplaceController;
+        public ContentAugmentationController contentController => _contentController;
 
         public CameraCalibrationChecker cameraCalibrationChecker => _cameraCalibrationChecker;
 
@@ -105,6 +107,8 @@ namespace MirageXR
                 // _exceptionManager ??= new GameObject("ExceptionManager").AddComponent<LearningExperienceEngine.ExceptionManager>();
 
                 _editorSceneService = new EditorSceneService();
+                _workplaceController = new WorkplaceController();
+                _contentController = new ContentAugmentationController();
 
                 _aiManager = new AIManager();
                 _openAIManager = new OpenAIManager();
@@ -115,14 +119,14 @@ namespace MirageXR
                 
                 await _imageTargetManager.InitializationAsync();
                 await _floorManager.InitializationAsync();
-                _calibrationManager.Initialization();
+                await _calibrationManager.InitializationAsync();
                 await _pointCloudManager.InitializationAsync();
                 await _planeManager.InitializationAsync();
                 _gridManager.Initialization();
                 _cameraCalibrationChecker.Initialization();
                 _platformManager.Initialization();
 
-                                await _openAIManager.InitializeAsync();
+                await _openAIManager.InitializeAsync();
                 await _aiManager.InitializeAsync();
                 
                 _isInitialized = true;

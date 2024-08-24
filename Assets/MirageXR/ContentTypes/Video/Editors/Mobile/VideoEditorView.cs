@@ -140,7 +140,7 @@ public class VideoEditorView : PopupEditorBase
 
         if (_content != null)
         {
-            MirageXR.EventManager.DeactivateObject(_content);
+            LearningExperienceEngine.EventManager.DeactivateObject(_content);
 
             var originalFileName = Path.GetFileName(_content.url.Remove(0, HTTP_PREFIX.Length));
             var originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
@@ -188,7 +188,7 @@ public class VideoEditorView : PopupEditorBase
             _step.RemoveArlemTrigger(_content);
         }
 
-        MirageXR.EventManager.ActivateObject(_content);
+        LearningExperienceEngine.EventManager.ActivateObject(_content);
 
         base.OnAccept();
 

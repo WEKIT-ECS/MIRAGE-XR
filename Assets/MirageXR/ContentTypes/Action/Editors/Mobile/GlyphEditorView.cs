@@ -131,7 +131,7 @@ public class GlyphEditorView : PopupEditorBase
         {
             if (!_editing)
             {
-                EventManager.DeactivateObject(_content);
+                LearningExperienceEngine.EventManager.DeactivateObject(_content);
             }
         }
         else
@@ -155,7 +155,7 @@ public class GlyphEditorView : PopupEditorBase
 
         if (!_editing)
         {
-            EventManager.ActivateObject(_content);
+            LearningExperienceEngine.EventManager.ActivateObject(_content);
         }
 
         base.OnAccept();

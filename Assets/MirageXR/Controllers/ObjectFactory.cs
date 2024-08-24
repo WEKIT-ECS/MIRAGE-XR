@@ -20,13 +20,13 @@ namespace MirageXR
         private void OnEnable()
         {
             // Register to event manager events.
-            EventManager.OnToggleObject += Toggle;
+            LearningExperienceEngine.EventManager.OnToggleObject += Toggle;
         }
 
         private void OnDisable()
         {
             // Unregister from event manager events.
-            EventManager.OnToggleObject -= Toggle;
+            LearningExperienceEngine.EventManager.OnToggleObject -= Toggle;
         }
 
         /// <summary>

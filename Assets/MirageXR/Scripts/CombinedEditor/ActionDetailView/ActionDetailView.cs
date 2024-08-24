@@ -50,13 +50,13 @@ public class ActionDetailView : MonoBehaviour
 
     private void OnEnable()
     {
-        MirageXR.EventManager.OnActivateAction += OnActionActivated;
+        LearningExperienceEngine.EventManager.OnActivateAction += OnActionActivated;
         LearningExperienceEngine.EventManager.OnActionModified += OnActionChanged;
     }
 
     private void OnDisable()
     {
-        MirageXR.EventManager.OnActivateAction -= OnActionActivated;
+        LearningExperienceEngine.EventManager.OnActivateAction -= OnActionActivated;
         LearningExperienceEngine.EventManager.OnActionModified -= OnActionChanged;
     }
 

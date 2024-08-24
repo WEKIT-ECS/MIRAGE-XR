@@ -105,10 +105,10 @@ public class GhostEditorView : PopupEditorBase
         {
             var audioContent = SaveAudio(offset);
             _content.option += $":{audioContent.poi}";
-            MirageXR.EventManager.ActivateObject(audioContent);
+            LearningExperienceEngine.EventManager.ActivateObject(audioContent);
         }
 
-        MirageXR.EventManager.ActivateObject(_content);
+        LearningExperienceEngine.EventManager.ActivateObject(_content);
 
         base.OnAccept();
         Close();
@@ -135,6 +135,6 @@ public class GhostEditorView : PopupEditorBase
             File.Delete(filePath);
         }
 
-        MirageXR.EventManager.DeactivateObject(content);
+        LearningExperienceEngine.EventManager.DeactivateObject(content);
     }
 }

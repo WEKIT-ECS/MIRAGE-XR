@@ -8,15 +8,16 @@ namespace MirageXR
     /// </summary>
     public class EventManager : MonoBehaviour
     {
-        // MirageXR app selection exit.
-        public delegate void AppSelectionExitDelegate();
-
-        public static event AppSelectionExitDelegate OnAppSelectionExit;
-
-        public static void AppSelectionExit()
-        {
-            OnAppSelectionExit?.Invoke();
-        }
+        
+        //public delegate void AppSelectionExitDelegate();
+        //public static event AppSelectionExitDelegate OnAppSelectionExit;
+        ///// <summary>
+        ///// MirageXR app selection exit.
+        ///// </summary>
+        //public static void AppSelectionExit()
+        //{
+        //    OnAppSelectionExit?.Invoke();
+        //}
 
         // MirageXR recorder exit.
         public delegate void RecorderExitDelegate();
@@ -120,56 +121,53 @@ namespace MirageXR
             OnClearPois?.Invoke();
         }
 
-        // Activate action event.
-        public delegate void ActivateActionDelegate(string action);
+        //// Activate action event.
+        //public delegate void ActivateActionDelegate(string action);
 
-        public static event ActivateActionDelegate OnActivateAction;
+        //public static event ActivateActionDelegate OnActivateAction;
 
-        /// <summary>
-        /// Activates a new action.
-        /// </summary>
-        /// <param name="action">Activity file action id of the activated action.</param>
-        public static void ActivateAction(string action)
-        {
-            OnActivateAction?.Invoke(action);
-        }
+        ///// <summary>
+        ///// Activates a new action.
+        ///// </summary>
+        ///// <param name="action">Activity file action id of the activated action.</param>
+        //public static void ActivateAction(string action)
+        //{
+        //    OnActivateAction?.Invoke(action);
+        //}
 
-        // Deactivate action event.
-        public delegate void DeactivateActionDelegate(string action, bool doNotActivateNextStep = false);
+        //// Deactivate action event.
+        //public delegate void DeactivateActionDelegate(string action, bool doNotActivateNextStep = false);
 
-        public static event DeactivateActionDelegate OnDeactivateAction;
+        //public static event DeactivateActionDelegate OnDeactivateAction;
 
-        /// <summary>
-        /// Deactivates a new action.
-        /// </summary>
-        /// <param name="action">Activity file action id of the deactivated action.</param>
-        public static void DeactivateAction(string action, bool doNotActivateNextStep = false)
-        {
-            OnDeactivateAction?.Invoke(action, doNotActivateNextStep);
-        }
+        ///// <summary>
+        ///// Deactivates a new action.
+        ///// </summary>
+        ///// <param name="action">Activity file action id of the deactivated action.</param>
+        //public static void DeactivateAction(string action, bool doNotActivateNextStep = false)
+        //{
+        //    OnDeactivateAction?.Invoke(action, doNotActivateNextStep);
+        //}
 
-        // Activate/Deactivate an object event.
-        public delegate void ToggleObjectDelegate(LearningExperienceEngine.ToggleObject obj, bool isActivating);
-
-        public static event ToggleObjectDelegate OnToggleObject;
-
-        /// <summary>
-        /// Activates an object.
-        /// </summary>
-        /// <param name="action">Activate object of activity file action.</param>
-        public static void ActivateObject(LearningExperienceEngine.ToggleObject action)
-        {
-            OnToggleObject?.Invoke(action, true);
-        }
-
-        /// <summary>
-        /// Deactivates an object.
-        /// </summary>
-        /// <param name="action">Deactivate object of activity file action.</param>
-        public static void DeactivateObject(LearningExperienceEngine.ToggleObject obj)
-        {
-            OnToggleObject?.Invoke(obj, false);
-        }
+        //// Activate/Deactivate an object event.
+        //public delegate void ToggleObjectDelegate(LearningExperienceEngine.ToggleObject obj, bool isActivating);
+        //public static event ToggleObjectDelegate OnToggleObject;
+        ///// <summary>
+        ///// Activates an object.
+        ///// </summary>
+        ///// <param name="action">Activate object of activity file action.</param>
+        //public static void ActivateObject(LearningExperienceEngine.ToggleObject action)
+        //{
+        //    OnToggleObject?.Invoke(action, true);
+        //}
+        ///// <summary>
+        ///// Deactivates an object.
+        ///// </summary>
+        ///// <param name="action">Deactivate object of activity file action.</param>
+        //public static void DeactivateObject(LearningExperienceEngine.ToggleObject obj)
+        //{
+        //    OnToggleObject?.Invoke(obj, false);
+        //}
 
         // Log debug event.
         public delegate void DebugLogDelegate(string debug);

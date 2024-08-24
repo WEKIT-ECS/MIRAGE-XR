@@ -38,7 +38,7 @@ namespace MirageXR
         public void Initialize(IServiceManager owner)
         {
             // Register to lib-lee events.
-            EventManager.OnToggleObject += OnToggleObject; // true ? predicate : null
+            LearningExperienceEngine.EventManager.OnToggleObject += OnToggleObject; // true ? predicate : null
             LearningExperienceEngine.EventManager.OnActivityLoadedStamp += ActivityLoadedStamp; // launch
             LearningExperienceEngine.EventManager.OnCompletedMeasurement += CompletedMeasurement;
             LearningExperienceEngine.EventManager.OnStepActivatedStamp += StepActivatedStamp; // start
@@ -56,7 +56,7 @@ namespace MirageXR
         public void Cleanup()
         {
             // Deregister from event manager events.
-            EventManager.OnToggleObject -= OnToggleObject;
+            LearningExperienceEngine.EventManager.OnToggleObject -= OnToggleObject;
             LearningExperienceEngine.EventManager.OnActivityLoadedStamp -= ActivityLoadedStamp;
             LearningExperienceEngine.EventManager.OnCompletedMeasurement -= CompletedMeasurement;
             LearningExperienceEngine.EventManager.OnStepActivatedStamp -= StepActivatedStamp;
