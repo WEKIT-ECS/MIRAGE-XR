@@ -15,7 +15,7 @@ namespace MirageXR
 
             LabelEditor editor = Object.FindObjectOfType<LabelEditor>();
             this.highlightedObject = editor.AcceptButton;
-            EventManager.OnToggleObject += LabelCreationListener;
+            LearningExperienceEngine.EventManager.OnToggleObject += LabelCreationListener;
 
             EventManager.OnActivityStarted += DefaultCloseEventListener;
         }
@@ -29,7 +29,7 @@ namespace MirageXR
         protected override void Detach()
         {
 
-            EventManager.OnToggleObject -= LabelCreationListener;
+            LearningExperienceEngine.EventManager.OnToggleObject -= LabelCreationListener;
             EventManager.OnActivityStarted -= DefaultCloseEventListener;
         }
     }

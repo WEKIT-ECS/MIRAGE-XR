@@ -127,7 +127,7 @@ namespace MirageXR
                 var originalFilePath = GetExistingDrawing();
                 if (File.Exists(originalFilePath))
                 {
-                    EventManager.DeactivateObject(annotationToEdit);
+                    LearningExperienceEngine.EventManager.DeactivateObject(annotationToEdit);
                     File.Delete(originalFilePath);
                 }
             }
@@ -145,7 +145,7 @@ namespace MirageXR
             }
 
             annotationToEdit.url = $"http://{filename}";
-            EventManager.ActivateObject(annotationToEdit);
+            LearningExperienceEngine.EventManager.ActivateObject(annotationToEdit);
             LearningExperienceEngine.EventManager.NotifyActionModified(action);
             activityManager.SaveData();
 

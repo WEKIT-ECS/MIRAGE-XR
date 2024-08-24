@@ -39,7 +39,7 @@ public class PickAndPlaceEditor : MonoBehaviour
         if (_annotationToEdit != null)
         {
             // annotationToEdit.predicate = "pickandplace";
-            MirageXR.EventManager.DeactivateObject(_annotationToEdit);
+            LearningExperienceEngine.EventManager.DeactivateObject(_annotationToEdit);
         }
         else
         {
@@ -60,7 +60,7 @@ public class PickAndPlaceEditor : MonoBehaviour
         CreateOrRemoveTrigger(_isCorrectTrigger, TriggerMode.PickAndPlace, "correct", _correctStepIndex.text);
         CreateOrRemoveTrigger(_isIncorrectTrigger, TriggerMode.IncorrectPickAndPlace, "incorrect", _incorrectStepIndex.text);
 
-        MirageXR.EventManager.ActivateObject(_annotationToEdit);
+        LearningExperienceEngine.EventManager.ActivateObject(_annotationToEdit);
         LearningExperienceEngine.EventManager.NotifyActionModified(_action);
 
         Close();

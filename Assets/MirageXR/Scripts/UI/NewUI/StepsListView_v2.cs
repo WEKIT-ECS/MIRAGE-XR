@@ -91,7 +91,7 @@ public class StepsListView_v2 : BaseView
         LearningExperienceEngine.EventManager.OnActionModified += OnActionChanged;
         MirageXR.EventManager.OnEditModeChanged += OnEditModeChanged;
         MirageXR.EventManager.OnWorkplaceCalibrated += OnWorkplaceCalibrated;
-        MirageXR.EventManager.OnActivateAction += OnActionActivated;
+        LearningExperienceEngine.EventManager.OnActivateAction += OnActionActivated;
 
         UpdateView();
     }
@@ -105,7 +105,7 @@ public class StepsListView_v2 : BaseView
         LearningExperienceEngine.EventManager.OnActionModified -= OnActionChanged;
         MirageXR.EventManager.OnEditModeChanged -= OnEditModeChanged;
         MirageXR.EventManager.OnWorkplaceCalibrated -= OnWorkplaceCalibrated;
-        MirageXR.EventManager.OnActivateAction -= OnActionActivated;
+        LearningExperienceEngine.EventManager.OnActivateAction -= OnActionActivated;
     }
 
     private void OnStartActivity()

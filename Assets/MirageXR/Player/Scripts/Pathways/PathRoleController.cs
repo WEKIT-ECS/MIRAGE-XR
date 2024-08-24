@@ -49,13 +49,13 @@ public class PathRoleController : MonoBehaviour
     private void Awake()
     {
         segmentsController = GetComponent<PathSegmentsController>();
-        EventManager.OnActivateAction += OnActionActivated;
+        LearningExperienceEngine.EventManager.OnActivateAction += OnActionActivated;
         UpdateDisplay();
     }
 
     private void OnDestroy()
     {
-        EventManager.OnActivateAction -= OnActionActivated;
+        LearningExperienceEngine.EventManager.OnActivateAction -= OnActionActivated;
     }
 
     private void UpdateDisplay()

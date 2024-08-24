@@ -520,7 +520,7 @@ public class AudioEditorView : PopupEditorBase
 
             if (File.Exists(filePath) && _audioClip != null)
             {
-                MirageXR.EventManager.DeactivateObject(_content);
+                LearningExperienceEngine.EventManager.DeactivateObject(_content);
                 File.Delete(filePath);
             }
         }
@@ -547,7 +547,7 @@ public class AudioEditorView : PopupEditorBase
 
         LearningExperienceEngine.SaveLoadAudioUtilities.Save(filePath, _audioClip);
 
-        MirageXR.EventManager.ActivateObject(_content);
+        LearningExperienceEngine.EventManager.ActivateObject(_content);
 
         base.OnAccept();
 

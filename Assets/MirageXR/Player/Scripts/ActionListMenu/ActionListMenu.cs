@@ -81,8 +81,8 @@ public class ActionListMenu : MonoBehaviour
 
         Debug.LogTrace("Action list menu start called");
         MirageXR.EventManager.OnInitUi += Init;
-        MirageXR.EventManager.OnActivateAction += OnActivateAction;
-        MirageXR.EventManager.OnDeactivateAction += OnDeactivateAction;
+        LearningExperienceEngine.EventManager.OnActivateAction += OnActivateAction;
+        LearningExperienceEngine.EventManager.OnDeactivateAction += OnDeactivateAction;
         LearningExperienceEngine.EventManager.OnActionCreated += OnActionCreated;
         LearningExperienceEngine.EventManager.OnActionDeleted += OnActionDeleted;
         LearningExperienceEngine.EventManager.OnActionModified += OnActionChanged;
@@ -94,8 +94,8 @@ public class ActionListMenu : MonoBehaviour
     private void OnDestroy()
     {
         MirageXR.EventManager.OnInitUi -= Init;
-        MirageXR.EventManager.OnActivateAction -= OnActivateAction;
-        MirageXR.EventManager.OnDeactivateAction -= OnDeactivateAction;
+        LearningExperienceEngine.EventManager.OnActivateAction -= OnActivateAction;
+        LearningExperienceEngine.EventManager.OnDeactivateAction -= OnDeactivateAction;
         LearningExperienceEngine.EventManager.OnActionCreated -= OnActionCreated;
         LearningExperienceEngine.EventManager.OnActionDeleted -= OnActionDeleted;
         LearningExperienceEngine.EventManager.OnActionModified -= OnActionChanged;

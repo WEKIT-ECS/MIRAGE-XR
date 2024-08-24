@@ -189,7 +189,7 @@ public class LabelEditorView : PopupEditorBase
 
         if (_content != null)
         {
-            MirageXR.EventManager.DeactivateObject(_content);
+            LearningExperienceEngine.EventManager.DeactivateObject(_content);
         }
         else
         {
@@ -209,7 +209,7 @@ public class LabelEditorView : PopupEditorBase
             _step.RemoveArlemTrigger(_content);
         }
 
-        MirageXR.EventManager.ActivateObject(_content);
+        LearningExperienceEngine.EventManager.ActivateObject(_content);
         LearningExperienceEngine.EventManager.NotifyActionModified(_step);
         Close();
     }

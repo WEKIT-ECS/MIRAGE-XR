@@ -52,7 +52,7 @@ public class ImageMarkerEditorView : PopupEditorBase
 
         if (_content != null)
         {
-            MirageXR.EventManager.DeactivateObject(_content);
+            LearningExperienceEngine.EventManager.DeactivateObject(_content);
 
             // delete the previous image file
             var imageName = _content.url;
@@ -76,7 +76,7 @@ public class ImageMarkerEditorView : PopupEditorBase
         _content.url = RESOURCES_PREFIX + saveFileName;
         _content.scale = size / 100;
 
-        MirageXR.EventManager.ActivateObject(_content);
+        LearningExperienceEngine.EventManager.ActivateObject(_content);
 
         base.OnAccept();
         Close();

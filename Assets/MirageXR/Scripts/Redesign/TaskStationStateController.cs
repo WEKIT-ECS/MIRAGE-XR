@@ -25,14 +25,14 @@ namespace MirageXR
 
         private void Start()
         {
-            EventManager.OnActivateAction += OnActionActivated;
+            LearningExperienceEngine.EventManager.OnActivateAction += OnActionActivated;
             LearningExperienceEngine.EventManager.OnActionDeleted += OnActionDeleted;
             UpdateDisplay();
         }
 
         private void OnDestroy()
         {
-            EventManager.OnActivateAction -= OnActionActivated;
+            LearningExperienceEngine.EventManager.OnActivateAction -= OnActionActivated;
             LearningExperienceEngine.EventManager.OnActionDeleted -= OnActionDeleted;
         }
 

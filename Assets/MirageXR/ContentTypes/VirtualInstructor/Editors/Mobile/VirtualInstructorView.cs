@@ -126,7 +126,7 @@ public class VirtualInstructorView : PopupEditorBase
     {
         if (_content != null)
         {
-            MirageXR.EventManager.DeactivateObject(_content);
+            LearningExperienceEngine.EventManager.DeactivateObject(_content);
         }
         else
         {
@@ -146,7 +146,7 @@ public class VirtualInstructorView : PopupEditorBase
         };
         
         _content.option = JsonConvert.SerializeObject(data);
-        MirageXR.EventManager.ActivateObject(_content);
+        LearningExperienceEngine.EventManager.ActivateObject(_content);
 
         base.OnAccept();
 

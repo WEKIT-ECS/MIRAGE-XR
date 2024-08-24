@@ -309,7 +309,7 @@ public class AudioEditor : MonoBehaviour
             var originalFilePath = GetExistingAudioFile();
             if (File.Exists(originalFilePath) && SaveFileName != string.Empty && _annotationToEdit.url == null)
             {
-                MirageXR.EventManager.DeactivateObject(_annotationToEdit);
+                LearningExperienceEngine.EventManager.DeactivateObject(_annotationToEdit);
                 File.Delete(originalFilePath);
             }
 

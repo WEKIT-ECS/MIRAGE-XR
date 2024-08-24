@@ -38,7 +38,7 @@ namespace MirageXR
             if (annotationToEdit != null)
             {
                 annotationToEdit.predicate = "3d:" + modelName;
-                EventManager.DeactivateObject(annotationToEdit);
+                LearningExperienceEngine.EventManager.DeactivateObject(annotationToEdit);
             }
             else
             {
@@ -57,7 +57,7 @@ namespace MirageXR
                 annotationToEdit.url = "3d:" + modelName;
             }
 
-            EventManager.ActivateObject(annotationToEdit);
+            LearningExperienceEngine.EventManager.ActivateObject(annotationToEdit);
             LearningExperienceEngine.EventManager.NotifyActionModified(action);
 
             LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.SaveData();

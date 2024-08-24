@@ -98,7 +98,7 @@ namespace MirageXR
 
             if (annotationToEdit != null)
             {
-                EventManager.DeactivateObject(annotationToEdit);
+                LearningExperienceEngine.EventManager.DeactivateObject(annotationToEdit);
             }
             else
             {
@@ -121,7 +121,7 @@ namespace MirageXR
             stepTrigger.MyPoi = annotationToEdit;
             stepTrigger.SetupTrigger();
 
-            EventManager.ActivateObject(annotationToEdit);
+            LearningExperienceEngine.EventManager.ActivateObject(annotationToEdit);
             LearningExperienceEngine.EventManager.NotifyActionModified(action);
             Close();
         }

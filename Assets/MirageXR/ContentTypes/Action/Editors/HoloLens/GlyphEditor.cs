@@ -62,7 +62,7 @@ namespace MirageXR
         {
             if (_annotationToEdit != null)
             {
-                EventManager.DeactivateObject(_annotationToEdit);
+                LearningExperienceEngine.EventManager.DeactivateObject(_annotationToEdit);
             }
             else
             {
@@ -93,7 +93,7 @@ namespace MirageXR
             stepTrigger.SetupTrigger();
 
 
-            EventManager.ActivateObject(_annotationToEdit);
+            LearningExperienceEngine.EventManager.ActivateObject(_annotationToEdit);
             LearningExperienceEngine.EventManager.NotifyActionModified(_action);
             LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.SaveData();
 

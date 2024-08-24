@@ -93,7 +93,7 @@ public class VideoEditor : MonoBehaviour
 
         if (annotationToEdit != null)
         {
-            EventManager.DeactivateObject(annotationToEdit);
+            LearningExperienceEngine.EventManager.DeactivateObject(annotationToEdit);
         }
         else
         {
@@ -111,7 +111,7 @@ public class VideoEditor : MonoBehaviour
         // saving of the movie file has already happened since it has been written to file while recording
         annotationToEdit.url = httpPrefix + newFileName;
 
-        EventManager.ActivateObject(annotationToEdit);
+        LearningExperienceEngine.EventManager.ActivateObject(annotationToEdit);
         LearningExperienceEngine.EventManager.NotifyActionModified(action);
 
         SaveTriggerValue();

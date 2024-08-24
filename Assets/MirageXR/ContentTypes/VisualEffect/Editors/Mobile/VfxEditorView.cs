@@ -43,7 +43,7 @@ public class VfxEditorView : PopupEditorBase
     {
         if (_content != null)
         {
-            EventManager.DeactivateObject(_content);
+            LearningExperienceEngine.EventManager.DeactivateObject(_content);
         }
         else
         {
@@ -51,7 +51,7 @@ public class VfxEditorView : PopupEditorBase
         }
 
         _content.predicate = $"effect:{_prefabName}";
-        EventManager.ActivateObject(_content);
+        LearningExperienceEngine.EventManager.ActivateObject(_content);
 
         base.OnAccept();
 

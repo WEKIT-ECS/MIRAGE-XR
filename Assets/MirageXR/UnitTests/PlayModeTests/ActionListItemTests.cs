@@ -67,7 +67,7 @@ namespace Tests
         [Test]
         public void OnActivateAction_ContentNotSet_GameObjectNameSetToUnused()
         {
-            EventManager.ActivateAction("someId");
+            LearningExperienceEngine.EventManager.ActivateAction("someId");
 
             Assert.AreEqual("Unused Item", actionListItem.gameObject.name);
         }
@@ -75,7 +75,7 @@ namespace Tests
         [Test]
         public void OnActivateAction_ContentNotSet_CaptionEmpty()
         {
-            EventManager.ActivateAction("someId");
+            LearningExperienceEngine.EventManager.ActivateAction("someId");
 
             Assert.AreEqual("", captionLabel.text);
         }
@@ -83,7 +83,7 @@ namespace Tests
         [Test]
         public void OnActivateAction_ContentNotSet_NumberLabelEmpty()
         {
-            EventManager.ActivateAction("someId");
+            LearningExperienceEngine.EventManager.ActivateAction("someId");
 
             Assert.AreEqual("", numberLabel.text);
         }
@@ -91,7 +91,7 @@ namespace Tests
         [Test]
         public void OnActivateAction_ContentNotSet_BackgroundColorStandard()
         {
-            EventManager.ActivateAction("someId");
+            LearningExperienceEngine.EventManager.ActivateAction("someId");
 
             Assert.AreEqual(standardColor, backgroundImage.color);
         }
@@ -110,7 +110,7 @@ namespace Tests
 
             actionListItem.Content = action;
 
-            EventManager.ActivateAction("someId");
+            LearningExperienceEngine.EventManager.ActivateAction("someId");
 
             Assert.AreEqual($"Step-{action.id}", actionListItem.gameObject.name);
         }
@@ -129,7 +129,7 @@ namespace Tests
 
             actionListItem.Content = action;
 
-            EventManager.ActivateAction("someId");
+            LearningExperienceEngine.EventManager.ActivateAction("someId");
 
             Assert.AreEqual(action.instruction.title, captionLabel.text);
         }
@@ -154,7 +154,7 @@ namespace Tests
             {
                 actionListItem.DataIndex = dataIndex;
 
-                EventManager.ActivateAction("someId");
+                LearningExperienceEngine.EventManager.ActivateAction("someId");
 
                 Assert.AreEqual((dataIndex + 1).ToString("00"), numberLabel.text);
             }
@@ -182,7 +182,7 @@ namespace Tests
            // rootObject.activityManager ??= new ActivityManager();
             SetPrivateProperty(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager, "ActiveAction", activeAction);
 
-            EventManager.ActivateAction("activeActionId");
+            LearningExperienceEngine.EventManager.ActivateAction("activeActionId");
 
             Assert.AreEqual(standardColor, backgroundImage.color);
         }
@@ -211,7 +211,7 @@ namespace Tests
             //rootObject.activityManager ??= new ActivityManager();
             SetPrivateProperty(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager, "ActiveAction", activeAction);
 
-            EventManager.ActivateAction("activeActionId");
+            LearningExperienceEngine.EventManager.ActivateAction("activeActionId");
 
             Assert.AreEqual(completedColor, backgroundImage.color);
         }

@@ -170,7 +170,7 @@ public class ImageMarkerEditor : MonoBehaviour
 
         if (annotationToEdit != null)
         {
-            MirageXR.EventManager.DeactivateObject(annotationToEdit);
+            LearningExperienceEngine.EventManager.DeactivateObject(annotationToEdit);
         }
         else
         {
@@ -202,7 +202,7 @@ public class ImageMarkerEditor : MonoBehaviour
 
         annotationToEdit.scale = size;
 
-        MirageXR.EventManager.ActivateObject(annotationToEdit);
+        LearningExperienceEngine.EventManager.ActivateObject(annotationToEdit);
         LearningExperienceEngine.EventManager.NotifyActionModified(action);
         Close();
     }

@@ -45,14 +45,17 @@ public class CalibrationManager : MonoBehaviour
     private GameObject _debugSphere;
     public bool _isCalibrated;
 
-    public bool Initialization()
+    public async Task InitializationAsync()
     {
+
+        await LearningExperienceEngine.LearningExperienceEngine.Instance.WaitForInitialization();
+
         var mainCamera = Camera.main;
 
         if (!mainCamera)
         {
-            Debug.Log("Can't find camera main");
-            return false;
+            Debug.LogError("FATAL ERROR: Can't find camera main");
+            //return false;
         }
 
         _anchor = CreateAnchor();
@@ -65,7 +68,7 @@ public class CalibrationManager : MonoBehaviour
             useLimitedTracking = false,
         };
 
-        return true;
+        //return true;
     }
 
     public void EnableCalibration(bool isRecalibration = false)

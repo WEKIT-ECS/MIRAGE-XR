@@ -4,8 +4,7 @@ using UnityEngine;
 namespace MirageXR
 {
     /// <summary>
-    /// Creates and updates the workplace model.
-    /// Utilizes WorkplaceManager for parsing Arlem workplace files
+    /// Instantiates the workplace model into the scene.
     /// </summary>
     public class WorkplaceController : MonoBehaviour
     {

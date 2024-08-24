@@ -100,7 +100,7 @@ public class ImageEditor : MonoBehaviour
 
         if (_annotationToEdit != null)
         {
-            EventManager.DeactivateObject(_annotationToEdit);
+            LearningExperienceEngine.EventManager.DeactivateObject(_annotationToEdit);
 
             // delete the previous image file
             var imageName = _annotationToEdit.url;
@@ -132,7 +132,7 @@ public class ImageEditor : MonoBehaviour
             _annotationToEdit.url = httpPrefix + _saveFileName;
             _annotationToEdit.scale = 0.5f;
             _annotationToEdit.key = "L";
-            EventManager.ActivateObject(_annotationToEdit);
+            LearningExperienceEngine.EventManager.ActivateObject(_annotationToEdit);
             LearningExperienceEngine.EventManager.NotifyActionModified(_action);
         }
 

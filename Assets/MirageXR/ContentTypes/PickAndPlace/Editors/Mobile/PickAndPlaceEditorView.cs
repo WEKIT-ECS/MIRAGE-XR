@@ -63,7 +63,7 @@ public class PickAndPlaceEditorView : PopupEditorBase
 
         if (_content != null)
         {
-            MirageXR.EventManager.DeactivateObject(_content);
+            LearningExperienceEngine.EventManager.DeactivateObject(_content);
         }
         else
         {
@@ -76,7 +76,7 @@ public class PickAndPlaceEditorView : PopupEditorBase
         CreateOrRemoveTrigger(_isCorrectTrigger, LearningExperienceEngine.TriggerMode.PickAndPlace, "correct", _correctStepIndex.text);
         CreateOrRemoveTrigger(_isIncorrectTrigger, LearningExperienceEngine.TriggerMode.IncorrectPickAndPlace, "incorrect", _incorrectStepIndex.text);
 
-        MirageXR.EventManager.ActivateObject(_content);
+        LearningExperienceEngine.EventManager.ActivateObject(_content);
 
         base.OnAccept();
         Close();

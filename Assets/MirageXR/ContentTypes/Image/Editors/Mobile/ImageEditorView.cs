@@ -102,7 +102,7 @@ public class ImageEditorView : PopupEditorBase
 
         if (_content != null)
         {
-            MirageXR.EventManager.DeactivateObject(_content);
+            LearningExperienceEngine.EventManager.DeactivateObject(_content);
 
             // delete the previous image file
             var imageName = _content.url;
@@ -134,7 +134,7 @@ public class ImageEditorView : PopupEditorBase
         _content.url = HTTP_PREFIX + saveFileName;
         _content.scale = 0.5f;
         _content.caption = _imageCaption;
-        MirageXR.EventManager.ActivateObject(_content);
+        LearningExperienceEngine.EventManager.ActivateObject(_content);
 
         base.OnAccept();
         Close();
