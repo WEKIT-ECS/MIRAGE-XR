@@ -1400,7 +1400,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1888399833}
-  - component: {fileID: 1888399834}
   - component: {fileID: 1888399832}
   m_Layer: 0
   m_Name: Root
@@ -1422,6 +1421,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _baseCamera: {fileID: 807537243}
+  _lee: {fileID: 0}
   _imageTargetManager: {fileID: 383528546}
   _calibrationManager: {fileID: 1209410220}
   _floorManager: {fileID: 547987041}
@@ -1459,21 +1459,6 @@ Transform:
   - {fileID: 1370046044}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1888399834
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1888399831}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 872fd45e98fa24db980c83abcb9d1bea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _brandManager: {fileID: 0}
-  _exceptionManager: {fileID: 0}
-  _baseCamera: {fileID: 0}
 --- !u!1001 &1901844725
 PrefabInstance:
   m_ObjectHideFlags: 0
