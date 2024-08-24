@@ -99,10 +99,10 @@ namespace Tests
         [Test]
         public void OnActivateAction_ContentSet_GameObjectNameSetToId()
         {
-            Action action = new Action()
+            LearningExperienceEngine.Action action = new LearningExperienceEngine.Action()
             {
                 id = "myId",
-                instruction = new Instruction()
+                instruction = new LearningExperienceEngine.Instruction()
                 {
                     title = "ActionTitle"
                 }
@@ -118,10 +118,10 @@ namespace Tests
         [Test]
         public void OnActivateAction_ContentSet_CaptionLabelSetToTitle()
         {
-            Action action = new Action()
+            LearningExperienceEngine.Action action = new LearningExperienceEngine.Action()
             {
                 id = "myId",
-                instruction = new Instruction()
+                instruction = new LearningExperienceEngine.Instruction()
                 {
                     title = "ActionTitle"
                 }
@@ -139,10 +139,10 @@ namespace Tests
         {
             int[] testCases = new int[] { 0, 5, 25 };
 
-            Action action = new Action()
+            LearningExperienceEngine.Action action = new LearningExperienceEngine.Action()
             {
                 id = "myId",
-                instruction = new Instruction()
+                instruction = new LearningExperienceEngine.Instruction()
                 {
                     title = "ActionTitle"
                 }
@@ -163,10 +163,10 @@ namespace Tests
         [Test]
         public void OnActivateAction_ContentSetToIncompleteAction_StandardBackgroundColorSet()
         {
-            Action action = new Action()
+            LearningExperienceEngine.Action action = new LearningExperienceEngine.Action()
             {
                 id = "someId",
-                instruction = new Instruction()
+                instruction = new LearningExperienceEngine.Instruction()
                 {
                     title = "ActionTitle"
                 }
@@ -174,13 +174,13 @@ namespace Tests
 
             actionListItem.Content = action;
 
-            Action activeAction = new Action()
+            LearningExperienceEngine.Action activeAction = new LearningExperienceEngine.Action()
             {
                 id = "activeActionId"
             };
 
            // rootObject.activityManager ??= new ActivityManager();
-            SetPrivateProperty(rootObject.activityManager, "ActiveAction", activeAction);
+            SetPrivateProperty(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager, "ActiveAction", activeAction);
 
             EventManager.ActivateAction("activeActionId");
 
@@ -191,10 +191,10 @@ namespace Tests
         [Test]
         public void OnActivateAction_ContentSetToCompletedAction_CompletedBackgroundColorSet()
         {
-            Action action = new Action()
+            LearningExperienceEngine.Action action = new LearningExperienceEngine.Action()
             {
                 id = "someId",
-                instruction = new Instruction()
+                instruction = new LearningExperienceEngine.Instruction()
                 {
                     title = "ActionTitle"
                 },
@@ -203,13 +203,13 @@ namespace Tests
 
             actionListItem.Content = action;
 
-            Action activeAction = new Action()
+            LearningExperienceEngine.Action activeAction = new LearningExperienceEngine.Action()
             {
                 id = "activeActionId"
             };
 
             //rootObject.activityManager ??= new ActivityManager();
-            SetPrivateProperty(rootObject.activityManager, "ActiveAction", activeAction);
+            SetPrivateProperty(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager, "ActiveAction", activeAction);
 
             EventManager.ActivateAction("activeActionId");
 

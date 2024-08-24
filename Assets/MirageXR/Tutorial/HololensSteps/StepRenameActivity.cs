@@ -1,3 +1,4 @@
+using LearningExperienceEngine;
 using UnityEngine;
 
 namespace MirageXR
@@ -13,14 +14,14 @@ namespace MirageXR
 
             ActionListMenu actionListMenu = Object.FindObjectOfType<ActionListMenu>();
             this.highlightedObject = actionListMenu.TitleText.gameObject;
-            EventManager.ActivityRenamed += DefaultExitEventListener;
+            LearningExperienceEngine.EventManager.OnActivityRenamed += DefaultExitEventListener;
 
             EventManager.OnActivityStarted += DefaultCloseEventListener;
         }
 
         protected override void Detach()
         {
-            EventManager.ActivityRenamed -= DefaultExitEventListener;
+            LearningExperienceEngine.EventManager.OnActivityRenamed -= DefaultExitEventListener;
             EventManager.OnActivityStarted -= DefaultCloseEventListener;
         }
     }

@@ -5,9 +5,9 @@ using UnityEngine.UI;
 
 public class ProgressBarController : MonoBehaviour
 {
-    private static BrandManager brandManager => RootObject.Instance.brandManager;
+    private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
 
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
     [SerializeField] private GameObject stepPrefab;
     [SerializeField] private Color completedColor;
     [SerializeField] private Color activeColor;
@@ -49,7 +49,7 @@ public class ProgressBarController : MonoBehaviour
                 stepInstances.Add(img);
             }
 
-            List<Action> actions = activityManager.ActionsOfTypeAction;
+            List<LearningExperienceEngine.Action> actions = activityManager.ActionsOfTypeAction;
 
             if (actions[i].id == activityManager.ActiveActionId)
             {

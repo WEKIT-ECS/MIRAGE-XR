@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LearningExperienceEngine;
+using System;
 using UnityEngine;
 using MirageXR;
 using i5.Toolkit.Core.ServiceCore;
@@ -14,7 +15,7 @@ namespace MirageXR
     /// </summary>
     public class ExperienceService : IService
     {
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
         private readonly Actor anonymousActor = new Actor("anonymous@wekit-ecs.com", "An Anonymous Actor");
         private readonly string mirageIRIroot = "https://wekit-ecs.com";
 
@@ -36,14 +37,16 @@ namespace MirageXR
         /// <param name="owner">The service manager which administers this service</param>
         public void Initialize(IServiceManager owner)
         {
-            // Register to event manager events.
-            //EventManager.OnStartActivity += StartActivity; // launched
+            // Register to lib-lee events.
             EventManager.OnToggleObject += OnToggleObject; // true ? predicate : null
-            EventManager.OnStepActivatedStamp += StepActivatedStamp; // start
-            EventManager.OnActivityLoadedStamp += ActivityLoadedStamp; // launch
-            EventManager.OnStepDeactivatedStamp += StepDeactivatedStamp; // experienced
-            EventManager.OnActivityCompletedStamp += ActivityCompletedStamp; // completd
-            EventManager.OnCompletedMeasurement += CompletedMeasurement;
+            LearningExperienceEngine.EventManager.OnActivityLoadedStamp += ActivityLoadedStamp; // launch
+            LearningExperienceEngine.EventManager.OnCompletedMeasurement += CompletedMeasurement;
+            LearningExperienceEngine.EventManager.OnStepActivatedStamp += StepActivatedStamp; // start
+            LearningExperienceEngine.EventManager.OnStepDeactivatedStamp += StepDeactivatedStamp; // experienced
+
+            // Register to view events
+            MirageXR.EventManager.OnActivityCompletedStamp += ActivityCompletedStamp; // completd
+
         }
 
         /// <summary>
@@ -52,14 +55,15 @@ namespace MirageXR
         /// </summary>
         public void Cleanup()
         {
-            // Unregister from event manager events.
-            //EventManager.OnStartActivity -= StartActivity;
+            // Deregister from event manager events.
             EventManager.OnToggleObject -= OnToggleObject;
-            EventManager.OnActivityLoadedStamp -= ActivityLoadedStamp;
-            EventManager.OnStepActivatedStamp -= StepActivatedStamp;
-            EventManager.OnStepDeactivatedStamp -= StepDeactivatedStamp;
-            EventManager.OnActivityCompletedStamp -= ActivityCompletedStamp;
-            EventManager.OnCompletedMeasurement -= CompletedMeasurement;
+            LearningExperienceEngine.EventManager.OnActivityLoadedStamp -= ActivityLoadedStamp;
+            LearningExperienceEngine.EventManager.OnCompletedMeasurement -= CompletedMeasurement;
+            LearningExperienceEngine.EventManager.OnStepActivatedStamp -= StepActivatedStamp;
+            LearningExperienceEngine.EventManager.OnStepDeactivatedStamp -= StepDeactivatedStamp;
+
+            // Deregister from view events.
+            MirageXR.EventManager.OnActivityCompletedStamp -= ActivityCompletedStamp;
         }
 
         // !!!!!!! This never gets called !!!!!!!!!
@@ -74,7 +78,7 @@ namespace MirageXR
         /// </summary>
         /// <param name="act">The augmentation that is toggled</param>
         /// <param name="isActivating">Tells you whether the augmentation is getting activated or deactivated</param>
-        private async void OnToggleObject(ToggleObject act, bool isActivating)
+        private async void OnToggleObject(LearningExperienceEngine.ToggleObject act, bool isActivating)
         {
             if (isActivating && act.predicate != null)
             {
@@ -390,7 +394,7 @@ namespace MirageXR
 
         // called if an action step is activated
         // sends an xAPI statement that indicates the step activation
-        private async void StepActivatedStamp(string deviceID, Action activatedAction, string stamp)
+        private async void StepActivatedStamp(string deviceID, LearningExperienceEngine.Action activatedAction, string stamp)
         {
             Verb verb = new Verb("http://activitystrea.ms/schema/1.0/start");
             XApiObject obj = new XApiObject(mirageIRIroot + "/stepID=" + activatedAction.id);
@@ -420,7 +424,7 @@ namespace MirageXR
 
         // called if an action step is deactivated
         // sends an xAPI statement that indicates the step deactivation
-        private async void StepDeactivatedStamp(string deviceID, Action deactivatedAction, string stamp)
+        private async void StepDeactivatedStamp(string deviceID, LearningExperienceEngine.Action deactivatedAction, string stamp)
         {
             Verb verb = new Verb("http://activitystrea.ms/schema/1.0/experience");
             XApiObject obj = new XApiObject(mirageIRIroot + "/stepID=" + deactivatedAction.id);

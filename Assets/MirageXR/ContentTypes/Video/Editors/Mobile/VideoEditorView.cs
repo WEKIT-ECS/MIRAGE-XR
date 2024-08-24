@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LearningExperienceEngine;
+using System;
 using System.IO;
 using DG.Tweening;
 using MirageXR;
@@ -15,7 +16,7 @@ public class VideoEditorView : PopupEditorBase
     private const float HIDE_ANIMATION_TIME = 0.5f;
     private const float IMAGE_HEIGHT = 630f;
 
-    public override ContentType editorForType => ContentType.VIDEO;
+    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.VIDEO;
 
     [SerializeField] private Transform _imageHolder;
     [SerializeField] private Image _image;      // TODO: replace image preview with a video
@@ -139,7 +140,7 @@ public class VideoEditorView : PopupEditorBase
 
         if (_content != null)
         {
-            EventManager.DeactivateObject(_content);
+            MirageXR.EventManager.DeactivateObject(_content);
 
             var originalFileName = Path.GetFileName(_content.url.Remove(0, HTTP_PREFIX.Length));
             var originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
@@ -169,7 +170,7 @@ public class VideoEditorView : PopupEditorBase
             _content.predicate = editorForType.GetName().ToLower();
         }
 
-        if (!DBManager.dontShowNewAugmentationHint)
+        if (!LearningExperienceEngine.DBManager.dontShowNewAugmentationHint)
         {
             PopupsViewer.Instance.Show(_hintPrefab);
         }
@@ -180,14 +181,14 @@ public class VideoEditorView : PopupEditorBase
 
         if (_toggleTrigger.isOn)
         {
-            _step.AddOrReplaceArlemTrigger(TriggerMode.Video, ActionType.Video, _content.poi, 0, string.Empty);
+            _step.AddOrReplaceArlemTrigger(LearningExperienceEngine.TriggerMode.Video, LearningExperienceEngine.ActionType.Video, _content.poi, 0, string.Empty);
         }
         else
         {
             _step.RemoveArlemTrigger(_content);
         }
 
-        EventManager.ActivateObject(_content);
+        MirageXR.EventManager.ActivateObject(_content);
 
         base.OnAccept();
 

@@ -20,7 +20,7 @@ namespace MirageXR
             EventManager.OnActivityStarted += DefaultCloseEventListener;
         }
 
-        private void LabelCreationListener(ToggleObject label, bool activated)
+        private void LabelCreationListener(LearningExperienceEngine.ToggleObject label, bool activated)
         {
             manager.CreatedLabel = label;
             ExitStep();

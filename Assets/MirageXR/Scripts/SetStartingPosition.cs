@@ -15,13 +15,13 @@ public class SetStartingPosition : MonoBehaviour
     private void OnEnable()
     {
         EventManager.OnPlayerReset += SetPosition;
-        EventManager.OnWorkplaceLoaded += SetPosition;
+        LearningExperienceEngine.EventManager.OnWorkplaceLoaded += SetPosition;
     }
 
     private void OnDisable()
     {
         EventManager.OnPlayerReset -= SetPosition;
-        EventManager.OnWorkplaceLoaded -= SetPosition;
+        LearningExperienceEngine.EventManager.OnWorkplaceLoaded -= SetPosition;
     }
 
     private void Start()

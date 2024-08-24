@@ -3,12 +3,12 @@ using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
+using LearningExperienceEngine;
 
 public class ActivitySettings : PopupBase
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
-
-    private static MoodleManager moodleManager => RootObject.Instance.moodleManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static LearningExperienceEngine.MoodleManager moodleManager => LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager;
 
     [SerializeField] private Toggle _togglePublicUpload;
     [SerializeField] private Toggle _toggleUploadToCloud;
@@ -254,7 +254,7 @@ public class ActivitySettings : PopupBase
 
     private async void DeleteFromServer()
     {
-        var result = await RootObject.Instance.moodleManager.DeleteArlem(_container.ItemID, _container.FileIdentifier);
+        var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.DeleteArlem(_container.ItemID, _container.FileIdentifier);
         if (result)
         {
             RootView.Instance.activityListView.UpdateListView();

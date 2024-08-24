@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LearningExperienceEngine;
+using System;
 using System.IO;
 using DG.Tweening;
 using MirageXR;
@@ -14,11 +15,11 @@ public class ImageEditorView : PopupEditorBase
     private const int MAX_PICTURE_SIZE = 1024;
     private const float IMAGE_HEIGHT = 630f;
 
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
 
-    private static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
+    private static LearningExperienceEngine.AugmentationManager augmentationManager => LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager;
 
-    public override ContentType editorForType => ContentType.IMAGE;
+    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.IMAGE;
 
     private const string LANDSCAPE = "L";
     private const string PORTRAIT = "P";
@@ -101,7 +102,7 @@ public class ImageEditorView : PopupEditorBase
 
         if (_content != null)
         {
-            EventManager.DeactivateObject(_content);
+            MirageXR.EventManager.DeactivateObject(_content);
 
             // delete the previous image file
             var imageName = _content.url;
@@ -119,7 +120,7 @@ public class ImageEditorView : PopupEditorBase
         }
 
         // TODO add rename window:
-        if (!DBManager.dontShowNewAugmentationHint)
+        if (!LearningExperienceEngine.DBManager.dontShowNewAugmentationHint)
         {
             PopupsViewer.Instance.Show(_hintPrefab);
         }
@@ -133,7 +134,7 @@ public class ImageEditorView : PopupEditorBase
         _content.url = HTTP_PREFIX + saveFileName;
         _content.scale = 0.5f;
         _content.caption = _imageCaption;
-        EventManager.ActivateObject(_content);
+        MirageXR.EventManager.ActivateObject(_content);
 
         base.OnAccept();
         Close();

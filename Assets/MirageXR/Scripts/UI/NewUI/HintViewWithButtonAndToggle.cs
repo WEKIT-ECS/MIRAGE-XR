@@ -28,6 +28,6 @@ public class HintViewWithButtonAndToggle : PopupBase
 
     private void DontShowAgain(bool value)
     {
-        DBManager.dontShowNewAugmentationHint = value;
+        LearningExperienceEngine.DBManager.dontShowNewAugmentationHint = value;
     }
 }

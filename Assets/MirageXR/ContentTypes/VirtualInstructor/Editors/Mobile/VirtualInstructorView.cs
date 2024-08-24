@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DG.Tweening;
+using LearningExperienceEngine;
 using MirageXR;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -43,7 +44,7 @@ public class VirtualInstructorView : PopupEditorBase
     private Button _btnNoSpeech;
 
     private string _prefabName;
-    public override ContentType editorForType => ContentType.VIRTUALINSTRUCTOR; 
+    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.VIRTUALINSTRUCTOR; 
     
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -125,7 +126,7 @@ public class VirtualInstructorView : PopupEditorBase
     {
         if (_content != null)
         {
-            EventManager.DeactivateObject(_content);
+            MirageXR.EventManager.DeactivateObject(_content);
         }
         else
         {
@@ -145,7 +146,7 @@ public class VirtualInstructorView : PopupEditorBase
         };
         
         _content.option = JsonConvert.SerializeObject(data);
-        EventManager.ActivateObject(_content);
+        MirageXR.EventManager.ActivateObject(_content);
 
         base.OnAccept();
 

@@ -1,4 +1,5 @@
-﻿using i5.Toolkit.Core.VerboseLogging;
+﻿using LearningExperienceEngine;
+using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -97,7 +98,7 @@ namespace MirageXR
                     ActionTitleInputField = obj.GetComponent<InputField>();
                     if (ActionTitleInputField)
                     {
-                        ActionTitleInputField.onValueChanged.AddListener(value => EventManager.NotifyOnActionStepTitleChanged());
+                        ActionTitleInputField.onValueChanged.AddListener(value => LearningExperienceEngine.EventManager.NotifyOnActionStepTitleChanged());
                     }
                 }
             }
@@ -121,7 +122,7 @@ namespace MirageXR
                     ActionDescriptionInputField = obj.GetComponent<InputField>();
                     if (ActionDescriptionInputField)
                     {
-                        ActionDescriptionInputField.onValueChanged.AddListener(value => EventManager.NotifyOnActionStepDescriptionInputChanged());
+                        ActionDescriptionInputField.onValueChanged.AddListener(value => LearningExperienceEngine.EventManager.NotifyOnActionStepDescriptionChanged());
                     }
                 }
             }

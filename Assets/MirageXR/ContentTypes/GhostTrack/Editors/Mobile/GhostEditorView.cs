@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LearningExperienceEngine;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using MirageXR;
@@ -10,7 +11,7 @@ public class GhostEditorView : PopupEditorBase
     private const string MALE_TYPE = "GhosttrackPrefab";
     private const string FEMALE_TYPE = "GhosttrackPrefabFemale";
 
-    public override ContentType editorForType => ContentType.GHOST;
+    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.GHOST;
 
     [SerializeField] private Toggle _toggleMale;
     [SerializeField] private Toggle _toggleFemale;
@@ -22,7 +23,7 @@ public class GhostEditorView : PopupEditorBase
 
     private string _ghostFileName;
     private string _audioFileName;
-    private List<GhostDataFrame> _ghostFrames;
+    private List<LearningExperienceEngine.GhostDataFrame> _ghostFrames;
     private AudioClip _audioClip;
     private Transform _anchor;
 
@@ -104,10 +105,10 @@ public class GhostEditorView : PopupEditorBase
         {
             var audioContent = SaveAudio(offset);
             _content.option += $":{audioContent.poi}";
-            EventManager.ActivateObject(audioContent);
+            MirageXR.EventManager.ActivateObject(audioContent);
         }
 
-        EventManager.ActivateObject(_content);
+        MirageXR.EventManager.ActivateObject(_content);
 
         base.OnAccept();
         Close();
@@ -134,6 +135,6 @@ public class GhostEditorView : PopupEditorBase
             File.Delete(filePath);
         }
 
-        EventManager.DeactivateObject(content);
+        MirageXR.EventManager.DeactivateObject(content);
     }
 }

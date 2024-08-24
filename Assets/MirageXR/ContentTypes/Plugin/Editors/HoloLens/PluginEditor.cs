@@ -1,4 +1,6 @@
-﻿using i5.Toolkit.Core.VerboseLogging;
+﻿using LearningExperienceEngine;
+using MirageXR;
+using i5.Toolkit.Core.VerboseLogging;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,8 +26,8 @@ namespace MirageXR
         [SerializeField] private Texture2D defaultIcon;
         [SerializeField] private Plugin[] Plugins;
 
-        private Action _action;
-        private ToggleObject _annotationToEdit;
+        private LearningExperienceEngine.Action _action;
+        private LearningExperienceEngine.ToggleObject _annotationToEdit;
 
         public void SetAnnotationStartingPoint(Transform startingPoint)
         {
@@ -39,7 +41,7 @@ namespace MirageXR
             gameObject.SetActive(false);
         }
 
-        public void Open(Action action, ToggleObject annotation)
+        public void Open(LearningExperienceEngine.Action action, LearningExperienceEngine.ToggleObject annotation)
         {
             gameObject.SetActive(true);
             _action = action;
@@ -82,7 +84,7 @@ namespace MirageXR
 
         public void Create(App plugin)
         {
-            var workplaceManager = RootObject.Instance.workplaceManager;
+            var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
             if (_annotationToEdit != null)
             {
                 EventManager.DeactivateObject(_annotationToEdit);
@@ -97,7 +99,7 @@ namespace MirageXR
                     originT.transform.position,
                     originT.transform.rotation);
 
-                _annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(_action, offset);
+                _annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAugmentation(_action, offset);
             }
 
             _annotationToEdit.predicate = "plugin:" + plugin.name;
@@ -110,9 +112,9 @@ namespace MirageXR
 
             Debug.LogDebug("ACTION ID = " + _annotationToEdit.url);
 
-            EventManager.ActivateObject(_annotationToEdit);
-            EventManager.NotifyActionModified(_action);
-            RootObject.Instance.activityManager.SaveData();
+            MirageXR.EventManager.ActivateObject(_annotationToEdit);
+            LearningExperienceEngine.EventManager.NotifyActionModified(_action);
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.SaveData();
 
             Close();
         }

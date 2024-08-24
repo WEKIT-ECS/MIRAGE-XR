@@ -4,9 +4,8 @@ using UnityEngine.UI;
 
 public class ActionListItem : MonoBehaviour
 {
-    private static BrandManager brandManager => RootObject.Instance.brandManager;
-
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
 
     [SerializeField] private Image backgroundImage;
     [SerializeField] private Text captionLabel;
@@ -18,7 +17,7 @@ public class ActionListItem : MonoBehaviour
 
     public Button DeleteButton => deleteButton;
 
-    public Action Content { get; set; }
+    public LearningExperienceEngine.Action Content { get; set; }
 
     public int DataIndex { get; set; }
 

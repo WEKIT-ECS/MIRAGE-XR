@@ -21,12 +21,12 @@ namespace MirageXR
 
 		private void OnEnable()
 		{
-			EventManager.XAPIChanged += ChangeXAPI;
+			MirageXR.EventManager.XAPIChanged += ChangeXAPI;
 		}
 
 		private void OnDisable()
 		{
-			EventManager.XAPIChanged -= ChangeXAPI;
+			MirageXR.EventManager.XAPIChanged -= ChangeXAPI;
 		}
 
 		protected override void RegisterServices()
@@ -109,7 +109,7 @@ namespace MirageXR
 		}
 
 
-		private void ChangeXAPI(DBManager.LearningRecordStores selectedLRS)
+		private void ChangeXAPI(LearningExperienceEngine.DBManager.LearningRecordStores selectedLRS)
 		{
 			try
 			{
@@ -122,7 +122,7 @@ namespace MirageXR
 
 			switch (selectedLRS)
 			{
-				case DBManager.LearningRecordStores.WEKIT:
+				case LearningExperienceEngine.DBManager.LearningRecordStores.WEKIT:
 					ServiceManager.RegisterService(new ExperienceService(CreateXAPIClient("WEKIT")));
 					break;
 			}

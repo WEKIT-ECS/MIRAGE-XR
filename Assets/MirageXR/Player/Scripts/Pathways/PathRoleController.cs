@@ -5,9 +5,8 @@ using UnityEngine;
 
 public class PathRoleController : MonoBehaviour
 {
-    private static BrandManager brandManager => RootObject.Instance.brandManager;
-
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
 
     [Header("Elements")]
     [SerializeField] private Renderer[] renderers;
@@ -159,7 +158,7 @@ public class PathRoleController : MonoBehaviour
 
     private bool IsNext()
     {
-        List<Action> actions = activityManager.ActionsOfTypeAction;
+        List<LearningExperienceEngine.Action> actions = activityManager.ActionsOfTypeAction;
 
         int index = actions.IndexOf(activityManager.ActiveAction);
         if (index >= actions.Count - 1)

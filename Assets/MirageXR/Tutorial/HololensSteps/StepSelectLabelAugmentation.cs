@@ -1,3 +1,4 @@
+using LearningExperienceEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,7 +27,7 @@ namespace MirageXR
             EventManager.OnActivityStarted += DefaultCloseEventListener;
         }
 
-        private void LabelItemClickedListener(ContentType type)
+        private void LabelItemClickedListener(LearningExperienceEngine.ContentType type)
         {
             ExitStep();
         }

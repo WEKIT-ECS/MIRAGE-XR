@@ -39,15 +39,15 @@ public class SettingsView : PopupBase
 
     private void ResetValues()
     {
-        _inputFieldMoodleAddress.text = DBManager.domain;
+        _inputFieldMoodleAddress.text = LearningExperienceEngine.DBManager.domain;
         _inputFieldMoodleAddress.ResetValidation();
-        _togglePublicUpload.isOn = DBManager.publicUploadPrivacy;
+        _togglePublicUpload.isOn = LearningExperienceEngine.DBManager.publicUploadPrivacy;
         _toggleUiForKids.isOn = false;
         _btnSave.interactable = false;
 
-        switch (DBManager.publicCurrentLearningRecordStore)
+        switch (LearningExperienceEngine.DBManager.publicCurrentLearningRecordStore)
         {
-            case DBManager.LearningRecordStores.WEKIT:
+            case LearningExperienceEngine.DBManager.LearningRecordStores.WEKIT:
                 _learningRecordStoreDropdown.value = 0;
                 break;
         }
@@ -87,21 +87,21 @@ public class SettingsView : PopupBase
     {
         if (!_inputFieldMoodleAddress.Validate()) return;
 
-        if (DBManager.domain != _inputFieldMoodleAddress.text)
+        if (LearningExperienceEngine.DBManager.domain != _inputFieldMoodleAddress.text)
         {
-            DBManager.domain = _inputFieldMoodleAddress.text;
-            DBManager.LogOut();
+            LearningExperienceEngine.DBManager.domain = _inputFieldMoodleAddress.text;
+            LearningExperienceEngine.DBManager.LogOut();
             RootView.Instance.activityListView.UpdateListView();
         }
 
-        DBManager.publicUploadPrivacy = _togglePublicUpload.isOn;
+        LearningExperienceEngine.DBManager.publicUploadPrivacy = _togglePublicUpload.isOn;
 
-        var selectedLearningRecordStore = DBManager.publicCurrentLearningRecordStore;
+        var selectedLearningRecordStore = LearningExperienceEngine.DBManager.publicCurrentLearningRecordStore;
 
         switch (_learningRecordStoreDropdown.value) 
         {
             case 0:
-                selectedLearningRecordStore = DBManager.LearningRecordStores.WEKIT;
+                selectedLearningRecordStore = LearningExperienceEngine.DBManager.LearningRecordStores.WEKIT;
                 break;
         }
 
@@ -112,18 +112,18 @@ public class SettingsView : PopupBase
         Close();
     }
 
-    private void changeLearningRecordStore(DBManager.LearningRecordStores selectedLearningRecordStore)
+    private void changeLearningRecordStore(LearningExperienceEngine.DBManager.LearningRecordStores selectedLearningRecordStore)
     {
         EventManager.NotifyxAPIChanged(selectedLearningRecordStore);
 
-        DBManager.publicCurrentLearningRecordStore = selectedLearningRecordStore;
+        LearningExperienceEngine.DBManager.publicCurrentLearningRecordStore = selectedLearningRecordStore;
 
     }
 
     private void OnClickReset()
     {
-        _inputFieldMoodleAddress.text = DBManager.WEKIT_URL;
-        _togglePublicUpload.isOn = DBManager.PUBLIC_UPLOAD_PRIVACY_DEFAULT;
+        _inputFieldMoodleAddress.text = LearningExperienceEngine.DBManager.WEKIT_URL;
+        _togglePublicUpload.isOn = LearningExperienceEngine.DBManager.PUBLIC_UPLOAD_PRIVACY_DEFAULT;
         _learningRecordStoreDropdown.value = 0;
     }
 

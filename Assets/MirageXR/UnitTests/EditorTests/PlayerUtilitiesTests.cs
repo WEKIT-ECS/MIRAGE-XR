@@ -1,4 +1,5 @@
-﻿using MirageXR;
+﻿using LearningExperienceEngine;
+using MirageXR;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,7 @@ namespace Tests
         [Test]
         public void ParseStringToVector3_EmptyInput_ThrowsArgumentException()
         {
-            Assert.Throws<ArgumentException>(() => Utilities.ParseStringToVector3(""));
+            Assert.Throws<ArgumentException>(() => LearningExperienceEngine.Utilities.ParseStringToVector3(""));
         }
 
         [Test]
@@ -31,7 +32,7 @@ namespace Tests
         {
             const string input = "1 2 3";
             Vector3 expectedRes = new Vector3(1, 2, 3);
-            Vector3 res = Utilities.ParseStringToVector3(input);
+            Vector3 res = LearningExperienceEngine.Utilities.ParseStringToVector3(input);
 
             Assert.AreEqual(expectedRes, res);
         }
@@ -41,7 +42,7 @@ namespace Tests
         {
             const string input = "1.2 2.3 3.4";
             Vector3 expectedRes = new Vector3(1.2f, 2.3f, 3.4f);
-            Vector3 res = Utilities.ParseStringToVector3(input);
+            Vector3 res = LearningExperienceEngine.Utilities.ParseStringToVector3(input);
 
             Assert.AreEqual(expectedRes, res);
         }
@@ -50,7 +51,7 @@ namespace Tests
         public void TryParseStringToVector3_EmptyString_ReturnsFalse()
         {
             const string input = "";
-            bool res = Utilities.TryParseStringToVector3(input, out Vector3 vector);
+            bool res = LearningExperienceEngine.Utilities.TryParseStringToVector3(input, out Vector3 vector);
 
             Assert.IsFalse(res);
         }
@@ -59,7 +60,7 @@ namespace Tests
         public void TryParseStringToVector3_EmptyString_VectorDefault()
         {
             const string input = "";
-            bool res = Utilities.TryParseStringToVector3(input, out Vector3 vector);
+            bool res = LearningExperienceEngine.Utilities.TryParseStringToVector3(input, out Vector3 vector);
 
             Assert.AreEqual(Vector3.zero, vector);
         }
@@ -68,7 +69,7 @@ namespace Tests
         public void TryParseStringToVector3_VectorWithInts_ReturnsTrue()
         {
             const string input = "1 2 3";
-            bool res = Utilities.TryParseStringToVector3(input, out Vector3 vector);
+            bool res = LearningExperienceEngine.Utilities.TryParseStringToVector3(input, out Vector3 vector);
 
             Assert.IsTrue(res);
         }
@@ -78,7 +79,7 @@ namespace Tests
         {
             const string input = "1 2 3";
             Vector3 expectedVector = new Vector3(1, 2, 3);
-            bool res = Utilities.TryParseStringToVector3(input, out Vector3 vector);
+            bool res = LearningExperienceEngine.Utilities.TryParseStringToVector3(input, out Vector3 vector);
 
             Assert.AreEqual(expectedVector, vector);
         }
@@ -87,7 +88,7 @@ namespace Tests
         public void TryParseStringToVector3_VectorWithFloats_ReturnsTrue()
         {
             const string input = "1.2 2.3 3.4";
-            bool res = Utilities.TryParseStringToVector3(input, out Vector3 vector);
+            bool res = LearningExperienceEngine.Utilities.TryParseStringToVector3(input, out Vector3 vector);
 
             Assert.IsTrue(res);
         }
@@ -97,7 +98,7 @@ namespace Tests
         {
             const string input = "1.2 2.3 3.4";
             Vector3 expectedVector = new Vector3(1.2f, 2.3f, 3.4f);
-            bool res = Utilities.TryParseStringToVector3(input, out Vector3 vector);
+            bool res = LearningExperienceEngine.Utilities.TryParseStringToVector3(input, out Vector3 vector);
 
             Assert.AreEqual(expectedVector, vector);
         }
@@ -106,7 +107,7 @@ namespace Tests
         public void ParseStringToQuaternion_EmptyString_ThrowsArgumentException()
         {
             const string input = "";
-            Assert.Throws<ArgumentException>(() => Utilities.ParseStringToQuaternion(input));
+            Assert.Throws<ArgumentException>(() => LearningExperienceEngine.Utilities.ParseStringToQuaternion(input));
         }
 
         [Test]
@@ -114,7 +115,7 @@ namespace Tests
         {
             const string input = "1.2 2.3 3.4 4.5";
             Quaternion expected = new Quaternion(1.2f, 2.3f, 3.4f, 4.5f);
-            Quaternion result = Utilities.ParseStringToQuaternion(input);
+            Quaternion result = LearningExperienceEngine.Utilities.ParseStringToQuaternion(input);
 
             Assert.AreEqual(expected, result);
         }
@@ -123,7 +124,7 @@ namespace Tests
         public void TryParseStringToQuaternion_EmptyString_ReturnsFalse()
         {
             const string input = "";
-            bool res = Utilities.TryParseStringToQuaternion(input, out Quaternion quat);
+            bool res = LearningExperienceEngine.Utilities.TryParseStringToQuaternion(input, out Quaternion quat);
 
             Assert.IsFalse(res);
         }
@@ -132,7 +133,7 @@ namespace Tests
         public void TryParseStringToQuaternion_EmptyString_DefaultQuaternion()
         {
             const string input = "";
-            bool res = Utilities.TryParseStringToQuaternion(input, out Quaternion quat);
+            bool res = LearningExperienceEngine.Utilities.TryParseStringToQuaternion(input, out Quaternion quat);
 
             Assert.AreEqual(Quaternion.identity, quat);
         }
@@ -141,7 +142,7 @@ namespace Tests
         public void TryParseStringToQuaternion_QuaternionWithFloats_ReturnsTrue()
         {
             const string input = "1.2 2.3 3.4 4.5";
-            bool res = Utilities.TryParseStringToQuaternion(input, out Quaternion quat);
+            bool res = LearningExperienceEngine.Utilities.TryParseStringToQuaternion(input, out Quaternion quat);
 
             Assert.IsTrue(res);
         }
@@ -151,7 +152,7 @@ namespace Tests
         {
             const string input = "1.2 2.3 3.4 4.5";
             Quaternion expected = new Quaternion(1.2f, 2.3f, 3.4f, 4.5f);
-            bool res = Utilities.TryParseStringToQuaternion(input, out Quaternion quat);
+            bool res = LearningExperienceEngine.Utilities.TryParseStringToQuaternion(input, out Quaternion quat);
 
             Assert.AreEqual(expected, quat);
         }
@@ -160,7 +161,7 @@ namespace Tests
         public void CreateObject_ParentNull_IdSetAsGameObjectName()
         {
             const string id = "My ID";
-            GameObject res = Utilities.CreateObject(id, (Transform)null);
+            GameObject res = LearningExperienceEngine.Utilities.CreateObject(id, (Transform)null);
 
             Assert.AreEqual(id, res.name);
         }
@@ -169,7 +170,7 @@ namespace Tests
         public void CreateObject_ParentNull_NoParentSet()
         {
             const string id = "My ID";
-            GameObject res = Utilities.CreateObject(id, (Transform)null);
+            GameObject res = LearningExperienceEngine.Utilities.CreateObject(id, (Transform)null);
 
             Assert.IsNull(res.transform.parent);
         }
@@ -179,7 +180,7 @@ namespace Tests
         {
             const string id = "My ID";
             GameObject parent = new GameObject("Parent");
-            GameObject res = Utilities.CreateObject(id, parent.transform);
+            GameObject res = LearningExperienceEngine.Utilities.CreateObject(id, parent.transform);
 
             Assert.AreEqual(parent.transform, res.transform.parent);
         }
@@ -191,7 +192,7 @@ namespace Tests
 
             LogAssert.Expect(LogType.Exception, new Regex(@".*Object.*not found.*"));
 
-            GameObject res = Utilities.CreateObject(id, "this parent does not exist");
+            GameObject res = LearningExperienceEngine.Utilities.CreateObject(id, "this parent does not exist");
 
             Assert.IsNull(res);
         }
@@ -201,7 +202,7 @@ namespace Tests
         {
             const string id = "My ID";
             GameObject parent = new GameObject("Parent");
-            GameObject res = Utilities.CreateObject(id, parent.name);
+            GameObject res = LearningExperienceEngine.Utilities.CreateObject(id, parent.name);
 
             Assert.AreEqual(parent.transform, res.transform.parent);
         }

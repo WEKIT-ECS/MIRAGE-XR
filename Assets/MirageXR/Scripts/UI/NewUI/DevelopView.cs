@@ -16,7 +16,7 @@ public class DevelopView : PopupBase
 	{
 		base.Initialization(onClose, args);
 
-		_devModeToggle.isOn = DBManager.developMode;
+		_devModeToggle.isOn = LearningExperienceEngine.DBManager.developMode;
 
 		_devModeToggle.onValueChanged.AddListener(OnDevModeToggleValueChanged);
 
@@ -30,7 +30,7 @@ public class DevelopView : PopupBase
 
 	private void OnDevModeToggleValueChanged(bool value)
 	{
-		DBManager.developMode = value;
+		LearningExperienceEngine.DBManager.developMode = value;
 
 		if (_isShownDevelopModeMessage)
 		{
