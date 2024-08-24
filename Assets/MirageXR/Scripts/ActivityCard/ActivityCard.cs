@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LearningExperienceEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -60,9 +61,9 @@ namespace MirageXR
         [SerializeField] private ClickBehaviours ClickBehaviour = ClickBehaviours.ShowContent;
 
         // Action link.
-        [SerializeField] private Action actionObject;
+        [SerializeField] private LearningExperienceEngine.Action actionObject;
 
-        public Action ActionObject => actionObject;
+        public LearningExperienceEngine.Action ActionObject => actionObject;
 
         // Is current card for the active step or not?
         [SerializeField] private bool IsActiveStep;
@@ -130,7 +131,7 @@ namespace MirageXR
         /// Set up an activity card when action has changed.
         /// </summary>
         /// <param name="action"></param>
-        public void SetupCard(Action action)
+        public void SetupCard(LearningExperienceEngine.Action action)
         {
             // Link action.
             actionObject = action;

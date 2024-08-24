@@ -10,7 +10,7 @@ namespace MirageXR
     [RequireComponent(typeof(SessionContainerListItem))]
     public class SessionButton : MonoBehaviour
     {
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
         [SerializeField] private SessionContainerListItem _selectedListViewItem;
 
         public async void OnActivitySelected()
@@ -41,9 +41,9 @@ namespace MirageXR
             _selectedListViewItem.UpdateDisplay();
 
             bool success;
-            Session arlemFile = _selectedListViewItem.Content.Session;
+            LearningExperienceEngine.Session arlemFile = _selectedListViewItem.Content.Session;
             Debug.LogInfo($"Downloading from {arlemFile.contextid}/{arlemFile.component}/{arlemFile.filearea}/{arlemFile.itemid}/{arlemFile.filename}");
-            using (SessionDownloader downloader = new SessionDownloader($"{DBManager.domain}/pluginfile.php/{arlemFile.contextid}/{arlemFile.component}/{arlemFile.filearea}/{arlemFile.itemid}/{arlemFile.filename}", arlemFile.sessionid + ".zip"))
+            using (LearningExperienceEngine.SessionDownloader downloader = new LearningExperienceEngine.SessionDownloader($"{LearningExperienceEngine.DBManager.domain}/pluginfile.php/{arlemFile.contextid}/{arlemFile.component}/{arlemFile.filearea}/{arlemFile.itemid}/{arlemFile.filename}", arlemFile.sessionid + ".zip"))
             {
                 success = await downloader.DownloadZipFileAsync();
 
@@ -71,7 +71,7 @@ namespace MirageXR
                     if (File.Exists(activityFileName))
                     {
                         string jsonContent = File.ReadAllText(activityFileName);
-                        _selectedListViewItem.Content.Activity = JsonUtility.FromJson<Activity>(jsonContent);
+                        _selectedListViewItem.Content.Activity = JsonUtility.FromJson<LearningExperienceEngine.Activity>(jsonContent);
                         _selectedListViewItem.UpdateDisplay();
                         break;
                     }
@@ -85,12 +85,12 @@ namespace MirageXR
 
         private async void Play()
         {
-            string activityJsonFileName = LocalFiles.GetActivityJsonFilename(_selectedListViewItem.Content.FileIdentifier);
+            string activityJsonFileName = LearningExperienceEngine.LocalFiles.GetActivityJsonFilename(_selectedListViewItem.Content.FileIdentifier);
             PlayerPrefs.SetString("activityUrl", activityJsonFileName);
             PlayerPrefs.Save();
 
             // update the view of the activity on Moodle server after loading
-            await RootObject.Instance.moodleManager.UpdateViewsOfActivity(_selectedListViewItem.Content.ItemID, _selectedListViewItem.Content.ExistsRemotely);
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.UpdateViewsOfActivity(_selectedListViewItem.Content.ItemID, _selectedListViewItem.Content.ExistsRemotely);
 
             //StartCoroutine(SwitchToPlayerScene(activityJsonFileName));
             await RootObject.Instance.editorSceneService.LoadEditorAsync();
@@ -102,7 +102,7 @@ namespace MirageXR
 
         public async void OnDeleteButtonPressed()
         {
-            if (LocalFiles.TryDeleteActivity(_selectedListViewItem.Content.Activity.id))
+            if (LearningExperienceEngine.LocalFiles.TryDeleteActivity(_selectedListViewItem.Content.Activity.id))
             {
                 // reload the activity list
                 var listView = FindObjectOfType<SessionListView>();

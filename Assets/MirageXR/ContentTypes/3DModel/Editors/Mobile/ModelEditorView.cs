@@ -25,7 +25,7 @@ public class ModelEditorView : PopupEditorBase
         Library
     }
 
-    public override ContentType editorForType => ContentType.MODEL;
+    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.MODEL;
 
     [SerializeField] private Transform _contentContainer;
     [SerializeField] private ScrollRect _scroll;
@@ -81,7 +81,7 @@ public class ModelEditorView : PopupEditorBase
 
         try
         {
-            LocalFiles.TryGetPassword("sketchfab", out _renewToken, out _token);
+            LearningExperienceEngine.LocalFiles.TryGetPassword("sketchfab", out _renewToken, out _token);
 
             _showBackground = false;
             base.Initialization(onClose, args);
@@ -109,9 +109,9 @@ public class ModelEditorView : PopupEditorBase
     {
         try
         {
-            if (LocalFiles.TryGetPassword("sketchfab", out _renewToken, out _token))
+            if (LearningExperienceEngine.LocalFiles.TryGetPassword("sketchfab", out _renewToken, out _token))
             {
-                if (!string.IsNullOrEmpty(_renewToken) && DBManager.isNeedToRenewSketchfabToken)
+                if (!string.IsNullOrEmpty(_renewToken) && LearningExperienceEngine.DBManager.isNeedToRenewSketchfabToken)
                 {
                     RenewToken();
                 }
@@ -152,8 +152,8 @@ public class ModelEditorView : PopupEditorBase
                 {
                     _token = response.access_token;
                     _renewToken = response.refresh_token;
-                    LocalFiles.SaveLoginDetails("sketchfab", _renewToken, _token);
-                    DBManager.sketchfabLastTokenRenewDate = DateTime.Today;
+                    LearningExperienceEngine.LocalFiles.SaveLoginDetails("sketchfab", _renewToken, _token);
+                    LearningExperienceEngine.DBManager.sketchfabLastTokenRenewDate = DateTime.Today;
                 }
             }
         }
@@ -532,9 +532,9 @@ public class ModelEditorView : PopupEditorBase
             var response = JsonConvert.DeserializeObject<MirageXR.Sketchfab.SketchfabResponse>(json);
             _token = response.access_token;
             _renewToken = response.refresh_token;
-            LocalFiles.SaveLoginDetails("sketchfab", _renewToken, _token);
+            LearningExperienceEngine.LocalFiles.SaveLoginDetails("sketchfab", _renewToken, _token);
             Toast.Instance.Show("Authorization was successful");
-            DBManager.sketchfabLastTokenRenewDate = DateTime.Now;
+            LearningExperienceEngine.DBManager.sketchfabLastTokenRenewDate = DateTime.Now;
             return;
         }
         Close();
@@ -545,9 +545,9 @@ public class ModelEditorView : PopupEditorBase
         var service = ServiceManager.GetService<OpenIDConnectService>();
         service.LoginCompleted -= OnLoginCompleted;
         _token = service.AccessToken;
-        LocalFiles.SaveLoginDetails("sketchfab", string.Empty, _token);
+        LearningExperienceEngine.LocalFiles.SaveLoginDetails("sketchfab", string.Empty, _token);
         Toast.Instance.Show("Authorization was successful");
-        DBManager.sketchfabLastTokenRenewDate = DateTime.Now;
+        LearningExperienceEngine.DBManager.sketchfabLastTokenRenewDate = DateTime.Now;
     }
 
     private void Accept(ModelListItem item)
@@ -614,13 +614,13 @@ public class ModelEditorView : PopupEditorBase
 
     private void Logout()
     {
-        LocalFiles.RemoveKey("sketchfab");
+        LearningExperienceEngine.LocalFiles.RemoveKey("sketchfab");
         ResetView();
     }
 
     protected override void OnAccept()
     {
-        _previewItem.name = ZipUtilities.CheckFileForIllegalCharacters(_previewItem.name);
+        _previewItem.name = LearningExperienceEngine.ZipUtilities.CheckFileForIllegalCharacters(_previewItem.name);
         AddAugmentation(_previewItem.name);
     }
 

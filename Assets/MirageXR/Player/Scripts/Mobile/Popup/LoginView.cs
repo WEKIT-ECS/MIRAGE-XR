@@ -40,7 +40,7 @@ public class LoginView : PopupBase
     private async Task Login(string username, string password)
     {
         LoadView.Instance.Show();
-        var result = await RootObject.Instance.moodleManager.Login(username, password);
+        var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.Login(username, password);
         LoadView.Instance.Hide();
         if (result)
         {
@@ -57,7 +57,7 @@ public class LoginView : PopupBase
 
     private void OnToggleRememberValueChanged(bool value)
     {
-        DBManager.rememberUser = value;
+        LearningExperienceEngine.DBManager.rememberUser = value;
     }
 
     private void OnEnable()
@@ -69,13 +69,13 @@ public class LoginView : PopupBase
     {
         Toast.Instance.Show("Login succeeded");
         RootView.Instance.activityListView.UpdateListView();
-        if (DBManager.rememberUser)
+        if (LearningExperienceEngine.DBManager.rememberUser)
         {
-            LocalFiles.SaveUsernameAndPassword(username, password);
+            LearningExperienceEngine.LocalFiles.SaveUsernameAndPassword(username, password);
         }
         else
         {
-            LocalFiles.RemoveUsernameAndPassword();
+            LearningExperienceEngine.LocalFiles.RemoveUsernameAndPassword();
         }
     }
 
@@ -93,7 +93,7 @@ public class LoginView : PopupBase
 
     private void ResetValues()
     {
-        if (DBManager.LoggedIn)
+        if (LearningExperienceEngine.DBManager.LoggedIn)
         {
             ShowLogout();
         }
@@ -101,8 +101,8 @@ public class LoginView : PopupBase
         {
             ShowLogin();
         }
-        _txtLogout.text = $"You are already logged in,\n<b>{DBManager.username}</b>";
-        _toggleRemember.isOn = DBManager.rememberUser;
+        _txtLogout.text = $"You are already logged in,\n<b>{LearningExperienceEngine.DBManager.username}</b>";
+        _toggleRemember.isOn = LearningExperienceEngine.DBManager.rememberUser;
         _inputFieldUserName.text = string.Empty;
         _inputFieldPassword.text = string.Empty;
         _inputFieldUserName.ResetValidation();
@@ -111,7 +111,7 @@ public class LoginView : PopupBase
 
     private void OnClickRegister()
     {
-        Application.OpenURL(DBManager.registerPage);
+        Application.OpenURL(LearningExperienceEngine.DBManager.registerPage);
     }
 
     private async void OnClickLogin()
@@ -124,7 +124,7 @@ public class LoginView : PopupBase
 
     private void OnClickLogout()
     {
-        DBManager.LogOut();
+        LearningExperienceEngine.DBManager.LogOut();
         RootView.Instance.activityListView.UpdateListView();
         ShowLogin();
     }

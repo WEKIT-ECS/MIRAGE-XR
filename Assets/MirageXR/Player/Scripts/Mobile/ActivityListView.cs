@@ -22,7 +22,7 @@ namespace MirageXR
 
         public Button BtnAddActivity => _btnAddActivity;
 
-        private List<SessionContainer> _content;
+        private List<LearningExperienceEngine.SessionContainer> _content;
         private readonly List<ActivityListItem> _items = new List<ActivityListItem>();
         private bool _interactable = true;
 
@@ -47,7 +47,7 @@ namespace MirageXR
             _btnSettings.onClick.AddListener(OnSettingsClick);
             _btnAddActivity.onClick.AddListener(OnAddActivityClick);
             _inputFieldSearch.onValueChanged.AddListener(OnInputFieldSearchChanged);
-            if (!DBManager.LoggedIn && DBManager.rememberUser)
+            if (!LearningExperienceEngine.DBManager.LoggedIn && LearningExperienceEngine.DBManager.rememberUser)
             {
                 await AutoLogin();
             }
@@ -56,18 +56,18 @@ namespace MirageXR
 
         private async Task AutoLogin()
         {
-            if (!LocalFiles.TryToGetUsernameAndPassword(out var username, out var password)) return;
+            if (!LearningExperienceEngine.LocalFiles.TryToGetUsernameAndPassword(out var username, out var password)) return;
 
             LoadView.Instance.Show();
-            await RootObject.Instance.moodleManager.Login(username, password);
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.Login(username, password);
             LoadView.Instance.Hide();
         }
 
-        private static async Task<List<SessionContainer>> GetContent()
+        private static async Task<List<LearningExperienceEngine.SessionContainer>> GetContent()
         {
-            var dictionary = new Dictionary<string, SessionContainer>();
+            var dictionary = new Dictionary<string, LearningExperienceEngine.SessionContainer>();
 
-            var localList = await LocalFiles.GetDownloadedActivities();
+            var localList = await LearningExperienceEngine.LocalFiles.GetDownloadedActivities();
             localList.ForEach(t =>
             {
                 if (dictionary.ContainsKey(t.id))
@@ -76,11 +76,11 @@ namespace MirageXR
                 }
                 else
                 {
-                    dictionary.Add(t.id, new SessionContainer { Activity = t });
+                    dictionary.Add(t.id, new LearningExperienceEngine.SessionContainer { Activity = t });
                 }
             });
 
-            var remoteList = await RootObject.Instance.moodleManager.GetArlemList();
+            var remoteList = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.GetArlemList();
             remoteList?.ForEach(t =>
             {
                 if (dictionary.ContainsKey(t.sessionid))
@@ -89,7 +89,7 @@ namespace MirageXR
                 }
                 else
                 {
-                    dictionary.Add(t.sessionid, new SessionContainer { Session = t });
+                    dictionary.Add(t.sessionid, new LearningExperienceEngine.SessionContainer { Session = t });
                 }
             });
 
@@ -128,7 +128,7 @@ namespace MirageXR
             LoadView.Instance.Show();
             interactable = false;
             await RootObject.Instance.editorSceneService.LoadEditorAsync();
-            await RootObject.Instance.activityManager.CreateNewActivity();
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.CreateNewActivity();
             interactable = true;
             LoadView.Instance.Hide();
             EventManager.NotifyOnNewActivityCreationButtonPressed();

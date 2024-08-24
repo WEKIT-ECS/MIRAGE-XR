@@ -9,7 +9,7 @@ using Random = UnityEngine.Random;
 
 public class CalibrationManager : MonoBehaviour
 {
-    private static BrandManager brandManager => RootObject.Instance.brandManager;
+    private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
 
     private static ImageTargetManagerWrapper imageTargetManager => RootObject.Instance.imageTargetManager;
 
@@ -190,7 +190,7 @@ public class CalibrationManager : MonoBehaviour
 
     public async Task ApplyCalibrationAsync(bool resetAnchor)
     {
-        await RootObject.Instance.workplaceManager.CalibrateWorkplace(resetAnchor);
+        await LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.CalibrateWorkplace(resetAnchor);
         _isCalibrated = true;
     }
 

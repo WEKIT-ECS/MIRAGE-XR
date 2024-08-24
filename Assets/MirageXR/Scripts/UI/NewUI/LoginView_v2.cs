@@ -55,7 +55,7 @@ public class LoginView_v2 : PopupBase
     private async Task Login(string username, string password)
     {
         LoadView.Instance.Show();
-        var result = await RootObject.Instance.moodleManager.Login(username, password);
+        var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.Login(username, password);
         LoadView.Instance.Hide();
         if (result)
         {
@@ -73,7 +73,7 @@ public class LoginView_v2 : PopupBase
 
     private void OnToggleRememberValueChanged(bool value)
     {
-        DBManager.rememberUser = value;
+        LearningExperienceEngine.DBManager.rememberUser = value;
     }
 
     private void OnEnable()
@@ -104,13 +104,13 @@ public class LoginView_v2 : PopupBase
     private void OnLoginSucceed(string username, string password)
     {
         Toast.Instance.Show("Login succeeded");
-        if (DBManager.rememberUser)
+        if (LearningExperienceEngine.DBManager.rememberUser)
         {
-            LocalFiles.SaveUsernameAndPassword(username, password);
+            LearningExperienceEngine.LocalFiles.SaveUsernameAndPassword(username, password);
         }
         else
         {
-            LocalFiles.RemoveUsernameAndPassword();
+            LearningExperienceEngine.LocalFiles.RemoveUsernameAndPassword();
         }
 
         _onLoginStatusChanged?.Invoke();
@@ -118,7 +118,7 @@ public class LoginView_v2 : PopupBase
 
     private void ResetValues()
     {
-        _toggleRemember.isOn = DBManager.rememberUser;
+        _toggleRemember.isOn = LearningExperienceEngine.DBManager.rememberUser;
         _inputFieldUserName.text = string.Empty;
         _inputFieldPassword.text = string.Empty;
         if (_dontShowLoginMenu)
@@ -137,7 +137,7 @@ public class LoginView_v2 : PopupBase
 
     private void OnClickRegister()
     {
-        Application.OpenURL(DBManager.registerPage);
+        Application.OpenURL(LearningExperienceEngine.DBManager.registerPage);
     }
 
     private async void OnClickLogin()

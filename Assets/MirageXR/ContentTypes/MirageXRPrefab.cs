@@ -12,7 +12,7 @@ namespace MirageXR
     /// </summary>
     public abstract class MirageXRPrefab : BaseFocusHandler
     {
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
         private GameObject _center;
         private LineRenderer _lineRenderer;
         private Transform _centerOfView;
@@ -29,7 +29,7 @@ namespace MirageXR
         // Should the gaze guiding be used or not.
         protected bool UseGuide = false;
 
-        public ToggleObject Annotation { get; private set; }
+        public LearningExperienceEngine.ToggleObject Annotation { get; private set; }
 
         // events that register focus even
         public delegate void FocusChangedEventHandler(string pointer, GameObject focusedObject, Vector3 hitPoint);
@@ -118,7 +118,7 @@ namespace MirageXR
                 _guideLine.SetActive(false);
         }
 
-        public bool SetGuide(ToggleObject obj)
+        public bool SetGuide(LearningExperienceEngine.ToggleObject obj)
         {
             // Find the target object.
             var targetObject = GameObject.Find(obj.id + "/default");
@@ -218,7 +218,7 @@ namespace MirageXR
         /// <summary>
         /// All the prefabs has to implement an initialization method.
         /// </summary>
-        public virtual bool Init(ToggleObject obj)
+        public virtual bool Init(LearningExperienceEngine.ToggleObject obj)
         {
             Annotation = obj;
             StartCoroutine(FindColliderChildren());
@@ -239,7 +239,7 @@ namespace MirageXR
         /// </summary>
         /// <param name="obj">Action toggle object.</param>
         /// <returns>Returns false if the parent can't be set.</returns>
-        protected bool SetParent(ToggleObject obj)
+        protected bool SetParent(LearningExperienceEngine.ToggleObject obj)
         {
             if (obj.id.Equals("UserViewport"))
             {
@@ -323,7 +323,7 @@ namespace MirageXR
         {
             // since scaling is activated, allow the poi editor's object manipulator to set it.
             poiEditor.canScale = true;
-            Poi poi = poiEditor.GetMyPoi();
+            LearningExperienceEngine.Poi poi = poiEditor.GetMyPoi();
 
             // ensure relevant string has value
             if (string.IsNullOrEmpty(poi.scale))
@@ -353,7 +353,7 @@ namespace MirageXR
         {
             // since scaling is activated, allow the poi editor's object manipulator to set it.
             poiEditor.canRotate = true;
-            Poi poi = poiEditor.GetMyPoi();
+            LearningExperienceEngine.Poi poi = poiEditor.GetMyPoi();
 
             // ensure relevant string has value
             return string.IsNullOrEmpty(poi.rotation) ? Vector3.zero : Utilities.ParseStringToVector3(poi.rotation);

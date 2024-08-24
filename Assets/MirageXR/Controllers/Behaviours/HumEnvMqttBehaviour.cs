@@ -11,7 +11,7 @@ namespace MirageXR
     {
 
         public MqttConnection Mqtt;
-        private Sensor _sensor;
+        private LearningExperienceEngine.Sensor _sensor;
         private GameObject _prefab;
 
         private RectTransform _humanContainer;
@@ -54,7 +54,7 @@ namespace MirageXR
             await Mqtt.DisconnectAsync();
         }
 
-        public async Task<bool> Init(Sensor sensor)
+        public async Task<bool> Init(LearningExperienceEngine.Sensor sensor)
         {
             _sensor = sensor;
 

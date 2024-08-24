@@ -15,8 +15,8 @@ namespace MirageXR
         private const float _distanceFromGround = 0.6f;  // Increase to move the character down
         private const float _defaultScaleFactor = 0.8f;
 
-        private Action _action;
-        private ToggleObject _annotationToEdit;
+        private LearningExperienceEngine.Action _action;
+        private LearningExperienceEngine.ToggleObject _annotationToEdit;
 
         private GameObject _character;
         private string _modelname;
@@ -72,8 +72,8 @@ namespace MirageXR
             }
             else
             {
-                var workplaceManager = RootObject.Instance.workplaceManager;
-                Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
+                var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+                LearningExperienceEngine.Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
                 GameObject originT = GameObject.Find(detectable.id);
 
                 Vector3 spawnPosition = TaskStationDetailMenu.Instance.ActiveTaskStation.transform.position + Vector3.forward;
@@ -81,13 +81,13 @@ namespace MirageXR
 
                 Vector3 offset = Utilities.CalculateOffset(spawnPosition, spawnRot, originT.transform.position, originT.transform.rotation);
 
-                _annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(_action, offset);
+                _annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAugmentation(_action, offset);
                 _annotationToEdit.predicate = "char:" + _modelname;
             }
 
             EventManager.ActivateObject(_annotationToEdit);
-            EventManager.NotifyActionModified(_action);
-            RootObject.Instance.activityManager.SaveData();
+            LearningExperienceEngine.EventManager.NotifyActionModified(_action);
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.SaveData();
 
             var characterObjectName = $"{_annotationToEdit.id}/{_annotationToEdit.poi}/{_annotationToEdit.predicate}";
 
@@ -115,7 +115,7 @@ namespace MirageXR
             Destroy(gameObject);
         }
 
-        public void Open(Action action, ToggleObject annotation)
+        public void Open(LearningExperienceEngine.Action action, LearningExperienceEngine.ToggleObject annotation)
         {
             // character = myCharacter;
             gameObject.SetActive(true);

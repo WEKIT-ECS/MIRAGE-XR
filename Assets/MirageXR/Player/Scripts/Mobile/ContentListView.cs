@@ -9,7 +9,7 @@ using Action = System.Action;
 
 public class ContentListView : BaseView
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
     private const float HIDE_HEIGHT = 250f;
     private const float BASE_CONTROLS_COOLDOWN = 0.3f;
 
@@ -31,7 +31,7 @@ public class ContentListView : BaseView
     [SerializeField] private PopupEditorBase[] _editors;
 
     public PopupEditorBase[] editors => _editors;
-    public MirageXR.Action currentStep => _currentStep;
+    public LearningExperienceEngine.Action currentStep => _currentStep;
     public RootView rootView => (RootView)_parentView;
 
     public TMP_InputField TxtStepName => _txtStepName;
@@ -65,7 +65,7 @@ public class ContentListView : BaseView
     private Coroutine _coroutineSizeTo;
     private Coroutine _coroutineRotateTo;
     private float _showHeight;
-    private MirageXR.Action _currentStep;
+    private LearningExperienceEngine.Action _currentStep;
 
     public override void Initialization(BaseView parentView)
     {
@@ -86,32 +86,32 @@ public class ContentListView : BaseView
         HideContentListImmediate();
         OnEditModeChanged(false);
 
-        EventManager.OnActionCreated += OnActionCreated;
+        LearningExperienceEngine.EventManager.OnActionCreated += OnActionCreated;
         EventManager.OnActivateAction += OnActionActivated;
         EventManager.OnEditModeChanged += OnEditModeChanged;
-        EventManager.OnActionModified += OnActionChanged;
+        LearningExperienceEngine.EventManager.OnActionModified += OnActionChanged;
     }
 
     private void OnDestroy()
     {
-        EventManager.OnActionCreated -= OnActionCreated;
+        LearningExperienceEngine.EventManager.OnActionCreated -= OnActionCreated;
         EventManager.OnActivateAction -= OnActionActivated;
         EventManager.OnEditModeChanged -= OnEditModeChanged;
-        EventManager.OnActionModified -= OnActionChanged;
+        LearningExperienceEngine.EventManager.OnActionModified -= OnActionChanged;
     }
 
     private void OnStepNameChanged(string newTitle)
     {
         _currentStep.instruction.title = newTitle;
-        EventManager.NotifyOnActionStepTitleChanged();
-        EventManager.NotifyActionModified(_currentStep);
+        LearningExperienceEngine.EventManager.NotifyOnActionStepTitleChanged();
+        LearningExperienceEngine.EventManager.NotifyActionModified(_currentStep);
     }
 
     private void OnStepDescriptionChanged(string newDescription)
     {
         _currentStep.instruction.description = newDescription;
-        EventManager.NotifyOnActionStepDescriptionInputChanged();
-        EventManager.NotifyActionModified(_currentStep);
+        LearningExperienceEngine.EventManager.NotifyOnActionStepDescriptionChanged();
+        LearningExperienceEngine.EventManager.NotifyActionModified(_currentStep);
     }
 
     private void OnActionActivated(string actionId)
@@ -121,13 +121,13 @@ public class ContentListView : BaseView
         UpdateView();
     }
 
-    private void OnActionCreated(MirageXR.Action action)
+    private void OnActionCreated(LearningExperienceEngine.Action action)
     {
         _currentStep = action;
         UpdateView();
     }
 
-    private void OnActionChanged(MirageXR.Action action)
+    private void OnActionChanged(LearningExperienceEngine.Action action)
     {
         UpdateView();
     }

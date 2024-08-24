@@ -131,7 +131,7 @@ public class PlaneManagerARFoundation : PlaneManagerBase
         }
 
         _enableColliders = false;
-        _showPlanes = RootObject.Instance.activityManager.EditModeActive;
+        _showPlanes = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
         UpdatePlanes();
     }
 

@@ -1,14 +1,15 @@
-﻿using System;
+﻿using LearningExperienceEngine;
+using System;
 using MirageXR;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using Action = MirageXR.Action;
+using Action = LearningExperienceEngine.Action;
 
 public class ActionDetailView : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
     [SerializeField] private InputField titleLabel;
     [SerializeField] private Text numberLabel;
     [SerializeField] private InputField descriptionText;
@@ -17,12 +18,12 @@ public class ActionDetailView : MonoBehaviour
     [SerializeField] private Transform poiPredicatesParent;
     [SerializeField] private GameObject poiPredicateItemPrefab;
 
-    private Action _displayedAction;
+    private LearningExperienceEngine.Action _displayedAction;
 
     private readonly List<AnnotationListItem> poiPredicateItems = new List<AnnotationListItem>();
     private ActionEditor editor;
 
-    public Action DisplayedAction
+    public LearningExperienceEngine.Action DisplayedAction
     {
         get
         {
@@ -49,14 +50,14 @@ public class ActionDetailView : MonoBehaviour
 
     private void OnEnable()
     {
-        EventManager.OnActivateAction += OnActionActivated;
-        EventManager.OnActionModified += OnActionChanged;
+        MirageXR.EventManager.OnActivateAction += OnActionActivated;
+        LearningExperienceEngine.EventManager.OnActionModified += OnActionChanged;
     }
 
     private void OnDisable()
     {
-        EventManager.OnActivateAction -= OnActionActivated;
-        EventManager.OnActionModified -= OnActionChanged;
+        MirageXR.EventManager.OnActivateAction -= OnActionActivated;
+        LearningExperienceEngine.EventManager.OnActionModified -= OnActionChanged;
     }
 
     private void OnActionChanged(Action action)
@@ -118,7 +119,7 @@ public class ActionDetailView : MonoBehaviour
             titleLabel.text = DisplayedAction.instruction.title;
             descriptionText.text = DisplayedAction.instruction.description;
 
-            List<Action> actions = activityManager.ActionsOfTypeAction;
+            List<LearningExperienceEngine.Action> actions = activityManager.ActionsOfTypeAction;
 
             int index = actions.IndexOf(actions.FirstOrDefault(p => p.id.Equals(DisplayedAction.id)));
             numberLabel.text = (index + 1).ToString("00");
@@ -152,14 +153,14 @@ public class ActionDetailView : MonoBehaviour
         }
     }
 
-    private void OnAnnotationSelected(ToggleObject annotation)
+    private void OnAnnotationSelected(LearningExperienceEngine.ToggleObject annotation)
     {
         Editor.EditAnnotation(annotation);
     }
 
     private void OnActionActivated(string actionId)
     {
-        List<Action> actions = activityManager.ActionsOfTypeAction;
+        List<LearningExperienceEngine.Action> actions = activityManager.ActionsOfTypeAction;
         DisplayedAction = actions.FirstOrDefault(p => p.id.Equals(actionId));
     }
 

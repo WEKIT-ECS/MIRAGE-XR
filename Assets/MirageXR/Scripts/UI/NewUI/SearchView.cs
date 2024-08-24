@@ -18,7 +18,7 @@ public class SearchView : PopupBase
     [SerializeField] private Toggle _authorToggle;
     [SerializeField] private GameObject _textNoResults;
 
-    private List<SessionContainer> _content;
+    private List<LearningExperienceEngine.SessionContainer> _content;
     private readonly List<ActivityListItem_v2> _items = new List<ActivityListItem_v2>();
 
     private ActivityListView_v2 _activityListView;
@@ -100,7 +100,7 @@ public class SearchView : PopupBase
         _items.ForEach(item => Destroy(item.gameObject));
         _items.Clear();
 
-        var prefab = !DBManager.showBigCards ? _smallItemPrefab : _bigItemPrefab;
+        var prefab = !LearningExperienceEngine.DBManager.showBigCards ? _smallItemPrefab : _bigItemPrefab;
 
         _content.ForEach(content =>
         {

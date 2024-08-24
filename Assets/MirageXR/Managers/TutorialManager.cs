@@ -100,7 +100,7 @@ namespace MirageXR
         /// This string is necessary to locate the newly created label
         /// after the "AddLabelToScene" step.
         /// </summary>
-        public ToggleObject CreatedLabel;
+        public LearningExperienceEngine.ToggleObject CreatedLabel;
 
         [SerializeField] private HelpSelectionPopup _helpSelectionPopup;
         /// <summary>
@@ -293,7 +293,7 @@ namespace MirageXR
             }
 
             var popup = (HelpSelectionPopup)PopupsViewer.Instance.Show(HelpSelectionPopup);
-            bool isEditModeOn = RootObject.Instance.activityManager.EditModeActive;
+            bool isEditModeOn = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
 
             popup.LoadHelpSelection(page, isEditModeOn);
         }

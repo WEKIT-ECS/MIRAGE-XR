@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using LearningExperienceEngine;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,8 +20,8 @@ namespace MirageXR
         [SerializeField] private Text TasklistTitle;
         [SerializeField] private RectTransform Tasklist;
         [SerializeField] private List<GameObject> _tasklistObjects = new List<GameObject>();
-        [SerializeField] private List<Action> OriginalActions = new List<Action>();
-        [SerializeField] private List<Action> Actions = new List<Action>();
+        [SerializeField] private List<LearningExperienceEngine.Action> OriginalActions = new List<LearningExperienceEngine.Action>();
+        [SerializeField] private List<LearningExperienceEngine.Action> Actions = new List<LearningExperienceEngine.Action>();
         [SerializeField] private GameObject FinishFlag;
         [SerializeField] private GameObject ReplayButton;
 
@@ -127,7 +128,7 @@ namespace MirageXR
         {
             var actionObject = ActiveCard.GetComponent<ActivityCard>().ActionObject;
             actionObject.isCompleted = true;
-            await RootObject.Instance.activityManager.DeactivateAction(actionObject.id);
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.DeactivateAction(actionObject.id);
         }
 
         /// <summary>
@@ -135,7 +136,7 @@ namespace MirageXR
         /// </summary>
         public void Previous()
         {
-            RootObject.Instance.activityManager.ActivatePreviousAction();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActivatePreviousAction();
         }
 
         private void ShowCards()

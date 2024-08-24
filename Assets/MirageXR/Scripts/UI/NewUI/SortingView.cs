@@ -38,36 +38,36 @@ public class SortingView : PopupBase
 
     private void SetToggles()
     {
-        _toggleSmallCards.isOn = !DBManager.showBigCards;
-        _toggleBigCards.isOn = DBManager.showBigCards;
+        _toggleSmallCards.isOn = !LearningExperienceEngine.DBManager.showBigCards;
+        _toggleBigCards.isOn = LearningExperienceEngine.DBManager.showBigCards;
 
-        switch (DBManager.currentShowby)
+        switch (LearningExperienceEngine.DBManager.currentShowby)
         {
-            case DBManager.ShowBy.ALL:
+            case LearningExperienceEngine.DBManager.ShowBy.ALL:
                 _toggleShowAll.isOn = true;
                 _toggleMyAssignments.isOn = false;
                 _toggleMyActivities.isOn = false;
                 break;
-            case DBManager.ShowBy.MYACTIVITIES:
+            case LearningExperienceEngine.DBManager.ShowBy.MYACTIVITIES:
                 _toggleShowAll.isOn = false;
                 _toggleMyActivities.isOn = true;
                 _toggleMyAssignments.isOn = false;
                 break;
-            case DBManager.ShowBy.MYASSIGNMENTS:
+            case LearningExperienceEngine.DBManager.ShowBy.MYASSIGNMENTS:
                 _toggleShowAll.isOn = false;
                 _toggleMyAssignments.isOn = true;
                 _toggleMyActivities.isOn = false;
                 break;
         }
 
-        switch (DBManager.currentSortby)
+        switch (LearningExperienceEngine.DBManager.currentSortby)
         {
-            case DBManager.SortBy.DATE:
+            case LearningExperienceEngine.DBManager.SortBy.DATE:
                 _toggleByRelevance.isOn = false;
                 _toggleByDate.isOn = true;
 
                 break;
-            case DBManager.SortBy.RELEVEANCE:
+            case LearningExperienceEngine.DBManager.SortBy.RELEVEANCE:
                 _toggleByRelevance.isOn = true;
                 _toggleByDate.isOn = false;
 
@@ -92,7 +92,7 @@ public class SortingView : PopupBase
     {
         if (value)
         {
-            DBManager.showBigCards = false;
+            LearningExperienceEngine.DBManager.showBigCards = false;
             _parentView.UpdateView();
             Close();
         }
@@ -102,7 +102,7 @@ public class SortingView : PopupBase
     {
         if (value)
         {
-            DBManager.showBigCards = true;
+            LearningExperienceEngine.DBManager.showBigCards = true;
             _parentView.UpdateView();
             Close();
         }
@@ -112,7 +112,7 @@ public class SortingView : PopupBase
     {
         if (value)
         {
-            DBManager.currentShowby = DBManager.ShowBy.ALL;
+            LearningExperienceEngine.DBManager.currentShowby = LearningExperienceEngine.DBManager.ShowBy.ALL;
             _toggleMyAssignments.isOn = false;
             _toggleMyActivities.isOn = false;
 
@@ -125,7 +125,7 @@ public class SortingView : PopupBase
     {
         if (value)
         {
-            DBManager.currentShowby = DBManager.ShowBy.MYASSIGNMENTS;
+            LearningExperienceEngine.DBManager.currentShowby = LearningExperienceEngine.DBManager.ShowBy.MYASSIGNMENTS;
             _toggleShowAll.isOn = false;
             _toggleMyActivities.isOn = false;
 
@@ -138,7 +138,7 @@ public class SortingView : PopupBase
     {
         if (value)
         {
-            DBManager.currentShowby = DBManager.ShowBy.MYACTIVITIES;
+            LearningExperienceEngine.DBManager.currentShowby = LearningExperienceEngine.DBManager.ShowBy.MYACTIVITIES;
             _toggleShowAll.isOn = false;
             _toggleMyAssignments.isOn = false;
 
@@ -151,7 +151,7 @@ public class SortingView : PopupBase
     {
         if (value)
         {
-            DBManager.currentSortby = DBManager.SortBy.DATE;
+            LearningExperienceEngine.DBManager.currentSortby = LearningExperienceEngine.DBManager.SortBy.DATE;
             _toggleByRelevance.isOn = false;
 
             _parentView.OnSortbyChanged();
@@ -163,7 +163,7 @@ public class SortingView : PopupBase
     {
         if (value)
         {
-            DBManager.currentSortby = DBManager.SortBy.RELEVEANCE;
+            LearningExperienceEngine.DBManager.currentSortby = LearningExperienceEngine.DBManager.SortBy.RELEVEANCE;
             _toggleByDate.isOn = false;
 
             _parentView.OnSortbyChanged();

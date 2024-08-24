@@ -16,7 +16,7 @@ namespace MirageXR
         [SerializeField] private Image buttonIcon;
         [SerializeField] private Text termsOfUseText;
 
-        private ConfigEditor CFEditor = new ConfigEditor();
+        private LearningExperienceEngine.ConfigEditor CFEditor = new LearningExperienceEngine.ConfigEditor();
 
         private void Start()
         {

@@ -8,13 +8,13 @@ public class PoiEditor : MonoBehaviour
     private ObjectManipulator _objectManipulator;
 
     private BoundsControl _boundsControl;
-    private ToggleObject _obj;
+    private LearningExperienceEngine.ToggleObject _obj;
     private bool isLocked = false;
     private bool _boundsControlActive = false;
 
     private float _modelMagnification = 0.0f;
 
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
 
     public float ModelMagnification
     {
@@ -22,7 +22,7 @@ public class PoiEditor : MonoBehaviour
         set => _modelMagnification = value;
     }
 
-    private Poi _poi;
+    private LearningExperienceEngine.Poi _poi;
 
     public bool canRotate
     {
@@ -34,12 +34,12 @@ public class PoiEditor : MonoBehaviour
         get; set;
     }
 
-    public Poi GetMyPoi()
+    public LearningExperienceEngine.Poi GetMyPoi()
     {
         return _poi;
     }
 
-    public void Initialize(Poi poi)
+    public void Initialize(LearningExperienceEngine.Poi poi)
     {
         this._poi = poi;
     }
@@ -54,7 +54,7 @@ public class PoiEditor : MonoBehaviour
         SetAllObjectManipulationOptions();
         _objectManipulator.OnManipulationEnded.AddListener(OnChanged);
 
-        OnEditModeChanged(RootObject.Instance.activityManager.EditModeActive);
+        OnEditModeChanged(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive);
         //SetPoiData();
     }
 
@@ -115,7 +115,7 @@ public class PoiEditor : MonoBehaviour
     private Vector3 GetOffset()
     {
         var taskStationId = transform.parent.name;
-        var workplaceManager = RootObject.Instance.workplaceManager;
+        var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
         var detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(taskStationId));
         var annotationStartingPoint = ActionEditor.Instance.GetDefaultAugmentationStartingPoint();
         var originT = GameObject.Find(detectable.id);   // TODO: replace by direct reference to the object
@@ -200,7 +200,7 @@ public class PoiEditor : MonoBehaviour
             _boundsControl.RotateStopped.AddListener(OnChanged);
             _boundsControl.ScaleStopped.AddListener(OnChanged);
 
-            _boundsControl.enabled = RootObject.Instance.activityManager.EditModeActive;
+            _boundsControl.enabled = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
         }
         else
         {

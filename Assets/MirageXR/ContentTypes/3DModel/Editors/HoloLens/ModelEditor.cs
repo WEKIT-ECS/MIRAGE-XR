@@ -1,11 +1,12 @@
-﻿using UnityEngine;
+﻿using LearningExperienceEngine;
+using UnityEngine;
 
 namespace MirageXR
 {
     public class ModelEditor : MonoBehaviour
     {
-        private Action action;
-        private ToggleObject annotationToEdit;
+        private LearningExperienceEngine.Action action;
+        private LearningExperienceEngine.ToggleObject annotationToEdit;
         private Transform annotationStartingPoint;
 
         public void SetAnnotationStartingPoint(Transform startingPoint)
@@ -22,7 +23,7 @@ namespace MirageXR
         }
 
 
-        public void Open(Action action, ToggleObject annotation)
+        public void Open(LearningExperienceEngine.Action action, LearningExperienceEngine.ToggleObject annotation)
         {
             gameObject.SetActive(true);
             this.action = action;
@@ -32,7 +33,7 @@ namespace MirageXR
 
         public void Create(string modelName)
         {
-            modelName = ZipUtilities.CheckFileForIllegalCharacters(modelName);
+            modelName = LearningExperienceEngine.ZipUtilities.CheckFileForIllegalCharacters(modelName);
 
             if (annotationToEdit != null)
             {
@@ -41,7 +42,7 @@ namespace MirageXR
             }
             else
             {
-                var workplaceManager = RootObject.Instance.workplaceManager;
+                var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
                 var detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
                 var originT = GameObject.Find(detectable.id);
 
@@ -50,16 +51,16 @@ namespace MirageXR
                     originT.transform.position,
                     originT.transform.rotation);
 
-                annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
+                annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAugmentation(action, offset);
                 annotationToEdit.option = modelName;
                 annotationToEdit.predicate = "3d:" + modelName;
                 annotationToEdit.url = "3d:" + modelName;
             }
 
             EventManager.ActivateObject(annotationToEdit);
-            EventManager.NotifyActionModified(action);
-            
-            RootObject.Instance.activityManager.SaveData();
+            LearningExperienceEngine.EventManager.NotifyActionModified(action);
+
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.SaveData();
 
             Close();
         }

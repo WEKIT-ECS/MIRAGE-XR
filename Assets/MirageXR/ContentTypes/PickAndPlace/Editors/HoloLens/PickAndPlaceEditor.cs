@@ -1,16 +1,16 @@
-﻿using MirageXR;
+﻿using LearningExperienceEngine;
+using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class PickAndPlaceEditor : MonoBehaviour
 {
-    private static AugmentationManager _augmentationManager => RootObject.Instance.augmentationManager;
-    private static ActivityManager _activityManager => RootObject.Instance.activityManager;
-    private static WorkplaceManager _workplaceManager => RootObject.Instance.workplaceManager;
+    private static LearningExperienceEngine.AugmentationManager _augmentationManager => LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager;
+    private static LearningExperienceEngine.ActivityManager _activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static LearningExperienceEngine.WorkplaceManager _workplaceManager => LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
 
     [SerializeField] private Transform _annotationStartingPoint;
     [SerializeField] private InputField _textInputField;
-
 
     [SerializeField] private Toggle _correctToggle;
     [SerializeField] private InputField _correctStepIndex;
@@ -22,12 +22,11 @@ public class PickAndPlaceEditor : MonoBehaviour
     [SerializeField] private GameObject _editor;
     [SerializeField] private GameObject _triggerSettings;
 
-
     private bool _isCorrectTrigger;
     private bool _isIncorrectTrigger;
 
-    private Action _action;
-    private ToggleObject _annotationToEdit;
+    private LearningExperienceEngine.Action _action;
+    private LearningExperienceEngine.ToggleObject _annotationToEdit;
     private int _resetOption = 0;
 
     public void SetAnnotationStartingPoint(Transform startingPoint)
@@ -40,7 +39,7 @@ public class PickAndPlaceEditor : MonoBehaviour
         if (_annotationToEdit != null)
         {
             // annotationToEdit.predicate = "pickandplace";
-            EventManager.DeactivateObject(_annotationToEdit);
+            MirageXR.EventManager.DeactivateObject(_annotationToEdit);
         }
         else
         {
@@ -61,8 +60,8 @@ public class PickAndPlaceEditor : MonoBehaviour
         CreateOrRemoveTrigger(_isCorrectTrigger, TriggerMode.PickAndPlace, "correct", _correctStepIndex.text);
         CreateOrRemoveTrigger(_isIncorrectTrigger, TriggerMode.IncorrectPickAndPlace, "incorrect", _incorrectStepIndex.text);
 
-        EventManager.ActivateObject(_annotationToEdit);
-        EventManager.NotifyActionModified(_action);
+        MirageXR.EventManager.ActivateObject(_annotationToEdit);
+        LearningExperienceEngine.EventManager.NotifyActionModified(_action);
 
         Close();
     }
@@ -76,7 +75,7 @@ public class PickAndPlaceEditor : MonoBehaviour
         Destroy(gameObject);
     }
 
-    public void Open(Action action, ToggleObject annotation)
+    public void Open(LearningExperienceEngine.Action action, LearningExperienceEngine.ToggleObject annotation)
     {
         gameObject.SetActive(true);
         CloseTriggerSettings();

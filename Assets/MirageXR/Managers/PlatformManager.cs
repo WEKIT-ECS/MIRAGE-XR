@@ -47,7 +47,7 @@ namespace MirageXR
         {
             _mainCamera = Camera.main;
 
-            if (DBManager.developMode)
+            if (LearningExperienceEngine.DBManager.developMode)
             {
                 if (_screenSpaceDebugTool)
                 {

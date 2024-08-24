@@ -48,7 +48,7 @@ namespace MirageXR
             }
 
             var apiURL = $"{url}/stt/";
-            var bytes = SaveLoadAudioUtilities.AudioClipToByteArray(audioClip);
+            var bytes = LearningExperienceEngine.SaveLoadAudioUtilities.AudioClipToByteArray(audioClip);
             var fromData = new WWWForm();
             fromData.AddField("model", model);
             fromData.AddBinaryData("message", bytes, "audio.wav", "audio/wav");

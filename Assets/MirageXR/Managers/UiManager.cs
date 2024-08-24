@@ -1,4 +1,5 @@
-﻿using Microsoft.MixedReality.Toolkit.UI;
+﻿using LearningExperienceEngine;
+using Microsoft.MixedReality.Toolkit.UI;
 using System.Threading.Tasks;
 using TiltBrush;
 using UnityEngine;
@@ -8,7 +9,7 @@ namespace MirageXR
 {
     public class UiManager : MonoBehaviour
     {
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
         private static CalibrationManager calibrationManager => RootObject.Instance.calibrationManager;
 
         [SerializeField] private bool IsMenuVisible;
@@ -42,17 +43,18 @@ namespace MirageXR
             EventManager.OnToggleGuides += ToggleFind;
             EventManager.OnToggleMenu += ToggleMenu;
             EventManager.OnToggleLock += ToggleLockTouch;
-            EventManager.OnWorkplaceLoaded += ShowActivityStart;
+
             EventManager.OnActivityStarted += ActivityStarted;
+            LearningExperienceEngine.EventManager.OnWorkplaceLoaded += ShowActivityStart;
             EventManager.OnWorkplaceCalibrated += WorkplaceCalibrated;
+
+            // voice command event handlers
             EventManager.OnDeleteActionByVoice += DeleteActionVoice;
             EventManager.OnAddActionByVoice += AddActionVoice;
             EventManager.OnLoginByVoice += LoginVoice;
             EventManager.OnRegisterActionByVoice += RegisterVoice;
-            EventManager.OnSaveActivityActionByVoice += SaveActivityVoice;
             EventManager.OnUploadActivityActionByVoice += UploadActivityVoice;
             EventManager.OnOpenAnnotationByVoice += OpenAnnotationVoice;
-
             EventManager.OnActionlistToggleByVoice += ActionListToggleVoice;
             EventManager.OnNextByVoice += NextVoice;
             EventManager.OnBackByVoice += BackVoice;
@@ -69,17 +71,18 @@ namespace MirageXR
             EventManager.OnToggleGuides -= ToggleFind;
             EventManager.OnToggleMenu -= ToggleMenu;
             EventManager.OnToggleLock -= ToggleLockTouch;
-            EventManager.OnWorkplaceLoaded -= ShowActivityStart;
+
             EventManager.OnActivityStarted -= ActivityStarted;
+            LearningExperienceEngine.EventManager.OnWorkplaceLoaded -= ShowActivityStart;
             EventManager.OnWorkplaceCalibrated -= WorkplaceCalibrated;
+
+            // voice command event handlers
             EventManager.OnDeleteActionByVoice -= DeleteActionVoice;
             EventManager.OnAddActionByVoice -= AddActionVoice;
             EventManager.OnLoginByVoice -= LoginVoice;
             EventManager.OnRegisterActionByVoice -= RegisterVoice;
-            EventManager.OnSaveActivityActionByVoice -= SaveActivityVoice;
             EventManager.OnUploadActivityActionByVoice -= UploadActivityVoice;
             EventManager.OnOpenAnnotationByVoice -= OpenAnnotationVoice;
-
             EventManager.OnActionlistToggleByVoice -= ActionListToggleVoice;
             EventManager.OnNextByVoice -= NextVoice;
             EventManager.OnBackByVoice -= BackVoice;
@@ -242,8 +245,6 @@ namespace MirageXR
             }
             else
             {
-                // Nag.
-                // Maggie.Speak("Workplace anchors have not been calibrated. Please run the calibration before starting the activity.");
                 CreateCalibrationGuide();
 
                 if (RootObject.Instance.platformManager.WorldSpaceUi)
@@ -255,13 +256,10 @@ namespace MirageXR
                 Loading.Instance.LoadingVisibility(false);
             }
 
-            // EventManager.ActivityLoadedStamp(SystemInfo.deviceUniqueIdentifier, activityManager.Activity.id, System.DateTime.UtcNow.ToUniversalTime().ToString());
         }
 
         private void ActivityStarted()
         {
-            //WelcomeMessage = activityManager.Activity;
-
             switch (PlayerPrefs.GetString("uistyle"))
             {
                 case "tasklist":
@@ -271,7 +269,6 @@ namespace MirageXR
                     ShowActivityCards();
                     break;
             }
-
             _inAction = true;
         }
 
@@ -286,7 +283,6 @@ namespace MirageXR
         public void ShowMenu()
         {
             ActionList.gameObject.SetActive(true);
-
             IsMenuVisible = true;
         }
 
@@ -343,18 +339,6 @@ namespace MirageXR
         private void RegisterVoice()
         {
             Application.OpenURL(DBManager.registerPage);
-        }
-
-        /// <summary>
-        /// Save the current activity
-        /// </summary>
-        private void SaveActivityVoice()
-        {
-            if (activityManager.ActiveAction == null) return;
-
-            activityManager.SaveData();
-            if (RootObject.Instance.platformManager.WorldSpaceUi)
-                Maggie.Speak("Save completed");
         }
 
         /// <summary>
@@ -493,17 +477,6 @@ namespace MirageXR
         public void ToggleFind()
         {
             EventManager.Click();
-            //if (IsFindActive)
-            //{
-            //    MenuLine.SetActive(false);
-            //    EventManager.HideGuides();
-            //}
-            //else
-            //{
-            //    MenuLine.SetActive(true);
-            //    EventManager.ShowGuides();
-            //}
-
             IsFindActive = !IsFindActive;
         }
 
@@ -534,13 +507,13 @@ namespace MirageXR
         public void RestartPlayerTouch()
         {
             EventManager.Click();
-            RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.PlayerReset().AsAsyncVoid();
         }
 
         public void RestartPlayerVoice()
         {
             Maggie.Ok();
-            RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.PlayerReset().AsAsyncVoid();
         }
 
         public void ClearAllVoice()

@@ -539,10 +539,6 @@ MonoBehaviour:
     guide: 0
   _helpSelectionPopup: {fileID: 5322029663912086542, guid: ce6c1efdd8b1ca34aab20e8018664f11,
     type: 3}
-  _helpPopup: {fileID: 147589561333268519, guid: f40ed35d415dbbd4f95c68ed95fdaadc,
-    type: 3}
-  _mobilePopup: {fileID: 3804566942710620872, guid: ef93854362c847ec840d4c40eebc7d00,
-    type: 3}
 --- !u!1 &547987039
 GameObject:
   m_ObjectHideFlags: 0
@@ -686,19 +682,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe1d32bc9b5aef54298d78c6297e70f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultMoodleUrl: https://learn.wekit-ecs.com
-  defaultXApiUrl: https://lrs.wekit-ecs.com/data/xAPI
-  prefabsOriginalColors: 1
-  defaultPrimaryColor: {r: 0.18039216, g: 0.76862746, b: 0.7137255, a: 1}
-  defaultSecondaryColor: {r: 1, g: 0.62352943, b: 0.10980392, a: 1}
-  defaultTextColor: {r: 1, g: 1, b: 1, a: 1}
-  defaultIconColor: {r: 1, g: 1, b: 1, a: 0.7843137}
-  defaultUIPathColor: {r: 1, g: 1, b: 1, a: 0.70980394}
-  defaultNextPathColor: {r: 0, g: 1, b: 0.90588236, a: 0.78431374}
-  _defaultCalibrationMarker: {fileID: 2800000, guid: b463dcee3508044448742f24bf93043d,
-    type: 3}
-  _defaultCalibrationMarkerPdf: {fileID: 4900000, guid: 315c2cb4b67930c44925a5d151997f25,
-    type: 3}
 --- !u!1 &807537237
 GameObject:
   m_ObjectHideFlags: 0
@@ -1506,6 +1489,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1888399833}
   - component: {fileID: 1888399832}
+  - component: {fileID: 1888399834}
   m_Layer: 0
   m_Name: Root
   m_TagString: Untagged
@@ -1531,11 +1515,9 @@ MonoBehaviour:
   _floorManager: {fileID: 547987041}
   _planeManager: {fileID: 1942155610}
   _pointCloudManager: {fileID: 1139113737}
-  _brandManager: {fileID: 802172368}
   _gridManager: {fileID: 141412590}
   _cameraCalibrationChecker: {fileID: 1370046045}
   _platformManager: {fileID: 8856608567612908827}
-  _exceptionManager: {fileID: 310166497}
 --- !u!4 &1888399833
 Transform:
   m_ObjectHideFlags: 0
@@ -1567,6 +1549,18 @@ Transform:
   - {fileID: 310166499}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1888399834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1888399831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 872fd45e98fa24db980c83abcb9d1bea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1901844725
 PrefabInstance:
   m_ObjectHideFlags: 0

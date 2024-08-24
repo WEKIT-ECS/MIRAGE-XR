@@ -1,3 +1,4 @@
+using LearningExperienceEngine;
 using DG.Tweening;
 using MirageXR;
 using System;
@@ -23,7 +24,7 @@ public class AudioEditorView : PopupEditorBase
 
     private float _currentRangeValue;
 
-    public override ContentType editorForType => ContentType.AUDIO;
+    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.AUDIO;
 
     [SerializeField] private Button _btnAudioSettings;
     [SerializeField] private Button _btnMicRecording;
@@ -195,7 +196,7 @@ public class AudioEditorView : PopupEditorBase
     {
         _fileName = GetFileName(_content);
         var filePath = Path.Combine(activityManager.ActivityPath, _fileName);
-        _audioClip = SaveLoadAudioUtilities.LoadAudioFile(filePath);
+        _audioClip = LearningExperienceEngine.SaveLoadAudioUtilities.LoadAudioFile(filePath);
 
         var parameters = _content.option.Split('#');
         if (parameters.Length == 3)
@@ -229,7 +230,7 @@ public class AudioEditorView : PopupEditorBase
         StartUpdateSliderPlayerAndTimer();
     }
 
-    private static string GetFileName(ToggleObject content)
+    private static string GetFileName(LearningExperienceEngine.ToggleObject content)
     {
         const string httpPrefix = "http://";
         var fileName = content.url.StartsWith(httpPrefix) ? content.url.Remove(0, httpPrefix.Length) : content.url;
@@ -519,7 +520,7 @@ public class AudioEditorView : PopupEditorBase
 
             if (File.Exists(filePath) && _audioClip != null)
             {
-                EventManager.DeactivateObject(_content);
+                MirageXR.EventManager.DeactivateObject(_content);
                 File.Delete(filePath);
             }
         }
@@ -537,16 +538,16 @@ public class AudioEditorView : PopupEditorBase
 
         if (_toggleTrigger.isOn)
         {
-            _step.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, _content.poi, _audioClip.length, _inputTriggerStepNumber);
+            _step.AddOrReplaceArlemTrigger(LearningExperienceEngine.TriggerMode.Audio, LearningExperienceEngine.ActionType.Audio, _content.poi, _audioClip.length, _inputTriggerStepNumber);
         }
         else
         {
             _step.RemoveArlemTrigger(_content);
         }
 
-        SaveLoadAudioUtilities.Save(filePath, _audioClip);
+        LearningExperienceEngine.SaveLoadAudioUtilities.Save(filePath, _audioClip);
 
-        EventManager.ActivateObject(_content);
+        MirageXR.EventManager.ActivateObject(_content);
 
         base.OnAccept();
 

@@ -5,7 +5,7 @@ namespace MirageXR
 {
     public class TaskStationStateController : MonoBehaviour
     {
-        private static BrandManager brandManager => RootObject.Instance.brandManager;
+        private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
 
         [SerializeField] private Renderer taskStationRenderer;
 
@@ -26,14 +26,14 @@ namespace MirageXR
         private void Start()
         {
             EventManager.OnActivateAction += OnActionActivated;
-            EventManager.OnActionDeleted += OnActionDeleted;
+            LearningExperienceEngine.EventManager.OnActionDeleted += OnActionDeleted;
             UpdateDisplay();
         }
 
         private void OnDestroy()
         {
             EventManager.OnActivateAction -= OnActionActivated;
-            EventManager.OnActionDeleted -= OnActionDeleted;
+            LearningExperienceEngine.EventManager.OnActionDeleted -= OnActionDeleted;
         }
 
         private void OnActionActivated(string action)
@@ -83,13 +83,13 @@ namespace MirageXR
 
         public bool IsCurrent()
         {
-            return RootObject.Instance.activityManager.ActiveActionId.Equals(ActionId);
+            return LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActiveActionId.Equals(ActionId);
         }
 
         private bool IsNext()
         {
-            List<Action> actions = RootObject.Instance.activityManager.ActionsOfTypeAction;
-            int index = actions.IndexOf(RootObject.Instance.activityManager.ActiveAction);
+            List<LearningExperienceEngine.Action> actions = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActionsOfTypeAction;
+            int index = actions.IndexOf(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActiveAction);
 
             if (index >= actions.Count - 1)
             {

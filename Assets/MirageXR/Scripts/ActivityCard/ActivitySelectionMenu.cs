@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using LearningExperienceEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using Microsoft.MixedReality.Toolkit.UI;
 
@@ -110,7 +111,7 @@ namespace MirageXR
             Loading.Instance.LoadingVisibility(true);
 
             await RootObject.Instance.editorSceneService.LoadEditorAsync();
-            await RootObject.Instance.activityManager.CreateNewActivity();
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.CreateNewActivity();
         }
     }
 }
