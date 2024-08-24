@@ -9,6 +9,8 @@ namespace MirageXR
         public static RootObject Instance { get; private set; }
 
         [SerializeField] private Camera _baseCamera;
+
+        [SerializeField] private LearningExperienceEngine.LearningExperienceEngine _lee;
         [SerializeField] private ImageTargetManagerWrapper _imageTargetManager;
         [SerializeField] private CalibrationManager _calibrationManager;
         [SerializeField] private FloorManagerWrapper _floorManager;
@@ -29,6 +31,7 @@ namespace MirageXR
 
         public Camera baseCamera => _baseCamera;
 
+        public LearningExperienceEngine.LearningExperienceEngine LEE => _lee;
         public ImageTargetManagerWrapper imageTargetManager => _imageTargetManager;
 
         public CalibrationManager calibrationManager => _calibrationManager;
@@ -96,6 +99,9 @@ namespace MirageXR
             {
                 _baseCamera ??= Camera.main;
 
+                _lee ??= new GameObject("LearningExperienceEngineWrapper)").AddComponent<LearningExperienceEngine.LearningExperienceEngine>();
+                await _lee.WaitForInitialization();
+
                 _imageTargetManager ??= new GameObject("ImageTargetManagerWrapper").AddComponent<ImageTargetManagerWrapper>();
                 _calibrationManager ??= new GameObject("CalibrationManager").AddComponent<CalibrationManager>();
                 _floorManager ??= new GameObject("FloorManagerWrapper").AddComponent<FloorManagerWrapper>();
@@ -119,7 +125,7 @@ namespace MirageXR
                 
                 await _imageTargetManager.InitializationAsync();
                 await _floorManager.InitializationAsync();
-                await _calibrationManager.InitializationAsync();
+                _calibrationManager.InitializationAsync();
                 await _pointCloudManager.InitializationAsync();
                 await _planeManager.InitializationAsync();
                 _gridManager.Initialization();
