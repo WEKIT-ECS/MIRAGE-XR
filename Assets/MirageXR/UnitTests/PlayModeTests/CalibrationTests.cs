@@ -280,7 +280,7 @@ namespace Tests
             // set up simple UI manager - must set calibration to true to avoid creation of calibration object
             dummyUiManager = GenerateGameObjectWithComponent<UiManager>("UiManager");
             dummyUiManager.gameObject.AddComponent<AudioSource>();
-            dummyUiManager.DebugConsole = new GameObject();
+            //dummyUiManager.DebugConsole = new GameObject();
             dummyUiManager.ActionList = new GameObject();
             dummyUiManager.IsCalibrated = true;
         }

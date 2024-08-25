@@ -59,7 +59,7 @@ public class ActivityView_v2 : BaseView
         _stepsListView.Initialization(this);
         _panelSize = _panel.sizeDelta;
 
-        EventManager.OnEditModeChanged += OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
 
         _stepsVertical.SetActive(true);
         _stepsHorizontal.SetActive(false);
@@ -69,7 +69,7 @@ public class ActivityView_v2 : BaseView
 
     private void OnDestroy()
     {
-        EventManager.OnEditModeChanged -= OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
     }
 
     private void UpdateView()

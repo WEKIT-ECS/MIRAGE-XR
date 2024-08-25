@@ -40,7 +40,7 @@ namespace MirageXR
             Mqtt.OnConnectionEstablished += ConnectionEstablished;
             Mqtt.OnConnectionDisconnected += ConnectionLost;
 
-            EventManager.OnClearAll += Delete;
+            LearningExperienceEngine.EventManager.OnClearAll += Delete;
         }
 
         private async void OnDisable()
@@ -49,7 +49,7 @@ namespace MirageXR
             Mqtt.OnConnectionEstablished -= ConnectionEstablished;
             Mqtt.OnConnectionDisconnected -= ConnectionLost;
 
-            EventManager.OnClearAll -= Delete;
+            LearningExperienceEngine.EventManager.OnClearAll -= Delete;
 
             await Mqtt.DisconnectAsync();
         }

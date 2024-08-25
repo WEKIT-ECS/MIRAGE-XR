@@ -41,16 +41,16 @@ namespace MirageXR
         {
             EventManager.OnShowGuides += ShowGuides;
             EventManager.OnHideGuides += HideGuides;
-            EventManager.OnClearPois += Delete;
-            EventManager.OnClearAll += Delete;
+            LearningExperienceEngine.EventManager.OnClearPois += Delete;
+            LearningExperienceEngine.EventManager.OnClearAll += Delete;
         }
 
         private void OnDisable()
         {
             EventManager.OnShowGuides -= ShowGuides;
             EventManager.OnHideGuides -= HideGuides;
-            EventManager.OnClearPois -= Delete;
-            EventManager.OnClearAll -= Delete;
+            LearningExperienceEngine.EventManager.OnClearPois -= Delete;
+            LearningExperienceEngine.EventManager.OnClearAll -= Delete;
         }
 
         public override void OnFocusEnter(FocusEventData eventData)

@@ -22,13 +22,13 @@ namespace MirageXR
             this.highlightedObject = actionListMenu.AddActionStepButton;
             LearningExperienceEngine.EventManager.OnActionCreated += ActionCreatedListener;
 
-            EventManager.OnActivityStarted += DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity += DefaultCloseEventListener;
         }
 
         protected override void Detach()
         {
             LearningExperienceEngine.EventManager.OnActionCreated -= ActionCreatedListener;
-            EventManager.OnActivityStarted -= DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity -= DefaultCloseEventListener;
         }
     }
 }

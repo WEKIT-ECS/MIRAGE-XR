@@ -12,7 +12,7 @@ public class AnnotationEditor : MonoBehaviour
 
     private void OnEnable()
     {
-        EventManager.OnEditModeChanged += SetEditModeState;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += SetEditModeState;
         if (activityManager != null)
         {
             SetEditModeState(activityManager.EditModeActive);
@@ -21,7 +21,7 @@ public class AnnotationEditor : MonoBehaviour
 
     private void OnDisable()
     {
-        EventManager.OnEditModeChanged -= SetEditModeState;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= SetEditModeState;
     }
 
     private void Start()

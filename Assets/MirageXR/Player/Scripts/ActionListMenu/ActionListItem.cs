@@ -24,7 +24,7 @@ public class ActionListItem : MonoBehaviour
     private void OnEnable()
     {
         LearningExperienceEngine.EventManager.OnActivateAction += OnActivateAction;
-        EventManager.OnEditModeChanged += SetEditModeState;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += SetEditModeState;
         if (activityManager != null)
         {
             SetEditModeState(activityManager.EditModeActive);
@@ -35,7 +35,7 @@ public class ActionListItem : MonoBehaviour
     private void OnDisable()
     {
         LearningExperienceEngine.EventManager.OnActivateAction -= OnActivateAction;
-        EventManager.OnEditModeChanged -= SetEditModeState;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= SetEditModeState;
     }
 
     private void OnActivateAction(string action)

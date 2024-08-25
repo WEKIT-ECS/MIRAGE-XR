@@ -48,7 +48,7 @@ namespace MirageXR
 
 			if (xAPICredentialsWEKIT != null)
 			{
-				AppLog.LogTrace("[MirageXRServiceBootstrapper] registering xAPI service");
+				Debug.LogInfo("[MirageXRServiceBootstrapper] registering xAPI service");
 				ServiceManager.RegisterService(new ExperienceService(CreateXAPIClient("WEKIT")));
 			}
 			else

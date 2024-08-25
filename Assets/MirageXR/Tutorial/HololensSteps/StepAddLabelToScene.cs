@@ -17,7 +17,7 @@ namespace MirageXR
             this.highlightedObject = editor.AcceptButton;
             LearningExperienceEngine.EventManager.OnToggleObject += LabelCreationListener;
 
-            EventManager.OnActivityStarted += DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity += DefaultCloseEventListener;
         }
 
         private void LabelCreationListener(LearningExperienceEngine.ToggleObject label, bool activated)
@@ -30,7 +30,7 @@ namespace MirageXR
         {
 
             LearningExperienceEngine.EventManager.OnToggleObject -= LabelCreationListener;
-            EventManager.OnActivityStarted -= DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity -= DefaultCloseEventListener;
         }
     }
 }

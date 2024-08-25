@@ -18,8 +18,8 @@ namespace MirageXR
 
         // Task list location is attached to Hololens main camera.
 
-        [Tooltip("Drag and drop DebugConsole game object here.")]
-        public GameObject DebugConsole;
+        //[Tooltip("Drag and drop DebugConsole game object here.")]
+        //public GameObject DebugConsole;
 
         [Tooltip("Drag and drop Menu game object here.")]
         public GameObject ActionList;
@@ -37,14 +37,14 @@ namespace MirageXR
 
         private void OnEnable()
         {
-            EventManager.OnPlayerReset += PlayerReset;
+             LearningExperienceEngine.EventManager.OnResetPlayer += PlayerReset;
             EventManager.OnMoveActivityList += MoveActivityList;
             EventManager.OnMoveActionList += MoveActionList;
             EventManager.OnToggleGuides += ToggleFind;
             EventManager.OnToggleMenu += ToggleMenu;
             EventManager.OnToggleLock += ToggleLockTouch;
 
-            EventManager.OnActivityStarted += ActivityStarted;
+            LearningExperienceEngine.EventManager.OnStartActivity += ActivityStarted;
             LearningExperienceEngine.EventManager.OnWorkplaceLoaded += ShowActivityStart;
             LearningExperienceEngine.EventManager.OnWorkplaceCalibrated += WorkplaceCalibrated;
 
@@ -65,14 +65,14 @@ namespace MirageXR
 
         private void OnDisable()
         {
-            EventManager.OnPlayerReset -= PlayerReset;
+             LearningExperienceEngine.EventManager.OnResetPlayer -= PlayerReset;
             EventManager.OnMoveActivityList -= MoveActivityList;
             EventManager.OnMoveActionList -= MoveActionList;
             EventManager.OnToggleGuides -= ToggleFind;
             EventManager.OnToggleMenu -= ToggleMenu;
             EventManager.OnToggleLock -= ToggleLockTouch;
 
-            EventManager.OnActivityStarted -= ActivityStarted;
+            LearningExperienceEngine.EventManager.OnStartActivity -= ActivityStarted;
             LearningExperienceEngine.EventManager.OnWorkplaceLoaded -= ShowActivityStart;
             LearningExperienceEngine.EventManager.OnWorkplaceCalibrated -= WorkplaceCalibrated;
 
@@ -144,7 +144,7 @@ namespace MirageXR
         private void Start()
         {
             // Set default visibility to hidden.
-            DebugConsole.SetActive(false);
+            //DebugConsole.SetActive(false);
             //Menu.GetComponent<CanvasGroup> ().alpha = 0;
             //Menu.GetComponent<GraphicRaycaster> ().enabled = false;
             ActionList.gameObject.SetActive(false);
@@ -167,7 +167,7 @@ namespace MirageXR
         public void ShowSelectionPanelTouch()
         {
             ShowSelectionPanel();
-            EventManager.Click();
+            LearningExperienceEngine.EventManager.Click();
         }
 
         /// <summary>
@@ -187,7 +187,7 @@ namespace MirageXR
         public void HideSelectionPanelTouch()
         {
             HideSelectionPanel();
-            EventManager.Click();
+            LearningExperienceEngine.EventManager.Click();
         }
 
         /// <summary>
@@ -369,7 +369,7 @@ namespace MirageXR
         public void HideMenuTouch()
         {
             HideMenu();
-            EventManager.Click();
+            LearningExperienceEngine.EventManager.Click();
         }
 
         /// <summary>
@@ -381,7 +381,7 @@ namespace MirageXR
                 ShowMenu();
             else
                 HideMenu();
-            EventManager.Click();
+            LearningExperienceEngine.EventManager.Click();
         }
 
         public void ShowSensors()
@@ -423,7 +423,7 @@ namespace MirageXR
         {
             if (_inAction)
             {
-                EventManager.Click();
+                LearningExperienceEngine.EventManager.Click();
                 ToggleSensors();
             }
         }
@@ -439,7 +439,7 @@ namespace MirageXR
 
         public void ShowActivityCardsTouch()
         {
-            EventManager.Click();
+            LearningExperienceEngine.EventManager.Click();
             ShowActivityCards();
         }
 
@@ -457,7 +457,7 @@ namespace MirageXR
 
         public void ToggleLockTouch()
         {
-            //EventManager.Click();
+            //LearningExperienceEngine.EventManager.Click();
         }
 
         public void LockMenuVoice()
@@ -476,7 +476,7 @@ namespace MirageXR
 
         public void ToggleFind()
         {
-            EventManager.Click();
+            LearningExperienceEngine.EventManager.Click();
             IsFindActive = !IsFindActive;
         }
 
@@ -506,7 +506,7 @@ namespace MirageXR
 
         public void RestartPlayerTouch()
         {
-            EventManager.Click();
+            LearningExperienceEngine.EventManager.Click();
             LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.PlayerReset().AsAsyncVoid();
         }
 
@@ -519,7 +519,7 @@ namespace MirageXR
         public void ClearAllVoice()
         {
             Maggie.Ok();
-            EventManager.ClearAll();
+            LearningExperienceEngine.EventManager.ClearAll();
         }
 
         public void StartActivityVoice()

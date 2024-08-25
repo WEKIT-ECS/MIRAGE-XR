@@ -47,7 +47,7 @@ public class StepsListView : BaseView
         LearningExperienceEngine.EventManager.OnActionCreated += OnActionCreated;
         LearningExperienceEngine.EventManager.OnActionDeleted += OnActionDeleted;
         LearningExperienceEngine.EventManager.OnActionModified += OnActionChanged;
-        MirageXR.EventManager.OnEditModeChanged += OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
     }
 
     private void OnDestroy()
@@ -56,7 +56,7 @@ public class StepsListView : BaseView
         LearningExperienceEngine.EventManager.OnActionCreated -= OnActionCreated;
         LearningExperienceEngine.EventManager.OnActionDeleted -= OnActionDeleted;
         LearningExperienceEngine.EventManager.OnActionModified -= OnActionChanged;
-        MirageXR.EventManager.OnEditModeChanged -= OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
     }
 
     private void OnStartActivity()

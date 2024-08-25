@@ -19,7 +19,7 @@ namespace MirageXR
             this.highlightedObject = targetItem.DeleteButton.gameObject;
 
             LearningExperienceEngine.EventManager.OnActionDeleted += ActionDeletedListener;
-            MirageXR.EventManager.OnActivityStarted += DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity += DefaultCloseEventListener;
         }
 
         private void ActionDeletedListener(string actionId)
@@ -30,7 +30,7 @@ namespace MirageXR
         protected override void Detach()
         {
             LearningExperienceEngine.EventManager.OnActionDeleted -= ActionDeletedListener;
-            MirageXR.EventManager.OnActivityStarted -= DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity -= DefaultCloseEventListener;
         }
     }
 }

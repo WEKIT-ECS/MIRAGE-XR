@@ -49,7 +49,7 @@ public class StepsListItem_v2 : MonoBehaviour
         _dragAndDropController.onSiblingIndexChanged.AddListener(OnSiblingIndexChanged);
         OnEditModeChanged(activityManager.EditModeActive);
 
-        MirageXR.EventManager.OnEditModeChanged += OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
         LearningExperienceEngine.EventManager.OnActionModified += OnActionModified;
     }
 

@@ -55,7 +55,7 @@ public class SearchView : PopupBase
 
         _clearSearchBtn.gameObject.SetActive(false);
         _textNoResults.SetActive(false);
-        EventManager.OnActivityStarted += Close;
+        LearningExperienceEngine.EventManager.OnStartActivity += Close;
     }
 
     private void ClearSearchField()
@@ -65,7 +65,7 @@ public class SearchView : PopupBase
 
     private void OnDestroy()
     {
-        EventManager.OnActivityStarted -= Close;
+        LearningExperienceEngine.EventManager.OnStartActivity -= Close;
     }
 
     private void OnAllClick(bool isOn)

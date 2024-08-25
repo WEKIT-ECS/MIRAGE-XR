@@ -66,7 +66,7 @@ public class RootView_v2 : BaseView
     {
         await _viewCamera.SetupFormat(PlatformManager.GetDeviceFormat());
         Initialization(null);
-        EventManager.OnEditModeChanged += EditModeChangedForHelp;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += EditModeChangedForHelp;
     }
 
     public override async void Initialization(BaseView parentView)
@@ -83,7 +83,7 @@ public class RootView_v2 : BaseView
         _pageView.OnPageChanged.AddListener(OnPageChanged);
 
         LearningExperienceEngine.EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
-        EventManager.OnActivityStarted += OnActivityLoaded;
+        LearningExperienceEngine.EventManager.OnStartActivity += OnActivityLoaded;
         EventManager.OnMobileHelpPageChanged += UpdateHelpPage;
 
         if (!LearningExperienceEngine.DBManager.LoggedIn && LearningExperienceEngine.DBManager.rememberUser)
@@ -103,7 +103,7 @@ public class RootView_v2 : BaseView
     private void OnDestroy()
     {
         LearningExperienceEngine.EventManager.OnWorkplaceLoaded -= OnWorkplaceLoaded;
-        EventManager.OnActivityStarted -= OnActivityLoaded;
+        LearningExperienceEngine.EventManager.OnStartActivity -= OnActivityLoaded;
         EventManager.OnMobileHelpPageChanged -= UpdateHelpPage;
         if (RootObject.Instance != null)
         {

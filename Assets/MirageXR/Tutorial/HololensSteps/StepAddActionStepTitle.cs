@@ -19,7 +19,7 @@ namespace MirageXR
             this.highlightedObject = titleField.gameObject;
 
             LearningExperienceEngine.EventManager.ActionStepTitleChanged += TitleChangedListener;
-            EventManager.OnActivityStarted += DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity += DefaultCloseEventListener;
         }
 
         private void TitleChangedListener()
@@ -33,7 +33,7 @@ namespace MirageXR
         protected override void Detach()
         {
             LearningExperienceEngine.EventManager.ActionStepTitleChanged -= this.DefaultExitEventListener;
-            EventManager.OnActivityStarted -= DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity -= DefaultCloseEventListener;
         }
     }
 }

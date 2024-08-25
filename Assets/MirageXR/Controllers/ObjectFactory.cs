@@ -322,7 +322,7 @@ namespace MirageXR
                     }
                 default:
                     {
-                        EventManager.DebugLog("ObjectFactory: Toggle - Unknown type: " + obj.type);
+                        Debug.LogError("ObjectFactory: Toggle - Unknown type: " + obj.type);
                         break;
                     }
             }
@@ -383,7 +383,7 @@ namespace MirageXR
             var miragePrefab = temp.GetComponent<MirageXRPrefab>();
             if (miragePrefab && !miragePrefab.Init(obj))
             {
-                EventManager.DebugLog($"Couldn't create the {prefab}. {obj.id}/{obj.poi}/{obj.predicate}");
+                Debug.LogError($"Couldn't create the {prefab}. {obj.id}/{obj.poi}/{obj.predicate}");
                 temp.GetComponent<MirageXRPrefab>().Delete();
             }
         }
@@ -555,7 +555,7 @@ namespace MirageXR
             }
             else
             {
-                EventManager.DebugLog("ObjectFactory: Delete - Unknown type: " + obj.type);
+                Debug.LogError("ObjectFactory: Delete - Unknown type: " + obj.type);
             }
 
             if (temp != null)

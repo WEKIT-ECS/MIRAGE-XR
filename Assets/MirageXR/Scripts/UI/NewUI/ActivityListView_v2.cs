@@ -60,14 +60,14 @@ public class ActivityListView_v2 : BaseView
 
         _panelSize = _panel.sizeDelta;
 
-        EventManager.OnActivityStarted += ShowBackButtons;
+        LearningExperienceEngine.EventManager.OnStartActivity += ShowBackButtons;
 
         FetchAndUpdateView();
     }
 
     private void OnDestroy()
     {
-        EventManager.OnActivityStarted -= ShowBackButtons;
+        LearningExperienceEngine.EventManager.OnStartActivity -= ShowBackButtons;
     }
 
     private static async Task<List<LearningExperienceEngine.SessionContainer>> FetchContent()

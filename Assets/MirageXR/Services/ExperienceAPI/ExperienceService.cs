@@ -45,7 +45,7 @@ namespace MirageXR
             LearningExperienceEngine.EventManager.OnStepDeactivatedStamp += StepDeactivatedStamp; // experienced
 
             // Register to view events
-            MirageXR.EventManager.OnActivityCompletedStamp += ActivityCompletedStamp; // completd
+            LearningExperienceEngine.EventManager.OnActivityCompletedStamp += ActivityCompletedStamp; // completd
 
         }
 
@@ -63,7 +63,7 @@ namespace MirageXR
             LearningExperienceEngine.EventManager.OnStepDeactivatedStamp -= StepDeactivatedStamp;
 
             // Deregister from view events.
-            MirageXR.EventManager.OnActivityCompletedStamp -= ActivityCompletedStamp;
+            LearningExperienceEngine.EventManager.OnActivityCompletedStamp -= ActivityCompletedStamp;
         }
 
         // !!!!!!! This never gets called !!!!!!!!!

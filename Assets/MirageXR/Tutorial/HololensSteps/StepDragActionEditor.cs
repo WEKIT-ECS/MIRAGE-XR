@@ -35,13 +35,13 @@ namespace MirageXR
             TaskStationEditor taskStationEditor = Object.FindObjectOfType<TaskStationEditor>();
             this.highlightedObject = taskStationEditor.gameObject;
             EventManager.TaskStationEditorDragEnd += DefaultExitEventListener;
-            //EventManager.OnActivityStarted += DefaultCloseEventListener;
+            //LearningExperienceEngine.EventManager.OnStartActivity += DefaultCloseEventListener;
         }
 
         protected override void Detach()
         {
             EventManager.TaskStationEditorDragEnd -= DefaultExitEventListener;
-            EventManager.OnActivityStarted -= DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity -= DefaultCloseEventListener;
         }
     }
 }
