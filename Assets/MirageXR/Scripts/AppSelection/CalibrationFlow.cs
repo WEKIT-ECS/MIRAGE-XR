@@ -110,7 +110,7 @@ public class CalibrationFlow : MonoBehaviour
             gridManager.ShowGrid();
         }
 
-        EventManager.WorkplaceCalibrated();
+        LearningExperienceEngine.EventManager.WorkplaceCalibrated();
         _textMain.text = DONE_TEXT;
         await Task.Delay(CLOSE_TIME);
         Close();

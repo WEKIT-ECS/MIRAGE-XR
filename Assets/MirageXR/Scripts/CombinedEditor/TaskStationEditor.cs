@@ -53,7 +53,7 @@ public class TaskStationEditor : MonoBehaviour
     private void OnEnable()
     {
         MirageXR.EventManager.OnEditModeChanged += OnEditModeChanged;
-        MirageXR.EventManager.OnWorkplaceCalibrated += OnCalibrationFinished;
+        LearningExperienceEngine.EventManager.OnWorkplaceCalibrated += OnCalibrationFinished;
 
         MirageXR.EventManager.NotifyOnTaskStationEditorEnabled();
     }
@@ -61,7 +61,7 @@ public class TaskStationEditor : MonoBehaviour
     private void OnDisable()
     {
         MirageXR.EventManager.OnEditModeChanged -= OnEditModeChanged;
-        MirageXR.EventManager.OnWorkplaceCalibrated -= OnCalibrationFinished;
+        LearningExperienceEngine.EventManager.OnWorkplaceCalibrated -= OnCalibrationFinished;
     }
 
     private void OnEditModeChanged(bool editModeActive)

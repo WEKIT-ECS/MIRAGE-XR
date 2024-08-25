@@ -14,6 +14,7 @@ namespace MirageXR
     public static class WorkplaceObjectFactory
     {
         private static LearningExperienceEngine.WorkplaceManager workplaceManager => LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+        private static WorkplaceController workplaceController => RootObject.Instance.workplaceController;
 
         public static void CreateDetectables(List<LearningExperienceEngine.Detectable> list, string debug)
         {
@@ -448,13 +449,13 @@ namespace MirageXR
                     anchorBehaviour.IsDetectableReady = true;
 
                     // Add to the list of calibratable objects and attach the task station
-                    var pair = new WorkplaceManager.AnchorCalibrationPair
+                    var pair = new WorkplaceController.AnchorCalibrationPair
                     {
                         AnchorFrame = anchorFrame,
                         DetectableConfiguration = detectable,
                     };
 
-                    workplaceManager.calibrationPairs.Add(pair);
+                    workplaceController.calibrationPairs.Add(pair);
 
                     break;
                 }
