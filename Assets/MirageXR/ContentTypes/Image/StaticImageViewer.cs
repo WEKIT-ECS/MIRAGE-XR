@@ -77,7 +77,7 @@ namespace MirageXR
 
         public void DeactivateImageViewer()
         {
-            EventManager.Click();
+            LearningExperienceEngine.EventManager.Click(); // why?
             HideImageViewer();
             ContentToggle.SetActive(true);
         }

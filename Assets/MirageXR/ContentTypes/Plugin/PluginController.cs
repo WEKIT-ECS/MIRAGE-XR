@@ -10,12 +10,12 @@ namespace MirageXR
 
         private void OnEnable()
         {
-            EventManager.OnEditModeChanged += EditModeChanges;
+            LearningExperienceEngine.EventManager.OnEditModeChanged += EditModeChanges;
         }
 
         private void OnDisable()
         {
-            EventManager.OnEditModeChanged -= EditModeChanges;
+            LearningExperienceEngine.EventManager.OnEditModeChanged -= EditModeChanges;
         }
 
         private void EditModeChanges(bool EditModeState)

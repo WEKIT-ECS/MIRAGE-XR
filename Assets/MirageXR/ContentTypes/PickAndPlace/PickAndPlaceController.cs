@@ -28,14 +28,14 @@ namespace MirageXR
 
         private void OnEnable()
         {
-            EventManager.OnEditModeChanged += OnEditModeChanged;
+            LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
             LearningExperienceEngine.EventManager.OnAugmentationDeleted += DeletePickAndPlaceData;
             LearningExperienceEngine.EventManager.OnActivitySaved += OnActivitySaved;
         }
 
         private void OnDisable()
         {
-            EventManager.OnEditModeChanged -= OnEditModeChanged;
+            LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
             LearningExperienceEngine.EventManager.OnAugmentationDeleted -= DeletePickAndPlaceData;
             LearningExperienceEngine.EventManager.OnActivitySaved -= OnActivitySaved;
         }

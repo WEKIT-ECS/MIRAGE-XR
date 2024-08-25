@@ -16,13 +16,13 @@ namespace MirageXR
             this.highlightedObject = actionListMenu.TitleText.gameObject;
             LearningExperienceEngine.EventManager.OnActivityRenamed += DefaultExitEventListener;
 
-            EventManager.OnActivityStarted += DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity += DefaultCloseEventListener;
         }
 
         protected override void Detach()
         {
             LearningExperienceEngine.EventManager.OnActivityRenamed -= DefaultExitEventListener;
-            EventManager.OnActivityStarted -= DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity -= DefaultCloseEventListener;
         }
     }
 }

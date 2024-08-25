@@ -252,7 +252,7 @@ public class CalibrationManager : MonoBehaviour
 
     private void OnSetCalibrationAnchor(LearningExperienceEngine.PoseSynchronizer pose)
     {
-        Debug.LogInfo("[CalibrationManager] OnGetCalibrationAnchor callback received: setting PoseSynchronizer target to calibration anchor.");
+        Debug.LogTrace("[CalibrationManager] OnGetCalibrationAnchor callback received: setting PoseSynchronizer target to calibration anchor.");
         pose.target = anchor;
     }
 

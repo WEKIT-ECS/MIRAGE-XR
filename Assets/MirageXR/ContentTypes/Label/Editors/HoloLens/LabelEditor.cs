@@ -43,7 +43,7 @@ namespace MirageXR
             action = null;
             annotationToEdit = null;
             gameObject.SetActive(false);
-            this.textInputField.onValueChanged.RemoveListener(delegate { LearningExperienceEngine.EventManager.NotifyOnLabelEditorTextChanged(); });
+            this.textInputField.onValueChanged.RemoveListener(delegate { EventManager.NotifyOnLabelEditorTextChanged(); });
 
             Destroy(gameObject);
         }
@@ -84,7 +84,7 @@ namespace MirageXR
 
             UpdateButtonColours();
 
-            this.textInputField.onValueChanged.AddListener(delegate { LearningExperienceEngine.EventManager.NotifyOnLabelEditorTextChanged(); });
+            this.textInputField.onValueChanged.AddListener(delegate { EventManager.NotifyOnLabelEditorTextChanged(); });
           //  this.acceptButton = this.gameObject.transform.Find("AcceptButton").gameObject;
         }
 

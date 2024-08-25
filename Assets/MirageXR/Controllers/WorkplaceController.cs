@@ -13,8 +13,8 @@ namespace MirageXR
     /// </summary>
     public class WorkplaceController : MonoBehaviour
     {
-        private static LearningExperienceEngine.WorkplaceManager workplaceManager => LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
-
+        private LearningExperienceEngine.WorkplaceManager workplaceManager => LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+        private WorkplaceObjectFactory objectFactory = new WorkplaceObjectFactory();
         #region Calibration pair data
 
         /// <summary>
@@ -37,29 +37,29 @@ namespace MirageXR
         private void OnEnable()
         {
             // Register to event manager events
-            EventManager.OnPlayerReset += ClearPois;
-            EventManager.OnClearAll += PlayerReset;
+            LearningExperienceEngine.EventManager.OnResetPlayer += ClearPois;
+            LearningExperienceEngine.EventManager.OnClearAll += PlayerReset;
             LearningExperienceEngine.EventManager.OnInitializeWorkplaceView += CreateObjects;
         }
 
         private void OnDisable()
         {
             // Unregister from event manager events
-            EventManager.OnPlayerReset -= ClearPois;
-            EventManager.OnClearAll -= PlayerReset;
+             LearningExperienceEngine.EventManager.OnResetPlayer -= ClearPois;
+            LearningExperienceEngine.EventManager.OnClearAll -= PlayerReset;
             LearningExperienceEngine.EventManager.OnInitializeWorkplaceView -= CreateObjects;
         }
 
-        private void Start()
-        {
-            // At least TRY to clear out the cache!
-            Caching.ClearCache();
-        }
+        //private void Start()
+        //{
+        //    // At least TRY to clear out the cache!
+        //    Caching.ClearCache();
+        //}
 
         // Called from event manager
         private void ClearPois()
         {
-            EventManager.ClearPois();
+            LearningExperienceEngine.EventManager.ClearPois();
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace MirageXR
         {
             foreach (var pair in calibrationPairs)
             {
-                var (position, rotation) = WorkplaceObjectFactory.GetPoseRelativeToCalibrationOrigin(pair.AnchorFrame);
+                var (position, rotation) = objectFactory.GetPoseRelativeToCalibrationOrigin(pair.AnchorFrame);
                 var detectable = pair.DetectableConfiguration;
 
                 detectable.origin_position = Utilities.Vector3ToString(position);
@@ -103,13 +103,13 @@ namespace MirageXR
         // callback for LearningExperienceEngine.WorkplaceManager.AddPlace
         private async Task CreateDetectableWorkplaceObject(LearningExperienceEngine.Detectable detectable, bool newObject)
         {
-            WorkplaceObjectFactory.CreateDetectableObject(detectable, newObject);
+            objectFactory.CreateDetectableObject(detectable, newObject);
         }
 
         // callback for LearningExperienceEngine.WorkplaceManager.AddPlace
         private async Task CreateDetectableWorkplaceObject(LearningExperienceEngine.Place place, LearningExperienceEngine.Action newAction)
         {
-            await WorkplaceObjectFactory.CreatePlaceObject(place, newAction);
+            await objectFactory.CreatePlaceObject(place, newAction);
         }
 
         /// <summary>
@@ -122,13 +122,12 @@ namespace MirageXR
             Debug.LogInfo("Workplace controller: Starting to create the objects...");
 
             // Instantiate detectables first, since they need to be there when others want to attach to them.
-            // TODO: further detatch the model from the WorkplaceManager
-            WorkplaceObjectFactory.CreateDetectables(workplaceManager.workplace.detectables, "detectables");
-            WorkplaceObjectFactory.CreateSensors();
-            await WorkplaceObjectFactory.CreateThings();
-            await WorkplaceObjectFactory.CreatePlaces(workplaceManager.workplace.places, "places");
-            await WorkplaceObjectFactory.CreatePersons();
-            WorkplaceObjectFactory.CreateDevices();
+            objectFactory.CreateDetectables(workplaceManager.workplace.detectables, "detectables");
+            objectFactory.CreateSensors();
+            await objectFactory.CreateThings();
+            await objectFactory.CreatePlaces(workplaceManager.workplace.places, "places");
+            await objectFactory.CreatePersons();
+            objectFactory.CreateDevices();
 
             // If workplace has anchors which have not been calibrated...
             if (calibrationPairs.Count > 0 && !UiManager.Instance.IsCalibrated)
@@ -136,9 +135,9 @@ namespace MirageXR
                 Debug.LogWarning("Workplace has uncalibrated anchors. Please re-run the calibration");
             }
 
-            Debug.Log("********** EventManager.WorkplaceLoaded");
+            Debug.Log("********** triggering EventManager.WorkplaceLoaded");
             // SUGGESTION Use a different event here that symbolizes the end of the view update by the model
-            LearningExperienceEngine.EventManager.WorkplaceLoaded();
+            //LearningExperienceEngine.EventManager.WorkplaceLoaded();
         }
 
     }

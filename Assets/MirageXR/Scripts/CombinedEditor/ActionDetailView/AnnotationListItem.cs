@@ -44,14 +44,14 @@ public class AnnotationListItem : MonoBehaviour
 
     private void OnEnable()
     {
-        EventManager.OnEditModeChanged += OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
 
         OnEditModeChanged(activityManager.EditModeActive);
     }
 
     private void OnDisable()
     {
-        EventManager.OnEditModeChanged -= OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
     }
 
     private void OnEditModeChanged(bool editModeActive)

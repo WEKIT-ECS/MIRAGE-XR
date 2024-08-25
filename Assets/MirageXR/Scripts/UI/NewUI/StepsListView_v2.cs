@@ -84,12 +84,12 @@ public class StepsListView_v2 : BaseView
         _btnBack.onClick.AddListener(OnBackPressed);
         _btnSettings.onClick.AddListener(OnSettingsPressed);
 
-        MirageXR.EventManager.OnActivityStarted += OnActivityStarted;
+        LearningExperienceEngine.EventManager.OnStartActivity += OnActivityStarted;
         LearningExperienceEngine.EventManager.OnWorkplaceLoaded += OnStartActivity;
         LearningExperienceEngine.EventManager.OnActionCreated += OnActionCreated;
         LearningExperienceEngine.EventManager.OnActionDeleted += OnActionDeleted;
         LearningExperienceEngine.EventManager.OnActionModified += OnActionChanged;
-        MirageXR.EventManager.OnEditModeChanged += OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
         LearningExperienceEngine.EventManager.OnWorkplaceCalibrated += OnWorkplaceCalibrated;
         LearningExperienceEngine.EventManager.OnActivateAction += OnActionActivated;
 
@@ -98,12 +98,12 @@ public class StepsListView_v2 : BaseView
 
     private void OnDestroy()
     {
-        MirageXR.EventManager.OnActivityStarted -= OnActivityStarted;
+        LearningExperienceEngine.EventManager.OnStartActivity -= OnActivityStarted;
         LearningExperienceEngine.EventManager.OnWorkplaceLoaded -= OnStartActivity;
         LearningExperienceEngine.EventManager.OnActionCreated -= OnActionCreated;
         LearningExperienceEngine.EventManager.OnActionDeleted -= OnActionDeleted;
         LearningExperienceEngine.EventManager.OnActionModified -= OnActionChanged;
-        MirageXR.EventManager.OnEditModeChanged -= OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
         LearningExperienceEngine.EventManager.OnWorkplaceCalibrated -= OnWorkplaceCalibrated;
         LearningExperienceEngine.EventManager.OnActivateAction -= OnActionActivated;
     }

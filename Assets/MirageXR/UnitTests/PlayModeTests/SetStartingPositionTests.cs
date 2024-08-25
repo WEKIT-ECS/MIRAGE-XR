@@ -99,7 +99,7 @@ namespace Tests
             target.transform.position = targetPosition;
             target.transform.eulerAngles = targetEulers;
 
-            MirageXR.EventManager.PlayerReset();
+            LearningExperienceEngine.EventManager.ResetPlayer();
             Assert.AreEqual(targetPosition, go.transform.position);
         }
 
@@ -125,7 +125,7 @@ namespace Tests
             target.transform.position = targetPosition;
             target.transform.eulerAngles = targetEulers;
 
-            MirageXR.EventManager.PlayerReset();
+            LearningExperienceEngine.EventManager.ResetPlayer();
             Vector3 expectedEulers = new Vector3(targetEulers.x, targetEulers.y, 0);
             Assert.AreEqual(expectedEulers, go.transform.eulerAngles);
         }

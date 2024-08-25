@@ -105,7 +105,7 @@ public class ActionEditor : MonoBehaviour
 
     private void OnEnable()
     {
-        MirageXR.EventManager.OnEditModeChanged += SetEditModeState;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += SetEditModeState;
         LearningExperienceEngine.EventManager.OnDisableAllPoiEditors += DisableAllPoiEditors;
         titleField.onValueChanged.AddListener(OnTitleChanged);
         descriptionField.onValueChanged.AddListener(OnDescriptionChanged);
@@ -125,7 +125,7 @@ public class ActionEditor : MonoBehaviour
     {
         titleField.onValueChanged.RemoveListener(OnTitleChanged);
         descriptionField.onValueChanged.RemoveListener(OnDescriptionChanged);
-        MirageXR.EventManager.OnEditModeChanged -= SetEditModeState;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= SetEditModeState;
         LearningExperienceEngine.EventManager.OnDisableAllPoiEditors -= DisableAllPoiEditors;
     }
 

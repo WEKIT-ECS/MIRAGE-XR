@@ -91,13 +91,23 @@ public class ActionDetailView : MonoBehaviour
         if (place)
         {
             var taskStation = place.transform.Find("default/PlayerTaskStation(Clone)"); // TODO: possible NRE
-            if (taskStation) return taskStation.gameObject;
+            Debug.Log("---- Children: " + place.transform.childCount);
+            Debug.Log("---- Child 1 ('default'): " + place.transform.GetChild(0).name + ", count " + place.transform.GetChild(0).childCount);
+            //Debug.Log("---- Child 1 of Child 1: " + place.transform.GetChild(0).GetChild(0).name);
+            if (taskStation)
+            {
+                return taskStation.gameObject;
+            } else
+            {
+                Debug.LogWarning("Could not find task station gameObject clone under this gameObject '" + actionId + "'");
+            }
+
         } else
         {
-            Debug.Log("Could not find GameObject with actionID = " + actionId);
+            Debug.LogWarning("Could not find place with actionID = " + actionId);
         }
 
-        throw new Exception($"cant find PlayerTaskStation for {actionId}");
+        throw new Exception($"Could not find PlayerTaskStation for {actionId}");
     }
 
     public void UpdateUI()

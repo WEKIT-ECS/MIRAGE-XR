@@ -24,7 +24,7 @@ namespace MirageXR
 
             highlightedObject.GetComponent<PoiAddItem>().OnPoiAddItemClicked += LabelItemClickedListener;
 
-            EventManager.OnActivityStarted += DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity += DefaultCloseEventListener;
         }
 
         private void LabelItemClickedListener(LearningExperienceEngine.ContentType type)
@@ -35,7 +35,7 @@ namespace MirageXR
         protected override void Detach()
         {
             highlightedObject.GetComponent<PoiAddItem>().OnPoiAddItemClicked -= LabelItemClickedListener;
-            EventManager.OnActivityStarted -= DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity -= DefaultCloseEventListener;
         }
 
        

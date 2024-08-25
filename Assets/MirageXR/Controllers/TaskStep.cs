@@ -34,14 +34,14 @@ namespace MirageXR
 
         private void OnEnable()
         {
-            EventManager.OnClearAll += Clear;
-            EventManager.OnPlayerReset += Reset;
+            LearningExperienceEngine.EventManager.OnClearAll += Clear;
+             LearningExperienceEngine.EventManager.OnResetPlayer += Reset;
         }
 
         private void OnDisable()
         {
-            EventManager.OnClearAll -= Clear;
-            EventManager.OnPlayerReset -= Reset;
+            LearningExperienceEngine.EventManager.OnClearAll -= Clear;
+             LearningExperienceEngine.EventManager.OnResetPlayer -= Reset;
         }
 
         // Use this for initialization
@@ -98,7 +98,7 @@ namespace MirageXR
 
         public void Next()
         {
-            EventManager.Next("touch");
+            LearningExperienceEngine.EventManager.Next("touch");
         }
 
         private void Update()

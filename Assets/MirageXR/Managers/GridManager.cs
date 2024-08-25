@@ -119,7 +119,7 @@ public class GridManager : MonoBehaviour, IDisposable
         _manipulationController = gameObject.AddComponent<ManipulationController>();
         _manipulationController.Initialization(this, _gridLinesPrefab);
 
-        EventManager.OnEditModeChanged += OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
     }
 
     public void ShowGrid()
@@ -208,7 +208,7 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public void Dispose()
     {
-        EventManager.OnEditModeChanged -= OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
         _manipulationController.Dispose();
     }
 

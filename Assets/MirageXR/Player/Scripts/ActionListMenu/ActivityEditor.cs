@@ -40,7 +40,7 @@ public class ActivityEditor : MonoBehaviour
 
     private void OnEnable()
     {
-        MirageXR.EventManager.OnEditModeChanged += SetEditorState;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += SetEditorState;
 
         if (activityTitleField.text == string.Empty)
             activityTitleField.text = "New Activity";
@@ -55,7 +55,7 @@ public class ActivityEditor : MonoBehaviour
     private void OnDisable()
     {
         activityTitleField.onValueChanged.RemoveListener(OnActivityTitleChanged);
-        MirageXR.EventManager.OnEditModeChanged -= SetEditorState;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= SetEditorState;
     }
 
     private void OnDestroy()

@@ -320,7 +320,7 @@ namespace MirageXR
 
         private void Subscribe()
         {
-            EventManager.OnEditModeChanged += SetEditModeState;
+            LearningExperienceEngine.EventManager.OnEditModeChanged += SetEditModeState;
             LearningExperienceEngine.EventManager.OnAugmentationDeleted += DeleteCharacterData;
             LearningExperienceEngine.EventManager.OnActivitySaved += SaveJson;
             LearningExperienceEngine.EventManager.OnToggleObject += OnToggleObjectActivated;
@@ -328,7 +328,7 @@ namespace MirageXR
 
         private void Unsubscribe()
         {
-            EventManager.OnEditModeChanged -= SetEditModeState;
+            LearningExperienceEngine.EventManager.OnEditModeChanged -= SetEditModeState;
             LearningExperienceEngine.EventManager.OnAugmentationDeleted -= DeleteCharacterData;
             LearningExperienceEngine.EventManager.OnActivitySaved -= SaveJson;
             LearningExperienceEngine.EventManager.OnToggleObject -= OnToggleObjectActivated;

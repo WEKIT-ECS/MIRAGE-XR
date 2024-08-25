@@ -60,7 +60,7 @@ public class PoiEditor : MonoBehaviour
 
     private void OnEnable()
     {
-        EventManager.OnEditModeChanged += OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
     }
 
     private void OnEditModeChanged(bool editModeActive)
@@ -92,7 +92,7 @@ public class PoiEditor : MonoBehaviour
 
     private void OnDisable()
     {
-        EventManager.OnEditModeChanged -= OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
     }
 
     private T GetOrAddComponent<T>() where T : Component
@@ -109,7 +109,7 @@ public class PoiEditor : MonoBehaviour
     {
         SetPoiData();
         activityManager.SaveData();
-        EventManager.NotifyOnAugmentationPoiChanged();
+        LearningExperienceEngine.EventManager.NotifyOnAugmentationPoiChanged();
     }
 
     private Vector3 GetOffset()

@@ -129,7 +129,7 @@ namespace MirageXR
             _steps = new List<TutorialStep>();
             _handlerWS = new TutorialHandlerWS();
             _currentClosingEvents = new List<TutorialEvent>();
-            EventManager.OnEditModeChanged += EditModeListener;
+            LearningExperienceEngine.EventManager.OnEditModeChanged += EditModeListener;
         }
 
         private void EditModeListener(bool value)

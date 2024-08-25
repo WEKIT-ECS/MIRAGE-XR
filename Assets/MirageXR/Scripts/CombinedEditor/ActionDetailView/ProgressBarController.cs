@@ -17,13 +17,13 @@ public class ProgressBarController : MonoBehaviour
 
     private void OnEnable()
     {
-        EventManager.OnInitUi += UpdateUI;
+        LearningExperienceEngine.EventManager.OnInitUi += UpdateUI;
         LearningExperienceEngine.EventManager.OnActivateAction += OnActivateAction;
     }
 
     private void OnDisable()
     {
-        EventManager.OnInitUi -= UpdateUI;
+        LearningExperienceEngine.EventManager.OnInitUi -= UpdateUI;
         LearningExperienceEngine.EventManager.OnActivateAction -= OnActivateAction;
     }
 

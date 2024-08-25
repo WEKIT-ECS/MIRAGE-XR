@@ -16,13 +16,13 @@ namespace MirageXR
             this.highlightedObject = taskStationDetailMenu.AddAugmentationButton;
             EventManager.AddAugmentationButtonClicked += DefaultExitEventListener;
 
-            EventManager.OnActivityStarted += DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity += DefaultCloseEventListener;
         }
 
         protected override void Detach()
         {
             EventManager.AddAugmentationButtonClicked -= DefaultExitEventListener;
-            EventManager.OnActivityStarted -= DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity -= DefaultCloseEventListener;
         }
     }
 }

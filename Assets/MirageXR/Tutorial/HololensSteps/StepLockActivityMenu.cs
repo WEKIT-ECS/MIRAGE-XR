@@ -16,7 +16,7 @@ namespace MirageXR
             this.highlightedObject = activitySelectionMenu.LockButton;
             EventManager.ActivitySelectionMenuLockClicked += this.LockClickListener;
 
-            EventManager.OnActivityStarted += DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity += DefaultCloseEventListener;
         }
 
         private void LockClickListener()
@@ -40,7 +40,7 @@ namespace MirageXR
         protected override void Detach()
         {
             EventManager.ActivitySelectionMenuLockClicked -= this.LockClickListener;
-            EventManager.OnActivityStarted -= DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity -= DefaultCloseEventListener;
         }
     }
 }

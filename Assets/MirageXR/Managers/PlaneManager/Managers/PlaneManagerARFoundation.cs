@@ -51,7 +51,7 @@ public class PlaneManagerARFoundation : PlaneManagerBase
 
         _arPlaneManager.planesChanged += ArPlaneManagerOnPlanesChanged;
 
-        EventManager.OnEditModeChanged += OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
 
         return true;
     }
@@ -176,7 +176,7 @@ public class PlaneManagerARFoundation : PlaneManagerBase
 
     public override void Dispose()
     {
-        EventManager.OnEditModeChanged -= OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
     }
 
     private void OnEditModeChanged(bool value)

@@ -91,7 +91,7 @@ public class ContentListView_v2 : BaseView
         LearningExperienceEngine.EventManager.OnActionModified += OnActionChanged;
 
         LearningExperienceEngine.EventManager.OnActivateAction += OnActionActivated;
-        MirageXR.EventManager.OnEditModeChanged += OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
         
     }
 
@@ -114,7 +114,7 @@ public class ContentListView_v2 : BaseView
         LearningExperienceEngine.EventManager.OnActionModified -= OnActionChanged;
 
         LearningExperienceEngine.EventManager.OnActivateAction -= OnActionActivated;
-        MirageXR.EventManager.OnEditModeChanged -= OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
         
     }
 

@@ -11,12 +11,12 @@ public class Tappable : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     private void OnEnable()
     {
-        EventManager.OnTap += Tap;
+        LearningExperienceEngine.EventManager.OnTap += Tap;
     }
 
     private void OnDisable()
     {
-        EventManager.OnTap -= Tap;
+        LearningExperienceEngine.EventManager.OnTap -= Tap;
     }
 
     private void Tap()

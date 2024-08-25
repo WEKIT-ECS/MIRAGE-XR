@@ -11,12 +11,12 @@ using Object = UnityEngine.Object;
 
 namespace MirageXR
 {
-    public static class WorkplaceObjectFactory
+    public class WorkplaceObjectFactory
     {
-        private static LearningExperienceEngine.WorkplaceManager workplaceManager => LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
-        private static WorkplaceController workplaceController => RootObject.Instance.workplaceController;
+        private LearningExperienceEngine.WorkplaceManager workplaceManager => LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+        private WorkplaceController workplaceController => RootObject.Instance.workplaceController;
 
-        public static void CreateDetectables(List<LearningExperienceEngine.Detectable> list, string debug)
+        public void CreateDetectables(List<LearningExperienceEngine.Detectable> list, string debug)
         {
             if (list == null || list.Count == 0)
             {
@@ -36,14 +36,14 @@ namespace MirageXR
             }
             catch (Exception e)
             {
-                EventManager.DebugLog($"Error: Workplace manager: Couldn't create {debug}.");
+                Debug.LogError($"Error: Workplace manager: Couldn't create {debug}.");
                 Debug.LogException(e);
             }
 
-            EventManager.DebugLog($"Workplace manager: {debug} created.");
+            Debug.LogInfo($"Workplace manager: {debug} created.");
         }
 
-        public static async Task CreatePlaces(List<LearningExperienceEngine.Place> list, string debug)
+        public async Task CreatePlaces(List<LearningExperienceEngine.Place> list, string debug)
         {
             try
             {
@@ -55,18 +55,18 @@ namespace MirageXR
             }
             catch (Exception e)
             {
-                EventManager.DebugLog($"Error: Workplace manager: Couldn't create {debug}.");
+                Debug.LogError($"Error: Workplace manager: Couldn't create {debug}.");
                 Debug.LogException(e);
             }
 
-            EventManager.DebugLog($"Workplace manager: {debug} created.");
+            Debug.LogInfo($"Workplace manager: {debug} created.");
         }
 
         /// <summary>
         /// Helper method that creates sensor objects.
         /// </summary>
         /// <returns>Returns the number of errors that occured while creating the objects.</returns>
-        public static async void CreateSensors()
+        public async void CreateSensors()
         {
             foreach (var sensor in workplaceManager.workplace.sensors)
             {
@@ -77,7 +77,7 @@ namespace MirageXR
                         throw new AmbiguousMatchException(sensor.id + " id already in use.");
 
                     // Create an empty sensor object by using the helper function.
-                    var temp = Utilities.CreateObject(sensor.id, workplaceManager.sensorContainer);
+                    var temp = LearningExperienceEngine.Utilities.CreateObject(sensor.id, workplaceManager.sensorContainer);
 
                     if (!sensor.uri.Contains(':'))
                     {
@@ -115,19 +115,19 @@ namespace MirageXR
                 catch (Exception e)
                 {
                     Maggie.Speak("Error while trying to connect to sensor " + sensor.id);
-                    EventManager.DebugLog("Error: Workplace manager: Couldn't create sensor objects.");
+                    Debug.LogError("Error: Workplace manager: Couldn't create sensor objects.");
                     Debug.LogException(e);
                     throw;
                 }
             }
-            EventManager.DebugLog("Workplace manager: Sensor objects created.");
+            Debug.LogInfo("Workplace manager: Sensor objects created.");
         }
 
         /// <summary>
         /// Helper method that creates thing objects.
         /// </summary>
         /// <returns>Returns the number of errors that occured while creating the objects.</returns>
-        public static async Task CreateThings()
+        public async Task CreateThings()
         {
             foreach (var thing in workplaceManager.workplace.things)
             {
@@ -140,7 +140,7 @@ namespace MirageXR
                     }
 
                     // Create an empty thing object by using the helper function
-                    var temp = Utilities.CreateObject(thing.id, workplaceManager.thingContainer);
+                    var temp = LearningExperienceEngine.Utilities.CreateObject(thing.id, workplaceManager.thingContainer);
 
                     var counter = 0;
 
@@ -153,7 +153,7 @@ namespace MirageXR
                             counter++;
                         }
 
-                        var poiTemp = Utilities.CreateObject(poi.id, temp.transform);
+                        var poiTemp = LearningExperienceEngine.Utilities.CreateObject(poi.id, temp.transform);
 
                         // If offset not defined as separate values...
                         if (poi.x_offset.Equals(0) && poi.y_offset.Equals(0) && poi.z_offset.Equals(0))
@@ -180,7 +180,7 @@ namespace MirageXR
                     // Create default poi if not already defined.
                     if (counter == 0)
                     {
-                        var poiTemp = Utilities.CreateObject("default", temp.transform);
+                        var poiTemp = LearningExperienceEngine.Utilities.CreateObject("default", temp.transform);
                         var action = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.Activity.actions.FirstOrDefault(t => t.id == thing.id);
                         await PopulateTaskStation(poiTemp, action);
                     }
@@ -260,19 +260,19 @@ namespace MirageXR
                 }
                 catch (Exception e)
                 {
-                    EventManager.DebugLog("Error: Workplace manager: Couldn't create thing object: " + thing.id);
+                    Debug.LogError("Error: Workplace manager: Couldn't create thing object: " + thing.id);
                     Debug.LogException(e);
                     throw;
                 }
             }
-            EventManager.DebugLog("Workplace manager: Thing objects created.");
+            Debug.LogInfo("Workplace manager: Thing objects created.");
         }
 
         /// <summary>
         /// Helper method that creates person objects.
         /// </summary>
         /// <returns>Returns the number of errors that occured while creating the objects.</returns>
-        public static async Task CreatePersons()
+        public async Task CreatePersons()
         {
             foreach (var person in workplaceManager.workplace.persons)
             {
@@ -283,7 +283,7 @@ namespace MirageXR
                         throw new AmbiguousMatchException(person.id + " id already in use.");
 
                     // Create an empty thing object by using the helper function
-                    var temp = Utilities.CreateObject(person.id, workplaceManager.personContainer);
+                    var temp = LearningExperienceEngine.Utilities.CreateObject(person.id, workplaceManager.personContainer);
 
                     var counter = 0;
 
@@ -296,7 +296,7 @@ namespace MirageXR
                             counter++;
                         }
 
-                        var poiTemp = Utilities.CreateObject(poi.id, temp.transform);
+                        var poiTemp = LearningExperienceEngine.Utilities.CreateObject(poi.id, temp.transform);
 
                         // If offset not defined as separate values...
                         if (poi.x_offset.Equals(0) && poi.y_offset.Equals(0) && poi.z_offset.Equals(0))
@@ -320,7 +320,7 @@ namespace MirageXR
                     // Create default poi if not already defined.
                     if (counter == 0)
                     {
-                        var poiTemp = Utilities.CreateObject("default", temp.transform);
+                        var poiTemp = LearningExperienceEngine.Utilities.CreateObject("default", temp.transform);
                         var action = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.Activity.actions.FirstOrDefault(t => t.id == person.id);
                         await PopulateTaskStation(poiTemp, action);
                     }
@@ -367,7 +367,7 @@ namespace MirageXR
                 }
                 catch (Exception e)
                 {
-                    EventManager.DebugLog("Error: Workplace manager: Couldn't create person objects.");
+                    Debug.LogError("Error: Workplace manager: Couldn't create person objects.");
                     Debug.LogException(e);
                     throw;
                 }
@@ -378,7 +378,7 @@ namespace MirageXR
         /// Helper method that creates device objects.
         /// </summary>
         /// <returns>Returns the number of errors that occured while creating the objects.</returns>
-        public static void CreateDevices()
+        public void CreateDevices()
         {
             foreach (var device in workplaceManager.workplace.devices)
             {
@@ -397,7 +397,7 @@ namespace MirageXR
                 }
                 catch (Exception e)
                 {
-                    EventManager.DebugLog("Error: Workplace manager: Couldn't attach user to current device.");
+                    Debug.LogError("Error: Workplace manager: Couldn't attach user to current device.");
                     Debug.LogException(e);
                     throw;
                 }
@@ -406,7 +406,7 @@ namespace MirageXR
 
         // *** SINGLE OBJECT CREATION METHODS ***
 
-        public static void CreateDetectableObject(Detectable detectable, bool newObject)
+        public void CreateDetectableObject(Detectable detectable, bool newObject)
         {
             // Don't recreate existing detectables...
             if (GameObject.Find(detectable.id))
@@ -563,9 +563,10 @@ namespace MirageXR
                     throw new ArgumentException($"{detectable.id} unknown detectable type: {detectable.type}.");
                 }
             }
+            Debug.LogInfo($"Creating Detectable Object:{detectable.id} created");
         }
 
-        public static async Task CreatePlaceObject(Place place, LearningExperienceEngine.Action action)
+        public async Task CreatePlaceObject(Place place, LearningExperienceEngine.Action action)
         {
             // Check for unique object name
             if (GameObject.Find(place.id))
@@ -574,7 +575,7 @@ namespace MirageXR
             }
 
             // Create an empty thing object by using the helper function
-            var temp = Utilities.CreateObject(place.id, workplaceManager.placeContainer);
+            var temp = LearningExperienceEngine.Utilities.CreateObject(place.id, workplaceManager.placeContainer);
 
             var counter = 0;
 
@@ -593,25 +594,26 @@ namespace MirageXR
             // Create default poi if not already defined.
             if (counter == 0)
             {
-                var poiTemp = Utilities.CreateObject("default", temp.transform);
+                GameObject poiTemp = LearningExperienceEngine.Utilities.CreateObject("default", temp.transform);
                 await PopulateTaskStation(poiTemp, action);
+                Debug.Log("after creation " + poiTemp.transform.GetChild(0).name + " has " + poiTemp.transform.GetChild(0).childCount + " children");
             }
 
-            // Add guide line.
-            var guide = Object.Instantiate(Resources.Load<GameObject>("Pathway"), Vector3.zero, Quaternion.identity);
+            //// Add guide line.
+            //var guide = Object.Instantiate(Resources.Load<GameObject>("Pathway"), Vector3.zero, Quaternion.identity);
 
-            // Make guide line a child of default poi object.
-            guide.transform.SetParent(temp.transform.FindDeepChild("default"));
+            //// Make guide line a child of default poi object.
+            //guide.transform.SetParent(temp.transform.FindDeepChild("default"));
 
-            var segmentsController = guide.GetComponent<PathSegmentsController>();
-            segmentsController.startTransform = ServiceManager.GetService<ActivitySelectionSceneReferenceService>().References.floorTarget;
-            segmentsController.endTransform = guide.transform.parent.GetChild(0);
+            //var segmentsController = guide.GetComponent<PathSegmentsController>();
+            //segmentsController.startTransform = ServiceManager.GetService<ActivitySelectionSceneReferenceService>().References.floorTarget;
+            //segmentsController.endTransform = guide.transform.parent.GetChild(0);
 
-            // this should be removed once the ribbons are no longer needed.
-            guide.GetComponent<PathRoleController>().Role = PathRole.TASKSTATION;
+            //// this should be removed once the ribbons are no longer needed.
+            //guide.GetComponent<PathRoleController>().Role = PathRole.TASKSTATION;
 
-            // Hide by default.
-            guide.SetActive(false);
+            //// Hide by default.
+            //guide.SetActive(false);
 
             // Get the thing behaviour component attached to the empty game object by the helper function
             PlaceBehaviour placeBehaviour = temp.AddComponent<PlaceBehaviour>();
@@ -639,9 +641,9 @@ namespace MirageXR
             }
         }
 
-        public static void CreatePoiObject(Poi poi, Transform parent)
+        public void CreatePoiObject(Poi poi, Transform parent)
         {
-            var poiTemp = Utilities.CreateObject(poi.id, parent);
+            var poiTemp = LearningExperienceEngine.Utilities.CreateObject(poi.id, parent);
             poiTemp.AddComponent<PoiEditor>().Initialize(poi);
 
             // If offset not defined as separate values...
@@ -695,7 +697,7 @@ namespace MirageXR
         /// </summary>
         /// <param name="source"></param>
         /// <returns></returns>
-        public static (Vector3, Vector3) GetPoseRelativeToCalibrationOrigin(GameObject source)
+        public (Vector3, Vector3) GetPoseRelativeToCalibrationOrigin(GameObject source)
         {
             var anchor = RootObject.Instance.calibrationManager.anchor;
 
@@ -705,10 +707,15 @@ namespace MirageXR
             return (position, rotation.eulerAngles);
         }
 
-        private static async Task PopulateTaskStation(GameObject parent, LearningExperienceEngine.Action action)
+        private async Task PopulateTaskStation(GameObject parent, LearningExperienceEngine.Action action)
         {
-            var prefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("PlayerTaskStation");
-            var instance = Object.Instantiate(prefab, parent.transform);
+            GameObject prefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("PlayerTaskStation");
+            GameObject instance = Object.Instantiate(prefab, parent.transform);
+            instance.transform.parent = parent.transform; // just to be sure
+            instance.name = "PlayerTaskStation(Clone)";
+            instance.SetActive(true);
+
+            //GameObjectConversionUtility.ConvertGameObjectHierarchy
 
             var taskStationEditor = instance.GetComponentInChildren<TaskStationEditor>();
             taskStationEditor.Init(action);

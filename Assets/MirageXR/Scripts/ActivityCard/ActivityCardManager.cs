@@ -1,4 +1,5 @@
-﻿using LearningExperienceEngine;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using LearningExperienceEngine;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -27,14 +28,14 @@ namespace MirageXR
 
         private void OnEnable()
         {
-            EventManager.OnClearAll += Reset;
-            EventManager.OnInitUi += Init;
+            LearningExperienceEngine.EventManager.OnClearAll += Reset;
+            LearningExperienceEngine.EventManager.OnInitUi += Init;
         }
 
         private void OnDisable()
         {
-            EventManager.OnClearAll -= Reset;
-            EventManager.OnInitUi -= Init;
+            LearningExperienceEngine.EventManager.OnClearAll -= Reset;
+            LearningExperienceEngine.EventManager.OnInitUi -= Init;
         }
 
         private void Reset()
@@ -101,6 +102,7 @@ namespace MirageXR
                 taskListRectTransform.localEulerAngles = Vector3.zero;
                 taskListRectTransform.localScale = Vector3.one;
                 taskListObject.name = $"Step-{action.id}";
+                Debug.LogInfo("[ActivityCardManager] Task station instantiated with name = " + taskListObject.name);
 
                 taskListObject.GetComponent<TaskStep>().SetupStep(action);
                 taskListObject.GetComponent<TaskStep>().IsActive = false;
@@ -169,7 +171,7 @@ namespace MirageXR
 
         public void ShowCardsTouch()
         {
-            EventManager.Click();
+            LearningExperienceEngine.EventManager.Click();
             ShowCards();
         }
     }

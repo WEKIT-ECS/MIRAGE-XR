@@ -97,10 +97,12 @@ namespace MirageXR
 
             try
             {
+
                 _baseCamera ??= Camera.main;
 
-                _lee ??= new GameObject("LearningExperienceEngineWrapper)").AddComponent<LearningExperienceEngine.LearningExperienceEngine>();
+                _lee ??= new GameObject("LearningExperienceEngine").AddComponent<LearningExperienceEngine.LearningExperienceEngine>();
                 await _lee.WaitForInitialization();
+                _lee.transform.parent = transform;
 
                 _imageTargetManager ??= new GameObject("ImageTargetManagerWrapper").AddComponent<ImageTargetManagerWrapper>();
                 _calibrationManager ??= new GameObject("CalibrationManager").AddComponent<CalibrationManager>();
@@ -113,8 +115,11 @@ namespace MirageXR
                 // _exceptionManager ??= new GameObject("ExceptionManager").AddComponent<LearningExperienceEngine.ExceptionManager>();
 
                 _editorSceneService = new EditorSceneService();
-                _workplaceController = new WorkplaceController();
-                _contentController = new ContentAugmentationController();
+
+                _workplaceController ??= new GameObject("WorkplaceController").AddComponent<WorkplaceController>();
+                _workplaceController.transform.parent = transform;
+                _contentController ??= new GameObject("ContentAugmentationController").AddComponent<ContentAugmentationController>();
+                _contentController.transform.parent = transform;
 
                 _aiManager = new AIManager();
                 _openAIManager = new OpenAIManager();
@@ -137,7 +142,7 @@ namespace MirageXR
                 
                 _isInitialized = true;
 
-                //EventManager.OnClearAll += ResetManagers;
+                //LearningExperienceEngine.EventManager.OnClearAll += ResetManagers;
             }
             catch (Exception e)
             {
