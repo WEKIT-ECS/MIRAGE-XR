@@ -92,6 +92,9 @@ public class ActionDetailView : MonoBehaviour
         {
             var taskStation = place.transform.Find("default/PlayerTaskStation(Clone)"); // TODO: possible NRE
             if (taskStation) return taskStation.gameObject;
+        } else
+        {
+            Debug.Log("Could not find GameObject with actionID = " + actionId);
         }
 
         throw new Exception($"cant find PlayerTaskStation for {actionId}");

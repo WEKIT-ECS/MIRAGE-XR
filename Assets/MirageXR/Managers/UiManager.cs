@@ -46,7 +46,7 @@ namespace MirageXR
 
             EventManager.OnActivityStarted += ActivityStarted;
             LearningExperienceEngine.EventManager.OnWorkplaceLoaded += ShowActivityStart;
-            EventManager.OnWorkplaceCalibrated += WorkplaceCalibrated;
+            LearningExperienceEngine.EventManager.OnWorkplaceCalibrated += WorkplaceCalibrated;
 
             // voice command event handlers
             EventManager.OnDeleteActionByVoice += DeleteActionVoice;
@@ -74,7 +74,7 @@ namespace MirageXR
 
             EventManager.OnActivityStarted -= ActivityStarted;
             LearningExperienceEngine.EventManager.OnWorkplaceLoaded -= ShowActivityStart;
-            EventManager.OnWorkplaceCalibrated -= WorkplaceCalibrated;
+            LearningExperienceEngine.EventManager.OnWorkplaceCalibrated -= WorkplaceCalibrated;
 
             // voice command event handlers
             EventManager.OnDeleteActionByVoice -= DeleteActionVoice;

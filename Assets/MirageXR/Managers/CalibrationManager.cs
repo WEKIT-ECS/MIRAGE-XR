@@ -68,6 +68,8 @@ public class CalibrationManager : MonoBehaviour
             useLimitedTracking = false,
         };
 
+        LearningExperienceEngine.EventManager.OnSetPoseSynchronizerTargetToCalibrationAnchor += OnSetCalibrationAnchor;
+
         return true;
     }
 
@@ -247,4 +249,11 @@ public class CalibrationManager : MonoBehaviour
 
         return anchorTransform;
     }
+
+    private void OnSetCalibrationAnchor(LearningExperienceEngine.PoseSynchronizer pose)
+    {
+        Debug.LogInfo("[CalibrationManager] OnGetCalibrationAnchor callback received: setting PoseSynchronizer target to calibration anchor.");
+        pose.target = anchor;
+    }
+
 }

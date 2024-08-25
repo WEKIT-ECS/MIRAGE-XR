@@ -67,9 +67,7 @@ namespace MirageXR
 
         // MirageXR move action list.
         public delegate void MoveActionDelegate();
-
         public static event MoveActionDelegate OnMoveActionList;
-
         /// <summary>
         /// Move MirageXR activity list.
         /// </summary>
@@ -80,100 +78,30 @@ namespace MirageXR
 
         // TODO: Is this the same as ActivityStarted? Duplicate removal?
         public delegate void StartActivityDelegate();
-
         public static event StartActivityDelegate OnStartActivity;
-
         public static void StartActivity()
         {
             OnStartActivity?.Invoke();
         }
 
         public delegate void ActivityStartedDelegate();
-
         public static event ActivityStartedDelegate OnActivityStarted;
-
         public static void ActivityStarted()
         {
             OnActivityStarted?.Invoke();
         }
 
-        // Workplace has been calibrated event.
-        public delegate void WorkplaceCalibratedDelegate();
-
-        public static event WorkplaceCalibratedDelegate OnWorkplaceCalibrated;
-
-        /// <summary>
-        /// Reports that calibration has been performed
-        /// </summary>
-        /// <param name="action">Activity file action id of the activated action.</param>
-        public static void WorkplaceCalibrated()
-        {
-            OnWorkplaceCalibrated?.Invoke();
-        }
-
         // Clear poi event.
         public delegate void ClearPoisDelegate();
-
         public static event ClearPoisDelegate OnClearPois;
-
         public static void ClearPois()
         {
             OnClearPois?.Invoke();
         }
 
-        //// Activate action event.
-        //public delegate void ActivateActionDelegate(string action);
-
-        //public static event ActivateActionDelegate OnActivateAction;
-
-        ///// <summary>
-        ///// Activates a new action.
-        ///// </summary>
-        ///// <param name="action">Activity file action id of the activated action.</param>
-        //public static void ActivateAction(string action)
-        //{
-        //    OnActivateAction?.Invoke(action);
-        //}
-
-        //// Deactivate action event.
-        //public delegate void DeactivateActionDelegate(string action, bool doNotActivateNextStep = false);
-
-        //public static event DeactivateActionDelegate OnDeactivateAction;
-
-        ///// <summary>
-        ///// Deactivates a new action.
-        ///// </summary>
-        ///// <param name="action">Activity file action id of the deactivated action.</param>
-        //public static void DeactivateAction(string action, bool doNotActivateNextStep = false)
-        //{
-        //    OnDeactivateAction?.Invoke(action, doNotActivateNextStep);
-        //}
-
-        //// Activate/Deactivate an object event.
-        //public delegate void ToggleObjectDelegate(LearningExperienceEngine.ToggleObject obj, bool isActivating);
-        //public static event ToggleObjectDelegate OnToggleObject;
-        ///// <summary>
-        ///// Activates an object.
-        ///// </summary>
-        ///// <param name="action">Activate object of activity file action.</param>
-        //public static void ActivateObject(LearningExperienceEngine.ToggleObject action)
-        //{
-        //    OnToggleObject?.Invoke(action, true);
-        //}
-        ///// <summary>
-        ///// Deactivates an object.
-        ///// </summary>
-        ///// <param name="action">Deactivate object of activity file action.</param>
-        //public static void DeactivateObject(LearningExperienceEngine.ToggleObject obj)
-        //{
-        //    OnToggleObject?.Invoke(obj, false);
-        //}
-
         // Log debug event.
         public delegate void DebugLogDelegate(string debug);
-
         public static event DebugLogDelegate OnDebugLog;
-
         /// <summary>
         /// Adds debug message to UI debug console and normal debug log.
         /// </summary>
@@ -186,9 +114,7 @@ namespace MirageXR
 
         // Show guides event.
         public delegate void ShowGuidesDelegate();
-
         public static event ShowGuidesDelegate OnShowGuides;
-
         /// <summary>
         /// Show guidelines.
         /// </summary>
