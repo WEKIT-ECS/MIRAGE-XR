@@ -95,35 +95,44 @@ namespace MirageXR
         
         public void Start()
         {
-            if (_modelData == null)
+            try
             {
-                UpdateModel(RootObject.Instance.aiManager.GetLlmModels()[0]);
-            }
+                if (_modelData == null)
+                {
+                    UpdateModel(RootObject.Instance.aiManager.GetLlmModels()[0]);
+                }
 
-            if (_languageData == null)
-            {
-                UpdateLanguage(RootObject.Instance.aiManager.GetSttModels()[0]);
-            }
+                if (_languageData == null)
+                {
+                    UpdateLanguage(RootObject.Instance.aiManager.GetSttModels()[0]);
+                }
 
-            if (_voiceData == null)
-            {
-                UpdateVoice(RootObject.Instance.aiManager.GetTtsModels()[0]);
-            }
+                if (_voiceData == null)
+                {
+                    UpdateVoice(RootObject.Instance.aiManager.GetTtsModels()[0]);
+                }
             
-            if (_modelData != null)
-            {
-                UpdateModel(RootObject.Instance.aiManager.GetLlmModels()[0]);
-            }
+                if (_modelData != null)
+                {
+                    UpdateModel(RootObject.Instance.aiManager.GetLlmModels()[0]);
+                }
 
-            if (_languageData != null)
-            {
-                UpdateLanguage(RootObject.Instance.aiManager.GetSttModels()[0]);
-            }
+                if (_languageData != null)
+                {
+                    UpdateLanguage(RootObject.Instance.aiManager.GetSttModels()[0]);
+                }
 
-            if (_voiceData != null)
-            {
-                UpdateVoice(RootObject.Instance.aiManager.GetTtsModels().Last());
+                if (_voiceData != null)
+                {
+                    UpdateVoice(RootObject.Instance.aiManager.GetTtsModels().Last());
+                }
+
             }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogError("Fail to load the models. Is the server online?");
+            }
+         
 
             AiPromptBtn.onClick.AddListener(() =>OpenView(PromptView, true));
             ModelBtn.onClick.AddListener(() =>OpenView(LLMView, true));
