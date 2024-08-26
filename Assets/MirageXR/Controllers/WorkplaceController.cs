@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace MirageXR
 {
@@ -13,6 +15,7 @@ namespace MirageXR
     /// </summary>
     public class WorkplaceController : MonoBehaviour
     {
+
         private LearningExperienceEngine.WorkplaceManager workplaceManager => LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
         private WorkplaceObjectFactory objectFactory = new WorkplaceObjectFactory();
         #region Calibration pair data
@@ -40,6 +43,7 @@ namespace MirageXR
             LearningExperienceEngine.EventManager.OnResetPlayer += ClearPois;
             LearningExperienceEngine.EventManager.OnClearAll += PlayerReset;
             LearningExperienceEngine.EventManager.OnInitializeWorkplaceView += CreateObjects;
+            //LearningExperienceEngine.EventManager.OnCloneTaskStation += onCloneTaskStation;
         }
 
         private void OnDisable()
@@ -48,6 +52,7 @@ namespace MirageXR
              LearningExperienceEngine.EventManager.OnResetPlayer -= ClearPois;
             LearningExperienceEngine.EventManager.OnClearAll -= PlayerReset;
             LearningExperienceEngine.EventManager.OnInitializeWorkplaceView -= CreateObjects;
+            //LearningExperienceEngine.EventManager.OnCloneTaskStation -= onCloneTaskStation;
         }
 
         //private void Start()
@@ -139,6 +144,24 @@ namespace MirageXR
             // SUGGESTION Use a different event here that symbolizes the end of the view update by the model
             //LearningExperienceEngine.EventManager.WorkplaceLoaded();
         }
+
+        //public void onCloneTaskStation (GameObject parent, LearningExperienceEngine.Action action, GameObject iObj)
+        //{
+        //    UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<GameObject> opHandle = Addressables.LoadAssetAsync<GameObject>("PlayerTaskStation");
+        //    yield return opHandle;
+        //    if (opHandle.Status == AsyncOperationStatus.Succeeded)
+        //    {
+        //        GameObject prefab = opHandle.Result;
+        //        // await ReferenceLoader.GetAssetReferenceAsync<GameObject>("PlayerTaskStation");
+        //        iObj = UnityEngine.Object.Instantiate(prefab, parent.transform);
+        //        iObj.transform.parent = parent.transform; // just to be sure
+        //        // iObj.name = "PlayerTaskStation(Clone)";
+        //        // iObj.SetActive(true);
+        //    } else
+        //    {
+        //        Debug.LogError("FATAL ERROR: Could not instantiate task station prefab");
+        //    }
+        //}
 
     }
 }
