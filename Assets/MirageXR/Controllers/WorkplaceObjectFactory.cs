@@ -7,14 +7,26 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using Object = UnityEngine.Object;
 
 namespace MirageXR
 {
     public class WorkplaceObjectFactory
     {
+        private LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
         private LearningExperienceEngine.WorkplaceManager workplaceManager => LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
         private WorkplaceController workplaceController => RootObject.Instance.workplaceController;
+
+        private GameObject instance;
+
+        //WorkplaceObjectFactory()
+        //{
+        //    //AsyncOperationHandle handle = reference.LoadAssetAsync<GameObject>("TaskStationPrefab");
+        //    //opHandle = Addressables.LoadAssetAsync<GameObject>("PlayerTaskStation");
+        //    //opHandle.Completed += AdressablesLoadingCompleted;
+        //}
 
         public void CreateDetectables(List<LearningExperienceEngine.Detectable> list, string debug)
         {
@@ -420,148 +432,148 @@ namespace MirageXR
             {
                 // Hololens world anchors.
                 case "anchor":
-                {
-                    // Create anchor frame
-                    var anchorFrame = new GameObject("anchorObject");
-                    anchorFrame.transform.SetParent(workplaceManager.detectableContainer, true);
-                    anchorFrame.transform.position = Vector3.zero;
-                    anchorFrame.transform.rotation = Quaternion.identity;
-                    anchorFrame.name = detectable.id;
-
-                    if (newObject)
                     {
-                        anchorFrame.transform.position = RootObject.Instance.platformManager.GetTaskStationPosition();
-                        anchorFrame.transform.localRotation = Quaternion.identity;
-                        anchorFrame.transform.localScale = Vector3.one;
+                        // Create anchor frame
+                        var anchorFrame = new GameObject("anchorObject");
+                        anchorFrame.transform.SetParent(workplaceManager.detectableContainer, true);
+                        anchorFrame.transform.position = Vector3.zero;
+                        anchorFrame.transform.rotation = Quaternion.identity;
+                        anchorFrame.name = detectable.id;
 
-                        detectable.origin_position = Utilities.Vector3ToString(anchorFrame.transform.localPosition);
-                        detectable.origin_rotation = Utilities.Vector3ToString(anchorFrame.transform.localRotation.eulerAngles);
+                        if (newObject)
+                        {
+                            anchorFrame.transform.position = RootObject.Instance.platformManager.GetTaskStationPosition();
+                            anchorFrame.transform.localRotation = Quaternion.identity;
+                            anchorFrame.transform.localScale = Vector3.one;
+
+                            detectable.origin_position = Utilities.Vector3ToString(anchorFrame.transform.localPosition);
+                            detectable.origin_rotation = Utilities.Vector3ToString(anchorFrame.transform.localRotation.eulerAngles);
+                        }
+                        else
+                        {
+                            anchorFrame.transform.localPosition = Utilities.ParseStringToVector3(detectable.origin_position);
+                            anchorFrame.transform.localEulerAngles = Utilities.ParseStringToVector3(detectable.origin_rotation);
+                            anchorFrame.transform.localScale = Vector3.one;
+                        }
+
+                        var anchorBehaviour = anchorFrame.AddComponent<DetectableBehaviour>();
+                        anchorBehaviour.Type = DetectableBehaviour.TrackableType.Anchor;
+                        anchorBehaviour.IsDetectableReady = true;
+
+                        // Add to the list of calibratable objects and attach the task station
+                        var pair = new WorkplaceController.AnchorCalibrationPair
+                        {
+                            AnchorFrame = anchorFrame,
+                            DetectableConfiguration = detectable,
+                        };
+
+                        workplaceController.calibrationPairs.Add(pair);
+
+                        break;
                     }
-                    else
-                    {
-                        anchorFrame.transform.localPosition = Utilities.ParseStringToVector3(detectable.origin_position);
-                        anchorFrame.transform.localEulerAngles = Utilities.ParseStringToVector3(detectable.origin_rotation);
-                        anchorFrame.transform.localScale = Vector3.one;
-                    }
-
-                    var anchorBehaviour = anchorFrame.AddComponent<DetectableBehaviour>();
-                    anchorBehaviour.Type = DetectableBehaviour.TrackableType.Anchor;
-                    anchorBehaviour.IsDetectableReady = true;
-
-                    // Add to the list of calibratable objects and attach the task station
-                    var pair = new WorkplaceController.AnchorCalibrationPair
-                    {
-                        AnchorFrame = anchorFrame,
-                        DetectableConfiguration = detectable,
-                    };
-
-                    workplaceController.calibrationPairs.Add(pair);
-
-                    break;
-                }
 
                 // Vuforia image targets.
                 case "image":
-                {
-                    Debug.LogError("Support for Vuforia image targets has been removed");
-
-                    /*var path = Path.Combine(Application.persistentDataPath, workplaceManager.workplace.id, "/detectables/", detectable.id, detectable.id, ".xml");
-
-                    Debug.LogDebug("VUFORIA PATH: " + path);
-
-                    // Check that we have the data set file.
-                    if (!DataSet.Exists(path, VuforiaUnity.StorageType.STORAGE_ABSOLUTE))
                     {
-                        throw new FileNotFoundException($"{detectable.id} data set not found.");
-                    }
+                        Debug.LogError("Support for Vuforia image targets has been removed");
 
-                    var objectTracker = TrackerManager.Instance.GetTracker<ObjectTracker>();
-                    var dataSet = objectTracker.CreateDataSet();
+                        /*var path = Path.Combine(Application.persistentDataPath, workplaceManager.workplace.id, "/detectables/", detectable.id, detectable.id, ".xml");
 
-                    // Try to load the data set.
-                    if (!dataSet.Load(path, VuforiaUnity.StorageType.STORAGE_ABSOLUTE))
-                    {
-                        throw new FileLoadException($"{detectable.id} data set couldn't be loaded.");
-                    }
+                        Debug.LogDebug("VUFORIA PATH: " + path);
 
-                    // Activate data set
-                    if (!objectTracker.ActivateDataSet(dataSet))
-                    {
-                        throw new FileLoadException($"{detectable.id} data set couldn't be activated.");
-                    }
-
-                    // Create the actual image target object...
-
-                    // First get all the available trackable behaviours...
-                    var trackableBehaviours = TrackerManager.Instance.GetStateManager().GetTrackableBehaviours();
-
-                    // Then loop through all the available trackable behaviours
-                    foreach (var trackableBehaviour in trackableBehaviours)
-                    {
-                        // Handle only trackables that are a part of this data set
-                        if (!dataSet.Contains(trackableBehaviour.Trackable))
+                        // Check that we have the data set file.
+                        if (!DataSet.Exists(path, VuforiaUnity.StorageType.STORAGE_ABSOLUTE))
                         {
-                            continue;
+                            throw new FileNotFoundException($"{detectable.id} data set not found.");
                         }
 
-                        // Create the image target...
-                        var imageTarget = trackableBehaviour.gameObject;
+                        var objectTracker = TrackerManager.Instance.GetTracker<ObjectTracker>();
+                        var dataSet = objectTracker.CreateDataSet();
 
-                        // Name it after the detectable id...
-                        imageTarget.name = detectable.id;
-                        imageTarget.tag = "VuforiaTarget";
+                        // Try to load the data set.
+                        if (!dataSet.Load(path, VuforiaUnity.StorageType.STORAGE_ABSOLUTE))
+                        {
+                            throw new FileLoadException($"{detectable.id} data set couldn't be loaded.");
+                        }
 
-                        // Place it into the container
-                        imageTarget.transform.SetParent(workplaceManager.detectableContainer);
+                        // Activate data set
+                        if (!objectTracker.ActivateDataSet(dataSet))
+                        {
+                            throw new FileLoadException($"{detectable.id} data set couldn't be activated.");
+                        }
 
-                        // Set transform
-                        imageTarget.transform.localPosition = Vector3.zero;
-                        imageTarget.transform.localEulerAngles = Vector3.zero;
-                        imageTarget.transform.localScale = Vector3.one;
+                        // Create the actual image target object...
 
-                        // Add necessary Vuforia components
-                        imageTarget.AddComponent<DefaultTrackableEventHandler>();
-                        imageTarget.AddComponent<TurnOffBehaviour>();
+                        // First get all the available trackable behaviours...
+                        var trackableBehaviours = TrackerManager.Instance.GetStateManager().GetTrackableBehaviours();
 
-                        // Add origin
-                        var originObj = new GameObject("Origin");
-                        originObj.transform.SetParent(imageTarget.transform);
+                        // Then loop through all the available trackable behaviours
+                        foreach (var trackableBehaviour in trackableBehaviours)
+                        {
+                            // Handle only trackables that are a part of this data set
+                            if (!dataSet.Contains(trackableBehaviour.Trackable))
+                            {
+                                continue;
+                            }
 
-                        // Set origin transform
-                        originObj.transform.localPosition = Utilities.ParseStringToVector3(detectable.origin_position);
-                        originObj.transform.localEulerAngles =
-                            Utilities.ParseStringToVector3(detectable.origin_rotation);
-                        originObj.transform.localScale = Vector3.one;
+                            // Create the image target...
+                            var imageTarget = trackableBehaviour.gameObject;
 
-                        // Used for a Vuforia specific hack. A renderer enabled
-                        // state can be used for quickly checking if the Vuforia
-                        // tracked object is found or not because by default all
-                        // the renderers in children are enabled when the object is found and
-                        // disabled when the object is lost. So this is why an empty game object
-                        // with just a mesh renderer component is created.
-                        var rendererCheck = new GameObject("RendererCheck");
-                        rendererCheck.AddComponent<MeshRenderer>();
+                            // Name it after the detectable id...
+                            imageTarget.name = detectable.id;
+                            imageTarget.tag = "VuforiaTarget";
 
-                        // Place the renderer state checker inside the image target object
-                        rendererCheck.transform.SetParent(imageTarget.transform);
-                        rendererCheck.transform.localPosition = Vector3.zero;
-                        rendererCheck.transform.localEulerAngles = Vector3.zero;
-                        rendererCheck.transform.localScale = Vector3.one;
+                            // Place it into the container
+                            imageTarget.transform.SetParent(workplaceManager.detectableContainer);
 
-                        // And finally add and configure detectable behaviour
-                        var detectableBehaviour = imageTarget.AddComponent<DetectableBehaviour>();
-                        detectableBehaviour.Type = DetectableBehaviour.TrackableType.Image;
-                        detectableBehaviour.Dataset = dataSet;
-                        detectableBehaviour.IsDetectableReady = true;
-                    }*/
+                            // Set transform
+                            imageTarget.transform.localPosition = Vector3.zero;
+                            imageTarget.transform.localEulerAngles = Vector3.zero;
+                            imageTarget.transform.localScale = Vector3.one;
 
-                    break;
-                }
+                            // Add necessary Vuforia components
+                            imageTarget.AddComponent<DefaultTrackableEventHandler>();
+                            imageTarget.AddComponent<TurnOffBehaviour>();
+
+                            // Add origin
+                            var originObj = new GameObject("Origin");
+                            originObj.transform.SetParent(imageTarget.transform);
+
+                            // Set origin transform
+                            originObj.transform.localPosition = Utilities.ParseStringToVector3(detectable.origin_position);
+                            originObj.transform.localEulerAngles =
+                                Utilities.ParseStringToVector3(detectable.origin_rotation);
+                            originObj.transform.localScale = Vector3.one;
+
+                            // Used for a Vuforia specific hack. A renderer enabled
+                            // state can be used for quickly checking if the Vuforia
+                            // tracked object is found or not because by default all
+                            // the renderers in children are enabled when the object is found and
+                            // disabled when the object is lost. So this is why an empty game object
+                            // with just a mesh renderer component is created.
+                            var rendererCheck = new GameObject("RendererCheck");
+                            rendererCheck.AddComponent<MeshRenderer>();
+
+                            // Place the renderer state checker inside the image target object
+                            rendererCheck.transform.SetParent(imageTarget.transform);
+                            rendererCheck.transform.localPosition = Vector3.zero;
+                            rendererCheck.transform.localEulerAngles = Vector3.zero;
+                            rendererCheck.transform.localScale = Vector3.one;
+
+                            // And finally add and configure detectable behaviour
+                            var detectableBehaviour = imageTarget.AddComponent<DetectableBehaviour>();
+                            detectableBehaviour.Type = DetectableBehaviour.TrackableType.Image;
+                            detectableBehaviour.Dataset = dataSet;
+                            detectableBehaviour.IsDetectableReady = true;
+                        }*/
+
+                        break;
+                    }
 
                 default:
-                {
-                    throw new ArgumentException($"{detectable.id} unknown detectable type: {detectable.type}.");
-                }
+                    {
+                        throw new ArgumentException($"{detectable.id} unknown detectable type: {detectable.type}.");
+                    }
             }
             Debug.LogInfo($"Creating Detectable Object:{detectable.id} created");
         }
@@ -709,23 +721,56 @@ namespace MirageXR
 
         private async Task PopulateTaskStation(GameObject parent, LearningExperienceEngine.Action action)
         {
-            GameObject prefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("PlayerTaskStation");
-            GameObject instance = Object.Instantiate(prefab, parent.transform);
-            instance.transform.parent = parent.transform; // just to be sure
-            instance.name = "PlayerTaskStation(Clone)";
-            instance.SetActive(true);
+            Debug.Log("TASK STATION CLONE: Fetching Adressable");
 
-            //GameObjectConversionUtility.ConvertGameObjectHierarchy
+            AsyncOperationHandle<GameObject> handle = Addressables.LoadAssetAsync<GameObject>("PlayerTaskStation");
+            await handle.Task;
+
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                Debug.Log("TASK STATION CLONE: Got adressable");
+                GameObject prefab = handle.Result;
+                Debug.Log("Prefab has name " + prefab.name);
+                // await ReferenceLoader.GetAssetReferenceAsync<GameObject>("PlayerTaskStation");
+                instance = UnityEngine.Object.Instantiate(prefab, parent.transform);
+                instance.transform.parent = parent.transform; // just to be sure
+                Debug.Log("Instance name " + instance.name);
+                // iObj.name = "PlayerTaskStation(Clone)";
+                // iObj.SetActive(true);
+            }
+            else
+            {
+                Debug.LogError("FATAL ERROR: Could not instantiate task station prefab");
+            }
+            Addressables.Release(handle);
+
+            Debug.LogInfo("CLONED TASK STATION --- " + instance.name);
+
+            // test code borrowed from ActionDetailView
+            var actionId = activityManager.ActiveActionId;
+            var place = GameObject.Find(actionId);
+            //var taskStation = place.transform.Find("default/PlayerTaskStation(Clone)"); // TODO: possible NRE
+            Debug.Log("---- Children: " + place.transform.childCount);
+            Debug.Log("---- Child 1 ('default'): " + place.transform.GetChild(0).name + ", count " + place.transform.GetChild(0).childCount);
+
+            // above was this old code
+            //GameObject prefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("PlayerTaskStation");
+            //GameObject instance = Object.Instantiate(prefab, parent.transform);
+            //instance.transform.parent = parent.transform; // just to be sure
+            //instance.name = "PlayerTaskStation(Clone)";
+            //instance.SetActive(true);
 
             var taskStationEditor = instance.GetComponentInChildren<TaskStationEditor>();
             taskStationEditor.Init(action);
-            
+
             //only for the first taskstation in this step move it to the right of the player
             var taskStationPos = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActionsOfTypeAction.Count == 0 ? Camera.main.transform.right * offsetFromPlayer : Vector3.zero;
 
             var isFirstTaskStation = RootObject.Instance.platformManager.WorldSpaceUi && LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
             instance.transform.localPosition = isFirstTaskStation ? taskStationPos : Vector3.zero;
             instance.transform.localRotation = Quaternion.identity;
+
         }
+
     }
 }
