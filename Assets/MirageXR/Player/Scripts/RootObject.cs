@@ -116,10 +116,10 @@ namespace MirageXR
 
                 _editorSceneService = new EditorSceneService();
 
-                _workplaceController ??= new GameObject("WorkplaceControllerGO").AddComponent<WorkplaceController>();
-                _workplaceController.transform.parent = transform;
-                _contentController ??= new GameObject("ContentAugmentationControllerGO").AddComponent<ContentAugmentationController>();
-                _contentController.transform.parent = transform;
+                _workplaceController ??= new GameObject("WorkplaceController").AddComponent<WorkplaceController>();
+                //_workplaceController.transform.parent = transform;
+                _contentController ??= new GameObject("ContentAugmentationController").AddComponent<ContentAugmentationController>();
+                //_contentController.transform.parent = transform;
 
                 _aiManager = new AIManager();
                 _openAIManager = new OpenAIManager();
