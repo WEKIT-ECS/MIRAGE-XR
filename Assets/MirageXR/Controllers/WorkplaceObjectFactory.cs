@@ -607,6 +607,7 @@ namespace MirageXR
             if (counter == 0)
             {
                 GameObject poiTemp = LearningExperienceEngine.Utilities.CreateObject("default", temp.transform);
+                poiTemp.transform.parent = temp.transform;
                 await PopulateTaskStation(poiTemp, action);
                 Debug.Log("after creation " + poiTemp.transform.GetChild(0).name + " has " + poiTemp.transform.GetChild(0).childCount + " children");
             }
@@ -745,17 +746,8 @@ namespace MirageXR
             {
                 Debug.LogError("FATAL ERROR: Could not instantiate task station prefab");
             }
-            Addressables.Release(handle);
 
             Debug.LogInfo("CLONED TASK STATION --- " + instance.name);
-
-            // test code borrowed from ActionDetailView
-            var actionId = activityManager.ActiveActionId;
-            var place = GameObject.Find(actionId);
-            //var taskStation = place.transform.Find("default/PlayerTaskStation(Clone)"); // TODO: possible NRE
-            Debug.Log("---- Children: " + place.transform.childCount);
-            Debug.Log("---- Child 1 ('default'): " + place.transform.GetChild(0).name + ", count " + place.transform.GetChild(0).childCount);
-            var taskStation = place.transform.Find("default/PlayerTaskStation(Clone)"); // TODO: possible NRE
 
             // above was this old code
             //GameObject prefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("PlayerTaskStation");
@@ -774,6 +766,18 @@ namespace MirageXR
             instance.transform.localPosition = isFirstTaskStation ? taskStationPos : Vector3.zero;
             instance.transform.localRotation = Quaternion.identity;
 
+            Debug.LogInfo("CLONED TASK STATION --- checking again " + instance.name);
+
+            // test code borrowed from ActionDetailView
+            var actionId = activityManager.ActiveActionId;
+            Debug.LogInfo("CLONED TASK STATION --- actionId " + actionId);
+            var place = GameObject.Find(actionId);
+            if (!place) Debug.LogInfo("Warning: could not find place with actionID = " + actionId);
+            //var taskStation = place.transform.Find("default/PlayerTaskStation(Clone)"); // TODO: possible NRE
+            //if (!taskStation) Debug.LogInfo("Warning: could not find task station clone");
+
+            // now release the opHandle again (from the prefab addressables loading/cloning)
+            Addressables.Release(handle);
         }
 
     }
