@@ -21,6 +21,18 @@ namespace MirageXR
 
         private GameObject instance;
 
+        public WorkplaceObjectFactory()
+        {
+            LearningExperienceEngine.EventManager.OnCreateDetectableObject += CreateDetectableObject;
+            LearningExperienceEngine.EventManager.OnCreatePlaceObject += CreatePlaceObject;
+        }
+
+        ~WorkplaceObjectFactory()
+        {
+            LearningExperienceEngine.EventManager.OnCreateDetectableObject -= CreateDetectableObject;
+            LearningExperienceEngine.EventManager.OnCreatePlaceObject -= CreatePlaceObject;
+        }
+
         public void CreateDetectables(List<LearningExperienceEngine.Detectable> list, string debug)
         {
             if (list == null || list.Count == 0)
@@ -55,7 +67,7 @@ namespace MirageXR
                 foreach (var element in list)
                 {
                     var action = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.Activity.actions.FirstOrDefault(t => t.id == element.id);
-                    await CreatePlaceObject(element, action);
+                    CreatePlaceObject(element, action);
                 }
             }
             catch (Exception e)
@@ -715,6 +727,8 @@ namespace MirageXR
 
         private async Task PopulateTaskStation(GameObject parent, LearningExperienceEngine.Action action)
         {
+            Debug.LogInfo("CLONING TASK STATION");
+
             AsyncOperationHandle<GameObject> handle = Addressables.LoadAssetAsync<GameObject>("PlayerTaskStation");
             await handle.Task;
 
@@ -756,6 +770,7 @@ namespace MirageXR
 
             // now release the opHandle again (from the prefab addressables loading/cloning)
             Addressables.Release(handle);
+            LearningExperienceEngine.EventManager.NotifyTaskStationCloned();
         }
 
     }
