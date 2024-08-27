@@ -734,7 +734,10 @@ namespace MirageXR
                 // await ReferenceLoader.GetAssetReferenceAsync<GameObject>("PlayerTaskStation");
                 instance = UnityEngine.Object.Instantiate(prefab, parent.transform);
                 instance.transform.parent = parent.transform; // just to be sure
+                instance.SetActive(true);
+
                 Debug.Log("Instance name " + instance.name);
+
                 // iObj.name = "PlayerTaskStation(Clone)";
                 // iObj.SetActive(true);
             }
@@ -752,6 +755,7 @@ namespace MirageXR
             //var taskStation = place.transform.Find("default/PlayerTaskStation(Clone)"); // TODO: possible NRE
             Debug.Log("---- Children: " + place.transform.childCount);
             Debug.Log("---- Child 1 ('default'): " + place.transform.GetChild(0).name + ", count " + place.transform.GetChild(0).childCount);
+            var taskStation = place.transform.Find("default/PlayerTaskStation(Clone)"); // TODO: possible NRE
 
             // above was this old code
             //GameObject prefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("PlayerTaskStation");
