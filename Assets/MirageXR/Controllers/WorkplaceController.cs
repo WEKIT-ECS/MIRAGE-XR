@@ -140,9 +140,12 @@ namespace MirageXR
                 Debug.LogWarning("Workplace has uncalibrated anchors. Please re-run the calibration");
             }
 
-            Debug.Log("********** triggering EventManager.WorkplaceLoaded");
+            Debug.Log("********** triggering EventManager.NotifyWorkplaceControllerInitialized");
+            LearningExperienceEngine.EventManager.NotifyWorkplaceControllerInitialized();
+            
             // SUGGESTION Use a different event here that symbolizes the end of the view update by the model
             //LearningExperienceEngine.EventManager.WorkplaceLoaded();
+            
         }
 
         //public void onCloneTaskStation (GameObject parent, LearningExperienceEngine.Action action, GameObject iObj)
