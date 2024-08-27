@@ -17,7 +17,7 @@ namespace MirageXR
     {
 
         private LearningExperienceEngine.WorkplaceManager workplaceManager => LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
-        private WorkplaceObjectFactory objectFactory = new WorkplaceObjectFactory();
+        private WorkplaceObjectFactory objectFactory;
         #region Calibration pair data
 
         /// <summary>
@@ -40,31 +40,47 @@ namespace MirageXR
         private void OnEnable()
         {
             // Register to event manager events
-            LearningExperienceEngine.EventManager.OnResetPlayer += ClearPois;
-            LearningExperienceEngine.EventManager.OnClearAll += PlayerReset;
-            LearningExperienceEngine.EventManager.OnInitializeWorkplaceView += CreateObjects;
-            //LearningExperienceEngine.EventManager.OnCloneTaskStation += onCloneTaskStation;
+            LearningExperienceEngine.EventManager.OnResetPlayer += PlayerReset;
+            LearningExperienceEngine.EventManager.OnClearAll += ClearPois;
         }
 
         private void OnDisable()
         {
             // Unregister from event manager events
-             LearningExperienceEngine.EventManager.OnResetPlayer -= ClearPois;
-            LearningExperienceEngine.EventManager.OnClearAll -= PlayerReset;
-            LearningExperienceEngine.EventManager.OnInitializeWorkplaceView -= CreateObjects;
-            //LearningExperienceEngine.EventManager.OnCloneTaskStation -= onCloneTaskStation;
+            LearningExperienceEngine.EventManager.OnResetPlayer -= PlayerReset;
+            LearningExperienceEngine.EventManager.OnClearAll -= ClearPois;
         }
 
-        //private void Start()
-        //{
-        //    // At least TRY to clear out the cache!
-        //    Caching.ClearCache();
-        //}
+        private void Start()
+        {
+            Debug.Log("starting WorkplaceController - registering CreateObjects");
+            LearningExperienceEngine.EventManager.OnInitializeWorkplaceView += CreateObjects;
 
-        // Called from event manager
+            // At least TRY to clear out the cache!
+            Caching.ClearCache();
+        }
+
+        private void OnDestroy()
+        {
+            LearningExperienceEngine.EventManager.OnInitializeWorkplaceView -= CreateObjects;
+        }
+
+        /// <summary>
+        /// Constructor - initalize the WorkPlaceObjectFactory
+        /// </summary>
+        WorkplaceController()
+        {
+            objectFactory = new WorkplaceObjectFactory();
+        }
+
+        /// <summary>
+        /// Clears the calibration pairs (= set activity to uncalibrated) and sets the workplace data model to null.
+        /// Called from event manager or directly.
+        /// </summary>
         private void ClearPois()
         {
-            LearningExperienceEngine.EventManager.ClearPois();
+            calibrationPairs.Clear(); // clear calibration
+            workplaceManager.Reset(); // clear the workplace data model
         }
 
         /// <summary>
@@ -72,8 +88,7 @@ namespace MirageXR
         /// </summary>
         private void PlayerReset()
         {
-            calibrationPairs.Clear();
-            workplaceManager.PlayerReset();
+            LearningExperienceEngine.EventManager.ClearPois();
         }
 
         private async Task PerformEditModeCalibration()
@@ -131,8 +146,8 @@ namespace MirageXR
             objectFactory.CreateSensors();
             await objectFactory.CreateThings();
             await objectFactory.CreatePlaces(workplaceManager.workplace.places, "places");
-            await objectFactory.CreatePersons();
-            objectFactory.CreateDevices();
+            //await objectFactory.CreatePersons(); // these are not used, commenting out
+            //objectFactory.CreateDevices(); // these are not used, commenting out
 
             // If workplace has anchors which have not been calibrated...
             if (calibrationPairs.Count > 0 && !UiManager.Instance.IsCalibrated)
