@@ -21,13 +21,6 @@ namespace MirageXR
 
         private GameObject instance;
 
-        //WorkplaceObjectFactory()
-        //{
-        //    //AsyncOperationHandle handle = reference.LoadAssetAsync<GameObject>("TaskStationPrefab");
-        //    //opHandle = Addressables.LoadAssetAsync<GameObject>("PlayerTaskStation");
-        //    //opHandle.Completed += AdressablesLoadingCompleted;
-        //}
-
         public void CreateDetectables(List<LearningExperienceEngine.Detectable> list, string debug)
         {
             if (list == null || list.Count == 0)
@@ -197,21 +190,21 @@ namespace MirageXR
                         await PopulateTaskStation(poiTemp, action);
                     }
 
-                    // Add guide line.
-                    var guide = Object.Instantiate(Resources.Load<GameObject>("Pathway"), Vector3.zero, Quaternion.identity);
+                    //// Add guide line.
+                    //var guide = Object.Instantiate(Resources.Load<GameObject>("Pathway"), Vector3.zero, Quaternion.identity);
 
-                    // Make guide line a child of default poi object.
-                    guide.transform.SetParent(temp.transform.FindDeepChild("default"));
+                    //// Make guide line a child of default poi object.
+                    //guide.transform.SetParent(temp.transform.FindDeepChild("default"));
 
-                    PathSegmentsController segmentsController = guide.GetComponent<PathSegmentsController>();
-                    segmentsController.startTransform = ServiceManager.GetService<ActivitySelectionSceneReferenceService>().References.floorTarget;
-                    segmentsController.endTransform = guide.transform.parent;
+                    //PathSegmentsController segmentsController = guide.GetComponent<PathSegmentsController>();
+                    //segmentsController.startTransform = ServiceManager.GetService<ActivitySelectionSceneReferenceService>().References.floorTarget;
+                    //segmentsController.endTransform = guide.transform.parent;
 
-                    // this should be removed once the ribbons are no longer needed.
-                    guide.GetComponent<PathRoleController>().Role = PathRole.TASKSTATION;
+                    //// this should be removed once the ribbons are no longer needed.
+                    //guide.GetComponent<PathRoleController>().Role = PathRole.TASKSTATION;
 
-                    // Hide by default.
-                    guide.SetActive(false);
+                    //// Hide by default.
+                    //guide.SetActive(false);
 
                     // Get the thing behaviour component attached to the empty game object by the helper function
                     temp.AddComponent<ThingBehaviour>();
@@ -337,21 +330,21 @@ namespace MirageXR
                         await PopulateTaskStation(poiTemp, action);
                     }
 
-                    // Add guide line.
-                    var guide = Object.Instantiate(Resources.Load<GameObject>("Pathway"), Vector3.zero, Quaternion.identity);
+                    //// Add guide line.
+                    //var guide = Object.Instantiate(Resources.Load<GameObject>("Pathway"), Vector3.zero, Quaternion.identity);
 
-                    // Make guide line a child of default poi object.
-                    guide.transform.SetParent(temp.transform.FindDeepChild("default"));
+                    //// Make guide line a child of default poi object.
+                    //guide.transform.SetParent(temp.transform.FindDeepChild("default"));
 
-                    PathSegmentsController segmentsController = guide.GetComponent<PathSegmentsController>();
-                    segmentsController.startTransform = ServiceManager.GetService<ActivitySelectionSceneReferenceService>().References.floorTarget;
-                    segmentsController.endTransform = guide.transform.parent;
+                    //PathSegmentsController segmentsController = guide.GetComponent<PathSegmentsController>();
+                    //segmentsController.startTransform = ServiceManager.GetService<ActivitySelectionSceneReferenceService>().References.floorTarget;
+                    //segmentsController.endTransform = guide.transform.parent;
 
-                    // this should be removed once the ribbons are no longer needed.
-                    guide.GetComponent<PathRoleController>().Role = PathRole.TASKSTATION;
+                    //// this should be removed once the ribbons are no longer needed.
+                    //guide.GetComponent<PathRoleController>().Role = PathRole.TASKSTATION;
 
-                    // Hide by default.
-                    guide.SetActive(false);
+                    //// Hide by default.
+                    //guide.SetActive(false);
 
                     // Get the thing behaviour component attached to the empty game object by the helper function
                     temp.AddComponent<PersonBehaviour>();
@@ -586,7 +579,7 @@ namespace MirageXR
                 throw new AmbiguousMatchException(place.id + " id already in use.");
             }
 
-            // Create an empty thing object by using the helper function
+            // Create an empty place object by using the helper function
             var temp = LearningExperienceEngine.Utilities.CreateObject(place.id, workplaceManager.placeContainer);
 
             var counter = 0;
@@ -722,39 +715,26 @@ namespace MirageXR
 
         private async Task PopulateTaskStation(GameObject parent, LearningExperienceEngine.Action action)
         {
-            Debug.Log("TASK STATION CLONE: Fetching Adressable");
-
             AsyncOperationHandle<GameObject> handle = Addressables.LoadAssetAsync<GameObject>("PlayerTaskStation");
             await handle.Task;
 
             if (handle.Status == AsyncOperationStatus.Succeeded)
             {
-                Debug.Log("TASK STATION CLONE: Got adressable");
                 GameObject prefab = handle.Result;
-                Debug.Log("Prefab has name " + prefab.name);
-                // await ReferenceLoader.GetAssetReferenceAsync<GameObject>("PlayerTaskStation");
                 instance = UnityEngine.Object.Instantiate(prefab, parent.transform);
                 instance.transform.parent = parent.transform; // just to be sure
-                instance.SetActive(true);
-
-                Debug.Log("Instance name " + instance.name);
-
-                // iObj.name = "PlayerTaskStation(Clone)";
-                // iObj.SetActive(true);
+                //instance.SetActive(true); // just to be sure (may not be needed / good)
             }
             else
             {
                 Debug.LogError("FATAL ERROR: Could not instantiate task station prefab");
             }
 
-            Debug.LogInfo("CLONED TASK STATION --- " + instance.name);
+            Debug.LogInfo("Received adressable, and CLONED TASK STATION --- " + instance.name);
 
-            // above was this old code
-            //GameObject prefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("PlayerTaskStation");
-            //GameObject instance = Object.Instantiate(prefab, parent.transform);
-            //instance.transform.parent = parent.transform; // just to be sure
-            //instance.name = "PlayerTaskStation(Clone)";
-            //instance.SetActive(true);
+            // this was the old prefab loading and instantiating code
+            // GameObject prefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("PlayerTaskStation");
+            // GameObject instance = Object.Instantiate(prefab, parent.transform);
 
             var taskStationEditor = instance.GetComponentInChildren<TaskStationEditor>();
             taskStationEditor.Init(action);
@@ -766,15 +746,13 @@ namespace MirageXR
             instance.transform.localPosition = isFirstTaskStation ? taskStationPos : Vector3.zero;
             instance.transform.localRotation = Quaternion.identity;
 
-            Debug.LogInfo("CLONED TASK STATION --- checking again " + instance.name);
-
-            // test code borrowed from ActionDetailView
-            var actionId = activityManager.ActiveActionId;
-            Debug.LogInfo("CLONED TASK STATION --- actionId " + actionId);
-            var place = GameObject.Find(actionId);
-            if (!place) Debug.LogInfo("Warning: could not find place with actionID = " + actionId);
-            //var taskStation = place.transform.Find("default/PlayerTaskStation(Clone)"); // TODO: possible NRE
-            //if (!taskStation) Debug.LogInfo("Warning: could not find task station clone");
+            //// test code borrowed from ActionDetailView
+            //var actionId = activityManager.ActiveActionId;
+            //Debug.LogInfo("CLONED TASK STATION --- actionId " + actionId);
+            //var place = GameObject.Find(actionId);
+            //if (!place) Debug.LogInfo("Warning: could not find place with actionID = " + actionId);
+            ////var taskStation = place.transform.Find("default/PlayerTaskStation(Clone)"); // TODO: possible NRE
+            ////if (!taskStation) Debug.LogInfo("Warning: could not find task station clone");
 
             // now release the opHandle again (from the prefab addressables loading/cloning)
             Addressables.Release(handle);

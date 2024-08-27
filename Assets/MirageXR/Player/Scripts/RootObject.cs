@@ -22,8 +22,8 @@ namespace MirageXR
         //[SerializeField] private LearningExperienceEngine.ExceptionManager _exceptionManager;
 
         private EditorSceneService _editorSceneService;
-        private WorkplaceController _workplaceController; // added with lib-lee migration
-        private ContentAugmentationController _contentController; // added with lib-lee migration
+        [SerializeField] private WorkplaceController _workplaceController; // added with lib-lee migration
+        [SerializeField] private ContentAugmentationController _contentController; // added with lib-lee migration
 
         private AIManager _aiManager;
         private OpenAIManager _openAIManager;
@@ -116,9 +116,9 @@ namespace MirageXR
 
                 _editorSceneService = new EditorSceneService();
 
-                _workplaceController ??= new GameObject("WorkplaceController").AddComponent<WorkplaceController>();
+                _workplaceController ??= new GameObject("WorkplaceControllerGO").AddComponent<WorkplaceController>();
                 _workplaceController.transform.parent = transform;
-                _contentController ??= new GameObject("ContentAugmentationController").AddComponent<ContentAugmentationController>();
+                _contentController ??= new GameObject("ContentAugmentationControllerGO").AddComponent<ContentAugmentationController>();
                 _contentController.transform.parent = transform;
 
                 _aiManager = new AIManager();

@@ -37,7 +37,7 @@ namespace MirageXR
 
         private void OnEnable()
         {
-             LearningExperienceEngine.EventManager.OnResetPlayer += PlayerReset;
+            LearningExperienceEngine.EventManager.OnResetPlayer += PlayerReset;
             EventManager.OnMoveActivityList += MoveActivityList;
             EventManager.OnMoveActionList += MoveActionList;
             EventManager.OnToggleGuides += ToggleFind;
