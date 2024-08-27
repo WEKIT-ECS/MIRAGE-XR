@@ -91,9 +91,6 @@ public class ActionDetailView : MonoBehaviour
         if (place)
         {
             var taskStation = place.transform.Find("default/PlayerTaskStation(Clone)"); // TODO: possible NRE
-            Debug.Log("---- Children: " + place.transform.childCount);
-            Debug.Log("---- Child 1 ('default'): " + place.transform.GetChild(0).name + ", count " + place.transform.GetChild(0).childCount);
-            //Debug.Log("---- Child 1 of Child 1: " + place.transform.GetChild(0).GetChild(0).name);
             if (taskStation)
             {
                 return taskStation.gameObject;
