@@ -41,6 +41,8 @@ public class ActivityEditor : MonoBehaviour
     private void OnEnable()
     {
         LearningExperienceEngine.EventManager.OnEditModeChanged += SetEditorState;
+        LearningExperienceEngine.EventManager.OnShowUploadWarningPanel += ShowUploadWarningPanel;
+        LearningExperienceEngine.EventManager.OnShowCloneWarningPanel += ShowCloneWarningPanel;
 
         if (activityTitleField.text == string.Empty)
             activityTitleField.text = "New Activity";
@@ -56,6 +58,8 @@ public class ActivityEditor : MonoBehaviour
     {
         activityTitleField.onValueChanged.RemoveListener(OnActivityTitleChanged);
         LearningExperienceEngine.EventManager.OnEditModeChanged -= SetEditorState;
+        LearningExperienceEngine.EventManager.OnShowUploadWarningPanel -= ShowUploadWarningPanel;
+        LearningExperienceEngine.EventManager.OnShowCloneWarningPanel -= ShowCloneWarningPanel;
     }
 
     private void OnDestroy()
