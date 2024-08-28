@@ -67,7 +67,7 @@ namespace MirageXR
                 foreach (var element in list)
                 {
                     var action = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.Activity.actions.FirstOrDefault(t => t.id == element.id);
-                    CreatePlaceObject(element, action);
+                    await CreatePlaceObject(element, action);
                 }
             }
             catch (Exception e)
