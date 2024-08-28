@@ -13,6 +13,7 @@ public class LoginView_v2 : PopupBase
     [SerializeField] private GameObject _pnlFields;
     [SerializeField] private Toggle _toggleRemember;
     [SerializeField] private Button _btnRegister;
+    [SerializeField] private Button _btnPasswordForgotten;
     [SerializeField] private Button _btnGoToLogin;
     [SerializeField] private Button _btnSkipLogin;
     [SerializeField] private Button _btnLogin;
@@ -29,6 +30,7 @@ public class LoginView_v2 : PopupBase
         _inputFieldUserName.SetValidator(IsValidUsername);
         _inputFieldPassword.SetValidator(IsValidPassword);
         _btnRegister.onClick.AddListener(OnClickRegister);
+        _btnPasswordForgotten.onClick.AddListener(OnClickPasswordForgotten);
         _btnLogin.onClick.AddListener(OnClickLogin);
         _btnGoToLogin.onClick.AddListener(OnGoToLoginPressed);
         _btnSkipLogin.onClick.AddListener(OnEnterAsGuest);
@@ -138,6 +140,11 @@ public class LoginView_v2 : PopupBase
     private void OnClickRegister()
     {
         Application.OpenURL(LearningExperienceEngine.UserSettings.registerPage);
+    }
+
+    private void OnClickPasswordForgotten()
+    {
+        Application.OpenURL(LearningExperienceEngine.UserSettings.passwordForgottenPage);
     }
 
     private async void OnClickLogin()
