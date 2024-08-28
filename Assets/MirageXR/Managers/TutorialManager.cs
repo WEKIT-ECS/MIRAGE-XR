@@ -133,11 +133,17 @@ namespace MirageXR
             _handlerWS = new TutorialHandlerWS();
             _currentClosingEvents = new List<TutorialEvent>();
             EventManager.OnEditModeChanged += EditModeListener;
+            EventManager.OnActivateAction += StepActivatedListener;
         }
 
         private void EditModeListener(bool value)
         {
             _isInEditMode = value;
+        }
+
+        private void StepActivatedListener(string action)
+        {
+            InvokeEvent(TutorialEvent.ACTION_STEP_ACTIVATED); 
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
