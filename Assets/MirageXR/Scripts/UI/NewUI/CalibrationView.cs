@@ -59,13 +59,13 @@ public class CalibrationView : PopupBase
     private Tweener _tweenerCalibration;
     private Sequence _tweenerDetection;
     private Pose _startPose;
-    private PoseSynchronizer _poseSynchronizer;
+    private LearningExperienceEngine.PoseSynchronizer _poseSynchronizer;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
         base.Initialization(onClose, args);
 
-        _poseSynchronizer = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.detectableContainer.GetComponentInParent<PoseSynchronizer>();
+        _poseSynchronizer = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.detectableContainer.GetComponentInParent<LearningExperienceEngine.PoseSynchronizer>();
         _canBeClosedByOutTap = false;
         _showBackground = false;
 
@@ -275,7 +275,7 @@ public class CalibrationView : PopupBase
 
         if (_isMoveOrigin)
         {
-            var synchronizer = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.detectableContainer.GetComponentInParent<PoseSynchronizer>();
+            var synchronizer = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.detectableContainer.GetComponentInParent<LearningExperienceEngine.PoseSynchronizer>();
             synchronizer.enabled = true;
         }
 
