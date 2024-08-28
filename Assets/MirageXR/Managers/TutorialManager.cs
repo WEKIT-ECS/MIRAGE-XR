@@ -54,7 +54,10 @@ namespace MirageXR
             CALIBRATION_FINISHED,
             ACTION_STEP_ACTIVATED,
             PICK_AND_PLACED,
-            GHOST_REPLAYED
+            GHOST_REPLAYED,
+            EDIT_MODE_CHANGED,
+            PICK_POSITION_CHANGED,
+            TARGET_POSITION_CHANGED
         }
 
         public enum TutorialExitCode
@@ -139,6 +142,7 @@ namespace MirageXR
         private void EditModeListener(bool value)
         {
             _isInEditMode = value;
+            InvokeEvent(TutorialEvent.EDIT_MODE_CHANGED);
         }
 
         private void StepActivatedListener(string action)
