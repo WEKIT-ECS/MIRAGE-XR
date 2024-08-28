@@ -139,7 +139,7 @@ namespace MirageXR
 
                 await _openAIManager.InitializeAsync();
                 await _aiManager.InitializeAsync();
-                
+
                 _isInitialized = true;
 
                 //LearningExperienceEngine.EventManager.OnClearAll += ResetManagers;
