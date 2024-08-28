@@ -170,7 +170,7 @@ public class VideoEditorView : PopupEditorBase
             _content.predicate = editorForType.GetName().ToLower();
         }
 
-        if (!LearningExperienceEngine.DBManager.dontShowNewAugmentationHint)
+        if (!LearningExperienceEngine.UserSettings.dontShowNewAugmentationHint)
         {
             PopupsViewer.Instance.Show(_hintPrefab);
         }

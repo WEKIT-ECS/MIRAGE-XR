@@ -15,7 +15,7 @@ public class CalibrationGuideView : PopupBase
         base.Initialization(onClose, args);
         _btnClose.onClick.AddListener(Close);
         _toggleDontShow.onValueChanged.AddListener(OnToggleValueChanged);
-        _toggleDontShow.isOn = LearningExperienceEngine.DBManager.dontShowCalibrationGuide;
+        _toggleDontShow.isOn = LearningExperienceEngine.UserSettings.dontShowCalibrationGuide;
     }
 
     protected override bool TryToGetArguments(params object[] args)
@@ -25,7 +25,7 @@ public class CalibrationGuideView : PopupBase
 
     private void OnToggleValueChanged(bool value)
     {
-        LearningExperienceEngine.DBManager.dontShowCalibrationGuide = value;
+        LearningExperienceEngine.UserSettings.dontShowCalibrationGuide = value;
     }
     
 }

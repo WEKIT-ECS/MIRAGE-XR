@@ -138,7 +138,7 @@ public class ActivityListView_v2 : BaseView
         _items.ForEach(item => Destroy(item.gameObject));
         _items.Clear();
 
-        var prefab = !LearningExperienceEngine.DBManager.showBigCards ? _smallItemPrefab : _bigItemPrefab;
+        var prefab = !LearningExperienceEngine.UserSettings.showBigCards ? _smallItemPrefab : _bigItemPrefab;
         _content.ForEach(content =>
         {
             var item = Instantiate(prefab, _listTransform);
@@ -200,17 +200,17 @@ public class ActivityListView_v2 : BaseView
     {
         foreach (var item in _items)
         {
-            switch (LearningExperienceEngine.DBManager.currentShowby)
+            switch (LearningExperienceEngine.UserSettings.currentShowby)
             {
-                case LearningExperienceEngine.DBManager.ShowBy.ALL:
+                case LearningExperienceEngine.UserSettings.ShowBy.ALL:
                     item.gameObject.SetActive(true);
                     _txtShowby.text = "Show All";
                     break;
-                case LearningExperienceEngine.DBManager.ShowBy.MYACTIVITIES:
+                case LearningExperienceEngine.UserSettings.ShowBy.MYACTIVITIES:
                     item.gameObject.SetActive(item.GetComponent<ActivityListItem_v2>().userIsAuthor);
                     _txtShowby.text = "My Activities";
                     break;
-                case LearningExperienceEngine.DBManager.ShowBy.MYASSIGNMENTS:
+                case LearningExperienceEngine.UserSettings.ShowBy.MYASSIGNMENTS:
                     item.gameObject.SetActive(item.GetComponent<ActivityListItem_v2>().userIsEnroled);
                     _txtShowby.text = "My Assignments";
                     break;
@@ -220,21 +220,21 @@ public class ActivityListView_v2 : BaseView
 
     public void OnSortbyChanged()
     {
-        switch (LearningExperienceEngine.DBManager.currentSortby)
+        switch (LearningExperienceEngine.UserSettings.currentSortby)
         {
-            case LearningExperienceEngine.DBManager.SortBy.DATE:
+            case LearningExperienceEngine.UserSettings.SortBy.DATE:
                 _orderByRelavance = false;
                 _txtSortby.text = "By Date";
                 FetchAndUpdateView();
                 break;
-            case LearningExperienceEngine.DBManager.SortBy.RELEVEANCE:
+            case LearningExperienceEngine.UserSettings.SortBy.RELEVEANCE:
                 _orderByRelavance = true;
                 _txtSortby.text = "By Relevence";
                 FetchAndUpdateView();
                 break;
         }
 
-        LearningExperienceEngine.DBManager.currentShowby = LearningExperienceEngine.DBManager.ShowBy.ALL;
+        LearningExperienceEngine.UserSettings.currentShowby = LearningExperienceEngine.UserSettings.ShowBy.ALL;
 
         OnShowByChanged();
     }

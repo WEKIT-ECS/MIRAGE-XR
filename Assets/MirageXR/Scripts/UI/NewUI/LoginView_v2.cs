@@ -73,7 +73,7 @@ public class LoginView_v2 : PopupBase
 
     private void OnToggleRememberValueChanged(bool value)
     {
-        LearningExperienceEngine.DBManager.rememberUser = value;
+        LearningExperienceEngine.UserSettings.rememberUser = value;
     }
 
     private void OnEnable()
@@ -104,13 +104,13 @@ public class LoginView_v2 : PopupBase
     private void OnLoginSucceed(string username, string password)
     {
         Toast.Instance.Show("Login succeeded");
-        if (LearningExperienceEngine.DBManager.rememberUser)
+        if (LearningExperienceEngine.UserSettings.rememberUser)
         {
-            LearningExperienceEngine.LocalFiles.SaveUsernameAndPassword(username, password);
+            LearningExperienceEngine.UserSettings.SaveUsernameAndPassword(username, password);
         }
         else
         {
-            LearningExperienceEngine.LocalFiles.RemoveUsernameAndPassword();
+            LearningExperienceEngine.UserSettings.RemoveUsernameAndPassword();
         }
 
         _onLoginStatusChanged?.Invoke();
@@ -118,7 +118,7 @@ public class LoginView_v2 : PopupBase
 
     private void ResetValues()
     {
-        _toggleRemember.isOn = LearningExperienceEngine.DBManager.rememberUser;
+        _toggleRemember.isOn = LearningExperienceEngine.UserSettings.rememberUser;
         _inputFieldUserName.text = string.Empty;
         _inputFieldPassword.text = string.Empty;
         if (_dontShowLoginMenu)
@@ -137,7 +137,7 @@ public class LoginView_v2 : PopupBase
 
     private void OnClickRegister()
     {
-        Application.OpenURL(LearningExperienceEngine.DBManager.registerPage);
+        Application.OpenURL(LearningExperienceEngine.UserSettings.registerPage);
     }
 
     private async void OnClickLogin()

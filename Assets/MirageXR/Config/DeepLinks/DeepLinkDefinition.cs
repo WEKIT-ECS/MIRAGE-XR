@@ -72,7 +72,7 @@ public class DeepLinkDefinition
 
         bool success;
         using (LearningExperienceEngine.SessionDownloader downloader = new LearningExperienceEngine.SessionDownloader(
-            LearningExperienceEngine.DBManager.domain + "/pluginfile.php/" + downloadPath,
+            LearningExperienceEngine.UserSettings.domain + "/pluginfile.php/" + downloadPath,
             activityId + ".zip"))
         {
             success = await downloader.DownloadZipFileAsync();

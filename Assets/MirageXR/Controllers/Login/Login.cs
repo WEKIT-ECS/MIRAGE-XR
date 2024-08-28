@@ -46,7 +46,7 @@ namespace MirageXR
         {
             status.text = string.Empty;
             siteConfigurationStatusLabel.text = string.Empty;
-            publicUploadToggle.isOn = LearningExperienceEngine.DBManager.publicUploadPrivacy;
+            publicUploadToggle.isOn = LearningExperienceEngine.UserSettings.publicUploadPrivacy;
 
             if (RootObject.Instance.platformManager.WorldSpaceUi)
             {
@@ -82,7 +82,7 @@ namespace MirageXR
             switch (option.value)
             {
                 case 0:
-                    EventManager.NotifyxAPIChanged(LearningExperienceEngine.DBManager.LearningRecordStores.WEKIT);
+                    EventManager.NotifyxAPIChanged(LearningExperienceEngine.UserSettings.LearningRecordStores.WEKIT);
                     break;
             }
         }
@@ -99,11 +99,11 @@ namespace MirageXR
 
         private void AutoLogin()
         {
-            if (!LearningExperienceEngine.DBManager.rememberUser) return;
+            if (!LearningExperienceEngine.UserSettings.rememberUser) return;
 
             rememberLogin.isOn = true;
 
-            if (!LearningExperienceEngine.DBManager.LoggedIn && LearningExperienceEngine.LocalFiles.TryToGetUsernameAndPassword(out var username, out var password))
+            if (!LearningExperienceEngine.UserSettings.LoggedIn && LearningExperienceEngine.UserSettings.TryToGetUsernameAndPassword(out var username, out var password))
             {
                 usernameField.text = username;
                 passwordField.text = password;
@@ -114,7 +114,7 @@ namespace MirageXR
 
         private void SaveRememberToggle()
         {
-            LearningExperienceEngine.DBManager.rememberUser = rememberLogin.isOn;
+            LearningExperienceEngine.UserSettings.rememberUser = rememberLogin.isOn;
         }
 
         /// <summary>
@@ -123,10 +123,10 @@ namespace MirageXR
         /// <returns></returns>
         private async Task UserLogin()
         {
-            var (result, response) = await LearningExperienceEngine.Network.LoginRequestAsync(usernameField.text, passwordField.text, LearningExperienceEngine.DBManager.domain);
+            var (result, response) = await LearningExperienceEngine.Network.LoginRequestAsync(usernameField.text, passwordField.text, LearningExperienceEngine.UserSettings.domain);
             if (result && response.StartsWith("succeed"))
             {
-                // login succeed, send the token to be added into DBManager
+                // login succeed, send the token to be added into UserSettings
                 LoginSucceed(response.Split(',')[1]);
             }
             else
@@ -138,18 +138,18 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Save token and the username into DBManager
+        /// Save token and the username into UserSettings
         /// Send a welcome message to the user on activity selector
         /// </summary>
         /// <param name="token"></param>
         private async void LoginSucceed(string token)
         {
             var moodleManager = LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager;
-            LearningExperienceEngine.DBManager.token = token;
-            LearningExperienceEngine.DBManager.username = usernameField.text;
-            welcomUserText.text = $"Welcome {LearningExperienceEngine.DBManager.username}";
+            LearningExperienceEngine.UserSettings.token = token;
+            LearningExperienceEngine.UserSettings.username = usernameField.text;
+            welcomUserText.text = $"Welcome {LearningExperienceEngine.UserSettings.username}";
             welcomUserText.gameObject.SetActive(true);
-            Debug.LogInfo($"{LearningExperienceEngine.DBManager.username} logged in successfully.");
+            Debug.LogInfo($"{LearningExperienceEngine.UserSettings.username} logged in successfully.");
             status.text = string.Empty;
             // close login menu
             ShowPanel(null);
@@ -169,11 +169,11 @@ namespace MirageXR
         {
             if (rememberLogin.isOn)
             {
-                LearningExperienceEngine.LocalFiles.SaveUsernameAndPassword(usernameField.text, passwordField.text);
+                LearningExperienceEngine.UserSettings.SaveUsernameAndPassword(usernameField.text, passwordField.text);
             }
             else
             {
-                LearningExperienceEngine.LocalFiles.RemoveUsernameAndPassword();
+                LearningExperienceEngine.UserSettings.RemoveUsernameAndPassword();
             }
         }
 
@@ -209,7 +209,7 @@ namespace MirageXR
 
         public async void Signout()
         {
-            LearningExperienceEngine.DBManager.LogOut();
+            LearningExperienceEngine.UserSettings.ClearLoginData();
             ShowPanel(signinPanel);
             PlayerPrefs.SetInt("guest", 0);
             welcomUserText.text = string.Empty;
@@ -258,9 +258,9 @@ namespace MirageXR
             }
             else
             {
-                if (LearningExperienceEngine.DBManager.LoggedIn)
+                if (LearningExperienceEngine.UserSettings.LoggedIn)
                 {
-                    logoutText.text = $"you are already logged in,\n\t<b>{LearningExperienceEngine.DBManager.username}</b>";
+                    logoutText.text = $"you are already logged in,\n\t<b>{LearningExperienceEngine.UserSettings.username}</b>";
                     ShowPanel(signoutPanel);
                 }
                 else if (!PlayerPrefs.HasKey("MoodleURL"))
@@ -281,13 +281,13 @@ namespace MirageXR
 
         public void RegisterMoodle()
         {
-            Application.OpenURL(LearningExperienceEngine.DBManager.registerPage);
+            Application.OpenURL(LearningExperienceEngine.UserSettings.registerPage);
         }
 
 
         public void Support()
         {
-            Application.OpenURL($"{LearningExperienceEngine.DBManager.domain}/mod/forum/view.php?id={moodleForumID}");
+            Application.OpenURL($"{LearningExperienceEngine.UserSettings.domain}/mod/forum/view.php?id={moodleForumID}");
         }
 
 
@@ -335,8 +335,8 @@ namespace MirageXR
                 return;
             }
 
-            LearningExperienceEngine.DBManager.domain = url;
-            LearningExperienceEngine.DBManager.publicUploadPrivacy = publicUploadToggle.isOn;
+            LearningExperienceEngine.UserSettings.domain = url;
+            LearningExperienceEngine.UserSettings.publicUploadPrivacy = publicUploadToggle.isOn;
 
             Maggie.Speak("Settings saved successfully.");
 
@@ -346,7 +346,7 @@ namespace MirageXR
         public void OpenURLConfigurationPanel()
         {
             ShowPanel(siteConfigurationPanel);
-            moodleURLText.text = LearningExperienceEngine.DBManager.domain;
+            moodleURLText.text = LearningExperienceEngine.UserSettings.domain;
         }
 
         public void ShowLRSSettings()

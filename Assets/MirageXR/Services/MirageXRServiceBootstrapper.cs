@@ -109,7 +109,7 @@ namespace MirageXR
 		}
 
 
-		private void ChangeXAPI(LearningExperienceEngine.DBManager.LearningRecordStores selectedLRS)
+		private void ChangeXAPI(LearningExperienceEngine.UserSettings.LearningRecordStores selectedLRS)
 		{
 			try
 			{
@@ -122,7 +122,7 @@ namespace MirageXR
 
 			switch (selectedLRS)
 			{
-				case LearningExperienceEngine.DBManager.LearningRecordStores.WEKIT:
+				case LearningExperienceEngine.UserSettings.LearningRecordStores.WEKIT:
 					ServiceManager.RegisterService(new ExperienceService(CreateXAPIClient("WEKIT")));
 					break;
 			}

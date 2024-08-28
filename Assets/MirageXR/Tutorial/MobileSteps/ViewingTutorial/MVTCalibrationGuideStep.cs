@@ -11,7 +11,7 @@ namespace MirageXR
             RootObject.Instance.calibrationManager.onCalibrationFinished.AddListener(this.ExitListener);
 
             var queue = new Queue<TutorialStepModelUI>();
-            if (!LearningExperienceEngine.DBManager.dontShowCalibrationGuide)
+            if (!LearningExperienceEngine.UserSettings.dontShowCalibrationGuide)
             {
                 queue.Enqueue(new TutorialStepModelUI { Id = "calibration_guide_ok", Message = "This popup serves as a reminder on how to complete calibration. As this tutorial will explain it anyway, click Ok for now.", Position = TutorialStepModelUI.MessagePosition.Top });
             }

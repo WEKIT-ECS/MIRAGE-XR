@@ -204,7 +204,7 @@ public class ActivityEditor : MonoBehaviour
         //}
 
         // login needed for uploading
-        if (LearningExperienceEngine.DBManager.LoggedIn)
+        if (LearningExperienceEngine.UserSettings.LoggedIn)
         {
             loginNeedText.text = string.Empty;
             await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.UploadFile(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActivityPath, LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.Activity.name, updateMode);

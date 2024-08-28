@@ -338,7 +338,7 @@ namespace MirageXR
         /// </summary>
         private void RegisterVoice()
         {
-            Application.OpenURL(DBManager.registerPage);
+            Application.OpenURL(UserSettings.registerPage);
         }
 
         /// <summary>

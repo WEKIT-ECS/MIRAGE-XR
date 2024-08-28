@@ -372,9 +372,9 @@ namespace MirageXR
             MobileAddStepContentPressed?.Invoke();
         }
 
-        public delegate void xAPIChangedDelegate(LearningExperienceEngine.DBManager.LearningRecordStores option);
+        public delegate void xAPIChangedDelegate(LearningExperienceEngine.UserSettings.LearningRecordStores option);
         public static event xAPIChangedDelegate XAPIChanged;
-        public static void NotifyxAPIChanged(LearningExperienceEngine.DBManager.LearningRecordStores option)
+        public static void NotifyxAPIChanged(LearningExperienceEngine.UserSettings.LearningRecordStores option)
         {
             XAPIChanged?.Invoke(option);
         }

@@ -38,7 +38,7 @@ namespace MirageXR
             _toggleGrid.onValueChanged.AddListener(OnToggleGridValueChanged);
 
             // Hide the user welcome text if no one is logged into the Moodle
-            if (!DBManager.LoggedIn)
+            if (!LearningExperienceEngine.UserSettings.LoggedIn)
             {
                 var usernameWelcomeText = transform.FindDeepChild("WelcomeUsername");
                 usernameWelcomeText.gameObject.SetActive(false);

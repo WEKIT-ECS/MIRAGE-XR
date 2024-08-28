@@ -86,12 +86,12 @@ public class RootView_v2 : BaseView
         LearningExperienceEngine.EventManager.OnStartActivity += OnActivityLoaded;
         EventManager.OnMobileHelpPageChanged += UpdateHelpPage;
 
-        if (!LearningExperienceEngine.DBManager.LoggedIn && LearningExperienceEngine.DBManager.rememberUser)
+        if (!LearningExperienceEngine.UserSettings.LoggedIn && LearningExperienceEngine.UserSettings.rememberUser)
         {
             await AutoLogin();
         }
 
-        if (!LearningExperienceEngine.DBManager.LoggedIn)
+        if (!LearningExperienceEngine.UserSettings.LoggedIn)
         {
             var dontShowLoginMenu = false;
             PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu, null);
@@ -113,7 +113,7 @@ public class RootView_v2 : BaseView
 
     private void OnWorkplaceLoaded()
     {
-        if (!LearningExperienceEngine.DBManager.dontShowCalibrationGuide && !_tutorial.IsActivated)
+        if (!LearningExperienceEngine.UserSettings.dontShowCalibrationGuide && !_tutorial.IsActivated)
         {
             PopupsViewer.Instance.Show(_calibrationGuideViewPrefab);
         }
@@ -126,7 +126,7 @@ public class RootView_v2 : BaseView
 
     private async Task AutoLogin()
     {
-        if (!LearningExperienceEngine.LocalFiles.TryToGetUsernameAndPassword(out var username, out var password)) return;
+        if (!LearningExperienceEngine.UserSettings.TryToGetUsernameAndPassword(out var username, out var password)) return;
 
         LoadView.Instance.Show();
         await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.Login(username, password);

@@ -195,7 +195,7 @@ public class StepsListView : BaseView
 
     public void OnUploadButtonPressed()
     {
-        if (DBManager.LoggedIn)
+        if (UserSettings.LoggedIn)
         {
             Upload();
         }
