@@ -727,7 +727,7 @@ namespace MirageXR
 
         private async Task PopulateTaskStation(GameObject parent, LearningExperienceEngine.Action action)
         {
-            Debug.LogInfo("CLONING TASK STATION");
+            Debug.LogInfo("CLONING TASK STATION for action " /*+ action.id*/);
 
             AsyncOperationHandle<GameObject> handle = Addressables.LoadAssetAsync<GameObject>("PlayerTaskStation");
             await handle.Task;
@@ -744,7 +744,8 @@ namespace MirageXR
                 Debug.LogError("FATAL ERROR: Could not instantiate task station prefab");
             }
 
-            Debug.LogInfo("Received adressable, and CLONED TASK STATION --- " + instance.name);
+            string debug = (action != null && !string.IsNullOrEmpty(action.id)) ? action.id : String.Empty;
+            Debug.LogInfo("Received adressable, and CLONED TASK STATION for action " + debug + "--- " + instance.name);
 
             // this was the old prefab loading and instantiating code
             // GameObject prefab = await ReferenceLoader.GetAssetReferenceAsync<GameObject>("PlayerTaskStation");
