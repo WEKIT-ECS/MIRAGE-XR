@@ -93,12 +93,12 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public void Initialization()
     {
-        _gridEnabled = LearningExperienceEngine.DBManager.showGrid;
-        _snapEnabled = LearningExperienceEngine.DBManager.snapToGrid;
-        _cellWidth = LearningExperienceEngine.DBManager.gridCellWidth;
-        _angleStep = LearningExperienceEngine.DBManager.gridAngleStep;
-        _scaleStep = LearningExperienceEngine.DBManager.gridScaleStep;
-        _showOriginalObject = LearningExperienceEngine.DBManager.gridShowOriginalObject;
+        _gridEnabled = LearningExperienceEngine.UserSettings.showGrid;
+        _snapEnabled = LearningExperienceEngine.UserSettings.snapToGrid;
+        _cellWidth = LearningExperienceEngine.UserSettings.gridCellWidth;
+        _angleStep = LearningExperienceEngine.UserSettings.gridAngleStep;
+        _scaleStep = LearningExperienceEngine.UserSettings.gridScaleStep;
+        _showOriginalObject = LearningExperienceEngine.UserSettings.gridShowOriginalObject;
 
         if (!_gridPrefab)
         {
@@ -146,7 +146,7 @@ public class GridManager : MonoBehaviour, IDisposable
     public void EnableGrid()
     {
         _gridEnabled = true;
-        LearningExperienceEngine.DBManager.showGrid = _gridEnabled;
+        LearningExperienceEngine.UserSettings.showGrid = _gridEnabled;
 
         var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
         if (floorManager.isFloorDetected && activityManager.EditModeActive)
@@ -158,7 +158,7 @@ public class GridManager : MonoBehaviour, IDisposable
     public void DisableGrid()
     {
         _gridEnabled = false;
-        LearningExperienceEngine.DBManager.showGrid = _gridEnabled;
+        LearningExperienceEngine.UserSettings.showGrid = _gridEnabled;
 
         HideGrid();
     }
@@ -166,44 +166,44 @@ public class GridManager : MonoBehaviour, IDisposable
     public void EnableSnapToGrid()
     {
         _snapEnabled = true;
-        LearningExperienceEngine.DBManager.snapToGrid = _snapEnabled;
+        LearningExperienceEngine.UserSettings.snapToGrid = _snapEnabled;
     }
 
     public void DisableSnapToGrid()
     {
         _snapEnabled = false;
-        LearningExperienceEngine.DBManager.snapToGrid = _snapEnabled;
+        LearningExperienceEngine.UserSettings.snapToGrid = _snapEnabled;
     }
 
     public void SetShowOriginalObject(bool value)
     {
         _showOriginalObject = value;
-        LearningExperienceEngine.DBManager.gridShowOriginalObject = _showOriginalObject;
+        LearningExperienceEngine.UserSettings.gridShowOriginalObject = _showOriginalObject;
     }
 
     public void SetUseObjectCenter(bool value)
     {
         _useObjectCenter = value;
-        LearningExperienceEngine.DBManager.gridUseObjectCenter = _useObjectCenter;
+        LearningExperienceEngine.UserSettings.gridUseObjectCenter = _useObjectCenter;
     }
 
     public void SetCellWidth(float value)
     {
         _cellWidth = value;
-        LearningExperienceEngine.DBManager.gridCellWidth = value;
+        LearningExperienceEngine.UserSettings.gridCellWidth = value;
         _grid.SetCellWidth(_cellWidth);
     }
 
     public void SetAngleStep(float value)
     {
         _angleStep = value;
-        LearningExperienceEngine.DBManager.gridAngleStep = value;
+        LearningExperienceEngine.UserSettings.gridAngleStep = value;
     }
 
     public void SetScaleStep(float value)
     {
         _scaleStep = value;
-        LearningExperienceEngine.DBManager.gridScaleStep = value;
+        LearningExperienceEngine.UserSettings.gridScaleStep = value;
     }
 
     public void Dispose()

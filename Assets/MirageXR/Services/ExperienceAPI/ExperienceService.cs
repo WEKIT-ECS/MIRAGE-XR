@@ -479,14 +479,14 @@ namespace MirageXR
         /// <returns>The Actor based on the currently logged in user or the anonymous Actor.</returns>
         private Actor ProduceActor()
         {
-            if (DBManager.LoggedIn)
+            if (UserSettings.LoggedIn)
             {
-                if (!string.IsNullOrEmpty(DBManager.usermail))
+                if (!string.IsNullOrEmpty(UserSettings.usermail))
                 {
-                    Actor retVal = new Actor(DBManager.usermail);
-                    if (!string.IsNullOrEmpty(DBManager.username))
+                    Actor retVal = new Actor(UserSettings.usermail);
+                    if (!string.IsNullOrEmpty(UserSettings.username))
                     {
-                        retVal.name = DBManager.username;
+                        retVal.name = UserSettings.username;
                     }
                     return retVal;
                 }

@@ -57,7 +57,7 @@ public class LoginView : PopupBase
 
     private void OnToggleRememberValueChanged(bool value)
     {
-        LearningExperienceEngine.DBManager.rememberUser = value;
+        LearningExperienceEngine.UserSettings.rememberUser = value;
     }
 
     private void OnEnable()
@@ -69,13 +69,13 @@ public class LoginView : PopupBase
     {
         Toast.Instance.Show("Login succeeded");
         RootView.Instance.activityListView.UpdateListView();
-        if (LearningExperienceEngine.DBManager.rememberUser)
+        if (LearningExperienceEngine.UserSettings.rememberUser)
         {
-            LearningExperienceEngine.LocalFiles.SaveUsernameAndPassword(username, password);
+            LearningExperienceEngine.UserSettings.SaveUsernameAndPassword(username, password);
         }
         else
         {
-            LearningExperienceEngine.LocalFiles.RemoveUsernameAndPassword();
+            LearningExperienceEngine.UserSettings.RemoveUsernameAndPassword();
         }
     }
 
@@ -93,7 +93,7 @@ public class LoginView : PopupBase
 
     private void ResetValues()
     {
-        if (LearningExperienceEngine.DBManager.LoggedIn)
+        if (LearningExperienceEngine.UserSettings.LoggedIn)
         {
             ShowLogout();
         }
@@ -101,8 +101,8 @@ public class LoginView : PopupBase
         {
             ShowLogin();
         }
-        _txtLogout.text = $"You are already logged in,\n<b>{LearningExperienceEngine.DBManager.username}</b>";
-        _toggleRemember.isOn = LearningExperienceEngine.DBManager.rememberUser;
+        _txtLogout.text = $"You are already logged in,\n<b>{LearningExperienceEngine.UserSettings.username}</b>";
+        _toggleRemember.isOn = LearningExperienceEngine.UserSettings.rememberUser;
         _inputFieldUserName.text = string.Empty;
         _inputFieldPassword.text = string.Empty;
         _inputFieldUserName.ResetValidation();
@@ -111,7 +111,7 @@ public class LoginView : PopupBase
 
     private void OnClickRegister()
     {
-        Application.OpenURL(LearningExperienceEngine.DBManager.registerPage);
+        Application.OpenURL(LearningExperienceEngine.UserSettings.registerPage);
     }
 
     private async void OnClickLogin()
@@ -124,7 +124,7 @@ public class LoginView : PopupBase
 
     private void OnClickLogout()
     {
-        LearningExperienceEngine.DBManager.LogOut();
+        LearningExperienceEngine.UserSettings.ClearLoginData();
         RootView.Instance.activityListView.UpdateListView();
         ShowLogin();
     }

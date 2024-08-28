@@ -73,7 +73,7 @@ public class RootView : BaseView
         _toggleSteps.interactable = true;
         _toggleView.isOn = true;
 
-        if (!LearningExperienceEngine.DBManager.dontShowCalibrationGuide)
+        if (!LearningExperienceEngine.UserSettings.dontShowCalibrationGuide)
         {
             PopupsViewer.Instance.Show(_calibrationGuideViewPrefab);
         }

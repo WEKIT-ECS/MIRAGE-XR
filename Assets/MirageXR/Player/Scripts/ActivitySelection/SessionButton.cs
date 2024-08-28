@@ -43,7 +43,7 @@ namespace MirageXR
             bool success;
             LearningExperienceEngine.Session arlemFile = _selectedListViewItem.Content.Session;
             Debug.LogInfo($"Downloading from {arlemFile.contextid}/{arlemFile.component}/{arlemFile.filearea}/{arlemFile.itemid}/{arlemFile.filename}");
-            using (LearningExperienceEngine.SessionDownloader downloader = new LearningExperienceEngine.SessionDownloader($"{LearningExperienceEngine.DBManager.domain}/pluginfile.php/{arlemFile.contextid}/{arlemFile.component}/{arlemFile.filearea}/{arlemFile.itemid}/{arlemFile.filename}", arlemFile.sessionid + ".zip"))
+            using (LearningExperienceEngine.SessionDownloader downloader = new LearningExperienceEngine.SessionDownloader($"{LearningExperienceEngine.UserSettings.domain}/pluginfile.php/{arlemFile.contextid}/{arlemFile.component}/{arlemFile.filearea}/{arlemFile.itemid}/{arlemFile.filename}", arlemFile.sessionid + ".zip"))
             {
                 success = await downloader.DownloadZipFileAsync();
 

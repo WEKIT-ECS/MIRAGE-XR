@@ -57,7 +57,7 @@ public class ProfileView : PopupBase
         _txtVersion.text = string.Format(VERSION_TEXT, Application.version);
 
         // only show link to develop mode settings if developMode is active
-        _btnDevelopMode.SetActive(LearningExperienceEngine.DBManager.developMode);
+        _btnDevelopMode.SetActive(LearningExperienceEngine.UserSettings.developMode);
 
         UpdateConnectedServerText();
         UpdatePrivacyPolicyButtonActive();
@@ -72,7 +72,7 @@ public class ProfileView : PopupBase
 
     private void OnVersionClickAmountReached(int count)
     {
-        if (!LearningExperienceEngine.DBManager.developMode)
+        if (!LearningExperienceEngine.UserSettings.developMode)
         {
             EnterDevMode();
         }
@@ -80,7 +80,7 @@ public class ProfileView : PopupBase
 
     private void EnterDevMode()
     {
-        LearningExperienceEngine.DBManager.developMode = true;
+        LearningExperienceEngine.UserSettings.developMode = true;
         _btnDevelopMode.SetActive(true);
 		Toast.Instance.Show($"Developer mode has been activated.");
         StartCoroutine(ScrollToBottom());
@@ -108,7 +108,7 @@ public class ProfileView : PopupBase
 
     private void ResetValues()
     {
-        if (LearningExperienceEngine.DBManager.LoggedIn)
+        if (LearningExperienceEngine.UserSettings.LoggedIn)
         {
             ShowLogout();
         }
@@ -117,13 +117,13 @@ public class ProfileView : PopupBase
             ShowLogin();
         }
 
-        _txtUserName.text = LearningExperienceEngine.DBManager.username;
-        UpdateConnectedLRS(LearningExperienceEngine.DBManager.publicCurrentLearningRecordStore);
+        _txtUserName.text = LearningExperienceEngine.UserSettings.username;
+        UpdateConnectedLRS(LearningExperienceEngine.UserSettings.publicCurrentLearningRecordStore);
     }
 
     private void OnClickRegister()
     {
-        Application.OpenURL(LearningExperienceEngine.DBManager.registerPage);
+        Application.OpenURL(LearningExperienceEngine.UserSettings.registerPage);
     }
 
     private async void OnClickLogin()
@@ -134,7 +134,7 @@ public class ProfileView : PopupBase
 
     private void OnClickLogout()
     {
-        LearningExperienceEngine.DBManager.LogOut();
+        LearningExperienceEngine.UserSettings.ClearLoginData();
         RootView_v2.Instance.activityListView.FetchAndUpdateView();
         ShowLogin();
     }
@@ -158,14 +158,14 @@ public class ProfileView : PopupBase
 
     private void ShowChangeServerPanel()
     {
-        var isWekitSelected = LearningExperienceEngine.DBManager.domain == LearningExperienceEngine.DBManager.WEKIT_URL;
-        var isAreteSelected = LearningExperienceEngine.DBManager.domain == LearningExperienceEngine.DBManager.ARETE_URL;
-        var isCarateSelected = LearningExperienceEngine.DBManager.domain == LearningExperienceEngine.DBManager.CARATE_URL;
+        var isWekitSelected = LearningExperienceEngine.UserSettings.domain == LearningExperienceEngine.UserSettings.WEKIT_URL;
+        var isAreteSelected = LearningExperienceEngine.UserSettings.domain == LearningExperienceEngine.UserSettings.ARETE_URL;
+        var isCarateSelected = LearningExperienceEngine.UserSettings.domain == LearningExperienceEngine.UserSettings.CARATE_URL;
 
         RootView_v2.Instance.dialog.ShowBottomMultilineToggles("Moodle servers:",
-            (LearningExperienceEngine.DBManager.WEKIT_URL, () => ChangeServerAndPrivacyPolicyDomain(LearningExperienceEngine.DBManager.WEKIT_URL, LearningExperienceEngine.DBManager.WEKIT_PRIVACY_POLICY_URL), false, isWekitSelected),
-            (LearningExperienceEngine.DBManager.CARATE_URL, () => ChangeServerAndPrivacyPolicyDomain(LearningExperienceEngine.DBManager.CARATE_URL, LearningExperienceEngine.DBManager.CARATE_PRIVACY_POLICY_URL), false, isCarateSelected),
-            (LearningExperienceEngine.DBManager.ARETE_URL, () => ChangeServerAndPrivacyPolicyDomain(LearningExperienceEngine.DBManager.ARETE_URL, LearningExperienceEngine.DBManager.ARETE_PRIVACY_POLICY_URL), false, isAreteSelected),
+            (LearningExperienceEngine.UserSettings.WEKIT_URL, () => ChangeServerAndPrivacyPolicyDomain(LearningExperienceEngine.UserSettings.WEKIT_URL, LearningExperienceEngine.UserSettings.WEKIT_PRIVACY_POLICY_URL), false, isWekitSelected),
+            (LearningExperienceEngine.UserSettings.CARATE_URL, () => ChangeServerAndPrivacyPolicyDomain(LearningExperienceEngine.UserSettings.CARATE_URL, LearningExperienceEngine.UserSettings.CARATE_PRIVACY_POLICY_URL), false, isCarateSelected),
+            (LearningExperienceEngine.UserSettings.ARETE_URL, () => ChangeServerAndPrivacyPolicyDomain(LearningExperienceEngine.UserSettings.ARETE_URL, LearningExperienceEngine.UserSettings.ARETE_PRIVACY_POLICY_URL), false, isAreteSelected),
             (CUSTOM_SERVER_TEXT, ShowServerPanel, false, !(isWekitSelected || isAreteSelected || isCarateSelected)));
     }
 
@@ -181,18 +181,18 @@ public class ProfileView : PopupBase
     private void ShowLRSPanel()
     {
         RootView_v2.Instance.dialog.ShowBottomMultiline("Select Learning Record Store:",
-            ("WEKIT", () => ChangeRecordStore(LearningExperienceEngine.DBManager.LearningRecordStores.WEKIT)));
+            ("WEKIT", () => ChangeRecordStore(LearningExperienceEngine.UserSettings.LearningRecordStores.WEKIT)));
     }
 
-    private static void ChangeRecordStore(LearningExperienceEngine.DBManager.LearningRecordStores recordStores)
+    private static void ChangeRecordStore(LearningExperienceEngine.UserSettings.LearningRecordStores recordStores)
     {
         EventManager.NotifyxAPIChanged(recordStores);
-        LearningExperienceEngine.DBManager.publicCurrentLearningRecordStore = recordStores;
+        LearningExperienceEngine.UserSettings.publicCurrentLearningRecordStore = recordStores;
     }
 
     private void UpdateConnectedServerText()
     {
-        _txtConnectedServer.text = LearningExperienceEngine.DBManager.domain;
+        _txtConnectedServer.text = LearningExperienceEngine.UserSettings.domain;
     }
 
     private void OnCustomServerSave(string address)
@@ -203,16 +203,16 @@ public class ProfileView : PopupBase
             return;
         }
 
-        LearningExperienceEngine.DBManager.privacyPolicyDomain = string.Empty;
+        LearningExperienceEngine.UserSettings.privacyPolicyDomain = string.Empty;
         ChangeServerDomain(address);
     }
 
     private static void ChangeServerDomain(string domain)
     {
-        if (LearningExperienceEngine.DBManager.domain != domain)
+        if (LearningExperienceEngine.UserSettings.domain != domain)
         {
-            LearningExperienceEngine.DBManager.domain = domain;
-            LearningExperienceEngine.DBManager.LogOut();
+            LearningExperienceEngine.UserSettings.domain = domain;
+            LearningExperienceEngine.UserSettings.ClearLoginData();
             RootView_v2.Instance.activityListView.FetchAndUpdateView();
         }
 
@@ -221,32 +221,32 @@ public class ProfileView : PopupBase
 
     private static void ChangeServerAndPrivacyPolicyDomain(string domain, string privacyPolicyDomain)
     {
-        LearningExperienceEngine.DBManager.privacyPolicyDomain = privacyPolicyDomain;
+        LearningExperienceEngine.UserSettings.privacyPolicyDomain = privacyPolicyDomain;
         ChangeServerDomain(domain);
     }
 
     private void OnClickPrivacyPolicy()
     {
-        Application.OpenURL(LearningExperienceEngine.DBManager.privacyPolicyDomain);
+        Application.OpenURL(LearningExperienceEngine.UserSettings.privacyPolicyDomain);
     }
 
     private void UpdatePrivacyPolicyButtonActive()
     {
-        var isWekitSelected = LearningExperienceEngine.DBManager.domain == LearningExperienceEngine.DBManager.WEKIT_URL;
-        var isAreteSelected = LearningExperienceEngine.DBManager.domain == LearningExperienceEngine.DBManager.ARETE_URL;
-        var isCarateSelected = LearningExperienceEngine.DBManager.domain == LearningExperienceEngine.DBManager.CARATE_URL;
+        var isWekitSelected = LearningExperienceEngine.UserSettings.domain == LearningExperienceEngine.UserSettings.WEKIT_URL;
+        var isAreteSelected = LearningExperienceEngine.UserSettings.domain == LearningExperienceEngine.UserSettings.ARETE_URL;
+        var isCarateSelected = LearningExperienceEngine.UserSettings.domain == LearningExperienceEngine.UserSettings.CARATE_URL;
 
-        var setActive = !string.IsNullOrEmpty(LearningExperienceEngine.DBManager.privacyPolicyDomain) &&
+        var setActive = !string.IsNullOrEmpty(LearningExperienceEngine.UserSettings.privacyPolicyDomain) &&
                 (isWekitSelected || isAreteSelected || isCarateSelected);
         _btnPrivacyPolicy.gameObject.SetActive(setActive);
 
     }
 
-    private void UpdateConnectedLRS(LearningExperienceEngine.DBManager.LearningRecordStores publicCurrentLearningRecordStore)
+    private void UpdateConnectedLRS(LearningExperienceEngine.UserSettings.LearningRecordStores publicCurrentLearningRecordStore)
     {
         switch (publicCurrentLearningRecordStore)
         {
-            case LearningExperienceEngine.DBManager.LearningRecordStores.WEKIT:
+            case LearningExperienceEngine.UserSettings.LearningRecordStores.WEKIT:
                 _txtConnectedLRS.text = "WEKIT";
                 break;
         }

@@ -47,7 +47,7 @@ namespace MirageXR
             _btnSettings.onClick.AddListener(OnSettingsClick);
             _btnAddActivity.onClick.AddListener(OnAddActivityClick);
             _inputFieldSearch.onValueChanged.AddListener(OnInputFieldSearchChanged);
-            if (!LearningExperienceEngine.DBManager.LoggedIn && LearningExperienceEngine.DBManager.rememberUser)
+            if (!LearningExperienceEngine.UserSettings.LoggedIn && LearningExperienceEngine.UserSettings.rememberUser)
             {
                 await AutoLogin();
             }
@@ -56,7 +56,7 @@ namespace MirageXR
 
         private async Task AutoLogin()
         {
-            if (!LearningExperienceEngine.LocalFiles.TryToGetUsernameAndPassword(out var username, out var password)) return;
+            if (!LearningExperienceEngine.UserSettings.TryToGetUsernameAndPassword(out var username, out var password)) return;
 
             LoadView.Instance.Show();
             await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.Login(username, password);

@@ -100,7 +100,7 @@ public class SearchView : PopupBase
         _items.ForEach(item => Destroy(item.gameObject));
         _items.Clear();
 
-        var prefab = !LearningExperienceEngine.DBManager.showBigCards ? _smallItemPrefab : _bigItemPrefab;
+        var prefab = !LearningExperienceEngine.UserSettings.showBigCards ? _smallItemPrefab : _bigItemPrefab;
 
         _content.ForEach(content =>
         {

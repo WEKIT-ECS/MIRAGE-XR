@@ -120,7 +120,7 @@ public class ImageEditorView : PopupEditorBase
         }
 
         // TODO add rename window:
-        if (!LearningExperienceEngine.DBManager.dontShowNewAugmentationHint)
+        if (!LearningExperienceEngine.UserSettings.dontShowNewAugmentationHint)
         {
             PopupsViewer.Instance.Show(_hintPrefab);
         }
