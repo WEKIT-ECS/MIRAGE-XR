@@ -16,6 +16,7 @@ public class LoginView_v2 : PopupBase
     [SerializeField] private Button _btnPasswordForgotten;
     [SerializeField] private Button _btnGoToLogin;
     [SerializeField] private Button _btnSkipLogin;
+    [SerializeField] private Button _btnOidcLogin;
     [SerializeField] private Button _btnLogin;
     [SerializeField] private Button _btnBack;
     [SerializeField] private OnboardingTutorialView _onboardingTutorialViewPrefab;
@@ -31,6 +32,7 @@ public class LoginView_v2 : PopupBase
         _inputFieldPassword.SetValidator(IsValidPassword);
         _btnRegister.onClick.AddListener(OnClickRegister);
         _btnPasswordForgotten.onClick.AddListener(OnClickPasswordForgotten);
+        _btnOidcLogin.onClick.AddListener(OnOidcLogin);
         _btnLogin.onClick.AddListener(OnClickLogin);
         _btnGoToLogin.onClick.AddListener(OnGoToLoginPressed);
         _btnSkipLogin.onClick.AddListener(OnEnterAsGuest);
@@ -86,6 +88,14 @@ public class LoginView_v2 : PopupBase
     private void OnEnterAsGuest()
     {
         PopupsViewer.Instance.Show(_onboardingTutorialViewPrefab);
+        Close();
+    }
+
+    private void OnOidcLogin()
+    {
+        Debug.LogInfo("Button pressed for OIDC login ");
+        LearningExperienceEngine.OidcLogin controller = GetComponent<LearningExperienceEngine.OidcLogin>();
+        controller.StartOidcLogin();
         Close();
     }
 
