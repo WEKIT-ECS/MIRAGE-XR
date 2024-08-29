@@ -93,9 +93,8 @@ public class LoginView_v2 : PopupBase
 
     private void OnOidcLogin()
     {
-        Debug.LogInfo("Button pressed for OIDC login ");
-        LearningExperienceEngine.OidcLogin controller = GetComponent<LearningExperienceEngine.OidcLogin>();
-        controller.StartOidcLogin();
+        LearningExperienceEngine.OidcLogin oidcLogin = GetComponent<LearningExperienceEngine.OidcLogin>();
+        oidcLogin.Login();
         Close();
     }
 
