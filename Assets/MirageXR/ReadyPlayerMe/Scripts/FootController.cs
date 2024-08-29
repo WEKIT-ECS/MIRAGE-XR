@@ -17,8 +17,8 @@ namespace MirageXR
 		[SerializeField] private float _footHeightOffset = 0.04f;
 		[SerializeField] private float _footSpacing = 0.18f;
 		[Header("Stepping")]
-		[SerializeField] private float _stepThreshold = 0.2f;
-		[SerializeField] private float _stepDistance = 0.2f;
+		//[SerializeField] private float _stepThreshold = 0.2f;
+		[SerializeField] private float _stepDistance = 0.25f;
 		[SerializeField] private float _stepHeight = 0.2f;
 		[SerializeField] private float _stepSpeed = 3.5f;
 		[Header("Debugging")]
@@ -95,11 +95,11 @@ namespace MirageXR
 
 			// check if we need to make a step (and if we can take a step)
 			if (!CurrentlyStepping && !_otherFoot.CurrentlyStepping
-				&& (distance > _stepDistance || dotProduct < 0))
+				&& (distance > 1.05f * _stepDistance || dotProduct < 0))
 			{
 				_stepLerpProgress = 0f;
 
-				Vector3 stepDirection = projectedVirtualFootPosition - _newFootTargetPose.position;
+				Vector3 stepDirection = projectedVirtualFootPosition - _previousFootTargetPose.position;
 				stepDirection.y = 0f;
 				stepDirection.Normalize();
 
