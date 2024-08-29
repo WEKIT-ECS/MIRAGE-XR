@@ -8,6 +8,8 @@ using Microsoft.MixedReality.Toolkit.UI;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace MirageXR
 {
@@ -342,6 +344,7 @@ namespace MirageXR
 
                 if (objIfExist)
                 {
+                    Debug.Log("obj.poi exists: found content augmentation " + obj.poi );
                     var annotationChildren = objIfExist.transform.childCount;
 
                     // prevent duplication
@@ -351,27 +354,31 @@ namespace MirageXR
                     }
                 }
 
-                // Get the prefab from the references
-                var prefabInAddressable = await ReferenceLoader.GetAssetReferenceAsync<GameObject>(prefab);
-                // if the prefab reference has been found successfully
-                if (prefabInAddressable != null)
+                // Get the prefab from the Adressables references
+
+                // old code
+                //var prefabInAddressable = await ReferenceLoader.GetAssetReferenceAsync<GameObject>(prefab);
+                //// if the prefab reference has been found successfully
+                //if (prefabInAddressable != null)
+                //{
+                //    temp = Instantiate(prefabInAddressable, Vector3.zero, Quaternion.identity);
+                //    _ = AddExtraComponents(temp, obj);
+                //}
+
+                // new code
+                AsyncOperationHandle<GameObject> handle = Addressables.LoadAssetAsync<GameObject>(prefab);
+                await handle.Task;
+                if (handle.Status == AsyncOperationStatus.Succeeded)
                 {
-                    temp = Instantiate(prefabInAddressable, Vector3.zero, Quaternion.identity);
+                    GameObject res = handle.Result;
+                    temp = UnityEngine.Object.Instantiate(res, Vector3.zero, Quaternion.identity);
                     _ = AddExtraComponents(temp, obj);
                 }
-                /*else
+                else
                 {
-                    if (obj.predicate.StartsWith("char"))
-                    {
-                        var charPrefabPath = $"{activityManager.ActivityPath}/characterinfo/{obj.option}";
-                        if (File.Exists(charPrefabPath))
-                        {
-                            var loadedAssetBundle = AssetBundle.LoadFromFile(charPrefabPath);
-                            temp = Instantiate((GameObject)loadedAssetBundle.LoadAsset(obj.option), Vector3.zero, Quaternion.identity);
-                            loadedAssetBundle.Unload(false);
-                        }
-                    }
-                }*/
+                    Debug.LogError("FATAL ERROR: Could not instantiate ContentAugmentation prefab " + prefab);
+                }
+
             }
 
             if (temp == null)
@@ -381,7 +388,7 @@ namespace MirageXR
 
             // Try to initialize and if it fails, debug and destroy the object.
             var miragePrefab = temp.GetComponent<MirageXRPrefab>();
-            if (miragePrefab && !miragePrefab.Init(obj))
+            if (miragePrefab && !miragePrefab.Init(obj)) // also calls MirageXRPrefab.SetParent()
             {
                 Debug.LogError($"Couldn't create the {prefab}. {obj.id}/{obj.poi}/{obj.predicate}");
                 temp.GetComponent<MirageXRPrefab>().Delete();

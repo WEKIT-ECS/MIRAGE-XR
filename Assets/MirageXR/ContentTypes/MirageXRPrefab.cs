@@ -275,7 +275,6 @@ namespace MirageXR
                 }
 
                 var temp = GameObject.Find($"{obj.id}/{obj.poi}");
-
                 if (temp == null)
                 {
                     Debug.Log("Parent object not found. " + obj.id + "/" + obj.poi);
