@@ -46,7 +46,6 @@ namespace MirageXR
 					_bodyTarget.rotation *
 					Vector3.Scale(new Vector3(sideFactor, 0, 0), _handHipOffset);
 				_handAcceleration = _handDamping * (_handInertia * _handAcceleration + (1f - _handInertia) * (_handTargetPosition - transform.position));
-				Debug.Log(_handAcceleration);
 				transform.position += _handAcceleration;
 			}
 		}
