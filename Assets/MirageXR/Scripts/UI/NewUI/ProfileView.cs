@@ -13,6 +13,7 @@ public class ProfileView : PopupBase
 
     [SerializeField] private Button _btnClose;
     [SerializeField] private Button _btnLogin;
+    [SerializeField] private Button _btnOicdLogin;
     [SerializeField] private Button _btnRegister;
     [SerializeField] private Button _btnPrivacyPolicy;
     [SerializeField] private GameObject _btnDevelopMode;
@@ -43,6 +44,7 @@ public class ProfileView : PopupBase
         _btnRegister.onClick.AddListener(OnClickRegister);
         _btnPrivacyPolicy.onClick.AddListener(OnClickPrivacyPolicy);
         _btnLogin.onClick.AddListener(OnClickLogin);
+        _btnOicdLogin.onClick.AddListener(OnOicdLogin);
         _btnLogout.onClick.AddListener(OnClickLogout);
         _btnGrid.onClick.AddListener(OnClickGrid);
         _btnDev.onClick.AddListener(OnClickDev);
@@ -130,6 +132,11 @@ public class ProfileView : PopupBase
     {
         var dontShowLoginMenu = true;
         PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu, (System.Action)ResetValues);
+    }
+
+    private async void OnOicdLogin()
+    {
+
     }
 
     private void OnClickLogout()
