@@ -17,23 +17,27 @@ namespace MirageXR
 		[SerializeField] private float _footHeightOffset = 0.04f;
 		[SerializeField] private float _footSpacing = 0.18f;
 		[Header("Stepping")]
-		[SerializeField] private Vector3 _footOffset = Vector3.zero;
 		[SerializeField] private float _stepThreshold = 0.2f;
 		[SerializeField] private float _stepDistance = 0.2f;
 		[SerializeField] private float _stepHeight = 0.2f;
 		[SerializeField] private float _stepSpeed = 3.5f;
+		[Header("Debugging")]
+		[SerializeField] private bool _showDebugWidgets = false;
 
 		private static FloorManagerWithFallback _floorManager => RootObject.Instance.floorManagerWithRaycastFallback;
 
 		// variables for intermediate calcuations of the foot target position and the position of the knee hint
 		// the value of these variables are assigned to the transforms in Update
-		private Vector3 _currentFootTargetPosition, _currentKneeHintPosition;
+		private Pose _currentFootTargetPose;
+		private Vector3 _currentKneeHintPosition;
 		// step control points: the beginning and ending of a step
-		private Vector3 _previousFootTargetPosition, _newFootTargetPosition;
+		private Pose _previousFootTargetPose, _newFootTargetPose;
 		// keeps track of the current step progress; 0: step not started; 1: step completed
 		private float _stepLerpProgress = 0f;
 
-		private GameObject _debugCube;
+		private Quaternion _footRotationOffset = Quaternion.identity;
+
+		private GameObject _debugWidget;
 
 		private Vector3 SidewaysVector
 		{
@@ -51,60 +55,78 @@ namespace MirageXR
 
 		private void Start()
 		{
-			_debugCube = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-			_debugCube.transform.localScale = 0.1f * Vector3.one;
-
-			_currentFootTargetPosition = transform.position;
-			_newFootTargetPosition = transform.position;
-			_previousFootTargetPosition = transform.position;
+			_footRotationOffset = transform.rotation;
+			_currentFootTargetPose = new Pose(transform.position, transform.rotation);
+			_newFootTargetPose = new Pose(transform.position, transform.rotation);
+			_previousFootTargetPose = new Pose(transform.position, transform.rotation);
 			_stepLerpProgress = 1f;
 		}
 
 		private void Update()
 		{
+			if (_showDebugWidgets && _debugWidget == null)
+			{
+				_debugWidget = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+				_debugWidget.name = "FootGround_" + (_isLeftFoot ? "Left" : "Right");
+				_debugWidget.transform.localScale = 0.1f * Vector3.one;
+			}
+			else if (!_showDebugWidgets && _debugWidget != null)
+			{
+				Destroy(_debugWidget);
+			}
+
 			PlaceFootTarget();
 			PlaceKneeHint();
 		}
 
 		private void PlaceFootTarget()
 		{
-			transform.position = _currentFootTargetPosition + _footHeightOffset * Vector3.up;
+			transform.position = _currentFootTargetPose.position + _footHeightOffset * Vector3.up;
+			transform.rotation = _currentFootTargetPose.rotation;
 
 			// look for the candidate where we would currently place the foot
-			Vector3 projectedBodyPosition = _headTarget.position + (SidewaysVector * _footSpacing);
-			projectedBodyPosition.y = _floorManager.GetFloorHeight(_bodyTarget.position);
+			Vector3 projectedVirtualFootPosition = _headTarget.position + (SidewaysVector * _footSpacing);
+			projectedVirtualFootPosition.y = _floorManager.GetFloorHeight(projectedVirtualFootPosition);
 
 			// check if we need to make a step (and if we can take a step)
 			if (!CurrentlyStepping && !_otherFoot.CurrentlyStepping
-				&& Vector3.Distance(projectedBodyPosition, _newFootTargetPosition) > _stepDistance)
+				&& Vector3.Distance(projectedVirtualFootPosition, _newFootTargetPose.position) > _stepDistance)
 			{
 				_stepLerpProgress = 0f;
 
-				Vector3 stepDirection = projectedBodyPosition - _newFootTargetPosition;
+				Vector3 stepDirection = projectedVirtualFootPosition - _newFootTargetPose.position;
 				stepDirection.y = 0f;
 				stepDirection.Normalize();
 
-				_newFootTargetPosition = projectedBodyPosition + stepDirection * _stepDistance + _footOffset;
+				_newFootTargetPose.position = projectedVirtualFootPosition + stepDirection * _stepDistance + _footHeightOffset * Vector3.up;
+				_newFootTargetPose.rotation = _currentFootTargetPose.rotation;
+				_newFootTargetPose.rotation.y = _headTarget.rotation.y;
 			}
 			// progress the step further if we are currently making a step
 			if (_stepLerpProgress < 1f)
 			{
-				_currentFootTargetPosition = Vector3.Lerp(_previousFootTargetPosition, _newFootTargetPosition, _stepLerpProgress);
-				_currentFootTargetPosition.y += Mathf.Sin(_stepLerpProgress * Mathf.PI) * _stepHeight;
+				_currentFootTargetPose.position = Vector3.Lerp(_previousFootTargetPose.position, _newFootTargetPose.position, _stepLerpProgress);
+				_currentFootTargetPose.position.y += Mathf.Sin(_stepLerpProgress * Mathf.PI) * _stepHeight;
+
+				_currentFootTargetPose.rotation = Quaternion.Slerp(_previousFootTargetPose.rotation, _newFootTargetPose.rotation, _stepLerpProgress);
 
 				_stepLerpProgress += Time.deltaTime * _stepSpeed;
 			}
 			else
 			{
-				_previousFootTargetPosition = _newFootTargetPosition;
+				_previousFootTargetPose.position = _newFootTargetPose.position;
+				_previousFootTargetPose.rotation = _newFootTargetPose.rotation;
 			}
 
-			_debugCube.transform.position = _newFootTargetPosition;
+			if (_debugWidget != null)
+			{
+				_debugWidget.transform.position = _newFootTargetPose.position;
+			}
 		}
 
 		private void PlaceKneeHint()
 		{
-			_currentKneeHintPosition = Vector3.Lerp(_bodyTarget.position, _currentFootTargetPosition, 0.5f);
+			_currentKneeHintPosition = Vector3.Lerp(_bodyTarget.position, _currentFootTargetPose.position, 0.5f);
 			// move the knee to the front to ensure correct bending
 			_currentKneeHintPosition += _bodyTarget.forward * 0.5f;
 			// move the knee slightly outwards to the sides

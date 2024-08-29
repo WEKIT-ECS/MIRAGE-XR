@@ -280,7 +280,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _headTarget: {fileID: 6238957604699680005}
-  _bodyTarget: {fileID: 1940165422699347315}
+  _bodyTarget: {fileID: 5508129712271213116}
   _elbowHint: {fileID: 5781657519388998122}
   _isLeftHand: 1
 --- !u!1 &1957244506760781476
@@ -292,7 +292,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5508129712271213116}
-  - component: {fileID: 8798078617496848636}
+  - component: {fileID: 2286555975996795572}
+  - component: {fileID: 2378425737690248620}
   m_Layer: 0
   m_Name: HipTarget
   m_TagString: Untagged
@@ -315,7 +316,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1940165422699347315}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8798078617496848636
+--- !u!114 &2286555975996795572
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -366,6 +367,23 @@ MonoBehaviour:
       z: 1
     m_MaintainPositionOffset: 0
     m_MaintainRotationOffset: 0
+--- !u!114 &2378425737690248620
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1957244506760781476}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7f2c3f8c1cc06f4ebafa4bc8de76025, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interpolationSpeed: 1
+  _headBone: {fileID: 2548894080920219989}
+  _hipBone: {fileID: 1933931265718374581}
+  _headTarget: {fileID: 6238957604699680005}
+  _headPlacementOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &3856484409350079452
 GameObject:
   m_ObjectHideFlags: 0
@@ -412,7 +430,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _headTarget: {fileID: 6238957604699680005}
   _kneeHint: {fileID: 1390563573270658900}
-  _bodyTarget: {fileID: 1940165422699347315}
+  _bodyTarget: {fileID: 5508129712271213116}
   _otherFoot: {fileID: 783229176936722540}
   _isLeftFoot: 0
   _footHeightOffset: 0.04
@@ -422,6 +440,7 @@ MonoBehaviour:
   _stepDistance: 0.25
   _stepHeight: 0.15
   _stepSpeed: 3.5
+  _showDebugWidgets: 0
 --- !u!1 &3959376335205081953
 GameObject:
   m_ObjectHideFlags: 0
@@ -884,7 +903,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _headTarget: {fileID: 6238957604699680005}
   _kneeHint: {fileID: 3978562881789607110}
-  _bodyTarget: {fileID: 1940165422699347315}
+  _bodyTarget: {fileID: 5508129712271213116}
   _otherFoot: {fileID: 8831982372808853377}
   _isLeftFoot: 1
   _footHeightOffset: 0.04
@@ -894,6 +913,7 @@ MonoBehaviour:
   _stepDistance: 0.25
   _stepHeight: 0.15
   _stepSpeed: 3.5
+  _showDebugWidgets: 0
 --- !u!1 &5400277773255215323
 GameObject:
   m_ObjectHideFlags: 0
@@ -1175,7 +1195,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _headTarget: {fileID: 6238957604699680005}
-  _bodyTarget: {fileID: 1940165422699347315}
+  _bodyTarget: {fileID: 5508129712271213116}
   _elbowHint: {fileID: 7470394358976082282}
   _isLeftHand: 0
 --- !u!1001 &8976941013945422982
@@ -1190,6 +1210,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Default Avatar
+      objectReference: {fileID: 0}
+    - target: {fileID: 7368509626858357811, guid: 59ca1e9b72376e145bfda513478b42ec,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7968283499595012214, guid: 59ca1e9b72376e145bfda513478b42ec,
         type: 3}
