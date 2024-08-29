@@ -25,12 +25,14 @@ namespace MirageXR
         {
             LearningExperienceEngine.EventManager.OnCreateDetectableObject += CreateDetectableObject;
             LearningExperienceEngine.EventManager.OnCreatePlaceObject += CreatePlaceObject;
+            LearningExperienceEngine.EventManager.OnCreatePoiObject += CreatePoiObject;
         }
 
         ~WorkplaceObjectFactory()
         {
             LearningExperienceEngine.EventManager.OnCreateDetectableObject -= CreateDetectableObject;
             LearningExperienceEngine.EventManager.OnCreatePlaceObject -= CreatePlaceObject;
+            LearningExperienceEngine.EventManager.OnCreatePoiObject -= CreatePoiObject;
         }
 
         public void CreateDetectables(List<LearningExperienceEngine.Detectable> list, string debug)
@@ -659,7 +661,7 @@ namespace MirageXR
             }
         }
 
-        public void CreatePoiObject(Poi poi, Transform parent)
+        public async Task CreatePoiObject(Poi poi, Transform parent)
         {
             var poiTemp = LearningExperienceEngine.Utilities.CreateObject(poi.id, parent);
             poiTemp.AddComponent<PoiEditor>().Initialize(poi);
@@ -727,7 +729,8 @@ namespace MirageXR
 
         private async Task PopulateTaskStation(GameObject parent, LearningExperienceEngine.Action action)
         {
-            Debug.LogInfo("CLONING TASK STATION for action " /*+ action.id*/);
+            string debug = (action != null && !string.IsNullOrEmpty(action.id)) ? action.id : String.Empty;
+            Debug.LogInfo("CLONING TASK STATION for action " + debug);
 
             AsyncOperationHandle<GameObject> handle = Addressables.LoadAssetAsync<GameObject>("PlayerTaskStation");
             await handle.Task;
@@ -744,7 +747,6 @@ namespace MirageXR
                 Debug.LogError("FATAL ERROR: Could not instantiate task station prefab");
             }
 
-            string debug = (action != null && !string.IsNullOrEmpty(action.id)) ? action.id : String.Empty;
             Debug.LogInfo("Received adressable, and CLONED TASK STATION for action " + debug + "--- " + instance.name);
 
             // this was the old prefab loading and instantiating code
