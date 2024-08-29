@@ -1313,6 +1313,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2446800742698174438}
   - component: {fileID: 6363308397455707283}
+  - component: {fileID: 1606216974958334735}
+  - component: {fileID: -2427556096190448994}
+  - component: {fileID: -9177816548702423388}
   m_Layer: 5
   m_Name: HomeScreen_Spatial
   m_TagString: Untagged
@@ -1358,6 +1361,56 @@ MonoBehaviour:
   _buttonSidebarExpand: {fileID: 3161337885316245216}
   _sidebarOpened: {fileID: 8733178164292781583}
   _sidebarClosed: {fileID: 7886511637804303135}
+--- !u!225 &1606216974958334735
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7242069563223765077}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!222 &-2427556096190448994
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7242069563223765077}
+  m_CullTransparentMesh: 1
+--- !u!114 &-9177816548702423388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7242069563223765077}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &7291906788596884045
 GameObject:
   m_ObjectHideFlags: 0
@@ -3273,7 +3326,7 @@ PrefabInstance:
     - target: {fileID: 2823810689082382368, guid: 5d0a6f4b77bd04ddda3b6d1afd099f9d,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -5
       objectReference: {fileID: 0}
     - target: {fileID: 2823810689082382368, guid: 5d0a6f4b77bd04ddda3b6d1afd099f9d,
         type: 3}
