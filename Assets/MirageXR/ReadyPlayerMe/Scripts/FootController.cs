@@ -88,9 +88,14 @@ namespace MirageXR
 			Vector3 projectedVirtualFootPosition = _headTarget.position + (SidewaysVector * _footSpacing);
 			projectedVirtualFootPosition.y = _floorManager.GetFloorHeight(projectedVirtualFootPosition);
 
+			float distance = Vector3.Distance(projectedVirtualFootPosition, _newFootTargetPose.position);
+			float dotProduct = Vector2.Dot(
+				new Vector2(_headTarget.forward.x, _headTarget.forward.z),
+				new Vector2(_newFootTargetPose.forward.x, _newFootTargetPose.forward.z));
+
 			// check if we need to make a step (and if we can take a step)
 			if (!CurrentlyStepping && !_otherFoot.CurrentlyStepping
-				&& Vector3.Distance(projectedVirtualFootPosition, _newFootTargetPose.position) > _stepDistance)
+				&& (distance > _stepDistance || dotProduct < 0))
 			{
 				_stepLerpProgress = 0f;
 
@@ -99,8 +104,10 @@ namespace MirageXR
 				stepDirection.Normalize();
 
 				_newFootTargetPose.position = projectedVirtualFootPosition + stepDirection * _stepDistance + _footHeightOffset * Vector3.up;
-				_newFootTargetPose.rotation = _currentFootTargetPose.rotation;
-				_newFootTargetPose.rotation.y = _headTarget.rotation.y;
+				_newFootTargetPose.rotation = Quaternion.Euler(
+					_currentFootTargetPose.rotation.eulerAngles.x,
+					_headTarget.eulerAngles.y,
+					_currentFootTargetPose.rotation.eulerAngles.z);
 			}
 			// progress the step further if we are currently making a step
 			if (_stepLerpProgress < 1f)
