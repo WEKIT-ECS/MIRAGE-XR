@@ -1,3 +1,5 @@
+using i5.Toolkit.Core.OpenIDConnectClient;
+using i5.Toolkit.Core.ServiceCore;
 using MirageXR;
 using System;
 using System.Collections;
@@ -136,7 +138,26 @@ public class ProfileView : PopupBase
 
     private async void OnOicdLogin()
     {
+        LearningExperienceEngine.OidcLogin oidcLogin = GetComponent<LearningExperienceEngine.OidcLogin>();
 
+        // register callback to update view once login completed
+        var service = ServiceManager.GetService<OpenIDConnectService>();
+        service.LoginCompleted += OnOidcLoginCompleted;
+
+        oidcLogin.Login();
+
+    }
+
+    private void OnOidcLoginCompleted(object sender, EventArgs e)
+    {
+        var service = ServiceManager.GetService<OpenIDConnectService>();
+        service.LoginCompleted -= OnOidcLoginCompleted;
+
+        LearningExperienceEngine.OidcLogin oidcLogin = GetComponent<LearningExperienceEngine.OidcLogin>();
+        oidcLogin.FetchUsername();
+
+        RootView_v2.Instance.activityListView.FetchAndUpdateView();
+        ShowLogout();
     }
 
     private void OnClickLogout()
