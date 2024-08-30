@@ -8,7 +8,7 @@ namespace MirageXR
 {
     public class StepTrigger : MonoBehaviour
     {
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
         [SerializeField] private Toggle stepTriggerToggle;
         [SerializeField] private InputField durationInputField;
         [SerializeField] private InputField stepNumberInputField;

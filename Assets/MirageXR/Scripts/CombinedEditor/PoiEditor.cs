@@ -14,7 +14,7 @@ public class PoiEditor : MonoBehaviour
 
     private float _modelMagnification = 0.0f;
 
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
 
     public float ModelMagnification
     {
@@ -54,7 +54,7 @@ public class PoiEditor : MonoBehaviour
         SetAllObjectManipulationOptions();
         _objectManipulator.OnManipulationEnded.AddListener(OnChanged);
 
-        OnEditModeChanged(RootObject.Instance.activityManager.EditModeActive);
+        OnEditModeChanged(RootObject.Instance.ActivityManagerOld.EditModeActive);
         //SetPoiData();
     }
 
@@ -115,7 +115,7 @@ public class PoiEditor : MonoBehaviour
     private Vector3 GetOffset()
     {
         var taskStationId = transform.parent.name;
-        var workplaceManager = RootObject.Instance.workplaceManager;
+        var workplaceManager = RootObject.Instance.WorkplaceManager;
         var detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(taskStationId));
         var annotationStartingPoint = ActionEditor.Instance.GetDefaultAugmentationStartingPoint();
         var originT = GameObject.Find(detectable.id);   // TODO: replace by direct reference to the object
@@ -200,7 +200,7 @@ public class PoiEditor : MonoBehaviour
             _boundsControl.RotateStopped.AddListener(OnChanged);
             _boundsControl.ScaleStopped.AddListener(OnChanged);
 
-            _boundsControl.enabled = RootObject.Instance.activityManager.EditModeActive;
+            _boundsControl.enabled = RootObject.Instance.ActivityManagerOld.EditModeActive;
         }
         else
         {

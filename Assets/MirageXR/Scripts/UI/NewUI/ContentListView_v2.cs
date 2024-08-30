@@ -12,7 +12,7 @@ public class ContentListView_v2 : BaseView
 {
     private const string STEP_NAME_MASK = "{0}/{1} {2}";
 
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
 
     [SerializeField] private Button _btnAddContent;
     [SerializeField] private RectTransform _listContent;

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class GridSettings : MonoBehaviour
 {
-    private static GridManager gridManager => RootObject.Instance.gridManager;
+    private static GridManager gridManager => RootObject.Instance.GridManager;
 
     [SerializeField] private Canvas _canvas;
     [SerializeField] private Toggle _activateGridToggle;

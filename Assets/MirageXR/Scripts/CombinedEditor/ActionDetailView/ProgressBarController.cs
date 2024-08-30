@@ -5,9 +5,9 @@ using UnityEngine.UI;
 
 public class ProgressBarController : MonoBehaviour
 {
-    private static BrandManager brandManager => RootObject.Instance.brandManager;
+    private static BrandManager brandManager => RootObject.Instance.BrandManager;
 
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
     [SerializeField] private GameObject stepPrefab;
     [SerializeField] private Color completedColor;
     [SerializeField] private Color activeColor;

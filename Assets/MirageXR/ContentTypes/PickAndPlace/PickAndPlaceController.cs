@@ -10,7 +10,7 @@ namespace MirageXR
 {
     public class PickAndPlaceController : MirageXRPrefab
     {
-        private static ActivityManager _activityManager => RootObject.Instance.activityManager;
+        private static ActivityManager _activityManager => RootObject.Instance.ActivityManagerOld;
 
         private ToggleObject _myObj;
         [SerializeField] private Transform _pickObject;
@@ -131,7 +131,7 @@ namespace MirageXR
 
         private void OnActivitySaved()
         {
-            if (RootObject.Instance.activityManager.EditModeActive)
+            if (RootObject.Instance.ActivityManagerOld.EditModeActive)
             {
                 SavePositions();
             }
@@ -220,7 +220,7 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-            if (RootObject.Instance.activityManager.EditModeActive)
+            if (RootObject.Instance.ActivityManagerOld.EditModeActive)
             {
                 SavePositions();
             }

@@ -128,7 +128,7 @@ namespace MirageXR
                 return;
             }
 
-            await RootObject.Instance.moodleManager.GetArlemList();
+            await RootObject.Instance.MoodleManager.GetArlemList();
 
             AddCustomColors();
         }

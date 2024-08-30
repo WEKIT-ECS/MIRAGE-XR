@@ -8,7 +8,7 @@ using Action = MirageXR.Action;
 
 public class ActionDetailView : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
     [SerializeField] private InputField titleLabel;
     [SerializeField] private Text numberLabel;
     [SerializeField] private InputField descriptionText;

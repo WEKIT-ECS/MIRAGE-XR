@@ -7,7 +7,7 @@ using Action = MirageXR.Action;
 
 public class VideoEditor : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
 
     [SerializeField] private Button startRecordingButton;
     [SerializeField] private Button stopRecordingButton;
@@ -49,7 +49,7 @@ public class VideoEditor : MonoBehaviour
     {
         videoWasRecorded = false;
         IsRecording = false;
-        RootObject.Instance.imageTargetManager.enabled = true;
+        RootObject.Instance.ImageTargetManager.enabled = true;
         action = null;
         annotationToEdit = null;
         newFileName = string.Empty;
@@ -130,14 +130,14 @@ public class VideoEditor : MonoBehaviour
         }
         else
         {
-            var workplaceManager = RootObject.Instance.workplaceManager;
+            var workplaceManager = RootObject.Instance.WorkplaceManager;
             Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
             GameObject originT = GameObject.Find(detectable.id);
 
             var startPointTr = annotationStartingPoint.transform;
             var offset = MirageXR.Utilities.CalculateOffset(startPointTr.position, startPointTr.rotation, originT.transform.position, originT.transform.rotation);
 
-            annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
+            annotationToEdit = RootObject.Instance.AugmentationManager.AddAugmentation(action, offset);
             annotationToEdit.predicate = "video";
         }
 
@@ -176,7 +176,7 @@ public class VideoEditor : MonoBehaviour
 
         Debug.Log("Record Video");
 
-        RootObject.Instance.imageTargetManager.enabled = false;
+        RootObject.Instance.ImageTargetManager.enabled = false;
         IsRecording = true;
 
         if (annotationToEdit != null)
@@ -196,7 +196,7 @@ public class VideoEditor : MonoBehaviour
         videoWasRecorded = result;
         IsRecording = false;
 
-        RootObject.Instance.imageTargetManager.enabled = true;
+        RootObject.Instance.ImageTargetManager.enabled = true;
 
         if (result)
         {

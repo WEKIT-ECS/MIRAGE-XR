@@ -47,7 +47,7 @@ namespace MirageXR
             siteConfigurationStatusLabel.text = string.Empty;
             publicUploadToggle.isOn = DBManager.publicUploadPrivacy;
 
-            if (RootObject.Instance.platformManager.WorldSpaceUi)
+            if (RootObject.Instance.PlatformManager.WorldSpaceUi)
             {
                 if (PlayerPrefs.HasKey("MoodleURL"))
                 {
@@ -143,7 +143,7 @@ namespace MirageXR
         /// <param name="token"></param>
         private async void LoginSucceed(string token)
         {
-            var moodleManager = RootObject.Instance.moodleManager;
+            var moodleManager = RootObject.Instance.MoodleManager;
             DBManager.token = token;
             DBManager.username = usernameField.text;
             welcomUserText.text = $"Welcome {DBManager.username}";

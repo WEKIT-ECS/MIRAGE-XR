@@ -7,7 +7,7 @@ namespace MirageXR
 {
     public class BrandCustomizer : MonoBehaviour
     {
-        private static BrandManager brandManager => RootObject.Instance.brandManager;
+        private static BrandManager brandManager => RootObject.Instance.BrandManager;
 
         private void Start()
         {

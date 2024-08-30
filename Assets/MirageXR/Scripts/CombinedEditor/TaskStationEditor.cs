@@ -10,9 +10,9 @@ using Action = MirageXR.Action;
 [RequireComponent(typeof(TaskStationStateController), typeof(ObjectManipulator))]
 public class TaskStationEditor : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
 
-    private static GridManager gridManager => RootObject.Instance.gridManager;
+    private static GridManager gridManager => RootObject.Instance.GridManager;
 
     private ObjectManipulator _objectManipulator;
     private TaskStationStateController _taskStationStateController;
@@ -34,7 +34,7 @@ public class TaskStationEditor : MonoBehaviour
         var id = _action == null ? transform.parent.parent.name : _action.id;
         
         var detectableId = id.Replace("TS-", "WA-");
-        _detectable = RootObject.Instance.workplaceManager.GetDetectable(detectableId);
+        _detectable = RootObject.Instance.WorkplaceManager.GetDetectable(detectableId);
         _objectManipulator.HostTransform = GameObject.Find(_detectable.id).transform;
 
         try
@@ -110,7 +110,7 @@ public class TaskStationEditor : MonoBehaviour
     private void RecordTaskStationPosition()
     {
         var source = _objectManipulator.HostTransform.gameObject;
-        var anchor = RootObject.Instance.calibrationManager.anchor;
+        var anchor = RootObject.Instance.CalibrationManager.anchor;
 
         var position = anchor.InverseTransformPoint(source.transform.position);
         var rotation = Quaternion.Inverse(anchor.rotation) * source.transform.rotation;

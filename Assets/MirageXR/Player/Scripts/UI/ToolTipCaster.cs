@@ -23,7 +23,7 @@ namespace MirageXR
         public void OnPointerEnter(PointerEventData eventData)
         {
             //Only on Hololens
-            if (!RootObject.Instance.platformManager.WorldSpaceUi) return;
+            if (!RootObject.Instance.PlatformManager.WorldSpaceUi) return;
 
             CreateTooltip();
         }
@@ -31,7 +31,7 @@ namespace MirageXR
         public void OnPointerExit(PointerEventData eventData)
         {
             //Only on Hololens
-            if (!RootObject.Instance.platformManager.WorldSpaceUi) return;
+            if (!RootObject.Instance.PlatformManager.WorldSpaceUi) return;
 
             DestroyToolTip();
         }
@@ -39,7 +39,7 @@ namespace MirageXR
         public void OnPointerClick(PointerEventData eventData)
         {
             //Only on Hololens
-            if (!RootObject.Instance.platformManager.WorldSpaceUi) return;
+            if (!RootObject.Instance.PlatformManager.WorldSpaceUi) return;
 
             DestroyToolTip();
         }

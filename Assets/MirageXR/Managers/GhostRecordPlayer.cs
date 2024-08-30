@@ -7,7 +7,7 @@ namespace MirageXR
 {
     public class GhostRecordPlayer : MonoBehaviour
     {
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
         [SerializeField] private Transform _head;
 
         [SerializeField] private Transform _rightHand;

@@ -170,7 +170,7 @@ namespace MirageXR
                 _activityRestorer.RestoreActions(activity, restoreId);
             }
 
-            await RootObject.Instance.workplaceManager.LoadWorkplace(_activity.workplace);
+            await RootObject.Instance.WorkplaceManager.LoadWorkplace(_activity.workplace);
 
             await StartActivity();
             IsReady = true;
@@ -678,7 +678,7 @@ namespace MirageXR
         public async Task AddActionToBegin(Vector3 position, bool hasImageMarker = false)
         {
             var newAction = CreateAction();
-            await RootObject.Instance.workplaceManager.AddPlace(newAction, position);
+            await RootObject.Instance.WorkplaceManager.AddPlace(newAction, position);
 
             _activity.start = newAction.id;
             _activity.actions.Insert(0, newAction);
@@ -705,7 +705,7 @@ namespace MirageXR
             var newAction = CreateAction();
 
             // create a new workplace place
-            await RootObject.Instance.workplaceManager.AddPlace(newAction, position);
+            await RootObject.Instance.WorkplaceManager.AddPlace(newAction, position);
 
             int indexOfActive = -1;
 
@@ -848,7 +848,7 @@ namespace MirageXR
             {
                 if (!commonToggleObjects.Contains(toggleObject))
                 {
-                    RootObject.Instance.augmentationManager.DeleteAugmentation(toggleObject, _activity.actions[indexToDelete]);
+                    RootObject.Instance.AugmentationManager.DeleteAugmentation(toggleObject, _activity.actions[indexToDelete]);
                 }
             }
 
@@ -856,7 +856,7 @@ namespace MirageXR
             _activity.actions.RemoveAt(indexToDelete);
 
             //Remove action from workplace
-            RootObject.Instance.workplaceManager.DeletePlace(idToDelete);
+            RootObject.Instance.WorkplaceManager.DeletePlace(idToDelete);
 
             RegenerateActionsList();
 
@@ -907,7 +907,7 @@ namespace MirageXR
             }
 
             var workplaceId = string.Format(WORKPLACE_ID_FORMAT, id);
-            RootObject.Instance.workplaceManager.workplace.id = workplaceId;
+            RootObject.Instance.WorkplaceManager.workplace.id = workplaceId;
             _activity.workplace = workplaceId;
             _newIdGenerated = true;
         }

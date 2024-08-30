@@ -76,7 +76,7 @@ namespace MirageXR
             gameObject.name = InstructorData.CharacterName;
             PlayAnimationClip(InstructorData.AnimationClip);
             
-            RootObject.Instance.virtualInstructorManager.AddInstructor(this);
+            RootObject.Instance.VirtualInstructorManager.AddInstructor(this);
 
             return base.Init(toggleObject);
         }
@@ -109,9 +109,9 @@ namespace MirageXR
         public async Task<AudioClip> AskVirtualInstructor(AudioClip inputAudio )
         {
             string context = CreateContext();
-            var question = await RootObject.Instance.aiManager.ConvertSpeechToTextAsync(inputAudio, InstructorData.SpeechToTextModel.ApiName);
-            var response = await RootObject.Instance.aiManager.SendMessageToAssistantAsync(InstructorData.LanguageModel.ApiName, question, context);
-            var clip = await RootObject.Instance.aiManager.ConvertTextToSpeechAsync(response, InstructorData.TextToSpeechModel.ApiName);
+            var question = await RootObject.Instance.AIManager.ConvertSpeechToTextAsync(inputAudio, InstructorData.SpeechToTextModel.ApiName);
+            var response = await RootObject.Instance.AIManager.SendMessageToAssistantAsync(InstructorData.LanguageModel.ApiName, question, context);
+            var clip = await RootObject.Instance.AIManager.ConvertTextToSpeechAsync(response, InstructorData.TextToSpeechModel.ApiName);
             UpdateHistory(question, response);
             return clip;
         }
@@ -128,7 +128,7 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-            RootObject.Instance.virtualInstructorManager.RemoveInstructor(this);
+            RootObject.Instance.VirtualInstructorManager.RemoveInstructor(this);
         }
     }
 }

@@ -6,9 +6,9 @@ using UnityEngine.UI;
 
 public class ActivitySettings : PopupBase
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
 
-    private static MoodleManager moodleManager => RootObject.Instance.moodleManager;
+    private static MoodleManager moodleManager => RootObject.Instance.MoodleManager;
 
     [SerializeField] private Toggle _togglePublicUpload;
     [SerializeField] private Toggle _toggleUploadToCloud;
@@ -254,7 +254,7 @@ public class ActivitySettings : PopupBase
 
     private async void DeleteFromServer()
     {
-        var result = await RootObject.Instance.moodleManager.DeleteArlem(_container.ItemID, _container.FileIdentifier);
+        var result = await RootObject.Instance.MoodleManager.DeleteArlem(_container.ItemID, _container.FileIdentifier);
         if (result)
         {
             RootView.Instance.activityListView.UpdateListView();

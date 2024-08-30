@@ -20,7 +20,7 @@ namespace MirageXR
             var sun = Instantiate(sunPrefab, transform.position * Random.Range(2, 5), Quaternion.Euler(50, -30, 0));
 
             // disable shadow on Hololens
-            if (RootObject.Instance.platformManager.WorldSpaceUi)
+            if (RootObject.Instance.PlatformManager.WorldSpaceUi)
                 sun.GetComponent<Light>().shadows = LightShadows.None;
 
             // create 4 point lights

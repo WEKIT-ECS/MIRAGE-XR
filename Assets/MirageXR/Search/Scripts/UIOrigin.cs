@@ -8,7 +8,7 @@ using UnityEngine;
 /// </summary>
 public class UIOrigin : MonoBehaviour
 {
-    private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
+    private static FloorManagerWrapper floorManager => RootObject.Instance.FloorManager;
 
     [Tooltip("Layer mask that filters for objects belonging to the floor, e.g. the spatial mapping")]
     [SerializeField] private LayerMask floorLayer;

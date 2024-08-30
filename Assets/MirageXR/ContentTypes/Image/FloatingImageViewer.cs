@@ -13,7 +13,7 @@ namespace MirageXR
     {
         private const string MAIN_TEXTUERE = "_MainTex";
 
-        private ActivityManager activityManager => RootObject.Instance.activityManager;
+        private ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
 
         [Tooltip("Image file. .jpg and .png formats supported")]
 

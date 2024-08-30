@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class GridView : PopupBase
 {
-    private static GridManager gridManager => RootObject.Instance.gridManager;
+    private static GridManager gridManager => RootObject.Instance.GridManager;
 
     public class IntHolder : ObjectHolder<float> { }
 

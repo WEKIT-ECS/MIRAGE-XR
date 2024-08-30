@@ -32,7 +32,7 @@ public class StepsListItem : MonoBehaviour
         _number = number;
         _txtStepName.text = _step.instruction.title;
         _txtNumber.text = _number.ToString("00");
-        var isCurrent = _step.id == RootObject.Instance.activityManager.ActiveActionId;
+        var isCurrent = _step.id == RootObject.Instance.ActivityManagerOld.ActiveActionId;
         _stepCurrentImage.SetActive(isCurrent);
         _stepDoneImage.SetActive(_step.isCompleted && !isCurrent);
     }

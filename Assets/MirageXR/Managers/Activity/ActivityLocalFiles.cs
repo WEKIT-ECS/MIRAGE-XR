@@ -26,7 +26,7 @@ namespace MirageXR
                 var json = ActivityParser.Serialize(activity);
                 File.WriteAllText(recFilePath, json);
                 EventManager.ActivitySaved();
-                RootObject.Instance.workplaceManager.SaveWorkplace();
+                RootObject.Instance.WorkplaceManager.SaveWorkplace();
             }
             catch (Exception e)
             {

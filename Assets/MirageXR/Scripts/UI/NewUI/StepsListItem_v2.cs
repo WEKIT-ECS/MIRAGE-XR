@@ -8,7 +8,7 @@ using Step = MirageXR.Action;
 
 public class StepsListItem_v2 : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
 
     [SerializeField] private TMP_Text _txtNumber;
     [SerializeField] private TMP_Text _txtStepName;
@@ -59,7 +59,7 @@ public class StepsListItem_v2 : MonoBehaviour
 
         _txtStepName.text = _step.instruction.title;
         _txtNumber.text = (_number + 1).ToString("00");
-        var isCurrent = _step.id == RootObject.Instance.activityManager.ActiveActionId;
+        var isCurrent = _step.id == RootObject.Instance.ActivityManagerOld.ActiveActionId;
         _stepCurrentImage.SetActive(isCurrent);
         _stepSelected.SetActive(isCurrent);
         _stepDoneImage.SetActive(_step.isCompleted && !isCurrent);

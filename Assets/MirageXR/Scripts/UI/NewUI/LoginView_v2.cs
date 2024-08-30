@@ -55,7 +55,7 @@ public class LoginView_v2 : PopupBase
     private async Task Login(string username, string password)
     {
         LoadView.Instance.Show();
-        var result = await RootObject.Instance.moodleManager.Login(username, password);
+        var result = await RootObject.Instance.MoodleManager.Login(username, password);
         LoadView.Instance.Hide();
         if (result)
         {

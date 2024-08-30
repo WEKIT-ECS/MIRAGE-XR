@@ -127,7 +127,7 @@ namespace MirageXR
         {
             var actionObject = ActiveCard.GetComponent<ActivityCard>().ActionObject;
             actionObject.isCompleted = true;
-            await RootObject.Instance.activityManager.DeactivateAction(actionObject.id);
+            await RootObject.Instance.ActivityManagerOld.DeactivateAction(actionObject.id);
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace MirageXR
         /// </summary>
         public void Previous()
         {
-            RootObject.Instance.activityManager.ActivatePreviousAction();
+            RootObject.Instance.ActivityManagerOld.ActivatePreviousAction();
         }
 
         private void ShowCards()

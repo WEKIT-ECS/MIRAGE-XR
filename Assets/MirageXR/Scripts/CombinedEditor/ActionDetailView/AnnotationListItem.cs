@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class AnnotationListItem : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
     [SerializeField] private Text textField;
     [SerializeField] private InputField startStepInput;
     [SerializeField] private InputField endStepInput;
@@ -125,7 +125,7 @@ public class AnnotationListItem : MonoBehaviour
             startStepInput.text = startStepInput.text;
         }
 
-        RootObject.Instance.augmentationManager.AddAllAugmentationsBetweenSteps(startIndex, endIndex, DisplayedAnnotation, Vector3.zero);
+        RootObject.Instance.AugmentationManager.AddAllAugmentationsBetweenSteps(startIndex, endIndex, DisplayedAnnotation, Vector3.zero);
 
         // On editing the keep alive of the character in each step, save the data (Can use for other augmentations also if needed
         if (DisplayedAnnotation.predicate.StartsWith("char"))

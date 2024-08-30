@@ -33,7 +33,7 @@ namespace MirageXR
 
         private async void Start()
         {
-            if (RootObject.Instance.platformManager.WorldSpaceUi)
+            if (RootObject.Instance.PlatformManager.WorldSpaceUi)
             {
                 RefreshActivityList();
                 await Task.Delay(1);
@@ -49,7 +49,7 @@ namespace MirageXR
             CollectedContainers = AddActivitiesToDictionary(CollectedContainers, activities);
 
             // the records on the server should be shown after the local records
-            List<Session> sessions = await RootObject.Instance.moodleManager.GetArlemList();
+            List<Session> sessions = await RootObject.Instance.MoodleManager.GetArlemList();
             if (sessions != null)
                 CollectedContainers = AddSessionsToDictionary(CollectedContainers, sessions);
 

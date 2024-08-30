@@ -60,7 +60,7 @@ public class FloorManagerWrapper : MonoBehaviour
     public void SetFloor(PlaneId planeId, Vector3 position)
     {
         _floorManager.SetFloor(planeId, position);
-        RootObject.Instance.planeManager.SelectPlane(planeId);
+        RootObject.Instance.PlaneManager.SelectPlane(planeId);
     }
 
     private IFloorManager CreateFloorManager()

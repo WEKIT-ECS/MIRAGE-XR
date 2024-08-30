@@ -157,7 +157,7 @@ public class AudioStreamPlayer : MonoBehaviour
         pause.gameObject.SetActive(false);
         play.gameObject.SetActive(false);
         var massage = "Hi I am " + _model.Name;
-        AudioClip clip = await RootObject.Instance.aiManager.ConvertTextToSpeechAsync(massage, _model.ApiName);
+        AudioClip clip = await RootObject.Instance.AIManager.ConvertTextToSpeechAsync(massage, _model.ApiName);
         return clip;
     }
 

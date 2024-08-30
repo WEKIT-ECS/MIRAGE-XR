@@ -76,7 +76,7 @@ public class ActivityListView_v2 : BaseView
 
         if (_orderByRelavance)
         {
-            var activityList = await RootObject.Instance.moodleManager.GetArlemList();
+            var activityList = await RootObject.Instance.MoodleManager.GetArlemList();
             return OrderByRelavance(activityList).Values.ToList();
         }
 
@@ -93,7 +93,7 @@ public class ActivityListView_v2 : BaseView
             }
         });
 
-        var remoteList = await RootObject.Instance.moodleManager.GetArlemList();
+        var remoteList = await RootObject.Instance.MoodleManager.GetArlemList();
         remoteList?.ForEach(t =>
         {
             if (dictionary.ContainsKey(t.sessionid))
@@ -166,15 +166,15 @@ public class ActivityListView_v2 : BaseView
     {
         LoadView.Instance.Show();
         RootView_v2.Instance.OnActivityLoaded();
-        await RootObject.Instance.activityManager.ActivateFirstAction();
+        await RootObject.Instance.ActivityManagerOld.ActivateFirstAction();
         LoadView.Instance.Hide();
     }
 
     private async void OnNewActivityChanged()
     {
         LoadView.Instance.Show();
-        await RootObject.Instance.editorSceneService.LoadEditorAsync();
-        await RootObject.Instance.activityManager.CreateNewActivity();
+        await RootObject.Instance.EditorSceneService.LoadEditorAsync();
+        await RootObject.Instance.ActivityManagerOld.CreateNewActivity();
         LoadView.Instance.Hide();
     }
 

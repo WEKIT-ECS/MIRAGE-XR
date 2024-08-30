@@ -8,8 +8,8 @@ namespace MirageXR
 {
     public class UiManager : MonoBehaviour
     {
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
-        private static CalibrationManager calibrationManager => RootObject.Instance.calibrationManager;
+        private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
+        private static CalibrationManager calibrationManager => RootObject.Instance.CalibrationManager;
 
         [SerializeField] private bool IsMenuVisible;
         private bool _inAction;
@@ -92,7 +92,7 @@ namespace MirageXR
         {
             HideMenu();
             WelcomeMessage = string.Empty;
-            RootObject.Instance.calibrationManager.DisableCalibration();
+            RootObject.Instance.CalibrationManager.DisableCalibration();
         }
 
         private void MoveActivityList()
@@ -198,13 +198,13 @@ namespace MirageXR
         private void CreateCalibrationGuide()
         {
             // do not create if it is exist already
-            if (!RootObject.Instance.platformManager.WorldSpaceUi || GameObject.Find("CalibrationGuide(Clone)") || GameObject.Find("CalibrationGuide"))
+            if (!RootObject.Instance.PlatformManager.WorldSpaceUi || GameObject.Find("CalibrationGuide(Clone)") || GameObject.Find("CalibrationGuide"))
                 return;
 
             if (IsCalibrated) // create the guild if activity is not calibrated.
             {
                 var prefab = Resources.Load<GameObject>("Prefabs/Calibration/CalibrationGuide");
-                var position = RootObject.Instance.platformManager.GetTaskStationPosition() - Vector3.forward * 0.1f;
+                var position = RootObject.Instance.PlatformManager.GetTaskStationPosition() - Vector3.forward * 0.1f;
                 var guildeObject = Instantiate(prefab, position, Camera.main.transform.rotation);
                 guildeObject.name = "CalibrationGuide";
                 var okButton = guildeObject.transform.FindDeepChild("OKButton");
@@ -231,9 +231,9 @@ namespace MirageXR
             // Add a small delay just be sure that the message is stopped.
             await Task.Delay(250);
 
-            if (RootObject.Instance.platformManager.WorldSpaceUi)
+            if (RootObject.Instance.PlatformManager.WorldSpaceUi)
             {
-                RootObject.Instance.calibrationManager.DisableCalibration();
+                RootObject.Instance.CalibrationManager.DisableCalibration();
             }
 
             if (IsCalibrated)
@@ -246,9 +246,9 @@ namespace MirageXR
                 // Maggie.Speak("Workplace anchors have not been calibrated. Please run the calibration before starting the activity.");
                 CreateCalibrationGuide();
 
-                if (RootObject.Instance.platformManager.WorldSpaceUi)
+                if (RootObject.Instance.PlatformManager.WorldSpaceUi)
                 {
-                    RootObject.Instance.calibrationManager.EnableCalibration(true);
+                    RootObject.Instance.CalibrationManager.EnableCalibration(true);
                 }
 
                 // Hile loading text
@@ -353,7 +353,7 @@ namespace MirageXR
             if (activityManager.ActiveAction == null) return;
 
             activityManager.SaveData();
-            if (RootObject.Instance.platformManager.WorldSpaceUi)
+            if (RootObject.Instance.PlatformManager.WorldSpaceUi)
                 Maggie.Speak("Save completed");
         }
 
@@ -534,13 +534,13 @@ namespace MirageXR
         public void RestartPlayerTouch()
         {
             EventManager.Click();
-            RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
+            RootObject.Instance.ActivityManagerOld.PlayerReset().AsAsyncVoid();
         }
 
         public void RestartPlayerVoice()
         {
             Maggie.Ok();
-            RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
+            RootObject.Instance.ActivityManagerOld.PlayerReset().AsAsyncVoid();
         }
 
         public void ClearAllVoice()
