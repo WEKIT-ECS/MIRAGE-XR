@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class DaimonManager : MonoBehaviour
 {
-    private static MirageXR.ActivityManager activityManager => MirageXR.RootObject.Instance.activityManager;
+    private static MirageXR.ActivityManager activityManager => MirageXR.RootObject.Instance.ActivityManagerOld;
 
     public SpeechInputService mySpeechInputMgr { get; private set; }
     private SpeechOutputService mySpeechOutputMgr;

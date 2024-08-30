@@ -102,7 +102,7 @@ namespace MirageXR
             var arlemName = string.Empty;
 
 
-            try { arlemName = RootObject.Instance.activityManager.Activity.name; }
+            try { arlemName = RootObject.Instance.ActivityManagerOld.Activity.name; }
             catch (Exception) { /*ignore*/ }
 
 

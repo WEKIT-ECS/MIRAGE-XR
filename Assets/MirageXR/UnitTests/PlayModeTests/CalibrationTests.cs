@@ -300,7 +300,7 @@ namespace Tests
         private Task StartDummyActivity(string activityId)
         {
             // parse activity model to begin startup process
-            return rootObject.activityManager.LoadActivity(activityId);
+            return rootObject.ActivityManagerOld.LoadActivity(activityId);
         }
 
         private void OnWorkplaceLoaded()
@@ -310,8 +310,8 @@ namespace Tests
 
         private async Task PerformCalibration(bool isEditMode)
         {
-            rootObject.activityManager.EditModeActive = isEditMode;
-            await rootObject.workplaceManager.CalibrateWorkplace();
+            rootObject.ActivityManagerOld.EditModeActive = isEditMode;
+            await rootObject.WorkplaceManager.CalibrateWorkplace();
             isCalibrated = true;
         }
 
@@ -376,11 +376,11 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            var task = rootObject.activityManager.LoadActivity("resources://calibrationTest-activity");
+            var task = rootObject.ActivityManagerOld.LoadActivity("resources://calibrationTest-activity");
             yield return new WaitUntil(() => task.IsCompleted);
 
             int testFileLengthActivity = ActivityParser.Serialize(testActivity).Length;
-            int actlFileLengthActivity = ActivityParser.Serialize(rootObject.activityManager.Activity).Length;
+            int actlFileLengthActivity = ActivityParser.Serialize(rootObject.ActivityManagerOld.Activity).Length;
 
             Assert.AreEqual(testFileLengthActivity, actlFileLengthActivity);
         }
@@ -390,11 +390,11 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            var task = rootObject.activityManager.LoadActivity("resources://calibrationTest-activity");
+            var task = rootObject.ActivityManagerOld.LoadActivity("resources://calibrationTest-activity");
             yield return new WaitUntil(() => task.IsCompleted);
 
             int testFileLengthWorkplace = WorkplaceParser.Serialize(testWorkplace).Length;
-            int actlFileLengthWorkplace = WorkplaceParser.Serialize(rootObject.workplaceManager.workplace).Length;
+            int actlFileLengthWorkplace = WorkplaceParser.Serialize(rootObject.WorkplaceManager.workplace).Length;
 
             Assert.AreEqual(testFileLengthWorkplace, actlFileLengthWorkplace);
         }
@@ -437,7 +437,7 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int d = 0; d < rootObject.workplaceManager.workplace.detectables.Count; d++)
+            for (int d = 0; d < rootObject.WorkplaceManager.workplace.detectables.Count; d++)
             {
                 var testDetectablePosition = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).x;
                 var position = detectableContainer.transform.GetChild(d).localPosition;
@@ -452,7 +452,7 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int d = 0; d < rootObject.workplaceManager.workplace.detectables.Count; d++)
+            for (int d = 0; d < rootObject.WorkplaceManager.workplace.detectables.Count; d++)
             {
                 var testDetectablePosition = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).y;
                 var position = detectableContainer.transform.GetChild(d).localPosition;
@@ -467,7 +467,7 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int d = 0; d < rootObject.workplaceManager.workplace.detectables.Count; d++)
+            for (int d = 0; d < rootObject.WorkplaceManager.workplace.detectables.Count; d++)
             {
                 float testDetectablePosition = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).z;
                 var position = detectableContainer.transform.GetChild(d).localPosition;
@@ -482,7 +482,7 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int d = 0; d < rootObject.workplaceManager.workplace.detectables.Count; d++)
+            for (int d = 0; d < rootObject.WorkplaceManager.workplace.detectables.Count; d++)
             {
                 var testDetectableRotation = Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_rotation);
                 var localRotation = detectableContainer.transform.GetChild(d).localRotation;
@@ -496,12 +496,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < rootObject.workplaceManager.workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.WorkplaceManager.workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < rootObject.workplaceManager.workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.WorkplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiPosition = testWorkplace.places[place].pois[poi].x_offset;
@@ -521,12 +521,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < rootObject.workplaceManager.workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.WorkplaceManager.workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < rootObject.workplaceManager.workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.WorkplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiPosition = testWorkplace.places[place].pois[poi].y_offset;
@@ -545,12 +545,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < rootObject.workplaceManager.workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.WorkplaceManager.workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < rootObject.workplaceManager.workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.WorkplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiPosition = testWorkplace.places[place].pois[poi].z_offset;
@@ -570,11 +570,11 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < rootObject.workplaceManager.workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.WorkplaceManager.workplace.places.Count; place++)
             {
                 Transform placeTransform = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < rootObject.workplaceManager.workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.WorkplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // set expected value
                     Poi poiObject = testWorkplace.places[place].pois[poi];
@@ -599,12 +599,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < rootObject.workplaceManager.workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.WorkplaceManager.workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < rootObject.workplaceManager.workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.WorkplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiScale = Utilities.ParseStringToVector3(testWorkplace.places[place].pois[poi].scale).x;
@@ -623,12 +623,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < rootObject.workplaceManager.workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.WorkplaceManager.workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < rootObject.workplaceManager.workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.WorkplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiScale = Utilities.ParseStringToVector3(testWorkplace.places[place].pois[poi].scale).y;
@@ -647,12 +647,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < rootObject.workplaceManager.workplace.places.Count; place++)
+            for (int place = 0; place < rootObject.WorkplaceManager.workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < rootObject.workplaceManager.workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < rootObject.WorkplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiScale = Utilities.ParseStringToVector3(testWorkplace.places[place].pois[poi].scale).z;

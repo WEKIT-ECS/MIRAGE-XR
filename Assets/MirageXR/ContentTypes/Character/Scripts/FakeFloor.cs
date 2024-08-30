@@ -7,9 +7,9 @@ namespace MirageXR
     {
         private const float OFFSET = -0.05f;
 
-        private static PlaneManagerWrapper planeManager => RootObject.Instance.planeManager;
+        private static PlaneManagerWrapper planeManager => RootObject.Instance.PlaneManager;
 
-        private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
+        private static FloorManagerWrapper floorManager => RootObject.Instance.FloorManager;
 
 
         private void Start()

@@ -15,7 +15,7 @@ namespace MirageXR
     /// </summary>
     public class WorkplaceManager
     {
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
 
         // Containers for all the main types.
         public Transform thingContainer { get; private set; }
@@ -109,7 +109,7 @@ namespace MirageXR
             }
 
             var poseСopier = detectableContainer.parent.gameObject.AddComponent<PoseSynchronizer>();
-            poseСopier.target = RootObject.Instance.calibrationManager.anchor;
+            poseСopier.target = RootObject.Instance.CalibrationManager.anchor;
             poseСopier.localSpace = false;
         }
 

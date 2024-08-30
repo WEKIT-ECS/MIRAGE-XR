@@ -10,7 +10,7 @@ using UnityEngine.UI;
 /// </summary>
 public class GhosttrackEditor : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
 
     [SerializeField] private Button _startRecordingButton;
     [SerializeField] private Button _stopRecordingButton;
@@ -84,7 +84,7 @@ public class GhosttrackEditor : MonoBehaviour
 
     public void OnAccept()
     {
-        var workplaceManager = RootObject.Instance.workplaceManager;
+        var workplaceManager = RootObject.Instance.WorkplaceManager;
         Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
         var originT = GameObject.Find(detectable.id);
         var offset = MirageXR.Utilities.CalculateOffset(_augOrigin.position, _augOrigin.rotation, originT.transform.position, originT.transform.rotation);
@@ -121,7 +121,7 @@ public class GhosttrackEditor : MonoBehaviour
         }
         else
         {
-            _annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(_action, offset);
+            _annotationToEdit = RootObject.Instance.AugmentationManager.AddAugmentation(_action, offset);
             _annotationToEdit.predicate = "ghosttracks";
             _annotationToEdit.scale = 1f;
         }
@@ -138,7 +138,7 @@ public class GhosttrackEditor : MonoBehaviour
         _annotationToEdit.position = _augOrigin.position.ToString();
         _annotationToEdit.rotation = _augOrigin.rotation.ToString();
 
-        var audioAnnotation = RootObject.Instance.augmentationManager.AddAugmentation(_action, offset);
+        var audioAnnotation = RootObject.Instance.AugmentationManager.AddAugmentation(_action, offset);
         audioAnnotation.predicate = "audio";
         audioAnnotation.scale = 0.5f;
         audioAnnotation.url = $"http://{_audioFileName}";

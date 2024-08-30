@@ -9,11 +9,11 @@ using Random = UnityEngine.Random;
 
 public class CalibrationManager : MonoBehaviour
 {
-    private static BrandManager brandManager => RootObject.Instance.brandManager;
+    private static BrandManager brandManager => RootObject.Instance.BrandManager;
 
-    private static ImageTargetManagerWrapper imageTargetManager => RootObject.Instance.imageTargetManager;
+    private static ImageTargetManagerWrapper imageTargetManager => RootObject.Instance.ImageTargetManager;
 
-    private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
+    private static FloorManagerWrapper floorManager => RootObject.Instance.FloorManager;
 
     private static float ANIMATION_TIME = 5f;
     private static float IMAGE_TARGET_WIGTH = 0.19f;
@@ -190,7 +190,7 @@ public class CalibrationManager : MonoBehaviour
 
     public async Task ApplyCalibrationAsync(bool resetAnchor)
     {
-        await RootObject.Instance.workplaceManager.CalibrateWorkplace(resetAnchor);
+        await RootObject.Instance.WorkplaceManager.CalibrateWorkplace(resetAnchor);
         _isCalibrated = true;
     }
 

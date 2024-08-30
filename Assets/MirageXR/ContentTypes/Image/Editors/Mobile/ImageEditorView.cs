@@ -14,9 +14,9 @@ public class ImageEditorView : PopupEditorBase
     private const int MAX_PICTURE_SIZE = 1024;
     private const float IMAGE_HEIGHT = 630f;
 
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
 
-    private static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
+    private static AugmentationManager augmentationManager => RootObject.Instance.AugmentationManager;
 
     public override ContentType editorForType => ContentType.IMAGE;
 
@@ -193,13 +193,13 @@ public class ImageEditorView : PopupEditorBase
 
     private void CaptureImage()
     {
-        RootObject.Instance.imageTargetManager.enabled = false;
+        RootObject.Instance.ImageTargetManager.enabled = false;
         NativeCameraController.TakePicture(OnPictureTaken);
     }
 
     private void OnPictureTaken(bool result, Texture2D texture2D)
     {
-        RootObject.Instance.imageTargetManager.enabled = true;
+        RootObject.Instance.ImageTargetManager.enabled = true;
         if (!result)
         {
             return;

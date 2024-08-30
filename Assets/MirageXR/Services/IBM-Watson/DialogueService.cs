@@ -25,7 +25,7 @@ public class DialogueService : MonoBehaviour
     private ExerciseController dEC;
 
     private MirageXR.CharacterController _character;
-    private static MirageXR.ActivityManager activityManager => MirageXR.RootObject.Instance.activityManager;
+    private static MirageXR.ActivityManager activityManager => MirageXR.RootObject.Instance.ActivityManagerOld;
 
     [Space(10)]
 
@@ -112,7 +112,7 @@ public class DialogueService : MonoBehaviour
 
             try
             {
-                var openAIManager = RootObject.Instance.openAIManager;
+                var openAIManager = RootObject.Instance.OpenAIManager;
                 if (openAIManager.IsAssistantExists(openAIassistantId))
                 {
                     var response = await openAIManager.SendMessageToAssistant(openAIassistantId, text);
@@ -269,14 +269,14 @@ public class DialogueService : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(openAIassistantId))
         {
-            await RootObject.Instance.openAIManager.DeleteAssistantAsync(openAIassistantId);
+            await RootObject.Instance.OpenAIManager.DeleteAssistantAsync(openAIassistantId);
             openAIassistantId = null;
         }
 
         AppLog.LogInfo($"[DialogueService] Received prompt ='{text}'");
         // store the prompt
         AIprompt = text;
-        var assistant = await RootObject.Instance.openAIManager.CreateAssistantAsync("assistant", AIprompt);
+        var assistant = await RootObject.Instance.OpenAIManager.CreateAssistantAsync("assistant", AIprompt);
         if (assistant != null)
         {
             openAIassistantId = assistant.Id;

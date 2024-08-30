@@ -41,7 +41,7 @@ namespace MirageXR
             }
             else
             {
-                var workplaceManager = RootObject.Instance.workplaceManager;
+                var workplaceManager = RootObject.Instance.WorkplaceManager;
                 var detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
                 var originT = GameObject.Find(detectable.id);
 
@@ -50,7 +50,7 @@ namespace MirageXR
                     originT.transform.position,
                     originT.transform.rotation);
 
-                annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
+                annotationToEdit = RootObject.Instance.AugmentationManager.AddAugmentation(action, offset);
                 annotationToEdit.option = modelName;
                 annotationToEdit.predicate = "3d:" + modelName;
                 annotationToEdit.url = "3d:" + modelName;
@@ -59,7 +59,7 @@ namespace MirageXR
             EventManager.ActivateObject(annotationToEdit);
             EventManager.NotifyActionModified(action);
             
-            RootObject.Instance.activityManager.SaveData();
+            RootObject.Instance.ActivityManagerOld.SaveData();
 
             Close();
         }

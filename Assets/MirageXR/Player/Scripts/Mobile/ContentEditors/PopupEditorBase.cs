@@ -9,9 +9,9 @@ public abstract class PopupEditorBase : PopupBase
     protected const string HTTP_PREFIX = "http://";
     protected const string RESOURCES_PREFIX = "resources://";
 
-    protected static ActivityManager activityManager => RootObject.Instance.activityManager;
+    protected static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
 
-    protected static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
+    protected static AugmentationManager augmentationManager => RootObject.Instance.AugmentationManager;
 
     [SerializeField] protected Image _icon;
     [SerializeField] protected TMP_Text _txtLabel;
@@ -35,7 +35,7 @@ public abstract class PopupEditorBase : PopupBase
     protected virtual void OnAccept()
     {
         EventManager.NotifyActionModified(_step);
-        RootObject.Instance.activityManager.SaveData();
+        RootObject.Instance.ActivityManagerOld.SaveData();
     }
 
     protected virtual void UpdateBaseView()
@@ -46,7 +46,7 @@ public abstract class PopupEditorBase : PopupBase
 
     protected virtual Vector3 GetOffset()
     {
-        var workplaceManager = RootObject.Instance.workplaceManager;
+        var workplaceManager = RootObject.Instance.WorkplaceManager;
         var detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_step.id));
         var annotationStartingPoint = ActionEditor.Instance.GetDefaultAugmentationStartingPoint();
         var originT = GameObject.Find(detectable.id);   // TODO: replace by direct reference to the object

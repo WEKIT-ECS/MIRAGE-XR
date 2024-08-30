@@ -12,7 +12,7 @@ namespace MirageXR
 {
     public static class WorkplaceObjectFactory
     {
-        private static WorkplaceManager workplaceManager => RootObject.Instance.workplaceManager;
+        private static WorkplaceManager workplaceManager => RootObject.Instance.WorkplaceManager;
 
         public static void CreateDetectables(List<Detectable> list, string debug)
         {
@@ -47,7 +47,7 @@ namespace MirageXR
             {
                 foreach (var element in list)
                 {
-                    var action = RootObject.Instance.activityManager.Activity.actions.FirstOrDefault(t => t.id == element.id);
+                    var action = RootObject.Instance.ActivityManagerOld.Activity.actions.FirstOrDefault(t => t.id == element.id);
                     await CreatePlaceObject(element, action);
                 }
             }
@@ -179,7 +179,7 @@ namespace MirageXR
                     if (counter == 0)
                     {
                         var poiTemp = Utilities.CreateObject("default", temp.transform);
-                        var action = RootObject.Instance.activityManager.Activity.actions.FirstOrDefault(t => t.id == thing.id);
+                        var action = RootObject.Instance.ActivityManagerOld.Activity.actions.FirstOrDefault(t => t.id == thing.id);
                         await PopulateTaskStation(poiTemp, action);
                     }
 
@@ -319,7 +319,7 @@ namespace MirageXR
                     if (counter == 0)
                     {
                         var poiTemp = Utilities.CreateObject("default", temp.transform);
-                        var action = RootObject.Instance.activityManager.Activity.actions.FirstOrDefault(t => t.id == person.id);
+                        var action = RootObject.Instance.ActivityManagerOld.Activity.actions.FirstOrDefault(t => t.id == person.id);
                         await PopulateTaskStation(poiTemp, action);
                     }
 
@@ -428,7 +428,7 @@ namespace MirageXR
 
                     if (newObject)
                     {
-                        anchorFrame.transform.position = RootObject.Instance.platformManager.GetTaskStationPosition();
+                        anchorFrame.transform.position = RootObject.Instance.PlatformManager.GetTaskStationPosition();
                         anchorFrame.transform.localRotation = Quaternion.identity;
                         anchorFrame.transform.localScale = Vector3.one;
 
@@ -695,7 +695,7 @@ namespace MirageXR
         /// <returns></returns>
         public static (Vector3, Vector3) GetPoseRelativeToCalibrationOrigin(GameObject source)
         {
-            var anchor = RootObject.Instance.calibrationManager.anchor;
+            var anchor = RootObject.Instance.CalibrationManager.anchor;
 
             var position = anchor.InverseTransformPoint(source.transform.position);
             var rotation = Quaternion.Inverse(anchor.rotation) * source.transform.rotation;
@@ -712,9 +712,9 @@ namespace MirageXR
             taskStationEditor.Init(action);
             
             //only for the first taskstation in this step move it to the right of the player
-            var taskStationPos = RootObject.Instance.activityManager.ActionsOfTypeAction.Count == 0 ? Camera.main.transform.right * offsetFromPlayer : Vector3.zero;
+            var taskStationPos = RootObject.Instance.ActivityManagerOld.ActionsOfTypeAction.Count == 0 ? Camera.main.transform.right * offsetFromPlayer : Vector3.zero;
 
-            var isFirstTaskStation = RootObject.Instance.platformManager.WorldSpaceUi && RootObject.Instance.activityManager.EditModeActive;
+            var isFirstTaskStation = RootObject.Instance.PlatformManager.WorldSpaceUi && RootObject.Instance.ActivityManagerOld.EditModeActive;
             instance.transform.localPosition = isFirstTaskStation ? taskStationPos : Vector3.zero;
             instance.transform.localRotation = Quaternion.identity;
         }

@@ -4,9 +4,9 @@ using UnityEngine.UI;
 
 public class PickAndPlaceEditor : MonoBehaviour
 {
-    private static AugmentationManager _augmentationManager => RootObject.Instance.augmentationManager;
-    private static ActivityManager _activityManager => RootObject.Instance.activityManager;
-    private static WorkplaceManager _workplaceManager => RootObject.Instance.workplaceManager;
+    private static AugmentationManager _augmentationManager => RootObject.Instance.AugmentationManager;
+    private static ActivityManager _activityManager => RootObject.Instance.ActivityManagerOld;
+    private static WorkplaceManager _workplaceManager => RootObject.Instance.WorkplaceManager;
 
     [SerializeField] private Transform _annotationStartingPoint;
     [SerializeField] private InputField _textInputField;

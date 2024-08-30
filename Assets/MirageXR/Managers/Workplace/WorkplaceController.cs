@@ -9,7 +9,7 @@ namespace MirageXR
     /// </summary>
     public class WorkplaceController : MonoBehaviour
     {
-        private static WorkplaceManager workplaceManager => RootObject.Instance.workplaceManager;
+        private static WorkplaceManager workplaceManager => RootObject.Instance.WorkplaceManager;
 
         private void OnEnable()
         {

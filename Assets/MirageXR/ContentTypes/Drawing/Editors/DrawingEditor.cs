@@ -11,7 +11,7 @@ namespace MirageXR
 {
     public class DrawingEditor : MonoBehaviour
     {
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
         [SerializeField] private MrtkSimpleBtn startRecordingButton;
         [SerializeField] private MrtkSimpleBtn stopRecordingButton;
         [SerializeField] private MrtkSimpleBtn acceptButton;
@@ -132,21 +132,21 @@ namespace MirageXR
             }
             else
             {
-                var workplaceManager = RootObject.Instance.workplaceManager;
+                var workplaceManager = RootObject.Instance.WorkplaceManager;
                 Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
                 GameObject originT = GameObject.Find(detectable.id);
 
                 // Offset should always be 0. Positional data are store in the drawing strokes.
                 var offset = Vector3.zero;
 
-                annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
+                annotationToEdit = RootObject.Instance.AugmentationManager.AddAugmentation(action, offset);
                 annotationToEdit.predicate = "drawing";
             }
 
             annotationToEdit.url = $"http://{filename}";
             EventManager.ActivateObject(annotationToEdit);
             EventManager.NotifyActionModified(action);
-            RootObject.Instance.activityManager.SaveData();
+            RootObject.Instance.ActivityManagerOld.SaveData();
 
             Close();
         }
@@ -193,7 +193,7 @@ namespace MirageXR
 
             tiltInstance.SubscribeComponent(this);
 
-            var workplaceManager = RootObject.Instance.workplaceManager;
+            var workplaceManager = RootObject.Instance.WorkplaceManager;
             Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
             GameObject originT = GameObject.Find(detectable.id);
 

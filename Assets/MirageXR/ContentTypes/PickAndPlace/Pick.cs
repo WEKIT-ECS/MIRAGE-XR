@@ -34,7 +34,7 @@ namespace MirageXR
 
         private MeshRenderer _arrowRenderer;
 
-        private static ActivityManager _activityManager => RootObject.Instance.activityManager;
+        private static ActivityManager _activityManager => RootObject.Instance.ActivityManagerOld;
 
         public Vector3 ResetPosition
         {
@@ -74,7 +74,7 @@ namespace MirageXR
             _objectManipulator.OnManipulationEnded.AddListener(OnManipulationEnded);
             _changeModelButton.onClick.AddListener(CapturePickModel);
 
-            _moveMode = RootObject.Instance.activityManager.EditModeActive;
+            _moveMode = RootObject.Instance.ActivityManagerOld.EditModeActive;
             AddHoverGuide(_changeModelButton.gameObject, _ModelButtonHelpText);
             SetArrowWrongColor();
         }

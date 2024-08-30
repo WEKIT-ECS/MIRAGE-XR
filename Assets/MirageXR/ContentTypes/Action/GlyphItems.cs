@@ -6,7 +6,7 @@ namespace MirageXR
 {
     public class GlyphItems : MirageXRPrefab
     {
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
         private ToggleObject _obj;
         private ObjectManipulator _objectManipulator;
         

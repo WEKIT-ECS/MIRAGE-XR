@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-namespace DataModel
+namespace MirageXR.NewDataModel
 {
     [Serializable]
     public class DataModel
@@ -20,6 +20,7 @@ namespace DataModel
     {
         [JsonProperty] public User Creator { get; set; }
         [JsonProperty] public List<User> Contributors { get; set; }
+        [JsonProperty] public bool IsPublic { get; set; }
         [JsonProperty] public string Name { get; set; }
         [JsonProperty] public string Description { get; set; }
         [JsonProperty] public string Language { get; set; } //is it needed?
@@ -65,7 +66,6 @@ namespace DataModel
         [JsonProperty] public string Text { get; set; }
         [JsonProperty] public List<File>? Attachment { get; set; }
     }
-
 
     [Serializable]
     public class RequiredToolsPartsMaterials

@@ -16,9 +16,9 @@ public class StepsListView_v2 : BaseView
     private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg";
     private const int MAX_PICTURE_SIZE = 1024;
 
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
 
-    private static BrandManager brandManager => RootObject.Instance.brandManager;
+    private static BrandManager brandManager => RootObject.Instance.BrandManager;
 
     [Space]
     [SerializeField] private RectTransform _listVerticalContent;
@@ -141,7 +141,7 @@ public class StepsListView_v2 : BaseView
             OnEditModeChanged(activityManager.EditModeActive);
             LoadThumbnail();
 
-            _btnFloorLevel.gameObject.SetActive(RootObject.Instance.floorManager.isFloorDetected);
+            _btnFloorLevel.gameObject.SetActive(RootObject.Instance.FloorManager.isFloorDetected);
         }
         else
         {
@@ -351,7 +351,7 @@ public class StepsListView_v2 : BaseView
     {
         _statusNotCalibrated.SetActive(false);
         _statusCalibrated.SetActive(true);
-        _btnFloorLevel.gameObject.SetActive(RootObject.Instance.floorManager.isFloorDetected);
+        _btnFloorLevel.gameObject.SetActive(RootObject.Instance.FloorManager.isFloorDetected);
     }
 
     private void OnActionCreated(Content action)
@@ -465,15 +465,15 @@ public class StepsListView_v2 : BaseView
 
     private void ShowImageTargetCalibrationView()
     {
-        var isEditMode = RootObject.Instance.activityManager.EditModeActive;
-        var isCalibration = RootObject.Instance.calibrationManager.isCalibrated;
+        var isEditMode = RootObject.Instance.ActivityManagerOld.EditModeActive;
+        var isCalibration = RootObject.Instance.CalibrationManager.isCalibrated;
         PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode && !isCalibration, false, false);
     }
 
     private void ShowMarkerLessCalibrationView()
     {
-        var isEditMode = RootObject.Instance.activityManager.EditModeActive;
-        var isCalibration = RootObject.Instance.calibrationManager.isCalibrated;
+        var isEditMode = RootObject.Instance.ActivityManagerOld.EditModeActive;
+        var isCalibration = RootObject.Instance.CalibrationManager.isCalibrated;
         PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode && !isCalibration, false, true);
     }
 

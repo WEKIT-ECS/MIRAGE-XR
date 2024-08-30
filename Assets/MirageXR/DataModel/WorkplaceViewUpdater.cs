@@ -11,7 +11,7 @@ namespace MirageXR
     // </summary>
     public static class WorkplaceViewUpdater
     {
-        private static WorkplaceManager workplaceManager => RootObject.Instance.workplaceManager;
+        private static WorkplaceManager workplaceManager => RootObject.Instance.WorkplaceManager;
 
         /// <summary>
         /// Sets up the scene by creating all the objects defined in the workplace data model.

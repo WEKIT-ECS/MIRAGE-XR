@@ -11,7 +11,7 @@ namespace MirageXR
 
     public class DrawingPlayer : MirageXRPrefab
     {
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
         private ToggleObject _obj;
 
         [SerializeField] private Tiltbrush tiltbrushPrefab;

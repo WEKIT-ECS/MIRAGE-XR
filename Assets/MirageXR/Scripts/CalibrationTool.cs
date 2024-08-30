@@ -55,7 +55,7 @@ namespace MirageXR
             }
 
             _isTargetFound = true;
-            RootObject.Instance.calibrationManager.OnCalibrationStarted();
+            RootObject.Instance.CalibrationManager.OnCalibrationStarted();
             _calibrationAnimation.PlayAnimation();
             _countdownToEnd = StartCoroutine(WaitAndDo(_animationTime, Calibrate));
         }
@@ -68,7 +68,7 @@ namespace MirageXR
             }
 
             _isTargetFound = false;
-            RootObject.Instance.calibrationManager.OnCalibrationCanceled();
+            RootObject.Instance.CalibrationManager.OnCalibrationCanceled();
             _calibrationAnimation.StopAnimation();
             if (_countdownToEnd != null)
             {
@@ -85,7 +85,7 @@ namespace MirageXR
                 var pose = transform.GetPose();
                 var eulerAngles = pose.rotation.eulerAngles;
                 var rotation = new Vector3(0, eulerAngles.y + eulerAngles.z, 0);
-                RootObject.Instance.calibrationManager.OnCalibrationFinished(new Pose(pose.position, Quaternion.Euler(rotation)));
+                RootObject.Instance.CalibrationManager.OnCalibrationFinished(new Pose(pose.position, Quaternion.Euler(rotation)));
             }
 
             if (_countdownToEnd != null)

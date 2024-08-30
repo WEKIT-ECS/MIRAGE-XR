@@ -15,7 +15,7 @@ namespace MirageXR
 
     public class ObjectFactory : MonoBehaviour
     {
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
 
         private void OnEnable()
         {

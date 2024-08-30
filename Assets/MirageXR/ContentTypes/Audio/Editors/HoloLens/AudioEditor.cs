@@ -9,7 +9,7 @@ using Action = MirageXR.Action;
 
 public class AudioEditor : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
     [SerializeField] private Button startRecordingButton;
     [SerializeField] private Button stopRecordingButton;
     [SerializeField] private Button pauseButton;
@@ -317,7 +317,7 @@ public class AudioEditor : MonoBehaviour
         }
         else
         {
-            var workplaceManager = RootObject.Instance.workplaceManager;
+            var workplaceManager = RootObject.Instance.WorkplaceManager;
             Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
             GameObject originT = GameObject.Find(detectable.id);
 
@@ -329,7 +329,7 @@ public class AudioEditor : MonoBehaviour
                 originT.transform.position,
                 originT.transform.rotation);
 
-            _annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(_action, offset);
+            _annotationToEdit = RootObject.Instance.AugmentationManager.AddAugmentation(_action, offset);
             _annotationToEdit.predicate = "audio";
 
             // save audio type , loop and radius as option

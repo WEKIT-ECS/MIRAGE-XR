@@ -9,7 +9,7 @@ using Content = MirageXR.ToggleObject;
 
 public class ContentListItem_v2 : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
 
     [SerializeField] private TMP_Text _txtType;
     [SerializeField] private TMP_Text _txtName;
@@ -135,7 +135,7 @@ public class ContentListItem_v2 : MonoBehaviour
         RootView_v2.Instance.dialog.ShowMiddle("Warning!", "Are you sure you want to delete this content?",
             "Yes", () =>
             {
-                RootObject.Instance.augmentationManager.DeleteAugmentation(_content);
+                RootObject.Instance.AugmentationManager.DeleteAugmentation(_content);
                 if (_parentView.navigatorId == _content.poi)
                 {
                     TaskStationDetailMenu.Instance.NavigatorTarget = null;
@@ -163,7 +163,7 @@ public class ContentListItem_v2 : MonoBehaviour
 
     private void UpdateStep()
     {
-        RootObject.Instance.augmentationManager.AddAllAugmentationsBetweenSteps(_from, _to, _content, Vector3.zero);
+        RootObject.Instance.AugmentationManager.AddAllAugmentationsBetweenSteps(_from, _to, _content, Vector3.zero);
         if (_type == ContentType.CHARACTER)
         {
             activityManager.SaveData();

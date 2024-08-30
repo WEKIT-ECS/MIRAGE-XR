@@ -41,10 +41,10 @@ namespace MirageXR
                 // SentrySdk.CaptureUserFeedback(eventId, "user@example.com", "It broke.", "The User");
                 SentrySdk.ConfigureScope(scope =>
                 {
-                    if (RootObject.Instance.activityManager.Activity != null && RootObject.Instance.activityManager.SessionId != null)
+                    if (RootObject.Instance.ActivityManagerOld.Activity != null && RootObject.Instance.ActivityManagerOld.SessionId != null)
                     {
-                        scope.SetTag("sessionID", RootObject.Instance.activityManager.SessionId);
-                        scope.SetTag("actionID", RootObject.Instance.activityManager.ActiveActionId);
+                        scope.SetTag("sessionID", RootObject.Instance.ActivityManagerOld.SessionId);
+                        scope.SetTag("actionID", RootObject.Instance.ActivityManagerOld.ActiveActionId);
                     }
                     else
                     {

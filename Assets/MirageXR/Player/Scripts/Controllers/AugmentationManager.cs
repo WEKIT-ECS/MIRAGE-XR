@@ -10,7 +10,7 @@ namespace MirageXR
     {
         private const string AUGMENTATION_FORMAT = "AN-{0}";
 
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
 
         public ToggleObject AddAugmentation(Action action, Vector3 position)
         {
@@ -76,7 +76,7 @@ namespace MirageXR
             }
 
             //the objects of the annotation will be created only for the original step not all steps.
-            RootObject.Instance.workplaceManager.AddAnnotation(activityManager.ActiveAction, annotation, position);
+            RootObject.Instance.WorkplaceManager.AddAnnotation(activityManager.ActiveAction, annotation, position);
         }
 
         public void DeleteAugmentation(ToggleObject annotation, Action step = null)
@@ -101,7 +101,7 @@ namespace MirageXR
                     {
                         DeleteAugmentationFromStep(actionObj, anno);
                         DeleteAugmentationFile(anno);
-                        RootObject.Instance.workplaceManager.DeleteAugmentation(actionObj, anno);
+                        RootObject.Instance.WorkplaceManager.DeleteAugmentation(actionObj, anno);
                     }
 
                     EventManager.NotifyActionModified(actionObj);

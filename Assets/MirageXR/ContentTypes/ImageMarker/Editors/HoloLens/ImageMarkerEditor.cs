@@ -11,7 +11,7 @@ using System.Collections;
 
 public class ImageMarkerEditor : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
 
     [SerializeField] private Button captureButton;
     [SerializeField] private Button acceptButton;
@@ -70,7 +70,7 @@ public class ImageMarkerEditor : MonoBehaviour
             }
         }
 
-        RootObject.Instance.imageTargetManager.enabled = true;
+        RootObject.Instance.ImageTargetManager.enabled = true;
 
         processingText.text = string.Empty;
         processingText.transform.parent.gameObject.SetActive(false);
@@ -99,7 +99,7 @@ public class ImageMarkerEditor : MonoBehaviour
     {
         Maggie.Speak("Taking a photo in 3 seconds");
 
-        RootObject.Instance.imageTargetManager.enabled = false;
+        RootObject.Instance.ImageTargetManager.enabled = false;
 
         captureButton.gameObject.SetActive(false);
         acceptButton.gameObject.SetActive(false);
@@ -173,7 +173,7 @@ public class ImageMarkerEditor : MonoBehaviour
         }
         else
         {
-            var workplaceManager = RootObject.Instance.workplaceManager;
+            var workplaceManager = RootObject.Instance.WorkplaceManager;
             Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
             GameObject originT = GameObject.Find(detectable.id);
 
@@ -182,7 +182,7 @@ public class ImageMarkerEditor : MonoBehaviour
                 originT.transform.position,
                 originT.transform.rotation);
 
-            annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
+            annotationToEdit = RootObject.Instance.AugmentationManager.AddAugmentation(action, offset);
             annotationToEdit.predicate = "imagemarker";
         }
 

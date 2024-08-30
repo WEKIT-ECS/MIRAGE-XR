@@ -196,7 +196,7 @@ namespace MirageXR
             objectManipulator.HostTransform = transform;
             objectManipulator.TwoHandedManipulationType = Microsoft.MixedReality.Toolkit.Utilities.TransformFlags.Move;
 
-            var gridManager = RootObject.Instance.gridManager;
+            var gridManager = RootObject.Instance.GridManager;
             objectManipulator.OnManipulationStarted.AddListener(eventData => gridManager.onManipulationStarted(eventData.ManipulationSource));
             objectManipulator.OnManipulationEnded.AddListener(eventData => OnManipulationEnded(eventData, annotation));
 
@@ -211,26 +211,26 @@ namespace MirageXR
                 boundsControl.TranslateStopped.AddListener(OnTranslateStopped);
             }
 
-            EditModeState(RootObject.Instance.activityManager.EditModeActive);
+            EditModeState(RootObject.Instance.ActivityManagerOld.EditModeActive);
         }
 
         private void OnManipulationEnded(ManipulationEventData eventData, ToggleObject annotation)
         {
-            var gridManager = RootObject.Instance.gridManager;
+            var gridManager = RootObject.Instance.GridManager;
             gridManager.onManipulationEnded(eventData.ManipulationSource);
 
             SaveTransform(annotation);
 
-            RootObject.Instance.activityManager.SaveData();
+            RootObject.Instance.ActivityManagerOld.SaveData();
         }
 
         private void OnTranslateStopped()
         {
             var boundsControl = GetComponent<BoundsControl>();
-            var gridManager = RootObject.Instance.gridManager;
+            var gridManager = RootObject.Instance.GridManager;
             gridManager.onTranslateStopped?.Invoke(boundsControl.Target);
 
-            RootObject.Instance.activityManager.SaveData();
+            RootObject.Instance.ActivityManagerOld.SaveData();
         }
 
         private void SaveTransform(ToggleObject annotation)

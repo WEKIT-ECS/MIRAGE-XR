@@ -20,7 +20,7 @@ namespace MirageXR
     {
         private const long MAX_FILE_SIZE_FOR_MEMORY = 150 * 1024 * 1024; // 150 mb
 
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
 
         private GameObject _progressText;   //TODO: remove ui logic
 

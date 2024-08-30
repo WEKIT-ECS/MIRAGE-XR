@@ -7,7 +7,7 @@ using UnityEngine;
 /// </summary>
 public class DummyLogic : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
     private const string _activityURL = "resources://altec_activity";
 
     [SerializeField] private GameObject SensorState;
@@ -95,7 +95,7 @@ public class DummyLogic : MonoBehaviour
         PlayerPrefs.SetString("activityUrl", "resources://vttdemoactivity");
         PlayerPrefs.Save();
         Maggie.Speak("Loading VTT Demo Activity");
-        RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
+        RootObject.Instance.ActivityManagerOld.PlayerReset().AsAsyncVoid();
     }
 
     /// <summary>
@@ -107,7 +107,7 @@ public class DummyLogic : MonoBehaviour
         PlayerPrefs.SetString("activityUrl", "resources://lt_activity");
         PlayerPrefs.Save();
         Maggie.Speak("Loading Lufttransport Trial Activity");
-        RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
+        RootObject.Instance.ActivityManagerOld.PlayerReset().AsAsyncVoid();
     }
 
     /// <summary>
@@ -119,7 +119,7 @@ public class DummyLogic : MonoBehaviour
         PlayerPrefs.SetString("activityUrl", "resources://altec_activity");
         PlayerPrefs.Save();
         Maggie.Speak("Loading ALTEC Trial Activity");
-        RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
+        RootObject.Instance.ActivityManagerOld.PlayerReset().AsAsyncVoid();
     }
 
     /// <summary>
@@ -131,7 +131,7 @@ public class DummyLogic : MonoBehaviour
         PlayerPrefs.SetString("activityUrl", "resources://ebit_activity");
         PlayerPrefs.Save();
         Maggie.Speak("Loading Ebit Trial Activity");
-        RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
+        RootObject.Instance.ActivityManagerOld.PlayerReset().AsAsyncVoid();
     }
 
     /// <summary>
@@ -143,7 +143,7 @@ public class DummyLogic : MonoBehaviour
         PlayerPrefs.SetString("activityUrl", "http://192.168.0.1/activities/new_activity.json");
         PlayerPrefs.Save();
         Maggie.Speak("Loading ESA Demo Activity");
-        RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
+        RootObject.Instance.ActivityManagerOld.PlayerReset().AsAsyncVoid();
     }
 
     /// <summary>
@@ -155,6 +155,6 @@ public class DummyLogic : MonoBehaviour
         PlayerPrefs.SetString("activityUrl", "https://dropboxusercontent.com/s/hp0hnwq7p1nxz4y/wekitTrialActivity.json");
         PlayerPrefs.Save();
         Maggie.Speak("Loading ESA Demo Activity");
-        RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
+        RootObject.Instance.ActivityManagerOld.PlayerReset().AsAsyncVoid();
     }
 }

@@ -2,7 +2,7 @@ using UnityEngine;
 using MirageXR;
 public class RestartActivityPromt : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
 
     public async void ResartActivity()
     {

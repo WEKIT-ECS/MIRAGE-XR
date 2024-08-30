@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class ContentListItem : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
     [SerializeField] private TMP_Text _txtType;
     [SerializeField] private TMP_Text _txtFrom;
     [SerializeField] private TMP_Text _txtTo;
@@ -94,7 +94,7 @@ public class ContentListItem : MonoBehaviour
 
     private void OnDeleteClick()
     {
-        RootObject.Instance.augmentationManager.DeleteAugmentation(_content);
+        RootObject.Instance.AugmentationManager.DeleteAugmentation(_content);
         if (_parentView.navigatorId == _content.poi)
         {
             TaskStationDetailMenu.Instance.NavigatorTarget = null;
@@ -135,7 +135,7 @@ public class ContentListItem : MonoBehaviour
 
     private void UpdateStep()
     {
-        RootObject.Instance.augmentationManager.AddAllAugmentationsBetweenSteps(_from, _to, _content, Vector3.zero);
+        RootObject.Instance.AugmentationManager.AddAllAugmentationsBetweenSteps(_from, _to, _content, Vector3.zero);
         if (_type == ContentType.CHARACTER)
         {
             activityManager.SaveData();

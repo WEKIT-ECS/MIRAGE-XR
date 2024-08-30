@@ -9,7 +9,7 @@ namespace MirageXR
 {
     public class LabelEditor : MonoBehaviour
     {
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
         [SerializeField] private InputField textInputField;
         [SerializeField] private Transform annotationStartingPoint;
         [SerializeField] private StepTrigger stepTrigger;
@@ -102,7 +102,7 @@ namespace MirageXR
             }
             else
             {
-                var workplaceManager = RootObject.Instance.workplaceManager;
+                var workplaceManager = RootObject.Instance.WorkplaceManager;
                 Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
                 GameObject originT = GameObject.Find(detectable.id);
 
@@ -111,7 +111,7 @@ namespace MirageXR
                     originT.transform.position,
                     originT.transform.rotation);
 
-                annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
+                annotationToEdit = RootObject.Instance.AugmentationManager.AddAugmentation(action, offset);
                 annotationToEdit.predicate = "label";
             }
             annotationToEdit.text = textInputField.text;

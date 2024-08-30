@@ -32,7 +32,7 @@ public class AppSelection : MonoBehaviour
         SpatialMappingHelper.DeactivateSpatialMapping();
 
 
-        SceneManager.LoadSceneAsync(RootObject.Instance.platformManager.PlayerSceneName, LoadSceneMode.Additive);
+        SceneManager.LoadSceneAsync(RootObject.Instance.PlatformManager.PlayerSceneName, LoadSceneMode.Additive);
 
         SceneManager.UnloadSceneAsync("AppSelection");
     }

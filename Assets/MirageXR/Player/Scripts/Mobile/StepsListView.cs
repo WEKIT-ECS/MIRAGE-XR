@@ -11,8 +11,8 @@ using Action = MirageXR.Action;
 public class StepsListView : BaseView
 {
     private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg";
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
-    private static MoodleManager moodleManager => RootObject.Instance.moodleManager;
+    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
+    private static MoodleManager moodleManager => RootObject.Instance.MoodleManager;
     
     [SerializeField] private TMP_InputField _inputFieldName;
     [SerializeField] private RectTransform _listContent;

@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class ContentSelectorView_v2 : PopupBase
 {
-    private static BrandManager brandManager => RootObject.Instance.brandManager;
+    private static BrandManager brandManager => RootObject.Instance.BrandManager;
 
     [SerializeField] private Transform _listContent;
     [SerializeField] private ContentSelectorListItem _contentSelectorListItemPrefab;

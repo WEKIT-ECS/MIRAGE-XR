@@ -173,7 +173,7 @@ namespace Tests
                 id = "activeActionId"
             };
 
-            SetPrivateProperty(rootObject.activityManager, "ActiveAction", activeAction);
+            SetPrivateProperty(rootObject.ActivityManagerOld, "ActiveAction", activeAction);
 
             actionListItem.UpdateView();
 
@@ -201,7 +201,7 @@ namespace Tests
                 id = "activeActionId"
             };
 
-            SetPrivateProperty(rootObject.activityManager, "ActiveAction", activeAction);
+            SetPrivateProperty(rootObject.ActivityManagerOld, "ActiveAction", activeAction);
 
             actionListItem.UpdateView();
 

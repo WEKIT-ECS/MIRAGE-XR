@@ -180,7 +180,7 @@ namespace Tests
             };
 
            // rootObject.activityManager ??= new ActivityManager();
-            SetPrivateProperty(rootObject.activityManager, "ActiveAction", activeAction);
+            SetPrivateProperty(rootObject.ActivityManagerOld, "ActiveAction", activeAction);
 
             EventManager.ActivateAction("activeActionId");
 
@@ -209,7 +209,7 @@ namespace Tests
             };
 
             //rootObject.activityManager ??= new ActivityManager();
-            SetPrivateProperty(rootObject.activityManager, "ActiveAction", activeAction);
+            SetPrivateProperty(rootObject.ActivityManagerOld, "ActiveAction", activeAction);
 
             EventManager.ActivateAction("activeActionId");
 

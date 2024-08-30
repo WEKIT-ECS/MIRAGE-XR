@@ -293,7 +293,7 @@ namespace MirageXR
             }
 
             var popup = (HelpSelectionPopup)PopupsViewer.Instance.Show(HelpSelectionPopup);
-            bool isEditModeOn = RootObject.Instance.activityManager.EditModeActive;
+            bool isEditModeOn = RootObject.Instance.ActivityManagerOld.EditModeActive;
 
             popup.LoadHelpSelection(page, isEditModeOn);
         }

@@ -56,7 +56,7 @@ namespace MirageXR
         /// </summary>
         private void DoVoiceTrigger()
         {
-            RootObject.Instance.activityManager.DeactivateAction(_actionId).AsAsyncVoid();
+            RootObject.Instance.ActivityManagerOld.DeactivateAction(_actionId).AsAsyncVoid();
             //Maggie.Ok();
         }
     }

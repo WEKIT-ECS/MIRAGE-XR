@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using MirageXR.NewDataModel;
 using UnityEngine;
 
 namespace MirageXR
@@ -20,48 +21,59 @@ namespace MirageXR
         [SerializeField] private PlatformManager _platformManager;
         [SerializeField] private ExceptionManager _exceptionManager;
 
-        private ActivityManager _activityManager;
+        private ActivityManager _activityManagerOld;
         private AugmentationManager _augmentationManager;
         private MoodleManager _moodleManager;
         private EditorSceneService _editorSceneService;
         private WorkplaceManager _workplaceManager;
         private AIManager _aiManager;
         private OpenAIManager _openAIManager;
-        private VirtualInstructorManager _virtualInstructorManager; 
+        private VirtualInstructorManager _virtualInstructorManager;
 
-        public Camera baseCamera => _baseCamera;
+        private INetworkDataProvider _networkDataProvider;
+        private IActivityManager _activityManager;
+        private IContentManager _contentManager;
 
-        public ImageTargetManagerWrapper imageTargetManager => _imageTargetManager;
+        public Camera BaseCamera => _baseCamera;
 
-        public CalibrationManager calibrationManager => _calibrationManager;
+        public ImageTargetManagerWrapper ImageTargetManager => _imageTargetManager;
 
-        public FloorManagerWrapper floorManager => _floorManager;
+        public CalibrationManager CalibrationManager => _calibrationManager;
 
-        public PlaneManagerWrapper planeManager => _planeManager;
+        public FloorManagerWrapper FloorManager => _floorManager;
 
-        public BrandManager brandManager => _brandManager;
+        public PlaneManagerWrapper PlaneManager => _planeManager;
 
-        public GridManager gridManager => _gridManager;
+        public BrandManager BrandManager => _brandManager;
 
-        public ActivityManager activityManager => _activityManager;
+        public GridManager GridManager => _gridManager;
 
-        public AugmentationManager augmentationManager => _augmentationManager;
+        public ActivityManager ActivityManagerOld => _activityManagerOld;
 
-        public MoodleManager moodleManager => _moodleManager;
+        public AugmentationManager AugmentationManager => _augmentationManager;
 
-        public EditorSceneService editorSceneService => _editorSceneService;
+        public MoodleManager MoodleManager => _moodleManager;
 
-        public WorkplaceManager workplaceManager => _workplaceManager;
+        public EditorSceneService EditorSceneService => _editorSceneService;
 
-        public CameraCalibrationChecker cameraCalibrationChecker => _cameraCalibrationChecker;
+        public WorkplaceManager WorkplaceManager => _workplaceManager;
 
-        public PlatformManager platformManager => _platformManager;
+        public CameraCalibrationChecker CameraCalibrationChecker => _cameraCalibrationChecker;
 
-        public ExceptionManager exceptionManager => _exceptionManager;
+        public PlatformManager PlatformManager => _platformManager;
 
-        public OpenAIManager openAIManager => _openAIManager;
-        public AIManager aiManager => _aiManager;
-        public VirtualInstructorManager virtualInstructorManager => _virtualInstructorManager;
+        public ExceptionManager ExceptionManager => _exceptionManager;
+
+        public OpenAIManager OpenAIManager => _openAIManager;
+        
+        public AIManager AIManager => _aiManager;
+        
+        public VirtualInstructorManager VirtualInstructorManager => _virtualInstructorManager;
+
+
+        public INetworkDataProvider NetworkDataProvider => _networkDataProvider;
+        public IActivityManager ActivityManager => _activityManager;
+        public IContentManager ContentManager => _contentManager;
 
         private bool _isInitialized;
 
@@ -114,7 +126,7 @@ namespace MirageXR
                 _planeManager ??= new GameObject("PlaneManager").AddComponent<PlaneManagerWrapper>();
                 _exceptionManager ??= new GameObject("ExceptionManager").AddComponent<ExceptionManager>();
 
-                _activityManager = new ActivityManager();
+                _activityManagerOld = new ActivityManager();
                 _augmentationManager = new AugmentationManager();
                 _moodleManager = new MoodleManager();
                 _editorSceneService = new EditorSceneService();
@@ -122,6 +134,15 @@ namespace MirageXR
                 _openAIManager = new OpenAIManager();
                 _aiManager = new AIManager();
                 _virtualInstructorManager = new VirtualInstructorManager();
+                _activityManager = new MirageXR.NewDataModel.ActivityManager();
+
+                _activityManager = new NewDataModel.ActivityManager();
+                _networkDataProvider = new NetworkDataProvider();
+                _contentManager = new ContentManager();
+
+                //_networkDataProvider.InitializeAsync();
+                //_contentManager.InitializeAsync();
+                _activityManager.InitializeAsync(_contentManager, _networkDataProvider);
 
                 _exceptionManager.Initialize();
                 _brandManager.Initialization();
@@ -135,7 +156,7 @@ namespace MirageXR
                 _platformManager.Initialization();
                 await _openAIManager.InitializeAsync();
                 //await _aiManager.InitializeAsync();
-                _activityManager.Subscription();
+                _activityManagerOld.Subscription();
                 _isInitialized = true;
 
                 //EventManager.OnClearAll += ResetManagers;
@@ -166,9 +187,9 @@ namespace MirageXR
                 return;
             }
 
-            _activityManager.Unsubscribe();
+            _activityManagerOld.Unsubscribe();
             _pointCloudManager.Unsubscribe();
-            _activityManager.OnDestroy();
+            _activityManagerOld.OnDestroy();
             _planeManager.Dispose();
             Instance = null;
         }

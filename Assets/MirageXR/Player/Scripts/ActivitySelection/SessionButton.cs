@@ -10,7 +10,7 @@ namespace MirageXR
     [RequireComponent(typeof(SessionContainerListItem))]
     public class SessionButton : MonoBehaviour
     {
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
         [SerializeField] private SessionContainerListItem _selectedListViewItem;
 
         public async void OnActivitySelected()
@@ -90,10 +90,10 @@ namespace MirageXR
             PlayerPrefs.Save();
 
             // update the view of the activity on Moodle server after loading
-            await RootObject.Instance.moodleManager.UpdateViewsOfActivity(_selectedListViewItem.Content.ItemID, _selectedListViewItem.Content.ExistsRemotely);
+            await RootObject.Instance.MoodleManager.UpdateViewsOfActivity(_selectedListViewItem.Content.ItemID, _selectedListViewItem.Content.ExistsRemotely);
 
             //StartCoroutine(SwitchToPlayerScene(activityJsonFileName));
-            await RootObject.Instance.editorSceneService.LoadEditorAsync();
+            await RootObject.Instance.EditorSceneService.LoadEditorAsync();
             await activityManager.LoadActivity(activityJsonFileName);
 
             // Set the activity URL
