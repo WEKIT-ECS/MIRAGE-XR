@@ -82,15 +82,15 @@ public class WearableManager : MonoBehaviour
         switch (state)
         {
             case "airtap":
-                EventManager.Tap();
+                LearningExperienceEngine.EventManager.Tap();
                 break;
 
             case "next":
-                EventManager.Next("touch");
+                LearningExperienceEngine.EventManager.Next("touch");
                 break;
 
             case "back":
-                EventManager.Previous("touch");
+                LearningExperienceEngine.EventManager.Previous("touch");
                 break;
 
             case "toggle_menu":

@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
-using ICSharpCode.SharpZipLib.Zip;
+using Unity.SharpZipLib.Zip;
 using UnityEngine;
 
 namespace MirageXR
@@ -290,7 +290,7 @@ namespace MirageXR
         {
             using (var memory = new MemoryStream())
             {
-                var (result, _) = await Network.DownloadToStreamAsync(url, memory, timeout, progress, cancellationToken);
+                var (result, _) = await LearningExperienceEngine.Network.DownloadToStreamAsync(url, memory, timeout, progress, cancellationToken);
                 return (result, result ? memory.ToArray() : null);
             }
         }
@@ -343,7 +343,7 @@ namespace MirageXR
                 {
                     progress = new Progress<float>(onProgressChanged.Invoke);
                 }
-                var (result, _) = await Network.DownloadToStreamAsync(url, stream, timeout, progress);
+                var (result, _) = await LearningExperienceEngine.Network.DownloadToStreamAsync(url, stream, timeout, progress);
                 if (!result)
                 {
                     return false;
@@ -356,7 +356,7 @@ namespace MirageXR
 
             using (var stream = new FileStream(imagePath, FileMode.OpenOrCreate))
             {
-                var (result, _) = await Network.DownloadToStreamAsync(modelPreview.resourceImage.url, stream, timeout);
+                var (result, _) = await LearningExperienceEngine.Network.DownloadToStreamAsync(modelPreview.resourceImage.url, stream, timeout);
                 if (!result)
                 {
                     return false;
@@ -366,7 +366,7 @@ namespace MirageXR
 
             using (var stream = new FileStream(archivePath, FileMode.Open))
             {
-                await ZipUtilities.ExtractZipFileAsync(stream, modelFolderPath);
+                await LearningExperienceEngine.ZipUtilities.ExtractZipFileAsync(stream, modelFolderPath);
                 modelPreview.resourceUrl = $"file://{modelPath}";
             }
 
@@ -467,7 +467,7 @@ namespace MirageXR
             var modelsFolderPath = Path.Combine(Application.persistentDataPath, FOLDER_NAME);
             var archiveUrl = Path.Combine(modelsFolderPath, $"{modelPreview.name}.zip");
             var modelFolder = Path.Combine(modelsFolderPath, modelPreview.name);
-            var targetDirectory = Path.Combine(RootObject.Instance.activityManager.ActivityPath, modelPreview.name);
+            var targetDirectory = Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActivityPath, modelPreview.name);
             if (!Directory.Exists(targetDirectory)) Directory.CreateDirectory(targetDirectory);
 
             // build zip archive, if required (might be slow for big models)
@@ -477,14 +477,14 @@ namespace MirageXR
                 using (var stream = new FileStream(archiveUrl, FileMode.OpenOrCreate))
                 using (var zipStream = new ZipOutputStream(stream))
                 {
-                    await ZipUtilities.CompressFolderAsync($"{modelFolder}\\", zipStream);
+                    await LearningExperienceEngine.ZipUtilities.CompressFolderAsync($"{modelFolder}\\", zipStream);
                 }
             }
 
             // unpack to session folder
             using (var stream = new FileStream(archiveUrl, FileMode.Open))
             {
-                await ZipUtilities.ExtractZipFileAsync(stream, targetDirectory);
+                await LearningExperienceEngine.ZipUtilities.ExtractZipFileAsync(stream, targetDirectory);
             }
         }
 

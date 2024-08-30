@@ -34,12 +34,12 @@ namespace MirageXR
 
         private void OnEnable()
         {
-            EventManager.OnEditModeChanged += EditModeState;
+            LearningExperienceEngine.EventManager.OnEditModeChanged += EditModeState;
         }
 
         private void OnDisable()
         {
-            EventManager.OnEditModeChanged -= EditModeState;
+            LearningExperienceEngine.EventManager.OnEditModeChanged -= EditModeState;
         }
 
         private void Start()
@@ -58,7 +58,7 @@ namespace MirageXR
         /// <param name="AddManipulator"></param>
         /// <returns>Task object for asynchronous execution</returns>
         public async Task AddBoundingBox(
-            ToggleObject annotationToggleObject,
+            LearningExperienceEngine.ToggleObject annotationToggleObject,
             BoundsCalculationMethod boundsCalculationMethod,
             bool hasConstraintManager = false,
             bool addListeners = true,
@@ -181,7 +181,7 @@ namespace MirageXR
         /// <summary>
         /// Add the event when every thing is parsed
         /// </summary>
-        private IEnumerator ManipulationEvents(ToggleObject annotation)
+        private IEnumerator ManipulationEvents(LearningExperienceEngine.ToggleObject annotation)
         {
             yield return new WaitWhile(() => transform.parent == null);
 
@@ -211,17 +211,17 @@ namespace MirageXR
                 boundsControl.TranslateStopped.AddListener(OnTranslateStopped);
             }
 
-            EditModeState(RootObject.Instance.activityManager.EditModeActive);
+            EditModeState(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive);
         }
 
-        private void OnManipulationEnded(ManipulationEventData eventData, ToggleObject annotation)
+        private void OnManipulationEnded(ManipulationEventData eventData, LearningExperienceEngine.ToggleObject annotation)
         {
             var gridManager = RootObject.Instance.gridManager;
             gridManager.onManipulationEnded(eventData.ManipulationSource);
 
             SaveTransform(annotation);
 
-            RootObject.Instance.activityManager.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.SaveData();
         }
 
         private void OnTranslateStopped()
@@ -230,10 +230,10 @@ namespace MirageXR
             var gridManager = RootObject.Instance.gridManager;
             gridManager.onTranslateStopped?.Invoke(boundsControl.Target);
 
-            RootObject.Instance.activityManager.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.SaveData();
         }
 
-        private void SaveTransform(ToggleObject annotation)
+        private void SaveTransform(LearningExperienceEngine.ToggleObject annotation)
         {
             annotation.position = transform.localPosition.ToString();
             annotation.rotation = transform.localRotation.ToString();

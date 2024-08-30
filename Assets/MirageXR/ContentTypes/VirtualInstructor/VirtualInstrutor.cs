@@ -23,7 +23,7 @@ namespace MirageXR
         /// </remarks>
         private VirtualInstructorDataModel InstructorData { get; set; }
 
-        [SerializeField] private ToggleObject _toggleObject;
+        [SerializeField] private LearningExperienceEngine.ToggleObject _toggleObject;
         private Animator _animator;
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace MirageXR
         /// </summary>
         private string _history;
 
-        public override bool Init(ToggleObject toggleObject)
+        public override bool Init(LearningExperienceEngine.ToggleObject toggleObject)
         {
             _animator = GetComponentInChildren<Animator>();
             _toggleObject = toggleObject;

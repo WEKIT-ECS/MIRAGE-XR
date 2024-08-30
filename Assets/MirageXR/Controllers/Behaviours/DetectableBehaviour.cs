@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using LearningExperienceEngine;
+using UnityEngine;
 //using Vuforia;
 
 namespace MirageXR
@@ -58,12 +59,12 @@ namespace MirageXR
 
         private void OnEnable()
         {
-            EventManager.OnPlayerReset += PlayerReset;
+             LearningExperienceEngine.EventManager.OnResetPlayer += PlayerReset;
         }
 
         private void OnDisable()
         {
-            EventManager.OnPlayerReset -= PlayerReset;
+             LearningExperienceEngine.EventManager.OnResetPlayer -= PlayerReset;
         }
 
         public void SetTrackable(Transform trackable)
@@ -146,7 +147,7 @@ namespace MirageXR
 
                     // If the TrackableType is not supported...
                     default:
-                        EventManager.DebugLog("Error: Detectable behaviour: " + name + ": Unknown sensor TrackableType");
+                        Debug.LogError("Error: Detectable behaviour: " + name + ": Unknown sensor TrackableType");
                         break;
                 }
             }

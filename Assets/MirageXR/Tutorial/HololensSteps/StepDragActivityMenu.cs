@@ -15,13 +15,13 @@ namespace MirageXR
             this.highlightedObject = activitySelectionMenu.Header;
             EventManager.ActivitySelectionMenuDragEnd += this.DefaultExitEventListener;
 
-            EventManager.OnActivityStarted += DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity += DefaultCloseEventListener;
         }
 
         protected override void Detach()
         {
             EventManager.ActivitySelectionMenuDragEnd -= this.DefaultExitEventListener;
-            EventManager.OnActivityStarted -= DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity -= DefaultCloseEventListener;
         }
     }
 }

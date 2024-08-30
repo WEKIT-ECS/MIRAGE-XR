@@ -1,3 +1,4 @@
+using LearningExperienceEngine;
 using System;
 using MirageXR;
 using TMPro;
@@ -9,19 +10,18 @@ public abstract class PopupEditorBase : PopupBase
     protected const string HTTP_PREFIX = "http://";
     protected const string RESOURCES_PREFIX = "resources://";
 
-    protected static ActivityManager activityManager => RootObject.Instance.activityManager;
-
-    protected static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
+    protected static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    protected static LearningExperienceEngine.AugmentationManager augmentationManager => LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager;
 
     [SerializeField] protected Image _icon;
     [SerializeField] protected TMP_Text _txtLabel;
     [SerializeField] protected Button _btnAccept;
     [SerializeField] protected Button _btnClose;
 
-    public abstract ContentType editorForType { get; }
+    public abstract LearningExperienceEngine.ContentType editorForType { get; }
 
-    protected ToggleObject _content;
-    protected MirageXR.Action _step;
+    protected LearningExperienceEngine.ToggleObject _content;
+    protected LearningExperienceEngine.Action _step;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -34,8 +34,8 @@ public abstract class PopupEditorBase : PopupBase
 
     protected virtual void OnAccept()
     {
-        EventManager.NotifyActionModified(_step);
-        RootObject.Instance.activityManager.SaveData();
+        LearningExperienceEngine.EventManager.NotifyActionModified(_step);
+        LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.SaveData();
     }
 
     protected virtual void UpdateBaseView()
@@ -46,7 +46,7 @@ public abstract class PopupEditorBase : PopupBase
 
     protected virtual Vector3 GetOffset()
     {
-        var workplaceManager = RootObject.Instance.workplaceManager;
+        var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
         var detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_step.id));
         var annotationStartingPoint = ActionEditor.Instance.GetDefaultAugmentationStartingPoint();
         var originT = GameObject.Find(detectable.id);   // TODO: replace by direct reference to the object
@@ -72,7 +72,7 @@ public abstract class PopupEditorBase : PopupBase
     {
         try
         {
-            _step = (MirageXR.Action)args[0];
+            _step = (LearningExperienceEngine.Action)args[0];
         }
         catch (Exception)
         {
@@ -81,7 +81,7 @@ public abstract class PopupEditorBase : PopupBase
 
         try
         {
-            _content = (ToggleObject)args[1];
+            _content = (LearningExperienceEngine.ToggleObject)args[1];
         }
         catch (Exception) { /**/ }
         return true;
