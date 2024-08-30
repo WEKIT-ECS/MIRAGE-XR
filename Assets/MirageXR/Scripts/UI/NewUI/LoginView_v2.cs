@@ -51,7 +51,6 @@ public class LoginView_v2 : PopupBase
             service.LoginCompleted += OnOidcLoginCompleted;
 
             oidcLogin.Login();
-            Debug.LogInfo("LoginView_v2: Initialize: found existing access token. Quick login for " + UserSettings.username);
         }
         else
         {
