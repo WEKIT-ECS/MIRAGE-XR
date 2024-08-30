@@ -282,7 +282,14 @@ MonoBehaviour:
   _headTarget: {fileID: 6238957604699680005}
   _bodyTarget: {fileID: 5508129712271213116}
   _elbowHint: {fileID: 5781657519388998122}
+  _lowerArmBone: {fileID: 804468885242056334}
   _isLeftHand: 1
+  _handHipOffset: {x: 0.3, y: 0, z: 0}
+  _handInertia: 0.995
+  _handDamping: 0.95
+  _wristRotationSpeed: 1
+  _elbowWideness: 0.8
+  <HandPositionSetExternally>k__BackingField: 1
 --- !u!1 &1957244506760781476
 GameObject:
   m_ObjectHideFlags: 0
@@ -409,7 +416,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3856484409350079452}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.032212727, y: -0.46457005, z: -0.88455343, w: 0.026498567}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.15214622, y: 0.12635237, z: -0.041824814}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 0
@@ -434,11 +441,9 @@ MonoBehaviour:
   _otherFoot: {fileID: 783229176936722540}
   _isLeftFoot: 0
   _footHeightOffset: 0.04
-  _footSpacing: 0.18
-  _footOffset: {x: 0, y: 0, z: 0}
-  _stepThreshold: 0.2
-  _stepDistance: 0.25
-  _stepHeight: 0.15
+  _footSpacing: 0.12
+  _stepDistance: 0.3
+  _stepHeight: 0.25
   _stepSpeed: 3.5
   _showDebugWidgets: 0
 --- !u!1 &3959376335205081953
@@ -649,7 +654,7 @@ MonoBehaviour:
     m_TargetRotationWeight: 1
     m_HintWeight: 1
     m_MaintainTargetPositionOffset: 0
-    m_MaintainTargetRotationOffset: 0
+    m_MaintainTargetRotationOffset: 1
 --- !u!1 &4456845448749875583
 GameObject:
   m_ObjectHideFlags: 0
@@ -882,7 +887,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5343842983941557936}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.032213982, y: 0.4645706, z: 0.8845531, w: 0.02650237}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.15214588, y: 0.1263532, z: -0.04182504}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 0
@@ -907,11 +912,9 @@ MonoBehaviour:
   _otherFoot: {fileID: 8831982372808853377}
   _isLeftFoot: 1
   _footHeightOffset: 0.04
-  _footSpacing: 0.18
-  _footOffset: {x: 0, y: 0, z: 0}
-  _stepThreshold: 0.2
-  _stepDistance: 0.25
-  _stepHeight: 0.15
+  _footSpacing: 0.12
+  _stepDistance: 0.3
+  _stepHeight: 0.25
   _stepSpeed: 3.5
   _showDebugWidgets: 0
 --- !u!1 &5400277773255215323
@@ -1091,7 +1094,7 @@ MonoBehaviour:
     m_TargetRotationWeight: 1
     m_HintWeight: 1
     m_MaintainTargetPositionOffset: 0
-    m_MaintainTargetRotationOffset: 0
+    m_MaintainTargetRotationOffset: 1
 --- !u!1 &7970413000398184970
 GameObject:
   m_ObjectHideFlags: 0
@@ -1197,7 +1200,14 @@ MonoBehaviour:
   _headTarget: {fileID: 6238957604699680005}
   _bodyTarget: {fileID: 5508129712271213116}
   _elbowHint: {fileID: 7470394358976082282}
+  _lowerArmBone: {fileID: 7763942561734206900}
   _isLeftHand: 0
+  _handHipOffset: {x: 0.3, y: 0, z: 0}
+  _handInertia: 0.995
+  _handDamping: 0.95
+  _wristRotationSpeed: 1
+  _elbowWideness: 0.8
+  <HandPositionSetExternally>k__BackingField: 1
 --- !u!1001 &8976941013945422982
 PrefabInstance:
   m_ObjectHideFlags: 0
