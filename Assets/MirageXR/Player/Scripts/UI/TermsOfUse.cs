@@ -24,8 +24,8 @@ namespace MirageXR
             termsOfUseText.supportRichText = true;
 
             string TermsOfUse = string.Empty;
-            if (Resources.Load<TextAsset>(brandManager.CfgParser.Configuration.TermsOfUsePath))
-                TermsOfUse = Resources.Load<TextAsset>(brandManager.CfgParser.Configuration.TermsOfUsePath).text;
+            if (Resources.Load<TextAsset>(brandManager.CfgParser.Configuration.TermsOfUseFileName))
+                TermsOfUse = Resources.Load<TextAsset>(brandManager.CfgParser.Configuration.TermsOfUseFileName).text;
 
             if (TermsOfUse != string.Empty)
                 termsOfUseText.text = TermsOfUse;
