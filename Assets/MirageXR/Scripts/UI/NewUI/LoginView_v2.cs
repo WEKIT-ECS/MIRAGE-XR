@@ -1,4 +1,7 @@
-﻿using MirageXR;
+﻿using i5.Toolkit.Core.OpenIDConnectClient;
+using i5.Toolkit.Core.ServiceCore;
+using LearningExperienceEngine;
+using MirageXR;
 using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -40,6 +43,21 @@ public class LoginView_v2 : PopupBase
         _toggleRemember.onValueChanged.AddListener(OnToggleRememberValueChanged);
 
         ResetValues();
+
+        LearningExperienceEngine.OidcLogin oidcLogin = GetComponent<LearningExperienceEngine.OidcLogin>();
+        if (oidcLogin.LoggedIn())
+        {
+            var service = ServiceManager.GetService<OpenIDConnectService>();
+            service.LoginCompleted += OnOidcLoginCompleted;
+
+            oidcLogin.Login();
+            Debug.LogInfo("LoginView_v2: Initialize: found existing access token. Quick login for " + UserSettings.username);
+        }
+        else
+        {
+            Debug.Log("Continuing init to offer all the options in the view");
+        }
+
     }
 
     protected override bool TryToGetArguments(params object[] args)
@@ -93,9 +111,30 @@ public class LoginView_v2 : PopupBase
 
     private void OnOidcLogin()
     {
+        var service = ServiceManager.GetService<OpenIDConnectService>();
+        service.LoginCompleted += OnOidcLoginCompleted;
+
         LearningExperienceEngine.OidcLogin oidcLogin = GetComponent<LearningExperienceEngine.OidcLogin>();
         oidcLogin.Login();
+    }
+
+    private void OnOidcLoginCompleted(object sender, EventArgs e)
+    {
+        Toast.Instance.Show("Login succeeded");
+
+        var service = ServiceManager.GetService<OpenIDConnectService>();
+        service.LoginCompleted -= OnOidcLoginCompleted;
+
         Close();
+
+        // this is evaluated by UserInfo.LoggedIn, which is used to determine if the logout button is displayed in the profile view
+        UserSettings.username = "via Open ID connect"; // temp until callback received to fetch real username
+        LearningExperienceEngine.OidcLogin oidcLogin = GetComponent<LearningExperienceEngine.OidcLogin>();
+        oidcLogin.FetchUsername();
+
+        // if the activity view is loading activities already in the background, this might also require:
+        // RootView_v2.Instance.activityListView.FetchAndUpdateView();
+
     }
 
     private void OnGoToLoginPressed()
