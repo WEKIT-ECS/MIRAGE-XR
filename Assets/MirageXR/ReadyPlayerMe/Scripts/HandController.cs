@@ -10,12 +10,15 @@ namespace MirageXR
 		[SerializeField] private Transform _headTarget;
 		[SerializeField] private Transform _bodyTarget;
 		[SerializeField] private Transform _elbowHint;
+		[SerializeField] private Transform _lowerArmBone;
 		[SerializeField] private bool _isLeftHand;
 
 		[Header("Configuration Values")]
 		[SerializeField] private Vector3 _handHipOffset = new Vector3(0.3f, 0, 0);
 		[SerializeField] private float _handInertia = 0.995f;
 		[SerializeField] private float _handDamping = 0.95f;
+		[SerializeField] private float _wristRotationSpeed = 1f;
+		[SerializeField] private Quaternion _wristRotationOffset = Quaternion.identity;
 		[SerializeField] private float _elbowWideness = 0.8f;
 
 		private Vector3 _currentElbowHintPosition;
@@ -47,6 +50,8 @@ namespace MirageXR
 					Vector3.Scale(new Vector3(sideFactor, 0, 0), _handHipOffset);
 				_handAcceleration = _handDamping * (_handInertia * _handAcceleration + (1f - _handInertia) * (_handTargetPosition - transform.position));
 				transform.position += _handAcceleration;
+				Quaternion targetRotation = _lowerArmBone.rotation * _wristRotationOffset;
+				transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * _wristRotationSpeed);
 			}
 		}
 	}

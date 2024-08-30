@@ -15,20 +15,16 @@ namespace MirageXR
 		[SerializeField] private Pose _rightHandOffset;
 
 		private MRTKHardwareRig _hardwareRig;
-		private Pose _leftHandDefaultPoseOffset;
-		private Pose _rightHandDefaultPoseOffset;
+
+		private HandController _leftHandController, _rightHandController;
 
 		// As we are in shared topology, having the StateAuthority means we are the local user
 		public virtual bool IsLocalNetworkRig => Object && Object.HasStateAuthority;
 
 		private void Awake()
 		{
-			_leftHandDefaultPoseOffset = new Pose(
-				_leftHand.position - _head.position,
-				_leftHand.rotation);
-			_rightHandDefaultPoseOffset = new Pose(
-				_rightHand.position - _head.position,
-				_rightHand.localRotation);
+			_leftHandController = _leftHand.GetComponent<HandController>();
+			_rightHandController = _rightHand.GetComponent<HandController>();
 		}
 
 		public override void Spawned()
@@ -58,29 +54,22 @@ namespace MirageXR
 
 		protected virtual void ApplyLocalStateToRigParts(RigState rigState)
 		{
-			//transform.position = rigState.playSpacePose.position;
-			//transform.rotation = rigState.playSpacePose.rotation;
+			transform.position = rigState.playSpacePose.position;
+			transform.rotation = rigState.playSpacePose.rotation;
+			_leftHandController.HandPositionSetExternally = rigState.leftHandState.handPresent;
 			if (rigState.leftHandState.handPresent)
 			{
 				_leftHand.transform.position = rigState.leftHandState.handPose.position + _leftHandOffset.position;
 				_leftHand.transform.rotation = rigState.leftHandState.handPose.rotation * _leftHandOffset.rotation;
 			}
-			else
-			{
-				_leftHand.transform.localPosition = _head.position + _leftHandDefaultPoseOffset.position;
-				_leftHand.transform.localRotation = _leftHandDefaultPoseOffset.rotation;
-			}
+
+			_rightHandController.HandPositionSetExternally = rigState.rightHandState.handPresent;
 			if (rigState.rightHandState.handPresent)
 			{
-
 				_rightHand.transform.position = rigState.rightHandState.handPose.position + _rightHandOffset.position;
 				_rightHand.transform.rotation = rigState.rightHandState.handPose.rotation * _rightHandOffset.rotation;
 			}
-			else
-			{
-				_rightHand.transform.localPosition = _head.position + _rightHandDefaultPoseOffset.position;
-				_rightHand.transform.localRotation = _rightHandDefaultPoseOffset.rotation;
-			}
+
 			_head.transform.position = rigState.headPose.position;
 			_head.transform.rotation = rigState.headPose.rotation;
 		}
