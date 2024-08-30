@@ -1,9 +1,10 @@
-﻿using System.IO;
+﻿#if UNITY_EDITOR
+using System.IO;
 using UnityEditor;
 
 public class CreateAssetBundles
 {
-    [MenuItem("Assets/Build AssetBundles")]
+    [MenuItem("MirageXR/Assets/Build AssetBundles")]
     static void BuildAllAssetBundles()
     {
         string assetBundleDirectory = "Assets/MirageXR/Common/AssetBundles";
@@ -16,3 +17,4 @@ public class CreateAssetBundles
         BuildPipeline.BuildAssetBundles(assetBundleDirectory, BuildAssetBundleOptions.None, BuildTarget.iOS);
     }
 }
+#endif
