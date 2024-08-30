@@ -10,7 +10,7 @@ public class GlyphEditorView : PopupEditorBase
     private const float MAX_SLIDER_VALUE = 10;
     private const float DEFAULT_SLIDER_VALUE = 3;
 
-    public override ContentType editorForType => ContentType.ACT;
+    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.ACT;
 
     [SerializeField] private Transform _contentContainer;
     [SerializeField] private GlyphListItem _glyphListItemPrefab;
@@ -26,7 +26,7 @@ public class GlyphEditorView : PopupEditorBase
     [SerializeField] private GameObject _acceptButtonObject;
     [SerializeField] private GameObject _closeButtonObject;
 
-    private Trigger _trigger;
+    private LearningExperienceEngine.Trigger _trigger;
     private float _gazeDuration;
     private int _triggerStepIndex;
     private string _prefabName;
@@ -131,7 +131,7 @@ public class GlyphEditorView : PopupEditorBase
         {
             if (!_editing)
             {
-                EventManager.DeactivateObject(_content);
+                LearningExperienceEngine.EventManager.DeactivateObject(_content);
             }
         }
         else
@@ -146,7 +146,7 @@ public class GlyphEditorView : PopupEditorBase
 
         if (_toggleTrigger.isOn)
         {
-            _step.AddOrReplaceArlemTrigger(TriggerMode.Detect, ActionType.Act, _content.poi, _gazeDuration, (_triggerStepIndex + 1).ToString());
+            _step.AddOrReplaceArlemTrigger(LearningExperienceEngine.TriggerMode.Detect, LearningExperienceEngine.ActionType.Act, _content.poi, _gazeDuration, (_triggerStepIndex + 1).ToString());
         }
         else
         {
@@ -155,7 +155,7 @@ public class GlyphEditorView : PopupEditorBase
 
         if (!_editing)
         {
-            EventManager.ActivateObject(_content);
+            LearningExperienceEngine.EventManager.ActivateObject(_content);
         }
 
         base.OnAccept();

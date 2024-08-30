@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LearningExperienceEngine;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,13 +7,13 @@ using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Action = MirageXR.Action;
+using Action = LearningExperienceEngine.Action;
 
 public class StepsListView : BaseView
 {
     private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg";
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
-    private static MoodleManager moodleManager => RootObject.Instance.moodleManager;
+    private static ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static MoodleManager moodleManager => LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager;
     
     [SerializeField] private TMP_InputField _inputFieldName;
     [SerializeField] private RectTransform _listContent;
@@ -42,20 +43,20 @@ public class StepsListView : BaseView
         _btnUpload.onClick.AddListener(OnUploadButtonPressed);
         _btnThumbnail.onClick.AddListener(OnThumbnailButtonPressed);
 
-        EventManager.OnWorkplaceLoaded += OnStartActivity;
-        EventManager.OnActionCreated += OnActionCreated;
-        EventManager.OnActionDeleted += OnActionDeleted;
-        EventManager.OnActionModified += OnActionChanged;
-        EventManager.OnEditModeChanged += OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnWorkplaceLoaded += OnStartActivity;
+        LearningExperienceEngine.EventManager.OnActionCreated += OnActionCreated;
+        LearningExperienceEngine.EventManager.OnActionDeleted += OnActionDeleted;
+        LearningExperienceEngine.EventManager.OnActionModified += OnActionChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
     }
 
     private void OnDestroy()
     {
-        EventManager.OnWorkplaceLoaded -= OnStartActivity;
-        EventManager.OnActionCreated -= OnActionCreated;
-        EventManager.OnActionDeleted -= OnActionDeleted;
-        EventManager.OnActionModified -= OnActionChanged;
-        EventManager.OnEditModeChanged -= OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnWorkplaceLoaded -= OnStartActivity;
+        LearningExperienceEngine.EventManager.OnActionCreated -= OnActionCreated;
+        LearningExperienceEngine.EventManager.OnActionDeleted -= OnActionDeleted;
+        LearningExperienceEngine.EventManager.OnActionModified -= OnActionChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
     }
 
     private void OnStartActivity()
@@ -100,7 +101,7 @@ public class StepsListView : BaseView
     private void OnStepNameChanged(string newTitle)
     {
         activityManager.Activity.name = newTitle;
-        EventManager.NotifyOnActivityRenamed();
+        LearningExperienceEngine.EventManager.NotifyOnActivityRenamed();
     }
 
     public void OnDeleteStepClick(Action step)
@@ -194,7 +195,7 @@ public class StepsListView : BaseView
 
     public void OnUploadButtonPressed()
     {
-        if (DBManager.LoggedIn)
+        if (UserSettings.LoggedIn)
         {
             Upload();
         }

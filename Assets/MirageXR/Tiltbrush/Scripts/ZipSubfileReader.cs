@@ -26,12 +26,12 @@ namespace TiltBrush {
 /// emulate the API one expects from a FileStream, but an additional
 /// benefit is it allows true concurrent reading of the underlying file.
 public sealed class ZipSubfileReader_SharpZipLib : TiltBrush.WrappedStream {
-  ICSharpCode.SharpZipLib.Zip.ZipFile m_file;
+  Unity.SharpZipLib.Zip.ZipFile m_file;
 
   public ZipSubfileReader_SharpZipLib(string zipPath, string subPath) {
-    ICSharpCode.SharpZipLib.Zip.ZipFile zipfile = new ICSharpCode.SharpZipLib.Zip.ZipFile(zipPath);
+            Unity.SharpZipLib.Zip.ZipFile zipfile = new Unity.SharpZipLib.Zip.ZipFile(zipPath);
     try {
-      ICSharpCode.SharpZipLib.Zip.ZipEntry entry = zipfile.GetEntry(subPath);
+                Unity.SharpZipLib.Zip.ZipEntry entry = zipfile.GetEntry(subPath);
       if (entry == null) {
         throw new System.IO.FileNotFoundException("Cannot find subfile");
       }

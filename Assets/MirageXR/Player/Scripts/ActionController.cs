@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class ActionController : MonoBehaviour
 {
-    public Place Content { get; private set; }
+    public LearningExperienceEngine.Place Content { get; private set; }
 
-    public void Initialize(Place content)
+    public void Initialize(LearningExperienceEngine.Place content)
     {
         Content = content;
     }

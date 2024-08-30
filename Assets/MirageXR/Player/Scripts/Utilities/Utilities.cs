@@ -177,27 +177,6 @@ namespace MirageXR
         /// Finds a transform from all the children of a transform.
         /// </summary>
         /// <param name="parent"></param>
-        /// <param name="id">Child id to look for.</param>
-        /// <returns></returns>
-        public static Transform FindDeepChild(this Transform parent, string id)
-        {
-            foreach (Transform child in parent)
-            {
-                if (child.name == id)
-                    return child;
-
-                var result = child.FindDeepChild(id);
-                if (result != null)
-                    return result;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Finds a transform from all the children of a transform.
-        /// </summary>
-        /// <param name="parent"></param>
         /// <param name="id">Child tag to look for.</param>
         /// <returns></returns>
         public static Transform FindDeepChildTag(this Transform parent, string id)
