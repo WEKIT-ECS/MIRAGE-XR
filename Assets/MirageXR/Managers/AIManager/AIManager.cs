@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using MirageXR.AIManagerDataModel;
 using UnityEngine;
+using LearningExperienceEngine;
 
 namespace MirageXR
 {
@@ -52,8 +53,21 @@ namespace MirageXR
             try
             {
                 await ReadConfig();
-                _token = await AiServices.AuthenticateUserAsync(_url, _username, _password);
-                SetModels(await AiServices.GetAvailableModelsAsync(_url, _token));
+
+                Debug.LogInfo("Initialising AI manager");
+                string _renewToken;
+                string _accessToken;
+                if (UserSettings.TryGetPassword("identity", out _renewToken, out _accessToken))
+                {
+                    Debug.LogInfo("with token : " + _accessToken + " to url " + _url);
+                    SetModels(await AiServices.GetAvailableModelsAsync(_url, _token));
+                } else
+                {
+                    Debug.LogInfo("with u/pwd");
+                    _token = await AiServices.AuthenticateUserAsync(_url, _username, _password);
+                    SetModels(await AiServices.GetAvailableModelsAsync(_url, _token));
+                }
+                
             }
             catch (Exception e)
             {
