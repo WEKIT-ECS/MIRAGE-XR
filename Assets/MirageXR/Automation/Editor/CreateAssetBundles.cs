@@ -3,7 +3,7 @@ using UnityEditor;
 
 public class CreateAssetBundles
 {
-    [MenuItem("Assets/Build AssetBundles")]
+    [MenuItem("MirageXR/Assets/Build AssetBundles")]
     static void BuildAllAssetBundles()
     {
         string assetBundleDirectory = "Assets/MirageXR/Common/AssetBundles";
