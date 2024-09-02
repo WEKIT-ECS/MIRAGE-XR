@@ -138,30 +138,20 @@ public class ProfileView : PopupBase
 
     private async void OnOicdLogin()
     {
-        LearningExperienceEngine.OidcLogin oidcLogin = GetComponent<LearningExperienceEngine.OidcLogin>();
-
-        // register callback to update view once login completed
-        var service = ServiceManager.GetService<OpenIDConnectService>();
-        service.LoginCompleted += OnOidcLoginCompleted;
-
-        oidcLogin.Login();
-
+        LearningExperienceEngine.AuthManager.OnLoginCompleted += OnOidcLoginCompleted;
+        LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.Login();
     }
 
-    private void OnOidcLoginCompleted(object sender, EventArgs e)
+    private void OnOidcLoginCompleted(string accessToken)
     {
-        var service = ServiceManager.GetService<OpenIDConnectService>();
-        service.LoginCompleted -= OnOidcLoginCompleted;
-
-        LearningExperienceEngine.OidcLogin oidcLogin = GetComponent<LearningExperienceEngine.OidcLogin>();
-        oidcLogin.FetchUsername();
-
+        LearningExperienceEngine.AuthManager.OnLoginCompleted -= OnOidcLoginCompleted;
         RootView_v2.Instance.activityListView.FetchAndUpdateView();
         ShowLogout();
     }
 
     private void OnClickLogout()
     {
+        if (LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.LoggedIn()) LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.Logout();
         LearningExperienceEngine.UserSettings.ClearLoginData();
         RootView_v2.Instance.activityListView.FetchAndUpdateView();
         ShowLogin();

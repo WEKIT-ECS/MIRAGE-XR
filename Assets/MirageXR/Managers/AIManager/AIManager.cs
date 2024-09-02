@@ -50,29 +50,37 @@ namespace MirageXR
         /// <returns>A Task representing the asynchronous operation.</returns>
         public async Task InitializeAsync()
         {
-            try
-            {
-                await ReadConfig();
+            await ReadConfig();
+            AuthManager.OnLoginCompleted += OnOidcLoginCompleted;
+            AuthManager.OnLogoutCompleted += OnOidcLogoutCompleted;
+        }
 
-                Debug.LogInfo("Initialising AI manager");
-                string _renewToken;
-                string _accessToken;
-                if (UserSettings.TryGetPassword("identity", out _renewToken, out _accessToken))
-                {
-                    Debug.LogInfo("with token : " + _accessToken + " to url " + _url);
-                    SetModels(await AiServices.GetAvailableModelsAsync(_url, _token));
-                } else
-                {
-                    Debug.LogInfo("with u/pwd");
-                    _token = await AiServices.AuthenticateUserAsync(_url, _username, _password);
-                    SetModels(await AiServices.GetAvailableModelsAsync(_url, _token));
-                }
-                
-            }
-            catch (Exception e)
+        public void onDestroy()
+        {
+            AuthManager.OnLoginCompleted -= OnOidcLoginCompleted;
+            AuthManager.OnLogoutCompleted -= OnOidcLogoutCompleted;
+        }
+
+        public async void OnOidcLoginCompleted(string accessToken)
+        {
+            if (!string.IsNullOrEmpty(accessToken))
             {
-                AppLog.LogWarning(e.ToString());
+                Debug.LogInfo("AImanager: auth with token : " + accessToken + " to url " + _url);
+                _token = accessToken;
+                SetModels(await AiServices.GetAvailableModelsAsync(_url, _token));
             }
+            else
+            {
+                Debug.LogWarning("AImanager: using direct auth as fallback after failed OIDC");
+                _token = await AiServices.AuthenticateUserAsync(_url, _username, _password);
+                SetModels(await AiServices.GetAvailableModelsAsync(_url, _token));
+            }
+        }
+
+        public async void OnOidcLogoutCompleted()
+        {
+            Debug.LogInfo("AImanager: OIDC logout received");
+            _token = null;
         }
 
         /// <summary>

@@ -43,20 +43,6 @@ public class LoginView_v2 : PopupBase
         _toggleRemember.onValueChanged.AddListener(OnToggleRememberValueChanged);
 
         ResetValues();
-
-        LearningExperienceEngine.OidcLogin oidcLogin = GetComponent<LearningExperienceEngine.OidcLogin>();
-        if (oidcLogin.LoggedIn())
-        {
-            var service = ServiceManager.GetService<OpenIDConnectService>();
-            service.LoginCompleted += OnOidcLoginCompleted;
-
-            oidcLogin.Login();
-        }
-        else
-        {
-            Debug.Log("Continuing init to offer all the options in the view");
-        }
-
     }
 
     protected override bool TryToGetArguments(params object[] args)
@@ -110,30 +96,19 @@ public class LoginView_v2 : PopupBase
 
     private void OnOidcLogin()
     {
-        var service = ServiceManager.GetService<OpenIDConnectService>();
-        service.LoginCompleted += OnOidcLoginCompleted;
-
-        LearningExperienceEngine.OidcLogin oidcLogin = GetComponent<LearningExperienceEngine.OidcLogin>();
-        oidcLogin.Login();
+        AuthManager.OnLoginCompleted += OnOidcLoginCompleted;
+        LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.Login();
     }
 
-    private void OnOidcLoginCompleted(object sender, EventArgs e)
+    private void OnOidcLoginCompleted(string accessToken)
     {
-        Toast.Instance.Show("Login succeeded");
-
-        var service = ServiceManager.GetService<OpenIDConnectService>();
-        service.LoginCompleted -= OnOidcLoginCompleted;
-
-        Close();
-
-        // this is evaluated by UserInfo.LoggedIn, which is used to determine if the logout button is displayed in the profile view
-        UserSettings.username = "via Open ID connect"; // temp until callback received to fetch real username
-        LearningExperienceEngine.OidcLogin oidcLogin = GetComponent<LearningExperienceEngine.OidcLogin>();
-        oidcLogin.FetchUsername();
+        AuthManager.OnLoginCompleted -= OnOidcLoginCompleted;
 
         // if the activity view is loading activities already in the background, this might also require:
         // RootView_v2.Instance.activityListView.FetchAndUpdateView();
 
+        Toast.Instance.Show("Login succeeded");
+        Close();
     }
 
     private void OnGoToLoginPressed()
