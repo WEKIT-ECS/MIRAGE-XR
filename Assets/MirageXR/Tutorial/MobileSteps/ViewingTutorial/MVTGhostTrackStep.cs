@@ -1,3 +1,4 @@
+using LearningExperienceEngine;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -16,7 +17,7 @@ namespace MirageXR
 
             this.arrowRotationOffset = new Vector3(0f, 180f, 0f);
 
-            EventManager.OnActivateAction += ExitListener;
+            LearningExperienceEngine.EventManager.OnActivateAction += ExitListener;
         }
 
         private async void ExitListener(string action)
@@ -27,7 +28,7 @@ namespace MirageXR
 
         protected override void Detach()
         {
-            EventManager.OnActivateAction -= ExitListener;
+            LearningExperienceEngine.EventManager.OnActivateAction -= ExitListener;
         }
     }
 }

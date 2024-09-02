@@ -13,6 +13,7 @@ public class LoginView_v2 : PopupBase
     [SerializeField] private GameObject _pnlFields;
     [SerializeField] private Toggle _toggleRemember;
     [SerializeField] private Button _btnRegister;
+    [SerializeField] private Button _btnPasswordForgotten;
     [SerializeField] private Button _btnGoToLogin;
     [SerializeField] private Button _btnSkipLogin;
     [SerializeField] private Button _btnLogin;
@@ -29,6 +30,7 @@ public class LoginView_v2 : PopupBase
         _inputFieldUserName.SetValidator(IsValidUsername);
         _inputFieldPassword.SetValidator(IsValidPassword);
         _btnRegister.onClick.AddListener(OnClickRegister);
+        _btnPasswordForgotten.onClick.AddListener(OnClickPasswordForgotten);
         _btnLogin.onClick.AddListener(OnClickLogin);
         _btnGoToLogin.onClick.AddListener(OnGoToLoginPressed);
         _btnSkipLogin.onClick.AddListener(OnEnterAsGuest);
@@ -55,7 +57,7 @@ public class LoginView_v2 : PopupBase
     private async Task Login(string username, string password)
     {
         LoadView.Instance.Show();
-        var result = await RootObject.Instance.moodleManager.Login(username, password);
+        var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.Login(username, password);
         LoadView.Instance.Hide();
         if (result)
         {
@@ -73,7 +75,7 @@ public class LoginView_v2 : PopupBase
 
     private void OnToggleRememberValueChanged(bool value)
     {
-        DBManager.rememberUser = value;
+        LearningExperienceEngine.UserSettings.rememberUser = value;
     }
 
     private void OnEnable()
@@ -104,13 +106,13 @@ public class LoginView_v2 : PopupBase
     private void OnLoginSucceed(string username, string password)
     {
         Toast.Instance.Show("Login succeeded");
-        if (DBManager.rememberUser)
+        if (LearningExperienceEngine.UserSettings.rememberUser)
         {
-            LocalFiles.SaveUsernameAndPassword(username, password);
+            LearningExperienceEngine.UserSettings.SaveUsernameAndPassword(username, password);
         }
         else
         {
-            LocalFiles.RemoveUsernameAndPassword();
+            LearningExperienceEngine.UserSettings.RemoveUsernameAndPassword();
         }
 
         _onLoginStatusChanged?.Invoke();
@@ -118,7 +120,7 @@ public class LoginView_v2 : PopupBase
 
     private void ResetValues()
     {
-        _toggleRemember.isOn = DBManager.rememberUser;
+        _toggleRemember.isOn = LearningExperienceEngine.UserSettings.rememberUser;
         _inputFieldUserName.text = string.Empty;
         _inputFieldPassword.text = string.Empty;
         if (_dontShowLoginMenu)
@@ -137,7 +139,12 @@ public class LoginView_v2 : PopupBase
 
     private void OnClickRegister()
     {
-        Application.OpenURL(DBManager.registerPage);
+        Application.OpenURL(LearningExperienceEngine.UserSettings.registerPage);
+    }
+
+    private void OnClickPasswordForgotten()
+    {
+        Application.OpenURL(LearningExperienceEngine.UserSettings.passwordForgottenPage);
     }
 
     private async void OnClickLogin()

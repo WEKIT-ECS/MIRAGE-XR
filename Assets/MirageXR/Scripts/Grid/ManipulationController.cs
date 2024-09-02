@@ -60,7 +60,7 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
         HideGridLines();
 
-        EventManager.OnEditModeChanged += OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
     }
 
     private void OnRotateStarted(GameObject source)
@@ -367,7 +367,7 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     public void Dispose()
     {
-        EventManager.OnEditModeChanged -= OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
     }
 
     private void OnEditModeChanged(bool value)

@@ -20,7 +20,7 @@ namespace Tests
             Vector3 haP1 = new Vector3(7, 8, 9);
             Vector3 haP2 = new Vector3(10, 11, 12);
             float tS = 1f;
-            HololensSensorDataFrame hsdf = new HololensSensorDataFrame(hp, gD, cH, haP1, haP2, tS);
+            LearningExperienceEngine.HololensSensorDataFrame hsdf = new LearningExperienceEngine.HololensSensorDataFrame(hp, gD, cH, haP1, haP2, tS);
             Assert.AreEqual(hp, hsdf.HeadPosition);
             Assert.AreEqual(gD, hsdf.GazeDirection);
             Assert.AreEqual(cH, hsdf.CastHit);
