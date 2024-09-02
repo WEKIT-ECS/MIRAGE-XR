@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using LearningExperienceEngine;
 
 namespace MirageXR
 {
@@ -16,17 +17,15 @@ namespace MirageXR
         [SerializeField] private Image buttonIcon;
         [SerializeField] private Text termsOfUseText;
 
-        private ConfigEditor CFEditor = new ConfigEditor();
+        private static LearningExperienceEngine.BrandManager brandManager /*configParser */ => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
 
         private void Start()
         {
             termsOfUseText.supportRichText = true;
 
             string TermsOfUse = string.Empty;
-            if (Resources.Load<TextAsset>(CFEditor.termsOfUseUser))
-                TermsOfUse = Resources.Load<TextAsset>(CFEditor.termsOfUseUser).text;
-            else if (Resources.Load<TextAsset>(CFEditor.termsOfUseDefault))
-                TermsOfUse = Resources.Load<TextAsset>(CFEditor.termsOfUseDefault).text;
+            if (Resources.Load<TextAsset>(brandManager.CfgParser.Configuration.TermsOfUseFileName))
+                TermsOfUse = Resources.Load<TextAsset>(brandManager.CfgParser.Configuration.TermsOfUseFileName).text;
 
             if (TermsOfUse != string.Empty)
                 termsOfUseText.text = TermsOfUse;

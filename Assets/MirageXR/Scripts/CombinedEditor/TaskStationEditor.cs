@@ -1,16 +1,17 @@
-﻿using System;
+﻿using LearningExperienceEngine;
+using System;
 using Microsoft.MixedReality.Toolkit.UI;
 using MirageXR;
 using Newtonsoft.Json;
-using UnityEditor;
-using UnityEditor.Search;
+//using UnityEditor;
+//using UnityEditor.Search;
 using UnityEngine;
-using Action = MirageXR.Action;
+using Action = LearningExperienceEngine.Action;
 
 [RequireComponent(typeof(TaskStationStateController), typeof(ObjectManipulator))]
 public class TaskStationEditor : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
 
     private static GridManager gridManager => RootObject.Instance.gridManager;
 
@@ -18,10 +19,10 @@ public class TaskStationEditor : MonoBehaviour
     private TaskStationStateController _taskStationStateController;
     private MeshRenderer _meshRenderer;
     private GameObject _mTaskStationNumberTag;
-    private Detectable _detectable;
-    private Action _action;
+    private LearningExperienceEngine.Detectable _detectable;
+    private LearningExperienceEngine.Action _action;
 
-    public void Init(Action action)
+    public void Init(LearningExperienceEngine.Action action)
     {
         _objectManipulator = GetComponent<ObjectManipulator>();
         _taskStationStateController = GetComponent<TaskStationStateController>();
@@ -34,7 +35,7 @@ public class TaskStationEditor : MonoBehaviour
         var id = _action == null ? transform.parent.parent.name : _action.id;
         
         var detectableId = id.Replace("TS-", "WA-");
-        _detectable = RootObject.Instance.workplaceManager.GetDetectable(detectableId);
+        _detectable = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.GetDetectable(detectableId);
         _objectManipulator.HostTransform = GameObject.Find(_detectable.id).transform;
 
         try
@@ -51,16 +52,16 @@ public class TaskStationEditor : MonoBehaviour
 
     private void OnEnable()
     {
-        EventManager.OnEditModeChanged += OnEditModeChanged;
-        EventManager.OnWorkplaceCalibrated += OnCalibrationFinished;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnWorkplaceCalibrated += OnCalibrationFinished;
 
-        EventManager.NotifyOnTaskStationEditorEnabled();
+        MirageXR.EventManager.NotifyOnTaskStationEditorEnabled();
     }
 
     private void OnDisable()
     {
-        EventManager.OnEditModeChanged -= OnEditModeChanged;
-        EventManager.OnWorkplaceCalibrated -= OnCalibrationFinished;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnWorkplaceCalibrated -= OnCalibrationFinished;
     }
 
     private void OnEditModeChanged(bool editModeActive)
@@ -104,7 +105,7 @@ public class TaskStationEditor : MonoBehaviour
         gridManager.onManipulationEnded(source);
 
         RecordTaskStationPosition();
-        EventManager.NotifyOnTaskStationEditorDragEnd();
+        MirageXR.EventManager.NotifyOnTaskStationEditorDragEnd();
     }
 
     private void RecordTaskStationPosition()

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using LearningExperienceEngine;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -15,7 +16,7 @@ namespace MirageXR
 {
     public class CharacterController : MirageXRPrefab
     {
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
 
         [SerializeField] private Transform rightHandBone;
 
@@ -24,10 +25,10 @@ namespace MirageXR
 
         private Animator _anim;
         private NavMeshAgent _agent;
-        private ToggleObject _myObj;
+        private LearningExperienceEngine.ToggleObject _myObj;
         private Color _pathNodesColor;
         private GameObject _myImageFrame;
-        private List<StepSettings> stepsSettings;
+        private List<LearningExperienceEngine.CharacterStepSettings> stepsSettings;
         private GameObject imageContainer;
         private float animationLength;
         private float triggerDuration;
@@ -110,16 +111,16 @@ namespace MirageXR
 
 
 
-        public ToggleObject MyImageAnnotation { get; set; }
+        public LearningExperienceEngine.ToggleObject MyImageAnnotation { get; set; }
         #endregion
 
-        public ToggleObject ToggleObject => _myObj;
+        public LearningExperienceEngine.ToggleObject ToggleObject => _myObj;
 
         public DialogRecorder DialogRecorder { get; private set; }
 
         public AudioEditor MyAudioEditor { get; set; }
 
-        public Action MyAction { get; set; }
+        public LearningExperienceEngine.Action MyAction { get; set; }
 
         public string MovementType { get; set; }
 
@@ -141,7 +142,7 @@ namespace MirageXR
         public List<GameObject> Destinations { get; set; }
 
 
-        public override bool Init(ToggleObject obj)
+        public override bool Init(LearningExperienceEngine.ToggleObject obj)
         {
             _myObj = obj;
 
@@ -211,7 +212,7 @@ namespace MirageXR
 
         private async void OnEnable()
         {
-            stepsSettings = new List<StepSettings>();
+            stepsSettings = new List<LearningExperienceEngine.CharacterStepSettings>();
 
             _anim = GetComponentInChildren<Animator>();
             _agent = GetComponent<NavMeshAgent>();
@@ -319,21 +320,21 @@ namespace MirageXR
 
         private void Subscribe()
         {
-            EventManager.OnEditModeChanged += SetEditModeState;
-            EventManager.OnAugmentationDeleted += DeleteCharacterData;
-            EventManager.OnActivitySaved += SaveJson;
-            EventManager.OnToggleObject += OnToggleObjectActivated;
+            LearningExperienceEngine.EventManager.OnEditModeChanged += SetEditModeState;
+            LearningExperienceEngine.EventManager.OnAugmentationDeleted += DeleteCharacterData;
+            LearningExperienceEngine.EventManager.OnActivitySaved += SaveJson;
+            LearningExperienceEngine.EventManager.OnToggleObject += OnToggleObjectActivated;
         }
 
         private void Unsubscribe()
         {
-            EventManager.OnEditModeChanged -= SetEditModeState;
-            EventManager.OnAugmentationDeleted -= DeleteCharacterData;
-            EventManager.OnActivitySaved -= SaveJson;
-            EventManager.OnToggleObject -= OnToggleObjectActivated;
+            LearningExperienceEngine.EventManager.OnEditModeChanged -= SetEditModeState;
+            LearningExperienceEngine.EventManager.OnAugmentationDeleted -= DeleteCharacterData;
+            LearningExperienceEngine.EventManager.OnActivitySaved -= SaveJson;
+            LearningExperienceEngine.EventManager.OnToggleObject -= OnToggleObjectActivated;
         }
 
-        private void OnToggleObjectActivated(ToggleObject toggleObject, bool value)
+        private void OnToggleObjectActivated(LearningExperienceEngine.ToggleObject toggleObject, bool value)
         {
             if (!value && _myObj.poi == toggleObject.poi)
             {
@@ -513,7 +514,7 @@ namespace MirageXR
             {
                 if (activityManager.ActionsOfTypeAction.IndexOf(MyAction) != activityManager.ActionsOfTypeAction.Count - 1)
                 {
-                    MyAction.AddArlemTrigger(TriggerMode.Character, ActionType.Character, _myObj.poi, triggerDuration);
+                    MyAction.AddArlemTrigger(LearningExperienceEngine.TriggerMode.Character, LearningExperienceEngine.ActionType.Character, _myObj.poi, triggerDuration);
                 }
                 else
                 {
@@ -618,9 +619,9 @@ namespace MirageXR
             }
         }
 
-        private Tuple<DestinationPoints, string> PrepareNodesToSave()
+        private Tuple<CharacterDestinationPoints, string> PrepareNodesToSave()
         {
-            var destinationPoints = new DestinationPoints();
+            var destinationPoints = new CharacterDestinationPoints();
 
             // prepare the movementType and the destination nodes
             switch (MovementType)
@@ -672,7 +673,7 @@ namespace MirageXR
         {
             if (_myObj == null || string.IsNullOrEmpty(_myObj.poi) || !CharacterParsed) return; //only if the character is instantiated not the prefab
 
-            var character = new Character();
+            var character = new LearningExperienceEngine.CharacterData();
 
             //add settings of all steps(which contains me) in json file
             foreach (var action in activityManager.ActionsOfTypeAction)
@@ -680,7 +681,7 @@ namespace MirageXR
                 if (action.enter.activates.Find(p => p.poi == _myObj.poi) != null)
                 {
                     // create a new step to keep current step settings for this character
-                    var step = new StepSettings
+                    var step = new LearningExperienceEngine.CharacterStepSettings
                     {
                         actionId = action.id
                     };
@@ -751,7 +752,7 @@ namespace MirageXR
 
                 if (!File.Exists(jsonpath)) continue;
 
-                var anotherCharacter = JsonUtility.FromJson<Character>(File.ReadAllText(jsonpath));
+                var anotherCharacter = JsonUtility.FromJson<LearningExperienceEngine.CharacterData>(File.ReadAllText(jsonpath));
                 anotherCharacter.AIActive = false;
                 string anotherCharacterNewJson = JsonUtility.ToJson(anotherCharacter);
                 File.WriteAllText(jsonpath, anotherCharacterNewJson);
@@ -1115,11 +1116,11 @@ namespace MirageXR
             if (!File.Exists(jsonPath)) return false;
 
             List<GameObject> destinations = new List<GameObject>();
-            Character character = JsonUtility.FromJson<Character>(File.ReadAllText(jsonPath));
+            LearningExperienceEngine.CharacterData character = JsonUtility.FromJson<LearningExperienceEngine.CharacterData>(File.ReadAllText(jsonPath));
 
             foreach (var step in character.steps)
             {
-                StepSettings s = new StepSettings
+                LearningExperienceEngine.CharacterStepSettings s = new LearningExperienceEngine.CharacterStepSettings
                 {
                     destinations = step.destinations,
                     movementType = step.movementType,
@@ -1320,7 +1321,7 @@ namespace MirageXR
             imageContainer.transform.SetParent(rightHandBone);
         }
 
-        private IEnumerator MoveMyImage(GameObject img, ToggleObject annotation)
+        private IEnumerator MoveMyImage(GameObject img, LearningExperienceEngine.ToggleObject annotation)
         {
             while (img != null && MyImageAnnotation == annotation)
             {
@@ -1353,7 +1354,7 @@ namespace MirageXR
             }
         }
 
-        public void SetImage(ToggleObject annotation)
+        public void SetImage(LearningExperienceEngine.ToggleObject annotation)
         {
             foreach (var character in FindObjectsOfType<CharacterController>())
             {
@@ -1418,7 +1419,7 @@ namespace MirageXR
         }
 
 
-        private void DeleteCharacterData(ToggleObject toggleObject)
+        private void DeleteCharacterData(LearningExperienceEngine.ToggleObject toggleObject)
         {
             if (toggleObject != _myObj) return;
 
@@ -1460,51 +1461,4 @@ namespace MirageXR
         }
     }
 
-    [Serializable]
-    public class Character
-    {
-        public List<StepSettings> steps;
-        public float scale;
-        public bool AIActive;
-        public string AssistantID;
-        public string AIProvider;
-        public string AIprompt;
-    }
-
-    [Serializable]
-    public class StepSettings
-    {
-        public string actionId;
-        public string movementType;
-        public DestinationPoints destinations;
-        public string animationType;
-        public bool animationLoop;
-        public string dialSaveName;
-        public bool dialogLoop;
-        public string imagePoiId;
-    }
-
-    [Serializable]
-    public class DestinationPoints
-    {
-        public Point[] points = null;
-        public bool returnPath = false;
-    }
-
-    [Serializable]
-    public class Point
-    {
-        public int index;
-        public Vector3 position;
-        public Quaternion rotation;
-        public string name;
-
-        public Point(int index, Vector3 pos, Quaternion rot, string name)
-        {
-            this.index = index;
-            this.position = pos;
-            this.rotation = rot;
-            this.name = name;
-        }
-    }
 }

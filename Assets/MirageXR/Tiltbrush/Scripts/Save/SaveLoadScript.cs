@@ -91,8 +91,8 @@ namespace TiltBrush
     static SaveLoadScript()
     {
 #if UNITY_2018_4_OR_NEWER
-      // 2018 doesn't include ANSICodePage any more -- or maybe it's only if we use .net 4.6?
-      ICSharpCode.SharpZipLib.Zip.ZipConstants.DefaultCodePage = kAsciiCodePage;
+            // 2018 doesn't include ANSICodePage any more -- or maybe it's only if we use .net 4.6?
+            Unity.SharpZipLib.Zip.ZipConstants.DefaultCodePage = kAsciiCodePage;
 #else
     // There's an ancient mono bug (that Unity inherits) that prevents builds
     // from including the proper set of code pages, causing runtime errors when
