@@ -3,8 +3,8 @@ using System;
 using Microsoft.MixedReality.Toolkit.UI;
 using MirageXR;
 using Newtonsoft.Json;
-using UnityEditor;
-using UnityEditor.Search;
+//using UnityEditor;
+//using UnityEditor.Search;
 using UnityEngine;
 using Action = LearningExperienceEngine.Action;
 
