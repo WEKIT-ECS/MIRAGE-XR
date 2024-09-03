@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿#if UNITY_EDITOR
+using System.IO;
 using UnityEditor;
 
 public class CreateAssetBundles
@@ -16,3 +17,4 @@ public class CreateAssetBundles
         BuildPipeline.BuildAssetBundles(assetBundleDirectory, BuildAssetBundleOptions.None, BuildTarget.iOS);
     }
 }
+#endif

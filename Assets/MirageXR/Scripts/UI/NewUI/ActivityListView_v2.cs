@@ -364,7 +364,7 @@ public class ActivityListView_v2 : BaseView
         CreateTutorialActivityCard();
     }
 
-    private async void MoveTutorialActivityToLocalFilesIOS()
+    private async Task MoveTutorialActivityToLocalFilesIOS() // was void
     {
         var stream = new FileStream(Path.Combine(Application.streamingAssetsPath, "TutorialActivity.zip"), FileMode.Open);
 
