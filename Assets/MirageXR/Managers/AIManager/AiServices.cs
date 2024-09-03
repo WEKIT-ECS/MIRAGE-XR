@@ -54,7 +54,7 @@ namespace MirageXR
             fromData.AddBinaryData("message", bytes, "audio.wav", "audio/wav");
 
             using var webRequest = UnityWebRequest.Post(apiURL, fromData);
-            webRequest.SetRequestHeader("Authorization", $"Token {token}");
+            webRequest.SetRequestHeader("Authorization", $"{token}");
             await webRequest.SendWebRequest();
             if (webRequest.result != UnityWebRequest.Result.Success)
             {
@@ -105,7 +105,7 @@ namespace MirageXR
                 new MultipartFormDataSection("context", context),
             };
             using var webRequest = UnityWebRequest.Post(apiURL, fromData);
-            webRequest.SetRequestHeader("Authorization", $"Token {token}");
+            webRequest.SetRequestHeader("Authorization", $"{token}");
             await webRequest.SendWebRequest();
 
             if (webRequest.result != UnityWebRequest.Result.Success)
@@ -132,7 +132,7 @@ namespace MirageXR
 
             var apiURL = $"{url}/options/";
             var request = UnityWebRequest.Get(apiURL);
-            request.SetRequestHeader("Authorization", $"Token {token}");
+            request.SetRequestHeader("Authorization", $"{token}");
             await request.SendWebRequest();
             if (request.result != UnityWebRequest.Result.Success)
             {
@@ -188,7 +188,7 @@ namespace MirageXR
 
             var apiURL = $"{url}/tts/";
             using var webRequest = UnityWebRequestMultimedia.GetAudioClip(apiURL, AudioType.MPEG);
-            webRequest.SetRequestHeader("Authorization", $"Token {token}");
+            webRequest.SetRequestHeader("Authorization", $"{token}");
             webRequest.SetRequestHeader("message", base64Message);
             webRequest.SetRequestHeader("model", model);
             await webRequest.SendWebRequest();

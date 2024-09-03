@@ -1,3 +1,5 @@
+using i5.Toolkit.Core.OpenIDConnectClient;
+using i5.Toolkit.Core.ServiceCore;
 using MirageXR;
 using System;
 using System.Collections;
@@ -13,6 +15,7 @@ public class ProfileView : PopupBase
 
     [SerializeField] private Button _btnClose;
     [SerializeField] private Button _btnLogin;
+    [SerializeField] private Button _btnOicdLogin;
     [SerializeField] private Button _btnRegister;
     [SerializeField] private Button _btnPrivacyPolicy;
     [SerializeField] private GameObject _btnDevelopMode;
@@ -43,6 +46,7 @@ public class ProfileView : PopupBase
         _btnRegister.onClick.AddListener(OnClickRegister);
         _btnPrivacyPolicy.onClick.AddListener(OnClickPrivacyPolicy);
         _btnLogin.onClick.AddListener(OnClickLogin);
+        _btnOicdLogin.onClick.AddListener(OnOicdLogin);
         _btnLogout.onClick.AddListener(OnClickLogout);
         _btnGrid.onClick.AddListener(OnClickGrid);
         _btnDev.onClick.AddListener(OnClickDev);
@@ -132,8 +136,22 @@ public class ProfileView : PopupBase
         PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu, (System.Action)ResetValues);
     }
 
+    private async void OnOicdLogin()
+    {
+        LearningExperienceEngine.AuthManager.OnLoginCompleted += OnOidcLoginCompleted;
+        LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.Login();
+    }
+
+    private void OnOidcLoginCompleted(string accessToken)
+    {
+        LearningExperienceEngine.AuthManager.OnLoginCompleted -= OnOidcLoginCompleted;
+        RootView_v2.Instance.activityListView.FetchAndUpdateView();
+        ShowLogout();
+    }
+
     private void OnClickLogout()
     {
+        if (LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.LoggedIn()) LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.Logout();
         LearningExperienceEngine.UserSettings.ClearLoginData();
         RootView_v2.Instance.activityListView.FetchAndUpdateView();
         ShowLogin();
