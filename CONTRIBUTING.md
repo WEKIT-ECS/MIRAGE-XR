@@ -22,6 +22,10 @@ Tasks are created as issues in the Gitlab repository. Every intent to change cod
 
 After assigning yourself to the issue to develop the feature, you need to create a branch which is based on the develop branch. How you do this is up to you - you can create it using your Git client but there is also a button on each issue that can be used to generate the branch for you. The important part during the creation of the branch is that it should be based on the **develop** branch and not the master branch. Branches which introduce new features should start with the username of who implements it (e.g., "fwild") to group them. To indicate to which issue a branch belongs, you can start the name of the branch after the prefix with the issue's ID, followed by a short name of the issue. For instance, an issue with the ID 42 which states that a login solution should be implemented can be implemented on a branch "fwild/42-login-solution".
 
+### Submodules
+
+lib-lee runs as an embedded package (using a git submodule). Intialization after fresh cloning is required (`git submodule init; git submodule update`). When committing changes involving lib-lee, make sure you first merge the lib-lee pull request for the changes onto the lib-lee develop branch, switch the branch to develop, and then commit, push, and merge the changes in the main project.
+
 ### Commit messages
 
 Provide clear commit messages which state exactly what you changed and why you changed it. This will speed up the review process and help developers understand the history of the project.
