@@ -1,4 +1,5 @@
-﻿using Microsoft.MixedReality.Toolkit.UI;
+﻿using LearningExperienceEngine;
+using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using UnityEngine;
 
@@ -6,8 +7,8 @@ namespace MirageXR
 {
     public class GlyphItems : MirageXRPrefab
     {
-        private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
-        private ToggleObject _obj;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        private LearningExperienceEngine.ToggleObject _obj;
         private ObjectManipulator _objectManipulator;
         
         [SerializeField] private GameObject icon;
@@ -15,13 +16,13 @@ namespace MirageXR
 
         private void OnEnable()
         {
-            EventManager.OnEditModeChanged += SetEditorState;
+            LearningExperienceEngine.EventManager.OnEditModeChanged += SetEditorState;
         }
 
         private void OnDisable()
         {
-            EventManager.OnEditModeChanged -= SetEditorState;
-            EventManager.OnAugmentationLocked -= OnLock;
+            LearningExperienceEngine.EventManager.OnEditModeChanged -= SetEditorState;
+            LearningExperienceEngine.EventManager.OnAugmentationLocked -= OnLock;
         }
 
         private void Start()
@@ -43,7 +44,7 @@ namespace MirageXR
 
         }
 
-        public override bool Init(ToggleObject obj)
+        public override bool Init(LearningExperienceEngine.ToggleObject obj)
         {
             _obj = obj;
 
@@ -58,7 +59,7 @@ namespace MirageXR
             obj.text = name;
             transform.localScale = obj.scale != 0 ? new Vector3(obj.scale, obj.scale, obj.scale) : Vector3.one;
 
-            EventManager.OnAugmentationLocked += OnLock;
+            LearningExperienceEngine.EventManager.OnAugmentationLocked += OnLock;
 
             // If everything was ok, return base result.
             return base.Init(obj);

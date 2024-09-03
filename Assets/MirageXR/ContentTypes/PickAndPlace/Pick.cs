@@ -27,14 +27,14 @@ namespace MirageXR
         private bool _moveMode = true;
         private Color _originalArrowColor;
 
-        private Trigger _correctTrigger;
-        private Trigger _incorrectTrigger;
+        private LearningExperienceEngine.Trigger _correctTrigger;
+        private LearningExperienceEngine.Trigger _incorrectTrigger;
         private bool _isCorrectTrigger = false;
         private bool _isIncorrectTrigger = false;
 
         private MeshRenderer _arrowRenderer;
 
-        private static ActivityManager _activityManager => RootObject.Instance.ActivityManagerOld;
+        private static LearningExperienceEngine.ActivityManager _activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
 
         public Vector3 ResetPosition
         {
@@ -74,7 +74,7 @@ namespace MirageXR
             _objectManipulator.OnManipulationEnded.AddListener(OnManipulationEnded);
             _changeModelButton.onClick.AddListener(CapturePickModel);
 
-            _moveMode = RootObject.Instance.ActivityManagerOld.EditModeActive;
+            _moveMode = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
             AddHoverGuide(_changeModelButton.gameObject, _ModelButtonHelpText);
             SetArrowWrongColor();
         }
@@ -187,7 +187,7 @@ namespace MirageXR
             hoverGuilde.SetMessage(hoverMessage);
         }
 
-        private IEnumerator TriggerAction(Trigger trigger)
+        private IEnumerator TriggerAction(LearningExperienceEngine.Trigger trigger)
         {
             yield return new WaitForSeconds(trigger.duration);
 
@@ -201,15 +201,15 @@ namespace MirageXR
             _activityManager.ActivateActionByIndex(stepIndex);
         }
 
-        public void SetTrigger(Trigger trigger)
+        public void SetTrigger(LearningExperienceEngine.Trigger trigger)
         {
             switch (trigger.mode)
             {
-                case TriggerMode.PickAndPlace:
+                case LearningExperienceEngine.TriggerMode.PickAndPlace:
                     _isCorrectTrigger = true;
                     _correctTrigger = trigger;
                     break;
-                case TriggerMode.IncorrectPickAndPlace:
+                case LearningExperienceEngine.TriggerMode.IncorrectPickAndPlace:
                     _isIncorrectTrigger = true;
                     _incorrectTrigger = trigger;
                     break;

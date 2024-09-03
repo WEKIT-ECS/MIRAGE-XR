@@ -63,14 +63,14 @@ namespace MirageXR
 
         private void OnEnable()
         {
-            EventManager.OnClearAll += Clear;
-            EventManager.OnPlayerReset += Clear;
+            LearningExperienceEngine.EventManager.OnClearAll += Clear;
+             LearningExperienceEngine.EventManager.OnResetPlayer += Clear;
         }
 
         private void OnDisable()
         {
-            EventManager.OnClearAll -= Clear;
-            EventManager.OnPlayerReset -= Clear;
+            LearningExperienceEngine.EventManager.OnClearAll -= Clear;
+             LearningExperienceEngine.EventManager.OnResetPlayer -= Clear;
         }
 
         private void Clear()

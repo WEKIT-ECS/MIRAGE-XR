@@ -26,7 +26,7 @@ public class PlaneManagerEditor : PlaneManagerBase
 
     public override Task<bool> InitializationAsync()
     {
-        EventManager.OnEditModeChanged += OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
         return Task.FromResult(true);
     }
 
@@ -57,7 +57,7 @@ public class PlaneManagerEditor : PlaneManagerBase
     public override void DisablePlanes()
     {
         _enableColliders = false;
-        _showPlanes = RootObject.Instance.ActivityManagerOld.EditModeActive;
+        _showPlanes = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
 
         UpdatePlanes();
     }
@@ -89,7 +89,7 @@ public class PlaneManagerEditor : PlaneManagerBase
 
     public override void Dispose()
     {
-        EventManager.OnEditModeChanged -= OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
     }
 
     private void OnEditModeChanged(bool value)

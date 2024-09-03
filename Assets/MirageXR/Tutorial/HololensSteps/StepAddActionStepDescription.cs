@@ -15,12 +15,12 @@ namespace MirageXR
             TaskStationDetailMenu menu = TaskStationDetailMenu.Instance;
             this.highlightedObject = menu.ActionDescriptionInputField.gameObject;
 
-            EventManager.ActionStepDescriptionInputChanged += this.DefaultExitEventListener;
+            LearningExperienceEngine.EventManager.ActionStepDescriptionChanged += this.DefaultExitEventListener;
         }
 
         protected override void Detach()
         {
-            EventManager.ActionStepDescriptionInputChanged -= this.DefaultExitEventListener;
+            LearningExperienceEngine.EventManager.ActionStepDescriptionChanged -= this.DefaultExitEventListener;
         }
     }
 }

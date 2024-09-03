@@ -17,14 +17,14 @@ namespace MirageXR
 
             GameObject label = GameObject.Find(manager.CreatedLabel.id + "/" + manager.CreatedLabel.poi);
             this.highlightedObject = label;
-            EventManager.AugmentationPoiChanged += this.DefaultExitEventListener;
-            EventManager.OnActivityStarted += DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.AugmentationPoiChanged += this.DefaultExitEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity += DefaultCloseEventListener;
         }
         //
         protected override void Detach()
         {
-            EventManager.AugmentationPoiChanged -= this.DefaultExitEventListener;
-            EventManager.OnActivityStarted -= DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.AugmentationPoiChanged -= this.DefaultExitEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity -= DefaultCloseEventListener;
         }
     }
 }

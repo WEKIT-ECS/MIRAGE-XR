@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace MirageXR
 {
-    public class SessionContainerListItem : ListViewItem<SessionContainer>
+    public class SessionContainerListItem : ListViewItem<LearningExperienceEngine.SessionContainer>
     {
         [SerializeField] private Text textLabel;
         [SerializeField] private Text sizeLabel;
@@ -26,7 +26,7 @@ namespace MirageXR
             set => Content.IsDownloading = value;
         }
 
-        public override void ShowData(SessionContainer data, int index)
+        public override void ShowData(LearningExperienceEngine.SessionContainer data, int index)
         {
             base.ShowData(data, index);
             UpdateDisplay();
@@ -77,7 +77,7 @@ namespace MirageXR
             }
         }
 
-        private static void DeleteActivityDialog(SessionContainer activity)
+        private static void DeleteActivityDialog(LearningExperienceEngine.SessionContainer activity)
         {
             // Confirm and delete
             DialogWindow.Instance.Show("Warning!",
@@ -86,9 +86,9 @@ namespace MirageXR
                 new DialogButtonContent("No"));
         }
 
-        private static async void DeleteFromServer(SessionContainer activity)
+        private static async void DeleteFromServer(LearningExperienceEngine.SessionContainer activity)
         {
-            var result = await RootObject.Instance.MoodleManager.DeleteArlem(activity.ItemID, activity.FileIdentifier);
+            var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.DeleteArlem(activity.ItemID, activity.FileIdentifier);
             if (result)
             {
                 var sessionListView = FindObjectOfType<SessionListView>();

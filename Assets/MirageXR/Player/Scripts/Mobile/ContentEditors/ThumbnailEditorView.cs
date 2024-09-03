@@ -57,7 +57,7 @@ public class ThumbnailEditorView : PopupBase
             Toast.Instance.Show("The image has not been taken.");
             return;
         }
-        var path = Path.Combine(RootObject.Instance.ActivityManagerOld.ActivityPath, THUMBNAIL_FILE_NAME);
+        var path = Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActivityPath, THUMBNAIL_FILE_NAME);
         File.WriteAllBytes(path, _texture2D.EncodeToJPG());
         _onAccept.Invoke(path);
         Close();
@@ -76,13 +76,13 @@ public class ThumbnailEditorView : PopupBase
 
     private void CaptureImage()
     {
-        RootObject.Instance.ImageTargetManager.enabled = false;
+        RootObject.Instance.imageTargetManager.enabled = false;
         NativeCameraController.TakePicture(OnPictureTaken);
     }
 
     private void OnPictureTaken(bool result, Texture2D texture2D)
     {
-        RootObject.Instance.ImageTargetManager.enabled = true;
+        RootObject.Instance.imageTargetManager.enabled = true;
         if (!result)
         {
             return;

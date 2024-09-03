@@ -16,7 +16,7 @@ public class ActionEditorView : PopupEditorBase
     private float _currentGazeDurationValue;
     public class IntHolder : ObjectHolder<int> { }
 
-    public override ContentType editorForType => ContentType.ACT;
+    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.ACT;
 
     [SerializeField] private Image _thumbnailImage;
     [SerializeField] private TMP_Text _thumbnailLabel;
@@ -44,7 +44,7 @@ public class ActionEditorView : PopupEditorBase
     [SerializeField] private GameObject _arrowUp;
     [SerializeField] private ActionObject[] _actionObjects;
     
-    private Trigger _trigger;
+    private LearningExperienceEngine.Trigger _trigger;
     private float _gazeDuration;
     private string _inputTriggerStepNumber = string.Empty;
     private int _scrollRectStep;
@@ -186,7 +186,7 @@ public class ActionEditorView : PopupEditorBase
         {
             if (!_editing)
             {
-                EventManager.DeactivateObject(_content);
+                LearningExperienceEngine.EventManager.DeactivateObject(_content);
             }
         }
         else
@@ -201,7 +201,7 @@ public class ActionEditorView : PopupEditorBase
 
         if (_toggleGazeTrigger.isOn)
         {
-            _step.AddOrReplaceArlemTrigger(TriggerMode.Detect, ActionType.Act, _content.poi, _gazeDuration, (_inputTriggerStepNumber + 1).ToString());
+            _step.AddOrReplaceArlemTrigger(LearningExperienceEngine.TriggerMode.Detect, LearningExperienceEngine.ActionType.Act, _content.poi, _gazeDuration, (_inputTriggerStepNumber + 1).ToString());
         }
         else
         {
@@ -210,7 +210,7 @@ public class ActionEditorView : PopupEditorBase
 
         if (!_editing)
         {
-            EventManager.ActivateObject(_content);
+            LearningExperienceEngine.EventManager.ActivateObject(_content);
         }
 
         base.OnAccept();

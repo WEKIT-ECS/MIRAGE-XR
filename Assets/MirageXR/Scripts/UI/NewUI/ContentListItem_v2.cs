@@ -1,3 +1,4 @@
+﻿using LearningExperienceEngine;
 using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using System;
@@ -5,11 +6,11 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Content = MirageXR.ToggleObject;
+using Content = LearningExperienceEngine.ToggleObject;
 
 public class ContentListItem_v2 : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
 
     [SerializeField] private TMP_Text _txtType;
     [SerializeField] private TMP_Text _txtName;
@@ -19,7 +20,7 @@ public class ContentListItem_v2 : MonoBehaviour
     [SerializeField] private KeepAliveView _keepAliveViewPrefab;
 
     private ContentListView_v2 _parentView;
-    private Content _content;
+    private LearningExperienceEngine.ToggleObject _content;
     private ContentType _type;
     private int _from;
     private int _to;
@@ -39,10 +40,10 @@ public class ContentListItem_v2 : MonoBehaviour
     public void UpdateView(Content content)
     {
         _content = content;
-        _type = ContentTypeExtenstion.ParsePredicate(_content.predicate);
+        _type = LearningExperienceEngine.ContentTypeExtension.ParsePredicate(_content.predicate);
         _txtType.text = _content.predicate;
 
-        if (_type == ContentType.LABEL || _type == ContentType.PICKANDPLACE)
+        if (_type == LearningExperienceEngine.ContentType.LABEL || _type == LearningExperienceEngine.ContentType.PICKANDPLACE)
         {
             _txtName.text = $"{_type.GetName()}: {_content.text}";
         }
@@ -109,7 +110,7 @@ public class ContentListItem_v2 : MonoBehaviour
 
     private void EditContent()
     {
-        var type = ContentTypeExtenstion.ParsePredicate(_content.predicate);
+        var type = LearningExperienceEngine.ContentTypeExtension.ParsePredicate(_content.predicate);
         var editor = _parentView.editors.FirstOrDefault(t => t.editorForType == type);
         if (editor == null)
         {
@@ -135,7 +136,7 @@ public class ContentListItem_v2 : MonoBehaviour
         RootView_v2.Instance.dialog.ShowMiddle("Warning!", "Are you sure you want to delete this content?",
             "Yes", () =>
             {
-                RootObject.Instance.AugmentationManager.DeleteAugmentation(_content);
+                LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.DeleteAugmentation(_content);
                 if (_parentView.navigatorId == _content.poi)
                 {
                     TaskStationDetailMenu.Instance.NavigatorTarget = null;
@@ -163,7 +164,7 @@ public class ContentListItem_v2 : MonoBehaviour
 
     private void UpdateStep()
     {
-        RootObject.Instance.AugmentationManager.AddAllAugmentationsBetweenSteps(_from, _to, _content, Vector3.zero);
+        LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAllAugmentationsBetweenSteps(_from, _to, _content, Vector3.zero);
         if (_type == ContentType.CHARACTER)
         {
             activityManager.SaveData();
@@ -174,7 +175,7 @@ public class ContentListItem_v2 : MonoBehaviour
 
     private void Lock()
     {
-        EventManager.NotifyAugmentationLocked(_content.poi, !_content.positionLock);
+        LearningExperienceEngine.EventManager.NotifyAugmentationLocked(_content.poi, !_content.positionLock);
     }
 
     private bool SetLockActive()

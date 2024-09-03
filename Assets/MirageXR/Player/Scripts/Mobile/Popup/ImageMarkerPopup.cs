@@ -20,7 +20,7 @@ namespace MirageXR
                 url = url.Replace("resources://", "");
             }
 
-            byte[] byteArray = File.ReadAllBytes(Path.Combine(RootObject.Instance.ActivityManagerOld.ActivityPath, url));
+            byte[] byteArray = File.ReadAllBytes(Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActivityPath, url));
 
             Texture2D loadTexture = new Texture2D(2, 2);
 
@@ -35,7 +35,7 @@ namespace MirageXR
             else
             {
                 _imgMarkerImage.gameObject.SetActive(false);
-                _txtInstruction.text = "Image not found at: \n" + RootObject.Instance.ActivityManagerOld.ActivityPath + url;
+                _txtInstruction.text = "Image not found at: \n" + LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActivityPath + url;
             }
         }
 

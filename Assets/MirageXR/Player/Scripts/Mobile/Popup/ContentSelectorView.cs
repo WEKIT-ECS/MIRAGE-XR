@@ -7,14 +7,14 @@ using UnityEngine;
 
 public class ContentSelectorView : PopupBase
 {
-    private static BrandManager brandManager => RootObject.Instance.BrandManager;
+    private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
 
     [SerializeField] private Transform _listContent;
     [SerializeField] private ContentSelectorListItem _contentSelectorListItemPrefab;
     [SerializeField] private ContentHintView _contentHintViewPrefab;
 
     private IEnumerable<PopupEditorBase> _editors;
-    private MirageXR.Action _currentStep;
+    private LearningExperienceEngine.Action _currentStep;
     
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -36,7 +36,7 @@ public class ContentSelectorView : PopupBase
         }
     }
 
-    private void OnListItemClick(ContentType type)
+    private void OnListItemClick(LearningExperienceEngine.ContentType type)
     {
         Close();
         var editor = _editors.FirstOrDefault(t => t.editorForType == type);
@@ -53,7 +53,7 @@ public class ContentSelectorView : PopupBase
         try
         {
             _editors = (IEnumerable<PopupEditorBase>)args[0];
-            _currentStep = (MirageXR.Action)args[1];
+            _currentStep = (LearningExperienceEngine.Action)args[1];
             return true;
         }
         catch (Exception)
@@ -62,7 +62,7 @@ public class ContentSelectorView : PopupBase
         }
     }
 
-    private void OnListItemHintClick(ContentType type)
+    private void OnListItemHintClick(LearningExperienceEngine.ContentType type)
     {
         PopupsViewer.Instance.Show(_contentHintViewPrefab, type);
     }

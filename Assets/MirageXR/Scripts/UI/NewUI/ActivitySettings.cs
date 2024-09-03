@@ -3,12 +3,12 @@ using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
+using LearningExperienceEngine;
 
 public class ActivitySettings : PopupBase
 {
-    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
-
-    private static MoodleManager moodleManager => RootObject.Instance.MoodleManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static LearningExperienceEngine.MoodleManager moodleManager => LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager;
 
     [SerializeField] private Toggle _togglePublicUpload;
     [SerializeField] private Toggle _toggleUploadToCloud;
@@ -47,16 +47,16 @@ public class ActivitySettings : PopupBase
 
     private void ResetValues()
     {
-        _togglePublicUpload.isOn = DBManager.publicUploadPrivacy;
-        _toggleLocalSave.isOn = DBManager.publicLocalSave;
-        _toggleUploadToCloud.isOn = DBManager.publicCloudSave;
+        _togglePublicUpload.isOn = UserSettings.publicUploadPrivacy;
+        _toggleLocalSave.isOn = UserSettings.publicLocalSave;
+        _toggleUploadToCloud.isOn = UserSettings.publicCloudSave;
     }
 
     private void SetValues()
     {
-        DBManager.publicUploadPrivacy = _togglePublicUpload.isOn;
-        DBManager.publicLocalSave = _toggleLocalSave.isOn;
-        DBManager.publicCloudSave = _toggleUploadToCloud.isOn;
+        UserSettings.publicUploadPrivacy = _togglePublicUpload.isOn;
+        UserSettings.publicLocalSave = _toggleLocalSave.isOn;
+        UserSettings.publicCloudSave = _toggleUploadToCloud.isOn;
     }
 
     protected override bool TryToGetArguments(params object[] args)
@@ -79,7 +79,7 @@ public class ActivitySettings : PopupBase
 
     private void OnValueChangedPublicUpload(bool value)
     {
-        if(value && _toggleUploadToCloud.isOn && DBManager.publicShowPublicUploadWarning)
+        if(value && _toggleUploadToCloud.isOn && UserSettings.publicShowPublicUploadWarning)
         {
             RootView_v2.Instance.dialog.ShowMiddle(
                 "Public Upload",
@@ -94,7 +94,7 @@ public class ActivitySettings : PopupBase
 
     private void DontShowPublicUploadWarning()
     {
-        DBManager.publicShowPublicUploadWarning = false;
+        UserSettings.publicShowPublicUploadWarning = false;
     }
 
     private void OnValueChangedSaveToggle(bool value)
@@ -147,7 +147,7 @@ public class ActivitySettings : PopupBase
             OnUploadToggleOn();
         }
 
-        DBManager.publicUploadPrivacy = _togglePublicUpload.isOn;
+        UserSettings.publicUploadPrivacy = _togglePublicUpload.isOn;
         SetValues();
         ResetValues();
         Close();
@@ -207,7 +207,7 @@ public class ActivitySettings : PopupBase
 
     public void OnUploadToggleOn()
     {
-        if (DBManager.LoggedIn)
+        if (UserSettings.LoggedIn)
         {
             Upload();
         }
@@ -254,7 +254,7 @@ public class ActivitySettings : PopupBase
 
     private async void DeleteFromServer()
     {
-        var result = await RootObject.Instance.MoodleManager.DeleteArlem(_container.ItemID, _container.FileIdentifier);
+        var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.DeleteArlem(_container.ItemID, _container.FileIdentifier);
         if (result)
         {
             RootView.Instance.activityListView.UpdateListView();

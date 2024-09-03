@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LearningExperienceEngine;
+using System;
 using UnityEngine;
 using MirageXR;
 using i5.Toolkit.Core.ServiceCore;
@@ -14,7 +15,7 @@ namespace MirageXR
     /// </summary>
     public class ExperienceService : IService
     {
-        private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
         private readonly Actor anonymousActor = new Actor("anonymous@wekit-ecs.com", "An Anonymous Actor");
         private readonly string mirageIRIroot = "https://wekit-ecs.com";
 
@@ -36,14 +37,16 @@ namespace MirageXR
         /// <param name="owner">The service manager which administers this service</param>
         public void Initialize(IServiceManager owner)
         {
-            // Register to event manager events.
-            //EventManager.OnStartActivity += StartActivity; // launched
-            EventManager.OnToggleObject += OnToggleObject; // true ? predicate : null
-            EventManager.OnStepActivatedStamp += StepActivatedStamp; // start
-            EventManager.OnActivityLoadedStamp += ActivityLoadedStamp; // launch
-            EventManager.OnStepDeactivatedStamp += StepDeactivatedStamp; // experienced
-            EventManager.OnActivityCompletedStamp += ActivityCompletedStamp; // completd
-            EventManager.OnCompletedMeasurement += CompletedMeasurement;
+            // Register to lib-lee events.
+            LearningExperienceEngine.EventManager.OnToggleObject += OnToggleObject; // true ? predicate : null
+            LearningExperienceEngine.EventManager.OnActivityLoadedStamp += ActivityLoadedStamp; // launch
+            LearningExperienceEngine.EventManager.OnCompletedMeasurement += CompletedMeasurement;
+            LearningExperienceEngine.EventManager.OnStepActivatedStamp += StepActivatedStamp; // start
+            LearningExperienceEngine.EventManager.OnStepDeactivatedStamp += StepDeactivatedStamp; // experienced
+
+            // Register to view events
+            LearningExperienceEngine.EventManager.OnActivityCompletedStamp += ActivityCompletedStamp; // completd
+
         }
 
         /// <summary>
@@ -52,14 +55,15 @@ namespace MirageXR
         /// </summary>
         public void Cleanup()
         {
-            // Unregister from event manager events.
-            //EventManager.OnStartActivity -= StartActivity;
-            EventManager.OnToggleObject -= OnToggleObject;
-            EventManager.OnActivityLoadedStamp -= ActivityLoadedStamp;
-            EventManager.OnStepActivatedStamp -= StepActivatedStamp;
-            EventManager.OnStepDeactivatedStamp -= StepDeactivatedStamp;
-            EventManager.OnActivityCompletedStamp -= ActivityCompletedStamp;
-            EventManager.OnCompletedMeasurement -= CompletedMeasurement;
+            // Deregister from event manager events.
+            LearningExperienceEngine.EventManager.OnToggleObject -= OnToggleObject;
+            LearningExperienceEngine.EventManager.OnActivityLoadedStamp -= ActivityLoadedStamp;
+            LearningExperienceEngine.EventManager.OnCompletedMeasurement -= CompletedMeasurement;
+            LearningExperienceEngine.EventManager.OnStepActivatedStamp -= StepActivatedStamp;
+            LearningExperienceEngine.EventManager.OnStepDeactivatedStamp -= StepDeactivatedStamp;
+
+            // Deregister from view events.
+            LearningExperienceEngine.EventManager.OnActivityCompletedStamp -= ActivityCompletedStamp;
         }
 
         // !!!!!!! This never gets called !!!!!!!!!
@@ -74,7 +78,7 @@ namespace MirageXR
         /// </summary>
         /// <param name="act">The augmentation that is toggled</param>
         /// <param name="isActivating">Tells you whether the augmentation is getting activated or deactivated</param>
-        private async void OnToggleObject(ToggleObject act, bool isActivating)
+        private async void OnToggleObject(LearningExperienceEngine.ToggleObject act, bool isActivating)
         {
             if (isActivating && act.predicate != null)
             {
@@ -390,7 +394,7 @@ namespace MirageXR
 
         // called if an action step is activated
         // sends an xAPI statement that indicates the step activation
-        private async void StepActivatedStamp(string deviceID, Action activatedAction, string stamp)
+        private async void StepActivatedStamp(string deviceID, LearningExperienceEngine.Action activatedAction, string stamp)
         {
             Verb verb = new Verb("http://activitystrea.ms/schema/1.0/start");
             XApiObject obj = new XApiObject(mirageIRIroot + "/stepID=" + activatedAction.id);
@@ -420,7 +424,7 @@ namespace MirageXR
 
         // called if an action step is deactivated
         // sends an xAPI statement that indicates the step deactivation
-        private async void StepDeactivatedStamp(string deviceID, Action deactivatedAction, string stamp)
+        private async void StepDeactivatedStamp(string deviceID, LearningExperienceEngine.Action deactivatedAction, string stamp)
         {
             Verb verb = new Verb("http://activitystrea.ms/schema/1.0/experience");
             XApiObject obj = new XApiObject(mirageIRIroot + "/stepID=" + deactivatedAction.id);
@@ -475,14 +479,14 @@ namespace MirageXR
         /// <returns>The Actor based on the currently logged in user or the anonymous Actor.</returns>
         private Actor ProduceActor()
         {
-            if (DBManager.LoggedIn)
+            if (UserSettings.LoggedIn)
             {
-                if (!string.IsNullOrEmpty(DBManager.usermail))
+                if (!string.IsNullOrEmpty(UserSettings.usermail))
                 {
-                    Actor retVal = new Actor(DBManager.usermail);
-                    if (!string.IsNullOrEmpty(DBManager.username))
+                    Actor retVal = new Actor(UserSettings.usermail);
+                    if (!string.IsNullOrEmpty(UserSettings.username))
                     {
-                        retVal.name = DBManager.username;
+                        retVal.name = UserSettings.username;
                     }
                     return retVal;
                 }

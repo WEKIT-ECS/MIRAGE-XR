@@ -162,8 +162,7 @@ namespace MirageXR
                 button.onClick.AddListener(() =>
                 {
                     audioPlayer.SetActive(true);
-
-                    // AudioPlayer-Komponente hinzufügen
+                    
                     AudioStreamPlayer audioStreamPlayerComponent = audioPlayer.GetComponent<AudioStreamPlayer>();
                     if (audioStreamPlayerComponent == null)
                     {

@@ -5,7 +5,7 @@ namespace MirageXR
 {
     public class AudioPlayer : MirageXRPrefab
     {
-        private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
         [Tooltip("Audio file. Only .wav format supported for external sources. Internally, .mp3 are supported as well")]
         [SerializeField] private string audioName = "audio.wav";
         public string AudioName => audioName;
@@ -38,9 +38,9 @@ namespace MirageXR
         private bool isReady = false;
         private bool isPlaying = false;
 
-        private ToggleObject _obj;
+        private LearningExperienceEngine.ToggleObject _obj;
 
-        public ToggleObject MyAnnotation => _obj;
+        public LearningExperienceEngine.ToggleObject MyAnnotation => _obj;
 
         private GameObject _contentObject;
 
@@ -50,7 +50,7 @@ namespace MirageXR
             UseGuide = false;
 
             var actionEditor = FindObjectOfType<ActionEditor>();
-            audioEditor = (AudioEditor)actionEditor.CreateEditorView(ContentType.AUDIO);
+            audioEditor = (AudioEditor)actionEditor.CreateEditorView(LearningExperienceEngine.ContentType.AUDIO);
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace MirageXR
         /// </summary>
         /// <param name="obj">Action toggle object.</param>
         /// <returns>Returns true if initialization succesfull.</returns>
-        public override bool Init(ToggleObject obj)
+        public override bool Init(LearningExperienceEngine.ToggleObject obj)
         {
             _obj = obj;
 
@@ -179,7 +179,7 @@ namespace MirageXR
             }
         }
 
-        private static IEnumerator ActivateTrigger(AudioSource audioSource, Trigger trigger)
+        private static IEnumerator ActivateTrigger(AudioSource audioSource, LearningExperienceEngine.Trigger trigger)
         {
             while (audioSource.isPlaying)
             {

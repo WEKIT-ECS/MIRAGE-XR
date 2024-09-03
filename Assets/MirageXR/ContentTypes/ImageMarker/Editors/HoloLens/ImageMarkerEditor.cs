@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using LearningExperienceEngine;
+using System.IO;
 using System.Threading.Tasks;
 using MirageXR;
 using UnityEngine;
@@ -11,7 +12,7 @@ using System.Collections;
 
 public class ImageMarkerEditor : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
+    private static ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
 
     [SerializeField] private Button captureButton;
     [SerializeField] private Button acceptButton;
@@ -25,8 +26,8 @@ public class ImageMarkerEditor : MonoBehaviour
     [SerializeField] private RectTransform cropImage;
     [SerializeField] private GameObject imageMarkerMobile;
 
-    private Action action;
-    private ToggleObject annotationToEdit;
+    private LearningExperienceEngine.Action action;
+    private LearningExperienceEngine.ToggleObject annotationToEdit;
     private string saveFileName;
     private Texture2D _capturedImage;
 
@@ -70,7 +71,7 @@ public class ImageMarkerEditor : MonoBehaviour
             }
         }
 
-        RootObject.Instance.ImageTargetManager.enabled = true;
+        RootObject.Instance.imageTargetManager.enabled = true;
 
         processingText.text = string.Empty;
         processingText.transform.parent.gameObject.SetActive(false);
@@ -99,7 +100,7 @@ public class ImageMarkerEditor : MonoBehaviour
     {
         Maggie.Speak("Taking a photo in 3 seconds");
 
-        RootObject.Instance.ImageTargetManager.enabled = false;
+        RootObject.Instance.imageTargetManager.enabled = false;
 
         captureButton.gameObject.SetActive(false);
         acceptButton.gameObject.SetActive(false);
@@ -157,7 +158,7 @@ public class ImageMarkerEditor : MonoBehaviour
         saveFileName = $"MirageXR_ImageMarker_{System.DateTime.Now.ToFileTimeUtc()}.jpg";
         string outputPath = Path.Combine(activityManager.ActivityPath, saveFileName);
 
-        Debug.Log("THIS IS THE OUTPATH: " + activityManager.ActivityPath);
+        Debug.Log("[ImageMarkerEditor] outpath = " + activityManager.ActivityPath);
 
         byte[] jpgBytes = tex.EncodeToJPG();
         File.WriteAllBytes(outputPath, jpgBytes);
@@ -169,11 +170,11 @@ public class ImageMarkerEditor : MonoBehaviour
 
         if (annotationToEdit != null)
         {
-            EventManager.DeactivateObject(annotationToEdit);
+            LearningExperienceEngine.EventManager.DeactivateObject(annotationToEdit);
         }
         else
         {
-            var workplaceManager = RootObject.Instance.WorkplaceManager;
+            var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
             Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
             GameObject originT = GameObject.Find(detectable.id);
 
@@ -182,7 +183,7 @@ public class ImageMarkerEditor : MonoBehaviour
                 originT.transform.position,
                 originT.transform.rotation);
 
-            annotationToEdit = RootObject.Instance.AugmentationManager.AddAugmentation(action, offset);
+            annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAugmentation(action, offset);
             annotationToEdit.predicate = "imagemarker";
         }
 
@@ -201,8 +202,8 @@ public class ImageMarkerEditor : MonoBehaviour
 
         annotationToEdit.scale = size;
 
-        EventManager.ActivateObject(annotationToEdit);
-        EventManager.NotifyActionModified(action);
+        LearningExperienceEngine.EventManager.ActivateObject(annotationToEdit);
+        LearningExperienceEngine.EventManager.NotifyActionModified(action);
         Close();
     }
 

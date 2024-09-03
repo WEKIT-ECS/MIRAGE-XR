@@ -1,6 +1,9 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using System.Linq;
+using UnityEngine.Serialization;
 
 namespace MirageXR
 {
@@ -48,6 +51,106 @@ namespace MirageXR
         /// Represents the language data for an AI model.
         /// </summary>
         private AIModel _languageData;
+
+        /// <summary>
+        /// Starts the SpeechSettings by setting default values.
+        /// </summary>
+
+        [FormerlySerializedAs("PromtView")] [SerializeField] 
+        private GameObject PromptView; 
+
+        [SerializeField] 
+        private GameObject LLMView;
+
+        [SerializeField]
+        private GameObject STTView;
+
+        [SerializeField]
+        private GameObject TTSView; 
+        
+        [FormerlySerializedAs("PromtViewBackBtn")] [SerializeField]
+        private Button  PromptViewBackBtn; 
+        
+        [SerializeField] 
+        private Button LLMViewBackBtn;
+        
+        [SerializeField] 
+        private Button STTViewBackBtn;
+        
+        [SerializeField] 
+        private Button TTSViewBackBtn; 
+        
+        [SerializeField]
+        private Button AiPromptBtn;
+        
+        [SerializeField] 
+        private Button ModelBtn;
+        
+        [SerializeField] 
+        private Button LanguageBtn;
+        
+        [SerializeField]
+        private Button VoiceBtn;
+
+        
+        public void Start()
+        {
+            try
+            {
+                if (_modelData == null)
+                {
+                    UpdateModel(RootObject.Instance.aiManager.GetLlmModels()[0]);
+                }
+
+                if (_languageData == null)
+                {
+                    UpdateLanguage(RootObject.Instance.aiManager.GetSttModels()[0]);
+                }
+
+                if (_voiceData == null)
+                {
+                    UpdateVoice(RootObject.Instance.aiManager.GetTtsModels()[0]);
+                }
+            
+                if (_modelData != null)
+                {
+                    UpdateModel(RootObject.Instance.aiManager.GetLlmModels()[0]);
+                }
+
+                if (_languageData != null)
+                {
+                    UpdateLanguage(RootObject.Instance.aiManager.GetSttModels()[0]);
+                }
+
+                if (_voiceData != null)
+                {
+                    UpdateVoice(RootObject.Instance.aiManager.GetTtsModels().Last());
+                }
+
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogError("Fail to load the models. Is the server online?");
+            }
+         
+
+            AiPromptBtn.onClick.AddListener(() =>OpenView(PromptView, true));
+            ModelBtn.onClick.AddListener(() =>OpenView(LLMView, true));
+            LanguageBtn.onClick.AddListener(() => OpenView(STTView, true));
+            VoiceBtn.onClick.AddListener(() => OpenView(TTSView, true));
+            
+            PromptViewBackBtn.onClick.AddListener(() => OpenView(PromptView, false));
+            LLMViewBackBtn.onClick.AddListener(() => OpenView(LLMView, false));
+            STTViewBackBtn.onClick.AddListener(() => OpenView(STTView, false));
+            TTSViewBackBtn.onClick.AddListener(() => OpenView(TTSView, false));
+            
+        }
+
+        private void OpenView(GameObject view, Boolean state)
+        {
+            
+            view.SetActive(state);
+        }
 
 
         /// <summary>

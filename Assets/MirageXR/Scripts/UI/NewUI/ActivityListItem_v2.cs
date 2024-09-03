@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -10,7 +10,7 @@ namespace MirageXR
     {
         private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg";
 
-        private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
 
         [SerializeField] private TMP_Text _txtLabel;
         [SerializeField] private TMP_Text _txtDeadline;
@@ -19,7 +19,7 @@ namespace MirageXR
         [SerializeField] private Sprite _defaultThumbnail;
         [SerializeField] private Button _btnMain;
 
-        private SessionContainer _container;
+        private LearningExperienceEngine.SessionContainer _container;
         private bool _interactable = true;
 
         public string activityName => _container.Name;
@@ -32,7 +32,7 @@ namespace MirageXR
 
         public Button BtnMain => _btnMain;
 
-        public void Init(SessionContainer container)
+        public void Init(LearningExperienceEngine.SessionContainer container)
         {
             _container = container;
             _btnMain.onClick.AddListener(OnBtnMain);
@@ -85,7 +85,7 @@ namespace MirageXR
 
         private async void DeleteFromServer()
         {
-            var result = await RootObject.Instance.MoodleManager.DeleteArlem(_container.ItemID, _container.FileIdentifier);
+            var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.DeleteArlem(_container.ItemID, _container.FileIdentifier);
             if (result)
             {
                 RootView.Instance.activityListView.UpdateListView();
@@ -96,7 +96,7 @@ namespace MirageXR
         {
             if (_container.Activity == null) return;
 
-            if (LocalFiles.TryDeleteActivity(_container.Activity.id))
+            if (LearningExperienceEngine.LocalFiles.TryDeleteActivity(_container.Activity.id))
             {
                 if (_container.ExistsRemotely)
                 {
@@ -147,10 +147,10 @@ namespace MirageXR
         private async Task PlayActivityAsync()
         {
             LoadView.Instance.Show();
-            var activityJsonFileName = LocalFiles.GetActivityJsonFilename(_container.FileIdentifier);
-            await RootObject.Instance.EditorSceneService.LoadEditorAsync();
-            await RootObject.Instance.MoodleManager.UpdateViewsOfActivity(_container.ItemID, _container.ExistsRemotely);
-            await RootObject.Instance.ActivityManagerOld.LoadActivity(activityJsonFileName);
+            var activityJsonFileName = LearningExperienceEngine.LocalFiles.GetActivityJsonFilename(_container.FileIdentifier);
+            await RootObject.Instance.editorSceneService.LoadEditorAsync();
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.UpdateViewsOfActivity(_container.ItemID, _container.ExistsRemotely);
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.LoadActivity(activityJsonFileName);
             LoadView.Instance.Hide();
         }
 
@@ -161,7 +161,7 @@ namespace MirageXR
             UpdateView();
 
             LoadView.Instance.Show();
-            var (result, activity) = await MoodleManager.DownloadActivity(_container.Session);
+            var (result, activity) = await LearningExperienceEngine.MoodleManager.DownloadActivity(_container.Session);
             LoadView.Instance.Hide();
 
             _container.HasError = !result;

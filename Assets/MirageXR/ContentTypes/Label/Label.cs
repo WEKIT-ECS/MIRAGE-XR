@@ -17,14 +17,14 @@ namespace MirageXR
         private Image _triggerIcon;
         private Image _labelBackground;
 
-        private ToggleObject _obj;
+        private LearningExperienceEngine.ToggleObject _obj;
 
         /// <summary>
         /// Initialization method.
         /// </summary>
         /// <param name="obj">Action toggle object.</param>
         /// <returns>Returns true if initialization succesfull.</returns>
-        public override bool Init(ToggleObject obj)
+        public override bool Init(LearningExperienceEngine.ToggleObject obj)
         {
             // Check if the label text is set.
             if (string.IsNullOrEmpty(obj.text))
@@ -89,7 +89,7 @@ namespace MirageXR
             }
 
             OnLock(_obj.poi, _obj.positionLock);
-            EventManager.OnAugmentationLocked += OnLock;
+            LearningExperienceEngine.EventManager.OnAugmentationLocked += OnLock;
 
             // If everything was ok, return base result.
             return base.Init(obj);
@@ -101,7 +101,7 @@ namespace MirageXR
             {
                 textLabel = Instantiate(TextLabelPrefab);
                 _triggerIcon = textLabel.GetComponentsInChildren<Image>()[1]; // TODO: possible NRE
-                if (_triggerIcon && RootObject.Instance.ActivityManagerOld.ActiveAction.triggers.Find(t => t.id == _obj.poi) != null)
+                if (_triggerIcon && LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActiveAction.triggers.Find(t => t.id == _obj.poi) != null)
                 {
                     _triggerIcon.enabled = true;
                 }
@@ -131,7 +131,7 @@ namespace MirageXR
 
         private void OnDisable()
         {
-            EventManager.OnAugmentationLocked -= OnLock;
+            LearningExperienceEngine.EventManager.OnAugmentationLocked -= OnLock;
         }
     }
 }

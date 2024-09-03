@@ -1,4 +1,5 @@
 ﻿using i5.Toolkit.Core.ServiceCore;
+using LearningExperienceEngine;
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Collections;
@@ -11,7 +12,7 @@ namespace MirageXR
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public class FloatingVideoViewer : MirageXRPrefab
     {
-        private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
         private float _width = 0.32f;
         private float _height = 0.18f;
 
@@ -36,7 +37,7 @@ namespace MirageXR
         private bool _originalGuideState;
         private GameObject _thinLine;
 
-        private ToggleObject _obj;
+        private LearningExperienceEngine.ToggleObject _obj;
 
         [SerializeField] private GameObject _landscapePlayerObject;
         [SerializeField] private GameObject _portraitPlayerObject;
@@ -63,7 +64,7 @@ namespace MirageXR
         /// </summary>
         /// <param name="content">Action toggle object.</param>
         /// <returns>Returns true if initialization successful.</returns>
-        public override bool Init(ToggleObject content)
+        public override bool Init(LearningExperienceEngine.ToggleObject content)
         {
             _obj = content;
 
@@ -167,7 +168,7 @@ namespace MirageXR
             }
 
             OnLock(_obj.poi, _obj.positionLock);
-            EventManager.OnAugmentationLocked += OnLock;
+            LearningExperienceEngine.EventManager.OnAugmentationLocked += OnLock;
 
             // Check if trigger is active
             StartCoroutine(ActivateTrigger());
@@ -582,7 +583,7 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-            EventManager.OnAugmentationLocked -= OnLock;
+            LearningExperienceEngine.EventManager.OnAugmentationLocked -= OnLock;
         }
 
         public override void Delete()

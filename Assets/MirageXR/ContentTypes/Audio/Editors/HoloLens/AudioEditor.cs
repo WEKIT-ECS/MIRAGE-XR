@@ -1,15 +1,16 @@
-﻿using MirageXR;
+﻿using LearningExperienceEngine;
+using MirageXR;
 using System.Collections;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
-using Action = MirageXR.Action;
+using Action = LearningExperienceEngine.Action;
 
 public class AudioEditor : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
     [SerializeField] private Button startRecordingButton;
     [SerializeField] private Button stopRecordingButton;
     [SerializeField] private Button pauseButton;
@@ -25,8 +26,8 @@ public class AudioEditor : MonoBehaviour
     [SerializeField] private Toggle loop;
     [SerializeField] private Toggle stepTrigger;
 
-    private Action _action;
-    private ToggleObject _annotationToEdit;
+    private LearningExperienceEngine.Action _action;
+    private LearningExperienceEngine.ToggleObject _annotationToEdit;
 
     private AudioClip _capturedClip;
 
@@ -149,7 +150,7 @@ public class AudioEditor : MonoBehaviour
             Destroy(ae.gameObject);
     }
 
-    public void Open(Action action, ToggleObject annotation)
+    public void Open(LearningExperienceEngine.Action action, LearningExperienceEngine.ToggleObject annotation)
     {
         gameObject.SetActive(true);
         this._action = action;
@@ -245,7 +246,7 @@ public class AudioEditor : MonoBehaviour
         if (stepTrigger.isOn)
         {
             if (_annotationToEdit == null) return;
-            _action.AddOrReplaceArlemTrigger(TriggerMode.Audio, ActionType.Audio, _annotationToEdit.poi, audioSource.clip.length, string.Empty);
+            _action.AddOrReplaceArlemTrigger(LearningExperienceEngine.TriggerMode.Audio, LearningExperienceEngine.ActionType.Audio, _annotationToEdit.poi, audioSource.clip.length, string.Empty);
         }
         else
         {
@@ -253,7 +254,7 @@ public class AudioEditor : MonoBehaviour
         }
     }
 
-    public void Initialize(Action action)
+    public void Initialize(LearningExperienceEngine.Action action)
     {
         this._action = action;
         _annotationToEdit = null;
@@ -308,7 +309,7 @@ public class AudioEditor : MonoBehaviour
             var originalFilePath = GetExistingAudioFile();
             if (File.Exists(originalFilePath) && SaveFileName != string.Empty && _annotationToEdit.url == null)
             {
-                EventManager.DeactivateObject(_annotationToEdit);
+                LearningExperienceEngine.EventManager.DeactivateObject(_annotationToEdit);
                 File.Delete(originalFilePath);
             }
 
@@ -317,8 +318,8 @@ public class AudioEditor : MonoBehaviour
         }
         else
         {
-            var workplaceManager = RootObject.Instance.WorkplaceManager;
-            Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
+            var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+            LearningExperienceEngine.Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
             GameObject originT = GameObject.Find(detectable.id);
 
             // move the audio player to the spawn point
@@ -329,7 +330,7 @@ public class AudioEditor : MonoBehaviour
                 originT.transform.position,
                 originT.transform.rotation);
 
-            _annotationToEdit = RootObject.Instance.AugmentationManager.AddAugmentation(_action, offset);
+            _annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAugmentation(_action, offset);
             _annotationToEdit.predicate = "audio";
 
             // save audio type , loop and radius as option
@@ -342,8 +343,8 @@ public class AudioEditor : MonoBehaviour
         {
             _annotationToEdit.url = $"http://{SaveFileName}";
 
-            EventManager.ActivateObject(_annotationToEdit);
-            EventManager.NotifyActionModified(_action);
+            LearningExperienceEngine.EventManager.ActivateObject(_annotationToEdit);
+            LearningExperienceEngine.EventManager.NotifyActionModified(_action);
 
             var player = GameObject.Find(_annotationToEdit.poi).GetComponentInChildren<AudioPlayer>();
             if (player != null)
@@ -357,7 +358,7 @@ public class AudioEditor : MonoBehaviour
     }
 
 
-    private void AudioOptionsAdjustment(ToggleObject annotationToEdit)
+    private void AudioOptionsAdjustment(LearningExperienceEngine.ToggleObject annotationToEdit)
     {
         // save audio type , loop and radius as option
         if (!audiotype.isOn)
