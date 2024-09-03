@@ -50,7 +50,7 @@ public class DeepLinkDefinition
     [DeepLink(path: "new")]
     public async void NewActivity()
     {
-        await RootObject.Instance.editorSceneService.LoadEditorAsync();
+        await RootObject.Instance.EditorSceneService.LoadEditorAsync();
         await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.CreateNewActivity();
     }
 
@@ -61,7 +61,7 @@ public class DeepLinkDefinition
         PlayerPrefs.SetString("activityUrl", fullActivityJson);
         PlayerPrefs.Save();
 
-        await RootObject.Instance.editorSceneService.LoadEditorAsync();
+        await RootObject.Instance.EditorSceneService.LoadEditorAsync();
         await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.LoadActivity(fullActivityJson);
     }
 

@@ -38,7 +38,7 @@ namespace MirageXR
 
         private void Start()
         {
-            if (!RootObject.Instance.platformManager.WorldSpaceUi)
+            if (!RootObject.Instance.PlatformManager.WorldSpaceUi)
             {
                 lowerDisplay.gameObject.SetActive(false);
 

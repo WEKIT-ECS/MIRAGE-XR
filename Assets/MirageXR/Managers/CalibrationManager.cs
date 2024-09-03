@@ -11,9 +11,9 @@ public class CalibrationManager : MonoBehaviour
 {
     private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
 
-    private static ImageTargetManagerWrapper imageTargetManager => RootObject.Instance.imageTargetManager;
+    private static ImageTargetManagerWrapper imageTargetManager => RootObject.Instance.ImageTargetManager;
 
-    private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
+    private static FloorManagerWrapper floorManager => RootObject.Instance.FloorManager;
 
     private static float ANIMATION_TIME = 5f;
     private static float IMAGE_TARGET_WIGTH = 0.19f;

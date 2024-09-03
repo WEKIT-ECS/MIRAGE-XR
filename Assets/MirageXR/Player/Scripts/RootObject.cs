@@ -29,37 +29,37 @@ namespace MirageXR
         private OpenAIManager _openAIManager;
         private VirtualInstructorManager _virtualInstructorManager; 
 
-        public Camera baseCamera => _baseCamera;
+        public Camera BaseCamera => _baseCamera;
 
         public LearningExperienceEngine.LearningExperienceEngine LEE => _lee;
 
-        public MirageXRServiceBootstrapper serviceBootstrapper => _serviceBootstrapper;
+        public MirageXRServiceBootstrapper ServiceBootstrapper => _serviceBootstrapper;
 
-        public ImageTargetManagerWrapper imageTargetManager => _imageTargetManager;
+        public ImageTargetManagerWrapper ImageTargetManager => _imageTargetManager;
 
-        public CalibrationManager calibrationManager => _calibrationManager;
+        public CalibrationManager CalibrationManager => _calibrationManager;
 
-        public FloorManagerWrapper floorManager => _floorManager;
+        public FloorManagerWrapper FloorManager => _floorManager;
 
-        public PlaneManagerWrapper planeManager => _planeManager;
+        public PlaneManagerWrapper PlaneManager => _planeManager;
 
-        public GridManager gridManager => _gridManager;
+        public GridManager GridManager => _gridManager;
 
-        public EditorSceneService editorSceneService => _editorSceneService;
+        public EditorSceneService EditorSceneService => _editorSceneService;
 
-        public WorkplaceController workplaceController => _workplaceController;
+        public WorkplaceController WorkplaceController => _workplaceController;
 
-        public ContentAugmentationController contentController => _contentController;
+        public ContentAugmentationController ContentController => _contentController;
 
-        public CameraCalibrationChecker cameraCalibrationChecker => _cameraCalibrationChecker;
+        public CameraCalibrationChecker CameraCalibrationChecker => _cameraCalibrationChecker;
 
-        public PlatformManager platformManager => _platformManager;
+        public PlatformManager PlatformManager => _platformManager;
 
-        public AIManager aiManager => _aiManager;
+        public AIManager AIManager => _aiManager;
 
-        public OpenAIManager openAIManager => _openAIManager;
+        public OpenAIManager OpenAIManager => _openAIManager;
 
-        public VirtualInstructorManager virtualInstructorManager => _virtualInstructorManager;
+        public VirtualInstructorManager VirtualInstructorManager => _virtualInstructorManager;
 
         private bool _isInitialized;
 

@@ -1,4 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
+using LearningExperienceEngine.DataModel;
 
 namespace MirageXR.NewDataModel
 {

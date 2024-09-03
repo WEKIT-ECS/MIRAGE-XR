@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 #if UNITY_WSA
 using System.Linq;
+using LearningExperienceEngine;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Windows.Speech;
@@ -81,7 +82,7 @@ namespace MirageXR
             AddPromptsToKeyword("Open Annotation List", () => EventManager.OpenAnnotationByVoice());
             AddPromptsToKeyword("Login", () => EventManager.LoginByVoice());
             AddPromptsToKeyword("Register", () => EventManager.RegisterByVoice());
-            AddPromptsToKeyword("Save", () => EventManager.SaveActivityByVoice());
+            //AddPromptsToKeyword("Save", () => EventManager.SaveActivityByVoice());
             AddPromptsToKeyword("Upload", () => EventManager.UploadActivityByVoice());
             AddPromptsToKeyword("Turn on Edit Mode", () => {  ActivityEditor.Instance.OnEditToggleChanged(true); });
             AddPromptsToKeyword("Turn off Edit Mode", () => {  ActivityEditor.Instance.OnEditToggleChanged(false); });

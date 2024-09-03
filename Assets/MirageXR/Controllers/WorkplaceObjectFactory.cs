@@ -17,7 +17,7 @@ namespace MirageXR
     {
         private LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
         private LearningExperienceEngine.WorkplaceManager workplaceManager => LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
-        private WorkplaceController workplaceController => RootObject.Instance.workplaceController;
+        private WorkplaceController workplaceController => RootObject.Instance.WorkplaceController;
 
         private GameObject instance;
 
@@ -449,7 +449,7 @@ namespace MirageXR
 
                         if (newObject)
                         {
-                            anchorFrame.transform.position = RootObject.Instance.platformManager.GetTaskStationPosition();
+                            anchorFrame.transform.position = RootObject.Instance.PlatformManager.GetTaskStationPosition();
                             anchorFrame.transform.localRotation = Quaternion.identity;
                             anchorFrame.transform.localScale = Vector3.one;
 
@@ -719,7 +719,7 @@ namespace MirageXR
         /// <returns></returns>
         public (Vector3, Vector3) GetPoseRelativeToCalibrationOrigin(GameObject source)
         {
-            var anchor = RootObject.Instance.calibrationManager.anchor;
+            var anchor = RootObject.Instance.CalibrationManager.anchor;
 
             var position = anchor.InverseTransformPoint(source.transform.position);
             var rotation = Quaternion.Inverse(anchor.rotation) * source.transform.rotation;
@@ -759,7 +759,7 @@ namespace MirageXR
             //only for the first taskstation in this step move it to the right of the player
             var taskStationPos = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActionsOfTypeAction.Count == 0 ? Camera.main.transform.right * offsetFromPlayer : Vector3.zero;
 
-            var isFirstTaskStation = RootObject.Instance.platformManager.WorldSpaceUi && LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
+            var isFirstTaskStation = RootObject.Instance.PlatformManager.WorldSpaceUi && LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
             instance.transform.localPosition = isFirstTaskStation ? taskStationPos : Vector3.zero;
             instance.transform.localRotation = Quaternion.identity;
 
