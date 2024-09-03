@@ -12,7 +12,7 @@ namespace MirageXR
     public abstract class ArrowHighlightingTutorialStep : TutorialStep
     {
         protected string instructionText;
-        protected GameObject arrow;
+        protected TutorialArrow arrow;
 
         protected Vector3? arrowPositionOffset;
         protected Vector3? arrowRotationOffset;
@@ -52,7 +52,7 @@ namespace MirageXR
             if (highlightedObject != null)
             {
                 TutorialArrowFactory factory = TutorialArrowFactory.Instance();
-                //this.arrow = factory.CreateArrow();
+                this.arrow = factory.CreateArrow(TutorialArrowFactory.ArrowType.DEFAULT);
                 TutorialArrow arrowScript = arrow.GetComponent<TutorialArrow>();
 
                 if (arrowScript is Tutorial3DArrow)
