@@ -140,7 +140,7 @@ public class StepsListView_v2 : BaseView
             OnEditModeChanged(activityManager.EditModeActive);
             LoadThumbnail();
 
-            _btnFloorLevel.gameObject.SetActive(RootObject.Instance.floorManager.isFloorDetected);
+            _btnFloorLevel.gameObject.SetActive(RootObject.Instance.FloorManager.isFloorDetected);
         }
         else
         {
@@ -350,7 +350,7 @@ public class StepsListView_v2 : BaseView
     {
         _statusNotCalibrated.SetActive(false);
         _statusCalibrated.SetActive(true);
-        _btnFloorLevel.gameObject.SetActive(RootObject.Instance.floorManager.isFloorDetected);
+        _btnFloorLevel.gameObject.SetActive(RootObject.Instance.FloorManager.isFloorDetected);
     }
 
     private void OnActionCreated(Content action)
@@ -465,14 +465,14 @@ public class StepsListView_v2 : BaseView
     private void ShowImageTargetCalibrationView()
     {
         var isEditMode = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
-        var isCalibration = RootObject.Instance.calibrationManager.isCalibrated;
+        var isCalibration = RootObject.Instance.CalibrationManager.isCalibrated;
         PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode && !isCalibration, false, false);
     }
 
     private void ShowMarkerLessCalibrationView()
     {
         var isEditMode = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
-        var isCalibration = RootObject.Instance.calibrationManager.isCalibrated;
+        var isCalibration = RootObject.Instance.CalibrationManager.isCalibrated;
         PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode && !isCalibration, false, true);
     }
 

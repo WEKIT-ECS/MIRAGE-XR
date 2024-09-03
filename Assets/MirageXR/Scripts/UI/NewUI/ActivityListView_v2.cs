@@ -173,7 +173,7 @@ public class ActivityListView_v2 : BaseView
     private async void OnNewActivityChanged()
     {
         LoadView.Instance.Show();
-        await RootObject.Instance.editorSceneService.LoadEditorAsync();
+        await RootObject.Instance.EditorSceneService.LoadEditorAsync();
         await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.CreateNewActivity();
         LoadView.Instance.Hide();
     }

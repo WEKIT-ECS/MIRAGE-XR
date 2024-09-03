@@ -10,7 +10,7 @@ namespace MirageXR
 {
     public class ImageMarkerController : MirageXRPrefab
     {
-        private ImageTargetManagerWrapper imageTargetManager => RootObject.Instance.imageTargetManager;
+        private ImageTargetManagerWrapper imageTargetManager => RootObject.Instance.ImageTargetManager;
 
         private string _imageName;
         private LearningExperienceEngine.ToggleObject _content;
@@ -85,7 +85,7 @@ namespace MirageXR
                 useLimitedTracking = true,
             };
 
-            _target = await RootObject.Instance.imageTargetManager.AddImageTarget(model);
+            _target = await RootObject.Instance.ImageTargetManager.AddImageTarget(model);
 
             return _target as ImageTargetBase;
         }
@@ -132,10 +132,10 @@ namespace MirageXR
         {
             try
             {
-                if (RootObject.Instance.platformManager.WorldSpaceUi)
+                if (RootObject.Instance.PlatformManager.WorldSpaceUi)
                 {
                     MoveDetectableBack();
-                    RootObject.Instance.imageTargetManager.RemoveImageTarget(_target);
+                    RootObject.Instance.ImageTargetManager.RemoveImageTarget(_target);
                 }
             }
             catch (Exception e)

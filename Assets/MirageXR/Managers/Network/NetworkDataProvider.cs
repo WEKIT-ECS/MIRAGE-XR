@@ -2,17 +2,13 @@
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using LearningExperienceEngine.DataModel;
 
 namespace MirageXR.NewDataModel
 {
     public class NetworkDataProvider : INetworkDataProvider
     {
         private const string ServerURL = "base url";
-
-        public UniTask<Response> LoginAsync(CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
 
         public async UniTask<Response<List<Activity>>> GetActivitiesAsync(string token, CancellationToken cancellationToken = default)
         {

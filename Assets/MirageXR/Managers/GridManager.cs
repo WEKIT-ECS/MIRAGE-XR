@@ -5,9 +5,9 @@ using UnityEngine;
 
 public class GridManager : MonoBehaviour, IDisposable
 {
-    private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
+    private static FloorManagerWrapper floorManager => RootObject.Instance.FloorManager;
 
-    private static CalibrationManager calibrationManager => RootObject.Instance.calibrationManager;
+    private static CalibrationManager calibrationManager => RootObject.Instance.CalibrationManager;
 
     [SerializeField] private Grid _gridPrefab;
     [SerializeField] private GridLines _gridLinesPrefab;

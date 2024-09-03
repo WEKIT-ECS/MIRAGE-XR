@@ -6,15 +6,15 @@ using UnityEngine;
 
 public class CalibrationFlow : MonoBehaviour
 {
-    private static CalibrationManager calibrationManager => RootObject.Instance.calibrationManager;
+    private static CalibrationManager calibrationManager => RootObject.Instance.CalibrationManager;
 
-    private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
+    private static FloorManagerWrapper floorManager => RootObject.Instance.FloorManager;
 
-    private static PlaneManagerWrapper planeManager => RootObject.Instance.planeManager;
+    private static PlaneManagerWrapper planeManager => RootObject.Instance.PlaneManager;
 
-    private static GridManager gridManager => RootObject.Instance.gridManager;
+    private static GridManager gridManager => RootObject.Instance.GridManager;
 
-    private static CameraCalibrationChecker cameraCalibrationChecker => RootObject.Instance.cameraCalibrationChecker;
+    private static CameraCalibrationChecker cameraCalibrationChecker => RootObject.Instance.CameraCalibrationChecker;
 
 
     private string CALIBRATION_TEXT = "Calibration";

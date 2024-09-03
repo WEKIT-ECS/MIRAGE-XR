@@ -71,7 +71,7 @@ public class ImageMarkerEditor : MonoBehaviour
             }
         }
 
-        RootObject.Instance.imageTargetManager.enabled = true;
+        RootObject.Instance.ImageTargetManager.enabled = true;
 
         processingText.text = string.Empty;
         processingText.transform.parent.gameObject.SetActive(false);
@@ -100,7 +100,7 @@ public class ImageMarkerEditor : MonoBehaviour
     {
         Maggie.Speak("Taking a photo in 3 seconds");
 
-        RootObject.Instance.imageTargetManager.enabled = false;
+        RootObject.Instance.ImageTargetManager.enabled = false;
 
         captureButton.gameObject.SetActive(false);
         acceptButton.gameObject.SetActive(false);

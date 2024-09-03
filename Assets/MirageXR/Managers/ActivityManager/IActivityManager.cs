@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine.Events;
+using LearningExperienceEngine.DataModel;
 
 namespace MirageXR.NewDataModel
 {

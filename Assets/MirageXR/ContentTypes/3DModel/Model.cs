@@ -243,7 +243,7 @@ namespace MirageXR
                 poiEditor.EnableBoundsControl(!_obj.positionLock);
             }
             
-            var gridManager = RootObject.Instance.gridManager;
+            var gridManager = RootObject.Instance.GridManager;
             var objectManipulator = GetComponentInParent<ObjectManipulator>();
             if (objectManipulator)
             {
