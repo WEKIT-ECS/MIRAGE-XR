@@ -1,4 +1,7 @@
-﻿using MirageXR;
+﻿using i5.Toolkit.Core.OpenIDConnectClient;
+using i5.Toolkit.Core.ServiceCore;
+using LearningExperienceEngine;
+using MirageXR;
 using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -16,6 +19,7 @@ public class LoginView_v2 : PopupBase
     [SerializeField] private Button _btnPasswordForgotten;
     [SerializeField] private Button _btnGoToLogin;
     [SerializeField] private Button _btnSkipLogin;
+    [SerializeField] private Button _btnOidcLogin;
     [SerializeField] private Button _btnLogin;
     [SerializeField] private Button _btnBack;
     [SerializeField] private OnboardingTutorialView _onboardingTutorialViewPrefab;
@@ -31,6 +35,7 @@ public class LoginView_v2 : PopupBase
         _inputFieldPassword.SetValidator(IsValidPassword);
         _btnRegister.onClick.AddListener(OnClickRegister);
         _btnPasswordForgotten.onClick.AddListener(OnClickPasswordForgotten);
+        _btnOidcLogin.onClick.AddListener(OnOidcLogin);
         _btnLogin.onClick.AddListener(OnClickLogin);
         _btnGoToLogin.onClick.AddListener(OnGoToLoginPressed);
         _btnSkipLogin.onClick.AddListener(OnEnterAsGuest);
@@ -86,6 +91,23 @@ public class LoginView_v2 : PopupBase
     private void OnEnterAsGuest()
     {
         PopupsViewer.Instance.Show(_onboardingTutorialViewPrefab);
+        Close();
+    }
+
+    private void OnOidcLogin()
+    {
+        AuthManager.OnLoginCompleted += OnOidcLoginCompleted;
+        LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.Login();
+    }
+
+    private void OnOidcLoginCompleted(string accessToken)
+    {
+        AuthManager.OnLoginCompleted -= OnOidcLoginCompleted;
+
+        // if the activity view is loading activities already in the background, this might also require:
+        // RootView_v2.Instance.activityListView.FetchAndUpdateView();
+
+        Toast.Instance.Show("Login succeeded");
         Close();
     }
 
