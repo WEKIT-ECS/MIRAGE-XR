@@ -1,4 +1,5 @@
-﻿using MirageXR;
+﻿using LearningExperienceEngine;
+using MirageXR;
 using System;
 using TMPro;
 using UnityEngine;
@@ -6,10 +7,10 @@ using UnityEngine.UI;
 
 public class PickAndPlaceEditorView : PopupEditorBase
 {
-    private static AugmentationManager _augmentationManager => RootObject.Instance.AugmentationManager;
-    private static WorkplaceManager _workplaceManager => RootObject.Instance.WorkplaceManager;
+    private static LearningExperienceEngine.AugmentationManager _augmentationManager => LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager;
+    private static LearningExperienceEngine.WorkplaceManager _workplaceManager => LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
 
-    public override ContentType editorForType => ContentType.PICKANDPLACE;
+    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.PICKANDPLACE;
 
     [SerializeField] private TMP_InputField _inputField;
 
@@ -62,7 +63,7 @@ public class PickAndPlaceEditorView : PopupEditorBase
 
         if (_content != null)
         {
-            EventManager.DeactivateObject(_content);
+            LearningExperienceEngine.EventManager.DeactivateObject(_content);
         }
         else
         {
@@ -72,10 +73,10 @@ public class PickAndPlaceEditorView : PopupEditorBase
         _content.text = _inputField.text;
         _content.key = "1";
 
-        CreateOrRemoveTrigger(_isCorrectTrigger, TriggerMode.PickAndPlace, "correct", _correctStepIndex.text);
-        CreateOrRemoveTrigger(_isIncorrectTrigger, TriggerMode.IncorrectPickAndPlace, "incorrect", _incorrectStepIndex.text);
+        CreateOrRemoveTrigger(_isCorrectTrigger, LearningExperienceEngine.TriggerMode.PickAndPlace, "correct", _correctStepIndex.text);
+        CreateOrRemoveTrigger(_isIncorrectTrigger, LearningExperienceEngine.TriggerMode.IncorrectPickAndPlace, "incorrect", _incorrectStepIndex.text);
 
-        EventManager.ActivateObject(_content);
+        LearningExperienceEngine.EventManager.ActivateObject(_content);
 
         base.OnAccept();
         Close();
@@ -155,11 +156,11 @@ public class PickAndPlaceEditorView : PopupEditorBase
         }
     }
 
-    private void CreateOrRemoveTrigger(bool isTrigger, TriggerMode triggerMode, string suffix, string index)
+    private void CreateOrRemoveTrigger(bool isTrigger, LearningExperienceEngine.TriggerMode triggerMode, string suffix, string index)
     {
         if (isTrigger)
         {
-            _step.AddOrReplaceArlemTrigger(triggerMode, ActionType.PickAndPlace, _content.poi + suffix, 1, index);
+            _step.AddOrReplaceArlemTrigger(triggerMode, LearningExperienceEngine.ActionType.PickAndPlace, _content.poi + suffix, 1, index);
         }
         else
         {

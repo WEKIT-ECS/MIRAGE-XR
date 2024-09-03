@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LearningExperienceEngine;
+using System;
 using System.Globalization;
 using System.IO;
 using MirageXR;
@@ -10,7 +11,7 @@ using Image = UnityEngine.UI.Image;
 public class ImageMarkerEditorView : PopupEditorBase
 {
     private const int MAX_PICTURE_SIZE = 1024;
-    public override ContentType editorForType => ContentType.IMAGEMARKER;
+    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.IMAGEMARKER;
 
     [SerializeField] private Transform _imageHolder;
     [SerializeField] private Image _image;
@@ -51,7 +52,7 @@ public class ImageMarkerEditorView : PopupEditorBase
 
         if (_content != null)
         {
-            EventManager.DeactivateObject(_content);
+            LearningExperienceEngine.EventManager.DeactivateObject(_content);
 
             // delete the previous image file
             var imageName = _content.url;
@@ -75,7 +76,7 @@ public class ImageMarkerEditorView : PopupEditorBase
         _content.url = RESOURCES_PREFIX + saveFileName;
         _content.scale = size / 100;
 
-        EventManager.ActivateObject(_content);
+        LearningExperienceEngine.EventManager.ActivateObject(_content);
 
         base.OnAccept();
         Close();

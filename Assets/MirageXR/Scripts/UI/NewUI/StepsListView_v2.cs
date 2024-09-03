@@ -8,7 +8,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Action = System.Action;
-using Content = MirageXR.Action;
+using Content = LearningExperienceEngine.Action;
 
 public class StepsListView_v2 : BaseView
 {
@@ -16,9 +16,8 @@ public class StepsListView_v2 : BaseView
     private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg";
     private const int MAX_PICTURE_SIZE = 1024;
 
-    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
-
-    private static BrandManager brandManager => RootObject.Instance.BrandManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
 
     [Space]
     [SerializeField] private RectTransform _listVerticalContent;
@@ -85,28 +84,28 @@ public class StepsListView_v2 : BaseView
         _btnBack.onClick.AddListener(OnBackPressed);
         _btnSettings.onClick.AddListener(OnSettingsPressed);
 
-        EventManager.OnActivityStarted += OnActivityStarted;
-        EventManager.OnWorkplaceLoaded += OnStartActivity;
-        EventManager.OnActionCreated += OnActionCreated;
-        EventManager.OnActionDeleted += OnActionDeleted;
-        EventManager.OnActionModified += OnActionChanged;
-        EventManager.OnEditModeChanged += OnEditModeChanged;
-        EventManager.OnWorkplaceCalibrated += OnWorkplaceCalibrated;
-        EventManager.OnActivateAction += OnActionActivated;
+        LearningExperienceEngine.EventManager.OnStartActivity += OnActivityStarted;
+        LearningExperienceEngine.EventManager.OnWorkplaceLoaded += OnStartActivity;
+        LearningExperienceEngine.EventManager.OnActionCreated += OnActionCreated;
+        LearningExperienceEngine.EventManager.OnActionDeleted += OnActionDeleted;
+        LearningExperienceEngine.EventManager.OnActionModified += OnActionChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnWorkplaceCalibrated += OnWorkplaceCalibrated;
+        LearningExperienceEngine.EventManager.OnActivateAction += OnActionActivated;
 
         UpdateView();
     }
 
     private void OnDestroy()
     {
-        EventManager.OnActivityStarted -= OnActivityStarted;
-        EventManager.OnWorkplaceLoaded -= OnStartActivity;
-        EventManager.OnActionCreated -= OnActionCreated;
-        EventManager.OnActionDeleted -= OnActionDeleted;
-        EventManager.OnActionModified -= OnActionChanged;
-        EventManager.OnEditModeChanged -= OnEditModeChanged;
-        EventManager.OnWorkplaceCalibrated -= OnWorkplaceCalibrated;
-        EventManager.OnActivateAction -= OnActionActivated;
+        LearningExperienceEngine.EventManager.OnStartActivity -= OnActivityStarted;
+        LearningExperienceEngine.EventManager.OnWorkplaceLoaded -= OnStartActivity;
+        LearningExperienceEngine.EventManager.OnActionCreated -= OnActionCreated;
+        LearningExperienceEngine.EventManager.OnActionDeleted -= OnActionDeleted;
+        LearningExperienceEngine.EventManager.OnActionModified -= OnActionChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnWorkplaceCalibrated -= OnWorkplaceCalibrated;
+        LearningExperienceEngine.EventManager.OnActivateAction -= OnActionActivated;
     }
 
     private void OnStartActivity()
@@ -141,7 +140,7 @@ public class StepsListView_v2 : BaseView
             OnEditModeChanged(activityManager.EditModeActive);
             LoadThumbnail();
 
-            _btnFloorLevel.gameObject.SetActive(RootObject.Instance.FloorManager.isFloorDetected);
+            _btnFloorLevel.gameObject.SetActive(RootObject.Instance.floorManager.isFloorDetected);
         }
         else
         {
@@ -225,7 +224,7 @@ public class StepsListView_v2 : BaseView
         _calibration.SetActive(!value);
         if (value)
         {
-            EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivitySteps);
+            MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivitySteps);
         }
     }
 
@@ -236,7 +235,7 @@ public class StepsListView_v2 : BaseView
         _calibration.SetActive(!value);
         if (value)
         {
-            EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivityInfo);
+            MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivityInfo);
         }
     }
 
@@ -247,7 +246,7 @@ public class StepsListView_v2 : BaseView
         _calibration.SetActive(value);
         if (value)
         {
-            EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivityCalibration);
+            MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivityCalibration);
         }
     }
 
@@ -351,7 +350,7 @@ public class StepsListView_v2 : BaseView
     {
         _statusNotCalibrated.SetActive(false);
         _statusCalibrated.SetActive(true);
-        _btnFloorLevel.gameObject.SetActive(RootObject.Instance.FloorManager.isFloorDetected);
+        _btnFloorLevel.gameObject.SetActive(RootObject.Instance.floorManager.isFloorDetected);
     }
 
     private void OnActionCreated(Content action)
@@ -465,15 +464,15 @@ public class StepsListView_v2 : BaseView
 
     private void ShowImageTargetCalibrationView()
     {
-        var isEditMode = RootObject.Instance.ActivityManagerOld.EditModeActive;
-        var isCalibration = RootObject.Instance.CalibrationManager.isCalibrated;
+        var isEditMode = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
+        var isCalibration = RootObject.Instance.calibrationManager.isCalibrated;
         PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode && !isCalibration, false, false);
     }
 
     private void ShowMarkerLessCalibrationView()
     {
-        var isEditMode = RootObject.Instance.ActivityManagerOld.EditModeActive;
-        var isCalibration = RootObject.Instance.CalibrationManager.isCalibrated;
+        var isEditMode = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
+        var isCalibration = RootObject.Instance.calibrationManager.isCalibrated;
         PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode && !isCalibration, false, true);
     }
 

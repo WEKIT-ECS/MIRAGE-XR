@@ -34,12 +34,12 @@ namespace MirageXR
 
         private void OnEnable()
         {
-            EventManager.OnEditModeChanged += EditModeState;
+            LearningExperienceEngine.EventManager.OnEditModeChanged += EditModeState;
         }
 
         private void OnDisable()
         {
-            EventManager.OnEditModeChanged -= EditModeState;
+            LearningExperienceEngine.EventManager.OnEditModeChanged -= EditModeState;
         }
 
         private void Start()
@@ -58,7 +58,7 @@ namespace MirageXR
         /// <param name="AddManipulator"></param>
         /// <returns>Task object for asynchronous execution</returns>
         public async Task AddBoundingBox(
-            ToggleObject annotationToggleObject,
+            LearningExperienceEngine.ToggleObject annotationToggleObject,
             BoundsCalculationMethod boundsCalculationMethod,
             bool hasConstraintManager = false,
             bool addListeners = true,
@@ -181,7 +181,7 @@ namespace MirageXR
         /// <summary>
         /// Add the event when every thing is parsed
         /// </summary>
-        private IEnumerator ManipulationEvents(ToggleObject annotation)
+        private IEnumerator ManipulationEvents(LearningExperienceEngine.ToggleObject annotation)
         {
             yield return new WaitWhile(() => transform.parent == null);
 
@@ -196,7 +196,7 @@ namespace MirageXR
             objectManipulator.HostTransform = transform;
             objectManipulator.TwoHandedManipulationType = Microsoft.MixedReality.Toolkit.Utilities.TransformFlags.Move;
 
-            var gridManager = RootObject.Instance.GridManager;
+            var gridManager = RootObject.Instance.gridManager;
             objectManipulator.OnManipulationStarted.AddListener(eventData => gridManager.onManipulationStarted(eventData.ManipulationSource));
             objectManipulator.OnManipulationEnded.AddListener(eventData => OnManipulationEnded(eventData, annotation));
 
@@ -211,29 +211,29 @@ namespace MirageXR
                 boundsControl.TranslateStopped.AddListener(OnTranslateStopped);
             }
 
-            EditModeState(RootObject.Instance.ActivityManagerOld.EditModeActive);
+            EditModeState(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive);
         }
 
-        private void OnManipulationEnded(ManipulationEventData eventData, ToggleObject annotation)
+        private void OnManipulationEnded(ManipulationEventData eventData, LearningExperienceEngine.ToggleObject annotation)
         {
-            var gridManager = RootObject.Instance.GridManager;
+            var gridManager = RootObject.Instance.gridManager;
             gridManager.onManipulationEnded(eventData.ManipulationSource);
 
             SaveTransform(annotation);
 
-            RootObject.Instance.ActivityManagerOld.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.SaveData();
         }
 
         private void OnTranslateStopped()
         {
             var boundsControl = GetComponent<BoundsControl>();
-            var gridManager = RootObject.Instance.GridManager;
+            var gridManager = RootObject.Instance.gridManager;
             gridManager.onTranslateStopped?.Invoke(boundsControl.Target);
 
-            RootObject.Instance.ActivityManagerOld.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.SaveData();
         }
 
-        private void SaveTransform(ToggleObject annotation)
+        private void SaveTransform(LearningExperienceEngine.ToggleObject annotation)
         {
             annotation.position = transform.localPosition.ToString();
             annotation.rotation = transform.localRotation.ToString();

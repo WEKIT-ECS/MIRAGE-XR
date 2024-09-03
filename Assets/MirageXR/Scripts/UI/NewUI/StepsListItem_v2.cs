@@ -1,14 +1,15 @@
-﻿using System;
+﻿using LearningExperienceEngine;
+using System;
 using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Action = System.Action;
-using Step = MirageXR.Action;
+using Step = LearningExperienceEngine.Action;
 
 public class StepsListItem_v2 : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
+    private static ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
 
     [SerializeField] private TMP_Text _txtNumber;
     [SerializeField] private TMP_Text _txtStepName;
@@ -25,7 +26,7 @@ public class StepsListItem_v2 : MonoBehaviour
     [SerializeField] private ImageMarkerPopup _imageMarkerPopup;
     [SerializeField] private GameObject _stepSelected;
 
-    private MirageXR.Action _step;
+    private Step _step;
     private int _number;
     private Action<Step> _onStepClick;
     private Action<Step> _onEditClick;
@@ -48,8 +49,8 @@ public class StepsListItem_v2 : MonoBehaviour
         _dragAndDropController.onSiblingIndexChanged.AddListener(OnSiblingIndexChanged);
         OnEditModeChanged(activityManager.EditModeActive);
 
-        EventManager.OnEditModeChanged += OnEditModeChanged;
-        EventManager.OnActionModified += OnActionModified;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnActionModified += OnActionModified;
     }
 
     public void UpdateView(Step step, int number)
@@ -59,7 +60,7 @@ public class StepsListItem_v2 : MonoBehaviour
 
         _txtStepName.text = _step.instruction.title;
         _txtNumber.text = (_number + 1).ToString("00");
-        var isCurrent = _step.id == RootObject.Instance.ActivityManagerOld.ActiveActionId;
+        var isCurrent = _step.id == LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActiveActionId;
         _stepCurrentImage.SetActive(isCurrent);
         _stepSelected.SetActive(isCurrent);
         _stepDoneImage.SetActive(_step.isCompleted && !isCurrent);
@@ -108,7 +109,7 @@ public class StepsListItem_v2 : MonoBehaviour
     public void OnEditClick()
     {
         _onEditClick(_step);
-        EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActionAugmentations);
+        MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActionAugmentations);
     }
 
     public void OnImageMarkerButtonClick()

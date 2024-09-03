@@ -1,3 +1,4 @@
+using LearningExperienceEngine;
 using System.Linq;
 using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
@@ -7,7 +8,7 @@ using UnityEngine.UI;
 
 public class ContentListItem : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
     [SerializeField] private TMP_Text _txtType;
     [SerializeField] private TMP_Text _txtFrom;
     [SerializeField] private TMP_Text _txtTo;
@@ -22,8 +23,8 @@ public class ContentListItem : MonoBehaviour
     [SerializeField] private Image _imageNavigatorCheck;
 
     private ContentListView _parentView;
-    private ToggleObject _content;
-    private ContentType _type;
+    private LearningExperienceEngine.ToggleObject _content;
+    private LearningExperienceEngine.ContentType _type;
     private int _from;
     private int _to;
 
@@ -41,10 +42,10 @@ public class ContentListItem : MonoBehaviour
         _btnPlusTo.onClick.AddListener(OnPlusToClick);
     }
 
-    public void UpdateView(ToggleObject content)
+    public void UpdateView(LearningExperienceEngine.ToggleObject content)
     {
         _content = content;
-        _type = ContentTypeExtenstion.ParsePredicate(_content.predicate);
+        _type = LearningExperienceEngine.ContentTypeExtension.ParsePredicate(_content.predicate);
         _txtType.text = _content.predicate;
         _imgType.sprite = _type.GetIcon();
 
@@ -82,7 +83,7 @@ public class ContentListItem : MonoBehaviour
 
     private void OnContentClick()
     {
-        var type = ContentTypeExtenstion.ParsePredicate(_content.predicate);
+        var type = LearningExperienceEngine.ContentTypeExtension.ParsePredicate(_content.predicate);
         var editor = _parentView.editors.FirstOrDefault(t => t.editorForType == type);
         if (editor == null)
         {
@@ -94,7 +95,7 @@ public class ContentListItem : MonoBehaviour
 
     private void OnDeleteClick()
     {
-        RootObject.Instance.AugmentationManager.DeleteAugmentation(_content);
+        LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.DeleteAugmentation(_content);
         if (_parentView.navigatorId == _content.poi)
         {
             TaskStationDetailMenu.Instance.NavigatorTarget = null;
@@ -135,8 +136,8 @@ public class ContentListItem : MonoBehaviour
 
     private void UpdateStep()
     {
-        RootObject.Instance.AugmentationManager.AddAllAugmentationsBetweenSteps(_from, _to, _content, Vector3.zero);
-        if (_type == ContentType.CHARACTER)
+        LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAllAugmentationsBetweenSteps(_from, _to, _content, Vector3.zero);
+        if (_type == LearningExperienceEngine.ContentType.CHARACTER)
         {
             activityManager.SaveData();
         }

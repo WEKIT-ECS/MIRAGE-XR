@@ -6,15 +6,15 @@ using UnityEngine;
 
 public class CalibrationFlow : MonoBehaviour
 {
-    private static CalibrationManager calibrationManager => RootObject.Instance.CalibrationManager;
+    private static CalibrationManager calibrationManager => RootObject.Instance.calibrationManager;
 
-    private static FloorManagerWrapper floorManager => RootObject.Instance.FloorManager;
+    private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
 
-    private static PlaneManagerWrapper planeManager => RootObject.Instance.PlaneManager;
+    private static PlaneManagerWrapper planeManager => RootObject.Instance.planeManager;
 
-    private static GridManager gridManager => RootObject.Instance.GridManager;
+    private static GridManager gridManager => RootObject.Instance.gridManager;
 
-    private static CameraCalibrationChecker cameraCalibrationChecker => RootObject.Instance.CameraCalibrationChecker;
+    private static CameraCalibrationChecker cameraCalibrationChecker => RootObject.Instance.cameraCalibrationChecker;
 
 
     private string CALIBRATION_TEXT = "Calibration";
@@ -104,13 +104,13 @@ public class CalibrationFlow : MonoBehaviour
     private async Task OnCalibrationFinishedAsync()
     {
         await calibrationManager.ApplyCalibrationAsync(false);
-        var activityManager = RootObject.Instance.ActivityManagerOld;
+        var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
         if (gridManager.gridEnabled && activityManager.EditModeActive)
         {
             gridManager.ShowGrid();
         }
 
-        EventManager.WorkplaceCalibrated();
+        LearningExperienceEngine.EventManager.WorkplaceCalibrated();
         _textMain.text = DONE_TEXT;
         await Task.Delay(CLOSE_TIME);
         Close();

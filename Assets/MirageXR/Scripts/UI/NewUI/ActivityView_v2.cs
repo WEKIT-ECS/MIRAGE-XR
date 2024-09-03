@@ -1,4 +1,4 @@
-using DG.Tweening;
+﻿using DG.Tweening;
 using MirageXR;
 using System.Collections;
 using UnityEngine;
@@ -10,7 +10,7 @@ public class ActivityView_v2 : BaseView
     private const float HIDED_SIZE_FOR_HORIZONTAL_SCROLL = 230f;
     private const float HIDE_ANIMATION_TIME = 0.5f;
 
-    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
 
     [SerializeField] private Button _btnArrow;
     [SerializeField] private RectTransform _panel;
@@ -27,13 +27,13 @@ public class ActivityView_v2 : BaseView
     [SerializeField] private Toggle _toggleSteps;
     [SerializeField] private RectTransform _contentHorizontal;
 
-    private SessionContainer _container;
+    private LearningExperienceEngine.SessionContainer _container;
     private int _infoStepNumber;
     private Vector2 _panelSize;
 
     public StepsListView_v2 stepsListView => _stepsListView;
 
-    public SessionContainer container => _container;
+    public LearningExperienceEngine.SessionContainer container => _container;
 
     private RootView_v2 rootView => (RootView_v2)_parentView;
 
@@ -59,7 +59,7 @@ public class ActivityView_v2 : BaseView
         _stepsListView.Initialization(this);
         _panelSize = _panel.sizeDelta;
 
-        EventManager.OnEditModeChanged += OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
 
         _stepsVertical.SetActive(true);
         _stepsHorizontal.SetActive(false);
@@ -69,7 +69,7 @@ public class ActivityView_v2 : BaseView
 
     private void OnDestroy()
     {
-        EventManager.OnEditModeChanged -= OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
     }
 
     private void UpdateView()
@@ -95,7 +95,7 @@ public class ActivityView_v2 : BaseView
         UpdateView();
     }
 
-    public void SetSessionInfo(SessionContainer info)
+    public void SetSessionInfo(LearningExperienceEngine.SessionContainer info)
     {
         _container = info;
     }

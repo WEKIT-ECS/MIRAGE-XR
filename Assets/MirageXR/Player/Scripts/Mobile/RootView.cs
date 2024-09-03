@@ -48,7 +48,7 @@ public class RootView : BaseView
     public override void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
-        EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
+        LearningExperienceEngine.EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
         _toggleView.interactable = false;
         _toggleSteps.interactable = false;
         _toggleHome.onValueChanged.AddListener(OnHomeClick);
@@ -63,7 +63,7 @@ public class RootView : BaseView
 
     private void OnDestroy()
     {
-        EventManager.OnWorkplaceLoaded -= OnWorkplaceLoaded;
+        LearningExperienceEngine.EventManager.OnWorkplaceLoaded -= OnWorkplaceLoaded;
     }
 
     private void OnWorkplaceLoaded()
@@ -72,7 +72,7 @@ public class RootView : BaseView
         _toggleSteps.interactable = true;
         _toggleView.isOn = true;
 
-        if (!DBManager.dontShowCalibrationGuide)
+        if (!LearningExperienceEngine.UserSettings.dontShowCalibrationGuide)
         {
             PopupsViewer.Instance.Show(_calibrationGuideViewPrefab);
         }

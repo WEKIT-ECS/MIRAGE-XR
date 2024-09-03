@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using LearningExperienceEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using Microsoft.MixedReality.Toolkit.UI;
 
@@ -23,7 +24,7 @@ namespace MirageXR
 
         private void Start()
         {
-            if (!RootObject.Instance.PlatformManager.WorldSpaceUi)
+            if (!RootObject.Instance.platformManager.WorldSpaceUi)
             {
                 GetComponent<Canvas>().enabled = false;
                 return;
@@ -37,7 +38,7 @@ namespace MirageXR
             _toggleGrid.onValueChanged.AddListener(OnToggleGridValueChanged);
 
             // Hide the user welcome text if no one is logged into the Moodle
-            if (!DBManager.LoggedIn)
+            if (!LearningExperienceEngine.UserSettings.LoggedIn)
             {
                 var usernameWelcomeText = transform.FindDeepChild("WelcomeUsername");
                 usernameWelcomeText.gameObject.SetActive(false);
@@ -109,8 +110,8 @@ namespace MirageXR
 
             Loading.Instance.LoadingVisibility(true);
 
-            await RootObject.Instance.EditorSceneService.LoadEditorAsync();
-            await RootObject.Instance.ActivityManagerOld.CreateNewActivity();
+            await RootObject.Instance.editorSceneService.LoadEditorAsync();
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.CreateNewActivity();
         }
     }
 }

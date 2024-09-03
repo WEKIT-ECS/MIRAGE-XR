@@ -4,9 +4,8 @@ using UnityEngine.UI;
 
 public class ActionListItem : MonoBehaviour
 {
-    private static BrandManager brandManager => RootObject.Instance.BrandManager;
-
-    private static ActivityManager activityManager => RootObject.Instance.ActivityManagerOld;
+    private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
 
     [SerializeField] private Image backgroundImage;
     [SerializeField] private Text captionLabel;
@@ -18,14 +17,14 @@ public class ActionListItem : MonoBehaviour
 
     public Button DeleteButton => deleteButton;
 
-    public Action Content { get; set; }
+    public LearningExperienceEngine.Action Content { get; set; }
 
     public int DataIndex { get; set; }
 
     private void OnEnable()
     {
-        EventManager.OnActivateAction += OnActivateAction;
-        EventManager.OnEditModeChanged += SetEditModeState;
+        LearningExperienceEngine.EventManager.OnActivateAction += OnActivateAction;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += SetEditModeState;
         if (activityManager != null)
         {
             SetEditModeState(activityManager.EditModeActive);
@@ -35,8 +34,8 @@ public class ActionListItem : MonoBehaviour
 
     private void OnDisable()
     {
-        EventManager.OnActivateAction -= OnActivateAction;
-        EventManager.OnEditModeChanged -= SetEditModeState;
+        LearningExperienceEngine.EventManager.OnActivateAction -= OnActivateAction;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= SetEditModeState;
     }
 
     private void OnActivateAction(string action)

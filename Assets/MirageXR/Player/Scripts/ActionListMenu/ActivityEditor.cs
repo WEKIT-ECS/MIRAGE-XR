@@ -1,4 +1,5 @@
-﻿using i5.Toolkit.Core.VerboseLogging;
+﻿using LearningExperienceEngine;
+using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,7 +27,7 @@ public class ActivityEditor : MonoBehaviour
 
     private void Awake()
     {
-        EventManager.OnWorkplaceLoaded += CheckEditState;
+        LearningExperienceEngine.EventManager.OnWorkplaceLoaded += CheckEditState;
     }
 
     private void Start()
@@ -39,40 +40,44 @@ public class ActivityEditor : MonoBehaviour
 
     private void OnEnable()
     {
-        EventManager.OnEditModeChanged += SetEditorState;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += SetEditorState;
+        LearningExperienceEngine.EventManager.OnShowUploadWarningPanel += ShowUploadWarningPanel;
+        LearningExperienceEngine.EventManager.OnShowCloneWarningPanel += ShowCloneWarningPanel;
 
         if (activityTitleField.text == string.Empty)
             activityTitleField.text = "New Activity";
         activityTitleField.onValueChanged.AddListener(OnActivityTitleChanged);
 
-        if (RootObject.Instance.ActivityManagerOld != null)
+        if (LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager != null)
         {
-            SetEditorState(RootObject.Instance.ActivityManagerOld.EditModeActive);
+            SetEditorState(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive);
         }
     }
 
     private void OnDisable()
     {
         activityTitleField.onValueChanged.RemoveListener(OnActivityTitleChanged);
-        EventManager.OnEditModeChanged -= SetEditorState;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= SetEditorState;
+        LearningExperienceEngine.EventManager.OnShowUploadWarningPanel -= ShowUploadWarningPanel;
+        LearningExperienceEngine.EventManager.OnShowCloneWarningPanel -= ShowCloneWarningPanel;
     }
 
     private void OnDestroy()
     {
-        EventManager.OnWorkplaceLoaded -= CheckEditState;
+        LearningExperienceEngine.EventManager.OnWorkplaceLoaded -= CheckEditState;
     }
 
     private void CheckEditState()
     {
-        if (string.IsNullOrEmpty(RootObject.Instance.ActivityManagerOld.Activity.id))
+        if (string.IsNullOrEmpty(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.Activity.id))
         {
-            RootObject.Instance.ActivityManagerOld.EditModeActive = true;
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive = true;
         }
         else
         {
-            SetEditorState(RootObject.Instance.ActivityManagerOld.EditModeActive);
+            SetEditorState(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive);
         }
-        editCheckbox.isOn = RootObject.Instance.ActivityManagerOld.EditModeActive;
+        editCheckbox.isOn = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
     }
 
     public void SetEditorState(bool editModeActive)
@@ -123,13 +128,13 @@ public class ActivityEditor : MonoBehaviour
                 OnUploadButtonClicked(1);
                 break;
             case "Clone":
-                RootObject.Instance.ActivityManagerOld.CloneActivity();
+                LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.CloneActivity();
                 OnUploadButtonClicked(2);
                 break;
             case "Cancel":
             default:
                 updateConfirmPanel.SetActive(false);
-                RootObject.Instance.MoodleManager.GetProgressText = "Upload";
+                LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.GetProgressText = "Upload";
                 optionsDropDown.options.Clear();
                 break;
         }
@@ -139,35 +144,35 @@ public class ActivityEditor : MonoBehaviour
     public void OnEditToggleChanged(bool value)
     {
         Debug.LogDebug("Toggle changed " + value);
-        if (RootObject.Instance.ActivityManagerOld != null)
+        if (LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager != null)
         {
-            RootObject.Instance.ActivityManagerOld.EditModeActive = value;
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive = value;
             transform.GetComponentInChildren<Toggle>().isOn = value;
         }
     }
 
     public void ToggleEditMode()
     {
-        bool newValue = !RootObject.Instance.ActivityManagerOld.EditModeActive;
+        bool newValue = !LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
         OnEditToggleChanged(newValue);
         transform.GetComponentInChildren<Toggle>().isOn = newValue;
     }
 
     private void OnActivityTitleChanged(string text)
     {
-        RootObject.Instance.ActivityManagerOld.Activity.name = text;
+        LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.Activity.name = text;
     }
 
     public void OnSaveButtonClicked()
     {
-        EventManager.NotifyOnActivitySaveButtonClicked();
+        MirageXR.EventManager.NotifyOnActivitySaveButtonClicked();
         SaveActivity();
     }
 
     private void SaveActivity()
     {
-        EventManager.ActivitySaved();
-        RootObject.Instance.ActivityManagerOld.SaveData();
+        LearningExperienceEngine.EventManager.SaveActivity();
+        LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.SaveData();
     }
 
     public void OpenScreenShot()
@@ -181,7 +186,7 @@ public class ActivityEditor : MonoBehaviour
 
     public async void OnUploadButtonClicked(int updateMode)
     {
-        EventManager.NotifyOnActivityUploadButtonClicked();
+        MirageXR.EventManager.NotifyOnActivityUploadButtonClicked();
 
         SaveActivity();
 
@@ -203,10 +208,10 @@ public class ActivityEditor : MonoBehaviour
         //}
 
         // login needed for uploading
-        if (DBManager.LoggedIn)
+        if (LearningExperienceEngine.UserSettings.LoggedIn)
         {
             loginNeedText.text = string.Empty;
-            await RootObject.Instance.MoodleManager.UploadFile(RootObject.Instance.ActivityManagerOld.ActivityPath, RootObject.Instance.ActivityManagerOld.Activity.name, updateMode);
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.UploadFile(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActivityPath, LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.Activity.name, updateMode);
         }
         else
         {

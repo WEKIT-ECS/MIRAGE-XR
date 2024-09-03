@@ -18,8 +18,8 @@ namespace MirageXR
             this.titleField = menu.ActionTitleInputField;
             this.highlightedObject = titleField.gameObject;
 
-            EventManager.ActionStepTitleChanged += TitleChangedListener;
-            EventManager.OnActivityStarted += DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.ActionStepTitleChanged += TitleChangedListener;
+            LearningExperienceEngine.EventManager.OnStartActivity += DefaultCloseEventListener;
         }
 
         private void TitleChangedListener()
@@ -32,8 +32,8 @@ namespace MirageXR
 
         protected override void Detach()
         {
-            EventManager.ActionStepTitleChanged -= this.DefaultExitEventListener;
-            EventManager.OnActivityStarted -= DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.ActionStepTitleChanged -= this.DefaultExitEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity -= DefaultCloseEventListener;
         }
     }
 }

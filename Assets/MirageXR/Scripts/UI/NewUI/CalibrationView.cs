@@ -9,15 +9,15 @@ using Action = System.Action;
 
 public class CalibrationView : PopupBase
 {
-    private static CalibrationManager calibrationManager => RootObject.Instance.CalibrationManager;
+    private static CalibrationManager calibrationManager => RootObject.Instance.calibrationManager;
 
-    private static FloorManagerWrapper floorManager => RootObject.Instance.FloorManager;
+    private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
 
-    private static PlaneManagerWrapper planeManager => RootObject.Instance.PlaneManager;
+    private static PlaneManagerWrapper planeManager => RootObject.Instance.planeManager;
 
-    private static CameraCalibrationChecker cameraCalibrationChecker => RootObject.Instance.CameraCalibrationChecker;
+    private static CameraCalibrationChecker cameraCalibrationChecker => RootObject.Instance.cameraCalibrationChecker;
 
-    private static GridManager gridManager => RootObject.Instance.GridManager;
+    private static GridManager gridManager => RootObject.Instance.gridManager;
 
     private string CALIBRATION_TEXT = "Calibration";
     private string SELECT_CALIBRATION_TEXT = "Select calibration type";
@@ -59,13 +59,13 @@ public class CalibrationView : PopupBase
     private Tweener _tweenerCalibration;
     private Sequence _tweenerDetection;
     private Pose _startPose;
-    private PoseSynchronizer _poseSynchronizer;
+    private LearningExperienceEngine.PoseSynchronizer _poseSynchronizer;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
         base.Initialization(onClose, args);
 
-        _poseSynchronizer = RootObject.Instance.WorkplaceManager.detectableContainer.GetComponentInParent<PoseSynchronizer>();
+        _poseSynchronizer = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.detectableContainer.GetComponentInParent<LearningExperienceEngine.PoseSynchronizer>();
         _canBeClosedByOutTap = false;
         _showBackground = false;
 
@@ -240,7 +240,7 @@ public class CalibrationView : PopupBase
         _imageTarget.gameObject.SetActive(false);
         _imageCalibrationAnimation.gameObject.SetActive(false);
 
-        var activityManager = RootObject.Instance.ActivityManagerOld;
+        var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
         if (gridManager.gridEnabled && activityManager.EditModeActive)
         {
             gridManager.ShowGrid();
@@ -249,7 +249,7 @@ public class CalibrationView : PopupBase
         _poseSynchronizer.enabled = true;
 
         await Task.Delay(CLOSE_TIME);
-        EventManager.WorkplaceCalibrated();
+        LearningExperienceEngine.EventManager.WorkplaceCalibrated();
         Close();
 
         TutorialManager.Instance.InvokeEvent(TutorialManager.TutorialEvent.CALIBRATION_FINISHED);
@@ -275,7 +275,7 @@ public class CalibrationView : PopupBase
 
         if (_isMoveOrigin)
         {
-            var synchronizer = RootObject.Instance.WorkplaceManager.detectableContainer.GetComponentInParent<PoseSynchronizer>();
+            var synchronizer = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.detectableContainer.GetComponentInParent<LearningExperienceEngine.PoseSynchronizer>();
             synchronizer.enabled = true;
         }
 
