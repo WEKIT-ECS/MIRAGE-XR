@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using MirageXR.NewDataModel;
 using UnityEngine;
 
 namespace MirageXR
@@ -28,6 +29,9 @@ namespace MirageXR
         private AIManager _aiManager;
         private OpenAIManager _openAIManager;
         private VirtualInstructorManager _virtualInstructorManager; 
+        private IActivityManager _activityManager;
+        private IContentManager _contentManager;
+        private INetworkDataProvider _networkDataProvider;
 
         public Camera BaseCamera => _baseCamera;
 
@@ -60,6 +64,12 @@ namespace MirageXR
         public OpenAIManager OpenAIManager => _openAIManager;
 
         public VirtualInstructorManager VirtualInstructorManager => _virtualInstructorManager;
+
+        public IActivityManager ActivityManager => _activityManager;
+
+        public IContentManager ContentManager => _contentManager;
+
+        public INetworkDataProvider NetworkDataProvider => _networkDataProvider;
 
         private bool _isInitialized;
 
@@ -131,6 +141,7 @@ namespace MirageXR
                 _openAIManager = new OpenAIManager();
 
                 _virtualInstructorManager = new VirtualInstructorManager();
+                _activityManager = new ActivityManager();
 
                 await _imageTargetManager.InitializationAsync();
                 await _floorManager.InitializationAsync();
@@ -143,6 +154,7 @@ namespace MirageXR
 
                 await _openAIManager.InitializeAsync();
                 await _aiManager.InitializeAsync();
+                _activityManager.InitializeAsync(_contentManager, _networkDataProvider);
                 _isInitialized = true;
 
                 //LearningExperienceEngine.EventManager.OnClearAll += ResetManagers;
