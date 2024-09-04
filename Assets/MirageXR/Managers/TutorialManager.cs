@@ -57,7 +57,8 @@ namespace MirageXR
             GHOST_REPLAYED,
             EDIT_MODE_CHANGED,
             PICK_POSITION_CHANGED,
-            TARGET_POSITION_CHANGED
+            TARGET_POSITION_CHANGED,
+            VIDEO_SELECTED_FROM_GALLERY
         }
 
         public enum TutorialExitCode
