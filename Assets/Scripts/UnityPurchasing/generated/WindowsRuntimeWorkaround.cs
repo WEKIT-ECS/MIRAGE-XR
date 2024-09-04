@@ -5,6 +5,7 @@
 struct WindowsRuntimeWorkaround
 {
     private Windows.Foundation.IAsyncAction _workaroundAction;
+    //Debug.Log("WINMD support enabled");
 }
 
 #endif

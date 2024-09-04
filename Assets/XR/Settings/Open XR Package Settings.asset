@@ -3136,6 +3136,26 @@ MonoBehaviour:
   optimizeBufferDiscards: 1
   lateLatchingMode: 0
   lateLatchingDebug: 0
+--- !u!114 &2331182185698616970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfdd10eb548aba844b314776fb1b65bd, type: 3}
+  m_Name: MicrosoftHandInteractionLegacy Metro
+  m_EditorClassIdentifier: 
+  m_enabled: 0
+  nameUi: Microsoft Hand Interaction Profile (Legacy)
+  version: 0.0.1
+  featureIdInternal: com.microsoft.openxr.feature.interaction.handtrackinglegacy
+  openxrExtensionStrings: XR_MSFT_hand_interaction
+  company: Microsoft
+  priority: 0
+  required: 0
 --- !u!114 &2391711983362963604
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3162,7 +3182,7 @@ MonoBehaviour:
   - {fileID: 4047102087758151018}
   - {fileID: -5717806984981220388}
   - {fileID: 7867943167952155884}
-  - {fileID: 7753415924483934945}
+  - {fileID: 2331182185698616970}
   - {fileID: 7313555153919440075}
   - {fileID: 853285074447097298}
   - {fileID: -179209045387081515}
@@ -3170,8 +3190,8 @@ MonoBehaviour:
   - {fileID: 4475843201894175715}
   - {fileID: 1057018002220456693}
   - {fileID: -4572464452065702350}
-  m_renderMode: 0
-  m_depthSubmissionMode: 2
+  m_renderMode: 1
+  m_depthSubmissionMode: 1
   m_optimizeBufferDiscards: 0
   m_symmetricProjection: 0
 --- !u!114 &2429205439742170919
@@ -3525,7 +3545,7 @@ MonoBehaviour:
   - {fileID: 7916090262046855198}
   - {fileID: 4758929276041009201}
   - {fileID: -3247203607682908375}
-  - {fileID: 2429205439742170919}
+  - {fileID: 6506875569629609770}
   - {fileID: -1171133752328494868}
   - {fileID: 7844092491160930354}
   - {fileID: -4260590579579368990}
@@ -4085,6 +4105,26 @@ MonoBehaviour:
   required: 0
   targetQuest: 1
   targetQuest2: 1
+--- !u!114 &6506875569629609770
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfdd10eb548aba844b314776fb1b65bd, type: 3}
+  m_Name: MicrosoftHandInteractionLegacy Standalone
+  m_EditorClassIdentifier: 
+  m_enabled: 0
+  nameUi: Microsoft Hand Interaction Profile (Legacy)
+  version: 0.0.1
+  featureIdInternal: com.microsoft.openxr.feature.interaction.handtrackinglegacy
+  openxrExtensionStrings: XR_MSFT_hand_interaction
+  company: Microsoft
+  priority: 0
+  required: 0
 --- !u!114 &6526651397703881765
 MonoBehaviour:
   m_ObjectHideFlags: 0
