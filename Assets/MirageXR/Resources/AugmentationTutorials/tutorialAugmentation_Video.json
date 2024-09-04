@@ -1,14 +1,57 @@
 {
-    "Name": "GhostAugmentationGuide",
+    "Name": "VideoAugmentationGuide",
     "IntendedPlatform": "Mobile",
     "Steps": [
         {
             "DelayInMilliseconds": 100.0,
             "StepType": "UI",
-            "Id": "",
-            "Message": "Tutorial coming soon!",
+            "Id": "augmenation_video_gallery",
+            "Message": "Videos can be included in your action step to guide the user or display content. First let's find a video to load. You can either record it in-app, or select one from the gallery. For now, let's find one from your gallery.",
+            "Position": "Top",
+            "BtnText": "Cancel"
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_video_landscape",
+            "Message": "The Video can be shown in portrait or in landscape. You can choose to change it to portrait now, or just click Next.",
+            "Position": "Top",
+            "BtnText": "Next",
+            "CanGoNext": true
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_video_trigger",
+            "Message": "A trigger can also be added, to jump to a specific step once the video is completed. Let's leave that option disabled for now, just click Next.",
+            "Position": "Top",
+            "BtnText": "Next",
+            "CanGoNext": true
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_video_apply",
+            "Message": "All done! Let's load the Video into the scene by pressing Apply.",
+            "Position": "Top",
+            "BtnText": "Cancel"
+        },
+        {
+            "StepType": "UI",
+            "Id": "ui_toggle",
+            "Message": "Let's lower the UI so we can take a look at the augmentation we just created.",
             "Position": "Bottom",
-            "BtnText": "Got it"
+            "BtnText": "Cancel"
+        },
+        {
+            "DelayInMilliseconds": 100.0,
+            "StepType": "World",
+            "FocusObject": "<<LAST_AUGMENTATION_CREATED>>",
+            "ActualTarget": "video",
+            "Message": "This is the Video we just created. You can now hold the middle of it to reposition or hold its edges to resize. That's it!",
+            "FinishEvent": "ACTION_STEP_ACTIVATED",
+            "arrowRotationOffset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
         }
     ]
 }
