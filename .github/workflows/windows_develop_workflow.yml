@@ -54,7 +54,7 @@ jobs:
 
       # Build stage
       - name: Unity builder
-        uses: game-ci/unity-builder@v2.1.1
+        uses: game-ci/unity-builder@v4 # was: 2.1.1
         id: buildStep
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -86,7 +86,7 @@ jobs:
       matrix:
         include:
           - hlversion: 2
-            hlplatform: ARM64
+            hlplatform: ARM # was ARM64
     env:
       HLVERSION: ${{ matrix.hlversion }}
       HLPLATFORM: ${{ matrix.hlplatform }}
