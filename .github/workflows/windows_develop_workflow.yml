@@ -57,9 +57,9 @@ jobs:
         uses: game-ci/unity-builder@v3
         id: buildStep
         env:
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE_WINDOWS }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL_ED }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD_ED }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE_ED }}
         with:
           targetPlatform: WSAPlayer
           unityVersion: 2022.3.7f1
