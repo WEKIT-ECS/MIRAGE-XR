@@ -45,7 +45,7 @@ namespace MirageXR
             EventManager.OnToggleLock += ToggleLockTouch;
 
             LearningExperienceEngine.EventManager.OnStartActivity += ActivityStarted;
-            LearningExperienceEngine.EventManager.OnWorkplaceLoaded += ShowActivityStart;
+            LearningExperienceEngine.EventManager.OnWorkplaceControllerInitialized /*OnWorkplaceLoaded*/ += ShowActivityStart;
             LearningExperienceEngine.EventManager.OnWorkplaceCalibrated += WorkplaceCalibrated;
 
             // voice command event handlers
@@ -73,7 +73,7 @@ namespace MirageXR
             EventManager.OnToggleLock -= ToggleLockTouch;
 
             LearningExperienceEngine.EventManager.OnStartActivity -= ActivityStarted;
-            LearningExperienceEngine.EventManager.OnWorkplaceLoaded -= ShowActivityStart;
+            LearningExperienceEngine.EventManager.OnWorkplaceControllerInitialized /*OnWorkplaceLoaded*/ -= ShowActivityStart;
             LearningExperienceEngine.EventManager.OnWorkplaceCalibrated -= WorkplaceCalibrated;
 
             // voice command event handlers
