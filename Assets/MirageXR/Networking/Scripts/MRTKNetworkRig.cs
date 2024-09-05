@@ -11,6 +11,7 @@ namespace MirageXR
 		[SerializeField] private Transform _head;
 		[SerializeField] private Transform _leftHand;
 		[SerializeField] private Transform _rightHand;
+		[SerializeField] private Vector3 _headOffset;
 		[SerializeField] private Pose _leftHandOffset;
 		[SerializeField] private Pose _rightHandOffset;
 
@@ -70,7 +71,7 @@ namespace MirageXR
 				_rightHand.transform.rotation = rigState.rightHandState.handPose.rotation * _rightHandOffset.rotation;
 			}
 
-			_head.transform.position = rigState.headPose.position;
+			_head.transform.position = rigState.headPose.position + rigState.headPose.rotation * _headOffset;
 			_head.transform.rotation = rigState.headPose.rotation;
 		}
 
