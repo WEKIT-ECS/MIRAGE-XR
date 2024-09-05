@@ -29,10 +29,10 @@ public class DirectLoginPopup : PopupBase
         _btnLogin.onClick.AddListener(OnClickLogin);
         _btnClose.onClick.AddListener(Close);
 
-        _toggleRememberMe.isOn = DBManager.rememberSketchfabUser;
-        _toggleRememberMe.onValueChanged.AddListener(value => DBManager.rememberSketchfabUser = value);
+        _toggleRememberMe.isOn = LearningExperienceEngine.UserSettings.rememberSketchfabUser;
+        _toggleRememberMe.onValueChanged.AddListener(value => LearningExperienceEngine.UserSettings.rememberSketchfabUser = value);
 
-        if (DBManager.rememberSketchfabUser && LocalFiles.TryGetPassword("direct_login_sketchfab", out var username, out var password))
+        if (LearningExperienceEngine.UserSettings.rememberSketchfabUser && LearningExperienceEngine.UserSettings.TryGetPassword("direct_login_sketchfab", out var username, out var password))
         {
             _usernameInputField.text = username;
             _passwordInputField.text = password;
@@ -82,7 +82,7 @@ public class DirectLoginPopup : PopupBase
             } 
             if (_toggleRememberMe.isOn)
             {
-                LocalFiles.SaveLoginDetails("direct_login_sketchfab", username, password);
+                LearningExperienceEngine.UserSettings.SaveLoginDetails("direct_login_sketchfab", username, password);
             }
             Close();
             return;

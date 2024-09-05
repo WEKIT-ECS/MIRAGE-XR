@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LearningExperienceEngine;
+using System;
 using MirageXR;
 using TMPro;
 using UnityEngine;
@@ -12,9 +13,9 @@ public class ContentSelectorListItem : MonoBehaviour
     [SerializeField] private TMP_Text _txtContent;
     [SerializeField] private Image _image;
 
-    private ContentType _type;
+    private LearningExperienceEngine.ContentType _type;
 
-    public void Init(ContentType type, Action<ContentType> onSelected, Action<ContentType> onHintClick)
+    public void Init(LearningExperienceEngine.ContentType type, Action<LearningExperienceEngine.ContentType> onSelected, Action<LearningExperienceEngine.ContentType> onHintClick)
     {
         _type = type;
         _btnMain.onClick.AddListener(() => onSelected(_type));

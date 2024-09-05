@@ -97,7 +97,7 @@ public class AudioStreamPlayer : MonoBehaviour
         _audioSource.Stop();
         _model = model;
         _name.text = _model.Name;
-        _currentTimeText.text = "0.00";
+        _currentTimeText.text = "0:00";
         _audioSource.clip = await LoadAudioAsync();
         play.gameObject.SetActive(true);
         _playButton.onClick.AddListener(PlayAudio);
@@ -105,7 +105,7 @@ public class AudioStreamPlayer : MonoBehaviour
         _backward.onClick.AddListener(MoveBackward);
         _forward.onClick.AddListener(MoveForward);
         _progressSlider.onValueChanged.AddListener(OnSliderValueChanged);
-        _durationText.text = _audioSource.clip.length.ToString("F2", CultureInfo.CurrentCulture);
+        _durationText.text = _audioSource.clip.length.ToString("F2", CultureInfo.CurrentCulture).Replace(".",":");
         
     }
 

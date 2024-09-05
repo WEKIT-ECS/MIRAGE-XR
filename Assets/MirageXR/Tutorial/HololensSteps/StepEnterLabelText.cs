@@ -18,13 +18,13 @@ namespace MirageXR
             LabelEditor editor = Object.FindObjectOfType<LabelEditor>();
             this.highlightedObject = editor.gameObject;
             EventManager.LabelEditorTextChanged += this.DefaultExitEventListener;
-            EventManager.OnActivityStarted += DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity += DefaultCloseEventListener;
         }
 
         protected override void Detach()
         {
             EventManager.LabelEditorTextChanged -= this.DefaultExitEventListener;
-            EventManager.OnActivityStarted -= DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity -= DefaultCloseEventListener;
         }
     }
 }

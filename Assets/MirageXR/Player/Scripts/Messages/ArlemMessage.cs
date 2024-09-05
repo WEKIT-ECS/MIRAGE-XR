@@ -5,7 +5,7 @@ namespace MirageXR
 {
     public static class ArlemMessage
     {
-        public static void ReadMessages(Action action)
+        public static void ReadMessages(LearningExperienceEngine.Action action)
         {
             foreach (var message in action.exit.messages)
             {
@@ -30,7 +30,7 @@ namespace MirageXR
                 return;
             }
 
-            if (target == "all" || target == WorkplaceManager.GetUser())
+            if (target == "all" || target == LearningExperienceEngine.WorkplaceManager.GetUser())
             {
                 Maggie.Speak(message);
             }

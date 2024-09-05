@@ -25,7 +25,7 @@ namespace MirageXR
             this.manager.MobileTutorial.Show(queue);
 
             // Next Step triggered by first step being activated
-            EventManager.OnActivateAction += NextStepByLabelTriggerListener;
+            LearningExperienceEngine.EventManager.OnActivateAction += NextStepByLabelTriggerListener;
         }
 
         private void NextStepByLabelTriggerListener(string action)
@@ -35,14 +35,14 @@ namespace MirageXR
 
         protected override void SecuredExitStep()
         {
-            EventManager.OnActivateAction -= NextStepByLabelTriggerListener;
+            LearningExperienceEngine.EventManager.OnActivateAction -= NextStepByLabelTriggerListener;
             this.manager.NextStep();
         }
 
         protected override void SecuredCloseStep()
         {
             this.manager.MobileTutorial.Hide();
-            EventManager.OnActivateAction -= NextStepByLabelTriggerListener;
+            LearningExperienceEngine.EventManager.OnActivateAction -= NextStepByLabelTriggerListener;
         }
     }
 }

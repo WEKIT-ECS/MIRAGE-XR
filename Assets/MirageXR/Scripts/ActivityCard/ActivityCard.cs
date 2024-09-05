@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LearningExperienceEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -60,9 +61,9 @@ namespace MirageXR
         [SerializeField] private ClickBehaviours ClickBehaviour = ClickBehaviours.ShowContent;
 
         // Action link.
-        [SerializeField] private Action actionObject;
+        [SerializeField] private LearningExperienceEngine.Action actionObject;
 
-        public Action ActionObject => actionObject;
+        public LearningExperienceEngine.Action ActionObject => actionObject;
 
         // Is current card for the active step or not?
         [SerializeField] private bool IsActiveStep;
@@ -70,18 +71,18 @@ namespace MirageXR
 
         private void OnEnable()
         {
-            EventManager.OnNext += Next;
-            EventManager.OnPrevious += Previous;
-            EventManager.OnClearAll += ClearAll;
+            LearningExperienceEngine.EventManager.OnNext += Next;
+            LearningExperienceEngine.EventManager.OnPrevious += Previous;
+            LearningExperienceEngine.EventManager.OnClearAll += ClearAll;
 
             EventManager.OnBackByVoice += BackByVoice;
         }
 
         private void OnDisable()
         {
-            EventManager.OnNext -= Next;
-            EventManager.OnPrevious -= Previous;
-            EventManager.OnClearAll -= ClearAll;
+            LearningExperienceEngine.EventManager.OnNext -= Next;
+            LearningExperienceEngine.EventManager.OnPrevious -= Previous;
+            LearningExperienceEngine.EventManager.OnClearAll -= ClearAll;
 
             EventManager.OnBackByVoice -= BackByVoice;
         }
@@ -130,7 +131,7 @@ namespace MirageXR
         /// Set up an activity card when action has changed.
         /// </summary>
         /// <param name="action"></param>
-        public void SetupCard(Action action)
+        public void SetupCard(LearningExperienceEngine.Action action)
         {
             // Link action.
             actionObject = action;
@@ -197,13 +198,13 @@ namespace MirageXR
                     case "touch":
                         if (clickable)
                         {
-                            EventManager.Click();
+                            LearningExperienceEngine.EventManager.Click();
                             Manager.Next();
                         }
 
                         else
                         {
-                            EventManager.Click();
+                            LearningExperienceEngine.EventManager.Click();
                             Maggie.Speak("Action doesn't contain a click trigger.");
                         }
                         break;
@@ -213,7 +214,7 @@ namespace MirageXR
 
         public void NextTouch(string trigger)
         {
-            EventManager.Click();
+            LearningExperienceEngine.EventManager.Click();
             Next(trigger);
         }
 
@@ -230,12 +231,12 @@ namespace MirageXR
                     case "touch":
                         if (iotable)
                         {
-                            EventManager.Click();
+                            LearningExperienceEngine.EventManager.Click();
                             Maggie.Speak("Can't go back because of a smart trigger in previous step.");
                         }
                         else
                         {
-                            EventManager.Click();
+                            LearningExperienceEngine.EventManager.Click();
                             Manager.Previous();
                         }
                         break;
@@ -248,7 +249,7 @@ namespace MirageXR
             // Show next card when active card is clicked
             if (IsActiveStep && ClickBehaviour == ClickBehaviours.Next)
             {
-                EventManager.Next("touch");
+                LearningExperienceEngine.EventManager.Next("touch");
             }
             // Force activate currently inactive action.
             else
@@ -256,12 +257,12 @@ namespace MirageXR
                 // Next card.
                 if (!IsActiveStep && ClickBehaviour == ClickBehaviours.Next)
                 {
-                    EventManager.Next("touch");
+                    LearningExperienceEngine.EventManager.Next("touch");
                 }
 
                 else if (!IsActiveStep && ClickBehaviour == ClickBehaviours.Previous)
                 {
-                    EventManager.Previous("touch");
+                    LearningExperienceEngine.EventManager.Previous("touch");
                 }
             }
         }
@@ -274,7 +275,7 @@ namespace MirageXR
                 // Next card.
                 if (!IsActiveStep && ClickBehaviour == ClickBehaviours.Next)
                 {
-                    EventManager.Next("voice");
+                    LearningExperienceEngine.EventManager.Next("voice");
                 }
             }
         }
@@ -286,7 +287,7 @@ namespace MirageXR
             {
                 if (!IsActiveStep && ClickBehaviour == ClickBehaviours.Previous)
                 {
-                    EventManager.Previous("voice");
+                    LearningExperienceEngine.EventManager.Previous("voice");
                 }
             }
         }
