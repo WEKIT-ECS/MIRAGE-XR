@@ -33,14 +33,14 @@ public class PointCloudManager : MonoBehaviour
 
         await Task.Yield();
 
-        EventManager.OnEditModeChanged += SetAllPointCloudsActive;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += SetAllPointCloudsActive;
         return true;
     }
 
     public void Unsubscribe()
     {
 #if UNITY_ANDROID || UNITY_IOS
-        EventManager.OnEditModeChanged -= SetAllPointCloudsActive;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= SetAllPointCloudsActive;
 #endif
     }
 

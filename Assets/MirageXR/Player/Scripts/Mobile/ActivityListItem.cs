@@ -22,7 +22,7 @@ namespace MirageXR
         [SerializeField] private Sprite _spriteLocal;
         [SerializeField] private Sprite _spriteDownloaded;
 
-        private SessionContainer _container;
+        private LearningExperienceEngine.SessionContainer _container;
         private bool _interactable = true;
 
         public string activityName => _container.Name;
@@ -42,7 +42,7 @@ namespace MirageXR
             }
         }
 
-        public void Initialization(SessionContainer container)
+        public void Initialization(LearningExperienceEngine.SessionContainer container)
         {
             _container = container;
             _btnMain.onClick.AddListener(OnBtnMain);
@@ -88,7 +88,7 @@ namespace MirageXR
 
         private async void DeleteFromServer()
         {
-            var result = await RootObject.Instance.moodleManager.DeleteArlem(_container.ItemID, _container.FileIdentifier);
+            var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.DeleteArlem(_container.ItemID, _container.FileIdentifier);
             if (result)
             {
                 RootView.Instance.activityListView.UpdateListView();
@@ -99,7 +99,7 @@ namespace MirageXR
         {
             if (_container.Activity == null) return;
 
-            if (LocalFiles.TryDeleteActivity(_container.Activity.id))
+            if (LearningExperienceEngine.LocalFiles.TryDeleteActivity(_container.Activity.id))
             {
                 if (_container.ExistsRemotely)
                 {
@@ -124,10 +124,10 @@ namespace MirageXR
         private async Task PlayActivityAsync()
         {
             LoadView.Instance.Show();
-            var activityJsonFileName = LocalFiles.GetActivityJsonFilename(_container.FileIdentifier);
+            var activityJsonFileName = LearningExperienceEngine.LocalFiles.GetActivityJsonFilename(_container.FileIdentifier);
             await RootObject.Instance.editorSceneService.LoadEditorAsync();
-            await RootObject.Instance.moodleManager.UpdateViewsOfActivity(_container.ItemID, _container.ExistsRemotely);
-            await RootObject.Instance.activityManager.LoadActivity(activityJsonFileName);
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.UpdateViewsOfActivity(_container.ItemID, _container.ExistsRemotely);
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.LoadActivity(activityJsonFileName);
             LoadView.Instance.Hide();
         }
 
@@ -137,7 +137,7 @@ namespace MirageXR
             _container.IsDownloading = true;
             UpdateView();
 
-            var (result, activity) = await MoodleManager.DownloadActivity(_container.Session);
+            var (result, activity) = await LearningExperienceEngine.MoodleManager.DownloadActivity(_container.Session);
 
             _container.HasError = !result;
             _container.Activity = activity;

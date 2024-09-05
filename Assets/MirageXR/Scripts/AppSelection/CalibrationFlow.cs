@@ -104,13 +104,13 @@ public class CalibrationFlow : MonoBehaviour
     private async Task OnCalibrationFinishedAsync()
     {
         await calibrationManager.ApplyCalibrationAsync(false);
-        var activityManager = RootObject.Instance.activityManager;
+        var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
         if (gridManager.gridEnabled && activityManager.EditModeActive)
         {
             gridManager.ShowGrid();
         }
 
-        EventManager.WorkplaceCalibrated();
+        LearningExperienceEngine.EventManager.WorkplaceCalibrated();
         _textMain.text = DONE_TEXT;
         await Task.Delay(CLOSE_TIME);
         Close();

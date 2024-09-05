@@ -17,7 +17,7 @@ namespace MirageXR
         private SpriteRenderer _spriteRenderer;
 
         // Data stream to be monitored.
-        private DeviceMqttBehaviour.SensorVariable _stream;
+        private LearningExperienceEngine.SensorVariable _stream;
 
         private float _min;
         private float _max;

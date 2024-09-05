@@ -66,7 +66,7 @@ public class RootView_v2 : BaseView
     {
         await _viewCamera.SetupFormat(PlatformManager.GetDeviceFormat());
         Initialization(null);
-        EventManager.OnEditModeChanged += EditModeChangedForHelp;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += EditModeChangedForHelp;
     }
 
     public override async void Initialization(BaseView parentView)
@@ -82,16 +82,16 @@ public class RootView_v2 : BaseView
 
         _pageView.OnPageChanged.AddListener(OnPageChanged);
 
-        EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
-        EventManager.OnActivityStarted += OnActivityLoaded;
+        LearningExperienceEngine.EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
+        LearningExperienceEngine.EventManager.OnStartActivity += OnActivityLoaded;
         EventManager.OnMobileHelpPageChanged += UpdateHelpPage;
 
-        if (!DBManager.LoggedIn && DBManager.rememberUser)
+        if (!LearningExperienceEngine.UserSettings.LoggedIn && LearningExperienceEngine.UserSettings.rememberUser)
         {
             await AutoLogin();
         }
 
-        if (!DBManager.LoggedIn)
+        if (!LearningExperienceEngine.UserSettings.LoggedIn)
         {
             var dontShowLoginMenu = false;
             PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu, null);
@@ -102,8 +102,8 @@ public class RootView_v2 : BaseView
 
     private void OnDestroy()
     {
-        EventManager.OnWorkplaceLoaded -= OnWorkplaceLoaded;
-        EventManager.OnActivityStarted -= OnActivityLoaded;
+        LearningExperienceEngine.EventManager.OnWorkplaceLoaded -= OnWorkplaceLoaded;
+        LearningExperienceEngine.EventManager.OnStartActivity -= OnActivityLoaded;
         EventManager.OnMobileHelpPageChanged -= UpdateHelpPage;
         if (RootObject.Instance != null)
         {
@@ -113,7 +113,7 @@ public class RootView_v2 : BaseView
 
     private void OnWorkplaceLoaded()
     {
-        if (!DBManager.dontShowCalibrationGuide && !_tutorial.IsActivated)
+        if (!LearningExperienceEngine.UserSettings.dontShowCalibrationGuide && !_tutorial.IsActivated)
         {
             PopupsViewer.Instance.Show(_calibrationGuideViewPrefab);
         }
@@ -126,10 +126,10 @@ public class RootView_v2 : BaseView
 
     private async Task AutoLogin()
     {
-        if (!LocalFiles.TryToGetUsernameAndPassword(out var username, out var password)) return;
+        if (!LearningExperienceEngine.UserSettings.TryToGetUsernameAndPassword(out var username, out var password)) return;
 
         LoadView.Instance.Show();
-        await RootObject.Instance.moodleManager.Login(username, password);
+        await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.Login(username, password);
         LoadView.Instance.Hide();
     }
 
@@ -174,7 +174,7 @@ public class RootView_v2 : BaseView
     {
         LoadView.Instance.Show();
         await RootObject.Instance.editorSceneService.LoadEditorAsync();
-        await RootObject.Instance.activityManager.CreateNewActivity();
+        await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.CreateNewActivity();
         _pageView.currentPageIndex = 1;
         LoadView.Instance.Hide();
     }

@@ -1,4 +1,5 @@
-﻿using i5.Toolkit.Core.VerboseLogging;
+﻿using LearningExperienceEngine;
+using i5.Toolkit.Core.VerboseLogging;
 using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ namespace MirageXR
 {
     public class Potentiometer : MirageXRPrefab
     {
-        public override bool Init(ToggleObject obj)
+        public override bool Init(LearningExperienceEngine.ToggleObject obj)
         {
             // Check that all the sensor related crap is defined.
             if (string.IsNullOrEmpty(obj.sensor))
