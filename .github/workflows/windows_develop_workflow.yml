@@ -6,7 +6,7 @@ on:
 jobs:
   build_unity:
     name: Build Unity project
-    runs-on: windows-2019
+    runs-on: windows-2022
     outputs:
       buildVersion: ${{ steps.buildStep.outputs.buildVersion }}
     steps:
@@ -54,12 +54,13 @@ jobs:
 
       # Build stage
       - name: Unity builder
-        uses: game-ci/unity-builder@v2.1.1
+        uses: game-ci/unity-builder@v4
         id: buildStep
         env:
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE_WINDOWS }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL_ED }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD_ED }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE_ED }}
         with:
           targetPlatform: WSAPlayer
           unityVersion: 2022.3.7f1
@@ -77,7 +78,7 @@ jobs:
 
   build_hololens:
     name: Build Hololens
-    runs-on: windows-2019
+    runs-on: windows-2022
     needs: build_unity
     outputs:
       browser_download_url: ${{ steps.releaseUpload.outputs.browser_download_url }}
@@ -128,7 +129,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2 # v1
+        uses: microsoft/setup-msbuild@v2
 
       - name: Download WSAPlayer Artifact
         uses: actions/download-artifact@v2
@@ -179,7 +180,7 @@ jobs:
       SLACK_URL: ${{ secrets.SLACK_URL }}
       COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
       APP_VERSION: ${{ needs.build_unity.outputs.buildVersion }}
-      TARGET_PLATFORM: $RUNNER_OS
+      TARGET_PLATFORM: runner.os
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
