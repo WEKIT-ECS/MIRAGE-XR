@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class PluginEditorView : PopupEditorBase
 {
-    public override ContentType editorForType => ContentType.PLUGIN;
+    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.PLUGIN;
 
     [SerializeField] private Transform _contentContainer;
     [SerializeField] private PluginListItem _pluginListItemPrefab;
     [SerializeField] private PluginObject[] _pluginObjects;
 
-    private App _app;
+    private LearningExperienceEngine.App _app;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -43,7 +43,7 @@ public class PluginEditorView : PopupEditorBase
     {
         if (_content != null)
         {
-            EventManager.DeactivateObject(_content);
+            LearningExperienceEngine.EventManager.DeactivateObject(_content);
         }
         else
         {
@@ -54,19 +54,19 @@ public class PluginEditorView : PopupEditorBase
         _content.url = _app.manifest;
         _step.appIDs.Add(_app.id);
 
-        RootObject.Instance.workplaceManager.workplace.apps.Add(_app);
+        LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.apps.Add(_app);
 
-        EventManager.ActivateObject(_content);
+        LearningExperienceEngine.EventManager.ActivateObject(_content);
 
         base.OnAccept();
 
         Close();
     }
 
-    private static App PluginToApp(PluginObject plugin)
+    private static LearningExperienceEngine.App PluginToApp(PluginObject plugin)
     {
         const string type = "App";
-        var app = new App
+        var app = new LearningExperienceEngine.App
         {
             id = Guid.NewGuid().ToString(),
             name = plugin.pluginName,

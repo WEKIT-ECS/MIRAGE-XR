@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using LearningExperienceEngine;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ namespace MirageXR
 {
     public class DrawingEditor : MonoBehaviour
     {
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
         [SerializeField] private MrtkSimpleBtn startRecordingButton;
         [SerializeField] private MrtkSimpleBtn stopRecordingButton;
         [SerializeField] private MrtkSimpleBtn acceptButton;
@@ -31,8 +32,8 @@ namespace MirageXR
         private bool isPlaying = false;
         private bool isRecording = false;
         private bool isPaused = false;
-        private Action action;
-        private ToggleObject annotationToEdit;
+        private LearningExperienceEngine.Action action;
+        private LearningExperienceEngine.ToggleObject annotationToEdit;
 
         void Awake()
         {
@@ -126,27 +127,27 @@ namespace MirageXR
                 var originalFilePath = GetExistingDrawing();
                 if (File.Exists(originalFilePath))
                 {
-                    EventManager.DeactivateObject(annotationToEdit);
+                    LearningExperienceEngine.EventManager.DeactivateObject(annotationToEdit);
                     File.Delete(originalFilePath);
                 }
             }
             else
             {
-                var workplaceManager = RootObject.Instance.workplaceManager;
-                Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
+                var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+                LearningExperienceEngine.Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
                 GameObject originT = GameObject.Find(detectable.id);
 
                 // Offset should always be 0. Positional data are store in the drawing strokes.
                 var offset = Vector3.zero;
 
-                annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
+                annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAugmentation(action, offset);
                 annotationToEdit.predicate = "drawing";
             }
 
             annotationToEdit.url = $"http://{filename}";
-            EventManager.ActivateObject(annotationToEdit);
-            EventManager.NotifyActionModified(action);
-            RootObject.Instance.activityManager.SaveData();
+            LearningExperienceEngine.EventManager.ActivateObject(annotationToEdit);
+            LearningExperienceEngine.EventManager.NotifyActionModified(action);
+            activityManager.SaveData();
 
             Close();
         }
@@ -175,7 +176,7 @@ namespace MirageXR
         }
 
 
-        public void Open(Action action, ToggleObject annotation)
+        public void Open(LearningExperienceEngine.Action action, LearningExperienceEngine.ToggleObject annotation)
         {
             gameObject.SetActive(true);
             this.action = action;
@@ -193,8 +194,8 @@ namespace MirageXR
 
             tiltInstance.SubscribeComponent(this);
 
-            var workplaceManager = RootObject.Instance.workplaceManager;
-            Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
+            var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+            LearningExperienceEngine.Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
             GameObject originT = GameObject.Find(detectable.id);
 
             tiltInstance.transform.SetParent(originT.transform);
@@ -215,7 +216,6 @@ namespace MirageXR
             {
                 GameObject.Find(annotationToEdit.poi).GetComponentInChildren<AudioPlayer>().PlayAudio();
             }
-
 
             StopRecording();
             tiltSnapshot = null;

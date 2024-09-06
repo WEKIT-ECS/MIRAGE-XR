@@ -1,4 +1,5 @@
 ﻿using i5.Toolkit.Core.VerboseLogging;
+using LearningExperienceEngine;
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.IO;
@@ -13,7 +14,7 @@ namespace MirageXR
     {
         private const string MAIN_TEXTUERE = "_MainTex";
 
-        private ActivityManager activityManager => RootObject.Instance.activityManager;
+        private LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
 
         [Tooltip("Image file. .jpg and .png formats supported")]
 
@@ -39,19 +40,19 @@ namespace MirageXR
         private Quaternion _originalRotation = Quaternion.identity;
         private Vector3 _originalScale = Vector3.one;
         private bool _originalGuideState;
-        private ToggleObject _obj;
+        private LearningExperienceEngine.ToggleObject _obj;
         private GameObject _thinLine;
         private GameObject _contentObject;
         private Texture2D _texture;
        
-        public ToggleObject ToggleObject => _obj;
+        public LearningExperienceEngine.ToggleObject ToggleObject => _obj;
 
         /// <summary>
         /// Initialization method.
         /// </summary>
         /// <param name="obj">Action toggle object.</param>
         /// <returns>Returns true if initialization succesfull.</returns>
-        public override bool Init(ToggleObject obj)
+        public override bool Init(LearningExperienceEngine.ToggleObject obj)
         {
             _obj = obj;
 
@@ -123,7 +124,7 @@ namespace MirageXR
             }
 
             OnLock(_obj.poi, _obj.positionLock);
-            EventManager.OnAugmentationLocked += OnLock;
+            LearningExperienceEngine.EventManager.OnAugmentationLocked += OnLock;
        
             //caption logic
             var caption = obj.caption;
@@ -265,7 +266,7 @@ namespace MirageXR
             {
                 Destroy(_texture);
             }
-            EventManager.OnAugmentationLocked -= OnLock;
+            LearningExperienceEngine.EventManager.OnAugmentationLocked -= OnLock;
         }
 
         private void OnLock(string id, bool locked)

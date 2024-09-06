@@ -10,13 +10,13 @@ namespace MirageXR
         private void OnEnable()
         {
             // Register to events.
-            EventManager.OnClearAll += ClearContainer;
+            LearningExperienceEngine.EventManager.OnClearAll += ClearContainer;
         }
 
         private void OnDisable()
         {
             // Unregister from events.
-            EventManager.OnClearAll -= ClearContainer;
+            LearningExperienceEngine.EventManager.OnClearAll -= ClearContainer;
         }
 
         /// <summary>
