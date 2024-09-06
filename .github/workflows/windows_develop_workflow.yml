@@ -6,7 +6,7 @@ on:
 jobs:
   build_unity:
     name: Build Unity project
-    runs-on: windows-2022
+    runs-on: windows-2019
     outputs:
       buildVersion: ${{ steps.buildStep.outputs.buildVersion }}
     steps:
@@ -79,7 +79,7 @@ jobs:
 
   build_hololens:
     name: Build Hololens
-    runs-on: windows-2022
+    runs-on: windows-2019
     needs: build_unity
     outputs:
       browser_download_url: ${{ steps.releaseUpload.outputs.browser_download_url }}
