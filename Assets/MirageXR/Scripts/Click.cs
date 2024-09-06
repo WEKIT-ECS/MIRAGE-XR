@@ -3,7 +3,8 @@
 namespace MirageXR
 {
     /// <summary>
-    /// Universal Click. Should receive a Nobel prize for this...
+    /// Universal Click.
+    /// TODO: This is a really weird way of making the audiosource play. replace??
     /// </summary>
     [RequireComponent(typeof(AudioSource))]
     public class Click : MonoBehaviour
@@ -11,12 +12,12 @@ namespace MirageXR
 
         void OnEnable()
         {
-            EventManager.OnClick += DoClick;
+            LearningExperienceEngine.EventManager.OnClick += DoClick;
         }
 
         void OnDisable()
         {
-            EventManager.OnClick -= DoClick;
+            LearningExperienceEngine.EventManager.OnClick -= DoClick;
         }
 
         void DoClick()

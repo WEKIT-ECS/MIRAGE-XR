@@ -18,7 +18,7 @@ public class CharacterListItem : MonoBehaviour
         _onClick = onClick;
         _button.onClick.AddListener(OnClick);
         _image.sprite = _characterObject.sprite;
-        _tmpText.text = _characterObject.label;
+        _tmpText.text = "  " + _characterObject.label;
     }
 
     private void OnClick()

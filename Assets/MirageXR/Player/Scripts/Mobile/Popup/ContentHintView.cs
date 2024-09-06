@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LearningExperienceEngine;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,7 +10,7 @@ public class ContentHintView : PopupBase
     [SerializeField] private TMP_Text _txtLabel;
     [SerializeField] private TMP_Text _txtHint;
 
-    private ContentType _type;
+    private LearningExperienceEngine.ContentType _type;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -22,7 +23,7 @@ public class ContentHintView : PopupBase
     {
         try
         {
-            _type = (ContentType)args[0];
+            _type = (LearningExperienceEngine.ContentType)args[0];
             return true;
         }
         catch (Exception)

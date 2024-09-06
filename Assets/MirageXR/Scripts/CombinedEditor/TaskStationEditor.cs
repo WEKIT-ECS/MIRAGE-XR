@@ -1,24 +1,28 @@
-﻿using System;
+﻿using LearningExperienceEngine;
+using System;
 using Microsoft.MixedReality.Toolkit.UI;
 using MirageXR;
 using Newtonsoft.Json;
+//using UnityEditor;
+//using UnityEditor.Search;
 using UnityEngine;
-using Action = MirageXR.Action;
+using Action = LearningExperienceEngine.Action;
 
 [RequireComponent(typeof(TaskStationStateController), typeof(ObjectManipulator))]
 public class TaskStationEditor : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
 
     private static GridManager gridManager => RootObject.Instance.gridManager;
 
     private ObjectManipulator _objectManipulator;
     private TaskStationStateController _taskStationStateController;
     private MeshRenderer _meshRenderer;
-    private Detectable _detectable;
-    private Action _action;
+    private GameObject _mTaskStationNumberTag;
+    private LearningExperienceEngine.Detectable _detectable;
+    private LearningExperienceEngine.Action _action;
 
-    public void Init(Action action)
+    public void Init(LearningExperienceEngine.Action action)
     {
         _objectManipulator = GetComponent<ObjectManipulator>();
         _taskStationStateController = GetComponent<TaskStationStateController>();
@@ -28,25 +32,36 @@ public class TaskStationEditor : MonoBehaviour
         _objectManipulator.OnManipulationEnded.AddListener(OnManipulationEnded);
         _action = action;
 
-        var detectableId = _action.id.Replace("TS-", "WA-");
-        _detectable = RootObject.Instance.workplaceManager.GetDetectable(detectableId);
+        var id = _action == null ? transform.parent.parent.name : _action.id;
+        
+        var detectableId = id.Replace("TS-", "WA-");
+        _detectable = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.GetDetectable(detectableId);
         _objectManipulator.HostTransform = GameObject.Find(_detectable.id).transform;
+
+        try
+        {
+            _mTaskStationNumberTag = TaskStationDetailMenu.Instance.transform.Find("Pivot/DiamondTopMenu/NumberGB").gameObject;
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[tse] Could not find NumberGB game object to activate/deactivate number displayed above task station diamond: {e.Message}");
+        }
 
         UpdateView();
     }
 
     private void OnEnable()
     {
-        EventManager.OnEditModeChanged += OnEditModeChanged;
-        EventManager.OnWorkplaceCalibrated += OnCalibrationFinished;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnWorkplaceCalibrated += OnCalibrationFinished;
 
-        EventManager.NotifyOnTaskStationEditorEnabled();
+        MirageXR.EventManager.NotifyOnTaskStationEditorEnabled();
     }
 
     private void OnDisable()
     {
-        EventManager.OnEditModeChanged -= OnEditModeChanged;
-        EventManager.OnWorkplaceCalibrated -= OnCalibrationFinished;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnWorkplaceCalibrated -= OnCalibrationFinished;
     }
 
     private void OnEditModeChanged(bool editModeActive)
@@ -56,7 +71,11 @@ public class TaskStationEditor : MonoBehaviour
 
     private void UpdateView()
     {
-        _meshRenderer.enabled = _action.isDiamondVisible ?? true;
+        _meshRenderer.enabled = _action?.isDiamondVisible ?? true;
+        if (_mTaskStationNumberTag != null)
+        {
+            _mTaskStationNumberTag.SetActive(_action?.isDiamondVisible ?? true);
+        }
     }
 
     public void OnVisibilityChanged(bool value)
@@ -68,6 +87,10 @@ public class TaskStationEditor : MonoBehaviour
 
         _action.isDiamondVisible = value;
         _meshRenderer.enabled = value;
+        if (_mTaskStationNumberTag != null)
+        {
+            _mTaskStationNumberTag.SetActive(value);
+        }
         activityManager.SaveData();
     }
 
@@ -82,7 +105,7 @@ public class TaskStationEditor : MonoBehaviour
         gridManager.onManipulationEnded(source);
 
         RecordTaskStationPosition();
-        EventManager.NotifyOnTaskStationEditorDragEnd();
+        MirageXR.EventManager.NotifyOnTaskStationEditorDragEnd();
     }
 
     private void RecordTaskStationPosition()

@@ -52,7 +52,7 @@ namespace MirageXR
             if (highlightedObject != null)
             {
                 TutorialArrowFactory factory = TutorialArrowFactory.Instance();
-                this.arrow = factory.CreateArrow();
+                //this.arrow = factory.CreateArrow();
                 TutorialArrow arrowScript = arrow.GetComponent<TutorialArrow>();
 
                 if (arrowScript is Tutorial3DArrow)

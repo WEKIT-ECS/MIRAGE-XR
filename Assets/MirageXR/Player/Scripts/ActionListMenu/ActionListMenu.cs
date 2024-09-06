@@ -1,3 +1,4 @@
+using LearningExperienceEngine;
 using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using System;
@@ -7,7 +8,7 @@ using UnityEngine.UI;
 
 public class ActionListMenu : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
     [SerializeField] private GameObject actionItemPrefab;
     [SerializeField] private RectTransform listViewParent;
     [SerializeField] private Button previousStepButton;
@@ -79,27 +80,28 @@ public class ActionListMenu : MonoBehaviour
         }
 
         Debug.LogTrace("Action list menu start called");
-        EventManager.OnInitUi += Init;
-        EventManager.OnActivateAction += OnActivateAction;
-        EventManager.OnDeactivateAction += OnDeactivateAction;
-        EventManager.OnActionCreated += OnActionCreated;
-        EventManager.OnActionDeleted += OnActionDeleted;
-        EventManager.OnActionModified += OnActionChanged;
-        EventManager.OnNextByVoice += NextAction;
-        EventManager.OnBackByVoice += PreviousAction;
-        titleText.onValueChanged.AddListener(delegate { EventManager.NotifyOnActivityRenamed(); });
+        LearningExperienceEngine.EventManager.OnInitUi += Init;
+        LearningExperienceEngine.EventManager.OnActivateAction += OnActivateAction;
+        LearningExperienceEngine.EventManager.OnDeactivateAction += OnDeactivateAction;
+        LearningExperienceEngine.EventManager.OnActionCreated += OnActionCreated;
+        LearningExperienceEngine.EventManager.OnActionDeleted += OnActionDeleted;
+        LearningExperienceEngine.EventManager.OnActionModified += OnActionChanged;
+        MirageXR.EventManager.OnNextByVoice += NextAction;
+        MirageXR.EventManager.OnBackByVoice += PreviousAction;
+        titleText.onValueChanged.AddListener(delegate { LearningExperienceEngine.EventManager.NotifyOnActivityRenamed(); });
     }
 
     private void OnDestroy()
     {
-        EventManager.OnInitUi -= Init;
-        EventManager.OnActivateAction -= OnActivateAction;
-        EventManager.OnDeactivateAction -= OnDeactivateAction;
-        EventManager.OnActionCreated -= OnActionCreated;
-        EventManager.OnActionDeleted -= OnActionDeleted;
-        EventManager.OnActionModified -= OnActionChanged;
-        EventManager.OnNextByVoice -= NextAction;
-        EventManager.OnBackByVoice -= PreviousAction;
+        LearningExperienceEngine.EventManager.OnInitUi -= Init;
+        LearningExperienceEngine.EventManager.OnActivateAction -= OnActivateAction;
+        LearningExperienceEngine.EventManager.OnDeactivateAction -= OnDeactivateAction;
+        LearningExperienceEngine.EventManager.OnActionCreated -= OnActionCreated;
+        LearningExperienceEngine.EventManager.OnActionDeleted -= OnActionDeleted;
+        LearningExperienceEngine.EventManager.OnActionModified -= OnActionChanged;
+        MirageXR.EventManager.OnNextByVoice -= NextAction;
+        MirageXR.EventManager.OnBackByVoice -= PreviousAction;
+        titleText.onValueChanged.RemoveListener(delegate { LearningExperienceEngine.EventManager.NotifyOnActivityRenamed(); });
     }
 
     private void Init()
@@ -219,7 +221,7 @@ public class ActionListMenu : MonoBehaviour
         }
     }
 
-    public static Transform CorrectTargetObject(ToggleObject annotation)
+    public static Transform CorrectTargetObject(LearningExperienceEngine.ToggleObject annotation)
     {
         try
         {
@@ -310,12 +312,12 @@ public class ActionListMenu : MonoBehaviour
         await activityManager.AddAction(Vector3.zero);
     }
 
-    private void OnActionCreated(MirageXR.Action action)
+    private void OnActionCreated(LearningExperienceEngine.Action action)
     {
         UpdateUI();
     }
 
-    private void OnActionChanged(MirageXR.Action action)
+    private void OnActionChanged(LearningExperienceEngine.Action action)
     {
         UpdateUI();
     }

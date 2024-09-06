@@ -1,10 +1,11 @@
-﻿using System;
+﻿using LearningExperienceEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using MirageXR;
-using Action = MirageXR.Action;
+using Action = LearningExperienceEngine.Action;
 
 public class PlayerTimeStamper : MonoBehaviour
 {
@@ -13,18 +14,18 @@ public class PlayerTimeStamper : MonoBehaviour
 
     private void OnEnable()
     {
-        EventManager.OnActivityLoadedStamp += ActivityLoadedStamp;
-        EventManager.OnStepActivatedStamp += StepActivatedStamp;
-        EventManager.OnStepDeactivatedStamp += StepDeactivatedStamp;
-        EventManager.OnActivityCompletedStamp += WriteStampFile;
+        LearningExperienceEngine.EventManager.OnActivityLoadedStamp += ActivityLoadedStamp;
+        LearningExperienceEngine.EventManager.OnStepActivatedStamp += StepActivatedStamp;
+        LearningExperienceEngine.EventManager.OnStepDeactivatedStamp += StepDeactivatedStamp;
+        LearningExperienceEngine.EventManager.OnActivityCompletedStamp += WriteStampFile;
     }
 
     private void OnDisable()
     {
-        EventManager.OnActivityLoadedStamp -= ActivityLoadedStamp;
-        EventManager.OnStepActivatedStamp -= StepActivatedStamp;
-        EventManager.OnStepDeactivatedStamp -= StepDeactivatedStamp;
-        EventManager.OnActivityCompletedStamp -= WriteStampFile;
+        LearningExperienceEngine.EventManager.OnActivityLoadedStamp -= ActivityLoadedStamp;
+        LearningExperienceEngine.EventManager.OnStepActivatedStamp -= StepActivatedStamp;
+        LearningExperienceEngine.EventManager.OnStepDeactivatedStamp -= StepDeactivatedStamp;
+        LearningExperienceEngine.EventManager.OnActivityCompletedStamp -= WriteStampFile;
     }
 
     void Start()
