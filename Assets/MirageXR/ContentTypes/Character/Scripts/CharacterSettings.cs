@@ -60,13 +60,13 @@ namespace MirageXR
 
         private void OnEnable()
         {
-            EventManager.OnEditModeChanged += SetEditMode;
+            LearningExperienceEngine.EventManager.OnEditModeChanged += SetEditMode;
         }
 
 
         private void OnDisable()
         {
-            EventManager.OnEditModeChanged -= SetEditMode;
+            LearningExperienceEngine.EventManager.OnEditModeChanged -= SetEditMode;
         }
 
         public MovementManager MovementManager => movemenetManager;

@@ -15,13 +15,13 @@ namespace MirageXR
             this.highlightedObject = editor.SaveButton.gameObject;
 
             EventManager.ActivitySaveButtonClicked += this.DefaultExitEventListener;
-            EventManager.OnActivityStarted += DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity += DefaultCloseEventListener;
         }
 
         protected override void Detach()
         {
             EventManager.ActivitySaveButtonClicked -= this.DefaultExitEventListener;
-            EventManager.OnActivityStarted -= DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity -= DefaultCloseEventListener;
         }
     }
 }

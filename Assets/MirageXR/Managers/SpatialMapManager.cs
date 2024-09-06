@@ -37,13 +37,13 @@ public class SpatialMapManager : MonoBehaviour
 
     private void OnEnable()
     {
-        EventManager.OnEditModeChanged += UpdateSpatialMapColliders;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += UpdateSpatialMapColliders;
     }
 
 
     private void OnDisable()
     {
-        EventManager.OnEditModeChanged -= UpdateSpatialMapColliders;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= UpdateSpatialMapColliders;
 
     }
     //set colliders when edit mode is changed

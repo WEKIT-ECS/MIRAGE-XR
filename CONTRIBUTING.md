@@ -22,6 +22,10 @@ Tasks are created as issues in the Gitlab repository. Every intent to change cod
 
 After assigning yourself to the issue to develop the feature, you need to create a branch which is based on the develop branch. How you do this is up to you - you can create it using your Git client but there is also a button on each issue that can be used to generate the branch for you. The important part during the creation of the branch is that it should be based on the **develop** branch and not the master branch. Branches which introduce new features should start with the username of who implements it (e.g., "fwild") to group them. To indicate to which issue a branch belongs, you can start the name of the branch after the prefix with the issue's ID, followed by a short name of the issue. For instance, an issue with the ID 42 which states that a login solution should be implemented can be implemented on a branch "fwild/42-login-solution".
 
+### Submodules
+
+lib-lee runs as an embedded package (using a git submodule). Intialization after fresh cloning is required (`git submodule init; git submodule update`). When committing changes involving lib-lee, make sure you first merge the lib-lee pull request for the changes onto the lib-lee develop branch, switch the branch to develop, and then commit, push, and merge the changes in the main project.
+
 ### Commit messages
 
 Provide clear commit messages which state exactly what you changed and why you changed it. This will speed up the review process and help developers understand the history of the project.
@@ -30,7 +34,7 @@ Provide clear commit messages which state exactly what you changed and why you c
 
 Code should be tested by the developer before posting a merge request. The absolut minimum are manual tests in the editor where you use the input simulation of the MRTK to navigate in the application. Preferrably, the feature should also be tested on the target device, too, before creating the merge request. For new features or new code, it would be awesome, if you could already design them with unit tests in mind and create unit tests for your changes. Unit tests speed up the review process. Try to create unit tests during your implementation of a feature since it is difficult to add them to existing code at a later stage.
 
-TIP: Whenever you commit, a GitHub action workflow will execute all edit mode and play mode tests automatically, and list the results as part of the actions output (check the windows workflow or the linux workflow in [this list](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/).
+TIP: Whenever we commit a pull request (PR) onto develop or master, a GitHub action workflow will execute all edit mode and play mode tests automatically, and list the results as part of the actions output (check the windows workflow or the linux workflow in [this list](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/). This can also be called manually, by selecting the desired workflow, and then clicking `run workflow` to run it on the desired branch.
 
 TIP: If the Android build pipeline fails with a signing error (```UnityException: Can not sign the application```), just untick the "custom keystore" checkbox in player publishing settings, and the apk will be signed with an ad hoc development key!
 

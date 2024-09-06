@@ -27,13 +27,13 @@ namespace MirageXR
 
         private void OnEnable()
         {
-            EventManager.OnEditModeChanged += OnEditModeToggle;
+            LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeToggle;
         }
 
 
         private void OnDestroy()
         {
-            EventManager.OnEditModeChanged -= OnEditModeToggle;
+            LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeToggle;
         }
 
         void Start()
@@ -125,7 +125,7 @@ namespace MirageXR
         private void OnMeasuringEnd()
         {
             _pointsMoving = false;
-            EventManager.NotifyOnCompletedMeasuring(measureText.text, "MeasureTool");
+            LearningExperienceEngine.EventManager.NotifyOnCompletedMeasuring(measureText.text, "MeasureTool");
         }
 
     }

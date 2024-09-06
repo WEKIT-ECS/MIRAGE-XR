@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LearningExperienceEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -60,12 +61,12 @@ namespace MirageXR
 
         private void OnEnable()
         {
-            EventManager.OnClearAll += Delete;
+            LearningExperienceEngine.EventManager.OnClearAll += Delete;
         }
 
         private void OnDisable()
         {
-            EventManager.OnClearAll -= Delete;
+            LearningExperienceEngine.EventManager.OnClearAll -= Delete;
         }
 
         private void Awake()

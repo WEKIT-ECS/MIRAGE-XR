@@ -9,18 +9,18 @@ namespace MirageXR
     {
         [SerializeField] private GameObject itemPrefab;
 
-        private ListView<SessionContainer> listView;
+        private ListView<LearningExperienceEngine.SessionContainer> listView;
 
-        public Dictionary<string, SessionContainer> CollectedContainers { get; private set; }
-        public List<SessionContainer> AllItems { get; private set; }
+        public Dictionary<string, LearningExperienceEngine.SessionContainer> CollectedContainers { get; private set; }
+        public List<LearningExperienceEngine.SessionContainer> AllItems { get; private set; }
 
-        public List<SessionContainer> DisplayedItems
+        public List<LearningExperienceEngine.SessionContainer> DisplayedItems
         {
             get => listView.Items;
             set => listView.Items = value;
         }
 
-        public List<SessionContainer> PageItems { get; private set; }
+        public List<LearningExperienceEngine.SessionContainer> PageItems { get; private set; }
 
         private int pageStart = 0;
         public int sessionsOnPage = 5;
@@ -28,7 +28,7 @@ namespace MirageXR
 
         private void Awake()
         {
-            listView = new ListView<SessionContainer>(transform, itemPrefab);
+            listView = new ListView<LearningExperienceEngine.SessionContainer>(transform, itemPrefab);
         }
 
         private async void Start()
@@ -42,14 +42,14 @@ namespace MirageXR
 
         public async Task CollectAvailableSessionsAsync()
         {
-            CollectedContainers = new Dictionary<string, SessionContainer>();
+            CollectedContainers = new Dictionary<string, LearningExperienceEngine.SessionContainer>();
 
             // the local activities should be loaded as the first items
-            List<Activity> activities = await LocalFiles.GetDownloadedActivities();
+            List<LearningExperienceEngine.Activity> activities = await LearningExperienceEngine.LocalFiles.GetDownloadedActivities();
             CollectedContainers = AddActivitiesToDictionary(CollectedContainers, activities);
 
             // the records on the server should be shown after the local records
-            List<Session> sessions = await RootObject.Instance.moodleManager.GetArlemList();
+            List<LearningExperienceEngine.Session> sessions = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.GetArlemList();
             if (sessions != null)
                 CollectedContainers = AddSessionsToDictionary(CollectedContainers, sessions);
 
@@ -76,7 +76,7 @@ namespace MirageXR
             listView.UpdateView();
         }
 
-        private Dictionary<string, SessionContainer> AddSessionsToDictionary(Dictionary<string, SessionContainer> collectedContainers, List<Session> sessions)
+        private Dictionary<string, LearningExperienceEngine.SessionContainer> AddSessionsToDictionary(Dictionary<string, LearningExperienceEngine.SessionContainer> collectedContainers, List<LearningExperienceEngine.Session> sessions)
         {
 
             for (int i = 0; i < sessions.Count; i++)
@@ -88,13 +88,13 @@ namespace MirageXR
                 }
                 else
                 {
-                    collectedContainers.Add(key, new SessionContainer() { Session = sessions[i] });
+                    collectedContainers.Add(key, new LearningExperienceEngine.SessionContainer() { Session = sessions[i] });
                 }
             }
             return collectedContainers;
         }
 
-        private Dictionary<string, SessionContainer> AddActivitiesToDictionary(Dictionary<string, SessionContainer> collectedContainers, List<Activity> activities)
+        private Dictionary<string, LearningExperienceEngine.SessionContainer> AddActivitiesToDictionary(Dictionary<string, LearningExperienceEngine.SessionContainer> collectedContainers, List<LearningExperienceEngine.Activity> activities)
         {
             for (int i = 0; i < activities.Count; i++)
             {
@@ -105,7 +105,7 @@ namespace MirageXR
                 }
                 else
                 {
-                    collectedContainers.Add(key, new SessionContainer() { Activity = activities[i] });
+                    collectedContainers.Add(key, new LearningExperienceEngine.SessionContainer() { Activity = activities[i] });
                 }
             }
             return collectedContainers;
@@ -126,7 +126,7 @@ namespace MirageXR
             // resets the shown sessions to be all loaded sessions
         }
 
-        public void SetSearchedItems(List<SessionContainer> currentItems)
+        public void SetSearchedItems(List<LearningExperienceEngine.SessionContainer> currentItems)
         {
             PageItems = currentItems;
             itemListCount = PageItems.Count();

@@ -9,7 +9,7 @@ using Random = UnityEngine.Random;
 
 public class CalibrationManager : MonoBehaviour
 {
-    private static BrandManager brandManager => RootObject.Instance.brandManager;
+    private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
 
     private static ImageTargetManagerWrapper imageTargetManager => RootObject.Instance.imageTargetManager;
 
@@ -45,13 +45,16 @@ public class CalibrationManager : MonoBehaviour
     private GameObject _debugSphere;
     public bool _isCalibrated;
 
-    public bool Initialization()
+    public bool InitializationAsync()
     {
+
+        //await LearningExperienceEngine.LearningExperienceEngine.Instance.WaitForInitialization();
+
         var mainCamera = Camera.main;
 
         if (!mainCamera)
         {
-            Debug.Log("Can't find camera main");
+            Debug.LogError("FATAL ERROR: Can't find camera main");
             return false;
         }
 
@@ -64,6 +67,8 @@ public class CalibrationManager : MonoBehaviour
             prefab = _calibrationImageTargetPrefab,
             useLimitedTracking = false,
         };
+
+        LearningExperienceEngine.EventManager.OnSetPoseSynchronizerTargetToCalibrationAnchor += OnSetCalibrationAnchor;
 
         return true;
     }
@@ -190,7 +195,7 @@ public class CalibrationManager : MonoBehaviour
 
     public async Task ApplyCalibrationAsync(bool resetAnchor)
     {
-        await RootObject.Instance.workplaceManager.CalibrateWorkplace(resetAnchor);
+        await LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.CalibrateWorkplace(resetAnchor);
         _isCalibrated = true;
     }
 
@@ -200,6 +205,7 @@ public class CalibrationManager : MonoBehaviour
         //await ApplyCalibrationAsync(_isRecalibration);
         DisableCalibration();
         _onCalibrationFinished.Invoke();
+        //TutorialManager.Instance.InvokeEvent(TutorialManager.TutorialEvent.CALIBRATION_FINISHED);
     }
 
     private void UpdateAnchorPosition(Pose pose)
@@ -243,4 +249,11 @@ public class CalibrationManager : MonoBehaviour
 
         return anchorTransform;
     }
+
+    private void OnSetCalibrationAnchor(LearningExperienceEngine.PoseSynchronizer pose)
+    {
+        Debug.LogTrace("[CalibrationManager] OnGetCalibrationAnchor callback received: setting PoseSynchronizer target to calibration anchor.");
+        pose.target = anchor;
+    }
+
 }
