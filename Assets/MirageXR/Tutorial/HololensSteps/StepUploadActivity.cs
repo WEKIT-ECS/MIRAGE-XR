@@ -18,13 +18,13 @@ namespace MirageXR
 
             EventManager.ActivityUploadButtonClicked += this.DefaultExitEventListener;
 
-            EventManager.OnActivityStarted += DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity += DefaultCloseEventListener;
         }
 
         protected override void Detach()
         {
             EventManager.ActivityUploadButtonClicked -= this.DefaultExitEventListener;
-            EventManager.OnActivityStarted -= DefaultCloseEventListener;
+            LearningExperienceEngine.EventManager.OnStartActivity -= DefaultCloseEventListener;
         }
     }
 }

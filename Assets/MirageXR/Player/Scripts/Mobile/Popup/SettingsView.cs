@@ -39,15 +39,15 @@ public class SettingsView : PopupBase
 
     private void ResetValues()
     {
-        _inputFieldMoodleAddress.text = DBManager.domain;
+        _inputFieldMoodleAddress.text = LearningExperienceEngine.UserSettings.domain;
         _inputFieldMoodleAddress.ResetValidation();
-        _togglePublicUpload.isOn = DBManager.publicUploadPrivacy;
+        _togglePublicUpload.isOn = LearningExperienceEngine.UserSettings.publicUploadPrivacy;
         _toggleUiForKids.isOn = false;
         _btnSave.interactable = false;
 
-        switch (DBManager.publicCurrentLearningRecordStore)
+        switch (LearningExperienceEngine.UserSettings.publicCurrentLearningRecordStore)
         {
-            case DBManager.LearningRecordStores.WEKIT:
+            case LearningExperienceEngine.UserSettings.LearningRecordStores.WEKIT:
                 _learningRecordStoreDropdown.value = 0;
                 break;
         }
@@ -87,21 +87,21 @@ public class SettingsView : PopupBase
     {
         if (!_inputFieldMoodleAddress.Validate()) return;
 
-        if (DBManager.domain != _inputFieldMoodleAddress.text)
+        if (LearningExperienceEngine.UserSettings.domain != _inputFieldMoodleAddress.text)
         {
-            DBManager.domain = _inputFieldMoodleAddress.text;
-            DBManager.LogOut();
+            LearningExperienceEngine.UserSettings.domain = _inputFieldMoodleAddress.text;
+            LearningExperienceEngine.UserSettings.ClearLoginData();
             RootView.Instance.activityListView.UpdateListView();
         }
 
-        DBManager.publicUploadPrivacy = _togglePublicUpload.isOn;
+        LearningExperienceEngine.UserSettings.publicUploadPrivacy = _togglePublicUpload.isOn;
 
-        var selectedLearningRecordStore = DBManager.publicCurrentLearningRecordStore;
+        var selectedLearningRecordStore = LearningExperienceEngine.UserSettings.publicCurrentLearningRecordStore;
 
         switch (_learningRecordStoreDropdown.value) 
         {
             case 0:
-                selectedLearningRecordStore = DBManager.LearningRecordStores.WEKIT;
+                selectedLearningRecordStore = LearningExperienceEngine.UserSettings.LearningRecordStores.WEKIT;
                 break;
         }
 
@@ -112,18 +112,18 @@ public class SettingsView : PopupBase
         Close();
     }
 
-    private void changeLearningRecordStore(DBManager.LearningRecordStores selectedLearningRecordStore)
+    private void changeLearningRecordStore(LearningExperienceEngine.UserSettings.LearningRecordStores selectedLearningRecordStore)
     {
         EventManager.NotifyxAPIChanged(selectedLearningRecordStore);
 
-        DBManager.publicCurrentLearningRecordStore = selectedLearningRecordStore;
+        LearningExperienceEngine.UserSettings.publicCurrentLearningRecordStore = selectedLearningRecordStore;
 
     }
 
     private void OnClickReset()
     {
-        _inputFieldMoodleAddress.text = DBManager.WEKIT_URL;
-        _togglePublicUpload.isOn = DBManager.PUBLIC_UPLOAD_PRIVACY_DEFAULT;
+        _inputFieldMoodleAddress.text = LearningExperienceEngine.UserSettings.WEKIT_URL;
+        _togglePublicUpload.isOn = LearningExperienceEngine.UserSettings.PUBLIC_UPLOAD_PRIVACY_DEFAULT;
         _learningRecordStoreDropdown.value = 0;
     }
 

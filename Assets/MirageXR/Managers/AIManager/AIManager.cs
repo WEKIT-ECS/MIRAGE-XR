@@ -106,15 +106,15 @@ namespace MirageXR
         /// <param name="model">The AIModel to be added.</param>
         private void AddModelBasedOnEndpointName(AIModel model)
         {
-            if (model.EndpointName == "listen/")
+            if (model.EndpointName == "stt/")
             {
                 _sttModels.Add(model);
             }
-            else if (model.EndpointName == "speak/")
+            else if (model.EndpointName == "tts/")
             {
                 _ttsModels.Add(model);
             }
-            else if (model.EndpointName == "think/")
+            else if (model.EndpointName == "llm/")
             {
                 _llmModels.Add(model);
             }

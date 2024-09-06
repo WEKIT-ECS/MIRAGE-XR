@@ -1,3 +1,4 @@
+using LearningExperienceEngine;
 using Microsoft.MixedReality.Toolkit;
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.Utilities;
@@ -13,13 +14,13 @@ using UnityEngine;
 public class GhostRecorder
 {
     public bool IsRecording => _isRecording;
-    public GhostDataFrame LastFrame => _lastFrame;
+    public LearningExperienceEngine.GhostDataFrame LastFrame => _lastFrame;
 
     private IMixedRealityHandJointService handJointService;
 
-    private readonly List<GhostDataFrame> _ghostFrames = new List<GhostDataFrame>();
+    private readonly List<LearningExperienceEngine.GhostDataFrame> _ghostFrames = new List<LearningExperienceEngine.GhostDataFrame>();
 
-    private GhostDataFrame _lastFrame;
+    private LearningExperienceEngine.GhostDataFrame _lastFrame;
     private CancellationTokenSource _cancellationTokenSource;
     private Transform _anchor;
     private Transform _cameraTransform;
@@ -31,11 +32,11 @@ public class GhostRecorder
     /// </summary>
     /// <param name="filePath">Desired name for the to be saved file.</param>
     /// <param name="ghostDataFrames">Record data that is to be saved.</param>
-    public static void ExportToFile(string filePath, List<GhostDataFrame> ghostDataFrames)
+    public static void ExportToFile(string filePath, List<LearningExperienceEngine.GhostDataFrame> ghostDataFrames)
     {
         using (var file = File.Create(filePath))
         {
-            var xmlSerializer = new XmlSerializer(typeof(List<GhostDataFrame>));
+            var xmlSerializer = new XmlSerializer(typeof(List<LearningExperienceEngine.GhostDataFrame>));
             using (TextWriter textWriter = new StreamWriter(file))
             {
                 xmlSerializer.Serialize(textWriter, ghostDataFrames);
@@ -50,7 +51,7 @@ public class GhostRecorder
     /// </summary>
     /// <param name="filePath">Desired name for the to be saved file.</param>
     /// <param name="ghostDataFrames">Record data that is to be saved.</param>
-    public static bool TryLoadFromFile(string filePath, out List<GhostDataFrame> ghostDataFrames)
+    public static bool TryLoadFromFile(string filePath, out List<LearningExperienceEngine.GhostDataFrame> ghostDataFrames)
     {
         ghostDataFrames = null;
 
@@ -62,8 +63,8 @@ public class GhostRecorder
         using (var file = File.Open(filePath, FileMode.Open))
         using (TextReader textReader = new StreamReader(file))
         {
-            var serializer = new XmlSerializer(typeof(List<GhostDataFrame>));
-            ghostDataFrames = (List<GhostDataFrame>)serializer.Deserialize(textReader);
+            var serializer = new XmlSerializer(typeof(List<LearningExperienceEngine.GhostDataFrame>));
+            ghostDataFrames = (List<LearningExperienceEngine.GhostDataFrame>)serializer.Deserialize(textReader);
         }
 
         return ghostDataFrames != null && ghostDataFrames.Count != 0;
@@ -98,7 +99,7 @@ public class GhostRecorder
         StartAsync();
     }
 
-    public List<GhostDataFrame> Stop()
+    public List<LearningExperienceEngine.GhostDataFrame> Stop()
     {
         if (!_isRecording)
         {
@@ -133,7 +134,7 @@ public class GhostRecorder
 
         var cameraRotation = _cameraTransform.rotation;
 
-        _lastFrame = new GhostDataFrame
+        _lastFrame = new LearningExperienceEngine.GhostDataFrame
         {
             head = CreateLocalPose(_anchor, GetHeadPosition(_cameraTransform), cameraRotation),
             rightHand = CreateLocalPose(_anchor, GetRightHandPosition(_cameraTransform), cameraRotation),
@@ -193,8 +194,6 @@ public class GhostRecorder
                 _lastFrame.leftPinkyTip = zeroPose;
             }
         }
-
-
 
         _ghostFrames.Add(_lastFrame);
     }
