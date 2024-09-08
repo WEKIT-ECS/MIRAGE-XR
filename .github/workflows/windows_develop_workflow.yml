@@ -68,6 +68,9 @@ jobs:
           # dirty build needed to include generated Watson credentials
           allowDirtyBuild: true
           customParameters: -wsaArchitecture ARM64 -wsaUWPBuildType D3D -wsaMinUWPSDK 10.0.18362.0 -wsaSubtarget HoloLens
+          unity-serial-var-name: 'UNITY_SERIAL'
+          unity-username-var-name: 'UNITY_EMAIL'
+          unity-password-var-name: 'UNITY_PASSWORD'
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v2
