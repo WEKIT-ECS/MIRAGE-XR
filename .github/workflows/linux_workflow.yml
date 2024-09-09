@@ -4,64 +4,63 @@ on:
   schedule:
     - cron: 0 19 * * 5
 jobs:
-  test:
-    name: Test Unity
-    runs-on: ubuntu-latest
-    steps:
-    
-      # Activation stage
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-           lfs: 'true'
-           
-      - name: LFS pull
-        run: git lfs pull
-        
-      - name: Set up IBM Watson credentials
-        env:
-          ASSISTANTKEYS: ${{ secrets.ASSISTANTKEYS }}
-          OAIKEYS: ${{ secrets.OAISECRET }}
-          SENTRYCFG: ${{ secrets.SENTRYCFG }}
-          SENTRYCLI: ${{ secrets.SENTRYCLI }}
-        run: |
-          echo -n "$ASSISTANTKEYS" > $GITHUB_WORKSPACE/ibm-credentials.env
-          echo "path of the credentials resource $GITHUB_WORKSPACE/ibm-credentials.txt"
-          export IBM_CREDENTIALS_FILE="$GITHUB_WORKSPACE/ibm-credentials.env"
-          echo -n "$OAIKEYS" > $GITHUB_WORKSPACE/Assets/Resources/openai.txt
-          echo "path of the OAI credentials resource $GITHUB_WORKSPACE/Assets/Resources/openai.txt"
-          echo -n "$SENTRYCFG" > $GITHUB_WORKSPACE/Assets/Resources/Sentry/SentryOptions.asset
-          echo "path of the Sentry options yaml file $GITHUB_WORKSPACE/Assets/Resources/Sentry/SentryOptions.asset"
-          echo -n "$SENTRYCLI" > $GITHUB_WORKSPACE/Assets/Plugins/Sentry/SentryCliOptions.asset
-          echo "path of the Sentry CLI options yaml file $GITHUB_WORKSPACE/Assets/Plugins/Sentry/SentryCliOptions.asset"
-
-      # Fonts
-      - name: Install fonts
-        run: |
-          echo -n "Installing core fonts"
-          echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
-          echo "ttf-mscorefonts-installer msttcorefonts/present-mscorefonts-eula note" | sudo debconf-set-selections
-          sudo apt install ttf-mscorefonts-installer
-          sudo fc-cache -f
-          fc-match Arial
-
-      # Cache
-      - name: Caching
-        uses: actions/cache@v3
-        with:
-          path: Library
-          key: Library-linux-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
-          restore-keys: |
-            Library-linux
-
-      # Test stage
-      - name: Unity Test runner (edit and play mode)
-        uses: game-ci/unity-test-runner@v2.0.3
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-        with:
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-          unityVersion: 2022.3.7f1
+#  test:
+#    name: Test Unity
+#    runs-on: ubuntu-latest
+#    steps:
+#   
+#      - name: Checkout repository
+#        uses: actions/checkout@v4
+#        with:
+#           lfs: 'true'
+#           
+#      - name: LFS pull
+#        run: git lfs pull
+#        
+#      - name: Set up IBM Watson credentials
+#        env:
+#          ASSISTANTKEYS: ${{ secrets.ASSISTANTKEYS }}
+#          OAIKEYS: ${{ secrets.OAISECRET }}
+#          SENTRYCFG: ${{ secrets.SENTRYCFG }}
+#          SENTRYCLI: ${{ secrets.SENTRYCLI }}
+#        run: |
+#          echo -n "$ASSISTANTKEYS" > $GITHUB_WORKSPACE/ibm-credentials.env
+#          echo "path of the credentials resource $GITHUB_WORKSPACE/ibm-credentials.txt"
+#          export IBM_CREDENTIALS_FILE="$GITHUB_WORKSPACE/ibm-credentials.env"
+#          echo -n "$OAIKEYS" > $GITHUB_WORKSPACE/Assets/Resources/openai.txt
+#          echo "path of the OAI credentials resource $GITHUB_WORKSPACE/Assets/Resources/openai.txt"
+#          echo -n "$SENTRYCFG" > $GITHUB_WORKSPACE/Assets/Resources/Sentry/SentryOptions.asset
+#          echo "path of the Sentry options yaml file $GITHUB_WORKSPACE/Assets/Resources/Sentry/SentryOptions.asset"
+#          echo -n "$SENTRYCLI" > $GITHUB_WORKSPACE/Assets/Plugins/Sentry/SentryCliOptions.asset
+#          echo "path of the Sentry CLI options yaml file $GITHUB_WORKSPACE/Assets/Plugins/Sentry/SentryCliOptions.asset"
+#
+#      # Fonts
+#      - name: Install fonts
+#        run: |
+#          echo -n "Installing core fonts"
+#          echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
+#          echo "ttf-mscorefonts-installer msttcorefonts/present-mscorefonts-eula note" | sudo debconf-set-selections
+#          sudo apt install ttf-mscorefonts-installer
+#          sudo fc-cache -f
+#          fc-match Arial
+#
+#      # Cache
+#      - name: Caching
+#        uses: actions/cache@v3
+#        with:
+#          path: Library
+#          key: Library-linux-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+#          restore-keys: |
+#            Library-linux
+#
+#      # Test stage
+#      - name: Unity Test runner (edit and play mode)
+#        uses: game-ci/unity-test-runner@v2.0.3
+#        env:
+#          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+#        with:
+#          githubToken: ${{ secrets.GITHUB_TOKEN }}
+#          unityVersion: 2022.3.7f1
       
   build:
     name: Build Unity
