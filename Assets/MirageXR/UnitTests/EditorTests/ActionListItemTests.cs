@@ -5,6 +5,7 @@ using NUnit.Framework;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.TestTools;
 
 namespace Tests
 {
@@ -24,9 +25,23 @@ namespace Tests
         private RootObject rootObject;
 
         [SetUp]
-        public void SetUp()
+        public async void SetUp()
         {
             EditorSceneManager.NewScene(NewSceneSetup.EmptyScene);
+
+            if (!RootObject.Instance)
+            {
+                rootObject = GenerateGameObjectWithComponent<RootObject>("root");
+                //rootObject ??= new GameObject("RootObject").AddComponent<RootObject>();
+                CallPrivateMethod(rootObject, "Awake");
+                CallPrivateMethod(rootObject, "Initialization");
+                await rootObject.WaitForInitialization();
+            }
+            else
+            {
+                rootObject = RootObject.Instance;
+                await rootObject.WaitForInitialization();
+            }
 
             backgroundImage = GenerateGameObjectWithComponent<Image>("Background Image");
             captionLabel = GenerateGameObjectWithComponent<Text>("Caption Label");
@@ -47,23 +62,12 @@ namespace Tests
             SetPrivateField(actionListItem, "deleteButton", deleteButton);
             SetPrivateField(actionListItem, "checkIcon", checkIcon);
 
-            if (!RootObject.Instance)
-            {
-                rootObject = GenerateGameObjectWithComponent<RootObject>("root");
-                CallPrivateMethod(rootObject, "Awake");
-                CallPrivateMethod(rootObject, "Initialization");
-            }
-            else
-            {
-                rootObject = RootObject.Instance;
-            }
         }
 
         [Test]
         public void UpdateView_ContentNotSet_GameObjectNameSetToUnused()
         {
             actionListItem.UpdateView();
-
             Assert.AreEqual("Unused Item", actionListItem.gameObject.name);
         }
 
