@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -17,10 +18,14 @@ namespace MirageXR
         [Header("GameObjects")]
         [SerializeField] private GameObject _sidebarOpened;
         [SerializeField] private GameObject _sidebarClosed;
+        [SerializeField] private GameObject _settingsPanel;
+        [Header("InputField")]
+        [SerializeField] private TMP_InputField _searchField;
         
         public void SetActionOnButtonSidebarCollapseClick(UnityAction action) => _buttonSidebarCollapse.SafeSetListener(action);
         public void SetActionOnButtonSidebarExpandClick(UnityAction action) => _buttonSidebarExpand.SafeSetListener(action);
         public void SetActionOnButtonSortingClick(UnityAction action) => _buttonSorting.SafeSetListener(action);
         public void SetActionOnButtonAddNewActivityClick(UnityAction action) => _buttonAddNewActivity.SafeSetListener(action);
+        public void SetActionOnInputFieldSearchValueChanged(UnityAction<string> action) => _searchField.SafeSetListener(action);
     }
 }
