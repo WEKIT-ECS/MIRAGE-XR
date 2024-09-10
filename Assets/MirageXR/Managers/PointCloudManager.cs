@@ -12,7 +12,7 @@ public class PointCloudManager : MonoBehaviour
 
     public async Task<bool> InitializationAsync()
     {
-#if !UNITY_ANDROID && !UNITY_IOS
+#if !UNITY_ANDROID && !UNITY_IOS && !UNITY_VISIONOS
         return true;
 #endif
 
@@ -39,14 +39,14 @@ public class PointCloudManager : MonoBehaviour
 
     public void Unsubscribe()
     {
-#if UNITY_ANDROID || UNITY_IOS
+#if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS
         LearningExperienceEngine.EventManager.OnEditModeChanged -= SetAllPointCloudsActive;
 #endif
     }
 
     public async Task<bool> ResetAsync()
     {
-#if !UNITY_ANDROID && !UNITY_IOS
+#if !UNITY_ANDROID && !UNITY_IOS && !UNITY_VISIONOS
         return true;
 #endif
         if (!_arSession)

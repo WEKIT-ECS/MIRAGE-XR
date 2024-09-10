@@ -142,7 +142,7 @@ public class PlaneManagerWrapper : MonoBehaviour
 #if UNITY_EDITOR
         var manager = gameObject.AddComponent<PlaneManagerEditor>();
         manager.prefabPlane = _prefabEditorPlane;
-#elif UNITY_IOS || UNITY_ANDROID
+#elif UNITY_IOS || UNITY_ANDROID || UNITY_VISIONOS
         var manager = gameObject.AddComponent<PlaneManagerARFoundation>();
         manager.prefabPlane = _prefabARFoundationPlane;
 #else
