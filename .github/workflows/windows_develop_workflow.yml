@@ -59,7 +59,7 @@ jobs:
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL_ED }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD_ED }}
-          #UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE_ED }}
         with:
           targetPlatform: WSAPlayer
@@ -67,7 +67,7 @@ jobs:
           versioning: Semantic
           # dirty build needed to include generated Watson credentials
           allowDirtyBuild: true
-          customParameters: -wsaArchitecture ARM64 -wsaUWPBuildType D3D -wsaMinUWPSDK 10.0.18362.0 -wsaSubtarget HoloLens
+          customParameters: -wsaArchitecture ARM64 -wsaUWPBuildType D3D -wsaMinUWPSDK 10.0.18362.0 -wsaSubtarget HoloLens -wsaUWPSDKA 10.0.18362.0
           unity-serial-var-name: 'UNITY_SERIAL'
           unity-username-var-name: 'UNITY_EMAIL'
           unity-password-var-name: 'UNITY_PASSWORD'
