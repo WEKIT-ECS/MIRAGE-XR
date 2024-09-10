@@ -68,7 +68,7 @@ PlayerSettings:
   allowedAutorotateToLandscapeLeft: 1
   useOSAutorotation: 1
   use32BitDisplayBuffer: 1
-  preserveFramebufferAlpha: 0
+  preserveFramebufferAlpha: 1
   disableDepthAndStencilBuffers: 0
   androidStartInFullscreen: 1
   androidRenderOutsideSafeArea: 1
@@ -141,8 +141,10 @@ PlayerSettings:
   bundleVersion: 2.7.160
   preloadedAssets:
   - {fileID: 0}
-  - {fileID: 4800000, guid: c9f956787b1d945e7b36e0516201fc76, type: 3}
-  - {fileID: 4800000, guid: 0945859e5a1034c2cb6dce53cb4fb899, type: 3}
+  - {fileID: 11400000, guid: 5af8949b7209364499abc8979cef0d21, type: 2}
+  - {fileID: 84503133486543891, guid: c24e8192fb4aadc4bbfb2072bb2399b0, type: 2}
+  - {fileID: -3855659099270505829, guid: b3a3cc9ae17858f4a9346913737e2188, type: 2}
+  - {fileID: 11400000, guid: fc2467fd49d40c943acdcb45cdc19bf4, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -853,6 +855,7 @@ PlayerSettings:
   scriptingDefineSymbols:
     Android: VUFORIA_ANDROID_SETTINGS;ARFOUNDATION_PRESENT;MRTK_GLTF_IMPORTER_OFF
     Standalone: DOTNETWINRT_PRESENT;MRTK_GLTF_IMPORTER_OFF
+    VisionOS: MRTK_GLTF_IMPORTER_OFF
     Windows Store Apps: release;VUFORIA_WSA_SETTINGS;DOTNETWINRT_PRESENT
     iPhone: VUFORIA_IOS_SETTINGS;ARFOUNDATION_PRESENT;UNITY_XR_ARKIT_LOADER_ENABLED;MRTK_GLTF_IMPORTER_OFF
   additionalCompilerArguments: {}
