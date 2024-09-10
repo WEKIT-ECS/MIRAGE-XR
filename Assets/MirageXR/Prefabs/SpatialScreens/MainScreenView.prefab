@@ -311,6 +311,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5212057651722558459}
   - component: {fileID: 6093327664446883345}
+  - component: {fileID: 2092802682775140935}
   m_Layer: 5
   m_Name: MainScreenView
   m_TagString: Untagged
@@ -332,7 +333,6 @@ RectTransform:
   m_Children:
   - {fileID: 3260737117597693654}
   - {fileID: 8405126822011006016}
-  - {fileID: 5935432431467765486}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -362,6 +362,23 @@ MonoBehaviour:
   _settingsPanel: {fileID: 7508703263514374337, guid: f44d9645c16c44893af82056ab719a43,
     type: 3}
   _searchField: {fileID: 7955794329872005803}
+--- !u!114 &2092802682775140935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1104085808666019733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69b2c39c9dfd25f41be0f827f33b0fd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  activeWindow: {fileID: 3589709639616551923}
+  windowControls: {fileID: 5935432431467765486}
+  distanceBetweenWindows: 45
+  maxVisibleWindows: 5
+  transitionDuration: 0.5
 --- !u!1 &1295812748347797066
 GameObject:
   m_ObjectHideFlags: 0
@@ -1096,7 +1113,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3532085301950449109}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -19.99998}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1104,12 +1121,12 @@ RectTransform:
   - {fileID: 8634548174997802411}
   - {fileID: 8437506934483618128}
   - {fileID: 4246649263005092911}
-  m_Father: {fileID: 5212057651722558459}
+  m_Father: {fileID: 8405126822011006016}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: -523}
-  m_SizeDelta: {x: 1140, y: 14}
+  m_AnchoredPosition: {x: 0, y: -71}
+  m_SizeDelta: {x: 0, y: 14}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!95 &8325040816176972554
 Animator:
@@ -5102,7 +5119,11 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 7275742057029420630, guid: 20bfa9dc0c81e468fba745e9dd499097, type: 3}
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 2446800742698174438, guid: 20bfa9dc0c81e468fba745e9dd499097,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5935432431467765486}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 7242069563223765077, guid: 20bfa9dc0c81e468fba745e9dd499097,
         type: 3}
