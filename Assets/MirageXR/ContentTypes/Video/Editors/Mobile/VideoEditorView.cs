@@ -237,6 +237,8 @@ public class VideoEditorView : PopupEditorBase
                 var sourcePath = Path.Combine(Application.persistentDataPath, path);
                 var destPath = Path.Combine(Application.persistentDataPath, newFilePath);
                 File.Move(sourcePath, destPath);
+
+                // TutorialManager.Instance.InvokeEvent(TutorialManager.TutorialEvent.VIDEO_SELECTED_FROM_GALLERY); seemingly unnecessary as it is covered by FINISHED_QUEUE
             }
         });
     }
