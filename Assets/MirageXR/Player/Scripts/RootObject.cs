@@ -27,7 +27,7 @@ namespace MirageXR
 
         private AIManager _aiManager;
         private OpenAIManager _openAIManager;
-        private VirtualInstructorOrchestrator _virtualInstructorManager; 
+        private VirtualInstructorOrchestrator _virtualInstructorOrchestrator; 
 
         public Camera baseCamera => _baseCamera;
 

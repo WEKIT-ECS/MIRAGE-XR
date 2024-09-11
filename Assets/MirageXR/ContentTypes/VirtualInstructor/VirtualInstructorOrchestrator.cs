@@ -16,19 +16,30 @@ namespace MirageXR
         /// </summary>
         private List<VirtualInstructor> _instructors = new();
 
+        private VirtualInstructor _modertator;
+
         /// <summary>
         /// Adds a virtual instructor to the list of instructors in the VirtualInstructorManager.
         /// </summary>
         public void AddInstructor(VirtualInstructor instructor)
         {
             _instructors.Add(instructor);
+            if(instructor.moderatorStatus())
+            {
+                _modertator = instructor;
+            }
         }
+
         /// <summary>
         /// Removes the specified virtual instructor from the instructor list.
         /// </summary>
         public void RemoveInstructor(VirtualInstructor instructor)
         {
             if (_instructors.Contains(instructor)) _instructors.Remove(instructor);
+            if (instructor.moderatorStatus())
+            {
+                _modertator = null;
+            }
         }
 
         /// <summary>
@@ -47,37 +58,69 @@ namespace MirageXR
         /// <returns>A task representing the asynchronous operation. The task result is the audio clip response from the virtual instructor.</returns>
         public async Task<AudioClip> AskInstructorWithAudioQuestion(AudioClip question)
         {
-            var instructor = DetermineVirtualInstructor();
-            return await instructor.AskVirtualInstructorAudio(question);
+            try
+            {
+                var instructor = DetermineVirtualInstructor();
+                return await instructor.AskVirtualInstructorAudio(question);
+            }
+            catch
+            {
+                return await _modertator.AskVirtualInstructorAudio(question);
+            }
+            
         }
 
         public async Task<AudioClip> AskInstructorWithStringQuestion(string question)
         {
-            VirtualInstructor instructor = DetermineVirtualInstructor();
-            return await instructor.SendMessageQueue(question);
+            try
+            {
+                VirtualInstructor instructor = DetermineVirtualInstructor();
+                return await instructor.AskVirtualInstructorString(question);
+            }
+            catch
+            {
+                return await _modertator.AskVirtualInstructorString(question);
+            }
+            
         }
 
         public async Task<AudioClip> ConvertTextToSpeechWithInstructor(string message)
         {
-            VirtualInstructor instructor = DetermineVirtualInstructor();
-            return await instructor.ConvertTextToSpeech(message); 
+            try
+            {
+                VirtualInstructor instructor = DetermineVirtualInstructor();
+                return await instructor.ConvertTextToSpeech(message);
+            }
+            catch
+            {
+                return await _modertator.ConvertTextToSpeech(message);
+            }
         }
-        
-    
+
+
 
         public void AddToQueueOfClosestInstructor(string message)
         {
-            VirtualInstructor instructor = DetermineVirtualInstructor();
-            information.AddToNextMessage(message);
+            try
+            {
+                VirtualInstructor instructor = DetermineVirtualInstructor();
+                instructor.AddToNextMessage(message);
+
+            }
+            catch (Exception e)
+            {
+                _modertator.AddToNextMessage(message);
+            }
+
         }
 
         private VirtualInstructor DetermineVirtualInstructor()
         {
             if (!CheckInstructors() || !CheckCamera())
             {
-                return null; 
+                return null;
             }
-            
+
             switch (_instructors.Count)
             {
                 case 1:
@@ -85,21 +128,24 @@ namespace MirageXR
                 case > 1:
                 {
                     VirtualInstructor winner = null;
-                    float distance = float.MaxValue; 
+                    float distance = float.MaxValue;
                     foreach (var instructor in _instructors)
                     {
-                        if (instructor == null || instructor.gameObject == null) 
+                        if (instructor == null || instructor.gameObject == null)
                         {
                             UnityEngine.Debug.LogError("Instructor or Instructor GameObject is null");
                             continue;
                         }
-                        Vector3 viewportPos = Camera.main.WorldToViewportPoint(instructor.gameObject.transform.position);
+
+                        Vector3 viewportPos =
+                            Camera.main.WorldToViewportPoint(instructor.gameObject.transform.position);
                         bool isVisible = viewportPos.x >= 0 && viewportPos.x <= 1 &&
                                          viewportPos.y >= 0 && viewportPos.y <= 1 &&
                                          viewportPos.z > 0;
                         if (isVisible) // what if we want to send a message to a VI, than it is not necessary true! Edge caes!
                         {
-                            if (Vector3.Distance(Camera.main.transform.position, instructor.gameObject.transform.position) >
+                            if (Vector3.Distance(Camera.main.transform.position,
+                                    instructor.gameObject.transform.position) >
                                 distance)
                             {
                                 distance = Vector3.Distance(Camera.main.transform.position,
@@ -108,18 +154,20 @@ namespace MirageXR
                             }
                         }
                     }
+
                     return winner;
                 }
                 default:
                     return null;
             }
         }
-        
+
         private bool CheckInstructors()
         {
             if (_instructors == null) throw new NullReferenceException("_Instructors is null");
             if (_instructors.Count != 0) return true;
-            UnityEngine.Debug.LogError($"AskClosestInstructor, No Instructor but _Instructors count is {_instructors.Count}.");
+            UnityEngine.Debug.LogError(
+                $"AskClosestInstructor, No Instructor but _Instructors count is {_instructors.Count}.");
             return false;
 
         }
@@ -130,5 +178,5 @@ namespace MirageXR
             UnityEngine.Debug.LogError("Main Camera is null");
             return false;
         }
-        
+    }
 }

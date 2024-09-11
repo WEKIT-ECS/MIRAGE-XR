@@ -28,6 +28,8 @@ namespace MirageXR
         [SerializeField] private LearningExperienceEngine.ToggleObject _toggleObject;
         private Animator _animator;
 
+        private bool _isModerator = true; 
+
         /// <summary>
         /// Represents the history of a conversation with the VirtualInstructor.
         /// This variable keeps track of the conversation history between the user and the VirtualInstructor.
@@ -37,6 +39,7 @@ namespace MirageXR
 
         public override bool Init(LearningExperienceEngine.ToggleObject toggleObject)
         {
+            // todo add isModerator. 
             _animator = GetComponentInChildren<Animator>();
             _toggleObject = toggleObject;
             try
@@ -188,6 +191,20 @@ namespace MirageXR
         private void OnDestroy()
         {
             RootObject.Instance.virtualInstructorOrchestrator.RemoveInstructor(this);
+        }
+
+        public async Task<AudioClip> AskVirtualInstructorString(string question)
+        {
+            string context = CreateContext();
+            var response = await RootObject.Instance.aiManager.SendMessageToAssistantAsync(InstructorData.LanguageModel.ApiName, question, context);
+            var clip = await RootObject.Instance.aiManager.ConvertTextToSpeechAsync(response, InstructorData.TextToSpeechModel.ApiName);
+            UpdateHistory(question, response);
+            return clip;
+        }
+
+        public bool moderatorStatus()
+        {
+            return _isModerator;
         }
     }
 }
