@@ -121,7 +121,7 @@ namespace MirageXR
             _Loading.SetActive(true);
             Microphone.End(null);
             recoding = false;
-            responseClip.clip =  await RootObject.Instance.virtualInstructorOrchestrator.AskClosestInstructor(questionClip); 
+            responseClip.clip =  await RootObject.Instance.virtualInstructorOrchestrator.AskInstructorWithAudioQuestion(questionClip); 
             responseClip.Play();
             StartCoroutine(WaitForAudioEnd());
         }
