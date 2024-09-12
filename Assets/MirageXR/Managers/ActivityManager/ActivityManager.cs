@@ -1,20 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Cysharp.Threading.Tasks;
-using LearningExperienceEngine.DataModel;
+using LearningExperienceEngine;
+using LearningExperienceEngine.DTOs;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Events;
+using Activity = LearningExperienceEngine.DataModel.Activity;
+using Location = LearningExperienceEngine.DataModel.Location;
 
 namespace MirageXR.NewDataModel
 {
     public class ActivityManager : IActivityManager
     {
-        public List<Activity> Activities => _activities;
+        public List<ActivityResponse> Activities => _activities;
         public Activity Activity => _activity;
 
-        public event UnityAction<List<Activity>> OnActivitiesFetched
+        public event UnityAction<List<ActivityResponse>> OnActivitiesFetched
         {
             add
             {
@@ -40,142 +42,91 @@ namespace MirageXR.NewDataModel
             remove => _onActivityLoaded.RemoveListener(value);
         }
 
+        public event UnityAction<Activity> OnActivityUpdated
+        {
+            add
+            {
+                _onActivityUpdated.AddListener(value);
+                if (_activities != null)
+                {
+                    value(_activity);
+                }
+            }
+            remove => _onActivityUpdated.RemoveListener(value);
+        }
+
         private readonly UnityEventActivities _onActivitiesFetched = new();
         private readonly UnityEventActivity _onActivityLoaded = new();
+        private readonly UnityEventActivity _onActivityUpdated = new();
 
-        private List<Activity> _activities;
+        private List<ActivityResponse> _activities;
         private Activity _activity;
         private IContentManager _contentManager;
+        private IAssetsManager _assetsManager;
         private INetworkDataProvider _networkDataProvider;
+        private IStepManager _stepManager;
+        private AuthManager _authManager;
 
-        public UniTask InitializeAsync(IContentManager contentManager, INetworkDataProvider networkDataProvider)
+        public async UniTask InitializeAsync(IContentManager contentManager, INetworkDataProvider networkDataProvider, IAssetsManager assetsManager, IStepManager stepManager, AuthManager authManager)
         {
             _contentManager = contentManager;
             _networkDataProvider = networkDataProvider;
-            CreateActivity();
-            return UniTask.CompletedTask;
+            _assetsManager = assetsManager;
+            _stepManager = stepManager;
+            _authManager = authManager;
+            await FetchActivitiesAsync();
         }
 
-        public async UniTask<List<Activity>> FetchActivitiesAsync()
+        public async UniTask<List<ActivityResponse>> FetchActivitiesAsync()
         {
-            _activities = await _networkDataProvider.GetActivitiesAsync("token");
+            UniTask.WaitUntil(_authManager.LoggedIn);
+            var token = LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.AccessToken;
+            _activities = await _networkDataProvider.GetActivitiesAsync(token);
             _onActivitiesFetched.Invoke(_activities);
             return _activities;
         }
 
         public async UniTask<Activity> LoadActivityAsync(Guid activityId)
         {
-            var activity = _activities?.FirstOrDefault(t => t.Id == activityId);
-            if (activity == null)
-            {
-                throw new ArgumentException($"Activity with id {activityId} not found");
-            }
-
+            var token = LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.AccessToken;
+            var activity = await _networkDataProvider.GetActivityAsync(activityId, token);
+            _contentManager.Reset();
+            _stepManager.Reset();
             await _contentManager.LoadContentAsync(activity);
             _activity = activity;
             _onActivityLoaded.Invoke(_activity);
             return _activity;
         }
 
-        public Activity CreateActivity()
+        public Activity CreateNewActivity()
         {
-            var user = LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.GetUser();
-
-            var content = new Content<ImageContentData>
-            {
-                Id = Guid.NewGuid(),
-                Location = new Location(),
-                Name = "Image example",
-                Type = ContentType.Image,
-                IsVisible = true,
-                ContentData = new ImageContentData
-                {
-                    Image = new File
-                    {
-                        Id = Guid.NewGuid(),
-                        CreationDate = DateTime.UtcNow,
-                        Version = "2.7.160",// Application.version,
-                        Name = "Image example",
-                        FileHash = HashCode.Combine(Guid.NewGuid(), Guid.NewGuid()).ToString()  //temp
-                    } 
-                },
-                CreationDate = DateTime.UtcNow,
-                Version = "2.7.160",// Application.version,
-            };
-
-            var step = new ActivityStep
-            {
-                Id = Guid.NewGuid(),
-                Location = new Location
-                {
-                    Position = Vector3.zero,
-                    Rotation = Quaternion.identity.eulerAngles,
-                    Scale = Vector3.one,
-                    TargetMarker = null
-                },
-                Contents = new List<Guid>
-                {
-                    content.Id
-                },
-                CreationDate = DateTime.UtcNow,
-                Version = "2.7.160",// Application.version,
-                Name = "Step 1",
-                Description = "Example step",
-                Attachment = null,
-                Comments = null,
-                Triggers = null,
-                PrivateNotes = null,
-                RequiredToolsPartsMaterials = null,
-            };
+            _contentManager.Reset();
+            _stepManager.Reset();
+            _stepManager.AddStep(Location.Identity);
 
             _activity = new Activity
             {
                 Id = Guid.NewGuid(),
-                Content = new List<Content>
-                {
-                    content.ToBaseContent()
-                },
+                Content = _contentManager.GetContents(),
                 Contributors = null,
-                Creator = user,
+                Creator = _authManager.GetCurrentUser(),
                 Name = $"Activity {DateTime.Now.ToShortDateString()}",
                 Description = string.Empty,
-                Hierarchy = new StepHierarchy
-                {
-                    Item = new List<HierarchyItem>
-                    {
-                        new()
-                        {
-                            Item = null,
-                            StepIds = new List<Guid> { step.Id },
-                            Description = string.Empty,
-                            Title = "Title",
-                        }
-                    }
-                },
-                Steps = new List<ActivityStep>
-                {
-                    step
-                },
-                Thumbnail = new File
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Thumbnail",
-                    FileHash = "Default Thumbnail Hash", //temp
-                    Version = "2.7.160",// Application.version,
-                    CreationDate = DateTime.UtcNow
-                },
-                Version = "2.7.160",// Application.version,
+                Hierarchy = _stepManager.GetHierarchy(),
+                Steps = _stepManager.GetSteps(),
+                Thumbnail = _assetsManager.GetDefaultThumbnail(),
+                Version = Application.version,
                 CreationDate = DateTime.UtcNow,
                 Language = "en-US",
             };
-            _onActivityLoaded.Invoke(_activity);
 
-            var json = JsonConvert.SerializeObject(_activity, Formatting.Indented, new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            });
+            _onActivityLoaded.Invoke(_activity);
+            _onActivityUpdated.Invoke(_activity);
+
+            var json = JsonConvert.SerializeObject(_activity, Formatting.Indented);
+            _activity = JsonConvert.DeserializeObject<Activity>(json);
             Debug.Log(json);
-            
+
             return _activity;
         }
     }

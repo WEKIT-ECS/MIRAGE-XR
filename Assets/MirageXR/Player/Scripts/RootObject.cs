@@ -31,7 +31,9 @@ namespace MirageXR
         private VirtualInstructorManager _virtualInstructorManager; 
         private IActivityManager _activityManager;
         private IContentManager _contentManager;
+        private IStepManager _stepManager;
         private INetworkDataProvider _networkDataProvider;
+        private IAssetsManager _assetsManager;
 
         public Camera BaseCamera => _baseCamera;
 
@@ -70,6 +72,8 @@ namespace MirageXR
         public IContentManager ContentManager => _contentManager;
 
         public INetworkDataProvider NetworkDataProvider => _networkDataProvider;
+
+        public IAssetsManager AssetsManager => _assetsManager;
 
         private bool _isInitialized;
 
@@ -141,6 +145,10 @@ namespace MirageXR
                 _openAIManager = new OpenAIManager();
 
                 _virtualInstructorManager = new VirtualInstructorManager();
+                _networkDataProvider = new NetworkDataProvider();
+                _contentManager = new ContentManager();
+                _stepManager = new StepManager();
+                _assetsManager = new AssetsManager();
                 _activityManager = new ActivityManager();
 
                 await _imageTargetManager.InitializationAsync();
@@ -154,7 +162,8 @@ namespace MirageXR
 
                 await _openAIManager.InitializeAsync();
                 await _aiManager.InitializeAsync();
-                _activityManager.InitializeAsync(_contentManager, _networkDataProvider);
+                await _contentManager.InitializeAsync(_assetsManager);
+                await _activityManager.InitializeAsync(_contentManager, _networkDataProvider, _assetsManager, _stepManager, _lee.authManager);
                 _isInitialized = true;
 
                 //LearningExperienceEngine.EventManager.OnClearAll += ResetManagers;

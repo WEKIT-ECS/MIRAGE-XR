@@ -24,6 +24,134 @@ namespace MirageXR.NewDataModel
             Delete
         }
 
+        public static async UniTask<T> RequestAsync<T>(string url, HttpContent content = null, string token = null, Dictionary<string, string> header = null, RequestType type = RequestType.Get, float timeout = Timeout, CancellationToken cancellationToken = default)
+        {
+            HttpResponseMessage response = null;
+            try
+            {
+                response = await GetResponseAsync(url, content, token, header, type, timeout, cancellationToken);
+                var responseStr = await response.Content.ReadAsStringAsync();
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    Debug.Log($"{type.ToString()}: {url}\nresponse: '{responseStr}'");
+                }
+                else if (responseStr is { Length: > 0 }) // Failures returned by server
+                {
+                    Debug.LogError($"{type.ToString()}: {url}\nresponse: '{responseStr}'");
+                }
+                else // Failures from HTTP layer
+                {
+                    var message =
+                        $"{type.ToString()}: {url} => StatusCode = {response.StatusCode.ToString()}"; // response.HttpResponseHeaders may contain useful info
+                    var error = new Error { Code = ErrorCodes.Failure, ErrorMessage = message };
+                    Debug.LogError($"{type.ToString()}: {url}\nresponse: '{error}'");
+                    return new Response<T>
+                    {
+                        StatusCode = StatusCode.ToResponseStatusCode(response.StatusCode),
+                        Errors = new List<Error> { error }
+                    };
+                }
+
+                var data = JsonConvert.DeserializeObject<T>(responseStr);
+                if (data == null)
+                {
+                    var message = $"{type.ToString()}: {url}\nCan't deserialize object to type {typeof(T).FullName}\nresponse: '{responseStr}'";
+                    Debug.LogError(message);
+                    var error = new Error { Code = ErrorCodes.Failure, ErrorMessage = message };
+                    return new Response<T>
+                    {
+                        StatusCode = ResponseStatusCode.SerializationError,
+                        Errors = new List<Error> { error }
+                    };
+                }
+
+                return data;
+            }
+            catch (TaskCanceledException e)
+            {
+                Debug.LogError(e);
+                var error = new Error { Code = ErrorCodes.Failure, ErrorMessage = e.Message };
+                if (e.InnerException != null)
+                {
+                    Debug.LogError(e.InnerException);
+                    error.ErrorMessage += $"\nInnerException: {e.InnerException.Message}";
+                }
+
+                return new Response<T> { StatusCode = ResponseStatusCode.Timeout, Errors = new List<Error> { error } };
+            }
+            catch (HttpRequestException e)
+            {
+                var error = new Error { Code = ErrorCodes.Failure, ErrorMessage = e.Message };
+                // As HttpRequestException.Message is usually not informative,
+                // try to fetch e.InnerException, which is expected to be System.Net.WebException
+                if (e.InnerException != null)
+                {
+                    Debug.LogError(e.InnerException);
+                    if (e.InnerException is WebException webException)
+                    {
+                        var failError = HandleWebException(webException);
+                        return new Response<T>
+                            { StatusCode = failError.StatusCode, Errors = new List<Error> { failError.Error } };
+                    }
+
+                    error.ErrorMessage = $"\nInnerException: {e.InnerException.Message}";
+                }
+
+                Debug.LogError(e);
+                return new Response<T>
+                    { StatusCode = ResponseStatusCode.NoConnection, Errors = new List<Error> { error } };
+            }
+            catch (WebException e)
+            {
+                Debug.LogError(e);
+                if (e.InnerException != null)
+                {
+                    Debug.LogError(e.InnerException);
+                }
+
+                var failError = HandleWebException(e);
+                return new Response<T>
+                    { StatusCode = failError.StatusCode, Errors = new List<Error> { failError.Error } };
+            }
+            catch (JsonSerializationException e)
+            {
+                Debug.LogError(e);
+                var error = new Error { Code = ErrorCodes.NotFound, ErrorMessage = e.Message };
+                if (e.InnerException != null)
+                {
+                    Debug.LogError(e.InnerException);
+                    error.ErrorMessage += $"\nInnerException: {e.InnerException.Message}";
+                }
+                return new Response<T> { StatusCode = ResponseStatusCode.NotFound, Errors = new List<Error> { error } };
+            }
+            catch (Exception e) when (e is InvalidOperationException or UriFormatException)
+            {
+                Debug.LogError(e);
+                var error = new Error { Code = ErrorCodes.NotFound, ErrorMessage = e.Message }; // bad URI
+                if (e.InnerException != null)
+                {
+                    Debug.LogError(e.InnerException);
+                    error.ErrorMessage += $"\nInnerException: {e.InnerException.Message}";
+                }
+                return new Response<T> { StatusCode = ResponseStatusCode.NotFound, Errors = new List<Error> { error } };
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+                var error = new Error { Code = ErrorCodes.Failure, ErrorMessage = e.Message };
+                if (e.InnerException != null)
+                {
+                    Debug.LogError(e.InnerException);   
+                    error.ErrorMessage += $"\nInnerException:{e.InnerException.Message}";
+                }
+                return new Response<T> { StatusCode = ResponseStatusCode.UnhandledException, Errors = new List<Error> { error } };
+            }
+            finally
+            {
+                response?.Dispose();
+            }
+        }
+
         private static async Task<HttpResponseMessage> PatchCallFixAsync(HttpMessageInvoker client, string url, HttpContent content, CancellationToken cancellationToken)
         {
             const string patch = "PATCH";
@@ -67,106 +195,6 @@ namespace MirageXR.NewDataModel
             };
 
             return response;
-        }
-
-        public static async UniTask<Response<T>> RequestAsync<T>(string url, HttpContent content = null, string token = null, Dictionary<string, string> header = null, RequestType type = RequestType.Get, float timeout = Timeout, CancellationToken cancellationToken = default)
-        {
-            HttpResponseMessage response = null;
-            try
-            {
-                response = await GetResponseAsync(url, content, token, header, type, timeout, cancellationToken);
-                var responseStr = await response.Content.ReadAsStringAsync();
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    Debug.Log($"{type.ToString()}: {url}\nresponse: '{responseStr}'");
-                }
-                else if (responseStr is { Length: > 0 }) // Failures returned by server
-                {
-                    Debug.LogError($"{type.ToString()}: {url}\nresponse: '{responseStr}'");
-                }
-                else  // Failures from HTTP layer
-                {
-                    var message = $"{type.ToString()}: {url} => StatusCode = {response.StatusCode.ToString()}"; // response.HttpResponseHeaders may contain useful info
-                    var error = new Error { Code = ErrorCodes.Failure, ErrorMessage = message };
-                    Debug.LogError($"{type.ToString()}: {url}\nresponse: '{error}'");
-                    return new Response<T> { StatusCode = StatusCode.ToResponseStatusCode(response.StatusCode), Errors = new List<Error> { error } };
-                }
-
-                var data = JsonConvert.DeserializeObject<Response<T>>(responseStr);
-                if (data == null)
-                {
-                    var message = $"{type.ToString()}: {url}\nCan't deserialize object to type {typeof(T).FullName}\nresponse: '{responseStr}'";
-                    Debug.LogError(message);
-                    var error = new Error { Code = ErrorCodes.Failure, ErrorMessage = message };
-                    return new Response<T> { StatusCode = ResponseStatusCode.SerializationError, Errors = new List<Error> { error } };
-                }
-                return data;
-            }
-            catch (TaskCanceledException e)
-            {
-                Debug.LogError(e);
-                var error = new Error { Code = ErrorCodes.Failure, ErrorMessage = e.Message };
-                if (e.InnerException != null)
-                {
-                    Debug.LogError(e.InnerException);
-                    error.ErrorMessage += $"\nInnerException: {e.InnerException.Message}";
-                }
-                return new Response<T> { StatusCode = ResponseStatusCode.Timeout, Errors = new List<Error> { error } };
-            }
-            catch (HttpRequestException e)
-            {
-                var error = new Error { Code = ErrorCodes.Failure, ErrorMessage = e.Message };
-                // As HttpRequestException.Message is usually not informative,
-                // try to fetch e.InnerException, which is expected to be System.Net.WebException
-                if (e.InnerException != null)
-                {
-                    Debug.LogError(e.InnerException);
-                    if (e.InnerException is WebException webException)
-                    {
-                        var failError = HandleWebException(webException);
-                        return new Response<T> { StatusCode = failError.StatusCode, Errors = new List<Error> { failError.Error } };
-                    }
-                    error.ErrorMessage = $"\nInnerException: {e.InnerException.Message}";
-                }
-                Debug.LogError(e);
-                return new Response<T> { StatusCode = ResponseStatusCode.NoConnection, Errors = new List<Error> { error } };
-            }
-            catch (WebException e)
-            {
-                Debug.LogError(e);
-                if (e.InnerException != null)
-                {
-                    Debug.LogError(e.InnerException);
-                }
-                var failError = HandleWebException(e);
-                return new Response<T> { StatusCode = failError.StatusCode, Errors = new List<Error> { failError.Error } };
-            }
-            catch (Exception e) when (e is InvalidOperationException or UriFormatException)
-            {
-                Debug.LogError(e);
-                var error = new Error { Code = ErrorCodes.NotFound, ErrorMessage = e.Message }; // bad URI
-                if (e.InnerException != null)
-                {
-                    Debug.LogError(e.InnerException);
-                    error.ErrorMessage += $"\nInnerException: {e.InnerException.Message}";
-                }
-                return new Response<T> { StatusCode = ResponseStatusCode.NotFound, Errors = new List<Error> { error } };
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e);
-                var error = new Error { Code = ErrorCodes.Failure, ErrorMessage = e.Message };
-                if (e.InnerException != null)
-                {
-                    Debug.LogError(e.InnerException);   
-                    error.ErrorMessage += $"\nInnerException:{e.InnerException.Message}";
-                }
-                return new Response<T> { StatusCode = ResponseStatusCode.UnhandledException, Errors = new List<Error> { error } };
-            }
-            finally
-            {
-                response?.Dispose();
-            }
         }
 
         private static FailedResponseData HandleWebException(in WebException e)
