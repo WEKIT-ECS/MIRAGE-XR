@@ -12,7 +12,7 @@ namespace MirageXR
         [Header("Buttons")]
         [SerializeField] private Button _buttonSidebarCollapse;
         [SerializeField] private Button _buttonSidebarExpand;
-        [SerializeField] private Button _button1;
+        [SerializeField] private Button _buttonSettings;
         [SerializeField] private Button _buttonSorting;
         [SerializeField] private Button _buttonAddNewActivity;
         [Header("GameObjects")]
