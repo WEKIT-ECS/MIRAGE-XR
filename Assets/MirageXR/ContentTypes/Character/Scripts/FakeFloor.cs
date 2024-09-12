@@ -30,6 +30,11 @@ namespace MirageXR
 
         private void Update()
         {
+            if (RootObject.Instance == null)
+            {
+                return;
+            }
+            
             var position = transform.position;
             if (floorManager.isFloorDetected)
             {
