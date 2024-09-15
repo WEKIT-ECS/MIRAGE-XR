@@ -4,13 +4,13 @@ using System.Threading.Tasks;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
-using Action = MirageXR.Action;
+using Action = LearningExperienceEngine.Action;
 
 public class ImageEditor : MonoBehaviour
 {
-    private static AugmentationManager augmentationManager => RootObject.Instance.augmentationManager;
-    private static WorkplaceManager workplaceManager => RootObject.Instance.workplaceManager;
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static LearningExperienceEngine.AugmentationManager augmentationManager => LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager;
+    private static LearningExperienceEngine.WorkplaceManager workplaceManager => LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
 
     [SerializeField] private Button captureButton;
     [SerializeField] private Button acceptButton;
@@ -21,8 +21,8 @@ public class ImageEditor : MonoBehaviour
     [SerializeField] private Text label;
     [SerializeField] private Transform annotationStartingPoint;
 
-    private Action _action;
-    private ToggleObject _annotationToEdit;
+    private LearningExperienceEngine.Action _action;
+    private LearningExperienceEngine.ToggleObject _annotationToEdit;
     private Texture2D _capturedImage;
     private string _saveFileName;
 
@@ -46,7 +46,7 @@ public class ImageEditor : MonoBehaviour
         Destroy(gameObject);
     }
 
-    public void Open(Action action, ToggleObject annotation)
+    public void Open(LearningExperienceEngine.Action action, LearningExperienceEngine.ToggleObject annotation)
     {
         _capturedImage = null;
         if (IsThumbnail)
@@ -100,7 +100,7 @@ public class ImageEditor : MonoBehaviour
 
         if (_annotationToEdit != null)
         {
-            EventManager.DeactivateObject(_annotationToEdit);
+            LearningExperienceEngine.EventManager.DeactivateObject(_annotationToEdit);
 
             // delete the previous image file
             var imageName = _annotationToEdit.url;
@@ -132,8 +132,8 @@ public class ImageEditor : MonoBehaviour
             _annotationToEdit.url = httpPrefix + _saveFileName;
             _annotationToEdit.scale = 0.5f;
             _annotationToEdit.key = "L";
-            EventManager.ActivateObject(_annotationToEdit);
-            EventManager.NotifyActionModified(_action);
+            LearningExperienceEngine.EventManager.ActivateObject(_annotationToEdit);
+            LearningExperienceEngine.EventManager.NotifyActionModified(_action);
         }
 
         Close();

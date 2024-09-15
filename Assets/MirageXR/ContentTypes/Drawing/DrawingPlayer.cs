@@ -1,4 +1,5 @@
-﻿using i5.Toolkit.Core.VerboseLogging;
+﻿using LearningExperienceEngine;
+using i5.Toolkit.Core.VerboseLogging;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,8 +12,8 @@ namespace MirageXR
 
     public class DrawingPlayer : MirageXRPrefab
     {
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
-        private ToggleObject _obj;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        private LearningExperienceEngine.ToggleObject _obj;
 
         [SerializeField] private Tiltbrush tiltbrushPrefab;
         private Tiltbrush tiltInstance;
@@ -80,7 +81,7 @@ namespace MirageXR
         /// </summary>
         /// <param name="obj">Action toggle object.</param>
         /// <returns>Returns true if initialization succesfull.</returns>
-        public override bool Init(ToggleObject obj)
+        public override bool Init(LearningExperienceEngine.ToggleObject obj)
         {
             _obj = obj;
 

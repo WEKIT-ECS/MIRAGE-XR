@@ -15,12 +15,12 @@ namespace MirageXR
     /// </summary>
     public class HelpSelectionPopup : PopupBase
     {
-        private const string FILE_NAME_ACTIVITY_SELECTION = "activitySelectionHelp.json";
-        private const string FILE_NAME_ACTIVITY_STEPS = "activityStepsHelp.json";
-        private const string FILE_NAME_ACTIVITY_INFO = "activityInfoHelp.json";
-        private const string FILE_NAME_ACTIVITY_CALIBRATION = "activityCalibrationHelp.json";
-        private const string FILE_NAME_STEP_AUGMENTATIONS = "stepAugmentationsHelp.json";
-        private const string FILE_NAME_STEP_INFO = "stepInfoHelp.json";
+        private const string FILE_NAME_ACTIVITY_SELECTION = "activitySelectionHelp";
+        private const string FILE_NAME_ACTIVITY_STEPS = "activityStepsHelp";
+        private const string FILE_NAME_ACTIVITY_INFO = "activityInfoHelp";
+        private const string FILE_NAME_ACTIVITY_CALIBRATION = "activityCalibrationHelp";
+        private const string FILE_NAME_STEP_AUGMENTATIONS = "stepAugmentationsHelp";
+        private const string FILE_NAME_STEP_INFO = "stepInfoHelp";
 
         [SerializeField] private Button _selectionButton;
         [SerializeField] private Button _btnClose;
@@ -74,10 +74,9 @@ namespace MirageXR
 
                 try
                 {
-                    string path = Path.Combine(Application.dataPath, "MirageXR", "Resources", neededFile);
-                    string jsonString = File.ReadAllText(path);
+                    TextAsset jsonRaw = Resources.Load<TextAsset>(neededFile);
 
-                    helpSelectionList = JsonConvert.DeserializeObject<List<HelpSelectionModel>>(jsonString);
+                    helpSelectionList = JsonConvert.DeserializeObject<List<HelpSelectionModel>>(jsonRaw.text);
                     foreach (HelpSelectionModel model in helpSelectionList)
                     {
                         if (model.EditModeOnly && !editModeOn)
@@ -148,10 +147,10 @@ namespace MirageXR
         /// Shows the mini-tutorial.
         /// </summary>
         /// <param name="steps">The steps in the mini-tutorial.</param>
-        private void ShowShortMessageSequence(List<TutorialModelUI> steps)
+        private void ShowShortMessageSequence(List<TutorialStepModelUI> steps)
         {
             this.Close();
-            var queue = new Queue<TutorialModelUI>(steps);
+            var queue = new Queue<TutorialStepModelUI>(steps);
             TutorialManager.Instance.MobileTutorial.Show(queue);
         }
 

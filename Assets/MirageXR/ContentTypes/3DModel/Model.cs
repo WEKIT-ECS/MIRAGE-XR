@@ -1,3 +1,4 @@
+using LearningExperienceEngine;
 using System;
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
@@ -16,13 +17,13 @@ namespace MirageXR
         private const string GLTF_NAME = "scene.gltf";
         private const float LIBRARY_MODEL_SCALE = 2f;
 
-        private static ActivityManager _activityManager => RootObject.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager _activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
 
-        private ToggleObject _obj;
+        private LearningExperienceEngine.ToggleObject _obj;
         private Animation _animation;
         private GltfImport _gltf;
 
-        public ToggleObject MyToggleObject => _obj;
+        public LearningExperienceEngine.ToggleObject MyToggleObject => _obj;
 
         private List<Bounds> _colliders;
         private bool _isLibraryModel;
@@ -48,12 +49,12 @@ namespace MirageXR
 
         private void Subscribe()
         {
-            EventManager.OnAugmentationDeleted += DeleteModelData;
+            LearningExperienceEngine.EventManager.OnAugmentationDeleted += DeleteModelData;
         }
 
         private void UnSubscribe()
         {
-            EventManager.OnAugmentationDeleted -= DeleteModelData;
+            LearningExperienceEngine.EventManager.OnAugmentationDeleted -= DeleteModelData;
         }
 
         public bool LoadingCompleted
@@ -66,7 +67,7 @@ namespace MirageXR
         /// </summary>
         /// <param name="obj">Action toggle object.</param>
         /// <returns>Returns true if initialization successful.</returns>
-        public override bool Init(ToggleObject obj)
+        public override bool Init(LearningExperienceEngine.ToggleObject obj)
         {
             _obj = obj;
 
@@ -104,23 +105,23 @@ namespace MirageXR
             }
 
             OnLock(_obj.poi, _obj.positionLock);
-            EventManager.OnAugmentationLocked += OnLock;
+            LearningExperienceEngine.EventManager.OnAugmentationLocked += OnLock;
 
             return true;
         }
 
-        private async Task<bool> LoadGltf(ToggleObject content)
+        private async Task<bool> LoadGltf(LearningExperienceEngine.ToggleObject content)
         {
             content.option = ZipUtilities.CheckFileForIllegalCharacters(content.option);
-            var loadPath = Path.Combine(RootObject.Instance.activityManager.ActivityPath, content.option, GLTF_NAME);
+            var loadPath = Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActivityPath, content.option, GLTF_NAME);
 
-            ImportSettings _importSettings = new()
+            ImportSettings importSettings = new()
             {
                 AnimationMethod = AnimationMethod.Legacy
             };
 
             _gltf = new GltfImport();
-            var success = await _gltf.Load(new Uri(loadPath), _importSettings);
+            var success = await _gltf.Load(new Uri(loadPath), importSettings);
             var instantiator = new GameObjectInstantiator(_gltf, transform);
             if (success)
             {
@@ -277,6 +278,9 @@ namespace MirageXR
                     gridManager.onTranslateStopped?.Invoke(boundsControl.Target);
                     poiEditor.OnChanged();
                 });
+            } else
+            {
+                Debug.LogWarning("[Model] Could not find boundary box control of the model.");
             }
             /*
             */
@@ -409,12 +413,12 @@ namespace MirageXR
             modelToAdjust.transform.localPosition = Vector3.zero;
         }
 
-        private void DeleteModelData(ToggleObject augmentation)
+        private void DeleteModelData(LearningExperienceEngine.ToggleObject augmentation)
         {
             if (augmentation != _obj) return;
 
             // check for existing model folder and delete if necessary
-            var arlemPath = RootObject.Instance.activityManager.ActivityPath;
+            var arlemPath = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActivityPath;
             string folderName = augmentation.option;
             string modelFolderPath = Path.Combine(arlemPath, folderName);
 
@@ -465,7 +469,7 @@ namespace MirageXR
 
         private void OnDisable()
         {
-            EventManager.OnAugmentationLocked -= OnLock;
+            LearningExperienceEngine.EventManager.OnAugmentationLocked -= OnLock;
         }
 
         public override void Delete()

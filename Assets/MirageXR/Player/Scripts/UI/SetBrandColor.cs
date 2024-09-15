@@ -8,7 +8,7 @@ namespace MirageXR
 {
     public class SetBrandColor : MonoBehaviour
     {
-        private static BrandManager brandManager => RootObject.Instance.brandManager;
+        private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
 
         public enum ColorType
         {

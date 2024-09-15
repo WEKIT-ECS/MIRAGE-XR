@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using MirageXR.AIManagerDataModel;
 using UnityEngine;
+using LearningExperienceEngine;
 
 namespace MirageXR
 {
@@ -49,16 +50,37 @@ namespace MirageXR
         /// <returns>A Task representing the asynchronous operation.</returns>
         public async Task InitializeAsync()
         {
-            try
+            await ReadConfig();
+            AuthManager.OnLoginCompleted += OnOidcLoginCompleted;
+            AuthManager.OnLogoutCompleted += OnOidcLogoutCompleted;
+        }
+
+        public void onDestroy()
+        {
+            AuthManager.OnLoginCompleted -= OnOidcLoginCompleted;
+            AuthManager.OnLogoutCompleted -= OnOidcLogoutCompleted;
+        }
+
+        public async void OnOidcLoginCompleted(string accessToken)
+        {
+            if (!string.IsNullOrEmpty(accessToken))
             {
-                await ReadConfig();
+                Debug.LogInfo("AImanager: auth with token : " + accessToken + " to url " + _url);
+                _token = accessToken;
+                SetModels(await AiServices.GetAvailableModelsAsync(_url, _token));
+            }
+            else
+            {
+                Debug.LogWarning("AImanager: using direct auth as fallback after failed OIDC");
                 _token = await AiServices.AuthenticateUserAsync(_url, _username, _password);
                 SetModels(await AiServices.GetAvailableModelsAsync(_url, _token));
             }
-            catch (Exception e)
-            {
-                AppLog.LogWarning(e.ToString());
-            }
+        }
+
+        public async void OnOidcLogoutCompleted()
+        {
+            Debug.LogInfo("AImanager: OIDC logout received");
+            _token = null;
         }
 
         /// <summary>
@@ -106,15 +128,15 @@ namespace MirageXR
         /// <param name="model">The AIModel to be added.</param>
         private void AddModelBasedOnEndpointName(AIModel model)
         {
-            if (model.EndpointName == "listen/")
+            if (model.EndpointName == "stt/")
             {
                 _sttModels.Add(model);
             }
-            else if (model.EndpointName == "speak/")
+            else if (model.EndpointName == "tts/")
             {
                 _ttsModels.Add(model);
             }
-            else if (model.EndpointName == "think/")
+            else if (model.EndpointName == "llm/")
             {
                 _llmModels.Add(model);
             }

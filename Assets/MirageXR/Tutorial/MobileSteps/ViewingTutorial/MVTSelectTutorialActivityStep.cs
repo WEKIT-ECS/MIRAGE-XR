@@ -19,13 +19,13 @@ namespace MirageXR
             titem.SetInteractableObject(tutorialActivityCard.gameObject);
             titem.SetDelay(1);
 
-            var queue = new Queue<TutorialModelUI>();
-            queue.Enqueue(new TutorialModelUI { Id = "tutorial_activity", Message = "Welcome to the MirageXR Viewing TutorialUI! To start, click on the specially prepared TutorialUI Activity highlighted on your screen.", Position = TutorialModelUI.MessagePosition.Bottom });
-            queue.Enqueue(new TutorialModelUI { Id = "dialog_middle_multiline_1", Message = "An activity can be opened in two modes: editing (to make changes to the app) and viewing (read-only). For this tutorial, click Open to View.", Position = TutorialModelUI.MessagePosition.Bottom });
+            var queue = new Queue<TutorialStepModelUI>();
+            queue.Enqueue(new TutorialStepModelUI { Id = "tutorial_activity", Message = "Welcome to the MirageXR Viewing TutorialHandlerUI! To start, click on the specially prepared TutorialHandlerUI Activity highlighted on your screen.", Position = TutorialStepModelUI.MessagePosition.Bottom });
+            queue.Enqueue(new TutorialStepModelUI { Id = "dialog_middle_multiline_1", Message = "An activity can be opened in two modes: editing (to make changes to the app) and viewing (read-only). For this tutorial, click Open to View.", Position = TutorialStepModelUI.MessagePosition.Bottom });
             this.manager.MobileTutorial.Show(queue);
 
             // Next Step triggered by first step being activated
-            EventManager.OnActivateAction += NextStepByLabelTriggerListener;
+            LearningExperienceEngine.EventManager.OnActivateAction += NextStepByLabelTriggerListener;
         }
 
         private void NextStepByLabelTriggerListener(string action)
@@ -35,14 +35,14 @@ namespace MirageXR
 
         protected override void SecuredExitStep()
         {
-            EventManager.OnActivateAction -= NextStepByLabelTriggerListener;
+            LearningExperienceEngine.EventManager.OnActivateAction -= NextStepByLabelTriggerListener;
             this.manager.NextStep();
         }
 
         protected override void SecuredCloseStep()
         {
             this.manager.MobileTutorial.Hide();
-            EventManager.OnActivateAction -= NextStepByLabelTriggerListener;
+            LearningExperienceEngine.EventManager.OnActivateAction -= NextStepByLabelTriggerListener;
         }
     }
 }
