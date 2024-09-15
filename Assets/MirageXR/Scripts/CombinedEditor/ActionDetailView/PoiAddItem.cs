@@ -1,4 +1,5 @@
-﻿using MirageXR;
+﻿using LearningExperienceEngine;
+using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,15 +11,15 @@ public class PoiAddItem : MonoBehaviour
     private int _index;
     private ContentType _type;
 
-    public delegate void PoiAddItemClickedDeletage(ContentType type);
+    public delegate void PoiAddItemClickedDeletage(LearningExperienceEngine.ContentType type);
 
     public event PoiAddItemClickedDeletage OnPoiAddItemClicked;
 
-    public delegate void PoiHoverEffectDeletage(ContentType type, int index);
+    public delegate void PoiHoverEffectDeletage(LearningExperienceEngine.ContentType type, int index);
 
     public event PoiHoverEffectDeletage OnPoiHover;
 
-    public void Initialize(ContentType type, int index, string text, Sprite ico)
+    public void Initialize(LearningExperienceEngine.ContentType type, int index, string text, Sprite ico)
     {
         _type = type;
         _index = index;

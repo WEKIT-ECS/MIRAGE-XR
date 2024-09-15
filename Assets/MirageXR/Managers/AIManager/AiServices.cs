@@ -47,19 +47,19 @@ namespace MirageXR
                 throw new ArgumentException("token is null");
             }
 
-            var apiURL = $"{url}/listen/";
-            var bytes = SaveLoadAudioUtilities.AudioClipToByteArray(audioClip);
+            var apiURL = $"{url}/stt/";
+            var bytes = LearningExperienceEngine.SaveLoadAudioUtilities.AudioClipToByteArray(audioClip);
             var fromData = new WWWForm();
             fromData.AddField("model", model);
-            fromData.AddBinaryData("message", bytes);
+            fromData.AddBinaryData("message", bytes, "audio.wav", "audio/wav");
 
             using var webRequest = UnityWebRequest.Post(apiURL, fromData);
-            webRequest.SetRequestHeader("Authorization", $"Token {token}");
+            webRequest.SetRequestHeader("Authorization", $"{token}");
             await webRequest.SendWebRequest();
             if (webRequest.result != UnityWebRequest.Result.Success)
             {
                 throw new HttpRequestException(
-                    $"Error while receiving the result of the Listen endpoint: {webRequest.error}");
+                    $"Error while receiving the result of the SST endpoint: {webRequest.error}");
             }
 
             return webRequest.downloadHandler.text;
@@ -97,7 +97,7 @@ namespace MirageXR
                 throw new ArgumentException("token is null");
             }
 
-            var apiURL = $"{url}/think/";
+            var apiURL = $"{url}/llm/";
             var fromData = new List<IMultipartFormSection>
             {
                 new MultipartFormDataSection("model", model),
@@ -105,13 +105,13 @@ namespace MirageXR
                 new MultipartFormDataSection("context", context),
             };
             using var webRequest = UnityWebRequest.Post(apiURL, fromData);
-            webRequest.SetRequestHeader("Authorization", $"Token {token}");
+            webRequest.SetRequestHeader("Authorization", $"{token}");
             await webRequest.SendWebRequest();
 
             if (webRequest.result != UnityWebRequest.Result.Success)
             {
                 throw new HttpRequestException(
-                    $"Error while receiving the result of the Think endpoint: {webRequest.error}");
+                    $"Error while receiving the result of the LLM endpoint: {webRequest.error}");
             }
 
             return webRequest.downloadHandler.text;
@@ -132,7 +132,7 @@ namespace MirageXR
 
             var apiURL = $"{url}/options/";
             var request = UnityWebRequest.Get(apiURL);
-            request.SetRequestHeader("Authorization", $"Token {token}");
+            request.SetRequestHeader("Authorization", $"{token}");
             await request.SendWebRequest();
             if (request.result != UnityWebRequest.Result.Success)
             {
@@ -165,7 +165,7 @@ namespace MirageXR
         {
             if (string.IsNullOrEmpty(message))
             {
-                throw new ArgumentException("speakOut is null");
+                throw new ArgumentException("message is null");
             }
 
             if (string.IsNullOrEmpty(model))
@@ -186,15 +186,15 @@ namespace MirageXR
             byte[] messageBytes = Encoding.UTF8.GetBytes(message);
             string base64Message = Convert.ToBase64String(messageBytes);
 
-            var apiURL = $"{url}/speak/";
+            var apiURL = $"{url}/tts/";
             using var webRequest = UnityWebRequestMultimedia.GetAudioClip(apiURL, AudioType.MPEG);
-            webRequest.SetRequestHeader("Authorization", $"Token {token}");
+            webRequest.SetRequestHeader("Authorization", $"{token}");
             webRequest.SetRequestHeader("message", base64Message);
             webRequest.SetRequestHeader("model", model);
             await webRequest.SendWebRequest();
             if (webRequest.result != UnityWebRequest.Result.Success)
             {
-                throw new HttpRequestException($"Error while receiving the result of the Speak endpoint: {webRequest.error} {webRequest.result}");
+                throw new HttpRequestException($"Error while receiving the result of the TTS endpoint: {webRequest.error} {webRequest.result}");
             }
 
             var audioClip = DownloadHandlerAudioClip.GetContent(webRequest);
@@ -216,7 +216,7 @@ namespace MirageXR
                 new MultipartFormDataSection("password", password),
             };
 
-            var request = UnityWebRequest.Post($"{apiURL}/authentication/", formData);
+            var request = UnityWebRequest.Post($"{apiURL}/authentication/", formData); // todo change out with sso. 
             await request.SendWebRequest();
             if (request.result != UnityWebRequest.Result.Success)
             {

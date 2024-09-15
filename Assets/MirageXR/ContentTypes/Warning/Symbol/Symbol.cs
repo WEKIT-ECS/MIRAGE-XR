@@ -14,7 +14,7 @@ namespace MirageXR
         /// </summary>
         /// <param name="obj">Action toggle object.</param>
         /// <returns>Returns true if initialization succesfull.</returns>
-        public override bool Init(ToggleObject obj)
+        public override bool Init(LearningExperienceEngine.ToggleObject obj)
         {
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))
@@ -28,11 +28,11 @@ namespace MirageXR
 
             // Set scale, if defined in the action step configuration.
             if (!obj.scale.Equals(0))
-                transform.localScale = new Vector3(obj.scale, obj.scale, obj.scale) * WorkplaceManager.ScalingFactor;
+                transform.localScale = new Vector3(obj.scale, obj.scale, obj.scale) * LearningExperienceEngine.WorkplaceManager.ScalingFactor;
 
             // If scaling is not set, default to 5 cm symbols.
             else
-                transform.localScale = new Vector3(0.05f, 0.05f, 0.05f) * WorkplaceManager.ScalingFactor;
+                transform.localScale = new Vector3(0.05f, 0.05f, 0.05f) * LearningExperienceEngine.WorkplaceManager.ScalingFactor;
 
             // Try to fetch the symbol sprite from the resources.
             var symbol = Resources.Load<Sprite>(obj.predicate);

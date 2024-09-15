@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class VfxEditorView : PopupEditorBase
 {
-    public override ContentType editorForType => ContentType.EFFECTS;
+    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.EFFECTS;
     
     [SerializeField] private Transform _contentContainer;
     [SerializeField] private VfxListItem _vfxListItemPrefab;
@@ -43,7 +43,7 @@ public class VfxEditorView : PopupEditorBase
     {
         if (_content != null)
         {
-            EventManager.DeactivateObject(_content);
+            LearningExperienceEngine.EventManager.DeactivateObject(_content);
         }
         else
         {
@@ -51,7 +51,7 @@ public class VfxEditorView : PopupEditorBase
         }
 
         _content.predicate = $"effect:{_prefabName}";
-        EventManager.ActivateObject(_content);
+        LearningExperienceEngine.EventManager.ActivateObject(_content);
 
         base.OnAccept();
 

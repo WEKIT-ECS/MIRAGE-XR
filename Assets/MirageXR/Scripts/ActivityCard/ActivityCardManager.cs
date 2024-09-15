@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using i5.Toolkit.Core.VerboseLogging;
+using LearningExperienceEngine;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,21 +21,21 @@ namespace MirageXR
         [SerializeField] private Text TasklistTitle;
         [SerializeField] private RectTransform Tasklist;
         [SerializeField] private List<GameObject> _tasklistObjects = new List<GameObject>();
-        [SerializeField] private List<Action> OriginalActions = new List<Action>();
-        [SerializeField] private List<Action> Actions = new List<Action>();
+        [SerializeField] private List<LearningExperienceEngine.Action> OriginalActions = new List<LearningExperienceEngine.Action>();
+        [SerializeField] private List<LearningExperienceEngine.Action> Actions = new List<LearningExperienceEngine.Action>();
         [SerializeField] private GameObject FinishFlag;
         [SerializeField] private GameObject ReplayButton;
 
         private void OnEnable()
         {
-            EventManager.OnClearAll += Reset;
-            EventManager.OnInitUi += Init;
+            LearningExperienceEngine.EventManager.OnClearAll += Reset;
+            LearningExperienceEngine.EventManager.OnInitUi += Init;
         }
 
         private void OnDisable()
         {
-            EventManager.OnClearAll -= Reset;
-            EventManager.OnInitUi -= Init;
+            LearningExperienceEngine.EventManager.OnClearAll -= Reset;
+            LearningExperienceEngine.EventManager.OnInitUi -= Init;
         }
 
         private void Reset()
@@ -100,6 +102,7 @@ namespace MirageXR
                 taskListRectTransform.localEulerAngles = Vector3.zero;
                 taskListRectTransform.localScale = Vector3.one;
                 taskListObject.name = $"Step-{action.id}";
+                Debug.LogInfo("[ActivityCardManager] Task station instantiated with name = " + taskListObject.name);
 
                 taskListObject.GetComponent<TaskStep>().SetupStep(action);
                 taskListObject.GetComponent<TaskStep>().IsActive = false;
@@ -127,7 +130,7 @@ namespace MirageXR
         {
             var actionObject = ActiveCard.GetComponent<ActivityCard>().ActionObject;
             actionObject.isCompleted = true;
-            await RootObject.Instance.activityManager.DeactivateAction(actionObject.id);
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.DeactivateAction(actionObject.id);
         }
 
         /// <summary>
@@ -135,7 +138,7 @@ namespace MirageXR
         /// </summary>
         public void Previous()
         {
-            RootObject.Instance.activityManager.ActivatePreviousAction();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActivatePreviousAction();
         }
 
         private void ShowCards()
@@ -168,7 +171,7 @@ namespace MirageXR
 
         public void ShowCardsTouch()
         {
-            EventManager.Click();
+            LearningExperienceEngine.EventManager.Click();
             ShowCards();
         }
     }
