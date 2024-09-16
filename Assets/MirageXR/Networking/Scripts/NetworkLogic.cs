@@ -1,3 +1,4 @@
+#if PHOTON_FUSION
 using Fusion;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,3 +19,4 @@ namespace MirageXR
 		}
 	}
 }
+#endif
