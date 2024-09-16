@@ -110,6 +110,7 @@ namespace MirageXR
             {
                 _resetPosition = transform.localPosition;
                 _resetRotation = transform.localRotation;
+                TutorialManager.Instance.InvokeEvent(TutorialManager.TutorialEvent.PICK_POSITION_CHANGED);
                 return;
             }
 

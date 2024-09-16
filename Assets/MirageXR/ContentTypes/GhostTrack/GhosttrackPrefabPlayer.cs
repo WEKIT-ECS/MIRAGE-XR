@@ -65,6 +65,8 @@ namespace MirageXR
             _ghost.gameObject.SetActive(true);
             _ghost.Play(_recordedGhostData, _anchor, _loop);
             _replayButton.gameObject.SetActive(false);
+
+            TutorialManager.Instance.InvokeEvent(TutorialManager.TutorialEvent.GHOST_REPLAYED);
         }
 
         private static string GetFullFilePathFromUrl(string url)
