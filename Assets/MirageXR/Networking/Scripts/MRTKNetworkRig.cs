@@ -1,3 +1,4 @@
+#if PHOTON_FUSION
 using Fusion;
 using Microsoft.MixedReality.Toolkit.Input;
 using System.Collections;
@@ -90,3 +91,4 @@ namespace MirageXR
 		}
 	}
 }
+#endif
