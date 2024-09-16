@@ -186,12 +186,12 @@ namespace MirageXR
             {
                 throw new Exception("can't read url");
             }
-
+            
             if (string.IsNullOrEmpty(username))
             {
                 throw new Exception("can't read username");
             }
-
+            
             if (string.IsNullOrEmpty(password))
             {
                 throw new Exception("can't read password");
