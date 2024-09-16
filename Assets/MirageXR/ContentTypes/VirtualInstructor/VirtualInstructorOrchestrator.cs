@@ -17,6 +17,10 @@ namespace MirageXR
         private List<VirtualInstructor> _instructors = new();
 
         private VirtualInstructor _modertator;
+        
+        private string MessageQueue; 
+        
+        
 
         /// <summary>
         /// Adds a virtual instructor to the list of instructors in the VirtualInstructorManager.
@@ -177,6 +181,15 @@ namespace MirageXR
             if (Camera.main != null) return true;
             UnityEngine.Debug.LogError("Main Camera is null");
             return false;
+        }
+        
+        /// <summary>
+        /// Adds a message to the next message to be sent by the virtual instructor.
+        /// </summary>
+        /// <param name="message">The message to add.</param>
+        public void AddToNextMessage(string message)
+        {
+            MessageQueue += " " + message + " "; 
         }
     }
 }

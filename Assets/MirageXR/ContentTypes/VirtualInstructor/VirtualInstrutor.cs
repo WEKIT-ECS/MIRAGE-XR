@@ -16,7 +16,7 @@ namespace MirageXR
         /// </summary>
         private static readonly string HistoryFormat = "This is the History of the conversation so fare: Question :{0} Given answer: {1}";
 
-        private string MessageQueue; 
+        
 
         /// Represents the data model for a virtual instructor in the MirageXR application.
         /// </summary>
@@ -121,14 +121,7 @@ namespace MirageXR
             return clip;
         }
 
-        /// <summary>
-        /// Adds a message to the next message to be sent by the virtual instructor.
-        /// </summary>
-        /// <param name="message">The message to add.</param>
-        public void AddToNextMessage(string message)
-        {
-            MessageQueue += " " + message + " "; 
-        }
+        
 
         /// <summary>
         /// Sends a message to the virtual instructor and returns the corresponding speech audio clip.
@@ -193,7 +186,7 @@ namespace MirageXR
             RootObject.Instance.virtualInstructorOrchestrator.RemoveInstructor(this);
         }
 
-        public async Task<AudioClip> AskVirtualInstructorString(string question)
+        public async Task<AudioClip> AskVirtualInstructorString(string question, string )
         {
             string context = CreateContext();
             var response = await RootObject.Instance.aiManager.SendMessageToAssistantAsync(InstructorData.LanguageModel.ApiName, question, context);
