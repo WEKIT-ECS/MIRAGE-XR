@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.MixedReality.Toolkit;
 using UnityEngine;
 
 namespace MirageXR
@@ -14,35 +13,36 @@ namespace MirageXR
         /// <summary>
         /// Represents a list of all virtual instructors.
         /// </summary>
-        private List<VirtualInstructor> _instructors = new();
+        private readonly List<VirtualInstructor> _instructors = new();
 
-        private VirtualInstructor _modertator;
+        private VirtualInstructor _moderator;
         
-        private string MessageQueue; 
+        private string _messageQueue; 
         
         
-
         /// <summary>
         /// Adds a virtual instructor to the list of instructors in the VirtualInstructorManager.
         /// </summary>
+        /// <param name="instructor">The VirtualInstructor</param>
         public void AddInstructor(VirtualInstructor instructor)
         {
             _instructors.Add(instructor);
-            if(instructor.moderatorStatus())
+            if(instructor.ModeratorStatus())
             {
-                _modertator = instructor;
+                _moderator = instructor;
             }
         }
 
         /// <summary>
         /// Removes the specified virtual instructor from the instructor list.
         /// </summary>
+        /// <param name="instructor">The VirtualInstructor</param>
         public void RemoveInstructor(VirtualInstructor instructor)
         {
             if (_instructors.Contains(instructor)) _instructors.Remove(instructor);
-            if (instructor.moderatorStatus())
+            if (instructor.ModeratorStatus())
             {
-                _modertator = null;
+                _moderator = null;
             }
         }
 
@@ -62,32 +62,32 @@ namespace MirageXR
         /// <returns>A task representing the asynchronous operation. The task result is the audio clip response from the virtual instructor.</returns>
         public async Task<AudioClip> AskInstructorWithAudioQuestion(AudioClip question)
         {
-            try
-            {
                 var instructor = DetermineVirtualInstructor();
-                return await instructor.AskVirtualInstructorAudio(question);
-            }
-            catch
-            {
-                return await _modertator.AskVirtualInstructorAudio(question);
-            }
-            
+                return await instructor.AskVirtualInstructorAudio(question, _messageQueue);
         }
 
+        
+        /// <summary>
+        /// Asynchronously sends a string question to a virtual instructor and returns the response as an <see cref="AudioClip"/>.
+        /// </summary>
+        /// <param name="question">The question to be asked, provided as a string.</param>
+        /// <returns>
+        /// A <see cref="Task{AudioClip}"/> that contains the responses of the LLM as an <see cref="AudioClip"/>.
+        /// </returns>
         public async Task<AudioClip> AskInstructorWithStringQuestion(string question)
         {
-            try
-            {
                 VirtualInstructor instructor = DetermineVirtualInstructor();
-                return await instructor.AskVirtualInstructorString(question);
-            }
-            catch
-            {
-                return await _modertator.AskVirtualInstructorString(question);
-            }
-            
+                return await instructor.AskVirtualInstructorString(question, _messageQueue);
         }
 
+        /// <summary>
+        /// Asynchronously converts a text message to speech using a virtual instructor, and returns the response as an <see cref="AudioClip"/>.
+        /// If the instructor fails, it falls back to using the default VI for text-to-speech conversion.
+        /// </summary>
+        /// <param name="message">The message to be converted to speech.</param>
+        /// <returns>
+        /// A <see cref="Task{AudioClip}"/> that contains the responses of the LLM as an <see cref="AudioClip"/>.
+        /// </returns>
         public async Task<AudioClip> ConvertTextToSpeechWithInstructor(string message)
         {
             try
@@ -97,25 +97,19 @@ namespace MirageXR
             }
             catch
             {
-                return await _modertator.ConvertTextToSpeech(message);
+                return await _moderator.ConvertTextToSpeech(message);
             }
         }
 
 
 
-        public void AddToQueueOfClosestInstructor(string message)
+        /// <summary>
+        /// Adds a message to the next message to be sent by the virtual instructor.
+        /// </summary>
+        /// <param name="message">The message to add.</param>
+        public void AddToNextMessage(string message)
         {
-            try
-            {
-                VirtualInstructor instructor = DetermineVirtualInstructor();
-                instructor.AddToNextMessage(message);
-
-            }
-            catch (Exception e)
-            {
-                _modertator.AddToNextMessage(message);
-            }
-
+            _messageQueue += " " + message + " "; 
         }
 
         private VirtualInstructor DetermineVirtualInstructor()
@@ -135,28 +129,37 @@ namespace MirageXR
                     float distance = float.MaxValue;
                     foreach (var instructor in _instructors)
                     {
-                        if (instructor == null || instructor.gameObject == null)
+                        if (!instructor || !instructor.gameObject)
                         {
                             UnityEngine.Debug.LogError("Instructor or Instructor GameObject is null");
                             continue;
                         }
 
-                        Vector3 viewportPos =
-                            Camera.main.WorldToViewportPoint(instructor.gameObject.transform.position);
-                        bool isVisible = viewportPos.x >= 0 && viewportPos.x <= 1 &&
-                                         viewportPos.y >= 0 && viewportPos.y <= 1 &&
-                                         viewportPos.z > 0;
-                        if (isVisible) // what if we want to send a message to a VI, than it is not necessary true! Edge caes!
-                        {
-                            if (Vector3.Distance(Camera.main.transform.position,
-                                    instructor.gameObject.transform.position) >
-                                distance)
+                        try
+                        { Vector3 viewportPos =
+                                Camera.main.WorldToViewportPoint(instructor.gameObject.transform.position);
+                        
+                            bool isVisible = viewportPos.x is >= 0 and <= 1 &&
+                                             viewportPos.y is >= 0 and <= 1 &&
+                                             viewportPos.z > 0;
+                            if (isVisible)
                             {
-                                distance = Vector3.Distance(Camera.main.transform.position,
-                                    instructor.gameObject.transform.position);
-                                winner = instructor;
-                            }
+                                if (Vector3.Distance(Camera.main.transform.position,
+                                        instructor.gameObject.transform.position) >
+                                    distance)
+                                {
+                                    distance = Vector3.Distance(Camera.main.transform.position,
+                                        instructor.gameObject.transform.position);
+                                    winner = instructor;
+                                }
+                            }   
                         }
+                        catch (Exception e)
+                        {
+                            UnityEngine.Debug.LogError("Main camara is missing! See: " + e);
+                        }
+
+                        
                     }
 
                     return winner;
@@ -181,15 +184,6 @@ namespace MirageXR
             if (Camera.main != null) return true;
             UnityEngine.Debug.LogError("Main Camera is null");
             return false;
-        }
-        
-        /// <summary>
-        /// Adds a message to the next message to be sent by the virtual instructor.
-        /// </summary>
-        /// <param name="message">The message to add.</param>
-        public void AddToNextMessage(string message)
-        {
-            MessageQueue += " " + message + " "; 
         }
     }
 }
