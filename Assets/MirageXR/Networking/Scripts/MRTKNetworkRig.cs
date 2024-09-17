@@ -1,8 +1,5 @@
-#if PHOTON_FUSION
+#if FUSION2
 using Fusion;
-using Microsoft.MixedReality.Toolkit.Input;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace MirageXR
