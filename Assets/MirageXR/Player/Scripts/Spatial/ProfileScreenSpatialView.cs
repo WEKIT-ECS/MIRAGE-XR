@@ -2,12 +2,11 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using Utility.UiKit.Runtime.MVC;
 using Utility.UiKit.Runtime.Extensions;
 
 namespace MirageXR
 {
-    public class ProfileScreenSpatialView : View
+    public class ProfileScreenSpatialView : ScreenView
     {
         [Header("Buttons")]
         [SerializeField] private Button _buttonLogin;
