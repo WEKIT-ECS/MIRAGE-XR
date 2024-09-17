@@ -147,6 +147,11 @@ PlayerSettings:
   bundleVersion: 2.7.160
   preloadedAssets:
   - {fileID: 0}
+  - {fileID: 11400000, guid: 5af8949b7209364499abc8979cef0d21, type: 2}
+  - {fileID: 11400000, guid: 3095296820e10453598dd3c92578905d, type: 2}
+  - {fileID: -3855659099270505829, guid: b3a3cc9ae17858f4a9346913737e2188, type: 2}
+  - {fileID: 84503133486543891, guid: c24e8192fb4aadc4bbfb2072bb2399b0, type: 2}
+  - {fileID: 11400000, guid: fc2467fd49d40c943acdcb45cdc19bf4, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -169,6 +174,7 @@ PlayerSettings:
   applicationIdentifier:
     Android: com.WEKIT.MirageXR
     Standalone: com.WEKIT.MirageXR
+    VisionOS: com.wekit-ecs.miragexr
     iPhone: com.wekit-ecs.miragexr
   buildNumber:
     Standalone: 0
@@ -197,7 +203,7 @@ PlayerSettings:
   tvOSSdkVersion: 0
   tvOSRequireExtendedGameController: 0
   tvOSTargetOSVersionString: 12.0
-  VisionOSSdkVersion: 1
+  VisionOSSdkVersion: 0
   VisionOSTargetOSVersionString: 1.0
   uIPrerenderedIcon: 0
   uIRequiresPersistentWiFi: 0
@@ -1047,6 +1053,6 @@ PlayerSettings:
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}
-  platformRequiresReadableAssets: 0
+  platformRequiresReadableAssets: 1
   virtualTexturingSupportEnabled: 0
   insecureHttpOption: 2
