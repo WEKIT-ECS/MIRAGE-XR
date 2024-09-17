@@ -13,26 +13,34 @@ MonoBehaviour:
   m_Name: MixedRealityToolkitConfigurationProfile
   m_EditorClassIdentifier: 
   isCustomProfile: 1
+  experienceSettingsProfile: {fileID: 11400000, guid: 1ccbb3b1d759d6a49b4161a958329d9d,
+    type: 2}
   targetExperienceScale: 3
-  enableCameraSystem: 0
-  cameraProfile: {fileID: 0}
+  enableCameraSystem: 1
+  cameraProfile: {fileID: 11400000, guid: 6d8face473a227c43b8c2b4bba9c9204, type: 2}
   cameraSystemType:
-    reference: 
+    reference: Microsoft.MixedReality.Toolkit.CameraSystem.MixedRealityCameraSystem,
+      Microsoft.MixedReality.Toolkit.Services.CameraSystem
   enableInputSystem: 1
   inputSystemProfile: {fileID: 11400000, guid: eb6ae4b2b1b1db64dbed9bbe6b5abfc1, type: 2}
   inputSystemType:
     reference: Microsoft.MixedReality.Toolkit.Input.MixedRealityInputSystem, Microsoft.MixedReality.Toolkit.Services.InputSystem
-  enableBoundarySystem: 0
+  enableBoundarySystem: 1
   boundarySystemType:
     reference: 
-  boundaryVisualizationProfile: {fileID: 0}
+  xrsdkBoundarySystemType:
+    reference: Microsoft.MixedReality.Toolkit.XRSDK.XRSDKBoundarySystem, Microsoft.MixedReality.Toolkit.Providers.XRSDK
+  boundaryVisualizationProfile: {fileID: 11400000, guid: 6d28cce596b44bd3897ca86f8b24e076,
+    type: 2}
   enableTeleportSystem: 0
   teleportSystemType:
     reference: 
-  enableSpatialAwarenessSystem: 0
+  enableSpatialAwarenessSystem: 1
   spatialAwarenessSystemType:
-    reference: 
-  spatialAwarenessSystemProfile: {fileID: 0}
+    reference: Microsoft.MixedReality.Toolkit.SpatialAwareness.MixedRealitySpatialAwarenessSystem,
+      Microsoft.MixedReality.Toolkit.Services.SpatialAwarenessSystem
+  spatialAwarenessSystemProfile: {fileID: 11400000, guid: 51bf823881fec440aadb6e268dc7fcac,
+    type: 2}
   diagnosticsSystemProfile: {fileID: 0}
   enableDiagnosticsSystem: 0
   diagnosticsSystemType:
@@ -43,4 +51,5 @@ MonoBehaviour:
     reference: 
   registeredServiceProvidersProfile: {fileID: 0}
   useServiceInspectors: 0
-  renderDepthBuffer: 0
+  renderDepthBuffer: 1
+  enableVerboseLogging: 0
