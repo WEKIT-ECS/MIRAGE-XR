@@ -7,7 +7,7 @@ using Utility.UiKit.Runtime.Extensions;
 
 namespace MirageXR
 {
-    public class MainScreenSpatialView : View
+    public class MainScreenSpatialView : ScreenView
     {
         [Header("Buttons")]
         [SerializeField] private Button _buttonSidebarCollapse;
