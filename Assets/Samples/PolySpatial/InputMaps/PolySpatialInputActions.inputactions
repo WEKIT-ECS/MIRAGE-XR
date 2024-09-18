@@ -56,6 +56,28 @@
                 },
                 {
                     "name": "",
+                    "id": "662f407b-9b9f-4544-8200-6179984169ad",
+                    "path": "<OpenXRHandTracking>{RightHand}/trackingState",
+                    "interactions": "Press(behavior=2),Tap",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PrimaryTouch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "067e925b-b5a4-4b2a-9627-3c9157459842",
+                    "path": "<OpenXRHandTracking>/trackingState",
+                    "interactions": "Press(behavior=2)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PrimaryTouch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "46e2aa62-d6a8-4c60-85ec-aab4c1b87c94",
                     "path": "<SpatialPointerDevice>/primarySpatialPointer/phase",
                     "interactions": "",
@@ -110,6 +132,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Click",
+                    "type": "Button",
+                    "id": "00932a8c-cd37-4f33-abb1-2d4afb22dcda",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -132,6 +163,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "DeviceRotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "dd0e4433-350e-476d-9a66-1b349bc0207f",
+                    "path": "<OpenXRHandTracking>/{PrimaryTrigger}",
+                    "interactions": "Press",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Click",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

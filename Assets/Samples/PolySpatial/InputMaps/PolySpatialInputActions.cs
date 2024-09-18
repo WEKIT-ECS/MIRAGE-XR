@@ -79,6 +79,28 @@ public partial class @PolySpatialInputActions: IInputActionCollection2, IDisposa
                 },
                 {
                     ""name"": """",
+                    ""id"": ""662f407b-9b9f-4544-8200-6179984169ad"",
+                    ""path"": ""<OpenXRHandTracking>{RightHand}/trackingState"",
+                    ""interactions"": ""Press(behavior=2),Tap"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PrimaryTouch"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""067e925b-b5a4-4b2a-9627-3c9157459842"",
+                    ""path"": ""<OpenXRHandTracking>/trackingState"",
+                    ""interactions"": ""Press(behavior=2)"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PrimaryTouch"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""46e2aa62-d6a8-4c60-85ec-aab4c1b87c94"",
                     ""path"": ""<SpatialPointerDevice>/primarySpatialPointer/phase"",
                     ""interactions"": """",
@@ -133,6 +155,15 @@ public partial class @PolySpatialInputActions: IInputActionCollection2, IDisposa
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Click"",
+                    ""type"": ""Button"",
+                    ""id"": ""00932a8c-cd37-4f33-abb1-2d4afb22dcda"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -157,6 +188,17 @@ public partial class @PolySpatialInputActions: IInputActionCollection2, IDisposa
                     ""action"": ""DeviceRotation"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""dd0e4433-350e-476d-9a66-1b349bc0207f"",
+                    ""path"": ""<OpenXRHandTracking>/{PrimaryTrigger}"",
+                    ""interactions"": ""Press"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Click"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -173,6 +215,7 @@ public partial class @PolySpatialInputActions: IInputActionCollection2, IDisposa
         m_XRHMD = asset.FindActionMap("XRHMD", throwIfNotFound: true);
         m_XRHMD_DevicePosition = m_XRHMD.FindAction("DevicePosition", throwIfNotFound: true);
         m_XRHMD_DeviceRotation = m_XRHMD.FindAction("DeviceRotation", throwIfNotFound: true);
+        m_XRHMD_Click = m_XRHMD.FindAction("Click", throwIfNotFound: true);
     }
 
     ~@PolySpatialInputActions()
@@ -312,12 +355,14 @@ public partial class @PolySpatialInputActions: IInputActionCollection2, IDisposa
     private List<IXRHMDActions> m_XRHMDActionsCallbackInterfaces = new List<IXRHMDActions>();
     private readonly InputAction m_XRHMD_DevicePosition;
     private readonly InputAction m_XRHMD_DeviceRotation;
+    private readonly InputAction m_XRHMD_Click;
     public struct XRHMDActions
     {
         private @PolySpatialInputActions m_Wrapper;
         public XRHMDActions(@PolySpatialInputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @DevicePosition => m_Wrapper.m_XRHMD_DevicePosition;
         public InputAction @DeviceRotation => m_Wrapper.m_XRHMD_DeviceRotation;
+        public InputAction @Click => m_Wrapper.m_XRHMD_Click;
         public InputActionMap Get() { return m_Wrapper.m_XRHMD; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -333,6 +378,9 @@ public partial class @PolySpatialInputActions: IInputActionCollection2, IDisposa
             @DeviceRotation.started += instance.OnDeviceRotation;
             @DeviceRotation.performed += instance.OnDeviceRotation;
             @DeviceRotation.canceled += instance.OnDeviceRotation;
+            @Click.started += instance.OnClick;
+            @Click.performed += instance.OnClick;
+            @Click.canceled += instance.OnClick;
         }
 
         private void UnregisterCallbacks(IXRHMDActions instance)
@@ -343,6 +391,9 @@ public partial class @PolySpatialInputActions: IInputActionCollection2, IDisposa
             @DeviceRotation.started -= instance.OnDeviceRotation;
             @DeviceRotation.performed -= instance.OnDeviceRotation;
             @DeviceRotation.canceled -= instance.OnDeviceRotation;
+            @Click.started -= instance.OnClick;
+            @Click.performed -= instance.OnClick;
+            @Click.canceled -= instance.OnClick;
         }
 
         public void RemoveCallbacks(IXRHMDActions instance)
@@ -371,5 +422,6 @@ public partial class @PolySpatialInputActions: IInputActionCollection2, IDisposa
     {
         void OnDevicePosition(InputAction.CallbackContext context);
         void OnDeviceRotation(InputAction.CallbackContext context);
+        void OnClick(InputAction.CallbackContext context);
     }
 }
