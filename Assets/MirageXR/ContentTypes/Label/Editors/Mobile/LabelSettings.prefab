@@ -39,7 +39,6 @@ RectTransform:
   - {fileID: 6546595679484385939}
   - {fileID: 6035832555014337890}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -181,7 +180,6 @@ RectTransform:
   - {fileID: 3871310820493126041}
   - {fileID: 5556432682922223860}
   m_Father: {fileID: 8717472685277387191}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -233,7 +231,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3537888813529957254}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -371,7 +368,6 @@ RectTransform:
   m_Children:
   - {fileID: 3537888813529957254}
   m_Father: {fileID: 123955173422469536}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -566,7 +562,6 @@ RectTransform:
   m_Children:
   - {fileID: 3226119763483663541}
   m_Father: {fileID: 123955173422469536}
-  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -651,7 +646,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3537888813529957254}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -787,6 +781,7 @@ GameObject:
   - component: {fileID: 4998856198198926392}
   - component: {fileID: 4833742415004877061}
   - component: {fileID: 573595070391125175}
+  - component: {fileID: 8770564222002057447}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -807,7 +802,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4199782747408611410}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -896,11 +890,29 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8770564222002057447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7049755665814093798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _getIdFromName: 0
+  _id: augmentation_label_settings_exit
+  _interactableObject: {fileID: 7049755665814093798}
+  _isPartOfScrollView: 0
+  _delay: 0
 --- !u!1001 &2562240259328457200
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 123955173422469536}
     m_Modifications:
     - target: {fileID: 1857250891780882850, guid: db68a5d73d14b0e48af228d683b71b72,
@@ -1029,6 +1041,17 @@ PrefabInstance:
       value: EditStyleText
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 1857250891780882850, guid: db68a5d73d14b0e48af228d683b71b72,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 332669685686265255}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1857250891780882861, guid: db68a5d73d14b0e48af228d683b71b72,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 760895800342044856}
   m_SourcePrefab: {fileID: 100100000, guid: db68a5d73d14b0e48af228d683b71b72, type: 3}
 --- !u!224 &4199782747408611410 stripped
 RectTransform:
@@ -1073,6 +1096,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 123955173422469536}
     m_Modifications:
     - target: {fileID: 56695578535699481, guid: 87baee6f77bc35646b9d9f499f038fbf,
@@ -2281,6 +2305,17 @@ PrefabInstance:
       value: -335
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5131669102190028310, guid: 87baee6f77bc35646b9d9f499f038fbf,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3272071894863577069}
+    - targetCorrespondingSourceObject: {fileID: 5131669102190028310, guid: 87baee6f77bc35646b9d9f499f038fbf,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2117437938297314203}
   m_SourcePrefab: {fileID: 100100000, guid: 87baee6f77bc35646b9d9f499f038fbf, type: 3}
 --- !u!1 &2099833690972543132 stripped
 GameObject:
@@ -2308,6 +2343,23 @@ MonoBehaviour:
   m_FlexibleWidth: 0
   m_FlexibleHeight: -1
   m_LayoutPriority: 0
+--- !u!114 &2117437938297314203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2099833690972543132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _getIdFromName: 0
+  _id: augmentation_label_color_picker
+  _interactableObject: {fileID: 2099833690972543132}
+  _isPartOfScrollView: 0
+  _delay: 0
 --- !u!224 &6546595679484385939 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 56695578535699481, guid: 87baee6f77bc35646b9d9f499f038fbf,
@@ -2331,6 +2383,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 123955173422469536}
     m_Modifications:
     - target: {fileID: 2908015634121068735, guid: 2986fddac1d4e5141a38ecad7f03bd8c,
@@ -2454,6 +2507,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2908015634121068735, guid: 2986fddac1d4e5141a38ecad7f03bd8c,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6652779492582757532}
+    - targetCorrespondingSourceObject: {fileID: 2908015634121068735, guid: 2986fddac1d4e5141a38ecad7f03bd8c,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6556007724807283154}
   m_SourcePrefab: {fileID: 100100000, guid: 2986fddac1d4e5141a38ecad7f03bd8c, type: 3}
 --- !u!1 &5825725985335416188 stripped
 GameObject:
@@ -2481,6 +2545,23 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &6556007724807283154
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5825725985335416188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8c9fc824b4042141a4efb6ec05f2905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _getIdFromName: 0
+  _id: augmentation_label_font_size_selector
+  _interactableObject: {fileID: 5825725985335416188}
+  _isPartOfScrollView: 0
+  _delay: 0
 --- !u!114 &5856006102240777794 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3010318402287522689, guid: 2986fddac1d4e5141a38ecad7f03bd8c,
@@ -2504,6 +2585,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 1598543717383879803}
     m_Modifications:
     - target: {fileID: 1078568283418902884, guid: 9387b99b8853f844595f59ef3f811e2f,
@@ -2837,6 +2919,25 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1485754071466145365, guid: 9387b99b8853f844595f59ef3f811e2f,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 800081544916877795}
+    - targetCorrespondingSourceObject: {fileID: 4550841162516395001, guid: 9387b99b8853f844595f59ef3f811e2f,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 798150406471124887}
+    - targetCorrespondingSourceObject: {fileID: 7842152592959855408, guid: 9387b99b8853f844595f59ef3f811e2f,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 569200155137339200}
+    - targetCorrespondingSourceObject: {fileID: 1078568283418902884, guid: 9387b99b8853f844595f59ef3f811e2f,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7657850446286041992}
   m_SourcePrefab: {fileID: 100100000, guid: 9387b99b8853f844595f59ef3f811e2f, type: 3}
 --- !u!114 &319283232263534620 stripped
 MonoBehaviour:
@@ -2869,7 +2970,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _getIdFromName: 0
-  _id: activity_info
+  _id: augmentation_label_text_color_toggle
   _interactableObject: {fileID: 1682234650805057670}
   _isPartOfScrollView: 0
   _delay: 0
@@ -2910,7 +3011,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _getIdFromName: 0
-  _id: activity_steps
+  _id: augmentation_label_font_size_toggle
   _interactableObject: {fileID: 4948125952234393679}
   _isPartOfScrollView: 0
   _delay: 0
@@ -2971,7 +3072,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _getIdFromName: 0
-  _id: activity_calibration
+  _id: augmentation_label_background_color_toggle
   _interactableObject: {fileID: 8465443044957528786}
   _isPartOfScrollView: 0
   _delay: 0

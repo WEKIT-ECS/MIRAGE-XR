@@ -84,20 +84,13 @@ namespace MirageXR
 
             float radius = 0f;
 
+            Loop = obj.option.Split('#')[1] == "1";
+
             // 3d
             if (audio3dMode)
             {
-                // loop is off for 2d and load the status of loop if it is 3d audio
-                Loop = false;
-                if (audio3dMode)
-                {
-                    Loop = obj.option.Split('#')[1] == "1";
-                }
                 // get the radius if it is 3d audio
-                if (audio3dMode)
-                {
-                    radius = float.Parse(obj.option.Split('#')[2]);
-                }
+                radius = float.Parse(obj.option.Split('#')[2]);
             }
             else
             {

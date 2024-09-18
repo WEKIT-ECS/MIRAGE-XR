@@ -1,0 +1,57 @@
+{
+    "Name": "ActionAugmentationGuide",
+    "IntendedPlatform": "Mobile",
+    "Steps": [
+        {
+            "DelayInMilliseconds": 100.0,
+            "StepType": "UI",
+            "Id": "augmentation_ Highlight",
+            "Message": "Action augmentations are glyphs that serve as a point of interaction or highlighting. Let's try and create one. First, we need to select what the glyph is going to look like. Let's go with the Highlighting glyph.",
+            "Position": "Top",
+            "BtnText": "Cancel"
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_gazetoggle",
+            "Message": "The main way users can interact with the glyph is by looking into it, gazing. Here you can turn interaction on or off. Let's keep it on for now.",
+            "Position": "Bottom",
+            "BtnText": "Next",
+            "CanGoNext": true
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_gazeduration",
+            "Message": "Here we select how long the user needs to look at the glyph for it to trigger. We can leave it alone for now.",
+            "Position": "Bottom",
+            "BtnText": "Next",
+            "CanGoNext": true
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_accept",
+            "Message": "Let's load the glyph into the scene. To do that, just click the Accept button below.",
+            "Position": "Top",
+            "BtnText": "Cancel"
+        },
+        {
+            "StepType": "UI",
+            "Id": "ui_toggle",
+            "Message": "Let's lower the UI so we can take a look at the augmentation we just created.",
+            "Position": "Bottom",
+            "BtnText": "Cancel"
+        },
+        {
+            "DelayInMilliseconds": 100.0,
+            "StepType": "World",
+            "FocusObject": "<<LAST_AUGMENTATION_CREATED>>",
+            "ActualTarget": "act:Highlight",
+            "Message": "This is the augmentation we just created. You can now hold the middle of it to reposition it, or hold its edges to change its size and rotation. That's it!",
+            "FinishEvent": "ACTION_STEP_ACTIVATED",
+            "arrowRotationOffset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -30.0
+            }
+        }
+    ]
+}

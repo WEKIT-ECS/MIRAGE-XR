@@ -28,6 +28,13 @@ public class GlyphListItem : MonoBehaviour
             // TODO: get fbx file size
             _tmpSize.text = " ";
         }
+
+        // Tutorial-related init
+        TutorialItem titem = GetComponent<TutorialItem>();
+        if (titem != null)
+        {
+            titem.Id = "augmentation_" + _tmpText.text;
+        }
     }
 
     private void OnClick()

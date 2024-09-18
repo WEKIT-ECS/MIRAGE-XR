@@ -16,7 +16,12 @@ public class TutorialItem : MonoBehaviour
     private bool _isTrackingActivated;
     private Transform _traceable;
 
-    public string Id => _getIdFromName ? name : _id;
+    public string Id
+    {
+        get => _getIdFromName ? name : _id;
+        set => _id = value;
+    }
+
     public Button Button => _interactableObject.GetComponentInChildren<Button>();
 
     public Toggle Toggle => _interactableObject.GetComponent<Toggle>();
