@@ -9,6 +9,7 @@ using UnityEditor.XR.Management.Metadata;
 using UnityEditor.XR.OpenXR;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.MixedReality.Toolkit.Utilities.Editor;
 
 namespace MirageXR
 {
@@ -163,6 +164,59 @@ namespace MirageXR
             RenderSettings.skybox = oldSkybox;
 
         } // methodBuildQuest()
+
+        /// <summary>
+        /// Build menu entry for 'Quest 3'
+        /// </summary>
+        [MenuItem("MirageXR/Build/Hololens 2")]
+        static void methodBuildHololens()
+        {
+            Debug.Log("starting a 'Hololens 2' build...");
+
+            // change build target if needed
+            if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.WSAPlayer)
+            {
+                Debug.Log($"Switching build target to WSAPlayer");
+                EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.WSA, BuildTarget.WSAPlayer);
+            }
+            else
+            {
+                Debug.Log($"Didn't need to switch build target, as it was already set to WSAPlayer");
+            }
+
+            BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
+
+            //  Basic build settings
+            buildPlayerOptions.scenes = mScenePaths.ToArray(); // from EditorBuildSettings
+            buildPlayerOptions.locationPathName = "Builds/WSAPlayer/";
+            buildPlayerOptions.target = BuildTarget.WSAPlayer;
+            buildPlayerOptions.options = BuildOptions.None;
+
+            EditorUserBuildSettings.wsaUWPSDK = "10.0.18362.0";
+            EditorUserBuildSettings.wsaArchitecture = "ARM64";
+            //EditorUserBuildSettings.wsaSubtarget = "";
+
+            //EnablePlugin(BuildTargetGroup.Android, "UnityEngine.XR.OpenXR.OpenXRLoader");
+
+            AssetDatabase.SaveAssets();
+
+            //var success = await UwpAppxBuildTools.BuildAppxAsync(new UwpBuildInfo(true));
+
+            // Build
+            BuildReport report = BuildPipeline.BuildPlayer(buildPlayerOptions);
+
+            // Report
+            BuildSummary summary = report.summary;
+            if (summary.result == BuildResult.Succeeded)
+            {
+                Debug.Log("Build succeeded: " + summary.totalSize + " bytes");
+            }
+            else if (summary.result == BuildResult.Failed)
+            {
+                Debug.Log("Build failed");
+            }
+
+        } // methodBuildHololens()
 
     } // class LocalBuildPipeline()
 
