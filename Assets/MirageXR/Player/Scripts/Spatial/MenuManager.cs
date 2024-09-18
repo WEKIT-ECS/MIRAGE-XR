@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -12,6 +10,14 @@ namespace MirageXR
         [SerializeField] private SignInScreenSpatialView _signInScreenSpatialViewPrefab;
 
         public static UnityEvent<ScreenName, string> ScreenChanged = new();
+
+        private ScreenName _currentScreenName;
+        public ScreenName CurrentScreenName
+        {
+            get => _currentScreenName;
+            private set => _currentScreenName = value;
+        }
+
         public void ShowSortingView()
         {
             PopupsViewer.Instance.Show(_sortingScreenSpatialViewPrefab);
@@ -30,11 +36,9 @@ namespace MirageXR
         public void ShowScreen(ScreenName screenName, string args = "")
         {
             ScreenChanged.Invoke(screenName, args);
+            CurrentScreenName = screenName;
             
-            /*var dictionary = new Dictionary<string, object>
-            {
-                { "screen_name", screenName.ToString() }
-            };*/
+            UnityEngine.Debug.LogError("[111]  " + CurrentScreenName);
         }
 
         /*public void ShowPopup(PopupName popupName, string args = "")
