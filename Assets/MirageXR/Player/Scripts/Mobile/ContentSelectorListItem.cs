@@ -9,6 +9,7 @@ public class ContentSelectorListItem : MonoBehaviour
 {
     [SerializeField] private Button _btnMain;
     [SerializeField] private Button _btnHint;
+    [SerializeField] private Button _btnTutorial;
     [SerializeField] private TMP_Text _txtContent;
     [SerializeField] private Image _image;
 
@@ -19,6 +20,8 @@ public class ContentSelectorListItem : MonoBehaviour
         _type = type;
         _btnMain.onClick.AddListener(() => onSelected(_type));
         _btnHint.onClick.AddListener(() => onHintClick(_type));
+        _btnTutorial.onClick.AddListener(() => onSelected(_type)); // Augmentation tutorials start as if clicked
+        _btnTutorial.onClick.AddListener(() => TutorialManager.Instance.StartAugmentationTutorial(type));
         UpdateView();
     }
 

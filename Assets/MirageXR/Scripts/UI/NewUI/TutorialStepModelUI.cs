@@ -61,6 +61,14 @@ public class TutorialStepModelUI : TutorialStepModel
     public string BtnText { get; set; } = "Cancel";
 
     /// <summary>
+    /// Defines if the current step has the option of "going next", i.e. if
+    /// the step provides an option to the user of only interacting with the 
+    /// tutorial UI to progress the tutorial.
+    /// </summary>
+    [JsonProperty]
+    public bool CanGoNext { get; set; } = false;
+
+    /// <summary>
     /// Is the Id field given. If not, no attempt will be made to find or 
     /// highlight a UI item.
     /// </summary>
