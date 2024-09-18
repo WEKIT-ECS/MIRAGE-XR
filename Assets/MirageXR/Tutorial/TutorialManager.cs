@@ -30,8 +30,9 @@ namespace MirageXR
         /// </summary>
         public const int STATUS_DO_NOT_LOAD_ON_START = 1;
 
-        private const string FILE_NAME_TUTORIAL_MOBILE_VIEWING = "tutorialMobileViewing.json";
-        private const string FILE_NAME_TUTORIAL_MOBILE_EDITING = "tutorialMobileEditing.json";
+        private const string FILE_NAME_TUTORIAL_MOBILE_VIEWING = "tutorialMobileViewing";
+        private const string FILE_NAME_TUTORIAL_MOBILE_EDITING = "tutorialMobileEditing";
+        private const string FILE_NAME_TUTORIAL_MOBILE_AUGMENTATION = "AugmentationTutorials/tutorialAugmentation_{0}";
 
         /// <summary>
         /// Types of the Tutorial currently offered.
@@ -41,7 +42,8 @@ namespace MirageXR
         {
             HOLOLENS,
             MOBILE_EDITING,
-            MOBILE_VIEWING
+            MOBILE_VIEWING,
+            MOBILE_AUGMENTATION
         }
 
         public enum TutorialEvent
@@ -51,7 +53,12 @@ namespace MirageXR
             UI_GOT_IT,
             CALIBRATION_FINISHED,
             ACTION_STEP_ACTIVATED,
-            PICK_AND_PLACED
+            PICK_AND_PLACED,
+            GHOST_REPLAYED,
+            EDIT_MODE_CHANGED,
+            PICK_POSITION_CHANGED,
+            TARGET_POSITION_CHANGED,
+            VIDEO_SELECTED_FROM_GALLERY
         }
 
         public enum TutorialExitCode
@@ -86,7 +93,7 @@ namespace MirageXR
         private TutorialModel _currentTutorial;
         private int _newCurrentStepNumber;
 
-        public TutorialHandlerUI MobileTutorial { get; private set; }
+        public TutorialHandlerUI MobileTutorial => RootView_v2.Instance.Tutorial;
         private bool _isInEditMode;
 
         private TutorialHandlerWS _handlerWS;
@@ -130,11 +137,18 @@ namespace MirageXR
             _handlerWS = new TutorialHandlerWS();
             _currentClosingEvents = new List<TutorialEvent>();
             LearningExperienceEngine.EventManager.OnEditModeChanged += EditModeListener;
+            LearningExperienceEngine.EventManager.OnActivateAction += StepActivatedListener;
         }
 
         private void EditModeListener(bool value)
         {
             _isInEditMode = value;
+            InvokeEvent(TutorialEvent.EDIT_MODE_CHANGED);
+        }
+
+        private void StepActivatedListener(string action)
+        {
+            InvokeEvent(TutorialEvent.ACTION_STEP_ACTIVATED);
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -151,7 +165,7 @@ namespace MirageXR
         /// </param>
         public void StartTutorial(TutorialType type)
         {
-            
+
             if (type == TutorialType.HOLOLENS)
             {
                 IsTutorialRunning = true;
@@ -287,11 +301,6 @@ namespace MirageXR
         /// <param name="page">Page for which to show help, probably current page.</param>
         public void ShowHelpSelection(RootView_v2.HelpPage page)
         {
-            if (MobileTutorial == null)
-            {
-                MobileTutorial = RootView_v2.Instance.Tutorial;
-            }
-
             var popup = (HelpSelectionPopup)PopupsViewer.Instance.Show(HelpSelectionPopup);
             bool isEditModeOn = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
 
@@ -303,11 +312,6 @@ namespace MirageXR
         /// </summary>
         public void StartNewMobileEditingTutorial()
         {
-            if (MobileTutorial == null)
-            {
-                MobileTutorial = RootView_v2.Instance.Tutorial;
-            }
-
             NewStartTutorial(TutorialType.MOBILE_EDITING);
         }
 
@@ -318,11 +322,6 @@ namespace MirageXR
         /// </summary>
         public async void StartNewMobileViewingTutorial()
         {
-            if (MobileTutorial == null)
-            {
-                MobileTutorial = RootView_v2.Instance.Tutorial;
-            }
-
             ActivityListView_v2 alv = RootView_v2.Instance.activityListView;
             await alv.CreateTutorialActivity();
             await Task.Delay(1000);
@@ -343,11 +342,13 @@ namespace MirageXR
         /// Handles tutorials through the JSON deserialising system.
         /// </summary>
         /// <param name="type">Type of the tutorial to be started.</param>
-        public void NewStartTutorial(TutorialType type)
+        /// <param name="option">Additional information for the type.</param>
+        public void NewStartTutorial(TutorialType type, string option = null)
         {
             if (_currentTutorial != null)
             {
                 // TODO: Perhaps indicate to the user that a tutorial is already running
+                ExitTutorial(TutorialExitCode.USER_EXIT);
                 return;
             }
 
@@ -360,6 +361,9 @@ namespace MirageXR
                 case TutorialType.MOBILE_EDITING:
                     neededFile = FILE_NAME_TUTORIAL_MOBILE_EDITING;
                     break;
+                case TutorialType.MOBILE_AUGMENTATION:
+                    neededFile = string.Format(FILE_NAME_TUTORIAL_MOBILE_AUGMENTATION, option);
+                    break;
                     // TODO: put others here as well
             }
 
@@ -369,11 +373,10 @@ namespace MirageXR
                 return;
             }
 
-            try 
-            { 
-                string path = Path.Combine(Application.dataPath, "MirageXR", "Resources", neededFile);
-                string json = File.ReadAllText(path);
-                TutorialModel tmodel = JsonConvert.DeserializeObject<TutorialModel>(json);
+            try
+            {
+                TextAsset jsonFile = Resources.Load<TextAsset>(neededFile);
+                TutorialModel tmodel = JsonConvert.DeserializeObject<TutorialModel>(jsonFile.text);
 
                 _currentTutorial = tmodel;
                 _newCurrentStepNumber = -1;
@@ -432,7 +435,7 @@ namespace MirageXR
                 // Convert to delay in seconds
                 yield return new WaitForSeconds(currentStep.DelayInMilliseconds / 1000f);
             }
-            
+
             // Process steps based on type
             switch (currentStep)
             {
@@ -480,6 +483,11 @@ namespace MirageXR
                 Debug.LogError("WSStep is not valid in TutorialManager.");
                 ExitTutorial(TutorialExitCode.STEP_INVALID);
                 return;
+            }
+
+            if (wsStep.FocusObject == "<<LAST_AUGMENTATION_CREATED>>")
+            {
+                //wsStep.FocusObject = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.GetLastCreatedAugmentationId();
             }
 
             // Show by WS step handler
@@ -572,6 +580,12 @@ namespace MirageXR
             }
 
             return false;
+        }
+
+        public void StartAugmentationTutorial(LearningExperienceEngine.ContentType contentType)
+        {
+            Debug.LogDebug("Starting Augmentation Tutorial: " + LearningExperienceEngine.ContentTypeExtension.GetName(contentType));
+            NewStartTutorial(TutorialType.MOBILE_AUGMENTATION, LearningExperienceEngine.ContentTypeExtension.GetName(contentType));
         }
     }
 }
