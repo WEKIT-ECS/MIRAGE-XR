@@ -13,9 +13,10 @@ public class PointCloudManager : MonoBehaviour
     public async Task<bool> InitializationAsync()
     {
 #if !UNITY_ANDROID && !UNITY_IOS && !UNITY_VISIONOS
+        Debug.Log("aborting init of PointCloudManager");
         return true;
 #endif
-
+        Debug.Log("with play to device");
         var mainCamera = Camera.main;
 
         if (!mainCamera)
