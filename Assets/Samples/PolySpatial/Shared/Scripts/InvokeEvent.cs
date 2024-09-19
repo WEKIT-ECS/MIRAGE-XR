@@ -16,16 +16,6 @@ namespace PolySpatial.Samples
         [SerializeField]
         UnityEvent onClick;
 
-//not wrong this
-        // [SerializeField]
-        // public UnityEngine.UI.Image image;
-
-        // void Start()
-        // {
-        //     image.enabled = false;
-        //     image.enabled = true;
-        // }
-
         void OnEnable()
         {
             if (m_Button)
