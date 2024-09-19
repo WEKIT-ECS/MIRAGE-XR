@@ -37,8 +37,6 @@ namespace MirageXR
         {
             ScreenChanged.Invoke(screenName, args);
             CurrentScreenName = screenName;
-            
-            UnityEngine.Debug.LogError("[111]  " + CurrentScreenName);
         }
 
         /*public void ShowPopup(PopupName popupName, string args = "")
