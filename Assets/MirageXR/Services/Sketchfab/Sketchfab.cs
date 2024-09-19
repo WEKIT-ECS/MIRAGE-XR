@@ -442,24 +442,20 @@ namespace MirageXR
             var jsonPath = Path.Combine(newModelFolder, JSON_FILE_NAME);
             var modelPath = Path.Combine(newModelFolder, MODEL_NAME);
 
-            using (StreamReader reader = new StreamReader(jsonPath))
-            {
-                var jsonString = reader.ReadToEnd();
-                var temp = Newtonsoft.Json.JsonConvert.DeserializeObject<ModelPreviewItem>(jsonString);
-                var pattern = $"({modelsFolderPath}/)([^/]+)";
-                reader.Close();
-                temp.name = newName;
-                temp.resourceUrl = $"file://{modelPath}";
-                var newImagePath = Regex.Replace(temp.resourceImage.url, pattern, $"${{1}}{newName}");
-                temp.resourceImage.url = newImagePath;
+            using var reader = new StreamReader(jsonPath);
+            var jsonString = await reader.ReadToEndAsync();
+            var temp = Newtonsoft.Json.JsonConvert.DeserializeObject<ModelPreviewItem>(jsonString);
+            var pattern = $"({modelsFolderPath}/)([^/]+)";
+            reader.Close();
+            temp.name = newName;
+            temp.resourceUrl = $"file://{modelPath}";
+            var newImagePath = Regex.Replace(temp.resourceImage.url, pattern, $"${{1}}{newName}");
+            temp.resourceImage.url = newImagePath;
 
-                using (StreamWriter writer = new StreamWriter(jsonPath))
-                {
-                    var output = Newtonsoft.Json.JsonConvert.SerializeObject(temp, Newtonsoft.Json.Formatting.Indented);
-                    writer.Write(output);
-                    writer.Close();
-                }
-            }
+            await using var writer = new StreamWriter(jsonPath);
+            var output = Newtonsoft.Json.JsonConvert.SerializeObject(temp, Newtonsoft.Json.Formatting.Indented);
+            await writer.WriteAsync(output);
+            writer.Close();
         }
 
         public static async Task LoadModelAsync(ModelPreviewItem modelPreview)

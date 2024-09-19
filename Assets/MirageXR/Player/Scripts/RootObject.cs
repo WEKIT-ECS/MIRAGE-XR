@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
 using MirageXR.NewDataModel;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using UnityEngine;
 
 namespace MirageXR
@@ -114,7 +116,11 @@ namespace MirageXR
 
             try
             {
-
+                JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                };
+                
                 _baseCamera ??= Camera.main;
 
                 _serviceBootstrapper ??= new GameObject("ServiceBootstrapper").AddComponent<MirageXRServiceBootstrapper>();
