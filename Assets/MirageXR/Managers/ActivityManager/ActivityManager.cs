@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine;
 using LearningExperienceEngine.DTOs;
@@ -74,22 +75,26 @@ namespace MirageXR.NewDataModel
             _assetsManager = assetsManager;
             _stepManager = stepManager;
             _authManager = authManager;
+            CreateNewActivity();
             await FetchActivitiesAsync();
         }
 
         public async UniTask<List<ActivityResponse>> FetchActivitiesAsync()
         {
-            UniTask.WaitUntil(_authManager.LoggedIn);
-            var token = LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.AccessToken;
-            _activities = await _networkDataProvider.GetActivitiesAsync(token);
+            await UniTask.WaitUntil(_authManager.LoggedIn);
+            _activities = await _networkDataProvider.GetActivitiesAsync();
             _onActivitiesFetched.Invoke(_activities);
+            await LoadActivityAsync(_activities.First().Id);
             return _activities;
         }
 
         public async UniTask<Activity> LoadActivityAsync(Guid activityId)
         {
-            var token = LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.AccessToken;
-            var activity = await _networkDataProvider.GetActivityAsync(activityId, token);
+            var activity = await _networkDataProvider.GetActivityAsync(activityId);
+            if (activity.Id == Guid.Empty)
+            {
+                throw new Exception($"Activity with id {activityId} not found");
+            }
             _contentManager.Reset();
             _stepManager.Reset();
             await _contentManager.LoadContentAsync(activity);

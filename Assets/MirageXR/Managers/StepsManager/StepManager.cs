@@ -16,7 +16,7 @@ namespace MirageXR.NewDataModel
             public Guid HierarchyItemId;
         }
 
-        private const string DeafultStepName = "Step {0}";
+        private const string DefaultStepName = "Step {0}";
 
         public event UnityAction<ActivityStep> OnStepChanged
         {
@@ -36,7 +36,7 @@ namespace MirageXR.NewDataModel
         private readonly List<ActivityStep> _steps = new();
         private readonly List<HierarchyItem> _hierarchy = new();
         private readonly List<StepQueueItem> _stepQueue = new();
-        
+
         private IContentManager _contentManager;
 
         private ActivityStep _currentStep;
@@ -80,6 +80,24 @@ namespace MirageXR.NewDataModel
                 PrivateNotes = null,
                 RequiredToolsPartsMaterials = null
             };
+
+            if (_currentHierarchyItem == null)
+            {
+                _currentHierarchyItem = new HierarchyItem
+                {
+                    Id = Guid.NewGuid(),
+                    CreationDate = DateTime.UtcNow,
+                    Version = Application.version,
+                    Title = GetDefaultHierarchyName(),
+                    StepIds = new List<Guid>(),
+                };
+                
+                _hierarchy.Add(_currentHierarchyItem);
+            }
+
+            _currentHierarchyItem.StepIds ??= new List<Guid>();
+            _currentHierarchyItem.StepIds.Add(step.Id);
+
             _steps.Add(step);
         }
 
@@ -144,7 +162,12 @@ namespace MirageXR.NewDataModel
 
         private string GetDefaultName()
         {
-            return string.Format(DeafultStepName, _steps.Count + 1);
+            return string.Format(DefaultStepName, _steps.Count + 1);
+        }
+
+        private string GetDefaultHierarchyName()
+        {
+            return string.Empty; //string.Format(DefaultStepName, _steps.Count + 1);
         }
 
         private void UpdateStepQueue()

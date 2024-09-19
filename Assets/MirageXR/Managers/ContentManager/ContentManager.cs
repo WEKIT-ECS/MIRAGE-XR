@@ -40,7 +40,7 @@ namespace MirageXR.NewDataModel
         {
             foreach (var content in activity.Content)
             {
-                await _assetsManager.PrepareContent(content);
+                await _assetsManager.PrepareContent(activity.Id, content);
             }
         }
 
@@ -78,19 +78,18 @@ namespace MirageXR.NewDataModel
                     Scale = Vector3.one,
                     TargetMarker = null,
                 },
-                Name = "Image example",
                 IsVisible = true,
                 Steps = new List<Guid>(),
                 ContentData = new ImageContentData
                 {
-                    Image = new File
+                    Image = new FileModel
                     {
                         Id = Guid.NewGuid(),
                         CreationDate = DateTime.UtcNow,
                         Version = Application.version,
-                        Name = "Image example",
+                        //Name = "Image example",
                         FileHash = HashCode.Combine(Guid.NewGuid(), Guid.NewGuid()).ToString()  //temp
-                    } 
+                    }
                 },
                 CreationDate = DateTime.UtcNow,
                 Version = Application.version,

@@ -41,8 +41,7 @@ namespace MirageXR.NewDataModel
                 }
                 else // Failures from HTTP layer
                 {
-                    var message =
-                        $"{type.ToString()}: {url} => StatusCode = {response.StatusCode.ToString()}"; // response.HttpResponseHeaders may contain useful info
+                    var message = $"{type.ToString()}: {url} => StatusCode = {response.StatusCode.ToString()}"; // response.HttpResponseHeaders may contain useful info
                     var error = new Error { Code = ErrorCodes.Failure, ErrorMessage = message };
                     Debug.LogError($"{type.ToString()}: {url}\nresponse: '{error}'");
                     return new Response<T>
