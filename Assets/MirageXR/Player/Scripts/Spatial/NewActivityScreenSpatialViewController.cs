@@ -30,6 +30,7 @@ namespace MirageXR
         private void OnButtonCollaborativeSessionClicked()
         {
             // TODO
+            MenuManager.Instance.ShowCollaborativeSessionPanelView();
         }
 
         private void OnButtonSettingsClicked()

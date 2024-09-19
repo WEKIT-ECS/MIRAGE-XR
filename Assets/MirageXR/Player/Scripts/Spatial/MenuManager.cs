@@ -8,6 +8,9 @@ namespace MirageXR
         [SerializeField] private SortingScreenSpatialView _sortingScreenSpatialViewPrefab;
         [SerializeField] private RegisterScreenSpatialView _registerScreenSpatialViewPrefab;
         [SerializeField] private SignInScreenSpatialView _signInScreenSpatialViewPrefab;
+        
+        [SerializeField] private CollaborativeSessionPanelView _collabSessionPanel;
+        [SerializeField] private CollaborativeSessionSettingsView _collabSessionSettingsPanel;
 
         public static UnityEvent<ScreenName, string> ScreenChanged = new();
 
@@ -33,6 +36,15 @@ namespace MirageXR
             PopupsViewer.Instance.Show(_signInScreenSpatialViewPrefab);
         }
         
+        public void ShowCollaborativeSessionPanelView()
+        {  
+            PopupsViewer.Instance.Show(_collabSessionPanel);
+        }
+        
+        public void ShowCollaborativeSessionSettingsPanelView()
+        {  
+            PopupsViewer.Instance.Show(_collabSessionSettingsPanel);
+        }
         public void ShowScreen(ScreenName screenName, string args = "")
         {
             ScreenChanged.Invoke(screenName, args);
