@@ -1,20 +1,30 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
 namespace PolySpatial.Samples
 {
-    public class SpawnObjects : MonoBehaviour
+    public class InvokeEvent : MonoBehaviour
     {
         [SerializeField]
         SpatialUIButton m_Button;
 
         [SerializeField]
-        List<GameObject> m_ObjectsToSpawn;
+        UnityEvent onClick;
 
-        [SerializeField]
-        Transform m_SpawnPosition;
+//not wrong this
+        // [SerializeField]
+        // public UnityEngine.UI.Image image;
+
+        // void Start()
+        // {
+        //     image.enabled = false;
+        //     image.enabled = true;
+        // }
 
         void OnEnable()
         {
@@ -34,13 +44,8 @@ namespace PolySpatial.Samples
 
         void WasPressed(string buttonText, MeshRenderer meshrenderer)
         {
-            Debug.Log("This works");
-        }
-
-        public void ForceSpawn()
-        {
-            var randomObject = Random.Range(0, m_ObjectsToSpawn.Count);
-            Instantiate(m_ObjectsToSpawn[randomObject], m_SpawnPosition.position, Quaternion.identity);
+            Debug.Log("Event invoked");
+            onClick.Invoke();
         }
     }
 }
