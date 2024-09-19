@@ -1,3 +1,4 @@
+using Fusion;
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -21,6 +22,7 @@ namespace MirageXR
         [SerializeField] private GridManager _gridManager;
         [SerializeField] private CameraCalibrationChecker _cameraCalibrationChecker;
         [SerializeField] private PlatformManager _platformManager;
+        [SerializeField] private SharingManager _sharingManager;
 
         private EditorSceneService _editorSceneService;
         [SerializeField] private WorkplaceController _workplaceController; // added with lib-lee migration
@@ -57,6 +59,8 @@ namespace MirageXR
         public CameraCalibrationChecker cameraCalibrationChecker => _cameraCalibrationChecker;
 
         public PlatformManager platformManager => _platformManager;
+
+        public SharingManager sharingManager => _sharingManager;
 
         public AIManager aiManager => _aiManager;
 
@@ -122,6 +126,7 @@ namespace MirageXR
                 _gridManager ??= new GameObject("GridManager").AddComponent<GridManager>();
                 _cameraCalibrationChecker ??= new GameObject("CameraCalibrationChecker").AddComponent<CameraCalibrationChecker>();
                 _platformManager ??= new GameObject("PlatformManager").AddComponent<PlatformManager>();
+                _sharingManager ??= new GameObject("Sharing Manager").AddComponent<SharingManager>();
                 _planeManager ??= new GameObject("PlaneManager").AddComponent<PlaneManagerWrapper>();
 
                 _editorSceneService = new EditorSceneService();
@@ -144,6 +149,7 @@ namespace MirageXR
                 _gridManager.Initialization();
                 _cameraCalibrationChecker.Initialization();
                 _platformManager.Initialization();
+                _sharingManager.Initialization();
 
                 await _openAIManager.InitializeAsync();
                 await _aiManager.InitializeAsync();
