@@ -21,6 +21,19 @@ namespace MirageXR
         [Header("Texts")]
         [SerializeField] private TMP_Text _tmpTextMoodleServer;
         [SerializeField] private TMP_Text _tmpTextServer;
+
+#if UNITY_VISIONOS
+        public void SetActionOnButtonLoginClick(UnityAction action) => _buttonLogin.gameObject.AddComponent<VisionOSButtonInteraction>().onClick.AddListener(action);
+        public void SetActionOnButtonRegisterClick(UnityAction action) => _buttonRegister.gameObject.AddComponent<VisionOSButtonInteraction>().onClick.AddListener(action);
+        public void SetActionOnButtonMoodleServersClick(UnityAction action) => _buttonMoodleServers.gameObject.AddComponent<VisionOSButtonInteraction>().onClick.AddListener(action);
+        public void SetActionOnButtonServerClick(UnityAction action) => _buttonServer.gameObject.AddComponent<VisionOSButtonInteraction>().onClick.AddListener(action);
+        public void SetActionOnButtonSketchfabClick(UnityAction action) => _buttonSketchfab.gameObject.AddComponent<VisionOSButtonInteraction>().onClick.AddListener(action);
+        public void SetActionOnButtonServiceNameClick(UnityAction action) => _buttonServiceName.gameObject.AddComponent<VisionOSButtonInteraction>().onClick.AddListener(action);
+        public void SetActionOnButtonAvatarClick(UnityAction action) => _buttonAvatar.gameObject.AddComponent<VisionOSButtonInteraction>().onClick.AddListener(action);
+        public void SetActionOnButtonGridClick(UnityAction action) => _buttonGrid.gameObject.AddComponent<VisionOSButtonInteraction>().onClick.AddListener(action);
+        public void SetActionOnButtonDevelopModeClick(UnityAction action) => _buttonDevelopMode.gameObject.AddComponent<VisionOSButtonInteraction>().onClick.AddListener(action);
+
+#else
         
         public void SetActionOnButtonLoginClick(UnityAction action) => _buttonLogin.SafeSetListener(action);
         public void SetActionOnButtonRegisterClick(UnityAction action) => _buttonRegister.SafeSetListener(action);
@@ -31,5 +44,7 @@ namespace MirageXR
         public void SetActionOnButtonAvatarClick(UnityAction action) => _buttonAvatar.SafeSetListener(action);
         public void SetActionOnButtonGridClick(UnityAction action) => _buttonGrid.SafeSetListener(action);
         public void SetActionOnButtonDevelopModeClick(UnityAction action) => _buttonDevelopMode.SafeSetListener(action);
+
+#endif
     }
 }
