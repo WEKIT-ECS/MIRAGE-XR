@@ -13,7 +13,8 @@ namespace MirageXR
 		public void Initialization()
 		{
 #if FUSION2
-			Instantiate(_connectionManagerPrefab);
+			_connectionManagerInstance = Instantiate(_connectionManagerPrefab);
+			_connectionManagerInstance.transform.parent = transform;
 #else
 			Debug.LogWarning("Photon Fusion not installed. Collaborative features will not be activated.");
 #endif
