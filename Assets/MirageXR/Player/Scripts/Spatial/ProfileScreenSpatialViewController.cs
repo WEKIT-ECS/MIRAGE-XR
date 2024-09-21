@@ -1,11 +1,13 @@
+using UnityEngine;
 using Utility.UiKit.Runtime.MVC;
 
 namespace MirageXR
 {
     public class ProfileScreenSpatialViewController : ScreenViewController<ProfileScreenSpatialViewController, ProfileScreenSpatialView>
     {
-        
         public override ScreenName ScreenName => ScreenName.ProfileScreen;
+
+        [SerializeField] private SidebarView sidebarView; // Temp
         protected override void OnBind()
         {
             base.OnBind();
@@ -17,13 +19,13 @@ namespace MirageXR
         private void OnButtonLoginClicked()
         {
             // TODO
-            MenuManager.Instance.ShowSignInView();
+            //MenuManager.Instance.ShowSignInView();
+            View.ShowSignInPanel();
         }
         
         private void OnButtonRegisterClicked()
         {
-            // TODO
-            MenuManager.Instance.ShowRegisterView();
+            //View.ShowRegisterPanel(); / TODO: replace with RegisterScreenView.prefab (but now we use url, see OnClickRegister())
         }
     }
 }
