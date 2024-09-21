@@ -7,7 +7,7 @@ namespace MirageXR
     {
         [SerializeField] private SortingScreenSpatialView _sortingScreenSpatialViewPrefab;
         [SerializeField] private RegisterScreenSpatialView _registerScreenSpatialViewPrefab;
-        [SerializeField] private SignInScreenSpatialView _signInScreenSpatialViewPrefab;
+        //[SerializeField] private LoginView_Spatial _signInScreenSpatialViewPrefab;  // TODO SignInScreenSpatialView
         
         [SerializeField] private CollaborativeSessionPanelView _collabSessionPanel;
         [SerializeField] private CollaborativeSessionSettingsView _collabSessionSettingsPanel;
@@ -33,7 +33,7 @@ namespace MirageXR
         
         public void ShowSignInView()
         {  
-            PopupsViewer.Instance.Show(_signInScreenSpatialViewPrefab);
+            //PopupsViewer.Instance.Show(_signInScreenSpatialViewPrefab);
         }
         
         public void ShowCollaborativeSessionPanelView()
