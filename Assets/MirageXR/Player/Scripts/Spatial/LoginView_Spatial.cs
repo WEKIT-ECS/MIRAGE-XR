@@ -77,7 +77,7 @@ namespace MirageXR
     {
         if (LearningExperienceEngine.UserSettings.LoggedIn)
         {
-            _textUserName.text = LearningExperienceEngine.UserSettings.username;
+            _textUserName.text = "You signed as: " + LearningExperienceEngine.UserSettings.username;
             _loginPanel.SetActive(false);
             _btnLogout.gameObject.SetActive(true);
             _btnRegister.gameObject.SetActive(false);
