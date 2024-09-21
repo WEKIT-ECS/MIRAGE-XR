@@ -32,6 +32,11 @@ namespace MirageXR
             _btnLogin.onClick.AddListener(OnClickLogin);
             _btnLogout.onClick.AddListener(OnClickLogout);
             _toggleRemember.onValueChanged.AddListener(OnToggleRememberValueChanged);
+
+            if (LearningExperienceEngine.UserSettings.rememberUser)
+            {
+                // TODO: AutoLogin();
+            }
             
             ResetValues();
         }
