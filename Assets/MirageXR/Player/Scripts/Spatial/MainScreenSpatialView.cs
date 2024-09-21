@@ -21,18 +21,10 @@ namespace MirageXR
         [Header("InputField")]
         [SerializeField] private TMP_InputField _searchField;
 
-#if UNITY_VISIONOS
-        public void SetActionOnButtonSidebarCollapseClick(UnityAction action) => _buttonSidebarCollapse.gameObject.AddComponent<VisionOSButtonInteraction>().onClick.AddListener(action);
-        public void SetActionOnButtonSidebarExpandClick(UnityAction action) => _buttonSidebarExpand.gameObject.AddComponent<VisionOSButtonInteraction>().onClick.AddListener(action);
-        public void SetActionOnButtonSortingClick(UnityAction action) => _buttonSorting.gameObject.AddComponent<VisionOSButtonInteraction>().onClick.AddListener(action);
-        public void SetActionOnButtonAddNewActivityClick(UnityAction action) => _buttonAddNewActivity.gameObject.AddComponent<VisionOSButtonInteraction>().onClick.AddListener(action);
-
-#else
         public void SetActionOnButtonSidebarCollapseClick(UnityAction action) => _buttonSidebarCollapse.SafeSetListener(action);
         public void SetActionOnButtonSidebarExpandClick(UnityAction action) => _buttonSidebarExpand.SafeSetListener(action);
         public void SetActionOnButtonSortingClick(UnityAction action) => _buttonSorting.SafeSetListener(action);
         public void SetActionOnButtonAddNewActivityClick(UnityAction action) => _buttonAddNewActivity.SafeSetListener(action);
-#endif
 
 		public void SetActionOnInputFieldSearchValueChanged(UnityAction<string> action) => _searchField.SafeSetListener(action);
 
