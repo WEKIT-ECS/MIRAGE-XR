@@ -19,13 +19,13 @@ namespace MirageXR
         private void OnButtonLoginClicked()
         {
             // TODO
-            MenuManager.Instance.ShowSignInView();
+            //MenuManager.Instance.ShowSignInView();
+            View.ShowSignInPanel();
         }
         
         private void OnButtonRegisterClicked()
         {
-            // TODO
-            MenuManager.Instance.ShowRegisterView();
+            //View.ShowRegisterPanel(); / TODO: replace with RegisterScreenView.prefab (but now we use url, see OnClickRegister())
         }
     }
 }
