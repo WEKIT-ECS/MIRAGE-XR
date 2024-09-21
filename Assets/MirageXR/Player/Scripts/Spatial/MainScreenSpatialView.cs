@@ -18,7 +18,6 @@ namespace MirageXR
         [Header("GameObjects")]
         [SerializeField] private GameObject _sidebarOpened;
         [SerializeField] private GameObject _sidebarClosed;
-        [SerializeField] private GameObject _sortingPanel;
         [Header("InputField")]
         [SerializeField] private TMP_InputField _searchField;
 

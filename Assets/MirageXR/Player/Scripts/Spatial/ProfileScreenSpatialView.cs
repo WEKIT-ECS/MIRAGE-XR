@@ -21,6 +21,10 @@ namespace MirageXR
         [Header("Texts")]
         [SerializeField] private TMP_Text _tmpTextMoodleServer;
         [SerializeField] private TMP_Text _tmpTextServer;
+        [Header("GameObjects")]
+        [SerializeField] private GameObject _signInPrefab; // TEMP
+        [SerializeField] private GameObject _registerPrefab;// TEMP
+        
 
 #if UNITY_VISIONOS
         public void SetActionOnButtonLoginClick(UnityAction action) => _buttonLogin.gameObject.AddComponent<VisionOSButtonInteraction>().onClick.AddListener(action);
@@ -46,5 +50,15 @@ namespace MirageXR
         public void SetActionOnButtonDevelopModeClick(UnityAction action) => _buttonDevelopMode.SafeSetListener(action);
 
 #endif
+
+        public void ShowSignInPanel()
+        {
+            _signInPrefab.SetActive(true);
+        }
+        
+        public void ShowRegisterPanel()
+        {
+            _registerPrefab.SetActive(true);
+        }
     }
 }

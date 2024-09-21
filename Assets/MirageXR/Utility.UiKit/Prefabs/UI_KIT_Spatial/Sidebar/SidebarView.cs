@@ -31,8 +31,6 @@ namespace MirageXR
             _buttonSidebarCollapse.SafeSetListener(OnSidebarCollapse);
             _buttonSidebarExpand.SafeSetListener(OnSidebarExpand);
             
-            _toggleActivities.SafeSetIsOn(true);
-            
             _toggleActivities.SafeAddListener(OnToggleActivities);
             _toggleDashboard.SafeAddListener(OnToggleDashboard);
             _toggleProfile.SafeAddListener(OnToggleProfile);
@@ -57,6 +55,19 @@ namespace MirageXR
 
         private void OnToggleSidebarClosedProfile(bool value)
         {
+            ColorBlock cb = _toggleSidebarClosedProfile.colors;
+            if (value)
+            {
+                cb.normalColor = Color.gray;
+                cb.highlightedColor = Color.gray;
+            }
+            else
+            {
+                cb.normalColor = Color.white;
+                cb.highlightedColor = Color.white;
+            }
+            _toggleSidebarClosedProfile.colors = cb;
+            
             if (!value) return;
             MenuManager.Instance.ShowScreen(ScreenName.ProfileScreen);
         }
@@ -68,6 +79,19 @@ namespace MirageXR
 
         private void OnToggleSidebarClosedActivities(bool value)
         {
+            ColorBlock cb = _toggleSidebarClosedActivities.colors;
+            if (value)
+            {
+                cb.normalColor = Color.gray;
+                cb.highlightedColor = Color.gray;
+            }
+            else
+            {
+                cb.normalColor = Color.white;
+                cb.highlightedColor = Color.white;
+            }
+            _toggleSidebarClosedActivities.colors = cb;
+            
             if (!value) return;
             MenuManager.Instance.ShowScreen(ScreenName.MainScreen);
         }
