@@ -59,7 +59,8 @@ namespace MirageXR
     private void OnLoginSucceed(string username, string password)
     {
         UnityEngine.Debug.LogError("Login succeeded");
-        //RootView.Instance.activityListView.UpdateListView(); TODO !
+        // TODO: reload the activity list
+
         if (LearningExperienceEngine.UserSettings.rememberUser)
         {
             LearningExperienceEngine.UserSettings.SaveUsernameAndPassword(username, password);
@@ -113,7 +114,9 @@ namespace MirageXR
     private void OnClickLogout()
     {
         LearningExperienceEngine.UserSettings.ClearLoginData();
-        //RootView.Instance.activityListView.UpdateListView();  // TODO
+        // TODO: reload the activity list
+        //RootView.Instance.activityListView.UpdateListView();
+        
         ResetValues();
     }
 
