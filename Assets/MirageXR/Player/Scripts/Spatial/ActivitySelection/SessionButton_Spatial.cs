@@ -24,7 +24,7 @@ namespace MirageXR
             else
             {
                 // show loading label
-                Loading.Instance.LoadingVisibility(true);
+                //Loading.Instance.LoadingVisibility(true);
 
                 Debug.LogInfo("Playing activity...");
                 Play();
@@ -98,6 +98,8 @@ namespace MirageXR
 
             // Set the activity URL
             activityManager.AbsoluteURL = _selectedListViewItem.Content.AbsoluteURL;
+            
+            UnityEngine.Debug.LogError("[111] Activity loaded");
         }
 
         public async void OnDeleteButtonPressed()
