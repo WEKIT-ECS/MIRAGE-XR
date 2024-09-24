@@ -3403,21 +3403,20 @@ MonoBehaviour:
   m_Name: WSA
   m_EditorClassIdentifier: 
   features:
-  - {fileID: 5214688284800966966}
   - {fileID: 8342489369816393842}
   - {fileID: 7320443506723542620}
   - {fileID: -4851705574008167358}
   - {fileID: -8351078489703192413}
   - {fileID: 703378005999766676}
-  - {fileID: -2986429747385899913}
   - {fileID: 5766621778107805509}
   - {fileID: 6526651397703881765}
   - {fileID: 653045931283335752}
   - {fileID: -8840210820502280734}
   - {fileID: 4047102087758151018}
+  - {fileID: 5921220336738759632}
   - {fileID: -5717806984981220388}
   - {fileID: 7867943167952155884}
-  - {fileID: 7753415924483934945}
+  - {fileID: 9007798413584158470}
   - {fileID: 7313555153919440075}
   - {fileID: 853285074447097298}
   - {fileID: -179209045387081515}
@@ -3426,6 +3425,8 @@ MonoBehaviour:
   - {fileID: 1057018002220456693}
   - {fileID: -4572464452065702350}
   - {fileID: -3330369739654127008}
+  - {fileID: -2986429747385899913}
+  - {fileID: 5214688284800966966}
   m_renderMode: 0
   m_autoColorSubmissionMode: 1
   m_colorSubmissionModes:
@@ -3815,7 +3816,6 @@ MonoBehaviour:
   m_Name: Standalone
   m_EditorClassIdentifier: 
   features:
-  - {fileID: -2110089068864770133}
   - {fileID: 1327789081999800453}
   - {fileID: -1627227413406906529}
   - {fileID: 6035986471039395701}
@@ -3827,9 +3827,10 @@ MonoBehaviour:
   - {fileID: -7009802225816802331}
   - {fileID: 7916090262046855198}
   - {fileID: 1061576012710878299}
+  - {fileID: -2110089068864770133}
   - {fileID: 4758929276041009201}
   - {fileID: -3247203607682908375}
-  - {fileID: 2429205439742170919}
+  - {fileID: 7221214978629684842}
   - {fileID: -1171133752328494868}
   - {fileID: 7844092491160930354}
   - {fileID: -4260590579579368990}
@@ -4314,6 +4315,26 @@ MonoBehaviour:
   rightHandTrackingOptions:
     motionRange: 0
   questHandTrackingMode: 1
+--- !u!114 &5921220336738759632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b7365b139f7aec43b23d26b7a48b5a6, type: 3}
+  m_Name: MetaQuestTouchPlusControllerProfile Metro
+  m_EditorClassIdentifier: 
+  m_enabled: 0
+  nameUi: Meta Quest Touch Plus Controller Profile
+  version: 0.0.1
+  featureIdInternal: com.unity.openxr.feature.input.metaquestplus
+  openxrExtensionStrings: XR_META_touch_controller_plus
+  company: Unity
+  priority: 0
+  required: 0
 --- !u!114 &6035986471039395701
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4620,6 +4641,26 @@ MonoBehaviour:
   featureIdInternal: com.unity.openxr.feature.conformance
   openxrExtensionStrings: XR_EXT_conformance_automation
   company: Unity
+  priority: 0
+  required: 0
+--- !u!114 &7221214978629684842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfdd10eb548aba844b314776fb1b65bd, type: 3}
+  m_Name: MicrosoftHandInteractionLegacy Standalone
+  m_EditorClassIdentifier: 
+  m_enabled: 0
+  nameUi: Microsoft Hand Interaction Profile (Legacy)
+  version: 0.0.1
+  featureIdInternal: com.microsoft.openxr.feature.interaction.handtrackinglegacy
+  openxrExtensionStrings: XR_MSFT_hand_interaction
+  company: Microsoft
   priority: 0
   required: 0
 --- !u!114 &7313555153919440075
@@ -5045,7 +5086,6 @@ MonoBehaviour:
   m_Name: Android
   m_EditorClassIdentifier: 
   features:
-  - {fileID: 5033888479572963210}
   - {fileID: 7087975495110559848}
   - {fileID: -6067698421602934682}
   - {fileID: 7703499780060811711}
@@ -5055,6 +5095,7 @@ MonoBehaviour:
   - {fileID: -3396750245576022888}
   - {fileID: 3385534598097896570}
   - {fileID: -5364646922129200679}
+  - {fileID: 5033888479572963210}
   - {fileID: 1748968238959538946}
   - {fileID: -1397765017268419899}
   - {fileID: 8245578056989471859}
@@ -5193,6 +5234,26 @@ MonoBehaviour:
   featureIdInternal: com.unity.openxr.feature.conformance
   openxrExtensionStrings: XR_EXT_conformance_automation
   company: Unity
+  priority: 0
+  required: 0
+--- !u!114 &9007798413584158470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfdd10eb548aba844b314776fb1b65bd, type: 3}
+  m_Name: MicrosoftHandInteractionLegacy Metro
+  m_EditorClassIdentifier: 
+  m_enabled: 0
+  nameUi: Microsoft Hand Interaction Profile (Legacy)
+  version: 0.0.1
+  featureIdInternal: com.microsoft.openxr.feature.interaction.handtrackinglegacy
+  openxrExtensionStrings: XR_MSFT_hand_interaction
+  company: Microsoft
   priority: 0
   required: 0
 --- !u!114 &9176189875039077981
