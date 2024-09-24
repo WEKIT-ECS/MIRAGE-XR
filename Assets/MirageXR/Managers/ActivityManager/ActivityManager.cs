@@ -128,7 +128,7 @@ namespace MirageXR.NewDataModel
             _onActivityLoaded.Invoke(_activity);
             _onActivityUpdated.Invoke(_activity);
 
-            var json = JsonConvert.SerializeObject(_activity, Formatting.Indented);
+            var json = JsonConvert.SerializeObject(_activity, Formatting.Indented); //temp
             _activity = JsonConvert.DeserializeObject<Activity>(json);
             Debug.Log(json);
 

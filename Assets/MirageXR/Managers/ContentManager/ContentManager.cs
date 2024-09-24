@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
-using UnityEngine;
 using UnityEngine.Events;
 
 namespace MirageXR.NewDataModel
@@ -41,6 +39,7 @@ namespace MirageXR.NewDataModel
             foreach (var content in activity.Content)
             {
                 await _assetsManager.PrepareContent(activity.Id, content);
+                _contents.Add(content);
             }
         }
 
@@ -65,7 +64,7 @@ namespace MirageXR.NewDataModel
             _contents.Add(content);
         }
 
-        public Content CreateContent()
+        /*public Content CreateContent()
         {
             return new Content<ImageContentData>
             {
@@ -94,6 +93,6 @@ namespace MirageXR.NewDataModel
                 CreationDate = DateTime.UtcNow,
                 Version = Application.version,
             };
-        }
+        }*/
     }
 }

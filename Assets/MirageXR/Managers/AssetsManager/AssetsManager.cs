@@ -14,7 +14,7 @@ namespace MirageXR.NewDataModel
 {
     public class AssetsManager : IAssetsManager
     {
-        private const string ZIP_EXTENSION = ".zip";
+        private const string ZipExtension = ".zip";
 
         private INetworkDataProvider _networkDataProvider;
 
@@ -70,7 +70,7 @@ namespace MirageXR.NewDataModel
 
         private bool IsFileExists(Guid activityId, Guid contentId, Guid fileId)
         {
-            return File.Exists(GetFilePath(activityId, contentId, fileId) + ZIP_EXTENSION);
+            return File.Exists(GetFilePath(activityId, contentId, fileId) + ZipExtension);
         }
 
         private async UniTask<bool> IsHashEqual(Guid activityId, Guid contentId, FileModel fileModel)
