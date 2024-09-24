@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using Utility.UiKit.Runtime.Extensions;
@@ -26,12 +27,9 @@ namespace MirageXR
         
         private void Awake()
         {
-            SetActiveState(_sidebarOpened, true);
-            SetActiveState(_sidebarClosed, false);
+            MenuManager.ScreenChanged.AddListener(OnScreenChanged);
             _buttonSidebarCollapse.SafeSetListener(OnSidebarCollapse);
             _buttonSidebarExpand.SafeSetListener(OnSidebarExpand);
-            
-            _toggleActivities.SafeSetIsOn(true);
             
             _toggleActivities.SafeAddListener(OnToggleActivities);
             _toggleDashboard.SafeAddListener(OnToggleDashboard);
@@ -43,11 +41,6 @@ namespace MirageXR
             _toggleSidebarClosedProfile.SafeAddListener(OnToggleSidebarClosedProfile);
             _toggleSidebarClosedInfo.SafeAddListener(OnToggleSidebarClosedInfo);
         }
-        
-        private void SetActiveState(GameObject obj, bool state)
-        {
-            if (obj != null) obj.SetActive(state);
-        }
 
         private void OnToggleSidebarClosedInfo(bool value)
         {
@@ -57,6 +50,19 @@ namespace MirageXR
 
         private void OnToggleSidebarClosedProfile(bool value)
         {
+            ColorBlock cb = _toggleSidebarClosedProfile.colors;
+            if (value)
+            {
+                cb.normalColor = Color.gray;
+                cb.highlightedColor = Color.gray;
+            }
+            else
+            {
+                cb.normalColor = Color.white;
+                cb.highlightedColor = Color.white;
+            }
+            _toggleSidebarClosedProfile.colors = cb;
+            
             if (!value) return;
             MenuManager.Instance.ShowScreen(ScreenName.ProfileScreen);
         }
@@ -68,6 +74,19 @@ namespace MirageXR
 
         private void OnToggleSidebarClosedActivities(bool value)
         {
+            ColorBlock cb = _toggleSidebarClosedActivities.colors;
+            if (value)
+            {
+                cb.normalColor = Color.gray;
+                cb.highlightedColor = Color.gray;
+            }
+            else
+            {
+                cb.normalColor = Color.white;
+                cb.highlightedColor = Color.white;
+            }
+            _toggleSidebarClosedActivities.colors = cb;
+            
             if (!value) return;
             MenuManager.Instance.ShowScreen(ScreenName.MainScreen);
         }
@@ -104,6 +123,11 @@ namespace MirageXR
         {
             _sidebarOpened.SetActive(false);
             _sidebarClosed.SetActive(true);
+        }
+        
+        protected virtual void OnScreenChanged(ScreenName screenName, string args)
+        {
+           
         }
     }
 }

@@ -30,7 +30,7 @@ namespace MirageXR
 
         private AIManager _aiManager;
         private OpenAIManager _openAIManager;
-        private VirtualInstructorManager _virtualInstructorManager; 
+        private VirtualInstructorOrchestrator _virtualInstructorOrchestrator; 
 
         public Camera baseCamera => _baseCamera;
 
@@ -66,7 +66,7 @@ namespace MirageXR
 
         public OpenAIManager openAIManager => _openAIManager;
 
-        public VirtualInstructorManager virtualInstructorManager => _virtualInstructorManager;
+        public VirtualInstructorOrchestrator virtualInstructorOrchestrator => _virtualInstructorOrchestrator;
 
         private bool _isInitialized;
 
@@ -139,7 +139,7 @@ namespace MirageXR
                 _aiManager = new AIManager();
                 _openAIManager = new OpenAIManager();
 
-                _virtualInstructorManager = new VirtualInstructorManager();
+                _virtualInstructorOrchestrator = new VirtualInstructorOrchestrator();
 
                 await _imageTargetManager.InitializationAsync();
                 await _floorManager.InitializationAsync();

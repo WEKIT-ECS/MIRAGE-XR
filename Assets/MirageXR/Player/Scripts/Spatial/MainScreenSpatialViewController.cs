@@ -10,6 +10,12 @@ namespace MirageXR
         {
             base.OnBind();
             View.SetActionOnButtonSortingClick(() => {MenuManager.Instance.ShowSortingView(); });
+            View.SetActionOnButtonAddNewActivityClick(OnAddNewActivityClick);
+        }
+
+        private void OnAddNewActivityClick()
+        {
+            MenuManager.Instance.ShowScreen(ScreenName.NewActivityScreen);
         }
     }
 }
