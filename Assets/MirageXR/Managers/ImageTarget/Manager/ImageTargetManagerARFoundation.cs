@@ -2,9 +2,11 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MirageXR;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using UnityEngine.SpatialTracking;
 
 public class ImageTargetManagerARFoundation : ImageTargetManagerBase
 {
@@ -144,15 +146,18 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
 
         await Task.Yield();
 
-        var arSessionOrigin = MirageXR.Utilities.FindOrCreateComponent<ARSessionOrigin>(cameraParent.gameObject);
+        //var arSessionOrigin = MirageXR.Utilities.FindOrCreateComponent<ARSessionOrigin>(cameraParent.gameObject);
+        var arSessionOrigin = MirageXR.Utilities.FindOrCreateComponent<XROrigin>(cameraParent.gameObject);
         _arTrackedImageManager = MirageXR.Utilities.FindOrCreateComponent<ARTrackedImageManager>(cameraParent.gameObject);
 
-        arSessionOrigin.camera = mainCamera;
+        // arSessionOrigin.camera = mainCamera;
+        arSessionOrigin.Camera = mainCamera;
         await Task.Yield();
 
         var arCameraManager = MirageXR.Utilities.FindOrCreateComponent<ARCameraManager>(mainCamera.gameObject);
         var arCameraBackground = MirageXR.Utilities.FindOrCreateComponent<ARCameraBackground>(mainCamera.gameObject);
-        var arPoseDriver = MirageXR.Utilities.FindOrCreateComponent<ARPoseDriver>(mainCamera.gameObject);
+        //var arPoseDriver = MirageXR.Utilities.FindOrCreateComponent<ARPoseDriver>(mainCamera.gameObject);
+        var arPoseDriver = MirageXR.Utilities.FindOrCreateComponent<TrackedPoseDriver>(mainCamera.gameObject);
 
         //await Task.DelayInMilliseconds(DELAY);
 
