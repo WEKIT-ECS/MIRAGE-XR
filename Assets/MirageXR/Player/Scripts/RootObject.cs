@@ -38,10 +38,10 @@ namespace MirageXR
         public ImageTargetManagerWrapper imageTargetManager => _imageTargetManager;
 
         public CalibrationManager calibrationManager => _calibrationManager;
+        
+        public PlaneManagerWrapper planeManager => _planeManager;
 
         public FloorManagerWrapper floorManager => _floorManager;
-
-        public PlaneManagerWrapper planeManager => _planeManager;
 
         public GridManager gridManager => _gridManager;
 
