@@ -1315,6 +1315,38 @@ MonoBehaviour:
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
+--- !u!1 &877252578
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 877252579}
+  m_Layer: 0
+  m_Name: ISS full
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &877252579
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 877252578}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1931310708}
+  m_Father: {fileID: 908367484}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &890496490
 GameObject:
   m_ObjectHideFlags: 0
@@ -1480,6 +1512,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2073839674}
+  - {fileID: 877252579}
   m_Father: {fileID: 1888399833}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &930107306
@@ -1713,7 +1746,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 967372974}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 722d4e293dfff3147bdd3a81c0951f4e, type: 3}
   m_Name: 
@@ -1770,7 +1803,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 967372974}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 728ad7fae8e460a4ba41265c7308d757, type: 3}
   m_Name: 
@@ -1815,7 +1848,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1063889753}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 83d9acc7968244a8886f3af591305bcb, type: 3}
   m_Name: 
@@ -2414,7 +2447,7 @@ PrefabInstance:
     - target: {fileID: 2589809054354682351, guid: 61132d80baa3c024d995c0e48ddf27df,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5264965659737637154, guid: 61132d80baa3c024d995c0e48ddf27df,
         type: 3}
@@ -2586,6 +2619,75 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1850354961}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1887339587
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 877252579}
+    m_Modifications:
+    - target: {fileID: -6689036041284674117, guid: cbe9bfab81e524c0db60cc688abd6f35,
+        type: 3}
+      propertyPath: m_Name
+      value: esa_iss_columbus_module_1m
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774220344278030320, guid: cbe9bfab81e524c0db60cc688abd6f35,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774220344278030320, guid: cbe9bfab81e524c0db60cc688abd6f35,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774220344278030320, guid: cbe9bfab81e524c0db60cc688abd6f35,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774220344278030320, guid: cbe9bfab81e524c0db60cc688abd6f35,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774220344278030320, guid: cbe9bfab81e524c0db60cc688abd6f35,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774220344278030320, guid: cbe9bfab81e524c0db60cc688abd6f35,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774220344278030320, guid: cbe9bfab81e524c0db60cc688abd6f35,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774220344278030320, guid: cbe9bfab81e524c0db60cc688abd6f35,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774220344278030320, guid: cbe9bfab81e524c0db60cc688abd6f35,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774220344278030320, guid: cbe9bfab81e524c0db60cc688abd6f35,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: -5645937942226959685, guid: cbe9bfab81e524c0db60cc688abd6f35,
+    type: 3}
 --- !u!1 &1888399831
 GameObject:
   m_ObjectHideFlags: 0
@@ -2663,6 +2765,12 @@ Transform:
   - {fileID: 494256583}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &1931310708 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2774220344278030320, guid: cbe9bfab81e524c0db60cc688abd6f35,
+    type: 3}
+  m_PrefabInstance: {fileID: 1887339587}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1942155608
 GameObject:
   m_ObjectHideFlags: 0
@@ -2768,6 +2876,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: esa_iss_columbus_module_1m
+      objectReference: {fileID: 0}
+    - target: {fileID: -6689036041284674117, guid: cbe9bfab81e524c0db60cc688abd6f35,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6579712378729512932, guid: cbe9bfab81e524c0db60cc688abd6f35,
         type: 3}
