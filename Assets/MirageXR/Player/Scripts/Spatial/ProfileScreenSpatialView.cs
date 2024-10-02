@@ -2,12 +2,11 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using Utility.UiKit.Runtime.MVC;
 using Utility.UiKit.Runtime.Extensions;
 
 namespace MirageXR
 {
-    public class ProfileScreenSpatialView : View
+    public class ProfileScreenSpatialView : ScreenView
     {
         [Header("Buttons")]
         [SerializeField] private Button _buttonLogin;
@@ -22,6 +21,9 @@ namespace MirageXR
         [Header("Texts")]
         [SerializeField] private TMP_Text _tmpTextMoodleServer;
         [SerializeField] private TMP_Text _tmpTextServer;
+        [Header("GameObjects")]
+        [SerializeField] private GameObject _signInPrefab; // TEMP
+        [SerializeField] private GameObject _registerPrefab;// TEMP
         
         public void SetActionOnButtonLoginClick(UnityAction action) => _buttonLogin.SafeSetListener(action);
         public void SetActionOnButtonRegisterClick(UnityAction action) => _buttonRegister.SafeSetListener(action);
@@ -32,5 +34,15 @@ namespace MirageXR
         public void SetActionOnButtonAvatarClick(UnityAction action) => _buttonAvatar.SafeSetListener(action);
         public void SetActionOnButtonGridClick(UnityAction action) => _buttonGrid.SafeSetListener(action);
         public void SetActionOnButtonDevelopModeClick(UnityAction action) => _buttonDevelopMode.SafeSetListener(action);
+
+        public void ShowSignInPanel()
+        {
+            _signInPrefab.SetActive(true);
+        }
+        
+        public void ShowRegisterPanel()
+        {
+            _registerPrefab.SetActive(true);
+        }
     }
 }

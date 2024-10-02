@@ -1,5 +1,7 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
+using Utility.UiKit.Runtime.Extensions;
 
 namespace MirageXR
 {
@@ -10,12 +12,105 @@ namespace MirageXR
         [SerializeField] private GameObject _sidebarOpened;
         [SerializeField] private GameObject _sidebarClosed;
         
+        [Header ("Sidebar open. Toggles")]
+        [SerializeField] private Toggle _toggleActivities;
+        [SerializeField] private Toggle _toggleDashboard;
+        [SerializeField] private Toggle _toggleProfile;
+        [SerializeField] private Toggle _toggleInfo;
+        
+        [Header("Sidebar closed. Toggles")]
+        [SerializeField] private Toggle _toggleSidebarClosedActivities;
+        [SerializeField] private Toggle _toggleSidebarClosedDashboard;
+        [SerializeField] private Toggle _toggleSidebarClosedProfile;
+        [SerializeField] private Toggle _toggleSidebarClosedInfo;
+
+        
         private void Awake()
         {
-            _sidebarOpened.SetActive(true);
-            _sidebarClosed.SetActive(false);
-            _buttonSidebarCollapse.onClick.AddListener(OnSidebarCollapse); 
-            _buttonSidebarExpand.onClick.AddListener(OnSidebarExpand);
+            MenuManager.ScreenChanged.AddListener(OnScreenChanged);
+            _buttonSidebarCollapse.SafeSetListener(OnSidebarCollapse);
+            _buttonSidebarExpand.SafeSetListener(OnSidebarExpand);
+            
+            _toggleActivities.SafeAddListener(OnToggleActivities);
+            _toggleDashboard.SafeAddListener(OnToggleDashboard);
+            _toggleProfile.SafeAddListener(OnToggleProfile);
+            _toggleInfo.SafeAddListener(OnToggleInfo);
+            
+            _toggleSidebarClosedActivities.SafeAddListener(OnToggleSidebarClosedActivities);
+            _toggleSidebarClosedDashboard.SafeAddListener(OnToggleSidebarClosedDashboard);
+            _toggleSidebarClosedProfile.SafeAddListener(OnToggleSidebarClosedProfile);
+            _toggleSidebarClosedInfo.SafeAddListener(OnToggleSidebarClosedInfo);
+        }
+
+        private void OnToggleSidebarClosedInfo(bool value)
+        {
+            if (!value) return;
+            // TODO
+        }
+
+        private void OnToggleSidebarClosedProfile(bool value)
+        {
+            ColorBlock cb = _toggleSidebarClosedProfile.colors;
+            if (value)
+            {
+                cb.normalColor = Color.gray;
+                cb.highlightedColor = Color.gray;
+            }
+            else
+            {
+                cb.normalColor = Color.white;
+                cb.highlightedColor = Color.white;
+            }
+            _toggleSidebarClosedProfile.colors = cb;
+            
+            if (!value) return;
+            MenuManager.Instance.ShowScreen(ScreenName.ProfileScreen);
+        }
+
+        private void OnToggleSidebarClosedDashboard(bool value)
+        {
+            // TODO
+        }
+
+        private void OnToggleSidebarClosedActivities(bool value)
+        {
+            ColorBlock cb = _toggleSidebarClosedActivities.colors;
+            if (value)
+            {
+                cb.normalColor = Color.gray;
+                cb.highlightedColor = Color.gray;
+            }
+            else
+            {
+                cb.normalColor = Color.white;
+                cb.highlightedColor = Color.white;
+            }
+            _toggleSidebarClosedActivities.colors = cb;
+            
+            if (!value) return;
+            MenuManager.Instance.ShowScreen(ScreenName.MainScreen);
+        }
+        
+        private void OnToggleInfo(bool value)
+        {
+            // TODO
+        }
+
+        private void OnToggleProfile(bool value)
+        {
+            if (!value) return;
+            MenuManager.Instance.ShowScreen(ScreenName.ProfileScreen);
+        }
+
+        private void OnToggleDashboard(bool value)
+        {
+            // TODO
+        }
+
+        private void OnToggleActivities(bool value)
+        {
+            if (!value) return;
+            MenuManager.Instance.ShowScreen(ScreenName.MainScreen);
         }
 
         private void OnSidebarExpand()
@@ -28,6 +123,11 @@ namespace MirageXR
         {
             _sidebarOpened.SetActive(false);
             _sidebarClosed.SetActive(true);
+        }
+        
+        protected virtual void OnScreenChanged(ScreenName screenName, string args)
+        {
+           
         }
     }
 }
