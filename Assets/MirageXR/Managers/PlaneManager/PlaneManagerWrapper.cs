@@ -123,10 +123,12 @@ public class PlaneManagerWrapper : MonoBehaviour
             case ForceManagerType.Default:
                 return CreateDefaultManager();
             case ForceManagerType.Editor:
+                Debug.Log("PlaneManager - Editor");
                 var managerEditor = gameObject.AddComponent<PlaneManagerEditor>();
                 managerEditor.prefabPlane = _prefabEditorPlane;
                 return managerEditor;
             case ForceManagerType.ARFoundation:
+                Debug.Log("PlaneManager - AR foundation");
                 var managerARFoundation = gameObject.AddComponent<PlaneManagerARFoundation>();
                 managerARFoundation.prefabPlane = _prefabARFoundationPlane;
                 return managerARFoundation;
