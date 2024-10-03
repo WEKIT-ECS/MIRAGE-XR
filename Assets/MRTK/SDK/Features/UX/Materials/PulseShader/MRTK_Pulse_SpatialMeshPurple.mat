@@ -2,21 +2,31 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: MRTK_Pulse_SpatialMeshPurple
   m_Shader: {fileID: 4800000, guid: c31d23be78a0c7d438feb3d0305a7707, type: 3}
-  m_ShaderKeywords: USE_ALBEDO_TEXTURE _ALPHABLEND_ON _COLOR_MAP_ENABLE_ _COLOR_MAP_ENABLE__ON
-    _DIRECTIONAL_LIGHT _DISABLE_ALBEDO_MAP _PULSE_ENABLED__ON _RIM_LIGHT _UNITY_TO_SRGB__ON
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - USE_ALBEDO_TEXTURE
+  - _ALPHABLEND_ON
+  - _COLOR_MAP_ENABLE__ON
+  - _DIRECTIONAL_LIGHT
+  - _DISABLE_ALBEDO_MAP
+  - _RIM_LIGHT
+  - _UNITY_TO_SRGB__ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -24,6 +34,7 @@ Material:
         m_Texture: {fileID: 2800000, guid: 98e3b4b60df348344985cb363d5778fc, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - USE_ALBEDO_TEXTURE: 1
     - _Auto_Pulse_: 0
@@ -69,3 +80,4 @@ Material:
     - _Fill_Color_: {r: 0.6857557, g: 0.19290671, b: 0.8018868, a: 1}
     - _Line_Color_: {r: 0.990566, g: 0.2476415, b: 0.8074146, a: 1}
     - _Pulse_Origin_: {r: 0, g: 0, b: 0, a: 1}
+  m_BuildTextureStacks: []
