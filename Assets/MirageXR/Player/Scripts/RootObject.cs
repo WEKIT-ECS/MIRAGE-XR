@@ -133,10 +133,10 @@ namespace MirageXR
                 _virtualInstructorManager = new VirtualInstructorManager();
 
                 await _imageTargetManager.InitializationAsync();
+                await _planeManager.InitializationAsync();
                 await _floorManager.InitializationAsync();
                 _calibrationManager.InitializationAsync();
                 await _pointCloudManager.InitializationAsync();
-                await _planeManager.InitializationAsync();
                 _gridManager.Initialization();
                 _cameraCalibrationChecker.Initialization();
                 _platformManager.Initialization();
