@@ -129,7 +129,7 @@ namespace MirageXR
         // callback for LearningExperienceEngine.WorkplaceManager.AddPlace
         private async Task CreateDetectableWorkplaceObject(LearningExperienceEngine.Place place, LearningExperienceEngine.Action newAction)
         {
-            objectFactory.CreatePlaceObject(place, newAction);
+            await objectFactory.CreatePlaceObject(place, newAction);
         }
 
         /// <summary>
