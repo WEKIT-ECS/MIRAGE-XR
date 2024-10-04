@@ -17,7 +17,7 @@ PlayerSettings:
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0, g: 0, b: 0, a: 1}
-  m_ShowUnitySplashScreen: 1
+  m_ShowUnitySplashScreen: 0
   m_ShowUnitySplashLogo: 1
   m_SplashScreenOverlayOpacity: 1
   m_SplashScreenAnimation: 1
@@ -52,7 +52,7 @@ PlayerSettings:
   defaultScreenWidthWeb: 960
   defaultScreenHeightWeb: 600
   m_StereoRenderingPath: 0
-  m_ActiveColorSpace: 0
+  m_ActiveColorSpace: 1
   unsupportedMSAAFallback: 0
   m_SpriteBatchVertexThreshold: 300
   m_MTRendering: 1
@@ -142,7 +142,7 @@ PlayerSettings:
   vulkanEnableLateAcquireNextImage: 0
   vulkanEnableCommandBufferRecycling: 1
   loadStoreDebugModeEnabled: 0
-  visionOSBundleVersion: 1.0
+  visionOSBundleVersion: 2.7.160
   tvOSBundleVersion: 1.0
   bundleVersion: 2.7.160
   preloadedAssets:
@@ -162,7 +162,7 @@ PlayerSettings:
   allowHDRDisplaySupport: 0
   useHDRDisplay: 0
   hdrBitDepth: 0
-  m_ColorGamuts: 00000000
+  m_ColorGamuts: 0300000000000000
   targetPixelDensity: 30
   resolutionScalingMode: 0
   resetResolutionOnWindowResize: 0
@@ -171,6 +171,7 @@ PlayerSettings:
   applicationIdentifier:
     Android: com.WEKIT.MirageXR
     Standalone: com.WEKIT.MirageXR
+    VisionOS: com.wekit-ecs.miragexr
     iPhone: com.wekit-ecs.miragexr
   buildNumber:
     Standalone: 0
@@ -865,7 +866,7 @@ PlayerSettings:
   webGLMemoryGeometricGrowthCap: 96
   webGLPowerPreference: 2
   scriptingDefineSymbols:
-    Android: VUFORIA_ANDROID_SETTINGS;ARFOUNDATION_PRESENT;MRTK_GLTF_IMPORTER_OFF;FUSION_WEAVER;FUSION2;XRSHARED_ADDON_AVAILABLE;READY_PLAYER_ME;CROSS_PLATFORM_INPUT;MOBILE_INPUT
+    Android: VUFORIA_ANDROID_SETTINGS;ARFOUNDATION_PRESENT;MRTK_GLTF_IMPORTER_OFF;FUSION_WEAVER;FUSION2;XRSHARED_ADDON_AVAILABLE;READY_PLAYER_ME;CROSS_PLATFORM_INPUT;MOBILE_INPUT;USE_INPUT_SYSTEM_POSE_CONTROL;USE_STICK_CONTROL_THUMBSTICKS;POLYSPATIAL_SDK_AVAILABLE
     EmbeddedLinux: READY_PLAYER_ME
     GameCoreScarlett: READY_PLAYER_ME
     GameCoreXboxOne: READY_PLAYER_ME
@@ -875,12 +876,12 @@ PlayerSettings:
     PS5: READY_PLAYER_ME
     QNX: READY_PLAYER_ME
     Stadia: READY_PLAYER_ME
-    Standalone: MRTK_GLTF_IMPORTER_OFF;READY_PLAYER_ME;CROSS_PLATFORM_INPUT
+    Standalone: MRTK_GLTF_IMPORTER_OFF;READY_PLAYER_ME;CROSS_PLATFORM_INPUT;USE_INPUT_SYSTEM_POSE_CONTROL;USE_STICK_CONTROL_THUMBSTICKS
     VisionOS: MRTK_GLTF_IMPORTER_OFF;READY_PLAYER_ME;XRSHARED_ADDON_AVAILABLE;FUSION_WEAVER;FUSION2;POLYSPATIAL_SDK_AVAILABLE
     WebGL: READY_PLAYER_ME
-    Windows Store Apps: release;VUFORIA_WSA_SETTINGS;READY_PLAYER_ME;XRSHARED_ADDON_AVAILABLE;FUSION_WEAVER;FUSION2;MRTK_GLTF_IMPORTER_OFF;MOBILE_INPUT
+    Windows Store Apps: release;VUFORIA_WSA_SETTINGS;READY_PLAYER_ME;XRSHARED_ADDON_AVAILABLE;FUSION_WEAVER;FUSION2;MRTK_GLTF_IMPORTER_OFF;MOBILE_INPUT;USE_INPUT_SYSTEM_POSE_CONTROL;USE_STICK_CONTROL_THUMBSTICKS
     XboxOne: READY_PLAYER_ME
-    iPhone: VUFORIA_IOS_SETTINGS;ARFOUNDATION_PRESENT;UNITY_XR_ARKIT_LOADER_ENABLED;MRTK_GLTF_IMPORTER_OFF;READY_PLAYER_ME;CROSS_PLATFORM_INPUT;MOBILE_INPUT
+    iPhone: VUFORIA_IOS_SETTINGS;ARFOUNDATION_PRESENT;MRTK_GLTF_IMPORTER_OFF;READY_PLAYER_ME;CROSS_PLATFORM_INPUT;MOBILE_INPUT;UNITY_XR_ARKIT_LOADER_ENABLED
     tvOS: READY_PLAYER_ME
   additionalCompilerArguments: {}
   platformArchitecture:

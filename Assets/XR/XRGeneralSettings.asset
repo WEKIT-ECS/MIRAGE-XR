@@ -1,5 +1,21 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8350980994810756320
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4c3631f5e58749a59194e0cf6baf6d5, type: 3}
+  m_Name: WebGL Providers
+  m_EditorClassIdentifier: 
+  m_RequiresSettingsUpdate: 0
+  m_AutomaticLoading: 0
+  m_AutomaticRunning: 0
+  m_Loaders: []
 --- !u!114 &-7149971468016163439
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -102,13 +118,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2dc886499c26824283350fa532d087d, type: 3}
   m_Name: XRGeneralSettings
   m_EditorClassIdentifier: 
-  Keys: 0e00000007000000010000000400000024000000
+  Keys: 0e000000070000000100000004000000240000000d000000
   Values:
   - {fileID: -1174765072846773880}
   - {fileID: -1320681756008391923}
   - {fileID: -7149971468016163439}
   - {fileID: -6311311529330462914}
   - {fileID: 3892089702125626112}
+  - {fileID: 683037353692547476}
+--- !u!114 &683037353692547476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d236b7d11115f2143951f1e14045df39, type: 3}
+  m_Name: WebGL Settings
+  m_EditorClassIdentifier: 
+  m_LoaderManagerInstance: {fileID: -8350980994810756320}
+  m_InitManagerOnStart: 0
 --- !u!114 &2017327475650474257
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -126,6 +157,7 @@ MonoBehaviour:
   m_AutomaticRunning: 0
   m_Loaders:
   - {fileID: 11400000, guid: dcd47f4affc24024bb21dbd5c161e56f, type: 2}
+  - {fileID: 11400000, guid: c73c5a5c556b15941bedcb9cf431f61a, type: 2}
 --- !u!114 &2542862360781291717
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -160,6 +192,7 @@ MonoBehaviour:
   m_AutomaticRunning: 0
   m_Loaders:
   - {fileID: 11400000, guid: c73c5a5c556b15941bedcb9cf431f61a, type: 2}
+  - {fileID: 11400000, guid: 429085d55f2e3514398c7de3548a8d46, type: 2}
   - {fileID: 11400000, guid: e34ce962b882781439a14ab96140dba5, type: 2}
 --- !u!114 &3892089702125626112
 MonoBehaviour:
