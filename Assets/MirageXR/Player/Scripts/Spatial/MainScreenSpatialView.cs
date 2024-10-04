@@ -20,13 +20,11 @@ namespace MirageXR
         [SerializeField] private GameObject _sidebarClosed;
         [Header("InputField")]
         [SerializeField] private TMP_InputField _searchField;
-
+        
         public void SetActionOnButtonSidebarCollapseClick(UnityAction action) => _buttonSidebarCollapse.SafeSetListener(action);
         public void SetActionOnButtonSidebarExpandClick(UnityAction action) => _buttonSidebarExpand.SafeSetListener(action);
         public void SetActionOnButtonSortingClick(UnityAction action) => _buttonSorting.SafeSetListener(action);
         public void SetActionOnButtonAddNewActivityClick(UnityAction action) => _buttonAddNewActivity.SafeSetListener(action);
-
-		public void SetActionOnInputFieldSearchValueChanged(UnityAction<string> action) => _searchField.SafeSetListener(action);
-
+        public void SetActionOnInputFieldSearchValueChanged(UnityAction<string> action) => _searchField.SafeSetListener(action);
     }
 }

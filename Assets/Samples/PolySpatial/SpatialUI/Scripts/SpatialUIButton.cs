@@ -23,10 +23,11 @@ namespace PolySpatial.Samples
         public override void Press(Vector3 position)
         {
             base.Press(position);
-
+            Debug.Log("PRESS PRESSED");
             if (WasPressed != null)
             {
                 WasPressed.Invoke(m_ButtonText, m_MeshRenderer);
+                Debug.Log("PRESSED");
             }
         }
     }

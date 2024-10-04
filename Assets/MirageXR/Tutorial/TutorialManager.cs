@@ -487,7 +487,7 @@ namespace MirageXR
 
             if (wsStep.FocusObject == "<<LAST_AUGMENTATION_CREATED>>")
             {
-                //wsStep.FocusObject = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.GetLastCreatedAugmentationId();
+                wsStep.FocusObject = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.GetLastCreatedAugmentationId();
             }
 
             // Show by WS step handler
