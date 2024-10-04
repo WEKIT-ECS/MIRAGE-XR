@@ -25,7 +25,6 @@ namespace MirageXR
         [SerializeField] private GameObject _signInPrefab; // TEMP
         [SerializeField] private GameObject _registerPrefab;// TEMP
         
-
         public void SetActionOnButtonLoginClick(UnityAction action) => _buttonLogin.SafeSetListener(action);
         public void SetActionOnButtonRegisterClick(UnityAction action) => _buttonRegister.SafeSetListener(action);
         public void SetActionOnButtonMoodleServersClick(UnityAction action) => _buttonMoodleServers.SafeSetListener(action);

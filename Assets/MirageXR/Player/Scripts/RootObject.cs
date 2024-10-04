@@ -15,11 +15,13 @@ namespace MirageXR
         [SerializeField] private ImageTargetManagerWrapper _imageTargetManager;
         [SerializeField] private CalibrationManager _calibrationManager;
         [SerializeField] private FloorManagerWrapper _floorManager;
+        [SerializeField] private FloorManagerWithFallback _floorManagerWithRaycastFallback;
         [SerializeField] private PlaneManagerWrapper _planeManager;
         [SerializeField] private PointCloudManager _pointCloudManager;
         [SerializeField] private GridManager _gridManager;
         [SerializeField] private CameraCalibrationChecker _cameraCalibrationChecker;
         [SerializeField] private PlatformManager _platformManager;
+        [SerializeField] private SharingManager _sharingManager;
 
         private EditorSceneService _editorSceneService;
         [SerializeField] private WorkplaceController _workplaceController; // added with lib-lee migration
@@ -38,10 +40,12 @@ namespace MirageXR
         public ImageTargetManagerWrapper imageTargetManager => _imageTargetManager;
 
         public CalibrationManager calibrationManager => _calibrationManager;
-        
-        public PlaneManagerWrapper planeManager => _planeManager;
 
         public FloorManagerWrapper floorManager => _floorManager;
+
+        public FloorManagerWithFallback floorManagerWithRaycastFallback => _floorManagerWithRaycastFallback;
+
+        public PlaneManagerWrapper planeManager => _planeManager;
 
         public GridManager gridManager => _gridManager;
 
@@ -54,6 +58,8 @@ namespace MirageXR
         public CameraCalibrationChecker cameraCalibrationChecker => _cameraCalibrationChecker;
 
         public PlatformManager platformManager => _platformManager;
+
+        public SharingManager sharingManager => _sharingManager;
 
         public AIManager aiManager => _aiManager;
 
@@ -114,10 +120,12 @@ namespace MirageXR
                 _imageTargetManager ??= new GameObject("ImageTargetManagerWrapper").AddComponent<ImageTargetManagerWrapper>();
                 _calibrationManager ??= new GameObject("CalibrationManager").AddComponent<CalibrationManager>();
                 _floorManager ??= new GameObject("FloorManagerWrapper").AddComponent<FloorManagerWrapper>();
-                _pointCloudManager ??= new GameObject("PointCloudManager").AddComponent<PointCloudManager>();
+				_floorManagerWithRaycastFallback ??= new GameObject("FloorManagerWithRaycastFallback").AddComponent<FloorManagerWithFallback>();
+				_pointCloudManager ??= new GameObject("PointCloudManager").AddComponent<PointCloudManager>();
                 _gridManager ??= new GameObject("GridManager").AddComponent<GridManager>();
                 _cameraCalibrationChecker ??= new GameObject("CameraCalibrationChecker").AddComponent<CameraCalibrationChecker>();
                 _platformManager ??= new GameObject("PlatformManager").AddComponent<PlatformManager>();
+                _sharingManager ??= new GameObject("Sharing Manager").AddComponent<SharingManager>();
                 _planeManager ??= new GameObject("PlaneManager").AddComponent<PlaneManagerWrapper>();
 
                 _editorSceneService = new EditorSceneService();
@@ -140,6 +148,7 @@ namespace MirageXR
                 _gridManager.Initialization();
                 _cameraCalibrationChecker.Initialization();
                 _platformManager.Initialization();
+                _sharingManager.Initialization();
 
                 await _openAIManager.InitializeAsync();
                 await _aiManager.InitializeAsync();

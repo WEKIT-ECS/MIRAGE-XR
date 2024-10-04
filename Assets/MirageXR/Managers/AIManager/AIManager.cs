@@ -65,13 +65,13 @@ namespace MirageXR
         {
             if (!string.IsNullOrEmpty(accessToken))
             {
-                Debug.LogInfo("AImanager: auth with token : " + accessToken + " to url " + _url);
+                Debug.LogInfo("AIManager: auth with token : " + accessToken + " to url " + _url);
                 _token = accessToken;
                 SetModels(await AiServices.GetAvailableModelsAsync(_url, _token));
             }
             else
             {
-                Debug.LogWarning("AImanager: using direct auth as fallback after failed OIDC");
+                Debug.LogWarning("AIManager: using direct auth as fallback after failed OIDC");
                 _token = await AiServices.AuthenticateUserAsync(_url, _username, _password);
                 SetModels(await AiServices.GetAvailableModelsAsync(_url, _token));
             }
@@ -150,13 +150,8 @@ namespace MirageXR
         {
             const string fileName = "AI_Server";
             const string apiURLKey = "AI_API_URL";
-            const string usernameKey = "AI_USERNAME";
-            const string passwordKey = "AI_PASSWORD";
-
             string url = null;
-            string username = null;
-            string password = null;
-
+            
             var filepath = Resources.Load(fileName) as TextAsset;
             if (filepath == null)
             {
@@ -170,12 +165,6 @@ namespace MirageXR
 
                 switch (parts[0].ToUpper())
                 {
-                    case usernameKey:
-                        username = parts[1].Trim();
-                        break;
-                    case passwordKey:
-                        password = parts[1].Trim();
-                        break;
                     case apiURLKey:
                         url = parts[1].Trim();
                         break;
@@ -186,20 +175,7 @@ namespace MirageXR
             {
                 throw new Exception("can't read url");
             }
-
-            if (string.IsNullOrEmpty(username))
-            {
-                throw new Exception("can't read username");
-            }
-
-            if (string.IsNullOrEmpty(password))
-            {
-                throw new Exception("can't read password");
-            }
-
             _url = url;
-            _username = username;
-            _password = password;
         }
 
         /// <summary>

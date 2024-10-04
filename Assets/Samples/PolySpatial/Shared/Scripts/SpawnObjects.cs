@@ -34,7 +34,7 @@ namespace PolySpatial.Samples
 
         void WasPressed(string buttonText, MeshRenderer meshrenderer)
         {
-            Debug.Log("This works");
+            ForceSpawn();
         }
 
         public void ForceSpawn()

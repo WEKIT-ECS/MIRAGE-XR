@@ -24,7 +24,7 @@ namespace MirageXR
             else
             {
                 // show loading label
-                Loading.Instance.LoadingVisibility(true);
+                //Loading.Instance.LoadingVisibility(true);
 
                 Debug.LogInfo("Playing activity...");
                 Play();

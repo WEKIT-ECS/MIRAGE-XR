@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using Utility.UiKit.Runtime.Extensions;
@@ -26,8 +27,7 @@ namespace MirageXR
         
         private void Awake()
         {
-            SetActiveState(_sidebarOpened, true);
-            SetActiveState(_sidebarClosed, false);
+            MenuManager.ScreenChanged.AddListener(OnScreenChanged);
             _buttonSidebarCollapse.SafeSetListener(OnSidebarCollapse);
             _buttonSidebarExpand.SafeSetListener(OnSidebarExpand);
             
@@ -40,11 +40,6 @@ namespace MirageXR
             _toggleSidebarClosedDashboard.SafeAddListener(OnToggleSidebarClosedDashboard);
             _toggleSidebarClosedProfile.SafeAddListener(OnToggleSidebarClosedProfile);
             _toggleSidebarClosedInfo.SafeAddListener(OnToggleSidebarClosedInfo);
-        }
-        
-        private void SetActiveState(GameObject obj, bool state)
-        {
-            if (obj != null) obj.SetActive(state);
         }
 
         private void OnToggleSidebarClosedInfo(bool value)
@@ -128,6 +123,11 @@ namespace MirageXR
         {
             _sidebarOpened.SetActive(false);
             _sidebarClosed.SetActive(true);
+        }
+        
+        protected virtual void OnScreenChanged(ScreenName screenName, string args)
+        {
+           
         }
     }
 }
