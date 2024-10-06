@@ -33,9 +33,10 @@ public class PointCloudManager : MonoBehaviour
         // if on Android, then add the pointcloud prefab (not supported on VisionOS)
         _arPointCloudManager = MirageXR.Utilities.FindOrCreateComponent<ARPointCloudManager>(cameraParent);
         _arPointCloudManager.pointCloudPrefab = _prefabPointCloud;
-#else
+/* #else 
+        // ar mesh manager is not working on the device build 
         _arMeshManager = MirageXR.Utilities.FindOrCreateComponent<ARMeshManager>(cameraParent);
-        _arMeshManager.meshPrefab = _prefabSpatialMapMesh;
+        _arMeshManager.meshPrefab = _prefabSpatialMapMesh; */
 #endif
 
         await Task.Yield();
