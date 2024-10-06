@@ -546,6 +546,52 @@ MonoBehaviour:
   _onTargetLost:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &441447407
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 441447408}
+  - component: {fileID: 441447409}
+  m_Layer: 0
+  m_Name: SharingManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &441447408
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 441447407}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1888399833}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &441447409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 441447407}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d0e97c53d699e040bbd8fc3b71ed321, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _connectionManagerPrefab: {fileID: 2228691272098697712, guid: d9989d9fcc49a5042bde77782072913f,
+    type: 3}
 --- !u!1 &517222967
 GameObject:
   m_ObjectHideFlags: 0
@@ -1184,6 +1230,7 @@ GameObject:
   - component: {fileID: 890496492}
   - component: {fileID: 890496491}
   - component: {fileID: 890496493}
+  - component: {fileID: 890496494}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -1291,6 +1338,18 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
+--- !u!114 &890496494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 890496490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d73b0a95be81246699cf0d9ecdc01863, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &930107306
 GameObject:
   m_ObjectHideFlags: 0
@@ -1352,6 +1411,7 @@ GameObject:
   - component: {fileID: 940170953}
   - component: {fileID: 940170955}
   - component: {fileID: 940170954}
+  - component: {fileID: 940170956}
   m_Layer: 0
   m_Name: UserTorchLight
   m_TagString: Untagged
@@ -1459,6 +1519,18 @@ Light:
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &940170956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 940170952}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d73b0a95be81246699cf0d9ecdc01863, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &967372974
 GameObject:
   m_ObjectHideFlags: 0
@@ -1589,7 +1661,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1006682205
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2291,7 +2363,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7e0ade2f1dbd36449a2fb6aa65b3eae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _mainCameraTransform: {fileID: 807537238}
+  _mainCameraTransform: {fileID: 0}
 --- !u!1 &1378881397
 GameObject:
   m_ObjectHideFlags: 0
@@ -2590,7 +2662,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e459b8393654410795d56ea44901509a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _baseCamera: {fileID: 807537243}
+  _baseCamera: {fileID: 0}
   _lee: {fileID: 930107307}
   _serviceBootstrapper: {fileID: 0}
   _imageTargetManager: {fileID: 383528546}
@@ -2602,7 +2674,7 @@ MonoBehaviour:
   _gridManager: {fileID: 141412590}
   _cameraCalibrationChecker: {fileID: 1370046045}
   _platformManager: {fileID: 8856608567612908827}
-  _sharingManager: {fileID: 0}
+  _sharingManager: {fileID: 441447409}
   _workplaceController: {fileID: 92586981}
   _contentController: {fileID: 1244045460}
 --- !u!4 &1888399833
@@ -2625,6 +2697,7 @@ Transform:
   - {fileID: 1139113736}
   - {fileID: 141412591}
   - {fileID: 1980728072}
+  - {fileID: 441447408}
   - {fileID: 92586980}
   - {fileID: 517222968}
   - {fileID: 1263153152}
