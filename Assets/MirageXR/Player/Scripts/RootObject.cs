@@ -23,11 +23,10 @@ namespace MirageXR
         [SerializeField] private GridManager _gridManager;
         [SerializeField] private CameraCalibrationChecker _cameraCalibrationChecker;
         [SerializeField] private PlatformManager _platformManager;
-
-        private EditorSceneService _editorSceneService;
         [SerializeField] private WorkplaceController _workplaceController; // added with lib-lee migration
         [SerializeField] private ContentAugmentationController _contentController; // added with lib-lee migration
 
+        private EditorSceneService _editorSceneService;
         private AIManager _aiManager;
         private OpenAIManager _openAIManager;
         private VirtualInstructorManager _virtualInstructorManager; 
@@ -40,43 +39,25 @@ namespace MirageXR
         public Camera BaseCamera => _baseCamera;
 
         public LearningExperienceEngine.LearningExperienceEngine LEE => _lee;
-
         public MirageXRServiceBootstrapper ServiceBootstrapper => _serviceBootstrapper;
-
         public ImageTargetManagerWrapper ImageTargetManager => _imageTargetManager;
-
         public CalibrationManager CalibrationManager => _calibrationManager;
-
         public FloorManagerWrapper FloorManager => _floorManager;
-
         public PlaneManagerWrapper PlaneManager => _planeManager;
-
         public GridManager GridManager => _gridManager;
-
         public EditorSceneService EditorSceneService => _editorSceneService;
-
         public WorkplaceController WorkplaceController => _workplaceController;
-
         public ContentAugmentationController ContentController => _contentController;
-
         public CameraCalibrationChecker CameraCalibrationChecker => _cameraCalibrationChecker;
-
         public PlatformManager PlatformManager => _platformManager;
-
         public AIManager AIManager => _aiManager;
-
         public OpenAIManager OpenAIManager => _openAIManager;
-
         public VirtualInstructorManager VirtualInstructorManager => _virtualInstructorManager;
-
         public IActivityManager ActivityManager => _activityManager;
-
         public IContentManager ContentManager => _contentManager;
-
         public INetworkDataProvider NetworkDataProvider => _networkDataProvider;
-
+        public IStepManager StepManager => _stepManager;
         public IAssetsManager AssetsManager => _assetsManager;
-
         private bool _isInitialized;
 
         public async Task WaitForInitialization()
@@ -168,8 +149,11 @@ namespace MirageXR
 
                 await _openAIManager.InitializeAsync();
                 await _aiManager.InitializeAsync();
-                await _contentManager.InitializeAsync(_assetsManager);
+                await _assetsManager.InitializeAsync(_networkDataProvider, _activityManager);
+                await _stepManager.InitializeAsync(_contentManager, _activityManager);
+                await _contentManager.InitializeAsync(_assetsManager, _stepManager, _activityManager);
                 await _activityManager.InitializeAsync(_contentManager, _networkDataProvider, _assetsManager, _stepManager, _lee.authManager);
+
                 _isInitialized = true;
 
                 //LearningExperienceEngine.EventManager.OnClearAll += ResetManagers;

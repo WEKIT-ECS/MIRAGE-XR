@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace MirageXR.NewDataModel
 {
     public class Response
     {
-        public List<Error>? Errors { get; set; }
-        public ResponseStatusCode StatusCode { get; set; } = ResponseStatusCode.OK;
+        [JsonProperty] public Error? Error { get; set; }
+        [JsonProperty] public ResponseStatusCode StatusCode { get; set; } = ResponseStatusCode.OK;
+        public bool IsSuccess => StatusCode is ResponseStatusCode.OK or ResponseStatusCode.Created;
 
         public static Response<T> Success<T>(T data)
         {
@@ -14,14 +16,14 @@ namespace MirageXR.NewDataModel
 
         public static Response Failure(ErrorCodes errorCode, string description, ResponseStatusCode statusCode)
         {
-            var error = new Error {Code = errorCode, ErrorMessage = description};
-            return new Response {Errors = new List<Error> {error}, StatusCode = statusCode};
+            var error = new Error {Code = errorCode, Message = description};
+            return new Response {Error = error, StatusCode = statusCode};
         }
 
         public static Response<T> Failure<T>(T data, ErrorCodes errorCode, string description, ResponseStatusCode statusCode)
         {
-            var error = new Error {Code = errorCode, ErrorMessage = description};
-            return new Response<T> {Data = data, Errors = new List<Error> {error}, StatusCode = statusCode};
+            var error = new Error {Code = errorCode, Message = description};
+            return new Response<T> {Data = data, Error = error, StatusCode = statusCode};
         }
 
         public static Response Success()
@@ -32,7 +34,7 @@ namespace MirageXR.NewDataModel
 
     public class Response<T> : Response
     {
-        public T Data { get; set; }
+        [JsonProperty] public T Data { get; set; }
 
         public Response()
         {
@@ -56,7 +58,7 @@ namespace MirageXR.NewDataModel
 
     public class Error
     {
-        public string ErrorMessage { get; set; }
+        public string Message { get; set; }
         public ErrorCodes Code { get; set; }
     }
 
@@ -74,10 +76,7 @@ namespace MirageXR.NewDataModel
         public FailedResponseData(Response response)
         {
             StatusCode = response.StatusCode;
-            if (response.Errors is { Count: > 0 })
-            {
-                Error = response.Errors[0];  // The 1st element of the List in Response
-            }
+            Error = response.Error;
         }
     }
 }

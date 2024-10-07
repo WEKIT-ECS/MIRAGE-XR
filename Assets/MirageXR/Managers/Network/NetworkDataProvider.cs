@@ -16,15 +16,16 @@ namespace MirageXR.NewDataModel
 
         private static string Token => LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.AccessToken;
 
-        public async UniTask<List<ActivityResponse>> GetActivitiesAsync(CancellationToken cancellationToken = default)
+        public async UniTask<Response<List<Activity>>> GetActivitiesAsync(CancellationToken cancellationToken = default)
         {
             const string api = "activity/";
 
             var url = $"{ServerURL}/{api}";
-            return await Network.RequestAsync<List<ActivityResponse>>(url, token: Token, type: Network.RequestType.Get, cancellationToken: cancellationToken);
+            var data = await Network.RequestAsync<List<Activity>>(url, token: Token, type: Network.RequestType.Get, cancellationToken: cancellationToken);
+            return data;
         }
 
-        public async UniTask<string> GetContentHashAsync(Guid activityId, Guid contentId, Guid fileId, CancellationToken cancellationToken = default)
+        public async UniTask<Response<string>> GetContentHashAsync(Guid activityId, Guid contentId, Guid fileId, CancellationToken cancellationToken = default)
         {
             const string api = "assets/get_hash";
 
@@ -32,7 +33,7 @@ namespace MirageXR.NewDataModel
             return await Network.RequestAsync<string>(url, token: Token, type: Network.RequestType.Get, cancellationToken: cancellationToken);
         }
 
-        public async UniTask<Activity> GetActivityAsync(Guid activityId, CancellationToken cancellationToken = default)
+        public async UniTask<Response<Activity>> GetActivityAsync(Guid activityId, CancellationToken cancellationToken = default)
         {
             const string api = "activity/get";
 
@@ -40,7 +41,7 @@ namespace MirageXR.NewDataModel
             return await Network.RequestAsync<Activity>(url, token: Token, type: Network.RequestType.Get, cancellationToken: cancellationToken);
         }
 
-        public async UniTask<Activity> UploadActivityAsync(Activity activity, CancellationToken cancellationToken = default)
+        public async UniTask<Response> UploadActivityAsync(Activity activity, CancellationToken cancellationToken = default)
         {
             const string api = "activity/post";
             const string mediaType = "application/json";
@@ -50,12 +51,44 @@ namespace MirageXR.NewDataModel
             return await Network.RequestAsync<Activity>(url, content, token: Token, type: Network.RequestType.Post, cancellationToken: cancellationToken);
         }
 
-        public async UniTask DownloadContentAsync(Guid activityId, Guid contentId, Guid fileModelId, CancellationToken cancellationToken = default)
+        public async UniTask<Response> GetAssetAsync(string activityId, string fileId, CancellationToken cancellationToken = default)
+        {
+            const string api = "assets/post";
+            const string mediaType = "application/json";
+
+            var url = $"{ServerURL}/{api}";
+
+            return await Network.RequestAsync<Response>(url, token: Token, type: Network.RequestType.Get, cancellationToken: cancellationToken);
+        }
+
+        public async UniTask<Response> UploadAssetAsync(RequestUploadAsset requestUploadAsset, CancellationToken cancellationToken = default)
+        {
+            const string api = "assets/post";
+            const string mediaType = "application/json";
+
+            var url = $"{ServerURL}/{api}";
+
+            var content = new StringContent(JsonConvert.SerializeObject(requestUploadAsset), Encoding.UTF8, mediaType);
+            return await Network.RequestAsync<Response>(url, content, token: Token, type: Network.RequestType.Post, cancellationToken: cancellationToken);
+        }
+
+        public async UniTask<Response> UpdateAssetAsync(RequestUploadAsset requestUploadAsset, CancellationToken cancellationToken = default)
+        {
+            const string api = "assets/post";
+            const string mediaType = "application/json";
+
+            var url = $"{ServerURL}/{api}";
+
+            var content = new StringContent(JsonConvert.SerializeObject(requestUploadAsset), Encoding.UTF8, mediaType);
+            return await Network.RequestAsync<Response>(url, content, token: Token, type: Network.RequestType.Put, cancellationToken: cancellationToken);
+        }
+
+        public async UniTask<Response> DownloadAssetAsync(Guid activityId, Guid fileModelId, CancellationToken cancellationToken = default)
         {
             const string api = "assets/get";
 
-            var url = $"{ServerURL}/{api}?activity_id={activityId}&contentId={contentId}&fileId={fileModelId}";
-            await Network.RequestAsync<Activity>(url, token: Token, type: Network.RequestType.Get, cancellationToken: cancellationToken);
+            var url = $"{ServerURL}/{api}?activity_id={activityId}&fileName={fileModelId}";
+            return await Network.RequestAsync<Activity>(url, token: Token, type: Network.RequestType.Get, cancellationToken: cancellationToken);
         }
     }
 }

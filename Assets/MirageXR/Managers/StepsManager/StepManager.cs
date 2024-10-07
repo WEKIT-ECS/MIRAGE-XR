@@ -33,19 +33,31 @@ namespace MirageXR.NewDataModel
 
         private readonly UnityEventActivityStep _onStepChanged = new();
 
-        private readonly List<ActivityStep> _steps = new();
-        private readonly List<HierarchyItem> _hierarchy = new();
+        private List<ActivityStep> _steps = new();
+        private List<HierarchyItem> _hierarchy = new();
         private readonly List<StepQueueItem> _stepQueue = new();
 
         private IContentManager _contentManager;
+        private IActivityManager _activityManager;
 
         private ActivityStep _currentStep;
         private HierarchyItem _currentHierarchyItem;
 
-        public UniTask InitializeAsync(IContentManager contentManager)
+        public ActivityStep CurrentStep => _currentStep;
+
+        public UniTask InitializeAsync(IContentManager contentManager, IActivityManager activityManager)
         {
             _contentManager = contentManager;
+            _activityManager = activityManager;
             return UniTask.CompletedTask;
+        }
+
+        public void LoadSteps(Activity activity, Guid parentId = default)
+        {
+            _steps = activity.Steps;
+            _hierarchy = activity.Hierarchy;
+            UpdateStepQueue();
+            GoToStep(_stepQueue.First().StepId);
         }
 
         public void AddHierarchyItem(HierarchyItem hierarchyItem, Guid parentId = default)
@@ -64,7 +76,7 @@ namespace MirageXR.NewDataModel
             UpdateStepQueue();
         }
 
-        public void AddStep(Location location, string name = IStepManager.EmptyString, string description = IStepManager.EmptyString, Guid hierarchyItemId = default)
+        public ActivityStep AddStep(Location location, string name = IStepManager.EmptyString, string description = IStepManager.EmptyString, Guid hierarchyItemId = default)
         {
             var step = new ActivityStep
             {
@@ -97,27 +109,53 @@ namespace MirageXR.NewDataModel
 
             _currentHierarchyItem.StepIds ??= new List<Guid>();
             _currentHierarchyItem.StepIds.Add(step.Id);
-
             _steps.Add(step);
+
+            _activityManager.UpdateActivity();
+
+            UpdateStepQueue();
+            if (_currentStep == null)
+            {
+                GoToStep(step.Id);
+            }
+
+            return step;
         }
 
         public void GoToNextStep()
         {
             var guid = Guid.Empty;
-            var enumerator = _stepQueue.GetEnumerator();
-            do
+            for (var i = 0; i < _stepQueue.Count; i++)
             {
-                if (enumerator.Current.StepId == _currentStep.Id)
+                if (_stepQueue[i].StepId == _currentStep.Id && i < _stepQueue.Count - 1)
                 {
-                    if (enumerator.MoveNext())
-                    {
-                        guid = enumerator.Current.StepId;
-                    }
+                    guid = _stepQueue[i + 1].StepId;
                     break;
-                } 
-            } while (enumerator.MoveNext());
+                }
+            }
 
-            GoToStep(guid);
+            if (guid != Guid.Empty)
+            {
+                GoToStep(guid);
+            }
+        }
+
+        public void GoToPreviousStep()
+        {
+            var guid = Guid.Empty;
+            for (var i = 0; i < _stepQueue.Count; i++)
+            {
+                if (_stepQueue[i].StepId == _currentStep.Id && i - 1 >= 0)
+                {
+                    guid = _stepQueue[i - 1].StepId;
+                    break;
+                }
+            }
+
+            if (guid != Guid.Empty)
+            {
+                GoToStep(guid);
+            }
         }
 
         public bool TryGoToStep(Guid stepId)
@@ -137,8 +175,8 @@ namespace MirageXR.NewDataModel
         public void GoToStep(Guid stepId)
         {
             _currentStep = _steps.First(t => t.Id == stepId);
-            _contentManager.ShowContent(_currentStep);
             _onStepChanged.Invoke(_currentStep);
+            _contentManager.ShowContent(_currentStep.Id);
         }
 
         public List<ActivityStep> GetSteps()

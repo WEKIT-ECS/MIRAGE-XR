@@ -14,10 +14,14 @@ namespace MirageXR.NewDataModel
 
         event UnityAction<ActivityStep> OnStepChanged;
 
-        UniTask InitializeAsync(IContentManager contentManager);
+        ActivityStep CurrentStep { get; }
+
+        UniTask InitializeAsync(IContentManager contentManager, IActivityManager activityManager);
+        void LoadSteps(Activity activity, Guid parentId = default);
         void AddHierarchyItem(HierarchyItem hierarchyItem, Guid parentId = default);
-        void AddStep(Location location, string name = EmptyString, string description = EmptyString, Guid hierarchyItemId = default);
+        ActivityStep AddStep(Location location, string name = EmptyString, string description = EmptyString, Guid hierarchyItemId = default);
         void GoToNextStep();
+        void GoToPreviousStep();
         bool TryGoToStep(Guid stepId);
         void GoToStep(Guid stepId);
         List<ActivityStep> GetSteps();

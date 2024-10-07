@@ -1,12 +1,11 @@
 using DG.Tweening;
-using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+//using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -44,6 +43,8 @@ public class ActivityListView_v2 : BaseView
 
     public List<LearningExperienceEngine.SessionContainer> content => _content;
 
+    //private List<Activity> _activities;
+    
     private RootView_v2 rootView => (RootView_v2)_parentView;
 
     public override void Initialization(BaseView parentView)
@@ -62,8 +63,16 @@ public class ActivityListView_v2 : BaseView
 
         LearningExperienceEngine.EventManager.OnStartActivity += ShowBackButtons;
 
+        //RootObject.Instance.ActivityManager.OnActivitiesFetched += OnActivitiesFetched;
+
         FetchAndUpdateView();
     }
+
+    /*private void OnActivitiesFetched(List<Activity> activities)
+    {
+        _activities = activities;
+        UpdateView();
+    }*/
 
     private void OnDestroy()
     {
@@ -122,6 +131,7 @@ public class ActivityListView_v2 : BaseView
     public async void FetchAndUpdateView()
     {
         LoadView.Instance?.Show(true);
+        //await RootObject.Instance.ActivityManager.FetchActivitiesAsync();
         _content = await FetchContent();
         UpdateView();
         LoadView.Instance?.Hide();
@@ -145,6 +155,15 @@ public class ActivityListView_v2 : BaseView
             item.Init(content);
             _items.Add(item);
         });
+
+        /*if (_activities != null)
+        {
+            foreach (var activity in _activities)
+            {
+                var item = Instantiate(prefab, _listTransform);
+                item.Init(activity);
+                _items.Add(item);
+            */
     }
 
     private void OnByDateClick()
