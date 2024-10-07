@@ -1,3 +1,4 @@
+using Fusion;
 using System;
 using System.Threading.Tasks;
 using MirageXR.NewDataModel;
@@ -18,18 +19,21 @@ namespace MirageXR
         [SerializeField] private ImageTargetManagerWrapper _imageTargetManager;
         [SerializeField] private CalibrationManager _calibrationManager;
         [SerializeField] private FloorManagerWrapper _floorManager;
+        [SerializeField] private FloorManagerWithFallback _floorManagerWithRaycastFallback;
         [SerializeField] private PlaneManagerWrapper _planeManager;
         [SerializeField] private PointCloudManager _pointCloudManager;
         [SerializeField] private GridManager _gridManager;
         [SerializeField] private CameraCalibrationChecker _cameraCalibrationChecker;
         [SerializeField] private PlatformManager _platformManager;
+        [SerializeField] private SharingManager _sharingManager;
+
+        private EditorSceneService _editorSceneService;
         [SerializeField] private WorkplaceController _workplaceController; // added with lib-lee migration
         [SerializeField] private ContentAugmentationController _contentController; // added with lib-lee migration
 
-        private EditorSceneService _editorSceneService;
         private AIManager _aiManager;
         private OpenAIManager _openAIManager;
-        private VirtualInstructorManager _virtualInstructorManager; 
+        private VirtualInstructorOrchestrator _virtualInstructorOrchestrator; 
         private IActivityManager _activityManager;
         private IContentManager _contentManager;
         private IStepManager _stepManager;
@@ -39,25 +43,28 @@ namespace MirageXR
         public Camera BaseCamera => _baseCamera;
 
         public LearningExperienceEngine.LearningExperienceEngine LEE => _lee;
-        public MirageXRServiceBootstrapper ServiceBootstrapper => _serviceBootstrapper;
-        public ImageTargetManagerWrapper ImageTargetManager => _imageTargetManager;
-        public CalibrationManager CalibrationManager => _calibrationManager;
-        public FloorManagerWrapper FloorManager => _floorManager;
-        public PlaneManagerWrapper PlaneManager => _planeManager;
-        public GridManager GridManager => _gridManager;
-        public EditorSceneService EditorSceneService => _editorSceneService;
-        public WorkplaceController WorkplaceController => _workplaceController;
-        public ContentAugmentationController ContentController => _contentController;
-        public CameraCalibrationChecker CameraCalibrationChecker => _cameraCalibrationChecker;
-        public PlatformManager PlatformManager => _platformManager;
-        public AIManager AIManager => _aiManager;
-        public OpenAIManager OpenAIManager => _openAIManager;
-        public VirtualInstructorManager VirtualInstructorManager => _virtualInstructorManager;
+        public MirageXRServiceBootstrapper serviceBootstrapper => _serviceBootstrapper;
+        public ImageTargetManagerWrapper imageTargetManager => _imageTargetManager;
+        public CalibrationManager calibrationManager => _calibrationManager;
+        public FloorManagerWrapper floorManager => _floorManager;
+        public FloorManagerWithFallback floorManagerWithRaycastFallback => _floorManagerWithRaycastFallback;
+        public PlaneManagerWrapper planeManager => _planeManager;
+        public GridManager gridManager => _gridManager;
+        public EditorSceneService editorSceneService => _editorSceneService;
+        public WorkplaceController workplaceController => _workplaceController;
+        public ContentAugmentationController contentController => _contentController;
+        public CameraCalibrationChecker cameraCalibrationChecker => _cameraCalibrationChecker;
+        public PlatformManager platformManager => _platformManager;
+        public SharingManager sharingManager => _sharingManager;
+        public AIManager aiManager => _aiManager;
+        public OpenAIManager openAIManager => _openAIManager;
+        public VirtualInstructorOrchestrator virtualInstructorOrchestrator => _virtualInstructorOrchestrator;
         public IActivityManager ActivityManager => _activityManager;
         public IContentManager ContentManager => _contentManager;
         public INetworkDataProvider NetworkDataProvider => _networkDataProvider;
         public IStepManager StepManager => _stepManager;
         public IAssetsManager AssetsManager => _assetsManager;
+
         private bool _isInitialized;
 
         public async Task WaitForInitialization()
@@ -115,10 +122,12 @@ namespace MirageXR
                 _imageTargetManager ??= new GameObject("ImageTargetManagerWrapper").AddComponent<ImageTargetManagerWrapper>();
                 _calibrationManager ??= new GameObject("CalibrationManager").AddComponent<CalibrationManager>();
                 _floorManager ??= new GameObject("FloorManagerWrapper").AddComponent<FloorManagerWrapper>();
-                _pointCloudManager ??= new GameObject("PointCloudManager").AddComponent<PointCloudManager>();
+				_floorManagerWithRaycastFallback ??= new GameObject("FloorManagerWithRaycastFallback").AddComponent<FloorManagerWithFallback>();
+				_pointCloudManager ??= new GameObject("PointCloudManager").AddComponent<PointCloudManager>();
                 _gridManager ??= new GameObject("GridManager").AddComponent<GridManager>();
                 _cameraCalibrationChecker ??= new GameObject("CameraCalibrationChecker").AddComponent<CameraCalibrationChecker>();
                 _platformManager ??= new GameObject("PlatformManager").AddComponent<PlatformManager>();
+                _sharingManager ??= new GameObject("Sharing Manager").AddComponent<SharingManager>();
                 _planeManager ??= new GameObject("PlaneManager").AddComponent<PlaneManagerWrapper>();
 
                 _editorSceneService = new EditorSceneService();
@@ -131,7 +140,7 @@ namespace MirageXR
                 _aiManager = new AIManager();
                 _openAIManager = new OpenAIManager();
 
-                _virtualInstructorManager = new VirtualInstructorManager();
+                _virtualInstructorOrchestrator = new VirtualInstructorOrchestrator();
                 _networkDataProvider = new NetworkDataProvider();
                 _contentManager = new ContentManager();
                 _stepManager = new StepManager();
@@ -146,6 +155,7 @@ namespace MirageXR
                 _gridManager.Initialization();
                 _cameraCalibrationChecker.Initialization();
                 _platformManager.Initialization();
+                _sharingManager.Initialization();
 
                 await _openAIManager.InitializeAsync();
                 await _aiManager.InitializeAsync();
