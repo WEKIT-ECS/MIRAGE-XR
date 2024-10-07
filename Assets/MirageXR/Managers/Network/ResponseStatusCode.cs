@@ -89,6 +89,7 @@ namespace MirageXR.NewDataModel
         UnknownWebError                 = 670,  //      Translated from WebExceptionStatus.UnknownError 
         UnknownServiceError             = 671,  //      Translated from Unity.Services.Core.CommonErrorCodes.Unknown
 
+        Canceled                        = 995, 
         ProtocolError                   = 996,  //      WebExceptionStatus.ProtocolError or filtered (grouped) HTTP (REST) or HTTP error codes
         Timeout                         = 997,  // !    A Server (proxy) or a Client Service timed out => retry with increased timeout = if (failure = abort)
         SerializationError              = 998,  //      Bug in Server serializer or Client deserializer

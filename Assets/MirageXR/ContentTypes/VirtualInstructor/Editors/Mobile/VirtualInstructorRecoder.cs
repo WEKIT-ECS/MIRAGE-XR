@@ -60,6 +60,11 @@ namespace MirageXR
 
         public void Update()
         {
+            if (RootObject.Instance is null)
+            {
+                return;
+            }
+
             if (!RootObject.Instance.VirtualInstructorManager.IsVirtualInstructorInList())
             {
                 Hide();

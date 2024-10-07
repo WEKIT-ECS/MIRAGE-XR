@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
@@ -9,13 +10,14 @@ namespace MirageXR.NewDataModel
     public class ContentManager : IContentManager
     {
         private IAssetsManager _assetsManager;
+        private IStepManager _stepManager;
 
         private readonly UnityEventContents _onContentActivated = new();
 
         private readonly List<Content> _contents = new();
         private List<Content> _activeContent;
 
-        public event UnityAction<List<Content>> OnContantActivated
+        public event UnityAction<List<Content>> OnContentActivated
         {
             add
             {
@@ -28,9 +30,10 @@ namespace MirageXR.NewDataModel
             remove => _onContentActivated.RemoveListener(value);
         }
 
-        public UniTask InitializeAsync(IAssetsManager assetsManager)
+        public UniTask InitializeAsync(IAssetsManager assetsManager, IStepManager stepManager, IActivityManager activityManager)
         {
             _assetsManager = assetsManager;
+            _stepManager = stepManager;
             return UniTask.CompletedTask;
         }
 
@@ -53,15 +56,30 @@ namespace MirageXR.NewDataModel
             _contents.Clear();
         }
 
-        public void ShowContent(ActivityStep currentStep)
+        public void ShowContent(Guid currentStepId)
         {
-            _activeContent = _contents.Where(content => content.Steps.Contains(currentStep.Id)).ToList();
+            _activeContent = _contents.Where(content => content.Steps.Contains(currentStepId)).ToList();
             _onContentActivated.Invoke(_activeContent);
+        }
+
+        public void UpdateContent(Content content)
+        {
+            for (var i = 0; i < _contents.Count; i++)
+            {
+                if (_contents[i].Id == content.Id)
+                {
+                    _contents[i] = content;
+                }
+            }
         }
 
         public void AddContent(Content content)
         {
             _contents.Add(content);
+            if (content.Steps.Contains(_stepManager.CurrentStep.Id))
+            {
+                ShowContent(_stepManager.CurrentStep.Id);
+            }
         }
 
         /*public Content CreateContent()

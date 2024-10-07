@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
+//using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,6 +32,18 @@ namespace MirageXR
         public bool userIsEnroled => _container.hasDeadline;
 
         public Button BtnMain => _btnMain;
+
+        /*public void Init(Activity activity)
+        {
+            _btnMain.onClick.AddListener(() =>
+            {
+                RootObject.Instance.ActivityManager.LoadActivityAsync(activity.Id);
+            });
+
+            _txtLabel.text = _container.Name;
+            _txtDeadline.text = _container.deadline;
+            _txtAuthor.text = _container.author;
+        }*/
 
         public void Init(LearningExperienceEngine.SessionContainer container)
         {

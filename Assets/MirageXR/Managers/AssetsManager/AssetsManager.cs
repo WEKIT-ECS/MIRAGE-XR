@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
-using System.Text;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine;
 using LearningExperienceEngine.DataModel;
+using MirageXR.View;
 using Unity.SharpZipLib.Zip;
 using UnityEngine;
 using ContentType = LearningExperienceEngine.DataModel.ContentType;
@@ -15,12 +16,18 @@ namespace MirageXR.NewDataModel
     public class AssetsManager : IAssetsManager
     {
         private const string ZipExtension = ".zip";
+        private const string MirageXRAssetsBundle = "MirageXRAssetsBundle";
 
         private INetworkDataProvider _networkDataProvider;
+        private IActivityManager _activityManager;
+        private AssetsBundle _assetsBundle;
 
-        public UniTask InitializeAsync(INetworkDataProvider networkDataProvider)
+        public UniTask InitializeAsync(INetworkDataProvider networkDataProvider, IActivityManager activityManager)
         {
+            _assetsBundle = Resources.Load<AssetsBundle>(MirageXRAssetsBundle);
+            
             _networkDataProvider = networkDataProvider;
+            _activityManager = activityManager;
             return UniTask.CompletedTask;
         }
 
@@ -32,7 +39,7 @@ namespace MirageXR.NewDataModel
             {
                 if (!await IsHashEqual(activityId, content.Id, fileModel))
                 {
-                    _networkDataProvider.DownloadContentAsync(activityId, content.Id, fileModel.Id);
+                    _networkDataProvider.DownloadAssetAsync(activityId, fileModel.Id);
                 }
             }
         }
@@ -53,10 +60,10 @@ namespace MirageXR.NewDataModel
         {
             var fileId = Guid.NewGuid();
 
-            await using (var stream = new FileStream(folderPath, FileMode.OpenOrCreate))
+            await using (var stream = new FileStream(GetZipPath(activityId, contentId, fileId), FileMode.OpenOrCreate))
             await using (var zipStream = new ZipOutputStream(stream))
             {
-                await ZipUtilities.CompressFolderAsync(GetFilePath(activityId, contentId, fileId), zipStream);
+                await ZipUtilities.CompressFolderAsync(GetFolderPath(activityId, contentId, fileId), zipStream);
             }
 
             return new FileModel
@@ -68,38 +75,57 @@ namespace MirageXR.NewDataModel
             };
         }
 
+        public ContentView GetContentView(ContentType contentType)
+        {
+            return _assetsBundle.GetContentView(contentType);
+        }
+
+        public string GetFolderPath(Guid contentId, Guid fileId)
+        {
+            return Path.Combine(Application.persistentDataPath, _activityManager.ActivityId.ToString(), contentId.ToString(), fileId.ToString());
+        }
+
+        public string GetFolderPath(Guid activityId, Guid contentId, Guid fileId)
+        {
+            return Path.Combine(Application.persistentDataPath, activityId.ToString(), contentId.ToString(), fileId.ToString());
+        }
+
+        public string GetZipPath(Guid activityId, Guid contentId, Guid fileId)
+        {
+            return GetFolderPath(activityId, contentId, fileId) + ZipExtension;
+        }
+
         private bool IsFileExists(Guid activityId, Guid contentId, Guid fileId)
         {
-            return File.Exists(GetFilePath(activityId, contentId, fileId) + ZipExtension);
+            return File.Exists(GetZipPath(activityId, contentId, fileId));
         }
 
         private async UniTask<bool> IsHashEqual(Guid activityId, Guid contentId, FileModel fileModel)
         {
-            if (IsFileExists(activityId, contentId, fileModel.Id))
+            return false;
+
+            /*if (IsFileExists(activityId, contentId, fileModel.Id))
             {
                 return false;
             }
 
             var remoteHash = await _networkDataProvider.GetContentHashAsync(activityId, contentId, fileModel.Id);
             var localHash = GetFileHash(activityId, contentId, fileModel.Id);
-            return string.Equals(localHash, remoteHash);
-        }
-
-        public string GetFilePath(Guid activityId, Guid contentId, Guid fileId)
-        {
-            return Path.Combine(Application.persistentDataPath, activityId.ToString(), contentId.ToString(), fileId.ToString());
+            return string.Equals(localHash, remoteHash);*/
         }
 
         private string GetFileHash(Guid activityId, Guid contentId, Guid fileId)
         {
-            return CalculateMD5(GetFilePath(activityId, contentId, fileId));
+            return GetMD5Checksum(GetFolderPath(activityId, contentId, fileId));
         }
 
-        private static string CalculateMD5(string filename)
+        private static string GetMD5Checksum(string filename)
         {
-            using var md5 = MD5.Create();
             using var stream = File.OpenRead(filename);
-            return Encoding.Default.GetString(md5.ComputeHash(stream));
+            stream.Seek(0, SeekOrigin.Begin);
+            using var md5Instance = MD5.Create();
+            var hashResult = md5Instance.ComputeHash(stream);
+            return BitConverter.ToString(hashResult).Replace("-", "").ToLowerInvariant();
         }
 
         private static List<FileModel> GetFilesToLoad(Content content)
@@ -145,6 +171,19 @@ namespace MirageXR.NewDataModel
                     throw new ArgumentOutOfRangeException();
             }
             return list;
+        }
+
+        private static async UniTask<string> FilePathToBase64Async(string filePath, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var bytes = await File.ReadAllBytesAsync(filePath, cancellationToken);
+                return Convert.ToBase64String(bytes);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }

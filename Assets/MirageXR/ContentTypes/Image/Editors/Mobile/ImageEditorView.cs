@@ -71,7 +71,7 @@ public class ImageEditorView : PopupEditorBase
 
         //Caption button events <start>
         _captionAdd.onClick.AddListener(OnCaptionAddClicked);
-        _captionDone.onClick.AddListener(DoneaddingCaption);
+        _captionDone.onClick.AddListener(OnDoneAddingCaption);
         _captionEditBtn.onClick.AddListener(OnEditButtonClicked);
         _captionSaveBtn.onClick.AddListener(OnDoneButtonSaveCaption);
         _captionSaveBackBtn.onClick.AddListener(OnDoneButtonClick);
@@ -236,9 +236,8 @@ public class ImageEditorView : PopupEditorBase
         ImageCaptionEditorPrefab.SetActive(true);
 
     }
-    public void DoneaddingCaption()
+    public void OnDoneAddingCaption()
     {
-
         ImageCaptionPreviewPrefab.SetActive(true);
         ImageCaptionEditorPrefab.SetActive(false);
         text = _captionText.text;
