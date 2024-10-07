@@ -7,12 +7,12 @@ public class SpatialMapManager : MonoBehaviour
 {
     private MeshCollider[] spatialMapMeshs;
     
-    private static PlaneManagerWrapper planeManager => RootObject.Instance.PlaneManager;
+    private static PlaneManagerWrapper planeManager => RootObject.Instance.planeManager;
 
 #if UNITY_WSA
     private void Start()
     {
-        UpdateSpatialMapColliders(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive);
+        UpdateSpatialMapColliders(RootObject.Instance.LEE.activityManager.EditModeActive);
         //set colliders when first loading an activity
 
         planeManager.onDetectionEnabled.AddListener(OnDetectionEnabled);
@@ -22,7 +22,7 @@ public class SpatialMapManager : MonoBehaviour
     private void OnDetectionDisabled()
     {
         SpatialMapMeshVisible(false);
-        UpdateSpatialMapColliders(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive);
+        UpdateSpatialMapColliders(RootObject.Instance.LEE.activityManager.EditModeActive);
     }
 
     private void OnDetectionEnabled()
@@ -30,7 +30,7 @@ public class SpatialMapManager : MonoBehaviour
         SpatialMapMeshVisible(true);
         if (RootObject.Instance.LEE.activityManager.EditModeActive)
         {
-            UpdateSpatialMapColliders(!LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive);
+            UpdateSpatialMapColliders(!RootObject.Instance.LEE.activityManager.EditModeActive);
         }
     }
 

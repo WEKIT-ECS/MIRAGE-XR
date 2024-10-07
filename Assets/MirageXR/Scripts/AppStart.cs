@@ -26,7 +26,7 @@ public class AppStart : MonoBehaviour
     {
         yield return RequestPermissions();
         yield return CreateIbmWatsonCredential();
-        yield return LoadScene();
+        //yield return LoadScene();
     }
 
     private static IEnumerator CreateIbmWatsonCredential()
