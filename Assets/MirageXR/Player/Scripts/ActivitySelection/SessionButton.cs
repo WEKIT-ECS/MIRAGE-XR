@@ -15,7 +15,6 @@ namespace MirageXR
 
         public async void OnActivitySelected()
         {
-            Debug.Log("yoooo");
             // download if not local
             if (!_selectedListViewItem.Content.ExistsLocally)
             {
