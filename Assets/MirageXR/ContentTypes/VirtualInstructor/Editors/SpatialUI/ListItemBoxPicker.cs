@@ -6,10 +6,11 @@ public class ListItemBoxPicker : MonoBehaviour
 {
     [SerializeField] private TMP_Text _SetOptionText;
     [SerializeField] private Button _CloseButton;
-    [SerializeField] private ToggleGroup _toggleGroup; 
+    [SerializeField] private ToggleGroup _toggleGroup;
     private Toggle[] _toggles;
-    
-    
+    public delegate void ToggleSelectedDelegate(Toggle toggle, ListItemBoxPicker sender);
+    public event ToggleSelectedDelegate OnToggleSelected;
+
     void Start()
     {
         _CloseButton.onClick.AddListener(Close);
@@ -17,25 +18,20 @@ public class ListItemBoxPicker : MonoBehaviour
         foreach (Toggle toggle in _toggles)
         {
             _toggleGroup.RegisterToggle(toggle);
-            toggle.onValueChanged.AddListener(delegate {
-                OnToggleChanged(toggle);
-            });
+            toggle.onValueChanged.AddListener(delegate { OnToggleChanged(toggle); });
         }
     }
-
-   
 
     void OnToggleChanged(Toggle changedToggle)
     {
         if (changedToggle.isOn)
         {
             _toggleGroup.NotifyToggleOn(changedToggle);
-            UpdateField(changedToggle.name); 
+            UpdateField(changedToggle.name);
+            OnToggleSelected?.Invoke(changedToggle, this);
         }
-
     }
-
-    // Beispielmethode zum Aktualisieren eines Feldes
+    
     void UpdateField(string str)
     {
         _SetOptionText.text = str;
@@ -44,8 +40,6 @@ public class ListItemBoxPicker : MonoBehaviour
     
     private void Close()
     {
-       this.gameObject.SetActive(false);
+        gameObject.SetActive(false);
     }
-
-    
 }
