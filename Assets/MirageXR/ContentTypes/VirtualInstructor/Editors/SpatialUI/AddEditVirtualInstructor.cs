@@ -15,6 +15,11 @@ public class AddEditVirtualInstructor : MonoBehaviour
     [SerializeField] private Button animationSettingBtn;
     [SerializeField] private Button pathSettingBtn;
     [SerializeField] private Button applyBtn;
+    [SerializeField] private Button promptVI;
+    [SerializeField] private Button voicesVI;
+    [SerializeField] private Button modelVI;
+    [SerializeField] private Button languageVI;
+
     // Panels
     [Header("Panels")]
     [SerializeField] private GameObject settingsPanel;
@@ -23,6 +28,11 @@ public class AddEditVirtualInstructor : MonoBehaviour
     [SerializeField] private GameObject animationSettingPanel;
     [SerializeField] private GameObject pathSettingPanel;
     [SerializeField] private ListItemBoxPicker[] _listItemBoxPickers; // Array für mehrere ListItemBoxPicker
+    [SerializeField] private GameObject setPromptVI;
+    [SerializeField] private GameObject setVoicesVI; 
+    [SerializeField] private GameObject setModelVI; 
+    [SerializeField] private GameObject setLanguageVI; 
+    
 
     [Header("Communication Settings ")] 
     [SerializeField] private GameObject ai; 
@@ -44,9 +54,37 @@ public class AddEditVirtualInstructor : MonoBehaviour
         }
         animationSettingBtn.onClick.AddListener(OpenAnimationSettingPanel);
         pathSettingBtn.onClick.AddListener(OpenPathSettingPanel);
-        applyBtn.onClick.AddListener(Apply);
+        applyBtn.onClick.AddListener(Apply); 
+        promptVI.onClick.AddListener(OpenPromptPanel);
+        voicesVI.onClick.AddListener(OpenVoicePanel);
+        modelVI.onClick.AddListener(OpenModelPanel);
+        languageVI.onClick.AddListener(OpenLanguagePanel);
     }
-    
+
+    private void OpenLanguagePanel()
+    {
+        ResetPanel(); 
+        setLanguageVI.SetActive(true);
+    }
+
+    private void OpenModelPanel()
+    { 
+        ResetPanel(); 
+        setModelVI.SetActive(true);
+    }
+
+    private void OpenVoicePanel()
+    {
+        ResetPanel(); 
+        setVoicesVI.SetActive(true);
+    }
+
+    private void OpenPromptPanel()
+    {
+        ResetPanel(); 
+        setPromptVI.SetActive(true);
+    }
+
     void OnEnable()
     {
         foreach (var listItemBoxPicker in _listItemBoxPickers)
@@ -99,7 +137,6 @@ public class AddEditVirtualInstructor : MonoBehaviour
                 noSpeech.SetActive(true);
                 break;
         }
-        UnityEngine.Debug.Log("UpdateCommunicationSettings to " + toggle.gameObject.name);
     }
 
     private void UpdateAnimationSetting(Toggle toggle)
@@ -158,6 +195,10 @@ public class AddEditVirtualInstructor : MonoBehaviour
          communicationSettingPanel.SetActive(false);
          animationSettingPanel.SetActive(false);
          pathSettingPanel.SetActive(false);
+         setPromptVI.SetActive(false);
+         setVoicesVI.SetActive(false);
+         setModelVI.SetActive(false);
+         setLanguageVI.SetActive(false);
     }
     
     

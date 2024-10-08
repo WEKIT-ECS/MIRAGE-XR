@@ -465,6 +465,7 @@ GameObject:
   - component: {fileID: 9132264565760738231}
   - component: {fileID: 1478668549635266476}
   - component: {fileID: 5906873744401318678}
+  - component: {fileID: 7957436657650972031}
   m_Layer: 0
   m_Name: NewCharacterSettions
   m_TagString: Untagged
@@ -573,6 +574,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
   m_VerticalFit: 2
+--- !u!114 &7957436657650972031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2782676072868575070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 702c6de9f7fe84cf8bae92b21cb5a1c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  close: {fileID: 8061129370941237180}
 --- !u!1 &2969211841508686940
 GameObject:
   m_ObjectHideFlags: 0
@@ -1213,9 +1227,7 @@ PrefabInstance:
     - target: {fileID: 3913455080168857287, guid: abac81157a3e04f47bd7572063d05fcc,
         type: 3}
       propertyPath: m_text
-      value: 'Settings
-
-'
+      value: Context promt
       objectReference: {fileID: 0}
     - target: {fileID: 3913455080168857287, guid: abac81157a3e04f47bd7572063d05fcc,
         type: 3}
@@ -1769,6 +1781,18 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 8605711893119884651}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8061129370941237180 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1779840130503703255, guid: 33414f254b32244a882fff28efc6317a,
+    type: 3}
+  m_PrefabInstance: {fileID: 8605711893119884651}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &8607895785353997803
 PrefabInstance:
   m_ObjectHideFlags: 0
