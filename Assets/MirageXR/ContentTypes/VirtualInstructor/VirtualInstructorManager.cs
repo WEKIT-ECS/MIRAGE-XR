@@ -60,7 +60,7 @@ namespace MirageXR
                 UnityEngine.Debug.LogError("Main Camera is null");
                 return null;
             }
-            if (_instructors.Count == 1) return await _instructors[0].AskVirtualInstructor(question);
+            if (_instructors.Count == 1) return await _instructors[0].AskVirtualInstructorAudio(question);
             if (_instructors.Count > 1)
             {
                 VirtualInstructor winner = null;
@@ -87,7 +87,7 @@ namespace MirageXR
                         }
                     }
                 }
-                if (!winner.IsNull()) return await winner.AskVirtualInstructor(question);
+                if (!winner.IsNull()) return await winner.AskVirtualInstructorAudio(question);
                 UnityEngine.Debug.LogError($"AskClosestInstructor, No Instructor but _Instructors count is {_instructors.Count}.");
                 return null;
             }
