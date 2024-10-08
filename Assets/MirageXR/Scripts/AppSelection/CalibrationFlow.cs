@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class CalibrationFlow : MonoBehaviour
 {
-    private static CalibrationManager calibrationManager => RootObject.Instance.CalibrationManager;
+    private static ICalibrationManager calibrationManager => RootObject.Instance.CalibrationManager;
 
     private static FloorManagerWrapper floorManager => RootObject.Instance.FloorManager;
 
@@ -46,7 +46,7 @@ public class CalibrationFlow : MonoBehaviour
         _followMeToggle.SetFollowMeBehavior(true);
 
         _startPose = calibrationManager.GetAnchorPositionAsync();
-        calibrationManager.onCalibrationFinished.AddListener(OnCalibrationFinished);
+        calibrationManager.OnCalibrationFinished.AddListener(OnCalibrationFinished);
 
         _btnApply.gameObject.SetActive(false);
         _btnImageTarget.gameObject.SetActive(false);

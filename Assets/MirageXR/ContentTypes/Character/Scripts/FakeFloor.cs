@@ -9,7 +9,7 @@ namespace MirageXR
 
         private static PlaneManagerWrapper planeManager => RootObject.Instance.PlaneManager;
 
-        private static FloorManagerWithFallback floorManager => RootObject.Instance.floorManagerWithRaycastFallback;
+        private static FloorManagerWithFallback floorManager => RootObject.Instance.FloorManagerWithRaycastFallback;
 
         private Transform _camera;
 

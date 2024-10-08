@@ -1,8 +1,6 @@
-using Utility.UiKit.Runtime.MVC;
-
 namespace MirageXR
 {
-    public class ScreenView : View
+    public class ScreenView : Utility.UiKit.Runtime.MVC.View
     {
         protected override void Awake()
         {

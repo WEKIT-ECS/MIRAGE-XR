@@ -1,3 +1,4 @@
+#if FUSION2
 using Fusion.Sockets;
 using System;
 using System.Collections.Generic;
@@ -285,3 +286,7 @@ namespace Fusion.Addons.ConnectionManagerAddon
     }
 
 }
+#else
+using UnityEngine;
+    public class ConnectionManager : MonoBehaviour {}
+#endif

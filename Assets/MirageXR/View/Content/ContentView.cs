@@ -9,16 +9,18 @@ namespace MirageXR.View
 {
     public class ContentView : MonoBehaviour
     {
-        public Guid Id => _content.Id;
+        public Guid Id => Content.Id;
 
-        private Content _content;
+        protected Content Content;
+        protected ObjectManipulator ObjectManipulator;
+        protected BoundsControl BoundsControl;
 
         public virtual UniTask InitializeAsync(Content content)
         {
             name = $"Content_{content.Type}_{content.Id}";
             transform.SetLocalPositionAndRotation(content.Location.Position, Quaternion.Euler(content.Location.Rotation));
             transform.localScale = content.Location.Scale;
-            _content = content;
+            Content = content;
 
             InitializeManipulator();
             InitializeBoundsControl();
@@ -28,14 +30,38 @@ namespace MirageXR.View
 
         protected virtual void InitializeManipulator()
         {
-            var objectManipulator = gameObject.AddComponent<ObjectManipulator>();
-            objectManipulator.OnManipulationStarted.AddListener(OnManipulationStarted);
-            objectManipulator.OnManipulationEnded.AddListener(OnManipulationEnded);
+            ObjectManipulator = gameObject.AddComponent<ObjectManipulator>();
+            ObjectManipulator.OnManipulationStarted.AddListener(OnManipulationStarted);
+            ObjectManipulator.OnManipulationEnded.AddListener(OnManipulationEnded);
         }
 
         protected virtual void InitializeBoundsControl()
         {
-            var objectManipulator = gameObject.AddComponent<BoundsControl>();
+            BoundsControl = gameObject.AddComponent<BoundsControl>();
+            BoundsControl.RotateStarted.AddListener(OnRotateStarted);
+            BoundsControl.RotateStopped.AddListener(OnRotateStopped);
+            BoundsControl.ScaleStarted.AddListener(OnScaleStarted);
+            BoundsControl.ScaleStopped.AddListener(OnScaleStopped);
+        }
+
+        protected virtual void OnRotateStarted()
+        {
+        }
+
+        protected virtual void OnRotateStopped()
+        {
+            Content.Location.Rotation = transform.localEulerAngles;
+            RootObject.Instance.ContentManager.UpdateContent(Content);
+        }
+
+        protected virtual void OnScaleStarted()
+        {
+        }
+
+        protected virtual void OnScaleStopped()
+        {
+            Content.Location.Scale = transform.localScale;
+            RootObject.Instance.ContentManager.UpdateContent(Content);
         }
 
         protected virtual void OnManipulationStarted(ManipulationEventData eventData)
@@ -44,14 +70,9 @@ namespace MirageXR.View
 
         protected virtual void OnManipulationEnded(ManipulationEventData eventData)
         {
-            var temp1= eventData.ManipulationSource.transform.localEulerAngles;
-            var temp2= eventData.ManipulationSource.transform.localRotation.eulerAngles;
-
-            UnityEngine.Debug.Log($"{temp1} / {temp2}");
-            
-            _content.Location.Position = eventData.ManipulationSource.transform.localPosition;
-            _content.Location.Rotation = eventData.ManipulationSource.transform.localEulerAngles;
-            RootObject.Instance.ContentManager.UpdateContent(_content);
+            Content.Location.Position = eventData.ManipulationSource.transform.localPosition;
+            Content.Location.Rotation = eventData.ManipulationSource.transform.localEulerAngles;
+            RootObject.Instance.ContentManager.UpdateContent(Content);
         }
     }
 }

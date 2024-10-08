@@ -719,7 +719,7 @@ namespace MirageXR
         /// <returns></returns>
         public (Vector3, Vector3) GetPoseRelativeToCalibrationOrigin(GameObject source)
         {
-            var anchor = RootObject.Instance.CalibrationManager.anchor;
+            var anchor = RootObject.Instance.CalibrationManager.Anchor;
 
             var position = anchor.InverseTransformPoint(source.transform.position);
             var rotation = Quaternion.Inverse(anchor.rotation) * source.transform.rotation;

@@ -2,6 +2,7 @@
 using Cysharp.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using LearningExperienceEngine.DataModel;
+using TMPro;
 using UnityEngine;
 
 namespace MirageXR.View
@@ -9,8 +10,11 @@ namespace MirageXR.View
     public class ImageContentView : ContentView
     {
         private const string ImageFileName = "image.png";
+        private const float ScaleZ = 0.05f;
 
         [SerializeField] private SpriteRenderer spriteRenderer;
+        [SerializeField] private TMP_Text text;
+        [SerializeField] BoxCollider boxCollider;
         
         private Texture2D _texture;
         private Sprite _sprite;
@@ -22,6 +26,7 @@ namespace MirageXR.View
             base.InitializeAsync(content);
 
             _camera = RootObject.Instance.BaseCamera;
+            transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, ScaleZ);
             
             if (content is Content<ImageContentData> imageContent)
             {
@@ -33,29 +38,68 @@ namespace MirageXR.View
             }
         }
 
+        protected override void InitializeBoundsControl()
+        {
+            base.InitializeBoundsControl();
+
+            BoundsControl.BoundsOverride = boxCollider;
+            boxCollider.center = Vector3.zero;
+            boxCollider.size = transform.localScale;
+        }
+
+        protected override void OnScaleStopped()
+        {
+            transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, ScaleZ);
+            base.OnScaleStopped();
+        }
+
         private async UniTask InitializeContentAsync(Content<ImageContentData> content)
+        {
+            await InitializeImageAsync(content);
+            InitializeText(content);
+            InitializeBillboard(content);
+        }
+
+        private async UniTask InitializeImageAsync(Content<ImageContentData> content)
         {
             var folderPath = RootObject.Instance.AssetsManager.GetFolderPath(content.Id, content.ContentData.Image.Id);
             var imagePath = Path.Combine(folderPath, ImageFileName);
 
-            if (!File.Exists(imagePath))
+            if (File.Exists(imagePath))
+            {
+                var bytes = await File.ReadAllBytesAsync(imagePath);
+                _texture = new Texture2D(2, 2, TextureFormat.RGB24, false);
+                _texture.LoadImage(bytes);
+
+                _sprite = Sprite.Create(_texture, new Rect(0, 0, _texture.width, _texture.height), Vector2.zero);
+
+                spriteRenderer.sprite = _sprite;
+                spriteRenderer.drawMode = SpriteDrawMode.Sliced;
+                spriteRenderer.size = Vector2.one;
+                CalculateSize(_texture.width, _texture.height);
+            }
+            else
             {
                 Debug.LogError($"Image file {imagePath} does not exist");
             }
+        }
 
-            var bytes = await File.ReadAllBytesAsync(imagePath);
-            _texture = new Texture2D(2, 2, TextureFormat.RGB24, false);
-            _texture.LoadImage(bytes);
+        private void InitializeText(Content<ImageContentData> content)
+        {
+            if (!string.IsNullOrEmpty(content.ContentData.Text))
+            {
+                text.text = content.ContentData.Text;
+                text.transform.localPosition = new Vector3(0, transform.localScale.y * -0.5f, 0);
+            }
+            else
+            {
+                text.gameObject.SetActive(false);
+            }
+        }
 
-            _sprite = Sprite.Create(_texture, new Rect(0, 0, _texture.width, _texture.height), Vector2.zero);
-
-            spriteRenderer.sprite = _sprite;
-            spriteRenderer.drawMode = SpriteDrawMode.Sliced;
-            spriteRenderer.size = Vector2.one;
-
+        private void InitializeBillboard(Content<ImageContentData> content)
+        {
             _isBillboarded = content.ContentData.IsBillboarded;
-
-            CalculateSize(_texture.width, _texture.height);
         }
 
         private void CalculateSize(int textureWidth, int textureHeight)

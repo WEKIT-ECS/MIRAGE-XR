@@ -9,7 +9,7 @@ using Action = System.Action;
 
 public class CalibrationView : PopupBase
 {
-    private static CalibrationManager calibrationManager => RootObject.Instance.CalibrationManager;
+    private static ICalibrationManager calibrationManager => RootObject.Instance.CalibrationManager;
 
     private static FloorManagerWrapper floorManager => RootObject.Instance.FloorManager;
 
@@ -92,9 +92,9 @@ public class CalibrationView : PopupBase
 
         ResetCalibration();
 
-        calibrationManager.onCalibrationStarted.AddListener(OnCalibrationStarted);
-        calibrationManager.onCalibrationCanceled.AddListener(OnCalibrationCanceled);
-        calibrationManager.onCalibrationFinished.AddListener(OnCalibrationFinished);
+        calibrationManager.OnCalibrationStarted.AddListener(OnCalibrationStarted);
+        calibrationManager.OnCalibrationCanceled.AddListener(OnCalibrationCanceled);
+        calibrationManager.OnCalibrationFinished.AddListener(OnCalibrationFinished);
 
         _hideBaseView?.Invoke();
 
@@ -219,7 +219,7 @@ public class CalibrationView : PopupBase
         _imageCalibrationAnimation.gameObject.SetActive(true);
         _textDone.gameObject.SetActive(false);
         _tweenerCalibration = _imageCalibrationAnimation.transform
-            .DOLocalRotate(new Vector3(0, 0, -360), calibrationManager.animationTime, RotateMode.FastBeyond360)
+            .DOLocalRotate(new Vector3(0, 0, -360), calibrationManager.AnimationTime, RotateMode.FastBeyond360)
             .SetRelative(true).SetEase(Ease.Linear);
     }
 

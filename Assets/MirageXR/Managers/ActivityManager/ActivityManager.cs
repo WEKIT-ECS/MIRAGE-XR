@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using LearningExperienceEngine;
 using LearningExperienceEngine.DataModel;
+using MirageXR.View;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Events;
@@ -18,9 +19,17 @@ namespace MirageXR.NewDataModel
     {
         public List<Activity> Activities => _activities;
         public Activity Activity => _activity;
+        public Guid ActivityId => _activity?.Id ?? Guid.Empty;
 
-        public Guid ActivityId => _activity.Id;
-        
+        public bool IsInitialized => _isInitialized;
+
+        private bool _isInitialized;
+
+        public UniTask WaitForInitialization()
+        {
+            return UniTask.WaitUntil(() => _isInitialized);
+        }
+
         public event UnityAction<List<Activity>> OnActivitiesFetched
         {
             add
@@ -71,20 +80,27 @@ namespace MirageXR.NewDataModel
         private INetworkDataProvider _networkDataProvider;
         private IStepManager _stepManager;
         private AuthManager _authManager;
-        
+        private ICalibrationManager _calibrationManager;
+
         private string _activityName;
         private string _activityDescription;
         private string _activityLanguage;
+        private ActivityView _activityView;
 
-        public UniTask InitializeAsync(IContentManager contentManager, INetworkDataProvider networkDataProvider, IAssetsManager assetsManager, IStepManager stepManager, AuthManager authManager)
+        public async UniTask InitializeAsync(IContentManager contentManager, INetworkDataProvider networkDataProvider,
+            IAssetsManager assetsManager, IStepManager stepManager, AuthManager authManager,
+            ICalibrationManager calibrationManager)
         {
             _contentManager = contentManager;
             _networkDataProvider = networkDataProvider;
             _assetsManager = assetsManager;
             _stepManager = stepManager;
             _authManager = authManager;
-            
-            return UniTask.CompletedTask;
+            _calibrationManager = calibrationManager;
+
+            await _calibrationManager.WaitForInitialization();
+            CreateActivityView();
+            _isInitialized = true;
         }
 
         public async UniTask<List<Activity>> FetchActivitiesAsync()
@@ -123,7 +139,7 @@ namespace MirageXR.NewDataModel
             return _activity;
         }
 
-        public Activity CreateNewActivity()
+        public Activity CreateNewActivity(Vector3 firstStepPosition)
         {
             _contentManager.Reset();
             _stepManager.Reset();
@@ -144,14 +160,19 @@ namespace MirageXR.NewDataModel
                 Language = "en-US",
             };
 
-            _stepManager.AddStep(Location.Identity);
+            _stepManager.AddStep(new Location { Position = firstStepPosition, Rotation = Quaternion.identity.eulerAngles, Scale = Vector3.one });
             var step = _stepManager.AddStep(Location.Identity);
 
             _contentManager.AddContent(new Content<ImageContentData>
             {
                 Id = Guid.NewGuid(),
                 Steps = new List<Guid> { _stepManager.CurrentStep.Id },
-                Location = Location.Identity,
+                Location = new Location
+                {
+                    Position = Vector3.down,
+                    Rotation = Vector3.zero,
+                    Scale = new Vector3(1, 1, 0.05f),
+                },
                 Type = ContentType.Image,
                 Version = Application.version,
                 CreationDate = DateTime.UtcNow,
@@ -160,23 +181,29 @@ namespace MirageXR.NewDataModel
                 {
                     Image = new FileModel(),
                     AvailableTriggers = null,
-                    Text = "Temp text",
+                    Text = null,
                 }
             });
             _contentManager.AddContent(new Content<ImageContentData>
             {
                 Id = Guid.NewGuid(),
                 Steps = new List<Guid> { _stepManager.CurrentStep.Id },
-                Location = Location.Identity,
+                Location = new Location
+                {
+                    Position = Vector3.one,
+                    Rotation = Vector3.zero,
+                    Scale = new Vector3(1, 1, 0.05f),
+                },
                 Type = ContentType.Image,
                 Version = Application.version,
                 CreationDate = DateTime.UtcNow,
                 IsVisible = true,
                 ContentData = new ImageContentData
                 {
+                    IsBillboarded = true,
                     Image = new FileModel(),
                     AvailableTriggers = null,
-                    Text = "Temp text",
+                    Text = "Temp text 2",
                 }
             });
             _contentManager.AddContent(new Content<ImageContentData>
@@ -190,9 +217,10 @@ namespace MirageXR.NewDataModel
                 IsVisible = true,
                 ContentData = new ImageContentData
                 {
+                    IsBillboarded = true,
                     Image = new FileModel(),
                     AvailableTriggers = null,
-                    Text = "Temp text",
+                    Text = "Temp text 3",
                 }
             });
 
@@ -202,8 +230,8 @@ namespace MirageXR.NewDataModel
             _onActivityUpdated.Invoke(_activity);
 
             var json = JsonConvert.SerializeObject(_activity, Formatting.Indented); //temp
-            _activity = JsonConvert.DeserializeObject<Activity>(json);
-            Debug.Log(json);
+            _activity = JsonConvert.DeserializeObject<Activity>(json);                    //  
+            Debug.Log(json);                                                              //
 
             return _activity;
         }
@@ -225,6 +253,13 @@ namespace MirageXR.NewDataModel
             UpdateActivity();
             var response = await _networkDataProvider.UploadActivityAsync(_activity);
             return response.IsSuccess;
+        }
+
+        private void CreateActivityView()
+        {
+            var activityView = new GameObject("ActivityView");
+            activityView.transform.SetParent(_calibrationManager.Anchor, true);
+            _activityView = activityView.AddComponent<ActivityView>();
         }
     }
 }

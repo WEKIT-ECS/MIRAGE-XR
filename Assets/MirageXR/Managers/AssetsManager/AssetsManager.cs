@@ -18,17 +18,30 @@ namespace MirageXR.NewDataModel
         private const string ZipExtension = ".zip";
         private const string MirageXRAssetsBundle = "MirageXRAssetsBundle";
 
+        public bool IsInitialized => _isInitialized;
+
         private INetworkDataProvider _networkDataProvider;
         private IActivityManager _activityManager;
         private AssetsBundle _assetsBundle;
+        private bool _isInitialized;
 
-        public UniTask InitializeAsync(INetworkDataProvider networkDataProvider, IActivityManager activityManager)
+        public UniTask WaitForInitialization()
         {
-            _assetsBundle = Resources.Load<AssetsBundle>(MirageXRAssetsBundle);
-            
+            return UniTask.WaitUntil(() => _isInitialized);
+        }
+
+        public async UniTask InitializeAsync(INetworkDataProvider networkDataProvider, IActivityManager activityManager)
+        {
+            _assetsBundle = await Resources.LoadAsync<AssetsBundle>(MirageXRAssetsBundle) as AssetsBundle;
+
+            if (_assetsBundle == null)
+            {
+                throw new Exception("MirageXR assets bundle not found");
+            }
+
             _networkDataProvider = networkDataProvider;
             _activityManager = activityManager;
-            return UniTask.CompletedTask;
+            _isInitialized = true;
         }
 
         public async UniTask PrepareContent(Guid activityId, Content content)
@@ -75,9 +88,19 @@ namespace MirageXR.NewDataModel
             };
         }
 
-        public ContentView GetContentView(ContentType contentType)
+        public StepView GetStepViewPrefab()
         {
-            return _assetsBundle.GetContentView(contentType);
+            return _assetsBundle.GetStepViewPrefab();
+        }
+
+        public CalibrationTool GetCalibrationToolPrefab()
+        {
+            return _assetsBundle.GetCalibrationToolPrefab();
+        }
+
+        public ContentView GetContentViewPrefab(ContentType contentType)
+        {
+            return _assetsBundle.GetContentViewPrefab(contentType);
         }
 
         public string GetFolderPath(Guid contentId, Guid fileId)
