@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using LearningExperienceEngine.DataModel;
 using UnityEngine;
-using Activity = LearningExperienceEngine.DataModel.Activity;
 
 namespace MirageXR.View
 {
@@ -17,7 +15,6 @@ namespace MirageXR.View
 
         private void Start()
         {
-            RootObject.Instance.ActivityManager.OnActivityLoaded += ActivityManagerOnActivityLoaded;
             RootObject.Instance.StepManager.OnStepChanged += StepManagerOnStepChanged;
             RootObject.Instance.ContentManager.OnContentActivated += ContentManagerOnContentActivated;
         }
@@ -91,22 +88,16 @@ namespace MirageXR.View
 
         private ContentView CreateContentView(Content content)
         {
-            var prefab = RootObject.Instance.AssetsManager.GetContentView(content.Type);
+            var prefab = RootObject.Instance.AssetsManager.GetContentViewPrefab(content.Type);
             return Instantiate(prefab);
         }
 
         private StepView CreateStepView(ActivityStep step)
         {
-            var obj = new GameObject();
-            obj.transform.SetParent(transform, false);
-            var stepView = obj.AddComponent<StepView>();
+            var prefab = RootObject.Instance.AssetsManager.GetStepViewPrefab();
+            var stepView = Instantiate(prefab, transform, false);
             stepView.Initialize(step);
             return stepView;
-        }
-
-        private void ActivityManagerOnActivityLoaded(Activity activity)
-        {
-            UnityEngine.Debug.Log("---ActivityManagerOnActivityLoaded");
         }
     }
 }

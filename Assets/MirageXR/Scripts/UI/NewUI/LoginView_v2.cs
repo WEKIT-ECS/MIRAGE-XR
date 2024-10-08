@@ -1,7 +1,4 @@
-﻿using i5.Toolkit.Core.OpenIDConnectClient;
-using i5.Toolkit.Core.ServiceCore;
-using LearningExperienceEngine;
-using MirageXR;
+﻿using LearningExperienceEngine;
 using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;

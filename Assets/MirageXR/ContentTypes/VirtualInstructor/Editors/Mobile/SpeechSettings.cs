@@ -99,32 +99,32 @@ namespace MirageXR
             {
                 if (_modelData == null)
                 {
-                    UpdateModel(RootObject.Instance.AIManager.GetLlmModels()[0]);
+                    UpdateModel(RootObject.Instance.AiManager.GetLlmModels()[0]);
                 }
 
                 if (_languageData == null)
                 {
-                    UpdateLanguage(RootObject.Instance.AIManager.GetSttModels()[0]);
+                    UpdateLanguage(RootObject.Instance.AiManager.GetSttModels()[0]);
                 }
 
                 if (_voiceData == null)
                 {
-                    UpdateVoice(RootObject.Instance.AIManager.GetTtsModels()[0]);
+                    UpdateVoice(RootObject.Instance.AiManager.GetTtsModels()[0]);
                 }
             
                 if (_modelData != null)
                 {
-                    UpdateModel(RootObject.Instance.AIManager.GetLlmModels()[0]);
+                    UpdateModel(RootObject.Instance.AiManager.GetLlmModels()[0]);
                 }
 
                 if (_languageData != null)
                 {
-                    UpdateLanguage(RootObject.Instance.AIManager.GetSttModels()[0]);
+                    UpdateLanguage(RootObject.Instance.AiManager.GetSttModels()[0]);
                 }
 
                 if (_voiceData != null)
                 {
-                    UpdateVoice(RootObject.Instance.AIManager.GetTtsModels().Last());
+                    UpdateVoice(RootObject.Instance.AiManager.GetTtsModels().Last());
                 }
 
             }

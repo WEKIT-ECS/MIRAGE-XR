@@ -7,7 +7,7 @@ public class GridManager : MonoBehaviour, IDisposable
 {
     private static FloorManagerWrapper floorManager => RootObject.Instance.FloorManager;
 
-    private static CalibrationManager calibrationManager => RootObject.Instance.CalibrationManager;
+    private static ICalibrationManager calibrationManager => RootObject.Instance.CalibrationManager;
 
     [SerializeField] private Grid _gridPrefab;
     [SerializeField] private GridLines _gridLinesPrefab;
@@ -124,7 +124,7 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public void ShowGrid()
     {
-        var anchor = calibrationManager.anchor;
+        var anchor = calibrationManager.Anchor;
 
         _grid.transform.SetParent(anchor);
 

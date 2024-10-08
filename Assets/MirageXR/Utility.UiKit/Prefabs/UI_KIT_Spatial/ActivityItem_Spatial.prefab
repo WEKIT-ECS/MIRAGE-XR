@@ -356,7 +356,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7007167105469297475}
   - component: {fileID: 2680537200366989461}
-  - component: {fileID: 5019906631077347197}
   - component: {fileID: 1600965837368614240}
   - component: {fileID: 7808174534171558558}
   - component: {fileID: 3970401989454321499}
@@ -406,19 +405,7 @@ MonoBehaviour:
   textLabel: {fileID: 7437571542150283079}
   deadline: {fileID: 5673105006080117622}
   author: {fileID: 1859937885839949901}
---- !u!114 &5019906631077347197
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7142820553597527282}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b0bd785b54eaab144978b7970b8f55c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _selectedListViewItem: {fileID: 2680537200366989461}
+  button: {fileID: 3970401989454321499}
 --- !u!222 &1600965837368614240
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -500,19 +487,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7808174534171558558}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 5019906631077347197}
-        m_TargetAssemblyTypeName: MirageXR.SessionButton_Spatial, MirageXR
-        m_MethodName: OnActivitySelected
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1001 &4168646425088973979
 PrefabInstance:
   m_ObjectHideFlags: 0

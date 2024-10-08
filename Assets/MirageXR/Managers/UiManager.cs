@@ -10,7 +10,7 @@ namespace MirageXR
     public class UiManager : MonoBehaviour
     {
         private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
-        private static CalibrationManager calibrationManager => RootObject.Instance.CalibrationManager;
+        private static ICalibrationManager calibrationManager => RootObject.Instance.CalibrationManager;
 
         [SerializeField] private bool IsMenuVisible;
         private bool _inAction;

@@ -16,6 +16,7 @@ namespace MirageXR.NewDataModel
 
         private readonly List<Content> _contents = new();
         private List<Content> _activeContent;
+        private IActivityManager _activityManager;
 
         public event UnityAction<List<Content>> OnContentActivated
         {
@@ -34,6 +35,7 @@ namespace MirageXR.NewDataModel
         {
             _assetsManager = assetsManager;
             _stepManager = stepManager;
+            _activityManager = activityManager;
             return UniTask.CompletedTask;
         }
 
@@ -71,6 +73,8 @@ namespace MirageXR.NewDataModel
                     _contents[i] = content;
                 }
             }
+
+            _activityManager.UpdateActivity();
         }
 
         public void AddContent(Content content)

@@ -10,8 +10,9 @@ namespace MirageXR.NewDataModel
 {
     public class StepManager : IStepManager
     {
-        private struct StepQueueItem
+        private class StepQueueItem
         {
+            public int Number;
             public Guid StepId;
             public Guid HierarchyItemId;
         }
@@ -198,6 +199,25 @@ namespace MirageXR.NewDataModel
             _currentHierarchyItem = null;
         }
 
+        public void UpdateStep(ActivityStep step)
+        {
+            for (int i = 0; i < _steps.Count; i++)
+            {
+                if (_steps[i].Id == step.Id)
+                {
+                    _steps[i] = step;
+                }
+            }
+
+            _activityManager.UpdateActivity();
+        }
+
+        public int GetStepNumber(Guid stepId)
+        {
+            var item = _stepQueue.FirstOrDefault(t => t.StepId == stepId);
+            return item?.Number ?? 0;
+        }
+        
         private string GetDefaultName()
         {
             return string.Format(DefaultStepName, _steps.Count + 1);
@@ -221,7 +241,7 @@ namespace MirageXR.NewDataModel
             {
                 if (item.StepIds is { Count: > 0 })
                 {
-                    stepQueue.AddRange(item.StepIds.Select(t => new StepQueueItem { StepId = t, HierarchyItemId = item.Id }));
+                    stepQueue.AddRange(item.StepIds.Select(t => new StepQueueItem { Number = stepQueue.Count + 1, StepId = t, HierarchyItemId = item.Id }));
                 }
 
                 if (item.Hierarchy is { Count: > 0 })

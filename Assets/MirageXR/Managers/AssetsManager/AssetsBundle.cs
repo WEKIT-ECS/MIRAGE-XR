@@ -16,10 +16,12 @@ namespace MirageXR
             public ContentView ContentView;
         }
 
-        public ContentView DefaultContentView;
+        [SerializeField] private CalibrationTool _calibrationTool;
+        [SerializeField] private StepView _defaultStepView;
+        [SerializeField] private ContentView _defaultContentView;
         [SerializeField] private ContentAssetItem[] _contentAssets;
 
-        public ContentView GetContentView(ContentType contentType)
+        public ContentView GetContentViewPrefab(ContentType contentType)
         {
             foreach (var item in _contentAssets)
             {
@@ -30,7 +32,17 @@ namespace MirageXR
             }
 
             AppLog.LogError("No content view found for the content type: " + contentType);
-            return DefaultContentView;
+            return _defaultContentView;
+        }
+
+        public StepView GetStepViewPrefab()
+        {
+            return _defaultStepView;
+        }
+
+        public CalibrationTool GetCalibrationToolPrefab()
+        {
+            return _calibrationTool;
         }
     }
 }

@@ -23,7 +23,7 @@ namespace MirageXR
 		[Header("Debugging")]
 		[SerializeField] private bool _showDebugWidgets = false;
 
-		private static FloorManagerWithFallback _floorManager => RootObject.Instance.floorManagerWithRaycastFallback;
+		private static FloorManagerWithFallback _floorManager => RootObject.Instance.FloorManagerWithRaycastFallback;
 
 		// variables for intermediate calcuations of the foot target position and the position of the knee hint
 		// the value of these variables are assigned to the transforms in Update

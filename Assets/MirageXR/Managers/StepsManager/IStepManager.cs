@@ -27,5 +27,7 @@ namespace MirageXR.NewDataModel
         List<ActivityStep> GetSteps();
         List<HierarchyItem> GetHierarchy();
         void Reset();
+        void UpdateStep(ActivityStep step);
+        int GetStepNumber(Guid stepId);
     }
 }

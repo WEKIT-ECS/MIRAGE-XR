@@ -465,14 +465,14 @@ public class StepsListView_v2 : BaseView
     private void ShowImageTargetCalibrationView()
     {
         var isEditMode = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
-        var isCalibration = RootObject.Instance.CalibrationManager.isCalibrated;
+        var isCalibration = RootObject.Instance.CalibrationManager.IsCalibrated;
         PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode && !isCalibration, false, false);
     }
 
     private void ShowMarkerLessCalibrationView()
     {
         var isEditMode = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
-        var isCalibration = RootObject.Instance.CalibrationManager.isCalibrated;
+        var isCalibration = RootObject.Instance.CalibrationManager.IsCalibrated;
         PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode && !isCalibration, false, true);
     }
 
