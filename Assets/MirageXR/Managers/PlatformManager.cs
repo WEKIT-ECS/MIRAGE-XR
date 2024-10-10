@@ -55,7 +55,7 @@ namespace MirageXR
                 }
             }
 
-#if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS
+#if UNITY_ANDROID || UNITY_IOS
             _worldSpaceUi = forceWorldSpaceUi;
 #else
             _worldSpaceUi = true;

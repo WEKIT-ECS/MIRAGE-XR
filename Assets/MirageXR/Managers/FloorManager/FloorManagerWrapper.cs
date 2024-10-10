@@ -22,6 +22,9 @@ public class FloorManagerWrapper : MonoBehaviour
 
     public async Task InitializationAsync()
     {
+#if UNITY_ANDROID || UNITY_IOS
+        _forceManagerType = ForceManagerType.ARFoundation;
+#endif
         _floorManager = CreateFloorManager();
 
         if (_floorManager == null)
