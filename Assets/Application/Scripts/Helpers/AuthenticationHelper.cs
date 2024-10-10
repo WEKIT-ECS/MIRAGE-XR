@@ -8,7 +8,7 @@ namespace MRTKUtilities.Application
     using System.Linq;
     using System.Threading;
 
-#if !UNITY_ANDROID && !UNITY_IOS
+#if !UNITY_ANDROID && !UNITY_IOS && !UNITY_VISIONOS
     using Microsoft.Identity.Client;
 #endif
 
@@ -158,7 +158,7 @@ url = string.Format(
         /// Mostly this is the scope of the backend API, like "api://[client id]/user_impersonation".</param>
         /// <param name="cancellationTokenSource">Cancellation token.</param>
         /// <returns>A <see cref="AuthenticationResult"/> object or null on error.</returns>
-#if !UNITY_ANDROID && !UNITY_IOS
+#if !UNITY_ANDROID && !UNITY_IOS && !UNITY_VISIONOS
         public static async Task<AuthenticationResult> AuthenticateSilentAsync(
             string clientId,
             string scopes,
@@ -238,7 +238,7 @@ url = string.Format(
         /// <param name="tenantId">Tenant ID to authenticate against.</param>
         /// <param name="cancellationTokenSource">Cancellation token.</param>
         /// <returns>A <see cref="AuthenticationResult"/> object or null on error.</returns>
-#if !UNITY_ANDROID && !UNITY_IOS
+#if !UNITY_ANDROID && !UNITY_IOS && !UNITY_VISIONOS
         public static async Task<AuthenticationResult> AuthenticateWithDeviceCodeAsync(
             string clientId,
             string scopes,
@@ -323,7 +323,7 @@ url = string.Format(
         /// Mostly this is the scope of the backend API, like "api://[client id]/user_impersonation".</param>
         /// <param name="cancellationTokenSource">Cancellation token.</param>
         /// <returns>A <see cref="AuthenticationResult"/> object or null on error.</returns>
-#if !UNITY_ANDROID && !UNITY_IOS
+#if !UNITY_ANDROID && !UNITY_IOS && !UNITY_VISIONOS
         public static async Task<AuthenticationResult> AuthenticateInteractiveAsync(
             string clientId,
             string scopes,
@@ -398,7 +398,7 @@ url = string.Format(
         /// <param name="clientId">Client ID from the app registration.</param>
         /// <param name="tenantId">Tenant ID to authenticate against.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-#if !UNITY_ANDROID && !UNITY_IOS
+#if !UNITY_ANDROID && !UNITY_IOS && !UNITY_VISIONOS
         public static async Task LogoutAllAsync(
             string clientId,
             string tenantId)

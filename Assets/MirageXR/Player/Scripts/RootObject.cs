@@ -19,6 +19,7 @@ namespace MirageXR
         [SerializeField] private FloorManagerWithFallback _floorManagerWithRaycastFallback;
         [SerializeField] private PlaneManagerWrapper _planeManager;
         [SerializeField] private PointCloudManager _pointCloudManager;
+        [SerializeField] private VolumeCameraManager _volumeCameraManager;
         [SerializeField] private GridManager _gridManager;
         [SerializeField] private CameraCalibrationChecker _cameraCalibrationChecker;
         [SerializeField] private PlatformManager _platformManager;
@@ -123,6 +124,7 @@ namespace MirageXR
                 _floorManager ??= new GameObject("FloorManagerWrapper").AddComponent<FloorManagerWrapper>();
 				_floorManagerWithRaycastFallback ??= new GameObject("FloorManagerWithRaycastFallback").AddComponent<FloorManagerWithFallback>();
 				_pointCloudManager ??= new GameObject("PointCloudManager").AddComponent<PointCloudManager>();
+				_volumeCameraManager ??= new GameObject("VolumeCameraManager").AddComponent<VolumeCameraManager>();
                 _gridManager ??= new GameObject("GridManager").AddComponent<GridManager>();
                 _cameraCalibrationChecker ??= new GameObject("CameraCalibrationChecker").AddComponent<CameraCalibrationChecker>();
                 _platformManager ??= new GameObject("PlatformManager").AddComponent<PlatformManager>();
@@ -142,10 +144,12 @@ namespace MirageXR
                 _virtualInstructorOrchestrator = new VirtualInstructorOrchestrator();
 
                 await _imageTargetManager.InitializationAsync();
+                await _planeManager.InitializationAsync();
                 await _floorManager.InitializationAsync();
                 _calibrationManager.InitializationAsync();
                 await _pointCloudManager.InitializationAsync();
                 await _planeManager.InitializationAsync();
+                _volumeCameraManager.Initialization();
                 _gridManager.Initialization();
                 _cameraCalibrationChecker.Initialization();
                 _platformManager.Initialization();

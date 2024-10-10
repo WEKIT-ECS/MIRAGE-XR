@@ -123,6 +123,9 @@ public class ImageTargetManagerWrapper : MonoBehaviour
 
     public async Task InitializationAsync()
     {
+#if UNITY_VISIONOS || VISION_OS
+        _forceManagerType = ForceManagerType.ARFoundation;
+#endif
         _imageTargetManager = CreateImageTargetManager();
 
         if (!_imageTargetManager)
@@ -198,8 +201,10 @@ public class ImageTargetManagerWrapper : MonoBehaviour
                 return gameObject.AddComponent<ImageTargetManagerEditor>();
             case ForceManagerType.ARFoundation:
                 return gameObject.AddComponent<ImageTargetManagerARFoundation>();
+#if UNITY_WSA
             case ForceManagerType.Vuforia:
                 return gameObject.AddComponent<ImageTargetManagerVuforia>();
+#endif
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -209,10 +214,12 @@ public class ImageTargetManagerWrapper : MonoBehaviour
     {
 #if UNITY_EDITOR
         var manager = gameObject.AddComponent<ImageTargetManagerEditor>();
-#elif UNITY_IOS || UNITY_ANDROID
+#elif UNITY_IOS || UNITY_ANDROID || UNITY_VISIONOS || VISION_OS
         var manager = gameObject.AddComponent<ImageTargetManagerARFoundation>();
-#else
+#elif UNITY_WSA
         var manager = gameObject.AddComponent<ImageTargetManagerVuforia>();
+#else
+        var manager = gameObject.AddComponent<ImageTargetManagerARFoundation>();
 #endif
         return manager;
     }

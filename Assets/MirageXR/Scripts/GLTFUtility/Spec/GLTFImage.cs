@@ -45,7 +45,7 @@ namespace Siccity.GLTFUtility {
 					}
 #endif
 
-#if !UNITY_EDITOR && ( UNITY_ANDROID || UNITY_IOS )
+#if !UNITY_EDITOR && ( UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS)
 					path = "File://" + path;
 #endif
 					// TODO: Support linear/sRGB textures
