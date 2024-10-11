@@ -53,7 +53,7 @@ public class ImageEditorView : PopupEditorBase
     [Space]
     [SerializeField] private HintViewWithButtonAndToggle _hintPrefab;
 
-    private string text;
+    private string _text;
     private string _imageCaption = string.Empty;
     private Texture2D _capturedImage;
 
@@ -240,8 +240,8 @@ public class ImageEditorView : PopupEditorBase
     {
         ImageCaptionPreviewPrefab.SetActive(true);
         ImageCaptionEditorPrefab.SetActive(false);
-        text = _captionText.text;
-        _captionPreview.text = text;
+        _text = _captionText.text;
+        _captionPreview.text = _text;
         //Debug.Log(text);
     }
     public void OnEditButtonClicked()

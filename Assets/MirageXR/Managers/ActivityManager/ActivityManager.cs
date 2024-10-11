@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Cysharp.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using LearningExperienceEngine;
@@ -10,7 +9,6 @@ using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Events;
 using Activity = LearningExperienceEngine.DataModel.Activity;
-using ContentType = LearningExperienceEngine.DataModel.ContentType;
 using Location = LearningExperienceEngine.DataModel.Location;
 
 namespace MirageXR.NewDataModel
@@ -109,17 +107,11 @@ namespace MirageXR.NewDataModel
             var response = await _networkDataProvider.GetActivitiesAsync();
             if (!response.IsSuccess)
             {
-                AppLog.LogError(response.Error == null ? "Failed to fetch activities" : response.Error.Message);
+                AppLog.LogError(response.Error ?? "Failed to fetch activities");
                 return null;
             }
             _activities = response.Data;
-            if (_activities.Count == 0)
-            {
-                AppLog.LogDebug("No activities found");
-                return _activities;
-            }
             _onActivitiesFetched.Invoke(_activities);
-            await LoadActivityAsync(_activities.First().Id);  //temp
             return _activities;
         }
 
@@ -137,6 +129,11 @@ namespace MirageXR.NewDataModel
             _stepManager.LoadSteps(_activity);
             _onActivityLoaded.Invoke(_activity);
             return _activity;
+        }
+
+        public async UniTask DeleteActivityAsync(Guid activityId)
+        {
+            await _networkDataProvider.DeleteActivityAsync(activityId);
         }
 
         public Activity CreateNewActivity(Vector3 firstStepPosition)
@@ -161,68 +158,6 @@ namespace MirageXR.NewDataModel
             };
 
             _stepManager.AddStep(new Location { Position = firstStepPosition, Rotation = Quaternion.identity.eulerAngles, Scale = Vector3.one });
-            var step = _stepManager.AddStep(Location.Identity);
-
-            _contentManager.AddContent(new Content<ImageContentData>
-            {
-                Id = Guid.NewGuid(),
-                Steps = new List<Guid> { _stepManager.CurrentStep.Id },
-                Location = new Location
-                {
-                    Position = Vector3.down,
-                    Rotation = Vector3.zero,
-                    Scale = new Vector3(1, 1, 0.05f),
-                },
-                Type = ContentType.Image,
-                Version = Application.version,
-                CreationDate = DateTime.UtcNow,
-                IsVisible = true,
-                ContentData = new ImageContentData
-                {
-                    Image = new FileModel(),
-                    AvailableTriggers = null,
-                    Text = null,
-                }
-            });
-            _contentManager.AddContent(new Content<ImageContentData>
-            {
-                Id = Guid.NewGuid(),
-                Steps = new List<Guid> { _stepManager.CurrentStep.Id },
-                Location = new Location
-                {
-                    Position = Vector3.one,
-                    Rotation = Vector3.zero,
-                    Scale = new Vector3(1, 1, 0.05f),
-                },
-                Type = ContentType.Image,
-                Version = Application.version,
-                CreationDate = DateTime.UtcNow,
-                IsVisible = true,
-                ContentData = new ImageContentData
-                {
-                    IsBillboarded = true,
-                    Image = new FileModel(),
-                    AvailableTriggers = null,
-                    Text = "Temp text 2",
-                }
-            });
-            _contentManager.AddContent(new Content<ImageContentData>
-            {
-                Id = Guid.NewGuid(),
-                Steps = new List<Guid> { step.Id },
-                Location = Location.Identity,
-                Type = ContentType.Image,
-                Version = Application.version,
-                CreationDate = DateTime.UtcNow,
-                IsVisible = true,
-                ContentData = new ImageContentData
-                {
-                    IsBillboarded = true,
-                    Image = new FileModel(),
-                    AvailableTriggers = null,
-                    Text = "Temp text 3",
-                }
-            });
 
             UpdateActivity();
 
@@ -246,12 +181,21 @@ namespace MirageXR.NewDataModel
             _activity.Content = _contentManager.GetContents();
             _activity.Steps = _stepManager.GetSteps();
             _activity.Hierarchy = _stepManager.GetHierarchy();
+            _onActivityUpdated.Invoke(_activity);
+
+            if (_activity.Content is { Count: > 0 })
+            {
+                UploadActivityAsync().Forget();
+            }
         }
 
         public async UniTask<bool> UploadActivityAsync()
         {
-            UpdateActivity();
-            var response = await _networkDataProvider.UploadActivityAsync(_activity);
+            var response = await _networkDataProvider.UpdateActivityAsync(_activity);
+            if (response.StatusCode == ResponseStatusCode.NotFound)
+            {
+                await _networkDataProvider.UploadActivityAsync(_activity);
+            } 
             return response.IsSuccess;
         }
 

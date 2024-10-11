@@ -25,6 +25,7 @@ namespace MirageXR.NewDataModel
         UniTask<List<Activity>> FetchActivitiesAsync();
         Activity CreateNewActivity(Vector3 firstStepPosition);
         UniTask<Activity> LoadActivityAsync(Guid activityId);
+        UniTask DeleteActivityAsync(Guid activityId);
         void UpdateActivity();
         UniTask<bool> UploadActivityAsync();
     }

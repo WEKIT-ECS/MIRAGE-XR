@@ -50,9 +50,43 @@ namespace MirageXR.NewDataModel
 
             foreach (var fileModel in list)
             {
-                if (!await IsHashEqual(activityId, content.Id, fileModel))
+                if (fileModel.Id != Guid.Empty && !await IsHashEqual(activityId, content.Id, fileModel))
                 {
-                    _networkDataProvider.DownloadAssetAsync(activityId, fileModel.Id);
+                    Directory.CreateDirectory(GetFolderPath(activityId, content.Id));
+                    var zipPath = GetZipPath(activityId, content.Id, fileModel.Id);
+                    if (File.Exists(zipPath))
+                    {
+                        File.Delete(zipPath);
+                    }
+                    
+                    var stream = new FileStream(zipPath, FileMode.OpenOrCreate);
+                    try
+                    {
+                        var response = await _networkDataProvider.GetAssetAsync(stream, activityId, fileModel.Id);
+                        if (!response.IsSuccess)
+                        {
+                            Debug.LogError(response.Error);
+                        }
+                    }
+                    finally
+                    {
+                        await stream.DisposeAsync();
+                    }
+                    //var fileStream = new FileStream(GetZipPath(activityId, content.Id, fileModel.Id), FileMode.OpenOrCreate);
+
+                    stream = File.OpenRead(zipPath);
+                    try
+                    {
+                        await ZipUtilities.ExtractZipFileAsync(stream, GetFolderPath(activityId, content.Id));
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogException(ex);
+                    }
+                    finally
+                    {
+                        await stream.DisposeAsync();
+                    }
                 }
             }
         }
@@ -69,15 +103,18 @@ namespace MirageXR.NewDataModel
             };
         }
 
-        public async UniTask<FileModel> CreateFileAsync(string folderPath, Guid activityId, Guid contentId)
+        public async UniTask<FileModel> CreateFileAsync(Guid activityId, Guid contentId, Guid fileId)
         {
-            var fileId = Guid.NewGuid();
-
-            await using (var stream = new FileStream(GetZipPath(activityId, contentId, fileId), FileMode.OpenOrCreate))
+            var zipPath = GetZipPath(activityId, contentId, fileId);
+            var folderPath = GetFolderPath(activityId, contentId, fileId);
+            Directory.CreateDirectory(folderPath);
+            await using (var stream = new FileStream(zipPath, FileMode.OpenOrCreate))
             await using (var zipStream = new ZipOutputStream(stream))
             {
-                await ZipUtilities.CompressFolderAsync(GetFolderPath(activityId, contentId, fileId), zipStream);
+                await ZipUtilities.CompressFolderAsync(folderPath, zipStream);
             }
+
+            await _networkDataProvider.UploadAssetAsync(activityId, fileId, zipPath);
 
             return new FileModel
             {
@@ -103,9 +140,9 @@ namespace MirageXR.NewDataModel
             return _assetsBundle.GetContentViewPrefab(contentType);
         }
 
-        public string GetFolderPath(Guid contentId, Guid fileId)
+        public string GetFolderPath(Guid activityId, Guid contentId)
         {
-            return Path.Combine(Application.persistentDataPath, _activityManager.ActivityId.ToString(), contentId.ToString(), fileId.ToString());
+            return Path.Combine(Application.persistentDataPath, activityId.ToString(), contentId.ToString());
         }
 
         public string GetFolderPath(Guid activityId, Guid contentId, Guid fileId)
@@ -139,7 +176,7 @@ namespace MirageXR.NewDataModel
 
         private string GetFileHash(Guid activityId, Guid contentId, Guid fileId)
         {
-            return GetMD5Checksum(GetFolderPath(activityId, contentId, fileId));
+            return GetMD5Checksum(GetZipPath(activityId, contentId, fileId));
         }
 
         private static string GetMD5Checksum(string filename)

@@ -5,7 +5,7 @@ namespace MirageXR.NewDataModel
 {
     public class Response
     {
-        [JsonProperty] public Error? Error { get; set; }
+        [JsonProperty] public string? Error { get; set; }
         [JsonProperty] public ResponseStatusCode StatusCode { get; set; } = ResponseStatusCode.OK;
         public bool IsSuccess => StatusCode is ResponseStatusCode.OK or ResponseStatusCode.Created;
 
@@ -13,16 +13,18 @@ namespace MirageXR.NewDataModel
         {
             return new Response<T>(data);
         }
+//{"statusCode":201,"error":null,"data":null}
+//{"statusCode":400,"error":"Activity with this ID already exists","data":null}
 
         public static Response Failure(ErrorCodes errorCode, string description, ResponseStatusCode statusCode)
         {
-            var error = new Error {Code = errorCode, Message = description};
+            var error = description;
             return new Response {Error = error, StatusCode = statusCode};
         }
 
         public static Response<T> Failure<T>(T data, ErrorCodes errorCode, string description, ResponseStatusCode statusCode)
         {
-            var error = new Error {Code = errorCode, Message = description};
+            var error = description;
             return new Response<T> {Data = data, Error = error, StatusCode = statusCode};
         }
 
@@ -56,18 +58,18 @@ namespace MirageXR.NewDataModel
         }
     }
 
-    public class Error
+    /*public class Error
     {
         public string Message { get; set; }
         public ErrorCodes Code { get; set; }
-    }
+    }*/
 
     public class FailedResponseData
     {
         public ResponseStatusCode StatusCode { get; set; }
-        public Error Error { get; set; }
+        public string Error { get; set; }
 
-        public FailedResponseData(ResponseStatusCode statusCode, Error error)
+        public FailedResponseData(ResponseStatusCode statusCode, string error)
         {
             StatusCode = statusCode;
             Error = error;

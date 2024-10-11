@@ -80,6 +80,7 @@ namespace MirageXR.NewDataModel
         public void AddContent(Content content)
         {
             _contents.Add(content);
+            _activityManager.UpdateActivity();
             if (content.Steps.Contains(_stepManager.CurrentStep.Id))
             {
                 ShowContent(_stepManager.CurrentStep.Id);

@@ -10,7 +10,7 @@ namespace MirageXR.NewDataModel
         UniTask InitializeAsync(INetworkDataProvider networkDataProvider, IActivityManager activityManager);
         UniTask PrepareContent(Guid activityId, Content content);
         FileModel GetDefaultThumbnail();
-        UniTask<FileModel> CreateFileAsync(string folderPath, Guid activityId, Guid contentId);
+        UniTask<FileModel> CreateFileAsync(Guid activityId, Guid contentId, Guid fileId);
         StepView GetStepViewPrefab();
         CalibrationTool GetCalibrationToolPrefab();
         ContentView GetContentViewPrefab(ContentType contentType);

@@ -29,5 +29,6 @@ namespace MirageXR.NewDataModel
         void Reset();
         void UpdateStep(ActivityStep step);
         int GetStepNumber(Guid stepId);
+        void RemoveStep(Guid stepId);
     }
 }

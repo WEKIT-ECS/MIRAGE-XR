@@ -217,7 +217,63 @@ namespace MirageXR.NewDataModel
             var item = _stepQueue.FirstOrDefault(t => t.StepId == stepId);
             return item?.Number ?? 0;
         }
-        
+
+        public void RemoveStep(Guid stepId)
+        {
+            if (_steps is not { Count: > 1 })
+            {
+                return;
+            }
+
+            var index = -1;
+            for (int i = _steps.Count - 1; i >= 0; i--)
+            {
+                if (_steps[i].Id == stepId)
+                {
+                    index = i;
+                }
+            }
+
+            if (index == -1)
+            {
+                return;
+            }
+
+            if (stepId == _currentStep.Id)
+            {
+                if (index == 0)
+                {
+                    GoToNextStep();   
+                }
+                else
+                {
+                    GoToPreviousStep();
+                }                
+            }
+
+            _steps.RemoveAt(index);
+            RemoveStepRecursively(stepId, _hierarchy);
+
+            UpdateStepQueue();
+            _activityManager.UpdateActivity();
+        }
+
+        private void RemoveStepRecursively(Guid stepId, List<HierarchyItem> hierarchy)
+        {
+            foreach (var item in hierarchy)
+            {
+                if (item.StepIds is { Count: > 0 } && item.StepIds.Contains(stepId))
+                {
+                    item.StepIds.Remove(stepId);
+                }
+
+                if (item.Hierarchy is { Count: > 0 })
+                {
+                    RemoveStepRecursively(stepId, item.Hierarchy);
+                }
+            }
+        }
+
         private string GetDefaultName()
         {
             return string.Format(DefaultStepName, _steps.Count + 1);

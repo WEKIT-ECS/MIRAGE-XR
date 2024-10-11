@@ -15,6 +15,7 @@ namespace MirageXR.View
 
         private ActivityStep _step;
         private Camera _camera;
+        private ObjectManipulator _objectManipulator;
 
         public void Initialize(ActivityStep step)
         {
@@ -29,8 +30,11 @@ namespace MirageXR.View
 
         private void InitializeManipulator()
         {
-            var objectManipulator = gameObject.AddComponent<ObjectManipulator>();
-            objectManipulator.OnManipulationEnded.AddListener(OnManipulationEnded);
+            if (_objectManipulator is null)
+            {
+                _objectManipulator = gameObject.AddComponent<ObjectManipulator>();
+                _objectManipulator.OnManipulationEnded.AddListener(OnManipulationEnded);
+            }
         }
 
         private void OnManipulationEnded(ManipulationEventData eventData)
@@ -38,7 +42,7 @@ namespace MirageXR.View
             _step.Location.Position = eventData.ManipulationSource.transform.localPosition;
             RootObject.Instance.StepManager.UpdateStep(_step);
         }
-        
+
         private void LateUpdate()
         {
             DoTextBillboarding();
