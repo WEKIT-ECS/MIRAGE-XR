@@ -45,7 +45,6 @@ namespace MirageXR
         public void initializeVolumeCamera()
         {
             Instantiate(volumeCamera, new Vector3(0,0,0), Quaternion.identity);
-            volumeCamera.transform.parent = mixedRealityPlayspace.transform;
             Debug.Log("Volume camera initialized");
         }
     }
