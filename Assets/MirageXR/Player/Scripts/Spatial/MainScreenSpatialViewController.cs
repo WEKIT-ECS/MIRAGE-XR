@@ -1,5 +1,8 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
+using LearningExperienceEngine.DTOs;
+using UnityEngine;
 
 namespace MirageXR
 {
@@ -26,10 +29,16 @@ namespace MirageXR
         {
             var container = View.GetActivityContainer();
             var prefab = View.GetActivityListItemPrefab();
+            
+            foreach (Transform child in container.transform)
+            {
+                Destroy(child.gameObject);
+            }
+
             foreach (var activity in activities)
             {
                 var item = Instantiate(prefab, container);
-                item.Initialize(activity, OnActivityListItemClicked);
+                item.Initialize(activity, OnActivityListItemClicked, OnActivityListItemDeleteClicked);
             }
         }
 
@@ -41,7 +50,18 @@ namespace MirageXR
 
         private void OnActivityListItemClicked(Activity activity)
         {
-            RootObject.Instance.ActivityManager.LoadActivityAsync(activity.Id);
+            RootObject.Instance.ActivityManager.LoadActivityAsync(activity.Id).Forget();
+        }
+
+        private void OnActivityListItemDeleteClicked(Activity activity)
+        {
+            DeleteActivityAsync(activity).Forget();
+        }
+
+        private async UniTask DeleteActivityAsync(Activity activity)
+        {
+            await RootObject.Instance.ActivityManager.DeleteActivityAsync(activity.Id);
+            await RootObject.Instance.ActivityManager.FetchActivitiesAsync();
         }
     }
 }

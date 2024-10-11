@@ -14,20 +14,20 @@ namespace MirageXR.View
 
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private TMP_Text text;
-        [SerializeField] BoxCollider boxCollider;
-        
+        [SerializeField] private BoxCollider boxCollider;
+
         private Texture2D _texture;
         private Sprite _sprite;
         private Camera _camera;
         private bool _isBillboarded;
-        
+
         public override async UniTask InitializeAsync(Content content)
         {
             base.InitializeAsync(content);
 
             _camera = RootObject.Instance.BaseCamera;
             transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, ScaleZ);
-            
+
             if (content is Content<ImageContentData> imageContent)
             {
                 await InitializeContentAsync(imageContent);
@@ -44,7 +44,7 @@ namespace MirageXR.View
 
             BoundsControl.BoundsOverride = boxCollider;
             boxCollider.center = Vector3.zero;
-            boxCollider.size = transform.localScale;
+            boxCollider.size = Vector3.one;
         }
 
         protected override void OnScaleStopped()
@@ -62,7 +62,8 @@ namespace MirageXR.View
 
         private async UniTask InitializeImageAsync(Content<ImageContentData> content)
         {
-            var folderPath = RootObject.Instance.AssetsManager.GetFolderPath(content.Id, content.ContentData.Image.Id);
+            var activityId = RootObject.Instance.ActivityManager.ActivityId;
+            var folderPath = RootObject.Instance.AssetsManager.GetFolderPath(activityId, content.Id, content.ContentData.Image.Id);
             var imagePath = Path.Combine(folderPath, ImageFileName);
 
             if (File.Exists(imagePath))
@@ -71,12 +72,12 @@ namespace MirageXR.View
                 _texture = new Texture2D(2, 2, TextureFormat.RGB24, false);
                 _texture.LoadImage(bytes);
 
-                _sprite = Sprite.Create(_texture, new Rect(0, 0, _texture.width, _texture.height), Vector2.zero);
+                _sprite = Sprite.Create(_texture, new Rect(0, 0, _texture.width, _texture.height), new Vector2(0.5f, 0.5f));
 
                 spriteRenderer.sprite = _sprite;
                 spriteRenderer.drawMode = SpriteDrawMode.Sliced;
                 spriteRenderer.size = Vector2.one;
-                CalculateSize(_texture.width, _texture.height);
+                //CalculateSize(_texture.width, _texture.height);
             }
             else
             {
@@ -100,20 +101,6 @@ namespace MirageXR.View
         private void InitializeBillboard(Content<ImageContentData> content)
         {
             _isBillboarded = content.ContentData.IsBillboarded;
-        }
-
-        private void CalculateSize(int textureWidth, int textureHeight)
-        {
-            if (textureWidth == textureHeight)
-            {
-                transform.localScale = Vector3.one;
-                return;
-            } 
-
-            var scale = transform.localScale;
-            transform.localScale = textureWidth > textureHeight
-                ? new Vector3(textureWidth / (float)textureHeight, scale.y, scale.z)
-                : new Vector3(scale.x, textureHeight / (float)textureWidth, scale.z);
         }
 
         private void LateUpdate()
