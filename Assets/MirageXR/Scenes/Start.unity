@@ -179,7 +179,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 5f16391ea642fe14d9a60fd0aff3e36a, type: 3}
+  m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -535,7 +535,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 840964f3b24b83a4ab085e9a2b8f74c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _forceManagerType: 0
+  _forceManagerType: 2
   _images: []
   _onTargetCreated:
     m_PersistentCalls:
@@ -705,7 +705,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 496fc00a6a697094baa24b1b0dd983cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _forceManagerType: 0
+  _forceManagerType: 2
   _prefabARFoundationAnchor: {fileID: 1362899771367802, guid: 3403fa35f0b1e1d47932c98fae4c8789,
     type: 3}
   _prefabEditorAnchor: {fileID: 1362899771367802, guid: 3403fa35f0b1e1d47932c98fae4c8789,
@@ -1008,6 +1008,14 @@ MonoBehaviour:
         m_Groups: 
         m_Action: Position
         m_Flags: 0
+      - m_Name: 
+        m_Id: a518beb2-276f-4926-b1a2-5438ce670f9f
+        m_Path: <XRSimulatedHMD>/centerEyePosition
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Position
+        m_Flags: 0
       m_Flags: 0
     m_Reference: {fileID: 0}
   m_RotationInput:
@@ -1031,6 +1039,14 @@ MonoBehaviour:
       - m_Name: 
         m_Id: adb92167-3ce6-4ffd-85e8-c177e90df61e
         m_Path: <HandheldARInputDevice>/deviceRotation
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Rotation
+        m_Flags: 0
+      - m_Name: 
+        m_Id: 6541f918-cf58-4aad-adc7-e489a8134659
+        m_Path: <XRSimulatedHMD>/centerEyeRotation
         m_Interactions: 
         m_Processors: 
         m_Groups: 
@@ -1105,10 +1121,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 807537237}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bf98dd1206224111a38765365e98e207, type: 3}
+  m_Script: {fileID: 11500000, guid: 41b078f12aa57ee46a6b8562afd933ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lockCursorWhenFocusLocked: 1
+  lockCursorWhenFocusLocked: 0
   setCursorInvisibleWhenFocusLocked: 0
   maxGazeCollisionDistance: 10
   raycastLayerMasks:
@@ -1250,6 +1266,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d73b0a95be81246699cf0d9ecdc01863, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PreferredRunner: 0
+  Components: []
+  _guid: 80aa7434-a886-45c1-
 --- !u!1 &930107306
 GameObject:
   m_ObjectHideFlags: 0
@@ -1469,6 +1488,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_ActionAssets:
   - {fileID: -944628639613478452, guid: 819bb2620b7324c88bc80bf53d7dd87c, type: 3}
+  - {fileID: -944628639613478452, guid: c348712bda248c246b8c49b3db54643f, type: 3}
 --- !u!114 &967372979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2569,7 +2589,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64ef31f9a2613894d8d6b9efcfdaa9bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _forceManagerType: 0
+  _forceManagerType: 2
   _prefabARFoundationPlane: {fileID: 1585201990951412, guid: 0d9e1f0e794928f49aee189d66f1e4a6,
     type: 3}
   _prefabEditorPlane: {fileID: 4068327573183295800, guid: 9540ea72376a449458b8522ecc456196,
@@ -2780,6 +2800,11 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 807537243}
+    - target: {fileID: 6913754035602039028, guid: 7b607937914694584873122280d9e3f0,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7116922883252755900, guid: 7b607937914694584873122280d9e3f0,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2828,6 +2853,16 @@ PrefabInstance:
     - target: {fileID: 7116922883252755900, guid: 7b607937914694584873122280d9e3f0,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7570470865827875048, guid: 7b607937914694584873122280d9e3f0,
+        type: 3}
+      propertyPath: m_RequirePokeFilter
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9137774181220588561, guid: 7b607937914694584873122280d9e3f0,
+        type: 3}
+      propertyPath: m_RequirePokeFilter
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -2911,8 +2946,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8856608566303270429, guid: 380bb3c2508c4473aec1d2fcb48cce6f,
         type: 3}
-      propertyPath: forceWorldSpaceUi
+      propertyPath: forceToTabletView
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8856608566303270429, guid: 380bb3c2508c4473aec1d2fcb48cce6f,
+        type: 3}
+      propertyPath: forceWorldSpaceUi
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

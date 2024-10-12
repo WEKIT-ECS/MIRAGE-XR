@@ -31,14 +31,14 @@ namespace MirageXR
             mixedRealityToolkit.enabled = false;
             mRTKHardwareRig.enabled = false;
             mixedRealityInputModule.enabled = false;
-            gazeProvider.enabled = false;
+            if (gazeProvider.IsNotNull()) gazeProvider.enabled = false;
             Debug.Log("On vision os platform, MRTK scripts turned off");
 #else
             Debug.Log("Not on visionos platform, no volume camera created");
             mixedRealityToolkit.enabled = true;
             mRTKHardwareRig.enabled = true;
             mixedRealityInputModule.enabled = true;
-            gazeProvider.enabled = true;
+            if (gazeProvider.IsNotNull()) gazeProvider.enabled = true;
 #endif
         }
 
