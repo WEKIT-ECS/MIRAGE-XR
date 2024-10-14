@@ -27,11 +27,12 @@ public class ListItemBoxPicker : MonoBehaviour
         if (changedToggle.isOn)
         {
             _toggleGroup.NotifyToggleOn(changedToggle);
+            UnityEngine.Debug.Log("Das ist der Fall.");
             UpdateField(changedToggle.name);
             OnToggleSelected?.Invoke(changedToggle, this);
         }
     }
-    
+
     void UpdateField(string str)
     {
         _SetOptionText.text = str;

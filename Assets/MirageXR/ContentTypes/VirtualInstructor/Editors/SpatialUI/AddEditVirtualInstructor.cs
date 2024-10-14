@@ -27,7 +27,7 @@ public class AddEditVirtualInstructor : MonoBehaviour
     [SerializeField] private GameObject communicationSettingPanel;
     [SerializeField] private GameObject animationSettingPanel;
     [SerializeField] private GameObject pathSettingPanel;
-    [SerializeField] private ListItemBoxPicker[] _listItemBoxPickers; // Array für mehrere ListItemBoxPicker
+    [SerializeField] private ListItemBoxPicker[] _listItemBoxPickers;
     [SerializeField] private GameObject setPromptVI;
     [SerializeField] private GameObject setVoicesVI; 
     [SerializeField] private GameObject setModelVI; 
@@ -38,6 +38,11 @@ public class AddEditVirtualInstructor : MonoBehaviour
     [SerializeField] private GameObject ai; 
     [SerializeField] private GameObject audioRecoding;
     [SerializeField] private GameObject noSpeech;
+    
+    [Header("Background and Shadow resizing")]
+    [SerializeField] private RectTransform background;
+    [SerializeField] private RectTransform shadow;
+    [SerializeField] private RectTransform content;
     
     
     
@@ -60,7 +65,8 @@ public class AddEditVirtualInstructor : MonoBehaviour
         modelVI.onClick.AddListener(OpenModelPanel);
         languageVI.onClick.AddListener(OpenLanguagePanel);
     }
-
+    
+  
     private void OpenLanguagePanel()
     {
         ResetPanel(); 
