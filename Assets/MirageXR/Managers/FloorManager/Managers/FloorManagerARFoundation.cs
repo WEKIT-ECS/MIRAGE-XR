@@ -53,7 +53,7 @@ public class FloorManagerARFoundation : FloorManagerBase
         var cameraParent = mainCamera.transform.parent ? mainCamera.transform.parent.gameObject : mainCamera.gameObject;
 
         _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>(cameraParent);
-        _arAnchorManager = MirageXR.Utilities.FindOrCreateComponent<ARAnchorManager>(cameraParent);
+        _arAnchorManager = MirageXR.Utilities.FindOrCreateComponent<ARAnchorManager>(cameraParent); // cameraParent
 
         RootObject.Instance.planeManager.onPlaneRemoved.AddListener(OnPlaneRemoved);
         
