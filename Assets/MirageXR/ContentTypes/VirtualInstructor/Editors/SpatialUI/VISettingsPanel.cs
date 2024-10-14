@@ -10,7 +10,7 @@ public class VISettingsPanel : MonoBehaviour
     [SerializeField] private Button rename;
     [SerializeField] private Button deleteStep;
     [Header("References to menu")]
-    [SerializeField] private TMP_Text heading;
+    [SerializeField] private TMP_InputField heading;
     void Start()
     {
         close.onClick.AddListener(()=> this.gameObject.SetActive(false));
@@ -20,7 +20,8 @@ public class VISettingsPanel : MonoBehaviour
 
     private void RenameVi()
     {
-        throw new NotImplementedException();
+        heading.Select();
+        this.gameObject.SetActive(false);
     }
 
     private void DeleteVi()
