@@ -133,7 +133,7 @@ public static class NativeGallery
 	private static extern string _NativeGallery_LoadImageAtPath( string path, string temporaryFilePath, int maxSize );
 #endif
 
-#if !UNITY_EDITOR && ( UNITY_ANDROID || UNITY_IOS )
+#if !UNITY_EDITOR && ( UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS)
 	private static string m_temporaryImagePath = null;
 	private static string TemporaryImagePath
 	{
