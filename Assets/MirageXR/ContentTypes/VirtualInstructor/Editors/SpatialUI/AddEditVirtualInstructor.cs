@@ -1,5 +1,5 @@
+using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -10,9 +10,12 @@ public class AddEditVirtualInstructor : MonoBehaviour
     [Header("Buttons")]
     [SerializeField] private Button closePanelBtn;
     [SerializeField] private Button settingsBtn; 
-    [SerializeField] private Button modelSettingBtn;
+    [SerializeField] private Button modelSettingBtnA;
+    [SerializeField] private Button modelSettingBtnB;
     [SerializeField] private Button[] communicationSettingBtns;
-    [SerializeField] private Button animationSettingBtn;
+    [FormerlySerializedAs("animationSettingBtn")]
+    [SerializeField] private Button animationSettingBtnA;
+    [SerializeField] private Button animationSettingBtnB;
     [SerializeField] private Button pathSettingBtn;
     [SerializeField] private Button applyBtn;
     [SerializeField] private Button promptVI;
@@ -33,37 +36,52 @@ public class AddEditVirtualInstructor : MonoBehaviour
     [SerializeField] private GameObject setModelVI; 
     [SerializeField] private GameObject setLanguageVI; 
     
-
-    [Header("Communication Settings ")] 
-    [SerializeField] private GameObject ai; 
-    [SerializeField] private GameObject audioRecoding;
-    [SerializeField] private GameObject noSpeech;
-    
     [Header("Background and Shadow resizing")]
     [SerializeField] private RectTransform background;
     [SerializeField] private RectTransform shadow;
     [SerializeField] private RectTransform content;
     
+    [Header("Communication Settings ")] 
+    [SerializeField] private GameObject ai; 
+    [SerializeField] private GameObject audioRecoding;
+    [SerializeField] private GameObject noSpeech;
     
+    [Header ("Path Settings")]
+    [SerializeField] private TMP_Text pathSettingText;
     
+    [Header ("Animation Setting")]
+    [SerializeField] private TMP_Text animationSettingTextWithOutImage;
+    [SerializeField] private TMP_Text animationSettingTextWithImage;
+    [SerializeField] private GameObject animationWithImage;
+    [SerializeField] private GameObject animationWithOutImage;
+    
+    [Header ("Interaction Settings")]
+    [SerializeField] private Toggle interactionSettingToggleClosed;
+    [SerializeField] private Toggle interactionSettingToggleOpen;
+    [SerializeField] private GameObject interactionSettingOpen;
+    [SerializeField] private GameObject interactionSettingClose;
 
-
+    
     void Start()
     {   
         closePanelBtn.onClick.AddListener(Apply);
         settingsBtn.onClick.AddListener(OpenSettingsPanel);
-        modelSettingBtn.onClick.AddListener(OpenModelSettingPanel);
+        modelSettingBtnA.onClick.AddListener(OpenModelSettingPanel);
+        modelSettingBtnB.onClick.AddListener(OpenModelSettingPanel);
         foreach (var communicationSettingBtn in communicationSettingBtns)
         {
             communicationSettingBtn.onClick.AddListener(OpenCommunicationSettingPanel);
         }
-        animationSettingBtn.onClick.AddListener(OpenAnimationSettingPanel);
+        animationSettingBtnA.onClick.AddListener(OpenAnimationSettingPanel);
+        animationSettingBtnB.onClick.AddListener(OpenAnimationSettingPanel);
         pathSettingBtn.onClick.AddListener(OpenPathSettingPanel);
         applyBtn.onClick.AddListener(Apply); 
         promptVI.onClick.AddListener(OpenPromptPanel);
         voicesVI.onClick.AddListener(OpenVoicePanel);
         modelVI.onClick.AddListener(OpenModelPanel);
         languageVI.onClick.AddListener(OpenLanguagePanel);
+        interactionSettingToggleOpen.onValueChanged.AddListener(SetInteractionSettingsActive);
+        interactionSettingToggleClosed.onValueChanged.AddListener(SetInteractionSettingsActive);
     }
     
   
@@ -132,12 +150,12 @@ public class AddEditVirtualInstructor : MonoBehaviour
                 audioRecoding.SetActive(false);
                 noSpeech.SetActive(false);
                 break;
-            case "Audio recording":
+            case "AudioRecording":
                 ai.SetActive(false);
                 audioRecoding.SetActive(true);
                 noSpeech.SetActive(false);
                 break;
-            case "No Speech":
+            case "NoSpeech":
                 ai.SetActive(false);
                 audioRecoding.SetActive(false);
                 noSpeech.SetActive(true);
@@ -147,19 +165,81 @@ public class AddEditVirtualInstructor : MonoBehaviour
 
     private void UpdateAnimationSetting(Toggle toggle)
     {
-        UnityEngine.Debug.Log("UpdateAnimationSetting to " + toggle.gameObject.name);
+        switch (toggle.name)
+        {
+             case "Idle": 
+                 animationWithOutImage.SetActive(true);
+                 animationWithImage.SetActive(false);
+                 animationSettingTextWithOutImage.text = "Idle";
+                 break;
+             case "Point": 
+                 animationWithOutImage.SetActive(true);
+                 animationWithImage.SetActive(false);
+                 animationSettingTextWithOutImage.text = "Point";
+                 break;
+             case "Walk": 
+                 animationWithOutImage.SetActive(true);
+                 animationWithImage.SetActive(false);
+                 animationSettingTextWithOutImage.text = "Walk";
+                 break;
+             case "Hello": 
+                 animationWithOutImage.SetActive(true);
+                 animationWithImage.SetActive(false);
+                 animationSettingTextWithOutImage.text = "Hello";
+                 break;
+             case "Bye": 
+                 animationWithOutImage.SetActive(true);
+                 animationWithImage.SetActive(false);
+                 animationSettingTextWithOutImage.text = "Bye";
+                 break;
+             case "Sitting": 
+                 animationWithOutImage.SetActive(true);
+                 animationWithImage.SetActive(false);
+                 animationSettingTextWithOutImage.text = "Sitting";
+                 break;
+             case "ThumbUp": 
+                 animationWithOutImage.SetActive(true);
+                 animationWithImage.SetActive(false);
+                 animationSettingTextWithOutImage.text = "Thumb Up";
+                 break;
+             case "ThumbDown": 
+                 animationWithOutImage.SetActive(true);
+                 animationWithImage.SetActive(false);
+                 animationSettingTextWithOutImage.text = "Hello";
+                 break;
+             case "Writing": 
+                 animationWithOutImage.SetActive(true);
+                 animationWithImage.SetActive(false);
+                 animationSettingTextWithOutImage.text = "Writing";
+                 break;
+             case "ImageDisplay":
+                 animationWithOutImage.SetActive(false);
+                 animationWithImage.SetActive(true);
+                 animationSettingTextWithImage.text = "Image display";
+                 break;
+             case "ImagePresentation": 
+                 animationWithOutImage.SetActive(false);
+                 animationWithImage.SetActive(true);
+                 animationSettingTextWithImage.text = "Image presentation";
+                 break;
+             }
     }
 
     private void UpdatePathSetting(Toggle toggle)
     {
-        UnityEngine.Debug.Log("UpdatePathSetting to " + toggle.gameObject.name);
+        switch (toggle.name)
+        {
+          case "NoPath":
+              pathSettingText.text = "No Path";
+              break; 
+        }
     }
 
 
     private void Apply()
     {
         ResetPanel();
-        UnityEngine.Debug.Log("Apply");
+        UnityEngine.Debug.Log("Apply"); // todo
         gameObject.SetActive(false);
     }
 
@@ -167,7 +247,6 @@ public class AddEditVirtualInstructor : MonoBehaviour
     {
         ResetPanel();
         modelSettingPanel.SetActive(true);
-       
     }
     
     private void OpenCommunicationSettingPanel()
@@ -206,6 +285,13 @@ public class AddEditVirtualInstructor : MonoBehaviour
          setModelVI.SetActive(false);
          setLanguageVI.SetActive(false);
     }
-    
+
+    private void SetInteractionSettingsActive(bool active)
+    {
+        interactionSettingOpen.SetActive(active);
+        interactionSettingClose.SetActive(!active); 
+        interactionSettingToggleOpen.isOn = active;
+        interactionSettingToggleClosed.isOn = active;
+    }
     
 }

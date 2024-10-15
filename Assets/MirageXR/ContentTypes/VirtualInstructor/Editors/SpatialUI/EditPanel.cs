@@ -8,8 +8,6 @@ namespace MirageXR
         [SerializeField] private Button close;
         [SerializeField] private Button edit;
         [SerializeField] private Button delete;
-        
-        // Start is called before the first frame update
         void Start()
         {
             close.onClick.AddListener(Close);
@@ -19,7 +17,6 @@ namespace MirageXR
 
         private void Close()
         {
-            UnityEngine.Debug.Log($"Close {gameObject.name}");
             this.gameObject.SetActive(false);
         }
 
