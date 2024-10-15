@@ -112,7 +112,7 @@ namespace MirageXR.NewDataModel
             _currentHierarchyItem.StepIds.Add(step.Id);
             _steps.Add(step);
 
-            _activityManager.UpdateActivity();
+            _activityManager.UpdateActivityAsync().Forget();
 
             UpdateStepQueue();
             if (_currentStep == null)
@@ -209,7 +209,7 @@ namespace MirageXR.NewDataModel
                 }
             }
 
-            _activityManager.UpdateActivity();
+            _activityManager.UpdateActivityAsync().Forget();
         }
 
         public int GetStepNumber(Guid stepId)
@@ -255,7 +255,7 @@ namespace MirageXR.NewDataModel
             RemoveStepRecursively(stepId, _hierarchy);
 
             UpdateStepQueue();
-            _activityManager.UpdateActivity();
+            _activityManager.UpdateActivityAsync().Forget();
         }
 
         private void RemoveStepRecursively(Guid stepId, List<HierarchyItem> hierarchy)

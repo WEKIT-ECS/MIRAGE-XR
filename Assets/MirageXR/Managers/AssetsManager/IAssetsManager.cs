@@ -11,6 +11,7 @@ namespace MirageXR.NewDataModel
         UniTask PrepareContent(Guid activityId, Content content);
         FileModel GetDefaultThumbnail();
         UniTask<FileModel> CreateFileAsync(Guid activityId, Guid contentId, Guid fileId);
+        UniTask UploadFileAsync(Guid activityId, Guid contentId, Guid fileId);
         StepView GetStepViewPrefab();
         CalibrationTool GetCalibrationToolPrefab();
         ContentView GetContentViewPrefab(ContentType contentType);

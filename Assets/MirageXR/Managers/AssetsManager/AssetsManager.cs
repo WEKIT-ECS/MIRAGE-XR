@@ -50,43 +50,44 @@ namespace MirageXR.NewDataModel
 
             foreach (var fileModel in list)
             {
-                if (fileModel.Id != Guid.Empty && !await IsHashEqual(activityId, content.Id, fileModel))
+                if (fileModel.Id == Guid.Empty || await IsHashEqual(activityId, content.Id, fileModel))
                 {
-                    Directory.CreateDirectory(GetFolderPath(activityId, content.Id));
-                    var zipPath = GetZipPath(activityId, content.Id, fileModel.Id);
-                    if (File.Exists(zipPath))
-                    {
-                        File.Delete(zipPath);
-                    }
-                    
-                    var stream = new FileStream(zipPath, FileMode.OpenOrCreate);
-                    try
-                    {
-                        var response = await _networkDataProvider.GetAssetAsync(stream, activityId, fileModel.Id);
-                        if (!response.IsSuccess)
-                        {
-                            Debug.LogError(response.Error);
-                        }
-                    }
-                    finally
-                    {
-                        await stream.DisposeAsync();
-                    }
-                    //var fileStream = new FileStream(GetZipPath(activityId, content.Id, fileModel.Id), FileMode.OpenOrCreate);
+                    continue;
+                }
+                Directory.CreateDirectory(GetFolderPath(activityId, content.Id));
+                var zipPath = GetZipPath(activityId, content.Id, fileModel.Id);
+                if (File.Exists(zipPath))
+                {
+                    File.Delete(zipPath);
+                }
 
-                    stream = File.OpenRead(zipPath);
-                    try
+                var stream = new FileStream(zipPath, FileMode.OpenOrCreate);
+                try
+                {
+                    var response = await _networkDataProvider.GetAssetAsync(stream, activityId, fileModel.Id);
+                    if (!response.IsSuccess)
                     {
-                        await ZipUtilities.ExtractZipFileAsync(stream, GetFolderPath(activityId, content.Id));
+                        Debug.LogError(response.Error);
                     }
-                    catch (Exception ex)
-                    {
-                        Debug.LogException(ex);
-                    }
-                    finally
-                    {
-                        await stream.DisposeAsync();
-                    }
+                }
+                finally
+                {
+                    await stream.DisposeAsync();
+                }
+                //var fileStream = new FileStream(GetZipPath(activityId, content.Id, fileModel.Id), FileMode.OpenOrCreate);
+
+                stream = File.OpenRead(zipPath);
+                try
+                {
+                    await ZipUtilities.ExtractZipFileAsync(stream, GetFolderPath(activityId, content.Id));
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
+                finally
+                {
+                    await stream.DisposeAsync();
                 }
             }
         }
@@ -114,8 +115,6 @@ namespace MirageXR.NewDataModel
                 await ZipUtilities.CompressFolderAsync(folderPath, zipStream);
             }
 
-            await _networkDataProvider.UploadAssetAsync(activityId, fileId, zipPath);
-
             return new FileModel
             {
                 Id = fileId,
@@ -123,6 +122,16 @@ namespace MirageXR.NewDataModel
                 CreationDate = DateTime.UtcNow,
                 FileHash = GetFileHash(activityId, contentId, fileId)
             };
+        }
+
+        public async UniTask UploadFileAsync(Guid activityId, Guid contentId, Guid fileId)
+        {
+            var zipPath = GetZipPath(activityId, contentId, fileId);
+            if (!File.Exists(zipPath))
+            {
+                throw new FileNotFoundException("File not Created (CreateFileAsync)", zipPath);
+            }
+            await _networkDataProvider.UploadAssetAsync(activityId, fileId, zipPath);
         }
 
         public StepView GetStepViewPrefab()

@@ -189,6 +189,24 @@ namespace MirageXR.NewDataModel
             }
         }
 
+        public async UniTask UpdateActivityAsync()
+        {
+            if (_activity == null)
+            {
+                return;
+            }
+
+            _activity.Content = _contentManager.GetContents();
+            _activity.Steps = _stepManager.GetSteps();
+            _activity.Hierarchy = _stepManager.GetHierarchy();
+            _onActivityUpdated.Invoke(_activity);
+
+            if (_activity.Content is { Count: > 0 })
+            {
+                await UploadActivityAsync();
+            }
+        }
+
         public async UniTask<bool> UploadActivityAsync()
         {
             var response = await _networkDataProvider.UpdateActivityAsync(_activity);
