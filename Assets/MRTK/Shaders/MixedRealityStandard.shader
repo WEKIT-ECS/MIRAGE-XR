@@ -16,6 +16,7 @@ Shader "Mixed Reality Toolkit/Standard"
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
         _Metallic("Metallic", Range(0.0, 1.0)) = 0.0
         _Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5
+        _Glossiness("Glossiness", Range(0.0, 1.0)) = 0.5
         [Toggle(_CHANNEL_MAP)] _EnableChannelMap("Enable Channel Map", Float) = 0.0
         [NoScaleOffset] _ChannelMap("Channel Map", 2D) = "white" {}
         [Toggle(_NORMAL_MAP)] _EnableNormalMap("Enable Normal Map", Float) = 0.0
