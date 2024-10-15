@@ -81,7 +81,7 @@ namespace Microsoft.MixedReality.Toolkit.Examples.Demos
                     }
                 });
             }
-#elif UNITY_IOS || UNITY_ANDROID
+#elif UNITY_IOS || UNITY_ANDROID || UNITY_VISIONOS
             // non-Windows mixed reality keyboard initialization goes here
 #else
             debugMessage.text = "Keyboard not supported on this platform.";
