@@ -287,7 +287,7 @@ GameObject:
   - component: {fileID: 2375956870155653582}
   - component: {fileID: 3659803513264233155}
   - component: {fileID: 4012132381883201718}
-  - component: {fileID: 2183012065195174778}
+  - component: {fileID: 7655285782586504006}
   m_Layer: 5
   m_Name: SpatialUI
   m_TagString: Untagged
@@ -340,8 +340,8 @@ Canvas:
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 919195891
-  m_SortingOrder: 2
+  m_SortingLayerID: 684826185
+  m_SortingOrder: 1
   m_TargetDisplay: 0
 --- !u!114 &3659803513264233155
 MonoBehaviour:
@@ -383,7 +383,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &2183012065195174778
+--- !u!114 &7655285782586504006
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -392,9 +392,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 8611568755010069234}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff4e3b9019304b5aaec5664de0778d21, type: 3}
+  m_Script: {fileID: 11500000, guid: 43127b12dccfa49178c38789c0a533d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_CastOrigin: {fileID: 4191785097895433476}
+  m_EnableStabilization: 0
+  m_PositionStabilization: 0.25
+  m_AngleStabilization: 20
+  m_AimTargetObject: {fileID: 0}
+  m_PhysicsLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_PhysicsTriggerInteraction: 1
+  m_CastRadius: 0.025
 --- !u!1001 &249959009219917031
 PrefabInstance:
   m_ObjectHideFlags: 0
