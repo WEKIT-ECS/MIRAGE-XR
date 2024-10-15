@@ -11,11 +11,10 @@ namespace MirageXR
         
         [SerializeField] private GameObject openTooltip; 
         [SerializeField] private GameObject closeTooltip;
-        [SerializeField] private GameObject window;
 
         void Start()
         {
-            close.onClick.AddListener(() => { window.SetActive(false); });
+            close.onClick.AddListener(() => { this.gameObject.SetActive(false); });
             openTooltipBtn.onClick.AddListener(() =>
             {
                 closeTooltip.SetActive(true);
