@@ -22,7 +22,7 @@ public class CameraCalibrationChecker : MonoBehaviour
     private Coroutine _coroutine;
     private UnityEventFloat _onAnchorLost = new UnityEventFloat();
     private bool _isWorking;
-#if UNITY_ANDROID || UNITY_IOS
+#if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS
     private ARSession _arSession;
     private XRSessionSubsystem _subsystem;
     private UnityEngine.XR.ARSubsystems.TrackingState _oldTrackingState = UnityEngine.XR.ARSubsystems.TrackingState.Tracking;
@@ -31,7 +31,7 @@ public class CameraCalibrationChecker : MonoBehaviour
     public void Initialization()
     {
         _anchor = RootObject.Instance.CalibrationManager.Anchor;
-#if UNITY_ANDROID || UNITY_IOS
+#if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS
         _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>();
 #endif
     }
@@ -42,7 +42,7 @@ public class CameraCalibrationChecker : MonoBehaviour
         {
             _isWorking = true;
             _coroutine = StartCoroutine(CalibrationCheckerCoroutine());
-#if UNITY_ANDROID || UNITY_IOS
+#if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS
             _subsystem = _arSession.subsystem;
 #endif
         }
@@ -66,7 +66,7 @@ public class CameraCalibrationChecker : MonoBehaviour
         {
             var newDistance = Vector3.Distance(_mainCameraTransform.position, _anchor.position);
             var isDistanceLost = Mathf.Abs(_distance - newDistance) > MAX_AVALIBLE_DELTA_DISTANCE;
-#if UNITY_ANDROID || UNITY_IOS
+#if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS
             var trackingState = UnityEngine.XR.ARSubsystems.TrackingState.Tracking;
             if (_subsystem != null)
             {
@@ -82,7 +82,7 @@ public class CameraCalibrationChecker : MonoBehaviour
                 yield return new WaitForSeconds(ADDITIONAL_COOLDOWN);
                 _distance = Vector3.Distance(_mainCameraTransform.position, _anchor.position);
             }
-#if UNITY_ANDROID || UNITY_IOS
+#if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS
             _oldTrackingState = trackingState;
 #endif
             _distance = newDistance;

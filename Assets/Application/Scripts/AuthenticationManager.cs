@@ -1,6 +1,6 @@
 namespace MRTKUtilities.Application
 {
-#if !UNITY_ANDROID && !UNITY_IOS
+#if !UNITY_ANDROID && !UNITY_IOS && !UNITY_VISIONOS
     using Microsoft.Identity.Client;
 #endif
     using System.Threading;
@@ -63,7 +63,7 @@ namespace MRTKUtilities.Application
             {
                 _settingsManager = GetComponent<SettingsManager>();
             }
-#if !UNITY_ANDROID && !UNITY_IOS
+#if !UNITY_ANDROID && !UNITY_IOS && !UNITY_VISIONOS
             // get the token silently, probably from the cache
             using CancellationTokenSource cancellationToken = new CancellationTokenSource();
             AuthenticationResult result = await AuthenticationHelper.AuthenticateSilentAsync(
@@ -97,7 +97,7 @@ namespace MRTKUtilities.Application
         /// <returns>The access token.</returns>
         public async Task<string> AuthenticateUserAsync()
         {
-#if !UNITY_ANDROID && !UNITY_IOS
+#if !UNITY_ANDROID && !UNITY_IOS && !UNITY_VISIONOS
             AuthenticationResult result = null;
 
             if (_settingsManager == null)
@@ -112,7 +112,7 @@ namespace MRTKUtilities.Application
                            _settingsManager.Settings.ClientId, 
                            _settingsManager.Settings.Scopes, 
                            cancellationtoken);
-#elif !UNITY_ANDROID && !UNITY_IOS
+#elif !UNITY_ANDROID && !UNITY_IOS && !UNITY_VISIONOS
             // handle the device code flow message (ONLY IN UNITY EDITOR)
             AuthenticationHelper.DeviceCodeMessage += message =>
             {
@@ -151,7 +151,7 @@ namespace MRTKUtilities.Application
                 accessToken = result.AccessToken;
             }
 #endif
-#if !UNITY_ANDROID && !UNITY_IOS
+#if !UNITY_ANDROID && !UNITY_IOS && !UNITY_VISIONOS
             if (result != null)
             {
                 // now get some user details from the acquired token

@@ -17,7 +17,7 @@ PlayerSettings:
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0, g: 0, b: 0, a: 1}
-  m_ShowUnitySplashScreen: 1
+  m_ShowUnitySplashScreen: 0
   m_ShowUnitySplashLogo: 1
   m_SplashScreenOverlayOpacity: 1
   m_SplashScreenAnimation: 1
@@ -44,15 +44,14 @@ PlayerSettings:
     duration: 2
   - logo: {fileID: 21300000, guid: ece48c44953f2314c93b1ce48f8385f8, type: 3}
     duration: 2
-  m_VirtualRealitySplashScreen: {fileID: 2800000, guid: 528562db9897a1447a9e8cb8baab870d,
-    type: 3}
+  m_VirtualRealitySplashScreen: {fileID: 0}
   m_HolographicTrackingLossScreen: {fileID: 0}
   defaultScreenWidth: 1024
   defaultScreenHeight: 768
   defaultScreenWidthWeb: 960
   defaultScreenHeightWeb: 600
   m_StereoRenderingPath: 0
-  m_ActiveColorSpace: 0
+  m_ActiveColorSpace: 1
   unsupportedMSAAFallback: 0
   m_SpriteBatchVertexThreshold: 300
   m_MTRendering: 1
@@ -147,8 +146,9 @@ PlayerSettings:
   bundleVersion: 2.7.160
   preloadedAssets:
   - {fileID: 0}
-  - {fileID: 4800000, guid: c9f956787b1d945e7b36e0516201fc76, type: 3}
-  - {fileID: 4800000, guid: 0945859e5a1034c2cb6dce53cb4fb899, type: 3}
+  - {fileID: 11400000, guid: 5af8949b7209364499abc8979cef0d21, type: 2}
+  - {fileID: 0}
+  - {fileID: -944628639613478452, guid: 819bb2620b7324c88bc80bf53d7dd87c, type: 3}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -171,6 +171,7 @@ PlayerSettings:
   applicationIdentifier:
     Android: com.WEKIT.MirageXR
     Standalone: com.WEKIT.MirageXR
+    VisionOS: com.WEKIT-ECS.MirageXR
     iPhone: com.wekit-ecs.miragexr
   buildNumber:
     Standalone: 0
@@ -513,6 +514,13 @@ PlayerSettings:
       m_Height: 1024
       m_Kind: 4
       m_SubKind: App Store
+  - m_BuildTarget: VisionOS
+    m_Icons:
+    - m_Textures: []
+      m_Width: 1024
+      m_Height: 1024
+      m_Kind: 0
+      m_SubKind: 
   - m_BuildTarget: VisionOS
     m_Icons:
     - m_Textures: []
@@ -865,7 +873,7 @@ PlayerSettings:
   webGLMemoryGeometricGrowthCap: 96
   webGLPowerPreference: 2
   scriptingDefineSymbols:
-    Android: VUFORIA_ANDROID_SETTINGS;ARFOUNDATION_PRESENT;MRTK_GLTF_IMPORTER_OFF;FUSION_WEAVER;FUSION2;XRSHARED_ADDON_AVAILABLE;READY_PLAYER_ME;CROSS_PLATFORM_INPUT;MOBILE_INPUT
+    Android: VUFORIA_ANDROID_SETTINGS;ARFOUNDATION_PRESENT;MRTK_GLTF_IMPORTER_OFF;FUSION_WEAVER;FUSION2;XRSHARED_ADDON_AVAILABLE;READY_PLAYER_ME;CROSS_PLATFORM_INPUT;MOBILE_INPUT;POLYSPATIAL_SDK_AVAILABLE;USE_INPUT_SYSTEM_POSE_CONTROL;USE_STICK_CONTROL_THUMBSTICKS
     EmbeddedLinux: READY_PLAYER_ME
     GameCoreScarlett: READY_PLAYER_ME
     GameCoreXboxOne: READY_PLAYER_ME
@@ -875,10 +883,10 @@ PlayerSettings:
     PS5: READY_PLAYER_ME
     QNX: READY_PLAYER_ME
     Stadia: READY_PLAYER_ME
-    Standalone: MRTK_GLTF_IMPORTER_OFF;READY_PLAYER_ME;CROSS_PLATFORM_INPUT
-    VisionOS: READY_PLAYER_ME
+    Standalone: MRTK_GLTF_IMPORTER_OFF;READY_PLAYER_ME;CROSS_PLATFORM_INPUT;DOTNETWINRT_PRESENT;USE_INPUT_SYSTEM_POSE_CONTROL;USE_STICK_CONTROL_THUMBSTICKS
+    VisionOS: READY_PLAYER_ME;MRTK_GLTF_IMPORTER_OFF;VISION_OS
     WebGL: READY_PLAYER_ME
-    Windows Store Apps: release;VUFORIA_WSA_SETTINGS;READY_PLAYER_ME;XRSHARED_ADDON_AVAILABLE;FUSION_WEAVER;FUSION2;MRTK_GLTF_IMPORTER_OFF;MOBILE_INPUT
+    Windows Store Apps: release;VUFORIA_WSA_SETTINGS;READY_PLAYER_ME;XRSHARED_ADDON_AVAILABLE;FUSION_WEAVER;FUSION2;MRTK_GLTF_IMPORTER_OFF;MOBILE_INPUT;USE_INPUT_SYSTEM_POSE_CONTROL;USE_STICK_CONTROL_THUMBSTICKS
     XboxOne: READY_PLAYER_ME
     iPhone: VUFORIA_IOS_SETTINGS;ARFOUNDATION_PRESENT;UNITY_XR_ARKIT_LOADER_ENABLED;MRTK_GLTF_IMPORTER_OFF;READY_PLAYER_ME;CROSS_PLATFORM_INPUT;MOBILE_INPUT
     tvOS: READY_PLAYER_ME
