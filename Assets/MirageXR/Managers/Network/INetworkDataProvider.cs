@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
 using LearningExperienceEngine.DTOs;
@@ -20,6 +19,7 @@ namespace MirageXR.NewDataModel
         UniTask<Response> UploadAssetAsync(Guid activityId, Guid fileId, string filePath, CancellationToken cancellationToken = default);
         UniTask<Response> UpdateAssetAsync(Guid activityId, Guid fileId, string filePath, CancellationToken cancellationToken = default);
         UniTask<Response> GetAssetAsync(Stream stream, Guid activityId, Guid fileModelId, CancellationToken cancellationToken = default);
+        UniTask<Response> GetAssetAsync(string filePath, Guid activityId, Guid fileModelId, CancellationToken cancellationToken = default);
         UniTask<Response> DeleteActivityAsync(Guid activityId, CancellationToken cancellationToken = default);
     }
 }

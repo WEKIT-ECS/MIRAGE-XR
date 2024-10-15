@@ -74,13 +74,13 @@ namespace MirageXR.NewDataModel
                 }
             }
 
-            _activityManager.UpdateActivity();
+            _activityManager.UpdateActivityAsync().Forget();
         }
 
         public void AddContent(Content content)
         {
             _contents.Add(content);
-            _activityManager.UpdateActivity();
+            _activityManager.UpdateActivityAsync().Forget();
             if (content.Steps.Contains(_stepManager.CurrentStep.Id))
             {
                 ShowContent(_stepManager.CurrentStep.Id);

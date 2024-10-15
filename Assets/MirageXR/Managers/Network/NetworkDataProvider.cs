@@ -116,5 +116,13 @@ namespace MirageXR.NewDataModel
             var url = $"{DevelopServerURL}/{api}?activity_id={activityId}&file_id={fileModelId}";
             return await Network.RequestAsync<string>(stream, url, token: Token, type: Network.RequestType.Get, cancellationToken: cancellationToken);
         }
+
+        public async UniTask<Response> GetAssetAsync(string filePath, Guid activityId, Guid fileModelId, CancellationToken cancellationToken = default)
+        {
+            const string api = "asset/get";
+
+            var url = $"{DevelopServerURL}/{api}?activity_id={activityId}&file_id={fileModelId}";
+            return await Network.RequestAsync<string>(filePath, url, token: Token, type: Network.RequestType.Get, cancellationToken: cancellationToken);
+        }
     }
 }

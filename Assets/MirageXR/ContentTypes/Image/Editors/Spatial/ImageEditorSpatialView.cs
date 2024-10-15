@@ -92,10 +92,11 @@ public class ImageEditorSpatialView : PopupBase
         };
 
         _content.Location.Scale = CalculateScale(_capturedImage.width, _capturedImage.height);
-        
+
         await SaveImageAsync(activityId, _content.Id, fileId);
         _content.ContentData.Image = await RootObject.Instance.AssetsManager.CreateFileAsync(activityId, _content.Id, fileId);
         RootObject.Instance.ContentManager.AddContent(_content);
+        RootObject.Instance.AssetsManager.UploadFileAsync(activityId, _content.Id, fileId);
 
         Close();
     }
@@ -123,9 +124,13 @@ public class ImageEditorSpatialView : PopupBase
         var folder = RootObject.Instance.AssetsManager.GetFolderPath(activityId, contentId, fileId);
         Directory.CreateDirectory(folder);
         var filePath = Path.Combine(folder, "image.png");
+        if (File.Exists(filePath))
+        {
+            File.Delete(filePath);
+        }
         await File.WriteAllBytesAsync(filePath, bytes);
     }
-    
+
     private void UpdateView()
     {
         if (_content != null)

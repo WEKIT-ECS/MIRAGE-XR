@@ -309,6 +309,146 @@ namespace MirageXR.NewDataModel
             return await client.SendAsync(request, cancellationToken);
         }
 
+        public static async UniTask<Response> RequestAsync<T>(string filePath, string url, HttpContent content = null, string token = null, Dictionary<string, string> header = null, RequestType type = RequestType.Get, float timeout = Timeout, CancellationToken cancellationToken = default)
+        {
+            HttpResponseMessage response = null;
+            try
+            {
+                response = await GetResponseAsync(url, content, token, header, type, timeout, cancellationToken);
+                if (response.StatusCode is HttpStatusCode.OK or HttpStatusCode.Created)
+                {
+                    Debug.Log($"{type.ToString()}: {url}");
+                    
+                    var bytes = await response.Content.ReadAsByteArrayAsync();
+                    await File.WriteAllBytesAsync(filePath, bytes, cancellationToken);
+                    return new Response { StatusCode = StatusCode.ToResponseStatusCode(response.StatusCode), Error = null };
+                }
+
+                await response.Content.ReadAsByteArrayAsync();
+                var responseStr = await response.Content.ReadAsStringAsync();
+                if (responseStr is { Length: > 0 }) // Failures returned by server
+                {
+                    Debug.Log($"{type.ToString()}: {url}\nresponse: '{responseStr}'");
+                }
+                else // Failures from HTTP layer
+                {
+                    var message = $"{type.ToString()}: {url} => StatusCode = {response.StatusCode.ToString()}"; // response.HttpResponseHeaders may contain useful info
+                    Debug.Log($"{type.ToString()}: {url}\nresponse: '{message}'");
+                    return new Response<T>
+                    {
+                        StatusCode = StatusCode.ToResponseStatusCode(response.StatusCode),
+                        Error = message
+                    };
+                }
+
+                var data = JsonConvert.DeserializeObject<Response<T>>(responseStr);
+                if (data == null)
+                {
+                    var message = $"{type.ToString()}: {url}\nCan't deserialize object to type {typeof(T).FullName}\nresponse: '{responseStr}'";
+                    Debug.Log(message);
+                    return new Response<T>
+                    {
+                        StatusCode = ResponseStatusCode.SerializationError,
+                        Error = message
+                    };
+                }
+
+                return data;
+            }
+            catch (TaskCanceledException e)
+            {
+                Debug.Log(e);
+                var error = e.Message;
+                if (e.InnerException != null)
+                {
+                    Debug.Log(e.InnerException);
+                    error += $"\nInnerException: {e.InnerException.Message}";
+                }
+
+                return new Response<T> { StatusCode = ResponseStatusCode.Canceled, Error = error };
+            }
+            catch (TimeoutException e)
+            {
+                Debug.LogError(e);
+                var error = e.Message;
+                if (e.InnerException != null)
+                {
+                    Debug.LogError(e.InnerException);
+                    error += $"\nInnerException: {e.InnerException.Message}";
+                }
+
+                return new Response<T> { StatusCode = ResponseStatusCode.Timeout, Error = error };
+            }
+            catch (HttpRequestException e)
+            {
+                var error = e.Message;
+                // As HttpRequestException.Message is usually not informative,
+                // try to fetch e.InnerException, which is expected to be System.Net.WebException
+                if (e.InnerException != null)
+                {
+                    Debug.LogError(e.InnerException);
+                    if (e.InnerException is WebException webException)
+                    {
+                        var failError = HandleWebException(webException);
+                        return new Response<T> { StatusCode = failError.StatusCode,  Error = failError.Error };
+                    }
+
+                    error = $"\nInnerException: {e.InnerException.Message}";
+                }
+                Debug.LogError(e);
+                return new Response<T> { StatusCode = ResponseStatusCode.NoConnection, Error = error };
+            }
+            catch (WebException e)
+            {
+                Debug.LogError(e);
+                if (e.InnerException != null)
+                {
+                    Debug.LogError(e.InnerException);
+                }
+
+                var failError = HandleWebException(e);
+                return new Response<T>
+                    { StatusCode = failError.StatusCode, Error = failError.Error };
+            }
+            catch (JsonSerializationException e)
+            {
+                Debug.LogError(e);
+                var error = e.Message;
+                if (e.InnerException != null)
+                {
+                    Debug.LogError(e.InnerException);
+                    error += $"\nInnerException: {e.InnerException.Message}";
+                }
+                return new Response<T> { StatusCode = ResponseStatusCode.NotFound, Error = error };
+            }
+            catch (Exception e) when (e is InvalidOperationException or UriFormatException)
+            {
+                Debug.LogError(e);
+                var error = e.Message; // bad URI
+                if (e.InnerException != null)
+                {
+                    Debug.LogError(e.InnerException);
+                    error += $"\nInnerException: {e.InnerException.Message}";
+                }
+                return new Response<T> { StatusCode = ResponseStatusCode.NotFound, Error = error };
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+                var error = e.Message;
+                if (e.InnerException != null)
+                {
+                    Debug.LogError(e.InnerException);   
+                    error += $"\nInnerException:{e.InnerException.Message}";
+                }
+                return new Response<T> { StatusCode = ResponseStatusCode.UnhandledException, Error = error };
+            }
+            finally
+            {
+                response?.Dispose();
+            }
+        }
+
         private static async UniTask<HttpResponseMessage> GetResponseAsync(string url, HttpContent content, string token, Dictionary<string, string> header, RequestType type, float timeout = Timeout, CancellationToken cancellationToken = default)
         {
             var handler = new HttpClientHandler();
