@@ -66,7 +66,7 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Sends a user message to the assistant for processing in an LLM (Language and Learning Model).
+        /// Sends a user message to the assistant for processing in an LLM or RAG.
         /// </summary>
         /// <param name="model">The target model used for processing the message.</param>
         /// <param name="message">The message sent by the user for processing.</param>
@@ -153,7 +153,7 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Get you an audio based on your text
+        /// Creates an audio file containing spoken text based on an input message.
         /// </summary>
         /// <param name="message">The text that you want to turn into an audio</param>
         /// <param name="model">The model that you use. Check options json for legal parameters</param>

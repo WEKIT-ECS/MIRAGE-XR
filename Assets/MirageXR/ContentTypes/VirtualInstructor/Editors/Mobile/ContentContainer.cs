@@ -61,7 +61,10 @@ namespace MirageXR
         /// </summary>
         [SerializeField]
         private SpeechSettings speechSettings;
-        
+
+        /// <summary>
+        /// Represents a view for the Virtual Instructor in a popup editor.
+        /// </summary>
         [SerializeField]
         private VirtualInstructorView VirtualInstructorView;
 

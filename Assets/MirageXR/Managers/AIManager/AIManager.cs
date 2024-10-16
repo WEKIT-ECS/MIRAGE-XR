@@ -31,11 +31,12 @@ namespace MirageXR
         private string _token; 
 
         /// <summary>
-        /// The list of Language Learning Models (LLM) available for the AI Manager.
+        /// Represents the list of LLM and RAG models available for the AI Manager.
         /// </summary>
         private List<AIModel> _llmModels = new();
-
+        /// <summary>
         /// Represents the list of speech-to-text models available for the AIManager.
+        /// </summary>
         private List<AIModel> _sttModels = new();
 
         /// <summary>
@@ -84,7 +85,7 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Retrieves the LLM (Language and Linguistic Model) models available in the AIManager.
+        /// Returns a list of LLM models available in the AIManager.
         /// </summary>
         /// <returns>A list of AIModel objects representing the LLM models.</returns>
         public List<AIModel> GetLlmModels()
@@ -93,7 +94,7 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Returns a list of Speech-To-Text (STT) models available for use.
+        /// Returns a list of STT models available for use.
         /// </summary>
         /// <returns>A list of AIModel objects representing the available STT models</returns>
         public List<AIModel> GetSttModels()
@@ -102,7 +103,7 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Retrieves the list of Text-to-Speech (TTS) models.
+        /// Retrieves the list of TTS models.
         /// </summary>
         /// <returns>The list of TTS models available in the AI manager.</returns>
         public List<AIModel> GetTtsModels()
