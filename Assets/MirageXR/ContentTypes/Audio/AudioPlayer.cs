@@ -1,11 +1,15 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Linq; 
+using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace MirageXR
 {
     public class AudioPlayer : MirageXRPrefab
     {
-        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        private static ActivityManager activityManager => RootObject.Instance.activityManager;
         [Tooltip("Audio file. Only .wav format supported for external sources. Internally, .mp3 are supported as well")]
         [SerializeField] private string audioName = "audio.wav";
         public string AudioName => audioName;
@@ -18,29 +22,24 @@ namespace MirageXR
         private bool audio3dMode;
         public bool Loop { get; private set; }
 
-
         [SerializeField] private GameObject icon;
         [SerializeField] private Sprite iconSprite;
-        public Sprite IconSprite => iconSprite;
-
+        [SerializeField] private TMP_Text _captionText;
+        [SerializeField] private GameObject _captionObj;
         [SerializeField] private Sprite pauseIcon;
-
         [SerializeField] private SpriteRenderer iconImage;
+        
+        public Sprite IconSprite => iconSprite;
         public SpriteRenderer IconImage => iconImage;
-
         public string AudioSpatialType { get; private set; }
-
-        public DialogRecorder DialogRecorderPanel
-        {
-            get; set;
-        }
+        public DialogRecorder DialogRecorderPanel { get; set; }
 
         private bool isReady = false;
         private bool isPlaying = false;
 
-        private LearningExperienceEngine.ToggleObject _obj;
+        private ToggleObject _obj;
 
-        public LearningExperienceEngine.ToggleObject MyAnnotation => _obj;
+        public ToggleObject MyAnnotation => _obj;
 
         private GameObject _contentObject;
 
@@ -50,7 +49,7 @@ namespace MirageXR
             UseGuide = false;
 
             var actionEditor = FindObjectOfType<ActionEditor>();
-            audioEditor = (AudioEditor)actionEditor.CreateEditorView(LearningExperienceEngine.ContentType.AUDIO);
+            audioEditor = (AudioEditor)actionEditor.CreateEditorView(ContentType.AUDIO);
         }
 
         /// <summary>
@@ -58,7 +57,7 @@ namespace MirageXR
         /// </summary>
         /// <param name="obj">Action toggle object.</param>
         /// <returns>Returns true if initialization succesfull.</returns>
-        public override bool Init(LearningExperienceEngine.ToggleObject obj)
+        public override bool Init(ToggleObject obj)
         {
             _obj = obj;
 
@@ -111,9 +110,68 @@ namespace MirageXR
                 CreateAudioPlayer(true, audio3dMode, radius, Loop);
             }
 
+            var caption = obj.caption;
+            if (caption != string.Empty)
+            {
+                StartCaptionDisplay(caption);
+            }
+
             // If all went well, return true.
             return true;
         }
+
+        private void StartCaptionDisplay(string caption)
+        {
+            StartCoroutine(DisplayCaptionWithDelay(caption));
+        }
+
+        private IEnumerator DisplayCaptionWithDelay(string fullCaption)
+        {
+            // Split the full caption into words
+            string[] words = fullCaption.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            // number of words after split
+            int check = words.Length;
+
+            // Determine the number of words to display per section
+            int numberOfWords = 12;
+
+            if (check <= numberOfWords)
+            {
+                // If the total number of words is less than or equal to numberOfWords, display all at once
+                string allWords = string.Join(" ", words);
+                _captionText.text = allWords.Trim();
+                _captionObj.SetActive(true);
+
+                // Wait for a time before hiding the caption object
+                yield return new WaitForSeconds(4);
+                _captionObj.SetActive(false);
+            }
+            else
+            {
+                // Calculate the number of sections
+                int numberOfSections = (int)Math.Ceiling((double)check / numberOfWords);
+
+                for (int i = 0; i < numberOfSections; i++)
+                {
+                    // Get the words for the current section
+                    string[] sectionWords = words.Skip(i * numberOfWords).Take(numberOfWords).ToArray();
+
+                    // Join the words back into a string
+                    string sectionText = string.Join(" ", sectionWords);
+
+                    // Display the text section
+                    _captionText.text = sectionText.Trim();
+                    _captionObj.SetActive(true);
+
+                    // Wait for 4 seconds before moving to the next section
+                    yield return new WaitForSeconds(4);
+                }
+
+                // hide the caption object after all sections have been displayed
+                _captionObj.SetActive(false); 
+            }
+        }
+
 
 
         private void Update()
@@ -160,9 +218,10 @@ namespace MirageXR
                 }
                 audioSource.mute = false;
                 audioSource.volume = 1.0f;
+                _captionObj.SetActive(true);
                 audioSource.Play();
                 isPlaying = true;
-
+                
                 audioLength = audioSource.clip.length;
                 var myTrigger = activityManager.ActiveAction.triggers.Find(t => t.id == _obj.poi);
                 if (myTrigger != null)
@@ -172,7 +231,7 @@ namespace MirageXR
             }
         }
 
-        private static IEnumerator ActivateTrigger(AudioSource audioSource, LearningExperienceEngine.Trigger trigger)
+        private static IEnumerator ActivateTrigger(AudioSource audioSource, Trigger trigger)
         {
             while (audioSource.isPlaying)
             {
@@ -359,15 +418,25 @@ namespace MirageXR
                 // Local file
                 string dataPath = Application.persistentDataPath;
                 string completeAudioName = "file://" + dataPath + "/" + audioName;
-                Debug.LogTrace("Trying to load audio: " + completeAudioName);
-                WWW www = new WWW(completeAudioName);
-                yield return www;
-                AudioClip audioClip = www.GetAudioClip(false, false, AudioType.WAV);
-                audioPlayer.clip = audioClip;
-                audioPlayer.playOnAwake = false;
-                isReady = true;
-            }
+                Debug.Log("Trying to load audio: " + completeAudioName);
 
+                using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(completeAudioName, AudioType.WAV))
+                {
+                    yield return www.SendWebRequest();
+
+                    if (www.result != UnityWebRequest.Result.Success)
+                    {
+                        Debug.LogError("Failed to load audio: " + www.error);
+                    }
+                    else
+                    {
+                        AudioClip audioClip = DownloadHandlerAudioClip.GetContent(www);
+                        audioPlayer.clip = audioClip;
+                        audioPlayer.playOnAwake = false;
+                        isReady = true;
+                    }
+                }
+            }
             else
             {
                 // Online file stored locally
@@ -375,37 +444,33 @@ namespace MirageXR
                 var filename = url[url.Length - 1];
 
                 var completeAudioName = "file://" + activityManager.ActivityPath + "/" + filename;
-                Debug.LogTrace("Trying to load audio: " + completeAudioName);
-                WWW www = new WWW(completeAudioName);
-                yield return www;
+                Debug.Log("Trying to load audio: " + completeAudioName);
 
-                var audioType = GetAudioType(filename);
+                AudioType audioType = GetAudioType(filename);
 
                 if (audioType != AudioType.UNKNOWN)
                 {
-                    AudioClip audioClip = www.GetAudioClip(false, false, audioType);
+                    using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(completeAudioName, audioType))
+                    {
+                        yield return www.SendWebRequest();
 
-                    audioPlayer.clip = audioClip;
-                    audioPlayer.playOnAwake = false;
-                    //audioPlayer.loop = false;
-                    isReady = true;
+                        if (www.result != UnityWebRequest.Result.Success)
+                        {
+                            Debug.LogError("Failed to load audio: " + www.error);
+                        }
+                        else
+                        {
+                            AudioClip audioClip = DownloadHandlerAudioClip.GetContent(www);
+                            audioPlayer.clip = audioClip;
+                            audioPlayer.playOnAwake = false;
+                            isReady = true;
+                        }
+                    }
                 }
                 else
                 {
                     Debug.LogWarning("The file: \n" + completeAudioName + "\n has an unknown audio type. Please use .wav or .mp3");
                 }
-
-                // Online file
-                /*
-                Debug.Log ("Trying to download audio: " + audioName);
-                WWW www = new WWW (audioName);
-                yield return www;
-                AudioClip audioClip = www.GetAudioClip (false, false, AudioType.WAV);
-                audioPlayer.clip = audioClip;
-                audioPlayer.playOnAwake = false;
-                audioPlayer.loop = false;
-                isReady = true;
-                */
             }
         }
 
@@ -444,5 +509,6 @@ namespace MirageXR
             AudioSource audioSource = gameObject.GetComponent<AudioSource>();
             return audioSource.time;
         }
+
     }
 }
