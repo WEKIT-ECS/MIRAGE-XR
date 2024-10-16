@@ -10,12 +10,12 @@ namespace MirageXR
 
         private void OnEnable()
         {
-            EventManager.OnEditModeChanged += EditModeChanges;
+            LearningExperienceEngine.EventManager.OnEditModeChanged += EditModeChanges;
         }
 
         private void OnDisable()
         {
-            EventManager.OnEditModeChanged -= EditModeChanges;
+            LearningExperienceEngine.EventManager.OnEditModeChanged -= EditModeChanges;
         }
 
         private void EditModeChanges(bool EditModeState)
@@ -23,7 +23,7 @@ namespace MirageXR
             axis.gameObject.SetActive(EditModeState);
         }
 
-        public override bool Init(ToggleObject obj)
+        public override bool Init(LearningExperienceEngine.ToggleObject obj)
         {
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))

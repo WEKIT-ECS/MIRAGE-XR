@@ -19,7 +19,7 @@ namespace MirageXR
         /// </summary>
         /// <param name="content">Action toggle object.</param>
         /// <returns>Returns true if initialization succesfull.</returns>
-        public override bool Init(ToggleObject content)
+        public override bool Init(LearningExperienceEngine.ToggleObject content)
         {
             // Try to fetch the symbol sprite from the resources.
             var symbol = Resources.Load<Sprite>(content.predicate);

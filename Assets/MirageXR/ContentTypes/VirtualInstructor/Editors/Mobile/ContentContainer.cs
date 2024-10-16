@@ -165,8 +165,7 @@ namespace MirageXR
                 button.onClick.AddListener(() =>
                 {
                     audioPlayer.SetActive(true);
-
-                    // AudioPlayer-Komponente hinzufügen
+                    
                     AudioStreamPlayer audioStreamPlayerComponent = audioPlayer.GetComponent<AudioStreamPlayer>();
                     if (audioStreamPlayerComponent == null)
                     {
@@ -187,15 +186,15 @@ namespace MirageXR
         {
             switch (objectData.EndpointName)
             {
-                case "listen/":
+                case "stt/":
                     speechSettings.UpdateLanguage(objectData);
                     VirtualInstructorView.SetSTT(objectData);
                     break;
-                case "speak/":
+                case "tts/":
                     speechSettings.UpdateVoice(objectData);
                     VirtualInstructorView.SetTTS(objectData);
                     break;
-                case "think/":
+                case "llm/":
                     speechSettings.UpdateModel(objectData);
                     VirtualInstructorView.SetLLM(objectData);
                     break;

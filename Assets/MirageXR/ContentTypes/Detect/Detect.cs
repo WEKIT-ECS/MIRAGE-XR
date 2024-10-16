@@ -10,9 +10,8 @@ namespace MirageXR
 {
     public class Detect : MirageXRPrefab
     {
-        // Holotoolkit gaze manager.
+        // Gaze manager.
         private GazeProvider gazeProvider;
-        // private GazeManager _gazeManager;
         private bool _isDetected;
         private bool _isTrigger;
 
@@ -61,7 +60,7 @@ namespace MirageXR
         /// </summary>
         /// <param name="obj">Action toggle object.</param>
         /// <returns>Returns true if initialization succesfull.</returns>
-        public override bool Init(ToggleObject obj)
+        public override bool Init(LearningExperienceEngine.ToggleObject obj)
         {
             // Try to set the parent and if it fails, terminate initialization.
             if (!SetParent(obj))

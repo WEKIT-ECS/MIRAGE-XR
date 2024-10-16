@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using LearningExperienceEngine;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,12 +19,12 @@ namespace MirageXR
 
         private void OnEnable()
         {
-            EventManager.OnClearAll += Delete;
+            LearningExperienceEngine.EventManager.OnClearAll += Delete;
         }
 
         private void OnDisable()
         {
-            EventManager.OnClearAll -= Delete;
+            LearningExperienceEngine.EventManager.OnClearAll -= Delete;
         }
 
         // Use this for initialization

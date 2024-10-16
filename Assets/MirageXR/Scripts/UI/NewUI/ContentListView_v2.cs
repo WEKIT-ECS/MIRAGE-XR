@@ -1,17 +1,19 @@
+using LearningExperienceEngine;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
+using Newtonsoft.Json;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Step = MirageXR.Action;
+using Step = LearningExperienceEngine.Action;
 
 public class ContentListView_v2 : BaseView
 {
     private const string STEP_NAME_MASK = "{0}/{1} {2}";
 
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
 
     [SerializeField] private Button _btnAddContent;
     [SerializeField] private RectTransform _listContent;
@@ -24,6 +26,7 @@ public class ContentListView_v2 : BaseView
     [SerializeField] private Toggle _toggleAugmentations;
     [SerializeField] private Toggle _toggleInfo;
     [SerializeField] private Toggle _toggleMarker;
+    [SerializeField] private Toggle _toggleDiamondVisibility;
     [SerializeField] private GameObject _augmentations;
     [SerializeField] private GameObject _info;
     [SerializeField] private GameObject _marker;
@@ -82,19 +85,37 @@ public class ContentListView_v2 : BaseView
 
         _inputFieldStepName.onEndEdit.AddListener(OnStepNameChanged);
         _inputFieldDescription.onEndEdit.AddListener(OnStepDescriptionChanged);
+        _toggleDiamondVisibility.onValueChanged.AddListener(OnDiamondVisibilityChanged);
 
-        EventManager.OnActionCreated += OnActionCreated;
-        EventManager.OnActivateAction += OnActionActivated;
-        EventManager.OnEditModeChanged += OnEditModeChanged;
-        EventManager.OnActionModified += OnActionChanged;
+        LearningExperienceEngine.EventManager.OnActionCreated += OnActionCreated;
+        LearningExperienceEngine.EventManager.OnActionModified += OnActionChanged;
+
+        LearningExperienceEngine.EventManager.OnActivateAction += OnActionActivated;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
+        
+    }
+
+    private void OnDiamondVisibilityChanged(bool value)
+    {
+        var taskStation = GameObject.Find(activityManager.ActiveAction.id); //temp
+        if (taskStation != null)
+        {
+            var taskStationEditor = taskStation.GetComponentInChildren<TaskStationEditor>();
+            if (taskStationEditor != null)
+            {
+                taskStationEditor.OnVisibilityChanged(value);
+            }
+        }
     }
 
     private void OnDestroy()
     {
-        EventManager.OnActionCreated -= OnActionCreated;
-        EventManager.OnActivateAction -= OnActionActivated;
-        EventManager.OnEditModeChanged -= OnEditModeChanged;
-        EventManager.OnActionModified -= OnActionChanged;
+        LearningExperienceEngine.EventManager.OnActionCreated -= OnActionCreated;
+        LearningExperienceEngine.EventManager.OnActionModified -= OnActionChanged;
+
+        LearningExperienceEngine.EventManager.OnActivateAction -= OnActionActivated;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
+        
     }
 
     private void OnActionActivated(string actionId)
@@ -125,7 +146,7 @@ public class ContentListView_v2 : BaseView
         _augmentations.SetActive(true);
         _info.SetActive(false);
         _marker.SetActive(false);
-        EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivitySteps);
+        MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivitySteps);
     }
 
     private void OnAddMarkerPressed()
@@ -156,7 +177,7 @@ public class ContentListView_v2 : BaseView
         _augmentations.SetActive(value);
         _info.SetActive(!value);
         _marker.SetActive(!value);
-        EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActionAugmentations);
+        MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActionAugmentations);
     }
 
     private void OnToggleInfoValueChanged(bool value)
@@ -164,7 +185,7 @@ public class ContentListView_v2 : BaseView
         _augmentations.SetActive(!value);
         _info.SetActive(value);
         _marker.SetActive(!value);
-        EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActionInfo);
+        MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActionInfo);
     }
 
     private void OnToggleMarkerValueChanged(bool value)
@@ -172,7 +193,7 @@ public class ContentListView_v2 : BaseView
         _augmentations.SetActive(!value);
         _info.SetActive(!value);
         _marker.SetActive(value);
-        EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActionMarker);
+        MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActionMarker);
     }
 
     private void OnEditModeChanged(bool value)
@@ -183,6 +204,9 @@ public class ContentListView_v2 : BaseView
 
     public void UpdateView()
     {
+        _toggleDiamondVisibility.isOn = _currentStep.isDiamondVisible ?? true;
+        _toggleDiamondVisibility.onValueChanged.Invoke(_currentStep.isDiamondVisible ?? true);
+
         int currentIndex = activityManager.ActionsOfTypeAction.IndexOf(_currentStep) + 1;
         int maxIndex = activityManager.ActionsOfTypeAction.Count;
 
@@ -223,7 +247,7 @@ public class ContentListView_v2 : BaseView
     private void OnStepNameChanged(string newTitle)
     {
         _currentStep.instruction.title = newTitle;
-        EventManager.NotifyActionModified(_currentStep);
+        LearningExperienceEngine.EventManager.NotifyActionModified(_currentStep);
 
         activityManager.SaveData();
     }
@@ -231,7 +255,7 @@ public class ContentListView_v2 : BaseView
     private void OnStepDescriptionChanged(string newDescription)
     {
         _currentStep.instruction.description = newDescription;
-        EventManager.NotifyActionModified(_currentStep);
+        LearningExperienceEngine.EventManager.NotifyActionModified(_currentStep);
 
         activityManager.SaveData();
     }
