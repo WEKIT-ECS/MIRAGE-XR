@@ -77,7 +77,7 @@ namespace MirageXR
             _annotationToEdit.predicate = "effect:" + iconName;
             LearningExperienceEngine.EventManager.ActivateObject(_annotationToEdit);
             LearningExperienceEngine.EventManager.NotifyActionModified(_action);
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
             Close();
         }
     }

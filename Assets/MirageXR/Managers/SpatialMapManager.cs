@@ -7,7 +7,7 @@ public class SpatialMapManager : MonoBehaviour
 {
     private MeshCollider[] spatialMapMeshs;
     
-    private static PlaneManagerWrapper planeManager => RootObject.Instance.planeManager;
+    private static PlaneManagerWrapper planeManager => RootObject.Instance.PlaneManager;
 
 #if UNITY_WSA
     private void Start()

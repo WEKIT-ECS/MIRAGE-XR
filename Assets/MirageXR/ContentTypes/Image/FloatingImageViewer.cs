@@ -14,7 +14,7 @@ namespace MirageXR
     {
         private const string MAIN_TEXTUERE = "_MainTex";
 
-        private LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        private LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
         [Tooltip("Image file. .jpg and .png formats supported")]
 

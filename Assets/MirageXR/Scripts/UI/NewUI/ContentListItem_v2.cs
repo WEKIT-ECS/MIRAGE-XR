@@ -10,7 +10,7 @@ using Content = LearningExperienceEngine.ToggleObject;
 
 public class ContentListItem_v2 : MonoBehaviour
 {
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
     [SerializeField] private TMP_Text _txtType;
     [SerializeField] private TMP_Text _txtName;

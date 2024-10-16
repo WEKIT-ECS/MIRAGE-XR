@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class ActionListItem : MonoBehaviour
 {
     private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
     [SerializeField] private Image backgroundImage;
     [SerializeField] private Text captionLabel;

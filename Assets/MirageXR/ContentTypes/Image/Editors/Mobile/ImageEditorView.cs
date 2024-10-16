@@ -15,7 +15,7 @@ public class ImageEditorView : PopupEditorBase
     private const int MAX_PICTURE_SIZE = 1024;
     private const float IMAGE_HEIGHT = 630f;
 
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
     private static LearningExperienceEngine.AugmentationManager augmentationManager => LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager;
 
@@ -53,7 +53,7 @@ public class ImageEditorView : PopupEditorBase
     [Space]
     [SerializeField] private HintViewWithButtonAndToggle _hintPrefab;
 
-    private string text;
+    private string _text;
     private string _imageCaption = string.Empty;
     private Texture2D _capturedImage;
 
@@ -71,7 +71,7 @@ public class ImageEditorView : PopupEditorBase
 
         //Caption button events <start>
         _captionAdd.onClick.AddListener(OnCaptionAddClicked);
-        _captionDone.onClick.AddListener(DoneaddingCaption);
+        _captionDone.onClick.AddListener(OnDoneAddingCaption);
         _captionEditBtn.onClick.AddListener(OnEditButtonClicked);
         _captionSaveBtn.onClick.AddListener(OnDoneButtonSaveCaption);
         _captionSaveBackBtn.onClick.AddListener(OnDoneButtonClick);
@@ -194,13 +194,13 @@ public class ImageEditorView : PopupEditorBase
 
     private void CaptureImage()
     {
-        RootObject.Instance.imageTargetManager.enabled = false;
+        RootObject.Instance.ImageTargetManager.enabled = false;
         NativeCameraController.TakePicture(OnPictureTaken);
     }
 
     private void OnPictureTaken(bool result, Texture2D texture2D)
     {
-        RootObject.Instance.imageTargetManager.enabled = true;
+        RootObject.Instance.ImageTargetManager.enabled = true;
         if (!result)
         {
             return;
@@ -236,13 +236,12 @@ public class ImageEditorView : PopupEditorBase
         ImageCaptionEditorPrefab.SetActive(true);
 
     }
-    public void DoneaddingCaption()
+    public void OnDoneAddingCaption()
     {
-
         ImageCaptionPreviewPrefab.SetActive(true);
         ImageCaptionEditorPrefab.SetActive(false);
-        text = _captionText.text;
-        _captionPreview.text = text;
+        _text = _captionText.text;
+        _captionPreview.text = _text;
         //Debug.Log(text);
     }
     public void OnEditButtonClicked()

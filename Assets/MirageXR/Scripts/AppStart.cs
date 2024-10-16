@@ -105,7 +105,7 @@ public class AppStart : MonoBehaviour
     // loads the next scene, the activity selection, and waits for the scene to be loaded
     private static IEnumerator LoadScene()
     {
-        var loader = SceneManager.LoadSceneAsync(RootObject.Instance.platformManager.ActivitySelectionScene, LoadSceneMode.Additive);
+        var loader = SceneManager.LoadSceneAsync(RootObject.Instance.PlatformManager.ActivitySelectionScene, LoadSceneMode.Additive);
         while (loader is not {isDone: true})
         {
             yield return null;

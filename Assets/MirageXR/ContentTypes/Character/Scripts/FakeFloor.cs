@@ -7,9 +7,9 @@ namespace MirageXR
     {
         private const float OFFSET = -0.05f;
 
-        private static PlaneManagerWrapper planeManager => RootObject.Instance.planeManager;
+        private static PlaneManagerWrapper planeManager => RootObject.Instance.PlaneManager;
 
-        private static FloorManagerWithFallback floorManager => RootObject.Instance.floorManagerWithRaycastFallback;
+        private static FloorManagerWithFallback floorManager => RootObject.Instance.FloorManagerWithRaycastFallback;
 
         private Transform _camera;
 
@@ -32,6 +32,11 @@ namespace MirageXR
 
         private void Update()
         {
+            if (RootObject.Instance is null)
+            {
+                return;
+            }
+            
             var position = transform.position;
             position.y = floorManager.GetFloorHeight(_camera.position) + OFFSET;
 

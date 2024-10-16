@@ -60,7 +60,7 @@ namespace MirageXR
             LearningExperienceEngine.EventManager.ActivateObject(annotationToEdit);
             LearningExperienceEngine.EventManager.NotifyActionModified(action);
 
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
 
             Close();
         }

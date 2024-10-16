@@ -196,7 +196,7 @@ namespace MirageXR
             objectManipulator.HostTransform = transform;
             objectManipulator.TwoHandedManipulationType = Microsoft.MixedReality.Toolkit.Utilities.TransformFlags.Move;
 
-            var gridManager = RootObject.Instance.gridManager;
+            var gridManager = RootObject.Instance.GridManager;
             objectManipulator.OnManipulationStarted.AddListener(eventData => gridManager.onManipulationStarted(eventData.ManipulationSource));
             objectManipulator.OnManipulationEnded.AddListener(eventData => OnManipulationEnded(eventData, annotation));
 
@@ -211,26 +211,26 @@ namespace MirageXR
                 boundsControl.TranslateStopped.AddListener(OnTranslateStopped);
             }
 
-            EditModeState(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive);
+            EditModeState(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive);
         }
 
         private void OnManipulationEnded(ManipulationEventData eventData, LearningExperienceEngine.ToggleObject annotation)
         {
-            var gridManager = RootObject.Instance.gridManager;
+            var gridManager = RootObject.Instance.GridManager;
             gridManager.onManipulationEnded(eventData.ManipulationSource);
 
             SaveTransform(annotation);
 
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
         }
 
         private void OnTranslateStopped()
         {
             var boundsControl = GetComponent<BoundsControl>();
-            var gridManager = RootObject.Instance.gridManager;
+            var gridManager = RootObject.Instance.GridManager;
             gridManager.onTranslateStopped?.Invoke(boundsControl.Target);
 
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
         }
 
         private void SaveTransform(LearningExperienceEngine.ToggleObject annotation)

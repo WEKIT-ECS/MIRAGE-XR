@@ -96,7 +96,7 @@ namespace MirageXR
 
         public static DeviceFormat GetDeviceFormat()
         {
-            if (RootObject.Instance.platformManager.forceToTabletView) return DeviceFormat.Tablet;
+            if (RootObject.Instance.PlatformManager.forceToTabletView) return DeviceFormat.Tablet;
 #if UNITY_IOS && !UNITY_EDITOR
             return UnityEngine.iOS.Device.generation.ToString().Contains("iPad") ? DeviceFormat.Tablet : DeviceFormat.Phone;
 #elif UNITY_ANDROID && !UNITY_EDITOR

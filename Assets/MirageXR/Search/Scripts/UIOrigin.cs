@@ -8,7 +8,7 @@ using UnityEngine;
 /// </summary>
 public class UIOrigin : MonoBehaviour
 {
-    private static FloorManagerWithFallback floorManager => RootObject.Instance.floorManagerWithRaycastFallback;
+    private static FloorManagerWithFallback floorManager => RootObject.Instance.FloorManagerWithRaycastFallback;
 
     // the object that the placement should follow
     private Transform _followTarget;

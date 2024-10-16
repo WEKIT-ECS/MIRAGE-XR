@@ -60,7 +60,12 @@ namespace MirageXR
 
         public void Update()
         {
-            if (!RootObject.Instance.virtualInstructorOrchestrator.IsVirtualInstructorInList())
+            if (RootObject.Instance is null)
+            {
+                return;
+            }
+
+            if (!RootObject.Instance.VirtualInstructorOrchestrator.IsVirtualInstructorInList())
             {
                 Hide();
             }
@@ -84,7 +89,7 @@ namespace MirageXR
         /// </summary>
         public void Awake()
         {
-            if (RootObject.Instance.virtualInstructorOrchestrator.IsVirtualInstructorInList()) Show();
+            if (RootObject.Instance.VirtualInstructorOrchestrator.IsVirtualInstructorInList()) Show();
         }
 
         /// <summary>
@@ -121,7 +126,7 @@ namespace MirageXR
             _Loading.SetActive(true);
             Microphone.End(null);
             recoding = false;
-            responseClip.clip =  await RootObject.Instance.virtualInstructorOrchestrator.AskInstructorWithAudioQuestion(questionClip); 
+            responseClip.clip =  await RootObject.Instance.VirtualInstructorOrchestrator.AskInstructorWithAudioQuestion(questionClip); 
             responseClip.Play();
             StartCoroutine(WaitForAudioEnd());
         }

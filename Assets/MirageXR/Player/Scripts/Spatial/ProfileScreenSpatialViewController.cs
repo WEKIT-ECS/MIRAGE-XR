@@ -1,5 +1,5 @@
+using LearningExperienceEngine;
 using UnityEngine;
-using Utility.UiKit.Runtime.MVC;
 
 namespace MirageXR
 {
@@ -8,6 +8,7 @@ namespace MirageXR
         public override ScreenName ScreenName => ScreenName.ProfileScreen;
 
         [SerializeField] private SidebarView sidebarView; // Temp
+
         protected override void OnBind()
         {
             base.OnBind();
@@ -20,12 +21,27 @@ namespace MirageXR
         {
             // TODO
             //MenuManager.Instance.ShowSignInView();
-            View.ShowSignInPanel();
+            //View.ShowSignInPanel();
+            OnOidcLogin(); //temp
         }
-        
+
+        private void OnOidcLogin()
+        {
+            AuthManager.OnLoginCompleted += OnOidcLoginCompleted;
+            LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.Login();
+        }
+
+        private void OnOidcLoginCompleted(string accessToken)
+        {
+            AuthManager.OnLoginCompleted -= OnOidcLoginCompleted;
+
+            RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
+            MenuManager.Instance.ShowScreen(ScreenName.MainScreen);
+        }
+
         private void OnButtonRegisterClicked()
         {
-            //View.ShowRegisterPanel(); / TODO: replace with RegisterScreenView.prefab (but now we use url, see OnClickRegister())
+            //View.ShowRegisterPanel(); // TODO: replace with RegisterScreenView.prefab (but now we use url, see OnClickRegister())
         }
     }
 }

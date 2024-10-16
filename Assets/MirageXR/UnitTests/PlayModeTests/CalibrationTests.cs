@@ -301,7 +301,7 @@ namespace Tests
         private Task StartDummyActivity(string activityId)
         {
             // parse activity model to begin startup process
-            return LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.LoadActivity(activityId);
+            return LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.LoadActivity(activityId);
         }
 
         private void OnWorkplaceLoaded()
@@ -311,7 +311,7 @@ namespace Tests
 
         private async Task PerformCalibration(bool isEditMode)
         {
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive = isEditMode;
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive = isEditMode;
             await LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.CalibrateWorkplace();
             isCalibrated = true;
         }
@@ -377,11 +377,11 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            var task = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.LoadActivity("resources://calibrationTest-activity");
+            var task = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.LoadActivity("resources://calibrationTest-activity");
             yield return new WaitUntil(() => task.IsCompleted);
 
             int testFileLengthActivity = ActivityParser.Serialize(testActivity).Length;
-            int actlFileLengthActivity = ActivityParser.Serialize(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.Activity).Length;
+            int actlFileLengthActivity = ActivityParser.Serialize(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.Activity).Length;
 
             Assert.AreEqual(testFileLengthActivity, actlFileLengthActivity);
         }
@@ -391,7 +391,7 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            var task = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.LoadActivity("resources://calibrationTest-activity");
+            var task = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.LoadActivity("resources://calibrationTest-activity");
             yield return new WaitUntil(() => task.IsCompleted);
 
             int testFileLengthWorkplace = WorkplaceParser.Serialize(testWorkplace).Length;

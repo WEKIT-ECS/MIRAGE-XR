@@ -130,7 +130,7 @@ namespace MirageXR
         {
             var actionObject = ActiveCard.GetComponent<ActivityCard>().ActionObject;
             actionObject.isCompleted = true;
-            await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.DeactivateAction(actionObject.id);
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.DeactivateAction(actionObject.id);
         }
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace MirageXR
         /// </summary>
         public void Previous()
         {
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActivatePreviousAction();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActivatePreviousAction();
         }
 
         private void ShowCards()

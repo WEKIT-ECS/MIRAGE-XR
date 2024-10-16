@@ -10,7 +10,7 @@ public abstract class PopupEditorBase : PopupBase
     protected const string HTTP_PREFIX = "http://";
     protected const string RESOURCES_PREFIX = "resources://";
 
-    protected static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    protected static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
     protected static LearningExperienceEngine.AugmentationManager augmentationManager => LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager;
 
     [SerializeField] protected Image _icon;
@@ -35,7 +35,7 @@ public abstract class PopupEditorBase : PopupBase
     protected virtual void OnAccept()
     {
         LearningExperienceEngine.EventManager.NotifyActionModified(_step);
-        LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.SaveData();
+        LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
     }
 
     protected virtual void UpdateBaseView()

@@ -12,7 +12,7 @@ namespace MirageXR
 
     public class DrawingPlayer : MirageXRPrefab
     {
-        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
         private LearningExperienceEngine.ToggleObject _obj;
 
         [SerializeField] private Tiltbrush tiltbrushPrefab;

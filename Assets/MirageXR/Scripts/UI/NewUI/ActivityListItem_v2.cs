@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
+//using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,7 +11,7 @@ namespace MirageXR
     {
         private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg";
 
-        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
         [SerializeField] private TMP_Text _txtLabel;
         [SerializeField] private TMP_Text _txtDeadline;
@@ -31,6 +32,18 @@ namespace MirageXR
         public bool userIsEnroled => _container.hasDeadline;
 
         public Button BtnMain => _btnMain;
+
+        /*public void Init(Activity activity)
+        {
+            _btnMain.onClick.AddListener(() =>
+            {
+                RootObject.Instance.ActivityManager.LoadActivityAsync(activity.Id);
+            });
+
+            _txtLabel.text = _container.Name;
+            _txtDeadline.text = _container.deadline;
+            _txtAuthor.text = _container.author;
+        }*/
 
         public void Init(LearningExperienceEngine.SessionContainer container)
         {
@@ -148,9 +161,9 @@ namespace MirageXR
         {
             LoadView.Instance.Show();
             var activityJsonFileName = LearningExperienceEngine.LocalFiles.GetActivityJsonFilename(_container.FileIdentifier);
-            await RootObject.Instance.editorSceneService.LoadEditorAsync();
+            await RootObject.Instance.EditorSceneService.LoadEditorAsync();
             await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.UpdateViewsOfActivity(_container.ItemID, _container.ExistsRemotely);
-            await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.LoadActivity(activityJsonFileName);
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.LoadActivity(activityJsonFileName);
             LoadView.Instance.Hide();
         }
 

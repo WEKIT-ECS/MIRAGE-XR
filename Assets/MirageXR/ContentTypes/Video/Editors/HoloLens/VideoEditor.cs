@@ -7,7 +7,7 @@ using Action = LearningExperienceEngine.Action;
 
 public class VideoEditor : MonoBehaviour
 {
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
     [SerializeField] private Button startRecordingButton;
     [SerializeField] private Button stopRecordingButton;
@@ -49,7 +49,7 @@ public class VideoEditor : MonoBehaviour
     {
         videoWasRecorded = false;
         IsRecording = false;
-        RootObject.Instance.imageTargetManager.enabled = true;
+        RootObject.Instance.ImageTargetManager.enabled = true;
         action = null;
         annotationToEdit = null;
         newFileName = string.Empty;
@@ -140,7 +140,7 @@ public class VideoEditor : MonoBehaviour
             return;
         }
 
-        RootObject.Instance.imageTargetManager.enabled = false;
+        RootObject.Instance.ImageTargetManager.enabled = false;
         IsRecording = true;
 
         if (annotationToEdit != null)
@@ -159,7 +159,7 @@ public class VideoEditor : MonoBehaviour
         videoWasRecorded = result;
         IsRecording = false;
 
-        RootObject.Instance.imageTargetManager.enabled = true;
+        RootObject.Instance.ImageTargetManager.enabled = true;
 
         if (result)
         {

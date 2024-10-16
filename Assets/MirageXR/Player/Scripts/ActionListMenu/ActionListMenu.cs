@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public class ActionListMenu : MonoBehaviour
 {
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
     [SerializeField] private GameObject actionItemPrefab;
     [SerializeField] private RectTransform listViewParent;
     [SerializeField] private Button previousStepButton;
@@ -44,7 +44,7 @@ public class ActionListMenu : MonoBehaviour
         else if (Instance != this)
             Destroy(gameObject);
 
-        if (!RootObject.Instance.platformManager.WorldSpaceUi)
+        if (!RootObject.Instance.PlatformManager.WorldSpaceUi)
         {
             GetComponent<Canvas>().enabled = false;
             return;

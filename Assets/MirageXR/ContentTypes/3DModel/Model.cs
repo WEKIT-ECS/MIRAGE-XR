@@ -17,7 +17,7 @@ namespace MirageXR
         private const string GLTF_NAME = "scene.gltf";
         private const float LIBRARY_MODEL_SCALE = 2f;
 
-        private static LearningExperienceEngine.ActivityManager _activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager _activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
         private LearningExperienceEngine.ToggleObject _obj;
         private Animation _animation;
@@ -113,7 +113,7 @@ namespace MirageXR
         private async Task<bool> LoadGltf(LearningExperienceEngine.ToggleObject content)
         {
             content.option = ZipUtilities.CheckFileForIllegalCharacters(content.option);
-            var loadPath = Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActivityPath, content.option, GLTF_NAME);
+            var loadPath = Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActivityPath, content.option, GLTF_NAME);
 
             ImportSettings importSettings = new()
             {
@@ -243,7 +243,7 @@ namespace MirageXR
                 poiEditor.EnableBoundsControl(!_obj.positionLock);
             }
             
-            var gridManager = RootObject.Instance.gridManager;
+            var gridManager = RootObject.Instance.GridManager;
             var objectManipulator = GetComponentInParent<ObjectManipulator>();
             if (objectManipulator)
             {
@@ -418,7 +418,7 @@ namespace MirageXR
             if (augmentation != _obj) return;
 
             // check for existing model folder and delete if necessary
-            var arlemPath = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActivityPath;
+            var arlemPath = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActivityPath;
             string folderName = augmentation.option;
             string modelFolderPath = Path.Combine(arlemPath, folderName);
 
