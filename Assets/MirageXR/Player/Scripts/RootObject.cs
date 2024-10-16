@@ -23,6 +23,7 @@ namespace MirageXR
         [SerializeField] private GridManager _gridManager;
         [SerializeField] private CameraCalibrationChecker _cameraCalibrationChecker;
         [SerializeField] private PlatformManager _platformManager;
+        [SerializeField] private RoomTwinManager _roomTwinManager;
         [SerializeField] private SharingManager _sharingManager;
         [SerializeField] private WorkplaceController _workplaceController; // added with lib-lee migration
         [SerializeField] private ContentAugmentationController _contentController; // added with lib-lee migration
@@ -50,6 +51,7 @@ namespace MirageXR
         public ContentAugmentationController ContentController => _contentController;
         public CameraCalibrationChecker CameraCalibrationChecker => _cameraCalibrationChecker;
         public PlatformManager PlatformManager => _platformManager;
+        public RoomTwinManager RoomTwinManager => _roomTwinManager;
         public SharingManager sharingManager => _sharingManager;
         public AIManager AiManager => _aiManager;
         public OpenAIManager OpenAIManager => _openAIManager;
@@ -147,6 +149,7 @@ namespace MirageXR
                 _gridManager.Initialization();
                 _cameraCalibrationChecker.Initialization();
                 _platformManager.Initialization();
+                await _roomTwinManager.InitializationAsync();
                 _sharingManager.Initialization();
 
                 await _openAIManager.InitializeAsync();
