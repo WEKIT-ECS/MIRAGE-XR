@@ -23,14 +23,14 @@ public class MixedRealityInputField : MonoBehaviour
     {
         get
         {
-#if !(UNITY_IOS || UNITY_ANDROID)
+#if !(UNITY_IOS || UNITY_ANDROID || UNITY_VISIONOS)
             EnsureButtonReference();
 #endif
             return _selectable != null && _selectable.interactable;
         }
         set
         {
-#if !(UNITY_IOS || UNITY_ANDROID)
+#if !(UNITY_IOS || UNITY_ANDROID || UNITY_VISIONOS)
             EnsureButtonReference();
 #endif
             if (_selectable) _selectable.interactable = value;
@@ -48,7 +48,7 @@ public class MixedRealityInputField : MonoBehaviour
             _textComponent.text = _text;
             OnTextChanged?.Invoke(_text);
             OnTextUpdated?.Invoke(_text);
-#if UNITY_IOS || UNITY_ANDROID
+#if UNITY_IOS || UNITY_ANDROID || UNITY_VISIONOS
             if (_selectable is InputField inputField) inputField.text = _text;
 #endif
         }
@@ -70,7 +70,7 @@ public class MixedRealityInputField : MonoBehaviour
 
     private void Awake()
     {
-#if UNITY_IOS || UNITY_ANDROID
+#if UNITY_IOS || UNITY_ANDROID || UNITY_VISIONOS
         ReplaceInput();
 #endif
     }

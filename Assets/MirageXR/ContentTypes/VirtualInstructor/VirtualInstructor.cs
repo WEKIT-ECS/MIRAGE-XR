@@ -122,7 +122,8 @@ namespace MirageXR
         /// <param name="inputAudio">The input audio clip representing the question of the user.</param>
         /// <param name="messageQueue">A string containing a set of events </param>
         /// <returns>A clip containing the response from the virtual instructor.</returns>
-        public async Task<AudioClip> AskVirtualInstructorAudio(AudioClip inputAudio, string messageQueue)
+
+        public async Task<AudioClip> AskVirtualInstructorAudio(AudioClip inputAudio, string messageQueue="")
         {
             string context = CreateContext(messageQueue);
             var question = await RootObject.Instance.aiManager.ConvertSpeechToTextAsync(inputAudio, InstructorData.SpeechToTextModel.ApiName);
