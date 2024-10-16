@@ -6,7 +6,7 @@ using UnityEngine;
 public class PathRoleController : MonoBehaviour
 {
     private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
     [Header("Elements")]
     [SerializeField] private Renderer[] renderers;

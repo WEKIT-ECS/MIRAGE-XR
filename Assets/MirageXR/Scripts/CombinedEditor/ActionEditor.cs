@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class ActionEditor : MonoBehaviour
 {
     private static BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
-    private static ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
     [SerializeField] private GameObject TaskStationMenuPanel;
     [SerializeField] private GameObject TaskStationOpenButton;
@@ -115,7 +115,7 @@ public class ActionEditor : MonoBehaviour
             SetEditModeState(activityManager.EditModeActive);
         }
 
-        if (!RootObject.Instance.platformManager.WorldSpaceUi)
+        if (!RootObject.Instance.PlatformManager.WorldSpaceUi)
         {
             CloseTaskStationMenu();
         }
@@ -165,7 +165,7 @@ public class ActionEditor : MonoBehaviour
         navigationTargetButton.onClick.AddListener(OnToggleActionTargetCapture);
         addButton.onClick.AddListener(OnAddButtonToggle);
 
-        if (!RootObject.Instance.platformManager.WorldSpaceUi)
+        if (!RootObject.Instance.PlatformManager.WorldSpaceUi)
         {
             CloseTaskStationMenu();
         }
@@ -305,7 +305,7 @@ public class ActionEditor : MonoBehaviour
         {
             detailView.DisplayedAction.instruction.title = newTitle;
             LearningExperienceEngine.EventManager.NotifyActionModified(detailView.DisplayedAction);
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
         }
     }
 
@@ -315,7 +315,7 @@ public class ActionEditor : MonoBehaviour
         {
             detailView.DisplayedAction.instruction.description = newDescription;
             LearningExperienceEngine.EventManager.NotifyActionModified(detailView.DisplayedAction);
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
         }
     }
 
@@ -569,7 +569,7 @@ public class ActionEditor : MonoBehaviour
 
         DisableAllPoiEditors();
 
-        if (!RootObject.Instance.platformManager.WorldSpaceUi)
+        if (!RootObject.Instance.PlatformManager.WorldSpaceUi)
         {
             CloseTaskStationMenu();
         }
@@ -587,7 +587,7 @@ public class ActionEditor : MonoBehaviour
     {
         gameObject.GetComponent<Canvas>().enabled = false;
         TaskStationMenuPanel.SetActive(false);
-        TaskStationOpenButton.SetActive(RootObject.Instance.platformManager.WorldSpaceUi);
+        TaskStationOpenButton.SetActive(RootObject.Instance.PlatformManager.WorldSpaceUi);
     }
 
     private bool InstanceOfAugmentationExist(ContentType type)

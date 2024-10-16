@@ -10,7 +10,7 @@ namespace MirageXR
     [RequireComponent(typeof(SessionContainerListItem))]
     public class SessionButton : MonoBehaviour
     {
-        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
         [SerializeField] private SessionContainerListItem _selectedListViewItem;
 
         public async void OnActivitySelected()
@@ -93,7 +93,7 @@ namespace MirageXR
             await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.UpdateViewsOfActivity(_selectedListViewItem.Content.ItemID, _selectedListViewItem.Content.ExistsRemotely);
 
             //StartCoroutine(SwitchToPlayerScene(activityJsonFileName));
-            await RootObject.Instance.editorSceneService.LoadEditorAsync();
+            await RootObject.Instance.EditorSceneService.LoadEditorAsync();
             await activityManager.LoadActivity(activityJsonFileName);
 
             // Set the activity URL

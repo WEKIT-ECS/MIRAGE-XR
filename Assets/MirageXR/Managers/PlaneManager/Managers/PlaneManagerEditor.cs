@@ -57,7 +57,7 @@ public class PlaneManagerEditor : PlaneManagerBase
     public override void DisablePlanes()
     {
         _enableColliders = false;
-        _showPlanes = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
+        _showPlanes = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive;
 
         UpdatePlanes();
     }

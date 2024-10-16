@@ -1,3 +1,4 @@
+#if FUSION2
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,3 +12,4 @@ namespace Fusion.XR.Shared
 
     }
 }
+#endif

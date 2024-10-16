@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class AnnotationEditor : MonoBehaviour
 {
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
     [SerializeField] private Button deleteAnnotation;
     [SerializeField] private GameObject lifeIcon;
 

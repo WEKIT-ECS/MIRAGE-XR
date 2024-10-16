@@ -1,6 +1,7 @@
-using Fusion;
 using System;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using UnityEngine;
 
 namespace MirageXR
@@ -14,7 +15,6 @@ namespace MirageXR
         [SerializeField] private LearningExperienceEngine.LearningExperienceEngine _lee;
         [SerializeField] private MirageXRServiceBootstrapper _serviceBootstrapper;
         [SerializeField] private ImageTargetManagerWrapper _imageTargetManager;
-        [SerializeField] private CalibrationManager _calibrationManager;
         [SerializeField] private FloorManagerWrapper _floorManager;
         [SerializeField] private FloorManagerWithFallback _floorManagerWithRaycastFallback;
         [SerializeField] private PlaneManagerWrapper _planeManager;
@@ -24,50 +24,37 @@ namespace MirageXR
         [SerializeField] private CameraCalibrationChecker _cameraCalibrationChecker;
         [SerializeField] private PlatformManager _platformManager;
         [SerializeField] private SharingManager _sharingManager;
-
-        private EditorSceneService _editorSceneService;
         [SerializeField] private WorkplaceController _workplaceController; // added with lib-lee migration
         [SerializeField] private ContentAugmentationController _contentController; // added with lib-lee migration
 
         private AIManager _aiManager;
         private OpenAIManager _openAIManager;
+        private EditorSceneService _editorSceneService;
         private VirtualInstructorOrchestrator _virtualInstructorOrchestrator; 
+        private ICalibrationManager _calibrationManager;
+        private IAssetBundleManager _assetBundleManager;
 
-        public Camera baseCamera => _baseCamera;
+        public Camera BaseCamera => _baseCamera;
 
         public LearningExperienceEngine.LearningExperienceEngine LEE => _lee;
-
-        public MirageXRServiceBootstrapper serviceBootstrapper => _serviceBootstrapper;
-
-        public ImageTargetManagerWrapper imageTargetManager => _imageTargetManager;
-
-        public CalibrationManager calibrationManager => _calibrationManager;
-
-        public FloorManagerWrapper floorManager => _floorManager;
-
-        public FloorManagerWithFallback floorManagerWithRaycastFallback => _floorManagerWithRaycastFallback;
-
-        public PlaneManagerWrapper planeManager => _planeManager;
-
-        public GridManager gridManager => _gridManager;
-
+        public EditorSceneService EditorSceneService => _editorSceneService;
+        public MirageXRServiceBootstrapper ServiceBootstrapper => _serviceBootstrapper;
+        public ImageTargetManagerWrapper ImageTargetManager => _imageTargetManager;
+        public ICalibrationManager CalibrationManager => _calibrationManager;
+        public FloorManagerWrapper FloorManager => _floorManager;
+        public FloorManagerWithFallback FloorManagerWithRaycastFallback => _floorManagerWithRaycastFallback;
+        public PlaneManagerWrapper PlaneManager => _planeManager;
+        public GridManager GridManager => _gridManager;
         public EditorSceneService editorSceneService => _editorSceneService;
-
-        public WorkplaceController workplaceController => _workplaceController;
-
-        public ContentAugmentationController contentController => _contentController;
-
-        public CameraCalibrationChecker cameraCalibrationChecker => _cameraCalibrationChecker;
-
-        public PlatformManager platformManager => _platformManager;
-
+        public WorkplaceController WorkplaceController => _workplaceController;
+        public ContentAugmentationController ContentController => _contentController;
+        public CameraCalibrationChecker CameraCalibrationChecker => _cameraCalibrationChecker;
+        public PlatformManager PlatformManager => _platformManager;
         public SharingManager sharingManager => _sharingManager;
-
-        public AIManager aiManager => _aiManager;
-
-        public OpenAIManager openAIManager => _openAIManager;
-
-        public VirtualInstructorOrchestrator virtualInstructorOrchestrator => _virtualInstructorOrchestrator;
+        public AIManager AiManager => _aiManager;
+        public OpenAIManager OpenAIManager => _openAIManager;
+        public VirtualInstructorOrchestrator VirtualInstructorOrchestrator => _virtualInstructorOrchestrator;
+        public IAssetBundleManager AssetBundleManager => _assetBundleManager;
 
         private bool _isInitialized;
 
@@ -108,7 +95,11 @@ namespace MirageXR
 
             try
             {
-
+                JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                };
+                
                 _baseCamera ??= Camera.main;
 
                 _serviceBootstrapper ??= new GameObject("ServiceBootstrapper").AddComponent<MirageXRServiceBootstrapper>();
@@ -120,7 +111,6 @@ namespace MirageXR
                 //_lee.transform.parent = transform;
 
                 _imageTargetManager ??= new GameObject("ImageTargetManagerWrapper").AddComponent<ImageTargetManagerWrapper>();
-                _calibrationManager ??= new GameObject("CalibrationManager").AddComponent<CalibrationManager>();
                 _floorManager ??= new GameObject("FloorManagerWrapper").AddComponent<FloorManagerWrapper>();
 				_floorManagerWithRaycastFallback ??= new GameObject("FloorManagerWithRaycastFallback").AddComponent<FloorManagerWithFallback>();
 				_pointCloudManager ??= new GameObject("PointCloudManager").AddComponent<PointCloudManager>();
@@ -138,15 +128,19 @@ namespace MirageXR
                 _contentController ??= new GameObject("ContentAugmentationController").AddComponent<ContentAugmentationController>();
                 _contentController.transform.parent = transform;
 
+                _assetBundleManager = new AssetBundleManager();
                 _aiManager = new AIManager();
                 _openAIManager = new OpenAIManager();
 
+                _calibrationManager = new CalibrationManager();
                 _virtualInstructorOrchestrator = new VirtualInstructorOrchestrator();
 
+                await _assetBundleManager.InitializeAsync();
+                await _aiManager.InitializeAsync();
                 await _imageTargetManager.InitializationAsync();
                 await _planeManager.InitializationAsync();
                 await _floorManager.InitializationAsync();
-                _calibrationManager.InitializationAsync();
+                await _calibrationManager.InitializationAsync(_assetBundleManager);
                 await _pointCloudManager.InitializationAsync();
                 await _planeManager.InitializationAsync();
                 _volumeCameraManager.Initialization();
@@ -156,7 +150,7 @@ namespace MirageXR
                 _sharingManager.Initialization();
 
                 await _openAIManager.InitializeAsync();
-                await _aiManager.InitializeAsync();
+
                 _isInitialized = true;
 
                 //LearningExperienceEngine.EventManager.OnClearAll += ResetManagers;

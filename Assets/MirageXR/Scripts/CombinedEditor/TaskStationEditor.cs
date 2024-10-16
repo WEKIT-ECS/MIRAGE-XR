@@ -11,9 +11,9 @@ using Action = LearningExperienceEngine.Action;
 [RequireComponent(typeof(TaskStationStateController), typeof(ObjectManipulator))]
 public class TaskStationEditor : MonoBehaviour
 {
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
-    private static GridManager gridManager => RootObject.Instance.gridManager;
+    private static GridManager gridManager => RootObject.Instance.GridManager;
 
     private ObjectManipulator _objectManipulator;
     private TaskStationStateController _taskStationStateController;
@@ -111,7 +111,7 @@ public class TaskStationEditor : MonoBehaviour
     private void RecordTaskStationPosition()
     {
         var source = _objectManipulator.HostTransform.gameObject;
-        var anchor = RootObject.Instance.calibrationManager.anchor;
+        var anchor = RootObject.Instance.CalibrationManager.Anchor;
 
         var position = anchor.InverseTransformPoint(source.transform.position);
         var rotation = Quaternion.Inverse(anchor.rotation) * source.transform.rotation;

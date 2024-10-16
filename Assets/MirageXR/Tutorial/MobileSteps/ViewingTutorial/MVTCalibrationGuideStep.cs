@@ -8,7 +8,7 @@ namespace MirageXR
     {
         protected override void SecuredEnterStep()
         {
-            RootObject.Instance.calibrationManager.onCalibrationFinished.AddListener(this.ExitListener);
+            RootObject.Instance.CalibrationManager.OnCalibrationFinished.AddListener(this.ExitListener);
 
             var queue = new Queue<TutorialStepModelUI>();
             if (!LearningExperienceEngine.UserSettings.dontShowCalibrationGuide)
@@ -29,13 +29,13 @@ namespace MirageXR
         protected override void SecuredExitStep()
         {
             this.manager.NextStep();
-            RootObject.Instance.calibrationManager.onCalibrationFinished.RemoveListener(this.DefaultExitEventListener);
+            RootObject.Instance.CalibrationManager.OnCalibrationFinished.RemoveListener(this.DefaultExitEventListener);
         }
 
         protected override void SecuredCloseStep()
         {
             this.manager.MobileTutorial.Hide();
-            RootObject.Instance.calibrationManager.onCalibrationFinished.RemoveListener(this.DefaultExitEventListener);
+            RootObject.Instance.CalibrationManager.OnCalibrationFinished.RemoveListener(this.DefaultExitEventListener);
         }
     }
 }

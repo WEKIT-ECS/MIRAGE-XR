@@ -55,7 +55,7 @@ public class FloorManagerARFoundation : FloorManagerBase
         _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>(cameraParent);
         _arAnchorManager = MirageXR.Utilities.FindOrCreateComponent<ARAnchorManager>(cameraParent); // cameraParent
 
-        RootObject.Instance.planeManager.onPlaneRemoved.AddListener(OnPlaneRemoved);
+        RootObject.Instance.PlaneManager.onPlaneRemoved.AddListener(OnPlaneRemoved);
         
         await Task.Yield();
 
@@ -69,14 +69,14 @@ public class FloorManagerARFoundation : FloorManagerBase
             return;
         }
 
-        var plane = RootObject.Instance.planeManager.GetPlane(subsumedByPlaneId);
+        var plane = RootObject.Instance.PlaneManager.GetPlane(subsumedByPlaneId);
         if (plane != null)
         {
             _planeId = subsumedByPlaneId;
             return;
         }
 
-        plane = RootObject.Instance.planeManager.GetRandomPlane();
+        plane = RootObject.Instance.PlaneManager.GetRandomPlane();
         if (plane)
         {
             var arPlane = plane.GetComponent<ARPlane>();
@@ -87,7 +87,7 @@ public class FloorManagerARFoundation : FloorManagerBase
             }
         }
 
-        RootObject.Instance.planeManager.UpdatePlanes();
+        RootObject.Instance.PlaneManager.UpdatePlanes();
     }
 
     public override async Task<bool> ResetAsync()
@@ -125,7 +125,7 @@ public class FloorManagerARFoundation : FloorManagerBase
         var oldPrefab = _arAnchorManager.anchorPrefab;
         _arAnchorManager.anchorPrefab = _prefabAnchor;
 
-        var planeGameObject = RootObject.Instance.planeManager.GetPlane(_planeId);
+        var planeGameObject = RootObject.Instance.PlaneManager.GetPlane(_planeId);
         if (planeGameObject == null)
         {
             Debug.LogError($"Can't find GameObject with id: {_planeId}");
@@ -150,7 +150,7 @@ public class FloorManagerARFoundation : FloorManagerBase
     {
         _planeId = planeId;
         _floorLevel = position;
-        var planeGameObject = RootObject.Instance.planeManager.GetPlane(_planeId);
+        var planeGameObject = RootObject.Instance.PlaneManager.GetPlane(_planeId);
         if (planeGameObject == null)
         {
             Debug.LogError($"Can't find GameObject with id: {_planeId}");

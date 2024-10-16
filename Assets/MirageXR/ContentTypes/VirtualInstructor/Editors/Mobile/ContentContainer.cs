@@ -85,9 +85,9 @@ namespace MirageXR
         {
             var actions = new Dictionary<ObjectDataFunctionEnum, Func<List<AIModel>>>
             {
-                { ObjectDataFunctionEnum.ModelEndpoint, () => RootObject.Instance.aiManager.GetLlmModels() },
-                { ObjectDataFunctionEnum.LanguageEndpoint, () => RootObject.Instance.aiManager.GetSttModels() },
-                { ObjectDataFunctionEnum.VoiceEndpoint, () => RootObject.Instance.aiManager.GetTtsModels() },
+                { ObjectDataFunctionEnum.ModelEndpoint, () => RootObject.Instance.AiManager.GetLlmModels() },
+                { ObjectDataFunctionEnum.LanguageEndpoint, () => RootObject.Instance.AiManager.GetSttModels() },
+                { ObjectDataFunctionEnum.VoiceEndpoint, () => RootObject.Instance.AiManager.GetTtsModels() },
             };
             _objectDataSet = actions[selectedFunctionEnum]();
             InstantiateObjectData();

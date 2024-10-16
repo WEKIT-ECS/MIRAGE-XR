@@ -8,7 +8,7 @@ namespace MirageXR
 {
     public class DialogRecorder : MonoBehaviour
     {
-        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
         [SerializeField] private GameObject recordButton;
         [SerializeField] private GameObject stopButton;
         [SerializeField] private GameObject playButton;

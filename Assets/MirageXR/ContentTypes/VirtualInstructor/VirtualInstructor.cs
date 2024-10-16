@@ -91,7 +91,7 @@ namespace MirageXR
             gameObject.name = InstructorData.CharacterName;
             PlayAnimationClip(InstructorData.AnimationClip);
             
-            RootObject.Instance.virtualInstructorOrchestrator.AddInstructor(this);
+            RootObject.Instance.VirtualInstructorOrchestrator.AddInstructor(this);
 
             return base.Init(toggleObject);
         }
@@ -126,9 +126,9 @@ namespace MirageXR
         public async Task<AudioClip> AskVirtualInstructorAudio(AudioClip inputAudio, string messageQueue="")
         {
             string context = CreateContext(messageQueue);
-            var question = await RootObject.Instance.aiManager.ConvertSpeechToTextAsync(inputAudio, InstructorData.SpeechToTextModel.ApiName);
-            var response = await RootObject.Instance.aiManager.SendMessageToAssistantAsync(InstructorData.LanguageModel.ApiName, question, context);
-            var clip = await RootObject.Instance.aiManager.ConvertTextToSpeechAsync(response, InstructorData.TextToSpeechModel.ApiName);
+            var question = await RootObject.Instance.AiManager.ConvertSpeechToTextAsync(inputAudio, InstructorData.SpeechToTextModel.ApiName);
+            var response = await RootObject.Instance.AiManager.SendMessageToAssistantAsync(InstructorData.LanguageModel.ApiName, question, context);
+            var clip = await RootObject.Instance.AiManager.ConvertTextToSpeechAsync(response, InstructorData.TextToSpeechModel.ApiName);
             UpdateHistory(question, response);
             return clip;
         }
@@ -158,9 +158,9 @@ namespace MirageXR
                 {
                     final = messageQueue;
                 }
-                var response = await RootObject.Instance.aiManager.SendMessageToAssistantAsync
+                var response = await RootObject.Instance.AiManager.SendMessageToAssistantAsync
                     (InstructorData.LanguageModel.ApiName, final, _history);
-                var clip = await RootObject.Instance.aiManager.ConvertTextToSpeechAsync(
+                var clip = await RootObject.Instance.AiManager.ConvertTextToSpeechAsync(
                     response, InstructorData.TextToSpeechModel.ApiName);
                 UpdateHistory(message, response);
                 return clip;
@@ -179,7 +179,7 @@ namespace MirageXR
         /// <returns>An async task that represents the asynchronous operation. The task result contains the audio clip representing the converted speech.</returns>
         public async Task<AudioClip> ConvertTextToSpeech(string message)
         {
-            var clip = await RootObject.Instance.aiManager.ConvertTextToSpeechAsync(message, InstructorData.TextToSpeechModel.ApiName);
+            var clip = await RootObject.Instance.AiManager.ConvertTextToSpeechAsync(message, InstructorData.TextToSpeechModel.ApiName);
             return clip;
         }
 
@@ -195,7 +195,7 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-            RootObject.Instance.virtualInstructorOrchestrator.RemoveInstructor(this);
+            RootObject.Instance.VirtualInstructorOrchestrator.RemoveInstructor(this);
         }
         
         /// <summary>
@@ -211,8 +211,8 @@ namespace MirageXR
         public async Task<AudioClip> AskVirtualInstructorString(string question, string queue)
         {
             string context = CreateContext();
-            var response = await RootObject.Instance.aiManager.SendMessageToAssistantAsync(InstructorData.LanguageModel.ApiName, question, context);
-            var clip = await RootObject.Instance.aiManager.ConvertTextToSpeechAsync(response, InstructorData.TextToSpeechModel.ApiName);
+            var response = await RootObject.Instance.AiManager.SendMessageToAssistantAsync(InstructorData.LanguageModel.ApiName, question, context);
+            var clip = await RootObject.Instance.AiManager.ConvertTextToSpeechAsync(response, InstructorData.TextToSpeechModel.ApiName);
             UpdateHistory(question, response);
             return clip;
         }

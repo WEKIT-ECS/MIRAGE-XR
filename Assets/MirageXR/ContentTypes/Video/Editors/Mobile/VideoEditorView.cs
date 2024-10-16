@@ -90,7 +90,7 @@ public class VideoEditorView : PopupEditorBase
 
     private void StartRecordingVideo()
     {
-        RootObject.Instance.imageTargetManager.enabled = false;
+        RootObject.Instance.ImageTargetManager.enabled = false;
 
         _newFileName = $"MirageXR_Video_{DateTime.Now.ToFileTimeUtc()}.mp4";
         var filepath = Path.Combine(activityManager.ActivityPath, _newFileName);
@@ -101,7 +101,7 @@ public class VideoEditorView : PopupEditorBase
     private void StopRecordingVideo(bool result, string filePath)
     {
         _videoWasRecorded = result;
-        RootObject.Instance.imageTargetManager.enabled = true;
+        RootObject.Instance.ImageTargetManager.enabled = true;
 
         if (result)
         {

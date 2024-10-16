@@ -48,7 +48,7 @@ namespace MirageXR
             siteConfigurationStatusLabel.text = string.Empty;
             publicUploadToggle.isOn = LearningExperienceEngine.UserSettings.publicUploadPrivacy;
 
-            if (RootObject.Instance.platformManager.WorldSpaceUi)
+            if (RootObject.Instance.PlatformManager.WorldSpaceUi)
             {
                 if (PlayerPrefs.HasKey("MoodleURL"))
                 {

@@ -7,7 +7,7 @@ using LearningExperienceEngine;
 
 public class ActivitySettings : PopupBase
 {
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
     private static LearningExperienceEngine.MoodleManager moodleManager => LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager;
 
     [SerializeField] private Toggle _togglePublicUpload;

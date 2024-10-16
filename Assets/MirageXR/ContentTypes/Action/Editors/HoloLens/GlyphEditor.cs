@@ -5,7 +5,7 @@ namespace MirageXR
 {
     public class GlyphEditor : MonoBehaviour
     {
-        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
         [SerializeField] private Transform _contentContainer;
         [SerializeField] private LearningExperienceEngine.StepTrigger stepTrigger;
         [SerializeField] private GlyphListItem _glyphListItemPrefab;
@@ -95,7 +95,7 @@ namespace MirageXR
 
             LearningExperienceEngine.EventManager.ActivateObject(_annotationToEdit);
             LearningExperienceEngine.EventManager.NotifyActionModified(_action);
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
 
             Close();
         }

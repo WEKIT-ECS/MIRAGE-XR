@@ -10,7 +10,7 @@ public class ImageEditor : MonoBehaviour
 {
     private static LearningExperienceEngine.AugmentationManager augmentationManager => LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager;
     private static LearningExperienceEngine.WorkplaceManager workplaceManager => LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
     [SerializeField] private Button captureButton;
     [SerializeField] private Button acceptButton;
@@ -154,7 +154,7 @@ public class ImageEditor : MonoBehaviour
     {
         Maggie.Speak("Taking a photo in 3 seconds");
 
-        RootObject.Instance.imageTargetManager.enabled = false;
+        RootObject.Instance.ImageTargetManager.enabled = false;
 
         captureButton.gameObject.SetActive(false);
         acceptButton.gameObject.SetActive(false);
@@ -177,7 +177,7 @@ public class ImageEditor : MonoBehaviour
             previewImage.sprite = sprite;
         }
 
-        RootObject.Instance.imageTargetManager.enabled = true;
+        RootObject.Instance.ImageTargetManager.enabled = true;
 
         processingText.text = string.Empty;
         processingText.transform.parent.gameObject.SetActive(false);

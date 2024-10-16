@@ -12,7 +12,7 @@ namespace MirageXR
 {
     public class DrawingEditor : MonoBehaviour
     {
-        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
         [SerializeField] private MrtkSimpleBtn startRecordingButton;
         [SerializeField] private MrtkSimpleBtn stopRecordingButton;
         [SerializeField] private MrtkSimpleBtn acceptButton;

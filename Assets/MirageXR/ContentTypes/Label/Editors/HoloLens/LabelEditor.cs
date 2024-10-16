@@ -9,7 +9,7 @@ namespace MirageXR
 {
     public class LabelEditor : MonoBehaviour
     {
-        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
         [SerializeField] private InputField textInputField;
         [SerializeField] private Transform annotationStartingPoint;
         [SerializeField] private LearningExperienceEngine.StepTrigger stepTrigger;
