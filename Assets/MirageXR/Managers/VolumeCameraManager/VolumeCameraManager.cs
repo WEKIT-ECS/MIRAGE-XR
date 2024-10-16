@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.MixedReality.Toolkit;
 using Microsoft.MixedReality.Toolkit.Input;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit.UI;
 
 namespace MirageXR
 {
@@ -24,11 +25,17 @@ namespace MirageXR
         [Tooltip("Drag and drop the main camera gameobject here, to attach the MRTk MixedRealityInputModule and ConeCastGazeProvider components.")]
         private GameObject MainCameraReference;
 
+        [Header("Add MRTK to the list of compiler directives in Project Settings / Player to switch on MRTk support.")]
+
         [SerializeField]
-        [Tooltip("Drag and drop the MRTk configuration profile onto this slot to ResetConfiguration once MRTk is instantiated.")]
+        [Tooltip("Drag and drop the MRTk configuration profile onto this slot to ResetConfiguration once MRTK is instantiated.")]
         private MixedRealityToolkitConfigurationProfile MRTKProfile;
 
         private MixedRealityToolkit _mMRTk = null;
+
+        [SerializeField]
+        [Tooltip("Drag and drop the XRInteractionManager gameobject to here - so it can be disabled for when MRTK is used.")]
+        private GameObject XRInteractionManagerReference;
 
         /// <summary>
         /// Initialise the Volume Camera on VisionOS, and MRTk otherwise
@@ -38,15 +45,19 @@ namespace MirageXR
 #if UNITY_VISIONOS || VISION_OS
             Debug.LogInfo("On visionOS platform: no MRTk, adding VolumeCamera");
             initializeVolumeCamera();
-#else
-            Debug.LogInfo("Not on visionOS, no volume camera, adding MRTk");
+#elif MRTK
+            Debug.LogInfo("Not on visionOS, no volume camera, but MRTK");
+
+            XRInteractionManagerReference.SetActive(false);
+            MainCameraReference.GetComponent<XRUIInputModule>().enabled = false;
+
+            MainCameraReference.AddComponent<MixedRealityInputModule>();
+            MixedRealityPlayspace.AddComponent<MRTKHardwareRig>();
+            MainCameraReference.AddComponent<ConeCastGazeProvider>();
 
             _mMRTk ??= new GameObject("MixedRealityToolKit").AddComponent<MixedRealityToolkit>();
             _mMRTk.ResetConfiguration(MRTKProfile);
 
-            MixedRealityPlayspace.AddComponent<MRTKHardwareRig>();
-            MainCameraReference.AddComponent<MixedRealityInputModule>();
-            MainCameraReference.AddComponent<ConeCastGazeProvider>();
 #endif
         }
 
