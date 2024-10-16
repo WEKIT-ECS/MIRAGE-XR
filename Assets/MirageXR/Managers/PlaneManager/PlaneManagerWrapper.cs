@@ -53,7 +53,7 @@ public class PlaneManagerWrapper : MonoBehaviour
 
     public async Task InitializationAsync()
     {
-#if UNITY_ANDROID || UNITY_IOS
+#if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS || VISION_OS
         _forceManagerType = ForceManagerType.ARFoundation;
 #endif
         _manager = CreateManager();
