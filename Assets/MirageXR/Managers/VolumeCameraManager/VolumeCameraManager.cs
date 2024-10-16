@@ -42,7 +42,7 @@ namespace MirageXR
             Debug.LogInfo("Not on visionOS, no volume camera, adding MRTk");
 
             _mMRTk ??= new GameObject("MixedRealityToolKit").AddComponent<MixedRealityToolkit>();
-            _mMRTk.ResetConfiguration(_mMRTkprofile);
+            _mMRTk.ResetConfiguration(MRTKProfile);
 
             MixedRealityPlayspace.AddComponent<MRTKHardwareRig>();
             MainCameraReference.AddComponent<MixedRealityInputModule>();
