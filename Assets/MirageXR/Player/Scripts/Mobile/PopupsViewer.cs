@@ -29,7 +29,7 @@ public class PopupsViewer : MonoBehaviour
 
     private void Start()
     {
-        _btnBackground.onClick.AddListener(OnOutTap);
+        //_btnBackground.onClick.AddListener(OnOutTap);
     }
 
     public PopupBase Show(PopupBase popupPrefab, params object[] args)

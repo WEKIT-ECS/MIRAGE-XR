@@ -1,4 +1,5 @@
-﻿using i5.Toolkit.Core.VerboseLogging;
+﻿using LearningExperienceEngine;
+using i5.Toolkit.Core.VerboseLogging;
 using System;
 using System.IO;
 using System.Linq;
@@ -12,10 +13,10 @@ namespace MirageXR
         private ImageTargetManagerWrapper imageTargetManager => RootObject.Instance.imageTargetManager;
 
         private string _imageName;
-        private ToggleObject _content;
+        private LearningExperienceEngine.ToggleObject _content;
         public IImageTarget _target;
 
-        public override bool Init(ToggleObject content)
+        public override bool Init(LearningExperienceEngine.ToggleObject content)
         {
             _content = content;
             InitAsync().AsAsyncVoid();
@@ -65,7 +66,7 @@ namespace MirageXR
 
         private async Task<ImageTargetBase> LoadImage()
         {
-            var imagePath = Path.Combine(RootObject.Instance.activityManager.ActivityPath, _imageName);
+            var imagePath = Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActivityPath, _imageName);
             var byteArray = await File.ReadAllBytesAsync(imagePath);
             var texture = new Texture2D(2, 2);
 
@@ -91,7 +92,7 @@ namespace MirageXR
 
         private void MoveDetectableToImage(Transform targetHolder)
         {
-            var workplaceManager = RootObject.Instance.workplaceManager;
+            var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
             var taskStationId = workplaceManager.GetPlaceFromTaskStationId(_content.id);
             var detectable = workplaceManager.GetDetectable(taskStationId);
             var detectableObj = GameObject.Find(detectable.id); // TODO: replace GameObject.Find(...)
@@ -108,8 +109,8 @@ namespace MirageXR
 
         public void MoveDetectableBack()
         {
-            var place = RootObject.Instance.workplaceManager.GetPlaceFromTaskStationId(_content.id);
-            var detectable = RootObject.Instance.workplaceManager.GetDetectable(place);
+            var place = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.GetPlaceFromTaskStationId(_content.id);
+            var detectable = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.GetDetectable(place);
             var detectableObj = GameObject.Find(detectable.id); // TODO: replace GameObject.Find(...)
             if (detectableObj)
             {

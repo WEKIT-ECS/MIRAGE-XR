@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class AnnotationListItem : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
     [SerializeField] private Text textField;
     [SerializeField] private InputField startStepInput;
     [SerializeField] private InputField endStepInput;
@@ -15,9 +15,9 @@ public class AnnotationListItem : MonoBehaviour
 
     public ActionDetailView ParentView { get; private set; }
 
-    public ToggleObject DisplayedAnnotation { get; private set; }
+    public LearningExperienceEngine.ToggleObject DisplayedAnnotation { get; private set; }
 
-    public delegate void OnAnnotationItemClickedDelegate(ToggleObject annotation);
+    public delegate void OnAnnotationItemClickedDelegate(LearningExperienceEngine.ToggleObject annotation);
 
     public event OnAnnotationItemClickedDelegate OnAnnotationItemClicked;
 
@@ -44,14 +44,14 @@ public class AnnotationListItem : MonoBehaviour
 
     private void OnEnable()
     {
-        EventManager.OnEditModeChanged += OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
 
         OnEditModeChanged(activityManager.EditModeActive);
     }
 
     private void OnDisable()
     {
-        EventManager.OnEditModeChanged -= OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
     }
 
     private void OnEditModeChanged(bool editModeActive)
@@ -67,7 +67,7 @@ public class AnnotationListItem : MonoBehaviour
         }
     }
 
-    public void SetUp(ActionDetailView parentView, ToggleObject annotation)
+    public void SetUp(ActionDetailView parentView, LearningExperienceEngine.ToggleObject annotation)
     {
         ParentView = parentView;
         DisplayedAnnotation = annotation;
@@ -125,7 +125,7 @@ public class AnnotationListItem : MonoBehaviour
             startStepInput.text = startStepInput.text;
         }
 
-        RootObject.Instance.augmentationManager.AddAllAugmentationsBetweenSteps(startIndex, endIndex, DisplayedAnnotation, Vector3.zero);
+        LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAllAugmentationsBetweenSteps(startIndex, endIndex, DisplayedAnnotation, Vector3.zero);
 
         // On editing the keep alive of the character in each step, save the data (Can use for other augmentations also if needed
         if (DisplayedAnnotation.predicate.StartsWith("char"))
