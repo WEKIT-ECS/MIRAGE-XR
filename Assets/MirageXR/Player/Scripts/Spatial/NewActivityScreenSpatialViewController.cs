@@ -17,8 +17,8 @@ namespace MirageXR
             View.SetActionOnButtonCollaborativeSessionClick(OnButtonCollaborativeSessionClicked);
             View.SetActionOnButtonAddNewStepClick(OnButtonAddNewStepClicked);
 
-            RootObject.Instance.ActivityManager.OnActivityLoaded += OnActivityUpdated;
-            RootObject.Instance.ActivityManager.OnActivityUpdated += OnActivityUpdated;
+            RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityUpdated;
+            RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnActivityUpdated;
         }
 
         private void OnActivityUpdated(Activity activity)
@@ -46,12 +46,12 @@ namespace MirageXR
 
         private void OnStepItemClicked(ActivityStep step)
         {
-            RootObject.Instance.StepManager.GoToStep(step.Id);
+            RootObject.Instance.LEE.StepManager.GoToStep(step.Id);
         }
 
         private void OnStepItemMenuClicked(ActivityStep step)
         {
-            RootObject.Instance.StepManager.RemoveStep(step.Id);
+            RootObject.Instance.LEE.StepManager.RemoveStep(step.Id);
         }
 
         private void OnButtonBackClicked()
@@ -63,7 +63,7 @@ namespace MirageXR
         {
             var baseCamera = RootObject.Instance.BaseCamera;
             var position = (baseCamera.transform.forward * 0.5f) + baseCamera.transform.position;
-            var stepManager = RootObject.Instance.StepManager;
+            var stepManager = RootObject.Instance.LEE.StepManager;
             var step = stepManager.AddStep(new Location { Position = position, Rotation = Vector3.zero, Scale = Vector3.one });
             stepManager.GoToStep(step.Id);
             

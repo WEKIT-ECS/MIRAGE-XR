@@ -16,8 +16,8 @@ namespace MirageXR
             View.SetActionOnButtonSortingClick(() => {MenuManager.Instance.ShowSortingView(); });
             View.SetActionOnButtonAddNewActivityClick(OnAddNewActivityClick);
             
-            RootObject.Instance.ActivityManager.OnActivitiesFetched += OnActivitiesFetched;
-            RootObject.Instance.ActivityManager.OnActivityLoaded += OnActivityLoaded;
+            RootObject.Instance.LEE.ActivityManager.OnActivitiesFetched += OnActivitiesFetched;
+            RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityLoaded;
         }
 
         private void OnActivityLoaded(Activity activity)
@@ -45,12 +45,12 @@ namespace MirageXR
         private void OnAddNewActivityClick()
         {
             var baseCamera = RootObject.Instance.BaseCamera;
-            RootObject.Instance.ActivityManager.CreateNewActivity((baseCamera.transform.forward * 0.5f) + baseCamera.transform.position);
+            RootObject.Instance.LEE.ActivityManager.CreateNewActivity((baseCamera.transform.forward * 0.5f) + baseCamera.transform.position);
         }
 
         private void OnActivityListItemClicked(Activity activity)
         {
-            RootObject.Instance.ActivityManager.LoadActivityAsync(activity.Id).Forget();
+            RootObject.Instance.LEE.ActivityManager.LoadActivityAsync(activity.Id).Forget();
         }
 
         private void OnActivityListItemDeleteClicked(Activity activity)
@@ -60,8 +60,8 @@ namespace MirageXR
 
         private async UniTask DeleteActivityAsync(Activity activity)
         {
-            await RootObject.Instance.ActivityManager.DeleteActivityAsync(activity.Id);
-            await RootObject.Instance.ActivityManager.FetchActivitiesAsync();
+            await RootObject.Instance.LEE.ActivityManager.DeleteActivityAsync(activity.Id);
+            await RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
         }
     }
 }

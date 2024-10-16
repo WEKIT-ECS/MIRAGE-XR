@@ -72,8 +72,8 @@ public class ImageEditorSpatialView : PopupBase
             return;
         }
 
-        var step = RootObject.Instance.StepManager.CurrentStep;
-        var activityId = RootObject.Instance.ActivityManager.ActivityId;
+        var step = RootObject.Instance.LEE.StepManager.CurrentStep;
+        var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
         var fileId = _content?.ContentData?.Image?.Id ?? Guid.NewGuid();
         
         _content ??= new Content<ImageContentData>
@@ -94,9 +94,9 @@ public class ImageEditorSpatialView : PopupBase
         _content.Location.Scale = CalculateScale(_capturedImage.width, _capturedImage.height);
 
         await SaveImageAsync(activityId, _content.Id, fileId);
-        _content.ContentData.Image = await RootObject.Instance.AssetsManager.CreateFileAsync(activityId, _content.Id, fileId);
-        RootObject.Instance.ContentManager.AddContent(_content);
-        RootObject.Instance.AssetsManager.UploadFileAsync(activityId, _content.Id, fileId);
+        _content.ContentData.Image = await RootObject.Instance.LEE.AssetsManager.CreateFileAsync(activityId, _content.Id, fileId);
+        RootObject.Instance.LEE.ContentManager.AddContent(_content);
+        RootObject.Instance.LEE.AssetsManager.UploadFileAsync(activityId, _content.Id, fileId);
 
         Close();
     }
@@ -121,7 +121,7 @@ public class ImageEditorSpatialView : PopupBase
         }
 
         var bytes = _capturedImage.EncodeToPNG();
-        var folder = RootObject.Instance.AssetsManager.GetFolderPath(activityId, contentId, fileId);
+        var folder = RootObject.Instance.LEE.AssetsManager.GetFolderPath(activityId, contentId, fileId);
         Directory.CreateDirectory(folder);
         var filePath = Path.Combine(folder, "image.png");
         if (File.Exists(filePath))
@@ -135,8 +135,8 @@ public class ImageEditorSpatialView : PopupBase
     {
         if (_content != null)
         {
-            var activityId = RootObject.Instance.ActivityManager.ActivityId;
-            var folder = RootObject.Instance.AssetsManager.GetFolderPath(activityId, _content.Id, _content.ContentData.Image.Id);
+            var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
+            var folder = RootObject.Instance.LEE.AssetsManager.GetFolderPath(activityId, _content.Id, _content.ContentData.Image.Id);
             var imagePath = Path.Combine(folder, "image.png");
             if (!File.Exists(imagePath))
             {

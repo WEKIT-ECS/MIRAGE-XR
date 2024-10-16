@@ -9,7 +9,7 @@ using Action = LearningExperienceEngine.Action;
 
 public class ActionDetailView : MonoBehaviour
 {
-    private LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
     [SerializeField] private InputField titleLabel;
     [SerializeField] private Text numberLabel;
     [SerializeField] private InputField descriptionText;

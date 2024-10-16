@@ -6,7 +6,7 @@ namespace MirageXR
 {
     public class StandHere : MonoBehaviour
     {
-        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
         [SerializeField] private GameObject eyeLens;
         [SerializeField] private GameObject lookingPoint;
 

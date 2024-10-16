@@ -12,7 +12,7 @@ using System.Collections;
 
 public class ImageMarkerEditor : MonoBehaviour
 {
-    private static ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
     [SerializeField] private Button captureButton;
     [SerializeField] private Button acceptButton;

@@ -12,7 +12,7 @@ using Action = LearningExperienceEngine.Action;
 public class StepsListView : BaseView
 {
     private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg";
-    private static ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
     private static MoodleManager moodleManager => LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager;
     
     [SerializeField] private TMP_InputField _inputFieldName;

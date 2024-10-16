@@ -16,7 +16,7 @@ namespace MirageXR
 {
     public class CharacterController : MirageXRPrefab
     {
-        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
         [SerializeField] private Transform rightHandBone;
 

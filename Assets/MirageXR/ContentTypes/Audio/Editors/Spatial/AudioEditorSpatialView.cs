@@ -212,8 +212,8 @@ public class AudioEditorSpatialView : PopupBase
 
     private void LoadContent()
     {
-        var activityId = RootObject.Instance.ActivityManager.ActivityId;
-        var folderPath = RootObject.Instance.AssetsManager.GetFolderPath(activityId, _content.Id, _content.ContentData.Audio.Id);
+        var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
+        var folderPath = RootObject.Instance.LEE.AssetsManager.GetFolderPath(activityId, _content.Id, _content.ContentData.Audio.Id);
         var filePath = Path.Combine(folderPath, "audio.wav");
         _audioClip = SaveLoadAudioUtilities.LoadAudioFile(filePath);
 
@@ -531,8 +531,8 @@ public class AudioEditorSpatialView : PopupBase
             return;
         }
 
-        var step = RootObject.Instance.StepManager.CurrentStep;
-        var activityId = RootObject.Instance.ActivityManager.ActivityId;
+        var step = RootObject.Instance.LEE.StepManager.CurrentStep;
+        var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
         var fileId = _content?.ContentData?.Audio?.Id ?? Guid.NewGuid();
 
         _content ??= new Content<AudioContentData>
@@ -560,9 +560,9 @@ public class AudioEditorSpatialView : PopupBase
         _content.ContentData.SoundRange = _sliderPlayer.value;
 
         SaveAudio(activityId, _content.Id, fileId);
-        _content.ContentData.Audio = await RootObject.Instance.AssetsManager.CreateFileAsync(activityId, _content.Id, fileId);
-        RootObject.Instance.ContentManager.AddContent(_content);
-        RootObject.Instance.AssetsManager.UploadFileAsync(activityId, _content.Id, fileId);
+        _content.ContentData.Audio = await RootObject.Instance.LEE.AssetsManager.CreateFileAsync(activityId, _content.Id, fileId);
+        RootObject.Instance.LEE.ContentManager.AddContent(_content);
+        RootObject.Instance.LEE.AssetsManager.UploadFileAsync(activityId, _content.Id, fileId);
 
         Close();
     }
@@ -574,7 +574,7 @@ public class AudioEditorSpatialView : PopupBase
             return;
         }
 
-        var folder = RootObject.Instance.AssetsManager.GetFolderPath(activityId, contentId, fileId);
+        var folder = RootObject.Instance.LEE.AssetsManager.GetFolderPath(activityId, contentId, fileId);
         Directory.CreateDirectory(folder);
         var filePath = Path.Combine(folder, "audio.wav");
         if (File.Exists(filePath))

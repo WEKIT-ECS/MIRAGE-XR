@@ -185,7 +185,7 @@ public class ActivityListView_v2 : BaseView
     {
         LoadView.Instance.Show();
         RootView_v2.Instance.OnActivityLoaded();
-        await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActivateFirstAction();
+        await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActivateFirstAction();
         LoadView.Instance.Hide();
     }
 
@@ -193,7 +193,7 @@ public class ActivityListView_v2 : BaseView
     {
         LoadView.Instance.Show();
         await RootObject.Instance.EditorSceneService.LoadEditorAsync();
-        await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.CreateNewActivity();
+        await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.CreateNewActivity();
         LoadView.Instance.Hide();
     }
 

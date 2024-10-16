@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using MirageXR.NewDataModel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using UnityEngine;
@@ -32,12 +31,8 @@ namespace MirageXR
         private OpenAIManager _openAIManager;
         private EditorSceneService _editorSceneService;
         private VirtualInstructorOrchestrator _virtualInstructorOrchestrator; 
-        private IActivityManager _activityManager;
-        private IContentManager _contentManager;
-        private IStepManager _stepManager;
-        private INetworkDataProvider _networkDataProvider;
-        private IAssetsManager _assetsManager;
         private ICalibrationManager _calibrationManager;
+        private IAssetBundleManager _assetBundleManager;
 
         public Camera BaseCamera => _baseCamera;
 
@@ -59,11 +54,7 @@ namespace MirageXR
         public AIManager AiManager => _aiManager;
         public OpenAIManager OpenAIManager => _openAIManager;
         public VirtualInstructorOrchestrator VirtualInstructorOrchestrator => _virtualInstructorOrchestrator;
-        public IActivityManager ActivityManager => _activityManager;
-        public IContentManager ContentManager => _contentManager;
-        public INetworkDataProvider NetworkDataProvider => _networkDataProvider;
-        public IStepManager StepManager => _stepManager;
-        public IAssetsManager AssetsManager => _assetsManager;
+        public IAssetBundleManager AssetBundleManager => _assetBundleManager;
 
         private bool _isInitialized;
 
@@ -137,23 +128,19 @@ namespace MirageXR
                 _contentController ??= new GameObject("ContentAugmentationController").AddComponent<ContentAugmentationController>();
                 _contentController.transform.parent = transform;
 
+                _assetBundleManager = new AssetBundleManager();
                 _aiManager = new AIManager();
                 _openAIManager = new OpenAIManager();
 
                 _calibrationManager = new CalibrationManager();
                 _virtualInstructorOrchestrator = new VirtualInstructorOrchestrator();
-                _networkDataProvider = new NetworkDataProvider();
-                _contentManager = new ContentManager();
-                _stepManager = new StepManager();
-                _assetsManager = new AssetsManager();
-                _activityManager = new ActivityManager();
 
-                await _assetsManager.InitializeAsync(_networkDataProvider, _activityManager);
+                await _assetBundleManager.InitializeAsync();
                 await _aiManager.InitializeAsync();
                 await _imageTargetManager.InitializationAsync();
                 await _planeManager.InitializationAsync();
                 await _floorManager.InitializationAsync();
-                await _calibrationManager.InitializationAsync(_assetsManager);
+                await _calibrationManager.InitializationAsync(_assetBundleManager);
                 await _pointCloudManager.InitializationAsync();
                 await _planeManager.InitializationAsync();
                 _volumeCameraManager.Initialization();
@@ -163,9 +150,6 @@ namespace MirageXR
                 _sharingManager.Initialization();
 
                 await _openAIManager.InitializeAsync();
-                await _stepManager.InitializeAsync(_contentManager, _activityManager);
-                await _contentManager.InitializeAsync(_assetsManager, _stepManager, _activityManager);
-                await _activityManager.InitializeAsync(_contentManager, _networkDataProvider, _assetsManager, _stepManager, _lee.authManager, _calibrationManager);
 
                 _isInitialized = true;
 

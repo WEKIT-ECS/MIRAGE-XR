@@ -240,7 +240,7 @@ public class CalibrationView : PopupBase
         _imageTarget.gameObject.SetActive(false);
         _imageCalibrationAnimation.gameObject.SetActive(false);
 
-        var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
         if (gridManager.gridEnabled && activityManager.EditModeActive)
         {
             gridManager.ShowGrid();

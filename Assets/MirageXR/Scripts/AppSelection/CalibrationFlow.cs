@@ -104,7 +104,7 @@ public class CalibrationFlow : MonoBehaviour
     private async Task OnCalibrationFinishedAsync()
     {
         await calibrationManager.ApplyCalibrationAsync(false);
-        var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
         if (gridManager.gridEnabled && activityManager.EditModeActive)
         {
             gridManager.ShowGrid();

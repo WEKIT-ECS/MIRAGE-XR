@@ -127,7 +127,7 @@ namespace MirageXR
             var activityJsonFileName = LearningExperienceEngine.LocalFiles.GetActivityJsonFilename(_container.FileIdentifier);
             await RootObject.Instance.EditorSceneService.LoadEditorAsync();
             await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.UpdateViewsOfActivity(_container.ItemID, _container.ExistsRemotely);
-            await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.LoadActivity(activityJsonFileName);
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.LoadActivity(activityJsonFileName);
             LoadView.Instance.Hide();
         }
 

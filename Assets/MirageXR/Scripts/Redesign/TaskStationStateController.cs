@@ -83,13 +83,13 @@ namespace MirageXR
 
         public bool IsCurrent()
         {
-            return LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActiveActionId.Equals(ActionId);
+            return LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActiveActionId.Equals(ActionId);
         }
 
         private bool IsNext()
         {
-            List<LearningExperienceEngine.Action> actions = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActionsOfTypeAction;
-            int index = actions.IndexOf(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActiveAction);
+            List<LearningExperienceEngine.Action> actions = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActionsOfTypeAction;
+            int index = actions.IndexOf(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActiveAction);
 
             if (index >= actions.Count - 1)
             {

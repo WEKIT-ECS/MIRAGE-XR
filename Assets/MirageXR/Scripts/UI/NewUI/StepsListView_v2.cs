@@ -16,7 +16,7 @@ public class StepsListView_v2 : BaseView
     private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg";
     private const int MAX_PICTURE_SIZE = 1024;
 
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
     private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
 
     [Space]
@@ -464,14 +464,14 @@ public class StepsListView_v2 : BaseView
 
     private void ShowImageTargetCalibrationView()
     {
-        var isEditMode = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
+        var isEditMode = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive;
         var isCalibration = RootObject.Instance.CalibrationManager.IsCalibrated;
         PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode && !isCalibration, false, false);
     }
 
     private void ShowMarkerLessCalibrationView()
     {
-        var isEditMode = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
+        var isEditMode = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive;
         var isCalibration = RootObject.Instance.CalibrationManager.IsCalibrated;
         PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode && !isCalibration, false, true);
     }

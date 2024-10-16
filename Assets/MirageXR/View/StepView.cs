@@ -22,7 +22,7 @@ namespace MirageXR.View
             _camera = RootObject.Instance.BaseCamera;
             name = $"Step_{step.Id}";
             _step = step;
-            text.text = RootObject.Instance.StepManager.GetStepNumber(_step.Id).ToString("00");
+            text.text = RootObject.Instance.LEE.StepManager.GetStepNumber(_step.Id).ToString("00");
             transform.SetLocalPositionAndRotation(_step.Location.Position, Quaternion.Euler(_step.Location.Rotation));
             transform.localScale = _step.Location.Scale;
             InitializeManipulator();
@@ -40,7 +40,7 @@ namespace MirageXR.View
         private void OnManipulationEnded(ManipulationEventData eventData)
         {
             _step.Location.Position = eventData.ManipulationSource.transform.localPosition;
-            RootObject.Instance.StepManager.UpdateStep(_step);
+            RootObject.Instance.LEE.StepManager.UpdateStep(_step);
         }
 
         private void LateUpdate()

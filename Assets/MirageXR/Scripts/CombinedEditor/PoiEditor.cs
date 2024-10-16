@@ -14,7 +14,7 @@ public class PoiEditor : MonoBehaviour
 
     private float _modelMagnification = 0.0f;
 
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
     public float ModelMagnification
     {
@@ -54,7 +54,7 @@ public class PoiEditor : MonoBehaviour
         SetAllObjectManipulationOptions();
         _objectManipulator.OnManipulationEnded.AddListener(OnChanged);
 
-        OnEditModeChanged(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive);
+        OnEditModeChanged(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive);
         //SetPoiData();
     }
 
@@ -200,7 +200,7 @@ public class PoiEditor : MonoBehaviour
             _boundsControl.RotateStopped.AddListener(OnChanged);
             _boundsControl.ScaleStopped.AddListener(OnChanged);
 
-            _boundsControl.enabled = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.EditModeActive;
+            _boundsControl.enabled = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive;
         }
         else
         {

@@ -12,7 +12,7 @@ namespace MirageXR
     /// </summary>
     public abstract class MirageXRPrefab : BaseFocusHandler
     {
-        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
         private GameObject _center;
         private LineRenderer _lineRenderer;
         private Transform _centerOfView;

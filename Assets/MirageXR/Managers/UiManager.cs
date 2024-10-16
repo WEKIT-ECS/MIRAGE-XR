@@ -9,7 +9,7 @@ namespace MirageXR
 {
     public class UiManager : MonoBehaviour
     {
-        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
         private static ICalibrationManager calibrationManager => RootObject.Instance.CalibrationManager;
 
         [SerializeField] private bool IsMenuVisible;
@@ -507,13 +507,13 @@ namespace MirageXR
         public void RestartPlayerTouch()
         {
             LearningExperienceEngine.EventManager.Click();
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.PlayerReset().AsAsyncVoid();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.PlayerReset().AsAsyncVoid();
         }
 
         public void RestartPlayerVoice()
         {
             Maggie.Ok();
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.PlayerReset().AsAsyncVoid();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.PlayerReset().AsAsyncVoid();
         }
 
         public void ClearAllVoice()

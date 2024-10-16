@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
 using UnityEngine;
 
@@ -15,8 +16,18 @@ namespace MirageXR.View
 
         private void Start()
         {
-            RootObject.Instance.StepManager.OnStepChanged += StepManagerOnStepChanged;
-            RootObject.Instance.ContentManager.OnContentActivated += ContentManagerOnContentActivated;
+            InitializeAsync().Forget();
+        }
+
+        private async UniTask InitializeAsync()
+        {
+            RootObject.Instance.LEE.StepManager.OnStepChanged += StepManagerOnStepChanged;
+            RootObject.Instance.LEE.ContentManager.OnContentActivated += ContentManagerOnContentActivated;
+
+            var calibrationManager = RootObject.Instance.CalibrationManager;
+            await calibrationManager.WaitForInitialization();
+            transform.SetParent(calibrationManager.Anchor, false);
+            transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
         }
 
         private void ContentManagerOnContentActivated(List<Content> contents)
@@ -88,13 +99,13 @@ namespace MirageXR.View
 
         private ContentView CreateContentView(Content content)
         {
-            var prefab = RootObject.Instance.AssetsManager.GetContentViewPrefab(content.Type);
+            var prefab = RootObject.Instance.AssetBundleManager.GetContentViewPrefab(content.Type);
             return Instantiate(prefab);
         }
 
         private StepView CreateStepView(ActivityStep step)
         {
-            var prefab = RootObject.Instance.AssetsManager.GetStepViewPrefab();
+            var prefab = RootObject.Instance.AssetBundleManager.GetStepViewPrefab();
             var stepView = Instantiate(prefab, transform, false);
             stepView.Initialize(step);
             return stepView;

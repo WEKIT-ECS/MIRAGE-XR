@@ -12,7 +12,7 @@ namespace MirageXR
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public class FloatingVideoViewer : MirageXRPrefab
     {
-        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
         private float _width = 0.32f;
         private float _height = 0.18f;
 
