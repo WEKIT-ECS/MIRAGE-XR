@@ -48,8 +48,8 @@ public sealed class ZipOutputStreamWrapper_SharpZipLib : WrappedStream {
 }
 
 public sealed class ZipOutputStreamWrapper_DotNetZip : WrappedStream {
-  public ZipOutputStreamWrapper_DotNetZip(Ionic.Zip.ZipOutputStream wrapped) {
-    SetWrapped(wrapped, false);
-  }
+  // public ZipOutputStreamWrapper_DotNetZip(Ionic.Zip.ZipOutputStream wrapped) {
+  //   SetWrapped(wrapped, false);
+  // }
 }
 }  // namespace TiltBrush
