@@ -66,7 +66,7 @@ namespace MirageXR
 
         private async Task<ImageTargetBase> LoadImage()
         {
-            var imagePath = Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.ActivityPath, _imageName);
+            var imagePath = Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActivityPath, _imageName);
             var byteArray = await File.ReadAllBytesAsync(imagePath);
             var texture = new Texture2D(2, 2);
 

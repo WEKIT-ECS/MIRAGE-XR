@@ -11,7 +11,7 @@ namespace MirageXR
     {
         private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg";
 
-        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
         [SerializeField] private TMP_Text _txtLabel;
         [SerializeField] private TMP_Text _txtDeadline;
@@ -163,7 +163,7 @@ namespace MirageXR
             var activityJsonFileName = LearningExperienceEngine.LocalFiles.GetActivityJsonFilename(_container.FileIdentifier);
             await RootObject.Instance.EditorSceneService.LoadEditorAsync();
             await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.UpdateViewsOfActivity(_container.ItemID, _container.ExistsRemotely);
-            await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.LoadActivity(activityJsonFileName);
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.LoadActivity(activityJsonFileName);
             LoadView.Instance.Hide();
         }
 

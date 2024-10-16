@@ -35,7 +35,7 @@ namespace MirageXR
         {
             AuthManager.OnLoginCompleted -= OnOidcLoginCompleted;
 
-            RootObject.Instance.ActivityManager.FetchActivitiesAsync();
+            RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
             MenuManager.Instance.ShowScreen(ScreenName.MainScreen);
         }
 

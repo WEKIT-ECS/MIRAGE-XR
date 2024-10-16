@@ -7,7 +7,7 @@ namespace MirageXR
 {
     public class GlyphItems : MirageXRPrefab
     {
-        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
         private LearningExperienceEngine.ToggleObject _obj;
         private ObjectManipulator _objectManipulator;
         

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+using LearningExperienceEngine.NewDataModel;
 using MirageXR;
 using UnityEngine;
 
@@ -91,8 +93,11 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public Action<GameObject> onTranslateStopped => _manipulationController.onTranslateStopped;
 
-    public void Initialization()
+    public async void Initialization()
     {
+        
+        var obj = await Resources.LoadAsync<AssetsBundle>("MirageXRAssetsBundle") as AssetsBundle;
+        
         _gridEnabled = LearningExperienceEngine.UserSettings.showGrid;
         _snapEnabled = LearningExperienceEngine.UserSettings.snapToGrid;
         _cellWidth = LearningExperienceEngine.UserSettings.gridCellWidth;
@@ -148,7 +153,7 @@ public class GridManager : MonoBehaviour, IDisposable
         _gridEnabled = true;
         LearningExperienceEngine.UserSettings.showGrid = _gridEnabled;
 
-        var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+        var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
         if (floorManager.isFloorDetected && activityManager.EditModeActive)
         {
             ShowGrid();

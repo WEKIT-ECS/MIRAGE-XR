@@ -10,7 +10,7 @@ using Action = LearningExperienceEngine.Action;
 
 public class AudioEditor : MonoBehaviour
 {
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
     [SerializeField] private Button startRecordingButton;
     [SerializeField] private Button stopRecordingButton;
     [SerializeField] private Button pauseButton;

@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
-using MirageXR.NewDataModel;
 using UnityEngine;
 using UnityEngine.Events;
 using Object = UnityEngine.Object;
@@ -44,14 +43,14 @@ namespace MirageXR
         private GameObject _debugSphere;
         private bool _isCalibrated;
         private bool _isInitialized;
-        private IAssetsManager _assetsManager;
+        private IAssetBundleManager _assetsManager;
 
         public UniTask WaitForInitialization()
         {
             return UniTask.WaitUntil(() => _isInitialized);
         }
 
-        public async UniTask InitializationAsync(IAssetsManager assetsManager)
+        public async UniTask InitializationAsync(IAssetBundleManager assetsManager)
         {
             _assetsManager = assetsManager;
 

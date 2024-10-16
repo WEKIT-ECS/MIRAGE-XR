@@ -174,7 +174,7 @@ public class RootView_v2 : BaseView
     {
         LoadView.Instance.Show();
         await RootObject.Instance.EditorSceneService.LoadEditorAsync();
-        await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.CreateNewActivity();
+        await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.CreateNewActivity();
         _pageView.currentPageIndex = 1;
         LoadView.Instance.Hide();
     }

@@ -51,7 +51,7 @@ public class DeepLinkDefinition
     public async void NewActivity()
     {
         await RootObject.Instance.EditorSceneService.LoadEditorAsync();
-        await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.CreateNewActivity();
+        await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.CreateNewActivity();
     }
 
     // opens the given activity
@@ -62,7 +62,7 @@ public class DeepLinkDefinition
         PlayerPrefs.Save();
 
         await RootObject.Instance.EditorSceneService.LoadEditorAsync();
-        await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.LoadActivity(fullActivityJson);
+        await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.LoadActivity(fullActivityJson);
     }
 
     // downloads the zip file of the activity from the given downloadPath and unzips the file

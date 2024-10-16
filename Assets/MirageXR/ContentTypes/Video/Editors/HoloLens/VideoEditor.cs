@@ -7,7 +7,7 @@ using Action = LearningExperienceEngine.Action;
 
 public class VideoEditor : MonoBehaviour
 {
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
     [SerializeField] private Button startRecordingButton;
     [SerializeField] private Button stopRecordingButton;

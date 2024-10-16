@@ -9,7 +9,7 @@ using Action = System.Action;
 
 public class ContentListView : BaseView
 {
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
     private const float HIDE_HEIGHT = 250f;
     private const float BASE_CONTROLS_COOLDOWN = 0.3f;
 

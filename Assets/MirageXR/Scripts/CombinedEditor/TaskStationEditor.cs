@@ -11,7 +11,7 @@ using Action = LearningExperienceEngine.Action;
 [RequireComponent(typeof(TaskStationStateController), typeof(ObjectManipulator))]
 public class TaskStationEditor : MonoBehaviour
 {
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
     private static GridManager gridManager => RootObject.Instance.GridManager;
 

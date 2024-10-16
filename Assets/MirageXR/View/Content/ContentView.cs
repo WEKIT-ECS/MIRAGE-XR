@@ -51,7 +51,7 @@ namespace MirageXR.View
         protected virtual void OnRotateStopped()
         {
             Content.Location.Rotation = transform.localEulerAngles;
-            RootObject.Instance.ContentManager.UpdateContent(Content);
+            RootObject.Instance.LEE.ContentManager.UpdateContent(Content);
         }
 
         protected virtual void OnScaleStarted()
@@ -61,7 +61,7 @@ namespace MirageXR.View
         protected virtual void OnScaleStopped()
         {
             Content.Location.Scale = transform.localScale;
-            RootObject.Instance.ContentManager.UpdateContent(Content);
+            RootObject.Instance.LEE.ContentManager.UpdateContent(Content);
         }
 
         protected virtual void OnManipulationStarted(ManipulationEventData eventData)
@@ -72,7 +72,7 @@ namespace MirageXR.View
         {
             Content.Location.Position = eventData.ManipulationSource.transform.localPosition;
             Content.Location.Rotation = eventData.ManipulationSource.transform.localEulerAngles;
-            RootObject.Instance.ContentManager.UpdateContent(Content);
+            RootObject.Instance.LEE.ContentManager.UpdateContent(Content);
         }
     }
 }

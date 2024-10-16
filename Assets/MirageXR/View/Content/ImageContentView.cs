@@ -62,8 +62,8 @@ namespace MirageXR.View
 
         private async UniTask InitializeImageAsync(Content<ImageContentData> content)
         {
-            var activityId = RootObject.Instance.ActivityManager.ActivityId;
-            var folderPath = RootObject.Instance.AssetsManager.GetFolderPath(activityId, content.Id, content.ContentData.Image.Id);
+            var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
+            var folderPath = RootObject.Instance.LEE.AssetsManager.GetFolderPath(activityId, content.Id, content.ContentData.Image.Id);
             var imagePath = Path.Combine(folderPath, ImageFileName);
 
             if (File.Exists(imagePath))

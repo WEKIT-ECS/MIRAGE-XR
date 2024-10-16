@@ -87,7 +87,7 @@ namespace MirageXR
 
             LearningExperienceEngine.EventManager.ActivateObject(_annotationToEdit);
             LearningExperienceEngine.EventManager.NotifyActionModified(_action);
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManager.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
 
             var characterObjectName = $"{_annotationToEdit.id}/{_annotationToEdit.poi}/{_annotationToEdit.predicate}";
 
