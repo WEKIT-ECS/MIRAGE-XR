@@ -185,7 +185,18 @@ namespace Microsoft.MixedReality.Toolkit.Input
             }
             else
             {
-                Debug.LogError($"For Mixed Reality Toolkit input to work properly, please remove your other input module(s) and add a {typeof(MixedRealityInputModule).Name} to your main camera.", inputModules[0]);
+
+                Debug.LogWarning($"For Mixed Reality Toolkit input to work properly, please remove your other input module(s) and add a {typeof(MixedRealityInputModule).Name} to your main camera.", inputModules[0]);
+                if (CameraCache.Main.gameObject.GetComponent<MixedRealityInputModule>().IsNotNull())
+                {
+                    inputModule = CameraCache.Main.gameObject.GetComponent<MixedRealityInputModule>();
+                    isInputModuleAdded = true;
+                } else
+                {
+                    inputModule = CameraCache.Main.gameObject.AddComponent<MixedRealityInputModule>();
+                    isInputModuleAdded = true;
+                }
+
             }
 
             if (InputSystemProfile == null)
