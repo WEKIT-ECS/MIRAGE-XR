@@ -293,7 +293,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &42563775
 Transform:
   m_ObjectHideFlags: 0
@@ -316,7 +316,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 42563774}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 968053edfd89749c48f4ea5d444abf64, type: 3}
   m_Name: 
@@ -535,7 +535,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 840964f3b24b83a4ab085e9a2b8f74c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _forceManagerType: 2
+  _forceManagerType: 1
   _images: []
   _onTargetCreated:
     m_PersistentCalls:
@@ -705,7 +705,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 496fc00a6a697094baa24b1b0dd983cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _forceManagerType: 2
+  _forceManagerType: 0
   _prefabARFoundationAnchor: {fileID: 1362899771367802, guid: 3403fa35f0b1e1d47932c98fae4c8789,
     type: 3}
   _prefabEditorAnchor: {fileID: 1362899771367802, guid: 3403fa35f0b1e1d47932c98fae4c8789,
@@ -746,6 +746,12 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6061520891645277162, guid: b20febc21a242b143aa20ea181ba5e8e,
     type: 3}
   m_PrefabInstance: {fileID: 1823839886190816814}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &691044980 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2044547648490250629, guid: 7b607937914694584873122280d9e3f0,
+    type: 3}
+  m_PrefabInstance: {fileID: 1977192865295834008}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &693219913
 GameObject:
@@ -2440,9 +2446,9 @@ Transform:
   - {fileID: 1370046044}
   - {fileID: 1244045459}
   - {fileID: 1703428864}
+  - {fileID: 2088053595}
   - {fileID: 7665881940325693882}
   - {fileID: 1495453301}
-  - {fileID: 2088053595}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1942155608
@@ -2489,7 +2495,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64ef31f9a2613894d8d6b9efcfdaa9bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _forceManagerType: 2
+  _forceManagerType: 0
   _prefabARFoundationPlane: {fileID: 1585201990951412, guid: 0d9e1f0e794928f49aee189d66f1e4a6,
     type: 3}
   _prefabEditorPlane: {fileID: 4068327573183295800, guid: 9540ea72376a449458b8522ecc456196,
@@ -2602,6 +2608,7 @@ MonoBehaviour:
     type: 3}
   MainCameraReference: {fileID: 807537237}
   MRTKProfile: {fileID: 11400000, guid: 5ea7fa9e687dd4ae8afaacd537dbf8e0, type: 2}
+  XRInteractionManagerReference: {fileID: 691044980}
 --- !u!1001 &1823839886190816814
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2829,8 +2836,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8856608566303270429, guid: 380bb3c2508c4473aec1d2fcb48cce6f,
         type: 3}
+      propertyPath: forceToTabletView
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8856608566303270429, guid: 380bb3c2508c4473aec1d2fcb48cce6f,
+        type: 3}
       propertyPath: forceWorldSpaceUi
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
