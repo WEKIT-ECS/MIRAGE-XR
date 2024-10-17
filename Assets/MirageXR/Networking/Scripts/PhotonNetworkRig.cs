@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace MirageXR
 {
-	public class MRTKNetworkRig : NetworkBehaviour
+	public class PhotonNetworkRig : NetworkBehaviour
 	{
 		[SerializeField] private Transform _head;
 		[SerializeField] private Transform _leftHand;
@@ -13,7 +13,7 @@ namespace MirageXR
 		[SerializeField] private Pose _leftHandOffset;
 		[SerializeField] private Pose _rightHandOffset;
 
-		private MRTKHardwareRig _hardwareRig;
+		private PhotonHardwareManager _hardwareRig;
 
 		private HandController _leftHandController, _rightHandController;
 
@@ -31,10 +31,10 @@ namespace MirageXR
 			base.Spawned();
 			if (IsLocalNetworkRig)
 			{
-				_hardwareRig = FindObjectOfType<MRTKHardwareRig>();
+				_hardwareRig = FindObjectOfType<PhotonHardwareManager>();
 				if (_hardwareRig == null)
 				{
-					Debug.LogError("Missing MRTK Hardware Rig", this);
+					Debug.LogError("Missing Photon Hardware Manager", this);
 				}
 			}
 		}
@@ -55,19 +55,20 @@ namespace MirageXR
 		{
 			transform.position = rigState.playSpacePose.position;
 			transform.rotation = rigState.playSpacePose.rotation;
-			_leftHandController.HandPositionSetExternally = rigState.leftHandState.handPresent;
-			if (rigState.leftHandState.handPresent)
-			{
-				_leftHand.transform.position = rigState.leftHandState.handPose.position + _leftHandOffset.position;
-				_leftHand.transform.rotation = rigState.leftHandState.handPose.rotation * _leftHandOffset.rotation;
-			}
+			// TODO: apply hand data
+			//_leftHandController.HandPositionSetExternally = rigState.leftHandState.handPresent;
+			//if (rigState.leftHandState.handPresent)
+			//{
+			//	_leftHand.transform.position = rigState.leftHandState.handPose.position + _leftHandOffset.position;
+			//	_leftHand.transform.rotation = rigState.leftHandState.handPose.rotation * _leftHandOffset.rotation;
+			//}
 
-			_rightHandController.HandPositionSetExternally = rigState.rightHandState.handPresent;
-			if (rigState.rightHandState.handPresent)
-			{
-				_rightHand.transform.position = rigState.rightHandState.handPose.position + _rightHandOffset.position;
-				_rightHand.transform.rotation = rigState.rightHandState.handPose.rotation * _rightHandOffset.rotation;
-			}
+			//_rightHandController.HandPositionSetExternally = rigState.rightHandState.handPresent;
+			//if (rigState.rightHandState.handPresent)
+			//{
+			//	_rightHand.transform.position = rigState.rightHandState.handPose.position + _rightHandOffset.position;
+			//	_rightHand.transform.rotation = rigState.rightHandState.handPose.rotation * _rightHandOffset.rotation;
+			//}
 
 			_head.transform.position = rigState.headPose.position + rigState.headPose.rotation * _headOffset;
 			_head.transform.rotation = rigState.headPose.rotation;
