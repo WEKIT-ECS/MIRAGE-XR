@@ -16,8 +16,8 @@ public class TabSwitcher : MonoBehaviour
         
         for (var i = 0; i < toggles.Count; i++)
         {
-            int index = i;
-            toggles[i].onValueChanged.AddListener(delegate { SwitchTab(index); });
+            var index = i;
+            toggles[i].onValueChanged.AddListener((isOn) => { if (isOn) SwitchTab(index); });
         }
         
         SwitchTab(0); // Start tab
