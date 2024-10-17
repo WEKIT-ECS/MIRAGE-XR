@@ -93,7 +93,7 @@ namespace MirageXR
 
                 if (t > 1.0f)
                 {
-                    _growVignettesCompleted = true;
+                    _growVignettesCompleted = false;
                     t = 0.0f;
                 }
 
