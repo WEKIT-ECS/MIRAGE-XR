@@ -29,15 +29,26 @@ namespace MirageXR
     public class RoomTwinManager : MonoBehaviour
     {
 
-        private GltfImport _gltf;
         private bool _loadingCompleted = false;
-        private bool _blendInCompleted = false;
-        private bool _growVignettesCompleted = false;
 
+        public bool _FullTwinBlendInCompleted = false;
+        public bool _WireframeBlendInCompleted = false;
+
+        [SerializeField]
+        private bool ForceRoomTwinDisplay;
+
+        [SerializeField]
         public string RoomFile = "esa_iss_columbus_module_1m.glb";
-        public Material RoomTwinShader;
+
+        [SerializeField]
+        private Material RoomTwinShader;
+
+        [SerializeField]
         private RoomTwinStyle _roomTwinStyle = RoomTwinStyle.WireframeVignette;
+
+        private GltfImport gltf;
         private GameObject _roomModel;
+        private Animation legacyAnimation;
 
         #region lerp
         Color StartColor;
@@ -45,7 +56,7 @@ namespace MirageXR
         Color lerpColor;
 
         static float t = 0.0f;
-        // increase of alpha color value per second
+        // increase of value per frame interval
         static float deltaa = 1.0f;
         static float deltawf = 0.5f;
         #endregion
@@ -64,42 +75,49 @@ namespace MirageXR
         // Update is called once per frame
         void Update()
         {
-            if (!_blendInCompleted && _loadingCompleted)
+            if (_loadingCompleted)
             {
-                var alpha = Mathf.Lerp(0, 1, t);
-                SetAlphaInChildRenderers(_roomModel, alpha);
 
-                t += deltaa * Time.deltaTime;
-
-                if (t > 1.0f)
+                if (( _roomTwinStyle == RoomTwinStyle.FullTwin || _roomTwinStyle == RoomTwinStyle.WireframeVignette) && !_FullTwinBlendInCompleted)
                 {
-                    _blendInCompleted = true;
-                    _growVignettesCompleted = false;
+                    var alpha = Mathf.Lerp(0, 1, t);
+                    SetAlphaInChildRenderers(_roomModel, alpha);
 
-                    t = 0.0f;
+                    t += deltaa * Time.deltaTime;
 
-                    // Add RoomShader to Child Renderers
-                    AddShaderToChildRenderers(_roomModel, RoomTwinShader);
+                    if (t > 1.0f)
+                    {
+                        _FullTwinBlendInCompleted = true;
+                        _WireframeBlendInCompleted = false;
+
+                        t = 0.0f;
+
+                        // Add RoomShader to Child Renderers
+                        AddShaderToChildRenderers(_roomModel, RoomTwinShader);
+
+                    }
 
                 }
-
-            } else if (_roomTwinStyle == RoomTwinStyle.WireframeVignette && !_growVignettesCompleted && _blendInCompleted && _loadingCompleted)
-            {
-
-                var alpha = Mathf.Lerp(100, 10, t);
-                GrowVignettesInChildRenderers(_roomModel, alpha);
-
-                t += deltawf * Time.deltaTime;
-
-                if (t > 1.0f)
+                else if (_roomTwinStyle == RoomTwinStyle.WireframeVignette && !_WireframeBlendInCompleted)
                 {
-                    _growVignettesCompleted = true;
-                    t = 0.0f;
+
+                    var alpha = Mathf.Lerp(100, 10, t);
+                    GrowVignettesInChildRenderers(_roomModel, alpha);
+
+                    t += deltawf * Time.deltaTime;
+
+                    if (t > 1.0f)
+                    {
+                        _WireframeBlendInCompleted = true;
+                        t = 0.0f;
+                    }
+
+                }
+                else if (_roomTwinStyle == RoomTwinStyle.TwinVignette)
+                {
+                    // Twin Vignette style not yet implemented
                 }
 
-            } else if (_roomTwinStyle == RoomTwinStyle.TwinVignette && !_growVignettesCompleted && _blendInCompleted && _loadingCompleted)
-            {
-                Debug.Log("Twin Vignette not yet implemented");
             }
 
         }
@@ -123,10 +141,15 @@ namespace MirageXR
             if (Show) // show
             {
                 _roomModel.SetActive(true);
-
+                SetRoomTwinStyle(_roomTwinStyle);
+                
             } else // hide
             {
                 _roomModel.SetActive(false);
+
+                t = 0.0f;
+                _FullTwinBlendInCompleted = true;
+                _WireframeBlendInCompleted = true;
             }
         }
 
@@ -137,6 +160,22 @@ namespace MirageXR
         public void SetRoomTwinStyle(RoomTwinStyle TheStyle)
         {
             _roomTwinStyle = TheStyle;
+
+            // set up the animations in the update loop accordingly
+            if (_roomTwinStyle == RoomTwinStyle.FullTwin)
+            {
+                t = 0.0f;
+                _FullTwinBlendInCompleted = false;
+                _WireframeBlendInCompleted = true;
+            } else if (_roomTwinStyle == RoomTwinStyle.WireframeVignette)
+            {
+                t = 0.0f;
+                _FullTwinBlendInCompleted = false;
+                _WireframeBlendInCompleted = false;
+            } else if (_roomTwinStyle == RoomTwinStyle.TwinVignette)
+            {
+                Debug.Log("Twin Vignette not yet implemented");
+            }
         }
 
         /// <summary>
@@ -147,7 +186,7 @@ namespace MirageXR
         private async Task<bool> LoadGltfRoomTwin(string RoomFile)
         {
 
-            var gltf = new GLTFast.GltfImport();
+            gltf = new GLTFast.GltfImport();
 
             // Create a settings object and configure it accordingly
             var settings = new ImportSettings
@@ -155,6 +194,7 @@ namespace MirageXR
                 GenerateMipMaps = true,
                 AnisotropicFilterLevel = 3,
                 NodeNameMethod = NameImportMethod.OriginalUnique
+                //, AnimationMethod = AnimationMethod.Legacy
             };
 
             // Load the glTF and pass along the settings
@@ -163,17 +203,35 @@ namespace MirageXR
             if (success)
             {
                 _roomModel = new GameObject("DigitalRoomTwinModel");
-                _roomModel.AddComponent<MeshRenderer>();
-                _roomModel.SetActive(false);
-                await gltf.InstantiateMainSceneAsync(_roomModel.transform);
                 _roomModel.transform.parent = transform;
+                _roomModel.SetActive(false);
+                _roomModel.AddComponent<MeshRenderer>();
+
+                var instantiator = new GameObjectInstantiator(gltf, _roomModel.transform);
+                await gltf.InstantiateMainSceneAsync(instantiator); // transform
 
                 // prep for alpha lerp from transparent
                 SetAlphaInChildRenderers(_roomModel, 0);
 
+                legacyAnimation = instantiator.SceneInstance.LegacyAnimation;
+
                 // activate
-                _roomModel.SetActive(true); // needs to be replaced with the default view value once we have the view hooked up
                 _loadingCompleted = true;
+                DisplayRoomTwin(ForceRoomTwinDisplay); 
+
+                //if (legacyAnimation != null)
+                //{
+                //    var clips = gltf.GetAnimationClips();
+                //    if (clips != null && clips.Length > 0 && clips[0] != null)
+                //    {
+                //        legacyAnimation.clip = clips[0];
+                //        legacyAnimation.clip.wrapMode = UnityEngine.WrapMode.Loop;
+                //        legacyAnimation.clip.legacy = true;
+                //        legacyAnimation.clip.EnsureQuaternionContinuity();
+                //        legacyAnimation.playAutomatically = true;
+                //        legacyAnimation.Play(clips[0].name);
+                //    }
+                //}
 
             }
             else
@@ -201,10 +259,17 @@ namespace MirageXR
         private void AddShaderToChildRenderers(GameObject RoomTwin, Material TheShader)
         {
 
+            //RoomTwin.GetComponent<MeshRenderer>().material = TheShader; // not needed?
+
             Component[] renderers = RoomTwin.GetComponentsInChildren(typeof(Renderer));
             foreach (Renderer childRenderer in renderers)
             {
                 childRenderer.material = TheShader;
+                //Material[] rendererMaterials = childRenderer.materials;
+                //foreach (Material mat in rendererMaterials)
+                //{
+                //    mat.shader = Shader.Find("Shader Graphs/LD_DigitalTwinHologram");
+                //}
             }
 
         }
