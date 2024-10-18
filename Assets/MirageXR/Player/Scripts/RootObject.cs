@@ -144,7 +144,6 @@ namespace MirageXR
                 await _floorManager.InitializationAsync();
                 await _calibrationManager.InitializationAsync(_assetBundleManager);
                 await _pointCloudManager.InitializationAsync();
-                await _planeManager.InitializationAsync();
                 _volumeCameraManager.Initialization();
                 _gridManager.Initialization();
                 _cameraCalibrationChecker.Initialization();

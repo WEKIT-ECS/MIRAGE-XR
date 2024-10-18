@@ -58,7 +58,7 @@ namespace MirageXR
         {
             MenuManager.Instance.ShowScreen(ScreenName.MainScreen);
         }
-        
+
         private void OnButtonAddNewStepClicked()
         {
             var baseCamera = RootObject.Instance.BaseCamera;
@@ -77,7 +77,7 @@ namespace MirageXR
 
         private void OnButtonSettingsClicked()
         {
-            var prefab = View.GetImageEditorPrefab();
+            var prefab = View.GetEditorPrefab(ContentType.Audio);
             PopupsViewer.Instance.Show(prefab);
         }
     }
