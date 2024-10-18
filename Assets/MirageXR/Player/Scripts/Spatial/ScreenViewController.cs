@@ -8,6 +8,7 @@ namespace MirageXR
         MainScreen,
         ProfileScreen,
         NewActivityScreen,
+        StepsScreen,
         SettingsScreen
     }
     public abstract class ScreenViewController<TScreenViewController, TScreenView> : ViewController<TScreenViewController, TScreenView>
