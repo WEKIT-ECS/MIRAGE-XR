@@ -1,30 +1,22 @@
 #if FUSION2
 using Fusion;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR.Hands;
 
 namespace MirageXR
 {
 	public class PhotonNetworkRig : NetworkBehaviour
 	{
 		[SerializeField] private Transform _head;
-		[SerializeField] private Transform _leftHand;
-		[SerializeField] private Transform _rightHand;
+		[SerializeField] private HandController _leftHandController;
+		[SerializeField] private HandController _rightHandController;
 		[SerializeField] private Vector3 _headOffset;
-		[SerializeField] private Pose _leftHandOffset;
-		[SerializeField] private Pose _rightHandOffset;
 
 		private PhotonHardwareManager _hardwareRig;
 
-		private HandController _leftHandController, _rightHandController;
-
 		// As we are in shared topology, having the StateAuthority means we are the local user
 		public virtual bool IsLocalNetworkRig => Object && Object.HasStateAuthority;
-
-		private void Awake()
-		{
-			_leftHandController = _leftHand.GetComponent<HandController>();
-			_rightHandController = _rightHand.GetComponent<HandController>();
-		}
 
 		public override void Spawned()
 		{
@@ -44,34 +36,33 @@ namespace MirageXR
 			base.FixedUpdateNetwork();
 
 			// Update the rig at each network tick for local player. The NetworkTransform will forward this to other players
-			if (IsLocalNetworkRig && _hardwareRig)
+			if (IsLocalNetworkRig && _hardwareRig != null)
 			{
-				RigState rigState = _hardwareRig.RigState;
-				ApplyLocalStateToRigParts(rigState);
+				ApplyLocalStateToRigParts(_hardwareRig.RigData);
 			}
 		}
 
-		protected virtual void ApplyLocalStateToRigParts(RigState rigState)
+		protected virtual void ApplyLocalStateToRigParts(RigData rigData)
 		{
-			transform.position = rigState.playSpacePose.position;
-			transform.rotation = rigState.playSpacePose.rotation;
-			// TODO: apply hand data
-			//_leftHandController.HandPositionSetExternally = rigState.leftHandState.handPresent;
-			//if (rigState.leftHandState.handPresent)
-			//{
-			//	_leftHand.transform.position = rigState.leftHandState.handPose.position + _leftHandOffset.position;
-			//	_leftHand.transform.rotation = rigState.leftHandState.handPose.rotation * _leftHandOffset.rotation;
-			//}
+			transform.position = rigData.playSpacePose.position;
+			transform.rotation = rigData.playSpacePose.rotation;
+			_head.transform.position = rigData.headPose.position + rigData.headPose.rotation * _headOffset;
+			_head.transform.rotation = rigData.headPose.rotation;
 
-			//_rightHandController.HandPositionSetExternally = rigState.rightHandState.handPresent;
-			//if (rigState.rightHandState.handPresent)
-			//{
-			//	_rightHand.transform.position = rigState.rightHandState.handPose.position + _rightHandOffset.position;
-			//	_rightHand.transform.rotation = rigState.rightHandState.handPose.rotation * _rightHandOffset.rotation;
-			//}
+			ApplyHandData(_leftHandController, rigData.leftHand);
+			ApplyHandData(_rightHandController, rigData.rightHand);
+		}
 
-			_head.transform.position = rigState.headPose.position + rigState.headPose.rotation * _headOffset;
-			_head.transform.rotation = rigState.headPose.rotation;
+		private void ApplyHandData(HandController handController, HandData handData)
+		{
+			handController.HandPositionSetExternally = handData.IsTracked;
+			if (handData.IsTracked)
+			{
+				foreach (KeyValuePair<XRHandJointID, Pose> jointPose in handData.JointPoses)
+				{
+					handController.JointsController.ApplyPoseToJoint(jointPose.Key, jointPose.Value);
+				}
+			}
 		}
 
 		public override void Render()
@@ -81,10 +72,7 @@ namespace MirageXR
 			{
 				// Extrapolate for local user :
 				// we want to have the visual at the good position as soon as possible, so we force the visuals to follow the most fresh hardware positions
-
-				RigState rigState = _hardwareRig.RigState;
-
-				ApplyLocalStateToRigParts(rigState);
+				ApplyLocalStateToRigParts(_hardwareRig.RigData);
 			}
 		}
 	}

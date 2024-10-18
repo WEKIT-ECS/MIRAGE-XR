@@ -1,9 +1,5 @@
-using Microsoft.MixedReality.Toolkit;
-using Microsoft.MixedReality.Toolkit.Input;
-using Microsoft.MixedReality.Toolkit.Utilities;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR.Hands;
 
 namespace MirageXR
 {
@@ -13,64 +9,41 @@ namespace MirageXR
 	public class PhotonHardwareManager : MonoBehaviour
 	{
 		private Transform _headTransform;
+		private HandTrackingManager _handTrackingManager;
 
-		private RigState _rigState = default;
+		private RigData _rigData = default;
 
-		public RigState RigState
+		public RigData RigData
 		{
 			get
 			{
 				GetRigData();
-				return _rigState;
+				return _rigData;
 			}
 		}
 
 		private void Awake()
 		{
 			_headTransform = Camera.main.transform;
+			_handTrackingManager = GetComponent<HandTrackingManager>();
 		}
 
-		// TODO: add HandsXR
 		private void GetRigData()
 		{
-			_rigState.headPose.position = _headTransform.position;
-			_rigState.headPose.rotation = _headTransform.rotation;
-			_rigState.playSpacePose.position = _headTransform.parent.position;
-			_rigState.playSpacePose.rotation = _headTransform.parent.rotation;
-			//GetHandData(Handedness.Left, ref _rigState.leftHandState);
-			//GetHandData(Handedness.Right, ref _rigState.rightHandState);
+			_rigData.headPose.position = _headTransform.position;
+			_rigData.headPose.rotation = _headTransform.rotation;
+			_rigData.playSpacePose.position = _headTransform.parent.position;
+			_rigData.playSpacePose.rotation = _headTransform.parent.rotation;
+			_rigData.leftHand = _handTrackingManager.LeftHandData;
+			_rigData.rightHand = _handTrackingManager.RightHandData;
 		}
-
-		//private void GetHandData(Handedness hand, ref HandRigState handRigState)
-		//{
-		//	if (!_handJointService.IsHandTracked(hand))
-		//	{
-		//		handRigState.handPresent = false;
-		//		handRigState.handPose.position = Vector3.zero;
-		//		handRigState.handPose.rotation = Quaternion.identity;
-		//		return;
-		//	}
-		//	else
-		//	{
-		//		Transform handTransform = _handJointService.RequestJointTransform(TrackedHandJoint.Wrist, hand);
-		//		handRigState.handPresent = true;
-		//		handRigState.handPose.position = handTransform.position;
-		//		handRigState.handPose.rotation = handTransform.rotation;
-		//	}
-		//}
 	}
 
-	public struct RigState
+	public struct RigData
 	{
 		public Pose playSpacePose;
 		public Pose headPose;
-		//public HandRigState leftHandState;
-		//public HandRigState rightHandState;
+		public HandData leftHand;
+		public HandData rightHand;
 	}
-
-	//public struct HandRigState
-	//{
-	//	public bool handPresent;
-	//	public Pose handPose;
-	//}
 }
