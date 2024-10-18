@@ -62,8 +62,8 @@ namespace MirageXR
         /// <returns>A task representing the asynchronous operation. The task result is the audio clip response from the virtual instructor.</returns>
         public async Task<AudioClip> AskInstructorWithAudioQuestion(AudioClip question)
         {
-                var instructor = DetermineVirtualInstructor();
-                return await instructor.AskVirtualInstructorAudio(question, _messageQueue);
+            var instructor = DetermineVirtualInstructor();
+            return await instructor.AskVirtualInstructorAudio(question, _messageQueue);
         }
 
         
@@ -76,8 +76,8 @@ namespace MirageXR
         /// </returns>
         public async Task<AudioClip> AskInstructorWithStringQuestion(string question)
         {
-                VirtualInstructor instructor = DetermineVirtualInstructor();
-                return await instructor.AskVirtualInstructorString(question, _messageQueue);
+            VirtualInstructor instructor = DetermineVirtualInstructor();
+            return await instructor.AskVirtualInstructorString(question, _messageQueue);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace MirageXR
         /// <param name="message">The message to add.</param>
         public void AddToNextMessage(string message)
         {
-            _messageQueue += " " + message + " "; 
+            _messageQueue += $" {message} "; 
         }
 
         private VirtualInstructor DetermineVirtualInstructor()

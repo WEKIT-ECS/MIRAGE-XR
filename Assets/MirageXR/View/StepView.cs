@@ -33,13 +33,16 @@ namespace MirageXR.View
             if (_objectManipulator is null)
             {
                 _objectManipulator = gameObject.AddComponent<ObjectManipulator>();
-                _objectManipulator.OnManipulationEnded.AddListener(OnManipulationEnded);
+                _objectManipulator.OnManipulationStarted.AddListener(_ => OnManipulationStarted());
+                _objectManipulator.OnManipulationEnded.AddListener(_ => OnManipulationEnded());
             }
         }
 
-        private void OnManipulationEnded(ManipulationEventData eventData)
+        private void OnManipulationStarted() { }
+
+        private void OnManipulationEnded()
         {
-            _step.Location.Position = eventData.ManipulationSource.transform.localPosition;
+            _step.Location.Position = transform.localPosition;
             RootObject.Instance.LEE.StepManager.UpdateStep(_step);
         }
 
