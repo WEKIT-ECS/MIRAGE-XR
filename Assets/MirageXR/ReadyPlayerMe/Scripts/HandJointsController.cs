@@ -8,11 +8,14 @@ namespace MirageXR
 {
 	public class HandJointsController : MonoBehaviour
 	{
-		[SerializeField] private Handedness _handSide;
 		[SerializeField] private List<BoneEntry> _boneMapping = new List<BoneEntry>();
 		[SerializeField] private RigBuilder _rigBuilder;
 
 		[SerializeField] private bool drawJointTargets = false;
+
+		[field: SerializeField]
+		public Handedness HandSide { get; private set; }
+
 
 		private Dictionary<XRHandJointID, Transform> constraintTargets = new Dictionary<XRHandJointID, Transform>();
 
@@ -34,7 +37,7 @@ namespace MirageXR
 					GameObject.CreatePrimitive(PrimitiveType.Cube)
 					: new GameObject();
 				constraintTarget.transform.localScale = 0.01f * Vector3.one;
-				constraintTarget.name = _handSide + boneEntry.HandJointID.ToString() + "_target";
+				constraintTarget.name = HandSide + boneEntry.HandJointID.ToString() + "_target";
 				constraintTarget.transform.parent = transform;
 				constraintTarget.transform.position = boneEntry.Bone.position;
 				constraintTarget.transform.rotation = boneEntry.Bone.rotation;
@@ -53,7 +56,7 @@ namespace MirageXR
 				}
 				else
 				{
-					Debug.LogWarning($"The hand configuration contains multiple entries for the {_handSide.ToString()} hand: {boneEntry.HandJointID}. Only the first entry has an effect.");
+					Debug.LogWarning($"The hand configuration contains multiple entries for the {HandSide.ToString()} hand: {boneEntry.HandJointID}. Only the first entry has an effect.");
 				}
 			}
 
