@@ -324,6 +324,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7198393624442215036}
   - component: {fileID: 2556349378439411796}
+  - component: {fileID: 1959322678081929816}
   m_Layer: 0
   m_Name: LeftHandIK_target
   m_TagString: Untagged
@@ -339,9 +340,10 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1589202954569152724}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.7370453, y: -0.09198919, z: 0.6021038, w: 0.29287064}
-  m_LocalPosition: {x: -0.44957674, y: 1.0687671, z: 0.03107674}
-  m_LocalScale: {x: 0.09999998, y: 0.09999999, z: 0.099999994}
+  m_LocalRotation: {x: 0.000000014901161, y: -0.00000008754432, z: -0.000000022351742,
+    w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.09999995, y: 0.1, z: 0.10000001}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3813351453526314338}
@@ -370,6 +372,82 @@ MonoBehaviour:
   _wristRotationOffset: {x: 0, y: 0.1736483, z: 0, w: -0.9848077}
   _elbowWideness: 0.8
   <HandPositionSetExternally>k__BackingField: 0
+--- !u!114 &1959322678081929816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1589202954569152724}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d98aada2c5fd44245a343c5916c05ac4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _boneMapping:
+  - name: ThumbMetacarpal
+    Bone: {fileID: 6755708591457722949}
+    HandJointID: 3
+  - name: ThumbProximal
+    Bone: {fileID: 4523927484747694654}
+    HandJointID: 4
+  - name: ThumbDistal
+    Bone: {fileID: 1556873958043435870}
+    HandJointID: 5
+  - name: ThumbTip
+    Bone: {fileID: 5408240092286660805}
+    HandJointID: 6
+  - name: IndexProximal
+    Bone: {fileID: 919824956666467541}
+    HandJointID: 8
+  - name: IndexIntermediate
+    Bone: {fileID: 7169969930348034700}
+    HandJointID: 9
+  - name: IndexDistal
+    Bone: {fileID: 4361911241033263058}
+    HandJointID: 10
+  - name: IndexTip
+    Bone: {fileID: 4390273547183767427}
+    HandJointID: 11
+  - name: MiddleProximal
+    Bone: {fileID: 5150654095583015083}
+    HandJointID: 13
+  - name: MiddleIntermediate
+    Bone: {fileID: 9021199334525402534}
+    HandJointID: 14
+  - name: MiddleDistal
+    Bone: {fileID: 7840255720580133767}
+    HandJointID: 15
+  - name: MiddleTip
+    Bone: {fileID: 4785554543101320637}
+    HandJointID: 16
+  - name: RingProximal
+    Bone: {fileID: 231319543993620916}
+    HandJointID: 18
+  - name: RingIntermediate
+    Bone: {fileID: 1333800286350029738}
+    HandJointID: 19
+  - name: RingDistal
+    Bone: {fileID: 3134194486014638621}
+    HandJointID: 20
+  - name: RingTip
+    Bone: {fileID: 3089326219334883452}
+    HandJointID: 21
+  - name: LittleProximal
+    Bone: {fileID: 5819645608719694136}
+    HandJointID: 23
+  - name: LittleIntermediate
+    Bone: {fileID: 7793024760977553410}
+    HandJointID: 24
+  - name: LittleDistal
+    Bone: {fileID: 9069395628920599272}
+    HandJointID: 25
+  - name: LittleTip
+    Bone: {fileID: 2167698926012701652}
+    HandJointID: 26
+  _rigBuilder: {fileID: 6178979939519864405}
+  drawJointTargets: 0
+  <HandSide>k__BackingField: 1
 --- !u!1 &1957244506760781476
 GameObject:
   m_ObjectHideFlags: 0
@@ -1052,8 +1130,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5400277773255215323}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0.7370452, y: -0.0919892, z: 0.6021039, w: 0.29287064}
+  m_LocalPosition: {x: -0.44957554, y: 1.068767, z: 0.031076744}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1219,9 +1297,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7108239634025971483}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.25177893, y: 1.1461575, z: -0.51955926}
-  m_LocalScale: {x: 0.1, y: 0.10000001, z: 0.10000001}
+  m_LocalRotation: {x: -0.7370452, y: 0.0919892, z: -0.6021039, w: 0.29287064}
+  m_LocalPosition: {x: -0.4505546, y: -0.33610752, z: 0.17984736}
+  m_LocalScale: {x: 0.10000002, y: 0.100000024, z: 0.10000001}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3813351453526314338}
@@ -1352,6 +1430,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5377479253970946424}
   - component: {fileID: 3692193170376483112}
+  - component: {fileID: 80667427756678146}
   m_Layer: 0
   m_Name: RightHandIK_target
   m_TagString: Untagged
@@ -1398,6 +1477,82 @@ MonoBehaviour:
   _wristRotationOffset: {x: 0, y: 0.17364818, z: 0, w: 0.9848077}
   _elbowWideness: 0.8
   <HandPositionSetExternally>k__BackingField: 0
+--- !u!114 &80667427756678146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8036220416452090987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d98aada2c5fd44245a343c5916c05ac4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _boneMapping:
+  - name: ThumbMetacarpal
+    Bone: {fileID: 5686346395737194304}
+    HandJointID: 3
+  - name: ThumbProximal
+    Bone: {fileID: 8678966613652440427}
+    HandJointID: 4
+  - name: ThumbDistal
+    Bone: {fileID: 6088834624692413713}
+    HandJointID: 5
+  - name: ThumbTip
+    Bone: {fileID: 2229274681226989023}
+    HandJointID: 6
+  - name: IndexProximal
+    Bone: {fileID: 7467238616250215767}
+    HandJointID: 8
+  - name: IndexIntermediate
+    Bone: {fileID: 2517940521200206768}
+    HandJointID: 9
+  - name: IndexDistal
+    Bone: {fileID: 3319634874988433177}
+    HandJointID: 10
+  - name: IndexTip
+    Bone: {fileID: 7943477379417062002}
+    HandJointID: 11
+  - name: MiddleProximal
+    Bone: {fileID: 7978922794128367858}
+    HandJointID: 13
+  - name: MiddleIntermediate
+    Bone: {fileID: 1565584421893504885}
+    HandJointID: 14
+  - name: MiddleDistal
+    Bone: {fileID: 206946036163186135}
+    HandJointID: 15
+  - name: MiddleTip
+    Bone: {fileID: 7421610584991753024}
+    HandJointID: 16
+  - name: RingProximal
+    Bone: {fileID: 5286117369826056265}
+    HandJointID: 18
+  - name: RingIntermediate
+    Bone: {fileID: 4701481791970659845}
+    HandJointID: 19
+  - name: RingDistal
+    Bone: {fileID: 8630231176111690848}
+    HandJointID: 20
+  - name: RingTip
+    Bone: {fileID: 2800690610622581910}
+    HandJointID: 21
+  - name: LittleProximal
+    Bone: {fileID: 9043040147624291619}
+    HandJointID: 23
+  - name: LittleIntermediate
+    Bone: {fileID: 3505841185875151301}
+    HandJointID: 24
+  - name: LittleDistal
+    Bone: {fileID: 5082739116945631045}
+    HandJointID: 25
+  - name: LittleTip
+    Bone: {fileID: 8081775452421461895}
+    HandJointID: 26
+  _rigBuilder: {fileID: 6178979939519864405}
+  drawJointTargets: 0
+  <HandSide>k__BackingField: 2
 --- !u!1001 &8976941013945422982
 PrefabInstance:
   m_ObjectHideFlags: 0
