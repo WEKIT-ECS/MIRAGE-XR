@@ -11,15 +11,14 @@ using UnityEngine;
 public class DeepLinkDefinition
 {
     /// <summary>
-    /// Load an activity via a deep link, e.g. wekit:/load?id=123&dowload=somePath
+    /// Load an activity via a deep link, e.g. wekit://call?activity=123&dowload=somePath
     /// </summary>
     /// <param name="args">Arguments that are passed with the deep link;
     /// should contain the parameters id and download</param>
     [DeepLink(path: "load")]
     public async void LoadActivity(DeepLinkArgs args)
     {
-        if (args.Parameters.TryGetValue("id", out string activityId)
-            && args.Parameters.TryGetValue("download", out string downloadPath))
+        if (args.Parameters.TryGetValue("activity", out string activityId))
         {
             if (File.Exists(Path.Combine(Application.persistentDataPath, activityId)))
             {
@@ -27,19 +26,22 @@ public class DeepLinkDefinition
             }
             else
             {
-                bool success = await Download(downloadPath, activityId);
-                if (success)
+                if (args.Parameters.TryGetValue("download", out string downloadPath))
                 {
-                    await Open(activityId);
+                    bool success = await Download(downloadPath, activityId);
+                    if (success)
+                    {
+                        await Open(activityId);
+                    }
                 }
             }
         }
         else
         {
-            Debug.LogError("Deep Link is missing id or download parameter");
+            Debug.LogError("Deep Link is missing 'activity' guid parameter");
             DialogWindow.Instance.Show(
             "Info!",
-            "Activity launch protocol is not complete",
+            "Activity launch failed, parameter 'activity' is missing.",
             new DialogButtonContent("Ok"));
         }
     }
@@ -68,7 +70,7 @@ public class DeepLinkDefinition
     // downloads the zip file of the activity from the given downloadPath and unzips the file
     private async Task<bool> Download(string downloadPath, string activityId)
     {
-        Debug.Log("Download session");
+        Debug.Log("Downloading session");
 
         bool success;
         using (LearningExperienceEngine.SessionDownloader downloader = new LearningExperienceEngine.SessionDownloader(
@@ -93,7 +95,7 @@ public class DeepLinkDefinition
             {
                 DialogWindow.Instance.Show(
                 "Info!",
-                "Activity not found! Please check that you are connected to the correct Moodle repository",
+                "Activity download link not valid! Please check that you are connected to the correct Moodle repository",
                 new DialogButtonContent("Ok"));
             }
         }
