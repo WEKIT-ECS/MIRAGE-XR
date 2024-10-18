@@ -1,6 +1,5 @@
+#if FUSION2
 using Fusion;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Hands;
@@ -95,3 +94,4 @@ namespace MirageXR
 		}
 	}
 }
+#endif
