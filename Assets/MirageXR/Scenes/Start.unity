@@ -1205,9 +1205,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d73b0a95be81246699cf0d9ecdc01863, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PreferredRunner: 0
-  Components: []
-  _guid: 4a0bd375-2e12-4a77-
 --- !u!1 &930107306
 GameObject:
   m_ObjectHideFlags: 0
@@ -1914,6 +1911,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _baseCamera: {fileID: 807537243}
+  _volumeCamera: {fileID: 0}
   _lee: {fileID: 930107307}
   _serviceBootstrapper: {fileID: 0}
   _imageTargetManager: {fileID: 383528546}
@@ -2163,6 +2161,7 @@ MonoBehaviour:
   VolumeCameraPrefab: {fileID: 3629068809801511937, guid: b5e3897c47d8c479cab2e3ce4ca0135e,
     type: 3}
   MainCameraReference: {fileID: 807537237}
+  rootObject: {fileID: 1888399832}
   MRTKProfile: {fileID: 11400000, guid: 5ea7fa9e687dd4ae8afaacd537dbf8e0, type: 2}
   XRInteractionManagerReference: {fileID: 691044980}
 --- !u!1 &2136262127
@@ -2454,7 +2453,7 @@ PrefabInstance:
     - target: {fileID: 8856608566303270429, guid: 380bb3c2508c4473aec1d2fcb48cce6f,
         type: 3}
       propertyPath: forceWorldSpaceUi
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
