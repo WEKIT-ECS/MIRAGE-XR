@@ -8,6 +8,8 @@ namespace MirageXR
     {
         private Activity _activity;
         public override ScreenName ScreenName => ScreenName.NewActivityScreen;
+        
+        private static RoomTwinManager roomTwinManager => RootObject.Instance.RoomTwinManager;
 
         protected override void OnBind()
         {
@@ -19,6 +21,32 @@ namespace MirageXR
 
             RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityUpdated;
             RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnActivityUpdated;
+            
+            View.SetActionOnButtonWireframeVignetteClick(OnButtonWireframeVignetteClicked);
+            View.SetActionOnButtonAssignRoomModelClick(OnButtonAssignRoomModelClicked);
+            View.SetActionOnButtonRepositionClick(OnButtonRepositionClicked);
+            View.SetActionOnToggleShowRoomScanValueChanged(OnToggleShowRoomScanValueChanged);
+        }
+        
+        private void OnToggleShowRoomScanValueChanged(bool value)
+        {
+            roomTwinManager.DisplayRoomTwin(value);
+        }
+
+        private void OnButtonRepositionClicked()
+        {
+            // TODO
+        }
+
+        private void OnButtonWireframeVignetteClicked()
+        {
+            MenuManager.Instance.ShowRoomScanSettingsPanelView();
+        }
+
+        private async void OnButtonAssignRoomModelClicked()
+        {
+            var url = @"https://www.google.com";  // TODO: use correct url
+            await roomTwinManager.LoadRoomTwinModel(url);
         }
 
         private void OnActivityUpdated(Activity activity)

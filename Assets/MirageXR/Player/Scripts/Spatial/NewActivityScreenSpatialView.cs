@@ -17,6 +17,19 @@ namespace MirageXR
         [Header("Prefabs")]
         [SerializeField] private StepItemView _stepsItemPrefab;
         [SerializeField] private ImageEditorSpatialView _imageEditorPrefab;
+        [Space]
+        [Header("Calibration tab")]
+        [Header("Buttons and Toggles")]
+        [SerializeField] private Button _buttonWireframeVignette;
+        [SerializeField] private Button _buttonAssignRoomModel;
+        [SerializeField] private Toggle _toggleShowRoomScan;
+        [SerializeField] private Button _buttonReposition;
+        [Header("Game Objects")]
+        [SerializeField] private GameObject _panelCalibrated;
+        [SerializeField] private GameObject _panelNotCalibrated;
+        [SerializeField] private GameObject _panelRoomScanAdded;
+        [SerializeField] private GameObject _panelRoomScanNotAdded;
+        [SerializeField] private GameObject _panelHeightNotCalibrated;
 
         public void SetActionOnButtonBackClick(UnityAction action) => _buttonBack.SafeSetListener(action);
         public void SetActionOnButtonSettingsClick(UnityAction action) => _buttonSettings.SafeSetListener(action);
@@ -37,5 +50,11 @@ namespace MirageXR
         {
             return _imageEditorPrefab;
         }
+        
+        //#region Calibration tab
+        public void SetActionOnButtonWireframeVignetteClick(UnityAction action) => _buttonWireframeVignette.SafeSetListener(action);
+        public void SetActionOnButtonAssignRoomModelClick(UnityAction action) => _buttonAssignRoomModel.SafeSetListener(action);
+        public void SetActionOnToggleShowRoomScanValueChanged(UnityAction<bool> action) => _toggleShowRoomScan.SafeSetListener(action);
+        public void SetActionOnButtonRepositionClick(UnityAction action) => _buttonReposition.SafeSetListener(action);
     }
 }
