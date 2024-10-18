@@ -11,6 +11,8 @@ namespace MirageXR
         
         [SerializeField] private CollaborativeSessionPanelView _collabSessionPanel;
         [SerializeField] private CollaborativeSessionSettingsView _collabSessionSettingsPanel;
+        [SerializeField] private RoomScanSettingsSpatialView _roomScanSettingsSpatialViewPrefab;
+        [SerializeField] private SelectAugmentationScreenSpatialView _selectAugmentationScreenSpatialView;
 
         public static UnityEvent<ScreenName, string> ScreenChanged = new();
 
@@ -49,6 +51,16 @@ namespace MirageXR
         {
             ScreenChanged.Invoke(screenName, args);
             CurrentScreenName = screenName;
+        }
+        
+        public void ShowRoomScanSettingsPanelView()
+        {  
+            PopupsViewer.Instance.Show(_roomScanSettingsSpatialViewPrefab);
+        }
+
+        public void ShowSelectAugmentationScreenSpatialView()
+        {
+            PopupsViewer.Instance.Show(_selectAugmentationScreenSpatialView);
         }
 
         /*public void ShowPopup(PopupName popupName, string args = "")

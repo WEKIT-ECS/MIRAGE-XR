@@ -24,6 +24,9 @@ namespace MirageXR
         [SerializeField]
         [Tooltip("Drag and drop the main camera gameobject here, to attach the MRTk MixedRealityInputModule and ConeCastGazeProvider components.")]
         private GameObject MainCameraReference;
+        [SerializeField]
+        [Tooltip("Drag and drop the Root Object gameobject here, to exchange the base camera with the volume camera.")]
+        private RootObject rootObject;
 
         [Header("Add MRTK to the list of compiler directives in Project Settings / Player to switch on MRTk support.")]
 
@@ -66,7 +69,8 @@ namespace MirageXR
         /// </summary>
         public void initializeVolumeCamera()
         {
-            Instantiate(VolumeCameraPrefab, new Vector3(0,0,0), Quaternion.identity);
+            GameObject camera = Instantiate(VolumeCameraPrefab, new Vector3(0,0,0), Quaternion.identity);
+            rootObject.AddVolumeCamera(camera);
             Debug.LogInfo("[VolumeCameraManager] volume camera initialized.");
         }
     }

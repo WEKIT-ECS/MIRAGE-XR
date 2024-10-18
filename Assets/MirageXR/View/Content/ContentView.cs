@@ -14,6 +14,7 @@ namespace MirageXR.View
         protected Content Content;
         protected ObjectManipulator ObjectManipulator;
         protected BoundsControl BoundsControl;
+        protected BoxCollider BoxCollider;
 
         public virtual UniTask InitializeAsync(Content content)
         {
@@ -22,17 +23,32 @@ namespace MirageXR.View
             transform.localScale = content.Location.Scale;
             Content = content;
 
+            InitializeBoxCollider();
             InitializeManipulator();
             InitializeBoundsControl();
 
+            RootObject.Instance.LEE.StepManager.OnStepChanged += OnStepChanged;
+            
             return UniTask.CompletedTask;
+        }
+
+        public virtual void Play() { }
+
+        protected virtual void InitializeBoxCollider()
+        {
+            BoxCollider = gameObject.GetComponent<BoxCollider>();
+            if (BoxCollider == null)
+            {
+                BoxCollider = gameObject.AddComponent<BoxCollider>();
+                BoxCollider.size = Vector3.one;
+            }
         }
 
         protected virtual void InitializeManipulator()
         {
             ObjectManipulator = gameObject.AddComponent<ObjectManipulator>();
-            ObjectManipulator.OnManipulationStarted.AddListener(OnManipulationStarted);
-            ObjectManipulator.OnManipulationEnded.AddListener(OnManipulationEnded);
+            ObjectManipulator.OnManipulationStarted.AddListener(_ => OnManipulationStarted());
+            ObjectManipulator.OnManipulationEnded.AddListener(_ => OnManipulationEnded());
         }
 
         protected virtual void InitializeBoundsControl()
@@ -42,6 +58,10 @@ namespace MirageXR.View
             BoundsControl.RotateStopped.AddListener(OnRotateStopped);
             BoundsControl.ScaleStarted.AddListener(OnScaleStarted);
             BoundsControl.ScaleStopped.AddListener(OnScaleStopped);
+        }
+
+        protected virtual void OnStepChanged(ActivityStep step)
+        {
         }
 
         protected virtual void OnRotateStarted()
@@ -64,14 +84,14 @@ namespace MirageXR.View
             RootObject.Instance.LEE.ContentManager.UpdateContent(Content);
         }
 
-        protected virtual void OnManipulationStarted(ManipulationEventData eventData)
+        protected virtual void OnManipulationStarted()
         {
         }
 
-        protected virtual void OnManipulationEnded(ManipulationEventData eventData)
+        protected virtual void OnManipulationEnded()
         {
-            Content.Location.Position = eventData.ManipulationSource.transform.localPosition;
-            Content.Location.Rotation = eventData.ManipulationSource.transform.localEulerAngles;
+            Content.Location.Position = transform.localPosition;
+            Content.Location.Rotation = transform.localEulerAngles;
             RootObject.Instance.LEE.ContentManager.UpdateContent(Content);
         }
     }
