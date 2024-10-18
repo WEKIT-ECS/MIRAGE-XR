@@ -229,6 +229,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7789430963901384170, guid: c141e2d9af5fa06498631477f59464c8,
         type: 3}
       insertIndex: -1
+      addedObject: {fileID: 1716381487866600184}
+    - targetCorrespondingSourceObject: {fileID: 7789430963901384170, guid: c141e2d9af5fa06498631477f59464c8,
+        type: 3}
+      insertIndex: -1
       addedObject: {fileID: 2153310105290136259}
     - targetCorrespondingSourceObject: {fileID: 7789430963901384170, guid: c141e2d9af5fa06498631477f59464c8,
         type: 3}
@@ -288,9 +292,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _head: {fileID: 781885722515917485}
+  _headOffset: {x: 0, y: -0.085, z: 0}
+--- !u!114 &1716381487866600184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3482817704407016002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46a04130cbfe79245a504aae0e4be5cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   _leftHandController: {fileID: 9166250457657614332}
   _rightHandController: {fileID: 8030380130322056832}
-  _headOffset: {x: 0, y: -0.085, z: 0}
+  _LeftTracked: 0
+  _NetworkedLeftJoints:
+    _items: []
+  _RightTracked: 0
+  _NetworkedRightJoints:
+    _items: []
 --- !u!114 &2153310105290136259
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -310,6 +332,7 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: -2760690999333450214}
   - {fileID: 3516892255916378369}
+  - {fileID: 1716381487866600184}
   - {fileID: 8049766481233789416}
   - {fileID: 2466746930702337779}
   - {fileID: 8944655950570780832}
