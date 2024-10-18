@@ -36,6 +36,8 @@ namespace MirageXR
         public void SetActionOnButtonActionClick(UnityAction action) => _buttonAction.SafeSetListener(action);
         public void SetActionOnButton3DModelClick(UnityAction action) => _button3DModel.SafeSetListener(action);
         
+        public void SetActionOnButtonAddAugmentationClick(UnityAction action) => _buttonAddAugmentation.SafeSetListener(action);
+        
         public void SetGhostTrackText(string text) => _textGhostTrack.SafeSetText(text);
         public void SetActionText(string text) => _textAction.SafeSetText(text);
         public void Set3DModelText(string text) => _text3DModel.SafeSetText(text);
