@@ -11,6 +11,7 @@ namespace MirageXR
         public static RootObject Instance { get; private set; }
 
         [SerializeField] private Camera _baseCamera;
+        [SerializeField] private GameObject _volumeCamera;
 
         [SerializeField] private LearningExperienceEngine.LearningExperienceEngine _lee;
         [SerializeField] private MirageXRServiceBootstrapper _serviceBootstrapper;
@@ -36,6 +37,7 @@ namespace MirageXR
         private IAssetBundleManager _assetBundleManager;
 
         public Camera BaseCamera => _baseCamera;
+        public GameObject VolumeCamera => _volumeCamera;
 
         public LearningExperienceEngine.LearningExperienceEngine LEE => _lee;
         public EditorSceneService EditorSceneService => _editorSceneService;
@@ -144,7 +146,6 @@ namespace MirageXR
                 await _floorManager.InitializationAsync();
                 await _calibrationManager.InitializationAsync(_assetBundleManager);
                 await _pointCloudManager.InitializationAsync();
-                await _planeManager.InitializationAsync();
                 _volumeCameraManager.Initialization();
                 _gridManager.Initialization();
                 _cameraCalibrationChecker.Initialization();
@@ -189,6 +190,11 @@ namespace MirageXR
             //_activityManager.OnDestroy();
             _planeManager.Dispose();
             Instance = null;
+        }
+
+        public void AddVolumeCamera(GameObject camera)
+        {
+            _volumeCamera = camera;
         }
     }
 }

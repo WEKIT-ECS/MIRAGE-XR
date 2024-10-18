@@ -14,7 +14,6 @@ namespace MirageXR.View
 
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private TMP_Text text;
-        [SerializeField] private BoxCollider boxCollider;
 
         private Texture2D _texture;
         private Sprite _sprite;
@@ -42,9 +41,9 @@ namespace MirageXR.View
         {
             base.InitializeBoundsControl();
 
-            BoundsControl.BoundsOverride = boxCollider;
-            boxCollider.center = Vector3.zero;
-            boxCollider.size = Vector3.one;
+            BoundsControl.BoundsOverride = BoxCollider;
+            BoxCollider.center = Vector3.zero;
+            BoxCollider.size = Vector3.one;
         }
 
         protected override void OnScaleStopped()

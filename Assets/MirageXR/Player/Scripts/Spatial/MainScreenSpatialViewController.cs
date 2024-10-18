@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Numerics;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
 using LearningExperienceEngine.DTOs;
@@ -44,8 +45,13 @@ namespace MirageXR
 
         private void OnAddNewActivityClick()
         {
+#if UNITY_VISIONOS || VISION_OS
+            var baseCamera = RootObject.Instance.VolumeCamera;
+            RootObject.Instance.LEE.ActivityManager.CreateNewActivity((baseCamera.transform.forward * 0.5f) + baseCamera.transform.position + new UnityEngine.Vector3(0, 1.2f, 0));
+#else
             var baseCamera = RootObject.Instance.BaseCamera;
             RootObject.Instance.LEE.ActivityManager.CreateNewActivity((baseCamera.transform.forward * 0.5f) + baseCamera.transform.position);
+#endif
         }
 
         private void OnActivityListItemClicked(Activity activity)

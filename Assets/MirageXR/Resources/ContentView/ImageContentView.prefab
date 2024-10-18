@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6700058036261834152}
   - component: {fileID: 3429521338795941740}
-  - component: {fileID: 4317547550634051143}
   - component: {fileID: 6289903380159462134}
   - component: {fileID: 7829747410005112800}
   m_Layer: 0
@@ -48,30 +47,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5478688956d43078c2ddf29936a997e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boxCollider: {fileID: 4317547550634051143}
   spriteRenderer: {fileID: 6289903380159462134}
   text: {fileID: 8508595588770133269}
---- !u!65 &4317547550634051143
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5047999105549170484}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 0.05}
-  m_Center: {x: 0, y: 0, z: 0}
+  boxCollider: {fileID: 0}
 --- !u!212 &6289903380159462134
 SpriteRenderer:
   m_ObjectHideFlags: 0
