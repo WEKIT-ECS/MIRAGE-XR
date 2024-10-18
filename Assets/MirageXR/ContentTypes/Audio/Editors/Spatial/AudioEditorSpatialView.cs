@@ -13,7 +13,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using ContentType = LearningExperienceEngine.DataModel.ContentType;
 
-public class AudioEditorSpatialView : PopupBase
+public class AudioEditorSpatialView : EditorSpatialView
 {
     public class IntHolder : ObjectHolder<int> { }
 
@@ -30,8 +30,6 @@ public class AudioEditorSpatialView : PopupBase
     private float _currentRangeValue;
 
     public ContentType Type => ContentType.Audio;
-
-    [SerializeField] private Button _btnApply;
 
     [SerializeField] private Button _btnAudioSettings;
     [SerializeField] private Button _btnMicRecording;
@@ -88,7 +86,7 @@ public class AudioEditorSpatialView : PopupBase
     private float _recordStartTime;
     private int _scrollRectStep;
     private string[] _audioFileType;
-    private Content<AudioContentData> _content;
+    private Content<AudioContentData> _imageContent;
 
     private string _inputTriggerStepNumber = string.Empty;
 
@@ -97,6 +95,8 @@ public class AudioEditorSpatialView : PopupBase
         _showBackground = false;
         base.Initialization(onClose, args);
 
+        _imageContent = (Content<AudioContentData>)_content;
+        
         _toggle3D.isOn = false;
         _toggleLoop.isOn = false;
         _currentRangeValue = DEFAULT_RANGE;
@@ -109,7 +109,6 @@ public class AudioEditorSpatialView : PopupBase
         _panelBottomButtons.SetActive(false);
         _panelAudioSettings.SetActive(true);
 
-        _btnApply.onClick.AddListener(OnAccept);
         _btnAudioSettings.onClick.AddListener(OnOpenAudioSettings);
         _btnMicRecording.onClick.AddListener(OnOpenRecordControlsPanel);
         _btnMicReRecording.onClick.AddListener(OnOpenRecordControlsPanel);
@@ -167,7 +166,6 @@ public class AudioEditorSpatialView : PopupBase
 
         SetPlayerActive(true);
         UpdateSliderPlayerAndTimer();
-        RootView_v2.Instance.HideBaseView();
     }
 
     protected override bool TryToGetArguments(params object[] args)
@@ -207,22 +205,21 @@ public class AudioEditorSpatialView : PopupBase
             Destroy(_audioClip);
             _audioClip = null;
         }
-        RootView_v2.Instance.ShowBaseView();
     }
 
     private void LoadContent()
     {
         var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
-        var folderPath = RootObject.Instance.LEE.AssetsManager.GetFolderPath(activityId, _content.Id, _content.ContentData.Audio.Id);
+        var folderPath = RootObject.Instance.LEE.AssetsManager.GetFolderPath(activityId, _content.Id, _imageContent.ContentData.Audio.Id);
         var filePath = Path.Combine(folderPath, "audio.wav");
         _audioClip = SaveLoadAudioUtilities.LoadAudioFile(filePath);
 
-        _toggle3D.isOn = _content.ContentData.Is3dSound;
+        _toggle3D.isOn = _imageContent.ContentData.Is3dSound;
         //_toggle2D.isOn = !_toggle3D.isOn;
         _panelRange.SetActive(_toggle3D.isOn);
-        _toggleLoop.isOn = _content.ContentData.IsLooped;
-        _txtSliderRangeValue.text = _content.ContentData.SoundRange.ToString("00");
-        _currentRangeValue = _content.ContentData.SoundRange;
+        _toggleLoop.isOn = _imageContent.ContentData.IsLooped;
+        _txtSliderRangeValue.text = _imageContent.ContentData.SoundRange.ToString("00");
+        _currentRangeValue = _imageContent.ContentData.SoundRange;
     }
 
     private void OnPlayingStarted()
@@ -485,7 +482,7 @@ public class AudioEditorSpatialView : PopupBase
             }, _audioFileType );
         Debug.Log("Permission result: " + permission);
     }
-    
+
     private  IEnumerator LoadAudioClip(string path)
     {
         var correctedPath = "file://" + path;
@@ -517,7 +514,7 @@ public class AudioEditorSpatialView : PopupBase
         }
     }
 
-    private void OnAccept()
+    protected override void OnAccept()
     {
         OnAcceptAsync().Forget();
     }
@@ -533,15 +530,15 @@ public class AudioEditorSpatialView : PopupBase
 
         var step = RootObject.Instance.LEE.StepManager.CurrentStep;
         var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
-        var fileId = _content?.ContentData?.Audio?.Id ?? Guid.NewGuid();
+        var fileId = _imageContent?.ContentData?.Audio?.Id ?? Guid.NewGuid();
 
-        _content ??= new Content<AudioContentData>
+        _imageContent ??= new Content<AudioContentData>
         {
             Id = Guid.NewGuid(),
             CreationDate = DateTime.UtcNow,
             IsVisible = true,
             Steps = new List<Guid> { step.Id },
-            Type = ContentType.Image,
+            Type = ContentType.Audio,
             Version = Application.version,
             ContentData = new AudioContentData
             {
@@ -555,21 +552,21 @@ public class AudioEditorSpatialView : PopupBase
             Location = Location.GetIdentityLocation()
         };
 
-        _content.ContentData.Is3dSound = _toggle3D.isOn;
-        _content.ContentData.IsLooped = _toggleLoop.isOn;
-        _content.ContentData.SoundRange = _sliderPlayer.value;
+        _imageContent.ContentData.Is3dSound = _toggle3D.isOn;
+        _imageContent.ContentData.IsLooped = _toggleLoop.isOn;
+        _imageContent.ContentData.SoundRange = _sliderPlayer.value;
 
-        SaveAudio(activityId, _content.Id, fileId);
-        _content.ContentData.Audio = await RootObject.Instance.LEE.AssetsManager.CreateFileAsync(activityId, _content.Id, fileId);
-        RootObject.Instance.LEE.ContentManager.AddContent(_content);
-        RootObject.Instance.LEE.AssetsManager.UploadFileAsync(activityId, _content.Id, fileId);
+        await SaveAudioAsync(activityId, _imageContent.Id, fileId);
+        _imageContent.ContentData.Audio = await RootObject.Instance.LEE.AssetsManager.CreateFileAsync(activityId, _imageContent.Id, fileId);
+        RootObject.Instance.LEE.ContentManager.AddContent(_imageContent);
+        RootObject.Instance.LEE.AssetsManager.UploadFileAsync(activityId, _imageContent.Id, fileId);
 
         Close();
     }
 
-    private void SaveAudio(Guid activityId, Guid contentId, Guid fileId)
+    private async UniTask SaveAudioAsync(Guid activityId, Guid contentId, Guid fileId)
     {
-        if (_audioClip == null || _content == null)
+        if (_audioClip == null || _imageContent == null)
         {
             return;
         }
@@ -581,7 +578,7 @@ public class AudioEditorSpatialView : PopupBase
         {
             File.Delete(filePath);
         }
-        SaveLoadAudioUtilities.Save(filePath, _audioClip);
+        await SaveLoadAudioUtilities.SaveAsync(filePath, _audioClip);
     }
 
     private void OnArrowButtonPressed()
