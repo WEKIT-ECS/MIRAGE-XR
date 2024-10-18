@@ -1,3 +1,5 @@
+using System;
+using LearningExperienceEngine.DataModel;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -7,6 +9,13 @@ namespace MirageXR
 {
     public class NewActivityScreenSpatialView : ScreenView
     {
+        [Serializable]
+        public class EditorListItem
+        {
+            public ContentType ContentType;
+            public EditorSpatialView EditorView;
+        }
+
         [Header("Buttons")]
         [SerializeField] private Button _buttonBack;
         [SerializeField] private Button _buttonSettings;
@@ -30,6 +39,7 @@ namespace MirageXR
         [SerializeField] private GameObject _panelRoomScanAdded;
         [SerializeField] private GameObject _panelRoomScanNotAdded;
         [SerializeField] private GameObject _panelHeightNotCalibrated;
+        [SerializeField] private EditorListItem[] _editorPrefabs;
 
         public void SetActionOnButtonBackClick(UnityAction action) => _buttonBack.SafeSetListener(action);
         public void SetActionOnButtonSettingsClick(UnityAction action) => _buttonSettings.SafeSetListener(action);
@@ -46,9 +56,17 @@ namespace MirageXR
             return _stepsItemPrefab;
         }
 
-        public ImageEditorSpatialView GetImageEditorPrefab()
+        public EditorSpatialView GetEditorPrefab(ContentType contentType)
         {
-            return _imageEditorPrefab;
+            foreach (var editorListItem in _editorPrefabs)
+            {
+                if (editorListItem.ContentType == contentType)
+                {
+                    return editorListItem.EditorView;
+                }
+            }
+
+            return null;
         }
         
         //#region Calibration tab

@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Image = UnityEngine.UI.Image;
 
-public class ImageEditorSpatialView : PopupBase
+public class ImageEditorSpatialView : EditorSpatialView
 {
     private const float HIDED_SIZE = 100f;
     private const float HIDE_ANIMATION_TIME = 0.5f;
@@ -21,7 +21,6 @@ public class ImageEditorSpatialView : PopupBase
     [SerializeField] private Image _image;
     [SerializeField] private Button _btnCaptureImage;
     [SerializeField] private Button _btnOpenGallery;    
-    [SerializeField] private Button _btnApply;
     [SerializeField] private RectTransform _panel;
     [SerializeField] private GameObject _arrowDown;
     [SerializeField] private GameObject _arrowUp;
@@ -30,29 +29,21 @@ public class ImageEditorSpatialView : PopupBase
 
     private string _text;
     private Texture2D _capturedImage;
-    private Content<ImageContentData> _content;
+    private Content<ImageContentData> _imageContent;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
         _showBackground = false;
         base.Initialization(onClose, args);
+        
+        _imageContent = (Content<ImageContentData>)_content;
+        
         UpdateView();
         _btnCaptureImage.onClick.AddListener(OnCaptureImage);
         _btnOpenGallery.onClick.AddListener(OpenGallery);
-        _btnApply.onClick.AddListener(OnAccept);
 
         _arrowDown.SetActive(true);
         _arrowUp.SetActive(false);
-    }
-
-    protected override bool TryToGetArguments(params object[] args)
-    {
-        if (args is { Length: 1 } && args[0] is Content<ImageContentData> obj)
-        {
-            _content = obj;
-        }
-
-        return true;
     }
 
     private void OnDestroy()
@@ -60,7 +51,7 @@ public class ImageEditorSpatialView : PopupBase
         if (_capturedImage) Destroy(_capturedImage);
     }
 
-    private void OnAccept()
+    protected override void OnAccept()
     {
         OnAcceptAsync().Forget();
     }
@@ -74,9 +65,9 @@ public class ImageEditorSpatialView : PopupBase
 
         var step = RootObject.Instance.LEE.StepManager.CurrentStep;
         var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
-        var fileId = _content?.ContentData?.Image?.Id ?? Guid.NewGuid();
+        var fileId = _imageContent?.ContentData?.Image?.Id ?? Guid.NewGuid();
         
-        _content ??= new Content<ImageContentData>
+        _imageContent ??= new Content<ImageContentData>
         {
             Id = Guid.NewGuid(),
             CreationDate = DateTime.UtcNow,
@@ -91,12 +82,14 @@ public class ImageEditorSpatialView : PopupBase
             Location = Location.GetIdentityLocation()
         };
 
-        _content.Location.Scale = CalculateScale(_capturedImage.width, _capturedImage.height);
+        _imageContent.Location.Scale = CalculateScale(_capturedImage.width, _capturedImage.height);
 
-        await SaveImageAsync(activityId, _content.Id, fileId);
-        _content.ContentData.Image = await RootObject.Instance.LEE.AssetsManager.CreateFileAsync(activityId, _content.Id, fileId);
-        RootObject.Instance.LEE.ContentManager.AddContent(_content);
-        RootObject.Instance.LEE.AssetsManager.UploadFileAsync(activityId, _content.Id, fileId);
+        await SaveImageAsync(activityId, _imageContent.Id, fileId);
+        _imageContent.ContentData.Image = await RootObject.Instance.LEE.AssetsManager.CreateFileAsync(activityId, _imageContent.Id, fileId);
+
+        await RootObject.Instance.LEE.ActivityManager.UpdateActivityAsync();
+        RootObject.Instance.LEE.ContentManager.AddContent(_imageContent);
+        RootObject.Instance.LEE.AssetsManager.UploadFileAsync(activityId, _imageContent.Id, fileId);
 
         Close();
     }
@@ -133,10 +126,10 @@ public class ImageEditorSpatialView : PopupBase
 
     private void UpdateView()
     {
-        if (_content != null)
+        if (_imageContent != null)
         {
             var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
-            var folder = RootObject.Instance.LEE.AssetsManager.GetFolderPath(activityId, _content.Id, _content.ContentData.Image.Id);
+            var folder = RootObject.Instance.LEE.AssetsManager.GetFolderPath(activityId, _imageContent.Id, _imageContent.ContentData.Image.Id);
             var imagePath = Path.Combine(folder, "image.png");
             if (!File.Exists(imagePath))
             {

@@ -58,6 +58,7 @@ namespace MirageXR.View
             RemoveUnusedContent();
             AddContents();
             UpdateContentsParent();
+            PlayContents();
         }
 
         private void UpdateContentsParent()
@@ -94,6 +95,14 @@ namespace MirageXR.View
                     Destroy(_contentViews[i].gameObject);
                     _contentViews.RemoveAt(i);
                 }
+            }
+        }
+
+        private void PlayContents()
+        {
+            foreach (var contentView in _contentViews)
+            {
+                contentView.Play();
             }
         }
 
