@@ -27,12 +27,26 @@ namespace MirageXR
 		private Vector3 _handTargetPosition;
 		private Vector3 _handAcceleration;
 
+		private HandJointsController _jointsController;
+
 		/// <summary>
 		/// If checked, the position of the hand target is left as is; otherwise, the script will find a natural position for the hands
 		/// </summary>
 		[field: Tooltip("If checked, the position of the hand target is left as is so that other scripts can position the hand; otherwise, the script will find a natural position for the hand target")]
 		[field: SerializeField]
 		public bool HandPositionSetExternally { get; set; } = true;
+
+		public HandJointsController JointsController
+		{
+			get
+			{
+				if (_jointsController == null)
+				{
+					_jointsController = GetComponent<HandJointsController>();
+				}
+				return _jointsController;
+			}
+		}
 
 		private void Update()
 		{
