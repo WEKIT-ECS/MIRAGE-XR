@@ -25,6 +25,17 @@ public class TutorialModel
     /// </summary>
     [JsonProperty]
     public List<TutorialStepModel> Steps { get; set; }
+
+    public void PopulateParentReferences()
+    {
+        if (Steps != null)
+        {
+            foreach (var step in Steps)
+            {
+                step.SetParent(this);  // Set the parent for each step
+            }
+        }
+    }
 }
 
 /// <summary>
@@ -63,6 +74,14 @@ public abstract class TutorialStepModel
     /// </summary>
     /// <returns>True if valid, false if not.</returns>
     public abstract bool IsValid();
+
+    [JsonIgnore]
+    public TutorialModel ParentTutorial { get; private set; }
+
+    public void SetParent(TutorialModel parent)
+    {
+        ParentTutorial = parent;
+    }
 }
 
 /// <summary>
