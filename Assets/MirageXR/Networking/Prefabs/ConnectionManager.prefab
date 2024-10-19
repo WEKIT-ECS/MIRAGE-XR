@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4325252047169387943}
-  - component: {fileID: 8430906712691975549}
   - component: {fileID: 4994710183780181035}
   - component: {fileID: 5129707200660208892}
+  - component: {fileID: 7466890686127646672}
   m_Layer: 0
   m_Name: ConnectionManager
   m_TagString: Untagged
@@ -33,34 +33,9 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4661928101840865624}
+  - {fileID: 261800333510811868}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8430906712691975549
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2228691272098697712}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3b2dfec39f015045b1dbe3b2d68d390, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gameMode: 2
-  roomName: DefaultRoom
-  connectOnStart: 1
-  playerCount: 0
-  connectionCriterias: 1
-  additionalSessionProperties: []
-  runner: {fileID: 0}
-  userPrefab: {fileID: 2153310105290136259, guid: c911395726db65a4eb527260054bb7d3,
-    type: 3}
-  loadSceneMode: 1
-  onWillConnect:
-    m_PersistentCalls:
-      m_Calls: []
-  actualSessionProperties: []
 --- !u!114 &4994710183780181035
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -90,7 +65,8 @@ MonoBehaviour:
   ApplyDontDestroyOnLoad: 1
   runInBackground: 1
   statsResetInterval: 1000
-  speakerPrefab: {fileID: 0}
+  speakerPrefab: {fileID: 4946667564083901209, guid: 96f0f22941ed82143b5125c1645f6176,
+    type: 3}
   primaryRecorder: {fileID: 1520595757316587548}
   usePrimaryRecorder: 0
   cppCompatibilityMode: 0
@@ -114,6 +90,32 @@ MonoBehaviour:
   AutoConnectAndJoin: 1
   UseFusionAppSettings: 1
   UseFusionAuthValues: 1
+--- !u!114 &7466890686127646672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2228691272098697712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c428ebe59e7d14f9c97ccf67373eb36a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameMode: 2
+  roomName: MainRoom
+  connectOnStart: 1
+  playerCount: 0
+  connectionCriterias: 1
+  additionalSessionProperties: []
+  runner: {fileID: 0}
+  userPrefab: {fileID: 2153310105290136259, guid: c911395726db65a4eb527260054bb7d3,
+    type: 3}
+  loadSceneMode: 1
+  onWillConnect:
+    m_PersistentCalls:
+      m_Calls: []
+  actualSessionProperties: []
 --- !u!1 &2409919775912430426
 GameObject:
   m_ObjectHideFlags: 0
@@ -189,3 +191,62 @@ MonoBehaviour:
   useOnAudioFilterRead: 0
   useMicrophoneTypeFallback: 1
   recordWhenJoined: 1
+--- !u!1 &2545884095089374701
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 261800333510811868}
+  - component: {fileID: 3232812313386390783}
+  - component: {fileID: 5578684846387471764}
+  m_Layer: 0
+  m_Name: Hardware Access Managers
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &261800333510811868
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2545884095089374701}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4325252047169387943}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3232812313386390783
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2545884095089374701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: faaabb0b8c1057e43aa88bd2b5d13ae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5578684846387471764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2545884095089374701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcc8367df89ae9a44b4e9944fd2ae078, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <GetDataBeforeRender>k__BackingField: 1
+  <GetDataOnDynamic>k__BackingField: 0
