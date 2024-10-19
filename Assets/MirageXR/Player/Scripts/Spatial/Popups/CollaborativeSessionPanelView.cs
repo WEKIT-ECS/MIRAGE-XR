@@ -1,4 +1,6 @@
+using Fusion.Addons.ConnectionManagerAddon;
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Utility.UiKit.Runtime.Extensions;
@@ -9,6 +11,7 @@ namespace MirageXR
     {
         [SerializeField] private Button _btnClose;
         [SerializeField] private Button _btnStart;
+        [SerializeField] private TMP_InputField _roomNameField;
         protected override bool TryToGetArguments(params object[] args)
         {
             return true;
@@ -20,11 +23,20 @@ namespace MirageXR
 
             _btnClose.SafeSetListener(Close);
             _btnStart.SafeSetListener(OnStartClicked);
+            _roomNameField.text = "Default Room";
         }
 
-        private void OnStartClicked()
+        private async void OnStartClicked()
         {
-            // TODO
+            ConnectionManager.Instance.roomName = _roomNameField.text;
+            bool successful = await ConnectionManager.Instance.Connect();
+
+            if (!successful)
+            {
+                // TODO: an error message in the UI would be nice to inform the user that something has gone wrong
+                return;
+            }
+            
             Close();
             MenuManager.Instance.ShowCollaborativeSessionSettingsPanelView();
         }
