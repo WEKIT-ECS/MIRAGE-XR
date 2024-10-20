@@ -1,4 +1,5 @@
 #if FUSION2
+using Fusion;
 using Fusion.Sockets;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
-namespace Fusion.Addons.ConnectionManagerAddon
+namespace MirageXR
 {
 	/**
      * 
@@ -81,34 +82,8 @@ namespace Fusion.Addons.ConnectionManagerAddon
 		bool ShouldConnectWithRoomName => (connectionCriterias & ConnectionManager.ConnectionCriterias.RoomName) != 0;
 		bool ShouldConnectWithSessionProperties => (connectionCriterias & ConnectionManager.ConnectionCriterias.SessionProperties) != 0;
 
-		public static ConnectionManager Instance { get; private set; }
-
-		public NetworkEvents Events
-		{
-			get
-			{
-				if (_events == null)
-				{
-					_events = GetComponent<NetworkEvents>();
-				}
-				return _events;
-			}
-		}
-
-		public string InvitationCode { get; set; } = string.Empty;
-
 		private void Awake()
 		{
-			if (Instance != null)
-			{
-				Destroy(this);
-				return;
-			}
-			else
-			{
-				Instance = this;
-			}
-
 			// Check if a runner exist on the same game object
 			if (runner == null) runner = GetComponent<NetworkRunner>();
 
@@ -196,16 +171,7 @@ namespace Fusion.Addons.ConnectionManagerAddon
 				args.SessionName = roomName;
 			}
 
-			if (string.IsNullOrEmpty(InvitationCode))
-			{
-				int randomCode = UnityEngine.Random.Range(0, 99999);
-				InvitationCode = randomCode.ToString("00000");
-				Debug.Log("Generating new invitation code: " + InvitationCode);
-			}
-
 			Dictionary<string, SessionProperty> sessionProperties = AllConnectionSessionProperties;
-			// TODO: adding the session code is disabled for now until we have a proper way of joining existing rooms; right now the room name is enough
-			//sessionProperties["invitationCode"] = InvitationCode;
 
 			if (ShouldConnectWithSessionProperties)
 			{
