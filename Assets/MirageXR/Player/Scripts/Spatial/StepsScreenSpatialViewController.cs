@@ -10,7 +10,7 @@ namespace MirageXR
 
         private ActivityStep _step;
         private List<Content> _contents;
-        
+
         protected override void OnBind()
         {
             base.OnBind();
@@ -51,7 +51,7 @@ namespace MirageXR
 
         private void OnStepItemClick(Content content)
         {
-            var prefab = View.GetEditorPrefab(content.Type);
+            var prefab = MenuManager.Instance.GetEditorPrefab(content.Type);
             PopupsViewer.Instance.Show(prefab, content);
         }
 

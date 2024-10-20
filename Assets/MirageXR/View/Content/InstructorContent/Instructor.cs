@@ -1,15 +1,11 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
-using Newtonsoft.Json;
 using UnityEngine;
 
-namespace MirageXR
+namespace MirageXR.View
 {
-    /// <summary>
-    /// Represents a virtual instructor that provides language-based assistance.
-    /// </summary>
-    public class VirtualInstructor : MirageXRPrefab, IVirtualInstructor
+    public class Instructor : MonoBehaviour, IVirtualInstructor
     {
         private const float CharacterHeight = 1.8f;
         /// <summary>
@@ -17,20 +13,10 @@ namespace MirageXR
         /// </summary>
         private static readonly string HistoryFormat = "This is the History of the conversation so fare: Question :{0} Given answer: {1}";
 
-        public Vector3 Position => transform.position;
-        
-        /// <summary>
-        /// Represents the data model for a virtual instructor in the MirageXR application.
-        /// </summary>
-        /// <remarks>
-        /// The InstructorData class stores information about the language models and prompts used by the virtual instructor.
-        /// </remarks>
-        private InstructorContentData InstructorData { get; set; }
-
-        [SerializeField] private LearningExperienceEngine.ToggleObject _toggleObject;
         private Animator _animator;
 
         private bool _isModerator = true; // temp
+        private Content<InstructorContentData> _instructorContent;
 
         /// <summary>
         /// Represents the history of a conversation with the VirtualInstructor.
@@ -39,43 +25,13 @@ namespace MirageXR
         /// </summary>
         private string _history;
 
-        /// <summary>
-        /// Initializes the virtual instructor with the given toggle object, setting up necessary components like the
-        /// animator, collider, and parent. If initialization fails (e.g., invalid JSON data or failure to set parent),
-        /// the method returns <c>false</c>.
-        /// </summary>
-        /// <param name="toggleObject">The toggle object containing options and settings for initialization.</param>
-        /// <returns>
-        /// A <see cref="bool"/> indicating whether the initialization was successful.
-        /// Returns <c>false</c> if initialization fails.
-        /// </returns>
-        public override bool Init(LearningExperienceEngine.ToggleObject toggleObject)
+        public Vector3 Position => transform.position;
+        
+        public void Initialize(Content<InstructorContentData> content)
         {
-            // todo add isModerator. 
             _animator = GetComponentInChildren<Animator>();
-            _toggleObject = toggleObject;
-            try
-            {
-                InstructorData = JsonConvert.DeserializeObject<InstructorContentData>(toggleObject.option);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e);
-                return false;
-            }
+            _instructorContent = content;
 
-            if (!SetParent(toggleObject))
-            {
-                Debug.LogWarning("Couldn't set the parent.");
-                return false;
-            }
-
-            var poiEditor = transform.parent.GetComponent<PoiEditor>();
-            if (poiEditor)
-            {
-                poiEditor.canRotate = true;
-            }
-            
             var boxCollider = GetComponentInChildren<BoxCollider>();
             if (boxCollider != null)
             {
@@ -84,18 +40,11 @@ namespace MirageXR
                 var center = boxCollider.center;
                 boxCollider.center = new Vector3(center.x, CharacterHeight * 0.5f, center.z);
             }
-
-            if (!toggleObject.scale.Equals(0))
-            {
-                transform.localScale = new Vector3(toggleObject.scale, toggleObject.scale, toggleObject.scale);
-            }
-
-            gameObject.name = InstructorData.CharacterName;
-            PlayAnimationClip(InstructorData.AnimationClip);
             
-            RootObject.Instance.VirtualInstructorOrchestrator.AddInstructor(this);
+            gameObject.name = content.ContentData.CharacterName;
+            PlayAnimationClip(content.ContentData.AnimationClip);
 
-            return base.Init(toggleObject);
+            RootObject.Instance.VirtualInstructorOrchestrator.AddInstructor(this);
         }
 
         private void PlayAnimationClip(string clipName)     //temp
@@ -108,14 +57,14 @@ namespace MirageXR
                 }
             }
         }
-        
+
         /// <summary>
         /// Retrieves the AI model for text-to-speech functionality.
         /// </summary>
         /// <returns>The AI model for text-to-speech functionality.</returns>
         public AIModel GetTextToSpeechModel()
         {
-            return InstructorData.TextToSpeechModel;
+            return _instructorContent.ContentData.TextToSpeechModel;
         }
 
         /// <summary>
@@ -128,13 +77,12 @@ namespace MirageXR
         public async Task<AudioClip> AskVirtualInstructorAudio(AudioClip inputAudio, string messageQueue="")
         {
             string context = CreateContext(messageQueue);
-            var question = await RootObject.Instance.AiManager.ConvertSpeechToTextAsync(inputAudio, InstructorData.SpeechToTextModel.ApiName);
-            var response = await RootObject.Instance.AiManager.SendMessageToAssistantAsync(InstructorData.LanguageModel.ApiName, question, context);
-            var clip = await RootObject.Instance.AiManager.ConvertTextToSpeechAsync(response, InstructorData.TextToSpeechModel.ApiName);
+            var question = await RootObject.Instance.AiManager.ConvertSpeechToTextAsync(inputAudio, _instructorContent.ContentData.SpeechToTextModel.ApiName);
+            var response = await RootObject.Instance.AiManager.SendMessageToAssistantAsync(_instructorContent.ContentData.LanguageModel.ApiName, question, context);
+            var clip = await RootObject.Instance.AiManager.ConvertTextToSpeechAsync(response, _instructorContent.ContentData.TextToSpeechModel.ApiName);
             UpdateHistory(question, response);
             return clip;
         }
-
 
         /// <summary>
         /// Sends a message to the virtual instructor and returns the corresponding speech audio clip.
@@ -160,10 +108,8 @@ namespace MirageXR
                 {
                     final = messageQueue;
                 }
-                var response = await RootObject.Instance.AiManager.SendMessageToAssistantAsync
-                    (InstructorData.LanguageModel.ApiName, final, _history);
-                var clip = await RootObject.Instance.AiManager.ConvertTextToSpeechAsync(
-                    response, InstructorData.TextToSpeechModel.ApiName);
+                var response = await RootObject.Instance.AiManager.SendMessageToAssistantAsync(_instructorContent.ContentData.LanguageModel.ApiName, final, _history);
+                var clip = await RootObject.Instance.AiManager.ConvertTextToSpeechAsync(response, _instructorContent.ContentData.TextToSpeechModel.ApiName);
                 UpdateHistory(message, response);
                 return clip;
             }
@@ -181,14 +127,19 @@ namespace MirageXR
         /// <returns>An async task that represents the asynchronous operation. The task result contains the audio clip representing the converted speech.</returns>
         public async Task<AudioClip> ConvertTextToSpeech(string message)
         {
-            var clip = await RootObject.Instance.AiManager.ConvertTextToSpeechAsync(message, InstructorData.TextToSpeechModel.ApiName);
+            var clip = await RootObject.Instance.AiManager.ConvertTextToSpeechAsync(message, _instructorContent.ContentData.TextToSpeechModel.ApiName);
             return clip;
         }
 
         /// <summary>
         /// CreateContext method is responsible for concatenation the history  and the prompt to a String.
         /// </summary>
-        private string CreateContext(string messageQueue = "") => !string.IsNullOrEmpty(_history) ? InstructorData.Prompt + _history + messageQueue : InstructorData.Prompt;
+        private string CreateContext(string messageQueue = "")
+        {
+            return !string.IsNullOrEmpty(_history)
+                ? _instructorContent.ContentData.Prompt + _history + messageQueue
+                : _instructorContent.ContentData.Prompt;
+        }
 
         /// <summary>
         /// Updates the conversation history with the question and response.
@@ -213,8 +164,8 @@ namespace MirageXR
         public async Task<AudioClip> AskVirtualInstructorString(string question, string queue)
         {
             string context = CreateContext();
-            var response = await RootObject.Instance.AiManager.SendMessageToAssistantAsync(InstructorData.LanguageModel.ApiName, question, context);
-            var clip = await RootObject.Instance.AiManager.ConvertTextToSpeechAsync(response, InstructorData.TextToSpeechModel.ApiName);
+            var response = await RootObject.Instance.AiManager.SendMessageToAssistantAsync(_instructorContent.ContentData.LanguageModel.ApiName, question, context);
+            var clip = await RootObject.Instance.AiManager.ConvertTextToSpeechAsync(response, _instructorContent.ContentData.TextToSpeechModel.ApiName);
             UpdateHistory(question, response);
             return clip;
         }
