@@ -18,6 +18,7 @@ namespace MirageXR
 		[SerializeField] private bool _useSessionPassword = false;
 
 		[SerializeField] private Recorder _recorder;
+		[SerializeField] private HandTrackingManager _handTrackingManager;
 
 		private ConnectionManager _connectionManager;
 		private NetworkRunner _networkRunner;
@@ -92,30 +93,30 @@ namespace MirageXR
 			// TODO: move the generation functions into the if clauses
 			// they are currently outside now to demonstrate that we can already generate this but do not actually use it
 
-			if (string.IsNullOrEmpty(InvitationCode))
-			{
-				InvitationCode = GenerateInvitationCode();
-			}
+			//if (string.IsNullOrEmpty(InvitationCode))
+			//{
+			//	InvitationCode = GenerateInvitationCode();
+			//}
 
-			if (_useInvitationCode)
-			{
-				ConnectionManager.additionalSessionProperties.Add(new ConnectionManager.StringSessionProperty()
-				{
-					propertyName = "invitationCode",
-					value = InvitationCode
-				});
-			}
+			//if (_useInvitationCode)
+			//{
+			//	ConnectionManager.additionalSessionProperties.Add(new ConnectionManager.StringSessionProperty()
+			//	{
+			//		propertyName = "invitationCode",
+			//		value = InvitationCode
+			//	});
+			//}
 
-			SessionPassword = GeneratePassword(8);
+			//SessionPassword = GeneratePassword(8);
 
-			if (_useSessionPassword)
-			{
-				ConnectionManager.additionalSessionProperties.Add(new ConnectionManager.StringSessionProperty()
-				{
-					propertyName = "password",
-					value = SessionPassword
-				});
-			}
+			//if (_useSessionPassword)
+			//{
+			//	ConnectionManager.additionalSessionProperties.Add(new ConnectionManager.StringSessionProperty()
+			//	{
+			//		propertyName = "password",
+			//		value = SessionPassword
+			//	});
+			//}
 
 			if (string.IsNullOrEmpty(LocalUserData.UserName))
 			{
@@ -133,6 +134,8 @@ namespace MirageXR
 			{
 				LocalUserData.UserName = "Guest";
 			}
+
+			_handTrackingManager.StartTracking();
 
 			return await _connectionManager.Connect();
 		}
