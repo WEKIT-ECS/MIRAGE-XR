@@ -203,6 +203,7 @@ namespace MirageXR
 			{
 				roomName = runner.SessionInfo.Name;
 			}
+
 			return true;
 		}
 
@@ -215,6 +216,7 @@ namespace MirageXR
 				NetworkObject networkPlayerObject = runner.Spawn(userPrefab, position: transform.position, rotation: transform.rotation, player, (runner, obj) =>
 				{
 				});
+				runner.SetPlayerObject(player, networkPlayerObject);
 			}
 		}
 
