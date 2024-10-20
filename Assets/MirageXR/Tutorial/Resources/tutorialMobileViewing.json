@@ -1,27 +1,24 @@
 {
-    "Name": "MobileViewing",
+    "Name": "Viewing Tutorial",
     "IntendedPlatform": "Mobile",
     "Steps": [
         {
             "StepType": "UI",
             "Id": "tutorial_activity",
             "Message": "Welcome to the MirageXR Viewing Tutorial! To start, click on the specially prepared Tutorial Activity highlighted on your screen.",
-            "Position": "Bottom",
-            "BtnText": "Cancel"
+            "Position": "Bottom"
         },
         {
             "StepType": "UI",
             "Id": "dialog_middle_multiline_1",
             "Message": "An activity can be opened in two modes: editing (to make changes to the app) and viewing (read-only). For this tutorial, click Open to View.",
-            "Position": "Bottom",
-            "BtnText": "Cancel"
+            "Position": "Bottom"
         },
         {
             "StepType": "UI",
             "Id": "activity_calibrationMarkerless",
             "Message": "First, we need to calibrate so that the activity can be presented as intended. Let's try it with Markerless Calibration below.",
-            "Position": "Top",
-            "BtnText": "Cancel"
+            "Position": "Top"
         },
         {
             "StepType": "EventOnly",
@@ -32,15 +29,13 @@
             "StepType": "UI",
             "Id": "activity_steps",
             "Message": "Great, calibration is now complete. Let's move on to the activity's content. First, switch to the Steps tab.",
-            "Position": "Bottom",
-            "BtnText": "Cancel"
+            "Position": "Bottom"
         },
         {
             "StepType": "UI",
             "Id": "ui_toggle",
             "Message": "This screen shows all the Steps, the content of an Activity. It serves as an indicator of your progress, which Step you are on. For now let's begin interacting with the first Step's content by lowering the UI.",
-            "Position": "Bottom",
-            "BtnText": "Cancel"
+            "Position": "Bottom"
         },
         {
             "StepType": "World",
@@ -94,7 +89,8 @@
             "Id": "ui_toggle",
             "Message": "This ends the Viewing Tutorial! You can press this button to reenter the UI and revisit some of the previous steps of this activity. Enjoy!",
             "Position": "Middle",
-            "BtnText": "Got it"
+            "BtnText": "Got it",
+            "CanGoNext": true
         }
     ]
 }

@@ -162,7 +162,7 @@ public class TutorialHandlerUI : MonoBehaviour
     private TutorialMessageView ShowMessage(TutorialStepModelUI model)
     {
         var tutorialMessageView = Instantiate(_tutorialMessageViewPrefab, _panel);
-        tutorialMessageView.Initialization(model, OnMessageViewButtonClicked);
+        tutorialMessageView.Initialization(model, OnMessageViewNextClicked, OnMessageViewExitClicked);
         return tutorialMessageView;
     }
 
@@ -170,11 +170,10 @@ public class TutorialHandlerUI : MonoBehaviour
     /// Handles what happens if the "Got it" button is clicked.
     /// </summary>
     /// <param name="model">The model that was shown.</param>
-    private void OnMessageViewButtonClicked(TutorialStepModelUI model)
+    private void OnMessageViewNextClicked(TutorialStepModelUI model)
     {
         if (model.HasId)
         {
-            // If the user skipped, we still need to remove set up listeners
             if (_currentTutorialItem.Button)
             {
                 _currentTutorialItem.Button.onClick.RemoveListener(OnButtonClicked);
@@ -192,17 +191,32 @@ public class TutorialHandlerUI : MonoBehaviour
         }
         Hide();
 
-        // TODO: When two sepparate buttons exist for Next and Cancel, this should be changed
-        if (model.CanGoNext)
+        Next();
+    }
+
+    private void OnMessageViewExitClicked(TutorialStepModelUI model)
+    {
+        if (model.HasId)
         {
-            Next();
+            if (_currentTutorialItem.Button)
+            {
+                _currentTutorialItem.Button.onClick.RemoveListener(OnButtonClicked);
+            }
+
+            if (_currentTutorialItem.Toggle)
+            {
+                _currentTutorialItem.Toggle.onValueChanged.RemoveListener(OnToggleValueChanged);
+            }
+
+            if (_currentTutorialItem.InputField)
+            {
+                _currentTutorialItem.InputField.onValueChanged.RemoveListener(OnInputFieldValueChanged);
+            }
         }
-        else
-        {
-            // If being used in a mixed tutorial, close the calling tutorial step
-            TutorialManager.Instance.InvokeEvent(TutorialManager.TutorialEvent.UI_GOT_IT);
-        }
-        Debug.LogDebug("Hiding tutorial because of Skip");
+        Hide();
+
+        TutorialManager.Instance.InvokeEvent(TutorialManager.TutorialEvent.UI_GOT_IT);
+        Debug.LogDebug("Hiding tutorial because of Exit");
     }
 
     /// <summary>
