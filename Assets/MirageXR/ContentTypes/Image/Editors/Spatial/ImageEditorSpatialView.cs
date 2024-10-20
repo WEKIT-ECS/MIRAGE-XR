@@ -36,7 +36,7 @@ public class ImageEditorSpatialView : EditorSpatialView
         _showBackground = false;
         base.Initialization(onClose, args);
         
-        _imageContent = (Content<ImageContentData>)_content;
+        _imageContent = _content as Content<ImageContentData>;
         
         UpdateView();
         _btnCaptureImage.onClick.AddListener(OnCaptureImage);

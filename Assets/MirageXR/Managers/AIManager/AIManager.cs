@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
 using LearningExperienceEngine;
+using LearningExperienceEngine.DataModel;
 
 namespace MirageXR
 {

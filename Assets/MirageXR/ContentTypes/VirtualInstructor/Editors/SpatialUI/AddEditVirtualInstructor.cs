@@ -1,9 +1,14 @@
+using System;
+using System.Collections.Generic;
+using LearningExperienceEngine.DataModel;
+using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using AIModel = LearningExperienceEngine.DataModel.AIModel;
 
-public class AddEditVirtualInstructor : MonoBehaviour
+public class AddEditVirtualInstructor : EditorSpatialView
 {
     // Btn
     [FormerlySerializedAs("ClosePanelBtn")]
@@ -17,7 +22,6 @@ public class AddEditVirtualInstructor : MonoBehaviour
     [SerializeField] private Button animationSettingBtnA;
     [SerializeField] private Button animationSettingBtnB;
     [SerializeField] private Button pathSettingBtn;
-    [SerializeField] private Button applyBtn;
     [SerializeField] private Button promptVI;
     [SerializeField] private Button voicesVI;
     [SerializeField] private Button modelVI;
@@ -61,10 +65,13 @@ public class AddEditVirtualInstructor : MonoBehaviour
     [SerializeField] private GameObject interactionSettingOpen;
     [SerializeField] private GameObject interactionSettingClose;
 
+    private Content<InstructorContentData> _instructorContentData;
     
-    void Start()
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {   
-        closePanelBtn.onClick.AddListener(Apply);
+        base.Initialization(onClose, args);
+        _instructorContentData = _content as Content<InstructorContentData>;
+
         settingsBtn.onClick.AddListener(OpenSettingsPanel);
         modelSettingBtnA.onClick.AddListener(OpenModelSettingPanel);
         modelSettingBtnB.onClick.AddListener(OpenModelSettingPanel);
@@ -75,7 +82,6 @@ public class AddEditVirtualInstructor : MonoBehaviour
         animationSettingBtnA.onClick.AddListener(OpenAnimationSettingPanel);
         animationSettingBtnB.onClick.AddListener(OpenAnimationSettingPanel);
         pathSettingBtn.onClick.AddListener(OpenPathSettingPanel);
-        applyBtn.onClick.AddListener(Apply); 
         promptVI.onClick.AddListener(OpenPromptPanel);
         voicesVI.onClick.AddListener(OpenVoicePanel);
         modelVI.onClick.AddListener(OpenModelPanel);
@@ -83,8 +89,56 @@ public class AddEditVirtualInstructor : MonoBehaviour
         interactionSettingToggleOpen.onValueChanged.AddListener(SetInteractionSettingsActive);
         interactionSettingToggleClosed.onValueChanged.AddListener(SetInteractionSettingsActive);
     }
-    
-  
+
+    protected override void OnAccept()
+    {
+        var step = RootObject.Instance.LEE.StepManager.CurrentStep;
+
+        _instructorContentData ??= new Content<InstructorContentData>
+        {
+            Id = Guid.NewGuid(),
+            CreationDate = DateTime.UtcNow,
+            IsVisible = true,
+            Steps = new List<Guid> { step.Id },
+            Type = ContentType.Instructor,
+            Version = Application.version,
+            Location = Location.GetIdentityLocation(),
+            ContentData = new InstructorContentData //TODO: set up your data here
+            {
+                Triggers = null,
+                AvailableTriggers = null,
+                AnimationClip = null,
+                CharacterName = null,
+                Prompt = null,
+                LanguageModel = new AIModel
+                {
+                    EndpointName = null,
+                    ApiName = null,
+                    Description = null,
+                    Name = null
+                },
+                SpeechToTextModel = new AIModel
+                {
+                    EndpointName = null,
+                    ApiName = null,
+                    Description = null,
+                    Name = null
+                },
+                TextToSpeechModel = new AIModel
+                {
+                    EndpointName = null,
+                    ApiName = null,
+                    Description = null,
+                    Name = null
+                }
+            },
+        };
+
+        RootObject.Instance.LEE.ContentManager.AddContent(_instructorContentData);
+
+        Close();
+    }
+
     private void OpenLanguagePanel()
     {
         ResetPanel(); 
@@ -109,7 +163,7 @@ public class AddEditVirtualInstructor : MonoBehaviour
         setPromptVI.SetActive(true);
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         foreach (var listItemBoxPicker in _listItemBoxPickers)
         {
@@ -117,7 +171,7 @@ public class AddEditVirtualInstructor : MonoBehaviour
         }
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         foreach (var listItemBoxPicker in _listItemBoxPickers)
         {
@@ -235,14 +289,6 @@ public class AddEditVirtualInstructor : MonoBehaviour
         }
     }
 
-
-    private void Apply()
-    {
-        ResetPanel();
-        UnityEngine.Debug.Log("Apply"); // todo
-        gameObject.SetActive(false);
-    }
-
     private void OpenModelSettingPanel()
     {
         ResetPanel();
@@ -293,5 +339,4 @@ public class AddEditVirtualInstructor : MonoBehaviour
         interactionSettingToggleOpen.isOn = active;
         interactionSettingToggleClosed.isOn = active;
     }
-    
 }

@@ -9,13 +9,6 @@ namespace MirageXR
 {
     public class StepsScreenSpatialView : ScreenView
     {
-        [Serializable]
-        public class EditorListItem
-        {
-            public ContentType ContentType;
-            public EditorSpatialView EditorView;
-        }
-
         [SerializeField] private Button _buttonBack;
 
         [Header("Augmentations tab")]
@@ -28,8 +21,6 @@ namespace MirageXR
         [SerializeField] private Button _buttonAddNewImage;
         [SerializeField] private Button _buttonDelete;
         [SerializeField] private Image _imageMarker;
-    
-        [SerializeField] private EditorListItem[] _editorPrefabs;
         //[Space]
         //[Header("Info tab")] TODO
 
@@ -48,19 +39,6 @@ namespace MirageXR
             {
                 _imageMarker.sprite = sprite;
             }
-        }
-
-        public EditorSpatialView GetEditorPrefab(ContentType contentType)
-        {
-            foreach (var editorListItem in _editorPrefabs)
-            {
-                if (editorListItem.ContentType == contentType)
-                {
-                    return editorListItem.EditorView;
-                }
-            }
-
-            return null;
         }
     }
 }
