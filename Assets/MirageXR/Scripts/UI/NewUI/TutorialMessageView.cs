@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MirageXR;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,18 +12,39 @@ public class TutorialMessageView : MonoBehaviour
     [SerializeField] private Button _btnExit;
     [SerializeField] private TMP_Text _title;
 
-    private Action<TutorialStepModelUI> _action;
+    private Action<TutorialStepModelUI> _nextAction;
+    private Action<TutorialStepModelUI> _exitAction;
     private TutorialStepModelUI _model;
 
-    public void Initialization(TutorialStepModelUI model, Action<TutorialStepModelUI> onButtonClicked)
+    public void Initialization(TutorialStepModelUI model, Action<TutorialStepModelUI> onNextClicked, Action<TutorialStepModelUI> onExitClicked)
     {
-        _action = onButtonClicked;
+        _nextAction = onNextClicked;
+        _exitAction = onExitClicked;
         _model = model;
         _message.text = model.Message;
-        _title.text = model.ParentTutorial.Name;
         _btnGotIt.onClick.AddListener(OnGotItButtonClicked);
+        _btnExit.onClick.AddListener(OnExitButtonClicked);
         _btnText.text = model.BtnText;
         transform.localPosition = new Vector3(0, GetPositionByY(), 0);
+
+        if (model.CanGoNext)
+        {
+            GameObject parentObject = _btnGotIt.transform.parent.gameObject;
+            parentObject.SetActive(true);
+        }
+
+        if (model.ParentTutorial != null)
+        {
+            // Context help has no parent and no exit button and title...
+            _title.text = model.ParentTutorial.Name;
+            _title.transform.parent.gameObject.SetActive(true);
+        }
+        else
+        {
+            // but it has the GotIt button.
+            GameObject parentObject = _btnGotIt.transform.parent.gameObject;
+            parentObject.SetActive(true);
+        }
     }
 
     private float GetPositionByY()
@@ -49,7 +71,13 @@ public class TutorialMessageView : MonoBehaviour
 
     private void OnGotItButtonClicked()
     {
-        _action?.Invoke(_model);
+        _nextAction?.Invoke(_model);
+        Destroy(gameObject);
+    }
+
+    private void OnExitButtonClicked()
+    {
+        _exitAction?.Invoke(_model);
         Destroy(gameObject);
     }
 }
