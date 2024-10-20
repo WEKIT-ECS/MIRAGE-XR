@@ -13,6 +13,7 @@ public class XRButtonTrigger : XRBaseInteractable
     [SerializeField] private XRBaseInteractable m_Interactable;
 
     [SerializeField] private Button button;
+    [SerializeField] private Toggle toggle;
         
     void Awake()
     {
@@ -21,7 +22,14 @@ public class XRButtonTrigger : XRBaseInteractable
 
     private void OnSelectExited(SelectEnterEventArgs arg0)
     {
-        button.onClick.Invoke();
+        if (button)
+        {
+            button.onClick.Invoke();
+        }
+        if (toggle)
+        {
+            toggle.isOn = !toggle.isOn;
+        }
     }
 
     void OnSelectExited(SelectExitEventArgs args)
