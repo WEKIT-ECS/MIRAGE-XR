@@ -8,6 +8,7 @@ using Photon.Voice.Unity;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -159,9 +160,11 @@ namespace MirageXR
 				_recorderObj.transform.parent = transform;
 				_recorder = _recorderObj.GetComponent<Recorder>();
 				FusionVoiceClient.AddRecorder(_recorder);
+
+				_recorder.MicrophoneDevice = new Photon.Voice.DeviceInfo(Microphone.devices.First());
 			}
 
-			Debug.Log("Microphone name: " + _recorder.MicrophoneDevice.Name);
+			Debug.Log("Photon Voice is now using the following microphone: " + _recorder.MicrophoneDevice.Name);
 
 			return await _connectionManager.Connect();
 		}
