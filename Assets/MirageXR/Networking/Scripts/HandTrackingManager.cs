@@ -12,11 +12,15 @@ namespace MirageXR
 		private List<XRHandSubsystem> _handSubsystemCandidates = new List<XRHandSubsystem>();
 		private XRHandSubsystem _activeHandSubsystem;
 
+		[SerializeField] private bool StartTrackingOnInitialize = false;
+
 		[field: SerializeField]
 		public bool GetDataBeforeRender { get; set; } = true;
 
 		[field: SerializeField]
 		public bool GetDataOnDynamic { get; set; } = false;
+
+		public bool IsTracking { get; private set; }
 
 		public HandData[] HandData { get; private set; } =
 		{
@@ -50,9 +54,46 @@ namespace MirageXR
 			return HandData[index];
 		}
 
+		private void Start()
+		{
+			if (StartTrackingOnInitialize)
+			{
+				StartTracking();
+			}
+		}
+
+		public void StartTracking()
+		{
+			if (IsTracking)
+			{
+				return;
+			}
+
+			if (_activeHandSubsystem == null || !_activeHandSubsystem.running)
+			{
+				SearchActiveHandSubsystem();
+			}
+			else
+			{
+				SubscribeHandSubsystem();
+			}
+			IsTracking = true;
+		}
+
+		public void StopTracking()
+		{
+			if (!IsTracking)
+			{
+				return;
+			}
+
+			UnsubscribeHandSubsystem();
+			IsTracking = false;
+		}
+
 		private void Update()
 		{
-			if (_activeHandSubsystem == null || !_activeHandSubsystem.running)
+			if (IsTracking && (_activeHandSubsystem == null || !_activeHandSubsystem.running))
 			{
 				SearchActiveHandSubsystem();
 			}
