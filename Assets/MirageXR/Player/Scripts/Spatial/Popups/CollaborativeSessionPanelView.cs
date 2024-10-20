@@ -1,4 +1,3 @@
-using Fusion.Addons.ConnectionManagerAddon;
 using System;
 using TMPro;
 using UnityEngine;
@@ -7,11 +6,11 @@ using Utility.UiKit.Runtime.Extensions;
 
 namespace MirageXR
 {
-    public class CollaborativeSessionPanelView : PopupBase
+	public class CollaborativeSessionPanelView : PopupBase
     {
         [SerializeField] private Button _btnClose;
         [SerializeField] private Button _btnStart;
-        [SerializeField] private TMP_InputField _roomNameField;
+        [SerializeField] private TMP_InputField _sessionNameField;
         protected override bool TryToGetArguments(params object[] args)
         {
             return true;
@@ -23,13 +22,13 @@ namespace MirageXR
 
             _btnClose.SafeSetListener(Close);
             _btnStart.SafeSetListener(OnStartClicked);
-            _roomNameField.text = "Default Room";
+            _sessionNameField.text = "Default Session";
         }
 
         private async void OnStartClicked()
         {
-            ConnectionManager.Instance.roomName = _roomNameField.text;
-            bool successful = await ConnectionManager.Instance.Connect();
+            CollaborationManager.Instance.SessionName = _sessionNameField.text;
+            bool successful = await CollaborationManager.Instance.StartNewSession();
 
             if (!successful)
             {
