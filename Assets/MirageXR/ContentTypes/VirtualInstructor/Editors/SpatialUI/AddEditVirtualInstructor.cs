@@ -65,7 +65,7 @@ public class AddEditVirtualInstructor : EditorSpatialView
     [SerializeField] private GameObject interactionSettingOpen;
     [SerializeField] private GameObject interactionSettingClose;
 
-    private Content<InstructorContentData> _instructorContentData;
+    private Content<InstructorContentData> _instructorContentData = new Content<InstructorContentData>();
     
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {   
@@ -93,6 +93,14 @@ public class AddEditVirtualInstructor : EditorSpatialView
     protected override void OnAccept()
     {
         var step = RootObject.Instance.LEE.StepManager.CurrentStep;
+        _instructorContentData.Id = Guid.NewGuid();
+        _instructorContentData.CreationDate = DateTime.UtcNow;
+        _instructorContentData.IsVisible = true;
+        _instructorContentData.Steps = new List<Guid> { step.Id };
+        _instructorContentData.Type = ContentType.Instructor;
+        _instructorContentData.Version = Application.version;
+        _instructorContentData.Location = Location.GetIdentityLocation();
+        
 
         _instructorContentData ??= new Content<InstructorContentData>
         {
@@ -224,57 +232,57 @@ public class AddEditVirtualInstructor : EditorSpatialView
              case "Idle": 
                  animationWithOutImage.SetActive(true);
                  animationWithImage.SetActive(false);
-                 animationSettingTextWithOutImage.text = "Idle";
+                 animationSettingTextWithOutImage.text = _instructorContentData.ContentData.AnimationClip = "Idle";
                  break;
              case "Point": 
                  animationWithOutImage.SetActive(true);
                  animationWithImage.SetActive(false);
-                 animationSettingTextWithOutImage.text = "Point";
+                 animationSettingTextWithOutImage.text = _instructorContentData.ContentData.AnimationClip = "Point";
                  break;
              case "Walk": 
                  animationWithOutImage.SetActive(true);
                  animationWithImage.SetActive(false);
-                 animationSettingTextWithOutImage.text = "Walk";
+                 animationSettingTextWithOutImage.text = _instructorContentData.ContentData.AnimationClip = "Walk";
                  break;
              case "Hello": 
                  animationWithOutImage.SetActive(true);
                  animationWithImage.SetActive(false);
-                 animationSettingTextWithOutImage.text = "Hello";
+                 animationSettingTextWithOutImage.text = _instructorContentData.ContentData.AnimationClip = "Hello";
                  break;
              case "Bye": 
                  animationWithOutImage.SetActive(true);
                  animationWithImage.SetActive(false);
-                 animationSettingTextWithOutImage.text = "Bye";
+                 animationSettingTextWithOutImage.text = _instructorContentData.ContentData.AnimationClip = "Bye";
                  break;
              case "Sitting": 
                  animationWithOutImage.SetActive(true);
                  animationWithImage.SetActive(false);
-                 animationSettingTextWithOutImage.text = "Sitting";
+                 animationSettingTextWithOutImage.text = _instructorContentData.ContentData.AnimationClip = "Sitting";
                  break;
              case "ThumbUp": 
                  animationWithOutImage.SetActive(true);
                  animationWithImage.SetActive(false);
-                 animationSettingTextWithOutImage.text = "Thumb Up";
+                 animationSettingTextWithOutImage.text = _instructorContentData.ContentData.AnimationClip = "Thumb Up";
                  break;
              case "ThumbDown": 
                  animationWithOutImage.SetActive(true);
                  animationWithImage.SetActive(false);
-                 animationSettingTextWithOutImage.text = "Hello";
+                 animationSettingTextWithOutImage.text = _instructorContentData.ContentData.AnimationClip = "Hello";
                  break;
              case "Writing": 
                  animationWithOutImage.SetActive(true);
                  animationWithImage.SetActive(false);
-                 animationSettingTextWithOutImage.text = "Writing";
+                 animationSettingTextWithOutImage.text = _instructorContentData.ContentData.AnimationClip = "Writing";
                  break;
              case "ImageDisplay":
                  animationWithOutImage.SetActive(false);
                  animationWithImage.SetActive(true);
-                 animationSettingTextWithImage.text = "Image display";
+                 animationSettingTextWithImage.text = _instructorContentData.ContentData.AnimationClip = "Image display";
                  break;
              case "ImagePresentation": 
                  animationWithOutImage.SetActive(false);
                  animationWithImage.SetActive(true);
-                 animationSettingTextWithImage.text = "Image presentation";
+                 animationSettingTextWithImage.text = _instructorContentData.ContentData.AnimationClip = "Image presentation";
                  break;
              }
     }
@@ -285,6 +293,7 @@ public class AddEditVirtualInstructor : EditorSpatialView
         {
           case "NoPath":
               pathSettingText.text = "No Path";
+              //todo
               break; 
         }
     }
@@ -338,5 +347,32 @@ public class AddEditVirtualInstructor : EditorSpatialView
         interactionSettingClose.SetActive(!active); 
         interactionSettingToggleOpen.isOn = active;
         interactionSettingToggleClosed.isOn = active;
+    }
+    public void UpdateName(string inputText)
+    {
+        _instructorContentData.ContentData.CharacterName = inputText;
+    }
+
+    public void UpdatePrompt(string inputText)
+    {
+        _instructorContentData.ContentData.Prompt = inputText; 
+    }
+    public void SetAIModel(AIModel model, string type)
+    {
+        switch (type)
+        {
+            case "LanguageModel":
+                _instructorContentData.ContentData.LanguageModel = model;
+                break;
+                
+            case "SpeechToTextModel":
+                _instructorContentData.ContentData.SpeechToTextModel = model;
+                break;
+                
+            case "TextToSpeechModel":
+                _instructorContentData.ContentData.TextToSpeechModel = model;
+                break;
+        }
+        
     }
 }

@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +12,9 @@ namespace MirageXR
         
         [SerializeField] private GameObject openTooltip; 
         [SerializeField] private GameObject closeTooltip;
+        
+        [SerializeField] private TMP_InputField prompt;
+        [SerializeField] private AddEditVirtualInstructor addEditVirtualInstructor;
 
         void Start()
         {
@@ -26,6 +30,7 @@ namespace MirageXR
                 closeTooltip.SetActive(false);
                 openTooltip.SetActive(true);
             });
+            prompt.onValueChanged.AddListener(newValue => { addEditVirtualInstructor.UpdatePrompt(newValue); });
         }
     }
 }
