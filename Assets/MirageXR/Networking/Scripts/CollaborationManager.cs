@@ -1,3 +1,7 @@
+using Fusion;
+using i5.Toolkit.Core.OpenIDConnectClient;
+using i5.Toolkit.Core.ServiceCore;
+using LearningExperienceEngine;
 using Photon.Voice.Unity;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,6 +18,9 @@ namespace MirageXR
 		[SerializeField] private bool _useSessionPassword = false;
 
 		[SerializeField] private Recorder _recorder;
+
+		private ConnectionManager _connectionManager;
+		private NetworkRunner _networkRunner;
 
 		private List<AudioSource> _voiceSources = new List<AudioSource>();
 		private bool _muteVoiceChat = false;
@@ -39,7 +46,12 @@ namespace MirageXR
 			}
 		}
 
-		private ConnectionManager _connectionManager;
+		private UserData _localUserData = new UserData();
+
+		public UserData LocalUserData
+		{
+			get => _localUserData;
+		}
 
 		private ConnectionManager ConnectionManager
 		{
@@ -50,6 +62,18 @@ namespace MirageXR
 					_connectionManager = GetComponent<ConnectionManager>();
 				}
 				return _connectionManager;
+			}
+		}
+
+		private NetworkRunner NetworkRunner
+		{
+			get
+			{
+				if (_networkRunner == null)
+				{
+					_networkRunner = GetComponent<NetworkRunner>();
+				}
+				return _networkRunner;
 			}
 		}
 
@@ -93,6 +117,23 @@ namespace MirageXR
 				});
 			}
 
+			if (string.IsNullOrEmpty(LocalUserData.UserName))
+			{
+				IdentityOidcConnectService oidcService = ServiceManager.GetService<IdentityOidcConnectService>();
+				if (oidcService.IsLoggedIn)
+				{
+					IUserInfo userInfo = await oidcService.GetUserDataAsync();
+					if (userInfo != null)
+					{
+						LocalUserData.UserName = userInfo.FullName;
+					}
+				}
+			}
+			if (string.IsNullOrEmpty(LocalUserData.UserName))
+			{
+				LocalUserData.UserName = "Guest";
+			}
+
 			return await _connectionManager.Connect();
 		}
 
@@ -106,9 +147,14 @@ namespace MirageXR
 			_voiceSources.Remove(voiceSource);
 		}
 
+		public void RegisterUserData(NetworkedUserData userData)
+		{
+			userData.UserDataSource = LocalUserData;
+		}
+
 		private string GenerateInvitationCode()
 		{
-			int randomCode = UnityEngine.Random.Range(0, 99999);
+			int randomCode = Random.Range(0, 99999);
 			string code = randomCode.ToString("00000");
 			Debug.Log("Generating new invitation code: " + InvitationCode);
 			return code;
