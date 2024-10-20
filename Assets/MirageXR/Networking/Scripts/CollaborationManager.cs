@@ -1,10 +1,13 @@
+using Castle.Core.Logging;
 using Fusion;
 using i5.Toolkit.Core.OpenIDConnectClient;
 using i5.Toolkit.Core.ServiceCore;
 using LearningExperienceEngine;
+using Photon.Voice.Fusion;
 using Photon.Voice.Unity;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -17,11 +20,13 @@ namespace MirageXR
 		[SerializeField] private bool _useInvitationCode = false;
 		[SerializeField] private bool _useSessionPassword = false;
 
-		[SerializeField] private Recorder _recorder;
 		[SerializeField] private HandTrackingManager _handTrackingManager;
+		[SerializeField] private GameObject _recorderPrefab;
 
 		private ConnectionManager _connectionManager;
 		private NetworkRunner _networkRunner;
+	    private Recorder _recorder;
+		private FusionVoiceClient _fusionVoiceClient;
 
 		private List<AudioSource> _voiceSources = new List<AudioSource>();
 		private bool _muteVoiceChat = false;
@@ -75,6 +80,18 @@ namespace MirageXR
 					_networkRunner = GetComponent<NetworkRunner>();
 				}
 				return _networkRunner;
+			}
+		}
+
+		private FusionVoiceClient FusionVoiceClient
+		{
+			get
+			{
+				if (_fusionVoiceClient == null)
+				{
+					_fusionVoiceClient = GetComponent<FusionVoiceClient>();
+				}
+				return _fusionVoiceClient;
 			}
 		}
 
@@ -136,6 +153,15 @@ namespace MirageXR
 			}
 
 			_handTrackingManager.StartTracking();
+			if (_recorder == null)
+			{
+				GameObject _recorderObj = Instantiate(_recorderPrefab);
+				_recorderObj.transform.parent = transform;
+				_recorder = _recorderObj.GetComponent<Recorder>();
+				FusionVoiceClient.AddRecorder(_recorder);
+			}
+
+			Debug.Log("Microphone name: " + _recorder.MicrophoneDevice.Name);
 
 			return await _connectionManager.Connect();
 		}
