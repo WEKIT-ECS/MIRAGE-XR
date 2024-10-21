@@ -84,10 +84,12 @@ namespace MirageXR
                 { ObjectDataFunctionEnum.ModelEndpoint, () => RootObject.Instance.AiManager.GetLlmModels() },
                 { ObjectDataFunctionEnum.LanguageEndpoint, () => RootObject.Instance.AiManager.GetSttModels() },
                 { ObjectDataFunctionEnum.VoiceEndpoint, () => RootObject.Instance.AiManager.GetTtsModels() },
+               
             };
             _objectDataSet = actions[selectedFunctionEnum]();
             InstantiateObjectData();
             close.onClick.AddListener(() => { gameObject.SetActive(false); });
+            UnityEngine.Debug.Log("Length of data is: " + _objectDataSet.Count);
         }
 
         /// <summary>
@@ -215,6 +217,7 @@ namespace MirageXR
 
         private void InstantiateObjectDataVoiceEndpoint(AIModel objectData)
         {
+            UnityEngine.Debug.Log("InstantiateObjectDataVoiceEndpoint");
             var instantiatedObject = Instantiate(prefabTemplate, sceneContainer);
             var textComponents = instantiatedObject.GetComponentsInChildren<TMP_Text>();
 
@@ -255,29 +258,39 @@ namespace MirageXR
             }
 
             var buttons= instantiatedObject.GetComponentsInChildren<Button>();
+            Debug.Log("buttons =" + buttons.Length);
             var audioSources = instantiatedObject.GetComponentsInChildren<AudioSource>();
+            Debug.Log("audioSources =" + audioSources.Length);
             if (buttons is { Length: 2} && audioSources is { Length: 1})
             {
-                buttons[0].onClick.AddListener(async () =>
+                async void Play()
                 {
+                  
                     var clip = await RootObject.Instance.AiManager.ConvertTextToSpeechAsync("Hi I am " + objectData.Name, objectData.ApiName);
-                    
+
                     audioSources[0].clip = clip;
                     audioSources[0].Play();
-                    
-                    buttons[0].gameObject.SetActive(false);
-                    buttons[1].gameObject.SetActive(true);
-                });
-                buttons[1].onClick.AddListener(() =>
-                {
-                    audioSources[0].Stop();
+
                     buttons[1].gameObject.SetActive(false);
                     buttons[0].gameObject.SetActive(true);
-                });
+                }
+
+                void Stop()
+                {
+                    
+                    audioSources[0].Stop();
+                    buttons[0].gameObject.SetActive(false);
+                    buttons[1].gameObject.SetActive(true);
+                }
+
+               
+
+                buttons[1].onClick.AddListener(Play);
+                buttons[0].onClick.AddListener(Stop);
             }
             else
             {
-                Debug.LogError("Buttons or AudioSources are missing or insufficient.");
+                Debug.LogError("Buttons or AudioSources are missing or insufficient. Buttons are " + buttons.Length +"Audio Sources "+ audioSources.Length);
             }
 
             _allChildGameObjects.Add(instantiatedObject);
@@ -295,6 +308,7 @@ namespace MirageXR
             switch (objectData.EndpointName)
             {
                 case "stt/":
+                    
                     addEditVirtualInstructor.SetAIModel(objectData, "SpeechToTextModel");
                     break;
                 case "tts/":
@@ -307,6 +321,7 @@ namespace MirageXR
                     Debug.LogError("Did not found the endpoint. Bad configuration from Server!");
                     break;
             }
+            this.gameObject.SetActive(false);
         }
     }
 }
