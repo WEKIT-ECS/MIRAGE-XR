@@ -135,7 +135,12 @@ public class AddEditVirtualInstructor : EditorSpatialView
             Steps = new List<Guid> { step.Id },
             Type = ContentType.Instructor,
             Version = Application.version,
-            Location = Location.GetIdentityLocation(),
+            Location = new Location
+            {
+                Position = new Vector3(0, -1.5f, 0),
+                Rotation = Vector3.zero,
+                Scale = Vector3.one,
+            },
             ContentData = new InstructorContentData //TODO: set up your data here
             {
                 Triggers = null,

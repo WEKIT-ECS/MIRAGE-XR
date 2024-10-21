@@ -82,6 +82,7 @@ namespace MirageXR
         private void Show()
         {
             _Record.gameObject.SetActive(true);
+            _SendRecord.gameObject.SetActive(true);
         }
 
         /// <summary>
@@ -90,6 +91,8 @@ namespace MirageXR
         public void Awake()
         {
             if (RootObject.Instance.VirtualInstructorOrchestrator.IsVirtualInstructorInList()) Show();
+            _btnSendRecord.onClick.AddListener(SendRecording);
+            _btnRecord.onClick.AddListener(StartRecording); 
         }
 
         /// <summary>
@@ -106,11 +109,13 @@ namespace MirageXR
         /// </summary>
         public void StartRecording()
         {
+            Debug.Log("StartRecording");
             recoding = true;
             if (Microphone.devices.Length > 0)
             {
                 questionClip = Microphone.Start(null, false, _maxRecordTime, sampleRate);
-                StartCoroutine(CountdownCoroutine()); 
+                StartCoroutine(CountdownCoroutine());
+                _Record.gameObject.SetActive(false);
             }
             else
             {
@@ -128,6 +133,7 @@ namespace MirageXR
             recoding = false;
             responseClip.clip =  await RootObject.Instance.VirtualInstructorOrchestrator.AskInstructorWithAudioQuestion(questionClip); 
             responseClip.Play();
+            //_SendRecord.SetActive(false);
             StartCoroutine(WaitForAudioEnd());
         }
 
@@ -135,6 +141,7 @@ namespace MirageXR
         {
             yield return new WaitUntil(() => !responseClip.isPlaying);
             OnAudioClipEnd();
+            //_Record.gameObject.SetActive(true); 
         }
 
         private void OnAudioClipEnd()
