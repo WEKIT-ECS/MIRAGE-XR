@@ -47,7 +47,7 @@ namespace MirageXR.View
                     Destroy(oldInstructor);
                 }
 
-                _instructor = instructor.GetComponent<Instructor>();
+                _instructor = instructor.AddComponent<Instructor>();
                 _instructor.Initialize(_instructorContent);
             }
             else

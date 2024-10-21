@@ -65,6 +65,13 @@ public class AddEditVirtualInstructor : EditorSpatialView
     [SerializeField] private GameObject interactionSettingOpen;
     [SerializeField] private GameObject interactionSettingClose;
 
+    [Header("AI Settings")] 
+    [SerializeField] private TMP_Text aiPrompt;
+    [SerializeField] private TMP_Text aiVoice;
+    [SerializeField] private TMP_Text aiModel;
+    [SerializeField] private TMP_Text aiLanguage;
+    
+
     private Content<InstructorContentData> _instructorContentData;
     
     
@@ -95,7 +102,7 @@ public class AddEditVirtualInstructor : EditorSpatialView
     
     private string _animationClip;
     private string _characterName;
-    private string _pathSetting;
+    private string _pathSetting; // todo
     private string _prompt;
     private string _languageModelEndpointName; 
     private string _languageModelApiName; 
@@ -372,6 +379,8 @@ public class AddEditVirtualInstructor : EditorSpatialView
     public void UpdatePrompt(string prompt)
     {
         _prompt = prompt;
+        aiPrompt.text = prompt.Substring(0,14); // hier ArgumentOutOfRangeException: Index and length must refer to a location within the string.
+                                                // Parameter name: length pasier wenn es zu kurz ist. 
     }
     public void SetAIModel(AIModel model, string type)
     {
@@ -381,21 +390,22 @@ public class AddEditVirtualInstructor : EditorSpatialView
                 _languageModelEndpointName = model.EndpointName;
                 _languageModelApiName = model.ApiName; 
                 _languageModelDescription = model.Description;
-                _languageModelName = model.Name; 
+                _languageModelName = aiModel.text = model.Name;
                 break;
                 
             case "SpeechToTextModel":
                 _speechToTextModelEndpointName = model.EndpointName;
                 _speechToTextModellApiName = model.ApiName; 
                 _speechToTextModelDescription = model.Description;
-                _speechToTextModelName = model.Name; 
+                _speechToTextModelName = aiLanguage.text = model.Name; 
                 break;
+          
                 
             case "TextToSpeechModel":
                 _textToSpeechModelEndpointName = model.EndpointName;
                 _textToSpeechModelModellApiName = model.ApiName; 
                 _textToSpeechModelDescription = model.Description;
-                _textToSpeechModelName = model.Name; 
+                _textToSpeechModelName = aiVoice.text =  model.Name; 
                 break;
         }
         
