@@ -98,26 +98,28 @@ public class AddEditVirtualInstructor : EditorSpatialView
         interactionSettingToggleOpen.onValueChanged.AddListener(SetInteractionSettingsActive);
         interactionSettingToggleClosed.onValueChanged.AddListener(SetInteractionSettingsActive);
     }
+
+    private string _triggers = String.Empty; // todo
+    private string _availableTriggers = String.Empty; // todo
     
+    private string _animationClip = "Idle";
+    private string _characterName = "Sara";
+    private string _pathSetting = "No Path"; // todo
+    private string _prompt = "Provide a concise answer to the question. Use the context.";
+    private string _languageModelEndpointName = "llm/"; 
+    private string _languageModelApiName = "ISS-RAG"; 
+    private string _languageModelDescription = "ISS-RAG"; 
+    private string _languageModelName = "ISS-RAG"; 
     
-    private string _animationClip;
-    private string _characterName;
-    private string _pathSetting; // todo
-    private string _prompt;
-    private string _languageModelEndpointName; 
-    private string _languageModelApiName; 
-    private string _languageModelDescription; 
-    private string _languageModelName; 
+    private string _speechToTextModelEndpointName = "stt/"; 
+    private string _speechToTextModellApiName = "English"; 
+    private string _speechToTextModelDescription = "English";  
+    private string _speechToTextModelName = "English"; 
     
-    private string _speechToTextModelEndpointName; 
-    private string _speechToTextModellApiName; 
-    private string _speechToTextModelDescription; 
-    private string _speechToTextModelName; 
-    
-    private string _textToSpeechModelEndpointName; 
-    private string _textToSpeechModelModellApiName; 
-    private string _textToSpeechModelDescription; 
-    private string _textToSpeechModelName; 
+    private string _textToSpeechModelEndpointName = "tts/"; 
+    private string _textToSpeechModelModellApiName = "alloy";
+    private string _textToSpeechModelDescription = "Female human voice"; 
+    private string _textToSpeechModelName = "Alloy"; 
     
     
     
@@ -379,8 +381,7 @@ public class AddEditVirtualInstructor : EditorSpatialView
     public void UpdatePrompt(string prompt)
     {
         _prompt = prompt;
-        aiPrompt.text = prompt.Substring(0,14); // hier ArgumentOutOfRangeException: Index and length must refer to a location within the string.
-                                                // Parameter name: length pasier wenn es zu kurz ist. 
+        aiPrompt.text =  prompt.Length > 14 ? prompt.Substring(0, 14) : prompt; 
     }
     public void SetAIModel(AIModel model, string type)
     {
