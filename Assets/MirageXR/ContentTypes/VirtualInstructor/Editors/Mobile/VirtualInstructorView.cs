@@ -1,13 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using DG.Tweening;
 using LearningExperienceEngine;
+using LearningExperienceEngine.DataModel;
 using MirageXR;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
-using CharacterController = MirageXR.CharacterController;
 
 public class VirtualInstructorView : PopupEditorBase
 {
@@ -149,7 +148,7 @@ public class VirtualInstructorView : PopupEditorBase
 
         _content.predicate = editorForType.GetPredicate();
 
-        var data = new VirtualInstructorDataModel
+        var data = new InstructorContentData
         {
             AnimationClip = "Idle",
             CharacterName = _prefabName,

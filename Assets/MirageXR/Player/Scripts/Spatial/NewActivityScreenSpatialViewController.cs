@@ -75,6 +75,7 @@ namespace MirageXR
         private void OnStepItemClicked(ActivityStep step)
         {
             RootObject.Instance.LEE.StepManager.GoToStep(step.Id);
+            MenuManager.Instance.ShowScreen(ScreenName.StepsScreen);
         }
 
         private void OnStepItemMenuClicked(ActivityStep step)
@@ -105,8 +106,6 @@ namespace MirageXR
 
         private void OnButtonSettingsClicked()
         {
-            var prefab = View.GetEditorPrefab(ContentType.Audio);
-            PopupsViewer.Instance.Show(prefab);
         }
     }
 }

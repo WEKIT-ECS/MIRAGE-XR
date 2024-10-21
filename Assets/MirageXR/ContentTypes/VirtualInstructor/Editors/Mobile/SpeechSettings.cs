@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using LearningExperienceEngine.DataModel;
 using UnityEngine.Serialization;
 
 namespace MirageXR

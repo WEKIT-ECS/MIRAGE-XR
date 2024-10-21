@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+using LearningExperienceEngine.DataModel;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -5,6 +8,13 @@ namespace MirageXR
 {
     public class MenuManager : Manager<MenuManager>
     {
+        [Serializable]
+        public class EditorListItem
+        {
+            public ContentType ContentType;
+            public EditorSpatialView EditorView;
+        }
+
         [SerializeField] private SortingScreenSpatialView _sortingScreenSpatialViewPrefab;
         [SerializeField] private RegisterScreenSpatialView _registerScreenSpatialViewPrefab;
         //[SerializeField] private LoginView_Spatial _signInScreenSpatialViewPrefab;  // TODO SignInScreenSpatialView
@@ -14,6 +24,8 @@ namespace MirageXR
         [SerializeField] private RoomScanSettingsSpatialView _roomScanSettingsSpatialViewPrefab;
         [SerializeField] private SelectAugmentationScreenSpatialView _selectAugmentationScreenSpatialView;
 
+        [SerializeField] private EditorListItem[] editorPrefabs;
+        
         public static UnityEvent<ScreenName, string> ScreenChanged = new();
 
         private ScreenName _currentScreenName;
@@ -60,12 +72,31 @@ namespace MirageXR
 
         public void ShowSelectAugmentationScreenSpatialView()
         {
-            PopupsViewer.Instance.Show(_selectAugmentationScreenSpatialView);
+            var types = editorPrefabs.Select(t => t.ContentType).ToList();
+            PopupsViewer.Instance.Show(_selectAugmentationScreenSpatialView, types);
         }
 
         /*public void ShowPopup(PopupName popupName, string args = "")
         {
             PopupChanged.Invoke(popupName, args);
         }*/
+
+        public EditorSpatialView GetEditorPrefab(ContentType contentType)
+        {
+            foreach (var editorListItem in editorPrefabs)
+            {
+                if (editorListItem.ContentType == contentType)
+                {
+                    return editorListItem.EditorView;
+                }
+            }
+
+            return null;
+        }
+
+        public EditorListItem[] GetEditorPrefabs()
+        {
+            return editorPrefabs;
+        }
     }
 }

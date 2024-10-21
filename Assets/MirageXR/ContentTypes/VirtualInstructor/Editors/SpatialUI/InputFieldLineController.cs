@@ -5,6 +5,7 @@ public class InputFieldLineController : MonoBehaviour
 {
 	[SerializeField] private GameObject line; 
 	[SerializeField] private TMP_InputField input;
+    [SerializeField] private AddEditVirtualInstructor addEditVirtualInstructor;
     void Start()
     {
         line.SetActive(false);
@@ -14,6 +15,7 @@ public class InputFieldLineController : MonoBehaviour
 
     private void OnInputFieldUnfocused(string arg0)
     {
+        addEditVirtualInstructor.UpdateName(input.text);
         line.SetActive(false);
     }
 

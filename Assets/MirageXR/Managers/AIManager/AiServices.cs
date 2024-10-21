@@ -3,14 +3,19 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using LearningExperienceEngine.DataModel;
 using Microsoft.MixedReality.Toolkit.Utilities;
-using MirageXR.AIManagerDataModel;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 
 namespace MirageXR
 {
+    public class Token
+    {
+        [JsonProperty("token")] public string BackendToken { get; set; }
+    }
+
     /// <summary>
     /// Provides AI services such as transcription, conversation, and speech synthesis.
     /// </summary>

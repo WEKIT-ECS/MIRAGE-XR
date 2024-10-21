@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections;
-using i5.Toolkit.Core.VerboseLogging;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
-using System.IO;
 using System.Threading.Tasks;
-using Microsoft.MixedReality.Toolkit.UI;
+using LearningExperienceEngine.DataModel;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.AI;
@@ -302,10 +300,10 @@ namespace MirageXR
                             case "virtualinstructor":
                                 if (isActivating)
                                 {
-                                    VirtualInstructorDataModel dataModel;
+                                    InstructorContentData dataModel;
                                     try
                                     {
-                                        dataModel = JsonConvert.DeserializeObject<VirtualInstructorDataModel>(obj.option);
+                                        dataModel = JsonConvert.DeserializeObject<InstructorContentData>(obj.option);
                                     }
                                     catch (Exception e)
                                     {
@@ -536,7 +534,7 @@ namespace MirageXR
                     {
                             try
                             {
-                                var data = JsonConvert.DeserializeObject<VirtualInstructorDataModel>(obj.option);
+                                var data = JsonConvert.DeserializeObject<InstructorContentData>(obj.option);
                                 temp = GameObject.Find(path + data.CharacterName);
                             }
                             catch (Exception e)
