@@ -1,9 +1,14 @@
+using System;
+using System.Collections.Generic;
+using LearningExperienceEngine.DataModel;
+using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using AIModel = LearningExperienceEngine.DataModel.AIModel;
 
-public class AddEditVirtualInstructor : MonoBehaviour
+public class AddEditVirtualInstructor : EditorSpatialView
 {
     // Btn
     [FormerlySerializedAs("ClosePanelBtn")]
@@ -17,7 +22,6 @@ public class AddEditVirtualInstructor : MonoBehaviour
     [SerializeField] private Button animationSettingBtnA;
     [SerializeField] private Button animationSettingBtnB;
     [SerializeField] private Button pathSettingBtn;
-    [SerializeField] private Button applyBtn;
     [SerializeField] private Button promptVI;
     [SerializeField] private Button voicesVI;
     [SerializeField] private Button modelVI;
@@ -61,10 +65,22 @@ public class AddEditVirtualInstructor : MonoBehaviour
     [SerializeField] private GameObject interactionSettingOpen;
     [SerializeField] private GameObject interactionSettingClose;
 
+    [Header("AI Settings")] 
+    [SerializeField] private TMP_Text aiPrompt;
+    [SerializeField] private TMP_Text aiVoice;
+    [SerializeField] private TMP_Text aiModel;
+    [SerializeField] private TMP_Text aiLanguage;
     
-    void Start()
+
+    private Content<InstructorContentData> _instructorContentData;
+    
+    
+    
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {   
-        closePanelBtn.onClick.AddListener(Apply);
+        base.Initialization(onClose, args);
+        _instructorContentData = _content as Content<InstructorContentData>;
+            
         settingsBtn.onClick.AddListener(OpenSettingsPanel);
         modelSettingBtnA.onClick.AddListener(OpenModelSettingPanel);
         modelSettingBtnB.onClick.AddListener(OpenModelSettingPanel);
@@ -75,7 +91,6 @@ public class AddEditVirtualInstructor : MonoBehaviour
         animationSettingBtnA.onClick.AddListener(OpenAnimationSettingPanel);
         animationSettingBtnB.onClick.AddListener(OpenAnimationSettingPanel);
         pathSettingBtn.onClick.AddListener(OpenPathSettingPanel);
-        applyBtn.onClick.AddListener(Apply); 
         promptVI.onClick.AddListener(OpenPromptPanel);
         voicesVI.onClick.AddListener(OpenVoicePanel);
         modelVI.onClick.AddListener(OpenModelPanel);
@@ -83,8 +98,85 @@ public class AddEditVirtualInstructor : MonoBehaviour
         interactionSettingToggleOpen.onValueChanged.AddListener(SetInteractionSettingsActive);
         interactionSettingToggleClosed.onValueChanged.AddListener(SetInteractionSettingsActive);
     }
+
+    private string _triggers = String.Empty; // todo
+    private string _availableTriggers = String.Empty; // todo
     
-  
+    private string _animationClip = "Idle";
+    private string _characterName = "Sara";
+    private string _pathSetting = "No Path"; // todo
+    private string _prompt = "Provide a concise answer to the question. Use the context.";
+    private string _languageModelEndpointName = "llm/"; 
+    private string _languageModelApiName = "ISS-RAG"; 
+    private string _languageModelDescription = "ISS-RAG"; 
+    private string _languageModelName = "ISS-RAG"; 
+    
+    private string _speechToTextModelEndpointName = "stt/"; 
+    private string _speechToTextModellApiName = "English"; 
+    private string _speechToTextModelDescription = "English";  
+    private string _speechToTextModelName = "English"; 
+    
+    private string _textToSpeechModelEndpointName = "tts/"; 
+    private string _textToSpeechModelModellApiName = "alloy";
+    private string _textToSpeechModelDescription = "Female human voice"; 
+    private string _textToSpeechModelName = "Alloy"; 
+    
+    
+    
+    protected override void OnAccept()
+    {
+        var step = RootObject.Instance.LEE.StepManager.CurrentStep;
+
+        _instructorContentData ??= new Content<InstructorContentData>
+        {
+            Id = Guid.NewGuid(),
+            CreationDate = DateTime.UtcNow,
+            IsVisible = true,
+            Steps = new List<Guid> { step.Id },
+            Type = ContentType.Instructor,
+            Version = Application.version,
+            Location = new Location
+            {
+                Position = new Vector3(0, -1.5f, 0),
+                Rotation = Vector3.zero,
+                Scale = Vector3.one,
+            },
+            ContentData = new InstructorContentData //TODO: set up your data here
+            {
+                Triggers = null,
+                AvailableTriggers = null,
+                AnimationClip = _animationClip,
+                CharacterName = _characterName,
+                Prompt = _prompt,
+                LanguageModel = new AIModel
+                {
+                    EndpointName = _languageModelEndpointName,
+                    ApiName = _languageModelApiName,
+                    Description = _languageModelDescription,
+                    Name = _languageModelName
+                },
+                SpeechToTextModel = new AIModel
+                {
+                    EndpointName = _speechToTextModelEndpointName,
+                    ApiName = _speechToTextModellApiName,
+                    Description = _speechToTextModelDescription,
+                    Name = _speechToTextModelName
+                },
+                TextToSpeechModel = new AIModel
+                {
+                    EndpointName = _textToSpeechModelEndpointName,
+                    ApiName = _textToSpeechModelModellApiName,
+                    Description = _textToSpeechModelDescription,
+                    Name = _textToSpeechModelName
+                }
+            },
+        };
+
+        RootObject.Instance.LEE.ContentManager.AddContent(_instructorContentData);
+
+        Close();
+    }
+
     private void OpenLanguagePanel()
     {
         ResetPanel(); 
@@ -109,7 +201,7 @@ public class AddEditVirtualInstructor : MonoBehaviour
         setPromptVI.SetActive(true);
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         foreach (var listItemBoxPicker in _listItemBoxPickers)
         {
@@ -117,7 +209,7 @@ public class AddEditVirtualInstructor : MonoBehaviour
         }
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         foreach (var listItemBoxPicker in _listItemBoxPickers)
         {
@@ -170,57 +262,58 @@ public class AddEditVirtualInstructor : MonoBehaviour
              case "Idle": 
                  animationWithOutImage.SetActive(true);
                  animationWithImage.SetActive(false);
+                 _animationClip = "Idle";
                  animationSettingTextWithOutImage.text = "Idle";
                  break;
              case "Point": 
                  animationWithOutImage.SetActive(true);
                  animationWithImage.SetActive(false);
-                 animationSettingTextWithOutImage.text = "Point";
+                 animationSettingTextWithOutImage.text = _animationClip = "Point";
                  break;
              case "Walk": 
                  animationWithOutImage.SetActive(true);
                  animationWithImage.SetActive(false);
-                 animationSettingTextWithOutImage.text = "Walk";
+                 animationSettingTextWithOutImage.text = _animationClip = "Walk";
                  break;
              case "Hello": 
                  animationWithOutImage.SetActive(true);
                  animationWithImage.SetActive(false);
-                 animationSettingTextWithOutImage.text = "Hello";
+                 animationSettingTextWithOutImage.text = _animationClip = "Hello";
                  break;
              case "Bye": 
                  animationWithOutImage.SetActive(true);
                  animationWithImage.SetActive(false);
-                 animationSettingTextWithOutImage.text = "Bye";
+                 animationSettingTextWithOutImage.text = _animationClip = "Bye";
                  break;
              case "Sitting": 
                  animationWithOutImage.SetActive(true);
                  animationWithImage.SetActive(false);
-                 animationSettingTextWithOutImage.text = "Sitting";
+                 animationSettingTextWithOutImage.text = _animationClip = "Sitting";
                  break;
              case "ThumbUp": 
                  animationWithOutImage.SetActive(true);
                  animationWithImage.SetActive(false);
-                 animationSettingTextWithOutImage.text = "Thumb Up";
+                 animationSettingTextWithOutImage.text = _animationClip = "Thumb Up";
                  break;
              case "ThumbDown": 
                  animationWithOutImage.SetActive(true);
                  animationWithImage.SetActive(false);
-                 animationSettingTextWithOutImage.text = "Hello";
+                 animationSettingTextWithOutImage.text = _animationClip = "Hello";
                  break;
              case "Writing": 
                  animationWithOutImage.SetActive(true);
                  animationWithImage.SetActive(false);
-                 animationSettingTextWithOutImage.text = "Writing";
+                 animationSettingTextWithOutImage.text = _animationClip = "Writing";
                  break;
              case "ImageDisplay":
                  animationWithOutImage.SetActive(false);
                  animationWithImage.SetActive(true);
-                 animationSettingTextWithImage.text = "Image display";
+                 animationSettingTextWithImage.text = _animationClip = "Image display";
                  break;
              case "ImagePresentation": 
                  animationWithOutImage.SetActive(false);
                  animationWithImage.SetActive(true);
-                 animationSettingTextWithImage.text = "Image presentation";
+                 animationSettingTextWithImage.text = _animationClip = "Image presentation";
                  break;
              }
     }
@@ -230,17 +323,9 @@ public class AddEditVirtualInstructor : MonoBehaviour
         switch (toggle.name)
         {
           case "NoPath":
-              pathSettingText.text = "No Path";
+              pathSettingText.text = _pathSetting = "No Path";
               break; 
         }
-    }
-
-
-    private void Apply()
-    {
-        ResetPanel();
-        UnityEngine.Debug.Log("Apply"); // todo
-        gameObject.SetActive(false);
     }
 
     private void OpenModelSettingPanel()
@@ -293,5 +378,42 @@ public class AddEditVirtualInstructor : MonoBehaviour
         interactionSettingToggleOpen.isOn = active;
         interactionSettingToggleClosed.isOn = active;
     }
-    
+    public void UpdateName(string name)
+    {
+        _characterName = name;
+    }
+
+    public void UpdatePrompt(string prompt)
+    {
+        _prompt = prompt;
+        aiPrompt.text =  prompt.Length > 14 ? prompt.Substring(0, 14) : prompt; 
+    }
+    public void SetAIModel(AIModel model, string type)
+    {
+        switch (type)
+        {
+            case "LanguageModel":
+                _languageModelEndpointName = model.EndpointName;
+                _languageModelApiName = model.ApiName; 
+                _languageModelDescription = model.Description;
+                _languageModelName = aiModel.text = model.Name;
+                break;
+                
+            case "SpeechToTextModel":
+                _speechToTextModelEndpointName = model.EndpointName;
+                _speechToTextModellApiName = model.ApiName; 
+                _speechToTextModelDescription = model.Description;
+                _speechToTextModelName = aiLanguage.text = model.Name; 
+                break;
+          
+                
+            case "TextToSpeechModel":
+                _textToSpeechModelEndpointName = model.EndpointName;
+                _textToSpeechModelModellApiName = model.ApiName; 
+                _textToSpeechModelDescription = model.Description;
+                _textToSpeechModelName = aiVoice.text =  model.Name; 
+                break;
+        }
+        
+    }
 }

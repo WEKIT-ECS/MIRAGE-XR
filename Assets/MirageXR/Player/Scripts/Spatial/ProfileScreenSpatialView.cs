@@ -17,6 +17,7 @@ namespace MirageXR
         [SerializeField] private Button _buttonServiceName;
         [SerializeField] private Button _buttonAvatar;
         [SerializeField] private Button _buttonGrid;
+        [SerializeField] private Button _buttonAudioDevice;
         [SerializeField] private Button _buttonDevelopMode;
         [Header("Texts")]
         [SerializeField] private TMP_Text _tmpTextMoodleServer;
@@ -24,7 +25,8 @@ namespace MirageXR
         [Header("GameObjects")]
         [SerializeField] private GameObject _signInPrefab; // TEMP
         [SerializeField] private GameObject _registerPrefab;// TEMP
-        
+        [SerializeField] private AudioDeviceSpatialView _audioDevicePrefab;// TEMP
+
         public void SetActionOnButtonLoginClick(UnityAction action) => _buttonLogin.SafeSetListener(action);
         public void SetActionOnButtonRegisterClick(UnityAction action) => _buttonRegister.SafeSetListener(action);
         public void SetActionOnButtonMoodleServersClick(UnityAction action) => _buttonMoodleServers.SafeSetListener(action);
@@ -33,7 +35,9 @@ namespace MirageXR
         public void SetActionOnButtonServiceNameClick(UnityAction action) => _buttonServiceName.SafeSetListener(action);
         public void SetActionOnButtonAvatarClick(UnityAction action) => _buttonAvatar.SafeSetListener(action);
         public void SetActionOnButtonGridClick(UnityAction action) => _buttonGrid.SafeSetListener(action);
+        public void SetActionOnButtonAudioDeviceClick(UnityAction action) => _buttonAudioDevice.SafeSetListener(action);
         public void SetActionOnButtonDevelopModeClick(UnityAction action) => _buttonDevelopMode.SafeSetListener(action);
+        public AudioDeviceSpatialView GetAudioDevicePrefab() => _audioDevicePrefab;
 
         public void ShowSignInPanel()
         {
