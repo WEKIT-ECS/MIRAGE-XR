@@ -1,5 +1,8 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -46,39 +49,17 @@ namespace MirageXR
         /// <summary>
         /// Represents a recorded audio clip of a question.
         /// </summary>
-        private AudioClip questionClip;
+        private AudioClip _questionClip;
 
-        /// <summary>
-        /// Represents a microphone used for recording audio inputs.
-        /// </summary>
-        private string microphone;
+        private CancellationTokenSource _source;
+        private CancellationToken _cancellationToken;
 
-        /// <summary>
-        /// Flag indicating if the recording is currently being done.
-        /// </summary>
-        private bool recoding;
-
-        public void Update()
-        {
-            if (RootObject.Instance is null)
-            {
-                return;
-            }
-
-            if (!RootObject.Instance.VirtualInstructorOrchestrator.IsVirtualInstructorInList())
-            {
-                Hide();
-            }
-            else
-            {
-                Show();
-            }
-        }
         private void Hide()
         {
             _Record.gameObject.SetActive(false);
             _SendRecord.gameObject.SetActive(false);
         }
+
         private void Show()
         {
             _Record.gameObject.SetActive(true);
@@ -90,18 +71,50 @@ namespace MirageXR
         /// </summary>
         public void Awake()
         {
-            if (RootObject.Instance.VirtualInstructorOrchestrator.IsVirtualInstructorInList()) Show();
+            var instructorOrchestrator = RootObject.Instance.VirtualInstructorOrchestrator;
+            instructorOrchestrator.OnVirtualInstructorsAdded.AddListener(OnVirtualInstructorsAdded);
+            instructorOrchestrator.OnVirtualInstructorsRemoved.AddListener(OnVirtualInstructorsRemoved);
+
             _btnSendRecord.onClick.AddListener(SendRecording);
             _btnRecord.onClick.AddListener(StartRecording); 
+            
+            if (instructorOrchestrator.IsVirtualInstructorInList())
+            {
+                Show();
+            }
+            else
+            {
+                Hide();
+            }
         }
 
-        /// <summary>
-        /// Coroutine for countdown timer before calling SendRecording method.
-        /// </summary>
-        IEnumerator CountdownCoroutine()
+        private void OnDestroy()
         {
-            yield return new WaitForSeconds(_maxRecordTime);
-            if(recoding) SendRecording();
+            if (RootObject.Instance is null)
+            {
+                return;
+            }
+
+            var instructorOrchestrator = RootObject.Instance.VirtualInstructorOrchestrator;
+            instructorOrchestrator.OnVirtualInstructorsAdded.RemoveListener(OnVirtualInstructorsAdded);
+            instructorOrchestrator.OnVirtualInstructorsRemoved.RemoveListener(OnVirtualInstructorsRemoved);
+            ClearCancellationTokenSource();
+        }
+
+        private void OnVirtualInstructorsAdded(List<IVirtualInstructor> instructors)
+        {
+            if (instructors is { Count: > 0 })
+            {
+                Show();
+            }
+        }
+
+        private void OnVirtualInstructorsRemoved(List<IVirtualInstructor> instructors)
+        {
+            if (instructors == null || instructors.Count == 0)
+            {
+                Hide();
+            }
         }
 
         /// <summary>
@@ -109,13 +122,28 @@ namespace MirageXR
         /// </summary>
         public void StartRecording()
         {
+            StartRecordingAsync().Forget();
+        }
+
+        private async UniTask StartRecordingAsync()
+        {
             Debug.Log("StartRecording");
-            recoding = true;
-            if (Microphone.devices.Length > 0)
+            var recordingDevices = AudioRecorder.GetRecordingDevices();
+            if (recordingDevices.Length > 0)
             {
-                questionClip = Microphone.Start(null, false, _maxRecordTime, sampleRate);
-                StartCoroutine(CountdownCoroutine());
+                ClearCancellationTokenSource();
+                _source = new CancellationTokenSource();
+                _cancellationToken = _source.Token;
+                AudioRecorder.Start();
                 _Record.gameObject.SetActive(false);
+                await UniTask.WaitForSeconds(_maxRecordTime, cancellationToken: _cancellationToken);
+                if (AudioRecorder.IsRecording)
+                {
+                    _Record.gameObject.SetActive(true);
+                    _questionClip = AudioRecorder.Stop();
+                    ClearCancellationTokenSource();
+                    await SendRecordingAsync(_questionClip);
+                }
             }
             else
             {
@@ -126,27 +154,47 @@ namespace MirageXR
         /// <summary>
         /// Sends the recording to the virtual instructor and plays back the response.
         /// </summary>
-        public async void SendRecording()
+        public void SendRecording()
+        {
+            _Record.gameObject.SetActive(true);
+            _questionClip = AudioRecorder.Stop();
+            ClearCancellationTokenSource();
+            _source?.Cancel();
+            SendRecordingAsync(_questionClip).Forget();
+        }
+
+        private async UniTask SendRecordingAsync(AudioClip audioClip)
         {
             _Loading.SetActive(true);
-            Microphone.End(null);
-            recoding = false;
-            responseClip.clip =  await RootObject.Instance.VirtualInstructorOrchestrator.AskInstructorWithAudioQuestion(questionClip); 
-            responseClip.Play();
-            //_SendRecord.SetActive(false);
-            StartCoroutine(WaitForAudioEnd());
-        }
-
-        private IEnumerator WaitForAudioEnd()
-        {
-            yield return new WaitUntil(() => !responseClip.isPlaying);
-            OnAudioClipEnd();
-            //_Record.gameObject.SetActive(true); 
-        }
-
-        private void OnAudioClipEnd()
-        {
+            try
+            {
+                var clip = await RootObject.Instance.VirtualInstructorOrchestrator.AskInstructorWithAudioQuestion(audioClip);
+                if (clip)
+                {
+                    responseClip.PlayOneShot(clip);
+                    await UniTask.WaitForSeconds(clip.length);
+                }
+                else
+                {
+                    AppLog.LogError("Could not send recording to the Virtual Instructor Orchestrator");
+                }
+            }
+            catch (Exception e)
+            {
+                AppLog.LogException(e);
+            }
             _Loading.SetActive(false);
+            //_SendRecord.SetActive(false);
+        }
+
+        private void ClearCancellationTokenSource()
+        {
+            if (_source != null)
+            {
+                _source.Cancel();
+                _source.Dispose();
+                _source = null;
+            }
         }
     }
 }
