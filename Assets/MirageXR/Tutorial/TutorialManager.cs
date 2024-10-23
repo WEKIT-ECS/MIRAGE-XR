@@ -377,6 +377,7 @@ namespace MirageXR
             {
                 TextAsset jsonFile = Resources.Load<TextAsset>(neededFile);
                 TutorialModel tmodel = JsonConvert.DeserializeObject<TutorialModel>(jsonFile.text);
+                tmodel.PopulateParentReferences();
 
                 _currentTutorial = tmodel;
                 _newCurrentStepNumber = -1;
