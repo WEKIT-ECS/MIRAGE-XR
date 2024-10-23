@@ -2,14 +2,23 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace MirageXR
 {
+    public class UnityEventVirtualInstructorList : UnityEvent<List<IVirtualInstructor>> { }
+    
     /// <summary>
     /// Manages virtual instructors.
     /// </summary>
     public class VirtualInstructorOrchestrator
     {
+        public UnityEventVirtualInstructorList OnVirtualInstructorsAdded => _onVirtualInstructorsAdded;
+        public UnityEventVirtualInstructorList OnVirtualInstructorsRemoved => _onVirtualInstructorsRemoved;
+
+        private readonly UnityEventVirtualInstructorList _onVirtualInstructorsAdded = new();
+        private readonly UnityEventVirtualInstructorList _onVirtualInstructorsRemoved = new();
+        
         /// <summary>
         /// Represents a list of all virtual instructors.
         /// </summary>
@@ -31,6 +40,8 @@ namespace MirageXR
             {
                 _moderator = instructor;
             }
+            
+            _onVirtualInstructorsAdded.Invoke(_instructors);
         }
 
         /// <summary>
@@ -39,11 +50,16 @@ namespace MirageXR
         /// <param name="instructor">The VirtualInstructor</param>
         public void RemoveInstructor(IVirtualInstructor instructor)
         {
-            if (_instructors.Contains(instructor)) _instructors.Remove(instructor);
+            if (_instructors.Contains(instructor))
+            {
+                _instructors.Remove(instructor);
+            }
             if (instructor.ModeratorStatus())
             {
                 _moderator = null;
             }
+
+            _onVirtualInstructorsRemoved.Invoke(_instructors);
         }
 
         /// <summary>

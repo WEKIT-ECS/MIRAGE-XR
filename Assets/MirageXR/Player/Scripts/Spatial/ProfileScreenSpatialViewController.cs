@@ -14,7 +14,17 @@ namespace MirageXR
             base.OnBind();
             View.SetActionOnButtonRegisterClick(OnButtonRegisterClicked);
             View.SetActionOnButtonLoginClick(OnButtonLoginClicked);
+            View.SetActionOnButtonAudioDeviceClick(ShowAudioDeviceView);
             View.gameObject.SetActive(false);
+        }
+
+        private void ShowAudioDeviceView()
+        {
+            var prefab = View.GetAudioDevicePrefab();
+            if (prefab is not null)
+            {
+                PopupsViewer.Instance.Show(prefab);
+            }
         }
 
         private void OnButtonLoginClicked()

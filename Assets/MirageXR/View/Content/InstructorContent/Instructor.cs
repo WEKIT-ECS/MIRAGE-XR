@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using i5.Toolkit.Core.VerboseLogging;
 using LearningExperienceEngine.DataModel;
 using UnityEngine;
 
@@ -78,7 +79,9 @@ namespace MirageXR.View
         {
             string context = CreateContext(messageQueue);
             var question = await RootObject.Instance.AiManager.ConvertSpeechToTextAsync(inputAudio, _instructorContent.ContentData.SpeechToTextModel.ApiName);
+            AppLog.LogDebug($"AI question: '{question}'");
             var response = await RootObject.Instance.AiManager.SendMessageToAssistantAsync(_instructorContent.ContentData.LanguageModel.ApiName, question, context);
+            AppLog.LogDebug($"AI response: '{response}'");
             var clip = await RootObject.Instance.AiManager.ConvertTextToSpeechAsync(response, _instructorContent.ContentData.TextToSpeechModel.ApiName);
             UpdateHistory(question, response);
             return clip;
