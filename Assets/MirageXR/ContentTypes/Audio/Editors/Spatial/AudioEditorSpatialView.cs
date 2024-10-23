@@ -95,7 +95,7 @@ public class AudioEditorSpatialView : EditorSpatialView
         _showBackground = false;
         base.Initialization(onClose, args);
 
-        _imageContent = (Content<AudioContentData>)_content;
+        _imageContent = _content as Content<AudioContentData>;
         
         _toggle3D.isOn = false;
         _toggleLoop.isOn = false;
@@ -140,7 +140,7 @@ public class AudioEditorSpatialView : EditorSpatialView
         var stepsCount = steps.Count;
         InitClampedScrollRect(_clampedScrollJumpToStep, _templatePrefab, stepsCount, stepsCount.ToString());*/
 
-        if (_content != null)
+        if (_imageContent != null)
         {
             _topContainer.SetActive(false);
             _topContainerPlayAudio.SetActive(true);

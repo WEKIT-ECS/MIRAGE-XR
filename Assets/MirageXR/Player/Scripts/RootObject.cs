@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using i5.Toolkit.Core.VerboseLogging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using UnityEngine;
@@ -155,6 +156,8 @@ namespace MirageXR
 
                 await _openAIManager.InitializeAsync();
 
+                OnAudioDeviceInit();
+                
                 _isInitialized = true;
 
                 //LearningExperienceEngine.EventManager.OnClearAll += ResetManagers;
@@ -165,6 +168,16 @@ namespace MirageXR
             }
         }
 
+        private void OnAudioDeviceInit()
+        {
+            var audioDevice = LearningExperienceEngine.UserSettings.audioDevice;
+            if (!string.IsNullOrEmpty(audioDevice))
+            {
+                AudioRecorder.SetRecordingDevice(audioDevice);
+                AppLog.LogInfo($"Audio Device - {audioDevice}");
+            }
+        }
+        
         private void ResetManagers()
         {
             ResetManagersAsync().AsAsyncVoid();

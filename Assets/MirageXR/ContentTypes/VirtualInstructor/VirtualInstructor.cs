@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using LearningExperienceEngine.DataModel;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -8,7 +9,7 @@ namespace MirageXR
     /// <summary>
     /// Represents a virtual instructor that provides language-based assistance.
     /// </summary>
-    public class VirtualInstructor : MirageXRPrefab
+    public class VirtualInstructor : MirageXRPrefab, IVirtualInstructor
     {
         private const float CharacterHeight = 1.8f;
         /// <summary>
@@ -16,6 +17,7 @@ namespace MirageXR
         /// </summary>
         private static readonly string HistoryFormat = "This is the History of the conversation so fare: Question :{0} Given answer: {1}";
 
+        public Vector3 Position => transform.position;
         
         /// <summary>
         /// Represents the data model for a virtual instructor in the MirageXR application.
@@ -23,7 +25,7 @@ namespace MirageXR
         /// <remarks>
         /// The InstructorData class stores information about the language models and prompts used by the virtual instructor.
         /// </remarks>
-        private VirtualInstructorDataModel InstructorData { get; set; }
+        private InstructorContentData InstructorData { get; set; }
 
         [SerializeField] private LearningExperienceEngine.ToggleObject _toggleObject;
         private Animator _animator;
@@ -54,7 +56,7 @@ namespace MirageXR
             _toggleObject = toggleObject;
             try
             {
-                InstructorData = JsonConvert.DeserializeObject<VirtualInstructorDataModel>(toggleObject.option);
+                InstructorData = JsonConvert.DeserializeObject<InstructorContentData>(toggleObject.option);
             }
             catch (Exception e)
             {
