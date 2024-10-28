@@ -27,6 +27,7 @@ namespace MirageXR
 
         private async void OnStartClicked()
         {
+#if FUSION2
             CollaborationManager.Instance.SessionName = _sessionNameField.text;
             bool successful = await CollaborationManager.Instance.StartNewSession();
 
@@ -35,7 +36,8 @@ namespace MirageXR
                 // TODO: an error message in the UI would be nice to inform the user that something has gone wrong
                 return;
             }
-            
+
+#endif 
             Close();
             MenuManager.Instance.ShowCollaborativeSessionSettingsPanelView();
         }

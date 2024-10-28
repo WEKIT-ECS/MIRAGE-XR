@@ -8,6 +8,7 @@ namespace MirageXR
 
 		private void Start()
 		{
+#if FUSION2
 			_audioSource = GetComponent<AudioSource>();
 			CollaborationManager.Instance.AddVoiceSource(_audioSource);
 		}
@@ -15,6 +16,7 @@ namespace MirageXR
 		private void OnDestroy()
 		{
 			CollaborationManager.Instance.RemoveVoiceSource(_audioSource);
+#endif
 		}
 	}
 }
