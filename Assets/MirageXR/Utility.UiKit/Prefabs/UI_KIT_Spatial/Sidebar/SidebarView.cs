@@ -11,8 +11,6 @@ namespace MirageXR
         [SerializeField] private Toggle _toggleDashboard;
         [SerializeField] private Toggle _toggleProfile;
         [SerializeField] private Toggle _toggleInfo;
-        [Space]
-        [SerializeField] private ToggleGroup _toggleGroup;
         
         private void Awake()
         {
@@ -48,6 +46,26 @@ namespace MirageXR
         
         protected virtual void OnScreenChanged(ScreenName screenName, string args)
         {
+            switch (screenName)
+            {
+                case ScreenName.MainScreen:
+                    _toggleActivities.isOn = true;
+                    break;
+                case ScreenName.ProfileScreen:
+                    _toggleProfile.isOn = true;
+                    break;
+                case ScreenName.NewActivityScreen:
+                    break;
+                case ScreenName.StepsScreen:
+                    break;
+                case ScreenName.SettingsScreen:
+                    break;
+                case ScreenName.None:
+                    break;
+                default: 
+                    _toggleActivities.isOn = true;
+                    break;
+            }
         }
     }
 }
