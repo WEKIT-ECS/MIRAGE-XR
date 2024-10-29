@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using LearningExperienceEngine.DataModel;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 namespace MirageXR
 {
@@ -34,7 +36,7 @@ namespace MirageXR
             get => _currentScreenName;
             private set => _currentScreenName = value;
         }
-
+        
         public void ShowSortingView()
         {
             PopupsViewer.Instance.Show(_sortingScreenSpatialViewPrefab);
