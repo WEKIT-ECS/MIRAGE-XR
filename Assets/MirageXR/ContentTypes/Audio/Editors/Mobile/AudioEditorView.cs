@@ -38,6 +38,8 @@ public class AudioEditorView : PopupEditorBase
     [SerializeField] private Button _btnRewindBack;
     [SerializeField] private Button _btnRewindForward;
 
+    [SerializeField] private Button _btnGenerateCaptions;
+
     [SerializeField] private Toggle _toggle3D;
     //[SerializeField] private Toggle _toggle2D;
     [SerializeField] private Toggle _toggleLoop;
@@ -67,13 +69,21 @@ public class AudioEditorView : PopupEditorBase
     [SerializeField] private GameObject _topContainer;
     [SerializeField] private GameObject _topContainerPlayAudio;
     [Space]
+    [SerializeField] private GameObject _panelMain;
+    [SerializeField] private GameObject _panelCaptionPreview;
+    [SerializeField] private GameObject _generateCaption;
+    [Space]
     [SerializeField] private Button _btnArrow;
     [SerializeField] private RectTransform _panel;
     [SerializeField] private GameObject _arrowDown;
     [SerializeField] private GameObject _arrowUp;
     [Space]
     [SerializeField] private AudioSource _audioSource;
+    [SerializeField] private AudioCaptionEdit _audioCaptionEdit;
 
+
+    private string _serviceUrl;
+    private string _iamApikey;
     private AudioClip _audioClip;
     private string _fileName;
     private Coroutine _updateSliderPlayerCoroutine;
@@ -83,9 +93,32 @@ public class AudioEditorView : PopupEditorBase
     private string[] _audioFileType;
 
     private string _inputTriggerStepNumber = string.Empty;
+    //string captions 
+    private string _audioCaption = string.Empty;
+    private string _tempFilePath;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
+
+        //Loading IBM Watson keys
+        LoadKeysFromEnvFile(out var apiKey, out var serviceUrl);
+
+        if (apiKey == null)
+        {
+            Debug.LogError($"Couldn't load 'apiKey' for {nameof(AudioCaptionGenerator)}");
+            return;
+        }
+
+        if (serviceUrl == null)
+        {
+            Debug.LogError($"Couldn't load 'serviceUrl' for {nameof(AudioCaptionGenerator)}");
+            return;
+        }
+
+        _iamApikey = apiKey;
+        _serviceUrl = serviceUrl;
+
+
         _showBackground = false;
         base.Initialization(onClose, args);
 
@@ -96,10 +129,15 @@ public class AudioEditorView : PopupEditorBase
 
         _panelRange.SetActive(false);
         _topContainer.SetActive(true);
-        _topContainerPlayAudio.SetActive(false); 
+        _topContainerPlayAudio.SetActive(false);
         _panelRecordControls.SetActive(false);
         _panelBottomButtons.SetActive(false);
         _panelAudioSettings.SetActive(true);
+        _generateCaption.SetActive(false);
+
+        _panelCaptionPreview.SetActive(false);
+        _panelMain.SetActive(true);
+        _btnGenerateCaptions.onClick.AddListener(OnClickCaptionGenerate);
 
         _btnAudioSettings.onClick.AddListener(OnOpenAudioSettings);
         _btnMicRecording.onClick.AddListener(OnOpenRecordControlsPanel);
@@ -124,10 +162,10 @@ public class AudioEditorView : PopupEditorBase
         _clampedScrollJumpToStep.onItemChanged.AddListener(OnItemJumpToStepChanged);
 
         _toggle3D.onValueChanged.AddListener(On3DSelected);
-        
+
         _audioFileType = new string[] { NativeFilePicker.ConvertExtensionToFileType(AUDIO_FILE_EXTENSION_WAV),
             NativeFilePicker.ConvertExtensionToFileType(AUDIO_FILE_EXTENSION_MP3) };
-        
+
 
         var steps = activityManager.ActionsOfTypeAction;
         var stepsCount = steps.Count;
@@ -160,6 +198,52 @@ public class AudioEditorView : PopupEditorBase
         SetPlayerActive(true);
         UpdateSliderPlayerAndTimer();
         RootView_v2.Instance.HideBaseView();
+    }
+    private static void LoadKeysFromEnvFile(out string apiKey, out string serviceUrl)
+    {
+        const string ibmFileName = "ibm-credentials";
+        const string speechToTextApikey = "SPEECH_TO_TEXT_IAM_APIKEY";
+        const string speechToTextURL = "SPEECH_TO_TEXT_URL";
+
+        apiKey = null;
+        serviceUrl = null;
+
+        var ibmCredentials = Resources.Load(ibmFileName) as TextAsset;
+        if (ibmCredentials == null)
+        {
+            Debug.LogError($"'{ibmFileName}' file not found");
+            return;
+        }
+
+        using var sr = new StringReader(ibmCredentials.text);
+        while (sr.ReadLine() is { } line)
+        {
+            var split = line.Split('=');
+            if (split.Length != 2)
+            {
+                continue;
+            }
+
+            if (split[0] == speechToTextApikey)
+            {
+                apiKey = split[1].Trim();
+            }
+
+            if (split[0] == speechToTextURL)
+            {
+                serviceUrl = split[1].Trim();
+            }
+        }
+    }
+    // returning IBM Watson API key
+    public string GetApiKey()
+    {
+        return _iamApikey;
+    }
+    // returning IBM Watson url
+    public string GetServiceUrl()
+    {
+        return _serviceUrl;
     }
 
     private void InitClampedScrollRect(ClampedScrollRect clampedScrollRect, GameObject templatePrefab, int maxCount, string text)
@@ -275,9 +359,10 @@ public class AudioEditorView : PopupEditorBase
         _recordStartTime = 0;
         SetPlayerActive(true);
         _audioClip = AudioRecorder.Stop();
+        //_fileName = SaveAndReturnAudioClipPath();
         _groupPlayControls.interactable = true;
         StopCoroutine(_updateRecordTimerCoroutine);
-        
+
         OnClickRecordComplete();
         _topContainer.SetActive(false);
         _topContainerPlayAudio.SetActive(true);
@@ -470,11 +555,11 @@ public class AudioEditorView : PopupEditorBase
                     Debug.Log("Picked file: " + path);
                     StartCoroutine(LoadAudioClip(path));
                 }
-            }, _audioFileType );
+            }, _audioFileType);
         Debug.Log("Permission result: " + permission);
     }
-    
-    private  IEnumerator LoadAudioClip(string path)
+
+    private IEnumerator LoadAudioClip(string path)
     {
         var correctedPath = "file://" + path;
         using (WWW www = new WWW(correctedPath))
@@ -494,7 +579,7 @@ public class AudioEditorView : PopupEditorBase
                 }
                 Debug.Log("File format: " + myAudioType);
                 _audioClip = www.GetAudioClip(false, false, myAudioType);
-                
+
                 _recordStartTime = 0;
                 SetPlayerActive(true);
                 _groupPlayControls.interactable = true;
@@ -535,6 +620,9 @@ public class AudioEditorView : PopupEditorBase
         _content.option += $"#{_txtSliderRangeValue.text}";
         _content.scale = 0.5f;
         _content.url = $"http://{_fileName}";
+        _audioCaption = _audioCaptionEdit.EditedCaption();
+        _content.caption = _audioCaption;
+        Debug.Log("This is the caption stored" + _audioCaption);
 
         if (_toggleTrigger.isOn)
         {
@@ -574,5 +662,29 @@ public class AudioEditorView : PopupEditorBase
     private void OnToggleTriggerValueChanged(bool value)
     {
         _objJumpToStep.SetActive(value);
+    }
+    //The Method is called when generate caption button is pressed
+    private void OnClickCaptionGenerate()
+    {
+        _generateCaption.SetActive(true);
+        _panelMain.SetActive(false);
+        _panelCaptionPreview.SetActive(true);
+    }
+
+    //Saving and returning the temporary path
+    public string SaveAndReturnAudioClipPath()
+    {
+        if (_audioClip != null)
+        {
+            var tempFileName = $"TempAudio_{DateTime.Now.ToFileTimeUtc()}.wav";
+            var tempFilePath = Path.Combine(Application.temporaryCachePath, tempFileName);
+            SaveLoadAudioUtilities.Save(tempFilePath, _audioClip);
+            _tempFilePath = tempFilePath;
+            return tempFilePath;
+        }
+        else
+        {
+            return null;
+        }
     }
 }

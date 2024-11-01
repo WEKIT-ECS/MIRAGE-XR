@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using UnityEngine;
-
+using TMPro;
+using System;
+using System.Linq;
 namespace MirageXR
 {
     public class AudioPlayer : MirageXRPrefab
@@ -21,6 +23,9 @@ namespace MirageXR
 
         [SerializeField] private GameObject icon;
         [SerializeField] private Sprite iconSprite;
+
+        [SerializeField] private TMP_Text _captionText;
+        [SerializeField] private GameObject _captionObj;
         public Sprite IconSprite => iconSprite;
 
         [SerializeField] private Sprite pauseIcon;
@@ -37,6 +42,8 @@ namespace MirageXR
 
         private bool isReady = false;
         private bool isPlaying = false;
+
+        private bool _hasCaption = false;
 
         private LearningExperienceEngine.ToggleObject _obj;
 
@@ -110,11 +117,71 @@ namespace MirageXR
                 audioName = obj.url;
                 CreateAudioPlayer(true, audio3dMode, radius, Loop);
             }
-
+            var caption = obj.caption;
+            //Checking if caption exists then it should be displayed otherwise deactivate the caption object
+            _hasCaption = !string.IsNullOrEmpty(caption);
+            if (_hasCaption)
+            {
+                StartCaptionDisplay(caption);
+            }
+            else
+            {
+                _captionObj.SetActive(false);
+            }
             // If all went well, return true.
             return true;
         }
+        private void StartCaptionDisplay(string caption)
+        {
+            StartCoroutine(DisplayCaptionWithDelay(caption));
+        }
 
+        private IEnumerator DisplayCaptionWithDelay(string fullCaption)
+        {
+            // Split the full caption into words
+            string[] words = fullCaption.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            // number of words after split
+            int check = words.Length;
+
+            // Determine the number of words to display per section
+            int numberOfWords = 12;
+
+            if (check <= numberOfWords)
+            {
+                // If the total number of words is less than or equal to numberOfWords, display all at once
+                string allWords = string.Join(" ", words);
+                _captionText.text = allWords.Trim();
+                _captionObj.SetActive(true);
+
+                // Wait for a time before hiding the caption object
+                yield return new WaitForSeconds(4);
+                _captionObj.SetActive(false);
+            }
+            else
+            {
+                // Calculate the number of sections
+                int numberOfSections = (int)Math.Ceiling((double)check / numberOfWords);
+
+                for (int i = 0; i < numberOfSections; i++)
+                {
+                    // Get the words for the current section
+                    string[] sectionWords = words.Skip(i * numberOfWords).Take(numberOfWords).ToArray();
+
+                    // Join the words back into a string
+                    string sectionText = string.Join(" ", sectionWords);
+
+                    // Display the text section
+                    _captionText.text = sectionText.Trim();
+                    _captionObj.SetActive(true);
+
+                    // Wait for 4 seconds before moving to the next section
+                    yield return new WaitForSeconds(4);
+                }
+
+                // hide the caption object after all sections have been displayed
+                _captionObj.SetActive(false);
+            }
+        }
 
         private void Update()
         {
@@ -160,6 +227,11 @@ namespace MirageXR
                 }
                 audioSource.mute = false;
                 audioSource.volume = 1.0f;
+                //To display caption when audio plays if there are captions
+                if (_hasCaption)
+                {
+                    _captionObj.SetActive(true);
+                }
                 audioSource.Play();
                 isPlaying = true;
 
@@ -242,9 +314,15 @@ namespace MirageXR
                 {
                     audioSource.Stop();
                     isPlaying = false;
+                    //When audio stops, caption disappears
+                    if (_hasCaption)
+                    {
+                        _captionObj.SetActive(false);
+                    }
                 }
             }
         }
+
 
 
         /// <summary>
