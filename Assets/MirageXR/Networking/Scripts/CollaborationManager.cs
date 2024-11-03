@@ -1,3 +1,4 @@
+#if FUSION2
 using Castle.Core.Logging;
 using Fusion;
 using i5.Toolkit.Core.OpenIDConnectClient;
@@ -12,6 +13,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
+#endif
+
 using UnityEngine;
 
 namespace MirageXR
@@ -24,6 +27,7 @@ namespace MirageXR
 		[SerializeField] private HandTrackingManager _handTrackingManager;
 		[SerializeField] private GameObject _recorderPrefab;
 
+#if FUSION2
 		private ConnectionManager _connectionManager;
 		private NetworkRunner _networkRunner;
 	    private Recorder _recorder;
@@ -204,5 +208,6 @@ namespace MirageXR
 			}
 			return passwordBuilder.ToString();
 		}
+#endif
 	}
 }
