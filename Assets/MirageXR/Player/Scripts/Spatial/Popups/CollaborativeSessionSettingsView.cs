@@ -29,6 +29,7 @@ namespace MirageXR
 
 			_btnClose.SafeSetListener(Close);
 
+#if FUSION2
 			_invitationCodeLabel.text = CollaborationManager.Instance.InvitationCode;
 			_passwordLabel.text = CollaborationManager.Instance.SessionPassword;
 			_userNameLabel.text = CollaborationManager.Instance.LocalUserData.UserName;
@@ -36,16 +37,21 @@ namespace MirageXR
 			_micToggle.SafeAddListener(OnMicToggleChanged);
 			_audioToggle.isOn = !CollaborationManager.Instance.MuteVoiceChat;
 			_audioToggle.SafeAddListener(OnAudioToggleChanged);
+#endif
 		}
 
 		private void OnMicToggleChanged(bool micEnabled)
 		{
+#if FUSION2
 			CollaborationManager.Instance.VoiceMicrophoneEnabled = micEnabled;
+#endif
 		}
 
 		private void OnAudioToggleChanged(bool voicesEnabled)
 		{
+#if FUSION2
 			CollaborationManager.Instance.MuteVoiceChat = !voicesEnabled;
+#endif
 		}
 	}
 }
