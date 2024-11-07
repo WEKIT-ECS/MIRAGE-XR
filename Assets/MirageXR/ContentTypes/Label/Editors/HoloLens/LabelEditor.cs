@@ -9,10 +9,10 @@ namespace MirageXR
 {
     public class LabelEditor : MonoBehaviour
     {
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
         [SerializeField] private InputField textInputField;
         [SerializeField] private Transform annotationStartingPoint;
-        [SerializeField] private StepTrigger stepTrigger;
+        [SerializeField] private LearningExperienceEngine.StepTrigger stepTrigger;
         [SerializeField] private GameObject acceptButton;
 
         [SerializeField] private GameObject _settingsPannel;
@@ -35,8 +35,8 @@ namespace MirageXR
 
         public GameObject AcceptButton => acceptButton;
 
-        private Action action;
-        private ToggleObject annotationToEdit;
+        private LearningExperienceEngine.Action action;
+        private LearningExperienceEngine.ToggleObject annotationToEdit;
 
         public void Close()
         {
@@ -53,7 +53,7 @@ namespace MirageXR
             annotationStartingPoint = startingPoint;
         }
 
-        public void Open(Action action, ToggleObject annotation)
+        public void Open(LearningExperienceEngine.Action action, LearningExperienceEngine.ToggleObject annotation)
         {
             _colourPickerScript.onColourSelected.AddListener(OnColourPickerChange);
 
@@ -98,12 +98,12 @@ namespace MirageXR
 
             if (annotationToEdit != null)
             {
-                EventManager.DeactivateObject(annotationToEdit);
+                LearningExperienceEngine.EventManager.DeactivateObject(annotationToEdit);
             }
             else
             {
-                var workplaceManager = RootObject.Instance.workplaceManager;
-                Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
+                var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+                LearningExperienceEngine.Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
                 GameObject originT = GameObject.Find(detectable.id);
 
                 var offset = Utilities.CalculateOffset(annotationStartingPoint.transform.position,
@@ -111,7 +111,7 @@ namespace MirageXR
                     originT.transform.position,
                     originT.transform.rotation);
 
-                annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
+                annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAugmentation(action, offset);
                 annotationToEdit.predicate = "label";
             }
             annotationToEdit.text = textInputField.text;
@@ -121,8 +121,8 @@ namespace MirageXR
             stepTrigger.MyPoi = annotationToEdit;
             stepTrigger.SetupTrigger();
 
-            EventManager.ActivateObject(annotationToEdit);
-            EventManager.NotifyActionModified(action);
+            LearningExperienceEngine.EventManager.ActivateObject(annotationToEdit);
+            LearningExperienceEngine.EventManager.NotifyActionModified(action);
             Close();
         }
 

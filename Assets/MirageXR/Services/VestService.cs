@@ -1,4 +1,5 @@
-﻿using i5.Toolkit.Core.ServiceCore;
+﻿using LearningExperienceEngine;
+using i5.Toolkit.Core.ServiceCore;
 using i5.Toolkit.Core.VerboseLogging;
 using System.IO;
 using UnityEngine;
@@ -28,7 +29,7 @@ namespace MirageXR
             {
                 var sensorConfig = File.ReadAllText(filePath);
 
-                VestConfig = JsonUtility.FromJson<Sensor>(sensorConfig);
+                VestConfig = JsonUtility.FromJson<LearningExperienceEngine.Sensor>(sensorConfig);
 
                 AppLog.LogInfo($"[VestService] Sensor config file loaded from {filePath}");
             }
@@ -47,7 +48,7 @@ namespace MirageXR
             if (VestConfig != null)
             {
                 VestEnabled = true;
-                RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
+                LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.PlayerReset().AsAsyncVoid();
                 AppLog.LogInfo("[VestService] Sensor communication is now enabled.");
             }
             else
@@ -61,7 +62,7 @@ namespace MirageXR
             if (VestConfig != null)
             {
                 VestEnabled = false;
-                RootObject.Instance.activityManager.PlayerReset().AsAsyncVoid();
+                LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.PlayerReset().AsAsyncVoid();
                 AppLog.LogInfo("[VestService] Sensor communication disabled.");
             }
             else

@@ -38,7 +38,7 @@ namespace MirageXR
 
         private void Start()
         {
-            if (!RootObject.Instance.platformManager.WorldSpaceUi)
+            if (!RootObject.Instance.PlatformManager.WorldSpaceUi)
             {
                 lowerDisplay.gameObject.SetActive(false);
 
@@ -61,7 +61,7 @@ namespace MirageXR
 
         private void StartCalibrationFlow()
         {
-            if (!RootObject.Instance.activityManager.IsReady || _calibrationFlow)
+            if (!LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.IsReady || _calibrationFlow)
             {
                 return;
             }

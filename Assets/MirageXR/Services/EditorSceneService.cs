@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class EditorSceneService
 {
-    private static BrandManager brandManager => RootObject.Instance.brandManager;
+    private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
 
     private Scene editorScene;
 
@@ -14,7 +14,7 @@ public class EditorSceneService
         await UnloadExistingScene();
 
         SceneManager.sceneLoaded += SceneManager_sceneLoaded;
-        await SceneManager.LoadSceneAsync(RootObject.Instance.platformManager.PlayerSceneName, LoadSceneMode.Additive);
+        await SceneManager.LoadSceneAsync(RootObject.Instance.PlatformManager.PlayerSceneName, LoadSceneMode.Additive);
         SceneManager.sceneLoaded -= SceneManager_sceneLoaded;
 
         EventManager.NotifyEditorLoaded();
@@ -37,7 +37,7 @@ public class EditorSceneService
             brandManager.AddCustomColors();
         }
 
-        if (scene.name == RootObject.Instance.platformManager.PlayerSceneName)
+        if (scene.name == RootObject.Instance.PlatformManager.PlayerSceneName)
         {
             editorScene = scene;
         }

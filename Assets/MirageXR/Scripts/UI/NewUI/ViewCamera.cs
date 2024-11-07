@@ -30,7 +30,7 @@ namespace MirageXR
         {
             var uiCameraData = _camera.GetUniversalAdditionalCameraData();
             uiCameraData.renderType = CameraRenderType.Overlay;
-            var baseCameraData = RootObject.Instance.baseCamera.GetUniversalAdditionalCameraData();
+            var baseCameraData = RootObject.Instance.BaseCamera.GetUniversalAdditionalCameraData();
             baseCameraData.cameraStack.Insert(0, _camera);
         }
         

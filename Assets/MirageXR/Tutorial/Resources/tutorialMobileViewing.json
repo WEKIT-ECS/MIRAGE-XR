@@ -1,0 +1,96 @@
+{
+    "Name": "Viewing Tutorial",
+    "IntendedPlatform": "Mobile",
+    "Steps": [
+        {
+            "StepType": "UI",
+            "Id": "tutorial_activity",
+            "Message": "Welcome to the MirageXR Viewing Tutorial! To start, click on the specially prepared Tutorial Activity highlighted on your screen.",
+            "Position": "Bottom"
+        },
+        {
+            "StepType": "UI",
+            "Id": "dialog_middle_multiline_1",
+            "Message": "An activity can be opened in two modes: editing (to make changes to the app) and viewing (read-only). For this tutorial, click Open to View.",
+            "Position": "Bottom"
+        },
+        {
+            "StepType": "UI",
+            "Id": "activity_calibrationMarkerless",
+            "Message": "First, we need to calibrate so that the activity can be presented as intended. Let's try it with Markerless Calibration below.",
+            "Position": "Top"
+        },
+        {
+            "StepType": "EventOnly",
+            "FinishEvent": "CALIBRATION_FINISHED"
+        },
+        {
+            "DelayInMilliseconds": 100.0,
+            "StepType": "UI",
+            "Id": "activity_steps",
+            "Message": "Great, calibration is now complete. Let's move on to the activity's content. First, switch to the Steps tab.",
+            "Position": "Bottom"
+        },
+        {
+            "StepType": "UI",
+            "Id": "ui_toggle",
+            "Message": "This screen shows all the Steps, the content of an Activity. It serves as an indicator of your progress, which Step you are on. For now let's begin interacting with the first Step's content by lowering the UI.",
+            "Position": "Bottom"
+        },
+        {
+            "StepType": "World",
+            "FocusObject": "AN-076be810-8ec7-4f1f-8752-21fef7ff4954",
+            "ActualTarget": "TextObject",
+            "Message": "This here is a Label, a type of augmentation, the most basic one really. It has a special feature attached to it called a trigger, which in this case advances us to the next step. To do so, simply point the camera at the center.",
+            "FinishEvent": "ACTION_STEP_ACTIVATED"
+        },
+        {
+            "DelayInMilliseconds": 1000.0,
+            "StepType": "World",
+            "FocusObject": "AN-c37d0117-a7d0-4de1-94d6-290a3369b23a",
+            "ActualTarget": "Head",
+            "Message": "This is a far more advanced augmentation called a Ghost Track. It's a recording of another user's movement and voice. To advance to the next step, use the UI and click 'Next Step'.",
+            "FinishEvent": "ACTION_STEP_ACTIVATED",
+            "arrowRotationOffset": {
+                "x": 0.0,
+                "y": 180.0,
+                "z": 0.0
+            }
+            
+        },
+        {
+            "DelayInMilliseconds": 500.0,
+            "StepType": "World",
+            "FocusObject": "AN-867c133b-2d2d-4f89-b170-b2838766ff09",
+            "ActualTarget": "act:Highlight",
+            "Message": "This augmentation is called a Highlight or Focus. It can be used to help you find things in AR. It can also advance steps in an activity with a trigger, just the same as the Label before. To go to the next step, look at its centre.",
+            "FinishEvent": "ACTION_STEP_ACTIVATED",
+            "arrowRotationOffset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -30.0
+            }
+        },
+        {
+            "DelayInMilliseconds": 500.0,
+            "StepType": "World",
+            "FocusObject": "AN-c29b5f37-3ba2-4256-bc4d-45463e2a32ea",
+            "ActualTarget": "Canvas",
+            "Message": "The arrow you see here is part of the Pick&Place augmentation. To interact with it tap and hold the arrow and move it around. To complete the tutorial, place the arrow on its target, the robot!",
+            "FinishEvent": "PICK_AND_PLACED",
+            "arrowRotationOffset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -30.0
+            }
+        },
+        {
+            "StepType": "UI",
+            "Id": "ui_toggle",
+            "Message": "This ends the Viewing Tutorial! You can press this button to reenter the UI and revisit some of the previous steps of this activity. Enjoy!",
+            "Position": "Middle",
+            "BtnText": "Got it",
+            "CanGoNext": true
+        }
+    ]
+}

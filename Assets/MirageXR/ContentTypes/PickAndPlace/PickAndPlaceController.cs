@@ -1,4 +1,5 @@
-﻿using Microsoft.MixedReality.Toolkit.UI;
+﻿using LearningExperienceEngine;
+using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System;
 using System.Collections;
@@ -10,9 +11,9 @@ namespace MirageXR
 {
     public class PickAndPlaceController : MirageXRPrefab
     {
-        private static ActivityManager _activityManager => RootObject.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager _activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
-        private ToggleObject _myObj;
+        private LearningExperienceEngine.ToggleObject _myObj;
         [SerializeField] private Transform _pickObject;
         [SerializeField] private Transform _targetObject;
         [SerializeField] private Text _textLabel;
@@ -21,22 +22,22 @@ namespace MirageXR
 
         private Vector3 _defaultTargetSize = new Vector3(0.2f, 0.2f, 0.2f);
 
-        public ToggleObject MyPoi => _myObj;
+        public LearningExperienceEngine.ToggleObject MyPoi => _myObj;
 
         public Transform PickObject => _pickObject;
 
         private void OnEnable()
         {
-            EventManager.OnEditModeChanged += OnEditModeChanged;
-            EventManager.OnAugmentationDeleted += DeletePickAndPlaceData;
-            EventManager.OnActivitySaved += OnActivitySaved;
+            LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
+            LearningExperienceEngine.EventManager.OnAugmentationDeleted += DeletePickAndPlaceData;
+            LearningExperienceEngine.EventManager.OnActivitySaved += OnActivitySaved;
         }
 
         private void OnDisable()
         {
-            EventManager.OnEditModeChanged -= OnEditModeChanged;
-            EventManager.OnAugmentationDeleted -= DeletePickAndPlaceData;
-            EventManager.OnActivitySaved -= OnActivitySaved;
+            LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
+            LearningExperienceEngine.EventManager.OnAugmentationDeleted -= DeletePickAndPlaceData;
+            LearningExperienceEngine.EventManager.OnActivitySaved -= OnActivitySaved;
         }
 
         private void EditModeChanges(bool editModeState)
@@ -62,11 +63,11 @@ namespace MirageXR
 
             if (!editModeState)
             {
-                EventManager.ActivitySaved();
+                LearningExperienceEngine.EventManager.ActivitySaved();
             }
         }
 
-        public override bool Init(ToggleObject obj)
+        public override bool Init(LearningExperienceEngine.ToggleObject obj)
         {
             _myObj = obj;
 
@@ -131,7 +132,7 @@ namespace MirageXR
 
         private void OnActivitySaved()
         {
-            if (RootObject.Instance.activityManager.EditModeActive)
+            if (LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive)
             {
                 SavePositions();
             }
@@ -202,7 +203,7 @@ namespace MirageXR
             StartCoroutine(ActionEditor.Instance.SpawnNewPickModel(_pickComponent, newModel));
         }
 
-        private void DeletePickAndPlaceData(ToggleObject toggleObject)
+        private void DeletePickAndPlaceData(LearningExperienceEngine.ToggleObject toggleObject)
         {
             if (toggleObject != MyPoi)
             {
@@ -220,7 +221,7 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-            if (RootObject.Instance.activityManager.EditModeActive)
+            if (LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive)
             {
                 SavePositions();
             }

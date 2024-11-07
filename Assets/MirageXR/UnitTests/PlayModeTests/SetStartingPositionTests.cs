@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using LearningExperienceEngine;
+using System.Collections;
 using System.Reflection;
 using MirageXR;
 using NUnit.Framework;
@@ -98,7 +99,7 @@ namespace Tests
             target.transform.position = targetPosition;
             target.transform.eulerAngles = targetEulers;
 
-            EventManager.PlayerReset();
+            LearningExperienceEngine.EventManager.ResetPlayer();
             Assert.AreEqual(targetPosition, go.transform.position);
         }
 
@@ -124,7 +125,7 @@ namespace Tests
             target.transform.position = targetPosition;
             target.transform.eulerAngles = targetEulers;
 
-            EventManager.PlayerReset();
+            LearningExperienceEngine.EventManager.ResetPlayer();
             Vector3 expectedEulers = new Vector3(targetEulers.x, targetEulers.y, 0);
             Assert.AreEqual(expectedEulers, go.transform.eulerAngles);
         }
@@ -151,7 +152,7 @@ namespace Tests
             target.transform.position = targetPosition;
             target.transform.eulerAngles = targetEulers;
 
-            EventManager.WorkplaceLoaded();
+            LearningExperienceEngine.EventManager.WorkplaceLoaded();
 
             Assert.AreEqual(targetPosition, go.transform.position);
         }
@@ -178,7 +179,7 @@ namespace Tests
             target.transform.position = targetPosition;
             target.transform.eulerAngles = targetEulers;
 
-            EventManager.WorkplaceLoaded();
+            LearningExperienceEngine.EventManager.WorkplaceLoaded();
 
             Vector3 expectedEulers = new Vector3(targetEulers.x, targetEulers.y, 0);
             Assert.AreEqual(expectedEulers, go.transform.eulerAngles);

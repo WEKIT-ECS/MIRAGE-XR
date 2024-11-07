@@ -20,7 +20,7 @@ public class HomePathVisibilityController : MonoBehaviour
 
         segmentController = GetComponent<PathSegmentsController>();
 
-        if (!RootObject.Instance.platformManager.WorldSpaceUi)
+        if (!RootObject.Instance.PlatformManager.WorldSpaceUi)
         {
             SetVisibility(false);
             return;

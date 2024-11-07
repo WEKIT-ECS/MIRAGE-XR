@@ -1,4 +1,5 @@
-﻿using MirageXR;
+﻿using LearningExperienceEngine;
+using MirageXR;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -10,7 +11,7 @@ using UnityEngine.UI;
 /// </summary>
 public class GhosttrackEditor : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
     [SerializeField] private Button _startRecordingButton;
     [SerializeField] private Button _stopRecordingButton;
@@ -23,14 +24,14 @@ public class GhosttrackEditor : MonoBehaviour
 
     private bool _isFemaleGender = false;
 
-    private Action _action;
-    private ToggleObject _annotationToEdit;
+    private LearningExperienceEngine.Action _action;
+    private LearningExperienceEngine.ToggleObject _annotationToEdit;
 
     private GameObject _ghostPreview;
     private Transform _ghostPreviewTransform;
     private Transform _ghostPreviewHeadTransform;
 
-    private List<GhostDataFrame> _ghostFrames;
+    private List<LearningExperienceEngine.GhostDataFrame> _ghostFrames;
     private AudioClip _audioClip;
 
     private Transform _augOrigin;
@@ -73,7 +74,7 @@ public class GhosttrackEditor : MonoBehaviour
         Destroy(gameObject);
     }
 
-    public void Open(Action action, ToggleObject annotation)
+    public void Open(LearningExperienceEngine.Action action, LearningExperienceEngine.ToggleObject annotation)
     {
         gameObject.SetActive(true);
         _action = action;
@@ -84,7 +85,7 @@ public class GhosttrackEditor : MonoBehaviour
 
     public void OnAccept()
     {
-        var workplaceManager = RootObject.Instance.workplaceManager;
+        var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
         Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
         var originT = GameObject.Find(detectable.id);
         var offset = MirageXR.Utilities.CalculateOffset(_augOrigin.position, _augOrigin.rotation, originT.transform.position, originT.transform.rotation);
@@ -92,7 +93,7 @@ public class GhosttrackEditor : MonoBehaviour
         StopRecording();
         if (_annotationToEdit != null)
         {
-            EventManager.DeactivateObject(_annotationToEdit);
+            LearningExperienceEngine.EventManager.DeactivateObject(_annotationToEdit);
 
             // delete old xml file
             var xmlPath = $"{activityManager.ActivityPath}/MirageXR_Ghost_{_annotationToEdit.poi}.xml";
@@ -117,11 +118,11 @@ public class GhosttrackEditor : MonoBehaviour
                 }
             });
 
-            Debug.LogError(_annotationToEdit == null);
+            Debug.LogError("[GhosttrackEditor] Some error: _annotationToEdit exists is " + _annotationToEdit == null);
         }
         else
         {
-            _annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(_action, offset);
+            _annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAugmentation(_action, offset);
             _annotationToEdit.predicate = "ghosttracks";
             _annotationToEdit.scale = 1f;
         }
@@ -138,7 +139,7 @@ public class GhosttrackEditor : MonoBehaviour
         _annotationToEdit.position = _augOrigin.position.ToString();
         _annotationToEdit.rotation = _augOrigin.rotation.ToString();
 
-        var audioAnnotation = RootObject.Instance.augmentationManager.AddAugmentation(_action, offset);
+        var audioAnnotation = LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAugmentation(_action, offset);
         audioAnnotation.predicate = "audio";
         audioAnnotation.scale = 0.5f;
         audioAnnotation.url = $"http://{_audioFileName}";
@@ -158,9 +159,9 @@ public class GhosttrackEditor : MonoBehaviour
         // then add the audio poi to option after the gender
         _annotationToEdit.option += ":" + audioAnnotation.poi;
 
-        EventManager.ActivateObject(_annotationToEdit);
-        EventManager.ActivateObject(audioAnnotation);
-        EventManager.NotifyActionModified(_action);
+        LearningExperienceEngine.EventManager.ActivateObject(_annotationToEdit);
+        LearningExperienceEngine.EventManager.ActivateObject(audioAnnotation);
+        LearningExperienceEngine.EventManager.NotifyActionModified(_action);
         Close();
     }
 
@@ -278,7 +279,6 @@ public class GhosttrackEditor : MonoBehaviour
         _ghostFrames = _ghostRecorder.Stop();
         _audioClip = AudioRecorder.Stop();
 
-        Maggie.Speak("Stopped recording ghost track");
         Debug.Log("Stopped recording ghost track");
     }
 }

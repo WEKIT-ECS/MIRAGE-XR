@@ -72,11 +72,11 @@ namespace MirageXR
             BtnCloseLoginWithPassword.onClick.AddListener(CloseLoginWithPassword);
             NextPageButton.onClick.AddListener(NextResultsPage);
             PrevPageButton.onClick.AddListener(PreviousResultsPage);
-            ToggleRememberMe.isOn = DBManager.rememberSketchfabUser;
-            ToggleRememberMe.onValueChanged.AddListener(value => DBManager.rememberSketchfabUser = value);
+            ToggleRememberMe.isOn = LearningExperienceEngine.UserSettings.rememberSketchfabUser;
+            ToggleRememberMe.onValueChanged.AddListener(value => LearningExperienceEngine.UserSettings.rememberSketchfabUser = value);
 
             CheckForAppCredentials();
-            _hasAccessToken = LocalFiles.TryGetPassword("sketchfab", out _renewToken, out _token);
+            _hasAccessToken = LearningExperienceEngine.UserSettings.TryGetPassword("sketchfab", out _renewToken, out _token);
 
             // TODO: check validity of existing access tokens, remove obsolete entry where needed
             // step 1:
@@ -86,7 +86,7 @@ namespace MirageXR
             if (_hasAccessToken)
             {
                 StartSession();
-                if (!string.IsNullOrEmpty(_renewToken) && DBManager.isNeedToRenewSketchfabToken)
+                if (!string.IsNullOrEmpty(_renewToken) && LearningExperienceEngine.UserSettings.isNeedToRenewSketchfabToken)
                 {
                     RenewToken();
                 }
@@ -113,8 +113,8 @@ namespace MirageXR
                 {
                     _token = response.access_token;
                     _renewToken = response.refresh_token;
-                    LocalFiles.SaveLoginDetails("sketchfab", _renewToken, _token);
-                    DBManager.sketchfabLastTokenRenewDate = DateTime.Today;
+                    LearningExperienceEngine.UserSettings.SaveLoginDetails("sketchfab", _renewToken, _token);
+                    LearningExperienceEngine.UserSettings.sketchfabLastTokenRenewDate = DateTime.Today;
                 }
             }
         }
@@ -139,14 +139,14 @@ namespace MirageXR
                 }
                 if (ToggleRememberMe.isOn)
                 {
-                    LocalFiles.SaveLoginDetails("direct_login_sketchfab", InputFieldUserName.text, InputFieldPassword.text);
+                    LearningExperienceEngine.UserSettings.SaveLoginDetails("direct_login_sketchfab", InputFieldUserName.text, InputFieldPassword.text);
                 }
                 _token = response.access_token;
                 _renewToken = response.refresh_token;
                 _hasAccessToken = true;
-                LocalFiles.SaveLoginDetails("sketchfab", _renewToken, _token);
+                LearningExperienceEngine.UserSettings.SaveLoginDetails("sketchfab", _renewToken, _token);
                 StartSession();
-                DBManager.sketchfabLastTokenRenewDate = DateTime.Now;
+                LearningExperienceEngine.UserSettings.sketchfabLastTokenRenewDate = DateTime.Now;
                 return;
             }
 
@@ -181,7 +181,7 @@ namespace MirageXR
         public void SketchfabLoginWithPassword_Click()
         {
             ToggleDisplayPanels("loginWithPassword");
-            if (ToggleRememberMe.isOn && LocalFiles.TryGetPassword("direct_login_sketchfab", out var username, out var password))
+            if (ToggleRememberMe.isOn && LearningExperienceEngine.UserSettings.TryGetPassword("direct_login_sketchfab", out var username, out var password))
             {
                 InputFieldUserName.text = username;
                 InputFieldPassword.text = password;
@@ -344,7 +344,7 @@ namespace MirageXR
         private void AccessTokenReceiver(string receivedToken)
         {
             _token = receivedToken;
-            LocalFiles.SaveLoginDetails("sketchfab", string.Empty, _token);
+            LearningExperienceEngine.UserSettings.SaveLoginDetails("sketchfab", string.Empty, _token);
             StartSession();
         }
 
@@ -354,9 +354,9 @@ namespace MirageXR
             var service = ServiceManager.GetService<OpenIDConnectService>();
             service.LoginCompleted -= LoginCompleted;
             _token = service.AccessToken;
-            LocalFiles.SaveLoginDetails("sketchfab", string.Empty, _token);
+            LearningExperienceEngine.UserSettings.SaveLoginDetails("sketchfab", string.Empty, _token);
             StartSession();
-            DBManager.sketchfabLastTokenRenewDate = DateTime.Now;
+            LearningExperienceEngine.UserSettings.sketchfabLastTokenRenewDate = DateTime.Now;
         }
 
         private IEnumerator RequestToken(string code, Action<string> callbackTokenReceived)
@@ -401,7 +401,7 @@ namespace MirageXR
 
         private void Logout()
         {
-            LocalFiles.RemoveKey("sketchfab");
+            LearningExperienceEngine.UserSettings.RemoveKey("sketchfab");
             ToggleDisplayPanels("login");
         }
 

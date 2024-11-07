@@ -11,14 +11,14 @@ namespace MirageXR
         {
             EventManager.OnShowGuides += ShowGuides;
             EventManager.OnHideGuides += HideGuides;
-            EventManager.OnClearAll += Delete;
+            LearningExperienceEngine.EventManager.OnClearAll += Delete;
         }
 
         private void OnDisable()
         {
             EventManager.OnShowGuides -= ShowGuides;
             EventManager.OnHideGuides -= HideGuides;
-            EventManager.OnClearAll -= Delete;
+            LearningExperienceEngine.EventManager.OnClearAll -= Delete;
         }
 
         public void ShowGuides()

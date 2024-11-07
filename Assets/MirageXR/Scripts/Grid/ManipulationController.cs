@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class ManipulationController : MonoBehaviour, IDisposable
 {
-    private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
+    private static FloorManagerWrapper floorManager => RootObject.Instance.FloorManager;
 
     private GridManager _gridManager;
     private GridLines _gridLines;
@@ -60,7 +60,7 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
         HideGridLines();
 
-        EventManager.OnEditModeChanged += OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
     }
 
     private void OnRotateStarted(GameObject source)
@@ -95,7 +95,7 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void OnManipulationStarted(GameObject source)
     {
-        if (!_gridManager.snapEnabled || !RootObject.Instance.floorManager.isFloorDetected)
+        if (!_gridManager.snapEnabled || !RootObject.Instance.FloorManager.isFloorDetected)
         {
             return;
         }
@@ -113,7 +113,7 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void OnManipulationUpdated(GameObject source)
     {
-        if (!_gridManager.snapEnabled || !RootObject.Instance.floorManager.isFloorDetected)
+        if (!_gridManager.snapEnabled || !RootObject.Instance.FloorManager.isFloorDetected)
         {
             return;
         }
@@ -367,7 +367,7 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     public void Dispose()
     {
-        EventManager.OnEditModeChanged -= OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
     }
 
     private void OnEditModeChanged(bool value)

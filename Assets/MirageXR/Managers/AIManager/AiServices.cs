@@ -3,14 +3,19 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using LearningExperienceEngine.DataModel;
 using Microsoft.MixedReality.Toolkit.Utilities;
-using MirageXR.AIManagerDataModel;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 
 namespace MirageXR
 {
+    public class Token
+    {
+        [JsonProperty("token")] public string BackendToken { get; set; }
+    }
+
     /// <summary>
     /// Provides AI services such as transcription, conversation, and speech synthesis.
     /// </summary>
@@ -47,26 +52,26 @@ namespace MirageXR
                 throw new ArgumentException("token is null");
             }
 
-            var apiURL = $"{url}/listen/";
-            var bytes = SaveLoadAudioUtilities.AudioClipToByteArray(audioClip);
+            var apiURL = $"{url}/stt/";
+            var bytes = LearningExperienceEngine.SaveLoadAudioUtilities.AudioClipToByteArray(audioClip);
             var fromData = new WWWForm();
             fromData.AddField("model", model);
-            fromData.AddBinaryData("message", bytes);
+            fromData.AddBinaryData("message", bytes, "audio.wav", "audio/wav");
 
             using var webRequest = UnityWebRequest.Post(apiURL, fromData);
-            webRequest.SetRequestHeader("Authorization", $"Token {token}");
+            webRequest.SetRequestHeader("Authorization", $"{token}");
             await webRequest.SendWebRequest();
             if (webRequest.result != UnityWebRequest.Result.Success)
             {
                 throw new HttpRequestException(
-                    $"Error while receiving the result of the Listen endpoint: {webRequest.error}");
+                    $"Error while receiving the result of the SST endpoint: {webRequest.error}");
             }
 
             return webRequest.downloadHandler.text;
         }
 
         /// <summary>
-        /// Sends a user message to the assistant for processing in an LLM (Language and Learning Model).
+        /// Sends a user message to the assistant for processing in an LLM or RAG.
         /// </summary>
         /// <param name="model">The target model used for processing the message.</param>
         /// <param name="message">The message sent by the user for processing.</param>
@@ -97,7 +102,7 @@ namespace MirageXR
                 throw new ArgumentException("token is null");
             }
 
-            var apiURL = $"{url}/think/";
+            var apiURL = $"{url}/llm/";
             var fromData = new List<IMultipartFormSection>
             {
                 new MultipartFormDataSection("model", model),
@@ -105,13 +110,13 @@ namespace MirageXR
                 new MultipartFormDataSection("context", context),
             };
             using var webRequest = UnityWebRequest.Post(apiURL, fromData);
-            webRequest.SetRequestHeader("Authorization", $"Token {token}");
+            webRequest.SetRequestHeader("Authorization", $"{token}");
             await webRequest.SendWebRequest();
 
             if (webRequest.result != UnityWebRequest.Result.Success)
             {
                 throw new HttpRequestException(
-                    $"Error while receiving the result of the Think endpoint: {webRequest.error}");
+                    $"Error while receiving the result of the LLM endpoint: {webRequest.error}");
             }
 
             return webRequest.downloadHandler.text;
@@ -132,7 +137,7 @@ namespace MirageXR
 
             var apiURL = $"{url}/options/";
             var request = UnityWebRequest.Get(apiURL);
-            request.SetRequestHeader("Authorization", $"Token {token}");
+            request.SetRequestHeader("Authorization", $"{token}");
             await request.SendWebRequest();
             if (request.result != UnityWebRequest.Result.Success)
             {
@@ -153,7 +158,7 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Get you an audio based on your text
+        /// Creates an audio file containing spoken text based on an input message.
         /// </summary>
         /// <param name="message">The text that you want to turn into an audio</param>
         /// <param name="model">The model that you use. Check options json for legal parameters</param>
@@ -165,7 +170,7 @@ namespace MirageXR
         {
             if (string.IsNullOrEmpty(message))
             {
-                throw new ArgumentException("speakOut is null");
+                throw new ArgumentException("message is null");
             }
 
             if (string.IsNullOrEmpty(model))
@@ -186,15 +191,15 @@ namespace MirageXR
             byte[] messageBytes = Encoding.UTF8.GetBytes(message);
             string base64Message = Convert.ToBase64String(messageBytes);
 
-            var apiURL = $"{url}/speak/";
+            var apiURL = $"{url}/tts/";
             using var webRequest = UnityWebRequestMultimedia.GetAudioClip(apiURL, AudioType.MPEG);
-            webRequest.SetRequestHeader("Authorization", $"Token {token}");
+            webRequest.SetRequestHeader("Authorization", $"{token}");
             webRequest.SetRequestHeader("message", base64Message);
             webRequest.SetRequestHeader("model", model);
             await webRequest.SendWebRequest();
             if (webRequest.result != UnityWebRequest.Result.Success)
             {
-                throw new HttpRequestException($"Error while receiving the result of the Speak endpoint: {webRequest.error} {webRequest.result}");
+                throw new HttpRequestException($"Error while receiving the result of the TTS endpoint: {webRequest.error} {webRequest.result}");
             }
 
             var audioClip = DownloadHandlerAudioClip.GetContent(webRequest);
@@ -216,7 +221,7 @@ namespace MirageXR
                 new MultipartFormDataSection("password", password),
             };
 
-            var request = UnityWebRequest.Post($"{apiURL}/authentication/", formData);
+            var request = UnityWebRequest.Post($"{apiURL}/authentication/", formData); // todo change out with sso. 
             await request.SendWebRequest();
             if (request.result != UnityWebRequest.Result.Success)
             {

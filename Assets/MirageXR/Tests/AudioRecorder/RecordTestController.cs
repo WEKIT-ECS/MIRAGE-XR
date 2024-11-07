@@ -6,7 +6,7 @@ using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using TMPro;
 using UnityEngine;
-#if UNITY_ANDROID || UNITY_IOS
+#if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS
 using UnityEngine.Android;
 #endif
 using UnityEngine.UI;
@@ -52,7 +52,7 @@ public class RecordTestController : MonoBehaviour
         }
         else
         {
-#if UNITY_ANDROID || UNITY_IOS
+#if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS
             _canvas.enabled = false;
             Permission.RequestUserPermission(Permission.Microphone);
             Invoke(nameof(Start), 10f);
@@ -62,7 +62,7 @@ public class RecordTestController : MonoBehaviour
 
     private bool HasPermission()
     {
-#if UNITY_ANDROID || UNITY_IOS
+#if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS
         return Permission.HasUserAuthorizedPermission(Permission.Microphone);
 #else
         return true;
@@ -184,6 +184,6 @@ public class RecordTestController : MonoBehaviour
     {
         var path = Path.Combine(Application.persistentDataPath,
             RECORDS_FOLDER, $"{DateTime.Now:yy-MM-dd_HH-mm-ss}{WAV_EXTENSION}");
-        _txtSavePath.text = SaveLoadAudioUtilities.Save(path, _audioClip) ? path : "Error";
+        _txtSavePath.text = LearningExperienceEngine.SaveLoadAudioUtilities.Save(path, _audioClip) ? path : "Error";
     }
 }

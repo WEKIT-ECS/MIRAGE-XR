@@ -1,0 +1,60 @@
+{
+    "Name": "Ghost Guide",
+    "IntendedPlatform": "Mobile",
+    "Steps": [
+        {
+            "DelayInMilliseconds": 100.0,
+            "StepType": "UI",
+            "Id": "augmentation_ghost_type",
+            "Message": "Ghost augmentations are recordings of your movement, gestures and voice using a predefined avatar. Users will be able to see how and what you do and follow your instructions. To begin, choose the ghost's form.",
+            "Position": "Bottom",
+            "BtnText": "Next",
+            "CanGoNext": true
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_ghost_audio",
+            "Message": "Here we choose if we want to record audio for the ghost. Let's leave it on for now.",
+            "Position": "Bottom",
+            "BtnText": "Next",
+            "CanGoNext": true
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_ghost_record",
+            "Message": "Now comes the important part. This button starts the recording for your ghost. Go ahead, press it now!",
+            "Position": "Top" 
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_ghost_record",
+            "Message": "The recording has now started. You can move around, make gestures and sounds. Once you're done, press the same button to stop recording.",
+            "Position": "Top" 
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_ghost_apply",
+            "Message": "Let's load the recording of the ghost into the scene. To do that, just click the Accept button below.",
+            "Position": "Top" 
+        },
+        {
+            "StepType": "UI",
+            "Id": "ui_toggle",
+            "Message": "Let's lower the UI so we can take a look at the augmentation we just created.",
+            "Position": "Bottom" 
+        },
+        {
+            "DelayInMilliseconds": 100.0,
+            "StepType": "World",
+            "FocusObject": "<<LAST_AUGMENTATION_CREATED>>",
+            "ActualTarget": "Head",
+            "Message": "This is the augmentation we just created. You can always press the button to the right to replay the ghost recording. That's it!",
+            "FinishEvent": "GHOST_REPLAYED",
+            "arrowRotationOffset": {
+                "x": 0.0,
+                "y": 180.0,
+                "z": 0.0
+            }
+        }
+    ]
+}

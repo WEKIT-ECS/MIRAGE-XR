@@ -1,4 +1,4 @@
-﻿using MirageXR;
+﻿using LearningExperienceEngine;
 using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -13,8 +13,10 @@ public class LoginView_v2 : PopupBase
     [SerializeField] private GameObject _pnlFields;
     [SerializeField] private Toggle _toggleRemember;
     [SerializeField] private Button _btnRegister;
+    [SerializeField] private Button _btnPasswordForgotten;
     [SerializeField] private Button _btnGoToLogin;
     [SerializeField] private Button _btnSkipLogin;
+    [SerializeField] private Button _btnOidcLogin;
     [SerializeField] private Button _btnLogin;
     [SerializeField] private Button _btnBack;
     [SerializeField] private OnboardingTutorialView _onboardingTutorialViewPrefab;
@@ -29,6 +31,8 @@ public class LoginView_v2 : PopupBase
         _inputFieldUserName.SetValidator(IsValidUsername);
         _inputFieldPassword.SetValidator(IsValidPassword);
         _btnRegister.onClick.AddListener(OnClickRegister);
+        _btnPasswordForgotten.onClick.AddListener(OnClickPasswordForgotten);
+        _btnOidcLogin.onClick.AddListener(OnOidcLogin);
         _btnLogin.onClick.AddListener(OnClickLogin);
         _btnGoToLogin.onClick.AddListener(OnGoToLoginPressed);
         _btnSkipLogin.onClick.AddListener(OnEnterAsGuest);
@@ -55,7 +59,7 @@ public class LoginView_v2 : PopupBase
     private async Task Login(string username, string password)
     {
         LoadView.Instance.Show();
-        var result = await RootObject.Instance.moodleManager.Login(username, password);
+        var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.Login(username, password);
         LoadView.Instance.Hide();
         if (result)
         {
@@ -73,7 +77,7 @@ public class LoginView_v2 : PopupBase
 
     private void OnToggleRememberValueChanged(bool value)
     {
-        DBManager.rememberUser = value;
+        LearningExperienceEngine.UserSettings.rememberUser = value;
     }
 
     private void OnEnable()
@@ -84,6 +88,23 @@ public class LoginView_v2 : PopupBase
     private void OnEnterAsGuest()
     {
         PopupsViewer.Instance.Show(_onboardingTutorialViewPrefab);
+        Close();
+    }
+
+    private void OnOidcLogin()
+    {
+        AuthManager.OnLoginCompleted += OnOidcLoginCompleted;
+        LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.Login();
+    }
+
+    private void OnOidcLoginCompleted(string accessToken)
+    {
+        AuthManager.OnLoginCompleted -= OnOidcLoginCompleted;
+
+        // if the activity view is loading activities already in the background, this might also require:
+        // RootView_v2.Instance.activityListView.FetchAndUpdateView();
+
+        Toast.Instance.Show("Login succeeded");
         Close();
     }
 
@@ -104,13 +125,13 @@ public class LoginView_v2 : PopupBase
     private void OnLoginSucceed(string username, string password)
     {
         Toast.Instance.Show("Login succeeded");
-        if (DBManager.rememberUser)
+        if (LearningExperienceEngine.UserSettings.rememberUser)
         {
-            LocalFiles.SaveUsernameAndPassword(username, password);
+            LearningExperienceEngine.UserSettings.SaveUsernameAndPassword(username, password);
         }
         else
         {
-            LocalFiles.RemoveUsernameAndPassword();
+            LearningExperienceEngine.UserSettings.RemoveUsernameAndPassword();
         }
 
         _onLoginStatusChanged?.Invoke();
@@ -118,7 +139,7 @@ public class LoginView_v2 : PopupBase
 
     private void ResetValues()
     {
-        _toggleRemember.isOn = DBManager.rememberUser;
+        _toggleRemember.isOn = LearningExperienceEngine.UserSettings.rememberUser;
         _inputFieldUserName.text = string.Empty;
         _inputFieldPassword.text = string.Empty;
         if (_dontShowLoginMenu)
@@ -137,7 +158,12 @@ public class LoginView_v2 : PopupBase
 
     private void OnClickRegister()
     {
-        Application.OpenURL(DBManager.registerPage);
+        Application.OpenURL(LearningExperienceEngine.UserSettings.registerPage);
+    }
+
+    private void OnClickPasswordForgotten()
+    {
+        Application.OpenURL(LearningExperienceEngine.UserSettings.passwordForgottenPage);
     }
 
     private async void OnClickLogin()

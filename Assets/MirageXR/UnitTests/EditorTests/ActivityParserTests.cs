@@ -51,7 +51,7 @@ namespace Tests
                     var url = File.ReadAllText(Path.Combine(Application.persistentDataPath, file.Name));
 
                     // Convert the file into an activity object.
-                    var activity = JsonUtility.FromJson<Activity>(url);
+                    var activity = JsonUtility.FromJson<LearningExperienceEngine.Activity>(url);
 
                     Assert.IsNotEmpty(activity.id);
                     Assert.IsNotEmpty(activity.name);
@@ -102,7 +102,7 @@ namespace Tests
                     // Read in the presumed activity json.
                     var url = File.ReadAllText(Path.Combine(Application.persistentDataPath, file.Name));
                     // Convert the file into an activity object.
-                    var activity = JsonUtility.FromJson<Activity>(url);
+                    var activity = JsonUtility.FromJson<LearningExperienceEngine.Activity>(url);
 
                     var workplaceExist = false;
                     var path = Path.Combine(Application.persistentDataPath,  activity.id);

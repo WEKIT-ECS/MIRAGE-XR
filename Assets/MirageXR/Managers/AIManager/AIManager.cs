@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
-using MirageXR.AIManagerDataModel;
 using UnityEngine;
+using LearningExperienceEngine;
+using LearningExperienceEngine.DataModel;
 
 namespace MirageXR
 {
@@ -30,11 +31,12 @@ namespace MirageXR
         private string _token; 
 
         /// <summary>
-        /// The list of Language Learning Models (LLM) available for the AI Manager.
+        /// Represents the list of LLM and RAG models available for the AI Manager.
         /// </summary>
         private List<AIModel> _llmModels = new();
-
+        /// <summary>
         /// Represents the list of speech-to-text models available for the AIManager.
+        /// </summary>
         private List<AIModel> _sttModels = new();
 
         /// <summary>
@@ -49,20 +51,41 @@ namespace MirageXR
         /// <returns>A Task representing the asynchronous operation.</returns>
         public async Task InitializeAsync()
         {
-            try
+            await ReadConfig();
+            AuthManager.OnLoginCompleted += OnOidcLoginCompleted;
+            AuthManager.OnLogoutCompleted += OnOidcLogoutCompleted;
+        }
+
+        public void onDestroy()
+        {
+            AuthManager.OnLoginCompleted -= OnOidcLoginCompleted;
+            AuthManager.OnLogoutCompleted -= OnOidcLogoutCompleted;
+        }
+
+        public async void OnOidcLoginCompleted(string accessToken)
+        {
+            if (!string.IsNullOrEmpty(accessToken))
             {
-                await ReadConfig();
+                Debug.LogInfo("AIManager: auth with token : " + accessToken + " to url " + _url);
+                _token = accessToken;
+                SetModels(await AiServices.GetAvailableModelsAsync(_url, _token));
+            }
+            else
+            {
+                Debug.LogWarning("AIManager: using direct auth as fallback after failed OIDC");
                 _token = await AiServices.AuthenticateUserAsync(_url, _username, _password);
                 SetModels(await AiServices.GetAvailableModelsAsync(_url, _token));
             }
-            catch (Exception e)
-            {
-                AppLog.LogWarning(e.ToString());
-            }
+        }
+
+        public async void OnOidcLogoutCompleted()
+        {
+            Debug.LogInfo("AImanager: OIDC logout received");
+            _token = null;
         }
 
         /// <summary>
-        /// Retrieves the LLM (Language and Linguistic Model) models available in the AIManager.
+        /// Returns a list of LLM models available in the AIManager.
         /// </summary>
         /// <returns>A list of AIModel objects representing the LLM models.</returns>
         public List<AIModel> GetLlmModels()
@@ -71,7 +94,7 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Returns a list of Speech-To-Text (STT) models available for use.
+        /// Returns a list of STT models available for use.
         /// </summary>
         /// <returns>A list of AIModel objects representing the available STT models</returns>
         public List<AIModel> GetSttModels()
@@ -80,7 +103,7 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Retrieves the list of Text-to-Speech (TTS) models.
+        /// Retrieves the list of TTS models.
         /// </summary>
         /// <returns>The list of TTS models available in the AI manager.</returns>
         public List<AIModel> GetTtsModels()
@@ -106,15 +129,15 @@ namespace MirageXR
         /// <param name="model">The AIModel to be added.</param>
         private void AddModelBasedOnEndpointName(AIModel model)
         {
-            if (model.EndpointName == "listen/")
+            if (model.EndpointName == "stt/")
             {
                 _sttModels.Add(model);
             }
-            else if (model.EndpointName == "speak/")
+            else if (model.EndpointName == "tts/")
             {
                 _ttsModels.Add(model);
             }
-            else if (model.EndpointName == "think/")
+            else if (model.EndpointName == "llm/")
             {
                 _llmModels.Add(model);
             }
@@ -128,13 +151,8 @@ namespace MirageXR
         {
             const string fileName = "AI_Server";
             const string apiURLKey = "AI_API_URL";
-            const string usernameKey = "AI_USERNAME";
-            const string passwordKey = "AI_PASSWORD";
-
             string url = null;
-            string username = null;
-            string password = null;
-
+            
             var filepath = Resources.Load(fileName) as TextAsset;
             if (filepath == null)
             {
@@ -148,12 +166,6 @@ namespace MirageXR
 
                 switch (parts[0].ToUpper())
                 {
-                    case usernameKey:
-                        username = parts[1].Trim();
-                        break;
-                    case passwordKey:
-                        password = parts[1].Trim();
-                        break;
                     case apiURLKey:
                         url = parts[1].Trim();
                         break;
@@ -164,20 +176,7 @@ namespace MirageXR
             {
                 throw new Exception("can't read url");
             }
-
-            if (string.IsNullOrEmpty(username))
-            {
-                throw new Exception("can't read username");
-            }
-
-            if (string.IsNullOrEmpty(password))
-            {
-                throw new Exception("can't read password");
-            }
-
             _url = url;
-            _username = username;
-            _password = password;
         }
 
         /// <summary>

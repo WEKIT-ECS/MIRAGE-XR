@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class DaimonManager : MonoBehaviour
 {
-    private static MirageXR.ActivityManager activityManager => MirageXR.RootObject.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
     public SpeechInputService mySpeechInputMgr { get; private set; }
     private SpeechOutputService mySpeechOutputMgr;
@@ -61,7 +61,6 @@ public class DaimonManager : MonoBehaviour
         {
 
             //check that clip is not playing
-            Debug.LogInfo("-------------------- Speech Output has finished playing, now reactivating SpeechInput.");
             check = false;
 
             if (triggerNext)
@@ -91,11 +90,11 @@ public class DaimonManager : MonoBehaviour
 
         switch (exercise)
         {
-            case "B12":
-                myAnimator.Play("BreathingIdle");
+            case "point":
+                myAnimator.Play("Point");
                 break;
-            case "waving":
-                myAnimator.Play("waving");
+            case "wave":
+                myAnimator.Play("Hello");
                 break;
             default:
                 break;
