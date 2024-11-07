@@ -146,7 +146,9 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.SpatialKeyboard
 
             // Position keyboard in front of user if the keyboard is closed
             if (shouldPositionKeyboard)
+            {
                 PositionKeyboard(m_CameraTransform);
+            }
         }
 
         /// <summary>
@@ -212,11 +214,15 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.SpatialKeyboard
 
         void PositionKeyboard(Transform target)
         {
-            var position = target.position +
-                target.right * m_KeyboardOffset.x +
-                target.forward * m_KeyboardOffset.z +
-                Vector3.up * m_KeyboardOffset.y;
-            keyboard.transform.position = position;
+            // var position = target.position +
+            //     target.right * m_KeyboardOffset.x +
+            //     target.forward * m_KeyboardOffset.z +
+            //     Vector3.up * m_KeyboardOffset.y;
+            m_CameraTransform.position = GameObject.Find("VolumeCamera(Clone)").transform.position;
+            //m_CameraTransform.position = new Vector3(m_CameraTransform.position.x, 1.2f, m_CameraTransform.position.z);
+
+            keyboard.transform.position = m_CameraTransform.position;
+            m_CameraTransform = GameObject.Find("VolumeCamera(Clone)").transform;
             FaceKeyboardAtTarget(m_CameraTransform);
         }
 
