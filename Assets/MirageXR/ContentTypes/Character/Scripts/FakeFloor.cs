@@ -7,13 +7,15 @@ namespace MirageXR
     {
         private const float OFFSET = -0.05f;
 
-        private static PlaneManagerWrapper planeManager => RootObject.Instance.planeManager;
+        private static PlaneManagerWrapper planeManager => RootObject.Instance.PlaneManager;
 
-        private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
+        private static FloorManagerWithFallback floorManager => RootObject.Instance.FloorManagerWithRaycastFallback;
 
+        private Transform _camera;
 
         private void Start()
         {
+            _camera = Camera.main.transform;
             gameObject.GetComponent<BoxCollider>().enabled = true;
             planeManager.onDetectionEnabled.AddListener(OnDetectionEnabled);
             planeManager.onDetectionDisabled.AddListener(OnDetectionDisabled);
@@ -30,15 +32,13 @@ namespace MirageXR
 
         private void Update()
         {
+            if (RootObject.Instance is null)
+            {
+                return;
+            }
+            
             var position = transform.position;
-            if (floorManager.isFloorDetected)
-            {
-                position.y = floorManager.floorLevel + OFFSET;
-            }
-            else
-            {
-                position.y = UIOrigin.Instance.CurrentFloorYPosition();
-            }
+            position.y = floorManager.GetFloorHeight(_camera.position) + OFFSET;
 
             transform.position = position;
         }

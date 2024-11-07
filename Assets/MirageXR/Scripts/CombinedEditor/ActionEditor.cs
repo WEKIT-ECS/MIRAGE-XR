@@ -1,4 +1,5 @@
-﻿using MirageXR;
+﻿using LearningExperienceEngine;
+using MirageXR;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,9 +7,8 @@ using UnityEngine.UI;
 [RequireComponent(typeof(ActionDetailView))]
 public class ActionEditor : MonoBehaviour
 {
-    private static BrandManager brandManager => RootObject.Instance.brandManager;
-
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
+    private static ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
     [SerializeField] private GameObject TaskStationMenuPanel;
     [SerializeField] private GameObject TaskStationOpenButton;
@@ -105,7 +105,8 @@ public class ActionEditor : MonoBehaviour
 
     private void OnEnable()
     {
-        EventManager.OnEditModeChanged += SetEditModeState;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += SetEditModeState;
+        LearningExperienceEngine.EventManager.OnDisableAllPoiEditors += DisableAllPoiEditors;
         titleField.onValueChanged.AddListener(OnTitleChanged);
         descriptionField.onValueChanged.AddListener(OnDescriptionChanged);
 
@@ -114,7 +115,7 @@ public class ActionEditor : MonoBehaviour
             SetEditModeState(activityManager.EditModeActive);
         }
 
-        if (!RootObject.Instance.platformManager.WorldSpaceUi)
+        if (!RootObject.Instance.PlatformManager.WorldSpaceUi)
         {
             CloseTaskStationMenu();
         }
@@ -124,7 +125,8 @@ public class ActionEditor : MonoBehaviour
     {
         titleField.onValueChanged.RemoveListener(OnTitleChanged);
         descriptionField.onValueChanged.RemoveListener(OnDescriptionChanged);
-        EventManager.OnEditModeChanged -= SetEditModeState;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= SetEditModeState;
+        LearningExperienceEngine.EventManager.OnDisableAllPoiEditors -= DisableAllPoiEditors;
     }
 
     private void Start()
@@ -163,7 +165,7 @@ public class ActionEditor : MonoBehaviour
         navigationTargetButton.onClick.AddListener(OnToggleActionTargetCapture);
         addButton.onClick.AddListener(OnAddButtonToggle);
 
-        if (!RootObject.Instance.platformManager.WorldSpaceUi)
+        if (!RootObject.Instance.PlatformManager.WorldSpaceUi)
         {
             CloseTaskStationMenu();
         }
@@ -195,7 +197,8 @@ public class ActionEditor : MonoBehaviour
     /// <summary>
     /// Control the helper text under the target button
     /// </summary>
-    /// <param name="sec"></param>
+    /// <param name="msg">The text</param>
+    /// <param name="sec">Duration (not used)</param>
     /// <returns>Co-Routine values</returns>
     private IEnumerator NavigatorNotification(string msg, int sec)
     {
@@ -206,7 +209,7 @@ public class ActionEditor : MonoBehaviour
         navigationTargetButton.GetComponentInChildren<Text>().enabled = false;
     }
 
-    private void CaptureNavigationTarget(ToggleObject annotation)
+    private void CaptureNavigationTarget(LearningExperienceEngine.ToggleObject annotation)
     {
         if (StepNavigationTargetCapturing)
         {
@@ -234,7 +237,7 @@ public class ActionEditor : MonoBehaviour
         }
     }
 
-    public void CapturePickArrowTarget(ToggleObject annotation = null, Pick pick = null)
+    public void CapturePickArrowTarget(LearningExperienceEngine.ToggleObject annotation = null, Pick pick = null)
     {
         if (annotation == null || !pick) return;
 
@@ -249,6 +252,7 @@ public class ActionEditor : MonoBehaviour
         }
     }
 
+    // TODO: shouldn't this move to the pick&place augmentation, and be called via an event?
     public IEnumerator SpawnNewPickModel(Pick pick, GameObject newModel)
     {
         if (!newModel || !pick) yield break;
@@ -281,6 +285,7 @@ public class ActionEditor : MonoBehaviour
         newModelClone.name = "ArrowModel_" + sketchfabModel.MyToggleObject.poi;
         newModelClone.GetComponentInParent<PoiEditor>().EnableBoxCollider(false);
 
+        // TODO: why not?
         // move the model augmentation somewhere invisible(Cannot deactivate it)
         newModel.transform.position = new Vector3(9999, 9999, 9999);
 
@@ -299,8 +304,8 @@ public class ActionEditor : MonoBehaviour
         if (detailView.DisplayedAction != null)
         {
             detailView.DisplayedAction.instruction.title = newTitle;
-            EventManager.NotifyActionModified(detailView.DisplayedAction);
-            RootObject.Instance.activityManager.SaveData();
+            LearningExperienceEngine.EventManager.NotifyActionModified(detailView.DisplayedAction);
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
         }
     }
 
@@ -309,7 +314,8 @@ public class ActionEditor : MonoBehaviour
         if (detailView.DisplayedAction != null)
         {
             detailView.DisplayedAction.instruction.description = newDescription;
-            EventManager.NotifyActionModified(detailView.DisplayedAction);
+            LearningExperienceEngine.EventManager.NotifyActionModified(detailView.DisplayedAction);
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
         }
     }
 
@@ -446,7 +452,7 @@ public class ActionEditor : MonoBehaviour
         helpText.gameObject.SetActive(true);
     }
 
-    public void EditAnnotation(ToggleObject annotation)
+    public void EditAnnotation(LearningExperienceEngine.ToggleObject annotation)
     {
         DisableAllPoiEditors();
 
@@ -563,7 +569,7 @@ public class ActionEditor : MonoBehaviour
 
         DisableAllPoiEditors();
 
-        if (!RootObject.Instance.platformManager.WorldSpaceUi)
+        if (!RootObject.Instance.PlatformManager.WorldSpaceUi)
         {
             CloseTaskStationMenu();
         }
@@ -581,7 +587,7 @@ public class ActionEditor : MonoBehaviour
     {
         gameObject.GetComponent<Canvas>().enabled = false;
         TaskStationMenuPanel.SetActive(false);
-        TaskStationOpenButton.SetActive(RootObject.Instance.platformManager.WorldSpaceUi);
+        TaskStationOpenButton.SetActive(RootObject.Instance.PlatformManager.WorldSpaceUi);
     }
 
     private bool InstanceOfAugmentationExist(ContentType type)

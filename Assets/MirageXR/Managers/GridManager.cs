@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+using LearningExperienceEngine.NewDataModel;
 using MirageXR;
 using UnityEngine;
 
 public class GridManager : MonoBehaviour, IDisposable
 {
-    private static FloorManagerWrapper floorManager => RootObject.Instance.floorManager;
+    private static FloorManagerWrapper floorManager => RootObject.Instance.FloorManager;
 
-    private static CalibrationManager calibrationManager => RootObject.Instance.calibrationManager;
+    private static ICalibrationManager calibrationManager => RootObject.Instance.CalibrationManager;
 
     [SerializeField] private Grid _gridPrefab;
     [SerializeField] private GridLines _gridLinesPrefab;
@@ -91,14 +93,17 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public Action<GameObject> onTranslateStopped => _manipulationController.onTranslateStopped;
 
-    public void Initialization()
+    public async void Initialization()
     {
-        _gridEnabled = DBManager.showGrid;
-        _snapEnabled = DBManager.snapToGrid;
-        _cellWidth = DBManager.gridCellWidth;
-        _angleStep = DBManager.gridAngleStep;
-        _scaleStep = DBManager.gridScaleStep;
-        _showOriginalObject = DBManager.gridShowOriginalObject;
+        
+        var obj = await Resources.LoadAsync<AssetsBundle>("MirageXRAssetsBundle") as AssetsBundle;
+        
+        _gridEnabled = LearningExperienceEngine.UserSettings.showGrid;
+        _snapEnabled = LearningExperienceEngine.UserSettings.snapToGrid;
+        _cellWidth = LearningExperienceEngine.UserSettings.gridCellWidth;
+        _angleStep = LearningExperienceEngine.UserSettings.gridAngleStep;
+        _scaleStep = LearningExperienceEngine.UserSettings.gridScaleStep;
+        _showOriginalObject = LearningExperienceEngine.UserSettings.gridShowOriginalObject;
 
         if (!_gridPrefab)
         {
@@ -119,12 +124,12 @@ public class GridManager : MonoBehaviour, IDisposable
         _manipulationController = gameObject.AddComponent<ManipulationController>();
         _manipulationController.Initialization(this, _gridLinesPrefab);
 
-        EventManager.OnEditModeChanged += OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
     }
 
     public void ShowGrid()
     {
-        var anchor = calibrationManager.anchor;
+        var anchor = calibrationManager.Anchor;
 
         _grid.transform.SetParent(anchor);
 
@@ -146,9 +151,9 @@ public class GridManager : MonoBehaviour, IDisposable
     public void EnableGrid()
     {
         _gridEnabled = true;
-        DBManager.showGrid = _gridEnabled;
+        LearningExperienceEngine.UserSettings.showGrid = _gridEnabled;
 
-        var activityManager = RootObject.Instance.activityManager;
+        var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
         if (floorManager.isFloorDetected && activityManager.EditModeActive)
         {
             ShowGrid();
@@ -158,7 +163,7 @@ public class GridManager : MonoBehaviour, IDisposable
     public void DisableGrid()
     {
         _gridEnabled = false;
-        DBManager.showGrid = _gridEnabled;
+        LearningExperienceEngine.UserSettings.showGrid = _gridEnabled;
 
         HideGrid();
     }
@@ -166,49 +171,49 @@ public class GridManager : MonoBehaviour, IDisposable
     public void EnableSnapToGrid()
     {
         _snapEnabled = true;
-        DBManager.snapToGrid = _snapEnabled;
+        LearningExperienceEngine.UserSettings.snapToGrid = _snapEnabled;
     }
 
     public void DisableSnapToGrid()
     {
         _snapEnabled = false;
-        DBManager.snapToGrid = _snapEnabled;
+        LearningExperienceEngine.UserSettings.snapToGrid = _snapEnabled;
     }
 
     public void SetShowOriginalObject(bool value)
     {
         _showOriginalObject = value;
-        DBManager.gridShowOriginalObject = _showOriginalObject;
+        LearningExperienceEngine.UserSettings.gridShowOriginalObject = _showOriginalObject;
     }
 
     public void SetUseObjectCenter(bool value)
     {
         _useObjectCenter = value;
-        DBManager.gridUseObjectCenter = _useObjectCenter;
+        LearningExperienceEngine.UserSettings.gridUseObjectCenter = _useObjectCenter;
     }
 
     public void SetCellWidth(float value)
     {
         _cellWidth = value;
-        DBManager.gridCellWidth = value;
+        LearningExperienceEngine.UserSettings.gridCellWidth = value;
         _grid.SetCellWidth(_cellWidth);
     }
 
     public void SetAngleStep(float value)
     {
         _angleStep = value;
-        DBManager.gridAngleStep = value;
+        LearningExperienceEngine.UserSettings.gridAngleStep = value;
     }
 
     public void SetScaleStep(float value)
     {
         _scaleStep = value;
-        DBManager.gridScaleStep = value;
+        LearningExperienceEngine.UserSettings.gridScaleStep = value;
     }
 
     public void Dispose()
     {
-        EventManager.OnEditModeChanged -= OnEditModeChanged;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
         _manipulationController.Dispose();
     }
 

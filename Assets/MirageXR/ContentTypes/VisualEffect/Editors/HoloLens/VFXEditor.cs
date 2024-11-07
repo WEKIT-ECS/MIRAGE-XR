@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using LearningExperienceEngine;
+using UnityEngine;
 
 namespace MirageXR
 {
@@ -8,8 +9,8 @@ namespace MirageXR
         [SerializeField] private VfxListItem _vfxListItemPrefab;
         [SerializeField] private VfxObject[] _vfxObjects;
 
-        private Action _action;
-        private ToggleObject _annotationToEdit;
+        private LearningExperienceEngine.Action _action;
+        private LearningExperienceEngine.ToggleObject _annotationToEdit;
         private Transform _annotationStartingPoint;
 
         public void SetAnnotationStartingPoint(Transform startingPoint)
@@ -26,7 +27,7 @@ namespace MirageXR
             Destroy(gameObject);
         }
 
-        public void Open(Action action, ToggleObject annotation)
+        public void Open(LearningExperienceEngine.Action action, LearningExperienceEngine.ToggleObject annotation)
         {
             gameObject.SetActive(true);
             _action = action;
@@ -57,11 +58,11 @@ namespace MirageXR
         {
             if (_annotationToEdit != null)
             {
-                EventManager.DeactivateObject(_annotationToEdit);
+                LearningExperienceEngine.EventManager.DeactivateObject(_annotationToEdit);
             }
             else
             {
-                var workplaceManager = RootObject.Instance.workplaceManager;
+                var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
                 Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
                 GameObject originT = GameObject.Find(detectable.id);
 
@@ -70,13 +71,13 @@ namespace MirageXR
                     originT.transform.position,
                     originT.transform.rotation);
 
-                _annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(_action, offset);
+                _annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAugmentation(_action, offset);
             }
 
             _annotationToEdit.predicate = "effect:" + iconName;
-            EventManager.ActivateObject(_annotationToEdit);
-            EventManager.NotifyActionModified(_action);
-            RootObject.Instance.activityManager.SaveData();
+            LearningExperienceEngine.EventManager.ActivateObject(_annotationToEdit);
+            LearningExperienceEngine.EventManager.NotifyActionModified(_action);
+            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
             Close();
         }
     }

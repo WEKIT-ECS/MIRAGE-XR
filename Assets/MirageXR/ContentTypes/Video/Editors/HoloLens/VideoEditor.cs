@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
-using Action = MirageXR.Action;
+using Action = LearningExperienceEngine.Action;
 
 public class VideoEditor : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
     [SerializeField] private Button startRecordingButton;
     [SerializeField] private Button stopRecordingButton;
@@ -17,8 +17,8 @@ public class VideoEditor : MonoBehaviour
 
     const string httpPrefix = "http://";
 
-    private Action action;
-    private ToggleObject annotationToEdit;
+    private LearningExperienceEngine.Action action;
+    private LearningExperienceEngine.ToggleObject annotationToEdit;
 
     private bool isRecording;
     private string newFileName;
@@ -49,7 +49,7 @@ public class VideoEditor : MonoBehaviour
     {
         videoWasRecorded = false;
         IsRecording = false;
-        RootObject.Instance.imageTargetManager.enabled = true;
+        RootObject.Instance.ImageTargetManager.enabled = true;
         action = null;
         annotationToEdit = null;
         newFileName = string.Empty;
@@ -58,7 +58,7 @@ public class VideoEditor : MonoBehaviour
         Destroy(gameObject);
     }
 
-    public void Open(Action action, ToggleObject annotation)
+    public void Open(LearningExperienceEngine.Action action, LearningExperienceEngine.ToggleObject annotation)
     {
         gameObject.SetActive(true);
         this.action = action;
@@ -75,48 +75,15 @@ public class VideoEditor : MonoBehaviour
 
     public void OnAccept()
     {
-        Debug.Log("Video: Accept called");
+
         if (IsRecording)
         {
             StopRecording();
         }
 
-        /*
-#if UNITY_EDITOR
-        if (annotationToEdit == null)
-        {
-            // create dummy video clip so that the augmentation can be created in Unity (debugging only)
-            newFileName = "videoTest_MP4.mp4";
-            string targetPath = Path.Combine(activityManager.ActivityPath, newFileName);
-
-            try
-            {
-                if (!File.Exists(targetPath))
-                {
-                    File.Copy($"{Application.dataPath}/MirageXR/Player/videoTest_MP4.mp4", targetPath);
-                    File.Create(newFileName);
-                }
-            }
-            catch (FileNotFoundException e)
-            {
-                Debug.LogError(e);
-            }
-
-            videoWasRecorded = true;
-        }
-        else
-        {
-            Debug.LogError("In editor you are only able to edit the trigger setting. Video recording is not possible in the editor.");
-            SaveTriggerValue();
-            Close();
-            return;
-        }
-#endif
-        */
-        Debug.Log("videowasrecorded = " + videoWasRecorded);
         if (!videoWasRecorded)
         {
-            Debug.Log("just closing, no content was recorded.");
+            Debug.Log("[VideoEditor] just closing, no content was recorded.");
             // just close if no content was recorded
             SaveTriggerValue();
             Close();
@@ -126,26 +93,26 @@ public class VideoEditor : MonoBehaviour
 
         if (annotationToEdit != null)
         {
-            EventManager.DeactivateObject(annotationToEdit);
+            LearningExperienceEngine.EventManager.DeactivateObject(annotationToEdit);
         }
         else
         {
-            var workplaceManager = RootObject.Instance.workplaceManager;
-            Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
+            var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+            LearningExperienceEngine.Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
             GameObject originT = GameObject.Find(detectable.id);
 
             var startPointTr = annotationStartingPoint.transform;
             var offset = MirageXR.Utilities.CalculateOffset(startPointTr.position, startPointTr.rotation, originT.transform.position, originT.transform.rotation);
 
-            annotationToEdit = RootObject.Instance.augmentationManager.AddAugmentation(action, offset);
+            annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAugmentation(action, offset);
             annotationToEdit.predicate = "video";
         }
 
         // saving of the movie file has already happened since it has been written to file while recording
         annotationToEdit.url = httpPrefix + newFileName;
 
-        EventManager.ActivateObject(annotationToEdit);
-        EventManager.NotifyActionModified(action);
+        LearningExperienceEngine.EventManager.ActivateObject(annotationToEdit);
+        LearningExperienceEngine.EventManager.NotifyActionModified(action);
 
         SaveTriggerValue();
         Close();
@@ -170,13 +137,10 @@ public class VideoEditor : MonoBehaviour
     {
         if (isRecording)
         {
-            Debug.Log("Is already recording");
             return;
         }
 
-        Debug.Log("Record Video");
-
-        RootObject.Instance.imageTargetManager.enabled = false;
+        RootObject.Instance.ImageTargetManager.enabled = false;
         IsRecording = true;
 
         if (annotationToEdit != null)
@@ -192,11 +156,10 @@ public class VideoEditor : MonoBehaviour
 
     private void OnVideoRecordingStopped(bool result, string path)
     {
-        Debug.Log("recording was stopped");
         videoWasRecorded = result;
         IsRecording = false;
 
-        RootObject.Instance.imageTargetManager.enabled = true;
+        RootObject.Instance.ImageTargetManager.enabled = true;
 
         if (result)
         {
@@ -243,7 +206,7 @@ public class VideoEditor : MonoBehaviour
                 return;
             }
 
-            action.AddArlemTrigger(TriggerMode.Video, ActionType.Video, annotationToEdit.poi);
+            action.AddArlemTrigger(LearningExperienceEngine.TriggerMode.Video, LearningExperienceEngine.ActionType.Video, annotationToEdit.poi);
         }
         else
         {

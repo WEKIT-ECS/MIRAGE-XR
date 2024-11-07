@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class AnnotationEditor : MonoBehaviour
 {
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
     [SerializeField] private Button deleteAnnotation;
     [SerializeField] private GameObject lifeIcon;
 
@@ -12,7 +12,7 @@ public class AnnotationEditor : MonoBehaviour
 
     private void OnEnable()
     {
-        EventManager.OnEditModeChanged += SetEditModeState;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += SetEditModeState;
         if (activityManager != null)
         {
             SetEditModeState(activityManager.EditModeActive);
@@ -21,7 +21,7 @@ public class AnnotationEditor : MonoBehaviour
 
     private void OnDisable()
     {
-        EventManager.OnEditModeChanged -= SetEditModeState;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= SetEditModeState;
     }
 
     private void Start()
@@ -42,12 +42,12 @@ public class AnnotationEditor : MonoBehaviour
         if (TaskStationDetailMenu.Instance.SelectedButton == GetComponent<Button>())
             TaskStationDetailMenu.Instance.SelectedButton = null;
 
-        RootObject.Instance.augmentationManager.DeleteAugmentation(annotationListItem.DisplayedAnnotation);
+        LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.DeleteAugmentation(annotationListItem.DisplayedAnnotation);
 
     }
 
     public void LockAugmentation()
     {
-        EventManager.NotifyAugmentationLocked(annotationListItem.DisplayedAnnotation.poi, !annotationListItem.DisplayedAnnotation.positionLock);
+        LearningExperienceEngine.EventManager.NotifyAugmentationLocked(annotationListItem.DisplayedAnnotation.poi, !annotationListItem.DisplayedAnnotation.positionLock);
     }
 }

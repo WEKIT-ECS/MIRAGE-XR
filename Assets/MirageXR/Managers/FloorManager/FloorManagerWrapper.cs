@@ -22,6 +22,9 @@ public class FloorManagerWrapper : MonoBehaviour
 
     public async Task InitializationAsync()
     {
+#if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS || VISION_OS
+        _forceManagerType = ForceManagerType.ARFoundation;
+#endif
         _floorManager = CreateFloorManager();
 
         if (_floorManager == null)
@@ -60,7 +63,7 @@ public class FloorManagerWrapper : MonoBehaviour
     public void SetFloor(PlaneId planeId, Vector3 position)
     {
         _floorManager.SetFloor(planeId, position);
-        RootObject.Instance.planeManager.SelectPlane(planeId);
+        RootObject.Instance.PlaneManager.SelectPlane(planeId);
     }
 
     private IFloorManager CreateFloorManager()
@@ -89,7 +92,7 @@ public class FloorManagerWrapper : MonoBehaviour
 #if UNITY_EDITOR
         var floorManager = gameObject.AddComponent<FloorManagerEditor>();
         floorManager.prefabAnchor = _prefabEditorAnchor;
-#elif UNITY_IOS || UNITY_ANDROID
+#elif UNITY_IOS || UNITY_ANDROID || UNITY_VISIONOS
         var floorManager = gameObject.AddComponent<FloorManagerARFoundation>();
         floorManager.prefabAnchor = _prefabARFoundationAnchor;
 #else

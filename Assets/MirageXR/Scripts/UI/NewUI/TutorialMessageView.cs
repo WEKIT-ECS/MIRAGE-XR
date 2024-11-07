@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MirageXR;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,18 +9,42 @@ public class TutorialMessageView : MonoBehaviour
     [SerializeField] private TMP_Text _message;
     [SerializeField] private Button _btnGotIt;
     [SerializeField] private TMP_Text _btnText;
+    [SerializeField] private Button _btnExit;
+    [SerializeField] private TMP_Text _title;
 
-    private Action<TutorialModelUI> _action;
-    private TutorialModelUI _model;
+    private Action<TutorialStepModelUI> _nextAction;
+    private Action<TutorialStepModelUI> _exitAction;
+    private TutorialStepModelUI _model;
 
-    public void Initialization(TutorialModelUI model, Action<TutorialModelUI> onButtonClicked)
+    public void Initialization(TutorialStepModelUI model, Action<TutorialStepModelUI> onNextClicked, Action<TutorialStepModelUI> onExitClicked)
     {
-        _action = onButtonClicked;
+        _nextAction = onNextClicked;
+        _exitAction = onExitClicked;
         _model = model;
         _message.text = model.Message;
         _btnGotIt.onClick.AddListener(OnGotItButtonClicked);
+        _btnExit.onClick.AddListener(OnExitButtonClicked);
         _btnText.text = model.BtnText;
         transform.localPosition = new Vector3(0, GetPositionByY(), 0);
+
+        if (model.CanGoNext)
+        {
+            GameObject parentObject = _btnGotIt.transform.parent.gameObject;
+            parentObject.SetActive(true);
+        }
+
+        if (model.ParentTutorial != null)
+        {
+            // Context help has no parent and no exit button and title...
+            _title.text = model.ParentTutorial.Name;
+            _title.transform.parent.gameObject.SetActive(true);
+        }
+        else
+        {
+            // but it has the GotIt button.
+            GameObject parentObject = _btnGotIt.transform.parent.gameObject;
+            parentObject.SetActive(true);
+        }
     }
 
     private float GetPositionByY()
@@ -28,13 +53,13 @@ public class TutorialMessageView : MonoBehaviour
         float k;
         switch (_model.Position)
         {
-            case TutorialModelUI.MessagePosition.Top:
+            case TutorialStepModelUI.MessagePosition.Top:
                 k = 0.3f;
                 break;
-            case TutorialModelUI.MessagePosition.Middle:
+            case TutorialStepModelUI.MessagePosition.Middle:
                 k = 0f;
                 break;
-            case TutorialModelUI.MessagePosition.Bottom:
+            case TutorialStepModelUI.MessagePosition.Bottom:
                 k = -0.3f;
                 break;
             default:
@@ -46,7 +71,13 @@ public class TutorialMessageView : MonoBehaviour
 
     private void OnGotItButtonClicked()
     {
-        _action?.Invoke(_model);
+        _nextAction?.Invoke(_model);
+        Destroy(gameObject);
+    }
+
+    private void OnExitButtonClicked()
+    {
+        _exitAction?.Invoke(_model);
         Destroy(gameObject);
     }
 }

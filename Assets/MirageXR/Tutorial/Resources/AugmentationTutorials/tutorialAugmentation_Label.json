@@ -1,0 +1,118 @@
+{
+    "Name": "Label Guide",
+    "IntendedPlatform": "Mobile",
+    "Steps": [
+        {
+            "DelayInMilliseconds": 100.0,
+            "StepType": "UI",
+            "Id": "augmentation_label_text",
+            "Message": "Label augmentaions are basically floating text boxes you can use to give additional information on other objects. First, let's input what text the Label should show. When you're done, click Next!",
+            "Position": "Bottom",
+            "BtnText": "Next",
+            "CanGoNext": true
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_label_font_size",
+            "Message": "The font looks a bit small. Let's change that by pressing the button here.",
+            "Position": "Bottom" 
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_label_font_size_selector",
+            "Message": "Here we can change the size of the font using the turn dial below. Select a size that feels right, then click Next.",
+            "Position": "Top",
+            "BtnText": "Next",
+            "CanGoNext": true
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_label_text_color_toggle",
+            "Message": "Now let's go change the color of the label's text.",
+            "Position": "Top" 
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_label_color_picker",
+            "Message": "You can select any color on the pad below. Once you find one that feels right, click Next.",
+            "Position": "Top",
+            "BtnText": "Next",
+            "CanGoNext": true
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_label_background_color_toggle",
+            "Message": "And finally, let's see how to change the label background.",
+            "Position": "Top" 
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_label_color_picker",
+            "Message": "Try and select a colour that goes well with the text. Once you find one that feels right, click Next.",
+            "Position": "Top",
+            "BtnText": "Next",
+            "CanGoNext": true
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_label_settings_exit",
+            "Message": "Now that we're done here, we can close this dialogue.",
+            "Position": "Bottom" 
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_label_turn_toggle",
+            "Message": "This setting here sets if the label will rotate in world space towards the user. We can leave it on for now.",
+            "Position": "Top",
+            "BtnText": "Next",
+            "CanGoNext": true
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_label_gaze_toggle",
+            "Message": "Labels can also be used to jump to specific Steps. With this option enabled, when a user looks at a label for long enough, it will trigger the jump. Let's turn it on to test it out.",
+            "Position": "Top" 
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_label_gaze_duration",
+            "Message": "Here we select how long the user needs to look at the label for it to trigger. We can leave it alone for now.",
+            "Position": "Top",
+            "BtnText": "Next",
+            "CanGoNext": true
+        },
+        {   
+            "StepType": "UI",
+            "Id": "augmentation_label_jump_to",
+            "Message": "Here we select which step to jump to when the trigger happens. Select a step and then click Next.",
+            "Position": "Top",
+            "BtnText": "Next",
+            "CanGoNext": true
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentaion_label_apply",
+            "Message": "All done! Let's load the Label into the scene by pressing Apply.",
+            "Position": "Top" 
+        },
+        {
+            "StepType": "UI",
+            "Id": "ui_toggle",
+            "Message": "Let's lower the UI so we can take a look at the augmentation we just created.",
+            "Position": "Bottom" 
+        },
+        {
+            "DelayInMilliseconds": 100.0,
+            "StepType": "World",
+            "FocusObject": "<<LAST_AUGMENTATION_CREATED>>",
+            "ActualTarget": "TextObject",
+            "Message": "This is the Label we just created. You can now hold the middle of it to reposition it. If you switch to Play Mode you'll be able to see how the gaze trigger works. That's it!",
+            "FinishEvent": "ACTION_STEP_ACTIVATED",
+            "arrowRotationOffset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -10.0
+            }
+        }
+    ]
+}

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using ICSharpCode.SharpZipLib.Zip;
+using Unity.SharpZipLib.Zip;
 
 namespace TiltBrush {
 
@@ -48,8 +48,8 @@ public sealed class ZipOutputStreamWrapper_SharpZipLib : WrappedStream {
 }
 
 public sealed class ZipOutputStreamWrapper_DotNetZip : WrappedStream {
-  public ZipOutputStreamWrapper_DotNetZip(Ionic.Zip.ZipOutputStream wrapped) {
-    SetWrapped(wrapped, false);
-  }
+  // public ZipOutputStreamWrapper_DotNetZip(Ionic.Zip.ZipOutputStream wrapped) {
+  //   SetWrapped(wrapped, false);
+  // }
 }
 }  // namespace TiltBrush

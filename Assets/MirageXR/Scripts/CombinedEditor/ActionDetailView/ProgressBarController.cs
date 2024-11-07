@@ -5,9 +5,9 @@ using UnityEngine.UI;
 
 public class ProgressBarController : MonoBehaviour
 {
-    private static BrandManager brandManager => RootObject.Instance.brandManager;
+    private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
 
-    private static ActivityManager activityManager => RootObject.Instance.activityManager;
     [SerializeField] private GameObject stepPrefab;
     [SerializeField] private Color completedColor;
     [SerializeField] private Color activeColor;
@@ -17,14 +17,14 @@ public class ProgressBarController : MonoBehaviour
 
     private void OnEnable()
     {
-        EventManager.OnInitUi += UpdateUI;
-        EventManager.OnActivateAction += OnActivateAction;
+        LearningExperienceEngine.EventManager.OnInitUi += UpdateUI;
+        LearningExperienceEngine.EventManager.OnActivateAction += OnActivateAction;
     }
 
     private void OnDisable()
     {
-        EventManager.OnInitUi -= UpdateUI;
-        EventManager.OnActivateAction -= OnActivateAction;
+        LearningExperienceEngine.EventManager.OnInitUi -= UpdateUI;
+        LearningExperienceEngine.EventManager.OnActivateAction -= OnActivateAction;
     }
 
     private void OnActivateAction(string actionId)
@@ -49,7 +49,7 @@ public class ProgressBarController : MonoBehaviour
                 stepInstances.Add(img);
             }
 
-            List<Action> actions = activityManager.ActionsOfTypeAction;
+            List<LearningExperienceEngine.Action> actions = activityManager.ActionsOfTypeAction;
 
             if (actions[i].id == activityManager.ActiveActionId)
             {

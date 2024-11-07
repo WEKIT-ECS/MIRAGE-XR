@@ -1,0 +1,91 @@
+{
+    "Name": "Audio Guide",
+    "IntendedPlatform": "Mobile",
+    "Steps": [
+        {
+            "DelayInMilliseconds": 100.0,
+            "StepType": "UI",
+            "Id": "augmentation_audio_record",
+            "Message": "Audio augmentations can be used to play sounds and recordings back to the user. Let's try and create one. First, let's record an audio clip.",
+            "Position": "Bottom" 
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_audio_startstoprec",
+            "Message": "Press this button to start recording.",
+            "Position": "Top" 
+        },
+        {
+            "DelayInMilliseconds": 2500.0,
+            "StepType": "UI",
+            "Id": "augmentation_audio_startstoprec",
+            "Message": "Press it again when you're finished recording.",
+            "Position": "Top" 
+        },
+        {
+            "DelayInMilliseconds": 100.0,
+            "StepType": "UI",
+            "Id": "augmentation_audio_play",
+            "Message": "Now that we've recorded an audio clip, you can play it back up here.",
+            "Position": "Bottom",
+            "BtnText": "Next",
+            "CanGoNext": true
+        },
+        {
+            "DelayInMilliseconds": 2500.0,
+            "StepType": "UI",
+            "Id": "augmentation_audio_loop",
+            "Message": "You can select this option if you want the audio to loop. You can turn it on now, or click Next.",
+            "Position": "Top",
+            "BtnText": "Next",
+            "CanGoNext": true
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_audio_3d",
+            "Message": "Audio can just be played directly at full strength or it can be made to come from a single point. Moving away from that point will cause the audio to fade. Let's turn on that option.",
+            "Position": "Top" 
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_audio_radius",
+            "Message": "The dial here sets how far from the source of the sound the audio will start to fade. We can leave it as is, just click Next.",
+            "Position": "Top",
+            "BtnText": "Next",
+            "CanGoNext": true
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_audio_trigger",
+            "Message": "We can also set that when the audio finishes playing, we jump to a specific step. Let's leave that option of for now and click Next.",
+            "Position": "Top",
+            "BtnText": "Next",
+            "CanGoNext": true
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_audio_accept",
+            "Message": "Let's load the audio into the scene. To do that, just click the Done button below.",
+            "Position": "Top" 
+        },
+        {
+            "StepType": "UI",
+            "Id": "ui_toggle",
+            "Message": "Let's lower the UI so we can take a look at and listen to the augmentation we just created.",
+            "Position": "Bottom" 
+        },
+        {
+            "DelayInMilliseconds": 100.0,
+            "StepType": "World",
+            "FocusObject": "<<LAST_AUGMENTATION_CREATED>>",
+            "ActualTarget": "audio",
+            "Message": "This orb represents the point of origin (source) of your created audio. You can now hold the middle of it to reposition it. That's it for the tutorial!",
+            "FinishEvent": "ACTION_STEP_ACTIVATED",
+            "arrowRotationOffset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        }
+    ]
+}

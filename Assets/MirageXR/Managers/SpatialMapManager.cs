@@ -7,12 +7,12 @@ public class SpatialMapManager : MonoBehaviour
 {
     private MeshCollider[] spatialMapMeshs;
     
-    private static PlaneManagerWrapper planeManager => RootObject.Instance.planeManager;
+    private static PlaneManagerWrapper planeManager => RootObject.Instance.PlaneManager;
 
 #if UNITY_WSA
     private void Start()
     {
-        UpdateSpatialMapColliders(RootObject.Instance.activityManager.EditModeActive);
+        UpdateSpatialMapColliders(RootObject.Instance.LEE.activityManager.EditModeActive);
         //set colliders when first loading an activity
 
         planeManager.onDetectionEnabled.AddListener(OnDetectionEnabled);
@@ -22,28 +22,28 @@ public class SpatialMapManager : MonoBehaviour
     private void OnDetectionDisabled()
     {
         SpatialMapMeshVisible(false);
-        UpdateSpatialMapColliders(RootObject.Instance.activityManager.EditModeActive);
+        UpdateSpatialMapColliders(RootObject.Instance.LEE.activityManager.EditModeActive);
     }
 
     private void OnDetectionEnabled()
     {
         SpatialMapMeshVisible(true);
-        if (RootObject.Instance.activityManager.EditModeActive)
+        if (RootObject.Instance.LEE.activityManager.EditModeActive)
         {
-            UpdateSpatialMapColliders(!RootObject.Instance.activityManager.EditModeActive);
+            UpdateSpatialMapColliders(!RootObject.Instance.LEE.activityManager.EditModeActive);
         }
     }
 
 
     private void OnEnable()
     {
-        EventManager.OnEditModeChanged += UpdateSpatialMapColliders;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += UpdateSpatialMapColliders;
     }
 
 
     private void OnDisable()
     {
-        EventManager.OnEditModeChanged -= UpdateSpatialMapColliders;
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= UpdateSpatialMapColliders;
 
     }
     //set colliders when edit mode is changed

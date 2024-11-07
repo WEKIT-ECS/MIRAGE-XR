@@ -53,6 +53,9 @@ public class PlaneManagerWrapper : MonoBehaviour
 
     public async Task InitializationAsync()
     {
+#if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS || VISION_OS
+        _forceManagerType = ForceManagerType.ARFoundation;
+#endif
         _manager = CreateManager();
 
         if (_manager == null)
@@ -123,10 +126,12 @@ public class PlaneManagerWrapper : MonoBehaviour
             case ForceManagerType.Default:
                 return CreateDefaultManager();
             case ForceManagerType.Editor:
+                Debug.Log("PlaneManager - Editor");
                 var managerEditor = gameObject.AddComponent<PlaneManagerEditor>();
                 managerEditor.prefabPlane = _prefabEditorPlane;
                 return managerEditor;
             case ForceManagerType.ARFoundation:
+                Debug.Log("PlaneManager - AR foundation");
                 var managerARFoundation = gameObject.AddComponent<PlaneManagerARFoundation>();
                 managerARFoundation.prefabPlane = _prefabARFoundationPlane;
                 return managerARFoundation;
@@ -142,7 +147,7 @@ public class PlaneManagerWrapper : MonoBehaviour
 #if UNITY_EDITOR
         var manager = gameObject.AddComponent<PlaneManagerEditor>();
         manager.prefabPlane = _prefabEditorPlane;
-#elif UNITY_IOS || UNITY_ANDROID
+#elif UNITY_IOS || UNITY_ANDROID || UNITY_VISIONOS
         var manager = gameObject.AddComponent<PlaneManagerARFoundation>();
         manager.prefabPlane = _prefabARFoundationPlane;
 #else

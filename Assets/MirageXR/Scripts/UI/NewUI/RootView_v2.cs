@@ -20,7 +20,7 @@ public class RootView_v2 : BaseView
     [SerializeField] private ViewCamera _viewCamera;
     [Space]
     [SerializeField] private Dialog _dialog;
-    [SerializeField] private TutorialUI _tutorial;
+    [SerializeField] private TutorialHandlerUI _tutorial;
 
     public enum HelpPage
     {
@@ -45,7 +45,7 @@ public class RootView_v2 : BaseView
 
     public Dialog dialog => _dialog;
 
-    public TutorialUI Tutorial => _tutorial;
+    public TutorialHandlerUI Tutorial => _tutorial;
 
     public ViewCamera viewCamera => _viewCamera;
 
@@ -66,7 +66,7 @@ public class RootView_v2 : BaseView
     {
         await _viewCamera.SetupFormat(PlatformManager.GetDeviceFormat());
         Initialization(null);
-        EventManager.OnEditModeChanged += EditModeChangedForHelp;
+        LearningExperienceEngine.EventManager.OnEditModeChanged += EditModeChangedForHelp;
     }
 
     public override async void Initialization(BaseView parentView)
@@ -82,38 +82,38 @@ public class RootView_v2 : BaseView
 
         _pageView.OnPageChanged.AddListener(OnPageChanged);
 
-        EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
-        EventManager.OnActivityStarted += OnActivityLoaded;
+        LearningExperienceEngine.EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
+        LearningExperienceEngine.EventManager.OnStartActivity += OnActivityLoaded;
         EventManager.OnMobileHelpPageChanged += UpdateHelpPage;
 
-        if (!DBManager.LoggedIn && DBManager.rememberUser)
+        if (!LearningExperienceEngine.UserSettings.LoggedIn && LearningExperienceEngine.UserSettings.rememberUser)
         {
             await AutoLogin();
         }
 
-        if (!DBManager.LoggedIn)
+        if (!LearningExperienceEngine.UserSettings.LoggedIn)
         {
             var dontShowLoginMenu = false;
             PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu, null);
         }
 
-        RootObject.Instance.cameraCalibrationChecker.onAnchorLost.AddListener(ShowCalibrationAlert);
+        RootObject.Instance.CameraCalibrationChecker.onAnchorLost.AddListener(ShowCalibrationAlert);
     }
 
     private void OnDestroy()
     {
-        EventManager.OnWorkplaceLoaded -= OnWorkplaceLoaded;
-        EventManager.OnActivityStarted -= OnActivityLoaded;
+        LearningExperienceEngine.EventManager.OnWorkplaceLoaded -= OnWorkplaceLoaded;
+        LearningExperienceEngine.EventManager.OnStartActivity -= OnActivityLoaded;
         EventManager.OnMobileHelpPageChanged -= UpdateHelpPage;
         if (RootObject.Instance != null)
         {
-            RootObject.Instance.cameraCalibrationChecker.onAnchorLost.RemoveListener(ShowCalibrationAlert);
+            RootObject.Instance.CameraCalibrationChecker.onAnchorLost.RemoveListener(ShowCalibrationAlert);
         }
     }
 
     private void OnWorkplaceLoaded()
     {
-        if (!DBManager.dontShowCalibrationGuide && !_tutorial.IsActivated)
+        if (!LearningExperienceEngine.UserSettings.dontShowCalibrationGuide && !_tutorial.IsActivated)
         {
             PopupsViewer.Instance.Show(_calibrationGuideViewPrefab);
         }
@@ -126,10 +126,10 @@ public class RootView_v2 : BaseView
 
     private async Task AutoLogin()
     {
-        if (!LocalFiles.TryToGetUsernameAndPassword(out var username, out var password)) return;
+        if (!LearningExperienceEngine.UserSettings.TryToGetUsernameAndPassword(out var username, out var password)) return;
 
         LoadView.Instance.Show();
-        await RootObject.Instance.moodleManager.Login(username, password);
+        await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.Login(username, password);
         LoadView.Instance.Hide();
     }
 
@@ -173,8 +173,8 @@ public class RootView_v2 : BaseView
     public async void CreateNewActivity()
     {
         LoadView.Instance.Show();
-        await RootObject.Instance.editorSceneService.LoadEditorAsync();
-        await RootObject.Instance.activityManager.CreateNewActivity();
+        await RootObject.Instance.EditorSceneService.LoadEditorAsync();
+        await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.CreateNewActivity();
         _pageView.currentPageIndex = 1;
         LoadView.Instance.Hide();
     }

@@ -1,0 +1,86 @@
+{
+    "Name": "Pick and Place Guide",
+    "IntendedPlatform": "Mobile",
+    "Steps": [
+        {
+            "DelayInMilliseconds": 100.0,
+            "StepType": "UI",
+            "Id": "augmentation_pnp_label",
+            "Message": "Pick and Place augmentations are used to increase the interactivity of your step by asking the user to pick up and place objects in predefined places. Let's try and create one. First we'll add the text that will be shown. When you're satisfied with the label text, click Next.",
+            "Position": "Bottom",
+            "BtnText": "Next",
+            "CanGoNext": true
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_pnp_trigger_correct",
+            "Message": "When the user places an item correctly, we have the option to enable step change triggers. This provides feedback to the user for completing an action correctly. Let's enable it. Just make sure you have at least two action steps created, otherwise you can just go through the tutorial again.",
+            "Position": "Bottom" 
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_pnp_trigger_correct_step",
+            "Message": "Now we can input which step we want to jump to upon a successful place. Best to put a number that's different from the current step number. Once you're done, press Next.",
+            "Position": "Top",
+            "BtnText": "Next",
+            "CanGoNext": true
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_pnp_trigger_incorrect",
+            "Message": "The same can be done for when a user fails to correctly place an item. Let's leave that option off for now.",
+            "Position": "Bottom",
+            "BtnText": "Next",
+            "CanGoNext": true
+        },
+        {
+            "StepType": "UI",
+            "Id": "augmentation_pnp_apply",
+            "Message": "Let's load the Pick and Place into the scene. To do that, just click the Accept button below.",
+            "Position": "Top" 
+        },
+        {
+            "StepType": "UI",
+            "Id": "ui_toggle",
+            "Message": "Let's lower the UI so we can take a look at the augmentation we just created.",
+            "Position": "Bottom" 
+        },
+        {
+            "DelayInMilliseconds": 100.0,
+            "StepType": "World",
+            "FocusObject": "<<LAST_AUGMENTATION_CREATED>>",
+            "ActualTarget": "Canvas",
+            "Message": "This is the augmentation we just created. As we're in Edit mode now, we can change the position of this (the arrow) and the target (sphere). Let's try and change the arrow's position, you can also change the position of the target if you'd like.",
+            "FinishEvent": "PICK_POSITION_CHANGED",
+            "arrowRotationOffset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "StepType": "World",
+            "FocusObject": "<<LAST_AUGMENTATION_CREATED>>",
+            "ActualTarget": "shield_sphere",
+            "Message": "Now that we've placed the target and the arrow, let's change over to Play mode to test it out.",
+            "FinishEvent": "EDIT_MODE_CHANGED",
+            "arrowRotationOffset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "StepType": "World",
+            "FocusObject": "<<LAST_AUGMENTATION_CREATED>>",
+            "ActualTarget": "shield_sphere",
+            "Message": "Ok, now's the time. You can grab and move the arrow into the target here! That will complete the tutorial.",
+            "FinishEvent": "PICK_AND_PLACED",
+            "arrowRotationOffset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        }
+    ]
+}

@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using LearningExperienceEngine;
+using System.Reflection;
 using MirageXR;
 using NUnit.Framework;
 using UnityEditor.SceneManagement;
@@ -173,7 +174,7 @@ namespace Tests
                 id = "activeActionId"
             };
 
-            SetPrivateProperty(rootObject.activityManager, "ActiveAction", activeAction);
+            SetPrivateProperty(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld, "ActiveAction", activeAction);
 
             actionListItem.UpdateView();
 
@@ -201,7 +202,7 @@ namespace Tests
                 id = "activeActionId"
             };
 
-            SetPrivateProperty(rootObject.activityManager, "ActiveAction", activeAction);
+            SetPrivateProperty(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld, "ActiveAction", activeAction);
 
             actionListItem.UpdateView();
 

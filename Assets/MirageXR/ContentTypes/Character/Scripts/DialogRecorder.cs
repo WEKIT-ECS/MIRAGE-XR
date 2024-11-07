@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using LearningExperienceEngine;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
@@ -7,7 +8,7 @@ namespace MirageXR
 {
     public class DialogRecorder : MonoBehaviour
     {
-        private static ActivityManager activityManager => RootObject.Instance.activityManager;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
         [SerializeField] private GameObject recordButton;
         [SerializeField] private GameObject stopButton;
         [SerializeField] private GameObject playButton;
@@ -84,7 +85,7 @@ namespace MirageXR
 
                 if (File.Exists(_clipPath))
                 {
-                    _audioSource.clip = SaveLoadAudioUtilities.LoadAudioFile(_clipPath);
+                    _audioSource.clip = LearningExperienceEngine.SaveLoadAudioUtilities.LoadAudioFile(_clipPath);
                     _audioEditor.PlayerAudioSource.clip = _audioSource.clip;
                 }
             }
@@ -94,12 +95,12 @@ namespace MirageXR
 
         private void OnEnable()
         {
-            EventManager.OnEditModeChanged += SetEditorState;
+            LearningExperienceEngine.EventManager.OnEditModeChanged += SetEditorState;
         }
 
         private void OnDisable()
         {
-            EventManager.OnEditModeChanged -= SetEditorState;
+            LearningExperienceEngine.EventManager.OnEditModeChanged -= SetEditorState;
         }
 
         private void SetEditorState(bool editModeActive)
@@ -256,7 +257,7 @@ namespace MirageXR
             if (!File.Exists(_clipPath) || MyCharacter.AIActivated) return;
 
             MyCharacter.AudioEditorCheck();
-            var dialogClip = SaveLoadAudioUtilities.LoadAudioFile(_clipPath);
+            var dialogClip = LearningExperienceEngine.SaveLoadAudioUtilities.LoadAudioFile(_clipPath);
             _audioSource.clip = dialogClip;
             _audioSource.loop = LoopToggle.isOn;
             _audioSource.Play();

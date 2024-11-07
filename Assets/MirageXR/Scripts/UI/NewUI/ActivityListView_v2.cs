@@ -1,12 +1,11 @@
 using DG.Tweening;
-using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+//using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -36,14 +35,16 @@ public class ActivityListView_v2 : BaseView
     [SerializeField] private TMP_Text _txtShowby;
     [SerializeField] private TMP_Text _txtSortby;
 
-    private List<SessionContainer> _content;
+    private List<LearningExperienceEngine.SessionContainer> _content;
     private readonly List<ActivityListItem_v2> _items = new List<ActivityListItem_v2>();
     private bool _interactable = true;
     private static bool _orderByRelavance = false;
     private Vector2 _panelSize;
 
-    public List<SessionContainer> content => _content;
+    public List<LearningExperienceEngine.SessionContainer> content => _content;
 
+    //private List<Activity> _activities;
+    
     private RootView_v2 rootView => (RootView_v2)_parentView;
 
     public override void Initialization(BaseView parentView)
@@ -60,27 +61,35 @@ public class ActivityListView_v2 : BaseView
 
         _panelSize = _panel.sizeDelta;
 
-        EventManager.OnActivityStarted += ShowBackButtons;
+        LearningExperienceEngine.EventManager.OnStartActivity += ShowBackButtons;
+
+        //RootObject.Instance.ActivityManager.OnActivitiesFetched += OnActivitiesFetched;
 
         FetchAndUpdateView();
     }
 
+    /*private void OnActivitiesFetched(List<Activity> activities)
+    {
+        _activities = activities;
+        UpdateView();
+    }*/
+
     private void OnDestroy()
     {
-        EventManager.OnActivityStarted -= ShowBackButtons;
+        LearningExperienceEngine.EventManager.OnStartActivity -= ShowBackButtons;
     }
 
-    private static async Task<List<SessionContainer>> FetchContent()
+    private static async Task<List<LearningExperienceEngine.SessionContainer>> FetchContent()
     {
-        var dictionary = new Dictionary<string, SessionContainer>();
+        var dictionary = new Dictionary<string, LearningExperienceEngine.SessionContainer>();
 
         if (_orderByRelavance)
         {
-            var activityList = await RootObject.Instance.moodleManager.GetArlemList();
+            var activityList = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.GetArlemList();
             return OrderByRelavance(activityList).Values.ToList();
         }
 
-        var localList = await LocalFiles.GetDownloadedActivities();
+        var localList = await LearningExperienceEngine.LocalFiles.GetDownloadedActivities();
         localList.ForEach(t =>
         {
             if (dictionary.ContainsKey(t.id))
@@ -89,11 +98,11 @@ public class ActivityListView_v2 : BaseView
             }
             else
             {
-                dictionary.Add(t.id, new SessionContainer { Activity = t });
+                dictionary.Add(t.id, new LearningExperienceEngine.SessionContainer { Activity = t });
             }
         });
 
-        var remoteList = await RootObject.Instance.moodleManager.GetArlemList();
+        var remoteList = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.GetArlemList();
         remoteList?.ForEach(t =>
         {
             if (dictionary.ContainsKey(t.sessionid))
@@ -102,7 +111,7 @@ public class ActivityListView_v2 : BaseView
             }
             else
             {
-                dictionary.Add(t.sessionid, new SessionContainer { Session = t });
+                dictionary.Add(t.sessionid, new LearningExperienceEngine.SessionContainer { Session = t });
             }
         });
 
@@ -122,6 +131,7 @@ public class ActivityListView_v2 : BaseView
     public async void FetchAndUpdateView()
     {
         LoadView.Instance?.Show(true);
+        //await RootObject.Instance.ActivityManager.FetchActivitiesAsync();
         _content = await FetchContent();
         UpdateView();
         LoadView.Instance?.Hide();
@@ -138,13 +148,22 @@ public class ActivityListView_v2 : BaseView
         _items.ForEach(item => Destroy(item.gameObject));
         _items.Clear();
 
-        var prefab = !DBManager.showBigCards ? _smallItemPrefab : _bigItemPrefab;
+        var prefab = !LearningExperienceEngine.UserSettings.showBigCards ? _smallItemPrefab : _bigItemPrefab;
         _content.ForEach(content =>
         {
             var item = Instantiate(prefab, _listTransform);
             item.Init(content);
             _items.Add(item);
         });
+
+        /*if (_activities != null)
+        {
+            foreach (var activity in _activities)
+            {
+                var item = Instantiate(prefab, _listTransform);
+                item.Init(activity);
+                _items.Add(item);
+            */
     }
 
     private void OnByDateClick()
@@ -166,15 +185,15 @@ public class ActivityListView_v2 : BaseView
     {
         LoadView.Instance.Show();
         RootView_v2.Instance.OnActivityLoaded();
-        await RootObject.Instance.activityManager.ActivateFirstAction();
+        await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActivateFirstAction();
         LoadView.Instance.Hide();
     }
 
     private async void OnNewActivityChanged()
     {
         LoadView.Instance.Show();
-        await RootObject.Instance.editorSceneService.LoadEditorAsync();
-        await RootObject.Instance.activityManager.CreateNewActivity();
+        await RootObject.Instance.EditorSceneService.LoadEditorAsync();
+        await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.CreateNewActivity();
         LoadView.Instance.Hide();
     }
 
@@ -200,17 +219,17 @@ public class ActivityListView_v2 : BaseView
     {
         foreach (var item in _items)
         {
-            switch (DBManager.currentShowby)
+            switch (LearningExperienceEngine.UserSettings.currentShowby)
             {
-                case DBManager.ShowBy.ALL:
+                case LearningExperienceEngine.UserSettings.ShowBy.ALL:
                     item.gameObject.SetActive(true);
                     _txtShowby.text = "Show All";
                     break;
-                case DBManager.ShowBy.MYACTIVITIES:
+                case LearningExperienceEngine.UserSettings.ShowBy.MYACTIVITIES:
                     item.gameObject.SetActive(item.GetComponent<ActivityListItem_v2>().userIsAuthor);
                     _txtShowby.text = "My Activities";
                     break;
-                case DBManager.ShowBy.MYASSIGNMENTS:
+                case LearningExperienceEngine.UserSettings.ShowBy.MYASSIGNMENTS:
                     item.gameObject.SetActive(item.GetComponent<ActivityListItem_v2>().userIsEnroled);
                     _txtShowby.text = "My Assignments";
                     break;
@@ -220,40 +239,40 @@ public class ActivityListView_v2 : BaseView
 
     public void OnSortbyChanged()
     {
-        switch (DBManager.currentSortby)
+        switch (LearningExperienceEngine.UserSettings.currentSortby)
         {
-            case DBManager.SortBy.DATE:
+            case LearningExperienceEngine.UserSettings.SortBy.DATE:
                 _orderByRelavance = false;
                 _txtSortby.text = "By Date";
                 FetchAndUpdateView();
                 break;
-            case DBManager.SortBy.RELEVEANCE:
+            case LearningExperienceEngine.UserSettings.SortBy.RELEVEANCE:
                 _orderByRelavance = true;
                 _txtSortby.text = "By Relevence";
                 FetchAndUpdateView();
                 break;
         }
 
-        DBManager.currentShowby = DBManager.ShowBy.ALL;
+        LearningExperienceEngine.UserSettings.currentShowby = LearningExperienceEngine.UserSettings.ShowBy.ALL;
 
         OnShowByChanged();
     }
 
-    private static Dictionary<string, SessionContainer> OrderByRelavance(List<Session> activityList)
+    private static Dictionary<string, LearningExperienceEngine.SessionContainer> OrderByRelavance(List<LearningExperienceEngine.Session> activityList)
     {
-        var dictionary = new Dictionary<string, SessionContainer>();
+        var dictionary = new Dictionary<string, LearningExperienceEngine.SessionContainer>();
 
-        var sessionContainersByDate = new List<KeyValuePair<DateTime, SessionContainer>>();
+        var sessionContainersByDate = new List<KeyValuePair<DateTime, LearningExperienceEngine.SessionContainer>>();
 
         foreach (var activity in activityList)
         {
-            SessionContainer sessionContainer = new SessionContainer { Session = activity };
+            LearningExperienceEngine.SessionContainer sessionContainer = new LearningExperienceEngine.SessionContainer { Session = activity };
 
             if (sessionContainer.hasDeadline)
             {
                 if (DateTime.TryParse(sessionContainer.Session.deadline, out var date))
                 {
-                    sessionContainersByDate.Add(new KeyValuePair<DateTime, SessionContainer>(date, sessionContainer));
+                    sessionContainersByDate.Add(new KeyValuePair<DateTime, LearningExperienceEngine.SessionContainer>(date, sessionContainer));
                 }
                 else
                 {
@@ -262,7 +281,7 @@ public class ActivityListView_v2 : BaseView
             }
         }
 
-        List<KeyValuePair<DateTime, SessionContainer>> sortedDateList = sessionContainersByDate.OrderBy(d => d.Value).ToList();
+        List<KeyValuePair<DateTime, LearningExperienceEngine.SessionContainer>> sortedDateList = sessionContainersByDate.OrderBy(d => d.Value).ToList();
 
         foreach (var keypair in sortedDateList)
         {
@@ -274,7 +293,7 @@ public class ActivityListView_v2 : BaseView
         {
             if (!dictionary.ContainsKey(activity.sessionid))
             {
-                SessionContainer sessionContainer = new SessionContainer { Session = activity };
+                LearningExperienceEngine.SessionContainer sessionContainer = new LearningExperienceEngine.SessionContainer { Session = activity };
 
                 if (sessionContainer.userIsOwner)
                 {
@@ -287,7 +306,7 @@ public class ActivityListView_v2 : BaseView
         {
             if (!dictionary.ContainsKey(activity.sessionid))
             {
-                dictionary.Add(activity.sessionid, new SessionContainer { Session = activity });
+                dictionary.Add(activity.sessionid, new LearningExperienceEngine.SessionContainer { Session = activity });
             }
         }
 
@@ -310,7 +329,7 @@ public class ActivityListView_v2 : BaseView
 
         if (tutorialActivity != null)
         {
-            LocalFiles.TryDeleteActivity(tutorialActivity.id);
+            LearningExperienceEngine.LocalFiles.TryDeleteActivity(tutorialActivity.id);
 
             UpdateView();
         }
@@ -355,7 +374,7 @@ public class ActivityListView_v2 : BaseView
 
         await stream.WriteAsync(www.downloadHandler.data);
 
-        await ZipUtilities.ExtractZipFileAsync(stream, Application.persistentDataPath);
+        await LearningExperienceEngine.ZipUtilities.ExtractZipFileAsync(stream, Application.persistentDataPath);
 
         stream.Close();
 
@@ -364,11 +383,11 @@ public class ActivityListView_v2 : BaseView
         CreateTutorialActivityCard();
     }
 
-    private async void MoveTutorialActivityToLocalFilesIOS()
+    private async Task MoveTutorialActivityToLocalFilesIOS() // was void
     {
         var stream = new FileStream(Path.Combine(Application.streamingAssetsPath, "TutorialActivity.zip"), FileMode.Open);
 
-        await ZipUtilities.ExtractZipFileAsync(stream, Application.persistentDataPath);
+        await LearningExperienceEngine.ZipUtilities.ExtractZipFileAsync(stream, Application.persistentDataPath);
 
         stream.Close();
 
@@ -381,17 +400,17 @@ public class ActivityListView_v2 : BaseView
 
         if (t != null)
         {
-            var sessionContatiner = new SessionContainer { Activity = t };
+            var sessionContatiner = new LearningExperienceEngine.SessionContainer { Activity = t };
 
             _content.Insert(0, sessionContatiner);
             UpdateView();
         }
     }
 
-    private async Task<Activity> TryGetTutorialFromLocalFiles()
+    private async Task<LearningExperienceEngine.Activity> TryGetTutorialFromLocalFiles()
     {
         var filePath = Path.Combine(Application.persistentDataPath, "session-2023-02-24_11-18-29-activity.json");
-        var activity = await LocalFiles.ReadActivityAsync(filePath);
+        var activity = await LearningExperienceEngine.LocalFiles.ReadActivityAsync(filePath);
         return activity;
     }
 }
