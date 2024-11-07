@@ -183,9 +183,14 @@ namespace MirageXR
 			_voiceSources.Remove(voiceSource);
 		}
 
-		public void RegisterUserData(NetworkedUserData userData)
+		public void RegisterLocalUserData(NetworkedUserData userData)
 		{
 			userData.UserDataSource = LocalUserData;
+		}
+
+		public NetworkedUserData GetUserData(PlayerRef playerRef)
+		{
+			return _networkRunner.GetPlayerObject(playerRef).GetBehaviour<NetworkedUserData>();
 		}
 
 		private string GenerateInvitationCode()

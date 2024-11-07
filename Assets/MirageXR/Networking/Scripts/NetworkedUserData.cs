@@ -15,6 +15,9 @@ namespace MirageXR
 	public class NetworkedUserData : NetworkBehaviour
 	{
 		private UserData _userDataSource;
+		private ChangeDetector _changeDetector;
+
+		public event Action<string> NetworkedUserNameChanged;
 
 		[Networked, Capacity(25)]
 		public string UserName { get; set; }
@@ -39,13 +42,30 @@ namespace MirageXR
 			UserName = newUserName;
 		}
 
+		public override void Render()
+		{
+			base.Render();
+
+			foreach (var change in _changeDetector.DetectChanges(this))
+			{
+				switch (change)
+				{
+					case nameof(UserName):
+						NetworkedUserNameChanged?.Invoke(UserName);
+						break;
+				}
+			}
+		}
+
 		public override async void Spawned()
 		{
 			base.Spawned();
 
+			_changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
+
 			if (HasStateAuthority)
 			{
-				CollaborationManager.Instance.RegisterUserData(this);
+				CollaborationManager.Instance.RegisterLocalUserData(this);
 			}
 		}
 	}
