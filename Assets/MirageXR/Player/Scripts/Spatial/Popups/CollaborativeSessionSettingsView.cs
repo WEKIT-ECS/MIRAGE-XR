@@ -1,7 +1,10 @@
+using Fusion;
 using i5.Toolkit.Core.OpenIDConnectClient;
 using i5.Toolkit.Core.ServiceCore;
 using LearningExperienceEngine;
 using System;
+using System.Collections.Generic;
+using System.Drawing.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -32,12 +35,35 @@ namespace MirageXR
 #if FUSION2
 			_invitationCodeLabel.text = CollaborationManager.Instance.InvitationCode;
 			_passwordLabel.text = CollaborationManager.Instance.SessionPassword;
-			_userNameLabel.text = CollaborationManager.Instance.LocalUserData.UserName;
+			_userNameLabel.text = CollaborationManager.Instance.UserManager.LocalUserData.UserName;
 			_micToggle.isOn = CollaborationManager.Instance.VoiceMicrophoneEnabled;
 			_micToggle.SafeAddListener(OnMicToggleChanged);
 			_audioToggle.isOn = !CollaborationManager.Instance.MuteVoiceChat;
 			_audioToggle.SafeAddListener(OnAudioToggleChanged);
+			CollaborationManager.Instance.UserManager.UserListChanged += OnNetworkedUserDataListChanged;
 #endif
+		}
+
+		private void OnNetworkedUserDataListChanged()
+		{
+			UpdatePlayerList();
+		}
+
+		public void UpdatePlayerList()
+		{
+			List<string> userNames = new List<string>();
+			foreach (PlayerRef playerRef in CollaborationManager.Instance.UserManager.UserList)
+			{
+				NetworkedUserData networkedUserData = CollaborationManager.Instance.UserManager.GetNetworkedUserDataOrDefault(playerRef);
+				userNames.Add(networkedUserData.UserName);
+			}
+
+			string output = "Player List:\n";
+			foreach (string userName in userNames)
+			{
+				output += userName + "\n";
+			}
+			Debug.Log(output);
 		}
 
 		private void OnMicToggleChanged(bool micEnabled)
