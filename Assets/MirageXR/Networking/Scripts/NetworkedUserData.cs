@@ -63,10 +63,9 @@ namespace MirageXR
 
 			_changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
 
-			if (HasStateAuthority)
-			{
-				CollaborationManager.Instance.RegisterLocalUserData(this);
-			}
+			Runner.SetPlayerObject(Object.StateAuthority, Object);
+
+			CollaborationManager.Instance.UserManager.RegisterNetworkedUserData(Object.StateAuthority, this);
 		}
 	}
 #else
