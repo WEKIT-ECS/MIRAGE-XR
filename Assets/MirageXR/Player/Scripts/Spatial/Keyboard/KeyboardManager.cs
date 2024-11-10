@@ -1,15 +1,13 @@
-#if TEXT_MESH_PRO_PRESENT || (UGUI_2_0_PRESENT && UNITY_6000_0_OR_NEWER)
+using UnityEngine;
 using TMPro;
 using UnityEngine.XR.Interaction.Toolkit.Utilities;
+using UnityEngine.XR.Interaction.Toolkit.Samples.SpatialKeyboard;
 
-namespace UnityEngine.XR.Interaction.Toolkit.Samples.SpatialKeyboard
+namespace MirageXR
 {
-    /// <summary>
-    /// Manages spawning and positioning of the global keyboard.
-    /// </summary>
-    public class GlobalNonNativeKeyboard : MonoBehaviour
+    public class KeyboardManager : MonoBehaviour
     {
-        public static GlobalNonNativeKeyboard instance { get; private set; }
+        public static KeyboardManager instance { get; private set; }
 
         [SerializeField, Tooltip("The prefab with the XR Keyboard component to automatically instantiate.")]
         GameObject m_KeyboardPrefab;
@@ -219,12 +217,11 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.SpatialKeyboard
             //     target.forward * m_KeyboardOffset.z +
             //     Vector3.up * m_KeyboardOffset.y;
             
-            /* m_CameraTransform.position = GameObject.Find("VolumeCamera(Clone)").transform.position;
-            Debug.Log(GameObject.Find("VolumeCamera(Clone)"));
-            m_CameraTransform.position = new Vector3(m_CameraTransform.position.x, 1, m_CameraTransform.position.z);
-            Debug.Log(m_CameraTransform.position);
-            keyboard.transform.position = m_CameraTransform.position;
-            m_CameraTransform = GameObject.Find("VolumeCamera(Clone)").transform; */
+            var baseCamera = RootObject.Instance.BaseCamera;
+            //baseCamera.transform.position = new Vector3(baseCamera.transform.position.x, baseCamera.transform.position.y - 0.55f, baseCamera.transform.position.z + 0.3f);
+            keyboard.transform.position = (baseCamera.transform.forward * 0.5f) + baseCamera.transform.position - new Vector3(0, 0.3f, 0);
+            //keyboard.transform.Rotate(35, 0, 0);
+            m_CameraTransform = baseCamera.transform;
             FaceKeyboardAtTarget(m_CameraTransform);
         }
 
@@ -248,4 +245,4 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.SpatialKeyboard
         }
     }
 }
-#endif
+
