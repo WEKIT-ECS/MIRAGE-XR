@@ -5,6 +5,7 @@ using LearningExperienceEngine;
 using System;
 using System.Collections.Generic;
 using System.Drawing.Text;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,12 +15,18 @@ namespace MirageXR
 {
 	public class CollaborativeSessionSettingsView : PopupBase
 	{
+		[Header("References")]
 		[SerializeField] private Button _btnClose;
 		[SerializeField] private TMP_Text _invitationCodeLabel;
 		[SerializeField] private TMP_Text _passwordLabel;
 		[SerializeField] private TMP_Text _userNameLabel;
 		[SerializeField] private Toggle _micToggle;
 		[SerializeField] private Toggle _audioToggle;
+		[SerializeField] private Transform _userListContainer;
+		[Header("Prefabs")]
+		[SerializeField] private GameObject _userListItemPrefab;
+
+		private List<UserListItem> _userListItems = new List<UserListItem>();
 
 		protected override bool TryToGetArguments(params object[] args)
 		{
@@ -41,6 +48,8 @@ namespace MirageXR
 			_audioToggle.isOn = !CollaborationManager.Instance.MuteVoiceChat;
 			_audioToggle.SafeAddListener(OnAudioToggleChanged);
 			CollaborationManager.Instance.UserManager.UserListChanged += OnNetworkedUserDataListChanged;
+			_userListItems = _userListContainer.GetComponentsInChildren<UserListItem>().ToList();
+			UpdatePlayerList();
 #endif
 		}
 
@@ -49,21 +58,41 @@ namespace MirageXR
 			UpdatePlayerList();
 		}
 
-		public void UpdatePlayerList()
+		private void UpdatePlayerList()
 		{
-			List<string> userNames = new List<string>();
-			foreach (PlayerRef playerRef in CollaborationManager.Instance.UserManager.UserList)
+			List<PlayerRef> users = CollaborationManager.Instance.UserManager.UserList.ToList();
+			// fill every list view item with content
+			for (int i = 0; i < users.Count; i++)
 			{
-				NetworkedUserData networkedUserData = CollaborationManager.Instance.UserManager.GetNetworkedUserDataOrDefault(playerRef);
-				userNames.Add(networkedUserData.UserName);
+				NetworkedUserData networkedUserData = CollaborationManager.Instance.UserManager.GetNetworkedUserDataOrDefault(users[i]);
+				UserListItem userListItem;
+				if (i < _userListItems.Count)
+				{
+					userListItem = _userListItems[i];
+				}
+				else
+				{
+					GameObject newItem = Instantiate(_userListItemPrefab, _userListContainer);
+					userListItem = newItem.GetComponent<UserListItem>();
+					userListItem.AvatarVisbilityChanged += OnAvatarVisibilityChanged;
+					_userListItems.Add(userListItem);
+				}
+				userListItem.Initialize(users[i], networkedUserData);
 			}
 
-			string output = "Player List:\n";
-			foreach (string userName in userNames)
+			// clean up unneeded list items
+			for (int i = users.Count; i < _userListItems.Count; i++)
 			{
-				output += userName + "\n";
+				_userListItems[i].AvatarVisbilityChanged -= OnAvatarVisibilityChanged;
+				Destroy(_userListItems[i].gameObject);
 			}
-			Debug.Log(output);
+			_userListItems.RemoveRange(users.Count, _userListItems.Count);
+		}
+
+		private void OnAvatarVisibilityChanged(PlayerRef playerRef, bool visible)
+		{
+			// TODO: change visibility
+			Debug.Log($"Changed visibility of avatar {playerRef} to {visible}");
 		}
 
 		private void OnMicToggleChanged(bool micEnabled)
