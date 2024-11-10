@@ -29,6 +29,8 @@ namespace MirageXR
 			get => _networkedUserData.Keys;
 		}
 
+		public PlayerRef LocalUser { get => NetworkRunner.LocalPlayer; }
+
 		public event System.Action UserListChanged;
 
 		public async Task InitializeLocalUserDataAsync()
