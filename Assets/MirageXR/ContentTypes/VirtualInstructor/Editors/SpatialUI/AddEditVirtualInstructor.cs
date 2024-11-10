@@ -137,8 +137,8 @@ public class AddEditVirtualInstructor : EditorSpatialView
             Version = Application.version,
             Location = new Location
             {
-                Position = new Vector3(0, -1.5f, 0),
-                Rotation = Vector3.zero,
+                Position = new Vector3(-0.4f, -1.2f, 0),
+                Rotation = new Vector3(0, 180, 0),
                 Scale = Vector3.one,
             },
             ContentData = new InstructorContentData //TODO: set up your data here
