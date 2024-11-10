@@ -33,7 +33,7 @@ namespace MirageXR
 
         public void Create(string modelName)
         {
-            modelName = LearningExperienceEngine.ZipUtilities.CheckFileForIllegalCharacters(modelName);
+            modelName = LearningExperienceEngine.ZipUtilities.RemoveIllegalCharacters(modelName);
 
             if (annotationToEdit != null)
             {

@@ -2,17 +2,19 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using i5.Toolkit.Core.OpenIDConnectClient;
 using i5.Toolkit.Core.ServiceCore;
 using i5.Toolkit.Core.VerboseLogging;
+using LearningExperienceEngine.DataModel;
 using MirageXR;
 using Newtonsoft.Json;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ModelEditorView : PopupEditorBase
+public class ModelEditorSpatialView : EditorSpatialView
 {
     private const int RESULTS_PER_PAGE = 20;
     private const float HIDED_SIZE = 100f;
@@ -24,8 +26,6 @@ public class ModelEditorView : PopupEditorBase
         Sketchfab,
         Library
     }
-
-    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.MODEL;
 
     [SerializeField] private Transform _contentContainer;
     [SerializeField] private ScrollRect _scroll;
@@ -68,10 +68,13 @@ public class ModelEditorView : PopupEditorBase
     private ModelPreviewItem _previewItem;
     private int _pageIndex;
 
-    private readonly List<ModelListItem> _items = new List<ModelListItem>();
+    private readonly List<ModelListItem> _items = new();
     private string _modelFileType;
     private ModelListItem _currentItem;
     private ModelEditorTabs _currentTab;
+    private Content<ModelContentData> _modelContent;
+    private string _libraryModelName;
+    private bool _islibraryModel = false;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -85,17 +88,17 @@ public class ModelEditorView : PopupEditorBase
 
             _showBackground = false;
             base.Initialization(onClose, args);
-
+            _modelContent = _content as Content<ModelContentData>;
+            
             _btnLogout.onClick.AddListener(OnLogoutClicked);
-            _btnAddFile.onClick.AddListener(OnAddLocalFile);
+            //_btnAddFile.onClick.AddListener(OnAddLocalFile);
             _clearSearchBtn.onClick.AddListener(ClearSearchField);
             _btnArrow.onClick.AddListener(OnArrowButtonPressed);
             _toggleLocal.onValueChanged.AddListener(OnToggleLocalValueChanged);
             _toggleSketchfab.onValueChanged.AddListener(OnToggleSketchfabValueChanged);
             _toggleLibraries.onValueChanged.AddListener(OnToggleLibrariesValueChanged);
-            _inputSearch.onValueChanged.AddListener(OnInputFieldSearchChanged);
+            _inputSearch.onEndEdit.AddListener(OnInputFieldSearchChanged);
             _pageIndex = 0;
-            RootView_v2.Instance.HideBaseView();
             _modelFileType = NativeFilePicker.ConvertExtensionToFileType("fbx");
             _toggleLocal.isOn = true;
         }
@@ -137,7 +140,7 @@ public class ModelEditorView : PopupEditorBase
         await RenewTokenAsync();
     }
 
-    private async Task RenewTokenAsync()
+    private async Task RenewTokenAsync()    //TODO: move to SketchfabManager 
     {
         try
         {
@@ -246,7 +249,7 @@ public class ModelEditorView : PopupEditorBase
             _sketchfabTab.SetActive(false);
             _librariesTab.SetActive(true);
             _bottomButtonsPanel.SetActive(false);
-            _libraryManager.EnableCategoryButtons(AddLibraryAugmentation);
+            _libraryManager.EnableCategoryButtons(AddLibraryModel);   //TODO
         }
     }
 
@@ -440,12 +443,12 @@ public class ModelEditorView : PopupEditorBase
             }
         }
 
-        UpdateModelsItemView();
+        UpdateModelsItemView().Forget();
     }
 
     private void RemoveLocalItemAsync(ModelListItem item)
     {
-        RemoveModelFromLocalStorage(item);
+        RemoveModelFromLocalStorageAsync(item).AsAsyncVoid();
     }
 
     private void RenameLocalItemAsync(ModelListItem item)
@@ -484,14 +487,14 @@ public class ModelEditorView : PopupEditorBase
         ShowLocalModels();
     }
 
-    private void RemoveModelFromLocalStorage(ModelListItem item)
+    private async Task RemoveModelFromLocalStorageAsync(ModelListItem item)
     {
         _previewItem = item.previewItem;
         MirageXR.Sketchfab.RemoveLocalModel(_previewItem);
         ShowLocalModels();
     }
 
-    private async void UpdateModelsItemView()
+    private async UniTask UpdateModelsItemView()
     {
         const int cooldown = 25;
         foreach (var item in _items)
@@ -550,20 +553,6 @@ public class ModelEditorView : PopupEditorBase
         LearningExperienceEngine.UserSettings.sketchfabLastTokenRenewDate = DateTime.Now;
     }
 
-    private void Accept(ModelListItem item)
-    {
-        AcceptAsync(item).AsAsyncVoid();
-    }
-
-    private async Task AcceptAsync(ModelListItem item)
-    {
-        _previewItem = item.previewItem;
-        item.interactable = false;
-        await MirageXR.Sketchfab.LoadModelAsync(_previewItem.name);
-        item.interactable = true;
-        OnAccept();
-    }
-
     private void DownloadItem(ModelListItem item)
     {
         DownloadItemAsync(item).AsAsyncVoid();
@@ -581,7 +570,7 @@ public class ModelEditorView : PopupEditorBase
                 if (!result)
                 {
                     Logout();
-                    Toast.Instance.Show("The session is out of date. Re-login is required.");
+                    //Toast.Instance.Show("The session is out of date. Re-login is required.");
                     return;
                 }
             }
@@ -611,50 +600,72 @@ public class ModelEditorView : PopupEditorBase
             new DialogButtonContent("No"));
     }
 
-
     private void Logout()
     {
         LearningExperienceEngine.UserSettings.RemoveKey("sketchfab");
         ResetView();
     }
 
+    private void AddLibraryModel(string libraryModelName)
+    {
+        _libraryModelName = libraryModelName;
+        _islibraryModel = true;
+        OnAccept();
+    }
+
+    private void Accept(ModelListItem item)
+    {
+        AcceptAsync(item).Forget();
+    }
+
+    private async UniTask AcceptAsync(ModelListItem item)
+    {
+        _previewItem = item.previewItem;
+        item.interactable = false;
+        await MirageXR.Sketchfab.LoadModelAsync(_previewItem.name);
+        item.interactable = true;
+        OnAccept();
+    }
+
     protected override void OnAccept()
     {
-        _previewItem.name = LearningExperienceEngine.ZipUtilities.RemoveIllegalCharacters(_previewItem.name);
-        AddSketchfabAugmentation(_previewItem.name);
+        OnAcceptAsync().Forget();
     }
 
-    private void AddSketchfabAugmentation(string prefabName)
+    private async UniTask OnAcceptAsync()
     {
-        AddAugmentation(_previewItem.name, false);
-    }
+        var step = RootObject.Instance.LEE.StepManager.CurrentStep;
+        var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
+        //var fileId = _modelContent?.ContentData?.Model?.Id ?? Guid.NewGuid();
 
-    private void AddLibraryAugmentation(string prefabName)
-    {
-        AddAugmentation(_previewItem.name, true);
-    }
-
-    private void AddAugmentation(string prefabName, bool libraryModel)
-    {
-        var predicate = $"3d:{prefabName}";
-        if (_content != null)
+        _modelContent ??= new Content<ModelContentData>
         {
-            LearningExperienceEngine.EventManager.DeactivateObject(_content);
-        }
-        else
-        {
-            _content = augmentationManager.AddAugmentation(_step, GetOffset());
-            _content.option = prefabName;
-            _content.predicate = predicate;
-            _content.url = predicate;
-            _content.text = libraryModel ? ModelLibraryManager.LibraryKeyword : string.Empty;
-        }
+            Id = Guid.NewGuid(),
+            CreationDate = DateTime.UtcNow,
+            IsVisible = true,
+            Steps = new List<Guid> { step.Id },
+            Type = ContentType.Model,
+            Version = Application.version,
+            ContentData = new ModelContentData
+            {
+                Triggers = null,
+                AvailableTriggers = null,
+                IsLibraryModel = false,
+                ModelUid = null,
+                LibraryModel = null
+            },
+            Location = Location.GetIdentityLocation()
+        };
 
-        _content.predicate = predicate;
-        LearningExperienceEngine.EventManager.ActivateObject(_content);
+       /* _imageContent.ContentData.Is3dSound = _toggle3D.isOn;
+        _imageContent.ContentData.IsLooped = _toggleLoop.isOn;
+        _imageContent.ContentData.SoundRange = _sliderPlayer.value;
 
-        base.OnAccept();
-
+        await SaveAudioAsync(activityId, _imageContent.Id, fileId);
+        _modelContent.ContentData.Model = await RootObject.Instance.LEE.AssetsManager.CreateFileAsync(activityId, _modelContent.Id, fileId);
+        RootObject.Instance.LEE.ContentManager.AddContent(_imageContent);
+        RootObject.Instance.LEE.AssetsManager.UploadFileAsync(activityId, _imageContent.Id, fileId);
+*/
         Close();
     }
 
@@ -673,37 +684,5 @@ public class ModelEditorView : PopupEditorBase
             _arrowDown.SetActive(true);
             _arrowUp.SetActive(false);
         }
-    }
-
-    private void OnAddLocalFile()
-    {
-        // Don't attempt to import/export files if the file picker is already open
-        if (NativeFilePicker.IsFilePickerBusy())
-        {
-            return;
-        }
-
-        // Pick a 3D Model file
-        NativeFilePicker.Permission permission = NativeFilePicker.PickFile(
-            (path) =>
-            {
-                if (path == null)
-                {
-                    Debug.Log("Operation cancelled");
-                }
-                else
-                {
-                    Debug.Log("Picked file: " + path);
-
-                    // TODO: add local model to the list
-                }
-            }, new string[] { _modelFileType });
-
-        Debug.Log("Permission result: " + permission);
-    }
-
-    private void OnDestroy()
-    {
-        RootView_v2.Instance.ShowBaseView();
     }
 }
