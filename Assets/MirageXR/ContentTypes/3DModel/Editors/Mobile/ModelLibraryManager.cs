@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
-using System.Globalization;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace MirageXR
@@ -14,13 +13,6 @@ namespace MirageXR
         [SerializeField] private GameObject[] items;
         [SerializeField] private LibraryObject[] objects;
         [SerializeField] private GameObject itemPrefab;
-
-        private readonly List<GameObject> _instantiatedItems = new List<GameObject>();
-        private readonly List<ModelLibraryListItem> _currentLibraryItems = new List<ModelLibraryListItem>();
-        private GameObject emptyItem;
-
-        private ModelEditorView _modelEditorView;
-
         [SerializeField] private GameObject listOfLibrariesTab;
         [SerializeField] private GameObject libraryTab;
         [SerializeField] private Transform libraryContent;
@@ -28,12 +20,17 @@ namespace MirageXR
         [SerializeField] private TMP_Text _topLabel;
         [SerializeField] private TMP_InputField _inputSearch;
 
+        private readonly List<GameObject> _instantiatedItems = new();
+        private readonly List<ModelLibraryListItem> _currentLibraryItems = new();
+        private GameObject _emptyItem;
+
+        private UnityAction<string> _onListItemClickedAction;
+
         public enum ModelLibraryCategory
         {
             Foods = 0,
             Tools = 1
         }
-
 
         public void OnItemClicked(ModelLibraryCategory category)
         {
@@ -63,18 +60,18 @@ namespace MirageXR
                 item.SetActive(active);
             }
         }
-        
+
         private void OnInputFieldSearchChanged(string text)
         {
             SearchLocal();
         }
-        
+
         /// <summary>
         /// Enable the category buttons
         /// </summary>
-        public void EnableCategoryButtons(ModelEditorView modelEditorView)
+        public void EnableCategoryButtons(UnityAction<string> onListItemClickedAction)
         {
-            _modelEditorView = modelEditorView;
+            _onListItemClickedAction = onListItemClickedAction;
             _inputSearch.onValueChanged.AddListener(OnInputFieldSearchChanged);
             
             for (var i = 0; i < items.Length; i++)
@@ -89,8 +86,8 @@ namespace MirageXR
                 }
             }
         }
-        
-        public void DisableCategoryButtons()
+
+        private void DisableCategoryButtons()
         {
             //destroy the existing items
             foreach (var child in GetComponentsInChildren<Button>())
@@ -116,9 +113,9 @@ namespace MirageXR
                 }
             }
             _instantiatedItems.Clear();
-            if (emptyItem)
+            if (_emptyItem)
             {
-                Destroy(emptyItem);
+                Destroy(_emptyItem);
             }
 
             _inputSearch.text = "";
@@ -138,15 +135,15 @@ namespace MirageXR
                         // TODO: get fbx file size
                         libraryListItem.TxtSize.text = "   "; // + kilobyteSize.ToString(CultureInfo.InvariantCulture) + " Kb";
                         
-                        libraryListItem.AddButtonListener(() => _modelEditorView.AddAugmentation(obj.prefabName, true));
+                        libraryListItem.AddButtonListener(() => _onListItemClickedAction(obj.prefabName));
                         _instantiatedItems.Add(item);
                         _currentLibraryItems.Add(libraryListItem);
                     }
                 }
             }
             // Empty element added for left alignment in case only 1 element is active.
-            emptyItem = Instantiate(itemPrefab, libraryContent);
-            foreach (Transform child in emptyItem.transform)
+            _emptyItem = Instantiate(itemPrefab, libraryContent);
+            foreach (Transform child in _emptyItem.transform)
             {
                 child.gameObject.SetActive(false);
             }

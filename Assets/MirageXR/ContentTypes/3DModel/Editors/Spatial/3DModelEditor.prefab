@@ -474,7 +474,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.105882354, g: 0.101960786, b: 0.09803922, a: 0.8}
+  m_Color: {r: 0.20754719, g: 0.20754719, b: 0.20754719, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3089,7 +3089,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.0064697266, y: -149.88226}
+  m_AnchoredPosition: {x: 0, y: -149.88226}
   m_SizeDelta: {x: 0, y: 303.4386}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &5308279511716738011
@@ -4237,7 +4237,19 @@ MonoBehaviour:
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: ModelEditorView, MirageXR
+        m_MethodName: OnStartSearch
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnSubmit:
     m_PersistentCalls:
       m_Calls: []
@@ -4987,7 +4999,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8371701705238998909}
   - component: {fileID: 8371701705238998911}
-  - component: {fileID: 2832827128330036620}
+  - component: {fileID: 5304693779469562105}
   m_Layer: 5
   m_Name: 3DModelEditor
   m_TagString: Untagged
@@ -5010,11 +5022,11 @@ RectTransform:
   - {fileID: 664765014074207512}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0}
+  m_SizeDelta: {x: 720, y: 1440}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8371701705238998911
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5023,7 +5035,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8371701705238998898}
   m_CullTransparentMesh: 0
---- !u!114 &2832827128330036620
+--- !u!114 &5304693779469562105
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5032,11 +5044,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 8371701705238998898}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d9a3de04dba225418b3cbe68fcd8a8d, type: 3}
+  m_Script: {fileID: 11500000, guid: bc015ea9b081e154aa37079fe9cdf67d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _icon: {fileID: 2090192777696495616}
-  _txtLabel: {fileID: 4994625388372942789}
   _btnAccept: {fileID: 8868533006758341665}
   _btnClose: {fileID: 5637056101906075783}
   _contentContainer: {fileID: 6301983597246632240}

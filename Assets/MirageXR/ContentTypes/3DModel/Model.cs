@@ -112,7 +112,7 @@ namespace MirageXR
 
         private async Task<bool> LoadGltf(LearningExperienceEngine.ToggleObject content)
         {
-            content.option = ZipUtilities.CheckFileForIllegalCharacters(content.option);
+            content.option = ZipUtilities.RemoveIllegalCharacters(content.option);
             var loadPath = Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActivityPath, content.option, GLTF_NAME);
 
             ImportSettings importSettings = new()
@@ -139,10 +139,10 @@ namespace MirageXR
             {
                 Debug.Log("playing animation (with data from gltfast scene instantiator).");
                 var clips = _gltf.GetAnimationClips();
-                if (clips != null && clips.Length > 0 && clips[0] != null)
+                if (clips is { Length: > 0 } && clips[0] is not null)
                 {
                     legacyAnimation.clip = clips[0];
-                    legacyAnimation.clip.wrapMode = UnityEngine.WrapMode.Loop;
+                    legacyAnimation.clip.wrapMode = WrapMode.Loop;
                     legacyAnimation.clip.legacy = true;
                     legacyAnimation.clip.EnsureQuaternionContinuity();
                     legacyAnimation.playAutomatically = true;
@@ -161,7 +161,6 @@ namespace MirageXR
                 Destroy(model);
                 return;
             }
-
             
             var modelTransform = transform;
             var startPos = modelTransform.position + modelTransform.forward * -0.5f + modelTransform.up * -0.1f;
@@ -183,7 +182,6 @@ namespace MirageXR
             {
                 ConfigureModel(model); // , clip
             }
-            
 
             MoveAndScaleModel(model);
             
@@ -193,7 +191,6 @@ namespace MirageXR
             var defaultScale = _isLibraryModel ? new Vector3(LIBRARY_MODEL_SCALE, LIBRARY_MODEL_SCALE, LIBRARY_MODEL_SCALE) : Vector3.one;
             parent.localScale = GetPoiScale(myPoiEditor, defaultScale);
             parent.localEulerAngles = GetPoiRotation(myPoiEditor);
-            
 
             LoadingCompleted = true;
 
@@ -217,7 +214,6 @@ namespace MirageXR
             */
             
             InitManipulators();
-            
         }
 
         private async Task LoadLibraryModel(string libraryModelPrefabName)

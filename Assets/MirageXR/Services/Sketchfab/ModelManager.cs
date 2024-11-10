@@ -322,7 +322,7 @@ namespace MirageXR
 
         public async void LoadModel(ButtonHandler handler, ModelPreviewItem modelPreview)
         {
-            await Sketchfab.LoadModelAsync(modelPreview);
+            await Sketchfab.LoadModelAsync(modelPreview.name);
             GetComponent<ModelEditor>().Create(modelPreview.name);
         }
 
