@@ -35,6 +35,7 @@ namespace MirageXR
 			{
 				text += " (you)";
 			}
+			_avatarToggle.SetIsOnWithoutNotify(UserData.AvatarController.Visible);
 			_userNameLabel.text = text;
 		}
 
