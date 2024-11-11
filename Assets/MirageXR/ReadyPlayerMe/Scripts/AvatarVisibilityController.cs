@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,8 +18,11 @@ namespace MirageXR
 		private float _targetCutoff;
 		private float _currentCutoff;
 		private Coroutine _fadeCoroutine;
+		private bool _fadeMaterialActive = false;
 
 		private const string _cutoffProperty = "alphaCutoff";
+
+		public event Action<bool> VisibilityChanged;
 
 		public bool Visible
 		{
@@ -34,6 +38,7 @@ namespace MirageXR
 						StopCoroutine(_fadeCoroutine);
 					}
 					_fadeCoroutine = StartCoroutine(Fade());
+					VisibilityChanged?.Invoke(value);
 				}
 			}
 		}
@@ -65,11 +70,13 @@ namespace MirageXR
 			float timeElapsed = 0f;
 
 			// if visible is false: we know that we need to fade out with our fading material
-			if (!_visible && _avatarRenderer.material != _fadeMaterialInstance)
+			if (!_visible && !_fadeMaterialActive)
 			{
 				_originalMaterial = _avatarRenderer.material;
 				CopyMaterial(_originalMaterial, _fadeMaterialInstance);
 				_avatarRenderer.material = _fadeMaterialInstance;
+				Debug.Log("Applied fade material");
+				_fadeMaterialActive = true;
 			}
 
 			while (timeElapsed < _fadeDuration)
@@ -84,9 +91,11 @@ namespace MirageXR
 			_fadeMaterialInstance.SetFloat(_cutoffProperty, _currentCutoff);
 
 			// if visible is true: we can replace the fading material with our original material
-			if (_visible && _avatarRenderer.material == _fadeMaterialInstance)
+			if (_visible && _fadeMaterialActive)
 			{
 				_avatarRenderer.material = _originalMaterial;
+				Debug.Log("Applied original material");
+				_fadeMaterialActive = false;
 			}
 		}
 	}
