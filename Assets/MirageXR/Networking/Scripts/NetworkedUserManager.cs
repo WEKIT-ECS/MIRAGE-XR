@@ -12,10 +12,10 @@ namespace MirageXR
 	{
 		private Dictionary<PlayerRef, NetworkedUserData> _networkedUserData = new Dictionary<PlayerRef, NetworkedUserData>();
 
-		public UserData LocalUserData
+		public LocalUserData LocalUserData
 		{
 			get; private set;
-		} = new UserData();
+		} = new LocalUserData();
 
 		private NetworkRunner _networkRunner;
 		private NetworkRunner NetworkRunner
@@ -61,7 +61,7 @@ namespace MirageXR
 				if (owner == NetworkRunner.LocalPlayer)
 				{
 					Debug.Log($"{owner} is the local user, so it gets the prepared local user data");
-					networkedUserData.UserDataSource = LocalUserData;
+					networkedUserData.LocalUserDataSource = LocalUserData;
 				}
 
 				_networkedUserData.Add(owner, networkedUserData);
