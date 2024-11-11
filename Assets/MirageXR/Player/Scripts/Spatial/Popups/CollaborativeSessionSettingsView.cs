@@ -91,8 +91,8 @@ namespace MirageXR
 
 		private void OnAvatarVisibilityChanged(PlayerRef playerRef, bool visible)
 		{
-			// TODO: change visibility
-			Debug.Log($"Changed visibility of avatar {playerRef} to {visible}");
+			NetworkedUserData targetUser = CollaborationManager.Instance.UserManager.GetNetworkedUserDataOrDefault(playerRef);
+			targetUser.AvatarController.Visible = visible;
 		}
 
 		private void OnMicToggleChanged(bool micEnabled)
