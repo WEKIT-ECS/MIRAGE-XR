@@ -74,7 +74,6 @@ namespace MirageXR
 				{
 					GameObject newItem = Instantiate(_userListItemPrefab, _userListContainer);
 					userListItem = newItem.GetComponent<UserListItem>();
-					userListItem.AvatarVisbilityChanged += OnAvatarVisibilityChanged;
 					_userListItems.Add(userListItem);
 				}
 				userListItem.Initialize(users[i], networkedUserData);
@@ -83,16 +82,9 @@ namespace MirageXR
 			// clean up unneeded list items
 			for (int i = users.Count; i < _userListItems.Count; i++)
 			{
-				_userListItems[i].AvatarVisbilityChanged -= OnAvatarVisibilityChanged;
 				Destroy(_userListItems[i].gameObject);
 			}
 			_userListItems.RemoveRange(users.Count, _userListItems.Count);
-		}
-
-		private void OnAvatarVisibilityChanged(PlayerRef playerRef, bool visible)
-		{
-			NetworkedUserData targetUser = CollaborationManager.Instance.UserManager.GetNetworkedUserDataOrDefault(playerRef);
-			targetUser.AvatarController.Visible = visible;
 		}
 
 		private void OnMicToggleChanged(bool micEnabled)

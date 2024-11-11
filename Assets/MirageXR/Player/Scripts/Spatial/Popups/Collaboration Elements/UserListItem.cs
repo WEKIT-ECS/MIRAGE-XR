@@ -11,8 +11,6 @@ namespace MirageXR
 		[SerializeField] private TMP_Text _userNameLabel;
 		[SerializeField] private Toggle _avatarToggle;
 
-		public event Action<PlayerRef, bool> AvatarVisbilityChanged;
-
 		public PlayerRef PlayerRef { get; private set; }
 		public NetworkedUserData UserData { get; private set; }
 
@@ -23,8 +21,13 @@ namespace MirageXR
 
 		public void Initialize(PlayerRef playerRef, NetworkedUserData userData)
 		{
+			if (UserData != null)
+			{
+				UserData.AvatarController.VisibilityController.VisibilityChanged -= OnVisibilityChanged;
+			}
 			PlayerRef = playerRef;
 			UserData = userData;
+			UserData.AvatarController.VisibilityController.VisibilityChanged += OnVisibilityChanged;
 			UpdateView();
 		}
 
@@ -35,13 +38,18 @@ namespace MirageXR
 			{
 				text += " (you)";
 			}
-			_avatarToggle.SetIsOnWithoutNotify(UserData.AvatarController.Visible);
+			_avatarToggle.SetIsOnWithoutNotify(UserData.AvatarController.VisibilityController.Visible);
 			_userNameLabel.text = text;
 		}
 
 		private void OnAvatarToggleChanged(bool value)
 		{
-			AvatarVisbilityChanged?.Invoke(PlayerRef, value);
+			UserData.AvatarController.VisibilityController.Visible = value;
+		}
+
+		private void OnVisibilityChanged(bool value)
+		{
+			_avatarToggle.SetIsOnWithoutNotify(value);
 		}
 	}
 }

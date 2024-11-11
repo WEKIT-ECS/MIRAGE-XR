@@ -19,18 +19,9 @@ namespace MirageXR
 		}
 
 		private AvatarVisibilityController _avatarVisibilityController;
-		private AvatarVisibilityController VisibilityController
+		public AvatarVisibilityController VisibilityController
 		{
 			get => ComponentUtilities.GetOrFetchComponent(this, ref _avatarVisibilityController);
-		}
-
-		public bool Visible
-		{
-			get => VisibilityController.Visible;
-			set
-			{
-				VisibilityController.Visible = value;
-			}
 		}
 
 		private void Start()
