@@ -1,12 +1,8 @@
 #if FUSION2
 using Fusion;
 #endif
-using i5.Toolkit.Core.OpenIDConnectClient;
-using i5.Toolkit.Core.ServiceCore;
-using LearningExperienceEngine;
 using System;
 using System.Collections.Generic;
-using System.Drawing.Text;
 using System.Linq;
 using TMPro;
 using UnityEngine;
