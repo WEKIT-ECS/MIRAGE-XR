@@ -30,7 +30,8 @@ namespace MirageXR
 #if FUSION2
 		private ConnectionManager _connectionManager;
 		private NetworkRunner _networkRunner;
-	    private Recorder _recorder;
+		private NetworkEvents _networkEvents;
+		private Recorder _recorder;
 		private FusionVoiceClient _fusionVoiceClient;
 
 		private List<AudioSource> _voiceSources = new List<AudioSource>();
@@ -57,47 +58,30 @@ namespace MirageXR
 			}
 		}
 
-		private UserData _localUserData = new UserData();
-
-		public UserData LocalUserData
+		private NetworkedUserManager _networkedUserManager;
+		public NetworkedUserManager UserManager
 		{
-			get => _localUserData;
+			get => ComponentUtilities.GetOrFetchComponent(this, ref _networkedUserManager);
 		}
 
 		private ConnectionManager ConnectionManager
 		{
-			get
-			{
-				if (_connectionManager == null)
-				{
-					_connectionManager = GetComponent<ConnectionManager>();
-				}
-				return _connectionManager;
-			}
+			get => ComponentUtilities.GetOrFetchComponent(this, ref _connectionManager);
 		}
 
-		private NetworkRunner NetworkRunner
+		public NetworkRunner NetworkRunner
 		{
-			get
-			{
-				if (_networkRunner == null)
-				{
-					_networkRunner = GetComponent<NetworkRunner>();
-				}
-				return _networkRunner;
-			}
+			get => ComponentUtilities.GetOrFetchComponent(this, ref _networkRunner);
+		}
+
+		public NetworkEvents NetworkEvents
+		{
+			get => ComponentUtilities.GetOrFetchComponent(this, ref _networkEvents);
 		}
 
 		private FusionVoiceClient FusionVoiceClient
 		{
-			get
-			{
-				if (_fusionVoiceClient == null)
-				{
-					_fusionVoiceClient = GetComponent<FusionVoiceClient>();
-				}
-				return _fusionVoiceClient;
-			}
+			get => ComponentUtilities.GetOrFetchComponent(this, ref _fusionVoiceClient);
 		}
 
 		public void Awake()
@@ -140,22 +124,7 @@ namespace MirageXR
 			//	});
 			//}
 
-			if (string.IsNullOrEmpty(LocalUserData.UserName))
-			{
-				IdentityOidcConnectService oidcService = ServiceManager.GetService<IdentityOidcConnectService>();
-				if (oidcService.IsLoggedIn)
-				{
-					IUserInfo userInfo = await oidcService.GetUserDataAsync();
-					if (userInfo != null)
-					{
-						LocalUserData.UserName = userInfo.FullName;
-					}
-				}
-			}
-			if (string.IsNullOrEmpty(LocalUserData.UserName))
-			{
-				LocalUserData.UserName = "Guest";
-			}
+			await UserManager.InitializeLocalUserDataAsync();
 
 			_handTrackingManager.StartTracking();
 			if (_recorder == null)
@@ -181,11 +150,6 @@ namespace MirageXR
 		public void RemoveVoiceSource(AudioSource voiceSource)
 		{
 			_voiceSources.Remove(voiceSource);
-		}
-
-		public void RegisterUserData(NetworkedUserData userData)
-		{
-			userData.UserDataSource = LocalUserData;
 		}
 
 		private string GenerateInvitationCode()
