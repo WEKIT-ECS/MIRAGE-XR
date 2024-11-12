@@ -131,7 +131,7 @@ jobs:
         uses: microsoft/setup-msbuild@v2 # v1
 
       - name: Download WSAPlayer Artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: WSAPlayer
           path: build/WSAPlayer
