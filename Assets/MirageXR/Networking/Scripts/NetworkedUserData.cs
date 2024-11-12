@@ -1,16 +1,11 @@
 #if FUSION2
 using Fusion;
-using i5.Toolkit.Core.OpenIDConnectClient;
-using i5.Toolkit.Core.ServiceCore;
-using LearningExperienceEngine;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Net.NetworkInformation;
-
-#endif
+#else
 using System;
 using UnityEngine;
+#endif
+
 
 namespace MirageXR
 {

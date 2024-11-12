@@ -1,7 +1,6 @@
 #if FUSION2
 using Fusion;
 #endif
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
