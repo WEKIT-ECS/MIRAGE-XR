@@ -1,11 +1,16 @@
+#if FUSION2
 using Fusion;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#else
+using UnityEngine;
+#endif
 
 namespace MirageXR
 {
-    public class NetworkedAvatarVisibilityController : NetworkBehaviour
+#if FUSION2
+	public class NetworkedAvatarVisibilityController : NetworkBehaviour
     {
 		private AvatarVisibilityController _avatarVisibilityController;
 
@@ -24,4 +29,9 @@ namespace MirageXR
 			}
 		}
 	}
+#else
+	public class NetworkedAvatarVisibilityController : MonoBehaviour
+	{
+	}
+#endif
 }
