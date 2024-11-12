@@ -16,7 +16,7 @@ namespace MirageXR
 
 		public string LoadedAvatarUrl { get; private set; }
 
-		public event Action<bool> OnAvatarLoaded;
+		public event Action<bool> AvatarLoaded;
 
 		private void Start()
 		{
@@ -42,14 +42,14 @@ namespace MirageXR
 		private void OnLoadFailed(object sender, FailureEventArgs e)
 		{
 			loadingIndicator.SetActive(false);
-			OnAvatarLoaded?.Invoke(false);
+			AvatarLoaded?.Invoke(false);
 		}
 
 		private void OnLoadCompleted(object sender, CompletionEventArgs e)
 		{
 			loadingIndicator.SetActive(false);
 			ApplyAvatar(e);
-			OnAvatarLoaded?.Invoke(true);
+			AvatarLoaded?.Invoke(true);
 		}
 
 		// apply the avatar to our player object

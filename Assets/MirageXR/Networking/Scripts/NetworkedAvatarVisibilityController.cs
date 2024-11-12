@@ -20,7 +20,6 @@ namespace MirageXR
 
 			if (HasStateAuthority)
 			{
-				VisibilityController.FadeVisibility = false;
 				VisibilityController.Visible = false;
 			}
 		}

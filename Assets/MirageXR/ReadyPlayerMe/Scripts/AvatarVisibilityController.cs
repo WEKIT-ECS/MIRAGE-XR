@@ -33,6 +33,7 @@ namespace MirageXR
 			{
 				if (_visible != value)
 				{
+					Debug.Log("Changing avatar visibility to " + value);
 					_visible = value;
 					_targetCutoff = _visible ? 0f : 1f;
 					if (_fadeCoroutine != null)
@@ -46,24 +47,30 @@ namespace MirageXR
 			}
 		}
 
-		void Start()
+		private AvatarLoader _avatarLoader;
+		private AvatarLoader AvatarLoader { get => ComponentUtilities.GetOrFetchComponent(this, ref _avatarLoader); }
+
+		void Awake()
 		{
 			_fadeMaterialInstance = new Material(_fadeMaterial);
 			_currentCutoff = _fadeMaterialInstance.GetFloat(_cutoffProperty);
+			AvatarLoader.AvatarLoaded += OnAvatarLoaded;
 		}
 
-		private void CopyMaterial(Material originalMaterial, Material newMaterial)
+		private void OnDestroy()
 		{
-			string[] textures = new string[] {
-				"baseColorTexture",
-				"normalTexture",
-				"metallicRoughnessTexture",
-				"emissiveTexture",
-				"occlusionTexture"
-			};
-			foreach (string texture in textures)
+			AvatarLoader.AvatarLoaded -= OnAvatarLoaded;
+		}
+
+		private void OnAvatarLoaded(bool successful)
+		{
+			if (successful)
 			{
-				newMaterial.SetTexture(texture, originalMaterial.GetTexture(texture));
+				if (!Visible)
+				{
+					SwitchToFadeableMaterial();
+					_fadeMaterialInstance.SetFloat(_cutoffProperty, _currentCutoff);
+				}
 			}
 		}
 
@@ -102,6 +109,21 @@ namespace MirageXR
 			_avatarRenderer.material = _fadeMaterialInstance;
 			Debug.Log("Applied fade material");
 			_fadeMaterialActive = true;
+		}
+
+		private void CopyMaterial(Material originalMaterial, Material newMaterial)
+		{
+			string[] textures = new string[] {
+				"baseColorTexture",
+				"normalTexture",
+				"metallicRoughnessTexture",
+				"emissiveTexture",
+				"occlusionTexture"
+			};
+			foreach (string texture in textures)
+			{
+				newMaterial.SetTexture(texture, originalMaterial.GetTexture(texture));
+			}
 		}
 
 		private void SwitchToOriginalMaterial()

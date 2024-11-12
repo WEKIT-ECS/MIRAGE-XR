@@ -57,7 +57,7 @@ namespace MirageXR
 		{
 			if (networkedUserData != null && !_networkedUserData.ContainsKey(owner))
 			{
-				Debug.Log($"Adding user {owner} ({networkedUserData.UserName} to the user data list");
+				Debug.Log($"Adding user {owner} ({networkedUserData.UserName}) to the user data list");
 				if (owner == NetworkRunner.LocalPlayer)
 				{
 					Debug.Log($"{owner} is the local user, so it gets the prepared local user data");
