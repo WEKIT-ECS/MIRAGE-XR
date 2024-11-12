@@ -22,6 +22,8 @@ namespace MirageXR
 
 		private const string _cutoffProperty = "alphaCutoff";
 
+		public bool FadeVisibility { get; set; } = true;
+
 		public event Action<bool> VisibilityChanged;
 
 		public bool Visible
@@ -37,7 +39,8 @@ namespace MirageXR
 					{
 						StopCoroutine(_fadeCoroutine);
 					}
-					_fadeCoroutine = StartCoroutine(Fade());
+					float fadeDuration = FadeVisibility ? _fadeDuration : 0f;
+					_fadeCoroutine = StartCoroutine(Fade(fadeDuration));
 					VisibilityChanged?.Invoke(value);
 				}
 			}
@@ -64,7 +67,7 @@ namespace MirageXR
 			}
 		}
 
-		private IEnumerator Fade()
+		private IEnumerator Fade(float duration)
 		{
 			float startCutoff = _currentCutoff;
 			float timeElapsed = 0f;
@@ -72,17 +75,13 @@ namespace MirageXR
 			// if visible is false: we know that we need to fade out with our fading material
 			if (!_visible && !_fadeMaterialActive)
 			{
-				_originalMaterial = _avatarRenderer.material;
-				CopyMaterial(_originalMaterial, _fadeMaterialInstance);
-				_avatarRenderer.material = _fadeMaterialInstance;
-				Debug.Log("Applied fade material");
-				_fadeMaterialActive = true;
+				SwitchToFadeableMaterial();
 			}
 
-			while (timeElapsed < _fadeDuration)
+			while (timeElapsed < duration)
 			{
 				timeElapsed += Time.deltaTime;
-				_currentCutoff = Mathf.Lerp(startCutoff, _targetCutoff, timeElapsed / _fadeDuration);
+				_currentCutoff = Mathf.Lerp(startCutoff, _targetCutoff, timeElapsed / duration);
 				_fadeMaterialInstance.SetFloat(_cutoffProperty, _currentCutoff);
 				yield return null;
 			}
@@ -90,7 +89,23 @@ namespace MirageXR
 			_currentCutoff = _targetCutoff;
 			_fadeMaterialInstance.SetFloat(_cutoffProperty, _currentCutoff);
 
-			// if visible is true: we can replace the fading material with our original material
+			if (_visible && _fadeMaterialActive)
+			{
+				SwitchToOriginalMaterial();
+			}
+		}
+
+		private void SwitchToFadeableMaterial()
+		{
+			_originalMaterial = _avatarRenderer.material;
+			CopyMaterial(_originalMaterial, _fadeMaterialInstance);
+			_avatarRenderer.material = _fadeMaterialInstance;
+			Debug.Log("Applied fade material");
+			_fadeMaterialActive = true;
+		}
+
+		private void SwitchToOriginalMaterial()
+		{
 			if (_visible && _fadeMaterialActive)
 			{
 				_avatarRenderer.material = _originalMaterial;
