@@ -76,15 +76,15 @@ namespace MirageXR
 					userListItem = newItem.GetComponent<UserListItem>();
 					_userListItems.Add(userListItem);
 				}
+				userListItem.gameObject.SetActive(true);
 				userListItem.Initialize(users[i], networkedUserData);
 			}
 
-			// clean up unneeded list items
+			// disable unneeded list items
 			for (int i = users.Count; i < _userListItems.Count; i++)
 			{
-				Destroy(_userListItems[i].gameObject);
+				_userListItems[i].gameObject.SetActive(false);
 			}
-			_userListItems.RemoveRange(users.Count, _userListItems.Count);
 		}
 
 		private void OnMicToggleChanged(bool micEnabled)
