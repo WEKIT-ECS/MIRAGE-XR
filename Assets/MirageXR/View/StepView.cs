@@ -3,6 +3,8 @@ using LearningExperienceEngine.DataModel;
 using Microsoft.MixedReality.Toolkit.UI;
 using TMPro;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 namespace MirageXR.View
 {
@@ -16,6 +18,7 @@ namespace MirageXR.View
         private ActivityStep _step;
         private Camera _camera;
         private ObjectManipulator _objectManipulator;
+        public XRGrabInteractable _grabInteractible;
 
         public void Initialize(ActivityStep step)
         {
@@ -26,6 +29,7 @@ namespace MirageXR.View
             transform.SetLocalPositionAndRotation(_step.Location.Position, Quaternion.Euler(_step.Location.Rotation));
             transform.localScale = _step.Location.Scale;
             InitializeManipulator();
+            InitializeXRGrabInteractible();
         }
 
         private void InitializeManipulator()
@@ -37,12 +41,29 @@ namespace MirageXR.View
                 _objectManipulator.OnManipulationEnded.AddListener(_ => OnManipulationEnded());
             }
         }
+        private void InitializeXRGrabInteractible()
+        {
+            if (_grabInteractible is null)
+            {
+                _grabInteractible = transform.GetChild(0).gameObject.GetComponent<XRGrabInteractable>();
+                _grabInteractible.selectExited.AddListener(_ => OnDiamondMoved());
+            }
+        }
 
         private void OnManipulationStarted() { }
 
         private void OnManipulationEnded()
         {
             _step.Location.Position = transform.localPosition;
+            RootObject.Instance.LEE.StepManager.UpdateStep(_step);
+        }
+
+        private void OnDiamondMoved()
+        {
+            Transform diamondPos = _grabInteractible.gameObject.transform;
+            gameObject.transform.position = diamondPos.position;
+            _grabInteractible.gameObject.transform.position -= diamondPos.localPosition;
+            _step.Location.Position = _grabInteractible.gameObject.transform.localPosition;
             RootObject.Instance.LEE.StepManager.UpdateStep(_step);
         }
 
