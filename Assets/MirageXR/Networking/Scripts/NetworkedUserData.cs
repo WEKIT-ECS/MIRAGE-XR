@@ -9,15 +9,21 @@ using System.Collections.Generic;
 using System.Net.NetworkInformation;
 
 #endif
+using System;
 using UnityEngine;
 
 namespace MirageXR
 {
 #if FUSION2
 	public class NetworkedUserData : NetworkBehaviour
+#else
+	public class NetworkedUserData : MonoBehaviour
+#endif
 	{
 		private LocalUserData _localUserDataSource;
+#if FUSION2
 		private ChangeDetector _changeDetector;
+#endif
 
 		private NetworkedAvatarController _avatarController;
 		public NetworkedAvatarController AvatarController
@@ -27,7 +33,9 @@ namespace MirageXR
 
 		public event Action<string> NetworkedUserNameChanged;
 
+#if FUSION2
 		[Networked, Capacity(25)]
+#endif
 		public string UserName { get; set; }
 
 		/// <summary>
@@ -54,6 +62,7 @@ namespace MirageXR
 			UserName = newUserName;
 		}
 
+#if FUSION2
 		public override void Render()
 		{
 			base.Render();
@@ -79,8 +88,6 @@ namespace MirageXR
 
 			CollaborationManager.Instance.UserManager.RegisterNetworkedUserData(Object.StateAuthority, this);
 		}
-	}
-#else
-	public class NetworkedUserData : MonoBehaviour {}
 #endif
+	}
 }

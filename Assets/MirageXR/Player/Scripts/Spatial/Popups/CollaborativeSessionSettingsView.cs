@@ -1,4 +1,6 @@
+#if FUSION2
 using Fusion;
+#endif
 using i5.Toolkit.Core.OpenIDConnectClient;
 using i5.Toolkit.Core.ServiceCore;
 using LearningExperienceEngine;
@@ -53,6 +55,7 @@ namespace MirageXR
 #endif
 		}
 
+#if FUSION2
 		private void OnNetworkedUserDataListChanged()
 		{
 			UpdatePlayerList();
@@ -86,6 +89,7 @@ namespace MirageXR
 				_userListItems[i].gameObject.SetActive(false);
 			}
 		}
+#endif
 
 		private void OnMicToggleChanged(bool micEnabled)
 		{

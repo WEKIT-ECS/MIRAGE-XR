@@ -1,15 +1,18 @@
+#if FUSION2
 using Fusion;
 using i5.Toolkit.Core.OpenIDConnectClient;
 using i5.Toolkit.Core.ServiceCore;
 using LearningExperienceEngine;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+#endif
 using UnityEngine;
 
 namespace MirageXR
 {
 	public class NetworkedUserManager : MonoBehaviour
 	{
+#if FUSION2
 		private Dictionary<PlayerRef, NetworkedUserData> _networkedUserData = new Dictionary<PlayerRef, NetworkedUserData>();
 
 		public LocalUserData LocalUserData
@@ -82,5 +85,6 @@ namespace MirageXR
 		{
 			return _networkedUserData.GetValueOrDefault(playerRef);
 		}
+#endif
 	}
 }
