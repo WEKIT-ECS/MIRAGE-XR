@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace MirageXR
 {
-    public class UserData
+    public class LocalUserData
     {
         private string _userName;
 
