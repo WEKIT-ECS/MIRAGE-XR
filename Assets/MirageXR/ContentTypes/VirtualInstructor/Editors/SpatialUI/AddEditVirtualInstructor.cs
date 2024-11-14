@@ -103,7 +103,7 @@ public class AddEditVirtualInstructor : EditorSpatialView
     private string _availableTriggers = String.Empty; // todo
     
     private string _animationClip = "Idle";
-    private string _characterName = "Sara";
+    private string _characterName = "Hanna";
     private string _pathSetting = "No Path"; // todo
     private string _prompt = "Provide a concise answer to the question. Use the context.";
     private string _languageModelEndpointName = "llm/"; 
