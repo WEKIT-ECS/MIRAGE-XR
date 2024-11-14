@@ -20,7 +20,10 @@ namespace MirageXR
 
         private void OnSketchfabLoggedIn(bool value)
         {
-            View.SetSketchfabText("Logged In");
+            if (value)
+            {
+                View.SetSketchfabText("Logged In");
+            }
         }
 
         private void OnSketchfabSignInButtonClicked()
