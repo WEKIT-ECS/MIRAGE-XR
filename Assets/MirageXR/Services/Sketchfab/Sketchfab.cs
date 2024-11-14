@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using MirageXR.DataModel;
 using Unity.SharpZipLib.Zip;
 using UnityEngine;
 
@@ -80,7 +81,7 @@ namespace MirageXR
             return previewList;
         }
 
-        private static ModelPreviewItem CreateModelPreview(SketchfabModel sketchfabModel)
+        private static ModelPreviewItem CreateModelPreview(MirageXR.DataModel.SketchfabModel sketchfabModel)
         {
             var image = sketchfabModel.thumbnails.images.FirstOrDefault(t => t.height < MAX_THUMBNAIL_HEIGHT) ?? sketchfabModel.thumbnails.images.First();
             return new ModelPreviewItem
