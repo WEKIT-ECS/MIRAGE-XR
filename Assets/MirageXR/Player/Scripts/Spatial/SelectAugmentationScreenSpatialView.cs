@@ -59,7 +59,7 @@ namespace MirageXR
             var prefab = MenuManager.Instance.GetEditorPrefab(contentType);
             if (prefab != null)
             {
-                PopupsViewer.Instance.Show(prefab, prefab);   
+                PopupsViewer.Instance.Show(prefab);   
             }
         }
     }

@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using i5.Toolkit.Core.VerboseLogging;
+using MirageXR.DataModel;
 using Unity.SharpZipLib.Zip;
 using UnityEngine;
 
@@ -81,10 +81,9 @@ namespace MirageXR
             return previewList;
         }
 
-        private static ModelPreviewItem CreateModelPreview(SketchfabModel sketchfabModel)
+        private static ModelPreviewItem CreateModelPreview(MirageXR.DataModel.SketchfabModel sketchfabModel)
         {
-            var image = sketchfabModel.thumbnails.images.FirstOrDefault(t => t.height < MAX_THUMBNAIL_HEIGHT) ??
-                        sketchfabModel.thumbnails.images.First();
+            var image = sketchfabModel.thumbnails.images.FirstOrDefault(t => t.height < MAX_THUMBNAIL_HEIGHT) ?? sketchfabModel.thumbnails.images.First();
             return new ModelPreviewItem
             {
                 name = sketchfabModel.name,
@@ -143,7 +142,7 @@ namespace MirageXR
 
         public static async Task<(bool, string)> GetTokenAsync(string username, string password, string clientId, string clientSecret)
         {
-            const int timeout = 60 * 2;
+            const int timeout = 20;
 
             const string url = "https://sketchfab.com/oauth2/token/";
             const string authorizationKey = "Basic";
@@ -152,34 +151,32 @@ namespace MirageXR
             const string passwordKey = "password";
             const string grantTypeValue = "password";
 
-            using (var client = new HttpClient())
+            using var client = new HttpClient();
+            var form = new MultipartFormDataContent
             {
-                var form = new MultipartFormDataContent
-                {
-                    { new StringContent(grantTypeValue), grantTypeKey },
-                    { new StringContent(username), usernameKey },
-                    { new StringContent(password), passwordKey }
-                };
+                { new StringContent(grantTypeValue), grantTypeKey },
+                { new StringContent(username), usernameKey },
+                { new StringContent(password), passwordKey }
+            };
 
-                client.Timeout = TimeSpan.FromSeconds(timeout);
-                try
-                {
-                    var credentials = Base64Encode($"{clientId}:{clientSecret}");
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(authorizationKey, credentials);
-                    var content = await client.PostAsync(url, form);
-                    var response = await content.Content.ReadAsStringAsync();
-                    return (true, response);
-                }
-                catch (Exception e)
-                {
-                    return (false, e.ToString());
-                }
+            client.Timeout = TimeSpan.FromSeconds(timeout);
+            try
+            {
+                var credentials = Base64Encode($"{clientId}:{clientSecret}");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(authorizationKey, credentials);
+                var content = await client.PostAsync(url, form);
+                var response = await content.Content.ReadAsStringAsync();
+                return (true, response);
+            }
+            catch (Exception e)
+            {
+                return (false, e.ToString());
             }
         }
 
         public static async Task<(bool, string)> RenewTokenAsync(string renewToken, string clientId, string clientSecret)
         {
-            const int timeout = 60 * 2;
+            const int timeout = 20;
 
             const string url = "https://sketchfab.com/oauth2/token/";
             const string grantTypeKey = "grant_type";
@@ -193,27 +190,25 @@ namespace MirageXR
                 return (false, null);
             }
 
-            using (var client = new HttpClient())
+            using var client = new HttpClient();
+            var form = new MultipartFormDataContent
             {
-                var form = new MultipartFormDataContent
-                {
-                    { new StringContent(grantTypeValue), grantTypeKey },
-                    { new StringContent(clientId), clientIdKey },
-                    { new StringContent(clientSecret), clientSecretKey },
-                    { new StringContent(renewToken), refreshKey }
-                };
+                { new StringContent(grantTypeValue), grantTypeKey },
+                { new StringContent(clientId), clientIdKey },
+                { new StringContent(clientSecret), clientSecretKey },
+                { new StringContent(renewToken), refreshKey }
+            };
 
-                client.Timeout = TimeSpan.FromSeconds(timeout);
-                try
-                {
-                    var content = await client.PostAsync(url, form);
-                    var response = await content.Content.ReadAsStringAsync();
-                    return (true, response);
-                }
-                catch (Exception e)
-                {
-                    return (false, e.ToString());
-                }
+            client.Timeout = TimeSpan.FromSeconds(timeout);
+            try
+            {
+                var content = await client.PostAsync(url, form);
+                var response = await content.Content.ReadAsStringAsync();
+                return (true, response);
+            }
+            catch (Exception e)
+            {
+                return (false, e.ToString());
             }
         }
 
@@ -256,7 +251,7 @@ namespace MirageXR
                 }
                 else if (url.StartsWith(filePrefix))
                 {
-                    (_, bytes) = await ReaFileAsync(url.Substring(filePrefix.Length));
+                    bytes = await File.ReadAllBytesAsync(url.Substring(filePrefix.Length));
                 }
                 else
                 {
@@ -273,31 +268,16 @@ namespace MirageXR
             }
         }
 
-        private static async Task<(bool, byte[])> ReaFileAsync(string file)
-        {
-            byte[] bytes;
-            if (!File.Exists(file)) return (false, null);
-            using (var stream = new FileStream(file, FileMode.Open))
-            {
-                bytes = new byte[stream.Length];
-                await stream.ReadAsync(bytes, 0, (int)stream.Length);
-            }
-
-            return (true, bytes);
-        }
-
         private static async Task<(bool, byte[])> DownloadBytesAsync(string url, int timeout, IProgress<float> progress = null, CancellationToken cancellationToken = default)
         {
-            using (var memory = new MemoryStream())
-            {
-                var (result, _) = await LearningExperienceEngine.Network.DownloadToStreamAsync(url, memory, timeout, progress, cancellationToken);
-                return (result, result ? memory.ToArray() : null);
-            }
+            using var memory = new MemoryStream();
+            var (result, _) = await LearningExperienceEngine.Network.DownloadToStreamAsync(url, memory, timeout, progress, cancellationToken);
+            return (result, result ? memory.ToArray() : null);
         }
 
         public static async Task<(bool, ModelDownloadInfo)> GetDownloadInfoAsync(string token, ModelPreviewItem modelPreviewItem)
         {
-            const int timeout = 2 * 60;
+            const int timeout = 20;
             const string webReqUrlFormat = "https://api.sketchfab.com/v3/models/{0}/download";
 
             var webReqUrl = string.Format(webReqUrlFormat, modelPreviewItem.uid);
@@ -354,7 +334,7 @@ namespace MirageXR
 
             if (!Directory.Exists(modelFolderPath)) Directory.CreateDirectory(modelFolderPath);
 
-            using (var stream = new FileStream(imagePath, FileMode.OpenOrCreate))
+            await using (var stream = new FileStream(imagePath, FileMode.OpenOrCreate))
             {
                 var (result, _) = await LearningExperienceEngine.Network.DownloadToStreamAsync(modelPreview.resourceImage.url, stream, timeout);
                 if (!result)
@@ -364,7 +344,7 @@ namespace MirageXR
                 modelPreview.resourceImage.url = $"file://{imagePath}";
             }
 
-            using (var stream = new FileStream(archivePath, FileMode.Open))
+            await using (var stream = new FileStream(archivePath, FileMode.Open))
             {
                 await LearningExperienceEngine.ZipUtilities.ExtractZipFileAsync(stream, modelFolderPath);
                 modelPreview.resourceUrl = $"file://{modelPath}";
@@ -372,8 +352,8 @@ namespace MirageXR
 
             var output = Newtonsoft.Json.JsonConvert.SerializeObject(modelPreview, Newtonsoft.Json.Formatting.Indented);
 
-            using (var fs = new FileStream(jsonPath, FileMode.OpenOrCreate))
-            using (var writer = new StreamWriter(fs))
+            await using (var fs = new FileStream(jsonPath, FileMode.OpenOrCreate))
+            await using (var writer = new StreamWriter(fs))
             {
                 await writer.WriteAsync(output);
             }
@@ -381,7 +361,119 @@ namespace MirageXR
             return true;
         }
 
-        public static async Task RemoveLocalModelAsync(ModelPreviewItem modelPreview)
+        public static async Task<bool> ExtractModelAsync(string url, ModelPreviewItem modelPreview, Action<float> onProgressChanged = null)
+        {
+            const int timeout = 5 * 60;
+
+            var archiveName = $"{modelPreview.name}.zip";
+
+            modelPreview.name = GetValidFileName(modelPreview.name);
+
+            var modelsFolderPath = Path.Combine(Application.persistentDataPath, FOLDER_NAME);
+            if (!Directory.Exists(modelsFolderPath))
+            {
+                Directory.CreateDirectory(modelsFolderPath);
+            }
+
+            var modelFolderPath = Path.Combine(modelsFolderPath, modelPreview.name);
+            if (!Directory.Exists(modelFolderPath))
+            {
+                Directory.CreateDirectory(modelFolderPath);
+            }
+
+            var archivePath = Path.Combine(modelsFolderPath, archiveName);
+            var jsonPath = Path.Combine(modelFolderPath, JSON_FILE_NAME);
+            var modelPath = Path.Combine(modelFolderPath, MODEL_NAME);
+            var imagePath = Path.Combine(modelFolderPath, "imageName");
+
+            await using (var stream = new FileStream(archivePath, FileMode.OpenOrCreate))
+            {
+                Progress<float> progress = null;
+                if (onProgressChanged != null)
+                {
+                    progress = new Progress<float>(onProgressChanged.Invoke);
+                }
+                var (result, _) = await LearningExperienceEngine.Network.DownloadToStreamAsync(url, stream, timeout, progress);
+                if (!result)
+                {
+                    return false;
+                }
+
+                modelPreview.fileSize = stream.Length;
+            }
+
+            if (!Directory.Exists(modelFolderPath))
+            {
+                Directory.CreateDirectory(modelFolderPath);
+            }
+
+            await using (var stream = new FileStream(imagePath, FileMode.OpenOrCreate))
+            {
+                var (result, _) = await LearningExperienceEngine.Network.DownloadToStreamAsync(modelPreview.resourceImage.url, stream, timeout);
+                if (!result)
+                {
+                    return false;
+                }
+                modelPreview.resourceImage.url = $"file://{imagePath}";
+            }
+
+            await using (var stream = new FileStream(archivePath, FileMode.Open))
+            {
+                await LearningExperienceEngine.ZipUtilities.ExtractZipFileAsync(stream, modelFolderPath);
+                modelPreview.resourceUrl = $"file://{modelPath}";
+            }
+
+            var output = Newtonsoft.Json.JsonConvert.SerializeObject(modelPreview, Newtonsoft.Json.Formatting.Indented);
+
+            await using (var fs = new FileStream(jsonPath, FileMode.OpenOrCreate))
+            await using (var writer = new StreamWriter(fs))
+            {
+                await writer.WriteAsync(output);
+            }
+
+            return true;
+        }
+
+        public static async Task<bool> DownloadModelAsync(string url, ModelPreviewItem modelPreview, Action<float> onProgressChanged = null)
+        {
+            const int timeout = 2 * 60;
+
+            var archiveName = $"{modelPreview.name}.zip";
+
+            modelPreview.name = GetValidFileName(modelPreview.name);
+
+            var modelsFolderPath = Path.Combine(Application.persistentDataPath, FOLDER_NAME);
+            if (!Directory.Exists(modelsFolderPath))
+            {
+                Directory.CreateDirectory(modelsFolderPath);
+            }
+
+            var modelFolderPath = Path.Combine(modelsFolderPath, modelPreview.name);
+            if (!Directory.Exists(modelFolderPath))
+            {
+                Directory.CreateDirectory(modelFolderPath);
+            }
+
+            var archivePath = Path.Combine(modelsFolderPath, archiveName);
+
+            await using var stream = new FileStream(archivePath, FileMode.OpenOrCreate);
+            Progress<float> progress = null;
+            if (onProgressChanged != null)
+            {
+                progress = new Progress<float>(onProgressChanged.Invoke);
+            }
+            var (result, _) = await LearningExperienceEngine.Network.DownloadToStreamAsync(url, stream, timeout, progress);
+            if (!result)
+            {
+                return false;
+            }
+
+            modelPreview.fileSize = stream.Length;
+
+            return true;
+        }
+
+        public static void RemoveLocalModel(ModelPreviewItem modelPreview)
         {
             var modelsFolderPath = Path.Combine(Application.persistentDataPath, FOLDER_NAME);
             var archiveUrl = Path.Combine(modelsFolderPath, $"{modelPreview.name}.zip");
@@ -458,27 +550,28 @@ namespace MirageXR
             writer.Close();
         }
 
-        public static async Task LoadModelAsync(ModelPreviewItem modelPreview)
+        public static async Task LoadModelAsync(string modelName)
         {
             var modelsFolderPath = Path.Combine(Application.persistentDataPath, FOLDER_NAME);
-            var archiveUrl = Path.Combine(modelsFolderPath, $"{modelPreview.name}.zip");
-            var modelFolder = Path.Combine(modelsFolderPath, modelPreview.name);
-            var targetDirectory = Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActivityPath, modelPreview.name);
-            if (!Directory.Exists(targetDirectory)) Directory.CreateDirectory(targetDirectory);
+            var archiveUrl = Path.Combine(modelsFolderPath, $"{modelName}.zip");
+            var modelFolder = Path.Combine(modelsFolderPath, modelName);
+            var targetDirectory = Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActivityPath, modelName);
+            if (!Directory.Exists(targetDirectory))
+            {
+                Directory.CreateDirectory(targetDirectory);
+            }
 
             // build zip archive, if required (might be slow for big models)
             if (!File.Exists(archiveUrl))
             {
                 Debug.Log("model archive not found, taking remedial action...");
-                using (var stream = new FileStream(archiveUrl, FileMode.OpenOrCreate))
-                using (var zipStream = new ZipOutputStream(stream))
-                {
-                    await LearningExperienceEngine.ZipUtilities.CompressFolderAsync($"{modelFolder}\\", zipStream);
-                }
+                await using var stream = new FileStream(archiveUrl, FileMode.OpenOrCreate);
+                await using var zipStream = new ZipOutputStream(stream);
+                await LearningExperienceEngine.ZipUtilities.CompressFolderAsync($"{modelFolder}\\", zipStream);
             }
 
             // unpack to session folder
-            using (var stream = new FileStream(archiveUrl, FileMode.Open))
+            await using (var stream = new FileStream(archiveUrl, FileMode.Open))
             {
                 await LearningExperienceEngine.ZipUtilities.ExtractZipFileAsync(stream, targetDirectory);
             }

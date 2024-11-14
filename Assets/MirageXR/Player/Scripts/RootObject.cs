@@ -33,7 +33,7 @@ namespace MirageXR
         private AIManager _aiManager;
         private OpenAIManager _openAIManager;
         private EditorSceneService _editorSceneService;
-        private VirtualInstructorOrchestrator _virtualInstructorOrchestrator; 
+        private VirtualInstructorOrchestrator _virtualInstructorOrchestrator;
         private ICalibrationManager _calibrationManager;
         private IAssetBundleManager _assetBundleManager;
 
@@ -97,14 +97,19 @@ namespace MirageXR
             {
                 return;
             }
-
+                                                                                                                         
             try
             {
                 JsonConvert.DefaultSettings = () => new JsonSerializerSettings
                 {
-                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                    Error = (sender, args) =>
+                    {
+                        AppLog.LogError(args.ErrorContext.Error.Message, sender);
+                        args.ErrorContext.Handled = true;
+                    }
                 };
-                
+
                 _baseCamera ??= Camera.main;
 
                 _serviceBootstrapper ??= new GameObject("ServiceBootstrapper").AddComponent<MirageXRServiceBootstrapper>();
