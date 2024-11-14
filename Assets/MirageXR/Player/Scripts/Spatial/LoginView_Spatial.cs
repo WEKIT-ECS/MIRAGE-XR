@@ -40,6 +40,12 @@ namespace MirageXR
             
             ResetValues();
         }
+        
+        private void OnEnable()
+        {
+            ResetValues();
+        }
+
 
     private async Task Login(string username, string password)
     {
