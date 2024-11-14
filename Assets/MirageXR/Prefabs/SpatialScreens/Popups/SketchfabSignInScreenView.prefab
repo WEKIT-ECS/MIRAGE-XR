@@ -4392,23 +4392,7 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 7297095774566574177}
-    - targetCorrespondingSourceObject: {fileID: 1868746085923411033, guid: de5f77eff0ce24fbaaebe3e20149b106,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 243270449828164480}
   m_SourcePrefab: {fileID: 100100000, guid: de5f77eff0ce24fbaaebe3e20149b106, type: 3}
---- !u!114 &303573948953997818 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5224870176120558485, guid: de5f77eff0ce24fbaaebe3e20149b106,
-    type: 3}
-  m_PrefabInstance: {fileID: 5527312417962713711}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &839427914995223351 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5121378266993895768, guid: de5f77eff0ce24fbaaebe3e20149b106,
@@ -4466,22 +4450,6 @@ MonoBehaviour:
   m_OnKeyboardFocusChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &243270449828164480
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6150769140477474358}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8625495b07b51f94d997156c5c8438bb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _inputField: {fileID: 839427914995223351}
-  _image: {fileID: 303573948953997818}
-  _errorColor: {r: 1, g: 0.43867922, b: 0.43867922, a: 0.43137255}
-  _normalColor: {r: 1, g: 1, b: 1, a: 0}
 --- !u!1001 &7277832287222840454
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4875,7 +4843,7 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1868746085923411033, guid: de5f77eff0ce24fbaaebe3e20149b106,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 6957624689301330294}
+      addedObject: {fileID: 2458103110875531383}
   m_SourcePrefab: {fileID: 100100000, guid: de5f77eff0ce24fbaaebe3e20149b106, type: 3}
 --- !u!224 &2284446667302179285 stripped
 RectTransform:
@@ -4895,25 +4863,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &4370894212074373055 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5224870176120558485, guid: de5f77eff0ce24fbaaebe3e20149b106,
-    type: 3}
-  m_PrefabInstance: {fileID: 8370782814675807274}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &7909974837214312563 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1868746085923411033, guid: de5f77eff0ce24fbaaebe3e20149b106,
     type: 3}
   m_PrefabInstance: {fileID: 8370782814675807274}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &6957624689301330294
+--- !u!114 &2458103110875531383
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4922,13 +4878,30 @@ MonoBehaviour:
   m_GameObject: {fileID: 7909974837214312563}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8625495b07b51f94d997156c5c8438bb, type: 3}
+  m_Script: {fileID: 11500000, guid: a2317ceab4d3d38419fe16eebc1c0cd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _inputField: {fileID: 3690758138348275058}
-  _image: {fileID: 4370894212074373055}
-  _errorColor: {r: 1, g: 0.43867922, b: 0.43867922, a: 0.43137255}
-  _normalColor: {r: 1, g: 1, b: 1, a: 0}
+  m_InputField: {fileID: 3690758138348275058}
+  m_Keyboard: {fileID: 0}
+  m_UseSceneKeyboard: 0
+  m_UpdateOnKeyPress: 1
+  m_AlwaysObserveKeyboard: 0
+  m_MonitorInputFieldCharacterLimit: 0
+  m_ClearTextOnSubmit: 0
+  m_ClearTextOnOpen: 0
+  m_HideKeyboardOnDisable: 1
+  m_OnTextSubmitted:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnKeyboardOpened:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnKeyboardClosed:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnKeyboardFocusChanged:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &8959802627654411719
 PrefabInstance:
   m_ObjectHideFlags: 0

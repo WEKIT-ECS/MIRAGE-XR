@@ -22,8 +22,8 @@ namespace MirageXR
         {
             base.Initialization(onClose, args);
 
-            inputFieldEmail.onEndEdit.AddListener(OnInputFieldEmailEndEdit);
-            inputFieldPassword.onEndEdit.AddListener(OnInputFieldPasswordEndEdit);
+            inputFieldEmail.onValueChanged.AddListener(OnInputFieldEmailValueChanged);
+            inputFieldPassword.onValueChanged.AddListener(OnInputFieldPasswordValueChanged);
             buttonLogin.onClick.AddListener(OnButtonLoginClick);
             buttonForgotPassword.onClick.AddListener(OnButtonForgotPasswordClick);
             buttonHelp.onClick.AddListener(OnButtonHelpClick);
@@ -40,16 +40,16 @@ namespace MirageXR
             }
             else
             {
-                Toast.Instance.Show("response.Message");
+                Toast.Instance.Show(response.ErrorMessage);
             }
         }
 
-        private void OnInputFieldEmailEndEdit(string text)
+        private void OnInputFieldEmailValueChanged(string text)
         {
             _email = text;
         }
 
-        private void OnInputFieldPasswordEndEdit(string text)
+        private void OnInputFieldPasswordValueChanged(string text)
         {
             _password = text;
         }
