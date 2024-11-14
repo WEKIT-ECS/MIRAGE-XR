@@ -1,14 +1,10 @@
 using LearningExperienceEngine;
-using UnityEngine;
 
 namespace MirageXR
 {
     public class ProfileScreenSpatialViewController : ScreenViewController<ProfileScreenSpatialViewController, ProfileScreenSpatialView>
     {
         public override ScreenName ScreenName => ScreenName.ProfileScreen;
-
-        [SerializeField] private SketchfabSignInPopupView sketchfabSignInPopupViewPrefab;
-        [SerializeField] private SidebarView sidebarView; // Temp
 
         protected override void OnBind()
         {
@@ -29,7 +25,11 @@ namespace MirageXR
 
         private void OnSketchfabSignInButtonClicked()
         {
-            PopupsViewer.Instance.Show(sketchfabSignInPopupViewPrefab);
+            var prefab = View.GetSketchfabSignInPopupViewPrefab();
+            if (prefab is not null)
+            {
+                PopupsViewer.Instance.Show(prefab);
+            }
         }
 
         private void ShowAudioDeviceView()

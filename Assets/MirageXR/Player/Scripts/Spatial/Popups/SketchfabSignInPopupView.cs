@@ -17,11 +17,11 @@ namespace MirageXR
 
         private string _email;
         private string _password;
-        
+
         public override void Initialization(Action<PopupBase> onClose, params object[] args)
         {
             base.Initialization(onClose, args);
-            
+
             inputFieldEmail.onEndEdit.AddListener(OnInputFieldEmailEndEdit);
             inputFieldPassword.onEndEdit.AddListener(OnInputFieldPasswordEndEdit);
             buttonLogin.onClick.AddListener(OnButtonLoginClick);
