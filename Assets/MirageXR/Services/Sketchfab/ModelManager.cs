@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using MirageXR.DataModel;
 using UnityEngine.UI;
 
 namespace MirageXR
@@ -322,7 +323,7 @@ namespace MirageXR
 
         public async void LoadModel(ButtonHandler handler, ModelPreviewItem modelPreview)
         {
-            await Sketchfab.LoadModelAsync(modelPreview);
+            await Sketchfab.LoadModelAsync(modelPreview.name);
             GetComponent<ModelEditor>().Create(modelPreview.name);
         }
 

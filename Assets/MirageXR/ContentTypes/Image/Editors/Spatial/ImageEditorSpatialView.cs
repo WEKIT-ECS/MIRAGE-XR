@@ -108,7 +108,7 @@ public class ImageEditorSpatialView : EditorSpatialView
     
     private async UniTask SaveImageAsync(Guid activityId, Guid contentId, Guid fileId)
     {
-        if (_capturedImage == null || _content == null)
+        if (_capturedImage == null)
         {
             return;
         }

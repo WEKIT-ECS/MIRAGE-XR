@@ -246,7 +246,7 @@ public class ModelEditorView : PopupEditorBase
             _sketchfabTab.SetActive(false);
             _librariesTab.SetActive(true);
             _bottomButtonsPanel.SetActive(false);
-            _libraryManager.EnableCategoryButtons(this);
+            _libraryManager.EnableCategoryButtons(AddLibraryAugmentation);
         }
     }
 
@@ -290,7 +290,7 @@ public class ModelEditorView : PopupEditorBase
 
     private void OnInputFieldSearchChanged(string text)
     {
-        // TODO
+        OnStartSearch();
     }
 
     public void OnStartSearch()
@@ -445,7 +445,7 @@ public class ModelEditorView : PopupEditorBase
 
     private void RemoveLocalItemAsync(ModelListItem item)
     {
-        RemoveModelFromLocalStorageAsync(item).AsAsyncVoid();
+        RemoveModelFromLocalStorage(item);
     }
 
     private void RenameLocalItemAsync(ModelListItem item)
@@ -484,10 +484,10 @@ public class ModelEditorView : PopupEditorBase
         ShowLocalModels();
     }
 
-    private async Task RemoveModelFromLocalStorageAsync(ModelListItem item)
+    private void RemoveModelFromLocalStorage(ModelListItem item)
     {
         _previewItem = item.previewItem;
-        await MirageXR.Sketchfab.RemoveLocalModelAsync(_previewItem);
+        MirageXR.Sketchfab.RemoveLocalModel(_previewItem);
         ShowLocalModels();
     }
 
@@ -559,7 +559,7 @@ public class ModelEditorView : PopupEditorBase
     {
         _previewItem = item.previewItem;
         item.interactable = false;
-        await MirageXR.Sketchfab.LoadModelAsync(_previewItem);
+        await MirageXR.Sketchfab.LoadModelAsync(_previewItem.name);
         item.interactable = true;
         OnAccept();
     }
@@ -620,13 +620,21 @@ public class ModelEditorView : PopupEditorBase
 
     protected override void OnAccept()
     {
-        _previewItem.name = LearningExperienceEngine.ZipUtilities.CheckFileForIllegalCharacters(_previewItem.name);
-        AddAugmentation(_previewItem.name);
+        _previewItem.name = LearningExperienceEngine.ZipUtilities.RemoveIllegalCharacters(_previewItem.name);
+        AddSketchfabAugmentation(_previewItem.name);
     }
 
+    private void AddSketchfabAugmentation(string prefabName)
+    {
+        AddAugmentation(_previewItem.name, false);
+    }
 
+    private void AddLibraryAugmentation(string prefabName)
+    {
+        AddAugmentation(_previewItem.name, true);
+    }
 
-    public void AddAugmentation(string prefabName, bool libraryModel = false)
+    private void AddAugmentation(string prefabName, bool libraryModel)
     {
         var predicate = $"3d:{prefabName}";
         if (_content != null)
@@ -649,8 +657,6 @@ public class ModelEditorView : PopupEditorBase
 
         Close();
     }
-
-
 
     private void OnArrowButtonPressed()
     {

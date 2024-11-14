@@ -15,8 +15,8 @@ namespace MirageXR
         public override void Initialization(Action<PopupBase> onClose, params object[] args)
         {
             base.Initialization(onClose, args);
-            _btnAccept.onClick.AddListener(OnAccept);
-            _btnClose.onClick.AddListener(Close);
+            _btnAccept?.onClick.AddListener(OnAccept);
+            _btnClose?.onClick.AddListener(Close);
         }
 
         protected abstract void OnAccept();

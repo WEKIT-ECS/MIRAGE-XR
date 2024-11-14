@@ -168,16 +168,6 @@ public class AudioEditorSpatialView : EditorSpatialView
         UpdateSliderPlayerAndTimer();
     }
 
-    protected override bool TryToGetArguments(params object[] args)
-    {
-        if (args is { Length: 1 } && args[0] is Content<AudioContentData> obj)
-        {
-            _content = obj;
-        }
-
-        return true;
-    }
-
     /*private void InitClampedScrollRect(ClampedScrollRect clampedScrollRect, GameObject templatePrefab, int maxCount, string text)
     {
         var currentActionId = activityManager.ActiveAction.id;
@@ -237,13 +227,6 @@ public class AudioEditorSpatialView : EditorSpatialView
         }
 
         StartUpdateSliderPlayerAndTimer();
-    }
-
-    private static string GetFileName(LearningExperienceEngine.ToggleObject content)
-    {
-        const string httpPrefix = "http://";
-        var fileName = content.url.StartsWith(httpPrefix) ? content.url.Remove(0, httpPrefix.Length) : content.url;
-        return fileName;
     }
 
     private void OnPlayingPaused()

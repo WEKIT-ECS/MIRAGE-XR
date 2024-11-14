@@ -1,4 +1,5 @@
 ﻿using System;
+using MirageXR.DataModel;
 
 [Serializable]
 public class ModelDownloadInfo
@@ -34,7 +35,7 @@ public class SketchfabModelSearchResult
     public SearchCursor cursors;
     public string next = "";
     public string previous = "";
-    public SketchfabModel[] results;
+    public MirageXR.DataModel.SketchfabModel[] results;
 }
 
 [Serializable]
