@@ -354,7 +354,11 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 6640280808994446951}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4483361030880394914, guid: 5d0a6f4b77bd04ddda3b6d1afd099f9d,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5787840226510502725}
   m_SourcePrefab: {fileID: 100100000, guid: 5d0a6f4b77bd04ddda3b6d1afd099f9d, type: 3}
 --- !u!224 &3176239000001334510 stripped
 RectTransform:
@@ -362,3 +366,54 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 5524001810607105503}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5121378266993895768 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 845542065475046535, guid: 5d0a6f4b77bd04ddda3b6d1afd099f9d,
+    type: 3}
+  m_PrefabInstance: {fileID: 5524001810607105503}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8255427401755761533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &8255427401755761533 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4483361030880394914, guid: 5d0a6f4b77bd04ddda3b6d1afd099f9d,
+    type: 3}
+  m_PrefabInstance: {fileID: 5524001810607105503}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5787840226510502725
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8255427401755761533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a88529cf91de948258764db23e396839, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_InputField: {fileID: 5121378266993895768}
+  m_Keyboard: {fileID: 0}
+  m_UseSceneKeyboard: 0
+  m_UpdateOnKeyPress: 1
+  m_AlwaysObserveKeyboard: 0
+  m_MonitorInputFieldCharacterLimit: 0
+  m_ClearTextOnSubmit: 0
+  m_ClearTextOnOpen: 0
+  m_HideKeyboardOnDisable: 1
+  m_OnTextSubmitted:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnKeyboardOpened:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnKeyboardClosed:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnKeyboardFocusChanged:
+    m_PersistentCalls:
+      m_Calls: []

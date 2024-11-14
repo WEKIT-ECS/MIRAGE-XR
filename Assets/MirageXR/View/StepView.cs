@@ -41,6 +41,7 @@ namespace MirageXR.View
                 _objectManipulator.OnManipulationEnded.AddListener(_ => OnManipulationEnded());
             }
         }
+        
         private void InitializeXRGrabInteractible()
         {
             if (_grabInteractible is null)
