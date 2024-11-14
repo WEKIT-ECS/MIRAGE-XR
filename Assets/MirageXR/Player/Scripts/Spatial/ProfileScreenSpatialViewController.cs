@@ -7,6 +7,7 @@ namespace MirageXR
     {
         public override ScreenName ScreenName => ScreenName.ProfileScreen;
 
+        [SerializeField] private SketchfabSignInPopupView sketchfabSignInPopupViewPrefab;
         [SerializeField] private SidebarView sidebarView; // Temp
 
         protected override void OnBind()
@@ -15,7 +16,20 @@ namespace MirageXR
             View.SetActionOnButtonRegisterClick(OnButtonRegisterClicked);
             View.SetActionOnButtonLoginClick(OnButtonLoginClicked);
             View.SetActionOnButtonAudioDeviceClick(ShowAudioDeviceView);
+            View.SetActionOnButtonSketchfabClick(OnSketchfabSignInButtonClicked);
             View.gameObject.SetActive(false);
+
+            RootObject.Instance.LEE.SketchfabManager.OnSketchfabLoggedIn += OnSketchfabLoggedIn;
+        }
+
+        private void OnSketchfabLoggedIn(bool value)
+        {
+            View.SetSketchfabText("Logged In");
+        }
+
+        private void OnSketchfabSignInButtonClicked()
+        {
+            PopupsViewer.Instance.Show(sketchfabSignInPopupViewPrefab);
         }
 
         private void ShowAudioDeviceView()

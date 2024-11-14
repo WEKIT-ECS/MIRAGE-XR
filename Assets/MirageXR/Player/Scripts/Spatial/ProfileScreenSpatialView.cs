@@ -22,6 +22,7 @@ namespace MirageXR
         [Header("Texts")]
         [SerializeField] private TMP_Text _tmpTextMoodleServer;
         [SerializeField] private TMP_Text _tmpTextServer;
+        [SerializeField] private TMP_Text _tmpTextSketchfab;
         [Header("GameObjects")]
         [SerializeField] private GameObject _signInPrefab; // TEMP
         [SerializeField] private GameObject _registerPrefab;// TEMP
@@ -37,6 +38,7 @@ namespace MirageXR
         public void SetActionOnButtonGridClick(UnityAction action) => _buttonGrid.SafeSetListener(action);
         public void SetActionOnButtonAudioDeviceClick(UnityAction action) => _buttonAudioDevice.SafeSetListener(action);
         public void SetActionOnButtonDevelopModeClick(UnityAction action) => _buttonDevelopMode.SafeSetListener(action);
+        public void SetSketchfabText(string text) => _tmpTextSketchfab.SafeSetText(text);
         public AudioDeviceSpatialView GetAudioDevicePrefab() => _audioDevicePrefab;
 
         public void ShowSignInPanel()

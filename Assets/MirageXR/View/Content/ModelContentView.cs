@@ -1,14 +1,16 @@
 ﻿using Cysharp.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using LearningExperienceEngine.DataModel;
+using LearningExperienceEngine.NewDataModel;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using Utilities;
 
 namespace MirageXR.View
 {
     public class ModelContentView : ContentView
     {
-        private GameObject _model;
+        private GltfModelController _model;
         
         public override async UniTask InitializeAsync(Content content)
         {
@@ -34,6 +36,18 @@ namespace MirageXR.View
             {
                 await InitializeModelAsync(content);
             }
+        }
+
+        protected override void InitializeBoxCollider()
+        {
+        }
+
+        protected override void InitializeBoundsControl()
+        {
+        }
+
+        protected override void InitializeManipulator()
+        {
         }
 
         private async UniTask InitializeModelAsync(Content<ModelContentData> content)
@@ -68,7 +82,8 @@ namespace MirageXR.View
 
             var prefabName = $"Library/{content.ContentData.LibraryModel.Catalog}/{content.ContentData.LibraryModel.ModelName}";
             var prefab = await Addressables.LoadAssetAsync<GameObject>(prefabName).Task;
-            _model = Instantiate(prefab, transform);
+            var item = Instantiate(prefab, transform);
+            _model = item.AddComponent<GltfModelController>();
         }
     }
 }
