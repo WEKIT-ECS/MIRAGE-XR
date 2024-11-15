@@ -25,13 +25,12 @@ namespace MirageXR
 		[SerializeField] private bool _useSessionPassword = false;
 
 		[SerializeField] private HandTrackingManager _handTrackingManager;
-		[SerializeField] private GameObject _recorderPrefab;
 
 #if FUSION2
 		private ConnectionManager _connectionManager;
 		private NetworkRunner _networkRunner;
 		private NetworkEvents _networkEvents;
-		private Recorder _recorder;
+		[SerializeField] private Recorder _recorder;
 		private FusionVoiceClient _fusionVoiceClient;
 
 		private List<AudioSource> _voiceSources = new List<AudioSource>();
@@ -127,15 +126,13 @@ namespace MirageXR
 			await UserManager.InitializeLocalUserDataAsync();
 
 			_handTrackingManager.StartTracking();
+
 			if (_recorder == null)
 			{
-				GameObject _recorderObj = Instantiate(_recorderPrefab);
-				_recorderObj.transform.parent = transform;
-				_recorder = _recorderObj.GetComponent<Recorder>();
-				FusionVoiceClient.AddRecorder(_recorder);
-
-				_recorder.MicrophoneDevice = new Photon.Voice.DeviceInfo(Microphone.devices.First());
+				_recorder = GetComponentInChildren<Recorder>();
 			}
+
+			_recorder.MicrophoneDevice = new Photon.Voice.DeviceInfo(Microphone.devices.First());
 
 			Debug.Log("Photon Voice is now using the following microphone: " + _recorder.MicrophoneDevice.Name);
 
