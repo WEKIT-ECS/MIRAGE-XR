@@ -45,6 +45,7 @@ namespace MirageXR
 			if (!string.IsNullOrEmpty(_avatarUrlField.text))
 			{
 				UserSettings.AvatarUrl = _avatarUrlField.text;
+				Debug.LogDebug("Changed avatar url to " + UserSettings.AvatarUrl);
 
 				StartCoroutine(ShowConfirmationPanel());
 			}
