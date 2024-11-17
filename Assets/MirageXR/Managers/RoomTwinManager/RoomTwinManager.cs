@@ -16,7 +16,6 @@ namespace MirageXR
     /// </summary>
     public enum RoomTwinStyle:ushort
     {
-        WireframeVignette = 0,
         TwinVignette = 1,
         FullTwin = 2
     }
@@ -44,7 +43,7 @@ namespace MirageXR
         private Material RoomTwinShader;
 
         [SerializeField]
-        private RoomTwinStyle _roomTwinStyle = RoomTwinStyle.WireframeVignette;
+        public RoomTwinStyle _roomTwinStyle = RoomTwinStyle.FullTwin;
 
         private GltfImport gltf;
         private GameObject _roomModel;
@@ -78,7 +77,7 @@ namespace MirageXR
             if (_loadingCompleted)
             {
 
-                if (( _roomTwinStyle == RoomTwinStyle.FullTwin || _roomTwinStyle == RoomTwinStyle.WireframeVignette) && !_FullTwinBlendInCompleted)
+                if (( _roomTwinStyle == RoomTwinStyle.FullTwin || _roomTwinStyle == RoomTwinStyle.TwinVignette) && !_FullTwinBlendInCompleted)
                 {
                     var alpha = Mathf.Lerp(0, 1, t);
                     SetAlphaInChildRenderers(_roomModel, alpha);
@@ -98,7 +97,7 @@ namespace MirageXR
                     }
 
                 }
-                else if (_roomTwinStyle == RoomTwinStyle.WireframeVignette && !_WireframeBlendInCompleted)
+                else if (_roomTwinStyle == RoomTwinStyle.TwinVignette && !_WireframeBlendInCompleted)
                 {
 
                     var alpha = Mathf.Lerp(100, 10, t);
@@ -112,10 +111,6 @@ namespace MirageXR
                         t = 0.0f;
                     }
 
-                }
-                else if (_roomTwinStyle == RoomTwinStyle.TwinVignette)
-                {
-                    // Twin Vignette style not yet implemented
                 }
 
             }
@@ -136,12 +131,15 @@ namespace MirageXR
         /// Switch digital room twin on or off
         /// </summary>
         /// <param name="Show">if true, display the room twin, otherwise deactivate it</param>
-        public void DisplayRoomTwin(bool Show)
+        public async void DisplayRoomTwin(bool Show)
         {
             if (Show) // show
             {
-                _roomModel.SetActive(true);
+                _loadingCompleted = false;
+                if (_roomModel) Destroy(_roomModel);
                 SetRoomTwinStyle(_roomTwinStyle);
+                await LoadRoomTwinModel(Path.Combine(Application.streamingAssetsPath, RoomFile));
+                _roomModel.SetActive(true);
                 
             } else // hide
             {
@@ -167,15 +165,18 @@ namespace MirageXR
                 t = 0.0f;
                 _FullTwinBlendInCompleted = false;
                 _WireframeBlendInCompleted = true;
-            } else if (_roomTwinStyle == RoomTwinStyle.WireframeVignette)
+            }
+            else if (_roomTwinStyle == RoomTwinStyle.TwinVignette)
             {
                 t = 0.0f;
                 _FullTwinBlendInCompleted = false;
                 _WireframeBlendInCompleted = false;
-            } else if (_roomTwinStyle == RoomTwinStyle.TwinVignette)
-            {
-                Debug.Log("Twin Vignette not yet implemented");
-            }
+            } 
+        }
+
+        public RoomTwinStyle GetRoomTwinStyle()
+        {
+            return _roomTwinStyle;
         }
 
         /// <summary>
@@ -209,6 +210,8 @@ namespace MirageXR
 
                 var instantiator = new GameObjectInstantiator(gltf, _roomModel.transform);
                 await gltf.InstantiateMainSceneAsync(instantiator); // transform
+
+                
 
                 // prep for alpha lerp from transparent
                 SetAlphaInChildRenderers(_roomModel, 0);
@@ -249,6 +252,15 @@ namespace MirageXR
             Component[] renderers = RoomTwin.GetComponentsInChildren(typeof(Renderer));
             foreach (Renderer childRenderer in renderers)
             {
+                childRenderer.material.SetOverrideTag("RenderType", "Transparent");
+                childRenderer.material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                childRenderer.material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                childRenderer.material.SetInt("_ZWrite", 0);
+                childRenderer.material.DisableKeyword("_ALPHATEST_ON");
+                childRenderer.material.EnableKeyword("_ALPHABLEND_ON");
+                childRenderer.material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                childRenderer.material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+
                 var Col = childRenderer.material.color;
                 Col.a = alpha;
                 childRenderer.material.color = Col;
@@ -285,6 +297,15 @@ namespace MirageXR
 
         }
 
+        /// <summary>
+        /// Hook a dimmer up with the digital crown (supported in VisionOS 2)
+        /// </summary>
+        /// <param name="amount"></param>
+        void OnImmersionChanged(double amount)
+        {
+            Debug.LogInfo($"Immersion amount: {amount:P0}");
+            GrowVignettesInChildRenderers(_roomModel, (float)amount);
+        }
 
     }
 
