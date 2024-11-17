@@ -142,7 +142,7 @@ namespace MirageXR
 			if (NetworkRunner.IsSharedModeMasterClient)
 			{
 				NetworkRunner.Spawn(_sessionDataPrefab);
-			}			
+			}
 
 			return res;
 		}
