@@ -37,15 +37,15 @@ namespace MirageXR
 		}
 		public event Action<string> AvatarUrlChanged;
 
-		public LocalUserData()
-		{
-			_oidcService = ServiceManager.GetService<IdentityOidcConnectService>();
-			SubscribeToDataSources();
-		}
-
 		~LocalUserData()
 		{
 			UnsubscribeFromDataSources();
+		}
+
+		public void Initialize()
+		{
+			_oidcService = ServiceManager.GetService<IdentityOidcConnectService>();
+			SubscribeToDataSources();
 		}
 
 		public async Task UpdateAllDataAsync()

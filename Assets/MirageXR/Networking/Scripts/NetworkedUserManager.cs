@@ -1,10 +1,8 @@
 #if FUSION2
 using Fusion;
-using i5.Toolkit.Core.OpenIDConnectClient;
 using i5.Toolkit.Core.ServiceCore;
 using LearningExperienceEngine;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 #endif
 using UnityEngine;
 
@@ -35,6 +33,11 @@ namespace MirageXR
 		public PlayerRef LocalUser { get => NetworkRunner.LocalPlayer; }
 
 		public event System.Action UserListChanged;
+
+		private void Start()
+		{
+			LocalUserData.Initialize();
+		}
 
 		public async void RegisterNetworkedUserData(PlayerRef owner, NetworkedUserData networkedUserData)
 		{
