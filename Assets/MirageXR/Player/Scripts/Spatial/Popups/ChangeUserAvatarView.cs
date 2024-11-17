@@ -31,8 +31,20 @@ namespace MirageXR
 			_closeWindowBtn.onClick.AddListener(Close);
 			_openEditorBtn.onClick.AddListener(OpenEditor);
 			_applyAvatarBtn.onClick.AddListener(ApplyAvatarUrl);
+			UserSettings.AvatarUrlChanged += OnAvatarUrlChanged;
 
 			_avatarUrlField.text = UserSettings.AvatarUrl;
+		}
+
+		private void OnDestroy()
+		{
+			UserSettings.AvatarUrlChanged -= OnAvatarUrlChanged;
+		}
+
+		private void OnAvatarUrlChanged(string newAvatarUrl)
+		{
+			_avatarUrlField.text = UserSettings.AvatarUrl;
+			StartCoroutine(ShowConfirmationPanel());
 		}
 
 		private void OpenEditor()
