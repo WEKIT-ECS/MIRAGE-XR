@@ -1,4 +1,5 @@
 using LearningExperienceEngine.DataModel;
+using LearningExperienceEngine.NewDataModel;
 using UnityEngine;
 using Activity = LearningExperienceEngine.DataModel.Activity;
 
@@ -32,12 +33,12 @@ namespace MirageXR
 
         private void OnButtonPreviousStepClicked()
         {
-            // TODO
+            RootObject.Instance.LEE.StepManager.GoToNextStep();
         }
 
         private void OnButtonNextStepClicked()
         {
-            // TODO
+            RootObject.Instance.LEE.StepManager.GoToPreviousStep();
         }
 
         private void OnToggleShowRoomScanValueChanged(bool value)
