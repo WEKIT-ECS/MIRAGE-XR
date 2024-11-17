@@ -1,14 +1,21 @@
+#if FUSION2
 using Fusion;
 using LearningExperienceEngine.DataModel;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+#endif
 using UnityEngine;
 
 namespace MirageXR
 {
+#if FUSION2
 	public class CollaborativeSessionData : NetworkBehaviour
+#else
+	public class CollaborativeSessionData : MonoBehaviour
+#endif
 	{
+#if FUSION2
 		[Networked, OnChangedRender(nameof(OnNetworkedStepGuidChanged))]
 		public Guid StepGuid { get; set; }
 
@@ -62,5 +69,6 @@ namespace MirageXR
 			Debug.LogInfo("(Networked Change) Guid is now " + StepGuid, this);
 			RootObject.Instance.LEE.StepManager.GoToStep(StepGuid);
 		}
+#endif
 	}
 }
