@@ -25,6 +25,7 @@ namespace MirageXR
 		[SerializeField] private bool _useSessionPassword = false;
 
 		[SerializeField] private HandTrackingManager _handTrackingManager;
+		[SerializeField] private GameObject _sessionDataPrefab;
 
 #if FUSION2
 		private ConnectionManager _connectionManager;
@@ -136,7 +137,14 @@ namespace MirageXR
 
 			Debug.Log("Photon Voice is now using the following microphone: " + _recorder.MicrophoneDevice.Name);
 
-			return await _connectionManager.Connect();
+			var res = await _connectionManager.Connect();
+
+			if (NetworkRunner.IsSharedModeMasterClient)
+			{
+				NetworkRunner.Spawn(_sessionDataPrefab);
+			}
+
+			return res;
 		}
 
 		public void AddVoiceSource(AudioSource voiceSource)
