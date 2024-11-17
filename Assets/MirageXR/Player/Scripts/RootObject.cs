@@ -55,7 +55,7 @@ namespace MirageXR
         public CameraCalibrationChecker CameraCalibrationChecker => _cameraCalibrationChecker;
         public PlatformManager PlatformManager => _platformManager;
         public RoomTwinManager RoomTwinManager => _roomTwinManager;
-        public SharingManager sharingManager => _sharingManager;
+        public SharingManager SharingManager => _sharingManager;
         public AIManager AiManager => _aiManager;
         public OpenAIManager OpenAIManager => _openAIManager;
         public VirtualInstructorOrchestrator VirtualInstructorOrchestrator => _virtualInstructorOrchestrator;
