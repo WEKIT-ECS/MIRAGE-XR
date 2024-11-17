@@ -22,6 +22,10 @@ namespace MirageXR
 			{
 				StepGuid = RootObject.Instance.LEE.StepManager.CurrentStep.Id;
 			}
+			else
+			{
+				OnNetworkedStepGuidChanged();
+			}
 		}
 
 		public override void Despawned(NetworkRunner runner, bool hasState)
