@@ -34,7 +34,7 @@ namespace MirageXR
 			}
 			else
 			{
-				Debug.LogError("Recieved a deep link for a RPM avatar but it did not contain an id parameter");
+				Debug.LogError("Recieved a deep link for a RPM avatar but it did not contain an id parameter: " + args.DeepLink);
 			}
 		}
 	}
