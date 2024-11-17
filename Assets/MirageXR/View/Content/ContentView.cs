@@ -1,9 +1,10 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
-using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
 namespace MirageXR.View
 {
@@ -12,28 +13,32 @@ namespace MirageXR.View
         public Guid Id => Content.Id;
 
         protected Content Content;
-        protected ObjectManipulator ObjectManipulator;
         protected BoundsControl BoundsControl;
         protected BoxCollider BoxCollider;
 
-        public virtual UniTask InitializeAsync(Content content)
+        public virtual async UniTask InitializeAsync(Content content)
         {
             name = $"Content_{content.Type}_{content.Id}";
             transform.SetLocalPositionAndRotation(content.Location.Position, Quaternion.Euler(content.Location.Rotation));
             transform.localScale = content.Location.Scale;
             Content = content;
 
+            await InitializeContentAsync(content);
+
             InitializeBoxCollider();
             InitializeManipulator();
-            InitializeBoundsControl();
+            //InitializeBoundsControl();
 
             RootObject.Instance.LEE.StepManager.OnStepChanged += OnStepChanged;
-            
-            return UniTask.CompletedTask;
         }
 
         public virtual void Play() { }
 
+        protected virtual UniTask InitializeContentAsync(Content content)
+        {
+            return UniTask.CompletedTask;
+        }
+        
         protected virtual void InitializeBoxCollider()
         {
             BoxCollider = gameObject.GetComponent<BoxCollider>();
@@ -46,18 +51,25 @@ namespace MirageXR.View
 
         protected virtual void InitializeManipulator()
         {
-            ObjectManipulator = gameObject.AddComponent<ObjectManipulator>();
-            ObjectManipulator.OnManipulationStarted.AddListener(_ => OnManipulationStarted());
-            ObjectManipulator.OnManipulationEnded.AddListener(_ => OnManipulationEnded());
+            var rigidBody = gameObject.AddComponent<Rigidbody>();
+            rigidBody.isKinematic = true;
+            rigidBody.useGravity = false;
+
+            var generalGrabTransformer = gameObject.AddComponent<XRGeneralGrabTransformer>();
+            generalGrabTransformer.allowTwoHandedScaling = true;
+
+            var xrGrabInteractable = gameObject.AddComponent<XRGrabInteractable>();
+            xrGrabInteractable.selectEntered.AddListener(_ => OnManipulationStarted());
+            xrGrabInteractable.selectExited.AddListener(_ => OnManipulationEnded());
         }
 
         protected virtual void InitializeBoundsControl()
         {
-            BoundsControl = gameObject.AddComponent<BoundsControl>();
+            /*BoundsControl = gameObject.AddComponent<BoundsControl>();
             BoundsControl.RotateStarted.AddListener(OnRotateStarted);
             BoundsControl.RotateStopped.AddListener(OnRotateStopped);
             BoundsControl.ScaleStarted.AddListener(OnScaleStarted);
-            BoundsControl.ScaleStopped.AddListener(OnScaleStopped);
+            BoundsControl.ScaleStopped.AddListener(OnScaleStopped);*/
         }
 
         protected virtual void OnStepChanged(ActivityStep step)

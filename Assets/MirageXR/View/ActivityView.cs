@@ -50,7 +50,7 @@ namespace MirageXR.View
             {
                 _stepView = CreateStepView(_step);
             }
-            _stepView.Initialize(_step);
+            _stepView.UpdateView(_step);
         }
 
         private void UpdateContentsView()
