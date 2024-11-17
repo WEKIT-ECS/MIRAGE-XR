@@ -100,9 +100,19 @@ namespace MirageXR
 
         private void OnButtonCollaborativeSessionClicked()
         {
-            // TODO
-            MenuManager.Instance.ShowCollaborativeSessionPanelView();
-        }
+#if FUSION2
+            if (CollaborationManager.Instance.NetworkRunner.IsInSession)
+            {
+                MenuManager.Instance.ShowCollaborativeSessionSettingsPanelView();
+            }
+            else
+            {
+				MenuManager.Instance.ShowCollaborativeSessionPanelView();
+			}
+#else
+			MenuManager.Instance.ShowCollaborativeSessionPanelView();
+#endif
+		}
 
         private void OnButtonSettingsClicked()
         {
