@@ -20,9 +20,9 @@ namespace MirageXR.View
         private Camera _camera;
         private bool _isBillboarded;
 
-        public override async UniTask InitializeAsync(Content content)
+        protected override async UniTask InitializeContentAsync(Content content)
         {
-            base.InitializeAsync(content);
+            await base.InitializeContentAsync(content);
 
             _camera = RootObject.Instance.BaseCamera;
             transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, ScaleZ);

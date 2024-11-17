@@ -15,9 +15,9 @@ namespace MirageXR.View
 
         private AudioClip _audioClip;
 
-        public override async UniTask InitializeAsync(Content content)
+        protected override async UniTask InitializeContentAsync(Content content)
         {
-            base.InitializeAsync(content);
+            await base.InitializeContentAsync(content);
 
             if (content is Content<AudioContentData> audioContent)
             {

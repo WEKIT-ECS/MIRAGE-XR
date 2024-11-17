@@ -26,6 +26,7 @@ namespace MirageXR
         [Header("Buttons")]
         [SerializeField] private Button _buttonBack;
         [SerializeField] private Button _buttonSettings;
+        [SerializeField] private Button buttonSearch;
         [Header("Containers")]
         [FormerlySerializedAs("_localModelsContainer")] [SerializeField] private RectTransform localModelsContainer;
         [FormerlySerializedAs("_scetchfabContainer")] [SerializeField] private RectTransform sketchfabContainer;
@@ -35,12 +36,22 @@ namespace MirageXR
         [Header("InputField")]
         [SerializeField] private TMP_InputField _headerInputField;
         [SerializeField] private TMP_InputField _searchField;
+        [Header("Settings")]
+        [SerializeField] private Button closeSettings;
+        [SerializeField] private Toggle toggleSettingsResetPosition;
+        [SerializeField] private Toggle toggleSettingsFitToScreen;
+        [SerializeField] private Slider sliderScale;
+        [SerializeField] private GameObject settingsContainer;
+        [SerializeField] private GameObject sliderScaleContainer;
+        [SerializeField] private TMP_Text textSliderValue;
 
         private SketchfabModelList _lastSketchfabModelList;
         private Content<ModelContentData> _modelContent;
         private SketchfabModel _sketchfabModel;
         private LibraryModel _localModel;
         private bool _isLibraryModel;
+        private string _searchText;
+        private readonly List<float> _scaleList = new() { 1f, 0.5f, 0.1f, 0.05f, 0.01f, 0.005f, 0.001f};
 
         protected override void OnAccept()
         {
@@ -67,7 +78,10 @@ namespace MirageXR
                     AvailableTriggers = null,
                     IsLibraryModel = false,
                     ModelUid = null,
-                    LibraryModel = null
+                    LibraryModel = null, 
+                    Scale = 1f,
+                    ResetPosition = true,
+                    FitToScreen = true
                 },
                 Location = Location.GetIdentityLocation()
             };
@@ -75,6 +89,10 @@ namespace MirageXR
             _modelContent.ContentData.IsLibraryModel = _isLibraryModel;
             _modelContent.ContentData.ModelUid = _sketchfabModel?.Uid;
             _modelContent.ContentData.LibraryModel = _localModel;
+
+            _modelContent.ContentData.Scale = sketchfabManager.Scale;
+            _modelContent.ContentData.ResetPosition = sketchfabManager.ResetPosition;
+            _modelContent.ContentData.FitToScreen = sketchfabManager.FitToScreen;
 
             RootObject.Instance.LEE.ActivityManager.AddSketchfabModel(_sketchfabModel);
             RootObject.Instance.LEE.ContentManager.AddContent(_modelContent);
@@ -101,12 +119,64 @@ namespace MirageXR
             toggleSketchfab.onValueChanged.AddListener(OnToggleSketchfabValueChanged);
             toggleLibraries.onValueChanged.AddListener(OnToggleLibrariesValueChanged);
 
-            _buttonBack.onClick.AddListener(OnClickBackButton);
             _buttonSettings.onClick.AddListener(OnClickSettingsButton);
+            closeSettings.onClick.AddListener(OnClickCloseSettingsButton);
+            buttonSearch.onClick.AddListener(OnButtonSearchClicked);
             _headerInputField.onValueChanged.AddListener(OnHeaderInputFieldChanged);
+            _searchField.onValueChanged.AddListener(OnInputFieldSearchValueChanged);
             _searchField.onEndEdit.AddListener(OnInputFieldSearchEndEdit);
 
+            sketchfabManager.OnResetPositionChanged += SketchfabManagerOnResetPositionChanged;
+            sketchfabManager.OnFitToScreenChanged += SketchfabManagerOnFitToScreenChanged;
+            sketchfabManager.OnScaleChanged += SketchfabManagerOnScaleChanged;
+
+            toggleSettingsResetPosition.onValueChanged.AddListener(OnResetPositionChanged);
+            toggleSettingsFitToScreen.onValueChanged.AddListener(OnToggleFitToScreenChanged);
+            sliderScale.wholeNumbers = true;
+            sliderScale.minValue = 0;
+            sliderScale.maxValue = _scaleList.Count - 1;
+            sliderScale.onValueChanged.AddListener(OnScaleSliderValueChanged);
+            settingsContainer.SetActive(false);
+
             InitializeLocalModelsAsync().Forget();
+        }
+
+        private void OnScaleSliderValueChanged(float value)
+        {
+            sketchfabManager.Scale = _scaleList[(int)value];
+        }
+
+        private void OnResetPositionChanged(bool value)
+        {
+            sketchfabManager.ResetPosition = value;
+        }
+
+        private void OnToggleFitToScreenChanged(bool value)
+        {
+            sketchfabManager.FitToScreen = value;
+        }
+
+        private void SketchfabManagerOnResetPositionChanged(bool value)
+        {
+            toggleSettingsResetPosition.isOn = value;
+        }
+
+        private void SketchfabManagerOnFitToScreenChanged(bool value)
+        {
+            toggleSettingsFitToScreen.isOn = value;
+            sliderScaleContainer.gameObject.SetActive(!value);
+        }
+
+        private void SketchfabManagerOnScaleChanged(float value)
+        {
+            textSliderValue.text = value.ToString("F3");
+            for (var i = 0; i < _scaleList.Count; i++)
+            {
+                if (Mathf.Approximately(_scaleList[i], value))
+                {
+                    sliderScale.value = i;
+                }
+            }
         }
 
         private void OnToggleLocalValueChanged(bool value)
@@ -154,6 +224,7 @@ namespace MirageXR
             var response = await sketchfabManager.SearchModelListAsync(text);
             if (!response.Success)
             {
+                Toast.Instance.Show("Unable to search sketchfab models");
                 return;
             }
 
@@ -182,13 +253,15 @@ namespace MirageXR
                 {
                     if (response.Status == SketchfabResponse.SketchfabStatus.Canceled)
                     {
+                        Toast.Instance.Show(response.ErrorMessage);
                         return;
                     }
 
                     sketchfabListItem.SetStatus(SketchfabListItemStatus.Error);
                     if (response.Status == SketchfabResponse.SketchfabStatus.Unauthorized)
                     {
-                        //TODO: show sketchfab auth screen                        
+                        Toast.Instance.Show(response.ErrorMessage);
+                        //TODO: show sketchfab auth screen
                     }
 
                     AppLog.LogError(response.ErrorMessage);
@@ -208,17 +281,28 @@ namespace MirageXR
 
         private void OnClickSettingsButton()
         {
-            // TODO
+            settingsContainer.SetActive(!settingsContainer.activeSelf);
         }
 
-        private void OnClickBackButton()
+        private void OnClickCloseSettingsButton()
         {
-            // TODO
+            settingsContainer.SetActive(false);
+        }
+
+        private void OnInputFieldSearchValueChanged(string text)
+        {
+            _searchText = text;
+        }
+
+        private void OnButtonSearchClicked()
+        {
+            SearchSketchfabModels(_searchText).Forget();
         }
 
         private void OnInputFieldSearchEndEdit(string text)
         {
-            SearchSketchfabModels(text).Forget();
+            _searchText = text;
+            SearchSketchfabModels(_searchText).Forget();
         }
 
         private void OnHeaderInputFieldChanged(string text)
