@@ -35,13 +35,13 @@ namespace MirageXR
 		{
 			if (HasStateAuthority)
 			{
-				Debug.Log("Setting StepGuid directly to " + newStep.Id);
+				Debug.LogDebug("Setting StepGuid directly to " + newStep.Id);
 				StepGuid = newStep.Id;
 			}
 			else
 			{
 				// clients that don't have the state authority need to inform the client with the state authority
-				Debug.Log("Sending Rpc SetStepGuidRpc to change step guid to " + newStep.Id);
+				Debug.LogDebug("Sending Rpc SetStepGuidRpc to change step guid to " + newStep.Id);
 				SetStepGuidRpc(newStep.Id);
 			}
 		}
@@ -49,13 +49,14 @@ namespace MirageXR
 		[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
 		public void SetStepGuidRpc(Guid stepGuid)
 		{
-			Debug.Log("Received SetStepGuidRpc on StateAuthority. Setting StepGuid to " + stepGuid);
+			Debug.LogDebug("Received SetStepGuidRpc on StateAuthority. Setting StepGuid to " + stepGuid);
 			StepGuid = stepGuid;
 		}
 
 		private void OnNetworkedStepGuidChanged()
 		{
-			Debug.Log("Guid is now " + StepGuid);
+			Debug.LogInfo("(Networked Change) Guid is now " + StepGuid, this);
+			RootObject.Instance.LEE.StepManager.GoToStep(StepGuid);
 		}
 	}
 }
