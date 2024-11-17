@@ -52,6 +52,11 @@ namespace MirageXR
 		}
 
 #if FUSION2
+		private void OnDestroy()
+		{
+			CollaborationManager.Instance.UserManager.UserListChanged -= OnNetworkedUserDataListChanged;
+		}
+
 		private void OnNetworkedUserDataListChanged()
 		{
 			UpdatePlayerList();
