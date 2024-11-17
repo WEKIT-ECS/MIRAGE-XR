@@ -21,20 +21,39 @@ namespace MirageXR
             base.Initialization(onClose, args);
 
             _btnClose.onClick.AddListener(Close);
+
+            _toggleTwinVignette.isOn = (roomTwinManager.GetRoomTwinStyle() == RoomTwinStyle.TwinVignette);
+            _toggleFullTwin.isOn = (roomTwinManager.GetRoomTwinStyle() == RoomTwinStyle.FullTwin);
+
             _toggleTwinVignette.onValueChanged.AddListener(ToggleTwinVignetteValueChanged);
             _toggleFullTwin.onValueChanged.AddListener(ToggleFullTwinValueChanged);
+
         }
 
         private void ToggleFullTwinValueChanged(bool value)
         {
-            if (!value) return;
+            if (!value)
+            {
+                Debug.LogInfo("ToggleFullTwinValueChange: setting TwinVignette to on");
+                _toggleTwinVignette.isOn = true;
+                roomTwinManager.SetRoomTwinStyle(RoomTwinStyle.TwinVignette);
+                return;
+            }
             roomTwinManager.SetRoomTwinStyle(RoomTwinStyle.FullTwin);
+            _toggleTwinVignette.isOn = false;
         }
 
         private void ToggleTwinVignetteValueChanged(bool value)
         {
-            if (!value) return;
+            if (!value)
+            {
+                Debug.LogInfo("ToggleTwinVignetteValueChange: setting FullTwin to on");
+                _toggleFullTwin.isOn = true;
+                roomTwinManager.SetRoomTwinStyle(RoomTwinStyle.FullTwin);
+                return;
+            }
             roomTwinManager.SetRoomTwinStyle(RoomTwinStyle.TwinVignette);
+            _toggleFullTwin.isOn = false;
         }
     }
 }
