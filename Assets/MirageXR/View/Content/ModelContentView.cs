@@ -11,10 +11,10 @@ namespace MirageXR.View
     public class ModelContentView : ContentView
     {
         private GltfModelController _model;
-        
-        public override async UniTask InitializeAsync(Content content)
+
+        protected override async UniTask InitializeContentAsync(Content content)
         {
-            base.InitializeAsync(content);
+            await base.InitializeContentAsync(content);
 
             if (content is Content<ModelContentData> modeContent)
             {
@@ -40,14 +40,14 @@ namespace MirageXR.View
 
         protected override void InitializeBoxCollider()
         {
-        }
-
-        protected override void InitializeBoundsControl()
-        {
-        }
-
-        protected override void InitializeManipulator()
-        {
+            var bounds = BoundsUtilities.GetTargetBounds(gameObject);
+            BoxCollider = gameObject.GetComponent<BoxCollider>();
+            if (BoxCollider == null)
+            {
+                BoxCollider = gameObject.AddComponent<BoxCollider>();
+            }
+            BoxCollider.size = bounds.size;
+            BoxCollider.center = bounds.center;
         }
 
         private async UniTask InitializeModelAsync(Content<ModelContentData> content)
@@ -69,7 +69,10 @@ namespace MirageXR.View
             if (_model is null)
             {
                 AppLog.LogError($"Can't load model with id {content.ContentData.ModelUid}");
+                return;
             }
+
+            _model.UpdateView(content.ContentData.ResetPosition, content.ContentData.FitToScreen, content.ContentData.Scale);
         }
 
         private async UniTask InitializeLibraryModelAsync(Content<ModelContentData> content)

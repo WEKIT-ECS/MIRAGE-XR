@@ -12,9 +12,9 @@ namespace MirageXR.View
         private Content<InstructorContentData> _instructorContent;
         private Instructor _instructor;
 
-        public override async UniTask InitializeAsync(Content content)
+        protected override async UniTask InitializeContentAsync(Content content)
         {
-            base.InitializeAsync(content);
+            await base.InitializeContentAsync(content);
 
             if (content is Content<InstructorContentData> instructorContent)
             {
