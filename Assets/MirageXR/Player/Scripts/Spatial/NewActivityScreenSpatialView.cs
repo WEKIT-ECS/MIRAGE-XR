@@ -13,6 +13,8 @@ namespace MirageXR
         [SerializeField] private Button _buttonSettings;
         [SerializeField] private Button _buttonCollaborativeSession;
         [SerializeField] private Button _buttonAddNewStep;
+        [SerializeField] private Button _nextStep;
+        [SerializeField] private Button _previousStep;
         [Header("Containers")]
         [SerializeField] private Transform _stepsContainer;
         [Header("Prefabs")]
@@ -36,6 +38,8 @@ namespace MirageXR
         public void SetActionOnButtonSettingsClick(UnityAction action) => _buttonSettings.SafeSetListener(action);
         public void SetActionOnButtonCollaborativeSessionClick(UnityAction action) => _buttonCollaborativeSession.SafeSetListener(action);
         public void SetActionOnButtonAddNewStepClick(UnityAction action) => _buttonAddNewStep.SafeSetListener(action);
+        public void SetActionOnButtonNextStepClick(UnityAction action) => _nextStep.SafeSetListener(action);
+        public void SetActionOnButtonPreviousStepClick(UnityAction action) => _previousStep.SafeSetListener(action);
 
         public Transform GetStepsContainer()
         {

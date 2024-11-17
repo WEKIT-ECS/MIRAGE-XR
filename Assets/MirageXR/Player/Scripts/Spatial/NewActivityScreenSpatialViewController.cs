@@ -1,4 +1,5 @@
 using LearningExperienceEngine.DataModel;
+using LearningExperienceEngine.NewDataModel;
 using UnityEngine;
 using Activity = LearningExperienceEngine.DataModel.Activity;
 
@@ -18,6 +19,8 @@ namespace MirageXR
             View.SetActionOnButtonSettingsClick(OnButtonSettingsClicked);
             View.SetActionOnButtonCollaborativeSessionClick(OnButtonCollaborativeSessionClicked);
             View.SetActionOnButtonAddNewStepClick(OnButtonAddNewStepClicked);
+            View.SetActionOnButtonNextStepClick(OnButtonNextStepClicked);
+            View.SetActionOnButtonPreviousStepClick(OnButtonPreviousStepClicked);
 
             RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityUpdated;
             RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnActivityUpdated;
@@ -27,7 +30,17 @@ namespace MirageXR
             View.SetActionOnButtonRepositionClick(OnButtonRepositionClicked);
             View.SetActionOnToggleShowRoomScanValueChanged(OnToggleShowRoomScanValueChanged);
         }
-        
+
+        private void OnButtonPreviousStepClicked()
+        {
+            RootObject.Instance.LEE.StepManager.GoToNextStep();
+        }
+
+        private void OnButtonNextStepClicked()
+        {
+            RootObject.Instance.LEE.StepManager.GoToPreviousStep();
+        }
+
         private void OnToggleShowRoomScanValueChanged(bool value)
         {
             roomTwinManager.DisplayRoomTwin(value);
