@@ -36,27 +36,7 @@ namespace MirageXR
 
 		public event System.Action UserListChanged;
 
-		public async Task InitializeLocalUserDataAsync()
-		{
-			if (string.IsNullOrEmpty(LocalUserData.UserName))
-			{
-				IdentityOidcConnectService oidcService = ServiceManager.GetService<IdentityOidcConnectService>();
-				if (oidcService.IsLoggedIn)
-				{
-					IUserInfo userInfo = await oidcService.GetUserDataAsync();
-					if (userInfo != null)
-					{
-						LocalUserData.UserName = userInfo.FullName;
-					}
-				}
-			}
-			if (string.IsNullOrEmpty(LocalUserData.UserName))
-			{
-				LocalUserData.UserName = "Guest";
-			}
-		}
-
-		public void RegisterNetworkedUserData(PlayerRef owner, NetworkedUserData networkedUserData)
+		public async void RegisterNetworkedUserData(PlayerRef owner, NetworkedUserData networkedUserData)
 		{
 			if (networkedUserData != null && !_networkedUserData.ContainsKey(owner))
 			{
@@ -64,6 +44,7 @@ namespace MirageXR
 				if (owner == NetworkRunner.LocalPlayer)
 				{
 					Debug.Log($"{owner} is the local user, so it gets the prepared local user data");
+					await LocalUserData.UpdateAllDataAsync();
 					networkedUserData.LocalUserDataSource = LocalUserData;
 				}
 

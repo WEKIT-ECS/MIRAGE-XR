@@ -1,6 +1,7 @@
 #if FUSION2
 using Fusion;
 using System;
+using System.Net.NetworkInformation;
 #else
 using System;
 using UnityEngine;
@@ -16,9 +17,6 @@ namespace MirageXR
 #endif
 	{
 		private LocalUserData _localUserDataSource;
-#if FUSION2
-		private ChangeDetector _changeDetector;
-#endif
 
 		private NetworkedAvatarController _avatarController;
 		public NetworkedAvatarController AvatarController
@@ -27,11 +25,17 @@ namespace MirageXR
 		}
 
 		public event Action<string> NetworkedUserNameChanged;
+		public event Action<string> NetworkedAvatarUrlChanged;
 
 #if FUSION2
-		[Networked, Capacity(25)]
+		[Networked, Capacity(25), OnChangedRender(nameof(OnNetworkedUserNameChanged))]
 #endif
 		public string UserName { get; set; }
+
+#if FUSION2
+		[Networked, Capacity(64), OnChangedRender(nameof(OnNetworkedAvatarUrlChanged))]
+#endif
+		public string AvatarUrl { get; set; }
 
 		/// <summary>
 		/// The data source for the local user
@@ -44,40 +48,58 @@ namespace MirageXR
 			{
 				if (_localUserDataSource != null)
 				{
-					_localUserDataSource.UserNameChanged -= OnUserNameChanged;
+					UnsubscribeFromLocalData();
 				}
 				_localUserDataSource = value;
-				UserName = _localUserDataSource.UserName;
-				_localUserDataSource.UserNameChanged += OnUserNameChanged;
+				SubscribeToLocalData();
+				ApplyLocalToNetworkedData();
 			}
 		}
 
-		private void OnUserNameChanged(string newUserName)
+		private void ApplyLocalToNetworkedData()
+		{
+			UserName = _localUserDataSource.UserName;
+			AvatarUrl = _localUserDataSource.AvatarUrl;
+		}
+
+		private void SubscribeToLocalData()
+		{
+			_localUserDataSource.UserNameChanged += OnLocalUserNameChanged;
+			_localUserDataSource.AvatarUrlChanged += OnLocalAvatarUrlChanged;
+		}
+
+		private void UnsubscribeFromLocalData()
+		{
+			_localUserDataSource.UserNameChanged -= OnLocalUserNameChanged;
+			_localUserDataSource.AvatarUrlChanged -= OnLocalAvatarUrlChanged;
+		}
+
+		private void OnLocalUserNameChanged(string newUserName)
 		{
 			UserName = newUserName;
 		}
 
-#if FUSION2
-		public override void Render()
+		private void OnLocalAvatarUrlChanged(string newAvatarUrl)
 		{
-			base.Render();
+			AvatarUrl = newAvatarUrl;
+		}
 
-			foreach (var change in _changeDetector.DetectChanges(this))
-			{
-				switch (change)
-				{
-					case nameof(UserName):
-						NetworkedUserNameChanged?.Invoke(UserName);
-						break;
-				}
-			}
+#if FUSION2
+
+		private void OnNetworkedUserNameChanged()
+		{
+			NetworkedUserNameChanged?.Invoke(UserName);
+		}
+
+		private void OnNetworkedAvatarUrlChanged()
+		{
+			Debug.LogDebug("(Network Change) AvatarURL is now " + AvatarUrl);
+			NetworkedAvatarUrlChanged?.Invoke(AvatarUrl);
 		}
 
 		public override async void Spawned()
 		{
 			base.Spawned();
-
-			_changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
 
 			Runner.SetPlayerObject(Object.StateAuthority, Object);
 
