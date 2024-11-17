@@ -18,6 +18,8 @@ namespace MirageXR
             View.SetActionOnButtonSettingsClick(OnButtonSettingsClicked);
             View.SetActionOnButtonCollaborativeSessionClick(OnButtonCollaborativeSessionClicked);
             View.SetActionOnButtonAddNewStepClick(OnButtonAddNewStepClicked);
+            View.SetActionOnButtonNextStepClick(OnButtonNextStepClicked);
+            View.SetActionOnButtonPreviousStepClick(OnButtonPreviousStepClicked);
 
             RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityUpdated;
             RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnActivityUpdated;
@@ -27,7 +29,17 @@ namespace MirageXR
             View.SetActionOnButtonRepositionClick(OnButtonRepositionClicked);
             View.SetActionOnToggleShowRoomScanValueChanged(OnToggleShowRoomScanValueChanged);
         }
-        
+
+        private void OnButtonPreviousStepClicked()
+        {
+            // TODO
+        }
+
+        private void OnButtonNextStepClicked()
+        {
+            // TODO
+        }
+
         private void OnToggleShowRoomScanValueChanged(bool value)
         {
             roomTwinManager.DisplayRoomTwin(value);
