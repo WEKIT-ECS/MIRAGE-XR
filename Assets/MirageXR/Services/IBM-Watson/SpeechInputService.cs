@@ -28,6 +28,7 @@ using IBM.Cloud.SDK.DataTypes;
 using System;
 using MirageXR;
 using System.Linq;
+using LearningExperienceEngine.NewDataModel;
 
 public class SpeechInputService : MonoBehaviour
 {

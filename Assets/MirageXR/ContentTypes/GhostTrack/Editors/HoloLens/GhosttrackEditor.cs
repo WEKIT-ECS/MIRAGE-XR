@@ -249,7 +249,7 @@ public class GhosttrackEditor : MonoBehaviour
             _ghostPreviewHeadTransform = _ghostPreviewTransform.Find("Head");
 
             _ghostRecorder.Start(_augOrigin, _cameraTransform);
-            AudioRecorder.Start(_audioFileName);
+            RootObject.Instance.LEE.AudioManager.Start(_audioFileName);
 
             IsRecording = true;
         }
@@ -277,7 +277,7 @@ public class GhosttrackEditor : MonoBehaviour
         }
 
         _ghostFrames = _ghostRecorder.Stop();
-        _audioClip = AudioRecorder.Stop();
+        _audioClip = RootObject.Instance.LEE.AudioManager.Stop();
 
         Debug.Log("Stopped recording ghost track");
     }

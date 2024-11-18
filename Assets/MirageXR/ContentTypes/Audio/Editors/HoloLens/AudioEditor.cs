@@ -386,7 +386,7 @@ public class AudioEditor : MonoBehaviour
         {
             SaveFileName = $"MirageXR_Audio_{System.DateTime.Now.ToFileTimeUtc()}.wav";
         }
-        AudioRecorder.Start();
+        RootObject.Instance.LEE.AudioManager.Start();
 
         if (gameObject.activeInHierarchy)
         {
@@ -408,7 +408,7 @@ public class AudioEditor : MonoBehaviour
 
         if (_isRecording)
         {
-            _capturedClip = AudioRecorder.Stop();
+            _capturedClip = RootObject.Instance.LEE.AudioManager.Stop();
 
             IsRecording = false;
 
