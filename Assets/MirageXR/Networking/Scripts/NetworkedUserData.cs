@@ -93,7 +93,7 @@ namespace MirageXR
 
 		private void OnNetworkedAvatarUrlChanged()
 		{
-			Debug.LogDebug("(Network Change) AvatarURL is now " + AvatarUrl);
+			Debug.LogDebug("(Networked Change) AvatarURL is now " + AvatarUrl);
 			NetworkedAvatarUrlChanged?.Invoke(AvatarUrl);
 		}
 
@@ -103,7 +103,14 @@ namespace MirageXR
 
 			Runner.SetPlayerObject(Object.StateAuthority, Object);
 
-			CollaborationManager.Instance.UserManager.RegisterNetworkedUserData(Object.StateAuthority, this);
+			await CollaborationManager.Instance.UserManager.RegisterNetworkedUserData(Object.StateAuthority, this);
+		}
+
+		public override void Despawned(NetworkRunner runner, bool hasState)
+		{
+			base.Despawned(runner, hasState);
+
+			UnsubscribeFromLocalData();
 		}
 #endif
 	}
