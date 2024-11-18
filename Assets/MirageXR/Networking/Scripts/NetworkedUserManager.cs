@@ -2,7 +2,10 @@
 using Fusion;
 using i5.Toolkit.Core.ServiceCore;
 using LearningExperienceEngine;
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+
 #endif
 using UnityEngine;
 
@@ -33,17 +36,17 @@ namespace MirageXR
 		public PlayerRef LocalUser { get => NetworkRunner.LocalPlayer; }
 
 		public event System.Action UserListChanged;
+		public event System.Action AnyUserNameChanged;
 
 		private void Start()
 		{
 			LocalUserData.Initialize();
 		}
 
-		public async void RegisterNetworkedUserData(PlayerRef owner, NetworkedUserData networkedUserData)
+		public async Task RegisterNetworkedUserData(PlayerRef owner, NetworkedUserData networkedUserData)
 		{
 			if (networkedUserData != null && !_networkedUserData.ContainsKey(owner))
 			{
-				Debug.Log($"Adding user {owner} ({networkedUserData.UserName}) to the user data list");
 				if (owner == NetworkRunner.LocalPlayer)
 				{
 					Debug.Log($"{owner} is the local user, so it gets the prepared local user data");
@@ -51,15 +54,24 @@ namespace MirageXR
 					networkedUserData.LocalUserDataSource = LocalUserData;
 				}
 
+				Debug.Log($"Adding user {owner} ({networkedUserData.UserName}) to the user data list");
+
 				_networkedUserData.Add(owner, networkedUserData);
+				networkedUserData.NetworkedUserNameChanged += OnUserNameChanged;
 				UserListChanged?.Invoke();
 			}
+		}
+
+		private void OnUserNameChanged(string userName)
+		{
+			AnyUserNameChanged?.Invoke();
 		}
 
 		public void OnPlayerLeft(NetworkRunner networkRunner, PlayerRef leftPlayer)
 		{
 			if (_networkedUserData.ContainsKey(leftPlayer))
 			{
+				_networkedUserData[leftPlayer].NetworkedUserNameChanged -= OnUserNameChanged;
 				_networkedUserData.Remove(leftPlayer);
 				UserListChanged?.Invoke();
 			}
