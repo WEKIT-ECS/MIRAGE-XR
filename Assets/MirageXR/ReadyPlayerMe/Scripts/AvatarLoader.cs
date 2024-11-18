@@ -10,7 +10,29 @@ namespace MirageXR
 		[SerializeField] private AvatarConfig avatarConfig;
 		[SerializeField] private GameObject loadingIndicator;
 
-		private AvatarObjectLoader avatarObjectLoader;
+		private AvatarObjectLoader _avatarObjectLoader;
+
+		private AvatarObjectLoader AvatarObjectLoader
+		{
+			get
+			{
+				if (_avatarObjectLoader == null)
+				{
+					_avatarObjectLoader = new AvatarObjectLoader();
+					if (avatarConfig != null)
+					{
+						_avatarObjectLoader.AvatarConfig = avatarConfig;
+					}
+					else
+					{
+						Debug.LogWarning("No avatar configuration set. The import of ReadyPlayerMe avatars might not work as expected.", this);
+					}
+					_avatarObjectLoader.OnCompleted += OnLoadCompleted;
+					_avatarObjectLoader.OnFailed += OnLoadFailed;
+				}
+				return _avatarObjectLoader;
+			}
+		}
 
 		public string LoadedAvatarUrl { get; private set; }
 
@@ -19,20 +41,11 @@ namespace MirageXR
 		private void Start()
 		{
 			loadingIndicator.SetActive(false);
-			avatarObjectLoader = new AvatarObjectLoader();
-			if (avatarConfig != null)
-			{
-				avatarObjectLoader.AvatarConfig = avatarConfig;
-			}
-			else
-			{
-				Debug.LogWarning("No avatar configuration set. The import of ReadyPlayerMe avatars might not work as expected.", this);
-			}
-			avatarObjectLoader.OnCompleted += OnLoadCompleted;
-			avatarObjectLoader.OnFailed += OnLoadFailed;
 
-			if (!string.IsNullOrEmpty(defaultAvatarUrl))
+			bool firstLoad = _avatarObjectLoader == null;
+			if (!string.IsNullOrEmpty(defaultAvatarUrl) && firstLoad)
 			{
+				Debug.LogTrace("Loading default avatar");
 				LoadAvatar(defaultAvatarUrl);
 			}
 		}
@@ -45,6 +58,7 @@ namespace MirageXR
 
 		private void OnLoadCompleted(object sender, CompletionEventArgs e)
 		{
+			Debug.LogDebug("Loading of avatar successful", this);
 			loadingIndicator.SetActive(false);
 			ApplyAvatar(e);
 			AvatarLoaded?.Invoke(true);
@@ -63,9 +77,16 @@ namespace MirageXR
 
 		public void LoadAvatar(string avatarUrl)
 		{
+			Debug.LogDebug("Loading avatar " + avatarUrl, this);
+			// remove the eye animation component since we want a fresh one for a new avatar
+			EyeAnimationHandler eyeAnimation = gameObject.GetComponent<EyeAnimationHandler>();
+			if (eyeAnimation != null)
+			{
+				Destroy(eyeAnimation);
+			}
 			avatarUrl = avatarUrl.Trim();
 			loadingIndicator.SetActive(true);
-			avatarObjectLoader.LoadAvatar(avatarUrl);
+			AvatarObjectLoader.LoadAvatar(avatarUrl);
 		}
 	}
 }

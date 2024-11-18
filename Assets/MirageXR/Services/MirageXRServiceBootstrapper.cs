@@ -43,17 +43,17 @@ namespace MirageXR
 		protected async override void RegisterServices()
 		{
 			Debug.LogInfo("ServiceBootstrapper: registering services");
-			#if UNITY_EDITOR
-				Debug.MinimumLogLevel = LogLevel.TRACE;
-			#else
+#if UNITY_EDITOR
+			Debug.MinimumLogLevel = LogLevel.TRACE;
+#else
 				int logLevel = PlayerPrefs.GetInt("logLevel", 3);
 				Debug.MinimumLogLevel = (LogLevel)logLevel;
-			#endif
+#endif
 
 			await ReadConfig();
 
 			ServiceManager.RegisterService(new WorldAnchorService());
-            ServiceManager.RegisterService(new KeywordService());
+			ServiceManager.RegisterService(new KeywordService());
 			ServiceManager.RegisterService(new VestService
 			{
 				VestEnabled = SensorsEnabled // vestServiceConfiguration.vestEnabled
@@ -75,15 +75,18 @@ namespace MirageXR
 			{
 				OidcProvider = new SketchfabOidcProvider()
 			};
-			#if !UNITY_EDITOR
+#if !UNITY_EDITOR
 				oidc.RedirectURI = "https://wekit-ecs.com/sso/callback.php";
-			#else
-				// here could be the link to a nicer web page that tells the user to return to the app
-			#endif
+#else
+			// here could be the link to a nicer web page that tells the user to return to the app
+#endif
 			ServiceManager.RegisterService(oidc);
 
-			DeepLinkingService deepLinks = new DeepLinkingService();
-			ServiceManager.RegisterService(deepLinks);
+			if (!ServiceManager.ServiceExists<DeepLinkingService>())
+			{
+				ServiceManager.RegisterService(new DeepLinkingService());
+			}
+			DeepLinkingService deepLinks = ServiceManager.GetService<DeepLinkingService>();
 
 			deepLinkAPI = new DeepLinkDefinition();
 			deepLinks.AddDeepLinkListener(deepLinkAPI);
@@ -112,10 +115,10 @@ namespace MirageXR
 					break;
 			}
 
-			#if UNITY_EDITOR
-				AppLog.LogInfo("Using fake web connector for xAPI calls since we are in the editor.", this);
-				xAPIClient.WebConnector = new XApiMockWebConnector();
-			#endif
+#if UNITY_EDITOR
+			AppLog.LogInfo("Using fake web connector for xAPI calls since we are in the editor.", this);
+			xAPIClient.WebConnector = new XApiMockWebConnector();
+#endif
 
 			return xAPIClient;
 		}

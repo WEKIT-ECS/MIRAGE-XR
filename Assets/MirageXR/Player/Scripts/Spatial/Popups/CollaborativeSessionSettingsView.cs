@@ -45,7 +45,9 @@ namespace MirageXR
 			_micToggle.SafeAddListener(OnMicToggleChanged);
 			_audioToggle.isOn = !CollaborationManager.Instance.MuteVoiceChat;
 			_audioToggle.SafeAddListener(OnAudioToggleChanged);
+			CollaborationManager.Instance.UserManager.LocalUserData.UserNameChanged += OnUserNameChanged;
 			CollaborationManager.Instance.UserManager.UserListChanged += OnNetworkedUserDataListChanged;
+			CollaborationManager.Instance.UserManager.AnyUserNameChanged += OnAnyUserNameChanged;
 			_userListItems = _userListContainer.GetComponentsInChildren<UserListItem>().ToList();
 			UpdatePlayerList();
 #endif
@@ -55,6 +57,17 @@ namespace MirageXR
 		private void OnDestroy()
 		{
 			CollaborationManager.Instance.UserManager.UserListChanged -= OnNetworkedUserDataListChanged;
+			CollaborationManager.Instance.UserManager.AnyUserNameChanged -= OnAnyUserNameChanged;
+		}
+
+		private void OnAnyUserNameChanged()
+		{
+			UpdatePlayerList();
+		}
+
+		private void OnUserNameChanged(string newUserName)
+		{
+			_userNameLabel.text = CollaborationManager.Instance.UserManager.LocalUserData.UserName;
 		}
 
 		private void OnNetworkedUserDataListChanged()

@@ -28,6 +28,7 @@ namespace MirageXR
         [SerializeField] private GameObject _registerPrefab;// TEMP
         [SerializeField] private AudioDeviceSpatialView _audioDevicePrefab;
         [SerializeField] private SketchfabSignInPopupView sketchfabSignInPopupViewPrefab;
+        [SerializeField] private ChangeUserAvatarView _changeUserAvatarViewPrefab;
 
         public void SetActionOnButtonLoginClick(UnityAction action) => _buttonLogin.SafeSetListener(action);
         public void SetActionOnButtonRegisterClick(UnityAction action) => _buttonRegister.SafeSetListener(action);
@@ -42,15 +43,11 @@ namespace MirageXR
         public void SetSketchfabText(string text) => _tmpTextSketchfab.SafeSetText(text);
         public AudioDeviceSpatialView GetAudioDevicePrefab() => _audioDevicePrefab;
         public SketchfabSignInPopupView GetSketchfabSignInPopupViewPrefab() => sketchfabSignInPopupViewPrefab;
+        public ChangeUserAvatarView GetChangeUserAvatarViewPrefab() => _changeUserAvatarViewPrefab;
 
         public void ShowSignInPanel()
         {
             _signInPrefab.SetActive(true);
-        }
-        
-        public void ShowRegisterPanel()
-        {
-            _registerPrefab.SetActive(true);
         }
     }
 }
