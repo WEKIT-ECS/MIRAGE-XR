@@ -124,8 +124,6 @@ namespace MirageXR
 			//	});
 			//}
 
-			await UserManager.InitializeLocalUserDataAsync();
-
 			_handTrackingManager.StartTracking();
 
 			if (_recorder == null)

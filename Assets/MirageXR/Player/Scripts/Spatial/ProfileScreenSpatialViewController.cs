@@ -1,4 +1,5 @@
 using LearningExperienceEngine;
+using System;
 
 namespace MirageXR
 {
@@ -13,12 +14,13 @@ namespace MirageXR
             View.SetActionOnButtonLoginClick(OnButtonLoginClicked);
             View.SetActionOnButtonAudioDeviceClick(ShowAudioDeviceView);
             View.SetActionOnButtonSketchfabClick(OnSketchfabSignInButtonClicked);
+            View.SetActionOnButtonAvatarClick(ShowChangeUserAvatarView);
             View.gameObject.SetActive(false);
 
             RootObject.Instance.LEE.SketchfabManager.OnSketchfabLoggedIn += OnSketchfabLoggedIn;
         }
 
-        private void OnSketchfabLoggedIn(bool value)
+		private void OnSketchfabLoggedIn(bool value)
         {
             if (value)
             {
@@ -44,7 +46,16 @@ namespace MirageXR
             }
         }
 
-        private void OnButtonLoginClicked()
+		private void ShowChangeUserAvatarView()
+		{
+            var prefab = View.GetChangeUserAvatarViewPrefab();
+            if (prefab is not null)
+            {
+                PopupsViewer.Instance.Show(prefab);
+            }
+		}
+
+		private void OnButtonLoginClicked()
         {
             // TODO
             //MenuManager.Instance.ShowSignInView();
