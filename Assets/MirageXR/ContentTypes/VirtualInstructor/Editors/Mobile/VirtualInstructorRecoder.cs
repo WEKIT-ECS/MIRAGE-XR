@@ -12,7 +12,7 @@ namespace MirageXR
     /// Represents a virtual instructor recorder in the MirageXR project. This class is responsible for recording the
     /// user if a question get ask the virtual instructor.
     /// </summary>
-    public class VirtualInstructorRecoder : MonoBehaviour
+    public class VirtualInstructorRecoder : MonoBehaviour //TODO: change name to VirtualInstructorRecorder
     {
         /// <summary>
         /// Represents a record button
@@ -128,19 +128,19 @@ namespace MirageXR
         private async UniTask StartRecordingAsync()
         {
             Debug.Log("StartRecording");
-            var recordingDevices = AudioRecorder.GetRecordingDevices();
+            var recordingDevices = RootObject.Instance.LEE.AudioManager.GetRecordingDevices();
             if (recordingDevices.Length > 0)
             {
                 ClearCancellationTokenSource();
                 _source = new CancellationTokenSource();
                 _cancellationToken = _source.Token;
-                AudioRecorder.Start();
+                RootObject.Instance.LEE.AudioManager.Start();
                 _Record.gameObject.SetActive(false);
                 await UniTask.WaitForSeconds(_maxRecordTime, cancellationToken: _cancellationToken);
-                if (AudioRecorder.IsRecording)
+                if (RootObject.Instance.LEE.AudioManager.IsRecording)
                 {
                     _Record.gameObject.SetActive(true);
-                    _questionClip = AudioRecorder.Stop();
+                    _questionClip = RootObject.Instance.LEE.AudioManager.Stop();
                     ClearCancellationTokenSource();
                     await SendRecordingAsync(_questionClip);
                 }
@@ -157,7 +157,7 @@ namespace MirageXR
         public void SendRecording()
         {
             _Record.gameObject.SetActive(true);
-            _questionClip = AudioRecorder.Stop();
+            _questionClip = RootObject.Instance.LEE.AudioManager.Stop();
             ClearCancellationTokenSource();
             _source?.Cancel();
             SendRecordingAsync(_questionClip).Forget();

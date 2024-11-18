@@ -120,19 +120,19 @@ namespace MirageXR
         private async UniTask StartRecordingAsync()
         {
             Debug.Log("StartRecording");
-            var recordingDevices = AudioRecorder.GetRecordingDevices();
+            var recordingDevices = RootObject.Instance.LEE.AudioManager.GetRecordingDevices();
             if (recordingDevices.Length > 0)
             {
                 ClearCancellationTokenSource();
                 _source = new CancellationTokenSource();
                 _cancellationToken = _source.Token;
-                AudioRecorder.Start();
+                RootObject.Instance.LEE.AudioManager.Start();
                 _Record.gameObject.SetActive(false);
                 _SendRecord.gameObject.SetActive(true);
                 await UniTask.WaitForSeconds(_maxRecordTime, cancellationToken: _cancellationToken);
-                if (AudioRecorder.IsRecording)
+                if (RootObject.Instance.LEE.AudioManager.IsRecording)
                 {
-                    _questionClip = AudioRecorder.Stop();
+                    _questionClip = RootObject.Instance.LEE.AudioManager.Stop();
                     ClearCancellationTokenSource();
                     await SendRecordingAsync(_questionClip);
                 }
@@ -150,7 +150,7 @@ namespace MirageXR
         {
             _SendRecord.gameObject.SetActive(false);
             _Loading.SetActive(true);
-            _questionClip = AudioRecorder.Stop();
+            _questionClip = RootObject.Instance.LEE.AudioManager.Stop();
             ClearCancellationTokenSource();
             _source?.Cancel();
             SendRecordingAsync(_questionClip).Forget();
