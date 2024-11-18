@@ -158,11 +158,8 @@ namespace MirageXR
                 _platformManager.Initialization();
                 await _roomTwinManager.InitializationAsync();
                 _sharingManager.Initialization();
-
                 await _openAIManager.InitializeAsync();
 
-                OnAudioDeviceInit();
-                
                 _isInitialized = true;
 
                 //LearningExperienceEngine.EventManager.OnClearAll += ResetManagers;
@@ -173,16 +170,8 @@ namespace MirageXR
             }
         }
 
-        private void OnAudioDeviceInit()
-        {
-            var audioDevice = LearningExperienceEngine.UserSettings.audioDevice;
-            if (!string.IsNullOrEmpty(audioDevice))
-            {
-                AudioRecorder.SetRecordingDevice(audioDevice);
-                AppLog.LogInfo($"Audio Device - {audioDevice}");
-            }
-        }
-        
+
+
         private void ResetManagers()
         {
             ResetManagersAsync().AsAsyncVoid();

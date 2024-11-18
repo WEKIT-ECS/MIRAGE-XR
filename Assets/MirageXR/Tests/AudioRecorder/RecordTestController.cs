@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using i5.Toolkit.Core.VerboseLogging;
+using LearningExperienceEngine.NewDataModel;
 using MirageXR;
 using TMPro;
 using UnityEngine;
