@@ -43,6 +43,8 @@ namespace MirageXR.View
             generalGrabTransformer.allowTwoHandedScaling = true;
 
             var xrGrabInteractable = gameObject.AddComponent<XRGrabInteractable>();
+            xrGrabInteractable.trackRotation = false;
+            xrGrabInteractable.trackScale = false;
             xrGrabInteractable.selectEntered.AddListener(_ => OnManipulationStarted());
             xrGrabInteractable.selectExited.AddListener(_ => OnManipulationEnded());
         }
