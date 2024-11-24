@@ -10,22 +10,19 @@ using Image = UnityEngine.UI.Image;
 
 public class ImageEditorSpatialView : EditorSpatialView
 {
-    private const float HIDED_SIZE = 100f;
-    private const float HIDE_ANIMATION_TIME = 0.5f;
     private const int MAX_PICTURE_SIZE = 1024;
-    private const float IMAGE_HEIGHT = 630f;
+    private const float IMAGE_HEIGHT = 270f;
 
     public ContentType Type => ContentType.Image;
 
     [SerializeField] private Transform _imageHolder;
     [SerializeField] private Image _image;
     [SerializeField] private Button _btnCaptureImage;
-    [SerializeField] private Button _btnOpenGallery;    
-    [SerializeField] private RectTransform _panel;
-    [SerializeField] private GameObject _arrowDown;
-    [SerializeField] private GameObject _arrowUp;
+    [SerializeField] private Button _btnOpenGallery; 
+    [SerializeField] private Button _btnGenerateCaption;
+    [SerializeField] private Button _btnSettings;
     [Space]
-    [SerializeField] private HintViewWithButtonAndToggle _hintPrefab;
+    [SerializeField] private GameObject _AugmentationSettingsPanel;
 
     private string _text;
     private Texture2D _capturedImage;
@@ -41,9 +38,18 @@ public class ImageEditorSpatialView : EditorSpatialView
         UpdateView();
         _btnCaptureImage.onClick.AddListener(OnCaptureImage);
         _btnOpenGallery.onClick.AddListener(OpenGallery);
+        _btnGenerateCaption.onClick.AddListener(GenerateCaption);
+        _btnSettings.onClick.AddListener(OpenSettings);
+    }
 
-        _arrowDown.SetActive(true);
-        _arrowUp.SetActive(false);
+    private void OpenSettings()
+    {
+        _AugmentationSettingsPanel.SetActive(true);
+    }
+
+    private void GenerateCaption()
+    {
+        // TODO
     }
 
     private void OnDestroy()
@@ -200,6 +206,7 @@ public class ImageEditorSpatialView : EditorSpatialView
         _capturedImage = texture2D;
 
         var sprite = MirageXR.Utilities.TextureToSprite(_capturedImage);
+        _image.gameObject.SetActive(true);
         _image.sprite = sprite;
 
         var rtImageHolder = (RectTransform)_imageHolder.transform;
