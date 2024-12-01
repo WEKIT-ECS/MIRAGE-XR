@@ -29,7 +29,8 @@ namespace MirageXR
         public enum ModelLibraryCategory
         {
             Foods = 0,
-            Tools = 1
+            Tools = 1,
+            ESigns = 2
         }
 
         public void OnItemClicked(ModelLibraryCategory category)
