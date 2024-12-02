@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -11,7 +12,17 @@ namespace MirageXR
         public const string LibraryKeyword = "library";
 
         [SerializeField] private GameObject[] items;
-        [SerializeField] private LibraryObject[] objects;
+        [Header("Food")]
+        [SerializeField] private LibraryObject[] foodObjects;
+        [Header("Tools")]
+        [SerializeField] private LibraryObject[] toolObjects;
+        [Header("E Signs")]
+        [SerializeField] private LibraryObject[] esignObjects;
+        [Header("M Signs")]
+        [SerializeField] private LibraryObject[] msignObjects;
+        [Header("P Signs")]
+        [SerializeField] private LibraryObject[] psignObjects;
+        [Space]
         [SerializeField] private GameObject itemPrefab;
         [SerializeField] private GameObject listOfLibrariesTab;
         [SerializeField] private GameObject libraryTab;
@@ -30,7 +41,9 @@ namespace MirageXR
         {
             Foods = 0,
             Tools = 1,
-            ESigns = 2
+            ESigns = 2,
+            MSigns = 3,
+            PSigns = 4
         }
 
         public void OnItemClicked(ModelLibraryCategory category)
@@ -121,7 +134,7 @@ namespace MirageXR
 
             _inputSearch.text = "";
 
-            foreach (var obj in objects)
+            foreach (var obj in foodObjects.Concat(toolObjects).Concat(esignObjects).Concat(msignObjects).Concat(psignObjects))
             {
                 if (obj.category == selectedCategory)
                 {
