@@ -22,6 +22,8 @@ namespace MirageXR
         [SerializeField] private LibraryObject[] msignObjects;
         [Header("P Signs")]
         [SerializeField] private LibraryObject[] psignObjects;
+        [Header("W Signs")]
+        [SerializeField] private LibraryObject[] wsignObjects;
         [Space]
         [SerializeField] private GameObject itemPrefab;
         [SerializeField] private GameObject listOfLibrariesTab;
@@ -43,7 +45,8 @@ namespace MirageXR
             Tools = 1,
             ESigns = 2,
             MSigns = 3,
-            PSigns = 4
+            PSigns = 4,
+            WSigns = 5
         }
 
         public void OnItemClicked(ModelLibraryCategory category)
@@ -134,7 +137,7 @@ namespace MirageXR
 
             _inputSearch.text = "";
 
-            foreach (var obj in foodObjects.Concat(toolObjects).Concat(esignObjects).Concat(msignObjects).Concat(psignObjects))
+            foreach (var obj in foodObjects.Concat(toolObjects).Concat(esignObjects).Concat(msignObjects).Concat(psignObjects).Concat(wsignObjects))
             {
                 if (obj.category == selectedCategory)
                 {
