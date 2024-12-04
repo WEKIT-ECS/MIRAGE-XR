@@ -132,7 +132,7 @@ public class OVRLipSync : MonoBehaviour
 
     // * * * * * * * * * * * * *
     // Import functions
-    #if !UNITY_IOS || UNITY_EDITOR
+    #if !UNITY_IOS || UNITY_EDITOR || UNITY_VISIONOS || VISION_OS
     public const string strOVRLS = "OVRLipSync";
     #else
     public const string strOVRLS = "__Internal";
