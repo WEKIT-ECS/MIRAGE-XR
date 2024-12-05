@@ -2,7 +2,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using Utility.UiKit.Runtime.MVC;
 using Utility.UiKit.Runtime.Extensions;
 
 namespace MirageXR
@@ -13,16 +12,21 @@ namespace MirageXR
         [SerializeField] private Button _buttonSettings;
         [SerializeField] private Button _buttonSorting;
         [SerializeField] private Button _buttonAddNewActivity;
+        [Header("Toggles")]
+        [SerializeField] private Toggle _toggleEditorMode;
         [Header("InputField")]
         [SerializeField] private TMP_InputField _searchField;
         [Header("Container")]
         [SerializeField] private Transform _activityContainer;
         [Header("Prefabs")]
         [SerializeField] private ActivitySpatialListItem _activityListItemPrefab;
-        
+
         public void SetActionOnButtonSortingClick(UnityAction action) => _buttonSorting.SafeSetListener(action);
         public void SetActionOnButtonAddNewActivityClick(UnityAction action) => _buttonAddNewActivity.SafeSetListener(action);
         public void SetActionOnInputFieldSearchValueChanged(UnityAction<string> action) => _searchField.SafeSetListener(action);
+        public void RemoveActionOnToggleEditorValueChanged(UnityAction<bool> action) => _toggleEditorMode.SafeRemoveListener(action);
+        public void SetActionOnToggleEditorValueChanged(UnityAction<bool> action) => _toggleEditorMode.SafeAddListener(action);
+        public void SetIsToggleEditorOn(bool value) => _toggleEditorMode.SafeSetIsOn(value);
 
         public Transform GetActivityContainer()
         {

@@ -13,6 +13,12 @@ namespace MirageXR
         [SerializeField] private TMP_Text _textType;
         [SerializeField] private TMP_Text _textTitle;
 
+        public bool Interactable
+        {
+            get => _button.interactable;
+            set => _button.interactable = value;
+        }
+
         private Content _content;
         private UnityAction<Content> _onClickAction;
 

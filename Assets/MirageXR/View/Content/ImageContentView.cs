@@ -9,7 +9,7 @@ namespace MirageXR.View
 {
     public class ImageContentView : ContentView
     {
-        private const string ImageFileName = "image.png";
+        private const string ImageFileName = "image.jpg";
         private const float ScaleZ = 0.05f;
 
         [SerializeField] private SpriteRenderer spriteRenderer;
@@ -62,15 +62,12 @@ namespace MirageXR.View
         private async UniTask InitializeImageAsync(Content<ImageContentData> content)
         {
             var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
-            var folderPath = RootObject.Instance.LEE.AssetsManager.GetFolderPath(activityId, content.Id, content.ContentData.Image.Id);
+            var folderPath = RootObject.Instance.LEE.AssetsManager.GetContentFileFolderPath(activityId, content.Id, content.ContentData.Image.Id);
             var imagePath = Path.Combine(folderPath, ImageFileName);
 
             if (File.Exists(imagePath))
             {
-                var bytes = await File.ReadAllBytesAsync(imagePath);
-                _texture = new Texture2D(2, 2, TextureFormat.RGB24, false);
-                _texture.LoadImage(bytes);
-
+                _texture = await LearningExperienceEngine.Utilities.LoadTextureAsync(imagePath);
                 _sprite = Sprite.Create(_texture, new Rect(0, 0, _texture.width, _texture.height), new Vector2(0.5f, 0.5f));
 
                 spriteRenderer.sprite = _sprite;

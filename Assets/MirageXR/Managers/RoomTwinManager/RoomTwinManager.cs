@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using GLTFast;
 using LearningExperienceEngine;
@@ -25,7 +26,7 @@ namespace MirageXR
     /// the 3D model of a remote room (the 'room twin'). This uses the RoomShader
     /// to unveil the model.
     /// </summary>
-    public class RoomTwinManager : MonoBehaviour
+    public class RoomTwinManager : MonoBehaviour    //TODO: correct fields name
     {
 
         private bool _loadingCompleted = false;
@@ -60,19 +61,14 @@ namespace MirageXR
         static float deltawf = 0.5f;
         #endregion
 
-
         // Start is called before the first frame update
         public async Task InitializationAsync()
         {
             await LoadRoomTwinModel(Path.Combine(Application.streamingAssetsPath, RoomFile));
         }
 
-        private void Start()
-        {
-        }
-
         // Update is called once per frame
-        void Update()
+        private void Update()
         {
             if (_loadingCompleted)
             {
@@ -122,7 +118,7 @@ namespace MirageXR
         /// calls internal LoadGltfRoomTwin
         /// </summary>
         /// <param name="url">file path or web url of the model</param>
-        public async Task LoadRoomTwinModel(string url)
+        public async UniTask LoadRoomTwinModel(string url)
         {
             await LoadGltfRoomTwin(url);
         }
@@ -130,10 +126,10 @@ namespace MirageXR
         /// <summary>
         /// Switch digital room twin on or off
         /// </summary>
-        /// <param name="Show">if true, display the room twin, otherwise deactivate it</param>
-        public async void DisplayRoomTwin(bool Show)
+        /// <param name="show">if true, display the room twin, otherwise deactivate it</param>
+        public async UniTask DisplayRoomTwin(bool show) //TODO: replace with two functions - ShowRoomTwin() and HideRoomTwin()
         {
-            if (Show) // show
+            if (show) // show
             {
                 _loadingCompleted = false;
                 if (_roomModel) Destroy(_roomModel);

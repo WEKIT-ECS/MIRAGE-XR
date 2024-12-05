@@ -29,7 +29,7 @@ public class PopupsViewer : MonoBehaviour
 
     private void Start()
     {
-        //_btnBackground.onClick.AddListener(OnOutTap);
+        _btnBackground.onClick.AddListener(OnOutTap);
     }
 
     public PopupBase Show(PopupBase popupPrefab, params object[] args)
@@ -40,6 +40,13 @@ public class PopupsViewer : MonoBehaviour
         popup.Initialization(OnClose, args);
         UpdateView();
 
+        return popup;
+    }
+
+    public PopupBase Show(PopupBase popupPrefab, Vector3 position, params object[] args)
+    {
+        var popup = Show(popupPrefab, args);
+        popup.transform.position = position;
         return popup;
     }
 
