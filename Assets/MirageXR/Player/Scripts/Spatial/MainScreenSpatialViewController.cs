@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using System.Numerics;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
-using LearningExperienceEngine.DTOs;
 using UnityEngine;
 
 namespace MirageXR
@@ -16,9 +14,23 @@ namespace MirageXR
             base.OnBind();
             View.SetActionOnButtonSortingClick(() => {MenuManager.Instance.ShowSortingView(); });
             View.SetActionOnButtonAddNewActivityClick(OnAddNewActivityClick);
+            View.SetActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
             
             RootObject.Instance.LEE.ActivityManager.OnActivitiesFetched += OnActivitiesFetched;
             RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityLoaded;
+            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
+        }
+
+        private void OnToggleEditorValueChanged(bool value)
+        {
+            RootObject.Instance.LEE.ActivityManager.IsEditorMode = !value;
+        }
+
+        private void OnEditorModeChanged(bool value)
+        {
+            View.RemoveActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
+            View.SetIsToggleEditorOn(!value);
+            View.SetActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
         }
 
         private void OnActivityLoaded(Activity activity)

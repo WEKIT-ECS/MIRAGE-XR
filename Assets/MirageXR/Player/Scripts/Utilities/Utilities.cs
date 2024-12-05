@@ -3,7 +3,6 @@ using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
 using Object = UnityEngine.Object;
 

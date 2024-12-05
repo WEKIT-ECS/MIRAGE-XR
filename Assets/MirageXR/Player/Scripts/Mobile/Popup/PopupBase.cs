@@ -1,11 +1,10 @@
 using System;
-using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
 
 public abstract class PopupBase : MonoBehaviour
 {
     protected Action<PopupBase> _onClose;
-    protected bool _canBeClosedByOutTap = true;
+    protected bool _canBeClosedByOutTap = false;
     protected bool _showBackground = true;
 
     private bool _isMarkedToDelete = false;

@@ -58,7 +58,7 @@ namespace MirageXR.View
         private async UniTask InitializeAudioClipAsync(Content<AudioContentData> content)
         {
             var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
-            var folderPath = RootObject.Instance.LEE.AssetsManager.GetFolderPath(activityId, content.Id, content.ContentData.Audio.Id);
+            var folderPath = RootObject.Instance.LEE.AssetsManager.GetContentFileFolderPath(activityId, content.Id, content.ContentData.Audio.Id);
             var filePath = Path.Combine(folderPath, ImageFileName);
 
             if (File.Exists(filePath))
