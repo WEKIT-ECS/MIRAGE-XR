@@ -10,10 +10,8 @@ using Image = UnityEngine.UI.Image;
 
 public class ImageEditorSpatialView : EditorSpatialView
 {
-    private const int MAX_PICTURE_SIZE = 1024;
-    private const float IMAGE_HEIGHT = 270f;
-
-    public ContentType Type => ContentType.Image;
+    private const int MaxPictureSize = 1024;
+    private const float ImageHeight = 270f;
 
     [SerializeField] private Transform _imageHolder;
     [SerializeField] private Image _image;
@@ -93,7 +91,6 @@ public class ImageEditorSpatialView : EditorSpatialView
         await SaveImageAsync(activityId, _imageContent.Id, fileId);
         _imageContent.ContentData.Image = await RootObject.Instance.LEE.AssetsManager.CreateFileAsync(activityId, _imageContent.Id, fileId);
 
-        await RootObject.Instance.LEE.ActivityManager.UpdateActivityAsync();
         RootObject.Instance.LEE.ContentManager.AddContent(_imageContent);
         RootObject.Instance.LEE.AssetsManager.UploadFileAsync(activityId, _imageContent.Id, fileId);
 
@@ -105,7 +102,7 @@ public class ImageEditorSpatialView : EditorSpatialView
         if (textureWidth == textureHeight)
         {
             return Vector3.one;
-        } 
+        }
 
         return textureWidth > textureHeight
             ? new Vector3(textureWidth / (float)textureHeight, 1, 0.05f)
@@ -119,10 +116,10 @@ public class ImageEditorSpatialView : EditorSpatialView
             return;
         }
 
-        var bytes = _capturedImage.EncodeToPNG();
-        var folder = RootObject.Instance.LEE.AssetsManager.GetFolderPath(activityId, contentId, fileId);
+        var bytes = _capturedImage.EncodeToJPG();
+        var folder = RootObject.Instance.LEE.AssetsManager.GetContentFileFolderPath(activityId, contentId, fileId);
         Directory.CreateDirectory(folder);
-        var filePath = Path.Combine(folder, "image.png");
+        var filePath = Path.Combine(folder, "image.jpg");  //TODO: move to AssetsManager
         if (File.Exists(filePath))
         {
             File.Delete(filePath);
@@ -135,8 +132,8 @@ public class ImageEditorSpatialView : EditorSpatialView
         if (_imageContent != null)
         {
             var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
-            var folder = RootObject.Instance.LEE.AssetsManager.GetFolderPath(activityId, _imageContent.Id, _imageContent.ContentData.Image.Id);
-            var imagePath = Path.Combine(folder, "image.png");
+            var folder = RootObject.Instance.LEE.AssetsManager.GetContentFileFolderPath(activityId, _imageContent.Id, _imageContent.ContentData.Image.Id);
+            var imagePath = Path.Combine(folder, "image.jpg");  //TODO: move to AssetsManager
             if (!File.Exists(imagePath))
             {
                 return;
@@ -154,7 +151,7 @@ public class ImageEditorSpatialView : EditorSpatialView
 
     private void OpenGallery()
     {
-        PickImage(MAX_PICTURE_SIZE);
+        PickImage(MaxPictureSize);
     }
 
     private void PickImage(int maxSize)
@@ -174,8 +171,7 @@ public class ImageEditorSpatialView : EditorSpatialView
                 return;
             }
 
-            var sprite = MirageXR.Utilities.TextureToSprite(texture2D);
-            SetPreview(sprite.texture);
+            SetPreview(texture2D);
         });
     }
 
@@ -211,9 +207,9 @@ public class ImageEditorSpatialView : EditorSpatialView
 
         var rtImageHolder = (RectTransform)_imageHolder.transform;
         var rtImage = (RectTransform)_image.transform;
-        var width = (float)_capturedImage.width / _capturedImage.height * IMAGE_HEIGHT;
+        var width = (float)_capturedImage.width / _capturedImage.height * ImageHeight;
 
-        rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, IMAGE_HEIGHT);
+        rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ImageHeight);
         rtImage.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
 
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);

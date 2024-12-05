@@ -1,5 +1,6 @@
+using System;
+using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
-using LearningExperienceEngine.NewDataModel;
 using UnityEngine;
 using Activity = LearningExperienceEngine.DataModel.Activity;
 
@@ -8,8 +9,10 @@ namespace MirageXR
     public class NewActivityScreenSpatialViewController : ScreenViewController<NewActivityScreenSpatialViewController, NewActivityScreenSpatialView>
     {
         private Activity _activity;
-        public override ScreenName ScreenName => ScreenName.NewActivityScreen;
+        private Texture2D _texture;
         
+        public override ScreenName ScreenName => ScreenName.NewActivityScreen;
+
         private static RoomTwinManager roomTwinManager => RootObject.Instance.RoomTwinManager;
 
         protected override void OnBind()
@@ -21,14 +24,74 @@ namespace MirageXR
             View.SetActionOnButtonAddNewStepClick(OnButtonAddNewStepClicked);
             View.SetActionOnButtonNextStepClick(OnButtonNextStepClicked);
             View.SetActionOnButtonPreviousStepClick(OnButtonPreviousStepClicked);
-
-            RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityUpdated;
-            RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnActivityUpdated;
-            
+            View.SetActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
             View.SetActionOnButtonWireframeVignetteClick(OnButtonWireframeVignetteClicked);
             View.SetActionOnButtonAssignRoomModelClick(OnButtonAssignRoomModelClicked);
             View.SetActionOnButtonRepositionClick(OnButtonRepositionClicked);
             View.SetActionOnToggleShowRoomScanValueChanged(OnToggleShowRoomScanValueChanged);
+            View.SetActionOnButtonThumbnailClick(OnButtonThumbnailClicked);
+
+            View.SetActionOnInputFieldActivityNameEditEnd(OnInputFieldActivityNameEditEnd);
+            View.SetActionOnInputFieldActivityDescriptionEditEnd(OnInputFieldActivityDescriptionEditEnd);
+
+            RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityUpdated;
+            RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnActivityUpdated;
+            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
+        }
+
+        private void OnInputFieldActivityNameEditEnd(string text)
+        {
+            RootObject.Instance.LEE.ActivityManager.SetActivityName(text);
+        }
+
+        private void OnInputFieldActivityDescriptionEditEnd(string text)
+        {
+            RootObject.Instance.LEE.ActivityManager.SetActivityDescription(text);
+        }
+
+        private void OnButtonThumbnailClicked()
+        {
+            var prefab = MenuManager.Instance.GetImageSelectPopupViewPrefab();
+            PopupsViewer.Instance.Show(prefab, (Action<Texture2D>)OnThumbnailSelected, _texture);
+        }
+
+        private void OnThumbnailSelected(Texture2D texture)
+        {
+            SaveThumbnailAsync(texture).Forget();
+        }
+
+        private async UniTask SaveThumbnailAsync(Texture2D texture)
+        {
+            if (texture == null)
+            {
+                return;
+            }
+
+            var file = new FileModel
+            {
+                Id = Guid.NewGuid(),
+                Version = Application.version,
+                CreationDate = DateTime.UtcNow,
+                FileHash = string.Empty
+            };
+            await RootObject.Instance.LEE.MediaManager.SaveToMediaFileAsync(texture, _activity.Id, file.Id);
+            await RootObject.Instance.LEE.ActivityManager.SetThumbnailAsync(file);
+            RootObject.Instance.LEE.AssetsManager.UploadMediaFileAsync(_activity.Id, file.Id).Forget();
+        }
+
+        private void OnToggleEditorValueChanged(bool value)
+        {
+            RootObject.Instance.LEE.ActivityManager.IsEditorMode = !value;
+        }
+
+        private void OnEditorModeChanged(bool value)
+        {
+            View.SetInputFieldActivityNameTextInteractable(value);
+            View.SetInputFieldActivityDescriptionInteractable(value);
+            View.SetPanelAddNewStepActive(value);
+            View.RemoveActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
+            View.SetIsToggleEditorOn(!value);
+            View.SetActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
         }
 
         private void OnButtonPreviousStepClicked()
@@ -56,10 +119,10 @@ namespace MirageXR
             MenuManager.Instance.ShowRoomScanSettingsPanelView();
         }
 
-        private async void OnButtonAssignRoomModelClicked()
+        private void OnButtonAssignRoomModelClicked()
         {
             var url = @"https://www.google.com";  // TODO: use correct url
-            await roomTwinManager.LoadRoomTwinModel(url);
+            roomTwinManager.LoadRoomTwinModel(url).Forget();
         }
 
         private void OnActivityUpdated(Activity activity)
@@ -70,6 +133,12 @@ namespace MirageXR
 
         private void UpdateView()
         {
+            UpdateStepsView();
+            UpdateInfoViewAsync().Forget();
+        }
+
+        private void UpdateStepsView()
+        {
             var container = View.GetStepsContainer();
             var prefab = View.GetStepsItemPrefab();
 
@@ -77,12 +146,42 @@ namespace MirageXR
             {
                 Destroy(child.gameObject);
             }
-            
+
             foreach (var activityStep in _activity.Steps)
             {
                 var obj = Instantiate(prefab, container);
                 obj.Initialize(activityStep, OnStepItemClicked, OnStepItemMenuClicked);
             }
+        }
+
+        private async UniTask UpdateInfoViewAsync()
+        {
+            View.SetInputFieldActivityNameText(_activity.Name);
+            View.SetInputFieldActivityDescriptionText(_activity.Description);
+
+            if (_texture is not null)
+            {
+                Destroy(_texture);
+            }
+
+            if (_activity.Thumbnail != null)
+            {
+                _texture = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(_activity.Id, _activity.Thumbnail.Id);
+                SetThumbnailView(_texture);    
+            }
+            else
+            {
+                View.SetImageThumbnailActive(false);
+            }
+        }
+
+        private void SetThumbnailView(Texture2D texture2D)
+        {
+            View.SetImageThumbnailActive(true);
+            View.SetImageThumbnailTexture(texture2D);
+            var containerSize = View.GetImageThumbnailContainerSize();
+            var size = LearningExperienceEngine.Utilities.FitRectToRect(containerSize, new Vector2(texture2D.width, texture2D.height));
+            View.SetImageThumbnailSize(size);
         }
 
         private void OnStepItemClicked(ActivityStep step)

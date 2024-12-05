@@ -1,5 +1,3 @@
-using System;
-using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -24,28 +22,25 @@ namespace MirageXR
         [SerializeField] private Button _buttonAddNewImage;
         [SerializeField] private Button _buttonDelete;
         [SerializeField] private Image _imageMarker;
-        [Header("Marker tab")]
-        [Header("Title and description")]
-        [SerializeField] private GameObject _description_EditMode;
-        [SerializeField] private GameObject _description_ViewMode;
-        [SerializeField] private TMP_InputField _titleInput;
-        [SerializeField] private TMP_InputField _descriptionInput; 
-        [SerializeField] private TMP_Text _descriptionText;
         [Space]
+        [Header("Info tab")]
+        [Header("Title and description")]
+        [SerializeField] private TMP_InputField titleInput;
+        [SerializeField] private TMP_InputField descriptionInput; 
         [Header("Media")]
-        [SerializeField] private GameObject _media_EditMode;
-        [SerializeField] private GameObject _media_ViewMode;
-        [SerializeField] private Image _image_EditMode;
-        [SerializeField] private Image _image_ViewMode;
-        [SerializeField] private Button _buttonAddNewFile;
-        [SerializeField] private Button _buttonDeleteFile;
+        [SerializeField] private GameObject containerAddNewFile;
+        [SerializeField] private Button buttonAddNewFile;
+        [SerializeField] private Transform containerMedia;
+        [SerializeField] private StepsMediaListItemView stepsMediaListItemViewPrefab;
         [Header("Tools")]
-        [SerializeField] private GameObject _tools_EditMode;
-        [SerializeField] private GameObject _tools_ViewMode;
-        [SerializeField] private GameObject _toolsTextPrefab;
-        [SerializeField] private Transform _textContainer_EditMode;
-        [SerializeField] private Button _buttonAddNewObject;
-        [SerializeField] private Transform _textContainer_ViewMode;
+        [SerializeField] private GameObject containerAddNewTool;
+        [SerializeField] private Button buttonAddNewTool;
+        [SerializeField] private Transform containerTools;
+        [SerializeField] private StepsToolsListItemView stepsToolsListItemViewPrefab;
+        [Header("Game Objects")]
+        [SerializeField] private GameObject _panelAddNewStep;
+        [Header("Toggles")]
+        [SerializeField] private Toggle _toggleEditorMode;
 
         public void SetActionOnToggleEditModeValueChanged(UnityAction<bool> action) => _editModeToggle.SafeSetListener(action);
         public void SetActionOnButtonBackClick(UnityAction action) => _buttonBack.SafeSetListener(action);
@@ -56,35 +51,27 @@ namespace MirageXR
         public void SetActionOnButtonAddImageClick(UnityAction action) => _buttonAddImage.SafeSetListener(action);
         public void SetActionOnButtonAddNewImageClick(UnityAction action) => _buttonAddNewImage.SafeSetListener(action);
         public void SetActionOnButtonDeleteClick(UnityAction action) => _buttonDelete.SafeSetListener(action);
-        
-        public void SetActionOnInputFieldTitleValueChanged(UnityAction<string> action) => _titleInput.SafeSetListener(action);
-        public void SetActionOnInputFieldDescriptionValueChanged(UnityAction<string> action) => _descriptionInput.SafeSetListener(action);
-        public void SetDescriptionText(string text) => _descriptionText.SafeSetText(text);
-        public void SafeSetMediaImageEditMode(Sprite sprite)
-        {
-            if (_image_EditMode != null)
-            {
-                _image_EditMode.sprite = sprite;
-            }
-        }
-        public void SafeSetMediaImageViewMode(Sprite sprite)
-        {
-            if (_image_ViewMode != null)
-            {
-                _image_ViewMode.sprite = sprite;
-            }
-        }
-        
-        public void SetActionOnButtonAddNewFileClick(UnityAction action) => _buttonAddNewFile.SafeSetListener(action);
-        public void SetActionOnButtonDeleteFileClick(UnityAction action) => _buttonDeleteFile.SafeSetListener(action);
-        public void SetActionOnButtonAddNewObjectClick(UnityAction action) => _buttonAddNewObject.SafeSetListener(action);
 
-        public void SafeSetImage(Sprite sprite)
-        {
-            if (_imageMarker != null)
-            {
-                _imageMarker.sprite = sprite;
-            }
-        }
+        public void SetActionOnToggleEditorValueChanged(UnityAction<bool> action) => _toggleEditorMode.SafeAddListener(action);
+        public void RemoveActionOnToggleEditorValueChanged(UnityAction<bool> action) => _toggleEditorMode.SafeRemoveListener(action);
+        public void SetIsToggleEditorOn(bool value) => _toggleEditorMode.isOn = value;
+        public void SetPanelAddNewStepActive(bool value) => _panelAddNewStep.SetActive(value);
+
+        public void SetActionOnTitleInputEndEdit(UnityAction<string> onEndEdit) => titleInput.onEndEdit.AddListener(onEndEdit);
+        public void SetTitleInputText(string text) => titleInput.text = text;
+        public void SetTitleInputInteractable(bool value) => titleInput.interactable  = value;
+        public void SetActionOnDescriptionInputEndEdit(UnityAction<string> onEndEdit) => descriptionInput.onEndEdit.AddListener(onEndEdit);
+        public void SetDescriptionInputText(string text) => descriptionInput.text = text;
+        public void SetDescriptionInputInteractable(bool value) => descriptionInput.interactable  = value;
+
+        public void SetActiveContainerMediaAddNewFile(bool value) => containerAddNewFile.SetActive(value);
+        public void SetActionOnButtonMediaAddNewFileClick(UnityAction action) => buttonAddNewFile.SafeSetListener(action);
+        public Transform GetContainerMedia() => containerMedia;
+        public StepsMediaListItemView GetStepsMediaListItemViewPrefab() => stepsMediaListItemViewPrefab;
+
+        public void SetActiveContainerToolsAddNewToolClick(bool value) => containerAddNewTool.SetActive(value);
+        public void SetActionOnButtonToolsAddNewToolClick(UnityAction action) => buttonAddNewTool.SafeSetListener(action);
+        public Transform GetContainerTools() => containerTools;
+        public StepsToolsListItemView GetStepsToolsListItemViewPrefab() => stepsToolsListItemViewPrefab;
     }
 }
