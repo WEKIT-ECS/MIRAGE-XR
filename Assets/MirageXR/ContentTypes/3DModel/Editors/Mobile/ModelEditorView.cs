@@ -631,7 +631,7 @@ public class ModelEditorView : PopupEditorBase
 
     private void AddLibraryAugmentation(string prefabName)
     {
-        AddAugmentation(_previewItem.name, true);
+        AddAugmentation(prefabName, true);
     }
 
     private void AddAugmentation(string prefabName, bool libraryModel)
