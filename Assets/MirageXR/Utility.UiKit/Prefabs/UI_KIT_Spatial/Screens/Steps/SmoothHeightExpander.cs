@@ -24,13 +24,16 @@ public class SmoothHeightExpander : MonoBehaviour
 
     private void ToggleHeight()
     {
-        if (_resizeCoroutine != null) 
+        if (_resizeCoroutine != null)
+        {
             StopCoroutine(_resizeCoroutine);
-        
-        var target = _panel.sizeDelta.y == _initialHeight ? targetHeight : _initialHeight;
-        _body.SetActive(_panel.sizeDelta.y == _initialHeight);
-        _buttonImageArrowUp.SetActive(_panel.sizeDelta.y == _initialHeight);
-        _buttonImageArrowDown.SetActive(_panel.sizeDelta.y != _initialHeight);
+            _resizeCoroutine = null;
+        }
+
+        var target = Mathf.Approximately(_panel.sizeDelta.y, _initialHeight) ? targetHeight : _initialHeight;
+        _body.SetActive(Mathf.Approximately(_panel.sizeDelta.y, _initialHeight));
+        _buttonImageArrowUp.SetActive(Mathf.Approximately(_panel.sizeDelta.y, _initialHeight));
+        _buttonImageArrowDown.SetActive(!Mathf.Approximately(_panel.sizeDelta.y, _initialHeight));
         _resizeCoroutine = StartCoroutine(AnimateHeight(target));
     }
 

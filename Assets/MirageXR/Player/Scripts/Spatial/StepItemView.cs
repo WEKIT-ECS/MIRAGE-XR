@@ -1,4 +1,5 @@
 using LearningExperienceEngine.DataModel;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -7,8 +8,10 @@ namespace MirageXR
 {
     public class StepItemView : MonoBehaviour
     {
-        [SerializeField] private Button _button;
-        [SerializeField] private Button _buttonMenu;
+        [SerializeField] private TMP_Text textStepName;
+        [SerializeField] private TMP_Text textStepDescription;
+        [SerializeField] private Button button;
+        [SerializeField] private Button buttonMenu;
 
         private ActivityStep _step;
         private UnityAction<ActivityStep> _onClick;
@@ -19,8 +22,11 @@ namespace MirageXR
             _step = step;
             _onClick = onClick;
             _onMenuClick = onMenuClick;
-            _button.onClick.AddListener(OnButtonClick);
-            _buttonMenu.onClick.AddListener(OnButtonMenuClick);
+            var number = RootObject.Instance.LEE.StepManager.GetStepNumber(_step.Id);
+            textStepName.text = $"{number} {step.Name}";
+            textStepDescription.text = step.Description;
+            button.onClick.AddListener(OnButtonClick);
+            buttonMenu.onClick.AddListener(OnButtonMenuClick);
         }
 
         private void OnButtonClick()
