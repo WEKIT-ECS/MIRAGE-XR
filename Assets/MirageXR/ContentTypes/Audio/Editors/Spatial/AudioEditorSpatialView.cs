@@ -200,7 +200,7 @@ public class AudioEditorSpatialView : EditorSpatialView
     private void LoadContent()
     {
         var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
-        var folderPath = RootObject.Instance.LEE.AssetsManager.GetFolderPath(activityId, _content.Id, _imageContent.ContentData.Audio.Id);
+        var folderPath = RootObject.Instance.LEE.AssetsManager.GetContentFileFolderPath(activityId, _content.Id, _imageContent.ContentData.Audio.Id);
         var filePath = Path.Combine(folderPath, "audio.wav");
         _audioClip = SaveLoadAudioUtilities.LoadAudioFile(filePath);
 
@@ -554,7 +554,7 @@ public class AudioEditorSpatialView : EditorSpatialView
             return;
         }
 
-        var folder = RootObject.Instance.LEE.AssetsManager.GetFolderPath(activityId, contentId, fileId);
+        var folder = RootObject.Instance.LEE.AssetsManager.GetContentFileFolderPath(activityId, contentId, fileId);
         Directory.CreateDirectory(folder);
         var filePath = Path.Combine(folder, "audio.wav");
         if (File.Exists(filePath))
