@@ -48,14 +48,7 @@ namespace MirageXR
 		{
 			get
 			{
-				if (IsLeftHand)
-				{
-					return _rigRefs.IK.LeftElbowHint;
-				}
-				else
-				{
-					return _rigRefs.IK.RightElbowHint;
-				}
+				return _rigRefs.IK.GetSide(IsLeftHand).Hand.ElbowHint;
 			}
 		}
 
