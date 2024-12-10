@@ -70,7 +70,7 @@ namespace MirageXR
 			LoadedAvatarUrl = e.Url;
 			e.Avatar.transform.position = transform.position;
 			AvatarMeshHelper.TransferMesh(e.Avatar, gameObject);
-			Destroy(e.Avatar);
+			//Destroy(e.Avatar);
 			EyeAnimationHandler eyeAnimation = gameObject.AddComponent<EyeAnimationHandler>();
 			eyeAnimation.BlinkInterval = 10f;
 		}
