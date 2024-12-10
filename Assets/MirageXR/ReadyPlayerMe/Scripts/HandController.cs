@@ -13,9 +13,7 @@ namespace MirageXR
 		[SerializeField] private float _handInertia = 0.995f;
 		[SerializeField] private float _handDamping = 0.95f;
 		[SerializeField] private float _wristRotationSpeed = 1f;
-		[SerializeField] private Quaternion _wristRotationOffset = Quaternion.identity;
 		[SerializeField] private float _elbowWideness = 0.8f;
-
 		[field: SerializeField] public bool IsLeftHand { get; set; }
 		[field: SerializeField] public Quaternion WristRotationOffset = Quaternion.identity;
 
@@ -65,14 +63,7 @@ namespace MirageXR
 		{
 			get
 			{
-				if (IsLeftHand)
-				{
-					return _rigRefs.Bones.LeftLowerArm;
-				}
-				else
-				{
-					return _rigRefs.Bones.RightLowerArm;
-				}
+				return _rigRefs.Bones.GetSide(IsLeftHand).Arm.Lower;
 			}
 		}
 
