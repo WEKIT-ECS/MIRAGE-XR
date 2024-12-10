@@ -23,7 +23,7 @@ namespace MirageXR
 			Transform[] bones = armature.GetComponentsInChildren<Transform>();
 			Transform[] bonesWithoutArmature = bones.Where(t => t != armature).ToArray();
 
-			rigReferences.Bones.Initialize(bonesWithoutArmature);
+			rigReferences.Bones.SetBones(bonesWithoutArmature);
 
 			BoneRenderer boneRenderer = armature.gameObject.AddComponent<BoneRenderer>();
 			boneRenderer.transforms = bonesWithoutArmature;
@@ -46,10 +46,10 @@ namespace MirageXR
 		{
 			rigRefs.IK.HipsConstraint = AddMuliparentTarget(rig.transform, rigRefs.Bones.Hips);
 			rigRefs.IK.HeadConstraint = AddMuliparentTarget(rig.transform, rigRefs.Bones.Head);
-			rigRefs.IK.LeftHandConstraint = AddTwoBoneTarget(rig.transform, rigRefs.Bones.LeftUpperArm, rigRefs.Bones.LeftLowerArm, rigRefs.Bones.LeftHand);
-			rigRefs.IK.RightHandConstraint = AddTwoBoneTarget(rig.transform, rigRefs.Bones.RightUpperArm, rigRefs.Bones.RightLowerArm, rigRefs.Bones.RightHand);
-			rigRefs.IK.LeftLegConstraint = AddTwoBoneTarget(rig.transform, rigRefs.Bones.LeftUpperLeg, rigRefs.Bones.LeftLowerLeg, rigRefs.Bones.LeftFoot);
-			rigRefs.IK.RightLegConstraint = AddTwoBoneTarget(rig.transform, rigRefs.Bones.RightUpperLeg, rigRefs.Bones.RightLowerLeg, rigRefs.Bones.RightFoot);
+			rigRefs.IK.LeftHandConstraint = AddTwoBoneTarget(rig.transform, rigRefs.Bones.Left.Arm.Upper, rigRefs.Bones.Left.Arm.Lower, rigRefs.Bones.Left.Arm.Hand.Wrist);
+			rigRefs.IK.RightHandConstraint = AddTwoBoneTarget(rig.transform, rigRefs.Bones.Right.Arm.Upper, rigRefs.Bones.Right.Arm.Lower, rigRefs.Bones.Right.Arm.Hand.Wrist);
+			rigRefs.IK.LeftLegConstraint = AddTwoBoneTarget(rig.transform, rigRefs.Bones.Left.Leg.Upper, rigRefs.Bones.Left.Leg.Lower, rigRefs.Bones.Left.Leg.Foot);
+			rigRefs.IK.RightLegConstraint = AddTwoBoneTarget(rig.transform, rigRefs.Bones.Right.Leg.Upper, rigRefs.Bones.Right.Leg.Lower, rigRefs.Bones.Right.Leg.Foot);
 		}
 
 		private MultiParentConstraint AddMuliparentTarget(Transform parentRig, Transform targetedBone)
