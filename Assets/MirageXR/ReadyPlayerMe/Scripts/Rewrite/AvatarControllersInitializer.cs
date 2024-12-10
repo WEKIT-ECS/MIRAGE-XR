@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR.Hands;
 
 namespace MirageXR
 {
@@ -25,12 +27,16 @@ namespace MirageXR
 
 		private void SetupHand(bool isLeftHand, RigReferences rigRefs)
 		{
-			GameObject handTarget = isLeftHand ? rigRefs.IK.LeftHandTarget.gameObject : rigRefs.IK.RightHandTarget.gameObject;
+			GameObject handTarget = rigRefs.IK.GetSide(isLeftHand).Hand.Target.gameObject;
 
 			HandController handController = handTarget.AddComponent<HandController>();
 			handController.SetRigReferences(rigRefs);
 			handController.IsLeftHand = isLeftHand;
 			handController.WristRotationOffset = isLeftHand ? _leftHandWristRotationOffset : _rightHandWristRotationOffset;
+
+			HandJointsController handJointsController = handTarget.AddComponent<HandJointsController>();
+			handJointsController.SetRigReferences(rigRefs);
+			handJointsController.HandSide = isLeftHand ? Handedness.Left : Handedness.Right;
 		}
 	}
 }

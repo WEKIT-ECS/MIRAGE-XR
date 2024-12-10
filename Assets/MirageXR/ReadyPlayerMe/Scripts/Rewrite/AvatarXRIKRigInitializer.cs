@@ -1,32 +1,34 @@
+using ExitGames.Client.Photon.StructWrapping;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.XR.Hands;
 
 namespace MirageXR
 {
 	public class AvatarXRIKRigInitializer : AvatarInitializer
 	{
+		[SerializeField] private bool drawHandJointTargets = false;
+
 		public override int Priority => 0;
 
 		public override void InitializeAvatar(GameObject avatar)
 		{
-			RigReferences rigReferences = avatar.AddComponent<RigReferences>();
+			RigReferences rigRefs = avatar.AddComponent<RigReferences>();
 
 			RigBuilder rigBuilder = avatar.AddComponent<RigBuilder>();
-			rigReferences.RigBuilder = rigBuilder;
+			rigRefs.RigBuilder = rigBuilder;
 
-			Transform armature = avatar.transform.Find("Armature");
-			rigReferences.Armature = armature;
+			rigRefs.FindArmature(avatar.transform);
 
-			Transform[] bones = armature.GetComponentsInChildren<Transform>();
-			Transform[] bonesWithoutArmature = bones.Where(t => t != armature).ToArray();
+			rigRefs.Bones.CollectBones(avatar);
 
-			rigReferences.Bones.SetBones(bonesWithoutArmature);
-
-			BoneRenderer boneRenderer = armature.gameObject.AddComponent<BoneRenderer>();
-			boneRenderer.transforms = bonesWithoutArmature;
+			BoneRenderer boneRenderer = rigRefs.Armature.gameObject.AddComponent<BoneRenderer>();
+			boneRenderer.transforms = rigRefs.Bones.ToArray();
 
 			GameObject xrIKRig = new GameObject("XR IK Rig");
 			xrIKRig.transform.parent = avatar.transform;
@@ -35,9 +37,9 @@ namespace MirageXR
 			Rig rig = xrIKRig.AddComponent<Rig>();
 			rigBuilder.layers.Add(new RigLayer(rig));
 
-			rigReferences.IK.RigLayer = rig;
+			rigRefs.IK.RigLayer = rig;
 
-			SetupIKTargets(rig, rigReferences);
+			SetupIKTargets(rig, rigRefs);
 
 			rigBuilder.Build();
 		}
@@ -46,24 +48,37 @@ namespace MirageXR
 		{
 			rigRefs.IK.HipsConstraint = AddMuliparentTarget(rig.transform, rigRefs.Bones.Hips);
 			rigRefs.IK.HeadConstraint = AddMuliparentTarget(rig.transform, rigRefs.Bones.Head);
-			rigRefs.IK.LeftHandConstraint = AddTwoBoneTarget(rig.transform, rigRefs.Bones.Left.Arm.Upper, rigRefs.Bones.Left.Arm.Lower, rigRefs.Bones.Left.Arm.Hand.Wrist);
-			rigRefs.IK.RightHandConstraint = AddTwoBoneTarget(rig.transform, rigRefs.Bones.Right.Arm.Upper, rigRefs.Bones.Right.Arm.Lower, rigRefs.Bones.Right.Arm.Hand.Wrist);
-			rigRefs.IK.LeftLegConstraint = AddTwoBoneTarget(rig.transform, rigRefs.Bones.Left.Leg.Upper, rigRefs.Bones.Left.Leg.Lower, rigRefs.Bones.Left.Leg.Foot);
-			rigRefs.IK.RightLegConstraint = AddTwoBoneTarget(rig.transform, rigRefs.Bones.Right.Leg.Upper, rigRefs.Bones.Right.Leg.Lower, rigRefs.Bones.Right.Leg.Foot);
+			for (int i = 0; i < 2; i++)
+			{
+				SidedIKCollection sidedIks = rigRefs.IK.GetSide(i);
+				SidedBonesCollection sidedBones = rigRefs.Bones.GetSide(i);
+
+				sidedIks.Hand.Constraint = AddTwoBoneTarget(rig.transform, sidedBones.Arm.Upper, sidedBones.Arm.Lower, sidedBones.Arm.Hand.Wrist);
+				sidedIks.Foot.Constraint = AddTwoBoneTarget(rig.transform, sidedBones.Leg.Upper, sidedBones.Leg.Lower, sidedBones.Leg.Foot);
+
+				GenerateHandBoneConstraintTargets(i == 0, rigRefs);
+			}
 		}
 
-		private MultiParentConstraint AddMuliparentTarget(Transform parentRig, Transform targetedBone)
+		private MultiParentConstraint AddMuliparentTarget(Transform parent, Transform bone, bool drawJoint = false)
 		{
-			GameObject target = new GameObject(targetedBone.name + "Target");
-			target.transform.parent = parentRig;
-			target.transform.position = targetedBone.position;
-			target.transform.rotation = targetedBone.rotation;
+			GameObject ikTarget = drawJoint ?
+					GameObject.CreatePrimitive(PrimitiveType.Cube)
+					: new GameObject();
+			if (drawJoint)
+			{
+				ikTarget.transform.localScale = 0.01f * Vector3.one;
+			}
+			ikTarget.name = bone.name + "IK_target";
+			ikTarget.transform.parent = parent;
+			ikTarget.transform.position = bone.position;
+			ikTarget.transform.rotation = bone.rotation;
 
-			MultiParentConstraint multiParentConstraint = target.AddComponent<MultiParentConstraint>();
-			multiParentConstraint.data.constrainedObject = targetedBone;
+			MultiParentConstraint multiParentConstraint = ikTarget.AddComponent<MultiParentConstraint>();
+			multiParentConstraint.data.constrainedObject = bone;
 			WeightedTransformArray sources = new WeightedTransformArray(0)
 			{
-				new WeightedTransform(target.transform, 1)
+				new WeightedTransform(ikTarget.transform, 1)
 			};
 			multiParentConstraint.data.sourceObjects = sources;
 			multiParentConstraint.data.constrainedPositionXAxis = true;
@@ -76,10 +91,10 @@ namespace MirageXR
 			return multiParentConstraint;
 		}
 
-		private TwoBoneIKConstraint AddTwoBoneTarget(Transform parentRig, Transform rootBone, Transform midBone, Transform tipBone)
+		private TwoBoneIKConstraint AddTwoBoneTarget(Transform parent, Transform rootBone, Transform midBone, Transform tipBone)
 		{
 			GameObject ik = new GameObject(tipBone.name + "IK");
-			ik.transform.parent = parentRig;
+			ik.transform.parent = parent;
 			ik.transform.position = tipBone.position;
 			ik.transform.rotation = tipBone.rotation;
 
@@ -103,6 +118,34 @@ namespace MirageXR
 			ikConstraint.data.hintWeight = 1;
 
 			return ikConstraint;
+		}
+
+		public void GenerateHandBoneConstraintTargets(bool isLeft, RigReferences rigRefs)
+		{
+			// for all fingers: generate the control points
+			for (int i = XRHandJointID.BeginMarker.ToIndex(); i < XRHandJointID.EndMarker.ToIndex(); i++)
+			{
+				XRHandJointID jointId = XRHandJointIDUtility.FromIndex(i);
+
+				Transform handBone = rigRefs.Bones.GetSide(isLeft).Arm.Hand.GetBoneByJointID(jointId);
+				if (handBone == null)
+				{
+					continue;
+				}
+
+				HandIKData handIkData = rigRefs.IK.GetSide(isLeft).Hand;
+
+				if (jointId != XRHandJointID.Wrist)
+				{
+					MultiParentConstraint jointIKTarget = AddMuliparentTarget(handIkData.Target, handBone, drawHandJointTargets);
+					handIkData.AddHandBoneIKTarget(jointId, jointIKTarget.transform);
+				}
+				else
+				{
+					// the wrist is a special case since we already have another constraint for it
+					handIkData.AddHandBoneIKTarget(jointId, handIkData.Target);
+				}
+			}
 		}
 	}
 }
