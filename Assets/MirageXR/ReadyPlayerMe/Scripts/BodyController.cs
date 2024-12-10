@@ -6,28 +6,34 @@ namespace MirageXR
 {
     public class BodyController : MonoBehaviour
     {
-        [SerializeField] private float interpolationSpeed = 1f;
+        [field: SerializeField] public float InterpolationSpeed { get; set; } = 1f;
+        [field: SerializeField] public Vector3 HeadPlacementOffset { get; set; }
 
-        [SerializeField] private Transform _headBone;
-        [SerializeField] private Transform _hipBone;
-        [SerializeField] private Transform _headTarget;
-        [SerializeField] private Vector3 _headPlacementOffset;
+		private Vector3 _headBodyOffset;
+        private RigReferences _rigRefs;
 
-        private Vector3 _headBodyOffset;
+        public void SetRigReferences(RigReferences rigReferences)
+        {
+            _rigRefs = rigReferences;
+        }
 
         private void Start()
         {
-            _headBodyOffset = _hipBone.position - _headBone.position;
+            if (_rigRefs == null)
+            {
+                _rigRefs = GetComponentInParent<RigReferences>();
+            }
+            _headBodyOffset = _rigRefs.Bones.Hips.position - _rigRefs.Bones.Head.position;
         }
 
         private void Update()
         {
             // move the hip into a plausible position based on the head target
-            transform.position = _headTarget.position + _headBodyOffset + (_headTarget.rotation * _headPlacementOffset);
-            float yaw = _headTarget.eulerAngles.y;
+            transform.position = _rigRefs.IK.HeadTarget.position + _headBodyOffset + (_rigRefs.IK.HeadTarget.rotation * HeadPlacementOffset);
+            float yaw = _rigRefs.IK.HeadTarget.eulerAngles.y;
             transform.rotation = Quaternion.Lerp(transform.rotation,
                 Quaternion.Euler(transform.rotation.x, yaw, transform.rotation.z),
-                interpolationSpeed * Time.deltaTime);
+                InterpolationSpeed * Time.deltaTime);
         }
     }
 }
