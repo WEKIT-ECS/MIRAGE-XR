@@ -11,8 +11,10 @@ namespace MirageXR
 	public class AvatarLoader : MonoBehaviour
 	{
 		[SerializeField] private string defaultAvatarUrl = "https://models.readyplayer.me/667bed8204fd145bd9e09f19.glb";
+		[SerializeField] private GameObject defaultAvatarPrefab;
 		[SerializeField] private AvatarConfig avatarConfig;
 		[SerializeField] private GameObject loadingIndicator;
+		[SerializeField] private bool loadDefaultAvatarOnStart = true;
 
 		private AvatarObjectLoader _avatarObjectLoader;
 
@@ -48,13 +50,33 @@ namespace MirageXR
 		{
 			loadingIndicator.SetActive(false);
 
-			Debug.LogTrace("Loading default avatar");
-			LoadAvatar(defaultAvatarUrl);
+			if (loadDefaultAvatarOnStart)
+			{
+				if (defaultAvatarPrefab != null)
+				{
+					Debug.LogTrace("Applying default avatar prefab");
+					GameObject instance = Instantiate(defaultAvatarPrefab);
+					OnLoadCompleted(this, new CompletionEventArgs()
+					{
+						Avatar = instance,
+						Url = "local"
+					});
+				}
+				else
+				{
+					Debug.LogTrace("Loading default avatar");
+					LoadAvatar(defaultAvatarUrl);
+				}
+			}
 		}
 
 		public void LoadAvatar(string avatarUrl)
 		{
-			Debug.LogDebug("Loading avatar " + avatarUrl, this);
+            if (string.IsNullOrWhiteSpace(avatarUrl))
+            {
+				return;
+            }
+            Debug.LogDebug("Loading avatar " + avatarUrl, this);
 			avatarUrl = avatarUrl.Trim();
 			loadingIndicator.SetActive(true);
 			AvatarObjectLoader.LoadAvatar(avatarUrl);
@@ -69,7 +91,7 @@ namespace MirageXR
 
 		private void OnLoadCompleted(object sender, CompletionEventArgs e)
 		{
-			Debug.LogDebug("Loading of avatar successful", this);
+			Debug.LogDebug($"Loading of avatar from {e.Url} successful", this);
 			loadingIndicator.SetActive(false);
 			if (CurrentAvatar != null)
 			{
