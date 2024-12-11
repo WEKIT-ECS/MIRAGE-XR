@@ -11,18 +11,12 @@ using UnityEngine;
 namespace MirageXR
 {
 #if FUSION2
-	public class NetworkedUserData : NetworkBehaviour
+	public class NetworkedUserData : BaseNetworkedAvatarController
 #else
 	public class NetworkedUserData : MonoBehaviour
 #endif
 	{
 		private LocalUserData _localUserDataSource;
-
-		private NetworkedAvatarController _avatarController;
-		public NetworkedAvatarController AvatarController
-		{
-			get => ComponentUtilities.GetOrFetchComponent(this, ref _avatarController);
-		}
 
 		public event Action<string> NetworkedUserNameChanged;
 		public event Action<string> NetworkedAvatarUrlChanged;
@@ -36,6 +30,8 @@ namespace MirageXR
 		[Networked, Capacity(64), OnChangedRender(nameof(OnNetworkedAvatarUrlChanged))]
 #endif
 		public string AvatarUrl { get; set; }
+
+		public NetworkedAvatarReferences AvatarReferences { get => _avatarRefs; }
 
 		/// <summary>
 		/// The data source for the local user

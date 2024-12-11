@@ -14,43 +14,54 @@ namespace MirageXR
 		[SerializeField] private Quaternion _leftHandWristRotationOffset = Quaternion.Euler(0, 340, 0);
 		[SerializeField] private Quaternion _rightHandWristRotationOffset = Quaternion.Euler(0, 20, 0);
 
+		[Header("Visibility Controller Config")]
+		[SerializeField] private Material _fadeMaterial;
+
 		public override void InitializeAvatar(GameObject avatar)
 		{
-			RigReferences rigRefs = avatar.GetComponent<RigReferences>();
+			AvatarReferences avatarRefs = GetComponent<AvatarReferences>();
+			avatarRefs.Rig = avatar.GetComponent<RigReferences>();
 
-			BodyController bodyController = rigRefs.IK.HipsConstraint.gameObject.AddComponent<BodyController>();
-			bodyController.SetRigReferences(rigRefs);
-
+			BodyController bodyController = avatarRefs.Rig.IK.HipsConstraint.gameObject.AddComponent<BodyController>();
+			bodyController.SetReferences(avatarRefs);
 
 			for (int i = 0; i < 2; i++)
 			{
-				SetupHand(i == 0, rigRefs);
-				SetupFoot(i == 0, rigRefs);
+				SetupHand(i == 0, avatarRefs);
+				SetupFoot(i == 0, avatarRefs);
 			}
+
+			AvatarVisibilityController2 avatarVisibilityController = avatar.AddComponent<AvatarVisibilityController2>();
+			avatarVisibilityController.SetReferences(avatarRefs);
+			avatarVisibilityController.FadeMaterial = _fadeMaterial;
+			avatarRefs.VisibilityController = avatarVisibilityController;
 		}
 
-		private void SetupHand(bool isLeftHand, RigReferences rigRefs)
+		private void SetupHand(bool isLeftHand, AvatarReferences avatarRefs)
 		{
-			GameObject handTarget = rigRefs.IK.GetSide(isLeftHand).Hand.Target.gameObject;
+			GameObject handTarget = avatarRefs.Rig.IK.GetSide(isLeftHand).Hand.Target.gameObject;
 
 			HandController handController = handTarget.AddComponent<HandController>();
-			handController.SetRigReferences(rigRefs);
+			handController.SetReferences(avatarRefs);
 			handController.IsLeftHand = isLeftHand;
 			handController.WristRotationOffset = isLeftHand ? _leftHandWristRotationOffset : _rightHandWristRotationOffset;
 			handController.HandPositionSetExternally = false;
+			avatarRefs.GetSide(isLeftHand).HandController = handController;
 
 			HandJointsController handJointsController = handTarget.AddComponent<HandJointsController>();
-			handJointsController.SetRigReferences(rigRefs);
+			handJointsController.SetReferences(avatarRefs);
 			handJointsController.HandSide = isLeftHand ? Handedness.Left : Handedness.Right;
+			avatarRefs.GetSide(isLeftHand).HandJointsController = handJointsController;
 		}
 
-		private void SetupFoot(bool isLeftFoot,  RigReferences rigRefs)
+		private void SetupFoot(bool isLeftFoot,  AvatarReferences avatarRefs)
 		{
-			GameObject footTarget = rigRefs.IK.GetSide(isLeftFoot).Foot.Target.gameObject;
+			GameObject footTarget = avatarRefs.Rig.IK.GetSide(isLeftFoot).Foot.Target.gameObject;
 
 			FootController footController = footTarget.AddComponent<FootController>();
-			footController.SetRigReferences(rigRefs);
+			footController.SetReferences(avatarRefs);
 			footController.IsLeftFoot = isLeftFoot;
+			avatarRefs.GetSide(isLeftFoot).FootController = footController;
 		}
 	}
 }

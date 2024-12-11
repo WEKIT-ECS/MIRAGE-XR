@@ -16,6 +16,8 @@ namespace MirageXR
 		public PlayerRef PlayerRef { get; private set; }
 		public NetworkedUserData UserData { get; private set; }
 
+		private NetworkedAvatarReferences _avatarRefs;
+
 		private void Awake()
 		{
 			_avatarToggle.onValueChanged.AddListener(OnAvatarToggleChanged);
@@ -25,11 +27,12 @@ namespace MirageXR
 		{
 			if (UserData != null)
 			{
-				UserData.AvatarController.VisibilityController.VisibilityChanged -= OnVisibilityChanged;
+				UserData.AvatarReferences.OfflineReferences.VisibilityController.VisibilityChanged -= OnVisibilityChanged;
 			}
 			PlayerRef = playerRef;
 			UserData = userData;
-			UserData.AvatarController.VisibilityController.VisibilityChanged += OnVisibilityChanged;
+			_avatarRefs = UserData.AvatarReferences;
+			_avatarRefs.OfflineReferences.VisibilityController.VisibilityChanged += OnVisibilityChanged;
 			UpdateView();
 		}
 
@@ -40,7 +43,7 @@ namespace MirageXR
 			{
 				text += " (you)";
 			}
-			_avatarToggle.SetIsOnWithoutNotify(UserData.AvatarController.VisibilityController.Visible);
+			_avatarToggle.SetIsOnWithoutNotify(_avatarRefs.OfflineReferences.VisibilityController.Visible);
 			_userNameLabel.text = text;
 		}
 #endif
@@ -48,7 +51,7 @@ namespace MirageXR
 		private void OnAvatarToggleChanged(bool value)
 		{
 #if FUSION2
-			UserData.AvatarController.VisibilityController.Visible = value;
+			_avatarRefs.OfflineReferences.VisibilityController.Visible = value;
 #endif
 		}
 

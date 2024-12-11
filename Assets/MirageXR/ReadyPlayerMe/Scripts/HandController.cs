@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace MirageXR
 {
-	public class HandController : MonoBehaviour
+	public class HandController : AvatarBaseController
 	{
 
 		[Header("Configuration Values")]
@@ -29,26 +29,11 @@ namespace MirageXR
 		private Vector3 _handTargetPosition;
 		private Vector3 _handAcceleration;
 
-		private RigReferences _rigRefs;
-		private HandJointsController _jointsController;
-
-		public HandJointsController JointsController
-		{
-			get
-			{
-				if (_jointsController == null)
-				{
-					_jointsController = GetComponent<HandJointsController>();
-				}
-				return _jointsController;
-			}
-		}
-
 		private Transform ElbowHint
 		{
 			get
 			{
-				return _rigRefs.IK.GetSide(IsLeftHand).Hand.ElbowHint;
+				return _avatarRefs.Rig.IK.GetSide(IsLeftHand).Hand.ElbowHint;
 			}
 		}
 
@@ -56,36 +41,28 @@ namespace MirageXR
 		{
 			get
 			{
-				return _rigRefs.Bones.GetSide(IsLeftHand).Arm.Lower;
+				return _avatarRefs.Rig.Bones.GetSide(IsLeftHand).Arm.Lower;
 			}
 		}
 
-		public void SetRigReferences(RigReferences rigReferences)
+		public HandJointsController JointsController
 		{
-			_rigRefs = rigReferences;
-		}
-
-		private void Start()
-		{
-			if (_rigRefs == null)
-			{
-				_rigRefs = GetComponentInParent<RigReferences>();
-			}
+			get => _avatarRefs.GetSide(IsLeftHand).HandJointsController;
 		}
 
 		private void Update()
 		{
-			_currentElbowHintPosition = Vector3.Lerp(_rigRefs.IK.HeadTarget.position, _rigRefs.IK.HipsTarget.position, 0.8f);
-			_currentElbowHintPosition -= _rigRefs.IK.HipsTarget.forward;
+			_currentElbowHintPosition = Vector3.Lerp(_avatarRefs.Rig.IK.HeadTarget.position, _avatarRefs.Rig.IK.HipsTarget.position, 0.8f);
+			_currentElbowHintPosition -= _avatarRefs.Rig.IK.HipsTarget.forward;
 			float sideFactor = IsLeftHand ? -1f : 1f;
-			_currentElbowHintPosition += sideFactor * _rigRefs.IK.HipsTarget.right * _elbowWideness;
+			_currentElbowHintPosition += sideFactor * _avatarRefs.Rig.IK.HipsTarget.right * _elbowWideness;
 			ElbowHint.position = _currentElbowHintPosition;
 
 			if (!HandPositionSetExternally)
 			{
 				// set the hand to a plausible position relative to the body / hip
-				_handTargetPosition = _rigRefs.IK.HipsTarget.position +
-					_rigRefs.IK.HipsTarget.rotation *
+				_handTargetPosition = _avatarRefs.Rig.IK.HipsTarget.position +
+					_avatarRefs.Rig.IK.HipsTarget.rotation *
 					Vector3.Scale(new Vector3(sideFactor, 0, 0), _handHipOffset);
 				_handAcceleration = _handDamping * (_handInertia * _handAcceleration + (1f - _handInertia) * (_handTargetPosition - transform.position));
 				transform.position += _handAcceleration;
