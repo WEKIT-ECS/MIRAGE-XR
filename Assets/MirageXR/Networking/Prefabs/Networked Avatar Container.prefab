@@ -185,8 +185,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 370a5025062579744adef7c56c6edd9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _target: {fileID: 0}
-  _offset: {x: 0, y: 0.93, z: -0.01}
+  <Target>k__BackingField: {fileID: 0}
+  <Offset>k__BackingField: {x: 0, y: 0, z: 0}
 --- !u!114 &6970934427268844850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -380,6 +380,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 2650112113646035394}
+    - targetCorrespondingSourceObject: {fileID: 7882832328807508386, guid: 3ee7716c97498fb47b1c6df43410b887,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1804379646700554250}
   m_SourcePrefab: {fileID: 100100000, guid: 3ee7716c97498fb47b1c6df43410b887, type: 3}
 --- !u!4 &39385391222198169 stripped
 Transform:
@@ -420,6 +424,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _speakerInstance: {fileID: 5977491169009659724}
   _speakerPositionOffset: {x: 0, y: 0.013, z: 0.012}
+  nameLabelOffset: {x: 0, y: 0.93, z: -0.01}
 --- !u!114 &187141334855135017
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -441,6 +446,7 @@ MonoBehaviour:
   - {fileID: 5945653049155190991}
   - {fileID: 3063669640901207134}
   - {fileID: 2650112113646035394}
+  - {fileID: 1804379646700554250}
 --- !u!114 &2221571879970953658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -508,5 +514,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6376dd7fc23b3764483a7349b58502e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1804379646700554250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1047241714566058308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1040efeb179920d46b443418a326092f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

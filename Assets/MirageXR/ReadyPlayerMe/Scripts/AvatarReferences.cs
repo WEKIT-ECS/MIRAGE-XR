@@ -8,13 +8,16 @@ namespace MirageXR
 {
 	public class AvatarReferences : MonoBehaviour
 	{
-		private AvatarLoader2 _avatarLoader;
-		public AvatarLoader2 Loader { get => ComponentUtilities.GetOrFetchComponent(this, ref _avatarLoader); }
+		private AvatarLoader _avatarLoader;
+		public AvatarLoader Loader { get => ComponentUtilities.GetOrFetchComponent(this, ref _avatarLoader); }
+		public GameObject Avatar { get => Loader.CurrentAvatar; }
+		public bool AvatarInstantiated { get => Loader.CurrentAvatar != null; }
 		public RigReferences Rig { get; set; }
 		public BodyController BodyController { get; set; }
 		public SidedReferences Left { get; set; } = new SidedReferences(true);
 		public SidedReferences Right { get; set; } = new SidedReferences(false);
-		public AvatarVisibilityController2 VisibilityController { get; set; }
+		private AvatarVisibilityController _visibilityController;
+		public AvatarVisibilityController VisibilityController { get => ComponentUtilities.GetOrFetchComponent(this, ref _visibilityController); }
 
 		public SidedReferences GetSide(bool left)
 		{

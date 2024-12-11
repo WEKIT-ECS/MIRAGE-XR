@@ -35,7 +35,7 @@ namespace MirageXR
 		{
 			get
 			{
-				return _avatarRefs.GetSide(!IsLeftFoot).FootController;
+				return AvatarRefs.GetSide(!IsLeftFoot).FootController;
 			}
 		}
 
@@ -44,7 +44,7 @@ namespace MirageXR
 			get
 			{
 				float direction = IsLeftFoot ? -1f : 1f;
-				return _avatarRefs.Rig.IK.HipsTarget.right * direction;
+				return AvatarRefs.Rig.IK.HipsTarget.right * direction;
 			}
 		}
 
@@ -53,9 +53,8 @@ namespace MirageXR
 			get => _stepLerpProgress < 1f;
 		}
 
-		protected override void Start()
+		private void Start()
 		{
-			base.Start();
 			_footRotationOffset = transform.rotation;
 			_currentFootTargetPose = new Pose(transform.position, transform.rotation);
 			_footGroundTargetPose = new Pose(transform.position, transform.rotation);
@@ -86,12 +85,12 @@ namespace MirageXR
 			transform.rotation = _currentFootTargetPose.rotation;
 
 			// look for the candidate where we would currently place the foot
-			Vector3 footPositionCandidate = _avatarRefs.Rig.IK.HipsTarget.position + (SidewaysVector * _footSpacing);
+			Vector3 footPositionCandidate = AvatarRefs.Rig.IK.HipsTarget.position + (SidewaysVector * _footSpacing);
 			footPositionCandidate.y = _floorManager.GetFloorHeight(footPositionCandidate);
 
 			float distance = Vector3.Distance(footPositionCandidate, _footGroundTargetPose.position);
 			float dotProduct = Vector2.Dot(
-				new Vector2(_avatarRefs.Rig.IK.HipsTarget.forward.x, _avatarRefs.Rig.IK.HipsTarget.forward.z),
+				new Vector2(AvatarRefs.Rig.IK.HipsTarget.forward.x, AvatarRefs.Rig.IK.HipsTarget.forward.z),
 				new Vector2(_footGroundTargetPose.forward.x, _footGroundTargetPose.forward.z));
 
 			// check if we need to make a step (and if we can take a step)
@@ -110,7 +109,7 @@ namespace MirageXR
 				_footGroundTargetPose.position = footPositionCandidate + stepDirection * StepDistance + _footHeightOffset * Vector3.up;
 				_footGroundTargetPose.rotation = Quaternion.Euler(
 					_currentFootTargetPose.rotation.eulerAngles.x,
-					_avatarRefs.Rig.IK.HeadTarget.eulerAngles.y,
+					AvatarRefs.Rig.IK.HeadTarget.eulerAngles.y,
 					_currentFootTargetPose.rotation.eulerAngles.z);
 			}
 			// progress the step further if we are currently making a step
@@ -137,12 +136,12 @@ namespace MirageXR
 
 		private void ControlKnee()
 		{
-			_currentKneeHintPosition = Vector3.Lerp(_avatarRefs.Rig.IK.HipsTarget.position, _currentFootTargetPose.position, 0.5f);
+			_currentKneeHintPosition = Vector3.Lerp(AvatarRefs.Rig.IK.HipsTarget.position, _currentFootTargetPose.position, 0.5f);
 			// move the knee to the front to ensure correct bending
-			_currentKneeHintPosition += _avatarRefs.Rig.IK.HipsTarget.forward * 0.5f;
+			_currentKneeHintPosition += AvatarRefs.Rig.IK.HipsTarget.forward * 0.5f;
 			// move the knee slightly outwards to the sides
 			_currentKneeHintPosition += SidewaysVector * 0.05f;
-			_avatarRefs.Rig.IK.GetSide(IsLeftFoot).Foot.KneeHint.position = _currentKneeHintPosition;
+			AvatarRefs.Rig.IK.GetSide(IsLeftFoot).Foot.KneeHint.position = _currentKneeHintPosition;
 		}
 	}
 }

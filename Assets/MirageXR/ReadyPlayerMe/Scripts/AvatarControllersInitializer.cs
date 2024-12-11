@@ -14,9 +14,6 @@ namespace MirageXR
 		[SerializeField] private Quaternion _leftHandWristRotationOffset = Quaternion.Euler(0, 340, 0);
 		[SerializeField] private Quaternion _rightHandWristRotationOffset = Quaternion.Euler(0, 20, 0);
 
-		[Header("Visibility Controller Config")]
-		[SerializeField] private Material _fadeMaterial;
-
 		public override void InitializeAvatar(GameObject avatar)
 		{
 			AvatarReferences avatarRefs = GetComponent<AvatarReferences>();
@@ -31,10 +28,7 @@ namespace MirageXR
 				SetupFoot(i == 0, avatarRefs);
 			}
 
-			AvatarVisibilityController2 avatarVisibilityController = avatar.AddComponent<AvatarVisibilityController2>();
-			avatarVisibilityController.SetReferences(avatarRefs);
-			avatarVisibilityController.FadeMaterial = _fadeMaterial;
-			avatarRefs.VisibilityController = avatarVisibilityController;
+			avatarRefs.VisibilityController.Initialize();
 		}
 
 		private void SetupHand(bool isLeftHand, AvatarReferences avatarRefs)
@@ -54,7 +48,7 @@ namespace MirageXR
 			avatarRefs.GetSide(isLeftHand).HandJointsController = handJointsController;
 		}
 
-		private void SetupFoot(bool isLeftFoot,  AvatarReferences avatarRefs)
+		private void SetupFoot(bool isLeftFoot, AvatarReferences avatarRefs)
 		{
 			GameObject footTarget = avatarRefs.Rig.IK.GetSide(isLeftFoot).Foot.Target.gameObject;
 

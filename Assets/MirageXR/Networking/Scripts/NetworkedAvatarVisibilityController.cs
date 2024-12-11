@@ -9,9 +9,9 @@ namespace MirageXR
 #if FUSION2
 	public class NetworkedAvatarVisibilityController : BaseNetworkedAvatarController
     {
-		public AvatarVisibilityController2 VisibilityController
+		public AvatarVisibilityController VisibilityController
 		{
-			get => _avatarRefs.OfflineReferences.VisibilityController;
+			get => AvatarRefs.OfflineReferences.VisibilityController;
 		}
 
 		public override void Spawned()

@@ -13,7 +13,7 @@ namespace MirageXR
 
 		public void ApplyPoseToJoint(XRHandJointID jointId, Pose pose)
 		{
-			HandIKData handIk = _avatarRefs.Rig.IK.GetSide(HandSide).Hand;
+			HandIKData handIk = AvatarRefs.Rig.IK.GetSide(HandSide).Hand;
 			if (handIk.HasHandBoneIKTarget(jointId))
 			{
 				handIk.GetHandBoneIKTarget(jointId).transform.position = pose.position;

@@ -31,7 +31,7 @@ namespace MirageXR
 #endif
 		public string AvatarUrl { get; set; }
 
-		public NetworkedAvatarReferences AvatarReferences { get => _avatarRefs; }
+		public NetworkedAvatarReferences AvatarReferences { get => AvatarRefs; }
 
 		/// <summary>
 		/// The data source for the local user

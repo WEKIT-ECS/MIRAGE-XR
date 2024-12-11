@@ -31,18 +31,22 @@ namespace MirageXR
 			if (IsLocalController && _hardwareRig != null)
 			{
 				ApplyLocalStateToRigParts(_hardwareRig.RigData);
-				_avatarRefs.HandsSynchronizer.StoreHandsData(_hardwareRig.RigData);
+				AvatarRefs.HandsSynchronizer.StoreHandsData(_hardwareRig.RigData);
 			}
 		}
 
 		protected virtual void ApplyLocalStateToRigParts(RigData rigData)
 		{
+			if (!AvatarRefs.OfflineReferences.AvatarInstantiated || AvatarRefs.OfflineReferences.Rig == null)
+			{
+				return;
+			}
 			transform.position = rigData.playSpacePose.position;
 			transform.rotation = rigData.playSpacePose.rotation;
-			Transform headTarget = _avatarRefs.OfflineReferences.Rig.IK.HeadTarget;
+			Transform headTarget = AvatarRefs.OfflineReferences.Rig.IK.HeadTarget;
 			headTarget.transform.position = rigData.headPose.position + rigData.headPose.rotation * _headOffset;
 			headTarget.transform.rotation = rigData.headPose.rotation;
-			_avatarRefs.HandsSynchronizer.ApplyHandsDataToRig(_hardwareRig.RigData);
+			AvatarRefs.HandsSynchronizer.ApplyHandsDataToRig(_hardwareRig.RigData);
 		}
 
 		public override void Render()
@@ -64,7 +68,7 @@ namespace MirageXR
 				// by setting the GameObject positions.
 
 				// now, we need to restore the hand joint data
-				_avatarRefs.HandsSynchronizer.ApplyRemoteHandsDataToRig();
+				AvatarRefs.HandsSynchronizer.ApplyRemoteHandsDataToRig();
 			}
 		}
 	}

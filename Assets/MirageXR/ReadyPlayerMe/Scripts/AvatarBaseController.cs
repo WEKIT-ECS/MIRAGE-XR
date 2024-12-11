@@ -4,21 +4,25 @@ using UnityEngine;
 
 namespace MirageXR
 {
-    public abstract class AvatarBaseController : MonoBehaviour
-    {
-        protected AvatarReferences _avatarRefs;
+	public abstract class AvatarBaseController : MonoBehaviour
+	{
+		private AvatarReferences _avatarRefs;
 
-        public void SetReferences(AvatarReferences avatarReferences)
-        {
-            _avatarRefs = avatarReferences;
-        }
+		protected AvatarReferences AvatarRefs
+		{
+			get
+			{
+				if (_avatarRefs == null)
+				{
+					_avatarRefs = GetComponentInParent<AvatarReferences>();
+				}
+				return _avatarRefs;
+			}
+		}
 
-        protected virtual void Start()
-        {
-            if (_avatarRefs == null)
-            {
-                _avatarRefs = GetComponentInParent<AvatarReferences>();
-            }
-        }
-    }
+		public void SetReferences(AvatarReferences avatarReferences)
+		{
+			_avatarRefs = avatarReferences;
+		}
+	}
 }
