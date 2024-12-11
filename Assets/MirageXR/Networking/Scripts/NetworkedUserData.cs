@@ -54,6 +54,7 @@ namespace MirageXR
 
 		private void ApplyLocalToNetworkedData()
 		{
+			Debug.LogTrace("Applying local user data to networked data");
 			UserName = _localUserDataSource.UserName;
 			AvatarUrl = _localUserDataSource.AvatarUrl;
 		}
