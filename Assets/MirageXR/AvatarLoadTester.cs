@@ -6,7 +6,7 @@ namespace MirageXR
 {
 	public class AvatarLoadTester : MonoBehaviour
 	{
-		public AvatarLoader2 _avatarLoader;
+		public AvatarLoader _avatarLoader;
 
 		int index = 0;
 

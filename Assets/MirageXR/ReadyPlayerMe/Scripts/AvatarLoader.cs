@@ -1,6 +1,10 @@
+using NSubstitute;
 using ReadyPlayerMe.Core;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 
 namespace MirageXR
 {
@@ -11,6 +15,8 @@ namespace MirageXR
 		[SerializeField] private GameObject loadingIndicator;
 
 		private AvatarObjectLoader _avatarObjectLoader;
+
+		public GameObject CurrentAvatar { get; private set; }
 
 		private AvatarObjectLoader AvatarObjectLoader
 		{
@@ -42,17 +48,22 @@ namespace MirageXR
 		{
 			loadingIndicator.SetActive(false);
 
-			bool firstLoad = _avatarObjectLoader == null;
-			if (!string.IsNullOrEmpty(defaultAvatarUrl) && firstLoad)
-			{
-				Debug.LogTrace("Loading default avatar");
-				LoadAvatar(defaultAvatarUrl);
-			}
+			Debug.LogTrace("Loading default avatar");
+			LoadAvatar(defaultAvatarUrl);
+		}
+
+		public void LoadAvatar(string avatarUrl)
+		{
+			Debug.LogDebug("Loading avatar " + avatarUrl, this);
+			avatarUrl = avatarUrl.Trim();
+			loadingIndicator.SetActive(true);
+			AvatarObjectLoader.LoadAvatar(avatarUrl);
 		}
 
 		private void OnLoadFailed(object sender, FailureEventArgs e)
 		{
 			loadingIndicator.SetActive(false);
+			Debug.LogError("Could not load avatar. Reason: " + e.Message);
 			AvatarLoaded?.Invoke(false);
 		}
 
@@ -60,33 +71,36 @@ namespace MirageXR
 		{
 			Debug.LogDebug("Loading of avatar successful", this);
 			loadingIndicator.SetActive(false);
-			ApplyAvatar(e);
+			if (CurrentAvatar != null)
+			{
+				Destroy(CurrentAvatar);
+			}
+			SetupAvatar(e);
 			AvatarLoaded?.Invoke(true);
 		}
 
 		// apply the avatar to our player object
-		private void ApplyAvatar(CompletionEventArgs e)
+		private void SetupAvatar(CompletionEventArgs e)
 		{
 			LoadedAvatarUrl = e.Url;
-			e.Avatar.transform.position = transform.position;
-			AvatarMeshHelper.TransferMesh(e.Avatar, gameObject);
-			//Destroy(e.Avatar);
-			EyeAnimationHandler eyeAnimation = gameObject.AddComponent<EyeAnimationHandler>();
-			eyeAnimation.BlinkInterval = 10f;
+			CurrentAvatar = e.Avatar;
+			// setup transform
+			SetupTransform();
+
+			AvatarInitializer[] avatarInitializers = GetComponents<AvatarInitializer>();
+			avatarInitializers = avatarInitializers.OrderBy(item => item.Priority).Reverse().ToArray();
+
+			for (int i = 0; i < avatarInitializers.Length; i++)
+			{
+				avatarInitializers[i].InitializeAvatar(CurrentAvatar);
+			}
 		}
 
-		public void LoadAvatar(string avatarUrl)
+		private void SetupTransform()
 		{
-			Debug.LogDebug("Loading avatar " + avatarUrl, this);
-			// remove the eye animation component since we want a fresh one for a new avatar
-			EyeAnimationHandler eyeAnimation = gameObject.GetComponent<EyeAnimationHandler>();
-			if (eyeAnimation != null)
-			{
-				Destroy(eyeAnimation);
-			}
-			avatarUrl = avatarUrl.Trim();
-			loadingIndicator.SetActive(true);
-			AvatarObjectLoader.LoadAvatar(avatarUrl);
+			CurrentAvatar.transform.parent = transform;
+			CurrentAvatar.transform.position = Vector3.zero;
+			CurrentAvatar.transform.rotation = Quaternion.identity;
 		}
 	}
 }

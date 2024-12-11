@@ -338,6 +338,7 @@ GameObject:
   - component: {fileID: 4699134102781711987}
   - component: {fileID: 4871801181838250453}
   - component: {fileID: 2297525309135464281}
+  - component: {fileID: 472754332442227634}
   m_Layer: 0
   m_Name: Avatar Container
   m_TagString: Untagged
@@ -427,4 +428,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _leftHandWristRotationOffset: {x: 0, y: 0.1736483, z: 0, w: -0.9848077}
   _rightHandWristRotationOffset: {x: 0, y: 0.17364818, z: 0, w: 0.9848077}
-  _fadeMaterial: {fileID: 2100000, guid: f90238032eaa3ba4caf0b90fcc8398e8, type: 2}
+--- !u!114 &472754332442227634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7882832328807508386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab6dc3d7f53c11a45ad8ad928ba0839e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <FadeMaterial>k__BackingField: {fileID: 2100000, guid: f90238032eaa3ba4caf0b90fcc8398e8,
+    type: 2}
+  <FadeDuration>k__BackingField: 2

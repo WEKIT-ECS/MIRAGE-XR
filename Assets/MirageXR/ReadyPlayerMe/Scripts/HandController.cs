@@ -33,7 +33,7 @@ namespace MirageXR
 		{
 			get
 			{
-				return _avatarRefs.Rig.IK.GetSide(IsLeftHand).Hand.ElbowHint;
+				return AvatarRefs.Rig.IK.GetSide(IsLeftHand).Hand.ElbowHint;
 			}
 		}
 
@@ -41,28 +41,28 @@ namespace MirageXR
 		{
 			get
 			{
-				return _avatarRefs.Rig.Bones.GetSide(IsLeftHand).Arm.Lower;
+				return AvatarRefs.Rig.Bones.GetSide(IsLeftHand).Arm.Lower;
 			}
 		}
 
 		public HandJointsController JointsController
 		{
-			get => _avatarRefs.GetSide(IsLeftHand).HandJointsController;
+			get => AvatarRefs.GetSide(IsLeftHand).HandJointsController;
 		}
 
 		private void Update()
 		{
-			_currentElbowHintPosition = Vector3.Lerp(_avatarRefs.Rig.IK.HeadTarget.position, _avatarRefs.Rig.IK.HipsTarget.position, 0.8f);
-			_currentElbowHintPosition -= _avatarRefs.Rig.IK.HipsTarget.forward;
+			_currentElbowHintPosition = Vector3.Lerp(AvatarRefs.Rig.IK.HeadTarget.position, AvatarRefs.Rig.IK.HipsTarget.position, 0.8f);
+			_currentElbowHintPosition -= AvatarRefs.Rig.IK.HipsTarget.forward;
 			float sideFactor = IsLeftHand ? -1f : 1f;
-			_currentElbowHintPosition += sideFactor * _avatarRefs.Rig.IK.HipsTarget.right * _elbowWideness;
+			_currentElbowHintPosition += sideFactor * AvatarRefs.Rig.IK.HipsTarget.right * _elbowWideness;
 			ElbowHint.position = _currentElbowHintPosition;
 
 			if (!HandPositionSetExternally)
 			{
 				// set the hand to a plausible position relative to the body / hip
-				_handTargetPosition = _avatarRefs.Rig.IK.HipsTarget.position +
-					_avatarRefs.Rig.IK.HipsTarget.rotation *
+				_handTargetPosition = AvatarRefs.Rig.IK.HipsTarget.position +
+					AvatarRefs.Rig.IK.HipsTarget.rotation *
 					Vector3.Scale(new Vector3(sideFactor, 0, 0), _handHipOffset);
 				_handAcceleration = _handDamping * (_handInertia * _handAcceleration + (1f - _handInertia) * (_handTargetPosition - transform.position));
 				transform.position += _handAcceleration;

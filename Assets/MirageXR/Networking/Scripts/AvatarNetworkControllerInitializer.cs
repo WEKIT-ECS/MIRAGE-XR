@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks.Triggers;
 using Fusion;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,8 +9,12 @@ namespace MirageXR
 {
 	public class AvatarNetworkControllerInitializer : AvatarInitializer
 	{
+		[Header("Speaker")]
 		[SerializeField] private Transform _speakerInstance;
 		[SerializeField] private Vector3 _speakerPositionOffset = new Vector3(0, 0.013f, 0.012f);
+
+		[Header("Name Placement")]
+		[SerializeField] private Vector3 nameLabelOffset = new Vector3(0, 0.93f, -0.01f);
 
 		public override int Priority => -10; // after the non-networked initializers
 
@@ -18,7 +23,10 @@ namespace MirageXR
 			NetworkedAvatarReferences avatarRefs = GetComponent<NetworkedAvatarReferences>();
 
 			AddPhotonComponents(avatar, avatarRefs);
-			AddNetworkedControllers(avatar, avatarRefs);
+
+			RelativePositionPlacement relativePositioning = avatarRefs.NameLabel.GetComponent<RelativePositionPlacement>();
+			relativePositioning.Target = avatarRefs.OfflineReferences.Rig.IK.HeadTarget;
+			relativePositioning.Offset = nameLabelOffset;
 		}
 
 		private void AddPhotonComponents(GameObject avatar, NetworkedAvatarReferences avatarRefs)
@@ -31,16 +39,13 @@ namespace MirageXR
 				handNetworkTransform.DisableSharedModeInterpolation = true;
 			}			
 
-			_speakerInstance.parent = avatarRefs.OfflineReferences.Rig.IK.HeadTarget;
-			_speakerInstance.localPosition = _speakerPositionOffset;
-			_speakerInstance.localRotation = Quaternion.identity;
-		}
-
-		private void AddNetworkedControllers(GameObject avatar, NetworkedAvatarReferences avatarRefs)
-		{
-			NetworkedAvatarVisibilityController networkedAvatarVisibilityController = avatar.AddComponent<NetworkedAvatarVisibilityController>();
-			networkedAvatarVisibilityController.SetReferences(avatarRefs);
-			avatarRefs.NetworkedVisibilityController = networkedAvatarVisibilityController;
+			RelativePositionPlacement relativeSpeakerPositioning = _speakerInstance.GetComponent<RelativePositionPlacement>();
+			if (relativeSpeakerPositioning == null)
+			{
+				relativeSpeakerPositioning = _speakerInstance.gameObject.AddComponent<RelativePositionPlacement>();
+			}
+			relativeSpeakerPositioning.Target = avatarRefs.OfflineReferences.Rig.IK.HeadTarget;
+			relativeSpeakerPositioning.Offset = _speakerPositionOffset;
 		}
 	}
 }

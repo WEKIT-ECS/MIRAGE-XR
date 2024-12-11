@@ -79,7 +79,7 @@ namespace MirageXR
 
 		private void ApplySingleHandDataToRig(bool isLeftSide, HandData handData)
 		{
-			_avatarRefs.OfflineReferences.GetSide(isLeftSide).HandController.HandPositionSetExternally = handData.IsTracked;
+			AvatarRefs.OfflineReferences.GetSide(isLeftSide).HandController.HandPositionSetExternally = handData.IsTracked;
 			if (handData.IsTracked)
 			{
 				foreach (KeyValuePair<XRHandJointID, Pose> jointPose in handData.JointPoses)
@@ -90,7 +90,7 @@ namespace MirageXR
 					{
 						continue;
 					}
-					_avatarRefs.OfflineReferences.GetSide(isLeftSide).HandJointsController.ApplyPoseToJoint(jointPose.Key, jointPose.Value);
+					AvatarRefs.OfflineReferences.GetSide(isLeftSide).HandJointsController.ApplyPoseToJoint(jointPose.Key, jointPose.Value);
 				}
 			}
 		}
@@ -105,7 +105,7 @@ namespace MirageXR
 
 		private void ApplyRemoteSingleHandDataToRig(bool isLeftSide)
 		{
-			HandController handController = _avatarRefs.OfflineReferences.GetSide(isLeftSide).HandController;
+			HandController handController = AvatarRefs.OfflineReferences.GetSide(isLeftSide).HandController;
 
 			_extractedData.HandSide = handController.JointsController.HandSide;
 			_extractedData.IsTracked = IsSideTracked(isLeftSide);

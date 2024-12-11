@@ -25,10 +25,10 @@ namespace MirageXR
 
 		public void Initialize(PlayerRef playerRef, NetworkedUserData userData)
 		{
-			if (UserData != null)
-			{
-				UserData.AvatarReferences.OfflineReferences.VisibilityController.VisibilityChanged -= OnVisibilityChanged;
-			}
+			//if (UserData != null)
+			//{
+			//	UserData.AvatarReferences.OfflineReferences.VisibilityController.VisibilityChanged -= OnVisibilityChanged;
+			//}
 			PlayerRef = playerRef;
 			UserData = userData;
 			_avatarRefs = UserData.AvatarReferences;

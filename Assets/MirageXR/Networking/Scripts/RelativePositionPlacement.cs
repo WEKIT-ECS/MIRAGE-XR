@@ -4,15 +4,17 @@ using UnityEngine;
 
 namespace MirageXR
 {
-    public class RelativePositionPlacement : MonoBehaviour
-    {
-        [SerializeField] private Transform _target;
-        [SerializeField] private Vector3 _offset;
+	public class RelativePositionPlacement : MonoBehaviour
+	{
+		[field: SerializeField] public Transform Target { get; set; }
+		[field: SerializeField] public Vector3 Offset { get; set; }
 
-        // Update is called once per frame
-        void Update()
-        {
-            transform.position = _target.position + _offset;
-        }
-    }
+		void Update()
+		{
+			if (Target != null)
+			{
+				transform.position = Target.position + Offset;
+			}
+		}
+	}
 }
