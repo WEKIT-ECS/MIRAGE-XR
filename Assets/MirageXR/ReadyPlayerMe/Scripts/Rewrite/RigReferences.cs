@@ -95,7 +95,7 @@ namespace MirageXR
 			Transform[] bonesWithoutArmature = bones.Where(t => t != _rigReferences.Armature).ToArray();
 
 			_bones.Clear();
-			foreach (Transform bone in bones)
+			foreach (Transform bone in bonesWithoutArmature)
 			{
 				_bones.Add(bone.name, bone);
 			}
