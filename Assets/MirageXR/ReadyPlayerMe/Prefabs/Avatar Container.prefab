@@ -34,7 +34,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -0.123}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 30, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &6269331932311214314
@@ -200,7 +200,7 @@ Transform:
   m_GameObject: {fileID: 2493156950591418503}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.1315, z: 0}
   m_LocalScale: {x: 0.15, y: 0.15, z: 0.15}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -300,6 +300,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3285268628302213997}
+  - component: {fileID: 702412951199066750}
+  - component: {fileID: 6285385799399487085}
   m_Layer: 0
   m_Name: Loading Indicator
   m_TagString: Untagged
@@ -324,6 +326,32 @@ Transform:
   - {fileID: 1521544322488662332}
   m_Father: {fileID: 7162432303686530943}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+--- !u!114 &702412951199066750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3073915479503487982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 370a5025062579744adef7c56c6edd9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <Target>k__BackingField: {fileID: 0}
+  <Offset>k__BackingField: {x: 0, y: 0, z: 0}
+--- !u!114 &6285385799399487085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3073915479503487982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a2f51a11f2177640a4a6b467b420690, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7882832328807508386
 GameObject:
   m_ObjectHideFlags: 0
@@ -374,6 +402,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a810e6f626719bf46b0ae7f5c8ae50e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _loadingDisplay: {fileID: 3073915479503487982}
 --- !u!114 &4195000636960984070
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -417,6 +446,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   drawHandJointTargets: 0
+  _headTargetInstance: {fileID: 0}
+  _leftHandInstance: {fileID: 0}
+  _rightHandInstance: {fileID: 0}
 --- !u!114 &2297525309135464281
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -431,6 +463,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _leftHandWristRotationOffset: {x: 0, y: 0.1736483, z: 0, w: -0.9848077}
   _rightHandWristRotationOffset: {x: 0, y: 0.17364818, z: 0, w: 0.9848077}
+  _loadingDisplayOffset: {x: 0, y: 0.3, z: 0}
 --- !u!114 &472754332442227634
 MonoBehaviour:
   m_ObjectHideFlags: 0

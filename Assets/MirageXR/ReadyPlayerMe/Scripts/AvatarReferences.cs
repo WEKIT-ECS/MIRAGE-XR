@@ -8,6 +8,8 @@ namespace MirageXR
 {
 	public class AvatarReferences : MonoBehaviour
 	{
+		[SerializeField] private GameObject _loadingDisplay;
+		public GameObject LoadingDisplay { get { return _loadingDisplay; } }
 		private AvatarLoader _avatarLoader;
 		public AvatarLoader Loader { get => ComponentUtilities.GetOrFetchComponent(this, ref _avatarLoader); }
 		public GameObject Avatar { get => Loader.CurrentAvatar; }
