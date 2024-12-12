@@ -45,5 +45,27 @@ namespace MirageXR
 		public Pose headPose;
 		public HandData leftHand;
 		public HandData rightHand;
+
+		public HandData GetHand(bool left)
+		{
+			if (left)
+			{
+				return leftHand;
+			}
+			else
+			{
+				return rightHand;
+			}
+		}
+
+		public HandData GetHand(int side)
+		{
+            if (side != 0 && side != 1)
+            {
+				Debug.LogError($"side needs to be 0 for left or 1 for right but was {side}. Cannot choose side.");
+				return null;
+            }
+            return GetHand(side == 0);
+		}
 	}
 }

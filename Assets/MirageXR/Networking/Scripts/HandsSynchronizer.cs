@@ -1,20 +1,19 @@
 #if FUSION2
 using Fusion;
+#endif
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Hands;
 
 namespace MirageXR
 {
-	public class HandsSynchronizer : NetworkBehaviour
+#if FUSION2
+	public class HandsSynchronizer : BaseNetworkedAvatarController
 	{
 		/// <summary>
 		/// number of currently synchronized joints
 		/// </summary>
 		public const int JOINTS_COUNT = 25;
-
-		[SerializeField] private HandController _leftHandController;
-		[SerializeField] private HandController _rightHandController;
 
 		[Networked]
 		public int LeftTracked { get; set; }
@@ -28,9 +27,31 @@ namespace MirageXR
 		[Networked, Capacity(JOINTS_COUNT)]
 		public NetworkDictionary<XRHandJointID, Quaternion> NetworkedRightJoints => default;
 
-		private bool IsLocalNetworkRig => Object && Object.HasStateAuthority;
-
 		private HandData _extractedData = new HandData();
+
+		private NetworkDictionary<XRHandJointID, Quaternion> GetNetworkedJoints(bool leftSide)
+		{
+			if (leftSide)
+			{
+				return NetworkedLeftJoints;
+			}
+			else
+			{
+				return NetworkedRightJoints;
+			}
+		}
+
+		private bool IsSideTracked(bool leftSide)
+		{
+			if (leftSide)
+			{
+				return LeftTracked > 0;
+			}
+			else
+			{
+				return RightTracked > 0;
+			}
+		}
 
 		public void StoreHandsData(RigData rigData)
 		{
@@ -51,47 +72,61 @@ namespace MirageXR
 
 		public void ApplyHandsDataToRig(RigData rigData)
 		{
-			ApplySingleHandDataToRig(_leftHandController, rigData.leftHand);
-			ApplySingleHandDataToRig(_rightHandController, rigData.rightHand);
+			for (int i = 0; i < 2; i++)
+			{
+				bool left = i == 0;
+				ApplySingleHandDataToRig(left, rigData.GetHand(left));
+			}
 		}
 
-		private void ApplySingleHandDataToRig(HandController handController, HandData handData)
+		private void ApplySingleHandDataToRig(bool isLeftSide, HandData handData)
 		{
-			handController.HandPositionSetExternally = handData.IsTracked;
+			AvatarRefs.OfflineReferences.GetSide(isLeftSide).HandController.HandPositionSetExternally = handData.IsTracked;
 			if (handData.IsTracked)
 			{
 				foreach (KeyValuePair<XRHandJointID, Pose> jointPose in handData.JointPoses)
 				{
 					// do not set the position of the wrist on the remote side
 					// this would interfere with the NetworkTransform
-					if (!IsLocalNetworkRig && jointPose.Key == XRHandJointID.Wrist)
+					if (!IsLocalController && jointPose.Key == XRHandJointID.Wrist)
 					{
 						continue;
 					}
-					handController.JointsController.ApplyPoseToJoint(jointPose.Key, jointPose.Value);
+					AvatarRefs.OfflineReferences.GetSide(isLeftSide).HandJointsController.ApplyPoseToJoint(jointPose.Key, jointPose.Value);
 				}
 			}
 		}
 
 		public void ApplyRemoteHandsDataToRig()
 		{
-			ApplyRemoteSingleHandDataToRig(_leftHandController, LeftTracked > 0, NetworkedLeftJoints);
-			ApplyRemoteSingleHandDataToRig(_rightHandController, RightTracked > 0, NetworkedRightJoints);
+			for (int i = 0; i < 2; i++)
+			{
+				ApplyRemoteSingleHandDataToRig(i == 0);
+			}
 		}
 
-		private void ApplyRemoteSingleHandDataToRig(HandController handController, bool tracked, NetworkDictionary<XRHandJointID, Quaternion> jointData)
+		private void ApplyRemoteSingleHandDataToRig(bool isLeftSide)
 		{
+			HandController handController = AvatarRefs.OfflineReferences.GetSide(isLeftSide).HandController;
+
 			_extractedData.HandSide = handController.JointsController.HandSide;
-			_extractedData.IsTracked = tracked;
+			_extractedData.IsTracked = IsSideTracked(isLeftSide);
 			_extractedData.JointPoses.Clear();
+
+			NetworkDictionary<XRHandJointID, Quaternion> jointData = GetNetworkedJoints(isLeftSide);
 
 			foreach (KeyValuePair<XRHandJointID, Quaternion> networkedRotation in jointData)
 			{
 				_extractedData.JointPoses.Add(networkedRotation.Key, new Pose(Vector3.zero, networkedRotation.Value));
 			}
 
-			ApplySingleHandDataToRig(handController, _extractedData);
+			ApplySingleHandDataToRig(isLeftSide, _extractedData);
 		}
 	}
-}
+
+#else
+	public class HandsSynchronizer : BaseNetworkedAvatarController
+	{
+	}
 #endif
+}
