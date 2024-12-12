@@ -42,6 +42,20 @@ namespace MirageXR
 			}
 		}
 
+		private AvatarInitializer[] _avatarInitializers;
+		private AvatarInitializer[] AvatarInitializers
+		{
+			get
+			{
+				if (_avatarInitializers == null)
+				{
+					_avatarInitializers = GetComponents<AvatarInitializer>();
+					_avatarInitializers = _avatarInitializers.OrderBy(item => item.Priority).Reverse().ToArray();
+				}
+				return _avatarInitializers;
+			}
+		}
+
 		public string LoadedAvatarUrl { get; private set; }
 
 		public event Action<bool> AvatarLoaded;
@@ -72,11 +86,11 @@ namespace MirageXR
 
 		public void LoadAvatar(string avatarUrl)
 		{
-            if (string.IsNullOrWhiteSpace(avatarUrl))
-            {
+			if (string.IsNullOrWhiteSpace(avatarUrl))
+			{
 				return;
-            }
-            Debug.LogDebug("Loading avatar " + avatarUrl, this);
+			}
+			Debug.LogDebug("Loading avatar " + avatarUrl, this);
 			avatarUrl = avatarUrl.Trim();
 			loadingIndicator.SetActive(true);
 			AvatarObjectLoader.LoadAvatar(avatarUrl);
@@ -95,6 +109,11 @@ namespace MirageXR
 			loadingIndicator.SetActive(false);
 			if (CurrentAvatar != null)
 			{
+				// clean up in opposite order
+				for (int i = AvatarInitializers.Length - 1; i >= 0; i--)
+				{
+					AvatarInitializers[i].CleanupAvatar(CurrentAvatar);
+				}
 				Destroy(CurrentAvatar);
 			}
 			SetupAvatar(e);
@@ -109,12 +128,9 @@ namespace MirageXR
 			// setup transform
 			SetupTransform();
 
-			AvatarInitializer[] avatarInitializers = GetComponents<AvatarInitializer>();
-			avatarInitializers = avatarInitializers.OrderBy(item => item.Priority).Reverse().ToArray();
-
-			for (int i = 0; i < avatarInitializers.Length; i++)
+			for (int i = 0; i < AvatarInitializers.Length; i++)
 			{
-				avatarInitializers[i].InitializeAvatar(CurrentAvatar);
+				AvatarInitializers[i].InitializeAvatar(CurrentAvatar);
 			}
 		}
 
