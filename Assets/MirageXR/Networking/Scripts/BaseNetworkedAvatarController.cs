@@ -7,11 +7,16 @@ namespace MirageXR
 {
 #if FUSION2
 	public class BaseNetworkedAvatarController : NetworkBehaviour
+#else
+	public class BaseNetworkedAvatarController : MonoBehaviour
+#endif
 	{
 		private NetworkedAvatarReferences _avatarRefs;
 
+#if FUSION2
 		// As we are in shared topology, having the StateAuthority means we are the local user
 		public virtual bool IsLocalController => Object && Object.HasStateAuthority;
+#endif
 
 		protected NetworkedAvatarReferences AvatarRefs
 		{
@@ -30,10 +35,4 @@ namespace MirageXR
 			_avatarRefs = avatarRefs;
 		}
 	}
-
-#else
-	public class BaseNetworkedAvatarController : MonoBehaviour
-	{
-	}
-#endif
 }
