@@ -1,11 +1,13 @@
 #if FUSION2
 using Fusion;
+#endif
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Hands;
 
 namespace MirageXR
 {
+#if FUSION2
 	public class HandsSynchronizer : BaseNetworkedAvatarController
 	{
 		/// <summary>
@@ -121,5 +123,10 @@ namespace MirageXR
 			ApplySingleHandDataToRig(isLeftSide, _extractedData);
 		}
 	}
-}
+
+#else
+	public class HandsSynchronizer : BaseNetworkedAvatarController
+	{
+	}
 #endif
+}

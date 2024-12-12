@@ -1,10 +1,11 @@
+#if FUSION2
 using Fusion;
-using System.Collections;
-using System.Collections.Generic;
+#endif
 using UnityEngine;
 
 namespace MirageXR
 {
+#if FUSION2
 	public class BaseNetworkedAvatarController : NetworkBehaviour
 	{
 		private NetworkedAvatarReferences _avatarRefs;
@@ -29,4 +30,10 @@ namespace MirageXR
 			_avatarRefs = avatarRefs;
 		}
 	}
+
+#else
+	public class BaseNetworkedAvatarController : MonoBehaviour
+	{
+	}
+#endif
 }
