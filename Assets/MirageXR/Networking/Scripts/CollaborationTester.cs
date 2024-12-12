@@ -1,12 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace MirageXR
 {
-    public class CollaborationTester : MonoBehaviour
+	public class CollaborationTester : MonoBehaviour
     {
-        // Update is called once per frame
+#if FUSION2
         async void Update()
         {
             if (Input.GetKeyDown(KeyCode.F5))
@@ -20,5 +18,6 @@ namespace MirageXR
                 avatarVisibilityController.Visible = !avatarVisibilityController.Visible;
 			}
         }
+#endif
     }
 }
