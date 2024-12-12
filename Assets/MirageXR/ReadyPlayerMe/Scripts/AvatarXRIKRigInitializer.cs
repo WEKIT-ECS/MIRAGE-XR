@@ -14,6 +14,10 @@ namespace MirageXR
 	{
 		[SerializeField] private bool drawHandJointTargets = false;
 
+		[SerializeField] private GameObject _headTargetInstance;
+		[SerializeField] private GameObject _leftHandInstance;
+		[SerializeField] private GameObject _rightHandInstance;
+
 		public override int Priority => 0;
 
 		public override void InitializeAvatar(GameObject avatar)
@@ -47,29 +51,40 @@ namespace MirageXR
 		private void SetupIKTargets(Rig rig, RigReferences rigRefs)
 		{
 			rigRefs.IK.HipsConstraint = AddMuliparentTarget(rig.transform, rigRefs.Bones.Hips);
-			rigRefs.IK.HeadConstraint = AddMuliparentTarget(rig.transform, rigRefs.Bones.Head);
+			rigRefs.IK.HeadConstraint = AddMuliparentTarget(rig.transform, rigRefs.Bones.Head, false, _headTargetInstance);
 			for (int i = 0; i < 2; i++)
 			{
 				SidedIKCollection sidedIks = rigRefs.IK.GetSide(i);
 				SidedBonesCollection sidedBones = rigRefs.Bones.GetSide(i);
 
-				sidedIks.Hand.Constraint = AddTwoBoneTarget(rig.transform, sidedBones.Arm.Upper, sidedBones.Arm.Lower, sidedBones.Arm.Hand.Wrist);
+				bool isLeft = i == 0;
+
+				GameObject existingHandIKTarget = isLeft ? _leftHandInstance : _rightHandInstance;
+				sidedIks.Hand.Constraint = AddTwoBoneTarget(rig.transform, sidedBones.Arm.Upper, sidedBones.Arm.Lower, sidedBones.Arm.Hand.Wrist, existingHandIKTarget);
 				sidedIks.Foot.Constraint = AddTwoBoneTarget(rig.transform, sidedBones.Leg.Upper, sidedBones.Leg.Lower, sidedBones.Leg.Foot);
 
-				GenerateHandBoneConstraintTargets(i == 0, rigRefs);
+				GenerateHandBoneConstraintTargets(isLeft, rigRefs);
 			}
 		}
 
-		private MultiParentConstraint AddMuliparentTarget(Transform parent, Transform bone, bool drawJoint = false)
+		private MultiParentConstraint AddMuliparentTarget(Transform parent, Transform bone, bool drawJoint = false, GameObject existingTarget = null)
 		{
-			GameObject ikTarget = drawJoint ?
+			GameObject ikTarget;
+			if (existingTarget == null)
+			{
+				ikTarget = drawJoint ?
 					GameObject.CreatePrimitive(PrimitiveType.Cube)
 					: new GameObject();
-			if (drawJoint)
-			{
-				ikTarget.transform.localScale = 0.01f * Vector3.one;
+				if (drawJoint)
+				{
+					ikTarget.transform.localScale = 0.01f * Vector3.one;
+				}
+				ikTarget.name = bone.name + "IK_target";
 			}
-			ikTarget.name = bone.name + "IK_target";
+			else
+			{
+				ikTarget = existingTarget;
+			}
 			ikTarget.transform.parent = parent;
 			ikTarget.transform.position = bone.position;
 			ikTarget.transform.rotation = bone.rotation;
@@ -91,14 +106,22 @@ namespace MirageXR
 			return multiParentConstraint;
 		}
 
-		private TwoBoneIKConstraint AddTwoBoneTarget(Transform parent, Transform rootBone, Transform midBone, Transform tipBone)
+		private TwoBoneIKConstraint AddTwoBoneTarget(Transform parent, Transform rootBone, Transform midBone, Transform tipBone, GameObject existingTarget = null)
 		{
 			GameObject ik = new GameObject(tipBone.name + "IK");
 			ik.transform.parent = parent;
 			ik.transform.position = tipBone.position;
 			ik.transform.rotation = tipBone.rotation;
 
-			GameObject target = new GameObject(tipBone.name + "IK_target");
+			GameObject target;
+			if (existingTarget != null)
+			{
+				target = existingTarget;
+			}
+			else
+			{
+				target = new GameObject(tipBone.name + "IK_target");
+			}
 			target.transform.parent = ik.transform;
 			target.transform.localPosition = Vector3.zero;
 			target.transform.localRotation = Quaternion.identity;
@@ -106,7 +129,15 @@ namespace MirageXR
 			GameObject hint = new GameObject(tipBone.name + "IK_hint");
 			hint.transform.parent = ik.transform;
 
-			TwoBoneIKConstraint ikConstraint = ik.AddComponent<TwoBoneIKConstraint>();
+			TwoBoneIKConstraint ikConstraint = ik.GetComponent<TwoBoneIKConstraint>();
+			if (ikConstraint == null)
+			{
+				ikConstraint = ik.AddComponent<TwoBoneIKConstraint>();
+			}
+			else
+			{
+				ikConstraint.Reset();
+			}
 			ikConstraint.data.root = rootBone;
 			ikConstraint.data.mid = midBone;
 			ikConstraint.data.tip = tipBone;
@@ -146,6 +177,35 @@ namespace MirageXR
 					handIkData.AddHandBoneIKTarget(jointId, handIkData.Target);
 				}
 			}
+		}
+
+		public override void CleanupAvatar(GameObject avatar)
+		{
+			base.CleanupAvatar(avatar);
+			if (_headTargetInstance != null)
+			{
+				MultiParentConstraint mpc = _headTargetInstance.GetComponent<MultiParentConstraint>();
+				DestroyImmediate(mpc);
+				_headTargetInstance.transform.parent = transform;
+			}
+
+			RigReferences rigReferences = avatar.GetComponent<RigReferences>();
+
+			if (_leftHandInstance != null)
+			{
+				CleanupHand(_leftHandInstance, true, rigReferences);
+			}
+			if (_rightHandInstance != null)
+			{
+				CleanupHand(_rightHandInstance, false, rigReferences);
+			}
+		}
+
+		private void CleanupHand(GameObject handInstance, bool left, RigReferences rigReferences)
+		{
+			DestroyImmediate(handInstance.GetComponent<TwoBoneIKConstraint>());
+			rigReferences.IK.GetSide(left).Hand.ClearHandBoneIKTargets();
+			handInstance.transform.parent = transform;
 		}
 	}
 }

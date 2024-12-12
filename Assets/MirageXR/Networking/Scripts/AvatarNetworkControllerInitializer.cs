@@ -22,30 +22,20 @@ namespace MirageXR
 		{
 			NetworkedAvatarReferences avatarRefs = GetComponent<NetworkedAvatarReferences>();
 
-			AddPhotonComponents(avatar, avatarRefs);
-
 			RelativePositionPlacement relativePositioning = avatarRefs.NameLabel.GetComponent<RelativePositionPlacement>();
 			relativePositioning.Target = avatarRefs.OfflineReferences.Rig.IK.HeadTarget;
 			relativePositioning.Offset = nameLabelOffset;
+
+			_speakerInstance.transform.parent = avatarRefs.OfflineReferences.Rig.IK.HeadTarget;
+			_speakerInstance.localPosition = _speakerPositionOffset;
+			_speakerInstance.localRotation = Quaternion.identity;
 		}
 
-		private void AddPhotonComponents(GameObject avatar, NetworkedAvatarReferences avatarRefs)
+		public override void CleanupAvatar(GameObject avatar)
 		{
-			avatar.AddComponent<NetworkTransform>();
-			avatarRefs.OfflineReferences.Rig.IK.HeadTarget.gameObject.AddComponent<NetworkTransform>();
-			for (int i = 0; i < 2; i++)
-			{
-				NetworkTransform handNetworkTransform = avatarRefs.OfflineReferences.Rig.IK.GetSide(i).Hand.Target.gameObject.AddComponent<NetworkTransform>();
-				handNetworkTransform.DisableSharedModeInterpolation = true;
-			}			
-
-			RelativePositionPlacement relativeSpeakerPositioning = _speakerInstance.GetComponent<RelativePositionPlacement>();
-			if (relativeSpeakerPositioning == null)
-			{
-				relativeSpeakerPositioning = _speakerInstance.gameObject.AddComponent<RelativePositionPlacement>();
-			}
-			relativeSpeakerPositioning.Target = avatarRefs.OfflineReferences.Rig.IK.HeadTarget;
-			relativeSpeakerPositioning.Offset = _speakerPositionOffset;
+			_speakerInstance.transform.parent = transform;
+			_speakerInstance.transform.localPosition = Vector3.zero;
+			_speakerInstance.transform.localRotation = Quaternion.identity;
 		}
 	}
 }

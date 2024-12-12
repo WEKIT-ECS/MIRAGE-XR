@@ -57,5 +57,21 @@ namespace MirageXR
 			footController.IsLeftFoot = isLeftFoot;
 			avatarRefs.GetSide(isLeftFoot).FootController = footController;
 		}
+
+		public override void CleanupAvatar(GameObject avatar)
+		{
+			base.CleanupAvatar(avatar);
+			AvatarReferences avatarRefs = GetComponent<AvatarReferences>();
+			for (int i = 0; i < 2; i++)
+			{
+				CleanupHand(i == 0, avatarRefs);
+			}
+		}
+
+		private void CleanupHand(bool isLeft, AvatarReferences avatarRefs)
+		{
+			DestroyImmediate(avatarRefs.GetSide(isLeft).HandJointsController);
+			DestroyImmediate(avatarRefs.GetSide(isLeft).HandController);	
+		}
 	}
 }

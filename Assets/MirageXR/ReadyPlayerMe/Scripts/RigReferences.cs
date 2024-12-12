@@ -415,6 +415,32 @@ namespace MirageXR
 		{
 			return _handBoneIKTargets.ContainsKey(jointId);
 		}
+
+		public void ClearHandBoneIKTargets()
+		{
+			for (int i = XRHandJointID.BeginMarker.ToIndex(); i < XRHandJointID.EndMarker.ToIndex(); i++)
+			{
+				XRHandJointID jointId = XRHandJointIDUtility.FromIndex(i);
+
+				if (jointId != XRHandJointID.Wrist)
+				{
+					DestroyHandBoneIKTarget(jointId);
+				}
+				else
+				{
+					_handBoneIKTargets.Remove(jointId);
+				}
+			}
+		}
+
+		public void DestroyHandBoneIKTarget(XRHandJointID jointId)
+		{
+			if (_handBoneIKTargets.ContainsKey(jointId))
+			{
+				GameObject.DestroyImmediate(_handBoneIKTargets[jointId].gameObject);
+				_handBoneIKTargets.Remove(jointId);
+			}
+		}
 	}
 
 	public class FootIKData : TwoBoneIKData

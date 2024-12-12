@@ -9,5 +9,8 @@ namespace MirageXR
 		public abstract int Priority { get; }
 
 		public abstract void InitializeAvatar(GameObject avatar);
+
+		public virtual void CleanupAvatar(GameObject avatar)
+		{ }
 	}
 }
