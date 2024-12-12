@@ -10,9 +10,10 @@ namespace MirageXR
 	{
 		public override int Priority => -1; // needs to run after the IK initializer
 
-		[Header("Hand Config")]
+		[Header("Offset Configs")]
 		[SerializeField] private Quaternion _leftHandWristRotationOffset = Quaternion.Euler(0, 340, 0);
 		[SerializeField] private Quaternion _rightHandWristRotationOffset = Quaternion.Euler(0, 20, 0);
+		[SerializeField] private Vector3 _loadingDisplayOffset = new Vector3(0, 0.4f, 0);
 
 		public override void InitializeAvatar(GameObject avatar)
 		{
@@ -29,6 +30,10 @@ namespace MirageXR
 			}
 
 			avatarRefs.VisibilityController.Initialize();
+
+			RelativePositionPlacement relativePositioning = avatarRefs.LoadingDisplay.GetComponent<RelativePositionPlacement>();
+			relativePositioning.Target = avatarRefs.Rig.IK.HeadTarget;
+			relativePositioning.Offset = _loadingDisplayOffset;
 		}
 
 		private void SetupHand(bool isLeftHand, AvatarReferences avatarRefs)

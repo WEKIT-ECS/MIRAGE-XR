@@ -14,7 +14,7 @@ namespace MirageXR
 		[SerializeField] private Vector3 _speakerPositionOffset = new Vector3(0, 0.013f, 0.012f);
 
 		[Header("Name Placement")]
-		[SerializeField] private Vector3 nameLabelOffset = new Vector3(0, 0.93f, -0.01f);
+		[SerializeField] private Vector3 nameLabelOffset = new Vector3(0, 0.3f, -0.01f);
 
 		public override int Priority => -10; // after the non-networked initializers
 
