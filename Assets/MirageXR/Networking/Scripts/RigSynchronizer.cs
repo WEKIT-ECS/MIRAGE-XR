@@ -1,9 +1,8 @@
-#if FUSION2
-using Fusion;
 using UnityEngine;
 
 namespace MirageXR
 {
+#if FUSION2
 	public class RigSynchronizer : BaseNetworkedAvatarController
 	{
 		[SerializeField] private Vector3 _headOffset;
@@ -72,5 +71,10 @@ namespace MirageXR
 			}
 		}
 	}
-}
+
+#else
+	public class RigSynchronizer : BaseNetworkedAvatarController
+	{
+	}
 #endif
+}

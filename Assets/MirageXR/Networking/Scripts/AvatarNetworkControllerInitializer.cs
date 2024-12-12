@@ -1,8 +1,3 @@
-using Cysharp.Threading.Tasks.Triggers;
-using Fusion;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 namespace MirageXR
