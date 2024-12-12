@@ -211,9 +211,9 @@ namespace MirageXR
 				case XRHandJointID.Palm:
 					return null;
 				case XRHandJointID.ThumbMetacarpal:
-					return null;
-				case XRHandJointID.ThumbProximal:
 					return Thumb.Proximal1;
+				case XRHandJointID.ThumbProximal:
+					return Thumb.Intermediate2;
 				case XRHandJointID.ThumbDistal:
 					return Thumb.Distal3;
 				case XRHandJointID.ThumbTip:
