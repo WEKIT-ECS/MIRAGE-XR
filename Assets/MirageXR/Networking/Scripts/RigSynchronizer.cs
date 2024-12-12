@@ -1,30 +1,18 @@
-#if FUSION2
-using Fusion;
 using UnityEngine;
 
 namespace MirageXR
 {
-	public class RigSynchronizer : NetworkBehaviour
+#if FUSION2
+	public class RigSynchronizer : BaseNetworkedAvatarController
 	{
-		[SerializeField] private Transform _head;
 		[SerializeField] private Vector3 _headOffset;
 
 		private PhotonHardwareManager _hardwareRig;
 
-		private HandsSynchronizer _handSynchronizer;
-
-		// As we are in shared topology, having the StateAuthority means we are the local user
-		public virtual bool IsLocalNetworkRig => Object && Object.HasStateAuthority;
-
-		private void Awake()
-		{
-			_handSynchronizer = GetComponent<HandsSynchronizer>();
-		}
-
 		public override void Spawned()
 		{
 			base.Spawned();
-			if (IsLocalNetworkRig)
+			if (IsLocalController)
 			{
 				_hardwareRig = FindObjectOfType<PhotonHardwareManager>();
 				if (_hardwareRig == null)
@@ -39,26 +27,31 @@ namespace MirageXR
 			base.FixedUpdateNetwork();
 
 			// Update the rig at each network tick for local player. The NetworkTransform will forward this to other players
-			if (IsLocalNetworkRig && _hardwareRig != null)
+			if (IsLocalController && _hardwareRig != null)
 			{
 				ApplyLocalStateToRigParts(_hardwareRig.RigData);
-				_handSynchronizer.StoreHandsData(_hardwareRig.RigData);
+				AvatarRefs.HandsSynchronizer.StoreHandsData(_hardwareRig.RigData);
 			}
 		}
 
 		protected virtual void ApplyLocalStateToRigParts(RigData rigData)
 		{
+			if (!AvatarRefs.OfflineReferences.AvatarInstantiated || AvatarRefs.OfflineReferences.Rig == null)
+			{
+				return;
+			}
 			transform.position = rigData.playSpacePose.position;
 			transform.rotation = rigData.playSpacePose.rotation;
-			_head.transform.position = rigData.headPose.position + rigData.headPose.rotation * _headOffset;
-			_head.transform.rotation = rigData.headPose.rotation;
-			_handSynchronizer.ApplyHandsDataToRig(_hardwareRig.RigData);
+			Transform headTarget = AvatarRefs.OfflineReferences.Rig.IK.HeadTarget;
+			headTarget.transform.position = rigData.headPose.position + rigData.headPose.rotation * _headOffset;
+			headTarget.transform.rotation = rigData.headPose.rotation;
+			AvatarRefs.HandsSynchronizer.ApplyHandsDataToRig(_hardwareRig.RigData);
 		}
 
 		public override void Render()
 		{
 			base.Render();
-			if (IsLocalNetworkRig)
+			if (IsLocalController)
 			{
 				if (_hardwareRig != null)
 				{
@@ -74,9 +67,14 @@ namespace MirageXR
 				// by setting the GameObject positions.
 
 				// now, we need to restore the hand joint data
-				_handSynchronizer.ApplyRemoteHandsDataToRig();
+				AvatarRefs.HandsSynchronizer.ApplyRemoteHandsDataToRig();
 			}
 		}
 	}
-}
+
+#else
+	public class RigSynchronizer : BaseNetworkedAvatarController
+	{
+	}
 #endif
+}

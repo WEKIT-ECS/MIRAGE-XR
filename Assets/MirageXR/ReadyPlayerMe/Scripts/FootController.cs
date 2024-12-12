@@ -2,26 +2,19 @@ using UnityEngine;
 
 namespace MirageXR
 {
-	public class FootController : MonoBehaviour
+	public class FootController : AvatarBaseController
 	{
-		[Header("References")]
-		[SerializeField] private Transform _headTarget;
-		[SerializeField] private Transform _kneeHint;
-		[SerializeField] private Transform _bodyTarget;
-		[SerializeField] private Transform _toeTarget;
-		[SerializeField] private FootController _otherFoot;
-		[Header("Foot Placement")]
-		[SerializeField] private bool _isLeftFoot;
+		[field: Header("Foot Placement")]
+		[field: SerializeField] public bool IsLeftFoot { get; set; }
 		[SerializeField] private float _footHeightOffset = 0.04f;
-		[SerializeField] private float _footSpacing = 0.18f;
-		[Header("Stepping")]
-		//[SerializeField] private float _stepThreshold = 0.2f;
-		[SerializeField] private float _footAngleThreshold = 0f;
-		[SerializeField] private float _stepDistance = 0.25f;
-		[SerializeField] private float _stepHeight = 0.2f;
-		[SerializeField] private float _stepSpeed = 3.5f;
-		[Header("Debugging")]
-		[SerializeField] private bool _showDebugWidgets = false;
+		[SerializeField] private float _footSpacing = 0.12f;
+		[field: Header("Stepping")]
+		[field: SerializeField] private float FootAngleThreshold { get; set; } = 0f;
+		[field: SerializeField] private float StepDistance { get; set; } = 0.3f;
+		[field: SerializeField] private float StepHeight { get; set; } = 0.25f;
+		[field: SerializeField] private float StepSpeed { get; set; } = 3.5f;
+		[field: Header("Debugging")]
+		[field: SerializeField] private bool ShowDebugWidgets { get; set; } = false;
 
 		private static FloorManagerWithFallback _floorManager => RootObject.Instance.FloorManagerWithRaycastFallback;
 
@@ -38,12 +31,20 @@ namespace MirageXR
 
 		private GameObject _debugWidget;
 
+		public FootController OtherFoot
+		{
+			get
+			{
+				return AvatarRefs.GetSide(!IsLeftFoot).FootController;
+			}
+		}
+
 		private Vector3 SidewaysVector
 		{
 			get
 			{
-				float direction = _isLeftFoot ? -1f : 1f;
-				return _bodyTarget.right * direction;
+				float direction = IsLeftFoot ? -1f : 1f;
+				return AvatarRefs.Rig.IK.HipsTarget.right * direction;
 			}
 		}
 
@@ -63,13 +64,13 @@ namespace MirageXR
 
 		private void Update()
 		{
-			if (_showDebugWidgets && _debugWidget == null)
+			if (ShowDebugWidgets && _debugWidget == null)
 			{
 				_debugWidget = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-				_debugWidget.name = "FootGround_" + (_isLeftFoot ? "Left" : "Right");
+				_debugWidget.name = "FootGround_" + (IsLeftFoot ? "Left" : "Right");
 				_debugWidget.transform.localScale = 0.1f * Vector3.one;
 			}
-			else if (!_showDebugWidgets && _debugWidget != null)
+			else if (!ShowDebugWidgets && _debugWidget != null)
 			{
 				Destroy(_debugWidget);
 			}
@@ -84,19 +85,19 @@ namespace MirageXR
 			transform.rotation = _currentFootTargetPose.rotation;
 
 			// look for the candidate where we would currently place the foot
-			Vector3 footPositionCandidate = _bodyTarget.position + (SidewaysVector * _footSpacing);
+			Vector3 footPositionCandidate = AvatarRefs.Rig.IK.HipsTarget.position + (SidewaysVector * _footSpacing);
 			footPositionCandidate.y = _floorManager.GetFloorHeight(footPositionCandidate);
 
 			float distance = Vector3.Distance(footPositionCandidate, _footGroundTargetPose.position);
 			float dotProduct = Vector2.Dot(
-				new Vector2(_bodyTarget.forward.x, _bodyTarget.forward.z),
+				new Vector2(AvatarRefs.Rig.IK.HipsTarget.forward.x, AvatarRefs.Rig.IK.HipsTarget.forward.z),
 				new Vector2(_footGroundTargetPose.forward.x, _footGroundTargetPose.forward.z));
 
 			// check if we need to make a step (and if we can take a step)
 			// we step if the distance of the foot candidate to our current foot placement is too high
 			// or if we rotated the body too far
-			if (!CurrentlyStepping && !_otherFoot.CurrentlyStepping
-				&& (distance > 1.05f * _stepDistance || dotProduct < _footAngleThreshold))
+			if (!CurrentlyStepping && !OtherFoot.CurrentlyStepping
+				&& (distance > 1.05f * StepDistance || dotProduct < FootAngleThreshold))
 			{
 				// initiate the step
 				_stepLerpProgress = 0f;
@@ -105,21 +106,21 @@ namespace MirageXR
 				stepDirection.y = 0f;
 				stepDirection.Normalize();
 
-				_footGroundTargetPose.position = footPositionCandidate + stepDirection * _stepDistance + _footHeightOffset * Vector3.up;
+				_footGroundTargetPose.position = footPositionCandidate + stepDirection * StepDistance + _footHeightOffset * Vector3.up;
 				_footGroundTargetPose.rotation = Quaternion.Euler(
 					_currentFootTargetPose.rotation.eulerAngles.x,
-					_headTarget.eulerAngles.y,
+					AvatarRefs.Rig.IK.HeadTarget.eulerAngles.y,
 					_currentFootTargetPose.rotation.eulerAngles.z);
 			}
 			// progress the step further if we are currently making a step
 			if (_stepLerpProgress < 1f)
 			{
 				_currentFootTargetPose.position = Vector3.Lerp(_previousFootGroundTargetPose.position, _footGroundTargetPose.position, _stepLerpProgress);
-				_currentFootTargetPose.position.y += Mathf.Sin(_stepLerpProgress * Mathf.PI) * _stepHeight;
+				_currentFootTargetPose.position.y += Mathf.Sin(_stepLerpProgress * Mathf.PI) * StepHeight;
 
 				_currentFootTargetPose.rotation = Quaternion.Slerp(_previousFootGroundTargetPose.rotation, _footGroundTargetPose.rotation, _stepLerpProgress);
 
-				_stepLerpProgress += Time.deltaTime * _stepSpeed;
+				_stepLerpProgress += Time.deltaTime * StepSpeed;
 			}
 			else
 			{
@@ -135,12 +136,12 @@ namespace MirageXR
 
 		private void ControlKnee()
 		{
-			_currentKneeHintPosition = Vector3.Lerp(_bodyTarget.position, _currentFootTargetPose.position, 0.5f);
+			_currentKneeHintPosition = Vector3.Lerp(AvatarRefs.Rig.IK.HipsTarget.position, _currentFootTargetPose.position, 0.5f);
 			// move the knee to the front to ensure correct bending
-			_currentKneeHintPosition += _bodyTarget.forward * 0.5f;
+			_currentKneeHintPosition += AvatarRefs.Rig.IK.HipsTarget.forward * 0.5f;
 			// move the knee slightly outwards to the sides
 			_currentKneeHintPosition += SidewaysVector * 0.05f;
-			_kneeHint.position = _currentKneeHintPosition;
+			AvatarRefs.Rig.IK.GetSide(IsLeftFoot).Foot.KneeHint.position = _currentKneeHintPosition;
 		}
 	}
 }

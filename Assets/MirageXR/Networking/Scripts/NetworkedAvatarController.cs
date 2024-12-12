@@ -8,39 +8,20 @@ namespace MirageXR
 {
 	public class NetworkedAvatarController : MonoBehaviour
 	{
-		[SerializeField] private TMP_Text _nameLabel;
-
-
-		private NetworkedUserData _networkedUserData;
-
-		public NetworkedUserData NetworkedUserData
-		{
-			get => ComponentUtilities.GetOrFetchComponent(this, ref _networkedUserData);
-		}
-
-		private AvatarLoader _avatarLoader;
-		public AvatarLoader AvatarLoader
-		{
-			get => ComponentUtilities.GetOrFetchComponent(this, ref _avatarLoader);
-		}
-
-		private AvatarVisibilityController _avatarVisibilityController;
-		public AvatarVisibilityController VisibilityController
-		{
-			get => ComponentUtilities.GetOrFetchComponent(this, ref _avatarVisibilityController);
-		}
+		private NetworkedAvatarReferences _avatarRefs;
 
 		private void Start()
 		{
-			NetworkedUserData.NetworkedUserNameChanged += OnUserNameChanged;
-			NetworkedUserData.NetworkedAvatarUrlChanged += OnAvatarUrlChanged;
+			_avatarRefs = GetComponent<NetworkedAvatarReferences>();
+			_avatarRefs.UserData.NetworkedUserNameChanged += OnUserNameChanged;
+			_avatarRefs.UserData.NetworkedAvatarUrlChanged += OnAvatarUrlChanged;
 			UpdateUserNameLabel();
 			LoadAvatar();
 		}		
 
 		private void OnDestroy()
 		{
-			NetworkedUserData.NetworkedUserNameChanged -= OnUserNameChanged;
+			_avatarRefs.UserData.NetworkedUserNameChanged -= OnUserNameChanged;
 		}
 
 		private void OnUserNameChanged(string userName)
@@ -56,12 +37,12 @@ namespace MirageXR
 
 		private void LoadAvatar()
 		{
-			AvatarLoader.LoadAvatar(_networkedUserData.AvatarUrl);
+			_avatarRefs.OfflineReferences.Loader.LoadAvatar(_avatarRefs.UserData.AvatarUrl);
 		}
 
 		private void UpdateUserNameLabel()
 		{
-			_nameLabel.text = _networkedUserData.UserName;
+			_avatarRefs.NameLabel.text = _avatarRefs.UserData.UserName;
 		}
 	}
 }

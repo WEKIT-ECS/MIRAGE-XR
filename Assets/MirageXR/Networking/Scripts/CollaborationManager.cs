@@ -135,7 +135,7 @@ namespace MirageXR
 
 			Debug.Log("Photon Voice is now using the following microphone: " + _recorder.MicrophoneDevice.Name);
 
-			var res = await _connectionManager.Connect();
+			var res = await ConnectionManager.Connect();
 
 			if (NetworkRunner.IsSharedModeMasterClient)
 			{

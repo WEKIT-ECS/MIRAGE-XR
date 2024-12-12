@@ -4,14 +4,15 @@ using UnityEngine;
 
 namespace MirageXR
 {
-	public class AvatarVisibilityController : MonoBehaviour
+	public class AvatarVisibilityController : AvatarBaseController
 	{
-		[SerializeField] private Material _fadeMaterial;
-		[SerializeField] private float _fadeDuration = 2.0f;
-		[SerializeField] private Renderer _avatarRenderer;
+		[field: SerializeField] public Material FadeMaterial { get; set; }
+		[field: SerializeField] private float FadeDuration { get; set; } = 2.0f;
 
-		private Material _originalMaterial;
-		private Material _fadeMaterialInstance;
+		private SkinnedMeshRenderer[] _avatarRenderers;
+
+		private Material[] _originalMaterials;
+		private Material[] _fadeMaterialInstances;
 
 		private bool _visible = true;
 		private float _targetCutoff;
@@ -35,41 +36,87 @@ namespace MirageXR
 					Debug.Log("Changing avatar visibility to " + value);
 					_visible = value;
 					_targetCutoff = _visible ? 0f : 1f;
+					if (_originalMaterials == null)
+					{
+						Initialize();
+					}
 					if (_fadeCoroutine != null)
 					{
+						Debug.LogTrace("Stopped coroutine by value change");
 						StopCoroutine(_fadeCoroutine);
 					}
-					float fadeDuration = FadeVisibility ? _fadeDuration : 0f;
+					float fadeDuration = FadeVisibility ? FadeDuration : 0f;
 					_fadeCoroutine = StartCoroutine(Fade(fadeDuration));
 					VisibilityChanged?.Invoke(value);
 				}
 			}
 		}
 
-		private AvatarLoader _avatarLoader;
-		private AvatarLoader AvatarLoader { get => ComponentUtilities.GetOrFetchComponent(this, ref _avatarLoader); }
-
-		void Awake()
+		public void Initialize()
 		{
-			_fadeMaterialInstance = new Material(_fadeMaterial);
-			_currentCutoff = _fadeMaterialInstance.GetFloat(_cutoffProperty);
-			AvatarLoader.AvatarLoaded += OnAvatarLoaded;
-		}
-
-		private void OnDestroy()
-		{
-			AvatarLoader.AvatarLoaded -= OnAvatarLoaded;
-		}
-
-		private void OnAvatarLoaded(bool successful)
-		{
-			if (successful)
+			Debug.LogTrace("(Re-)Initializing visibility controller");
+			if (_fadeCoroutine != null)
 			{
-				if (!Visible)
+				Debug.LogTrace("Stopped coroutine by initialization");
+				StopCoroutine(_fadeCoroutine);
+			}
+
+			// clean up old material copies
+			if (_fadeMaterialInstances != null)
+			{
+				for (int i = 0; i < _fadeMaterialInstances.Length; i++)
 				{
-					SwitchToFadeableMaterial();
-					_fadeMaterialInstance.SetFloat(_cutoffProperty, _currentCutoff);
+					Destroy(_fadeMaterialInstances[i]);
 				}
+			}
+
+			// collect the new materials
+			if (AvatarRefs.AvatarInstantiated)
+			{
+				_avatarRenderers = AvatarRefs.Avatar.GetComponentsInChildren<SkinnedMeshRenderer>();
+			}
+			else
+			{
+				_avatarRenderers = new SkinnedMeshRenderer[0];
+			}
+			_originalMaterials = new Material[_avatarRenderers.Length];
+			_fadeMaterialInstances = new Material[_avatarRenderers.Length];
+			for (int i = 0; i < _avatarRenderers.Length; i++)
+			{
+				_originalMaterials[i] = _avatarRenderers[i].material;
+				_fadeMaterialInstances[i] = new Material(FadeMaterial);
+			}
+			_currentCutoff = FadeMaterialsGetFloat(_cutoffProperty);
+
+
+			if (!Visible)
+			{
+				SwitchToFadeableMaterial();
+				FadeMaterialsSetFloat(_cutoffProperty, _targetCutoff);
+			}
+			else
+			{
+				SwitchToOriginalMaterial();
+			}
+		}
+
+		private float FadeMaterialsGetFloat(string name)
+		{
+			if (_fadeMaterialInstances.Length > 0)
+			{
+				return _fadeMaterialInstances[0].GetFloat(name);
+			}
+			else
+			{
+				return 0;
+			}
+		}
+
+		private void FadeMaterialsSetFloat(string name, float value)
+		{
+			for (int i = 0; i < _fadeMaterialInstances.Length; i++)
+			{
+				_fadeMaterialInstances[i].SetFloat(name, value);
 			}
 		}
 
@@ -88,12 +135,12 @@ namespace MirageXR
 			{
 				timeElapsed += Time.deltaTime;
 				_currentCutoff = Mathf.Lerp(startCutoff, _targetCutoff, timeElapsed / duration);
-				_fadeMaterialInstance.SetFloat(_cutoffProperty, _currentCutoff);
+				FadeMaterialsSetFloat(_cutoffProperty, _currentCutoff);
 				yield return null;
 			}
 
 			_currentCutoff = _targetCutoff;
-			_fadeMaterialInstance.SetFloat(_cutoffProperty, _currentCutoff);
+			FadeMaterialsSetFloat(_cutoffProperty, _currentCutoff);
 
 			if (_visible && _fadeMaterialActive)
 			{
@@ -103,10 +150,12 @@ namespace MirageXR
 
 		private void SwitchToFadeableMaterial()
 		{
-			_originalMaterial = _avatarRenderer.material;
-			CopyMaterial(_originalMaterial, _fadeMaterialInstance);
-			_avatarRenderer.material = _fadeMaterialInstance;
-			Debug.Log("Applied fade material");
+			for (int i = 0; i < _originalMaterials.Length; i++)
+			{
+				CopyMaterial(_originalMaterials[i], _fadeMaterialInstances[i]);
+				_avatarRenderers[i].material = _fadeMaterialInstances[i];
+			}
+			Debug.Log("Applied fade materials");
 			_fadeMaterialActive = true;
 		}
 
@@ -129,8 +178,11 @@ namespace MirageXR
 		{
 			if (_visible && _fadeMaterialActive)
 			{
-				_avatarRenderer.material = _originalMaterial;
-				Debug.Log("Applied original material");
+				for (int i = 0; i < _originalMaterials.Length; i++)
+				{
+					_avatarRenderers[i].material = _originalMaterials[i];
+					Debug.Log("Applied original materials");
+				}
 				_fadeMaterialActive = false;
 			}
 		}
