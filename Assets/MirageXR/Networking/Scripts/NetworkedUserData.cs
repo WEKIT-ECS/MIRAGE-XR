@@ -1,7 +1,6 @@
 #if FUSION2
 using Fusion;
 using System;
-using System.Net.NetworkInformation;
 #else
 using System;
 using UnityEngine;
@@ -10,11 +9,7 @@ using UnityEngine;
 
 namespace MirageXR
 {
-#if FUSION2
 	public class NetworkedUserData : BaseNetworkedAvatarController
-#else
-	public class NetworkedUserData : MonoBehaviour
-#endif
 	{
 		private LocalUserData _localUserDataSource;
 
