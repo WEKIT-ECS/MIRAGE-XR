@@ -25,8 +25,12 @@ namespace MirageXR
 
 			rigRefs.Bones.CollectBones(avatar);
 
+#if UNITY_EDITOR
+			// set up the bone renderer which shows the skeleton in the editor
+			// in the build, the transforms of the bone renderer are not accessible, so this needs to be editor-only
 			BoneRenderer boneRenderer = rigRefs.Armature.gameObject.AddComponent<BoneRenderer>();
 			boneRenderer.transforms = rigRefs.Bones.ToArray();
+#endif
 
 			GameObject xrIKRig = new GameObject("XR IK Rig");
 			xrIKRig.transform.parent = avatar.transform;
