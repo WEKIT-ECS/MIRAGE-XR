@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
@@ -18,6 +19,8 @@ namespace MirageXR
         [SerializeField] private Button _btnOpenGallery; 
         [SerializeField] private Button _btnGenerateCaption;
         [SerializeField] private Button _btnSettings;
+        [SerializeField] private Button _playButton;
+        [SerializeField] private Button _pauseButton;
         [Space]
         [SerializeField] private GameObject _AugmentationSettingsPanel;
         
@@ -30,23 +33,45 @@ namespace MirageXR
         private string _text;
         private Texture2D _capturedImage;
         private Content<VideoContentData> _videoContent;
+        private string _videoFilePath;
         
-        protected static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
         private bool _videoWasRecorded;
         private string _newFileName;
 
         public override void Initialization(Action<PopupBase> onClose, params object[] args)
         {
+            Debug.LogError("[111] Initialization");
             _showBackground = false;
             base.Initialization(onClose, args);
             
             _videoContent = _content as Content<VideoContentData>;
             
-            UpdateView();
             _btnCaptureVideo.onClick.AddListener(OnStartRecordingVideo);
             _btnOpenGallery.onClick.AddListener(OpenGallery);
             _btnGenerateCaption.onClick.AddListener(GenerateCaption);
             _btnSettings.onClick.AddListener(OpenSettings);
+            _playButton.onClick.AddListener(Play);
+            _pauseButton.onClick.AddListener(Pause);
+            
+            _playButton.gameObject.SetActive(false);
+            _pauseButton.gameObject.SetActive(false);
+            _videoDisplay.gameObject.SetActive(false);
+            
+            UpdateView();
+        }
+
+        private void Pause()
+        {
+            _videoPlayer.Pause();
+            _playButton.gameObject.SetActive(true);
+            _pauseButton.gameObject.SetActive(false);
+        }
+
+        private void Play()
+        {
+            _videoPlayer.Play();
+            _playButton.gameObject.SetActive(false);
+            _pauseButton.gameObject.SetActive(true);
         }
 
         private void OpenSettings()
@@ -61,7 +86,8 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-            if (_capturedImage) Destroy(_capturedImage);
+            Debug.Log("[111] OnDestroy");
+            ClearVideoPreview();
         }
 
         protected override void OnAccept()
@@ -76,7 +102,7 @@ namespace MirageXR
                 return;
             }
 
-            /*var step = RootObject.Instance.LEE.StepManager.CurrentStep;
+            var step = RootObject.Instance.LEE.StepManager.CurrentStep;
             var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
             var fileId = _videoContent?.ContentData?.Video?.Id ?? Guid.NewGuid();
             
@@ -96,61 +122,61 @@ namespace MirageXR
                 Location = Location.GetIdentityLocation()
             };
 
-            _videoContent.Location.Scale = CalculateScale(_capturedImage.width, _capturedImage.height);
+            //_videoContent.Location.Scale = CalculateScale(_capturedImage.width, _capturedImage.height);
 
-            //await SaveImageAsync(activityId, _videoContent.Id, fileId);
+            await SaveVideoAsync(activityId, _videoContent.Id, fileId);
             _videoContent.ContentData.Video = await RootObject.Instance.LEE.AssetsManager.CreateFileAsync(activityId, _videoContent.Id, fileId);
 
             RootObject.Instance.LEE.ContentManager.AddContent(_videoContent);
             RootObject.Instance.LEE.AssetsManager.UploadFileAsync(activityId, _videoContent.Id, fileId);
-*/
+
             Close();
         }
-
-        private Vector3 CalculateScale(int textureWidth, int textureHeight)
-        {
-            if (textureWidth == textureHeight)
-            {
-                return Vector3.one;
-            }
-
-            return textureWidth > textureHeight
-                ? new Vector3(textureWidth / (float)textureHeight, 1, 0.05f)
-                : new Vector3(1, textureHeight / (float)textureWidth, 0.05f);
-        }
         
-        private async UniTask SaveImageAsync(Guid activityId, Guid contentId, Guid fileId)
+        private async UniTask SaveVideoAsync(Guid activityId, Guid contentId, Guid fileId)
         {
-            if (_capturedImage == null)
+            if (string.IsNullOrEmpty(_videoFilePath) || !File.Exists(_videoFilePath))
             {
                 return;
             }
-
-            var bytes = _capturedImage.EncodeToJPG();
+            var videoBytes = await File.ReadAllBytesAsync(_videoFilePath);
             var folder = RootObject.Instance.LEE.AssetsManager.GetContentFileFolderPath(activityId, contentId, fileId);
             Directory.CreateDirectory(folder);
-            var filePath = Path.Combine(folder, "image.jpg");  //TODO: move to AssetsManager
+            var filePath = Path.Combine(folder, "video.mp4");
             if (File.Exists(filePath))
             {
                 File.Delete(filePath);
             }
-            await File.WriteAllBytesAsync(filePath, bytes);
+            await File.WriteAllBytesAsync(filePath, videoBytes);
         }
 
         private void UpdateView()
         {
+            Debug.LogError("[111] UpdateView 1");
             if (_videoContent != null)
             {
+                
+                Debug.LogError("[111] UpdateView 2");
                 var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
                 var folder = RootObject.Instance.LEE.AssetsManager.GetContentFileFolderPath(activityId, _videoContent.Id, _videoContent.ContentData.Video.Id);
-                var imagePath = Path.Combine(folder, "image.jpg");  //TODO: move to AssetsManager
-                if (!File.Exists(imagePath))
+                var videoPath = Path.Combine(folder, "video.mp4");  //TODO: move to AssetsManager
+                if (!File.Exists(videoPath))
                 {
                     return;
                 }
-
-                var texture2D = MirageXR.Utilities.LoadTexture(imagePath);
-                SetPreview(texture2D);
+                Debug.LogError("[111] UpdateView 3");
+                //UpdateVideoPreview();
+                _playButton.gameObject.SetActive(false);
+                _pauseButton.gameObject.SetActive(true);
+                _videoDisplay.gameObject.SetActive(true);
+                //LayoutRebuilder.ForceRebuildLayoutImmediate(_videoDisplay.rectTransform);
+                
+                _videoPlayer.targetTexture = renderTex;
+                _videoDisplay.texture = renderTex;
+                _videoPlayer.url = videoPath;
+                _videoPlayer.Play();
+                
+                Debug.Log("Playing video: " + videoPath);
             }
         }
 
@@ -176,7 +202,7 @@ namespace MirageXR
 
             if (result)
             {
-                SetPreview(NativeCameraController.GetVideoThumbnail(filePath));
+                _videoFilePath = filePath;
             }
         }
 
@@ -191,37 +217,49 @@ namespace MirageXR
             {
                 if (path != null)
                 {
+                    _videoFilePath = path;
                     _videoWasRecorded = true;
-                    // TODO 
                     
                     _videoPlayer.targetTexture = renderTex;
                     _videoDisplay.texture = renderTex;
                     _videoPlayer.url = path;
                     _videoPlayer.Play();
                     Debug.Log("Playing video: " + path);
+                    
+                    _playButton.gameObject.SetActive(false);
+                    _pauseButton.gameObject.SetActive(true);
+                    _videoDisplay.gameObject.SetActive(true);
                 }
             });
         }
-
-        private void SetPreview(Texture2D texture2D)
+        
+        private void UpdateVideoPreview()
         {
-            if (!texture2D) return;
-
-            if (_image.sprite && _image.sprite.texture)
+            if (!File.Exists(_videoFilePath))
             {
-                Destroy(_image.sprite.texture);
+                return;
             }
+            ClearVideoPreview();
+            _playButton.gameObject.SetActive(false);
+            _pauseButton.gameObject.SetActive(true);
+            _videoDisplay.gameObject.SetActive(true);
+            
+            _videoPlayer.targetTexture = renderTex;
+            _videoDisplay.texture = renderTex;
+            _videoPlayer.url = _videoFilePath;
+            //_videoPlayer.Play();
+            Pause();
+        }
 
-            var sprite = Utilities.TextureToSprite(texture2D);
-            _image.sprite = sprite;
+        private void ClearVideoPreview()
+        {
+            _videoPlayer.Stop();
+            _videoPlayer.targetTexture = null;
+            _videoDisplay.texture = null;
 
-            var rtImageHolder = (RectTransform)_imageHolder.transform;
-            var rtImage = (RectTransform)_image.transform;
-            var width = (float)texture2D.width / texture2D.height * IMAGE_HEIGHT;
-            rtImageHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, IMAGE_HEIGHT);
-            rtImage.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
-
-            LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
+            RenderTexture.active = renderTex;
+            GL.Clear(true, true, Color.clear);
+            RenderTexture.active = null;
         }
     }
 }
