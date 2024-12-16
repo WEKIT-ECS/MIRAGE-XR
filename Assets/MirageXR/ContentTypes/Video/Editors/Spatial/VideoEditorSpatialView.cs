@@ -4,17 +4,14 @@ using System.IO;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
 namespace MirageXR
 {
-    public class VideoEditorSpatialView : EditorSpatialView
+    public class VideoEditorSpatialView : EditorSpatialView,  IPointerDownHandler, IPointerUpHandler
     {
-        private const float IMAGE_HEIGHT = 270f;
-
-        [SerializeField] private Transform _imageHolder;
-        [SerializeField] private Image _image;
         [SerializeField] private Button _btnCaptureVideo;
         [SerializeField] private Button _btnOpenGallery; 
         [SerializeField] private Button _btnGenerateCaption;
@@ -28,8 +25,9 @@ namespace MirageXR
         [SerializeField] private RenderTexture renderTex;
         [SerializeField] private RawImage _videoDisplay;
         [SerializeField] private VideoPlayer _videoPlayer;
-  
-
+        [SerializeField] private Slider _slider;
+        private bool _slide = false;
+        
         private string _text;
         private Texture2D _capturedImage;
         private Content<VideoContentData> _videoContent;
@@ -40,7 +38,6 @@ namespace MirageXR
 
         public override void Initialization(Action<PopupBase> onClose, params object[] args)
         {
-            Debug.LogError("[111] Initialization");
             _showBackground = false;
             base.Initialization(onClose, args);
             
@@ -58,6 +55,14 @@ namespace MirageXR
             _videoDisplay.gameObject.SetActive(false);
             
             UpdateView();
+        }
+        
+        private void Update()
+        {
+            if (_videoPlayer.isPlaying && !_slide)
+            {
+                _slider.value = (float)_videoPlayer.frame / (float)_videoPlayer.frameCount;
+            }
         }
 
         private void Pause()
@@ -86,7 +91,6 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-            Debug.Log("[111] OnDestroy");
             ClearVideoPreview();
         }
 
@@ -122,8 +126,6 @@ namespace MirageXR
                 Location = Location.GetIdentityLocation()
             };
 
-            //_videoContent.Location.Scale = CalculateScale(_capturedImage.width, _capturedImage.height);
-
             await SaveVideoAsync(activityId, _videoContent.Id, fileId);
             _videoContent.ContentData.Video = await RootObject.Instance.LEE.AssetsManager.CreateFileAsync(activityId, _videoContent.Id, fileId);
 
@@ -152,11 +154,8 @@ namespace MirageXR
 
         private void UpdateView()
         {
-            Debug.LogError("[111] UpdateView 1");
             if (_videoContent != null)
             {
-                
-                Debug.LogError("[111] UpdateView 2");
                 var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
                 var folder = RootObject.Instance.LEE.AssetsManager.GetContentFileFolderPath(activityId, _videoContent.Id, _videoContent.ContentData.Video.Id);
                 var videoPath = Path.Combine(folder, "video.mp4");  //TODO: move to AssetsManager
@@ -164,22 +163,28 @@ namespace MirageXR
                 {
                     return;
                 }
-                Debug.LogError("[111] UpdateView 3");
-                //UpdateVideoPreview();
-                _playButton.gameObject.SetActive(false);
-                _pauseButton.gameObject.SetActive(true);
-                _videoDisplay.gameObject.SetActive(true);
-                //LayoutRebuilder.ForceRebuildLayoutImmediate(_videoDisplay.rectTransform);
-                
-                _videoPlayer.targetTexture = renderTex;
-                _videoDisplay.texture = renderTex;
-                _videoPlayer.url = videoPath;
-                _videoPlayer.Play();
-                
-                Debug.Log("Playing video: " + videoPath);
+                SetupVideoPlayer(videoPath);
             }
         }
+        
+        private void SetupVideoPlayer(string videoPath)
+        {
+            if (!File.Exists(videoPath))
+            {
+                Debug.LogError($"Video file not found: {videoPath}");
+                return;
+            }
 
+            _videoPlayer.url = videoPath;
+            _videoPlayer.targetTexture = renderTex;
+            _videoDisplay.texture = renderTex;
+
+            _videoDisplay.gameObject.SetActive(true);
+            _playButton.gameObject.SetActive(true);
+            _pauseButton.gameObject.SetActive(false);
+            _slider.value = 0;
+        }
+        
         private void OnStartRecordingVideo()
         {
             StartRecordingVideo();
@@ -203,6 +208,7 @@ namespace MirageXR
             if (result)
             {
                 _videoFilePath = filePath;
+                SetupVideoPlayer(_videoFilePath);
             }
         }
 
@@ -215,40 +221,13 @@ namespace MirageXR
         {
             NativeGallery.Permission permission = NativeGallery.GetVideoFromGallery((path) =>
             {
-                if (path != null)
+                if (!string.IsNullOrEmpty(path))
                 {
                     _videoFilePath = path;
                     _videoWasRecorded = true;
-                    
-                    _videoPlayer.targetTexture = renderTex;
-                    _videoDisplay.texture = renderTex;
-                    _videoPlayer.url = path;
-                    _videoPlayer.Play();
-                    Debug.Log("Playing video: " + path);
-                    
-                    _playButton.gameObject.SetActive(false);
-                    _pauseButton.gameObject.SetActive(true);
-                    _videoDisplay.gameObject.SetActive(true);
+                    SetupVideoPlayer(_videoFilePath);
                 }
             });
-        }
-        
-        private void UpdateVideoPreview()
-        {
-            if (!File.Exists(_videoFilePath))
-            {
-                return;
-            }
-            ClearVideoPreview();
-            _playButton.gameObject.SetActive(false);
-            _pauseButton.gameObject.SetActive(true);
-            _videoDisplay.gameObject.SetActive(true);
-            
-            _videoPlayer.targetTexture = renderTex;
-            _videoDisplay.texture = renderTex;
-            _videoPlayer.url = _videoFilePath;
-            //_videoPlayer.Play();
-            Pause();
         }
 
         private void ClearVideoPreview()
@@ -260,6 +239,25 @@ namespace MirageXR
             RenderTexture.active = renderTex;
             GL.Clear(true, true, Color.clear);
             RenderTexture.active = null;
+
+            _videoDisplay.gameObject.SetActive(false);
+            _playButton.gameObject.SetActive(false);
+            _pauseButton.gameObject.SetActive(false);
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            _slide = true;
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            if (_videoPlayer.frameCount > 0)
+            {
+                var frame = _slider.value * _videoPlayer.frameCount;
+                _videoPlayer.frame = (long)frame;
+            }
+            _slide = false;
         }
     }
 }
