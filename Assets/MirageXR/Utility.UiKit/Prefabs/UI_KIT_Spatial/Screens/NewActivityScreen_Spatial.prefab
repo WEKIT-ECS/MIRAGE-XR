@@ -1966,6 +1966,7 @@ GameObject:
   - component: {fileID: 4934942216844272343}
   - component: {fileID: 2447517602473504304}
   - component: {fileID: 1970312111025074058}
+  - component: {fileID: 4573691786293991349}
   m_Layer: 5
   m_Name: Viewport
   m_TagString: Untagged
@@ -2044,6 +2045,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ShowMaskGraphic: 0
+--- !u!114 &4573691786293991349
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1911600528856321923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2b9af8df4d995940bc68d254d7d61c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maskableGraphic: {fileID: 2447517602473504304}
+  uiMask: {fileID: 1970312111025074058}
 --- !u!1 &1970198704846041793
 GameObject:
   m_ObjectHideFlags: 0
@@ -6356,6 +6371,7 @@ GameObject:
   - component: {fileID: 781397608316113081}
   - component: {fileID: 2195712593786409535}
   - component: {fileID: 4705180741973405196}
+  - component: {fileID: 7860933728806864463}
   m_Layer: 5
   m_Name: Frame
   m_TagString: Untagged
@@ -6435,6 +6451,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ShowMaskGraphic: 1
+--- !u!114 &7860933728806864463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5685997906417023684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2b9af8df4d995940bc68d254d7d61c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maskableGraphic: {fileID: 2195712593786409535}
+  uiMask: {fileID: 4705180741973405196}
 --- !u!1 &5694384762868735163
 GameObject:
   m_ObjectHideFlags: 0
@@ -16410,6 +16440,12 @@ PrefabInstance:
       propertyPath: m_Name
       value: AddNewActivity_Spatial
       objectReference: {fileID: 0}
+    - target: {fileID: 6831861376084644046, guid: de3834e81f16b4244a22a47233a0a25a,
+        type: 3}
+      propertyPath: m_SpatialPointer
+      value: 
+      objectReference: {fileID: -5870114331799479150, guid: 660d0bc49ad5feb4e83f78a97d15b9fc,
+        type: 3}
     - target: {fileID: 7435491141616016212, guid: de3834e81f16b4244a22a47233a0a25a,
         type: 3}
       propertyPath: m_text

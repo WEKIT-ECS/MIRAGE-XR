@@ -126,6 +126,25 @@ namespace MirageXR
             SetPreviewAsync(texture2D).Forget();
         }
  
+#if VISION_OS  //TODO: temp
+        private Image _image;
+        private async UniTask SetPreviewAsync(Texture2D texture2D)
+        {
+            if (_image == null)
+            {
+                var obj = image.gameObject;
+                DestroyImmediate(image);
+                _image = obj.AddComponent<Image>();
+            }
+
+            _image.gameObject.SetActive(true);
+            var sprite = Utilities.TextureToSprite(texture2D);
+            _image.sprite = sprite;
+            await UniTask.NextFrame(PlayerLoopTiming.EarlyUpdate);
+            var size = LearningExperienceEngine.Utilities.FitRectByWidth(imageHolder.rect.width, new Vector2(texture2D.width, texture2D.height));
+            _image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
+            _image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+#else
         private async UniTask SetPreviewAsync(Texture2D texture2D)
         {
             image.gameObject.SetActive(true);
@@ -134,6 +153,7 @@ namespace MirageXR
             var size = LearningExperienceEngine.Utilities.FitRectToRect(imageHolder.rect.size, new Vector2(texture2D.width, texture2D.height));
             image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
             image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
+#endif
         }
     }
 }
