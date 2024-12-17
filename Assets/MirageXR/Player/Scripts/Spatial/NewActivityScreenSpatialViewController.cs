@@ -133,6 +133,7 @@ namespace MirageXR
 
         private void UpdateView()
         {
+            View.SetTitleText(_activity?.Name);
             UpdateStepsView();
             UpdateInfoViewAsync().Forget();
         }
@@ -177,8 +178,9 @@ namespace MirageXR
 
         private void SetThumbnailView(Texture2D texture2D)
         {
+            var sprite = Utilities.TextureToSprite(texture2D);  //TODO: temp
             View.SetImageThumbnailActive(true);
-            View.SetImageThumbnailTexture(texture2D);
+            View.SetImageThumbnailTexture(sprite);
             var containerSize = View.GetImageThumbnailContainerSize();
             var size = LearningExperienceEngine.Utilities.FitRectToRect(containerSize, new Vector2(texture2D.width, texture2D.height));
             View.SetImageThumbnailSize(size);
