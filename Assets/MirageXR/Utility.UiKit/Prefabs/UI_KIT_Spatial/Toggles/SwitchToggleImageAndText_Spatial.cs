@@ -18,7 +18,10 @@ namespace MirageXR
 
         protected virtual void UpdateView(bool value)
         {
-            _handleImage.SetActive(value);
+            if (_handleImage != null)
+            {
+                _handleImage.SetActive(value);
+            }
             _textOff?.SetActive(!value);
             _textOn?.SetActive(value);
         }
