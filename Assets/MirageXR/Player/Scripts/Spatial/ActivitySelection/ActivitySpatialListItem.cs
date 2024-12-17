@@ -65,12 +65,26 @@ namespace MirageXR
                 var texture2D = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(_activity.Id, _activity.Thumbnail.Id);
                 if (texture2D != null)
                 {
+#if VISION_OS  //TODO: temp
+                    var obj = imageThumbnail.gameObject;
+                    DestroyImmediate(imageThumbnail);
+                    var image = obj.AddComponent<Image>();
+
+                    image.gameObject.SetActive(true);
+                    var sprite = Utilities.TextureToSprite(texture2D);
+                    image.sprite = sprite;
+                    await UniTask.NextFrame(PlayerLoopTiming.EarlyUpdate);
+                    var size = LearningExperienceEngine.Utilities.FitRectToRect(containerThumbnail.rect.size, new Vector2(texture2D.width, texture2D.height));
+                    image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+                    image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
+#else
                     imageThumbnail.gameObject.SetActive(true);
                     imageThumbnail.texture = texture2D;
                     await UniTask.NextFrame(PlayerLoopTiming.EarlyUpdate);
                     var size = LearningExperienceEngine.Utilities.FitRectToRect(containerThumbnail.rect.size, new Vector2(texture2D.width, texture2D.height));
                     imageThumbnail.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
                     imageThumbnail.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
+#endif
                 }
             }
         }

@@ -59,6 +59,13 @@ namespace MirageXR.View
             generalGrabTransformer.allowTwoHandedScaling = true;
 
             var xrGrabInteractable = gameObject.AddComponent<XRGrabInteractable>();
+            xrGrabInteractable.movementType = XRBaseInteractable.MovementType.Instantaneous;
+            xrGrabInteractable.useDynamicAttach = true;
+            xrGrabInteractable.matchAttachPosition = true;
+            xrGrabInteractable.matchAttachRotation = true;
+            xrGrabInteractable.snapToColliderVolume = false;
+            xrGrabInteractable.reinitializeDynamicAttachEverySingleGrab = false;
+            xrGrabInteractable.selectMode = InteractableSelectMode.Multiple;
             xrGrabInteractable.selectEntered.AddListener(_ => OnManipulationStarted());
             xrGrabInteractable.selectExited.AddListener(_ => OnManipulationEnded());
         }

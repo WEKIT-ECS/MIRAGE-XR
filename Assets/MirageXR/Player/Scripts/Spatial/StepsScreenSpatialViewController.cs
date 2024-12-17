@@ -45,7 +45,10 @@ namespace MirageXR
 
         private void ActivityManagerOnActivityUpdated(Activity activity)
         {
-            UpdateInfoViewAsync().Forget();
+            if (_step != null)
+            {
+                UpdateInfoViewAsync().Forget();
+            }
         }
 
         private void OnButtonMediaAddNewFileClick()
