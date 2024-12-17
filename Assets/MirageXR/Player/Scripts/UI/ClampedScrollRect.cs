@@ -9,7 +9,7 @@ public class ClampedScrollRect : ScrollRect
 {
     [Serializable] public class UnityEventRectTransform : UnityEvent<RectTransform> {}
 
-    [SerializeField] private UnityEventRectTransform _onItemChanged = new UnityEventRectTransform();
+    [SerializeField] private UnityEventRectTransform _onItemChanged = new();
     [SerializeField] private AnimationCurve _curve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
     [SerializeField] private float _moveTime = 0.25f;
 
@@ -197,6 +197,11 @@ public class ClampedScrollRect : ScrollRect
 
     public override void OnBeginDrag(PointerEventData eventData)
     {
+        if (activeChildCount <= 1)
+        {
+            return;
+        }
+        
         base.OnBeginDrag(eventData);
         if (_coroutine != null)
         {
@@ -206,6 +211,11 @@ public class ClampedScrollRect : ScrollRect
 
     public override void OnEndDrag(PointerEventData eventData)
     {
+        if (activeChildCount <= 1)
+        {
+            return;
+        }
+
         base.OnEndDrag(eventData);
         SnapRect();
     }
@@ -283,7 +293,8 @@ public class ClampedScrollRect : ScrollRect
 
         count = Mathf.Clamp(count, 0, childCount - 1);
 
-        var item = GetContentItem(childCount - 1 - count);
+        _index = childCount - 1 - count;
+        var item = GetContentItem(_index);
         if (_currentItem != item)
         {
             _currentItem = item;

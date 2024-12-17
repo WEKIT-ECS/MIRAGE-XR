@@ -7,13 +7,11 @@ using UnityEngine;
 namespace MirageXR
 {
 #if FUSION2
-	public class NetworkedAvatarVisibilityController : NetworkBehaviour
+	public class NetworkedAvatarVisibilityController : BaseNetworkedAvatarController
     {
-		private AvatarVisibilityController _avatarVisibilityController;
-
 		public AvatarVisibilityController VisibilityController
 		{
-			get => ComponentUtilities.GetOrFetchComponent(this, ref _avatarVisibilityController);
+			get => AvatarRefs.OfflineReferences.VisibilityController;
 		}
 
 		public override void Spawned()
