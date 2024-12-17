@@ -4,30 +4,18 @@ using UnityEngine;
 
 namespace MirageXR
 {
-	public class HandController : MonoBehaviour
+	public class HandController : AvatarBaseController
 	{
-		[Header("References")]
-		[SerializeField] private Transform _headTarget;
-		[SerializeField] private Transform _bodyTarget;
-		[SerializeField] private Transform _elbowHint;
-		[SerializeField] private Transform _lowerArmBone;
-		[SerializeField] private bool _isLeftHand;
 
 		[Header("Configuration Values")]
+
 		[SerializeField] private Vector3 _handHipOffset = new Vector3(0.3f, 0, 0);
 		[SerializeField] private float _handInertia = 0.995f;
 		[SerializeField] private float _handDamping = 0.95f;
 		[SerializeField] private float _wristRotationSpeed = 1f;
-		[SerializeField] private Quaternion _wristRotationOffset = Quaternion.identity;
 		[SerializeField] private float _elbowWideness = 0.8f;
-
-		private Vector3 _currentElbowHintPosition;
-
-
-		private Vector3 _handTargetPosition;
-		private Vector3 _handAcceleration;
-
-		private HandJointsController _jointsController;
+		[field: SerializeField] public bool IsLeftHand { get; set; }
+		[field: SerializeField] public Quaternion WristRotationOffset = Quaternion.identity;
 
 		/// <summary>
 		/// If checked, the position of the hand target is left as is; otherwise, the script will find a natural position for the hands
@@ -36,35 +24,49 @@ namespace MirageXR
 		[field: SerializeField]
 		public bool HandPositionSetExternally { get; set; } = true;
 
-		public HandJointsController JointsController
+		private Vector3 _currentElbowHintPosition;
+
+		private Vector3 _handTargetPosition;
+		private Vector3 _handAcceleration;
+
+		private Transform ElbowHint
 		{
 			get
 			{
-				if (_jointsController == null)
-				{
-					_jointsController = GetComponent<HandJointsController>();
-				}
-				return _jointsController;
+				return AvatarRefs.Rig.IK.GetSide(IsLeftHand).Hand.ElbowHint;
 			}
+		}
+
+		private Transform LowerArmBone
+		{
+			get
+			{
+				return AvatarRefs.Rig.Bones.GetSide(IsLeftHand).Arm.Lower;
+			}
+		}
+
+		public HandJointsController JointsController
+		{
+			get => AvatarRefs.GetSide(IsLeftHand).HandJointsController;
 		}
 
 		private void Update()
 		{
-			_currentElbowHintPosition = Vector3.Lerp(_headTarget.position, _bodyTarget.position, 0.8f);
-			_currentElbowHintPosition -= _bodyTarget.forward;
-			float sideFactor = _isLeftHand ? -1f : 1f;
-			_currentElbowHintPosition += sideFactor * _bodyTarget.right * _elbowWideness;
-			_elbowHint.position = _currentElbowHintPosition;
+			_currentElbowHintPosition = Vector3.Lerp(AvatarRefs.Rig.IK.HeadTarget.position, AvatarRefs.Rig.IK.HipsTarget.position, 0.8f);
+			_currentElbowHintPosition -= AvatarRefs.Rig.IK.HipsTarget.forward;
+			float sideFactor = IsLeftHand ? -1f : 1f;
+			_currentElbowHintPosition += sideFactor * AvatarRefs.Rig.IK.HipsTarget.right * _elbowWideness;
+			ElbowHint.position = _currentElbowHintPosition;
 
 			if (!HandPositionSetExternally)
 			{
 				// set the hand to a plausible position relative to the body / hip
-				_handTargetPosition = _bodyTarget.position +
-					_bodyTarget.rotation *
+				_handTargetPosition = AvatarRefs.Rig.IK.HipsTarget.position +
+					AvatarRefs.Rig.IK.HipsTarget.rotation *
 					Vector3.Scale(new Vector3(sideFactor, 0, 0), _handHipOffset);
 				_handAcceleration = _handDamping * (_handInertia * _handAcceleration + (1f - _handInertia) * (_handTargetPosition - transform.position));
 				transform.position += _handAcceleration;
-				Quaternion targetRotation = _lowerArmBone.rotation * _wristRotationOffset;
+				Quaternion targetRotation = LowerArmBone.rotation * WristRotationOffset;
 				transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * _wristRotationSpeed);
 			}
 		}
