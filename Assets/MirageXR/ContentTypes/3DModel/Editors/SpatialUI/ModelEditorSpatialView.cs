@@ -14,7 +14,7 @@ namespace MirageXR
     public class ModelEditorSpatialView : EditorSpatialView
     {
         private static ISketchfabManager sketchfabManager => RootObject.Instance.LEE.SketchfabManager;
-        
+
         [Header("Tabs")]
         [SerializeField] private GameObject localModels;
         [SerializeField] private GameObject sketchfabModels;
@@ -52,6 +52,7 @@ namespace MirageXR
         private bool _isLibraryModel;
         private string _searchText;
         private readonly List<float> _scaleList = new() { 1f, 0.5f, 0.1f, 0.05f, 0.01f, 0.005f, 0.001f};
+        private readonly Dictionary<string, SketchfabListItem> _sketchfabListItems = new();
 
         protected override void OnAccept()
         {
@@ -216,11 +217,12 @@ namespace MirageXR
 
         private async UniTask SearchSketchfabModels(string text)
         {
-            foreach (RectTransform children in sketchfabContainer)
+            foreach (var (id, item) in _sketchfabListItems)
             {
-                Destroy(children.gameObject);
+                Destroy(item.gameObject);
             }
 
+            _sketchfabListItems.Clear();
             var response = await sketchfabManager.SearchModelListAsync(text);
             if (!response.Success)
             {
@@ -231,8 +233,12 @@ namespace MirageXR
             _lastSketchfabModelList = response.Object;
             foreach (var sketchfabModel in _lastSketchfabModelList.Models)
             {
-                var listItem = Instantiate(sketchfabListItemPrefab, sketchfabContainer);
-                listItem.InitializeAsync(sketchfabModel, OnModelItemClick).Forget();
+                if (!_sketchfabListItems.ContainsKey(sketchfabModel.Uid))
+                {
+                    var listItem = Instantiate(sketchfabListItemPrefab, sketchfabContainer);
+                    listItem.InitializeAsync(sketchfabModel, OnModelItemClick).Forget();
+                    _sketchfabListItems.Add(sketchfabModel.Uid, listItem);
+                }
             }
         }
 

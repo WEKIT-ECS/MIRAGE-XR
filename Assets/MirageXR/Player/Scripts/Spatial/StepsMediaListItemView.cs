@@ -19,6 +19,7 @@ namespace MirageXR
         private Sprite _sprite;
         private Guid _stepId;
 
+        
         public bool Interactable
         {
             get => buttonDelete.gameObject.activeSelf;
@@ -42,6 +43,27 @@ namespace MirageXR
             }
         }
 
+#if VISION_OS  //TODO: temp
+        private Image _image;
+        private async UniTask UpdateImageAsync()
+        {
+            if (_image == null)
+            {
+                var obj = rawImage.gameObject;
+                DestroyImmediate(rawImage);
+                _image = obj.AddComponent<Image>();
+            }
+
+            _image.gameObject.SetActive(true);
+            var sprite = Utilities.TextureToSprite(_texture2D);
+            _image.sprite = sprite;
+            await UniTask.NextFrame(PlayerLoopTiming.EarlyUpdate);
+            var size = LearningExperienceEngine.Utilities.FitRectByWidth(imageContainer.rect.width, new Vector2(_texture2D.width, _texture2D.height));
+            _image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
+            _image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+            layoutElement.preferredWidth = size.x;
+            layoutElement.preferredHeight = size.y;
+#else
         private async UniTask UpdateImageAsync()
         {
             rawImage.texture = _texture2D;
@@ -51,6 +73,7 @@ namespace MirageXR
             rawImage.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
             layoutElement.preferredWidth = size.x;
             layoutElement.preferredHeight = size.y;
+#endif
         }
 
         private void OnDestroy()

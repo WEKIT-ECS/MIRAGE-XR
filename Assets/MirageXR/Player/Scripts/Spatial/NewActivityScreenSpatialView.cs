@@ -18,6 +18,9 @@ namespace MirageXR
         [SerializeField] private Button _previousStep;
         [Header("Images")]
         [SerializeField] private RawImage _imageThumbnail;
+        [SerializeField] private Image _imageThumbnailTemp;
+        [Header("Text")]
+        [SerializeField] private TMP_Text textTitle;
         [Header("Input Fields")]
         [SerializeField] private TMP_InputField inputFieldActivityName;
         [SerializeField] private TMP_InputField inputFieldActivityDescription;
@@ -62,8 +65,10 @@ namespace MirageXR
         public void SetIsToggleEditorOn(bool value) => _toggleEditorMode.SafeSetIsOn(value);
         public void SetPanelAddNewStepActive(bool value) => _panelAddNewStep.SetActive(value);
         public Vector2 GetImageThumbnailContainerSize() => _thumbnaiContainer.rect.size;
-        public void SetImageThumbnailActive(bool value) => _imageThumbnail.gameObject.SetActive(value);
-        public void SetImageThumbnailTexture(Texture2D texture2D) => _imageThumbnail.texture = texture2D;
+        public void SetImageThumbnailActive(bool value) => _imageThumbnailTemp.gameObject.SetActive(value);
+        //public void SetImageThumbnailTexture(Texture2D texture2D) => _imageThumbnailTemp.texture = texture2D;
+        public void SetImageThumbnailTexture(Sprite sprite) => _imageThumbnailTemp.sprite = sprite;
+        public void SetTitleText(string text) => textTitle.text = text;
         public void SetImageThumbnailSize(Vector2 size)
         {
             _imageThumbnail.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
