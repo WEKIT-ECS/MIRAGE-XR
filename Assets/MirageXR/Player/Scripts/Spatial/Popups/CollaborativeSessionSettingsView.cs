@@ -56,8 +56,11 @@ namespace MirageXR
 #if FUSION2
 		private void OnDestroy()
 		{
-			CollaborationManager.Instance.UserManager.UserListChanged -= OnNetworkedUserDataListChanged;
-			CollaborationManager.Instance.UserManager.AnyUserNameChanged -= OnAnyUserNameChanged;
+			if (CollaborationManager.Instance != null && CollaborationManager.Instance.UserManager != null)
+			{
+				CollaborationManager.Instance.UserManager.UserListChanged -= OnNetworkedUserDataListChanged;
+				CollaborationManager.Instance.UserManager.AnyUserNameChanged -= OnAnyUserNameChanged;
+			}
 		}
 
 		private void OnAnyUserNameChanged()
