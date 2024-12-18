@@ -62,8 +62,11 @@ namespace MirageXR
 
 		private void UnsubscribeFromLocalData()
 		{
-			_localUserDataSource.UserNameChanged -= OnLocalUserNameChanged;
-			_localUserDataSource.AvatarUrlChanged -= OnLocalAvatarUrlChanged;
+			if (_localUserDataSource != null)
+			{
+				_localUserDataSource.UserNameChanged -= OnLocalUserNameChanged;
+				_localUserDataSource.AvatarUrlChanged -= OnLocalAvatarUrlChanged;
+			}
 		}
 
 		private void OnLocalUserNameChanged(string newUserName)
