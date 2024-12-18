@@ -108,6 +108,10 @@ namespace MirageXR
 		private void ApplyRemoteSingleHandDataToRig(bool isLeftSide)
 		{
 			HandController handController = AvatarRefs.OfflineReferences.GetSide(isLeftSide).HandController;
+			if (handController == null)
+			{
+				return;
+			}
 
 			_extractedData.HandSide = handController.JointsController.HandSide;
 			_extractedData.IsTracked = IsSideTracked(isLeftSide);
