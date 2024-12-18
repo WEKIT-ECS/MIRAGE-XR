@@ -1,3 +1,4 @@
+using uLipSync;
 using UnityEngine;
 
 namespace MirageXR
@@ -24,6 +25,12 @@ namespace MirageXR
 			_speakerInstance.transform.parent = avatarRefs.OfflineReferences.Rig.IK.HeadTarget;
 			_speakerInstance.localPosition = _speakerPositionOffset;
 			_speakerInstance.localRotation = Quaternion.identity;
+
+			// connect the lip syncing solution to the blend shape driver
+			uLipSync.uLipSync lipSync = _speakerInstance.GetComponent<uLipSync.uLipSync>();
+			uLipSyncBlendShape blendShapeController = avatar.GetComponent<uLipSyncBlendShape>();
+			lipSync.onLipSyncUpdate.AddListener(blendShapeController.OnLipSyncUpdate);
+			blendShapeController.maxBlendShapeValue = 1;
 		}
 
 		public override void CleanupAvatar(GameObject avatar)
@@ -31,6 +38,11 @@ namespace MirageXR
 			_speakerInstance.transform.parent = transform;
 			_speakerInstance.transform.localPosition = Vector3.zero;
 			_speakerInstance.transform.localRotation = Quaternion.identity;
+
+			// disconnect the blend shape driver again to not leave any orphan event listeners
+			uLipSyncBlendShape blendShapeController = avatar.GetComponent<uLipSyncBlendShape>();
+			uLipSync.uLipSync lipSync = _speakerInstance.GetComponent<uLipSync.uLipSync>();
+			lipSync.onLipSyncUpdate.RemoveListener(blendShapeController.OnLipSyncUpdate);
 		}
 	}
 }
