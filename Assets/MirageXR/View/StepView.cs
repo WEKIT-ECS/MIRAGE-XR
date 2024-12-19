@@ -2,6 +2,7 @@
 using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
@@ -11,6 +12,10 @@ namespace MirageXR.View
     {
         [SerializeField] private TMP_Text text;
         [SerializeField] private Transform diamond;
+        [SerializeField] private GameObject _infoPanel;
+        [SerializeField] private TMP_Text _stepNumber;
+        [SerializeField] private TMP_Text _textDescription;
+        [SerializeField] private Image _image;
 
         public Guid Id => _step.Id;
 
@@ -31,6 +36,10 @@ namespace MirageXR.View
             text.text = RootObject.Instance.LEE.StepManager.GetStepNumber(_step.Id).ToString("00");
             transform.SetLocalPositionAndRotation(_step.Location.Position, Quaternion.Euler(_step.Location.Rotation));
             transform.localScale = _step.Location.Scale;
+
+            _stepNumber.text = name;
+            _textDescription.text = step.Description;
+            //_image.sprite = 
         }
 
         private void InitializeManipulator()
