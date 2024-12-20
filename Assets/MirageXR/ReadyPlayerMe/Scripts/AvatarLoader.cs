@@ -20,6 +20,8 @@ namespace MirageXR
 		[SerializeField] private GameObject loadingIndicator;
 		[Tooltip("Flag to indicate if the default avatar should be loaded when the game starts.")]
 		[SerializeField] private bool loadDefaultAvatarOnStart = true;
+		[Tooltip("Outputs ReadyPlayerMe logs if true")]
+		[SerializeField] private bool detailedRPMLogs = false;
 
 		// Instance of ReadyPlayerMe's AvatarObjectLoader, responsible for loading avatar assets.
 		private AvatarObjectLoader _avatarObjectLoader;
@@ -80,10 +82,30 @@ namespace MirageXR
 		/// </summary>
 		public event Action<bool> AvatarLoaded;
 
+		private bool _currentlyLoading;
+		/// <summary>
+		/// Indicates whether a loading action is currently in progress
+		/// </summary>
+		public bool Loading
+		{
+			get
+			{
+				return _currentlyLoading;
+			}
+			private set
+			{
+				_currentlyLoading = value;
+				loadingIndicator.SetActive(_currentlyLoading || _importerBusy);
+			}
+		}
+
+		// we need a separate field to check whether the importer is currently busy since Loading also includes any setup routines afterwards
+		private bool _importerBusy = false;
+
 		// Initializes the component and optionally loads the default avatar. 
 		private void Start()
 		{
-			loadingIndicator.SetActive(false);
+			Loading = false;
 
 			if (loadDefaultAvatarOnStart)
 			{
@@ -111,29 +133,36 @@ namespace MirageXR
 		/// <param name="avatarUrl">The URL of the avatar model to load.</param>
 		public void LoadAvatar(string avatarUrl)
 		{
+			SDKLogger.EnableLogging(detailedRPMLogs);
 			if (string.IsNullOrWhiteSpace(avatarUrl))
 			{
 				return;
 			}
+			if (_importerBusy)
+			{
+				AvatarObjectLoader.Cancel();
+			}
 			Debug.LogDebug("Loading avatar " + avatarUrl, this);
 			avatarUrl = avatarUrl.Trim();
-			loadingIndicator.SetActive(true);
+			Loading = true;
+			_importerBusy = true;
 			AvatarObjectLoader.LoadAvatar(avatarUrl);
 		}
 
 		// Handles the event when avatar loading fails.
 		private void OnLoadFailed(object sender, FailureEventArgs e)
 		{
-			loadingIndicator.SetActive(false);
+			_importerBusy = false;
 			Debug.LogError("Could not load avatar. Reason: " + e.Message);
+			Loading = false;
 			AvatarLoaded?.Invoke(false);
 		}
 
 		// Handles the event when avatar loading completes successfully.
-		private void OnLoadCompleted(object sender, CompletionEventArgs e)
+		private async void OnLoadCompleted(object sender, CompletionEventArgs e)
 		{
-			Debug.LogDebug($"Loading of avatar from {e.Url} successful", this);
-			loadingIndicator.SetActive(false);
+			_importerBusy = false;
+			Debug.LogDebug($"Avatar from {e.Url} successfully loaded", this);
 			if (CurrentAvatar != null)
 			{
 				// clean up in opposite order
@@ -144,6 +173,7 @@ namespace MirageXR
 				Destroy(CurrentAvatar);
 			}
 			SetupAvatar(e);
+			Loading = false;
 			AvatarLoaded?.Invoke(true);
 		}
 
