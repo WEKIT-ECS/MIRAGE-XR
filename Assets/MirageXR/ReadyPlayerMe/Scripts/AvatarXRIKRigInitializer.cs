@@ -69,7 +69,7 @@ namespace MirageXR
 		private void SetupIKTargets(Rig rig, RigReferences rigRefs)
 		{
 			rigRefs.IK.HipsConstraint = AddMuliparentTarget(rig.transform, rigRefs.Bones.Hips);
-			rigRefs.IK.HeadConstraint = AddMuliparentTarget(rig.transform, rigRefs.Bones.Head, false, _headTargetInstance);
+			rigRefs.IK.HeadConstraint = AddMuliRotationTarget(rig.transform, rigRefs.Bones.Head, false, _headTargetInstance);
 			for (int i = 0; i < 2; i++)
 			{
 				SidedIKCollection sidedIks = rigRefs.IK.GetSide(i);
@@ -125,6 +125,45 @@ namespace MirageXR
 			multiParentConstraint.data.constrainedRotationZAxis = true;
 
 			return multiParentConstraint;
+		}
+
+		// creates a new GameObject and configures it as multirotation constraint target
+		// these are useful for driving certain bone rotations directly via a target control object
+		private MultiRotationConstraint AddMuliRotationTarget(Transform parent, Transform bone, bool drawJoint = false, GameObject existingTarget = null)
+		{
+			GameObject ikTarget;
+			// use an existing target if one is provided, otherwise create a new one, either with visuals or just empty
+			if (existingTarget == null)
+			{
+				ikTarget = drawJoint ?
+					GameObject.CreatePrimitive(PrimitiveType.Cube)
+					: new GameObject();
+				if (drawJoint)
+				{
+					ikTarget.transform.localScale = 0.01f * Vector3.one;
+				}
+				ikTarget.name = bone.name + "IK_target";
+			}
+			else
+			{
+				ikTarget = existingTarget;
+			}
+			ikTarget.transform.parent = parent;
+			ikTarget.transform.position = bone.position;
+			ikTarget.transform.rotation = bone.rotation;
+
+			MultiRotationConstraint multiRotationConstraint = ikTarget.AddComponent<MultiRotationConstraint>();
+			multiRotationConstraint.data.constrainedObject = bone;
+			WeightedTransformArray sources = new WeightedTransformArray(0)
+			{
+				new WeightedTransform(ikTarget.transform, 1)
+			};
+			multiRotationConstraint.data.sourceObjects = sources;
+			multiRotationConstraint.data.constrainedXAxis = true;
+			multiRotationConstraint.data.constrainedYAxis = true;
+			multiRotationConstraint.data.constrainedZAxis = true;
+
+			return multiRotationConstraint;
 		}
 
 		// adds the target and hint objects for a two bone constraints
@@ -194,7 +233,7 @@ namespace MirageXR
 				if (jointId != XRHandJointID.Wrist)
 				{
 					// generate new target objects for each joint
-					MultiParentConstraint jointIKTarget = AddMuliparentTarget(handIkData.Target, handBone, drawHandJointTargets);
+					MultiRotationConstraint jointIKTarget = AddMuliRotationTarget(handIkData.Target, handBone, drawHandJointTargets);
 					handIkData.AddHandBoneIKTarget(jointId, jointIKTarget.transform);
 				}
 				else
@@ -219,8 +258,8 @@ namespace MirageXR
 			// Since we are moving it out of the rig hierarchy, we also need to remove its constraint, otherwise erros happen
 			if (_headTargetInstance != null)
 			{
-				MultiParentConstraint mpc = _headTargetInstance.GetComponent<MultiParentConstraint>();
-				DestroyImmediate(mpc);
+				MultiRotationConstraint mrc = _headTargetInstance.GetComponent<MultiRotationConstraint>();
+				DestroyImmediate(mrc);
 				_headTargetInstance.transform.parent = transform;
 			}
 
