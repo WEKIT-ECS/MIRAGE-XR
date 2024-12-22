@@ -13,7 +13,7 @@ namespace MirageXR
 		// Update is called once per frame
 		void Update()
 		{
-			if (Input.GetKeyDown(KeyCode.F5))
+			if (Input.GetKeyDown(KeyCode.F7))
 			{
 				if (index == 0)
 				{
