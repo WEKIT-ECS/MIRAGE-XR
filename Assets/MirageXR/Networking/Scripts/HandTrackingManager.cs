@@ -39,7 +39,7 @@ namespace MirageXR
 		public HandData LeftHandData { get => HandData[0]; }
 		public HandData RightHandData { get => HandData[1]; }
 
-		public HandData GetHandStatus(Handedness handedness)
+		public HandData GetHandData(Handedness handedness)
 		{
 			int index = (int)handedness - 1;
 			if (index < 0)
@@ -171,7 +171,7 @@ namespace MirageXR
 
 		private void TrackHand(XRHand hand)
 		{
-			HandData handData = GetHandStatus(hand.handedness);
+			HandData handData = GetHandData(hand.handedness);
 			if (handData == null)
 			{
 				Debug.LogError($"Could not get hand tracking data for {hand.handedness} hand", this);
@@ -193,13 +193,13 @@ namespace MirageXR
 
 		private void OnTrackingLost(XRHand hand)
 		{
-			HandData handData = GetHandStatus(hand.handedness);
+			HandData handData = GetHandData(hand.handedness);
 			handData.IsTracked = false;
 		}
 
 		private void OnTrackingAcquired(XRHand hand)
 		{
-			HandData handData = GetHandStatus(hand.handedness);
+			HandData handData = GetHandData(hand.handedness);
 			handData.IsTracked = true;
 		}
 	}
