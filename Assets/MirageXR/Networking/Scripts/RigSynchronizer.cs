@@ -30,6 +30,7 @@ namespace MirageXR
 			if (IsLocalController && _hardwareRig != null)
 			{
 				ApplyLocalStateToRigParts(_hardwareRig.RigData);
+				// also store the hand data in the hand synchronizer so that they are sent over network
 				AvatarRefs.HandsSynchronizer.StoreHandsData(_hardwareRig.RigData);
 			}
 		}
