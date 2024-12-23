@@ -4,20 +4,28 @@ using UnityEngine;
 
 namespace MirageXR
 {
-    public class FaceUser : MonoBehaviour
+	/// <summary>
+	/// A component that makes a GameObject face the user by aligning its y-axis rotation towards the camera.
+	/// </summary>
+	public class FaceUser : MonoBehaviour
     {
-        private Transform _camera;
+		// Reference to the main camera's Transform.
+		private Transform _camera;
 
-        private Vector3 _flattenedCameraPos;
-        private Vector3 _flattenedPos;
+		// Flattened position of the camera (y-coordinate set to 0).
+		private Vector3 _flattenedCameraPos;
+		// Flattened position of this GameObject (y-coordinate set to 0).
+		private Vector3 _flattenedPos;
 
+		// Called when the script instance is being loaded.
+		// Initializes the reference to the main camera's Transform.
 		private void Start()
 		{
             _camera = Camera.main.transform;
 		}
 
-		// Update is called once per frame
-		void Update()
+		// Called every frame. Rotates the GameObject to face the user.
+		private void Update()
         {
             _flattenedCameraPos = new Vector3(_camera.position.x, 0, _camera.position.z);
             _flattenedPos = new Vector3(transform.position.x, 0, transform.position.z);

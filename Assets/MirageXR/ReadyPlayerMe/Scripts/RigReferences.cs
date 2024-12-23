@@ -325,7 +325,7 @@ namespace MirageXR
 		public Rig RigLayer { get; set; }
 		public MultiParentConstraint HipsConstraint { get; set; }
 		public Transform HipsTarget { get => HipsConstraint.data.sourceObjects[0].transform; }
-		public MultiParentConstraint HeadConstraint { get; set; }
+		public MultiRotationConstraint HeadConstraint { get; set; }
 		public Transform HeadTarget { get => HeadConstraint.data.sourceObjects[0].transform; }
 
 		public SidedIKCollection Left { get; private set; } = new SidedIKCollection(true);
