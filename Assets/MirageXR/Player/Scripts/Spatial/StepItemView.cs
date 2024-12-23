@@ -29,6 +29,14 @@ namespace MirageXR
             button.onClick.AddListener(OnButtonClick);
             buttonMenu.onClick.AddListener(OnButtonMenuClick);
             _stepCompletedToggle.onValueChanged.AddListener(OnStepCompleted);
+            
+            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
+        }
+
+        private void OnEditorModeChanged(bool value)
+        {
+            _stepCompletedToggle.gameObject.SetActive(!value);
+            buttonMenu.gameObject.SetActive(value);
         }
 
         private void OnStepCompleted(bool arg0)
