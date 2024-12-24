@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
@@ -15,7 +16,8 @@ namespace MirageXR.View
         [SerializeField] private Transform diamond;
         [Space]
         [SerializeField] private GameObject _infoPanel;
-        [SerializeField] private TMP_Text _stepNumber;
+        [SerializeField] private TMP_Text _textTitle;
+        [SerializeField] private TMP_Text _textTitle_Collapsed;
         [SerializeField] private TMP_Text _textDescription;
         [SerializeField] private StepsMediaListItemView stepsMediaListItemViewPrefab;
         [SerializeField] private Transform containerMedia;
@@ -23,6 +25,8 @@ namespace MirageXR.View
         [SerializeField] private GameObject _stepCompletedToggle_Collapsed;
         [SerializeField] private Button previousStepButton;
         [SerializeField] private Button nextStepButton;
+        [SerializeField] private Button previousStepButton_Collapsed;
+        [SerializeField] private Button nextStepButton_Collapsed;
         
         private readonly List<StepsMediaListItemView> _mediaListItemViews = new();
 
@@ -39,6 +43,8 @@ namespace MirageXR.View
             UpdateView(step);
             nextStepButton.onClick.AddListener(OnNextStepClicked);
             previousStepButton.onClick.AddListener(OnPreviousStepClicked);
+            nextStepButton_Collapsed.onClick.AddListener(OnNextStepClicked);
+            previousStepButton_Collapsed.onClick.AddListener(OnPreviousStepClicked);
         }
 
         private void OnPreviousStepClicked()
@@ -65,7 +71,8 @@ namespace MirageXR.View
             transform.SetLocalPositionAndRotation(_step.Location.Position, Quaternion.Euler(_step.Location.Rotation));
             transform.localScale = _step.Location.Scale;
 
-            _stepNumber.text = step.Name;
+            _textTitle.text = step.Name;
+            _textTitle_Collapsed.text = step.Name;
             _textDescription.text = step.Description;
             
             foreach (var item in _mediaListItemViews)
