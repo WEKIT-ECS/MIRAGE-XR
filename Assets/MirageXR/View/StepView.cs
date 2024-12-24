@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
@@ -20,6 +21,8 @@ namespace MirageXR.View
         [SerializeField] private Transform containerMedia;
         [SerializeField] private GameObject _stepCompletedToggle;
         [SerializeField] private GameObject _stepCompletedToggle_Collapsed;
+        [SerializeField] private Button previousStepButton;
+        [SerializeField] private Button nextStepButton;
         
         private readonly List<StepsMediaListItemView> _mediaListItemViews = new();
 
@@ -34,6 +37,18 @@ namespace MirageXR.View
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
             InitializeManipulator();
             UpdateView(step);
+            nextStepButton.onClick.AddListener(OnNextStepClicked);
+            previousStepButton.onClick.AddListener(OnPreviousStepClicked);
+        }
+
+        private void OnPreviousStepClicked()
+        {
+            RootObject.Instance.LEE.StepManager.GoToPreviousStep();
+        }
+
+        private void OnNextStepClicked()
+        {
+            RootObject.Instance.LEE.StepManager.GoToNextStep();
         }
 
         private void OnEditorModeChanged(bool value)
