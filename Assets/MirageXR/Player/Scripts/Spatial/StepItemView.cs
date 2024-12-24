@@ -13,6 +13,7 @@ namespace MirageXR
         [SerializeField] private Button button;
         [SerializeField] private Button buttonMenu;
         [SerializeField] private Toggle _stepCompletedToggle;
+        [SerializeField] private GameObject _stepSelected;
 
         private ActivityStep _step;
         private UnityAction<ActivityStep> _onClick;
@@ -52,6 +53,11 @@ namespace MirageXR
         private void OnButtonMenuClick()
         {
             _onMenuClick?.Invoke(_step);
+        }
+
+        public void OnStepSelected(bool value)
+        {
+            _stepSelected.SetActive(value);
         }
     }
 }
