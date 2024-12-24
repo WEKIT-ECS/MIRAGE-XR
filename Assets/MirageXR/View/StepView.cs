@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
@@ -12,10 +12,16 @@ namespace MirageXR.View
     {
         [SerializeField] private TMP_Text text;
         [SerializeField] private Transform diamond;
+        [Space]
         [SerializeField] private GameObject _infoPanel;
         [SerializeField] private TMP_Text _stepNumber;
         [SerializeField] private TMP_Text _textDescription;
-        [SerializeField] private Image _image;
+        [SerializeField] private StepsMediaListItemView stepsMediaListItemViewPrefab;
+        [SerializeField] private Transform containerMedia;
+        [SerializeField] private GameObject _stepCompletedToggle;
+        [SerializeField] private GameObject _stepCompletedToggle_Collapsed;
+        
+        private readonly List<StepsMediaListItemView> _mediaListItemViews = new();
 
         public Guid Id => _step.Id;
 
@@ -25,11 +31,18 @@ namespace MirageXR.View
         public void Initialize(ActivityStep step)
         {
             _camera = RootObject.Instance.BaseCamera;
+            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
             InitializeManipulator();
             UpdateView(step);
         }
 
-        public void UpdateView(ActivityStep step)
+        private void OnEditorModeChanged(bool value)
+        {
+            _stepCompletedToggle.SetActive(!value);
+            _stepCompletedToggle_Collapsed.SetActive(!value);
+        }
+
+        public async void UpdateView(ActivityStep step)
         {
             name = $"Step_{step.Id}";
             _step = step;
@@ -37,9 +50,34 @@ namespace MirageXR.View
             transform.SetLocalPositionAndRotation(_step.Location.Position, Quaternion.Euler(_step.Location.Rotation));
             transform.localScale = _step.Location.Scale;
 
-            _stepNumber.text = name;
+            _stepNumber.text = step.Name;
             _textDescription.text = step.Description;
-            //_image.sprite = 
+            
+            foreach (var item in _mediaListItemViews)
+            {
+                Destroy(item.gameObject);
+            }
+            _mediaListItemViews.Clear();
+            
+            if (_step?.Attachment != null)
+            {
+                foreach (var file in _step.Attachment)
+                {
+                    var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
+                    var texture = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(activityId, file.Id);
+
+                    if (texture != null)
+                    {
+                        var item = Instantiate(stepsMediaListItemViewPrefab, containerMedia);
+                        item.Initialize(file, texture, _step.Id, (stepId, fileModel) =>
+                        {
+                            RootObject.Instance.LEE.StepManager.RemoveAttachment(stepId, fileModel.Id);
+                        });
+                        item.Interactable = false;
+                        _mediaListItemViews.Add(item);
+                    }
+                }
+            }
         }
 
         private void InitializeManipulator()
