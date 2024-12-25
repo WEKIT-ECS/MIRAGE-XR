@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using LearningExperienceEngine.DataModel;
 using MirageXR;
 using TMPro;
@@ -79,7 +78,7 @@ public class AddEditVirtualInstructor : EditorSpatialView
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {   
         base.Initialization(onClose, args);
-        _instructorContentData = _content as Content<InstructorContentData>;
+        _instructorContentData = Content as Content<InstructorContentData>;
             
         settingsBtn.onClick.AddListener(OpenSettingsPanel);
         modelSettingBtnA.onClick.AddListener(OpenModelSettingPanel);
@@ -120,59 +119,50 @@ public class AddEditVirtualInstructor : EditorSpatialView
     private string _textToSpeechModelModellApiName = "alloy";
     private string _textToSpeechModelDescription = "Female human voice"; 
     private string _textToSpeechModelName = "Alloy"; 
-    
-    
-    
+
     protected override void OnAccept()
     {
-        var step = RootObject.Instance.LEE.StepManager.CurrentStep;
+        _instructorContentData = CreateContent<InstructorContentData>(ContentType.Instructor);
 
-        _instructorContentData ??= new Content<InstructorContentData>
+        _instructorContentData.Location = new Location
         {
-            Id = Guid.NewGuid(),
-            CreationDate = DateTime.UtcNow,
-            IsVisible = true,
-            Steps = new List<Guid> { step.Id },
-            Type = ContentType.Instructor,
-            Version = Application.version,
-            Location = new Location
-            {
-                Position = new Vector3(-0.4f, -1.2f, 0),
-                Rotation = new Vector3(0, 180, 0),
-                Scale = Vector3.one,
-            },
-            ContentData = new InstructorContentData //TODO: set up your data here
-            {
-                Triggers = null,
-                AvailableTriggers = null,
-                AnimationClip = _animationClip,
-                CharacterName = _characterName,
-                Prompt = _prompt,
-                LanguageModel = new AIModel
-                {
-                    EndpointName = _languageModelEndpointName,
-                    ApiName = _languageModelApiName,
-                    Description = _languageModelDescription,
-                    Name = _languageModelName
-                },
-                SpeechToTextModel = new AIModel
-                {
-                    EndpointName = _speechToTextModelEndpointName,
-                    ApiName = _speechToTextModellApiName,
-                    Description = _speechToTextModelDescription,
-                    Name = _speechToTextModelName
-                },
-                TextToSpeechModel = new AIModel
-                {
-                    EndpointName = _textToSpeechModelEndpointName,
-                    ApiName = _textToSpeechModelModellApiName,
-                    Description = _textToSpeechModelDescription,
-                    Name = _textToSpeechModelName
-                }
-            },
+            Position = new Vector3(-0.4f, -1.2f, 0),
+            Rotation = new Vector3(0, 180, 0),
+            Scale = Vector3.one
+        };
+        _instructorContentData.ContentData.AnimationClip = _animationClip;
+        _instructorContentData.ContentData.CharacterName = _characterName;
+        _instructorContentData.ContentData.Prompt = _prompt;
+        _instructorContentData.ContentData.LanguageModel = new AIModel
+        {
+            EndpointName = _languageModelEndpointName,
+            ApiName = _languageModelApiName,
+            Description = _languageModelDescription,
+            Name = _languageModelName
+        };
+        _instructorContentData.ContentData.SpeechToTextModel = new AIModel
+        {
+            EndpointName = _speechToTextModelEndpointName,
+            ApiName = _speechToTextModellApiName,
+            Description = _speechToTextModelDescription,
+            Name = _speechToTextModelName
+        };
+        _instructorContentData.ContentData.TextToSpeechModel = new AIModel
+        {
+            EndpointName = _textToSpeechModelEndpointName,
+            ApiName = _textToSpeechModelModellApiName,
+            Description = _textToSpeechModelDescription,
+            Name = _textToSpeechModelName
         };
 
-        RootObject.Instance.LEE.ContentManager.AddContent(_instructorContentData);
+        if (IsContentUpdate)
+        {
+            RootObject.Instance.LEE.ContentManager.UpdateContent(_instructorContentData);
+        }
+        else
+        {
+            RootObject.Instance.LEE.ContentManager.AddContent(_instructorContentData);
+        }
 
         Close();
     }
