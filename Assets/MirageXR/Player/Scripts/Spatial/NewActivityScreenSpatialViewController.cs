@@ -37,7 +37,6 @@ namespace MirageXR
             RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityUpdated;
             RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnActivityUpdated;
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
-            RootObject.Instance.LEE.StepManager.OnStepChanged += StepManagerOnStepChanged;
         }
 
         private void OnInputFieldActivityNameEditEnd(string text)
@@ -153,13 +152,7 @@ namespace MirageXR
             {
                 var obj = Instantiate(prefab, container);
                 obj.Initialize(activityStep, OnStepItemClicked, OnStepItemMenuClicked);
-                obj.OnStepSelected(activityStep == RootObject.Instance.LEE.StepManager.CurrentStep);
             }
-        }
-        
-        private void StepManagerOnStepChanged(ActivityStep step)
-        {
-            UpdateStepsView();
         }
 
         private async UniTask UpdateInfoViewAsync()
