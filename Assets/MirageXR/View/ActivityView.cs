@@ -23,18 +23,11 @@ namespace MirageXR.View
         {
             RootObject.Instance.LEE.StepManager.OnStepChanged += StepManagerOnStepChanged;
             RootObject.Instance.LEE.ContentManager.OnContentActivated += ContentManagerOnContentActivated;
-            RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnOnActivityUpdated;
 
             var calibrationManager = RootObject.Instance.CalibrationManager;
             await calibrationManager.WaitForInitialization();
             transform.SetParent(calibrationManager.Anchor, false);
             transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
-        }
-
-        private void OnOnActivityUpdated(Activity activity)
-        {
-            UnityEngine.Debug.Log("---OnActivityUpdated");
-            UpdateStepView();
         }
 
         private void ContentManagerOnContentActivated(List<Content> contents)
