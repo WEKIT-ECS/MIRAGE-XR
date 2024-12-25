@@ -21,7 +21,7 @@ namespace MirageXR.View
 
             if (content is Content<AudioContentData> audioContent)
             {
-                await InitializeContentAsync(audioContent);
+                Initialized = await InitializeContentAsync(audioContent);
             }
             else
             {
@@ -29,9 +29,9 @@ namespace MirageXR.View
             }
         }
 
-        public override void Play()
+        public override async UniTask PlayAsync()
         {
-            base.Play();
+            await base.PlayAsync();
 
             PlayAudioClip();
         }
@@ -50,29 +50,47 @@ namespace MirageXR.View
 
         protected override void InitializeBoundsControl() { }
 
-        private async UniTask InitializeContentAsync(Content<AudioContentData> content)
+        protected override async UniTask OnContentUpdatedAsync(Content content)
         {
-            await InitializeAudioClipAsync(content);
+            if (content is not Content<AudioContentData> newContent || Content is not Content<AudioContentData> oldContent)
+            {
+                return;
+            }
+
+            if (newContent.ContentData.Audio.Id != oldContent.ContentData.Audio.Id)
+            {
+                Initialized = false;
+                Initialized = await InitializeContentAsync(newContent);
+            }
+
+            await base.OnContentUpdatedAsync(content);
         }
 
-        private async UniTask InitializeAudioClipAsync(Content<AudioContentData> content)
+        private async UniTask<bool> InitializeContentAsync(Content<AudioContentData> content)
+        {
+            return await InitializeAudioClipAsync(content);
+        }
+
+        private async UniTask<bool> InitializeAudioClipAsync(Content<AudioContentData> content)
         {
             var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
             var folderPath = RootObject.Instance.LEE.AssetsManager.GetContentFileFolderPath(activityId, content.Id, content.ContentData.Audio.Id);
             var filePath = Path.Combine(folderPath, ImageFileName);
 
-            if (File.Exists(filePath))
-            {
-                _audioClip = await SaveLoadAudioUtilities.LoadAudioFileAsync(filePath);
-                if (_audioClip == null)
-                {
-                    AppLog.LogError($"Failed to load audio file: {filePath}");
-                }
-            }
-            else
+            if (!File.Exists(filePath))
             {
                 Debug.LogError($"Audio file {filePath} does not exist");
+                return false;
             }
+
+            _audioClip = await SaveLoadAudioUtilities.LoadAudioFileAsync(filePath);
+            if (_audioClip == null)
+            {
+                AppLog.LogError($"Failed to load audio file: {filePath}");
+                return false;
+            }
+
+            return true;
         }
 
         private void OnDestroy()

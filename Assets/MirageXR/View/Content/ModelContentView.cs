@@ -18,7 +18,7 @@ namespace MirageXR.View
 
             if (content is Content<ModelContentData> modeContent)
             {
-                await InitializeContentAsync(modeContent);
+                Initialized = await InitializeContentAsync(modeContent);
             }
             else
             {
@@ -26,16 +26,14 @@ namespace MirageXR.View
             }
         }
 
-        private async UniTask InitializeContentAsync(Content<ModelContentData> content)
+        private async UniTask<bool> InitializeContentAsync(Content<ModelContentData> content)
         {
             if (content.ContentData.IsLibraryModel)
             {
-                await InitializeLibraryModelAsync(content);
+                return await InitializeLibraryModelAsync(content);
             }
-            else
-            {
-                await InitializeModelAsync(content);
-            }
+
+            return await InitializeModelAsync(content);
         }
 
         protected override void InitializeBoxCollider()
@@ -50,43 +48,77 @@ namespace MirageXR.View
             BoxCollider.center = bounds.center;
         }
 
-        private async UniTask InitializeModelAsync(Content<ModelContentData> content)
+        protected override async UniTask OnContentUpdatedAsync(Content content)
+        {
+            if (content is not Content<ModelContentData> newModelContent || Content is not Content<ModelContentData> oldModelContent)
+            {
+                return;
+            }
+
+            if (newModelContent.ContentData.ModelUid != oldModelContent.ContentData.ModelUid)
+            {
+                Destroy(_model.gameObject);
+                Initialized = false;
+                Initialized = await InitializeContentAsync(newModelContent);
+                if (Initialized)
+                {
+                    InitializeBoxCollider();
+                }
+            }
+
+            await base.OnContentUpdatedAsync(content);
+        }
+
+        public override async UniTask PlayAsync()
+        {
+            await base.PlayAsync();
+
+            var animationClips = _model.AnimationClips;
+            if (animationClips is { Length: > 0 })
+            {
+                _model.PlayAnimationClip(animationClips[0], WrapMode.Loop);
+            }
+        }
+
+        private async UniTask<bool> InitializeModelAsync(Content<ModelContentData> content)
         {
             if (content.ContentData.ModelUid == null)
             {
                 AppLog.LogError("ModelContentData.Model is null");
-                return;
+                return false;
             }
 
             var sketchfabManager = RootObject.Instance.LEE.SketchfabManager;
             if (!sketchfabManager.IsModelCached(content.ContentData.ModelUid))
             {
                 AppLog.LogError($"model {content.ContentData.ModelUid} doesn't cached");
-                return;
+                return false;
             }
             _model = await sketchfabManager.LoadCachedModelAsync(content.ContentData.ModelUid, transform);
 
             if (_model is null)
             {
                 AppLog.LogError($"Can't load model with id {content.ContentData.ModelUid}");
-                return;
+                return false;
             }
 
             _model.UpdateView(content.ContentData.ResetPosition, content.ContentData.FitToScreen, content.ContentData.Scale);
+            return true;
         }
 
-        private async UniTask InitializeLibraryModelAsync(Content<ModelContentData> content)
+        private async UniTask<bool> InitializeLibraryModelAsync(Content<ModelContentData> content)
         {
             if (content.ContentData.LibraryModel == null)
             {
                 AppLog.LogError("ModelContentData.LibraryModel is null");
-                return;
+                return false;
             }
 
             var prefabName = $"Library/{content.ContentData.LibraryModel.Catalog}/{content.ContentData.LibraryModel.ModelName}";
             var prefab = await Addressables.LoadAssetAsync<GameObject>(prefabName).Task;
             var item = Instantiate(prefab, transform);
             _model = item.AddComponent<GltfModelController>();
+            return true;
         }
     }
 }

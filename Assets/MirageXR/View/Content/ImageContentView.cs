@@ -12,6 +12,7 @@ namespace MirageXR.View
         private const string ImageFileName = "image.jpg";
         private const float ScaleZ = 0.05f;
 
+        [SerializeField] private MeshRenderer meshRenderer;
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private TMP_Text text;
 
@@ -29,7 +30,7 @@ namespace MirageXR.View
 
             if (content is Content<ImageContentData> imageContent)
             {
-                await InitializeContentAsync(imageContent);
+                Initialized = await InitializeContentAsync(imageContent);
             }
             else
             {
@@ -52,14 +53,34 @@ namespace MirageXR.View
             base.OnScaleStopped();
         }
 
-        private async UniTask InitializeContentAsync(Content<ImageContentData> content)
+        protected override async UniTask OnContentUpdatedAsync(Content content)
         {
-            await InitializeImageAsync(content);
-            InitializeText(content);
-            InitializeBillboard(content);
+            if (content is not Content<ImageContentData> newImageContent || Content is not Content<ImageContentData> oldImageContent)
+            {
+                return;
+            }
+
+            if (newImageContent.ContentData.Image.Id != oldImageContent.ContentData.Image.Id)
+            {
+                Initialized = false;
+                Initialized = await InitializeImageAsync(newImageContent);
+            }
+
+            InitializeText(newImageContent);
+            InitializeBillboard(newImageContent);
+            await base.OnContentUpdatedAsync(content);
         }
 
-        private async UniTask InitializeImageAsync(Content<ImageContentData> content)
+        private async UniTask<bool> InitializeContentAsync(Content<ImageContentData> content)
+        {
+            var result = await InitializeImageAsync(content);
+            InitializeText(content);
+            InitializeBillboard(content);
+
+            return result;
+        }
+
+        private async UniTask<bool> InitializeImageAsync(Content<ImageContentData> content)
         {
             var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
             var folderPath = RootObject.Instance.LEE.AssetsManager.GetContentFileFolderPath(activityId, content.Id, content.ContentData.Image.Id);
@@ -74,11 +95,11 @@ namespace MirageXR.View
                 spriteRenderer.drawMode = SpriteDrawMode.Sliced;
                 spriteRenderer.size = Vector2.one;
                 //CalculateSize(_texture.width, _texture.height);
+                return true;
             }
-            else
-            {
-                Debug.LogError($"Image file {imagePath} does not exist");
-            }
+
+            Debug.LogError($"Image file {imagePath} does not exist");
+            return false;
         }
 
         private void InitializeText(Content<ImageContentData> content)
