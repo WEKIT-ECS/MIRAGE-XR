@@ -14,17 +14,11 @@ namespace MirageXR
             base.OnBind();
             View.SetActionOnButtonSortingClick(() => {MenuManager.Instance.ShowSortingView(); });
             View.SetActionOnButtonAddNewActivityClick(OnAddNewActivityClick);
-            View.SetActionOnButtonCollaborativeSessionClick(OnCollaborativeSessionClick);
             View.SetActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
             
             RootObject.Instance.LEE.ActivityManager.OnActivitiesFetched += OnActivitiesFetched;
             RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityLoaded;
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
-        }
-
-        private void OnCollaborativeSessionClick()
-        {
-            // TODO
         }
 
         private void OnToggleEditorValueChanged(bool value)

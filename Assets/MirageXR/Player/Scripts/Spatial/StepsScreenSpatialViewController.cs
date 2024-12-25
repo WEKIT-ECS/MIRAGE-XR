@@ -24,8 +24,6 @@ namespace MirageXR
             View.SetActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
             View.SetActionOnButtonMediaAddNewFileClick(OnButtonMediaAddNewFileClick);
             View.SetActionOnButtonToolsAddNewToolClick(OnButtonToolsAddNewToolClick);
-            View.SetActionOnButtonNextStepClick(OnButtonNextStepClicked);
-            View.SetActionOnButtonPreviousStepClick(OnButtonPreviousStepClicked);
             View.SetActionOnTitleInputEndEdit(OnTitleInputEndEdit);
             View.SetActionOnDescriptionInputEndEdit(OnDescriptionInputEndEdit);
 
@@ -62,16 +60,6 @@ namespace MirageXR
         private void OnButtonToolsAddNewToolClick()
         {
             
-        }
-        
-        private void OnButtonPreviousStepClicked()
-        {
-            RootObject.Instance.LEE.StepManager.GoToNextStep();
-        }
-
-        private void OnButtonNextStepClicked()
-        {
-            RootObject.Instance.LEE.StepManager.GoToPreviousStep();
         }
 
         private void OnMediaFileSelected(Texture2D texture)

@@ -12,8 +12,6 @@ namespace MirageXR
         [SerializeField] private TMP_Text textStepDescription;
         [SerializeField] private Button button;
         [SerializeField] private Button buttonMenu;
-        [SerializeField] private Toggle _stepCompletedToggle;
-        [SerializeField] private GameObject _stepSelected;
 
         private ActivityStep _step;
         private UnityAction<ActivityStep> _onClick;
@@ -29,20 +27,6 @@ namespace MirageXR
             textStepDescription.text = step.Description;
             button.onClick.AddListener(OnButtonClick);
             buttonMenu.onClick.AddListener(OnButtonMenuClick);
-            _stepCompletedToggle.onValueChanged.AddListener(OnStepCompleted);
-            
-            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
-        }
-
-        private void OnEditorModeChanged(bool value)
-        {
-            _stepCompletedToggle.gameObject.SetActive(!value);
-            buttonMenu.gameObject.SetActive(value);
-        }
-
-        private void OnStepCompleted(bool arg0)
-        {
-            // TODO
         }
 
         private void OnButtonClick()
@@ -53,11 +37,6 @@ namespace MirageXR
         private void OnButtonMenuClick()
         {
             _onMenuClick?.Invoke(_step);
-        }
-
-        public void OnStepSelected(bool value)
-        {
-            _stepSelected.SetActive(value);
         }
     }
 }
