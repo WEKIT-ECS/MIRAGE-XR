@@ -214,7 +214,7 @@ namespace MirageXR
             foreach (var content in _contents)
             {
                 var item = Instantiate(prefab, container);
-                item.Initialize(content, OnStepItemClick);
+                item.Initialize(content, OnStepItemClick, OnStepItemDeleteClick);
                 _contentsItemViews.Add(item);
             }
         }
@@ -223,6 +223,11 @@ namespace MirageXR
         {
             var prefab = MenuManager.Instance.GetEditorPrefab(content.Type);
             PopupsViewer.Instance.Show(prefab, content);
+        }
+
+        private void OnStepItemDeleteClick(Content content)
+        {
+            RootObject.Instance.LEE.ContentManager.RemoveContent(content.Id);
         }
 
         private void OnButtonAddAugmentationClicked()

@@ -45,7 +45,7 @@ namespace MirageXR.View
             _camera = RootObject.Instance.BaseCamera;
             if (content is Content<LabelContentData> imageContent)
             {
-                await InitializeContentAsync(imageContent);
+                Initialized = await InitializeContentAsync(imageContent);
             }
             else
             {
@@ -53,13 +53,28 @@ namespace MirageXR.View
             }
         }
 
-        private async UniTask InitializeContentAsync(Content<LabelContentData> content)
+        protected override async UniTask OnContentUpdatedAsync(Content content)
         {
-            await InitializeTextAsync(content);
-            InitializeBillboard(content);
+            if (content is not Content<LabelContentData> newContent || Content is not Content<LabelContentData> oldContent)
+            {
+                return;
+            }
+
+            Initialized = false;
+            Initialized = await InitializeContentAsync(newContent);
+            InitializeBillboard(newContent);
+
+            await base.OnContentUpdatedAsync(content);
         }
 
-        private async UniTask InitializeTextAsync(Content<LabelContentData> content)
+        private async UniTask<bool> InitializeContentAsync(Content<LabelContentData> content)
+        {
+            var result = await InitializeTextAsync(content);
+            InitializeBillboard(content);
+            return result;
+        }
+
+        private async UniTask<bool> InitializeTextAsync(Content<LabelContentData> content)
         {
             imageBackground.color = content.ContentData.BackgroundColor;
             text.text = content.ContentData.Text;
@@ -72,6 +87,8 @@ namespace MirageXR.View
             var canvasSize = ((RectTransform)canvas.transform).rect.size;
             colliderText.size = new Vector3(canvasSize.x, canvasSize.y, 2);
             colliderText.center = new Vector3(canvasSize.x * -0.5f, 0, 0);
+
+            return true;
         }
 
         private void OnButtonLockClicked()

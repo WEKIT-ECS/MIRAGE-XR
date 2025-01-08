@@ -62,30 +62,9 @@ namespace MirageXR
                 return;
             }
 
-            var step = RootObject.Instance.LEE.StepManager.CurrentStep;
             var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
 
-            _modelContent ??= new Content<ModelContentData>
-            {
-                Id = Guid.NewGuid(),
-                CreationDate = DateTime.UtcNow,
-                IsVisible = true,
-                Steps = new List<Guid> { step.Id },
-                Type = ContentType.Model,
-                Version = Application.version,
-                ContentData = new ModelContentData
-                {
-                    Triggers = null,
-                    AvailableTriggers = null,
-                    IsLibraryModel = false,
-                    ModelUid = null,
-                    LibraryModel = null, 
-                    Scale = 1f,
-                    ResetPosition = true,
-                    FitToScreen = true
-                },
-                Location = Location.GetIdentityLocation()
-            };
+            _modelContent = CreateContent<ModelContentData>(ContentType.Model);
 
             _modelContent.ContentData.IsLibraryModel = _isLibraryModel;
             _modelContent.ContentData.ModelUid = _sketchfabModel?.Uid;
@@ -96,7 +75,15 @@ namespace MirageXR
             _modelContent.ContentData.FitToScreen = sketchfabManager.FitToScreen;
 
             RootObject.Instance.LEE.ActivityManager.AddSketchfabModel(_sketchfabModel);
-            RootObject.Instance.LEE.ContentManager.AddContent(_modelContent);
+            
+            if (IsContentUpdate)
+            {
+                RootObject.Instance.LEE.ContentManager.UpdateContent(_modelContent);
+            }
+            else
+            {
+                RootObject.Instance.LEE.ContentManager.AddContent(_modelContent);
+            }
             if (!_isLibraryModel && _sketchfabModel != null)
             {
                 RootObject.Instance.LEE.AssetsManager.UploadSketchfabModel(activityId, _sketchfabModel.Uid).Forget();
@@ -105,16 +92,11 @@ namespace MirageXR
             Close();
         }
 
-        protected override bool TryToGetArguments(params object[] args)
-        {
-            return true;
-        }
-
         public override void Initialization(Action<PopupBase> onClose, params object[] args)
         {
             base.Initialization(onClose, args);
 
-            _modelContent = _content as Content<ModelContentData>;
+            _modelContent = Content as Content<ModelContentData>;
 
             toggleLocal.onValueChanged.AddListener(OnToggleLocalValueChanged);
             toggleSketchfab.onValueChanged.AddListener(OnToggleSketchfabValueChanged);

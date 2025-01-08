@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using LearningExperienceEngine.DataModel;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,8 +11,9 @@ namespace MirageXR
         [SerializeField] private Button _btnAccept;
         [SerializeField] private Button _btnClose;
 
-        protected Content _content;
-        
+        protected Content Content;
+        protected bool IsContentUpdate;
+
         public override void Initialization(Action<PopupBase> onClose, params object[] args)
         {
             base.Initialization(onClose, args);
@@ -25,10 +27,39 @@ namespace MirageXR
         {
             if (args is { Length: 1 } && args[0] is Content obj)
             {
-                _content = obj;
+                Content = obj;
+                IsContentUpdate = true;
             }
 
             return true;
+        }
+
+        protected Content<T> CreateContent<T>(ContentType type) where T : ContentData, new()
+        {
+            if (IsContentUpdate)
+            {
+                if (Content is not Content<T> content)
+                {
+                    return null;
+                }
+
+                var copy = content.ShallowCopy();
+                copy.ContentData = new T();
+                return copy;
+            }
+
+            var step = RootObject.Instance.LEE.StepManager.CurrentStep;
+            return new Content<T>
+            {
+                Id = Guid.NewGuid(),
+                CreationDate = DateTime.UtcNow,
+                IsVisible = true,
+                Steps = new List<Guid> { step.Id },
+                Type = type,
+                Version = Application.version,
+                ContentData = new T(),
+                Location = Location.GetIdentityLocation()
+            };
         }
     }
 }

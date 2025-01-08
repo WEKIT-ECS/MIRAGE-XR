@@ -26,7 +26,29 @@ namespace MirageXR.View
             }
         }
 
-        private async UniTask InitializeContentAsync(Content<InstructorContentData> content)
+        protected override async UniTask OnContentUpdatedAsync(Content content)
+        {
+            
+            if (content is not Content<InstructorContentData> newContent || Content is not Content<InstructorContentData> oldContent)
+            {
+                return;
+            }
+
+            if (newContent.ContentData.CharacterName != oldContent.ContentData.CharacterName ||             //TODO: add add support for reinitializing an existing instructor 
+                newContent.ContentData.AnimationClip != oldContent.ContentData.AnimationClip ||             //
+                newContent.ContentData.SpeechToTextModel != oldContent.ContentData.SpeechToTextModel ||     //
+                newContent.ContentData.LanguageModel != oldContent.ContentData.LanguageModel ||             //
+                newContent.ContentData.Prompt != oldContent.ContentData.Prompt)                             //
+            {
+                Destroy(_instructor.gameObject);
+                Initialized = false;
+                Initialized = await InitializeContentAsync(newContent);
+            }
+            
+            await base.OnContentUpdatedAsync(content);
+        }
+
+        private async UniTask<bool> InitializeContentAsync(Content<InstructorContentData> content)
         {
             _instructorContent = content;
 
@@ -34,7 +56,7 @@ namespace MirageXR.View
             {                                                                       //
                 _instructorContent.ContentData.CharacterName = "Sara";              //
             }                                                                       //
-            
+
             var prefabPath = $"Instructors/{_instructorContent.ContentData.CharacterName}_instructor";
             var handle = Addressables.LoadAssetAsync<GameObject>(prefabPath);
             await handle.Task;
@@ -49,11 +71,11 @@ namespace MirageXR.View
 
                 _instructor = instructor.AddComponent<Instructor>();
                 _instructor.Initialize(_instructorContent);
+                return true;
             }
-            else
-            {
-                Debug.LogError("FATAL ERROR: Could not instantiate ContentAugmentation prefab " + prefabPath);
-            }
+
+            Debug.LogError("FATAL ERROR: Could not instantiate ContentAugmentation prefab " + prefabPath);
+            return false;
         }
 
         protected override void InitializeBoxCollider() { }

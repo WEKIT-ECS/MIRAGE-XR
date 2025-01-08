@@ -86,7 +86,7 @@ public class AudioEditorSpatialView : EditorSpatialView
     private float _recordStartTime;
     private int _scrollRectStep;
     private string[] _audioFileType;
-    private Content<AudioContentData> _imageContent;
+    private Content<AudioContentData> _audioContent;
 
     private string _inputTriggerStepNumber = string.Empty;
 
@@ -95,7 +95,7 @@ public class AudioEditorSpatialView : EditorSpatialView
         _showBackground = false;
         base.Initialization(onClose, args);
 
-        _imageContent = _content as Content<AudioContentData>;
+        _audioContent = Content as Content<AudioContentData>;
         
         _toggle3D.isOn = false;
         _toggleLoop.isOn = false;
@@ -140,7 +140,7 @@ public class AudioEditorSpatialView : EditorSpatialView
         var stepsCount = steps.Count;
         InitClampedScrollRect(_clampedScrollJumpToStep, _templatePrefab, stepsCount, stepsCount.ToString());*/
 
-        if (_imageContent != null)
+        if (_audioContent != null)
         {
             _topContainer.SetActive(false);
             _topContainerPlayAudio.SetActive(true);
@@ -157,13 +157,13 @@ public class AudioEditorSpatialView : EditorSpatialView
         }
         else
         {
-            _fileName = $"MirageXR_Audio_{DateTime.Now.ToFileTimeUtc()}.wav";
             _groupPlayControls.interactable = false;
 
             _topContainer.SetActive(true);
             _topContainerPlayAudio.SetActive(false);
         }
 
+        _fileName = $"MirageXR_Audio_{DateTime.Now.ToFileTimeUtc()}.wav";
         SetPlayerActive(true);
         UpdateSliderPlayerAndTimer();
     }
@@ -200,16 +200,16 @@ public class AudioEditorSpatialView : EditorSpatialView
     private void LoadContent()
     {
         var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
-        var folderPath = RootObject.Instance.LEE.AssetsManager.GetContentFileFolderPath(activityId, _content.Id, _imageContent.ContentData.Audio.Id);
+        var folderPath = RootObject.Instance.LEE.AssetsManager.GetContentFileFolderPath(activityId, Content.Id, _audioContent.ContentData.Audio.Id);
         var filePath = Path.Combine(folderPath, "audio.wav");
         _audioClip = SaveLoadAudioUtilities.LoadAudioFile(filePath);
 
-        _toggle3D.isOn = _imageContent.ContentData.Is3dSound;
+        _toggle3D.isOn = _audioContent.ContentData.Is3dSound;
         //_toggle2D.isOn = !_toggle3D.isOn;
         _panelRange.SetActive(_toggle3D.isOn);
-        _toggleLoop.isOn = _imageContent.ContentData.IsLooped;
-        _txtSliderRangeValue.text = _imageContent.ContentData.SoundRange.ToString("00");
-        _currentRangeValue = _imageContent.ContentData.SoundRange;
+        _toggleLoop.isOn = _audioContent.ContentData.IsLooped;
+        _txtSliderRangeValue.text = _audioContent.ContentData.SoundRange.ToString("00");
+        _currentRangeValue = _audioContent.ContentData.SoundRange;
     }
 
     private void OnPlayingStarted()
@@ -511,45 +511,33 @@ public class AudioEditorSpatialView : EditorSpatialView
             return;
         }
 
-        var step = RootObject.Instance.LEE.StepManager.CurrentStep;
         var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
-        var fileId = _imageContent?.ContentData?.Audio?.Id ?? Guid.NewGuid();
+        var fileId = Guid.NewGuid();
 
-        _imageContent ??= new Content<AudioContentData>
+        _audioContent = CreateContent<AudioContentData>(ContentType.Audio);
+        _audioContent.ContentData.Is3dSound = _toggle3D.isOn;
+        _audioContent.ContentData.IsLooped = _toggleLoop.isOn;
+        _audioContent.ContentData.SoundRange = _sliderPlayer.value;
+
+        await SaveAudioAsync(activityId, _audioContent.Id, fileId);
+        _audioContent.ContentData.Audio = await RootObject.Instance.LEE.AssetsManager.CreateFileAsync(activityId, _audioContent.Id, fileId);
+
+        if (IsContentUpdate)
         {
-            Id = Guid.NewGuid(),
-            CreationDate = DateTime.UtcNow,
-            IsVisible = true,
-            Steps = new List<Guid> { step.Id },
-            Type = ContentType.Audio,
-            Version = Application.version,
-            ContentData = new AudioContentData
-            {
-                Triggers = null,
-                AvailableTriggers = null,
-                Audio = null,
-                IsLooped = false,
-                Is3dSound = false,
-                SoundRange = 0
-            },
-            Location = Location.GetIdentityLocation()
-        };
-
-        _imageContent.ContentData.Is3dSound = _toggle3D.isOn;
-        _imageContent.ContentData.IsLooped = _toggleLoop.isOn;
-        _imageContent.ContentData.SoundRange = _sliderPlayer.value;
-
-        await SaveAudioAsync(activityId, _imageContent.Id, fileId);
-        _imageContent.ContentData.Audio = await RootObject.Instance.LEE.AssetsManager.CreateFileAsync(activityId, _imageContent.Id, fileId);
-        RootObject.Instance.LEE.ContentManager.AddContent(_imageContent);
-        RootObject.Instance.LEE.AssetsManager.UploadFileAsync(activityId, _imageContent.Id, fileId);
+            RootObject.Instance.LEE.ContentManager.UpdateContent(_audioContent);
+        }
+        else
+        {
+            RootObject.Instance.LEE.ContentManager.AddContent(_audioContent);
+        }
+        RootObject.Instance.LEE.AssetsManager.UploadFileAsync(activityId, _audioContent.Id, fileId).Forget();
 
         Close();
     }
 
     private async UniTask SaveAudioAsync(Guid activityId, Guid contentId, Guid fileId)
     {
-        if (_audioClip == null || _imageContent == null)
+        if (_audioClip == null || _audioContent == null)
         {
             return;
         }
