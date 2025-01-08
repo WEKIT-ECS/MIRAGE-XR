@@ -15,6 +15,8 @@ namespace MirageXR
         [SerializeField] private Transform containerMedia;
         [SerializeField] private Toggle collapsePanelToggle;
         [SerializeField] private Toggle collapsePanelToggle_Collapsed;
+        [SerializeField] private Toggle stepCompletedToggle;
+        [SerializeField] private Toggle stepCompletedToggle_Collapsed;
         [SerializeField] private GameObject _mainScreen;
         [SerializeField] private GameObject _mainScreen_Collapsed;
         [SerializeField] private Button previousStepButton;
@@ -41,8 +43,8 @@ namespace MirageXR
         
         private void OnEditorModeChanged(bool value)
         {
-            collapsePanelToggle.gameObject.SetActive(!value);
-            collapsePanelToggle_Collapsed.gameObject.SetActive(!value);
+            stepCompletedToggle.gameObject.SetActive(!value);
+            stepCompletedToggle_Collapsed.gameObject.SetActive(!value);
         }
 
         private void OnStepCompletedToggleValueChanged(bool value)
