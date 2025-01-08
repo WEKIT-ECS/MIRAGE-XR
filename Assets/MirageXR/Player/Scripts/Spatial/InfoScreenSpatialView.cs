@@ -13,8 +13,10 @@ namespace MirageXR
         [SerializeField] private TMP_Text _textDescription;
         [SerializeField] private StepsMediaListItemView stepsMediaListItemViewPrefab;
         [SerializeField] private Transform containerMedia;
-        [SerializeField] private GameObject _stepCompletedToggle;
-        [SerializeField] private GameObject _stepCompletedToggle_Collapsed;
+        [SerializeField] private Toggle collapsePanelToggle;
+        [SerializeField] private Toggle collapsePanelToggle_Collapsed;
+        [SerializeField] private GameObject _mainScreen;
+        [SerializeField] private GameObject _mainScreen_Collapsed;
         [SerializeField] private Button previousStepButton;
         [SerializeField] private Button nextStepButton;
         [SerializeField] private Button previousStepButton_Collapsed;
@@ -32,13 +34,44 @@ namespace MirageXR
             previousStepButton.onClick.AddListener(OnPreviousStepClicked);
             nextStepButton_Collapsed.onClick.AddListener(OnNextStepClicked);
             previousStepButton_Collapsed.onClick.AddListener(OnPreviousStepClicked);
+            collapsePanelToggle.onValueChanged.AddListener(OnStepCompletedToggleValueChanged);
+            collapsePanelToggle_Collapsed.onValueChanged.AddListener(OnStepCompletedToggleCollapsedValueChanged);
             UpdateView(step); 
         }
         
         private void OnEditorModeChanged(bool value)
         {
-            _stepCompletedToggle.SetActive(!value);
-            _stepCompletedToggle_Collapsed.SetActive(!value);
+            collapsePanelToggle.gameObject.SetActive(!value);
+            collapsePanelToggle_Collapsed.gameObject.SetActive(!value);
+        }
+
+        private void OnStepCompletedToggleValueChanged(bool value)
+        {
+            _mainScreen.SetActive(false);
+            _mainScreen_Collapsed.SetActive(true);
+            UpdateToggleStates();
+        }
+        
+        private void OnStepCompletedToggleCollapsedValueChanged(bool value)
+        {
+            _mainScreen.SetActive(true);
+            _mainScreen_Collapsed.SetActive(false);
+            UpdateToggleStates();
+        }
+        
+        private void UpdateToggleStates()
+        {
+            switch (_mainScreen.activeSelf)
+            {
+                case true when !_mainScreen_Collapsed.activeSelf:
+                    collapsePanelToggle.isOn = false;
+                    collapsePanelToggle_Collapsed.isOn = true;
+                    break;
+                case false when _mainScreen_Collapsed.activeSelf:
+                    collapsePanelToggle.isOn = false;
+                    collapsePanelToggle_Collapsed.isOn = true;
+                    break;
+            }
         }
         
         private void OnPreviousStepClicked()
