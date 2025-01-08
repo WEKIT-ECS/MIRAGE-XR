@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
@@ -12,6 +11,7 @@ public class ImageEditorSpatialView : EditorSpatialView
 {
     private const int MaxPictureSize = 1024;
     private const float ImageHeight = 270f;
+    private const float DefaultSize = 0.5f;
 
     [SerializeField] private Transform _imageHolder;
     [SerializeField] private Image _image;
@@ -30,9 +30,9 @@ public class ImageEditorSpatialView : EditorSpatialView
     {
         _showBackground = false;
         base.Initialization(onClose, args);
-        
-        _imageContent = _content as Content<ImageContentData>;
-        
+
+        _imageContent = Content as Content<ImageContentData>;
+
         UpdateView();
         _btnCaptureImage.onClick.AddListener(OnCaptureImage);
         _btnOpenGallery.onClick.AddListener(OpenGallery);
@@ -67,31 +67,26 @@ public class ImageEditorSpatialView : EditorSpatialView
             return;
         }
 
-        var step = RootObject.Instance.LEE.StepManager.CurrentStep;
         var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
-        var fileId = _imageContent?.ContentData?.Image?.Id ?? Guid.NewGuid();
-        
-        _imageContent ??= new Content<ImageContentData>
-        {
-            Id = Guid.NewGuid(),
-            CreationDate = DateTime.UtcNow,
-            IsVisible = true,
-            Steps = new List<Guid> { step.Id },
-            Type = ContentType.Image,
-            Version = Application.version,
-            ContentData = new ImageContentData
-            {
-                IsBillboarded = false,
-            },
-            Location = Location.GetIdentityLocation()
-        };
+        var fileId = Guid.NewGuid();
 
+        _imageContent = CreateContent<ImageContentData>(ContentType.Image);
+
+        _imageContent.ContentData.IsBillboarded = true;
+        _imageContent.ContentData.Text = null;
         _imageContent.Location.Scale = CalculateScale(_capturedImage.width, _capturedImage.height);
 
         await SaveImageAsync(activityId, _imageContent.Id, fileId);
         _imageContent.ContentData.Image = await RootObject.Instance.LEE.AssetsManager.CreateFileAsync(activityId, _imageContent.Id, fileId);
 
-        RootObject.Instance.LEE.ContentManager.AddContent(_imageContent);
+        if (IsContentUpdate)
+        {
+            RootObject.Instance.LEE.ContentManager.UpdateContent(_imageContent);
+        }
+        else
+        {
+            RootObject.Instance.LEE.ContentManager.AddContent(_imageContent);
+        }
         RootObject.Instance.LEE.AssetsManager.UploadFileAsync(activityId, _imageContent.Id, fileId);
 
         Close();
@@ -105,10 +100,10 @@ public class ImageEditorSpatialView : EditorSpatialView
         }
 
         return textureWidth > textureHeight
-            ? new Vector3(textureWidth / (float)textureHeight, 1, 0.05f)
-            : new Vector3(1, textureHeight / (float)textureWidth, 0.05f);
+            ? new Vector3(textureWidth / (float)textureHeight * DefaultSize, DefaultSize, 0.05f)
+            : new Vector3(DefaultSize, textureHeight / (float)textureWidth * DefaultSize, 0.05f);
     }
-    
+
     private async UniTask SaveImageAsync(Guid activityId, Guid contentId, Guid fileId)
     {
         if (_capturedImage == null)

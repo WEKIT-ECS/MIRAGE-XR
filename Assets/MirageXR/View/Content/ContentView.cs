@@ -15,6 +15,7 @@ namespace MirageXR.View
         protected Content Content;
         protected BoundsControl BoundsControl;
         protected BoxCollider BoxCollider;
+        protected bool Initialized;
 
         public virtual async UniTask InitializeAsync(Content content)
         {
@@ -32,10 +33,21 @@ namespace MirageXR.View
             RootObject.Instance.LEE.StepManager.OnStepChanged += OnStepChanged;
         }
 
-        public virtual void Play() { }
+        public Content GetContent() => Content;
+
+        public virtual async UniTask PlayAsync()
+        {
+            await UniTask.WaitUntil(() => Initialized);
+        }
+
+        public void UpdateContent(Content content)
+        {
+            OnContentUpdatedAsync(content).Forget();
+        }
 
         protected virtual UniTask InitializeContentAsync(Content content)
         {
+            Initialized = false;
             return UniTask.CompletedTask;
         }
         
@@ -112,6 +124,15 @@ namespace MirageXR.View
             Content.Location.Position = transform.localPosition;
             Content.Location.Rotation = transform.localEulerAngles;
             RootObject.Instance.LEE.ContentManager.UpdateContent(Content);
+        }
+
+        protected virtual UniTask OnContentUpdatedAsync(Content content)
+        {
+            transform.SetLocalPositionAndRotation(content.Location.Position, Quaternion.Euler(content.Location.Rotation));
+            transform.localScale = content.Location.Scale;
+            Content = content;
+            
+            return UniTask.CompletedTask;
         }
     }
 }

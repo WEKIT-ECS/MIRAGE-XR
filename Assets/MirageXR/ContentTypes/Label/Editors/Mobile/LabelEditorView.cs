@@ -1,6 +1,5 @@
 ﻿using LearningExperienceEngine;
 using DG.Tweening;
-using MirageXR;
 using System;
 using TMPro;
 using UnityEngine;
@@ -16,7 +15,7 @@ public class LabelEditorView : PopupEditorBase
     private const float HIDED_SIZE = 100f;
     private const float HIDE_ANIMATION_TIME = 0.5f;
 
-    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.LABEL;
+    public override ContentType editorForType => ContentType.LABEL;
 
     [SerializeField] private TMP_InputField _inputField;
     [SerializeField] private Toggle _toggleTrigger;
@@ -43,7 +42,7 @@ public class LabelEditorView : PopupEditorBase
     [SerializeField] private GameObject _arrowUp;
     [SerializeField] private LabelSettings _labelSettings;
 
-    private LearningExperienceEngine.Trigger _trigger;
+    private Trigger _trigger;
     private float _gazeDuration;
     private int _triggerStepIndex;
     private bool _isBillboarded;

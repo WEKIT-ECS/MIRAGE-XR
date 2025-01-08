@@ -80,7 +80,7 @@ namespace MirageXR
             _sizeFont = DefaultFontSize;
             _isBillboarded = DefaultBillboardedValue;
             _gazeTime = DefaultGazeTime;
-            _contentLabel = _content as Content<LabelContentData>;
+            _contentLabel = Content as Content<LabelContentData>;
 
             if (_contentLabel != null)
             {
@@ -92,6 +92,7 @@ namespace MirageXR
             }
 
             _inputField.onValueChanged.AddListener(OnLabelTextValueChanged);
+            _inputField.onSelect.AddListener(OnLabelTextSelected);
             _toggleBillboard.onValueChanged.AddListener(OnBillboardValueChanged);
 
             settingsPanel.SetActive(false);
@@ -218,6 +219,13 @@ namespace MirageXR
             LayoutRebuilder.MarkLayoutForRebuild((RectTransform)_inputField.transform);
         }
 
+        private void OnLabelTextSelected(string text)
+        {
+#if VISION_OS
+            TouchScreenKeyboard.Open(text, TouchScreenKeyboardType.Default, false, false, true, true);
+#endif
+        }
+
         private void UpdateView()
         {
             _toggleBillboard.SetIsOnWithoutNotify(_isBillboarded);
@@ -314,36 +322,26 @@ namespace MirageXR
         {
             if (string.IsNullOrEmpty(_labelText))
             {
-                //Toast.Instance.Show("The audio has not been recorded");
                 AppLog.LogWarning("Text field is empty");
                 return;
             }
 
-            var step = RootObject.Instance.LEE.StepManager.CurrentStep;
+            _contentLabel = CreateContent<LabelContentData>(ContentType.Label);
+            _contentLabel.ContentData.Text = _labelText;
+            _contentLabel.ContentData.IsBillboarded = _isBillboarded;
+            _contentLabel.ContentData.BackgroundColor = _colorBackground;
+            _contentLabel.ContentData.FontColor = _colorFont;
+            _contentLabel.ContentData.FontSize = _sizeFont;
+            _contentLabel.Location = Location.GetDefaultStartLocation();
 
-            _contentLabel ??= new Content<LabelContentData>
+            if (IsContentUpdate)
             {
-                Id = Guid.NewGuid(),
-                CreationDate = DateTime.UtcNow,
-                IsVisible = true,
-                Steps = new List<Guid> { step.Id },
-                Type = ContentType.Label,
-                Version = Application.version,
-                ContentData = new LabelContentData
-                {
-                    Text = _labelText,
-                    IsBillboarded = _isBillboarded,
-                    BackgroundColor = _colorBackground,
-                    FontColor = _colorFont,
-                    FontSize = _sizeFont,
-                    AvailableTriggers = null,
-                    Triggers = null,
-                },
-                Location = Location.GetIdentityLocation()
-            };
-
-            _contentLabel.Location.Position = new Vector3(0, 0.1f, 0);
-            RootObject.Instance.LEE.ContentManager.AddContent(_contentLabel);
+                RootObject.Instance.LEE.ContentManager.UpdateContent(_contentLabel);
+            }
+            else
+            {
+                RootObject.Instance.LEE.ContentManager.AddContent(_contentLabel);
+            }
             Close();
         }
     }

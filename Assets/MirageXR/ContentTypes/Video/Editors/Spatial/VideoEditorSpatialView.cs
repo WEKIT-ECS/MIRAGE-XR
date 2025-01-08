@@ -41,7 +41,7 @@ namespace MirageXR
             _showBackground = false;
             base.Initialization(onClose, args);
             
-            _videoContent = _content as Content<VideoContentData>;
+            _videoContent = Content as Content<VideoContentData>;
             
             _btnCaptureVideo.onClick.AddListener(OnStartRecordingVideo);
             _btnOpenGallery.onClick.AddListener(OpenGallery);
@@ -106,31 +106,26 @@ namespace MirageXR
                 return;
             }
 
-            var step = RootObject.Instance.LEE.StepManager.CurrentStep;
             var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
-            var fileId = _videoContent?.ContentData?.Video?.Id ?? Guid.NewGuid();
-            
-            _videoContent ??= new Content<VideoContentData>
-            {
-                Id = Guid.NewGuid(),
-                CreationDate = DateTime.UtcNow,
-                IsVisible = true,
-                Steps = new List<Guid> { step.Id },
-                Type = ContentType.Video,
-                Version = Application.version,
-                ContentData = new VideoContentData
-                {
-                    IsLooped = true,
-                    Is3dSound = false,
-                },
-                Location = Location.GetIdentityLocation()
-            };
+            var fileId = Guid.NewGuid();
+
+            _videoContent = CreateContent<VideoContentData>(ContentType.Video);
 
             await SaveVideoAsync(activityId, _videoContent.Id, fileId);
+            _videoContent.ContentData.Is3dSound = false;
+            _videoContent.ContentData.IsLooped = true;
+            _videoContent.ContentData.SoundRange = 1f;
             _videoContent.ContentData.Video = await RootObject.Instance.LEE.AssetsManager.CreateFileAsync(activityId, _videoContent.Id, fileId);
 
-            RootObject.Instance.LEE.ContentManager.AddContent(_videoContent);
-            RootObject.Instance.LEE.AssetsManager.UploadFileAsync(activityId, _videoContent.Id, fileId);
+            if (IsContentUpdate)
+            {
+                RootObject.Instance.LEE.ContentManager.UpdateContent(_videoContent);
+            }
+            else
+            {
+                RootObject.Instance.LEE.ContentManager.AddContent(_videoContent);
+            }
+            RootObject.Instance.LEE.AssetsManager.UploadFileAsync(activityId, _videoContent.Id, fileId).Forget();
 
             Close();
         }
