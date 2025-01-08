@@ -159,7 +159,11 @@ namespace MirageXR
         
         private void StepManagerOnStepChanged(ActivityStep step)
         {
-            UpdateStepsView();
+            if (_activity == null)
+            {
+                return;
+            }
+            UpdateView();
         }
 
         private async UniTask UpdateInfoViewAsync()
