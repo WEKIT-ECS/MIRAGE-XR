@@ -11,6 +11,8 @@ namespace MirageXR
         [SerializeField] private Button _buttonBack;
         [SerializeField] private GameObject _augmentationToggle; // hide this in view mode
         [SerializeField] private Toggle _editModeToggle;
+        [SerializeField] private Button _nextStep;
+        [SerializeField] private Button _previousStep;
         
         [Header("Augmentations tab")]
         [SerializeField] private Button _buttonAddAugmentation;
@@ -45,6 +47,8 @@ namespace MirageXR
         public void SetActionOnToggleEditModeValueChanged(UnityAction<bool> action) => _editModeToggle.SafeSetListener(action);
         public void SetActionOnButtonBackClick(UnityAction action) => _buttonBack.SafeSetListener(action);
         public void SetActionOnButtonAddAugmentationClick(UnityAction action) => _buttonAddAugmentation.SafeSetListener(action);
+        public void SetActionOnButtonNextStepClick(UnityAction action) => _nextStep.SafeSetListener(action);
+        public void SetActionOnButtonPreviousStepClick(UnityAction action) => _previousStep.SafeSetListener(action);
         public Transform GetStepContainer() => _stepContainer;
         public ContetItemView GetContetItemViewPrefab() => _contetItemViewPrefab;
 

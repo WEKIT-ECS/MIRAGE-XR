@@ -29,7 +29,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 7282012451669322779}
   m_Father: {fileID: 0}
@@ -48,6 +48,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   text: {fileID: 3240002481907027792}
   diamond: {fileID: 7282012451669322779}
+  _infoPanelPrefab: {fileID: 3311286257909689784, guid: 36f822f7217b63e44b54bcb9659a7084,
+    type: 3}
 --- !u!135 &3730357184311593125
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -169,7 +171,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: 12
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2ee51921491a242a0814e2e7f65ae568, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 2ee51921491a242a0814e2e7f65ae568, type: 2}
