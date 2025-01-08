@@ -19,6 +19,7 @@ namespace MirageXR
         [SerializeField] private Toggle stepCompletedToggle_Collapsed;
         [SerializeField] private GameObject _mainScreen;
         [SerializeField] private GameObject _mainScreen_Collapsed;
+        [SerializeField] private GameObject _windowControls;
         [SerializeField] private Button previousStepButton;
         [SerializeField] private Button nextStepButton;
         [SerializeField] private Button previousStepButton_Collapsed;
@@ -51,6 +52,7 @@ namespace MirageXR
         {
             _mainScreen.SetActive(false);
             _mainScreen_Collapsed.SetActive(true);
+            _windowControls.SetActive(false);
             UpdateToggleStates();
         }
         
@@ -58,6 +60,7 @@ namespace MirageXR
         {
             _mainScreen.SetActive(true);
             _mainScreen_Collapsed.SetActive(false);
+            _windowControls.SetActive(true);
             UpdateToggleStates();
         }
         
