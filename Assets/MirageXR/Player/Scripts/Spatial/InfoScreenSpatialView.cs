@@ -20,6 +20,7 @@ namespace MirageXR
         [SerializeField] private GameObject _mainScreen;
         [SerializeField] private GameObject _mainScreen_Collapsed;
         [SerializeField] private GameObject _windowControls;
+        [SerializeField] private GameObject _windowContainer;
         [SerializeField] private Button previousStepButton;
         [SerializeField] private Button nextStepButton;
         [SerializeField] private Button previousStepButton_Collapsed;
@@ -44,8 +45,7 @@ namespace MirageXR
         
         private void OnEditorModeChanged(bool value)
         {
-            stepCompletedToggle.gameObject.SetActive(!value);
-            stepCompletedToggle_Collapsed.gameObject.SetActive(!value);
+            _windowContainer.SetActive(!value);
         }
 
         private void OnStepCompletedToggleValueChanged(bool value)
@@ -99,6 +99,9 @@ namespace MirageXR
             _textTitle.text = step.Name;
             _textTitle_Collapsed.text = step.Name;
             _textDescription.text = step.Description;
+            
+            var isEditorMode = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+            OnEditorModeChanged(isEditorMode);
             
             foreach (var item in _mediaListItemViews)
             {
