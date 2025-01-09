@@ -23,7 +23,7 @@ namespace MirageXR.View
         {
             RootObject.Instance.LEE.StepManager.OnStepChanged += StepManagerOnStepChanged;
             RootObject.Instance.LEE.ContentManager.OnContentActivated += ContentManagerOnContentActivated;
-            RootObject.Instance.LEE.ContentManager.OnContentUpdated += ContentManagerOnContentUpdated;
+            RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnOnActivityUpdated;
 
             var calibrationManager = RootObject.Instance.CalibrationManager;
             await calibrationManager.WaitForInitialization();
@@ -31,38 +31,24 @@ namespace MirageXR.View
             transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
         }
 
+        private void OnOnActivityUpdated(Activity activity)
+        {
+            UnityEngine.Debug.Log("---OnActivityUpdated");
+            UpdateStepView();
+        }
+
         private void ContentManagerOnContentActivated(List<Content> contents)
         {
+            UnityEngine.Debug.Log("---ContentManagerOnContentActivated");
             _contents = contents;
             UpdateContentsView();
         }
 
         private void StepManagerOnStepChanged(ActivityStep step)
         {
+            UnityEngine.Debug.Log("---StepManagerOnStepChanged");
             _step = step;
             UpdateStepView();
-        }
-
-        private void ContentManagerOnContentUpdated(List<Content> contents)
-        {
-            foreach (var content in contents)
-            {
-                var view = _contentViews.FirstOrDefault(t => t.Id == content.Id);
-                if (view != null)
-                {
-                    view.UpdateContent(content);
-                    view.PlayAsync();
-                }
-            }
-
-            for (var i = 0; i < _contents.Count; i++)
-            {
-                var content = contents.FirstOrDefault(t => t.Id == _contents[i].Id);
-                if (content != null)
-                {
-                    _contents[i] = content;
-                }
-            }
         }
 
         private void UpdateStepView()
@@ -101,7 +87,7 @@ namespace MirageXR.View
                 if (_contentViews.All(t => t.Id != content.Id))
                 {
                     var contentView = CreateContentView(content);
-                    contentView.InitializeAsync(content).Forget();
+                    contentView.InitializeAsync(content);
                     _contentViews.Add(contentView);
                 }
             }
@@ -123,7 +109,7 @@ namespace MirageXR.View
         {
             foreach (var contentView in _contentViews)
             {
-                contentView.PlayAsync().Forget();
+                contentView.Play();
             }
         }
 

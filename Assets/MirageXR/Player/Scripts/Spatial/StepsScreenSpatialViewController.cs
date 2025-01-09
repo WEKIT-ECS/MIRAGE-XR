@@ -24,6 +24,8 @@ namespace MirageXR
             View.SetActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
             View.SetActionOnButtonMediaAddNewFileClick(OnButtonMediaAddNewFileClick);
             View.SetActionOnButtonToolsAddNewToolClick(OnButtonToolsAddNewToolClick);
+            View.SetActionOnButtonNextStepClick(OnButtonNextStepClicked);
+            View.SetActionOnButtonPreviousStepClick(OnButtonPreviousStepClicked);
             View.SetActionOnTitleInputEndEdit(OnTitleInputEndEdit);
             View.SetActionOnDescriptionInputEndEdit(OnDescriptionInputEndEdit);
 
@@ -60,6 +62,16 @@ namespace MirageXR
         private void OnButtonToolsAddNewToolClick()
         {
             
+        }
+        
+        private void OnButtonPreviousStepClicked()
+        {
+            RootObject.Instance.LEE.StepManager.GoToNextStep();
+        }
+
+        private void OnButtonNextStepClicked()
+        {
+            RootObject.Instance.LEE.StepManager.GoToPreviousStep();
         }
 
         private void OnMediaFileSelected(Texture2D texture)
@@ -214,7 +226,7 @@ namespace MirageXR
             foreach (var content in _contents)
             {
                 var item = Instantiate(prefab, container);
-                item.Initialize(content, OnStepItemClick, OnStepItemDeleteClick);
+                item.Initialize(content, OnStepItemClick);
                 _contentsItemViews.Add(item);
             }
         }
@@ -223,11 +235,6 @@ namespace MirageXR
         {
             var prefab = MenuManager.Instance.GetEditorPrefab(content.Type);
             PopupsViewer.Instance.Show(prefab, content);
-        }
-
-        private void OnStepItemDeleteClick(Content content)
-        {
-            RootObject.Instance.LEE.ContentManager.RemoveContent(content.Id);
         }
 
         private void OnButtonAddAugmentationClicked()
