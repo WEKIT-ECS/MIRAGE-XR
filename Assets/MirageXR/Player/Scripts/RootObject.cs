@@ -117,7 +117,6 @@ namespace MirageXR
                 // await _serviceBootstrapper.RegisterServices(); // not allowed, protected
 
                 _lee ??= new GameObject("LearningExperienceEngine").AddComponent<LearningExperienceEngine.LearningExperienceEngine>();
-                await _lee.WaitForInitialization();
                 //_lee.transform.parent = transform;
 
                 _imageTargetManager ??= new GameObject("ImageTargetManagerWrapper").AddComponent<ImageTargetManagerWrapper>();
@@ -145,6 +144,7 @@ namespace MirageXR
                 _calibrationManager = new CalibrationManager();
                 _virtualInstructorOrchestrator = new VirtualInstructorOrchestrator();
 
+                await _lee.WaitForInitialization();
                 await _assetBundleManager.InitializeAsync();
                 await _aiManager.InitializeAsync();
                 await _imageTargetManager.InitializationAsync();

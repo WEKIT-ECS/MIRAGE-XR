@@ -226,9 +226,14 @@ namespace MirageXR
             foreach (var content in _contents)
             {
                 var item = Instantiate(prefab, container);
-                item.Initialize(content, OnStepItemClick);
+                item.Initialize(content, OnStepItemClick, OnStepItemDeleteClick);
                 _contentsItemViews.Add(item);
             }
+        }
+
+        private void OnStepItemDeleteClick(Content content)
+        {
+            RootObject.Instance.LEE.ContentManager.RemoveContent(content.Id);
         }
 
         private void OnStepItemClick(Content content)
