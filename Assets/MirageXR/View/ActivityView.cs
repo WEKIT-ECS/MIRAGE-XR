@@ -87,7 +87,7 @@ namespace MirageXR.View
                 if (_contentViews.All(t => t.Id != content.Id))
                 {
                     var contentView = CreateContentView(content);
-                    contentView.InitializeAsync(content);
+                    contentView.InitializeAsync(content).Forget();
                     _contentViews.Add(contentView);
                 }
             }
@@ -109,7 +109,7 @@ namespace MirageXR.View
         {
             foreach (var contentView in _contentViews)
             {
-                contentView.Play();
+                contentView.PlayAsync().Forget();
             }
         }
 
