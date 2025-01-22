@@ -64,7 +64,7 @@ namespace MirageXR
             if (webRequest.result != UnityWebRequest.Result.Success)
             {
                 throw new HttpRequestException(
-                    $"Error while receiving the result of the SST endpoint: {webRequest.error}");
+                    $"Error while receiving the result of the STT endpoint: {webRequest.error}");
             }
 
             return webRequest.downloadHandler.text;
