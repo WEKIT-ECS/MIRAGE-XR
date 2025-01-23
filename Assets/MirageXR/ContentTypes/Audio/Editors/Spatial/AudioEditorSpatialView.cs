@@ -56,6 +56,7 @@ public class AudioEditorSpatialView : EditorSpatialView
     [Space]
     [SerializeField] private TMP_Text _txtTimerFrom;
     [SerializeField] private TMP_Text _txtTimerTo;
+    [SerializeField] private TMP_Text _txtRecordingHint;
     [Space]
     [Header("Panels:")]
     [SerializeField] private GameObject _panelRecordControls;
@@ -227,6 +228,7 @@ public class AudioEditorSpatialView : EditorSpatialView
         _recordStartTime = Time.unscaledTime;
         RootObject.Instance.LEE.AudioManager.Start(_fileName);
         StartUpdateRecordTimer();
+        _txtRecordingHint.text = "Press again to stop recording";
     }
 
     private void OnRecordStopped()
@@ -401,6 +403,7 @@ public class AudioEditorSpatialView : EditorSpatialView
     {
         _panelRecordControls.SetActive(true);
         _txtTimer.text = ToTimeFormat(0);
+        _txtRecordingHint.text = "Press to record";
     }
 
     private void OnOpenDeviceFolder()
