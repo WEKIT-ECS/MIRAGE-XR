@@ -74,7 +74,7 @@ namespace MirageXR
             _showBackground = false;
             base.Initialization(onClose, args);
 
-            _labelText = string.Empty;
+            _labelText = "Label text"; //string.Empty;
             _colorBackground = _colors[10];
             _colorFont = _colors[0];
             _sizeFont = DefaultFontSize;
