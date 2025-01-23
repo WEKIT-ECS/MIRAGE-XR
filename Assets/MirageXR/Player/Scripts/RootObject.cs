@@ -170,8 +170,6 @@ namespace MirageXR
             }
         }
 
-
-
         private void ResetManagers()
         {
             ResetManagersAsync().AsAsyncVoid();
