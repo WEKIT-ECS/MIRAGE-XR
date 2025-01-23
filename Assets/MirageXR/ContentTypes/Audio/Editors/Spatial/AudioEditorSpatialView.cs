@@ -1,5 +1,4 @@
 using LearningExperienceEngine;
-using DG.Tweening;
 using MirageXR;
 using System;
 using System.Collections;
@@ -21,8 +20,6 @@ public class AudioEditorSpatialView : EditorSpatialView
     private const float MIN_RANGE = 0.0f;
     private const float MAX_RANGE = 10.0f;
     private const float REWIND_VALUE = 10f;
-    private const float HIDED_SIZE = 100f;
-    private const float HIDE_ANIMATION_TIME = 0.5f;
 
     private const string AUDIO_FILE_EXTENSION_WAV = "wav";
     private const string AUDIO_FILE_EXTENSION_MP3 = "mp3";
@@ -35,7 +32,6 @@ public class AudioEditorSpatialView : EditorSpatialView
     [SerializeField] private Button _btnMicRecording;
     [SerializeField] private Button _btnMicReRecording;
     [SerializeField] private Button _btnDeviceFolder;
-    //[SerializeField] private Button _btnDeviceFolderPlayAudioPanel;
     [SerializeField] private Button _btnRecord;
     [SerializeField] private Button _btnStop;
     [SerializeField] private Button _btnPlay;
@@ -44,7 +40,6 @@ public class AudioEditorSpatialView : EditorSpatialView
     [SerializeField] private Button _btnRewindForward;
 
     [SerializeField] private Toggle _toggle3D;
-    //[SerializeField] private Toggle _toggle2D;
     [SerializeField] private Toggle _toggleLoop;
     [SerializeField] private Button _btnIncreaseRange;
     [SerializeField] private Button _btnDecreaseRange;
@@ -58,24 +53,13 @@ public class AudioEditorSpatialView : EditorSpatialView
     [Space]
     [SerializeField] private TMP_Text _txtTimer;
     [SerializeField] private Slider _sliderPlayer;
-    //[SerializeField] private Image _imgRecordingIcon;
-    //[SerializeField] private CanvasGroup _groupPlayControls;
     [Space]
     [SerializeField] private TMP_Text _txtTimerFrom;
     [SerializeField] private TMP_Text _txtTimerTo;
     [Space]
     [Header("Panels:")]
     [SerializeField] private GameObject _panelRecordControls;
-    //[SerializeField] private GameObject _panelAudioSettings;
-    //[SerializeField] private GameObject _panelBottomButtons;
-    //[Space]
-    //[SerializeField] private GameObject _topContainer;
-    //[SerializeField] private GameObject _topContainerPlayAudio;
-    /*[Space]
-    [SerializeField] private Button _btnArrow;
-    [SerializeField] private RectTransform _panel;
-    [SerializeField] private GameObject _arrowDown;
-    [SerializeField] private GameObject _arrowUp;*/
+    [SerializeField] private GameObject _topContainerPlayAudio;
     [Space]
     [SerializeField] private AudioSource _audioSource;
 
@@ -103,24 +87,19 @@ public class AudioEditorSpatialView : EditorSpatialView
         _txtSliderRangeValue.text = DEFAULT_RANGE.ToString("0");
 
         _panelRange.SetActive(false);
-        //_topContainer.SetActive(true);
-        //_topContainerPlayAudio.SetActive(false); 
+        _topContainerPlayAudio.SetActive(false); 
         _panelRecordControls.SetActive(false);
-        //_panelBottomButtons.SetActive(false);
-        //_panelAudioSettings.SetActive(true);
 
         _btnAudioSettings.onClick.AddListener(OnOpenAudioSettings);
         _btnMicRecording.onClick.AddListener(OnOpenRecordControlsPanel);
         _btnMicReRecording.onClick.AddListener(OnOpenRecordControlsPanel);
         _btnDeviceFolder.onClick.AddListener(OnOpenDeviceFolder);
-        //_btnDeviceFolderPlayAudioPanel.onClick.AddListener(OnOpenDeviceFolder);
 
         _btnRecord.onClick.AddListener(OnRecordStarted);
         _btnStop.onClick.AddListener(OnRecordStopped);
         _btnPlay.onClick.AddListener(OnPlayingStarted);
         _btnPause.onClick.AddListener(OnPlayingPaused);
         _btnRewindBack.onClick.AddListener(OnRewindBack);
-        //_btnArrow.onClick.AddListener(OnArrowButtonPressed);
         _btnRewindForward.onClick.AddListener(OnRewindForward);
         _btnIncreaseRange.onClick.AddListener(OnIncreaseRange);
         _btnDecreaseRange.onClick.AddListener(OnDecreaseRange);
@@ -142,25 +121,14 @@ public class AudioEditorSpatialView : EditorSpatialView
 
         if (_audioContent != null)
         {
-            //_topContainer.SetActive(false);
-            //_topContainerPlayAudio.SetActive(true);
+            _topContainerPlayAudio.SetActive(true);
             LoadContent();
-            //_groupPlayControls.interactable = true;
-            //var trigger = _step.triggers.Find(tr => tr.id == _content.poi);
-            /*if (trigger != null)
-            {
-                _inputTriggerStepNumber = trigger.value;
-                _scrollRectStep = int.Parse(_inputTriggerStepNumber) - 1;
-                _toggleTrigger.isOn = true;
-            }*/
+
             OnClickRecordComplete();
         }
         else
         {
-            //_groupPlayControls.interactable = false;
-
-            //_topContainer.SetActive(true);
-            //_topContainerPlayAudio.SetActive(false);
+            _topContainerPlayAudio.SetActive(false);
         }
 
         _fileName = $"MirageXR_Audio_{DateTime.Now.ToFileTimeUtc()}.wav";
@@ -205,7 +173,6 @@ public class AudioEditorSpatialView : EditorSpatialView
         _audioClip = SaveLoadAudioUtilities.LoadAudioFile(filePath);
 
         _toggle3D.isOn = _audioContent.ContentData.Is3dSound;
-        //_toggle2D.isOn = !_toggle3D.isOn;
         _panelRange.SetActive(_toggle3D.isOn);
         _toggleLoop.isOn = _audioContent.ContentData.IsLooped;
         _txtSliderRangeValue.text = _audioContent.ContentData.SoundRange.ToString("00");
@@ -271,14 +238,12 @@ public class AudioEditorSpatialView : EditorSpatialView
         StopCoroutine(_updateRecordTimerCoroutine);
         
         OnClickRecordComplete();
-        //_topContainer.SetActive(false);
-        //_topContainerPlayAudio.SetActive(true);
+        _topContainerPlayAudio.SetActive(true);
     }
 
     private void OnClickRecordComplete()
     {
         _panelRecordControls.SetActive(false);
-        //_panelAudioSettings.SetActive(false);
         _txtTimerTo.text = ToTimeFormatMinutes(_audioClip.length);
         OnOpenAudioSettings();
     }
@@ -427,19 +392,13 @@ public class AudioEditorSpatialView : EditorSpatialView
 
     private void OnOpenAudioSettings()
     {
-        //_panelBottomButtons.SetActive(false);
-        //_panelAudioSettings.SetActive(true);
-
         //_objJumpToStep.SetActive(true);
         _clampedScrollJumpToStep.currentItemIndex = _scrollRectStep;
         //_objJumpToStep.SetActive(_toggleTrigger.isOn);
-
     }
 
     private void OnOpenRecordControlsPanel()
     {
-        //_panelBottomButtons.SetActive(false);
-        //_panelAudioSettings.SetActive(false);
         _panelRecordControls.SetActive(true);
         _txtTimer.text = ToTimeFormat(0);
     }
@@ -489,10 +448,8 @@ public class AudioEditorSpatialView : EditorSpatialView
                 
                 _recordStartTime = 0;
                 SetPlayerActive(true);
-                //_groupPlayControls.interactable = true;
                 OnClickRecordComplete();
-                //_topContainer.SetActive(false);
-                //_topContainerPlayAudio.SetActive(true);
+                _topContainerPlayAudio.SetActive(true);
             }
         }
     }
@@ -551,23 +508,6 @@ public class AudioEditorSpatialView : EditorSpatialView
         }
         await SaveLoadAudioUtilities.SaveAsync(filePath, _audioClip);
     }
-
-    /*private void OnArrowButtonPressed()
-    {
-        if (_arrowDown.activeSelf)
-        {
-            var hidedSize = HIDED_SIZE;
-            _panel.DOAnchorPosY(-_panel.rect.height + hidedSize, HIDE_ANIMATION_TIME);
-            _arrowDown.SetActive(false);
-            _arrowUp.SetActive(true);
-        }
-        else
-        {
-            _panel.DOAnchorPosY(0.0f, HIDE_ANIMATION_TIME);
-            _arrowDown.SetActive(true);
-            _arrowUp.SetActive(false);
-        }
-    }*/
 
     private void OnToggleTriggerValueChanged(bool value)
     {
