@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;
@@ -98,7 +99,7 @@ namespace MirageXR
             _step = step;  
             _textTitle.text = step.Name;
             _textTitle_Collapsed.text = step.Name;
-            _textDescription.text = step.Description;
+            _textDescription.text = AddLinkTagsToBrackets(step.Description);
             
             var isEditorMode = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
             OnEditorModeChanged(isEditorMode);
@@ -128,6 +129,18 @@ namespace MirageXR
                     }
                 }
             }
+        }
+        
+        private string AddLinkTagsToBrackets(string inputText)
+        {
+            var pattern = @"\[(.*?)\]";
+            var result = Regex.Replace(inputText, pattern, match =>
+            {
+                var content = match.Groups[1].Value;
+                return $"<link={content}><color=#8F9CFF>[{content}]</color></link>";
+            });
+
+            return result;
         }
     }
 }
