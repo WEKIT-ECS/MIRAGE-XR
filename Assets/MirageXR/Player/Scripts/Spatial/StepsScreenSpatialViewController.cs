@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
 using UnityEngine;
@@ -147,11 +148,21 @@ namespace MirageXR
         private async UniTask UpdateInfoViewAsync()
         {
             View.SetTitleInputText(_step.Name);
-            View.SetDescriptionInputText(_step.Description);
+            View.SetDescriptionInputText(AddColorToBrackets(_step.Description));
             await UpdateInfoMediaViewAsync();
             UpdateInfoToolsView();
         }
+        private string AddColorToBrackets(string inputText)
+        {
+            var pattern = @"\[([^\[\]]+)\]";
+            var result = Regex.Replace(inputText, pattern, match =>
+            {
+                var content = match.Groups[1].Value;
+                return $"<color=#8F9CFF>[{content}]</color>";
+            });
 
+            return result;
+        }
         private async UniTask UpdateInfoMediaViewAsync()
         {
             var isEditorMode = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
