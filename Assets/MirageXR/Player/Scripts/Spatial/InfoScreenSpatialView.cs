@@ -133,7 +133,7 @@ namespace MirageXR
         
         private string AddLinkTagsToBrackets(string inputText)
         {
-            var pattern = @"\[(.*?)\]";
+            var pattern = @"\[([^\[\]]+)\]";
             var result = Regex.Replace(inputText, pattern, match =>
             {
                 var content = match.Groups[1].Value;
