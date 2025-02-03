@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
@@ -16,6 +17,7 @@ namespace MirageXR
         private Camera _camera;
         private Dictionary<string, GameObject> _hyperlinkInstances = new();
         private Dictionary<string, SplineContainer> _splineInstances = new();
+        private HashSet<string> _activeLinkIds = new();
 
         [SerializeField] private float curveStrength = 1.0f;
 
@@ -48,7 +50,7 @@ namespace MirageXR
             HandleClick();
         }
         
-        foreach (var linkId in _hyperlinkInstances.Keys)
+        foreach (var linkId in _activeLinkIds)
         {
             UpdateSplineLine(linkId);
         }
@@ -66,14 +68,35 @@ namespace MirageXR
             var linkId = linkInfo.GetLinkID();
             Debug.Log($"Clicked on link: {linkId}");
 
-            if (!_hyperlinkInstances.ContainsKey(linkId))
+            if (_hyperlinkInstances.ContainsKey(linkId))
+            {
+                DestroyHyperlink(linkId);
+                _activeLinkIds.Remove(linkId);
+            }
+            else
             {
                 var linkPosition = GetLinkWorldPosition(linkInfo);
                 var hyperlinkInstance = CreateHyperlinkPrefab(linkPosition);
                 _hyperlinkInstances[linkId] = hyperlinkInstance;
-                
+                _activeLinkIds.Add(linkId);
+
                 CreateSplineLine(linkId, linkPosition, hyperlinkInstance.transform.position);
             }
+        }
+    }
+    
+    private void DestroyHyperlink(string linkId)
+    {
+        if (_hyperlinkInstances.ContainsKey(linkId))
+        {
+            Destroy(_hyperlinkInstances[linkId]);
+            _hyperlinkInstances.Remove(linkId);
+        }
+
+        if (_splineInstances.ContainsKey(linkId))
+        {
+            Destroy(_splineInstances[linkId].gameObject);
+            _splineInstances.Remove(linkId);
         }
     }
 
