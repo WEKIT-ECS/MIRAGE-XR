@@ -7,6 +7,7 @@ using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using IBM.Watson.SpeechToText.V1;
 
 public class AudioEditorView : PopupEditorBase
 {
@@ -38,6 +39,8 @@ public class AudioEditorView : PopupEditorBase
     [SerializeField] private Button _btnRewindBack;
     [SerializeField] private Button _btnRewindForward;
 
+    [SerializeField] private Button _btnGenerateCaptions;
+
     [SerializeField] private Toggle _toggle3D;
     //[SerializeField] private Toggle _toggle2D;
     [SerializeField] private Toggle _toggleLoop;
@@ -67,12 +70,18 @@ public class AudioEditorView : PopupEditorBase
     [SerializeField] private GameObject _topContainer;
     [SerializeField] private GameObject _topContainerPlayAudio;
     [Space]
+    [SerializeField] private GameObject _panelMain;
+    [SerializeField] private GameObject _panelCaptionPreview;
+    [SerializeField] private GameObject _generateCaption;
+    [Space]
     [SerializeField] private Button _btnArrow;
     [SerializeField] private RectTransform _panel;
     [SerializeField] private GameObject _arrowDown;
     [SerializeField] private GameObject _arrowUp;
     [Space]
     [SerializeField] private AudioSource _audioSource;
+    [SerializeField] private AudioCaptionEdit _audioCaptionEdit;
+    public SpeechToTextService speechToText;
 
     private AudioClip _audioClip;
     private string _fileName;
@@ -83,9 +92,13 @@ public class AudioEditorView : PopupEditorBase
     private string[] _audioFileType;
 
     private string _inputTriggerStepNumber = string.Empty;
-
+    //string captions 
+    private string _audioCaption = string.Empty;
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
+
+        speechToText = new SpeechToTextService();
+
         _showBackground = false;
         base.Initialization(onClose, args);
 
@@ -100,6 +113,11 @@ public class AudioEditorView : PopupEditorBase
         _panelRecordControls.SetActive(false);
         _panelBottomButtons.SetActive(false);
         _panelAudioSettings.SetActive(true);
+
+        _generateCaption.SetActive(false);
+        _panelCaptionPreview.SetActive(false);
+        _panelMain.SetActive(true);
+        _btnGenerateCaptions.onClick.AddListener(OnClickCaptionGenerate);
 
         _btnAudioSettings.onClick.AddListener(OnOpenAudioSettings);
         _btnMicRecording.onClick.AddListener(OnOpenRecordControlsPanel);
@@ -535,6 +553,8 @@ public class AudioEditorView : PopupEditorBase
         _content.option += $"#{_txtSliderRangeValue.text}";
         _content.scale = 0.5f;
         _content.url = $"http://{_fileName}";
+        _audioCaption = _audioCaptionEdit.EditedCaption();
+        _content.caption = _audioCaption;
 
         if (_toggleTrigger.isOn)
         {
@@ -574,5 +594,28 @@ public class AudioEditorView : PopupEditorBase
     private void OnToggleTriggerValueChanged(bool value)
     {
         _objJumpToStep.SetActive(value);
+    }
+    //The Method is called when generate caption button is pressed
+    private void OnClickCaptionGenerate()
+    {
+        _generateCaption.SetActive(true);
+        _panelMain.SetActive(false);
+        _panelCaptionPreview.SetActive(true);
+    }
+
+    //Saving and returning the temporary path
+    public string SaveAndReturnAudioClipPath()
+    {
+        if (_audioClip != null)
+        {
+            var tempFileName = $"TempAudio_{DateTime.Now.ToFileTimeUtc()}.wav";
+            var tempFilePath = Path.Combine(Application.temporaryCachePath, tempFileName);
+            SaveLoadAudioUtilities.Save(tempFilePath, _audioClip);
+            return tempFilePath;
+        }
+        else
+        {
+            return null;
+        }
     }
 }

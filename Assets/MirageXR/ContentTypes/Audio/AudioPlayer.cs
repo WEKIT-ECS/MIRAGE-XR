@@ -1,5 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
+using TMPro;
+using System.Linq;
 
 namespace MirageXR
 {
@@ -21,6 +24,9 @@ namespace MirageXR
 
         [SerializeField] private GameObject icon;
         [SerializeField] private Sprite iconSprite;
+
+        [SerializeField] private TMP_Text _captionText;
+        [SerializeField] private GameObject _captionObj;
         public Sprite IconSprite => iconSprite;
 
         [SerializeField] private Sprite pauseIcon;
@@ -61,7 +67,7 @@ namespace MirageXR
         public override bool Init(LearningExperienceEngine.ToggleObject obj)
         {
             _obj = obj;
-
+            var caption = obj.caption;
             // Check that url is not empty.
             if (string.IsNullOrEmpty(obj.url))
             {
@@ -110,12 +116,68 @@ namespace MirageXR
                 audioName = obj.url;
                 CreateAudioPlayer(true, audio3dMode, radius, Loop);
             }
+            //Start caption display if there is caption
+            if (caption != string.Empty)
+            {
+                StartCaptionDisplay(caption);
+            }
 
             // If all went well, return true.
             return true;
         }
 
+        private void StartCaptionDisplay(string caption)
+        {
+            StartCoroutine(DisplayCaptionWithDelay(caption));
+        }
 
+        private IEnumerator DisplayCaptionWithDelay(string fullCaption)
+        {
+            int captionWait = 6; //Caption display waiting time
+            // Split the full caption into words
+            string[] words = fullCaption.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            // number of words after split
+            int check = words.Length;
+
+            // Determine the number of words to display per section
+            int numberOfWords = 12;
+
+            if (check <= numberOfWords)
+            {
+                // If the total number of words is less than or equal to numberOfWords, display all at once
+                string allWords = string.Join(" ", words);
+                _captionText.text = allWords.Trim();
+                _captionObj.SetActive(true);
+
+                // Wait for a time before hiding the caption object
+                yield return new WaitForSeconds(captionWait);
+                _captionObj.SetActive(false);
+            }
+            else
+            {
+                // Calculate the number of sections
+                int numberOfSections = (int)Math.Ceiling((double)check / numberOfWords);
+
+                for (int i = 0; i < numberOfSections; i++)
+                {
+                    // Get the words for the current section
+                    string[] sectionWords = words.Skip(i * numberOfWords).Take(numberOfWords).ToArray();
+
+                    // Join the words back into a string
+                    string sectionText = string.Join(" ", sectionWords);
+
+                    // Display the text section
+                    _captionText.text = sectionText.Trim();
+                    _captionObj.SetActive(true);
+
+                    // Waiting before moving to the next section
+                    yield return new WaitForSeconds(captionWait);
+                }
+
+                // hide the caption object after all sections have been displayed
+                _captionObj.SetActive(false);
+            }
+        }
         private void Update()
         {
             if (audioEditor && (audioEditor.IsRecording || audioEditor.IsPlaying))
@@ -160,6 +222,7 @@ namespace MirageXR
                 }
                 audioSource.mute = false;
                 audioSource.volume = 1.0f;
+                _captionObj.SetActive(true); //activate the caption object
                 audioSource.Play();
                 isPlaying = true;
 
