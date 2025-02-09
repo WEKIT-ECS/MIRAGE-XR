@@ -12,6 +12,7 @@ namespace MirageXR
     {
         [SerializeField] private SpatialHyperlinkObjectView spatialHyperlinkPrefab;
         [SerializeField] private SplineContainer splineContainerPrefab;
+        [SerializeField] private TMP_Text _textMeshPro;
         [SerializeField] private Color[] diamondColors = new Color[]
         {
             Color.red,
@@ -24,8 +25,7 @@ namespace MirageXR
             new (0.5f, 0, 1) 
         };
         private int _currentColorIndex = 0;
-
-        private TMP_Text _textMeshPro;
+        
         private Camera _camera;
         private Dictionary<string, GameObject> _hyperlinkInstances = new();
         private Dictionary<string, SplineContainer> _splineInstances = new();
@@ -40,7 +40,6 @@ namespace MirageXR
 
    private void Start()
     {
-        _textMeshPro = GetComponent<TMP_Text>();
         _camera = Camera.main;
         
         spawnParent = GameObject.Find("Anchor1")?.transform;
@@ -64,6 +63,7 @@ namespace MirageXR
             Debug.LogError("Camera with name 'Main Camera' not found!");
             enabled = false;
         }
+        
         RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
     }
 
@@ -263,44 +263,6 @@ namespace MirageXR
         if (splineExtrude != null)
         {
             splineExtrude.Rebuild();
-        }
-    }
-    
-    private void RemoveLink(string linkId)
-    {
-        if (_hyperlinkInstances.ContainsKey(linkId))
-        {
-            Destroy(_hyperlinkInstances[linkId]);
-            _hyperlinkInstances.Remove(linkId);
-        }
-
-        if (_splineInstances.ContainsKey(linkId))
-        {
-            Destroy(_splineInstances[linkId].gameObject);
-            _splineInstances.Remove(linkId);
-        }
-
-        if (_linkIndexCache.ContainsKey(linkId))
-        {
-            _linkIndexCache.Remove(linkId); 
-        }
-
-        _activeLinkIds.Remove(linkId);
-    }
-    public void UpdateText(string newText)
-    {
-        _textMeshPro.text = newText;
-        _textMeshPro.ForceMeshUpdate(); 
-        
-        _linkIndexCache.Clear();
-        
-        foreach (var linkId in _activeLinkIds)
-        {
-            var index = _textMeshPro.textInfo.linkInfo.ToList().FindIndex(link => link.GetLinkID() == linkId);
-            if (index != -1)
-            {
-                _linkIndexCache[linkId] = index;
-            }
         }
     }
     }
