@@ -1,4 +1,3 @@
-using System;
 using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;
@@ -12,8 +11,6 @@ namespace MirageXR
         [SerializeField] private TMP_Text text;
         [SerializeField] private Transform diamond;
         
-        public Guid Id => _step.Id;
-
         private ActivityStep _step;
         private Camera _camera;
 
@@ -21,12 +18,40 @@ namespace MirageXR
         {
             _camera = RootObject.Instance.BaseCamera;
             InitializeManipulator();
-            UpdateView();
         }
-
-        public  void UpdateView()
+        
+        public void SetText(string linkText)
         {
-            text.text = "TEST TEXT";
+            if (text != null)
+            {
+                text.text = linkText;
+            }
+            else
+            {
+                Debug.LogError("TMP_Text component is not assigned in SpatialHyperlinkObjectView.");
+            }
+        }
+        
+        public void SetDiamondColor(Color diamondColor)
+        {
+            if (diamond != null)
+            {
+                var meshRenderer = diamond.gameObject.GetComponent<MeshRenderer>();
+                if (meshRenderer != null)
+                {
+                    var newMaterial = new Material(meshRenderer.sharedMaterial);
+                    newMaterial.SetColor("_BaseColor", diamondColor); 
+                    meshRenderer.material = newMaterial;
+                }
+                else
+                {
+                    Debug.LogError("MeshRenderer component not found on the diamond object.");
+                }
+            }
+            else
+            {
+                Debug.LogError("Diamond object is not assigned in SpatialHyperlinkObjectView.");
+            }
         }
 
         private void InitializeManipulator()
@@ -47,11 +72,7 @@ namespace MirageXR
 
         private void OnManipulationStarted() { }
 
-        private void OnManipulationEnded()
-        {
-            _step.Location.Position = transform.localPosition;
-            RootObject.Instance.LEE.StepManager.UpdateStep(_step);
-        }
+        private void OnManipulationEnded() { }
 
         private void LateUpdate()
         {
