@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace MirageXR
 {
@@ -16,6 +17,8 @@ namespace MirageXR
         private readonly List<ContetItemView> _contentsItemViews = new();
         private readonly List<StepsMediaListItemView> _mediaListItemViews = new();
         private readonly List<StepsToolsListItemView> _toolsListItemViews = new();
+        private Dictionary<string, GameObject> hyperlinkPrefabs = new(); 
+        private bool descriptionContainsLinks = false;
 
         protected override void OnBind()
         {
@@ -29,6 +32,7 @@ namespace MirageXR
             View.SetActionOnButtonPreviousStepClick(OnButtonPreviousStepClicked);
             View.SetActionOnTitleInputEndEdit(OnTitleInputEndEdit);
             View.SetActionOnDescriptionInputEndEdit(OnDescriptionInputEndEdit);
+            View.SetActionOnButtonConfirmHyperlinkPositionClick(OnButtonConfirmHyperlinkPositionClicked);
 
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
             RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += ActivityManagerOnActivityUpdated;
@@ -44,6 +48,7 @@ namespace MirageXR
         private void OnDescriptionInputEndEdit(string text)
         {
             RootObject.Instance.LEE.StepManager.SetStepDescription(_step.Id, text);
+            View.SetHyperlinkDialogActive(descriptionContainsLinks);
         }
 
         private void ActivityManagerOnActivityUpdated(Activity activity)
@@ -133,6 +138,12 @@ namespace MirageXR
             View.SetActiveContainerToolsAddNewToolClick(value);
         }
 
+        private void OnButtonConfirmHyperlinkPositionClicked()
+        {
+            // TODO: save hyperlink position 
+            View.SetHyperlinkDialogActive(false);
+        }
+
         private void ContentManagerOnContentActivated(List<Content> contents)
         {
             _contents = contents;
@@ -149,20 +160,58 @@ namespace MirageXR
         {
             View.SetTitleInputText(_step.Name);
             View.SetDescriptionInputText(AddColorToBrackets(_step.Description));
+            
             await UpdateInfoMediaViewAsync();
             UpdateInfoToolsView();
         }
         private string AddColorToBrackets(string inputText)
         {
             var pattern = @"\[([^\[\]]+)\]";
-            var result = Regex.Replace(inputText, pattern, match =>
+            var matches = Regex.Matches(inputText, pattern);
+            var newLinks = new HashSet<string>();
+            
+            descriptionContainsLinks = matches.Count > 0;
+            
+            foreach (Match match in matches)
             {
                 var content = match.Groups[1].Value;
-                return $"<color=#8F9CFF>[{content}]</color>";
-            });
-
-            return result;
+                newLinks.Add(content);
+            }
+            
+            var linksToRemove = new List<string>();
+            foreach (var link in hyperlinkPrefabs.Keys)
+            {
+                if (!newLinks.Contains(link))
+                {
+                    var prefabToRemove = hyperlinkPrefabs[link];
+                    if (prefabToRemove != null)
+                    {
+                        Destroy(prefabToRemove);
+                    }
+                    linksToRemove.Add(link);
+                }
+            }
+            foreach (var link in linksToRemove)
+            {
+                hyperlinkPrefabs.Remove(link);
+            }
+            foreach (var content in newLinks)
+            {
+                if (!hyperlinkPrefabs.ContainsKey(content))
+                {
+                    var linkPosition = gameObject.transform.position;
+                    var randomOffsetX = Random.Range(-0.2f, 0.2f);
+                    var randomOffsetY = Random.Range(-0.2f, 0.2f);
+                    var randomOffsetZ = Random.Range(-0.2f, 0.2f);
+                    linkPosition += new Vector3(randomOffsetX, randomOffsetY, randomOffsetZ);
+                    
+                    var hyperlinkInstance = View.CreateHyperlinkPrefab(linkPosition, content);
+                    hyperlinkPrefabs[content] = hyperlinkInstance;
+                }
+            }
+            return Regex.Replace(inputText, pattern, match => $"<color=#8F9CFF>[{match.Groups[1].Value}]</color>");
         }
+
         private async UniTask UpdateInfoMediaViewAsync()
         {
             var isEditorMode = RootObject.Instance.LEE.ActivityManager.IsEditorMode;

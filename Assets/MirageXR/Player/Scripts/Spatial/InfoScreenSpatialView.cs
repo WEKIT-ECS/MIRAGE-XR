@@ -1,8 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using LearningExperienceEngine.DataModel;
 using TMPro;
+using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Splines;
 using UnityEngine.UI;
 
 namespace MirageXR
@@ -26,14 +29,31 @@ namespace MirageXR
         [SerializeField] private Button nextStepButton;
         [SerializeField] private Button previousStepButton_Collapsed;
         [SerializeField] private Button nextStepButton_Collapsed;
+        [Space]
+        [SerializeField] private SplineContainer splineContainerPrefab;
+        [SerializeField] private float curveStrength = 1.0f;
         
         private readonly List<StepsMediaListItemView> _mediaListItemViews = new();
         
         private ActivityStep _step;
         private Camera _camera;
+        
+        private Transform spawnParent;
+        private readonly Dictionary<string, GameObject> _hyperlinkInstances = new(); 
+        private readonly Dictionary<string, SplineContainer> _splineInstances = new();
+        private readonly Dictionary<string, int> _linkIndexCache = new(); 
+        private readonly Dictionary<string, (Vector3 startPosition, Vector3 endPosition)> _previousPositions = new();
 
         public void Initialize(ActivityStep step)
         {
+            spawnParent = GameObject.Find("Anchor")?.transform;
+            if (spawnParent == null)
+            {
+                spawnParent = null;
+            }
+            
+            _camera = Camera.main;
+            
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
             nextStepButton.onClick.AddListener(OnNextStepClicked);
             previousStepButton.onClick.AddListener(OnPreviousStepClicked);
@@ -44,9 +64,188 @@ namespace MirageXR
             UpdateView(step); 
         }
         
+        private void Update()
+        {
+            if (Input.GetMouseButtonDown(0)) // left mouse button
+            {
+                HandleClick();
+            }
+            
+            foreach (var linkId in _splineInstances.Keys)
+            {
+                if (!_hyperlinkInstances.ContainsKey(linkId))
+                {
+                    continue;
+                }
+
+                var hyperlinkInstance = _hyperlinkInstances[linkId];
+                var currentStartPosition = GetLinkWorldPosition(linkId);
+                var currentEndPosition = hyperlinkInstance.transform.position;
+                
+                if (_previousPositions.TryGetValue(linkId, out var previousPositions))
+                {
+                    if (previousPositions.startPosition == currentStartPosition &&
+                        previousPositions.endPosition == currentEndPosition)
+                    {
+                        continue;
+                    }
+                }
+                UpdateSplineLine(linkId);
+                _previousPositions[linkId] = (currentStartPosition, currentEndPosition);
+            }
+        }
+        
+        private void HandleClick()
+        {
+            var mousePosition = Input.mousePosition;
+            
+            if (_camera == null)
+            {
+                Debug.LogWarning("Camera is not assigned.");
+                return;
+            }
+            
+            var linkIndex = TMP_TextUtilities.FindIntersectingLink(_textDescription, mousePosition, _camera);
+            if (linkIndex != -1)
+            {
+                var linkInfo = _textDescription.textInfo.linkInfo[linkIndex];
+                var linkId = linkInfo.GetLinkID();
+                ToggleHyperlinkVisibility(linkId);
+            }
+        }
+
+        private void ToggleHyperlinkVisibility(string linkId)
+        {
+            if (_hyperlinkInstances.ContainsKey(linkId))
+            {
+                var hyperlinkInstance = _hyperlinkInstances[linkId];
+                var isActive = !hyperlinkInstance.activeSelf;
+                
+                hyperlinkInstance.SetActive(isActive);
+                
+                if (_splineInstances.ContainsKey(linkId))
+                {
+                    var splineContainer = _splineInstances[linkId];
+                    splineContainer.gameObject.SetActive(isActive);
+                }
+            }
+        }
+        
         private void OnEditorModeChanged(bool value)
         {
             _windowContainer.SetActive(!value);
+            if (_windowContainer.activeSelf)
+            {
+                CreateSplinesForHyperlinks();
+            }
+            else
+            {
+                foreach (var linkId in _hyperlinkInstances.Keys)
+                {
+                    _hyperlinkInstances[linkId].SetActive(true);
+                }
+                ClearSplines();
+            }
+        }
+        
+        private void CreateSplinesForHyperlinks()
+        {
+            _textDescription.ForceMeshUpdate();
+            var linkInfos = _textDescription.textInfo.linkInfo;
+            foreach (var linkInfo in linkInfos)
+            {
+                var linkId = linkInfo.GetLinkID();
+                var prefabName = "hyperlink_" + linkId;
+                var hyperlinkPrefab = GameObject.Find(prefabName);
+
+                if (hyperlinkPrefab != null)
+                {
+                    _hyperlinkInstances[linkId] = hyperlinkPrefab;
+                    CreateSplineLine(linkId);
+                }
+            }
+        }
+        
+        private void ClearSplines()
+        {
+            foreach (var spline in _splineInstances.Values)
+            {
+                Destroy(spline.gameObject);
+            }
+            _splineInstances.Clear();
+            _hyperlinkInstances.Clear();
+            _previousPositions.Clear(); 
+        }
+        private void CreateSplineLine(string linkId)
+        {
+            var splinePrefab = Instantiate(splineContainerPrefab, spawnParent);
+
+            splinePrefab.transform.localPosition = Vector3.zero;
+            splinePrefab.transform.localRotation = Quaternion.identity;
+
+            var splineContainer = splinePrefab.GetComponent<SplineContainer>();
+            _splineInstances[linkId] = splineContainer;
+
+            UpdateSplineLine(linkId);
+        }
+        
+        private void UpdateSplineLine(string linkId)
+        {
+            if (!_hyperlinkInstances.ContainsKey(linkId) || !_splineInstances.ContainsKey(linkId))
+            {
+                return;
+            }
+
+            var hyperlinkInstance = _hyperlinkInstances[linkId];
+            var splineContainer = _splineInstances[linkId];
+
+            var startPosition = GetLinkWorldPosition(linkId);
+            
+            var endPosition = hyperlinkInstance.transform.position;
+
+            var localStartPosition = splineContainer.transform.InverseTransformPoint(startPosition);
+            var localEndPosition = splineContainer.transform.InverseTransformPoint(endPosition);
+
+            splineContainer.Spline.Clear();
+
+            var startKnot = new BezierKnot(localStartPosition);
+            var endKnot = new BezierKnot(localEndPosition);
+
+            var direction = (localEndPosition - localStartPosition).normalized;
+            var perpendicular = new Vector3(-direction.y, direction.x, direction.z) * curveStrength;
+
+            startKnot.TangentOut = new float3(perpendicular);
+            endKnot.TangentIn = new float3(-perpendicular);
+
+            splineContainer.Spline.Add(startKnot);
+            splineContainer.Spline.Add(endKnot);
+
+            var splineExtrude = splineContainer.GetComponent<SplineExtrude>();
+            if (splineExtrude != null)
+            {
+                splineExtrude.Rebuild();
+            }
+        }
+        private Vector3 GetLinkWorldPosition(string linkId)
+        {
+            if (!_linkIndexCache.ContainsKey(linkId))
+            {
+                var index = _textDescription.textInfo.linkInfo.ToList().FindIndex(link => link.GetLinkID() == linkId);
+                if (index == -1)
+                {
+                    Debug.LogError($"Link with ID {linkId} not found.");
+                    return Vector3.zero;
+                }
+                _linkIndexCache[linkId] = index;
+            }
+
+            var linkInfo = _textDescription.textInfo.linkInfo[_linkIndexCache[linkId]];
+            var charInfo = _textDescription.textInfo.characterInfo[linkInfo.linkTextfirstCharacterIndex];
+            
+            var startPosition = _textDescription.transform.TransformPoint(charInfo.bottomLeft);
+            startPosition += _textDescription.transform.forward * 0.1f; // move forward z-axis
+
+            return startPosition;
         }
 
         private void OnStepCompletedToggleValueChanged(bool value)
@@ -130,7 +329,6 @@ namespace MirageXR
                 }
             }
         }
-        
         private string AddLinkTagsToBrackets(string inputText)
         {
             var pattern = @"\[([^\[\]]+)\]";

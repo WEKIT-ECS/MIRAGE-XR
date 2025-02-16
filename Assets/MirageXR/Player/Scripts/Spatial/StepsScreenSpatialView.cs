@@ -13,6 +13,7 @@ namespace MirageXR
         [SerializeField] private Toggle _editModeToggle;
         [SerializeField] private Button _nextStep;
         [SerializeField] private Button _previousStep;
+        [SerializeField] private Button _confirmHyperlinkPosition;
         
         [Header("Augmentations tab")]
         [SerializeField] private Button _buttonAddAugmentation;
@@ -28,7 +29,20 @@ namespace MirageXR
         [Header("Info tab")]
         [Header("Title and description")]
         [SerializeField] private TMP_InputField titleInput;
-        [SerializeField] private TMP_InputField descriptionInput; 
+        [SerializeField] private TMP_InputField descriptionInput;
+        [SerializeField] private SpatialHyperlinkObjectView spatialHyperlinkPrefab;
+        [SerializeField] private Color[] diamondColors = new Color[]
+        {
+            Color.red,
+            Color.green,
+            Color.blue,
+            Color.yellow,
+            Color.cyan,
+            Color.magenta,
+            new (1, 0.5f, 0),
+            new (0.5f, 0, 1) 
+        };
+        private int _currentColorIndex = 0;
         [Header("Media")]
         [SerializeField] private GameObject containerAddNewFile;
         [SerializeField] private Button buttonAddNewFile;
@@ -41,6 +55,7 @@ namespace MirageXR
         [SerializeField] private StepsToolsListItemView stepsToolsListItemViewPrefab;
         [Header("Game Objects")]
         [SerializeField] private GameObject _panelAddNewStep;
+        [SerializeField] private GameObject _hyperlinkDialog;
         [Header("Toggles")]
         [SerializeField] private Toggle _toggleEditorMode;
 
@@ -49,6 +64,7 @@ namespace MirageXR
         public void SetActionOnButtonAddAugmentationClick(UnityAction action) => _buttonAddAugmentation.SafeSetListener(action);
         public void SetActionOnButtonNextStepClick(UnityAction action) => _nextStep.SafeSetListener(action);
         public void SetActionOnButtonPreviousStepClick(UnityAction action) => _previousStep.SafeSetListener(action);
+        public void SetActionOnButtonConfirmHyperlinkPositionClick(UnityAction action) => _confirmHyperlinkPosition.SafeSetListener(action);
         public Transform GetStepContainer() => _stepContainer;
         public ContetItemView GetContetItemViewPrefab() => _contetItemViewPrefab;
 
@@ -60,6 +76,7 @@ namespace MirageXR
         public void RemoveActionOnToggleEditorValueChanged(UnityAction<bool> action) => _toggleEditorMode.SafeRemoveListener(action);
         public void SetIsToggleEditorOn(bool value) => _toggleEditorMode.isOn = value;
         public void SetPanelAddNewStepActive(bool value) => _panelAddNewStep.SetActive(value);
+        public void SetHyperlinkDialogActive(bool value) => _hyperlinkDialog.SetActive(value);
 
         public void SetActionOnTitleInputEndEdit(UnityAction<string> onEndEdit) => titleInput.onEndEdit.AddListener(onEndEdit);
         public void SetTitleInputText(string text) => titleInput.text = text;
@@ -77,5 +94,37 @@ namespace MirageXR
         public void SetActionOnButtonToolsAddNewToolClick(UnityAction action) => buttonAddNewTool.SafeSetListener(action);
         public Transform GetContainerTools() => containerTools;
         public StepsToolsListItemView GetStepsToolsListItemViewPrefab() => stepsToolsListItemViewPrefab;
+        
+        public GameObject CreateHyperlinkPrefab(Vector3 startPosition, string linkText)
+        {
+            var spawnPosition = startPosition + Vector3.up / 2;
+
+            var spawnParent = GameObject.Find("Anchor")?.transform;
+            if (spawnParent == null)  
+            {
+                spawnParent = null;
+            }
+            var hyperlinkInstance = Instantiate(spatialHyperlinkPrefab.gameObject, spawnPosition, Quaternion.identity, spawnParent);
+            hyperlinkInstance.name = "hyperlink_" + linkText;
+            var spatialView = hyperlinkInstance.GetComponent<SpatialHyperlinkObjectView>();
+
+            if (spatialView != null)
+            {
+                spatialView.SetText(linkText);
+                var diamondColor = GetNextColor();
+                spatialView.SetDiamondColor(diamondColor);
+            }
+            else
+            {
+                Debug.LogError("SpatialHyperlinkObjectView component not found on the prefab.");
+            }
+            return hyperlinkInstance;
+        }
+        private Color GetNextColor()
+        {
+            var color = diamondColors[_currentColorIndex];
+            _currentColorIndex = (_currentColorIndex + 1) % diamondColors.Length;
+            return color;
+        }
     }
 }
