@@ -13,11 +13,26 @@ namespace MirageXR
         
         private ActivityStep _step;
         private Camera _camera;
+        private XRGrabInteractable _xrGrabInteractable;
+        
+        private bool _isCanvasTransformLocked = true;
 
         public void Start()
         {
             _camera = RootObject.Instance.BaseCamera;
+            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
             InitializeManipulator();
+        }
+        
+        private void OnEditorModeChanged(bool value)
+        {
+            _isCanvasTransformLocked = !_isCanvasTransformLocked;
+            UpdateCanvasLockState();
+        }
+        private void UpdateCanvasLockState()
+        {
+            _xrGrabInteractable.colliders.Clear();
+            _xrGrabInteractable.enabled = _isCanvasTransformLocked;
         }
         
         public void SetText(string linkText)
@@ -63,11 +78,13 @@ namespace MirageXR
             var generalGrabTransformer = gameObject.AddComponent<XRGeneralGrabTransformer>();
             generalGrabTransformer.allowTwoHandedScaling = true;
 
-            var xrGrabInteractable = gameObject.AddComponent<XRGrabInteractable>();
-            xrGrabInteractable.trackRotation = false;
-            xrGrabInteractable.trackScale = false;
-            xrGrabInteractable.selectEntered.AddListener(_ => OnManipulationStarted());
-            xrGrabInteractable.selectExited.AddListener(_ => OnManipulationEnded());
+            _xrGrabInteractable = gameObject.AddComponent<XRGrabInteractable>();
+            _xrGrabInteractable.trackRotation = false;
+            _xrGrabInteractable.trackScale = false;
+            _xrGrabInteractable.selectEntered.AddListener(_ => OnManipulationStarted());
+            _xrGrabInteractable.selectExited.AddListener(_ => OnManipulationEnded());
+            
+            //_xrGrabInteractable.enabled = _isCanvasTransformLocked;
         }
 
         private void OnManipulationStarted() { }
