@@ -92,7 +92,6 @@ namespace MirageXR
             }
 
             _inputField.onValueChanged.AddListener(OnLabelTextValueChanged);
-            _inputField.onSelect.AddListener(OnLabelTextSelected);
             _toggleBillboard.onValueChanged.AddListener(OnBillboardValueChanged);
 
             settingsPanel.SetActive(false);
@@ -217,13 +216,6 @@ namespace MirageXR
         {
             _labelText = text;
             LayoutRebuilder.MarkLayoutForRebuild((RectTransform)_inputField.transform);
-        }
-
-        private void OnLabelTextSelected(string text)
-        {
-#if VISION_OS
-            TouchScreenKeyboard.Open(text, TouchScreenKeyboardType.Default, false, false, true, true);
-#endif
         }
 
         private void UpdateView()
