@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44407052, g: 0.49331468, b: 0.57239574, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -514,35 +513,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 098788fb02ee4d743b7641e72ebe6976, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TutorialButton: {fileID: 0}
-  CreatedLabel:
-    id: 
-    type: 0
-    predicate: 
-    poi: 
-    option: 
-    viewport: 
-    url: 
-    state: 
-    text: 
-    sensor: 
-    key: 
-    tangible: 
-    warning: 
-    position: 
-    rotation: 
-    scale: 0
-    positionLock: 0
-    billboarded: 1
-    caption: 
-    duration: 0
-    guide: 0
-  _helpSelectionPopup: {fileID: 5322029663912086542, guid: ce6c1efdd8b1ca34aab20e8018664f11,
-    type: 3}
-  _helpPopup: {fileID: 147589561333268519, guid: f40ed35d415dbbd4f95c68ed95fdaadc,
-    type: 3}
-  _mobilePopup: {fileID: 3804566942710620872, guid: ef93854362c847ec840d4c40eebc7d00,
-    type: 3}
 --- !u!1 &547987039
 GameObject:
   m_ObjectHideFlags: 0
@@ -892,12 +862,12 @@ MonoBehaviour:
   m_RequiresColorTexture: 0
   m_Version: 2
   m_TaaSettings:
-    quality: 2
-    frameInfluence: 0.1
-    jitterScale: 1
-    mipBias: 0
-    varianceClampScale: 0.9
-    contrastAdaptiveSharpening: 0
+    m_Quality: 2
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
 --- !u!1 &890496490
 GameObject:
   m_ObjectHideFlags: 0
