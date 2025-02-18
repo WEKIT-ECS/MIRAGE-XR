@@ -174,7 +174,7 @@ namespace Tests
                 id = "activeActionId"
             };
 
-            SetPrivateProperty(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld, "ActiveAction", activeAction);
+            SetPrivateProperty(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld, "ActiveAction", activeAction);
 
             actionListItem.UpdateView();
 
@@ -202,7 +202,7 @@ namespace Tests
                 id = "activeActionId"
             };
 
-            SetPrivateProperty(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld, "ActiveAction", activeAction);
+            SetPrivateProperty(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld, "ActiveAction", activeAction);
 
             actionListItem.UpdateView();
 

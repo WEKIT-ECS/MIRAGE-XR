@@ -38,16 +38,17 @@ namespace MirageXR
 			_btnClose.SafeSetListener(Close);
 
 #if FUSION2
-			_invitationCodeLabel.text = CollaborationManager.Instance.InvitationCode;
-			_passwordLabel.text = CollaborationManager.Instance.SessionPassword;
-			_userNameLabel.text = CollaborationManager.Instance.UserManager.LocalUserData.UserName;
-			_micToggle.isOn = CollaborationManager.Instance.VoiceMicrophoneEnabled;
+			var collaborationManager = RootObject.Instance.CollaborationManager;
+			_invitationCodeLabel.text = collaborationManager.InvitationCode;
+			_passwordLabel.text = collaborationManager.SessionPassword;
+			_userNameLabel.text = collaborationManager.UserManager.LocalUserData.UserName;
+			_micToggle.isOn = collaborationManager.VoiceMicrophoneEnabled;
 			_micToggle.SafeAddListener(OnMicToggleChanged);
-			_audioToggle.isOn = !CollaborationManager.Instance.MuteVoiceChat;
+			_audioToggle.isOn = !collaborationManager.MuteVoiceChat;
 			_audioToggle.SafeAddListener(OnAudioToggleChanged);
-			CollaborationManager.Instance.UserManager.LocalUserData.UserNameChanged += OnUserNameChanged;
-			CollaborationManager.Instance.UserManager.UserListChanged += OnNetworkedUserDataListChanged;
-			CollaborationManager.Instance.UserManager.AnyUserNameChanged += OnAnyUserNameChanged;
+			collaborationManager.UserManager.LocalUserData.UserNameChanged += OnUserNameChanged;
+			collaborationManager.UserManager.UserListChanged += OnNetworkedUserDataListChanged;
+			collaborationManager.UserManager.AnyUserNameChanged += OnAnyUserNameChanged;
 			_userListItems = _userListContainer.GetComponentsInChildren<UserListItem>().ToList();
 			UpdatePlayerList();
 #endif
@@ -56,10 +57,16 @@ namespace MirageXR
 #if FUSION2
 		private void OnDestroy()
 		{
-			if (CollaborationManager.Instance != null && CollaborationManager.Instance.UserManager != null)
+			if (RootObject.Instance is null)
 			{
-				CollaborationManager.Instance.UserManager.UserListChanged -= OnNetworkedUserDataListChanged;
-				CollaborationManager.Instance.UserManager.AnyUserNameChanged -= OnAnyUserNameChanged;
+				return;
+			}
+
+			var collaborationManager = RootObject.Instance.CollaborationManager;
+			if (collaborationManager != null && collaborationManager.UserManager != null)
+			{
+				collaborationManager.UserManager.UserListChanged -= OnNetworkedUserDataListChanged;
+				collaborationManager.UserManager.AnyUserNameChanged -= OnAnyUserNameChanged;
 			}
 		}
 
@@ -70,7 +77,7 @@ namespace MirageXR
 
 		private void OnUserNameChanged(string newUserName)
 		{
-			_userNameLabel.text = CollaborationManager.Instance.UserManager.LocalUserData.UserName;
+			_userNameLabel.text = RootObject.Instance.CollaborationManager.UserManager.LocalUserData.UserName;
 		}
 
 		private void OnNetworkedUserDataListChanged()
@@ -80,11 +87,11 @@ namespace MirageXR
 
 		private void UpdatePlayerList()
 		{
-			List<PlayerRef> users = CollaborationManager.Instance.UserManager.UserList.ToList();
+			List<PlayerRef> users = RootObject.Instance.CollaborationManager.UserManager.UserList.ToList();
 			// fill every list view item with content
 			for (int i = 0; i < users.Count; i++)
 			{
-				NetworkedUserData networkedUserData = CollaborationManager.Instance.UserManager.GetNetworkedUserDataOrDefault(users[i]);
+				NetworkedUserData networkedUserData = RootObject.Instance.CollaborationManager.UserManager.GetNetworkedUserDataOrDefault(users[i]);
 				UserListItem userListItem;
 				if (i < _userListItems.Count)
 				{
@@ -111,14 +118,14 @@ namespace MirageXR
 		private void OnMicToggleChanged(bool micEnabled)
 		{
 #if FUSION2
-			CollaborationManager.Instance.VoiceMicrophoneEnabled = micEnabled;
+			RootObject.Instance.CollaborationManager.VoiceMicrophoneEnabled = micEnabled;
 #endif
 		}
 
 		private void OnAudioToggleChanged(bool voicesEnabled)
 		{
 #if FUSION2
-			CollaborationManager.Instance.MuteVoiceChat = !voicesEnabled;
+			RootObject.Instance.CollaborationManager.MuteVoiceChat = !voicesEnabled;
 #endif
 		}
 	}

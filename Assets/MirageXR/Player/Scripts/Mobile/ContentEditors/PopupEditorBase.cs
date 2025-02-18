@@ -10,8 +10,8 @@ public abstract class PopupEditorBase : PopupBase
     protected const string HTTP_PREFIX = "http://";
     protected const string RESOURCES_PREFIX = "resources://";
 
-    protected static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
-    protected static LearningExperienceEngine.AugmentationManager augmentationManager => LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager;
+    protected static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
+    protected static LearningExperienceEngine.AugmentationManager augmentationManager => LearningExperienceEngine.LearningExperienceEngine.Instance.AugmentationManager;
 
     [SerializeField] protected Image _icon;
     [SerializeField] protected TMP_Text _txtLabel;
@@ -35,7 +35,7 @@ public abstract class PopupEditorBase : PopupBase
     protected virtual void OnAccept()
     {
         LearningExperienceEngine.EventManager.NotifyActionModified(_step);
-        LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
+        LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.SaveData();
     }
 
     protected virtual void UpdateBaseView()
@@ -46,7 +46,7 @@ public abstract class PopupEditorBase : PopupBase
 
     protected virtual Vector3 GetOffset()
     {
-        var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+        var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager;
         var detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_step.id));
         var annotationStartingPoint = ActionEditor.Instance.GetDefaultAugmentationStartingPoint();
         var originT = GameObject.Find(detectable.id);   // TODO: replace by direct reference to the object

@@ -15,7 +15,7 @@ namespace MirageXR
     /// </summary>
     public class ExperienceService : IService
     {
-        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
         private readonly Actor anonymousActor = new Actor("anonymous@wekit-ecs.com", "An Anonymous Actor");
         private readonly string mirageIRIroot = "https://wekit-ecs.com";
 

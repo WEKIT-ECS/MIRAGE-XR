@@ -7,8 +7,8 @@ using LearningExperienceEngine;
 
 public class ActivitySettings : PopupBase
 {
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
-    private static LearningExperienceEngine.MoodleManager moodleManager => LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
+    private static LearningExperienceEngine.MoodleManager moodleManager => LearningExperienceEngine.LearningExperienceEngine.Instance.MoodleManager;
 
     [SerializeField] private Toggle _togglePublicUpload;
     [SerializeField] private Toggle _toggleUploadToCloud;
@@ -254,7 +254,7 @@ public class ActivitySettings : PopupBase
 
     private async void DeleteFromServer()
     {
-        var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.DeleteArlem(_container.ItemID, _container.FileIdentifier);
+        var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.MoodleManager.DeleteArlem(_container.ItemID, _container.FileIdentifier);
         if (result)
         {
             RootView.Instance.activityListView.UpdateListView();

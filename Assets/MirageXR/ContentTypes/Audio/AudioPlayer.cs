@@ -5,7 +5,7 @@ namespace MirageXR
 {
     public class AudioPlayer : MirageXRPrefab
     {
-        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
         [Tooltip("Audio file. Only .wav format supported for external sources. Internally, .mp3 are supported as well")]
         [SerializeField] private string audioName = "audio.wav";
         public string AudioName => audioName;

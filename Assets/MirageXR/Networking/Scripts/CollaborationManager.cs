@@ -1,44 +1,46 @@
 #if FUSION2
-using Castle.Core.Logging;
 using Fusion;
-using i5.Toolkit.Core.OpenIDConnectClient;
-using i5.Toolkit.Core.ServiceCore;
-using LearningExperienceEngine;
 using Photon.Voice.Fusion;
 using Photon.Voice.Unity;
-using System.Collections;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using UnityEditor;
+using Cysharp.Threading.Tasks;
+using LearningExperienceEngine;
+using Fusion.Sockets;
+using Random = UnityEngine.Random;
 #endif
 
+using System;
 using UnityEngine;
 
 namespace MirageXR
 {
-	public class CollaborationManager : MonoBehaviour
+	[RequireComponent(typeof(NetworkedUserManager), typeof(ConnectionManager))]
+#if FUSION2
+	[RequireComponent(typeof(NetworkRunner), typeof(FusionVoiceClient), typeof(NetworkEvents))]
+#endif
+	public class CollaborationManager : MonoBehaviour, IDisposable
 	{
 		[SerializeField] private bool _useInvitationCode = false;
 		[SerializeField] private bool _useSessionPassword = false;
-
 		[SerializeField] private HandTrackingManager _handTrackingManager;
 		[SerializeField] private GameObject _sessionDataPrefab;
 
 #if FUSION2
+		[SerializeField] private Recorder _recorder;
+
 		private ConnectionManager _connectionManager;
 		private NetworkRunner _networkRunner;
 		private NetworkEvents _networkEvents;
-		[SerializeField] private Recorder _recorder;
 		private FusionVoiceClient _fusionVoiceClient;
+		private NetworkedUserManager _networkedUserManager;
 
-		private List<AudioSource> _voiceSources = new List<AudioSource>();
+		private readonly List<AudioSource> _voiceSources = new List<AudioSource>();
 		private bool _muteVoiceChat = false;
 
-		public static CollaborationManager Instance { get; private set; }
-
+		public int PlayerId => NetworkRunner != null ? NetworkRunner.LocalPlayer.PlayerId : -1;
+		public bool IsConnectedToServer => NetworkRunner != null && NetworkRunner.IsConnectedToServer;
 		public string InvitationCode { get; private set; }
 		public string SessionPassword { get; private set; }
 
@@ -51,50 +53,52 @@ namespace MirageXR
 			get => _muteVoiceChat;
 			set
 			{
-				foreach (AudioSource audioSource in _voiceSources)
+				foreach (var audioSource in _voiceSources)
 				{
 					audioSource.mute = value;
 				}
+				_muteVoiceChat = value;
 			}
 		}
 
-		private NetworkedUserManager _networkedUserManager;
-		public NetworkedUserManager UserManager
+		public NetworkedUserManager UserManager => _networkedUserManager;
+		public ConnectionManager ConnectionManager => _connectionManager;
+		public NetworkRunner NetworkRunner => _networkRunner;
+		public NetworkEvents NetworkEvents => _networkEvents;
+		public FusionVoiceClient FusionVoiceClient => _fusionVoiceClient;
+
+		public NetworkEvents.RunnerEvent OnConnectedToServer => _onConnectedToServer;
+		public NetworkEvents.DisconnectFromServerEvent OnDisconnectedFromServer => _onDisconnectedFromServer;
+
+		private readonly NetworkEvents.RunnerEvent _onConnectedToServer = new();
+		private readonly NetworkEvents.DisconnectFromServerEvent _onDisconnectedFromServer = new();
+
+		public async UniTask InitializeAsync(IAuthorizationManager authorizationManager)
 		{
-			get => ComponentUtilities.GetOrFetchComponent(this, ref _networkedUserManager);
+			_networkedUserManager = GetComponent<NetworkedUserManager>();
+			_connectionManager = GetComponent<ConnectionManager>();
+			_networkRunner = GetComponent<NetworkRunner>();
+			_networkEvents = GetComponent<NetworkEvents>();
+			_fusionVoiceClient = GetComponent<FusionVoiceClient>();
+
+			_networkedUserManager.Initialize(authorizationManager, _networkRunner, _networkEvents);
+			await _connectionManager.InitializeAsync(_networkRunner);
+
+			_networkEvents.OnConnectedToServer.AddListener(NetworkEventsOnConnectedToServer);
+			_networkEvents.OnDisconnectedFromServer.AddListener(NetworkEventsOnDisconnectedFromServer);
 		}
 
-		private ConnectionManager ConnectionManager
+		private void NetworkEventsOnConnectedToServer(NetworkRunner networkRunner)
 		{
-			get => ComponentUtilities.GetOrFetchComponent(this, ref _connectionManager);
+			_onConnectedToServer.Invoke(networkRunner);
 		}
 
-		public NetworkRunner NetworkRunner
+		private void NetworkEventsOnDisconnectedFromServer(NetworkRunner networkRunner, NetDisconnectReason netDisconnectReason)
 		{
-			get => ComponentUtilities.GetOrFetchComponent(this, ref _networkRunner);
+			_onDisconnectedFromServer.Invoke(networkRunner, netDisconnectReason);
 		}
 
-		public NetworkEvents NetworkEvents
-		{
-			get => ComponentUtilities.GetOrFetchComponent(this, ref _networkEvents);
-		}
-
-		private FusionVoiceClient FusionVoiceClient
-		{
-			get => ComponentUtilities.GetOrFetchComponent(this, ref _fusionVoiceClient);
-		}
-
-		public void Awake()
-		{
-			if (Instance != null)
-			{
-				Destroy(this);
-				return;
-			}
-			Instance = this;
-		}
-
-		public async Task<bool> StartNewSession()
+		public async UniTask<bool> StartNewSession()
 		{
 			// TODO: move the generation functions into the if clauses
 			// they are currently outside now to demonstrate that we can already generate this but do not actually use it
@@ -133,16 +137,16 @@ namespace MirageXR
 
 			_recorder.MicrophoneDevice = new Photon.Voice.DeviceInfo(Microphone.devices.First());
 
-			Debug.Log("Photon Voice is now using the following microphone: " + _recorder.MicrophoneDevice.Name);
+			Debug.Log($"Photon Voice is now using the following microphone: {_recorder.MicrophoneDevice.Name}");
 
-			var res = await ConnectionManager.Connect();
+			var result = await ConnectionManager.Connect();
 
 			if (NetworkRunner.IsSharedModeMasterClient)
 			{
 				NetworkRunner.Spawn(_sessionDataPrefab);
 			}
 
-			return res;
+			return result;
 		}
 
 		public void AddVoiceSource(AudioSource voiceSource)
@@ -176,5 +180,12 @@ namespace MirageXR
 			return passwordBuilder.ToString();
 		}
 #endif
+
+		public void Dispose()
+		{
+#if FUSION2
+			_networkedUserManager.Dispose();
+#endif
+		}
 	}
 }
