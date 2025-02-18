@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using LearningExperienceEngine;
 using LearningExperienceEngine.DTOs;
 using UnityEngine;
 using Activity = LearningExperienceEngine.DataModel.Activity;
@@ -16,6 +17,11 @@ namespace MirageXR
             View.SetActionOnButtonAddNewActivityClick(OnAddNewActivityClick);
             View.SetActionOnButtonCollaborativeSessionClick(OnCollaborativeSessionClick);
             View.SetActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
+            View.SetActionOnButtonLoginClick(OnLoginButtonClick);
+            View.SetActionOnButtonRegisterClick(OnRegistarButtonClick);
+            View.SetBlurredBackgroundActive(false);
+            View.SetMainScreenActive(false);
+            View.SetSignInSCreenActive(true);
             
             RootObject.Instance.LEE.ActivityManager.OnActivitiesFetched += OnActivitiesFetched;
             RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityLoaded;
@@ -26,6 +32,30 @@ namespace MirageXR
         private void OnLoginCompleted(string token)
         {
             RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
+        }
+
+        private void OnRegistarButtonClick()
+        {
+            // TODO
+        }
+
+        private void OnLoginButtonClick()
+        {
+            OnOidcLogin();
+        }
+        private void OnOidcLogin()
+        {
+            AuthManager.OnLoginCompleted += OnOidcLoginCompleted;
+            LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.Login();
+        }
+        private void OnOidcLoginCompleted(string accessToken)
+        {
+            AuthManager.OnLoginCompleted -= OnOidcLoginCompleted;
+
+            RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
+            View.SetBlurredBackgroundActive(true);
+            View.SetMainScreenActive(true);
+            View.SetSignInSCreenActive(false);
         }
 
         private void OnCollaborativeSessionClick()
