@@ -102,7 +102,7 @@ namespace MirageXR
                     ContractResolver = new CamelCasePropertyNamesContractResolver(),
                     Error = (sender, args) =>
                     {
-                        AppLog.LogError(args.ErrorContext.Error.Message, sender);
+                        AppLog.LogWarning(args.ErrorContext.Error.Message, sender);
                         args.ErrorContext.Handled = true;
                     }
                 };
