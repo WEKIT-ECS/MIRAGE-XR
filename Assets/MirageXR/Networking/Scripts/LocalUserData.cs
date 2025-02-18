@@ -1,16 +1,13 @@
-using i5.Toolkit.Core.OpenIDConnectClient;
-using i5.Toolkit.Core.ServiceCore;
 using LearningExperienceEngine;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using UnityEngine;
 
 namespace MirageXR
 {
-	public class LocalUserData
+	public class LocalUserData : IDisposable
 	{
+		private const string DefaultUsername = "Anonymous";
+
+		private IAuthorizationManager _authorizationManager;
 		private string _userName;
 		private string _avatarUrl;
 
@@ -18,13 +15,13 @@ namespace MirageXR
 
 		public string UserName
 		{
-			get => _userName; set
+			get => string.IsNullOrEmpty(_userName) ? DefaultUsername : _userName;
+			set
 			{
-				_userName = value;
+				_userName = value; 
 				UserNameChanged?.Invoke(value);
 			}
 		}
-		public event Action<string> UserNameChanged;
 
 		public string AvatarUrl
 		{
@@ -35,76 +32,52 @@ namespace MirageXR
 				AvatarUrlChanged?.Invoke(value);
 			}
 		}
-		public event Action<string> AvatarUrlChanged;
 
-		~LocalUserData()
+		public event Action<string> AvatarUrlChanged;
+		public event Action<string> UserNameChanged;
+
+		public void Dispose()
 		{
 			UnsubscribeFromDataSources();
 		}
 
-		public void Initialize()
+		public void Initialize(IAuthorizationManager authorizationManager)
 		{
-			_oidcService = ServiceManager.GetService<IdentityOidcConnectService>();
+			_authorizationManager = authorizationManager;
 			SubscribeToDataSources();
 		}
 
-		public async Task UpdateAllDataAsync()
+		public void UpdateAllData()
 		{
-			await FetchUserName();
-			FetchAvatarUrl();
+			_userName = _authorizationManager.UserName;
+			AvatarUrl = UserSettings.AvatarUrl;
 		}
 
 		private void SubscribeToDataSources()
 		{
-			_oidcService.LoginCompleted += OnLoginCompleted;
-			_oidcService.LogoutCompleted += OnLogoutCompleted;
+			_authorizationManager.OnLoginCompleted += OnLoginCompleted;
+			_authorizationManager.OnLogoutCompleted += OnLogoutCompleted;
 			UserSettings.AvatarUrlChanged += OnAvatarUrlChanged;
 		}
 
 		private void UnsubscribeFromDataSources()
 		{
-			_oidcService.LoginCompleted -= OnLoginCompleted;
-			_oidcService.LogoutCompleted -= OnLogoutCompleted;
+			_authorizationManager.OnLoginCompleted -= OnLoginCompleted;
+			_authorizationManager.OnLogoutCompleted -= OnLogoutCompleted;
 			UserSettings.AvatarUrlChanged -= OnAvatarUrlChanged;
 		}
 
-		private async void OnLoginCompleted(object sender, EventArgs e)
+		private void OnLoginCompleted(string token)
 		{
-			await FetchUserName();
+			_userName = _authorizationManager.UserName;
 		}
 
-		private async void OnLogoutCompleted(object sender, EventArgs e)
+		private void OnLogoutCompleted()
 		{
-			await FetchUserName();
+			_userName = string.Empty;
 		}
 
 		private void OnAvatarUrlChanged(string obj)
-		{
-			FetchAvatarUrl();
-		}
-
-		private async Task FetchUserName()
-		{
-			if (_oidcService.IsLoggedIn)
-			{
-				IUserInfo userInfo = await _oidcService.GetUserDataAsync();
-				if (userInfo != null)
-				{
-					UserName = userInfo.FullName;
-				}
-				else
-				{
-					Debug.LogError("Unable to get user data to display on the user data. Instead, the avatar will show as \"Anonymous\".");
-					UserName = "Anonymous";
-				}
-			}
-			else
-			{
-				UserName = "Guest";
-			}
-		}
-
-		private void FetchAvatarUrl()
 		{
 			AvatarUrl = UserSettings.AvatarUrl;
 		}

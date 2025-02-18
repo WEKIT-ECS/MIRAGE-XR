@@ -85,7 +85,7 @@ public class ActivityListView_v2 : BaseView
 
         if (_orderByRelavance)
         {
-            var activityList = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.GetArlemList();
+            var activityList = await LearningExperienceEngine.LearningExperienceEngine.Instance.MoodleManager.GetArlemList();
             return OrderByRelavance(activityList).Values.ToList();
         }
 
@@ -102,7 +102,7 @@ public class ActivityListView_v2 : BaseView
             }
         });
 
-        var remoteList = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.GetArlemList();
+        var remoteList = await LearningExperienceEngine.LearningExperienceEngine.Instance.MoodleManager.GetArlemList();
         remoteList?.ForEach(t =>
         {
             if (dictionary.ContainsKey(t.sessionid))
@@ -185,7 +185,7 @@ public class ActivityListView_v2 : BaseView
     {
         LoadView.Instance.Show();
         RootView_v2.Instance.OnActivityLoaded();
-        await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActivateFirstAction();
+        await LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.ActivateFirstAction();
         LoadView.Instance.Hide();
     }
 
@@ -193,7 +193,7 @@ public class ActivityListView_v2 : BaseView
     {
         LoadView.Instance.Show();
         await RootObject.Instance.EditorSceneService.LoadEditorAsync();
-        await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.CreateNewActivity();
+        await LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.CreateNewActivity();
         LoadView.Instance.Hide();
     }
 

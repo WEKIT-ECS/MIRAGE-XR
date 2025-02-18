@@ -62,7 +62,7 @@ namespace MirageXR
             }
             else
             {
-                var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+                var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager;
                 Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
                 GameObject originT = GameObject.Find(detectable.id);
 
@@ -71,13 +71,13 @@ namespace MirageXR
                     originT.transform.position,
                     originT.transform.rotation);
 
-                _annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAugmentation(_action, offset);
+                _annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.AugmentationManager.AddAugmentation(_action, offset);
             }
 
             _annotationToEdit.predicate = "effect:" + iconName;
             LearningExperienceEngine.EventManager.ActivateObject(_annotationToEdit);
             LearningExperienceEngine.EventManager.NotifyActionModified(_action);
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.SaveData();
             Close();
         }
     }

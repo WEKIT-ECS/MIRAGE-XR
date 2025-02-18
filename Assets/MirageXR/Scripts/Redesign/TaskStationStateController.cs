@@ -5,7 +5,7 @@ namespace MirageXR
 {
     public class TaskStationStateController : MonoBehaviour
     {
-        private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
+        private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.BrandManager;
 
         [SerializeField] private Renderer taskStationRenderer;
 
@@ -83,13 +83,13 @@ namespace MirageXR
 
         public bool IsCurrent()
         {
-            return LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActiveActionId.Equals(ActionId);
+            return LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.ActiveActionId.Equals(ActionId);
         }
 
         private bool IsNext()
         {
-            List<LearningExperienceEngine.Action> actions = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActionsOfTypeAction;
-            int index = actions.IndexOf(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActiveAction);
+            List<LearningExperienceEngine.Action> actions = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.ActionsOfTypeAction;
+            int index = actions.IndexOf(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.ActiveAction);
 
             if (index >= actions.Count - 1)
             {

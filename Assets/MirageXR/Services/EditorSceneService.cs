@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class EditorSceneService
 {
-    private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
+    private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.BrandManager;
 
     private Scene editorScene;
 

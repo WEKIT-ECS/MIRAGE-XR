@@ -10,7 +10,7 @@ public class ActivityView_v2 : BaseView
     private const float HIDED_SIZE_FOR_HORIZONTAL_SCROLL = 230f;
     private const float HIDE_ANIMATION_TIME = 0.5f;
 
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
 
     [SerializeField] private Button _btnArrow;
     [SerializeField] private RectTransform _panel;

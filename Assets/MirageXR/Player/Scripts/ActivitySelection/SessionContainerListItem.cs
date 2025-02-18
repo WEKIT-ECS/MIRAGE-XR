@@ -88,7 +88,7 @@ namespace MirageXR
 
         private static async void DeleteFromServer(LearningExperienceEngine.SessionContainer activity)
         {
-            var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.DeleteArlem(activity.ItemID, activity.FileIdentifier);
+            var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.MoodleManager.DeleteArlem(activity.ItemID, activity.FileIdentifier);
             if (result)
             {
                 var sessionListView = FindObjectOfType<SessionListView>();

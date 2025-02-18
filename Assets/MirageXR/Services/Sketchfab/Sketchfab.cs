@@ -555,7 +555,7 @@ namespace MirageXR
             var modelsFolderPath = Path.Combine(Application.persistentDataPath, FOLDER_NAME);
             var archiveUrl = Path.Combine(modelsFolderPath, $"{modelName}.zip");
             var modelFolder = Path.Combine(modelsFolderPath, modelName);
-            var targetDirectory = Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActivityPath, modelName);
+            var targetDirectory = Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.ActivityPath, modelName);
             if (!Directory.Exists(targetDirectory))
             {
                 Directory.CreateDirectory(targetDirectory);

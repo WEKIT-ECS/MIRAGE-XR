@@ -72,7 +72,7 @@ namespace MirageXR
             }
             else
             {
-                var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+                var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager;
                 LearningExperienceEngine.Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
                 GameObject originT = GameObject.Find(detectable.id);
 
@@ -81,13 +81,13 @@ namespace MirageXR
 
                 Vector3 offset = Utilities.CalculateOffset(spawnPosition, spawnRot, originT.transform.position, originT.transform.rotation);
 
-                _annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAugmentation(_action, offset);
+                _annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.AugmentationManager.AddAugmentation(_action, offset);
                 _annotationToEdit.predicate = "char:" + _modelname;
             }
 
             LearningExperienceEngine.EventManager.ActivateObject(_annotationToEdit);
             LearningExperienceEngine.EventManager.NotifyActionModified(_action);
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.SaveData();
 
             var characterObjectName = $"{_annotationToEdit.id}/{_annotationToEdit.poi}/{_annotationToEdit.predicate}";
 
