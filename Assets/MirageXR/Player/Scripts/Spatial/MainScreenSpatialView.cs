@@ -10,6 +10,7 @@ namespace MirageXR
     {
         [Header("Buttons")]
         [SerializeField] private Button _buttonSettings;
+        [SerializeField] private Button _buttonBack;
         [SerializeField] private Button _buttonSorting;
         [SerializeField] private Button _buttonAddNewActivity;
         [SerializeField] private Button _buttonCollaborativeSession;
@@ -28,6 +29,8 @@ namespace MirageXR
         [SerializeField] private GameObject _signInSCreenPrefab;
 
         public void SetActionOnButtonSortingClick(UnityAction action) => _buttonSorting.SafeSetListener(action);
+        public void SetActionOnButtonBackClick(UnityAction action) => _buttonBack.SafeSetListener(action);
+        public void SetBackButtonActive(bool value) => _buttonBack.gameObject.SetActive(value);
         public void SetActionOnButtonCollaborativeSessionClick(UnityAction action) => _buttonCollaborativeSession.SafeSetListener(action);
         public void SetActionOnButtonAddNewActivityClick(UnityAction action) => _buttonAddNewActivity.SafeSetListener(action);
         public void SetActionOnInputFieldSearchValueChanged(UnityAction<string> action) => _searchField.SafeSetListener(action);
