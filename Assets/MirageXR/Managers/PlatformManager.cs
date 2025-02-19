@@ -21,6 +21,7 @@ namespace MirageXR
         [SerializeField] GameObject _screenSpaceDebugTool;
         [SerializeField] private LoadObject[] _worldSpaceObjects;
         [SerializeField] private LoadObject[] _screenSpaceObjects;
+        [SerializeField] private LoadObject[] _editorObjects;
 
         private float distanceToCamera = 0.5f;
         private float offsetYFromCamera = 0.5f;
@@ -54,6 +55,16 @@ namespace MirageXR
                     Instantiate(_screenSpaceDebugTool);
                 }
             }
+
+#if UNITY_EDITOR
+            if (_editorObjects != null)
+            {
+                foreach (var editorObject in _editorObjects)
+                {
+                    InstantiateObject(editorObject);
+                }
+            }
+#endif
 
 #if UNITY_ANDROID || UNITY_IOS
             _worldSpaceUi = forceWorldSpaceUi;

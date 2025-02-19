@@ -101,7 +101,7 @@ namespace MirageXR
             {
                 textLabel = Instantiate(TextLabelPrefab);
                 _triggerIcon = textLabel.GetComponentsInChildren<Image>()[1]; // TODO: possible NRE
-                if (_triggerIcon && LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActiveAction.triggers.Find(t => t.id == _obj.poi) != null)
+                if (_triggerIcon && LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.ActiveAction.triggers.Find(t => t.id == _obj.poi) != null)
                 {
                     _triggerIcon.enabled = true;
                 }

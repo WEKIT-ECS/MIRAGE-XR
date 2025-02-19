@@ -2,6 +2,8 @@
 using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
+using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -59,7 +61,7 @@ public class LoginView_v2 : PopupBase
     private async Task Login(string username, string password)
     {
         LoadView.Instance.Show();
-        var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.Login(username, password);
+        var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.MoodleManager.Login(username, password);
         LoadView.Instance.Hide();
         if (result)
         {
@@ -93,13 +95,13 @@ public class LoginView_v2 : PopupBase
 
     private void OnOidcLogin()
     {
-        AuthManager.OnLoginCompleted += OnOidcLoginCompleted;
-        LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.Login();
+        RootObject.Instance.LEE.AuthorizationManager.OnLoginCompleted += OnOidcLoginCompleted;
+        LearningExperienceEngine.LearningExperienceEngine.Instance.AuthorizationManager.Login().Forget();
     }
 
     private void OnOidcLoginCompleted(string accessToken)
     {
-        AuthManager.OnLoginCompleted -= OnOidcLoginCompleted;
+        RootObject.Instance.LEE.AuthorizationManager.OnLoginCompleted -= OnOidcLoginCompleted;
 
         // if the activity view is loading activities already in the background, this might also require:
         // RootView_v2.Instance.activityListView.FetchAndUpdateView();

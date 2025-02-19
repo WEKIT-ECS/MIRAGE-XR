@@ -4,6 +4,7 @@ using Fusion.Sockets;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -49,9 +50,6 @@ namespace MirageXR
 		public List<StringSessionProperty> additionalSessionProperties = new List<StringSessionProperty>();
 		public Dictionary<string, SessionProperty> sessionProperties;
 
-		[Header("Fusion settings")]
-		[Tooltip("Fusion runner. Automatically created if not set")]
-		public NetworkRunner runner;
 		public INetworkSceneManager sceneManager;
 
 		[Header("Local user spawner")]
@@ -77,33 +75,23 @@ namespace MirageXR
 		// Dictionary of spawned user prefabs, to store them on the server for host topology, and destroy them on disconnection (for shared topology, use Network Objects's "Destroy When State Authority Leaves" option)
 		private Dictionary<PlayerRef, NetworkObject> _spawnedUsers = new Dictionary<PlayerRef, NetworkObject>();
 
-		private NetworkEvents _events;
+		private NetworkRunner _runner;
 
 		bool ShouldConnectWithRoomName => (connectionCriterias & ConnectionManager.ConnectionCriterias.RoomName) != 0;
 		bool ShouldConnectWithSessionProperties => (connectionCriterias & ConnectionManager.ConnectionCriterias.SessionProperties) != 0;
 
-		private void Awake()
+		public async UniTask InitializeAsync(NetworkRunner networkRunner)
 		{
-			// Check if a runner exist on the same game object
-			if (runner == null) runner = GetComponent<NetworkRunner>();
-
-			// Create the Fusion runner and let it know that we will be providing user input
-			if (runner == null) runner = gameObject.AddComponent<NetworkRunner>();
-			runner.ProvideInput = true;
-		}
-
-		private async void Start()
-		{
-			if (runner && new List<NetworkRunner>(GetComponentsInParent<NetworkRunner>()).Contains(runner) == false)
+			_runner = networkRunner;
+			_runner.ProvideInput = true;
+			_runner.AddCallbacks(this);
+			if (connectOnStart)
 			{
-				// The connectionManager is not in the hierarchy of the runner, so it has not been automatically subscribed to its callbacks
-				runner.AddCallbacks(this);
+				await Connect();
 			}
-			// Launch the connection at start
-			if (connectOnStart) await Connect();
 		}
 
-		Dictionary<string, SessionProperty> AllConnectionSessionProperties
+		private Dictionary<string, SessionProperty> AllConnectionSessionProperties
 		{
 			get
 			{
@@ -154,12 +142,10 @@ namespace MirageXR
 
 		public async Task<bool> Connect()
 		{
-			// Create the scene manager if it does not exist
-			if (sceneManager == null) sceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>();
-			if (onWillConnect != null) onWillConnect.Invoke();
+			sceneManager ??= gameObject.AddComponent<NetworkSceneManagerDefault>();
+			onWillConnect?.Invoke();
 
-			// Start or join (depends on gamemode) a session with a specific name
-			var args = new StartGameArgs()
+			var args = new StartGameArgs
 			{
 				GameMode = gameMode,
 				Scene = CurrentSceneInfo(),
@@ -184,7 +170,7 @@ namespace MirageXR
 				args.PlayerCount = playerCount;
 			}			
 
-			StartGameResult result = await runner.StartGame(args);
+			var result = await _runner.StartGame(args);
 
 			if (!result.Ok)
 			{
@@ -192,16 +178,16 @@ namespace MirageXR
 				return false;
 			}
 
-			string prop = "";
-			if (runner.SessionInfo.Properties != null && runner.SessionInfo.Properties.Count > 0)
+			var prop = "";
+			if (_runner.SessionInfo.Properties is { Count: > 0 })
 			{
 				prop = "SessionProperties: ";
-				foreach (var p in runner.SessionInfo.Properties) prop += $" ({p.Key}={p.Value.PropertyValue}) ";
+				foreach (var p in _runner.SessionInfo.Properties) prop += $" ({p.Key}={p.Value.PropertyValue}) ";
 			}
-			Debug.Log($"Session info: Room name {runner.SessionInfo.Name}. Region: {runner.SessionInfo.Region}. {prop}");
-			if ((connectionCriterias & ConnectionManager.ConnectionCriterias.RoomName) == 0)
+			Debug.Log($"Session info: Room name {_runner.SessionInfo.Name}. Region: {_runner.SessionInfo.Region}. {prop}");
+			if ((connectionCriterias & ConnectionCriterias.RoomName) == 0)
 			{
-				roomName = runner.SessionInfo.Name;
+				roomName = _runner.SessionInfo.Name;
 			}
 
 			return true;
@@ -213,9 +199,7 @@ namespace MirageXR
 			if (player == runner.LocalPlayer && userPrefab != null)
 			{
 				// Spawn the user prefab for the local user
-				NetworkObject networkPlayerObject = runner.Spawn(userPrefab, position: transform.position, rotation: transform.rotation, player, (runner, obj) =>
-				{
-				});
+				var networkPlayerObject = runner.Spawn(userPrefab, position: transform.position, rotation: transform.rotation, player, (networkRunner, obj) => { });
 				runner.SetPlayerObject(player, networkPlayerObject);
 			}
 		}
@@ -261,6 +245,7 @@ namespace MirageXR
 				OnPlayerJoinedSharedMode(runner, player);
 			}
 		}
+
 		public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
 		{
 			if (runner.Topology == Topologies.ClientServer)
@@ -274,16 +259,18 @@ namespace MirageXR
 		public void OnConnectedToServer(NetworkRunner runner)
 		{
 			Debug.Log("OnConnectedToServer");
-
 		}
+
 		public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
 		{
 			Debug.Log("Shutdown: " + shutdownReason);
 		}
+
 		public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
 		{
 			Debug.Log("OnDisconnectedFromServer: " + reason);
 		}
+
 		public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason)
 		{
 			Debug.Log("OnConnectFailed: " + reason);
@@ -291,7 +278,6 @@ namespace MirageXR
 		#endregion
 
 		#region Unused INetworkRunnerCallbacks 
-
 		public void OnInput(NetworkRunner runner, NetworkInput input) { }
 		public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
 		public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }

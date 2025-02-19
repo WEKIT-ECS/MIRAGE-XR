@@ -4,6 +4,7 @@ using MirageXR;
 using System;
 using System.Collections;
 using System.Text.RegularExpressions;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -46,7 +47,7 @@ public class ProfileView : PopupBase
         _btnRegister.onClick.AddListener(OnClickRegister);
         _btnPrivacyPolicy.onClick.AddListener(OnClickPrivacyPolicy);
         _btnLogin.onClick.AddListener(OnClickLogin);
-        _btnOicdLogin.onClick.AddListener(OnOicdLogin);
+        _btnOicdLogin.onClick.AddListener(OnOidcLogin);
         _btnLogout.onClick.AddListener(OnClickLogout);
         _btnGrid.onClick.AddListener(OnClickGrid);
         _btnDev.onClick.AddListener(OnClickDev);
@@ -130,28 +131,30 @@ public class ProfileView : PopupBase
         Application.OpenURL(LearningExperienceEngine.UserSettings.registerPage);
     }
 
-    private async void OnClickLogin()
+    private void OnClickLogin()
     {
         var dontShowLoginMenu = true;
         PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu, (System.Action)ResetValues);
     }
 
-    private async void OnOicdLogin()
+    private void OnOidcLogin()
     {
-        LearningExperienceEngine.AuthManager.OnLoginCompleted += OnOidcLoginCompleted;
-        LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.Login();
+        RootObject.Instance.LEE.AuthorizationManager.OnLoginCompleted += OnOidcLoginCompleted;
+        RootObject.Instance.LEE.AuthorizationManager.Login().Forget();
     }
 
     private void OnOidcLoginCompleted(string accessToken)
     {
-        LearningExperienceEngine.AuthManager.OnLoginCompleted -= OnOidcLoginCompleted;
-        RootView_v2.Instance.activityListView.FetchAndUpdateView();
+        RootObject.Instance.LEE.AuthorizationManager.OnLoginCompleted -= OnOidcLoginCompleted;
         ShowLogout();
     }
 
     private void OnClickLogout()
     {
-        if (LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.LoggedIn()) LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.Logout();
+        if (LearningExperienceEngine.LearningExperienceEngine.Instance.AuthorizationManager.LoggedIn())
+        {
+            LearningExperienceEngine.LearningExperienceEngine.Instance.AuthorizationManager.Logout();
+        }
         LearningExperienceEngine.UserSettings.ClearLoginData();
         RootView_v2.Instance.activityListView.FetchAndUpdateView();
         ShowLogin();
@@ -169,7 +172,7 @@ public class ProfileView : PopupBase
 
     private static bool IsValidUrl(string urlString)
     {
-        const string regexExpression = "^(?:http(s)?:\\/\\/)?[\\w.-]+(?:\\.[\\w\\.-]+)+[\\w\\-\\._~:/?#[\\]@!\\$&'\\(\\)\\*\\+,;=.]+$";
+        const string regexExpression = @"^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$";
         var regex = new Regex(regexExpression);
         return regex.IsMatch(urlString);
     }

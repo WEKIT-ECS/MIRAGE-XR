@@ -45,7 +45,7 @@ namespace MirageXR
                 var url = ImageName.Split('/');
                 var filename = url[url.Length - 1];
 
-                var completeImageName = $"file://{LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActivityPath}/{filename}";
+                var completeImageName = $"file://{LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.ActivityPath}/{filename}";
 
                 Debug.LogTrace("Trying to load image from:" + completeImageName);
 

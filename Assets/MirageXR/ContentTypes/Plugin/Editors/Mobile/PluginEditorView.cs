@@ -54,7 +54,7 @@ public class PluginEditorView : PopupEditorBase
         _content.url = _app.manifest;
         _step.appIDs.Add(_app.id);
 
-        LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.apps.Add(_app);
+        LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.workplace.apps.Add(_app);
 
         LearningExperienceEngine.EventManager.ActivateObject(_content);
 

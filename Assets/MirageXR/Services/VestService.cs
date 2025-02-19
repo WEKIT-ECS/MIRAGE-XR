@@ -48,7 +48,7 @@ namespace MirageXR
             if (VestConfig != null)
             {
                 VestEnabled = true;
-                LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.PlayerReset().AsAsyncVoid();
+                LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.PlayerReset().AsAsyncVoid();
                 AppLog.LogInfo("[VestService] Sensor communication is now enabled.");
             }
             else
@@ -62,7 +62,7 @@ namespace MirageXR
             if (VestConfig != null)
             {
                 VestEnabled = false;
-                LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.PlayerReset().AsAsyncVoid();
+                LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.PlayerReset().AsAsyncVoid();
                 AppLog.LogInfo("[VestService] Sensor communication disabled.");
             }
             else
