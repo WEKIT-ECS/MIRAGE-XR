@@ -37,6 +37,7 @@ Transform:
   m_Children:
   - {fileID: 261800333510811868}
   - {fileID: 8406836583917393540}
+  - {fileID: 586166133370546360}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8711686477423303906
@@ -140,7 +141,6 @@ MonoBehaviour:
   playerCount: 0
   connectionCriterias: -1
   additionalSessionProperties: []
-  runner: {fileID: 0}
   userPrefab: {fileID: 187141334855135017, guid: 184448a0ae476364ab428574fb8823b2,
     type: 3}
   loadSceneMode: 1
@@ -183,19 +183,7 @@ MonoBehaviour:
       m_Calls: []
   PlayerLeft:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 3714987274859716418}
-        m_TargetAssemblyTypeName: MirageXR.NetworkedUserManager, MirageXR
-        m_MethodName: OnPlayerLeft
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   OnSimulationMessage:
     m_PersistentCalls:
       m_Calls: []
@@ -289,6 +277,51 @@ MonoBehaviour:
   StartTrackingOnInitialize: 0
   <GetDataBeforeRender>k__BackingField: 1
   <GetDataOnDynamic>k__BackingField: 0
+--- !u!1 &4303538927805651928
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 586166133370546360}
+  - component: {fileID: 7840715629583200776}
+  m_Layer: 0
+  m_Name: VoiceLogger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &586166133370546360
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4303538927805651928}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4325252047169387943}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7840715629583200776
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4303538927805651928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a86f533fd9917dd4da8601e9eb542c96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LogLevel: 2
 --- !u!1001 &2499312047785024382
 PrefabInstance:
   m_ObjectHideFlags: 0

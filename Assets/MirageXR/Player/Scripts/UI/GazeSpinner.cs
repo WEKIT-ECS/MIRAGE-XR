@@ -39,7 +39,7 @@ namespace MirageXR
                 yield return null;
             }
 
-            var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
+            var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
             if (activityManager.ActiveAction != null)
             {
                 activityManager.ActiveAction.isCompleted = true;

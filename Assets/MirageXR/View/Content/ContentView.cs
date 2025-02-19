@@ -6,6 +6,12 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
+
+#if FUSION2
+using Fusion;
+using Fusion.Sockets;
+#endif
+
 namespace MirageXR.View
 {
     public class ContentView : MonoBehaviour
@@ -16,6 +22,7 @@ namespace MirageXR.View
         protected BoundsControl BoundsControl;
         protected BoxCollider BoxCollider;
         protected bool Initialized;
+        private NetworkObjectSynchronizer _networkObjectSynchronizer;
 
         public virtual async UniTask InitializeAsync(Content content)
         {
@@ -31,7 +38,70 @@ namespace MirageXR.View
             //InitializeBoundsControl();
 
             RootObject.Instance.LEE.StepManager.OnStepChanged += OnStepChanged;
+#if FUSION2
+            RootObject.Instance.CollaborationManager.OnConnectedToServer.AddListener(OnConnectedToServer);
+            RootObject.Instance.CollaborationManager.OnDisconnectedFromServer.AddListener(OnDisconnectedFromServer);
+            //RootObject.Instance.LEE.ActivitySynchronizationManager.OnMessageReceived += OnSyncMessageReceived;
+#endif
         }
+
+#if FUSION2
+        private void OnConnectedToServer(NetworkRunner runner)
+        {
+            OnConnectedToServerAsync(runner).Forget();
+        }
+
+        private async UniTask OnConnectedToServerAsync(NetworkRunner runner)
+        {
+            if (runner.LocalPlayer.PlayerId == 1)   //TODO: change to session owner
+            {
+                var prefab = RootObject.Instance.AssetBundleManager.GetNetworkObjectPrefab();
+                var networkObject = await runner.SpawnAsync(prefab);
+                _networkObjectSynchronizer = networkObject.GetComponent<NetworkObjectSynchronizer>();
+                _networkObjectSynchronizer.Initialization(this);
+            }
+        }
+        private void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
+        {
+            if (_networkObjectSynchronizer != null && _networkObjectSynchronizer.NetworkObject != null)
+            {
+                runner.Despawn(_networkObjectSynchronizer.NetworkObject);
+            }
+        }
+#endif
+        private void OnDestroy()
+        {
+            if (RootObject.Instance is null)
+            {
+                return;
+            }
+            
+            RootObject.Instance.LEE.StepManager.OnStepChanged -= OnStepChanged;
+
+#if FUSION2
+            RootObject.Instance.CollaborationManager.OnConnectedToServer.RemoveListener(OnConnectedToServer);
+            RootObject.Instance.CollaborationManager.OnDisconnectedFromServer.RemoveListener(OnDisconnectedFromServer);
+            var networkRunner = RootObject.Instance.CollaborationManager.NetworkRunner;
+            if (networkRunner.IsConnectedToServer)
+            {
+                if (networkRunner.LocalPlayer.PlayerId == 1)
+                {
+                    networkRunner.Despawn(_networkObjectSynchronizer.NetworkObject);
+                }
+            }
+#endif
+        }
+
+        /*private void OnSyncMessageReceived(SynchronizationDataModel data)
+        {
+            if (data.Type == MessageType.ActivityUpdated && data is SynchronizationDataModel<ActivityUpdatedDataModel> updatedData)
+            {
+                if (updatedData.Data.ContentId == Content.Id)
+                {
+                    UpdateContent(updatedData.Data.Content);
+                }
+            }
+        }*/
 
         public Content GetContent() => Content;
 

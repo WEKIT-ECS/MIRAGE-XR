@@ -11,7 +11,7 @@ using Action = LearningExperienceEngine.Action;
 [RequireComponent(typeof(TaskStationStateController), typeof(ObjectManipulator))]
 public class TaskStationEditor : MonoBehaviour
 {
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
 
     private static GridManager gridManager => RootObject.Instance.GridManager;
 
@@ -35,7 +35,7 @@ public class TaskStationEditor : MonoBehaviour
         var id = _action == null ? transform.parent.parent.name : _action.id;
         
         var detectableId = id.Replace("TS-", "WA-");
-        _detectable = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.GetDetectable(detectableId);
+        _detectable = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.GetDetectable(detectableId);
         _objectManipulator.HostTransform = GameObject.Find(_detectable.id).transform;
 
         try

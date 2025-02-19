@@ -10,7 +10,7 @@ using Content = LearningExperienceEngine.ToggleObject;
 
 public class ContentListItem_v2 : MonoBehaviour
 {
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
 
     [SerializeField] private TMP_Text _txtType;
     [SerializeField] private TMP_Text _txtName;
@@ -136,7 +136,7 @@ public class ContentListItem_v2 : MonoBehaviour
         RootView_v2.Instance.dialog.ShowMiddle("Warning!", "Are you sure you want to delete this content?",
             "Yes", () =>
             {
-                LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.DeleteAugmentation(_content);
+                LearningExperienceEngine.LearningExperienceEngine.Instance.AugmentationManager.DeleteAugmentation(_content);
                 if (_parentView.navigatorId == _content.poi)
                 {
                     TaskStationDetailMenu.Instance.NavigatorTarget = null;
@@ -164,7 +164,7 @@ public class ContentListItem_v2 : MonoBehaviour
 
     private void UpdateStep()
     {
-        LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAllAugmentationsBetweenSteps(_from, _to, _content, Vector3.zero);
+        LearningExperienceEngine.LearningExperienceEngine.Instance.AugmentationManager.AddAllAugmentationsBetweenSteps(_from, _to, _content, Vector3.zero);
         if (_type == ContentType.CHARACTER)
         {
             activityManager.SaveData();
