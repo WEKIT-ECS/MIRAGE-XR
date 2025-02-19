@@ -111,7 +111,7 @@ namespace MirageXR
             Loading.Instance.LoadingVisibility(true);
 
             await RootObject.Instance.EditorSceneService.LoadEditorAsync();
-            await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.CreateNewActivity();
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.CreateNewActivity();
         }
     }
 }

@@ -302,7 +302,7 @@ namespace MirageXR
         public void ShowHelpSelection(RootView_v2.HelpPage page)
         {
             var popup = (HelpSelectionPopup)PopupsViewer.Instance.Show(HelpSelectionPopup);
-            bool isEditModeOn = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive;
+            bool isEditModeOn = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive;
 
             popup.LoadHelpSelection(page, isEditModeOn);
         }
@@ -488,7 +488,7 @@ namespace MirageXR
 
             if (wsStep.FocusObject == "<<LAST_AUGMENTATION_CREATED>>")
             {
-                wsStep.FocusObject = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.GetLastCreatedAugmentationId();
+                wsStep.FocusObject = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.GetLastCreatedAugmentationId();
             }
 
             // Show by WS step handler

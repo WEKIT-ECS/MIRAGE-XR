@@ -11,7 +11,7 @@ namespace MirageXR
 {
     public class PickAndPlaceController : MirageXRPrefab
     {
-        private static LearningExperienceEngine.ActivityManager _activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
+        private static LearningExperienceEngine.ActivityManager _activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
 
         private LearningExperienceEngine.ToggleObject _myObj;
         [SerializeField] private Transform _pickObject;
@@ -132,7 +132,7 @@ namespace MirageXR
 
         private void OnActivitySaved()
         {
-            if (LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive)
+            if (LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive)
             {
                 SavePositions();
             }
@@ -221,7 +221,7 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-            if (LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive)
+            if (LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive)
             {
                 SavePositions();
             }

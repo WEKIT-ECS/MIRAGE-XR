@@ -37,6 +37,7 @@ namespace MirageXR
             RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityUpdated;
             RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnActivityUpdated;
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
+            RootObject.Instance.LEE.StepManager.OnStepChanged += StepManagerOnStepChanged;
         }
 
         private void OnInputFieldActivityNameEditEnd(string text)
@@ -152,7 +153,17 @@ namespace MirageXR
             {
                 var obj = Instantiate(prefab, container);
                 obj.Initialize(activityStep, OnStepItemClicked, OnStepItemMenuClicked);
+                obj.OnStepSelected(activityStep == RootObject.Instance.LEE.StepManager.CurrentStep);
             }
+        }
+        
+        private void StepManagerOnStepChanged(ActivityStep step)
+        {
+            if (_activity == null)
+            {
+                return;
+            }
+            UpdateView();
         }
 
         private async UniTask UpdateInfoViewAsync()
@@ -168,12 +179,14 @@ namespace MirageXR
             if (_activity.Thumbnail != null)
             {
                 _texture = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(_activity.Id, _activity.Thumbnail.Id);
-                SetThumbnailView(_texture);    
+                if (_texture is not null)
+                {
+                    SetThumbnailView(_texture);
+                    return;
+                }
             }
-            else
-            {
-                View.SetImageThumbnailActive(false);
-            }
+
+            View.SetImageThumbnailActive(false);
         }
 
         private void SetThumbnailView(Texture2D texture2D)
@@ -215,7 +228,7 @@ namespace MirageXR
         private void OnButtonCollaborativeSessionClicked()
         {
 #if FUSION2
-            if (CollaborationManager.Instance.NetworkRunner.IsInSession)
+            if (RootObject.Instance.CollaborationManager.NetworkRunner.IsInSession)
             {
                 MenuManager.Instance.ShowCollaborativeSessionSettingsPanelView();
             }

@@ -74,7 +74,7 @@ namespace MirageXR
             var fileName = url.Replace("resources://", string.Empty);
             fileName = fileName.Replace("http://", string.Empty);
 
-            return Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActivityPath, fileName);
+            return Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.ActivityPath, fileName);
         }
     }
 }

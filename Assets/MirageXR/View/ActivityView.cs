@@ -1,18 +1,31 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
+using LearningExperienceEngine.NewDataModel;
 using UnityEngine;
 
 namespace MirageXR.View
 {
     public class ActivityView : MonoBehaviour
     {
+        public static ActivityView Instance { get; private set; }
+
         private ActivityStep _step;
         private List<Content> _contents;
 
         private StepView _stepView;
         private readonly List<ContentView> _contentViews = new();
+
+        private void Awake()
+        {
+            if (Instance != null)
+            {
+                Destroy(Instance.gameObject);
+            }
+            Instance = this;
+        }
 
         private void Start()
         {
@@ -22,8 +35,10 @@ namespace MirageXR.View
         private async UniTask InitializeAsync()
         {
             RootObject.Instance.LEE.StepManager.OnStepChanged += StepManagerOnStepChanged;
-            RootObject.Instance.LEE.ContentManager.OnContentActivated += ContentManagerOnContentActivated;
             RootObject.Instance.LEE.ContentManager.OnContentUpdated += ContentManagerOnContentUpdated;
+            RootObject.Instance.LEE.ContentManager.OnContentActivated += ContentManagerOnContentActivated;
+            RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnOnActivityUpdated;
+            RootObject.Instance.LEE.ActivitySynchronizationManager.OnMessageReceived += OnSyncMessageReceived;
 
             var calibrationManager = RootObject.Instance.CalibrationManager;
             await calibrationManager.WaitForInitialization();
@@ -31,16 +46,25 @@ namespace MirageXR.View
             transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
         }
 
-        private void ContentManagerOnContentActivated(List<Content> contents)
+        private void OnSyncMessageReceived(SynchronizationDataModel data)
         {
-            _contents = contents;
-            UpdateContentsView();
+            if (data.MessageID == MessageType.ActivityUpdated && data is SynchronizationDataModel<ActivityUpdatedDataModel> updatedData)
+            {
+                if (updatedData.Data.Activity != null)
+                {
+                    ContentManagerOnContentUpdated(updatedData.Data.Activity.Content);
+                }
+            }
+        }
+        
+        public StepView GetStep(Guid stepId)
+        {
+            return _stepView.Id == stepId ? _stepView : null;
         }
 
-        private void StepManagerOnStepChanged(ActivityStep step)
+        public ContentView GetContent(Guid contentId)
         {
-            _step = step;
-            UpdateStepView();
+            return _contentViews.FirstOrDefault(t => t.Id == contentId);
         }
 
         private void ContentManagerOnContentUpdated(List<Content> contents)
@@ -51,7 +75,7 @@ namespace MirageXR.View
                 if (view != null)
                 {
                     view.UpdateContent(content);
-                    view.PlayAsync();
+                    view.PlayAsync().Forget();
                 }
             }
 
@@ -65,7 +89,27 @@ namespace MirageXR.View
             }
         }
 
-        private void UpdateStepView()
+        private void OnOnActivityUpdated(Activity activity)
+        {
+            UnityEngine.Debug.Log("---OnActivityUpdated");
+            UpdateStepView();
+        }
+
+        private void ContentManagerOnContentActivated(List<Content> contents)
+        {
+            UnityEngine.Debug.Log("---ContentManagerOnContentActivated");
+            _contents = contents;
+            UpdateContentsView();
+        }
+
+        private void StepManagerOnStepChanged(ActivityStep step)
+        {
+            UnityEngine.Debug.Log("---StepManagerOnStepChanged");
+            _step = step;
+            UpdateStepView();
+        }
+
+        protected virtual void UpdateStepView()
         {
             if (_stepView == null)
             {
@@ -74,7 +118,7 @@ namespace MirageXR.View
             _stepView.UpdateView(_step);
         }
 
-        private void UpdateContentsView()
+        protected virtual void UpdateContentsView()
         {
             RemoveUnusedContent();
             AddContents();
@@ -127,13 +171,13 @@ namespace MirageXR.View
             }
         }
 
-        private ContentView CreateContentView(Content content)
+        protected virtual ContentView CreateContentView(Content content)
         {
             var prefab = RootObject.Instance.AssetBundleManager.GetContentViewPrefab(content.Type);
             return Instantiate(prefab);
         }
 
-        private StepView CreateStepView(ActivityStep step)
+        protected virtual StepView CreateStepView(ActivityStep step)
         {
             var prefab = RootObject.Instance.AssetBundleManager.GetStepViewPrefab();
             var stepView = Instantiate(prefab, transform, false);
