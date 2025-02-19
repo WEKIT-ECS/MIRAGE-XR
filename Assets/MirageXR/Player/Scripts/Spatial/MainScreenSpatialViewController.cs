@@ -18,14 +18,20 @@ namespace MirageXR
             View.SetActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
             View.SetActionOnButtonLoginClick(OnLoginButtonClick);
             View.SetActionOnButtonRegisterClick(OnRegisterButtonClick);
+            View.SetActionOnButtonBackClick(OnBackButtonClick);
             View.SetBlurredBackgroundActive(false);
             View.SetMainScreenActive(false);
             View.SetSignInSCreenActive(true);
+            View.SetBackButtonActive(false);
 
             RootObject.Instance.LEE.ActivityManager.OnActivitiesFetched += OnActivitiesFetched;
             RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityLoaded;
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
             RootObject.Instance.LEE.AuthorizationManager.OnLoginCompleted += OnLoginCompleted;
+        }
+        private void OnBackButtonClick()
+        {
+            MenuManager.Instance.ShowScreen(ScreenName.NewActivityScreen );
         }
 
         private void OnLoginCompleted(string token)
@@ -71,6 +77,7 @@ namespace MirageXR
         private void OnActivityLoaded(Activity activity)
         {
             MenuManager.Instance.ShowScreen(ScreenName.NewActivityScreen);
+            View.SetBackButtonActive(true);
         }
 
         private void OnActivitiesFetched(ActivityResponse response)
