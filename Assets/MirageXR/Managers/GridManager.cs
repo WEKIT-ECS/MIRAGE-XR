@@ -153,7 +153,7 @@ public class GridManager : MonoBehaviour, IDisposable
         _gridEnabled = true;
         LearningExperienceEngine.UserSettings.showGrid = _gridEnabled;
 
-        var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
+        var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
         if (floorManager.isFloorDetected && activityManager.EditModeActive)
         {
             ShowGrid();

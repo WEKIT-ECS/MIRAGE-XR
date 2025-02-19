@@ -1,6 +1,5 @@
-using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using LearningExperienceEngine;
+using LearningExperienceEngine.DTOs;
 using UnityEngine;
 using Activity = LearningExperienceEngine.DataModel.Activity;
 
@@ -13,43 +12,43 @@ namespace MirageXR
         protected override void OnBind()
         {
             base.OnBind();
-            View.SetActionOnButtonSortingClick(() => {MenuManager.Instance.ShowSortingView(); });
+            View.SetActionOnButtonSortingClick(OnButtonSortingClick);
             View.SetActionOnButtonAddNewActivityClick(OnAddNewActivityClick);
             View.SetActionOnButtonCollaborativeSessionClick(OnCollaborativeSessionClick);
             View.SetActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
             View.SetActionOnButtonLoginClick(OnLoginButtonClick);
-            View.SetActionOnButtonRegisterClick(OnRegistarButtonClick);
+            View.SetActionOnButtonRegisterClick(OnRegisterButtonClick);
             View.SetBlurredBackgroundActive(false);
             View.SetMainScreenActive(false);
             View.SetSignInSCreenActive(true);
-            
+
             RootObject.Instance.LEE.ActivityManager.OnActivitiesFetched += OnActivitiesFetched;
             RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityLoaded;
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
+            RootObject.Instance.LEE.AuthorizationManager.OnLoginCompleted += OnLoginCompleted;
         }
 
-        private void OnRegistarButtonClick()
+        private void OnLoginCompleted(string token)
+        {
+            RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
+            View.SetBlurredBackgroundActive(true);
+            View.SetMainScreenActive(true);
+            View.SetSignInSCreenActive(false);
+        }
+
+        private void OnRegisterButtonClick()
         {
             // TODO
         }
 
         private void OnLoginButtonClick()
         {
-            OnOidcLogin();
+            RootObject.Instance.LEE.AuthorizationManager.Login();
         }
-        private void OnOidcLogin()
-        {
-            AuthManager.OnLoginCompleted += OnOidcLoginCompleted;
-            LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.Login();
-        }
-        private void OnOidcLoginCompleted(string accessToken)
-        {
-            AuthManager.OnLoginCompleted -= OnOidcLoginCompleted;
 
-            RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
-            View.SetBlurredBackgroundActive(true);
-            View.SetMainScreenActive(true);
-            View.SetSignInSCreenActive(false);
+        private void OnButtonSortingClick()
+        {
+            MenuManager.Instance.ShowSortingView();
         }
 
         private void OnCollaborativeSessionClick()
@@ -74,7 +73,7 @@ namespace MirageXR
             MenuManager.Instance.ShowScreen(ScreenName.NewActivityScreen);
         }
 
-        private void OnActivitiesFetched(List<Activity> activities)
+        private void OnActivitiesFetched(ActivityResponse response)
         {
             var container = View.GetActivityContainer();
             var prefab = View.GetActivityListItemPrefab();
@@ -84,7 +83,7 @@ namespace MirageXR
                 Destroy(child.gameObject);
             }
 
-            foreach (var activity in activities)
+            foreach (var activity in response.Activities)
             {
                 var item = Instantiate(prefab, container);
                 item.Initialize(activity, OnActivityListItemClicked, OnActivityListItemDeleteClicked);
@@ -102,17 +101,17 @@ namespace MirageXR
 #endif
         }
 
-        private void OnActivityListItemClicked(Activity activity)
+        private void OnActivityListItemClicked(LearningExperienceEngine.DTOs.Activity activity)
         {
             RootObject.Instance.LEE.ActivityManager.LoadActivityAsync(activity.Id).Forget();
         }
 
-        private void OnActivityListItemDeleteClicked(Activity activity)
+        private void OnActivityListItemDeleteClicked(LearningExperienceEngine.DTOs.Activity activity)
         {
             DeleteActivityAsync(activity).Forget();
         }
 
-        private async UniTask DeleteActivityAsync(Activity activity)
+        private async UniTask DeleteActivityAsync(LearningExperienceEngine.DTOs.Activity activity)
         {
             await RootObject.Instance.LEE.ActivityManager.DeleteActivityAsync(activity.Id);
             await RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();

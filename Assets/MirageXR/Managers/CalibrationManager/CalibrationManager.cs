@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
+using LearningExperienceEngine;
 using UnityEngine;
 using UnityEngine.Events;
 using Object = UnityEngine.Object;
@@ -10,7 +11,7 @@ namespace MirageXR
     public class CalibrationManager : ICalibrationManager
     {
         private static LearningExperienceEngine.BrandManager brandManager =>
-            LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
+            LearningExperienceEngine.LearningExperienceEngine.Instance.BrandManager;
 
         private static ImageTargetManagerWrapper imageTargetManager => RootObject.Instance.ImageTargetManager;
 
@@ -44,17 +45,19 @@ namespace MirageXR
         private bool _isCalibrated;
         private bool _isInitialized;
         private IAssetBundleManager _assetsManager;
+        private IAuthorizationManager _authorizationManager;
 
         public UniTask WaitForInitialization()
         {
             return UniTask.WaitUntil(() => _isInitialized);
         }
 
-        public async UniTask InitializationAsync(IAssetBundleManager assetsManager)
+        public async UniTask InitializationAsync(IAssetBundleManager assetsManager, IAuthorizationManager authorizationManager)
         {
             _assetsManager = assetsManager;
+            _authorizationManager = authorizationManager;
 
-            await LearningExperienceEngine.LearningExperienceEngine.Instance.WaitForInitialization();
+            await _authorizationManager.WaitForInitialization();
             await _assetsManager.WaitForInitialization();
 
             _anchor = CreateAnchor();
@@ -193,7 +196,7 @@ namespace MirageXR
 
         public async Task ApplyCalibrationAsync(bool resetAnchor)
         {
-            await LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.CalibrateWorkplace(
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.CalibrateWorkplace(
                 resetAnchor);
             _isCalibrated = true;
         }

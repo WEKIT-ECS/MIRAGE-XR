@@ -7,8 +7,8 @@ using UnityEngine.UI;
 [RequireComponent(typeof(ActionDetailView))]
 public class ActionEditor : MonoBehaviour
 {
-    private static BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
-    private static ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
+    private static BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.BrandManager;
+    private static ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
 
     [SerializeField] private GameObject TaskStationMenuPanel;
     [SerializeField] private GameObject TaskStationOpenButton;
@@ -305,7 +305,7 @@ public class ActionEditor : MonoBehaviour
         {
             detailView.DisplayedAction.instruction.title = newTitle;
             LearningExperienceEngine.EventManager.NotifyActionModified(detailView.DisplayedAction);
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.SaveData();
         }
     }
 
@@ -315,7 +315,7 @@ public class ActionEditor : MonoBehaviour
         {
             detailView.DisplayedAction.instruction.description = newDescription;
             LearningExperienceEngine.EventManager.NotifyActionModified(detailView.DisplayedAction);
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.SaveData();
         }
     }
 

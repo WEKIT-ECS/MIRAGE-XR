@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public class ActionListMenu : MonoBehaviour
 {
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
     [SerializeField] private GameObject actionItemPrefab;
     [SerializeField] private RectTransform listViewParent;
     [SerializeField] private Button previousStepButton;

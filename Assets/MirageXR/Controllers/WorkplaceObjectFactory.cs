@@ -15,8 +15,8 @@ namespace MirageXR
 {
     public class WorkplaceObjectFactory
     {
-        private LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
-        private LearningExperienceEngine.WorkplaceManager workplaceManager => LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+        private LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
+        private LearningExperienceEngine.WorkplaceManager workplaceManager => LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager;
         private WorkplaceController workplaceController => RootObject.Instance.WorkplaceController;
 
         private GameObject instance;
@@ -68,7 +68,7 @@ namespace MirageXR
             {
                 foreach (var element in list)
                 {
-                    var action = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.Activity.actions.FirstOrDefault(t => t.id == element.id);
+                    var action = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.Activity.actions.FirstOrDefault(t => t.id == element.id);
                     await CreatePlaceObject(element, action);
                 }
             }
@@ -200,7 +200,7 @@ namespace MirageXR
                     if (counter == 0)
                     {
                         var poiTemp = LearningExperienceEngine.Utilities.CreateObject("default", temp.transform);
-                        var action = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.Activity.actions.FirstOrDefault(t => t.id == thing.id);
+                        var action = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.Activity.actions.FirstOrDefault(t => t.id == thing.id);
                         await PopulateTaskStation(poiTemp, action);
                     }
 
@@ -340,7 +340,7 @@ namespace MirageXR
                     if (counter == 0)
                     {
                         var poiTemp = LearningExperienceEngine.Utilities.CreateObject("default", temp.transform);
-                        var action = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.Activity.actions.FirstOrDefault(t => t.id == person.id);
+                        var action = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.Activity.actions.FirstOrDefault(t => t.id == person.id);
                         await PopulateTaskStation(poiTemp, action);
                     }
 
@@ -757,9 +757,9 @@ namespace MirageXR
             taskStationEditor.Init(action);
 
             //only for the first taskstation in this step move it to the right of the player
-            var taskStationPos = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActionsOfTypeAction.Count == 0 ? Camera.main.transform.right * offsetFromPlayer : Vector3.zero;
+            var taskStationPos = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.ActionsOfTypeAction.Count == 0 ? Camera.main.transform.right * offsetFromPlayer : Vector3.zero;
 
-            var isFirstTaskStation = RootObject.Instance.PlatformManager.WorldSpaceUi && LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive;
+            var isFirstTaskStation = RootObject.Instance.PlatformManager.WorldSpaceUi && LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive;
             instance.transform.localPosition = isFirstTaskStation ? taskStationPos : Vector3.zero;
             instance.transform.localRotation = Quaternion.identity;
 

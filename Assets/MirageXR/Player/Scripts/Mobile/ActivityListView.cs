@@ -59,7 +59,7 @@ namespace MirageXR
             if (!LearningExperienceEngine.UserSettings.TryToGetUsernameAndPassword(out var username, out var password)) return;
 
             LoadView.Instance.Show();
-            await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.Login(username, password);
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.MoodleManager.Login(username, password);
             LoadView.Instance.Hide();
         }
 
@@ -80,7 +80,7 @@ namespace MirageXR
                 }
             });
 
-            var remoteList = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.GetArlemList();
+            var remoteList = await LearningExperienceEngine.LearningExperienceEngine.Instance.MoodleManager.GetArlemList();
             remoteList?.ForEach(t =>
             {
                 if (dictionary.ContainsKey(t.sessionid))
@@ -128,7 +128,7 @@ namespace MirageXR
             LoadView.Instance.Show();
             interactable = false;
             await RootObject.Instance.EditorSceneService.LoadEditorAsync();
-            await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.CreateNewActivity();
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.CreateNewActivity();
             interactable = true;
             LoadView.Instance.Hide();
             EventManager.NotifyOnNewActivityCreationButtonPressed();
