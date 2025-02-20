@@ -49,7 +49,7 @@ namespace MirageXR.View
 
         private async UniTask OnConnectedToServerAsync(NetworkRunner runner)
         {
-            if (runner.LocalPlayer.PlayerId == 1)
+            if (runner.IsSharedModeMasterClient)
             {
                 var prefab = RootObject.Instance.AssetBundleManager.GetNetworkObjectPrefab();
                 var networkObject = await runner.SpawnAsync(prefab);

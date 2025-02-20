@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Threading.Tasks;
 using MirageXR;
+using LogLevel = i5.Toolkit.Core.VerboseLogging;
 
 public enum AIservice
 {
@@ -108,7 +109,7 @@ public class DialogueService : MonoBehaviour
         Debug.Log("[DialogueService] Existing session available");
         if (AI == AIservice.OpenAI)
         {
-            AppLog.Log($"[DialogueService] sending message to chatGPT = '{text}'", LogLevel.INFO);
+            AppLog.Log($"[DialogueService] sending message to chatGPT = '{text}'", LogLevel.LogLevel.INFO);
 
             try
             {
@@ -122,7 +123,7 @@ public class DialogueService : MonoBehaviour
                         return;
                     }
                     
-                    AppLog.Log("[DialogueService] starting to parse", LogLevel.INFO);
+                    AppLog.Log("[DialogueService] starting to parse", LogLevel.LogLevel.INFO);
                     ParseResponse(response);
                 }
             }
@@ -260,7 +261,7 @@ public class DialogueService : MonoBehaviour
 
     public void OnInputReceived(string text)
     {
-        AppLog.LogWarning($"[Dialogue Service] onInputReceived arrived in DialogueService ='{text}'", LogLevel.INFO);
+        AppLog.LogWarning($"[Dialogue Service] onInputReceived arrived in DialogueService ='{text}'", LogLevel.LogLevel.INFO);
         ResponseTextField.text = text;
         SendMessageToAssistantAsync(text).AsAsyncVoid();
     }

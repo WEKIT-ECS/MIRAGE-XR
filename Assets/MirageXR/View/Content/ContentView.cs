@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
-
 #if FUSION2
 using Fusion;
 using Fusion.Sockets;
@@ -53,7 +52,7 @@ namespace MirageXR.View
 
         private async UniTask OnConnectedToServerAsync(NetworkRunner runner)
         {
-            if (runner.LocalPlayer.PlayerId == 1)   //TODO: change to session owner
+            if (runner.IsSharedModeMasterClient)
             {
                 var prefab = RootObject.Instance.AssetBundleManager.GetNetworkObjectPrefab();
                 var networkObject = await runner.SpawnAsync(prefab);
