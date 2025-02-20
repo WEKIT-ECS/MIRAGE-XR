@@ -323,93 +323,84 @@ public class ActivityListView_v2 : BaseView
 #endif
     }
 
-    public async Task DeleteTutorialActivity()
+    private async Task DeleteTutorialActivity()
     {
         var tutorialActivity = await TryGetTutorialFromLocalFiles();
 
         if (tutorialActivity != null)
         {
             LearningExperienceEngine.LocalFiles.TryDeleteActivity(tutorialActivity.id);
-
             UpdateView();
         }
     }
 
     private async Task MoveTutorialActivityToLocalFilesAndroidAsync()
     {
-        string zipPath = Path.Combine(Application.streamingAssetsPath, "TutorialActivity.zip");
-        Debug.Log("[ActivityListView_v2] Loading tutorial zip from location '" + zipPath + "'");
+        var zipPath = Path.Combine(Application.streamingAssetsPath, "TutorialActivity.zip");
+        Debug.Log($"[ActivityListView_v2] Loading tutorial zip from location '{zipPath}'");
 
-        using (UnityWebRequest www = UnityWebRequest.Get(zipPath))
+        using var www = UnityWebRequest.Get(zipPath);
+        var operation = www.SendWebRequest();
+
+        while (!operation.isDone)
         {
-            var operation = www.SendWebRequest();
+            await Task.Yield();
+        }
 
-            while (!operation.isDone)
-            {
-                await Task.Yield();
-            }
-
-            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
-            {
-                Debug.LogError($"Error: {www.error}");
-            }
-            else
-            {
-                MoveAndUnpackTutorialZipFileAndroid(www);
-            }
+        if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+        {
+            Debug.LogError($"Error: {www.error}");
+        }
+        else
+        {
+            MoveAndUnpackTutorialZipFileAndroid(www).AsAsyncVoid();
         }
     }
 
-    private async void MoveAndUnpackTutorialZipFileAndroid(UnityWebRequest www)
+    private async Task MoveAndUnpackTutorialZipFileAndroid(UnityWebRequest www)
     {
-        string savePath = Path.Combine(Application.persistentDataPath, "TutorialActivity.zip");
-        Debug.Log("[ActivtyListView_v2] Copying file to location '" + savePath.ToString() + "'");
+        var savePath = Path.Combine(Application.persistentDataPath, "TutorialActivity.zip");
+        Debug.Log($"[ActivityListView_v2] Copying file to location '{savePath}'");
 
         // clear out any previous download attempts
         if (File.Exists(savePath))
         {
             File.Delete(savePath);
         }
+
         var stream = new FileStream(savePath, FileMode.OpenOrCreate);
-
         await stream.WriteAsync(www.downloadHandler.data);
-
         await LearningExperienceEngine.ZipUtilities.ExtractZipFileAsync(stream, Application.persistentDataPath);
-
-        stream.Close();
-
+        await stream.DisposeAsync();
         File.Delete(savePath);
 
-        CreateTutorialActivityCard();
+        CreateTutorialActivityCard().AsAsyncVoid();
     }
 
     private async Task MoveTutorialActivityToLocalFilesIOS() // was void
     {
         var stream = new FileStream(Path.Combine(Application.streamingAssetsPath, "TutorialActivity.zip"), FileMode.Open);
-
         await LearningExperienceEngine.ZipUtilities.ExtractZipFileAsync(stream, Application.persistentDataPath);
-
-        stream.Close();
-
-        CreateTutorialActivityCard();
+        await stream.DisposeAsync();
+        CreateTutorialActivityCard().AsAsyncVoid();
     }
 
-    private async void CreateTutorialActivityCard()
+    private async Task CreateTutorialActivityCard()
     {
         var t = await TryGetTutorialFromLocalFiles();
 
         if (t != null)
         {
-            var sessionContatiner = new LearningExperienceEngine.SessionContainer { Activity = t };
+            var sessionContainer = new LearningExperienceEngine.SessionContainer { Activity = t };
 
-            _content.Insert(0, sessionContatiner);
+            _content.Insert(0, sessionContainer);
             UpdateView();
         }
     }
 
     private async Task<LearningExperienceEngine.Activity> TryGetTutorialFromLocalFiles()
     {
-        var filePath = Path.Combine(Application.persistentDataPath, "session-2023-02-24_11-18-29-activity.json");
+        var filePath = Path.Combine(Application.persistentDataPath, $"{TUTORIAL_ACTIVITY_ID}.json");
         var activity = await LearningExperienceEngine.LocalFiles.ReadActivityAsync(filePath);
         return activity;
     }

@@ -12,6 +12,7 @@ using OpenAI.Chat;
 using OpenAI.Threads;
 using UnityEngine;
 using Utilities.WebRequestRest;
+using Utilities.WebRequestRest.Interfaces;
 
 namespace MirageXR
 {
@@ -137,9 +138,8 @@ namespace MirageXR
                     thread = await _aiClient.ThreadsEndpoint.CreateThreadAsync(cancellationToken: cancellationToken);
                     _threads.TryAdd(assistantId, thread);
                 }
-
-                var messageResponse = await thread.CreateMessageAsync(new CreateMessageRequest(message), cancellationToken: cancellationToken);
-                var runResponse = await _aiClient.ThreadsEndpoint.CreateRunAsync(thread.Id, new CreateRunRequest(assistantId), cancellationToken);
+                var messageResponse = await thread.CreateMessageAsync(new OpenAI.Threads.Message(message), cancellationToken: cancellationToken);
+                var runResponse = await _aiClient.ThreadsEndpoint.CreateRunAsync(thread.Id, new CreateRunRequest(assistantId), streamHandler, cancellationToken);
                 runResponse = await runResponse.WaitForStatusChangeAsync(cancellationToken: cancellationToken);
                 var messages = await thread.ListMessagesAsync(cancellationToken: cancellationToken);
                 var response = messages.Items.FirstOrDefault(t => t.Role == Role.Assistant);
@@ -162,6 +162,13 @@ namespace MirageXR
                 return null;
             }
         }
+        
+        Func<IServerSentEvent, Task> streamHandler = async (eventData) =>
+        {
+            // Verarbeite das Event hier.
+            Debug.Log($"Stream Event: {eventData}");
+        };
+
 
         public async Task<string> GetChatCompletionAsync(string message, string instructions, CancellationToken cancellationToken = default)
         {
