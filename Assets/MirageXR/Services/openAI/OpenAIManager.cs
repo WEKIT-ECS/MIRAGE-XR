@@ -22,6 +22,13 @@ namespace MirageXR
         private readonly Dictionary<string, AssistantResponse> _assistants = new Dictionary<string, AssistantResponse>();
         private readonly Dictionary<string, ThreadResponse> _threads = new Dictionary<string, ThreadResponse>();
 
+        private readonly Func<IServerSentEvent, Task> _streamHandler = (eventData) =>
+        {
+            // Verarbeite das Event hier.
+            Debug.Log($"Stream Event: {eventData}");
+            return Task.CompletedTask;
+        };
+
         private static async Task<OpenAIAuthInfo> ReadOpenIaAuthKeyAsync()
         {
             const string openaiFileName = "openai";
@@ -139,7 +146,7 @@ namespace MirageXR
                     _threads.TryAdd(assistantId, thread);
                 }
                 var messageResponse = await thread.CreateMessageAsync(new OpenAI.Threads.Message(message), cancellationToken: cancellationToken);
-                var runResponse = await _aiClient.ThreadsEndpoint.CreateRunAsync(thread.Id, new CreateRunRequest(assistantId), streamHandler, cancellationToken);
+                var runResponse = await _aiClient.ThreadsEndpoint.CreateRunAsync(thread.Id, new CreateRunRequest(assistantId), _streamHandler, cancellationToken);
                 runResponse = await runResponse.WaitForStatusChangeAsync(cancellationToken: cancellationToken);
                 var messages = await thread.ListMessagesAsync(cancellationToken: cancellationToken);
                 var response = messages.Items.FirstOrDefault(t => t.Role == Role.Assistant);
@@ -162,13 +169,6 @@ namespace MirageXR
                 return null;
             }
         }
-        
-        Func<IServerSentEvent, Task> streamHandler = async (eventData) =>
-        {
-            // Verarbeite das Event hier.
-            Debug.Log($"Stream Event: {eventData}");
-        };
-
 
         public async Task<string> GetChatCompletionAsync(string message, string instructions, CancellationToken cancellationToken = default)
         {
