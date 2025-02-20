@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DG.Tweening;
@@ -25,6 +26,12 @@ public class ModelEditorView : PopupEditorBase
         Library
     }
 
+    public class SketchfabConfig
+    {
+        public string ClientID;
+        public string ClientSecret;
+    }
+
     public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.MODEL;
 
     [SerializeField] private Transform _contentContainer;
@@ -43,8 +50,6 @@ public class ModelEditorView : PopupEditorBase
     [SerializeField] private Toggle _toggleLocal;
     [SerializeField] private Toggle _toggleSketchfab;
     [SerializeField] private Toggle _toggleLibraries;
-    [SerializeField] private ClientDataObject _clientDataObject;
-    [SerializeField] private ClientDataObject _clientDirectLoginDataObject;
     [Space]
     [SerializeField] private GameObject _localTab;
     [SerializeField] private GameObject _sketchfabTab;
@@ -72,9 +77,12 @@ public class ModelEditorView : PopupEditorBase
     private string _modelFileType;
     private ModelListItem _currentItem;
     private ModelEditorTabs _currentTab;
+    private SketchfabConfig _sketchfabConfig;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
+        _sketchfabConfig = ReadConfig();
+        
         _toggleLocal.onValueChanged.RemoveAllListeners();
         _toggleSketchfab.onValueChanged.RemoveAllListeners();
         _toggleLibraries.onValueChanged.RemoveAllListeners();
@@ -105,6 +113,50 @@ public class ModelEditorView : PopupEditorBase
         }
     }
 
+    private static SketchfabConfig ReadConfig()
+    {
+        const string fileName = "sketchfab";
+        const string clientIDKey = "CLIENT_ID";
+        const string clientSecretKey = "CLIENT_SECRET";
+
+        string clientIDValue = null;
+        string clientSecretValue = null;
+
+        var filepath = Resources.Load(fileName) as TextAsset;
+        if (filepath == null)
+        {
+            throw new Exception($"Failed to load config file: {fileName}");
+        }
+
+        using var sr = new StringReader(filepath.text);
+        while (sr.ReadLine() is { } line)
+        {
+            var parts = line.Split('=');
+
+            switch (parts[0].ToUpper())
+            {
+                case clientIDKey:
+                    clientIDValue = parts[1].Trim();
+                    break;
+                case clientSecretKey:
+                    clientSecretValue = parts[1].Trim();
+                    break;
+            }
+        }
+
+        if (string.IsNullOrEmpty(clientIDValue))
+        {
+            throw new Exception("can't read server address");
+        }
+
+        if (string.IsNullOrEmpty(clientSecretValue))
+        {
+            throw new Exception("can't read port");
+        }
+
+        return new SketchfabConfig { ClientID = clientIDValue, ClientSecret = clientSecretValue };
+    }
+
     private void ResetView()
     {
         try
@@ -119,7 +171,7 @@ public class ModelEditorView : PopupEditorBase
             else
             {
                 DialogWindow.Instance.Show("Login to Sketchfab",
-                    new DialogButtonContent("Via the browser", LoginToSketchfab),
+                    //new DialogButtonContent("Via the browser", LoginToSketchfab),
                     new DialogButtonContent("With password", ShowDirectLoginPopup),
                     new DialogButtonContent("Cancel", Close));
             }
@@ -141,10 +193,7 @@ public class ModelEditorView : PopupEditorBase
     {
         try
         {
-            var clientId = _clientDirectLoginDataObject.clientData.ClientId;
-            var clientSecret = _clientDirectLoginDataObject.clientData.ClientSecret;
-
-            var (result, json) = await MirageXR.Sketchfab.RenewTokenAsync(_renewToken, clientId, clientSecret);
+            var (result, json) = await MirageXR.Sketchfab.RenewTokenAsync(_renewToken, _sketchfabConfig.ClientID, _sketchfabConfig.ClientSecret);
             var response = JsonConvert.DeserializeObject<MirageXR.Sketchfab.SketchfabResponse>(json);
             if (result)
             {
@@ -167,7 +216,7 @@ public class ModelEditorView : PopupEditorBase
     {
         try
         {
-            if (_clientDataObject == null)
+            /*if (_clientDataObject == null)
             {
                 var json = Resources.Load<TextAsset>("Credentials/SketchfabClient");
                 var appCredentials = JsonUtility.FromJson<SketchfabManager.AppCredentials>(json.ToString());
@@ -185,7 +234,7 @@ public class ModelEditorView : PopupEditorBase
                     "Sketchfab client asset not found or reference is missing.\n\nContact the MirageXR development team for more information or access to the file.",
                     new DialogButtonContent("Close", Close));
                 return false;
-            }
+            }*/
 
             return true;
         }
@@ -503,10 +552,10 @@ public class ModelEditorView : PopupEditorBase
 
     private async void LoginToSketchfab()
     {
-        try
+        /*try
         {
             var service = ServiceManager.GetService<OpenIDConnectService>();
-            service.OidcProvider.ClientData = _clientDataObject.clientData;
+            service.OidcProvider.ClientData = _sketchfabConfig.clientData;
             service.LoginCompleted += OnLoginCompleted;
             service.ServerListener.ListeningUri = SketchfabManager.URL;
             await service.OpenLoginPageAsync();
@@ -514,13 +563,13 @@ public class ModelEditorView : PopupEditorBase
         catch (Exception e)
         {
             Debug.LogError(e.ToString());
-        }
+        }*/
     }
 
     private void ShowDirectLoginPopup()
     {
-        var clientId = _clientDirectLoginDataObject.clientData.ClientId;
-        var clientSecret = _clientDirectLoginDataObject.clientData.ClientSecret;
+        var clientId = _sketchfabConfig.ClientID;
+        var clientSecret = _sketchfabConfig.ClientSecret;
         Action<bool, string> onPopupClose = OnDirectLoginCompleted;
         PopupsViewer.Instance.Show(_directLoginPopupPrefab, onPopupClose, clientId, clientSecret);
     }
