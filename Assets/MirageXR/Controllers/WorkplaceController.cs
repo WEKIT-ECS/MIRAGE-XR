@@ -16,7 +16,7 @@ namespace MirageXR
     public class WorkplaceController : MonoBehaviour
     {
 
-        private LearningExperienceEngine.WorkplaceManager workplaceManager => LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+        private LearningExperienceEngine.WorkplaceManager workplaceManager => LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager;
         private WorkplaceObjectFactory objectFactory;
         #region Calibration pair data
 

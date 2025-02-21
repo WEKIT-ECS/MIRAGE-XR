@@ -1,18 +1,31 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
+using LearningExperienceEngine.NewDataModel;
 using UnityEngine;
 
 namespace MirageXR.View
 {
     public class ActivityView : MonoBehaviour
     {
+        public static ActivityView Instance { get; private set; }
+
         private ActivityStep _step;
         private List<Content> _contents;
 
         private StepView _stepView;
         private readonly List<ContentView> _contentViews = new();
+
+        private void Awake()
+        {
+            if (Instance != null)
+            {
+                Destroy(Instance.gameObject);
+            }
+            Instance = this;
+        }
 
         private void Start()
         {
@@ -22,13 +35,58 @@ namespace MirageXR.View
         private async UniTask InitializeAsync()
         {
             RootObject.Instance.LEE.StepManager.OnStepChanged += StepManagerOnStepChanged;
+            RootObject.Instance.LEE.ContentManager.OnContentUpdated += ContentManagerOnContentUpdated;
             RootObject.Instance.LEE.ContentManager.OnContentActivated += ContentManagerOnContentActivated;
             RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnOnActivityUpdated;
+            RootObject.Instance.LEE.ActivitySynchronizationManager.OnMessageReceived += OnSyncMessageReceived;
 
             var calibrationManager = RootObject.Instance.CalibrationManager;
             await calibrationManager.WaitForInitialization();
             transform.SetParent(calibrationManager.Anchor, false);
             transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+        }
+
+        private void OnSyncMessageReceived(SynchronizationDataModel data)
+        {
+            if (data.MessageID == MessageType.ActivityUpdated && data is SynchronizationDataModel<ActivityUpdatedDataModel> updatedData)
+            {
+                if (updatedData.Data.Activity != null)
+                {
+                    ContentManagerOnContentUpdated(updatedData.Data.Activity.Content);
+                }
+            }
+        }
+        
+        public StepView GetStep(Guid stepId)
+        {
+            return _stepView.Id == stepId ? _stepView : null;
+        }
+
+        public ContentView GetContent(Guid contentId)
+        {
+            return _contentViews.FirstOrDefault(t => t.Id == contentId);
+        }
+
+        private void ContentManagerOnContentUpdated(List<Content> contents)
+        {
+            foreach (var content in contents)
+            {
+                var view = _contentViews.FirstOrDefault(t => t.Id == content.Id);
+                if (view != null)
+                {
+                    view.UpdateContent(content);
+                    view.PlayAsync().Forget();
+                }
+            }
+
+            for (var i = 0; i < _contents.Count; i++)
+            {
+                var content = contents.FirstOrDefault(t => t.Id == _contents[i].Id);
+                if (content != null)
+                {
+                    _contents[i] = content;
+                }
+            }
         }
 
         private void OnOnActivityUpdated(Activity activity)
@@ -51,7 +109,7 @@ namespace MirageXR.View
             UpdateStepView();
         }
 
-        private void UpdateStepView()
+        protected virtual void UpdateStepView()
         {
             if (_stepView == null)
             {
@@ -60,7 +118,7 @@ namespace MirageXR.View
             _stepView.UpdateView(_step);
         }
 
-        private void UpdateContentsView()
+        protected virtual void UpdateContentsView()
         {
             RemoveUnusedContent();
             AddContents();
@@ -113,13 +171,13 @@ namespace MirageXR.View
             }
         }
 
-        private ContentView CreateContentView(Content content)
+        protected virtual ContentView CreateContentView(Content content)
         {
             var prefab = RootObject.Instance.AssetBundleManager.GetContentViewPrefab(content.Type);
             return Instantiate(prefab);
         }
 
-        private StepView CreateStepView(ActivityStep step)
+        protected virtual StepView CreateStepView(ActivityStep step)
         {
             var prefab = RootObject.Instance.AssetBundleManager.GetStepViewPrefab();
             var stepView = Instantiate(prefab, transform, false);

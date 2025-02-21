@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
+using LearningExperienceEngine;
 using LearningExperienceEngine.NewDataModel;
 using UnityEngine;
 using UnityEngine.Events;
@@ -15,7 +16,7 @@ namespace MirageXR
         float AnimationTime { get; }
         bool IsCalibrated { get; }
 
-        UniTask InitializationAsync(IAssetBundleManager assetsManager);
+        UniTask InitializationAsync(IAssetBundleManager assetsManager, IAuthorizationManager authorizationManager);
         Pose GetAnchorPositionAsync();
         void EnableCalibration(bool isRecalibration = false);
         Task ApplyCalibrationAsync(bool resetAnchor);

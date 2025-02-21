@@ -5,7 +5,7 @@ namespace MirageXR
 {
     public class GlyphEditor : MonoBehaviour
     {
-        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
+        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
         [SerializeField] private Transform _contentContainer;
         [SerializeField] private LearningExperienceEngine.StepTrigger stepTrigger;
         [SerializeField] private GlyphListItem _glyphListItemPrefab;
@@ -66,7 +66,7 @@ namespace MirageXR
             }
             else
             {
-                var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+                var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager;
                 Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
                 GameObject originT = GameObject.Find(detectable.id);
 
@@ -75,7 +75,7 @@ namespace MirageXR
                     originT.transform.position,
                     originT.transform.rotation);
 
-                _annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAugmentation(_action, offset);
+                _annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.AugmentationManager.AddAugmentation(_action, offset);
             }
 
             // change predicate on all steps
@@ -95,7 +95,7 @@ namespace MirageXR
 
             LearningExperienceEngine.EventManager.ActivateObject(_annotationToEdit);
             LearningExperienceEngine.EventManager.NotifyActionModified(_action);
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.SaveData();
 
             Close();
         }

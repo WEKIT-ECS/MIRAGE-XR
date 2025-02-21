@@ -84,7 +84,7 @@ namespace MirageXR
 
         public void Create(App plugin)
         {
-            var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+            var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager;
             if (_annotationToEdit != null)
             {
                 LearningExperienceEngine.EventManager.DeactivateObject(_annotationToEdit);
@@ -99,7 +99,7 @@ namespace MirageXR
                     originT.transform.position,
                     originT.transform.rotation);
 
-                _annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAugmentation(_action, offset);
+                _annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.AugmentationManager.AddAugmentation(_action, offset);
             }
 
             _annotationToEdit.predicate = "plugin:" + plugin.name;
@@ -114,7 +114,7 @@ namespace MirageXR
 
             LearningExperienceEngine.EventManager.ActivateObject(_annotationToEdit);
             LearningExperienceEngine.EventManager.NotifyActionModified(_action);
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.SaveData();
 
             Close();
         }

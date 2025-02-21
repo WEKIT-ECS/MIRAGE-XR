@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class DaimonManager : MonoBehaviour
 {
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
 
     public SpeechInputService mySpeechInputMgr { get; private set; }
     private SpeechOutputService mySpeechOutputMgr;

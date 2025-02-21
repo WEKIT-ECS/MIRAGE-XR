@@ -41,6 +41,11 @@ namespace MirageXR
             return _assetsBundle.GetCalibrationToolPrefab();
         }
 
+        public NetworkObjectSynchronizer GetNetworkObjectPrefab()
+        {
+            return _assetsBundle.GetNetworkObjectPrefab();
+        }
+
         public ContentView GetContentViewPrefab(LearningExperienceEngine.DataModel.ContentType contentType)
         {
             return _assetsBundle.GetContentViewPrefab(contentType);

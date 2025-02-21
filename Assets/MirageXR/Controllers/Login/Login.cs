@@ -144,7 +144,7 @@ namespace MirageXR
         /// <param name="token"></param>
         private async void LoginSucceed(string token)
         {
-            var moodleManager = LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager;
+            var moodleManager = LearningExperienceEngine.LearningExperienceEngine.Instance.MoodleManager;
             LearningExperienceEngine.UserSettings.token = token;
             LearningExperienceEngine.UserSettings.username = usernameField.text;
             welcomUserText.text = $"Welcome {LearningExperienceEngine.UserSettings.username}";

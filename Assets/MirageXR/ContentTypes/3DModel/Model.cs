@@ -17,7 +17,7 @@ namespace MirageXR
         private const string GLTF_NAME = "scene.gltf";
         private const float LIBRARY_MODEL_SCALE = 2f;
 
-        private static LearningExperienceEngine.ActivityManager _activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
+        private static LearningExperienceEngine.ActivityManager _activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
 
         private LearningExperienceEngine.ToggleObject _obj;
         private Animation _animation;
@@ -113,7 +113,7 @@ namespace MirageXR
         private async Task<bool> LoadGltf(LearningExperienceEngine.ToggleObject content)
         {
             content.option = ZipUtilities.RemoveIllegalCharacters(content.option);
-            var loadPath = Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActivityPath, content.option, GLTF_NAME);
+            var loadPath = Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.ActivityPath, content.option, GLTF_NAME);
 
             ImportSettings importSettings = new()
             {
@@ -414,7 +414,7 @@ namespace MirageXR
             if (augmentation != _obj) return;
 
             // check for existing model folder and delete if necessary
-            var arlemPath = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActivityPath;
+            var arlemPath = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.ActivityPath;
             string folderName = augmentation.option;
             string modelFolderPath = Path.Combine(arlemPath, folderName);
 

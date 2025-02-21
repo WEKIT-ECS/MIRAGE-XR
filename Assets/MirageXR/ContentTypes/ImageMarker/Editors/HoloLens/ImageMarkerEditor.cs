@@ -12,7 +12,7 @@ using System.Collections;
 
 public class ImageMarkerEditor : MonoBehaviour
 {
-    private static ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
+    private static ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
 
     [SerializeField] private Button captureButton;
     [SerializeField] private Button acceptButton;
@@ -174,7 +174,7 @@ public class ImageMarkerEditor : MonoBehaviour
         }
         else
         {
-            var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+            var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager;
             Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
             GameObject originT = GameObject.Find(detectable.id);
 
@@ -183,7 +183,7 @@ public class ImageMarkerEditor : MonoBehaviour
                 originT.transform.position,
                 originT.transform.rotation);
 
-            annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAugmentation(action, offset);
+            annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.AugmentationManager.AddAugmentation(action, offset);
             annotationToEdit.predicate = "imagemarker";
         }
 

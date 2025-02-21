@@ -180,7 +180,7 @@ namespace Tests
             };
 
            // rootObject.activityManager ??= new ActivityManager();
-            SetPrivateProperty(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld, "ActiveAction", activeAction);
+            SetPrivateProperty(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld, "ActiveAction", activeAction);
 
             LearningExperienceEngine.EventManager.ActivateAction("activeActionId");
 
@@ -209,7 +209,7 @@ namespace Tests
             };
 
             //rootObject.activityManager ??= new ActivityManager();
-            SetPrivateProperty(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld, "ActiveAction", activeAction);
+            SetPrivateProperty(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld, "ActiveAction", activeAction);
 
             LearningExperienceEngine.EventManager.ActivateAction("activeActionId");
 

@@ -19,14 +19,14 @@ namespace MirageXR
 
         public void Start()
         {
+            InitializeManipulator();
             _camera = RootObject.Instance.BaseCamera;
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
-            InitializeManipulator();
         }
         
         private void OnEditorModeChanged(bool value)
         {
-            _isCanvasTransformLocked = !_isCanvasTransformLocked;
+            _isCanvasTransformLocked = value;
             UpdateCanvasLockState();
         }
         private void UpdateCanvasLockState()
@@ -71,7 +71,7 @@ namespace MirageXR
 
         private void InitializeManipulator()
         {
-            var rigidBody = gameObject.AddComponent<Rigidbody>();
+            var rigidBody = this.gameObject.AddComponent<Rigidbody>();
             rigidBody.isKinematic = true;
             rigidBody.useGravity = false;
 
@@ -83,8 +83,8 @@ namespace MirageXR
             _xrGrabInteractable.trackScale = false;
             _xrGrabInteractable.selectEntered.AddListener(_ => OnManipulationStarted());
             _xrGrabInteractable.selectExited.AddListener(_ => OnManipulationEnded());
-            
-            //_xrGrabInteractable.enabled = _isCanvasTransformLocked;
+
+            _xrGrabInteractable.enabled = _isCanvasTransformLocked;
         }
 
         private void OnManipulationStarted() { }

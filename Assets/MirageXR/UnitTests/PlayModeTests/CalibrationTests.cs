@@ -301,7 +301,7 @@ namespace Tests
         private Task StartDummyActivity(string activityId)
         {
             // parse activity model to begin startup process
-            return LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.LoadActivity(activityId);
+            return LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.LoadActivity(activityId);
         }
 
         private void OnWorkplaceLoaded()
@@ -311,8 +311,8 @@ namespace Tests
 
         private async Task PerformCalibration(bool isEditMode)
         {
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive = isEditMode;
-            await LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.CalibrateWorkplace();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive = isEditMode;
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.CalibrateWorkplace();
             isCalibrated = true;
         }
 
@@ -377,11 +377,11 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            var task = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.LoadActivity("resources://calibrationTest-activity");
+            var task = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.LoadActivity("resources://calibrationTest-activity");
             yield return new WaitUntil(() => task.IsCompleted);
 
             int testFileLengthActivity = ActivityParser.Serialize(testActivity).Length;
-            int actlFileLengthActivity = ActivityParser.Serialize(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.Activity).Length;
+            int actlFileLengthActivity = ActivityParser.Serialize(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.Activity).Length;
 
             Assert.AreEqual(testFileLengthActivity, actlFileLengthActivity);
         }
@@ -391,11 +391,11 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            var task = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.LoadActivity("resources://calibrationTest-activity");
+            var task = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.LoadActivity("resources://calibrationTest-activity");
             yield return new WaitUntil(() => task.IsCompleted);
 
             int testFileLengthWorkplace = WorkplaceParser.Serialize(testWorkplace).Length;
-            int actlFileLengthWorkplace = WorkplaceParser.Serialize(LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace).Length;
+            int actlFileLengthWorkplace = WorkplaceParser.Serialize(LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.workplace).Length;
 
             Assert.AreEqual(testFileLengthWorkplace, actlFileLengthWorkplace);
         }
@@ -438,7 +438,7 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int d = 0; d < LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.detectables.Count; d++)
+            for (int d = 0; d < LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.workplace.detectables.Count; d++)
             {
                 var testDetectablePosition = LearningExperienceEngine.Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).x;
                 var position = detectableContainer.transform.GetChild(d).localPosition;
@@ -453,7 +453,7 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int d = 0; d < LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.detectables.Count; d++)
+            for (int d = 0; d < LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.workplace.detectables.Count; d++)
             {
                 var testDetectablePosition = LearningExperienceEngine.Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).y;
                 var position = detectableContainer.transform.GetChild(d).localPosition;
@@ -468,7 +468,7 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int d = 0; d < LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.detectables.Count; d++)
+            for (int d = 0; d < LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.workplace.detectables.Count; d++)
             {
                 float testDetectablePosition = LearningExperienceEngine.Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_position).z;
                 var position = detectableContainer.transform.GetChild(d).localPosition;
@@ -483,7 +483,7 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int d = 0; d < LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.detectables.Count; d++)
+            for (int d = 0; d < LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.workplace.detectables.Count; d++)
             {
                 var testDetectableRotation = LearningExperienceEngine.Utilities.ParseStringToVector3(testWorkplace.detectables[d].origin_rotation);
                 var localRotation = detectableContainer.transform.GetChild(d).localRotation;
@@ -497,12 +497,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.places.Count; place++)
+            for (int place = 0; place < LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiPosition = testWorkplace.places[place].pois[poi].x_offset;
@@ -522,12 +522,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.places.Count; place++)
+            for (int place = 0; place < LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiPosition = testWorkplace.places[place].pois[poi].y_offset;
@@ -546,12 +546,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.places.Count; place++)
+            for (int place = 0; place < LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiPosition = testWorkplace.places[place].pois[poi].z_offset;
@@ -571,11 +571,11 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.places.Count; place++)
+            for (int place = 0; place < LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.workplace.places.Count; place++)
             {
                 Transform placeTransform = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // set expected value
                     Poi poiObject = testWorkplace.places[place].pois[poi];
@@ -600,12 +600,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.places.Count; place++)
+            for (int place = 0; place < LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiScale = LearningExperienceEngine.Utilities.ParseStringToVector3(testWorkplace.places[place].pois[poi].scale).x;
@@ -624,12 +624,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.places.Count; place++)
+            for (int place = 0; place < LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiScale = LearningExperienceEngine.Utilities.ParseStringToVector3(testWorkplace.places[place].pois[poi].scale).y;
@@ -648,12 +648,12 @@ namespace Tests
         {
             yield return EnsureTestReadiness();
 
-            for (int place = 0; place < LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.places.Count; place++)
+            for (int place = 0; place < LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.workplace.places.Count; place++)
             {
                 // get next place
                 Transform placeObject = placeContainer.transform.GetChild(place);
 
-                for (int poi = 0; poi < LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.workplace.places[place].pois.Count; poi++)
+                for (int poi = 0; poi < LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.workplace.places[place].pois.Count; poi++)
                 {
                     // find relevant value in test arlem script
                     float testPoiScale = LearningExperienceEngine.Utilities.ParseStringToVector3(testWorkplace.places[place].pois[poi].scale).z;

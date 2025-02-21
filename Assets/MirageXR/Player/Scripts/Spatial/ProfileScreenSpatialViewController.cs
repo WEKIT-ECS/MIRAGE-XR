@@ -1,5 +1,6 @@
 using LearningExperienceEngine;
 using System;
+using Cysharp.Threading.Tasks;
 
 namespace MirageXR
 {
@@ -65,14 +66,13 @@ namespace MirageXR
 
         private void OnOidcLogin()
         {
-            AuthManager.OnLoginCompleted += OnOidcLoginCompleted;
-            LearningExperienceEngine.LearningExperienceEngine.Instance.authManager.Login();
+            RootObject.Instance.LEE.AuthorizationManager.OnLoginCompleted += OnOidcLoginCompleted;
+            LearningExperienceEngine.LearningExperienceEngine.Instance.AuthorizationManager.Login().Forget();
         }
 
         private void OnOidcLoginCompleted(string accessToken)
         {
-            AuthManager.OnLoginCompleted -= OnOidcLoginCompleted;
-
+            RootObject.Instance.LEE.AuthorizationManager.OnLoginCompleted -= OnOidcLoginCompleted;
             RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
             MenuManager.Instance.ShowScreen(ScreenName.MainScreen);
         }

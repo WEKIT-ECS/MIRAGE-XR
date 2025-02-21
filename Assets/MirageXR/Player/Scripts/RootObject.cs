@@ -26,11 +26,10 @@ namespace MirageXR
         [SerializeField] private CameraCalibrationChecker _cameraCalibrationChecker;
         [SerializeField] private PlatformManager _platformManager;
         [SerializeField] private RoomTwinManager _roomTwinManager;
-        [SerializeField] private SharingManager _sharingManager;
+        [SerializeField] private CollaborationManager _collaborationManager;
         [SerializeField] private WorkplaceController _workplaceController; // added with lib-lee migration
         [SerializeField] private ContentAugmentationController _contentController; // added with lib-lee migration
 
-        private AIManager _aiManager;
         private OpenAIManager _openAIManager;
         private EditorSceneService _editorSceneService;
         private VirtualInstructorOrchestrator _virtualInstructorOrchestrator;
@@ -49,14 +48,12 @@ namespace MirageXR
         public FloorManagerWithFallback FloorManagerWithRaycastFallback => _floorManagerWithRaycastFallback;
         public PlaneManagerWrapper PlaneManager => _planeManager;
         public GridManager GridManager => _gridManager;
-        public EditorSceneService editorSceneService => _editorSceneService;
         public WorkplaceController WorkplaceController => _workplaceController;
         public ContentAugmentationController ContentController => _contentController;
         public CameraCalibrationChecker CameraCalibrationChecker => _cameraCalibrationChecker;
         public PlatformManager PlatformManager => _platformManager;
         public RoomTwinManager RoomTwinManager => _roomTwinManager;
-        public SharingManager SharingManager => _sharingManager;
-        public AIManager AiManager => _aiManager;
+        public CollaborationManager CollaborationManager => _collaborationManager;
         public OpenAIManager OpenAIManager => _openAIManager;
         public VirtualInstructorOrchestrator VirtualInstructorOrchestrator => _virtualInstructorOrchestrator;
         public IAssetBundleManager AssetBundleManager => _assetBundleManager;
@@ -105,7 +102,7 @@ namespace MirageXR
                     ContractResolver = new CamelCasePropertyNamesContractResolver(),
                     Error = (sender, args) =>
                     {
-                        AppLog.LogError(args.ErrorContext.Error.Message, sender);
+                        AppLog.LogWarning(args.ErrorContext.Error.Message, sender);
                         args.ErrorContext.Handled = true;
                     }
                 };
@@ -127,7 +124,6 @@ namespace MirageXR
                 _gridManager ??= new GameObject("GridManager").AddComponent<GridManager>();
                 _cameraCalibrationChecker ??= new GameObject("CameraCalibrationChecker").AddComponent<CameraCalibrationChecker>();
                 _platformManager ??= new GameObject("PlatformManager").AddComponent<PlatformManager>();
-                _sharingManager ??= new GameObject("Sharing Manager").AddComponent<SharingManager>();
                 _planeManager ??= new GameObject("PlaneManager").AddComponent<PlaneManagerWrapper>();
 
                 _editorSceneService = new EditorSceneService();
@@ -138,7 +134,6 @@ namespace MirageXR
                 _contentController.transform.parent = transform;
 
                 _assetBundleManager = new AssetBundleManager();
-                _aiManager = new AIManager();
                 _openAIManager = new OpenAIManager();
 
                 _calibrationManager = new CalibrationManager();
@@ -146,19 +141,21 @@ namespace MirageXR
 
                 await _lee.WaitForInitialization();
                 await _assetBundleManager.InitializeAsync();
-                await _aiManager.InitializeAsync();
                 await _imageTargetManager.InitializationAsync();
                 await _planeManager.InitializationAsync();
                 await _floorManager.InitializationAsync();
-                await _calibrationManager.InitializationAsync(_assetBundleManager);
+                await _calibrationManager.InitializationAsync(_assetBundleManager, _lee.AuthorizationManager);
                 await _pointCloudManager.InitializationAsync();
                 _volumeCameraManager.Initialization();
                 _gridManager.Initialization();
                 _cameraCalibrationChecker.Initialization();
                 _platformManager.Initialization();
                 await _roomTwinManager.InitializationAsync();
-                _sharingManager.Initialization();
                 await _openAIManager.InitializeAsync();
+
+#if FUSION2
+                await _collaborationManager.InitializeAsync(_lee.AuthorizationManager);
+#endif
 
                 _isInitialized = true;
 
@@ -169,8 +166,6 @@ namespace MirageXR
                 Debug.LogError(e.ToString());
             }
         }
-
-
 
         private void ResetManagers()
         {
@@ -196,6 +191,7 @@ namespace MirageXR
             _pointCloudManager.Unsubscribe();
             //_activityManager.OnDestroy();
             _planeManager.Dispose();
+            _lee.Dispose();
             Instance = null;
         }
 

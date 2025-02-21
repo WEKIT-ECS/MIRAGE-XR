@@ -15,9 +15,9 @@ public class ImageEditorView : PopupEditorBase
     private const int MAX_PICTURE_SIZE = 1024;
     private const float IMAGE_HEIGHT = 630f;
 
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
 
-    private static LearningExperienceEngine.AugmentationManager augmentationManager => LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager;
+    private static LearningExperienceEngine.AugmentationManager augmentationManager => LearningExperienceEngine.LearningExperienceEngine.Instance.AugmentationManager;
 
     public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.IMAGE;
 

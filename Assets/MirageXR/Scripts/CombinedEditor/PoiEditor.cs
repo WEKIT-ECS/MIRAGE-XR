@@ -14,7 +14,7 @@ public class PoiEditor : MonoBehaviour
 
     private float _modelMagnification = 0.0f;
 
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
 
     public float ModelMagnification
     {
@@ -54,7 +54,7 @@ public class PoiEditor : MonoBehaviour
         SetAllObjectManipulationOptions();
         _objectManipulator.OnManipulationEnded.AddListener(OnChanged);
 
-        OnEditModeChanged(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive);
+        OnEditModeChanged(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive);
         //SetPoiData();
     }
 
@@ -115,7 +115,7 @@ public class PoiEditor : MonoBehaviour
     private Vector3 GetOffset()
     {
         var taskStationId = transform.parent.name;
-        var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+        var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager;
         var detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(taskStationId));
         var annotationStartingPoint = ActionEditor.Instance.GetDefaultAugmentationStartingPoint();
         var originT = GameObject.Find(detectable.id);   // TODO: replace by direct reference to the object
@@ -200,7 +200,7 @@ public class PoiEditor : MonoBehaviour
             _boundsControl.RotateStopped.AddListener(OnChanged);
             _boundsControl.ScaleStopped.AddListener(OnChanged);
 
-            _boundsControl.enabled = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive;
+            _boundsControl.enabled = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive;
         }
         else
         {

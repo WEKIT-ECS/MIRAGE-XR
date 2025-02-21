@@ -10,7 +10,7 @@ using Action = LearningExperienceEngine.Action;
 
 public class AudioEditor : MonoBehaviour
 {
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
     [SerializeField] private Button startRecordingButton;
     [SerializeField] private Button stopRecordingButton;
     [SerializeField] private Button pauseButton;
@@ -318,7 +318,7 @@ public class AudioEditor : MonoBehaviour
         }
         else
         {
-            var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+            var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager;
             LearningExperienceEngine.Detectable detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_action.id));
             GameObject originT = GameObject.Find(detectable.id);
 
@@ -330,7 +330,7 @@ public class AudioEditor : MonoBehaviour
                 originT.transform.position,
                 originT.transform.rotation);
 
-            _annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAugmentation(_action, offset);
+            _annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.AugmentationManager.AddAugmentation(_action, offset);
             _annotationToEdit.predicate = "audio";
 
             // save audio type , loop and radius as option

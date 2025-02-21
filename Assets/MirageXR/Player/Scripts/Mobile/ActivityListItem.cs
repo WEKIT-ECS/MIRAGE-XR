@@ -88,7 +88,7 @@ namespace MirageXR
 
         private async void DeleteFromServer()
         {
-            var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.DeleteArlem(_container.ItemID, _container.FileIdentifier);
+            var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.MoodleManager.DeleteArlem(_container.ItemID, _container.FileIdentifier);
             if (result)
             {
                 RootView.Instance.activityListView.UpdateListView();
@@ -126,8 +126,8 @@ namespace MirageXR
             LoadView.Instance.Show();
             var activityJsonFileName = LearningExperienceEngine.LocalFiles.GetActivityJsonFilename(_container.FileIdentifier);
             await RootObject.Instance.EditorSceneService.LoadEditorAsync();
-            await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.UpdateViewsOfActivity(_container.ItemID, _container.ExistsRemotely);
-            await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.LoadActivity(activityJsonFileName);
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.MoodleManager.UpdateViewsOfActivity(_container.ItemID, _container.ExistsRemotely);
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.LoadActivity(activityJsonFileName);
             LoadView.Instance.Hide();
         }
 

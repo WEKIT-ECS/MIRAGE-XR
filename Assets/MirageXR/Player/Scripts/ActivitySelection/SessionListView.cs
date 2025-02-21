@@ -49,7 +49,7 @@ namespace MirageXR
             CollectedContainers = AddActivitiesToDictionary(CollectedContainers, activities);
 
             // the records on the server should be shown after the local records
-            List<LearningExperienceEngine.Session> sessions = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.GetArlemList();
+            List<LearningExperienceEngine.Session> sessions = await LearningExperienceEngine.LearningExperienceEngine.Instance.MoodleManager.GetArlemList();
             if (sessions != null)
                 CollectedContainers = AddSessionsToDictionary(CollectedContainers, sessions);
 

@@ -48,9 +48,9 @@ public class ActivityEditor : MonoBehaviour
             activityTitleField.text = "New Activity";
         activityTitleField.onValueChanged.AddListener(OnActivityTitleChanged);
 
-        if (LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld != null)
+        if (LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld != null)
         {
-            SetEditorState(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive);
+            SetEditorState(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive);
         }
     }
 
@@ -69,15 +69,15 @@ public class ActivityEditor : MonoBehaviour
 
     private void CheckEditState()
     {
-        if (string.IsNullOrEmpty(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.Activity.id))
+        if (string.IsNullOrEmpty(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.Activity.id))
         {
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive = true;
+            LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive = true;
         }
         else
         {
-            SetEditorState(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive);
+            SetEditorState(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive);
         }
-        editCheckbox.isOn = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive;
+        editCheckbox.isOn = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive;
     }
 
     public void SetEditorState(bool editModeActive)
@@ -128,13 +128,13 @@ public class ActivityEditor : MonoBehaviour
                 OnUploadButtonClicked(1);
                 break;
             case "Clone":
-                LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.CloneActivity();
+                LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.CloneActivity();
                 OnUploadButtonClicked(2);
                 break;
             case "Cancel":
             default:
                 updateConfirmPanel.SetActive(false);
-                LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.GetProgressText = "Upload";
+                LearningExperienceEngine.LearningExperienceEngine.Instance.MoodleManager.GetProgressText = "Upload";
                 optionsDropDown.options.Clear();
                 break;
         }
@@ -144,23 +144,23 @@ public class ActivityEditor : MonoBehaviour
     public void OnEditToggleChanged(bool value)
     {
         Debug.LogDebug("Toggle changed " + value);
-        if (LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld != null)
+        if (LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld != null)
         {
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive = value;
+            LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive = value;
             transform.GetComponentInChildren<Toggle>().isOn = value;
         }
     }
 
     public void ToggleEditMode()
     {
-        bool newValue = !LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive;
+        bool newValue = !LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive;
         OnEditToggleChanged(newValue);
         transform.GetComponentInChildren<Toggle>().isOn = newValue;
     }
 
     private void OnActivityTitleChanged(string text)
     {
-        LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.Activity.name = text;
+        LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.Activity.name = text;
     }
 
     public void OnSaveButtonClicked()
@@ -172,7 +172,7 @@ public class ActivityEditor : MonoBehaviour
     private void SaveActivity()
     {
         LearningExperienceEngine.EventManager.SaveActivity();
-        LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
+        LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.SaveData();
     }
 
     public void OpenScreenShot()
@@ -211,7 +211,7 @@ public class ActivityEditor : MonoBehaviour
         if (LearningExperienceEngine.UserSettings.LoggedIn)
         {
             loginNeedText.text = string.Empty;
-            await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.UploadFile(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActivityPath, LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.Activity.name, updateMode);
+            await LearningExperienceEngine.LearningExperienceEngine.Instance.MoodleManager.UploadFile(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.ActivityPath, LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.Activity.name, updateMode);
         }
         else
         {
