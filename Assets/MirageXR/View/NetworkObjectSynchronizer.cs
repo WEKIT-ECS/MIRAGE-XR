@@ -44,6 +44,11 @@ namespace MirageXR.View
                 return;
             }
 
+            if (SourceId == Guid.Empty)
+            {
+                return;
+            }
+
             CheckSyncObject();
             SyncTransforms();
         }
@@ -93,6 +98,12 @@ namespace MirageXR.View
 
         public void Initialization(ContentView contentView)
         {
+            if (contentView is null)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
             _networkObject = GetComponent<NetworkObject>();
             _networkTransform = GetComponent<NetworkTransform>();
 
@@ -104,6 +115,12 @@ namespace MirageXR.View
 
         public void Initialization(StepView stepView)
         {
+            if (stepView is null)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
             _networkObject = GetComponent<NetworkObject>();
             _networkTransform = GetComponent<NetworkTransform>();
 
