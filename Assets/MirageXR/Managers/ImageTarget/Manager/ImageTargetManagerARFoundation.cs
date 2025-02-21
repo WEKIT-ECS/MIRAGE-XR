@@ -149,7 +149,7 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
         var arSessionOrigin = MirageXR.Utilities.FindOrCreateComponent<XROrigin>(cameraParent.gameObject);
         _arTrackedImageManager = MirageXR.Utilities.FindOrCreateComponent<ARTrackedImageManager>(cameraParent.gameObject);
 
-        // arSessionOrigin.camera = mainCamera;
+        // arSessionOrigin.Camera = mainCamera;
         arSessionOrigin.Camera = mainCamera;
         await Task.Yield();
 

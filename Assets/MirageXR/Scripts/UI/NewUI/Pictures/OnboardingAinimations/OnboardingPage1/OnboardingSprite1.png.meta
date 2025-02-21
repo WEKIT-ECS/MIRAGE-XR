@@ -3,7 +3,7 @@ guid: 8e7b26a0b3b3eb3478bd953af391db5c
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
-  serializedVersion: 11
+  serializedVersion: 13
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -20,11 +20,12 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
+    flipGreenChannel: 0
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
-  ignoreMasterTextureLimit: 0
+  ignoreMipmapLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -63,17 +64,20 @@ TextureImporter:
   textureFormatSet: 0
   ignorePngGamma: 0
   applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 1
   platformSettings:
   - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 16384
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 1
     compressionQuality: 50
-    crunchedCompression: 0
+    crunchedCompression: 1
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -86,6 +90,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -98,18 +103,20 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
     buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: -1
+    textureFormat: 34
     textureCompression: 1
-    compressionQuality: 50
+    compressionQuality: 30
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -122,6 +129,33 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: iPhone
+    maxTextureSize: 16384
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: VisionOS
+    maxTextureSize: 16384
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
@@ -1608,79 +1642,78 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      spritesheet_50: 1083111067
-      spritesheet_64: -199021548
-      spritesheet_16: 1587106713
-      spritesheet_30: 1936070292
-      spritesheet_5: -1463850079
-      spritesheet_46: -33670788
-      spritesheet_2: -574339482
-      spritesheet_27: 102664725
-      spritesheet_8: -654600208
-      spritesheet_3: 1404930503
-      spritesheet_23: 624701303
-      spritesheet_37: 1587472988
-      spritesheet_44: 1642214863
-      spritesheet_63: -1225811800
-      spritesheet_40: -2125945917
-      spritesheet_62: -857121330
-      spritesheet_1: -2130678865
-      spritesheet_15: 1675171175
-      spritesheet_18: 313977337
-      spritesheet_45: -647563178
-      spritesheet_6: 2036168335
-      spritesheet_24: 978392530
-      spritesheet_43: 479866934
-      spritesheet_36: 1415635147
-      spritesheet_69: -1307806517
-      spritesheet_7: 293671585
-      spritesheet_68: -1728299281
-      spritesheet_51: -1391133414
-      spritesheet_49: -1272545002
-      spritesheet_20: 2075988345
-      spritesheet_32: 2106679602
-      spritesheet_28: -215112875
-      spritesheet_35: 1933099246
-      spritesheet_55: -577435548
-      spritesheet_59: 1475744426
-      spritesheet_66: -992786431
-      spritesheet_60: 1907742362
-      spritesheet_42: 956901446
-      spritesheet_4: 1167669178
       spritesheet_0: 290348399
-      spritesheet_56: 54970515
-      spritesheet_39: 252806818
-      spritesheet_12: 1914395335
-      spritesheet_67: -2016977689
-      spritesheet_26: 875753642
-      spritesheet_52: -747446132
-      spritesheet_17: 1976609120
-      spritesheet_57: 1407722480
-      spritesheet_53: 993240201
-      spritesheet_13: 923891069
-      spritesheet_29: 1546200215
-      spritesheet_31: -141876473
-      spritesheet_11: -267592666
-      spritesheet_65: 910279163
-      spritesheet_61: 1536347322
-      spritesheet_22: 800413071
-      spritesheet_41: -1023030538
-      spritesheet_25: -1062068349
-      spritesheet_14: -1471326842
-      spritesheet_21: -664815502
-      spritesheet_38: -2147336629
-      spritesheet_9: -823580957
-      spritesheet_19: 1758208467
-      spritesheet_54: -1440847062
-      spritesheet_33: 2078623676
+      spritesheet_1: -2130678865
       spritesheet_10: 429816828
+      spritesheet_11: -267592666
+      spritesheet_12: 1914395335
+      spritesheet_13: 923891069
+      spritesheet_14: -1471326842
+      spritesheet_15: 1675171175
+      spritesheet_16: 1587106713
+      spritesheet_17: 1976609120
+      spritesheet_18: 313977337
+      spritesheet_19: 1758208467
+      spritesheet_2: -574339482
+      spritesheet_20: 2075988345
+      spritesheet_21: -664815502
+      spritesheet_22: 800413071
+      spritesheet_23: 624701303
+      spritesheet_24: 978392530
+      spritesheet_25: -1062068349
+      spritesheet_26: 875753642
+      spritesheet_27: 102664725
+      spritesheet_28: -215112875
+      spritesheet_29: 1546200215
+      spritesheet_3: 1404930503
+      spritesheet_30: 1936070292
+      spritesheet_31: -141876473
+      spritesheet_32: 2106679602
+      spritesheet_33: 2078623676
       spritesheet_34: -1734486256
+      spritesheet_35: 1933099246
+      spritesheet_36: 1415635147
+      spritesheet_37: 1587472988
+      spritesheet_38: -2147336629
+      spritesheet_39: 252806818
+      spritesheet_4: 1167669178
+      spritesheet_40: -2125945917
+      spritesheet_41: -1023030538
+      spritesheet_42: 956901446
+      spritesheet_43: 479866934
+      spritesheet_44: 1642214863
+      spritesheet_45: -647563178
+      spritesheet_46: -33670788
       spritesheet_47: -1521146742
       spritesheet_48: 815073922
+      spritesheet_49: -1272545002
+      spritesheet_5: -1463850079
+      spritesheet_50: 1083111067
+      spritesheet_51: -1391133414
+      spritesheet_52: -747446132
+      spritesheet_53: 993240201
+      spritesheet_54: -1440847062
+      spritesheet_55: -577435548
+      spritesheet_56: 54970515
+      spritesheet_57: 1407722480
       spritesheet_58: 520006047
-  spritePackingTag: 
+      spritesheet_59: 1475744426
+      spritesheet_6: 2036168335
+      spritesheet_60: 1907742362
+      spritesheet_61: 1536347322
+      spritesheet_62: -857121330
+      spritesheet_63: -1225811800
+      spritesheet_64: -199021548
+      spritesheet_65: 910279163
+      spritesheet_66: -992786431
+      spritesheet_67: -2016977689
+      spritesheet_68: -1728299281
+      spritesheet_69: -1307806517
+      spritesheet_7: 293671585
+      spritesheet_8: -654600208
+      spritesheet_9: -823580957
+  mipmapLimitGroupName: 
   pSDRemoveMatte: 0
-  pSDShowRemoveMatteOption: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 
