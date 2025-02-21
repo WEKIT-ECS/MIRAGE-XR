@@ -49,7 +49,7 @@ namespace MirageXR
 
     private async Task Login(string username, string password)
     {
-        var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.Login(username, password);
+        var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.MoodleManager.Login(username, password);
         if (result)
         {
             OnLoginSucceed(username, password);

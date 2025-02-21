@@ -92,19 +92,16 @@ namespace MirageXR
 			NetworkedAvatarUrlChanged?.Invoke(AvatarUrl);
 		}
 
-		public override async void Spawned()
+		public override void Spawned()
 		{
 			base.Spawned();
-
 			Runner.SetPlayerObject(Object.StateAuthority, Object);
-
-			await CollaborationManager.Instance.UserManager.RegisterNetworkedUserData(Object.StateAuthority, this);
+			RootObject.Instance.CollaborationManager.UserManager.RegisterNetworkedUserDataAsync(Object.StateAuthority, this);
 		}
 
 		public override void Despawned(NetworkRunner runner, bool hasState)
 		{
 			base.Despawned(runner, hasState);
-
 			UnsubscribeFromLocalData();
 		}
 #endif

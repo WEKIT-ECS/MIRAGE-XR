@@ -40,7 +40,7 @@ public class LoginView : PopupBase
     private async Task Login(string username, string password)
     {
         LoadView.Instance.Show();
-        var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.Login(username, password);
+        var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.MoodleManager.Login(username, password);
         LoadView.Instance.Hide();
         if (result)
         {

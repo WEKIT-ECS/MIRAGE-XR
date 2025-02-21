@@ -57,7 +57,7 @@ public class ThumbnailEditorView : PopupBase
             Toast.Instance.Show("The image has not been taken.");
             return;
         }
-        var path = Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActivityPath, THUMBNAIL_FILE_NAME);
+        var path = Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.ActivityPath, THUMBNAIL_FILE_NAME);
         File.WriteAllBytes(path, _texture2D.EncodeToJPG());
         _onAccept.Invoke(path);
         Close();

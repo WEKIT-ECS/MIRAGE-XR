@@ -1,6 +1,6 @@
 using System;
+using System.Text.RegularExpressions;
 using Cysharp.Threading.Tasks;
-using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -18,11 +18,11 @@ namespace MirageXR
         [SerializeField] private RawImage imageThumbnail;
         [SerializeField] private RectTransform containerThumbnail;
 
-        private Activity _activity;
-        private UnityAction<Activity> _onItemClicked;
-        private UnityAction<Activity> _onItemDeleteClicked;
+        private LearningExperienceEngine.DTOs.Activity _activity;
+        private UnityAction<LearningExperienceEngine.DTOs.Activity> _onItemClicked;
+        private UnityAction<LearningExperienceEngine.DTOs.Activity> _onItemDeleteClicked;
 
-        public void Initialize(Activity activity, UnityAction<Activity> onItemClicked, UnityAction<Activity> onItemDeleteClicked)
+        public void Initialize(LearningExperienceEngine.DTOs.Activity activity, UnityAction<LearningExperienceEngine.DTOs.Activity> onItemClicked, UnityAction<LearningExperienceEngine.DTOs.Activity> onItemDeleteClicked)
         {
             _activity = activity;
             _onItemClicked = onItemClicked;
@@ -59,10 +59,11 @@ namespace MirageXR
 
         private async UniTask UpdateThumbnailViewAsync()
         {
-            if (_activity is { Thumbnail: not null } && _activity.Thumbnail.Id != Guid.Empty)
+            if (_activity is { ThumbnailLink: not null } && !string.IsNullOrEmpty(_activity.ThumbnailLink) &&
+                TryToGetGuids(_activity.ThumbnailLink, out var activityId, out var fileId))
             {
-                await RootObject.Instance.LEE.MediaManager.DownloadMediaFileAsync(_activity.Id, _activity.Thumbnail.Id);
-                var texture2D = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(_activity.Id, _activity.Thumbnail.Id);
+                await RootObject.Instance.LEE.MediaManager.DownloadMediaFileAsync(activityId, fileId);
+                var texture2D = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(activityId, fileId);
                 if (texture2D != null)
                 {
 #if VISION_OS  //TODO: temp
@@ -87,6 +88,31 @@ namespace MirageXR
 #endif
                 }
             }
+        }
+
+        private static bool TryToGetGuids(string url, out Guid activityId, out Guid fileId) //temp
+        {
+            const string pattern = @"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})";
+
+            var match = Regex.Match(url, pattern);
+
+            if (match.Success)
+            {
+                try
+                {
+                    activityId = Guid.Parse(match.Groups[1].Value);
+                    fileId = Guid.Parse(match.Groups[2].Value);
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    UnityEngine.Debug.LogException(e);
+                }
+            }
+
+            activityId = Guid.Empty;
+            fileId = Guid.Empty;
+            return false;
         }
     }
 }

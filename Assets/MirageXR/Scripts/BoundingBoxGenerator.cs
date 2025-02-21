@@ -211,7 +211,7 @@ namespace MirageXR
                 boundsControl.TranslateStopped.AddListener(OnTranslateStopped);
             }
 
-            EditModeState(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.EditModeActive);
+            EditModeState(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive);
         }
 
         private void OnManipulationEnded(ManipulationEventData eventData, LearningExperienceEngine.ToggleObject annotation)
@@ -221,7 +221,7 @@ namespace MirageXR
 
             SaveTransform(annotation);
 
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.SaveData();
         }
 
         private void OnTranslateStopped()
@@ -230,7 +230,7 @@ namespace MirageXR
             var gridManager = RootObject.Instance.GridManager;
             gridManager.onTranslateStopped?.Invoke(boundsControl.Target);
 
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.SaveData();
         }
 
         private void SaveTransform(LearningExperienceEngine.ToggleObject annotation)

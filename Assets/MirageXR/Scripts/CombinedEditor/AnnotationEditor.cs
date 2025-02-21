@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class AnnotationEditor : MonoBehaviour
 {
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
     [SerializeField] private Button deleteAnnotation;
     [SerializeField] private GameObject lifeIcon;
 
@@ -42,7 +42,7 @@ public class AnnotationEditor : MonoBehaviour
         if (TaskStationDetailMenu.Instance.SelectedButton == GetComponent<Button>())
             TaskStationDetailMenu.Instance.SelectedButton = null;
 
-        LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.DeleteAugmentation(annotationListItem.DisplayedAnnotation);
+        LearningExperienceEngine.LearningExperienceEngine.Instance.AugmentationManager.DeleteAugmentation(annotationListItem.DisplayedAnnotation);
 
     }
 

@@ -65,7 +65,7 @@ public class CalibrationView : PopupBase
     {
         base.Initialization(onClose, args);
 
-        _poseSynchronizer = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.detectableContainer.GetComponentInParent<LearningExperienceEngine.PoseSynchronizer>();
+        _poseSynchronizer = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.detectableContainer.GetComponentInParent<LearningExperienceEngine.PoseSynchronizer>();
         _canBeClosedByOutTap = false;
         _showBackground = false;
 
@@ -240,7 +240,7 @@ public class CalibrationView : PopupBase
         _imageTarget.gameObject.SetActive(false);
         _imageCalibrationAnimation.gameObject.SetActive(false);
 
-        var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
+        var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
         if (gridManager.gridEnabled && activityManager.EditModeActive)
         {
             gridManager.ShowGrid();
@@ -275,7 +275,7 @@ public class CalibrationView : PopupBase
 
         if (_isMoveOrigin)
         {
-            var synchronizer = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.detectableContainer.GetComponentInParent<LearningExperienceEngine.PoseSynchronizer>();
+            var synchronizer = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.detectableContainer.GetComponentInParent<LearningExperienceEngine.PoseSynchronizer>();
             synchronizer.enabled = true;
         }
 

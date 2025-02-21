@@ -42,7 +42,7 @@ namespace MirageXR
             }
             else
             {
-                var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+                var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager;
                 var detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(action.id));
                 var originT = GameObject.Find(detectable.id);
 
@@ -51,7 +51,7 @@ namespace MirageXR
                     originT.transform.position,
                     originT.transform.rotation);
 
-                annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager.AddAugmentation(action, offset);
+                annotationToEdit = LearningExperienceEngine.LearningExperienceEngine.Instance.AugmentationManager.AddAugmentation(action, offset);
                 annotationToEdit.option = modelName;
                 annotationToEdit.predicate = "3d:" + modelName;
                 annotationToEdit.url = "3d:" + modelName;
@@ -60,7 +60,7 @@ namespace MirageXR
             LearningExperienceEngine.EventManager.ActivateObject(annotationToEdit);
             LearningExperienceEngine.EventManager.NotifyActionModified(action);
 
-            LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.SaveData();
+            LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.SaveData();
 
             Close();
         }

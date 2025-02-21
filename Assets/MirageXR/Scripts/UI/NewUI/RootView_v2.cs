@@ -129,7 +129,7 @@ public class RootView_v2 : BaseView
         if (!LearningExperienceEngine.UserSettings.TryToGetUsernameAndPassword(out var username, out var password)) return;
 
         LoadView.Instance.Show();
-        await LearningExperienceEngine.LearningExperienceEngine.Instance.moodleManager.Login(username, password);
+        await LearningExperienceEngine.LearningExperienceEngine.Instance.MoodleManager.Login(username, password);
         LoadView.Instance.Hide();
     }
 
@@ -174,7 +174,7 @@ public class RootView_v2 : BaseView
     {
         LoadView.Instance.Show();
         await RootObject.Instance.EditorSceneService.LoadEditorAsync();
-        await LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.CreateNewActivity();
+        await LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.CreateNewActivity();
         _pageView.currentPageIndex = 1;
         LoadView.Instance.Hide();
     }

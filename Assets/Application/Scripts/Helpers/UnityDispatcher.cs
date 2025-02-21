@@ -45,7 +45,7 @@ namespace MRTKUtilities.Application
         static private Queue<Action> queue = new Queue<Action>(8);
         static private volatile bool queued = false;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        //[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static private void Initialize()
         {
             if (instance == null)

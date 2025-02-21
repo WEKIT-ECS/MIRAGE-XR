@@ -19,6 +19,7 @@ namespace MirageXR
         [SerializeField] private CalibrationTool _calibrationTool;
         [SerializeField] private StepView _defaultStepView;
         [SerializeField] private ContentView _defaultContentView;
+        [SerializeField] private NetworkObjectSynchronizer _networkObject;
         [SerializeField] private ContentAssetItem[] _contentAssets;
 
         public ContentView GetContentViewPrefab(ContentType contentType)
@@ -38,6 +39,11 @@ namespace MirageXR
         public StepView GetStepViewPrefab()
         {
             return _defaultStepView;
+        }
+
+        public NetworkObjectSynchronizer GetNetworkObjectPrefab()
+        {
+            return _networkObject;
         }
 
         public CalibrationTool GetCalibrationToolPrefab()

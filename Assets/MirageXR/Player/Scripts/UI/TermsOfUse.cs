@@ -17,7 +17,7 @@ namespace MirageXR
         [SerializeField] private Image buttonIcon;
         [SerializeField] private Text termsOfUseText;
 
-        private static LearningExperienceEngine.BrandManager brandManager /*configParser */ => LearningExperienceEngine.LearningExperienceEngine.Instance.brandManager;
+        private static LearningExperienceEngine.BrandManager brandManager /*configParser */ => LearningExperienceEngine.LearningExperienceEngine.Instance.BrandManager;
 
         private void Start()
         {

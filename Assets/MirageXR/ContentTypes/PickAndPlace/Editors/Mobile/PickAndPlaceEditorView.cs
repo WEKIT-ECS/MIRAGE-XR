@@ -7,8 +7,8 @@ using UnityEngine.UI;
 
 public class PickAndPlaceEditorView : PopupEditorBase
 {
-    private static LearningExperienceEngine.AugmentationManager _augmentationManager => LearningExperienceEngine.LearningExperienceEngine.Instance.augmentationManager;
-    private static LearningExperienceEngine.WorkplaceManager _workplaceManager => LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+    private static LearningExperienceEngine.AugmentationManager _augmentationManager => LearningExperienceEngine.LearningExperienceEngine.Instance.AugmentationManager;
+    private static LearningExperienceEngine.WorkplaceManager _workplaceManager => LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager;
 
     public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.PICKANDPLACE;
 

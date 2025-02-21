@@ -9,6 +9,7 @@ namespace MirageXR
         UniTask InitializeAsync();
         StepView GetStepViewPrefab();
         CalibrationTool GetCalibrationToolPrefab();
+        NetworkObjectSynchronizer GetNetworkObjectPrefab();
         ContentView GetContentViewPrefab(LearningExperienceEngine.DataModel.ContentType contentType);
     }
 }

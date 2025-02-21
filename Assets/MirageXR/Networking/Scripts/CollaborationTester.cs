@@ -18,7 +18,7 @@ namespace MirageXR
         {
             if (Input.GetKeyDown(KeyCode.F5))
             {
-                await CollaborationManager.Instance.StartNewSession();
+                await RootObject.Instance.CollaborationManager.StartNewSession();
             }
 
             if (Input.GetKeyDown(KeyCode.F6))

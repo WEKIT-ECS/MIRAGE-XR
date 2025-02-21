@@ -66,7 +66,7 @@ namespace MirageXR
 
         private async Task<ImageTargetBase> LoadImage()
         {
-            var imagePath = Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.ActivityPath, _imageName);
+            var imagePath = Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.ActivityPath, _imageName);
             var byteArray = await File.ReadAllBytesAsync(imagePath);
             var texture = new Texture2D(2, 2);
 
@@ -92,7 +92,7 @@ namespace MirageXR
 
         private void MoveDetectableToImage(Transform targetHolder)
         {
-            var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager;
+            var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager;
             var taskStationId = workplaceManager.GetPlaceFromTaskStationId(_content.id);
             var detectable = workplaceManager.GetDetectable(taskStationId);
             var detectableObj = GameObject.Find(detectable.id); // TODO: replace GameObject.Find(...)
@@ -109,8 +109,8 @@ namespace MirageXR
 
         public void MoveDetectableBack()
         {
-            var place = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.GetPlaceFromTaskStationId(_content.id);
-            var detectable = LearningExperienceEngine.LearningExperienceEngine.Instance.workplaceManager.GetDetectable(place);
+            var place = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.GetPlaceFromTaskStationId(_content.id);
+            var detectable = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.GetDetectable(place);
             var detectableObj = GameObject.Find(detectable.id); // TODO: replace GameObject.Find(...)
             if (detectableObj)
             {

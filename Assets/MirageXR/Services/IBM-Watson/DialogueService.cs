@@ -25,7 +25,7 @@ public class DialogueService : MonoBehaviour
     private ExerciseController dEC;
 
     private MirageXR.CharacterController _character;
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld;
+    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
 
     [Space(10)]
 

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace MirageXR
@@ -10,7 +8,7 @@ namespace MirageXR
     public class ContentAugmentationController : MonoBehaviour
     {
         // Start: add listeners
-        void Start()
+        private void Start()
         {
             LearningExperienceEngine.EventManager.OnAugmentationDeleted += OnAugmentationDeleted;
             LearningExperienceEngine.EventManager.OnAugmentationRestored += OnAugmentationRestored;
@@ -26,13 +24,13 @@ namespace MirageXR
         /// <summary>
         /// Gets called when a content augmentation has been deleted from the data model
         /// </summary>
-        /// <param name="contentAugmentation">reference to the the content augmentation object</param>
-        void OnAugmentationDeleted (LearningExperienceEngine.ToggleObject contentAugmentation )
+        /// <param name="contentAugmentation">reference to the content augmentation object</param>
+        private void OnAugmentationDeleted (LearningExperienceEngine.ToggleObject contentAugmentation )
         {
             LearningExperienceEngine.EventManager.DeactivateObject(contentAugmentation);
         }
 
-        void OnAugmentationRestored(LearningExperienceEngine.ToggleObject restoreObject)
+        private void OnAugmentationRestored(LearningExperienceEngine.ToggleObject restoreObject)
         {
             LearningExperienceEngine.EventManager.ActivateObject(restoreObject);
         }

@@ -1,56 +1,47 @@
 #if FUSION2
 using Fusion;
-using i5.Toolkit.Core.ServiceCore;
-using LearningExperienceEngine;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
+using LearningExperienceEngine;
 #endif
+using System;
 using UnityEngine;
 
 namespace MirageXR
 {
-	public class NetworkedUserManager : MonoBehaviour
+	public class NetworkedUserManager : MonoBehaviour, IDisposable
 	{
 #if FUSION2
-		private Dictionary<PlayerRef, NetworkedUserData> _networkedUserData = new Dictionary<PlayerRef, NetworkedUserData>();
+		private readonly Dictionary<PlayerRef, NetworkedUserData> _networkedUserData = new();
 
-		public LocalUserData LocalUserData
-		{
-			get; private set;
-		} = new LocalUserData();
+		public LocalUserData LocalUserData { get; private set; } = new();
 
 		private NetworkRunner _networkRunner;
-		private NetworkRunner NetworkRunner
-		{
-			get => ComponentUtilities.GetOrFetchComponent(this, ref _networkRunner);
-		}
+		private NetworkEvents _networkEvents;
 
+		public IEnumerable<PlayerRef> UserList => _networkedUserData.Keys;
 
-		public IEnumerable<PlayerRef> UserList
-		{
-			get => _networkedUserData.Keys;
-		}
-
-		public PlayerRef LocalUser { get => NetworkRunner.LocalPlayer; }
+		public PlayerRef LocalUser => _networkRunner.LocalPlayer;
 
 		public event System.Action UserListChanged;
 		public event System.Action AnyUserNameChanged;
 
-		private void Start()
+		public void Initialize(IAuthorizationManager authorizationManager, NetworkRunner networkRunner, NetworkEvents networkEvents)
 		{
-			LocalUserData.Initialize();
+			_networkRunner = networkRunner;
+			_networkEvents = networkEvents;
+			_networkEvents.PlayerLeft.AddListener(OnPlayerLeft);
+			LocalUserData.Initialize(authorizationManager);
 		}
 
-		public async Task RegisterNetworkedUserData(PlayerRef owner, NetworkedUserData networkedUserData)
+		public void RegisterNetworkedUserDataAsync(PlayerRef owner, NetworkedUserData networkedUserData)
 		{
 			if (networkedUserData != null && !_networkedUserData.ContainsKey(owner))
 			{
-				if (owner == NetworkRunner.LocalPlayer)
+				if (owner == _networkRunner.LocalPlayer)
 				{
 					Debug.Log($"{owner} is the local user, so it gets the prepared local user data");
-					await LocalUserData.UpdateAllDataAsync();
+					LocalUserData.UpdateAllData();
 					networkedUserData.LocalUserDataSource = LocalUserData;
 				}
 
@@ -67,7 +58,7 @@ namespace MirageXR
 			AnyUserNameChanged?.Invoke();
 		}
 
-		public void OnPlayerLeft(NetworkRunner networkRunner, PlayerRef leftPlayer)
+		private void OnPlayerLeft(NetworkRunner networkRunner, PlayerRef leftPlayer)
 		{
 			if (_networkedUserData.ContainsKey(leftPlayer))
 			{
@@ -82,5 +73,11 @@ namespace MirageXR
 			return _networkedUserData.GetValueOrDefault(playerRef);
 		}
 #endif
+		public void Dispose()
+		{
+#if FUSION2
+			LocalUserData.Dispose();
+#endif
+		}
 	}
 }

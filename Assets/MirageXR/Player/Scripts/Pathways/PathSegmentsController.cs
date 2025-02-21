@@ -61,7 +61,7 @@ namespace MirageXR
 
         private void StartCalibrationFlow()
         {
-            if (!LearningExperienceEngine.LearningExperienceEngine.Instance.activityManagerOld.IsReady || _calibrationFlow)
+            if (!LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.IsReady || _calibrationFlow)
             {
                 return;
             }

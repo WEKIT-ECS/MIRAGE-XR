@@ -81,9 +81,9 @@ namespace MirageXR
         {
             var actions = new Dictionary<ObjectDataFunctionEnum, Func<List<AIModel>>>
             {
-                { ObjectDataFunctionEnum.ModelEndpoint, () => RootObject.Instance.AiManager.GetLlmModels() },
-                { ObjectDataFunctionEnum.LanguageEndpoint, () => RootObject.Instance.AiManager.GetSttModels() },
-                { ObjectDataFunctionEnum.VoiceEndpoint, () => RootObject.Instance.AiManager.GetTtsModels() },
+                { ObjectDataFunctionEnum.ModelEndpoint, () => RootObject.Instance.LEE.ArtificialIntelligenceManager.GetLlmModels() },
+                { ObjectDataFunctionEnum.LanguageEndpoint, () => RootObject.Instance.LEE.ArtificialIntelligenceManager.GetSttModels() },
+                { ObjectDataFunctionEnum.VoiceEndpoint, () => RootObject.Instance.LEE.ArtificialIntelligenceManager.GetTtsModels() },
                
             };
             _objectDataSet = actions[selectedFunctionEnum]();
@@ -266,7 +266,7 @@ namespace MirageXR
                 async void Play()
                 {
                   
-                    var clip = await RootObject.Instance.AiManager.ConvertTextToSpeechAsync("Hi I am " + objectData.Name, objectData.ApiName);
+                    var clip = await RootObject.Instance.LEE.ArtificialIntelligenceManager.ConvertTextToSpeechAsync("Hi I am " + objectData.Name, objectData.ApiName);
 
                     audioSources[0].clip = clip;
                     audioSources[0].Play();
