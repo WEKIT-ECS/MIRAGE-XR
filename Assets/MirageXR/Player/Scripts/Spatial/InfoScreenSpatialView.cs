@@ -328,9 +328,9 @@ namespace MirageXR
         }
         private Vector3 GetLinkWorldPosition(string linkId)
         {
-            if (!_linkIndexCache.ContainsKey(linkId))
+            if (!_linkIndexCache.TryGetValue(linkId, out var index))
             {
-                var index = _textDescription.textInfo.linkInfo.ToList().FindIndex(link => link.GetLinkID() == linkId);
+                index = _textDescription.textInfo.linkInfo.ToList().FindIndex(link => link.GetLinkID() == linkId);
                 if (index == -1)
                 {
                     Debug.LogError($"Link with ID {linkId} not found.");
@@ -339,13 +339,18 @@ namespace MirageXR
                 _linkIndexCache[linkId] = index;
             }
 
-            var linkInfo = _textDescription.textInfo.linkInfo[_linkIndexCache[linkId]];
-            var charInfo = _textDescription.textInfo.characterInfo[linkInfo.linkTextfirstCharacterIndex];
-            
-            var startPosition = _textDescription.transform.TransformPoint(charInfo.bottomLeft);
-            startPosition += _textDescription.transform.forward; // * 0.5f; // move forward z-axis
+            var linkInfo = _textDescription.textInfo.linkInfo[index];
+            var firstCharInfo = _textDescription.textInfo.characterInfo[linkInfo.linkTextfirstCharacterIndex];
+            var lastCharInfo = _textDescription.textInfo.characterInfo[linkInfo.linkTextfirstCharacterIndex + linkInfo.linkTextLength - 1];
 
-            return startPosition;
+            var bottomLeft = firstCharInfo.bottomLeft;
+            var topRight = lastCharInfo.topRight;
+            var centerLocal = (bottomLeft + topRight) * 0.5f;
+    
+            var centerWorld = _textDescription.transform.TransformPoint(centerLocal); 
+            centerWorld += _textDescription.transform.forward * -0.01f;
+
+            return centerWorld;
         }
 
         private void OnStepCompletedToggleValueChanged(bool value)
