@@ -7,6 +7,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Splines;
 using UnityEngine.UI;
+using Activity = LearningExperienceEngine.DataModel.Activity;
 
 namespace MirageXR
 {
@@ -55,6 +56,8 @@ namespace MirageXR
             _camera = Camera.main;
             
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
+            RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityLoaded;
+            
             nextStepButton.onClick.AddListener(OnNextStepClicked);
             previousStepButton.onClick.AddListener(OnPreviousStepClicked);
             nextStepButton_Collapsed.onClick.AddListener(OnNextStepClicked);
@@ -71,7 +74,8 @@ namespace MirageXR
                 HandleClick();
             }
             
-            foreach (var linkId in _splineInstances.Keys)
+            var linkIds = _splineInstances.Keys.ToList();
+            foreach (var linkId in linkIds)
             {
                 if (!_hyperlinkInstances.ContainsKey(linkId))
                 {
@@ -79,9 +83,25 @@ namespace MirageXR
                 }
 
                 var hyperlinkInstance = _hyperlinkInstances[linkId];
+                
+                if (hyperlinkInstance == null)
+                {
+                    _hyperlinkInstances.Remove(linkId);
+                    if (_splineInstances.ContainsKey(linkId))
+                    {
+                        Destroy(_splineInstances[linkId].gameObject);
+                        _splineInstances.Remove(linkId);
+                    }
+                    if (_previousPositions.ContainsKey(linkId))
+                    {
+                        _previousPositions.Remove(linkId);
+                    }
+                    continue;
+                }
+
                 var currentStartPosition = GetLinkWorldPosition(linkId);
                 var currentEndPosition = hyperlinkInstance.transform.position;
-                
+
                 if (_previousPositions.TryGetValue(linkId, out var previousPositions))
                 {
                     if (previousPositions.startPosition == currentStartPosition &&
@@ -90,6 +110,7 @@ namespace MirageXR
                         continue;
                     }
                 }
+
                 UpdateSplineLine(linkId);
                 _previousPositions[linkId] = (currentStartPosition, currentEndPosition);
             }
@@ -142,12 +163,89 @@ namespace MirageXR
             {
                 foreach (var linkId in _hyperlinkInstances.Keys)
                 {
-                    _hyperlinkInstances[linkId].SetActive(true);
+                    if(_hyperlinkInstances[linkId].gameObject != null)
+                    {
+                        _hyperlinkInstances[linkId].SetActive(true);
+                    }
                 }
                 ClearSplines();
             }
         }
         
+        private void OnActivityLoaded(Activity activity)
+        {
+            CheckAndUpdateSplines();
+        }
+        private void CheckAndUpdateSplines()
+        {
+            var linkInfos = _textDescription.textInfo.linkInfo;
+            var splineContainers = new List<GameObject>();
+            var allObjects = FindObjectsOfType<GameObject>();
+            foreach (var obj in allObjects)
+            {
+                if (obj.name.StartsWith("spline__"))
+                {
+                    splineContainers.Add(obj);
+                    var linkId = obj.name.Substring("spline__".Length);
+                    var splineContainer = obj.GetComponent<SplineContainer>();
+                    if (splineContainer != null && !_splineInstances.ContainsKey(linkId))
+                    {
+                        _splineInstances[linkId] = splineContainer;
+                    }
+                }
+            }
+
+            var splinesToRemove = new List<GameObject>();
+            foreach (var splineContainer in splineContainers)
+            {
+                var foundMatch = false;
+                var linkId = splineContainer.name.Substring("spline__".Length);
+                foreach (var linkInfo in linkInfos)
+                {
+                    if (splineContainer.name == "spline__" + linkInfo.GetLinkID())
+                    {
+                        foundMatch = true;
+                        break;
+                    }
+                }
+                
+                if (!foundMatch)
+                {
+                    splinesToRemove.Add(splineContainer);
+                    if (_splineInstances.ContainsKey(linkId))
+                    {
+                        _splineInstances.Remove(linkId);
+                    }
+                }
+            }
+            
+            foreach (var splineToRemove in splinesToRemove)
+            {
+                splineContainers.Remove(splineToRemove);
+                Destroy(splineToRemove);
+            }
+            
+            foreach (var linkInfo in linkInfos)
+            {
+                var foundMatch = false;
+                foreach (var splineContainer in splineContainers)
+                {
+                    if (splineContainer.name == "spline__" + linkInfo.GetLinkID())
+                    {
+                        foundMatch = true;
+                        break;
+                    }
+                }
+                
+                if (!foundMatch)
+                {
+                    // create spline
+                    var linkId = linkInfo.GetLinkID();
+                    CreateSplinesForHyperlinks();
+                    UpdateSplineLine(linkId);
+                }
+            }
+        }
         private void CreateSplinesForHyperlinks()
         {
             _textDescription.ForceMeshUpdate();
@@ -155,13 +253,20 @@ namespace MirageXR
             foreach (var linkInfo in linkInfos)
             {
                 var linkId = linkInfo.GetLinkID();
-                var prefabName = "hyperlink_" + linkId;
+                var prefabName = "hyperlink__" + linkId;
                 var hyperlinkPrefab = GameObject.Find(prefabName);
 
                 if (hyperlinkPrefab != null)
                 {
                     _hyperlinkInstances[linkId] = hyperlinkPrefab;
-                    CreateSplineLine(linkId);
+                    if (!_splineInstances.ContainsKey(linkId) && GameObject.Find("spline__" + linkId) == null)
+                    {
+                        CreateSplineLine(linkId);
+                    }
+                    else if (_splineInstances.ContainsKey(linkId))
+                    {
+                        UpdateSplineLine(linkId);
+                    }
                 }
             }
         }
@@ -178,13 +283,31 @@ namespace MirageXR
         }
         private void CreateSplineLine(string linkId)
         {
+            if (spawnParent == null)
+            {
+                spawnParent = null;
+            }
+            
+            var existingSpline = GameObject.Find("spline__" + linkId);
+            if (existingSpline != null)
+            {
+                var splineContainer = existingSpline.GetComponent<SplineContainer>();
+                if (splineContainer != null && !_splineInstances.ContainsKey(linkId))
+                {
+                    _splineInstances[linkId] = splineContainer;
+                    UpdateSplineLine(linkId);
+                }
+                return;
+            }
+            
             var splinePrefab = Instantiate(splineContainerPrefab, spawnParent);
+            splinePrefab.name = "spline__" + linkId;
 
             splinePrefab.transform.localPosition = Vector3.zero;
             splinePrefab.transform.localRotation = Quaternion.identity;
 
-            var splineContainer = splinePrefab.GetComponent<SplineContainer>();
-            _splineInstances[linkId] = splineContainer;
+            var splineContainerNew = splinePrefab.GetComponent<SplineContainer>();
+            _splineInstances[linkId] = splineContainerNew;
 
             UpdateSplineLine(linkId);
         }
@@ -243,7 +366,7 @@ namespace MirageXR
             var charInfo = _textDescription.textInfo.characterInfo[linkInfo.linkTextfirstCharacterIndex];
             
             var startPosition = _textDescription.transform.TransformPoint(charInfo.bottomLeft);
-            startPosition += _textDescription.transform.forward * 0.1f; // move forward z-axis
+            startPosition += _textDescription.transform.forward * 0.5f; // move forward z-axis
 
             return startPosition;
         }
