@@ -67,7 +67,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.05
+  m_Radius: 0.04
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &8797222307565704299
 GameObject:
@@ -97,14 +97,14 @@ RectTransform:
   m_GameObject: {fileID: 8797222307565704299}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
+  m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 7282012451669322779}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0.125}
+  m_AnchoredPosition: {x: 0, y: 0.0308}
   m_SizeDelta: {x: 0.6, y: 0.1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &7078967101322326258
@@ -288,20 +288,26 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[3]
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 5694446935584290306, guid: f35ba565330095a4ba75d52bd79983c2,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 70948873267775455, guid: d6a0d16305b460e478fe512555b52776,
+        type: 3}
     - target: {fileID: 6883728343121859418, guid: f35ba565330095a4ba75d52bd79983c2,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6883728343121859418, guid: f35ba565330095a4ba75d52bd79983c2,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6883728343121859418, guid: f35ba565330095a4ba75d52bd79983c2,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6883728343121859418, guid: f35ba565330095a4ba75d52bd79983c2,
         type: 3}

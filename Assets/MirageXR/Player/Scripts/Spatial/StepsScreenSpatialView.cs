@@ -33,14 +33,6 @@ namespace MirageXR
         [SerializeField] private SpatialHyperlinkObjectView spatialHyperlinkPrefab;
         [SerializeField] private Color[] diamondColors = new Color[]
         {
-            Color.red,
-            Color.green,
-            Color.blue,
-            Color.yellow,
-            Color.cyan,
-            Color.magenta,
-            new (1, 0.5f, 0),
-            new (0.5f, 0, 1) 
         };
         private int _currentColorIndex = 0;
         [Header("Media")]
@@ -82,7 +74,9 @@ namespace MirageXR
         public void SetTitleInputText(string text) => titleInput.text = text;
         public void SetTitleInputInteractable(bool value) => titleInput.interactable  = value;
         public void SetActionOnDescriptionInputEndEdit(UnityAction<string> onEndEdit) => descriptionInput.onEndEdit.AddListener(onEndEdit);
+        public void SetActionOnDescriptionInputStartEdit(UnityAction<string> onStartEdit) => descriptionInput.onEndEdit.AddListener(onStartEdit);
         public void SetDescriptionInputText(string text) => descriptionInput.text = text;
+        public TMP_InputField GetDescriptionInputField() => descriptionInput;
         public void SetDescriptionInputInteractable(bool value) => descriptionInput.interactable  = value;
 
         public void SetActiveContainerMediaAddNewFile(bool value) => containerAddNewFile.SetActive(value);
@@ -97,7 +91,7 @@ namespace MirageXR
         
         public GameObject CreateHyperlinkPrefab(Vector3 startPosition, string linkText)
         {
-            var spawnPosition = startPosition + Vector3.up / 2;
+            var spawnPosition = startPosition;
 
             var spawnParent = GameObject.Find("Anchor")?.transform;
             if (spawnParent == null)  
