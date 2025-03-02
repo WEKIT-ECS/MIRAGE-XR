@@ -278,6 +278,30 @@ namespace MirageXR
             }
             
             var splinePrefab = Instantiate(splineContainerPrefab, _spawnParent);
+            var particleSys = splinePrefab.gameObject.GetComponentInChildren<ParticleSystem>();
+            if (particleSys != null)
+            {
+                var rend = particleSys.GetComponent<Renderer>();
+                if (rend != null)
+                {
+                    var propBlock = new MaterialPropertyBlock();
+                    var prefabName = "hyperlink__" + linkId;
+                    var diamond = GameObject.Find(prefabName);
+                    var meshRenderer = diamond.gameObject.GetComponentInChildren<MeshRenderer>();
+                    var diamondColor = meshRenderer.material.GetColor("_BaseColor");
+                    propBlock.SetColor("_BaseColor", diamondColor);
+                    rend.SetPropertyBlock(propBlock);
+                }
+                else
+                {
+                    Debug.LogError("No Renderer found on Particle System in prefab instance: " + splinePrefab.name);
+                }
+            }
+            else
+            {
+                Debug.LogError("No Particle System found on prefab instance: " + splinePrefab.name);
+            }
+            
             splinePrefab.name = "spline__" + linkId;
 
             splinePrefab.transform.localPosition = Vector3.zero;
@@ -403,7 +427,9 @@ namespace MirageXR
             _step = step;  
             _textTitle.text = step.Name;
             _textTitle_Collapsed.text = step.Name;
-            _textDescription.text = AddLinkTagsToBrackets(step.Description);
+            
+            var data = HyperlinkPositionData.SplitPositionsFromText(_step.Description);
+            _textDescription.text = AddLinkTagsToBrackets(data.DisplayText);
             
             var isEditorMode = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
             OnEditorModeChanged(isEditorMode);
