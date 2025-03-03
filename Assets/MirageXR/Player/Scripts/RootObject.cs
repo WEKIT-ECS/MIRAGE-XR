@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Hacks;
 using i5.Toolkit.Core.VerboseLogging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -97,6 +98,10 @@ namespace MirageXR
                                                                                                                          
             try
             {
+#if POLYSPATIAL_SDK_AVAILABLE && !VISION_OS
+                InstantiateExtensions.Initialize();
+#endif
+
                 JsonConvert.DefaultSettings = () => new JsonSerializerSettings
                 {
                     ContractResolver = new CamelCasePropertyNamesContractResolver(),

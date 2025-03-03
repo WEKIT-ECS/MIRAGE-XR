@@ -32,12 +32,12 @@ namespace MirageXR
 
 		private void OnEnable()
 		{
-			MirageXR.EventManager.XAPIChanged += ChangeXAPI;
+			EventManager.XAPIChanged += ChangeXAPI;
 		}
 
 		private void OnDisable()
 		{
-			MirageXR.EventManager.XAPIChanged -= ChangeXAPI;
+			EventManager.XAPIChanged -= ChangeXAPI;
 		}
 
 		protected async override void RegisterServices()

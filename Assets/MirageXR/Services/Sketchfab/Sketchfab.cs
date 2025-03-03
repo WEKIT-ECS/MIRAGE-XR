@@ -81,7 +81,7 @@ namespace MirageXR
             return previewList;
         }
 
-        private static ModelPreviewItem CreateModelPreview(MirageXR.DataModel.SketchfabModel sketchfabModel)
+        private static ModelPreviewItem CreateModelPreview(DataModel.SketchfabModel sketchfabModel)
         {
             var image = sketchfabModel.thumbnails.images.FirstOrDefault(t => t.height < MAX_THUMBNAIL_HEIGHT) ?? sketchfabModel.thumbnails.images.First();
             return new ModelPreviewItem
