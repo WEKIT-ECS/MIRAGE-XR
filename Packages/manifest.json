@@ -1,20 +1,27 @@
 {
   "scopedRegistries": [
     {
+      "name": "NPM JS",
+      "url": "https://registry.npmjs.com",
+      "scopes": [
+        "com.hecomi"
+      ]
+    },
+    {
       "name": "OpenUPM",
       "url": "https://package.openupm.com",
       "scopes": [
         "com.atteneder",
         "com.bgtools.playerprefseditor",
         "com.i5.toolkit.core",
-        "com.unity.uiextensions"
-      ]
-    },
-    {
-      "name": "NPM JS",
-      "url": "https://registry.npmjs.com",
-      "scopes": [
-        "com.hecomi"
+        "com.openai.unity",
+        "com.unity.uiextensions",
+        "com.utilities.async",
+        "com.utilities.audio",
+        "com.utilities.encoder.wav",
+        "com.utilities.extensions",
+        "com.utilities.rest",
+        "com.utilities.websockets"
       ]
     }
   ],
@@ -29,7 +36,6 @@
     "com.jetxr.visionui": "https://github.com/jetstyle/Apple-Vision-Pro-UI-Kit.git",
     "com.microsoft.mixedreality.openxr": "file:MixedReality/com.microsoft.mixedreality.openxr-1.10.0.tgz",
     "com.microsoft.mixedreality.toolkit.standardassets": "file:MixedReality/com.microsoft.mixedreality.toolkit.standardassets-2.8.3.tgz",
-    "com.openai.unity": "https://github.com/RageAgainstThePixel/com.openai.unity.git#upm",
     "com.ptc.vuforia.engine": "file:com.ptc.vuforia.engine-10.25.4.tgz",
     "com.readyplayerme.core": "https://github.com/readyplayerme/rpm-unity-sdk-core.git#v7.3.1",
     "com.unity.2d.sprite": "1.0.0",
@@ -44,7 +50,7 @@
     "com.unity.collections": "1.2.3",
     "com.unity.ext.flatsharp": "1.1.1",
     "com.unity.ext.nunit": "1.0.6",
-    "com.unity.ide.rider": "3.0.31",
+    "com.unity.ide.rider": "3.0.34",
     "com.unity.ide.visualstudio": "2.0.22",
     "com.unity.ide.vscode": "1.2.5",
     "com.unity.mathematics": "1.2.5",
@@ -77,12 +83,6 @@
     "com.unity.xr.mock-hmd": "1.4.0-preview.2",
     "com.unity.xr.oculus": "4.2.0",
     "com.unity.xr.openxr": "1.12.0",
-    "com.utilities.async": "https://github.com/RageAgainstThePixel/com.utilities.async.git#upm",
-    "com.utilities.audio": "https://github.com/RageAgainstThePixel/com.utilities.audio.git#upm",
-    "com.utilities.encoder.ogg": "https://github.com/RageAgainstThePixel/com.utilities.encoder.ogg.git#upm",
-    "com.utilities.encoder.wav": "https://github.com/RageAgainstThePixel/com.utilities.encoder.wav.git#upm",
-    "com.utilities.extensions": "https://github.com/RageAgainstThePixel/com.utilities.extensions.git#upm",
-    "com.utilities.rest": "https://github.com/RageAgainstThePixel/com.utilities.rest.git#upm",
     "com.veriorpies.parrelsync": "https://github.com/VeriorPies/ParrelSync.git?path=/ParrelSync",
     "io.sentry.unity": "https://github.com/getsentry/unity.git#2.0.1",
     "com.unity.modules.ai": "1.0.0",
@@ -115,6 +115,7 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0"
+    "com.unity.modules.xr": "1.0.0",
+    "com.openai.unity": "8.6.0"
   }
 }

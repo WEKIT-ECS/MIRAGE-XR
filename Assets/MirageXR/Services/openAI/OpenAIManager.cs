@@ -12,6 +12,7 @@ using OpenAI.Chat;
 using OpenAI.Threads;
 using UnityEngine;
 using Utilities.WebRequestRest;
+using Utilities.WebRequestRest.Interfaces;
 
 namespace MirageXR
 {
@@ -20,6 +21,13 @@ namespace MirageXR
         private OpenAIClient _aiClient;
         private readonly Dictionary<string, AssistantResponse> _assistants = new Dictionary<string, AssistantResponse>();
         private readonly Dictionary<string, ThreadResponse> _threads = new Dictionary<string, ThreadResponse>();
+
+        private readonly Func<IServerSentEvent, Task> _streamHandler = (eventData) =>
+        {
+            // Verarbeite das Event hier.
+            Debug.Log($"Stream Event: {eventData}");
+            return Task.CompletedTask;
+        };
 
         private static async Task<OpenAIAuthInfo> ReadOpenIaAuthKeyAsync()
         {
@@ -137,9 +145,8 @@ namespace MirageXR
                     thread = await _aiClient.ThreadsEndpoint.CreateThreadAsync(cancellationToken: cancellationToken);
                     _threads.TryAdd(assistantId, thread);
                 }
-
-                var messageResponse = await thread.CreateMessageAsync(new CreateMessageRequest(message), cancellationToken: cancellationToken);
-                var runResponse = await _aiClient.ThreadsEndpoint.CreateRunAsync(thread.Id, new CreateRunRequest(assistantId), cancellationToken);
+                var messageResponse = await thread.CreateMessageAsync(new OpenAI.Threads.Message(message), cancellationToken: cancellationToken);
+                var runResponse = await _aiClient.ThreadsEndpoint.CreateRunAsync(thread.Id, new CreateRunRequest(assistantId), _streamHandler, cancellationToken);
                 runResponse = await runResponse.WaitForStatusChangeAsync(cancellationToken: cancellationToken);
                 var messages = await thread.ListMessagesAsync(cancellationToken: cancellationToken);
                 var response = messages.Items.FirstOrDefault(t => t.Role == Role.Assistant);
