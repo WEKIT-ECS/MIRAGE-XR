@@ -4,10 +4,14 @@ using System.Text.RegularExpressions;
 using LearningExperienceEngine.DataModel;
 using TMPro;
 using Unity.Mathematics;
+using Unity.PolySpatial.InputDevices;
 using UnityEngine;
+using UnityEngine.InputSystem.EnhancedTouch;
+using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.Splines;
 using UnityEngine.UI;
 using Activity = LearningExperienceEngine.DataModel.Activity;
+using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 namespace MirageXR
 {
@@ -49,6 +53,7 @@ namespace MirageXR
         {
             _spawnParent = GameObject.Find("Anchor")?.transform;
             _camera = Camera.main;
+            EnhancedTouchSupport.Enable();
             
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
             RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityLoaded;
@@ -64,10 +69,28 @@ namespace MirageXR
         
         private void Update()
         {
+#if UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS
             if (Input.GetMouseButtonDown(0)) // left mouse button
             {
                 HandleClick();
             }
+#endif
+            
+#if VISION_OS
+            if (EnhancedTouchSupport.enabled)
+            {
+                var activeTouches = Touch.activeTouches;
+                if (activeTouches.Count > 0)
+                {
+                    var touch = activeTouches[0];
+                    SpatialPointerState touchData = EnhancedSpatialPointerSupport.GetPointerState(touch);
+                    if (touchData.phase == SpatialPointerPhase.Began)
+                    {
+                        HandleSpatialClick(touchData.interactionPosition);
+                    }
+                }
+            }
+#endif
             
             foreach (var linkId in _splineInstances.Keys)
             {
@@ -101,16 +124,35 @@ namespace MirageXR
             _previousPositions.Remove(linkId);
         }
         
-        private void HandleClick()
+        private void HandleSpatialClick(Vector3 interactionPosition)
         {
-            var mousePosition = Input.mousePosition;
-            
             if (_camera == null)
             {
                 Debug.LogWarning("Camera is not assigned.");
                 return;
             }
             
+            Vector2 screenPosition = _camera.WorldToScreenPoint(interactionPosition);
+    
+            var linkIndex = TMP_TextUtilities.FindIntersectingLink(_textDescription, screenPosition, _camera);
+            if (linkIndex != -1)
+            {
+                var linkInfo = _textDescription.textInfo.linkInfo[linkIndex];
+                var linkId = linkInfo.GetLinkID();
+                ToggleHyperlinkVisibility(linkId);
+            }
+        }
+
+        private void HandleClick()
+        {
+            var mousePosition = Input.mousePosition;
+
+            if (_camera == null)
+            {
+                Debug.LogWarning("Camera is not assigned.");
+                return;
+            }
+
             var linkIndex = TMP_TextUtilities.FindIntersectingLink(_textDescription, mousePosition, _camera);
             if (linkIndex != -1)
             {
