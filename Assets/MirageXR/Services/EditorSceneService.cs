@@ -34,7 +34,8 @@ public class EditorSceneService
     {
         if (brandManager.Customizable)
         {
-            brandManager.AddCustomColors();
+            // removed for performance reasons
+            // brandManager.SceneGOsForceCustomColors();
         }
 
         if (scene.name == RootObject.Instance.PlatformManager.PlayerSceneName)
