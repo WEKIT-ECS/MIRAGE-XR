@@ -126,7 +126,7 @@ namespace MirageXR.View
            _xrGrabInteractableText.trackScale = false;
            _xrGrabInteractableText.useDynamicAttach = true;
            _xrGrabInteractableText.matchAttachPosition = true;
-           _xrGrabInteractableText.matchAttachRotation = true;
+           _xrGrabInteractableText.matchAttachRotation = false;
            _xrGrabInteractableText.snapToColliderVolume = false;
            _xrGrabInteractableText.reinitializeDynamicAttachEverySingleGrab = false;
            _xrGrabInteractableText.selectMode = InteractableSelectMode.Single;
