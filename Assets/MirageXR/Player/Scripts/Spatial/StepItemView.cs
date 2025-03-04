@@ -26,7 +26,8 @@ namespace MirageXR
             _onMenuClick = onMenuClick;
             var number = RootObject.Instance.LEE.StepManager.GetStepNumber(_step.Id);
             textStepName.text = $"{number} {step.Name}";
-            textStepDescription.text = step.Description;
+            var data = HyperlinkPositionData.SplitPositionsFromText(_step.Description);
+            textStepDescription.text = data.DisplayText;
             button.onClick.AddListener(OnButtonClick);
             buttonMenu.onClick.AddListener(OnButtonMenuClick);
             _stepCompletedToggle.onValueChanged.AddListener(OnStepCompleted);
