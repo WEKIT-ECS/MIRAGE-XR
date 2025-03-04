@@ -481,8 +481,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 260, y: -199.015}
-  m_SizeDelta: {x: 520, y: 254.03}
+  m_AnchoredPosition: {x: 260, y: -203.725}
+  m_SizeDelta: {x: 520, y: 263.45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2788190246317692342
 MonoBehaviour:
@@ -2228,7 +2228,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.050048828}
+  m_AnchoredPosition: {x: 0, y: 0.024169922}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &4990799570540229888
@@ -2888,8 +2888,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 260, y: -127.015}
-  m_SizeDelta: {x: 480, y: 234.03}
+  m_AnchoredPosition: {x: 260, y: -131.725}
+  m_SizeDelta: {x: 480, y: 243.45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7425222996534114800
 CanvasRenderer:
@@ -2927,8 +2927,9 @@ MonoBehaviour:
     tend to repeat predefined chunks as necessary, making this the first true generator
     on the Internet."
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 2ee51921491a242a0814e2e7f65ae568, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 2ee51921491a242a0814e2e7f65ae568, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 5022ce516f3fa16449970c6bbd78af94, type: 2}
+  m_sharedMaterial: {fileID: -60691781267840318, guid: 5022ce516f3fa16449970c6bbd78af94,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3205,6 +3206,9 @@ MonoBehaviour:
   nextStepButton: {fileID: 7736626455493954729}
   previousStepButton_Collapsed: {fileID: 5948883425590044873}
   nextStepButton_Collapsed: {fileID: 3736327894413607215}
+  splineContainerPrefab: {fileID: 2838334918150150800, guid: 3cd929624c8b9574e93c15b11bfac05e,
+    type: 3}
+  curveStrength: 1
 --- !u!223 &313070136385276676
 Canvas:
   m_ObjectHideFlags: 0
@@ -3360,7 +3364,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_IsOn: 0
+  m_IsOn: 1
 --- !u!114 &3787247086905536157
 MonoBehaviour:
   m_ObjectHideFlags: 0
