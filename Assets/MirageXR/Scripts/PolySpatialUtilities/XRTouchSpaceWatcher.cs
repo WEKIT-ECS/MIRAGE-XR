@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
-#if POLYSPATIAL_SDK_AVAILABLE && !VISION_OS
+#if POLYSPATIAL_SDK_AVAILABLE && VISION_OS
 using System.Reflection;
 using Unity.PolySpatial.XR.Input;
 using UnityEngine.EventSystems;
@@ -13,7 +13,7 @@ namespace MirageXR.MirageXR
     {
         [SerializeField] private InputActionReference inputActionReference;
 
-#if POLYSPATIAL_SDK_AVAILABLE && !VISION_OS
+#if POLYSPATIAL_SDK_AVAILABLE && VISION_OS
         private const string M_SPATIALPOINTER = "m_SpatialPointer";
 
         private void Awake()

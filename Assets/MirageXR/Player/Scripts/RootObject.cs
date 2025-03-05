@@ -95,10 +95,10 @@ namespace MirageXR
             {
                 return;
             }
-                                                                                                                         
+
             try
             {
-#if POLYSPATIAL_SDK_AVAILABLE && !VISION_OS
+#if POLYSPATIAL_SDK_AVAILABLE && VISION_OS
                 InstantiateExtensions.Initialize();
 #endif
 
