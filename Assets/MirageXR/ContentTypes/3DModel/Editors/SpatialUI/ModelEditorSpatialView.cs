@@ -192,8 +192,11 @@ namespace MirageXR
             var models = await sketchfabManager.GetCachedModelsAsync();
             foreach (var sketchfabModel in models)
             {
-                var listItem = Instantiate(sketchfabListItemPrefab, localModelsContainer);
-                listItem.InitializeAsync(sketchfabModel, OnModelItemClick).Forget();
+                if (sketchfabModel != null)
+                {
+                    var listItem = Instantiate(sketchfabListItemPrefab, localModelsContainer);
+                    listItem.InitializeAsync(sketchfabModel, OnModelItemClick).Forget();   
+                }
             }
         }
 
