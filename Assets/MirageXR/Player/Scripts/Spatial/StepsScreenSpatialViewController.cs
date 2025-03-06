@@ -101,11 +101,13 @@ namespace MirageXR
         
         private void OnButtonPreviousStepClicked()
         {
+            SaveHyperlinkPosition();
             RootObject.Instance.LEE.StepManager.GoToNextStep();
         }
 
         private void OnButtonNextStepClicked()
         {
+            SaveHyperlinkPosition();
             RootObject.Instance.LEE.StepManager.GoToPreviousStep();
         }
 
@@ -169,20 +171,7 @@ namespace MirageXR
 
         private void OnButtonConfirmHyperlinkPositionClicked()
         {
-            var displayText = View.GetDescriptionInputField().text;
-            foreach (var kvp in hyperlinkPrefabs)
-            {
-                var linkId = kvp.Key;
-                var prefab = kvp.Value;
-                if (prefab != null)
-                {
-                    var newPosition = prefab.transform.position;
-                    hyperlinkPositions[linkId] = newPosition;
-                }
-            }
-            var fullText = CombineTextWithPositions(displayText);
-            View.GetDescriptionInputField().text = displayText; 
-            RootObject.Instance.LEE.StepManager.SetStepDescription(_step.Id, fullText);
+            SaveHyperlinkPosition();
             View.SetHyperlinkDialogActive(false);
         }
 
@@ -388,7 +377,26 @@ namespace MirageXR
 
         private void OnButtonBackClicked()
         {
+            SaveHyperlinkPosition();
             MenuManager.Instance.ShowScreen(ScreenName.NewActivityScreen);
+        }
+
+        private void SaveHyperlinkPosition()
+        {
+            foreach (var kvp in hyperlinkPrefabs)
+            {
+                var linkId = kvp.Key;
+                var prefab = kvp.Value;
+                if (prefab != null)
+                {
+                    var newPosition = prefab.transform.position;
+                    hyperlinkPositions[linkId] = newPosition;
+                }
+            }
+            var displayText = View.GetDescriptionInputField().text;
+            View.GetDescriptionInputField().text = displayText; 
+            var fullText = CombineTextWithPositions(displayText);
+            RootObject.Instance.LEE.StepManager.SetStepDescription(_step.Id, fullText);
         }
     }
 }
