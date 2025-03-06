@@ -19,6 +19,8 @@ namespace MirageXR
         [SerializeField] private Button _buttonGrid;
         [SerializeField] private Button _buttonAudioDevice;
         [SerializeField] private Button _buttonDevelopMode;
+        [Header("Toggles")]
+        [SerializeField] private Toggle _toggleConsole;
         [Header("Texts")]
         [SerializeField] private TMP_Text _tmpTextMoodleServer;
         [SerializeField] private TMP_Text _tmpTextServer;
@@ -40,6 +42,7 @@ namespace MirageXR
         public void SetActionOnButtonGridClick(UnityAction action) => _buttonGrid.SafeSetListener(action);
         public void SetActionOnButtonAudioDeviceClick(UnityAction action) => _buttonAudioDevice.SafeSetListener(action);
         public void SetActionOnButtonDevelopModeClick(UnityAction action) => _buttonDevelopMode.SafeSetListener(action);
+        public void SetActionOnToggleConsoleValueChanged(UnityAction<bool> action) => _toggleConsole.SafeSetListener(action);
         public void SetSketchfabText(string text) => _tmpTextSketchfab.SafeSetText(text);
         public AudioDeviceSpatialView GetAudioDevicePrefab() => _audioDevicePrefab;
         public SketchfabSignInPopupView GetSketchfabSignInPopupViewPrefab() => sketchfabSignInPopupViewPrefab;
