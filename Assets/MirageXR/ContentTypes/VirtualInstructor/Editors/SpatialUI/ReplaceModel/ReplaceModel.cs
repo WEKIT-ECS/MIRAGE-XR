@@ -11,6 +11,7 @@ public class ReplaceModel : MonoBehaviour
 	[SerializeField] private AddModelPanel addCharacterPanel;
 	[SerializeField] private Transform thumbnailGrid;
 	[SerializeField] private GameObject characterThumbnailPrefab;
+	[SerializeField] private GameObject characterChip;
 
 	[SerializeField] private Button close;
 
@@ -40,6 +41,8 @@ public class ReplaceModel : MonoBehaviour
 
 	public async Task RefreshAsync()
 	{
+		characterChip.SetActive(RootObject.Instance.AvatarLibraryManager.AvatarList.Count == 0);
+
 		for (int i = 0; i < _characterThumbnails.Count; i++)
 		{
 			bool visible = i < RootObject.Instance.AvatarLibraryManager.AvatarList.Count;
