@@ -1,3 +1,4 @@
+using ReadyPlayerMe.Core;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,11 +9,14 @@ namespace MirageXR
 	public class CharacterThumbnailView : MonoBehaviour
 	{
 		[SerializeField] private Image _thumbnailImage;
+		[SerializeField] private GameObject _waitSpinner;
+
+		private string _modelUrl;
 
 		public Texture2D DisplayedThumbnail
 		{
 			get => _thumbnailImage.sprite.texture;
-			set
+			private set
 			{
 				if (_thumbnailImage.sprite != null)
 				{
@@ -29,6 +33,27 @@ namespace MirageXR
 					_thumbnailImage.color = new Color(1, 1, 1, 0);
 				}
 			}
+		}
+
+		public string ModelUrl
+		{
+			get => _modelUrl;
+			set
+			{
+				if (_modelUrl != value)
+				{
+					_modelUrl = value;
+					UpdateView();
+				}
+			}
+		}
+
+		public async void UpdateView()
+		{
+			_waitSpinner.SetActive(true);
+			Texture2D thumbnail = await RootObject.Instance.AvatarLibraryManager.GetThumbnailAsync(_modelUrl);
+			DisplayedThumbnail = thumbnail;
+			_waitSpinner.SetActive(false);
 		}
 	}
 }
