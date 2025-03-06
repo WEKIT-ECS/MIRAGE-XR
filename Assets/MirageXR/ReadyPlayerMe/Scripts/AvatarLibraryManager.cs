@@ -80,6 +80,7 @@ namespace MirageXR
 				settings.Expression = Expression.None;
 				settings.Camera = RenderCamera.Portrait;
 				settings.Pose = RenderPose.Relaxed;
+				settings.Background = Color.black;
 				settings.Quality = 100;
 				settings.Size = 800;
 
