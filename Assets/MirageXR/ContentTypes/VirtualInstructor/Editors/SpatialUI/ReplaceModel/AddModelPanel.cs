@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -5,7 +6,7 @@ using UnityEngine.UI;
 
 namespace MirageXR
 {
-    public class addModel : MonoBehaviour
+    public class AddModelPanel : MonoBehaviour
     {
         
         [Header("GameObject")]
@@ -23,7 +24,10 @@ namespace MirageXR
         [SerializeField] private Button closeCustomLink;
 
         [FormerlySerializedAs("_inputField")] [Header("Input Field")] [SerializeField]
-        private TMP_InputField inputField; 
+        private TMP_InputField inputField;
+
+        public delegate void ModelSelectedHandler(string modelUrl);
+        public event ModelSelectedHandler ModelSelected;
         
         void Start()
         {
@@ -34,12 +38,16 @@ namespace MirageXR
             closeBtn.onClick.AddListener(()=> this.gameObject.SetActive(false));
             inputField.onSubmit.AddListener((value) => addModelGO.SetActive(true)); 
         }
-
    
         private void AddmodelToLibrary(string url)
         {
-            // Todo to implement the model download
-            UnityEngine.Debug.Log("URL="+url);
+			if (string.IsNullOrWhiteSpace(url))
+			{
+                return;
+			}
+			UnityEngine.Debug.Log("URL="+url);
+            RootObject.Instance.AvatarLibraryManager.AddAvatar(url);
+            ModelSelected?.Invoke(url);
             conformation.SetActive(true);
             close.SetActive(true);
         }

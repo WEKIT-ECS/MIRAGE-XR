@@ -1,6 +1,9 @@
 using Cysharp.Threading.Tasks;
+using GLTFast.Schema;
 using i5.Toolkit.Core.VerboseLogging;
 using LearningExperienceEngine.DataModel;
+using ReadyPlayerMe.Core;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -51,27 +54,54 @@ namespace MirageXR.View
         private async UniTask<bool> InitializeContentAsync(Content<InstructorContentData> content)
         {
             _instructorContent = content;
+            string prefabPath;
 
-            if (string.IsNullOrEmpty(_instructorContent.ContentData.CharacterName)) //TODO: temp
-            {                                                                       //
-                _instructorContent.ContentData.CharacterName = "Sara";              //
-            }                                                                       //
-
-            var prefabPath = $"Instructors/{_instructorContent.ContentData.CharacterName}_instructor";
-            var handle = Addressables.LoadAssetAsync<GameObject>(prefabPath);
-            await handle.Task;
-            if (handle.Status == AsyncOperationStatus.Succeeded)
+            if (_instructorContent.ContentData.UseReadyPlayerMe)
             {
-                var instructor = Instantiate(handle.Result, transform);
-                var oldInstructor = instructor.GetComponent<VirtualInstructor>();
-                if (oldInstructor != null)
+                prefabPath = "ReadyPlayerMe/AvatarContainer";
+                var handle = Addressables.LoadAssetAsync<GameObject>(prefabPath);
+                await handle.Task;
+                if (handle.Status == AsyncOperationStatus.Succeeded)
                 {
-                    Destroy(oldInstructor);
+                    var avatarContainer = Instantiate(handle.Result, transform);
+                    AvatarLoader avatarLoader = avatarContainer.GetComponent<AvatarLoader>();
+					TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+					void OnAvatarLoaded(bool res)
+                    {
+						tcs.SetResult(res);
+						avatarLoader.AvatarLoaded -= OnAvatarLoaded;
+						_instructor = avatarContainer.AddComponent<Instructor>();
+						_instructor.Initialize(_instructorContent);
+					}
+                    avatarLoader.AvatarLoaded += OnAvatarLoaded;
+                    avatarLoader.LoadAvatar("https://models.readyplayer.me/673a4113c99a8ebbd293724f.glb");
+                    await tcs.Task;
+                    return tcs.Task.Result;
                 }
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(_instructorContent.ContentData.CharacterName)) //TODO: temp
+                {                                                                       //
+                    _instructorContent.ContentData.CharacterName = "Sara";              //
+                }                                                                       //
 
-                _instructor = instructor.AddComponent<Instructor>();
-                _instructor.Initialize(_instructorContent);
-                return true;
+                prefabPath = $"Instructors/{_instructorContent.ContentData.CharacterName}_instructor";
+                var handle = Addressables.LoadAssetAsync<GameObject>(prefabPath);
+                await handle.Task;
+                if (handle.Status == AsyncOperationStatus.Succeeded)
+                {
+                    var instructor = Instantiate(handle.Result, transform);
+                    var oldInstructor = instructor.GetComponent<VirtualInstructor>();
+                    if (oldInstructor != null)
+                    {
+                        Destroy(oldInstructor);
+                    }
+
+                    _instructor = instructor.AddComponent<Instructor>();
+                    _instructor.Initialize(_instructorContent);
+                    return true;
+                }
             }
 
             Debug.LogError("FATAL ERROR: Could not instantiate ContentAugmentation prefab " + prefabPath);
