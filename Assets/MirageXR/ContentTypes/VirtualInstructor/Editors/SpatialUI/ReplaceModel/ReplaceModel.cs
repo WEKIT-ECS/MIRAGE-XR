@@ -71,7 +71,7 @@ public class ReplaceModel : MonoBehaviour
 				_characterThumbnails.Add(characterThumbnailView);
 			}
 
-			_characterThumbnails[i].DisplayedThumbnail = await RootObject.Instance.AvatarLibraryManager.GetThumbnailAsync(avatarUrl);
+			_characterThumbnails[i].ModelUrl = avatarUrl;
 		}
 	}
 }
