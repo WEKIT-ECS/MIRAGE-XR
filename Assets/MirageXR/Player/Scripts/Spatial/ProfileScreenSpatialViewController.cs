@@ -17,10 +17,23 @@ namespace MirageXR
             View.SetActionOnButtonAudioDeviceClick(ShowAudioDeviceView);
             View.SetActionOnButtonSketchfabClick(OnSketchfabSignInButtonClicked);
             View.SetActionOnButtonAvatarClick(ShowChangeUserAvatarView);
+            View.SetActionOnToggleConsoleValueChanged(OnToggleConsoleValueChanged);
             View.gameObject.SetActive(false);
 
             RootObject.Instance.LEE.SketchfabManager.OnSketchfabUserDataChanged += OnSketchfabUserDataChanged;
             RootObject.Instance.LEE.SketchfabManager.OnSketchfabLoggedIn += OnSketchfabLoggedIn;
+        }
+
+        private void OnToggleConsoleValueChanged(bool value)
+        {
+            if (value)
+            {
+                MenuManager.Instance.ShowInGameConsole();
+            }
+            else
+            {
+                MenuManager.Instance.HideInGameConsole();
+            }
         }
 
         private void OnSketchfabUserDataChanged(SketchfabUserInfo userInfo)
