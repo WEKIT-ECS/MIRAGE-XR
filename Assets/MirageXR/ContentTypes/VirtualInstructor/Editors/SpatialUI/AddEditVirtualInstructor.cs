@@ -29,7 +29,7 @@ public class AddEditVirtualInstructor : EditorSpatialView
     // Panels
     [Header("Panels")]
     [SerializeField] private GameObject settingsPanel;
-    [SerializeField] private GameObject modelSettingPanel; 
+    [SerializeField] private ReplaceModel modelSettingPanel; 
     [SerializeField] private GameObject communicationSettingPanel;
     [SerializeField] private GameObject animationSettingPanel;
     [SerializeField] private GameObject pathSettingPanel;
@@ -43,7 +43,10 @@ public class AddEditVirtualInstructor : EditorSpatialView
     [SerializeField] private RectTransform background;
     [SerializeField] private RectTransform shadow;
     [SerializeField] private RectTransform content;
-    
+
+    [Header("Model")]
+    [SerializeField] private CharacterThumbnailView _characterThumbnailView;
+
     [Header("Communication Settings ")] 
     [SerializeField] private GameObject ai; 
     [SerializeField] private GameObject audioRecoding;
@@ -132,6 +135,7 @@ public class AddEditVirtualInstructor : EditorSpatialView
         };
         _instructorContentData.ContentData.AnimationClip = _animationClip;
         _instructorContentData.ContentData.CharacterName = _characterName;
+        _instructorContentData.ContentData.UseReadyPlayerMe = true;
         _instructorContentData.ContentData.Prompt = _prompt;
         _instructorContentData.ContentData.LanguageModel = new AIModel
         {
@@ -321,7 +325,7 @@ public class AddEditVirtualInstructor : EditorSpatialView
     private void OpenModelSettingPanel()
     {
         ResetPanel();
-        modelSettingPanel.SetActive(true);
+        modelSettingPanel.gameObject.SetActive(true);
     }
     
     private void OpenCommunicationSettingPanel()
@@ -351,7 +355,7 @@ public class AddEditVirtualInstructor : EditorSpatialView
     private void ResetPanel()
     {
          settingsPanel.SetActive(false);
-         modelSettingPanel.SetActive(false); 
+         modelSettingPanel.gameObject.SetActive(false); 
          communicationSettingPanel.SetActive(false);
          animationSettingPanel.SetActive(false);
          pathSettingPanel.SetActive(false);
