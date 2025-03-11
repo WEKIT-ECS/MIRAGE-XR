@@ -30,6 +30,8 @@ namespace MirageXR
 			if (args.Parameters.TryGetValue(avatarIdParameterName, out string id))
 			{
 				string avatarUrl = $"https://models.readyplayer.me/{id}.glb";
+				RootObject.Instance.AvatarLibraryManager.AddAvatar(avatarUrl);
+				RootObject.Instance.AvatarLibraryManager.Save();
 				UserSettings.AvatarUrl = avatarUrl;
 			}
 			else
