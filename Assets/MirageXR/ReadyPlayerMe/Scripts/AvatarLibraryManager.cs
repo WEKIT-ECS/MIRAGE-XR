@@ -102,6 +102,7 @@ namespace MirageXR
 					Debug.LogError($"Could not load avatar thumbnail. Reason: {failureType}; {message}", this);
 					loader.OnCompleted -= OnCompletedHandler;
 					loader.OnFailed -= OnFailedHandler;
+					tcs.SetResult(null);
 				}
 
 				loader.OnCompleted += OnCompletedHandler;
