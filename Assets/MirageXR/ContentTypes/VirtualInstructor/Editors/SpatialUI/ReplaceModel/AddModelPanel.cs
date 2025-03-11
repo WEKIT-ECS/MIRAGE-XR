@@ -27,33 +27,32 @@ namespace MirageXR
 		[SerializeField]
 		private TMP_InputField inputField;
 
-		public delegate void ModelSelectedHandler(string modelUrl);
-		public event ModelSelectedHandler ModelSelected;
+		public delegate void CharacterSelectedHandler(string characterUrl);
+		public event CharacterSelectedHandler CharacterSelected;
 
 		void Start()
 		{
 			closeWindowBtn.onClick.AddListener(() => this.gameObject.SetActive(false));
-			addModelBtn.onClick.AddListener(() => AddModelToLibrary(inputField.text));
+			addModelBtn.onClick.AddListener(() => AddCharacterToLibrary(inputField.text));
 			openCustomLink.onClick.AddListener(() => { customLinkOpen.SetActive(true); customLinkClose.SetActive(false); });
 			closeCustomLink.onClick.AddListener(() => { customLinkClose.SetActive(true); customLinkOpen.SetActive(false); });
 			closeBtn.onClick.AddListener(() => this.gameObject.SetActive(false));
-			inputField.onValueChanged.AddListener(OnModelInputFieldChanged);
+			inputField.onValueChanged.AddListener(OnCharacterUrlInputFieldChanged);
 		}
 
-		private void OnModelInputFieldChanged(string modelUrl)
+		private void OnCharacterUrlInputFieldChanged(string characterUrl)
 		{
-			Debug.Log("Model Input Field Changed");
-			addModelBtn.transform.parent.gameObject.SetActive(!string.IsNullOrWhiteSpace(modelUrl));
+			addModelBtn.transform.parent.gameObject.SetActive(!string.IsNullOrWhiteSpace(characterUrl));
 		}
 
-		private void AddModelToLibrary(string url)
+		private void AddCharacterToLibrary(string url)
 		{
 			if (string.IsNullOrWhiteSpace(url))
 			{
 				return;
 			}
 			RootObject.Instance.AvatarLibraryManager.AddAvatar(url);
-			ModelSelected?.Invoke(url);
+			CharacterSelected?.Invoke(url);
 			conformation.SetActive(true);
 			close.SetActive(true);
 			inputField.text = "";

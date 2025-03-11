@@ -74,7 +74,7 @@ namespace MirageXR.View
 						_instructor.Initialize(_instructorContent);
 					}
                     avatarLoader.AvatarLoaded += OnAvatarLoaded;
-                    avatarLoader.LoadAvatar("https://models.readyplayer.me/673a4113c99a8ebbd293724f.glb");
+                    avatarLoader.LoadAvatar(_instructorContent.ContentData.CharacterModelUrl);
                     await tcs.Task;
                     return tcs.Task.Result;
                 }
