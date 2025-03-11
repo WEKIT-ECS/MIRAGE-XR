@@ -56,5 +56,10 @@ namespace MirageXR
 			DisplayedThumbnail = thumbnail;
 			_waitSpinner.SetActive(false);
 		}
+
+		public void Delete()
+		{
+			RootObject.Instance.AvatarLibraryManager.RemoveAvatar(_modelUrl);
+		}
 	}
 }
