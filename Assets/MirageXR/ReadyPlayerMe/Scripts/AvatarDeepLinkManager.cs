@@ -26,17 +26,31 @@ namespace MirageXR
 		[DeepLink("avatar")]
 		public void ReceiveRPMAvatarUrl(DeepLinkArgs args)
 		{
-			Debug.LogTrace("Received a deep link for an avatar.");
+			ProcessRPMDeepLink(args, true);
+		}
+
+		[DeepLink("rpm")]
+		public void ReceiveRPMUrl(DeepLinkArgs args)
+		{
+			ProcessRPMDeepLink(args, false);
+		}
+
+		private void ProcessRPMDeepLink(DeepLinkArgs args, bool setAvatar)
+		{
+			Debug.LogTrace("Received a deep link for a RPM model.");
 			if (args.Parameters.TryGetValue(avatarIdParameterName, out string id))
 			{
 				string avatarUrl = $"https://models.readyplayer.me/{id}.glb";
 				RootObject.Instance.AvatarLibraryManager.AddAvatar(avatarUrl);
 				RootObject.Instance.AvatarLibraryManager.Save();
-				UserSettings.AvatarUrl = avatarUrl;
+				if (setAvatar)
+				{
+					UserSettings.AvatarUrl = avatarUrl;
+				}
 			}
 			else
 			{
-				Debug.LogError("Recieved a deep link for a RPM avatar but it did not contain an id parameter: " + args.DeepLink);
+				Debug.LogError("Recieved a deep link for a RPM model but it did not contain an id parameter: " + args.DeepLink);
 			}
 		}
 	}

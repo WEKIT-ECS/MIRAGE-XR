@@ -14,6 +14,9 @@ namespace MirageXR
 
 		private string _modelUrl;
 
+		public delegate void AvatarSelectedHandler(string modelUrl);
+		public event AvatarSelectedHandler AvatarSelected;
+
 		public Texture2D DisplayedThumbnail
 		{
 			get => _thumbnailImage.sprite.texture;
@@ -57,6 +60,12 @@ namespace MirageXR
 			_errorDisplay.SetActive(thumbnail == null);
 			DisplayedThumbnail = thumbnail;
 			_waitSpinner.SetActive(false);
+		}
+
+		public void ThumbnailSelected()
+		{
+			Debug.LogTrace($"Thumbnail with model url {_modelUrl} clicked.");
+			AvatarSelected?.Invoke(_modelUrl);
 		}
 
 		public void Delete()
