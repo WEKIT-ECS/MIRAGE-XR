@@ -14,8 +14,8 @@ public class AddEditVirtualInstructor : EditorSpatialView
     [Header("Buttons")]
     [SerializeField] private Button closePanelBtn;
     [SerializeField] private Button settingsBtn; 
-    [SerializeField] private Button modelSettingBtnA;
-    [SerializeField] private Button modelSettingBtnB;
+    [SerializeField] private CharacterModelSelectionElement characterModelSelectionElement;
+    [SerializeField] private Button replaceCharacterModelBtn;
     [SerializeField] private Button[] communicationSettingBtns;
     [FormerlySerializedAs("animationSettingBtn")]
     [SerializeField] private Button animationSettingBtnA;
@@ -29,7 +29,7 @@ public class AddEditVirtualInstructor : EditorSpatialView
     // Panels
     [Header("Panels")]
     [SerializeField] private GameObject settingsPanel;
-    [SerializeField] private ReplaceModel modelSettingPanel; 
+    [SerializeField] private ReplaceModel avatarModelSettingPanel; 
     [SerializeField] private GameObject communicationSettingPanel;
     [SerializeField] private GameObject animationSettingPanel;
     [SerializeField] private GameObject pathSettingPanel;
@@ -43,9 +43,6 @@ public class AddEditVirtualInstructor : EditorSpatialView
     [SerializeField] private RectTransform background;
     [SerializeField] private RectTransform shadow;
     [SerializeField] private RectTransform content;
-
-    [Header("Model")]
-    [SerializeField] private CharacterThumbnailView _characterThumbnailView;
 
     [Header("Communication Settings ")] 
     [SerializeField] private GameObject ai; 
@@ -84,8 +81,8 @@ public class AddEditVirtualInstructor : EditorSpatialView
         _instructorContentData = Content as Content<InstructorContentData>;
             
         settingsBtn.onClick.AddListener(OpenSettingsPanel);
-        modelSettingBtnA.onClick.AddListener(OpenModelSettingPanel);
-        modelSettingBtnB.onClick.AddListener(OpenModelSettingPanel);
+        characterModelSelectionElement.CharacterModelSelectionStarted += OpenCharacterModelSettingPanel;
+        replaceCharacterModelBtn.onClick.AddListener(OpenCharacterModelSettingPanel);
         foreach (var communicationSettingBtn in communicationSettingBtns)
         {
             communicationSettingBtn.onClick.AddListener(OpenCommunicationSettingPanel);
@@ -99,13 +96,16 @@ public class AddEditVirtualInstructor : EditorSpatialView
         languageVI.onClick.AddListener(OpenLanguagePanel);
         interactionSettingToggleOpen.onValueChanged.AddListener(SetInteractionSettingsActive);
         interactionSettingToggleClosed.onValueChanged.AddListener(SetInteractionSettingsActive);
+        avatarModelSettingPanel.CharacterModelSelected += OnAvatarModelSelected;
     }
 
-    private string _triggers = String.Empty; // todo
+	private string _triggers = String.Empty; // todo
     private string _availableTriggers = String.Empty; // todo
     
     private string _animationClip = "Idle";
     private string _characterName = "Hanna";
+    private bool _useReadyPlayerMe = false;
+    private string _characterModelUrl = "";
     private string _pathSetting = "No Path"; // todo
     private string _prompt = "Provide a concise answer to the question. Use the context.";
     private string _languageModelEndpointName = "llm/"; 
@@ -135,7 +135,8 @@ public class AddEditVirtualInstructor : EditorSpatialView
         };
         _instructorContentData.ContentData.AnimationClip = _animationClip;
         _instructorContentData.ContentData.CharacterName = _characterName;
-        _instructorContentData.ContentData.UseReadyPlayerMe = true;
+        _instructorContentData.ContentData.UseReadyPlayerMe = _useReadyPlayerMe;
+        _instructorContentData.ContentData.CharacterModelUrl = _characterModelUrl;
         _instructorContentData.ContentData.Prompt = _prompt;
         _instructorContentData.ContentData.LanguageModel = new AIModel
         {
@@ -322,13 +323,20 @@ public class AddEditVirtualInstructor : EditorSpatialView
         }
     }
 
-    private void OpenModelSettingPanel()
+    private void OpenCharacterModelSettingPanel()
     {
         ResetPanel();
-        modelSettingPanel.gameObject.SetActive(true);
+        avatarModelSettingPanel.gameObject.SetActive(true);
     }
-    
-    private void OpenCommunicationSettingPanel()
+
+	private void OnAvatarModelSelected(string characterModelUrl)
+	{
+        _useReadyPlayerMe = true;
+        _characterModelUrl = characterModelUrl;
+        characterModelSelectionElement.Thumbnail.CharacterModelUrl = _characterModelUrl;
+	}
+
+	private void OpenCommunicationSettingPanel()
     {
         ResetPanel();
         communicationSettingPanel.SetActive(true);
@@ -355,7 +363,7 @@ public class AddEditVirtualInstructor : EditorSpatialView
     private void ResetPanel()
     {
          settingsPanel.SetActive(false);
-         modelSettingPanel.gameObject.SetActive(false); 
+         avatarModelSettingPanel.gameObject.SetActive(false); 
          communicationSettingPanel.SetActive(false);
          animationSettingPanel.SetActive(false);
          pathSettingPanel.SetActive(false);

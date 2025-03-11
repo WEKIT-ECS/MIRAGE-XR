@@ -1,4 +1,5 @@
 using ReadyPlayerMe.Core;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,10 +13,13 @@ namespace MirageXR
 		[SerializeField] private GameObject _waitSpinner;
 		[SerializeField] private GameObject _errorDisplay;
 
-		private string _modelUrl;
+		private string _characterModelUrl;
 
-		public delegate void AvatarSelectedHandler(string modelUrl);
-		public event AvatarSelectedHandler AvatarSelected;
+		public delegate void CharacterModelSelectedHandler(string characterModelUrl);
+		public event CharacterModelSelectedHandler CharacterModelSelected;
+
+		public delegate void CharacterModelUrlChangedHandler(string characterModelUrl);
+		public event CharacterModelUrlChangedHandler CharacterModelUrlChanged;
 
 		public Texture2D DisplayedThumbnail
 		{
@@ -39,38 +43,42 @@ namespace MirageXR
 			}
 		}
 
-		public string ModelUrl
+		public string CharacterModelUrl
 		{
-			get => _modelUrl;
+			get => _characterModelUrl;
 			set
 			{
-				if (_modelUrl != value)
+				if (_characterModelUrl != value)
 				{
-					_modelUrl = value;
-					UpdateView();
+					_characterModelUrl = value;
+					CharacterModelUrlChanged?.Invoke(value);
+					UpdateView();					
 				}
 			}
 		}
 
 		public async void UpdateView()
 		{
-			_waitSpinner.SetActive(true);
 			DisplayedThumbnail = null;
-			Texture2D thumbnail = await RootObject.Instance.AvatarLibraryManager.GetThumbnailAsync(_modelUrl);
-			_errorDisplay.SetActive(thumbnail == null);
-			DisplayedThumbnail = thumbnail;
-			_waitSpinner.SetActive(false);
+			if (!string.IsNullOrWhiteSpace(_characterModelUrl))
+			{
+				_waitSpinner.SetActive(true);
+				Texture2D thumbnail = await RootObject.Instance.AvatarLibraryManager.GetThumbnailAsync(_characterModelUrl);
+				_errorDisplay.SetActive(thumbnail == null);
+				DisplayedThumbnail = thumbnail;
+				_waitSpinner.SetActive(false);
+			}
 		}
 
 		public void ThumbnailSelected()
 		{
-			Debug.LogTrace($"Thumbnail with model url {_modelUrl} clicked.");
-			AvatarSelected?.Invoke(_modelUrl);
+			Debug.LogTrace($"Thumbnail with model url {_characterModelUrl} clicked.");
+			CharacterModelSelected?.Invoke(_characterModelUrl);
 		}
 
 		public void Delete()
 		{
-			RootObject.Instance.AvatarLibraryManager.RemoveAvatar(_modelUrl);
+			RootObject.Instance.AvatarLibraryManager.RemoveAvatar(_characterModelUrl);
 		}
 	}
 }

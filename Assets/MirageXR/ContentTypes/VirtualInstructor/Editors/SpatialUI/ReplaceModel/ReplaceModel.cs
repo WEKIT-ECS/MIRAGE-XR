@@ -17,6 +17,9 @@ public class ReplaceModel : MonoBehaviour
 
 	private List<CharacterThumbnailView> _characterThumbnails = new List<CharacterThumbnailView>();
 
+	public delegate void ModelSelectedHandler(string modelUrl);
+	public event ModelSelectedHandler CharacterModelSelected;
+
 	void Start()
 	{
 
@@ -26,13 +29,13 @@ public class ReplaceModel : MonoBehaviour
 
 	private void OnEnable()
 	{
-		addCharacterPanel.ModelSelected += NewModelAdded;
+		addCharacterPanel.CharacterSelected += NewCharacterAdded;
 		RefreshThumbnails();
 	}
 
 	private void OnDisable()
 	{
-		addCharacterPanel.ModelSelected -= NewModelAdded;
+		addCharacterPanel.CharacterSelected -= NewCharacterAdded;
 	}
 
 	private void Close()
@@ -40,7 +43,7 @@ public class ReplaceModel : MonoBehaviour
 		gameObject.SetActive(false);
 	}
 
-	private void NewModelAdded(string modelUrl)
+	private void NewCharacterAdded(string characterUrl)
 	{
 		RefreshThumbnails();
 		RootObject.Instance.AvatarLibraryManager.Save();
@@ -68,10 +71,16 @@ public class ReplaceModel : MonoBehaviour
 			{
 				GameObject thumbnailGo = Instantiate(characterThumbnailPrefab, thumbnailGrid);
 				characterThumbnailView = thumbnailGo.GetComponent<CharacterThumbnailView>();
+				characterThumbnailView.CharacterModelSelected += OnCharacterSelected;
 				_characterThumbnails.Add(characterThumbnailView);
 			}
 
-			_characterThumbnails[i].ModelUrl = avatarUrl;
+			_characterThumbnails[i].CharacterModelUrl = avatarUrl;
 		}
+	}
+
+	private void OnCharacterSelected(string characterUrl)
+	{
+		CharacterModelSelected?.Invoke(characterUrl);
 	}
 }
