@@ -10,6 +10,7 @@ namespace MirageXR
 	{
 		[SerializeField] private Image _thumbnailImage;
 		[SerializeField] private GameObject _waitSpinner;
+		[SerializeField] private GameObject _errorDisplay;
 
 		private string _modelUrl;
 
@@ -53,6 +54,7 @@ namespace MirageXR
 			_waitSpinner.SetActive(true);
 			DisplayedThumbnail = null;
 			Texture2D thumbnail = await RootObject.Instance.AvatarLibraryManager.GetThumbnailAsync(_modelUrl);
+			_errorDisplay.SetActive(thumbnail == null);
 			DisplayedThumbnail = thumbnail;
 			_waitSpinner.SetActive(false);
 		}
