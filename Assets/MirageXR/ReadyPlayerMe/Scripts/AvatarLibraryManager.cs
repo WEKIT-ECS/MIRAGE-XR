@@ -56,6 +56,7 @@ namespace MirageXR
 			AvatarList.Remove(avatarUrl);
 			if (_cachedAvatarThumbnails.ContainsKey(avatarUrl))
 			{
+				Destroy(_cachedAvatarThumbnails[avatarUrl]);
 				_cachedAvatarThumbnails.Remove(avatarUrl);
 			}
 		}
@@ -64,16 +65,18 @@ namespace MirageXR
 		{
 			if (!AvatarList.Contains(avatarUrl))
 			{
-				Debug.LogError($"Avatar with {avatarUrl} is not in the library.");
+				Debug.LogError($"Avatar with {avatarUrl} is not in the library.", this);
 				return null;
 			}
 
 			if (_cachedAvatarThumbnails.ContainsKey(avatarUrl))
 			{
+				Debug.LogTrace("Returning cached avatar thumbnail for " + avatarUrl, this);
 				return _cachedAvatarThumbnails[avatarUrl];
 			}
 			else
 			{
+				Debug.LogTrace($"Loading avatar thumbnail for {avatarUrl} from the web", this);
 				AvatarRenderSettings settings = new AvatarRenderSettings();
 				settings.Expression = Expression.None;
 				settings.Camera = RenderCamera.Portrait;
@@ -88,11 +91,21 @@ namespace MirageXR
 
 				void OnCompletedHandler(Texture2D texture)
 				{
+					Debug.LogTrace($"Loaded avatar thumbnail for {avatarUrl}", this);
 					tcs.SetResult(texture);
+					_cachedAvatarThumbnails.Add(avatarUrl, texture);
 					loader.OnCompleted -= OnCompletedHandler;
+					loader.OnFailed -= OnFailedHandler;
+				}
+				void OnFailedHandler(FailureType failureType, string message)
+				{
+					Debug.LogError($"Could not load avatar thumbnail. Reason: {failureType}; {message}", this);
+					loader.OnCompleted -= OnCompletedHandler;
+					loader.OnFailed -= OnFailedHandler;
 				}
 
 				loader.OnCompleted += OnCompletedHandler;
+				loader.OnFailed += OnFailedHandler;
 
 				loader.LoadRender(avatarUrl, settings);
 

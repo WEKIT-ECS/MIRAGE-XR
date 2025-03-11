@@ -51,6 +51,7 @@ namespace MirageXR
 		public async void UpdateView()
 		{
 			_waitSpinner.SetActive(true);
+			DisplayedThumbnail = null;
 			Texture2D thumbnail = await RootObject.Instance.AvatarLibraryManager.GetThumbnailAsync(_modelUrl);
 			DisplayedThumbnail = thumbnail;
 			_waitSpinner.SetActive(false);
