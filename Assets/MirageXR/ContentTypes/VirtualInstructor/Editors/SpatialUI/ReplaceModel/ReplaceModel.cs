@@ -24,10 +24,10 @@ public class ReplaceModel : MonoBehaviour
 		close.onClick.AddListener(() => Close());
 	}
 
-	private async void OnEnable()
+	private void OnEnable()
 	{
 		addCharacterPanel.ModelSelected += NewModelAdded;
-		await RefreshAsync();
+		RefreshThumbnails();
 	}
 
 	private void OnDisable()
@@ -40,13 +40,13 @@ public class ReplaceModel : MonoBehaviour
 		gameObject.SetActive(false);
 	}
 
-	private async void NewModelAdded(string modelUrl)
+	private void NewModelAdded(string modelUrl)
 	{
-		await RefreshAsync();
+		RefreshThumbnails();
 		RootObject.Instance.AvatarLibraryManager.Save();
 	}
 
-	public async Task RefreshAsync()
+	public void RefreshThumbnails()
 	{
 		characterChip.SetActive(RootObject.Instance.AvatarLibraryManager.AvatarList.Count == 0);
 

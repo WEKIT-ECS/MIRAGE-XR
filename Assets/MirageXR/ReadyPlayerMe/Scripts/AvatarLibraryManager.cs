@@ -17,8 +17,6 @@ namespace MirageXR
 
 		private Dictionary<string, Texture2D> _cachedAvatarThumbnails = new Dictionary<string, Texture2D>();
 
-		private AvatarRenderLoader _avatarRenderLoader = new AvatarRenderLoader();
-
 		private void Awake()
 		{
 			Load();
@@ -49,7 +47,7 @@ namespace MirageXR
 		{
 			if (!AvatarList.Contains(avatarUrl))
 			{
-				AvatarList.Add(avatarUrl);
+				AvatarList.Insert(0, avatarUrl);
 			}
 		}
 
@@ -86,15 +84,17 @@ namespace MirageXR
 
 				TaskCompletionSource<Texture2D> tcs = new TaskCompletionSource<Texture2D>();
 
+				AvatarRenderLoader loader = new AvatarRenderLoader();
+
 				void OnCompletedHandler(Texture2D texture)
 				{
 					tcs.SetResult(texture);
-					_avatarRenderLoader.OnCompleted -= OnCompletedHandler;
+					loader.OnCompleted -= OnCompletedHandler;
 				}
 
-				_avatarRenderLoader.OnCompleted += OnCompletedHandler;
+				loader.OnCompleted += OnCompletedHandler;
 
-				_avatarRenderLoader.LoadRender(avatarUrl, settings);
+				loader.LoadRender(avatarUrl, settings);
 
 				await tcs.Task;
 				return tcs.Task.Result;
