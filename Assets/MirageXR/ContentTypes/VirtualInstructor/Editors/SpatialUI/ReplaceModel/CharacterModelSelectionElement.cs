@@ -11,6 +11,8 @@ namespace MirageXR
 	{
 		[SerializeField] private Button _addCharacterModelButton;
 		[SerializeField] private TMP_Text _infoText;
+		[SerializeField] private string _noCharacterSelectedText = "Set character model";
+		[SerializeField] private string _characterSelectedText = "Replace character model";
 
 		public CharacterThumbnailView Thumbnail { get; private set; }
 
@@ -51,11 +53,11 @@ namespace MirageXR
 			_addCharacterModelButton.gameObject.SetActive(!characterModelSelected);
 			if (characterModelSelected)
 			{
-				_infoText.text = "Replace character model";
+				_infoText.text = _characterSelectedText;
 			}
 			else
 			{
-				_infoText.text = "Set character model";
+				_infoText.text = _noCharacterSelectedText;
 			}
 		}
 

@@ -159,7 +159,7 @@ namespace MirageXR
 		}
 
 		// Handles the event when avatar loading completes successfully.
-		private async void OnLoadCompleted(object sender, CompletionEventArgs e)
+		private void OnLoadCompleted(object sender, CompletionEventArgs e)
 		{
 			_importerBusy = false;
 			Debug.LogDebug($"Avatar from {e.Url} successfully loaded", this);

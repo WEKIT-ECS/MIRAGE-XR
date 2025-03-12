@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class ReplaceModel : MonoBehaviour
 {
-	[SerializeField] private Button addNewCharacter;
+	[SerializeField] private CharacterModelSelectionElement addNewCharacter;
 	[SerializeField] private AddModelPanel addCharacterPanel;
 	[SerializeField] private Transform thumbnailGrid;
 	[SerializeField] private GameObject characterThumbnailPrefab;
@@ -23,8 +23,13 @@ public class ReplaceModel : MonoBehaviour
 	void Start()
 	{
 
-		addNewCharacter.onClick.AddListener(() => addCharacterPanel.gameObject.SetActive(true));
+		addNewCharacter.CharacterModelSelectionStarted += OpenAddCharacterMenu;
 		close.onClick.AddListener(() => Close());
+	}
+
+	private void OpenAddCharacterMenu()
+	{
+		addCharacterPanel.gameObject.SetActive(true);
 	}
 
 	private void OnEnable()

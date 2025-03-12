@@ -94,7 +94,7 @@ namespace MirageXR.View
                 await handle.Task;
                 if (handle.Status == AsyncOperationStatus.Succeeded)
                 {
-                    var instructor = Instantiate(handle.Result, transform);
+					var instructor = Instantiate(handle.Result, transform);
                     var oldInstructor = instructor.GetComponent<VirtualInstructor>();
                     if (oldInstructor != null)
                     {
