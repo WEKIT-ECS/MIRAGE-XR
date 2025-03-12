@@ -67,6 +67,7 @@ namespace MirageXR.View
                     avatarContainer.transform.localPosition = Vector3.zero;
 					var initializator = avatarContainer.AddComponent<VirtualInstructorRPMInitializer>();
 					AvatarLoader avatarLoader = avatarContainer.GetComponent<AvatarLoader>();
+                    avatarLoader.LoadDefaultAvatarOnStart = false;
 					TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
 					void OnAvatarLoaded(bool res)
                     {
