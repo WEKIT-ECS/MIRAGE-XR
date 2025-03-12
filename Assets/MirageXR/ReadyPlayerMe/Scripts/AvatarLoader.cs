@@ -18,8 +18,8 @@ namespace MirageXR
 		[SerializeField] private AvatarConfig avatarConfig;
 		[Tooltip("UI element indicating that an avatar is loading.")]
 		[SerializeField] private GameObject loadingIndicator;
-		[Tooltip("Flag to indicate if the default avatar should be loaded when the game starts.")]
-		[SerializeField] private bool loadDefaultAvatarOnStart = true;
+		[field: Tooltip("Flag to indicate if the default avatar should be loaded when the game starts.")]
+		[field: SerializeField] public bool LoadDefaultAvatarOnStart { get; set; } = true;
 		[Tooltip("Outputs ReadyPlayerMe logs if true")]
 		[SerializeField] private bool detailedRPMLogs = false;
 
@@ -107,7 +107,7 @@ namespace MirageXR
 		{
 			Loading = false;
 
-			if (loadDefaultAvatarOnStart)
+			if (LoadDefaultAvatarOnStart)
 			{
 				if (defaultAvatarPrefab != null)
 				{
