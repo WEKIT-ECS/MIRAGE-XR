@@ -45,10 +45,12 @@ namespace MirageXR
 
 		public void AddAvatar(string avatarUrl)
 		{
-			if (!AvatarList.Contains(avatarUrl))
+			// if it is already in the list, re-insert it at the front
+			if (AvatarList.Contains(avatarUrl))
 			{
-				AvatarList.Insert(0, avatarUrl);
+				AvatarList.Remove(avatarUrl);
 			}
+			AvatarList.Insert(0, avatarUrl);
 		}
 
 		public void RemoveAvatar(string avatarUrl)

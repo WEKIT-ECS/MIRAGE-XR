@@ -37,12 +37,6 @@ namespace MirageXR
 			openCustomLink.onClick.AddListener(() => { customLinkOpen.SetActive(true); customLinkClose.SetActive(false); });
 			closeCustomLink.onClick.AddListener(() => { customLinkClose.SetActive(true); customLinkOpen.SetActive(false); });
 			closeBtn.onClick.AddListener(() => this.gameObject.SetActive(false));
-			inputField.onValueChanged.AddListener(OnCharacterUrlInputFieldChanged);
-		}
-
-		private void OnCharacterUrlInputFieldChanged(string characterUrl)
-		{
-			addModelBtn.transform.parent.gameObject.SetActive(!string.IsNullOrWhiteSpace(characterUrl));
 		}
 
 		private void AddCharacterToLibrary(string url)
