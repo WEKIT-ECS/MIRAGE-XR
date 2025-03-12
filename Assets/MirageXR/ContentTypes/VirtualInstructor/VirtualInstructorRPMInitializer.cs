@@ -32,12 +32,11 @@ namespace MirageXR
 			await handle.Task;
 			if (handle.Status == AsyncOperationStatus.Succeeded)
 			{
-				Debug.Log("Runtime animator controller updated");
 				animator.runtimeAnimatorController = handle.Result;
 			}
 			else
 			{
-				Debug.LogError("Something went wrong loading the animator controller");
+				Debug.LogError("Something went wrong loading the animator controller for the Ready Player Me character", this);
 			}
 		}
 	}
