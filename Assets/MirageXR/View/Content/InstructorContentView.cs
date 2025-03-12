@@ -64,14 +64,13 @@ namespace MirageXR.View
                 if (handle.Status == AsyncOperationStatus.Succeeded)
                 {
                     var avatarContainer = Instantiate(handle.Result, transform);
-                    AvatarLoader avatarLoader = avatarContainer.GetComponent<AvatarLoader>();
+					var initializator = avatarContainer.AddComponent<VirtualInstructorRPMInitializer>();
+					AvatarLoader avatarLoader = avatarContainer.GetComponent<AvatarLoader>();
 					TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
 					void OnAvatarLoaded(bool res)
                     {
 						tcs.SetResult(res);
 						avatarLoader.AvatarLoaded -= OnAvatarLoaded;
-						_instructor = avatarContainer.AddComponent<Instructor>();
-						_instructor.Initialize(_instructorContent);
 					}
                     avatarLoader.AvatarLoaded += OnAvatarLoaded;
                     avatarLoader.LoadAvatar(_instructorContent.ContentData.CharacterModelUrl);
