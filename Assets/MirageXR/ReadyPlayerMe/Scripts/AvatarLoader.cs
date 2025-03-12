@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using ReadyPlayerMe.Core;
 using System;
 using System.Linq;
@@ -159,7 +160,7 @@ namespace MirageXR
 		}
 
 		// Handles the event when avatar loading completes successfully.
-		private void OnLoadCompleted(object sender, CompletionEventArgs e)
+		private async void OnLoadCompleted(object sender, CompletionEventArgs e)
 		{
 			_importerBusy = false;
 			Debug.LogDebug($"Avatar from {e.Url} successfully loaded", this);
@@ -172,13 +173,13 @@ namespace MirageXR
 				}
 				Destroy(CurrentAvatar);
 			}
-			SetupAvatar(e);
+			await SetupAvatarAsync(e);
 			Loading = false;
 			AvatarLoaded?.Invoke(true);
 		}
 
 		// Sets up the loaded avatar in the scene using the AvatarInitializers
-		private void SetupAvatar(CompletionEventArgs e)
+		private async UniTask SetupAvatarAsync(CompletionEventArgs e)
 		{
 			LoadedAvatarUrl = e.Url;
 			CurrentAvatar = e.Avatar;
@@ -188,6 +189,7 @@ namespace MirageXR
 			for (int i = 0; i < AvatarInitializers.Length; i++)
 			{
 				AvatarInitializers[i].InitializeAvatar(CurrentAvatar);
+				await AvatarInitializers[i].InitializeAvatarAsync(CurrentAvatar);
 			}
 		}
 
