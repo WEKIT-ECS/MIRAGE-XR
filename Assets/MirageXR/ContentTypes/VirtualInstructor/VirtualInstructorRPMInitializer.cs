@@ -1,16 +1,22 @@
+using Cysharp.Threading.Tasks;
 using MirageXR.View;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.UIElements;
 
 namespace MirageXR
 {
 	public class VirtualInstructorRPMInitializer : AvatarInitializer
-    {
+	{
 		// run this last
 		public override int Priority => -100;
 
-		public override async void InitializeAvatar(GameObject avatar)
+		public override void InitializeAvatar(GameObject avatar)
+		{
+		}
+
+		public async override UniTask InitializeAvatarAsync(GameObject avatar)
 		{
 			AvatarReferences avatarReferences = GetComponent<AvatarReferences>();
 			// disable IK
