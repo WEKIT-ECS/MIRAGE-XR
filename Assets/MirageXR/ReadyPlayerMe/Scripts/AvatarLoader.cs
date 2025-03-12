@@ -195,8 +195,8 @@ namespace MirageXR
 		private void SetupTransform()
 		{
 			CurrentAvatar.transform.parent = transform;
-			CurrentAvatar.transform.position = Vector3.zero;
-			CurrentAvatar.transform.rotation = Quaternion.identity;
+			CurrentAvatar.transform.localPosition = Vector3.zero;
+			CurrentAvatar.transform.localRotation = Quaternion.identity;
 		}
 	}
 }
