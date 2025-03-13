@@ -15,6 +15,7 @@ namespace MirageXR
 	{
 		[Header("References")]
 		[SerializeField] private Button _btnClose;
+		[SerializeField] private Button _btnExit;
 		[SerializeField] private TMP_Text _invitationCodeLabel;
 		[SerializeField] private TMP_Text _passwordLabel;
 		[SerializeField] private TMP_Text _userNameLabel;
@@ -46,6 +47,8 @@ namespace MirageXR
 			_micToggle.SafeAddListener(OnMicToggleChanged);
 			_audioToggle.isOn = !collaborationManager.MuteVoiceChat;
 			_audioToggle.SafeAddListener(OnAudioToggleChanged);
+			_btnExit.SafeSetListener(Disconnect);
+
 			collaborationManager.UserManager.LocalUserData.UserNameChanged += OnUserNameChanged;
 			collaborationManager.UserManager.UserListChanged += OnNetworkedUserDataListChanged;
 			collaborationManager.UserManager.AnyUserNameChanged += OnAnyUserNameChanged;
@@ -73,6 +76,13 @@ namespace MirageXR
 		private void OnAnyUserNameChanged()
 		{
 			UpdatePlayerList();
+		}
+
+		private void Disconnect()
+		{
+			var collaborationManager = RootObject.Instance.CollaborationManager;
+			collaborationManager.Disconnect();
+			Close();
 		}
 
 		private void OnUserNameChanged(string newUserName)

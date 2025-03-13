@@ -31,9 +31,9 @@ namespace MirageXR
             _isInitialized = true;
         }
 
-        public StepView GetStepViewPrefab()
+        public StepView GetStepViewPrefab(bool isNetPrefab = false)
         {
-            return _assetsBundle.GetStepViewPrefab();
+            return _assetsBundle.GetStepViewPrefab(isNetPrefab);
         }
 
         public CalibrationTool GetCalibrationToolPrefab()
@@ -41,14 +41,27 @@ namespace MirageXR
             return _assetsBundle.GetCalibrationToolPrefab();
         }
 
-        public NetworkObjectSynchronizer GetNetworkObjectPrefab()
+        public ActivityView GetActivityViewPrefab(bool isNetPrefab = false)
         {
-            return _assetsBundle.GetNetworkObjectPrefab();
+            return _assetsBundle.GetActivityViewPrefab(isNetPrefab);
         }
 
-        public ContentView GetContentViewPrefab(LearningExperienceEngine.DataModel.ContentType contentType)
+        public ContentView GetContentViewPrefab(LearningExperienceEngine.DataModel.ContentType contentType, bool isNetPrefab = false)
         {
-            return _assetsBundle.GetContentViewPrefab(contentType);
+            return _assetsBundle.GetContentViewPrefab(contentType, isNetPrefab);
+        }
+
+        public GameObject GetUiView(UiType spatial)
+        {
+            switch (spatial)
+            {
+                case UiType.Spatial:
+                    return _assetsBundle.GetSpatialUiView();
+                case UiType.Screen:
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(spatial), spatial, null);
+            }
+
         }
     }
 }

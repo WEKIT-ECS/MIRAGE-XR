@@ -1,16 +1,10 @@
 ﻿using System;
-using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
-
-
-#if FUSION2
-using Fusion;
-using Fusion.Sockets;
-#endif
 
 namespace MirageXR.View
 {
@@ -20,80 +14,40 @@ namespace MirageXR.View
         [SerializeField] private Transform diamond;
         [Space]
         [SerializeField] private InfoScreenSpatialView _infoPanelPrefab;
-        
-        public Guid Id => _step.Id;
 
+        public Guid Id => _step?.Id ?? Guid.Empty;
+        public ActivityStep Step => _step;
+        public UnityEvent<Transform> OnManipulationStartedEvent => _onManipulationStartedEvent;
+        public UnityEvent<Transform> OnManipulationEvent => _onManipulationEvent; 
+        public UnityEvent<Transform> OnManipulationEndedEvent => _onManipulationEndedEvent; 
+
+        private bool _isInitialized;
+        private bool _isSelected;
         private ActivityStep _step;
         private Camera _camera;
         private InfoScreenSpatialView _infoScreenView;
         private NetworkObjectSynchronizer _networkObjectSynchronizer;
+        private readonly UnityEvent<Transform> _onManipulationStartedEvent = new();
+        private readonly UnityEvent<Transform> _onManipulationEvent = new();
+        private readonly UnityEvent<Transform> _onManipulationEndedEvent = new();
 
         public void Initialize(ActivityStep step)
         {
-#if FUSION2
-            RootObject.Instance.CollaborationManager.OnConnectedToServer.AddListener(OnConnectedToServer);
-            RootObject.Instance.CollaborationManager.OnDisconnectedFromServer.AddListener(OnDisconnectedFromServer);
-#endif
             _camera = RootObject.Instance.BaseCamera;
             InitializeManipulator();
             _infoScreenView = Instantiate(_infoPanelPrefab, transform, false);
             _infoScreenView.Initialize(step);
+            _isInitialized = true;
             UpdateView(step);
         }
 
-#if FUSION2
-        private void OnConnectedToServer(NetworkRunner runner)
+        public void UpdateView(ActivityStep step)
         {
-            OnConnectedToServerAsync(runner).Forget();
-        }
-
-        private async UniTask OnConnectedToServerAsync(NetworkRunner runner)
-        {
-            if (runner.IsSharedModeMasterClient)
-            {
-                var prefab = RootObject.Instance.AssetBundleManager.GetNetworkObjectPrefab();
-                var networkObject = await runner.SpawnAsync(prefab);
-                _networkObjectSynchronizer = networkObject.GetComponent<NetworkObjectSynchronizer>();
-                _networkObjectSynchronizer.Initialization(this);
-            }
-        }
-
-        private void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
-        {
-            if (_networkObjectSynchronizer != null && _networkObjectSynchronizer.NetworkObject != null)
-            {
-                runner.Despawn(_networkObjectSynchronizer.NetworkObject);
-            }
-        }
-#endif
-
-        private void OnDestroy()
-        {
-            if (RootObject.Instance is null)
+            if (!_isInitialized || step is null)
             {
                 return;
             }
 
-#if FUSION2
-            RootObject.Instance.CollaborationManager.OnConnectedToServer.RemoveListener(OnConnectedToServer);
-            RootObject.Instance.CollaborationManager.OnDisconnectedFromServer.RemoveListener(OnDisconnectedFromServer);
-            var networkRunner = RootObject.Instance.CollaborationManager.NetworkRunner;
-            if (networkRunner.IsConnectedToServer)
-            {
-                if (networkRunner.LocalPlayer.PlayerId == 1)
-                {
-                    networkRunner.Despawn(_networkObjectSynchronizer.NetworkObject);
-                }
-            }
-#endif
-        }
-
-        public  void UpdateView(ActivityStep step)
-        {
-            if (step == null)
-            {
-                return; 
-            }
             name = $"Step_{step.Id}";
             _step = step;
             text.text = RootObject.Instance.LEE.StepManager.GetStepNumber(_step.Id).ToString("00");
@@ -114,16 +68,35 @@ namespace MirageXR.View
             var xrGrabInteractable = gameObject.AddComponent<XRGrabInteractable>();
             xrGrabInteractable.trackRotation = false;
             xrGrabInteractable.trackScale = false;
+            xrGrabInteractable.throwOnDetach = false;
             xrGrabInteractable.selectEntered.AddListener(_ => OnManipulationStarted());
             xrGrabInteractable.selectExited.AddListener(_ => OnManipulationEnded());
         }
 
-        private void OnManipulationStarted() { }
+        private void OnManipulationStarted()
+        {
+            _isSelected = true;
+            _onManipulationStartedEvent.Invoke(transform);
+        }
+
+        private void OnManipulation()
+        {
+            _onManipulationEvent.Invoke(transform);
+        }
 
         private void OnManipulationEnded()
         {
+            _isSelected = false;
             _step.Location.Position = transform.localPosition;
-            RootObject.Instance.LEE.StepManager.UpdateStep(_step);
+            _onManipulationEndedEvent.Invoke(transform);
+        }
+
+        private void Update()
+        {
+            if (_isSelected)
+            {
+                OnManipulation();
+            }
         }
 
         private void LateUpdate()
@@ -133,6 +106,10 @@ namespace MirageXR.View
 
         private void DoTextBillboarding()
         {
+            if (_camera is null)
+            {
+                return;
+            }
             var newRotation = _camera.transform.eulerAngles;
             newRotation.x = 0;
             newRotation.z = 0;

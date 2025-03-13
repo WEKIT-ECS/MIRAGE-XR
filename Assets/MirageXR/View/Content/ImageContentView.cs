@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Cysharp.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using LearningExperienceEngine.DataModel;
@@ -38,20 +39,20 @@ namespace MirageXR.View
             }
         }
 
-        protected override void InitializeBoundsControl()
+        protected override void InitializeBoxCollider()
         {
-            base.InitializeBoundsControl();
+            base.InitializeBoxCollider();
 
-            BoundsControl.BoundsOverride = BoxCollider;
+            //BoundsControl.BoundsOverride = BoxCollider;
             BoxCollider.center = Vector3.zero;
             BoxCollider.size = Vector3.one;
         }
 
-        protected override void OnScaleStopped()
+        /*protected override void OnScaleStopped()
         {
             transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, ScaleZ);
             base.OnScaleStopped();
-        }
+        }*/
 
         protected override async UniTask OnContentUpdatedAsync(Content content)
         {
@@ -82,24 +83,30 @@ namespace MirageXR.View
 
         private async UniTask<bool> InitializeImageAsync(Content<ImageContentData> content)
         {
-            var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
+            var activityId = RootObject.Instance.ViewManager.ActivityView.ActivityId;
             var folderPath = RootObject.Instance.LEE.AssetsManager.GetContentFileFolderPath(activityId, content.Id, content.ContentData.Image.Id);
             var imagePath = Path.Combine(folderPath, ImageFileName);
 
-            if (File.Exists(imagePath))
+           if (!File.Exists(imagePath))
             {
-                _texture = await LearningExperienceEngine.Utilities.LoadTextureAsync(imagePath);
-                _sprite = Sprite.Create(_texture, new Rect(0, 0, _texture.width, _texture.height), new Vector2(0.5f, 0.5f));
+                var cancellationToken = gameObject.GetCancellationTokenOnDestroy();
+                var result = await RootObject.Instance.LEE.AssetsManager.TryDownloadAssetUntilSuccessAsync(activityId, content.Id, content.ContentData.Image.Id, cancellationToken);
 
-                spriteRenderer.sprite = _sprite;
-                spriteRenderer.drawMode = SpriteDrawMode.Sliced;
-                spriteRenderer.size = Vector2.one;
-                //CalculateSize(_texture.width, _texture.height);
-                return true;
+                if (!result)
+                {
+                    Debug.LogError($"Image file {imagePath} does not exist");
+                    return false;
+                }
             }
 
-            Debug.LogError($"Image file {imagePath} does not exist");
-            return false;
+            _texture = await LearningExperienceEngine.Utilities.LoadTextureAsync(imagePath);
+            _sprite = Sprite.Create(_texture, new Rect(0, 0, _texture.width, _texture.height), new Vector2(0.5f, 0.5f));
+
+            spriteRenderer.sprite = _sprite;
+            spriteRenderer.drawMode = SpriteDrawMode.Sliced;
+            spriteRenderer.size = Vector2.one;
+            //CalculateSize(_texture.width, _texture.height);
+            return true;
         }
 
         private void InitializeText(Content<ImageContentData> content)

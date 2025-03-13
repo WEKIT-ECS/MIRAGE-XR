@@ -87,6 +87,11 @@ namespace MirageXR
             }
 
             _texture = Utilities.LoadTexture(thumbnailPath);
+            if (_texture == null)
+            {
+                return;    
+            }
+
             _sprite = Utilities.TextureToSprite(_texture);
             imageThumbnail.sprite = _sprite;
 

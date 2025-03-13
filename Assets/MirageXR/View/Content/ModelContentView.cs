@@ -88,11 +88,17 @@ namespace MirageXR.View
                 return false;
             }
 
+            var activityId = RootObject.Instance.ViewManager.ActivityView.ActivityId;
             var sketchfabManager = RootObject.Instance.LEE.SketchfabManager;
             if (!sketchfabManager.IsModelCached(content.ContentData.ModelUid))
             {
-                AppLog.LogError($"model {content.ContentData.ModelUid} doesn't cached");
-                return false;
+                var cancellationToken = gameObject.GetCancellationTokenOnDestroy();
+                var result = await sketchfabManager.TryCacheModelFromServerUntilSuccessAsync(activityId, content.ContentData.ModelUid, cancellationToken);
+                if (!result)
+                {
+                    AppLog.LogError($"model {content.ContentData.ModelUid} doesn't cached");
+                    return false;
+                }
             }
             _model = await sketchfabManager.LoadCachedModelAsync(content.ContentData.ModelUid, transform);
 

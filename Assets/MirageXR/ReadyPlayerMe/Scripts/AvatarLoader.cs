@@ -185,9 +185,9 @@ namespace MirageXR
 			// setup transform
 			SetupTransform();
 
-			for (int i = 0; i < AvatarInitializers.Length; i++)
+			foreach (var avatar in AvatarInitializers)
 			{
-				AvatarInitializers[i].InitializeAvatar(CurrentAvatar);
+				avatar.InitializeAvatar(CurrentAvatar);
 			}
 		}
 

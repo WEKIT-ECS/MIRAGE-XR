@@ -149,6 +149,11 @@ namespace MirageXR.View
 
         private void LateUpdate()
         {
+            if (!Initialized)
+            {
+                return;
+            }
+            
             if (_isBillboarded)
             {
                 DoBillboarding();

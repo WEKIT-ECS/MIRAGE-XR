@@ -48,8 +48,6 @@ namespace MirageXR.View
 
         protected override void InitializeManipulator() { }
 
-        protected override void InitializeBoundsControl() { }
-
         protected override async UniTask OnContentUpdatedAsync(Content content)
         {
             if (content is not Content<AudioContentData> newContent || Content is not Content<AudioContentData> oldContent)
@@ -79,8 +77,14 @@ namespace MirageXR.View
 
             if (!File.Exists(filePath))
             {
-                Debug.LogError($"Audio file {filePath} does not exist");
-                return false;
+                var cancellationToken = gameObject.GetCancellationTokenOnDestroy();
+                var result = await RootObject.Instance.LEE.AssetsManager.TryDownloadAssetUntilSuccessAsync(activityId, content.Id, content.ContentData.Audio.Id, cancellationToken);
+
+                if (!result)
+                {
+                    Debug.LogError($"Audio file {filePath} does not exist");
+                    return false;
+                }
             }
 
             _audioClip = await SaveLoadAudioUtilities.LoadAudioFileAsync(filePath);
