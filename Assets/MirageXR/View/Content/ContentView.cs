@@ -1,30 +1,33 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
-
-#if FUSION2
-using Fusion;
-using Fusion.Sockets;
-#endif
 
 namespace MirageXR.View
 {
     public class ContentView : MonoBehaviour
     {
-        public Guid Id => Content.Id;
+        public Guid Id => Content?.Id ?? Guid.Empty;
+        public UnityEvent<Transform> OnManipulationStartedEvent => _onManipulationStarted;
+        public UnityEvent<Transform> OnManipulationEvent => _onManipulationEvent;
+        public UnityEvent<Transform> OnManipulationEndedEvent => _onManipulationEnded;
 
         protected Content Content;
-        protected BoundsControl BoundsControl;
         protected BoxCollider BoxCollider;
         protected bool Initialized;
-        private NetworkObjectSynchronizer _networkObjectSynchronizer;
+        private bool _isSelected;
 
+        private readonly UnityEvent<Transform> _onManipulationStarted = new();
+        private readonly UnityEvent<Transform> _onManipulationEvent = new();
+        private readonly UnityEvent<Transform> _onManipulationEnded = new();
+        
         public virtual async UniTask InitializeAsync(Content content)
         {
+            await UniTask.WaitUntil(() => RootObject.Instance.ViewManager.ActivityView.ActivityId != Guid.Empty);
+
             name = $"Content_{content.Type}_{content.Id}";
             transform.SetLocalPositionAndRotation(content.Location.Position, Quaternion.Euler(content.Location.Rotation));
             transform.localScale = content.Location.Scale;
@@ -34,73 +37,7 @@ namespace MirageXR.View
 
             InitializeBoxCollider();
             InitializeManipulator();
-            //InitializeBoundsControl();
-
-            RootObject.Instance.LEE.StepManager.OnStepChanged += OnStepChanged;
-#if FUSION2
-            RootObject.Instance.CollaborationManager.OnConnectedToServer.AddListener(OnConnectedToServer);
-            RootObject.Instance.CollaborationManager.OnDisconnectedFromServer.AddListener(OnDisconnectedFromServer);
-            //RootObject.Instance.LEE.ActivitySynchronizationManager.OnMessageReceived += OnSyncMessageReceived;
-#endif
         }
-
-#if FUSION2
-        private void OnConnectedToServer(NetworkRunner runner)
-        {
-            OnConnectedToServerAsync(runner).Forget();
-        }
-
-        private async UniTask OnConnectedToServerAsync(NetworkRunner runner)
-        {
-            if (runner.IsSharedModeMasterClient)
-            {
-                var prefab = RootObject.Instance.AssetBundleManager.GetNetworkObjectPrefab();
-                var networkObject = await runner.SpawnAsync(prefab);
-                _networkObjectSynchronizer = networkObject.GetComponent<NetworkObjectSynchronizer>();
-                _networkObjectSynchronizer.Initialization(this);
-            }
-        }
-        private void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
-        {
-            if (_networkObjectSynchronizer != null && _networkObjectSynchronizer.NetworkObject != null)
-            {
-                runner.Despawn(_networkObjectSynchronizer.NetworkObject);
-            }
-        }
-#endif
-        private void OnDestroy()
-        {
-            if (RootObject.Instance is null)
-            {
-                return;
-            }
-            
-            RootObject.Instance.LEE.StepManager.OnStepChanged -= OnStepChanged;
-
-#if FUSION2
-            RootObject.Instance.CollaborationManager.OnConnectedToServer.RemoveListener(OnConnectedToServer);
-            RootObject.Instance.CollaborationManager.OnDisconnectedFromServer.RemoveListener(OnDisconnectedFromServer);
-            var networkRunner = RootObject.Instance.CollaborationManager.NetworkRunner;
-            if (networkRunner.IsConnectedToServer)
-            {
-                if (networkRunner.LocalPlayer.PlayerId == 1)
-                {
-                    networkRunner.Despawn(_networkObjectSynchronizer.NetworkObject);
-                }
-            }
-#endif
-        }
-
-        /*private void OnSyncMessageReceived(SynchronizationDataModel data)
-        {
-            if (data.Type == MessageType.ActivityUpdated && data is SynchronizationDataModel<ActivityUpdatedDataModel> updatedData)
-            {
-                if (updatedData.Data.ContentId == Content.Id)
-                {
-                    UpdateContent(updatedData.Data.Content);
-                }
-            }
-        }*/
 
         public Content GetContent() => Content;
 
@@ -119,7 +56,7 @@ namespace MirageXR.View
             Initialized = false;
             return UniTask.CompletedTask;
         }
-        
+
         protected virtual void InitializeBoxCollider()
         {
             BoxCollider = gameObject.GetComponent<BoxCollider>();
@@ -145,26 +82,18 @@ namespace MirageXR.View
             xrGrabInteractable.matchAttachPosition = true;
             xrGrabInteractable.matchAttachRotation = true;
             xrGrabInteractable.snapToColliderVolume = false;
+            xrGrabInteractable.throwOnDetach = false;
             xrGrabInteractable.reinitializeDynamicAttachEverySingleGrab = false;
             xrGrabInteractable.selectMode = InteractableSelectMode.Multiple;
             xrGrabInteractable.selectEntered.AddListener(_ => OnManipulationStarted());
             xrGrabInteractable.selectExited.AddListener(_ => OnManipulationEnded());
         }
 
-        protected virtual void InitializeBoundsControl()
+        /*protected virtual void OnStepChanged(ActivityStep step)
         {
-            /*BoundsControl = gameObject.AddComponent<BoundsControl>();
-            BoundsControl.RotateStarted.AddListener(OnRotateStarted);
-            BoundsControl.RotateStopped.AddListener(OnRotateStopped);
-            BoundsControl.ScaleStarted.AddListener(OnScaleStarted);
-            BoundsControl.ScaleStopped.AddListener(OnScaleStopped);*/
-        }
+        }*/
 
-        protected virtual void OnStepChanged(ActivityStep step)
-        {
-        }
-
-        protected virtual void OnRotateStarted()
+        /*protected virtual void OnRotateStarted()
         {
         }
 
@@ -182,17 +111,33 @@ namespace MirageXR.View
         {
             Content.Location.Scale = transform.localScale;
             RootObject.Instance.LEE.ContentManager.UpdateContent(Content);
+        }*/
+
+        protected void Update()
+        {
+            if (_isSelected)
+            {
+                OnManipulation();
+            }
         }
 
         protected virtual void OnManipulationStarted()
         {
+            _isSelected = true;
+            _onManipulationStarted.Invoke(transform);   
+        }
+
+        protected virtual void OnManipulation()
+        {
+            _onManipulationStarted.Invoke(transform);   
         }
 
         protected virtual void OnManipulationEnded()
         {
+            _isSelected = false;
+            _onManipulationEnded.Invoke(transform);
             Content.Location.Position = transform.localPosition;
             Content.Location.Rotation = transform.localEulerAngles;
-            RootObject.Instance.LEE.ContentManager.UpdateContent(Content);
         }
 
         protected virtual UniTask OnContentUpdatedAsync(Content content)
@@ -200,7 +145,7 @@ namespace MirageXR.View
             transform.SetLocalPositionAndRotation(content.Location.Position, Quaternion.Euler(content.Location.Rotation));
             transform.localScale = content.Location.Scale;
             Content = content;
-            
+
             return UniTask.CompletedTask;
         }
     }

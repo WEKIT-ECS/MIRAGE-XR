@@ -71,7 +71,6 @@ namespace MirageXR
             var file = new FileModel
             {
                 Id = Guid.NewGuid(),
-                Version = Application.version,
                 CreationDate = DateTime.UtcNow,
                 FileHash = string.Empty
             };
@@ -228,7 +227,7 @@ namespace MirageXR
         private void OnButtonCollaborativeSessionClicked()
         {
 #if FUSION2
-            if (RootObject.Instance.CollaborationManager.NetworkRunner.IsInSession)
+            if (RootObject.Instance.CollaborationManager.IsConnectedToServer)
             {
                 MenuManager.Instance.ShowCollaborativeSessionSettingsPanelView();
             }

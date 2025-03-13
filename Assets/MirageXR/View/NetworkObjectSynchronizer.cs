@@ -3,6 +3,7 @@ using UnityEngine;
 
 #if FUSION2
 using Fusion;
+using LearningExperienceEngine.DataModel;
 #endif
 
 namespace MirageXR.View
@@ -23,14 +24,16 @@ namespace MirageXR.View
 
 #if FUSION2
         [Networked] private Guid SourceId { get; set; }
+        //[Networked] private Content Content { get; set; }
         [Networked] private SyncObjectType SyncObject { get; set; }
         [Networked] private bool IsLocked { get; set; }
         [Networked] private int LockerId { get; set; }
+
         public NetworkObject NetworkObject => _networkObject;
 
 #if UNITY_EDITOR
-        [SerializeField] private string sourceIdString;
-        [SerializeField] private string typeString;
+        [SerializeField, ReadOnly] private string sourceIdString;
+        [SerializeField, ReadOnly] private string typeString;
 #endif
 
         private NetworkObject _networkObject;
@@ -39,11 +42,6 @@ namespace MirageXR.View
 
         private void Update()
         {
-            if (RootObject.Instance.CollaborationManager.IsConnectedToServer)
-            {
-                return;
-            }
-
             if (SourceId == Guid.Empty)
             {
                 return;
@@ -60,7 +58,7 @@ namespace MirageXR.View
                 return;
             }
 
-            switch (SyncObject)
+            /*switch (SyncObject)
             {
                 case SyncObjectType.Step:
                     var step = ActivityView.Instance.GetStep(SourceId);
@@ -72,7 +70,7 @@ namespace MirageXR.View
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
-            }
+            }*/
         }
 
         private void SyncTransforms()
@@ -109,6 +107,7 @@ namespace MirageXR.View
 
             SyncObject = SyncObjectType.Content;
             SourceId = contentView.Id;
+            //Content = contentView.GetContent();
 
             Initialization(contentView.transform);
         }

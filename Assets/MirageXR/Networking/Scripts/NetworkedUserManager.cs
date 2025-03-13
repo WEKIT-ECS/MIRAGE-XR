@@ -1,7 +1,6 @@
 #if FUSION2
 using Fusion;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using LearningExperienceEngine;
 #endif
 using System;
@@ -13,24 +12,17 @@ namespace MirageXR
 	{
 #if FUSION2
 		private readonly Dictionary<PlayerRef, NetworkedUserData> _networkedUserData = new();
-
 		public LocalUserData LocalUserData { get; private set; } = new();
-
-		private NetworkRunner _networkRunner;
-		private NetworkEvents _networkEvents;
-
 		public IEnumerable<PlayerRef> UserList => _networkedUserData.Keys;
-
-		public PlayerRef LocalUser => _networkRunner.LocalPlayer;
-
 		public event System.Action UserListChanged;
 		public event System.Action AnyUserNameChanged;
 
-		public void Initialize(IAuthorizationManager authorizationManager, NetworkRunner networkRunner, NetworkEvents networkEvents)
+		private CollaborationManager _collaborationManager;
+
+		public void Initialize(CollaborationManager collaborationManager, IAuthorizationManager authorizationManager)
 		{
-			_networkRunner = networkRunner;
-			_networkEvents = networkEvents;
-			_networkEvents.PlayerLeft.AddListener(OnPlayerLeft);
+			_collaborationManager = collaborationManager;
+			collaborationManager.OnPlayerLeftEvent.AddListener(OnPlayerLeft);
 			LocalUserData.Initialize(authorizationManager);
 		}
 
@@ -38,7 +30,7 @@ namespace MirageXR
 		{
 			if (networkedUserData != null && !_networkedUserData.ContainsKey(owner))
 			{
-				if (owner == _networkRunner.LocalPlayer)
+				if (owner == _collaborationManager.LocalPlayer)
 				{
 					Debug.Log($"{owner} is the local user, so it gets the prepared local user data");
 					LocalUserData.UpdateAllData();
@@ -65,6 +57,11 @@ namespace MirageXR
 				_networkedUserData[leftPlayer].NetworkedUserNameChanged -= OnUserNameChanged;
 				_networkedUserData.Remove(leftPlayer);
 				UserListChanged?.Invoke();
+			}
+
+			if (leftPlayer == RootObject.Instance.CollaborationManager.LocalPlayer)
+			{
+				_networkedUserData.Clear();
 			}
 		}
 

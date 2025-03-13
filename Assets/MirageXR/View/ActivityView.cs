@@ -10,34 +10,40 @@ namespace MirageXR.View
 {
     public class ActivityView : MonoBehaviour
     {
-        public static ActivityView Instance { get; private set; }
+        //public static ActivityView Instance { get; private set; }
 
-        private ActivityStep _step;
-        private List<Content> _contents;
+        public Guid ActivityId => _activityId;
+        public ActivityStep Step => _step;
+        public List<Content> Contents => _contents;
 
-        private StepView _stepView;
-        private readonly List<ContentView> _contentViews = new();
+        protected Guid _activityId;
+        protected ActivityStep _step;
+        protected List<Content> _contents;
 
-        private void Awake()
+        protected StepView _stepView;
+        protected readonly List<ContentView> _contentViews = new();
+
+        /*private void Awake()
         {
             if (Instance != null)
             {
                 Destroy(Instance.gameObject);
             }
             Instance = this;
-        }
+        }*/
 
         private void Start()
         {
             InitializeAsync().Forget();
         }
 
-        private async UniTask InitializeAsync()
+        protected virtual async UniTask InitializeAsync()
         {
-            RootObject.Instance.LEE.StepManager.OnStepChanged += StepManagerOnStepChanged;
-            RootObject.Instance.LEE.ContentManager.OnContentUpdated += ContentManagerOnContentUpdated;
-            RootObject.Instance.LEE.ContentManager.OnContentActivated += ContentManagerOnContentActivated;
-            RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnOnActivityUpdated;
+            RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityLoaded;
+            RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnActivityUpdated;
+            RootObject.Instance.LEE.StepManager.OnStepChanged += OnStepChanged;
+            RootObject.Instance.LEE.ContentManager.OnContentUpdated += OnContentUpdated;
+            RootObject.Instance.LEE.ContentManager.OnContentActivated += OnContentActivated;
             RootObject.Instance.LEE.ActivitySynchronizationManager.OnMessageReceived += OnSyncMessageReceived;
 
             var calibrationManager = RootObject.Instance.CalibrationManager;
@@ -46,29 +52,24 @@ namespace MirageXR.View
             transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
         }
 
-        private void OnSyncMessageReceived(SynchronizationDataModel data)
+        protected virtual void OnSyncMessageReceived(SynchronizationDataModel data)
         {
-            if (data.MessageID == MessageType.ActivityUpdated && data is SynchronizationDataModel<ActivityUpdatedDataModel> updatedData)
+            /*if (data.MessageID == MessageType.ActivityUpdated && data is SynchronizationDataModel<ActivityUpdatedDataModel> updatedData)
             {
                 if (updatedData.Data.Activity != null)
                 {
                     ContentManagerOnContentUpdated(updatedData.Data.Activity.Content);
                 }
+            }*/
+        }
+
+        protected virtual void OnContentUpdated(List<Content> contents)
+        {
+            if (_contents == null)
+            {
+                return;
             }
-        }
-        
-        public StepView GetStep(Guid stepId)
-        {
-            return _stepView.Id == stepId ? _stepView : null;
-        }
-
-        public ContentView GetContent(Guid contentId)
-        {
-            return _contentViews.FirstOrDefault(t => t.Id == contentId);
-        }
-
-        private void ContentManagerOnContentUpdated(List<Content> contents)
-        {
+            
             foreach (var content in contents)
             {
                 var view = _contentViews.FirstOrDefault(t => t.Id == content.Id);
@@ -89,20 +90,28 @@ namespace MirageXR.View
             }
         }
 
-        private void OnOnActivityUpdated(Activity activity)
+        protected virtual void OnActivityLoaded(Activity activity)
         {
+            _activityId = activity.Id;
             UnityEngine.Debug.Log("---OnActivityUpdated");
             UpdateStepView();
         }
 
-        private void ContentManagerOnContentActivated(List<Content> contents)
+        protected virtual void OnActivityUpdated(Activity activity)
+        {
+            _activityId = activity.Id;
+            UnityEngine.Debug.Log("---OnActivityUpdated");
+            UpdateStepView();
+        }
+
+        protected virtual void OnContentActivated(List<Content> contents)
         {
             UnityEngine.Debug.Log("---ContentManagerOnContentActivated");
             _contents = contents;
             UpdateContentsView();
         }
 
-        private void StepManagerOnStepChanged(ActivityStep step)
+        protected virtual void OnStepChanged(ActivityStep step)
         {
             UnityEngine.Debug.Log("---StepManagerOnStepChanged");
             _step = step;
@@ -122,11 +131,35 @@ namespace MirageXR.View
         {
             RemoveUnusedContent();
             AddContents();
-            UpdateContentsParent();
+            //UpdateContentsParent();
             PlayContents();
         }
 
-        private void UpdateContentsParent()
+        protected virtual void RemoveUnusedContent()
+        {
+            for (var i = _contentViews.Count - 1; i >= 0; i--)
+            {
+                if (_contents.All(t => t.Id != _contentViews[i].Id))
+                {
+                    RemoveContent(_contentViews[i]);
+                    _contentViews.RemoveAt(i);
+                }
+            }
+        }
+
+        protected virtual void AddContents()
+        {
+            foreach (var content in _contents)
+            {
+                if (_contentViews.All(t => t.Id != content.Id))
+                {
+                    var contentView = CreateContentView(content);
+                    _contentViews.Add(contentView);
+                }
+            }
+        }
+
+        /*protected virtual void UpdateContentsParent()
         {
             if (_stepView == null)
             {
@@ -136,34 +169,9 @@ namespace MirageXR.View
             {
                 contentView.transform.SetParent(_stepView.transform, false);
             }
-        }
+        }*/
 
-        private void AddContents()
-        {
-            foreach (var content in _contents)
-            {
-                if (_contentViews.All(t => t.Id != content.Id))
-                {
-                    var contentView = CreateContentView(content);
-                    contentView.InitializeAsync(content).Forget();
-                    _contentViews.Add(contentView);
-                }
-            }
-        }
-
-        private void RemoveUnusedContent()
-        {
-            for (var i = _contentViews.Count - 1; i >= 0; i--)
-            {
-                if (_contents.All(t => t.Id != _contentViews[i].Id))
-                {
-                    Destroy(_contentViews[i].gameObject);
-                    _contentViews.RemoveAt(i);
-                }
-            }
-        }
-
-        private void PlayContents()
+        protected virtual void PlayContents()
         {
             foreach (var contentView in _contentViews)
             {
@@ -171,16 +179,30 @@ namespace MirageXR.View
             }
         }
 
+        protected virtual void RemoveContent(ContentView contentView)
+        {
+            Destroy(contentView.gameObject);
+        }
+
         protected virtual ContentView CreateContentView(Content content)
         {
+            if (_stepView == null)
+            {
+                _stepView = CreateStepView(_step);
+            }
+
             var prefab = RootObject.Instance.AssetBundleManager.GetContentViewPrefab(content.Type);
-            return Instantiate(prefab);
+            var contentView = Instantiate(prefab, _stepView.transform, false);
+            contentView.gameObject.AddComponent<ContentManipulationSynchronizer>();
+            contentView.InitializeAsync(content).Forget();
+            return contentView;
         }
 
         protected virtual StepView CreateStepView(ActivityStep step)
         {
             var prefab = RootObject.Instance.AssetBundleManager.GetStepViewPrefab();
             var stepView = Instantiate(prefab, transform, false);
+            stepView.gameObject.AddComponent<StepViewManipulationSynchronizer>();
             stepView.Initialize(step);
             return stepView;
         }

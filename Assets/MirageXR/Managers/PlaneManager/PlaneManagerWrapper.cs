@@ -68,7 +68,7 @@ public class PlaneManagerWrapper : MonoBehaviour
             var result = await _manager.InitializationAsync();
             if (!result)
             {
-                Debug.Log("FloorManagerWrapper: unable to initialize");
+                Debug.Log("PlaneManagerWrapper: unable to initialize");
             }
         }
         catch (Exception e)

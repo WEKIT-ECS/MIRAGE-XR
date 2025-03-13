@@ -59,7 +59,18 @@ namespace MirageXR
 
         private void OnCollaborativeSessionClick()
         {
-            // TODO
+#if FUSION2
+            if (RootObject.Instance.CollaborationManager.IsConnectedToServer)
+            {
+                MenuManager.Instance.ShowCollaborativeSessionSettingsPanelView();
+            }
+            else
+            {
+                MenuManager.Instance.ShowCollaborativeSessionPanelView();
+            }
+#else
+            MenuManager.Instance.ShowCollaborativeSessionPanelView();
+#endif
         }
 
         private void OnToggleEditorValueChanged(bool value)

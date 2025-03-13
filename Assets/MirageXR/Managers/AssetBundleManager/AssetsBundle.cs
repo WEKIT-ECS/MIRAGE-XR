@@ -16,13 +16,28 @@ namespace MirageXR
             public ContentView ContentView;
         }
 
+        [SerializeField] private GameObject spatialUiView;
         [SerializeField] private CalibrationTool _calibrationTool;
         [SerializeField] private StepView _defaultStepView;
+        [SerializeField] private StepView _defaultNetStepView;
         [SerializeField] private ContentView _defaultContentView;
-        [SerializeField] private NetworkObjectSynchronizer _networkObject;
+        [SerializeField] private ContentView _defaultNetContentView;
+        [SerializeField] private ActivityView _activityView;
+        [SerializeField] private NetworkActivityView _netActivityView;
         [SerializeField] private ContentAssetItem[] _contentAssets;
+        [SerializeField] private ContentAssetItem[] _netContentAssets;
 
-        public ContentView GetContentViewPrefab(ContentType contentType)
+        public GameObject GetSpatialUiView()
+        {
+            return spatialUiView;
+        }
+
+        public ContentView GetContentViewPrefab(ContentType contentType, bool isNetPrefab = false)
+        {
+            return isNetPrefab ? GetNetContentViewPrefab(contentType) : GetLocalContentViewPrefab(contentType);
+        }
+
+        private ContentView GetLocalContentViewPrefab(ContentType contentType)
         {
             foreach (var item in _contentAssets)
             {
@@ -36,14 +51,28 @@ namespace MirageXR
             return _defaultContentView;
         }
 
-        public StepView GetStepViewPrefab()
+        private ContentView GetNetContentViewPrefab(ContentType contentType)
         {
-            return _defaultStepView;
+            foreach (var item in _netContentAssets)
+            {
+                if (item.ContentType == contentType)
+                {
+                    return item.ContentView;
+                }
+            }
+
+            AppLog.LogError("No content view found for the content type: " + contentType);
+            return _defaultNetContentView;
         }
 
-        public NetworkObjectSynchronizer GetNetworkObjectPrefab()
+        public StepView GetStepViewPrefab(bool isNetPrefab = false)
         {
-            return _networkObject;
+            return isNetPrefab ? _defaultNetStepView : _defaultStepView;
+        }
+
+        public ActivityView GetActivityViewPrefab(bool isNetPrefab = false)
+        {
+            return isNetPrefab ? _netActivityView : _activityView;
         }
 
         public CalibrationTool GetCalibrationToolPrefab()

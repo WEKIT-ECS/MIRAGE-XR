@@ -38,8 +38,8 @@ namespace MirageXR
 
 		private void UpdateView()
 		{
-			string text = UserData.UserName;
-			if (PlayerRef == RootObject.Instance.CollaborationManager.UserManager.LocalUser)
+			var text = UserData.UserName;
+			if (PlayerRef == RootObject.Instance.CollaborationManager.LocalPlayer)
 			{
 				text += " (you)";
 			}

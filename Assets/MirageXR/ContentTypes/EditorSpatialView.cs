@@ -56,7 +56,6 @@ namespace MirageXR
                 IsVisible = true,
                 Steps = new List<Guid> { step.Id },
                 Type = type,
-                Version = Application.version,
                 ContentData = new T(),
                 Location = Location.GetIdentityLocation()
             };

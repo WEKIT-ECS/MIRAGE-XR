@@ -13,7 +13,7 @@ namespace MirageXR.MirageXR
     {
         [SerializeField] private InputActionReference inputActionReference;
 
-#if POLYSPATIAL_SDK_AVAILABLE && !VISION_OS
+#if POLYSPATIAL_SDK_AVAILABLE && VISION_OS
         private const string M_SPATIALPOINTER = "m_SpatialPointer";
 
         private void Awake()
