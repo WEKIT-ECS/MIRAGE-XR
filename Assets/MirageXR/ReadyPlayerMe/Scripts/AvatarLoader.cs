@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using ReadyPlayerMe.Core;
 using System;
 using System.Linq;
@@ -18,8 +19,8 @@ namespace MirageXR
 		[SerializeField] private AvatarConfig avatarConfig;
 		[Tooltip("UI element indicating that an avatar is loading.")]
 		[SerializeField] private GameObject loadingIndicator;
-		[Tooltip("Flag to indicate if the default avatar should be loaded when the game starts.")]
-		[SerializeField] private bool loadDefaultAvatarOnStart = true;
+		[field: Tooltip("Flag to indicate if the default avatar should be loaded when the game starts.")]
+		[field: SerializeField] public bool LoadDefaultAvatarOnStart { get; set; } = true;
 		[Tooltip("Outputs ReadyPlayerMe logs if true")]
 		[SerializeField] private bool detailedRPMLogs = false;
 
@@ -107,7 +108,7 @@ namespace MirageXR
 		{
 			Loading = false;
 
-			if (loadDefaultAvatarOnStart)
+			if (LoadDefaultAvatarOnStart)
 			{
 				if (defaultAvatarPrefab != null)
 				{
@@ -172,13 +173,13 @@ namespace MirageXR
 				}
 				Destroy(CurrentAvatar);
 			}
-			SetupAvatar(e);
+			await SetupAvatarAsync(e);
 			Loading = false;
 			AvatarLoaded?.Invoke(true);
 		}
 
 		// Sets up the loaded avatar in the scene using the AvatarInitializers
-		private void SetupAvatar(CompletionEventArgs e)
+		private async UniTask SetupAvatarAsync(CompletionEventArgs e)
 		{
 			LoadedAvatarUrl = e.Url;
 			CurrentAvatar = e.Avatar;
@@ -188,6 +189,7 @@ namespace MirageXR
 			for (int i = 0; i < AvatarInitializers.Length; i++)
 			{
 				AvatarInitializers[i].InitializeAvatar(CurrentAvatar);
+				await AvatarInitializers[i].InitializeAvatarAsync(CurrentAvatar);
 			}
 		}
 
@@ -195,8 +197,8 @@ namespace MirageXR
 		private void SetupTransform()
 		{
 			CurrentAvatar.transform.parent = transform;
-			CurrentAvatar.transform.position = Vector3.zero;
-			CurrentAvatar.transform.rotation = Quaternion.identity;
+			CurrentAvatar.transform.localPosition = Vector3.zero;
+			CurrentAvatar.transform.localRotation = Quaternion.identity;
 		}
 	}
 }
