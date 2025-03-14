@@ -105,6 +105,26 @@ MonoBehaviour:
   company: Unity
   priority: 0
   required: 0
+--- !u!114 &-8732454273824775277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfdd10eb548aba844b314776fb1b65bd, type: 3}
+  m_Name: MicrosoftHandInteractionLegacy Metro
+  m_EditorClassIdentifier: 
+  m_enabled: 0
+  nameUi: Microsoft Hand Interaction Profile (Legacy)
+  version: 0.0.1
+  featureIdInternal: com.microsoft.openxr.feature.interaction.handtrackinglegacy
+  openxrExtensionStrings: XR_MSFT_hand_interaction
+  company: Microsoft
+  priority: 0
+  required: 0
 --- !u!114 &-8557231277013669726
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3965,7 +3985,7 @@ MonoBehaviour:
   - {fileID: 5921220336738759632}
   - {fileID: -5717806984981220388}
   - {fileID: 7867943167952155884}
-  - {fileID: -5205909460500574224}
+  - {fileID: -8732454273824775277}
   - {fileID: 7313555153919440075}
   - {fileID: 853285074447097298}
   - {fileID: -179209045387081515}
@@ -4522,7 +4542,7 @@ MonoBehaviour:
   - {fileID: -2110089068864770133}
   - {fileID: 4758929276041009201}
   - {fileID: -3247203607682908375}
-  - {fileID: 3779081092055955498}
+  - {fileID: 7655729237009316992}
   - {fileID: -1171133752328494868}
   - {fileID: 7844092491160930354}
   - {fileID: -4260590579579368990}
@@ -5745,6 +5765,26 @@ MonoBehaviour:
   rightHandTrackingOptions:
     motionRange: 0
   questHandTrackingMode: 1
+--- !u!114 &7655729237009316992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfdd10eb548aba844b314776fb1b65bd, type: 3}
+  m_Name: MicrosoftHandInteractionLegacy Standalone
+  m_EditorClassIdentifier: 
+  m_enabled: 0
+  nameUi: Microsoft Hand Interaction Profile (Legacy)
+  version: 0.0.1
+  featureIdInternal: com.microsoft.openxr.feature.interaction.handtrackinglegacy
+  openxrExtensionStrings: XR_MSFT_hand_interaction
+  company: Microsoft
+  priority: 0
+  required: 0
 --- !u!114 &7675897756218534049
 MonoBehaviour:
   m_ObjectHideFlags: 0

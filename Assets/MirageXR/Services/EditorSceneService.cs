@@ -32,10 +32,11 @@ public class EditorSceneService
 
     private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (brandManager.Customizable)
+        /*if (brandManager.Customizable)
         {
-            brandManager.AddCustomColors();
-        }
+            // removed for performance reasons
+            // brandManager.SceneGOsForceCustomColors();
+        }*/
 
         if (scene.name == RootObject.Instance.PlatformManager.PlayerSceneName)
         {

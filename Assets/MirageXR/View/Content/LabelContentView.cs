@@ -85,8 +85,8 @@ namespace MirageXR.View
             LayoutRebuilder.MarkLayoutForRebuild(text.rectTransform);
             await UniTask.NextFrame(PlayerLoopTiming.EarlyUpdate);
             var canvasSize = ((RectTransform)canvas.transform).rect.size;
-            colliderText.size = new Vector3(canvasSize.x, canvasSize.y, 2);
-            colliderText.center = new Vector3(canvasSize.x * -0.5f, 0, 0);
+            colliderText.size = new Vector3(canvasSize.x-30, canvasSize.y, 2);
+            colliderText.center = new Vector3(canvasSize.x * -0.5f - 15, 0, 0);
 
             return true;
         }
@@ -126,7 +126,7 @@ namespace MirageXR.View
            _xrGrabInteractableText.trackScale = false;
            _xrGrabInteractableText.useDynamicAttach = true;
            _xrGrabInteractableText.matchAttachPosition = true;
-           _xrGrabInteractableText.matchAttachRotation = true;
+           _xrGrabInteractableText.matchAttachRotation = true; // tested - had no effect on gaze+grab -> rotate bug
            _xrGrabInteractableText.snapToColliderVolume = false;
            _xrGrabInteractableText.reinitializeDynamicAttachEverySingleGrab = false;
            _xrGrabInteractableText.selectMode = InteractableSelectMode.Single;

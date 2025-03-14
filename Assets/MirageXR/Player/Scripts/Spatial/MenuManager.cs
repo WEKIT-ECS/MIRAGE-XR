@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using IngameDebugConsole;
 using LearningExperienceEngine.DataModel;
 using UnityEngine;
 using UnityEngine.Events;
@@ -26,11 +27,13 @@ namespace MirageXR
         [SerializeField] private SelectAugmentationScreenSpatialView _selectAugmentationScreenSpatialView;
 
         [SerializeField] private ImageSelectPopupView imageSelectPopupViewPrefab;
+        [SerializeField] private DebugLogManager inGameConsolePrefab;
         [SerializeField] private EditorListItem[] editorPrefabs;
 
         public static UnityEvent<ScreenName, string> ScreenChanged = new();
 
         private ScreenName _currentScreenName;
+        private DebugLogManager _inGameConsole;
 
         public ScreenName CurrentScreenName
         {
@@ -45,6 +48,7 @@ namespace MirageXR
 
         private async UniTask InitializeAsync()
         {
+            CreateInGameConsole();
             await RootObject.Instance.WaitForInitialization();
             var canvas = GetComponentInParent<Canvas>();
             canvas.worldCamera = RootObject.Instance.BaseCamera;
@@ -109,6 +113,21 @@ namespace MirageXR
             return null;
         }
 
+        public void ShowInGameConsole()
+        {
+            if (_inGameConsole == null)
+            {
+                CreateInGameConsole();
+            }
+
+            SetCreateInGameConsoleEnable(true);
+        }
+
+        public void HideInGameConsole()
+        {
+            SetCreateInGameConsoleEnable(false);
+        }
+
         public EditorListItem[] GetEditorPrefabs()
         {
             return editorPrefabs;
@@ -117,6 +136,26 @@ namespace MirageXR
         public ImageSelectPopupView GetImageSelectPopupViewPrefab()
         {
             return imageSelectPopupViewPrefab;
+        }
+
+        private void CreateInGameConsole()
+        {
+            _inGameConsole = Instantiate(inGameConsolePrefab);
+            SetCreateInGameConsoleEnable(false);
+        }
+
+        private void SetCreateInGameConsoleEnable(bool value)
+        {
+            if (_inGameConsole == null)
+            {
+                return;
+            }
+
+            _inGameConsole.GetComponent<Canvas>().enabled = value;
+            foreach (Transform obj in _inGameConsole.transform)
+            {
+                obj.gameObject.SetActive(value);
+            }
         }
     }
 }
