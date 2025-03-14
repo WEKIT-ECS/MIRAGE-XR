@@ -94,10 +94,6 @@ namespace MirageXR
             var spawnPosition = startPosition;
 
             var spawnParent = GameObject.Find("Anchor")?.transform;
-            if (spawnParent == null)  
-            {
-                spawnParent = null;
-            }
             var hyperlinkInstance = Instantiate(spatialHyperlinkPrefab.gameObject, spawnPosition, Quaternion.identity, spawnParent);
             hyperlinkInstance.name = "hyperlink__" + linkText;
             var spatialView = hyperlinkInstance.GetComponent<SpatialHyperlinkObjectView>();

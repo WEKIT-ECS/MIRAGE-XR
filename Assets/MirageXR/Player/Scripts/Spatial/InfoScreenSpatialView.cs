@@ -57,6 +57,8 @@ namespace MirageXR
             
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
             RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityLoaded;
+            RootObject.Instance.LEE.StepManager.OnStepChanged += StepManagerOnStepChanged;
+            RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += ActivityManagerOnActivityUpdated;
             
             nextStepButton.onClick.AddListener(OnNextStepClicked);
             previousStepButton.onClick.AddListener(OnPreviousStepClicked);
@@ -182,6 +184,24 @@ namespace MirageXR
         private void OnEditorModeChanged(bool value)
         {
             _windowContainer.SetActive(!value);
+            UpdateSplinesBasedOnWindowState();
+        }
+        
+        private void StepManagerOnStepChanged(ActivityStep step)
+        {
+            _step = step;
+            UpdateSplinesBasedOnWindowState();
+        }
+        private void ActivityManagerOnActivityUpdated(Activity activity)
+        {
+            if (_step != null)
+            {
+                UpdateSplinesBasedOnWindowState();
+            }
+        }
+
+        private void UpdateSplinesBasedOnWindowState()
+        {
             if (_windowContainer.activeSelf)
             {
                 CreateSplinesForHyperlinks();
@@ -399,13 +419,25 @@ namespace MirageXR
                 index = _textDescription.textInfo.linkInfo.ToList().FindIndex(link => link.GetLinkID() == linkId);
                 if (index == -1)
                 {
-                    Debug.LogError($"Link with ID {linkId} not found.");
+                    Debug.LogError($"Link with ID {linkId} not found in textInfo.");
                     return Vector3.zero;
                 }
                 _linkIndexCache[linkId] = index;
             }
 
+            if (_textDescription.textInfo.linkInfo.Length <= index)
+            {
+                _linkIndexCache.Remove(linkId);
+                return GetLinkWorldPosition(linkId);
+            }
+
             var linkInfo = _textDescription.textInfo.linkInfo[index];
+            if (linkInfo.linkTextfirstCharacterIndex < 0 || linkInfo.linkTextfirstCharacterIndex + linkInfo.linkTextLength > _textDescription.textInfo.characterInfo.Length)
+            {
+                _linkIndexCache.Remove(linkId);
+                return GetLinkWorldPosition(linkId);
+            }
+
             var firstCharInfo = _textDescription.textInfo.characterInfo[linkInfo.linkTextfirstCharacterIndex];
             var lastCharInfo = _textDescription.textInfo.characterInfo[linkInfo.linkTextfirstCharacterIndex + linkInfo.linkTextLength - 1];
 
@@ -470,6 +502,8 @@ namespace MirageXR
             _textTitle.text = step.Name;
             _textTitle_Collapsed.text = step.Name;
             
+            _linkIndexCache.Clear();
+            
             var data = HyperlinkPositionData.SplitPositionsFromText(_step.Description);
             _textDescription.text = AddLinkTagsToBrackets(data.DisplayText);
             
@@ -501,6 +535,7 @@ namespace MirageXR
                     }
                 }
             }
+            CreateSplinesForHyperlinks();
         }
         private string AddLinkTagsToBrackets(string inputText)
         {
