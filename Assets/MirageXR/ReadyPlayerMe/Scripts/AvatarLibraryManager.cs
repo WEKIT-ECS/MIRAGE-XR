@@ -22,7 +22,7 @@ namespace MirageXR
 			Load();
 		}
 
-		private void OnDestroy()
+		private void OnDisable()
 		{
 			Save();
 		}
