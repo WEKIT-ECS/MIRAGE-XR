@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
@@ -101,13 +102,11 @@ namespace MirageXR
         
         private void OnButtonPreviousStepClicked()
         {
-            SaveHyperlinkPosition();
             RootObject.Instance.LEE.StepManager.GoToNextStep();
         }
 
         private void OnButtonNextStepClicked()
         {
-            SaveHyperlinkPosition();
             RootObject.Instance.LEE.StepManager.GoToPreviousStep();
         }
 
@@ -200,39 +199,75 @@ namespace MirageXR
         }
         private void UpdateHyperlinkPrefabs()
         {
-            foreach (var kvp in hyperlinkPositions)
+            if (View == null)
             {
-                var linkId = kvp.Key;
-                var position = kvp.Value;
-                if (!hyperlinkPrefabs.ContainsKey(linkId))
+                return;
+            }
+
+            var inputField = View.GetDescriptionInputField();
+            if (inputField == null)
+            {
+                return;
+            }
+
+            var inputText = inputField.text;
+            if (string.IsNullOrEmpty(inputText))
+            {
+                foreach (var kvp in hyperlinkPrefabs)
                 {
-                    var hyperlinkInstance = View.CreateHyperlinkPrefab(position, linkId);
-                    hyperlinkPrefabs[linkId] = hyperlinkInstance;
-                }
-                else
-                {
-                    var prefab = hyperlinkPrefabs[linkId];
-                    if (prefab != null)
+                    if (kvp.Value != null)
                     {
-                        prefab.transform.position = position;
+                        Destroy(kvp.Value);
+                    }
+                }
+                hyperlinkPrefabs.Clear();
+                hyperlinkPositions.Clear();
+                descriptionContainsLinks = false;
+                return;
+            }
+        
+            var cleanText = Regex.Replace(inputText, @"<color=[^>]+>(.*?)</color>", "$1");
+            var pattern = @"\[(.*?)\]";
+            //var matches = Regex.Matches(cleanText, pattern);
+            var newLinks = new HashSet<string>();
+            var validLinksWithPositions = new List<(string link, int startIndex, int length)>();
+
+            var openBrackets = 0;
+            var startIndex = -1;
+            string currentLink = null;
+
+            for (var i = 0; i < cleanText.Length; i++)
+            {
+                if (cleanText[i] == '[')
+                {
+                    if (openBrackets == 0)
+                    {
+                        startIndex = i;
+                        currentLink = "";
+                    }
+                    openBrackets++;
+                }
+                else if (cleanText[i] == ']')
+                {
+                    openBrackets--;
+                    if (openBrackets == 0 && startIndex != -1)
+                    {
+                        currentLink = cleanText.Substring(startIndex + 1, i - startIndex - 1);
+                        if (!string.IsNullOrEmpty(currentLink) && !currentLink.Contains("[") && !currentLink.Contains("]"))
+                        {
+                            newLinks.Add(currentLink);
+                            validLinksWithPositions.Add((currentLink, startIndex, i - startIndex + 1));
+                        }
+                    }
+                    else if (openBrackets < 0)
+                    {
+                        openBrackets = 0;
                     }
                 }
             }
-        }
-        private string AddColorToBrackets(string inputText)
-        {
-            var pattern = @"\[([^\[\]]+)\]";
-            var matches = Regex.Matches(inputText, pattern);
-            var newLinks = new HashSet<string>();
-    
-            descriptionContainsLinks = matches.Count > 0;
-    
-            foreach (Match match in matches)
-            {
-                var content = match.Groups[1].Value;
-                newLinks.Add(content);
-            }
-    
+
+            descriptionContainsLinks = newLinks.Count > 0;
+        
             var linksToRemove = new List<string>();
             foreach (var link in hyperlinkPrefabs.Keys)
             {
@@ -254,6 +289,111 @@ namespace MirageXR
                     hyperlinkPositions.Remove(link);
                 }
             }
+        
+            foreach (var content in newLinks)
+            {
+                if (!hyperlinkPrefabs.ContainsKey(content))
+                {
+                    Vector3 linkPosition;
+                    if (hyperlinkPositions.TryGetValue(content, out var savedPosition))
+                    {
+                        linkPosition = savedPosition;
+                    }
+                    else
+                    {
+                        linkPosition = gameObject.transform.position;
+                        var randomOffsetX = Random.Range(-0.2f, 0.2f);
+                        var randomOffsetY = Random.Range(-0.2f, 0.2f);
+                        var randomOffsetZ = Random.Range(-0.2f, 0.2f);
+                        linkPosition += new Vector3(randomOffsetX, randomOffsetY, randomOffsetZ) + Vector3.up / 2f;
+                        hyperlinkPositions[content] = linkPosition;
+                    }
+
+                    var hyperlinkInstance = View.CreateHyperlinkPrefab(linkPosition, content);
+                    hyperlinkPrefabs[content] = hyperlinkInstance;
+                }
+                else
+                {
+                    if (hyperlinkPositions.TryGetValue(content, out var position) && hyperlinkPrefabs[content] != null)
+                    {
+                        hyperlinkPrefabs[content].transform.position = position;
+                    }
+                }
+            }
+        }
+        private string AddColorToBrackets(string inputText)
+        {
+            if (string.IsNullOrEmpty(inputText))
+            {
+                descriptionContainsLinks = false;
+                return inputText;
+            }
+            
+            var cleanText = Regex.Replace(inputText, @"<color=[^>]+>(.*?)</color>", "$1");
+            
+            var pattern = @"\[(.*?)\]";
+            var matches = Regex.Matches(cleanText, pattern);
+            var newLinks = new HashSet<string>();
+            var validLinksWithPositions = new List<(string link, int startIndex, int length)>();
+            
+            var openBrackets = 0;
+            var startIndex = -1;
+            string currentLink = null;
+
+            for (int i = 0; i < cleanText.Length; i++)
+            {
+                if (cleanText[i] == '[')
+                {
+                    if (openBrackets == 0)
+                    {
+                        startIndex = i;
+                        currentLink = "";
+                    }
+                    openBrackets++;
+                }
+                else if (cleanText[i] == ']')
+                {
+                    openBrackets--;
+                    if (openBrackets == 0 && startIndex != -1)
+                    {
+                        currentLink = cleanText.Substring(startIndex + 1, i - startIndex - 1);
+                        if (!string.IsNullOrEmpty(currentLink) && !currentLink.Contains("[") && !currentLink.Contains("]"))
+                        {
+                            newLinks.Add(currentLink);
+                            validLinksWithPositions.Add((currentLink, startIndex, i - startIndex + 1));
+                        }
+                    }
+                    else if (openBrackets < 0)
+                    {
+                        openBrackets = 0;
+                    }
+                }
+            }
+
+            descriptionContainsLinks = newLinks.Count > 0;
+            
+            var linksToRemove = new List<string>();
+            foreach (var link in hyperlinkPrefabs.Keys)
+            {
+                if (!newLinks.Contains(link))
+                {
+                    var prefabToRemove = hyperlinkPrefabs[link];
+                    if (prefabToRemove != null)
+                    {
+                        Destroy(prefabToRemove);
+                    }
+                    linksToRemove.Add(link);
+                }
+            }
+            foreach (var link in linksToRemove)
+            {
+                hyperlinkPrefabs.Remove(link);
+                if (hyperlinkPositions.ContainsKey(link))
+                {
+                    hyperlinkPositions.Remove(link);
+                }
+            }
+            
             foreach (var content in newLinks)
             {
                 if (!hyperlinkPrefabs.ContainsKey(content))
@@ -277,7 +417,17 @@ namespace MirageXR
                     hyperlinkPrefabs[content] = hyperlinkInstance;
                 }
             }
-            return Regex.Replace(inputText, pattern, match => $"<color=#8F9CFF>[{match.Groups[1].Value}]</color>", (RegexOptions)1);
+            
+            var result = cleanText;
+            foreach (var linkData in validLinksWithPositions.OrderByDescending(x => x.startIndex))
+            {
+                var link = linkData.link;
+                var start = linkData.startIndex;
+                var length = linkData.length;
+                result = result.Substring(0, start) + $"<color=#8F9CFF>[{link}]</color>" + result.Substring(start + length);
+            }
+             
+            return result;
         }
 
         private async UniTask UpdateInfoMediaViewAsync()
@@ -377,7 +527,6 @@ namespace MirageXR
 
         private void OnButtonBackClicked()
         {
-            SaveHyperlinkPosition();
             MenuManager.Instance.ShowScreen(ScreenName.NewActivityScreen);
         }
 
