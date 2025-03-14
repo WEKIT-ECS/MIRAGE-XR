@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
-#if POLYSPATIAL_SDK_AVAILABLE && !VISION_OS
+#if POLYSPATIAL_SDK_AVAILABLE && VISION_OS
 using System.Reflection;
 using Unity.PolySpatial.XR.Input;
 using UnityEngine.EventSystems;

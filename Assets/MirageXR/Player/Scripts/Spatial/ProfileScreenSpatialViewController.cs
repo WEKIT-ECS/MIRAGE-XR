@@ -1,5 +1,3 @@
-using LearningExperienceEngine;
-using System;
 using Cysharp.Threading.Tasks;
 
 namespace MirageXR
@@ -7,6 +5,9 @@ namespace MirageXR
     public class ProfileScreenSpatialViewController : ScreenViewController<ProfileScreenSpatialViewController, ProfileScreenSpatialView>
     {
         public override ScreenName ScreenName => ScreenName.ProfileScreen;
+
+        private SketchfabUserInfo _userInfo;
+        private bool _isSketchfabLoggedIn;
 
         protected override void OnBind()
         {
@@ -16,16 +17,45 @@ namespace MirageXR
             View.SetActionOnButtonAudioDeviceClick(ShowAudioDeviceView);
             View.SetActionOnButtonSketchfabClick(OnSketchfabSignInButtonClicked);
             View.SetActionOnButtonAvatarClick(ShowChangeUserAvatarView);
+            View.SetActionOnToggleConsoleValueChanged(OnToggleConsoleValueChanged);
             View.gameObject.SetActive(false);
 
+            RootObject.Instance.LEE.SketchfabManager.OnSketchfabUserDataChanged += OnSketchfabUserDataChanged;
             RootObject.Instance.LEE.SketchfabManager.OnSketchfabLoggedIn += OnSketchfabLoggedIn;
         }
 
-		private void OnSketchfabLoggedIn(bool value)
+        private void OnToggleConsoleValueChanged(bool value)
         {
             if (value)
             {
-                View.SetSketchfabText("Logged In");
+                MenuManager.Instance.ShowInGameConsole();
+            }
+            else
+            {
+                MenuManager.Instance.HideInGameConsole();
+            }
+        }
+
+        private void OnSketchfabUserDataChanged(SketchfabUserInfo userInfo)
+        {
+            _userInfo = userInfo;
+            if (_isSketchfabLoggedIn)
+            {
+                View.SetSketchfabText($"Logged In as {_userInfo.Username}");
+            }
+        }
+
+        private void OnSketchfabLoggedIn(bool value)
+        {
+            _isSketchfabLoggedIn = value;
+            if (value)
+            {
+                var text = _userInfo == null ? "Logged In" : $"Logged In as {_userInfo.Username}";
+                View.SetSketchfabText(text);
+            }
+            else
+            {
+                _userInfo = null;
             }
         }
 
