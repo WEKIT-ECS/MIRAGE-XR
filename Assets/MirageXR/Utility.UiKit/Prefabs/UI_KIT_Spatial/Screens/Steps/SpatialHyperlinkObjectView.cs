@@ -1,3 +1,5 @@
+using System;
+using System.Text.RegularExpressions;
 using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;
@@ -22,12 +24,17 @@ namespace MirageXR
             InitializeManipulator();
             _camera = RootObject.Instance.BaseCamera;
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
+            RootObject.Instance.LEE.StepManager.OnStepChanged += StepManagerOnStepChanged;
         }
         
         private void OnEditorModeChanged(bool value)
         {
             _isCanvasTransformLocked = value;
             UpdateCanvasLockState();
+        }
+        private void StepManagerOnStepChanged(ActivityStep step)
+        {
+            _step = step;
         }
         private void UpdateCanvasLockState()
         {
@@ -89,19 +96,57 @@ namespace MirageXR
 
         private void OnManipulationStarted() { }
 
-        private void OnManipulationEnded() { }
+       private void OnManipulationEnded()
+       {
+            if (transform == null)
+            {
+                return;
+            }
+            var currentPosition = transform.position;
+            var currentLink = gameObject.name.Replace("hyperlink__", "");
+            
+            if (_step == null || string.IsNullOrEmpty(_step.Description))
+            {
+                return;
+            }
 
-        private void LateUpdate()
-        {
-            DoTextBillboarding();
-        }
+            var savedText = _step.Description;
+            string newText;
+            var pattern = $@"(<color=[^>]+>\[{Regex.Escape(currentLink)}\]</color><pos=)(-?\d+\.?\d*),(-?\d+\.?\d*),(-?\d+\.?\d*)>";
+            var match = Regex.Match(savedText, pattern);
+            
+            if (match.Success && match.Groups.Count >= 4)
+            {
+                try
+                {
+                    var prefix = match.Groups[1].Value;
+                    var newPosTag = $"{prefix}{currentPosition.x:F2},{currentPosition.y:F2},{currentPosition.z:F2}>";
+            
+                    newText = savedText.Substring(0, match.Index) + newPosTag + savedText.Substring(match.Index + match.Length);
+                    RootObject.Instance.LEE.StepManager.SetStepDescription(_step.Id, newText);
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogError($"Unexpected error updating text: {ex.Message}");
+                }
+            }
+            else
+            {
+                UnityEngine.Debug.LogWarning($"No matching pattern found for link {currentLink} in text.");
+            }
+       }
 
-        private void DoTextBillboarding()
-        {
-            var newRotation = _camera.transform.eulerAngles;
-            newRotation.x = 0;
-            newRotation.z = 0;
-            text.transform.eulerAngles = newRotation;
-        }
+       private void LateUpdate()
+       {
+           DoTextBillboarding();
+       }
+
+       private void DoTextBillboarding()
+       {
+           var newRotation = _camera.transform.eulerAngles;
+           newRotation.x = 0;
+           newRotation.z = 0;
+           text.transform.eulerAngles = newRotation;
+       }
     }
 }
