@@ -17,8 +17,8 @@ public class PlaneManagerARFoundation : PlaneManagerBase
     private bool _enableColliders;
     private bool _showPlanes;
     private ARFoundationPlaneBehaviour _debugARFoundationPlane;
-    private UnityEventPlaneIdVector3 _onPlaneClicked = new UnityEventPlaneIdVector3();
-    private UnityEventPlaneIdPlaneId _onPlaneRemoved = new UnityEventPlaneIdPlaneId();
+    private readonly UnityEventPlaneIdVector3 _onPlaneClicked = new();
+    private readonly UnityEventPlaneIdPlaneId _onPlaneRemoved = new();
 
     public GameObject prefabPlane
     {

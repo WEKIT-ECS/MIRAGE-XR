@@ -8,6 +8,7 @@ using System.Text;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine;
 using Fusion.Sockets;
+using MirageXR.View;
 using Random = UnityEngine.Random;
 #endif
 
@@ -17,10 +18,7 @@ using UnityEngine;
 namespace MirageXR
 {
 	[RequireComponent(typeof(NetworkedUserManager), typeof(ConnectionManager))]
-#if FUSION2
-	[RequireComponent(typeof(NetworkRunner), typeof(FusionVoiceClient), typeof(NetworkEvents))]
-#endif
-	public class CollaborationManager : MonoBehaviour, IDisposable
+	public class CollaborationManager : MonoBehaviour, IDisposable, INetworkRunnerCallbacks
 	{
 		[SerializeField] private bool _useInvitationCode = false;
 		[SerializeField] private bool _useSessionPassword = false;
@@ -28,23 +26,26 @@ namespace MirageXR
 		[SerializeField] private GameObject _sessionDataPrefab;
 
 #if FUSION2
-		[SerializeField] private Recorder _recorder;
-
 		private ConnectionManager _connectionManager;
 		private NetworkRunner _networkRunner;
 		private NetworkEvents _networkEvents;
 		private FusionVoiceClient _fusionVoiceClient;
 		private NetworkedUserManager _networkedUserManager;
+		private IAssetBundleManager _assetBundleManager;
+		private NetworkActivityView _networkActivityView;
+		private Recorder _recorder;
 
-		private readonly List<AudioSource> _voiceSources = new List<AudioSource>();
-		private bool _muteVoiceChat = false;
+		private readonly List<AudioSource> _voiceSources = new();
+		private bool _muteVoiceChat;
 
-		public int PlayerId => NetworkRunner != null ? NetworkRunner.LocalPlayer.PlayerId : -1;
-		public bool IsConnectedToServer => NetworkRunner != null && NetworkRunner.IsConnectedToServer;
+		public int PlayerId => _networkRunner != null ? _networkRunner.LocalPlayer.PlayerId : -1;
+		public PlayerRef LocalPlayer => _networkRunner != null ? _networkRunner.LocalPlayer : default;
+		public bool IsConnectedToServer => _networkRunner != null && _networkRunner.IsConnectedToServer;
+		public bool IsSharedModeMasterClient => _networkRunner != null && _networkRunner.IsSharedModeMasterClient;
 		public string InvitationCode { get; private set; }
 		public string SessionPassword { get; private set; }
 
-		public string SessionName { get => ConnectionManager.roomName; set => ConnectionManager.roomName = value; }
+		public string SessionName { get => ConnectionManager.RoomName; set => ConnectionManager.RoomName = value; }
 
 		public bool VoiceMicrophoneEnabled { get => _recorder.TransmitEnabled; set => _recorder.TransmitEnabled = value; }
 
@@ -64,42 +65,74 @@ namespace MirageXR
 		public NetworkedUserManager UserManager => _networkedUserManager;
 		public ConnectionManager ConnectionManager => _connectionManager;
 		public NetworkRunner NetworkRunner => _networkRunner;
-		public NetworkEvents NetworkEvents => _networkEvents;
 		public FusionVoiceClient FusionVoiceClient => _fusionVoiceClient;
 
-		public NetworkEvents.RunnerEvent OnConnectedToServer => _onConnectedToServer;
-		public NetworkEvents.DisconnectFromServerEvent OnDisconnectedFromServer => _onDisconnectedFromServer;
+		public NetworkEvents.PlayerEvent OnPlayerJoinEvent => _onPlayerJoin;
+		public NetworkEvents.PlayerEvent OnPlayerLeftEvent => _onPlayerLeft;
+		public NetworkEvents.RunnerEvent OnConnectedToServerEvent => _onConnectedToServer;
+		public NetworkEvents.DisconnectFromServerEvent OnDisconnectedFromServerEvent => _onDisconnectedFromServer;
+		public NetworkEvents.ReliableDataEvent OnReliableDataEvent => _onReliableData;
 
+		private readonly NetworkEvents.PlayerEvent _onPlayerJoin = new();
+		private readonly NetworkEvents.PlayerEvent _onPlayerLeft = new();
 		private readonly NetworkEvents.RunnerEvent _onConnectedToServer = new();
 		private readonly NetworkEvents.DisconnectFromServerEvent _onDisconnectedFromServer = new();
+		private readonly NetworkEvents.ReliableDataEvent _onReliableData = new();
 
-		public async UniTask InitializeAsync(IAuthorizationManager authorizationManager)
+		public void Initialize(IAuthorizationManager authorizationManager, IAssetBundleManager assetBundleManager)
 		{
+			_assetBundleManager = assetBundleManager;
 			_networkedUserManager = GetComponent<NetworkedUserManager>();
 			_connectionManager = GetComponent<ConnectionManager>();
-			_networkRunner = GetComponent<NetworkRunner>();
-			_networkEvents = GetComponent<NetworkEvents>();
-			_fusionVoiceClient = GetComponent<FusionVoiceClient>();
 
-			_networkedUserManager.Initialize(authorizationManager, _networkRunner, _networkEvents);
-			await _connectionManager.InitializeAsync(_networkRunner);
+			var recorderObj = new GameObject("Recorder");
+			recorderObj.transform.SetParent(transform);
+			_recorder = recorderObj.AddComponent<Recorder>();
 
-			_networkEvents.OnConnectedToServer.AddListener(NetworkEventsOnConnectedToServer);
-			_networkEvents.OnDisconnectedFromServer.AddListener(NetworkEventsOnDisconnectedFromServer);
+			_networkedUserManager.Initialize(this, authorizationManager);
+			_connectionManager.Initialize(this);
 		}
 
-		private void NetworkEventsOnConnectedToServer(NetworkRunner networkRunner)
+		public void Dispose()
 		{
-			_onConnectedToServer.Invoke(networkRunner);
+#if FUSION2
+			_networkedUserManager.Dispose();
+#endif
 		}
 
-		private void NetworkEventsOnDisconnectedFromServer(NetworkRunner networkRunner, NetDisconnectReason netDisconnectReason)
+		public void Disconnect()
 		{
-			_onDisconnectedFromServer.Invoke(networkRunner, netDisconnectReason);
+			_onPlayerLeft.Invoke(_networkRunner, LocalPlayer);
+			_networkRunner.RemoveCallbacks(this);
+			_networkRunner.Shutdown();
+		}
+
+		public void SendReliableDataToPlayer(PlayerRef player, ReliableKey key, byte[] data)
+		{
+			_networkRunner.SendReliableDataToPlayer(player, key, data);
+		}
+
+		public void SendReliableDataToAllPlayers(ReliableKey key, byte[] data)
+		{
+			var players = _networkRunner.ActivePlayers;
+			foreach (var playerRef in players)
+			{
+				/*if (playerRef == LocalPlayer)
+				{
+					continue;
+				}*/
+
+				_networkRunner.SendReliableDataToPlayer(playerRef, key, data);
+			}
 		}
 
 		public async UniTask<bool> StartNewSession()
 		{
+			if (_networkRunner == null)
+			{
+				CreateRunner();
+			}
+
 			// TODO: move the generation functions into the if clauses
 			// they are currently outside now to demonstrate that we can already generate this but do not actually use it
 
@@ -129,23 +162,11 @@ namespace MirageXR
 			//}
 
 			_handTrackingManager.StartTracking();
-
-			if (_recorder == null)
-			{
-				_recorder = GetComponentInChildren<Recorder>();
-			}
-
 			_recorder.MicrophoneDevice = new Photon.Voice.DeviceInfo(Microphone.devices.First());
 
 			Debug.Log($"Photon Voice is now using the following microphone: {_recorder.MicrophoneDevice.Name}");
 
-			var result = await ConnectionManager.Connect();
-
-			if (NetworkRunner.IsSharedModeMasterClient)
-			{
-				NetworkRunner.Spawn(_sessionDataPrefab);
-			}
-
+			var result = await ConnectionManager.ConnectAsync(_networkRunner);
 			return result;
 		}
 
@@ -157,6 +178,16 @@ namespace MirageXR
 		public void RemoveVoiceSource(AudioSource voiceSource)
 		{
 			_voiceSources.Remove(voiceSource);
+		}
+
+		private void CreateRunner()
+		{
+			var networkRunnerObj = new GameObject("NetworkRunner");
+			networkRunnerObj.transform.SetParent(transform);
+			_networkRunner = networkRunnerObj.AddComponent<NetworkRunner>();
+			_fusionVoiceClient = networkRunnerObj.AddComponent<FusionVoiceClient>();
+
+			_networkRunner.AddCallbacks(this);
 		}
 
 		private string GenerateInvitationCode()
@@ -181,11 +212,59 @@ namespace MirageXR
 		}
 #endif
 
-		public void Dispose()
+#region INetworkRunnerCallbacks
+		public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
 		{
-#if FUSION2
-			_networkedUserManager.Dispose();
-#endif
+			Debug.Log("[CollaborationManager] OnPlayerJoined");
+			_onPlayerJoin.Invoke(runner, player);
 		}
+
+		public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
+		{
+			Debug.Log("[CollaborationManager] OnPlayerLeft");
+			_onPlayerLeft.Invoke(runner, player);
+		}
+
+		public void OnConnectedToServer(NetworkRunner runner)
+		{
+			_onConnectedToServer.Invoke(runner);
+			Debug.Log("[CollaborationManager] OnConnectedToServer");
+		}
+
+		public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
+		{
+			Debug.Log("[CollaborationManager] Shutdown: " + shutdownReason);
+		}
+
+		public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
+		{
+			_onDisconnectedFromServer.Invoke(runner, reason);
+			Debug.Log("[CollaborationManager] OnDisconnectedFromServer: " + reason);
+		}
+
+		public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason)
+		{
+			Debug.Log("[CollaborationManager] OnConnectFailed: " + reason);
+		}
+
+		public void OnInput(NetworkRunner runner, NetworkInput input) { }
+		public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
+		public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }
+		public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) { }
+		public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) { }
+		public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data) { }
+		public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) { }
+
+		public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey reliableKey, ArraySegment<byte> data)
+		{
+			_onReliableData.Invoke(runner, player, reliableKey, data);
+		}
+
+		public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey reliableKey, float progress) { }
+		public void OnSceneLoadDone(NetworkRunner runner) { }
+		public void OnSceneLoadStart(NetworkRunner runner) { }
+		public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
+		public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
+#endregion
 	}
 }

@@ -114,7 +114,5 @@ namespace MirageXR.View
         protected override void InitializeBoxCollider() { }
 
         protected override void InitializeManipulator() { }
-
-        protected override void InitializeBoundsControl() { }
     }
 }

@@ -37,6 +37,7 @@ namespace MirageXR
 		private VirtualInstructorOrchestrator _virtualInstructorOrchestrator;
 		private ICalibrationManager _calibrationManager;
 		private IAssetBundleManager _assetBundleManager;
+        private IViewManager _viewManager;
 
 		public Camera BaseCamera => _baseCamera;
 		public GameObject VolumeCamera => _volumeCamera;
@@ -60,6 +61,7 @@ namespace MirageXR
 		public VirtualInstructorOrchestrator VirtualInstructorOrchestrator => _virtualInstructorOrchestrator;
 		public IAssetBundleManager AssetBundleManager => _assetBundleManager;
 		public AvatarLibraryManager AvatarLibraryManager => _avatarLibraryManager;
+		public IViewManager ViewManager => _viewManager;
 
 		private bool _isInitialized;
 
@@ -146,6 +148,7 @@ namespace MirageXR
 
 				_calibrationManager = new CalibrationManager();
 				_virtualInstructorOrchestrator = new VirtualInstructorOrchestrator();
+                _viewManager = new ViewManager();
 
 				await _lee.WaitForInitialization();
 				await _assetBundleManager.InitializeAsync();
@@ -160,9 +163,9 @@ namespace MirageXR
 				_platformManager.Initialization();
 				await _roomTwinManager.InitializationAsync();
 				await _openAIManager.InitializeAsync();
-
+                _viewManager.Initialize(_lee.ActivityManager, _assetBundleManager, _collaborationManager);
 #if FUSION2
-				await _collaborationManager.InitializeAsync(_lee.AuthorizationManager);
+                _collaborationManager.Initialize(_lee.AuthorizationManager, _assetBundleManager);
 #endif
 
 				_isInitialized = true;

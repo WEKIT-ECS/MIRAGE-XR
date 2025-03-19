@@ -6,7 +6,6 @@ using System;
 using UnityEngine;
 #endif
 
-
 namespace MirageXR
 {
 	public class NetworkedUserData : BaseNetworkedAvatarController
@@ -80,7 +79,6 @@ namespace MirageXR
 		}
 
 #if FUSION2
-
 		private void OnNetworkedUserNameChanged()
 		{
 			NetworkedUserNameChanged?.Invoke(UserName);

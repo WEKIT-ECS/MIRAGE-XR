@@ -125,7 +125,6 @@ namespace MirageXR
             var file = new FileModel
             {
                 Id = Guid.NewGuid(),
-                Version = Application.version,
                 CreationDate = DateTime.UtcNow,
                 FileHash = string.Empty
             };
