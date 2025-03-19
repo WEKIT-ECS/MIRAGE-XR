@@ -89,7 +89,7 @@ namespace MirageXR
             {
                 if (_activityView != null)
                 {
-                    Object.Destroy(_activityView);
+                    Object.Destroy(_activityView.gameObject);
                 }
 
                 var networkRunner = _collaborationManager.NetworkRunner;
@@ -109,7 +109,7 @@ namespace MirageXR
             {
                 if (_activityView != null)
                 {
-                    Object.Destroy(_activityView);
+                    Object.Destroy(_activityView.gameObject);
                 }
 
                 var prefab = _assetBundleManager.GetActivityViewPrefab();
