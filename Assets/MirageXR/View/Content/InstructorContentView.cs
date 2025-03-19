@@ -1,13 +1,11 @@
 using Cysharp.Threading.Tasks;
-using GLTFast.Schema;
 using i5.Toolkit.Core.VerboseLogging;
 using LearningExperienceEngine.DataModel;
-using ReadyPlayerMe.Core;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-
+ 
 namespace MirageXR.View
 {
     public class InstructorContentView : ContentView
