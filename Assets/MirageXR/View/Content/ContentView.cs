@@ -135,9 +135,10 @@ namespace MirageXR.View
         protected virtual void OnManipulationEnded()
         {
             _isSelected = false;
-            _onManipulationEnded.Invoke(transform);
             Content.Location.Position = transform.localPosition;
             Content.Location.Rotation = transform.localEulerAngles;
+            Content.Location.Scale = transform.localScale;
+            _onManipulationEnded.Invoke(transform);
         }
 
         protected virtual UniTask OnContentUpdatedAsync(Content content)
