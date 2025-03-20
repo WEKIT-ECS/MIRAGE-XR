@@ -12,9 +12,6 @@ namespace MirageXR
 	{
 		public static RootObject Instance { get; private set; }
 
-		[SerializeField] private Camera _baseCamera;
-		[SerializeField] private GameObject _volumeCamera;
-
 		[SerializeField] private LearningExperienceEngine.LearningExperienceEngine _lee;
 		[SerializeField] private MirageXRServiceBootstrapper _serviceBootstrapper;
 		[SerializeField] private ImageTargetManagerWrapper _imageTargetManager;
@@ -22,7 +19,6 @@ namespace MirageXR
 		[SerializeField] private FloorManagerWithFallback _floorManagerWithRaycastFallback;
 		[SerializeField] private PlaneManagerWrapper _planeManager;
 		[SerializeField] private PointCloudManager _pointCloudManager;
-		[SerializeField] private VolumeCameraManager _volumeCameraManager;
 		[SerializeField] private GridManager _gridManager;
 		[SerializeField] private CameraCalibrationChecker _cameraCalibrationChecker;
 		[SerializeField] private PlatformManager _platformManager;
@@ -39,8 +35,7 @@ namespace MirageXR
 		private IAssetBundleManager _assetBundleManager;
         private IViewManager _viewManager;
 
-		public Camera BaseCamera => _baseCamera;
-		public GameObject VolumeCamera => _volumeCamera;
+		public Camera BaseCamera => _viewManager.GetCamera();
 
 		public LearningExperienceEngine.LearningExperienceEngine LEE => _lee;
 		public EditorSceneService EditorSceneService => _editorSceneService;
@@ -102,9 +97,9 @@ namespace MirageXR
 
 			try
 			{
-#if POLYSPATIAL_SDK_AVAILABLE && VISION_OS
-                InstantiateExtensions.Initialize();
-#endif
+// #if POLYSPATIAL_SDK_AVAILABLE && VISION_OS
+//                 InstantiateExtensions.Initialize();
+// #endif
 
 				JsonConvert.DefaultSettings = () => new JsonSerializerSettings
 				{
@@ -115,8 +110,6 @@ namespace MirageXR
 						args.ErrorContext.Handled = true;
 					}
 				};
-
-				_baseCamera ??= Camera.main;
 
 				_serviceBootstrapper ??= new GameObject("ServiceBootstrapper").AddComponent<MirageXRServiceBootstrapper>();
 				_serviceBootstrapper.transform.parent = transform;
@@ -129,7 +122,6 @@ namespace MirageXR
 				_floorManager ??= new GameObject("FloorManagerWrapper").AddComponent<FloorManagerWrapper>();
 				_floorManagerWithRaycastFallback ??= new GameObject("FloorManagerWithRaycastFallback").AddComponent<FloorManagerWithFallback>();
 				_pointCloudManager ??= new GameObject("PointCloudManager").AddComponent<PointCloudManager>();
-				_volumeCameraManager ??= new GameObject("VolumeCameraManager").AddComponent<VolumeCameraManager>();
 				_gridManager ??= new GameObject("GridManager").AddComponent<GridManager>();
 				_cameraCalibrationChecker ??= new GameObject("CameraCalibrationChecker").AddComponent<CameraCalibrationChecker>();
 				_platformManager ??= new GameObject("PlatformManager").AddComponent<PlatformManager>();
@@ -150,20 +142,19 @@ namespace MirageXR
 				_virtualInstructorOrchestrator = new VirtualInstructorOrchestrator();
                 _viewManager = new ViewManager();
 
-				await _lee.WaitForInitialization();
 				await _assetBundleManager.InitializeAsync();
+				_viewManager.Initialize(_lee.ActivityManager, _assetBundleManager, _collaborationManager);
+				await _lee.WaitForInitialization();
 				await _imageTargetManager.InitializationAsync();
 				await _planeManager.InitializationAsync();
 				await _floorManager.InitializationAsync();
 				await _calibrationManager.InitializationAsync(_assetBundleManager, _lee.AuthorizationManager);
 				await _pointCloudManager.InitializationAsync();
-				_volumeCameraManager.Initialization();
 				_gridManager.Initialization();
 				_cameraCalibrationChecker.Initialization();
 				_platformManager.Initialization();
 				await _roomTwinManager.InitializationAsync();
 				await _openAIManager.InitializeAsync();
-                _viewManager.Initialize(_lee.ActivityManager, _assetBundleManager, _collaborationManager);
 #if FUSION2
                 _collaborationManager.Initialize(_lee.AuthorizationManager, _assetBundleManager);
 #endif
@@ -204,11 +195,6 @@ namespace MirageXR
 			_planeManager.Dispose();
 			_lee.Dispose();
 			Instance = null;
-		}
-
-		public void AddVolumeCamera(GameObject camera)
-		{
-			_volumeCamera = camera;
 		}
 	}
 }

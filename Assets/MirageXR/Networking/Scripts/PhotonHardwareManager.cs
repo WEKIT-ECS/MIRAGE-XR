@@ -24,16 +24,16 @@ namespace MirageXR
 
 		private void Awake()
 		{
-			_headTransform = Camera.main.transform;
 			_handTrackingManager = GetComponent<HandTrackingManager>();
 		}
 
 		private void GetRigData()
 		{
-			_rigData.headPose.position = _headTransform.position;
-			_rigData.headPose.rotation = _headTransform.rotation;
-			_rigData.playSpacePose.position = _headTransform.parent.position;
-			_rigData.playSpacePose.rotation = _headTransform.parent.rotation;
+			var headTransform = RootObject.Instance.BaseCamera.transform;
+			_rigData.headPose.position = headTransform.position;
+			_rigData.headPose.rotation = headTransform.rotation;
+			_rigData.playSpacePose.position = headTransform.parent.position;
+			_rigData.playSpacePose.rotation = headTransform.parent.rotation;
 			_rigData.leftHand = _handTrackingManager.LeftHandData;
 			_rigData.rightHand = _handTrackingManager.RightHandData;
 		}

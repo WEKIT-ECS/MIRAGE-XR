@@ -1,3 +1,4 @@
+using MirageXR;
 using UnityEngine;
 
 public class Grid : MonoBehaviour
@@ -24,7 +25,7 @@ public class Grid : MonoBehaviour
         }
 
         _cellWidth = cellWidth;
-        _cameraTransform = Camera.main.transform;
+        _cameraTransform = RootObject.Instance.BaseCamera.transform;
         UpdateCellWidth();
     }
 

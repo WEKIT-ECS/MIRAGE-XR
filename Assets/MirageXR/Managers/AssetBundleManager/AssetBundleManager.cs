@@ -61,7 +61,19 @@ namespace MirageXR
                 default:
                     throw new ArgumentOutOfRangeException(nameof(spatial), spatial, null);
             }
+        }
 
+        public GameObject GetCamera(CameraType spatial)
+        {
+            switch (spatial)
+            {
+                case CameraType.VisionOS:
+                    return _assetsBundle.GetVisionCamera();
+                case CameraType.OpenXR:
+                    return _assetsBundle.GetOpenCamera();
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(spatial), spatial, null);
+            }
         }
     }
 }

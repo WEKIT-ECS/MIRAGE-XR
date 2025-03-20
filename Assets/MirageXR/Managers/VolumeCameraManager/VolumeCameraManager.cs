@@ -46,7 +46,7 @@ namespace MirageXR
         {
             Debug.LogInfo("On visionOS platform: no MRTk, adding VolumeCamera");
             var volumeCamera = Instantiate(VolumeCameraPrefab, Vector3.zero, Quaternion.identity);
-            RootObject.Instance.AddVolumeCamera(volumeCamera);
+            //RootObject.Instance.AddVolumeCamera(volumeCamera);
             Debug.LogInfo("[VolumeCameraManager] volume camera initialized.");
         }
 #endif
