@@ -42,7 +42,7 @@ public class FloorManagerARFoundation : FloorManagerBase
 
     public override async Task<bool> InitializationAsync()
     {
-        var mainCamera = Camera.main;
+        var mainCamera = RootObject.Instance.BaseCamera;
 
         if (!mainCamera)
         {
