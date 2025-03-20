@@ -173,7 +173,19 @@ namespace MirageXR
 				}
 				Destroy(CurrentAvatar);
 			}
+			if (!ContainerStillExists())
+			{
+				Debug.LogWarning("While loading the virtual instructor, its container has been deleted. Deleting the downloaded model to clean up orphaned 3D models.");
+				Destroy(e.Avatar);
+				return;
+			}
 			await SetupAvatarAsync(e);
+			if (!ContainerStillExists())
+			{
+				Debug.LogWarning("While loading the virtual instructor, its container has been deleted. Deleting the downloaded model to clean up orphaned 3D models.");
+				Destroy(e.Avatar);
+				return;
+			}
 			Loading = false;
 			AvatarLoaded?.Invoke(true);
 		}
@@ -199,6 +211,24 @@ namespace MirageXR
 			CurrentAvatar.transform.parent = transform;
 			CurrentAvatar.transform.localPosition = Vector3.zero;
 			CurrentAvatar.transform.localRotation = Quaternion.identity;
+		}
+
+		private bool ContainerStillExists()
+		{
+			// accessing the gameObject to check if it is null can also cause a MissingReferenceException if the container was already deleted
+			// so we are using a try-catch block here in addition to checking whether it is null
+			try
+			{
+				if (gameObject == null)
+				{
+					return false;
+				}
+				return true;
+			}
+			catch (MissingReferenceException ex)
+			{
+				return false;
+			}
 		}
 	}
 }
