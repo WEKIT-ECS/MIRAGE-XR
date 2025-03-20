@@ -14,6 +14,11 @@ namespace MirageXR
 
 		public override void InitializeAvatar(GameObject avatar)
 		{
+			AvatarVisibilityController visibilityController = gameObject.GetComponent<AvatarVisibilityController>();
+			visibilityController.FadeVisibility = false;
+			visibilityController.Visible = false;
+			visibilityController.FadeVisibility = true;
+			visibilityController.Visible = true;
 		}
 
 		public async override UniTask InitializeAvatarAsync(GameObject avatar)
