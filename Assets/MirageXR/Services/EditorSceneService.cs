@@ -2,6 +2,7 @@
 using Microsoft.MixedReality.Toolkit.Utilities;
 using MirageXR;
 using UnityEngine.SceneManagement;
+using UnityEngine;
 
 public class EditorSceneService
 {
