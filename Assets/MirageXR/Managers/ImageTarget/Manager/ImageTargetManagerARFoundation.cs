@@ -126,7 +126,7 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
 
     private async Task<bool> ARFoundationInitialization()
     {
-        var mainCamera = Camera.main;
+        var mainCamera = RootObject.Instance.BaseCamera;
         if (!mainCamera)
         {
             Debug.LogError("Unable to find main camera");

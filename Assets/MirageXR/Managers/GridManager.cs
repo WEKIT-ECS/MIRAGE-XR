@@ -93,11 +93,8 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public Action<GameObject> onTranslateStopped => _manipulationController.onTranslateStopped;
 
-    public async void Initialization()
+    public void Initialization()
     {
-        
-        var obj = await Resources.LoadAsync<AssetsBundle>("MirageXRAssetsBundle") as AssetsBundle;
-        
         _gridEnabled = LearningExperienceEngine.UserSettings.showGrid;
         _snapEnabled = LearningExperienceEngine.UserSettings.snapToGrid;
         _cellWidth = LearningExperienceEngine.UserSettings.gridCellWidth;

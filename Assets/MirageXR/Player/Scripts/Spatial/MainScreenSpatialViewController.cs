@@ -111,8 +111,8 @@ namespace MirageXR
         private void OnAddNewActivityClick()
         {
 #if UNITY_VISIONOS || VISION_OS
-            var baseCamera = RootObject.Instance.VolumeCamera;
-            RootObject.Instance.LEE.ActivityManager.CreateNewActivity((baseCamera.transform.forward * 0.5f) + baseCamera.transform.position + new UnityEngine.Vector3(0, 1.2f, 0));
+            var baseCamera = RootObject.Instance.BaseCamera;
+            RootObject.Instance.LEE.ActivityManager.CreateNewActivity((baseCamera.transform.forward * 0.5f) + baseCamera.transform.position + new Vector3(0, 1.2f, 0));
 #else
             var baseCamera = RootObject.Instance.BaseCamera;
             RootObject.Instance.LEE.ActivityManager.CreateNewActivity((baseCamera.transform.forward * 0.5f) + baseCamera.transform.position);

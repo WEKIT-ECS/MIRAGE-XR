@@ -38,6 +38,8 @@ namespace MirageXR
 
         private ActivityView _activityView;
         private GameObject _uiView;
+        private GameObject _cameraView;
+        private Camera _camera;
         private IActivityManager _activityManager;
         private IAssetBundleManager _assetBundleManager;
         private CollaborationManager _collaborationManager;
@@ -53,11 +55,17 @@ namespace MirageXR
             _activityManager = activityManager;
             _assetBundleManager = assetBundleManager;
             _collaborationManager = collaborationManager;
-            
+
             _activityManager.OnActivityLoaded += OnActivityLoaded;
             collaborationManager.OnPlayerJoinEvent.AddListener(OnPlayerJoinEvent);
 
+            CreateCamera();
             CreateUiView();
+        }
+
+        public Camera GetCamera()
+        {
+            return _camera;
         }
 
         private void OnPlayerJoinEvent(NetworkRunner runner, PlayerRef player)
@@ -77,8 +85,23 @@ namespace MirageXR
             }
         }
 
+        private void CreateCamera()
+        {
+#if VISION_OS && !UNITY_EDITOR
+            var prefab = _assetBundleManager.GetCamera(CameraType.VisionOS);
+#else
+            var prefab = _assetBundleManager.GetCamera(CameraType.OpenXR);
+#endif
+            _cameraView = Object.Instantiate(prefab);
+            _camera = _cameraView.GetComponentInChildren<Camera>();
+        }
+
         private void CreateUiView()
         {
+            if (Camera.main == null)
+            {
+                UnityEngine.Debug.LogError("--- 0 Camera main is null ---");
+            }
             var prefab = _assetBundleManager.GetUiView(UiType.Spatial);
             _uiView = Object.Instantiate(prefab);
         }
