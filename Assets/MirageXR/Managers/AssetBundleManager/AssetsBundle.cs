@@ -16,6 +16,8 @@ namespace MirageXR
             public ContentView ContentView;
         }
 
+        [SerializeField] private GameObject visionCamera;
+        [SerializeField] private GameObject openCamera;
         [SerializeField] private GameObject spatialUiView;
         [SerializeField] private CalibrationTool _calibrationTool;
         [SerializeField] private StepView _defaultStepView;
@@ -30,6 +32,16 @@ namespace MirageXR
         public GameObject GetSpatialUiView()
         {
             return spatialUiView;
+        }
+
+        public GameObject GetVisionCamera()
+        {
+            return visionCamera;
+        }
+
+        public GameObject GetOpenCamera()
+        {
+            return openCamera;
         }
 
         public ContentView GetContentViewPrefab(ContentType contentType, bool isNetPrefab = false)

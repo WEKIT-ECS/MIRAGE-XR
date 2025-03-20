@@ -10,7 +10,13 @@ namespace MirageXR
         Spatial,
         Screen,
     }
-    
+
+    public enum CameraType
+    {
+        VisionOS,
+        OpenXR,
+    }
+
     public interface IAssetBundleManager : IManager
     {
         UniTask InitializeAsync();
@@ -19,5 +25,6 @@ namespace MirageXR
         ActivityView GetActivityViewPrefab(bool isNetPrefab = false);
         ContentView GetContentViewPrefab(LearningExperienceEngine.DataModel.ContentType contentType, bool isNetPrefab = false);
         GameObject GetUiView(UiType spatial);
+        GameObject GetCamera(CameraType spatial);
     }
 }

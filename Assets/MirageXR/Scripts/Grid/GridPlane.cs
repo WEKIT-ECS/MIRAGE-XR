@@ -1,4 +1,4 @@
-﻿using System;
+﻿using MirageXR;
 using UnityEngine;
 
 [RequireComponent(typeof(MeshRenderer))]
@@ -21,8 +21,8 @@ public class GridPlane : MonoBehaviour
 
     //[SerializeField] private Direction _direction;
 
-    private Vector3 _startLastPostion;
-    private Vector3 _lastPostion;
+    private Vector3 _startLastPosition;
+    private Vector3 _lastPosition;
     private Vector3 _lastScale;
     private Transform _cameraTransform;
     private MeshRenderer _renderer;
@@ -30,10 +30,10 @@ public class GridPlane : MonoBehaviour
 
     public void Initialization()
     {
-        _cameraTransform = Camera.main.transform;
+        _cameraTransform = RootObject.Instance.BaseCamera.transform;
         _renderer = GetComponent<MeshRenderer>();
         UpdateCellSize();
-        _startLastPostion = transform.localPosition;
+        _startLastPosition = transform.localPosition;
     }
 
     public void SetCellWidth(float width)
@@ -57,7 +57,7 @@ public class GridPlane : MonoBehaviour
 
     private bool IsPositionsUpdated()
     {
-        return _lastPostion != _cameraTransform.position;
+        return _lastPosition != _cameraTransform.position;
     }
 
     private bool IsScaleUpdated()
@@ -69,7 +69,7 @@ public class GridPlane : MonoBehaviour
     {
         var position = _cameraTransform.position;
         _renderer.material.SetVector(Position, position);
-        _lastPostion = position;
+        _lastPosition = position;
     }
 
 
@@ -92,7 +92,7 @@ public class GridPlane : MonoBehaviour
                 throw new ArgumentOutOfRangeException();
         }*/
 
-        transform.localPosition = new Vector3(_startLastPostion.x * scale.x, _startLastPostion.y * scale.y, _startLastPostion.z * scale.z);
+        transform.localPosition = new Vector3(_startLastPosition.x * scale.x, _startLastPosition.y * scale.y, _startLastPosition.z * scale.z);
     }
 
 
