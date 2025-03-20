@@ -297,9 +297,9 @@ namespace Microsoft.MixedReality.Toolkit.SpatialAwareness
             }
         }
 
-        private PhysicMaterial physicsMaterial;
+        private PhysicsMaterial physicsMaterial;
 
-        public PhysicMaterial PhysicsMaterial
+        public PhysicsMaterial PhysicsMaterial
         {
             get { return physicsMaterial; }
             set

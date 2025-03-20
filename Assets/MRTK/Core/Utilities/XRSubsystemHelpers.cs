@@ -36,7 +36,7 @@ namespace Microsoft.MixedReality.Toolkit.Utilities
                 if (inputSubsystem == null || !inputSubsystem.running)
                 {
                     inputSubsystem = null;
-                    SubsystemManager.GetInstances(XRInputSubsystems);
+                    SubsystemManager.GetSubsystems(XRInputSubsystems);
                     foreach (XRInputSubsystem xrInputSubsystem in XRInputSubsystems)
                     {
                         if (xrInputSubsystem.running)
@@ -67,7 +67,7 @@ namespace Microsoft.MixedReality.Toolkit.Utilities
                 if (meshSubsystem == null || !meshSubsystem.running)
                 {
                     meshSubsystem = null;
-                    SubsystemManager.GetInstances(XRMeshSubsystems);
+                    SubsystemManager.GetSubsystems(XRMeshSubsystems);
                     foreach (XRMeshSubsystem xrMeshSubsystem in XRMeshSubsystems)
                     {
                         if (xrMeshSubsystem.running)
@@ -98,7 +98,7 @@ namespace Microsoft.MixedReality.Toolkit.Utilities
                 if (displaySubsystem == null || !displaySubsystem.running)
                 {
                     displaySubsystem = null;
-                    SubsystemManager.GetInstances(XRDisplaySubsystems);
+                    SubsystemManager.GetSubsystems(XRDisplaySubsystems);
                     foreach (XRDisplaySubsystem xrDisplaySubsystem in XRDisplaySubsystems)
                     {
                         if (xrDisplaySubsystem.running)
