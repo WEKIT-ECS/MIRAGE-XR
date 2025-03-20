@@ -32,6 +32,8 @@ namespace MirageXR
 				avatarReferences.Rig.IK.GetSide(i).Foot.Constraint.weight = 0;
 				avatarReferences.Rig.IK.GetSide(i).Foot.Target.GetComponent<FootController>().enabled = false;
 			}
+			TurnToUser turnToUser = avatar.AddComponent<TurnToUser>();
+			turnToUser.RotationOffset = Quaternion.Euler(0, 180, 0);
 			Animator animator = avatar.GetComponent<Animator>();
 			string animatorControllerPath = "ReadyPlayerMe/AnimatorController";
 			var handle = Addressables.LoadAssetAsync<RuntimeAnimatorController>(animatorControllerPath);
