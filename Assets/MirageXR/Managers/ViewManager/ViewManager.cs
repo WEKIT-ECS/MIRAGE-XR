@@ -87,7 +87,7 @@ namespace MirageXR
 
         private void CreateCamera()
         {
-#if VISION_OS && !UNITY_EDITOR
+#if VISION_OS
             var prefab = _assetBundleManager.GetCamera(CameraType.VisionOS);
 #else
             var prefab = _assetBundleManager.GetCamera(CameraType.OpenXR);
