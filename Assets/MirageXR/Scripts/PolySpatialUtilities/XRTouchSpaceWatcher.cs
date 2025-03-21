@@ -37,9 +37,9 @@ namespace MirageXR.MirageXR
             foreach (var clickHandler in changedTransform.GetComponentsInChildren<IPointerClickHandler>(true))
             {
                 if (clickHandler is MonoBehaviour monoBehaviour && 
-                    monoBehaviour.GetComponent<XRTouchSpaceInteractor>() == null)
+                    monoBehaviour.GetComponent<XRSpatialPointerInteractor>() == null)
                 {
-                    var interactor = monoBehaviour.gameObject.AddComponent<XRTouchSpaceInteractor>();
+                    var interactor = monoBehaviour.gameObject.AddComponent<XRSpatialPointerInteractor>();
                     SetPrivateField(interactor, M_SPATIALPOINTER, inputActionReference);
                 }
             }
