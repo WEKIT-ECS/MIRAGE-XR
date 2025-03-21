@@ -85,9 +85,9 @@ namespace Microsoft.MixedReality.Toolkit.SpatialAwareness
 
         [SerializeField]
         [Tooltip("Optional physics material to apply to spatial mesh")]
-        private PhysicMaterial physicsMaterial = null;
+        private PhysicsMaterial physicsMaterial = null;
 
-        public PhysicMaterial PhysicsMaterial => physicsMaterial;
+        public PhysicsMaterial PhysicsMaterial => physicsMaterial;
 
         [SerializeField]
         [Tooltip("Optional prefab that is added to the runtime spatial mesh hierarchy.  This prefab will only" +

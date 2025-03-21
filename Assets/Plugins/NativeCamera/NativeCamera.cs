@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Unity.Collections;
 using UnityEngine.Networking;
 #endif
-#if UNITY_ANDROID || (UNITY_IOS || UNITY_VISIONOS)
+#if UNITY_ANDROID || (UNITY_IOS)
 using NativeCameraNamespace;
 #endif
 using Object = UnityEngine.Object;
@@ -85,7 +85,7 @@ public static class NativeCamera
 			return m_context;
 		}
 	}
-#elif !UNITY_EDITOR && (UNITY_IOS || UNITY_VISIONOS)
+#elif !UNITY_EDITOR && (UNITY_IOS)
 	[System.Runtime.InteropServices.DllImport( "__Internal" )]
 	private static extern int _NativeCamera_CheckPermission();
 
@@ -120,7 +120,7 @@ public static class NativeCamera
 	private static extern string _NativeCamera_LoadImageAtPath( string path, string temporaryFilePath, int maxSize );
 #endif
 
-#if !UNITY_EDITOR && ( UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS)
+#if !UNITY_EDITOR && ( UNITY_ANDROID || UNITY_IOS)
 	private static string m_temporaryImagePath = null;
 	private static string TemporaryImagePath
 	{
@@ -137,7 +137,7 @@ public static class NativeCamera
 	}
 #endif
 
-#if !UNITY_EDITOR && (UNITY_IOS || UNITY_VISIONOS)
+#if !UNITY_EDITOR && (UNITY_IOS)
 	private static string m_iOSSelectedImagePath = null;
 	private static string IOSSelectedImagePath
 	{
@@ -164,7 +164,7 @@ public static class NativeCamera
 			result = Permission.ShouldAsk;
 
 		return result;
-#elif !UNITY_EDITOR && (UNITY_IOS || UNITY_VISIONOS)
+#elif !UNITY_EDITOR && (UNITY_IOS)
 		return (Permission) _NativeCamera_CheckPermission();
 #else
 		return Permission.Granted;
@@ -192,7 +192,7 @@ public static class NativeCamera
 
 			return (Permission) nativeCallback.Result;
 		}
-#elif !UNITY_EDITOR && (UNITY_IOS || UNITY_VISIONOS)
+#elif !UNITY_EDITOR && (UNITY_IOS)
 		return (Permission) _NativeCamera_RequestPermission();
 #else
 		return Permission.Granted;
@@ -212,7 +212,7 @@ public static class NativeCamera
 	{
 #if !UNITY_EDITOR && UNITY_ANDROID
 		AJC.CallStatic( "OpenSettings", Context );
-#elif !UNITY_EDITOR && (UNITY_IOS || UNITY_VISIONOS)
+#elif !UNITY_EDITOR && (UNITY_IOS)
 		_NativeCamera_OpenSettings();
 #endif
 	}
@@ -231,7 +231,7 @@ public static class NativeCamera
 				callback( pickedFile != "" ? pickedFile : null );
 #elif UNITY_ANDROID
 			AJC.CallStatic( "TakePicture", Context, new NCCameraCallbackAndroid( callback ), (int) preferredCamera );
-#elif (UNITY_IOS || UNITY_VISIONOS)
+#elif (UNITY_IOS)
 			if( maxSize <= 0 )
 				maxSize = SystemInfo.maxTextureSize;
 
@@ -274,7 +274,7 @@ public static class NativeCamera
 	{
 #if !UNITY_EDITOR && UNITY_ANDROID
 		return AJC.CallStatic<bool>( "HasCamera", Context );
-#elif !UNITY_EDITOR && (UNITY_IOS || UNITY_VISIONOS)
+#elif !UNITY_EDITOR && (UNITY_IOS)
 		return _NativeCamera_HasCamera() == 1;
 #else
 		return true;
@@ -283,7 +283,7 @@ public static class NativeCamera
 
 	public static bool IsCameraBusy()
 	{
-#if !UNITY_EDITOR && (UNITY_IOS || UNITY_VISIONOS)
+#if !UNITY_EDITOR && (UNITY_IOS)
 		return NCCameraCallbackiOS.IsBusy;
 #else
 		return false;
@@ -305,7 +305,7 @@ public static class NativeCamera
 
 #if !UNITY_EDITOR && UNITY_ANDROID
 		string loadPath = AJC.CallStatic<string>( "LoadImageAtPath", Context, imagePath, TemporaryImagePath, maxSize );
-#elif !UNITY_EDITOR && (UNITY_IOS || UNITY_VISIONOS)
+#elif !UNITY_EDITOR && (UNITY_IOS)
 		string loadPath = _NativeCamera_LoadImageAtPath( imagePath, TemporaryImagePath, maxSize );
 #else
 		string loadPath = imagePath;
@@ -362,7 +362,7 @@ public static class NativeCamera
 
 #if !UNITY_EDITOR && UNITY_ANDROID
 		string loadPath = await TryCallNativeAndroidFunctionOnSeparateThread( () => AJC.CallStatic<string>( "LoadImageAtPath", Context, imagePath, TemporaryImagePath, maxSize ) );
-#elif !UNITY_EDITOR && (UNITY_IOS || UNITY_VISIONOS)
+#elif !UNITY_EDITOR && (UNITY_IOS)
 		string loadPath = await Task.Run( () => _NativeCamera_LoadImageAtPath( imagePath, TemporaryImagePath, maxSize ) );
 #else
 		string loadPath = imagePath;
@@ -477,7 +477,7 @@ public static class NativeCamera
 
 #if !UNITY_EDITOR && UNITY_ANDROID
 		string thumbnailPath = AJC.CallStatic<string>( "GetVideoThumbnail", Context, videoPath, TemporaryImagePath + ".png", false, maxSize, captureTimeInSeconds );
-#elif !UNITY_EDITOR && (UNITY_IOS || UNITY_VISIONOS)
+#elif !UNITY_EDITOR && (UNITY_IOS)
 		string thumbnailPath = _NativeCamera_GetVideoThumbnail( videoPath, TemporaryImagePath + ".png", maxSize, captureTimeInSeconds );
 #else
 		string thumbnailPath = null;
@@ -497,7 +497,7 @@ public static class NativeCamera
 
 #if !UNITY_EDITOR && UNITY_ANDROID
 		string thumbnailPath = await TryCallNativeAndroidFunctionOnSeparateThread( () => AJC.CallStatic<string>( "GetVideoThumbnail", Context, videoPath, TemporaryImagePath + ".png", false, maxSize, captureTimeInSeconds ) );
-#elif !UNITY_EDITOR && (UNITY_IOS || UNITY_VISIONOS)
+#elif !UNITY_EDITOR && (UNITY_IOS)
 		string thumbnailPath = await Task.Run( () => _NativeCamera_GetVideoThumbnail( videoPath, TemporaryImagePath + ".png", maxSize, captureTimeInSeconds ) );
 #else
 		string thumbnailPath = null;
@@ -543,7 +543,7 @@ public static class NativeCamera
 
 #if !UNITY_EDITOR && UNITY_ANDROID
 		string value = AJC.CallStatic<string>( "GetImageProperties", Context, imagePath );
-#elif !UNITY_EDITOR && (UNITY_IOS || UNITY_VISIONOS)
+#elif !UNITY_EDITOR && (UNITY_IOS)
 		string value = _NativeCamera_GetImageProperties( imagePath );
 #else
 		string value = null;
@@ -594,7 +594,7 @@ public static class NativeCamera
 
 #if !UNITY_EDITOR && UNITY_ANDROID
 		string value = AJC.CallStatic<string>( "GetVideoProperties", Context, videoPath );
-#elif !UNITY_EDITOR && (UNITY_IOS || UNITY_VISIONOS)
+#elif !UNITY_EDITOR && (UNITY_IOS)
 		string value = _NativeCamera_GetVideoProperties( videoPath );
 #else
 		string value = null;
