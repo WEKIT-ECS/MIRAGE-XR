@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using Hacks;
+using Cysharp.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -13,7 +13,6 @@ namespace MirageXR
 		public static RootObject Instance { get; private set; }
 
 		[SerializeField] private LearningExperienceEngine.LearningExperienceEngine _lee;
-		[SerializeField] private MirageXRServiceBootstrapper _serviceBootstrapper;
 		[SerializeField] private ImageTargetManagerWrapper _imageTargetManager;
 		[SerializeField] private FloorManagerWrapper _floorManager;
 		[SerializeField] private FloorManagerWithFallback _floorManagerWithRaycastFallback;
@@ -34,12 +33,12 @@ namespace MirageXR
 		private ICalibrationManager _calibrationManager;
 		private IAssetBundleManager _assetBundleManager;
         private IViewManager _viewManager;
+		private MirageXRServiceBootstrapper _serviceBootstrapper;
 
 		public Camera BaseCamera => _viewManager.GetCamera();
 
 		public LearningExperienceEngine.LearningExperienceEngine LEE => _lee;
 		public EditorSceneService EditorSceneService => _editorSceneService;
-		public MirageXRServiceBootstrapper ServiceBootstrapper => _serviceBootstrapper;
 		public ImageTargetManagerWrapper ImageTargetManager => _imageTargetManager;
 		public ICalibrationManager CalibrationManager => _calibrationManager;
 		public FloorManagerWrapper FloorManager => _floorManager;
@@ -89,7 +88,7 @@ namespace MirageXR
 		}
 
 		private async Task Initialization() // TODO: create base Manager class
-		{
+		{                                   //TODO: initialize all managers asynchronously.
 			if (_isInitialized)
 			{
 				return;
@@ -144,6 +143,7 @@ namespace MirageXR
 
 				await _assetBundleManager.InitializeAsync();
 				_viewManager.Initialize(_lee.ActivityManager, _assetBundleManager, _collaborationManager);
+				_lee.InitializeAsync().Forget();
 				await _lee.WaitForInitialization();
 				await _imageTargetManager.InitializationAsync();
 				await _planeManager.InitializationAsync();
