@@ -14,16 +14,24 @@ namespace MirageXR.View
         public UnityEvent<Transform> OnManipulationStartedEvent => _onManipulationStarted;
         public UnityEvent<Transform> OnManipulationEvent => _onManipulationEvent;
         public UnityEvent<Transform> OnManipulationEndedEvent => _onManipulationEnded;
+        
+        public bool Interactable
+        {
+            get => GetInteractable();
+            set => SetInteractable(value);
+        }
 
+        protected bool IsInteractable;
         protected Content Content;
         protected BoxCollider BoxCollider;
         protected bool Initialized;
+
         private bool _isSelected;
 
         private readonly UnityEvent<Transform> _onManipulationStarted = new();
         private readonly UnityEvent<Transform> _onManipulationEvent = new();
         private readonly UnityEvent<Transform> _onManipulationEnded = new();
-        
+
         public virtual async UniTask InitializeAsync(Content content)
         {
             await UniTask.WaitUntil(() => RootObject.Instance.ViewManager.ActivityView.ActivityId != Guid.Empty);
@@ -37,6 +45,13 @@ namespace MirageXR.View
 
             InitializeBoxCollider();
             InitializeManipulator();
+
+            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
+        }
+
+        private void OnEditorModeChanged(bool value)
+        {
+            Interactable = value;
         }
 
         public Content GetContent() => Content;
@@ -49,6 +64,27 @@ namespace MirageXR.View
         public void UpdateContent(Content content)
         {
             OnContentUpdatedAsync(content).Forget();
+        }
+
+        protected virtual void SetInteractable(bool value)
+        {
+            IsInteractable = value;
+            var generalGrabTransformer = gameObject.GetComponent<XRGeneralGrabTransformer>();
+            if (generalGrabTransformer != null)
+            {
+                generalGrabTransformer.enabled = value;
+            }
+
+            var xrGrabInteractable = gameObject.GetComponent<XRGrabInteractable>();
+            if (xrGrabInteractable)
+            {
+                xrGrabInteractable.enabled = value;
+            }
+        }
+
+        protected virtual bool GetInteractable()
+        {
+            return IsInteractable;
         }
 
         protected virtual UniTask InitializeContentAsync(Content content)
@@ -74,9 +110,11 @@ namespace MirageXR.View
             rigidBody.useGravity = false;
 
             var generalGrabTransformer = gameObject.AddComponent<XRGeneralGrabTransformer>();
+            generalGrabTransformer.enabled = false;
             generalGrabTransformer.allowTwoHandedScaling = true;
 
             var xrGrabInteractable = gameObject.AddComponent<XRGrabInteractable>();
+            xrGrabInteractable.enabled = false;
             xrGrabInteractable.movementType = XRBaseInteractable.MovementType.Instantaneous;
             xrGrabInteractable.useDynamicAttach = true;
             xrGrabInteractable.matchAttachPosition = true;
@@ -87,31 +125,9 @@ namespace MirageXR.View
             xrGrabInteractable.selectMode = InteractableSelectMode.Multiple;
             xrGrabInteractable.selectEntered.AddListener(_ => OnManipulationStarted());
             xrGrabInteractable.selectExited.AddListener(_ => OnManipulationEnded());
+
+            SetInteractable(RootObject.Instance.LEE.ActivityManager.IsEditorMode);
         }
-
-        /*protected virtual void OnStepChanged(ActivityStep step)
-        {
-        }*/
-
-        /*protected virtual void OnRotateStarted()
-        {
-        }
-
-        protected virtual void OnRotateStopped()
-        {
-            Content.Location.Rotation = transform.localEulerAngles;
-            RootObject.Instance.LEE.ContentManager.UpdateContent(Content);
-        }
-
-        protected virtual void OnScaleStarted()
-        {
-        }
-
-        protected virtual void OnScaleStopped()
-        {
-            Content.Location.Scale = transform.localScale;
-            RootObject.Instance.LEE.ContentManager.UpdateContent(Content);
-        }*/
 
         protected void Update()
         {
