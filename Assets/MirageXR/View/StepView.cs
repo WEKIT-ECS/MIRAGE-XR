@@ -20,7 +20,14 @@ namespace MirageXR.View
         public UnityEvent<Transform> OnManipulationStartedEvent => _onManipulationStartedEvent;
         public UnityEvent<Transform> OnManipulationEvent => _onManipulationEvent; 
         public UnityEvent<Transform> OnManipulationEndedEvent => _onManipulationEndedEvent; 
+        
+        public bool Interactable
+        {
+            get => GetInteractable();
+            set => SetInteractable(value);
+        }
 
+        private bool _isInteractable;
         private bool _isInitialized;
         private bool _isSelected;
         private ActivityStep _step;
@@ -39,6 +46,8 @@ namespace MirageXR.View
             _infoScreenView.Initialize(step);
             _isInitialized = true;
             UpdateView(step);
+            
+            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
         }
 
         public void UpdateView(ActivityStep step)
@@ -56,6 +65,32 @@ namespace MirageXR.View
             _infoScreenView.UpdateView(step);
         }
 
+        private void OnEditorModeChanged(bool value)
+        {
+            Interactable = value;
+        }
+
+        private void SetInteractable(bool value)
+        {
+            _isInteractable = value;
+            var generalGrabTransformer = gameObject.GetComponent<XRGeneralGrabTransformer>();
+            if (generalGrabTransformer != null)
+            {
+                generalGrabTransformer.enabled = value;
+            }
+
+            var xrGrabInteractable = gameObject.GetComponent<XRGrabInteractable>();
+            if (xrGrabInteractable)
+            {
+                xrGrabInteractable.enabled = value;
+            }
+        }
+
+        private bool GetInteractable()
+        {
+            return _isInteractable;
+        }
+        
         private void InitializeManipulator()
         {
             var rigidBody = gameObject.AddComponent<Rigidbody>();
@@ -71,6 +106,8 @@ namespace MirageXR.View
             xrGrabInteractable.throwOnDetach = false;
             xrGrabInteractable.selectEntered.AddListener(_ => OnManipulationStarted());
             xrGrabInteractable.selectExited.AddListener(_ => OnManipulationEnded());
+
+            SetInteractable(RootObject.Instance.LEE.ActivityManager.IsEditorMode);
         }
 
         private void OnManipulationStarted()
