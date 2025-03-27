@@ -107,6 +107,11 @@ namespace MirageXR
 			_networkRunner.Shutdown();
 		}
 
+		public void AddVoiceSpeaker(Speaker speaker, object userData)
+		{
+			_fusionVoiceClient?.AddSpeaker(speaker, userData);
+		}
+
 		public void SendReliableDataToPlayer(PlayerRef player, ReliableKey key, byte[] data)
 		{
 			_networkRunner.SendReliableDataToPlayer(player, key, data);
@@ -192,6 +197,7 @@ namespace MirageXR
 			_fusionVoiceClient = networkRunnerObj.AddComponent<FusionVoiceClient>();
 			_fusionVoiceClient.AutoConnectAndJoin = false;
 			_fusionVoiceClient.UseFusionAppSettings = true;
+			_fusionVoiceClient.AddRecorder(_recorder);
 
 			_networkRunner.AddCallbacks(this);
 		}
