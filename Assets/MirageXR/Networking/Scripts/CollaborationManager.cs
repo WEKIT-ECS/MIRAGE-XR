@@ -24,6 +24,7 @@ namespace MirageXR
 		[SerializeField] private bool _useSessionPassword = false;
 		[SerializeField] private HandTrackingManager _handTrackingManager;
 		[SerializeField] private GameObject _sessionDataPrefab;
+		[SerializeField] private GameObject _speakerPrefab;
 
 #if FUSION2
 		private ConnectionManager _connectionManager;
@@ -198,6 +199,7 @@ namespace MirageXR
 			_fusionVoiceClient.AutoConnectAndJoin = false;
 			_fusionVoiceClient.UseFusionAppSettings = true;
 			_fusionVoiceClient.AddRecorder(_recorder);
+			_fusionVoiceClient.SpeakerPrefab = _speakerPrefab;	//TODO: link it to the avatar
 
 			_networkRunner.AddCallbacks(this);
 		}
