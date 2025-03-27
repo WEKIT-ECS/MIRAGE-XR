@@ -167,6 +167,10 @@ namespace MirageXR
 			Debug.Log($"Photon Voice is now using the following microphone: {_recorder.MicrophoneDevice.Name}");
 
 			var result = await ConnectionManager.ConnectAsync(_networkRunner);
+			if (result)
+			{
+				_fusionVoiceClient.ConnectAndJoinRoom();
+			}
 			return result;
 		}
 
@@ -186,6 +190,8 @@ namespace MirageXR
 			networkRunnerObj.transform.SetParent(transform);
 			_networkRunner = networkRunnerObj.AddComponent<NetworkRunner>();
 			_fusionVoiceClient = networkRunnerObj.AddComponent<FusionVoiceClient>();
+			_fusionVoiceClient.AutoConnectAndJoin = false;
+			_fusionVoiceClient.UseFusionAppSettings = true;
 
 			_networkRunner.AddCallbacks(this);
 		}
