@@ -108,14 +108,7 @@ namespace MirageXR.View
 
         private void OnManipulationEnded(Transform target)
         {
-            if (!_netObject.HasStateAuthority)
-            {
-                Rpc_ManipulationEnded(target.position, target.rotation, target.localScale);
-            }
-            else
-            {
-                UpdateContentLocation(target.position, target.rotation, target.localScale);
-            }
+            Rpc_ManipulationEnded(target.position, target.rotation, target.localScale);
         }
 
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -169,11 +162,6 @@ namespace MirageXR.View
         private void OnDataSizeChanged()
         {
             dataSize = DataSize;
-        }
-
-        public void Despawn()
-        {
-            throw new NotImplementedException();
         }
     }
 }
