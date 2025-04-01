@@ -6,7 +6,7 @@ ShaderVariantCollection:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: GltfShaderVariants_Update
+  m_Name: ShaderVariants_Unity6
   m_Shaders:
   - first: {fileID: 10770, guid: 0000000000000000f000000000000000, type: 0}
     second:
@@ -106,6 +106,8 @@ ShaderVariantCollection:
       variants:
       - keywords: 
         passType: 0
+      - keywords: _INTERLEAVED_GRADIENT _ORTHOGRAPHIC _SAMPLE_COUNT_MEDIUM _SOURCE_DEPTH_NORMALS
+        passType: 0
       - keywords: _INTERLEAVED_GRADIENT _SAMPLE_COUNT_MEDIUM _SOURCE_DEPTH_NORMALS
         passType: 0
   - first: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
@@ -118,15 +120,19 @@ ShaderVariantCollection:
       - keywords: 
         passType: 13
       - keywords: EVALUATE_SH_VERTEX _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS
-          _MAIN_LIGHT_SHADOWS _REFLECTION_PROBE_BLENDING _SCREEN_SPACE_OCCLUSION
-        passType: 13
-      - keywords: EVALUATE_SH_VERTEX _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS
           _MAIN_LIGHT_SHADOWS_SCREEN _OCCLUSIONMAP _REFLECTION_PROBE_BLENDING _SCREEN_SPACE_OCCLUSION
         passType: 13
       - keywords: EVALUATE_SH_VERTEX _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS
           _MAIN_LIGHT_SHADOWS_SCREEN _REFLECTION_PROBE_BLENDING _SCREEN_SPACE_OCCLUSION
         passType: 13
-      - keywords: EVALUATE_SH_VERTEX _ADDITIONAL_LIGHTS _MAIN_LIGHT_SHADOWS
+  - first: {fileID: 4800000, guid: 650dd9526735d5b46b79224bc6e94025, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+      - keywords: _SCREEN_SPACE_OCCLUSION
+        passType: 0
+      - keywords: 
         passType: 13
   - first: {fileID: 4800000, guid: 99b25ddf92e8e9b4594eb65cd3ecb945, type: 3}
     second:
@@ -187,32 +193,9 @@ ShaderVariantCollection:
       - keywords: EVALUATE_SH_VERTEX _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS
           _MAIN_LIGHT_SHADOWS_SCREEN _REFLECTION_PROBE_BLENDING _SCREEN_SPACE_OCCLUSION
         passType: 13
-      - keywords: EVALUATE_SH_VERTEX _ADDITIONAL_LIGHTS _EMISSIVE _MAIN_LIGHT_SHADOWS_SCREEN
-        passType: 13
-      - keywords: EVALUATE_SH_VERTEX _ADDITIONAL_LIGHTS _MAIN_LIGHT_SHADOWS_SCREEN
-          _OCCLUSION
-        passType: 13
       - keywords: _EMISSIVE
         passType: 13
       - keywords: _OCCLUSION
-        passType: 13
-  - first: {fileID: 4800000, guid: b057a05d168befc469611e99f75e2b83, type: 3}
-    second:
-      variants:
-      - keywords: 
-        passType: 0
-  - first: {fileID: -6465566751694194690, guid: 331bcae3b330dc44697d4b85712a3760,
-      type: 3}
-    second:
-      variants:
-      - keywords: 
-        passType: 8
-      - keywords: _ALPHATEST_ON
-        passType: 8
-      - keywords: EVALUATE_SH_VERTEX _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS
-          _ALPHATEST_ON _MAIN_LIGHT_SHADOWS_SCREEN _REFLECTION_PROBE_BLENDING _SCREEN_SPACE_OCCLUSION
-        passType: 13
-      - keywords: _ALPHATEST_ON
         passType: 13
   - first: {fileID: -6465566751694194690, guid: 9a07dad0f3c4e43ff8312e3b5fa42300,
       type: 3}
@@ -225,14 +208,10 @@ ShaderVariantCollection:
       - keywords: EVALUATE_SH_VERTEX _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS
           _MAIN_LIGHT_SHADOWS_SCREEN _REFLECTION_PROBE_BLENDING _SCREEN_SPACE_OCCLUSION
         passType: 13
-      - keywords: EVALUATE_SH_VERTEX _ADDITIONAL_LIGHTS _MAIN_LIGHT_SHADOWS_SCREEN
-        passType: 13
   - first: {fileID: -6465566751694194690, guid: c87047c884d9843f5b0f4cce282aa760,
       type: 3}
     second:
       variants:
-      - keywords: 
-        passType: 0
       - keywords: _SCREEN_SPACE_OCCLUSION
         passType: 0
       - keywords: _SCREEN_SPACE_OCCLUSION _SURFACE_TYPE_TRANSPARENT
