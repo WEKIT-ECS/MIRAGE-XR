@@ -22,11 +22,6 @@ namespace MirageXR
 			Load();
 		}
 
-		private void OnDisable()
-		{
-			Save();
-		}
-
 		public void Load()
 		{
 			if (File.Exists(AvatarLibraryPath))
