@@ -198,9 +198,8 @@ namespace MirageXR
 			_fusionVoiceClient = networkRunnerObj.AddComponent<FusionVoiceClient>();
 			_fusionVoiceClient.AutoConnectAndJoin = false;
 			_fusionVoiceClient.UseFusionAppSettings = true;
-			_fusionVoiceClient.AddRecorder(_recorder);
-			_fusionVoiceClient.SpeakerPrefab = _speakerPrefab;	//TODO: link it to the avatar
-
+			_fusionVoiceClient.PrimaryRecorder = _recorder;
+			_fusionVoiceClient.SpeakerPrefab = _speakerPrefab;
 			_networkRunner.AddCallbacks(this);
 		}
 
