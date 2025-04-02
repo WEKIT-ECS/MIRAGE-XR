@@ -45,10 +45,12 @@ namespace MirageXR
 			_voiceNetworkObject.localRotation = Quaternion.identity;
 
 			// connect the lip syncing solution to the blend shape driver
+
 			//uLipSync.uLipSync lipSync = _voiceNetworkObject.GetComponent<uLipSync.uLipSync>();
 			//uLipSyncBlendShape blendShapeController = avatar.GetComponent<uLipSyncBlendShape>();
 			//lipSync.onLipSyncUpdate.AddListener(blendShapeController.OnLipSyncUpdate);
 			//blendShapeController.maxBlendShapeValue = 1;
+			_voiceNetworkObject.GetComponentInChildren<CollaborativeAudioSource>().BindLipSync();
 		}
 
 		/// <summary>
@@ -59,14 +61,15 @@ namespace MirageXR
 		/// <param name="avatar">The avatar to clean up</param>
 		public override void CleanupAvatar(GameObject avatar)
 		{
-			_voiceNetworkObject.transform.parent = transform;
-			_voiceNetworkObject.transform.localPosition = Vector3.zero;
-			_voiceNetworkObject.transform.localRotation = Quaternion.identity;
-
 			// disconnect the blend shape driver again to not leave any orphan event listeners
 			//uLipSyncBlendShape blendShapeController = avatar.GetComponent<uLipSyncBlendShape>();
 			//uLipSync.uLipSync lipSync = _voiceNetworkObject.GetComponent<uLipSync.uLipSync>();
 			//lipSync.onLipSyncUpdate.RemoveListener(blendShapeController.OnLipSyncUpdate);
+			_voiceNetworkObject.GetComponentInChildren<CollaborativeAudioSource>().UnBindLipSync();
+
+			_voiceNetworkObject.transform.parent = transform;
+			_voiceNetworkObject.transform.localPosition = Vector3.zero;
+			_voiceNetworkObject.transform.localRotation = Quaternion.identity;
 		}
 	}
 }
