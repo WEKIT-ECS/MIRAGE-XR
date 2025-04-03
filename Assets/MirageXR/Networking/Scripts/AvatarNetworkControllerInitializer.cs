@@ -10,9 +10,9 @@ namespace MirageXR
 	/// </summary>
 	public class AvatarNetworkControllerInitializer : AvatarInitializer
 	{
-		[Header("Speaker")]
-		[Tooltip("The speaker instance through with voice chat should be played on the avatar. (Note that you should connect an actual instance that is already on the avatar container and not a prefab)")]
-		[SerializeField] private Transform _speakerInstance;
+		[Header("Voice")]
+		[Tooltip("Voice Network Object to which a speaker will attach itself")]
+		[SerializeField] private Transform _voiceNetworkObject;
 		[Tooltip("Offset from the head IK target so that the speaker ends up at the avatar's mouth")]
 		[SerializeField] private Vector3 _speakerPositionOffset = new Vector3(0, 0.013f, 0.012f);
 
@@ -39,34 +39,37 @@ namespace MirageXR
 			relativePositioning.Target = avatarRefs.OfflineReferences.Rig.IK.HeadTarget;
 			relativePositioning.Offset = nameLabelOffset;
 
-			// make the speaker instance a part of the avatar by parenting it to the head IK target
-			_speakerInstance.transform.parent = avatarRefs.OfflineReferences.Rig.IK.HeadTarget;
-			_speakerInstance.localPosition = _speakerPositionOffset;
-			_speakerInstance.localRotation = Quaternion.identity;
+			// make the voice object a part of the avatar by parenting it to the head IK target
+			_voiceNetworkObject.transform.parent = avatarRefs.OfflineReferences.Rig.IK.HeadTarget;
+			_voiceNetworkObject.localPosition = _speakerPositionOffset;
+			_voiceNetworkObject.localRotation = Quaternion.identity;
 
 			// connect the lip syncing solution to the blend shape driver
-			uLipSync.uLipSync lipSync = _speakerInstance.GetComponent<uLipSync.uLipSync>();
-			uLipSyncBlendShape blendShapeController = avatar.GetComponent<uLipSyncBlendShape>();
-			lipSync.onLipSyncUpdate.AddListener(blendShapeController.OnLipSyncUpdate);
-			blendShapeController.maxBlendShapeValue = 1;
+
+			//uLipSync.uLipSync lipSync = _voiceNetworkObject.GetComponent<uLipSync.uLipSync>();
+			//uLipSyncBlendShape blendShapeController = avatar.GetComponent<uLipSyncBlendShape>();
+			//lipSync.onLipSyncUpdate.AddListener(blendShapeController.OnLipSyncUpdate);
+			//blendShapeController.maxBlendShapeValue = 1;
+			_voiceNetworkObject.GetComponentInChildren<CollaborativeAudioSource>().BindLipSync();
 		}
 
 		/// <summary>
 		/// Cleans up references related to the networking functionality such as components that need to be reused on the next avatar.
-		/// Unparents the speaker instance from the avatar and moves it back into the avatar container so that it is not lost when the avatar is destroyed.
+		/// Unparents the voice network object from the avatar and moves it back into the avatar container so that it is not lost when the avatar is destroyed.
 		/// Cleans up the lip syncing references.
 		/// </summary>
 		/// <param name="avatar">The avatar to clean up</param>
 		public override void CleanupAvatar(GameObject avatar)
 		{
-			_speakerInstance.transform.parent = transform;
-			_speakerInstance.transform.localPosition = Vector3.zero;
-			_speakerInstance.transform.localRotation = Quaternion.identity;
-
 			// disconnect the blend shape driver again to not leave any orphan event listeners
-			uLipSyncBlendShape blendShapeController = avatar.GetComponent<uLipSyncBlendShape>();
-			uLipSync.uLipSync lipSync = _speakerInstance.GetComponent<uLipSync.uLipSync>();
-			lipSync.onLipSyncUpdate.RemoveListener(blendShapeController.OnLipSyncUpdate);
+			//uLipSyncBlendShape blendShapeController = avatar.GetComponent<uLipSyncBlendShape>();
+			//uLipSync.uLipSync lipSync = _voiceNetworkObject.GetComponent<uLipSync.uLipSync>();
+			//lipSync.onLipSyncUpdate.RemoveListener(blendShapeController.OnLipSyncUpdate);
+			_voiceNetworkObject.GetComponentInChildren<CollaborativeAudioSource>().UnBindLipSync();
+
+			_voiceNetworkObject.transform.parent = transform;
+			_voiceNetworkObject.transform.localPosition = Vector3.zero;
+			_voiceNetworkObject.transform.localRotation = Quaternion.identity;
 		}
 	}
 }
