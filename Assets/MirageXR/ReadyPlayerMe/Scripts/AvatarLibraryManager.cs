@@ -1,9 +1,9 @@
+using Newtonsoft.Json;
 using ReadyPlayerMe.Core;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -27,14 +27,14 @@ namespace MirageXR
 			if (File.Exists(AvatarLibraryPath))
 			{
 				string json = File.ReadAllText(AvatarLibraryPath);
-				AvatarList = JsonSerializer.Deserialize<List<string>>(json);
+				AvatarList = JsonConvert.DeserializeObject<List<string>>(json);
 				_cachedAvatarThumbnails.Clear();
 			}
 		}
 
 		public void Save()
 		{
-			string json = JsonSerializer.Serialize<List<string>>(AvatarList);
+			string json = JsonConvert.SerializeObject(AvatarList);
 			File.WriteAllText(AvatarLibraryPath, json);
 		}
 
