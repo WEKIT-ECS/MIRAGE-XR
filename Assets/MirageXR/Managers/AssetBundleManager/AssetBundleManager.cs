@@ -58,6 +58,7 @@ namespace MirageXR
                 case UiType.Spatial:
                     return _assetsBundle.GetSpatialUiView();
                 case UiType.Screen:
+                    return _assetsBundle.GetScreenUiView();
                 default:
                     throw new ArgumentOutOfRangeException(nameof(spatial), spatial, null);
             }

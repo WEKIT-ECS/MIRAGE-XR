@@ -102,7 +102,11 @@ namespace MirageXR
             {
                 UnityEngine.Debug.LogError("--- 0 Camera main is null ---");
             }
+#if VISION_OS// || META_QUEST
             var prefab = _assetBundleManager.GetUiView(UiType.Spatial);
+#else //UNITY_ANDROID || UNITY_IOS
+            var prefab = _assetBundleManager.GetUiView(UiType.Screen);
+#endif
             _uiView = Object.Instantiate(prefab);
         }
 

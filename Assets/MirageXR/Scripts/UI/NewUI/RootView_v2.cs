@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using LearningExperienceEngine.DataModel;
 using MirageXR;
 using UnityEngine;
 
@@ -82,6 +83,7 @@ public class RootView_v2 : BaseView
 
         _pageView.OnPageChanged.AddListener(OnPageChanged);
 
+        RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityLoaded; 
         LearningExperienceEngine.EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
         LearningExperienceEngine.EventManager.OnStartActivity += OnActivityLoaded;
         EventManager.OnMobileHelpPageChanged += UpdateHelpPage;
@@ -148,11 +150,21 @@ public class RootView_v2 : BaseView
         }
     }
 
+    private void OnActivityLoaded(Activity activity)
+    {
+        ShowContentView();
+    }
+
     public void OnActivityLoaded()
+    {
+        ShowContentView();
+    }
+
+    public void ShowContentView()
     {
         _pageView.currentPageIndex = 1;
     }
-
+    
     public void ShowBaseView()
     {
         _pageView.gameObject.SetActive(true);
