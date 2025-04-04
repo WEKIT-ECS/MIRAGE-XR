@@ -4,13 +4,13 @@ using LearningExperienceEngine.DataModel;
 using UnityEngine;
 using Activity = LearningExperienceEngine.DataModel.Activity;
 
-namespace MirageXR
+namespace MirageXR  //TODO: add Spatial namespace
 {
     public class NewActivityScreenSpatialViewController : ScreenViewController<NewActivityScreenSpatialViewController, NewActivityScreenSpatialView>
-    {
+    {   //TODO: rename to ActivityScreenViewController
         private Activity _activity;
         private Texture2D _texture;
-        
+
         public override ScreenName ScreenName => ScreenName.NewActivityScreen;
 
         private static RoomTwinManager roomTwinManager => RootObject.Instance.RoomTwinManager;

@@ -110,13 +110,9 @@ namespace MirageXR
 
         private void OnAddNewActivityClick()
         {
-#if UNITY_VISIONOS || VISION_OS
             var baseCamera = RootObject.Instance.BaseCamera;
-            RootObject.Instance.LEE.ActivityManager.CreateNewActivity((baseCamera.transform.forward * 0.5f) + baseCamera.transform.position + new Vector3(0, 1.2f, 0));
-#else
-            var baseCamera = RootObject.Instance.BaseCamera;
-            RootObject.Instance.LEE.ActivityManager.CreateNewActivity((baseCamera.transform.forward * 0.5f) + baseCamera.transform.position);
-#endif
+            var position = (baseCamera.transform.forward * 0.5f) + baseCamera.transform.position;   //TODO: move to Manager
+            RootObject.Instance.LEE.ActivityManager.CreateNewActivity(position);
         }
 
         private void OnActivityListItemClicked(LearningExperienceEngine.DTOs.Activity activity)
