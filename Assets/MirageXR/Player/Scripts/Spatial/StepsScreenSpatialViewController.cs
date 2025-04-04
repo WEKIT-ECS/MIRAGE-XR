@@ -54,9 +54,11 @@ namespace MirageXR
             RootObject.Instance.LEE.StepManager.SetStepDescription(_step.Id, fullText);
             View.SetHyperlinkDialogActive(descriptionContainsLinks);
         }
+
         private void OnDescriptionInputStartEdit(string displayText)
         {
         }
+
         private string CombineTextWithPositions(string displayText)
         {
             var result = displayText;
@@ -196,7 +198,8 @@ namespace MirageXR
             await UpdateInfoMediaViewAsync();
             UpdateInfoToolsView();
         }
-        private void UpdateHyperlinkPrefabs()
+
+        private void UpdateHyperlinkPrefabs()   //TODO: move to class
         {
             if (View == null)
             {
