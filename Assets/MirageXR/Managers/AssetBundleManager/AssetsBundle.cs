@@ -19,6 +19,7 @@ namespace MirageXR
         [SerializeField] private GameObject visionCamera;
         [SerializeField] private GameObject openCamera;
         [SerializeField] private GameObject spatialUiView;
+        [SerializeField] private GameObject screenUiView;
         [SerializeField] private CalibrationTool _calibrationTool;
         [SerializeField] private StepView _defaultStepView;
         [SerializeField] private StepView _defaultNetStepView;
@@ -32,6 +33,11 @@ namespace MirageXR
         public GameObject GetSpatialUiView()
         {
             return spatialUiView;
+        }
+
+        public GameObject GetScreenUiView()
+        {
+            return screenUiView;
         }
 
         public GameObject GetVisionCamera()

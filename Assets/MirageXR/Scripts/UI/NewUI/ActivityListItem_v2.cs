@@ -1,8 +1,11 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
+using LearningExperienceEngine.DTOs;
 //using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace MirageXR
@@ -20,16 +23,18 @@ namespace MirageXR
         [SerializeField] private Sprite _defaultThumbnail;
         [SerializeField] private Button _btnMain;
 
-        private LearningExperienceEngine.SessionContainer _container;
         private bool _interactable = true;
+        private Activity _activity;
+        private UnityAction<Activity> _onClick;
+        private UnityAction<Activity> _onDelete;
 
-        public string activityName => _container.Name;
+        public string activityName => _activity.Name;
 
-        public string activityAuthor => _container.author;
+        public string activityAuthor => _activity.Creator.Name;
 
-        public bool userIsAuthor => _container.userIsOwner;
+        public bool userIsAuthor => false; //TODO: _activity.Creator.Id == RootObject.Instance.LEE.AuthorizationManager.UserId;
 
-        public bool userIsEnroled => _container.hasDeadline;
+        public bool userIsEnroled => false;//_container.hasDeadline;
 
         public Button BtnMain => _btnMain;
 
@@ -45,9 +50,11 @@ namespace MirageXR
             _txtAuthor.text = _container.author;
         }*/
 
-        public void Init(LearningExperienceEngine.SessionContainer container)
+        public void Init(Activity activity, UnityAction<Activity> onClick, UnityAction<Activity> onDelete)
         {
-            _container = container;
+            _onClick = onClick;
+            _onDelete = onDelete;
+            _activity = activity;
             _btnMain.onClick.AddListener(OnBtnMain);
 
             UpdateView();
@@ -55,13 +62,9 @@ namespace MirageXR
 
         private void UpdateView()
         {
-            _txtLabel.text = _container.Name;
-            _txtDeadline.text = _container.deadline;
-            _txtAuthor.text = _container.author;
-
-            var isLocal = !_container.ExistsRemotely && _container.ExistsLocally && !_container.IsDownloading;
-            var isDownloaded = _container.ExistsRemotely && _container.ExistsLocally && !_container.IsDownloading;
-            var isOnClouds = _container.ExistsRemotely && !_container.ExistsLocally && !_container.IsDownloading;
+            _txtLabel.text = _activity.Name;
+            //_txtDeadline.text = _container.deadline;
+            _txtAuthor.text = _activity.Creator.Name;
         }
 
         private void LoadThumbnail()
@@ -80,72 +83,33 @@ namespace MirageXR
 
         private void OnBtnDelete()
         {
-            if (_container.ExistsLocally)
-            {
-                DeleteLocal();
-                return;
-            }
-
-            if (_container.userIsOwner)
-            {
-                RootView_v2.Instance.dialog.ShowMiddle(
-                    "Warring!",
-                    $"You are trying to delete activity \"{_container.Name}\" from the server. Are you sure?",
-                    "Yes", DeleteFromServer,
-                    "No", null);
-            }
+            _onDelete?.Invoke(_activity);
         }
 
-        private async void DeleteFromServer()
+        private void DeleteFromServer()
         {
-            var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.MoodleManager.DeleteArlem(_container.ItemID, _container.FileIdentifier);
-            if (result)
-            {
-                RootView.Instance.activityListView.UpdateListView();
-            }
+            DeleteFromServerAsync().Forget();
         }
 
-        private void DeleteLocal()
+        private async UniTask DeleteFromServerAsync()
         {
-            if (_container.Activity == null) return;
-
-            if (LearningExperienceEngine.LocalFiles.TryDeleteActivity(_container.Activity.id))
-            {
-                if (_container.ExistsRemotely)
-                {
-                    _container.Activity = null;
-                    UpdateView();
-                }
-                else
-                {
-                    gameObject.SetActive(false);
-                }
-            }
+            await RootObject.Instance.LEE.ActivityManager.DeleteActivityAsync(_activity.Id);
+            RootView.Instance.activityListView.UpdateListView();
         }
 
-        private async void OnBtnMain()
+        private void OnBtnMain()
         {
-            _interactable = false;
-            if (!_container.ExistsLocally)
-            {
-                await DownloadActivityAsync();
-            }
-            else
-            {
-                ShowPopup();
-            }
-
-            _interactable = true;
+            _onClick.Invoke(_activity);
         }
 
-        private void ShowPopup()
+        /*private void ShowPopup()
         {
             RootView_v2.Instance.dialog.ShowMiddleMultiline("Open Activity", true,
                 ("Open to edit", () => OpenActivity(true), false),
                 ("Open to view", () => OpenActivity(false), false),
                 ("Cancel", null, true));
-        }
-
+        }*/
+/*
         public async void OpenActivity(bool value)
         {
             await PlayActivityAsync();
@@ -156,7 +120,8 @@ namespace MirageXR
                 RootView_v2.Instance.activityView.stepsListView.SetCalibrationToggle(true);
             }
         }
-
+*/
+/*
         private async Task PlayActivityAsync()
         {
             LoadView.Instance.Show();
@@ -166,7 +131,8 @@ namespace MirageXR
             await LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.LoadActivity(activityJsonFileName);
             LoadView.Instance.Hide();
         }
-
+*/
+/*
         private async Task DownloadActivityAsync()
         {
             _container.HasError = false;
@@ -183,6 +149,6 @@ namespace MirageXR
             string message = result ? "<color=#00000000>space</color>Downloaded.<color=#00000000>space</color>" : "Something went wrong.";
             Toast.Instance.Show(message, result);
             UpdateView();
-        }
+        }*/
     }
 }
