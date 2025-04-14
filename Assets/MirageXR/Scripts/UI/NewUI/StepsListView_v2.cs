@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using LearningExperienceEngine.DataModel;
 using MirageXR;
 using TMPro;
 using UnityEngine;
@@ -59,8 +60,10 @@ public class StepsListView_v2 : BaseView
 
     private int _addStepSiblingIndex = 0;
     private int _currentStepIndex;
-    private string _currentStepId;
+    private Guid _currentStepId;
     private Coroutine _coroutine;
+    private Activity _activity;
+    private ActivityStep _step;
 
     public override void Initialization(BaseView parentView)
     {
@@ -84,28 +87,32 @@ public class StepsListView_v2 : BaseView
         _btnBack.onClick.AddListener(OnBackPressed);
         _btnSettings.onClick.AddListener(OnSettingsPressed);
 
-        LearningExperienceEngine.EventManager.OnStartActivity += OnActivityStarted;
+        /*LearningExperienceEngine.EventManager.OnStartActivity += OnActivityStarted;
         LearningExperienceEngine.EventManager.OnWorkplaceLoaded += OnStartActivity;
         LearningExperienceEngine.EventManager.OnActionCreated += OnActionCreated;
         LearningExperienceEngine.EventManager.OnActionDeleted += OnActionDeleted;
         LearningExperienceEngine.EventManager.OnActionModified += OnActionChanged;
         LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
         LearningExperienceEngine.EventManager.OnWorkplaceCalibrated += OnWorkplaceCalibrated;
-        LearningExperienceEngine.EventManager.OnActivateAction += OnActionActivated;
+        LearningExperienceEngine.EventManager.OnActivateAction += OnActionActivated;*/
+
+        RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditModeChanged;
+        RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityUpdated;
+        RootObject.Instance.LEE.StepManager.OnStepChanged += OnStepChanged;
 
         UpdateView();
     }
 
     private void OnDestroy()
     {
-        LearningExperienceEngine.EventManager.OnStartActivity -= OnActivityStarted;
+        /*LearningExperienceEngine.EventManager.OnStartActivity -= OnActivityStarted;
         LearningExperienceEngine.EventManager.OnWorkplaceLoaded -= OnStartActivity;
         LearningExperienceEngine.EventManager.OnActionCreated -= OnActionCreated;
         LearningExperienceEngine.EventManager.OnActionDeleted -= OnActionDeleted;
         LearningExperienceEngine.EventManager.OnActionModified -= OnActionChanged;
         LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
         LearningExperienceEngine.EventManager.OnWorkplaceCalibrated -= OnWorkplaceCalibrated;
-        LearningExperienceEngine.EventManager.OnActivateAction -= OnActionActivated;
+        LearningExperienceEngine.EventManager.OnActivateAction -= OnActionActivated;*/
     }
 
     private void OnStartActivity()
@@ -113,16 +120,47 @@ public class StepsListView_v2 : BaseView
         UpdateView();
     }
 
+    private void OnStepChanged(ActivityStep step)
+    {
+        _currentStepId = step.Id;
+        _step = step;
+
+        foreach (var item in _stepsList)
+        {
+            Destroy(item.gameObject);
+        }
+
+        _stepsList.Clear();
+        
+        for (var i = 0; i < _activity.Steps.Count; i++)
+        {
+            var activityStep = _activity.Steps[i];
+            var obj = Instantiate(_stepsListItemPrefab, _listVerticalContent);
+            obj.Init(OnStepClick, OnStepEditClick, OnDeleteStepClick, OnSiblingIndexChanged);
+            obj.UpdateView(activityStep, i);
+            obj.OnEditModeChanged(RootObject.Instance.LEE.ActivityManager.IsEditorMode);
+            _stepsList.Add(obj);
+        }
+
+        _addStep.SetAsLastSibling();
+    }
+
+    private void OnActivityUpdated(Activity activity)
+    {
+        _activity = activity;
+    }
+
     public void UpdateView()
     {
-        if (activityManager.Activity != null)
-        {
-            _textActivityName.text = activityManager.Activity.name;
-            _inputFieldActivityName.text = activityManager.Activity.name;
-            _inputFieldActivityDescription.text = activityManager.Activity.description;
-
-            var steps = activityManager.ActionsOfTypeAction;
-            _stepsList.ForEach(t => t.gameObject.SetActive(false));
+        // if (activityManager.Activity != null)
+        // {
+            // _textActivityName.text = activityManager.Activity.name;
+            // _inputFieldActivityName.text = activityManager.Activity.name;
+            // _inputFieldActivityDescription.text = activityManager.Activity.description;
+            //
+            // var steps = activityManager.ActionsOfTypeAction;
+            
+            /*_stepsList.ForEach(t => t.gameObject.SetActive(false));
 
             for (var i = 0; i < steps.Count; i++)
             {
@@ -140,17 +178,17 @@ public class StepsListView_v2 : BaseView
             OnEditModeChanged(activityManager.EditModeActive);
             LoadThumbnail();
 
-            _btnFloorLevel.gameObject.SetActive(RootObject.Instance.FloorManager.isFloorDetected);
-        }
-        else
-        {
-            _textActivityName.text = string.Empty;
-            _inputFieldActivityName.text = string.Empty;
-            _inputFieldActivityDescription.text = string.Empty;
-        }
+            _btnFloorLevel.gameObject.SetActive(RootObject.Instance.FloorManager.isFloorDetected);*/
+        // }
+        // else
+        // {
+        //     _textActivityName.text = string.Empty;
+        //     _inputFieldActivityName.text = string.Empty;
+        //     _inputFieldActivityDescription.text = string.Empty;
+        // }
     }
 
-    private void OnActionActivated(string stepId)
+    private void OnActionActivated(Guid stepId)
     {
         _currentStepId = stepId;
         _stepsList.ForEach(t => t.UpdateView());
@@ -161,9 +199,9 @@ public class StepsListView_v2 : BaseView
         }
     }
 
-    private IEnumerator ShowSelectedItem(string stepId)
+    private IEnumerator ShowSelectedItem(Guid stepId)
     {
-        _currentStepIndex = _stepsList.FindIndex(step => step.step.id == stepId);
+        _currentStepIndex = _stepsList.FindIndex(step => step.step.Id == stepId);
         var newPosition = CalculatePositionForPage(_currentStepIndex);
         MoveTo(newPosition);
         yield return null;
@@ -272,20 +310,20 @@ public class StepsListView_v2 : BaseView
         _imgThumbnail.sprite = sprite;
     }
 
-    public void OnDeleteStepClick(Content step, Action deleteCallback = null)
+    public void OnDeleteStepClick(ActivityStep step, Action deleteCallback = null)
     {
         if (activityManager.ActionsOfTypeAction.Count > 1)
         {
             RootView_v2.Instance.dialog.ShowMiddle("Warning!", "Are you sure you want to delete this step?",
                 "Yes", () =>
                 {
-                    activityManager.DeleteAction(step.id);
+                    RootObject.Instance.LEE.StepManager.RemoveStep(step.Id);
                     deleteCallback?.Invoke();
                 }, "No", null);
         }
     }
 
-    private void OnSiblingIndexChanged(Content step, int oldIndex, int newIndex)
+    private void OnSiblingIndexChanged(ActivityStep step, int oldIndex, int newIndex)
     {
         /*var item1 = _listContent.GetChild(oldIndex).GetComponent<StepsListItem_v2>();
 
@@ -296,14 +334,14 @@ public class StepsListView_v2 : BaseView
         */
     }
 
-    private void OnStepClick(Content step)
+    private void OnStepClick(ActivityStep step)
     {
-        activityManager.ActivateActionByID(step.id).AsAsyncVoid();
+        RootObject.Instance.LEE.StepManager.GoToStep(step.Id);
     }
 
-    private async void OnStepEditClick(Content step)
+    private void OnStepEditClick(ActivityStep step)
     {
-        await activityManager.ActivateActionByID(step.id);
+        RootObject.Instance.LEE.StepManager.GoToStep(step.Id);
         _activityView.ShowStepContent();
     }
 
@@ -314,25 +352,29 @@ public class StepsListView_v2 : BaseView
 
     private async Task OnAddStepClickAsync()
     {
-        var index = _addStep.GetSiblingIndex();
-        if (index == 0)
-        {
-            await activityManager.AddActionToBegin(Vector3.zero);
-        }
-        else
-        {
-            var child = _listVerticalContent.GetChild(index - 1);
-            var stepListItem = child.GetComponent<StepsListItem_v2>();
+        //var index = _addStep.GetSiblingIndex();
+        var baseCamera = RootObject.Instance.BaseCamera;
+        var position = (baseCamera.transform.forward * 0.5f) + baseCamera.transform.position;
+        var stepManager = RootObject.Instance.LEE.StepManager;
+        var step = stepManager.AddStep(new Location { Position = position, Rotation = Vector3.zero, Scale = Vector3.one });
+        stepManager.GoToStep(step.Id);
+        //if (index == 0)
+        //{
+        //    await activityManager.AddActionToBegin(Vector3.zero);
+        //}
+        //else
+        //{
+        //    var child = _listVerticalContent.GetChild(index - 1);
+        //    var stepListItem = child.GetComponent<StepsListItem_v2>();
+        //
+        //    if (stepListItem)
+        //    {
+        //        RootObject.Instance.LEE.StepManager.GoToStep(stepListItem.step.Id);
+        //        await activityManager.AddAction(Vector3.zero);
+        //    }
+        //}
 
-            if (stepListItem)
-            {
-                await activityManager.ActivateActionByID(stepListItem.step.id);
-                await activityManager.AddAction(Vector3.zero);
-            }
-        }
-
-        UpdateView();
-        _addStep.SetSiblingIndex(_addStep.GetSiblingIndex() + 1);
+        //_addStep.SetSiblingIndex(_addStep.GetSiblingIndex() + 1);
         _activityView.ShowStepContent();
     }
 

@@ -1,9 +1,12 @@
 using LearningExperienceEngine;
 using System;
+using System.Collections.Generic;
+using LearningExperienceEngine.DataModel;
 using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using ContentType = LearningExperienceEngine.DataModel.ContentType;
 
 public abstract class PopupEditorBase : PopupBase
 {
@@ -22,7 +25,10 @@ public abstract class PopupEditorBase : PopupBase
 
     protected LearningExperienceEngine.ToggleObject _content;
     protected LearningExperienceEngine.Action _step;
-
+    
+    protected Content Content;
+    protected bool IsContentUpdate;
+    
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
         base.Initialization(onClose, args);
@@ -70,20 +76,39 @@ public abstract class PopupEditorBase : PopupBase
 
     protected override bool TryToGetArguments(params object[] args)
     {
-        try
+        if (args is { Length: 1 } && args[0] is Content obj)
         {
-            _step = (LearningExperienceEngine.Action)args[0];
-        }
-        catch (Exception)
-        {
-            return false;
+            Content = obj;
+            IsContentUpdate = true;
         }
 
-        try
-        {
-            _content = (LearningExperienceEngine.ToggleObject)args[1];
-        }
-        catch (Exception) { /**/ }
         return true;
+    }
+
+    protected Content<T> CreateContent<T>(ContentType type) where T : ContentData, new()
+    {
+        if (IsContentUpdate)
+        {
+            if (Content is not Content<T> content)
+            {
+                return null;
+            }
+
+            var copy = content.ShallowCopy();
+            copy.ContentData = new T();
+            return copy;
+        }
+
+        var step = RootObject.Instance.LEE.StepManager.CurrentStep;
+        return new Content<T>
+        {
+            Id = Guid.NewGuid(),
+            CreationDate = DateTime.UtcNow,
+            IsVisible = true,
+            Steps = new List<Guid> { step.Id },
+            Type = type,
+            ContentData = new T(),
+            Location = Location.GetIdentityLocation()
+        };
     }
 }
