@@ -1,7 +1,8 @@
-﻿using LearningExperienceEngine;
-using System;
+﻿using System;
 using System.IO;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using LearningExperienceEngine.DataModel;
 using MirageXR;
 using TMPro;
 using UnityEngine;
@@ -10,6 +11,10 @@ using Image = UnityEngine.UI.Image;
 
 public class ImageEditorView : PopupEditorBase
 {
+    private const int MaxPictureSize = 1024;
+    private const float ImageHeight = 270f;
+    private const float DefaultSize = 0.5f;
+
     private const float HIDED_SIZE = 100f;
     private const float HIDE_ANIMATION_TIME = 0.5f;
     private const int MAX_PICTURE_SIZE = 1024;
@@ -56,11 +61,44 @@ public class ImageEditorView : PopupEditorBase
     private string _text;
     private string _imageCaption = string.Empty;
     private Texture2D _capturedImage;
+    private Content<ImageContentData> _imageContent;
+    
+    /*public override void Initialization(Action<PopupBase> onClose, params object[] args)
+    {
+        _showBackground = false;
+        base.Initialization(onClose, args);
+
+        _imageContent = Content as Content<ImageContentData>;
+
+        UpdateView();
+        _btnCaptureImage.onClick.AddListener(OnCaptureImage);
+        _btnOpenGallery.onClick.AddListener(OpenGallery);
+        _btnGenerateCaption.onClick.AddListener(GenerateCaption);
+        _btnSettings.onClick.AddListener(OpenSettings);
+    }*/
+
+    private void UpdateView()
+    {
+        if (_imageContent != null)
+        {
+            var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
+            var folder = RootObject.Instance.LEE.AssetsManager.GetContentFileFolderPath(activityId, _imageContent.Id, _imageContent.ContentData.Image.Id);
+            var imagePath = Path.Combine(folder, "image.jpg");  //TODO: move to AssetsManager
+            if (!File.Exists(imagePath))
+            {
+                return;
+            }
+
+            var texture2D = MirageXR.Utilities.LoadTexture(imagePath);
+            SetPreview(texture2D);
+        }
+    }
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
         _showBackground = false;
         base.Initialization(onClose, args);
+        _imageContent = Content as Content<ImageContentData>;
         UpdateView();
         _btnCaptureImage.onClick.AddListener(OnCaptureImage);
         _btnOpenGallery.onClick.AddListener(OpenGallery);
@@ -92,6 +130,73 @@ public class ImageEditorView : PopupEditorBase
     }
 
     protected override void OnAccept()
+    {
+        OnAcceptAsync().Forget();
+    }
+
+    private async UniTask OnAcceptAsync()
+    {
+        if (_capturedImage == null)
+        {
+            return;
+        }
+
+        var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
+        var fileId = Guid.NewGuid();
+
+        _imageContent = CreateContent<ImageContentData>(ContentType.Image);
+
+        _imageContent.ContentData.IsBillboarded = true;
+        _imageContent.ContentData.Text = null;
+        _imageContent.Location.Scale = CalculateScale(_capturedImage.width, _capturedImage.height);
+
+        await SaveImageAsync(activityId, _imageContent.Id, fileId);
+        _imageContent.ContentData.Image = await RootObject.Instance.LEE.AssetsManager.CreateFileAsync(activityId, _imageContent.Id, fileId);
+
+        if (IsContentUpdate)
+        {
+            RootObject.Instance.LEE.ContentManager.UpdateContent(_imageContent);
+        }
+        else
+        {
+            RootObject.Instance.LEE.ContentManager.AddContent(_imageContent);
+        }
+        RootObject.Instance.LEE.AssetsManager.UploadFileAsync(activityId, _imageContent.Id, fileId);
+
+        Close();
+    }
+
+    private Vector3 CalculateScale(int textureWidth, int textureHeight)
+    {
+        if (textureWidth == textureHeight)
+        {
+            return Vector3.one;
+        }
+
+        return textureWidth > textureHeight
+            ? new Vector3(textureWidth / (float)textureHeight * DefaultSize, DefaultSize, 0.05f)
+            : new Vector3(DefaultSize, textureHeight / (float)textureWidth * DefaultSize, 0.05f);
+    }
+
+    private async UniTask SaveImageAsync(Guid activityId, Guid contentId, Guid fileId)
+    {
+        if (_capturedImage == null)
+        {
+            return;
+        }
+
+        var bytes = _capturedImage.EncodeToJPG();
+        var folder = RootObject.Instance.LEE.AssetsManager.GetContentFileFolderPath(activityId, contentId, fileId);
+        Directory.CreateDirectory(folder);
+        var filePath = Path.Combine(folder, "image.jpg");  //TODO: move to AssetsManager
+        if (File.Exists(filePath))
+        {
+            File.Delete(filePath);
+        }
+        await File.WriteAllBytesAsync(filePath, bytes);
+    }
+
+/*    protected override void OnAccept()
     {
         // close without saving if no image was taken
         if (_capturedImage == null)
@@ -139,20 +244,7 @@ public class ImageEditorView : PopupEditorBase
         base.OnAccept();
         Close();
     }
-
-    private void UpdateView()
-    {
-        if (_content != null && !string.IsNullOrEmpty(_content.url))
-        {
-            var originalFileName = Path.GetFileName(_content.url.Remove(0, HTTP_PREFIX.Length));
-            var originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
-
-            if (!File.Exists(originalFilePath)) return;
-
-            var texture2D = MirageXR.Utilities.LoadTexture(originalFilePath);
-            SetPreview(texture2D);
-        }
-    }
+*/
 
     private void OnToggleOrientationValueChanged(bool value)
     {

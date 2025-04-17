@@ -1,10 +1,8 @@
-using LearningExperienceEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using LearningExperienceEngine.DataModel;
 using MirageXR;
-using Newtonsoft.Json;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,10 +32,7 @@ public class ContentListView_v2 : BaseView
     [SerializeField] private GameObject _marker;
     [SerializeField] private ContentListItem_v2 _contentListItemPrefab;
     [SerializeField] private ContentSelectorView_v2 _contentSelectorViewPrefab;
-
     [SerializeField] private PopupEditorBase[] _editors;
-
-    public PopupEditorBase[] editors => _editors;
 
     public ActivityStep currentStep => _currentStep;
 
@@ -144,15 +139,15 @@ public class ContentListView_v2 : BaseView
         }
     }
 
-    private void OnDestroy()
+    /*private void OnDestroy()
     {
-        /*LearningExperienceEngine.EventManager.OnActionCreated -= OnActionCreated;
+        LearningExperienceEngine.EventManager.OnActionCreated -= OnActionCreated;
         LearningExperienceEngine.EventManager.OnActionModified -= OnActionChanged;
 
         LearningExperienceEngine.EventManager.OnActivateAction -= OnActionActivated;
-        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;*/
+        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
         
-    }
+    }*/
 
     /*private void OnActionActivated(string actionId)
     {
@@ -182,12 +177,13 @@ public class ContentListView_v2 : BaseView
         _augmentations.SetActive(true);
         _info.SetActive(false);
         _marker.SetActive(false);
-        MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivitySteps);
+        //MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivitySteps);
     }
 
     private void OnAddMarkerPressed()
     {
-        var editor = _editors.FirstOrDefault(t => t.editorForType == ContentType.IMAGEMARKER);
+        var editors = RootView_v2.Instance.editors;
+        var editor = editors.FirstOrDefault(t => t.editorForType == ContentType.IMAGEMARKER);
         if (editor == null)
         {
             Debug.LogError("there is no editor for the type ContentType.IMAGEMARKER");
@@ -275,7 +271,7 @@ public class ContentListView_v2 : BaseView
 
     public void OnAddContent()
     {
-        PopupsViewer.Instance.Show(_contentSelectorViewPrefab, _editors, _currentStep);
+        PopupsViewer.Instance.Show(_contentSelectorViewPrefab, RootView_v2.Instance.editors, _currentStep);
     }
 
     private void OnStepNameChanged(string newTitle)

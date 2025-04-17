@@ -23,6 +23,8 @@ public class RootView_v2 : BaseView
     [SerializeField] private Dialog _dialog;
     [SerializeField] private TutorialHandlerUI _tutorial;
 
+    [SerializeField] private PopupEditorBase[] _editors;
+
     public enum HelpPage
     {
         Home,
@@ -51,6 +53,8 @@ public class RootView_v2 : BaseView
     public ViewCamera viewCamera => _viewCamera;
 
     public Canvas canvas => _canvas;
+
+    public PopupEditorBase[] editors => _editors;
 
     private void Awake()
     {
