@@ -33,7 +33,15 @@ public class VirtualInstructorView : PopupEditorBase
     [Header("Tabs")] 
     [SerializeField] private GameObject _charactersTab;
     [SerializeField] private GameObject _libraryTab;
-
+    [Space] 
+    [SerializeField] private Toggle[] _audioToggles;
+    
+    [SerializeField] private GameObject _AudioSetting;
+    [SerializeField] private TMPro.TextMeshProUGUI _AudioMenuText;
+    [SerializeField] private Button _AudioMenuBtn;
+    [SerializeField] private GameObject _AudioRecodingMenu;
+    [SerializeField] private GameObject _AiMenu;
+    
     /// <summary>
     /// Represents the prompt a for the Virtual Instructor.
     /// </summary>
@@ -57,12 +65,42 @@ public class VirtualInstructorView : PopupEditorBase
     private Button _btnNoSpeech;
 
     private string _prefabName;
-    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.VIRTUALINSTRUCTOR; 
+    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.VIRTUALINSTRUCTOR;
+    
+    
     
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
+        for (int i = 0; i < _audioToggles.Length; i++)
+        {
+            int index = i;
+            _audioToggles[i].onValueChanged.AddListener((isOn) =>
+            {
+                if (isOn)
+                {
+                    HandleAudioToggleChange(index);
+                }
+            });
+        }
+
+        
         _showBackground = false;
         base.Initialization(onClose, args);
+        //_step = RootObject.Instance.LEE.StepManager.CurrentStep;
+        foreach (var arg in args)
+        {
+            switch (arg)
+            {
+                case LearningExperienceEngine.Action step:
+                    _step = step;
+                    break;
+                case Content content:
+                    Content = content;
+                    IsContentUpdate = true;
+                    break;
+            }
+        }
+        
         UpdateView();
         
         _btnArrow.onClick.AddListener(OnArrowButtonPressed);
@@ -248,4 +286,28 @@ public class VirtualInstructorView : PopupEditorBase
         _toggleLibrary.onValueChanged.RemoveAllListeners();
     }
 
+    private void HandleAudioToggleChange(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                _AudioMenuBtn.onClick.AddListener(() => _AudioSetting.SetActive(true));
+                _AudioMenuText.text = "No speech";
+                _AudioSetting.SetActive(false);
+                break;
+            case 1: 
+                _AudioMenuBtn.onClick.AddListener(() => _AudioRecodingMenu.SetActive(true));
+                _AudioMenuText.text = "Audio recording";
+                _AudioSetting.SetActive(false);
+                 break;
+            case 2: 
+                _AudioMenuBtn.onClick.AddListener(() => _AiMenu.SetActive(true));
+                _AudioMenuText.text = "AI";
+                _AudioSetting.SetActive(false);
+                break;
+            default:
+                Debug.LogWarning("Unknown value in VirtualInstructorView:" + index);
+                break;
+        }
+    }
 }
