@@ -9,7 +9,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Action = System.Action;
-using Content = LearningExperienceEngine.Action;
 
 public class StepsListView_v2 : BaseView
 {
@@ -115,15 +114,31 @@ public class StepsListView_v2 : BaseView
         LearningExperienceEngine.EventManager.OnActivateAction -= OnActionActivated;*/
     }
 
-    private void OnStartActivity()
+    private void OnActivityUpdated(Activity activity)
     {
+        _activity = activity;
+
         UpdateView();
     }
 
     private void OnStepChanged(ActivityStep step)
     {
-        _currentStepId = step.Id;
         _step = step;
+
+        UpdateView();
+    }
+
+    private void UpdateView()
+    {
+        if (_activity == null)
+        {
+            return;
+        }
+
+        if (_step == null)
+        {
+            return;
+        }
 
         foreach (var item in _stepsList)
         {
@@ -131,7 +146,7 @@ public class StepsListView_v2 : BaseView
         }
 
         _stepsList.Clear();
-        
+
         for (var i = 0; i < _activity.Steps.Count; i++)
         {
             var activityStep = _activity.Steps[i];
@@ -145,50 +160,7 @@ public class StepsListView_v2 : BaseView
         _addStep.SetAsLastSibling();
     }
 
-    private void OnActivityUpdated(Activity activity)
-    {
-        _activity = activity;
-    }
-
-    public void UpdateView()
-    {
-        // if (activityManager.Activity != null)
-        // {
-            // _textActivityName.text = activityManager.Activity.name;
-            // _inputFieldActivityName.text = activityManager.Activity.name;
-            // _inputFieldActivityDescription.text = activityManager.Activity.description;
-            //
-            // var steps = activityManager.ActionsOfTypeAction;
-            
-            /*_stepsList.ForEach(t => t.gameObject.SetActive(false));
-
-            for (var i = 0; i < steps.Count; i++)
-            {
-                if (_stepsList.Count <= i)
-                {
-                    var obj = Instantiate(_stepsListItemPrefab, _listVerticalContent);
-                    obj.Init(OnStepClick, OnStepEditClick, OnDeleteStepClick, OnSiblingIndexChanged);
-                    _stepsList.Add(obj);
-                }
-
-                _stepsList[i].gameObject.SetActive(true);
-                _stepsList[i].UpdateView(steps[i], i);
-            }
-
-            OnEditModeChanged(activityManager.EditModeActive);
-            LoadThumbnail();
-
-            _btnFloorLevel.gameObject.SetActive(RootObject.Instance.FloorManager.isFloorDetected);*/
-        // }
-        // else
-        // {
-        //     _textActivityName.text = string.Empty;
-        //     _inputFieldActivityName.text = string.Empty;
-        //     _inputFieldActivityDescription.text = string.Empty;
-        // }
-    }
-
-    private void OnActionActivated(Guid stepId)
+    /*private void OnActionActivated(Guid stepId)
     {
         _currentStepId = stepId;
         _stepsList.ForEach(t => t.UpdateView());
@@ -197,7 +169,7 @@ public class StepsListView_v2 : BaseView
         {
             StartCoroutine(ShowSelectedItem(stepId));
         }
-    }
+    }*/
 
     private IEnumerator ShowSelectedItem(Guid stepId)
     {
@@ -386,36 +358,6 @@ public class StepsListView_v2 : BaseView
         _inputFieldActivityDescription.interactable = value;
 
         _stepsList.ForEach(t => t.OnEditModeChanged(value));
-    }
-
-    private void OnWorkplaceCalibrated()
-    {
-        _statusNotCalibrated.SetActive(false);
-        _statusCalibrated.SetActive(true);
-        _btnFloorLevel.gameObject.SetActive(RootObject.Instance.FloorManager.isFloorDetected);
-    }
-
-    private void OnActionCreated(Content action)
-    {
-        UpdateView();
-    }
-
-    private void OnActionChanged(Content action)
-    {
-        UpdateView();
-    }
-
-    private void OnActivityStarted()
-    {
-        _statusNotCalibrated.SetActive(true);
-        _statusCalibrated.SetActive(false);
-        UpdateView();
-        _addStep.SetAsLastSibling();
-    }
-
-    private void OnActionDeleted(string actionId)
-    {
-        UpdateView();
     }
 
     private void OnThumbnailButtonPressed()

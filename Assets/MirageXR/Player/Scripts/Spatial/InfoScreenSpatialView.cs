@@ -4,7 +4,6 @@ using System.Text.RegularExpressions;
 using LearningExperienceEngine.DataModel;
 using TMPro;
 using Unity.Mathematics;
-using Unity.PolySpatial.InputDevices;
 using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
 using UnityEngine.InputSystem.LowLevel;

@@ -189,8 +189,8 @@ public class RootView_v2 : BaseView
     public async void CreateNewActivity()
     {
         LoadView.Instance.Show();
-        await RootObject.Instance.EditorSceneService.LoadEditorAsync();
-        await LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.CreateNewActivity();
+        var baseCamera = RootObject.Instance.BaseCamera;
+        RootObject.Instance.LEE.ActivityManager.CreateNewActivity((baseCamera.transform.forward * 0.5f) + baseCamera.transform.position);
         _pageView.currentPageIndex = 1;
         LoadView.Instance.Hide();
     }
