@@ -2944,6 +2944,15 @@
                     "initialStateCheck": true
                 },
                 {
+                    "name": "Drag Start Position",
+                    "type": "Value",
+                    "id": "defa5165-8d03-4449-bdde-c0643730a763",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
                     "name": "Drag Current Position",
                     "type": "Value",
                     "id": "07fd51be-2a34-4531-939c-ff750fcf8e4d",
@@ -3019,7 +3028,7 @@
                     "name": "Spawn Object",
                     "type": "Button",
                     "id": "1415f3c5-fc5f-4f58-a044-4a69560151f2",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -3041,7 +3050,7 @@
                     "name": "One Modifier",
                     "id": "ccaca70d-b804-4cda-9dd1-ee9152fa6ec8",
                     "path": "OneModifier",
-                    "interactions": "Tap",
+                    "interactions": "Tap(duration=0.5)",
                     "processors": "",
                     "groups": "",
                     "action": "Tap Start Position",
@@ -3113,6 +3122,17 @@
                     "action": "Drag Current Position",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "f13815bd-33df-4670-9d5a-3295eafdda68",
+                    "path": "<TouchscreenGestureInputController>/dragStartPosition",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Drag Start Position",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 },
                 {
                     "name": "",
@@ -3271,8 +3291,8 @@
                 {
                     "name": "",
                     "id": "f0f27c2a-eef2-418a-986a-811bf690fd89",
-                    "path": "<Touchscreen>/Press",
-                    "interactions": "Tap",
+                    "path": "<TouchscreenGestureInputController>/tapStartPosition",
+                    "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "Spawn Object",
@@ -3283,7 +3303,7 @@
                     "name": "One Modifier",
                     "id": "6f6c3123-8e3c-4f69-9ecc-2a605a5f8777",
                     "path": "OneModifier",
-                    "interactions": "Tap",
+                    "interactions": "Tap(duration=0.5)",
                     "processors": "",
                     "groups": "",
                     "action": "Spawn Object",

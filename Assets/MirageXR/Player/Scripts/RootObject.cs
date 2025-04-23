@@ -142,7 +142,7 @@ namespace MirageXR
                 _viewManager = new ViewManager();
 
 				await _assetBundleManager.InitializeAsync();
-				_viewManager.Initialize(_lee.ActivityManager, _assetBundleManager, _collaborationManager);
+				_viewManager.Initialize(_lee.ActivityManager, _assetBundleManager, _platformManager, _collaborationManager);
 				_lee.InitializeAsync().Forget();
 				await _lee.WaitForInitialization();
 				await _imageTargetManager.InitializationAsync();

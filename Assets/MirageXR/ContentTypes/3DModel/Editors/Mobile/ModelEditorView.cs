@@ -271,4 +271,9 @@ public class ModelEditorView : PopupEditorBase
         _searchText = text;
         SearchSketchfabModels(_searchText).Forget();
     }
+
+    private void OnDestroy()
+    {
+        RootView_v2.Instance.ShowBaseView();
+    }
 }

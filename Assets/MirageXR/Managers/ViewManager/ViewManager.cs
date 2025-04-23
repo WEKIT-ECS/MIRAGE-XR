@@ -42,6 +42,7 @@ namespace MirageXR
         private Camera _camera;
         private IActivityManager _activityManager;
         private IAssetBundleManager _assetBundleManager;
+        private PlatformManager _platformManager;
         private CollaborationManager _collaborationManager;
         private bool _isInitialized;
 
@@ -50,10 +51,11 @@ namespace MirageXR
             return UniTask.WaitUntil(() => _isInitialized);
         }
 
-        public void Initialize(IActivityManager activityManager, IAssetBundleManager assetBundleManager, CollaborationManager collaborationManager)
+        public void Initialize(IActivityManager activityManager, IAssetBundleManager assetBundleManager, PlatformManager platformManager, CollaborationManager collaborationManager)
         {
             _activityManager = activityManager;
             _assetBundleManager = assetBundleManager;
+            _platformManager = platformManager;
             _collaborationManager = collaborationManager;
 
             _activityManager.OnActivityLoaded += OnActivityLoaded;
@@ -87,26 +89,16 @@ namespace MirageXR
 
         private void CreateCamera()
         {
-#if VISION_OS
-            var prefab = _assetBundleManager.GetCamera(CameraType.VisionOS);
-#else
-            var prefab = _assetBundleManager.GetCamera(CameraType.OpenXR);
-#endif
+            var type = _platformManager.GetCameraType();
+            var prefab = _assetBundleManager.GetCamera(type);
             _cameraView = Object.Instantiate(prefab);
             _camera = _cameraView.GetComponentInChildren<Camera>();
         }
 
         private void CreateUiView()
         {
-            if (Camera.main == null)
-            {
-                UnityEngine.Debug.LogError("--- 0 Camera main is null ---");
-            }
-#if VISION_OS// || META_QUEST
-            var prefab = _assetBundleManager.GetUiView(UiType.Spatial);
-#else //UNITY_ANDROID || UNITY_IOS
-            var prefab = _assetBundleManager.GetUiView(UiType.Screen);
-#endif
+            var type = _platformManager.GetUiType();
+            var prefab = _assetBundleManager.GetUiView(type);
             _uiView = Object.Instantiate(prefab);
         }
 

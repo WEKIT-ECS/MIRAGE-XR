@@ -69,11 +69,6 @@ public class StepsListItem_v2 : MonoBehaviour
         //_btnImageMarkerPopup.gameObject.SetActive(ImageMarkerCheck());
     }
 
-    public void UpdateView()
-    {
-        UpdateView(_step, _number);
-    }
-
     /*private void OnActionModified(Step step)
     {
         if (step == _step)
