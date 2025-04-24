@@ -16,6 +16,7 @@ namespace MirageXR
 		[SerializeField] private Button _closeWindowBtn;
 		[SerializeField] private Button _openEditorBtn;
 		[SerializeField] private CharacterModelSelectionElement _characterModelSelectionElement;
+		[SerializeField] private Button _replaceModelBtn;
 
 		[Header("Prefabs")]
 		[SerializeField] private GameObject _avatarLibraryMenu;
@@ -36,6 +37,7 @@ namespace MirageXR
 
 			_closeWindowBtn.onClick.AddListener(Close);
 			_openEditorBtn.onClick.AddListener(OpenEditor);
+			_replaceModelBtn.onClick.AddListener(OpenAvatarLibrary);
 			_characterModelSelectionElement.CharacterModelSelectionStarted += OpenAvatarLibrary;
 
 			// add the current avatar to the library so that it can be loaded
