@@ -120,7 +120,6 @@ public class Screenshot : EditorWindow
     {
         await SetResolution(screen.resolution);
         await _viewCamera.SetupFormat(screen.format);
-
     }
 
     private static async Task SetResolution(Vector2Int size)

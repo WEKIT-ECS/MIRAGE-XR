@@ -14,6 +14,7 @@ public class PointCloudManager : MonoBehaviour
 
     public async Task<bool> InitializationAsync()
     {
+        UnityEngine.Debug.Log("Initializing [PointCloudManager] <--");
 #if !UNITY_ANDROID && !UNITY_IOS && !UNITY_VISIONOS
         return true;
 #endif
@@ -42,6 +43,7 @@ public class PointCloudManager : MonoBehaviour
         await Task.Yield();
 
         LearningExperienceEngine.EventManager.OnEditModeChanged += SetAllPointCloudsActive;
+        UnityEngine.Debug.Log("Initializing [PointCloudManager] -->");
         return true;
     }
 

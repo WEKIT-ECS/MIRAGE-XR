@@ -33,9 +33,11 @@ namespace MirageXR
             var baseCameraData = RootObject.Instance.BaseCamera.GetUniversalAdditionalCameraData();
             baseCameraData.cameraStack.Insert(0, _camera);
         }
-        
+
         public async Task SetupFormat(DeviceFormat deviceFormat)
         {
+            var cameraData = _camera.GetUniversalAdditionalCameraData();
+            cameraData.antialiasing = AntialiasingMode.None;
             switch (deviceFormat)
             {
                 case DeviceFormat.Phone:

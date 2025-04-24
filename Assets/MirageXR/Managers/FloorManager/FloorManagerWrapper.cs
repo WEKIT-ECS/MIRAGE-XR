@@ -22,6 +22,7 @@ public class FloorManagerWrapper : MonoBehaviour
 
     public async Task InitializationAsync()
     {
+        UnityEngine.Debug.Log("Initializing [FloorManagerWrapper] <--");
 #if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS || VISION_OS
         _forceManagerType = ForceManagerType.ARFoundation;
 #endif
@@ -44,6 +45,7 @@ public class FloorManagerWrapper : MonoBehaviour
         {
             Debug.LogError(e);
         }
+        UnityEngine.Debug.Log("Initializing [FloorManagerWrapper] -->");
     }
 
     public float floorLevel => _floorManager.floorLevel;

@@ -82,6 +82,7 @@ namespace MirageXR
 
 		public void Initialize(IAuthorizationManager authorizationManager, IAssetBundleManager assetBundleManager)
 		{
+			UnityEngine.Debug.Log("Initializing [CollaborationManager] <--");
 			_assetBundleManager = assetBundleManager;
 			_networkedUserManager = GetComponent<NetworkedUserManager>();
 			_connectionManager = GetComponent<ConnectionManager>();
@@ -92,6 +93,7 @@ namespace MirageXR
 
 			_networkedUserManager.Initialize(this, authorizationManager);
 			_connectionManager.Initialize(this);
+			UnityEngine.Debug.Log("Initializing [CollaborationManager] -->");
 		}
 
 		public void Dispose()
