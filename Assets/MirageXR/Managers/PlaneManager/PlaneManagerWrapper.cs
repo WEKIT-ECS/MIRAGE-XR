@@ -53,6 +53,7 @@ public class PlaneManagerWrapper : MonoBehaviour
 
     public async Task InitializationAsync()
     {
+        UnityEngine.Debug.Log("Initializing [PlaneManagerWrapper] <--");
 #if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS || VISION_OS
         _forceManagerType = ForceManagerType.ARFoundation;
 #endif
@@ -75,6 +76,7 @@ public class PlaneManagerWrapper : MonoBehaviour
         {
             Debug.LogError(e);
         }
+        UnityEngine.Debug.Log("Initializing [PlaneManagerWrapper] -->");
     }
 
     public Task<bool> ResetAsync()

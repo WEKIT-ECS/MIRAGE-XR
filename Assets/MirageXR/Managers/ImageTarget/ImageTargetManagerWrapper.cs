@@ -123,6 +123,7 @@ public class ImageTargetManagerWrapper : MonoBehaviour
 
     public async Task InitializationAsync()
     {
+        UnityEngine.Debug.Log("Initializing [ImageTargetManagerWrapper] <--");
 #if UNITY_VISIONOS || VISION_OS
         _forceManagerType = ForceManagerType.ARFoundation;
 #endif
@@ -174,6 +175,7 @@ public class ImageTargetManagerWrapper : MonoBehaviour
                 AppLog.LogError(allExceptions.ToString());
             }
         }
+        UnityEngine.Debug.Log("Initializing [ImageTargetManagerWrapper] -->");
     }
 
     public async Task ResetAsync()

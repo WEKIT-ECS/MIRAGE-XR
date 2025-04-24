@@ -5,6 +5,7 @@ using LearningExperienceEngine.DataModel;
 using LearningExperienceEngine.NewDataModel;
 using MirageXR.View;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 namespace MirageXR
 {
@@ -27,7 +28,7 @@ namespace MirageXR
                     }
                     else
                     {
-                        _activityView = Object.FindObjectOfType<NetworkActivityView>();
+                        _activityView = Object.FindFirstObjectByType<NetworkActivityView>();
                     }
                 }
                 return _activityView;
@@ -53,6 +54,7 @@ namespace MirageXR
 
         public void Initialize(IActivityManager activityManager, IAssetBundleManager assetBundleManager, PlatformManager platformManager, CollaborationManager collaborationManager)
         {
+            UnityEngine.Debug.Log("Initializing [ViewManager] <--");
             _activityManager = activityManager;
             _assetBundleManager = assetBundleManager;
             _platformManager = platformManager;
@@ -63,6 +65,7 @@ namespace MirageXR
 
             CreateCamera();
             CreateUiView();
+            UnityEngine.Debug.Log("Initializing [ViewManager] -->");
         }
 
         public Camera GetCamera()
@@ -93,6 +96,8 @@ namespace MirageXR
             var prefab = _assetBundleManager.GetCamera(type);
             _cameraView = Object.Instantiate(prefab);
             _camera = _cameraView.GetComponentInChildren<Camera>();
+            var cameraData = _camera.GetUniversalAdditionalCameraData();
+            cameraData.antialiasing = AntialiasingMode.None;
         }
 
         private void CreateUiView()

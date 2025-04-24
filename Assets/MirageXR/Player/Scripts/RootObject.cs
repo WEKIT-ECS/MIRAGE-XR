@@ -89,6 +89,7 @@ namespace MirageXR
 
 		private async Task Initialization() // TODO: create base Manager class
 		{                                   //TODO: initialize all managers asynchronously.
+			UnityEngine.Debug.Log("Initializing [RootObject] <--");
 			if (_isInitialized)
 			{
 				return;
@@ -167,6 +168,7 @@ namespace MirageXR
 			{
 				Debug.LogError(e.ToString());
 			}
+			UnityEngine.Debug.Log("Initializing [RootObject] -->");
 		}
 
 		private void ResetManagers()

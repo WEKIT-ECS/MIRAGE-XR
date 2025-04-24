@@ -53,6 +53,7 @@ namespace MirageXR
 
         public void Initialization()
         {
+            UnityEngine.Debug.Log("Initializing [PlatformManager] <--");
             _mainCamera = Camera.main;
 
             if (LearningExperienceEngine.UserSettings.developMode)
@@ -98,6 +99,7 @@ namespace MirageXR
                     }
                 }
             }
+            UnityEngine.Debug.Log("Initializing [PlatformManager] -->");
         }
 
         public UiType GetUiType()
