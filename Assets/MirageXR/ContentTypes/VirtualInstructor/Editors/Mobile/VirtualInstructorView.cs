@@ -41,6 +41,7 @@ public class VirtualInstructorView : PopupEditorBase
     [SerializeField] private Button _AudioMenuBtn;
     [SerializeField] private GameObject _AudioRecodingMenu;
     [SerializeField] private GameObject _AiMenu;
+    [SerializeField] private GameObject _NoSpeech;
     
     /// <summary>
     /// Represents the prompt a for the Virtual Instructor.
@@ -291,18 +292,24 @@ public class VirtualInstructorView : PopupEditorBase
         switch (index)
         {
             case 0:
-                _AudioMenuBtn.onClick.AddListener(() => _AudioSetting.SetActive(true));
+                _AiMenu.SetActive(false);
+                _AudioRecodingMenu.SetActive(false);
+                _NoSpeech.SetActive(true);
                 _AudioMenuText.text = "No speech";
                 _AudioSetting.SetActive(false);
                 break;
-            case 1: 
-                _AudioMenuBtn.onClick.AddListener(() => _AudioRecodingMenu.SetActive(true));
+            case 1:
                 _AudioMenuText.text = "Audio recording";
+                _AiMenu.SetActive(false);
+                _AudioRecodingMenu.SetActive(true);
+                _NoSpeech.SetActive(false);
                 _AudioSetting.SetActive(false);
                  break;
             case 2: 
-                _AudioMenuBtn.onClick.AddListener(() => _AiMenu.SetActive(true));
                 _AudioMenuText.text = "AI";
+                _AiMenu.SetActive(true);
+                _AudioRecodingMenu.SetActive(false);
+                _NoSpeech.SetActive(false);
                 _AudioSetting.SetActive(false);
                 break;
             default:
