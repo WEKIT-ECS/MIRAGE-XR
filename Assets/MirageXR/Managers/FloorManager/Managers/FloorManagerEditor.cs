@@ -21,7 +21,7 @@ public class FloorManagerEditor : FloorManagerBase
         set => _prefabAnchor = value;
     }
 
-    public override Task<bool> InitializationAsync()
+    public override Task<bool> InitializationAsync(IViewManager viewManager, PlaneManagerWrapper planeManager)
     {
         _planeId = PlaneId.InvalidId;
         _floorLevel = new Vector3(0, _DEFAULT_FLOOR_LEVEL, 0);

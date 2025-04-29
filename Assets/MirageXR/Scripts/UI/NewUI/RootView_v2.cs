@@ -103,7 +103,7 @@ public class RootView_v2 : BaseView
             PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu, null);
         }
 
-        RootObject.Instance.CameraCalibrationChecker.onAnchorLost.AddListener(ShowCalibrationAlert);
+        RootObject.Instance.CameraCalibrationChecker.OnAnchorLost.AddListener(ShowCalibrationAlert);
     }
 
     private void OnDestroy()
@@ -113,7 +113,7 @@ public class RootView_v2 : BaseView
         EventManager.OnMobileHelpPageChanged -= UpdateHelpPage;
         if (RootObject.Instance != null)
         {
-            RootObject.Instance.CameraCalibrationChecker.onAnchorLost.RemoveListener(ShowCalibrationAlert);
+            RootObject.Instance.CameraCalibrationChecker.OnAnchorLost.RemoveListener(ShowCalibrationAlert);
         }
     }
 

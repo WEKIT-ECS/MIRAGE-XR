@@ -120,16 +120,18 @@ namespace MirageXR
         {
             if (!overrideCameraType)
             {
-#if VISION_OS// || META_QUEST
+#if VISION_OS
                 return CameraType.VisionOS;
-#else //UNITY_ANDROID || UNITY_IOS
+#elif META_QUEST
                 return CameraType.OpenXR;
+#else //UNITY_ANDROID || UNITY_IOS
+                return CameraType.ARFoundation;
 #endif
             }
 
             return cameraType;
         }
-        
+
         private static void InstantiateObject(LoadObject loadObject)
         {
             if (loadObject.pathToLoad)

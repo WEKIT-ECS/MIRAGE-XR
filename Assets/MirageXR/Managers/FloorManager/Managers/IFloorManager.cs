@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using MirageXR;
 using UnityEngine;
 
 public interface IFloorManager
@@ -7,7 +8,7 @@ public interface IFloorManager
 
     public bool isFloorDetected { get; }
 
-    public Task<bool> InitializationAsync();
+    public Task<bool> InitializationAsync(IViewManager viewManager, PlaneManagerWrapper planeManager);
 
     public Task<bool> ResetAsync();
 

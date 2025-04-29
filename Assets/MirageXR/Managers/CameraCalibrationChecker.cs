@@ -13,14 +13,14 @@ public class CameraCalibrationChecker : MonoBehaviour
     private const float ADDITIONAL_COOLDOWN = 4.0f;
     private const float MAX_AVALIBLE_DELTA_DISTANCE = 2.0f;
 
-    [SerializeField] private Transform _mainCameraTransform;
+    public UnityEventFloat OnAnchorLost => _onAnchorLost;
 
-    public UnityEventFloat onAnchorLost => _onAnchorLost;
-
+    private Transform _mainCameraTransform;
     private Transform _anchor;
+    private IViewManager _viewManager;
     private float _distance;
     private Coroutine _coroutine;
-    private UnityEventFloat _onAnchorLost = new UnityEventFloat();
+    private readonly UnityEventFloat _onAnchorLost = new();
     private bool _isWorking;
 #if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS
     private ARSession _arSession;
@@ -28,10 +28,12 @@ public class CameraCalibrationChecker : MonoBehaviour
     private UnityEngine.XR.ARSubsystems.TrackingState _oldTrackingState = UnityEngine.XR.ARSubsystems.TrackingState.Tracking;
 #endif
 
-    public void Initialization()
+    public void Initialization(IViewManager viewManager)
     {
         UnityEngine.Debug.Log("Initializing [CameraCalibrationChecker] <--");
+        _viewManager = viewManager;
         _anchor = RootObject.Instance.CalibrationManager.Anchor;
+        _mainCameraTransform = _viewManager.GetCamera().transform;
 #if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS
         _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>();
 #endif

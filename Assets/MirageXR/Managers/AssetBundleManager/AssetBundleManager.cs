@@ -74,6 +74,8 @@ namespace MirageXR
                     return _assetsBundle.GetVisionCamera();
                 case CameraType.OpenXR:
                     return _assetsBundle.GetOpenCamera();
+                case CameraType.ARFoundation:
+                    return _assetsBundle.GetARFoundationCamera();
                 default:
                     throw new ArgumentOutOfRangeException(nameof(spatial), spatial, null);
             }

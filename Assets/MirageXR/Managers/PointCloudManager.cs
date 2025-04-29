@@ -11,28 +11,22 @@ public class PointCloudManager : MonoBehaviour
     private ARSession _arSession;
     private ARPointCloudManager _arPointCloudManager;
     private ARMeshManager _arMeshManager;
+    private IViewManager _viewManager;
 
-    public async Task<bool> InitializationAsync()
+    public async Task InitializationAsync(IViewManager viewManager)
     {
         UnityEngine.Debug.Log("Initializing [PointCloudManager] <--");
+        _viewManager = viewManager;
 #if !UNITY_ANDROID && !UNITY_IOS && !UNITY_VISIONOS
         return true;
 #endif
-        var mainCamera = Camera.main;
+        var mainCamera = _viewManager.GetCamera();
 
-        if (!mainCamera)
-        {
-            Debug.Log("Can't find camera main");
-            return false;
-        }
-
-        var cameraParent = mainCamera.transform.parent ? mainCamera.transform.parent.gameObject : mainCamera.gameObject;
-
-        _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>(cameraParent);
+        _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>(_viewManager.CameraView);
 
 #if !UNITY_VISIONOS && !UNITY_IOS
         // if on Android, then add the pointcloud prefab (not supported on VisionOS)
-        _arPointCloudManager = MirageXR.Utilities.FindOrCreateComponent<ARPointCloudManager>(cameraParent);
+        _arPointCloudManager = MirageXR.Utilities.FindOrCreateComponent<ARPointCloudManager>(_viewManager.CameraView);
         _arPointCloudManager.pointCloudPrefab = _prefabPointCloud;
 /* #else 
         // ar mesh manager is not working on the device build 
@@ -44,7 +38,6 @@ public class PointCloudManager : MonoBehaviour
 
         LearningExperienceEngine.EventManager.OnEditModeChanged += SetAllPointCloudsActive;
         UnityEngine.Debug.Log("Initializing [PointCloudManager] -->");
-        return true;
     }
 
     public void Unsubscribe()
@@ -96,7 +89,7 @@ public class PointCloudManager : MonoBehaviour
         //_arSession.Reset();
         await Task.Yield();
 
-        await InitializationAsync();
+        await InitializationAsync(_viewManager);
         //_arPointCloudManager.enabled = true;
 
         return true;

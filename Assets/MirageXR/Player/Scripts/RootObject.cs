@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 
 namespace MirageXR
@@ -146,13 +147,13 @@ namespace MirageXR
 				_viewManager.Initialize(_lee.ActivityManager, _assetBundleManager, _platformManager, _collaborationManager);
 				_lee.InitializeAsync().Forget();
 				await _lee.WaitForInitialization();
-				await _imageTargetManager.InitializationAsync();
-				await _planeManager.InitializationAsync();
-				await _floorManager.InitializationAsync();
+				await _imageTargetManager.InitializationAsync(_viewManager);
+				await _planeManager.InitializationAsync(_viewManager);
+				await _floorManager.InitializationAsync(_viewManager, _planeManager);
 				await _calibrationManager.InitializationAsync(_assetBundleManager, _lee.AuthorizationManager);
-				await _pointCloudManager.InitializationAsync();
+				await _pointCloudManager.InitializationAsync(_viewManager);
 				_gridManager.Initialization();
-				_cameraCalibrationChecker.Initialization();
+				_cameraCalibrationChecker.Initialization(_viewManager);
 				_platformManager.Initialization();
 				await _roomTwinManager.InitializationAsync();
 				await _openAIManager.InitializeAsync();
