@@ -17,6 +17,7 @@ public class PlaneManagerARFoundation : PlaneManagerBase
     private bool _enableColliders;
     private bool _showPlanes;
     private ARFoundationPlaneBehaviour _debugARFoundationPlane;
+    private IViewManager _viewManager;
     private readonly UnityEventPlaneIdVector3 _onPlaneClicked = new();
     private readonly UnityEventPlaneIdPlaneId _onPlaneRemoved = new();
 
@@ -26,8 +27,9 @@ public class PlaneManagerARFoundation : PlaneManagerBase
         set => _prefabPlane = value;
     }
 
-    public override async Task<bool> InitializationAsync()
+    public override async Task<bool> InitializationAsync(IViewManager viewManager)
     {
+        _viewManager = viewManager;
         var mainCamera = RootObject.Instance.BaseCamera;
 
         if (!mainCamera)
@@ -36,10 +38,8 @@ public class PlaneManagerARFoundation : PlaneManagerBase
             return false;
         }
 
-        var cameraParent = mainCamera.transform.parent ? mainCamera.transform.parent.gameObject : mainCamera.gameObject;
-
-        _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>(cameraParent);
-        _arPlaneManager = MirageXR.Utilities.FindOrCreateComponent<ARPlaneManager>(cameraParent);
+        _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>(_viewManager.CameraView);
+        _arPlaneManager = MirageXR.Utilities.FindOrCreateComponent<ARPlaneManager>(_viewManager.CameraView);
 
         _arPlaneManager.requestedDetectionMode = DETECTION_MODE;
         _arPlaneManager.planePrefab = _prefabPlane;
@@ -49,18 +49,17 @@ public class PlaneManagerARFoundation : PlaneManagerBase
         _enableColliders = false;
         _showPlanes = false;
 
-        _arPlaneManager.planesChanged += ArPlaneManagerOnPlanesChanged;
+        _arPlaneManager.trackablesChanged.AddListener(ArPlaneManagerOnPlanesChanged);
 
         LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
 
         return true;
     }
-
-    private void ArPlaneManagerOnPlanesChanged(ARPlanesChangedEventArgs eventArgs)
+    
+    private void ArPlaneManagerOnPlanesChanged(ARTrackablesChangedEventArgs<ARPlane> eventArgs)
     {
-        foreach (var arPlane in eventArgs.removed)
+        foreach (var (id, arPlane) in eventArgs.removed)
         {
-            var id = arPlane.trackableId;
             if (arPlane.subsumedBy == null)
             {
                 _onPlaneRemoved.Invoke(new PlaneId(id.subId1, id.subId2), PlaneId.InvalidId);
@@ -96,7 +95,7 @@ public class PlaneManagerARFoundation : PlaneManagerBase
 
 
         await Task.Yield();
-        await InitializationAsync();
+        await InitializationAsync(_viewManager);
 
         return true;
     }

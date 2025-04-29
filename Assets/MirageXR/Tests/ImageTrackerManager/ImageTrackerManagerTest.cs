@@ -14,7 +14,8 @@ public class ImageTrackerManagerTest : MonoBehaviour
 
     private void Start()
     {
-        _wrapper.InitializationAsync().AsAsyncVoid();
+        return;     //TODO: update
+        //_wrapper.InitializationAsync().AsAsyncVoid();
 
         _addImageButton.onClick.AddListener(OnAddImageButtonClicked);
         _removeImageButton.onClick.AddListener(OnRemoveImageButtonClicked);

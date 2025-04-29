@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
+using MirageXR;
 using UnityEngine;
 
 public class ImageTargetManagerWrapper : MonoBehaviour
@@ -56,9 +57,12 @@ public class ImageTargetManagerWrapper : MonoBehaviour
                 useLimitedTracking = model.useLimitedTracking,
             };
 
-            if (_imagesMap.ContainsKey(newModel.name))
+            lock (_syncObject)
             {
-                newModel.name = $"{model.name}_{Guid.NewGuid()}";
+                if (_imagesMap.ContainsKey(newModel.name))
+                {
+                    newModel.name = $"{model.name}_{Guid.NewGuid()}";
+                }
             }
 
             var target = await _imageTargetManager.AddImageTarget(newModel, cancellationToken);
@@ -86,17 +90,20 @@ public class ImageTargetManagerWrapper : MonoBehaviour
     {
         try
         {
-            if (_imagesMap.ContainsKey(imageTarget.imageTargetName))
+            lock (_syncObject)
             {
-                lock (_syncObject)
+                if (_imagesMap.ContainsKey(imageTarget.imageTargetName))
                 {
-                    _imageTargetManager.RemoveImageTarget(imageTarget as ImageTargetBase);
-                    _imagesMap.Remove(imageTarget.imageTargetName);
+                    lock (_syncObject)
+                    {
+                        _imageTargetManager.RemoveImageTarget(imageTarget as ImageTargetBase);
+                        _imagesMap.Remove(imageTarget.imageTargetName);
+                    }
                 }
-            }
-            else
-            {
-                throw new Exception($"ImageTargetManagerWrapper: Can't find imageTarget by name: '{imageTarget.imageTargetName}'");
+                else
+                {
+                    throw new Exception($"ImageTargetManagerWrapper: Can't find imageTarget by name: '{imageTarget.imageTargetName}'");
+                }
             }
         }
         catch (Exception e)
@@ -121,7 +128,7 @@ public class ImageTargetManagerWrapper : MonoBehaviour
         }
     }
 
-    public async Task InitializationAsync()
+    public async Task InitializationAsync(IViewManager viewManager)
     {
         UnityEngine.Debug.Log("Initializing [ImageTargetManagerWrapper] <--");
 #if UNITY_VISIONOS || VISION_OS
@@ -136,7 +143,7 @@ public class ImageTargetManagerWrapper : MonoBehaviour
 
         try
         {
-            var result = await _imageTargetManager.InitializationAsync();
+            var result = await _imageTargetManager.InitializationAsync(viewManager);
             if (!result)
             {
                 AppLog.LogInfo("ImageTargetManagerWrapper: unable to initialize");

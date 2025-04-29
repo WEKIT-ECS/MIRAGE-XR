@@ -35,6 +35,7 @@ namespace MirageXR
             }  
         }
         public GameObject UiView => _uiView;
+        public GameObject CameraView => _cameraView;
         public bool IsInitialized => _isInitialized;
 
         private ActivityView _activityView;

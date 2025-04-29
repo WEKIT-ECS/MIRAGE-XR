@@ -18,6 +18,7 @@ namespace MirageXR
     {
         VisionOS,
         OpenXR,
+        ARFoundation,
     }
 
     public interface IAssetBundleManager : IManager
