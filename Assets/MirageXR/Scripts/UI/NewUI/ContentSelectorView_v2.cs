@@ -3,6 +3,7 @@ using MirageXR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LearningExperienceEngine.DataModel;
 using UnityEngine;
 
 public class ContentSelectorView_v2 : PopupBase
@@ -14,7 +15,7 @@ public class ContentSelectorView_v2 : PopupBase
     [SerializeField] private ContentHintView _contentHintViewPrefab;
 
     private IEnumerable<PopupEditorBase> _editors;
-    private LearningExperienceEngine.Action _currentStep;
+    private ActivityStep _currentStep;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -53,7 +54,7 @@ public class ContentSelectorView_v2 : PopupBase
         try
         {
             _editors = (IEnumerable<PopupEditorBase>)args[0];
-            _currentStep = (LearningExperienceEngine.Action)args[1];
+            _currentStep = (ActivityStep)args[1];
             return true;
         }
         catch (Exception)

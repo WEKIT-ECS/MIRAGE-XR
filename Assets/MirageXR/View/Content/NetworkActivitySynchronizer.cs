@@ -19,8 +19,8 @@ namespace MirageXR.View
         public NetworkActivityView ActivityView => _activityView;
 
         [Networked, OnChangedRender(nameof(OnActivityIdChanged))] private Guid ActivityId { get; set; }
-        
-        
+        [Networked, OnChangedRender(nameof(OnIsEditModeChanged))] private bool IsEditMode { get; set; }
+
         // [Networked, OnChangedRender(nameof(OnDataSizeChanged))] private int DataSize { get; set; }
         // [Networked, Capacity(4096), OnChangedRender(nameof(OnDataChanged))] private NetworkArray<byte> Data { get; }
 
@@ -85,6 +85,7 @@ namespace MirageXR.View
             {
                 RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityLoaded;
                 RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnActivityUpdated;
+                RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
                 RootObject.Instance.LEE.StepManager.OnStepChanged += OnStepChanged;
                 RootObject.Instance.LEE.ContentManager.OnContentUpdated += OnContentUpdated;
                 RootObject.Instance.LEE.ContentManager.OnContentActivated += OnContentActivated;
@@ -121,6 +122,17 @@ namespace MirageXR.View
         {
             activityId = ActivityId.ToString();
             _activityView.UpdateActivityId(ActivityId);
+        }
+
+        private void OnIsEditModeChanged()
+        {
+            activityId = ActivityId.ToString();
+            _activityView.UpdateActivityId(ActivityId);
+        }
+
+        private void OnEditorModeChanged(bool value)
+        {
+            IsEditMode = value;
         }
 
         // private void OnReliableData(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data)

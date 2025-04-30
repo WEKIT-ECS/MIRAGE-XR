@@ -1,5 +1,6 @@
 ﻿using LearningExperienceEngine;
 using System;
+using LearningExperienceEngine.DataModel;
 using MirageXR;
 using TMPro;
 using UnityEngine;
@@ -26,17 +27,17 @@ public class StepsListItem_v2 : MonoBehaviour
     [SerializeField] private ImageMarkerPopup _imageMarkerPopup;
     [SerializeField] private GameObject _stepSelected;
 
-    private Step _step;
+    private ActivityStep _step;
     private int _number;
-    private Action<Step> _onStepClick;
-    private Action<Step> _onEditClick;
-    private Action<Step, Action> _onDeleteClick;
-    private Action<Step, int, int> _onSiblingIndexChanged;
+    private Action<ActivityStep> _onStepClick;
+    private Action<ActivityStep> _onEditClick;
+    private Action<ActivityStep, Action> _onDeleteClick;
+    private Action<ActivityStep, int, int> _onSiblingIndexChanged;
     private string _imageMarkerUrl;
 
-    public Step step => _step;
+    public ActivityStep step => _step;
 
-    public void Init(Action<Step> onStepClick, Action<Step> onEditClick, Action<Step, Action> onDeleteClick, Action<Step, int, int> onSiblingIndexChanged)
+    public void Init(Action<ActivityStep> onStepClick, Action<ActivityStep> onEditClick, Action<ActivityStep, Action> onDeleteClick, Action<ActivityStep, int, int> onSiblingIndexChanged)
     {
         _onStepClick = onStepClick;
         _onEditClick = onEditClick;
@@ -49,38 +50,33 @@ public class StepsListItem_v2 : MonoBehaviour
         _dragAndDropController.onSiblingIndexChanged.AddListener(OnSiblingIndexChanged);
         OnEditModeChanged(activityManager.EditModeActive);
 
-        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
-        LearningExperienceEngine.EventManager.OnActionModified += OnActionModified;
+        //LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
+        //LearningExperienceEngine.EventManager.OnActionModified += OnActionModified;
     }
 
-    public void UpdateView(Step step, int number)
+    public void UpdateView(ActivityStep step, int number)
     {
         _step = step;
         _number = number;
 
-        _txtStepName.text = _step.instruction.title;
+        _txtStepName.text = _step.Name;
         _txtNumber.text = (_number + 1).ToString("00");
-        var isCurrent = _step.id == LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.ActiveActionId;
+        var isCurrent = step.Id == RootObject.Instance.LEE.StepManager.CurrentStep.Id;
         _stepCurrentImage.SetActive(isCurrent);
         _stepSelected.SetActive(isCurrent);
-        _stepDoneImage.SetActive(_step.isCompleted && !isCurrent);
+        //_stepDoneImage.SetActive(_step.isCompleted && !isCurrent);
 
-        _btnImageMarkerPopup.gameObject.SetActive(ImageMarkerCheck());
+        //_btnImageMarkerPopup.gameObject.SetActive(ImageMarkerCheck());
     }
 
-    public void UpdateView()
-    {
-        UpdateView(_step, _number);
-    }
-
-    private void OnActionModified(Step step)
+    /*private void OnActionModified(Step step)
     {
         if (step == _step)
         {
             _txtStepName.text = step.instruction.title;
             _txtStepDescription.text = step.instruction.description;
         }
-    }
+    }*/
 
     public void OnEditModeChanged(bool value)
     {
@@ -118,7 +114,7 @@ public class StepsListItem_v2 : MonoBehaviour
         popup.SetImage(_imageMarkerUrl);
     }
 
-    private bool ImageMarkerCheck()
+    /*private bool ImageMarkerCheck()
     {
         bool imageMarker = false;
 
@@ -134,5 +130,5 @@ public class StepsListItem_v2 : MonoBehaviour
         }
 
         return imageMarker;
-    }
+    }*/
 }

@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.MixedReality.Toolkit.Input;
+using MirageXR;
 using UnityEngine;
-
 
 public class PlaneManagerMRTK : PlaneManagerBase
 {
@@ -16,8 +16,7 @@ public class PlaneManagerMRTK : PlaneManagerBase
     private UnityEventPlaneIdVector3 _onPlaneClicked = new UnityEventPlaneIdVector3();
     private UnityEventPlaneIdPlaneId _onPlaneRemoved = new UnityEventPlaneIdPlaneId();
 
-
-    public override Task<bool> InitializationAsync()
+    public override Task<bool> InitializationAsync(IViewManager viewManager)
     {
         _planeLayer = LayerMask.NameToLayer(SPATIAL_AWARENESS);
         _globalClickListener = gameObject.AddComponent<GlobalClickListener>();

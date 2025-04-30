@@ -300,7 +300,7 @@ namespace MirageXR
 
         public static T FindOrCreateComponent<T>(GameObject holder = null) where T : Component
         {
-            var component = Object.FindObjectOfType<T>();
+            var component = Object.FindFirstObjectByType<T>();
             if (!component)
             {
                 if (!holder)

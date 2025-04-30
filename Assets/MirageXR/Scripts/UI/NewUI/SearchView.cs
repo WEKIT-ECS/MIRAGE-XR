@@ -97,7 +97,7 @@ public class SearchView : PopupBase
 
     private void UpdateListView()
     {
-        _items.ForEach(item => Destroy(item.gameObject));
+        /*_items.ForEach(item => Destroy(item.gameObject)); //TODO
         _items.Clear();
 
         var prefab = !LearningExperienceEngine.UserSettings.showBigCards ? _smallItemPrefab : _bigItemPrefab;
@@ -108,7 +108,7 @@ public class SearchView : PopupBase
             item.Init(content);
             _items.Add(item);
             item.gameObject.SetActive(false);
-        });
+        });*/
     }
 
     private void OnInputFieldSearchChanged(string text)

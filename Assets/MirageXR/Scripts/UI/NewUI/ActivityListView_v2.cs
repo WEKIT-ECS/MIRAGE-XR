@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using LearningExperienceEngine.DTOs;
 //using LearningExperienceEngine.DataModel;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -62,10 +62,41 @@ public class ActivityListView_v2 : BaseView
         _panelSize = _panel.sizeDelta;
 
         LearningExperienceEngine.EventManager.OnStartActivity += ShowBackButtons;
+        RootObject.Instance.LEE.ActivityManager.OnActivitiesFetched += OnActivitiesFetched;
+        RootObject.Instance.LEE.AuthorizationManager.OnLoginCompleted += OnLoginCompleted;
 
         //RootObject.Instance.ActivityManager.OnActivitiesFetched += OnActivitiesFetched;
 
         FetchAndUpdateView();
+    }
+
+    private void OnLoginCompleted(string accessToken)
+    {
+        RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
+    }
+
+    private void OnActivitiesFetched(ActivityResponse activityResponse)
+    {
+        _items.ForEach(item => Destroy(item.gameObject));
+        _items.Clear();
+
+        var prefab = !LearningExperienceEngine.UserSettings.showBigCards ? _smallItemPrefab : _bigItemPrefab;
+        foreach (var activity in activityResponse.Activities)
+        {
+            var item = Instantiate(prefab, _listTransform);
+            item.Init(activity, OnActivityClick, OnActivityDelete);
+            _items.Add(item);
+        }
+    }
+
+    private void OnActivityClick(LearningExperienceEngine.DTOs.Activity activity)
+    {
+        RootObject.Instance.LEE.ActivityManager.LoadActivityAsync(activity.Id);
+    }
+
+    private void OnActivityDelete(LearningExperienceEngine.DTOs.Activity activity)
+    {
+        RootObject.Instance.LEE.ActivityManager.DeleteActivityAsync(activity.Id);
     }
 
     /*private void OnActivitiesFetched(List<Activity> activities)
@@ -139,7 +170,7 @@ public class ActivityListView_v2 : BaseView
 
     public void UpdateView()
     {
-#if UNITY_EDITOR
+/*#if UNITY_EDITOR
         if (!EditorApplication.isPlaying)
         {
             return;
@@ -149,21 +180,12 @@ public class ActivityListView_v2 : BaseView
         _items.Clear();
 
         var prefab = !LearningExperienceEngine.UserSettings.showBigCards ? _smallItemPrefab : _bigItemPrefab;
-        _content.ForEach(content =>
+        _content.ForEach(contentItem =>
         {
             var item = Instantiate(prefab, _listTransform);
-            item.Init(content);
+            item.Init(contentItem);
             _items.Add(item);
-        });
-
-        /*if (_activities != null)
-        {
-            foreach (var activity in _activities)
-            {
-                var item = Instantiate(prefab, _listTransform);
-                item.Init(activity);
-                _items.Add(item);
-            */
+        });*/
     }
 
     private void OnByDateClick()

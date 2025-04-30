@@ -1,20 +1,24 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System;
+using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.NewDataModel;
 using MirageXR.View;
 using UnityEngine;
 
 namespace MirageXR
 {
+    [Serializable]
     public enum UiType
     {
         Spatial,
         Screen,
     }
 
+    [Serializable]
     public enum CameraType
     {
         VisionOS,
         OpenXR,
+        ARFoundation,
     }
 
     public interface IAssetBundleManager : IManager

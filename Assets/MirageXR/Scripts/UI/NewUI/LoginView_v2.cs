@@ -1,5 +1,4 @@
-﻿using LearningExperienceEngine;
-using System;
+﻿using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
@@ -61,7 +60,7 @@ public class LoginView_v2 : PopupBase
     private async Task Login(string username, string password)
     {
         LoadView.Instance.Show();
-        var result = await LearningExperienceEngine.LearningExperienceEngine.Instance.MoodleManager.Login(username, password);
+        var result = await RootObject.Instance.LEE.MoodleManager.Login(username, password);
         LoadView.Instance.Hide();
         if (result)
         {
@@ -96,7 +95,7 @@ public class LoginView_v2 : PopupBase
     private void OnOidcLogin()
     {
         RootObject.Instance.LEE.AuthorizationManager.OnLoginCompleted += OnOidcLoginCompleted;
-        LearningExperienceEngine.LearningExperienceEngine.Instance.AuthorizationManager.Login().Forget();
+        RootObject.Instance.LEE.AuthorizationManager.Login().Forget();
     }
 
     private void OnOidcLoginCompleted(string accessToken)
