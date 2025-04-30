@@ -73,6 +73,7 @@ namespace MirageXR
 
         public async Task InitializeAsync()
         {
+            UnityEngine.Debug.Log("Initializing [OpenAIManager] <--");
             try
             {
                 var keys = await ReadOpenIaAuthKeyAsync();
@@ -92,6 +93,7 @@ namespace MirageXR
             {
                 AppLog.LogError(e.ToString());
             }
+            UnityEngine.Debug.Log("Initializing [OpenAIManager] -->");
         }
 
         public async Task<AssistantResponse> CreateAssistantAsync(string name, string instructions,

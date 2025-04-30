@@ -3,6 +3,7 @@
 using i5.Toolkit.Core.VerboseLogging;
 #endif
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace MirageXR
 {
@@ -18,6 +19,12 @@ namespace MirageXR
         [Tooltip("If you want to test AR in the editor enable this.")]
         [SerializeField] bool forceWorldSpaceUi = false;
         [SerializeField] bool forceToTabletView = false;
+
+        [SerializeField] bool overrideUiType = false;
+        [SerializeField] UiType uiType = UiType.Screen;
+        [SerializeField] bool overrideCameraType = false;
+        [SerializeField] CameraType cameraType = CameraType.OpenXR;
+
         [SerializeField] GameObject _screenSpaceDebugTool;
         [SerializeField] private LoadObject[] _worldSpaceObjects;
         [SerializeField] private LoadObject[] _screenSpaceObjects;
@@ -46,6 +53,7 @@ namespace MirageXR
 
         public void Initialization()
         {
+            UnityEngine.Debug.Log("Initializing [PlatformManager] <--");
             _mainCamera = Camera.main;
 
             if (LearningExperienceEngine.UserSettings.developMode)
@@ -91,6 +99,37 @@ namespace MirageXR
                     }
                 }
             }
+            UnityEngine.Debug.Log("Initializing [PlatformManager] -->");
+        }
+
+        public UiType GetUiType()
+        {
+            if (!overrideUiType)
+            {
+#if VISION_OS// || META_QUEST
+                return UiType.Spatial;
+#else //UNITY_ANDROID || UNITY_IOS
+                return UiType.Screen;
+#endif
+            }
+            
+            return uiType;
+        }
+
+        public CameraType GetCameraType()
+        {
+            if (!overrideCameraType)
+            {
+#if VISION_OS
+                return CameraType.VisionOS;
+#elif META_QUEST
+                return CameraType.OpenXR;
+#else //UNITY_ANDROID || UNITY_IOS
+                return CameraType.ARFoundation;
+#endif
+            }
+
+            return cameraType;
         }
 
         private static void InstantiateObject(LoadObject loadObject)

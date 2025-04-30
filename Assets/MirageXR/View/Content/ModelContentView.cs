@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System.Threading;
+using Cysharp.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using LearningExperienceEngine.DataModel;
 using LearningExperienceEngine.NewDataModel;
@@ -11,10 +12,12 @@ namespace MirageXR.View
     public class ModelContentView : ContentView
     {
         private GltfModelController _model;
-
+        private CancellationToken _cancellationToken;
+            
         protected override async UniTask InitializeContentAsync(Content content)
         {
             await base.InitializeContentAsync(content);
+            _cancellationToken = transform.GetCancellationTokenOnDestroy();
 
             if (content is Content<ModelContentData> modeContent)
             {
@@ -38,6 +41,11 @@ namespace MirageXR.View
 
         protected override void InitializeBoxCollider()
         {
+            if (!Initialized)
+            {
+                return;
+            }
+
             var bounds = BoundsUtilities.GetTargetBounds(gameObject);
             BoxCollider = gameObject.GetComponent<BoxCollider>();
             if (BoxCollider == null)
@@ -92,16 +100,20 @@ namespace MirageXR.View
             var sketchfabManager = RootObject.Instance.LEE.SketchfabManager;
             if (!sketchfabManager.IsModelCached(content.ContentData.ModelUid))
             {
-                var cancellationToken = gameObject.GetCancellationTokenOnDestroy();
-                var result = await sketchfabManager.TryCacheModelFromServerUntilSuccessAsync(activityId, content.ContentData.ModelUid, cancellationToken);
+                var result = await sketchfabManager.TryCacheModelFromServerUntilSuccessAsync(activityId, content.ContentData.ModelUid, _cancellationToken);
                 if (!result)
                 {
                     AppLog.LogError($"model {content.ContentData.ModelUid} doesn't cached");
                     return false;
                 }
             }
-            _model = await sketchfabManager.LoadCachedModelAsync(content.ContentData.ModelUid, transform);
+            _model = await sketchfabManager.LoadCachedModelAsync(content.ContentData.ModelUid, transform, _cancellationToken);
 
+            if (_cancellationToken.IsCancellationRequested)
+            {
+                return false;
+            }
+            
             if (_model is null)
             {
                 AppLog.LogError($"Can't load model with id {content.ContentData.ModelUid}");

@@ -1,6 +1,8 @@
 ﻿using DG.Tweening;
 using MirageXR;
 using System.Collections;
+using System.Collections.Generic;
+using LearningExperienceEngine.DataModel;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -30,6 +32,7 @@ public class ActivityView_v2 : BaseView
     private LearningExperienceEngine.SessionContainer _container;
     private int _infoStepNumber;
     private Vector2 _panelSize;
+    private Activity _activity;
 
     public StepsListView_v2 stepsListView => _stepsListView;
 
@@ -59,7 +62,9 @@ public class ActivityView_v2 : BaseView
         _stepsListView.Initialization(this);
         _panelSize = _panel.sizeDelta;
 
-        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
+        RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditModeChanged;
+        RootObject.Instance.LEE.ContentManager.OnContentActivated += OnContentActivated;
+        RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityUpdated;
 
         _stepsVertical.SetActive(true);
         _stepsHorizontal.SetActive(false);
@@ -67,14 +72,24 @@ public class ActivityView_v2 : BaseView
         UpdateView();
     }
 
-    private void OnDestroy()
+    /*private void OnDestroy()
     {
-        LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
+        RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged -= OnEditModeChanged;
+        RootObject.Instance.LEE.ContentManager.OnContentActivated -= OnContentActivated;
+    }*/
+
+    private void OnActivityUpdated(Activity activity)
+    {
+        _activity = activity;
     }
 
     private void UpdateView()
     {
-        _toggleEdit.isOn = activityManager.EditModeActive;
+    }
+    
+    private void OnContentActivated(List<Content> contents)
+    {
+        
     }
 
     public void OnBackToHomePressed()
@@ -86,13 +101,16 @@ public class ActivityView_v2 : BaseView
 
     private void OnEditToggleValueChanged(bool value)
     {
-        activityManager.EditModeActive = value;
+        RootObject.Instance.LEE.ActivityManager.IsEditorMode = value;
+        //activityManager.EditModeActive = value;
         ShowStepsList();
     }
 
     private void OnEditModeChanged(bool value)
     {
-        UpdateView();
+        /*_toggleEdit.onValueChanged.RemoveListener(OnEditToggleValueChanged);
+        _toggleEdit.isOn = activityManager.EditModeActive;
+        _toggleEdit.onValueChanged.AddListener(OnEditToggleValueChanged);*/
     }
 
     public void SetSessionInfo(LearningExperienceEngine.SessionContainer info)
@@ -166,11 +184,11 @@ public class ActivityView_v2 : BaseView
 
     public void ActivateNextAction()
     {
-        activityManager.ActivateNextAction();
+        RootObject.Instance.LEE.StepManager.GoToNextStep();
     }
 
     public void ActivatePreviousAction()
     {
-        activityManager.ActivatePreviousAction();
+        RootObject.Instance.LEE.StepManager.GoToPreviousStep();
     }
 }
