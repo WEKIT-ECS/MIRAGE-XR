@@ -54,6 +54,7 @@ namespace MirageXR
 
         public async UniTask InitializationAsync(IAssetBundleManager assetsManager, IAuthorizationManager authorizationManager)
         {
+            UnityEngine.Debug.Log("Initializing [CalibrationManager] <--");
             _assetsManager = assetsManager;
             _authorizationManager = authorizationManager;
 
@@ -72,6 +73,7 @@ namespace MirageXR
 
             LearningExperienceEngine.EventManager.OnSetPoseSynchronizerTargetToCalibrationAnchor += OnSetCalibrationAnchor;
             _isInitialized = true;
+            UnityEngine.Debug.Log("Initializing [CalibrationManager] -->");
         }
 
         public void EnableCalibration(bool isRecalibration = false)

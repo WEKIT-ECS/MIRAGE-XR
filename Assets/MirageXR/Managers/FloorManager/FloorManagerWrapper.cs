@@ -20,10 +20,15 @@ public class FloorManagerWrapper : MonoBehaviour
 
     private IFloorManager _floorManager;
 
-    public async Task InitializationAsync()
+    public async Task InitializationAsync(IViewManager viewManager, PlaneManagerWrapper planeManager)
     {
-#if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS || VISION_OS
+        UnityEngine.Debug.Log("Initializing [FloorManagerWrapper] <--");
+#if UNITY_WSA
+        _forceManagerType = ForceManagerType.MRTK;
+#elif !UNITY_EDITOR && (UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS || VISION_OS)
         _forceManagerType = ForceManagerType.ARFoundation;
+#else
+        _forceManagerType = ForceManagerType.Editor;
 #endif
         _floorManager = CreateFloorManager();
 
@@ -34,7 +39,7 @@ public class FloorManagerWrapper : MonoBehaviour
 
         try
         {
-            var result = await _floorManager.InitializationAsync();
+            var result = await _floorManager.InitializationAsync(viewManager, planeManager);
             if (!result)
             {
                 Debug.Log("FloorManagerWrapper: unable to initialize");
@@ -44,6 +49,7 @@ public class FloorManagerWrapper : MonoBehaviour
         {
             Debug.LogError(e);
         }
+        UnityEngine.Debug.Log("Initializing [FloorManagerWrapper] -->");
     }
 
     public float floorLevel => _floorManager.floorLevel;

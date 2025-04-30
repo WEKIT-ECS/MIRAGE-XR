@@ -4,9 +4,13 @@ using MirageXR;
 using System;
 using System.Collections;
 using System.IO;
+using Cysharp.Threading.Tasks;
+using i5.Toolkit.Core.VerboseLogging;
+using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using ContentType = LearningExperienceEngine.DataModel.ContentType;
 
 public class AudioEditorView : PopupEditorBase
 {
@@ -81,6 +85,7 @@ public class AudioEditorView : PopupEditorBase
     private float _recordStartTime;
     private int _scrollRectStep;
     private string[] _audioFileType;
+    private Content<AudioContentData> _audioContent;
 
     private string _inputTriggerStepNumber = string.Empty;
 
@@ -88,6 +93,8 @@ public class AudioEditorView : PopupEditorBase
     {
         _showBackground = false;
         base.Initialization(onClose, args);
+
+        _audioContent = Content as Content<AudioContentData>;
 
         _toggle3D.isOn = false;
         _toggleLoop.isOn = false;
@@ -129,11 +136,23 @@ public class AudioEditorView : PopupEditorBase
             NativeFilePicker.ConvertExtensionToFileType(AUDIO_FILE_EXTENSION_MP3) };
         
 
-        var steps = activityManager.ActionsOfTypeAction;
-        var stepsCount = steps.Count;
-        InitClampedScrollRect(_clampedScrollJumpToStep, _templatePrefab, stepsCount, stepsCount.ToString());
+        //var steps = activityManager.ActionsOfTypeAction;
+        //var stepsCount = steps.Count;
+        //InitClampedScrollRect(_clampedScrollJumpToStep, _templatePrefab, stepsCount, stepsCount.ToString());
 
-        if (_content != null && !string.IsNullOrEmpty(_content.url))
+        if (_audioContent != null)
+        {
+            _topContainerPlayAudio.SetActive(true);
+            LoadContent();
+
+            OnClickRecordComplete();
+        }
+        else
+        {
+            _topContainerPlayAudio.SetActive(false);
+        }
+        
+        /*if (_content != null && !string.IsNullOrEmpty(_content.url))
         {
             _topContainer.SetActive(false);
             _topContainerPlayAudio.SetActive(true);
@@ -156,13 +175,14 @@ public class AudioEditorView : PopupEditorBase
             _topContainer.SetActive(true);
             _topContainerPlayAudio.SetActive(false);
         }
-
+*/
+        _fileName = $"MirageXR_Audio_{DateTime.Now.ToFileTimeUtc()}.wav";
         SetPlayerActive(true);
         UpdateSliderPlayerAndTimer();
         RootView_v2.Instance.HideBaseView();
     }
 
-    private void InitClampedScrollRect(ClampedScrollRect clampedScrollRect, GameObject templatePrefab, int maxCount, string text)
+    /*private void InitClampedScrollRect(ClampedScrollRect clampedScrollRect, GameObject templatePrefab, int maxCount, string text)
     {
         var currentActionId = activityManager.ActiveAction.id;
         var steps = activityManager.ActionsOfTypeAction;
@@ -180,7 +200,7 @@ public class AudioEditorView : PopupEditorBase
                 _scrollRectStep = i - 1;
             }
         }
-    }
+    }*/
 
     private void OnDestroy()
     {
@@ -192,7 +212,22 @@ public class AudioEditorView : PopupEditorBase
         RootView_v2.Instance.ShowBaseView();
     }
 
+
     private void LoadContent()
+    {
+        var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
+        var folderPath = RootObject.Instance.LEE.AssetsManager.GetContentFileFolderPath(activityId, Content.Id, _audioContent.ContentData.Audio.Id);
+        var filePath = Path.Combine(folderPath, "audio.wav");
+        _audioClip = SaveLoadAudioUtilities.LoadAudioFile(filePath);
+
+        _toggle3D.isOn = _audioContent.ContentData.Is3dSound;
+        _panelRange.SetActive(_toggle3D.isOn);
+        _toggleLoop.isOn = _audioContent.ContentData.IsLooped;
+        _txtSliderRangeValue.text = _audioContent.ContentData.SoundRange.ToString("00");
+        _currentRangeValue = _audioContent.ContentData.SoundRange;
+    }
+
+    /*private void LoadContent()
     {
         _fileName = GetFileName(_content);
         var filePath = Path.Combine(activityManager.ActivityPath, _fileName);
@@ -211,7 +246,7 @@ public class AudioEditorView : PopupEditorBase
                 _currentRangeValue = value;
             }
         }
-    }
+    }*/
 
     private void OnPlayingStarted()
     {
@@ -505,54 +540,54 @@ public class AudioEditorView : PopupEditorBase
         }
     }
 
-    protected override void OnAccept()
-    {
-        if (!_audioClip)
-        {
-            Toast.Instance.Show("The audio has not been recorded");
-            return;
-        }
-
-        var filePath = Path.Combine(activityManager.ActivityPath, _fileName);
-        if (_content != null)
-        {
-            _fileName = GetFileName(_content);
-
-            if (File.Exists(filePath) && _audioClip != null)
-            {
-                LearningExperienceEngine.EventManager.DeactivateObject(_content);
-                File.Delete(filePath);
-            }
-        }
-        else
-        {
-            _content = augmentationManager.AddAugmentation(_step, GetOffset());
-            _content.predicate = editorForType.GetPredicate();
-        }
-
-        _content.option = _toggle3D.isOn ? "3d" : "2d";
-        _content.option += _toggleLoop.isOn ? "#1" : "#0";
-        _content.option += $"#{_txtSliderRangeValue.text}";
-        _content.scale = 0.5f;
-        _content.url = $"http://{_fileName}";
-
-        if (_toggleTrigger.isOn)
-        {
-            _step.AddOrReplaceArlemTrigger(LearningExperienceEngine.TriggerMode.Audio, LearningExperienceEngine.ActionType.Audio, _content.poi, _audioClip.length, _inputTriggerStepNumber);
-        }
-        else
-        {
-            _step.RemoveArlemTrigger(_content);
-        }
-
-        LearningExperienceEngine.SaveLoadAudioUtilities.Save(filePath, _audioClip);
-
-        LearningExperienceEngine.EventManager.ActivateObject(_content);
-
-        base.OnAccept();
-
-        Close();
-    }
+    // protected override void OnAccept()
+    // {
+    //     if (!_audioClip)
+    //     {
+    //         Toast.Instance.Show("The audio has not been recorded");
+    //         return;
+    //     }
+    //
+    //     var filePath = Path.Combine(activityManager.ActivityPath, _fileName);
+    //     if (_content != null)
+    //     {
+    //         _fileName = GetFileName(_content);
+    //
+    //         if (File.Exists(filePath) && _audioClip != null)
+    //         {
+    //             LearningExperienceEngine.EventManager.DeactivateObject(_content);
+    //             File.Delete(filePath);
+    //         }
+    //     }
+    //     else
+    //     {
+    //         _content = augmentationManager.AddAugmentation(_step, GetOffset());
+    //         _content.predicate = editorForType.GetPredicate();
+    //     }
+    //
+    //     _content.option = _toggle3D.isOn ? "3d" : "2d";
+    //     _content.option += _toggleLoop.isOn ? "#1" : "#0";
+    //     _content.option += $"#{_txtSliderRangeValue.text}";
+    //     _content.scale = 0.5f;
+    //     _content.url = $"http://{_fileName}";
+    //
+    //     if (_toggleTrigger.isOn)
+    //     {
+    //         _step.AddOrReplaceArlemTrigger(LearningExperienceEngine.TriggerMode.Audio, LearningExperienceEngine.ActionType.Audio, _content.poi, _audioClip.length, _inputTriggerStepNumber);
+    //     }
+    //     else
+    //     {
+    //         _step.RemoveArlemTrigger(_content);
+    //     }
+    //
+    //     LearningExperienceEngine.SaveLoadAudioUtilities.Save(filePath, _audioClip);
+    //
+    //     LearningExperienceEngine.EventManager.ActivateObject(_content);
+    //
+    //     base.OnAccept();
+    //
+    //     Close();
+    // }
 
     private void OnArrowButtonPressed()
     {
@@ -574,5 +609,60 @@ public class AudioEditorView : PopupEditorBase
     private void OnToggleTriggerValueChanged(bool value)
     {
         _objJumpToStep.SetActive(value);
+    }
+    
+    protected override void OnAccept()
+    {
+        OnAcceptAsync().Forget();
+    }
+
+    private async UniTask OnAcceptAsync()
+    {
+        if (!_audioClip)
+        {
+            //Toast.Instance.Show("The audio has not been recorded");
+            AppLog.LogWarning("The audio has not been recorded");
+            return;
+        }
+
+        var activityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
+        var fileId = Guid.NewGuid();
+
+        _audioContent = CreateContent<AudioContentData>(ContentType.Audio);
+        _audioContent.ContentData.Is3dSound = _toggle3D.isOn;
+        _audioContent.ContentData.IsLooped = _toggleLoop.isOn;
+        _audioContent.ContentData.SoundRange = _sliderPlayer.value;
+
+        await SaveAudioAsync(activityId, _audioContent.Id, fileId);
+        _audioContent.ContentData.Audio = await RootObject.Instance.LEE.AssetsManager.CreateFileAsync(activityId, _audioContent.Id, fileId);
+
+        if (IsContentUpdate)
+        {
+            RootObject.Instance.LEE.ContentManager.UpdateContent(_audioContent);
+        }
+        else
+        {
+            RootObject.Instance.LEE.ContentManager.AddContent(_audioContent);
+        }
+        RootObject.Instance.LEE.AssetsManager.UploadFileAsync(activityId, _audioContent.Id, fileId).Forget();
+
+        Close();
+    }
+
+    private async UniTask SaveAudioAsync(Guid activityId, Guid contentId, Guid fileId)
+    {
+        if (_audioClip == null || _audioContent == null)
+        {
+            return;
+        }
+
+        var folder = RootObject.Instance.LEE.AssetsManager.GetContentFileFolderPath(activityId, contentId, fileId);
+        Directory.CreateDirectory(folder);
+        var filePath = Path.Combine(folder, "audio.wav");
+        if (File.Exists(filePath))
+        {
+            File.Delete(filePath);
+        }
+        await SaveLoadAudioUtilities.SaveAsync(filePath, _audioClip);
     }
 }

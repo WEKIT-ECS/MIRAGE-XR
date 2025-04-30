@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using LearningExperienceEngine.DataModel;
 using MirageXR;
 using UnityEngine;
 
@@ -21,6 +22,8 @@ public class RootView_v2 : BaseView
     [Space]
     [SerializeField] private Dialog _dialog;
     [SerializeField] private TutorialHandlerUI _tutorial;
+
+    [SerializeField] private PopupEditorBase[] _editors;
 
     public enum HelpPage
     {
@@ -50,6 +53,8 @@ public class RootView_v2 : BaseView
     public ViewCamera viewCamera => _viewCamera;
 
     public Canvas canvas => _canvas;
+
+    public PopupEditorBase[] editors => _editors;
 
     private void Awake()
     {
@@ -82,6 +87,7 @@ public class RootView_v2 : BaseView
 
         _pageView.OnPageChanged.AddListener(OnPageChanged);
 
+        RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityLoaded; 
         LearningExperienceEngine.EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
         LearningExperienceEngine.EventManager.OnStartActivity += OnActivityLoaded;
         EventManager.OnMobileHelpPageChanged += UpdateHelpPage;
@@ -97,7 +103,7 @@ public class RootView_v2 : BaseView
             PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu, null);
         }
 
-        RootObject.Instance.CameraCalibrationChecker.onAnchorLost.AddListener(ShowCalibrationAlert);
+        RootObject.Instance.CameraCalibrationChecker.OnAnchorLost.AddListener(ShowCalibrationAlert);
     }
 
     private void OnDestroy()
@@ -107,7 +113,7 @@ public class RootView_v2 : BaseView
         EventManager.OnMobileHelpPageChanged -= UpdateHelpPage;
         if (RootObject.Instance != null)
         {
-            RootObject.Instance.CameraCalibrationChecker.onAnchorLost.RemoveListener(ShowCalibrationAlert);
+            RootObject.Instance.CameraCalibrationChecker.OnAnchorLost.RemoveListener(ShowCalibrationAlert);
         }
     }
 
@@ -148,11 +154,21 @@ public class RootView_v2 : BaseView
         }
     }
 
+    private void OnActivityLoaded(Activity activity)
+    {
+        ShowContentView();
+    }
+
     public void OnActivityLoaded()
+    {
+        ShowContentView();
+    }
+
+    public void ShowContentView()
     {
         _pageView.currentPageIndex = 1;
     }
-
+    
     public void ShowBaseView()
     {
         _pageView.gameObject.SetActive(true);
@@ -173,8 +189,8 @@ public class RootView_v2 : BaseView
     public async void CreateNewActivity()
     {
         LoadView.Instance.Show();
-        await RootObject.Instance.EditorSceneService.LoadEditorAsync();
-        await LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.CreateNewActivity();
+        var baseCamera = RootObject.Instance.BaseCamera;
+        RootObject.Instance.LEE.ActivityManager.CreateNewActivity((baseCamera.transform.forward * 0.5f) + baseCamera.transform.position);
         _pageView.currentPageIndex = 1;
         LoadView.Instance.Hide();
     }

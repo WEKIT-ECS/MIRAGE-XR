@@ -1,12 +1,12 @@
 ﻿using LearningExperienceEngine;
-using i5.Toolkit.Core.VerboseLogging;
 using MirageXR;
 using System;
 using System.Linq;
+using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Content = LearningExperienceEngine.ToggleObject;
+using ContentType = LearningExperienceEngine.DataModel.ContentType;
 
 public class ContentListItem_v2 : MonoBehaviour
 {
@@ -20,7 +20,7 @@ public class ContentListItem_v2 : MonoBehaviour
     [SerializeField] private KeepAliveView _keepAliveViewPrefab;
 
     private ContentListView_v2 _parentView;
-    private LearningExperienceEngine.ToggleObject _content;
+    private Content _content;
     private ContentType _type;
     private int _from;
     private int _to;
@@ -40,36 +40,28 @@ public class ContentListItem_v2 : MonoBehaviour
     public void UpdateView(Content content)
     {
         _content = content;
-        _type = LearningExperienceEngine.ContentTypeExtension.ParsePredicate(_content.predicate);
-        _txtType.text = _content.predicate;
+        _type = _content.Type;
+        _txtType.text =_content.Type.ToString();
+        _txtName.text = _content.Type.ToString();
 
-        if (_type == LearningExperienceEngine.ContentType.LABEL || _type == LearningExperienceEngine.ContentType.PICKANDPLACE)
-        {
-            _txtName.text = $"{_type.GetName()}: {_content.text}";
-        }
-        else
-        {
-            _txtName.text = _type.GetName();
-        }
-
-        _imgType.sprite = _type.GetIcon();
+        //_imgType.sprite = _type.GetIcon();
 
         var stepList = activityManager.ActionsOfTypeAction;
 
-        _from = stepList.FindIndex(step => step.enter.activates.Any(t => t.poi == _content.poi));
-        _to = stepList.FindLastIndex(step => step.enter.activates.Any(t => t.poi == _content.poi));
+        //_from = stepList.FindIndex(step => step.enter.activates.Any(t => t.poi == _content.poi));
+        //_to = stepList.FindLastIndex(step => step.enter.activates.Any(t => t.poi == _content.poi));
 
-        if (_parentView.navigatorId == _content.poi)
+        /*if (_parentView.navigatorId == _content.poi)
         {
             TaskStationDetailMenu.Instance.NavigatorTarget = ActionListMenu.CorrectTargetObject(_content);
-        }
+        }*/
 
 
     }
 
     private void OnSettingsPressed()
     {
-        if (SetLockActive())
+        /*if (SetLockActive())
         {
             if (!_content.positionLock)
             {
@@ -93,14 +85,14 @@ public class ContentListItem_v2 : MonoBehaviour
             }
         }
         else
-        {
+        {*/
             RootView_v2.Instance.dialog.ShowBottomMultiline("Settings",
                 ("Edit", EditContent, false),
-                ("Locate", LocateContent, false),
-                ("Rename", RenameContent, false),
-                ($"Keep alive {_from + 1}-{_to + 1}", ChangeKeepAlive, false),
+                //("Locate", LocateContent, false),
+                //("Rename", RenameContent, false),
+                //($"Keep alive {_from + 1}-{_to + 1}", ChangeKeepAlive, false),
                 ("Delete", DeleteContent, true));
-        }
+        /*}*/
     }
 
     private void OnListItemPressed()
@@ -108,9 +100,9 @@ public class ContentListItem_v2 : MonoBehaviour
         _onListItemPressed?.Invoke(_content);
     }
 
-    private void EditContent()
+    private void EditContent()  //TODO: 
     {
-        var type = LearningExperienceEngine.ContentTypeExtension.ParsePredicate(_content.predicate);
+        /*var type = LearningExperienceEngine.ContentTypeExtension.ParsePredicate(_content.predicate);
         var editor = _parentView.editors.FirstOrDefault(t => t.editorForType == type);
         if (editor == null)
         {
@@ -118,12 +110,12 @@ public class ContentListItem_v2 : MonoBehaviour
             return;
         }
 
-        PopupsViewer.Instance.Show(editor, _parentView.currentStep, _content);
+        PopupsViewer.Instance.Show(editor, _parentView.currentStep, _content);*/
     }
 
     private void LocateContent()
     {
-        _parentView.navigatorId = _parentView.navigatorId != _content.poi ? _content.poi : null;
+        //_parentView.navigatorId = _parentView.navigatorId != _content.poi ? _content.poi : null;
     }
 
     private void RenameContent()
@@ -136,11 +128,13 @@ public class ContentListItem_v2 : MonoBehaviour
         RootView_v2.Instance.dialog.ShowMiddle("Warning!", "Are you sure you want to delete this content?",
             "Yes", () =>
             {
-                LearningExperienceEngine.LearningExperienceEngine.Instance.AugmentationManager.DeleteAugmentation(_content);
+                RootObject.Instance.LEE.ContentManager.RemoveContent(_content.Id);
+                
+                /*LearningExperienceEngine.LearningExperienceEngine.Instance.AugmentationManager.DeleteAugmentation(_content);
                 if (_parentView.navigatorId == _content.poi)
                 {
                     TaskStationDetailMenu.Instance.NavigatorTarget = null;
-                }
+                }*/
             }, "No", null);
     }
 
@@ -164,21 +158,21 @@ public class ContentListItem_v2 : MonoBehaviour
 
     private void UpdateStep()
     {
-        LearningExperienceEngine.LearningExperienceEngine.Instance.AugmentationManager.AddAllAugmentationsBetweenSteps(_from, _to, _content, Vector3.zero);
+        /*LearningExperienceEngine.LearningExperienceEngine.Instance.AugmentationManager.AddAllAugmentationsBetweenSteps(_from, _to, _content, Vector3.zero);
         if (_type == ContentType.CHARACTER)
         {
             activityManager.SaveData();
         }
 
-        _parentView.UpdateView();
+        _parentView.UpdateView();*/
     }
 
-    private void Lock()
+    /*private void Lock()
     {
         LearningExperienceEngine.EventManager.NotifyAugmentationLocked(_content.poi, !_content.positionLock);
-    }
+    }*/
 
-    private bool SetLockActive()
+    /*private bool SetLockActive()
     {
         switch (_content.predicate)
         {
@@ -204,5 +198,5 @@ public class ContentListItem_v2 : MonoBehaviour
                 return false;
                 break;
         }
-    }
+    }*/
 }
