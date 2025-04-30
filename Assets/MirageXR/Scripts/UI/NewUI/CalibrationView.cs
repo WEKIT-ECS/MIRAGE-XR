@@ -59,13 +59,13 @@ public class CalibrationView : PopupBase
     private Tweener _tweenerCalibration;
     private Sequence _tweenerDetection;
     private Pose _startPose;
-    private LearningExperienceEngine.PoseSynchronizer _poseSynchronizer;
+    //private LearningExperienceEngine.PoseSynchronizer _poseSynchronizer;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
         base.Initialization(onClose, args);
 
-        _poseSynchronizer = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.detectableContainer.GetComponentInParent<LearningExperienceEngine.PoseSynchronizer>();
+        //_poseSynchronizer = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.detectableContainer.GetComponentInParent<LearningExperienceEngine.PoseSynchronizer>();
         _canBeClosedByOutTap = false;
         _showBackground = false;
 
@@ -86,7 +86,7 @@ public class CalibrationView : PopupBase
         _toggleImageResetPosition.onValueChanged.AddListener(OnToggleResetPositionValueChanged);
         _textDescroptionImage.text = _isMoveOrigin ? HINT_MOVE_ORIGIN : HINT_RESTORE_POSITION;
         _textDescroptionManual.text = _isMoveOrigin ? HINT_MOVE_ORIGIN : HINT_RESTORE_POSITION;
-        _poseSynchronizer.enabled = !_isMoveOrigin;
+        //_poseSynchronizer.enabled = !_isMoveOrigin;
         
         _btnApply.gameObject.SetActive(false);
 
@@ -121,7 +121,7 @@ public class CalibrationView : PopupBase
     private void OnToggleResetPositionValueChanged(bool value)
     {
         _isMoveOrigin = !value;
-        _poseSynchronizer.enabled = !_isMoveOrigin;
+        //_poseSynchronizer.enabled = !_isMoveOrigin;
         _textDescroptionImage.text = _isMoveOrigin ? HINT_MOVE_ORIGIN : HINT_RESTORE_POSITION;
         _textDescroptionManual.text = _isMoveOrigin ? HINT_MOVE_ORIGIN : HINT_RESTORE_POSITION;
     }
@@ -246,7 +246,7 @@ public class CalibrationView : PopupBase
             gridManager.ShowGrid();
         }
 
-        _poseSynchronizer.enabled = true;
+        //_poseSynchronizer.enabled = true;
 
         await Task.Delay(CLOSE_TIME);
         LearningExperienceEngine.EventManager.WorkplaceCalibrated();

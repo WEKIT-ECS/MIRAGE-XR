@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using MirageXR;
 using UnityEngine;
 
 public abstract class PlaneManagerBase : MonoBehaviour, IPlaneManager
@@ -7,7 +8,7 @@ public abstract class PlaneManagerBase : MonoBehaviour, IPlaneManager
 
     public abstract UnityEventPlaneIdPlaneId onPlaneRemoved { get; }
 
-    public abstract Task<bool> InitializationAsync();
+    public abstract Task<bool> InitializationAsync(IViewManager viewManager);
 
     public abstract Task<bool> ResetAsync();
 

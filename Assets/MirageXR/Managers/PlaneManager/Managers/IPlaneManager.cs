@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using MirageXR;
 using UnityEngine;
 
 public interface IPlaneManager : IDisposable
@@ -8,7 +9,7 @@ public interface IPlaneManager : IDisposable
 
     public UnityEventPlaneIdPlaneId onPlaneRemoved { get; }
 
-    public Task<bool> InitializationAsync();
+    public Task<bool> InitializationAsync(IViewManager viewManager);
 
     public Task<bool> ResetAsync();
 

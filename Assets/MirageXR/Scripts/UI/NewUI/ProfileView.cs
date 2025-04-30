@@ -1,5 +1,3 @@
-using i5.Toolkit.Core.OpenIDConnectClient;
-using i5.Toolkit.Core.ServiceCore;
 using MirageXR;
 using System;
 using System.Collections;
@@ -35,9 +33,14 @@ public class ProfileView : PopupBase
     [SerializeField] private ScrollRect _scrollRect;
 
     [Space]
+    [SerializeField] private Button btnSketchfab;
+    [SerializeField] private TMP_Text txtSketchfab;
+
+    [Space]
     [SerializeField] private LoginView_v2 _loginViewPrefab;
     [SerializeField] private GridView _gridViewPrefab;
     [SerializeField] private DevelopView _developViewPrefab;
+    [SerializeField] private SketchfabLoginView sketchfabLoginViewPrefab;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -53,6 +56,7 @@ public class ProfileView : PopupBase
         _btnDev.onClick.AddListener(OnClickDev);
         _btnSelectServer.onClick.AddListener(ShowChangeServerPanel);
         _btnSelectLRS.onClick.AddListener(ShowLRSPanel);
+        btnSketchfab.onClick.AddListener(OnSketchfabLogin);
         _versionClickCounter.onClickAmountReached.AddListener(OnVersionClickAmountReached);
 
         EventManager.MoodleDomainChanged += UpdateConnectedServerText;
@@ -105,6 +109,11 @@ public class ProfileView : PopupBase
         LogOutObjects.SetActive(false);
     }
 
+    private void OnSketchfabLogin()
+    {
+        PopupsViewer.Instance.Show(sketchfabLoginViewPrefab);
+    }
+
     private void ShowLogout()
     {
         LoginObjects.SetActive(false);
@@ -134,7 +143,7 @@ public class ProfileView : PopupBase
     private void OnClickLogin()
     {
         var dontShowLoginMenu = true;
-        PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu, (System.Action)ResetValues);
+        PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu, (Action)ResetValues);
     }
 
     private void OnOidcLogin()

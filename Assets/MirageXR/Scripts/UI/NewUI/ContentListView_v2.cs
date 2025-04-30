@@ -1,12 +1,12 @@
-using LearningExperienceEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LearningExperienceEngine.DataModel;
 using MirageXR;
-using Newtonsoft.Json;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using ContentType = LearningExperienceEngine.ContentType;
 using Step = LearningExperienceEngine.Action;
 
 public class ContentListView_v2 : BaseView
@@ -32,39 +32,36 @@ public class ContentListView_v2 : BaseView
     [SerializeField] private GameObject _marker;
     [SerializeField] private ContentListItem_v2 _contentListItemPrefab;
     [SerializeField] private ContentSelectorView_v2 _contentSelectorViewPrefab;
-
     [SerializeField] private PopupEditorBase[] _editors;
 
-    public PopupEditorBase[] editors => _editors;
-
-    public Step currentStep => _currentStep;
+    public ActivityStep currentStep => _currentStep;
 
     private ActivityView_v2 _activityView => (ActivityView_v2)_parentView;
 
     public string navigatorId
     {
-        get => _navigatorIds.ContainsKey(_currentStep.id) ? _navigatorIds[_currentStep.id] : null;
+        get => _navigatorIds.ContainsKey(_currentStep.Id) ? _navigatorIds[_currentStep.Id] : null;
         set
         {
-            if (!_navigatorIds.ContainsKey(_currentStep.id))
+            if (!_navigatorIds.ContainsKey(_currentStep.Id))
             {
-                _navigatorIds.Add(_currentStep.id, value);
+                _navigatorIds.Add(_currentStep.Id, value);
             }
             else
             {
-                _navigatorIds[_currentStep.id] = value;
+                _navigatorIds[_currentStep.Id] = value;
             }
 
             UpdateView();
         }
     }
 
-    private readonly Dictionary<string, string> _navigatorIds = new Dictionary<string, string>();
+    private readonly Dictionary<Guid, string> _navigatorIds = new Dictionary<Guid, string>();
     private readonly List<ContentListItem_v2> _list = new List<ContentListItem_v2>();
     private bool _isShown = true;
     private Coroutine _coroutineSizeTo;
     private Coroutine _coroutineRotateTo;
-    private Step _currentStep;
+    private ActivityStep _currentStep;
 
     public override void Initialization(BaseView parentView)
     {
@@ -87,12 +84,46 @@ public class ContentListView_v2 : BaseView
         _inputFieldDescription.onEndEdit.AddListener(OnStepDescriptionChanged);
         _toggleDiamondVisibility.onValueChanged.AddListener(OnDiamondVisibilityChanged);
 
-        LearningExperienceEngine.EventManager.OnActionCreated += OnActionCreated;
+        RootObject.Instance.LEE.ContentManager.OnContentActivated += OnContentActivated;
+        RootObject.Instance.LEE.ContentManager.OnContentUpdated += OnContentUpdated;
+        RootObject.Instance.LEE.StepManager.OnStepChanged += OnStepChanged;
+        RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditModeChanged;
+
+        /*LearningExperienceEngine.EventManager.OnActionCreated += OnActionCreated;
         LearningExperienceEngine.EventManager.OnActionModified += OnActionChanged;
 
         LearningExperienceEngine.EventManager.OnActivateAction += OnActionActivated;
-        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
-        
+        LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;*/
+
+    }
+    private void OnStepChanged(ActivityStep step)
+    {
+        _currentStep = step;
+        _inputFieldStepName.text = _currentStep.Name;
+        _inputFieldDescription.text = _currentStep.Description;
+    }
+
+    private void OnContentActivated(List<Content> contents)
+    {
+        foreach (var item in _list)
+        {
+            Destroy(item.gameObject);
+        }
+
+        _list.Clear();
+
+        foreach (var contentItemView in contents)
+        {
+            var obj = Instantiate(_contentListItemPrefab, _listContent);
+            obj.Initialization(this, OnAnnotationSelected);
+            obj.UpdateView(contentItemView);
+            _list.Add(obj);
+        }
+    }
+
+    private void OnContentUpdated(List<Content> contents)
+    {
+        //TODO:
     }
 
     private void OnDiamondVisibilityChanged(bool value)
@@ -108,7 +139,7 @@ public class ContentListView_v2 : BaseView
         }
     }
 
-    private void OnDestroy()
+    /*private void OnDestroy()
     {
         LearningExperienceEngine.EventManager.OnActionCreated -= OnActionCreated;
         LearningExperienceEngine.EventManager.OnActionModified -= OnActionChanged;
@@ -116,9 +147,9 @@ public class ContentListView_v2 : BaseView
         LearningExperienceEngine.EventManager.OnActivateAction -= OnActionActivated;
         LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
         
-    }
+    }*/
 
-    private void OnActionActivated(string actionId)
+    /*private void OnActionActivated(string actionId)
     {
         var action = activityManager.ActiveAction ?? activityManager.ActionsOfTypeAction.FirstOrDefault(t => t.id == actionId);
         if (action != null)
@@ -127,13 +158,13 @@ public class ContentListView_v2 : BaseView
         }
 
         UpdateView();
-    }
+    }*/
 
-    private void OnActionCreated(Step action)
+    /*private void OnActionCreated(Step action)
     {
         _currentStep = action;
         UpdateView();
-    }
+    }*/
 
     private void OnActionChanged(Step action)
     {
@@ -146,12 +177,13 @@ public class ContentListView_v2 : BaseView
         _augmentations.SetActive(true);
         _info.SetActive(false);
         _marker.SetActive(false);
-        MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivitySteps);
+        //MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivitySteps);
     }
 
     private void OnAddMarkerPressed()
     {
-        var editor = _editors.FirstOrDefault(t => t.editorForType == ContentType.IMAGEMARKER);
+        var editors = RootView_v2.Instance.editors;
+        var editor = editors.FirstOrDefault(t => t.editorForType == ContentType.IMAGEMARKER);
         if (editor == null)
         {
             Debug.LogError("there is no editor for the type ContentType.IMAGEMARKER");
@@ -204,25 +236,25 @@ public class ContentListView_v2 : BaseView
 
     public void UpdateView()
     {
-        _toggleDiamondVisibility.isOn = _currentStep.isDiamondVisible ?? true;
+        /*_toggleDiamondVisibility.isOn = _currentStep.isDiamondVisible ?? true;
         _toggleDiamondVisibility.onValueChanged.Invoke(_currentStep.isDiamondVisible ?? true);
-
-        int currentIndex = activityManager.ActionsOfTypeAction.IndexOf(_currentStep) + 1;
+*/
+        /*int currentIndex = activityManager.ActionsOfTypeAction.IndexOf(_currentStep) + 1;
         int maxIndex = activityManager.ActionsOfTypeAction.Count;
-
-        _txtStepTitle.text = string.Format(STEP_NAME_MASK, currentIndex, maxIndex, _currentStep.instruction.title);
+*/
+        /*_txtStepTitle.text = string.Format(STEP_NAME_MASK, currentIndex, maxIndex, _currentStep.instruction.title);
         _inputFieldStepName.text = _currentStep.instruction.title;
         _inputFieldDescription.text = _currentStep.instruction.description;
+*/
+        //var contents = _currentStep.enter.activates;
 
-        var contents = _currentStep.enter.activates;
-
-        var detailMenu = TaskStationDetailMenu.Instance;
+        /*var detailMenu = TaskStationDetailMenu.Instance;
         if (detailMenu)
         {
             detailMenu.NavigatorTarget = null;
-        }
+        }*/
 
-        _list.ForEach(t => t.gameObject.SetActive(false));
+        /*_list.ForEach(t => t.gameObject.SetActive(false));
         for (var i = 0; i < contents.Count; i++)
         {
             if (_list.Count <= i)
@@ -234,34 +266,26 @@ public class ContentListView_v2 : BaseView
 
             _list[i].gameObject.SetActive(true);
             _list[i].UpdateView(contents[i]);
-        }
-
-        OnEditModeChanged(activityManager.EditModeActive);
+        }*/
     }
 
     public void OnAddContent()
     {
-        PopupsViewer.Instance.Show(_contentSelectorViewPrefab, _editors, _currentStep);
+        PopupsViewer.Instance.Show(_contentSelectorViewPrefab, RootView_v2.Instance.editors, _currentStep);
     }
 
     private void OnStepNameChanged(string newTitle)
     {
-        _currentStep.instruction.title = newTitle;
-        LearningExperienceEngine.EventManager.NotifyActionModified(_currentStep);
-
-        activityManager.SaveData();
+        RootObject.Instance.LEE.StepManager.SetStepName(_currentStep.Id, newTitle);
     }
 
     private void OnStepDescriptionChanged(string newDescription)
     {
-        _currentStep.instruction.description = newDescription;
-        LearningExperienceEngine.EventManager.NotifyActionModified(_currentStep);
-
-        activityManager.SaveData();
+        RootObject.Instance.LEE.StepManager.SetStepDescription(_currentStep.Id, newDescription);
     }
 
-    private void OnAnnotationSelected(ToggleObject annotation)
+    private void OnAnnotationSelected(Content content)
     {
-        ActionEditor.Instance.CapturePickArrowTarget(annotation, ActionEditor.Instance.pickArrowModelCapturing.Item2);
+        //ActionEditor.Instance.CapturePickArrowTarget(content, ActionEditor.Instance.pickArrowModelCapturing.Item2);
     }
 }

@@ -95,6 +95,7 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public void Initialization()
     {
+        UnityEngine.Debug.Log("Initializing [GridManager] <--");
         _gridEnabled = LearningExperienceEngine.UserSettings.showGrid;
         _snapEnabled = LearningExperienceEngine.UserSettings.snapToGrid;
         _cellWidth = LearningExperienceEngine.UserSettings.gridCellWidth;
@@ -122,6 +123,7 @@ public class GridManager : MonoBehaviour, IDisposable
         _manipulationController.Initialization(this, _gridLinesPrefab);
 
         LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
+        UnityEngine.Debug.Log("Initializing [GridManager] -->");
     }
 
     public void ShowGrid()

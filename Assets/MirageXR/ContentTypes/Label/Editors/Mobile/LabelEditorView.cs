@@ -1,9 +1,14 @@
 ﻿using LearningExperienceEngine;
 using DG.Tweening;
 using System;
+using System.Globalization;
+using i5.Toolkit.Core.VerboseLogging;
+using LearningExperienceEngine.DataModel;
+using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using ContentType = LearningExperienceEngine.DataModel.ContentType;
 
 public class LabelEditorView : PopupEditorBase
 {
@@ -15,7 +20,15 @@ public class LabelEditorView : PopupEditorBase
     private const float HIDED_SIZE = 100f;
     private const float HIDE_ANIMATION_TIME = 0.5f;
 
-    public override ContentType editorForType => ContentType.LABEL;
+    private const bool DefaultBillboardedValue = true;
+    private const int DefaultFontSize = 17;
+    private const int DefaultGazeTime = 3;
+    private const int MinFontSize = 5;
+    private const int MaxFontSize = 50;
+    private const int MaxGazeTime = 10;
+    private const int MinGazeTime = 1;
+
+    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.LABEL;
 
     [SerializeField] private TMP_InputField _inputField;
     [SerializeField] private Toggle _toggleTrigger;
@@ -29,6 +42,7 @@ public class LabelEditorView : PopupEditorBase
     [SerializeField] private GameObject _templatePrefab;
     [Space]
     [SerializeField] public TMP_Text _exampleLabel;
+    [SerializeField] public TMP_Text _examplePlaceholderLabel;
     [SerializeField] public Image _exampleLabelBackground;
     [SerializeField] private Button _fontSizeButton;
     [SerializeField] private Button _fontColorButton;
@@ -42,19 +56,42 @@ public class LabelEditorView : PopupEditorBase
     [SerializeField] private GameObject _arrowUp;
     [SerializeField] private LabelSettings _labelSettings;
 
-    private Trigger _trigger;
+    //private Trigger _trigger;
     private float _gazeDuration;
     private int _triggerStepIndex;
     private bool _isBillboarded;
+    private Content<LabelContentData> _contentLabel;
+    private string _labelText;
+    private Color _colorBackground;
+    private Color _colorFont;
+    private int _sizeFont;
+    private int _gazeTime;
 
     public enum SettingsPanel { Size, Font, Background };
     public SettingsPanel _settingsPanelStart = SettingsPanel.Background;
-
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
         _showBackground = false;
         base.Initialization(onClose, args);
+        
+        _labelText = string.Empty;
+        _colorBackground = Color.white;
+        _colorFont = Color.black;
+        _sizeFont = DefaultFontSize;
+        _isBillboarded = DefaultBillboardedValue;
+        _gazeTime = DefaultGazeTime;
+        _contentLabel = Content as Content<LabelContentData>;
+
+        if (_contentLabel != null)
+        {
+            _labelText = _contentLabel.ContentData.Text;
+            _colorBackground = _contentLabel.ContentData.BackgroundColor;
+            _colorFont = _contentLabel.ContentData.FontColor;
+            _sizeFont = _contentLabel.ContentData.FontSize;
+            _isBillboarded = _contentLabel.ContentData.IsBillboarded;
+        }
+        
         _toggleTrigger.onValueChanged.AddListener(OnTriggerValueChanged);
         _toggleBillboard.onValueChanged.AddListener(OnBillboardValueChanged);
         _btnIncreaseGazeDuration.onClick.AddListener(OnIncreaseGazeDuration);
@@ -64,10 +101,11 @@ public class LabelEditorView : PopupEditorBase
         _fontSizeButton.onClick.AddListener(ShowFontSizePanel);
         _fontColorButton.onClick.AddListener(ShowFontColorPanel);
         _backgroundColorButton.onClick.AddListener(ShowBackgroundColorPanel);
+        _inputField.onValueChanged.AddListener(OnInputValueChanged);
 
-        var steps = activityManager.ActionsOfTypeAction;
-        var stepsCount = steps.Count;
-        InitClampedScrollRect(_clampedScrollJumpToStep, _templatePrefab, stepsCount, stepsCount.ToString());
+        //var steps = activityManager.ActionsOfTypeAction;
+        //var stepsCount = steps.Count;
+        //InitClampedScrollRect(_clampedScrollJumpToStep, _templatePrefab, stepsCount, stepsCount.ToString());
 
         _gazeDurationPanel.SetActive(false);
 
@@ -75,8 +113,56 @@ public class LabelEditorView : PopupEditorBase
         _clampedScrollObject.SetActive(_toggleTrigger.isOn);
         RootView_v2.Instance.HideBaseView();
     }
+    private void OnInputValueChanged(string value)
+    {
+        _labelText = value;
+    }
+
+    protected override void OnAccept()
+    {
+        if (string.IsNullOrEmpty(_labelText))
+        {
+            AppLog.LogWarning("Text field is empty");
+            return;
+        }
+
+        _contentLabel = CreateContent<LabelContentData>(ContentType.Label);
+        _contentLabel.ContentData.Text = _labelText;
+        _contentLabel.ContentData.IsBillboarded = _isBillboarded;
+        _contentLabel.ContentData.BackgroundColor = _colorBackground;
+        _contentLabel.ContentData.FontColor = _colorFont;
+        _contentLabel.ContentData.FontSize = _sizeFont;
+        _contentLabel.Location = Location.GetDefaultStartLocation();
+
+        if (IsContentUpdate)
+        {
+            RootObject.Instance.LEE.ContentManager.UpdateContent(_contentLabel);
+        }
+        else
+        {
+            RootObject.Instance.LEE.ContentManager.AddContent(_contentLabel);
+        }
+        Close();
+    }
 
     private void UpdateView()
+    {
+        _toggleBillboard.SetIsOnWithoutNotify(_isBillboarded);
+        _fontColourButtonImage.color = _colorFont;
+        _backgroundColourButtonImage.color = _colorBackground;
+        _exampleLabelBackground.color = _colorBackground;
+        _exampleLabel.color = _colorFont;
+        _exampleLabel.fontSize = _sizeFont;
+        _examplePlaceholderLabel.color = _colorFont;
+        _examplePlaceholderLabel.fontSize = _sizeFont;
+        _fontSizeText.text = _sizeFont.ToString();
+        _inputField.text = _labelText;
+        //_textGazeValue.text = _gazeTime.ToString();
+
+        //clampedScrollRectFontSize.SetCurrentItem(_sizeFont - MinFontSize);
+    }
+
+    /*private void UpdateView()
     {
         _inputField.text = string.Empty;
         _toggleTrigger.isOn = false;
@@ -95,19 +181,19 @@ public class LabelEditorView : PopupEditorBase
         if (_content != null)
         {
             _inputField.text = _content.text;
-            _trigger = _step.triggers.Find(tr => tr.id == _content.poi);
+            //_trigger = _step.triggers.Find(tr => tr.id == _content.poi);
             _isBillboarded = _content.billboarded;
             _toggleBillboard.isOn = _content.billboarded;
 
-            if (_trigger != null)
+            /*if (_trigger != null)
             {
                 _toggleTrigger.isOn = true;
                 _triggerStepIndex = int.Parse(_trigger.value) - 1;
                 _gazeDuration = _trigger.duration;
                 _clampedScrollJumpToStep.currentItemIndex = _triggerStepIndex;
-            }
+            }*/
 
-            if (_content.option != "")
+            /*if (_content.option != "")
             {
                 string[] splitArray = _content.option.Split(char.Parse("-"));
 
@@ -120,7 +206,7 @@ public class LabelEditorView : PopupEditorBase
             }
         }
         UpdateButtonColours();
-    }
+    }*/
 
     private void InitClampedScrollRect(ClampedScrollRect clampedScrollRect, GameObject templatePrefab, int maxCount, string text)
     {
@@ -178,7 +264,7 @@ public class LabelEditorView : PopupEditorBase
         _isBillboarded = value;
     }
 
-    protected override void OnAccept()
+    /*protected override void OnAccept()
     {
         if (string.IsNullOrEmpty(_inputField.text))
         {
@@ -211,7 +297,7 @@ public class LabelEditorView : PopupEditorBase
         LearningExperienceEngine.EventManager.ActivateObject(_content);
         LearningExperienceEngine.EventManager.NotifyActionModified(_step);
         Close();
-    }
+    }*/
 
     private void OnArrowButtonPressed()
     {
@@ -252,7 +338,7 @@ public class LabelEditorView : PopupEditorBase
     {
         _fontColourButtonImage.color = _exampleLabel.color;
         _backgroundColourButtonImage.color = _exampleLabelBackground.color;
-        _fontSizeText.text = _exampleLabel.fontSize.ToString();
+        _fontSizeText.text = _exampleLabel.fontSize.ToString(CultureInfo.InvariantCulture);
     }
 
     private void ShowFontSizePanel()
@@ -284,6 +370,10 @@ public class LabelEditorView : PopupEditorBase
         _exampleLabel.color = font;
         _exampleLabel.fontSize = size;
 
+        _colorBackground = background;
+        _colorFont = font;
+        _sizeFont = (int)size;
+        
         UpdateButtonColours();
     }
 }

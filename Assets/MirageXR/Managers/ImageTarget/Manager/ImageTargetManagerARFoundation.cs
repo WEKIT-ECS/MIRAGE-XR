@@ -15,9 +15,11 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
     private bool _libraryIsBusy = false;
     private object _syncObject = new object();
     private Transform _imageTargetHolder;
+    private IViewManager _viewManager;
 
-    public override async Task<bool> InitializationAsync()
+    public override async Task<bool> InitializationAsync(IViewManager viewManager)
     {
+        _viewManager = viewManager;
         var result = await ARFoundationInitialization();
         if (!result)
         {
@@ -25,13 +27,47 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
         }
 
         _arTrackedImageManager.referenceLibrary ??= _arTrackedImageManager.CreateRuntimeLibrary();
-        _arTrackedImageManager.trackedImagesChanged += OnTrackedImagesChanged;
+        _arTrackedImageManager.trackablesChanged.AddListener(OnTrackedImagesChanged);
         _arTrackedImageManager.requestedMaxNumberOfMovingImages = 10;
         _arTrackedImageManager.enabled = true;
 
         _isInitialized = true;
 
         return true;
+    }
+
+    private void OnTrackedImagesChanged(ARTrackablesChangedEventArgs<ARTrackedImage> eventArgs)
+    {
+        foreach (var image in eventArgs.added)
+        {
+            if (!_images.TryGetValue(image.referenceImage.name, out var value))
+            {
+                return;
+            }
+
+            var imageTarget = (ImageTargetARFoundation)value;
+            imageTarget.SetARTrackedImage(image);
+        }
+
+        foreach (var image in eventArgs.updated)
+        {
+            if (!_images.TryGetValue(image.referenceImage.name, out var value))
+            {
+                return;
+            }
+
+            ((ImageTargetARFoundation)value).CopyPose(image);
+        }
+
+        foreach (var (id, image) in eventArgs.removed)
+        {
+            if (!_images.TryGetValue(image.referenceImage.name, out var value))
+            {
+                return;
+            }
+
+            ((ImageTargetARFoundation)value).RemoveARTrackedImage();
+        }
     }
 
     public override async Task<bool> ResetAsync()
@@ -56,7 +92,7 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
 
         await Task.Yield();
 
-        await InitializationAsync();
+        await InitializationAsync(_viewManager);
 
         return true;
     }
@@ -126,35 +162,21 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
 
     private async Task<bool> ARFoundationInitialization()
     {
-        var mainCamera = RootObject.Instance.BaseCamera;
-        if (!mainCamera)
-        {
-            Debug.LogError("Unable to find main camera");
-            return false;
-        }
-
-        var cameraParent = mainCamera.transform.parent;
-        if (!cameraParent)
-        {
-            Debug.LogWarning("Unable to find main camera's parent");
-            cameraParent = mainCamera.transform;
-        }
-
-        var arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>();
-        var arInputManager = MirageXR.Utilities.FindOrCreateComponent<ARInputManager>(arSession.gameObject);
+        var arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>(_viewManager.CameraView);
+        var arInputManager = MirageXR.Utilities.FindOrCreateComponent<ARInputManager>(_viewManager.CameraView);
 
         await Task.Yield();
 
-        //var arSessionOrigin = MirageXR.Utilities.FindOrCreateComponent<ARSessionOrigin>(cameraParent.gameObject);
-        var arSessionOrigin = MirageXR.Utilities.FindOrCreateComponent<XROrigin>(cameraParent.gameObject);
-        _arTrackedImageManager = MirageXR.Utilities.FindOrCreateComponent<ARTrackedImageManager>(cameraParent.gameObject);
+        //var arSessionOrigin = MirageXR.Utilities.FindOrCreateComponent<XROrigin>(_viewManager.CameraView);
+        _arTrackedImageManager = MirageXR.Utilities.FindOrCreateComponent<ARTrackedImageManager>(_viewManager.CameraView);
 
         // arSessionOrigin.Camera = mainCamera;
-        arSessionOrigin.Camera = mainCamera;
+        var baseCamera = _viewManager.GetCamera();
+        //arSessionOrigin.Camera = baseCamera;
         await Task.Yield();
 
-        var arCameraManager = MirageXR.Utilities.FindOrCreateComponent<ARCameraManager>(mainCamera.gameObject);
-        var arCameraBackground = MirageXR.Utilities.FindOrCreateComponent<ARCameraBackground>(mainCamera.gameObject);
+        var arCameraManager = MirageXR.Utilities.FindOrCreateComponent<ARCameraManager>(baseCamera.gameObject);
+        var arCameraBackground = MirageXR.Utilities.FindOrCreateComponent<ARCameraBackground>(baseCamera.gameObject);
         //var arPoseDriver = MirageXR.Utilities.FindOrCreateComponent<ARPoseDriver>(mainCamera.gameObject);
         //var arPoseDriver = MirageXR.Utilities.FindOrCreateComponent<TrackedPoseDriver>(mainCamera.gameObject);
 
@@ -169,41 +191,7 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
     {
         if (_isInitialized && _arTrackedImageManager)
         {
-            _arTrackedImageManager.trackedImagesChanged -= OnTrackedImagesChanged;
-        }
-    }
-
-    private void OnTrackedImagesChanged(ARTrackedImagesChangedEventArgs eventArgs)
-    {
-        foreach (var image in eventArgs.added)
-        {
-            if (!_images.ContainsKey(image.referenceImage.name))
-            {
-                return;
-            }
-
-            var imageTarget = (ImageTargetARFoundation)_images[image.referenceImage.name];
-            imageTarget.SetARTrackedImage(image);
-        }
-
-        foreach (var image in eventArgs.updated)
-        {
-            if (!_images.ContainsKey(image.referenceImage.name))
-            {
-                return;
-            }
-
-            ((ImageTargetARFoundation)_images[image.referenceImage.name]).CopyPose(image);
-        }
-
-        foreach (var image in eventArgs.removed)
-        {
-            if (!_images.ContainsKey(image.referenceImage.name))
-            {
-                return;
-            }
-
-            ((ImageTargetARFoundation)_images[image.referenceImage.name]).RemoveARTrackedImage();
+            _arTrackedImageManager.trackablesChanged.RemoveListener(OnTrackedImagesChanged);
         }
     }
 

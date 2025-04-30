@@ -150,7 +150,7 @@ public class LabelSettings : PopupBase
             obj.AddComponent<IntHolder>().item = i;
             obj.GetComponentInChildren<TMP_Text>().text = $"{i}";
 
-            if (i == _fontSize)
+            if (Mathf.Approximately(i, _fontSize))
             {
                 _clampedScrollRect.currentItemIndex = i - 1;
             }
