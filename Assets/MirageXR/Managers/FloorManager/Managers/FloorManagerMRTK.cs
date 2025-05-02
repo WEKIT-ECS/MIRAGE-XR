@@ -15,7 +15,7 @@ public class FloorManagerMRTK : FloorManagerBase
 
     public override bool isFloorDetected => _isFloorDetected;
 
-    public override Task<bool> InitializationAsync()
+    public override Task<bool> InitializationAsync(IViewManager viewManager, PlaneManagerWrapper planeManager)
     {
         return Task.FromResult(true);
     }

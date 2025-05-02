@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MirageXR;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -35,7 +36,7 @@ public abstract class ImageTargetManagerBase : MonoBehaviour
 
     public UnityEventImageTarget onTargetLost => _onTargetLost;
 
-    public abstract Task<bool> InitializationAsync();
+    public abstract Task<bool> InitializationAsync(IViewManager viewManager);
 
     public abstract Task<bool> ResetAsync();
 

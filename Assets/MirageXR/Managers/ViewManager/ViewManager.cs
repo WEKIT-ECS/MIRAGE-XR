@@ -5,6 +5,7 @@ using LearningExperienceEngine.DataModel;
 using LearningExperienceEngine.NewDataModel;
 using MirageXR.View;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 namespace MirageXR
 {
@@ -27,13 +28,14 @@ namespace MirageXR
                     }
                     else
                     {
-                        _activityView = Object.FindObjectOfType<NetworkActivityView>();
+                        _activityView = Object.FindFirstObjectByType<NetworkActivityView>();
                     }
                 }
                 return _activityView;
             }  
         }
         public GameObject UiView => _uiView;
+        public GameObject CameraView => _cameraView;
         public bool IsInitialized => _isInitialized;
 
         private ActivityView _activityView;
@@ -42,6 +44,7 @@ namespace MirageXR
         private Camera _camera;
         private IActivityManager _activityManager;
         private IAssetBundleManager _assetBundleManager;
+        private PlatformManager _platformManager;
         private CollaborationManager _collaborationManager;
         private bool _isInitialized;
 
@@ -50,10 +53,12 @@ namespace MirageXR
             return UniTask.WaitUntil(() => _isInitialized);
         }
 
-        public void Initialize(IActivityManager activityManager, IAssetBundleManager assetBundleManager, CollaborationManager collaborationManager)
+        public void Initialize(IActivityManager activityManager, IAssetBundleManager assetBundleManager, PlatformManager platformManager, CollaborationManager collaborationManager)
         {
+            UnityEngine.Debug.Log("Initializing [ViewManager] <--");
             _activityManager = activityManager;
             _assetBundleManager = assetBundleManager;
+            _platformManager = platformManager;
             _collaborationManager = collaborationManager;
 
             _activityManager.OnActivityLoaded += OnActivityLoaded;
@@ -61,6 +66,7 @@ namespace MirageXR
 
             CreateCamera();
             CreateUiView();
+            UnityEngine.Debug.Log("Initializing [ViewManager] -->");
         }
 
         public Camera GetCamera()
@@ -87,26 +93,18 @@ namespace MirageXR
 
         private void CreateCamera()
         {
-#if VISION_OS
-            var prefab = _assetBundleManager.GetCamera(CameraType.VisionOS);
-#else
-            var prefab = _assetBundleManager.GetCamera(CameraType.OpenXR);
-#endif
+            var type = _platformManager.GetCameraType();
+            var prefab = _assetBundleManager.GetCamera(type);
             _cameraView = Object.Instantiate(prefab);
             _camera = _cameraView.GetComponentInChildren<Camera>();
+            var cameraData = _camera.GetUniversalAdditionalCameraData();
+            cameraData.antialiasing = AntialiasingMode.None;
         }
 
         private void CreateUiView()
         {
-            if (Camera.main == null)
-            {
-                UnityEngine.Debug.LogError("--- 0 Camera main is null ---");
-            }
-#if VISION_OS// || META_QUEST
-            var prefab = _assetBundleManager.GetUiView(UiType.Spatial);
-#else //UNITY_ANDROID || UNITY_IOS
-            var prefab = _assetBundleManager.GetUiView(UiType.Screen);
-#endif
+            var type = _platformManager.GetUiType();
+            var prefab = _assetBundleManager.GetUiView(type);
             _uiView = Object.Instantiate(prefab);
         }
 

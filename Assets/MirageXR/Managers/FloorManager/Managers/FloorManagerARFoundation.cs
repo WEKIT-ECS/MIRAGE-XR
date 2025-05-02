@@ -13,6 +13,8 @@ public class FloorManagerARFoundation : FloorManagerBase
     private PlaneId _planeId = PlaneId.InvalidId;
     private Vector3 _floorLevel;
     private GameObject _floorPlane;
+    private IViewManager _viewManager;
+    private PlaneManagerWrapper _planeManager;
 
     public override float floorLevel
     {
@@ -40,22 +42,14 @@ public class FloorManagerARFoundation : FloorManagerBase
 
     public override bool isFloorDetected => _planeId != PlaneId.InvalidId;
 
-    public override async Task<bool> InitializationAsync()
+    public override async Task<bool> InitializationAsync(IViewManager viewManager, PlaneManagerWrapper planeManager)
     {
-        var mainCamera = RootObject.Instance.BaseCamera;
+        _viewManager = viewManager;
+        _planeManager = planeManager;
+        _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>(_viewManager.CameraView);
+        _arAnchorManager = MirageXR.Utilities.FindOrCreateComponent<ARAnchorManager>(_viewManager.CameraView);
 
-        if (!mainCamera)
-        {
-            Debug.LogError("Can't find camera main");
-            return false;
-        }
-
-        var cameraParent = mainCamera.transform.parent ? mainCamera.transform.parent.gameObject : mainCamera.gameObject;
-
-        _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>(cameraParent);
-        _arAnchorManager = MirageXR.Utilities.FindOrCreateComponent<ARAnchorManager>(cameraParent); // cameraParent
-
-        RootObject.Instance.PlaneManager.onPlaneRemoved.AddListener(OnPlaneRemoved);
+        _planeManager.onPlaneRemoved.AddListener(OnPlaneRemoved);
         
         await Task.Yield();
 
@@ -109,7 +103,7 @@ public class FloorManagerARFoundation : FloorManagerBase
         _planeId = PlaneId.InvalidId;
 
         await Task.Yield();
-        await InitializationAsync();
+        await InitializationAsync(_viewManager, _planeManager);
 
         return true;
     }

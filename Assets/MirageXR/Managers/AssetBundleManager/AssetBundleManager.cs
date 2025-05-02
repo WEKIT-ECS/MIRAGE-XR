@@ -21,6 +21,7 @@ namespace MirageXR
 
         public async UniTask InitializeAsync()
         {
+            UnityEngine.Debug.Log("Initializing [AssetBundleManager] <--");
             _assetsBundle = await Resources.LoadAsync<AssetsBundle>(MirageXRAssetsBundle) as AssetsBundle;
 
             if (_assetsBundle == null)
@@ -29,6 +30,7 @@ namespace MirageXR
             }
 
             _isInitialized = true;
+            UnityEngine.Debug.Log("Initializing [AssetBundleManager] -->");
         }
 
         public StepView GetStepViewPrefab(bool isNetPrefab = false)
@@ -72,6 +74,8 @@ namespace MirageXR
                     return _assetsBundle.GetVisionCamera();
                 case CameraType.OpenXR:
                     return _assetsBundle.GetOpenCamera();
+                case CameraType.ARFoundation:
+                    return _assetsBundle.GetARFoundationCamera();
                 default:
                     throw new ArgumentOutOfRangeException(nameof(spatial), spatial, null);
             }

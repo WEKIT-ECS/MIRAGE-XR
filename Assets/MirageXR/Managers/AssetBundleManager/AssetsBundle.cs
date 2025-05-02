@@ -18,6 +18,7 @@ namespace MirageXR
 
         [SerializeField] private GameObject visionCamera;
         [SerializeField] private GameObject openCamera;
+        [SerializeField] private GameObject arFoundationCamera;
         [SerializeField] private GameObject spatialUiView;
         [SerializeField] private GameObject screenUiView;
         [SerializeField] private CalibrationTool _calibrationTool;
@@ -48,6 +49,11 @@ namespace MirageXR
         public GameObject GetOpenCamera()
         {
             return openCamera;
+        }
+
+        public GameObject GetARFoundationCamera()
+        {
+            return arFoundationCamera;
         }
 
         public ContentView GetContentViewPrefab(ContentType contentType, bool isNetPrefab = false)

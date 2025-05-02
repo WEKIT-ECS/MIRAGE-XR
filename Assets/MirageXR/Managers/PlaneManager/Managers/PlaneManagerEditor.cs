@@ -24,7 +24,7 @@ public class PlaneManagerEditor : PlaneManagerBase
         set => _prefabPlane = value;
     }
 
-    public override Task<bool> InitializationAsync()
+    public override Task<bool> InitializationAsync(IViewManager viewManager)
     {
         LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
         return Task.FromResult(true);
