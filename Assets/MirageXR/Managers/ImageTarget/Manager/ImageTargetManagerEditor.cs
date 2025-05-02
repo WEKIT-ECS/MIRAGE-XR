@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MirageXR;
 using UnityEngine;
 
 public class ImageTargetManagerEditor : ImageTargetManagerBase
@@ -10,7 +11,7 @@ public class ImageTargetManagerEditor : ImageTargetManagerBase
 
     private Transform _holder;
 
-    public override Task<bool> InitializationAsync()
+    public override Task<bool> InitializationAsync(IViewManager viewManager)
     {
         _holder = new GameObject(HOLDER_NAME).transform;
 

@@ -64,7 +64,9 @@ namespace MirageXR
         // Start is called before the first frame update
         public async Task InitializationAsync()
         {
+            UnityEngine.Debug.Log("Initializing [RoomTwinManager] <--");
             await LoadRoomTwinModel(Path.Combine(Application.streamingAssetsPath, RoomFile));
+            UnityEngine.Debug.Log("Initializing [RoomTwinManager] -->");
         }
 
         // Update is called once per frame

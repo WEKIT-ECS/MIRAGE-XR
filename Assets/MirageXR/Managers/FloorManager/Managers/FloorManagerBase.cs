@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using MirageXR;
 using UnityEngine;
 
 public abstract class FloorManagerBase : MonoBehaviour, IFloorManager
@@ -10,7 +11,7 @@ public abstract class FloorManagerBase : MonoBehaviour, IFloorManager
 
     public abstract bool isFloorDetected { get; }
 
-    public abstract Task<bool> InitializationAsync();
+    public abstract Task<bool> InitializationAsync(IViewManager viewManager, PlaneManagerWrapper planeManager);
 
     public abstract Task<bool> ResetAsync();
 

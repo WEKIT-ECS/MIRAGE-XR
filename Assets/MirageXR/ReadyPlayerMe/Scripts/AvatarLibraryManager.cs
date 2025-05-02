@@ -58,6 +58,11 @@ namespace MirageXR
 			}
 		}
 
+		public bool ContainsAvatar(string avatarUrl)
+		{
+			return AvatarList.Contains(avatarUrl);
+		}
+
 		public async Task<Texture2D> GetThumbnailAsync(string avatarUrl)
 		{
 			if (!AvatarList.Contains(avatarUrl))

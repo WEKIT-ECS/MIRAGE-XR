@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using MirageXR;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -51,8 +52,9 @@ public class PlaneManagerWrapper : MonoBehaviour
 
     private IPlaneManager _manager;
 
-    public async Task InitializationAsync()
+    public async Task InitializationAsync(IViewManager viewManager)
     {
+        UnityEngine.Debug.Log("Initializing [PlaneManagerWrapper] <--");
 #if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS || VISION_OS
         _forceManagerType = ForceManagerType.ARFoundation;
 #endif
@@ -65,7 +67,7 @@ public class PlaneManagerWrapper : MonoBehaviour
 
         try
         {
-            var result = await _manager.InitializationAsync();
+            var result = await _manager.InitializationAsync(viewManager);
             if (!result)
             {
                 Debug.Log("PlaneManagerWrapper: unable to initialize");
@@ -75,6 +77,7 @@ public class PlaneManagerWrapper : MonoBehaviour
         {
             Debug.LogError(e);
         }
+        UnityEngine.Debug.Log("Initializing [PlaneManagerWrapper] -->");
     }
 
     public Task<bool> ResetAsync()
