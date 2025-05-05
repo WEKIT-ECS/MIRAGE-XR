@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
+using i5.Toolkit.Core.VerboseLogging;
 using LearningExperienceEngine;
 using UnityEngine;
 using UnityEngine.Events;
@@ -181,9 +182,9 @@ namespace MirageXR
             _onCalibrationCanceled.Invoke();
         }
 
-        public void FinishCalibration(Pose pose)
+        public void FinishCalibration(Pose pose, bool resetAnchor)
         {
-            OnCalibrationFinishedAsync(pose);
+            OnCalibrationFinishedAsync(pose, resetAnchor);
         }
 
         public Pose GetAnchorPositionAsync()
@@ -191,40 +192,71 @@ namespace MirageXR
             return _anchor.GetPose();
         }
 
-        public void SetAnchorPosition(Pose pose)
+        public void SetAnchorPosition(Pose pose, bool resetAnchor)
         {
-            UpdateAnchorPosition(pose);
+            UpdateAnchorPosition(pose, resetAnchor);
         }
 
-        public async Task ApplyCalibrationAsync(bool resetAnchor)
+        public void ApplyCalibration(bool resetAnchor)
         {
-            await LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.CalibrateWorkplace(
-                resetAnchor);
+            //await LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.CalibrateWorkplace(resetAnchor);
+
+            var activityView = RootObject.Instance.ViewManager.ActivityView;
+            if (activityView == null)
+            {
+                AppLog.LogError("Can't get activityView");
+                return;
+            }
+
+            if (resetAnchor)
+            {
+                var pose = activityView.transform.GetLocalPose();
+                activityView.transform.SetLocalPose(Pose.identity);
+                RootObject.Instance.LEE.ActivityManager.AddAnchorOffset(pose);
+            }
             _isCalibrated = true;
         }
 
-        private void OnCalibrationFinishedAsync(Pose pose)
+        private void OnCalibrationFinishedAsync(Pose pose, bool resetAnchor)
         {
-            SetAnchorPosition(pose);
-            //await ApplyCalibrationAsync(_isRecalibration);
+            SetAnchorPosition(pose, resetAnchor);
+            ApplyCalibration(_isRecalibration);
             DisableCalibration();
             _onCalibrationFinished.Invoke();
             //TutorialManager.Instance.InvokeEvent(TutorialManager.TutorialEvent.CALIBRATION_FINISHED);
         }
 
-        private void UpdateAnchorPosition(Pose pose)
+        private void UpdateAnchorPosition(Pose pose, bool resetAnchor)
         {
             var arAnchor = floorManager.CreateAnchor(pose);
 
             if (!arAnchor)
             {
-                Debug.LogError("Can't create arAnchor");
+                AppLog.LogError("Can't create arAnchor");
                 return;
             }
+
+            var activityView = RootObject.Instance.ViewManager.ActivityView;
+            if (activityView == null)
+            {
+                AppLog.LogError("Can't get activityView");
+                return;
+            }
+
+            var poseOld = activityView.transform.GetPose();
 
             _anchor.SetParent(arAnchor.transform);
             _anchor.localPosition = Vector3.zero;
             _anchor.localRotation = Quaternion.identity;
+
+            if (resetAnchor)
+            {
+                activityView.transform.SetPose(poseOld);
+            }
+            else
+            {
+                activityView.ResetPosition();
+            }
 
             if (_arAnchor)
             {

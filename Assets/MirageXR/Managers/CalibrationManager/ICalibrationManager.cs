@@ -19,11 +19,11 @@ namespace MirageXR
         UniTask InitializationAsync(IAssetBundleManager assetsManager, IAuthorizationManager authorizationManager);
         Pose GetAnchorPositionAsync();
         void EnableCalibration(bool isRecalibration = false);
-        Task ApplyCalibrationAsync(bool resetAnchor);
-        void SetAnchorPosition(Pose pose);
+        public void ApplyCalibration(bool resetAnchor);
+        void SetAnchorPosition(Pose pose, bool resetAnchor);
         void DisableCalibration();
         void StartCalibration();
         void CancelCalibration();
-        void FinishCalibration(Pose pose);
+        void FinishCalibration(Pose pose, bool resetAnchor);
     }
 }

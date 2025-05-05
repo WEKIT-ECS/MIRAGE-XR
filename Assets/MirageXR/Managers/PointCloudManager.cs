@@ -20,7 +20,7 @@ public class PointCloudManager : MonoBehaviour
 #if !UNITY_ANDROID && !UNITY_IOS && !UNITY_VISIONOS
         return true;
 #endif
-        var mainCamera = _viewManager.GetCamera();
+        var mainCamera = _viewManager.Camera;
 
         _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>(_viewManager.CameraView);
 
