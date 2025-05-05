@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DTOs;
 //using LearningExperienceEngine.DataModel;
 using TMPro;
@@ -89,14 +90,24 @@ public class ActivityListView_v2 : BaseView
         }
     }
 
-    private void OnActivityClick(LearningExperienceEngine.DTOs.Activity activity)
+    private void OnActivityClick(Activity activity)
     {
-        RootObject.Instance.LEE.ActivityManager.LoadActivityAsync(activity.Id);
+        OnActivityClickAsync(activity).Forget();
     }
 
-    private void OnActivityDelete(LearningExperienceEngine.DTOs.Activity activity)
+    private async UniTask OnActivityClickAsync(Activity activity)
     {
+        LoadView.Instance.Show();
+        await RootObject.Instance.LEE.ActivityManager.LoadActivityAsync(activity.Id);
+        LoadView.Instance.Hide();
+    }
+
+    private void OnActivityDelete(Activity activity)
+    {
+        LoadView.Instance.Show();
         RootObject.Instance.LEE.ActivityManager.DeleteActivityAsync(activity.Id);
+        RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
+        LoadView.Instance.Hide();
     }
 
     /*private void OnActivitiesFetched(List<Activity> activities)

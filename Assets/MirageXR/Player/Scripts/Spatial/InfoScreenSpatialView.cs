@@ -6,11 +6,14 @@ using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
-using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.Splines;
 using UnityEngine.UI;
 using Activity = LearningExperienceEngine.DataModel.Activity;
+
+#if VISION_OS
+using UnityEngine.InputSystem.LowLevel;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
+#endif
 
 namespace MirageXR
 {
@@ -179,18 +182,19 @@ namespace MirageXR
                 }
             }
         }
-        
+
         private void OnEditorModeChanged(bool value)
         {
             _windowContainer.SetActive(!value);
             UpdateSplinesBasedOnWindowState();
         }
-        
+
         private void StepManagerOnStepChanged(ActivityStep step)
         {
             _step = step;
             UpdateSplinesBasedOnWindowState();
         }
+
         private void ActivityManagerOnActivityUpdated(Activity activity)
         {
             if (_step != null)
@@ -214,11 +218,12 @@ namespace MirageXR
                 ClearSplines();
             }
         }
-        
+
         private void OnActivityLoaded(Activity activity)
         {
             CheckAndUpdateSplines();
         }
+
         private void CheckAndUpdateSplines()
         {
             var linkInfos = _textDescription.textInfo.linkInfo;
@@ -289,6 +294,7 @@ namespace MirageXR
                 }
             }
         }
+
         private void CreateSplinesForHyperlinks()
         {
             _textDescription.ForceMeshUpdate();
@@ -313,7 +319,7 @@ namespace MirageXR
                 }
             }
         }
-        
+
         private void ClearSplines()
         {
             foreach (var spline in _splineInstances.Values)
@@ -324,6 +330,7 @@ namespace MirageXR
             _hyperlinkInstances.Clear();
             _previousPositions.Clear(); 
         }
+
         private void CreateSplineLine(string linkId)
         {
             var existingSpline = GameObject.Find("spline__" + linkId);
@@ -373,7 +380,7 @@ namespace MirageXR
 
             UpdateSplineLine(linkId);
         }
-        
+
         private void UpdateSplineLine(string linkId)
         {
             if (!_hyperlinkInstances.ContainsKey(linkId) || !_splineInstances.ContainsKey(linkId))
@@ -411,6 +418,7 @@ namespace MirageXR
                 splineExtrude.Rebuild();
             }
         }
+
         private Vector3 GetLinkWorldPosition(string linkId)
         {
             if (!_linkIndexCache.TryGetValue(linkId, out var index))
@@ -457,7 +465,7 @@ namespace MirageXR
             _windowControls.SetActive(false);
             UpdateToggleStates();
         }
-        
+
         private void OnStepCompletedToggleCollapsedValueChanged(bool value)
         {
             _mainScreen.SetActive(true);
@@ -465,7 +473,7 @@ namespace MirageXR
             _windowControls.SetActive(true);
             UpdateToggleStates();
         }
-        
+
         private void UpdateToggleStates()
         {
             switch (_mainScreen.activeSelf)
@@ -480,7 +488,7 @@ namespace MirageXR
                     break;
             }
         }
-        
+
         private void OnPreviousStepClicked()
         {
             RootObject.Instance.LEE.StepManager.GoToPreviousStep();
@@ -490,7 +498,7 @@ namespace MirageXR
         {
             RootObject.Instance.LEE.StepManager.GoToNextStep();
         } 
-        
+
         public async void UpdateView(ActivityStep step)
         {
             if (step == null)
@@ -536,6 +544,7 @@ namespace MirageXR
             }
             CreateSplinesForHyperlinks();
         }
+
         private string AddLinkTagsToBrackets(string inputText)
         {
             var pattern = @"\[([^\[\]]+)\]";

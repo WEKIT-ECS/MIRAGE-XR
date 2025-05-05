@@ -29,7 +29,6 @@ public class CalibrationView : PopupBase
     private string HINT_MOVE_ORIGIN = "The origin is the single main anchor point of the activity. 'Set origin' only if you are first-time editing the activity.";
     private string HINT_RESTORE_POSITION = "Positions are the locations of all contents relative to the origin. ‘Restore positions’ if you view an activity or re-edit.";
     private int DELAY_TIME = 250;
-    private int CLOSE_TIME = 500;
 
     [SerializeField] private Image _imageTarget;
     [SerializeField] private Transform _imageCalibrationAnimation;
@@ -184,7 +183,7 @@ public class CalibrationView : PopupBase
             }
         }
     }
-    
+
     private async Task StartPlaceCalibrationAsync()
     {
         await Task.Delay(DELAY_TIME);
@@ -196,15 +195,15 @@ public class CalibrationView : PopupBase
     private void OnCalibrationPlaceDetected(PlaneId planeId, Vector3 position)
     {
         _btnApply.gameObject.SetActive(true);
-
-        var cameraPosition = Camera.main.transform.position;
+        var baseCamera = RootObject.Instance.ViewManager.Camera;
+        var cameraPosition = baseCamera.transform.position;
         var direction = cameraPosition - position;
         direction.Normalize();
         var rotation = Quaternion.LookRotation(direction, Vector3.up);
         rotation.x = 0;
         rotation.z = 0;
 
-        calibrationManager.SetAnchorPosition(new Pose(position, rotation));
+        calibrationManager.SetAnchorPosition(new Pose(position, rotation), _isMoveOrigin);
     }
 
     private void StartCalibration()
@@ -230,25 +229,19 @@ public class CalibrationView : PopupBase
 
     private void OnCalibrationFinished()
     {
-        OnCalibrationFinishedAsync().AsAsyncVoid();
-    }
-
-    private async Task OnCalibrationFinishedAsync()
-    {
-        await calibrationManager.ApplyCalibrationAsync(_isMoveOrigin);
+        calibrationManager.ApplyCalibration(_isMoveOrigin);
         _textDone.gameObject.SetActive(true);
         _imageTarget.gameObject.SetActive(false);
         _imageCalibrationAnimation.gameObject.SetActive(false);
 
-        var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
-        if (gridManager.gridEnabled && activityManager.EditModeActive)
+        var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManager;
+        if (gridManager.gridEnabled && activityManager.IsEditorMode)
         {
             gridManager.ShowGrid();
         }
 
         //_poseSynchronizer.enabled = true;
 
-        await Task.Delay(CLOSE_TIME);
         LearningExperienceEngine.EventManager.WorkplaceCalibrated();
         Close();
 
@@ -269,14 +262,15 @@ public class CalibrationView : PopupBase
         var pose = calibrationManager.GetAnchorPositionAsync();
         if (pose != _startPose)
         {
-            calibrationManager.SetAnchorPosition(_startPose);
-            calibrationManager.ApplyCalibrationAsync(false).AsAsyncVoid();
+            calibrationManager.SetAnchorPosition(_startPose, false);
+            calibrationManager.ApplyCalibration(false);
         }
 
         if (_isMoveOrigin)
         {
-            var synchronizer = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.detectableContainer.GetComponentInParent<LearningExperienceEngine.PoseSynchronizer>();
-            synchronizer.enabled = true;
+            //var synchronizer = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.detectableContainer.GetComponentInParent<LearningExperienceEngine.PoseSynchronizer>();
+            //synchronizer.enabled = true;
+            
         }
 
         Close();
@@ -297,7 +291,7 @@ public class CalibrationView : PopupBase
         _btnApply.gameObject.SetActive(false);
         planeManager.onPlaneClicked.RemoveListener(OnCalibrationPlaceDetected);
         planeManager.DisablePlanes();
-        OnCalibrationFinishedAsync().AsAsyncVoid();
+        OnCalibrationFinished();
     }
 
     protected override bool TryToGetArguments(params object[] args)

@@ -4,8 +4,10 @@ using MirageXR;
 using UnityEngine;
 using UnityEngine.Events;
 
+[Serializable]
 public class UnityEventPlaneIdVector3 : UnityEvent<PlaneId, Vector3> { }
 
+[Serializable]
 public class UnityEventPlaneIdPlaneId : UnityEvent<PlaneId, PlaneId> { }
 
 public struct PlaneId
@@ -55,9 +57,6 @@ public class PlaneManagerWrapper : MonoBehaviour
     public async Task InitializationAsync(IViewManager viewManager)
     {
         UnityEngine.Debug.Log("Initializing [PlaneManagerWrapper] <--");
-#if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS || VISION_OS
-        _forceManagerType = ForceManagerType.ARFoundation;
-#endif
         _manager = CreateManager();
 
         if (_manager == null)

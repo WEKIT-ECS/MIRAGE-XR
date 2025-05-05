@@ -33,7 +33,7 @@ public class CameraCalibrationChecker : MonoBehaviour
         UnityEngine.Debug.Log("Initializing [CameraCalibrationChecker] <--");
         _viewManager = viewManager;
         _anchor = RootObject.Instance.CalibrationManager.Anchor;
-        _mainCameraTransform = _viewManager.GetCamera().transform;
+        _mainCameraTransform = _viewManager.Camera.transform;
 #if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS
         _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>();
 #endif

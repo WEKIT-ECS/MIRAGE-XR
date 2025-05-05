@@ -61,9 +61,12 @@ public class StepsListItem_v2 : MonoBehaviour
 
         _txtStepName.text = _step.Name;
         _txtNumber.text = (_number + 1).ToString("00");
-        var isCurrent = step.Id == RootObject.Instance.LEE.StepManager.CurrentStep.Id;
-        _stepCurrentImage.SetActive(isCurrent);
-        _stepSelected.SetActive(isCurrent);
+        if (RootObject.Instance.LEE.StepManager.CurrentStep != null)
+        {
+            var isCurrent = step.Id == RootObject.Instance.LEE.StepManager.CurrentStep.Id;
+            _stepCurrentImage.SetActive(isCurrent);
+            _stepSelected.SetActive(isCurrent);
+        }
         //_stepDoneImage.SetActive(_step.isCompleted && !isCurrent);
 
         //_btnImageMarkerPopup.gameObject.SetActive(ImageMarkerCheck());
