@@ -83,14 +83,14 @@ public class ContentListItem : MonoBehaviour
 
     private void OnContentClick()
     {
-        var type = LearningExperienceEngine.ContentTypeExtension.ParsePredicate(_content.predicate);
-        var editor = _parentView.editors.FirstOrDefault(t => t.editorForType == type);
+        /*var type = LearningExperienceEngine.ContentTypeExtension.ParsePredicate(_content.predicate);  //TODO obsolete
+        var editor = _parentView.editors.FirstOrDefault(t => t.editorForType == type);  
         if (editor == null)
         {
             Debug.LogError($"there is no editor for the type {type}");
             return;
         }
-        PopupsViewer.Instance.Show(editor, _parentView.currentStep, _content);
+        PopupsViewer.Instance.Show(editor, _parentView.currentStep, _content);*/
     }
 
     private void OnDeleteClick()

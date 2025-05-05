@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class VfxEditorView : PopupEditorBase
 {
-    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.EFFECTS;
+    public override LearningExperienceEngine.DataModel.ContentType editorForType => LearningExperienceEngine.DataModel.ContentType.Effects;
     
     [SerializeField] private Transform _contentContainer;
     [SerializeField] private VfxListItem _vfxListItemPrefab;

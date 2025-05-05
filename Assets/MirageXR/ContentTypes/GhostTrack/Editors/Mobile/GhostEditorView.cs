@@ -11,7 +11,7 @@ public class GhostEditorView : PopupEditorBase
     private const string MALE_TYPE = "GhosttrackPrefab";
     private const string FEMALE_TYPE = "GhosttrackPrefabFemale";
 
-    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.GHOST;
+    public override LearningExperienceEngine.DataModel.ContentType editorForType => LearningExperienceEngine.DataModel.ContentType.Ghost;
 
     [SerializeField] private Toggle _toggleMale;
     [SerializeField] private Toggle _toggleFemale;
@@ -88,7 +88,7 @@ public class GhostEditorView : PopupEditorBase
         else
         {
             _content = augmentationManager.AddAugmentation(_step, offset);
-            _content.predicate = editorForType.GetPredicate();
+            //_content.predicate = editorForType.GetPredicate();    //TODO obsolete
         }
 
         _content.option = _toggleMale.isOn ? MALE_TYPE : FEMALE_TYPE;
