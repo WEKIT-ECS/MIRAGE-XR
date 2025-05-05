@@ -41,10 +41,10 @@ public class ContentListItem_v2 : MonoBehaviour
     {
         _content = content;
         _type = _content.Type;
-        _txtType.text =_content.Type.ToString();
+        _txtType.text = RootView_v2.Instance.GetContentTypeLabel(_type);
         _txtName.text = _content.Type.ToString();
 
-        //_imgType.sprite = _type.GetIcon();
+        _imgType.sprite = RootView_v2.Instance.GetContentTypeSprite(_type);
 
         var stepList = activityManager.ActionsOfTypeAction;
 

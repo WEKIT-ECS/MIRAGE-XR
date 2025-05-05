@@ -57,7 +57,8 @@ public class VirtualInstructorView : PopupEditorBase
     private Button _btnNoSpeech;
 
     private string _prefabName;
-    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.VIRTUALINSTRUCTOR; 
+    public override LearningExperienceEngine.DataModel.ContentType editorForType => LearningExperienceEngine.DataModel.ContentType.Instructor;
+    //public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.VIRTUALINSTRUCTOR; 
     
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -146,7 +147,7 @@ public class VirtualInstructorView : PopupEditorBase
             _content = augmentationManager.AddAugmentation(_step, GetOffset());
         }
 
-        _content.predicate = editorForType.GetPredicate();
+        //_content.predicate = editorForType.GetPredicate();//TODO obsolete
 
         var data = new InstructorContentData
         {

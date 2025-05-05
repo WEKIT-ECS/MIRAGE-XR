@@ -21,7 +21,7 @@ public abstract class PopupEditorBase : PopupBase
     [SerializeField] protected Button _btnAccept;
     [SerializeField] protected Button _btnClose;
 
-    public abstract LearningExperienceEngine.ContentType editorForType { get; }
+    public abstract LearningExperienceEngine.DataModel.ContentType editorForType { get; }
 
     protected LearningExperienceEngine.ToggleObject _content;
     protected LearningExperienceEngine.Action _step;
@@ -46,8 +46,8 @@ public abstract class PopupEditorBase : PopupBase
 
     protected virtual void UpdateBaseView()
     {
-        _icon.sprite = editorForType.GetIcon();
-        _txtLabel.text = editorForType.GetName();
+        _icon.sprite = RootView_v2.Instance.GetContentTypeSprite(editorForType);
+        _txtLabel.text = RootView_v2.Instance.GetContentTypeLabel(editorForType);
     }
 
     protected virtual Vector3 GetOffset()

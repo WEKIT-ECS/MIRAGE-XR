@@ -11,7 +11,8 @@ using Image = UnityEngine.UI.Image;
 public class ImageMarkerEditorView : PopupEditorBase
 {
     private const int MAX_PICTURE_SIZE = 1024;
-    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.IMAGEMARKER;
+    //public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.IMAGEMARKER;
+    public override LearningExperienceEngine.DataModel.ContentType editorForType => LearningExperienceEngine.DataModel.ContentType.Unknown; //TODO
 
     [SerializeField] private Transform _imageHolder;
     [SerializeField] private Image _image;
@@ -66,7 +67,7 @@ public class ImageMarkerEditorView : PopupEditorBase
         else
         {
             _content = augmentationManager.AddAugmentation(_step, GetOffset());
-            _content.predicate = editorForType.GetPredicate();
+            //_content.predicate = editorForType.GetPredicate();//TODO obsolete
         }
 
         var saveFileName = $"MirageXR_Image_{DateTime.Now.ToFileTimeUtc()}.jpg";
