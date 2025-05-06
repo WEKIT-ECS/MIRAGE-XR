@@ -1,11 +1,11 @@
 using System;
-using Microsoft.MixedReality.Toolkit.Input;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 
 [RequireComponent(typeof(ARPlane), typeof(MeshCollider), typeof(MeshRenderer))]
-public class ARFoundationPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IMixedRealityPointerHandler
+public class ARFoundationPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IPointerClickHandler
 {
     private static bool _isActive = false;
     private static bool _isCollidersEnabled = false;
@@ -68,24 +68,25 @@ public class ARFoundationPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IMixed
         UpdateState();
     }
 
-    public void OnPointerDown(MixedRealityPointerEventData eventData) { }
-
-    public void OnPointerDragged(MixedRealityPointerEventData eventData) { }
-
-    public void OnPointerUp(MixedRealityPointerEventData eventData) { }
-
-    public void OnPointerClicked(MixedRealityPointerEventData eventData)
+    public Vector3 GetPosition()
     {
-        if (TrackableId == TrackableId.invalidId || eventData?.Pointer?.Result?.Details.Point == null)
+        return transform.position;
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (TrackableId == TrackableId.invalidId)
         {
             return;
         }
 
-        _onClicked?.Invoke(new PlaneId(TrackableId.subId1, TrackableId.subId2), eventData.Pointer.Result.Details.Point);
-    }
-
-    public Vector3 GetPosition()
-    {
-        return transform.position;
+        var screenBegin = eventData.pointerPressRaycast.screenPosition;
+        var screenEnd = eventData.pointerCurrentRaycast.screenPosition;
+        var worldBegin = eventData.pointerPressRaycast.worldPosition;
+        var delta = Vector2.Distance(screenBegin, screenEnd);
+        if (delta < EventSystem.current.pixelDragThreshold)
+        {
+            _onClicked?.Invoke(new PlaneId(TrackableId.subId1, TrackableId.subId2), worldBegin);
+        }
     }
 }

@@ -7,7 +7,7 @@ using CharacterController = MirageXR.CharacterController;
 
 public class CharacterEditorView : PopupEditorBase
 {
-    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.CHARACTER;
+    public override LearningExperienceEngine.DataModel.ContentType editorForType => LearningExperienceEngine.DataModel.ContentType.Character;
 
     [SerializeField] private Destination _destinationPrefab;
     [SerializeField] private Transform _contentContainer;

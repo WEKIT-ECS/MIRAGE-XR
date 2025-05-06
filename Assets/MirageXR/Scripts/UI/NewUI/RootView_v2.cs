@@ -1,11 +1,23 @@
+using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
 using MirageXR;
 using UnityEngine;
+using ContentType = LearningExperienceEngine.DataModel.ContentType;
 
 [RequireComponent(typeof(Canvas))]
 public class RootView_v2 : BaseView
 {
+    [Serializable]
+    private class ContentTypeInfo
+    {
+        public ContentType ContentType;
+        public Sprite Sprite;
+        public String Label;
+    }
+
     public static RootView_v2 Instance { get; private set; }
 
     [SerializeField] private BottomPanelView _bottomPanelView;
@@ -23,6 +35,9 @@ public class RootView_v2 : BaseView
     [SerializeField] private Dialog _dialog;
     [SerializeField] private TutorialHandlerUI _tutorial;
 
+    [SerializeField] private Sprite defaultContentIcon;
+    [SerializeField] private String defaultContentLabel;
+    [SerializeField] private ContentTypeInfo[] contentTypesIcons;
     [SerializeField] private PopupEditorBase[] _editors;
 
     public enum HelpPage
@@ -104,6 +119,28 @@ public class RootView_v2 : BaseView
         }
 
         RootObject.Instance.CameraCalibrationChecker.OnAnchorLost.AddListener(ShowCalibrationAlert);
+    }
+
+    public Sprite GetContentTypeSprite(ContentType contentType)
+    {
+        var sprite = contentTypesIcons.FirstOrDefault(t => t.ContentType == contentType);
+        if (sprite != null)
+        {
+            return sprite.Sprite;
+        }
+
+        return defaultContentIcon;
+    }
+
+    public String GetContentTypeLabel(ContentType contentType)
+    {
+        var sprite = contentTypesIcons.FirstOrDefault(t => t.ContentType == contentType);
+        if (sprite != null)
+        {
+            return sprite.Label;
+        }
+
+        return defaultContentLabel;
     }
 
     private void OnDestroy()
@@ -197,7 +234,7 @@ public class RootView_v2 : BaseView
 
     public void ShowHomeView()
     {
-        activityListView.FetchAndUpdateView();
+        activityListView.FetchAndUpdateView().Forget();
         _pageView.currentPageIndex = 0;
     }
 

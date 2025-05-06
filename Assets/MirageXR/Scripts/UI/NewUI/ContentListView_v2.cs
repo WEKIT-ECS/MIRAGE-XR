@@ -182,7 +182,7 @@ public class ContentListView_v2 : BaseView
 
     private void OnAddMarkerPressed()
     {
-        var editors = RootView_v2.Instance.editors;
+        /*var editors = RootView_v2.Instance.editors;
         var editor = editors.FirstOrDefault(t => t.editorForType == ContentType.IMAGEMARKER);
         if (editor == null)
         {
@@ -191,7 +191,7 @@ public class ContentListView_v2 : BaseView
         }
         PopupsViewer.Instance.Show(editor, _currentStep);
 
-        _toggleAugmentations.isOn = true;
+        _toggleAugmentations.isOn = true;*/
     }
 
     private void OnSettingsPressed()

@@ -17,15 +17,15 @@ namespace MirageXR
         }
 
         [Tooltip("If you want to test AR in the editor enable this.")]
-        [SerializeField] bool forceWorldSpaceUi = false;
-        [SerializeField] bool forceToTabletView = false;
+        [SerializeField] private bool forceWorldSpaceUi = false;
+        [SerializeField] private bool forceToTabletView = false;
 
-        [SerializeField] bool overrideUiType = false;
-        [SerializeField] UiType uiType = UiType.Screen;
-        [SerializeField] bool overrideCameraType = false;
-        [SerializeField] CameraType cameraType = CameraType.OpenXR;
+        [SerializeField] private bool overrideUiType = false;
+        [SerializeField] private UiType uiType = UiType.Screen;
+        [SerializeField] private bool overrideCameraType = false;
+        [SerializeField] private CameraType cameraType = CameraType.OpenXR;
 
-        [SerializeField] GameObject _screenSpaceDebugTool;
+        [SerializeField] private GameObject _screenSpaceDebugTool;
         [SerializeField] private LoadObject[] _worldSpaceObjects;
         [SerializeField] private LoadObject[] _screenSpaceObjects;
         [SerializeField] private LoadObject[] _editorObjects;

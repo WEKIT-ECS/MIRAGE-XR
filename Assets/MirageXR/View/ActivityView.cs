@@ -22,6 +22,7 @@ namespace MirageXR.View
 
         protected StepView _stepView;
         protected readonly List<ContentView> _contentViews = new();
+        protected Activity _activity;
 
         /*private void Awake()
         {
@@ -50,6 +51,18 @@ namespace MirageXR.View
             await calibrationManager.WaitForInitialization();
             transform.SetParent(calibrationManager.Anchor, false);
             transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+
+#if UNITY_EDITOR
+            var tempObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            tempObject.transform.SetParent(transform);
+            tempObject.transform.SetLocalPose(Pose.identity);
+            var tempCollider = tempObject.GetComponent<Collider>();
+            if (tempCollider)
+            {
+                Destroy(tempCollider);
+            }
+            tempObject.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+#endif
         }
 
         protected virtual void OnSyncMessageReceived(SynchronizationDataModel data)
@@ -92,15 +105,19 @@ namespace MirageXR.View
 
         protected virtual void OnActivityLoaded(Activity activity)
         {
+            _activity = activity;
             _activityId = activity.Id;
-            UnityEngine.Debug.Log("---OnActivityUpdated");
+            UnityEngine.Debug.Log("---OnActivityLoaded");
+            UpdateLocation(activity);
             UpdateStepView();
         }
 
         protected virtual void OnActivityUpdated(Activity activity)
         {
+            _activity = activity;
             _activityId = activity.Id;
             UnityEngine.Debug.Log("---OnActivityUpdated");
+            UpdateLocation(activity);
             UpdateStepView();
         }
 
@@ -109,6 +126,16 @@ namespace MirageXR.View
             UnityEngine.Debug.Log("---ContentManagerOnContentActivated");
             _contents = contents;
             UpdateContentsView();
+        }
+
+        protected virtual void UpdateLocation(Activity activity)
+        {
+            if (activity.Location != null)
+            {
+                transform.localPosition = activity.Location.Position;
+                transform.localEulerAngles = activity.Location.Rotation;
+                transform.localScale = activity.Location.Scale;   
+            }
         }
 
         protected virtual void OnStepChanged(ActivityStep step)
@@ -205,6 +232,11 @@ namespace MirageXR.View
             stepView.gameObject.AddComponent<StepViewManipulationSynchronizer>();
             stepView.Initialize(step);
             return stepView;
+        }
+
+        public void ResetPosition()
+        {
+            UpdateLocation(_activity);
         }
     }
 }

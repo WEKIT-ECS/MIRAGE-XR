@@ -16,7 +16,7 @@ public class ActionEditorView : PopupEditorBase
     private float _currentGazeDurationValue;
     public class IntHolder : ObjectHolder<int> { }
 
-    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.ACT;
+    public override LearningExperienceEngine.DataModel.ContentType editorForType => LearningExperienceEngine.DataModel.ContentType.Action;
 
     [SerializeField] private Image _thumbnailImage;
     [SerializeField] private TMP_Text _thumbnailLabel;

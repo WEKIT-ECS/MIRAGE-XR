@@ -10,7 +10,7 @@ public class PickAndPlaceEditorView : PopupEditorBase
     private static LearningExperienceEngine.AugmentationManager _augmentationManager => LearningExperienceEngine.LearningExperienceEngine.Instance.AugmentationManager;
     private static LearningExperienceEngine.WorkplaceManager _workplaceManager => LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager;
 
-    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.PICKANDPLACE;
+    public override LearningExperienceEngine.DataModel.ContentType editorForType => LearningExperienceEngine.DataModel.ContentType.Interaction;
 
     [SerializeField] private TMP_InputField _inputField;
 
@@ -68,7 +68,7 @@ public class PickAndPlaceEditorView : PopupEditorBase
         else
         {
             _content = _augmentationManager.AddAugmentation(_step, GetOffset());
-            _content.predicate = editorForType.GetPredicate();
+            //_content.predicate = editorForType.GetPredicate();    //TODO obsolete
         }
         _content.text = _inputField.text;
         _content.key = "1";

@@ -30,7 +30,7 @@ public class ModelEditorView : PopupEditorBase
         public string ClientSecret;
     }
 
-    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.MODEL;
+    public override ContentType editorForType => ContentType.Model;
 
     [SerializeField] private Transform _contentContainer;
     [SerializeField] private ScrollRect _scroll;
