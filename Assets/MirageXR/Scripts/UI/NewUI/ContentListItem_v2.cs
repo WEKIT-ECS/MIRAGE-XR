@@ -1,7 +1,5 @@
-﻿using LearningExperienceEngine;
-using MirageXR;
+﻿using MirageXR;
 using System;
-using System.Linq;
 using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;

@@ -39,6 +39,7 @@ public class CalibrationView : PopupBase
     [SerializeField] private GameObject _panelFloor;
     [SerializeField] private GameObject _panelFloorAnimation;
     [SerializeField] private GameObject _panelImage;
+    [SerializeField] private GameObject _panelResetPosition;
     [SerializeField] private GameObject _panelManual;
     [SerializeField] private Toggle _toggleManualResetPosition;
     [SerializeField] private Toggle _toggleImageResetPosition;
@@ -52,6 +53,7 @@ public class CalibrationView : PopupBase
 
     private Action _showBaseView;
     private Action _hideBaseView;
+    private bool _isEditorMode;
     private bool _isMoveOrigin;
     private bool _isFloorOnly;
     private bool _isMarkerLess;
@@ -64,7 +66,12 @@ public class CalibrationView : PopupBase
     {
         base.Initialization(onClose, args);
 
-        //_poseSynchronizer = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.detectableContainer.GetComponentInParent<LearningExperienceEngine.PoseSynchronizer>();
+        if (!_isEditorMode)
+        {
+            _isMoveOrigin = false;
+            _panelResetPosition.SetActive(false);
+        }
+
         _canBeClosedByOutTap = false;
         _showBackground = false;
 
@@ -85,8 +92,7 @@ public class CalibrationView : PopupBase
         _toggleImageResetPosition.onValueChanged.AddListener(OnToggleResetPositionValueChanged);
         _textDescroptionImage.text = _isMoveOrigin ? HINT_MOVE_ORIGIN : HINT_RESTORE_POSITION;
         _textDescroptionManual.text = _isMoveOrigin ? HINT_MOVE_ORIGIN : HINT_RESTORE_POSITION;
-        //_poseSynchronizer.enabled = !_isMoveOrigin;
-        
+
         _btnApply.gameObject.SetActive(false);
 
         ResetCalibration();
@@ -120,7 +126,6 @@ public class CalibrationView : PopupBase
     private void OnToggleResetPositionValueChanged(bool value)
     {
         _isMoveOrigin = !value;
-        //_poseSynchronizer.enabled = !_isMoveOrigin;
         _textDescroptionImage.text = _isMoveOrigin ? HINT_MOVE_ORIGIN : HINT_RESTORE_POSITION;
         _textDescroptionManual.text = _isMoveOrigin ? HINT_MOVE_ORIGIN : HINT_RESTORE_POSITION;
     }
@@ -257,20 +262,13 @@ public class CalibrationView : PopupBase
         _tweenerDetection?.Kill();
     }
 
-    public void OnCloseButtonPressed()
+    private void OnCloseButtonPressed()
     {
         var pose = calibrationManager.GetAnchorPositionAsync();
         if (pose != _startPose)
         {
             calibrationManager.SetAnchorPosition(_startPose, false);
             calibrationManager.ApplyCalibration(false);
-        }
-
-        if (_isMoveOrigin)
-        {
-            //var synchronizer = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.detectableContainer.GetComponentInParent<LearningExperienceEngine.PoseSynchronizer>();
-            //synchronizer.enabled = true;
-            
         }
 
         Close();
@@ -300,9 +298,10 @@ public class CalibrationView : PopupBase
         {
             _hideBaseView = (Action)args[0];
             _showBaseView = (Action)args[1];
-            _isMoveOrigin = (bool)args[2];
-            _isFloorOnly = (bool)args[3];
-            _isMarkerLess = (bool)args[4];
+            _isEditorMode = (bool)args[2];
+            _isMoveOrigin = (bool)args[3];
+            _isFloorOnly = (bool)args[4];
+            _isMarkerLess = (bool)args[5];
             return true;
         }
         catch (Exception)
