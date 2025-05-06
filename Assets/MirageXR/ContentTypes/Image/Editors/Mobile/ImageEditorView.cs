@@ -24,7 +24,7 @@ public class ImageEditorView : PopupEditorBase
 
     private static LearningExperienceEngine.AugmentationManager augmentationManager => LearningExperienceEngine.LearningExperienceEngine.Instance.AugmentationManager;
 
-    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.IMAGE;
+    public override LearningExperienceEngine.DataModel.ContentType editorForType => LearningExperienceEngine.DataModel.ContentType.Image;
 
     private const string LANDSCAPE = "L";
     private const string PORTRAIT = "P";

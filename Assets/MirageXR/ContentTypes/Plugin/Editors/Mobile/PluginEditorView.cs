@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class PluginEditorView : PopupEditorBase
 {
-    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.PLUGIN;
+    public override LearningExperienceEngine.DataModel.ContentType editorForType => LearningExperienceEngine.DataModel.ContentType.Unknown; //TODO
+    //public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.PLUGIN;
 
     [SerializeField] private Transform _contentContainer;
     [SerializeField] private PluginListItem _pluginListItemPrefab;

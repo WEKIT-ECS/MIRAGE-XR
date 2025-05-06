@@ -16,7 +16,7 @@ public class VideoEditorView : PopupEditorBase
     private const float HIDE_ANIMATION_TIME = 0.5f;
     private const float IMAGE_HEIGHT = 630f;
 
-    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.VIDEO;
+    public override LearningExperienceEngine.DataModel.ContentType editorForType => LearningExperienceEngine.DataModel.ContentType.Video;
 
     [SerializeField] private Transform _imageHolder;
     [SerializeField] private Image _image;      // TODO: replace image preview with a video
@@ -167,7 +167,7 @@ public class VideoEditorView : PopupEditorBase
         else
         {
             _content = augmentationManager.AddAugmentation(_step, GetOffset());
-            _content.predicate = editorForType.GetName().ToLower();
+            //_content.predicate = editorForType.GetName().ToLower();//TODO obsolete
         }
 
         if (!LearningExperienceEngine.UserSettings.dontShowNewAugmentationHint)

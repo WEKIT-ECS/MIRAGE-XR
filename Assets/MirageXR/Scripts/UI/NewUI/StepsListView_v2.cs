@@ -98,8 +98,20 @@ public class StepsListView_v2 : BaseView
         RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditModeChanged;
         RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityUpdated;
         RootObject.Instance.LEE.StepManager.OnStepChanged += OnStepChanged;
+        RootObject.Instance.CalibrationManager.OnCalibrated += OnCalibrated;
 
         UpdateView();
+    }
+
+    private void OnCalibrated(bool isCalibrated)
+    {
+        UpdateCalibrationStatus(isCalibrated);
+    }
+
+    private void UpdateCalibrationStatus(bool isCalibrated)
+    {
+        _statusCalibrated.SetActive(isCalibrated);
+        _statusNotCalibrated.SetActive(!isCalibrated);
     }
 
     private void OnDestroy()
@@ -448,16 +460,16 @@ public class StepsListView_v2 : BaseView
 
     private void ShowImageTargetCalibrationView()
     {
-        var isEditMode = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive;
+        var isEditMode = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManager.IsEditorMode;
         var isCalibration = RootObject.Instance.CalibrationManager.IsCalibrated;
-        PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode && !isCalibration, false, false);
+        PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode, isEditMode && !isCalibration, false, false);
     }
 
     private void ShowMarkerLessCalibrationView()
     {
-        var isEditMode = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive;
+        var isEditMode = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManager.IsEditorMode;
         var isCalibration = RootObject.Instance.CalibrationManager.IsCalibrated;
-        PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode && !isCalibration, false, true);
+        PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode, isEditMode && !isCalibration, false, true);
     }
 
     private void ShowFloorDetectionOnlyView()

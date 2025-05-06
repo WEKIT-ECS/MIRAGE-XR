@@ -10,7 +10,7 @@ public class GlyphEditorView : PopupEditorBase
     private const float MAX_SLIDER_VALUE = 10;
     private const float DEFAULT_SLIDER_VALUE = 3;
 
-    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.ACT;
+    public override LearningExperienceEngine.DataModel.ContentType editorForType => LearningExperienceEngine.DataModel.ContentType.Action;
 
     [SerializeField] private Transform _contentContainer;
     [SerializeField] private GlyphListItem _glyphListItemPrefab;

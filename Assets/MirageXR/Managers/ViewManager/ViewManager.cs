@@ -36,6 +36,7 @@ namespace MirageXR
         }
         public GameObject UiView => _uiView;
         public GameObject CameraView => _cameraView;
+        public Camera Camera => _camera;
         public bool IsInitialized => _isInitialized;
 
         private ActivityView _activityView;
@@ -67,11 +68,6 @@ namespace MirageXR
             CreateCamera();
             CreateUiView();
             UnityEngine.Debug.Log("Initializing [ViewManager] -->");
-        }
-
-        public Camera GetCamera()
-        {
-            return _camera;
         }
 
         private void OnPlayerJoinEvent(NetworkRunner runner, PlayerRef player)

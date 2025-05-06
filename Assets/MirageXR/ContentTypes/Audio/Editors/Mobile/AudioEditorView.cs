@@ -28,7 +28,7 @@ public class AudioEditorView : PopupEditorBase
 
     private float _currentRangeValue;
 
-    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.AUDIO;
+    public override ContentType editorForType => ContentType.Audio;
 
     [SerializeField] private Button _btnAudioSettings;
     [SerializeField] private Button _btnMicRecording;
