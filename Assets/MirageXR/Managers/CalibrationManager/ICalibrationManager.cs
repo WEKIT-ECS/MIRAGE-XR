@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using LearningExperienceEngine;
 using LearningExperienceEngine.NewDataModel;
 using UnityEngine;
@@ -13,6 +12,9 @@ namespace MirageXR
         UnityEvent OnCalibrationStarted { get; }
         UnityEvent OnCalibrationCanceled { get; }
         UnityEvent OnCalibrationFinished { get; }
+
+        event UnityAction<bool> OnCalibrated;
+
         float AnimationTime { get; }
         bool IsCalibrated { get; }
 

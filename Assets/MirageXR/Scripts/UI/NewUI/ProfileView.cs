@@ -165,7 +165,7 @@ public class ProfileView : PopupBase
             LearningExperienceEngine.LearningExperienceEngine.Instance.AuthorizationManager.Logout();
         }
         LearningExperienceEngine.UserSettings.ClearLoginData();
-        RootView_v2.Instance.activityListView.FetchAndUpdateView();
+        RootView_v2.Instance.activityListView.FetchAndUpdateView().Forget();
         ShowLogin();
     }
 
@@ -243,7 +243,7 @@ public class ProfileView : PopupBase
         {
             LearningExperienceEngine.UserSettings.domain = domain;
             LearningExperienceEngine.UserSettings.ClearLoginData();
-            RootView_v2.Instance.activityListView.FetchAndUpdateView();
+            RootView_v2.Instance.activityListView.FetchAndUpdateView().Forget();
         }
 
         EventManager.NotifyMoodleDomainChanged();

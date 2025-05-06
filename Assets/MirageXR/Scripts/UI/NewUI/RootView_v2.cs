@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
 using MirageXR;
 using UnityEngine;
@@ -233,7 +234,7 @@ public class RootView_v2 : BaseView
 
     public void ShowHomeView()
     {
-        activityListView.FetchAndUpdateView();
+        activityListView.FetchAndUpdateView().Forget();
         _pageView.currentPageIndex = 0;
     }
 

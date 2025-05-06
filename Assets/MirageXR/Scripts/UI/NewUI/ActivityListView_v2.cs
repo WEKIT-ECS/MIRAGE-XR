@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DTOs;
-//using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -68,7 +67,7 @@ public class ActivityListView_v2 : BaseView
 
         //RootObject.Instance.ActivityManager.OnActivitiesFetched += OnActivitiesFetched;
 
-        FetchAndUpdateView();
+        FetchAndUpdateView().Forget();
     }
 
     private void OnLoginCompleted(string accessToken)
@@ -104,9 +103,14 @@ public class ActivityListView_v2 : BaseView
 
     private void OnActivityDelete(Activity activity)
     {
+        OnActivityDeleteAsync(activity).Forget();
+    }
+
+    private async UniTask OnActivityDeleteAsync(Activity activity)
+    {
         LoadView.Instance.Show();
-        RootObject.Instance.LEE.ActivityManager.DeleteActivityAsync(activity.Id);
-        RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
+        await RootObject.Instance.LEE.ActivityManager.DeleteActivityAsync(activity.Id);
+        await RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
         LoadView.Instance.Hide();
     }
 
@@ -121,7 +125,7 @@ public class ActivityListView_v2 : BaseView
         LearningExperienceEngine.EventManager.OnStartActivity -= ShowBackButtons;
     }
 
-    private static async Task<List<LearningExperienceEngine.SessionContainer>> FetchContent()
+    /*private static async Task<List<LearningExperienceEngine.SessionContainer>> FetchContent()
     {
         var dictionary = new Dictionary<string, LearningExperienceEngine.SessionContainer>();
 
@@ -158,7 +162,7 @@ public class ActivityListView_v2 : BaseView
         });
 
         return dictionary.Values.ToList();
-    }
+    }*/
 
     public void ShowBackButtons()
     {
@@ -170,13 +174,11 @@ public class ActivityListView_v2 : BaseView
         _backToActivity.SetActive(false);
     }
 
-    public async void FetchAndUpdateView()
+    public async UniTask FetchAndUpdateView()
     {
-        LoadView.Instance?.Show(true);
-        //await RootObject.Instance.ActivityManager.FetchActivitiesAsync();
-        _content = await FetchContent();
-        UpdateView();
-        LoadView.Instance?.Hide();
+        LoadView.Instance.Show(true);
+        await RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
+        LoadView.Instance.Hide();
     }
 
     public void UpdateView()
@@ -270,19 +272,19 @@ public class ActivityListView_v2 : BaseView
         }
     }
 
-    public void OnSortbyChanged()
+    public void OnSortByChanged()
     {
         switch (LearningExperienceEngine.UserSettings.currentSortby)
         {
             case LearningExperienceEngine.UserSettings.SortBy.DATE:
                 _orderByRelavance = false;
                 _txtSortby.text = "By Date";
-                FetchAndUpdateView();
+                FetchAndUpdateView().Forget();
                 break;
             case LearningExperienceEngine.UserSettings.SortBy.RELEVEANCE:
                 _orderByRelavance = true;
                 _txtSortby.text = "By Relevence";
-                FetchAndUpdateView();
+                FetchAndUpdateView().Forget();
                 break;
         }
 

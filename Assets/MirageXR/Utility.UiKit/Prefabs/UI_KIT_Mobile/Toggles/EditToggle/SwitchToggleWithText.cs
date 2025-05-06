@@ -5,11 +5,11 @@ public class SwitchToggleWithText : SwitchToggle
     [SerializeField] protected GameObject _textOff;
     [SerializeField] protected GameObject _textOn;
 
-    protected override void UpdateView(bool value)
+    protected override void UpdateView()
     {
-        base.UpdateView(value);
+        base.UpdateView();
 
-        _textOff?.SetActive(!value);
-        _textOn?.SetActive(value);
+        _textOff?.SetActive(!_toggle.isOn);
+        _textOn?.SetActive(_toggle.isOn);
     }
 }

@@ -11,8 +11,7 @@ namespace MirageXR
 {
     public class CalibrationManager : ICalibrationManager
     {
-        private static LearningExperienceEngine.BrandManager brandManager =>
-            LearningExperienceEngine.LearningExperienceEngine.Instance.BrandManager;
+        private static BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.BrandManager;
 
         private static ImageTargetManagerWrapper imageTargetManager => RootObject.Instance.ImageTargetManager;
 
@@ -25,6 +24,16 @@ namespace MirageXR
         public UnityEvent OnCalibrationCanceled => _onCalibrationCanceled;
         public UnityEvent OnCalibrationFinished => _onCalibrationFinished;
 
+        public event UnityAction<bool> OnCalibrated
+        {
+            add
+            {
+                _onCalibrated.AddListener(value);
+                value(_isCalibrated);
+            }
+            remove => _onCalibrated.RemoveListener(value);
+        }
+
         public Transform Anchor => _anchor;
         public bool IsInitialized => _isInitialized;
         public float AnimationTime => ANIMATION_TIME;
@@ -33,6 +42,7 @@ namespace MirageXR
         private readonly UnityEvent _onCalibrationStarted = new ();
         private readonly UnityEvent _onCalibrationCanceled = new ();
         private readonly UnityEvent _onCalibrationFinished = new ();
+        private readonly UnityEvent<bool> _onCalibrated = new ();
 
         private Transform _anchor;
         private ImageTargetModel _imageTargetModel;
@@ -215,6 +225,7 @@ namespace MirageXR
                 RootObject.Instance.LEE.ActivityManager.AddAnchorOffset(pose);
             }
             _isCalibrated = true;
+            _onCalibrated.Invoke(_isCalibrated);
         }
 
         private void OnCalibrationFinishedAsync(Pose pose, bool resetAnchor)

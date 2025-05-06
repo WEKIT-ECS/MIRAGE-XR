@@ -13,14 +13,14 @@ public class SwitchToggleWithText_Spatial : SwitchToggleWithText
         _tmpTextOn = _textOn.GetComponent<TMP_Text>();
         _tmpTextOff = _textOff.GetComponent<TMP_Text>();
     }
-    protected override void UpdateView(bool value)
+    protected override void UpdateView()
     {
-        base.UpdateView(value);
+        base.UpdateView();
 
         _textOff?.SetActive(true);
         _textOn?.SetActive(true);
         
-        _tmpTextOn.color = value ? _colorTextOff : _colorTextOn;
-        _tmpTextOff.color = value ? _colorTextOn : _colorTextOff;
+        _tmpTextOn.color = _toggle.isOn ? _colorTextOff : _colorTextOn;
+        _tmpTextOff.color = _toggle.isOn ? _colorTextOn : _colorTextOff;
     }
 }
