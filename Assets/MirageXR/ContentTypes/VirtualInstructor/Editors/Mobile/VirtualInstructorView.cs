@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DG.Tweening;
-using JetBrains.Annotations;
 using LearningExperienceEngine.DataModel;
 using LearningExperienceEngine.NewDataModel;
 using MirageXR;
@@ -52,9 +51,8 @@ public class VirtualInstructorView : PopupEditorBase
 
     private string _ReadyPlayerMeUrl;
     private string _DeafultCarater = "Hanna"; // Fallback Classic instructor
+    private string _rpmURL;
     
-    private IContentManager _contentManager = RootObject.Instance.LEE.ContentManager;
-    private IStepManager _stepManager =  RootObject.Instance.LEE.StepManager;
     
     /// <summary>
     /// Represents the prompt a for the Virtual Instructor.
@@ -85,12 +83,10 @@ public class VirtualInstructorView : PopupEditorBase
     
     public override async void Initialization(Action<PopupBase> onClose, params object[] args)
     {
-        await RootObject.Instance.WaitForInitialization(); // Warten auf LEE init
-
+        await RootObject.Instance.WaitForInitialization();
         _showBackground = false;
         base.Initialization(onClose, args);
 
-        // 1. Argumente auswerten (Step, Content)
         foreach (var arg in args)
         {
             switch (arg)
@@ -105,11 +101,10 @@ public class VirtualInstructorView : PopupEditorBase
             }
         }
         
-        // 2. UI-Setup
         UpdateView();
 
         _btnArrow.onClick.AddListener(OnArrowButtonPressed);
-        _btnNoSpeech.onClick.AddListener(OnNoSpeechButtonPressed);
+        //_btnNoSpeech.onClick.AddListener(OnNoSpeechButtonPressed); Was ist das? 
         _toggleMyCharacters.onValueChanged.AddListener(OnToggleMyCharactersValueChanged);
         _toggleLibrary.onValueChanged.AddListener(OnToggleLibrariesValueChanged);
 
@@ -124,55 +119,11 @@ public class VirtualInstructorView : PopupEditorBase
                 }
             });
         }
-
-        // 3. Sichtbarkeit der UI-Panels
+        // visibility 
         _settingsPanel.SetActive(false);
         _togglePanel.SetActive(true);
         _tabsPanel.SetActive(true);
-
-        // 4. Editor-Modus vorbereiten
         RootView_v2.Instance.HideBaseView();
-        
-        // for (int i = 0; i < _audioToggles.Length; i++)
-        // {
-        //     int index = i;
-        //     _audioToggles[i].onValueChanged.AddListener((isOn) =>
-        //     {
-        //         if (isOn)
-        //         {
-        //             HandleAudioToggleChange(index);
-        //         }
-        //     });
-        // }
-        //
-        //
-        // _showBackground = false;
-        // base.Initialization(onClose, args);
-        // //_step = RootObject.Instance.LEE.StepManager.CurrentStep;
-        // foreach (var arg in args)
-        // {
-        //     if (arg is LearningExperienceEngine.Action step)
-        //     {
-        //         _step = step;
-        //     }
-        //     else if (arg is Content content)
-        //     {
-        //         Content = content;
-        //         IsContentUpdate = true;
-        //     }
-        // }
-        //
-        // UpdateView();
-        //
-        // _btnArrow.onClick.AddListener(OnArrowButtonPressed);
-        // _btnNoSpeech.onClick.AddListener(OnNoSpeechButtonPressed);
-        // _toggleMyCharacters.onValueChanged.AddListener(OnToggleMyCharactersValueChanged);
-        // _toggleLibrary.onValueChanged.AddListener(OnToggleLibrariesValueChanged);
-        //
-        // _settingsPanel.SetActive(false);
-        // _togglePanel.SetActive(true);
-        // _tabsPanel.SetActive(true);
-        // RootView_v2.Instance.HideBaseView();
     }
     
     private void UpdateView()
@@ -190,66 +141,43 @@ public class VirtualInstructorView : PopupEditorBase
         }
     }
     
-    private async void SetupCharacter()
-    {
-        var data = GetInstructorData();
-        if (data == null)
-        {
-            Debug.LogError("Cannot set up character: instructor content data missing.");
-            return;
-        }
-
-        if (data.UseReadyPlayerMe && !string.IsNullOrEmpty(data.CharacterModelUrl))
-        {
-            await SetupReadyPlayerMeCharacter(data);
-        }
-        else if (!string.IsNullOrEmpty(data.CharacterName))
-        {
-            SetupLegacyCharacter(data);
-        }
-        else
-        {
-            Debug.LogWarning("No valid character configuration found.");
-        }
-    }
     
-    private async Task SetupReadyPlayerMeCharacter(InstructorContentData data)
-    {
-        var avatarContainer = new GameObject($"Instructor_{_content.id}_RPM");
-        var loader = avatarContainer.AddComponent<AvatarLoader>();
-        loader.LoadDefaultAvatarOnStart = false;
-
-        // Eventual fallback, falls du auf Fertigstellung warten willst
-        TaskCompletionSource<bool> tcs = new();
-        loader.AvatarLoaded += success => tcs.SetResult(success);
-        loader.LoadAvatar(data.CharacterModelUrl);
-
-        bool success = await tcs.Task;
-        if (!success)
-        {
-            Debug.LogError("ReadyPlayerMe avatar failed to load.");
-        }
-    }
-    
-    private void SetupLegacyCharacter(InstructorContentData data)
-    {
-        var characterObj = _characterObjects.FirstOrDefault(obj => obj.prefabName == data.CharacterName);
-        if (!characterObj)
-        {
-            Debug.LogError($"CharacterObject for '{data.CharacterName}' not found.");
-            return;
-        }
-
-        var prefab = Resources.Load<GameObject>($"Characters/{characterObj.prefabName}");
-        if (prefab == null)
-        {
-            Debug.LogError($"Prefab '{characterObj.prefabName}' not found in Resources/Characters.");
-            return;
-        }
-
-        var character = Instantiate(prefab);
-        character.name = $"Instructor_{Content.Id}_Legacy";
-    }
+    // private async Task SetupReadyPlayerMeCharacter(InstructorContentData data)
+    // {
+    //     var avatarContainer = new GameObject($"Instructor_{_content.id}_RPM");
+    //     var loader = avatarContainer.AddComponent<AvatarLoader>();
+    //     loader.LoadDefaultAvatarOnStart = false;
+    //     
+    //     TaskCompletionSource<bool> tcs = new();
+    //     loader.AvatarLoaded += success => tcs.SetResult(success);
+    //     loader.LoadAvatar(data.CharacterModelUrl);
+    //
+    //     bool success = await tcs.Task;
+    //     if (!success)
+    //     {
+    //         Debug.LogError("ReadyPlayerMe avatar failed to load.");
+    //     }
+    // }
+    //
+    // private void SetupLegacyCharacter(InstructorContentData data)
+    // {
+    //     var characterObj = _characterObjects.FirstOrDefault(obj => obj.prefabName == data.CharacterName);
+    //     if (!characterObj)
+    //     {
+    //         Debug.LogError($"CharacterObject for '{data.CharacterName}' not found.");
+    //         return;
+    //     }
+    //
+    //     var prefab = Resources.Load<GameObject>($"Characters/{characterObj.prefabName}");
+    //     if (prefab == null)
+    //     {
+    //         Debug.LogError($"Prefab '{characterObj.prefabName}' not found in Resources/Characters.");
+    //         return;
+    //     }
+    //
+    //     var character = Instantiate(prefab);
+    //     character.name = $"Instructor_{Content.Id}_Legacy";
+    // }
 
 
 
@@ -276,18 +204,28 @@ public class VirtualInstructorView : PopupEditorBase
             Prompt = _aiPromptData,
             LanguageModel = _llm,
             SpeechToTextModel = _stt,
-            UseReadyPlayerMe = false, 
-            CharacterModelUrl = "" 
+            UseReadyPlayerMe = !string.IsNullOrEmpty(_rpmURL), 
+            CharacterModelUrl = string.IsNullOrEmpty(_rpmURL) ? "" : _rpmURL
         };
-        
-        if (_ReadyPlayerMeUrl != null)
-        {
-            data = CreateInstructor(_ReadyPlayerMeUrl, data); 
-        }
-        _contentManager.AddContent(CreateInstructorContent (data, _stepManager.CurrentStep.Id));
-        SetupCharacter();
+        //UnityEngine.Debug.LogError($"Accept {data.AnimationClip + data.CharacterName + data.TextToSpeechModel + data.Prompt + data.LanguageModel + data.SpeechToTextModel + data.UseReadyPlayerMe + data.CharacterModelUrl}");
+        RootObject.Instance.LEE.ContentManager.AddContent(CreateInstructorContent (data, RootObject.Instance.LEE.StepManager.CurrentStep.Id));
         Close();
     }
+    private Content<InstructorContentData> CreateInstructorContent(InstructorContentData data, Guid setpID)
+    {
+        var  content = new Content<InstructorContentData>
+        {
+            Id = Guid.NewGuid(),
+            CreationDate = DateTime.UtcNow,
+            Steps = new List<Guid> { setpID },
+            Type = ContentType.Instructor,
+            IsVisible = true,
+            Location = Location.GetIdentityLocation(),
+            ContentData = data
+        };
+        return content;
+    }
+    
     private void OnArrowButtonPressed()
     {
         if (_arrowDown.activeSelf)
@@ -305,17 +243,20 @@ public class VirtualInstructorView : PopupEditorBase
         }
     }
 
-    private void OnNoSpeechButtonPressed()
-    {
-        /*RootView_v2.Instance.dialog.ShowBottomMultilineToggles("Communication settings", ("No speech", () => NoSpeechSelected(), false, true),
-            ("Audio recording", () => AudioRecordingSelected(), false, false),
-            ("AI", () => AIhSelected(), false, false));*/
-    }
+    /// <summary>
+    ///  Was zum mgeier ist das? 
+    /// </summary>
+    // private void OnNoSpeechButtonPressed()
+    // {
+    //     /*RootView_v2.Instance.dialog.ShowBottomMultilineToggles("Communication settings", ("No speech", () => NoSpeechSelected(), false, true),
+    //         ("Audio recording", () => AudioRecordingSelected(), false, false),
+    //         ("AI", () => AIhSelected(), false, false));*/
+    // }
 
     /// <summary>
     /// Sets the prompt for the VirtualInstructor.
     /// </summary>
-    public void SetPrompt([NotNull] string prompt)
+    public void SetPrompt(string prompt) /// todo hier hast du eine jet bareins anlotation benutzt. Das ist böse. sie hat geschaut das der paremter nciht null. 
     {
         _aiPromptData = prompt ?? throw new ArgumentNullException(nameof(prompt)); 
     }
@@ -396,45 +337,4 @@ public class VirtualInstructorView : PopupEditorBase
                 break;
         }
     }
-    
-    private InstructorContentData CreateInstructor(string characterSource, InstructorContentData data)
-    {
-        // todo check how to! 
-        if (characterSource.StartsWith("http")) // ReadyPlayerMe Avatar URL
-        {
-            data.UseReadyPlayerMe = true;
-            data.CharacterModelUrl = characterSource;
-            data.CharacterName = null; // optional, falls überschrieben werden muss
-        }
-        
-        return data;
-    }
-
-    private Content<InstructorContentData> CreateInstructorContent(InstructorContentData data, Guid setpID)
-    {
-        var  content = new Content<InstructorContentData>
-        {
-            Id = Guid.NewGuid(),
-            CreationDate = DateTime.UtcNow,
-            Steps = new List<Guid> { setpID },
-            Type = ContentType.Instructor,
-            IsVisible = true,
-            Location = Location.GetIdentityLocation(),
-            ContentData = data
-        };
-        return content;
-    }
-    
-    private InstructorContentData? GetInstructorData()
-    {
-        if (Content is Content<InstructorContentData> instructorContent)
-        {
-            return instructorContent.ContentData;
-        }
-
-        Debug.LogError("Content is not of type Content<InstructorContentData>");
-        return null;
-    }
-
-
 }
