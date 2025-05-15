@@ -18,7 +18,7 @@ public class VirtualInstructorView : PopupEditorBase
 {
     private const float HIDED_SIZE = 100f;
     private const float HIDE_ANIMATION_TIME = 0.5f;
-    
+
     [Space]
     [SerializeField] private Button _btnArrow;
     [SerializeField] private RectTransform _panel;
@@ -141,46 +141,6 @@ public class VirtualInstructorView : PopupEditorBase
         }
     }
     
-    
-    // private async Task SetupReadyPlayerMeCharacter(InstructorContentData data)
-    // {
-    //     var avatarContainer = new GameObject($"Instructor_{_content.id}_RPM");
-    //     var loader = avatarContainer.AddComponent<AvatarLoader>();
-    //     loader.LoadDefaultAvatarOnStart = false;
-    //     
-    //     TaskCompletionSource<bool> tcs = new();
-    //     loader.AvatarLoaded += success => tcs.SetResult(success);
-    //     loader.LoadAvatar(data.CharacterModelUrl);
-    //
-    //     bool success = await tcs.Task;
-    //     if (!success)
-    //     {
-    //         Debug.LogError("ReadyPlayerMe avatar failed to load.");
-    //     }
-    // }
-    //
-    // private void SetupLegacyCharacter(InstructorContentData data)
-    // {
-    //     var characterObj = _characterObjects.FirstOrDefault(obj => obj.prefabName == data.CharacterName);
-    //     if (!characterObj)
-    //     {
-    //         Debug.LogError($"CharacterObject for '{data.CharacterName}' not found.");
-    //         return;
-    //     }
-    //
-    //     var prefab = Resources.Load<GameObject>($"Characters/{characterObj.prefabName}");
-    //     if (prefab == null)
-    //     {
-    //         Debug.LogError($"Prefab '{characterObj.prefabName}' not found in Resources/Characters.");
-    //         return;
-    //     }
-    //
-    //     var character = Instantiate(prefab);
-    //     character.name = $"Instructor_{Content.Id}_Legacy";
-    // }
-
-
-
     private void OnAccept(string prefabName)
     {
         _prefabName = prefabName;
@@ -207,7 +167,6 @@ public class VirtualInstructorView : PopupEditorBase
             UseReadyPlayerMe = !string.IsNullOrEmpty(_rpmURL), 
             CharacterModelUrl = string.IsNullOrEmpty(_rpmURL) ? "" : _rpmURL
         };
-        //UnityEngine.Debug.LogError($"Accept {data.AnimationClip + data.CharacterName + data.TextToSpeechModel + data.Prompt + data.LanguageModel + data.SpeechToTextModel + data.UseReadyPlayerMe + data.CharacterModelUrl}");
         RootObject.Instance.LEE.ContentManager.AddContent(CreateInstructorContent (data, RootObject.Instance.LEE.StepManager.CurrentStep.Id));
         Close();
     }
@@ -243,7 +202,7 @@ public class VirtualInstructorView : PopupEditorBase
         }
     }
 
-    /// <summary>
+    /// <summary> todo 
     ///  Was zum mgeier ist das? 
     /// </summary>
     // private void OnNoSpeechButtonPressed()
@@ -333,7 +292,7 @@ public class VirtualInstructorView : PopupEditorBase
                 _AudioSetting.SetActive(false);
                 break;
             default:
-                Debug.LogWarning("Unknown value in VirtualInstructorView:" + index);
+                Debug.LogError("Unknown value in VirtualInstructorView:" + index);
                 break;
         }
     }
