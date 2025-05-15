@@ -12,7 +12,7 @@ namespace MirageXR
     /// Represents a virtual instructor recorder in the MirageXR project. This class is responsible for recording the
     /// user if a question get ask the virtual instructor.
     /// </summary>
-    public class VirtualInstructorRecoder : MonoBehaviour //TODO: change name to VirtualInstructorRecorder
+    public class VirtualInstructorRecorder : MonoBehaviour
     {
         /// <summary>
         /// Represents a record button
@@ -25,7 +25,7 @@ namespace MirageXR
         [SerializeField] private Button _btnSendRecord;
 
         /// <summary>
-        /// Game object of the buttons that can be activated and deactivate. 
+        /// Game object of the buttons that represented the state. 
         /// </summary>
         [SerializeField] private GameObject _Record;
         [SerializeField] private GameObject _SendRecord;
@@ -34,17 +34,12 @@ namespace MirageXR
         /// <summary>
         /// Maximum record time in seconds.
         /// </summary>
-        [SerializeField] private int _maxRecordTime;
+        [SerializeField] private int _maxRecordTime; // raus
 
         /// <summary>
         /// AudioClip for storing the response from the virtual instructor.
         /// </summary>
         [SerializeField] private AudioSource responseClip;
-
-        /// <summary>
-        /// The sample rate used for recording audio.
-        /// </summary>
-        [SerializeField] private int sampleRate;
 
         /// <summary>
         /// Represents a recorded audio clip of a question.
@@ -53,68 +48,74 @@ namespace MirageXR
 
         private CancellationTokenSource _source;
         private CancellationToken _cancellationToken;
+        private const int FallbackMaxRecordTime = 5;
 
-        private void Hide()
+
+        /// <summary>
+        /// Validating the Editor input in regard to plausibility. 
+        /// </summary>
+        private void OnValidate()
         {
-            _Record.gameObject.SetActive(false);
-            _SendRecord.gameObject.SetActive(false);
+            if (_maxRecordTime > 0) return;
+            UnityEngine.Debug.LogError("Max record time must be greater than 0, Is now set to 5.");
+            _maxRecordTime = FallbackMaxRecordTime;
         }
-
-        private void Show()
-        {
-            _Record.gameObject.SetActive(true);
-            _SendRecord.gameObject.SetActive(true);
-        }
-
+        
         /// <summary>
         /// Sets up the virtual instructor  and the recorder buttons.
         /// </summary>
         public void Awake()
         {
             var instructorOrchestrator = RootObject.Instance.VirtualInstructorOrchestrator;
-            instructorOrchestrator.OnVirtualInstructorsAdded.AddListener(OnVirtualInstructorsAdded);
-            instructorOrchestrator.OnVirtualInstructorsRemoved.AddListener(OnVirtualInstructorsRemoved);
+            instructorOrchestrator.OnVirtualInstructorsAdded.AddListener(OnVirtualInstructorsChanged);
+            instructorOrchestrator.OnVirtualInstructorsRemoved.AddListener(OnVirtualInstructorsChanged);
 
             _btnSendRecord.onClick.AddListener(SendRecording);
-            _btnRecord.onClick.AddListener(StartRecording); 
-            
-            if (instructorOrchestrator.IsVirtualInstructorInList())
-            {
-                Show();
-            }
-            else
-            {
-                Hide();
-            }
-        }
+            _btnRecord.onClick.AddListener(StartRecording);
 
+            SetVisibility(instructorOrchestrator.IsVirtualInstructorInList()); 
+        }
+        
+        
+        /// <summary>
+        /// Cleans up event listeners and  cancellation token previously registered
+        /// from the <c>VirtualInstructorOrchestrator</c>  If the <c>RootObject</c>
+        /// is null (e.g., during application shutdown), cleanup is skipped.
+        /// </summary>
         private void OnDestroy()
         {
-            if (RootObject.Instance is null)
-            {
-                return;
-            }
-
-            var instructorOrchestrator = RootObject.Instance.VirtualInstructorOrchestrator;
-            instructorOrchestrator.OnVirtualInstructorsAdded.RemoveListener(OnVirtualInstructorsAdded);
-            instructorOrchestrator.OnVirtualInstructorsRemoved.RemoveListener(OnVirtualInstructorsRemoved);
-            ClearCancellationTokenSource();
-        }
-
-        private void OnVirtualInstructorsAdded(List<IVirtualInstructor> instructors)
+             if (RootObject.Instance is null)
+             {
+                 return;
+             }
+ 
+             var instructorOrchestrator = RootObject.Instance.VirtualInstructorOrchestrator;
+             instructorOrchestrator.OnVirtualInstructorsAdded.RemoveListener(OnVirtualInstructorsChanged);
+             instructorOrchestrator.OnVirtualInstructorsRemoved.RemoveListener(OnVirtualInstructorsChanged);
+             ClearCancellationTokenSource();
+         }
+             
+        /// <summary>
+        /// Shows either the VI UI or removes the UI. 
+        /// </summary>
+        /// <param name="visible"> true == the UI is there </param>
+        private void SetVisibility(bool  visible)
         {
-            if (instructors is { Count: > 0 })
-            {
-                Show();
-            }
+            _Record.gameObject.SetActive(visible);
+            _SendRecord.gameObject.SetActive(visible);
         }
-
-        private void OnVirtualInstructorsRemoved(List<IVirtualInstructor> instructors)
+        /// <summary>
+        /// Checks and displays the Recording UI if a Virtual Instructor is included in the scene.
+        /// </summary>
+        /// <param name="instructors">List of Virtual Instructor objects</param>
+        private void OnVirtualInstructorsChanged(List<IVirtualInstructor> instructors)
         {
             if (instructors == null || instructors.Count == 0)
             {
-                Hide();
+                SetVisibility(false);
+                return;
             }
+            SetVisibility(true);
         }
 
         /// <summary>
