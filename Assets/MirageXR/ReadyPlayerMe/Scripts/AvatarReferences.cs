@@ -21,6 +21,23 @@ namespace MirageXR
 		private AvatarVisibilityController _visibilityController;
 		public AvatarVisibilityController VisibilityController { get => ComponentUtilities.GetOrFetchComponent(this, ref _visibilityController); }
 
+		private AudioSource _speaker;
+		public AudioSource Speaker
+		{
+			get
+			{
+				if (_speaker == null)
+				{
+					_speaker = Rig.IK.HeadTarget.GetComponentInChildren<AudioSource>();
+				}
+				return _speaker;
+			}
+			set
+			{
+				_speaker = value;
+			}
+		}
+
 		public SidedReferences GetSide(bool left)
 		{
 			if (left)

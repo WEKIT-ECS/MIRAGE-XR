@@ -50,6 +50,7 @@ namespace MirageXR
 			//uLipSyncBlendShape blendShapeController = avatar.GetComponent<uLipSyncBlendShape>();
 			//lipSync.onLipSyncUpdate.AddListener(blendShapeController.OnLipSyncUpdate);
 			//blendShapeController.maxBlendShapeValue = 1;
+			avatarRefs.OfflineReferences.Speaker = _voiceNetworkObject.GetComponent<AudioSource>();
 			_voiceNetworkObject.GetComponentInChildren<CollaborativeAudioSource>().BindLipSync();
 		}
 
