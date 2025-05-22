@@ -29,11 +29,11 @@ namespace MirageXR
 			speaker.transform.position = SpeakerPositionOffset;
 
 			// audio setup
-			avatarRefs.Speaker = speaker.AddComponent<AudioSource>();
-			avatarRefs.Speaker.spatialBlend = 1f;
-			avatarRefs.Speaker.minDistance = 1;
-			avatarRefs.Speaker.maxDistance = 20;
-			avatarRefs.Speaker.rolloffMode = AudioRolloffMode.Linear;
+			avatarRefs.AudioSource = speaker.AddComponent<AudioSource>();
+			avatarRefs.AudioSource.spatialBlend = 1f;
+			avatarRefs.AudioSource.minDistance = 1;
+			avatarRefs.AudioSource.maxDistance = 20;
+			avatarRefs.AudioSource.rolloffMode = AudioRolloffMode.Linear;
 		}
 
 		public async override UniTask InitializeAvatarAsync(GameObject avatar)
@@ -68,7 +68,7 @@ namespace MirageXR
 			}
 
 			// lip sync setup
-			uLipSync.uLipSync lipSync = avatarReferences.Speaker.gameObject.AddComponent<uLipSync.uLipSync>();
+			uLipSync.uLipSync lipSync = avatarReferences.AudioSource.gameObject.AddComponent<uLipSync.uLipSync>();
 			string lipSyncProfilePath = "Avatar/LipSyncProfile";
 			var profileLoadHandle = Addressables.LoadAssetAsync<Profile>(lipSyncProfilePath);
 			await profileLoadHandle.Task;
@@ -80,7 +80,7 @@ namespace MirageXR
 			{
 				Debug.LogError("Could not load lip sync profile addressable", this);
 			}
-			LipSyncBinder.BindLipSync(avatarReferences.Speaker);
+			LipSyncBinder.BindLipSync(avatarReferences.AudioSource);
 		}
 	}
 }

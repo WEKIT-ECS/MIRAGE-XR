@@ -10,12 +10,12 @@ namespace MirageXR
             {
                 Debug.LogWarning("Could not find avatar references", this);
             }
-            else if (AvatarRefs.Speaker == null)
+            else if (AvatarRefs.AudioSource == null)
             {
                 Debug.LogWarning("Speaker for avatar is not set and could not be found.", this);
             }
 
-            AvatarRefs.Speaker.PlayOneShot(clip);
+            AvatarRefs.AudioSource.PlayOneShot(clip);
         }
     }
 }
