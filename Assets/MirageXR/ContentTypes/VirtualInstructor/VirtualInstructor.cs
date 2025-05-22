@@ -108,6 +108,11 @@ namespace MirageXR
                 }
             }
         }
+
+        public void PlayAudio(AudioClip clip)
+        {
+            GetComponent<AvatarAudioController>().PlayAudio(clip);
+        }
         
         /// <summary>
         /// Retrieves the AI model for text-to-speech functionality.

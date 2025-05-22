@@ -59,11 +59,16 @@ namespace MirageXR.View
             }
         }
 
-        /// <summary>
-        /// Retrieves the AI model for text-to-speech functionality.
-        /// </summary>
-        /// <returns>The AI model for text-to-speech functionality.</returns>
-        public AIModel GetTextToSpeechModel()
+		public void PlayAudio(AudioClip clip)
+		{
+			GetComponent<AvatarAudioController>().PlayAudio(clip);
+		}
+
+		/// <summary>
+		/// Retrieves the AI model for text-to-speech functionality.
+		/// </summary>
+		/// <returns>The AI model for text-to-speech functionality.</returns>
+		public AIModel GetTextToSpeechModel()
         {
             return _instructorContent.ContentData.TextToSpeechModel;
         }
