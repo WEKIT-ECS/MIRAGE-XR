@@ -1,9 +1,8 @@
 using Cysharp.Threading.Tasks;
-using MirageXR.View;
+using uLipSync;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.UIElements;
 
 namespace MirageXR
 {
@@ -12,6 +11,9 @@ namespace MirageXR
 		// run this last
 		public override int Priority => -100;
 
+		public Profile LipSyncProfile { get; set; }
+		public Vector3 SpeakerPositionOffset = new Vector3(0, 0.013f, 0.012f);
+
 		public override void InitializeAvatar(GameObject avatar)
 		{
 			AvatarVisibilityController visibilityController = gameObject.GetComponent<AvatarVisibilityController>();
@@ -19,6 +21,19 @@ namespace MirageXR
 			visibilityController.Visible = false;
 			visibilityController.FadeVisibility = true;
 			visibilityController.Visible = true;
+
+			AvatarReferences avatarRefs = GetComponentInParent<AvatarReferences>();
+
+			GameObject speaker = new GameObject("Speaker");
+			speaker.transform.SetParent(avatarRefs.Rig.IK.HeadTarget);
+			speaker.transform.position = SpeakerPositionOffset;
+
+			// audio setup
+			avatarRefs.AudioSource = speaker.AddComponent<AudioSource>();
+			avatarRefs.AudioSource.spatialBlend = 1f;
+			avatarRefs.AudioSource.minDistance = 1;
+			avatarRefs.AudioSource.maxDistance = 20;
+			avatarRefs.AudioSource.rolloffMode = AudioRolloffMode.Linear;
 		}
 
 		public async override UniTask InitializeAvatarAsync(GameObject avatar)
@@ -51,6 +66,21 @@ namespace MirageXR
 			{
 				Debug.LogError("Something went wrong loading the animator controller for the Ready Player Me character", this);
 			}
+
+			// lip sync setup
+			uLipSync.uLipSync lipSync = avatarReferences.AudioSource.gameObject.AddComponent<uLipSync.uLipSync>();
+			string lipSyncProfilePath = "Avatar/LipSyncProfile";
+			var profileLoadHandle = Addressables.LoadAssetAsync<Profile>(lipSyncProfilePath);
+			await profileLoadHandle.Task;
+			if (profileLoadHandle.Status == AsyncOperationStatus.Succeeded)
+			{
+				lipSync.profile = profileLoadHandle.Result;
+			}
+			else
+			{
+				Debug.LogError("Could not load lip sync profile addressable", this);
+			}
+			LipSyncBinder.BindLipSync(avatarReferences.AudioSource);
 		}
 	}
 }
