@@ -1,9 +1,9 @@
 using System;
-using Microsoft.MixedReality.Toolkit.Input;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(MeshCollider), typeof(MeshRenderer))]
-public class EditorPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IMixedRealityPointerHandler
+public class EditorPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IPointerClickHandler
 {
     private static bool _isActive = false;
     private static bool _isCollidersEnabled = false;
@@ -56,19 +56,20 @@ public class EditorPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IMixedRealit
         UpdateState();
     }
 
-    public void OnPointerDown(MixedRealityPointerEventData eventData) { }
-
-    public void OnPointerDragged(MixedRealityPointerEventData eventData) { }
-
-    public void OnPointerUp(MixedRealityPointerEventData eventData) { }
-
-    public void OnPointerClicked(MixedRealityPointerEventData eventData)
-    {
-        _onClicked?.Invoke(_planeId, eventData.Pointer.Result.Details.Point);
-    }
-
     public Vector3 GetPosition()
     {
         return transform.position;
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        var screenBegin = eventData.pointerPressRaycast.screenPosition;
+        var screenEnd = eventData.pointerCurrentRaycast.screenPosition;
+        var worldBegin = eventData.pointerPressRaycast.worldPosition;
+        var delta = Vector2.Distance(screenBegin, screenEnd);
+        if (delta < EventSystem.current.pixelDragThreshold)
+        {
+            _onClicked?.Invoke(_planeId, worldBegin);
+        }
     }
 }

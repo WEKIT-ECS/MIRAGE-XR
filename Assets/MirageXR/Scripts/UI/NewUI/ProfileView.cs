@@ -68,10 +68,26 @@ public class ProfileView : PopupBase
         // only show link to develop mode settings if developMode is active
         _btnDevelopMode.SetActive(LearningExperienceEngine.UserSettings.developMode);
 
+        RootObject.Instance.LEE.SketchfabManager.OnSketchfabLoggedIn += OnSketchfabLoggedIn;
+        RootObject.Instance.LEE.SketchfabManager.OnSketchfabUserDataChanged += OnSketchfabUserDataChanged;
+        
         UpdateConnectedServerText();
         UpdatePrivacyPolicyButtonActive();
 
         ResetValues();
+    }
+
+    private void OnSketchfabLoggedIn(bool value)
+    {
+        if (!value)
+        {
+            txtSketchfab.text = "Login required";
+        }
+    }
+
+    private void OnSketchfabUserDataChanged(SketchfabUserInfo info)
+    {
+        txtSketchfab.text = $"You signed as {info.Username}";
     }
 
     protected override bool TryToGetArguments(params object[] args)
@@ -165,7 +181,7 @@ public class ProfileView : PopupBase
             LearningExperienceEngine.LearningExperienceEngine.Instance.AuthorizationManager.Logout();
         }
         LearningExperienceEngine.UserSettings.ClearLoginData();
-        RootView_v2.Instance.activityListView.FetchAndUpdateView();
+        RootView_v2.Instance.activityListView.FetchAndUpdateView().Forget();
         ShowLogin();
     }
 
@@ -243,7 +259,7 @@ public class ProfileView : PopupBase
         {
             LearningExperienceEngine.UserSettings.domain = domain;
             LearningExperienceEngine.UserSettings.ClearLoginData();
-            RootView_v2.Instance.activityListView.FetchAndUpdateView();
+            RootView_v2.Instance.activityListView.FetchAndUpdateView().Forget();
         }
 
         EventManager.NotifyMoodleDomainChanged();

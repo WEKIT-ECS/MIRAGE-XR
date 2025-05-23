@@ -154,7 +154,7 @@ public class SortingView : PopupBase
             LearningExperienceEngine.UserSettings.currentSortby = LearningExperienceEngine.UserSettings.SortBy.DATE;
             _toggleByRelevance.isOn = false;
 
-            _parentView.OnSortbyChanged();
+            _parentView.OnSortByChanged();
             Close();
         }
     }
@@ -166,7 +166,7 @@ public class SortingView : PopupBase
             LearningExperienceEngine.UserSettings.currentSortby = LearningExperienceEngine.UserSettings.SortBy.RELEVEANCE;
             _toggleByDate.isOn = false;
 
-            _parentView.OnSortbyChanged();
+            _parentView.OnSortByChanged();
             Close();
         }
     }

@@ -18,7 +18,7 @@ public class ActivityView_v2 : BaseView
     [SerializeField] private RectTransform _panel;
     [SerializeField] private GameObject _arrowDown;
     [SerializeField] private GameObject _arrowUp;
-    [SerializeField] private Toggle _toggleEdit;
+    [SerializeField] private SwitchToggleWithText _toggleEdit;
     [SerializeField] private StepsListView_v2 _stepsListView;
     [SerializeField] private ContentListView_v2 _contentListView;
     [Space]
@@ -86,7 +86,7 @@ public class ActivityView_v2 : BaseView
     private void UpdateView()
     {
     }
-    
+
     private void OnContentActivated(List<Content> contents)
     {
         
@@ -108,6 +108,8 @@ public class ActivityView_v2 : BaseView
 
     private void OnEditModeChanged(bool value)
     {
+        _toggleEdit.SetIsOnWithoutNotify(value);
+        _toggleEdit.ForceUpdateView();
         /*_toggleEdit.onValueChanged.RemoveListener(OnEditToggleValueChanged);
         _toggleEdit.isOn = activityManager.EditModeActive;
         _toggleEdit.onValueChanged.AddListener(OnEditToggleValueChanged);*/

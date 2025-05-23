@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using LearningExperienceEngine;
 using LearningExperienceEngine.NewDataModel;
 using UnityEngine;
@@ -13,17 +12,20 @@ namespace MirageXR
         UnityEvent OnCalibrationStarted { get; }
         UnityEvent OnCalibrationCanceled { get; }
         UnityEvent OnCalibrationFinished { get; }
+
+        event UnityAction<bool> OnCalibrated;
+
         float AnimationTime { get; }
         bool IsCalibrated { get; }
 
         UniTask InitializationAsync(IAssetBundleManager assetsManager, IAuthorizationManager authorizationManager);
         Pose GetAnchorPositionAsync();
         void EnableCalibration(bool isRecalibration = false);
-        Task ApplyCalibrationAsync(bool resetAnchor);
-        void SetAnchorPosition(Pose pose);
+        public void ApplyCalibration(bool resetAnchor);
+        void SetAnchorPosition(Pose pose, bool resetAnchor);
         void DisableCalibration();
         void StartCalibration();
         void CancelCalibration();
-        void FinishCalibration(Pose pose);
+        void FinishCalibration(Pose pose, bool resetAnchor);
     }
 }

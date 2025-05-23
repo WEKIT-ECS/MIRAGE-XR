@@ -36,7 +36,7 @@ namespace MirageXR
         private IViewManager _viewManager;
 		private MirageXRServiceBootstrapper _serviceBootstrapper;
 
-		public Camera BaseCamera => _viewManager.GetCamera();
+		public Camera BaseCamera => _viewManager.Camera;
 
 		public LearningExperienceEngine.LearningExperienceEngine LEE => _lee;
 		public EditorSceneService EditorSceneService => _editorSceneService;

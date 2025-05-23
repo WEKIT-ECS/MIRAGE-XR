@@ -37,13 +37,21 @@ namespace MirageXR.View
         private readonly UnityEvent<Transform> _onManipulationStartedEvent = new();
         private readonly UnityEvent<Transform> _onManipulationEvent = new();
         private readonly UnityEvent<Transform> _onManipulationEndedEvent = new();
+        
+        private bool _isNeedToShowInfoScreen;
 
         public void Initialize(ActivityStep step)
         {
             _camera = RootObject.Instance.BaseCamera;
             InitializeManipulator();
-            _infoScreenView = Instantiate(_infoPanelPrefab, transform, false);
-            _infoScreenView.Initialize(step);
+
+            _isNeedToShowInfoScreen = RootObject.Instance.PlatformManager.GetUiType() == UiType.Spatial;
+
+            if (_isNeedToShowInfoScreen)
+            {
+                _infoScreenView = Instantiate(_infoPanelPrefab, transform, false);
+                _infoScreenView.Initialize(step);
+            }
             _isInitialized = true;
             UpdateView(step);
             
@@ -62,7 +70,10 @@ namespace MirageXR.View
             text.text = RootObject.Instance.LEE.StepManager.GetStepNumber(_step.Id).ToString("00");
             transform.SetLocalPositionAndRotation(_step.Location.Position, Quaternion.Euler(_step.Location.Rotation));
             transform.localScale = _step.Location.Scale;
-            _infoScreenView.UpdateView(step);
+            if (_isNeedToShowInfoScreen)
+            {
+                _infoScreenView.UpdateView(step);
+            }
         }
 
         private void OnEditorModeChanged(bool value)

@@ -1,9 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using DG.Tweening;
+using LearningExperienceEngine;
 using LearningExperienceEngine.DataModel;
-using LearningExperienceEngine.NewDataModel;
 using MirageXR;
 using UnityEngine;
 using UnityEngine.UI;
@@ -78,6 +77,8 @@ public class VirtualInstructorView : PopupEditorBase
 
     private string _prefabName;
     public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.VIRTUALINSTRUCTOR;
+    public override LearningExperienceEngine.DataModel.ContentType editorForType => LearningExperienceEngine.DataModel.ContentType.Instructor;
+    //public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.VIRTUALINSTRUCTOR; 
     
     
     
@@ -156,6 +157,17 @@ public class VirtualInstructorView : PopupEditorBase
 
     protected override void OnAccept()
     {
+        if (_content != null)
+        {
+            LearningExperienceEngine.EventManager.DeactivateObject(_content);
+        }
+        else
+        {
+            _content = augmentationManager.AddAugmentation(_step, GetOffset());
+        }
+
+        //_content.predicate = editorForType.GetPredicate();//TODO obsolete
+
         var data = new InstructorContentData
         {
             AnimationClip = "Idle",

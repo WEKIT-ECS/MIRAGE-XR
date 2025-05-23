@@ -28,9 +28,9 @@ public class ContentListView : BaseView
     [SerializeField] private AnimationCurve _animationCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
     [SerializeField] private float _animationTime = 0.3f;
 
-    [SerializeField] private PopupEditorBase[] _editors;
+    //[SerializeField] private PopupEditorBase[] _editors;
 
-    public PopupEditorBase[] editors => _editors;
+    //public PopupEditorBase[] editors => _editors;
     public LearningExperienceEngine.Action currentStep => _currentStep;
     public RootView rootView => (RootView)_parentView;
 
@@ -173,7 +173,7 @@ public class ContentListView : BaseView
 
     private void OnAddContent()
     {
-        PopupsViewer.Instance.Show(_contentSelectorViewPrefab, _editors, _currentStep);
+        //PopupsViewer.Instance.Show(_contentSelectorViewPrefab, _editors, _currentStep);
         EventManager.NotifyOnMobileAddStepContentPressed();
     }
 
