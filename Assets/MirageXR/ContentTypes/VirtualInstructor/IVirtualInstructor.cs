@@ -10,5 +10,6 @@ namespace MirageXR
         Task<AudioClip> AskVirtualInstructorAudio(AudioClip question, string messageQueue);
         Task<AudioClip> AskVirtualInstructorString(string question, string messageQueue);
         Task<AudioClip> ConvertTextToSpeech(string message);
+        void PlayAudio(AudioClip audioClip);
     }
 }
