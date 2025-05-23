@@ -79,7 +79,9 @@ namespace MirageXR
         public async Task<AudioClip> AskInstructorWithAudioQuestion(AudioClip question)
         {
             var instructor = DetermineVirtualInstructor();
-            return await instructor.AskVirtualInstructorAudio(question, _messageQueue);
+            AudioClip clip = await instructor.AskVirtualInstructorAudio(question, _messageQueue);
+            instructor.PlayAudio(clip);
+            return clip;
         }
 
         /// <summary>
@@ -92,7 +94,9 @@ namespace MirageXR
         public async Task<AudioClip> AskInstructorWithStringQuestion(string question)
         {
             var instructor = DetermineVirtualInstructor();
-            return await instructor.AskVirtualInstructorString(question, _messageQueue);
+            AudioClip clip = await instructor.AskVirtualInstructorString(question, _messageQueue);
+            instructor.PlayAudio(clip);
+            return clip;
         }
 
         /// <summary>

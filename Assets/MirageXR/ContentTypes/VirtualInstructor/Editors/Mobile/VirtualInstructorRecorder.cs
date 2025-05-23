@@ -172,7 +172,7 @@ namespace MirageXR
                 var clip = await RootObject.Instance.VirtualInstructorOrchestrator.AskInstructorWithAudioQuestion(audioClip);
                 if (clip)
                 {
-                    responseClip.PlayOneShot(clip);
+                    //responseClip.PlayOneShot(clip);
                     await UniTask.WaitForSeconds(clip.length);
                 }
                 else
