@@ -9,7 +9,7 @@ namespace MirageXR
         public ActivityView ActivityView { get; }
         public GameObject UiView { get; }
         public GameObject CameraView { get; }
+        public Camera Camera { get; }
         void Initialize(IActivityManager activityManager, IAssetBundleManager assetBundleManager, PlatformManager platformManager, CollaborationManager collaborationManager);
-        Camera GetCamera();
     }
 }

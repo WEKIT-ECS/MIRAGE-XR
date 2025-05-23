@@ -103,7 +103,7 @@ public class CalibrationFlow : MonoBehaviour
 
     private async Task OnCalibrationFinishedAsync()
     {
-        await calibrationManager.ApplyCalibrationAsync(false);
+        calibrationManager.ApplyCalibration(false);
         var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
         if (gridManager.gridEnabled && activityManager.EditModeActive)
         {
@@ -120,14 +120,14 @@ public class CalibrationFlow : MonoBehaviour
     {
         _btnApply.gameObject.SetActive(true);
 
-        var cameraPosition = Camera.main.transform.position;
+        var cameraPosition = RootObject.Instance.ViewManager.Camera.transform.position;
         var direction = cameraPosition - position;
         direction.Normalize();
         var rotation = Quaternion.LookRotation(direction, Vector3.up);
         rotation.x = 0;
         rotation.z = 0;
 
-        calibrationManager.SetAnchorPosition(new Pose(position, rotation));
+        calibrationManager.SetAnchorPosition(new Pose(position, rotation), false);
     }
 
     private void OnButtonImageTargetClicked()
@@ -164,8 +164,8 @@ public class CalibrationFlow : MonoBehaviour
         var pose = calibrationManager.GetAnchorPositionAsync();
         if (pose != _startPose)
         {
-            calibrationManager.SetAnchorPosition(_startPose);
-            calibrationManager.ApplyCalibrationAsync(false).AsAsyncVoid();
+            calibrationManager.SetAnchorPosition(_startPose, false);
+            calibrationManager.ApplyCalibration(false);
         }
 
         Close();

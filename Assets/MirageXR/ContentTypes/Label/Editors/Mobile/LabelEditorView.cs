@@ -28,7 +28,7 @@ public class LabelEditorView : PopupEditorBase
     private const int MaxGazeTime = 10;
     private const int MinGazeTime = 1;
 
-    public override LearningExperienceEngine.ContentType editorForType => LearningExperienceEngine.ContentType.LABEL;
+    public override ContentType editorForType => ContentType.Label;
 
     [SerializeField] private TMP_InputField _inputField;
     [SerializeField] private Toggle _toggleTrigger;

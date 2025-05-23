@@ -3,6 +3,7 @@ using MirageXR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LearningExperienceEngine.DataModel;
 using UnityEngine;
 
 public class ContentSelectorView : PopupBase
@@ -25,18 +26,18 @@ public class ContentSelectorView : PopupBase
     private void UpdateView()
     {
         // Get the list of augmentations from txt file depends on platform
-        var listOfAugmentations = brandManager.GetListOfAugmentations();
+        /*var listOfAugmentations = brandManager.GetListOfAugmentations();*/
         foreach (var type in _editors.Select(t => t.editorForType).Distinct())
         {
-            if (listOfAugmentations.Contains(type))
-            {
+            /*if (listOfAugmentations.Contains(type))
+            {*/
                 var item = Instantiate(_contentSelectorListItemPrefab, _listContent);
                 item.Init(type, OnListItemClick, OnListItemHintClick);
-            }
+            /*}*/
         }
     }
 
-    private void OnListItemClick(LearningExperienceEngine.ContentType type)
+    private void OnListItemClick(ContentType type)
     {
         Close();
         var editor = _editors.FirstOrDefault(t => t.editorForType == type);
@@ -62,7 +63,7 @@ public class ContentSelectorView : PopupBase
         }
     }
 
-    private void OnListItemHintClick(LearningExperienceEngine.ContentType type)
+    private void OnListItemHintClick(ContentType type)
     {
         PopupsViewer.Instance.Show(_contentHintViewPrefab, type);
     }
