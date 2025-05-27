@@ -12,6 +12,8 @@ namespace MirageXR
     /// </summary>
     public class VirtualInstructor : MirageXRPrefab, IVirtualInstructor
     {
+        public event Action<AudioClip> OnInstructorResponseAvailable;
+        
         private const float CharacterHeight = 1.8f;
         private static readonly string HistoryFormat = "This is the History of the conversation so far: Question: {0}, Answer: {1}";
 
@@ -94,9 +96,15 @@ namespace MirageXR
         public void PlayAudio(AudioClip clip)
         {
             var audioController = GetComponent<AvatarAudioController>();
-            if (audioController != null && clip != null)
+            // if (audioController != null && clip != null)
+            // {
+            //     
+            //     audioController.PlayAudio(clip);
+            // }
+            // else
+            if (clip != null)
             {
-                audioController.PlayAudio(clip);
+                OnInstructorResponseAvailable?.Invoke(clip);     
             }
         }
 

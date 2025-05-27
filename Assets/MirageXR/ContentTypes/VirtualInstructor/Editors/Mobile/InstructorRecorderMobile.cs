@@ -19,9 +19,11 @@ namespace MirageXR
         {
             base.Awake();
             
+            
             OnRecordingCancelled += ResetUI;
             if (_btnCancelRecording != null)
                 _btnCancelRecording.onClick.AddListener(CancelRecording);
+            
         }
         
         protected override void OnDestroy()
@@ -54,21 +56,29 @@ namespace MirageXR
         /// Falls back to a default clip if the instructor does not respond.
         /// </summary>
         /// <param name="clip">The user question audio clip.</param>
-        private async UniTask SendRecordingAsync(AudioClip clip)
+        protected override async UniTask SendRecordingAsync(AudioClip clip)
         {
+            Debug.Log("SendRecordingAsync");
             _Loading.SetActive(true);
+            
+            if (responseClip == null)
+            {
+                Debug.LogError("[InstructorRecorderMobile] responseClip (AudioSource) is not assigned!");
+            }
+            else if (clip == null)
+            {
+                Debug.LogError("[InstructorRecorderMobile] AudioClip is null – nothing to play.");
+            }
+            else
+            {
+                Debug.Log($"[InstructorRecorderMobile] Playing AudioClip, length = {clip.length}s");
+                responseClip.PlayOneShot(clip);
+            }
+
+            
             try
             {
                 var response = await RootObject.Instance.VirtualInstructorOrchestrator.AskInstructorWithAudioQuestion(clip);
-                if (response != null)
-                {
-                    responseClip.PlayOneShot(response);
-                    await UniTask.WaitForSeconds(response.length);
-                }
-                else
-                {
-                    Debug.LogWarning("[InstructorRecorderMobile] No instructor response received.");
-                }
             }
             catch (Exception ex)
             {

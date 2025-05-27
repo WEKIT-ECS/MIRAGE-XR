@@ -120,16 +120,14 @@ namespace MirageXR
             togglePanel.SetActive(false);
             tabsPanel.SetActive(false);
         }
-
+        
         protected override void OnAccept()
         {
-            if (_content != null)
+            // Sicherstellen, dass mindestens ein Charakter ausgewählt wurde
+            if (string.IsNullOrEmpty(_prefabName) && !IsContentUpdate)
             {
-                LearningExperienceEngine.EventManager.DeactivateObject(_content);
-            }
-            else
-            {
-                _content = augmentationManager.AddAugmentation(_step, GetOffset());
+                Debug.LogWarning("[Instructor] No character selected.");
+                return;
             }
 
             var data = new InstructorContentData
@@ -144,7 +142,38 @@ namespace MirageXR
                 CharacterModelUrl = ""
             };
 
-            RootObject.Instance.LEE.ContentManager.AddContent(CreateInstructorContent(data, RootObject.Instance.LEE.StepManager.CurrentStep.Id));
+            Content<InstructorContentData> content;
+
+            if (IsContentUpdate && Content is Content<InstructorContentData> existing)
+            {
+                content = existing.ShallowCopy();
+                content.ContentData = data;
+            }
+            else
+            {
+                var step = RootObject.Instance.LEE.StepManager.CurrentStep;
+
+                content = new Content<InstructorContentData>
+                {
+                    Id = Guid.NewGuid(),
+                    CreationDate = DateTime.UtcNow,
+                    IsVisible = true,
+                    Steps = new List<Guid> { step.Id },
+                    Type = ContentType.Instructor,
+                    Location = Location.GetIdentityLocation(),
+                    ContentData = data
+                };
+            }
+
+            if (IsContentUpdate)
+            {
+                RootObject.Instance.LEE.ContentManager.UpdateContent(content);
+            }
+            else
+            {
+                RootObject.Instance.LEE.ContentManager.AddContent(content);
+            }
+
             Close();
         }
 
@@ -194,7 +223,7 @@ namespace MirageXR
         {
             audioMenuText.text = index switch
             {
-                0 => "No speech",
+                0 => "Idle",
                 1 => "Audio recording",
                 2 => "AI",
                 _ => "Unknown"
