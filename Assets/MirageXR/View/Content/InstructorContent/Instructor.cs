@@ -8,6 +8,8 @@ namespace MirageXR.View
 {
     public class Instructor : MonoBehaviour, IVirtualInstructor
     {
+        public event Action<AudioClip> OnInstructorResponseAvailable;
+        
         private const float CharacterHeight = 1.8f;
         /// <summary>
         /// Represents the format for displaying the history of a conversation.
@@ -60,8 +62,10 @@ namespace MirageXR.View
         }
 
 		public void PlayAudio(AudioClip clip)
-		{
-			GetComponent<AvatarAudioController>().PlayAudio(clip);
+        {
+            UnityEngine.Debug.LogError("PlayAudio");
+            OnInstructorResponseAvailable.Invoke(clip);
+			//GetComponent<AvatarAudioController>().PlayAudio(clip);
 		}
 
 		/// <summary>

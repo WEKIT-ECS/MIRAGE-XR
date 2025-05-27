@@ -13,6 +13,7 @@ namespace MirageXR
     /// </summary>
     public class VirtualInstructorOrchestrator
     {
+        
         public UnityEventVirtualInstructorList OnVirtualInstructorsAdded => _onVirtualInstructorsAdded;
         public UnityEventVirtualInstructorList OnVirtualInstructorsRemoved => _onVirtualInstructorsRemoved;
 
@@ -54,12 +55,15 @@ namespace MirageXR
         {
             var instructor = DetermineVirtualInstructor();
             if (instructor == null) return null;
-
+        
             var clip = await instructor.AskVirtualInstructorAudio(question, _messageQueue);
-            instructor.PlayAudio(clip);
+            if (clip != null)
+            {
+                instructor.PlayAudio(clip); 
+            }
             return clip;
         }
-
+        
         public async Task<AudioClip> AskInstructorWithStringQuestion(string question)
         {
             var instructor = DetermineVirtualInstructor();

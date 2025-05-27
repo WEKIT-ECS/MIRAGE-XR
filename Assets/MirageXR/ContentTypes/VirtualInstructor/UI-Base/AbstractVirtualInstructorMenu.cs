@@ -41,6 +41,9 @@ namespace MirageXR
             OnTTSUpdated(_tts);
             OnSTTUpdated(_stt);
             OnLLMUpdated(_llm);
+            
+            Debug.LogWarning($"[Instructor Init] defaultTtsModel = '{defaultTtsModel}'");
+
         }
 
         /// <summary>
@@ -55,14 +58,18 @@ namespace MirageXR
                 return null;
             }
 
-            if (!string.IsNullOrEmpty(configName))
-            {
-                var match = models.FirstOrDefault(m => m.Name.Equals(configName, StringComparison.OrdinalIgnoreCase));
-                if (match != null) return match;
+            if (string.IsNullOrEmpty(configName)) return models[0];
 
-                Debug.LogWarning($"[InstructorMenu] Configured {type} model '{configName}' not found. Using first available model: '{models[0].Name}'");
+            var matchByApiName = models.FirstOrDefault(m =>
+                string.Equals(m.ApiName, configName, StringComparison.OrdinalIgnoreCase));
+
+            if (matchByApiName != null)
+            {
+                Debug.Log($"[InstructorMenu] Selected {type} model by ApiName: '{matchByApiName.ApiName}'");
+                return matchByApiName;
             }
 
+            Debug.LogWarning($"[InstructorMenu] Configured {type} model '{configName}' not found. Using first available model: '{models[0].ApiName}'");
             return models[0];
         }
 
@@ -75,6 +82,7 @@ namespace MirageXR
         public virtual void SetTTS(AIModel model)
         {
             _tts = model;
+            
             OnTTSUpdated(model);
         }
 

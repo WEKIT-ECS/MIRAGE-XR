@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace MirageXR
@@ -22,5 +23,7 @@ namespace MirageXR
         Task<AudioClip> AskVirtualInstructorString(string question, string messageQueue);
         Task<AudioClip> ConvertTextToSpeech(string message);
         void PlayAudio(AudioClip audioClip);
+  
+        public event Action<AudioClip> OnInstructorResponseAvailable;
     }
 }
