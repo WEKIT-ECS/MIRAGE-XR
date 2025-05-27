@@ -66,8 +66,6 @@ public class ActivityListView_v2 : BaseView
         RootObject.Instance.LEE.AuthorizationManager.OnLoginCompleted += OnLoginCompleted;
 
         //RootObject.Instance.ActivityManager.OnActivitiesFetched += OnActivitiesFetched;
-
-        FetchAndUpdateView().Forget();
     }
 
     private void OnLoginCompleted(string accessToken)

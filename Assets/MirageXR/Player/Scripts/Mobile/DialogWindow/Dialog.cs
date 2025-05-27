@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using TiltBrush;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -65,7 +64,7 @@ public class Dialog : MonoBehaviour
         Show(DialogType.BottomToggles, label, null, contents);
     }
 
-    public void ShowBottomInputField(string label, string description, string textLeft, Action<string> onClickLeft, string textRight, Action<string> onClickRight, bool canBeClosedByOutTap = false)
+    public void ShowBottomInputField(string label, string description, string textLeft, Action<string> onClickLeft, string textRight, Action<string> onClickRight,  bool canBeClosedByOutTap = false)
     {
         var contents = new List<DialogButtonContent> { new DialogButtonContent(textLeft, onClickLeft), new DialogButtonContent(textRight, onClickRight) };
         Show(DialogType.BottomInputField, label, description, contents, canBeClosedByOutTap);
@@ -113,7 +112,7 @@ public class Dialog : MonoBehaviour
 
         if (!_isActive)
         {
-            ViewDialog(_queue.Dequeue());
+            ViewDialog(_queue.Dequeue()).Forget();
         }
     }
 
@@ -121,15 +120,15 @@ public class Dialog : MonoBehaviour
     {
         if (_queue.Count > 0)
         {
-            ViewDialog(_queue.Dequeue()).AsAsyncVoid();
+            ViewDialog(_queue.Dequeue()).Forget();
         }
         else
         {
-            CloseDialog().AsAsyncVoid();
+            CloseDialog().Forget();
         }
     }
 
-    private async Task ViewDialog(DialogModel model)
+    private async UniTask ViewDialog(DialogModel model)
     {
         if (_dialogView)
         {
@@ -137,7 +136,7 @@ public class Dialog : MonoBehaviour
         }
         else
         {
-            ShowAnimation();
+            ShowAnimation().Forget();
         }
 
         _dialogView = CreateDialogView(model);
@@ -161,24 +160,18 @@ public class Dialog : MonoBehaviour
 
     private DialogView DialogTypeToPrefab(DialogType dialogType)
     {
-        switch (dialogType)
+        return dialogType switch
         {
-            case DialogType.Bottom:
-                return _dialogBottomMultilinePrefab;
-            case DialogType.BottomToggles:
-                return _dialogBottomMultilineTogglesPrefab;
-            case DialogType.Middle:
-                return _dialogMiddlePrefab;
-            case DialogType.MiddleMultiline:
-                return _dialogMiddleMultilinePrefab;
-            case DialogType.BottomInputField:
-                return _dialogBottomInputFieldPrefab;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+            DialogType.Bottom => _dialogBottomMultilinePrefab,
+            DialogType.BottomToggles => _dialogBottomMultilineTogglesPrefab,
+            DialogType.Middle => _dialogMiddlePrefab,
+            DialogType.MiddleMultiline => _dialogMiddleMultilinePrefab,
+            DialogType.BottomInputField => _dialogBottomInputFieldPrefab,
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 
-    private async Task CloseDialogView()
+    private async UniTask CloseDialogView()
     {
         if (_dialogView)
         {
@@ -187,7 +180,7 @@ public class Dialog : MonoBehaviour
         }
     }
 
-    private async Task CloseDialog()
+    private async UniTask CloseDialog()
     {
         await CloseDialogView();
         await HideAnimation();
@@ -195,13 +188,13 @@ public class Dialog : MonoBehaviour
         _isActive = false;
     }
 
-    private async Task ShowAnimation()
+    private async UniTask ShowAnimation()
     {
         _backgroundCanvasGroup.alpha = 0.0f;
         await _backgroundCanvasGroup.DOFade(1.0f, AnimationFadeTime).AsyncWaitForCompletion();
     }
 
-    private async Task HideAnimation()
+    private async UniTask HideAnimation()
     {
         _backgroundCanvasGroup.alpha = 1.0f;
         await _backgroundCanvasGroup.DOFade(0, AnimationFadeTime).AsyncWaitForCompletion();
