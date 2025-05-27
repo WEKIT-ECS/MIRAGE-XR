@@ -1,4 +1,3 @@
-using MirageXR;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,16 +15,22 @@ public class DialogViewBottomMultilineToggles : DialogViewBottom
         foreach (var content in model.contents)
         {
             var toggle = Instantiate(_togglePrefab, transform);
-            toggle.onValueChanged.AddListener((bool isOn) => content.action?.Invoke());
-            toggle.onValueChanged.AddListener((bool isOn) => model.onClose?.Invoke());
             var text = toggle.GetComponentInChildren<TMP_Text>();
-            var m_toggle = toggle.GetComponentInChildren<Toggle>();
-            m_toggle.group = _toggleGroup;
+            toggle.group = _toggleGroup;
             if (text)
             {
-                m_toggle.isOn = content.isSelected;
+                toggle.SetIsOnWithoutNotify(content.isSelected);
                 text.text = content.text;
             }
+
+            toggle.onValueChanged.AddListener((value) =>
+            {
+                if (value)
+                {
+                    content.action?.Invoke();
+                    model.onClose?.Invoke();
+                }
+            });
         }
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
     }
