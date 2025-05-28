@@ -78,24 +78,13 @@ namespace MirageXR
                 tmp.text = text.Length > 10 ? text.Substring(0, 10) : text;
         }
 
-        protected override void OnPromptUpdated(string prompt)
+        protected override void UpdateUiFromModel()
         {
-            UpdatePromptText(prompt);
-        }
 
-        protected override void OnTTSUpdated(AIModel model)
-        {
-            UpdateModelText(model, ttsLabel);
-        }
-
-        protected override void OnSTTUpdated(AIModel model)
-        {
-            UpdateModelText(model, sttLabel);
-        }
-
-        protected override void OnLLMUpdated(AIModel model)
-        {
-            UpdateModelText(model, llmLabel);
+            UpdatePromptText(_aiPrompt);
+            UpdateModelText(_tts, ttsLabel);
+            UpdateModelText(_llm, llmLabel);
+            UpdateModelText(_stt, sttLabel);
         }
     }
 }

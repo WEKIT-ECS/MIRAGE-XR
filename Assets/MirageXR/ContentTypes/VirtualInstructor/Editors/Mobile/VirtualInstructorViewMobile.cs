@@ -46,8 +46,8 @@ namespace MirageXR
         [SerializeField] private GameObject noSpeech;
 
         [Header("Magic Numbers")]
-        [SerializeField] private const float HidedSize = 100f;
-        [SerializeField] private const float HideAnimationTime = 0.5f;
+        private const float HidedSize = 100f;
+        private const float HideAnimationTime = 0.5f;
         [SerializeField] private string defaultCharacter = "Hanna";
         
         private string _prefabName;
@@ -123,16 +123,18 @@ namespace MirageXR
         
         protected override void OnAccept()
         {
-            // Sicherstellen, dass mindestens ein Charakter ausgewählt wurde
+            
             if (string.IsNullOrEmpty(_prefabName) && !IsContentUpdate)
             {
                 Debug.LogWarning("[Instructor] No character selected.");
                 return;
             }
 
+            Debug.Log($"Baking a new VI wiht {GetPrompt()}");
+
             var data = new InstructorContentData
             {
-                AnimationClip = "Idle",
+                AnimationClip = "Idle", // todo temp (UI reqest!)
                 CharacterName = string.IsNullOrEmpty(_prefabName) ? defaultCharacter : _prefabName,
                 TextToSpeechModel = GetTTS(),
                 Prompt = GetPrompt(),
@@ -140,7 +142,7 @@ namespace MirageXR
                 SpeechToTextModel = GetSTT(),
                 UseReadyPlayerMe = false,
                 CharacterModelUrl = ""
-            };
+            }; 
 
             Content<InstructorContentData> content;
 
@@ -175,20 +177,6 @@ namespace MirageXR
             }
 
             Close();
-        }
-
-        private Content<InstructorContentData> CreateInstructorContent(InstructorContentData data, Guid stepID)
-        {
-            return new Content<InstructorContentData>
-            {
-                Id = Guid.NewGuid(),
-                CreationDate = DateTime.UtcNow,
-                Steps = new List<Guid> { stepID },
-                Type = DataModelContentType.Instructor,
-                IsVisible = true,
-                Location = Location.GetIdentityLocation(),
-                ContentData = data
-            };
         }
 
         private void OnArrowButtonPressed()
@@ -241,25 +229,11 @@ namespace MirageXR
             toggleMyCharacters.onValueChanged.RemoveAllListeners();
             toggleLibrary.onValueChanged.RemoveAllListeners();
         }
+        
 
-        protected override void OnPromptUpdated(string prompt)
+        protected override void UpdateUiFromModel()
         {
-            Debug.Log($"[InstructorViewMobile] Prompt set to: {prompt}");
-        }
-
-        protected override void OnTTSUpdated(AIModel model)
-        {
-            Debug.Log($"[InstructorViewMobile] TTS model: {model?.Name}");
-        }
-
-        protected override void OnSTTUpdated(AIModel model)
-        {
-            Debug.Log($"[InstructorViewMobile] STT model: {model?.Name}");
-        }
-
-        protected override void OnLLMUpdated(AIModel model)
-        {
-            Debug.Log($"[InstructorViewMobile] LLM model: {model?.Name}");
+            
         }
     }
 }
