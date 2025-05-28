@@ -96,13 +96,11 @@ namespace MirageXR
         public void PlayAudio(AudioClip clip)
         {
             var audioController = GetComponent<AvatarAudioController>();
-            // if (audioController != null && clip != null)
-            // {
-            //     
-            //     audioController.PlayAudio(clip);
-            // }
-            // else
-            if (clip != null)
+            if (audioController != null && clip != null)
+            {
+                 audioController.PlayAudio(clip);
+            }
+            else if (clip != null)
             {
                 OnInstructorResponseAvailable?.Invoke(clip);     
             }

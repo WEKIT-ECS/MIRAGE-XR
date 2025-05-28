@@ -99,7 +99,6 @@ namespace MirageXR
             _cancellationToken = _source.Token;
 
             RootObject.Instance.LEE.AudioManager.Start();
-            Debug.Log("[Recorder] Recording started.");
             UpdateStateUI();
 
             _Record.SetActive(false);
@@ -110,7 +109,6 @@ namespace MirageXR
             if (RootObject.Instance.LEE.AudioManager.IsRecording)
             {
                 _questionClip = RootObject.Instance.LEE.AudioManager.Stop();
-                Debug.Log("[Recorder] Recording stopped and captured.");
                 ClearCancellationTokenSource();
                 UpdateStateUI();
                 await SendRecordingAsync(_questionClip);
@@ -126,7 +124,6 @@ namespace MirageXR
             _Loading.SetActive(true);
 
             _questionClip = RootObject.Instance.LEE.AudioManager.Stop();
-            Debug.Log("[Recorder] Manual stop triggered.");
             ClearCancellationTokenSource();
             _source?.Cancel();
 
@@ -147,7 +144,6 @@ namespace MirageXR
                 if (response != null)
                 {
                     responseClip.PlayOneShot(response);
-                    Debug.Log("[Recorder] Response received and playing.");
                     await UniTask.WaitForSeconds(response.length);
                 }
                 else

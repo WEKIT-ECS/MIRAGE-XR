@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using MirageXR.View;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,6 +23,8 @@ namespace MirageXR
             
             
             OnRecordingCancelled += ResetUI;
+            RootObject.Instance.VirtualInstructorOrchestrator.OnVirtualInstructorsAdded.AddListener(OnInstructorsUpdated);
+            
             if (_btnCancelRecording != null)
                 _btnCancelRecording.onClick.AddListener(CancelRecording);
             
@@ -29,6 +33,7 @@ namespace MirageXR
         protected override void OnDestroy()
         {
             OnRecordingCancelled -= ResetUI;
+            RootObject.Instance.VirtualInstructorOrchestrator.OnVirtualInstructorsAdded.RemoveListener(OnInstructorsUpdated);
             base.OnDestroy();
         }
 
@@ -50,6 +55,27 @@ namespace MirageXR
             _Record.SetActive(true);
         }
 
+        private void PlayAudio(AudioClip clip)
+        {
+            responseClip.PlayOneShot(clip); 
+        }
+        
+        private void OnInstructorsUpdated(List<IVirtualInstructor> instructors)
+        {
+            foreach (var vi in instructors)
+            {
+                if (vi is Instructor instructor)
+                {
+
+                    instructor.OnInstructorResponseAvailable -= PlayAudio;
+                    instructor.OnInstructorResponseAvailable += PlayAudio;
+
+                    Debug.Log($"[InstructorRecorderMobile] Event verbunden mit Instructor: {instructor.name}");
+                }
+            }
+        }
+
+
         
         /// <summary>
         /// Sends the recorded question to the Virtual Instructor and plays the response.
@@ -69,11 +95,11 @@ namespace MirageXR
             {
                 Debug.LogError("[InstructorRecorderMobile] AudioClip is null – nothing to play.");
             }
-            else
-            {
-                Debug.Log($"[InstructorRecorderMobile] Playing AudioClip, length = {clip.length}s");
-                responseClip.PlayOneShot(clip);
-            }
+            // else
+            // {
+            //     Debug.Log($"[InstructorRecorderMobile] Playing AudioClip, length = {clip.length}s");
+            //     //responseClip.PlayOneShot(clip);
+            // }
 
             
             try
