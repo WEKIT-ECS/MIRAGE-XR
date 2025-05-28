@@ -95,13 +95,6 @@ namespace MirageXR
             {
                 Debug.LogError("[InstructorRecorderMobile] AudioClip is null – nothing to play.");
             }
-            // else
-            // {
-            //     Debug.Log($"[InstructorRecorderMobile] Playing AudioClip, length = {clip.length}s");
-            //     //responseClip.PlayOneShot(clip);
-            // }
-
-            
             try
             {
                 var response = await RootObject.Instance.VirtualInstructorOrchestrator.AskInstructorWithAudioQuestion(clip);

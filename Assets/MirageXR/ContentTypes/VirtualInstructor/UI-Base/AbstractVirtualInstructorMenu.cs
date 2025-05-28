@@ -23,6 +23,8 @@ namespace MirageXR
         protected AIModel _stt;
         protected AIModel _llm;
         protected string _aiPrompt;
+        
+        private bool isSetup = false;
 
         /// <summary>
         /// Initializes prompt and model values using config strings or fallback to first available.
@@ -30,20 +32,17 @@ namespace MirageXR
         /// </summary>
         protected virtual void InitializeDefaults()
         {
+            if (isSetup) return;
+            UnityEngine.Debug.LogWarning("InitializeDefaults");
             var ai = RootObject.Instance.LEE.ArtificialIntelligenceManager;
 
-            _tts = SelectModel(ai.GetTtsModels(), defaultTtsModel, "TTS");
-            _stt = SelectModel(ai.GetSttModels(), defaultSttModel, "STT");
-            _llm = SelectModel(ai.GetLlmModels(), defaultLlmModel, "LLM");
-            _aiPrompt = defaultPrompt;
-
-            OnPromptUpdated(_aiPrompt);
-            OnTTSUpdated(_tts);
-            OnSTTUpdated(_stt);
-            OnLLMUpdated(_llm);
+            _tts ??= SelectModel(ai.GetTtsModels(), defaultTtsModel, "TTS");
+            _stt ??= SelectModel(ai.GetSttModels(), defaultSttModel, "STT");
+            _llm ??= SelectModel(ai.GetLlmModels(), defaultLlmModel, "LLM");
+            _aiPrompt ??= defaultPrompt;
             
-            Debug.LogWarning($"[Instructor Init] defaultTtsModel = '{defaultTtsModel}'");
-
+            UpdateUiFromModel();
+            isSetup = true;
         }
 
         /// <summary>
@@ -76,32 +75,32 @@ namespace MirageXR
         public virtual void SetPrompt(string prompt)
         {
             _aiPrompt = string.IsNullOrEmpty(prompt) ? defaultPrompt : prompt;
-            OnPromptUpdated(_aiPrompt);
+            Debug.Log(_aiPrompt);
+            UpdateUiFromModel(); 
         }
 
         public virtual void SetTTS(AIModel model)
         {
             _tts = model;
-            
-            OnTTSUpdated(model);
+            Debug.Log(_tts.Name);
+            UpdateUiFromModel(); 
         }
 
         public virtual void SetSTT(AIModel model)
         {
             _stt = model;
-            OnSTTUpdated(model);
+            Debug.Log(_stt.Name);
+            UpdateUiFromModel(); 
         }
 
         public virtual void SetLLM(AIModel model)
         {
             _llm = model;
-            OnLLMUpdated(model);
+            Debug.Log(_llm.Name);
+            UpdateUiFromModel(); 
         }
 
-        protected virtual void OnPromptUpdated(string prompt) { }
-        protected virtual void OnTTSUpdated(AIModel model) { }
-        protected virtual void OnSTTUpdated(AIModel model) { }
-        protected virtual void OnLLMUpdated(AIModel model) { }
+        protected abstract void UpdateUiFromModel();
 
         public AIModel GetTTS() => _tts;
         public AIModel GetSTT() => _stt;
