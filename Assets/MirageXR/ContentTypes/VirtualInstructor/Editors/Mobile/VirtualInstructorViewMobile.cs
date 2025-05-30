@@ -11,8 +11,11 @@ using DataModelContentType = LearningExperienceEngine.DataModel.ContentType;
 namespace MirageXR
 {
     /// <summary>
-    /// Concrete instructor setup view for mobile platform.
-    /// Inherits shared logic from AbstractVirtualInstructorMenu and handles mobile-specific UI.
+    /// Mobile-specific implementation of the instructor setup view.
+    /// Inherits shared logic from AbstractVirtualInstructorMenu and handles the 
+    /// mobile UI for selecting characters, configuring AI models, and setting prompts.
+    /// Provides user interactions for audio mode selection, character listing, and 
+    /// updates the instructor content based on user inputs.
     /// </summary>
     public class VirtualInstructorViewMobile : AbstractVirtualInstructorMenu
     {
@@ -129,9 +132,7 @@ namespace MirageXR
                 Debug.LogWarning("[Instructor] No character selected.");
                 return;
             }
-
-            Debug.Log($"Baking a new VI wiht {GetPrompt()}");
-
+            
             var data = new InstructorContentData
             {
                 AnimationClip = "Idle", // todo temp (UI reqest!)
@@ -229,8 +230,9 @@ namespace MirageXR
             toggleMyCharacters.onValueChanged.RemoveAllListeners();
             toggleLibrary.onValueChanged.RemoveAllListeners();
         }
-        
 
+
+        /// <inheritdoc/>
         protected override void UpdateUiFromModel()
         {
             

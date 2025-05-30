@@ -8,7 +8,10 @@ using LearningExperienceEngine.DataModel;
 namespace MirageXR
 {
     /// <summary>
-    /// Content container for selecting AI models (LLM, TTS, STT) in mobile setup.
+    /// UI container for listing and selecting AI models (LLM, TTS, STT) in the mobile setup workflow.
+    /// Dynamically populates a list of available models and handles user interactions 
+    /// for model selection and audio playback.
+    /// Selected models are passed back to the SpeechSettingsMobile component.
     /// </summary>
     public class ContentContainerMobile : MonoBehaviour
     {
