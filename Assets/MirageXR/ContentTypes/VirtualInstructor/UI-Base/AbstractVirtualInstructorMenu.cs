@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 using LearningExperienceEngine.DataModel;
 using UnityEngine;
 
@@ -8,9 +10,24 @@ namespace MirageXR
 {
     /// <summary>
     /// Abstract base class for instructor setup menus.
-    /// Handles shared logic such as model assignment, prompt defaults, and update hooks.
-    /// Concrete platform-specific classes (e.g. Mobile, Vision) should inherit from this.
+    ///
+    /// This class provides shared logic for handling instructor configuration such as
+    /// prompt text and AI model selections (TTS, STT, LLM).
+    /// 
+    /// It uses a singleton (InstructorMenuModel) to store the state centrally, ensuring
+    /// that all views (mobile, desktop, etc.) operate on the same data instance.
+    /// 
+    /// Platform-specific subclasses should inherit from this and implement 
+    /// UpdateUiFromModel() to update their respective user interface elements 
+    /// based on the shared model data.
+    /// 
+    /// Key Features:
+    /// - Initializes default prompt and AI models.
+    /// - Provides unified getters and setters for menu data.
+    /// - Enforces consistent state management via singleton.
+    /// - Separates platform logic for clean scalability.
     /// </summary>
+
     public abstract class AbstractVirtualInstructorMenu : PopupEditorBase
     {
         [Header("Defaults (optional)")]
@@ -18,13 +35,10 @@ namespace MirageXR
         [SerializeField] protected string defaultTtsModel;
         [SerializeField] protected string defaultSttModel;
         [SerializeField] protected string defaultLlmModel;
-
-        protected AIModel _tts;
-        protected AIModel _stt;
-        protected AIModel _llm;
-        protected string _aiPrompt;
         
-        private bool isSetup = false;
+        private readonly InstructorMenuModel _model = InstructorMenuModel.Instance;
+        
+        private bool _isSetup;
 
         /// <summary>
         /// Initializes prompt and model values using config strings or fallback to first available.
@@ -32,17 +46,17 @@ namespace MirageXR
         /// </summary>
         protected virtual void InitializeDefaults()
         {
-            if (isSetup) return;
+            if (_isSetup) return;
             UnityEngine.Debug.LogWarning("InitializeDefaults");
             var ai = RootObject.Instance.LEE.ArtificialIntelligenceManager;
-
-            _tts ??= SelectModel(ai.GetTtsModels(), defaultTtsModel, "TTS");
-            _stt ??= SelectModel(ai.GetSttModels(), defaultSttModel, "STT");
-            _llm ??= SelectModel(ai.GetLlmModels(), defaultLlmModel, "LLM");
-            _aiPrompt ??= defaultPrompt;
+            var tts = SelectModel(ai.GetTtsModels(), defaultTtsModel, "TTS");
+            var stt = SelectModel(ai.GetSttModels(), defaultSttModel, "STT");
+            var llm = SelectModel(ai.GetLlmModels(), defaultLlmModel, "LLM");
+            var prompt = defaultPrompt;
             
+            _model.Reset(tts, stt, llm, prompt);
             UpdateUiFromModel();
-            isSetup = true;
+            _isSetup = true;
         }
 
         /// <summary>
@@ -71,40 +85,51 @@ namespace MirageXR
             Debug.LogWarning($"[InstructorMenu] Configured {type} model '{configName}' not found. Using first available model: '{models[0].ApiName}'");
             return models[0];
         }
-
+        // setter 
         public virtual void SetPrompt(string prompt)
         {
-            _aiPrompt = string.IsNullOrEmpty(prompt) ? defaultPrompt : prompt;
-            Debug.Log(_aiPrompt);
+            _model.Prompt = string.IsNullOrEmpty(prompt) ? defaultPrompt : prompt;
+            //Debug.Log($"Prompt in the Singleton: {_model.Prompt}");
             UpdateUiFromModel(); 
         }
 
         public virtual void SetTTS(AIModel model)
         {
-            _tts = model;
-            Debug.Log(_tts.Name);
+            _model.TTS = model;
+            Debug.Log($"TTS in Singleton: {_model.TTS?.Name ?? "null"}");
             UpdateUiFromModel(); 
         }
 
         public virtual void SetSTT(AIModel model)
         {
-            _stt = model;
-            Debug.Log(_stt.Name);
+            _model.STT = model;
+            //Debug.Log($"STT in Singleton: {_model.STT?.Name ?? "null"}");
             UpdateUiFromModel(); 
         }
 
         public virtual void SetLLM(AIModel model)
         {
-            _llm = model;
-            Debug.Log(_llm.Name);
+            _model.LLM = model;
+            //Debug.Log($"LLM in Singleton: {_model.LLM?.Name ?? "null"}");
             UpdateUiFromModel(); 
         }
-
-        protected abstract void UpdateUiFromModel();
-
-        public AIModel GetTTS() => _tts;
-        public AIModel GetSTT() => _stt;
-        public AIModel GetLLM() => _llm;
-        public string GetPrompt() => _aiPrompt;
+        // getter 
+        public AIModel GetTTS() => _model.TTS;
+        public AIModel GetSTT() => _model.STT;
+        public AIModel GetLLM() => _model.LLM;
+        public string GetPrompt() => _model.Prompt;
+        
+        /// <summary>
+        /// Updates the UI elements to reflect the current state of the model.
+        /// 
+        /// Concrete subclasses should override this method if they need to update
+        /// their specific UI when the model changes.
+        /// 
+        /// This method is automatically called whenever a model field is updated.
+        /// </summary>
+        protected virtual void UpdateUiFromModel()
+        {
+            Debug.LogError("UpdateUiFromModel not implemented in subclass.");   
+        }
     }
 }

@@ -37,6 +37,8 @@ namespace MirageXR
         [SerializeField] private GameObject sttLabel;
 
         public override ContentType editorForType => ContentType.Instructor;
+        
+        private readonly InstructorMenuModel _model = InstructorMenuModel.Instance;
 
         private void Start()
         {
@@ -81,10 +83,10 @@ namespace MirageXR
         protected override void UpdateUiFromModel()
         {
 
-            UpdatePromptText(_aiPrompt);
-            UpdateModelText(_tts, ttsLabel);
-            UpdateModelText(_llm, llmLabel);
-            UpdateModelText(_stt, sttLabel);
+            UpdatePromptText(_model.Prompt);
+            UpdateModelText(_model.TTS, ttsLabel);
+            UpdateModelText(_model.LLM, llmLabel);
+            UpdateModelText(_model.STT, sttLabel);
         }
     }
 }
