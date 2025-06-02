@@ -93,7 +93,11 @@ public class ProfileView : PopupBase
 
     private void OnDestroy()
     {
-        var configManager = RootObject.Instance.LEE.ConfigManager;
+        var configManager = RootObject.Instance?.LEE?.ConfigManager;
+        if (configManager == null)
+        {
+            return;       
+        }
         configManager.OnNetworkServerAddressChanged -= OnNetworkServerAddressChanged;
         configManager.OnNetworkServerPortChanged -= OnNetworkServerPortChanged;
         configManager.OnNetworkWebsocketAddressChanged -= OnNetworkWebsocketAddressChanged;
