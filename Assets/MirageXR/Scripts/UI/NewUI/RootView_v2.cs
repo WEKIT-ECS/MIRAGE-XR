@@ -106,19 +106,17 @@ public class RootView_v2 : BaseView
         LearningExperienceEngine.EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
         LearningExperienceEngine.EventManager.OnStartActivity += OnActivityLoaded;
         EventManager.OnMobileHelpPageChanged += UpdateHelpPage;
+        RootObject.Instance.CameraCalibrationChecker.OnAnchorLost.AddListener(ShowCalibrationAlert);
 
-        if (!LearningExperienceEngine.UserSettings.LoggedIn && LearningExperienceEngine.UserSettings.rememberUser)
-        {
-            await AutoLogin();
-        }
-
-        if (!LearningExperienceEngine.UserSettings.LoggedIn)
+        LoadView.Instance.Show();
+        var authorizationManager = RootObject.Instance.LEE.AuthorizationManager;
+        await authorizationManager.WaitForInitialization();
+        LoadView.Instance.Hide();
+        if (!authorizationManager.LoggedIn())
         {
             var dontShowLoginMenu = false;
             PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu, null);
         }
-
-        RootObject.Instance.CameraCalibrationChecker.OnAnchorLost.AddListener(ShowCalibrationAlert);
     }
 
     public Sprite GetContentTypeSprite(ContentType contentType)
