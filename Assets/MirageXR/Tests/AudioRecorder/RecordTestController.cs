@@ -124,7 +124,7 @@ public class RecordTestController : MonoBehaviour
     {
         _txtResordStatus.color = _colorRecord;
         _txtResordStatus.text = RECORDING_STATUS_TEXT;
-        AudioRecorder.Start();
+        AudioRecorder.Start("test", () => true);
         _btnRecorderStart.interactable = false;
         _btnRecorderPause.interactable = true;
         _btnRecorderStop.interactable = true;
@@ -163,7 +163,7 @@ public class RecordTestController : MonoBehaviour
         _txtResordStatus.text = RECORDING_STATUS_TEXT;
         _btnRecorderResume.interactable = false;
         _btnRecorderPause.interactable = true;
-        AudioRecorder.Resume();
+        AudioRecorder.Resume(() => true);
     }
 
     private void OnPlayerStart()
