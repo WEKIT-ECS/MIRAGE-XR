@@ -37,7 +37,11 @@ public class Grid : MonoBehaviour
 
     private bool IsPositionsUpdated()
     {
-        return _lastPostion != _cameraTransform.position;
+        if (_cameraTransform != null) return _lastPostion != _cameraTransform.position;
+#if UNITY_EDITOR
+        Debug.LogWarning("CameraTransform ist null in Grid.IsPositionsUpdated!");
+#endif
+        return false;
     }
 
     private void UpdatePosition()
