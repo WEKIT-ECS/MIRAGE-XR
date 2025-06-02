@@ -57,12 +57,20 @@ public class GridPlane : MonoBehaviour
 
     private bool IsPositionsUpdated()
     {
-        return _lastPosition != _cameraTransform.position;
+        if (_cameraTransform != null) return _lastPosition != _cameraTransform.position;
+#if UNITY_EDITOR
+        Debug.LogWarning("CameraTransform ist null in Grid.IsPositionsUpdated!");
+#endif
+        return false;
     }
 
     private bool IsScaleUpdated()
     {
-        return _lastScale != transform.localScale;
+        if (transform != null)  return _lastScale != transform.localScale;
+#if UNITY_EDITOR
+        Debug.LogWarning("CameraTransform ist null in Grid.IsPositionsUpdated!");
+#endif 
+        return false;
     }
 
     private void UpdateShaderPositionValue()
