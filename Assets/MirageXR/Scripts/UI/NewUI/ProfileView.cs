@@ -22,8 +22,14 @@ public class ProfileView : PopupBase
     [SerializeField] private Button _btnLogout;
     [SerializeField] private TMP_Text _txtUserName;
     [SerializeField] private GameObject LogOutObjects;
-    [SerializeField] private Button _btnSelectServer;
-    [SerializeField] private TMP_Text _txtConnectedServer;
+    [SerializeField] private Button _btnServerAddress;
+    [SerializeField] private Button _btnServerPort;
+    [SerializeField] private Button _btnWebsocketAddress;
+    [SerializeField] private Button _btnWebsocketPort;
+    [SerializeField] private TMP_Text _txtServerAddress;
+    [SerializeField] private TMP_Text _txtServerPort;
+    [SerializeField] private TMP_Text _txtWebsocketAddress;
+    [SerializeField] private TMP_Text _txtWebsocketPort;
     [SerializeField] private Button _btnSelectLRS;
     [SerializeField] private TMP_Text _txtConnectedLRS;
     [SerializeField] private TMP_Text _txtVersion;
@@ -54,14 +60,23 @@ public class ProfileView : PopupBase
         _btnLogout.onClick.AddListener(OnClickLogout);
         _btnGrid.onClick.AddListener(OnClickGrid);
         _btnDev.onClick.AddListener(OnClickDev);
-        _btnSelectServer.onClick.AddListener(ShowChangeServerPanel);
+        _btnServerAddress.onClick.AddListener(ShowChangeServerAddressPanel);
+        _btnServerPort.onClick.AddListener(ShowChangeServerPortPanel);
+        _btnWebsocketAddress.onClick.AddListener(ShowChangeWebsocketAddressPanel);
+        _btnWebsocketPort.onClick.AddListener(ShowChangeWebsocketPortPanel);
         _btnSelectLRS.onClick.AddListener(ShowLRSPanel);
         btnSketchfab.onClick.AddListener(OnSketchfabLogin);
         _versionClickCounter.onClickAmountReached.AddListener(OnVersionClickAmountReached);
 
-        EventManager.MoodleDomainChanged += UpdateConnectedServerText;
-        EventManager.XAPIChanged += UpdateConnectedLRS;
-        EventManager.MoodleDomainChanged += UpdatePrivacyPolicyButtonActive;
+        var configManager = RootObject.Instance.LEE.ConfigManager;
+        configManager.OnNetworkServerAddressChanged += OnNetworkServerAddressChanged;
+        configManager.OnNetworkServerPortChanged += OnNetworkServerPortChanged;
+        configManager.OnNetworkWebsocketAddressChanged += OnNetworkWebsocketAddressChanged;
+        configManager.OnNetworkWebsocketPortChanged += OnNetworkWebsocketPortChanged;
+
+        //EventManager.MoodleDomainChanged += UpdateConnectedServerText;
+        //EventManager.XAPIChanged += UpdateConnectedLRS;
+        //EventManager.MoodleDomainChanged += UpdatePrivacyPolicyButtonActive;
 
         _txtVersion.text = string.Format(VERSION_TEXT, Application.version);
 
@@ -70,11 +85,23 @@ public class ProfileView : PopupBase
 
         RootObject.Instance.LEE.SketchfabManager.OnSketchfabLoggedIn += OnSketchfabLoggedIn;
         RootObject.Instance.LEE.SketchfabManager.OnSketchfabUserDataChanged += OnSketchfabUserDataChanged;
-        
-        UpdateConnectedServerText();
+
         UpdatePrivacyPolicyButtonActive();
 
         ResetValues();
+    }
+
+    private void OnDestroy()
+    {
+        var configManager = RootObject.Instance?.LEE?.ConfigManager;
+        if (configManager == null)
+        {
+            return;       
+        }
+        configManager.OnNetworkServerAddressChanged -= OnNetworkServerAddressChanged;
+        configManager.OnNetworkServerPortChanged -= OnNetworkServerPortChanged;
+        configManager.OnNetworkWebsocketAddressChanged -= OnNetworkWebsocketAddressChanged;
+        configManager.OnNetworkWebsocketPortChanged -= OnNetworkWebsocketPortChanged;
     }
 
     private void OnSketchfabLoggedIn(bool value)
@@ -195,6 +222,11 @@ public class ProfileView : PopupBase
         PopupsViewer.Instance.Show(_developViewPrefab);
     }
 
+    private static bool IsValidPort(string port)
+    {
+        return int.TryParse(port, out _);
+    }
+
     private static bool IsValidUrl(string urlString)
     {
         const string regexExpression = @"^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$";
@@ -202,26 +234,227 @@ public class ProfileView : PopupBase
         return regex.IsMatch(urlString);
     }
 
-    private void ShowChangeServerPanel()
+    private static bool IsValidWebsocketUrl(string urlString)
     {
-        var isWekitSelected = LearningExperienceEngine.UserSettings.domain == LearningExperienceEngine.UserSettings.WEKIT_URL;
-        var isAreteSelected = LearningExperienceEngine.UserSettings.domain == LearningExperienceEngine.UserSettings.ARETE_URL;
-        var isCarateSelected = LearningExperienceEngine.UserSettings.domain == LearningExperienceEngine.UserSettings.CARATE_URL;
-
-        RootView_v2.Instance.dialog.ShowBottomMultilineToggles("Moodle servers:",
-            (LearningExperienceEngine.UserSettings.WEKIT_URL, () => ChangeServerAndPrivacyPolicyDomain(LearningExperienceEngine.UserSettings.WEKIT_URL, LearningExperienceEngine.UserSettings.WEKIT_PRIVACY_POLICY_URL), false, isWekitSelected),
-            (LearningExperienceEngine.UserSettings.CARATE_URL, () => ChangeServerAndPrivacyPolicyDomain(LearningExperienceEngine.UserSettings.CARATE_URL, LearningExperienceEngine.UserSettings.CARATE_PRIVACY_POLICY_URL), false, isCarateSelected),
-            (LearningExperienceEngine.UserSettings.ARETE_URL, () => ChangeServerAndPrivacyPolicyDomain(LearningExperienceEngine.UserSettings.ARETE_URL, LearningExperienceEngine.UserSettings.ARETE_PRIVACY_POLICY_URL), false, isAreteSelected),
-            (CUSTOM_SERVER_TEXT, ShowServerPanel, false, !(isWekitSelected || isAreteSelected || isCarateSelected)));
+        const string regexExpression = @"^(?:ws(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$";
+        var regex = new Regex(regexExpression);
+        return regex.IsMatch(urlString);
     }
 
-    private void ShowServerPanel()
+    private static void ShowChangeServerAddressPanel()
+    {
+        const string other = "Other";
+        const string label = "Server address:";
+        
+        var configManager = RootObject.Instance.LEE.ConfigManager;
+        var defaultConfig = configManager.GetDefaultNetworkServerAddress();
+        var currentConfig = configManager.GetNetworkServerAddress();
+
+        var isDefault = currentConfig == defaultConfig;
+
+        if (isDefault)
+        {
+            RootView_v2.Instance.dialog.ShowBottomMultilineToggles(label,
+                (defaultConfig, null, false, true),
+                (other, ShowServerAddressPanel, false, false)
+            );
+        }
+        else
+        {
+            RootView_v2.Instance.dialog.ShowBottomMultilineToggles(label,
+                (defaultConfig, ResetNetworkServerAddress, false, false),
+                (currentConfig, null, false, true),
+                (other, ShowServerAddressPanel, false, false)
+            );
+        }
+    }
+
+    private static void ResetNetworkServerAddress()
+    {
+        RootObject.Instance.LEE.ConfigManager.ResetNetworkServerAddress();
+        RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
+    }
+
+    private static void ShowServerAddressPanel()
     {
         RootView_v2.Instance.dialog.ShowBottomInputField(
-            "Custom server:",
+            "Custom server address:",
             "Enter address",
             "Cancel", null,
-            "Save", OnCustomServerSave);
+            "Save", ChangeServerAddress);
+    }
+
+    private static void ChangeServerAddress(string address)
+    {
+        if (!IsValidUrl(address))
+        {
+            Toast.Instance.Show("Server address is invalid!");
+            return;
+        }
+
+        RootObject.Instance.LEE.ConfigManager.SetNetworkServerAddress(address);
+        RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
+    }
+
+    private static void ShowChangeServerPortPanel()
+    {
+        const string other = "Other";
+        const string label = "Server port:";
+
+        var configManager = RootObject.Instance.LEE.ConfigManager;
+        var defaultConfig = configManager.GetDefaultNetworkServerPort();
+        var currentConfig = configManager.GetNetworkServerPort();
+
+        var isDefault = currentConfig == defaultConfig;
+
+        if (isDefault)
+        {
+            RootView_v2.Instance.dialog.ShowBottomMultilineToggles(label,
+                (defaultConfig, null, false, true),
+                (other, ShowServerPortPanel, false, false)
+            );
+        }
+        else
+        {
+            RootView_v2.Instance.dialog.ShowBottomMultilineToggles(label,
+                (defaultConfig, ResetNetworkServerPort, false, false),
+                (currentConfig, null, false, true),
+                (other, ShowServerPortPanel, false, false)
+            );
+        }
+    }
+
+    private static void ResetNetworkServerPort()
+    {
+        RootObject.Instance.LEE.ConfigManager.ResetNetworkServerPort();
+        RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
+    }
+
+    private static void ShowServerPortPanel()
+    {
+        RootView_v2.Instance.dialog.ShowBottomInputField(
+            "Custom server port:",
+            "Enter port",
+            "Cancel", null,
+            "Save", ChangeServerPort);
+    }
+
+    private static void ChangeServerPort(string port)
+    {
+        if (!IsValidPort(port))
+        {
+            Toast.Instance.Show("Server port is invalid!");
+            return;
+        }
+
+        RootObject.Instance.LEE.ConfigManager.SetNetworkServerPort(port);
+        RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
+    }
+
+    private static void ShowChangeWebsocketAddressPanel()
+    {
+        const string other = "Other";
+        const string label = "Websocket address:";
+        
+        var configManager = RootObject.Instance.LEE.ConfigManager;
+        var defaultConfig = configManager.GetDefaultNetworkWebsocketAddress();
+        var currentConfig = configManager.GetNetworkWebsocketAddress();
+
+        var isDefault = currentConfig == defaultConfig;
+
+        if (isDefault)
+        {
+            RootView_v2.Instance.dialog.ShowBottomMultilineToggles(label,
+                (defaultConfig, null, false, true),
+                (other, ShowWebsocketAddressPanel, false, false)
+            );
+        }
+        else
+        {
+            RootView_v2.Instance.dialog.ShowBottomMultilineToggles(label,
+                (defaultConfig, ResetNetworkWebsocketAddress, false, false),
+                (currentConfig, null, false, true),
+                (other, ShowWebsocketAddressPanel, false, false)
+            );
+        }
+    }
+
+    private static void ResetNetworkWebsocketAddress()
+    {
+        RootObject.Instance.LEE.ConfigManager.ResetNetworkWebsocketAddress();
+    }
+
+    private static void ShowWebsocketAddressPanel()
+    {
+        RootView_v2.Instance.dialog.ShowBottomInputField(
+            "Custom websocket address:",
+            "Enter address",
+            "Cancel", null,
+            "Save", ChangeWebsocketAddress);
+    }
+
+    private static void ChangeWebsocketAddress(string address)
+    {
+        if (!IsValidWebsocketUrl(address))
+        {
+            Toast.Instance.Show("Websocket address is invalid!");
+            return;
+        }
+
+        RootObject.Instance.LEE.ConfigManager.SetNetworkWebsocketAddress(address);
+    }
+
+    private static void ShowChangeWebsocketPortPanel()
+    {
+        const string other = "Other";
+        const string label = "Websocket port:";
+
+        var configManager = RootObject.Instance.LEE.ConfigManager;
+        var defaultConfig = configManager.GetDefaultNetworkWebsocketPort();
+        var currentConfig = configManager.GetNetworkWebsocketPort();
+
+        var isDefault = currentConfig == defaultConfig;
+
+        if (isDefault)
+        {
+            RootView_v2.Instance.dialog.ShowBottomMultilineToggles(label,
+                (defaultConfig, null, false, true),
+                (other, ShowWebsocketPortPanel, false, false)
+            );
+        }
+        else
+        {
+            RootView_v2.Instance.dialog.ShowBottomMultilineToggles(label,
+                (defaultConfig, ResetNetworkWebsocketPort, false, false),
+                (currentConfig, null, false, true),
+                (other, ShowWebsocketPortPanel, false, false)
+            );
+        }
+    }
+
+    private static void ResetNetworkWebsocketPort()
+    {
+        RootObject.Instance.LEE.ConfigManager.ResetNetworkWebsocketPort();
+    }
+
+    private static void ShowWebsocketPortPanel()
+    {
+        RootView_v2.Instance.dialog.ShowBottomInputField(
+            "Custom server port:",
+            "Enter port",
+            "Cancel", null,
+            "Save", ChangeWebsocketPort);
+    }
+
+    private static void ChangeWebsocketPort(string port)
+    {
+        if (!IsValidPort(port))
+        {
+            Toast.Instance.Show("Websocket port is invalid!");
+            return;
+        }
+
+        RootObject.Instance.LEE.ConfigManager.SetNetworkWebsocketPort(port);
     }
 
     private void ShowLRSPanel()
@@ -236,21 +469,24 @@ public class ProfileView : PopupBase
         LearningExperienceEngine.UserSettings.publicCurrentLearningRecordStore = recordStores;
     }
 
-    private void UpdateConnectedServerText()
+    private void OnNetworkServerAddressChanged(string address)
     {
-        _txtConnectedServer.text = LearningExperienceEngine.UserSettings.domain;
+        _txtServerAddress.text = address;
     }
 
-    private void OnCustomServerSave(string address)
+    private void OnNetworkServerPortChanged(string port)
     {
-        if (!IsValidUrl(address))
-        {
-            Toast.Instance.Show("Server address is invalid!");
-            return;
-        }
+        _txtServerPort.text = port;
+    }
 
-        LearningExperienceEngine.UserSettings.privacyPolicyDomain = string.Empty;
-        ChangeServerDomain(address);
+    private void OnNetworkWebsocketAddressChanged(string address)
+    {
+        _txtWebsocketAddress.text = address;
+    }
+
+    private void OnNetworkWebsocketPortChanged(string port)
+    {
+        _txtWebsocketPort.text = port;
     }
 
     private static void ChangeServerDomain(string domain)
@@ -298,10 +534,10 @@ public class ProfileView : PopupBase
         }
     }
 
-    private void OnDisable()
+    /*private void OnDisable()
     {
-        EventManager.MoodleDomainChanged -= UpdateConnectedServerText;
+        EventManager.MoodleDomainChanged -= OnNetworkServerAddressChanged;
         EventManager.XAPIChanged -= UpdateConnectedLRS;
         EventManager.MoodleDomainChanged -= UpdatePrivacyPolicyButtonActive;
-    }
+    }*/
 }
