@@ -33,9 +33,16 @@ namespace MirageXR
         protected override void OnDestroy()
         {
             OnRecordingCancelled -= ResetUI;
-            RootObject.Instance.VirtualInstructorOrchestrator.OnVirtualInstructorsAdded.RemoveListener(OnInstructorsUpdated);
+            if (RootObject.Instance != null && 
+                RootObject.Instance.VirtualInstructorOrchestrator != null &&
+                RootObject.Instance.VirtualInstructorOrchestrator.OnVirtualInstructorsAdded != null)
+            {
+                RootObject.Instance.VirtualInstructorOrchestrator.OnVirtualInstructorsAdded.RemoveListener(OnInstructorsUpdated);
+            }
+        
             base.OnDestroy();
         }
+
 
         /// <summary>
         /// Cancels the current recording session:
