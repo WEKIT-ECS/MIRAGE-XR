@@ -14,8 +14,8 @@ public class ContentHintView : PopupBase
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
+        _canBeClosedByOutTap = true;
         base.Initialization(onClose, args);
-
         UpdateView();
     }
 

@@ -28,9 +28,11 @@ namespace MirageXR
 
         [SerializeField] private ImageSelectPopupView imageSelectPopupViewPrefab;
         [SerializeField] private DebugLogManager inGameConsolePrefab;
+        [SerializeField] private Dialog dialog;
         [SerializeField] private EditorListItem[] editorPrefabs;
 
         public static UnityEvent<ScreenName, string> ScreenChanged = new();
+        public Dialog Dialog => dialog;
 
         private ScreenName _currentScreenName;
         private DebugLogManager _inGameConsole;
