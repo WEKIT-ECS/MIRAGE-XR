@@ -6,8 +6,19 @@ using UnityEngine;
 
 namespace MirageXR.View
 {
+    /// <summary>
+    /// Represents a virtual instructor entity within the scene that can process user input,
+    /// generate AI-driven responses, and return spoken output via audio clips.
+    /// 
+    /// Instructors are dynamically added and removed at runtime and are managed by the
+    /// <see cref="VirtualInstructorOrchestrator"/>. This class serves as a bridge between user input,
+    /// AI interaction, and audio output.
+    /// </summary>
+
     public class Instructor : MonoBehaviour, IVirtualInstructor
     {
+        public event Action<AudioClip> OnInstructorResponseAvailable;
+        
         private const float CharacterHeight = 1.8f;
         /// <summary>
         /// Represents the format for displaying the history of a conversation.
@@ -15,8 +26,7 @@ namespace MirageXR.View
         private static readonly string HistoryFormat = "This is the History of the conversation so fare: Question :{0} Given answer: {1}";
 
         private Animator _animator;
-
-        private bool _isModerator = true; // temp
+        
         private Content<InstructorContentData> _instructorContent;
 
         /// <summary>
@@ -58,10 +68,27 @@ namespace MirageXR.View
                 }
             }
         }
+        
 
-		public void PlayAudio(AudioClip clip)
-		{
-			GetComponent<AvatarAudioController>().PlayAudio(clip);
+        /// <summary>
+        /// Triggers playback of the instructor's response audio.
+        /// If an <see cref="AvatarAudioController"/> component is attached to the GameObject,
+        /// the audio clip is played directly.  Otherwise, the <see cref="OnInstructorResponseAvailable"/>
+        /// event is invoked, allowing external systems (e.g. UI components) to handle playback.
+        /// </summary>
+        /// <param name="clip">The <see cref="AudioClip"/> containing the instructor's spoken response.</param>
+
+        public void PlayAudio(AudioClip clip)
+        {
+            var audioController = GetComponent<AvatarAudioController>();
+            if (audioController != null)
+            {
+                audioController.PlayAudio(clip);
+            }
+            else
+            {
+                OnInstructorResponseAvailable.Invoke(clip); 
+            }
 		}
 
 		/// <summary>
@@ -176,17 +203,6 @@ namespace MirageXR.View
             var clip = await RootObject.Instance.LEE.ArtificialIntelligenceManager.ConvertTextToSpeechAsync(response, _instructorContent.ContentData.TextToSpeechModel.ApiName);
             UpdateHistory(question, response);
             return clip;
-        }
-        
-        /// <summary>
-        /// Returns the current moderator status of the virtual instructor.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="bool"/> indicating whether the virtual instructor is a moderator.
-        /// </returns>
-        public bool ModeratorStatus()
-        {
-            return _isModerator;
         }
     }
 }
