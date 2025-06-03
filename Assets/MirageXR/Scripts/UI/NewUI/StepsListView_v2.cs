@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
+using LearningExperienceEngine.NewDataModel;
 using MirageXR;
 using TMPro;
 using UnityEngine;
@@ -15,8 +16,9 @@ public class StepsListView_v2 : BaseView
     private const string CALIBRATION_IMAGE_FILE_NAME = "MirageXR_calibration_image_pdf.pdf";
     private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg";
     private const int MAX_PICTURE_SIZE = 1024;
-
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
+    // new IActivityManager 
+    private static IActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManager;
+    //private static LearningExperienceEngine.IActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManager;
     private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.BrandManager;
 
     [Space]
@@ -276,7 +278,7 @@ public class StepsListView_v2 : BaseView
     {
         _toggleCalibration.isOn = value;
     }
-
+    // todo!     
     private void LoadThumbnail()
     {
         var path = Path.Combine(activityManager.ActivityPath, THUMBNAIL_FILE_NAME);
@@ -293,7 +295,7 @@ public class StepsListView_v2 : BaseView
         _imgThumbnail.gameObject.SetActive(true);
         _imgThumbnail.sprite = sprite;
     }
-
+    // todo 
     public void OnDeleteStepClick(ActivityStep step, Action deleteCallback = null)
     {
         if (activityManager.ActionsOfTypeAction.Count > 1)
@@ -380,7 +382,7 @@ public class StepsListView_v2 : BaseView
             ("Gallery", OpenGallery, false),
             ("Cancel", null, true));
     }
-
+    // todo update the thumbnail 
     private void OpenCamera()
     {
         Action<string> onAccept = OnThumbnailAccepted;
@@ -428,20 +430,45 @@ public class StepsListView_v2 : BaseView
     {
         LoadThumbnail();
     }
-
+    // to
     private void OnActivityNameEndEdit(string title)
     {
-        activityManager.Activity.name = title;
-        _textActivityName.text = title;
-
-        activityManager.SaveData();
+        if (string.IsNullOrEmpty(title))
+        {
+            UnityEngine.Debug.Log("[StepsListView_v2]: Description is empty");
+            return;
+        }
+        
+        if (activityManager?.Activity != null) // der activityManager ist null... 
+        {
+            activityManager.SetActivityName(title);
+            if (_textActivityName)
+            {
+                _textActivityName.text = title;
+            }
+        }
+        else
+        {
+            UnityEngine.Debug.LogError("[StepsListView_v2]:OnActivityNameEndEdit failed: activityManager or Activity is null");
+        }
     }
 
     private void OnActivityDescriptionEndEdit(string description)
     {
-        activityManager.Activity.description = description;
 
-        activityManager.SaveData();
+        if (string.IsNullOrEmpty(description))
+        {
+            UnityEngine.Debug.Log("[StepsListView_v2]: Description is empty");
+            return;
+        }
+        if (activityManager?.Activity != null)
+        {
+            activityManager.SetActivityDescription(description);
+        }
+        else
+        {
+            UnityEngine.Debug.LogError("[StepsListView_v2]:OnActivityDescriptionEndEdit failed: activityManager or Activity is null");
+        }
     }
 
     private void ShareCalibrationImage()
@@ -499,7 +526,7 @@ public class StepsListView_v2 : BaseView
         }
 
         Canvas.ForceUpdateCanvases();
-        var stepsCount = activityManager.ActionsOfTypeAction.Count;
+        var stepsCount = activityManager.Activity.Steps.Count;
         if (stepsCount != 1)
         {
             StartCoroutine(ShowSelectedItem(_currentStepId));
