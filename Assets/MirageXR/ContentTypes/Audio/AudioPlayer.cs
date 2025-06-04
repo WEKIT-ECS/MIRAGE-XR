@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace MirageXR
 {
@@ -360,12 +361,22 @@ namespace MirageXR
                 string dataPath = Application.persistentDataPath;
                 string completeAudioName = "file://" + dataPath + "/" + audioName;
                 Debug.LogTrace("Trying to load audio: " + completeAudioName);
-                WWW www = new WWW(completeAudioName);
-                yield return www;
-                AudioClip audioClip = www.GetAudioClip(false, false, AudioType.WAV);
-                audioPlayer.clip = audioClip;
-                audioPlayer.playOnAwake = false;
-                isReady = true;
+                using (UnityWebRequest request =
+                       UnityWebRequestMultimedia.GetAudioClip(completeAudioName, AudioType.WAV))
+                {
+                    yield return request.SendWebRequest();
+                    if (request.result != UnityWebRequest.Result.Success)
+                    {
+                        Debug.LogWarning($"[Audio Palyer]: LoadAudio() filed with {request.error}");
+                    }
+                    else
+                    {
+                        var audioClip = DownloadHandlerAudioClip.GetContent(request);
+                        audioPlayer.clip = audioClip;
+                        audioPlayer.playOnAwake = false;
+                        isReady = true;
+                    }
+                }
             }
 
             else
@@ -373,22 +384,32 @@ namespace MirageXR
                 // Online file stored locally
                 var url = audioName.Split('/');
                 var filename = url[url.Length - 1];
+                var audioType = GetAudioType(filename);
 
                 var completeAudioName = "file://" + activityManager.ActivityPath + "/" + filename;
                 Debug.LogTrace("Trying to load audio: " + completeAudioName);
-                WWW www = new WWW(completeAudioName);
-                yield return www;
-
-                var audioType = GetAudioType(filename);
-
                 if (audioType != AudioType.UNKNOWN)
                 {
-                    AudioClip audioClip = www.GetAudioClip(false, false, audioType);
-
-                    audioPlayer.clip = audioClip;
-                    audioPlayer.playOnAwake = false;
-                    //audioPlayer.loop = false;
-                    isReady = true;
+                    using (UnityWebRequest request =
+                           UnityWebRequestMultimedia.GetAudioClip(completeAudioName, audioType))
+                    {
+                        yield return request.SendWebRequest();
+                        if (request.result == UnityWebRequest.Result.Success)
+                        {
+                            AudioClip audioClip  = DownloadHandlerAudioClip.GetContent(request);
+                            audioPlayer.clip = audioClip;
+                            audioPlayer.playOnAwake = false;
+                            //audioPlayer.loop = false;
+                            isReady = true;
+                        }
+                        else
+                        {
+                            UnityEngine.Debug.LogWarning(
+                                $"The file: \n {completeAudioName} has an unknown audio type or Error. " +
+                                $"Please use .wav or .mp3 or check {request.error}");
+                        }
+                        
+                    }
                 }
                 else
                 {
