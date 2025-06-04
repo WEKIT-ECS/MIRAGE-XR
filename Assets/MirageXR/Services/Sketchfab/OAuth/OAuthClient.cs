@@ -378,17 +378,16 @@ public class OAuthClient : MonoBehaviour
 
     IEnumerator GetURLCallback(string url, OnHybURLCallback onHybURLCallback)
     {
-        WWW www = new WWW(url);
-        yield return www;
-
-        if (www.error != null)
+        using var www = new UnityWebRequest(url);
+        yield return www.SendWebRequest();;
+        if (www.result != UnityWebRequest.Result.Success)
         {
-            string data = $"{{\"iserror\":true,\"error_code\":0,\"error_message\":\"{www.error}\"}}";
+            var data = $"{{\"iserror\":true,\"error_code\":0,\"error_message\":\"{www.error}\"}}";
             onHybURLCallback(data);
         }
         else
         {
-            onHybURLCallback(www.text);
+            onHybURLCallback(www.downloadHandler.text);;
         }
     }
     #endregion
@@ -419,22 +418,21 @@ public class OAuthClient : MonoBehaviour
     {
         StartCoroutine(LoadImage_I(url, onImageLoaded));
     }
+
     IEnumerator LoadImage_I(string url, OnImageLoaded onImageLoaded)
     {
-        WWW www = new WWW(url);
-        yield return www;
+        UnityWebRequest request = new UnityWebRequest(url);
+        yield return request.SendWebRequest();
 
-        if (www.error == null)
+        if (request.result == UnityWebRequest.Result.Success)
         {
-            Texture2D texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
-            www.LoadImageIntoTexture(texture);
+            Texture2D texture = DownloadHandlerTexture.GetContent(request);
             onImageLoaded(texture);
         }
         else
         {
             onImageLoaded(null);
         }
-        www.Dispose();
     }
 
 

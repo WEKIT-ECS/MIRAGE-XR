@@ -9,6 +9,7 @@ using i5.Toolkit.Core.VerboseLogging;
 using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 using ContentType = LearningExperienceEngine.DataModel.ContentType;
 
@@ -431,23 +432,24 @@ public class AudioEditorSpatialView : EditorSpatialView
     private  IEnumerator LoadAudioClip(string path)
     {
         var correctedPath = "file://" + path;
-        using (WWW www = new WWW(correctedPath))
+        var myAudioType = AudioType.WAV;
+        if (Path.GetExtension(path).ToLower() == ".mp3")
         {
-            yield return www;
+            myAudioType = AudioType.MPEG;
+        }
+        
+        using (UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(correctedPath, myAudioType))
+        {
+            yield return request.SendWebRequest();
 
-            if (www.error != null)
+            if (request.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError("Failed to load audio: " + www.error);
+                Debug.LogError("Failed to load audio: " + request.error);
             }
             else
             {
-                AudioType myAudioType = AudioType.WAV;
-                if (Path.GetExtension(path).ToLower() == ".mp3")
-                {
-                    myAudioType = AudioType.MPEG;
-                }
                 Debug.Log("File format: " + myAudioType);
-                _audioClip = www.GetAudioClip(false, false, myAudioType);
+                _audioClip = DownloadHandlerAudioClip.GetContent(request);
                 
                 _recordStartTime = 0;
                 SetPlayerActive(true);
