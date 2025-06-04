@@ -28,8 +28,12 @@ namespace MirageXR
 			{
 				string json = File.ReadAllText(AvatarLibraryPath);
 				AvatarList = JsonConvert.DeserializeObject<List<string>>(json);
-				_cachedAvatarThumbnails.Clear();
 			}
+			else
+			{
+				AvatarList = new List<string>() { AvatarLoader.DefaultAvatarUrl };
+			}
+			_cachedAvatarThumbnails.Clear();
 		}
 
 		public void Save()
