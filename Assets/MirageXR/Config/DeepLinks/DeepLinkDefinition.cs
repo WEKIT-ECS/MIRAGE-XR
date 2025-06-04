@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 /// <summary>
 /// Defines deep link paths to which the application should react
@@ -16,6 +17,7 @@ public class DeepLinkDefinition
     /// <param name="args">Arguments that are passed with the deep link;
     /// should contain the parameters id and download</param>
     [DeepLink(path: "load")]
+    [Preserve]
     public async void LoadActivity(DeepLinkArgs args)
     {
         if (args.Parameters.TryGetValue("activity", out string activityId))
@@ -50,6 +52,7 @@ public class DeepLinkDefinition
     /// Creates a new activity via a deep link, e.g. using wekit:/new
     /// </summary>
     [DeepLink(path: "new")]
+    [Preserve]
     public async void NewActivity()
     {
         await RootObject.Instance.EditorSceneService.LoadEditorAsync();
