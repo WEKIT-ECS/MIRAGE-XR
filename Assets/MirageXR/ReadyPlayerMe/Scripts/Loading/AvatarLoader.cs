@@ -12,7 +12,7 @@ namespace MirageXR
 	public class AvatarLoader : MonoBehaviour
 	{
 		[Tooltip("The URL for the default avatar model.")]
-		[SerializeField] private string defaultAvatarUrl = defaultAvatarUrl;
+		[SerializeField] private string defaultAvatarUrl = "";
 		[Tooltip("An avatar prefab to be used as the default avatar (takes priority over the default avatar URL)")]
 		[SerializeField] private GameObject defaultAvatarPrefab;
 		[Tooltip("ReadyPlayerMe configuration settings for the avatar.")]
@@ -125,6 +125,10 @@ namespace MirageXR
 				else
 				{
 					Debug.LogTrace("Loading default avatar");
+					if (string.IsNullOrEmpty(defaultAvatarUrl))
+					{
+						defaultAvatarUrl = DefaultAvatarUrl;
+					}
 					LoadAvatar(defaultAvatarUrl);
 				}
 			}
