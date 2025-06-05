@@ -12,7 +12,7 @@ namespace MirageXR
 	public class AvatarLoader : MonoBehaviour
 	{
 		[Tooltip("The URL for the default avatar model.")]
-		[SerializeField] private string defaultAvatarUrl = "https://models.readyplayer.me/667bed8204fd145bd9e09f19.glb";
+		[SerializeField] private string defaultAvatarUrl = "";
 		[Tooltip("An avatar prefab to be used as the default avatar (takes priority over the default avatar URL)")]
 		[SerializeField] private GameObject defaultAvatarPrefab;
 		[Tooltip("ReadyPlayerMe configuration settings for the avatar.")]
@@ -23,6 +23,8 @@ namespace MirageXR
 		[field: SerializeField] public bool LoadDefaultAvatarOnStart { get; set; } = true;
 		[Tooltip("Outputs ReadyPlayerMe logs if true")]
 		[SerializeField] private bool detailedRPMLogs = false;
+
+		public const string DefaultAvatarUrl = "https://models.readyplayer.me/667bed8204fd145bd9e09f19.glb";
 
 		// Instance of ReadyPlayerMe's AvatarObjectLoader, responsible for loading avatar assets.
 		private AvatarObjectLoader _avatarObjectLoader;
@@ -123,6 +125,10 @@ namespace MirageXR
 				else
 				{
 					Debug.LogTrace("Loading default avatar");
+					if (string.IsNullOrEmpty(defaultAvatarUrl))
+					{
+						defaultAvatarUrl = DefaultAvatarUrl;
+					}
 					LoadAvatar(defaultAvatarUrl);
 				}
 			}
