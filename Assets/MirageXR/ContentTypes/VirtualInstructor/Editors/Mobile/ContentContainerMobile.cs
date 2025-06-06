@@ -20,17 +20,28 @@ namespace MirageXR
         [SerializeField] private RectTransform container;
         [SerializeField] private GameObject audioPlayer;
         [SerializeField] private SpeechSettingsMobile speechSettings;
+        [SerializeField] private ScrollRect scrollRect;
 
         private List<AIModel> _availableModels;
         private readonly List<GameObject> _instantiatedPrefabs = new();
 
         private void Start()
         {
+            // se 
+            if (scrollRect)
+            {
+                 scrollRect.movementType = ScrollRect.MovementType.Clamped;
+                 scrollRect.elasticity = 0.7f;
+                 scrollRect.inertia = true;
+                 scrollRect.decelerationRate = 0.05f;
+                 scrollRect.scrollSensitivity = 1.2f;
+            }
+
             _availableModels = selectedType switch
             {
-                ContentTypeEndpoint.LLM => RootObject.Instance.LEE.ArtificialIntelligenceManager.GetLlmModels(),
-                ContentTypeEndpoint.TTS => RootObject.Instance.LEE.ArtificialIntelligenceManager.GetTtsModels(),
-                ContentTypeEndpoint.STT => RootObject.Instance.LEE.ArtificialIntelligenceManager.GetSttModels(),
+                ContentTypeEndpoint.Llm => RootObject.Instance.LEE.ArtificialIntelligenceManager.GetLlmModels(),
+                ContentTypeEndpoint.Tts => RootObject.Instance.LEE.ArtificialIntelligenceManager.GetTtsModels(),
+                ContentTypeEndpoint.Stt => RootObject.Instance.LEE.ArtificialIntelligenceManager.GetSttModels(),
                 _ => new List<AIModel>()
             };
 
@@ -42,61 +53,86 @@ namespace MirageXR
 
             foreach (var model in _availableModels)
                 CreateModelEntry(model);
+            
+            StartCoroutine(FixLayoutNextFrame());
         }
 
-        private void CreateModelEntry(AIModel model)
-        {
-            var go = Instantiate(prefabTemplate, container);
-            _instantiatedPrefabs.Add(go);
-
-            var texts = go.GetComponentsInChildren<TMP_Text>();
-            if (texts.Length > 0) texts[0].text = model.Name;
-            if (texts.Length > 1) texts[1].text = model.Description;
-
-            var toggle = go.GetComponentInChildren<Toggle>();
-            if (toggle != null)
+        private System.Collections.IEnumerator FixLayoutNextFrame()
             {
-                var group = container.GetComponentInChildren<ToggleGroup>();
-                if (group != null) toggle.group = group;
-                toggle.onValueChanged.AddListener(isOn =>
+                yield return null;
+                LayoutRebuilder.ForceRebuildLayoutImmediate(container);
+            }
+
+
+            private void CreateModelEntry(AIModel model)
+            {
+                var go = Instantiate(prefabTemplate, container);
+                _instantiatedPrefabs.Add(go);
+
+                var texts = go.GetComponentsInChildren<TMP_Text>();
+                if (texts.Length > 0) texts[0].text = model.Name;
+                if (texts.Length > 1) texts[1].text = model.Description;
+
+                var toggle = go.GetComponentInChildren<Toggle>();
+                if (toggle)
                 {
-                    if (isOn) OnModelSelected(model);
-                });
-            }
+                    var group = container.GetComponentInChildren<ToggleGroup>();
+                    if (group) toggle.group = group;
+                    toggle.onValueChanged.AddListener(isOn =>
+                    {
+                        if (isOn) OnModelSelected(model);
+                    });
+                }
 
-            var button = go.GetComponentInChildren<Button>();
-            if (button != null)
-            {
-                button.onClick.AddListener(() =>
+                var button = go.GetComponentInChildren<Button>();
+                if (button)
                 {
-                    audioPlayer.SetActive(true);
-                    var player = audioPlayer.GetComponent<AudioStreamPlayer>() ?? audioPlayer.AddComponent<AudioStreamPlayer>();
-                    player.Setup(model);
-                });
+                    button.onClick.AddListener(() =>
+                    {
+                        audioPlayer.SetActive(true);
+                        var player = audioPlayer.GetComponent<AudioStreamPlayer>() ??
+                                     audioPlayer.AddComponent<AudioStreamPlayer>();
+                        player.Setup(model);
+                    });
+                }
             }
-        }
 
-        private void OnModelSelected(AIModel model)
-        {
-            switch (selectedType)
+            private void OnModelSelected(AIModel model)
             {
-                case ContentTypeEndpoint.LLM:
-                    speechSettings.SetLLM(model);
-                    break;
-                case ContentTypeEndpoint.TTS:
-                    speechSettings.SetTTS(model);
-                    break;
-                case ContentTypeEndpoint.STT:
-                    speechSettings.SetSTT(model);
-                    break;
+                switch (selectedType)
+                {
+                    case ContentTypeEndpoint.Llm:
+                        speechSettings.SetLLM(model);
+                        break;
+                    case ContentTypeEndpoint.Tts:
+                        speechSettings.SetTTS(model);
+                        break;
+                    case ContentTypeEndpoint.Stt:
+                        speechSettings.SetSTT(model);
+                        break;
+                }
             }
-        }
 
+        /// <summary>
+        /// Represents the endpoint types for different AI wrapper. Provides
+        /// a standardized way to specify and manage AI model menus.
+        /// </summary>
         public enum ContentTypeEndpoint
         {
-            TTS,
-            STT,
-            LLM
+            /// <summary>
+            /// Represents the Text-to-Speech (TTS) endpoint.
+            /// </summary>
+            Tts,
+
+            /// <summary>
+            /// Represents the Speech-to-Text (STT) endpoint.
+            /// </summary>
+            Stt,
+
+            /// <summary>
+            /// Endpoint for interactions with Large Language Models (LLMs) and RAG model.
+            /// </summary>
+            Llm
         }
     }
 }
