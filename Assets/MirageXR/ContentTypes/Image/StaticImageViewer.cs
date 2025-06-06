@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 namespace MirageXR
@@ -30,14 +31,20 @@ namespace MirageXR
         {
             if (ImageName.StartsWith("http") == false)
             {
-                string dataPath = Application.persistentDataPath;
-                string completeImageName = "file://" + dataPath + "/" + ImageName;
+                var dataPath = Application.persistentDataPath;
+                var completeImageName = "file://" + dataPath + "/" + ImageName;
                 Debug.LogTrace("Trying to load static image from:" + completeImageName);
-                WWW www = new WWW(completeImageName);
-                yield return www;
-                Texture2D imageTex = new Texture2D(4, 4, TextureFormat.DXT1, false);
-                www.LoadImageIntoTexture(imageTex);
-                _image.texture = imageTex;
+                using var request = UnityWebRequestTexture.GetTexture(completeImageName);
+                yield return request.SendWebRequest();
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    UnityEngine.Debug.LogWarning($"[StaticImageViewer]: ActivateImageViewerRoutine reqest faild => {request.error}");
+                }
+                else
+                {
+                    Texture2D imageTex = DownloadHandlerTexture.GetContent(request);
+                    _image.texture = imageTex;   
+                }
             }
             else
             {
@@ -49,11 +56,17 @@ namespace MirageXR
 
                 Debug.LogTrace("Trying to load image from:" + completeImageName);
 
-                WWW www = new WWW(completeImageName);
-                yield return www;
-                Texture2D imageTex = new Texture2D(4, 4, TextureFormat.DXT1, false);
-                www.LoadImageIntoTexture(imageTex);
-                _image.texture = imageTex;
+                using var request = UnityWebRequestTexture.GetTexture(completeImageName);
+                yield return request.SendWebRequest();
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    UnityEngine.Debug.LogWarning($"[StaticImageViewer]: ActivateImageViewerRoutine reqest faild => {request.error}");
+                }
+                else
+                {
+                    Texture2D imageTex = DownloadHandlerTexture.GetContent(request);
+                    _image.texture = imageTex;   
+                }
 
                 // Online files.
                 /*
