@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
+using LearningExperienceEngine.NewDataModel;
 using MirageXR;
 using TMPro;
 using UnityEngine;
@@ -15,8 +16,9 @@ public class StepsListView_v2 : BaseView
     private const string CALIBRATION_IMAGE_FILE_NAME = "MirageXR_calibration_image_pdf.pdf";
     private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg";
     private const int MAX_PICTURE_SIZE = 1024;
-
-    private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
+    // new IActivityManager 
+    private static IActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManager;
+    //private static LearningExperienceEngine.IActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManager;
     private static LearningExperienceEngine.BrandManager brandManager => LearningExperienceEngine.LearningExperienceEngine.Instance.BrandManager;
 
     [Space]
@@ -277,26 +279,40 @@ public class StepsListView_v2 : BaseView
         _toggleCalibration.isOn = value;
     }
 
+    /// <summary>
+    /// Loads and displays the thumbnail for the current activity.
+    /// If the thumbnail file does not exist, it displays a default thumbnail.
+    /// </summary>
+    /// <remarks>
+    /// This method is currently not implement due to a lack of an endpoint on the server side.
+    /// At the moment a default thumbnail is shown. See this ticket for more information: 
+    /// https://github.com/WEKIT-ECS/MIRAGE-XR/issues/2381
+    /// </remarks>
     private void LoadThumbnail()
     {
-        var path = Path.Combine(activityManager.ActivityPath, THUMBNAIL_FILE_NAME);
-        if (!File.Exists(path))
-        {
-            _defaultThumbnail.SetActive(true);
-            _imgThumbnail.gameObject.SetActive(false);
-            return;
-        }
-
-        var texture = MirageXR.Utilities.LoadTexture(path);
-        var sprite = MirageXR.Utilities.TextureToSprite(texture);
-        _defaultThumbnail.SetActive(false);
-        _imgThumbnail.gameObject.SetActive(true);
-        _imgThumbnail.sprite = sprite;
-    }
-
+        // temp for in oder to shoe a default thumbnail
+        _defaultThumbnail.SetActive(true);
+        _imgThumbnail.gameObject.SetActive(false);
+        
+        // old implementation for orientation
+        
+        // var path = Path.Combine(activityManager.ActivityPath, THUMBNAIL_FILE_NAME);
+        // if (!File.Exists(path))
+        // {
+        //     _defaultThumbnail.SetActive(true);
+        //     _imgThumbnail.gameObject.SetActive(false);
+        //     return;
+        // }
+        //
+        // var texture = MirageXR.Utilities.LoadTexture(path);
+        // var sprite = MirageXR.Utilities.TextureToSprite(texture);
+        // _defaultThumbnail.SetActive(false);
+        // _imgThumbnail.gameObject.SetActive(true);
+        // _imgThumbnail.sprite = sprite;
+    } 
     public void OnDeleteStepClick(ActivityStep step, Action deleteCallback = null)
     {
-        if (activityManager.ActionsOfTypeAction.Count > 1)
+        if (activityManager.Activity?.Steps?.Count > 1)
         {
             RootView_v2.Instance.dialog.ShowMiddle("Warning!", "Are you sure you want to delete this step?",
                 "Yes", () =>
@@ -380,18 +396,44 @@ public class StepsListView_v2 : BaseView
             ("Gallery", OpenGallery, false),
             ("Cancel", null, true));
     }
-
+    
+    /// <summary>
+    /// Opens the camera interface allowing the user to capture a new image.
+    /// The captured image will be temporarily saved and can be used as a thumbnail.
+    /// </summary>
+    /// <remarks>
+    /// The image is stored in a temporary cache location. 
+    /// Currently, there is no backend upload for the captured image. 
+    /// The thumbnail metadata is updated locally, but the actual file is not persisted server-side.
+    /// See the following ticket for backend integration progress: 
+    /// https://github.com/WEKIT-ECS/MIRAGE-XR/issues/2381
+    /// </remarks>
     private void OpenCamera()
     {
         Action<string> onAccept = OnThumbnailAccepted;
-        var path = Path.Combine(activityManager.ActivityPath, THUMBNAIL_FILE_NAME);
-        PopupsViewer.Instance.Show(_thumbnailEditorPrefab, onAccept, path);
+        var tempPath = Path.Combine(Application.temporaryCachePath, THUMBNAIL_FILE_NAME);
+        PopupsViewer.Instance.Show(_thumbnailEditorPrefab, onAccept, tempPath);
     }
 
     private void OpenGallery()
     {
         PickImage(MAX_PICTURE_SIZE);
     }
+    
+    /// <summary>
+    /// Initiates the process of selecting an image from the device gallery with a maximum resolution constraint.
+    /// Saves the selected image temporarily and updates the local thumbnail preview.
+    /// </summary>
+    /// <param name="maxSize">
+    /// The maximum size (width or height) of the selected image in pixels. 
+    /// Images larger than this size will be downscaled.
+    /// </param>
+    /// <remarks>
+    /// The image is saved temporarily in the cache folder and used for updating the UI preview.
+    /// No server upload is currently performed for the selected image.
+    /// For backend upload and full thumbnail management, refer to:
+    /// https://github.com/WEKIT-ECS/MIRAGE-XR/issues/2381
+    /// </remarks>
 
     private void PickImage(int maxSize)
     {
@@ -418,7 +460,7 @@ public class StepsListView_v2 : BaseView
                 // Save picture
                 Texture2D tempTexture = _imgThumbnail.sprite.texture;
                 byte[] bytes = tempTexture.EncodeToJPG();
-                var tempPath = Path.Combine(activityManager.ActivityPath, THUMBNAIL_FILE_NAME);
+                var tempPath = Path.Combine(Application.temporaryCachePath, THUMBNAIL_FILE_NAME);
                 File.WriteAllBytes(tempPath, bytes);
             }
         });
@@ -428,20 +470,45 @@ public class StepsListView_v2 : BaseView
     {
         LoadThumbnail();
     }
-
+    // to
     private void OnActivityNameEndEdit(string title)
     {
-        activityManager.Activity.name = title;
-        _textActivityName.text = title;
-
-        activityManager.SaveData();
+        if (string.IsNullOrEmpty(title))
+        {
+            UnityEngine.Debug.Log("[StepsListView_v2]: Description is empty");
+            return;
+        }
+        
+        if (activityManager?.Activity != null) 
+        {
+            activityManager.SetActivityName(title);
+            if (_textActivityName)
+            {
+                _textActivityName.text = title;
+            }
+        }
+        else
+        {
+            UnityEngine.Debug.LogError("[StepsListView_v2]:OnActivityNameEndEdit failed: activityManager or Activity is null");
+        }
     }
 
     private void OnActivityDescriptionEndEdit(string description)
     {
-        activityManager.Activity.description = description;
 
-        activityManager.SaveData();
+        if (string.IsNullOrEmpty(description))
+        {
+            UnityEngine.Debug.Log("[StepsListView_v2]: Description is empty");
+            return;
+        }
+        if (activityManager?.Activity != null)
+        {
+            activityManager.SetActivityDescription(description);
+        }
+        else
+        {
+            UnityEngine.Debug.LogError("[StepsListView_v2]:OnActivityDescriptionEndEdit failed: activityManager or Activity is null");
+        }
     }
 
     private void ShareCalibrationImage()
@@ -499,7 +566,7 @@ public class StepsListView_v2 : BaseView
         }
 
         Canvas.ForceUpdateCanvases();
-        var stepsCount = activityManager.ActionsOfTypeAction.Count;
+        var stepsCount = activityManager.Activity.Steps.Count;
         if (stepsCount != 1)
         {
             StartCoroutine(ShowSelectedItem(_currentStepId));
