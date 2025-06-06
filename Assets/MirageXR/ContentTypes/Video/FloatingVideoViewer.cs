@@ -5,6 +5,7 @@ using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Collections;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.Video;
 
 namespace MirageXR
@@ -484,21 +485,28 @@ namespace MirageXR
                 string dataPath = Application.persistentDataPath;
                 string completeAudioName = "file://" + dataPath + "/" + audioName;
                 Debug.Log("Trying to load audio: " + completeAudioName);
-                WWW www = new WWW(completeAudioName);
-                yield return www;
-                AudioClip audioClip = www.GetAudioClip(false, false, AudioType.WAV);
-                audioPlayer.clip = audioClip;
-                audioPlayer.playOnAwake = false;
-                audioPlayer.loop = false;
-                isAudioReady = true;
+                using var request = UnityWebRequestMultimedia.GetAudioClip(completeAudioName, AudioType.WAV);
+                yield return request.SendWebRequest();
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogWarning($"[FloatingVideoViewer]: LoadAudio() error => {request.error}");
+                }
+                else
+                {
+                    var audioClip = DownloadHandlerAudioClip.GetContent(request);
+                    audioPlayer.clip = audioClip;
+                    audioPlayer.playOnAwake = false;
+                    audioPlayer.loop = false;
+                    isAudioReady = true;
+                }
             }
             else
             {
                 // Online file
                 Debug.Log("Trying to download audio: " + audioName);
-                WWW www = new WWW(audioName);
-                yield return www;
-                AudioClip audioClip = www.GetAudioClip(false, false, AudioType.WAV);
+                using var request = UnityWebRequestMultimedia.GetAudioClip(audioName, AudioType.WAV);
+                yield return request.SendWebRequest();
+                AudioClip audioClip =  DownloadHandlerAudioClip.GetContent(request);
                 audioPlayer.clip = audioClip;
                 audioPlayer.playOnAwake = false;
                 audioPlayer.loop = false;
