@@ -1,6 +1,5 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace MirageXR
 {
@@ -10,32 +9,28 @@ namespace MirageXR
     /// </summary>
     public class ContextPromptMobile : MonoBehaviour
     {
-        [SerializeField] private Button editButton;
         [SerializeField] private TMP_InputField inputField;
-        [SerializeField] private TMP_Text buttonText;
         [SerializeField] private SpeechSettingsMobile speechSettings;
-
-        private bool _editMode;
-
+        
         private void Start()
         {
-            _editMode = false;
-            inputField.interactable = false;
-            editButton.onClick.AddListener(ToggleEdit);
+            inputField.interactable = true;
+            inputField.onValueChanged.AddListener(OnTextChanged);
         }
 
-        private void ToggleEdit()
+        /// <summary>
+        /// Updates the prompt whenever the text value in the input field changes.
+        /// </summary>
+        /// <param name="prompt">The new text value from the input field.</param>
+        private void OnTextChanged(string prompt)
         {
-            _editMode = !_editMode;
-            inputField.interactable = _editMode;
-            buttonText.text = _editMode ? "Save" : "Edit";
-
-            if (!_editMode)
-            {
-                speechSettings.SetPrompt(inputField.text);
-            }
+            speechSettings.SetPrompt(prompt);
         }
 
+        /// <summary>
+        /// Updates the text displayed in the input field with the given prompt.
+        /// </summary>
+        /// <param name="prompt">The text to be displayed in the input field.</param>
         public void SetPromptText(string prompt)
         {
             inputField.text = prompt;
