@@ -9,10 +9,10 @@ using UnityEngine.InputSystem.EnhancedTouch;
 using UnityEngine.Splines;
 using UnityEngine.UI;
 using Activity = LearningExperienceEngine.DataModel.Activity;
-using Unity.PolySpatial.InputDevices;
 
 
 #if VISION_OS
+using Unity.PolySpatial.InputDevices;
 using UnityEngine.InputSystem.LowLevel;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 #endif
