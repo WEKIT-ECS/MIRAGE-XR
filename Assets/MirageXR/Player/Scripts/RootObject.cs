@@ -4,7 +4,6 @@ using Cysharp.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Unity.XR.CoreUtils;
 using UnityEngine;
 
 namespace MirageXR
