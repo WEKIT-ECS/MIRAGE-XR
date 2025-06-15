@@ -5,6 +5,7 @@ using i5.Toolkit.Core.VerboseLogging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using UnityEngine;
+using UnityEngine.XR.Management;
 
 namespace MirageXR
 {
@@ -159,10 +160,9 @@ namespace MirageXR
 #if FUSION2
                 _collaborationManager.Initialize(_lee.AuthorizationManager, _assetBundleManager);
 #endif
+				await StartXR();
 
 				_isInitialized = true;
-
-				//LearningExperienceEngine.EventManager.OnClearAll += ResetManagers;
 			}
 			catch (Exception e)
 			{
@@ -171,12 +171,27 @@ namespace MirageXR
 			UnityEngine.Debug.Log("Initializing [RootObject] -->");
 		}
 
-		private void ResetManagers()
+		private async UniTask StartXR()
 		{
-			ResetManagersAsync().AsAsyncVoid();
+			UnityEngine.Debug.Log("Initializing XR");
+			await XRGeneralSettings.Instance.Manager.InitializeLoader();
+			XRGeneralSettings.Instance.Manager.StartSubsystems();
+			UnityEngine.Debug.Log("XR started");
 		}
 
-		private async Task ResetManagersAsync()
+		public void StopXR()
+		{
+			Debug.Log("Stopping XR...");
+			XRGeneralSettings.Instance.Manager.StopSubsystems();
+			XRGeneralSettings.Instance.Manager.DeinitializeLoader();
+		}
+		
+		private void ResetManagers()
+		{
+			ResetManagersAsync().Forget();
+		}
+
+		private async UniTask ResetManagersAsync()
 		{
 			await _floorManager.ResetAsync();
 			await _planeManager.ResetAsync();
