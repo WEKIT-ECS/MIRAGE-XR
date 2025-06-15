@@ -117,6 +117,50 @@ public class RootView_v2 : BaseView
             var dontShowLoginMenu = false;
             PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu, null);
         }
+
+        if (!RootObject.Instance.LEE.PermissionManager.HasPermissions)
+        {
+            _dialog.ShowMiddle("Permissions",
+                "For the app to work, we need access to the camera and microphone.",
+                "Give",
+                OnPermissionsGiveButtonClick,
+                "Deny",
+                OnPermissionsDenyButtonClick,
+                false);
+        }
+    }
+
+    private void OnPermissionsGiveButtonClick()
+    {
+        RequestPermissionsAsync().Forget();
+    }
+
+    private async UniTask RequestPermissionsAsync()
+    {
+        var value = await RootObject.Instance.LEE.PermissionManager.RequestPermissionsAsync();
+        if (!value)
+        {
+            ShowPermissionsNotGranted();
+        }
+    }
+
+    private void OnPermissionsDenyButtonClick()
+    {
+        ShowPermissionsNotGranted();
+    }
+
+    private void ShowPermissionsNotGranted()
+    {
+        _dialog.ShowMiddle("Permissions",
+            "Permissions have not been granted. In this case, the application will be closed.",
+            "Ok",
+            OnPermissionsOkButtonClick,
+            false);
+    }
+
+    private void OnPermissionsOkButtonClick()
+    {
+        Application.Quit();
     }
 
     public Sprite GetContentTypeSprite(ContentType contentType)
