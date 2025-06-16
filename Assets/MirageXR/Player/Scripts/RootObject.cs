@@ -160,8 +160,6 @@ namespace MirageXR
 #if FUSION2
                 _collaborationManager.Initialize(_lee.AuthorizationManager, _assetBundleManager);
 #endif
-				await StartXR();
-
 				_isInitialized = true;
 			}
 			catch (Exception e)
@@ -171,21 +169,6 @@ namespace MirageXR
 			UnityEngine.Debug.Log("Initializing [RootObject] -->");
 		}
 
-		private async UniTask StartXR()
-		{
-			UnityEngine.Debug.Log("Initializing XR");
-			await XRGeneralSettings.Instance.Manager.InitializeLoader();
-			XRGeneralSettings.Instance.Manager.StartSubsystems();
-			UnityEngine.Debug.Log("XR started");
-		}
-
-		public void StopXR()
-		{
-			Debug.Log("Stopping XR...");
-			XRGeneralSettings.Instance.Manager.StopSubsystems();
-			XRGeneralSettings.Instance.Manager.DeinitializeLoader();
-		}
-		
 		private void ResetManagers()
 		{
 			ResetManagersAsync().Forget();
