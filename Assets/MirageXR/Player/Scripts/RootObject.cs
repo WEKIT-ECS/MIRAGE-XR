@@ -102,15 +102,7 @@ namespace MirageXR
 //                 InstantiateExtensions.Initialize();
 // #endif
 
-				JsonConvert.DefaultSettings = () => new JsonSerializerSettings
-				{
-					ContractResolver = new CamelCasePropertyNamesContractResolver(),
-					Error = (sender, args) =>
-					{
-						AppLog.LogWarning(args.ErrorContext.Error.Message, sender);
-						args.ErrorContext.Handled = true;
-					}
-				};
+				InitializeJsonConvertor();
 
 				_serviceBootstrapper ??= new GameObject("ServiceBootstrapper").AddComponent<MirageXRServiceBootstrapper>();
 				_serviceBootstrapper.transform.parent = transform;
@@ -144,7 +136,7 @@ namespace MirageXR
                 _viewManager = new ViewManager();
 
 				await _assetBundleManager.InitializeAsync();
-				_viewManager.Initialize(_lee.ActivityManager, _assetBundleManager, _platformManager, _collaborationManager);
+				_viewManager.Initialize(_lee.ActivityManager, _assetBundleManager, _platformManager, _collaborationManager, _lee.XrManager);
 				_lee.InitializeAsync().Forget();
 				await _lee.WaitForInitialization();
 				await _imageTargetManager.InitializationAsync(_viewManager);
@@ -167,6 +159,19 @@ namespace MirageXR
 				Debug.LogError(e.ToString());
 			}
 			UnityEngine.Debug.Log("Initializing [RootObject] -->");
+		}
+
+		private void InitializeJsonConvertor()
+		{
+			JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+			{
+				ContractResolver = new CamelCasePropertyNamesContractResolver(),
+				Error = (sender, args) =>
+				{
+					AppLog.LogWarning(args.ErrorContext.Error.Message, sender);
+					args.ErrorContext.Handled = true;
+				}
+			};
 		}
 
 		private void ResetManagers()

@@ -108,17 +108,9 @@ public class RootView_v2 : BaseView
         EventManager.OnMobileHelpPageChanged += UpdateHelpPage;
         RootObject.Instance.CameraCalibrationChecker.OnAnchorLost.AddListener(ShowCalibrationAlert);
 
-        LoadView.Instance.Show();
-        var authorizationManager = RootObject.Instance.LEE.AuthorizationManager;
-        await authorizationManager.WaitForInitialization();
-        LoadView.Instance.Hide();
-        if (!authorizationManager.LoggedIn())
-        {
-            var dontShowLoginMenu = false;
-            PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu, null);
-        }
+        var permissionManager = RootObject.Instance.LEE.PermissionManager;
 
-        if (!RootObject.Instance.LEE.PermissionManager.HasPermissions)
+        if (!permissionManager.HasPermissions)
         {
             _dialog.ShowMiddle("Permissions",
                 "For the app to work, we need access to the camera and microphone.",
@@ -127,6 +119,18 @@ public class RootView_v2 : BaseView
                 "Deny",
                 OnPermissionsDenyButtonClick,
                 false);
+        }
+
+        await permissionManager.WaitForInitialization();
+
+        LoadView.Instance.Show();
+        var authorizationManager = RootObject.Instance.LEE.AuthorizationManager;
+        await authorizationManager.WaitForInitialization();
+        LoadView.Instance.Hide();
+        if (!authorizationManager.LoggedIn())
+        {
+            var dontShowLoginMenu = false;
+            PopupsViewer.Instance.Show(_loginViewPrefab, dontShowLoginMenu, null);
         }
     }
 

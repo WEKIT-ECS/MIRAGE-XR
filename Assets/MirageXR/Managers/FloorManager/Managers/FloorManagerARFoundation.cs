@@ -46,8 +46,8 @@ public class FloorManagerARFoundation : FloorManagerBase
     {
         _viewManager = viewManager;
         _planeManager = planeManager;
-        _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>(_viewManager.CameraView);
-        _arAnchorManager = MirageXR.Utilities.FindOrCreateComponent<ARAnchorManager>(_viewManager.CameraView);
+        _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>(_viewManager.BaseCamera.gameObject);
+        _arAnchorManager = MirageXR.Utilities.FindOrCreateComponent<ARAnchorManager>(_viewManager.BaseCamera.gameObject);
 
         _planeManager.onPlaneRemoved.AddListener(OnPlaneRemoved);
         
