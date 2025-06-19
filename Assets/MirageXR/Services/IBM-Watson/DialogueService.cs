@@ -1,4 +1,3 @@
-using i5.Toolkit.Core.VerboseLogging;
 using IBM.Cloud.SDK;
 using IBM.Watson.Assistant.V2;
 using IBM.Watson.Assistant.V2.Model;
@@ -7,6 +6,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Threading.Tasks;
 using MirageXR;
+using i5.Toolkit.Core.VerboseLogging;
+using i5LogLevel = i5.Toolkit.Core.VerboseLogging.LogLevel;
 
 public enum AIservice
 {
@@ -108,7 +109,7 @@ public class DialogueService : MonoBehaviour
         Debug.Log("[DialogueService] Existing session available");
         if (AI == AIservice.OpenAI)
         {
-            AppLog.Log($"[DialogueService] sending message to chatGPT = '{text}'", LogLevel.INFO);
+            AppLog.Log($"[DialogueService] sending message to chatGPT = '{text}'", i5LogLevel.INFO);
 
             try
             {
@@ -122,7 +123,7 @@ public class DialogueService : MonoBehaviour
                         return;
                     }
                     
-                    AppLog.Log("[DialogueService] starting to parse", LogLevel.INFO);
+                    AppLog.Log("[DialogueService] starting to parse", i5LogLevel.INFO);
                     ParseResponse(response);
                 }
             }
@@ -260,7 +261,7 @@ public class DialogueService : MonoBehaviour
 
     public void OnInputReceived(string text)
     {
-        AppLog.LogWarning($"[Dialogue Service] onInputReceived arrived in DialogueService ='{text}'", LogLevel.INFO);
+        AppLog.LogWarning($"[Dialogue Service] onInputReceived arrived in DialogueService ='{text}'", i5LogLevel.INFO);
         ResponseTextField.text = text;
         SendMessageToAssistantAsync(text).AsAsyncVoid();
     }
