@@ -18,7 +18,7 @@ public class PointCloudManager : MonoBehaviour
         UnityEngine.Debug.Log("Initializing [PointCloudManager] <--");
         _viewManager = viewManager;
 #if !UNITY_ANDROID && !UNITY_IOS && !UNITY_VISIONOS
-        return true;
+        return;
 #endif
         var mainCamera = _viewManager.Camera;
 
