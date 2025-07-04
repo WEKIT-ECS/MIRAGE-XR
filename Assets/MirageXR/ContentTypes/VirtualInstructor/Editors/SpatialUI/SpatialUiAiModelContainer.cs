@@ -277,13 +277,10 @@ namespace MirageXR
 
                 void Stop()
                 {
-                    
                     audioSources[0].Stop();
                     buttons[0].gameObject.SetActive(false);
                     buttons[1].gameObject.SetActive(true);
                 }
-
-               
 
                 buttons[1].onClick.AddListener(Play);
                 buttons[0].onClick.AddListener(Stop);
@@ -294,9 +291,7 @@ namespace MirageXR
             }
 
             _allChildGameObjects.Add(instantiatedObject);
-        
         }
-
 
         /// <summary>
         /// Handles the click event of a prefab object.
@@ -308,7 +303,6 @@ namespace MirageXR
             switch (objectData.EndpointName)
             {
                 case "stt/":
-                    
                     addEditVirtualInstructor.SetAIModel(objectData, "SpeechToTextModel");
                     break;
                 case "tts/":
@@ -321,7 +315,8 @@ namespace MirageXR
                     Debug.LogError("Did not found the endpoint. Bad configuration from Server!");
                     break;
             }
-            this.gameObject.SetActive(false);
+
+            gameObject.SetActive(false);
         }
     }
 }
