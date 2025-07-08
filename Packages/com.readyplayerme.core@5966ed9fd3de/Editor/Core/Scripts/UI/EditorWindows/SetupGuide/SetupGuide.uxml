@@ -1,0 +1,35 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:Template name="HeaderTemplate" src="../Templates/HeaderTemplate.uxml" />
+    <Style src="../CommonStyle.uss" />
+    <ui:VisualElement name="ContentWrapper" style="align-items: center; width: 500px; margin-left: auto; margin-right: auto; margin-top: 0; margin-bottom: auto;">
+        <ui:Instance template="HeaderTemplate" name="HeaderTemplate" style="flex-shrink: 0;" />
+        <ui:VisualElement name="SubdomainPanel" style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); margin-top: 0; height: 230px; flex-shrink: 0; display: none; width: 500px;">
+            <ui:VisualElement name="Heading" class="heading" style="flex-grow: 0; background-color: rgba(0, 0, 0, 0);">
+                <ui:Label tabindex="-1" text="Enter your subdomain" display-tooltip-when-elided="true" class="headingText" />
+            </ui:VisualElement>
+            <ui:Label tabindex="-1" text="Please enter your subdomain here. This ensures, that you will get your avatars and the embedded avatar-creator with the configuration you set in Studio (Developer Dashboard)." display-tooltip-when-elided="true" name="Description" style="margin-left: 15px; margin-right: 15px; flex-wrap: wrap; height: auto; -unity-text-align: upper-left; white-space: normal; text-overflow: clip; visibility: visible; display: flex;" />
+            <ui:VisualElement name="StudioElement">
+                <ui:Label tabindex="-1" text="If you don&apos;t have a subdomain, you can get one by signing up in Studio." display-tooltip-when-elided="true" name="StudioLabel" style="margin-left: 15px; margin-right: 15px; white-space: normal; margin-top: 5px;" />
+                <ui:Label tabindex="-1" text="(https://studio.readyplayer.me)" display-tooltip-when-elided="true" name="StudioUrl" class="link" style="margin-left: 15px; margin-right: 15px; white-space: normal; margin-top: 0; color: rgb(0, 104, 255);" />
+            </ui:VisualElement>
+            <ReadyPlayerMe.Core.Editor.SubdomainTemplate class="SubdomainTemplate" style="margin-top: 15px; flex-shrink: 0;" />
+            <ReadyPlayerMe.Core.Editor.AppIdTemplate style="flex-shrink: 0;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="AnalyticsPanel" style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); margin-top: 0; height: 230px; flex-shrink: 0; display: flex; width: 500px;">
+            <ui:VisualElement name="Heading" class="heading" style="flex-grow: 0; background-color: rgba(0, 0, 0, 0);">
+                <ui:Label tabindex="-1" text="Help us improve Ready Player Me SDK" display-tooltip-when-elided="true" class="headingText" />
+            </ui:VisualElement>
+            <ui:Label tabindex="-1" text="We are constantly adding new features and improvements to our SDK. Enable analytics and help us in building even better free tools for more developers. This data is used for internal purposes only and is not shared with third parties." display-tooltip-when-elided="true" name="Description" style="margin-left: 15px; margin-right: 15px; flex-wrap: wrap; height: auto; -unity-text-align: upper-left; white-space: normal; text-overflow: clip; visibility: visible; display: flex;" />
+            <ui:Label text="Read our Privacy Policy and learn how we use the data here." display-tooltip-when-elided="true" name="PrivacyUrl" class="link" style="-unity-text-align: middle-left; margin-right: 15px; color: rgb(0, 104, 255); width: auto; white-space: nowrap; margin-left: 15px; margin-top: 15px; margin-bottom: 15px;" />
+            <ui:Toggle label="Analytics Enabled" name="AnalyticsEnabledToggle" style="margin-left: 15px; margin-right: 15px; flex-direction: row-reverse; align-items: center; justify-content: space-between; align-self: flex-start; margin-top: 15px; margin-bottom: 15px;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="Footer" class="box" style="flex-grow: 0; flex-direction: row; align-items: center; justify-content: space-between; margin-left: 0; margin-right: 0; height: 56px; flex-shrink: 0; width: 500px;">
+            <ui:VisualElement name="Footer" style="flex-grow: 1; flex-direction: row; align-items: center; justify-content: space-between; margin-left: 15px; margin-right: 15px; height: 34px; flex-shrink: 0; margin-top: 0; margin-bottom: 0;">
+                <ui:Button text="Open QuickStart Scene" display-tooltip-when-elided="true" name="OpenQuickStartButton" style="align-self: stretch; width: 148px; display: none;" />
+                <ui:Button text="Back" display-tooltip-when-elided="true" name="BackButton" style="align-self: stretch; width: 50px; display: flex; visibility: hidden;" />
+                <ui:Button text="Next" display-tooltip-when-elided="true" name="NextButton" style="align-self: stretch; width: 50px; display: flex; visibility: visible;" />
+                <ui:Button text="Finish Setup" display-tooltip-when-elided="true" name="FinishSetupButton" style="align-self: stretch; width: 92px; margin-left: 170px; display: none;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

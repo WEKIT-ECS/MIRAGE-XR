@@ -1,0 +1,55 @@
+{
+  "name": "com.readyplayerme.core",
+  "version": "7.3.1",
+  "displayName": "Ready Player Me Core",
+  "description": "This Module contains all the core functionality required for using Ready Player Me avatars in Unity, including features such as: \n - Module management and automatic package setup logic\n - Avatar loading from .glb files \n - Avatar creation \n - Avatar and 2D render requests \n - Optional Analytics\n - Custom editor windows\n - Sample scenes and assets",
+  "unity": "2020.3",
+  "unityRelease": "0f1",
+  "documentationUrl": "https://docs.readyplayer.me/ready-player-me/integration-guides/unity-sdk",
+  "changelogUrl": "https://github.com/readyplayerme/rpm-unity-sdk-core/blob/main/CHANGELOG.md",
+  "licensesUrl": "https://github.com/readyplayerme/rpm-unity-sdk-core/blob/main/LICENSE.md",
+  "dependencies": {
+    "com.atteneder.gltfast": "6.2.0",
+    "com.unity.nuget.newtonsoft-json": "3.0.2"
+  },
+  "keywords": [
+    "ready player me",
+    "avatar",
+    "loader",
+    "character",
+    "metaverse"
+  ],
+  "author": {
+    "name": "Ready Player Me",
+    "email": "info@readyplayer.me",
+    "url": "https://readyplayer.me"
+  },
+  "samples": [
+    {
+      "displayName": "QuickStart",
+      "description": "This quick start sample demonstrates how to load an avatar with a third person controller setup.",
+      "path": "Samples~/QuickStart"
+    },
+    {
+      "displayName": "AvatarLoadingSamples",
+      "description": "These samples showcase various ways to load an avatar into a scene.",
+      "path": "Samples~/AvatarLoadingSamples"
+    },
+    {
+      "displayName": "AvatarRenderSamples",
+      "description": "These samples showcase how to creates a 2D renders of an avatar using the Render API.",
+      "path": "Samples~/AvatarRenderSamples"
+    },
+    {
+      "displayName": "WebGLSample",
+      "description": "This sample includes a WebGL template and demonstrates how run the Ready Player Me Web avatar creator inside an iFrame for WebGL applications.",
+      "path": "Samples~/WebGLSample"
+    },
+    {
+      "displayName": "AvatarCreatorSamples",
+      "description": "This sample demonstrates how to implement a Ready Player Me Avatar Creator using Unity's built in UI system without the need for an embedded Web Browser.",
+      "path": "Samples~/AvatarCreatorSamples"
+    }
+  ],
+  "_fingerprint": "5966ed9fd3dee9ed051e1979d7ecf39cbc6adb80"
+}

@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="../../CommonStyle.uss" />
+    <ui:VisualElement name="Heading" class="heading">
+        <ui:Label text="Download Avatar into Scene" display-tooltip-when-elided="true" class="headingText" />
+        <ui:Button text="?" display-tooltip-when-elided="true" name="HelpButton" class="button2" style="margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; width: 20px; height: 20px; border-top-left-radius: 15px; border-bottom-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px;" />
+    </ui:VisualElement>
+    <ui:TextField picking-mode="Ignore" label="Avatar URL" value="filler text" multiline="false" name="UrlField" style="align-items: center; justify-content: center; flex-direction: row; margin-left: 15px; padding-right: 15px; margin-top: 5px;" />
+    <ui:Label text="Please enter a valid Avatar Url. Read more." display-tooltip-when-elided="true" focusable="false" name="ErrorLabel" style="width: 355px; white-space: nowrap; -unity-text-align: middle-left; font-size: 10px; color: rgb(204, 68, 68); align-items: auto; margin-left: 190px; margin-top: 1px; -unity-font-style: normal;" />
+</ui:UXML>
