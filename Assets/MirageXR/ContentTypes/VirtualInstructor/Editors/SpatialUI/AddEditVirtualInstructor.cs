@@ -70,34 +70,7 @@ public class AddEditVirtualInstructor : EditorSpatialView
     [SerializeField] private TMP_Text aiModel;
     [SerializeField] private TMP_Text aiLanguage;
     
-
     private Content<InstructorContentData> _instructorContentData;
-    
-    
-    
-    public override void Initialization(Action<PopupBase> onClose, params object[] args)
-    {   
-        base.Initialization(onClose, args);
-        _instructorContentData = Content as Content<InstructorContentData>;
-            
-        settingsBtn.onClick.AddListener(OpenSettingsPanel);
-        characterModelSelectionElement.CharacterModelSelectionStarted += OpenCharacterModelSettingPanel;
-        replaceCharacterModelBtn.onClick.AddListener(OpenCharacterModelSettingPanel);
-        foreach (var communicationSettingBtn in communicationSettingBtns)
-        {
-            communicationSettingBtn.onClick.AddListener(OpenCommunicationSettingPanel);
-        }
-        animationSettingBtnA.onClick.AddListener(OpenAnimationSettingPanel);
-        animationSettingBtnB.onClick.AddListener(OpenAnimationSettingPanel);
-        pathSettingBtn.onClick.AddListener(OpenPathSettingPanel);
-        promptVI.onClick.AddListener(OpenPromptPanel);
-        voicesVI.onClick.AddListener(OpenVoicePanel);
-        modelVI.onClick.AddListener(OpenModelPanel);
-        languageVI.onClick.AddListener(OpenLanguagePanel);
-        interactionSettingToggleOpen.onValueChanged.AddListener(SetInteractionSettingsActive);
-        interactionSettingToggleClosed.onValueChanged.AddListener(SetInteractionSettingsActive);
-        avatarModelSettingPanel.CharacterModelSelected += OnAvatarModelSelected;
-    }
 
 	private string _triggers = String.Empty; // todo
     private string _availableTriggers = String.Empty; // todo
@@ -122,6 +95,46 @@ public class AddEditVirtualInstructor : EditorSpatialView
     private string _textToSpeechModelModellApiName = "alloy";
     private string _textToSpeechModelDescription = "Female human voice"; 
     private string _textToSpeechModelName = "Alloy"; 
+
+    public override void Initialization(Action<PopupBase> onClose, params object[] args)
+    {   
+        base.Initialization(onClose, args);
+        _instructorContentData = Content as Content<InstructorContentData>;
+
+        settingsBtn.onClick.AddListener(OpenSettingsPanel);
+        characterModelSelectionElement.CharacterModelSelectionStarted += OpenCharacterModelSettingPanel;
+        replaceCharacterModelBtn.onClick.AddListener(OpenCharacterModelSettingPanel);
+
+        foreach (var communicationSettingBtn in communicationSettingBtns)
+        {
+            communicationSettingBtn.onClick.AddListener(OpenCommunicationSettingPanel);
+        }
+
+        animationSettingBtnA.onClick.AddListener(OpenAnimationSettingPanel);
+        animationSettingBtnB.onClick.AddListener(OpenAnimationSettingPanel);
+        pathSettingBtn.onClick.AddListener(OpenPathSettingPanel);
+        promptVI.onClick.AddListener(OpenPromptPanel);
+        voicesVI.onClick.AddListener(OpenVoicePanel);
+        modelVI.onClick.AddListener(OpenModelPanel);
+        languageVI.onClick.AddListener(OpenLanguagePanel);
+        interactionSettingToggleOpen.onValueChanged.AddListener(SetInteractionSettingsActive);
+        interactionSettingToggleClosed.onValueChanged.AddListener(SetInteractionSettingsActive);
+        avatarModelSettingPanel.CharacterModelSelected += OnAvatarModelSelected;
+
+        if (IsContentUpdate && _instructorContentData != null)
+        {
+            UpdatePrompt(_instructorContentData.ContentData.Prompt);
+            SetAIModel(_instructorContentData.ContentData.TextToSpeechModel, "TextToSpeechModel");
+            SetAIModel(_instructorContentData.ContentData.SpeechToTextModel, "SpeechToTextModel");
+            SetAIModel(_instructorContentData.ContentData.LanguageModel, "LanguageModel");
+            UpdateName(_instructorContentData.ContentData.CharacterName);
+            UpdateAnimationSetting(_instructorContentData.ContentData.AnimationClip);
+            if (_instructorContentData.ContentData.UseReadyPlayerMe)
+            {
+                OnAvatarModelSelected(_instructorContentData.ContentData.CharacterModelUrl);
+            }
+        }
+    }
 
     protected override void OnAccept()
     {
@@ -217,20 +230,20 @@ public class AddEditVirtualInstructor : EditorSpatialView
         switch (sender.gameObject.name)
         {
             case "PathSetting":
-                UpdatePathSetting(toggle);
+                UpdatePathSetting(toggle.name);
                 break;
             case "Animation":
-                UpdateAnimationSetting(toggle);
+                UpdateAnimationSetting(toggle.name);
                 break;
             case "CommunicationSettings":
-                UpdateCommunicationSettings(toggle);
+                UpdateCommunicationSettings(toggle.name);
                 break;
         }
     }
 
-    private void UpdateCommunicationSettings(Toggle toggle)
+    private void UpdateCommunicationSettings(string modeName)
     {
-        switch (toggle.name)
+        switch (modeName)
         {
             case "AI":
                 ai.SetActive(true);
@@ -250,9 +263,9 @@ public class AddEditVirtualInstructor : EditorSpatialView
         }
     }
 
-    private void UpdateAnimationSetting(Toggle toggle)
+    private void UpdateAnimationSetting(string animationName)
     {
-        switch (toggle.name)
+        switch (animationName)
         {
              case "Idle": 
                  animationWithOutImage.SetActive(true);
@@ -313,9 +326,9 @@ public class AddEditVirtualInstructor : EditorSpatialView
              }
     }
 
-    private void UpdatePathSetting(Toggle toggle)
+    private void UpdatePathSetting(string modeName)
     {
-        switch (toggle.name)
+        switch (modeName)
         {
           case "NoPath":
               pathSettingText.text = _pathSetting = "No Path";
@@ -380,6 +393,7 @@ public class AddEditVirtualInstructor : EditorSpatialView
         interactionSettingToggleOpen.isOn = active;
         interactionSettingToggleClosed.isOn = active;
     }
+
     public void UpdateName(string name)
     {
         _characterName = name;
@@ -390,6 +404,7 @@ public class AddEditVirtualInstructor : EditorSpatialView
         _prompt = prompt;
         aiPrompt.text =  prompt.Length > 14 ? prompt.Substring(0, 14) : prompt; 
     }
+
     public void SetAIModel(AIModel model, string type)
     {
         switch (type)
