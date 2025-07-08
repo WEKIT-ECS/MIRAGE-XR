@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="../../CommonStyle.uss" />
+    <ui:VisualElement name="Container" style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); flex-direction: row; align-items: center; justify-content: flex-start; align-self: flex-start; margin-left: 15px; margin-right: 15px; flex-shrink: 1; width: 464px;">
+        <ui:VisualElement name="LabelAndHelpButton" style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); min-width: 145px; flex-direction: row; align-items: center; justify-content: flex-start; align-self: center;">
+            <ui:Label tabindex="-1" text="App ID" display-tooltip-when-elided="true" enable-rich-text="true" name="Label" style="height: 33px; -unity-text-align: middle-left; margin-left: 0;" />
+            <ui:Button text="?" display-tooltip-when-elided="true" name="AppIdHelpButton" class="button2" style="margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; width: 20px; height: 20px; border-top-left-radius: 15px; border-bottom-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; -unity-text-align: middle-center; white-space: nowrap;" />
+        </ui:VisualElement>
+        <ui:TextField picking-mode="Ignore" name="AppIdField" style="width: 165px; margin-left: 52px; margin-right: 0; margin-top: 0; margin-bottom: 0; height: 24px;" />
+        <ui:VisualElement name="ErrorIcon" focusable="false" style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); background-image: resource(&apos;rpm_error_icon&apos;); width: 17px; height: 17px; margin-left: 5px; display: flex; visibility: hidden; flex-shrink: 0;" />
+    </ui:VisualElement>
+</ui:UXML>

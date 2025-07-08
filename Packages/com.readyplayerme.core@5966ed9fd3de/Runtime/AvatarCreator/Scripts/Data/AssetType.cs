@@ -1,0 +1,61 @@
+﻿namespace ReadyPlayerMe.AvatarCreator
+{
+    public enum AssetType
+    {
+        None,
+        [AssetTypeFilter(AssetFilter.Color)]
+        SkinColor,
+        [AssetTypeFilter(AssetFilter.Style)]
+        BeardStyle,
+        [AssetTypeFilter(AssetFilter.Style)]
+        EyeColor,
+        [AssetTypeFilter(AssetFilter.Style)]
+        EyeShape,
+        [AssetTypeFilter(AssetFilter.Style)]
+        EyebrowStyle,
+        [AssetTypeFilter(AssetFilter.Style)]
+        FaceMask,
+        [AssetTypeFilter(AssetFilter.Style)]
+        FaceShape,
+        [AssetTypeFilter(AssetFilter.Style)]
+        Glasses,
+        [AssetTypeFilter(AssetFilter.Style)]
+        HairStyle,
+        [AssetTypeFilter(AssetFilter.Style)]
+        Facewear,
+        [AssetTypeFilter(AssetFilter.Style)]
+        Headwear,
+        [AssetTypeFilter(AssetFilter.Style)]
+        LipShape,
+        [AssetTypeFilter(AssetFilter.Style)]
+        NoseShape,
+        [AssetTypeFilter(AssetFilter.Style)]
+        Outfit,
+        [AssetTypeFilter(AssetFilter.Style)]
+        Shirt,
+        [AssetTypeFilter(AssetFilter.Color)]
+        HairColor,
+        [AssetTypeFilter(AssetFilter.Color)]
+        EyebrowColor,
+        [AssetTypeFilter(AssetFilter.Color)]
+        BeardColor,
+        [AssetTypeFilter(AssetFilter.Style)]
+        Bottom,
+        [AssetTypeFilter(AssetFilter.Style)]
+        Top,
+        [AssetTypeFilter(AssetFilter.Style)]
+        Footwear,
+        [AssetTypeFilter(AssetFilter.Template)]
+        AvatarTemplate,
+        BodyShape,
+        [AssetTypeFilter(AssetFilter.Style)]
+        Costume
+    }
+
+    public enum AssetFilter
+    {
+        Color,
+        Style,
+        Template
+    }
+}

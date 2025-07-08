@@ -1,0 +1,57 @@
+name: Integration Tests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - release/*
+jobs:
+  runAllTests:
+    name: ${{ matrix.unityVersion }} integration tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        testMode:
+          - editmode
+        unityVersion:
+          - 2021.3.32f1
+    steps:
+      - name: Checkout empty unity project repository
+        uses: actions/checkout@v4
+        with:
+          repository: "readyplayerme/rpm-unity-empty-project"
+          fetch-depth: 0
+          ref: main
+          token: ${{ secrets.DEV_SDK_TOKEN }}
+      - name: Cache Project
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
+      - name: Get npm
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install openupm-cli
+        run: npm install -g openupm-cli
+      - name: Add core with current branch as package
+        run: openupm add com.readyplayerme.core@https://github.com/readyplayerme/rpm-unity-sdk-core.git#${{ github.ref_name }}
+      - name: Run Tests
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          unityVersion: ${{ matrix.unityVersion }}
+          testMode: ${{ matrix.testMode }}
+          projectPath: ${{ matrix.projectPath }}
+          checkName: ${{ matrix.unityVersion }} ${{ matrix.testMode }} tests result
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          customParameters: assemblyNames "ReadyPlayerMe.Core.Editor.Tests;ReadyPlayerMe.Tests.Editor;ReadyPlayerMe.Tests.Runtime"
+          coverageOptions: "generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+ReadyPlayerMe.*"

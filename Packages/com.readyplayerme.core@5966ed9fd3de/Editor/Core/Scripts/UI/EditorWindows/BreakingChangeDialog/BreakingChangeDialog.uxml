@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="../CommonStyle.uss" />
+    <ui:VisualElement style="flex-direction: row; align-items: stretch; justify-content: flex-start; margin-left: 20px; margin-right: 20px; margin-top: 20px; margin-bottom: 20px; flex-shrink: 0;">
+        <ui:VisualElement name="IconContainer" style="width: 60px; height: 60px; flex-direction: row; align-items: center; justify-content: center; background-color: rgb(0, 0, 0);">
+            <ui:VisualElement name="Icon" style="background-image: resource(&apos;rpm_logo&apos;); width: 50px; height: 50px; flex-direction: row; flex-shrink: 0; -unity-background-scale-mode: scale-to-fit; background-color: rgba(0, 0, 0, 0);" />
+        </ui:VisualElement>
+        <ui:VisualElement name="Description" style="align-items: flex-start; justify-content: center; margin-left: 10px; flex-shrink: 0;">
+            <ui:Label text="This is a breaking change! Do you still want to update? " name="Text" style="margin-top: 0; margin-right: 0; margin-left: 0; margin-bottom: 0; white-space: normal; -unity-text-align: middle-left;" />
+            <ui:Label text="Link to Migration Guide" name="MigrationLink" class="link" style="margin-top: 5px; margin-right: 0; margin-left: 0; margin-bottom: 0; white-space: normal; -unity-text-align: middle-left; color: rgb(0, 104, 255);" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="Buttons" style="flex-direction: row-reverse; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px; flex-shrink: 0; height: 44px;">
+        <ui:Button text="Cancel" display-tooltip-when-elided="true" name="CancelButton" />
+        <ui:Button text="Update" display-tooltip-when-elided="true" name="UpdateButton" style="white-space: nowrap;" />
+    </ui:VisualElement>
+</ui:UXML>
