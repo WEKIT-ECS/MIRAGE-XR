@@ -38,8 +38,8 @@ public class PlaneManagerARFoundation : PlaneManagerBase
             return false;
         }
 
-        _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>(_viewManager.CameraView);
-        _arPlaneManager = MirageXR.Utilities.FindOrCreateComponent<ARPlaneManager>(_viewManager.CameraView);
+        _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>(_viewManager.BaseCamera.gameObject);
+        _arPlaneManager = MirageXR.Utilities.FindOrCreateComponent<ARPlaneManager>(_viewManager.BaseCamera.gameObject);
 
         _arPlaneManager.requestedDetectionMode = DETECTION_MODE;
         _arPlaneManager.planePrefab = _prefabPlane;

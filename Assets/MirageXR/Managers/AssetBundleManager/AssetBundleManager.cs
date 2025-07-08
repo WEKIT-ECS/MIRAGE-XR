@@ -1,5 +1,6 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
+using LearningExperienceEngine.NewDataModel;
 using MirageXR.View;
 using UnityEngine;
 
@@ -66,7 +67,7 @@ namespace MirageXR
             }
         }
 
-        public GameObject GetCamera(CameraType spatial)
+        public BaseCamera GetCamera(CameraType spatial)
         {
             switch (spatial)
             {

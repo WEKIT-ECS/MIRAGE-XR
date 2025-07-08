@@ -1,6 +1,7 @@
 using System;
 using i5.Toolkit.Core.VerboseLogging;
 using LearningExperienceEngine.DataModel;
+using LearningExperienceEngine.NewDataModel;
 using MirageXR.View;
 using UnityEngine;
 
@@ -16,9 +17,9 @@ namespace MirageXR
             public ContentView ContentView;
         }
 
-        [SerializeField] private GameObject visionCamera;
-        [SerializeField] private GameObject openCamera;
-        [SerializeField] private GameObject arFoundationCamera;
+        [SerializeField] private BaseCamera visionCamera;
+        [SerializeField] private BaseCamera openCamera;
+        [SerializeField] private BaseCamera arFoundationCamera;
         [SerializeField] private GameObject spatialUiView;
         [SerializeField] private GameObject screenUiView;
         [SerializeField] private CalibrationTool _calibrationTool;
@@ -41,17 +42,17 @@ namespace MirageXR
             return screenUiView;
         }
 
-        public GameObject GetVisionCamera()
+        public BaseCamera GetVisionCamera()
         {
             return visionCamera;
         }
 
-        public GameObject GetOpenCamera()
+        public BaseCamera GetOpenCamera()
         {
             return openCamera;
         }
 
-        public GameObject GetARFoundationCamera()
+        public BaseCamera GetARFoundationCamera()
         {
             return arFoundationCamera;
         }

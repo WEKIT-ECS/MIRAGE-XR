@@ -1,0 +1,19 @@
+name: Automatic Release
+
+on: 
+  push:
+    tags:
+    - 'v*'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ncipollo/release-action@v1
+      with:
+        name: "${{github.ref_name}}"
+        bodyFile: ".github/latest.md"

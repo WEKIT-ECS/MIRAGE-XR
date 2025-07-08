@@ -1,0 +1,60 @@
+name: Run Tests
+
+on:
+  pull_request:
+    types: [ opened, reopened, edited ]
+  workflow_dispatch:
+
+jobs:
+  runAllTests:
+    name: ${{ matrix.unityVersion }} ${{ matrix.testMode }} tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        testMode:
+          - playmode
+          - editmode
+        unityVersion:
+          - 2021.3.32f1
+    steps:
+      - name: Checkout Unity-SDK Repository
+        uses: actions/checkout@v4
+        with:
+          repository: "readyplayerme/Unity-SDK"
+          submodules: true
+          fetch-depth: 0
+          ref: develop
+          token: ${{ secrets.DEV_SDK_TOKEN }}
+
+      - name: Checkout submodule branch
+        run: |
+          cd Assets/Ready\ Player\ Me/Core
+          git fetch -a
+          git checkout ${{ github.event.pull_request.head.ref }}
+          git pull origin ${{ github.event.pull_request.head.ref }}
+          mv Samples~ Samples
+      - name: Cache Project
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
+
+      - name: Run Tests
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          unityVersion: ${{ matrix.unityVersion }}
+          testMode: ${{ matrix.testMode }}
+          projectPath: ${{ matrix.projectPath }}
+          checkName: ${{ matrix.unityVersion }} ${{ matrix.testMode }} tests result
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          customParameters: |
+            assemblyNames "ReadyPlayerMe.Core.Editor.Tests;ReadyPlayerMe.Tests.Editor;ReadyPlayerMe.Tests.Runtime"
+          coverageOptions: "generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+ReadyPlayerMe.*"

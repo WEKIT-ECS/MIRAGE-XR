@@ -22,11 +22,11 @@ public class PointCloudManager : MonoBehaviour
 #endif
         var mainCamera = _viewManager.Camera;
 
-        _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>(_viewManager.CameraView);
+        _arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>(_viewManager.BaseCamera.gameObject);
 
 #if !UNITY_VISIONOS && !UNITY_IOS
         // if on Android, then add the pointcloud prefab (not supported on VisionOS)
-        _arPointCloudManager = MirageXR.Utilities.FindOrCreateComponent<ARPointCloudManager>(_viewManager.CameraView);
+        _arPointCloudManager = MirageXR.Utilities.FindOrCreateComponent<ARPointCloudManager>(_viewManager.BaseCamera.gameObject);
         _arPointCloudManager.pointCloudPrefab = _prefabPointCloud;
 /* #else 
         // ar mesh manager is not working on the device build 

@@ -1,0 +1,34 @@
+﻿name: Update unity sdk
+on:
+  pull_request:
+    branches:
+      - develop
+    types: [closed]
+
+jobs:
+  update-submodule:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo with submodule
+        uses: actions/checkout@v4
+        with:
+          repository: "readyplayerme/Unity-SDK"
+          submodules: true
+          fetch-depth: 0
+          ref: develop
+          token: ${{ secrets.DEV_SDK_TOKEN }}
+
+      - name: Update submodule
+        run: |
+          cd Assets/Ready\ Player\ Me/Core
+          git checkout develop
+          git pull origin develop
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "dev-sdk"
+          git config --global user.email "dev-sdk@wolf3d.io"
+          git add .
+          git commit -m 'Update submodule'
+          git push origin develop
