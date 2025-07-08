@@ -162,13 +162,13 @@ public class ImageTargetManagerARFoundation : ImageTargetManagerBase
 
     private async Task<bool> ARFoundationInitialization()
     {
-        var arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>(_viewManager.CameraView);
-        var arInputManager = MirageXR.Utilities.FindOrCreateComponent<ARInputManager>(_viewManager.CameraView);
+        var arSession = MirageXR.Utilities.FindOrCreateComponent<ARSession>(_viewManager.BaseCamera.gameObject);
+        var arInputManager = MirageXR.Utilities.FindOrCreateComponent<ARInputManager>(_viewManager.BaseCamera.gameObject);
 
         await Task.Yield();
 
         //var arSessionOrigin = MirageXR.Utilities.FindOrCreateComponent<XROrigin>(_viewManager.CameraView);
-        _arTrackedImageManager = MirageXR.Utilities.FindOrCreateComponent<ARTrackedImageManager>(_viewManager.CameraView);
+        _arTrackedImageManager = MirageXR.Utilities.FindOrCreateComponent<ARTrackedImageManager>(_viewManager.BaseCamera.gameObject);
 
         // arSessionOrigin.Camera = mainCamera;
         var baseCamera = _viewManager.Camera;

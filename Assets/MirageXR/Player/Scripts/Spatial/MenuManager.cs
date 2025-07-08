@@ -50,6 +50,11 @@ namespace MirageXR
 
         private async UniTask InitializeAsync()
         {
+            var permissionManager = RootObject.Instance.LEE.PermissionManager;
+            if (!permissionManager.HasPermissions)
+            {
+                await permissionManager.RequestPermissionsAsync();
+            }
             CreateInGameConsole();
             await RootObject.Instance.WaitForInitialization();
             var canvas = GetComponentInParent<Canvas>();

@@ -4,8 +4,8 @@ using Cysharp.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Unity.XR.CoreUtils;
 using UnityEngine;
+using UnityEngine.XR.Management;
 
 namespace MirageXR
 {
@@ -102,15 +102,7 @@ namespace MirageXR
 //                 InstantiateExtensions.Initialize();
 // #endif
 
-				JsonConvert.DefaultSettings = () => new JsonSerializerSettings
-				{
-					ContractResolver = new CamelCasePropertyNamesContractResolver(),
-					Error = (sender, args) =>
-					{
-						AppLog.LogWarning(args.ErrorContext.Error.Message, sender);
-						args.ErrorContext.Handled = true;
-					}
-				};
+				InitializeJsonConvertor();
 
 				_serviceBootstrapper ??= new GameObject("ServiceBootstrapper").AddComponent<MirageXRServiceBootstrapper>();
 				_serviceBootstrapper.transform.parent = transform;
@@ -144,7 +136,7 @@ namespace MirageXR
                 _viewManager = new ViewManager();
 
 				await _assetBundleManager.InitializeAsync();
-				_viewManager.Initialize(_lee.ActivityManager, _assetBundleManager, _platformManager, _collaborationManager);
+				_viewManager.Initialize(_lee.ActivityManager, _assetBundleManager, _platformManager, _collaborationManager, _lee.XrManager);
 				_lee.InitializeAsync().Forget();
 				await _lee.WaitForInitialization();
 				await _imageTargetManager.InitializationAsync(_viewManager);
@@ -160,10 +152,7 @@ namespace MirageXR
 #if FUSION2
                 _collaborationManager.Initialize(_lee.AuthorizationManager, _assetBundleManager);
 #endif
-
 				_isInitialized = true;
-
-				//LearningExperienceEngine.EventManager.OnClearAll += ResetManagers;
 			}
 			catch (Exception e)
 			{
@@ -172,12 +161,25 @@ namespace MirageXR
 			UnityEngine.Debug.Log("Initializing [RootObject] -->");
 		}
 
-		private void ResetManagers()
+		private void InitializeJsonConvertor()
 		{
-			ResetManagersAsync().AsAsyncVoid();
+			JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+			{
+				ContractResolver = new CamelCasePropertyNamesContractResolver(),
+				Error = (sender, args) =>
+				{
+					AppLog.LogWarning(args.ErrorContext.Error.Message, sender);
+					args.ErrorContext.Handled = true;
+				}
+			};
 		}
 
-		private async Task ResetManagersAsync()
+		private void ResetManagers()
+		{
+			ResetManagersAsync().Forget();
+		}
+
+		private async UniTask ResetManagersAsync()
 		{
 			await _floorManager.ResetAsync();
 			await _planeManager.ResetAsync();

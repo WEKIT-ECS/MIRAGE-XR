@@ -34,19 +34,21 @@ namespace MirageXR
                 return _activityView;
             }  
         }
+
         public GameObject UiView => _uiView;
-        public GameObject CameraView => _cameraView;
         public Camera Camera => _camera;
+        public BaseCamera BaseCamera => _baseCamera;
         public bool IsInitialized => _isInitialized;
 
         private ActivityView _activityView;
         private GameObject _uiView;
-        private GameObject _cameraView;
         private Camera _camera;
+        private BaseCamera _baseCamera;
         private IActivityManager _activityManager;
         private IAssetBundleManager _assetBundleManager;
         private PlatformManager _platformManager;
         private CollaborationManager _collaborationManager;
+        private IXRManager _xrManager;
         private bool _isInitialized;
 
         public UniTask WaitForInitialization()
@@ -54,20 +56,30 @@ namespace MirageXR
             return UniTask.WaitUntil(() => _isInitialized);
         }
 
-        public void Initialize(IActivityManager activityManager, IAssetBundleManager assetBundleManager, PlatformManager platformManager, CollaborationManager collaborationManager)
+        public void Initialize(IActivityManager activityManager, IAssetBundleManager assetBundleManager, PlatformManager platformManager, CollaborationManager collaborationManager, IXRManager xrManager)
         {
             UnityEngine.Debug.Log("Initializing [ViewManager] <--");
             _activityManager = activityManager;
             _assetBundleManager = assetBundleManager;
             _platformManager = platformManager;
             _collaborationManager = collaborationManager;
+            _xrManager = xrManager;
 
             _activityManager.OnActivityLoaded += OnActivityLoaded;
             collaborationManager.OnPlayerJoinEvent.AddListener(OnPlayerJoinEvent);
+            xrManager.OnXRActivated += OnXRActivated;
 
             CreateCamera();
             CreateUiView();
             UnityEngine.Debug.Log("Initializing [ViewManager] -->");
+        }
+
+        private void OnXRActivated(bool value)
+        {
+            if (value && _baseCamera)
+            {
+                _baseCamera.SetActiveXRObjects(true);
+            }
         }
 
         private void OnPlayerJoinEvent(NetworkRunner runner, PlayerRef player)
@@ -91,8 +103,9 @@ namespace MirageXR
         {
             var type = _platformManager.GetCameraType();
             var prefab = _assetBundleManager.GetCamera(type);
-            _cameraView = Object.Instantiate(prefab);
-            _camera = _cameraView.GetComponentInChildren<Camera>();
+            prefab.SetActiveXRObjects(false);
+            _baseCamera = Object.Instantiate(prefab);
+            _camera = _baseCamera.Camera;
             var cameraData = _camera.GetUniversalAdditionalCameraData();
             cameraData.antialiasing = AntialiasingMode.None;
         }
@@ -108,13 +121,13 @@ namespace MirageXR
         {
             if (_activityView is not NetworkActivityView _)
             {
-                if (_activityView != null)
+                if (_activityView)
                 {
                     Object.Destroy(_activityView.gameObject);
                 }
 
                 var networkRunner = _collaborationManager.NetworkRunner;
-                if (networkRunner != null && networkRunner.IsSharedModeMasterClient)
+                if (networkRunner && networkRunner.IsSharedModeMasterClient)
                 {
                     var prefab = _assetBundleManager.GetActivityViewPrefab(true);
                     var networkObjectPrefab = prefab.GetComponent<NetworkObject>();
@@ -126,9 +139,9 @@ namespace MirageXR
 
         private void CreateActivityView()
         {
-            if (_activityView == null || _activityView is NetworkActivityView _)
+            if (!_activityView || _activityView is NetworkActivityView _)
             {
-                if (_activityView != null)
+                if (_activityView)
                 {
                     Object.Destroy(_activityView.gameObject);
                 }

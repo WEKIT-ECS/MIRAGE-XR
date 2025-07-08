@@ -48,7 +48,7 @@ namespace MirageXR.View
 
             var bounds = BoundsUtilities.GetTargetBounds(gameObject);
             BoxCollider = gameObject.GetComponent<BoxCollider>();
-            if (BoxCollider == null)
+            if (!BoxCollider)
             {
                 BoxCollider = gameObject.AddComponent<BoxCollider>();
             }
@@ -113,7 +113,7 @@ namespace MirageXR.View
             {
                 return false;
             }
-            
+
             if (_model is null)
             {
                 AppLog.LogError($"Can't load model with id {content.ContentData.ModelUid}");

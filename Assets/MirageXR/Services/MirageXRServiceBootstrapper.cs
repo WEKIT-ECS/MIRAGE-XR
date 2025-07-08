@@ -52,12 +52,12 @@ namespace MirageXR
 
 			await ReadConfig();
 
-			ServiceManager.RegisterService(new WorldAnchorService());
+			/*ServiceManager.RegisterService(new WorldAnchorService());
 			ServiceManager.RegisterService(new KeywordService());
 			ServiceManager.RegisterService(new VestService
 			{
 				VestEnabled = SensorsEnabled // vestServiceConfiguration.vestEnabled
-			});
+			});*/
 
 			if (_WEKITAuthToken != null)
 			{
@@ -70,17 +70,6 @@ namespace MirageXR
 			}
 
 			ServiceManager.RegisterService(new VideoAudioTrackGlobalService());
-
-			OpenIDConnectService oidc = new OpenIDConnectService
-			{
-				OidcProvider = new SketchfabOidcProvider()
-			};
-#if !UNITY_EDITOR
-				oidc.RedirectURI = "https://wekit-ecs.com/sso/callback.php";
-#else
-			// here could be the link to a nicer web page that tells the user to return to the app
-#endif
-			ServiceManager.RegisterService(oidc);
 
 			if (!ServiceManager.ServiceExists<DeepLinkingService>())
 			{

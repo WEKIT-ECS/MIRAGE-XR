@@ -1,0 +1,22 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <uie:EnumField label="Lod" value="High" type="ReadyPlayerMe.Core.Lod, ReadyPlayerMe.Core" name="Lod" />
+    <uie:EnumField label="Pose" value="APose" type="ReadyPlayerMe.Core.Pose, ReadyPlayerMe.Core" name="Pose" />
+    <ui:Toggle label="Use Hands" name="UseHands" value="false" style="margin-left: 3px; height: 16px; margin-top: 3px;" />
+    <uie:EnumField label="TextureAtlas" value="High" type="ReadyPlayerMe.Core.TextureAtlas, ReadyPlayerMe.Core" name="TextureAtlas" />
+    <ui:SliderInt picking-mode="Ignore" label="TextureSizeLimit" value="0" high-value="1024" low-value="256" show-input-field="true" name="TextureSizeLimit" />
+    <ui:Foldout text="Texture Channel" name="TextureChannel" value="false" style="flex-direction: column; margin-left: 4px; flex-grow: 0; margin-right: 4px; margin-top: 4px; align-items: stretch; justify-content: space-between; flex-shrink: 0;">
+        <ui:ListView focusable="true" reorderable="true" show-border="true" show-alternating-row-backgrounds="All" style="height: auto; flex-shrink: 0; flex-grow: 0; justify-content: flex-start; border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px;" />
+    </ui:Foldout>
+    <ui:VisualElement name="CustomShader" style="border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; border-left-color: rgba(113, 109, 109, 255); border-right-color: rgba(113, 109, 109, 255); border-top-color: rgba(113, 109, 109, 255); border-bottom-color: rgba(113, 109, 109, 255);">
+        <uie:ObjectField label="Shader Override" type="UnityEngine.Shader, UnityEngine.CoreModule" name="ShaderOverride" />
+        <ui:VisualElement name="ShaderProperties" style="flex-grow: 1; margin-left: 5px;" />
+    </ui:VisualElement>
+    <ui:Foldout text="Optimization Packages" name="OptimizationPackages" value="false" style="flex-shrink: 0; margin-top: 4px; margin-left: 4px; margin-right: 4px;">
+        <ui:Toggle label="Use Draco Compression" name="UseDracoCompression" style="flex-direction: row; align-items: center; justify-content: flex-start; margin-left: 3px; margin-top: 3px;" />
+        <ui:Toggle label="Use Mesh Opt Compression" name="UseMeshOptCompression" style="margin-left: 3px; margin-top: 3px; align-items: center; flex-direction: row; flex-grow: 0; flex-shrink: 0; flex-wrap: nowrap; position: relative; overflow: hidden; opacity: 1;" />
+    </ui:Foldout>
+    <ui:Foldout text="Morph Targets" name="MorphTargets" value="false" style="margin-left: 4px; margin-right: 4px; margin-top: 4px; margin-bottom: 1px;">
+        <ui:VisualElement name="SelectedMorphTargets" style="flex-grow: 0; margin-top: 5px; -unity-text-outline-width: 0;" />
+        <ui:Button text="Add" display-tooltip-when-elided="true" name="AddButton" style="margin-top: 5px;" />
+    </ui:Foldout>
+</ui:UXML>
