@@ -230,7 +230,7 @@ MonoBehaviour:
   m_Content: {fileID: 3383811768690604769}
   m_Horizontal: 0
   m_Vertical: 1
-  m_MovementType: 1
+  m_MovementType: 2
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
@@ -292,14 +292,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2868886488254015350}
-  - component: {fileID: 6794162957644384186}
+  - component: {fileID: 6190014572081743497}
   m_Layer: 0
   m_Name: Language
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2868886488254015350
 RectTransform:
   m_ObjectHideFlags: 0
@@ -320,7 +320,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 72.31134}
   m_SizeDelta: {x: 452, y: 460}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &6794162957644384186
+--- !u!114 &6190014572081743497
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -329,16 +329,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 2782676072868575070}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 989f150726734741bb4f17cde30ce2e6, type: 3}
+  m_Script: {fileID: 11500000, guid: c9d961b430274e6895c2a94e5c1d43fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectedFunctionEnum: 2
   prefabTemplate: {fileID: 5597492273586423585, guid: f495217fed6664950b4e5a5276c1527b,
     type: 3}
   sceneContainer: {fileID: 3383811768690604769}
-  audioPlayer: {fileID: 0}
   close: {fileID: 8061129370941237180}
-  addEditVirtualInstructor: {fileID: 0}
 --- !u!1 &4076667527976929254
 GameObject:
   m_ObjectHideFlags: 0
@@ -599,6 +596,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_fontSizeBase
       value: 19
+      objectReference: {fileID: 0}
+    - target: {fileID: 3913455080168857287, guid: abac81157a3e04f47bd7572063d05fcc,
+        type: 3}
+      propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
+      value: 1801810542
       objectReference: {fileID: 0}
     - target: {fileID: 8799103945160162359, guid: abac81157a3e04f47bd7572063d05fcc,
         type: 3}

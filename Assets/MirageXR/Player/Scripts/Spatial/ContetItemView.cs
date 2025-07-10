@@ -1,3 +1,4 @@
+using System;
 using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;
@@ -23,6 +24,8 @@ namespace MirageXR
                 _buttonDelete.interactable = value;
             }
         }
+
+        public Guid ContentID => _content.Id;
 
         private Content _content;
         private UnityAction<Content> _onClickAction;
