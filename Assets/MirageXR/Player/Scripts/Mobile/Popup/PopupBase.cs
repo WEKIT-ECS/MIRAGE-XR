@@ -30,5 +30,13 @@ public abstract class PopupBase : MonoBehaviour
         _onClose?.Invoke(this);
     }
 
+    public Vector3 GetWorldPosition()
+    {
+        var rectTransform = (RectTransform)transform;
+        var worldCorners = new Vector3[4];
+        rectTransform.GetWorldCorners(worldCorners);
+        return (worldCorners[0] + worldCorners[2]) / 2f;
+    }
+
     protected abstract bool TryToGetArguments(params object[] args);
 }

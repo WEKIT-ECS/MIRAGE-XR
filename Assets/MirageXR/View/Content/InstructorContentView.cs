@@ -11,7 +11,7 @@ namespace MirageXR.View
     public class InstructorContentView : ContentView
     {
         private Content<InstructorContentData> _instructorContent;
-        private Instructor _instructor;
+        private GameObject _instructor;
 
         protected override async UniTask InitializeContentAsync(Content content)
         {
@@ -29,7 +29,6 @@ namespace MirageXR.View
 
         protected override async UniTask OnContentUpdatedAsync(Content content)
         {
-            
             if (content is not Content<InstructorContentData> newContent || Content is not Content<InstructorContentData> oldContent)
             {
                 return;
@@ -41,11 +40,11 @@ namespace MirageXR.View
                 newContent.ContentData.LanguageModel != oldContent.ContentData.LanguageModel ||             //
                 newContent.ContentData.Prompt != oldContent.ContentData.Prompt)                             //
             {
-                Destroy(_instructor.gameObject);
+                Destroy(_instructor);
                 Initialized = false;
                 Initialized = await InitializeContentAsync(newContent);
             }
-            
+
             await base.OnContentUpdatedAsync(content);
         }
 
@@ -62,16 +61,17 @@ namespace MirageXR.View
                 if (handle.Status == AsyncOperationStatus.Succeeded)
                 {
                     var avatarContainer = Instantiate(handle.Result, transform);
+                    _instructor = avatarContainer;
                     avatarContainer.transform.localPosition = Vector3.zero;
 					var initializator = avatarContainer.AddComponent<VirtualInstructorRPMInitializer>();
-					AvatarLoader avatarLoader = avatarContainer.GetComponent<AvatarLoader>();
+					var avatarLoader = avatarContainer.GetComponent<AvatarLoader>();
                     avatarLoader.LoadDefaultAvatarOnStart = false;
-					TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+					var tcs = new TaskCompletionSource<bool>();
 					void OnAvatarLoaded(bool res)
                     {
 						tcs.SetResult(res);
-						Instructor _instructor = avatarContainer.AddComponent<Instructor>();
-						_instructor.Initialize(content);
+						var instructor = avatarContainer.AddComponent<Instructor>();
+						instructor.Initialize(content);
 						avatarLoader.AvatarLoaded -= OnAvatarLoaded;
 					}
                     avatarLoader.AvatarLoaded += OnAvatarLoaded;
@@ -92,15 +92,15 @@ namespace MirageXR.View
                 await handle.Task;
                 if (handle.Status == AsyncOperationStatus.Succeeded)
                 {
-					var instructor = Instantiate(handle.Result, transform);
-                    var oldInstructor = instructor.GetComponent<VirtualInstructor>();
+					_instructor = Instantiate(handle.Result, transform);
+                    var oldInstructor = _instructor.GetComponent<VirtualInstructor>();
                     if (oldInstructor != null)
                     {
                         Destroy(oldInstructor);
                     }
 
-                    _instructor = instructor.AddComponent<Instructor>();
-                    _instructor.Initialize(_instructorContent);
+                    var instructor = _instructor.AddComponent<Instructor>();
+                    instructor.Initialize(_instructorContent);
                     return true;
                 }
             }
