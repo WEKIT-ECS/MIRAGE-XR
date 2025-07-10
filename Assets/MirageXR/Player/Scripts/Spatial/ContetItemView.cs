@@ -36,6 +36,8 @@ namespace MirageXR
             _content = content;
             _onClickAction = onClick;
             _onDeleteClick = onDeleteClick;
+            _button.onClick.RemoveAllListeners();
+            _buttonDelete.onClick.RemoveAllListeners();
             _button.onClick.AddListener(OnClick);
             _buttonDelete.onClick.AddListener(OnDeleteClick);
             UpdateView();
