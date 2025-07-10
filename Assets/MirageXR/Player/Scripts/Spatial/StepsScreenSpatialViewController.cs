@@ -41,6 +41,21 @@ namespace MirageXR
             RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += ActivityManagerOnActivityUpdated;
             RootObject.Instance.LEE.StepManager.OnStepChanged += StepManagerOnStepChanged;
             RootObject.Instance.LEE.ContentManager.OnContentActivated += ContentManagerOnContentActivated;
+            RootObject.Instance.LEE.ContentManager.OnContentUpdated += ContentManagerOnContentUpdated;
+        }
+
+        private void ContentManagerOnContentUpdated(List<Content> list)
+        {
+            foreach (var item in _contentsItemViews)
+            {
+                foreach (var content in list)
+                {
+                    if (item.ContentID == content.Id)
+                    {
+                        item.Initialize(content, OnStepItemClick, OnStepItemDeleteClick);
+                    }
+                }
+            }
         }
 
         private void OnTitleInputEndEdit(string text)
@@ -519,7 +534,15 @@ namespace MirageXR
         private void OnStepItemClick(Content content)
         {
             var prefab = MenuManager.Instance.GetEditorPrefab(content.Type);
-            PopupsViewer.Instance.Show(prefab, content);
+            PopupsViewer.Instance.Show(prefab, GetWorldPosition(), content);
+        }
+
+        private Vector3 GetWorldPosition()
+        {
+            var rectTransform = (RectTransform)transform;
+            var worldCorners = new Vector3[4];
+            rectTransform.GetWorldCorners(worldCorners);
+            return (worldCorners[0] + worldCorners[2]) / 2f;
         }
 
         private void OnButtonAddAugmentationClicked()

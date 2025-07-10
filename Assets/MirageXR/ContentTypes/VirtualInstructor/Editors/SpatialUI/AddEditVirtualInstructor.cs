@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using LearningExperienceEngine.DataModel;
 using MirageXR;
 using TMPro;
@@ -34,10 +35,6 @@ public class AddEditVirtualInstructor : EditorSpatialView
     [SerializeField] private GameObject animationSettingPanel;
     [SerializeField] private GameObject pathSettingPanel;
     [SerializeField] private ListItemBoxPicker[] _listItemBoxPickers;
-    [SerializeField] private GameObject setPromptVI;
-    [SerializeField] private GameObject setVoicesVI; 
-    [SerializeField] private GameObject setModelVI; 
-    [SerializeField] private GameObject setLanguageVI; 
     
     [Header("Background and Shadow resizing")]
     [SerializeField] private RectTransform background;
@@ -69,33 +66,29 @@ public class AddEditVirtualInstructor : EditorSpatialView
     [SerializeField] private TMP_Text aiVoice;
     [SerializeField] private TMP_Text aiModel;
     [SerializeField] private TMP_Text aiLanguage;
-    
+
+    [Header("Prefabs")] 
+    [SerializeField] private ContextPromt contextPromptPrefab;
+    [SerializeField] private SpatialAILanguageModel languageModelPrefab;
+    [SerializeField] private SpatialUiAiSpeechToTextModel speechToTextModelPrefab;
+    [SerializeField] private SpatialUiAiTextToSpeechModel textToSpeechModelPrefab;
+
     private Content<InstructorContentData> _instructorContentData;
 
 	private string _triggers = String.Empty; // todo
     private string _availableTriggers = String.Empty; // todo
-    
+
     private string _animationClip = "Idle";
     private string _characterName = "Hanna";
     private bool _useReadyPlayerMe = false;
     private string _characterModelUrl = "";
     private string _pathSetting = "No Path"; // todo
     private string _prompt = "Provide a concise answer to the question. Use the context.";
-    private string _languageModelEndpointName = "llm/"; 
-    private string _languageModelApiName = "ISS-RAG"; 
-    private string _languageModelDescription = "ISS-RAG"; 
-    private string _languageModelName = "ISS-RAG"; 
-    
-    private string _speechToTextModelEndpointName = "stt/"; 
-    private string _speechToTextModellApiName = "English"; 
-    private string _speechToTextModelDescription = "English";  
-    private string _speechToTextModelName = "English"; 
-    
-    private string _textToSpeechModelEndpointName = "tts/"; 
-    private string _textToSpeechModelModellApiName = "alloy";
-    private string _textToSpeechModelDescription = "Female human voice"; 
-    private string _textToSpeechModelName = "Alloy"; 
 
+    private AIModel _languageModel;
+    private AIModel _speechToTextModel;
+    private AIModel _textToSpeechModel;
+    
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {   
         base.Initialization(onClose, args);
@@ -110,13 +103,17 @@ public class AddEditVirtualInstructor : EditorSpatialView
             communicationSettingBtn.onClick.AddListener(OpenCommunicationSettingPanel);
         }
 
+        _languageModel = RootObject.Instance.LEE.ArtificialIntelligenceManager.GetLlmModels()?.FirstOrDefault();
+        _speechToTextModel = RootObject.Instance.LEE.ArtificialIntelligenceManager.GetSttModels()?.FirstOrDefault();
+        _textToSpeechModel = RootObject.Instance.LEE.ArtificialIntelligenceManager.GetTtsModels()?.FirstOrDefault();
+
         animationSettingBtnA.onClick.AddListener(OpenAnimationSettingPanel);
         animationSettingBtnB.onClick.AddListener(OpenAnimationSettingPanel);
         pathSettingBtn.onClick.AddListener(OpenPathSettingPanel);
         promptVI.onClick.AddListener(OpenPromptPanel);
-        voicesVI.onClick.AddListener(OpenVoicePanel);
-        modelVI.onClick.AddListener(OpenModelPanel);
-        languageVI.onClick.AddListener(OpenLanguagePanel);
+        voicesVI.onClick.AddListener(OpenTextToSpeechPanel);
+        modelVI.onClick.AddListener(OpenLanguageModelPanel);
+        languageVI.onClick.AddListener(OpenSpeechToTextModelPanel);
         interactionSettingToggleOpen.onValueChanged.AddListener(SetInteractionSettingsActive);
         interactionSettingToggleClosed.onValueChanged.AddListener(SetInteractionSettingsActive);
         avatarModelSettingPanel.CharacterModelSelected += OnAvatarModelSelected;
@@ -124,9 +121,9 @@ public class AddEditVirtualInstructor : EditorSpatialView
         if (IsContentUpdate && _instructorContentData != null)
         {
             UpdatePrompt(_instructorContentData.ContentData.Prompt);
-            SetAIModel(_instructorContentData.ContentData.TextToSpeechModel, "TextToSpeechModel");
-            SetAIModel(_instructorContentData.ContentData.SpeechToTextModel, "SpeechToTextModel");
-            SetAIModel(_instructorContentData.ContentData.LanguageModel, "LanguageModel");
+            SetAITextToSpeechModel(_instructorContentData.ContentData.TextToSpeechModel);
+            SetAISpeechToTextModel(_instructorContentData.ContentData.SpeechToTextModel);
+            SetAILanguageModel(_instructorContentData.ContentData.LanguageModel);
             UpdateName(_instructorContentData.ContentData.CharacterName);
             UpdateAnimationSetting(_instructorContentData.ContentData.AnimationClip);
             if (_instructorContentData.ContentData.UseReadyPlayerMe)
@@ -139,39 +136,15 @@ public class AddEditVirtualInstructor : EditorSpatialView
     protected override void OnAccept()
     {
         _instructorContentData = CreateContent<InstructorContentData>(ContentType.Instructor);
-
-        _instructorContentData.Location = new Location
-        {
-            Position = new Vector3(-0.4f, -1.2f, 0),
-            Rotation = new Vector3(0, 180, 0),
-            Scale = Vector3.one
-        };
+        _instructorContentData.Location = new Location { Position = new Vector3(-0.4f, -1.2f, 0), Rotation = new Vector3(0, 180, 0), Scale = Vector3.one };
         _instructorContentData.ContentData.AnimationClip = _animationClip;
         _instructorContentData.ContentData.CharacterName = _characterName;
         _instructorContentData.ContentData.UseReadyPlayerMe = _useReadyPlayerMe;
         _instructorContentData.ContentData.CharacterModelUrl = _characterModelUrl;
         _instructorContentData.ContentData.Prompt = _prompt;
-        _instructorContentData.ContentData.LanguageModel = new AIModel
-        {
-            EndpointName = _languageModelEndpointName,
-            ApiName = _languageModelApiName,
-            Description = _languageModelDescription,
-            Name = _languageModelName
-        };
-        _instructorContentData.ContentData.SpeechToTextModel = new AIModel
-        {
-            EndpointName = _speechToTextModelEndpointName,
-            ApiName = _speechToTextModellApiName,
-            Description = _speechToTextModelDescription,
-            Name = _speechToTextModelName
-        };
-        _instructorContentData.ContentData.TextToSpeechModel = new AIModel
-        {
-            EndpointName = _textToSpeechModelEndpointName,
-            ApiName = _textToSpeechModelModellApiName,
-            Description = _textToSpeechModelDescription,
-            Name = _textToSpeechModelName
-        };
+        _instructorContentData.ContentData.LanguageModel =_languageModel;
+        _instructorContentData.ContentData.SpeechToTextModel = _speechToTextModel;
+        _instructorContentData.ContentData.TextToSpeechModel = _textToSpeechModel;
 
         if (IsContentUpdate)
         {
@@ -185,28 +158,28 @@ public class AddEditVirtualInstructor : EditorSpatialView
         Close();
     }
 
-    private void OpenLanguagePanel()
+    private void OpenLanguageModelPanel()
     {
         ResetPanel(); 
-        setLanguageVI.SetActive(true);
+        PopupsViewer.Instance.Show(languageModelPrefab, GetWorldPosition(), _languageModel, (Action<AIModel>)SetAILanguageModel);
     }
 
-    private void OpenModelPanel()
-    { 
-        ResetPanel(); 
-        setModelVI.SetActive(true);
-    }
-
-    private void OpenVoicePanel()
+    private void OpenSpeechToTextModelPanel()
     {
         ResetPanel(); 
-        setVoicesVI.SetActive(true);
+        PopupsViewer.Instance.Show(speechToTextModelPrefab, GetWorldPosition(), _speechToTextModel, (Action<AIModel>)SetAISpeechToTextModel);
+    }
+
+    private void OpenTextToSpeechPanel()
+    {
+        ResetPanel(); 
+        PopupsViewer.Instance.Show(textToSpeechModelPrefab, GetWorldPosition(), _textToSpeechModel, (Action<AIModel>)SetAITextToSpeechModel);
     }
 
     private void OpenPromptPanel()
     {
-        ResetPanel(); 
-        setPromptVI.SetActive(true);
+        ResetPanel();
+        PopupsViewer.Instance.Show(contextPromptPrefab, GetWorldPosition(), _prompt, (Action<string>)UpdatePrompt);
     }
 
     private void OnEnable()
@@ -370,9 +343,8 @@ public class AddEditVirtualInstructor : EditorSpatialView
     {
         ResetPanel();
         pathSettingPanel.SetActive(true);
-
     }
-    
+
     private void ResetPanel()
     {
          settingsPanel.SetActive(false);
@@ -380,10 +352,6 @@ public class AddEditVirtualInstructor : EditorSpatialView
          communicationSettingPanel.SetActive(false);
          animationSettingPanel.SetActive(false);
          pathSettingPanel.SetActive(false);
-         setPromptVI.SetActive(false);
-         setVoicesVI.SetActive(false);
-         setModelVI.SetActive(false);
-         setLanguageVI.SetActive(false);
     }
 
     private void SetInteractionSettingsActive(bool active)
@@ -394,43 +362,32 @@ public class AddEditVirtualInstructor : EditorSpatialView
         interactionSettingToggleClosed.isOn = active;
     }
 
-    public void UpdateName(string name)
+    public void UpdateName(string characterName)
     {
-        _characterName = name;
+        _characterName = characterName;
     }
 
-    public void UpdatePrompt(string prompt)
+    private void UpdatePrompt(string prompt)
     {
         _prompt = prompt;
         aiPrompt.text =  prompt.Length > 14 ? prompt.Substring(0, 14) : prompt; 
     }
 
-    public void SetAIModel(AIModel model, string type)
+    private void SetAILanguageModel(AIModel model)
     {
-        switch (type)
-        {
-            case "LanguageModel":
-                _languageModelEndpointName = model.EndpointName;
-                _languageModelApiName = model.ApiName; 
-                _languageModelDescription = model.Description;
-                _languageModelName = aiModel.text = model.Name;
-                break;
-                
-            case "SpeechToTextModel":
-                _speechToTextModelEndpointName = model.EndpointName;
-                _speechToTextModellApiName = model.ApiName; 
-                _speechToTextModelDescription = model.Description;
-                _speechToTextModelName = aiLanguage.text = model.Name; 
-                break;
-          
-                
-            case "TextToSpeechModel":
-                _textToSpeechModelEndpointName = model.EndpointName;
-                _textToSpeechModelModellApiName = model.ApiName; 
-                _textToSpeechModelDescription = model.Description;
-                _textToSpeechModelName = aiVoice.text =  model.Name; 
-                break;
-        }
-        
+        _languageModel = model;
+        aiModel.text = model.Name;
+    }
+
+    private void SetAISpeechToTextModel(AIModel model)
+    {
+        _speechToTextModel = model;
+        aiLanguage.text = model.Name; 
+    }
+
+    private void SetAITextToSpeechModel(AIModel model)
+    {
+        _textToSpeechModel = model;
+        aiVoice.text = model.Name;
     }
 }

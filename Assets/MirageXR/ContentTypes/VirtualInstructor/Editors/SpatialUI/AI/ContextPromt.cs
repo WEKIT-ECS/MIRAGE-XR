@@ -1,36 +1,77 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace MirageXR
 {
-    public class ContextPromt : MonoBehaviour
+    public class ContextPromt : PopupBase
     {
         [SerializeField] private Button close;
+        [SerializeField] private Button accept;
         [SerializeField] private Button openTooltipBtn; 
         [SerializeField] private Button closeTooltipBtn; 
-        
         [SerializeField] private GameObject openTooltip; 
         [SerializeField] private GameObject closeTooltip;
-        
         [SerializeField] private TMP_InputField prompt;
-        [SerializeField] private AddEditVirtualInstructor addEditVirtualInstructor;
 
-        void Start()
+        private string _prompt;
+        private Action<string> _callback;
+
+        public override void Initialization(Action<PopupBase> onClose, params object[] args)
         {
-            close.onClick.AddListener(() => { this.gameObject.SetActive(false); });
-            openTooltipBtn.onClick.AddListener(() =>
-            {
-                closeTooltip.SetActive(true);
-                openTooltip.SetActive(false);
+            base.Initialization(onClose, args);
+            close.onClick.AddListener(OnClose);
+            accept.onClick.AddListener(OnAccept);
+            openTooltipBtn.onClick.AddListener(ShowToolTip);
+            closeTooltipBtn.onClick.AddListener(HideToolTip);
+            prompt.onValueChanged.AddListener(newValue => {_prompt = newValue; });
+        }
 
-            });
-            closeTooltipBtn.onClick.AddListener(() =>
+        private void OnClose()
+        {
+            Close();
+        }
+
+        private void OnAccept()
+        {
+            Close();
+            _callback.Invoke(_prompt);
+        }
+
+        private void ShowToolTip()
+        {
+            closeTooltip.SetActive(true);
+            openTooltip.SetActive(false);
+        }
+
+        private void HideToolTip()
+        {
+            closeTooltip.SetActive(false);
+            openTooltip.SetActive(true);
+        }
+
+        private void SetPrompt(string promptText)
+        {
+            _prompt = promptText;
+            prompt.text = _prompt;
+        }
+
+        protected override bool TryToGetArguments(params object[] args)
+        {
+            if (args is not { Length: 2 })
             {
-                closeTooltip.SetActive(false);
-                openTooltip.SetActive(true);
-            });
-            prompt.onValueChanged.AddListener(newValue => { addEditVirtualInstructor.UpdatePrompt(newValue); });
+                return false;
+            }
+
+            if (args[0] is not string promptText || args[1] is not Action<string> callback)
+            {
+                return false;
+            }
+
+            SetPrompt(promptText);
+            _callback = callback;
+            return true;
         }
     }
 }
