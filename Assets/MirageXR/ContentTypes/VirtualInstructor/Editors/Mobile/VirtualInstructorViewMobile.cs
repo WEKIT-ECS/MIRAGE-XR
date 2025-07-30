@@ -23,8 +23,10 @@ namespace MirageXR
         [Header("Panels")]
         [SerializeField] private RectTransform panel;
         [SerializeField] private GameObject settingsPanel;
+		[SerializeField] private ReplaceModel avatarModelSettingPanel;
 
-        [Header("Character List")]
+
+		[Header("Character List")]
         [SerializeField] private Button btnArrow;
         [SerializeField] private GameObject arrowDown;
         [SerializeField] private GameObject arrowUp;
@@ -32,7 +34,10 @@ namespace MirageXR
         [SerializeField] private CharacterListItem characterListItemPrefab;
         [SerializeField] private CharacterObject[] characterObjects;
 
-        [Header("Audio Mode Toggle")]
+        [Header("UI Elements")]
+		[SerializeField] private CharacterModelSelectionElement characterModelSelectionElement;
+
+		[Header("Audio Mode Toggle")]
         [SerializeField] private Toggle[] audioToggles;
         [SerializeField] private GameObject audioSetting;
         [SerializeField] private TextMeshProUGUI audioMenuText;
@@ -46,6 +51,8 @@ namespace MirageXR
         [SerializeField] private string defaultCharacter = "Hanna";
         
         private string _prefabName;
+        private bool _useReadyPlayerMe;
+        private string _characterModelUrl;
 
         public override DataModelContentType editorForType => DataModelContentType.Instructor;
 
@@ -69,7 +76,9 @@ namespace MirageXR
                 }
             }
 
-            InitializeDefaults();
+			characterModelSelectionElement.CharacterModelSelectionStarted += OpenCharacterModelSettingPanel;
+
+			InitializeDefaults();
             RegisterEvents();
 
             RootView_v2.Instance.HideBaseView();
@@ -194,5 +203,27 @@ namespace MirageXR
         {
             
         }
-    }
+
+		private void OnAvatarModelSelected(string characterModelUrl)
+		{
+			_useReadyPlayerMe = true;
+			_characterModelUrl = characterModelUrl;
+			characterModelSelectionElement.Thumbnail.CharacterModelUrl = _characterModelUrl;
+		}
+
+		private void OpenCharacterModelSettingPanel()
+		{
+			ResetPanel();
+            avatarModelSettingPanel.gameObject.SetActive(true);
+		}
+
+		private void ResetPanel()
+		{
+			settingsPanel.SetActive(false);
+            avatarModelSettingPanel.gameObject.SetActive(false);
+            //communicationSettingPanel.SetActive(false);
+            //animationSettingPanel.SetActive(false);
+            //pathSettingPanel.SetActive(false);
+        }
+	}
 }
