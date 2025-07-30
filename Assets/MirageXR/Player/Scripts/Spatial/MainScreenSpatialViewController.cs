@@ -21,7 +21,7 @@ namespace MirageXR
             View.SetActionOnButtonBackClick(OnBackButtonClick);
             View.SetBlurredBackgroundActive(false);
             View.SetMainScreenActive(false);
-            View.SetSignInSCreenActive(true);
+            View.SetSignInScreenActive(true);
             View.SetBackButtonActive(false);
 
             RootObject.Instance.LEE.ActivityManager.OnActivitiesFetched += OnActivitiesFetched;
@@ -29,6 +29,7 @@ namespace MirageXR
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
             RootObject.Instance.LEE.AuthorizationManager.OnLoginCompleted += OnLoginCompleted;
         }
+
         private void OnBackButtonClick()
         {
             MenuManager.Instance.ShowScreen(ScreenName.NewActivityScreen );
@@ -39,8 +40,20 @@ namespace MirageXR
             RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
             View.SetBlurredBackgroundActive(true);
             View.SetMainScreenActive(true);
-            View.SetSignInSCreenActive(false);
+            View.SetSignInScreenActive(false);
         }
+
+        protected override void OnViewActivated()
+        {
+            base.OnViewActivated();
+            FetchActivitiesAsync().Forget();
+        }
+
+        private async UniTask FetchActivitiesAsync()
+        {
+            await RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
+            View.ActivityListScrollToTopSmooth();
+        } 
 
         private void OnRegisterButtonClick()
         {
@@ -95,17 +108,26 @@ namespace MirageXR
         {
             var container = View.GetActivityContainer();
             var prefab = View.GetActivityListItemPrefab();
+            var selectedActivityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
             
             foreach (Transform child in container.transform)
             {
                 Destroy(child.gameObject);
             }
 
+            ActivitySpatialListItem selectedItem = null;
             foreach (var activity in response.Activities)
             {
+                var isSelected = activity.Id == selectedActivityId;
                 var item = Instantiate(prefab, container);
-                item.Initialize(activity, OnActivityListItemClicked, OnActivityListItemDeleteClicked);
+                item.Initialize(activity, OnActivityListItemClicked, OnActivityListItemDeleteClicked, isSelected);
+                if (isSelected)
+                {
+                    selectedItem = item;
+                }
             }
+
+            selectedItem?.transform.SetAsFirstSibling();
         }
 
         private void OnAddNewActivityClick()
@@ -117,7 +139,15 @@ namespace MirageXR
 
         private void OnActivityListItemClicked(LearningExperienceEngine.DTOs.Activity activity)
         {
-            RootObject.Instance.LEE.ActivityManager.LoadActivityAsync(activity.Id).Forget();
+            var selectedActivityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
+            if (selectedActivityId == activity.Id)
+            {
+                MenuManager.Instance.ShowScreen(ScreenName.NewActivityScreen);
+            }
+            else
+            {
+                RootObject.Instance.LEE.ActivityManager.LoadActivityAsync(activity.Id).Forget();
+            }
         }
 
         private void OnActivityListItemDeleteClicked(LearningExperienceEngine.DTOs.Activity activity)
