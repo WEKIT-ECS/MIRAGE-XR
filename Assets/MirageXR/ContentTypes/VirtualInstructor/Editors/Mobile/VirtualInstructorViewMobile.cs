@@ -23,8 +23,6 @@ namespace MirageXR
         [Header("Panels")]
         [SerializeField] private RectTransform panel;
         [SerializeField] private GameObject settingsPanel;
-        [SerializeField] private GameObject togglePanel;
-        [SerializeField] private GameObject tabsPanel;
 
         [Header("Character List")]
         [SerializeField] private Button btnArrow;
@@ -33,12 +31,6 @@ namespace MirageXR
         [SerializeField] private Transform contentContainer;
         [SerializeField] private CharacterListItem characterListItemPrefab;
         [SerializeField] private CharacterObject[] characterObjects;
-
-        [Header("Tabs")]
-        [SerializeField] private Toggle toggleMyCharacters;
-        [SerializeField] private Toggle toggleLibrary;
-        [SerializeField] private GameObject charactersTab;
-        [SerializeField] private GameObject libraryTab;
 
         [Header("Audio Mode Toggle")]
         [SerializeField] private Toggle[] audioToggles;
@@ -78,33 +70,14 @@ namespace MirageXR
             }
 
             InitializeDefaults();
-            UpdateCharacterList();
             RegisterEvents();
 
-            settingsPanel.SetActive(false);
-            togglePanel.SetActive(true);
-            tabsPanel.SetActive(true);
-
             RootView_v2.Instance.HideBaseView();
-        }
-
-        private void UpdateCharacterList()
-        {
-            foreach (Transform child in contentContainer)
-                Destroy(child.gameObject);
-
-            foreach (var characterObject in characterObjects)
-            {
-                var item = Instantiate(characterListItemPrefab, contentContainer);
-                item.Init(characterObject, OnCharacterSelected);
-            }
         }
 
         private void RegisterEvents()
         {
             btnArrow.onClick.AddListener(OnArrowButtonPressed);
-            toggleMyCharacters.onValueChanged.AddListener(OnToggleMyCharacters);
-            toggleLibrary.onValueChanged.AddListener(OnToggleLibrary);
 
             for (int i = 0; i < audioToggles.Length; i++)
             {
@@ -120,8 +93,6 @@ namespace MirageXR
         {
             _prefabName = prefabName;
             settingsPanel.SetActive(true);
-            togglePanel.SetActive(false);
-            tabsPanel.SetActive(false);
         }
         
         protected override void OnAccept()
@@ -195,18 +166,6 @@ namespace MirageXR
                 arrowUp.SetActive(false);
             }
         }
-
-        private void OnToggleLibrary(bool value)
-        {
-            libraryTab.SetActive(value);
-            charactersTab.SetActive(!value);
-        }
-
-        private void OnToggleMyCharacters(bool value)
-        {
-            charactersTab.SetActive(value);
-            libraryTab.SetActive(!value);
-        }
         
         private void HandleAudioToggleChange(int index)
         {
@@ -227,8 +186,6 @@ namespace MirageXR
         private void OnDestroy()
         {
             RootView_v2.Instance.ShowBaseView();
-            toggleMyCharacters.onValueChanged.RemoveAllListeners();
-            toggleLibrary.onValueChanged.RemoveAllListeners();
         }
 
 
