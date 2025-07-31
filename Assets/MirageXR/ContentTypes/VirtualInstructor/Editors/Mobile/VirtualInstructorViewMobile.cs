@@ -10,199 +10,230 @@ using DataModelContentType = LearningExperienceEngine.DataModel.ContentType;
 
 namespace MirageXR
 {
-    /// <summary>
-    /// Mobile-specific implementation of the instructor setup view.
-    /// Inherits shared logic from AbstractVirtualInstructorMenu and handles the 
-    /// mobile UI for selecting characters, configuring AI models, and setting prompts.
-    /// Provides user interactions for audio mode selection, character listing, and 
-    /// updates the instructor content based on user inputs.
-    /// </summary>
-    public class VirtualInstructorViewMobile : AbstractVirtualInstructorMenu
-    {
-        [FormerlySerializedAs("_panel")]
-        [Header("Panels")]
-        [SerializeField] private RectTransform panel;
-        [SerializeField] private GameObject settingsPanel;
+	/// <summary>
+	/// Mobile-specific implementation of the instructor setup view.
+	/// Inherits shared logic from AbstractVirtualInstructorMenu and handles the 
+	/// mobile UI for selecting characters, configuring AI models, and setting prompts.
+	/// Provides user interactions for audio mode selection, character listing, and 
+	/// updates the instructor content based on user inputs.
+	/// </summary>
+	public class VirtualInstructorViewMobile : AbstractVirtualInstructorMenu
+	{
+		[FormerlySerializedAs("_panel")]
+		[Header("Panels")]
+		[SerializeField] private RectTransform panel;
+		[SerializeField] private GameObject settingsPanel;
 		[SerializeField] private ReplaceModel avatarModelSettingPanel;
 
 
 		[Header("Character List")]
-        [SerializeField] private Button btnArrow;
-        [SerializeField] private GameObject arrowDown;
-        [SerializeField] private GameObject arrowUp;
-        [SerializeField] private Transform contentContainer;
-        [SerializeField] private CharacterListItem characterListItemPrefab;
-        [SerializeField] private CharacterObject[] characterObjects;
+		[SerializeField] private Button btnArrow;
+		[SerializeField] private GameObject arrowDown;
+		[SerializeField] private GameObject arrowUp;
+		[SerializeField] private Transform contentContainer;
+		[SerializeField] private CharacterListItem characterListItemPrefab;
+		[SerializeField] private CharacterObject[] characterObjects;
 
-        [Header("UI Elements")]
+		[Header("UI Elements")]
 		[SerializeField] private CharacterModelSelectionElement characterModelSelectionElement;
 
 		[Header("Audio Mode Toggle")]
-        [SerializeField] private Toggle[] audioToggles;
-        [SerializeField] private GameObject audioSetting;
-        [SerializeField] private TextMeshProUGUI audioMenuText;
-        [SerializeField] private GameObject audioRecodingMenu;
-        [SerializeField] private GameObject aiMenu;
-        [SerializeField] private GameObject noSpeech;
+		[SerializeField] private Toggle[] audioToggles;
+		[SerializeField] private GameObject audioSetting;
+		[SerializeField] private TextMeshProUGUI audioMenuText;
+		[SerializeField] private GameObject audioRecodingMenu;
+		[SerializeField] private GameObject aiMenu;
+		[SerializeField] private GameObject noSpeech;
 
-        [Header("Magic Numbers")]
-        private const float HidedSize = 100f;
-        private const float HideAnimationTime = 0.5f;
-        [SerializeField] private string defaultCharacter = "Hanna";
-        
-        private string _prefabName;
-        private bool _useReadyPlayerMe;
-        private string _characterModelUrl;
+		[Header("Magic Numbers")]
+		private const float HidedSize = 100f;
+		private const float HideAnimationTime = 0.5f;
+		[SerializeField] private string defaultCharacter = "Hanna";
 
-        public override DataModelContentType editorForType => DataModelContentType.Instructor;
+		private string _prefabName;
+		private bool _useReadyPlayerMe;
+		private string _characterModelUrl;
 
-        public override async void Initialization(Action<PopupBase> onClose, params object[] args)
-        {
-            await RootObject.Instance.WaitForInitialization();
-            _showBackground = false;
-            base.Initialization(onClose, args);
+		private VirtualInstructorSubMenu _shownSubMenu = VirtualInstructorSubMenu.GeneralSettings;
 
-            foreach (var arg in args)
-            {
-                switch (arg)
-                {
-                    case LearningExperienceEngine.Action step:
-                        _step = step;
-                        break;
-                    case Content content:
-                        Content = content;
-                        IsContentUpdate = true;
-                        break;
-                }
-            }
+		private VirtualInstructorSubMenu ShownSubMenu
+		{
+			get => _shownSubMenu;
+			set
+			{
+				if (_shownSubMenu != value)
+				{
+					settingsPanel.SetActive(value == VirtualInstructorSubMenu.GeneralSettings);
+					avatarModelSettingPanel.gameObject.SetActive(value == VirtualInstructorSubMenu.CharacterModelSettings);
+				}
+				_shownSubMenu = value;
+			}
+		}
+
+		public override DataModelContentType editorForType => DataModelContentType.Instructor;
+
+		public override async void Initialization(Action<PopupBase> onClose, params object[] args)
+		{
+			await RootObject.Instance.WaitForInitialization();
+			_showBackground = false;
+			base.Initialization(onClose, args);
+
+			foreach (var arg in args)
+			{
+				switch (arg)
+				{
+					case LearningExperienceEngine.Action step:
+						_step = step;
+						break;
+					case Content content:
+						Content = content;
+						IsContentUpdate = true;
+						break;
+				}
+			}
 
 			characterModelSelectionElement.CharacterModelSelectionStarted += OpenCharacterModelSettingPanel;
 
 			InitializeDefaults();
-            RegisterEvents();
+			RegisterEvents();
 
-            RootView_v2.Instance.HideBaseView();
-        }
+			RootView_v2.Instance.HideBaseView();
+		}
 
-        private void RegisterEvents()
-        {
-            btnArrow.onClick.AddListener(OnArrowButtonPressed);
+		private void RegisterEvents()
+		{
+			btnArrow.onClick.AddListener(OnArrowButtonPressed);
 
-            for (int i = 0; i < audioToggles.Length; i++)
-            {
-                int index = i;
-                audioToggles[i].onValueChanged.AddListener(isOn =>
-                {
-                    if (isOn) HandleAudioToggleChange(index);
-                });
-            }
-        }
+			for (int i = 0; i < audioToggles.Length; i++)
+			{
+				int index = i;
+				audioToggles[i].onValueChanged.AddListener(isOn =>
+				{
+					if (isOn) HandleAudioToggleChange(index);
+				});
+			}
+		}
 
-        private void OnCharacterSelected(string prefabName)
-        {
-            _prefabName = prefabName;
-            settingsPanel.SetActive(true);
-        }
-        
-        protected override void OnAccept()
-        {
-            
-            if (string.IsNullOrEmpty(_prefabName) && !IsContentUpdate)
-            {
-                Debug.LogWarning("[Instructor] No character selected.");
-                return;
-            }
-            
-            var data = new InstructorContentData
-            {
-                AnimationClip = "Idle", // todo temp (UI reqest!)
-                CharacterName = string.IsNullOrEmpty(_prefabName) ? defaultCharacter : _prefabName,
-                TextToSpeechModel = GetTTS(),
-                Prompt = GetPrompt(),
-                LanguageModel = GetLLM(),
-                SpeechToTextModel = GetSTT(),
-                UseReadyPlayerMe = false,
-                CharacterModelUrl = ""
-            }; 
+		private void OnCharacterSelected(string prefabName)
+		{
+			_prefabName = prefabName;
+			ShownSubMenu = VirtualInstructorSubMenu.GeneralSettings;
+		}
 
-            Content<InstructorContentData> content;
+		protected override void OnAccept()
+		{
 
-            if (IsContentUpdate && Content is Content<InstructorContentData> existing)
-            {
-                content = existing.ShallowCopy();
-                content.ContentData = data;
-            }
-            else
-            {
-                var step = RootObject.Instance.LEE.StepManager.CurrentStep;
+			if (string.IsNullOrEmpty(_prefabName) && !IsContentUpdate)
+			{
+				Debug.LogWarning("[Instructor] No character selected.");
+				return;
+			}
 
-                content = new Content<InstructorContentData>
-                {
-                    Id = Guid.NewGuid(),
-                    CreationDate = DateTime.UtcNow,
-                    IsVisible = true,
-                    Steps = new List<Guid> { step.Id },
-                    Type = ContentType.Instructor,
-                    Location = Location.GetIdentityLocation(),
-                    ContentData = data
-                };
-            }
+			var data = new InstructorContentData
+			{
+				AnimationClip = "Idle", // todo temp (UI reqest!)
+				CharacterName = string.IsNullOrEmpty(_prefabName) ? defaultCharacter : _prefabName,
+				TextToSpeechModel = GetTTS(),
+				Prompt = GetPrompt(),
+				LanguageModel = GetLLM(),
+				SpeechToTextModel = GetSTT(),
+				UseReadyPlayerMe = false,
+				CharacterModelUrl = ""
+			};
 
-            if (IsContentUpdate)
-            {
-                RootObject.Instance.LEE.ContentManager.UpdateContent(content);
-            }
-            else
-            {
-                RootObject.Instance.LEE.ContentManager.AddContent(content);
-            }
+			Content<InstructorContentData> content;
 
-            Close();
-        }
+			if (IsContentUpdate && Content is Content<InstructorContentData> existing)
+			{
+				content = existing.ShallowCopy();
+				content.ContentData = data;
+			}
+			else
+			{
+				var step = RootObject.Instance.LEE.StepManager.CurrentStep;
 
-        private void OnArrowButtonPressed()
-        {
-            if (arrowDown.activeSelf)
-            {
-                panel.DOAnchorPosY(-panel.rect.height + HidedSize, HideAnimationTime);
-                arrowDown.SetActive(false);
-                arrowUp.SetActive(true);
-            }
-            else
-            {
-                panel.DOAnchorPosY(0.0f, HideAnimationTime);
-                arrowDown.SetActive(true);
-                arrowUp.SetActive(false);
-            }
-        }
-        
-        private void HandleAudioToggleChange(int index)
-        {
-            audioMenuText.text = index switch
-            {
-                0 => "Idle",
-                1 => "Audio recording",
-                2 => "AI",
-                _ => "Unknown"
-            };
+				content = new Content<InstructorContentData>
+				{
+					Id = Guid.NewGuid(),
+					CreationDate = DateTime.UtcNow,
+					IsVisible = true,
+					Steps = new List<Guid> { step.Id },
+					Type = ContentType.Instructor,
+					Location = Location.GetIdentityLocation(),
+					ContentData = data
+				};
+			}
 
-            aiMenu.SetActive(index == 2);
-            audioRecodingMenu.SetActive(index == 1);
-            noSpeech.SetActive(index == 0);
-            audioSetting.SetActive(false);
-        }
+			if (IsContentUpdate)
+			{
+				RootObject.Instance.LEE.ContentManager.UpdateContent(content);
+			}
+			else
+			{
+				RootObject.Instance.LEE.ContentManager.AddContent(content);
+			}
 
-        private void OnDestroy()
-        {
-            RootView_v2.Instance.ShowBaseView();
-        }
+			Close();
+		}
+
+		private void OnArrowButtonPressed()
+		{
+			if (arrowDown.activeSelf)
+			{
+				panel.DOAnchorPosY(-panel.rect.height + HidedSize, HideAnimationTime);
+				arrowDown.SetActive(false);
+				arrowUp.SetActive(true);
+			}
+			else
+			{
+				panel.DOAnchorPosY(0.0f, HideAnimationTime);
+				arrowDown.SetActive(true);
+				arrowUp.SetActive(false);
+			}
+		}
+
+		private void HandleAudioToggleChange(int index)
+		{
+			audioMenuText.text = index switch
+			{
+				0 => "Idle",
+				1 => "Audio recording",
+				2 => "AI",
+				_ => "Unknown"
+			};
+
+			aiMenu.SetActive(index == 2);
+			audioRecodingMenu.SetActive(index == 1);
+			noSpeech.SetActive(index == 0);
+			audioSetting.SetActive(false);
+		}
+
+		private void OnDestroy()
+		{
+			RootView_v2.Instance.ShowBaseView();
+		}
 
 
-        /// <inheritdoc/>
-        protected override void UpdateUiFromModel()
-        {
-            
-        }
+		/// <inheritdoc/>
+		protected override void UpdateUiFromModel()
+		{
+
+		}
+
+		public override void Close()
+		{
+			// we are reusing the close button
+			// if we are in the general settings, we can close the popup menu as normal
+			// if we are in a sub-menu, first return one hierarchy level
+			if (ShownSubMenu == VirtualInstructorSubMenu.GeneralSettings)
+			{
+				base.Close();
+			}
+			else
+			{
+				ShownSubMenu = VirtualInstructorSubMenu.GeneralSettings;
+			}
+		}
 
 		private void OnAvatarModelSelected(string characterModelUrl)
 		{
@@ -213,17 +244,22 @@ namespace MirageXR
 
 		private void OpenCharacterModelSettingPanel()
 		{
-			ResetPanel();
-            avatarModelSettingPanel.gameObject.SetActive(true);
+			ShownSubMenu = VirtualInstructorSubMenu.CharacterModelSettings;
 		}
 
-		private void ResetPanel()
-		{
-			settingsPanel.SetActive(false);
-            avatarModelSettingPanel.gameObject.SetActive(false);
-            //communicationSettingPanel.SetActive(false);
-            //animationSettingPanel.SetActive(false);
-            //pathSettingPanel.SetActive(false);
-        }
+		//private void ResetPanel()
+		//{
+		//	settingsPanel.SetActive(false);
+		//          avatarModelSettingPanel.gameObject.SetActive(false);
+		//          communicationSettingPanel.SetActive(false);
+		//          animationSettingPanel.SetActive(false);
+		//          pathSettingPanel.SetActive(false);
+		//      }
+	}
+
+	enum VirtualInstructorSubMenu
+	{
+		GeneralSettings,
+		CharacterModelSettings
 	}
 }
