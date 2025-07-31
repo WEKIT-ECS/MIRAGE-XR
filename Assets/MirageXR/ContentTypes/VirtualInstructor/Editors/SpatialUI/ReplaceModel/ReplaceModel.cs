@@ -23,7 +23,10 @@ public class ReplaceModel : MonoBehaviour
 	void Start()
 	{
 		addNewCharacter.CharacterModelSelectionStarted += OpenAddCharacterMenu;
-		close.onClick.AddListener(() => Close());
+		if (close != null)
+		{
+			close.onClick.AddListener(() => Close());
+		}
 	}
 
 	private void OpenAddCharacterMenu()
