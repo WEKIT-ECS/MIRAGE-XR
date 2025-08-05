@@ -97,6 +97,8 @@ namespace MirageXR
 			InitializeDefaults();
 			RegisterEvents();
 
+			ShownSubMenu = VirtualInstructorSubMenu.GeneralSettings;
+
 			RootView_v2.Instance.HideBaseView();
 		}
 
@@ -255,11 +257,11 @@ namespace MirageXR
 		//          animationSettingPanel.SetActive(false);
 		//          pathSettingPanel.SetActive(false);
 		//      }
-	}
 
-	enum VirtualInstructorSubMenu
-	{
-		GeneralSettings,
-		CharacterModelSettings
+		enum VirtualInstructorSubMenu
+		{
+			GeneralSettings,
+			CharacterModelSettings
+		}
 	}
 }
