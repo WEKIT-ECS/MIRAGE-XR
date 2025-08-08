@@ -93,6 +93,7 @@ namespace MirageXR
 			}
 
 			characterModelSelectionElement.CharacterModelSelectionStarted += OpenCharacterModelSettingPanel;
+			avatarModelSettingPanel.CharacterModelSelected += OnAvatarModelSelected;
 
 			InitializeDefaults();
 			RegisterEvents();
@@ -114,12 +115,6 @@ namespace MirageXR
 					if (isOn) HandleAudioToggleChange(index);
 				});
 			}
-		}
-
-		private void OnCharacterSelected(string prefabName)
-		{
-			_prefabName = prefabName;
-			ShownSubMenu = VirtualInstructorSubMenu.GeneralSettings;
 		}
 
 		protected override void OnAccept()
@@ -242,6 +237,7 @@ namespace MirageXR
 			_useReadyPlayerMe = true;
 			_characterModelUrl = characterModelUrl;
 			characterModelSelectionElement.Thumbnail.CharacterModelUrl = _characterModelUrl;
+			ShownSubMenu = VirtualInstructorSubMenu.GeneralSettings;
 		}
 
 		private void OpenCharacterModelSettingPanel()
