@@ -119,8 +119,11 @@ namespace MirageXR
 
 		protected override void OnAccept()
 		{
+			bool noCharacterSelected =
+				(!_useReadyPlayerMe && string.IsNullOrEmpty(_prefabName))
+				|| _useReadyPlayerMe && string.IsNullOrEmpty(_characterModelUrl);
 
-			if (string.IsNullOrEmpty(_prefabName) && !IsContentUpdate)
+			if (noCharacterSelected && !IsContentUpdate)
 			{
 				Debug.LogWarning("[Instructor] No character selected.");
 				return;
@@ -134,8 +137,8 @@ namespace MirageXR
 				Prompt = GetPrompt(),
 				LanguageModel = GetLLM(),
 				SpeechToTextModel = GetSTT(),
-				UseReadyPlayerMe = false,
-				CharacterModelUrl = ""
+				UseReadyPlayerMe = _useReadyPlayerMe,
+				CharacterModelUrl = _characterModelUrl,
 			};
 
 			Content<InstructorContentData> content;
