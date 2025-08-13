@@ -61,11 +61,8 @@ namespace MirageXR
 			get => _shownSubMenu;
 			set
 			{
-				if (_shownSubMenu != value)
-				{
-					settingsPanel.SetActive(value == VirtualInstructorSubMenu.GeneralSettings);
-					avatarModelSettingPanel.gameObject.SetActive(value == VirtualInstructorSubMenu.CharacterModelSettings);
-				}
+				settingsPanel.SetActive(value == VirtualInstructorSubMenu.GeneralSettings);
+				avatarModelSettingPanel.gameObject.SetActive(value == VirtualInstructorSubMenu.CharacterModelSettings);
 				_shownSubMenu = value;
 			}
 		}
@@ -98,9 +95,9 @@ namespace MirageXR
 			InitializeDefaults();
 			RegisterEvents();
 
-			ShownSubMenu = VirtualInstructorSubMenu.GeneralSettings;
-
 			RootView_v2.Instance.HideBaseView();
+
+			ShownSubMenu = VirtualInstructorSubMenu.GeneralSettings;
 		}
 
 		private void RegisterEvents()
