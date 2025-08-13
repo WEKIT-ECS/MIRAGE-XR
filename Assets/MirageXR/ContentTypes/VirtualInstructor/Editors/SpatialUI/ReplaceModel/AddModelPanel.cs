@@ -32,8 +32,27 @@ namespace MirageXR
 		{
 			closeWindowBtn.onClick.AddListener(() => this.gameObject.SetActive(false));
 			addModelBtn.onClick.AddListener(() => AddCharacterToLibrary(inputField.text));
-			openCustomLink.onClick.AddListener(() => { customLinkOpen.SetActive(true); customLinkClose.SetActive(false); });
-			closeCustomLink.onClick.AddListener(() => { customLinkClose.SetActive(true); customLinkOpen.SetActive(false); });
+			if (openCustomLink)
+			{
+				openCustomLink.onClick.AddListener(() => { customLinkOpen.SetActive(true); customLinkClose.SetActive(false); });
+			}
+			else if (RootObject.Instance.PlatformManager.GetUiType() == UiType.Spatial)
+			{
+				Debug.LogWarning(nameof(openCustomLink) + " is not assigned but we are in the spatial UI.", this);
+			}
+			if (closeCustomLink)
+			{
+				closeCustomLink.onClick.AddListener(() => { customLinkClose.SetActive(true); customLinkOpen.SetActive(false); });
+			}
+			else if (RootObject.Instance.PlatformManager.GetUiType() == UiType.Spatial)
+			{
+				Debug.LogWarning(nameof(closeCustomLink) + " is not assigned but we are in the spatial UI.", this);
+			}
+		}
+
+		private void OnEnable()
+		{
+			confirmation.SetActive(false);
 		}
 
 		private void AddCharacterToLibrary(string url)
