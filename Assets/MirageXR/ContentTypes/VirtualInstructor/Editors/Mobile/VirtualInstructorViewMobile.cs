@@ -23,7 +23,11 @@ namespace MirageXR
 		[Header("Panels")]
 		[SerializeField] private RectTransform panel;
 		[SerializeField] private GameObject settingsPanel;
-		[SerializeField] private ReplaceModel avatarModelSettingPanel;
+		[SerializeField] private ReplaceModel avatarModelSettingsPanel;
+		[SerializeField] private GameObject promptSettingsPanel;
+		[SerializeField] private GameObject voiceSettingsPanel;
+		[SerializeField] private GameObject aiModelSettingsPanel;
+		[SerializeField] private GameObject languageSettingsPanel;
 
 
 		[Header("Character List")]
@@ -62,7 +66,11 @@ namespace MirageXR
 			set
 			{
 				settingsPanel.SetActive(value == VirtualInstructorSubMenu.GeneralSettings);
-				avatarModelSettingPanel.gameObject.SetActive(value == VirtualInstructorSubMenu.CharacterModelSettings);
+				avatarModelSettingsPanel.gameObject.SetActive(value == VirtualInstructorSubMenu.CharacterModelSettings);
+				promptSettingsPanel.SetActive(value == VirtualInstructorSubMenu.PromptSettings);
+				voiceSettingsPanel.SetActive(value == VirtualInstructorSubMenu.VoiceSettings);
+				aiModelSettingsPanel.SetActive(value == VirtualInstructorSubMenu.AIModelSettings);
+				languageSettingsPanel.SetActive(value == VirtualInstructorSubMenu.LanguageSettings);
 				_shownSubMenu = value;
 			}
 		}
@@ -90,7 +98,7 @@ namespace MirageXR
 			}
 
 			characterModelSelectionElement.CharacterModelSelectionStarted += OpenCharacterModelSettingPanel;
-			avatarModelSettingPanel.CharacterModelSelected += OnAvatarModelSelected;
+			avatarModelSettingsPanel.CharacterModelSelected += OnAvatarModelSelected;
 
 			InitializeDefaults();
 			RegisterEvents();
@@ -240,10 +248,15 @@ namespace MirageXR
 			ShownSubMenu = VirtualInstructorSubMenu.GeneralSettings;
 		}
 
-		private void OpenCharacterModelSettingPanel()
-		{
-			ShownSubMenu = VirtualInstructorSubMenu.CharacterModelSettings;
-		}
+		private void OpenCharacterModelSettingPanel() => ShownSubMenu = VirtualInstructorSubMenu.CharacterModelSettings;
+
+		public void OpenPromptSettingsPanel() => ShownSubMenu = VirtualInstructorSubMenu.PromptSettings;
+
+		public void OpenVoiceSettingsPanel() => ShownSubMenu = VirtualInstructorSubMenu.VoiceSettings;
+
+		public void OpenAIModelSettingsPanel() => ShownSubMenu = VirtualInstructorSubMenu.AIModelSettings;
+
+		public void OpenLanguageSettingsPanel() => ShownSubMenu = VirtualInstructorSubMenu.LanguageSettings;
 
 		//private void ResetPanel()
 		//{
@@ -253,11 +266,16 @@ namespace MirageXR
 		//          animationSettingPanel.SetActive(false);
 		//          pathSettingPanel.SetActive(false);
 		//      }
+	}
 
-		enum VirtualInstructorSubMenu
-		{
-			GeneralSettings,
-			CharacterModelSettings
-		}
+	[Serializable]
+	public enum VirtualInstructorSubMenu
+	{
+		GeneralSettings,
+		CharacterModelSettings,
+		PromptSettings,
+		VoiceSettings,
+		AIModelSettings,
+		LanguageSettings,
 	}
 }
