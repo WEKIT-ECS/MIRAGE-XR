@@ -1324,31 +1324,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2502828521042969529}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2767466017594336963}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &4804051378648650364
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1381,7 +1357,7 @@ GameObject:
   - component: {fileID: 8560307811725022329}
   - component: {fileID: 7810590059691549083}
   m_Layer: 5
-  m_Name: text
+  m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3435,6 +3411,7 @@ GameObject:
   - component: {fileID: 5811285756570310299}
   - component: {fileID: 4308764021960694084}
   - component: {fileID: 8478464431414553613}
+  - component: {fileID: 8132484096413887370}
   m_Layer: 5
   m_Name: Info Panel
   m_TagString: Untagged
@@ -3529,6 +3506,22 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &8132484096413887370
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2767466017594336963}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81aad97e26f7d5641a255e892a0b7516, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _collapseButton: {fileID: 7193980483788824010}
+  _expandedView: {fileID: 1148531102468792215}
+  _collapsedView: {fileID: 0}
+  _isExpanded: 1
 --- !u!1 &2776173021217769849
 GameObject:
   m_ObjectHideFlags: 0
@@ -4379,7 +4372,7 @@ GameObject:
   - component: {fileID: 1528040113686121368}
   - component: {fileID: 7476189916337167733}
   m_Layer: 5
-  m_Name: headline
+  m_Name: Headline
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9116,7 +9109,7 @@ GameObject:
   - component: {fileID: 7334875616919693057}
   - component: {fileID: 1293612637989380860}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Info Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
