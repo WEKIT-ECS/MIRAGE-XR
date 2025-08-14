@@ -9,10 +9,12 @@ namespace MirageXR
     {
 		public override int Priority => 0;
 
+		[SerializeField] private float _blinkInterval = 5f;
+
 		public override void InitializeAvatar(GameObject avatar)
 		{
 			EyeAnimationHandler eyeAnimation = avatar.AddComponent<EyeAnimationHandler>();
-			eyeAnimation.BlinkInterval = 10f;
+			eyeAnimation.BlinkInterval = _blinkInterval;
 		}
 	}
 }
