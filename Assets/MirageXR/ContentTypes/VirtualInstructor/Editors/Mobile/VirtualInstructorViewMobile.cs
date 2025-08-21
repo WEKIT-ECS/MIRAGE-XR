@@ -41,6 +41,7 @@ namespace MirageXR
 		[Header("UI Elements")]
 		[SerializeField] private CharacterModelSelectionElement characterModelSelectionElement;
 		[SerializeField] private ChangeableSettingsPanel promptSettingsElement;
+		[SerializeField] private ChangeableSettingsPanel voiceSettingsElement;
 
 		[Header("Audio Mode Toggle")]
 		[SerializeField] private Toggle[] audioToggles;
@@ -226,7 +227,8 @@ namespace MirageXR
 			string prompt = GetPrompt();
 			promptSettingsElement.CurrentValue = prompt == defaultPrompt ? "Enter Text" : "Change Text";
 
-
+			AIModel tts = GetTTS();
+			voiceSettingsElement.CurrentValue = tts.Name;
 		}
 
 		public override void Close()
