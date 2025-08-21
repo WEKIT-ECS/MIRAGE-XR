@@ -10,7 +10,7 @@ namespace MirageXR
     public class ContextPromptMobile : MonoBehaviour
     {
         [SerializeField] private TMP_InputField inputField;
-        [SerializeField] private SpeechSettingsMobile speechSettings;
+        [SerializeField] private VirtualInstructorViewMobile settingsMenu;
         
         private void Start()
         {
@@ -24,7 +24,7 @@ namespace MirageXR
         /// <param name="prompt">The new text value from the input field.</param>
         private void OnTextChanged(string prompt)
         {
-            speechSettings.SetPrompt(prompt);
+            settingsMenu.SetPrompt(prompt);
         }
 
         /// <summary>
