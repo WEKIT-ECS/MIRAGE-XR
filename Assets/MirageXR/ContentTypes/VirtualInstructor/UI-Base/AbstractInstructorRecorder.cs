@@ -31,7 +31,7 @@ namespace MirageXR
         [SerializeField] private GameObject _stateisBuzy;
 
         [Header("Recording Settings")]
-        [SerializeField] protected int _maxRecordTime = 20;
+        [SerializeField] protected int _maxRecordTime = 60;
 
         protected AudioClip _questionClip;
         private CancellationTokenSource _source;

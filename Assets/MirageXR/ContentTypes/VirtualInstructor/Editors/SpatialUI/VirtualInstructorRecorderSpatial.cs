@@ -36,7 +36,7 @@ namespace MirageXR
         /// <summary>
         /// Maximum record time in seconds.
         /// </summary>
-        [SerializeField] private int _maxRecordTime = 20;
+        [SerializeField] private int _maxRecordTime = 60;
 
         /// <summary>
         /// AudioClip for storing the response from the virtual instructor.

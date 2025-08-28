@@ -1,6 +1,7 @@
 using System;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
+using LearningExperienceEngine.NewDataModel;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -12,6 +13,8 @@ namespace MirageXR
     /// </summary>
     public class VirtualInstructor : MirageXRPrefab, IVirtualInstructor
     {
+        private static IArtificialIntelligenceManager ArtificialIntelligenceManager => RootObject.Instance.LEE.ArtificialIntelligenceManager;
+
         public event Action<AudioClip> OnInstructorResponseAvailable;
         
         private const float CharacterHeight = 1.8f;
@@ -20,7 +23,8 @@ namespace MirageXR
         public Vector3 Position => transform.position;
 
         private InstructorContentData InstructorData { get; set; }
-        private string _history;
+        private string _assistantId;
+        private string _threadId;
         private Animator _animator;
 
         [SerializeField] private LearningExperienceEngine.ToggleObject _toggleObject;
@@ -106,48 +110,26 @@ namespace MirageXR
             }
         }
 
-        public async Task<AudioClip> AskVirtualInstructorAudio(AudioClip inputAudio, string messageQueue = "")
+        public async UniTask<AudioClip> AskVirtualInstructorAudio(AudioClip inputAudio)
         {
-            string context = CreateContext(messageQueue);
-            var question = await RootObject.Instance.LEE.ArtificialIntelligenceManager.ConvertSpeechToTextAsync(
-                inputAudio, InstructorData.SpeechToTextModel.ApiName);
-            var response = await RootObject.Instance.LEE.ArtificialIntelligenceManager.SendMessageToAssistantAsync(
-                InstructorData.LanguageModel.ApiName, question, context);
-            var clip = await RootObject.Instance.LEE.ArtificialIntelligenceManager.ConvertTextToSpeechAsync(
-                response, InstructorData.TextToSpeechModel.ApiName);
+            var question = await ArtificialIntelligenceManager.ConvertSpeechToTextAsync(inputAudio, InstructorData.SpeechToTextModel.ApiName);
+            var response = await ArtificialIntelligenceManager.SendMessageToAssistantAsync(InstructorData.LanguageModel.ApiName, question, InstructorData.Prompt, _assistantId, _threadId);
+            var clip = await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(response, InstructorData.TextToSpeechModel.ApiName);
 
-            UpdateHistory(question, response);
             return clip;
         }
 
-        public async Task<AudioClip> AskVirtualInstructorString(string question, string messageQueue = "")
+        public async UniTask<AudioClip> AskVirtualInstructorString(string question)
         {
-            string context = CreateContext(messageQueue);
-            var response = await RootObject.Instance.LEE.ArtificialIntelligenceManager.SendMessageToAssistantAsync(
-                InstructorData.LanguageModel.ApiName, question, context);
-            var clip = await RootObject.Instance.LEE.ArtificialIntelligenceManager.ConvertTextToSpeechAsync(
-                response, InstructorData.TextToSpeechModel.ApiName);
+            var response = await ArtificialIntelligenceManager.SendMessageToAssistantAsync(InstructorData.LanguageModel.ApiName, question, InstructorData.Prompt, _assistantId, _threadId);
+            var clip = await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(response, InstructorData.TextToSpeechModel.ApiName);
 
-            UpdateHistory(question, response);
             return clip;
         }
 
-        public async Task<AudioClip> ConvertTextToSpeech(string message)
+        public async UniTask<AudioClip> ConvertTextToSpeech(string message)
         {
-            return await RootObject.Instance.LEE.ArtificialIntelligenceManager.ConvertTextToSpeechAsync(
-                message, InstructorData.TextToSpeechModel.ApiName);
-        }
-
-        private string CreateContext(string messageQueue = "")
-        {
-            return !string.IsNullOrEmpty(_history)
-                ? $"{InstructorData.Prompt}{_history}{messageQueue}"
-                : InstructorData.Prompt;
-        }
-
-        private void UpdateHistory(string question, string response)
-        {
-            _history = string.Format(HistoryFormat, question, response);
+            return await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(message, InstructorData.TextToSpeechModel.ApiName);
         }
 
         private void OnDestroy()
