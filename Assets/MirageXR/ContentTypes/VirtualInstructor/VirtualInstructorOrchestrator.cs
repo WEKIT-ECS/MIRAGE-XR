@@ -48,15 +48,20 @@ namespace MirageXR
         public void AddToNextMessage(string message)
         {
             if (!string.IsNullOrWhiteSpace(message))
+            {
                 _messageQueue += $" {message} ";
+            }
         }
 
         public async Task<AudioClip> AskInstructorWithAudioQuestion(AudioClip question)
         {
             var instructor = DetermineVirtualInstructor();
-            if (instructor == null) return null;
-        
-            var clip = await instructor.AskVirtualInstructorAudio(question, _messageQueue);
+            if (instructor == null)
+            {
+                return null;
+            }
+
+            var clip = await instructor.AskVirtualInstructorAudio(question);
             if (clip != null)
             {
                 instructor.PlayAudio(clip); 
@@ -69,7 +74,7 @@ namespace MirageXR
             var instructor = DetermineVirtualInstructor();
             if (instructor == null) return null;
 
-            var clip = await instructor.AskVirtualInstructorString(question, _messageQueue);
+            var clip = await instructor.AskVirtualInstructorString(question);
             instructor.PlayAudio(clip);
             return clip;
         }

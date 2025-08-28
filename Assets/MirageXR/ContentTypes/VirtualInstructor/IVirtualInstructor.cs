@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace MirageXR
@@ -19,9 +19,9 @@ namespace MirageXR
     public interface IVirtualInstructor
     {
         Vector3 Position { get; }
-        Task<AudioClip> AskVirtualInstructorAudio(AudioClip question, string messageQueue);
-        Task<AudioClip> AskVirtualInstructorString(string question, string messageQueue);
-        Task<AudioClip> ConvertTextToSpeech(string message);
+        UniTask<AudioClip> AskVirtualInstructorAudio(AudioClip inputAudio);
+        UniTask<AudioClip> AskVirtualInstructorString(string question);
+        UniTask<AudioClip> ConvertTextToSpeech(string message);
         void PlayAudio(AudioClip audioClip);
   
         public event Action<AudioClip> OnInstructorResponseAvailable;

@@ -71,7 +71,7 @@ namespace MirageXR.View
                     {
 						tcs.SetResult(res);
 						var instructor = avatarContainer.AddComponent<Instructor>();
-						instructor.Initialize(content);
+						instructor.InitializeAsync(content).Forget();
 						avatarLoader.AvatarLoaded -= OnAvatarLoaded;
 					}
                     avatarLoader.AvatarLoaded += OnAvatarLoaded;
@@ -100,7 +100,7 @@ namespace MirageXR.View
                     }
 
                     var instructor = _instructor.AddComponent<Instructor>();
-                    instructor.Initialize(_instructorContent);
+                    await instructor.InitializeAsync(_instructorContent);
                     return true;
                 }
             }
