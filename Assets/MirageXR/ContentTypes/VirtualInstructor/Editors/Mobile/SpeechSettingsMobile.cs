@@ -59,30 +59,35 @@ namespace MirageXR
         private void ToggleView(GameObject view, bool active)
         {
             if (view != null)
+            {
                 view.SetActive(active);
+            }
         }
 
-        public void UpdatePromptText(string prompt)
+        private void UpdatePromptText(string prompt)
         {
             SetLabelText(promptLabel, prompt);
         }
 
-        public void UpdateModelText(AIModel model, GameObject label)
+        private void UpdateModelText(AIModel model, GameObject label)
         {
             if (model != null)
+            {
                 SetLabelText(label, model.Name);
+            }
         }
 
         private void SetLabelText(GameObject labelObject, string text)
         {
             var tmp = labelObject.GetComponentInChildren<TMP_Text>();
             if (tmp != null)
+            {
                 tmp.text = text.Length > 10 ? text.Substring(0, 10) : text;
+            }
         }
 
         protected override void UpdateUiFromModel()
         {
-
             UpdatePromptText(_model.Prompt);
             UpdateModelText(_model.TTS, ttsLabel);
             UpdateModelText(_model.LLM, llmLabel);

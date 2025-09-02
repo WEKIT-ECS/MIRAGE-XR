@@ -27,7 +27,6 @@ namespace MirageXR
 
         private void Start()
         {
-            // se 
             if (scrollRect)
             {
                  scrollRect.movementType = ScrollRect.MovementType.Clamped;
@@ -51,67 +50,71 @@ namespace MirageXR
                 return;
             }
 
+            //inputField.onValueChanged.AddListener();
             foreach (var model in _availableModels)
+            {
                 CreateModelEntry(model);
-            
+            }
+
             StartCoroutine(FixLayoutNextFrame());
         }
 
         private System.Collections.IEnumerator FixLayoutNextFrame()
+        {
+            yield return null;
+            LayoutRebuilder.ForceRebuildLayoutImmediate(container);
+        }
+
+        private void CreateModelEntry(AIModel model)
+        {
+            var go = Instantiate(prefabTemplate, container);
+            _instantiatedPrefabs.Add(go);
+
+            var texts = go.GetComponentsInChildren<TMP_Text>();
+            if (texts.Length > 0) texts[0].text = model.Name;
+            if (texts.Length > 1) texts[1].text = model.Description;
+
+            var toggle = go.GetComponentInChildren<Toggle>();
+            if (toggle)
             {
-                yield return null;
-                LayoutRebuilder.ForceRebuildLayoutImmediate(container);
-            }
-
-
-            private void CreateModelEntry(AIModel model)
-            {
-                var go = Instantiate(prefabTemplate, container);
-                _instantiatedPrefabs.Add(go);
-
-                var texts = go.GetComponentsInChildren<TMP_Text>();
-                if (texts.Length > 0) texts[0].text = model.Name;
-                if (texts.Length > 1) texts[1].text = model.Description;
-
-                var toggle = go.GetComponentInChildren<Toggle>();
-                if (toggle)
+                var group = container.GetComponentInChildren<ToggleGroup>();
+                if (group) toggle.group = group;
+                toggle.onValueChanged.AddListener(isOn =>
                 {
-                    var group = container.GetComponentInChildren<ToggleGroup>();
-                    if (group) toggle.group = group;
-                    toggle.onValueChanged.AddListener(isOn =>
+                    if (isOn)
                     {
-                        if (isOn) OnModelSelected(model);
-                    });
-                }
-
-                var button = go.GetComponentInChildren<Button>();
-                if (button)
-                {
-                    button.onClick.AddListener(() =>
-                    {
-                        audioPlayer.SetActive(true);
-                        var player = audioPlayer.GetComponent<AudioStreamPlayer>() ??
-                                     audioPlayer.AddComponent<AudioStreamPlayer>();
-                        player.Setup(model);
-                    });
-                }
+                        OnModelSelected(model);
+                    }
+                });
             }
 
-            private void OnModelSelected(AIModel model)
+            var button = go.GetComponentInChildren<Button>();
+            if (button)
             {
-                switch (selectedType)
+                button.onClick.AddListener(() =>
                 {
-                    case ContentTypeEndpoint.Llm:
-                        speechSettings.SetLLM(model);
-                        break;
-                    case ContentTypeEndpoint.Tts:
-                        speechSettings.SetTTS(model);
-                        break;
-                    case ContentTypeEndpoint.Stt:
-                        speechSettings.SetSTT(model);
-                        break;
-                }
+                    audioPlayer.SetActive(true);
+                    var player = audioPlayer.GetComponent<AudioStreamPlayer>();
+                    player.Setup(model, ""); //TODO: 
+                });
             }
+        }
+
+        private void OnModelSelected(AIModel model)
+        {
+            switch (selectedType)
+            {
+                case ContentTypeEndpoint.Llm:
+                    speechSettings.SetLLM(model);
+                    break;
+                case ContentTypeEndpoint.Tts:
+                    speechSettings.SetTTS(model);
+                    break;
+                case ContentTypeEndpoint.Stt:
+                    speechSettings.SetSTT(model);
+                    break;
+            }
+        }
 
         /// <summary>
         /// Represents the endpoint types for different AI wrapper. Provides

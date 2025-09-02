@@ -64,6 +64,7 @@ public class AudioStreamPlayer : MonoBehaviour
     /// Represents an AI model for the AiServices.
     /// </summary>
     private AIModel _model;
+    private string _voiceInstruction;
 
     /// <summary>
     /// An array of Button objects representing the interactive buttons in the AudioStreamPlayer script. 
@@ -83,20 +84,20 @@ public class AudioStreamPlayer : MonoBehaviour
     /// <summary>
     /// Initializes the AudioStreamPlayer by assigning references to its required components.
     /// </summary>
-    void Awake()
+    private void Awake()
     {
         _audioSource = GetComponent<AudioSource>();
     }
-
 
     /// <summary>
     /// Sets up the AudioStreamPlayer component with the specified AIModel.
     /// </summary>
     /// <param name="model">The AIModel to use for setup.</param>
-    public async void Setup(AIModel model)
+    public async void Setup(AIModel model, string voiceInstruction)
     {
         _audioSource.Stop();
         _model = model;
+        _voiceInstruction = voiceInstruction;
         _name.text = _model.Name;
         _currentTimeText.text = "0:00";
         _audioSource.clip = await LoadAudioAsync();
@@ -107,7 +108,6 @@ public class AudioStreamPlayer : MonoBehaviour
         _forward.onClick.AddListener(MoveForward);
         _progressSlider.onValueChanged.AddListener(OnSliderValueChanged);
         _durationText.text = _audioSource.clip.length.ToString("F2", CultureInfo.CurrentCulture).Replace(".",":");
-        
     }
 
     /// <summary>
@@ -161,10 +161,9 @@ public class AudioStreamPlayer : MonoBehaviour
         pause.gameObject.SetActive(false);
         play.gameObject.SetActive(false);
         var massage = "Hi I am " + _model.Name;
-        AudioClip clip = await RootObject.Instance.LEE.ArtificialIntelligenceManager.ConvertTextToSpeechAsync(massage, _model.ApiName);
+        var clip = await RootObject.Instance.LEE.ArtificialIntelligenceManager.ConvertTextToSpeechAsync(massage, _model.ApiName, _voiceInstruction);
         return clip;
     }
-
 
     /// <summary>
     /// Plays the audio clip attached to the audio source. If there is no audio clip attached or the audio source is already playing, this method does nothing.

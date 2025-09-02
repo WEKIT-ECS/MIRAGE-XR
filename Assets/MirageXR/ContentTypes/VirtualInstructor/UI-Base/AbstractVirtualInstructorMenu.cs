@@ -46,14 +46,17 @@ namespace MirageXR
         /// </summary>
         protected virtual void InitializeDefaults()
         {
-            if (_isSetup) return;
+            if (_isSetup)
+            {
+                return;
+            }
             UnityEngine.Debug.LogWarning("InitializeDefaults");
             var ai = RootObject.Instance.LEE.ArtificialIntelligenceManager;
             var tts = SelectModel(ai.GetTtsModels(), defaultTtsModel, "TTS");
             var stt = SelectModel(ai.GetSttModels(), defaultSttModel, "STT");
             var llm = SelectModel(ai.GetLlmModels(), defaultLlmModel, "LLM");
             var prompt = defaultPrompt;
-            
+
             _model.Reset(tts, stt, llm, prompt);
             UpdateUiFromModel();
             _isSetup = true;
@@ -71,10 +74,12 @@ namespace MirageXR
                 return null;
             }
 
-            if (string.IsNullOrEmpty(configName)) return models[0];
+            if (string.IsNullOrEmpty(configName))
+            {
+                return models[0];
+            }
 
-            var matchByApiName = models.FirstOrDefault(m =>
-                string.Equals(m.ApiName, configName, StringComparison.OrdinalIgnoreCase));
+            var matchByApiName = models.FirstOrDefault(m => string.Equals(m.ApiName, configName, StringComparison.OrdinalIgnoreCase));
 
             if (matchByApiName != null)
             {
@@ -85,7 +90,7 @@ namespace MirageXR
             Debug.LogWarning($"[InstructorMenu] Configured {type} model '{configName}' not found. Using first available model: '{models[0].ApiName}'");
             return models[0];
         }
-        // setter 
+
         public virtual void SetPrompt(string prompt)
         {
             _model.Prompt = string.IsNullOrEmpty(prompt) ? defaultPrompt : prompt;
@@ -113,12 +118,12 @@ namespace MirageXR
             //Debug.Log($"LLM in Singleton: {_model.LLM?.Name ?? "null"}");
             UpdateUiFromModel(); 
         }
-        // getter 
+
         public AIModel GetTTS() => _model.TTS;
         public AIModel GetSTT() => _model.STT;
         public AIModel GetLLM() => _model.LLM;
         public string GetPrompt() => _model.Prompt;
-        
+
         /// <summary>
         /// Updates the UI elements to reflect the current state of the model.
         /// 
@@ -127,9 +132,6 @@ namespace MirageXR
         /// 
         /// This method is automatically called whenever a model field is updated.
         /// </summary>
-        protected virtual void UpdateUiFromModel()
-        {
-            Debug.LogError("UpdateUiFromModel not implemented in subclass.");   
-        }
+        protected abstract void UpdateUiFromModel();
     }
 }
