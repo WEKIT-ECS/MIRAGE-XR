@@ -18,7 +18,6 @@ namespace MirageXR
         public event Action<AudioClip> OnInstructorResponseAvailable;
         
         private const float CharacterHeight = 1.8f;
-        private static readonly string HistoryFormat = "This is the History of the conversation so far: Question: {0}, Answer: {1}";
 
         public Vector3 Position => transform.position;
 
