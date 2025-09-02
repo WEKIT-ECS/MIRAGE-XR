@@ -50,7 +50,6 @@ namespace MirageXR
                 return;
             }
 
-            //inputField.onValueChanged.AddListener();
             foreach (var model in _availableModels)
             {
                 CreateModelEntry(model);
