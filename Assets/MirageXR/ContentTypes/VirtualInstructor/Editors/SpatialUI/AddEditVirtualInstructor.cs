@@ -8,7 +8,7 @@ using UnityEngine.Serialization;
 using UnityEngine.UI;
 using AIModel = LearningExperienceEngine.DataModel.AIModel;
 
-public class AddEditVirtualInstructor : EditorSpatialView
+public class AddEditVirtualInstructor : EditorSpatialView   //TODO: rename to VirtualInstructorViewSpatial
 {
     // Btn
     [FormerlySerializedAs("ClosePanelBtn")]
@@ -84,6 +84,7 @@ public class AddEditVirtualInstructor : EditorSpatialView
     private string _characterModelUrl = "";
     private string _pathSetting = "No Path"; // todo
     private string _prompt = "Provide a concise answer to the question. Use the context.";
+    private string _voiceInstruction = string.Empty;
 
     private AIModel _languageModel;
     private AIModel _speechToTextModel;
@@ -120,8 +121,9 @@ public class AddEditVirtualInstructor : EditorSpatialView
 
         if (IsContentUpdate && _instructorContentData != null)
         {
+            _voiceInstruction = _instructorContentData.ContentData.VoiceInstruction; 
             UpdatePrompt(_instructorContentData.ContentData.Prompt);
-            SetAITextToSpeechModel(_instructorContentData.ContentData.TextToSpeechModel);
+            SetAITextToSpeechModel(_instructorContentData.ContentData.TextToSpeechModel, _instructorContentData.ContentData.VoiceInstruction);
             SetAISpeechToTextModel(_instructorContentData.ContentData.SpeechToTextModel);
             SetAILanguageModel(_instructorContentData.ContentData.LanguageModel);
             UpdateName(_instructorContentData.ContentData.CharacterName);
@@ -145,6 +147,7 @@ public class AddEditVirtualInstructor : EditorSpatialView
         _instructorContentData.ContentData.LanguageModel =_languageModel;
         _instructorContentData.ContentData.SpeechToTextModel = _speechToTextModel;
         _instructorContentData.ContentData.TextToSpeechModel = _textToSpeechModel;
+        _instructorContentData.ContentData.VoiceInstruction = _voiceInstruction;
 
         if (IsContentUpdate)
         {
@@ -173,7 +176,7 @@ public class AddEditVirtualInstructor : EditorSpatialView
     private void OpenTextToSpeechPanel()
     {
         ResetPanel(); 
-        PopupsViewer.Instance.Show(textToSpeechModelPrefab, GetWorldPosition(), _textToSpeechModel, (Action<AIModel>)SetAITextToSpeechModel);
+        PopupsViewer.Instance.Show(textToSpeechModelPrefab, GetWorldPosition(), _textToSpeechModel, (Action<AIModel, string>)SetAITextToSpeechModel, _voiceInstruction);
     }
 
     private void OpenPromptPanel()
@@ -197,7 +200,7 @@ public class AddEditVirtualInstructor : EditorSpatialView
             listItemBoxPicker.OnToggleSelected -= HandleToggleSelection;
         }
     }
-    
+
     private void HandleToggleSelection(Toggle toggle, ListItemBoxPicker sender)
     {
         switch (sender.gameObject.name)
@@ -385,9 +388,10 @@ public class AddEditVirtualInstructor : EditorSpatialView
         aiLanguage.text = model.Name; 
     }
 
-    private void SetAITextToSpeechModel(AIModel model)
+    private void SetAITextToSpeechModel(AIModel model, string voiceInstruction)
     {
         _textToSpeechModel = model;
+        _voiceInstruction = voiceInstruction;
         aiVoice.text = model.Name;
     }
 }
