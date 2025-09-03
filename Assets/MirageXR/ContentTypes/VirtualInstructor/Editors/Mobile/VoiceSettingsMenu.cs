@@ -28,6 +28,7 @@ namespace MirageXR
 			AudioClip voiceClip = await LoadAudioAsync(model, message);
 			_audioPlayer.ShowLoadingState = false;
 			_audioPlayer.SetAudioClip(voiceClip);
+			_audioPlayer.PlayAudio();
 		}
 
 		/// <summary>

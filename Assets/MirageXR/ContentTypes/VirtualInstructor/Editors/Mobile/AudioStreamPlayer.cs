@@ -148,15 +148,13 @@ public class AudioStreamPlayer : MonoBehaviour
 			return;
 		}
 
-		IsPlaying = !IsPlaying;
-
 		if (IsPlaying)
 		{
-			PlayAudio();
+			PauseAudio();
 		}
 		else
 		{
-			PauseAudio();
+			PlayAudio();
 		}
 
 		UpdatePlayPauseButton();
@@ -172,6 +170,7 @@ public class AudioStreamPlayer : MonoBehaviour
 			_audioSource.mute = false;
 			_audioSource.volume = AudioVolume;
 			_audioSource.Play();
+			IsPlaying = true;
 
 			UpdatePlayPauseButton();
 		}
@@ -183,6 +182,7 @@ public class AudioStreamPlayer : MonoBehaviour
 	public void PauseAudio()
 	{
 		_audioSource.Pause();
+		IsPlaying = false;
 		UpdatePlayPauseButton();
 	}
 
@@ -192,6 +192,8 @@ public class AudioStreamPlayer : MonoBehaviour
 	/// </summary>
 	public void ResetAudio()
 	{
+		_audioSource.Stop();
+		IsPlaying = false;
 		_audioSource.clip = null;
 	}
 
