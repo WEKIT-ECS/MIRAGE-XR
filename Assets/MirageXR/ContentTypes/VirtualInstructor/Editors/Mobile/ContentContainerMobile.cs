@@ -18,7 +18,6 @@ namespace MirageXR
 		[SerializeField] private ContentTypeEndpoint selectedType;
 		[SerializeField] private GameObject prefabTemplate;
 		[SerializeField] private RectTransform container;
-		[SerializeField] private GameObject audioPlayer;
 		[SerializeField] private VirtualInstructorViewMobile settingsMenu;
 		[SerializeField] private ScrollRect scrollRect;
 
