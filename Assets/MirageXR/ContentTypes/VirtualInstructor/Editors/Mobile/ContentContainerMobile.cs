@@ -68,7 +68,7 @@ namespace MirageXR
 
 			foreach (var model in _availableModels)
 			{
-				bool select = model.Name == currentlySelected.Name;
+				bool select = model == currentlySelected;
 				CreateModelEntry(model, select);
 			}
 
