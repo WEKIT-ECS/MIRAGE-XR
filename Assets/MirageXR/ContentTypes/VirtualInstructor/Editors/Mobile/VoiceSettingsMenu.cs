@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace MirageXR
 {
-	public class VoicePreviewLoader : MonoBehaviour
+	public class VoiceSettingsMenu : MonoBehaviour
 	{
 		[SerializeField] private DraggableBottomPopup _audioPlayerDialog;
 
@@ -17,8 +17,8 @@ namespace MirageXR
 
 		public async void PlayVoicePreview(AIModel model)
 		{
-			string message = "Hi I am " + model.Name;
-			_audioPlayerDialog.Title = message;
+			string message = "Hi, I am " + model.Name;
+			_audioPlayerDialog.Title = model.Name;
 			_audioPlayerDialog.OpenDialog();
 			if (_audioPlayer == null)
 			{

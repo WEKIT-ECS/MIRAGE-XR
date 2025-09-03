@@ -93,7 +93,7 @@ namespace MirageXR
 					//var player = audioPlayer.GetComponent<AudioStreamPlayer>() ??
 					//			 audioPlayer.AddComponent<AudioStreamPlayer>();
 					//player.Setup(model);
-					GetComponentInParent<VoicePreviewLoader>().PlayVoicePreview(model);
+					GetComponentInParent<VoiceSettingsMenu>().PlayVoicePreview(model);
 				});
 			}
 		}
