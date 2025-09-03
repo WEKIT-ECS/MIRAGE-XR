@@ -43,6 +43,7 @@ namespace MirageXR
 		[SerializeField] private ChangeableSettingsPanel promptSettingsElement;
 		[SerializeField] private ChangeableSettingsPanel voiceSettingsElement;
 		[SerializeField] private ChangeableSettingsPanel llmModelSettingsElement;
+		[SerializeField] private ChangeableSettingsPanel languageSettingsElement;
 
 		[Header("Audio Mode Toggle")]
 		[SerializeField] private Toggle[] audioToggles;
@@ -233,6 +234,9 @@ namespace MirageXR
 
 			AIModel llm = GetLLM();
 			llmModelSettingsElement.CurrentValue = llm.Name;
+
+			AIModel stt = GetSTT();
+			languageSettingsElement.CurrentValue = stt.Name;
 		}
 
 		public override void Close()
