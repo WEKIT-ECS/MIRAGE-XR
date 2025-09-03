@@ -5,221 +5,271 @@ using System.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
 using MirageXR;
 using TMPro;
+using JetBrains.Annotations;
 
 /// <summary>
 /// Represents an audio stream player for playing audio clips.
 /// </summary>
 public class AudioStreamPlayer : MonoBehaviour
 {
-    /// <summary>
-    /// The AudioSource used for playing audio streams.
-    /// </summary>
-    private AudioSource _audioSource;
-    /// <summary>
-    /// Represents a progress slider control used for audio streaming.
-    /// </summary>
-    [SerializeField]
-    private Slider _progressSlider;
+	[Header("UI References")]
+	/// <summary>
+	/// Represents a progress slider control used for audio streaming.
+	/// </summary>
+	[SerializeField]
+	private Slider _progressSlider;
+	/// <summary>
+	/// The text component used to display the current time of the audio clip being played.
+	/// </summary>
+	[SerializeField]
+	private TMP_Text _currentTimeTextLabel;
+	[SerializeField]
+	private TMP_Text _durationTextLabel;
 
-    /// <summary>
-    /// The text component used to display the current time of the audio clip being played.
-    /// </summary>
-    [SerializeField]
-    private TMP_Text _currentTimeText;
-    [SerializeField]
-    private TMP_Text _durationText;
+	[SerializeField]
+	private GameObject _playImage;
 
-    [SerializeField] private TMP_Text _name;
+	[SerializeField]
+	private GameObject _pauseImage;
 
-    /// <summary>
-    /// Represents a play button used for audio streaming.
-    /// </summary>
-    [SerializeField]
-    private Button _playButton;
-    
-    [SerializeField]
-    private Button _pauseButton;
-    /// <summary>
-    /// Reference to the forward button in the UI.
-    /// </summary>
-    [SerializeField]
-    private Button _forward;
+	[SerializeField]
+	private GameObject _loadingImage;
 
-    /// <summary>
-    /// Reference to the backward button in the UI.
-    /// </summary>
-    [SerializeField]
-    private Button _backward;
+	[SerializeField] private Button _playPauseButton;
 
+	/// <summary>
+	/// Reference to the forward button in the UI.
+	/// </summary>
+	[SerializeField]
+	private Button _forwardButton;
 
-    /// <summary>
-    /// Represents an AI model for the AiServices.
-    /// </summary>
-    private AIModel _model;
+	/// <summary>
+	/// Reference to the backward button in the UI.
+	/// </summary>
+	[SerializeField]
+	private Button _backwardButton;
 
-    /// <summary>
-    /// An array of Button objects representing the interactive buttons in the AudioStreamPlayer script. 
-    /// </summary>
-    private Button[] _buttons;
+	// The AudioSource used for playing audio streams.
+	private AudioSource _audioSource;
 
-    /// <summary>
-    /// Represents the current playing state of the AudioStreamPlayer.
-    /// </summary>
-    private bool _isPlaying;
-    private bool IsPlaying
-    {
-        get => _isPlaying;
-        set
-        {
-            _isPlaying = value;
-            _playButton.gameObject.SetActive(!value);
-            _pauseButton.gameObject.SetActive(value);
-        }
-    }
+	/// <summary>
+	/// Represents the current playing state of the AudioStreamPlayer.
+	/// </summary>
+	public bool IsPlaying
+	{
+		get; private set;
+	}
 
-    private const float TimeFactor = 0.1f;
-    private const float AudioVolume = 1.0f; 
-    
+	private bool _showLoadingState;
+	public bool ShowLoadingState
+	{
+		get => _showLoadingState;
+		set
+		{
+			_showLoadingState = value;
+			UpdatePlayPauseButton();
+		}
+	}
 
+	/// <summary>
+	/// The audio clip which is currently loaded into this UI element to play it
+	/// </summary>
+	public AudioClip AudioClip
+	{
+		get
+		{
+			return _audioSource.clip;
+		}
+		private set
+		{
+			_audioSource.clip = value;
+		}
+	}
 
-    /// <summary>
-    /// Initializes the AudioStreamPlayer by assigning references to its required components.
-    /// </summary>
-    void Awake()
-    {
-        _audioSource = GetComponent<AudioSource>();
-    }
+	private const float TimeFactor = 0.1f;
+	private const float AudioVolume = 1.0f;
 
 
-    /// <summary>
-    /// Sets up the AudioStreamPlayer component with the specified AIModel.
-    /// </summary>
-    /// <param name="model">The AIModel to use for setup.</param>
-    public async void Setup(AIModel model)
-    {
-        _audioSource.Stop();
-        _model = model;
-        _name.text = _model.Name;
-        _currentTimeText.text = "0:00";
-        _audioSource.clip = await LoadAudioAsync();
-        IsPlaying = false;
-        _playButton.onClick.AddListener(PlayAudio);
-        _pauseButton.onClick.AddListener(PauseAudio);
-        _backward.onClick.AddListener(MoveBackward);
-        _forward.onClick.AddListener(MoveForward);
-        _progressSlider.onValueChanged.AddListener(OnSliderValueChanged);
-        _durationText.text = _audioSource.clip.length.ToString("F2", CultureInfo.CurrentCulture).Replace(".",":");
-        
-    }
 
-    /// <summary>
-    /// Pauses the audio stream player by stopping the audio source.
-    /// </summary>
-    private void PauseAudio()
-    {
-        _audioSource.Stop();
-    }
+	/// <summary>
+	/// Initializes the AudioStreamPlayer by assigning references to its required components.
+	/// </summary>
+	void Awake()
+	{
+		_audioSource = GetComponent<AudioSource>();
+		if (_audioSource == null)
+		{
+			_audioSource = gameObject.AddComponent<AudioSource>();
+		}
 
-    /// <summary>
-    /// Moves the audio playback forward by 10% of the total duration.
-    /// </summary>
-    private void MoveForward()
-    {
-        if (_audioSource != null)
-        {
-            float newTime = _audioSource.time + (_audioSource.clip.length * TimeFactor);
-            if (_audioSource.time >= Mathf.Clamp(newTime, 0, _audioSource.clip.length))
-            {
-                _audioSource.time = Mathf.Clamp(newTime, 0, _audioSource.clip.length);
-            }
-            _audioSource.Play();
-        }
-    }
+		_playPauseButton.onClick.AddListener(TogglePlayPause);
+		_backwardButton.onClick.AddListener(SkipBackward);
+		_forwardButton.onClick.AddListener(SkipForward);
 
-    /// <summary>
-    /// Moves the audio playback position backward by 10% of the total duration.
-    /// </summary>
-    private void MoveBackward()
-    {
-        if (_audioSource != null)
-        {
-            float newTime = _audioSource.time - (_audioSource.clip.length * TimeFactor);
-            _audioSource.time = Mathf.Clamp(newTime, 0, _audioSource.clip.length);
-            _audioSource.Play();
-        }
-    }
+		_progressSlider.onValueChanged.AddListener(OnSliderValueChanged);
 
-    /// <summary>
-    /// Loads an audio clip asynchronously.
-    /// </summary>
-    /// <returns>The loaded audio clip.</returns>
-    /// <remarks>
-    /// This method is used to load an audio clip asynchronously. It generates a text message
-    /// based on the AI model's name and passes it to the AIManager's ConvertTextToSpeechAsync method
-    /// along with the model's API name. The method waits for the audio clip to be retrieved and returns it.
-    /// </remarks>
-    private async Task<AudioClip> LoadAudioAsync()
-    {
-        var message = "Hi I am " + _model.Name;
-        AudioClip clip = await RootObject.Instance.LEE.ArtificialIntelligenceManager.ConvertTextToSpeechAsync(message, _model.ApiName);
-        return clip;
-    }
+		UpdateTimeLabels();
+	}
+
+	private void UpdateTimeLabels()
+	{
+		if (_audioSource.clip == null)
+		{
+			_currentTimeTextLabel.text = "0:00";
+			_durationTextLabel.text = "0:00";
+		}
+		else
+		{
+			_currentTimeTextLabel.text = FormatTime(_audioSource.time);
+			_durationTextLabel.text = FormatTime(_audioSource.clip.length);
+		}
+	}
+
+	private string FormatTime(float timeInSeconds)
+	{
+		int minutes = Mathf.FloorToInt(timeInSeconds / 60f);
+		int seconds = Mathf.FloorToInt(timeInSeconds % 60f);
+		return string.Format("{0:00}:{1:00}", minutes, seconds);
+	}
+
+	public void SetAudioClip(AudioClip audioClip)
+	{
+		_audioSource.Stop();
+		_audioSource.playOnAwake = false;
+		_audioSource.clip = audioClip;
+		IsPlaying = false;
+		UpdateTimeLabels();
+	}
+
+	private void TogglePlayPause()
+	{
+		if (_audioSource.clip == null)
+		{
+			return;
+		}
+
+		IsPlaying = !IsPlaying;
+
+		if (IsPlaying)
+		{
+			PlayAudio();
+		}
+		else
+		{
+			PauseAudio();
+		}
+
+		UpdatePlayPauseButton();
+	}
+
+	/// <summary>
+	/// Plays the audio clip attached to the audio source. If there is no audio clip attached or the audio source is already playing, this method does nothing.
+	/// </summary>
+	public void PlayAudio()
+	{
+		if (_audioSource.clip != null)
+		{
+			_audioSource.mute = false;
+			_audioSource.volume = AudioVolume;
+			_audioSource.Play();
+
+			UpdatePlayPauseButton();
+		}
+	}
+
+	/// <summary>
+	/// Pauses the audio stream player by stopping the audio source.
+	/// </summary>
+	public void PauseAudio()
+	{
+		_audioSource.Pause();
+		UpdatePlayPauseButton();
+	}
 
 
-    /// <summary>
-    /// Plays the audio clip attached to the audio source. If there is no audio clip attached or the audio source is already playing, this method does nothing.
-    /// </summary>
-    private void PlayAudio()
-    {
-        if (_audioSource.clip != null)
-        {
-            _audioSource.mute = false;
-            _audioSource.volume = AudioVolume;
-            _audioSource.Play();
-        }
-    }
+	/// <summary>
+	/// Resets the audio source clip to null.
+	/// </summary>
+	public void ResetAudio()
+	{
+		_audioSource.clip = null;
+	}
 
-    /// <summary>
-    /// Called when the value of the Slider component attached to the AudioStreamPlayer changes.
-    /// </summary>
-    /// <param name="value">The new value of the Slider component.</param>
-    void OnSliderValueChanged(float value)
-    {
-        _audioSource.time = (value / 100) * _audioSource.clip.length;
-    }
+	/// <summary>
+	/// Moves the audio playback forward by 10% of the total duration.
+	/// </summary>
+	public void SkipForward()
+	{
+		if (_audioSource.clip == null)
+		{
+			return;
+		}
+
+		int skipAmount = Mathf.RoundToInt(_audioSource.clip.samples * TimeFactor);
+
+		_audioSource.timeSamples = Mathf.Min(_audioSource.clip.samples - 1, _audioSource.timeSamples + skipAmount);
+		_progressSlider.value = _audioSource.time / _audioSource.clip.length;
+		UpdateTimeLabels();
+	}
+
+	/// <summary>
+	/// Moves the audio playback position backward by 10% of the total duration.
+	/// </summary>
+	public void SkipBackward()
+	{
+		if (_audioSource == null)
+		{
+			return;
+		}
+
+		int skipAmount = Mathf.RoundToInt(_audioSource.clip.samples * TimeFactor);
+		_audioSource.timeSamples = Mathf.Max(0, _audioSource.timeSamples - skipAmount);
+		_progressSlider.value = _audioSource.time / _audioSource.clip.length;
+		UpdateTimeLabels();
+	}
+
+	/// <summary>
+	/// Called when the value of the Slider component attached to the AudioStreamPlayer changes.
+	/// </summary>
+	/// <param name="value">The new value of the Slider component.</param>
+	private void OnSliderValueChanged(float value)
+	{
+		if (_audioSource == null || ShowLoadingState)
+		{
+			return;
+		}
+		_audioSource.time = value * _audioSource.clip.length;
+		UpdateTimeLabels();
+	}
 
 
-    /// <summary>
-    /// Updates the audio stream player.
-    /// </summary>
-    void Update()
-    {
-        if (_audioSource.isPlaying)
-        {
-            _progressSlider.value = (_audioSource.time / _audioSource.clip.length) * 100;
-            _currentTimeText.text = _audioSource.time.ToString("F2", CultureInfo.CurrentCulture);
-            IsPlaying = true;
-        }
-        else if (IsPlaying)
-        {
-            IsPlaying = false;
-            OnAudioFinished();
-        }
-    }
+	/// <summary>
+	/// Updates the audio stream player.
+	/// </summary>
+	void Update()
+	{
+		// if we are at the end of the audio clip
+		// (internal state is still on playing but audio source stopped playing)
+		if (IsPlaying && !ShowLoadingState && _audioSource.clip != null && !_audioSource.isPlaying)
+		{
+			IsPlaying = false;
+			_audioSource.time = 0;
+			UpdatePlayPauseButton();
+		}
 
-    /// <summary>
-    /// Resets the audio source clip to null.
-    /// </summary>
-    public void ResetAudio()
-    {
-        _audioSource.clip = null; 
-    }
+		// keep the progress slider and labels updated
+		if (IsPlaying && !ShowLoadingState && _audioSource.clip != null)
+		{
+			_progressSlider.value = _audioSource.time / _audioSource.clip.length;
+			UpdateTimeLabels();
+		}
+	}
 
-    /// <summary>
-    /// Callback method called when the audio finishes playing.
-    /// </summary>
-    void OnAudioFinished()
-    {
-        _audioSource.time = 0;
-    }
+	private void UpdatePlayPauseButton()
+	{
+		_playPauseButton.enabled = !ShowLoadingState;
+		_playImage.SetActive(!IsPlaying && !ShowLoadingState);
+		_pauseImage.SetActive(IsPlaying && !ShowLoadingState);
+		_loadingImage.SetActive(ShowLoadingState);
+	}
 }
