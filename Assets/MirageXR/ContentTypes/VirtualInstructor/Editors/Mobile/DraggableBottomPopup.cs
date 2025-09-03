@@ -9,13 +9,11 @@ namespace MirageXR
 	public class DraggableBottomPopup : MonoBehaviour
 	{
 		[SerializeField] private TMP_Text _titleLabel;
+		[field: SerializeField] public RectTransform Dialog { get; private set; }
 
+		[field: SerializeField] public RectTransform DialogHeader { get; private set; }
 
-		[field: SerializeField] public GameObject Content { get; private set; }
-
-		[SerializeField] private RectTransform _dialogTransform;
-
-		private RectTransform _contentTransform;
+		[field: SerializeField] public RectTransform DialogContent { get; private set; }
 
 		private string _title;
 		public string Title
@@ -31,11 +29,6 @@ namespace MirageXR
 			}
 		}
 
-		private void Awake()
-		{
-			_contentTransform = Content.GetComponent<RectTransform>();
-		}
-
 		private void UpdateUI()
 		{
 			if (_titleLabel != null)
@@ -49,12 +42,15 @@ namespace MirageXR
 			UpdateUI();
 		}
 
-		public void OpenDialog()
+		public void OpenDialog(bool slideInFromBottom = true)
 		{
 			gameObject.SetActive(true);
-			LayoutRebuilder.ForceRebuildLayoutImmediate(_dialogTransform);
-			_dialogTransform.anchoredPosition = new Vector2(_dialogTransform.anchoredPosition.x, -_dialogTransform.sizeDelta.y);
-			_dialogTransform.DOAnchorPosY(0, 0.5f).SetEase(Ease.OutBack);
+			LayoutRebuilder.ForceRebuildLayoutImmediate(Dialog);
+			if (slideInFromBottom)
+			{
+				Dialog.anchoredPosition = new Vector2(Dialog.anchoredPosition.x, -Dialog.sizeDelta.y);
+			}
+			Dialog.DOAnchorPosY(0, 0.5f).SetEase(Ease.OutBack);
 		}
 
 		public void CloseDialogImmediately()
@@ -64,7 +60,7 @@ namespace MirageXR
 
 		public void CloseDialog()
 		{
-			_dialogTransform.DOAnchorPosY(-_dialogTransform.sizeDelta.y, 0.5f)
+			Dialog.DOAnchorPosY(-Dialog.sizeDelta.y, 0.5f)
 				.OnComplete(() => CloseDialogImmediately());
 		}
 	}

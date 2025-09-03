@@ -22,7 +22,7 @@ namespace MirageXR
 			_audioPlayerDialog.OpenDialog();
 			if (_audioPlayer == null)
 			{
-				_audioPlayer = _audioPlayerDialog.Content.GetComponentInChildren<AudioStreamPlayer>();
+				_audioPlayer = _audioPlayerDialog.DialogContent.GetComponentInChildren<AudioStreamPlayer>();
 			}
 			_audioPlayer.ShowLoadingState = true;
 			AudioClip voiceClip = await LoadAudioAsync(model, message);
