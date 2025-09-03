@@ -51,14 +51,6 @@ public class AudioStreamPlayer : MonoBehaviour
     [SerializeField]
     private Button _backward;
 
-    /// <summary>
-    /// Represents the game object for the play button in the UI.
-    /// </summary>
-    [SerializeField]
-    private GameObject play;
-    [SerializeField]
-    private GameObject pause;
-
 
     /// <summary>
     /// Represents an AI model for the AiServices.
@@ -74,6 +66,16 @@ public class AudioStreamPlayer : MonoBehaviour
     /// Represents the current playing state of the AudioStreamPlayer.
     /// </summary>
     private bool _isPlaying;
+    private bool IsPlaying
+    {
+        get => _isPlaying;
+        set
+        {
+            _isPlaying = value;
+            _playButton.gameObject.SetActive(!value);
+            _pauseButton.gameObject.SetActive(value);
+        }
+    }
 
     private const float TimeFactor = 0.1f;
     private const float AudioVolume = 1.0f; 
@@ -100,7 +102,7 @@ public class AudioStreamPlayer : MonoBehaviour
         _name.text = _model.Name;
         _currentTimeText.text = "0:00";
         _audioSource.clip = await LoadAudioAsync();
-        play.gameObject.SetActive(true);
+        IsPlaying = false;
         _playButton.onClick.AddListener(PlayAudio);
         _pauseButton.onClick.AddListener(PauseAudio);
         _backward.onClick.AddListener(MoveBackward);
@@ -158,10 +160,8 @@ public class AudioStreamPlayer : MonoBehaviour
     /// </remarks>
     private async Task<AudioClip> LoadAudioAsync()
     {
-        pause.gameObject.SetActive(false);
-        play.gameObject.SetActive(false);
-        var massage = "Hi I am " + _model.Name;
-        AudioClip clip = await RootObject.Instance.LEE.ArtificialIntelligenceManager.ConvertTextToSpeechAsync(massage, _model.ApiName);
+        var message = "Hi I am " + _model.Name;
+        AudioClip clip = await RootObject.Instance.LEE.ArtificialIntelligenceManager.ConvertTextToSpeechAsync(message, _model.ApiName);
         return clip;
     }
 
@@ -198,11 +198,11 @@ public class AudioStreamPlayer : MonoBehaviour
         {
             _progressSlider.value = (_audioSource.time / _audioSource.clip.length) * 100;
             _currentTimeText.text = _audioSource.time.ToString("F2", CultureInfo.CurrentCulture);
-            _isPlaying = true;
+            IsPlaying = true;
         }
-        else if (_isPlaying)
+        else if (IsPlaying)
         {
-            _isPlaying = false;
+            IsPlaying = false;
             OnAudioFinished();
         }
     }
@@ -220,9 +220,6 @@ public class AudioStreamPlayer : MonoBehaviour
     /// </summary>
     void OnAudioFinished()
     {
-        pause.gameObject.SetActive(false);
-        play.gameObject.SetActive(true);
-        _audioSource.time = 0; 
-
+        _audioSource.time = 0;
     }
 }
