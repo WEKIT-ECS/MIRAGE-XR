@@ -26,7 +26,7 @@ namespace MirageXR
 		[SerializeField] private ReplaceModel avatarModelSettingsPanel;
 		[SerializeField] private GameObject promptSettingsPanel;
 		[SerializeField] private GameObject voiceSettingsPanel;
-		[SerializeField] private GameObject aiModelSettingsPanel;
+		[SerializeField] private GameObject llmModelSettingsPanel;
 		[SerializeField] private GameObject languageSettingsPanel;
 
 
@@ -42,6 +42,7 @@ namespace MirageXR
 		[SerializeField] private CharacterModelSelectionElement characterModelSelectionElement;
 		[SerializeField] private ChangeableSettingsPanel promptSettingsElement;
 		[SerializeField] private ChangeableSettingsPanel voiceSettingsElement;
+		[SerializeField] private ChangeableSettingsPanel llmModelSettingsElement;
 
 		[Header("Audio Mode Toggle")]
 		[SerializeField] private Toggle[] audioToggles;
@@ -71,7 +72,7 @@ namespace MirageXR
 				avatarModelSettingsPanel.gameObject.SetActive(value == VirtualInstructorSubMenu.CharacterModelSettings);
 				promptSettingsPanel.SetActive(value == VirtualInstructorSubMenu.PromptSettings);
 				voiceSettingsPanel.SetActive(value == VirtualInstructorSubMenu.VoiceSettings);
-				aiModelSettingsPanel.SetActive(value == VirtualInstructorSubMenu.AIModelSettings);
+				llmModelSettingsPanel.SetActive(value == VirtualInstructorSubMenu.AIModelSettings);
 				languageSettingsPanel.SetActive(value == VirtualInstructorSubMenu.LanguageSettings);
 				_shownSubMenu = value;
 			}
@@ -229,6 +230,9 @@ namespace MirageXR
 
 			AIModel tts = GetTTS();
 			voiceSettingsElement.CurrentValue = tts.Name;
+
+			AIModel llm = GetLLM();
+			llmModelSettingsElement.CurrentValue = llm.Name;
 		}
 
 		public override void Close()
