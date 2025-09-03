@@ -51,8 +51,26 @@ namespace MirageXR
 				return;
 			}
 
+			AIModel currentlySelected = null;
+			switch (selectedType)
+			{
+				case ContentTypeEndpoint.Llm:
+					currentlySelected = settingsMenu.GetLLM();
+					break;
+				case ContentTypeEndpoint.Tts:
+					currentlySelected = settingsMenu.GetTTS();
+					break;
+				case ContentTypeEndpoint.Stt:
+					currentlySelected = settingsMenu.GetSTT();
+					break;
+			}
+
+
 			foreach (var model in _availableModels)
-				CreateModelEntry(model);
+			{
+				bool select = model.Name == currentlySelected.Name;
+				CreateModelEntry(model, select);
+			}
 
 			StartCoroutine(FixLayoutNextFrame());
 		}
@@ -64,7 +82,7 @@ namespace MirageXR
 		}
 
 
-		private void CreateModelEntry(AIModel model)
+		private void CreateModelEntry(AIModel model, bool selected)
 		{
 			var go = Instantiate(prefabTemplate, container);
 			_instantiatedPrefabs.Add(go);
@@ -78,6 +96,7 @@ namespace MirageXR
 			{
 				var group = container.GetComponentInChildren<ToggleGroup>();
 				if (group) toggle.group = group;
+				toggle.isOn = selected;
 				toggle.onValueChanged.AddListener(isOn =>
 				{
 					if (isOn) OnModelSelected(model);
