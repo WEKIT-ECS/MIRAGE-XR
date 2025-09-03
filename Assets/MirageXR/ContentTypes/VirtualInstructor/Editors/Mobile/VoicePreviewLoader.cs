@@ -10,6 +10,11 @@ namespace MirageXR
 
 		private AudioStreamPlayer _audioPlayer;
 
+		private void Start()
+		{
+			_audioPlayerDialog.gameObject.SetActive(false);
+		}
+
 		public async void PlayVoicePreview(AIModel model)
 		{
 			string message = "Hi I am " + model.Name;

@@ -1,5 +1,8 @@
+using DG.Tweening;
+using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace MirageXR
 {
@@ -9,6 +12,10 @@ namespace MirageXR
 
 
 		[field: SerializeField] public GameObject Content { get; private set; }
+
+		[SerializeField] private RectTransform _dialogTransform;
+
+		private RectTransform _contentTransform;
 
 		private string _title;
 		public string Title
@@ -22,6 +29,11 @@ namespace MirageXR
 					UpdateUI();
 				}
 			}
+		}
+
+		private void Awake()
+		{
+			_contentTransform = Content.GetComponent<RectTransform>();
 		}
 
 		private void UpdateUI()
@@ -40,11 +52,20 @@ namespace MirageXR
 		public void OpenDialog()
 		{
 			gameObject.SetActive(true);
+			LayoutRebuilder.ForceRebuildLayoutImmediate(_dialogTransform);
+			_dialogTransform.anchoredPosition = new Vector2(_dialogTransform.anchoredPosition.x, -_dialogTransform.sizeDelta.y);
+			_dialogTransform.DOAnchorPosY(0, 0.5f).SetEase(Ease.OutBack);
+		}
+
+		public void CloseDialogImmediately()
+		{
+			gameObject.SetActive(false);
 		}
 
 		public void CloseDialog()
 		{
-			gameObject.SetActive(false);
+			_dialogTransform.DOAnchorPosY(-_dialogTransform.sizeDelta.y, 0.5f)
+				.OnComplete(() => CloseDialogImmediately());
 		}
 	}
 }
