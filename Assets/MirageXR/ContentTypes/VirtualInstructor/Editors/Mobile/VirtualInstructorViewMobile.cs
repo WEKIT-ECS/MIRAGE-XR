@@ -1,11 +1,8 @@
+using LearningExperienceEngine.DataModel;
 using System;
 using System.Collections.Generic;
-using DG.Tweening;
-using LearningExperienceEngine.DataModel;
-using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
-using UnityEngine.UI;
 using DataModelContentType = LearningExperienceEngine.DataModel.ContentType;
 
 namespace MirageXR
@@ -212,7 +209,7 @@ namespace MirageXR
 
 		public override void Close()
 		{
-			// we are reusing the close button
+			// we are reusing the close button for sub-menus
 			// if we are in the general settings, we can close the popup menu as normal
 			// if we are in a sub-menu, first return one hierarchy level
 			if (ShownSubMenu == VirtualInstructorSubMenu.GeneralSettings)
