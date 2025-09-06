@@ -1,6 +1,7 @@
 using LearningExperienceEngine.DataModel;
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 using DataModelContentType = LearningExperienceEngine.DataModel.ContentType;
@@ -25,6 +26,7 @@ namespace MirageXR
 		[SerializeField] private GameObject voiceSettingsPanel;
 		[SerializeField] private GameObject llmModelSettingsPanel;
 		[SerializeField] private GameObject languageSettingsPanel;
+		[SerializeField] private TMP_InputField voiceInstructionInputField;
 
 		[Header("UI Elements")]
 		[SerializeField] private CharacterModelSelectionElement characterModelSelectionElement;
@@ -47,6 +49,7 @@ namespace MirageXR
 		private string _prefabName;
 		private bool _useReadyPlayerMe;
 		private string _characterModelUrl;
+		private string _voiceInstruction;
 
 		private VirtualInstructorSubMenu _shownSubMenu = VirtualInstructorSubMenu.GeneralSettings;
 
@@ -67,9 +70,8 @@ namespace MirageXR
 
 		public override DataModelContentType editorForType => DataModelContentType.Instructor;
 
-		public override async void Initialization(Action<PopupBase> onClose, params object[] args)
+		public override void Initialization(Action<PopupBase> onClose, params object[] args)
 		{
-			await RootObject.Instance.WaitForInitialization();
 			_showBackground = false;
 			base.Initialization(onClose, args);
 
@@ -87,6 +89,7 @@ namespace MirageXR
 				}
 			}
 
+			voiceInstructionInputField.onValueChanged.AddListener(OnVoiceInstructionChanged);
 			characterModelSelectionElement.CharacterModelSelectionStarted += OpenCharacterModelSettingPanel;
 			avatarModelSettingsPanel.CharacterModelSelected += OnAvatarModelSelected;
 
@@ -96,6 +99,17 @@ namespace MirageXR
 			RootView_v2.Instance.HideBaseView();
 
 			ShownSubMenu = VirtualInstructorSubMenu.GeneralSettings;
+
+			if (IsContentUpdate)
+			{
+				var content = Content as Content<InstructorContentData>;
+				voiceInstructionInputField.text = content?.ContentData?.VoiceInstruction ?? string.Empty;
+			}
+		}
+
+		private void OnVoiceInstructionChanged(string text)
+		{
+			_voiceInstruction = text;
 		}
 
 		//private void RegisterEvents()
@@ -118,7 +132,7 @@ namespace MirageXR
 
 			if (noCharacterSelected && !IsContentUpdate)
 			{
-				Debug.LogWarning("[Instructor] No character selected.");
+				Toast.Instance.Show("[Instructor] No character selected.");
 				return;
 			}
 
@@ -132,30 +146,11 @@ namespace MirageXR
 				SpeechToTextModel = GetSTT(),
 				UseReadyPlayerMe = _useReadyPlayerMe,
 				CharacterModelUrl = _characterModelUrl,
+				VoiceInstruction = _voiceInstruction
 			};
 
-			Content<InstructorContentData> content;
-
-			if (IsContentUpdate && Content is Content<InstructorContentData> existing)
-			{
-				content = existing.ShallowCopy();
-				content.ContentData = data;
-			}
-			else
-			{
-				var step = RootObject.Instance.LEE.StepManager.CurrentStep;
-
-				content = new Content<InstructorContentData>
-				{
-					Id = Guid.NewGuid(),
-					CreationDate = DateTime.UtcNow,
-					IsVisible = true,
-					Steps = new List<Guid> { step.Id },
-					Type = ContentType.Instructor,
-					Location = Location.GetIdentityLocation(),
-					ContentData = data
-				};
-			}
+			var content = CreateContent<InstructorContentData>(DataModelContentType.Instructor);
+			content.ContentData = data;
 
 			if (IsContentUpdate)
 			{
@@ -189,7 +184,6 @@ namespace MirageXR
 		{
 			RootView_v2.Instance.ShowBaseView();
 		}
-
 
 		/// <inheritdoc/>
 		protected override void UpdateUiFromModel()

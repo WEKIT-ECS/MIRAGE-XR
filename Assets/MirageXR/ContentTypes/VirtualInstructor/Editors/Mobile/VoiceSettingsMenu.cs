@@ -1,5 +1,6 @@
 using LearningExperienceEngine.DataModel;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace MirageXR
@@ -15,9 +16,9 @@ namespace MirageXR
 			_audioPlayerDialog.gameObject.SetActive(false);
 		}
 
-		public async void PlayVoicePreview(AIModel model)
+		public async UniTask PlayVoicePreviewAsync(AIModel model, string instructions)
 		{
-			string message = "Hi, I am " + model.Name;
+			var message = $"Hi, I am {model.Name}";
 			_audioPlayerDialog.Title = model.Name;
 			_audioPlayerDialog.OpenDialog();
 			if (_audioPlayer == null)
@@ -25,7 +26,7 @@ namespace MirageXR
 				_audioPlayer = _audioPlayerDialog.DialogContent.GetComponentInChildren<AudioStreamPlayer>();
 			}
 			_audioPlayer.ShowLoadingState = true;
-			AudioClip voiceClip = await LoadAudioAsync(model, message);
+			var voiceClip = await LoadAudioAsync(model, message, instructions);
 			_audioPlayer.ShowLoadingState = false;
 			_audioPlayer.SetAudioClip(voiceClip);
 			_audioPlayer.PlayAudio();
@@ -40,9 +41,9 @@ namespace MirageXR
 		/// based on the AI model's name and passes it to the AIManager's ConvertTextToSpeechAsync method
 		/// along with the model's API name. The method waits for the audio clip to be retrieved and returns it.
 		/// </remarks>
-		private async Task<AudioClip> LoadAudioAsync(AIModel model, string message)
+		private async Task<AudioClip> LoadAudioAsync(AIModel model, string message, string instructions)
 		{
-			AudioClip clip = await RootObject.Instance.LEE.ArtificialIntelligenceManager.ConvertTextToSpeechAsync(message, model.ApiName);
+			var clip = await RootObject.Instance.LEE.ArtificialIntelligenceManager.ConvertTextToSpeechAsync(message, model.ApiName, instructions);
 			return clip;
 		}
 	}

@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,9 +20,11 @@ namespace MirageXR
 		[SerializeField] private RectTransform container;
 		[SerializeField] private VirtualInstructorViewMobile settingsMenu;
 		[SerializeField] private ScrollRect scrollRect;
+		[SerializeField] private TMP_InputField voiceInstructionInputField;
 
 		private List<AIModel> _availableModels;
 		private readonly List<GameObject> _instantiatedPrefabs = new();
+		private string _voiceInstruction;
 
 		private void Start()
 		{
@@ -70,7 +72,16 @@ namespace MirageXR
 				CreateModelEntry(model, select);
 			}
 
+			if (voiceInstructionInputField)
+			{
+				voiceInstructionInputField.onValueChanged.AddListener(OnVoiceInstructionChanged);
+			}
 			StartCoroutine(FixLayoutNextFrame());
+		}
+
+		private void OnVoiceInstructionChanged(string text)
+		{
+			_voiceInstruction = text;
 		}
 
         private System.Collections.IEnumerator FixLayoutNextFrame()
@@ -99,7 +110,7 @@ namespace MirageXR
                     {
                         OnModelSelected(model);
                     }
-			});
+                });
             }
 
 			var button = go.GetComponentInChildren<Button>();
@@ -111,7 +122,11 @@ namespace MirageXR
 					//var player = audioPlayer.GetComponent<AudioStreamPlayer>() ??
 					//			 audioPlayer.AddComponent<AudioStreamPlayer>();
 					//player.Setup(model);
-					GetComponentInParent<VoiceSettingsMenu>().PlayVoicePreview(model);
+					var voiceSettingsMenu = GetComponentInParent<VoiceSettingsMenu>();
+					if (voiceSettingsMenu)
+					{
+						voiceSettingsMenu.PlayVoicePreviewAsync(model, _voiceInstruction).Forget();
+					}
 				});
 			}
 		}
