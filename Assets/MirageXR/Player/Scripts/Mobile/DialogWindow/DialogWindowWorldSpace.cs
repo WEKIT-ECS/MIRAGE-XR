@@ -1,7 +1,9 @@
+using System;
 using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
+[Obsolete]
 public class DialogWindowWorldSpace : DialogWindow
 {
     private float DISTANCE = 0.8f;

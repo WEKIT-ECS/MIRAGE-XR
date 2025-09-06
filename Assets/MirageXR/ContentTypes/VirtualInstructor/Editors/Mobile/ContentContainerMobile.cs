@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,21 +20,22 @@ namespace MirageXR
 		[SerializeField] private RectTransform container;
 		[SerializeField] private VirtualInstructorViewMobile settingsMenu;
 		[SerializeField] private ScrollRect scrollRect;
+		[SerializeField] private TMP_InputField voiceInstructionInputField;
 
 		private List<AIModel> _availableModels;
 		private readonly List<GameObject> _instantiatedPrefabs = new();
+		private string _voiceInstruction;
 
 		private void Start()
 		{
-			// se 
 			if (scrollRect)
-			{
-				scrollRect.movementType = ScrollRect.MovementType.Clamped;
-				scrollRect.elasticity = 0.7f;
-				scrollRect.inertia = true;
-				scrollRect.decelerationRate = 0.05f;
-				scrollRect.scrollSensitivity = 1.2f;
-			}
+            {
+                 scrollRect.movementType = ScrollRect.MovementType.Clamped;
+                 scrollRect.elasticity = 0.7f;
+                 scrollRect.inertia = true;
+                 scrollRect.decelerationRate = 0.05f;
+                 scrollRect.scrollSensitivity = 1.2f;
+            }
 
 			_availableModels = selectedType switch
 			{
@@ -71,36 +72,46 @@ namespace MirageXR
 				CreateModelEntry(model, select);
 			}
 
+			if (voiceInstructionInputField)
+			{
+				voiceInstructionInputField.onValueChanged.AddListener(OnVoiceInstructionChanged);
+			}
 			StartCoroutine(FixLayoutNextFrame());
 		}
 
-		private System.Collections.IEnumerator FixLayoutNextFrame()
+		private void OnVoiceInstructionChanged(string text)
 		{
-			yield return null;
-			LayoutRebuilder.ForceRebuildLayoutImmediate(container);
+			_voiceInstruction = text;
 		}
 
+        private System.Collections.IEnumerator FixLayoutNextFrame()
+        {
+            yield return null;
+            LayoutRebuilder.ForceRebuildLayoutImmediate(container);
+        }
 
-		private void CreateModelEntry(AIModel model, bool selected)
-		{
-			var go = Instantiate(prefabTemplate, container);
-			_instantiatedPrefabs.Add(go);
+        private void CreateModelEntry(AIModel model, bool selected)
+        {
+            var go = Instantiate(prefabTemplate, container);
+            _instantiatedPrefabs.Add(go);
 
-			var texts = go.GetComponentsInChildren<TMP_Text>();
-			if (texts.Length > 0) texts[0].text = model.Name;
-			if (texts.Length > 1) texts[1].text = model.Description;
+            var texts = go.GetComponentsInChildren<TMP_Text>();
+            if (texts.Length > 0) texts[0].text = model.Name;
+            if (texts.Length > 1) texts[1].text = model.Description;
 
-			var toggle = go.GetComponentInChildren<Toggle>();
-			if (toggle)
-			{
-				var group = container.GetComponentInChildren<ToggleGroup>();
-				if (group) toggle.group = group;
-				toggle.isOn = selected;
-				toggle.onValueChanged.AddListener(isOn =>
-				{
-					if (isOn) OnModelSelected(model);
-				});
-			}
+            var toggle = go.GetComponentInChildren<Toggle>();
+            if (toggle)
+            {
+                var group = container.GetComponentInChildren<ToggleGroup>();
+                if (group) toggle.group = group;
+                toggle.isOn = selected;toggle.onValueChanged.AddListener(isOn =>
+                {
+                    if (isOn)
+                    {
+                        OnModelSelected(model);
+                    }
+                });
+            }
 
 			var button = go.GetComponentInChildren<Button>();
 			if (button)
@@ -111,26 +122,30 @@ namespace MirageXR
 					//var player = audioPlayer.GetComponent<AudioStreamPlayer>() ??
 					//			 audioPlayer.AddComponent<AudioStreamPlayer>();
 					//player.Setup(model);
-					GetComponentInParent<VoiceSettingsMenu>().PlayVoicePreview(model);
+					var voiceSettingsMenu = GetComponentInParent<VoiceSettingsMenu>();
+					if (voiceSettingsMenu)
+					{
+						voiceSettingsMenu.PlayVoicePreviewAsync(model, _voiceInstruction).Forget();
+					}
 				});
 			}
 		}
 
-		private void OnModelSelected(AIModel model)
-		{
-			switch (selectedType)
-			{
-				case ContentTypeEndpoint.Llm:
-					settingsMenu.SetLLM(model);
-					break;
-				case ContentTypeEndpoint.Tts:
-					settingsMenu.SetTTS(model);
-					break;
-				case ContentTypeEndpoint.Stt:
-					settingsMenu.SetSTT(model);
-					break;
-			}
-		}
+        private void OnModelSelected(AIModel model)
+        {
+            switch (selectedType)
+            {
+                case ContentTypeEndpoint.Llm:
+                    settingsMenu.SetLLM(model);
+                    break;
+                case ContentTypeEndpoint.Tts:
+                    settingsMenu.SetTTS(model);
+                    break;
+                case ContentTypeEndpoint.Stt:
+                    settingsMenu.SetSTT(model);
+                    break;
+            }
+        }
 
 		/// <summary>
 		/// Represents the endpoint types for different AI wrapper. Provides

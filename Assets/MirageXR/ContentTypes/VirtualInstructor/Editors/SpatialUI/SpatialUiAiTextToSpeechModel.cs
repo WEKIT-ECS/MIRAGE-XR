@@ -24,6 +24,7 @@ namespace MirageXR
         [SerializeField] private RectTransform sceneContainer;
 
         [SerializeField] private Button close;
+        [SerializeField] private TMP_InputField inputField;
 
         /// <summary>
         /// Represents a data set of AI models.
@@ -31,7 +32,8 @@ namespace MirageXR
         private List<AIModel> _objectDataSet;
 
         private AIModel _aiModel;
-        private Action<AIModel> _callback;
+        private string _voiceInstruction = string.Empty;
+        private Action<AIModel, string> _callback;
         private bool _initialized = false;
 
         public override void Initialization(Action<PopupBase> onClose, params object[] args)
@@ -40,6 +42,7 @@ namespace MirageXR
             _objectDataSet = RootObject.Instance.LEE.ArtificialIntelligenceManager.GetTtsModels();
             InstantiateObjectData(_objectDataSet);
             close.onClick.AddListener(Close);
+            inputField.onValueChanged.AddListener(value => _voiceInstruction = value);
             _initialized = true;
         }
 
@@ -79,9 +82,9 @@ namespace MirageXR
                 else
                 {
                     Debug.LogError("ToggleGroup component is missing in sceneContainer.");
-                }
+                } 
 
-                toggle.SetIsOnWithoutNotify(_aiModel.Name == objectData.Name);
+                toggle.SetIsOnWithoutNotify(_aiModel != null && _aiModel.Name == objectData.Name);
                 toggle.onValueChanged.AddListener(value => ToggleOnValueChanged(value, objectData));
             }
             else
@@ -95,7 +98,7 @@ namespace MirageXR
             {
                 var btnStop = buttons[0];
                 var btnPlay = buttons[1];
-                btnPlay.onClick.AddListener(() => Play(objectData, audioSource, btnPlay, btnStop));
+                btnPlay.onClick.AddListener(() => Play(objectData, _voiceInstruction, audioSource, btnPlay, btnStop));
                 btnStop.onClick.AddListener(() => Stop(audioSource, btnPlay, btnStop));
             }
             else
@@ -114,24 +117,29 @@ namespace MirageXR
 
         private void OnPrefabClicked(AIModel objectData)
         {
-            _callback.Invoke(objectData);
+            _callback.Invoke(objectData, _voiceInstruction);
             Close();
         }
  
-        private void Play(AIModel objectData, AudioSource audioSource, Button btnPlay, Button btnStop)
+        private static void Play(AIModel objectData, string voiceInstruction, AudioSource audioSource, Button btnPlay, Button btnStop)
         {
-            PlayAsync(objectData, audioSource, btnPlay, btnStop).Forget();
+            PlayAsync(objectData, voiceInstruction, audioSource, btnPlay, btnStop).Forget();
         }
 
-        private static async UniTask PlayAsync(AIModel objectData, AudioSource audioSource, Button btnPlay, Button btnStop)
+        private static async UniTask PlayAsync(AIModel objectData, string voiceInstruction, AudioSource audioSource, Button btnPlay, Button btnStop)
         {
-            var clip = await RootObject.Instance.LEE.ArtificialIntelligenceManager.ConvertTextToSpeechAsync($"Hi I am {objectData.Name}", objectData.ApiName);
+            var clip = await RootObject.Instance.LEE.ArtificialIntelligenceManager.ConvertTextToSpeechAsync($"Hi I am {objectData.Name}", objectData.ApiName, voiceInstruction);
 
             audioSource.clip = clip;
             audioSource.Play();
 
             btnPlay.gameObject.SetActive(false);
             btnStop.gameObject.SetActive(true);
+            
+            await UniTask.WaitUntil(() => !audioSource.isPlaying);
+            
+            btnPlay.gameObject.SetActive(true);
+            btnStop.gameObject.SetActive(false);
         }
 
         private void Stop(AudioSource audioSource, Button btnPlay, Button btnStop)
@@ -143,16 +151,17 @@ namespace MirageXR
 
         protected override bool TryToGetArguments(params object[] args)
         {
-            if (args is not { Length: 2 })
+            if (args is not { Length: 2 or 3 })
             {
                 return false;
             }
 
-            if (args[0] is not AIModel aiModel || args[1] is not Action<AIModel> callback)
+            if (args[0] is not AIModel aiModel || args[1] is not Action<AIModel, string> callback)
             {
                 return false;
             }
 
+            _voiceInstruction = args[2] as string;
             _aiModel = aiModel;
             _callback = callback;
             return true;
