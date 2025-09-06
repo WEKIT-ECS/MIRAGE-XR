@@ -10,14 +10,12 @@ namespace MirageXR
 	{
 
 		[Header("GameObject")]
-		[SerializeField] private GameObject close;
 		[SerializeField] private GameObject customLinkOpen;
 		[SerializeField] private GameObject customLinkClose;
-		[SerializeField] private GameObject conformation;
+		[SerializeField] private GameObject confirmation;
 
 		[Header("Buttons")]
 		[SerializeField] private Button addModelBtn;
-		[SerializeField] private Button closeBtn;
 		[SerializeField] private Button closeWindowBtn;
 		[SerializeField] private Button openCustomLink;
 		[SerializeField] private Button closeCustomLink;
@@ -34,9 +32,27 @@ namespace MirageXR
 		{
 			closeWindowBtn.onClick.AddListener(() => this.gameObject.SetActive(false));
 			addModelBtn.onClick.AddListener(() => AddCharacterToLibrary(inputField.text));
-			openCustomLink.onClick.AddListener(() => { customLinkOpen.SetActive(true); customLinkClose.SetActive(false); });
-			closeCustomLink.onClick.AddListener(() => { customLinkClose.SetActive(true); customLinkOpen.SetActive(false); });
-			closeBtn.onClick.AddListener(() => this.gameObject.SetActive(false));
+			if (openCustomLink)
+			{
+				openCustomLink.onClick.AddListener(() => { customLinkOpen.SetActive(true); customLinkClose.SetActive(false); });
+			}
+			else if (RootObject.Instance.PlatformManager.GetUiType() == UiType.Spatial)
+			{
+				Debug.LogWarning(nameof(openCustomLink) + " is not assigned but we are in the spatial UI.", this);
+			}
+			if (closeCustomLink)
+			{
+				closeCustomLink.onClick.AddListener(() => { customLinkClose.SetActive(true); customLinkOpen.SetActive(false); });
+			}
+			else if (RootObject.Instance.PlatformManager.GetUiType() == UiType.Spatial)
+			{
+				Debug.LogWarning(nameof(closeCustomLink) + " is not assigned but we are in the spatial UI.", this);
+			}
+		}
+
+		private void OnEnable()
+		{
+			confirmation.SetActive(false);
 		}
 
 		private void AddCharacterToLibrary(string url)
@@ -47,8 +63,7 @@ namespace MirageXR
 			}
 			RootObject.Instance.AvatarLibraryManager.AddAvatar(url);
 			CharacterSelected?.Invoke(url);
-			conformation.SetActive(true);
-			close.SetActive(true);
+			confirmation.SetActive(true);
 			inputField.text = "";
 		}
 	}
