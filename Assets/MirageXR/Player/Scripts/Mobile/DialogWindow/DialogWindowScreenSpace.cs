@@ -1,6 +1,8 @@
+using System;
 using TMPro;
 using UnityEngine;
 
+[Obsolete]
 public class DialogWindowScreenSpace : DialogWindow
 {
     [SerializeField] private TMP_Text _txtTitle;

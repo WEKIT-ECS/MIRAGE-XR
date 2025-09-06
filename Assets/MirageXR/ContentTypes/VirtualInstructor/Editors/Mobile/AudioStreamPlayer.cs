@@ -94,10 +94,10 @@ public class AudioStreamPlayer : MonoBehaviour
 	/// <summary>
 	/// Initializes the AudioStreamPlayer by assigning references to its required components.
 	/// </summary>
-	void Awake()
-	{
-		_audioSource = GetComponent<AudioSource>();
-		if (_audioSource == null)
+	private void Awake()
+    {
+        _audioSource = GetComponent<AudioSource>();
+    if (_audioSource == null)
 		{
 			_audioSource = gameObject.AddComponent<AudioSource>();
 		}
@@ -224,7 +224,7 @@ public class AudioStreamPlayer : MonoBehaviour
 			return;
 		}
 
-		int skipAmount = Mathf.RoundToInt(_audioSource.clip.samples * TimeFactor);
+    int skipAmount = Mathf.RoundToInt(_audioSource.clip.samples * TimeFactor);
 		_audioSource.timeSamples = Mathf.Max(0, _audioSource.timeSamples - skipAmount);
 		_progressSlider.value = _audioSource.time / _audioSource.clip.length;
 		UpdateTimeLabels();

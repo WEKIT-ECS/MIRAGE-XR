@@ -1,9 +1,11 @@
+using System;
 using i5.Toolkit.Core.VerboseLogging;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public abstract class DialogWindow : MonoBehaviour
+[Obsolete]
+public abstract class DialogWindow : MonoBehaviour 
 {
     protected const int MAX_CELLS_IN_ROW = 3;
 
