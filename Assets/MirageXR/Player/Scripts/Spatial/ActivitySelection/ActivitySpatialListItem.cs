@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using Activity = LearningExperienceEngine.DTOs.Activity;
 
 namespace MirageXR
 {
@@ -15,15 +16,20 @@ namespace MirageXR
         [SerializeField] private TMP_Text author;
         [SerializeField] private Button button;
         [SerializeField] private Button buttonDelete;
+        [SerializeField] private Image backgroundImage;
         [SerializeField] private RawImage imageThumbnail;
         [SerializeField] private RectTransform containerThumbnail;
+        [SerializeField] private Color selectedColor;
+        [SerializeField] private Color defaultColor;
 
-        private LearningExperienceEngine.DTOs.Activity _activity;
-        private UnityAction<LearningExperienceEngine.DTOs.Activity> _onItemClicked;
-        private UnityAction<LearningExperienceEngine.DTOs.Activity> _onItemDeleteClicked;
+        private Activity _activity;
+        private bool _isSelected;
+        private UnityAction<Activity> _onItemClicked;
+        private UnityAction<Activity> _onItemDeleteClicked;
 
-        public void Initialize(LearningExperienceEngine.DTOs.Activity activity, UnityAction<LearningExperienceEngine.DTOs.Activity> onItemClicked, UnityAction<LearningExperienceEngine.DTOs.Activity> onItemDeleteClicked)
+        public void Initialize(Activity activity, UnityAction<Activity> onItemClicked, UnityAction<Activity> onItemDeleteClicked, bool isSelected)
         {
+            _isSelected = isSelected;
             _activity = activity;
             _onItemClicked = onItemClicked;
             _onItemDeleteClicked = onItemDeleteClicked;
@@ -50,6 +56,7 @@ namespace MirageXR
                 return;
             }
 
+            backgroundImage.color = _isSelected ? selectedColor : defaultColor;
             gameObject.name = _activity.Name;
             textLabel.text = _activity.Name;
             author.text = _activity.Creator?.Name;

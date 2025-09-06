@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -16,6 +17,7 @@ namespace MirageXR
         [SerializeField] private Button _buttonCollaborativeSession;
         [SerializeField] private Button _buttonLogin;
         [SerializeField] private Button _buttonRegister;
+        [SerializeField] private ScrollRect _scrollRect;
         [Header("Toggles")]
         [SerializeField] private Toggle _toggleEditorMode;
         [Header("InputField")]
@@ -39,7 +41,7 @@ namespace MirageXR
         public void SetIsToggleEditorOn(bool value) => _toggleEditorMode.SafeSetIsOn(value);
         public void SetBlurredBackgroundActive(bool value) => _blurredBackgroundPrefab.SetActive(value);
         public void SetMainScreenActive(bool value) => _mainScreenPrefab.SetActive(value);
-        public void SetSignInSCreenActive(bool value) => _signInSCreenPrefab.SetActive(value);
+        public void SetSignInScreenActive(bool value) => _signInSCreenPrefab.SetActive(value);
         public void SetActionOnButtonLoginClick(UnityAction action) => _buttonLogin.SafeSetListener(action);
         public void SetActionOnButtonRegisterClick(UnityAction action) => _buttonRegister.SafeSetListener(action);
 
@@ -51,6 +53,37 @@ namespace MirageXR
         public ActivitySpatialListItem GetActivityListItemPrefab()
         {
             return _activityListItemPrefab;
+        }
+
+        public void ActivityListScrollToTop()
+        {
+            _scrollRect.verticalNormalizedPosition = 1f;
+        }
+
+        public void ActivityListScrollToBottom()
+        {
+            _scrollRect.verticalNormalizedPosition = 0f;
+        }
+
+        public void ActivityListScrollToTopSmooth(float duration = 0.3f)
+        {
+            StartCoroutine(SmoothScrollToTop(duration));
+        }
+
+        private IEnumerator SmoothScrollToTop(float duration)
+        {
+            var start = _scrollRect.verticalNormalizedPosition;
+            var elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                var t = Mathf.Clamp01(elapsed / duration);
+                _scrollRect.verticalNormalizedPosition = Mathf.Lerp(start, 1f, t);
+                yield return null;
+            }
+
+            _scrollRect.verticalNormalizedPosition = 1f;
         }
     }
 }

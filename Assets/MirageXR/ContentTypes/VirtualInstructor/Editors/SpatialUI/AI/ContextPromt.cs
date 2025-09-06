@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Utilities;
 
 namespace MirageXR
 {
@@ -11,6 +12,7 @@ namespace MirageXR
         [SerializeField] private Button accept;
         [SerializeField] private Button openTooltipBtn; 
         [SerializeField] private Button closeTooltipBtn; 
+        [SerializeField] private Button pasteBtn; 
         [SerializeField] private GameObject openTooltip; 
         [SerializeField] private GameObject closeTooltip;
         [SerializeField] private TMP_InputField prompt;
@@ -25,6 +27,7 @@ namespace MirageXR
             accept.onClick.AddListener(OnAccept);
             openTooltipBtn.onClick.AddListener(ShowToolTip);
             closeTooltipBtn.onClick.AddListener(HideToolTip);
+            pasteBtn.onClick.AddListener(OnPaste);
             prompt.onValueChanged.AddListener(newValue => {_prompt = newValue; });
         }
 
@@ -37,6 +40,15 @@ namespace MirageXR
         {
             Close();
             _callback.Invoke(_prompt);
+        }
+
+        private void OnPaste()
+        {
+            var text = Clipboard.GetText();
+            if (text != null)
+            {
+                SetPrompt(text);
+            }
         }
 
         private void ShowToolTip()
