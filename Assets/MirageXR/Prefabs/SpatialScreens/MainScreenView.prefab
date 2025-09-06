@@ -57,6 +57,7 @@ MonoBehaviour:
   _buttonCollaborativeSession: {fileID: 1076050659123118095}
   _buttonLogin: {fileID: 0}
   _buttonRegister: {fileID: 0}
+  _scrollRect: {fileID: 789972088252376620}
   _toggleEditorMode: {fileID: 5552276334988733703}
   _searchField: {fileID: 7955794329872005803}
   _activityContainer: {fileID: 2743344119012754040}
@@ -376,6 +377,7 @@ MonoBehaviour:
   m_HitDetectionType: 0
   m_SphereCastRadius: 0.1
   m_ConeCastAngle: 6
+  m_LiveConeCastDebugVisuals: 0
   m_RaycastMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -706,6 +708,7 @@ MonoBehaviour:
   m_HitDetectionType: 0
   m_SphereCastRadius: 0.1
   m_ConeCastAngle: 6
+  m_LiveConeCastDebugVisuals: 0
   m_RaycastMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -3921,6 +3924,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7275742057029420630, guid: 20bfa9dc0c81e468fba745e9dd499097, type: 3}
+    - {fileID: 8278883277573577552, guid: 20bfa9dc0c81e468fba745e9dd499097, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 2446800742698174438, guid: 20bfa9dc0c81e468fba745e9dd499097,
@@ -3933,6 +3937,18 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 2002128752045644716}
   m_SourcePrefab: {fileID: 100100000, guid: 20bfa9dc0c81e468fba745e9dd499097, type: 3}
+--- !u!114 &789972088252376620 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6892549694887333258, guid: 20bfa9dc0c81e468fba745e9dd499097,
+    type: 3}
+  m_PrefabInstance: {fileID: 6147917068336180134}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aa08ab6e0800fa44ae55d278d1423e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1076050659123118095 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6611051567622056873, guid: 20bfa9dc0c81e468fba745e9dd499097,
