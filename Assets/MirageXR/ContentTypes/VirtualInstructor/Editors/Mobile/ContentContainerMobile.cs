@@ -7,27 +7,26 @@ using LearningExperienceEngine.DataModel;
 
 namespace MirageXR
 {
-    /// <summary>
-    /// UI container for listing and selecting AI models (LLM, TTS, STT) in the mobile setup workflow.
-    /// Dynamically populates a list of available models and handles user interactions 
-    /// for model selection and audio playback.
-    /// Selected models are passed back to the SpeechSettingsMobile component.
-    /// </summary>
-    public class ContentContainerMobile : MonoBehaviour
-    {
-        [SerializeField] private ContentTypeEndpoint selectedType;
-        [SerializeField] private GameObject prefabTemplate;
-        [SerializeField] private RectTransform container;
-        [SerializeField] private GameObject audioPlayer;
-        [SerializeField] private SpeechSettingsMobile speechSettings;
-        [SerializeField] private ScrollRect scrollRect;
+	/// <summary>
+	/// UI container for listing and selecting AI models (LLM, TTS, STT) in the mobile setup workflow.
+	/// Dynamically populates a list of available models and handles user interactions 
+	/// for model selection and audio playback.
+	/// Selected models are passed back to the menu component.
+	/// </summary>
+	public class ContentContainerMobile : MonoBehaviour
+	{
+		[SerializeField] private ContentTypeEndpoint selectedType;
+		[SerializeField] private GameObject prefabTemplate;
+		[SerializeField] private RectTransform container;
+		[SerializeField] private VirtualInstructorViewMobile settingsMenu;
+		[SerializeField] private ScrollRect scrollRect;
 
-        private List<AIModel> _availableModels;
-        private readonly List<GameObject> _instantiatedPrefabs = new();
+		private List<AIModel> _availableModels;
+		private readonly List<GameObject> _instantiatedPrefabs = new();
 
-        private void Start()
-        {
-            if (scrollRect)
+		private void Start()
+		{
+			if (scrollRect)
             {
                  scrollRect.movementType = ScrollRect.MovementType.Clamped;
                  scrollRect.elasticity = 0.7f;
@@ -36,27 +35,43 @@ namespace MirageXR
                  scrollRect.scrollSensitivity = 1.2f;
             }
 
-            _availableModels = selectedType switch
-            {
-                ContentTypeEndpoint.Llm => RootObject.Instance.LEE.ArtificialIntelligenceManager.GetLlmModels(),
-                ContentTypeEndpoint.Tts => RootObject.Instance.LEE.ArtificialIntelligenceManager.GetTtsModels(),
-                ContentTypeEndpoint.Stt => RootObject.Instance.LEE.ArtificialIntelligenceManager.GetSttModels(),
-                _ => new List<AIModel>()
-            };
+			_availableModels = selectedType switch
+			{
+				ContentTypeEndpoint.Llm => RootObject.Instance.LEE.ArtificialIntelligenceManager.GetLlmModels(),
+				ContentTypeEndpoint.Tts => RootObject.Instance.LEE.ArtificialIntelligenceManager.GetTtsModels(),
+				ContentTypeEndpoint.Stt => RootObject.Instance.LEE.ArtificialIntelligenceManager.GetSttModels(),
+				_ => new List<AIModel>()
+			};
 
-            if (_availableModels.Count == 0)
-            {
-                Debug.LogError("[ContentContainerMobile] No models found for selected type.");
-                return;
-            }
+			if (_availableModels.Count == 0)
+			{
+				Debug.LogError("[ContentContainerMobile] No models found for selected type.");
+				return;
+			}
 
-            foreach (var model in _availableModels)
-            {
-                CreateModelEntry(model);
-            }
+			AIModel currentlySelected = null;
+			switch (selectedType)
+			{
+				case ContentTypeEndpoint.Llm:
+					currentlySelected = settingsMenu.GetLLM();
+					break;
+				case ContentTypeEndpoint.Tts:
+					currentlySelected = settingsMenu.GetTTS();
+					break;
+				case ContentTypeEndpoint.Stt:
+					currentlySelected = settingsMenu.GetSTT();
+					break;
+			}
 
-            StartCoroutine(FixLayoutNextFrame());
-        }
+
+			foreach (var model in _availableModels)
+			{
+				bool select = model == currentlySelected;
+				CreateModelEntry(model, select);
+			}
+
+			StartCoroutine(FixLayoutNextFrame());
+		}
 
         private System.Collections.IEnumerator FixLayoutNextFrame()
         {
@@ -64,7 +79,7 @@ namespace MirageXR
             LayoutRebuilder.ForceRebuildLayoutImmediate(container);
         }
 
-        private void CreateModelEntry(AIModel model)
+        private void CreateModelEntry(AIModel model, bool selected)
         {
             var go = Instantiate(prefabTemplate, container);
             _instantiatedPrefabs.Add(go);
@@ -78,63 +93,65 @@ namespace MirageXR
             {
                 var group = container.GetComponentInChildren<ToggleGroup>();
                 if (group) toggle.group = group;
-                toggle.onValueChanged.AddListener(isOn =>
+                toggle.isOn = selected;toggle.onValueChanged.AddListener(isOn =>
                 {
                     if (isOn)
                     {
                         OnModelSelected(model);
                     }
-                });
+			});
             }
 
-            var button = go.GetComponentInChildren<Button>();
-            if (button)
-            {
-                button.onClick.AddListener(() =>
-                {
-                    audioPlayer.SetActive(true);
-                    var player = audioPlayer.GetComponent<AudioStreamPlayer>();
-                    player.Setup(model, ""); //TODO: 
-                });
-            }
-        }
+			var button = go.GetComponentInChildren<Button>();
+			if (button)
+			{
+				button.onClick.AddListener(() =>
+				{
+					//audioPlayer.SetActive(true);
+					//var player = audioPlayer.GetComponent<AudioStreamPlayer>() ??
+					//			 audioPlayer.AddComponent<AudioStreamPlayer>();
+					//player.Setup(model);
+					GetComponentInParent<VoiceSettingsMenu>().PlayVoicePreview(model);
+				});
+			}
+		}
 
         private void OnModelSelected(AIModel model)
         {
             switch (selectedType)
             {
                 case ContentTypeEndpoint.Llm:
-                    speechSettings.SetLLM(model);
+                    settingsMenu.SetLLM(model);
                     break;
                 case ContentTypeEndpoint.Tts:
-                    speechSettings.SetTTS(model);
+                    settingsMenu.SetTTS(model);
                     break;
                 case ContentTypeEndpoint.Stt:
-                    speechSettings.SetSTT(model);
+                    settingsMenu.SetSTT(model);
                     break;
             }
         }
 
-        /// <summary>
-        /// Represents the endpoint types for different AI wrapper. Provides
-        /// a standardized way to specify and manage AI model menus.
-        /// </summary>
-        public enum ContentTypeEndpoint
-        {
-            /// <summary>
-            /// Represents the Text-to-Speech (TTS) endpoint.
-            /// </summary>
-            Tts,
+		/// <summary>
+		/// Represents the endpoint types for different AI wrapper. Provides
+		/// a standardized way to specify and manage AI model menus.
+		/// </summary>
+		public enum ContentTypeEndpoint
+		{
+			/// <summary>
+			/// Represents the Text-to-Speech (TTS) endpoint.
+			/// </summary>
+			Tts,
 
-            /// <summary>
-            /// Represents the Speech-to-Text (STT) endpoint.
-            /// </summary>
-            Stt,
+			/// <summary>
+			/// Represents the Speech-to-Text (STT) endpoint.
+			/// </summary>
+			Stt,
 
-            /// <summary>
-            /// Endpoint for interactions with Large Language Models (LLMs) and RAG model.
-            /// </summary>
-            Llm
-        }
-    }
+			/// <summary>
+			/// Endpoint for interactions with Large Language Models (LLMs) and RAG model.
+			/// </summary>
+			Llm
+		}
+	}
 }

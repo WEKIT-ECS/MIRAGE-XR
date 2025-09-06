@@ -1,10 +1,8 @@
-using System;
-using DG.Tweening;
 using LearningExperienceEngine.DataModel;
-using TMPro;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
-using UnityEngine.UI;
 using DataModelContentType = LearningExperienceEngine.DataModel.ContentType;
 
 namespace MirageXR
@@ -16,52 +14,39 @@ namespace MirageXR
 	/// Provides user interactions for audio mode selection, character listing, and 
 	/// updates the instructor content based on user inputs.
 	/// </summary>
-	public class VirtualInstructorViewMobile : AbstractVirtualInstructorMenu	//TODO: change as AddEditVirtualInstructor
+	public class VirtualInstructorViewMobile : AbstractVirtualInstructorMenu
 	{
 		[FormerlySerializedAs("_panel")]
 		[Header("Panels")]
 		[SerializeField] private RectTransform panel;
 		[SerializeField] private GameObject settingsPanel;
-		[SerializeField] private ReplaceModel avatarModelSettingPanel;
-
-		[Header("Character List")]
-		[SerializeField] private Button btnArrow;
-		[SerializeField] private GameObject arrowDown;
-		[SerializeField] private GameObject arrowUp;
-		[SerializeField] private CharacterListItem characterListItemPrefab;
-		[SerializeField] private CharacterObject[] characterObjects;
+		[SerializeField] private ReplaceModel avatarModelSettingsPanel;
+		[SerializeField] private GameObject promptSettingsPanel;
+		[SerializeField] private GameObject voiceSettingsPanel;
+		[SerializeField] private GameObject llmModelSettingsPanel;
+		[SerializeField] private GameObject languageSettingsPanel;
 
 		[Header("UI Elements")]
 		[SerializeField] private CharacterModelSelectionElement characterModelSelectionElement;
+		[SerializeField] private ChangeableSettingsPanel promptSettingsElement;
+		[SerializeField] private ChangeableSettingsPanel voiceSettingsElement;
+		[SerializeField] private ChangeableSettingsPanel llmModelSettingsElement;
+		[SerializeField] private ChangeableSettingsPanel languageSettingsElement;
 
-		[Header("Audio Mode Toggle")]
-		[SerializeField] private TextMeshProUGUI audioMenuText;
-		[SerializeField] private GameObject audioRecodingMenu;
-		[SerializeField] private GameObject aiMenu;
-		[SerializeField] private GameObject noSpeech;
+		//[Header("Audio Mode Toggle")]
+		//[SerializeField] private Toggle[] audioToggles;
+		//[SerializeField] private GameObject audioSetting;
+		//[SerializeField] private TextMeshProUGUI audioMenuText;
+		//[SerializeField] private GameObject audioRecodingMenu;
+		//[SerializeField] private GameObject aiMenu;
+		//[SerializeField] private GameObject noSpeech;
 
 		[Header("Magic Numbers")]
-		private const float HidedSize = 100f;
-		private const float HideAnimationTime = 0.5f;
 		[SerializeField] private string defaultCharacter = "Hanna";
-		[Space]
-		[SerializeField] private Button aiModeButton;
-		[SerializeField] private Button speechSettingsButton;
-		[SerializeField] private GameObject speechSettingsPanel;
-		[SerializeField] private TMP_InputField voiceInstructionInputField;
 
-		private string _voiceInstruction;
 		private string _prefabName;
 		private bool _useReadyPlayerMe;
 		private string _characterModelUrl;
-		private SpeechType _speechType;
-
-		private enum SpeechType
-		{
-			noSpech,
-			audioRecording,
-			aiMode
-		}
 
 		private VirtualInstructorSubMenu _shownSubMenu = VirtualInstructorSubMenu.GeneralSettings;
 
@@ -71,15 +56,20 @@ namespace MirageXR
 			set
 			{
 				settingsPanel.SetActive(value == VirtualInstructorSubMenu.GeneralSettings);
-				avatarModelSettingPanel.gameObject.SetActive(value == VirtualInstructorSubMenu.CharacterModelSettings);
+				avatarModelSettingsPanel.gameObject.SetActive(value == VirtualInstructorSubMenu.CharacterModelSettings);
+				promptSettingsPanel.SetActive(value == VirtualInstructorSubMenu.PromptSettings);
+				voiceSettingsPanel.SetActive(value == VirtualInstructorSubMenu.VoiceSettings);
+				llmModelSettingsPanel.SetActive(value == VirtualInstructorSubMenu.AIModelSettings);
+				languageSettingsPanel.SetActive(value == VirtualInstructorSubMenu.LanguageSettings);
 				_shownSubMenu = value;
 			}
 		}
 
 		public override DataModelContentType editorForType => DataModelContentType.Instructor;
 
-		public override void Initialization(Action<PopupBase> onClose, params object[] args)
+		public override async void Initialization(Action<PopupBase> onClose, params object[] args)
 		{
+			await RootObject.Instance.WaitForInitialization();
 			_showBackground = false;
 			base.Initialization(onClose, args);
 
@@ -97,59 +87,34 @@ namespace MirageXR
 				}
 			}
 
-			voiceInstructionInputField.onValueChanged.AddListener(text => _voiceInstruction = text);;
-			speechSettingsButton.onClick.AddListener(OnSpeechSettingsClicked);
-			aiModeButton.onClick.AddListener(AIModeClicked);
 			characterModelSelectionElement.CharacterModelSelectionStarted += OpenCharacterModelSettingPanel;
-			avatarModelSettingPanel.CharacterModelSelected += OnAvatarModelSelected;
+			avatarModelSettingsPanel.CharacterModelSelected += OnAvatarModelSelected;
 
 			InitializeDefaults();
-			btnArrow.onClick.AddListener(OnArrowButtonPressed);
+			//RegisterEvents();
 
 			RootView_v2.Instance.HideBaseView();
 
 			ShownSubMenu = VirtualInstructorSubMenu.GeneralSettings;
 		}
 
-		private void AIModeClicked()
-		{
-			RootView_v2.Instance.dialog.ShowBottomMultilineToggles("Communication settings", 
-				("Idle", OnIdleModeClicked, false, _speechType == SpeechType.noSpech),
-				//("Audio Recording", OnAudioRecordingModeClicked, false, _speechType == SpeechType.audioRecording),
-				("AI Mode", OnAIModeModeClicked, false, _speechType == SpeechType.aiMode)
-			);
-		}
-
-		private void OnIdleModeClicked()
-		{
-			_speechType = SpeechType.noSpech;
-			aiMenu.SetActive(false);
-			noSpeech.SetActive(true);
-		}
-
-		private void OnAudioRecordingModeClicked()
-		{
-			_speechType = SpeechType.audioRecording;
-			aiMenu.SetActive(false);
-			noSpeech.SetActive(false);
-		}
-
-		private void OnAIModeModeClicked()
-		{
-			_speechType = SpeechType.aiMode;
-			aiMenu.SetActive(true);
-			noSpeech.SetActive(false);
-		}
-
-		private void OnSpeechSettingsClicked()
-		{
-			speechSettingsPanel.SetActive(true);	//TODO: spawn speech settings panel via PopupsViewer.Instance.Show(prefab, callback)
-		}
+		//private void RegisterEvents()
+		//{
+		//	for (int i = 0; i < audioToggles.Length; i++)
+		//	{
+		//		int index = i;
+		//		audioToggles[i].onValueChanged.AddListener(isOn =>
+		//		{
+		//			if (isOn) HandleAudioToggleChange(index);
+		//		});
+		//	}
+		//}
 
 		protected override void OnAccept()
 		{
-			var noCharacterSelected = (!_useReadyPlayerMe && string.IsNullOrEmpty(_prefabName))
-			                              || _useReadyPlayerMe && string.IsNullOrEmpty(_characterModelUrl);
+			bool noCharacterSelected =
+				(!_useReadyPlayerMe && string.IsNullOrEmpty(_prefabName))
+				|| _useReadyPlayerMe && string.IsNullOrEmpty(_characterModelUrl);
 
 			if (noCharacterSelected && !IsContentUpdate)
 			{
@@ -167,11 +132,30 @@ namespace MirageXR
 				SpeechToTextModel = GetSTT(),
 				UseReadyPlayerMe = _useReadyPlayerMe,
 				CharacterModelUrl = _characterModelUrl,
-				VoiceInstruction = _voiceInstruction,
 			};
 
-			var content = CreateContent<InstructorContentData>(DataModelContentType.Instructor);
-			content.ContentData = data;
+			Content<InstructorContentData> content;
+
+			if (IsContentUpdate && Content is Content<InstructorContentData> existing)
+			{
+				content = existing.ShallowCopy();
+				content.ContentData = data;
+			}
+			else
+			{
+				var step = RootObject.Instance.LEE.StepManager.CurrentStep;
+
+				content = new Content<InstructorContentData>
+				{
+					Id = Guid.NewGuid(),
+					CreationDate = DateTime.UtcNow,
+					IsVisible = true,
+					Steps = new List<Guid> { step.Id },
+					Type = ContentType.Instructor,
+					Location = Location.GetIdentityLocation(),
+					ContentData = data
+				};
+			}
 
 			if (IsContentUpdate)
 			{
@@ -185,39 +169,49 @@ namespace MirageXR
 			Close();
 		}
 
-		private void OnArrowButtonPressed()
-		{
-			if (arrowDown.activeSelf)
-			{
-				panel.DOAnchorPosY(-panel.rect.height + HidedSize, HideAnimationTime);
-				arrowDown.SetActive(false);
-				arrowUp.SetActive(true);
-			}
-			else
-			{
-				panel.DOAnchorPosY(0.0f, HideAnimationTime);
-				arrowDown.SetActive(true);
-				arrowUp.SetActive(false);
-			}
-		}
+		//private void HandleAudioToggleChange(int index)
+		//{
+		//	audioMenuText.text = index switch
+		//	{
+		//		0 => "Idle",
+		//		1 => "Audio recording",
+		//		2 => "AI",
+		//		_ => "Unknown"
+		//	};
+
+		//	aiMenu.SetActive(index == 2);
+		//	audioRecodingMenu.SetActive(index == 1);
+		//	noSpeech.SetActive(index == 0);
+		//	audioSetting.SetActive(false);
+		//}
 
 		private void OnDestroy()
 		{
 			RootView_v2.Instance.ShowBaseView();
 		}
 
+
 		/// <inheritdoc/>
 		protected override void UpdateUiFromModel()
 		{
+			string prompt = GetPrompt();
+			promptSettingsElement.CurrentValue = prompt == defaultPrompt ? "Enter Text" : "Change Text";
 
+			AIModel tts = GetTTS();
+			voiceSettingsElement.CurrentValue = tts.Name;
+
+			AIModel llm = GetLLM();
+			llmModelSettingsElement.CurrentValue = llm.Name;
+
+			AIModel stt = GetSTT();
+			languageSettingsElement.CurrentValue = stt.Name;
 		}
 
 		public override void Close()
 		{
-			// we are reusing the close button
+			// we are reusing the close button for sub-menus
 			// if we are in the general settings, we can close the popup menu as normal
 			// if we are in a sub-menu, first return one hierarchy level
-			//TODO: use PopupsViewer.Instance.Show(prefab, callback, ...) for showing the sub-menus
 			if (ShownSubMenu == VirtualInstructorSubMenu.GeneralSettings)
 			{
 				base.Close();
@@ -236,24 +230,25 @@ namespace MirageXR
 			ShownSubMenu = VirtualInstructorSubMenu.GeneralSettings;
 		}
 
-		private void OpenCharacterModelSettingPanel()
-		{
-			ShownSubMenu = VirtualInstructorSubMenu.CharacterModelSettings;
-		}
+		private void OpenCharacterModelSettingPanel() => ShownSubMenu = VirtualInstructorSubMenu.CharacterModelSettings;
 
-		//private void ResetPanel()
-		//{
-		//	settingsPanel.SetActive(false);
-		//          avatarModelSettingPanel.gameObject.SetActive(false);
-		//          communicationSettingPanel.SetActive(false);
-		//          animationSettingPanel.SetActive(false);
-		//          pathSettingPanel.SetActive(false);
-		//      }
+		public void OpenPromptSettingsPanel() => ShownSubMenu = VirtualInstructorSubMenu.PromptSettings;
 
-		enum VirtualInstructorSubMenu
-		{
-			GeneralSettings,
-			CharacterModelSettings
-		}
+		public void OpenVoiceSettingsPanel() => ShownSubMenu = VirtualInstructorSubMenu.VoiceSettings;
+
+		public void OpenAIModelSettingsPanel() => ShownSubMenu = VirtualInstructorSubMenu.AIModelSettings;
+
+		public void OpenLanguageSettingsPanel() => ShownSubMenu = VirtualInstructorSubMenu.LanguageSettings;
+	}
+
+	[Serializable]
+	public enum VirtualInstructorSubMenu
+	{
+		GeneralSettings,
+		CharacterModelSettings,
+		PromptSettings,
+		VoiceSettings,
+		AIModelSettings,
+		LanguageSettings,
 	}
 }
