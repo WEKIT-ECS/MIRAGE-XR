@@ -61,20 +61,18 @@ namespace MirageXR
         static float deltawf = 0.5f;
         #endregion
 
-        // Awake
-        void Awake()
-        {
-            #if UNITY_VISIONOS || VISION_OS
-                var VolumeCamera = GameObject.Find("/Start").GetComponent<VolumeCamera>();
-                VolumeCamera.ImmersionChanged += OnImmersionChanged;
-            #endif
-        }
-
         // Start is called before the first frame update
         public async Task InitializationAsync()
         {
             UnityEngine.Debug.Log("Initializing [RoomTwinManager] <--");
             await LoadRoomTwinModel(Path.Combine(Application.streamingAssetsPath, RoomFile));
+
+            UnityEngine.Debug.Log("[RoomTwinManager] registering ImmersionChanged event");
+            #if UNITY_VISIONOS || VISION_OS
+                var VolumeCamera = GameObject.Find("/Start").GetComponent<VolumeCamera>();
+                VolumeCamera.ImmersionChanged += OnImmersionChanged;
+            #endif
+
             UnityEngine.Debug.Log("Initializing [RoomTwinManager] -->");
         }
 
