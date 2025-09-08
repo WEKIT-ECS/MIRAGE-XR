@@ -61,6 +61,15 @@ namespace MirageXR
         static float deltawf = 0.5f;
         #endregion
 
+        // Awake
+        void Awake()
+        {
+            #if UNITY_VISIONOS || VISION_OS
+                var VolumeCamera = GameObject.Find("/Start").GetComponent<VolumeCamera>();
+                VolumeCamera.ImmersionChanged += OnImmersionChanged;
+            #endif
+        }
+
         // Start is called before the first frame update
         public async Task InitializationAsync()
         {
@@ -302,7 +311,20 @@ namespace MirageXR
         void OnImmersionChanged(double amount)
         {
             Debug.LogInfo($"Immersion amount: {amount:P0}");
-            GrowVignettesInChildRenderers(_roomModel, (float)amount);
+            if (_loadingCompleted) {
+                if (amount == 1.0) {
+                    SetRoomTwinStyle(RoomTwinStyle.FullTwin);
+                    DisplayRoomTwin(true);
+                } if (amount == 0.0) {
+                    SetRoomTwinStyle(RoomTwinStyle.TwinVignette);
+                    AddShaderToChildRenderers(_roomModel, RoomTwinShader);
+                    DisplayRoomTwin(false);
+                } else {
+                    _roomModel.SetActive(true);
+                    _roomTwinStyle = RoomTwinStyle.TwinVignette;
+                    GrowVignettesInChildRenderers(_roomModel, (float)amount);
+                }
+            }
         }
 
     }
