@@ -97,6 +97,7 @@ namespace MirageXR
 
 				void OnCompletedHandler(Texture2D texture)
 				{
+					texture.wrapMode = TextureWrapMode.Clamp;
 					Debug.LogTrace($"Loaded avatar thumbnail for {avatarUrl}", this);
 					tcs.SetResult(texture);
 					_cachedAvatarThumbnails.Add(avatarUrl, texture);

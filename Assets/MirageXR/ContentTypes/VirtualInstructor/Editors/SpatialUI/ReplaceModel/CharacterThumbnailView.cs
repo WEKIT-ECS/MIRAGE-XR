@@ -32,7 +32,7 @@ namespace MirageXR
 				}
 				if (value != null)
 				{
-					_thumbnailImage.sprite = Sprite.Create(value, new Rect(0, 0, value.width, value.height), new Vector2(0.5f, 0.5f));
+					_thumbnailImage.sprite = Sprite.Create(value, new Rect(0, 0, value.width, value.height), new Vector2(0.5f, 1f));
 					_thumbnailImage.preserveAspect = true;
 					_thumbnailImage.color = new Color(1, 1, 1, 1);
 				}
