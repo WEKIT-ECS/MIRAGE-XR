@@ -58,6 +58,7 @@ namespace MirageXR
 			addModelBtn.interactable = true;
 			confirmation.SetActive(false);
 			errorMessage.SetActive(false);
+			waitSpinner.SetActive(false);
 		}
 
 		private async void AddCharacterToLibrary(string url)
@@ -71,7 +72,7 @@ namespace MirageXR
 			// full URL:
 			if (url.StartsWith("https://models.readyplayer.me/"))
 			{
-				avatarId = RPMUtils.GetAvatarID(url);
+				avatarId = RPMUtils.ExtractAvatarIDfromURL(url);
 			}
 			// could also be just the ID or a shortcode
 			else
@@ -82,15 +83,18 @@ namespace MirageXR
 			waitSpinner.SetActive(true);
 			addModelBtn.interactable = false;
 
-			bool valid = await RPMUtils.IsValidIDAsync(avatarId);
+			RPMMetaData metaData = await RPMUtils.GetMetadataAsync(avatarId);
+			bool valid = metaData != null;
 
 			waitSpinner.SetActive(false);
 			addModelBtn.interactable = true;
 
 			if (valid)
 			{
-				RootObject.Instance.AvatarLibraryManager.AddAvatar(url);
-				CharacterSelected?.Invoke(url);				
+				// we take the id from the metaData because it is guaranteed to be readable by RPM
+				// this way, we avoid adding shortcodes here because they don't seem to work with the thumbnail API
+				RootObject.Instance.AvatarLibraryManager.AddAvatar(metaData.id);
+				CharacterSelected?.Invoke(url);
 				inputField.text = "";
 			}
 			confirmation.SetActive(valid);

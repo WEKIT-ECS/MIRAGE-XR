@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -8,7 +9,7 @@ namespace MirageXR
 {
 	public static class RPMUtils
 	{
-		public static string GetAvatarID(string avatarUrl)
+		public static string ExtractAvatarIDfromURL(string avatarUrl)
 		{
 			Uri uri = new Uri(avatarUrl);
 			string path = Path.GetDirectoryName(uri.AbsolutePath);
@@ -17,15 +18,32 @@ namespace MirageXR
 
 		public static async Task<bool> IsValidIDAsync(string avatarId)
 		{
+			RPMMetaData metaData = await GetMetadataAsync(avatarId);
+			if (metaData == null)
+			{
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
+
+		public static async Task<RPMMetaData> GetMetadataAsync(string avatarId)
+		{
 			UnityWebRequest webRequest = UnityWebRequest.Get($"https://models.readyplayer.me/{avatarId}.json");
 			await webRequest.SendWebRequest();
 
 			if (webRequest.result == UnityWebRequest.Result.Success)
 			{
-				Debug.Log(webRequest.downloadHandler.text);
+				string json = webRequest.downloadHandler.text;
+				RPMMetaData answer = JsonConvert.DeserializeObject<RPMMetaData>(json);
+				return answer;
 			}
-
-			return webRequest.result == UnityWebRequest.Result.Success;
+			else
+			{
+				return null;
+			}
 		}
 	}
 }
