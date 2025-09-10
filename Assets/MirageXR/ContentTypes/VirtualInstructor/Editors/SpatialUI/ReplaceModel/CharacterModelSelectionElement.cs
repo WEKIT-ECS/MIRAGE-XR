@@ -9,7 +9,7 @@ namespace MirageXR
 {
 	public class CharacterModelSelectionElement : MonoBehaviour
 	{
-		[SerializeField] private Button _addCharacterModelButton;
+		[SerializeField] private GameObject _addPlus;
 		[SerializeField] private TMP_Text _infoText;
 		[SerializeField] private string _noCharacterSelectedText = "Set character model";
 		[SerializeField] private string _characterSelectedText = "Replace character model";
@@ -50,7 +50,7 @@ namespace MirageXR
 		private void UpdateView()
 		{
 			bool characterModelSelected = !string.IsNullOrEmpty(Thumbnail.CharacterModelUrl);
-			_addCharacterModelButton.gameObject.SetActive(!characterModelSelected);
+			_addPlus.SetActive(!characterModelSelected);
 			if (characterModelSelected)
 			{
 				_infoText.text = _characterSelectedText;
