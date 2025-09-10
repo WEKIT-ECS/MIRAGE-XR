@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -13,6 +14,8 @@ namespace MirageXR
 		[SerializeField] private GameObject customLinkOpen;
 		[SerializeField] private GameObject customLinkClose;
 		[SerializeField] private GameObject confirmation;
+		[SerializeField] private GameObject errorMessage;
+		[SerializeField] private GameObject waitSpinner;
 
 		[Header("Buttons")]
 		[SerializeField] private Button addModelBtn;
@@ -52,19 +55,46 @@ namespace MirageXR
 
 		private void OnEnable()
 		{
+			addModelBtn.interactable = true;
 			confirmation.SetActive(false);
+			errorMessage.SetActive(false);
 		}
 
-		private void AddCharacterToLibrary(string url)
+		private async void AddCharacterToLibrary(string url)
 		{
 			if (string.IsNullOrWhiteSpace(url))
 			{
 				return;
 			}
-			RootObject.Instance.AvatarLibraryManager.AddAvatar(url);
-			CharacterSelected?.Invoke(url);
-			confirmation.SetActive(true);
-			inputField.text = "";
+
+			string avatarId;
+			// full URL:
+			if (url.StartsWith("https://models.readyplayer.me/"))
+			{
+				avatarId = RPMUtils.GetAvatarID(url);
+			}
+			// could also be just the ID or a shortcode
+			else
+			{
+				avatarId = Regex.Replace(url, "[^a-zA-Z0-9]", "");
+			}
+
+			waitSpinner.SetActive(true);
+			addModelBtn.interactable = false;
+
+			bool valid = await RPMUtils.IsValidIDAsync(avatarId);
+
+			waitSpinner.SetActive(false);
+			addModelBtn.interactable = true;
+
+			if (valid)
+			{
+				RootObject.Instance.AvatarLibraryManager.AddAvatar(url);
+				CharacterSelected?.Invoke(url);				
+				inputField.text = "";
+			}
+			confirmation.SetActive(valid);
+			errorMessage.SetActive(!valid);
 		}
 	}
 }
