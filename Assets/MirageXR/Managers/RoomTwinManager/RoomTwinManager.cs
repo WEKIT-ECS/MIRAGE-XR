@@ -70,7 +70,7 @@ namespace MirageXR
             UnityEngine.Debug.Log("[RoomTwinManager] registering ImmersionChanged event");
             #if UNITY_VISIONOS || VISION_OS
                 var VolumeCamera = GameObject.Find("/Start").GetComponent<VolumeCamera>();
-                VolumeCamera.ImmersionChanged += OnImmersionChanged;
+                if (VolumeCamera != null) VolumeCamera.ImmersionChanged += OnImmersionChanged;
             #endif
 
             UnityEngine.Debug.Log("Initializing [RoomTwinManager] -->");
