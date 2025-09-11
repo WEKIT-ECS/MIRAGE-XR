@@ -66,6 +66,13 @@ namespace MirageXR
         {
             UnityEngine.Debug.Log("Initializing [RoomTwinManager] <--");
             await LoadRoomTwinModel(Path.Combine(Application.streamingAssetsPath, RoomFile));
+
+            UnityEngine.Debug.Log("[RoomTwinManager] registering ImmersionChanged event");
+            #if UNITY_VISIONOS || VISION_OS
+                var VolumeCamera = GameObject.Find("/Start").GetComponent<VolumeCamera>();
+                if (VolumeCamera != null) VolumeCamera.ImmersionChanged += OnImmersionChanged;
+            #endif
+
             UnityEngine.Debug.Log("Initializing [RoomTwinManager] -->");
         }
 
@@ -302,7 +309,20 @@ namespace MirageXR
         void OnImmersionChanged(double amount)
         {
             Debug.LogInfo($"Immersion amount: {amount:P0}");
-            GrowVignettesInChildRenderers(_roomModel, (float)amount);
+            if (_loadingCompleted) {
+                if (amount == 1.0) {
+                    SetRoomTwinStyle(RoomTwinStyle.FullTwin);
+                    DisplayRoomTwin(true);
+                } if (amount == 0.0) {
+                    SetRoomTwinStyle(RoomTwinStyle.TwinVignette);
+                    AddShaderToChildRenderers(_roomModel, RoomTwinShader);
+                    DisplayRoomTwin(false);
+                } else {
+                    _roomModel.SetActive(true);
+                    _roomTwinStyle = RoomTwinStyle.TwinVignette;
+                    GrowVignettesInChildRenderers(_roomModel, (float)amount);
+                }
+            }
         }
 
     }
