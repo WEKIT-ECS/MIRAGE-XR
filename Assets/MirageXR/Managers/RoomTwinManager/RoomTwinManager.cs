@@ -59,9 +59,9 @@ namespace MirageXR
             await LoadRoomTwinModelAsync(Path.Combine(Application.streamingAssetsPath, RoomFile));
 
             UnityEngine.Debug.Log("[RoomTwinManager] registering ImmersionChanged event");
-//#if UNITY_VISIONOS || VISION_OS
+#if UNITY_VISIONOS
             Unity.PolySpatial.VolumeCamera.ImmersionChanged += OnImmersionChanged;
-//#endif
+#endif
             UnityEngine.Debug.Log("Initializing [RoomTwinManager] -->");
         }
 
