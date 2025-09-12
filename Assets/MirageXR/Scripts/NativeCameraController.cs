@@ -14,6 +14,8 @@ public class NativeCameraController
     {
 #if UNITY_WSA || UNITY_EDITOR
         TakePictureUWP(callback, showHolograms, maxSize);
+#elif UNITY_VISIONOS || VISION_OS
+        TakePictureVisionPro(callback, showHolograms, maxSize);
 #else
         TakePictureMobile(callback, maxSize);
 #endif
@@ -41,6 +43,33 @@ public class NativeCameraController
         StopVideoRecordingMobile();
 #endif
     }
+
+#if UNITY_VISIONOS || VISION_OS
+    private static void TakePictureVisionPro(Action<bool, Texture2D> callback, bool showHolograms = false, int maxSize = DEFAULT_MAX_SIZE)
+    {
+
+	try {
+
+	 	RenderTexture renderTexture;
+       		RenderTexture.active = renderTexture;
+        	Camera.main.targetTexture = renderTexture;
+        	Camera.main.Render();
+
+        	Texture2D screenshot = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGB24, false);
+        	screenshot.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
+        	screenshot.Apply();
+
+        	Camera.main.targetTexture = null;
+        	RenderTexture.active = null;
+
+        	callback(true, tex);
+	} catch (exception e) {
+		Debug.LogError(e);
+                callback(false, null);
+	}
+    }
+#endif
+
 
     private static void TakePictureMobile(Action<bool, Texture2D> callback, int maxSize = DEFAULT_MAX_SIZE)
     {
