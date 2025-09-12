@@ -106,7 +106,7 @@ namespace MirageXR  //TODO: add Spatial namespace
 
         private void OnToggleShowRoomScanValueChanged(bool value)
         {
-            roomTwinManager.DisplayRoomTwin(value);
+            roomTwinManager.DisplayRoomTwinAsync(value).Forget();
         }
 
         private void OnButtonRepositionClicked()
@@ -122,7 +122,7 @@ namespace MirageXR  //TODO: add Spatial namespace
         private void OnButtonAssignRoomModelClicked()
         {
             var url = @"https://www.google.com";  // TODO: use correct url
-            roomTwinManager.LoadRoomTwinModel(url).Forget();
+            roomTwinManager.LoadRoomTwinModelAsync(url).Forget();
         }
 
         private void OnActivityUpdated(Activity activity)
