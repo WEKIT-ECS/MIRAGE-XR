@@ -1,11 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using GLTFast;
-using LearningExperienceEngine;
 
 namespace MirageXR
 {
@@ -29,97 +27,91 @@ namespace MirageXR
     public class RoomTwinManager : MonoBehaviour    //TODO: correct fields name
     {
 
-        private bool _loadingCompleted = false;
-
         public bool _FullTwinBlendInCompleted = false;
         public bool _WireframeBlendInCompleted = false;
 
-        [SerializeField]
-        private bool ForceRoomTwinDisplay;
+        [SerializeField] private bool ForceRoomTwinDisplay;
+        [SerializeField] public string RoomFile = "esa_iss_columbus_module_1m.glb";
+        [SerializeField] private Material RoomTwinShader;
+        [SerializeField] public RoomTwinStyle _roomTwinStyle = RoomTwinStyle.FullTwin;
 
-        [SerializeField]
-        public string RoomFile = "esa_iss_columbus_module_1m.glb";
-
-        [SerializeField]
-        private Material RoomTwinShader;
-
-        [SerializeField]
-        public RoomTwinStyle _roomTwinStyle = RoomTwinStyle.FullTwin;
-
-        private GltfImport gltf;
+        private GltfImport _gltf;
         private GameObject _roomModel;
-        private Animation legacyAnimation;
+        private Animation _legacyAnimation;
 
         #region lerp
-        Color StartColor;
-        Color EndColor;
-        Color lerpColor;
+        private Color _startColor;
+        private Color _endColor;
+        private Color _lerpColor;
 
-        static float t = 0.0f;
+        private bool _loadingCompleted = false;
+
+        private static float _t = 0.0f;
         // increase of value per frame interval
-        static float deltaa = 1.0f;
-        static float deltawf = 0.5f;
+        private const float DeltaA = 1.0f;
+        private const float DeltaWF = 0.5f;
+
         #endregion
 
         // Start is called before the first frame update
         public async Task InitializationAsync()
         {
             UnityEngine.Debug.Log("Initializing [RoomTwinManager] <--");
-            await LoadRoomTwinModel(Path.Combine(Application.streamingAssetsPath, RoomFile));
+            await LoadRoomTwinModelAsync(Path.Combine(Application.streamingAssetsPath, RoomFile));
 
             UnityEngine.Debug.Log("[RoomTwinManager] registering ImmersionChanged event");
-            #if UNITY_VISIONOS || VISION_OS
-                var VolumeCamera = GameObject.Find("/Start").GetComponent<VolumeCamera>();
-                if (VolumeCamera != null) VolumeCamera.ImmersionChanged += OnImmersionChanged;
-            #endif
-
+//#if UNITY_VISIONOS || VISION_OS
+            Unity.PolySpatial.VolumeCamera.ImmersionChanged += OnImmersionChanged;
+//#endif
             UnityEngine.Debug.Log("Initializing [RoomTwinManager] -->");
         }
 
         // Update is called once per frame
         private void Update()
         {
-            if (_loadingCompleted)
+            if (!_loadingCompleted)
             {
+                return;
+            }
 
-                if (( _roomTwinStyle == RoomTwinStyle.FullTwin || _roomTwinStyle == RoomTwinStyle.TwinVignette) && !_FullTwinBlendInCompleted)
+            switch (_roomTwinStyle)
+            {
+                case RoomTwinStyle.FullTwin or RoomTwinStyle.TwinVignette when !_FullTwinBlendInCompleted:   //TODO: use DOTween
                 {
-                    var alpha = Mathf.Lerp(0, 1, t);
+                    var alpha = Mathf.Lerp(0, 1, _t);
                     SetAlphaInChildRenderers(_roomModel, alpha);
 
-                    t += deltaa * Time.deltaTime;
+                    _t += DeltaA * Time.deltaTime;
 
-                    if (t > 1.0f)
+                    if (_t > 1.0f)
                     {
                         _FullTwinBlendInCompleted = true;
                         _WireframeBlendInCompleted = false;
 
-                        t = 0.0f;
+                        _t = 0.0f;
 
                         // Add RoomShader to Child Renderers
                         AddShaderToChildRenderers(_roomModel, RoomTwinShader);
-
                     }
 
+                    break;
                 }
-                else if (_roomTwinStyle == RoomTwinStyle.TwinVignette && !_WireframeBlendInCompleted)
+                case RoomTwinStyle.TwinVignette when !_WireframeBlendInCompleted:   //TODO: use DOTween
                 {
-
-                    var alpha = Mathf.Lerp(100, 10, t);
+                    var alpha = Mathf.Lerp(100, 10, _t);
                     GrowVignettesInChildRenderers(_roomModel, alpha);
 
-                    t += deltawf * Time.deltaTime;
+                    _t += DeltaWF * Time.deltaTime;
 
-                    if (t > 1.0f)
+                    if (_t > 1.0f)
                     {
                         _WireframeBlendInCompleted = true;
-                        t = 0.0f;
+                        _t = 0.0f;
                     }
 
+                    break;
                 }
-
             }
-
         }
 
         /// <summary>
@@ -127,30 +119,33 @@ namespace MirageXR
         /// calls internal LoadGltfRoomTwin
         /// </summary>
         /// <param name="url">file path or web url of the model</param>
-        public async UniTask LoadRoomTwinModel(string url)
+        public async UniTask LoadRoomTwinModelAsync(string url)
         {
-            await LoadGltfRoomTwin(url);
+            await LoadGltfRoomTwinAsync(url);
         }
 
         /// <summary>
         /// Switch digital room twin on or off
         /// </summary>
         /// <param name="show">if true, display the room twin, otherwise deactivate it</param>
-        public async UniTask DisplayRoomTwin(bool show) //TODO: replace with two functions - ShowRoomTwin() and HideRoomTwin()
+        public async UniTask DisplayRoomTwinAsync(bool show) //TODO: replace with two functions - ShowRoomTwin() and HideRoomTwin()
         {
             if (show) // show
             {
                 _loadingCompleted = false;
-                if (_roomModel) Destroy(_roomModel);
+                if (_roomModel)
+                {
+                    Destroy(_roomModel);
+                }
                 SetRoomTwinStyle(_roomTwinStyle);
-                await LoadRoomTwinModel(Path.Combine(Application.streamingAssetsPath, RoomFile));
+                await LoadRoomTwinModelAsync(Path.Combine(Application.streamingAssetsPath, RoomFile));
                 _roomModel.SetActive(true);
                 
             } else // hide
             {
                 _roomModel.SetActive(false);
 
-                t = 0.0f;
+                _t = 0.0f;
                 _FullTwinBlendInCompleted = true;
                 _WireframeBlendInCompleted = true;
             }
@@ -159,24 +154,27 @@ namespace MirageXR
         /// <summary>
         /// Set the Room Twin style to the values of the settings panel
         /// </summary>
-        /// <param name="TheStyle">a value from enum RoomTwinStyle</param>
-        public void SetRoomTwinStyle(RoomTwinStyle TheStyle)
+        /// <param name="theStyle">a value from enum RoomTwinStyle</param>
+        public void SetRoomTwinStyle(RoomTwinStyle theStyle)
         {
-            _roomTwinStyle = TheStyle;
+            _roomTwinStyle = theStyle;
 
-            // set up the animations in the update loop accordingly
-            if (_roomTwinStyle == RoomTwinStyle.FullTwin)
+            switch (_roomTwinStyle)
             {
-                t = 0.0f;
-                _FullTwinBlendInCompleted = false;
-                _WireframeBlendInCompleted = true;
+                // set up the animations in the update loop accordingly
+                case RoomTwinStyle.FullTwin:
+                    _t = 0.0f;
+                    _FullTwinBlendInCompleted = false;
+                    _WireframeBlendInCompleted = true;
+                    break;
+                case RoomTwinStyle.TwinVignette:
+                    _t = 0.0f;
+                    _FullTwinBlendInCompleted = false;
+                    _WireframeBlendInCompleted = false;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
-            else if (_roomTwinStyle == RoomTwinStyle.TwinVignette)
-            {
-                t = 0.0f;
-                _FullTwinBlendInCompleted = false;
-                _WireframeBlendInCompleted = false;
-            } 
         }
 
         public RoomTwinStyle GetRoomTwinStyle()
@@ -187,12 +185,10 @@ namespace MirageXR
         /// <summary>
         /// Load the Room Twin model from file
         /// </summary>
-        /// <param name="RoomFile"></param>
-        /// <returns></returns>
-        private async Task<bool> LoadGltfRoomTwin(string RoomFile)
+        /// <param name="roomFile"></param>
+        private async UniTask<bool> LoadGltfRoomTwinAsync(string roomFile)
         {
-
-            gltf = new GLTFast.GltfImport();
+            _gltf = new GltfImport();
 
             // Create a settings object and configure it accordingly
             var settings = new ImportSettings
@@ -204,7 +200,7 @@ namespace MirageXR
             };
 
             // Load the glTF and pass along the settings
-            var success = await gltf.Load(RoomFile, settings);
+            var success = await _gltf.Load(roomFile, settings);
 
             if (success)
             {
@@ -213,19 +209,17 @@ namespace MirageXR
                 _roomModel.SetActive(false);
                 _roomModel.AddComponent<MeshRenderer>();
 
-                var instantiator = new GameObjectInstantiator(gltf, _roomModel.transform);
-                await gltf.InstantiateMainSceneAsync(instantiator); // transform
-
-                
+                var instantiator = new GameObjectInstantiator(_gltf, _roomModel.transform);
+                await _gltf.InstantiateMainSceneAsync(instantiator); // transform
 
                 // prep for alpha lerp from transparent
                 SetAlphaInChildRenderers(_roomModel, 0);
 
-                legacyAnimation = instantiator.SceneInstance.LegacyAnimation;
+                _legacyAnimation = instantiator.SceneInstance.LegacyAnimation;
 
                 // activate
                 _loadingCompleted = true;
-                DisplayRoomTwin(ForceRoomTwinDisplay); 
+                DisplayRoomTwinAsync(ForceRoomTwinDisplay).Forget(); 
 
                 //if (legacyAnimation != null)
                 //{
@@ -248,15 +242,14 @@ namespace MirageXR
             }
 
             return true;
-
         } // LoadGltfRoomTwin
 
-        private void SetAlphaInChildRenderers(GameObject RoomTwin, float alpha)
+        private static void SetAlphaInChildRenderers(GameObject roomTwin, float alpha)
         {
-
-            Component[] renderers = RoomTwin.GetComponentsInChildren(typeof(Renderer));
-            foreach (Renderer childRenderer in renderers)
+            var renderers = roomTwin.GetComponentsInChildren(typeof(Renderer));
+            foreach (var component in renderers)
             {
+                var childRenderer = (Renderer)component;
                 childRenderer.material.SetOverrideTag("RenderType", "Transparent");
                 childRenderer.material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
                 childRenderer.material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
@@ -266,65 +259,66 @@ namespace MirageXR
                 childRenderer.material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
                 childRenderer.material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
 
-                var Col = childRenderer.material.color;
-                Col.a = alpha;
-                childRenderer.material.color = Col;
+                var col = childRenderer.material.color;
+                col.a = alpha;
+                childRenderer.material.color = col;
             }
-
         }
 
-        private void AddShaderToChildRenderers(GameObject RoomTwin, Material TheShader)
+        private static void AddShaderToChildRenderers(GameObject roomTwin, Material theShader)
         {
-
             //RoomTwin.GetComponent<MeshRenderer>().material = TheShader; // not needed?
-
-            Component[] renderers = RoomTwin.GetComponentsInChildren(typeof(Renderer));
-            foreach (Renderer childRenderer in renderers)
+            var renderers = roomTwin.GetComponentsInChildren(typeof(Renderer));
+            foreach (var component in renderers)
             {
-                childRenderer.material = TheShader;
+                var childRenderer = (Renderer)component;
+                childRenderer.material = theShader;
                 //Material[] rendererMaterials = childRenderer.materials;
                 //foreach (Material mat in rendererMaterials)
                 //{
                 //    mat.shader = Shader.Find("Shader Graphs/LD_DigitalTwinHologram");
                 //}
             }
-
         }
 
-        private void GrowVignettesInChildRenderers(GameObject RoomTwin, float alpha)
+        private static void GrowVignettesInChildRenderers(GameObject roomTwin, float alpha)
         {
-
-            Component[] renderers = RoomTwin.GetComponentsInChildren(typeof(Renderer));
-            foreach (Renderer childRenderer in renderers)
+            var renderers = roomTwin.GetComponentsInChildren(typeof(Renderer));
+            foreach (var component in renderers)
             {
+                var childRenderer = (Renderer)component;
                 childRenderer.material.SetFloat("_Fade_Distance", alpha);
             }
-
         }
 
         /// <summary>
         /// Hook a dimmer up with the digital crown (supported in VisionOS 2)
         /// </summary>
-        /// <param name="amount"></param>
-        void OnImmersionChanged(double amount)
+        private void OnImmersionChanged(double? oldAmount, double? newAmount)
         {
-            Debug.LogInfo($"Immersion amount: {amount:P0}");
-            if (_loadingCompleted) {
-                if (amount == 1.0) {
-                    SetRoomTwinStyle(RoomTwinStyle.FullTwin);
-                    DisplayRoomTwin(true);
-                } if (amount == 0.0) {
-                    SetRoomTwinStyle(RoomTwinStyle.TwinVignette);
-                    AddShaderToChildRenderers(_roomModel, RoomTwinShader);
-                    DisplayRoomTwin(false);
-                } else {
-                    _roomModel.SetActive(true);
-                    _roomTwinStyle = RoomTwinStyle.TwinVignette;
-                    GrowVignettesInChildRenderers(_roomModel, (float)amount);
-                }
+            Debug.LogInfo($"Immersion amount: {newAmount:P0}");
+            if (!_loadingCompleted || !newAmount.HasValue)
+            {
+                return;
+            }
+
+            if (Math.Abs(newAmount.Value - 1.0) < 0.01d)
+            {
+                SetRoomTwinStyle(RoomTwinStyle.FullTwin);
+                DisplayRoomTwinAsync(true).Forget();
+            }
+            if (newAmount == 0.0d)
+            {
+                SetRoomTwinStyle(RoomTwinStyle.TwinVignette);
+                AddShaderToChildRenderers(_roomModel, RoomTwinShader);
+                DisplayRoomTwinAsync(false).Forget();
+            }
+            else
+            {
+                _roomModel.SetActive(true);
+                _roomTwinStyle = RoomTwinStyle.TwinVignette;
+                GrowVignettesInChildRenderers(_roomModel, (float)newAmount);
             }
         }
-
     }
-
 }
