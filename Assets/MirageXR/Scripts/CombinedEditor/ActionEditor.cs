@@ -40,7 +40,6 @@ public class ActionEditor : MonoBehaviour
     [SerializeField] private GameObject pickAndPlaceEditorPrefab;
     [SerializeField] private GameObject imageMarkerPrefab;
     [SerializeField] private GameObject pluginPrefab;
-    [SerializeField] private GameObject drawingEditorPrefab;
 
     private LabelEditor labelEditor;
     private AudioEditor audioEditor;
@@ -49,7 +48,6 @@ public class ActionEditor : MonoBehaviour
     private GhosttrackEditor ghostTrackEditor;
     private GlyphEditor glyphEditor;
     private VFXEditor vfxEditor;
-    private DrawingEditor drawingEditor;
 
     private ModelEditor modelEditor;
     private CharacterAugmentation characterAug;
@@ -390,14 +388,6 @@ public class ActionEditor : MonoBehaviour
                 pluginEditor.SetAnnotationStartingPoint(DefaultAugmentationStartingPoint);
                 pluginEditor.Open(detailView.DisplayedAction, null);
                 break;
-            case ContentType.DRAWING:
-                if (!InstanceOfAugmentationExist(ContentType.DRAWING))
-                {
-                    drawingEditor = LoadEditorPanel<DrawingEditor>(drawingEditorPrefab);
-                    drawingEditor.SetAnnotationStartingPoint(DefaultAugmentationStartingPoint);
-                    drawingEditor.Open(detailView.DisplayedAction, null);
-                }
-                break;
         }
     }
 
@@ -545,9 +535,6 @@ public class ActionEditor : MonoBehaviour
             imageMarkerEditor.Close();
         if (pluginEditor)
             pluginEditor.Close();
-        if (drawingEditor)
-            drawingEditor.Close();
-
 
         ShowHelpText();
     }
