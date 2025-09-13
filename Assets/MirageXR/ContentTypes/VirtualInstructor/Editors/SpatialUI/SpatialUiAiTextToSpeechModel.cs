@@ -42,6 +42,8 @@ namespace MirageXR
             _objectDataSet = RootObject.Instance.LEE.ArtificialIntelligenceManager.GetTtsModels();
             InstantiateObjectData(_objectDataSet);
             close.onClick.AddListener(Close);
+            TryToGetArguments(args);
+            UpdateView();
             inputField.onValueChanged.AddListener(value => _voiceInstruction = value);
             _initialized = true;
         }
@@ -56,7 +58,6 @@ namespace MirageXR
 
         private void InstantiateObjectDataVoiceEndpoint(AIModel objectData)
         {
-            UnityEngine.Debug.Log("InstantiateObjectDataVoiceEndpoint");
             var instantiatedObject = Instantiate(prefabTemplate, sceneContainer);
             var textComponents = instantiatedObject.GetComponentsInChildren<TMP_Text>();
 
@@ -147,6 +148,10 @@ namespace MirageXR
             audioSource.Stop();
             btnStop.gameObject.SetActive(false);
             btnPlay.gameObject.SetActive(true);
+        }
+
+        private void UpdateView() {
+            inputField.text = _voiceInstruction;
         }
 
         protected override bool TryToGetArguments(params object[] args)
