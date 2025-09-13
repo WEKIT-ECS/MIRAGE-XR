@@ -23,7 +23,7 @@ public class CalibrationFlow : MonoBehaviour
     private string FLOOR_DETECTION_TEXT = "Floor detection";
     private string HINT_MARKER_TEXT = "Look at the calibration image on a printed paper or a screen to calibrate the activity.";
     private string HINT_PLACEMENT_TEXT = "Tap on the plane to place the anchor.";
-    private string HINT_FLOOR_TEXT = "Look at the floor while moving your device. As a plane appears, click on it.";
+    private string HINT_FLOOR_TEXT = "Look at the floor while moving your device. As a plane appears, tap on it.";
     private string DONE_TEXT = "Done";
     private int DELAY_TIME = 500;
     private int CLOSE_TIME = 1000;
