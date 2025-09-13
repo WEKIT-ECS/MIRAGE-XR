@@ -25,7 +25,7 @@ public class CalibrationView : PopupBase
     private string FLOOR_DETECTION_TEXT = "Floor detection";
     private string HINT_MARKER_TEXT = "Look at the calibration image on a printed paper or a screen to calibrate the activity.";
     private string HINT_PLACEMENT_TEXT = "Tap on the plane to place the anchor.";
-    private string HINT_FLOOR_TEXT = "Look at the floor while moving your device. As a plane appears, click on it.";
+    private string HINT_FLOOR_TEXT = "Look at the floor while moving your device. As a plane appears, tap on it.";
     private string HINT_MOVE_ORIGIN = "The origin is the single main anchor point of the activity. 'Set origin' only if you are first-time editing the activity.";
     private string HINT_RESTORE_POSITION = "Positions are the locations of all contents relative to the origin. ‘Restore positions’ if you view an activity or re-edit.";
     private int DELAY_TIME = 250;
