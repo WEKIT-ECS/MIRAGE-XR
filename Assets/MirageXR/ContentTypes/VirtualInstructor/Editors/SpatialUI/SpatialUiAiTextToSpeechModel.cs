@@ -150,7 +150,8 @@ namespace MirageXR
             btnPlay.gameObject.SetActive(true);
         }
 
-        private void UpdateView() {
+        private void UpdateView()
+        {
             inputField.text = _voiceInstruction;
         }
 
