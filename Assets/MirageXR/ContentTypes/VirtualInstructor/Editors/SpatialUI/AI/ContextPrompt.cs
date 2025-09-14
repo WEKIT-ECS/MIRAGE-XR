@@ -23,7 +23,7 @@ namespace MirageXR
         public override void Initialization(Action<PopupBase> onClose, params object[] args)
         {
             base.Initialization(onClose, args);
-            TryToGetArguments(args);
+            // TryToGetArguments(args);
             close.onClick.AddListener(OnClose);
             accept.onClick.AddListener(OnAccept);
             openTooltipBtn.onClick.AddListener(ShowToolTip);
