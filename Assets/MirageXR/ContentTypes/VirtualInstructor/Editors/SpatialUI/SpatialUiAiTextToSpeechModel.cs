@@ -42,7 +42,7 @@ namespace MirageXR
             _objectDataSet = RootObject.Instance.LEE.ArtificialIntelligenceManager.GetTtsModels();
             InstantiateObjectData(_objectDataSet);
             close.onClick.AddListener(Close);
-            TryToGetArguments(args);
+            // TryToGetArguments(args);
             UpdateView();
             inputField.onValueChanged.AddListener(value => _voiceInstruction = value);
             _initialized = true;
