@@ -6,7 +6,7 @@ using Utilities;
 
 namespace MirageXR
 {
-    public class ContextPromt : PopupBase
+    public class ContextPrompt : PopupBase
     {
         [SerializeField] private Button close;
         [SerializeField] private Button accept;
@@ -23,6 +23,7 @@ namespace MirageXR
         public override void Initialization(Action<PopupBase> onClose, params object[] args)
         {
             base.Initialization(onClose, args);
+            // TryToGetArguments(args);
             close.onClick.AddListener(OnClose);
             accept.onClick.AddListener(OnAccept);
             openTooltipBtn.onClick.AddListener(ShowToolTip);
