@@ -10,6 +10,14 @@ namespace MirageXR
         private SketchfabUserInfo _userInfo;
         private bool _isSketchfabLoggedIn;
 
+        protected virtual void OnInit()
+        {
+            View.SetActionOnButtonServerAddressClick(ShowChangeServerAddressPanel);
+            View.SetActionOnButtonServerPortClick(ShowChangeServerPortPanel);
+            View.SetActionOnButtonWebsocketAddressClick(ShowChangeWebsocketAddressPanel);
+            View.SetActionOnButtonWebsocketPortClick(ShowChangeWebsocketPortPanel);
+        }
+
         protected override void OnBind()
         {
             base.OnBind();
@@ -30,14 +38,19 @@ namespace MirageXR
             var sketchfabManager = RootObject.Instance.LEE.SketchfabManager;
             sketchfabManager.OnSketchfabUserDataChanged += OnSketchfabUserDataChanged;
             sketchfabManager.OnSketchfabLoggedIn += OnSketchfabLoggedIn;
+            SubscribeAsync().Forget();
+        }
 
+        private async UniTask SubscribeAsync()
+        {
             var configManager = RootObject.Instance.LEE.ConfigManager;
+            await configManager.WaitForInitialization();
             configManager.OnNetworkServerAddressChanged += OnNetworkServerAddressChanged;
             configManager.OnNetworkServerPortChanged += OnNetworkServerPortChanged;
             configManager.OnNetworkWebsocketAddressChanged += OnNetworkWebsocketAddressChanged;
             configManager.OnNetworkWebsocketPortChanged += OnNetworkWebsocketPortChanged;
         }
-
+        
         private void OnToggleConsoleValueChanged(bool value)
         {
             if (value)
