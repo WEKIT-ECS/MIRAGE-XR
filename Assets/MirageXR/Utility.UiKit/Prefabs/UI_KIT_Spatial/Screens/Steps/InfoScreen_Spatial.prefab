@@ -2232,7 +2232,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.040283203}
+  m_AnchoredPosition: {x: 0, y: 0.036865234}
   m_SizeDelta: {x: 0, y: 236}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &4990799570540229888
@@ -3201,8 +3201,8 @@ MonoBehaviour:
   stepsMediaListItemViewPrefab: {fileID: 5272641639935170887, guid: bf3b0488ff85420489f6c24d611368ca,
     type: 3}
   containerMedia: {fileID: 5797211845875907321}
-  collapsePanelToggle: {fileID: 3308063272422881864}
-  collapsePanelToggle_Collapsed: {fileID: 8461283679262177230}
+  minimizeToggle: {fileID: 3308063272422881864}
+  maximizeToggle: {fileID: 8461283679262177230}
   stepCompletedToggle: {fileID: 1019068339750765812}
   stepCompletedToggle_Collapsed: {fileID: 2227224545438875488}
   _mainScreen: {fileID: 870994023309128156}
@@ -3990,6 +3990,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4816626021618697345}
     m_Modifications:
+    - target: {fileID: 271072268000779386, guid: 0414b8147a7ea8d44b0913d6449c2ce9,
+        type: 3}
+      propertyPath: m_IsOn
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1462656909502738664, guid: 0414b8147a7ea8d44b0913d6449c2ce9,
         type: 3}
       propertyPath: m_Name
@@ -6144,7 +6149,7 @@ PrefabInstance:
     - target: {fileID: 271072268000779386, guid: 0414b8147a7ea8d44b0913d6449c2ce9,
         type: 3}
       propertyPath: m_IsOn
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1462656909502738664, guid: 0414b8147a7ea8d44b0913d6449c2ce9,
         type: 3}

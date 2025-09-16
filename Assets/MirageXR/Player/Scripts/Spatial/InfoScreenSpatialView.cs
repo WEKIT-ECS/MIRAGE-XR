@@ -26,8 +26,8 @@ namespace MirageXR
         [SerializeField] private TMP_Text _textDescription;
         [SerializeField] private StepsMediaListItemView stepsMediaListItemViewPrefab;
         [SerializeField] private Transform containerMedia;
-        [SerializeField] private Toggle collapsePanelToggle;
-        [SerializeField] private Toggle collapsePanelToggle_Collapsed;
+        [SerializeField] private Toggle minimizeToggle;
+        [SerializeField] private Toggle maximizeToggle;
         [SerializeField] private Toggle stepCompletedToggle;
         [SerializeField] private Toggle stepCompletedToggle_Collapsed;
         [SerializeField] private GameObject _mainScreen;
@@ -68,8 +68,8 @@ namespace MirageXR
             previousStepButton.onClick.AddListener(OnPreviousStepClicked);
             nextStepButton_Collapsed.onClick.AddListener(OnNextStepClicked);
             previousStepButton_Collapsed.onClick.AddListener(OnPreviousStepClicked);
-            collapsePanelToggle.onValueChanged.AddListener(OnStepCompletedToggleValueChanged);
-            collapsePanelToggle_Collapsed.onValueChanged.AddListener(OnStepCompletedToggleCollapsedValueChanged);
+            maximizeToggle.onValueChanged.AddListener(OnCollapsedPanelMaximizeToggleValueChanged);
+            minimizeToggle.onValueChanged.AddListener(OnMaximisedPanelMinimizeToggleValueChanged);
             UpdateView(step); 
         }
         
@@ -434,59 +434,78 @@ namespace MirageXR
                 _linkIndexCache[linkId] = index;
             }
 
-            if (_textDescription.textInfo.linkInfo.Length <= index)
+            // check if task card is collapsed, return mid bottom worldspace coordinate if
+            if (_mainScreen_Collapsed.activeSelf)
             {
-                _linkIndexCache.Remove(linkId);
-                return GetLinkWorldPosition(linkId);
-            }
+                Debug.Log("Spatial hyperlinks from collapsed panel.");
+                var centerWorld = _mainScreen_Collapsed.transform.position;
+                centerWorld += _mainScreen_Collapsed.transform.forward * -0.01f;
 
-            var linkInfo = _textDescription.textInfo.linkInfo[index];
-            if (linkInfo.linkTextfirstCharacterIndex < 0 || linkInfo.linkTextfirstCharacterIndex + linkInfo.linkTextLength > _textDescription.textInfo.characterInfo.Length)
+                return centerWorld;
+
+            }
+            else  // else if panel maximised, then parse description and find 3d coords for anchor "[link]"
             {
-                _linkIndexCache.Remove(linkId);
-                return GetLinkWorldPosition(linkId);
+                Debug.Log("Spatial hyperlinks from achors [links].");
+                if (_textDescription.textInfo.linkInfo.Length <= index)
+                {
+                    _linkIndexCache.Remove(linkId);
+                    return GetLinkWorldPosition(linkId);
+                }
+
+                var linkInfo = _textDescription.textInfo.linkInfo[index];
+                if (linkInfo.linkTextfirstCharacterIndex < 0 || linkInfo.linkTextfirstCharacterIndex + linkInfo.linkTextLength > _textDescription.textInfo.characterInfo.Length)
+                {
+                    _linkIndexCache.Remove(linkId);
+                    return GetLinkWorldPosition(linkId);
+                }
+
+                var firstCharInfo = _textDescription.textInfo.characterInfo[linkInfo.linkTextfirstCharacterIndex];
+                var lastCharInfo = _textDescription.textInfo.characterInfo[linkInfo.linkTextfirstCharacterIndex + linkInfo.linkTextLength - 1];
+
+                var bottomLeft = firstCharInfo.bottomLeft;
+                var topRight = lastCharInfo.topRight;
+                var centerLocal = (bottomLeft + topRight) * 0.5f;
+
+                var centerWorld = _textDescription.transform.TransformPoint(centerLocal);
+                centerWorld += _textDescription.transform.forward * -0.01f;
+
+                return centerWorld;
             }
-
-            var firstCharInfo = _textDescription.textInfo.characterInfo[linkInfo.linkTextfirstCharacterIndex];
-            var lastCharInfo = _textDescription.textInfo.characterInfo[linkInfo.linkTextfirstCharacterIndex + linkInfo.linkTextLength - 1];
-
-            var bottomLeft = firstCharInfo.bottomLeft;
-            var topRight = lastCharInfo.topRight;
-            var centerLocal = (bottomLeft + topRight) * 0.5f;
-    
-            var centerWorld = _textDescription.transform.TransformPoint(centerLocal); 
-            centerWorld += _textDescription.transform.forward * -0.01f;
-
-            return centerWorld;
+            
         }
 
-        private void OnStepCompletedToggleValueChanged(bool value)
+        private void OnMaximisedPanelMinimizeToggleValueChanged(bool value)
         {
             _mainScreen.SetActive(false);
             _mainScreen_Collapsed.SetActive(true);
             _windowControls.SetActive(false);
-            UpdateToggleStates();
+            minimizeToggle.isOn = true;
+            UpdateSplinesBasedOnWindowState();
+            //UpdateToggleStates();
         }
 
-        private void OnStepCompletedToggleCollapsedValueChanged(bool value)
+        private void OnCollapsedPanelMaximizeToggleValueChanged(bool value)
         {
             _mainScreen.SetActive(true);
             _mainScreen_Collapsed.SetActive(false);
             _windowControls.SetActive(true);
-            UpdateToggleStates();
+            maximizeToggle.isOn = false;
+            UpdateSplinesBasedOnWindowState();
+            //UpdateToggleStates();
         }
 
         private void UpdateToggleStates()
         {
             switch (_mainScreen.activeSelf)
             {
-                case true when !_mainScreen_Collapsed.activeSelf:
-                    collapsePanelToggle.isOn = false;
-                    collapsePanelToggle_Collapsed.isOn = true;
+                case true when !_mainScreen_Collapsed.activeSelf: // when folded out
+                    //maximizeToggle.isOn = false;  // minimize button, on folded out panel
+                    minimizeToggle.isOn = true;  // maximize button, on collapsed panel
                     break;
-                case false when _mainScreen_Collapsed.activeSelf:
-                    collapsePanelToggle.isOn = false;
-                    collapsePanelToggle_Collapsed.isOn = true;
+                case false when _mainScreen_Collapsed.activeSelf: // when collapsed
+                    maximizeToggle.isOn = false;  // minimize button, on folded out panel
+                    //minimizeToggle.isOn = true;  // maximize button, on collapsed panel
                     break;
             }
         }
