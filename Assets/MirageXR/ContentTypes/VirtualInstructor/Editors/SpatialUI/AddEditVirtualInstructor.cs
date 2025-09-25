@@ -68,7 +68,7 @@ public class AddEditVirtualInstructor : EditorSpatialView   //TODO: rename to Vi
     [SerializeField] private TMP_Text aiLanguage;
 
     [Header("Prefabs")] 
-    [SerializeField] private ContextPromt contextPromptPrefab;
+    [SerializeField] private ContextPrompt contextPromptPrefab;
     [SerializeField] private SpatialAILanguageModel languageModelPrefab;
     [SerializeField] private SpatialUiAiSpeechToTextModel speechToTextModelPrefab;
     [SerializeField] private SpatialUiAiTextToSpeechModel textToSpeechModelPrefab;
@@ -83,7 +83,7 @@ public class AddEditVirtualInstructor : EditorSpatialView   //TODO: rename to Vi
     private bool _useReadyPlayerMe = false;
     private string _characterModelUrl = "";
     private string _pathSetting = "No Path"; // todo
-    private string _prompt = "Provide a concise answer to the question. Use the context.";
+    private string _prompt = "Provide a concise answer to the question.";
     private string _voiceInstruction = string.Empty;
 
     private AIModel _languageModel;
