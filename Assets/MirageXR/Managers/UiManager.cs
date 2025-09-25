@@ -1,7 +1,6 @@
 ﻿using LearningExperienceEngine;
 using Microsoft.MixedReality.Toolkit.UI;
 using System.Threading.Tasks;
-using TiltBrush;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -65,7 +64,7 @@ namespace MirageXR
 
         private void OnDisable()
         {
-             LearningExperienceEngine.EventManager.OnResetPlayer -= PlayerReset;
+            LearningExperienceEngine.EventManager.OnResetPlayer -= PlayerReset;
             EventManager.OnMoveActivityList -= MoveActivityList;
             EventManager.OnMoveActionList -= MoveActionList;
             EventManager.OnToggleGuides -= ToggleFind;
