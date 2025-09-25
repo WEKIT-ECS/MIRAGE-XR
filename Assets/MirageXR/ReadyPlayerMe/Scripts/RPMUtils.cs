@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -9,11 +10,32 @@ namespace MirageXR
 {
 	public static class RPMUtils
 	{
-		public static string ExtractAvatarIDfromURL(string avatarUrl)
+		public static string ExtractIdFromUrl(string avatarUrl)
 		{
 			Uri uri = new Uri(avatarUrl);
-			string path = Path.GetDirectoryName(uri.AbsolutePath);
+			string path = Path.GetFileNameWithoutExtension(uri.AbsolutePath);
 			return path;
+		}
+
+		public static string GetId(string urlOrId)
+		{
+			string avatarId;
+			if (urlOrId.StartsWith("https://models.readyplayer.me/"))
+			{
+				avatarId = ExtractIdFromUrl(urlOrId);
+			}
+			else
+			{
+				avatarId = Regex.Replace(urlOrId, "[^a-zA-Z0-9]", "");
+			}
+			return avatarId;
+		}
+
+		public static string IdToUrl(string id)
+		{
+			// make sure that the ID is alpha numerical to avoid string injection attacks
+			id = Regex.Replace(id, "[^a-zA-Z0-9]", "");
+			return $"https://models.readyplayer.me/{id}.glb";
 		}
 
 		public static async Task<bool> IsValidIDAsync(string avatarId)

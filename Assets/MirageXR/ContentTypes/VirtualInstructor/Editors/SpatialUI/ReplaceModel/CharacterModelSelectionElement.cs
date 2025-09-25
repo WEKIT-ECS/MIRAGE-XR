@@ -25,31 +25,31 @@ namespace MirageXR
 
 		private void OnEnable()
 		{
-			Thumbnail.CharacterModelUrlChanged += OnCharacterUrlChanged;
+			Thumbnail.CharacterModelIdChanged += OnCharacterIdChanged;
 			Thumbnail.CharacterModelSelected += OnThumbnailClicked;
 			UpdateView();
 		}
 
 		private void OnDisable()
 		{
-			Thumbnail.CharacterModelUrlChanged -= OnCharacterUrlChanged;
+			Thumbnail.CharacterModelIdChanged -= OnCharacterIdChanged;
 			Thumbnail.CharacterModelSelected -= OnThumbnailClicked;
 		}
 
-		private void OnThumbnailClicked(string characterModelUrl)
+		private void OnThumbnailClicked(string characterModelId)
 		{
 			StartCharacterModelSelection();
 		}
 
 
-		private void OnCharacterUrlChanged(string characterUrl)
+		private void OnCharacterIdChanged(string characterId)
 		{
 			UpdateView();
 		}
 
 		private void UpdateView()
 		{
-			bool characterModelSelected = !string.IsNullOrEmpty(Thumbnail.CharacterModelUrl);
+			bool characterModelSelected = !string.IsNullOrEmpty(Thumbnail.CharacterModelId);
 			_addPlus.SetActive(!characterModelSelected);
 			if (characterModelSelected)
 			{
