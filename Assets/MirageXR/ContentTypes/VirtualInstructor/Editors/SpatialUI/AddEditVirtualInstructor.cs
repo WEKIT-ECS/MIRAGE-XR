@@ -322,7 +322,7 @@ public class AddEditVirtualInstructor : EditorSpatialView   //TODO: rename to Vi
 	{
         _useReadyPlayerMe = true;
         _characterModelUrl = characterModelUrl;
-        characterModelSelectionElement.Thumbnail.CharacterModelUrl = _characterModelUrl;
+        characterModelSelectionElement.Thumbnail.CharacterModelId = _characterModelUrl;
 	}
 
 	private void OpenCommunicationSettingPanel()

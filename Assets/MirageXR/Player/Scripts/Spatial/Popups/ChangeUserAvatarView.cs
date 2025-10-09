@@ -40,10 +40,11 @@ namespace MirageXR
 			_replaceModelBtn.onClick.AddListener(OpenAvatarLibrary);
 			_characterModelSelectionElement.CharacterModelSelectionStarted += OpenAvatarLibrary;
 
+			string avatarId = RPMUtils.GetId(UserSettings.AvatarUrl);
 			// add the current avatar to the library so that it can be loaded
-			if (!RootObject.Instance.AvatarLibraryManager.ContainsAvatar(UserSettings.AvatarUrl))
+			if (!RootObject.Instance.AvatarLibraryManager.ContainsAvatar(avatarId))
 			{
-				RootObject.Instance.AvatarLibraryManager.AddAvatar(UserSettings.AvatarUrl);
+				RootObject.Instance.AvatarLibraryManager.AddAvatar(avatarId);
 			}
 
 			UserSettings.AvatarUrlChanged += OnAvatarUrlChanged;
@@ -77,9 +78,9 @@ namespace MirageXR
 		// called if the user selected an avatar from the library view
 		// applies the selected avatar to the user settings
 		// this automatically invokes an event that the avatar was changed and this will update the UI
-		private void OnAvatarSelected(string modelUrl)
+		private void OnAvatarSelected(string avatarId)
 		{
-			UserSettings.AvatarUrl = modelUrl;
+			UserSettings.AvatarUrl = RPMUtils.IdToUrl(avatarId);
 		}
 
 		// called if a new avatar was set in the user settings
@@ -97,7 +98,7 @@ namespace MirageXR
 		// apply the currently saved AvatarUrl to the UI to reflect the selected avatar
 		private void ApplyAvatarUrl()
 		{
-			_characterModelSelectionElement.Thumbnail.CharacterModelUrl = UserSettings.AvatarUrl;
+			_characterModelSelectionElement.Thumbnail.CharacterModelId = UserSettings.AvatarUrl;
 		}
 	}
 }

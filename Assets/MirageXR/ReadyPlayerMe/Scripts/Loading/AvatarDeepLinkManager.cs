@@ -57,14 +57,13 @@ namespace MirageXR
 		private void ProcessRPMDeepLink(DeepLinkArgs args, bool setAvatar)
 		{
 			Debug.LogTrace($"Received a deep link for a RPM model: {args.DeepLink}", this);
-			if (args.Parameters.TryGetValue(avatarIdParameterName, out string id))
+			if (args.Parameters.TryGetValue(avatarIdParameterName, out string avatarId))
 			{
-				string avatarUrl = $"https://models.readyplayer.me/{id}.glb";
-				RootObject.Instance.AvatarLibraryManager.AddAvatar(avatarUrl);
-				RootObject.Instance.AvatarLibraryManager.Save();
+				RootObject.Instance.AvatarLibraryManager.AddAvatar(avatarId);
 				if (setAvatar)
 				{
-					Debug.LogTrace($"Set avatar to {id} based on deep link", this);
+					Debug.LogTrace($"Set avatar to {avatarId} based on deep link", this);
+					string avatarUrl = $"https://models.readyplayer.me/{avatarId}.glb";
 					UserSettings.AvatarUrl = avatarUrl;
 				}
 			}

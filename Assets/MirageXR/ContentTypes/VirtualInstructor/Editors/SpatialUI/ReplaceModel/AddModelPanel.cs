@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -13,6 +14,8 @@ namespace MirageXR
 		[SerializeField] private GameObject customLinkOpen;
 		[SerializeField] private GameObject customLinkClose;
 		[SerializeField] private GameObject confirmation;
+		[SerializeField] private GameObject errorMessage;
+		[SerializeField] private GameObject waitSpinner;
 
 		[Header("Buttons")]
 		[SerializeField] private Button addModelBtn;
@@ -25,7 +28,7 @@ namespace MirageXR
 		[SerializeField]
 		private TMP_InputField inputField;
 
-		public delegate void CharacterSelectedHandler(string characterUrl);
+		public delegate void CharacterSelectedHandler(string characterId);
 		public event CharacterSelectedHandler CharacterSelected;
 
 		void Start()
@@ -52,19 +55,40 @@ namespace MirageXR
 
 		private void OnEnable()
 		{
+			addModelBtn.interactable = true;
 			confirmation.SetActive(false);
+			errorMessage.SetActive(false);
+			waitSpinner.SetActive(false);
 		}
 
-		private void AddCharacterToLibrary(string url)
+		private async void AddCharacterToLibrary(string urlOrId)
 		{
-			if (string.IsNullOrWhiteSpace(url))
+			if (string.IsNullOrWhiteSpace(urlOrId))
 			{
 				return;
 			}
-			RootObject.Instance.AvatarLibraryManager.AddAvatar(url);
-			CharacterSelected?.Invoke(url);
-			confirmation.SetActive(true);
-			inputField.text = "";
+
+			string avatarId = RPMUtils.GetId(urlOrId);
+
+			waitSpinner.SetActive(true);
+			addModelBtn.interactable = false;
+
+			RPMMetaData metaData = await RPMUtils.GetMetadataAsync(avatarId);
+			bool valid = metaData != null;
+
+			waitSpinner.SetActive(false);
+			addModelBtn.interactable = true;
+
+			if (valid)
+			{
+				// we take the id from the metaData because it is guaranteed to be readable by RPM
+				// this way, we avoid adding shortcodes here because they don't seem to work with the thumbnail API
+				RootObject.Instance.AvatarLibraryManager.AddAvatar(metaData.id);
+				CharacterSelected?.Invoke(metaData.id);
+				inputField.text = "";
+			}
+			confirmation.SetActive(valid);
+			errorMessage.SetActive(!valid);
 		}
 	}
 }

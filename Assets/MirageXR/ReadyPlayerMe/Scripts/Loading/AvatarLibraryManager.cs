@@ -1,9 +1,10 @@
 using Newtonsoft.Json;
 using ReadyPlayerMe.Core;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Security.Policy;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -28,6 +29,7 @@ namespace MirageXR
 			{
 				string json = File.ReadAllText(AvatarLibraryPath);
 				AvatarList = JsonConvert.DeserializeObject<List<string>>(json);
+				AvatarList = ConvertToIds(AvatarList);
 			}
 			else
 			{
@@ -42,47 +44,66 @@ namespace MirageXR
 			File.WriteAllText(AvatarLibraryPath, json);
 		}
 
-		public void AddAvatar(string avatarUrl)
+		// conversion function for backwards compatibility
+		// converts full URLs to the new save format which only stores the IDs
+		private List<string> ConvertToIds(List<string> mixedFormatList)
 		{
+			HashSet<string> uniqueIds = new HashSet<string>();
+			foreach (string entry in mixedFormatList)
+			{
+				string id = RPMUtils.GetId(entry);
+				uniqueIds.Add(id);
+			}
+			return uniqueIds.ToList();
+		}
+
+		public void AddAvatar(string avatarId)
+		{
+			avatarId = RPMUtils.GetId(avatarId);
 			// if it is already in the list, re-insert it at the front
-			if (AvatarList.Contains(avatarUrl))
+			if (AvatarList.Contains(avatarId))
 			{
-				AvatarList.Remove(avatarUrl);
+				AvatarList.Remove(avatarId);
 			}
-			AvatarList.Insert(0, avatarUrl);
+			AvatarList.Insert(0, avatarId);
+			Save();
 		}
 
-		public void RemoveAvatar(string avatarUrl)
+		public void RemoveAvatar(string avatarId)
 		{
-			AvatarList.Remove(avatarUrl);
-			if (_cachedAvatarThumbnails.ContainsKey(avatarUrl))
+			avatarId = RPMUtils.GetId(avatarId);
+			AvatarList.Remove(avatarId);
+			if (_cachedAvatarThumbnails.ContainsKey(avatarId))
 			{
-				Destroy(_cachedAvatarThumbnails[avatarUrl]);
-				_cachedAvatarThumbnails.Remove(avatarUrl);
+				Destroy(_cachedAvatarThumbnails[avatarId]);
+				_cachedAvatarThumbnails.Remove(avatarId);
 			}
+			Save();
 		}
 
-		public bool ContainsAvatar(string avatarUrl)
+		public bool ContainsAvatar(string avatarId)
 		{
-			return AvatarList.Contains(avatarUrl);
+			avatarId = RPMUtils.GetId(avatarId);
+			return AvatarList.Contains(avatarId);
 		}
 
-		public async Task<Texture2D> GetThumbnailAsync(string avatarUrl)
+		public async Task<Texture2D> GetThumbnailAsync(string avatarId)
 		{
-			if (!AvatarList.Contains(avatarUrl))
+			avatarId = RPMUtils.GetId(avatarId);
+			if (!AvatarList.Contains(avatarId))
 			{
-				Debug.LogError($"Avatar with {avatarUrl} is not in the library.", this);
+				Debug.LogError($"Avatar with ID {avatarId} is not in the library.", this);
 				return null;
 			}
 
-			if (_cachedAvatarThumbnails.ContainsKey(avatarUrl))
+			if (_cachedAvatarThumbnails.ContainsKey(avatarId))
 			{
-				Debug.LogTrace("Returning cached avatar thumbnail for " + avatarUrl, this);
-				return _cachedAvatarThumbnails[avatarUrl];
+				Debug.LogTrace("Returning cached avatar thumbnail for avatar ID" + avatarId, this);
+				return _cachedAvatarThumbnails[avatarId];
 			}
 			else
 			{
-				Debug.LogTrace($"Loading avatar thumbnail for {avatarUrl} from the web", this);
+				Debug.LogTrace($"Loading avatar thumbnail for ID {avatarId} from the web", this);
 				AvatarRenderSettings settings = new AvatarRenderSettings();
 				settings.Expression = Expression.None;
 				settings.Camera = RenderCamera.Portrait;
@@ -97,9 +118,10 @@ namespace MirageXR
 
 				void OnCompletedHandler(Texture2D texture)
 				{
-					Debug.LogTrace($"Loaded avatar thumbnail for {avatarUrl}", this);
+					texture.wrapMode = TextureWrapMode.Clamp;
+					Debug.LogTrace($"Loaded avatar thumbnail for ID {avatarId}", this);
 					tcs.SetResult(texture);
-					_cachedAvatarThumbnails.Add(avatarUrl, texture);
+					_cachedAvatarThumbnails.Add(avatarId, texture);
 					loader.OnCompleted -= OnCompletedHandler;
 					loader.OnFailed -= OnFailedHandler;
 				}
@@ -114,7 +136,7 @@ namespace MirageXR
 				loader.OnCompleted += OnCompletedHandler;
 				loader.OnFailed += OnFailedHandler;
 
-				loader.LoadRender(avatarUrl, settings);
+				loader.LoadRender($"https://models.readyplayer.me/{avatarId}.glb", settings);
 
 				await tcs.Task;
 				return tcs.Task.Result;

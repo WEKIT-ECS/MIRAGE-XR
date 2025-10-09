@@ -13,13 +13,13 @@ namespace MirageXR
 		[SerializeField] private GameObject _waitSpinner;
 		[SerializeField] private GameObject _errorDisplay;
 
-		private string _characterModelUrl;
+		private string _characterModelId;
 
-		public delegate void CharacterModelSelectedHandler(string characterModelUrl);
+		public delegate void CharacterModelSelectedHandler(string characterModelId);
 		public event CharacterModelSelectedHandler CharacterModelSelected;
 
-		public delegate void CharacterModelUrlChangedHandler(string characterModelUrl);
-		public event CharacterModelUrlChangedHandler CharacterModelUrlChanged;
+		public delegate void CharacterModelUrlChangedHandler(string characterModelId);
+		public event CharacterModelUrlChangedHandler CharacterModelIdChanged;
 
 		public Texture2D DisplayedThumbnail
 		{
@@ -32,7 +32,7 @@ namespace MirageXR
 				}
 				if (value != null)
 				{
-					_thumbnailImage.sprite = Sprite.Create(value, new Rect(0, 0, value.width, value.height), new Vector2(0.5f, 0.5f));
+					_thumbnailImage.sprite = Sprite.Create(value, new Rect(0, 0, value.width, value.height), new Vector2(0.5f, 1f));
 					_thumbnailImage.preserveAspect = true;
 					_thumbnailImage.color = new Color(1, 1, 1, 1);
 				}
@@ -43,15 +43,15 @@ namespace MirageXR
 			}
 		}
 
-		public string CharacterModelUrl
+		public string CharacterModelId
 		{
-			get => _characterModelUrl;
+			get => _characterModelId;
 			set
 			{
-				if (_characterModelUrl != value)
+				if (_characterModelId != value)
 				{
-					_characterModelUrl = value;
-					CharacterModelUrlChanged?.Invoke(value);
+					_characterModelId = value;
+					CharacterModelIdChanged?.Invoke(value);
 					UpdateView();					
 				}
 			}
@@ -60,10 +60,10 @@ namespace MirageXR
 		public async void UpdateView()
 		{
 			DisplayedThumbnail = null;
-			if (!string.IsNullOrWhiteSpace(_characterModelUrl))
+			if (!string.IsNullOrWhiteSpace(_characterModelId))
 			{
 				_waitSpinner.SetActive(true);
-				Texture2D thumbnail = await RootObject.Instance.AvatarLibraryManager.GetThumbnailAsync(_characterModelUrl);
+				Texture2D thumbnail = await RootObject.Instance.AvatarLibraryManager.GetThumbnailAsync(_characterModelId);
 				_errorDisplay.SetActive(thumbnail == null);
 				DisplayedThumbnail = thumbnail;
 				_waitSpinner.SetActive(false);
@@ -72,13 +72,13 @@ namespace MirageXR
 
 		public void ThumbnailSelected()
 		{
-			Debug.LogTrace($"Thumbnail with model url {_characterModelUrl} clicked.");
-			CharacterModelSelected?.Invoke(_characterModelUrl);
+			Debug.LogTrace($"Thumbnail with character model Id {_characterModelId} clicked.");
+			CharacterModelSelected?.Invoke(_characterModelId);
 		}
 
 		public void Delete()
 		{
-			RootObject.Instance.AvatarLibraryManager.RemoveAvatar(_characterModelUrl);
+			RootObject.Instance.AvatarLibraryManager.RemoveAvatar(_characterModelId);
 		}
 	}
 }
