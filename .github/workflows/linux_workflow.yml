@@ -8,8 +8,7 @@ jobs:
     name: Test Unity
     runs-on: ubuntu-latest
     steps:
-    
-      # Activation stage
+   
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -62,7 +61,7 @@ jobs:
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           unityVersion: 2022.3.7f1
-      
+     
   build:
     name: Build Unity
     runs-on: ubuntu-latest
