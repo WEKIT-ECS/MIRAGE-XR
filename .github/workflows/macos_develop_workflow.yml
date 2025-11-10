@@ -12,13 +12,18 @@ jobs:
     steps:
     
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
            lfs: 'true'
            ref: develop
+           ssh-key: ${{ secrets.GIT_PRIVATE_DEPLOY_KEY }}
            
       - name: LFS pull
         run: git lfs pull
+
+      - name: check if checkout complete
+        run: |
+          ls $GITHUB_WORKSPACE/Packages/com.wekit-ecs.lib-lee/
         
       # Cache
       - name: Caching
