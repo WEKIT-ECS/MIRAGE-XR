@@ -11,12 +11,15 @@ jobs:
     
       # Activation stage
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
         with:
            lfs: 'true'
            ref: develop
+           ssh-key: ${{ secrets.GIT_PRIVATE_DEPLOY_KEY }}
+           
       - name: LFS pull
         run: git lfs pull
+        
       - name: Set up credentials
         env:
           ASSISTANTKEYS: ${{ secrets.ASSISTANTKEYS }}
