@@ -10,6 +10,11 @@ jobs:
     outputs:
       buildVersion: ${{ steps.buildStep.outputs.buildVersion }}
     steps:
+
+      - name: Install git-lfs
+        run: |
+          apt-get update && apt-get install -y git-lfs
+          git lfs update --force || true
     
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -23,7 +28,7 @@ jobs:
       #- name: LFS pull
       #  run: git lfs pull
 
-      - name: check if checkout complete
+      - name: Check if checkout complete
         run: |
           echo "$GITHUB_WORKSPACE/Packages/com.wekit-ecs.lib-lee/"
           ls $GITHUB_WORKSPACE/Packages/com.wekit-ecs.lib-lee/
