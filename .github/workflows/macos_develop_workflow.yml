@@ -23,6 +23,7 @@ jobs:
 
       - name: check if checkout complete
         run: |
+          echo "$GITHUB_WORKSPACE/Packages/com.wekit-ecs.lib-lee/"
           ls $GITHUB_WORKSPACE/Packages/com.wekit-ecs.lib-lee/
         
       # Cache
