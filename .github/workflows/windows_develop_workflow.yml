@@ -5,8 +5,8 @@ on:
     - cron: 0 19 * * 5
 jobs:
   build_unity:
-    name: Build Unity project
-    runs-on: windows-2019
+    name: Build project
+    runs-on: windows-latest
     outputs:
       buildVersion: ${{ steps.buildStep.outputs.buildVersion }}
     steps:
@@ -77,7 +77,7 @@ jobs:
 
   build_hololens:
     name: Build Hololens
-    runs-on: windows-2019
+    runs-on: windows-latest
     needs: build_unity
     outputs:
       browser_download_url: ${{ steps.releaseUpload.outputs.browser_download_url }}
