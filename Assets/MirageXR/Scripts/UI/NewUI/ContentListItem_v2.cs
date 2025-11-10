@@ -1,5 +1,7 @@
 ﻿using MirageXR;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;
@@ -100,15 +102,15 @@ public class ContentListItem_v2 : MonoBehaviour
 
     private void EditContent()  //TODO: 
     {
-        /*var type = LearningExperienceEngine.ContentTypeExtension.ParsePredicate(_content.predicate);
-        var editor = _parentView.editors.FirstOrDefault(t => t.editorForType == type);
+        //var type = LearningExperienceEngine.ContentTypeExtension.ParsePredicate(_content.predicate);
+        var editor =  ((IEnumerable<PopupEditorBase>)RootView_v2.Instance.editors).FirstOrDefault(t => t.editorForType == _type);
         if (editor == null)
         {
-            Debug.LogError($"there is no editor for the type {type}");
+            Debug.LogError($"there is no editor for the type {_type}");
             return;
         }
 
-        PopupsViewer.Instance.Show(editor, _parentView.currentStep, _content);*/
+        PopupsViewer.Instance.Show(editor, _parentView.currentStep, _content);
     }
 
     private void LocateContent()
