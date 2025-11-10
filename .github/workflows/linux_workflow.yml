@@ -1,8 +1,8 @@
 name: Linux Workflow (Unit tests and Android build)
 on:
   workflow_dispatch:
-  schedule:
-    - cron: 0 19 * * 5
+  #schedule:
+  #  - cron: 0 19 * * 5
 jobs:
   test:
     name: Test Unity
@@ -60,7 +60,7 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          unityVersion: 2022.3.7f1
+          unityVersion: ${{ secrets.UNITY_VERSION_MASTER }}
      
   build:
     name: Build Unity
@@ -129,7 +129,7 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: Android
-          unityVersion: 2022.3.7f1
+          unityVersion: ${{ secrets.UNITY_VERSION_MASTER }}
           versioning: Semantic
           # dirty build needed to include generated Watson credentials
           allowDirtyBuild: true
@@ -142,7 +142,7 @@ jobs:
           androidTargetSdkVersion: AndroidApiLevel33
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Android
           path: build
