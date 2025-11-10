@@ -66,7 +66,7 @@ jobs:
         with:
           testMode: EditMode
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          unityVersion: ${{ secrets.UNITY_VERSION_DEVELOP }}
+          unityVersion: editor-ubuntu-6000.0.40f1-android-3.2.0 # ${{ secrets.UNITY_VERSION_DEVELOP }}
       
   build:
     name: Build Unity
