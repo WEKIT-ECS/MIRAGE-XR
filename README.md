@@ -75,12 +75,11 @@ IBM Cloud Unity SDK Core (Assets/IBMWatsonSDK/IBMSdkCore) and IBM Cloud Unity SD
 
 ## Download Releases
 
-Main Build status for HoloLens builds: ![example workflow](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/workflows/windows_workflow.yml/badge.svg?branch=master)
+<!-- Main Build status for HoloLens builds: ![example workflow](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/workflows/windows_workflow.yml/badge.svg?branch=master) -->
 
-Main Build status for Android builds: ![example workflow](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/workflows/linux_workflow.yml/badge.svg?branch=master)
+<!-- Main Build status for Android builds: ![example workflow](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/workflows/linux_workflow.yml/badge.svg?branch=master) -->
 
 You can find the releases in the [Releases tab](https://github.com/WEKIT-ECS/MIRAGE-XR/releases).
-They contain changelogs and installer files for the HoloLens 1 & 2 devices.
 
 ## Download Preview Builds
 
@@ -88,9 +87,9 @@ Preview builds reflect the current state of the development and may be unstable.
 Use these installers to test new features before they are available as a regular release.
 Preview releases are for testing purposes only and should not be used in production.
 
-Preview Build status for HoloLens builds: ![example workflow](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/workflows/windows_develop_workflow.yml/badge.svg?branch=develop)
+<!-- Preview Build status for HoloLens builds: ![example workflow](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/workflows/windows_develop_workflow.yml/badge.svg?branch=develop) -->
 
-Preview Build status for Android builds: ![example workflow](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/workflows/linux_develop_workflow.yml/badge.svg?branch=develop)
+<!-- Preview Build status for Android builds: ![example workflow](https://github.com/WEKIT-ECS/MIRAGE-XR/actions/workflows/linux_develop_workflow.yml/badge.svg?branch=develop) -->
 
 ![monitored by sentry](https://img.shields.io/badge/monitored%20by-sentry-purple)
 
