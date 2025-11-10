@@ -20,8 +20,8 @@ jobs:
            token: ${{ secrets.GH_PAT_TOKEN }}
            #ssh-key: ${{ secrets.GIT_PRIVATE_DEPLOY_KEY }}
            
-      - name: LFS pull
-        run: git lfs pull
+      #- name: LFS pull
+      #  run: git lfs pull
 
       - name: check if checkout complete
         run: |
