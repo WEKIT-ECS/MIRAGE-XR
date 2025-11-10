@@ -1,8 +1,8 @@
 name: Linux Develop Workflow (Unit tests and Android build)
 on:
   workflow_dispatch:
-  schedule:
-    - cron: 0 19 * * 5
+  #schedule:
+  #  - cron: 0 19 * * 5
 jobs:
   test:
     name: Test Unity
@@ -63,7 +63,7 @@ jobs:
         with:
           testMode: EditMode
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          unityVersion: 2022.3.7f1
+          unityVersion: ${{ secrets.UNITY_VERSION_DEVELOP }}
       
   build:
     name: Build Unity
@@ -127,7 +127,7 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: Android
-          unityVersion: 2022.3.7f1
+          unityVersion: ${{ secrets.UNITY_VERSION_DEVELOP }}
           versioning: Semantic
           # dirty build needed to include generated Watson credentials
           allowDirtyBuild: true
