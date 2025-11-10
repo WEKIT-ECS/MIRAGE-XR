@@ -11,10 +11,10 @@ jobs:
       buildVersion: ${{ steps.buildStep.outputs.buildVersion }}
     steps:
 
-      - name: Install git-lfs
-        run: |
-          apt-get update && apt-get install -y git-lfs
-          git lfs update --force || true
+      #- name: Install git-lfs
+      #  run: |
+      #    apt-get update && apt-get install -y git-lfs
+      #    git lfs update --force || true
     
       - name: Checkout repository
         uses: actions/checkout@v5
