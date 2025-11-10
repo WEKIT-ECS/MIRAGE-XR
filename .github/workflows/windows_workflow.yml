@@ -1,14 +1,14 @@
 name: Windows Workflow (HoloLens Builds)
 on: 
   workflow_dispatch:
-  schedule:
-    - cron: 0 19 * * 5
+  #schedule:
+  #  - cron: 0 19 * * 5
   release:
     types: [published]
 jobs:
   build_unity:
     name: Build Unity project
-    runs-on: windows-2019
+    runs-on: windows-latest
     outputs:
       buildVersion: ${{ steps.buildStep.outputs.buildVersion }}
     steps:
@@ -78,7 +78,7 @@ jobs:
 
   build_hololens:
     name: Build Hololens
-    runs-on: windows-2019
+    runs-on: windows-latest
     needs: build_unity
     outputs:
       browser_download_url: ${{ steps.releaseUpload.outputs.browser_download_url }}
