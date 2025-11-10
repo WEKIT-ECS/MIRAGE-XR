@@ -19,8 +19,8 @@ jobs:
            token: ${{ secrets.GH_PAT_TOKEN }}
            # ssh-key: ${{ secrets.GIT_PRIVATE_DEPLOY_KEY }}
            
-      - name: LFS pull
-        run: git lfs pull
+      #- name: LFS pull
+      #  run: git lfs pull
         
       - name: Set up credentials
         env:
@@ -80,14 +80,19 @@ jobs:
     
       # Free up disk space
       - uses: jlumbroso/free-disk-space@v1.3.1
+      
       # Activation stage
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
            lfs: 'true'
+           submodules: 'recursive' 
            ref: develop
-      - name: LFS pull
-        run: git lfs pull
+           token: ${{ secrets.GH_PAT_TOKEN }}
+           
+      #- name: LFS pull
+      #  run: git lfs pull
+      
       - name: Set up IBM Watson credentials
         env:
           ASSISTANTKEYS: ${{ secrets.ASSISTANTKEYS }}
@@ -145,7 +150,7 @@ jobs:
           androidTargetSdkVersion: AndroidApiLevel33
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Android
           path: build
