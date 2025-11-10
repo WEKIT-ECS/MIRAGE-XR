@@ -1,8 +1,8 @@
 name: iOS Build Workflow
 on:
   workflow_dispatch:
-  schedule:
-    - cron: 0 19 * * 5
+  #schedule:
+  #  - cron: 0 19 * * 5
 jobs:
   build:
     name: Build MacOS
@@ -39,7 +39,7 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: iOS
-          unityVersion: 2022.3.7f1
+          unityVersion: ${{ secrets.UNITY_VERSION_DEVELOP }}
           versioning: Semantic
           # dirty build needed to include generated Watson credentials
           allowDirtyBuild: true
