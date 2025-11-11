@@ -33,7 +33,8 @@ namespace MirageXR
 			}
 			else
 			{
-				AvatarList = new List<string>() { AvatarLoader.DefaultAvatarUrl };
+				AvatarList = new List<string>();
+				AddAvatar(AvatarLoader.DefaultAvatarUrl);
 			}
 			_cachedAvatarThumbnails.Clear();
 		}
