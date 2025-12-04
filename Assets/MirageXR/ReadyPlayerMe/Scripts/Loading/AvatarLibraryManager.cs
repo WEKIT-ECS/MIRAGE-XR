@@ -99,7 +99,7 @@ namespace MirageXR
 
 			if (_cachedAvatarThumbnails.ContainsKey(avatarId))
 			{
-				Debug.LogTrace("Returning cached avatar thumbnail for avatar ID" + avatarId, this);
+				Debug.LogTrace("Returning cached avatar thumbnail for avatar ID " + avatarId, this);
 				return _cachedAvatarThumbnails[avatarId];
 			}
 			else
