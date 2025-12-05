@@ -1,8 +1,8 @@
 name: iOS Build Workflow
 on:
   workflow_dispatch:
-  schedule:
-    - cron: 0 19 * * 5
+  #schedule:
+  #  - cron: 0 19 * * 5
 jobs:
   build:
     name: Build MacOS
