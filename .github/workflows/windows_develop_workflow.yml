@@ -1,8 +1,8 @@
 name: Windows Develop Workflow (HoloLens Builds)
 on: 
   workflow_dispatch:
-  schedule:
-    - cron: 0 19 * * 5
+  #schedule:
+  #  - cron: 0 19 * * 5
 jobs:
   build_unity:
     name: Build Unity project
