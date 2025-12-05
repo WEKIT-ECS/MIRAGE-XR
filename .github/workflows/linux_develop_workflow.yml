@@ -1,8 +1,8 @@
 name: Linux Develop Workflow (Unit tests and Android build)
 on:
   workflow_dispatch:
-  schedule:
-    - cron: 0 19 * * 5
+  #schedule:
+  #  - cron: 0 19 * * 5
 jobs:
   test:
     name: Test Unity
