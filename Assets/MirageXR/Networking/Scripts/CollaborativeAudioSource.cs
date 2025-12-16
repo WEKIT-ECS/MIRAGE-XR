@@ -1,3 +1,4 @@
+using System;
 using uLipSync;
 using UnityEngine;
 
@@ -5,6 +6,7 @@ namespace MirageXR
 {
 	public class CollaborativeAudioSource : MonoBehaviour
     {
+		[SerializeField]
 		private AudioSource _audioSource;
 
 		private void Start()
