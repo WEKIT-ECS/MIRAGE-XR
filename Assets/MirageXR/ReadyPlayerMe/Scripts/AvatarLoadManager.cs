@@ -1,3 +1,4 @@
+using GLTFast;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -12,19 +13,15 @@ namespace MirageXR
     {
         private string avatarListUrl;
         private string avatarThumbnailEndpoint;
-        private string avatarThumbnailFiletype = "png";
+        private const string avatarThumbnailFiletype = "png";
+        private string avatarModelEndpoint;
+        private const string avatarModelFiletype = "glb";
 
         private void Awake()
         {
             avatarListUrl = "file://" + Application.persistentDataPath + "/AvatarMock/avatarList.txt";
             avatarThumbnailEndpoint = "file://" + Application.persistentDataPath + "/AvatarMock/";
-        }
-
-        private async void Start()
-        {
-            Texture2D tex = await GetThumbnail("DefaultAvatar");
-            GameObject testObj = GameObject.CreatePrimitive(PrimitiveType.Plane);
-            testObj.GetComponent<Renderer>().material.mainTexture = tex;
+            avatarModelEndpoint = "file://" + Application.persistentDataPath + "/AvatarMock/";
         }
 
         public async Task<string[]> GetListOfAvatarsAsync()
@@ -43,6 +40,49 @@ namespace MirageXR
                     Debug.LogError("Error fetching avatar list: " + webRequest.error);
                     return new string[0];
                 }
+            }
+        }
+
+        public async Task<GltfImport> GetGltfModel(string avatarName)
+        {
+            string url = avatarModelEndpoint + avatarName + "." + avatarModelFiletype;
+
+            GltfImport gltf = new GltfImport();
+
+            bool success = await gltf.Load(url);
+
+            if (success)
+            {
+                return gltf;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public async Task<GameObject> LoadModel(string avatarName, Transform parent = null)
+        {
+            GltfImport gltf = await GetGltfModel(avatarName);
+            if (gltf == null)
+            {
+                Debug.LogError("Call to GetGltfModel did not return model data");
+                return null;
+            }
+
+            GameObject instance = new GameObject("Avatar - " + avatarName);
+            instance.transform.parent = parent;
+
+            bool success = await gltf.InstantiateMainSceneAsync(instance.transform);
+            if (success)
+            {
+                return instance;
+            }
+            else
+            {
+                Destroy(instance);
+                Debug.LogError("Error instantiating the GLTF model");
+                return null;
             }
         }
 
