@@ -26,7 +26,8 @@ namespace MirageXR
 		[SerializeField] private CollaborationManager _collaborationManager;
 		[SerializeField] private WorkplaceController _workplaceController; // added with lib-lee migration
 		[SerializeField] private ContentAugmentationController _contentController; // added with lib-lee migration
-		[SerializeField] private AvatarLibraryManager _avatarLibraryManager;
+        [SerializeField] private AvatarLoadManager _avatarLoadManager;
+        [SerializeField] private AvatarLibraryManager _avatarLibraryManager;
 
 		private OpenAIManager _openAIManager;
 		private EditorSceneService _editorSceneService;
@@ -55,6 +56,8 @@ namespace MirageXR
 		public OpenAIManager OpenAIManager => _openAIManager;
 		public VirtualInstructorOrchestrator VirtualInstructorOrchestrator => _virtualInstructorOrchestrator;
 		public IAssetBundleManager AssetBundleManager => _assetBundleManager;
+
+		public AvatarLoadManager AvatarLoadManager => _avatarLoadManager;
 		public AvatarLibraryManager AvatarLibraryManager => _avatarLibraryManager;
 		public IViewManager ViewManager => _viewManager;
 
