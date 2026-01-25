@@ -50,6 +50,8 @@ namespace MirageXR
         {
             using (UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(avatarThumbnailEndpoint + avatarName + "." + avatarThumbnailFiletype))
             {
+                await webRequest.SendWebRequest();
+
                 if (webRequest.result == UnityWebRequest.Result.Success)
                 {
                     Texture2D thumbnail = DownloadHandlerTexture.GetContent(webRequest);
