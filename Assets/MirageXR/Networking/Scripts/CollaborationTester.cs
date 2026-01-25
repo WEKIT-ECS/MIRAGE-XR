@@ -13,7 +13,6 @@ namespace MirageXR
 			avatarLoadTester = GetComponent<AvatarLoadTester>();
 		}
 
-
 		async void Update()
         {
             if (Input.GetKeyDown(KeyCode.F5))

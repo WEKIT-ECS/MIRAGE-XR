@@ -10,26 +10,26 @@ namespace MirageXR
 
 		int index = 0;
 
-		// Update is called once per frame
-		void Update()
+        // Update is called once per frame
+        private async void Update()
 		{
 			if (Input.GetKeyDown(KeyCode.F7))
 			{
 				if (index == 0)
 				{
-					_avatarLoader.LoadAvatar("https://models.readyplayer.me/66edca96b26e13258a79831a.glb");
+					await _avatarLoader.LoadAvatarAsync("DefaultAvatar");
 				}
 				else if (index == 1)
 				{
-					_avatarLoader.LoadAvatar("https://models.readyplayer.me/667d532bf636bee47d5e7146.glb");
+					await _avatarLoader.LoadAvatarAsync("DocumentationAvatar");
 				}
 				else if (index == 2)
 				{
-					_avatarLoader.LoadAvatar("https://models.readyplayer.me/673a4113c99a8ebbd293724f.glb");
+					await _avatarLoader.LoadAvatarAsync("DocumentationAvatar2");
 				}
 				else if (index == 3)
 				{
-					_avatarLoader.LoadAvatar("https://models.readyplayer.me/670645c0c8bf0b5a9f60d204.glb");
+					await _avatarLoader.LoadAvatarAsync("FemaleDarkHairBlackClothing");
 				}
 				index = (index + 1) % 4;
 			}
