@@ -125,7 +125,7 @@ namespace MirageXR
 			Loading = true;
 			_importerBusy = true;
 			//AvatarObjectLoader.LoadAvatar(avatarUrl);
-			GameObject instance = await RootObject.Instance.AvatarLoadManager.LoadModel(avatarUrl);
+			GameObject instance = await RootObject.Instance.AvatarLoadManager.CreateGameObjectAsync(avatarUrl);
 			if (instance != null)
 			{
 				OnLoadCompleted(avatarUrl, instance);

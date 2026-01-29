@@ -123,6 +123,7 @@ namespace MirageXR
 				_platformManager ??= new GameObject("PlatformManager").AddComponent<PlatformManager>();
 				_planeManager ??= new GameObject("PlaneManager").AddComponent<PlaneManagerWrapper>();
 				_avatarLibraryManager ??= new GameObject("AvatarLibraryManager").AddComponent<AvatarLibraryManager>();
+				_avatarLoadManager ??= new GameObject("AvatarLoadManager").AddComponent<AvatarLoadManager>();
 
 				_editorSceneService = new EditorSceneService();
 
@@ -152,6 +153,7 @@ namespace MirageXR
 				_platformManager.Initialization();
 				await _roomTwinManager.InitializationAsync();
 				await _openAIManager.InitializeAsync();
+				_avatarLoadManager.Initialize(_lee.AuthorizationManager);
 #if FUSION2
                 _collaborationManager.Initialize(_lee.AuthorizationManager, _assetBundleManager);
 #endif
