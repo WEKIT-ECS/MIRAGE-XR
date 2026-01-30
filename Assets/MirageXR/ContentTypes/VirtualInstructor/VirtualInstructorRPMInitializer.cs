@@ -67,8 +67,12 @@ namespace MirageXR
 				Debug.LogError("Something went wrong loading the animator controller for the Ready Player Me character", this);
 			}
 
-			// lip sync setup
-			uLipSync.uLipSync lipSync = avatarReferences.AudioSource.gameObject.AddComponent<uLipSync.uLipSync>();
+            GameObject template = Resources.Load<GameObject>("AnimationAvatars/Masculine");
+            Animator templateAnimator = template.GetComponent<Animator>();
+            animator.avatar = templateAnimator.avatar;
+
+            // lip sync setup
+            uLipSync.uLipSync lipSync = avatarReferences.AudioSource.gameObject.AddComponent<uLipSync.uLipSync>();
 			string lipSyncProfilePath = "Avatar/LipSyncProfile";
 			var profileLoadHandle = Addressables.LoadAssetAsync<Profile>(lipSyncProfilePath);
 			await profileLoadHandle.Task;
