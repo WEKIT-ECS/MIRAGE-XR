@@ -219,7 +219,7 @@ namespace MirageXR
 		private void OnAvatarModelSelected(string characterModelId)
 		{
 			_useReadyPlayerMe = true;
-			_characterModelUrl = RPMUtils.IdToUrl(characterModelId);
+			_characterModelUrl = AvatarLoadUtils.IdToModelUrl(characterModelId);
 			characterModelSelectionElement.Thumbnail.CharacterModelId = characterModelId;
 			ShownSubMenu = VirtualInstructorSubMenu.GeneralSettings;
 		}

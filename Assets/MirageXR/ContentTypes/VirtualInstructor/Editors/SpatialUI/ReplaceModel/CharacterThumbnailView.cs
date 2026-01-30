@@ -63,7 +63,7 @@ namespace MirageXR
 			if (!string.IsNullOrWhiteSpace(_characterModelId))
 			{
 				_waitSpinner.SetActive(true);
-				Texture2D thumbnail = await RootObject.Instance.AvatarLibraryManager.GetThumbnailAsync(_characterModelId);
+				Texture2D thumbnail = await RootObject.Instance.AvatarLoadManager.GetThumbnailAsync(_characterModelId);
 				_errorDisplay.SetActive(thumbnail == null);
 				DisplayedThumbnail = thumbnail;
 				_waitSpinner.SetActive(false);

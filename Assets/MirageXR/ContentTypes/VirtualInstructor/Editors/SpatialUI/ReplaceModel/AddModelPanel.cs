@@ -68,13 +68,14 @@ namespace MirageXR
 				return;
 			}
 
-			string avatarId = RPMUtils.GetId(urlOrId);
+			string avatarId = AvatarLoadUtils.GetId(urlOrId);
 
 			waitSpinner.SetActive(true);
 			addModelBtn.interactable = false;
 
-			RPMMetaData metaData = await RPMUtils.GetMetadataAsync(avatarId);
-			bool valid = metaData != null;
+			// TODO: find another way to check
+			//RPMMetaData metaData = await AvatarLoadUtils.GetMetadataAsync(urlOrId);
+			bool valid = true;
 
 			waitSpinner.SetActive(false);
 			addModelBtn.interactable = true;
@@ -83,8 +84,8 @@ namespace MirageXR
 			{
 				// we take the id from the metaData because it is guaranteed to be readable by RPM
 				// this way, we avoid adding shortcodes here because they don't seem to work with the thumbnail API
-				RootObject.Instance.AvatarLibraryManager.AddAvatar(metaData.id);
-				CharacterSelected?.Invoke(metaData.id);
+				RootObject.Instance.AvatarLibraryManager.AddAvatar(avatarId);
+				CharacterSelected?.Invoke(avatarId);
 				inputField.text = "";
 			}
 			confirmation.SetActive(valid);

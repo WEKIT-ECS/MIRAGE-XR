@@ -26,7 +26,8 @@ namespace MirageXR
 		[SerializeField] private CollaborationManager _collaborationManager;
 		[SerializeField] private WorkplaceController _workplaceController; // added with lib-lee migration
 		[SerializeField] private ContentAugmentationController _contentController; // added with lib-lee migration
-		[SerializeField] private AvatarLibraryManager _avatarLibraryManager;
+        [SerializeField] private AvatarLoadManager _avatarLoadManager;
+        [SerializeField] private AvatarLibraryManager _avatarLibraryManager;
 
 		private OpenAIManager _openAIManager;
 		private EditorSceneService _editorSceneService;
@@ -55,6 +56,8 @@ namespace MirageXR
 		public OpenAIManager OpenAIManager => _openAIManager;
 		public VirtualInstructorOrchestrator VirtualInstructorOrchestrator => _virtualInstructorOrchestrator;
 		public IAssetBundleManager AssetBundleManager => _assetBundleManager;
+
+		public AvatarLoadManager AvatarLoadManager => _avatarLoadManager;
 		public AvatarLibraryManager AvatarLibraryManager => _avatarLibraryManager;
 		public IViewManager ViewManager => _viewManager;
 
@@ -120,6 +123,7 @@ namespace MirageXR
 				_platformManager ??= new GameObject("PlatformManager").AddComponent<PlatformManager>();
 				_planeManager ??= new GameObject("PlaneManager").AddComponent<PlaneManagerWrapper>();
 				_avatarLibraryManager ??= new GameObject("AvatarLibraryManager").AddComponent<AvatarLibraryManager>();
+				_avatarLoadManager ??= new GameObject("AvatarLoadManager").AddComponent<AvatarLoadManager>();
 
 				_editorSceneService = new EditorSceneService();
 
@@ -149,6 +153,7 @@ namespace MirageXR
 				_platformManager.Initialization();
 				await _roomTwinManager.InitializationAsync();
 				await _openAIManager.InitializeAsync();
+				_avatarLoadManager.Initialize(_lee.AuthorizationManager);
 #if FUSION2
                 _collaborationManager.Initialize(_lee.AuthorizationManager, _assetBundleManager);
 #endif

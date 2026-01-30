@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 
@@ -10,13 +11,13 @@ namespace MirageXR
 	{
 		private NetworkedAvatarReferences _avatarRefs;
 
-		private void Start()
+		private async void Start()
 		{
 			_avatarRefs = GetComponent<NetworkedAvatarReferences>();
 			_avatarRefs.UserData.NetworkedUserNameChanged += OnUserNameChanged;
 			_avatarRefs.UserData.NetworkedAvatarUrlChanged += OnAvatarUrlChanged;
 			UpdateUserNameLabel();
-			LoadAvatar();
+			await LoadAvatarAsync();
 		}		
 
 		private void OnDestroy()
@@ -29,15 +30,15 @@ namespace MirageXR
 			UpdateUserNameLabel();
 		}
 
-		private void OnAvatarUrlChanged(string newAvatarUrl)
+		private async void OnAvatarUrlChanged(string newAvatarUrl)
 		{
 			Debug.LogTrace("Loading new avatar since avatar URL was changed to " + newAvatarUrl);
-			LoadAvatar();
+			await LoadAvatarAsync();
 		}
 
-		private void LoadAvatar()
+		private async Task LoadAvatarAsync()
 		{
-			_avatarRefs.OfflineReferences.Loader.LoadAvatar(_avatarRefs.UserData.AvatarUrl);
+			await _avatarRefs.OfflineReferences.Loader.LoadAvatarAsync(_avatarRefs.UserData.AvatarUrl);
 		}
 
 		private void UpdateUserNameLabel()

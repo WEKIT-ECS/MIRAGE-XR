@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using ReadyPlayerMe.Core;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace MirageXR
@@ -24,38 +25,12 @@ namespace MirageXR
 		[Tooltip("Outputs ReadyPlayerMe logs if true")]
 		[SerializeField] private bool detailedRPMLogs = false;
 
-		public const string DefaultAvatarUrl = "https://models.readyplayer.me/667bed8204fd145bd9e09f19.glb";
-
-		// Instance of ReadyPlayerMe's AvatarObjectLoader, responsible for loading avatar assets.
-		private AvatarObjectLoader _avatarObjectLoader;
+		public const string DefaultAvatarUrl = "DefaultAvatar";
 
 		/// <summary>
 		/// Currently loaded avatar game object.
 		/// </summary>
 		public GameObject CurrentAvatar { get; private set; }
-
-		// Gets or initializes the AvatarObjectLoader.
-		private AvatarObjectLoader AvatarObjectLoader
-		{
-			get
-			{
-				if (_avatarObjectLoader == null)
-				{
-					_avatarObjectLoader = new AvatarObjectLoader();
-					if (avatarConfig != null)
-					{
-						_avatarObjectLoader.AvatarConfig = avatarConfig;
-					}
-					else
-					{
-						Debug.LogWarning("No avatar configuration set. The import of ReadyPlayerMe avatars might not work as expected.", this);
-					}
-					_avatarObjectLoader.OnCompleted += OnLoadCompleted;
-					_avatarObjectLoader.OnFailed += OnLoadFailed;
-				}
-				return _avatarObjectLoader;
-			}
-		}
 
 		// Array of initializer components ordered by priority.
 		private AvatarInitializer[] _avatarInitializers;
@@ -106,7 +81,7 @@ namespace MirageXR
 		private bool _importerBusy = false;
 
 		// Initializes the component and optionally loads the default avatar. 
-		private void Start()
+		private async void Start()
 		{
 			Loading = false;
 
@@ -116,11 +91,7 @@ namespace MirageXR
 				{
 					Debug.LogTrace("Applying default avatar prefab");
 					GameObject instance = Instantiate(defaultAvatarPrefab);
-					OnLoadCompleted(this, new CompletionEventArgs()
-					{
-						Avatar = instance,
-						Url = "local"
-					});
+					OnLoadCompleted("DefaultAvatar", instance);
 				}
 				else
 				{
@@ -129,47 +100,57 @@ namespace MirageXR
 					{
 						defaultAvatarUrl = DefaultAvatarUrl;
 					}
-					LoadAvatar(defaultAvatarUrl);
+					await LoadAvatarAsync(defaultAvatarUrl);
 				}
 			}
 		}
 
 		/// <summary>
-		/// Loads an avatar from the specified URL.
+		/// Loads an avatar of the specified URL.
 		/// </summary>
 		/// <param name="avatarUrl">The URL of the avatar model to load.</param>
-		public void LoadAvatar(string avatarUrl)
+		public async Task<GameObject> LoadAvatarAsync(string avatarUrl)
 		{
-			SDKLogger.EnableLogging(detailedRPMLogs);
 			if (string.IsNullOrWhiteSpace(avatarUrl))
 			{
-				return;
+				return null;
 			}
 			if (_importerBusy)
 			{
-				AvatarObjectLoader.Cancel();
+				//TODO: cancelation tokens
+				//AvatarObjectLoader.Cancel();
 			}
 			Debug.LogDebug("Loading avatar " + avatarUrl, this);
 			avatarUrl = avatarUrl.Trim();
 			Loading = true;
 			_importerBusy = true;
-			AvatarObjectLoader.LoadAvatar(avatarUrl);
+			//AvatarObjectLoader.LoadAvatar(avatarUrl);
+			GameObject instance = await RootObject.Instance.AvatarLoadManager.CreateGameObjectAsync(avatarUrl);
+			if (instance != null)
+			{
+				OnLoadCompleted(avatarUrl, instance);
+			}
+			else
+			{
+				OnLoadFailed();
+			}
+			return instance;
 		}
 
 		// Handles the event when avatar loading fails.
-		private void OnLoadFailed(object sender, FailureEventArgs e)
+		private void OnLoadFailed()
 		{
 			_importerBusy = false;
-			Debug.LogError("Could not load avatar. Reason: " + e.Message);
+			Debug.LogError("Could not load avatar.");
 			Loading = false;
 			AvatarLoaded?.Invoke(false);
 		}
 
 		// Handles the event when avatar loading completes successfully.
-		private async void OnLoadCompleted(object sender, CompletionEventArgs e)
+		private async void OnLoadCompleted(string url, GameObject avatar)
 		{
 			_importerBusy = false;
-			Debug.LogDebug($"Avatar from {e.Url} successfully loaded", this);
+			Debug.LogDebug($"Avatar from {url} successfully loaded", this);
 			if (CurrentAvatar != null)
 			{
 				// clean up in opposite order
@@ -182,14 +163,14 @@ namespace MirageXR
 			if (!ContainerStillExists())
 			{
 				Debug.LogWarning("While loading the virtual instructor, its container has been deleted. Deleting the downloaded model to clean up orphaned 3D models.");
-				Destroy(e.Avatar);
+				Destroy(avatar);
 				return;
 			}
-			await SetupAvatarAsync(e);
+			await SetupAvatarAsync(url, avatar);
 			if (!ContainerStillExists())
 			{
 				Debug.LogWarning("While loading the virtual instructor, its container has been deleted. Deleting the downloaded model to clean up orphaned 3D models.");
-				Destroy(e.Avatar);
+				Destroy(avatar);
 				return;
 			}
 			Loading = false;
@@ -197,10 +178,10 @@ namespace MirageXR
 		}
 
 		// Sets up the loaded avatar in the scene using the AvatarInitializers
-		private async UniTask SetupAvatarAsync(CompletionEventArgs e)
+		private async UniTask SetupAvatarAsync(string url, GameObject avatar)
 		{
-			LoadedAvatarUrl = e.Url;
-			CurrentAvatar = e.Avatar;
+			LoadedAvatarUrl = url;
+			CurrentAvatar = avatar;
 			// setup transform
 			SetupTransform();
 
