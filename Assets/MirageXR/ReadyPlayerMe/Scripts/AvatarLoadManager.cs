@@ -21,7 +21,7 @@ namespace MirageXR
 
         private string AvatarThumbnailEndpoint
         {
-            get => avatarBaseEndpoint + "thumbnail";
+            get => avatarBaseEndpoint + "thumbnail/get";
         }
 
         private string AvatarModelEndpoint
@@ -99,6 +99,8 @@ namespace MirageXR
             bool success = await gltf.InstantiateMainSceneAsync(instance.transform);
             if (success)
             {
+                // change the instance name so that the RPM scripts still work
+                instance.transform.Find("Armature/Wolf3D_Avatar").name = "Renderer_Avatar";
                 return instance;
             }
             else
@@ -114,6 +116,7 @@ namespace MirageXR
             string thumbnailUrl = AvatarThumbnailEndpoint + "?avatar_name=" + avatarName;
             using (UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(thumbnailUrl))
             {
+                webRequest.SetRequestHeader("Authorization", $"Bearer {_authorizationManager.AccessToken}");
                 await webRequest.SendWebRequest();
 
                 if (webRequest.result == UnityWebRequest.Result.Success)

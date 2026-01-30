@@ -32,6 +32,34 @@ MonoBehaviour:
     PropertyName: emissiveTexture
   - TextureChannel: 4
     PropertyName: occlusionTexture
+  ShaderPropertyMapping:
+  - SourceProperty: baseColorTexture
+    TargetProperty: _MainTex
+    Type: 0
+  - SourceProperty: normalTexture
+    TargetProperty: _BumpMap
+    Type: 0
+  - SourceProperty: metallicRoughnessTexture
+    TargetProperty: 
+    Type: 0
+  - SourceProperty: metallicFactor
+    TargetProperty: metallicFactor
+    Type: 1
+  - SourceProperty: roughnessFactor
+    TargetProperty: 
+    Type: 1
+  - SourceProperty: emissiveTexture
+    TargetProperty: emissiveTexture
+    Type: 0
+  - SourceProperty: emissiveFactor
+    TargetProperty: emissiveFactor
+    Type: 2
+  - SourceProperty: occlusionTexture
+    TargetProperty: occlusionTexture
+    Type: 0
+  - SourceProperty: occlusionTexture_strength
+    TargetProperty: 
+    Type: 1
   MorphTargets:
   - mouthSmile
   - eyeBlinkLeft

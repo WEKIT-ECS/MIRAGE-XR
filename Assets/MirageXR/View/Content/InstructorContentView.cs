@@ -75,7 +75,7 @@ namespace MirageXR.View
 						avatarLoader.AvatarLoaded -= OnAvatarLoaded;
 					}
                     avatarLoader.AvatarLoaded += OnAvatarLoaded;
-                    await avatarLoader.LoadAvatarAsync(_instructorContent.ContentData.CharacterModelUrl);
+                    await avatarLoader.LoadAvatarAsync(AvatarLoadUtils.ExtractIdFromUrl(_instructorContent.ContentData.CharacterModelUrl));
                     await tcs.Task;
                     return tcs.Task.Result;
                 }
