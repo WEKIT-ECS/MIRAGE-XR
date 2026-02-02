@@ -14,13 +14,20 @@ namespace MirageXR
     {
         public static string ExtractIdFromUrl(string avatarUrl)
         {
-            Uri uri = new Uri(avatarUrl);
-            Dictionary<string, string> queryParams = UriUtils.GetUriParameters(uri);
-            if (queryParams.TryGetValue("avatar_name", out string name))
+            if (Uri.TryCreate(avatarUrl, UriKind.Absolute, out Uri uri))
             {
-                return name;
+                Dictionary<string, string> queryParams = UriUtils.GetUriParameters(uri);
+                if (queryParams.TryGetValue("avatar_name", out string name))
+                {
+                    return name;
+                }
+                return "";
             }
-            return "";
+            else
+            {
+                Debug.LogWarning(avatarUrl + " is not a URL, returning it as is.");
+                return avatarUrl;
+            }
         }
 
         public static string GetId(string urlOrId)

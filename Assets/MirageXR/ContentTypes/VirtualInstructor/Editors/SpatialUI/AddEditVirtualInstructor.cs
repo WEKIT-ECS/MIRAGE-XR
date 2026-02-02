@@ -318,11 +318,11 @@ public class AddEditVirtualInstructor : EditorSpatialView   //TODO: rename to Vi
         avatarModelSettingPanel.gameObject.SetActive(true);
     }
 
-	private void OnAvatarModelSelected(string characterModelUrl)
+	private void OnAvatarModelSelected(string characterModelId)
 	{
         _useReadyPlayerMe = true;
-        _characterModelUrl = characterModelUrl;
-        characterModelSelectionElement.Thumbnail.CharacterModelId = _characterModelUrl;
+        _characterModelUrl = AvatarLoadUtils.IdToModelUrl(characterModelId);
+        characterModelSelectionElement.Thumbnail.CharacterModelId = characterModelId;
 	}
 
 	private void OpenCommunicationSettingPanel()
