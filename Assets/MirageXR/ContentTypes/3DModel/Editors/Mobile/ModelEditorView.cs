@@ -111,6 +111,13 @@ public class ModelEditorView : PopupEditorBase
             RootView_v2.Instance.HideBaseView();
             _modelFileType = NativeFilePicker.ConvertExtensionToFileType("fbx");
             _toggleLocal.isOn = true;
+            
+            if (Content != null && Content is Content<ModelContentData> modelContent)
+            {
+                sketchfabManager.Scale = modelContent.ContentData.Scale;
+                sketchfabManager.ResetPosition = modelContent.ContentData.ResetPosition;
+                sketchfabManager.FitToScreen = modelContent.ContentData.FitToScreen;
+            }
 
             InitializeLocalModelsAsync().Forget();
         }

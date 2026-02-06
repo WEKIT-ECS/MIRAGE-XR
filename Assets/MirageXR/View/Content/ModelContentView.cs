@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using LearningExperienceEngine.DataModel;
@@ -7,10 +8,14 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using Utilities;
 
+using MirageXR;
+
 namespace MirageXR.View
 {
     public class ModelContentView : ContentView
     {
+        public Guid Id => Content?.Id ?? Guid.Empty;
+        private static ISketchfabManager sketchfabManager => RootObject.Instance.LEE.SketchfabManager;
         private GltfModelController _model;
         private CancellationToken _cancellationToken;
             
@@ -73,6 +78,10 @@ namespace MirageXR.View
                     InitializeBoxCollider();
                 }
             }
+            else
+            {
+               _model.UpdateView(newModelContent.ContentData.ResetPosition, newModelContent.ContentData.FitToScreen, newModelContent.ContentData.Scale);
+            }
 
             await base.OnContentUpdatedAsync(content);
         }
@@ -121,6 +130,50 @@ namespace MirageXR.View
             }
 
             _model.UpdateView(content.ContentData.ResetPosition, content.ContentData.FitToScreen, content.ContentData.Scale);
+
+            // Capture initial local rotation (e.g. loader validation)
+            Quaternion initialChildRotation = _model.transform.localRotation;
+            
+            // Add Custom Bounding Box
+            var bb = _model.gameObject.AddComponent<SimpleBoundingBox>();
+            bb.Target = _model.transform;
+            bb.Setup(content.Id.ToString());
+
+            bb.OnScaleEnded += scale =>
+            {
+                // We use the first component as uniform scale
+                float newScale = scale.x;
+                
+                content.ContentData.Scale = newScale;
+                content.ContentData.FitToScreen = false;
+                content.ContentData.ResetPosition = false;
+
+                sketchfabManager.Scale = newScale;
+                sketchfabManager.FitToScreen = false;
+                sketchfabManager.ResetPosition = false;
+
+                RootObject.Instance.LEE.ContentManager.UpdateContent(content);
+            };
+            
+            bb.OnRotationEnded += rotation =>
+            {
+                // Apply rotation to Parent (this object) s.t. Parent * InitialChild = TargetRotation
+                // Parent = Target * Inverse(InitialChild)
+                transform.rotation = rotation * Quaternion.Inverse(initialChildRotation);
+                
+                // Reset Child to its initial local rotation (preserving loader fix)
+                _model.transform.localRotation = initialChildRotation;
+                
+                content.Location.Rotation = transform.rotation.eulerAngles;
+                
+                content.ContentData.FitToScreen = false;
+                content.ContentData.ResetPosition = false;
+                sketchfabManager.FitToScreen = false;
+                sketchfabManager.ResetPosition = false;
+
+                RootObject.Instance.LEE.ContentManager.UpdateContent(content);
+            };
+
             return true;
         }
 
@@ -136,6 +189,45 @@ namespace MirageXR.View
             var prefab = await Addressables.LoadAssetAsync<GameObject>(prefabName).Task;
             var item = Instantiate(prefab, transform);
             _model = item.AddComponent<GltfModelController>();
+            
+            // Capture initial
+            Quaternion initialChildRotation = _model.transform.localRotation;
+            
+            // Add Custom Bounding Box
+            var bb = item.AddComponent<SimpleBoundingBox>();
+            bb.Target = item.transform;
+            bb.Setup(content.Id.ToString());
+            bb.OnScaleEnded += scale =>
+            {
+                // We use the first component as uniform scale
+                float newScale = scale.x;
+                
+                content.ContentData.Scale = newScale;
+                content.ContentData.FitToScreen = false;
+                content.ContentData.ResetPosition = false;
+
+                sketchfabManager.Scale = newScale;
+                sketchfabManager.FitToScreen = false;
+                sketchfabManager.ResetPosition = false;
+
+                RootObject.Instance.LEE.ContentManager.UpdateContent(content);
+            };
+
+            bb.OnRotationEnded += rotation =>
+            {
+                transform.rotation = rotation * Quaternion.Inverse(initialChildRotation);
+                item.transform.localRotation = initialChildRotation;
+
+                content.Location.Rotation = transform.rotation.eulerAngles;
+                
+                content.ContentData.FitToScreen = false;
+                content.ContentData.ResetPosition = false;
+                sketchfabManager.FitToScreen = false;
+                sketchfabManager.ResetPosition = false;
+
+                RootObject.Instance.LEE.ContentManager.UpdateContent(content);
+            };
+
             return true;
         }
     }
