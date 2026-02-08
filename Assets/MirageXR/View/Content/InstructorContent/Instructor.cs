@@ -116,7 +116,7 @@ namespace MirageXR.View
             AppLog.LogDebug($"AI question: '{message}'");
             var response = await ArtificialIntelligenceManager.SendMessageToAssistantAsync(_instructorContent.ContentData.LanguageModel.ApiName, message, _instructorContent.ContentData.Prompt, _assistantId, _threadId);
             AppLog.LogDebug($"AI response: '{response}'");
-            var clip = await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(response, _instructorContent.ContentData.TextToSpeechModel.ApiName, _instructorContent.ContentData.VoiceInstruction);
+            var clip = await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(response, _instructorContent.ContentData.TextToSpeechModel.ApiName, GetVoiceInstruction());
 
             return clip;
         }
@@ -132,7 +132,7 @@ namespace MirageXR.View
             try
             {
                 var response = await ArtificialIntelligenceManager.SendMessageToAssistantAsync(_instructorContent.ContentData.LanguageModel.ApiName, message, _instructorContent.ContentData.Prompt, _assistantId, _threadId);
-                var clip = await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(response, _instructorContent.ContentData.TextToSpeechModel.ApiName, _instructorContent.ContentData.VoiceInstruction);
+                var clip = await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(response, _instructorContent.ContentData.TextToSpeechModel.ApiName, GetVoiceInstruction());
 
                 return clip;
             }
@@ -150,8 +150,13 @@ namespace MirageXR.View
         /// <returns>An async task that represents the asynchronous operation. The task result contains the audio clip representing the converted speech.</returns>
         public async UniTask<AudioClip> ConvertTextToSpeech(string message)
         {
-            var clip = await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(message, _instructorContent.ContentData.TextToSpeechModel.ApiName, _instructorContent.ContentData.VoiceInstruction);
+            var clip = await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(message, _instructorContent.ContentData.TextToSpeechModel.ApiName, GetVoiceInstruction());
             return clip;
+        }
+
+        private string GetVoiceInstruction()
+        {
+            return !string.IsNullOrEmpty(_instructorContent.ContentData.VoiceInstruction) ? _instructorContent.ContentData.VoiceInstruction : "neutral";
         }
 
         /// <summary>
@@ -181,7 +186,7 @@ namespace MirageXR.View
         public async UniTask<AudioClip> AskVirtualInstructorString(string message)
         {
             var response = await ArtificialIntelligenceManager.SendMessageToAssistantAsync(_instructorContent.ContentData.LanguageModel.ApiName, message, _instructorContent.ContentData.Prompt, _assistantId, _threadId);
-            var clip = await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(response, _instructorContent.ContentData.TextToSpeechModel.ApiName, _instructorContent.ContentData.VoiceInstruction);
+            var clip = await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(response, _instructorContent.ContentData.TextToSpeechModel.ApiName, GetVoiceInstruction());
 
             return clip;
         }
