@@ -212,6 +212,7 @@ namespace MirageXR
             UpdateHyperlinkPrefabs(); 
             await UpdateInfoMediaViewAsync();
             UpdateInfoToolsView();
+            FindObjectOfType<InfoScreenSpatialView>()?.UpdateSplines();
         }
 
         private void UpdateHyperlinkPrefabs()   //TODO: move to class
