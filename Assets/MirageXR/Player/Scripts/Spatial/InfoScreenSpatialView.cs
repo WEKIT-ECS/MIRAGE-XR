@@ -193,8 +193,7 @@ namespace MirageXR
 
         private void StepManagerOnStepChanged(ActivityStep step)
         {
-            _step = step;
-            UpdateSplinesBasedOnWindowState();
+            UpdateView(step);
         }
 
         private void ActivityManagerOnActivityUpdated(Activity activity)
@@ -526,7 +525,8 @@ namespace MirageXR
             {
                 return; 
             }
-            _step = step;  
+            ClearSplines(); // Fix persistence bug: Clear old splines before showing new step
+            _step = step;    
             _textTitle.text = step.Name;
             _textTitle_Collapsed.text = step.Name;
             
