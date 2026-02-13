@@ -39,7 +39,7 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: VisionOS
-          unityVersion: 6000.0.59f2
+          unityVersion: ${{ secrets.UNITY_VERSION_DEVELOP }}
           versioning: Semantic
           # dirty build needed to include generated Watson credentials
           allowDirtyBuild: true
