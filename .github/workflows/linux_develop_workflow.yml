@@ -1,4 +1,4 @@
-name: Linux Develop Workflow (Unit tests and Android build)
+name: Android Workflow (Unit tests and Android build)
 on:
   workflow_dispatch:
   #schedule:
@@ -15,7 +15,7 @@ jobs:
         with:
            lfs: 'true'
            submodules: 'recursive'
-           ref: develop
+           ref: '' # develop
            token: ${{ secrets.GH_PAT_TOKEN }}
            # ssh-key: ${{ secrets.GIT_PRIVATE_DEPLOY_KEY }}
            
