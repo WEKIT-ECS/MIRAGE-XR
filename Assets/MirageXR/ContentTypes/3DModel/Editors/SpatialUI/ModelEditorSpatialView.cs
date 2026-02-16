@@ -121,6 +121,13 @@ namespace MirageXR
             sliderScale.onValueChanged.AddListener(OnScaleSliderValueChanged);
             settingsContainer.SetActive(false);
 
+            if (_modelContent?.ContentData != null)
+            {
+                sketchfabManager.Scale = _modelContent.ContentData.Scale;
+                sketchfabManager.ResetPosition = _modelContent.ContentData.ResetPosition;
+                sketchfabManager.FitToScreen = _modelContent.ContentData.FitToScreen;
+            }
+
             InitializeLocalModelsAsync().Forget();
         }
 
