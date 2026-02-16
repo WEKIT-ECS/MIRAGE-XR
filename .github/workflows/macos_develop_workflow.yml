@@ -16,7 +16,11 @@ jobs:
         with:
            lfs: 'true'
            ref: ''
-           
+
+      - name: Update submodules
+        run: |
+          git submodule update --init --recursive
+        
       - name: LFS pull
         run: git lfs pull
         
