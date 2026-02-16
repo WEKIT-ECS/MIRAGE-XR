@@ -1,4 +1,4 @@
-name: iOS Build Workflow
+name: VisionOS Build Workflow
 on:
   workflow_dispatch:
   #schedule:
@@ -10,28 +10,15 @@ jobs:
     outputs:
       buildVersion: ${{ steps.buildStep.outputs.buildVersion }}
     steps:
-
-      #- name: Install git-lfs
-      #  run: |
-      #    apt-get update && apt-get install -y git-lfs
-      #    git lfs update --force || true
     
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
            lfs: 'true'
-           submodules: 'recursive'
-           ref: develop
-           token: ${{ secrets.GH_PAT_TOKEN }}
-           #ssh-key: ${{ secrets.GIT_PRIVATE_DEPLOY_KEY }}
+           ref: ''
            
-      #- name: LFS pull
-      #  run: git lfs pull
-
-      - name: Check if checkout complete
-        run: |
-          echo "$GITHUB_WORKSPACE/Packages/com.wekit-ecs.lib-lee/"
-          ls $GITHUB_WORKSPACE/Packages/com.wekit-ecs.lib-lee/
+      - name: LFS pull
+        run: git lfs pull
         
       # Cache
       - name: Caching
@@ -42,7 +29,7 @@ jobs:
           restore-keys: |
             Library-macos
 
-      # Build stage
+      # Unity build stage
       - name: Unity builder
         uses: game-ci/unity-builder@v4
         id: buildStep
@@ -51,21 +38,35 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
-          targetPlatform: iOS
+          targetPlatform: VisionOS
           unityVersion: ${{ secrets.UNITY_VERSION_DEVELOP }}
           versioning: Semantic
           # dirty build needed to include generated Watson credentials
           allowDirtyBuild: true
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+      # Xcode build stage
+      - name: Xcode build
+        uses: buildalon/unity-xcode-builder@v1
+        id: xcode-build
         with:
-          name: iOS
-          path: build
-          retention-days: 3
-          if-no-files-found: error
+          project-path: 'build'
+          app-store-connect-key: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          app-store-connect-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          app-store-connect-issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          team-id: ${{ secrets.APPLE_TEAM_ID }}
+      - run: |
+          echo ${{ steps.xcode-build.outputs.executable }}
+          ls -al ${{ steps.xcode-build.outputs.output-directory }}
 
-# Deploy stage
+#      - name: Upload build artifacts
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: iOS
+#          path: build
+#          retention-days: 3
+#          if-no-files-found: error
+
+  # Deploy stage
   prerelease-notification:
     name: Prerelease Slack notification
     runs-on: ubuntu-latest
