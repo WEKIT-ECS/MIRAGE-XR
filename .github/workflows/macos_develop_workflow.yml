@@ -11,18 +11,17 @@ jobs:
       buildVersion: ${{ steps.buildStep.outputs.buildVersion }}
     steps:
     
+      # checkout
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
            lfs: 'true'
-           ref: ''
+           submodules: 'recursive'
+           ref: '' # develop
+           token: ${{ secrets.GH_PAT_TOKEN }}
 
-      - name: Update submodules
-        run: |
-          git submodule update --init --recursive
-        
-      - name: LFS pull
-        run: git lfs pull
+      #- name: LFS pull
+      #  run: git lfs pull
         
       # Cache
       - name: Caching
