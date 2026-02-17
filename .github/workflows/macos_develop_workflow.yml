@@ -57,14 +57,17 @@ jobs:
           app-store-connect-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           app-store-connect-issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           team-id: ${{ secrets.APPLE_TEAM_ID }}
-      - run: |
+
+      # list outputs
+      - name: List outputs generated
+        run: |
           echo ${{ steps.xcode-build.outputs.executable }}
           ls -al ${{ steps.xcode-build.outputs.output-directory }}
 
-      # Return License
-      - name: Return license
-        uses: game-ci/unity-return-license@v2
-        if: always()
+#      # Return License
+#      - name: Return license
+#        uses: game-ci/unity-return-license@v2
+#        if: always()
 
 #      - name: Upload build artifacts
 #        uses: actions/upload-artifact@v4
