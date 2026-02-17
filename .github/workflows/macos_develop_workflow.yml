@@ -33,13 +33,13 @@ jobs:
             Library-macos
 
       # Unity build stage
-      - name: Unity builder
+      - name: Build (Unity)
         uses: game-ci/unity-builder@v4
         id: buildStep
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: VisionOS
           unityVersion: ${{ secrets.UNITY_VERSION_DEVELOP }}
@@ -48,7 +48,7 @@ jobs:
           allowDirtyBuild: true
 
       # Xcode build stage
-      - name: Xcode build
+      - name: Build (Xcode)
         uses: buildalon/unity-xcode-builder@v1
         id: xcode-build
         with:
@@ -60,6 +60,11 @@ jobs:
       - run: |
           echo ${{ steps.xcode-build.outputs.executable }}
           ls -al ${{ steps.xcode-build.outputs.output-directory }}
+
+      # Return License
+      - name: Return license
+        uses: game-ci/unity-return-license@v2
+        if: always()
 
 #      - name: Upload build artifacts
 #        uses: actions/upload-artifact@v4
