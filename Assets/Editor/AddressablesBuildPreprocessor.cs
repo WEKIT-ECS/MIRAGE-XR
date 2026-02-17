@@ -22,7 +22,8 @@ namespace Editor
         {
             if (!CheckAddressableContent())
             {
-                ShowDialogAfter(DIALOG_SPAWN_TIME);
+                //ShowDialogAfter(DIALOG_SPAWN_TIME);
+                AddressableAssetSettings.BuildPlayerContent();
                 throw new BuildFailedException(ADDRESSABLES_ERROR_MESSAGE);
             }
         }
@@ -33,19 +34,20 @@ namespace Editor
             return File.Exists(path);
         }
 
-        private static async void ShowDialogAfter(int seconds)
-        {
-            await Task.Delay(seconds * 1000);
-            ShowDialog();
-        }
+        // private static async void ShowDialogAfter(int seconds)
+        // {
+        //     await Task.Delay(seconds * 1000);
+        //     ShowDialog();
+        // }
 
-        private static void ShowDialog()
-        {
-            var result = EditorUtility.DisplayDialog(ADDRESSABLES_DIALOG_TITLE, ADDRESSABLES_DIALOG_MESSAGE, "Ok", "Cancel");
-            if (result)
-            {
-                AddressableAssetSettings.BuildPlayerContent();
-            }
-        }
+        // private static void ShowDialog()
+        // {
+        //     var result = EditorUtility.DisplayDialog(ADDRESSABLES_DIALOG_TITLE, ADDRESSABLES_DIALOG_MESSAGE, "Ok", "Cancel");
+        //     if (result)
+        //     {
+        //         // AddressableAssetSettings.CleanPlayerContent(); // not needed for now, would create clean build
+        //         AddressableAssetSettings.BuildPlayerContent();
+        //     }
+        // }
     }
 }
