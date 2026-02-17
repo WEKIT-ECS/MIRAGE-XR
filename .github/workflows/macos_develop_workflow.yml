@@ -6,7 +6,7 @@ on:
 jobs:
   build:
     name: Build MacOS
-    runs-on: macos-latest-large
+    runs-on: macos-latest-xlarge
     outputs:
       buildVersion: ${{ steps.buildStep.outputs.buildVersion }}
     steps:
