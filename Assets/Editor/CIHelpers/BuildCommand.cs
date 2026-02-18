@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using UnityEditor.AddressableAssets.Settings;
 
-static class BuildCommand
+public static class BuildCommand
 {
     private const string KEYSTORE_PASS = "KEYSTORE_PASS";
     private const string KEY_ALIAS_PASS = "KEY_ALIAS_PASS";
@@ -174,7 +174,7 @@ static class BuildCommand
         }
     }
 
-    static void PerformBuild()
+    public static void PerformBuild()
     {
         System.Console.WriteLine(":: Performing build");
 
