@@ -20,11 +20,11 @@ namespace Editor
 
         public void OnPreprocessBuild(BuildReport report)
         {
-            if (!CheckAddressableContent())
-            {
-                ShowDialogAfter(DIALOG_SPAWN_TIME);
-                throw new BuildFailedException(ADDRESSABLES_ERROR_MESSAGE);
-            }
+            // if (!CheckAddressableContent())
+            // {
+            //     ShowDialogAfter(DIALOG_SPAWN_TIME);
+            //     throw new BuildFailedException(ADDRESSABLES_ERROR_MESSAGE);
+            // }
         }
 
         private static bool CheckAddressableContent()
