@@ -217,7 +217,7 @@ public static class BuildCommand
 #endif
         };
 
-        AddressableAssetSettings.BuildPlayerContent();
+        //AddressableAssetSettings.BuildPlayerContent();
 
         BuildSummary buildSummary = BuildPipeline.BuildPlayer(buildPlayerOptions).summary;
         ReportSummary(buildSummary);
