@@ -11,7 +11,7 @@ using UnityEditor.AddressableAssets.Settings;
 
 namespace UnityBuilderAction
 {
-    public static class BuildScript
+    public static class BuildCommand
     {
         private static readonly string Eol = Environment.NewLine;
 
