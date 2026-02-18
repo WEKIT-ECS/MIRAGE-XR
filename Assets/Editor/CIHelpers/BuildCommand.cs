@@ -1,285 +1,268 @@
-﻿using UnityEditor;
-using System.Linq;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using UnityEditor;
+using UnityEditor.Build.Reporting;
+#if UNITY_6000_0_OR_NEWER
+using UnityEditor.Build.Profile;
+#endif
 using UnityEditor.AddressableAssets.Settings;
 
-static class BuildCommand
+namespace UnityBuilderAction
 {
-    private const string KEYSTORE_PASS = "KEYSTORE_PASS";
-    private const string KEY_ALIAS_PASS = "KEY_ALIAS_PASS";
-    private const string KEY_ALIAS_NAME = "KEY_ALIAS_NAME";
-    private const string KEYSTORE = "keystore.keystore";
-    private const string BUILD_OPTIONS_ENV_VAR = "BuildOptions";
-    private const string ANDROID_BUNDLE_VERSION_CODE = "BUNDLE_VERSION_CODE";
-    private const string ANDROID_APP_BUNDLE = "BUILD_APP_BUNDLE";
-    private const string SCRIPTING_BACKEND_ENV_VAR = "SCRIPTING_BACKEND";
-
-    static string GetArgument(string name)
+    public static class BuildScript
     {
-        string[] args = Environment.GetCommandLineArgs();
-        for (int i = 0; i < args.Length; i++)
+        private static readonly string Eol = Environment.NewLine;
+
+        private static readonly string[] Secrets =
+            {"androidKeystorePass", "androidKeyaliasName", "androidKeyaliasPass"};
+
+        public static void Build()
         {
-            if (args[i].Contains(name))
+            // Gather values from args
+            Dictionary<string, string> options = GetValidatedOptions();
+
+            // Set version for this build
+            if(options.TryGetValue("buildVersion", out string buildVersion) && buildVersion != "none")
             {
-                return args[i + 1];
+                PlayerSettings.bundleVersion = buildVersion;
+                PlayerSettings.macOS.buildNumber = buildVersion;
             }
-        }
-        return null;
-    }
-
-    static string[] GetEnabledScenes()
-    {
-        return (
-            from scene in EditorBuildSettings.scenes
-            where scene.enabled
-            where !string.IsNullOrEmpty(scene.path)
-            select scene.path
-        ).ToArray();
-    }
-
-    static BuildTarget GetBuildTarget()
-    {
-        string buildTargetName = GetArgument("customBuildTarget");
-        System.Console.WriteLine(":: Received customBuildTarget " + buildTargetName);
-
-        if (buildTargetName.ToLower() == "android")
-        {
-#if !UNITY_5_6_OR_NEWER
-			// https://issuetracker.unity3d.com/issues/buildoptions-dot-acceptexternalmodificationstoplayer-causes-unityexception-unknown-project-type-0
-			// Fixed in Unity 5.6.0
-			// side effect to fix android build system:
-			EditorUserBuildSettings.androidBuildSystem = AndroidBuildSystem.Internal;
-#endif
-        }
-
-        if (buildTargetName.TryConvertToEnum(out BuildTarget target))
-            return target;
-
-        System.Console.WriteLine($":: {nameof(buildTargetName)} \"{buildTargetName}\" not defined on enum {nameof(BuildTarget)}, using {nameof(BuildTarget.NoTarget)} enum to build");
-
-        return BuildTarget.NoTarget;
-    }
-
-    static string GetBuildPath()
-    {
-        string buildPath = GetArgument("customBuildPath");
-        System.Console.WriteLine(":: Received customBuildPath " + buildPath);
-        if (buildPath == "")
-        {
-            throw new Exception("customBuildPath argument is missing");
-        }
-        return buildPath;
-    }
-
-    static string GetBuildName()
-    {
-        string buildName = GetArgument("customBuildName");
-        System.Console.WriteLine(":: Received customBuildName " + buildName);
-        if (buildName == "")
-        {
-            throw new Exception("customBuildName argument is missing");
-        }
-        return buildName;
-    }
-
-    static string GetFixedBuildPath(BuildTarget buildTarget, string buildPath, string buildName)
-    {
-        if (buildTarget.ToString().ToLower().Contains("windows"))
-        {
-            buildName += ".exe";
-        }
-        else if (buildTarget == BuildTarget.Android)
-        {
-#if UNITY_2018_3_OR_NEWER
-            buildName += EditorUserBuildSettings.buildAppBundle ? ".aab" : ".apk";
-#else
-            buildName += ".apk";
-#endif
-        }
-        return buildPath + buildName;
-    }
-
-    static BuildOptions GetBuildOptions()
-    {
-        if (TryGetEnv(BUILD_OPTIONS_ENV_VAR, out string envVar))
-        {
-            string[] allOptionVars = envVar.Split(',');
-            BuildOptions allOptions = BuildOptions.None;
-            BuildOptions option;
-            string optionVar;
-            int length = allOptionVars.Length;
-
-            System.Console.WriteLine($":: Detecting {BUILD_OPTIONS_ENV_VAR} env var with {length} elements ({envVar})");
-
-            for (int i = 0; i < length; i++)
+            if(options.TryGetValue("androidVersionCode", out string versionCode) && versionCode != "0")
             {
-                optionVar = allOptionVars[i];
+                PlayerSettings.Android.bundleVersionCode = int.Parse(options["androidVersionCode"]);
+            }
 
-                if (optionVar.TryConvertToEnum(out option))
+            // Apply build target
+            var buildTarget = (BuildTarget) Enum.Parse(typeof(BuildTarget), options["buildTarget"]);
+            switch (buildTarget)
+            {
+                case BuildTarget.Android:
                 {
-                    allOptions |= option;
+                    EditorUserBuildSettings.buildAppBundle = options["customBuildPath"].EndsWith(".aab");
+                    if (options.TryGetValue("androidKeystoreName", out string keystoreName) &&
+                        !string.IsNullOrEmpty(keystoreName))
+                    {
+                      PlayerSettings.Android.useCustomKeystore = true;
+                      PlayerSettings.Android.keystoreName = keystoreName;
+                    }
+                    if (options.TryGetValue("androidKeystorePass", out string keystorePass) &&
+                        !string.IsNullOrEmpty(keystorePass))
+                        PlayerSettings.Android.keystorePass = keystorePass;
+                    if (options.TryGetValue("androidKeyaliasName", out string keyaliasName) &&
+                        !string.IsNullOrEmpty(keyaliasName))
+                        PlayerSettings.Android.keyaliasName = keyaliasName;
+                    if (options.TryGetValue("androidKeyaliasPass", out string keyaliasPass) &&
+                        !string.IsNullOrEmpty(keyaliasPass))
+                        PlayerSettings.Android.keyaliasPass = keyaliasPass;
+                    if (options.TryGetValue("androidTargetSdkVersion", out string androidTargetSdkVersion) &&
+                        !string.IsNullOrEmpty(androidTargetSdkVersion))
+                    {
+                        var targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
+                        try
+                        {
+                            targetSdkVersion =
+                                (AndroidSdkVersions) Enum.Parse(typeof(AndroidSdkVersions), androidTargetSdkVersion);
+                        }
+                        catch
+                        {
+                            UnityEngine.Debug.Log("Failed to parse androidTargetSdkVersion! Fallback to AndroidApiLevelAuto");
+                        }
+
+                        PlayerSettings.Android.targetSdkVersion = targetSdkVersion;
+                    }
+
+                    break;
                 }
-                else
+                case BuildTarget.StandaloneOSX:
+                    PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.Mono2x);
+                    break;
+            }
+
+            // Determine subtarget
+            int buildSubtarget = 0;
+#if UNITY_2021_2_OR_NEWER
+            if (!options.TryGetValue("standaloneBuildSubtarget", out var subtargetValue) || !Enum.TryParse(subtargetValue, out StandaloneBuildSubtarget buildSubtargetValue)) {
+                buildSubtargetValue = default;
+            }
+            buildSubtarget = (int) buildSubtargetValue;
+#endif
+
+            // Custom build
+            Build(buildTarget, buildSubtarget, options["customBuildPath"]);
+        }
+
+#if UNITY_6000_0_OR_NEWER
+        public static void BuildWithProfile()
+        {
+            // Gather values from args
+            Dictionary<string, string> options = GetValidatedOptions();
+
+            // Load build profile from Assets folder
+            BuildProfile buildProfile = AssetDatabase.LoadAssetAtPath<BuildProfile>(options["activeBuildProfile"]);
+
+            // Set it as active
+            BuildProfile.SetActiveBuildProfile(buildProfile);
+// Get all buildOptions from options
+      BuildOptions buildOptions = BuildOptions.None;
+      foreach (string buildOptionString in Enum.GetNames(typeof(BuildOptions))) {
+        if (options.ContainsKey(buildOptionString)) {
+          BuildOptions buildOptionEnum = (BuildOptions) Enum.Parse(typeof(BuildOptions), buildOptionString);
+          buildOptions |= buildOptionEnum;
+        }
+      }
+            // Define BuildPlayerWithProfileOptions
+            var buildPlayerWithProfileOptions = new BuildPlayerWithProfileOptions {
+                buildProfile = buildProfile,
+                locationPathName = options["customBuildPath"],
+                options = buildOptions,
+            };
+
+            BuildSummary buildSummary = BuildPipeline.BuildPlayer(buildPlayerWithProfileOptions).summary;
+            ReportSummary(buildSummary);
+            ExitWithResult(buildSummary.result);
+        }
+#endif
+
+        private static Dictionary<string, string> GetValidatedOptions()
+        {
+            ParseCommandLineArguments(out Dictionary<string, string> validatedOptions);
+
+            if (!validatedOptions.TryGetValue("projectPath", out string _))
+            {
+                Console.WriteLine("Missing argument -projectPath");
+                EditorApplication.Exit(110);
+            }
+
+            if (validatedOptions.TryGetValue("buildTarget", out var buildTarget))
+            {
+                if (!Enum.IsDefined(typeof(BuildTarget), buildTarget ?? string.Empty))
                 {
-                    System.Console.WriteLine($":: Cannot convert {optionVar} to {nameof(BuildOptions)} enum, skipping it.");
+                    Console.WriteLine($"{buildTarget} is not a defined {nameof(BuildTarget)}");
+                    EditorApplication.Exit(121);
                 }
             }
-
-            return allOptions;
-        }
-
-        return BuildOptions.None;
-    }
-
-    // https://stackoverflow.com/questions/1082532/how-to-tryparse-for-enum-value
-    static bool TryConvertToEnum<TEnum>(this string strEnumValue, out TEnum value)
-    {
-        if (!Enum.IsDefined(typeof(TEnum), strEnumValue))
-        {
-            value = default;
-            return false;
-        }
-
-        value = (TEnum)Enum.Parse(typeof(TEnum), strEnumValue);
-        return true;
-    }
-
-    static bool TryGetEnv(string key, out string value)
-    {
-        value = Environment.GetEnvironmentVariable(key);
-        return !string.IsNullOrEmpty(value);
-    }
-
-    static void SetScriptingBackendFromEnv(BuildTarget platform)
-    {
-        var targetGroup = BuildPipeline.GetBuildTargetGroup(platform);
-        if (TryGetEnv(SCRIPTING_BACKEND_ENV_VAR, out string scriptingBackend))
-        {
-            if (scriptingBackend.TryConvertToEnum(out ScriptingImplementation backend))
+            else if (!validatedOptions.TryGetValue("activeBuildProfile", out string _))
             {
-                System.Console.WriteLine($":: Setting ScriptingBackend to {backend}");
-                PlayerSettings.SetScriptingBackend(targetGroup, backend);
+                Console.WriteLine("Missing argument -buildTarget or -activeBuildProfile");
+                EditorApplication.Exit(120);
             }
-            else
+
+            if (!validatedOptions.TryGetValue("customBuildPath", out string _))
             {
-                string possibleValues = string.Join(", ", Enum.GetValues(typeof(ScriptingImplementation)).Cast<ScriptingImplementation>());
-                throw new Exception($"Could not find '{scriptingBackend}' in ScriptingImplementation enum. Possible values are: {possibleValues}");
+                Console.WriteLine("Missing argument -customBuildPath");
+                EditorApplication.Exit(130);
             }
-        }
-        else
-        {
-            var defaultBackend = PlayerSettings.GetDefaultScriptingBackend(targetGroup);
-            System.Console.WriteLine($":: Using project's configured ScriptingBackend (should be {defaultBackend} for tagetGroup {targetGroup}");
-        }
-    }
 
-    static void PerformBuild()
-    {
-        System.Console.WriteLine(":: Performing build");
+            const string defaultCustomBuildName = "TestBuild";
+            if (!validatedOptions.TryGetValue("customBuildName", out string customBuildName))
+            {
+                Console.WriteLine($"Missing argument -customBuildName, defaulting to {defaultCustomBuildName}.");
+                validatedOptions.Add("customBuildName", defaultCustomBuildName);
+            }
+            else if (customBuildName == "")
+            {
+                Console.WriteLine($"Invalid argument -customBuildName, defaulting to {defaultCustomBuildName}.");
+                validatedOptions.Add("customBuildName", defaultCustomBuildName);
+            }
 
-        var buildTarget = GetBuildTarget();
-
-        if (buildTarget == BuildTarget.Android)
-        {
-            HandleAndroidAppBundle();
-            HandleAndroidBundleVersionCode();
-            HandleAndroidKeystore();
+            return validatedOptions;
         }
 
-        var buildPath = GetBuildPath();
-        var buildName = GetBuildName();
-        var buildOptions = GetBuildOptions();
-        var fixedBuildPath = GetFixedBuildPath(buildTarget, buildPath, buildName);
-
-        SetScriptingBackendFromEnv(buildTarget);
-
-        AddressableAssetSettings.BuildPlayerContent();
-        var buildReport = BuildPipeline.BuildPlayer(GetEnabledScenes(), fixedBuildPath, buildTarget, buildOptions);
-
-        if (buildReport.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
-            throw new Exception($"Build ended with {buildReport.summary.result} status");
-
-        System.Console.WriteLine(":: Done with build");
-    }
-
-    private static void HandleAndroidAppBundle()
-    {
-        if (TryGetEnv(ANDROID_APP_BUNDLE, out string value))
+        private static void ParseCommandLineArguments(out Dictionary<string, string> providedArguments)
         {
-#if UNITY_2018_3_OR_NEWER
-            if (bool.TryParse(value, out bool buildAppBundle))
-            {
-                EditorUserBuildSettings.buildAppBundle = buildAppBundle;
-                System.Console.WriteLine($":: {ANDROID_APP_BUNDLE} env var detected, set buildAppBundle to {value}.");
-            }
-            else
-            {
-                System.Console.WriteLine($":: {ANDROID_APP_BUNDLE} env var detected but the value \"{value}\" is not a boolean.");
+            providedArguments = new Dictionary<string, string>();
+            string[] args = Environment.GetCommandLineArgs();
 
+            Console.WriteLine(
+                $"{Eol}" +
+                $"###########################{Eol}" +
+                $"#    Parsing settings     #{Eol}" +
+                $"###########################{Eol}" +
+                $"{Eol}"
+            );
+
+            // Extract flags with optional values
+            for (int current = 0, next = 1; current < args.Length; current++, next++)
+            {
+                // Parse flag
+                bool isFlag = args[current].StartsWith("-");
+                if (!isFlag) continue;
+                string flag = args[current].TrimStart('-');
+
+                // Parse optional value
+                bool flagHasValue = next < args.Length && !args[next].StartsWith("-");
+                string value = flagHasValue ? args[next].TrimStart('-') : "";
+                bool secret = Secrets.Contains(flag);
+                string displayValue = secret ? "*HIDDEN*" : "\"" + value + "\"";
+
+                // Assign
+                Console.WriteLine($"Found flag \"{flag}\" with value {displayValue}.");
+                providedArguments.Add(flag, value);
             }
-#else
-            System.Console.WriteLine($":: {ANDROID_APP_BUNDLE} env var detected but does not work with lower Unity version than 2018.3");
+        }
+
+        private static void Build(BuildTarget buildTarget, int buildSubtarget, string filePath)
+        {
+            string[] scenes = EditorBuildSettings.scenes.Where(scene => scene.enabled).Select(s => s.path).ToArray();
+            var buildPlayerOptions = new BuildPlayerOptions
+            {
+                scenes = scenes,
+                target = buildTarget,
+//                targetGroup = BuildPipeline.GetBuildTargetGroup(buildTarget),
+                locationPathName = filePath,
+//                options = UnityEditor.BuildOptions.Development
+#if UNITY_2021_2_OR_NEWER
+                subtarget = buildSubtarget
 #endif
-        }
-    }
+            };
 
-    private static void HandleAndroidBundleVersionCode()
-    {
-        if (TryGetEnv(ANDROID_BUNDLE_VERSION_CODE, out string value))
+            AddressableAssetSettings.BuildPlayerContent();
+
+            BuildSummary buildSummary = BuildPipeline.BuildPlayer(buildPlayerOptions).summary;
+            ReportSummary(buildSummary);
+            ExitWithResult(buildSummary.result);
+        }
+
+        private static void ReportSummary(BuildSummary summary)
         {
-            if (int.TryParse(value, out int version))
+            Console.WriteLine(
+                $"{Eol}" +
+                $"###########################{Eol}" +
+                $"#      Build results      #{Eol}" +
+                $"###########################{Eol}" +
+                $"{Eol}" +
+                $"Duration: {summary.totalTime.ToString()}{Eol}" +
+                $"Warnings: {summary.totalWarnings.ToString()}{Eol}" +
+                $"Errors: {summary.totalErrors.ToString()}{Eol}" +
+                $"Size: {summary.totalSize.ToString()} bytes{Eol}" +
+                $"{Eol}"
+            );
+        }
+
+        private static void ExitWithResult(BuildResult result)
+        {
+            switch (result)
             {
-                PlayerSettings.Android.bundleVersionCode = version;
-                System.Console.WriteLine($":: {ANDROID_BUNDLE_VERSION_CODE} env var detected, set the bundle version code to {value}.");
+                case BuildResult.Succeeded:
+                    Console.WriteLine("Build succeeded!");
+                    EditorApplication.Exit(0);
+                    break;
+                case BuildResult.Failed:
+                    Console.WriteLine("Build failed!");
+                    EditorApplication.Exit(101);
+                    break;
+                case BuildResult.Cancelled:
+                    Console.WriteLine("Build cancelled!");
+                    EditorApplication.Exit(102);
+                    break;
+                case BuildResult.Unknown:
+                default:
+                    Console.WriteLine("Build result is unknown!");
+                    EditorApplication.Exit(103);
+                    break;
             }
-            else
-                System.Console.WriteLine($":: {ANDROID_BUNDLE_VERSION_CODE} env var detected but the version value \"{value}\" is not an integer.");
         }
-    }
-
-    private static void HandleAndroidKeystore()
-    {
-#if UNITY_2019_1_OR_NEWER
-        PlayerSettings.Android.useCustomKeystore = false;
-#endif
-
-        if (!File.Exists(KEYSTORE))
-        {
-            System.Console.WriteLine($":: {KEYSTORE} not found, skipping setup, using Unity's default keystore");
-            return;
-        }
-
-        PlayerSettings.Android.keystoreName = KEYSTORE;
-
-        string keystorePass;
-        string keystoreAliasPass;
-
-        if (TryGetEnv(KEY_ALIAS_NAME, out string keyaliasName))
-        {
-            PlayerSettings.Android.keyaliasName = keyaliasName;
-            System.Console.WriteLine($":: using ${KEY_ALIAS_NAME} env var on PlayerSettings");
-        }
-        else
-        {
-            System.Console.WriteLine($":: ${KEY_ALIAS_NAME} env var not set, using Project's PlayerSettings");
-        }
-
-        if (!TryGetEnv(KEYSTORE_PASS, out keystorePass))
-        {
-            System.Console.WriteLine($":: ${KEYSTORE_PASS} env var not set, skipping setup, using Unity's default keystore");
-            return;
-        }
-
-        if (!TryGetEnv(KEY_ALIAS_PASS, out keystoreAliasPass))
-        {
-            System.Console.WriteLine($":: ${KEY_ALIAS_PASS} env var not set, skipping setup, using Unity's default keystore");
-            return;
-        }
-#if UNITY_2019_1_OR_NEWER
-        PlayerSettings.Android.useCustomKeystore = true;
-#endif
-        PlayerSettings.Android.keystorePass = keystorePass;
-        PlayerSettings.Android.keyaliasPass = keystoreAliasPass;
     }
 }
