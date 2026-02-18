@@ -198,7 +198,7 @@ public static class BuildCommand
 
             // Assign
             Console.WriteLine($"Found flag \"{flag}\" with value {displayValue}.");
-            providedArguments.Add(flag, value);
+            if (!providedArguments.ContainsKey(flag)) providedArguments.Add(flag, value);
         }
     }
 
