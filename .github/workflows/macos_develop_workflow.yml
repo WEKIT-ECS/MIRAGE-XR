@@ -47,7 +47,7 @@ jobs:
           # dirty build needed to include generated Watson credentials
           allowDirtyBuild: true
           buildMethod: BuildCommand.Build
-          customParameters: -customBuildPath ./ -customBuildName build
+          customParameters: -customBuildTarget VisionOS -customBuildPath ./ -customBuildName build
 
       # Xcode build stage
       - name: Build (Xcode)
