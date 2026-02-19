@@ -136,9 +136,16 @@ namespace MirageXR
 	public class HandsSynchronizer : BaseNetworkedAvatarController
 	{
 
+		[SerializeField]
 		public int LeftTracked { get; set; }
+
+		[SerializeField]
 		public Dictionary<XRHandJointID, Quaternion> NetworkedLeftJoints => default;
+
+		[SerializeField]
 		public int RightTracked { get; set; }
+
+		[SerializeField]
 		public Dictionary<XRHandJointID, Quaternion> NetworkedRightJoints => default;
 
 	}
