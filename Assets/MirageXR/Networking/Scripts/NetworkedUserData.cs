@@ -1,10 +1,8 @@
 #if FUSION2
 using Fusion;
-using System;
-#else
+#endif
 using System;
 using UnityEngine;
-#endif
 
 namespace MirageXR
 {
@@ -18,11 +16,13 @@ namespace MirageXR
 #if FUSION2
 		[Networked, Capacity(25), OnChangedRender(nameof(OnNetworkedUserNameChanged))]
 #endif
+		[SerializeField]
 		public string UserName { get; set; }
 
 #if FUSION2
 		[Networked, Capacity(64), OnChangedRender(nameof(OnNetworkedAvatarUrlChanged))]
 #endif
+		[SerializeField]
 		public string AvatarUrl { get; set; }
 
 		public NetworkedAvatarReferences AvatarReferences { get => AvatarRefs; }

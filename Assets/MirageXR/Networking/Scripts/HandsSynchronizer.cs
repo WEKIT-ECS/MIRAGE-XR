@@ -16,15 +16,19 @@ namespace MirageXR
 		public const int JOINTS_COUNT = 25;
 
 		[Networked]
+		[SerializeField]
 		public int LeftTracked { get; set; }
 
 		[Networked, Capacity(JOINTS_COUNT)]
+		[SerializeField]
 		public NetworkDictionary<XRHandJointID, Quaternion> NetworkedLeftJoints => default;
 
 		[Networked]
+		[SerializeField]
 		public int RightTracked { get; set; }
 
 		[Networked, Capacity(JOINTS_COUNT)]
+		[SerializeField]
 		public NetworkDictionary<XRHandJointID, Quaternion> NetworkedRightJoints => default;
 
 		private HandData _extractedData = new HandData();
@@ -131,6 +135,12 @@ namespace MirageXR
 #else
 	public class HandsSynchronizer : BaseNetworkedAvatarController
 	{
+
+		public int LeftTracked { get; set; }
+		public Dictionary<XRHandJointID, Quaternion> NetworkedLeftJoints => default;
+		public int RightTracked { get; set; }
+		public Dictionary<XRHandJointID, Quaternion> NetworkedRightJoints => default;
+
 	}
 #endif
 }
