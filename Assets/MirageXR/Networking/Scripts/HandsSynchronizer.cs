@@ -7,7 +7,6 @@ using UnityEngine.XR.Hands;
 
 namespace MirageXR
 {
-#if FUSION2
 	public class HandsSynchronizer : BaseNetworkedAvatarController
 	{
 		/// <summary>
@@ -16,19 +15,15 @@ namespace MirageXR
 		public const int JOINTS_COUNT = 25;
 
 		[Networked]
-		[SerializeField]
 		public int LeftTracked { get; set; }
 
 		[Networked, Capacity(JOINTS_COUNT)]
-		[SerializeField]
 		public NetworkDictionary<XRHandJointID, Quaternion> NetworkedLeftJoints => default;
 
 		[Networked]
-		[SerializeField]
 		public int RightTracked { get; set; }
 
 		[Networked, Capacity(JOINTS_COUNT)]
-		[SerializeField]
 		public NetworkDictionary<XRHandJointID, Quaternion> NetworkedRightJoints => default;
 
 		private HandData _extractedData = new HandData();
@@ -132,22 +127,4 @@ namespace MirageXR
 		}
 	}
 
-#else
-	public class HandsSynchronizer : BaseNetworkedAvatarController
-	{
-
-		[SerializeField]
-		public int LeftTracked { get; set; }
-
-		[SerializeField]
-		public Dictionary<XRHandJointID, Quaternion> NetworkedLeftJoints => default;
-
-		[SerializeField]
-		public int RightTracked { get; set; }
-
-		[SerializeField]
-		public Dictionary<XRHandJointID, Quaternion> NetworkedRightJoints => default;
-
-	}
-#endif
 }

@@ -1,6 +1,4 @@
-#if FUSION2
 using Fusion;
-#endif
 using System;
 using UnityEngine;
 
@@ -13,16 +11,10 @@ namespace MirageXR
 		public event Action<string> NetworkedUserNameChanged;
 		public event Action<string> NetworkedAvatarUrlChanged;
 
-#if FUSION2
 		[Networked, Capacity(25), OnChangedRender(nameof(OnNetworkedUserNameChanged))]
-#endif
-		[SerializeField]
 		public string UserName { get; set; }
 
-#if FUSION2
 		[Networked, Capacity(64), OnChangedRender(nameof(OnNetworkedAvatarUrlChanged))]
-#endif
-		[SerializeField]
 		public string AvatarUrl { get; set; }
 
 		public NetworkedAvatarReferences AvatarReferences { get => AvatarRefs; }
@@ -78,7 +70,6 @@ namespace MirageXR
 			AvatarUrl = newAvatarUrl;
 		}
 
-#if FUSION2
 		private void OnNetworkedUserNameChanged()
 		{
 			NetworkedUserNameChanged?.Invoke(UserName);
@@ -102,6 +93,6 @@ namespace MirageXR
 			base.Despawned(runner, hasState);
 			UnsubscribeFromLocalData();
 		}
-#endif
+
 	}
 }
