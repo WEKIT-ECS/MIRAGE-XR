@@ -8,6 +8,8 @@ using UnityEditor.Build.Reporting;
 using UnityEditor.Build.Profile;
 #endif
 using UnityEditor.AddressableAssets.Settings;
+using Fusion;
+using UnityEditor.Compilation;
 
 
 public static class BuildCommand
@@ -103,14 +105,15 @@ public static class BuildCommand
 
         // Set it as active
         BuildProfile.SetActiveBuildProfile(buildProfile);
-// Get all buildOptions from options
-    BuildOptions buildOptions = BuildOptions.None;
-    foreach (string buildOptionString in Enum.GetNames(typeof(BuildOptions))) {
-    if (options.ContainsKey(buildOptionString)) {
-        BuildOptions buildOptionEnum = (BuildOptions) Enum.Parse(typeof(BuildOptions), buildOptionString);
-        buildOptions |= buildOptionEnum;
-    }
-    }
+        
+        // Get all buildOptions from options
+        BuildOptions buildOptions = BuildOptions.None;
+        foreach (string buildOptionString in Enum.GetNames(typeof(BuildOptions))) {
+            if (options.ContainsKey(buildOptionString)) {
+                BuildOptions buildOptionEnum = (BuildOptions) Enum.Parse(typeof(BuildOptions), buildOptionString);
+                buildOptions |= buildOptionEnum;
+            }
+        }
         // Define BuildPlayerWithProfileOptions
         var buildPlayerWithProfileOptions = new BuildPlayerWithProfileOptions {
             buildProfile = buildProfile,
@@ -217,7 +220,14 @@ public static class BuildCommand
 #endif
         };
 
-        //AddressableAssetSettings.BuildPlayerContent();
+        // Force Fusion to weave the assemblies
+        CompilationPipeline.RequestScriptCompilation(
+#if UNITY_2021_1_OR_NEWER
+            RequestScriptCompilationOptions.CleanBuildCache
+#endif
+        );
+
+        AddressableAssetSettings.BuildPlayerContent();
         
         BuildSummary buildSummary = BuildPipeline.BuildPlayer(buildPlayerOptions).summary;
         ReportSummary(buildSummary);
