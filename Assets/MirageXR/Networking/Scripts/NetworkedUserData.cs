@@ -12,10 +12,10 @@ namespace MirageXR
 		public event Action<string> NetworkedUserNameChanged;
 		public event Action<string> NetworkedAvatarUrlChanged;
 
-		[Networked, Capacity(25), OnChangedRender(nameof(OnNetworkedUserNameChanged)), SerializeField]
+		[Networked, Capacity(25), OnChangedRender(nameof(OnNetworkedUserNameChanged))]
 		public string UserName { get; set; }
 
-		[Networked, Capacity(64), OnChangedRender(nameof(OnNetworkedAvatarUrlChanged)), SerializeField]
+		[Networked, Capacity(64), OnChangedRender(nameof(OnNetworkedAvatarUrlChanged))]
 		public string AvatarUrl { get; set; }
 
 		public NetworkedAvatarReferences AvatarReferences { get => AvatarRefs; }

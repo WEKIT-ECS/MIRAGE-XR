@@ -12,16 +12,16 @@ namespace MirageXR
 		/// </summary>
 		public const int JOINTS_COUNT = 25;
 
-		[Networked, SerializeField]
+		[Networked]
 		public int LeftTracked { get; set; }
 
-		[Networked, Capacity(JOINTS_COUNT), SerializeField]
+		[Networked, Capacity(JOINTS_COUNT)]
 		public NetworkDictionary<XRHandJointID, Quaternion> NetworkedLeftJoints => default;
 
-		[Networked, SerializeField]
+		[Networked]
 		public int RightTracked { get; set; }
 
-		[Networked, Capacity(JOINTS_COUNT), SerializeField]
+		[Networked, Capacity(JOINTS_COUNT)]
 		public NetworkDictionary<XRHandJointID, Quaternion> NetworkedRightJoints => default;
 
 		private HandData _extractedData = new HandData();
