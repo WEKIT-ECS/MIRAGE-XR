@@ -1,6 +1,4 @@
-#if FUSION2
 using Fusion;
-#endif
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Hands;
@@ -14,16 +12,16 @@ namespace MirageXR
 		/// </summary>
 		public const int JOINTS_COUNT = 25;
 
-		[Networked]
+		[Networked, SerializeField]
 		public int LeftTracked { get; set; }
 
-		[Networked, Capacity(JOINTS_COUNT)]
+		[Networked, Capacity(JOINTS_COUNT), SerializeField]
 		public NetworkDictionary<XRHandJointID, Quaternion> NetworkedLeftJoints => default;
 
-		[Networked]
+		[Networked, SerializeField]
 		public int RightTracked { get; set; }
 
-		[Networked, Capacity(JOINTS_COUNT)]
+		[Networked, Capacity(JOINTS_COUNT), SerializeField]
 		public NetworkDictionary<XRHandJointID, Quaternion> NetworkedRightJoints => default;
 
 		private HandData _extractedData = new HandData();

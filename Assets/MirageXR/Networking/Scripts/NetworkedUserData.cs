@@ -1,6 +1,7 @@
 using Fusion;
 using System;
 using UnityEngine;
+using UnityEngine.ResourceManagement.Util;
 
 namespace MirageXR
 {
@@ -11,10 +12,10 @@ namespace MirageXR
 		public event Action<string> NetworkedUserNameChanged;
 		public event Action<string> NetworkedAvatarUrlChanged;
 
-		[Networked, Capacity(25), OnChangedRender(nameof(OnNetworkedUserNameChanged))]
+		[Networked, Capacity(25), OnChangedRender(nameof(OnNetworkedUserNameChanged)), SerializeField]
 		public string UserName { get; set; }
 
-		[Networked, Capacity(64), OnChangedRender(nameof(OnNetworkedAvatarUrlChanged))]
+		[Networked, Capacity(64), OnChangedRender(nameof(OnNetworkedAvatarUrlChanged)), SerializeField]
 		public string AvatarUrl { get; set; }
 
 		public NetworkedAvatarReferences AvatarReferences { get => AvatarRefs; }
