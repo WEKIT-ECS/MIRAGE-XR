@@ -8,11 +8,12 @@ namespace MirageXR
         [SerializeField] private Transform thumbnailGrid;
         [SerializeField] private GameObject characterThumbnailPrefab;
         [SerializeField] private GameObject placeholderForEmptyGallery;
+        [SerializeField] private bool avatarsDeleteable = false;
 
         private List<CharacterThumbnailView> _characterThumbnails = new List<CharacterThumbnailView>();
 
-        public delegate void ModelSelectedHandler(string characterId);
-        public event ModelSelectedHandler CharacterModelSelected;
+        public delegate void AvatarEventHandler(string characterId);
+        public event AvatarEventHandler CharacterModelSelected;
 
         private List<string> _avatars = new List<string>();
 
@@ -49,6 +50,11 @@ namespace MirageXR
                     GameObject thumbnailGo = Instantiate(characterThumbnailPrefab, thumbnailGrid);
                     characterThumbnailView = thumbnailGo.GetComponent<CharacterThumbnailView>();
                     characterThumbnailView.CharacterModelSelected += OnCharacterSelected;
+                    characterThumbnailView.Deleteable = avatarsDeleteable;
+                    if (avatarsDeleteable)
+                    {
+                        characterThumbnailView.CharacterModelDeleted += OnCharacterDeleted;
+                    }
                     _characterThumbnails.Add(characterThumbnailView);
                 }
 
@@ -59,6 +65,12 @@ namespace MirageXR
         private void OnCharacterSelected(string characterId)
         {
             CharacterModelSelected?.Invoke(characterId);
+        }
+
+        private void OnCharacterDeleted(string characterId)
+        {
+            RootObject.Instance.AvatarLibraryManager.RemoveAvatar(characterId);
+            RefreshThumbnails();
         }
     }
 }

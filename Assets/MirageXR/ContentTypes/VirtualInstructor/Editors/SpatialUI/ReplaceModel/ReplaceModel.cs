@@ -53,13 +53,18 @@ public class ReplaceModel : MonoBehaviour
 
     private async Task InitializeGalleriesAsync()
     {
-        localCharacterGallery.Avatars = RootObject.Instance.AvatarLibraryManager.AvatarList;
+        RefreshLocalGallery();
         serverCharacterGallery.Avatars = new List<string>(await RootObject.Instance.AvatarLoadManager.GetListOfAvatarsAsync());
+    }
+
+    private void RefreshLocalGallery()
+    {
+        localCharacterGallery.Avatars = RootObject.Instance.AvatarLibraryManager.AvatarList;
     }
 
     private void NewCharacterAdded(string characterId)
     {
-        localCharacterGallery.Avatars = RootObject.Instance.AvatarLibraryManager.AvatarList;
+        RefreshLocalGallery();
     }
 
     private void OnLocalCharacterSelected(string characterId)
@@ -70,6 +75,7 @@ public class ReplaceModel : MonoBehaviour
     private void OnServerCharacterSelected(string characterId)
     {
         RootObject.Instance.AvatarLibraryManager.AddAvatar(characterId);
+        RefreshLocalGallery();
         CharacterModelSelected?.Invoke(characterId);
     }
 }
