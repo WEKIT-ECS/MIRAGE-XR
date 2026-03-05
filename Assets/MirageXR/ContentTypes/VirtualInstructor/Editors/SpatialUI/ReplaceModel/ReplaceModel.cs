@@ -34,16 +34,16 @@ public class ReplaceModel : MonoBehaviour
     private async void OnEnable()
     {
         addCharacterPanel.CharacterSelected += NewCharacterAdded;
-        localCharacterGallery.CharacterModelSelected += OnCharacterSelected;
-        serverCharacterGallery.CharacterModelSelected += OnCharacterSelected;
+        localCharacterGallery.CharacterModelSelected += OnLocalCharacterSelected;
+        serverCharacterGallery.CharacterModelSelected += OnServerCharacterSelected;
         await InitializeGalleriesAsync();
     }
 
     private void OnDisable()
     {
         addCharacterPanel.CharacterSelected -= NewCharacterAdded;
-        localCharacterGallery.CharacterModelSelected -= OnCharacterSelected;
-        serverCharacterGallery.CharacterModelSelected -= OnCharacterSelected;
+        localCharacterGallery.CharacterModelSelected -= OnLocalCharacterSelected;
+        serverCharacterGallery.CharacterModelSelected -= OnServerCharacterSelected;
     }
 
     private void Close()
@@ -62,8 +62,14 @@ public class ReplaceModel : MonoBehaviour
         localCharacterGallery.Avatars = RootObject.Instance.AvatarLibraryManager.AvatarList;
     }
 
-    private void OnCharacterSelected(string characterId)
+    private void OnLocalCharacterSelected(string characterId)
     {
+        CharacterModelSelected?.Invoke(characterId);
+    }
+
+    private void OnServerCharacterSelected(string characterId)
+    {
+        RootObject.Instance.AvatarLibraryManager.AddAvatar(characterId);
         CharacterModelSelected?.Invoke(characterId);
     }
 }

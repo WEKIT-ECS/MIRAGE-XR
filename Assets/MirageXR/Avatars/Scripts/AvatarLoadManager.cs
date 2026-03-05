@@ -1,6 +1,7 @@
 using GLTFast;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -47,6 +48,7 @@ namespace MirageXR
                 if (webRequest.result == UnityWebRequest.Result.Success)
                 {
                     AvatarListReponse avatars = JsonConvert.DeserializeObject<AvatarListReponse>(webRequest.downloadHandler.text);
+                    avatars.Data.Sort();
                     return avatars.Data.ToArray();
                 }
                 else
