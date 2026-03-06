@@ -9,6 +9,7 @@ using UnityEditor.Build.Profile;
 #endif
 using UnityEditor.AddressableAssets.Settings;
 using Fusion;
+using Fusion.CodeGen;
 using UnityEditor.Compilation;
 
 
