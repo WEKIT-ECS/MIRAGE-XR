@@ -1,7 +1,8 @@
 using GLTFast;
 using Newtonsoft.Json;
-using System;
-using System.Net;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -13,6 +14,10 @@ namespace MirageXR
         private const string avatarBaseEndpoint = "http://repository.wekit-ecs.com:8001/avatar/";
 
         private LearningExperienceEngine.IAuthorizationManager _authorizationManager;
+
+        private Dictionary<string, Texture2D> thumbnailCache = new Dictionary<string, Texture2D>();
+
+        private static readonly SemaphoreSlim _networkLock = new SemaphoreSlim(1, 1);
 
         private string AvatarListEndpoint
         {
@@ -43,6 +48,7 @@ namespace MirageXR
                 if (webRequest.result == UnityWebRequest.Result.Success)
                 {
                     AvatarListReponse avatars = JsonConvert.DeserializeObject<AvatarListReponse>(webRequest.downloadHandler.text);
+                    avatars.Data.Sort();
                     return avatars.Data.ToArray();
                 }
                 else
@@ -113,22 +119,44 @@ namespace MirageXR
 
         public async Task<Texture2D> GetThumbnailAsync(string avatarName)
         {
-            string thumbnailUrl = AvatarThumbnailEndpoint + "?avatar_name=" + avatarName;
-            using (UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(thumbnailUrl))
+            if (thumbnailCache.TryGetValue(avatarName, out Texture2D cachedTexture))
             {
-                webRequest.SetRequestHeader("Authorization", $"Bearer {_authorizationManager.AccessToken}");
-                await webRequest.SendWebRequest();
+                return cachedTexture;
+            }
 
-                if (webRequest.result == UnityWebRequest.Result.Success)
+            await _networkLock.WaitAsync();
+
+            try
+            {
+                // re-check if the thumbnail was loaded in the meantime
+                if (thumbnailCache.TryGetValue(avatarName, out Texture2D doubleCheck))
                 {
-                    Texture2D thumbnail = DownloadHandlerTexture.GetContent(webRequest);
-                    return thumbnail;
+                    return doubleCheck;
                 }
-                else
+
+                string thumbnailUrl = AvatarThumbnailEndpoint + "?avatar_name=" + avatarName;
+                using (UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(thumbnailUrl))
                 {
-                    Debug.LogError("Error fetching thumbnail: " + webRequest.error);
-                    return null;
+                    webRequest.SetRequestHeader("Authorization", $"Bearer {_authorizationManager.AccessToken}");
+                    await webRequest.SendWebRequest();
+
+                    if (webRequest.result == UnityWebRequest.Result.Success)
+                    {
+                        Texture2D thumbnail = DownloadHandlerTexture.GetContent(webRequest);
+                        thumbnailCache[avatarName] = thumbnail;
+                        return thumbnail;
+                    }
+                    else
+                    {
+                        Debug.LogError("Error fetching thumbnail: " + webRequest.error);
+                        return null;
+                    }
                 }
+            }
+            finally
+            {
+                // release network lock
+                _networkLock.Release();
             }
         }
     }

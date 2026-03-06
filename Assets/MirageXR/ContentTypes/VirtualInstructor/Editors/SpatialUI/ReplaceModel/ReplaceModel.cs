@@ -7,86 +7,75 @@ using UnityEngine.UI;
 
 public class ReplaceModel : MonoBehaviour
 {
-	[SerializeField] private CharacterModelSelectionElement addNewCharacter;
-	[SerializeField] private AddModelPanel addCharacterPanel;
-	[SerializeField] private Transform thumbnailGrid;
-	[SerializeField] private GameObject characterThumbnailPrefab;
-	[SerializeField] private GameObject characterChip;
+    [SerializeField] private CharacterModelSelectionElement addNewCharacter;
+    [SerializeField] private AddModelPanel addCharacterPanel;
+    [SerializeField] private AvatarGallery localCharacterGallery;
+    [SerializeField] private AvatarGallery serverCharacterGallery;
 
-	[SerializeField] private Button close;
+    [SerializeField] private Button close;
 
-	private List<CharacterThumbnailView> _characterThumbnails = new List<CharacterThumbnailView>();
+    public delegate void ModelSelectedHandler(string characterId);
+    public event ModelSelectedHandler CharacterModelSelected;
 
-	public delegate void ModelSelectedHandler(string characterId);
-	public event ModelSelectedHandler CharacterModelSelected;
+    void Start()
+    {
+        addNewCharacter.CharacterModelSelectionStarted += OpenAddCharacterMenu;
+        if (close != null)
+        {
+            close.onClick.AddListener(() => Close());
+        }
+    }
 
-	void Start()
-	{
-		addNewCharacter.CharacterModelSelectionStarted += OpenAddCharacterMenu;
-		if (close != null)
-		{
-			close.onClick.AddListener(() => Close());
-		}
-	}
+    private void OpenAddCharacterMenu()
+    {
+        addCharacterPanel.gameObject.SetActive(true);
+    }
 
-	private void OpenAddCharacterMenu()
-	{
-		addCharacterPanel.gameObject.SetActive(true);
-	}
+    private async void OnEnable()
+    {
+        addCharacterPanel.CharacterSelected += NewCharacterAdded;
+        localCharacterGallery.CharacterModelSelected += OnLocalCharacterSelected;
+        serverCharacterGallery.CharacterModelSelected += OnServerCharacterSelected;
+        await InitializeGalleriesAsync();
+    }
 
-	private void OnEnable()
-	{
-		addCharacterPanel.CharacterSelected += NewCharacterAdded;
-		RefreshThumbnails();
-	}
+    private void OnDisable()
+    {
+        addCharacterPanel.CharacterSelected -= NewCharacterAdded;
+        localCharacterGallery.CharacterModelSelected -= OnLocalCharacterSelected;
+        serverCharacterGallery.CharacterModelSelected -= OnServerCharacterSelected;
+    }
 
-	private void OnDisable()
-	{
-		addCharacterPanel.CharacterSelected -= NewCharacterAdded;
-	}
+    private void Close()
+    {
+        gameObject.SetActive(false);
+    }
 
-	private void Close()
-	{
-		gameObject.SetActive(false);
-	}
+    private async Task InitializeGalleriesAsync()
+    {
+        RefreshLocalGallery();
+        serverCharacterGallery.Avatars = new List<string>(await RootObject.Instance.AvatarLoadManager.GetListOfAvatarsAsync());
+    }
 
-	private void NewCharacterAdded(string characterId)
-	{
-		RefreshThumbnails();
-	}
+    private void RefreshLocalGallery()
+    {
+        localCharacterGallery.Avatars = RootObject.Instance.AvatarLibraryManager.AvatarList;
+    }
 
-	public void RefreshThumbnails()
-	{
-		characterChip.SetActive(RootObject.Instance.AvatarLibraryManager.AvatarList.Count == 0);
+    private void NewCharacterAdded(string characterId)
+    {
+        RefreshLocalGallery();
+    }
 
-		for (int i = 0; i < _characterThumbnails.Count; i++)
-		{
-			bool visible = i < RootObject.Instance.AvatarLibraryManager.AvatarList.Count;
-			_characterThumbnails[i].gameObject.SetActive(visible);
-		}
+    private void OnLocalCharacterSelected(string characterId)
+    {
+        CharacterModelSelected?.Invoke(characterId);
+    }
 
-		for (int i = 0; i < RootObject.Instance.AvatarLibraryManager.AvatarList.Count; i++)
-		{
-			string avatarId = RootObject.Instance.AvatarLibraryManager.AvatarList[i];
-			CharacterThumbnailView characterThumbnailView;
-			if (i < _characterThumbnails.Count)
-			{
-				characterThumbnailView = _characterThumbnails[i];
-			}
-			else
-			{
-				GameObject thumbnailGo = Instantiate(characterThumbnailPrefab, thumbnailGrid);
-				characterThumbnailView = thumbnailGo.GetComponent<CharacterThumbnailView>();
-				characterThumbnailView.CharacterModelSelected += OnCharacterSelected;
-				_characterThumbnails.Add(characterThumbnailView);
-			}
-
-			_characterThumbnails[i].CharacterModelId = avatarId;
-		}
-	}
-
-	private void OnCharacterSelected(string characterId)
-	{
-		CharacterModelSelected?.Invoke(characterId);
-	}
+    private void OnServerCharacterSelected(string characterId)
+    {
+        RootObject.Instance.AvatarLibraryManager.AddAvatar(characterId);
+        RefreshLocalGallery();
+        CharacterModelSelected?.Invoke(characterId);
+    }
 }
