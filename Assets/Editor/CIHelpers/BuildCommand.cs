@@ -9,7 +9,7 @@ using UnityEditor.Build.Profile;
 #endif
 using UnityEditor.AddressableAssets.Settings;
 using Fusion;
-using Fusion.CodeGen;
+//using Fusion.CodeGen;
 using UnityEditor.Compilation;
 
 
@@ -122,7 +122,7 @@ public static class BuildCommand
             options = buildOptions,
         };
 
-        BuildSummary buildSummary = BuildPipeline.BuildPlayer(buildPlayerWithProfileOptions).summary;
+        BuildSummary buildSummary = BuildPipeline.BuildPlayer(buildPlayerWithProfileOptions).summary; 
         ReportSummary(buildSummary);
         ExitWithResult(buildSummary.result);
     }
