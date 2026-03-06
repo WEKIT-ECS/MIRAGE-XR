@@ -47,7 +47,10 @@ jobs:
           # dirty build needed to include generated Watson credentials
           allowDirtyBuild: true
           buildMethod: BuildCommand.Build
-          customParameters: -customBuildTarget VisionOS -customBuildPath ./ -customBuildName build
+          buildsPath: build/VisionOS
+          buildName: MirageXR
+          gitPrivateToken: ${{ secrets.GH_PAT_TOKEN }}
+          customParameters: -customBuildTarget VisionOS -customBuildPath build/VisionOS -customBuildName MirageXR 
 
       # Xcode build stage
       - name: Build (Xcode)
