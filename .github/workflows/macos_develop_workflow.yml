@@ -62,6 +62,9 @@ jobs:
           app-store-connect-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           app-store-connect-issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           team-id: ${{ secrets.APPLE_TEAM_ID }}
+          upload: 'true'
+          export-option: 'app-store-connect'
+          auto-increment-build-number: 'true'
 
       # list outputs
       - name: List outputs generated
