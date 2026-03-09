@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -e
 
-/Applications/Unity/Hub/Editor/6000.0.59f2/Unity.app/Contents/MacOS/Unity \
+/Applications/Unity/Hub/Editor/6000.0.69f1/Unity.app/Contents/MacOS/Unity \
 	-batchmode \
 	-nographics \
 	-silent-crashes \
@@ -9,8 +9,8 @@ set -e
 	-projectPath "$(pwd)" \
 	-quit \
         -buildTarget VisionOS \
-        -build Builds/visionos26 \
-        -customBuildPath Builds/visionos26 \
+        -build Builds/visionos27 \
+        -customBuildPath Builds/visionos27 \
         -executeMethod BuildCommand.Build	
 # -executeMethod LocalBuildPipeline.BuildQuest
 
