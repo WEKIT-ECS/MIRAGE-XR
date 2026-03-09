@@ -46,6 +46,11 @@ jobs:
           versioning: Semantic
           # dirty build needed to include generated Watson credentials
           allowDirtyBuild: true
+          buildMethod: BuildCommand.Build
+          buildsPath: build/VisionOS
+          buildName: MirageXR
+          gitPrivateToken: ${{ secrets.GH_PAT_TOKEN }}
+          customParameters: -customBuildTarget VisionOS -customBuildPath build/ -customBuildName MirageXR 
 
       # Xcode build stage
       - name: Build (Xcode)
@@ -57,6 +62,9 @@ jobs:
           app-store-connect-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           app-store-connect-issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           team-id: ${{ secrets.APPLE_TEAM_ID }}
+          upload: 'true'
+          export-option: 'app-store-connect'
+          auto-increment-build-number: 'true'
 
       # list outputs
       - name: List outputs generated
