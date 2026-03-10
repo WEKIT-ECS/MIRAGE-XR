@@ -50,6 +50,10 @@ jobs:
           buildsPath: build/VisionOS
           buildName: MirageXR
           gitPrivateToken: ${{ secrets.GH_PAT_TOKEN }}
+          manual-signing-certificate: ${{ secrets.APPLE_CERT }}
+          manual-signing-certificate-password: ${{ secrets.APPLE_CERT_PASSWORD }}
+          provisioning-profile: ${{ secrets.APPLE_PROV_PROFILE }}
+          provisioning-profile-name: ${{ secrets.APPLE_PROV_PROFILE_NAME }}
           customParameters: -customBuildTarget VisionOS -customBuildPath build/ -customBuildName MirageXR 
 
       # Xcode build stage
