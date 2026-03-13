@@ -24,6 +24,7 @@ namespace MirageXR
         [SerializeField] private CollaborativeSessionPanelView _collabSessionPanel;
         [SerializeField] private CollaborativeSessionSettingsView _collabSessionSettingsPanel;
         [SerializeField] private RoomScanSettingsSpatialView _roomScanSettingsSpatialViewPrefab;
+        [SerializeField] private RoomScanGallerySpatialView _roomScanGallerySpatialViewPrefab;
         [SerializeField] private SelectAugmentationScreenSpatialView _selectAugmentationScreenSpatialView;
 
         [SerializeField] private ImageSelectPopupView imageSelectPopupViewPrefab;
@@ -67,22 +68,22 @@ namespace MirageXR
         }
 
         public void ShowRegisterView()
-        {  
+        {
             PopupsViewer.Instance.Show(_registerScreenSpatialViewPrefab);
         }
 
         public void ShowSignInView()
-        {  
+        {
             //PopupsViewer.Instance.Show(_signInScreenSpatialViewPrefab);
         }
 
         public void ShowCollaborativeSessionPanelView()
-        {  
+        {
             PopupsViewer.Instance.Show(_collabSessionPanel);
         }
 
         public void ShowCollaborativeSessionSettingsPanelView()
-        {  
+        {
             PopupsViewer.Instance.Show(_collabSessionSettingsPanel);
         }
         public void ShowScreen(ScreenName screenName, string args = "")
@@ -92,8 +93,13 @@ namespace MirageXR
         }
 
         public void ShowRoomScanSettingsPanelView()
-        {  
+        {
             PopupsViewer.Instance.Show(_roomScanSettingsSpatialViewPrefab);
+        }
+
+        public void ShowRoomScanGalleryView()
+        {
+            PopupsViewer.Instance.Show(_roomScanGallerySpatialViewPrefab);
         }
 
         public void ShowSelectAugmentationScreenSpatialView()
