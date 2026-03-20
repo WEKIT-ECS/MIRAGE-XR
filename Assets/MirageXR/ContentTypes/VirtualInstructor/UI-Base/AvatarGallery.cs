@@ -3,74 +3,13 @@ using UnityEngine;
 
 namespace MirageXR
 {
-    public class AvatarGallery : MonoBehaviour
+    public class AvatarGallery : GalleryBase
     {
-        [SerializeField] private Transform thumbnailGrid;
-        [SerializeField] private GameObject characterThumbnailPrefab;
-        [SerializeField] private GameObject placeholderForEmptyGallery;
-        [SerializeField] private bool avatarsDeleteable = false;
+        protected override IThumbnailProvider ThumbnailProvider { get => RootObject.Instance.AvatarLoadManager; }
 
-        private List<CharacterThumbnailView> _characterThumbnails = new List<CharacterThumbnailView>();
-
-        public delegate void AvatarEventHandler(string characterId);
-        public event AvatarEventHandler CharacterModelSelected;
-
-        private List<string> _avatars = new List<string>();
-
-        public List<string> Avatars
+        protected override void DeleteElement(string elementId)
         {
-            get => _avatars;
-            set
-            {
-                _avatars = value;
-                RefreshThumbnails();
-            }
-        }
-
-        public void RefreshThumbnails()
-        {
-            placeholderForEmptyGallery.SetActive(Avatars.Count == 0);
-
-            for (int i = 0; i < _characterThumbnails.Count; i++)
-            {
-                bool visible = i < Avatars.Count;
-                _characterThumbnails[i].gameObject.SetActive(visible);
-            }
-
-            for (int i = 0; i < Avatars.Count; i++)
-            {
-                string avatarId = Avatars[i];
-                CharacterThumbnailView characterThumbnailView;
-                if (i < _characterThumbnails.Count)
-                {
-                    characterThumbnailView = _characterThumbnails[i];
-                }
-                else
-                {
-                    GameObject thumbnailGo = Instantiate(characterThumbnailPrefab, thumbnailGrid);
-                    characterThumbnailView = thumbnailGo.GetComponent<CharacterThumbnailView>();
-                    characterThumbnailView.CharacterModelSelected += OnCharacterSelected;
-                    characterThumbnailView.Deleteable = avatarsDeleteable;
-                    if (avatarsDeleteable)
-                    {
-                        characterThumbnailView.CharacterModelDeleted += OnCharacterDeleted;
-                    }
-                    _characterThumbnails.Add(characterThumbnailView);
-                }
-
-                _characterThumbnails[i].CharacterModelId = avatarId;
-            }
-        }
-
-        private void OnCharacterSelected(string characterId)
-        {
-            CharacterModelSelected?.Invoke(characterId);
-        }
-
-        private void OnCharacterDeleted(string characterId)
-        {
-            RootObject.Instance.AvatarLibraryManager.RemoveAvatar(characterId);
-            RefreshThumbnails();
+            RootObject.Instance.AvatarLibraryManager.RemoveAvatar(elementId);
         }
     }
 }

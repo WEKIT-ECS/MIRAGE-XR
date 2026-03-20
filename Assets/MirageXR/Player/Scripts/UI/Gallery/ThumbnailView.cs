@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using ReadyPlayerMe.Core;
 using System;
 using System.Collections;
@@ -7,21 +8,21 @@ using UnityEngine.UI;
 
 namespace MirageXR
 {
-    public class CharacterThumbnailView : MonoBehaviour
+    public class ThumbnailView : MonoBehaviour
     {
         [SerializeField] private Image _thumbnailImage;
         [SerializeField] private GameObject _waitSpinner;
         [SerializeField] private GameObject _errorDisplay;
         [SerializeField] private Button _deleteButton;
 
-        private string _characterModelId;
+        private string _elementId;
 
-        public delegate void CharacterModelEventHandler(string characterModelId);
-        public event CharacterModelEventHandler CharacterModelSelected;
+        public delegate void ThumbnailEventHandler(string elementId);
+        public event ThumbnailEventHandler ElementSelected;
 
-        public event CharacterModelEventHandler CharacterModelIdChanged;
+        public event ThumbnailEventHandler ElementIdChanged;
 
-        public event CharacterModelEventHandler CharacterModelDeleted;
+        public event ThumbnailEventHandler ElementDeleted;
 
         public Texture2D DisplayedThumbnail
         {
@@ -45,15 +46,20 @@ namespace MirageXR
             }
         }
 
-        public string CharacterModelId
+        public IThumbnailProvider ThumbnailProvider
         {
-            get => _characterModelId;
+            get; set;
+        }
+
+        public string ElementId
+        {
+            get => _elementId;
             set
             {
-                if (_characterModelId != value)
+                if (_elementId != value)
                 {
-                    _characterModelId = value;
-                    CharacterModelIdChanged?.Invoke(value);
+                    _elementId = value;
+                    ElementIdChanged?.Invoke(value);
                     UpdateView();
                 }
             }
@@ -65,10 +71,30 @@ namespace MirageXR
         {
             _deleteButton.gameObject.SetActive(Deleteable);
             DisplayedThumbnail = null;
-            if (!string.IsNullOrWhiteSpace(_characterModelId))
+            if (!string.IsNullOrWhiteSpace(_elementId))
             {
                 _waitSpinner.SetActive(true);
-                Texture2D thumbnail = await RootObject.Instance.AvatarLoadManager.GetThumbnailAsync(_characterModelId);
+                Texture2D thumbnail = null;
+                if (ThumbnailProvider != null)
+                {
+                    //thumbnail = await RootObject.Instance.AvatarLoadManager.GetThumbnailAsync(_elementId);
+                    try
+                    {
+                        thumbnail = await ThumbnailProvider.GetThumbnailAsync(_elementId, destroyCancellationToken);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    Debug.LogError("Thumbnail provider is not set up. Ensure that it is set before trying to load an element.", this);
+                }
+                if (destroyCancellationToken.IsCancellationRequested)
+                {
+                    return;
+                }
                 _errorDisplay.SetActive(thumbnail == null);
                 DisplayedThumbnail = thumbnail;
                 _waitSpinner.SetActive(false);
@@ -77,15 +103,15 @@ namespace MirageXR
 
         public void ThumbnailSelected()
         {
-            Debug.LogTrace($"Thumbnail with character model Id {_characterModelId} clicked.");
-            CharacterModelSelected?.Invoke(_characterModelId);
+            Debug.LogTrace($"Thumbnail of element with Id {_elementId} selected.");
+            ElementSelected?.Invoke(_elementId);
         }
 
         public void Delete()
         {
             if (Deleteable)
             {
-                CharacterModelDeleted?.Invoke(_characterModelId);
+                ElementDeleted?.Invoke(_elementId);
             }
         }
     }

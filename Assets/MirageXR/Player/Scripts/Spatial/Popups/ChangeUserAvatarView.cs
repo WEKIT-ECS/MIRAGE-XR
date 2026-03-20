@@ -15,7 +15,7 @@ namespace MirageXR
 		[Header("References")]
 		[SerializeField] private Button _closeWindowBtn;
 		[SerializeField] private Button _openEditorBtn;
-		[SerializeField] private CharacterModelSelectionElement _characterModelSelectionElement;
+		[SerializeField] private GallerySelectionElement _characterModelSelectionElement;
 		[SerializeField] private Button _replaceModelBtn;
 
 		[Header("Prefabs")]
@@ -38,7 +38,7 @@ namespace MirageXR
 			_closeWindowBtn.onClick.AddListener(Close);
 			_openEditorBtn.onClick.AddListener(OpenEditor);
 			_replaceModelBtn.onClick.AddListener(OpenAvatarLibrary);
-			_characterModelSelectionElement.CharacterModelSelectionStarted += OpenAvatarLibrary;
+			_characterModelSelectionElement.GalleryElementSelectionStarted += OpenAvatarLibrary;
 
 			string avatarId = AvatarLoadUtils.GetId(UserSettings.AvatarUrl);
 			// add the current avatar to the library so that it can be loaded
@@ -54,7 +54,7 @@ namespace MirageXR
 
 		private void OnDestroy()
 		{
-			_characterModelSelectionElement.CharacterModelSelectionStarted -= OpenAvatarLibrary;
+			_characterModelSelectionElement.GalleryElementSelectionStarted -= OpenAvatarLibrary;
 			UserSettings.AvatarUrlChanged -= OnAvatarUrlChanged;
 		}
 
@@ -98,7 +98,7 @@ namespace MirageXR
 		// apply the currently saved AvatarUrl to the UI to reflect the selected avatar
 		private void ApplyAvatarUrl()
 		{
-			_characterModelSelectionElement.Thumbnail.CharacterModelId = UserSettings.AvatarUrl;
+			_characterModelSelectionElement.Thumbnail.ElementId = UserSettings.AvatarUrl;
 		}
 	}
 }

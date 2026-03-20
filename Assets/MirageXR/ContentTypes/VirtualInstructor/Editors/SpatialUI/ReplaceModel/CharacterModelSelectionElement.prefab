@@ -215,13 +215,33 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8810217167573274163, guid: 276a63b6c957a2044924d34718c7dcd4,
         type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8810217167573274163, guid: 276a63b6c957a2044924d34718c7dcd4,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8810217167573274163, guid: 276a63b6c957a2044924d34718c7dcd4,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8810217167573274163, guid: 276a63b6c957a2044924d34718c7dcd4,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8810217167573274163, guid: 276a63b6c957a2044924d34718c7dcd4,
+        type: 3}
       propertyPath: m_LocalPosition.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8810217167573274163, guid: 276a63b6c957a2044924d34718c7dcd4,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -2.5
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -273,13 +293,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 5658132884886014261}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0f27e52e8c23fa45abac303ae587f00, type: 3}
+  m_Script: {fileID: 11500000, guid: 33e1ed0fedc459f4ca1e61a0ccf357ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _addPlus: {fileID: 8713876019330495405}
   _infoText: {fileID: 1879515266705915738}
-  _noCharacterSelectedText: Set character model
-  _characterSelectedText: Replace character model
+  _noElementSelectedText: Add character
+  _elementSelectedText: Replace character
 --- !u!114 &2204201753113369205
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -377,12 +397,12 @@ PrefabInstance:
     - target: {fileID: 1779840130503703255, guid: 33414f254b32244a882fff28efc6317a,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: StartCharacterModelSelection
+      value: StartGalleryElementSelection
       objectReference: {fileID: 0}
     - target: {fileID: 1779840130503703255, guid: 33414f254b32244a882fff28efc6317a,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: MirageXR.CharacterModelSelectionElement, MirageXR
+      value: MirageXR.GallerySelectionElement, MirageXR
       objectReference: {fileID: 0}
     - target: {fileID: 1779840130503703255, guid: 33414f254b32244a882fff28efc6317a,
         type: 3}
@@ -555,8 +575,7 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -0.0000019073486
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 1779840130503703255, guid: 33414f254b32244a882fff28efc6317a, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
