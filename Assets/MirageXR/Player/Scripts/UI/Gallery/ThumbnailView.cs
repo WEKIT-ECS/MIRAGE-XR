@@ -77,7 +77,6 @@ namespace MirageXR
                 Texture2D thumbnail = null;
                 if (ThumbnailProvider != null)
                 {
-                    //thumbnail = await RootObject.Instance.AvatarLoadManager.GetThumbnailAsync(_elementId);
                     try
                     {
                         thumbnail = await ThumbnailProvider.GetThumbnailAsync(_elementId, destroyCancellationToken);
