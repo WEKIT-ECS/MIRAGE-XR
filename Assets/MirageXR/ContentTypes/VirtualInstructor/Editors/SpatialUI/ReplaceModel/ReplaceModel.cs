@@ -59,7 +59,7 @@ public class ReplaceModel : MonoBehaviour
 
     private void RefreshLocalGallery()
     {
-        localCharacterGallery.ElementIds = RootObject.Instance.AvatarLibraryManager.AvatarList;
+        localCharacterGallery.ElementIds = RootObject.Instance.AvatarLibraryManager.LibraryContent;
     }
 
     private void NewCharacterAdded(string characterId)
@@ -74,7 +74,7 @@ public class ReplaceModel : MonoBehaviour
 
     private void OnServerCharacterSelected(string characterId)
     {
-        RootObject.Instance.AvatarLibraryManager.AddAvatar(characterId);
+        RootObject.Instance.AvatarLibraryManager.Add(characterId);
         RefreshLocalGallery();
         CharacterModelSelected?.Invoke(characterId);
     }

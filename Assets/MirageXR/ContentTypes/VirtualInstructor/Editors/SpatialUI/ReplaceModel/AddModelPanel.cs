@@ -84,7 +84,7 @@ namespace MirageXR
 			{
 				// we take the id from the metaData because it is guaranteed to be readable by RPM
 				// this way, we avoid adding shortcodes here because they don't seem to work with the thumbnail API
-				RootObject.Instance.AvatarLibraryManager.AddAvatar(avatarId);
+				RootObject.Instance.AvatarLibraryManager.Add(avatarId);
 				CharacterSelected?.Invoke(avatarId);
 				inputField.text = "";
 			}

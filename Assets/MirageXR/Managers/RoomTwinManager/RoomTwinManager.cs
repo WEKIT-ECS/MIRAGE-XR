@@ -1,8 +1,13 @@
-using System;
-using System.IO;
 using Cysharp.Threading.Tasks;
-using UnityEngine;
 using GLTFast;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.Networking;
 
 namespace MirageXR
 {
@@ -23,20 +28,41 @@ namespace MirageXR
     /// the 3D model of a remote room (the 'room twin'). This uses the RoomShader
     /// to unveil the model.
     /// </summary>
-    public class RoomTwinManager : MonoBehaviour    //TODO: correct fields name
+    public class RoomTwinManager : MonoBehaviour, IThumbnailProvider    //TODO: correct fields name
     {
+        private const string roomScanBaseEndpoint = "http://repository.wekit-ecs.com:8001/digitalTwin/";
+
 
         public bool _FullTwinBlendInCompleted = false;
         public bool _WireframeBlendInCompleted = false;
 
         [SerializeField] private bool ForceRoomTwinDisplay;
-        [SerializeField] public string RoomFile = "esa_iss_columbus_module_1m.glb";
+        [SerializeField] public string defaultScanName = "esa_iss_columbus_module_1m.glb";
         [SerializeField] private Material RoomTwinShader;
         [SerializeField] public RoomTwinStyle _roomTwinStyle = RoomTwinStyle.FullTwin;
+
+        private LearningExperienceEngine.IAuthorizationManager _authorizationManager;
+        private Dictionary<string, Texture2D> thumbnailCache = new Dictionary<string, Texture2D>();
+        private static readonly SemaphoreSlim _networkLock = new SemaphoreSlim(1, 1);
 
         private GltfImport _gltf;
         private GameObject _roomModel;
         private Animation _legacyAnimation;
+
+        private string ListEndpoint
+        {
+            get => roomScanBaseEndpoint + "list";
+        }
+
+        private string ThumbnailEndpoint
+        {
+            get => roomScanBaseEndpoint + "thumbnail/get";
+        }
+
+        private string ModelEndpoint
+        {
+            get => roomScanBaseEndpoint + "get";
+        }
 
         #region lerp
         private Color _startColor;
@@ -53,10 +79,14 @@ namespace MirageXR
         #endregion
 
         // Start is called before the first frame update
-        public async UniTask InitializationAsync()
+        public async UniTask InitializationAsync(LearningExperienceEngine.IAuthorizationManager authorizationManager)
         {
             UnityEngine.Debug.Log("Initializing [RoomTwinManager] <--");
-            await LoadRoomTwinModelAsync(Path.Combine(Application.streamingAssetsPath, RoomFile));
+
+            _authorizationManager = authorizationManager;
+
+            // load a local model first as the default
+            await LoadRoomTwinModelFromURLAsync(Path.Combine(Application.streamingAssetsPath, defaultScanName));
 
             UnityEngine.Debug.Log("[RoomTwinManager] registering ImmersionChanged event");
 #if UNITY_VISIONOS
@@ -113,13 +143,40 @@ namespace MirageXR
             }
         }
 
+        public async Task<string[]> GetListOfRoomScansAsync()
+        {
+            using (UnityWebRequest webRequest = UnityWebRequest.Get(ListEndpoint))
+            {
+                webRequest.SetRequestHeader("Authorization", $"Bearer {_authorizationManager.AccessToken}");
+                await webRequest.SendWebRequest();
+                if (webRequest.result == UnityWebRequest.Result.Success)
+                {
+                    AvatarListReponse avatars = JsonConvert.DeserializeObject<AvatarListReponse>(webRequest.downloadHandler.text);
+                    avatars.Data.Sort();
+                    return avatars.Data.ToArray();
+                }
+                else
+                {
+                    Debug.LogError("Error fetching avatar list: " + webRequest.error);
+                    return new string[0];
+                }
+            }
+        }
+
         /// <summary>
         /// Public method for loading the Room Model,
         /// calls internal LoadGltfRoomTwin
         /// </summary>
         /// <param name="url">file path or web url of the model</param>
-        public async UniTask LoadRoomTwinModelAsync(string url)
+        public async UniTask LoadRoomTwinModelFromURLAsync(string url)
         {
+            await LoadGltfRoomTwinAsync(url);
+        }
+
+        public async UniTask LoadRoomTwinModelFromId(string id)
+        {
+            string url = ModelEndpoint + "?digitaltwin_name=" + id;
+
             await LoadGltfRoomTwinAsync(url);
         }
 
@@ -127,17 +184,17 @@ namespace MirageXR
         /// Switch digital room twin on or off
         /// </summary>
         /// <param name="show">if true, display the room twin, otherwise deactivate it</param>
-        public async UniTask DisplayRoomTwinAsync(bool show) //TODO: replace with two functions - ShowRoomTwin() and HideRoomTwin()
+        public void SetRoomTwinVisibility(bool show) //TODO: replace with two functions - ShowRoomTwin() and HideRoomTwin()
         {
             if (show) // show
             {
-                _loadingCompleted = false;
-                if (_roomModel)
-                {
-                    Destroy(_roomModel);
-                }
+                //_loadingCompleted = false;
+                //if (_roomModel)
+                //{
+                //    Destroy(_roomModel);
+                //}
                 SetRoomTwinStyle(_roomTwinStyle);
-                await LoadRoomTwinModelAsync(Path.Combine(Application.streamingAssetsPath, RoomFile));
+                //await LoadRoomTwinModelFromURLAsync(Path.Combine(Application.streamingAssetsPath, defaultScanName));
                 _roomModel.SetActive(true);
                 
             } else // hide
@@ -182,10 +239,10 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Load the Room Twin model from file
+        /// Load the Room Twin model from a url
         /// </summary>
-        /// <param name="roomFile"></param>
-        private async UniTask<bool> LoadGltfRoomTwinAsync(string roomFile)
+        /// <param name="url"></param>
+        private async UniTask<bool> LoadGltfRoomTwinAsync(string url)
         {
             _gltf = new GltfImport();
 
@@ -199,10 +256,15 @@ namespace MirageXR
             };
 
             // Load the glTF and pass along the settings
-            var success = await _gltf.Load(roomFile, settings);
+            var success = await _gltf.Load(url, settings);
 
             if (success)
             {
+                if (_roomModel != null)
+                {
+                    Destroy(_roomModel);
+                }
+
                 _roomModel = new GameObject("DigitalRoomTwinModel");
                 _roomModel.transform.parent = transform;
                 _roomModel.SetActive(false);
@@ -218,7 +280,7 @@ namespace MirageXR
 
                 // activate
                 _loadingCompleted = true;
-                DisplayRoomTwinAsync(ForceRoomTwinDisplay).Forget(); 
+                SetRoomTwinVisibility(true);
 
                 //if (legacyAnimation != null)
                 //{
@@ -237,7 +299,7 @@ namespace MirageXR
             }
             else
             {
-                Debug.LogError("Loading glTF failed!");
+                Debug.LogError("Loading glTF failed!", this);
             }
 
             return true;
@@ -304,19 +366,62 @@ namespace MirageXR
             if (Math.Abs(newAmount.Value - 1.0) < 0.01d)
             {
                 SetRoomTwinStyle(RoomTwinStyle.FullTwin);
-                DisplayRoomTwinAsync(true).Forget();
+                SetRoomTwinVisibility(true);
             }
             if (newAmount == 0.0d)
             {
                 SetRoomTwinStyle(RoomTwinStyle.TwinVignette);
                 AddShaderToChildRenderers(_roomModel, RoomTwinShader);
-                DisplayRoomTwinAsync(false).Forget();
+                SetRoomTwinVisibility(false);
             }
             else
             {
                 _roomModel.SetActive(true);
                 _roomTwinStyle = RoomTwinStyle.TwinVignette;
                 GrowVignettesInChildRenderers(_roomModel, (float)newAmount);
+            }
+        }
+
+        public async UniTask<Texture2D> GetThumbnailAsync(string scanId, CancellationToken cancellationToken = default)
+        {
+            if (thumbnailCache.TryGetValue(scanId, out Texture2D cachedTexture))
+            {
+                return cachedTexture;
+            }
+
+            await _networkLock.WaitAsync(cancellationToken);
+
+            try
+            {
+                // re-check if the thumbnail was loaded in the meantime
+                if (thumbnailCache.TryGetValue(scanId, out Texture2D doubleCheck))
+                {
+                    return doubleCheck;
+                }
+
+                string thumbnailUrl = ThumbnailEndpoint + "?digitaltwin_name=" + scanId;
+                using (UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(thumbnailUrl))
+                {
+                    webRequest.SetRequestHeader("Authorization", $"Bearer {_authorizationManager.AccessToken}");
+                    await webRequest.SendWebRequest().WithCancellation(cancellationToken);
+
+                    if (webRequest.result == UnityWebRequest.Result.Success)
+                    {
+                        Texture2D thumbnail = DownloadHandlerTexture.GetContent(webRequest);
+                        thumbnailCache[scanId] = thumbnail;
+                        return thumbnail;
+                    }
+                    else
+                    {
+                        Debug.LogError("Error fetching thumbnail: " + webRequest.error);
+                        return null;
+                    }
+                }
+            }
+            finally
+            {
+                // release network lock
+                _networkLock.Release();
             }
         }
     }

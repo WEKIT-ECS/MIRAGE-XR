@@ -106,7 +106,7 @@ namespace MirageXR  //TODO: add Spatial namespace
 
         private void OnToggleShowRoomScanValueChanged(bool value)
         {
-            roomTwinManager.DisplayRoomTwinAsync(value).Forget();
+            roomTwinManager.SetRoomTwinVisibility(value);
         }
 
         private void OnButtonRepositionClicked()

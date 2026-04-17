@@ -9,7 +9,7 @@ namespace MirageXR
 
         protected override void DeleteElement(string elementId)
         {
-            RootObject.Instance.AvatarLibraryManager.RemoveAvatar(elementId);
+            RootObject.Instance.AvatarLibraryManager.Remove(elementId);
         }
     }
 }

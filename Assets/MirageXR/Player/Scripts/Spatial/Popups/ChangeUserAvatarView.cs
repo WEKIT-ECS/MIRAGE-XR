@@ -42,9 +42,9 @@ namespace MirageXR
 
 			string avatarId = AvatarLoadUtils.GetId(UserSettings.AvatarUrl);
 			// add the current avatar to the library so that it can be loaded
-			if (!RootObject.Instance.AvatarLibraryManager.ContainsAvatar(avatarId))
+			if (!RootObject.Instance.AvatarLibraryManager.Contains(avatarId))
 			{
-				RootObject.Instance.AvatarLibraryManager.AddAvatar(avatarId);
+				RootObject.Instance.AvatarLibraryManager.Add(avatarId);
 			}
 
 			UserSettings.AvatarUrlChanged += OnAvatarUrlChanged;
