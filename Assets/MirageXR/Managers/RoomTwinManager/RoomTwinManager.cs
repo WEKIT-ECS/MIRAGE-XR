@@ -280,7 +280,7 @@ namespace MirageXR
 
                 // activate
                 _loadingCompleted = true;
-                SetRoomTwinVisibility(true);
+                SetRoomTwinVisibility(ForceRoomTwinDisplay);
 
                 //if (legacyAnimation != null)
                 //{
