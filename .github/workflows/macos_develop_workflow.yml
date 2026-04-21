@@ -62,8 +62,8 @@ jobs:
           app-store-connect-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           app-store-connect-issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           team-id: ${{ secrets.APPLE_TEAM_ID }}
-          manual-signing-certificate: ${{ secrets.APPLE_CERT }}
-          manual-signing-certificate-password: ${{ secrets.APPLE_CERT_PASSWORD }}
+          developer-id-application-certificate: ${{ secrets.APPLE_CERT }} # manual-signing-certificate
+          developer-id-application-certificate-password: ${{ secrets.APPLE_CERT_PASSWORD }} # manual-signing-certificate-password
           provisioning-profile: ${{ secrets.APPLE_PROV_PROFILE }}
           provisioning-profile-name: ${{ secrets.APPLE_PROV_PROFILE_NAME }}
           upload: 'true'
