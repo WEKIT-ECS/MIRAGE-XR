@@ -67,7 +67,7 @@ jobs:
           provisioning-profile: ${{ secrets.APPLE_PROV_PROFILE }}
           provisioning-profile-name: ${{ secrets.APPLE_PROV_PROFILE_NAME }}
           upload: 'true'
-          export-option: 'release-testing' # app-store-connect'
+          export-option: 'app-store-connect' # release-testing
           auto-increment-build-number: 'true'
 
       # list outputs
