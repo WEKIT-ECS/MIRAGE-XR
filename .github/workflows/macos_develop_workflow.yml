@@ -66,8 +66,8 @@ jobs:
           manual-signing-certificate-password: ${{ secrets.APPLE_CERT_PASSWORD }}
           developer-id-application-certificate: ${{ secrets.APPLE_CERT }} # manual-signing-certificate
           developer-id-application-certificate-password: ${{ secrets.APPLE_CERT_PASSWORD }} # manual-signing-certificate-password
-          provisioning-profile: ${{ secrets.APPLE_PROV_PROFILE }}
-          provisioning-profile-name: ${{ secrets.APPLE_PROV_PROFILE_NAME }}
+          # provisioning-profile: ${{ secrets.APPLE_PROV_PROFILE }}
+          # provisioning-profile-name: ${{ secrets.APPLE_PROV_PROFILE_NAME }}
           upload: 'true'
           export-option: 'app-store-connect' # release-testing
           auto-increment-build-number: 'true'
