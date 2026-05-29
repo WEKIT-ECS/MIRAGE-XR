@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Microsoft.MixedReality.Toolkit.Input;
-using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
 
 namespace MirageXR
@@ -10,8 +8,9 @@ namespace MirageXR
     /// <summary>
     /// Base class for all the MirageXR prefabs.
     /// </summary>
-    public abstract class MirageXRPrefab : BaseFocusHandler
+    public abstract class MirageXRPrefab : MonoBehaviour
     {
+
         private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
         private GameObject _center;
         private LineRenderer _lineRenderer;
@@ -32,9 +31,9 @@ namespace MirageXR
         public LearningExperienceEngine.ToggleObject Annotation { get; private set; }
 
         // events that register focus even
-        public delegate void FocusChangedEventHandler(string pointer, GameObject focusedObject, Vector3 hitPoint);
-        public FocusChangedEventHandler AugmentationGotFocus;
-        public FocusChangedEventHandler AugmentationLostFocus;
+        // public delegate void FocusChangedEventHandler(string pointer, GameObject focusedObject, Vector3 hitPoint);
+        // public FocusChangedEventHandler AugmentationGotFocus;
+        // public FocusChangedEventHandler AugmentationLostFocus;
 
 
         private void OnEnable()
@@ -53,21 +52,21 @@ namespace MirageXR
             LearningExperienceEngine.EventManager.OnClearAll -= Delete;
         }
 
-        public override void OnFocusEnter(FocusEventData eventData)
-        {
-            var pointerResult = eventData.Pointer.Result.Details;
-            GameObject hitObject = pointerResult.Object;
-            Vector3 hitPoint = pointerResult.Point;
+        // public override void OnFocusEnter(FocusEventData eventData)
+        // {
+        //     var pointerResult = eventData.Pointer.Result.Details;
+        //     GameObject hitObject = pointerResult.Object;
+        //     Vector3 hitPoint = pointerResult.Point;
 
-            //Debug.Log("Pointer:" + eventData.Pointer.PointerName + "\nObject: " + hitObject.name + "\nHit Point: " + hitPoint.ToString());
+        //     //Debug.Log("Pointer:" + eventData.Pointer.PointerName + "\nObject: " + hitObject.name + "\nHit Point: " + hitPoint.ToString());
 
-            AugmentationGotFocus?.Invoke(eventData.Pointer.PointerName, hitObject, hitPoint);
-        }
+        //     AugmentationGotFocus?.Invoke(eventData.Pointer.PointerName, hitObject, hitPoint);
+        // }
 
-        public override void OnFocusExit(FocusEventData eventData)
-        {
-            AugmentationLostFocus?.Invoke(eventData.Pointer.PointerName, eventData.OldFocusedObject, eventData.Pointer.Result.Details.Point);
-        }
+        // public override void OnFocusExit(FocusEventData eventData)
+        // {
+        //     AugmentationLostFocus?.Invoke(eventData.Pointer.PointerName, eventData.OldFocusedObject, eventData.Pointer.Result.Details.Point);
+        // }
 
         private void Awake()
         {
@@ -97,7 +96,7 @@ namespace MirageXR
                 _center.transform.localPosition = Vector3.zero;
                 _center.transform.localEulerAngles = Vector3.zero;
                 _center.transform.localScale = Vector3.one;
-                _center.GetComponent<GazeGuide>().Parent = gameObject;
+                //_center.GetComponent<GazeGuide>().Parent = gameObject;
                 _center.SetActive(true);
             }
         }
@@ -261,10 +260,10 @@ namespace MirageXR
                 transform.position = tempPosition;
                 transform.eulerAngles = tempRotation;
 
-                if (gameObject.GetComponent<Billboard>() == null)
-                {
-                    gameObject.AddComponent<Billboard>();
-                }
+                // if (gameObject.GetComponent<Billboard>() == null)
+                // {
+                //     gameObject.AddComponent<Billboard>();
+                // }
             }
             else
             {
@@ -404,7 +403,7 @@ namespace MirageXR
                 if (!gazeCircle && !activityManager.EditModeActive && activityManager.ActionsOfTypeAction.Count > triggerStepNumber)
                 {
                     gazeCircle = Instantiate(Resources.Load<GameObject>("Prefabs/UI/GazeSpinner"), hit.collider.transform.position, transform.rotation);
-                    gazeCircle.AddComponent<Billboard>();
+                    //gazeCircle.AddComponent<Billboard>();
                     gazeCircle.GetComponent<GazeSpinner>().Duration = trigger.duration;
                     gazeCircle.GetComponent<GazeSpinner>().stepNumber = triggerStepNumber;
                     gazeCircle.transform.SetParent(transform);

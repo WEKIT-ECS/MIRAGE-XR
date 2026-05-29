@@ -50,7 +50,6 @@ public class ActionEditor : MonoBehaviour
     private VFXEditor vfxEditor;
 
     private ModelEditor modelEditor;
-    private CharacterAugmentation characterAug;
     private PickAndPlaceEditor pickAndPlaceEditor;
     private ImageMarkerEditor imageMarkerEditor;
     private PluginEditor pluginEditor;
@@ -369,10 +368,6 @@ public class ActionEditor : MonoBehaviour
                 modelEditor.SetAnnotationStartingPoint(DefaultAugmentationStartingPoint);
                 modelEditor.Open(detailView.DisplayedAction, null);
                 break;
-            case ContentType.CHARACTER:
-                characterAug = LoadEditorPanel<CharacterAugmentation>(characterAugmentationPrefab);
-                characterAug.Open(detailView.DisplayedAction, null);
-                break;
             case ContentType.PICKANDPLACE:
                 pickAndPlaceEditor = LoadEditorPanel<PickAndPlaceEditor>(pickAndPlaceEditorPrefab);
                 pickAndPlaceEditor.SetAnnotationStartingPoint(DefaultAugmentationStartingPoint);
@@ -490,10 +485,6 @@ public class ActionEditor : MonoBehaviour
                 pickAndPlaceEditor = LoadEditorPanel<PickAndPlaceEditor>(pickAndPlaceEditorPrefab);
                 pickAndPlaceEditor.Open(detailView.DisplayedAction, annotation);
                 break;
-            case string anno when anno.StartsWith("char"):
-                characterAug = LoadEditorPanel<CharacterAugmentation>(characterAugmentationPrefab);
-                characterAug.Open(detailView.DisplayedAction, annotation);
-                break;
             case "image marker":
                 imageMarkerEditor = LoadEditorPanel<ImageMarkerEditor>(imageMarkerPrefab);
                 imageMarkerEditor.Open(detailView.DisplayedAction, annotation);
@@ -527,8 +518,6 @@ public class ActionEditor : MonoBehaviour
             vfxEditor.Close();
         if (modelEditor)
             modelEditor.Close();
-        if (characterAug)
-            characterAug.Close();
         if (pickAndPlaceEditor)
             pickAndPlaceEditor.Close();
         if (imageMarkerEditor)

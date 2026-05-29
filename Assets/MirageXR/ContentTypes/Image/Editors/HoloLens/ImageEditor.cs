@@ -68,15 +68,15 @@ public class ImageEditor : MonoBehaviour
             label.text = "Edit Image";
         }
 
-        // Check if any character will use this image
-        if (annotation != null)
-        {
-            foreach (var character in FindObjectsOfType<MirageXR.CharacterController>())
-            {
-                if (character.IsImageAssignModeActive)
-                    character.SetImage(annotation);
-            }
-        }
+        // // Check if any character will use this image
+        // if (annotation != null)
+        // {
+        //     foreach (var character in FindObjectsOfType<MirageXR.CharacterController>())
+        //     {
+        //         if (character.IsImageAssignModeActive)
+        //             character.SetImage(annotation);
+        //     }
+        // }
 
         gameObject.SetActive(true);
         _action = action;
