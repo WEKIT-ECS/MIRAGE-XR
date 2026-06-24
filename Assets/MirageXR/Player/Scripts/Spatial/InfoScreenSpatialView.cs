@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using LearningExperienceEngine.DataModel;
+using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
@@ -42,6 +44,7 @@ namespace MirageXR
         [SerializeField] private SplineContainer splineContainerPrefab;
         [SerializeField] private float curveStrength = 1.0f;
         
+        private bool _suppressSplineUpdates = false;
         private readonly List<StepsMediaListItemView> _mediaListItemViews = new();
         
         private ActivityStep _step;
@@ -70,6 +73,7 @@ namespace MirageXR
             previousStepButton_Collapsed.onClick.AddListener(OnPreviousStepClicked);
             maximizeToggle.onValueChanged.AddListener(OnCollapsedPanelMaximizeToggleValueChanged);
             minimizeToggle.onValueChanged.AddListener(OnMaximisedPanelMinimizeToggleValueChanged);
+            
             UpdateView(step); 
         }
         
@@ -193,8 +197,7 @@ namespace MirageXR
 
         private void StepManagerOnStepChanged(ActivityStep step)
         {
-            _step = step;
-            UpdateSplinesBasedOnWindowState();
+            UpdateView(step);
         }
 
         private void ActivityManagerOnActivityUpdated(Activity activity)
@@ -209,7 +212,10 @@ namespace MirageXR
         {
             if (_windowContainer.activeSelf)
             {
-                CreateSplinesForHyperlinks();
+                if (!_suppressSplineUpdates)
+                {
+                    CreateSplinesForHyperlinks();
+                }
             }
             else
             {
@@ -320,6 +326,12 @@ namespace MirageXR
                     }
                 }
             }
+        }
+
+        public async void UpdateSplines()
+        {
+            await UniTask.Yield(); // Wait for one frame
+            CreateSplinesForHyperlinks();
         }
 
         private void ClearSplines()
@@ -526,7 +538,10 @@ namespace MirageXR
             {
                 return; 
             }
-            _step = step;  
+            // Ensure consistent panel state (Maximized by default on step change)
+            ClearSplines(); // Fix persistence bug: Clear old splines before showing new step
+            _suppressSplineUpdates = true;
+            _step = step;    
             _textTitle.text = step.Name;
             _textTitle_Collapsed.text = step.Name;
             
@@ -563,7 +578,8 @@ namespace MirageXR
                     }
                 }
             }
-            CreateSplinesForHyperlinks();
+            // CreateSplinesForHyperlinks(); // Wait for controller to trigger this
+            _suppressSplineUpdates = false;
         }
 
         private string AddLinkTagsToBrackets(string inputText)
