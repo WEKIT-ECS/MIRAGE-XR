@@ -26,6 +26,9 @@ namespace MirageXR
         private bool _isSelected;
         private UnityAction<Activity> _onItemClicked;
         private UnityAction<Activity> _onItemDeleteClicked;
+        private ButtonLongPress _deleteButtonLongPress;
+        private Graphic _deleteButtonGraphic;
+        private Color _deleteButtonDefaultColor;
 
         public void Initialize(Activity activity, UnityAction<Activity> onItemClicked, UnityAction<Activity> onItemDeleteClicked, bool isSelected)
         {
@@ -35,6 +38,7 @@ namespace MirageXR
             _onItemDeleteClicked = onItemDeleteClicked;
             button.onClick.AddListener(OnItemClicked);
             buttonDelete.onClick.AddListener(OnItemDeleteClicked);
+            InitializeDeleteLongPress();
 
             UpdateView();
         }
@@ -45,6 +49,37 @@ namespace MirageXR
         }
 
         private void OnItemDeleteClicked()
+        {
+            if (_deleteButtonLongPress != null && _deleteButtonLongPress.ConsumeLongPress())
+            {
+                DeleteActivity();
+            }
+        }
+
+        private void InitializeDeleteLongPress()
+        {
+            _deleteButtonLongPress = buttonDelete.GetComponent<ButtonLongPress>();
+            _deleteButtonLongPress.onHoldProgressChanged.RemoveListener(OnDeleteHoldProgressChanged);
+            _deleteButtonLongPress.onHoldProgressChanged.AddListener(OnDeleteHoldProgressChanged);
+            _deleteButtonGraphic = buttonDelete.targetGraphic != null ? buttonDelete.targetGraphic : buttonDelete.GetComponent<Graphic>();
+            if (_deleteButtonGraphic != null)
+            {
+                _deleteButtonDefaultColor = _deleteButtonGraphic.color;
+            }
+        }
+
+        private void OnDeleteHoldProgressChanged(float progress)
+        {
+            if (_deleteButtonGraphic == null)
+            {
+                return;
+            }
+            
+            _deleteButtonLongPress.holdColor.a = _deleteButtonDefaultColor.a;
+            _deleteButtonGraphic.color = progress >= 1f ? _deleteButtonLongPress.holdColor : Color.Lerp(_deleteButtonDefaultColor, _deleteButtonLongPress.holdColor, progress);
+        }
+
+        private void DeleteActivity()
         {
             _onItemDeleteClicked?.Invoke(_activity);
         }
