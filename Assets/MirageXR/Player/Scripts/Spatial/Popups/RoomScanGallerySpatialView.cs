@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -11,9 +12,7 @@ namespace MirageXR
     {
         [SerializeField] private RoomScanGallery _localRoomScanGallery;
         [SerializeField] private RoomScanGallery _serverRoomScanGallery;
-        [SerializeField] private GameObject _waitUI;
-        [SerializeField] private GameObject _successUI;
-        [SerializeField] private GameObject _errorUI;
+        [SerializeField] private CanvasGroup _dialogWindow;
         [SerializeField] private Button _btnClose;
 
         protected override bool TryToGetArguments(params object[] args)
@@ -55,9 +54,16 @@ namespace MirageXR
 
         private async UniTask LoadRoomScanAsync(string elementId)
         {
-            _waitUI.SetActive(true);
+            _dialogWindow.gameObject.SetActive(true);
+            _dialogWindow.DOKill();
+            await _dialogWindow.DOFade(1f, 0.3f).AsyncWaitForCompletion();
+            _dialogWindow.interactable = true;
+            _dialogWindow.blocksRaycasts = true;
             await RootObject.Instance.RoomTwinManager.LoadRoomTwinModelFromId(elementId);
-            _waitUI.SetActive(false);
+            _dialogWindow.interactable = false;
+            _dialogWindow.blocksRaycasts = false;
+            await _dialogWindow.DOFade(0f, 0.4f).AsyncWaitForCompletion();
+            _dialogWindow.gameObject.SetActive(false);
         }
     }
 }

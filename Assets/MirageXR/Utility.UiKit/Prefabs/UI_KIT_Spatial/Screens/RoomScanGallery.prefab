@@ -391,7 +391,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _localRoomScanGallery: {fileID: 8453323641621243601}
   _serverRoomScanGallery: {fileID: 8547600445301207362}
-  _waitUI: {fileID: 5298368025496719963}
+  _dialogWindow: {fileID: 2529536633904660839}
+  _successUI: {fileID: 0}
+  _errorUI: {fileID: 0}
   _btnClose: {fileID: 8061129370941237180}
 --- !u!114 &4218327725302721238
 MonoBehaviour:
@@ -826,8 +828,9 @@ GameObject:
   - component: {fileID: 6488779043654238457}
   - component: {fileID: 4258946268826091445}
   - component: {fileID: 5226905808840803399}
+  - component: {fileID: 2529536633904660839}
   m_Layer: 0
-  m_Name: LoadingIndicator
+  m_Name: DialogWindow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -918,6 +921,18 @@ MonoBehaviour:
   m_ChildScaleWidth: 1
   m_ChildScaleHeight: 1
   m_ReverseArrangement: 0
+--- !u!225 &2529536633904660839
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5298368025496719963}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &6340234976699747811
 GameObject:
   m_ObjectHideFlags: 0
