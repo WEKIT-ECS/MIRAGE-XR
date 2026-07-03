@@ -18,7 +18,7 @@ namespace MirageXR
     /// TwinVignette: display see-thru VR vignette
     /// FullTwin: Full VR mode
     /// </summary>
-    public enum RoomTwinStyle:ushort
+    public enum RoomTwinStyle : ushort
     {
         TwinVignette = 1,
         FullTwin = 2
@@ -49,6 +49,8 @@ namespace MirageXR
         private GltfImport _gltf;
         private GameObject _roomModel;
         private Animation _legacyAnimation;
+
+        private bool _showRoom = false;
 
         private string ListEndpoint
         {
@@ -107,40 +109,40 @@ namespace MirageXR
             switch (_roomTwinStyle)
             {
                 case RoomTwinStyle.FullTwin or RoomTwinStyle.TwinVignette when !_FullTwinBlendInCompleted:   //TODO: use DOTween
-                {
-                    var alpha = Mathf.Lerp(0, 1, _t);
-                    SetAlphaInChildRenderers(_roomModel, alpha);
-
-                    _t += DeltaA * Time.deltaTime;
-
-                    if (_t > 1.0f)
                     {
-                        _FullTwinBlendInCompleted = true;
-                        _WireframeBlendInCompleted = false;
+                        var alpha = Mathf.Lerp(0, 1, _t);
+                        SetAlphaInChildRenderers(_roomModel, alpha);
 
-                        _t = 0.0f;
+                        _t += DeltaA * Time.deltaTime;
 
-                        // Add RoomShader to Child Renderers
-                        AddShaderToChildRenderers(_roomModel, RoomTwinShader);
+                        if (_t > 1.0f)
+                        {
+                            _FullTwinBlendInCompleted = true;
+                            _WireframeBlendInCompleted = false;
+
+                            _t = 0.0f;
+
+                            // Add RoomShader to Child Renderers
+                            AddShaderToChildRenderers(_roomModel, RoomTwinShader);
+                        }
+
+                        break;
                     }
-
-                    break;
-                }
                 case RoomTwinStyle.TwinVignette when !_WireframeBlendInCompleted:   //TODO: use DOTween
-                {
-                    var alpha = Mathf.Lerp(100, 10, _t);
-                    GrowVignettesInChildRenderers(_roomModel, alpha);
-
-                    _t += DeltaWF * Time.deltaTime;
-
-                    if (_t > 1.0f)
                     {
-                        _WireframeBlendInCompleted = true;
-                        _t = 0.0f;
-                    }
+                        var alpha = Mathf.Lerp(100, 10, _t);
+                        GrowVignettesInChildRenderers(_roomModel, alpha);
 
-                    break;
-                }
+                        _t += DeltaWF * Time.deltaTime;
+
+                        if (_t > 1.0f)
+                        {
+                            _WireframeBlendInCompleted = true;
+                            _t = 0.0f;
+                        }
+
+                        break;
+                    }
             }
         }
 
@@ -187,6 +189,7 @@ namespace MirageXR
         /// <param name="show">if true, display the room twin, otherwise deactivate it</param>
         public void SetRoomTwinVisibility(bool show) //TODO: replace with two functions - ShowRoomTwin() and HideRoomTwin()
         {
+            _showRoom = show;
             if (show) // show
             {
                 //_loadingCompleted = false;
@@ -196,16 +199,14 @@ namespace MirageXR
                 //}
                 SetRoomTwinStyle(_roomTwinStyle);
                 //await LoadRoomTwinModelFromURLAsync(Path.Combine(Application.streamingAssetsPath, defaultScanName));
-                _roomModel.SetActive(true);
-                
-            } else // hide
+            }
+            else // hide
             {
-                _roomModel.SetActive(false);
-
                 _t = 0.0f;
                 _FullTwinBlendInCompleted = true;
                 _WireframeBlendInCompleted = true;
             }
+            _roomModel.SetActive(_showRoom);
         }
 
         /// <summary>
@@ -286,7 +287,7 @@ namespace MirageXR
 
                 // activate
                 _loadingCompleted = true;
-                SetRoomTwinVisibility(ForceRoomTwinDisplay);
+                SetRoomTwinVisibility(ForceRoomTwinDisplay || _showRoom);
 
                 //if (legacyAnimation != null)
                 //{
