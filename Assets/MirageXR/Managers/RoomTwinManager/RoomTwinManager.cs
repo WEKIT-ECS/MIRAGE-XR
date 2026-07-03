@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using GLTFast;
+using GLTFast.Loading;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -30,7 +31,7 @@ namespace MirageXR
     /// </summary>
     public class RoomTwinManager : MonoBehaviour, IThumbnailProvider    //TODO: correct fields name
     {
-        private const string roomScanBaseEndpoint = "http://repository.wekit-ecs.com:8001/digitalTwin/";
+        private const string roomScanBaseEndpoint = "http://repository.wekit-ecs.com:8001/digitaltwin/";
 
 
         public bool _FullTwinBlendInCompleted = false;
@@ -244,7 +245,12 @@ namespace MirageXR
         /// <param name="url"></param>
         private async UniTask<bool> LoadGltfRoomTwinAsync(string url)
         {
-            _gltf = new GltfImport();
+            var headers = new HttpHeader[]
+            {
+                new HttpHeader("Authorization", $"Bearer {_authorizationManager.AccessToken}")
+            };
+            var downloadProvider = new CustomHeaderDownloadProvider(headers);
+            _gltf = new GltfImport(downloadProvider);
 
             // Create a settings object and configure it accordingly
             var settings = new ImportSettings
