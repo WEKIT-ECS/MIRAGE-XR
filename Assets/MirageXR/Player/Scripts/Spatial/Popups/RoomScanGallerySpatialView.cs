@@ -11,6 +11,9 @@ namespace MirageXR
     {
         [SerializeField] private RoomScanGallery _localRoomScanGallery;
         [SerializeField] private RoomScanGallery _serverRoomScanGallery;
+        [SerializeField] private GameObject _waitUI;
+        [SerializeField] private GameObject _successUI;
+        [SerializeField] private GameObject _errorUI;
         [SerializeField] private Button _btnClose;
 
         protected override bool TryToGetArguments(params object[] args)
@@ -52,7 +55,9 @@ namespace MirageXR
 
         private async UniTask LoadRoomScanAsync(string elementId)
         {
+            _waitUI.SetActive(true);
             await RootObject.Instance.RoomTwinManager.LoadRoomTwinModelFromId(elementId);
+            _waitUI.SetActive(false);
         }
     }
 }

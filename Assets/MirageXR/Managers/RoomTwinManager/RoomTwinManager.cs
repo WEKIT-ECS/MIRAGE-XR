@@ -171,16 +171,16 @@ namespace MirageXR
         /// calls internal LoadGltfRoomTwin
         /// </summary>
         /// <param name="url">file path or web url of the model</param>
-        public async UniTask LoadRoomTwinModelFromURLAsync(string url)
+        public async UniTask<bool> LoadRoomTwinModelFromURLAsync(string url)
         {
-            await LoadGltfRoomTwinAsync(url);
+            return await LoadGltfRoomTwinAsync(url);
         }
 
-        public async UniTask LoadRoomTwinModelFromId(string id)
+        public async UniTask<bool> LoadRoomTwinModelFromId(string id)
         {
             string url = ModelEndpoint + "?digitaltwin_name=" + id;
 
-            await LoadGltfRoomTwinAsync(url);
+            return await LoadGltfRoomTwinAsync(url);
         }
 
         /// <summary>
