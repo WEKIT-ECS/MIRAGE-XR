@@ -15,7 +15,7 @@ public class AddEditVirtualInstructor : EditorSpatialView   //TODO: rename to Vi
     [Header("Buttons")]
     [SerializeField] private Button closePanelBtn;
     [SerializeField] private Button settingsBtn; 
-    [SerializeField] private CharacterModelSelectionElement characterModelSelectionElement;
+    [SerializeField] private GallerySelectionElement characterModelSelectionElement;
     [SerializeField] private Button replaceCharacterModelBtn;
     [SerializeField] private Button[] communicationSettingBtns;
     [FormerlySerializedAs("animationSettingBtn")]
@@ -96,8 +96,10 @@ public class AddEditVirtualInstructor : EditorSpatialView   //TODO: rename to Vi
         _instructorContentData = Content as Content<InstructorContentData>;
 
         settingsBtn.onClick.AddListener(OpenSettingsPanel);
-        characterModelSelectionElement.CharacterModelSelectionStarted += OpenCharacterModelSettingPanel;
+        characterModelSelectionElement.GalleryElementSelectionStarted += OpenCharacterModelSettingPanel;
         replaceCharacterModelBtn.onClick.AddListener(OpenCharacterModelSettingPanel);
+
+        characterModelSelectionElement.Thumbnail.ThumbnailProvider = RootObject.Instance.AvatarLoadManager;
 
         foreach (var communicationSettingBtn in communicationSettingBtns)
         {
@@ -322,7 +324,7 @@ public class AddEditVirtualInstructor : EditorSpatialView   //TODO: rename to Vi
 	{
         _useReadyPlayerMe = true;
         _characterModelUrl = AvatarLoadUtils.IdToModelUrl(characterModelId);
-        characterModelSelectionElement.Thumbnail.CharacterModelId = characterModelId;
+        characterModelSelectionElement.Thumbnail.ElementId = characterModelId;
 	}
 
 	private void OpenCommunicationSettingPanel()

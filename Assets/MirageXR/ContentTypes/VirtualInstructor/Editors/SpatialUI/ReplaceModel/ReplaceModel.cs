@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class ReplaceModel : MonoBehaviour
 {
-    [SerializeField] private CharacterModelSelectionElement addNewCharacter;
+    [SerializeField] private GallerySelectionElement addNewCharacter;
     [SerializeField] private AddModelPanel addCharacterPanel;
     [SerializeField] private AvatarGallery localCharacterGallery;
     [SerializeField] private AvatarGallery serverCharacterGallery;
@@ -19,7 +19,7 @@ public class ReplaceModel : MonoBehaviour
 
     void Start()
     {
-        addNewCharacter.CharacterModelSelectionStarted += OpenAddCharacterMenu;
+        addNewCharacter.GalleryElementSelectionStarted += OpenAddCharacterMenu;
         if (close != null)
         {
             close.onClick.AddListener(() => Close());
@@ -34,16 +34,16 @@ public class ReplaceModel : MonoBehaviour
     private async void OnEnable()
     {
         addCharacterPanel.CharacterSelected += NewCharacterAdded;
-        localCharacterGallery.CharacterModelSelected += OnLocalCharacterSelected;
-        serverCharacterGallery.CharacterModelSelected += OnServerCharacterSelected;
+        localCharacterGallery.ElementSelected += OnLocalCharacterSelected;
+        serverCharacterGallery.ElementSelected += OnServerCharacterSelected;
         await InitializeGalleriesAsync();
     }
 
     private void OnDisable()
     {
         addCharacterPanel.CharacterSelected -= NewCharacterAdded;
-        localCharacterGallery.CharacterModelSelected -= OnLocalCharacterSelected;
-        serverCharacterGallery.CharacterModelSelected -= OnServerCharacterSelected;
+        localCharacterGallery.ElementSelected -= OnLocalCharacterSelected;
+        serverCharacterGallery.ElementSelected -= OnServerCharacterSelected;
     }
 
     private void Close()
@@ -54,12 +54,12 @@ public class ReplaceModel : MonoBehaviour
     private async Task InitializeGalleriesAsync()
     {
         RefreshLocalGallery();
-        serverCharacterGallery.Avatars = new List<string>(await RootObject.Instance.AvatarLoadManager.GetListOfAvatarsAsync());
+        serverCharacterGallery.ElementIds = new List<string>(await RootObject.Instance.AvatarLoadManager.GetListOfAvatarsAsync());
     }
 
     private void RefreshLocalGallery()
     {
-        localCharacterGallery.Avatars = RootObject.Instance.AvatarLibraryManager.AvatarList;
+        localCharacterGallery.ElementIds = RootObject.Instance.AvatarLibraryManager.LibraryContent;
     }
 
     private void NewCharacterAdded(string characterId)
@@ -74,7 +74,7 @@ public class ReplaceModel : MonoBehaviour
 
     private void OnServerCharacterSelected(string characterId)
     {
-        RootObject.Instance.AvatarLibraryManager.AddAvatar(characterId);
+        RootObject.Instance.AvatarLibraryManager.Add(characterId);
         RefreshLocalGallery();
         CharacterModelSelected?.Invoke(characterId);
     }

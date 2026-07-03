@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using GLTFast;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using UnityEngine.Networking;
 
 namespace MirageXR
 {
-    public class AvatarLoadManager : MonoBehaviour
+    public class AvatarLoadManager : MonoBehaviour, IThumbnailProvider
     {
         private const string avatarBaseEndpoint = "http://repository.wekit-ecs.com:8001/avatar/";
 
@@ -117,14 +118,14 @@ namespace MirageXR
             }
         }
 
-        public async Task<Texture2D> GetThumbnailAsync(string avatarName)
+        public async UniTask<Texture2D> GetThumbnailAsync(string avatarName, CancellationToken cancellationToken = default)
         {
             if (thumbnailCache.TryGetValue(avatarName, out Texture2D cachedTexture))
             {
                 return cachedTexture;
             }
 
-            await _networkLock.WaitAsync();
+            await _networkLock.WaitAsync(cancellationToken);
 
             try
             {
@@ -138,7 +139,7 @@ namespace MirageXR
                 using (UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(thumbnailUrl))
                 {
                     webRequest.SetRequestHeader("Authorization", $"Bearer {_authorizationManager.AccessToken}");
-                    await webRequest.SendWebRequest();
+                    await webRequest.SendWebRequest().WithCancellation(cancellationToken);
 
                     if (webRequest.result == UnityWebRequest.Result.Success)
                     {

@@ -59,7 +59,7 @@ namespace MirageXR
 			Debug.LogTrace($"Received a deep link for a RPM model: {args.DeepLink}", this);
 			if (args.Parameters.TryGetValue(avatarIdParameterName, out string avatarId))
 			{
-				RootObject.Instance.AvatarLibraryManager.AddAvatar(avatarId);
+				RootObject.Instance.AvatarLibraryManager.Add(avatarId);
 				if (setAvatar)
 				{
 					Debug.LogTrace($"Set avatar to {avatarId} based on deep link", this);

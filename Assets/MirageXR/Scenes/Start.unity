@@ -1288,6 +1288,50 @@ MonoBehaviour:
     type: 3}
   _defaultCalibrationMarkerPdf: {fileID: 4900000, guid: 315c2cb4b67930c44925a5d151997f25,
     type: 3}
+--- !u!1 &1687230538
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1687230539}
+  - component: {fileID: 1687230540}
+  m_Layer: 0
+  m_Name: RoomTwinLibraryManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1687230539
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1687230538}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1888399833}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1687230540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1687230538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f815fd2c1fdea844fa54bcaa5388d309, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1703428863
 GameObject:
   m_ObjectHideFlags: 0
@@ -1490,6 +1534,7 @@ MonoBehaviour:
   _cameraCalibrationChecker: {fileID: 1370046045}
   _platformManager: {fileID: 8856608567612908827}
   _roomTwinManager: {fileID: 2136262129}
+  _roomTwinLibraryManager: {fileID: 1687230540}
   _collaborationManager: {fileID: 1726552772}
   _workplaceController: {fileID: 92586981}
   _contentController: {fileID: 1244045460}
@@ -1516,6 +1561,7 @@ Transform:
   - {fileID: 141412591}
   - {fileID: 1980728072}
   - {fileID: 2136262128}
+  - {fileID: 1687230539}
   - {fileID: 441447408}
   - {fileID: 92586980}
   - {fileID: 517222968}
@@ -1729,7 +1775,7 @@ MonoBehaviour:
   _FullTwinBlendInCompleted: 0
   _WireframeBlendInCompleted: 0
   ForceRoomTwinDisplay: 0
-  RoomFile: esa_iss_columbus_module_1m.glb
+  defaultScanName: esa_iss_columbus_module_1m.glb
   RoomTwinShader: {fileID: 2100000, guid: 9a50ae51ad83340f7b9b656c34cfd6aa, type: 2}
   _roomTwinStyle: 2
 --- !u!1001 &8856608567612908826
@@ -1794,6 +1840,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: PlatformManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 8856608566303270429, guid: 380bb3c2508c4473aec1d2fcb48cce6f,
+        type: 3}
+      propertyPath: uiType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8856608566303270429, guid: 380bb3c2508c4473aec1d2fcb48cce6f,
+        type: 3}
+      propertyPath: overrideUiType
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
