@@ -19,6 +19,9 @@ namespace MirageXR
         [SerializeField] private Image backgroundImage;
         [SerializeField] private RawImage imageThumbnail;
         [SerializeField] private RectTransform containerThumbnail;
+        [SerializeField] private GameObject deleteConfirmation;
+        [SerializeField] private Button buttonDeleteConfirmation;
+        [SerializeField] private Button buttonDeleteCancel;
         [SerializeField] private Color selectedColor;
         [SerializeField] private Color defaultColor;
 
@@ -26,6 +29,7 @@ namespace MirageXR
         private bool _isSelected;
         private UnityAction<Activity> _onItemClicked;
         private UnityAction<Activity> _onItemDeleteClicked;
+        private ButtonLongPress _deleteButtonLongPress;
 
         public void Initialize(Activity activity, UnityAction<Activity> onItemClicked, UnityAction<Activity> onItemDeleteClicked, bool isSelected)
         {
@@ -35,8 +39,26 @@ namespace MirageXR
             _onItemDeleteClicked = onItemDeleteClicked;
             button.onClick.AddListener(OnItemClicked);
             buttonDelete.onClick.AddListener(OnItemDeleteClicked);
+            buttonDeleteConfirmation.onClick.AddListener(DeleteActivity);
+            buttonDeleteCancel.onClick.AddListener(HideDeleteConfirmation);
+            deleteConfirmation.SetActive(false);
+            InitializeDeleteLongPress();
 
             UpdateView();
+        }
+
+        private void OnDestroy()
+        {
+            button.onClick.RemoveListener(OnItemClicked);
+            buttonDelete.onClick.RemoveListener(OnItemDeleteClicked);
+            buttonDeleteConfirmation.onClick.RemoveListener(DeleteActivity);
+            buttonDeleteCancel.onClick.RemoveListener(HideDeleteConfirmation);
+            if (_deleteButtonLongPress == null)
+            {
+                return;
+            }
+
+            _deleteButtonLongPress.onHoldProgressChanged.RemoveListener(OnDeleteHoldProgressChanged);
         }
 
         private void OnItemClicked()
@@ -45,6 +67,64 @@ namespace MirageXR
         }
 
         private void OnItemDeleteClicked()
+        {
+            _deleteButtonLongPress?.ConsumeLongPress();
+        }
+
+        private void InitializeDeleteLongPress()
+        {
+            _deleteButtonLongPress = buttonDelete.GetComponent<ButtonLongPress>();
+            if (_deleteButtonLongPress == null)
+            {
+                _deleteButtonLongPress = buttonDelete.gameObject.AddComponent<ButtonLongPress>();
+            }
+
+            _deleteButtonLongPress.onHoldProgressChanged.RemoveListener(OnDeleteHoldProgressChanged);
+            _deleteButtonLongPress.onHoldProgressChanged.AddListener(OnDeleteHoldProgressChanged);
+        }
+
+        private void OnDeleteHoldProgressChanged(float progress)
+        {
+            if (_deleteButtonLongPress == null)
+            {
+                return;
+            }
+
+            if (deleteConfirmation.activeSelf)
+            {
+                backgroundImage.color = GetDeleteHoldColor();
+                return;
+            }
+
+            if (progress >= 1f)
+            {
+                ShowDeleteConfirmation();
+                return;
+            }
+
+            backgroundImage.color = Color.Lerp(defaultColor, GetDeleteHoldColor(), progress);
+        }
+
+        private void ShowDeleteConfirmation()
+        {
+            deleteConfirmation.SetActive(true);
+            backgroundImage.color = GetDeleteHoldColor();
+        }
+
+        private void HideDeleteConfirmation()
+        {
+            deleteConfirmation.SetActive(false);
+            backgroundImage.color = defaultColor;
+        }
+
+        private Color GetDeleteHoldColor()
+        {
+            var color = _deleteButtonLongPress != null ? _deleteButtonLongPress.holdColor : Color.red;
+            color.a = defaultColor.a;
+            return color;
+        }
+
+        private void DeleteActivity()
         {
             _onItemDeleteClicked?.Invoke(_activity);
         }
