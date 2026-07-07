@@ -12,14 +12,19 @@ namespace MirageXR
         [SerializeField] private TMP_Text textStepDescription;
         [SerializeField] private Button button;
         [SerializeField] private Button buttonMenu;
-        [SerializeField] private Button deleteButton;
+        [SerializeField] private Button buttonDelete;
         [SerializeField] private Toggle _stepCompletedToggle;
         [SerializeField] private GameObject _stepSelected;
-        [SerializeField] private GameObject _menu;
+        [SerializeField] private GameObject deleteConfirmation;
+        [SerializeField] private Button buttonDeleteConfirmation;
+        [SerializeField] private Button buttonDeleteCancel;
+        [SerializeField] private Image backgroundImage;
 
         private ActivityStep _step;
         private UnityAction<ActivityStep> _onClick;
         private UnityAction<ActivityStep> _onMenuClick;
+        private ButtonLongPress _deleteButtonLongPress;
+        private Color _defaultBackgroundColor;
 
         public void Initialize(ActivityStep step, UnityAction<ActivityStep> onClick, UnityAction<ActivityStep> onMenuClick)
         {
@@ -32,9 +37,13 @@ namespace MirageXR
             textStepDescription.text = data.DisplayText;
             button.onClick.AddListener(OnButtonClick);
             buttonMenu.onClick.AddListener(OnButtonMenuClick);
-            deleteButton.onClick.AddListener(OnDeleteButtonClick);
+            buttonDelete.onClick.AddListener(OnButtonDeleteClick);
+            buttonDeleteConfirmation.onClick.AddListener(DeleteStep);
+            buttonDeleteCancel.onClick.AddListener(HideDeleteConfirmation);
             _stepCompletedToggle.onValueChanged.AddListener(OnStepCompleted);
-            SetMenuActive(false);
+            _defaultBackgroundColor = backgroundImage.color;
+            HideDeleteConfirmation();
+            InitializeDeleteLongPress();
             
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
             OnEditorModeChanged(RootObject.Instance.LEE.ActivityManager.IsEditorMode);
@@ -42,16 +51,19 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-            if (_menu != null)
-            {
-                Destroy(_menu);
-            }
-
             button.onClick.RemoveListener(OnButtonClick);
             buttonMenu.onClick.RemoveListener(OnButtonMenuClick);
-            deleteButton.onClick.RemoveListener(OnDeleteButtonClick);
+            buttonDelete.onClick.RemoveListener(OnButtonDeleteClick);
+            buttonDeleteConfirmation.onClick.RemoveListener(DeleteStep);
+            buttonDeleteCancel.onClick.RemoveListener(HideDeleteConfirmation);
             _stepCompletedToggle.onValueChanged.RemoveListener(OnStepCompleted);
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged -= OnEditorModeChanged;
+            if (_deleteButtonLongPress == null)
+            {
+                return;
+            }
+
+            _deleteButtonLongPress.onHoldProgressChanged.RemoveListener(OnDeleteHoldProgressChanged);
         }
 
         private void OnEditorModeChanged(bool value)
@@ -60,7 +72,7 @@ namespace MirageXR
             buttonMenu.gameObject.SetActive(value);
             if (!value)
             {
-                SetMenuActive(false);
+                HideDeleteConfirmation();
             }
         }
 
@@ -76,7 +88,62 @@ namespace MirageXR
 
         private void OnButtonMenuClick()
         {
-            SetMenuActive(_menu != null && !_menu.activeSelf);
+            //TODO
+        }
+
+        private void OnButtonDeleteClick()
+        {
+            _deleteButtonLongPress?.ConsumeLongPress();
+        }
+
+        private void InitializeDeleteLongPress()
+        {
+            _deleteButtonLongPress = buttonDelete.GetComponent<ButtonLongPress>();
+            _deleteButtonLongPress.onHoldProgressChanged.AddListener(OnDeleteHoldProgressChanged);
+        }
+
+        private void OnDeleteHoldProgressChanged(float progress)
+        {
+            if (deleteConfirmation != null && deleteConfirmation.activeSelf)
+            {
+                backgroundImage.color = GetDeleteHoldColor();
+                return;
+            }
+
+            if (progress >= 1f)
+            {
+                ShowDeleteConfirmation();
+                return;
+            }
+
+            backgroundImage.color = Color.Lerp(_defaultBackgroundColor, GetDeleteHoldColor(), progress);
+        }
+
+        private void ShowDeleteConfirmation()
+        {
+            if (deleteConfirmation != null)
+            {
+                deleteConfirmation.SetActive(true);
+            }
+
+            backgroundImage.color = GetDeleteHoldColor();
+        }
+
+        private void HideDeleteConfirmation()
+        {
+            if (deleteConfirmation != null)
+            {
+                deleteConfirmation.SetActive(false);
+            }
+
+            backgroundImage.color = _defaultBackgroundColor;
+        }
+
+        private Color GetDeleteHoldColor()
+        {
+            var color = _deleteButtonLongPress.holdColor;
+            color.a = _defaultBackgroundColor.a;
+            return color;
         }
 
         public void OnStepSelected(bool value)
@@ -84,63 +151,9 @@ namespace MirageXR
             _stepSelected.SetActive(value);
         }
 
-        public void OnDeleteButtonClick()
-        {
-            SetMenuActive(false);
-            DeleteStep();
-        }
-
         private void DeleteStep()
         {
             _onMenuClick?.Invoke(_step);
-        }
-
-        private void SetMenuActive(bool value)
-        {
-            if (_menu == null)
-            {
-                return;
-            }
-
-            if (value)
-            {
-                DetachMenuFromViewport();
-                _menu.transform.SetAsLastSibling();
-                _menu.SetActive(true);
-            }
-            else
-            {
-                _menu.SetActive(false);
-            }
-        }
-
-        private void DetachMenuFromViewport() //Detaching the menu to avoid it being hidden from viewport
-        {
-            if (_menu == null)
-            {
-                return;
-            }
-
-            var screenView = GetComponentInParent<NewActivityScreenSpatialView>();
-            if (screenView != null)
-            {
-                SetMenuParent(screenView.transform);
-                return;
-            }
-
-            var canvas = GetComponentInParent<Canvas>();
-            if (canvas != null)
-            {
-                SetMenuParent(canvas.rootCanvas.transform);
-            }
-        }
-
-        private void SetMenuParent(Transform parent)
-        {
-            if (_menu.transform.parent != parent)
-            {
-                _menu.transform.SetParent(parent, true);
-            }
         }
     }
 }
