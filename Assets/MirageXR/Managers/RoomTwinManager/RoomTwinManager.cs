@@ -287,6 +287,7 @@ namespace MirageXR
 
                 // activate
                 _loadingCompleted = true;
+                SetRoomTwinStyle(RoomTwinStyle.FullTwin);
                 SetRoomTwinVisibility(ForceRoomTwinDisplay || _showRoom);
 
                 //if (legacyAnimation != null)
