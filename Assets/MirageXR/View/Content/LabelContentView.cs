@@ -30,6 +30,7 @@ namespace MirageXR.View
 
         private XRGrabInteractable _xrGrabInteractableBase;
         private XRGrabInteractable _xrGrabInteractableText;
+        private XRGrabInteractable _xrGrabInteractableParent;
         private XRSimpleInteractable _xrGrabInteractableTextSimple;
         private XRGeneralGrabTransformer _xrGeneralGrabTransformerText;
         private Camera _camera;
@@ -109,6 +110,23 @@ namespace MirageXR.View
 
             _xrGrabInteractableText.enabled = !_isCanvasTransformLocked;
             _xrGeneralGrabTransformerText.enabled = !_isCanvasTransformLocked;
+            _xrGrabInteractableBase.enabled = !_isCanvasTransformLocked;
+            _xrGrabInteractableParent.enabled = !_isCanvasTransformLocked;
+        }
+
+        protected override void SetInteractable(bool value)
+        {
+            base.SetInteractable(value);
+            if (_xrGrabInteractableBase == null)
+            {
+                return;
+            }
+            UpdateCanvasLockState();
+        }
+
+        private void CacheParentGrabInteractable()
+        {
+            _xrGrabInteractableParent = transform.parent != null ? transform.parent.GetComponentInParent<XRGrabInteractable>() : null;
         }
 
         protected override void InitializeManipulator()
@@ -119,6 +137,12 @@ namespace MirageXR.View
 
             _xrGeneralGrabTransformerText = canvas.gameObject.AddComponent<XRGeneralGrabTransformer>();
             _xrGeneralGrabTransformerText.allowTwoHandedScaling = false;
+
+            CacheParentGrabInteractable();
+            if (_xrGrabInteractableParent != null)
+            {
+                _xrGrabInteractableParent.enabled = false;
+            }
 
            _xrGrabInteractableText = canvas.gameObject.AddComponent<XRGrabInteractable>();
            _xrGrabInteractableText.movementType = XRBaseInteractable.MovementType.Instantaneous;
@@ -135,6 +159,7 @@ namespace MirageXR.View
             _xrGrabInteractableBase = gameObject.GetComponent<XRGrabInteractable>();
             _xrGrabInteractableBase.selectMode = InteractableSelectMode.Single;
             _xrGrabInteractableBase.trackScale = false;
+            CacheParentGrabInteractable();
             UpdateCanvasLockState();
         }
 
