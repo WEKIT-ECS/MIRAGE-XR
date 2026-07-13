@@ -8,6 +8,7 @@ namespace MirageXR
     {
         [SerializeField] private RectTransform panel;
         [SerializeField] private RectTransform [] checkmarks;
+        [SerializeField] private BoxCollider [] checkmarkColliders;
         [SerializeField] private float targetPanelWidth = 174f;
         [SerializeField] private float targetCheckmarkWidth = 174f;
         [SerializeField] private float resizeSpeed = 5f;
@@ -27,6 +28,7 @@ namespace MirageXR
             {
                 _initialCheckmarkWidth = checkmarks[0].sizeDelta.x;
             }
+            ResizeCheckmarkColliders();
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -60,15 +62,33 @@ namespace MirageXR
                 panelResizing = !Mathf.Approximately(panel.sizeDelta.x, targetPanelWidth);
                 
                 checkmarksResizing = false;
-                foreach (var checkmark in checkmarks)
+                for (var i = 0; i < checkmarks.Length; i++)
                 {
+                    var checkmark = checkmarks[i];
                     var newCheckmarkWidth = Mathf.Lerp(checkmark.sizeDelta.x, targetCheckmarkWidth, Time.deltaTime * resizeSpeed);
                     checkmark.sizeDelta = new Vector2(newCheckmarkWidth, checkmark.sizeDelta.y);
+                    ResizeCheckmarkCollider(i, checkmark);
                     if (!Mathf.Approximately(checkmark.sizeDelta.x, targetCheckmarkWidth))
                         checkmarksResizing = true;
                 }
                 yield return null;
             }
+        }
+
+        private void ResizeCheckmarkColliders()
+        {
+            for (var i = 0; i < checkmarks.Length; i++)
+            {
+                ResizeCheckmarkCollider(i, checkmarks[i]);
+            }
+        }
+
+        private void ResizeCheckmarkCollider(int colliderIndex, RectTransform checkmark)
+        {
+            var boxCollider = checkmarkColliders[colliderIndex];
+            var rect = checkmark.rect;
+            boxCollider.size = new Vector3(rect.width, rect.height, boxCollider.size.z);
+            boxCollider.center = new Vector3(rect.center.x, rect.center.y, boxCollider.center.z);
         }
     }
 }
