@@ -51,6 +51,7 @@ namespace MirageXR
         public void SetEnabled(bool enabled)
         {
             foreach(var h in _handles) h.gameObject.SetActive(enabled);
+            foreach(var h in _rotationHandles) h.gameObject.SetActive(enabled);
             if (_lineRenderer) _lineRenderer.enabled = enabled;
             this.enabled = enabled;
         }
