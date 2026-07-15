@@ -82,6 +82,7 @@ namespace MirageXR.View
             text.color = content.ContentData.FontColor;
             text.fontSize = content.ContentData.FontSize;
             canvas.worldCamera = _camera;
+            buttonLock.onClick.RemoveListener(OnButtonLockClicked);
             buttonLock.onClick.AddListener(OnButtonLockClicked);
             LayoutRebuilder.MarkLayoutForRebuild(text.rectTransform);
             await UniTask.NextFrame(PlayerLoopTiming.EarlyUpdate);
