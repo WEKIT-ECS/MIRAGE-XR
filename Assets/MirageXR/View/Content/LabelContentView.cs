@@ -135,6 +135,9 @@ namespace MirageXR.View
             var rigidBody = canvas.gameObject.AddComponent<Rigidbody>();
             rigidBody.isKinematic = true;
             rigidBody.useGravity = false;
+            var colors = buttonLock.colors;
+            colors.highlightedColor = new Color32(0xC8, 0xC8, 0xC8, 0xFF);
+            buttonLock.colors = colors;
 
             _xrGeneralGrabTransformerText = canvas.gameObject.AddComponent<XRGeneralGrabTransformer>();
             _xrGeneralGrabTransformerText.allowTwoHandedScaling = false;
