@@ -117,6 +117,9 @@ namespace MirageXR.View
             xrGrabInteractable.throwOnDetach = false;
             xrGrabInteractable.selectEntered.AddListener(_ => OnManipulationStarted());
             xrGrabInteractable.selectExited.AddListener(_ => OnManipulationEnded());
+            xrGrabInteractable.useDynamicAttach = true;
+            xrGrabInteractable.reinitializeDynamicAttachEverySingleGrab = false;
+            xrGrabInteractable.snapToColliderVolume = false;
 
             SetInteractable(RootObject.Instance.LEE.ActivityManager.IsEditorMode);
         }

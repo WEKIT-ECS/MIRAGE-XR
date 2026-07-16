@@ -214,7 +214,7 @@ namespace MirageXR
 
             // Calculate dynamic handle size (e.g., 5% of the largest dimension, with a minimum fallback)
             float maxDim = Mathf.Max(extents.x, extents.y, extents.z) * 2.0f;
-            float dynamicHandleSize = Mathf.Max(maxDim * 0.005f, 0.005f); // 5% or at least 5cm //TODO i have to change this before i commit
+            float dynamicHandleSize = Mathf.Max(maxDim * 0.05f, 0.05f); // 5% or at least 5cm
 
             for (int i = 0; i < 8; i++)
             {
