@@ -51,12 +51,13 @@ namespace MirageXR.View
                 return;
             }
 
-            var bounds = BoundsUtilities.GetTargetBounds(gameObject);
             BoxCollider = gameObject.GetComponent<BoxCollider>();
             if (!BoxCollider)
             {
                 BoxCollider = gameObject.AddComponent<BoxCollider>();
             }
+
+            var bounds = GetModelRendererBounds();
             BoxCollider.size = bounds.size;
             BoxCollider.center = bounds.center;
         }
@@ -81,9 +82,117 @@ namespace MirageXR.View
             else
             {
                _model.UpdateView(newModelContent.ContentData.ResetPosition, newModelContent.ContentData.FitToScreen, newModelContent.ContentData.Scale);
+               InitializeBoxCollider();
             }
 
             await base.OnContentUpdatedAsync(content);
+        }
+
+        private Bounds GetModelRendererBounds()
+        {
+            if (_model == null)
+            {
+                return new Bounds(Vector3.zero, Vector3.one);
+            }
+
+            var renderers = _model.GetComponentsInChildren<Renderer>();
+            var first = true;
+            var bounds = new Bounds(Vector3.zero, Vector3.zero);
+
+            foreach (var renderer in renderers)
+            {
+                if (ShouldSkipBoundsRenderer(renderer))
+                {
+                    continue;
+                }
+
+                if (TryGetRendererLocalBounds(renderer, out var rendererBounds))
+                {
+                    EncapsulateTransformedBounds(ref bounds, ref first, rendererBounds, renderer.transform.localToWorldMatrix);
+                }
+                else
+                {
+                    EncapsulateWorldBounds(ref bounds, ref first, renderer.bounds);
+                }
+            }
+
+            return first ? new Bounds(Vector3.zero, Vector3.one) : bounds;
+        }
+
+        private static bool ShouldSkipBoundsRenderer(Renderer renderer)
+        {
+            if (renderer.GetComponent<LineRenderer>() != null)
+            {
+                return true;
+            }
+            if (renderer.GetComponent<ParticleSystem>() != null)
+            {
+                return true;
+            }
+            return renderer.GetComponentInParent<BoundingBoxHandle>() != null;
+        }
+
+        private static bool TryGetRendererLocalBounds(Renderer renderer, out Bounds bounds)
+        {
+            if (renderer is SkinnedMeshRenderer skinnedMeshRenderer)
+            {
+                bounds = skinnedMeshRenderer.localBounds;
+                return true;
+            }
+            
+            var meshFilter = renderer.GetComponent<MeshFilter>();
+            if (meshFilter != null && meshFilter.sharedMesh != null)
+            {
+                bounds = meshFilter.sharedMesh.bounds;
+                return true;
+            }
+
+            bounds = new Bounds();
+            return false;
+        }
+
+        private void EncapsulateTransformedBounds(ref Bounds bounds, ref bool first, Bounds sourceBounds, Matrix4x4 localToWorld)
+        {
+            var min = sourceBounds.min;
+            var max = sourceBounds.max;
+
+            EncapsulatePoint(ref bounds, ref first, localToWorld.MultiplyPoint3x4(new Vector3(min.x, min.y, min.z)));
+            EncapsulatePoint(ref bounds, ref first, localToWorld.MultiplyPoint3x4(new Vector3(min.x, min.y, max.z)));
+            EncapsulatePoint(ref bounds, ref first, localToWorld.MultiplyPoint3x4(new Vector3(min.x, max.y, min.z)));
+            EncapsulatePoint(ref bounds, ref first, localToWorld.MultiplyPoint3x4(new Vector3(min.x, max.y, max.z)));
+            EncapsulatePoint(ref bounds, ref first, localToWorld.MultiplyPoint3x4(new Vector3(max.x, min.y, min.z)));
+            EncapsulatePoint(ref bounds, ref first, localToWorld.MultiplyPoint3x4(new Vector3(max.x, min.y, max.z)));
+            EncapsulatePoint(ref bounds, ref first, localToWorld.MultiplyPoint3x4(new Vector3(max.x, max.y, min.z)));
+            EncapsulatePoint(ref bounds, ref first, localToWorld.MultiplyPoint3x4(new Vector3(max.x, max.y, max.z)));
+        }
+
+        private void EncapsulateWorldBounds(ref Bounds bounds, ref bool first, Bounds worldBounds)
+        {
+            var min = worldBounds.min;
+            var max = worldBounds.max;
+
+            EncapsulatePoint(ref bounds, ref first, new Vector3(min.x, min.y, min.z));
+            EncapsulatePoint(ref bounds, ref first, new Vector3(min.x, min.y, max.z));
+            EncapsulatePoint(ref bounds, ref first, new Vector3(min.x, max.y, min.z));
+            EncapsulatePoint(ref bounds, ref first, new Vector3(min.x, max.y, max.z));
+            EncapsulatePoint(ref bounds, ref first, new Vector3(max.x, min.y, min.z));
+            EncapsulatePoint(ref bounds, ref first, new Vector3(max.x, min.y, max.z));
+            EncapsulatePoint(ref bounds, ref first, new Vector3(max.x, max.y, min.z));
+            EncapsulatePoint(ref bounds, ref first, new Vector3(max.x, max.y, max.z));
+        }
+
+        private void EncapsulatePoint(ref Bounds bounds, ref bool first, Vector3 worldPoint)
+        {
+            var localPoint = transform.InverseTransformPoint(worldPoint);
+            if (first)
+            {
+                bounds = new Bounds(localPoint, Vector3.zero);
+                first = false;
+            }
+            else
+            {
+                bounds.Encapsulate(localPoint);
+            }
         }
 
         public override async UniTask PlayAsync()
@@ -152,6 +261,7 @@ namespace MirageXR.View
                 sketchfabManager.FitToScreen = false;
                 sketchfabManager.ResetPosition = false;
 
+                InitializeBoxCollider();
                 RootObject.Instance.LEE.ContentManager.UpdateContent(content);
             };
             
@@ -171,6 +281,7 @@ namespace MirageXR.View
                 sketchfabManager.FitToScreen = false;
                 sketchfabManager.ResetPosition = false;
 
+                InitializeBoxCollider();
                 RootObject.Instance.LEE.ContentManager.UpdateContent(content);
             };
 
@@ -210,6 +321,7 @@ namespace MirageXR.View
                 sketchfabManager.FitToScreen = false;
                 sketchfabManager.ResetPosition = false;
 
+                InitializeBoxCollider();
                 RootObject.Instance.LEE.ContentManager.UpdateContent(content);
             };
 
@@ -225,6 +337,7 @@ namespace MirageXR.View
                 sketchfabManager.FitToScreen = false;
                 sketchfabManager.ResetPosition = false;
 
+                InitializeBoxCollider();
                 RootObject.Instance.LEE.ContentManager.UpdateContent(content);
             };
 
