@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using MirageXR; 
 
 namespace MirageXR
@@ -20,11 +21,13 @@ namespace MirageXR
         private List<BoundingBoxHandle> _handles = new List<BoundingBoxHandle>();
         private List<BoundingBoxHandle> _rotationHandles = new List<BoundingBoxHandle>();
         private LineRenderer _lineRenderer;
-        private Vector3[] _corners = new Vector3[8]; // 8 corners
 
         private LearningExperienceEngine.ToggleObject _obj;
         private string _targetId;
         private bool _isLocked;
+        private bool _isHandleInteractionActive;
+        private bool _parentGrabWasEnabled;
+        private XRGrabInteractable _parentGrabInteractable;
         
         private static LearningExperienceEngine.ActivityManager _activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
 
@@ -82,12 +85,19 @@ namespace MirageXR
 
         private void OnDestroy()
         {
+            RestoreParentGrabInteractable();
+
             LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
             LearningExperienceEngine.EventManager.OnAugmentationLocked -= OnLock;
             if (RootObject.Instance != null && RootObject.Instance.LEE != null && RootObject.Instance.LEE.ActivityManager != null)
             {
                 RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged -= OnEditModeChanged;
             }
+        }
+
+        private void OnDisable()
+        {
+            RestoreParentGrabInteractable();
         }
 
         private void Start()
@@ -117,6 +127,7 @@ namespace MirageXR
 
                 var handle = go.AddComponent<BoundingBoxHandle>();
                 handle.Type = BoundingBoxHandle.HandleType.Scale;
+                handle.OnDownHandle += OnHandleDown;
                 handle.OnDragHandle += OnHandleDrag;
                 handle.OnUpHandle += OnHandleUp;
                 
@@ -151,6 +162,7 @@ namespace MirageXR
 
                 var handle = go.AddComponent<BoundingBoxHandle>();
                 handle.Type = BoundingBoxHandle.HandleType.Rotate;
+                handle.OnDownHandle += OnHandleDown;
                 handle.OnDragHandle += OnHandleDrag;
                 handle.OnUpHandle += OnHandleUp;
 
@@ -191,28 +203,6 @@ namespace MirageXR
         {
             if (Target == null) return;
 
-            // Assuming Target has renderers
-            Bounds bounds = new Bounds(Target.localPosition, Vector3.zero);
-            // We want local bounds of the target relative to this object if this is parent?
-            // Actually, we probably want this BoundingBox object to be a parent or sibling of the target.
-            // Let's assume BoundingBox is a parent or wrapper.
-            // But if Target is arbitrary, we need to know its bounds.
-            
-            // For simplicity in this specific task (preview), the Target will likely be a child of this object 
-            // OR this object is attached TO the target object (Target == transform).
-            // If attached to target, Target.localPosition is 0.
-            
-            // Get combined bounds of children
-            Renderer[] renderers = Target.GetComponentsInChildren<Renderer>();
-            if (renderers.Length > 0)
-            {
-                bounds = renderers[0].bounds;
-                for (int i = 1; i < renderers.Length; i++)
-                {
-                    bounds.Encapsulate(renderers[i].bounds);
-                }
-            }
-            
             // Convert world bounds to local space of THIS transform
             // This is tricky if rotations involved.
             // Simplifying: Assume this BoundingBox is ATTACHED to the model root (so local space matches).
@@ -224,7 +214,7 @@ namespace MirageXR
 
             // Calculate dynamic handle size (e.g., 5% of the largest dimension, with a minimum fallback)
             float maxDim = Mathf.Max(extents.x, extents.y, extents.z) * 2.0f;
-            float dynamicHandleSize = Mathf.Max(maxDim * 0.05f, 0.05f); // 5% or at least 5cm
+            float dynamicHandleSize = Mathf.Max(maxDim * 0.005f, 0.005f); // 5% or at least 5cm //TODO i have to change this before i commit
 
             for (int i = 0; i < 8; i++)
             {
@@ -277,55 +267,95 @@ namespace MirageXR
         {
              Bounds bounds = new Bounds(Vector3.zero, Vector3.zero);
              Renderer[] renderers = go.GetComponentsInChildren<Renderer>();
-             if (renderers.Length > 0)
-             {
-                 // Transform points to local space
-                 bool first = true;
-                 foreach (var r in renderers)
-                 {
-                     if(r.GetComponent<LineRenderer>()) continue; // Skip lines
-                     if(r.GetComponent<ParticleSystem>()) continue;
-                     
-                     // If it's a handle, skip
-                     if(r.transform.parent == transform) continue;
+             bool first = true;
 
-                     MeshFilter mf = r.GetComponent<MeshFilter>();
-                     if (mf && mf.sharedMesh)
-                     {
-                         Bounds mb = mf.sharedMesh.bounds;
-                         Vector3[] verts = new Vector3[8];
-                         
-                         // Get world corners of mesh bounds
-                         Vector3 min = mb.min;
-                         Vector3 max = mb.max;
-                         // ... transform to this.worldToLocalMatrix
-                         
-                         // Approximation: Just use world bounds and inverse transform
-                         Bounds wb = r.bounds;
-                         Vector3 wMin = wb.min;
-                         Vector3 wMax = wb.max;
-                         
-                         Vector3[] wCorners = new Vector3[] {
-                             new Vector3(wMin.x, wMin.y, wMin.z),
-                             new Vector3(wMin.x, wMin.y, wMax.z),
-                             new Vector3(wMin.x, wMax.y, wMin.z),
-                             new Vector3(wMin.x, wMax.y, wMax.z),
-                             new Vector3(wMax.x, wMin.y, wMin.z),
-                             new Vector3(wMax.x, wMin.y, wMax.z),
-                             new Vector3(wMax.x, wMax.y, wMin.z),
-                             new Vector3(wMax.x, wMax.y, wMax.z)
-                         };
-                         
-                         foreach(var wc in wCorners)
-                         {
-                             Vector3 lc = transform.InverseTransformPoint(wc);
-                             if (first) { bounds = new Bounds(lc, Vector3.zero); first = false; }
-                             else bounds.Encapsulate(lc);
-                         }
-                     }
+             foreach (var r in renderers)
+             {
+                 if (ShouldSkipRenderer(r)) continue;
+
+                 if (TryGetRendererLocalBounds(r, out Bounds rendererBounds))
+                 {
+                     EncapsulateTransformedBounds(ref bounds, ref first, rendererBounds, r.transform.localToWorldMatrix);
+                 }
+                 else
+                 {
+                     EncapsulateWorldBounds(ref bounds, ref first, r.bounds);
                  }
              }
+
              return bounds;
+        }
+
+        private bool ShouldSkipRenderer(Renderer renderer)
+        {
+            if (renderer.GetComponent<LineRenderer>()) return true;
+            if (renderer.GetComponent<ParticleSystem>()) return true;
+            return renderer.GetComponentInParent<BoundingBoxHandle>() != null;
+        }
+
+        private bool TryGetRendererLocalBounds(Renderer renderer, out Bounds bounds)
+        {
+            if (renderer is SkinnedMeshRenderer skinnedMeshRenderer)
+            {
+                bounds = skinnedMeshRenderer.localBounds;
+                return true;
+            }
+
+            MeshFilter meshFilter = renderer.GetComponent<MeshFilter>();
+            if (meshFilter != null && meshFilter.sharedMesh != null)
+            {
+                bounds = meshFilter.sharedMesh.bounds;
+                return true;
+            }
+
+            bounds = new Bounds();
+            return false;
+        }
+
+        private void EncapsulateTransformedBounds(ref Bounds bounds, ref bool first, Bounds sourceBounds, Matrix4x4 localToWorld)
+        {
+            // Get world corners of mesh bounds
+            Vector3 min = sourceBounds.min;
+            Vector3 max = sourceBounds.max;
+            // ... transform to this.worldToLocalMatrix
+
+            EncapsulatePoint(ref bounds, ref first, localToWorld.MultiplyPoint3x4(new Vector3(min.x, min.y, min.z)));
+            EncapsulatePoint(ref bounds, ref first, localToWorld.MultiplyPoint3x4(new Vector3(min.x, min.y, max.z)));
+            EncapsulatePoint(ref bounds, ref first, localToWorld.MultiplyPoint3x4(new Vector3(min.x, max.y, min.z)));
+            EncapsulatePoint(ref bounds, ref first, localToWorld.MultiplyPoint3x4(new Vector3(min.x, max.y, max.z)));
+            EncapsulatePoint(ref bounds, ref first, localToWorld.MultiplyPoint3x4(new Vector3(max.x, min.y, min.z)));
+            EncapsulatePoint(ref bounds, ref first, localToWorld.MultiplyPoint3x4(new Vector3(max.x, min.y, max.z)));
+            EncapsulatePoint(ref bounds, ref first, localToWorld.MultiplyPoint3x4(new Vector3(max.x, max.y, min.z)));
+            EncapsulatePoint(ref bounds, ref first, localToWorld.MultiplyPoint3x4(new Vector3(max.x, max.y, max.z)));
+        }
+
+        private void EncapsulatePoint(ref Bounds bounds, ref bool first, Vector3 worldPoint)
+        {
+            Vector3 localPoint = transform.InverseTransformPoint(worldPoint);
+            if (first)
+            {
+                bounds = new Bounds(localPoint, Vector3.zero);
+                first = false;
+            }
+            else
+            {
+                bounds.Encapsulate(localPoint);
+            }
+        }
+
+        private void EncapsulateWorldBounds(ref Bounds bounds, ref bool first, Bounds worldBounds)
+        {
+            Vector3 min = worldBounds.min;
+            Vector3 max = worldBounds.max;
+
+            EncapsulatePoint(ref bounds, ref first, new Vector3(min.x, min.y, min.z));
+            EncapsulatePoint(ref bounds, ref first, new Vector3(min.x, min.y, max.z));
+            EncapsulatePoint(ref bounds, ref first, new Vector3(min.x, max.y, min.z));
+            EncapsulatePoint(ref bounds, ref first, new Vector3(min.x, max.y, max.z));
+            EncapsulatePoint(ref bounds, ref first, new Vector3(max.x, min.y, min.z));
+            EncapsulatePoint(ref bounds, ref first, new Vector3(max.x, min.y, max.z));
+            EncapsulatePoint(ref bounds, ref first, new Vector3(max.x, max.y, min.z));
+            EncapsulatePoint(ref bounds, ref first, new Vector3(max.x, max.y, max.z));
         }
 
         private void UpdateLines(Vector3 center, Vector3 extents)
@@ -364,6 +394,8 @@ namespace MirageXR
 
         private void OnHandleDrag(BoundingBoxHandle handle, Vector3 delta)
         {
+            if (!_isHandleInteractionActive) return;
+
             if (handle.Type == BoundingBoxHandle.HandleType.Scale)
             {
                 // Simple uniform scale based on drag
@@ -382,6 +414,8 @@ namespace MirageXR
                 if (Mathf.Abs(dragAmount) > 0.0001f)
                 {
                     float scaleFactor = 1.0f + (dragAmount * sensitivity);
+                    if (scaleFactor <= 0.0001f) return;
+
                     Target.localScale *= scaleFactor;
                     OnScaleChanged?.Invoke(Target.localScale);
                     UpdateBounds();
@@ -421,8 +455,28 @@ namespace MirageXR
             }
         }
 
+        private void OnHandleDown(BoundingBoxHandle handle)
+        {
+            _isHandleInteractionActive = true;
+
+            if (_parentGrabInteractable == null)
+            {
+                _parentGrabInteractable = transform.parent != null ? transform.parent.GetComponentInParent<XRGrabInteractable>() : null;
+            }
+
+            if (_parentGrabInteractable != null)
+            {
+                _parentGrabWasEnabled = _parentGrabInteractable.enabled;
+                _parentGrabInteractable.enabled = false;
+            }
+        }
+
         private void OnHandleUp(BoundingBoxHandle handle)
         {
+            if (!_isHandleInteractionActive) return;
+
+            RestoreParentGrabInteractable();
+
             if (Target != null)
             {
                 if (handle.Type == BoundingBoxHandle.HandleType.Scale)
@@ -433,6 +487,18 @@ namespace MirageXR
                 {
                     OnRotationEnded?.Invoke(Target.rotation);
                 }
+            }
+        }
+
+        private void RestoreParentGrabInteractable()
+        {
+            if (!_isHandleInteractionActive) return;
+
+            _isHandleInteractionActive = false;
+
+            if (_parentGrabInteractable != null)
+            {
+                _parentGrabInteractable.enabled = _parentGrabWasEnabled;
             }
         }
     }
