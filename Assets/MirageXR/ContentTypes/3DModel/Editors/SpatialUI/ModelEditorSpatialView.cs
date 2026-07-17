@@ -127,8 +127,19 @@ namespace MirageXR
                 sketchfabManager.ResetPosition = _modelContent.ContentData.ResetPosition;
                 sketchfabManager.FitToScreen = _modelContent.ContentData.FitToScreen;
             }
+            else
+            {
+                ResetModelImportSettings();
+            }
 
             InitializeLocalModelsAsync().Forget();
+        }
+
+        private static void ResetModelImportSettings()
+        {
+            sketchfabManager.Scale = 1f;
+            sketchfabManager.ResetPosition = true;
+            sketchfabManager.FitToScreen = true;
         }
 
         private void OnScaleSliderValueChanged(float value)

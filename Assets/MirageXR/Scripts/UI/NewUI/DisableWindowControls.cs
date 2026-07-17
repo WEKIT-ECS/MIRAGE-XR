@@ -11,12 +11,18 @@ namespace MirageXR
 
         private void Start()
         {
-            _pinButton.onValueChanged.AddListener(ToggleControls);
+            if (_pinButton != null)
+            {
+                _pinButton.onValueChanged.AddListener(ToggleControls);
+            }
         }
 
         private void OnDestroy()
         {
-            _pinButton.onValueChanged.RemoveListener(ToggleControls);
+            if (_pinButton != null)
+            {
+                _pinButton.onValueChanged.RemoveListener(ToggleControls);
+            }
         }
 
         private void ToggleControls(bool isPinned)

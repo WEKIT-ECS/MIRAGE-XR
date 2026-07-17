@@ -257,10 +257,6 @@ namespace MirageXR.View
                 content.ContentData.FitToScreen = false;
                 content.ContentData.ResetPosition = false;
 
-                sketchfabManager.Scale = newScale;
-                sketchfabManager.FitToScreen = false;
-                sketchfabManager.ResetPosition = false;
-
                 InitializeBoxCollider();
                 RootObject.Instance.LEE.ContentManager.UpdateContent(content);
             };
@@ -278,8 +274,6 @@ namespace MirageXR.View
                 
                 content.ContentData.FitToScreen = false;
                 content.ContentData.ResetPosition = false;
-                sketchfabManager.FitToScreen = false;
-                sketchfabManager.ResetPosition = false;
 
                 InitializeBoxCollider();
                 RootObject.Instance.LEE.ContentManager.UpdateContent(content);
@@ -317,10 +311,6 @@ namespace MirageXR.View
                 content.ContentData.FitToScreen = false;
                 content.ContentData.ResetPosition = false;
 
-                sketchfabManager.Scale = newScale;
-                sketchfabManager.FitToScreen = false;
-                sketchfabManager.ResetPosition = false;
-
                 InitializeBoxCollider();
                 RootObject.Instance.LEE.ContentManager.UpdateContent(content);
             };
@@ -334,8 +324,6 @@ namespace MirageXR.View
                 
                 content.ContentData.FitToScreen = false;
                 content.ContentData.ResetPosition = false;
-                sketchfabManager.FitToScreen = false;
-                sketchfabManager.ResetPosition = false;
 
                 InitializeBoxCollider();
                 RootObject.Instance.LEE.ContentManager.UpdateContent(content);

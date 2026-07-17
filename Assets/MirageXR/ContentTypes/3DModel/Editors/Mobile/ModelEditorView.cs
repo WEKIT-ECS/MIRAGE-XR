@@ -118,6 +118,10 @@ public class ModelEditorView : PopupEditorBase
                 sketchfabManager.ResetPosition = modelContent.ContentData.ResetPosition;
                 sketchfabManager.FitToScreen = modelContent.ContentData.FitToScreen;
             }
+            else
+            {
+                ResetModelImportSettings();
+            }
 
             InitializeLocalModelsAsync().Forget();
         }
@@ -125,6 +129,13 @@ public class ModelEditorView : PopupEditorBase
         {
             Debug.LogError(e.ToString());
         }
+    }
+
+    private static void ResetModelImportSettings()
+    {
+        sketchfabManager.Scale = 1f;
+        sketchfabManager.ResetPosition = true;
+        sketchfabManager.FitToScreen = true;
     }
 
     protected override void OnAccept()
