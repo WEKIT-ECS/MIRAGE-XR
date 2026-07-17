@@ -28,6 +28,7 @@ namespace MirageXR
         private bool _isHandleInteractionActive;
         private bool _parentGrabWasEnabled;
         private XRGrabInteractable _parentGrabInteractable;
+        private Vector3 _boundsCenter;
         
         private static LearningExperienceEngine.ActivityManager _activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
 
@@ -211,10 +212,11 @@ namespace MirageXR
             Bounds localBounds = GetLocalBounds(Target.gameObject);
             Vector3 center = localBounds.center;
             Vector3 extents = localBounds.extents;
+            _boundsCenter = center;
 
             // Calculate dynamic handle size (e.g., 5% of the largest dimension, with a minimum fallback)
             float maxDim = Mathf.Max(extents.x, extents.y, extents.z) * 2.0f;
-            float dynamicHandleSize = Mathf.Max(maxDim * 0.05f, 0.05f); // 5% or at least 5cm
+            float dynamicHandleSize = maxDim > Mathf.Epsilon ? maxDim * 0.08f : _handleSize;
 
             for (int i = 0; i < 8; i++)
             {
@@ -398,22 +400,16 @@ namespace MirageXR
 
             if (handle.Type == BoundingBoxHandle.HandleType.Scale)
             {
-                // Simple uniform scale based on drag
-                // Project delta onto handle direction from center?
+                Vector3 handleOffset = handle.transform.localPosition - _boundsCenter;
+                Vector3 direction = handleOffset.normalized;
                 
-                float sensitivity = 1.0f;
-                
-                // direction from center to handle
-                Vector3 direction = (handle.transform.localPosition - Vector3.zero).normalized; // Assuming center is 0 local
-                
-                // local delta
                 Vector3 localDelta = transform.InverseTransformVector(delta);
-                
                 float dragAmount = Vector3.Dot(localDelta, direction);
                 
                 if (Mathf.Abs(dragAmount) > 0.0001f)
                 {
-                    float scaleFactor = 1.0f + (dragAmount * sensitivity);
+                    float radius = Mathf.Max(handleOffset.magnitude, 0.0001f);
+                    float scaleFactor = 1.0f + dragAmount / radius;
                     if (scaleFactor <= 0.0001f) return;
 
                     Target.localScale *= scaleFactor;
@@ -428,7 +424,7 @@ namespace MirageXR
                  Vector3 axis = handle.Axis;
                  
                  // Handle Position relative to center
-                 Vector3 handlePos = handle.transform.localPosition;
+                 Vector3 handlePos = handle.transform.localPosition - _boundsCenter;
                  
                  // Tangent vector: Cross(Axis, HandlePos) -> Direction of movement that causes positive rotation?
                  // Let's check: rot around Y (0,1,0). Handle at (1,0,0). Tangent = Cross(Y, X) = -Z? (0,0,-1).
@@ -443,8 +439,8 @@ namespace MirageXR
                  
                  if (Mathf.Abs(dragAmount) > 0.0001f)
                  {
-                     float sensitivity = 100.0f; // Scale rotation speed
-                     float angle = dragAmount * sensitivity;
+                     float radius = Mathf.Max(handlePos.magnitude, 0.0001f);
+                     float angle = dragAmount / radius * Mathf.Rad2Deg;
                      
                      // Rotate around LOCAL axis
                      Target.Rotate(axis, angle, Space.Self);
