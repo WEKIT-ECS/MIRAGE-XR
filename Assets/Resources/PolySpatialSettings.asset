@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 019d9e67133646548a506370e966316a, type: 3}
   m_Name: PolySpatialSettings
   m_EditorClassIdentifier: 
-  m_PackageVersion: 2.0.4
+  m_PackageVersion: 2.3.1
   m_EnableStatistics: 0
   m_ColliderSyncLayerMask:
     serializedVersion: 2
@@ -32,9 +32,13 @@ MonoBehaviour:
   m_AutoCreateVolumeCamera: 0
   m_TransmitDebugInfo: 0
   m_EnableFallbackShaderConversion: 1
+  m_EnableGPUMeshTransfer: 0
+  m_EnableGPUTextureTransfer: 0
   m_EnableRuntimeValidation: 0
   m_RuntimeValidationFrameCount: 10
   m_BackingObjectsDestroyImmediate: 1
+  m_UtpUdpServerPort: 8777
+  m_UtpTcpServerPort: 8778
   m_ConnectionDiscoveryPort: 9877
   m_ConnectionDiscoverySendInterval: 30
   m_ConnectionDiscoveryTimeOutDuration: 5
@@ -72,10 +76,18 @@ MonoBehaviour:
   m_HidePolySpatialPreviewObjectsInScene: 1
   m_AlwaysLinkPolySpatialRuntime: 0
   m_PolySpatialNetworkingMode: 0
-  m_ConnectionTimeout: 2
   m_EnableHostCameraControl: 0
+  m_ConnectionTimeout: 2
   m_EnableClipping: 0
   m_SerializedServerAddresses:
   - 127.0.0.1
   m_SerializedIgnoredScenePaths: []
   m_MockBackend: 0
+  m_EnableGenericComponentTracker: 0
+  m_EnableTransformDeltas: 0
+  m_DisableTransformDeltaEpsilonComparison: 0
+  m_TransformDeltaPositionEpsilon: 0.0001
+  m_TransformDeltaRotationEpsilon: 0.0001
+  m_TransformDeltaScaleEpsilon: 0.0001
+  m_SimulatedLatencyMilliseconds: 0
+  m_SimulatedJitterMilliseconds: 0
