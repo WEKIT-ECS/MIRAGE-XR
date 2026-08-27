@@ -111,7 +111,8 @@ namespace MirageXR
 
     private void OnClickRegister()
     {
-        Application.OpenURL(LearningExperienceEngine.UserSettings.registerPage);
+        //Application.OpenURL(LearningExperienceEngine.UserSettings.registerPage);
+        RootObject.Instance.LEE.AuthorizationManager.Login();
     }
 
     private async void OnClickLogin()
