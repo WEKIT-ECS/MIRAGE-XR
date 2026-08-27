@@ -57,7 +57,7 @@ namespace MirageXR
 
         private void OnRegisterButtonClick()
         {
-            // TODO
+            RootObject.Instance.LEE.AuthorizationManager.Login();
         }
 
         private void OnLoginButtonClick()

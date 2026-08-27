@@ -79,11 +79,13 @@ namespace MirageXR
         
         private void Update()
         {
+            
 #if UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS
-            if (Input.GetMouseButtonDown(0)) // left mouse button
-            {
-                HandleClick();
-            }
+        if (UnityEngine.InputSystem.Pointer.current != null && 
+            UnityEngine.InputSystem.Pointer.current.press.wasPressedThisFrame)
+        {
+            HandleClick();
+        }
 #endif
             
 #if VISION_OS
@@ -153,9 +155,14 @@ namespace MirageXR
             }
         }
 
-        private void HandleClick()
+private void HandleClick()
         {
-            var mousePosition = Input.mousePosition;
+            if (UnityEngine.InputSystem.Pointer.current == null)
+            {
+                return;
+            }
+
+            Vector2 pointerPosition = UnityEngine.InputSystem.Pointer.current.position.ReadValue();
 
             if (_camera == null)
             {
@@ -163,7 +170,7 @@ namespace MirageXR
                 return;
             }
 
-            var linkIndex = TMP_TextUtilities.FindIntersectingLink(_textDescription, mousePosition, _camera);
+            var linkIndex = TMP_TextUtilities.FindIntersectingLink(_textDescription, pointerPosition, _camera);
             if (linkIndex != -1)
             {
                 var linkInfo = _textDescription.textInfo.linkInfo[linkIndex];
