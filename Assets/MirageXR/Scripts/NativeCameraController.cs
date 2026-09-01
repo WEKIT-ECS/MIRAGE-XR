@@ -5,6 +5,10 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.Windows.WebCam;
 #endif
+#if UNITY_VISIONOS && !UNITY_EDITOR
+using System.Runtime.InteropServices;
+using Cysharp.Threading.Tasks;
+#endif
 
 public class NativeCameraController
 {
@@ -12,7 +16,9 @@ public class NativeCameraController
 
     public static void TakePicture(Action<bool, Texture2D> callback, bool showHolograms = false, int maxSize = DEFAULT_MAX_SIZE)
     {
-#if UNITY_WSA || UNITY_EDITOR
+#if UNITY_VISIONOS && !UNITY_EDITOR
+        TakePictureVisionOS(callback, showHolograms, maxSize);
+#elif UNITY_WSA || UNITY_EDITOR
         TakePictureUWP(callback, showHolograms, maxSize);
 #else
         TakePictureMobile(callback, maxSize);
@@ -71,6 +77,85 @@ public class NativeCameraController
             }
         }, maxSize);
     }
+
+#if UNITY_VISIONOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+    private static extern void startCapture();
+
+    [DllImport("__Internal")]
+    private static extern void stopCapture();
+
+    [DllImport("__Internal")]
+    private static extern IntPtr getTexture();
+
+    private static void TakePictureVisionOS(Action<bool, Texture2D> callback, bool showHolograms = false, int maxSize = DEFAULT_MAX_SIZE)
+    {
+        CaptureVisionOSTextureAsync(callback, maxSize).Forget();
+    }
+
+    private static async UniTaskVoid CaptureVisionOSTextureAsync(Action<bool, Texture2D> callback, int maxSize)
+    {
+        try
+        {
+            startCapture();
+
+            IntPtr texturePtr = IntPtr.Zero;
+            float timeout = 5.0f;
+            float elapsed = 0.0f;
+
+            while (texturePtr == IntPtr.Zero && elapsed < timeout)
+            {
+                await UniTask.Delay(100);
+                elapsed += 0.1f;
+                texturePtr = getTexture();
+            }
+
+            if (texturePtr == IntPtr.Zero)
+            {
+                Debug.LogError("[NativeCameraController] Failed to acquire camera texture pointer from visionOS (timeout).");
+                stopCapture();
+                callback?.Invoke(false, null);
+                return;
+            }
+
+            int width = 1920;
+            int height = 1080;
+
+            var externalTexture = Texture2D.CreateExternalTexture(width, height, TextureFormat.BGRA32, false, false, texturePtr);
+            externalTexture.UpdateExternalTexture(texturePtr);
+
+            var renderTexture = RenderTexture.GetTemporary(width, height, 0, RenderTextureFormat.ARGB32);
+            Vector2 scale = new Vector2(1, -1);
+            Vector2 offset = new Vector2(0, 1);
+            Graphics.Blit(externalTexture, renderTexture, scale, offset);
+
+            var prevActive = RenderTexture.active;
+            RenderTexture.active = renderTexture;
+
+            var capturedTexture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+            capturedTexture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+            capturedTexture.Apply();
+
+            RenderTexture.active = prevActive;
+            RenderTexture.ReleaseTemporary(renderTexture);
+            UnityEngine.Object.Destroy(externalTexture);
+
+            stopCapture();
+
+            callback?.Invoke(true, capturedTexture);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[NativeCameraController] Exception during visionOS camera capture: {ex}");
+            try
+            {
+                stopCapture();
+            }
+            catch { }
+            callback?.Invoke(false, null);
+        }
+    }
+#endif
 
     private static void StartVideoRecordingMobileAsync(string filePath, Action<bool, string> callback)
     {
