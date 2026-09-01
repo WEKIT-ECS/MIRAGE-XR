@@ -1,13 +1,11 @@
-﻿using Microsoft.MixedReality.Toolkit.UI;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
-using MirageXR;
+﻿using MirageXR;
 using UnityEngine;
 
 public class PoiEditor : MonoBehaviour
 {
-    private ObjectManipulator _objectManipulator;
+    // private ObjectManipulator _objectManipulator;
 
-    private BoundsControl _boundsControl;
+    //private BoundsControl _boundsControl;
     private LearningExperienceEngine.ToggleObject _obj;
     private bool isLocked = false;
     private bool _boundsControlActive = false;
