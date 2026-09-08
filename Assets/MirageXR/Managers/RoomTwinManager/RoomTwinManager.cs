@@ -115,8 +115,8 @@ namespace MirageXR
 
                 case RoomTwinStyle.TwinVignette when !_WireframeBlendInCompleted:   //TODO: use DOTween
                     {
-                        var alpha = Mathf.Lerp(100, 10, _t);
-                        GrowVignettesInChildRenderers(_roomModel, alpha);
+                        var angle = Mathf.Lerp(5f, 40f, _t);
+                        GrowVignettesInChildRenderers(_roomModel, angle);
 
                         _t += DeltaWF * Time.deltaTime;
 
@@ -124,6 +124,7 @@ namespace MirageXR
                         {
                             _WireframeBlendInCompleted = true;
                             _t = 0.0f;
+                            GrowVignettesInChildRenderers(_roomModel, 40f);
                         }
 
                         break;
@@ -407,11 +408,33 @@ namespace MirageXR
 
                     if (matInstance.HasProperty("_Distance_Mask_Opacity"))
                     {
-                        matInstance.SetFloat("_Distance_Mask_Opacity", 1.0f);
+                        matInstance.SetFloat("_Distance_Mask_Opacity", 0.0f);
                     }
                     if (matInstance.HasProperty("_Vignette_Mask_Opacity"))
                     {
                         matInstance.SetFloat("_Vignette_Mask_Opacity", 1.0f);
+                    }
+                    if (matInstance.HasProperty("_Vignette_Mask_Angle"))
+                    {
+                        matInstance.SetFloat("_Vignette_Mask_Angle", 40.0f);
+                    }
+
+                    matInstance.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+                    if (matInstance.HasProperty("_Surface"))
+                    {
+                        matInstance.SetFloat("_Surface", 1.0f);
+                    }
+                    if (matInstance.HasProperty("_ZWrite"))
+                    {
+                        matInstance.SetFloat("_ZWrite", 0.0f);
+                    }
+                    if (matInstance.HasProperty("_SrcBlend"))
+                    {
+                        matInstance.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                    }
+                    if (matInstance.HasProperty("_DstBlend"))
+                    {
+                        matInstance.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
                     }
 
                     mats[i] = matInstance;
@@ -459,7 +482,7 @@ namespace MirageXR
             ApplyHologramMaterial(roomTwin, theShader);
         }
 
-        private static void GrowVignettesInChildRenderers(GameObject roomTwin, float alpha)
+        private static void GrowVignettesInChildRenderers(GameObject roomTwin, float angle)
         {
             if (roomTwin == null) return;
             var renderers = roomTwin.GetComponentsInChildren<Renderer>(true);
@@ -469,9 +492,16 @@ namespace MirageXR
                 var mats = childRenderer.materials;
                 for (int i = 0; i < mats.Length; i++)
                 {
-                    if (mats[i] != null && mats[i].HasProperty("_Fade_Distance"))
+                    if (mats[i] != null)
                     {
-                        mats[i].SetFloat("_Fade_Distance", alpha);
+                        if (mats[i].HasProperty("_Vignette_Mask_Angle"))
+                        {
+                            mats[i].SetFloat("_Vignette_Mask_Angle", angle);
+                        }
+                        if (mats[i].HasProperty("_Fade_Distance"))
+                        {
+                            mats[i].SetFloat("_Fade_Distance", angle);
+                        }
                     }
                 }
             }
@@ -505,7 +535,8 @@ namespace MirageXR
                     SetRoomTwinStyle(RoomTwinStyle.TwinVignette);
                 }
                 _roomModel.SetActive(true);
-                GrowVignettesInChildRenderers(_roomModel, (float)newAmount);
+                float angle = Mathf.Lerp(10f, 60f, (float)newAmount.Value);
+                GrowVignettesInChildRenderers(_roomModel, angle);
             }
         }
 
