@@ -338,7 +338,7 @@ namespace MirageXR
             }
         }
 
-        private static void ApplyHologramMaterial(GameObject roomTwin, Material theShader)
+        private void ApplyHologramMaterial(GameObject roomTwin, Material theShader)
         {
             if (roomTwin == null || theShader == null) return;
 
@@ -348,9 +348,73 @@ namespace MirageXR
                 if (renderer == null) continue;
                 int matCount = renderer.sharedMaterials != null && renderer.sharedMaterials.Length > 0 ? renderer.sharedMaterials.Length : 1;
                 var mats = new Material[matCount];
+                _originalMaterials.TryGetValue(renderer, out var origMats);
+
                 for (int i = 0; i < matCount; i++)
                 {
-                    mats[i] = theShader;
+                    var matInstance = new Material(theShader);
+
+                    Material origMat = null;
+                    if (origMats != null && i < origMats.Length)
+                    {
+                        origMat = origMats[i];
+                    }
+
+                    if (origMat != null)
+                    {
+                        Texture origTex = null;
+                        if (origMat.HasProperty("_BaseMap") && origMat.GetTexture("_BaseMap") != null)
+                        {
+                            origTex = origMat.GetTexture("_BaseMap");
+                        }
+                        else if (origMat.HasProperty("_MainTex") && origMat.GetTexture("_MainTex") != null)
+                        {
+                            origTex = origMat.GetTexture("_MainTex");
+                        }
+                        else if (origMat.mainTexture != null)
+                        {
+                            origTex = origMat.mainTexture;
+                        }
+
+                        if (origTex != null)
+                        {
+                            matInstance.SetTexture("_BaseMap", origTex);
+                            if (matInstance.HasProperty("_MainTex"))
+                            {
+                                matInstance.SetTexture("_MainTex", origTex);
+                            }
+                        }
+
+                        Color origCol = Color.white;
+                        if (origMat.HasProperty("_BaseColor"))
+                        {
+                            origCol = origMat.GetColor("_BaseColor");
+                        }
+                        else if (origMat.HasProperty("_Color"))
+                        {
+                            origCol = origMat.GetColor("_Color");
+                        }
+
+                        if (matInstance.HasProperty("_Color"))
+                        {
+                            matInstance.SetColor("_Color", origCol);
+                        }
+                        if (matInstance.HasProperty("_BaseColor"))
+                        {
+                            matInstance.SetColor("_BaseColor", origCol);
+                        }
+                    }
+
+                    if (matInstance.HasProperty("_Distance_Mask_Opacity"))
+                    {
+                        matInstance.SetFloat("_Distance_Mask_Opacity", 1.0f);
+                    }
+                    if (matInstance.HasProperty("_Vignette_Mask_Opacity"))
+                    {
+                        matInstance.SetFloat("_Vignette_Mask_Opacity", 1.0f);
+                    }
+
+                    mats[i] = matInstance;
                 }
                 renderer.materials = mats;
             }
@@ -390,18 +454,26 @@ namespace MirageXR
             }
         }
 
-        private static void AddShaderToChildRenderers(GameObject roomTwin, Material theShader)
+        private void AddShaderToChildRenderers(GameObject roomTwin, Material theShader)
         {
             ApplyHologramMaterial(roomTwin, theShader);
         }
 
         private static void GrowVignettesInChildRenderers(GameObject roomTwin, float alpha)
         {
-            var renderers = roomTwin.GetComponentsInChildren(typeof(Renderer));
-            foreach (var component in renderers)
+            if (roomTwin == null) return;
+            var renderers = roomTwin.GetComponentsInChildren<Renderer>(true);
+            foreach (var childRenderer in renderers)
             {
-                var childRenderer = (Renderer)component;
-                childRenderer.material.SetFloat("_Fade_Distance", alpha);
+                if (childRenderer == null) continue;
+                var mats = childRenderer.materials;
+                for (int i = 0; i < mats.Length; i++)
+                {
+                    if (mats[i] != null && mats[i].HasProperty("_Fade_Distance"))
+                    {
+                        mats[i].SetFloat("_Fade_Distance", alpha);
+                    }
+                }
             }
         }
 
