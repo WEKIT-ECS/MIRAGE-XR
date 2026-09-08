@@ -49,6 +49,7 @@ namespace MirageXR
         private GltfImport _gltf;
         private GameObject _roomModel;
         private Animation _legacyAnimation;
+        private readonly Dictionary<Renderer, Material[]> _originalMaterials = new Dictionary<Renderer, Material[]>();
 
         private bool _showRoom = false;
 
@@ -101,33 +102,17 @@ namespace MirageXR
         // Update is called once per frame
         private void Update()
         {
-            if (!_loadingCompleted)
+            if (!_loadingCompleted || _roomModel == null)
             {
                 return;
             }
 
             switch (_roomTwinStyle)
             {
-                case RoomTwinStyle.FullTwin or RoomTwinStyle.TwinVignette when !_FullTwinBlendInCompleted:   //TODO: use DOTween
-                    {
-                        var alpha = Mathf.Lerp(0, 1, _t);
-                        SetAlphaInChildRenderers(_roomModel, alpha);
+                case RoomTwinStyle.FullTwin:
+                    // FullTwin displays the full model with original materials without modifying anything
+                    break;
 
-                        _t += DeltaA * Time.deltaTime;
-
-                        if (_t > 1.0f)
-                        {
-                            _FullTwinBlendInCompleted = true;
-                            _WireframeBlendInCompleted = false;
-
-                            _t = 0.0f;
-
-                            // Add RoomShader to Child Renderers
-                            AddShaderToChildRenderers(_roomModel, RoomTwinShader);
-                        }
-
-                        break;
-                    }
                 case RoomTwinStyle.TwinVignette when !_WireframeBlendInCompleted:   //TODO: use DOTween
                     {
                         var alpha = Mathf.Lerp(100, 10, _t);
@@ -206,7 +191,10 @@ namespace MirageXR
                 _FullTwinBlendInCompleted = true;
                 _WireframeBlendInCompleted = true;
             }
-            _roomModel.SetActive(_showRoom);
+            if (_roomModel != null)
+            {
+                _roomModel.SetActive(_showRoom);
+            }
         }
 
         /// <summary>
@@ -217,17 +205,24 @@ namespace MirageXR
         {
             _roomTwinStyle = theStyle;
 
+            if (_roomModel == null)
+            {
+                return;
+            }
+
             switch (_roomTwinStyle)
             {
                 // set up the animations in the update loop accordingly
                 case RoomTwinStyle.FullTwin:
+                    RestoreOriginalMaterials(_roomModel);
                     _t = 0.0f;
-                    _FullTwinBlendInCompleted = false;
+                    _FullTwinBlendInCompleted = true;
                     _WireframeBlendInCompleted = true;
                     break;
                 case RoomTwinStyle.TwinVignette:
+                    ApplyHologramMaterial(_roomModel, RoomTwinShader);
                     _t = 0.0f;
-                    _FullTwinBlendInCompleted = false;
+                    _FullTwinBlendInCompleted = true;
                     _WireframeBlendInCompleted = false;
                     break;
                 default:
@@ -280,14 +275,16 @@ namespace MirageXR
                 var instantiator = new GameObjectInstantiator(_gltf, _roomModel.transform);
                 await _gltf.InstantiateMainSceneAsync(instantiator); // transform
 
-                // prep for alpha lerp from transparent
-                SetAlphaInChildRenderers(_roomModel, 0);
+                // Cache original imported materials before any style is applied
+                CacheOriginalMaterials(_roomModel);
 
                 _legacyAnimation = instantiator.SceneInstance.LegacyAnimation;
 
                 // activate
                 _loadingCompleted = true;
-                SetRoomTwinStyle(RoomTwinStyle.FullTwin);
+                _FullTwinBlendInCompleted = true;
+                _WireframeBlendInCompleted = true;
+                SetRoomTwinStyle(_roomTwinStyle);
                 SetRoomTwinVisibility(ForceRoomTwinDisplay || _showRoom);
 
                 //if (legacyAnimation != null)
@@ -313,12 +310,62 @@ namespace MirageXR
             return true;
         } // LoadGltfRoomTwin
 
+        private void CacheOriginalMaterials(GameObject roomTwin)
+        {
+            _originalMaterials.Clear();
+            if (roomTwin == null) return;
+
+            var renderers = roomTwin.GetComponentsInChildren<Renderer>(true);
+            foreach (var renderer in renderers)
+            {
+                if (renderer != null && renderer.sharedMaterials != null)
+                {
+                    _originalMaterials[renderer] = renderer.sharedMaterials;
+                }
+            }
+        }
+
+        private void RestoreOriginalMaterials(GameObject roomTwin)
+        {
+            if (roomTwin == null) return;
+
+            foreach (var kvp in _originalMaterials)
+            {
+                if (kvp.Key != null && kvp.Value != null)
+                {
+                    kvp.Key.sharedMaterials = kvp.Value;
+                }
+            }
+        }
+
+        private static void ApplyHologramMaterial(GameObject roomTwin, Material theShader)
+        {
+            if (roomTwin == null || theShader == null) return;
+
+            var renderers = roomTwin.GetComponentsInChildren<Renderer>(true);
+            foreach (var renderer in renderers)
+            {
+                if (renderer == null) continue;
+                int matCount = renderer.sharedMaterials != null && renderer.sharedMaterials.Length > 0 ? renderer.sharedMaterials.Length : 1;
+                var mats = new Material[matCount];
+                for (int i = 0; i < matCount; i++)
+                {
+                    mats[i] = theShader;
+                }
+                renderer.materials = mats;
+            }
+        }
+
         private static void SetAlphaInChildRenderers(GameObject roomTwin, float alpha)
         {
+            if (roomTwin == null) return;
+
             var renderers = roomTwin.GetComponentsInChildren(typeof(Renderer));
             foreach (var component in renderers)
             {
                 var childRenderer = (Renderer)component;
+                if (childRenderer == null || childRenderer.material == null) continue;
+
                 childRenderer.material.SetOverrideTag("RenderType", "Transparent");
                 childRenderer.material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
                 childRenderer.material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
@@ -328,26 +375,24 @@ namespace MirageXR
                 childRenderer.material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
                 childRenderer.material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
 
-                var col = childRenderer.material.color;
-                col.a = alpha;
-                childRenderer.material.color = col;
+                if (childRenderer.material.HasProperty("_Color"))
+                {
+                    var col = childRenderer.material.GetColor("_Color");
+                    col.a = alpha;
+                    childRenderer.material.SetColor("_Color", col);
+                }
+                else if (childRenderer.material.HasProperty("_BaseColor"))
+                {
+                    var col = childRenderer.material.GetColor("_BaseColor");
+                    col.a = alpha;
+                    childRenderer.material.SetColor("_BaseColor", col);
+                }
             }
         }
 
         private static void AddShaderToChildRenderers(GameObject roomTwin, Material theShader)
         {
-            //RoomTwin.GetComponent<MeshRenderer>().material = TheShader; // not needed?
-            var renderers = roomTwin.GetComponentsInChildren(typeof(Renderer));
-            foreach (var component in renderers)
-            {
-                var childRenderer = (Renderer)component;
-                childRenderer.material = theShader;
-                //Material[] rendererMaterials = childRenderer.materials;
-                //foreach (Material mat in rendererMaterials)
-                //{
-                //    mat.shader = Shader.Find("Shader Graphs/LD_DigitalTwinHologram");
-                //}
-            }
+            ApplyHologramMaterial(roomTwin, theShader);
         }
 
         private static void GrowVignettesInChildRenderers(GameObject roomTwin, float alpha)
@@ -376,16 +421,18 @@ namespace MirageXR
                 SetRoomTwinStyle(RoomTwinStyle.FullTwin);
                 SetRoomTwinVisibility(true);
             }
-            if (newAmount == 0.0d)
+            else if (newAmount == 0.0d)
             {
                 SetRoomTwinStyle(RoomTwinStyle.TwinVignette);
-                AddShaderToChildRenderers(_roomModel, RoomTwinShader);
                 SetRoomTwinVisibility(false);
             }
             else
             {
+                if (_roomTwinStyle != RoomTwinStyle.TwinVignette)
+                {
+                    SetRoomTwinStyle(RoomTwinStyle.TwinVignette);
+                }
                 _roomModel.SetActive(true);
-                _roomTwinStyle = RoomTwinStyle.TwinVignette;
                 GrowVignettesInChildRenderers(_roomModel, (float)newAmount);
             }
         }
