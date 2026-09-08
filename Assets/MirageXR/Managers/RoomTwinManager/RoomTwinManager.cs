@@ -372,9 +372,13 @@ namespace MirageXR
                         {
                             origTex = origMat.GetTexture("_MainTex");
                         }
-                        else if (origMat.mainTexture != null)
+                        else if (origMat.HasProperty("baseColorTexture") && origMat.GetTexture("baseColorTexture") != null)
                         {
-                            origTex = origMat.mainTexture;
+                            origTex = origMat.GetTexture("baseColorTexture");
+                        }
+                        else if (origMat.HasProperty("_baseColorTexture") && origMat.GetTexture("_baseColorTexture") != null)
+                        {
+                            origTex = origMat.GetTexture("_baseColorTexture");
                         }
 
                         if (origTex != null)
@@ -394,6 +398,10 @@ namespace MirageXR
                         else if (origMat.HasProperty("_Color"))
                         {
                             origCol = origMat.GetColor("_Color");
+                        }
+                        else if (origMat.HasProperty("baseColorFactor"))
+                        {
+                            origCol = origMat.GetColor("baseColorFactor");
                         }
 
                         if (matInstance.HasProperty("_Color"))
@@ -473,6 +481,12 @@ namespace MirageXR
                     var col = childRenderer.material.GetColor("_BaseColor");
                     col.a = alpha;
                     childRenderer.material.SetColor("_BaseColor", col);
+                }
+                else if (childRenderer.material.HasProperty("baseColorFactor"))
+                {
+                    var col = childRenderer.material.GetColor("baseColorFactor");
+                    col.a = alpha;
+                    childRenderer.material.SetColor("baseColorFactor", col);
                 }
             }
         }
