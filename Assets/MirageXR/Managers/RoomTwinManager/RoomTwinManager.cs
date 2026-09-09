@@ -21,7 +21,8 @@ namespace MirageXR
     public enum RoomTwinStyle : ushort
     {
         TwinVignette = 1,
-        FullTwin = 2
+        FullTwin = 2,
+        Occlusion = 3
     }
 
     /// <summary>
@@ -113,9 +114,10 @@ namespace MirageXR
                     // FullTwin displays the full model with original materials without modifying anything
                     break;
 
-                case RoomTwinStyle.TwinVignette when !_WireframeBlendInCompleted:   //TODO: use DOTween
+                case RoomTwinStyle.TwinVignette when !_WireframeBlendInCompleted:
+                case RoomTwinStyle.Occlusion when !_WireframeBlendInCompleted:
                     {
-                        var angle = Mathf.Lerp(5f, 40f, _t);
+                        var angle = Mathf.Lerp(5f, 60f, _t);
                         GrowVignettesInChildRenderers(_roomModel, angle);
 
                         _t += DeltaWF * Time.deltaTime;
@@ -124,7 +126,7 @@ namespace MirageXR
                         {
                             _WireframeBlendInCompleted = true;
                             _t = 0.0f;
-                            GrowVignettesInChildRenderers(_roomModel, 40f);
+                            GrowVignettesInChildRenderers(_roomModel, 60f);
                         }
 
                         break;
@@ -221,7 +223,13 @@ namespace MirageXR
                     _WireframeBlendInCompleted = true;
                     break;
                 case RoomTwinStyle.TwinVignette:
-                    ApplyHologramMaterial(_roomModel, RoomTwinShader);
+                    ApplyHologramMaterial(_roomModel, RoomTwinShader, suppressOcclusion: true);
+                    _t = 0.0f;
+                    _FullTwinBlendInCompleted = true;
+                    _WireframeBlendInCompleted = false;
+                    break;
+                case RoomTwinStyle.Occlusion:
+                    ApplyHologramMaterial(_roomModel, RoomTwinShader, suppressOcclusion: false);
                     _t = 0.0f;
                     _FullTwinBlendInCompleted = true;
                     _WireframeBlendInCompleted = false;
@@ -339,7 +347,7 @@ namespace MirageXR
             }
         }
 
-        private void ApplyHologramMaterial(GameObject roomTwin, Material theShader)
+        private void ApplyHologramMaterial(GameObject roomTwin, Material theShader, bool suppressOcclusion = false)
         {
             if (roomTwin == null || theShader == null) return;
 
@@ -424,10 +432,26 @@ namespace MirageXR
                     }
                     if (matInstance.HasProperty("_Vignette_Mask_Angle"))
                     {
-                        matInstance.SetFloat("_Vignette_Mask_Angle", 40.0f);
+                        matInstance.SetFloat("_Vignette_Mask_Angle", 60.0f);
                     }
 
-                    matInstance.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+                    if (suppressOcclusion)
+                    {
+                        matInstance.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 1;
+                        if (matInstance.HasProperty("_ZTest"))
+                        {
+                            matInstance.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.LessEqual);
+                        }
+                    }
+                    else
+                    {
+                        matInstance.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+                        if (matInstance.HasProperty("_ZTest"))
+                        {
+                            matInstance.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.LessEqual); 
+                        }
+                    }
+
                     if (matInstance.HasProperty("_Surface"))
                     {
                         matInstance.SetFloat("_Surface", 1.0f);
