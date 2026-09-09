@@ -159,6 +159,9 @@ namespace MirageXR
                 return;
             }
 
+            // Show thinking animation while waiting for track response
+            var thinkingIndicator = await SpawnThinkingIndicatorAsync();
+
             byte[] imageBytes = capturedTexture.EncodeToJPG(85);
             Destroy(capturedTexture);
 
@@ -181,9 +184,6 @@ namespace MirageXR
                 _stepCompletedToggle.SetIsOnWithoutNotify(false);
                 return;
             }
-
-            // 5. Show thinking animation while waiting for track response
-            var thinkingIndicator = await SpawnThinkingIndicatorAsync();
 
             var trackResponse = await aiManager.passthroughFrameInterpretationTrack(
                 setupResponse.ThreadId,

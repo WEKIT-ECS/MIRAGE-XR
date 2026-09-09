@@ -31,7 +31,7 @@ Material:
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2000
+  m_CustomRenderQueue: 3000
   stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
@@ -111,10 +111,10 @@ Material:
     - _Debug_Blend: 0.461
     - _DetailNormalMapScale: 1
     - _Distance_Mask_Opacity: 0
-    - _DstBlend: 0
+    - _DstBlend: 10
     - _Fade_Depth: 47.5
-    - _Fade_Distance: 18.6
-    - _Fade_Falloff: 30
+    - _Fade_Distance: 8.5
+    - _Fade_Falloff: 9.1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -132,22 +132,23 @@ Material:
     - _Secondary_Grid_Scale: 10
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _SrcBlend: 1
+    - _SrcBlend: 5
     - _SubGrid_Blend: 0.152
     - _Sub_Grid_Pixels_Blend: 0.161
     - _Sub_Grid_Scale: 3
+    - _Surface: 1
     - _UVSec: 0
     - _Unlit: 1
-    - _Vignette_Mask_Angle: 3.5
+    - _Vignette_Mask_Angle: 40
     - _Vignette_Mask_Opacity: 1
     - _WireThickness: 0
     - _Wire_Thickness: 0.762
     - _ZOffsetFactor: 0
     - _ZOffsetUnits: 0
     - _ZTest: 4
-    - _ZWrite: 1
+    - _ZWrite: 0
     m_Colors:
-    - _BaseColor: {r: 0.6603774, g: 0.6603774, b: 0.6603774, a: 1}
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Base_Colour: {r: 0.1647059, g: 0.1019608, b: 0.4196079, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using LearningExperienceEngine.DataModel;
 using TMPro;
 using UnityEngine;
