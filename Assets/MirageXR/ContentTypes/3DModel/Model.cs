@@ -1,12 +1,9 @@
 using LearningExperienceEngine;
 using System;
-using Microsoft.MixedReality.Toolkit.UI;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using GLTFast;
-using Microsoft.MixedReality.Toolkit.Utilities;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
@@ -35,12 +32,12 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-            var poiEditor = GetComponentInParent<PoiEditor>();
+            // var poiEditor = GetComponentInParent<PoiEditor>();
 
-            if (poiEditor)
-            {
-                poiEditor.EnableBoundsControl(false);
-            }
+            // if (poiEditor)
+            // {
+            //     poiEditor.EnableBoundsControl(false);
+            // }
 
             UnSubscribe();
 
