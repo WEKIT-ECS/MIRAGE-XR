@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
@@ -15,6 +15,7 @@ namespace MirageXR.View
         public Guid ActivityId => _activityId;
         public ActivityStep Step => _step;
         public List<Content> Contents => _contents;
+        public StepView StepView => _stepView;
 
         protected Guid _activityId;
         protected ActivityStep _step;

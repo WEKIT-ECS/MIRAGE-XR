@@ -1,4 +1,4 @@
-﻿using LearningExperienceEngine;
+using LearningExperienceEngine;
 using DG.Tweening;
 using System;
 using System.Globalization;
@@ -126,13 +126,24 @@ public class LabelEditorView : PopupEditorBase
             return;
         }
 
+        var prevLabelPosition = _contentLabel?.ContentData?.LabelPosition ?? Vector3.zero;
+        var prevLocation = _contentLabel?.Location;
+
         _contentLabel = CreateContent<LabelContentData>(ContentType.Label);
         _contentLabel.ContentData.Text = _labelText;
         _contentLabel.ContentData.IsBillboarded = _isBillboarded;
         _contentLabel.ContentData.BackgroundColor = _colorBackground;
         _contentLabel.ContentData.FontColor = _colorFont;
         _contentLabel.ContentData.FontSize = _sizeFont;
-        _contentLabel.Location = Location.GetDefaultStartLocation();
+        _contentLabel.ContentData.LabelPosition = prevLabelPosition;
+        if (IsContentUpdate && prevLocation != null)
+        {
+            _contentLabel.Location = prevLocation;
+        }
+        else
+        {
+            _contentLabel.Location = Location.GetDefaultStartLocation();
+        }
 
         if (IsContentUpdate)
         {

@@ -11,7 +11,11 @@ namespace MirageXR
     {
         [SerializeField] private Button _button;
         [SerializeField] private Button _buttonDelete;
+        [SerializeField] private Button _buttonLock;
         [SerializeField] private Image _image;
+        [SerializeField] private Image _imageLock;
+        [SerializeField] private Sprite _spriteLock;
+        [SerializeField] private Sprite _spriteUnlock;
         [SerializeField] private TMP_Text _textType;
         [SerializeField] private TMP_Text _textTitle;
 
@@ -22,6 +26,10 @@ namespace MirageXR
             {
                 _button.interactable = value;
                 _buttonDelete.interactable = value;
+                if (_buttonLock != null)
+                {
+                    _buttonLock.interactable = value;
+                }
             }
         }
 
@@ -40,13 +48,51 @@ namespace MirageXR
             _buttonDelete.onClick.RemoveAllListeners();
             _button.onClick.AddListener(OnClick);
             _buttonDelete.onClick.AddListener(OnDeleteClick);
+
+            if (_buttonLock != null)
+            {
+                _buttonLock.onClick.RemoveAllListeners();
+                _buttonLock.onClick.AddListener(OnLockClick);
+            }
+
             UpdateView();
+        }
+
+        private void OnDestroy()
+        {
+            if (_buttonLock != null)
+            {
+                _buttonLock.onClick.RemoveListener(OnLockClick);
+            }
         }
 
         private void UpdateView()
         {
             _textTitle.text = _content.Type.ToString();
             _textType.text = _content.Type.ToString();
+            UpdateLockVisual();
+        }
+
+        private void OnLockClick()
+        {
+            if (_content == null) return;
+            if (_content.Location == null)
+            {
+                _content.Location = new Location();
+            }
+
+            _content.Location.IsLocked = !_content.Location.IsLocked;
+            UpdateLockVisual();
+            RootObject.Instance.LEE.ContentManager.UpdateContent(_content);
+        }
+
+        private void UpdateLockVisual()
+        {
+            if (_imageLock != null)
+            {
+                bool isLocked = _content?.Location?.IsLocked ?? false;
+                _imageLock.sprite = isLocked ? _spriteLock : _spriteUnlock;
+            }
         }
         
         private void OnClick()

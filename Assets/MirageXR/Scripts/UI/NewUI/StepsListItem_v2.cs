@@ -1,5 +1,6 @@
-﻿using LearningExperienceEngine;
+using LearningExperienceEngine;
 using System;
+using System.Collections.Generic;
 using LearningExperienceEngine.DataModel;
 using MirageXR;
 using TMPro;
@@ -18,6 +19,10 @@ public class StepsListItem_v2 : MonoBehaviour
     [SerializeField] private Button _btnStep;
     [SerializeField] private Button _btnEditButton;
     [SerializeField] private Button _btnDelete;
+    [SerializeField] private Button _btnLock;
+    [SerializeField] private Image _imgLock;
+    [SerializeField] private Sprite _spriteLock;
+    [SerializeField] private Sprite _spriteUnlock;
     [SerializeField] private Button _btnImageMarkerPopup;
     [SerializeField] private GameObject _moveIcon;
     [SerializeField] private GameObject _stepStatus;
@@ -48,10 +53,25 @@ public class StepsListItem_v2 : MonoBehaviour
         _btnEditButton.onClick.AddListener(OnEditClick);
         _btnImageMarkerPopup.onClick.AddListener(OnImageMarkerButtonClick);
         _dragAndDropController.onSiblingIndexChanged.AddListener(OnSiblingIndexChanged);
+
+        if (_btnLock != null)
+        {
+            _btnLock.onClick.RemoveAllListeners();
+            _btnLock.onClick.AddListener(ToggleLock);
+        }
+
         OnEditModeChanged(activityManager.EditModeActive);
 
         //LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
         //LearningExperienceEngine.EventManager.OnActionModified += OnActionModified;
+    }
+
+    private void OnDestroy()
+    {
+        if (_btnLock != null)
+        {
+            _btnLock.onClick.RemoveListener(ToggleLock);
+        }
     }
 
     public void UpdateView(ActivityStep step, int number)
@@ -70,6 +90,66 @@ public class StepsListItem_v2 : MonoBehaviour
         //_stepDoneImage.SetActive(_step.isCompleted && !isCurrent);
 
         //_btnImageMarkerPopup.gameObject.SetActive(ImageMarkerCheck());
+        UpdateLockVisual();
+    }
+
+    public void ToggleLock()
+    {
+        if (_step == null) return;
+        if (_step.Location == null)
+        {
+            _step.Location = new Location();
+        }
+
+        _step.Location.IsLocked = !_step.Location.IsLocked;
+
+        // If this is the active step, update StepView in the scene
+        var currentStep = RootObject.Instance.LEE.StepManager.CurrentStep;
+        if (currentStep != null && _step.Id == currentStep.Id)
+        {
+            var stepView = RootObject.Instance.ViewManager.ActivityView.StepView;
+            if (stepView != null)
+            {
+                stepView.SetLocked(_step.Location.IsLocked, cascadeToContents: true);
+            }
+        }
+
+        RootObject.Instance.LEE.StepManager.UpdateStep(_step);
+
+        // Cascade lock state to all contents belonging to this step
+        var allContents = RootObject.Instance.LEE.ContentManager.GetContents();
+        if (allContents != null)
+        {
+            var stepContents = new List<Content>();
+            foreach (var content in allContents)
+            {
+                if (content.Steps != null && content.Steps.Contains(_step.Id))
+                {
+                    if (content.Location == null)
+                    {
+                        content.Location = new Location();
+                    }
+                    content.Location.IsLocked = _step.Location.IsLocked;
+                    stepContents.Add(content);
+                }
+            }
+
+            if (stepContents.Count > 0)
+            {
+                RootObject.Instance.LEE.ContentManager.UpdateContents(stepContents);
+            }
+        }
+
+        UpdateLockVisual();
+    }
+
+    private void UpdateLockVisual()
+    {
+        if (_imgLock != null)
+        {
+            bool isLocked = _step?.Location?.IsLocked ?? false;
+            _imgLock.sprite = isLocked ? _spriteLock : _spriteUnlock;
+        }
     }
 
     /*private void OnActionModified(Step step)
@@ -86,6 +166,10 @@ public class StepsListItem_v2 : MonoBehaviour
         _btnDelete.gameObject.SetActive(value);
         _stepStatus.SetActive(!value);
         _btnEditButton.gameObject.SetActive(value);
+        if (_btnLock != null)
+        {
+            _btnLock.gameObject.SetActive(value);
+        }
         _moveIcon.gameObject.SetActive(false);
         //_moveIcon.gameObject.SetActive(value);
     }
