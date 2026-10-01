@@ -27,6 +27,39 @@ namespace MirageXR.View
             set => SetInteractable(value);
         }
 
+        public bool IsLocked
+        {
+            get => _step?.Location?.IsLocked ?? false;
+            set
+            {
+                if (_step?.Location != null)
+                {
+                    _step.Location.IsLocked = value;
+                }
+                UpdateLockState();
+            }
+        }
+
+        public void SetLocked(bool locked, bool cascadeToContents = true)
+        {
+            IsLocked = locked;
+            if (cascadeToContents)
+            {
+                foreach (var contentView in GetComponentsInChildren<ContentView>())
+                {
+                    contentView.SetLocked(locked);
+                }
+            }
+        }
+
+        public void UpdateLockState()
+        {
+            if (RootObject.Instance?.LEE?.ActivityManager != null)
+            {
+                SetInteractable(RootObject.Instance.LEE.ActivityManager.IsEditorMode);
+            }
+        }
+
         private bool _isInteractable;
         private bool _isInitialized;
         private bool _isSelected;
@@ -74,6 +107,7 @@ namespace MirageXR.View
             {
                 _infoScreenView.UpdateView(step);
             }
+            UpdateLockState();
         }
 
         private void OnEditorModeChanged(bool value)
@@ -84,16 +118,18 @@ namespace MirageXR.View
         private void SetInteractable(bool value)
         {
             _isInteractable = value;
+            bool shouldBeMovable = value && !IsLocked;
+
             var generalGrabTransformer = gameObject.GetComponent<XRGeneralGrabTransformer>();
             if (generalGrabTransformer != null)
             {
-                generalGrabTransformer.enabled = value;
+                generalGrabTransformer.enabled = shouldBeMovable;
             }
 
             var xrGrabInteractable = gameObject.GetComponent<XRGrabInteractable>();
             if (xrGrabInteractable)
             {
-                xrGrabInteractable.enabled = value;
+                xrGrabInteractable.enabled = shouldBeMovable;
             }
         }
 
@@ -165,6 +201,14 @@ namespace MirageXR.View
             newRotation.x = 0;
             newRotation.z = 0;
             text.transform.eulerAngles = newRotation;
+        }
+
+        private void OnDestroy()
+        {
+            if (RootObject.Instance?.LEE?.ActivityManager != null)
+            {
+                RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged -= OnEditorModeChanged;
+            }
         }
     }
 }

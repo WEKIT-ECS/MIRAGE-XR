@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using LearningExperienceEngine.DataModel;
 using TMPro;
@@ -30,14 +30,13 @@ namespace MirageXR.View
 
         private XRGrabInteractable _xrGrabInteractableBase;
         private XRGrabInteractable _xrGrabInteractableText;
-        private XRGrabInteractable _xrGrabInteractableParent;
         private XRSimpleInteractable _xrGrabInteractableTextSimple;
         private XRGeneralGrabTransformer _xrGeneralGrabTransformerText;
         private Camera _camera;
         private bool _isBillboarded;
         private bool _isDynamicScale = true;
         private bool _isUpdateLine = true;
-        private bool _isCanvasTransformLocked = true;
+        private bool _isCanvasTransformLocked = false;
 
         protected override async UniTask InitializeContentAsync(Content content)
         {
@@ -65,6 +64,11 @@ namespace MirageXR.View
             Initialized = await InitializeContentAsync(newContent);
             InitializeBillboard(newContent);
 
+            if (newContent.ContentData.LabelPosition != Vector3.zero)
+            {
+                canvas.transform.localPosition = newContent.ContentData.LabelPosition;
+            }
+
             await base.OnContentUpdatedAsync(content);
         }
 
@@ -87,8 +91,13 @@ namespace MirageXR.View
             LayoutRebuilder.MarkLayoutForRebuild(text.rectTransform);
             await UniTask.NextFrame(PlayerLoopTiming.EarlyUpdate);
             var canvasSize = ((RectTransform)canvas.transform).rect.size;
-            colliderText.size = new Vector3(canvasSize.x-30, canvasSize.y, 2);
+            colliderText.size = new Vector3(canvasSize.x - 30, canvasSize.y, 50);
             colliderText.center = new Vector3(canvasSize.x * -0.5f - 15, 0, 0);
+
+            if (content.ContentData.LabelPosition != Vector3.zero)
+            {
+                canvas.transform.localPosition = content.ContentData.LabelPosition;
+            }
 
             return true;
         }
@@ -99,20 +108,49 @@ namespace MirageXR.View
             UpdateCanvasLockState();
         }
 
+        private void OnCanvasManipulationEnded()
+        {
+            if (Content is Content<LabelContentData> labelContent)
+            {
+                labelContent.ContentData.LabelPosition = canvas.transform.localPosition;
+                RootObject.Instance.LEE.ContentManager.UpdateContent(labelContent);
+            }
+        }
+
         private void UpdateCanvasLockState()
         {
-            imageIcon.sprite = _isCanvasTransformLocked ? spriteLock : spriteUnlock;
-            _xrGrabInteractableBase.colliders.Clear();
-            _xrGrabInteractableBase.colliders.Add(colliderPoint);
-            if (_isCanvasTransformLocked)
+            if (buttonLock != null)
             {
-                _xrGrabInteractableBase.colliders.Add(colliderText);
+                buttonLock.gameObject.SetActive(IsInteractable);
+                buttonLock.interactable = !IsLocked;
             }
 
-            _xrGrabInteractableText.enabled = !_isCanvasTransformLocked;
-            _xrGeneralGrabTransformerText.enabled = !_isCanvasTransformLocked;
-            _xrGrabInteractableBase.enabled = !_isCanvasTransformLocked;
-            _xrGrabInteractableParent.enabled = !_isCanvasTransformLocked;
+            if (imageIcon != null)
+            {
+                imageIcon.sprite = _isCanvasTransformLocked ? spriteLock : spriteUnlock;
+            }
+
+            if (_xrGrabInteractableBase != null)
+            {
+                _xrGrabInteractableBase.enabled = IsInteractable && !IsLocked;
+            }
+
+            bool textMovable = !_isCanvasTransformLocked && IsInteractable && !IsLocked;
+            if (_xrGrabInteractableText != null)
+            {
+                _xrGrabInteractableText.enabled = textMovable;
+            }
+
+            if (_xrGeneralGrabTransformerText != null)
+            {
+                _xrGeneralGrabTransformerText.enabled = textMovable;
+            }
+        }
+
+        protected override void UpdateLockState()
+        {
+            base.UpdateLockState();
+            UpdateCanvasLockState();
         }
 
         protected override void SetInteractable(bool value)
@@ -123,11 +161,6 @@ namespace MirageXR.View
                 return;
             }
             UpdateCanvasLockState();
-        }
-
-        private void CacheParentGrabInteractable()
-        {
-            _xrGrabInteractableParent = transform.parent != null ? transform.parent.GetComponentInParent<XRGrabInteractable>() : null;
         }
 
         protected override void InitializeManipulator()
@@ -142,28 +175,36 @@ namespace MirageXR.View
             _xrGeneralGrabTransformerText = canvas.gameObject.AddComponent<XRGeneralGrabTransformer>();
             _xrGeneralGrabTransformerText.allowTwoHandedScaling = false;
 
-            CacheParentGrabInteractable();
-            if (_xrGrabInteractableParent != null)
+            _xrGrabInteractableText = canvas.gameObject.AddComponent<XRGrabInteractable>();
+            _xrGrabInteractableText.movementType = XRBaseInteractable.MovementType.Instantaneous;
+            _xrGrabInteractableText.retainTransformParent = true;
+            _xrGrabInteractableText.trackRotation = false;
+            _xrGrabInteractableText.trackScale = false;
+            _xrGrabInteractableText.useDynamicAttach = true;
+            _xrGrabInteractableText.matchAttachPosition = true;
+            _xrGrabInteractableText.matchAttachRotation = false;
+            _xrGrabInteractableText.snapToColliderVolume = false;
+            _xrGrabInteractableText.throwOnDetach = false;
+            _xrGrabInteractableText.reinitializeDynamicAttachEverySingleGrab = false;
+            _xrGrabInteractableText.selectMode = InteractableSelectMode.Multiple;
+            _xrGrabInteractableText.selectExited.AddListener(_ => OnCanvasManipulationEnded());
+
+            if (colliderText != null)
             {
-                _xrGrabInteractableParent.enabled = false;
+                colliderText.isTrigger = true;
             }
 
-           _xrGrabInteractableText = canvas.gameObject.AddComponent<XRGrabInteractable>();
-           _xrGrabInteractableText.movementType = XRBaseInteractable.MovementType.Instantaneous;
-           _xrGrabInteractableText.retainTransformParent = true;
-           _xrGrabInteractableText.trackScale = false;
-           _xrGrabInteractableText.useDynamicAttach = true;
-           _xrGrabInteractableText.matchAttachPosition = true;
-           _xrGrabInteractableText.matchAttachRotation = true; // tested - had no effect on gaze+grab -> rotate bug
-           _xrGrabInteractableText.snapToColliderVolume = false;
-           _xrGrabInteractableText.reinitializeDynamicAttachEverySingleGrab = false;
-           _xrGrabInteractableText.selectMode = InteractableSelectMode.Single;
+            base.InitializeManipulator();
 
-           base.InitializeManipulator();
+            if (colliderText != null)
+            {
+                colliderText.isTrigger = false;
+            }
+
             _xrGrabInteractableBase = gameObject.GetComponent<XRGrabInteractable>();
-            _xrGrabInteractableBase.selectMode = InteractableSelectMode.Single;
+            _xrGrabInteractableBase.selectMode = InteractableSelectMode.Multiple;
             _xrGrabInteractableBase.trackScale = false;
-            CacheParentGrabInteractable();
+            _xrGrabInteractableBase.throwOnDetach = false;
             UpdateCanvasLockState();
         }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
 using UnityEngine;
@@ -66,19 +66,44 @@ namespace MirageXR.View
             OnContentUpdatedAsync(content).Forget();
         }
 
+        public virtual bool IsLocked
+        {
+            get => Content?.Location?.IsLocked ?? false;
+            set
+            {
+                if (Content?.Location != null)
+                {
+                    Content.Location.IsLocked = value;
+                }
+                UpdateLockState();
+            }
+        }
+
+        public virtual void SetLocked(bool locked)
+        {
+            IsLocked = locked;
+        }
+
+        protected virtual void UpdateLockState()
+        {
+            SetInteractable(IsInteractable);
+        }
+
         protected virtual void SetInteractable(bool value)
         {
             IsInteractable = value;
+            bool shouldBeManipulatable = value && !IsLocked;
+
             var generalGrabTransformer = gameObject.GetComponent<XRGeneralGrabTransformer>();
             if (generalGrabTransformer != null)
             {
-                generalGrabTransformer.enabled = value;
+                generalGrabTransformer.enabled = shouldBeManipulatable;
             }
 
             var xrGrabInteractable = gameObject.GetComponent<XRGrabInteractable>();
             if (xrGrabInteractable)
             {
-                xrGrabInteractable.enabled = value;
+                xrGrabInteractable.enabled = shouldBeManipulatable;
             }
         }
 
@@ -162,8 +187,17 @@ namespace MirageXR.View
             transform.SetLocalPositionAndRotation(content.Location.Position, Quaternion.Euler(content.Location.Rotation));
             transform.localScale = content.Location.Scale;
             Content = content;
+            UpdateLockState();
 
             return UniTask.CompletedTask;
+        }
+
+        protected virtual void OnDestroy()
+        {
+            if (RootObject.Instance?.LEE?.ActivityManager != null)
+            {
+                RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged -= OnEditorModeChanged;
+            }
         }
     }
 }

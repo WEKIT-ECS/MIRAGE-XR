@@ -69,6 +69,11 @@ namespace MirageXR
 
         public async void UpdateView()
         {
+            if (this == null)
+            {
+                return;
+            }
+
             _deleteButton.gameObject.SetActive(Deleteable);
             DisplayedThumbnail = null;
             if (!string.IsNullOrWhiteSpace(_elementId))
@@ -79,9 +84,18 @@ namespace MirageXR
                 {
                     try
                     {
-                        thumbnail = await ThumbnailProvider.GetThumbnailAsync(_elementId, destroyCancellationToken);
+                        var ct = destroyCancellationToken;
+                        thumbnail = await ThumbnailProvider.GetThumbnailAsync(_elementId, ct);
+                        if (ct.IsCancellationRequested || this == null)
+                        {
+                            return;
+                        }
                     }
                     catch (OperationCanceledException)
+                    {
+                        return;
+                    }
+                    catch (MissingReferenceException)
                     {
                         return;
                     }
@@ -90,10 +104,12 @@ namespace MirageXR
                 {
                     Debug.LogError("Thumbnail provider is not set up. Ensure that it is set before trying to load an element.", this);
                 }
-                if (destroyCancellationToken.IsCancellationRequested)
+
+                if (this == null)
                 {
                     return;
                 }
+
                 _errorDisplay.SetActive(thumbnail == null);
                 DisplayedThumbnail = thumbnail;
                 _waitSpinner.SetActive(false);
