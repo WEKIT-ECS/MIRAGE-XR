@@ -11,7 +11,6 @@ namespace MirageXR
         [Header("Buttons")]
         [SerializeField] private Button _buttonBack;
         [SerializeField] private Button _buttonClose;
-        [SerializeField] private Sprite _closeIconSprite;
         [SerializeField] private Button _buttonSettings;
         [SerializeField] private Button _buttonCollaborativeSession;
         [SerializeField] private Button _buttonAddNewStep;
@@ -19,37 +18,6 @@ namespace MirageXR
         [SerializeField] private Button _nextStep;
         [SerializeField] private Button _previousStep;
 
-        private void Awake()
-        {
-            EnsureCloseButton();
-        }
-
-        private void EnsureCloseButton()
-        {
-            if (_buttonClose == null && _buttonBack != null)
-            {
-                var closeObj = Instantiate(_buttonBack.gameObject, _buttonBack.transform.parent);
-                closeObj.name = "Button_Round_Simple_Spatial_Close";
-                var rt = closeObj.GetComponent<RectTransform>();
-                var backRt = _buttonBack.GetComponent<RectTransform>();
-                rt.anchorMin = backRt.anchorMin;
-                rt.anchorMax = backRt.anchorMax;
-                rt.pivot = backRt.pivot;
-                rt.sizeDelta = backRt.sizeDelta;
-                rt.anchoredPosition = new Vector2(backRt.anchoredPosition.x + 52f, backRt.anchoredPosition.y);
-
-                var iconTransform = closeObj.transform.Find("Icon");
-                if (iconTransform != null && iconTransform.TryGetComponent<Image>(out var iconImage))
-                {
-                    if (_closeIconSprite != null)
-                    {
-                        iconImage.sprite = _closeIconSprite;
-                    }
-                }
-
-                _buttonClose = closeObj.GetComponent<Button>();
-            }
-        }
         [Header("Images")]
         [SerializeField] private RawImage _imageThumbnail;
         [SerializeField] private Image _imageThumbnailTemp;
@@ -88,11 +56,7 @@ namespace MirageXR
         public void SetInputFieldActivityNameTextInteractable(bool value) => inputFieldActivityName.interactable = value;
         public void SetInputFieldActivityDescriptionInteractable(bool value) => inputFieldActivityDescription.interactable = value;
         public void SetActionOnButtonBackClick(UnityAction action) => _buttonBack.SafeSetListener(action);
-        public void SetActionOnButtonCloseClick(UnityAction action)
-        {
-            EnsureCloseButton();
-            _buttonClose.SafeSetListener(action);
-        }
+        public void SetActionOnButtonCloseClick(UnityAction action) => _buttonClose.SafeSetListener(action);
         public void SetActionOnButtonSettingsClick(UnityAction action) => _buttonSettings.SafeSetListener(action);
         public void SetActionOnButtonCollaborativeSessionClick(UnityAction action) => _buttonCollaborativeSession.SafeSetListener(action);
         public void SetActionOnButtonAddNewStepClick(UnityAction action) => _buttonAddNewStep.SafeSetListener(action);
