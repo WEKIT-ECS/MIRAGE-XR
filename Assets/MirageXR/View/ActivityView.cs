@@ -239,5 +239,56 @@ namespace MirageXR.View
         {
             UpdateLocation(_activity);
         }
+
+        public virtual void ClearActivity()
+        {
+            for (var i = _contentViews.Count - 1; i >= 0; i--)
+            {
+                if (_contentViews[i] != null)
+                {
+                    RemoveContent(_contentViews[i]);
+                }
+            }
+            _contentViews.Clear();
+
+            if (_stepView != null)
+            {
+                Destroy(_stepView.gameObject);
+                _stepView = null;
+            }
+
+            _contents?.Clear();
+            _contents = null;
+            _step = null;
+            _activity = null;
+            _activityId = Guid.Empty;
+        }
+
+        protected virtual void OnDestroy()
+        {
+            ClearActivity();
+
+            if (RootObject.Instance != null && RootObject.Instance.LEE != null)
+            {
+                if (RootObject.Instance.LEE.ActivityManager != null)
+                {
+                    RootObject.Instance.LEE.ActivityManager.OnActivityLoaded -= OnActivityLoaded;
+                    RootObject.Instance.LEE.ActivityManager.OnActivityUpdated -= OnActivityUpdated;
+                }
+                if (RootObject.Instance.LEE.StepManager != null)
+                {
+                    RootObject.Instance.LEE.StepManager.OnStepChanged -= OnStepChanged;
+                }
+                if (RootObject.Instance.LEE.ContentManager != null)
+                {
+                    RootObject.Instance.LEE.ContentManager.OnContentUpdated -= OnContentUpdated;
+                    RootObject.Instance.LEE.ContentManager.OnContentActivated -= OnContentActivated;
+                }
+                if (RootObject.Instance.LEE.ActivitySynchronizationManager != null)
+                {
+                    RootObject.Instance.LEE.ActivitySynchronizationManager.OnMessageReceived -= OnSyncMessageReceived;
+                }
+            }
+        }
     }
 }

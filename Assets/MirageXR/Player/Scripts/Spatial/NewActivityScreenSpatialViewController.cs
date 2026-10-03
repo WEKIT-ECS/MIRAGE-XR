@@ -19,6 +19,7 @@ namespace MirageXR  //TODO: add Spatial namespace
         {
             base.OnBind();
             View.SetActionOnButtonBackClick(OnButtonBackClicked);
+            View.SetActionOnButtonCloseClick(OnButtonCloseClicked);
             View.SetActionOnButtonSettingsClick(OnButtonSettingsClicked);
             View.SetActionOnButtonCollaborativeSessionClick(OnButtonCollaborativeSessionClicked);
             View.SetActionOnButtonAddNewStepClick(OnButtonAddNewStepClicked);
@@ -36,8 +37,28 @@ namespace MirageXR  //TODO: add Spatial namespace
 
             RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityUpdated;
             RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnActivityUpdated;
+            RootObject.Instance.LEE.ActivityManager.OnActivityClosed += OnActivityClosed;
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
             RootObject.Instance.LEE.StepManager.OnStepChanged += StepManagerOnStepChanged;
+        }
+
+        protected override void OnUnbind()
+        {
+            base.OnUnbind();
+            if (RootObject.Instance?.LEE != null)
+            {
+                if (RootObject.Instance.LEE.ActivityManager != null)
+                {
+                    RootObject.Instance.LEE.ActivityManager.OnActivityLoaded -= OnActivityUpdated;
+                    RootObject.Instance.LEE.ActivityManager.OnActivityUpdated -= OnActivityUpdated;
+                    RootObject.Instance.LEE.ActivityManager.OnActivityClosed -= OnActivityClosed;
+                    RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged -= OnEditorModeChanged;
+                }
+                if (RootObject.Instance.LEE.StepManager != null)
+                {
+                    RootObject.Instance.LEE.StepManager.OnStepChanged -= StepManagerOnStepChanged;
+                }
+            }
         }
 
         private void OnInputFieldActivityNameEditEnd(string text)
@@ -214,6 +235,38 @@ namespace MirageXR  //TODO: add Spatial namespace
         private void OnButtonBackClicked()
         {
             MenuManager.Instance.ShowScreen(ScreenName.MainScreen);
+        }
+
+        private void OnButtonCloseClicked()
+        {
+            LearningExperienceEngine.EventManager.ClearAll();
+            roomTwinManager.SetRoomTwinVisibility(false);
+            RootObject.Instance.LEE.ActivityManager.CloseActivity();
+            MenuManager.Instance.ShowScreen(ScreenName.MainScreen);
+        }
+
+        private void OnActivityClosed()
+        {
+            _activity = null;
+            if (_texture != null)
+            {
+                Destroy(_texture);
+                _texture = null;
+            }
+
+            var container = View.GetStepsContainer();
+            if (container != null)
+            {
+                foreach (Transform child in container.transform)
+                {
+                    Destroy(child.gameObject);
+                }
+            }
+
+            View.SetTitleText(string.Empty);
+            View.SetInputFieldActivityNameText(string.Empty);
+            View.SetInputFieldActivityDescriptionText(string.Empty);
+            View.SetImageThumbnailActive(false);
         }
 
         private void OnButtonAddNewStepClicked()

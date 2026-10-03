@@ -26,6 +26,7 @@ namespace MirageXR
         {
             base.OnBind();
             View.SetActionOnButtonBackClick(OnButtonBackClicked);
+            View.SetActionOnButtonCloseClick(OnButtonCloseClicked);
             View.SetActionOnButtonAddAugmentationClick(OnButtonAddAugmentationClicked);
             View.SetActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
             View.SetActionOnButtonMediaAddNewFileClick(OnButtonMediaAddNewFileClick);
@@ -39,9 +40,33 @@ namespace MirageXR
 
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
             RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += ActivityManagerOnActivityUpdated;
+            RootObject.Instance.LEE.ActivityManager.OnActivityClosed += OnActivityClosed;
             RootObject.Instance.LEE.StepManager.OnStepChanged += StepManagerOnStepChanged;
             RootObject.Instance.LEE.ContentManager.OnContentActivated += ContentManagerOnContentActivated;
             RootObject.Instance.LEE.ContentManager.OnContentUpdated += ContentManagerOnContentUpdated;
+        }
+
+        protected override void OnUnbind()
+        {
+            base.OnUnbind();
+            if (RootObject.Instance?.LEE != null)
+            {
+                if (RootObject.Instance.LEE.ActivityManager != null)
+                {
+                    RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged -= OnEditorModeChanged;
+                    RootObject.Instance.LEE.ActivityManager.OnActivityUpdated -= ActivityManagerOnActivityUpdated;
+                    RootObject.Instance.LEE.ActivityManager.OnActivityClosed -= OnActivityClosed;
+                }
+                if (RootObject.Instance.LEE.StepManager != null)
+                {
+                    RootObject.Instance.LEE.StepManager.OnStepChanged -= StepManagerOnStepChanged;
+                }
+                if (RootObject.Instance.LEE.ContentManager != null)
+                {
+                    RootObject.Instance.LEE.ContentManager.OnContentActivated -= ContentManagerOnContentActivated;
+                    RootObject.Instance.LEE.ContentManager.OnContentUpdated -= ContentManagerOnContentUpdated;
+                }
+            }
         }
 
         private void ContentManagerOnContentUpdated(List<Content> list)
@@ -554,6 +579,56 @@ namespace MirageXR
         private void OnButtonBackClicked()
         {
             MenuManager.Instance.ShowScreen(ScreenName.NewActivityScreen);
+        }
+
+        private void OnButtonCloseClicked()
+        {
+            LearningExperienceEngine.EventManager.ClearAll();
+            RootObject.Instance.RoomTwinManager.SetRoomTwinVisibility(false);
+            RootObject.Instance.LEE.ActivityManager.CloseActivity();
+            MenuManager.Instance.ShowScreen(ScreenName.MainScreen);
+        }
+
+        private void OnActivityClosed()
+        {
+            foreach (var kvp in hyperlinkPrefabs)
+            {
+                if (kvp.Value != null)
+                {
+                    Destroy(kvp.Value);
+                }
+            }
+            hyperlinkPrefabs.Clear();
+            hyperlinkPositions.Clear();
+            descriptionContainsLinks = false;
+
+            foreach (var item in _mediaListItemViews)
+            {
+                if (item != null) Destroy(item.gameObject);
+            }
+            _mediaListItemViews.Clear();
+
+            foreach (var item in _toolsListItemViews)
+            {
+                if (item != null) Destroy(item.gameObject);
+            }
+            _toolsListItemViews.Clear();
+
+            foreach (var item in _contentsItemViews)
+            {
+                if (item != null) Destroy(item.gameObject);
+            }
+            _contentsItemViews.Clear();
+
+            _step = null;
+            _contents = null;
+
+            if (View != null)
+            {
+                View.SetTitleInputText(string.Empty);
+                View.SetDescriptionInputText(string.Empty);
+                View.SetHyperlinkDialogActive(false);
+            }
         }
 
         private void SaveHyperlinkPosition()
