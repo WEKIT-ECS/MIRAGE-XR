@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
@@ -213,6 +213,35 @@ namespace MirageXR.View
             }
 
             return null;
+        }
+
+        public override void ClearActivity()
+        {
+            var contentViews = GetComponentsInChildren<ContentView>();
+            for (var i = contentViews.Length - 1; i >= 0; i--)
+            {
+                if (contentViews[i] != null)
+                {
+                    RemoveContent(contentViews[i]);
+                }
+            }
+
+            var stepView = GetComponentInChildren<StepView>();
+            if (stepView != null)
+            {
+                var netObj = stepView.GetComponent<NetworkObject>();
+                if (netObj != null && RootObject.Instance?.CollaborationManager?.NetworkRunner != null)
+                {
+                    RootObject.Instance.CollaborationManager.NetworkRunner.Despawn(netObj);
+                }
+                else
+                {
+                    Destroy(stepView.gameObject);
+                }
+                _stepView = null;
+            }
+
+            base.ClearActivity();
         }
     }
 }

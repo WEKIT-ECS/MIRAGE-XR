@@ -10,12 +10,14 @@ namespace MirageXR
     {
         [Header("Buttons")]
         [SerializeField] private Button _buttonBack;
+        [SerializeField] private Button _buttonClose;
         [SerializeField] private Button _buttonSettings;
         [SerializeField] private Button _buttonCollaborativeSession;
         [SerializeField] private Button _buttonAddNewStep;
         [SerializeField] private Button _buttonThumbnail;
         [SerializeField] private Button _nextStep;
         [SerializeField] private Button _previousStep;
+
         [Header("Images")]
         [SerializeField] private RawImage _imageThumbnail;
         [SerializeField] private Image _imageThumbnailTemp;
@@ -54,6 +56,7 @@ namespace MirageXR
         public void SetInputFieldActivityNameTextInteractable(bool value) => inputFieldActivityName.interactable = value;
         public void SetInputFieldActivityDescriptionInteractable(bool value) => inputFieldActivityDescription.interactable = value;
         public void SetActionOnButtonBackClick(UnityAction action) => _buttonBack.SafeSetListener(action);
+        public void SetActionOnButtonCloseClick(UnityAction action) => _buttonClose.SafeSetListener(action);
         public void SetActionOnButtonSettingsClick(UnityAction action) => _buttonSettings.SafeSetListener(action);
         public void SetActionOnButtonCollaborativeSessionClick(UnityAction action) => _buttonCollaborativeSession.SafeSetListener(action);
         public void SetActionOnButtonAddNewStepClick(UnityAction action) => _buttonAddNewStep.SafeSetListener(action);

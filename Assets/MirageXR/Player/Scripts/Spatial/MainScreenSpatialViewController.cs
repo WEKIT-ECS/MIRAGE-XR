@@ -26,8 +26,28 @@ namespace MirageXR
 
             RootObject.Instance.LEE.ActivityManager.OnActivitiesFetched += OnActivitiesFetched;
             RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityLoaded;
+            RootObject.Instance.LEE.ActivityManager.OnActivityClosed += OnActivityClosed;
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
             RootObject.Instance.LEE.AuthorizationManager.OnLoginCompleted += OnLoginCompleted;
+        }
+
+        protected override void OnUnbind()
+        {
+            base.OnUnbind();
+            if (RootObject.Instance?.LEE != null)
+            {
+                if (RootObject.Instance.LEE.ActivityManager != null)
+                {
+                    RootObject.Instance.LEE.ActivityManager.OnActivitiesFetched -= OnActivitiesFetched;
+                    RootObject.Instance.LEE.ActivityManager.OnActivityLoaded -= OnActivityLoaded;
+                    RootObject.Instance.LEE.ActivityManager.OnActivityClosed -= OnActivityClosed;
+                    RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged -= OnEditorModeChanged;
+                }
+                if (RootObject.Instance.LEE.AuthorizationManager != null)
+                {
+                    RootObject.Instance.LEE.AuthorizationManager.OnLoginCompleted -= OnLoginCompleted;
+                }
+            }
         }
 
         private void OnBackButtonClick()
@@ -102,6 +122,12 @@ namespace MirageXR
         {
             MenuManager.Instance.ShowScreen(ScreenName.NewActivityScreen);
             View.SetBackButtonActive(true);
+        }
+
+        private void OnActivityClosed()
+        {
+            View.SetBackButtonActive(false);
+            FetchActivitiesAsync().Forget();
         }
 
         private void OnActivitiesFetched(ActivityResponse response)

@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using Fusion;
 using LearningExperienceEngine.DataModel;
@@ -66,6 +66,7 @@ namespace MirageXR
             _xrManager = xrManager;
 
             _activityManager.OnActivityLoaded += OnActivityLoaded;
+            _activityManager.OnActivityClosed += OnActivityClosed;
             collaborationManager.OnPlayerJoinEvent.AddListener(OnPlayerJoinEvent);
             xrManager.OnXRActivated += OnXRActivated;
 
@@ -96,6 +97,15 @@ namespace MirageXR
             else
             {
                 CreateActivityView();
+            }
+        }
+
+        private void OnActivityClosed()
+        {
+            if (_activityView)
+            {
+                Object.Destroy(_activityView.gameObject);
+                _activityView = null;
             }
         }
 
