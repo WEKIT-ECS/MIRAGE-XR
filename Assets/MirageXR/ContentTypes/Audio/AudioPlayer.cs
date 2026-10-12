@@ -31,11 +31,6 @@ namespace MirageXR
 
         public string AudioSpatialType { get; private set; }
 
-        public DialogRecorder DialogRecorderPanel
-        {
-            get; set;
-        }
-
         private bool isReady = false;
         private bool isPlaying = false;
 

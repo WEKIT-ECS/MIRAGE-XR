@@ -38,11 +38,6 @@ public class AudioEditor : MonoBehaviour
 
     public AudioSource PlayerAudioSource => audioSource;
 
-    public DialogRecorder DialogRecorderPanel
-    {
-        get; set;
-    }
-
     public string SaveFileName { get; set; }
 
     public bool IsRecording
@@ -272,18 +267,18 @@ public class AudioEditor : MonoBehaviour
 
         string originalFilePath = Path.Combine(activityManager.ActivityPath, originalFileName);
 
-        // On character dialog recorder, use the custom dialog file path instead of annotationToEdit.url
-        // set the correct dialog recorder(correct character) to the audio player
-        foreach (var character in FindObjectsOfType<MirageXR.CharacterController>())
-        {
-            if (character.MyAction == _action && character.DialogRecorder.DialogSaveName != string.Empty)
-            {
-                SaveFileName = character.DialogRecorder.DialogSaveName;
-                originalFilePath = Path.Combine(activityManager.ActivityPath, SaveFileName);
-                GameObject.Find(_annotationToEdit.poi).GetComponentInChildren<AudioPlayer>().DialogRecorderPanel = character.transform.GetChild(0).GetComponentInChildren<DialogRecorder>(); // TODO: Possible NRE
-                break;
-            }
-        }
+        // // On character dialog recorder, use the custom dialog file path instead of annotationToEdit.url
+        // // set the correct dialog recorder(correct character) to the audio player
+        // foreach (var character in FindObjectsOfType<MirageXR.CharacterController>())
+        // {
+        //     if (character.MyAction == _action && character.DialogRecorder.DialogSaveName != string.Empty)
+        //     {
+        //         SaveFileName = character.DialogRecorder.DialogSaveName;
+        //         originalFilePath = Path.Combine(activityManager.ActivityPath, SaveFileName);
+        //         GameObject.Find(_annotationToEdit.poi).GetComponentInChildren<AudioPlayer>().DialogRecorderPanel = character.transform.GetChild(0).GetComponentInChildren<DialogRecorder>(); // TODO: Possible NRE
+        //         break;
+        //     }
+        // }
 
         return originalFilePath;
     }
@@ -349,7 +344,7 @@ public class AudioEditor : MonoBehaviour
             var player = GameObject.Find(_annotationToEdit.poi).GetComponentInChildren<AudioPlayer>();
             if (player != null)
             {
-                player.DialogRecorderPanel = DialogRecorderPanel;
+                //player.DialogRecorderPanel = DialogRecorderPanel;
             }
         }
 

@@ -230,9 +230,6 @@ public class ActionListMenu : MonoBehaviour
             switch (annotation.predicate)
             {
 
-                case string type when type.StartsWith("char"):
-                    target = target.GetComponentInChildren<MirageXR.CharacterController>().transform;
-                    break;
                 case string type when type.StartsWith("pick"):
                     target = target.GetComponentInChildren<PickAndPlaceController>().PickObject;
                     break;
