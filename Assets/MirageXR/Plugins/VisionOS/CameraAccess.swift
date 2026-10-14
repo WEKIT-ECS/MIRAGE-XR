@@ -14,6 +14,7 @@ var commandQueue: MTLCommandQueue!
 var pointer: UnsafeMutableRawPointer! = nil
 
 var isRunning: Bool = false
+var isTaskStarted: Bool = false
 let arKitSession = ARKitSession()
 
 public typealias NativePermissionCallback = @convention(c) (Bool) -> Void
@@ -43,13 +44,17 @@ public func visionOS_RequestCameraPermission(_ callback: @escaping NativePermiss
 @_cdecl("startCapture")
 public func startCapture() {
     print("############ START CAPTURE ############")
+    pointer = nil
     isRunning = true
+    guard !isTaskStarted else { return }
+    isTaskStarted = true
     Task {
         let authResult = await arKitSession.requestAuthorization(for: [.cameraAccess])
         print("Request Authorization Status :", authResult)
         guard authResult[.cameraAccess] == .allowed else {
             print("Camera Access not allowed: \(authResult)")
             isRunning = false
+            isTaskStarted = false
             return
         }
 
@@ -57,6 +62,7 @@ public func startCapture() {
         guard let videoFormat = formats.first else {
             print("No supported video format found")
             isRunning = false
+            isTaskStarted = false
             return
         }
 
@@ -67,12 +73,13 @@ public func startCapture() {
         catch {
             print("ARKit Session Failed:", error)
             isRunning = false
+            isTaskStarted = false
             return
         }
         print("Running ARKit Session.")
         if let frameUpdates = cameraFrameProvider.cameraFrameUpdates(for: videoFormat) {
             for await cameraFrameUpdate in frameUpdates {
-                if !isRunning { break }
+                guard isRunning else { continue }
                 createTexture(cameraFrameUpdate.primarySample.pixelBuffer)
             }
         }
@@ -83,7 +90,7 @@ public func startCapture() {
 public func stopCapture() {
     print("############ STOP CAPTURE ##############")
     isRunning = false
-    arKitSession.stop()
+    pointer = nil
 }
 
 @_cdecl("getTexture")

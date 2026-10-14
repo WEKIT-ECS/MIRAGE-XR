@@ -1,13 +1,13 @@
 using System;
 using System.IO;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 #if UNITY_WSA || UNITY_EDITOR
 using System.Linq;
 using UnityEngine.Windows.WebCam;
 #endif
 #if UNITY_VISIONOS && !UNITY_EDITOR
 using System.Runtime.InteropServices;
-using Cysharp.Threading.Tasks;
 #endif
 
 public class NativeCameraController
@@ -18,7 +18,9 @@ public class NativeCameraController
     {
 #if UNITY_VISIONOS && !UNITY_EDITOR
         TakePictureVisionOS(callback, showHolograms, maxSize);
-#elif UNITY_WSA || UNITY_EDITOR
+#elif UNITY_EDITOR
+        TakePictureEditor(callback, maxSize);
+#elif UNITY_WSA
         TakePictureUWP(callback, showHolograms, maxSize);
 #else
         TakePictureMobile(callback, maxSize);
@@ -200,6 +202,72 @@ public class NativeCameraController
     {
         Debug.Log($"no need to call this function ({nameof(StopVideoRecordingMobile)}) for mobile devices");
     }
+
+#if UNITY_EDITOR
+    private static void TakePictureEditor(Action<bool, Texture2D> callback, int maxSize = DEFAULT_MAX_SIZE)
+    {
+#if UNITY_EDITOR_WIN
+        if (PhotoCapture.SupportedResolutions.Any())
+        {
+            TakePictureUWP(callback, false, maxSize);
+            return;
+        }
+#endif
+        CaptureEditorWebCamAsync(callback, maxSize).Forget();
+    }
+
+    private static async UniTaskVoid CaptureEditorWebCamAsync(Action<bool, Texture2D> callback, int maxSize)
+    {
+        WebCamTexture webcam = null;
+        try
+        {
+            webcam = new WebCamTexture(maxSize, maxSize, 30);
+            webcam.Play();
+
+            float elapsed = 0f;
+            while (webcam.width <= 16 && elapsed < 2.0f)
+            {
+                await UniTask.Delay(100);
+                elapsed += 0.1f;
+            }
+
+            if (webcam.width > 16)
+            {
+                var tex = new Texture2D(webcam.width, webcam.height, TextureFormat.RGBA32, false);
+                tex.SetPixels32(webcam.GetPixels32());
+                tex.Apply();
+                webcam.Stop();
+                UnityEngine.Object.Destroy(webcam);
+                callback?.Invoke(true, tex);
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"[NativeCameraController] Editor WebCam capture note: {ex.Message}");
+        }
+
+        if (webcam != null)
+        {
+            if (webcam.isPlaying) webcam.Stop();
+            UnityEngine.Object.Destroy(webcam);
+        }
+
+        string pickedFile = UnityEditor.EditorUtility.OpenFilePanelWithFilters("Select Image", "", new string[] { "Image files", "png,jpg,jpeg", "All files", "*" });
+        if (!string.IsNullOrEmpty(pickedFile) && File.Exists(pickedFile))
+        {
+            byte[] fileData = File.ReadAllBytes(pickedFile);
+            var tex = new Texture2D(2, 2);
+            if (tex.LoadImage(fileData))
+            {
+                callback?.Invoke(true, tex);
+                return;
+            }
+        }
+
+        callback?.Invoke(false, null);
+    }
+#endif
 
 #if UNITY_WSA || UNITY_EDITOR
     private static void TakePictureUWP(Action<bool, Texture2D> callback, bool showHolograms = false, int maxSize = DEFAULT_MAX_SIZE)

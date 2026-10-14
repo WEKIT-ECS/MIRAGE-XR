@@ -15,6 +15,7 @@ namespace MirageXR
             View.SetActionOnButtonSortingClick(OnButtonSortingClick);
             View.SetActionOnButtonAddNewActivityClick(OnAddNewActivityClick);
             View.SetActionOnButtonCollaborativeSessionClick(OnCollaborativeSessionClick);
+            View.SetActionOnButtonQRCodeClick(OnButtonQRCodeClick);
             View.SetActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
             View.SetActionOnButtonLoginClick(OnLoginButtonClick);
             View.SetActionOnButtonRegisterClick(OnRegisterButtonClick);
@@ -88,6 +89,11 @@ namespace MirageXR
         private void OnButtonSortingClick()
         {
             MenuManager.Instance.ShowSortingView();
+        }
+
+        private void OnButtonQRCodeClick()
+        {
+            MenuManager.Instance.ToggleQRCodeScannerView();
         }
 
         private void OnCollaborativeSessionClick()
