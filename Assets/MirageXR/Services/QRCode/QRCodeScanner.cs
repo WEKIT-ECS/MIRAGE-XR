@@ -254,73 +254,149 @@ namespace MirageXR
 
         private async UniTaskVoid StartNativeCameraContinuousScanning(CancellationToken cancellationToken)
         {
-            while (_isScanning && !cancellationToken.IsCancellationRequested)
+            if (NativeCameraController.SupportsCameraStream)
             {
-                var tcs = new UniTaskCompletionSource<(bool success, Texture2D texture)>();
+                await RunStreamingNativeCameraLoopAsync(cancellationToken);
+            }
+            else
+            {
+                await RunSnapshotNativeCameraLoopAsync(cancellationToken);
+            }
+        }
 
-                if (RootObject.Instance?.ImageTargetManager != null)
-                {
-                    RootObject.Instance.ImageTargetManager.enabled = false;
-                }
+        private async UniTask RunStreamingNativeCameraLoopAsync(CancellationToken cancellationToken)
+        {
+            if (RootObject.Instance?.ImageTargetManager != null)
+            {
+                RootObject.Instance.ImageTargetManager.enabled = false;
+            }
 
-                try
+            NativeCameraController.StartCameraStream();
+            long lastFrameId = 0;
+            Texture2D streamTexture = null;
+            Texture2D previousNotifiedTexture = null;
+
+            try
+            {
+                while (_isScanning && !cancellationToken.IsCancellationRequested)
                 {
-                    NativeCameraController.TakePicture((success, tex) =>
+                    bool hasNewFrame = NativeCameraController.TryGetLatestFrame(ref lastFrameId, ref streamTexture, _maxPictureSize);
+
+                    if (hasNewFrame && streamTexture != null)
                     {
-                        tcs.TrySetResult((success, tex));
-                    }, _showHolograms, _maxPictureSize);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogError($"[QRCodeScanner] Error invoking NativeCameraController: {ex.Message}");
-                    tcs.TrySetResult((false, null));
-                }
+                        if (_capturedTexture != streamTexture)
+                        {
+                            if (_capturedTexture != null)
+                            {
+                                Destroy(_capturedTexture);
+                            }
+                            _capturedTexture = streamTexture;
+                        }
 
-                var (success, capturedTex) = await tcs.Task;
+                        if (previousNotifiedTexture != _capturedTexture)
+                        {
+                            previousNotifiedTexture = _capturedTexture;
+                            OnCameraStarted?.Invoke(_capturedTexture);
+                        }
+
+                        var scanResult = await DecodeTextureAsync(_capturedTexture, cancellationToken, stopScanningOnNoCode: false);
+                        if (scanResult != null && (!_requireActivityLink || scanResult.ActivityId != Guid.Empty))
+                        {
+                            break;
+                        }
+                    }
+
+                    await UniTask.Delay(TimeSpan.FromSeconds(_scanIntervalSeconds), ignoreTimeScale: true, cancellationToken: cancellationToken);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[QRCodeScanner] Exception during camera stream scanning: {ex}");
+            }
+            finally
+            {
+                NativeCameraController.StopCameraStream();
 
                 if (RootObject.Instance?.ImageTargetManager != null)
                 {
                     RootObject.Instance.ImageTargetManager.enabled = true;
                 }
+            }
+        }
 
-                if (cancellationToken.IsCancellationRequested || !_isScanning)
+        private async UniTask RunSnapshotNativeCameraLoopAsync(CancellationToken cancellationToken)
+        {
+            if (RootObject.Instance?.ImageTargetManager != null)
+            {
+                RootObject.Instance.ImageTargetManager.enabled = false;
+            }
+
+            try
+            {
+                while (_isScanning && !cancellationToken.IsCancellationRequested)
                 {
-                    if (capturedTex != null)
+                    var tcs = new UniTaskCompletionSource<(bool success, Texture2D texture)>();
+
+                    try
                     {
-                        Destroy(capturedTex);
+                        NativeCameraController.TakePicture((success, tex) =>
+                        {
+                            tcs.TrySetResult((success, tex));
+                        }, _showHolograms, _maxPictureSize);
                     }
-                    break;
-                }
-
-                if (!success || capturedTex == null)
-                {
-                    Debug.LogWarning("[QRCodeScanner] Native camera frame capture returned unsuccessful. Retrying in 1s...");
-                    await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: cancellationToken);
-                    continue;
-                }
-
-                CleanupTexture();
-                _capturedTexture = capturedTex;
-                OnCameraStarted?.Invoke(_capturedTexture);
-
-                var scanResult = await DecodeTextureAsync(_capturedTexture, cancellationToken);
-                if (scanResult != null)
-                {
-                    if (_requireActivityLink && scanResult.ActivityId == Guid.Empty)
+                    catch (Exception ex)
                     {
-                        Debug.LogWarning($"[QRCodeScanner] Detected non-activity QR code on device: {scanResult.RawText}. Continuing scan...");
-                        OnInvalidQRCodeDetected?.Invoke(scanResult.RawText);
+                        Debug.LogError($"[QRCodeScanner] Error invoking NativeCameraController: {ex.Message}");
+                        tcs.TrySetResult((false, null));
                     }
-                    else
+
+                    var (success, capturedTex) = await tcs.Task;
+
+                    if (cancellationToken.IsCancellationRequested || !_isScanning)
                     {
-                        Debug.Log($"[QRCodeScanner] QR code detected on device: {scanResult.RawText}");
-                        _isScanning = false;
-                        OnQRCodeDetected?.Invoke(scanResult);
+                        if (capturedTex != null)
+                        {
+                            Destroy(capturedTex);
+                        }
                         break;
                     }
-                }
 
-                await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: cancellationToken);
+                    if (!success || capturedTex == null)
+                    {
+                        Debug.LogWarning("[QRCodeScanner] Native camera frame capture returned unsuccessful. Retrying in 1s...");
+                        await UniTask.Delay(TimeSpan.FromSeconds(1f), ignoreTimeScale: true, cancellationToken: cancellationToken);
+                        continue;
+                    }
+
+                    CleanupTexture();
+                    _capturedTexture = capturedTex;
+                    OnCameraStarted?.Invoke(_capturedTexture);
+
+                    var scanResult = await DecodeTextureAsync(_capturedTexture, cancellationToken, stopScanningOnNoCode: false);
+                    if (scanResult != null && (!_requireActivityLink || scanResult.ActivityId != Guid.Empty))
+                    {
+                        break;
+                    }
+
+                    await UniTask.Delay(TimeSpan.FromSeconds(0.5f), ignoreTimeScale: true, cancellationToken: cancellationToken);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[QRCodeScanner] Exception during snapshot scanning: {ex}");
+            }
+            finally
+            {
+                if (RootObject.Instance?.ImageTargetManager != null)
+                {
+                    RootObject.Instance.ImageTargetManager.enabled = true;
+                }
             }
         }
 
@@ -388,21 +464,7 @@ namespace MirageXR
             OnCameraStarted?.Invoke(_capturedTexture);
 
             var token = _scanCts != null ? _scanCts.Token : CancellationToken.None;
-            DecodeTextureAsync(_capturedTexture, token).ContinueWith(scanResult =>
-            {
-                if (scanResult != null)
-                {
-                    if (_requireActivityLink && scanResult.ActivityId == Guid.Empty)
-                    {
-                        OnInvalidQRCodeDetected?.Invoke(scanResult.RawText);
-                    }
-                    else
-                    {
-                        _isScanning = false;
-                        OnQRCodeDetected?.Invoke(scanResult);
-                    }
-                }
-            }).Forget();
+            DecodeTextureAsync(_capturedTexture, token, stopScanningOnNoCode: true).Forget();
         }
 
         /// <summary>
@@ -447,12 +509,15 @@ namespace MirageXR
         /// <summary>
         /// Synchronously decodes a QR code from a Texture2D.
         /// </summary>
-        public QRCodeScanResult DecodeTexture(Texture2D texture)
+        public QRCodeScanResult DecodeTexture(Texture2D texture, bool stopScanningOnNoCode = true)
         {
             if (texture == null)
             {
-                _isScanning = false;
-                OnScanError?.Invoke("Invalid image texture.");
+                if (stopScanningOnNoCode)
+                {
+                    _isScanning = false;
+                    OnScanError?.Invoke("Invalid image texture.");
+                }
                 return null;
             }
 
@@ -466,8 +531,11 @@ namespace MirageXR
             catch (Exception ex)
             {
                 Debug.LogError($"[QRCodeScanner] Failed to read pixels from texture: {ex.Message}");
-                _isScanning = false;
-                OnScanError?.Invoke("Could not read image data.");
+                if (stopScanningOnNoCode)
+                {
+                    _isScanning = false;
+                    OnScanError?.Invoke("Could not read image data.");
+                }
                 return null;
             }
 
@@ -500,21 +568,28 @@ namespace MirageXR
                     ResultPoints = resultPoints
                 };
 
-                _isScanning = false;
                 if (_requireActivityLink && activityId == Guid.Empty)
                 {
+                    if (stopScanningOnNoCode)
+                    {
+                        _isScanning = false;
+                    }
                     OnInvalidQRCodeDetected?.Invoke(rawText);
                 }
                 else
                 {
+                    _isScanning = false;
                     OnQRCodeDetected?.Invoke(scanResult);
                 }
                 return scanResult;
             }
             else
             {
-                _isScanning = false;
-                OnScanError?.Invoke("No QR code detected in the captured picture. Please try again.");
+                if (stopScanningOnNoCode)
+                {
+                    _isScanning = false;
+                    OnScanError?.Invoke("No QR code detected in the captured picture. Please try again.");
+                }
                 return null;
             }
         }
@@ -522,12 +597,15 @@ namespace MirageXR
         /// <summary>
         /// Decodes a QR code from the specified texture on a background thread.
         /// </summary>
-        public async UniTask<QRCodeScanResult> DecodeTextureAsync(Texture2D texture, CancellationToken cancellationToken = default)
+        public async UniTask<QRCodeScanResult> DecodeTextureAsync(Texture2D texture, CancellationToken cancellationToken = default, bool stopScanningOnNoCode = false)
         {
             if (texture == null)
             {
-                _isScanning = false;
-                OnScanError?.Invoke("Invalid image texture.");
+                if (stopScanningOnNoCode)
+                {
+                    _isScanning = false;
+                    OnScanError?.Invoke("Invalid image texture.");
+                }
                 return null;
             }
 
@@ -541,8 +619,11 @@ namespace MirageXR
             catch (Exception ex)
             {
                 Debug.LogError($"[QRCodeScanner] Failed to read pixels from texture: {ex.Message}");
-                _isScanning = false;
-                OnScanError?.Invoke("Could not read image data.");
+                if (stopScanningOnNoCode)
+                {
+                    _isScanning = false;
+                    OnScanError?.Invoke("Could not read image data.");
+                }
                 return null;
             }
 
@@ -562,7 +643,6 @@ namespace MirageXR
 
             if (cancellationToken.IsCancellationRequested)
             {
-                _isScanning = false;
                 return null;
             }
 
@@ -586,21 +666,28 @@ namespace MirageXR
                     ResultPoints = resultPoints
                 };
 
-                _isScanning = false;
                 if (_requireActivityLink && activityId == Guid.Empty)
                 {
+                    if (stopScanningOnNoCode)
+                    {
+                        _isScanning = false;
+                    }
                     OnInvalidQRCodeDetected?.Invoke(rawText);
                 }
                 else
                 {
+                    _isScanning = false;
                     OnQRCodeDetected?.Invoke(scanResult);
                 }
                 return scanResult;
             }
             else
             {
-                _isScanning = false;
-                OnScanError?.Invoke("No QR code detected in the captured picture. Please try again.");
+                if (stopScanningOnNoCode)
+                {
+                    _isScanning = false;
+                    OnScanError?.Invoke("No QR code detected in the captured picture. Please try again.");
+                }
                 return null;
             }
         }

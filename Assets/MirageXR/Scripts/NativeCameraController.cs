@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 #if UNITY_WSA || UNITY_EDITOR
@@ -24,6 +25,63 @@ public class NativeCameraController
         TakePictureUWP(callback, showHolograms, maxSize);
 #else
         TakePictureMobile(callback, maxSize);
+#endif
+    }
+
+    public static void PrepareCapture()
+    {
+#if UNITY_VISIONOS && !UNITY_EDITOR
+        prepareCapture();
+#endif
+    }
+
+    /// <summary>
+    /// Whether continuous frame streaming via <see cref="StartCameraStream"/> is supported on this platform.
+    /// </summary>
+    public static bool SupportsCameraStream
+    {
+        get
+        {
+#if UNITY_VISIONOS && !UNITY_EDITOR
+            return true;
+#else
+            return false;
+#endif
+        }
+    }
+
+    /// <summary>
+    /// Starts (or joins) a continuous native camera stream. Calls are reference counted;
+    /// every call must be balanced by <see cref="StopCameraStream"/>. Currently visionOS only.
+    /// </summary>
+    public static void StartCameraStream()
+    {
+#if UNITY_VISIONOS && !UNITY_EDITOR
+        AcquireVisionOSStream();
+#endif
+    }
+
+    /// <summary>
+    /// Leaves the camera stream. When no user is left, the native session is stopped and freed immediately.
+    /// </summary>
+    public static void StopCameraStream()
+    {
+#if UNITY_VISIONOS && !UNITY_EDITOR
+        ReleaseVisionOSStream(0f);
+#endif
+    }
+
+    /// <summary>
+    /// Copies the latest camera frame into <paramref name="target"/> if it is newer than <paramref name="lastFrameId"/>.
+    /// <paramref name="target"/> is reused when its size matches; otherwise it is destroyed and recreated.
+    /// Returns false if no new frame is available.
+    /// </summary>
+    public static bool TryGetLatestFrame(ref long lastFrameId, ref Texture2D target, int maxSize = DEFAULT_MAX_SIZE)
+    {
+#if UNITY_VISIONOS && !UNITY_EDITOR
+        return TryCopyLatestVisionOSFrame(ref lastFrameId, ref target, maxSize);
+#else
+        return false;
 #endif
     }
 
@@ -81,6 +139,19 @@ public class NativeCameraController
     }
 
 #if UNITY_VISIONOS && !UNITY_EDITOR
+    private const int CAPTURE_STATE_IDLE = 0;
+    private const int CAPTURE_STATE_STARTING = 1;
+    private const int CAPTURE_STATE_RUNNING = 2;
+    private const int CAPTURE_STATE_FAILED = 3;
+
+    /// <summary>How long the camera stays running after a single TakePicture, so repeated shots are fast.</summary>
+    private const float SINGLE_SHOT_KEEP_ALIVE_SECONDS = 5f;
+    private const float FRAME_TIMEOUT_SECONDS = 5f;
+    private const float RESTART_THROTTLE_SECONDS = 2f;
+
+    [DllImport("__Internal")]
+    private static extern void prepareCapture();
+
     [DllImport("__Internal")]
     private static extern void startCapture();
 
@@ -88,7 +159,22 @@ public class NativeCameraController
     private static extern void stopCapture();
 
     [DllImport("__Internal")]
-    private static extern IntPtr getTexture();
+    private static extern long getFrameId();
+
+    [DllImport("__Internal")]
+    private static extern int getCaptureState();
+
+    [DllImport("__Internal")]
+    private static extern IntPtr acquireLatestTexture(out long frameId, out int width, out int height);
+
+    [DllImport("__Internal")]
+    private static extern void releaseTexture();
+
+    private static int _streamRefCount;
+    private static CancellationTokenSource _keepAliveCts;
+    private static float _lastRestartTime = -100f;
+    private static Texture2D _externalTexture;
+    private static RenderTexture _copyRenderTexture;
 
     private static void TakePictureVisionOS(Action<bool, Texture2D> callback, bool showHolograms = false, int maxSize = DEFAULT_MAX_SIZE)
     {
@@ -97,64 +183,226 @@ public class NativeCameraController
 
     private static async UniTaskVoid CaptureVisionOSTextureAsync(Action<bool, Texture2D> callback, int maxSize)
     {
+        Texture2D result = null;
+        var success = false;
+
+        AcquireVisionOSStream();
         try
         {
-            startCapture();
+            // Require a frame newer than "now" so we never return a stale picture.
+            long lastFrameId = getFrameId();
+            float deadline = Time.realtimeSinceStartup + FRAME_TIMEOUT_SECONDS;
 
-            IntPtr texturePtr = IntPtr.Zero;
-            float timeout = 5.0f;
-            float elapsed = 0.0f;
-
-            while (texturePtr == IntPtr.Zero && elapsed < timeout)
+            while (Time.realtimeSinceStartup < deadline)
             {
-                await UniTask.Delay(100);
-                elapsed += 0.1f;
-                texturePtr = getTexture();
+                if (TryCopyLatestVisionOSFrame(ref lastFrameId, ref result, maxSize))
+                {
+                    success = true;
+                    break;
+                }
+
+                await UniTask.Delay(50, ignoreTimeScale: true);
             }
-
-            if (texturePtr == IntPtr.Zero)
-            {
-                Debug.LogError("[NativeCameraController] Failed to acquire camera texture pointer from visionOS (timeout).");
-                stopCapture();
-                callback?.Invoke(false, null);
-                return;
-            }
-
-            int width = 1920;
-            int height = 1080;
-
-            var externalTexture = Texture2D.CreateExternalTexture(width, height, TextureFormat.BGRA32, false, false, texturePtr);
-            externalTexture.UpdateExternalTexture(texturePtr);
-
-            var renderTexture = RenderTexture.GetTemporary(width, height, 0, RenderTextureFormat.ARGB32);
-            Vector2 scale = new Vector2(1, -1);
-            Vector2 offset = new Vector2(0, 1);
-            Graphics.Blit(externalTexture, renderTexture, scale, offset);
-
-            var prevActive = RenderTexture.active;
-            RenderTexture.active = renderTexture;
-
-            var capturedTexture = new Texture2D(width, height, TextureFormat.RGBA32, false);
-            capturedTexture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
-            capturedTexture.Apply();
-
-            RenderTexture.active = prevActive;
-            RenderTexture.ReleaseTemporary(renderTexture);
-            UnityEngine.Object.Destroy(externalTexture);
-
-            stopCapture();
-
-            callback?.Invoke(true, capturedTexture);
         }
         catch (Exception ex)
         {
             Debug.LogError($"[NativeCameraController] Exception during visionOS camera capture: {ex}");
-            try
+        }
+        finally
+        {
+            ReleaseVisionOSStream(SINGLE_SHOT_KEEP_ALIVE_SECONDS);
+        }
+
+        if (!success)
+        {
+            Debug.LogError($"[NativeCameraController] Failed to acquire a new camera frame from visionOS (state: {getCaptureState()}).");
+            if (result != null)
             {
-                stopCapture();
+                UnityEngine.Object.Destroy(result);
             }
-            catch { }
             callback?.Invoke(false, null);
+            return;
+        }
+
+        callback?.Invoke(true, result);
+    }
+
+    private static void AcquireVisionOSStream()
+    {
+        _streamRefCount++;
+        CancelKeepAlive();
+        EnsureVisionOSNativeRunning();
+    }
+
+    private static void ReleaseVisionOSStream(float keepAliveSeconds)
+    {
+        _streamRefCount = Math.Max(0, _streamRefCount - 1);
+        if (_streamRefCount > 0)
+        {
+            return;
+        }
+
+        if (keepAliveSeconds <= 0f)
+        {
+            CancelKeepAlive();
+            StopVisionOSNative();
+            return;
+        }
+
+        StopAfterKeepAliveAsync(keepAliveSeconds).Forget();
+    }
+
+    private static async UniTaskVoid StopAfterKeepAliveAsync(float seconds)
+    {
+        CancelKeepAlive();
+        _keepAliveCts = new CancellationTokenSource();
+        var token = _keepAliveCts.Token;
+
+        var cancelled = await UniTask.Delay(TimeSpan.FromSeconds(seconds), ignoreTimeScale: true, cancellationToken: token)
+            .SuppressCancellationThrow();
+
+        if (cancelled || _streamRefCount > 0)
+        {
+            return;
+        }
+
+        StopVisionOSNative();
+    }
+
+    private static void CancelKeepAlive()
+    {
+        if (_keepAliveCts != null)
+        {
+            _keepAliveCts.Cancel();
+            _keepAliveCts.Dispose();
+            _keepAliveCts = null;
+        }
+    }
+
+    private static void EnsureVisionOSNativeRunning()
+    {
+        var state = getCaptureState();
+        if (state == CAPTURE_STATE_STARTING || state == CAPTURE_STATE_RUNNING)
+        {
+            return;
+        }
+
+        if (state == CAPTURE_STATE_FAILED)
+        {
+            ReleaseCopyResources();
+            stopCapture();
+        }
+
+        _lastRestartTime = Time.realtimeSinceStartup;
+        prepareCapture();
+        startCapture();
+    }
+
+    private static void RestartVisionOSIfFailed()
+    {
+        if (_streamRefCount <= 0 || getCaptureState() != CAPTURE_STATE_FAILED)
+        {
+            return;
+        }
+
+        if (Time.realtimeSinceStartup - _lastRestartTime < RESTART_THROTTLE_SECONDS)
+        {
+            return;
+        }
+
+        Debug.LogWarning("[NativeCameraController] visionOS camera stream failed, restarting.");
+        EnsureVisionOSNativeRunning();
+    }
+
+    private static void StopVisionOSNative()
+    {
+        // Release Unity's handle on the native textures before the native side frees them.
+        ReleaseCopyResources();
+        stopCapture();
+    }
+
+    private static void ReleaseCopyResources()
+    {
+        if (_externalTexture != null)
+        {
+            UnityEngine.Object.Destroy(_externalTexture);
+            _externalTexture = null;
+        }
+
+        if (_copyRenderTexture != null)
+        {
+            _copyRenderTexture.Release();
+            UnityEngine.Object.Destroy(_copyRenderTexture);
+            _copyRenderTexture = null;
+        }
+    }
+
+    private static bool TryCopyLatestVisionOSFrame(ref long lastFrameId, ref Texture2D target, int maxSize)
+    {
+        if (getFrameId() <= lastFrameId)
+        {
+            RestartVisionOSIfFailed();
+            return false;
+        }
+
+        IntPtr texturePtr = acquireLatestTexture(out long frameId, out int width, out int height);
+        try
+        {
+            if (texturePtr == IntPtr.Zero || width <= 0 || height <= 0 || frameId <= lastFrameId)
+            {
+                return false;
+            }
+
+            if (_externalTexture == null || _externalTexture.width != width || _externalTexture.height != height)
+            {
+                if (_externalTexture != null)
+                {
+                    UnityEngine.Object.Destroy(_externalTexture);
+                }
+                _externalTexture = Texture2D.CreateExternalTexture(width, height, TextureFormat.BGRA32, false, false, texturePtr);
+            }
+            _externalTexture.UpdateExternalTexture(texturePtr);
+
+            var scale = maxSize > 0 ? Mathf.Min(1f, (float)maxSize / Mathf.Max(width, height)) : 1f;
+            var targetWidth = Mathf.Max(1, Mathf.RoundToInt(width * scale));
+            var targetHeight = Mathf.Max(1, Mathf.RoundToInt(height * scale));
+
+            if (_copyRenderTexture == null || _copyRenderTexture.width != targetWidth || _copyRenderTexture.height != targetHeight)
+            {
+                if (_copyRenderTexture != null)
+                {
+                    _copyRenderTexture.Release();
+                    UnityEngine.Object.Destroy(_copyRenderTexture);
+                }
+                _copyRenderTexture = new RenderTexture(targetWidth, targetHeight, 0, RenderTextureFormat.ARGB32);
+                _copyRenderTexture.Create();
+            }
+
+            // Native texture is top-down; flip vertically.
+            Graphics.Blit(_externalTexture, _copyRenderTexture, new Vector2(1, -1), new Vector2(0, 1));
+
+            if (target == null || target.width != targetWidth || target.height != targetHeight)
+            {
+                if (target != null)
+                {
+                    UnityEngine.Object.Destroy(target);
+                }
+                target = new Texture2D(targetWidth, targetHeight, TextureFormat.RGBA32, false);
+            }
+
+            var previousActive = RenderTexture.active;
+            RenderTexture.active = _copyRenderTexture;
+            // ReadPixels synchronises with the GPU, so the native texture is no longer in use afterwards.
+            target.ReadPixels(new Rect(0, 0, targetWidth, targetHeight), 0, 0);
+            target.Apply(false);
+            RenderTexture.active = previousActive;
+
+            lastFrameId = frameId;
+            return true;
+        }
+        finally
+        {
+            releaseTexture();
         }
     }
 #endif

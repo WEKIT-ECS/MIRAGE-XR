@@ -34,6 +34,10 @@ public class ActivityListView_v2 : BaseView
     [SerializeField] private GameObject _arrowUp;
     [SerializeField] private TMP_Text _txtShowby;
     [SerializeField] private TMP_Text _txtSortby;
+    [SerializeField] private Button _btnScanQRCode;
+    [SerializeField] private QRCodeScannerMobileView _qrScannerViewPrefab;
+
+    private QRCodeScannerMobileView _activeScannerView;
 
     private List<LearningExperienceEngine.SessionContainer> _content;
     private readonly List<ActivityListItem_v2> _items = new List<ActivityListItem_v2>();
@@ -58,6 +62,11 @@ public class ActivityListView_v2 : BaseView
         _btnArrow.onClick.AddListener(OnArrowButtonPressed);
         _arrowDown.SetActive(true);
         _arrowUp.SetActive(false);
+
+        if (_btnScanQRCode != null)
+        {
+            _btnScanQRCode.onClick.AddListener(OnScanQRCodeClicked);
+        }
 
         _panelSize = _panel.sizeDelta;
 
@@ -121,6 +130,12 @@ public class ActivityListView_v2 : BaseView
     private void OnDestroy()
     {
         LearningExperienceEngine.EventManager.OnStartActivity -= ShowBackButtons;
+
+        if (_activeScannerView != null)
+        {
+            Destroy(_activeScannerView.gameObject);
+            _activeScannerView = null;
+        }
     }
 
     /*private static async Task<List<LearningExperienceEngine.SessionContainer>> FetchContent()
@@ -246,6 +261,43 @@ public class ActivityListView_v2 : BaseView
             _arrowUp.SetActive(false);
             rootView.bottomPanelView.Show();
         }
+    }
+
+    private void OnScanQRCodeClicked()
+    {
+        if (_activeScannerView != null)
+        {
+            _activeScannerView.Close();
+            _activeScannerView = null;
+            return;
+        }
+
+        if (_arrowDown != null && _arrowDown.activeSelf)
+        {
+            OnArrowButtonPressed();
+        }
+
+        var prefab = _qrScannerViewPrefab;
+        if (prefab == null)
+        {
+            prefab = Resources.Load<QRCodeScannerMobileView>("QRCodeScannerMobileView");
+        }
+
+        if (prefab != null)
+        {
+            _activeScannerView = Instantiate(prefab, transform);
+            _activeScannerView.transform.SetSiblingIndex(0);
+            _activeScannerView.Initialization(OnScannerClosed);
+        }
+        else
+        {
+            Debug.LogError("[ActivityListView_v2] QRCodeScannerMobileView prefab not assigned and not found in Resources.");
+        }
+    }
+
+    private void OnScannerClosed(PopupBase popup)
+    {
+        _activeScannerView = null;
     }
 
     public void OnShowByChanged()
