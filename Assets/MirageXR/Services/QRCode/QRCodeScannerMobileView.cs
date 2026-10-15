@@ -55,7 +55,28 @@ namespace MirageXR
                 _textStatus.text = "Align QR Code within frame...";
             }
 
+            ConfigureLayoutForDevice();
+
             StartScanningAsync().Forget();
+        }
+
+        private void ConfigureLayoutForDevice()
+        {
+            float horizontalAnchor = PlatformManager.GetDeviceFormat() == DeviceFormat.Tablet ? 0.35f : 0.5f;
+
+            if (_scanningReticle != null && _scanningReticle.transform is RectTransform reticleRect)
+            {
+                reticleRect.anchorMin = new Vector2(horizontalAnchor, 0.5f);
+                reticleRect.anchorMax = new Vector2(horizontalAnchor, 0.5f);
+                reticleRect.anchoredPosition = new Vector2(0f, 30f);
+            }
+
+            if (_textStatus != null && _textStatus.transform is RectTransform statusRect)
+            {
+                statusRect.anchorMin = new Vector2(horizontalAnchor, 0.5f);
+                statusRect.anchorMax = new Vector2(horizontalAnchor, 0.5f);
+                statusRect.anchoredPosition = new Vector2(0f, -200f);
+            }
         }
 
         private async UniTaskVoid StartScanningAsync()
@@ -156,27 +177,16 @@ namespace MirageXR
                 return;
             }
 
-            Debug.Log($"[QRCodeScannerMobileView] Calibrating to QR code position: {result.WorldPose.position} and opening activity {result.ActivityId}");
+            // Upright pose with yaw rotation from detected QR marker pose
+            var uprightPose = new Pose(result.WorldPose.position, result.WorldPose.rotation);
 
-            // 1. Immediately calibrate activity world origin to QR code position
-            try
-            {
-                var calibrationManager = RootObject.Instance?.CalibrationManager;
-                if (calibrationManager != null)
-                {
-                    calibrationManager.FinishCalibration(result.WorldPose, false);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"[QRCodeScannerMobileView] Error during calibration: {ex.Message}");
-            }
+            Debug.Log($"[QRCodeScannerMobileView] Opening activity {result.ActivityId} with marker position: {uprightPose.position}");
 
-            // 2. Open / load the activity
-            OpenActivityAsync(result.ActivityId).Forget();
+            // Open / load the activity and calibrate once loaded
+            OpenActivityAsync(result.ActivityId, uprightPose).Forget();
         }
 
-        private static async UniTaskVoid OpenActivityAsync(Guid activityId)
+        private static async UniTaskVoid OpenActivityAsync(Guid activityId, Pose uprightPose)
         {
             var loadView = LoadView.Instance;
             if (loadView != null)
@@ -192,6 +202,7 @@ namespace MirageXR
             {
                 Debug.LogError($"[QRCodeScannerMobileView] Failed to load activity {activityId}: {ex.Message}");
                 ShowDialog("Activity Not Found", $"Activity with ID '{activityId}' could not be opened or does not exist.");
+                return;
             }
             finally
             {
@@ -199,6 +210,20 @@ namespace MirageXR
                 {
                     loadView.Hide();
                 }
+            }
+
+            // Calibrate task station to marker position (upright) after activity view is instantiated
+            try
+            {
+                var calibrationManager = RootObject.Instance?.CalibrationManager;
+                if (calibrationManager != null)
+                {
+                    calibrationManager.FinishCalibration(uprightPose, false);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[QRCodeScannerMobileView] Error during calibration: {ex.Message}");
             }
         }
 

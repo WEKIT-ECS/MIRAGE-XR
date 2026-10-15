@@ -110,34 +110,42 @@ public class FloorManagerARFoundation : FloorManagerBase
 
     public override Transform CreateAnchor(Pose pose)
     {
-        if (_planeId == PlaneId.InvalidId)
+        if (_planeId != PlaneId.InvalidId)
         {
-            Debug.LogError("Floor is not detected");
-            return null;
+            var planeGameObject = RootObject.Instance.PlaneManager.GetPlane(_planeId);
+            var plane = planeGameObject ? planeGameObject.GetComponent<ARPlane>() : null;
+            if (plane && _arAnchorManager)
+            {
+                var oldPrefab = _arAnchorManager.anchorPrefab;
+                _arAnchorManager.anchorPrefab = _prefabAnchor;
+                var attachedAnchor = _arAnchorManager.AttachAnchor(plane, pose);
+                _arAnchorManager.anchorPrefab = oldPrefab;
+
+                if (attachedAnchor)
+                {
+                    return attachedAnchor.transform;
+                }
+            }
         }
 
-        var oldPrefab = _arAnchorManager.anchorPrefab;
-        _arAnchorManager.anchorPrefab = _prefabAnchor;
-
-        var planeGameObject = RootObject.Instance.PlaneManager.GetPlane(_planeId);
-        if (planeGameObject == null)
+        // Standalone world anchor when no floor plane is detected or attachment is unavailable
+        GameObject anchorObj;
+        if (_prefabAnchor != null)
         {
-            Debug.LogError($"Can't find GameObject with id: {_planeId}");
-            return null;
+            anchorObj = Instantiate(_prefabAnchor, pose.position, pose.rotation);
+        }
+        else
+        {
+            anchorObj = new GameObject("ARAnchor");
+            anchorObj.transform.SetPositionAndRotation(pose.position, pose.rotation);
         }
 
-        var plane = planeGameObject.GetComponent<ARPlane>();
-        if (!plane)
+        if (_arAnchorManager != null && anchorObj.GetComponent<ARAnchor>() == null)
         {
-            Debug.LogError($"Can't find plane with id: {_planeId}");
-            return null;
+            anchorObj.AddComponent<ARAnchor>();
         }
 
-        var anchor = _arAnchorManager.AttachAnchor(plane, pose);
-
-        _arAnchorManager.anchorPrefab = oldPrefab;
-
-        return anchor.transform;
+        return anchorObj.transform;
     }
 
     public override void SetFloor(PlaneId planeId, Vector3 position)

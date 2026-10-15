@@ -285,7 +285,9 @@ public class ActivityListView_v2 : BaseView
 
         if (prefab != null)
         {
-            _activeScannerView = Instantiate(prefab, transform);
+            var canvas = RootView_v2.Instance?.canvas ?? GetComponentInParent<Canvas>();
+            Transform parentTransform = canvas != null ? canvas.transform : transform;
+            _activeScannerView = Instantiate(prefab, parentTransform);
             _activeScannerView.transform.SetSiblingIndex(0);
             _activeScannerView.Initialization(OnScannerClosed);
         }

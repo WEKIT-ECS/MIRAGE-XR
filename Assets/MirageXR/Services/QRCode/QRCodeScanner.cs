@@ -50,6 +50,7 @@ namespace MirageXR
         private BarcodeReaderGeneric _barcodeReader;
         private CancellationTokenSource _scanCts;
         private bool _isScanning;
+        private Pose? _singleShotCapturePose;
 
         public bool IsScanning => _isScanning;
         public Texture2D CameraTexture => _previewTexture ?? _capturedTexture;
@@ -196,6 +197,11 @@ namespace MirageXR
                     _previewTexture.SetPixels32(pixels);
                     _previewTexture.Apply(false);
 
+                    var currentCam = RootObject.Instance?.BaseCamera ?? Camera.main;
+                    Pose? capturePose = currentCam != null
+                        ? new Pose(currentCam.transform.position, currentCam.transform.rotation)
+                        : (Pose?)null;
+
                     Result decodeResult = null;
                     try
                     {
@@ -221,7 +227,7 @@ namespace MirageXR
                         var resultPoints = decodeResult.ResultPoints;
 
                         await UniTask.SwitchToMainThread(cancellationToken);
-                        var pose = CalculateQRPose(resultPoints, width, height);
+                        var pose = CalculateQRPose(resultPoints, width, height, currentCam, capturePose);
                         QRCodeActivityParser.TryParseActivityId(rawText, out var activityId);
 
                         var scanResult = new QRCodeScanResult
@@ -284,6 +290,11 @@ namespace MirageXR
 
                     if (hasNewFrame && streamTexture != null)
                     {
+                        var currentCam = RootObject.Instance?.BaseCamera ?? Camera.main;
+                        Pose? capturePose = currentCam != null
+                            ? new Pose(currentCam.transform.position, currentCam.transform.rotation)
+                            : (Pose?)null;
+
                         if (_capturedTexture != streamTexture)
                         {
                             if (_capturedTexture != null)
@@ -299,7 +310,7 @@ namespace MirageXR
                             OnCameraStarted?.Invoke(_capturedTexture);
                         }
 
-                        var scanResult = await DecodeTextureAsync(_capturedTexture, cancellationToken, stopScanningOnNoCode: false);
+                        var scanResult = await DecodeTextureAsync(_capturedTexture, cancellationToken, stopScanningOnNoCode: false, cameraPoseAtCapture: capturePose);
                         if (scanResult != null && (!_requireActivityLink || scanResult.ActivityId != Guid.Empty))
                         {
                             break;
@@ -338,6 +349,11 @@ namespace MirageXR
             {
                 while (_isScanning && !cancellationToken.IsCancellationRequested)
                 {
+                    var currentCam = RootObject.Instance?.BaseCamera ?? Camera.main;
+                    Pose? capturePose = currentCam != null
+                        ? new Pose(currentCam.transform.position, currentCam.transform.rotation)
+                        : (Pose?)null;
+
                     var tcs = new UniTaskCompletionSource<(bool success, Texture2D texture)>();
 
                     try
@@ -375,7 +391,7 @@ namespace MirageXR
                     _capturedTexture = capturedTex;
                     OnCameraStarted?.Invoke(_capturedTexture);
 
-                    var scanResult = await DecodeTextureAsync(_capturedTexture, cancellationToken, stopScanningOnNoCode: false);
+                    var scanResult = await DecodeTextureAsync(_capturedTexture, cancellationToken, stopScanningOnNoCode: false, cameraPoseAtCapture: capturePose);
                     if (scanResult != null && (!_requireActivityLink || scanResult.ActivityId != Guid.Empty))
                     {
                         break;
@@ -411,6 +427,11 @@ namespace MirageXR
                 RootObject.Instance.ImageTargetManager.enabled = false;
             }
 
+            var currentCam = RootObject.Instance?.BaseCamera ?? Camera.main;
+            _singleShotCapturePose = currentCam != null
+                ? new Pose(currentCam.transform.position, currentCam.transform.rotation)
+                : (Pose?)null;
+
             try
             {
                 NativeCameraController.TakePicture(OnPictureTaken, _showHolograms, _maxPictureSize);
@@ -423,6 +444,7 @@ namespace MirageXR
                     RootObject.Instance.ImageTargetManager.enabled = true;
                 }
                 _isScanning = false;
+                _singleShotCapturePose = null;
                 OnScanError?.Invoke($"Camera error: {ex.Message}");
             }
         }
@@ -442,6 +464,9 @@ namespace MirageXR
             {
                 RootObject.Instance.ImageTargetManager.enabled = true;
             }
+
+            var capturePose = _singleShotCapturePose;
+            _singleShotCapturePose = null;
 
             if (!_isScanning)
             {
@@ -464,7 +489,7 @@ namespace MirageXR
             OnCameraStarted?.Invoke(_capturedTexture);
 
             var token = _scanCts != null ? _scanCts.Token : CancellationToken.None;
-            DecodeTextureAsync(_capturedTexture, token, stopScanningOnNoCode: true).Forget();
+            DecodeTextureAsync(_capturedTexture, token, stopScanningOnNoCode: true, cameraPoseAtCapture: capturePose).Forget();
         }
 
         /// <summary>
@@ -489,6 +514,7 @@ namespace MirageXR
         public void StopScanning()
         {
             _isScanning = false;
+            _singleShotCapturePose = null;
 
             if (_scanCts != null)
             {
@@ -509,7 +535,7 @@ namespace MirageXR
         /// <summary>
         /// Synchronously decodes a QR code from a Texture2D.
         /// </summary>
-        public QRCodeScanResult DecodeTexture(Texture2D texture, bool stopScanningOnNoCode = true)
+        public QRCodeScanResult DecodeTexture(Texture2D texture, bool stopScanningOnNoCode = true, Pose? cameraPoseAtCapture = null)
         {
             if (texture == null)
             {
@@ -557,7 +583,8 @@ namespace MirageXR
                 var rawText = decodeResult.Text;
                 var resultPoints = decodeResult.ResultPoints;
 
-                var pose = CalculateQRPose(resultPoints, width, height);
+                var currentCam = RootObject.Instance?.BaseCamera ?? Camera.main;
+                var pose = CalculateQRPose(resultPoints, width, height, currentCam, cameraPoseAtCapture);
                 QRCodeActivityParser.TryParseActivityId(rawText, out var activityId);
 
                 var scanResult = new QRCodeScanResult
@@ -597,7 +624,7 @@ namespace MirageXR
         /// <summary>
         /// Decodes a QR code from the specified texture on a background thread.
         /// </summary>
-        public async UniTask<QRCodeScanResult> DecodeTextureAsync(Texture2D texture, CancellationToken cancellationToken = default, bool stopScanningOnNoCode = false)
+        public async UniTask<QRCodeScanResult> DecodeTextureAsync(Texture2D texture, CancellationToken cancellationToken = default, bool stopScanningOnNoCode = false, Pose? cameraPoseAtCapture = null)
         {
             if (texture == null)
             {
@@ -654,7 +681,8 @@ namespace MirageXR
                 var resultPoints = decodeResult.ResultPoints;
 
                 await UniTask.SwitchToMainThread(cancellationToken);
-                var pose = CalculateQRPose(resultPoints, width, height);
+                var currentCam = RootObject.Instance?.BaseCamera ?? Camera.main;
+                var pose = CalculateQRPose(resultPoints, width, height, currentCam, cameraPoseAtCapture);
 
                 QRCodeActivityParser.TryParseActivityId(rawText, out var activityId);
 
@@ -693,14 +721,35 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Calculates the 3D world pose of a detected QR code based on camera gaze/raycast.
+        /// Standard physical width/height of a QR code displayed on a mobile screen (5.4cm).
         /// </summary>
-        public static Pose CalculateQRPose(Vector2[] points, int imageWidth, int imageHeight, Camera camera = null)
+        public const float DEFAULT_PHYSICAL_QR_SIZE_METERS = 0.054f;
+
+        /// <summary>
+        /// Default fallback scan distance if finder points cannot be measured optically (0.50m).
+        /// </summary>
+        public const float DEFAULT_SCAN_DISTANCE_METERS = 0.50f;
+
+        /// <summary>
+        /// Calculates the 3D world pose of a detected QR code based on pinhole camera optics
+        /// from the detected finder pattern pixel coordinates and known physical size.
+        /// </summary>
+        public static Pose CalculateQRPose(
+            Vector2[] points,
+            int imageWidth,
+            int imageHeight,
+            Camera camera = null,
+            Pose? cameraPoseAtCapture = null,
+            float physicalQrSizeMeters = DEFAULT_PHYSICAL_QR_SIZE_METERS)
         {
             if (camera == null)
             {
                 camera = RootObject.Instance?.BaseCamera ?? Camera.main;
             }
+
+            Pose capturePose = cameraPoseAtCapture ?? (camera != null
+                ? new Pose(camera.transform.position, camera.transform.rotation)
+                : Pose.identity);
 
             float centerX = 0f;
             float centerY = 0f;
@@ -721,49 +770,86 @@ namespace MirageXR
                 centerY = imageHeight * 0.5f;
             }
 
-            // Convert pixel coordinates to normalized viewport coordinates (0 to 1)
+            // Convert pixel coordinates to normalized viewport coordinates (0 to 1).
+            // In Unity Color32 / ZXing texture space, (0,0) is bottom-left, matching Unity viewport.
             float viewportX = Mathf.Clamp01(centerX / Mathf.Max(imageWidth, 1));
-            // In Unity viewport, (0,0) is bottom-left; in image space (0,0) is top-left
-            float viewportY = Mathf.Clamp01(1.0f - (centerY / Mathf.Max(imageHeight, 1)));
+            float viewportY = Mathf.Clamp01(centerY / Mathf.Max(imageHeight, 1));
 
-            Ray ray = camera != null
-                ? camera.ViewportPointToRay(new Vector3(viewportX, viewportY, 0f))
-                : new Ray(Vector3.zero, Vector3.forward);
-
-            Pose pose;
-            // Raycast against spatial environment
-            if (Physics.Raycast(ray, out RaycastHit hit, 5.0f))
+            float vFov = camera != null ? camera.fieldOfView : 60f;
+            Vector3 localDir;
+            if (camera != null)
             {
-                Vector3 forward = -hit.normal;
-                if (forward == Vector3.zero || Mathf.Abs(Vector3.Dot(forward, Vector3.up)) > 0.99f)
-                {
-                    forward = camera != null ? camera.transform.forward : Vector3.forward;
-                }
-
-                var rotation = Quaternion.LookRotation(forward, Vector3.up);
-                pose = new Pose(hit.point, rotation);
+                Ray currentRay = camera.ViewportPointToRay(new Vector3(viewportX, viewportY, 0f));
+                localDir = camera.transform.InverseTransformDirection(currentRay.direction);
             }
             else
             {
-                // Fallback: place in front of camera at default working distance (0.8m)
-                Vector3 position = ray.origin + ray.direction * 0.8f;
-                Vector3 forward = camera != null ? camera.transform.forward : Vector3.forward;
-                var rotation = Quaternion.LookRotation(forward, Vector3.up);
-                pose = new Pose(position, rotation);
+                // Fallback field of view ~60 degrees vertical
+                float aspect = (float)Mathf.Max(imageWidth, 1) / Mathf.Max(imageHeight, 1);
+                float halfHeight = Mathf.Tan(vFov * 0.5f * Mathf.Deg2Rad);
+                float halfWidth = halfHeight * aspect;
+                localDir = new Vector3((viewportX - 0.5f) * 2f * halfWidth, (viewportY - 0.5f) * 2f * halfHeight, 1f).normalized;
             }
 
-            // Follow MirageXR standard calibration: constrain to yaw (rotation around Y-axis)
-            var euler = pose.rotation.eulerAngles;
+            Vector3 rayDir = (capturePose.rotation * localDir).normalized;
+
+            // Optical distance calculation using pinhole camera geometry:
+            // D = (physicalSize * focalLengthPixels) / apparentPixelSize
+            float focalLengthPixels = (float)imageHeight / (2f * Mathf.Tan(vFov * 0.5f * Mathf.Deg2Rad));
+            float distance = DEFAULT_SCAN_DISTANCE_METERS;
+
+            if (points != null && points.Length >= 2)
+            {
+                float maxFinderSpan = 0f;
+                if (points.Length >= 3)
+                {
+                    float d01 = Vector2.Distance(points[0], points[1]);
+                    float d12 = Vector2.Distance(points[1], points[2]);
+                    float d02 = Vector2.Distance(points[0], points[2]);
+                    float[] dists = { d01, d12, d02 };
+                    Array.Sort(dists);
+                    maxFinderSpan = dists[1]; // Second shortest distance represents the orthogonal edge span
+                }
+                else
+                {
+                    maxFinderSpan = Vector2.Distance(points[0], points[1]);
+                }
+
+                // In standard QR codes, finder pattern centers span ~80% of total module width
+                float apparentQRPixelSize = maxFinderSpan / 0.80f;
+                if (apparentQRPixelSize > 10f)
+                {
+                    float calculatedDistance = (physicalQrSizeMeters * focalLengthPixels) / apparentQRPixelSize;
+                    distance = Mathf.Clamp(calculatedDistance, 0.20f, 1.50f);
+                }
+            }
+
+            Vector3 position = capturePose.position + rayDir * distance;
+
+            // Orient facing the camera along horizontal plane (constrain to upright yaw rotation)
+            Vector3 forward = Vector3.ProjectOnPlane(-rayDir, Vector3.up).normalized;
+            if (forward == Vector3.zero)
+            {
+                forward = capturePose.rotation * Vector3.forward;
+            }
+            var rotation = Quaternion.LookRotation(forward, Vector3.up);
+            var euler = rotation.eulerAngles;
             var yawRotation = Quaternion.Euler(0, euler.y, 0);
 
-            return new Pose(pose.position, yawRotation);
+            return new Pose(position, yawRotation);
         }
 
-        public static Pose CalculateQRPose(ResultPoint[] resultPoints, int imageWidth, int imageHeight, Camera camera = null)
+        public static Pose CalculateQRPose(
+            ResultPoint[] resultPoints,
+            int imageWidth,
+            int imageHeight,
+            Camera camera = null,
+            Pose? cameraPoseAtCapture = null,
+            float physicalQrSizeMeters = DEFAULT_PHYSICAL_QR_SIZE_METERS)
         {
             if (resultPoints == null || resultPoints.Length == 0)
             {
-                return CalculateQRPose((Vector2[])null, imageWidth, imageHeight, camera);
+                return CalculateQRPose((Vector2[])null, imageWidth, imageHeight, camera, cameraPoseAtCapture, physicalQrSizeMeters);
             }
 
             var points = new Vector2[resultPoints.Length];
@@ -771,7 +857,7 @@ namespace MirageXR
             {
                 points[i] = new Vector2(resultPoints[i].X, resultPoints[i].Y);
             }
-            return CalculateQRPose(points, imageWidth, imageHeight, camera);
+            return CalculateQRPose(points, imageWidth, imageHeight, camera, cameraPoseAtCapture, physicalQrSizeMeters);
         }
     }
 }

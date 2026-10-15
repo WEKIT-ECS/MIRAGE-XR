@@ -96,12 +96,96 @@ namespace MirageXR.UnitTests
             Assert.AreEqual(Guid.Empty, guid);
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            QRCodeActivityParser.ResetForTesting();
+        }
+
         [Test]
         public void CreateRedirectUrl_ValidGuid_ReturnsExpectedUrl()
         {
-            var url = QRCodeActivityParser.CreateRedirectUrl(ExpectedGuid);
+            var mockConfig = new MockConfigManager();
+            var url = QRCodeActivityParser.CreateRedirectUrl(ExpectedGuid, mockConfig);
 
             Assert.AreEqual("https://repository.wekit-ecs.com/deeplink/?activity=" + TestGuidString, url);
+        }
+
+        [Test]
+        public void CreateRedirectUrl_WithPort_ReturnsUrlWithPort()
+        {
+            var mockConfig = new MockConfigManager();
+            mockConfig.SetNetworkServerPort("8000");
+            var url = QRCodeActivityParser.CreateRedirectUrl(ExpectedGuid, mockConfig);
+
+            Assert.AreEqual("https://repository.wekit-ecs.com:8000/deeplink/?activity=" + TestGuidString, url);
+        }
+
+        [Test]
+        public void CreateRedirectUrl_AddressChanged_UpdatesRedirectUrl()
+        {
+            var mockConfig = new MockConfigManager();
+            QRCodeActivityParser.Initialize(mockConfig);
+
+            mockConfig.SetNetworkServerAddress("http://custom-repo.example.com");
+            var url = QRCodeActivityParser.CreateRedirectUrl(ExpectedGuid);
+
+            Assert.AreEqual("http://custom-repo.example.com/deeplink/?activity=" + TestGuidString, url);
+        }
+
+        [Test]
+        public void CreateRedirectUrl_PortChanged_UpdatesRedirectUrl()
+        {
+            var mockConfig = new MockConfigManager();
+            QRCodeActivityParser.Initialize(mockConfig);
+
+            mockConfig.SetNetworkServerPort("9000");
+            var url = QRCodeActivityParser.CreateRedirectUrl(ExpectedGuid);
+
+            Assert.AreEqual("https://repository.wekit-ecs.com:9000/deeplink/?activity=" + TestGuidString, url);
+        }
+
+        private class MockConfigManager : LearningExperienceEngine.NewDataModel.IConfigManager
+        {
+            private string _serverAddress = "https://repository.wekit-ecs.com";
+            private string _serverPort = string.Empty;
+
+            public event UnityEngine.Events.UnityAction<string> OnNetworkServerAddressChanged;
+            public event UnityEngine.Events.UnityAction<string> OnNetworkServerPortChanged;
+            public event UnityEngine.Events.UnityAction<string> OnNetworkWebsocketAddressChanged;
+            public event UnityEngine.Events.UnityAction<string> OnNetworkWebsocketPortChanged;
+
+            public bool IsInitialized => true;
+            public Cysharp.Threading.Tasks.UniTask WaitForInitialization() => Cysharp.Threading.Tasks.UniTask.CompletedTask;
+            public Cysharp.Threading.Tasks.UniTask InitializeAsync() => Cysharp.Threading.Tasks.UniTask.CompletedTask;
+
+            public string GetDefaultNetworkServerAddress() => "https://repository.wekit-ecs.com";
+            public string GetDefaultNetworkWebsocketAddress() => string.Empty;
+            public string GetDefaultNetworkServerPort() => string.Empty;
+            public string GetDefaultNetworkWebsocketPort() => string.Empty;
+            public string GetNetworkServerAddress() => _serverAddress;
+            public string GetNetworkWebsocketAddress() => string.Empty;
+            public string GetNetworkWebsocketPort() => string.Empty;
+            public string GetNetworkServerPort() => _serverPort;
+
+            public void SetNetworkServerAddress(string address)
+            {
+                _serverAddress = address;
+                OnNetworkServerAddressChanged?.Invoke(address);
+            }
+
+            public void SetNetworkServerPort(string port)
+            {
+                _serverPort = port;
+                OnNetworkServerPortChanged?.Invoke(port);
+            }
+
+            public void SetNetworkWebsocketAddress(string websocket) => OnNetworkWebsocketAddressChanged?.Invoke(websocket);
+            public void SetNetworkWebsocketPort(string port) => OnNetworkWebsocketPortChanged?.Invoke(port);
+            public void ResetNetworkServerPort() => SetNetworkServerPort(string.Empty);
+            public void ResetNetworkServerAddress() => SetNetworkServerAddress("https://repository.wekit-ecs.com");
+            public void ResetNetworkWebsocketPort() { }
+            public void ResetNetworkWebsocketAddress() { }
         }
     }
 }
