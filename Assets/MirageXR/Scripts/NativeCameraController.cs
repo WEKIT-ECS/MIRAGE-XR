@@ -10,10 +10,16 @@ using UnityEngine.Windows.WebCam;
 #if UNITY_VISIONOS && !UNITY_EDITOR
 using System.Runtime.InteropServices;
 #endif
+using UnityEngine.XR.ARFoundation;
+using UnityEngine.XR.ARSubsystems;
 
 public class NativeCameraController
 {
     private const int DEFAULT_MAX_SIZE = 1024;
+
+    private static ARCameraManager _cachedARCameraManager;
+    private static int _arStreamRefCount;
+    private static long _arFrameCounter;
 
     public static void TakePicture(Action<bool, Texture2D> callback, bool showHolograms = false, int maxSize = DEFAULT_MAX_SIZE)
     {
@@ -24,7 +30,14 @@ public class NativeCameraController
 #elif UNITY_WSA
         TakePictureUWP(callback, showHolograms, maxSize);
 #else
-        TakePictureMobile(callback, maxSize);
+        if (HasActiveARCameraStream())
+        {
+            TakePictureARFoundation(callback, maxSize);
+        }
+        else
+        {
+            TakePictureMobile(callback, maxSize);
+        }
 #endif
     }
 
@@ -45,19 +58,24 @@ public class NativeCameraController
 #if UNITY_VISIONOS && !UNITY_EDITOR
             return true;
 #else
-            return false;
+            return HasActiveARCameraStream();
 #endif
         }
     }
 
     /// <summary>
     /// Starts (or joins) a continuous native camera stream. Calls are reference counted;
-    /// every call must be balanced by <see cref="StopCameraStream"/>. Currently visionOS only.
+    /// every call must be balanced by <see cref="StopCameraStream"/>.
     /// </summary>
     public static void StartCameraStream()
     {
 #if UNITY_VISIONOS && !UNITY_EDITOR
         AcquireVisionOSStream();
+#else
+        if (HasActiveARCameraStream())
+        {
+            AcquireARFoundationStream();
+        }
 #endif
     }
 
@@ -68,6 +86,8 @@ public class NativeCameraController
     {
 #if UNITY_VISIONOS && !UNITY_EDITOR
         ReleaseVisionOSStream(0f);
+#else
+        ReleaseARFoundationStream();
 #endif
     }
 
@@ -81,6 +101,10 @@ public class NativeCameraController
 #if UNITY_VISIONOS && !UNITY_EDITOR
         return TryCopyLatestVisionOSFrame(ref lastFrameId, ref target, maxSize);
 #else
+        if (HasActiveARCameraStream())
+        {
+            return TryCopyLatestARFoundationFrame(ref lastFrameId, ref target, maxSize);
+        }
         return false;
 #endif
     }
@@ -406,6 +430,139 @@ public class NativeCameraController
         }
     }
 #endif
+
+    public static bool HasActiveARCameraStream()
+    {
+        var manager = GetARCameraManager();
+        return manager != null && manager.enabled && (manager.subsystem?.running ?? false);
+    }
+
+    private static ARCameraManager GetARCameraManager()
+    {
+        if (_cachedARCameraManager != null && _cachedARCameraManager.gameObject != null)
+        {
+            return _cachedARCameraManager;
+        }
+
+        var baseCamera = MirageXR.RootObject.Instance?.BaseCamera;
+        if (baseCamera != null)
+        {
+            _cachedARCameraManager = baseCamera.GetComponentInChildren<ARCameraManager>();
+            if (_cachedARCameraManager != null)
+            {
+                return _cachedARCameraManager;
+            }
+        }
+
+        _cachedARCameraManager = UnityEngine.Object.FindAnyObjectByType<ARCameraManager>();
+        return _cachedARCameraManager;
+    }
+
+    private static void AcquireARFoundationStream()
+    {
+        _arStreamRefCount++;
+    }
+
+    private static void ReleaseARFoundationStream()
+    {
+        _arStreamRefCount = Math.Max(0, _arStreamRefCount - 1);
+    }
+
+    private static bool TryCopyLatestARFoundationFrame(ref long lastFrameId, ref Texture2D target, int maxSize)
+    {
+        var manager = GetARCameraManager();
+        if (manager == null || !manager.enabled)
+        {
+            return false;
+        }
+
+        if (!manager.TryAcquireLatestCpuImage(out XRCpuImage cpuImage))
+        {
+            return false;
+        }
+
+        using (cpuImage)
+        {
+            long currentTimestamp = (long)(cpuImage.timestamp * 1000000);
+            if (currentTimestamp > 0 && currentTimestamp <= lastFrameId)
+            {
+                return false;
+            }
+
+            int width = cpuImage.width;
+            int height = cpuImage.height;
+
+            float scale = maxSize > 0 ? Mathf.Min(1f, (float)maxSize / Mathf.Max(width, height)) : 1f;
+            int targetWidth = Mathf.Max(1, Mathf.RoundToInt(width * scale));
+            int targetHeight = Mathf.Max(1, Mathf.RoundToInt(height * scale));
+
+            var conversionParams = new XRCpuImage.ConversionParams
+            {
+                inputRect = new RectInt(0, 0, width, height),
+                outputDimensions = new Vector2Int(targetWidth, targetHeight),
+                outputFormat = TextureFormat.RGBA32,
+                transformation = XRCpuImage.Transformation.None
+            };
+
+            int size = cpuImage.GetConvertedDataSize(conversionParams);
+            using (var nativeBuffer = new Unity.Collections.NativeArray<byte>(size, Unity.Collections.Allocator.Temp))
+            {
+                cpuImage.Convert(conversionParams, nativeBuffer);
+
+                if (target == null || target.width != targetWidth || target.height != targetHeight)
+                {
+                    if (target != null)
+                    {
+                        UnityEngine.Object.Destroy(target);
+                    }
+                    target = new Texture2D(targetWidth, targetHeight, TextureFormat.RGBA32, false);
+                }
+
+                target.LoadRawTextureData(nativeBuffer);
+                target.Apply(false);
+            }
+
+            _arFrameCounter++;
+            lastFrameId = currentTimestamp > 0 ? currentTimestamp : _arFrameCounter;
+            return true;
+        }
+    }
+
+    private static void TakePictureARFoundation(Action<bool, Texture2D> callback, int maxSize = DEFAULT_MAX_SIZE)
+    {
+        CaptureARFoundationTextureAsync(callback, maxSize).Forget();
+    }
+
+    private static async UniTaskVoid CaptureARFoundationTextureAsync(Action<bool, Texture2D> callback, int maxSize)
+    {
+        Texture2D result = null;
+        bool success = false;
+        long lastFrameId = 0;
+        float deadline = Time.realtimeSinceStartup + 3.0f;
+
+        while (Time.realtimeSinceStartup < deadline)
+        {
+            if (TryCopyLatestARFoundationFrame(ref lastFrameId, ref result, maxSize))
+            {
+                success = true;
+                break;
+            }
+            await UniTask.Delay(50, ignoreTimeScale: true);
+        }
+
+        if (!success)
+        {
+            Debug.LogError("[NativeCameraController] Failed to capture picture from ARFoundation stream.");
+            if (result != null)
+            {
+                UnityEngine.Object.Destroy(result);
+            }
+            callback?.Invoke(false, null);
+            return;
+        }
+
+        callback?.Invoke(true, result);
+    }
 
     private static void StartVideoRecordingMobileAsync(string filePath, Action<bool, string> callback)
     {

@@ -116,12 +116,17 @@ namespace MirageXR
             _scanCts = new CancellationTokenSource();
             _isScanning = true;
 
-#if UNITY_VISIONOS && !UNITY_EDITOR
-            StartNativeCameraContinuousScanning(_scanCts.Token).Forget();
-#elif UNITY_EDITOR || UNITY_STANDALONE
-            StartWebCamContinuousScanning();
+            if (NativeCameraController.SupportsCameraStream)
+            {
+                StartNativeCameraContinuousScanning(_scanCts.Token).Forget();
+            }
+#if UNITY_EDITOR || UNITY_STANDALONE
+            else
+            {
+                StartWebCamContinuousScanning();
+            }
 #else
-            if (WebCamTexture.devices.Length > 0)
+            else if (WebCamTexture.devices.Length > 0)
             {
                 StartWebCamContinuousScanning();
             }

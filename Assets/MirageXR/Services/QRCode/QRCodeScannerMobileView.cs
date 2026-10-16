@@ -102,6 +102,10 @@ namespace MirageXR
                     {
                         aspect = (float)texture.height / texture.width;
                     }
+                    else if (!(texture is WebCamTexture) && Screen.width < Screen.height && texture.width > texture.height)
+                    {
+                        aspect = (float)texture.height / texture.width;
+                    }
                     aspectFitter.aspectRatio = aspect;
                 }
 
@@ -110,6 +114,19 @@ namespace MirageXR
                     _cameraPreview.rectTransform.localEulerAngles = new Vector3(0, 0, -cam.videoRotationAngle);
                     float scaleY = cam.videoVerticallyMirrored ? -1f : 1f;
                     _cameraPreview.rectTransform.localScale = new Vector3(1f, scaleY, 1f);
+                }
+                else
+                {
+                    if (Screen.width < Screen.height && texture.width > texture.height)
+                    {
+                        _cameraPreview.rectTransform.localEulerAngles = new Vector3(0, 0, -90);
+                        _cameraPreview.rectTransform.localScale = new Vector3(1f, -1f, 1f);
+                    }
+                    else
+                    {
+                        _cameraPreview.rectTransform.localEulerAngles = Vector3.zero;
+                        _cameraPreview.rectTransform.localScale = Vector3.one;
+                    }
                 }
             }
         }
