@@ -530,19 +530,64 @@ public class StepsListView_v2 : BaseView
                     return;
                 }
 
+                float targetAspect = 1f;
+                if (_imgThumbnail != null && _imgThumbnail.rectTransform != null)
+                {
+                    var rect = _imgThumbnail.rectTransform.rect;
+                    if (rect.width > 0 && rect.height > 0)
+                    {
+                        targetAspect = rect.width / rect.height;
+                    }
+                }
+
+                Texture2D croppedTexture = CropTextureToFitWidth(texture2D, targetAspect, true);
+                Destroy(texture2D);
+
                 // Set picture
-                var sprite = MirageXR.Utilities.TextureToSprite(texture2D);
+                var sprite = MirageXR.Utilities.TextureToSprite(croppedTexture);
                 _defaultThumbnail.SetActive(false);
                 _imgThumbnail.gameObject.SetActive(true);
                 _imgThumbnail.sprite = sprite;
 
                 // Save picture
-                Texture2D tempTexture = _imgThumbnail.sprite.texture;
-                byte[] bytes = tempTexture.EncodeToJPG();
+                byte[] bytes = croppedTexture.EncodeToJPG();
                 var tempPath = Path.Combine(Application.temporaryCachePath, THUMBNAIL_FILE_NAME);
                 File.WriteAllBytes(tempPath, bytes);
             }
         });
+    }
+
+    private static Texture2D CropTextureToFitWidth(Texture2D source, float targetAspect, bool clipFromTop = true)
+    {
+        int srcW = source.width;
+        int srcH = source.height;
+
+        int cropW = srcW;
+        int cropH = Mathf.RoundToInt(srcW / targetAspect);
+
+        int startX = 0;
+        int startY = 0;
+
+        if (srcH >= cropH)
+        {
+            // Taller than target aspect: fit width, clip height from the top (keep bottom rows)
+            startY = clipFromTop ? 0 : (srcH - cropH);
+        }
+        else
+        {
+            // Wider than target aspect: fit height, center-crop width
+            cropH = srcH;
+            cropW = Mathf.RoundToInt(srcH * targetAspect);
+            cropW = Mathf.Clamp(cropW, 1, srcW);
+            startX = (srcW - cropW) / 2;
+            startY = 0;
+        }
+
+        Color[] pixels = source.GetPixels(startX, startY, cropW, cropH);
+        Texture2D cropped = new Texture2D(cropW, cropH, TextureFormat.RGBA32, false);
+        cropped.SetPixels(pixels);
+        cropped.Apply();
+        return cropped;
     }
 
     private void OnThumbnailAccepted(string path)
