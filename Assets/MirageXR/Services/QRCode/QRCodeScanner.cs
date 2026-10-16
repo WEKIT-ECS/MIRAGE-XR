@@ -36,7 +36,7 @@ namespace MirageXR
         public event Action<QRCodeScanResult> OnQRCodeDetected;
         public event Action<string> OnScanError;
         public event Action<string> OnInvalidQRCodeDetected;
-        public event Action<Texture2D> OnCameraStarted;
+        public event Action<Texture> OnCameraStarted;
 
         public bool RequireActivityLink
         {
@@ -53,7 +53,7 @@ namespace MirageXR
         private Pose? _singleShotCapturePose;
 
         public bool IsScanning => _isScanning;
-        public Texture2D CameraTexture => _previewTexture ?? _capturedTexture;
+        public Texture CameraTexture => (Texture)_webcamTexture ?? _previewTexture ?? _capturedTexture;
 
         private void Awake()
         {
@@ -151,6 +151,9 @@ namespace MirageXR
                 }
 
                 _webcamTexture.Play();
+#if !UNITY_EDITOR
+                OnCameraStarted?.Invoke(_webcamTexture);
+#endif
                 ScanLoopAsync(_scanCts.Token).Forget();
             }
             catch (Exception ex)
@@ -170,6 +173,13 @@ namespace MirageXR
                 elapsed += 0.1f;
             }
 
+#if !UNITY_EDITOR
+            if (_webcamTexture != null && _webcamTexture.isPlaying)
+            {
+                OnCameraStarted?.Invoke(_webcamTexture);
+            }
+#endif
+
             while (_isScanning && !cancellationToken.IsCancellationRequested)
             {
                 if (_webcamTexture == null || !_webcamTexture.isPlaying)
@@ -184,7 +194,9 @@ namespace MirageXR
                     int height = _webcamTexture.height;
                     Color32[] pixels = _webcamTexture.GetPixels32();
 
-                    // Safely update Texture2D preview for PolySpatial compatibility (never assign WebCamTexture to CanvasRenderer)
+#if UNITY_EDITOR
+                    // In Editor, PolySpatial tracks CanvasRenderer and does not support WebCamTexture (throws KeyNotFoundException).
+                    // Maintain a Texture2D for CanvasRenderer / PolySpatial compatibility.
                     if (_previewTexture == null || _previewTexture.width != width || _previewTexture.height != height)
                     {
                         if (_previewTexture != null)
@@ -196,6 +208,7 @@ namespace MirageXR
                     }
                     _previewTexture.SetPixels32(pixels);
                     _previewTexture.Apply(false);
+#endif
 
                     var currentCam = RootObject.Instance?.BaseCamera ?? Camera.main;
                     Pose? capturePose = currentCam != null

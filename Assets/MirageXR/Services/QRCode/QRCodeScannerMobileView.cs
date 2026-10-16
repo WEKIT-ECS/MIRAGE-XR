@@ -88,7 +88,7 @@ namespace MirageXR
             }
         }
 
-        private void OnCameraStarted(Texture2D texture)
+        private void OnCameraStarted(Texture texture)
         {
             if (_cameraPreview != null && texture != null)
             {
@@ -97,7 +97,19 @@ namespace MirageXR
                 var aspectFitter = _cameraPreview.GetComponent<AspectRatioFitter>();
                 if (aspectFitter != null && texture.height > 0)
                 {
-                    aspectFitter.aspectRatio = (float)texture.width / texture.height;
+                    float aspect = (float)texture.width / texture.height;
+                    if (texture is WebCamTexture webcam && (webcam.videoRotationAngle == 90 || webcam.videoRotationAngle == 270))
+                    {
+                        aspect = (float)texture.height / texture.width;
+                    }
+                    aspectFitter.aspectRatio = aspect;
+                }
+
+                if (texture is WebCamTexture cam)
+                {
+                    _cameraPreview.rectTransform.localEulerAngles = new Vector3(0, 0, -cam.videoRotationAngle);
+                    float scaleY = cam.videoVerticallyMirrored ? -1f : 1f;
+                    _cameraPreview.rectTransform.localScale = new Vector3(1f, scaleY, 1f);
                 }
             }
         }
@@ -155,6 +167,9 @@ namespace MirageXR
                 _scanner.StopScanning();
             }
 
+            // Restore the home screen so it is rolled up when returning home
+            RootView_v2.Instance?.activityListView?.ExpandPanel();
+
             if (_textStatus != null)
             {
                 _textStatus.text = "Loading activity...";
@@ -202,6 +217,9 @@ namespace MirageXR
                 {
                     Debug.LogWarning($"[QRCodeScannerMobileView] Calibration note: {ex.Message}");
                 }
+
+                // Open activity with its menu minimized so the user can see AR markers in the camera view
+                RootView_v2.Instance?.activityView?.MinimizeMenu();
 
                 Close();
             }

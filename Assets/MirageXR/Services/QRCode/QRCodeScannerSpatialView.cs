@@ -90,7 +90,7 @@ namespace MirageXR
             }
         }
 
-        private void OnCameraStarted(Texture2D texture)
+        private void OnCameraStarted(Texture texture)
         {
             if (_cameraPreview != null && texture != null)
             {

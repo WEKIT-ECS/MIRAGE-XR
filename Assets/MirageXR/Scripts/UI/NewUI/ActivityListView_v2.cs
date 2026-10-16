@@ -245,6 +245,14 @@ public class ActivityListView_v2 : BaseView
         LoadView.Instance.Hide();
     }
 
+    public void ExpandPanel()
+    {
+        if (_arrowUp != null && _arrowUp.activeSelf)
+        {
+            OnArrowButtonPressed();
+        }
+    }
+
     private void OnArrowButtonPressed()
     {
         if (_arrowDown.activeSelf)
@@ -269,6 +277,7 @@ public class ActivityListView_v2 : BaseView
         {
             _activeScannerView.Close();
             _activeScannerView = null;
+            ExpandPanel();
             return;
         }
 

@@ -1,4 +1,4 @@
-﻿using DG.Tweening;
+using DG.Tweening;
 using MirageXR;
 using System.Collections;
 using System.Collections.Generic;
@@ -130,6 +130,14 @@ public class ActivityView_v2 : BaseView
     {
         _contentListView.gameObject.SetActive(false);
         _stepsListView.gameObject.SetActive(true);
+    }
+
+    public void MinimizeMenu()
+    {
+        if (_arrowDown != null && _arrowDown.activeSelf)
+        {
+            OnArrowButtonPressed();
+        }
     }
 
     private void OnArrowButtonPressed()
