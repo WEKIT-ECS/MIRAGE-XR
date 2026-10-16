@@ -726,9 +726,9 @@ namespace MirageXR
         public const float DEFAULT_PHYSICAL_QR_SIZE_METERS = 0.054f;
 
         /// <summary>
-        /// Default fallback scan distance if finder points cannot be measured optically (0.50m).
+        /// Default fallback scan distance if finder points cannot be measured optically (0.30m).
         /// </summary>
-        public const float DEFAULT_SCAN_DISTANCE_METERS = 0.50f;
+        public const float DEFAULT_SCAN_DISTANCE_METERS = 0.30f;
 
         /// <summary>
         /// Calculates the 3D world pose of a detected QR code based on pinhole camera optics
@@ -740,7 +740,8 @@ namespace MirageXR
             int imageHeight,
             Camera camera = null,
             Pose? cameraPoseAtCapture = null,
-            float physicalQrSizeMeters = DEFAULT_PHYSICAL_QR_SIZE_METERS)
+            float physicalQrSizeMeters = DEFAULT_PHYSICAL_QR_SIZE_METERS,
+            float nominalDistanceMeters = DEFAULT_SCAN_DISTANCE_METERS)
         {
             if (camera == null)
             {
@@ -796,7 +797,7 @@ namespace MirageXR
             // Optical distance calculation using pinhole camera geometry:
             // D = (physicalSize * focalLengthPixels) / apparentPixelSize
             float focalLengthPixels = (float)imageHeight / (2f * Mathf.Tan(vFov * 0.5f * Mathf.Deg2Rad));
-            float distance = DEFAULT_SCAN_DISTANCE_METERS;
+            float distance = nominalDistanceMeters;
 
             if (points != null && points.Length >= 2)
             {
@@ -820,7 +821,7 @@ namespace MirageXR
                 if (apparentQRPixelSize > 10f)
                 {
                     float calculatedDistance = (physicalQrSizeMeters * focalLengthPixels) / apparentQRPixelSize;
-                    distance = Mathf.Clamp(calculatedDistance, 0.20f, 1.50f);
+                    distance = Mathf.Clamp(calculatedDistance, 0.15f, 0.60f);
                 }
             }
 
@@ -845,11 +846,12 @@ namespace MirageXR
             int imageHeight,
             Camera camera = null,
             Pose? cameraPoseAtCapture = null,
-            float physicalQrSizeMeters = DEFAULT_PHYSICAL_QR_SIZE_METERS)
+            float physicalQrSizeMeters = DEFAULT_PHYSICAL_QR_SIZE_METERS,
+            float nominalDistanceMeters = DEFAULT_SCAN_DISTANCE_METERS)
         {
             if (resultPoints == null || resultPoints.Length == 0)
             {
-                return CalculateQRPose((Vector2[])null, imageWidth, imageHeight, camera, cameraPoseAtCapture, physicalQrSizeMeters);
+                return CalculateQRPose((Vector2[])null, imageWidth, imageHeight, camera, cameraPoseAtCapture, physicalQrSizeMeters, nominalDistanceMeters);
             }
 
             var points = new Vector2[resultPoints.Length];
@@ -857,7 +859,7 @@ namespace MirageXR
             {
                 points[i] = new Vector2(resultPoints[i].X, resultPoints[i].Y);
             }
-            return CalculateQRPose(points, imageWidth, imageHeight, camera, cameraPoseAtCapture, physicalQrSizeMeters);
+            return CalculateQRPose(points, imageWidth, imageHeight, camera, cameraPoseAtCapture, physicalQrSizeMeters, nominalDistanceMeters);
         }
     }
 }

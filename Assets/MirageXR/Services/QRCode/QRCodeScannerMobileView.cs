@@ -23,6 +23,7 @@ namespace MirageXR
         [SerializeField] private QRCodeScanner _scanner;
 
         private Action<QRCodeScanResult> _onResultCallback;
+        private bool _isProcessingResult;
         public event Action OnScannerClosed;
 
         protected override bool TryToGetArguments(params object[] args)
@@ -75,7 +76,7 @@ namespace MirageXR
             {
                 statusRect.anchorMin = new Vector2(horizontalAnchor, 0.5f);
                 statusRect.anchorMax = new Vector2(horizontalAnchor, 0.5f);
-                statusRect.anchoredPosition = new Vector2(0f, -200f);
+                statusRect.anchoredPosition = new Vector2(0f, -140f);
             }
         }
 
@@ -119,7 +120,7 @@ namespace MirageXR
 
         private void OnQRCodeDetected(QRCodeScanResult result)
         {
-            if (result == null)
+            if (result == null || _isProcessingResult)
             {
                 return;
             }
@@ -134,75 +135,49 @@ namespace MirageXR
                 return;
             }
 
-            // Valid activity found: close view and process
-            Close();
-
             if (_onResultCallback != null)
             {
+                Close();
                 _onResultCallback.Invoke(result);
                 return;
             }
 
-            // Default processing flow
-            ProcessScanResult(result);
+            // Default processing flow: load activity while view remains active for feedback
+            ProcessScanResultAsync(result).Forget();
         }
 
-        public static void ShowDialog(string title, string message)
+        private async UniTaskVoid ProcessScanResultAsync(QRCodeScanResult result)
         {
-            if (DialogWindow.Instance != null)
-            {
-                DialogWindow.Instance.Show(title, message, new DialogButtonContent("Ok"));
-            }
-            else if (RootView_v2.Instance != null && RootView_v2.Instance.dialog != null)
-            {
-                RootView_v2.Instance.dialog.ShowMiddle(title, message, "OK", () => { });
-            }
-            else
-            {
-                Debug.LogWarning($"[QRCodeScannerMobileView] {title}: {message}");
-            }
-        }
+            _isProcessingResult = true;
 
-        public static void ProcessScanResult(QRCodeScanResult result)
-        {
-            if (result == null)
+            if (_scanner != null)
             {
-                return;
+                _scanner.StopScanning();
             }
 
-            if (result.ActivityId == Guid.Empty)
+            if (_textStatus != null)
             {
-                Debug.LogWarning($"[QRCodeScannerMobileView] QR code does not contain a valid activity link: {result.RawText}");
-                ShowDialog("Invalid QR Code", "The scanned QR code is not a recognized activity link.\n\n" + result.RawText);
-                return;
+                _textStatus.text = "Loading activity...";
             }
 
-            // Upright pose with yaw rotation from detected QR marker pose
             var uprightPose = new Pose(result.WorldPose.position, result.WorldPose.rotation);
-
             Debug.Log($"[QRCodeScannerMobileView] Opening activity {result.ActivityId} with marker position: {uprightPose.position}");
 
-            // Open / load the activity and calibrate once loaded
-            OpenActivityAsync(result.ActivityId, uprightPose).Forget();
-        }
-
-        private static async UniTaskVoid OpenActivityAsync(Guid activityId, Pose uprightPose)
-        {
             var loadView = LoadView.Instance;
             if (loadView != null)
             {
                 loadView.Show();
             }
 
+            bool loadSuccess = false;
             try
             {
-                await RootObject.Instance.LEE.ActivityManager.LoadActivityAsync(activityId);
+                await RootObject.Instance.LEE.ActivityManager.LoadActivityAsync(result.ActivityId);
+                loadSuccess = true;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[QRCodeScannerMobileView] Failed to load activity {activityId}: {ex.Message}");
-                ShowDialog("Activity Not Found", $"Activity with ID '{activityId}' could not be opened or does not exist.");
-                return;
+                Debug.LogWarning($"[QRCodeScannerMobileView] Activity with id {result.ActivityId} not found or failed to load: {ex.Message}");
             }
             finally
             {
@@ -212,18 +187,34 @@ namespace MirageXR
                 }
             }
 
-            // Calibrate task station to marker position (upright) after activity view is instantiated
-            try
+            if (loadSuccess)
             {
-                var calibrationManager = RootObject.Instance?.CalibrationManager;
-                if (calibrationManager != null)
+                // Calibrate task station to marker position (upright) after activity view is instantiated
+                try
                 {
-                    calibrationManager.FinishCalibration(uprightPose, false);
+                    var calibrationManager = RootObject.Instance?.CalibrationManager;
+                    if (calibrationManager != null)
+                    {
+                        calibrationManager.FinishCalibration(uprightPose, false);
+                    }
                 }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"[QRCodeScannerMobileView] Calibration note: {ex.Message}");
+                }
+
+                Close();
             }
-            catch (Exception ex)
+            else
             {
-                Debug.LogError($"[QRCodeScannerMobileView] Error during calibration: {ex.Message}");
+                // Keep scanner open and ask user to scan again
+                _isProcessingResult = false;
+                if (_textStatus != null)
+                {
+                    _textStatus.text = "Activity not found.\nPlease scan another QR code...";
+                }
+
+                StartScanningAsync().Forget();
             }
         }
 

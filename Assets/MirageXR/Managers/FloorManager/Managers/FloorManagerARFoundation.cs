@@ -140,11 +140,6 @@ public class FloorManagerARFoundation : FloorManagerBase
             anchorObj.transform.SetPositionAndRotation(pose.position, pose.rotation);
         }
 
-        if (_arAnchorManager != null && anchorObj.GetComponent<ARAnchor>() == null)
-        {
-            anchorObj.AddComponent<ARAnchor>();
-        }
-
         return anchorObj.transform;
     }
 

@@ -15,7 +15,7 @@ namespace MirageXR
     public class QRCodeScannerSpatialView : PopupBase
     {
         [Header("Positioning")]
-        [SerializeField] private float _distanceFromCamera = 0.65f;
+        [SerializeField] private float _distanceFromCamera = 0.30f;
 
         [Header("UI Elements")]
         [SerializeField] private Button _btnClose;
