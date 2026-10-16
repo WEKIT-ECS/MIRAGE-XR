@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -54,6 +54,8 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private ActivitySettings _settingsViewPrefab;
     [SerializeField] private StepsListItem_v2 _stepsListItemPrefab;
     [SerializeField] private ThumbnailEditorView _thumbnailEditorPrefab;
+    [SerializeField] private RawImage _imgQRCode;
+    [SerializeField] private GameObject _qrCodeContainer;
 
     private readonly List<StepsListItem_v2> _stepsList = new List<StepsListItem_v2>();
 
@@ -69,6 +71,15 @@ public class StepsListView_v2 : BaseView
     public override void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
+
+        if (_inputFieldActivityDescription != null)
+        {
+            _inputFieldActivityDescription.lineType = TMP_InputField.LineType.MultiLineNewline;
+            if (_inputFieldActivityDescription.textComponent != null)
+            {
+                _inputFieldActivityDescription.textComponent.enableWordWrapping = true;
+            }
+        }
 
         _inputFieldActivityName.onEndEdit.AddListener(OnActivityNameEndEdit);
         _inputFieldActivityDescription.onEndEdit.AddListener(OnActivityDescriptionEndEdit);
@@ -102,7 +113,13 @@ public class StepsListView_v2 : BaseView
         RootObject.Instance.LEE.StepManager.OnStepChanged += OnStepChanged;
         RootObject.Instance.CalibrationManager.OnCalibrated += OnCalibrated;
 
+        if (_activity == null && activityManager?.Activity != null)
+        {
+            _activity = activityManager.Activity;
+        }
+
         UpdateView();
+        UpdateInfoFields();
     }
 
     private void OnCalibrated(bool isCalibrated)
@@ -126,6 +143,12 @@ public class StepsListView_v2 : BaseView
         LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
         LearningExperienceEngine.EventManager.OnWorkplaceCalibrated -= OnWorkplaceCalibrated;
         LearningExperienceEngine.EventManager.OnActivateAction -= OnActionActivated;*/
+
+        if (_imgQRCode != null && _imgQRCode.texture != null)
+        {
+            Destroy(_imgQRCode.texture);
+            _imgQRCode.texture = null;
+        }
     }
 
     private void OnActivityUpdated(Activity activity)
@@ -133,6 +156,8 @@ public class StepsListView_v2 : BaseView
         _activity = activity;
 
         UpdateView();
+        UpdateInfoFields();
+        UpdateQRCode();
     }
 
     private void OnStepChanged(ActivityStep step)
@@ -260,6 +285,60 @@ public class StepsListView_v2 : BaseView
         if (value)
         {
             MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivityInfo);
+            UpdateInfoFields();
+            UpdateQRCode();
+        }
+    }
+
+    private void UpdateInfoFields()
+    {
+        if (_activity != null)
+        {
+            if (_textActivityName != null)
+            {
+                _textActivityName.text = _activity.Name;
+            }
+
+            if (_inputFieldActivityName != null)
+            {
+                _inputFieldActivityName.text = _activity.Name;
+            }
+
+            if (_inputFieldActivityDescription != null)
+            {
+                _inputFieldActivityDescription.text = _activity.Description;
+            }
+        }
+    }
+
+    private void UpdateQRCode()
+    {
+        if (_imgQRCode == null)
+        {
+            return;
+        }
+
+        if (_activity != null && _activity.Id != Guid.Empty)
+        {
+            var texture = QRCodeGeneratorService.GenerateActivityQRCodeTexture(_activity.Id);
+            if (texture != null)
+            {
+                if (_imgQRCode.texture != null)
+                {
+                    Destroy(_imgQRCode.texture);
+                }
+                _imgQRCode.texture = texture;
+                if (_qrCodeContainer != null)
+                {
+                    _qrCodeContainer.SetActive(true);
+                }
+                return;
+            }
+        }
+
+        if (_qrCodeContainer != null)
+        {
+            _qrCodeContainer.SetActive(false);
         }
     }
 
@@ -486,6 +565,10 @@ public class StepsListView_v2 : BaseView
             {
                 _textActivityName.text = title;
             }
+            if (_activity != null)
+            {
+                _activity.Name = title;
+            }
         }
         else
         {
@@ -504,6 +587,10 @@ public class StepsListView_v2 : BaseView
         if (activityManager?.Activity != null)
         {
             activityManager.SetActivityDescription(description);
+            if (_activity != null)
+            {
+                _activity.Description = description;
+            }
         }
         else
         {

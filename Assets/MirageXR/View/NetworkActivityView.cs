@@ -24,8 +24,11 @@ namespace MirageXR.View
 
             var calibrationManager = RootObject.Instance.CalibrationManager;
             await calibrationManager.WaitForInitialization();
-            transform.SetParent(calibrationManager.Anchor, false);
-            transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+            if (transform.parent != calibrationManager.Anchor)
+            {
+                transform.SetParent(calibrationManager.Anchor, false);
+            }
+            UpdateLocation(_activity);
         }
 
         protected override void RemoveUnusedContent()

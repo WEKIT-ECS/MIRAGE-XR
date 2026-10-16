@@ -280,6 +280,7 @@ public class RootView_v2 : BaseView
 
     public void ShowHomeView()
     {
+        _activityListView?.ExpandPanel();
         activityListView.FetchAndUpdateView().Forget();
         _pageView.currentPageIndex = 0;
     }

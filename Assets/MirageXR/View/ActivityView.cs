@@ -48,10 +48,18 @@ namespace MirageXR.View
             RootObject.Instance.LEE.ContentManager.OnContentActivated += OnContentActivated;
             RootObject.Instance.LEE.ActivitySynchronizationManager.OnMessageReceived += OnSyncMessageReceived;
 
+            if (_activity == null && RootObject.Instance.LEE.ActivityManager.Activity != null)
+            {
+                OnActivityLoaded(RootObject.Instance.LEE.ActivityManager.Activity);
+            }
+
             var calibrationManager = RootObject.Instance.CalibrationManager;
             await calibrationManager.WaitForInitialization();
-            transform.SetParent(calibrationManager.Anchor, false);
-            transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+            if (transform.parent != calibrationManager.Anchor)
+            {
+                transform.SetParent(calibrationManager.Anchor, false);
+            }
+            UpdateLocation(_activity);
 
 #if UNITY_EDITOR
             var tempObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -131,11 +139,16 @@ namespace MirageXR.View
 
         protected virtual void UpdateLocation(Activity activity)
         {
-            if (activity.Location != null)
+            if (activity?.Location != null)
             {
                 transform.localPosition = activity.Location.Position;
                 transform.localEulerAngles = activity.Location.Rotation;
                 transform.localScale = activity.Location.Scale;   
+            }
+            else
+            {
+                transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+                transform.localScale = Vector3.one;
             }
         }
 
@@ -237,6 +250,12 @@ namespace MirageXR.View
 
         public void ResetPosition()
         {
+            var anchor = RootObject.Instance?.CalibrationManager?.Anchor;
+            if (anchor != null && transform.parent != anchor)
+            {
+                transform.SetParent(anchor, false);
+            }
+            _activity ??= RootObject.Instance?.LEE?.ActivityManager?.Activity;
             UpdateLocation(_activity);
         }
 

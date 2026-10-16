@@ -15,6 +15,7 @@ namespace MirageXR
         [SerializeField] private Button _buttonSorting;
         [SerializeField] private Button _buttonAddNewActivity;
         [SerializeField] private Button _buttonCollaborativeSession;
+        [SerializeField] private Button _buttonQRCode;
         [SerializeField] private Button _buttonLogin;
         [SerializeField] private Button _buttonRegister;
         [SerializeField] private ScrollRect _scrollRect;
@@ -34,6 +35,7 @@ namespace MirageXR
         public void SetActionOnButtonBackClick(UnityAction action) => _buttonBack.SafeSetListener(action);
         public void SetBackButtonActive(bool value) => _buttonBack.gameObject.SetActive(value);
         public void SetActionOnButtonCollaborativeSessionClick(UnityAction action) => _buttonCollaborativeSession.SafeSetListener(action);
+        public void SetActionOnButtonQRCodeClick(UnityAction action) => _buttonQRCode.SafeSetListener(action);
         public void SetActionOnButtonAddNewActivityClick(UnityAction action) => _buttonAddNewActivity.SafeSetListener(action);
         public void SetActionOnInputFieldSearchValueChanged(UnityAction<string> action) => _searchField.SafeSetListener(action);
         public void RemoveActionOnToggleEditorValueChanged(UnityAction<bool> action) => _toggleEditorMode.SafeRemoveListener(action);

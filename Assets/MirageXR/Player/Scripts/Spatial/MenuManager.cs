@@ -19,6 +19,7 @@ namespace MirageXR
 
         [SerializeField] private SortingScreenSpatialView _sortingScreenSpatialViewPrefab;
         [SerializeField] private RegisterScreenSpatialView _registerScreenSpatialViewPrefab;
+        [SerializeField] private QRCodeScannerSpatialView _qrCodeScannerSpatialViewPrefab;
         //[SerializeField] private LoginView_Spatial _signInScreenSpatialViewPrefab;  // TODO SignInScreenSpatialView
 
         [SerializeField] private CollaborativeSessionPanelView _collabSessionPanel;
@@ -85,6 +86,62 @@ namespace MirageXR
         public void ShowCollaborativeSessionSettingsPanelView()
         {
             PopupsViewer.Instance.Show(_collabSessionSettingsPanel);
+        }
+
+        private QRCodeScannerSpatialView _activeQRCodeScannerView;
+
+        public bool IsQRCodeScannerActive => _activeQRCodeScannerView != null &&
+                                              !_activeQRCodeScannerView.isMarkedToDelete &&
+                                              _activeQRCodeScannerView.gameObject != null &&
+                                              _activeQRCodeScannerView.gameObject.activeInHierarchy;
+
+        public void ToggleQRCodeScannerView(Action<QRCodeScanResult> callback = null)
+        {
+            if (IsQRCodeScannerActive)
+            {
+                HideQRCodeScannerView();
+            }
+            else
+            {
+                ShowQRCodeScannerView(callback);
+            }
+        }
+
+        public void HideQRCodeScannerView()
+        {
+            if (_activeQRCodeScannerView != null)
+            {
+                var view = _activeQRCodeScannerView;
+                _activeQRCodeScannerView = null;
+                view.Close();
+            }
+        }
+
+        public void ShowQRCodeScannerView(Action<QRCodeScanResult> callback = null)
+        {
+            if (IsQRCodeScannerActive)
+            {
+                return;
+            }
+
+            var prefab = _qrCodeScannerSpatialViewPrefab;
+            if (prefab == null)
+            {
+                prefab = Resources.Load<QRCodeScannerSpatialView>("QRCodeScannerSpatialView");
+            }
+
+            if (prefab != null)
+            {
+                var camera = RootObject.Instance?.BaseCamera ?? Camera.main;
+                var parent = camera != null ? camera.transform : transform;
+                var view = Instantiate(prefab, parent);
+                view.Initialization(onClose => HideQRCodeScannerView(), callback);
+                _activeQRCodeScannerView = view;
+            }
+            else
+            {
+                Debug.LogWarning("[MenuManager] QRCodeScannerSpatialView prefab is not assigned.");
+            }
         }
         public void ShowScreen(ScreenName screenName, string args = "")
         {

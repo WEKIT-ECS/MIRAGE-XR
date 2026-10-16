@@ -243,8 +243,15 @@ namespace MirageXR
 
             if (!arAnchor)
             {
-                AppLog.LogError("Can't create arAnchor");
-                return;
+                AppLog.LogWarning("Can't create arAnchor from floorManager, setting direct anchor pose.");
+                _anchor.SetParent(null);
+                _anchor.SetPositionAndRotation(pose.position, pose.rotation);
+            }
+            else
+            {
+                _anchor.SetParent(arAnchor.transform);
+                _anchor.localPosition = Vector3.zero;
+                _anchor.localRotation = Quaternion.identity;
             }
 
             var activityView = RootObject.Instance.ViewManager.ActivityView;
@@ -255,10 +262,6 @@ namespace MirageXR
             }
 
             var poseOld = activityView.transform.GetPose();
-
-            _anchor.SetParent(arAnchor.transform);
-            _anchor.localPosition = Vector3.zero;
-            _anchor.localRotation = Quaternion.identity;
 
             if (resetAnchor)
             {
