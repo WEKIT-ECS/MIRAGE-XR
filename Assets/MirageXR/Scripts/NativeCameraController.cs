@@ -12,6 +12,8 @@ using System.Runtime.InteropServices;
 #endif
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 
 public class NativeCameraController
 {
@@ -505,21 +507,60 @@ public class NativeCameraController
             };
 
             int size = cpuImage.GetConvertedDataSize(conversionParams);
-            using (var nativeBuffer = new Unity.Collections.NativeArray<byte>(size, Unity.Collections.Allocator.Temp))
+            using (var nativeBuffer = new NativeArray<byte>(size, Allocator.Temp))
             {
                 cpuImage.Convert(conversionParams, nativeBuffer);
 
-                if (target == null || target.width != targetWidth || target.height != targetHeight)
+                bool shouldRotate = Screen.width < Screen.height && targetWidth > targetHeight;
+                if (shouldRotate)
                 {
-                    if (target != null)
-                    {
-                        UnityEngine.Object.Destroy(target);
-                    }
-                    target = new Texture2D(targetWidth, targetHeight, TextureFormat.RGBA32, false);
-                }
+                    int finalWidth = targetHeight;
+                    int finalHeight = targetWidth;
 
-                target.LoadRawTextureData(nativeBuffer);
-                target.Apply(false);
+                    using (var rotatedBuffer = new NativeArray<byte>(size, Allocator.Temp))
+                    {
+                        unsafe
+                        {
+                            uint* src = (uint*)NativeArrayUnsafeUtility.GetUnsafeReadOnlyPtr(nativeBuffer);
+                            uint* dst = (uint*)NativeArrayUnsafeUtility.GetUnsafePtr(rotatedBuffer);
+
+                            for (int y = 0; y < targetHeight; y++)
+                            {
+                                int srcRowOffset = y * targetWidth;
+                                for (int x = 0; x < targetWidth; x++)
+                                {
+                                    dst[x * finalWidth + y] = src[srcRowOffset + x];
+                                }
+                            }
+                        }
+
+                        if (target == null || target.width != finalWidth || target.height != finalHeight)
+                        {
+                            if (target != null)
+                            {
+                                UnityEngine.Object.Destroy(target);
+                            }
+                            target = new Texture2D(finalWidth, finalHeight, TextureFormat.RGBA32, false);
+                        }
+
+                        target.LoadRawTextureData(rotatedBuffer);
+                        target.Apply(false);
+                    }
+                }
+                else
+                {
+                    if (target == null || target.width != targetWidth || target.height != targetHeight)
+                    {
+                        if (target != null)
+                        {
+                            UnityEngine.Object.Destroy(target);
+                        }
+                        target = new Texture2D(targetWidth, targetHeight, TextureFormat.RGBA32, false);
+                    }
+
+                    target.LoadRawTextureData(nativeBuffer);
+                    target.Apply(false);
+                }
             }
 
             _arFrameCounter++;
