@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using LearningExperienceEngine.NewDataModel;
 using Activity = LearningExperienceEngine.DTOs.Activity;
 
 namespace MirageXR
@@ -144,61 +145,102 @@ namespace MirageXR
             UpdateThumbnailViewAsync().Forget();
         }
 
-        private async UniTask UpdateThumbnailViewAsync()
+        private void SetDefaultThumbnailVisible(bool visible)
         {
-            if (_activity is { ThumbnailLink: not null } && !string.IsNullOrEmpty(_activity.ThumbnailLink) &&
-                TryToGetGuids(_activity.ThumbnailLink, out var activityId, out var fileId))
+            if (containerThumbnail != null)
             {
-                await RootObject.Instance.LEE.MediaManager.DownloadMediaFileAsync(activityId, fileId);
-                var texture2D = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(activityId, fileId);
-                if (texture2D != null)
+                var defaultImg = containerThumbnail.Find("Image_Default");
+                if (defaultImg != null)
                 {
-#if VISION_OS  //TODO: temp
-                    var obj = imageThumbnail.gameObject;
-                    DestroyImmediate(imageThumbnail);
-                    var image = obj.AddComponent<Image>();
-
-                    image.gameObject.SetActive(true);
-                    var sprite = Utilities.TextureToSprite(texture2D);
-                    image.sprite = sprite;
-                    await UniTask.NextFrame(PlayerLoopTiming.EarlyUpdate);
-                    var size = LearningExperienceEngine.Utilities.FitRectToRect(containerThumbnail.rect.size, new Vector2(texture2D.width, texture2D.height));
-                    image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
-                    image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
-#else
-                    imageThumbnail.gameObject.SetActive(true);
-                    imageThumbnail.texture = texture2D;
-                    await UniTask.NextFrame(PlayerLoopTiming.EarlyUpdate);
-                    var size = LearningExperienceEngine.Utilities.FitRectToRect(containerThumbnail.rect.size, new Vector2(texture2D.width, texture2D.height));
-                    imageThumbnail.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
-                    imageThumbnail.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
-#endif
+                    defaultImg.gameObject.SetActive(visible);
                 }
             }
         }
 
-        private static bool TryToGetGuids(string url, out Guid activityId, out Guid fileId) //temp
+        private async UniTask UpdateThumbnailViewAsync()
         {
-            const string pattern = @"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})";
-
-            var match = Regex.Match(url, pattern);
-
-            if (match.Success)
+            if (_activity is { ThumbnailLink: not null } && !string.IsNullOrEmpty(_activity.ThumbnailLink))
             {
-                try
+                if (TryToGetGuids(_activity.ThumbnailLink, out var activityId, out var fileId))
                 {
-                    activityId = Guid.Parse(match.Groups[1].Value);
-                    fileId = Guid.Parse(match.Groups[2].Value);
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    UnityEngine.Debug.LogException(e);
+                    var texture2D = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(activityId, fileId);
+                    if (texture2D == null)
+                    {
+                        await RootObject.Instance.LEE.MediaManager.DownloadMediaFileAsync(activityId, fileId);
+                        texture2D = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(activityId, fileId);
+                    }
+
+                    if (texture2D != null)
+                    {
+                        SetDefaultThumbnailVisible(false);
+#if VISION_OS  //TODO: temp
+                        var obj = imageThumbnail.gameObject;
+                        if (imageThumbnail != null)
+                        {
+                            DestroyImmediate(imageThumbnail);
+                        }
+                        var image = obj.GetComponent<Image>();
+                        if (image == null)
+                        {
+                            image = obj.AddComponent<Image>();
+                        }
+
+                        image.gameObject.SetActive(true);
+                        var sprite = Utilities.TextureToSprite(texture2D);
+                        image.sprite = sprite;
+                        await UniTask.NextFrame(PlayerLoopTiming.EarlyUpdate);
+                        var size = LearningExperienceEngine.Utilities.FitRectToRect(containerThumbnail.rect.size, new Vector2(texture2D.width, texture2D.height));
+                        image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+                        image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
+#else
+                        if (imageThumbnail != null)
+                        {
+                            imageThumbnail.gameObject.SetActive(true);
+                            imageThumbnail.texture = texture2D;
+                            await UniTask.NextFrame(PlayerLoopTiming.EarlyUpdate);
+                            var size = LearningExperienceEngine.Utilities.FitRectToRect(containerThumbnail.rect.size, new Vector2(texture2D.width, texture2D.height));
+                            imageThumbnail.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+                            imageThumbnail.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
+                        }
+#endif
+                        return;
+                    }
                 }
             }
 
+            SetDefaultThumbnailVisible(true);
+            if (imageThumbnail != null)
+            {
+                imageThumbnail.gameObject.SetActive(false);
+            }
+        }
+
+        private static bool TryToGetGuids(string url, out Guid activityId, out Guid fileId)
+        {
             activityId = Guid.Empty;
             fileId = Guid.Empty;
+
+            if (string.IsNullOrEmpty(url))
+            {
+                return false;
+            }
+
+            try
+            {
+                var matches = Regex.Matches(url, @"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
+                if (matches.Count >= 2)
+                {
+                    if (Guid.TryParse(matches[0].Value, out activityId) && Guid.TryParse(matches[1].Value, out fileId))
+                    {
+                        return true;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogException(e);
+            }
+
             return false;
         }
     }

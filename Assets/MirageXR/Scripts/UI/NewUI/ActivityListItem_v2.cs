@@ -1,8 +1,10 @@
-﻿using System.IO;
+using System;
+using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DTOs;
-//using LearningExperienceEngine.DataModel;
+using LearningExperienceEngine.NewDataModel;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -12,10 +14,6 @@ namespace MirageXR
 {
     public class ActivityListItem_v2 : MonoBehaviour
     {
-        private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg";
-
-        private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
-
         [SerializeField] private TMP_Text _txtLabel;
         [SerializeField] private TMP_Text _txtDeadline;
         [SerializeField] private TMP_Text _txtAuthor;
@@ -64,21 +62,75 @@ namespace MirageXR
         {
             _txtLabel.text = _activity.Name;
             //_txtDeadline.text = _container.deadline;
-            _txtAuthor.text = _activity.Creator.Name;
+            _txtAuthor.text = _activity.Creator?.Name;
+            LoadThumbnailAsync().Forget();
         }
 
-        private void LoadThumbnail()
+        private async UniTaskVoid LoadThumbnailAsync()
         {
-            var path = Path.Combine(activityManager.ActivityPath, THUMBNAIL_FILE_NAME);
-            if (!File.Exists(path))
+            if (_activity == null || string.IsNullOrEmpty(_activity.ThumbnailLink))
             {
-                _image.sprite = _defaultThumbnail;
+                if (_image != null)
+                {
+                    _image.sprite = _defaultThumbnail;
+                }
                 return;
             }
 
-            var texture = Utilities.LoadTexture(path);
-            var sprite = Utilities.TextureToSprite(texture);
-            _image.sprite = sprite;
+            if (TryToGetGuids(_activity.ThumbnailLink, out var activityId, out var fileId))
+            {
+                var texture = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(activityId, fileId);
+                if (texture == null)
+                {
+                    await RootObject.Instance.LEE.MediaManager.DownloadMediaFileAsync(activityId, fileId);
+                    texture = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(activityId, fileId);
+                }
+
+                if (this == null)
+                {
+                    return;
+                }
+
+                if (texture != null && _image != null)
+                {
+                    _image.sprite = Utilities.TextureToSprite(texture);
+                    return;
+                }
+            }
+
+            if (_image != null)
+            {
+                _image.sprite = _defaultThumbnail;
+            }
+        }
+
+        private static bool TryToGetGuids(string url, out Guid activityId, out Guid fileId)
+        {
+            activityId = Guid.Empty;
+            fileId = Guid.Empty;
+
+            if (string.IsNullOrEmpty(url))
+            {
+                return false;
+            }
+
+            try
+            {
+                var matches = Regex.Matches(url, @"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
+                if (matches.Count >= 2)
+                {
+                    if (Guid.TryParse(matches[0].Value, out activityId) && Guid.TryParse(matches[1].Value, out fileId))
+                    {
+                        return true;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogException(e);
+            }
+
+            return false;
         }
 
         private void OnBtnDelete()
