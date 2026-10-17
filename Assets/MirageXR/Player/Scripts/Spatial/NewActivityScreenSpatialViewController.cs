@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
+using LearningExperienceEngine.NewDataModel;
 using UnityEngine;
 using Activity = LearningExperienceEngine.DataModel.Activity;
 
@@ -10,6 +11,7 @@ namespace MirageXR  //TODO: add Spatial namespace
     {   //TODO: rename to ActivityScreenViewController
         private Activity _activity;
         private Texture2D _texture;
+        private System.Threading.CancellationTokenSource _updateInfoCts;
 
         public override ScreenName ScreenName => ScreenName.NewActivityScreen;
 
@@ -31,6 +33,7 @@ namespace MirageXR  //TODO: add Spatial namespace
             View.SetActionOnButtonRepositionClick(OnButtonRepositionClicked);
             View.SetActionOnToggleShowRoomScanValueChanged(OnToggleShowRoomScanValueChanged);
             View.SetActionOnButtonThumbnailClick(OnButtonThumbnailClicked);
+            View.SetActionOnButtonDeleteThumbnailClick(OnButtonDeleteThumbnailClicked);
 
             View.SetActionOnInputFieldActivityNameEditEnd(OnInputFieldActivityNameEditEnd);
             View.SetActionOnInputFieldActivityDescriptionEditEnd(OnInputFieldActivityDescriptionEditEnd);
@@ -59,6 +62,10 @@ namespace MirageXR  //TODO: add Spatial namespace
                     RootObject.Instance.LEE.StepManager.OnStepChanged -= StepManagerOnStepChanged;
                 }
             }
+
+            _updateInfoCts?.Cancel();
+            _updateInfoCts?.Dispose();
+            _updateInfoCts = null;
         }
 
         private void OnInputFieldActivityNameEditEnd(string text)
@@ -84,20 +91,80 @@ namespace MirageXR  //TODO: add Spatial namespace
 
         private async UniTask SaveThumbnailAsync(Texture2D texture)
         {
-            if (texture == null)
+            if (texture == null || _activity == null)
             {
                 return;
             }
 
-            var file = new FileModel
+            SetThumbnailView(texture);
+            View.SetButtonDeleteThumbnailActive(true);
+
+            try
             {
-                Id = Guid.NewGuid(),
-                CreationDate = DateTime.UtcNow,
-                FileHash = string.Empty
-            };
-            await RootObject.Instance.LEE.MediaManager.SaveToMediaFileAsync(texture, _activity.Id, file.Id);
-            await RootObject.Instance.LEE.ActivityManager.SetThumbnailAsync(file);
-            RootObject.Instance.LEE.AssetsManager.UploadMediaFileAsync(_activity.Id, file.Id).Forget();
+                var activityId = _activity.Id;
+
+                // Delete existing server and local thumbnail if one exists
+                if (_activity.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty)
+                {
+                    await RootObject.Instance.LEE.MediaManager.DeleteMediaFileAsync(activityId, _activity.Thumbnail.Id);
+                }
+
+                var fileId = Guid.NewGuid();
+                await RootObject.Instance.LEE.MediaManager.SaveToMediaFileAsync(texture, activityId, fileId);
+
+                var file = new FileModel
+                {
+                    Id = fileId,
+                    CreationDate = DateTime.UtcNow,
+                    FileHash = string.Empty
+                };
+                await RootObject.Instance.LEE.ActivityManager.SetThumbnailAsync(file);
+                await RootObject.Instance.LEE.AssetsManager.UploadMediaFileAsync(activityId, fileId);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to save thumbnail: {ex}");
+            }
+        }
+
+        private void OnButtonDeleteThumbnailClicked()
+        {
+            DeleteThumbnailAsync().Forget();
+        }
+
+        private async UniTask DeleteThumbnailAsync()
+        {
+            if (_activity == null)
+            {
+                return;
+            }
+
+            try
+            {
+                var activityId = _activity.Id;
+
+                // Delete server asset and local file
+                if (_activity.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty)
+                {
+                    await RootObject.Instance.LEE.MediaManager.DeleteMediaFileAsync(activityId, _activity.Thumbnail.Id);
+                }
+
+                // Clear thumbnail on server activity model
+                await RootObject.Instance.LEE.ActivityManager.SetThumbnailAsync(null);
+
+                // Reset UI
+                View.SetImageThumbnailActive(false);
+                View.SetButtonDeleteThumbnailActive(false);
+                if (_texture != null)
+                {
+                    Destroy(_texture);
+                    _texture = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to delete thumbnail: {ex}");
+            }
         }
 
         private void OnToggleEditorValueChanged(bool value)
@@ -158,7 +225,11 @@ namespace MirageXR  //TODO: add Spatial namespace
         {
             View.SetTitleText(_activity?.Name);
             UpdateStepsView();
-            UpdateInfoViewAsync().Forget();
+
+            _updateInfoCts?.Cancel();
+            _updateInfoCts?.Dispose();
+            _updateInfoCts = new System.Threading.CancellationTokenSource();
+            UpdateInfoViewAsync(_updateInfoCts.Token).Forget();
         }
 
         private void UpdateStepsView()
@@ -188,27 +259,56 @@ namespace MirageXR  //TODO: add Spatial namespace
             UpdateView();
         }
 
-        private async UniTask UpdateInfoViewAsync()
+        private async UniTask UpdateInfoViewAsync(System.Threading.CancellationToken cancellationToken = default)
         {
+            if (_activity == null)
+            {
+                return;
+            }
+
             View.SetInputFieldActivityNameText(_activity.Name);
             View.SetInputFieldActivityDescriptionText(_activity.Description);
 
             if (_texture is not null)
             {
                 Destroy(_texture);
+                _texture = null;
             }
 
-            if (_activity.Thumbnail != null)
+            if (_activity.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty)
             {
-                _texture = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(_activity.Id, _activity.Thumbnail.Id);
+                var fileId = _activity.Thumbnail.Id;
+                _texture = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(_activity.Id, fileId);
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                if (_texture == null)
+                {
+                    await RootObject.Instance.LEE.MediaManager.DownloadMediaFileAsync(_activity.Id, fileId);
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return;
+                    }
+                    _texture = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(_activity.Id, fileId);
+                }
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return;
+                }
+
                 if (_texture is not null)
                 {
                     SetThumbnailView(_texture);
+                    View.SetButtonDeleteThumbnailActive(true);
                     return;
                 }
             }
 
             View.SetImageThumbnailActive(false);
+            View.SetButtonDeleteThumbnailActive(false);
         }
 
         private void SetThumbnailView(Texture2D texture2D)
@@ -267,6 +367,11 @@ namespace MirageXR  //TODO: add Spatial namespace
             View.SetInputFieldActivityNameText(string.Empty);
             View.SetInputFieldActivityDescriptionText(string.Empty);
             View.SetImageThumbnailActive(false);
+            View.SetButtonDeleteThumbnailActive(false);
+
+            _updateInfoCts?.Cancel();
+            _updateInfoCts?.Dispose();
+            _updateInfoCts = null;
         }
 
         private void OnButtonAddNewStepClicked()

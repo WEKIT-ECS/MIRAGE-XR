@@ -16,23 +16,36 @@ public class ThumbnailEditorView : PopupBase
     [SerializeField] protected Button _btnClose;
 
     private string _imagePath;
-    private Action<string> _onAccept;
+    private Action<string> _onAcceptPath;
+    private Action<Texture2D> _onAcceptTexture;
     private Texture2D _texture2D;
 
     protected override bool TryToGetArguments(params object[] args)
     {
-        try
+        if (args == null || args.Length == 0)
         {
-            _onAccept = (Action<string>)args[0];
+            return false;
         }
-        catch (Exception)
+
+        if (args[0] is Action<Texture2D> acceptTexture)
+        {
+            _onAcceptTexture = acceptTexture;
+        }
+        else if (args[0] is Action<string> acceptPath)
+        {
+            _onAcceptPath = acceptPath;
+        }
+        else
         {
             return false;
         }
 
         try
         {
-            _imagePath = (string)args[1];
+            if (args.Length > 1 && args[1] is string path)
+            {
+                _imagePath = path;
+            }
         }
         catch (Exception) { /*ignore*/ }
         return true;
@@ -57,9 +70,19 @@ public class ThumbnailEditorView : PopupBase
             Toast.Instance.Show("The image has not been taken.");
             return;
         }
-        var path = Path.Combine(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.ActivityPath, THUMBNAIL_FILE_NAME);
-        File.WriteAllBytes(path, _texture2D.EncodeToJPG());
-        _onAccept.Invoke(path);
+
+        var texture = _texture2D;
+        _texture2D = null; // Transfer ownership to callback
+
+        _onAcceptTexture?.Invoke(texture);
+
+        if (_onAcceptPath != null)
+        {
+            var tempPath = Path.Combine(Application.temporaryCachePath, THUMBNAIL_FILE_NAME);
+            File.WriteAllBytes(tempPath, texture.EncodeToJPG());
+            _onAcceptPath.Invoke(tempPath);
+        }
+
         Close();
     }
 

@@ -15,6 +15,7 @@ namespace MirageXR
         [SerializeField] private Button _buttonCollaborativeSession;
         [SerializeField] private Button _buttonAddNewStep;
         [SerializeField] private Button _buttonThumbnail;
+        [SerializeField] private Button _buttonDeleteThumbnail;
         [SerializeField] private Button _nextStep;
         [SerializeField] private Button _previousStep;
 
@@ -61,6 +62,18 @@ namespace MirageXR
         public void SetActionOnButtonCollaborativeSessionClick(UnityAction action) => _buttonCollaborativeSession.SafeSetListener(action);
         public void SetActionOnButtonAddNewStepClick(UnityAction action) => _buttonAddNewStep.SafeSetListener(action);
         public void SetActionOnButtonThumbnailClick(UnityAction action) => _buttonThumbnail.SafeSetListener(action);
+        public void SetActionOnButtonDeleteThumbnailClick(UnityAction action) => _buttonDeleteThumbnail?.SafeSetListener(action);
+        public void SetButtonDeleteThumbnailActive(bool active)
+        {
+            if (_buttonDeleteThumbnail != null)
+            {
+                _buttonDeleteThumbnail.gameObject.SetActive(active);
+                if (active)
+                {
+                    _buttonDeleteThumbnail.transform.SetAsLastSibling();
+                }
+            }
+        }
         public void SetActionOnButtonNextStepClick(UnityAction action) => _nextStep.SafeSetListener(action);
         public void SetActionOnButtonPreviousStepClick(UnityAction action) => _previousStep.SafeSetListener(action);
         public void RemoveActionOnToggleEditorValueChanged(UnityAction<bool> action) => _toggleEditorMode.SafeRemoveListener(action);
@@ -68,14 +81,32 @@ namespace MirageXR
         public void SetIsToggleEditorOn(bool value) => _toggleEditorMode.SafeSetIsOn(value);
         public void SetPanelAddNewStepActive(bool value) => _panelAddNewStep.SetActive(value);
         public Vector2 GetImageThumbnailContainerSize() => _thumbnaiContainer.rect.size;
-        public void SetImageThumbnailActive(bool value) => _imageThumbnailTemp.gameObject.SetActive(value);
+        public void SetImageThumbnailActive(bool value)
+        {
+            if (_imageThumbnail != null)
+            {
+                _imageThumbnail.gameObject.SetActive(false);
+            }
+            if (_imageThumbnailTemp != null)
+            {
+                _imageThumbnailTemp.gameObject.SetActive(value);
+            }
+        }
         //public void SetImageThumbnailTexture(Texture2D texture2D) => _imageThumbnailTemp.texture = texture2D;
         public void SetImageThumbnailTexture(Sprite sprite) => _imageThumbnailTemp.sprite = sprite;
         public void SetTitleText(string text) => textTitle.text = text;
         public void SetImageThumbnailSize(Vector2 size)
         {
-            _imageThumbnail.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
-            _imageThumbnail.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+            if (_imageThumbnail != null)
+            {
+                _imageThumbnail.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
+                _imageThumbnail.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+            }
+            if (_imageThumbnailTemp != null)
+            {
+                _imageThumbnailTemp.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
+                _imageThumbnailTemp.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+            }
         }
 
         public Transform GetStepsContainer()

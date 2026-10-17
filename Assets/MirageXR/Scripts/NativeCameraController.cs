@@ -527,9 +527,10 @@ public class NativeCameraController
                             for (int y = 0; y < targetHeight; y++)
                             {
                                 int srcRowOffset = y * targetWidth;
+                                int dstCol = targetHeight - 1 - y;
                                 for (int x = 0; x < targetWidth; x++)
                                 {
-                                    dst[x * finalWidth + y] = src[srcRowOffset + x];
+                                    dst[(targetWidth - 1 - x) * finalWidth + dstCol] = src[srcRowOffset + x];
                                 }
                             }
                         }
@@ -670,18 +671,68 @@ public class NativeCameraController
             webcam = new WebCamTexture(maxSize, maxSize, 30);
             webcam.Play();
 
+            // 1. Wait until webcam initializes dimensions and starts streaming
             float elapsed = 0f;
-            while (webcam.width <= 16 && elapsed < 2.0f)
+            while (webcam.width <= 16 && elapsed < 3.0f)
             {
-                await UniTask.Delay(100);
-                elapsed += 0.1f;
+                await UniTask.Delay(50);
+                elapsed += 0.05f;
             }
 
             if (webcam.width > 16)
             {
-                var tex = new Texture2D(webcam.width, webcam.height, TextureFormat.RGBA32, false);
-                tex.SetPixels32(webcam.GetPixels32());
+                // 2. Hardware Auto-Exposure (AE) & Auto-White-Balance (AWB) warmup.
+                // Hardware webcams initialize with minimum exposure/gain (producing near-black frames).
+                // Allowing ~25 updated frames (~0.8s to 1.0s) lets camera hardware adapt to ambient light.
+                int framesCounted = 0;
+                float warmupElapsed = 0f;
+                const float maxWarmupTime = 1.2f;
+
+                while (warmupElapsed < maxWarmupTime && framesCounted < 25)
+                {
+                    await UniTask.Delay(33);
+                    warmupElapsed += 0.033f;
+                    if (webcam.didUpdateThisFrame)
+                    {
+                        framesCounted++;
+                    }
+                }
+
+                int width = webcam.width;
+                int height = webcam.height;
+
+                // 3. Render via GPU RenderTexture with sRGB handling for Linear color space
+                bool isLinear = QualitySettings.activeColorSpace == ColorSpace.Linear;
+                var rtReadWrite = isLinear ? RenderTextureReadWrite.sRGB : RenderTextureReadWrite.Default;
+                var renderTexture = RenderTexture.GetTemporary(width, height, 0, RenderTextureFormat.ARGB32, rtReadWrite);
+
+                bool isMirrored = webcam.videoVerticallyMirrored;
+                Vector2 scale = new Vector2(1, isMirrored ? -1 : 1);
+                Vector2 offset = new Vector2(0, isMirrored ? 1 : 0);
+
+                bool prevSrgb = GL.sRGBWrite;
+                if (isLinear)
+                {
+                    GL.sRGBWrite = true;
+                }
+
+                Graphics.Blit(webcam, renderTexture, scale, offset);
+
+                if (isLinear)
+                {
+                    GL.sRGBWrite = prevSrgb;
+                }
+
+                var prevActive = RenderTexture.active;
+                RenderTexture.active = renderTexture;
+
+                var tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
+                tex.ReadPixels(new Rect(0, 0, width, height), 0, 0);
                 tex.Apply();
+
+                RenderTexture.active = prevActive;
+                RenderTexture.ReleaseTemporary(renderTexture);
+
                 webcam.Stop();
                 UnityEngine.Object.Destroy(webcam);
                 callback?.Invoke(true, tex);

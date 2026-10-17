@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
 using LearningExperienceEngine.NewDataModel;
 using MirageXR;
@@ -14,7 +15,6 @@ using Action = System.Action;
 public class StepsListView_v2 : BaseView
 {
     private const string CALIBRATION_IMAGE_FILE_NAME = "MirageXR_calibration_image_pdf.pdf";
-    private const string THUMBNAIL_FILE_NAME = "thumbnail.jpg";
     private const int MAX_PICTURE_SIZE = 1024;
     // new IActivityManager 
     private static IActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManager;
@@ -36,6 +36,7 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private Button _btnBack;
     [SerializeField] private Button _btnSettings;
     [SerializeField] private Button _btnThumbnail;
+    [SerializeField] private Button _btnDeleteThumbnail;
     [SerializeField] private Button _btnFloorLevel;
     [SerializeField] private Button _btnWithMarker;
     [SerializeField] private Button _btnMarkerLess;
@@ -86,6 +87,7 @@ public class StepsListView_v2 : BaseView
 
         _btnAddStep.onClick.AddListener(OnAddStepClick);
         _btnThumbnail.onClick.AddListener(OnThumbnailButtonPressed);
+        _btnDeleteThumbnail?.onClick.AddListener(() => DeleteThumbnailAsync().Forget());
 
         _btnFloorLevel.onClick.AddListener(ShowFloorDetectionOnlyView);
         _btnWithMarker.onClick.AddListener(ShowImageTargetCalibrationView);
@@ -308,6 +310,8 @@ public class StepsListView_v2 : BaseView
             {
                 _inputFieldActivityDescription.text = _activity.Description;
             }
+
+            LoadThumbnail();
         }
     }
 
@@ -367,27 +371,139 @@ public class StepsListView_v2 : BaseView
     /// At the moment a default thumbnail is shown. See this ticket for more information: 
     /// https://github.com/WEKIT-ECS/MIRAGE-XR/issues/2381
     /// </remarks>
+    private void SetButtonDeleteThumbnailActive(bool active)
+    {
+        if (_btnDeleteThumbnail != null)
+        {
+            _btnDeleteThumbnail.gameObject.SetActive(active);
+            if (active)
+            {
+                _btnDeleteThumbnail.transform.SetAsLastSibling();
+            }
+        }
+    }
+
     private void LoadThumbnail()
     {
-        // temp for in oder to shoe a default thumbnail
-        _defaultThumbnail.SetActive(true);
-        _imgThumbnail.gameObject.SetActive(false);
-        
-        // old implementation for orientation
-        
-        // var path = Path.Combine(activityManager.ActivityPath, THUMBNAIL_FILE_NAME);
-        // if (!File.Exists(path))
-        // {
-        //     _defaultThumbnail.SetActive(true);
-        //     _imgThumbnail.gameObject.SetActive(false);
-        //     return;
-        // }
-        //
-        // var texture = MirageXR.Utilities.LoadTexture(path);
-        // var sprite = MirageXR.Utilities.TextureToSprite(texture);
-        // _defaultThumbnail.SetActive(false);
-        // _imgThumbnail.gameObject.SetActive(true);
-        // _imgThumbnail.sprite = sprite;
+        LoadThumbnailAsync().Forget();
+    }
+
+    private async UniTaskVoid LoadThumbnailAsync()
+    {
+        if (_activity == null)
+        {
+            _defaultThumbnail.SetActive(true);
+            _imgThumbnail.gameObject.SetActive(false);
+            SetButtonDeleteThumbnailActive(false);
+            return;
+        }
+
+        var hasThumbnail = _activity.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty;
+        if (!hasThumbnail)
+        {
+            _defaultThumbnail.SetActive(true);
+            _imgThumbnail.gameObject.SetActive(false);
+            SetButtonDeleteThumbnailActive(false);
+            return;
+        }
+
+        var fileId = _activity.Thumbnail.Id;
+        var texture = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(_activity.Id, fileId);
+        if (texture == null)
+        {
+            await RootObject.Instance.LEE.MediaManager.DownloadMediaFileAsync(_activity.Id, fileId);
+            texture = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(_activity.Id, fileId);
+        }
+
+        if (texture != null)
+        {
+            var sprite = MirageXR.Utilities.TextureToSprite(texture);
+            _defaultThumbnail.SetActive(false);
+            _imgThumbnail.gameObject.SetActive(true);
+            _imgThumbnail.sprite = sprite;
+            SetButtonDeleteThumbnailActive(true);
+        }
+        else
+        {
+            _defaultThumbnail.SetActive(true);
+            _imgThumbnail.gameObject.SetActive(false);
+            SetButtonDeleteThumbnailActive(false);
+        }
+    }
+
+    private async UniTask SaveThumbnailAsync(Texture2D texture)
+    {
+        if (_activity == null || texture == null)
+        {
+            return;
+        }
+
+        var sprite = MirageXR.Utilities.TextureToSprite(texture);
+        _defaultThumbnail.SetActive(false);
+        _imgThumbnail.gameObject.SetActive(true);
+        _imgThumbnail.sprite = sprite;
+        SetButtonDeleteThumbnailActive(true);
+
+        try
+        {
+            var activityId = _activity.Id;
+
+            // Delete existing server and local thumbnail if one exists
+            if (_activity.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty)
+            {
+                await RootObject.Instance.LEE.MediaManager.DeleteMediaFileAsync(activityId, _activity.Thumbnail.Id);
+            }
+
+            var fileId = Guid.NewGuid();
+            // Save to local media folder
+            await RootObject.Instance.LEE.MediaManager.SaveToMediaFileAsync(texture, activityId, fileId);
+
+            // Update activity model metadata
+            var file = new FileModel
+            {
+                Id = fileId,
+                CreationDate = DateTime.UtcNow
+            };
+            await activityManager.SetThumbnailAsync(file);
+
+            // Upload to server asset repository
+            await RootObject.Instance.LEE.AssetsManager.UploadMediaFileAsync(activityId, fileId);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to save thumbnail: {ex}");
+        }
+    }
+
+    private async UniTask DeleteThumbnailAsync()
+    {
+        if (_activity == null)
+        {
+            return;
+        }
+
+        try
+        {
+            var activityId = _activity.Id;
+
+            // Delete server asset and local file
+            if (_activity.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty)
+            {
+                await RootObject.Instance.LEE.MediaManager.DeleteMediaFileAsync(activityId, _activity.Thumbnail.Id);
+            }
+
+            // Clear thumbnail in activity model and update server activity JSON
+            await activityManager.SetThumbnailAsync(null);
+
+            // Reset UI
+            _defaultThumbnail.SetActive(true);
+            _imgThumbnail.gameObject.SetActive(false);
+            SetButtonDeleteThumbnailActive(false);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to delete thumbnail: {ex}");
+        }
     } 
     public void OnDeleteStepClick(ActivityStep step, Action deleteCallback = null)
     {
@@ -469,29 +585,30 @@ public class StepsListView_v2 : BaseView
 
     private void OnThumbnailButtonPressed()
     {
-        RootView_v2.Instance.dialog.ShowMiddleMultiline(
-            "Add Image",
-            ("Camera", OpenCamera, false),
-            ("Gallery", OpenGallery, false),
-            ("Cancel", null, true));
+        var hasThumbnail = _activity != null && _activity.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty;
+        if (hasThumbnail)
+        {
+            RootView_v2.Instance.dialog.ShowMiddleMultiline(
+                "Activity Thumbnail",
+                ("Camera", OpenCamera, false),
+                ("Gallery", OpenGallery, false),
+                ("Delete Thumbnail", () => DeleteThumbnailAsync().Forget(), false),
+                ("Cancel", null, true));
+        }
+        else
+        {
+            RootView_v2.Instance.dialog.ShowMiddleMultiline(
+                "Add Image",
+                ("Camera", OpenCamera, false),
+                ("Gallery", OpenGallery, false),
+                ("Cancel", null, true));
+        }
     }
     
-    /// <summary>
-    /// Opens the camera interface allowing the user to capture a new image.
-    /// The captured image will be temporarily saved and can be used as a thumbnail.
-    /// </summary>
-    /// <remarks>
-    /// The image is stored in a temporary cache location. 
-    /// Currently, there is no backend upload for the captured image. 
-    /// The thumbnail metadata is updated locally, but the actual file is not persisted server-side.
-    /// See the following ticket for backend integration progress: 
-    /// https://github.com/WEKIT-ECS/MIRAGE-XR/issues/2381
-    /// </remarks>
     private void OpenCamera()
     {
-        Action<string> onAccept = OnThumbnailAccepted;
-        var tempPath = Path.Combine(Application.temporaryCachePath, THUMBNAIL_FILE_NAME);
-        PopupsViewer.Instance.Show(_thumbnailEditorPrefab, onAccept, tempPath);
+        Action<Texture2D> onAccept = (texture) => SaveThumbnailAsync(texture).Forget();
+        PopupsViewer.Instance.Show(_thumbnailEditorPrefab, onAccept);
     }
 
     private void OpenGallery()
@@ -543,16 +660,7 @@ public class StepsListView_v2 : BaseView
                 Texture2D croppedTexture = CropTextureToFitWidth(texture2D, targetAspect, true);
                 Destroy(texture2D);
 
-                // Set picture
-                var sprite = MirageXR.Utilities.TextureToSprite(croppedTexture);
-                _defaultThumbnail.SetActive(false);
-                _imgThumbnail.gameObject.SetActive(true);
-                _imgThumbnail.sprite = sprite;
-
-                // Save picture
-                byte[] bytes = croppedTexture.EncodeToJPG();
-                var tempPath = Path.Combine(Application.temporaryCachePath, THUMBNAIL_FILE_NAME);
-                File.WriteAllBytes(tempPath, bytes);
+                SaveThumbnailAsync(croppedTexture).Forget();
             }
         });
     }
