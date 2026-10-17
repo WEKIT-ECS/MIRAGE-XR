@@ -55,6 +55,11 @@ namespace MirageXR
 
         public async Task<AudioClip> AskInstructorWithAudioQuestion(AudioClip question)
         {
+            if (question == null)
+            {
+                return null;
+            }
+
             var instructor = DetermineVirtualInstructor();
             if (instructor == null)
             {

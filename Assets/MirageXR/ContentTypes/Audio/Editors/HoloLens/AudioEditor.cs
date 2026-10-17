@@ -1,4 +1,4 @@
-﻿using LearningExperienceEngine;
+using LearningExperienceEngine;
 using MirageXR;
 using System.Collections;
 using System.IO;
@@ -386,7 +386,7 @@ public class AudioEditor : MonoBehaviour
         {
             SaveFileName = $"MirageXR_Audio_{System.DateTime.Now.ToFileTimeUtc()}.wav";
         }
-        RootObject.Instance.LEE.AudioManager.Start();
+        RootObject.Instance.LEE.MicrophoneManager.Start();
 
         if (gameObject.activeInHierarchy)
         {
@@ -408,7 +408,7 @@ public class AudioEditor : MonoBehaviour
 
         if (_isRecording)
         {
-            _capturedClip = RootObject.Instance.LEE.AudioManager.Stop();
+            _capturedClip = RootObject.Instance.LEE.MicrophoneManager.Stop();
 
             IsRecording = false;
 

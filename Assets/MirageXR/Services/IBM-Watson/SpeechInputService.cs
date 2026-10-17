@@ -26,6 +26,7 @@ using IBM.Cloud.SDK;
 using IBM.Cloud.SDK.Utilities;
 using IBM.Cloud.SDK.DataTypes;
 using System;
+using System.Collections.Generic;
 using MirageXR;
 using System.Linq;
 using LearningExperienceEngine.NewDataModel;
@@ -58,11 +59,9 @@ public class SpeechInputService : MonoBehaviour
 
     //public Action onInputReceived;
 
-    private int _recordingRoutine = 0;
-    private string _microphoneID = null;
-    private AudioClip _recording = null;
-    private int _recordingBufferSize = 1;
-    private int _recordingHZ = 22050;
+    private IDisposable _audioSubscription;
+    private readonly List<float> _samplesBuffer = new();
+    private readonly object _bufferLock = new();
 
     //private AudioSource audioSrc;
 
@@ -72,16 +71,11 @@ public class SpeechInputService : MonoBehaviour
 
     void Start()
     {
-
-        _microphoneID = AudioRecorder.GetRecordingDevices()?.First();
-
         LogSystem.InstallDefaultReactors();
         Runnable.Run(CreateService());
 
-
         myDS = GetComponent<DialogueService>();
         //audioSrc = GetComponent<AudioSource>();
-
     }
 
     private IEnumerator CreateService()
@@ -154,21 +148,24 @@ public class SpeechInputService : MonoBehaviour
 
     public void StartRecording()
     {
-
-        if (_recordingRoutine == 0)
+        if (_audioSubscription != null) return;
+        lock (_bufferLock)
         {
-            UnityObjectUtil.StartDestroyQueue();
-            _recordingRoutine = Runnable.Run(RecordingHandler());
+            _samplesBuffer.Clear();
+        }
+        if (RootObject.Instance != null && RootObject.Instance.LEE != null && RootObject.Instance.LEE.MicrophoneManager != null)
+        {
+            _audioSubscription = RootObject.Instance.LEE.MicrophoneManager.SubscribeRawAudio(OnRawAudioFrame);
         }
     }
 
     public void StopRecording()
     {
-        if (_recordingRoutine != 0)
+        _audioSubscription?.Dispose();
+        _audioSubscription = null;
+        lock (_bufferLock)
         {
-            Microphone.End(_microphoneID);
-            Runnable.Stop(_recordingRoutine);
-            _recordingRoutine = 0;
+            _samplesBuffer.Clear();
         }
     }
 
@@ -179,62 +176,53 @@ public class SpeechInputService : MonoBehaviour
         Log.Debug("STT.OnError()", "Error! {0}", error);
     }
 
-    private IEnumerator RecordingHandler()
+    private void OnRawAudioFrame(float[] data, int sampleRate, int channels)
     {
-        //Log.Debug("STT.RecordingHandler()", "devices: {0}", Microphone.devices);
-        _recording = Microphone.Start(_microphoneID, true, _recordingBufferSize, _recordingHZ);
+        if (_service == null || !_service.IsListening) return;
 
-        yield return null;      // let _recordingRoutine get set..
+        float[] chunkToProcess = null;
+        int chunkSampleRate = sampleRate;
 
-        if (_recording == null)
+        lock (_bufferLock)
         {
-            StopRecording();
-            yield break;
-        }
-
-        bool bFirstBlock = true;
-        int midPoint = _recording.samples / 2;
-        float[] samples = null;
-
-        while (_recordingRoutine != 0 && _recording != null)
-        {
-            int writePos = Microphone.GetPosition(_microphoneID);
-            if (writePos > _recording.samples || !Microphone.IsRecording(_microphoneID))
+            if (channels <= 1)
             {
-                Log.Error("STT.RecordingHandler()", "Microphone disconnected.");
-                StopRecording();
-                yield break;
-            }
-
-            if ((bFirstBlock && writePos >= midPoint)
-                || (!bFirstBlock && writePos < midPoint))
-            {
-                // front block is recorded, make a RecordClip and pass it onto our callback.
-                samples = new float[midPoint];
-                _recording.GetData(samples, bFirstBlock ? 0 : midPoint);
-
-                AudioData record = new AudioData();
-                record.MaxLevel = Mathf.Max(Mathf.Abs(Mathf.Min(samples)), Mathf.Max(samples));
-                record.Clip = AudioClip.Create("Recording", midPoint, _recording.channels, _recordingHZ, false);
-                record.Clip.SetData(samples, 0);
-
-                _service.OnListen(record);
-
-                bFirstBlock = !bFirstBlock;
+                _samplesBuffer.AddRange(data);
             }
             else
             {
-                // calculate the number of samples remaining until we ready for a block of audio,
-                // and wait that amount of time it will take to record.
-                int remaining = bFirstBlock ? (midPoint - writePos) : (_recording.samples - writePos);
-                float timeRemaining = (float)remaining / (float)_recordingHZ;
-
-                yield return new WaitForSeconds(timeRemaining);
+                int count = data.Length / channels;
+                for (int i = 0; i < count; i++)
+                {
+                    float sum = 0f;
+                    int offset = i * channels;
+                    for (int c = 0; c < channels; c++) sum += data[offset + c];
+                    _samplesBuffer.Add(sum / channels);
+                }
             }
 
+            int targetSamples = sampleRate / 2;
+            if (_samplesBuffer.Count >= targetSamples)
+            {
+                chunkToProcess = _samplesBuffer.GetRange(0, targetSamples).ToArray();
+                _samplesBuffer.RemoveRange(0, targetSamples);
+            }
         }
 
-        yield break;
+        if (chunkToProcess != null)
+        {
+            AudioData record = new AudioData();
+            record.MaxLevel = Mathf.Max(Mathf.Abs(Mathf.Min(chunkToProcess)), Mathf.Max(chunkToProcess));
+            record.Clip = AudioClip.Create("Recording", chunkToProcess.Length, 1, chunkSampleRate, false);
+            record.Clip.SetData(chunkToProcess, 0);
+
+            _service.OnListen(record);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        StopRecording();
     }
 
     private void OnRecognize(SpeechRecognitionEvent result)

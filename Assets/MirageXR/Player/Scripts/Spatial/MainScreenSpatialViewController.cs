@@ -1,4 +1,6 @@
+using System;
 using Cysharp.Threading.Tasks;
+using i5.Toolkit.Core.VerboseLogging;
 using LearningExperienceEngine.DTOs;
 using UnityEngine;
 using Activity = LearningExperienceEngine.DataModel.Activity;
@@ -178,7 +180,27 @@ namespace MirageXR
             }
             else
             {
-                RootObject.Instance.LEE.ActivityManager.LoadActivityAsync(activity.Id).Forget();
+                LoadActivityAsync(activity).Forget();
+            }
+        }
+
+        private async UniTask LoadActivityAsync(LearningExperienceEngine.DTOs.Activity activity)
+        {
+            try
+            {
+                await RootObject.Instance.LEE.ActivityManager.LoadActivityAsync(activity.Id);
+            }
+            catch (Exception ex)
+            {
+                AppLog.LogError($"Failed to load activity '{activity.Name}': {ex.Message}");
+                if (DialogWindow.Instance != null)
+                {
+                    DialogWindow.Instance.Show("Error", $"Activity '{activity.Name}' could not be found or loaded.", new DialogButtonContent("OK"));
+                }
+                else if (MenuManager.Instance?.Dialog != null)
+                {
+                    MenuManager.Instance.Dialog.ShowMiddle("Error", $"Activity '{activity.Name}' could not be found or loaded.", "OK", () => { });
+                }
             }
         }
 

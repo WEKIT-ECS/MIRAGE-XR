@@ -46,7 +46,7 @@ namespace MirageXR
 
         /// <summary>
         /// Cancels the current recording session:
-        /// - Stops AudioManager
+        /// - Stops MicrophoneManager
         /// - Resets UI
         /// </summary>
         private void CancelRecording()

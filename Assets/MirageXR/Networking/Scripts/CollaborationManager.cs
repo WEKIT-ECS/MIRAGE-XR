@@ -35,6 +35,7 @@ namespace MirageXR
 		private IAssetBundleManager _assetBundleManager;
 		private NetworkActivityView _networkActivityView;
 		private Recorder _recorder;
+		private PhotonRecorderMicSource _photonMicSource;
 
 		private readonly List<AudioSource> _voiceSources = new();
 		private bool _muteVoiceChat;
@@ -90,6 +91,10 @@ namespace MirageXR
 			var recorderObj = new GameObject("Recorder");
 			recorderObj.transform.SetParent(transform);
 			_recorder = recorderObj.AddComponent<Recorder>();
+			_recorder.SamplingRate = POpusCodec.Enums.SamplingRate.Sampling48000;
+			_photonMicSource = recorderObj.AddComponent<PhotonRecorderMicSource>();
+			_photonMicSource.Initialize(_recorder);
+			RootObject.Instance.LEE.MicrophoneManager.RegisterExternalSource(_photonMicSource);
 
 			_networkedUserManager.Initialize(this, authorizationManager);
 			_connectionManager.Initialize(this);
@@ -99,7 +104,20 @@ namespace MirageXR
 		public void Dispose()
 		{
 #if FUSION2
+			if (_photonMicSource != null && RootObject.Instance?.LEE?.MicrophoneManager != null)
+			{
+				RootObject.Instance.LEE.MicrophoneManager.UnregisterExternalSource(_photonMicSource);
+			}
 			_networkedUserManager.Dispose();
+			if (_networkRunner != null)
+			{
+				_networkRunner.RemoveCallbacks(this);
+				if (_networkRunner.gameObject != null)
+				{
+					Destroy(_networkRunner.gameObject);
+				}
+				_networkRunner = null;
+			}
 #endif
 		}
 
@@ -170,16 +188,43 @@ namespace MirageXR
 			//}
 
 			_handTrackingManager.StartTracking();
-			_recorder.MicrophoneDevice = new Photon.Voice.DeviceInfo(Microphone.devices.First());
+
+			var audioDevice = RootObject.Instance.LEE.MicrophoneManager.AudioDevice;
+			if (!string.IsNullOrEmpty(audioDevice))
+			{
+				_recorder.MicrophoneDevice = new Photon.Voice.DeviceInfo(audioDevice);
+			}
+			else if (Microphone.devices.Length > 0)
+			{
+				_recorder.MicrophoneDevice = new Photon.Voice.DeviceInfo(Microphone.devices.First());
+			}
 
 			Debug.Log($"Photon Voice is now using the following microphone: {_recorder.MicrophoneDevice.Name}");
 
 			var result = await ConnectionManager.ConnectAsync(_networkRunner);
 			if (result)
 			{
-				_fusionVoiceClient.ConnectAndJoinRoom();
+				if (RootObject.Instance.LEE.MicrophoneManager.IsRecording)
+				{
+					WaitForRecordingToFinishAndJoinVoice().Forget();
+				}
+				else
+				{
+					_fusionVoiceClient.ConnectAndJoinRoom();
+				}
 			}
 			return result;
+		}
+
+		private async UniTaskVoid WaitForRecordingToFinishAndJoinVoice()
+		{
+			Debug.Log("[CollaborationManager] Recording is active, deferring voice start until recording finishes...");
+			await UniTask.WaitWhile(() => RootObject.Instance.LEE.MicrophoneManager.IsRecording);
+			if (_networkRunner != null && _networkRunner.IsConnectedToServer && _fusionVoiceClient != null)
+			{
+				Debug.Log("[CollaborationManager] Recording finished, joining voice room now.");
+				_fusionVoiceClient.ConnectAndJoinRoom();
+			}
 		}
 
 		public void AddVoiceSource(AudioSource voiceSource)
@@ -195,7 +240,7 @@ namespace MirageXR
 		private void CreateRunner()
 		{
 			var networkRunnerObj = new GameObject("NetworkRunner");
-			networkRunnerObj.transform.SetParent(transform);
+			// Keep networkRunnerObj as a root GameObject so that FusionVoiceClient (via ConnectionHandler) can call DontDestroyOnLoad without Unity error
 			_networkRunner = networkRunnerObj.AddComponent<NetworkRunner>();
 			_fusionVoiceClient = networkRunnerObj.AddComponent<FusionVoiceClient>();
 			_fusionVoiceClient.AutoConnectAndJoin = false;

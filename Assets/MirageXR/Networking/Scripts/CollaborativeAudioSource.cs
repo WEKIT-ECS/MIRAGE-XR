@@ -20,12 +20,10 @@ namespace MirageXR
 
 		private void OnDestroy()
 		{
-			if (RootObject.Instance is null)
+			if (RootObject.Instance?.CollaborationManager != null && _audioSource != null)
 			{
-				return;
+				RootObject.Instance.CollaborationManager.RemoveVoiceSource(_audioSource);
 			}
-
-			RootObject.Instance.CollaborationManager.RemoveVoiceSource(_audioSource);
 
 			UnBindLipSync();
 #endif

@@ -1,4 +1,4 @@
-﻿using LearningExperienceEngine;
+using LearningExperienceEngine;
 using MirageXR;
 using System.Collections.Generic;
 using System.IO;
@@ -249,7 +249,7 @@ public class GhosttrackEditor : MonoBehaviour
             _ghostPreviewHeadTransform = _ghostPreviewTransform.Find("Head");
 
             _ghostRecorder.Start(_augOrigin, _cameraTransform);
-            RootObject.Instance.LEE.AudioManager.Start(_audioFileName);
+            RootObject.Instance.LEE.MicrophoneManager.Start(_audioFileName);
 
             IsRecording = true;
         }
@@ -277,7 +277,7 @@ public class GhosttrackEditor : MonoBehaviour
         }
 
         _ghostFrames = _ghostRecorder.Stop();
-        _audioClip = RootObject.Instance.LEE.AudioManager.Stop();
+        _audioClip = RootObject.Instance.LEE.MicrophoneManager.Stop();
 
         Debug.Log("Stopped recording ghost track");
     }

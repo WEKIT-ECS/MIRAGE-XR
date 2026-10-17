@@ -15,7 +15,7 @@ namespace MirageXR
 		[Networked, Capacity(25), OnChangedRender(nameof(OnNetworkedUserNameChanged))]
 		public string UserName { get; set; }
 
-		[Networked, Capacity(64), OnChangedRender(nameof(OnNetworkedAvatarUrlChanged))]
+		[Networked, Capacity(512), OnChangedRender(nameof(OnNetworkedAvatarUrlChanged))]
 		public string AvatarUrl { get; set; }
 
 		public NetworkedAvatarReferences AvatarReferences { get => AvatarRefs; }

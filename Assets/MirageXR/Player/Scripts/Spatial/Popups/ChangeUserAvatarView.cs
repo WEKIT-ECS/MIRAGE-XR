@@ -36,13 +36,21 @@ namespace MirageXR
 			_rectTransform = GetComponent<RectTransform>();
 
 			_closeWindowBtn.onClick.AddListener(Close);
-			_openEditorBtn.onClick.AddListener(OpenEditor);
+			if (_openEditorBtn != null)
+			{
+				_openEditorBtn.gameObject.SetActive(false);
+			}
 			_replaceModelBtn.onClick.AddListener(OpenAvatarLibrary);
 			_characterModelSelectionElement.GalleryElementSelectionStarted += OpenAvatarLibrary;
 
+			if (_characterModelSelectionElement != null && _characterModelSelectionElement.Thumbnail != null)
+			{
+				_characterModelSelectionElement.Thumbnail.ThumbnailProvider = RootObject.Instance.AvatarLoadManager;
+			}
+
 			string avatarId = AvatarLoadUtils.GetId(UserSettings.AvatarUrl);
 			// add the current avatar to the library so that it can be loaded
-			if (!RootObject.Instance.AvatarLibraryManager.Contains(avatarId))
+			if (!string.IsNullOrEmpty(avatarId) && !avatarId.Equals("DefaultAvatar", StringComparison.OrdinalIgnoreCase) && !RootObject.Instance.AvatarLibraryManager.Contains(avatarId))
 			{
 				RootObject.Instance.AvatarLibraryManager.Add(avatarId);
 			}
@@ -98,7 +106,8 @@ namespace MirageXR
 		// apply the currently saved AvatarUrl to the UI to reflect the selected avatar
 		private void ApplyAvatarUrl()
 		{
-			_characterModelSelectionElement.Thumbnail.ElementId = UserSettings.AvatarUrl;
+			string cleanId = AvatarLoadUtils.GetId(UserSettings.AvatarUrl);
+			_characterModelSelectionElement.Thumbnail.ElementId = string.IsNullOrEmpty(cleanId) ? "DefaultAvatar" : cleanId;
 		}
 	}
 }
