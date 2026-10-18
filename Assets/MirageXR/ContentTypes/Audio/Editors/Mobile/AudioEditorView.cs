@@ -301,7 +301,7 @@ public class AudioEditorView : PopupEditorBase
         SetPlayerActive(false);
 
         _recordStartTime = Time.unscaledTime;
-        RootObject.Instance.LEE.AudioManager.Start(_fileName);
+        RootObject.Instance.LEE.MicrophoneManager.Start(_fileName);
         StartUpdateRecordTimer();
     }
 
@@ -309,7 +309,7 @@ public class AudioEditorView : PopupEditorBase
     {
         _recordStartTime = 0;
         SetPlayerActive(true);
-        _audioClip = RootObject.Instance.LEE.AudioManager.Stop();
+        _audioClip = RootObject.Instance.LEE.MicrophoneManager.Stop();
         _groupPlayControls.interactable = true;
         StopCoroutine(_updateRecordTimerCoroutine);
         
@@ -396,7 +396,7 @@ public class AudioEditorView : PopupEditorBase
     {
         const float second = 1.0f;
 
-        while (RootObject.Instance.LEE.AudioManager.IsRecording)
+        while (RootObject.Instance.LEE.MicrophoneManager.IsRecording)
         {
             UpdateRecordTimer();
             yield return new WaitForSeconds(second);

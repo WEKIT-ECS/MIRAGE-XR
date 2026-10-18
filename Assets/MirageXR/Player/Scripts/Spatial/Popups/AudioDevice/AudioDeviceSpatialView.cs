@@ -36,8 +36,8 @@ namespace MirageXR
             }
             _list.Clear();
 
-            var audioDevice = RootObject.Instance.LEE.AudioManager.AudioDevice;
-            var devices = RootObject.Instance.LEE.AudioManager.GetRecordingDevices();
+            var audioDevice = RootObject.Instance.LEE.MicrophoneManager.AudioDevice;
+            var devices = RootObject.Instance.LEE.MicrophoneManager.GetRecordingDevices();
             foreach (var device in devices)
             {
                 var item = Instantiate(listItemPrefab, container);
@@ -57,7 +57,7 @@ namespace MirageXR
 
         private void OnToggleActivated(string deviceName)
         {
-            RootObject.Instance.LEE.AudioManager.SetRecordingDevice(deviceName);
+            RootObject.Instance.LEE.MicrophoneManager.SetRecordingDevice(deviceName);
             Close();
         }
     }

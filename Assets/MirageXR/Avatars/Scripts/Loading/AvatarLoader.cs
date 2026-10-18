@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using LearningExperienceEngine;
 using ReadyPlayerMe.Core;
 using System;
 using System.Linq;
@@ -126,6 +127,16 @@ namespace MirageXR
 			_importerBusy = true;
 			//AvatarObjectLoader.LoadAvatar(avatarUrl);
 			GameObject instance = await RootObject.Instance.AvatarLoadManager.CreateGameObjectAsync(avatarUrl);
+			if (instance == null && defaultAvatarPrefab != null)
+			{
+				Debug.LogWarning($"[AvatarLoader] Could not load avatar from '{avatarUrl}', falling back to default avatar prefab.");
+				instance = Instantiate(defaultAvatarPrefab);
+				if (avatarUrl == UserSettings.AvatarUrl || AvatarLoadUtils.GetId(avatarUrl) == AvatarLoadUtils.GetId(UserSettings.AvatarUrl))
+				{
+					UserSettings.AvatarUrl = "DefaultAvatar";
+				}
+			}
+
 			if (instance != null)
 			{
 				OnLoadCompleted(avatarUrl, instance);

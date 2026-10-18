@@ -65,23 +65,24 @@ namespace MirageXR
 
         private void OnDestroy()
         {
-            button.onClick.RemoveListener(OnButtonClick);
-            buttonMenu.onClick.RemoveListener(OnButtonMenuClick);
-            buttonDelete.onClick.RemoveListener(OnButtonDeleteClick);
-            buttonDeleteConfirmation.onClick.RemoveListener(DeleteStep);
-            buttonDeleteCancel.onClick.RemoveListener(HideDeleteConfirmation);
-            _stepCompletedToggle.onValueChanged.RemoveListener(OnStepCompleted);
+            if (button != null) button.onClick.RemoveListener(OnButtonClick);
+            if (buttonMenu != null) buttonMenu.onClick.RemoveListener(OnButtonMenuClick);
+            if (buttonDelete != null) buttonDelete.onClick.RemoveListener(OnButtonDeleteClick);
+            if (buttonDeleteConfirmation != null) buttonDeleteConfirmation.onClick.RemoveListener(DeleteStep);
+            if (buttonDeleteCancel != null) buttonDeleteCancel.onClick.RemoveListener(HideDeleteConfirmation);
+            if (_stepCompletedToggle != null) _stepCompletedToggle.onValueChanged.RemoveListener(OnStepCompleted);
             if (_buttonLock != null)
             {
                 _buttonLock.onClick.RemoveListener(OnLockClick);
             }
-            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged -= OnEditorModeChanged;
-            if (_deleteButtonLongPress == null)
+            if (RootObject.Instance?.LEE?.ActivityManager != null)
             {
-                return;
+                RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged -= OnEditorModeChanged;
             }
-
-            _deleteButtonLongPress.onHoldProgressChanged.RemoveListener(OnDeleteHoldProgressChanged);
+            if (_deleteButtonLongPress != null)
+            {
+                _deleteButtonLongPress.onHoldProgressChanged.RemoveListener(OnDeleteHoldProgressChanged);
+            }
         }
 
         private void OnEditorModeChanged(bool value)

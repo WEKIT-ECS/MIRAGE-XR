@@ -167,10 +167,12 @@ namespace MirageXR.View
 */
         protected override void RemoveContent(ContentView contentView)
         {
+            if (contentView == null) return;
             var netObj = contentView.GetComponent<NetworkObject>();
-            //var networkContent = contentView.GetComponent<NetworkContent>();
-            //networkContent.Despawn();
-            RootObject.Instance.CollaborationManager.NetworkRunner.Despawn(netObj);
+            if (RootObject.Instance?.CollaborationManager?.NetworkRunner != null && netObj != null && netObj.Runner != null)
+            {
+                RootObject.Instance.CollaborationManager.NetworkRunner.Despawn(netObj);
+            }
         }
 
         protected override ContentView CreateContentView(Content content)

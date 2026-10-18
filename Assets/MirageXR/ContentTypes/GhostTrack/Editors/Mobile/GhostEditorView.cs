@@ -1,4 +1,4 @@
-﻿using LearningExperienceEngine;
+using LearningExperienceEngine;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -51,7 +51,7 @@ public class GhostEditorView : PopupEditorBase
         _anchor = GameObject.Find(_step.id).transform;  //TODO: possible NRE. replace with direct ref
 
         _ghostRecorder.Start(_anchor, Camera.main.transform);
-        if (_toggleAudio.isOn) RootObject.Instance.LEE.AudioManager.Start(_audioFileName);
+        if (_toggleAudio.isOn) RootObject.Instance.LEE.MicrophoneManager.Start(_audioFileName);
 
         SetTogglesActive(false);
     }
@@ -59,7 +59,7 @@ public class GhostEditorView : PopupEditorBase
     private void StopRecording()
     {
         _ghostFrames = _ghostRecorder.Stop();
-        if (_toggleAudio.isOn) _audioClip = RootObject.Instance.LEE.AudioManager.Stop();
+        if (_toggleAudio.isOn) _audioClip = RootObject.Instance.LEE.MicrophoneManager.Stop();
 
         SetTogglesActive(true);
     }

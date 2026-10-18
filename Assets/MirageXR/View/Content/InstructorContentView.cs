@@ -79,6 +79,10 @@ namespace MirageXR.View
                     await tcs.Task;
                     return tcs.Task.Result;
                 }
+                else
+                {
+                    Debug.LogError($"[InstructorContentView] Failed to load Addressable '{prefabPath}': {handle.OperationException}");
+                }
             }
             else
             {

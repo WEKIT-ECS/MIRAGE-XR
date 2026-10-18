@@ -104,8 +104,26 @@ public class ActivityListView_v2 : BaseView
     private async UniTask OnActivityClickAsync(Activity activity)
     {
         LoadView.Instance.Show();
-        await RootObject.Instance.LEE.ActivityManager.LoadActivityAsync(activity.Id);
-        LoadView.Instance.Hide();
+        try
+        {
+            await RootObject.Instance.LEE.ActivityManager.LoadActivityAsync(activity.Id);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to load activity '{activity.Name}': {ex.Message}");
+            if (DialogWindow.Instance != null)
+            {
+                DialogWindow.Instance.Show("Error", $"Activity '{activity.Name}' could not be found or loaded.", new DialogButtonContent("OK"));
+            }
+            else if (MenuManager.Instance?.Dialog != null)
+            {
+                MenuManager.Instance.Dialog.ShowMiddle("Error", $"Activity '{activity.Name}' could not be found or loaded.", "OK", () => { });
+            }
+        }
+        finally
+        {
+            LoadView.Instance.Hide();
+        }
     }
 
     private void OnActivityDelete(Activity activity)

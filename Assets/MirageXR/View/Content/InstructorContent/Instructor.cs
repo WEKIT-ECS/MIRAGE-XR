@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
@@ -147,10 +147,21 @@ namespace MirageXR.View
         /// <returns>A clip containing the response from the virtual instructor.</returns>
         public async UniTask<AudioClip> AskVirtualInstructorAudio(AudioClip inputAudio)
         {
+            if (inputAudio == null)
+            {
+                AppLog.LogWarning("[Instructor] AskVirtualInstructorAudio received null audio clip.");
+                return null;
+            }
+
             SetWaitingState(true);
             try
             {
                 var message = await ArtificialIntelligenceManager.ConvertSpeechToTextAsync(inputAudio, _instructorContent.ContentData.SpeechToTextModel.ApiName);
+                if (string.IsNullOrWhiteSpace(message))
+                {
+                    AppLog.LogWarning("[Instructor] Speech to text returned empty message.");
+                    return null;
+                }
                 AppLog.LogDebug($"AI question: '{message}'");
                 var response = await ArtificialIntelligenceManager.SendMessageToAssistantAsync(_instructorContent.ContentData.LanguageModel.ApiName, message, _instructorContent.ContentData.Prompt, _assistantId, _threadId);
                 AppLog.LogDebug($"AI response: '{response}'");

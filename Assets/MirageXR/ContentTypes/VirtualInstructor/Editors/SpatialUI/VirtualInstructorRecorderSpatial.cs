@@ -120,21 +120,40 @@ namespace MirageXR
         private async UniTask StartRecordingAsync()
         {
             Debug.Log("StartRecording");
-            var recordingDevices = RootObject.Instance.LEE.AudioManager.GetRecordingDevices();
-            if (recordingDevices.Length > 0)
+            var recordingDevices = RootObject.Instance.LEE.MicrophoneManager.GetRecordingDevices();
+            if (recordingDevices != null && recordingDevices.Length > 0)
             {
                 ClearCancellationTokenSource();
                 _source = new CancellationTokenSource();
                 _cancellationToken = _source.Token;
-                RootObject.Instance.LEE.AudioManager.Start();
+                RootObject.Instance.LEE.MicrophoneManager.Start();
                 _Record.gameObject.SetActive(false);
                 _SendRecord.gameObject.SetActive(true);
-                await UniTask.WaitForSeconds(_maxRecordTime, cancellationToken: _cancellationToken);
-                if (RootObject.Instance.LEE.AudioManager.IsRecording)
+
+                try
                 {
-                    _questionClip = RootObject.Instance.LEE.AudioManager.Stop();
+                    await UniTask.WaitForSeconds(_maxRecordTime, cancellationToken: _cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    // Recording was stopped manually by user via SendRecording
+                    return;
+                }
+
+                if (RootObject.Instance.LEE.MicrophoneManager.IsRecording)
+                {
+                    _questionClip = RootObject.Instance.LEE.MicrophoneManager.Stop();
                     ClearCancellationTokenSource();
-                    await SendRecordingAsync(_questionClip);
+                    _SendRecord.gameObject.SetActive(false);
+                    if (_questionClip != null)
+                    {
+                        await SendRecordingAsync(_questionClip);
+                    }
+                    else
+                    {
+                        AppLog.LogWarning("Recording produced no audio data on timeout.");
+                        _Record.gameObject.SetActive(true);
+                    }
                 }
             }
             else
@@ -148,16 +167,32 @@ namespace MirageXR
         /// </summary>
         public void SendRecording()
         {
-            _SendRecord.gameObject.SetActive(false);
-            _Loading.SetActive(true);
-            _questionClip = RootObject.Instance.LEE.AudioManager.Stop();
             ClearCancellationTokenSource();
-            _source?.Cancel();
+            _SendRecord.gameObject.SetActive(false);
+            if (RootObject.Instance.LEE.MicrophoneManager.IsRecording)
+            {
+                _questionClip = RootObject.Instance.LEE.MicrophoneManager.Stop();
+            }
+
+            if (_questionClip == null)
+            {
+                AppLog.LogWarning("Recording produced no audio data.");
+                _Record.gameObject.SetActive(true);
+                return;
+            }
+
             SendRecordingAsync(_questionClip).Forget();
         }
 
         private async UniTask SendRecordingAsync(AudioClip audioClip)
         {
+            if (audioClip == null)
+            {
+                _Loading.SetActive(false);
+                _Record.gameObject.SetActive(true);
+                return;
+            }
+
             _Loading.SetActive(true);
             try
             {
@@ -166,7 +201,6 @@ namespace MirageXR
                 {
                     //responseClip.PlayOneShot(clip);
                     await UniTask.WaitForSeconds(clip.length);
-                    _Record.gameObject.SetActive(true);
                 }
                 else
                 {
@@ -177,9 +211,11 @@ namespace MirageXR
             {
                 AppLog.LogException(e);
             }
-            _Loading.SetActive(false);
-            _Record.gameObject.SetActive(true);
-            //_SendRecord.SetActive(false);
+            finally
+            {
+                _Loading.SetActive(false);
+                _Record.gameObject.SetActive(true);
+            }
         }
 
         private void ClearCancellationTokenSource()

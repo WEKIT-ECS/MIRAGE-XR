@@ -10,7 +10,7 @@ namespace MirageXR
 {
     /// <summary>
     /// Base class for instructor voice recording, playback, and UI control.
-    /// Handles platform-independent audio recording using the MirageXR AudioManager.
+    /// Handles platform-independent audio recording using the MirageXR MicrophoneManager.
     /// Supports automatic state-driven UI updates (Idle, Recording, Paused).
     /// Extend this class for platform-specific implementations (e.g. Mobile, Spatial).
     /// </summary>
@@ -55,7 +55,7 @@ namespace MirageXR
             _ButtonContaner.SetActive(orchestrator.IsVirtualInstructorInList());
             UpdateStateUI();
 
-            Debug.Log($"[Recorder] Using audio device: {RootObject.Instance.LEE.AudioManager.AudioDevice}");
+            Debug.Log($"[Recorder] Using audio device: {RootObject.Instance.LEE.MicrophoneManager.AudioDevice}");
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace MirageXR
 
         private async UniTask StartRecordingAsync()
         {
-            var devices = RootObject.Instance.LEE.AudioManager.GetRecordingDevices();
+            var devices = RootObject.Instance.LEE.MicrophoneManager.GetRecordingDevices();
             if (devices.Length == 0)
             {
                 Debug.LogError("[Recorder] No microphone detected.");
@@ -98,7 +98,7 @@ namespace MirageXR
             _source = new CancellationTokenSource();
             _cancellationToken = _source.Token;
 
-            RootObject.Instance.LEE.AudioManager.Start();
+            RootObject.Instance.LEE.MicrophoneManager.Start();
             UpdateStateUI();
 
             _Record.SetActive(false);
@@ -106,9 +106,9 @@ namespace MirageXR
 
             await UniTask.WaitForSeconds(_maxRecordTime, cancellationToken: _cancellationToken);
 
-            if (RootObject.Instance.LEE.AudioManager.IsRecording)
+            if (RootObject.Instance.LEE.MicrophoneManager.IsRecording)
             {
-                _questionClip = RootObject.Instance.LEE.AudioManager.Stop();
+                _questionClip = RootObject.Instance.LEE.MicrophoneManager.Stop();
                 ClearCancellationTokenSource();
                 UpdateStateUI();
                 await SendRecordingAsync(_questionClip);
@@ -123,7 +123,7 @@ namespace MirageXR
             _SendRecord.SetActive(false);
             _Loading.SetActive(true);
 
-            _questionClip = RootObject.Instance.LEE.AudioManager.Stop();
+            _questionClip = RootObject.Instance.LEE.MicrophoneManager.Stop();
             ClearCancellationTokenSource();
             _source?.Cancel();
 
@@ -162,14 +162,14 @@ namespace MirageXR
         }
 
         /// <summary>
-        /// Updates optional UI indicators based on current AudioManager state.
+        /// Updates optional UI indicators based on current MicrophoneManager state.
         /// </summary>
         protected void UpdateStateUI()
         {
-            var state = RootObject.Instance.LEE.AudioManager.State;
+            var state = RootObject.Instance.LEE.MicrophoneManager.State;
 
-            bool isIdle = state == IAudioManager.RecordingState.Idle;
-            bool isRecording = state == IAudioManager.RecordingState.Recording;
+            bool isIdle = state == IMicrophoneManager.RecordingState.Idle;
+            bool isRecording = state == IMicrophoneManager.RecordingState.Recording;
 
             _stateIdle?.SetActive(isIdle);
             _stateRecording?.SetActive(isRecording);
@@ -184,7 +184,7 @@ namespace MirageXR
             _source?.Dispose();
             _source = null;
             OnRecordingCancelled?.Invoke();
-            RootObject.Instance.LEE.AudioManager.Stop();
+            RootObject.Instance.LEE.MicrophoneManager.Stop();
         }
 
         private void ClearCancellationTokenSource()

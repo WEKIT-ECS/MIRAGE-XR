@@ -9,6 +9,9 @@ using UnityEngine;
 
 namespace MirageXR
 {
+	/// <summary>
+	/// Handles deep links that select and load user avatars.
+	/// </summary>
 	public class AvatarDeepLinkManager : MonoBehaviour
 	{
 		private const string avatarIdParameterName = "id";
@@ -24,7 +27,7 @@ namespace MirageXR
 
 		private void OnDeepLinkActivated(string url)
 		{
-			Debug.Log("Got deep link for " + url, this);
+			Debug.Log("Received a deep link to for " + url, this);
 
 			Uri uri = new Uri(url);
 			string path = uri.Authority.ToLower();
@@ -32,11 +35,7 @@ namespace MirageXR
 			DeepLinkArgs args = new DeepLinkArgs(fragments, uri);
 			if (path == "avatar")
 			{
-				ReceiveRPMAvatarUrl(args);
-			}
-			else if (path == "rpm")
-			{
-				ReceiveRPMUrl(args);
+				ReceiveAvatarUrl(args);
 			}
 			else
 			{
@@ -44,32 +43,31 @@ namespace MirageXR
 			}
 		}
 
-		public void ReceiveRPMAvatarUrl(DeepLinkArgs args)
+		/// <summary>
+		/// Processes an avatar deep link and sets the linked avatar as the user's avatar.
+		/// </summary>
+		/// <param name="args">The parsed avatar deep-link arguments.</param>
+		public void ReceiveAvatarUrl(DeepLinkArgs args)
 		{
-			ProcessRPMDeepLink(args, true);
+			ProcessAvatarDeepLink(args, true);
 		}
 
-		public void ReceiveRPMUrl(DeepLinkArgs args)
+		private void ProcessAvatarDeepLink(DeepLinkArgs args, bool setAvatar)
 		{
-			ProcessRPMDeepLink(args, false);
-		}
-
-		private void ProcessRPMDeepLink(DeepLinkArgs args, bool setAvatar)
-		{
-			Debug.LogTrace($"Received a deep link for a RPM model: {args.DeepLink}", this);
+			Debug.LogTrace($"Received a deep link to download, cache, and configure a user avatar model: {args.DeepLink}", this);
 			if (args.Parameters.TryGetValue(avatarIdParameterName, out string avatarId))
 			{
 				RootObject.Instance.AvatarLibraryManager.Add(avatarId);
 				if (setAvatar)
 				{
 					Debug.LogTrace($"Set avatar to {avatarId} based on deep link", this);
-					string avatarUrl = $"https://models.readyplayer.me/{avatarId}.glb";
+					string avatarUrl = AvatarLoadUtils.IdToModelUrl(avatarId);
 					UserSettings.AvatarUrl = avatarUrl;
 				}
 			}
 			else
 			{
-				Debug.LogError("Recieved a deep link for a RPM model but it did not contain an id parameter: " + args.DeepLink, this);
+				Debug.LogError("Recieved a deep link for a user avatar model, but it did not contain an id parameter (a folder unique name, not GUID): " + args.DeepLink, this);
 			}
 		}
 	}

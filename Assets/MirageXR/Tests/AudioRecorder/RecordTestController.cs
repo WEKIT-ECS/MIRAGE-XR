@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -39,6 +39,7 @@ public class RecordTestController : MonoBehaviour
     [SerializeField] private Button _btnSave;
     [SerializeField] private TMP_Text _txtSavePath;
     private AudioClip _audioClip;
+    private IMicrophoneManager _micManager;
 
     private void Awake()
     {
@@ -73,7 +74,11 @@ public class RecordTestController : MonoBehaviour
     private void Init()
     {
         _canvas.enabled = true;
-        var devices = AudioRecorder.GetRecordingDevices();
+        _micManager = (RootObject.Instance != null && RootObject.Instance.LEE != null && RootObject.Instance.LEE.MicrophoneManager != null)
+            ? RootObject.Instance.LEE.MicrophoneManager
+            : new MicrophoneManager();
+
+        var devices = _micManager.GetRecordingDevices();
         if (devices == null || devices.Length == 0)
         {
             var list = new List<string> { "Can't get recording devices" };
@@ -117,14 +122,14 @@ public class RecordTestController : MonoBehaviour
 
     private void OnDeviceSelectorValueChanged(int value)
     {
-        AudioRecorder.SetRecordingDevice(_ddownDeviceSelector.options[value].text);
+        _micManager.SetRecordingDevice(_ddownDeviceSelector.options[value].text);
     }
 
     private void OnRecordStart()
     {
         _txtResordStatus.color = _colorRecord;
         _txtResordStatus.text = RECORDING_STATUS_TEXT;
-        AudioRecorder.Start("record", () => true);
+        _micManager.Start("record");
         _btnRecorderStart.interactable = false;
         _btnRecorderPause.interactable = true;
         _btnRecorderStop.interactable = true;
@@ -138,7 +143,7 @@ public class RecordTestController : MonoBehaviour
     {
         _txtResordStatus.color = _colorDefault;
         _txtResordStatus.text = DEFAULT_STATUS_TEXT;
-        _audioClip = AudioRecorder.Stop();
+        _audioClip = _micManager.Stop();
         _btnRecorderStart.interactable = true;
         _btnRecorderResume.interactable = false;
         _btnRecorderPause.interactable = false;
@@ -154,7 +159,7 @@ public class RecordTestController : MonoBehaviour
         _txtResordStatus.text = PAUSE_STATUS_TEXT;
         _btnRecorderResume.interactable = true;
         _btnRecorderPause.interactable = false;
-        AudioRecorder.Pause();
+        _micManager.Pause();
     }
 
     private void OnRecordResume()
@@ -163,7 +168,7 @@ public class RecordTestController : MonoBehaviour
         _txtResordStatus.text = RECORDING_STATUS_TEXT;
         _btnRecorderResume.interactable = false;
         _btnRecorderPause.interactable = true;
-        AudioRecorder.Resume(() => true);
+        _micManager.Resume();
     }
 
     private void OnPlayerStart()
