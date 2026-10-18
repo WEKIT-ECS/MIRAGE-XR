@@ -7,6 +7,7 @@ using Unity.XR.Management;
 using UnityEditor.XR.Management;
 using UnityEditor.XR.Management.Metadata;
 using UnityEditor.XR.OpenXR;
+using UnityEditor.AddressableAssets.Settings;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -142,6 +143,9 @@ namespace MirageXR
             RenderSettings.skybox = Resources.Load<Material>("Assets/MirageXR/Automation/Black"); // requires alpha enabled material!
 
             AssetDatabase.SaveAssets();
+
+            // Rebuild Addressables for the active target before packaging player
+            AddressableAssetSettings.BuildPlayerContent();
 
             // Build
             BuildReport report = BuildPipeline.BuildPlayer(buildPlayerOptions);
