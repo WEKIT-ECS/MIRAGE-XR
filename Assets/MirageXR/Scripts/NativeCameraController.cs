@@ -12,6 +12,8 @@ using System.Runtime.InteropServices;
 #endif
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 
 public class NativeCameraController
 {
@@ -505,21 +507,61 @@ public class NativeCameraController
             };
 
             int size = cpuImage.GetConvertedDataSize(conversionParams);
-            using (var nativeBuffer = new Unity.Collections.NativeArray<byte>(size, Unity.Collections.Allocator.Temp))
+            using (var nativeBuffer = new NativeArray<byte>(size, Allocator.Temp))
             {
                 cpuImage.Convert(conversionParams, nativeBuffer);
 
-                if (target == null || target.width != targetWidth || target.height != targetHeight)
+                bool shouldRotate = Screen.width < Screen.height && targetWidth > targetHeight;
+                if (shouldRotate)
                 {
-                    if (target != null)
-                    {
-                        UnityEngine.Object.Destroy(target);
-                    }
-                    target = new Texture2D(targetWidth, targetHeight, TextureFormat.RGBA32, false);
-                }
+                    int finalWidth = targetHeight;
+                    int finalHeight = targetWidth;
 
-                target.LoadRawTextureData(nativeBuffer);
-                target.Apply(false);
+                    using (var rotatedBuffer = new NativeArray<byte>(size, Allocator.Temp))
+                    {
+                        unsafe
+                        {
+                            uint* src = (uint*)NativeArrayUnsafeUtility.GetUnsafeReadOnlyPtr(nativeBuffer);
+                            uint* dst = (uint*)NativeArrayUnsafeUtility.GetUnsafePtr(rotatedBuffer);
+
+                            for (int y = 0; y < targetHeight; y++)
+                            {
+                                int srcRowOffset = y * targetWidth;
+                                int dstCol = targetHeight - 1 - y;
+                                for (int x = 0; x < targetWidth; x++)
+                                {
+                                    dst[(targetWidth - 1 - x) * finalWidth + dstCol] = src[srcRowOffset + x];
+                                }
+                            }
+                        }
+
+                        if (target == null || target.width != finalWidth || target.height != finalHeight)
+                        {
+                            if (target != null)
+                            {
+                                UnityEngine.Object.Destroy(target);
+                            }
+                            target = new Texture2D(finalWidth, finalHeight, TextureFormat.RGBA32, false);
+                        }
+
+                        target.LoadRawTextureData(rotatedBuffer);
+                        target.Apply(false);
+                    }
+                }
+                else
+                {
+                    if (target == null || target.width != targetWidth || target.height != targetHeight)
+                    {
+                        if (target != null)
+                        {
+                            UnityEngine.Object.Destroy(target);
+                        }
+                        target = new Texture2D(targetWidth, targetHeight, TextureFormat.RGBA32, false);
+                    }
+
+                    target.LoadRawTextureData(nativeBuffer);
+                    target.Apply(false);
+                }
             }
 
             _arFrameCounter++;
@@ -629,18 +671,68 @@ public class NativeCameraController
             webcam = new WebCamTexture(maxSize, maxSize, 30);
             webcam.Play();
 
+            // 1. Wait until webcam initializes dimensions and starts streaming
             float elapsed = 0f;
-            while (webcam.width <= 16 && elapsed < 2.0f)
+            while (webcam.width <= 16 && elapsed < 3.0f)
             {
-                await UniTask.Delay(100);
-                elapsed += 0.1f;
+                await UniTask.Delay(50);
+                elapsed += 0.05f;
             }
 
             if (webcam.width > 16)
             {
-                var tex = new Texture2D(webcam.width, webcam.height, TextureFormat.RGBA32, false);
-                tex.SetPixels32(webcam.GetPixels32());
+                // 2. Hardware Auto-Exposure (AE) & Auto-White-Balance (AWB) warmup.
+                // Hardware webcams initialize with minimum exposure/gain (producing near-black frames).
+                // Allowing ~25 updated frames (~0.8s to 1.0s) lets camera hardware adapt to ambient light.
+                int framesCounted = 0;
+                float warmupElapsed = 0f;
+                const float maxWarmupTime = 1.2f;
+
+                while (warmupElapsed < maxWarmupTime && framesCounted < 25)
+                {
+                    await UniTask.Delay(33);
+                    warmupElapsed += 0.033f;
+                    if (webcam.didUpdateThisFrame)
+                    {
+                        framesCounted++;
+                    }
+                }
+
+                int width = webcam.width;
+                int height = webcam.height;
+
+                // 3. Render via GPU RenderTexture with sRGB handling for Linear color space
+                bool isLinear = QualitySettings.activeColorSpace == ColorSpace.Linear;
+                var rtReadWrite = isLinear ? RenderTextureReadWrite.sRGB : RenderTextureReadWrite.Default;
+                var renderTexture = RenderTexture.GetTemporary(width, height, 0, RenderTextureFormat.ARGB32, rtReadWrite);
+
+                bool isMirrored = webcam.videoVerticallyMirrored;
+                Vector2 scale = new Vector2(1, isMirrored ? -1 : 1);
+                Vector2 offset = new Vector2(0, isMirrored ? 1 : 0);
+
+                bool prevSrgb = GL.sRGBWrite;
+                if (isLinear)
+                {
+                    GL.sRGBWrite = true;
+                }
+
+                Graphics.Blit(webcam, renderTexture, scale, offset);
+
+                if (isLinear)
+                {
+                    GL.sRGBWrite = prevSrgb;
+                }
+
+                var prevActive = RenderTexture.active;
+                RenderTexture.active = renderTexture;
+
+                var tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
+                tex.ReadPixels(new Rect(0, 0, width, height), 0, 0);
                 tex.Apply();
+
+                RenderTexture.active = prevActive;
+                RenderTexture.ReleaseTemporary(renderTexture);
+
                 webcam.Stop();
                 UnityEngine.Object.Destroy(webcam);
                 callback?.Invoke(true, tex);
