@@ -34,11 +34,15 @@ namespace MirageXR.View
                 return;
             }
 
-            if (newContent.ContentData.CharacterName != oldContent.ContentData.CharacterName ||             //TODO: add add support for reinitializing an existing instructor 
-                newContent.ContentData.AnimationClip != oldContent.ContentData.AnimationClip ||             //
-                newContent.ContentData.SpeechToTextModel != oldContent.ContentData.SpeechToTextModel ||     //
-                newContent.ContentData.LanguageModel != oldContent.ContentData.LanguageModel ||             //
-                newContent.ContentData.Prompt != oldContent.ContentData.Prompt)                             //
+            if (newContent.ContentData.CharacterName != oldContent.ContentData.CharacterName ||
+                newContent.ContentData.CharacterModelUrl != oldContent.ContentData.CharacterModelUrl ||
+                newContent.ContentData.UseReadyPlayerMe != oldContent.ContentData.UseReadyPlayerMe ||
+                newContent.ContentData.AnimationClip != oldContent.ContentData.AnimationClip ||
+                newContent.ContentData.SpeechToTextModel != oldContent.ContentData.SpeechToTextModel ||
+                newContent.ContentData.LanguageModel != oldContent.ContentData.LanguageModel ||
+                newContent.ContentData.TextToSpeechModel != oldContent.ContentData.TextToSpeechModel ||
+                newContent.ContentData.VoiceInstruction != oldContent.ContentData.VoiceInstruction ||
+                newContent.ContentData.Prompt != oldContent.ContentData.Prompt)
             {
                 Destroy(_instructor);
                 Initialized = false;

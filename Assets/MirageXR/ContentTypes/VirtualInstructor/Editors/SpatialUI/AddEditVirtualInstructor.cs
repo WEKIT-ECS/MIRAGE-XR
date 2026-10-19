@@ -130,9 +130,9 @@ public class AddEditVirtualInstructor : EditorSpatialView   //TODO: rename to Vi
             SetAILanguageModel(_instructorContentData.ContentData.LanguageModel);
             UpdateName(_instructorContentData.ContentData.CharacterName);
             UpdateAnimationSetting(_instructorContentData.ContentData.AnimationClip);
-            if (_instructorContentData.ContentData.UseReadyPlayerMe)
+            if (_instructorContentData.ContentData.UseReadyPlayerMe && !string.IsNullOrEmpty(_instructorContentData.ContentData.CharacterModelUrl))
             {
-                OnAvatarModelSelected(_instructorContentData.ContentData.CharacterModelUrl);
+                OnAvatarModelSelected(AvatarLoadUtils.GetId(_instructorContentData.ContentData.CharacterModelUrl));
             }
         }
     }

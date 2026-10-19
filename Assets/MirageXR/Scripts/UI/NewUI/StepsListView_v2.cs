@@ -165,8 +165,14 @@ public class StepsListView_v2 : BaseView
     private void OnStepChanged(ActivityStep step)
     {
         _step = step;
+        _currentStepId = step.Id;
 
         UpdateView();
+
+        if (_listHorizontalContent != null && _listHorizontalContent.gameObject.activeInHierarchy)
+        {
+            StartCoroutine(ShowSelectedItem(step.Id));
+        }
     }
 
     private void UpdateView()
@@ -211,6 +217,11 @@ public class StepsListView_v2 : BaseView
             StartCoroutine(ShowSelectedItem(stepId));
         }
     }*/
+
+    public void ScrollToStep(Guid stepId)
+    {
+        StartCoroutine(ShowSelectedItem(stepId));
+    }
 
     private IEnumerator ShowSelectedItem(Guid stepId)
     {

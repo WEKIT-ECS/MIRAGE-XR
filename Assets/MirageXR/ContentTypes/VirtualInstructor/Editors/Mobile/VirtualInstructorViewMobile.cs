@@ -102,10 +102,58 @@ namespace MirageXR
 
             ShownSubMenu = VirtualInstructorSubMenu.GeneralSettings;
 
-            if (IsContentUpdate)
+            if (IsContentUpdate && Content is Content<InstructorContentData> instructorContent && instructorContent.ContentData != null)
             {
-                var content = Content as Content<InstructorContentData>;
-                voiceInstructionInputField.text = content?.ContentData?.VoiceInstruction ?? string.Empty;
+                var data = instructorContent.ContentData;
+                _voiceInstruction = data.VoiceInstruction;
+                voiceInstructionInputField.text = _voiceInstruction ?? string.Empty;
+
+                _useReadyPlayerMe = data.UseReadyPlayerMe;
+                _characterModelUrl = data.CharacterModelUrl;
+                _prefabName = data.CharacterName;
+
+                if (_useReadyPlayerMe && !string.IsNullOrEmpty(_characterModelUrl))
+                {
+                    characterModelSelectionElement.Thumbnail.ElementId = AvatarLoadUtils.GetId(_characterModelUrl);
+                }
+                else if (!string.IsNullOrEmpty(_prefabName))
+                {
+                    characterModelSelectionElement.Thumbnail.ElementId = _prefabName;
+                }
+
+                if (!string.IsNullOrEmpty(data.Prompt))
+                {
+                    SetPrompt(data.Prompt);
+                }
+
+                if (promptSettingsPanel != null)
+                {
+                    var promptInputs = promptSettingsPanel.GetComponentsInChildren<TMP_InputField>(true);
+                    foreach (var input in promptInputs)
+                    {
+                        input.text = data.Prompt ?? string.Empty;
+                    }
+                    var contextPrompt = promptSettingsPanel.GetComponentInChildren<ContextPromptMobile>(true);
+                    if (contextPrompt != null && !string.IsNullOrEmpty(data.Prompt))
+                    {
+                        contextPrompt.SetPromptText(data.Prompt);
+                    }
+                }
+
+                if (data.TextToSpeechModel != null)
+                {
+                    SetTTS(data.TextToSpeechModel);
+                }
+                if (data.SpeechToTextModel != null)
+                {
+                    SetSTT(data.SpeechToTextModel);
+                }
+                if (data.LanguageModel != null)
+                {
+                    SetLLM(data.LanguageModel);
+                }
+
+                UpdateUiFromModel();
             }
         }
 

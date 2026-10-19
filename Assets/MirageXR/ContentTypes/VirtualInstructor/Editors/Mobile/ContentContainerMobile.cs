@@ -68,7 +68,9 @@ namespace MirageXR
 
 			foreach (var model in _availableModels)
 			{
-				bool select = model == currentlySelected;
+				bool select = currentlySelected != null && (model == currentlySelected || 
+					(!string.IsNullOrEmpty(model.ApiName) && model.ApiName == currentlySelected.ApiName) ||
+					(!string.IsNullOrEmpty(model.Name) && model.Name == currentlySelected.Name));
 				CreateModelEntry(model, select);
 			}
 

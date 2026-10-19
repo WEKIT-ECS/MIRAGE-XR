@@ -107,6 +107,7 @@ public class ActivityListView_v2 : BaseView
         try
         {
             await RootObject.Instance.LEE.ActivityManager.LoadActivityAsync(activity.Id);
+            RootView_v2.Instance?.activityView?.MinimizeMenu();
         }
         catch (Exception ex)
         {

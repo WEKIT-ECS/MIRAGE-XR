@@ -19,6 +19,9 @@ public class ActivityView_v2 : BaseView
     [SerializeField] private GameObject _arrowDown;
     [SerializeField] private GameObject _arrowUp;
     [SerializeField] private SwitchToggleWithText _toggleEdit;
+
+    public static event System.Action<bool> OnMenuStateChanged;
+    public bool IsMenuMinimized => _arrowUp != null && _arrowUp.activeSelf;
     [SerializeField] private StepsListView_v2 _stepsListView;
     [SerializeField] private ContentListView_v2 _contentListView;
     [Space]
@@ -104,6 +107,10 @@ public class ActivityView_v2 : BaseView
         RootObject.Instance.LEE.ActivityManager.IsEditorMode = value;
         //activityManager.EditModeActive = value;
         ShowStepsList();
+        if (value)
+        {
+            ExpandMenu();
+        }
     }
 
     private void OnEditModeChanged(bool value)
@@ -113,6 +120,10 @@ public class ActivityView_v2 : BaseView
         /*_toggleEdit.onValueChanged.RemoveListener(OnEditToggleValueChanged);
         _toggleEdit.isOn = activityManager.EditModeActive;
         _toggleEdit.onValueChanged.AddListener(OnEditToggleValueChanged);*/
+        if (value)
+        {
+            ExpandMenu();
+        }
     }
 
     public void SetSessionInfo(LearningExperienceEngine.SessionContainer info)
@@ -140,6 +151,14 @@ public class ActivityView_v2 : BaseView
         }
     }
 
+    public void ExpandMenu()
+    {
+        if (_arrowUp != null && _arrowUp.activeSelf)
+        {
+            OnArrowButtonPressed();
+        }
+    }
+
     private void OnArrowButtonPressed()
     {
         if (_arrowDown.activeSelf)
@@ -156,6 +175,7 @@ public class ActivityView_v2 : BaseView
             rootView.bottomPanelView.Hide();
             rootView.bottomNavigationArrowsView.Show();
             StartCoroutine(ShowHorizontalScroll(HIDE_ANIMATION_TIME, true));
+            OnMenuStateChanged?.Invoke(true);
         }
         else
         {
@@ -165,6 +185,7 @@ public class ActivityView_v2 : BaseView
             rootView.bottomPanelView.Show();
             rootView.bottomNavigationArrowsView.Hide();
             StartCoroutine(ShowHorizontalScroll(0.1f, false));
+            OnMenuStateChanged?.Invoke(false);
         }
     }
 
