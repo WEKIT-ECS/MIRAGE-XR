@@ -122,6 +122,13 @@ public class StepsListItem_v2 : MonoBehaviour
 
         _txtNumber.text = (_number + 1).ToString("00");
 
+        if (_txtStepDescription != null)
+        {
+            _txtStepDescription.text = _step?.Description ?? string.Empty;
+            _txtStepDescription.enableWordWrapping = true;
+            _txtStepDescription.overflowMode = TextOverflowModes.Overflow;
+        }
+
         bool isCurrent = false;
         if (RootObject.Instance.LEE.StepManager.CurrentStep != null)
         {

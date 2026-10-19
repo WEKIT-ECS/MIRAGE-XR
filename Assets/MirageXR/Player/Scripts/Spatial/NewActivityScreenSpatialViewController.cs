@@ -174,6 +174,18 @@ namespace MirageXR  //TODO: add Spatial namespace
 
         private void OnEditorModeChanged(bool value)
         {
+            if (value)
+            {
+                View.SwitchToStepsTab();
+            }
+            else
+            {
+                View.SwitchToInfoTab();
+            }
+
+            View.SetAssignRoomModelInteractable(value);
+            View.SetRepositionInteractable(value);
+
             View.SetInputFieldActivityNameTextInteractable(value);
             View.SetInputFieldActivityDescriptionInteractable(value);
             View.SetPanelAddNewStepActive(value);
@@ -225,6 +237,14 @@ namespace MirageXR  //TODO: add Spatial namespace
         {
             View.SetTitleText(_activity?.Name);
             UpdateStepsView();
+
+            var isEditorMode = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+            View.SetAssignRoomModelInteractable(isEditorMode);
+            View.SetRepositionInteractable(isEditorMode);
+            if (!isEditorMode)
+            {
+                View.SwitchToInfoTab();
+            }
 
             _updateInfoCts?.Cancel();
             _updateInfoCts?.Dispose();

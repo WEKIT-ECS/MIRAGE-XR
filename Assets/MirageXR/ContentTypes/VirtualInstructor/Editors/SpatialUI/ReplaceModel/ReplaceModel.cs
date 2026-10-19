@@ -54,7 +54,16 @@ public class ReplaceModel : MonoBehaviour
     private async Task InitializeGalleriesAsync()
     {
         RefreshLocalGallery();
-        serverCharacterGallery.ElementIds = new List<string>(await RootObject.Instance.AvatarLoadManager.GetListOfAvatarsAsync());
+        try
+        {
+            var serverAvatars = await RootObject.Instance.AvatarLoadManager.GetListOfAvatarsAsync();
+            serverCharacterGallery.ElementIds = serverAvatars != null ? new List<string>(serverAvatars) : new List<string>();
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"Could not fetch server avatars: {e.Message}");
+            serverCharacterGallery.ElementIds = new List<string>();
+        }
     }
 
     private void RefreshLocalGallery()

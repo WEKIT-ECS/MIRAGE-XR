@@ -9,6 +9,7 @@ using LearningExperienceEngine.NewDataModel;
 using MirageXR;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Action = System.Action;
 
@@ -34,7 +35,8 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private RectTransform _addStep;
     [SerializeField] private Button _btnAddStep;
     [SerializeField] private Button _btnBack;
-    [SerializeField] private Button _btnSettings;
+    [FormerlySerializedAs("_btnSettings")]
+    [SerializeField] private Button _btnCloseActivity;
     [SerializeField] private Button _btnThumbnail;
     [SerializeField] private Button _btnDeleteThumbnail;
     [SerializeField] private Button _btnFloorLevel;
@@ -52,7 +54,6 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private GameObject _statusCalibrated;
     [SerializeField] private GameObject _statusNotCalibrated;
     [SerializeField] private CalibrationView _calibrationViewPrefab;
-    [SerializeField] private ActivitySettings _settingsViewPrefab;
     [SerializeField] private StepsListItem_v2 _stepsListItemPrefab;
     [SerializeField] private ThumbnailEditorView _thumbnailEditorPrefab;
     [SerializeField] private RawImage _imgQRCode;
@@ -99,7 +100,10 @@ public class StepsListView_v2 : BaseView
         _toggleCalibration.onValueChanged.AddListener(OnToggleCalibrationValueChanged);
 
         _btnBack.onClick.AddListener(OnBackPressed);
-        _btnSettings.onClick.AddListener(OnSettingsPressed);
+        if (_btnCloseActivity != null)
+        {
+            _btnCloseActivity.onClick.AddListener(OnCloseActivityPressed);
+        }
 
         /*LearningExperienceEngine.EventManager.OnStartActivity += OnActivityStarted;
         LearningExperienceEngine.EventManager.OnWorkplaceLoaded += OnStartActivity;
@@ -314,9 +318,12 @@ public class StepsListView_v2 : BaseView
         _toggleSteps.isOn = true;
     }
 
-    private void OnSettingsPressed()
+    private void OnCloseActivityPressed()
     {
-        PopupsViewer.Instance.Show(_settingsViewPrefab, _activityView.container);
+        LearningExperienceEngine.EventManager.ClearAll();
+        RootObject.Instance?.LEE?.ActivityManager?.CloseActivity();
+        _activityView.OnBackToHomePressed();
+        _toggleSteps.isOn = true;
     }
 
     private void OnToggleStepValueChanged(bool value)

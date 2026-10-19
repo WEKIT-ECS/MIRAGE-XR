@@ -129,6 +129,11 @@ namespace MirageXR
             {
                 UpdateInfoViewAsync().Forget();
             }
+
+            if (!RootObject.Instance.LEE.ActivityManager.IsEditorMode)
+            {
+                View.SwitchToInfoTab();
+            }
         }
 
         private void OnButtonMediaAddNewFileClick()
@@ -184,6 +189,15 @@ namespace MirageXR
 
         private void OnEditorModeChanged(bool value)
         {
+            if (value)
+            {
+                View.SwitchToStepsTab();
+            }
+            else
+            {
+                View.SwitchToInfoTab();
+            }
+
             View.SetPanelAddNewStepActive(value);
             View.RemoveActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
             View.SetIsToggleEditorOn(!value);

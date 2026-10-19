@@ -58,14 +58,25 @@ namespace MirageXR
             confirmationOpen = false;
             confirmButton.interactable = false;
 
-            var authorizationManager = LearningExperienceEngine.LearningExperienceEngine.Instance?.AuthorizationManager;
-            if (authorizationManager != null && authorizationManager.LoggedIn())
+            try
             {
-                authorizationManager.Logout();
-            }
+                var authorizationManager = RootObject.Instance?.LEE?.AuthorizationManager
+                                           ?? LearningExperienceEngine.LearningExperienceEngine.Instance?.AuthorizationManager;
+                if (authorizationManager != null && authorizationManager.LoggedIn())
+                {
+                    authorizationManager.Logout();
+                }
 
-            LearningExperienceEngine.UserSettings.ClearLoginData();
-            Application.Quit();
+                LearningExperienceEngine.UserSettings.ClearLoginData();
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[CloseApp] Error during logout: {ex}");
+            }
+            finally
+            {
+                Application.Quit();
+            }
         }
 
     }
