@@ -145,6 +145,11 @@ public class ActivityView_v2 : BaseView
 
     public void MinimizeMenu()
     {
+        if (PlatformManager.GetDeviceFormat() == DeviceFormat.Tablet)
+        {
+            return;
+        }
+
         if (_arrowDown != null && _arrowDown.activeSelf)
         {
             OnArrowButtonPressed();

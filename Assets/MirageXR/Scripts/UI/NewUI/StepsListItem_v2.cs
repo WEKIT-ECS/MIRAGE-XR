@@ -163,6 +163,15 @@ public class StepsListItem_v2 : MonoBehaviour
         {
             _stepDoneImage.SetActive(isCompleted);
         }
+
+        if (_stepStatus != null)
+        {
+            var emptyTransform = _stepStatus.transform.Find("Empty");
+            if (emptyTransform != null && emptyTransform.TryGetComponent<Image>(out var emptyImg))
+            {
+                emptyImg.color = isCompleted ? new Color(0.29803923f, 0.6862745f, 0.3137255f, 1f) : Color.white;
+            }
+        }
     }
 
     public void ToggleLock()
@@ -315,7 +324,7 @@ public class StepsListItem_v2 : MonoBehaviour
         var aiManager = RootObject.Instance?.LEE?.ArtificialIntelligenceManager;
         if (aiManager == null)
         {
-            dialog?.ShowMiddle("Step Verification", "AI Manager is not initialized.", "OK", () => { });
+            dialog?.ShowMiddle("Step Verification", "AI Manager is not initialized.", "OK", () => { }, closeActive: true);
             return;
         }
 
@@ -326,7 +335,7 @@ public class StepsListItem_v2 : MonoBehaviour
         var setupResponse = await aiManager.passthroughFrameInterpretationSetup(taskTitle, instructions);
         if (setupResponse == null || string.IsNullOrEmpty(setupResponse.ThreadId) || string.IsNullOrEmpty(setupResponse.TaskId))
         {
-            dialog?.ShowMiddle("Step Verification", "Failed to initialize step interpretation setup on the server.", "OK", () => { });
+            dialog?.ShowMiddle("Step Verification", "Failed to initialize step interpretation setup on the server.", "OK", () => { }, closeActive: true);
             return;
         }
 
@@ -345,11 +354,9 @@ public class StepsListItem_v2 : MonoBehaviour
             "gpt-4o",
             setupResponse.AssistantId);
 
-        dialog?.Close();
-
         if (trackResponse == null)
         {
-            dialog?.ShowMiddle("Step Verification", "Failed to receive verification response from the server.", "OK", () => { });
+            dialog?.ShowMiddle("Step Verification", "Failed to receive verification response from the server.", "OK", () => { }, closeActive: true);
             return;
         }
 
@@ -359,15 +366,16 @@ public class StepsListItem_v2 : MonoBehaviour
             _completedStepIds.Add(_step.Id.ToString());
             UpdateCompletedVisual(true);
 
-            dialog?.ShowMiddle("Step Completed", trackResponse.Interpretation ?? "Step has been successfully verified as completed!", "OK", () => { });
-
-            // Task 8: Advance to next step and auto-scroll horizontal view
-            RootObject.Instance.LEE.StepManager.GoToNextStep();
-            var nextStep = RootObject.Instance.LEE.StepManager.CurrentStep;
-            if (nextStep != null)
+            dialog?.ShowMiddle("Step Completed", trackResponse.Interpretation ?? "Step has been successfully verified as completed!", "OK", () =>
             {
-                RootView_v2.Instance?.activityView?.stepsListView?.ScrollToStep(nextStep.Id);
-            }
+                // Advance to next step and auto-scroll horizontal view upon OK click
+                RootObject.Instance.LEE.StepManager.GoToNextStep();
+                var nextStep = RootObject.Instance.LEE.StepManager.CurrentStep;
+                if (nextStep != null)
+                {
+                    RootView_v2.Instance?.activityView?.stepsListView?.ScrollToStep(nextStep.Id);
+                }
+            }, closeActive: true);
         }
         else
         {
@@ -400,7 +408,7 @@ public class StepsListItem_v2 : MonoBehaviour
                 sb.AppendLine($"Next: {nextSubstepText}");
             }
 
-            dialog?.ShowMiddle("Step Verification", sb.ToString(), "OK", () => { });
+            dialog?.ShowMiddle("Step Verification", sb.ToString(), "OK", () => { }, closeActive: true);
         }
     }
 

@@ -98,6 +98,12 @@ public class ActivityListView_v2 : BaseView
 
     private void OnActivityClick(Activity activity)
     {
+        if (_activeScannerView != null)
+        {
+            _activeScannerView.Close();
+            _activeScannerView = null;
+        }
+
         OnActivityClickAsync(activity).Forget();
     }
 
@@ -107,7 +113,10 @@ public class ActivityListView_v2 : BaseView
         try
         {
             await RootObject.Instance.LEE.ActivityManager.LoadActivityAsync(activity.Id);
-            RootView_v2.Instance?.activityView?.MinimizeMenu();
+            if (PlatformManager.GetDeviceFormat() != DeviceFormat.Tablet)
+            {
+                RootView_v2.Instance?.activityView?.MinimizeMenu();
+            }
         }
         catch (Exception ex)
         {
@@ -296,13 +305,19 @@ public class ActivityListView_v2 : BaseView
         {
             _activeScannerView.Close();
             _activeScannerView = null;
-            ExpandPanel();
+            if (PlatformManager.GetDeviceFormat() != DeviceFormat.Tablet)
+            {
+                ExpandPanel();
+            }
             return;
         }
 
-        if (_arrowDown != null && _arrowDown.activeSelf)
+        if (PlatformManager.GetDeviceFormat() != DeviceFormat.Tablet)
         {
-            OnArrowButtonPressed();
+            if (_arrowDown != null && _arrowDown.activeSelf)
+            {
+                OnArrowButtonPressed();
+            }
         }
 
         var prefab = _qrScannerViewPrefab;
