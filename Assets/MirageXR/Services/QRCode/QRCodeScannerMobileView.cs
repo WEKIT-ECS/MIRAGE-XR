@@ -61,22 +61,61 @@ namespace MirageXR
             StartScanningAsync().Forget();
         }
 
+        private static GameObject _tabletOverlayCanvas;
+
+        private void EnsureTabletOverlayCanvas()
+        {
+            if (_tabletOverlayCanvas == null)
+            {
+                _tabletOverlayCanvas = new GameObject("QR_TabletOverlayCanvas");
+                DontDestroyOnLoad(_tabletOverlayCanvas);
+                var canvas = _tabletOverlayCanvas.AddComponent<Canvas>();
+                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+                canvas.sortingOrder = 999;
+                var scaler = _tabletOverlayCanvas.AddComponent<CanvasScaler>();
+                scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+                scaler.referenceResolution = new Vector2(1920, 1080);
+                scaler.matchWidthOrHeight = 0.5f;
+                _tabletOverlayCanvas.AddComponent<GraphicRaycaster>();
+            }
+        }
+
         private void ConfigureLayoutForDevice()
         {
-            float horizontalAnchor = PlatformManager.GetDeviceFormat() == DeviceFormat.Tablet ? 0.35f : 0.5f;
+            bool isTablet = PlatformManager.GetDeviceFormat() == DeviceFormat.Tablet;
+            if (isTablet)
+            {
+                EnsureTabletOverlayCanvas();
+                if (_tabletOverlayCanvas != null && transform.parent != _tabletOverlayCanvas.transform)
+                {
+                    transform.SetParent(_tabletOverlayCanvas.transform, false);
+                    var rectTransform = GetComponent<RectTransform>();
+                    if (rectTransform != null)
+                    {
+                        rectTransform.anchorMin = Vector2.zero;
+                        rectTransform.anchorMax = Vector2.one;
+                        rectTransform.offsetMin = Vector2.zero;
+                        rectTransform.offsetMax = Vector2.zero;
+                        rectTransform.localScale = Vector3.one;
+                    }
+                }
+            }
+
+            float horizontalAnchor = isTablet ? 0.35f : 0.5f;
 
             if (_scanningReticle != null && _scanningReticle.transform is RectTransform reticleRect)
             {
                 reticleRect.anchorMin = new Vector2(horizontalAnchor, 0.5f);
                 reticleRect.anchorMax = new Vector2(horizontalAnchor, 0.5f);
                 reticleRect.anchoredPosition = new Vector2(0f, 30f);
+                reticleRect.localScale = isTablet ? Vector3.one * 1.5f : Vector3.one;
             }
 
             if (_textStatus != null && _textStatus.transform is RectTransform statusRect)
             {
                 statusRect.anchorMin = new Vector2(horizontalAnchor, 0.5f);
                 statusRect.anchorMax = new Vector2(horizontalAnchor, 0.5f);
-                statusRect.anchoredPosition = new Vector2(0f, -140f);
+                statusRect.anchoredPosition = isTablet ? new Vector2(0f, -170f) : new Vector2(0f, -140f);
             }
         }
 
@@ -173,7 +212,10 @@ namespace MirageXR
             }
 
             // Restore the home screen so it is rolled up when returning home
-            RootView_v2.Instance?.activityListView?.ExpandPanel();
+            if (PlatformManager.GetDeviceFormat() != DeviceFormat.Tablet)
+            {
+                RootView_v2.Instance?.activityListView?.ExpandPanel();
+            }
 
             if (_textStatus != null)
             {
@@ -223,8 +265,11 @@ namespace MirageXR
                     Debug.LogWarning($"[QRCodeScannerMobileView] Calibration note: {ex.Message}");
                 }
 
-                // Open activity with its menu minimized so the user can see AR markers in the camera view
-                RootView_v2.Instance?.activityView?.MinimizeMenu();
+                // Open activity with its menu minimized on phones so the user can see AR markers in the camera view
+                if (PlatformManager.GetDeviceFormat() != DeviceFormat.Tablet)
+                {
+                    RootView_v2.Instance?.activityView?.MinimizeMenu();
+                }
 
                 Close();
             }
@@ -263,6 +308,12 @@ namespace MirageXR
                 _scanner.OnInvalidQRCodeDetected -= OnInvalidQRCodeDetected;
                 _scanner.OnScanError -= OnScanError;
                 _scanner.StopScanning();
+            }
+
+            if (_tabletOverlayCanvas != null && _tabletOverlayCanvas.transform.childCount <= 1)
+            {
+                Destroy(_tabletOverlayCanvas);
+                _tabletOverlayCanvas = null;
             }
         }
     }

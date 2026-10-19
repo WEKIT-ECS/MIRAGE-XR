@@ -165,8 +165,24 @@ public class StepsListView_v2 : BaseView
     private void OnStepChanged(ActivityStep step)
     {
         _step = step;
+        _currentStepId = step.Id;
 
-        UpdateView();
+        if (_activity != null && _stepsList.Count == _activity.Steps.Count)
+        {
+            for (var i = 0; i < _stepsList.Count; i++)
+            {
+                _stepsList[i].UpdateView(_activity.Steps[i], i);
+            }
+        }
+        else
+        {
+            UpdateView();
+        }
+
+        if (_listHorizontalContent != null && _listHorizontalContent.gameObject.activeInHierarchy)
+        {
+            StartCoroutine(ShowSelectedItem(step.Id));
+        }
     }
 
     private void UpdateView()
@@ -188,10 +204,13 @@ public class StepsListView_v2 : BaseView
 
         _stepsList.Clear();
 
+        var isHorizontal = _listHorizontalContent != null && _listHorizontalContent.gameObject.activeInHierarchy;
+        var targetParent = isHorizontal ? _listHorizontalContent : _listVerticalContent;
+
         for (var i = 0; i < _activity.Steps.Count; i++)
         {
             var activityStep = _activity.Steps[i];
-            var obj = Instantiate(_stepsListItemPrefab, _listVerticalContent);
+            var obj = Instantiate(_stepsListItemPrefab, targetParent);
             obj.Init(OnStepClick, OnStepEditClick, OnDeleteStepClick, OnSiblingIndexChanged);
             obj.UpdateView(activityStep, i);
             obj.OnEditModeChanged(RootObject.Instance.LEE.ActivityManager.IsEditorMode);
@@ -212,20 +231,52 @@ public class StepsListView_v2 : BaseView
         }
     }*/
 
+    public void ScrollToStep(Guid stepId)
+    {
+        StartCoroutine(ShowSelectedItem(stepId));
+    }
+
     private IEnumerator ShowSelectedItem(Guid stepId)
     {
         _currentStepIndex = _stepsList.FindIndex(step => step.step.Id == stepId);
+        if (_currentStepIndex < 0 || _currentStepIndex >= _stepsList.Count)
+        {
+            yield break;
+        }
+
+        Canvas.ForceUpdateCanvases();
+        yield return null;
+
         var newPosition = CalculatePositionForPage(_currentStepIndex);
         MoveTo(newPosition);
-        yield return null;
     }
 
     private Vector3 CalculatePositionForPage(int index)
     {
         var anchoredPosition = _listHorizontalContent.anchoredPosition3D;
-        var width = _listHorizontalContent.rect.width;
-        var x = -((index * width / _stepsList.Count) - (width * _listHorizontalContent.pivot.x));
-        return new Vector3(x, anchoredPosition.y, anchoredPosition.z);
+        if (index < 0 || index >= _stepsList.Count || _listHorizontalContent == null)
+        {
+            return anchoredPosition;
+        }
+
+        var viewport = _listHorizontalContent.parent as RectTransform;
+        var viewportWidth = viewport != null ? viewport.rect.width : _listHorizontalContent.rect.width;
+        var contentWidth = _listHorizontalContent.rect.width;
+
+        if (contentWidth <= viewportWidth)
+        {
+            return new Vector3(0f, anchoredPosition.y, anchoredPosition.z);
+        }
+
+        var itemRect = _stepsList[index].transform as RectTransform;
+        var itemX = itemRect != null ? itemRect.localPosition.x : (index + 0.5f) * (contentWidth / _stepsList.Count);
+
+        // Center item in the viewport and clamp within valid scroll bounds
+        var desiredX = (viewportWidth * 0.5f) - itemX;
+        var minX = -(contentWidth - viewportWidth);
+        var clampedX = Mathf.Clamp(desiredX, minX, 0f);
+
+        return new Vector3(clampedX, anchoredPosition.y, anchoredPosition.z);
     }
 
     private void MoveTo(Vector3 newPosition)

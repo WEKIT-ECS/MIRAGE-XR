@@ -94,21 +94,29 @@ public class Dialog : MonoBehaviour
         Show(DialogType.MiddleMultiline, label, null, contents, canBeClosedByOutTap);
     }
 
-    public void ShowMiddle(string label, string description, string textLeft, Action onClickLeft, string textRight, Action onClickRight, bool canBeClosedByOutTap = true)
+    public void ShowMiddle(string label, string description, string textLeft, Action onClickLeft, string textRight, Action onClickRight, bool canBeClosedByOutTap = true, bool closeActive = false)
     {
         var contents = new List<DialogButtonContent> { new DialogButtonContent(textLeft, onClickLeft), new DialogButtonContent(textRight, onClickRight) };
-        Show(DialogType.Middle, label, description, contents, canBeClosedByOutTap);
+        Show(DialogType.Middle, label, description, contents, canBeClosedByOutTap, closeActive);
     }
 
-    public void ShowMiddle(string label, string description, string buttonText, Action onButtonClick, bool canBeClosedByOutTap = true)
+    public void ShowMiddle(string label, string description, string buttonText, Action onButtonClick, bool canBeClosedByOutTap = true, bool closeActive = false)
     {
         var contents = new List<DialogButtonContent> { new DialogButtonContent(buttonText, onButtonClick) };
-        Show(DialogType.Middle, label, description, contents, canBeClosedByOutTap);
+        Show(DialogType.Middle, label, description, contents, canBeClosedByOutTap, closeActive);
     }
 
-    private void Show(DialogType type, string label, string description, List<DialogButtonContent> buttonContents, bool canBeClosedByOutTap = true)
+    private void Show(DialogType type, string label, string description, List<DialogButtonContent> buttonContents, bool canBeClosedByOutTap = true, bool closeActive = false)
     {
-        _queue.Enqueue(new DialogModel(type, label, description, Close, buttonContents, canBeClosedByOutTap));
+        var model = new DialogModel(type, label, description, Close, buttonContents, canBeClosedByOutTap);
+        if (closeActive && _isActive)
+        {
+            _queue.Clear();
+            ViewDialog(model).Forget();
+            return;
+        }
+
+        _queue.Enqueue(model);
 
         if (!_isActive)
         {
@@ -186,6 +194,11 @@ public class Dialog : MonoBehaviour
         await HideAnimation();
         _background.gameObject.SetActive(false);
         _isActive = false;
+
+        if (_queue.Count > 0)
+        {
+            ViewDialog(_queue.Dequeue()).Forget();
+        }
     }
 
     private async UniTask ShowAnimation()

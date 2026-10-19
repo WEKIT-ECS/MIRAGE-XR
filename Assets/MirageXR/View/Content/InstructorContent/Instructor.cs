@@ -36,6 +36,9 @@ namespace MirageXR.View
         [SerializeField] private GameObject _loadingIndicatorPrefab;
         private GameObject _currentLoadingIndicator;
 
+        [SerializeField] private GameObject _controlPanelPrefab;
+        private GameObject _controlPanelInstance;
+
         public Vector3 Position => transform.position;
         
         public async UniTask InitializeAsync(Content<InstructorContentData> content)
@@ -89,6 +92,15 @@ namespace MirageXR.View
             catch (Exception e)
             {
                 Debug.LogError($"Error loading LoadingIndicator: {e.Message}");
+            }
+
+            try
+            {
+                SetupSpatialControlPanel();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error setting up spatial VI Control Panel: {e.Message}");
             }
         }
 
@@ -227,8 +239,64 @@ namespace MirageXR.View
                 : _instructorContent.ContentData.Prompt;
         }
 
+        private void SetupSpatialControlPanel()
+        {
+            var platformManager = RootObject.Instance?.PlatformManager;
+            bool isSpatial = platformManager != null && 
+                (platformManager.WorldSpaceUi || platformManager.GetUiType() == UiType.Spatial);
+
+            if (!isSpatial)
+            {
+                return;
+            }
+
+            if (_controlPanelPrefab == null)
+            {
+                _controlPanelPrefab = Resources.Load<GameObject>("VI_Control_Panel");
+#if UNITY_EDITOR
+                if (_controlPanelPrefab == null)
+                {
+                    _controlPanelPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
+                        "Assets/MirageXR/ContentTypes/VirtualInstructor/Resources/VI_Control_Panel.prefab");
+                }
+#endif
+            }
+
+            if (_controlPanelPrefab == null)
+            {
+                Debug.LogWarning("[Instructor] VI_Control_Panel prefab could not be loaded.");
+                return;
+            }
+
+            float chestHeight = 1.3f;
+            if (_animator != null && _animator.isHuman)
+            {
+                var chestBone = _animator.GetBoneTransform(HumanBodyBones.Chest) 
+                             ?? _animator.GetBoneTransform(HumanBodyBones.UpperChest)
+                             ?? _animator.GetBoneTransform(HumanBodyBones.Spine);
+                if (chestBone != null)
+                {
+                    chestHeight = transform.InverseTransformPoint(chestBone.position).y;
+                }
+            }
+
+            _controlPanelInstance = Instantiate(_controlPanelPrefab, transform);
+            _controlPanelInstance.name = "VI_Control_Panel";
+            var prefabTransform = _controlPanelPrefab.transform;
+            _controlPanelInstance.transform.localPosition = new Vector3(
+                prefabTransform.localPosition.x,
+                chestHeight + prefabTransform.localPosition.y,
+                prefabTransform.localPosition.z);
+            _controlPanelInstance.transform.localRotation = prefabTransform.localRotation;
+            _controlPanelInstance.transform.localScale = Vector3.one * 0.001f;
+        }
+
         private void OnDestroy()
         {
+            if (_controlPanelInstance != null)
+            {
+                Destroy(_controlPanelInstance);
+            }
             RootObject.Instance?.VirtualInstructorOrchestrator?.RemoveInstructor(this);
         }
 
