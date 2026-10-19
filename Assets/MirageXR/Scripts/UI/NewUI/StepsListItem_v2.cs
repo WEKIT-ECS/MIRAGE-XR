@@ -112,7 +112,14 @@ public class StepsListItem_v2 : MonoBehaviour
         _step = step;
         _number = number;
 
-        _txtStepName.text = _step.Name;
+        var title = string.IsNullOrWhiteSpace(_step?.Name) ? $"Step {number + 1}" : _step.Name;
+        _txtStepName.text = title;
+        _txtStepName.enableAutoSizing = true;
+        _txtStepName.fontSizeMin = 14;
+        _txtStepName.fontSizeMax = 32;
+        _txtStepName.overflowMode = TextOverflowModes.Ellipsis;
+        _txtStepName.enableWordWrapping = true;
+
         _txtNumber.text = (_number + 1).ToString("00");
 
         bool isCurrent = false;
@@ -145,6 +152,7 @@ public class StepsListItem_v2 : MonoBehaviour
             {
                 selectedImg.color = new Color(0.2392157f, 0.2705882f, 0.509804f, 1f); // #3D4582
             }
+            _stepSelected.transform.SetAsFirstSibling();
             _stepSelected.SetActive(isCurrent);
         }
     }

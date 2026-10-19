@@ -268,7 +268,7 @@ namespace MirageXR.View
                 return;
             }
 
-            Vector3 chestPosition = transform.position + Vector3.up * 1.3f;
+            float chestHeight = 1.3f;
             if (_animator != null && _animator.isHuman)
             {
                 var chestBone = _animator.GetBoneTransform(HumanBodyBones.Chest) 
@@ -276,15 +276,18 @@ namespace MirageXR.View
                              ?? _animator.GetBoneTransform(HumanBodyBones.Spine);
                 if (chestBone != null)
                 {
-                    chestPosition = chestBone.position;
+                    chestHeight = transform.InverseTransformPoint(chestBone.position).y;
                 }
             }
 
-            Vector3 panelPosition = chestPosition + transform.forward * 0.25f;
             _controlPanelInstance = Instantiate(_controlPanelPrefab, transform);
             _controlPanelInstance.name = "VI_Control_Panel";
-            _controlPanelInstance.transform.position = panelPosition;
-            _controlPanelInstance.transform.rotation = transform.rotation;
+            var prefabTransform = _controlPanelPrefab.transform;
+            _controlPanelInstance.transform.localPosition = new Vector3(
+                prefabTransform.localPosition.x,
+                chestHeight + prefabTransform.localPosition.y,
+                prefabTransform.localPosition.z);
+            _controlPanelInstance.transform.localRotation = prefabTransform.localRotation;
             _controlPanelInstance.transform.localScale = Vector3.one * 0.001f;
         }
 
