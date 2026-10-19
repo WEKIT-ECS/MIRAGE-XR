@@ -310,18 +310,10 @@ namespace MirageXR
                 _scanner.StopScanning();
             }
 
-            if (_tabletOverlayCanvas != null)
+            if (_tabletOverlayCanvas != null && _tabletOverlayCanvas.transform.childCount <= 1)
             {
-                if (transform.parent == _tabletOverlayCanvas.transform)
-                {
-                    transform.SetParent(null);
-                }
-
-                if (_tabletOverlayCanvas.transform.childCount == 0)
-                {
-                    Destroy(_tabletOverlayCanvas);
-                    _tabletOverlayCanvas = null;
-                }
+                Destroy(_tabletOverlayCanvas);
+                _tabletOverlayCanvas = null;
             }
         }
     }

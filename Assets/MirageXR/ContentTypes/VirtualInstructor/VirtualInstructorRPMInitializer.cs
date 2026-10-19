@@ -16,6 +16,11 @@ namespace MirageXR
 
         public override void InitializeAvatar(GameObject avatar)
         {
+            if (avatar != null && avatar.GetComponent<BodyPropManager>() == null)
+            {
+                avatar.AddComponent<BodyPropManager>();
+            }
+
             AvatarVisibilityController visibilityController = gameObject.GetComponent<AvatarVisibilityController>();
             visibilityController.FadeVisibility = false;
             visibilityController.Visible = false;
@@ -38,6 +43,11 @@ namespace MirageXR
 
         public async override UniTask InitializeAvatarAsync(GameObject avatar)
         {
+            if (avatar != null && avatar.GetComponent<BodyPropManager>() == null)
+            {
+                avatar.AddComponent<BodyPropManager>();
+            }
+
             AvatarReferences avatarReferences = GetComponent<AvatarReferences>();
             // disable IK
             avatarReferences.Rig.IK.RigLayer.weight = 0;

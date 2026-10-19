@@ -96,11 +96,6 @@ namespace MirageXR
                 RootObject.Instance.VirtualInstructorOrchestrator.OnVirtualInstructorsAdded.RemoveListener(OnInstructorsUpdated);
             }
 
-            if (_rectTransform != null && _originalParent != null && _rectTransform.parent != _originalParent)
-            {
-                _rectTransform.SetParent(_originalParent, false);
-            }
-
             if (_tabletOverlayCanvas != null && _tabletOverlayCanvas.transform.childCount <= 1)
             {
                 Destroy(_tabletOverlayCanvas);
