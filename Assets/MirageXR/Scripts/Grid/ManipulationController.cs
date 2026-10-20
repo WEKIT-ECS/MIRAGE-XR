@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using MirageXR;
 using UnityEngine;
 
@@ -283,12 +282,12 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void UpdateGridLines(GameObject source)
     {
-        var bounds = source.GetComponent<BoundsControl>();
+        var bounds = source.GetComponent<SimpleBoundingBox>() ?? source.GetComponentInChildren<SimpleBoundingBox>();
         var position = source.transform.position;
 
         if (_gridManager.useObjectCenter)
         {
-            if (bounds && bounds.TargetBounds)
+            if (bounds != null && bounds.TargetBounds != null)
             {
                 position = bounds.transform.TransformPoint(bounds.TargetBounds.center);
             }
@@ -333,8 +332,8 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
         if (_gridManager.useObjectCenter)
         {
-            var bounds = source.GetComponent<BoundsControl>();
-            if (bounds && bounds.TargetBounds)
+            var bounds = source.GetComponent<SimpleBoundingBox>() ?? source.GetComponentInChildren<SimpleBoundingBox>();
+            if (bounds != null && bounds.TargetBounds != null)
             {
                 position = bounds.transform.TransformPoint(bounds.TargetBounds.center);
                 delta = source.transform.position - position;

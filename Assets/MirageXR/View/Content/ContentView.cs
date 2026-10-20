@@ -165,7 +165,13 @@ namespace MirageXR.View
         protected virtual void OnManipulationStarted()
         {
             _isSelected = true;
-            _onManipulationStarted.Invoke(transform);   
+            _onManipulationStarted.Invoke(transform);
+
+            var gridManager = RootObject.Instance?.GridManager;
+            if (gridManager != null && gridManager.snapEnabled)
+            {
+                gridManager.onManipulationStarted?.Invoke(gameObject);
+            }
         }
 
         protected virtual void OnManipulation()
@@ -176,6 +182,13 @@ namespace MirageXR.View
         protected virtual void OnManipulationEnded()
         {
             _isSelected = false;
+
+            var gridManager = RootObject.Instance?.GridManager;
+            if (gridManager != null && gridManager.snapEnabled)
+            {
+                gridManager.onManipulationEnded?.Invoke(gameObject);
+            }
+
             Content.Location.Position = transform.localPosition;
             Content.Location.Rotation = transform.localEulerAngles;
             Content.Location.Scale = transform.localScale;

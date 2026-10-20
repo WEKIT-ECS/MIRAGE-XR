@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
@@ -279,6 +279,15 @@ namespace MirageXR.View
                 RootObject.Instance.LEE.ContentManager.UpdateContent(content);
             };
 
+            var gridManager = RootObject.Instance?.GridManager;
+            if (gridManager != null)
+            {
+                bb.ScaleStarted.AddListener(() => gridManager.onScaleStarted?.Invoke(gameObject));
+                bb.ScaleStopped.AddListener(() => gridManager.onScaleStopped?.Invoke(gameObject));
+                bb.RotateStarted.AddListener(() => gridManager.onRotateStarted?.Invoke(gameObject));
+                bb.RotateStopped.AddListener(() => gridManager.onRotateStopped?.Invoke(gameObject));
+            }
+
             return true;
         }
 
@@ -328,6 +337,15 @@ namespace MirageXR.View
                 InitializeBoxCollider();
                 RootObject.Instance.LEE.ContentManager.UpdateContent(content);
             };
+
+            var gridManager = RootObject.Instance?.GridManager;
+            if (gridManager != null)
+            {
+                bb.ScaleStarted.AddListener(() => gridManager.onScaleStarted?.Invoke(gameObject));
+                bb.ScaleStopped.AddListener(() => gridManager.onScaleStopped?.Invoke(gameObject));
+                bb.RotateStarted.AddListener(() => gridManager.onRotateStarted?.Invoke(gameObject));
+                bb.RotateStopped.AddListener(() => gridManager.onRotateStopped?.Invoke(gameObject));
+            }
 
             return true;
         }

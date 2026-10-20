@@ -1,6 +1,4 @@
-﻿using LearningExperienceEngine;
-using Microsoft.MixedReality.Toolkit.UI;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
+using LearningExperienceEngine;
 using System;
 using System.Collections;
 using System.IO;
@@ -45,7 +43,7 @@ namespace MirageXR
             _targetObject.gameObject.SetActive(editModeState);
             _pickComponent.ChangeModelButton.gameObject.SetActive(editModeState);
             _pickComponent.SetMoveMode(editModeState);
-            var boundsControl = _pickObject.GetComponent<BoundsControl>();
+            var boundsControl = _pickObject.GetComponent<SimpleBoundingBox>();
             if (boundsControl != null)
             {
                 boundsControl.Active = editModeState;
@@ -86,10 +84,10 @@ namespace MirageXR
                 return false;
             }
 
-            var manipulator = GetComponentInParent<ObjectManipulator>();
-            if (manipulator)
+            var parentBoundingBox = GetComponentInParent<SimpleBoundingBox>();
+            if (parentBoundingBox)
             {
-                manipulator.enabled = false;
+                parentBoundingBox.SetEnabled(false);
             }
 
             _pickComponent = _pickObject.GetComponent<Pick>();
@@ -200,7 +198,51 @@ namespace MirageXR
                 yield return null;
             }
 
-            StartCoroutine(ActionEditor.Instance.SpawnNewPickModel(_pickComponent, newModel));
+            StartCoroutine(SpawnNewPickModel(_pickComponent, newModel));
+        }
+
+        public (bool, Pick) PickArrowModelCapturing { get; set; }
+
+        public IEnumerator SpawnNewPickModel(Pick pick, GameObject newModel)
+        {
+            if (!newModel || !pick) yield break;
+
+            // Delete the old model if exists
+            var oldModel = GameObject.Find("ArrowModel_" + MyPoi.poi);
+            if (oldModel) Destroy(oldModel);
+
+            // hide the original arrow mesh and colliders
+            pick.ArrowRenderer.enabled = false;
+            foreach (var collider in pick.GetComponents<Collider>())
+            {
+                collider.enabled = false;
+            }
+
+            // clone the selected model
+            var sketchfabModel = newModel.GetComponentInChildren<Model>();
+            if (sketchfabModel != null)
+            {
+                while (!sketchfabModel.LoadingCompleted)
+                {
+                    yield return null;
+                }
+
+                var newModelClone = Instantiate(sketchfabModel.gameObject, pick.transform.position, pick.transform.rotation);
+                newModelClone.transform.SetParent(pick.transform);
+                newModelClone.name = "ArrowModel_" + sketchfabModel.MyToggleObject.poi;
+
+                // move the model augmentation somewhere invisible
+                newModel.transform.position = new Vector3(9999, 9999, 9999);
+
+                // destroy all non-transform components on the spawned object
+                foreach (var comp in newModelClone.GetComponents<Component>())
+                {
+                    if (!(comp is Transform))
+                    {
+                        Destroy(comp);
+                    }
+                }
+            }
         }
 
         private void DeletePickAndPlaceData(LearningExperienceEngine.ToggleObject toggleObject)

@@ -11,7 +11,6 @@ public class FloorManagerWrapper : MonoBehaviour
         Default,
         Editor,
         ARFoundation,
-        MRTK,
     }
 
     [SerializeField] private ForceManagerType _forceManagerType = ForceManagerType.Default;
@@ -24,7 +23,7 @@ public class FloorManagerWrapper : MonoBehaviour
     {
         UnityEngine.Debug.Log("Initializing [FloorManagerWrapper] <--");
 #if UNITY_WSA
-        _forceManagerType = ForceManagerType.MRTK;
+        _forceManagerType = ForceManagerType.ARFoundation;
 #elif !UNITY_EDITOR && (UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS || VISION_OS)
         _forceManagerType = ForceManagerType.ARFoundation;
 #else
@@ -86,8 +85,6 @@ public class FloorManagerWrapper : MonoBehaviour
                 var managerARFoundation = gameObject.AddComponent<FloorManagerARFoundation>();
                 managerARFoundation.prefabAnchor = _prefabARFoundationAnchor;
                 return managerARFoundation;
-            case ForceManagerType.MRTK:
-                return gameObject.AddComponent<FloorManagerMRTK>();
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -102,7 +99,8 @@ public class FloorManagerWrapper : MonoBehaviour
         var floorManager = gameObject.AddComponent<FloorManagerARFoundation>();
         floorManager.prefabAnchor = _prefabARFoundationAnchor;
 #else
-        var floorManager = gameObject.AddComponent<FloorManagerMRTK>();
+        var floorManager = gameObject.AddComponent<FloorManagerARFoundation>();
+        floorManager.prefabAnchor = _prefabARFoundationAnchor;
 #endif
         return floorManager;
     }

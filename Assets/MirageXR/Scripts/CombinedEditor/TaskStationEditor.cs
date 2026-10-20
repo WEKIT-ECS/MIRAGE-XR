@@ -1,21 +1,19 @@
-﻿using LearningExperienceEngine;
+using LearningExperienceEngine;
 using System;
-using Microsoft.MixedReality.Toolkit.UI;
 using MirageXR;
 using Newtonsoft.Json;
-//using UnityEditor;
-//using UnityEditor.Search;
 using UnityEngine;
 using Action = LearningExperienceEngine.Action;
 
-[RequireComponent(typeof(TaskStationStateController), typeof(ObjectManipulator))]
+[RequireComponent(typeof(TaskStationStateController))]
 public class TaskStationEditor : MonoBehaviour
 {
     private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
 
-    private static GridManager gridManager => RootObject.Instance.GridManager;
+    private static GridManager gridManager => RootObject.Instance ? RootObject.Instance.GridManager : null;
 
-    private ObjectManipulator _objectManipulator;
+    private SimpleBoundingBox _boundingBox;
+    private Transform _hostTransform;
     private TaskStationStateController _taskStationStateController;
     private MeshRenderer _meshRenderer;
     private GameObject _mTaskStationNumberTag;
@@ -24,19 +22,32 @@ public class TaskStationEditor : MonoBehaviour
 
     public void Init(LearningExperienceEngine.Action action)
     {
-        _objectManipulator = GetComponent<ObjectManipulator>();
         _taskStationStateController = GetComponent<TaskStationStateController>();
         _meshRenderer = GetComponent<MeshRenderer>();
-        _objectManipulator.enabled = activityManager.EditModeActive;
-        _objectManipulator.OnManipulationStarted.AddListener(_ => gridManager.onManipulationStarted(_objectManipulator.HostTransform.gameObject));
-        _objectManipulator.OnManipulationEnded.AddListener(OnManipulationEnded);
         _action = action;
 
         var id = _action == null ? transform.parent.parent.name : _action.id;
         
         var detectableId = id.Replace("TS-", "WA-");
         _detectable = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager.GetDetectable(detectableId);
-        _objectManipulator.HostTransform = GameObject.Find(_detectable.id).transform;
+        var detectableObj = _detectable != null ? GameObject.Find(_detectable.id) : null;
+        _hostTransform = detectableObj != null ? detectableObj.transform : transform;
+
+        _boundingBox = GetComponent<SimpleBoundingBox>();
+        if (_boundingBox == null)
+        {
+            _boundingBox = gameObject.AddComponent<SimpleBoundingBox>();
+        }
+        _boundingBox.Target = _hostTransform;
+        _boundingBox.SetEnabled(activityManager.EditModeActive);
+
+        if (gridManager != null)
+        {
+            _boundingBox.TranslateStarted.AddListener(() => gridManager.onManipulationStarted(_hostTransform.gameObject));
+            _boundingBox.TranslateStopped.AddListener(OnManipulationEnded);
+            _boundingBox.RotateStarted.AddListener(() => gridManager.onManipulationStarted(_hostTransform.gameObject));
+            _boundingBox.RotateStopped.AddListener(OnManipulationEnded);
+        }
 
         try
         {
@@ -66,12 +77,18 @@ public class TaskStationEditor : MonoBehaviour
 
     private void OnEditModeChanged(bool editModeActive)
     {
-        _objectManipulator.enabled = _taskStationStateController.IsCurrent() && editModeActive;
+        if (_boundingBox != null)
+        {
+            _boundingBox.SetEnabled(_taskStationStateController != null && _taskStationStateController.IsCurrent() && editModeActive);
+        }
     }
 
     private void UpdateView()
     {
-        _meshRenderer.enabled = _action?.isDiamondVisible ?? true;
+        if (_meshRenderer != null)
+        {
+            _meshRenderer.enabled = _action?.isDiamondVisible ?? true;
+        }
         if (_mTaskStationNumberTag != null)
         {
             _mTaskStationNumberTag.SetActive(_action?.isDiamondVisible ?? true);
@@ -86,7 +103,10 @@ public class TaskStationEditor : MonoBehaviour
         }
 
         _action.isDiamondVisible = value;
-        _meshRenderer.enabled = value;
+        if (_meshRenderer != null)
+        {
+            _meshRenderer.enabled = value;
+        }
         if (_mTaskStationNumberTag != null)
         {
             _mTaskStationNumberTag.SetActive(value);
@@ -99,10 +119,12 @@ public class TaskStationEditor : MonoBehaviour
         RecordTaskStationPosition();
     }
 
-    private void OnManipulationEnded(ManipulationEventData eventData)
+    private void OnManipulationEnded()
     {
-        var source = _objectManipulator.HostTransform.gameObject;
-        gridManager.onManipulationEnded(source);
+        if (gridManager != null && _hostTransform != null)
+        {
+            gridManager.onManipulationEnded(_hostTransform.gameObject);
+        }
 
         RecordTaskStationPosition();
         MirageXR.EventManager.NotifyOnTaskStationEditorDragEnd();
@@ -110,11 +132,12 @@ public class TaskStationEditor : MonoBehaviour
 
     private void RecordTaskStationPosition()
     {
-        var source = _objectManipulator.HostTransform.gameObject;
-        var anchor = RootObject.Instance.CalibrationManager.Anchor;
+        if (_hostTransform == null || _detectable == null) return;
+        var anchor = RootObject.Instance?.CalibrationManager?.Anchor;
+        if (anchor == null) return;
 
-        var position = anchor.InverseTransformPoint(source.transform.position);
-        var rotation = Quaternion.Inverse(anchor.rotation) * source.transform.rotation;
+        var position = anchor.InverseTransformPoint(_hostTransform.position);
+        var rotation = Quaternion.Inverse(anchor.rotation) * _hostTransform.rotation;
 
         _detectable.origin_position = MirageXR.Utilities.Vector3ToString(position);
         _detectable.origin_rotation = MirageXR.Utilities.Vector3ToString(rotation.eulerAngles);

@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using Microsoft.MixedReality.Toolkit.Utilities.Solvers;
+using System.Collections;
 using UnityEngine;
 using NUnit.Framework;
 using UnityEngine.TestTools;

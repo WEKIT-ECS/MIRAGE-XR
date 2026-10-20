@@ -1,8 +1,7 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Microsoft.MixedReality.Toolkit.Input;
 using MirageXR;
 using i5.Toolkit.Core.VerboseLogging;
 
@@ -10,8 +9,6 @@ namespace MirageXR
 {
     public class Detect : MirageXRPrefab
     {
-        // Gaze manager.
-        private GazeProvider gazeProvider;
         private bool _isDetected;
         private bool _isTrigger;
 
@@ -104,16 +101,13 @@ namespace MirageXR
                 // Set default state.
                 _isDetected = false;
 
-                // Check if user is gazing this symbol.
-                if (gazeProvider.GazeTarget)
+                var cam = Camera.main;
+                if (cam != null && Physics.Raycast(cam.transform.position, cam.transform.forward, out RaycastHit hitInfo))
                 {
-                    var hitObject = gazeProvider.GazeTarget; //_gazeManager.HitObject;
-
-                    if (hitObject.transform.parent != null)
+                    var hitObject = hitInfo.collider.gameObject;
+                    if (hitObject == gameObject || hitObject.transform.IsChildOf(transform))
                     {
-                        // Cursor will hit the child objects so check the parent for match.
-                        if (hitObject.transform.parent.gameObject == gameObject)
-                            _isDetected = true;
+                        _isDetected = true;
                     }
                 }
 

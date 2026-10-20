@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
-using MirageXR; 
 
 namespace MirageXR
 {
@@ -13,14 +13,72 @@ namespace MirageXR
         [SerializeField] private Color _lineColor = Color.cyan;
 
         public Transform Target;
+
+        public class RotationConfiguration
+        {
+            private readonly SimpleBoundingBox _owner;
+            private bool _showX = true;
+            private bool _showY = true;
+            private bool _showZ = true;
+
+            public RotationConfiguration(SimpleBoundingBox owner)
+            {
+                _owner = owner;
+            }
+
+            public bool ShowHandleForX
+            {
+                get => _showX;
+                set
+                {
+                    _showX = value;
+                    _owner?.UpdateHandleVisibility();
+                }
+            }
+
+            public bool ShowHandleForY
+            {
+                get => _showY;
+                set
+                {
+                    _showY = value;
+                    _owner?.UpdateHandleVisibility();
+                }
+            }
+
+            public bool ShowHandleForZ
+            {
+                get => _showZ;
+                set
+                {
+                    _showZ = value;
+                    _owner?.UpdateHandleVisibility();
+                }
+            }
+        }
+
+        public RotationConfiguration RotationHandlesConfig { get; private set; }
+
+        // UnityEvents matching MRTK BoundsControl API for drop-in compatibility
+        public UnityEvent RotateStarted = new UnityEvent();
+        public UnityEvent RotateStopped = new UnityEvent();
+        public UnityEvent ScaleStarted = new UnityEvent();
+        public UnityEvent ScaleStopped = new UnityEvent();
+        public UnityEvent TranslateStarted = new UnityEvent();
+        public UnityEvent TranslateStopped = new UnityEvent();
+
+        // Typed Action delegates
+        public Action<Vector3> OnScaleStarted;
         public Action<Vector3> OnScaleChanged;
         public Action<Vector3> OnScaleEnded;
+        public Action<Quaternion> OnRotationStarted;
         public Action<Quaternion> OnRotationChanged;
         public Action<Quaternion> OnRotationEnded;
 
         private List<BoundingBoxHandle> _handles = new List<BoundingBoxHandle>();
         private List<BoundingBoxHandle> _rotationHandles = new List<BoundingBoxHandle>();
         private LineRenderer _lineRenderer;
+        private BoxCollider _targetBoundsCollider;
 
         private LearningExperienceEngine.ToggleObject _obj;
         private string _targetId;
@@ -29,8 +87,45 @@ namespace MirageXR
         private bool _parentGrabWasEnabled;
         private XRGrabInteractable _parentGrabInteractable;
         private Vector3 _boundsCenter;
-        
-        private static LearningExperienceEngine.ActivityManager _activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
+        private Vector3 _boundsExtents;
+        private bool _isInitialized;
+        private bool _isShowing = true;
+
+        private static LearningExperienceEngine.ActivityManager _activityManager =>
+            LearningExperienceEngine.LearningExperienceEngine.Instance?.ActivityManagerOld;
+
+        public bool Active
+        {
+            get => enabled && gameObject.activeInHierarchy && _isShowing;
+            set => SetEnabled(value);
+        }
+
+        public BoxCollider TargetBounds
+        {
+            get
+            {
+                if (_targetBoundsCollider == null)
+                {
+                    _targetBoundsCollider = GetComponent<BoxCollider>();
+                    if (_targetBoundsCollider == null)
+                    {
+                        _targetBoundsCollider = gameObject.AddComponent<BoxCollider>();
+                        _targetBoundsCollider.isTrigger = true;
+                    }
+                }
+
+                _targetBoundsCollider.center = _boundsCenter;
+                _targetBoundsCollider.size = _boundsExtents * 2f;
+                return _targetBoundsCollider;
+            }
+        }
+
+        public Bounds Bounds => new Bounds(_boundsCenter, _boundsExtents * 2f);
+
+        private void Awake()
+        {
+            RotationHandlesConfig = new RotationConfiguration(this);
+        }
 
         public void Setup(LearningExperienceEngine.ToggleObject obj)
         {
@@ -38,26 +133,97 @@ namespace MirageXR
             _targetId = obj.poi;
             LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
             LearningExperienceEngine.EventManager.OnAugmentationLocked += OnLock;
-            
+
             UpdateState();
         }
 
         public void Setup(string id)
         {
             _targetId = id;
-            // Subscribe to both to be safe, or just the new one if we are sure
-            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditModeChanged;
+            if (RootObject.Instance?.LEE?.ActivityManager != null)
+            {
+                RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditModeChanged;
+            }
             LearningExperienceEngine.EventManager.OnAugmentationLocked += OnLock;
-            
+
             UpdateState();
         }
 
-        public void SetEnabled(bool enabled)
+        public void SetEnabled(bool isEnabled)
         {
-            foreach(var h in _handles) h.gameObject.SetActive(enabled);
-            foreach(var h in _rotationHandles) h.gameObject.SetActive(enabled);
-            if (_lineRenderer) _lineRenderer.enabled = enabled;
-            this.enabled = enabled;
+            _isShowing = isEnabled;
+            this.enabled = isEnabled;
+
+            foreach (var h in _handles)
+            {
+                if (h != null) h.gameObject.SetActive(isEnabled);
+            }
+
+            UpdateHandleVisibility();
+
+            if (_lineRenderer != null)
+            {
+                _lineRenderer.enabled = isEnabled;
+            }
+        }
+
+        public void UpdateHandleVisibility()
+        {
+            if (!_isShowing || !enabled)
+            {
+                foreach (var h in _rotationHandles)
+                {
+                    if (h != null) h.gameObject.SetActive(false);
+                }
+                return;
+            }
+
+            for (int i = 0; i < _rotationHandles.Count; i++)
+            {
+                var h = _rotationHandles[i];
+                if (h == null) continue;
+
+                if (i < 4)
+                {
+                    h.gameObject.SetActive(RotationHandlesConfig.ShowHandleForX);
+                }
+                else if (i < 8)
+                {
+                    h.gameObject.SetActive(RotationHandlesConfig.ShowHandleForY);
+                }
+                else
+                {
+                    h.gameObject.SetActive(RotationHandlesConfig.ShowHandleForZ);
+                }
+            }
+        }
+
+        public void OnlyRotateAround(BoundingRotationType boundingRotationType)
+        {
+            switch (boundingRotationType)
+            {
+                case BoundingRotationType.X:
+                    RotationHandlesConfig.ShowHandleForX = true;
+                    RotationHandlesConfig.ShowHandleForY = false;
+                    RotationHandlesConfig.ShowHandleForZ = false;
+                    break;
+                case BoundingRotationType.Y:
+                    RotationHandlesConfig.ShowHandleForX = false;
+                    RotationHandlesConfig.ShowHandleForY = true;
+                    RotationHandlesConfig.ShowHandleForZ = false;
+                    break;
+                case BoundingRotationType.Z:
+                    RotationHandlesConfig.ShowHandleForX = false;
+                    RotationHandlesConfig.ShowHandleForY = false;
+                    RotationHandlesConfig.ShowHandleForZ = true;
+                    break;
+                case BoundingRotationType.ALL:
+                default:
+                    RotationHandlesConfig.ShowHandleForX = true;
+                    RotationHandlesConfig.ShowHandleForY = true;
+                    RotationHandlesConfig.ShowHandleForZ = true;
+                    break;
+            }
         }
 
         private void OnEditModeChanged(bool editModeActive)
@@ -77,9 +243,17 @@ namespace MirageXR
 
         private void UpdateState()
         {
-            bool editMode = _activityManager.EditModeActive || RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+            bool editMode = false;
+            if (_activityManager != null)
+            {
+                editMode |= _activityManager.EditModeActive;
+            }
+            if (RootObject.Instance?.LEE?.ActivityManager != null)
+            {
+                editMode |= RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+            }
+
             bool isLocked = (_obj != null && _obj.positionLock) || _isLocked;
-            
             bool show = editMode && !isLocked;
             SetEnabled(show);
         }
@@ -104,15 +278,23 @@ namespace MirageXR
         private void Start()
         {
             if (Target == null) Target = transform;
+
             CreateHandles();
             CreateRotationHandles();
             CreateLineRenderer();
-            
+
             // Initial update if Setup was called before Start
-            if (_obj != null || !string.IsNullOrEmpty(_targetId)) UpdateState();
-            else SetEnabled(false); // Hide by default if not setup
-            
+            if (_obj != null || !string.IsNullOrEmpty(_targetId))
+            {
+                UpdateState();
+            }
+            else
+            {
+                SetEnabled(false);
+            }
+
             UpdateBounds();
+            _isInitialized = true;
         }
 
         private void CreateHandles()
@@ -121,7 +303,7 @@ namespace MirageXR
             {
                 var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 go.name = $"Handle_{i}";
-                go.transform.SetParent(transform);
+                go.transform.SetParent(transform, false);
                 go.transform.localScale = Vector3.one * _handleSize;
                 var renderer = go.GetComponent<Renderer>();
                 if (renderer) renderer.material.color = _handleColor;
@@ -131,8 +313,7 @@ namespace MirageXR
                 handle.OnDownHandle += OnHandleDown;
                 handle.OnDragHandle += OnHandleDrag;
                 handle.OnUpHandle += OnHandleUp;
-                
-                // Direction based on index
+
                 // 0: ---, 1: --+, 2: -+-, 3: -++, 4: +--, 5: +-+, 6: ++-, 7: +++
                 Vector3 dir = new Vector3(
                     (i & 4) == 0 ? -1 : 1,
@@ -148,18 +329,14 @@ namespace MirageXR
         private void CreateRotationHandles()
         {
             // 12 edges
-            // X-axis aligned edges (rotate around X): (0, +/-Y, +/-Z)
-            // Y-axis aligned edges (rotate around Y): (+/-X, 0, +/-Z)
-            // Z-axis aligned edges (rotate around Z): (+/-X, +/-Y, 0)
-            
             for (int i = 0; i < 12; i++)
             {
                 var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 go.name = $"RotHandle_{i}";
-                go.transform.SetParent(transform);
-                go.transform.localScale = Vector3.one * _handleSize * 0.8f; // Slightly smaller
+                go.transform.SetParent(transform, false);
+                go.transform.localScale = Vector3.one * _handleSize * 0.8f;
                 var renderer = go.GetComponent<Renderer>();
-                if (renderer) renderer.material.color = Color.yellow; // Distinct color
+                if (renderer) renderer.material.color = Color.yellow;
 
                 var handle = go.AddComponent<BoundingBoxHandle>();
                 handle.Type = BoundingBoxHandle.HandleType.Rotate;
@@ -167,10 +344,9 @@ namespace MirageXR
                 handle.OnDragHandle += OnHandleDrag;
                 handle.OnUpHandle += OnHandleUp;
 
-                // Assign Axis based on group
-                if (i < 4) handle.Axis = Vector3.right;       // 0-3: X-axis rotation (edges parallel to X)
-                else if (i < 8) handle.Axis = Vector3.up;     // 4-7: Y-axis rotation (edges parallel to Y)
-                else handle.Axis = Vector3.forward;           // 8-11: Z-axis rotation (edges parallel to Z)
+                if (i < 4) handle.Axis = Vector3.right;       // 0-3: X-axis rotation
+                else if (i < 8) handle.Axis = Vector3.up;     // 4-7: Y-axis rotation
+                else handle.Axis = Vector3.forward;           // 8-11: Z-axis rotation
 
                 _rotationHandles.Add(handle);
             }
@@ -186,9 +362,6 @@ namespace MirageXR
             _lineRenderer.startColor = _lineColor;
             _lineRenderer.endColor = _lineColor;
             _lineRenderer.positionCount = 16;
-            
-            // Setup indices for a box
-            // 0-1-3-2-0, 4-5-7-6-4, 0-4, 1-5, 2-6, 3-7
         }
 
         private void Update()
@@ -204,62 +377,57 @@ namespace MirageXR
         {
             if (Target == null) return;
 
-            // Convert world bounds to local space of THIS transform
-            // This is tricky if rotations involved.
-            // Simplifying: Assume this BoundingBox is ATTACHED to the model root (so local space matches).
-            // Use local bounds from meshes.
-            
             Bounds localBounds = GetLocalBounds(Target.gameObject);
             Vector3 center = localBounds.center;
             Vector3 extents = localBounds.extents;
             _boundsCenter = center;
+            _boundsExtents = extents;
 
-            // Calculate dynamic handle size (e.g., 5% of the largest dimension, with a minimum fallback)
             float maxDim = Mathf.Max(extents.x, extents.y, extents.z) * 2.0f;
             float dynamicHandleSize = maxDim > Mathf.Epsilon ? maxDim * 0.08f : _handleSize;
 
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < _handles.Count; i++)
             {
-                 Vector3 dir = _handles[i].Axis;
-                 Vector3 pos = center + Vector3.Scale(extents, dir);
-                 _handles[i].transform.localPosition = pos;
-                 _handles[i].transform.localScale = Vector3.one * dynamicHandleSize;
+                Vector3 dir = _handles[i].Axis;
+                Vector3 pos = center + Vector3.Scale(extents, dir);
+                _handles[i].transform.localPosition = pos;
+                _handles[i].transform.localScale = Vector3.one * dynamicHandleSize;
             }
 
-            // Position Rotation Handles (Edge Midpoints)
-            // Order: 4 X-aligned, 4 Y-aligned, 4 Z-aligned
-            
-            // X-aligned edges: Midpoints have X=0 (relative to center), Y=+/-ext, Z=+/-ext
-            // Wait, midpoint of edge parallel to X starts at x=-ext to x=+ext. Midpoint x is center.x.
-            // Correct.
-            
-            // X-aligned (Rotate X)
             SetRotHandlePos(0, center, new Vector3(0, -extents.y, -extents.z));
             SetRotHandlePos(1, center, new Vector3(0, -extents.y, extents.z));
             SetRotHandlePos(2, center, new Vector3(0, extents.y, -extents.z));
             SetRotHandlePos(3, center, new Vector3(0, extents.y, extents.z));
-            
-            // Y-aligned (Rotate Y) - Edges parallel to Y. Midpoint Y is center.y. X/Z are +/- extents.
+
             SetRotHandlePos(4, center, new Vector3(-extents.x, 0, -extents.z));
             SetRotHandlePos(5, center, new Vector3(-extents.x, 0, extents.z));
             SetRotHandlePos(6, center, new Vector3(extents.x, 0, -extents.z));
             SetRotHandlePos(7, center, new Vector3(extents.x, 0, extents.z));
-            
-            // Z-aligned (Rotate Z) - Edges parallel to Z. Midpoint Z is center.z. X/Y are +/- extents.
+
             SetRotHandlePos(8, center, new Vector3(-extents.x, -extents.y, 0));
             SetRotHandlePos(9, center, new Vector3(-extents.x, extents.y, 0));
             SetRotHandlePos(10, center, new Vector3(extents.x, -extents.y, 0));
             SetRotHandlePos(11, center, new Vector3(extents.x, extents.y, 0));
 
             float rotHandleSize = dynamicHandleSize * 0.8f;
-            foreach(var h in _rotationHandles) h.transform.localScale = Vector3.one * rotHandleSize;
-            
+            foreach (var h in _rotationHandles)
+            {
+                if (h != null) h.transform.localScale = Vector3.one * rotHandleSize;
+            }
+
             UpdateLines(center, extents);
+            UpdateHandleVisibility();
+
+            if (_targetBoundsCollider != null)
+            {
+                _targetBoundsCollider.center = center;
+                _targetBoundsCollider.size = extents * 2f;
+            }
         }
 
         private void SetRotHandlePos(int index, Vector3 center, Vector3 offset)
         {
-            if (index < _rotationHandles.Count)
+            if (index < _rotationHandles.Count && _rotationHandles[index] != null)
             {
                 _rotationHandles[index].transform.localPosition = center + offset;
             }
@@ -267,25 +435,25 @@ namespace MirageXR
 
         private Bounds GetLocalBounds(GameObject go)
         {
-             Bounds bounds = new Bounds(Vector3.zero, Vector3.zero);
-             Renderer[] renderers = go.GetComponentsInChildren<Renderer>();
-             bool first = true;
+            Bounds bounds = new Bounds(Vector3.zero, Vector3.zero);
+            Renderer[] renderers = go.GetComponentsInChildren<Renderer>();
+            bool first = true;
 
-             foreach (var r in renderers)
-             {
-                 if (ShouldSkipRenderer(r)) continue;
+            foreach (var r in renderers)
+            {
+                if (ShouldSkipRenderer(r)) continue;
 
-                 if (TryGetRendererLocalBounds(r, out Bounds rendererBounds))
-                 {
-                     EncapsulateTransformedBounds(ref bounds, ref first, rendererBounds, r.transform.localToWorldMatrix);
-                 }
-                 else
-                 {
-                     EncapsulateWorldBounds(ref bounds, ref first, r.bounds);
-                 }
-             }
+                if (TryGetRendererLocalBounds(r, out Bounds rendererBounds))
+                {
+                    EncapsulateTransformedBounds(ref bounds, ref first, rendererBounds, r.transform.localToWorldMatrix);
+                }
+                else
+                {
+                    EncapsulateWorldBounds(ref bounds, ref first, r.bounds);
+                }
+            }
 
-             return bounds;
+            return bounds;
         }
 
         private bool ShouldSkipRenderer(Renderer renderer)
@@ -316,10 +484,8 @@ namespace MirageXR
 
         private void EncapsulateTransformedBounds(ref Bounds bounds, ref bool first, Bounds sourceBounds, Matrix4x4 localToWorld)
         {
-            // Get world corners of mesh bounds
             Vector3 min = sourceBounds.min;
             Vector3 max = sourceBounds.max;
-            // ... transform to this.worldToLocalMatrix
 
             EncapsulatePoint(ref bounds, ref first, localToWorld.MultiplyPoint3x4(new Vector3(min.x, min.y, min.z)));
             EncapsulatePoint(ref bounds, ref first, localToWorld.MultiplyPoint3x4(new Vector3(min.x, min.y, max.z)));
@@ -363,92 +529,28 @@ namespace MirageXR
         private void UpdateLines(Vector3 center, Vector3 extents)
         {
             if (_lineRenderer == null) return;
-            
+
             Vector3 min = center - extents;
             Vector3 max = center + extents;
-            
-            // 0: min.x, min.y, min.z
+
             Vector3 p0 = new Vector3(min.x, min.y, min.z);
             Vector3 p1 = new Vector3(max.x, min.y, min.z);
             Vector3 p2 = new Vector3(max.x, min.y, max.z);
             Vector3 p3 = new Vector3(min.x, min.y, max.z);
-            
+
             Vector3 p4 = new Vector3(min.x, max.y, min.z);
             Vector3 p5 = new Vector3(max.x, max.y, min.z);
             Vector3 p6 = new Vector3(max.x, max.y, max.z);
             Vector3 p7 = new Vector3(min.x, max.y, max.z);
-            
-            // Continuous path that covers all 12 edges without diagonals
-            // Bottom loop: 0->1->2->3->0
-            // Up to top: 0->4
-            // Top loop: 4->5->6->7->4
-            // Remaining verticals (retracing): 4->5->1 (down), 1->2->6 (up), 6->7->3 (down)
-            
+
             Vector3[] points = new Vector3[] {
-                p0, p1, p2, p3, p0, // Bottom loop
-                p4, p5, p6, p7, p4, // Vertical + Top loop
-                p5, p1, p2, p6, p7, p3 // Retrace top->down, bottom->up, top->down
+                p0, p1, p2, p3, p0,
+                p4, p5, p6, p7, p4,
+                p5, p1, p2, p6, p7, p3
             };
-            
+
             _lineRenderer.positionCount = points.Length;
             _lineRenderer.SetPositions(points);
-        }
-
-        private void OnHandleDrag(BoundingBoxHandle handle, Vector3 delta)
-        {
-            if (!_isHandleInteractionActive) return;
-
-            if (handle.Type == BoundingBoxHandle.HandleType.Scale)
-            {
-                Vector3 handleOffset = handle.transform.localPosition - _boundsCenter;
-                Vector3 direction = handleOffset.normalized;
-                
-                Vector3 localDelta = transform.InverseTransformVector(delta);
-                float dragAmount = Vector3.Dot(localDelta, direction);
-                
-                if (Mathf.Abs(dragAmount) > 0.0001f)
-                {
-                    float radius = Mathf.Max(handleOffset.magnitude, 0.0001f);
-                    float scaleFactor = 1.0f + dragAmount / radius;
-                    if (scaleFactor <= 0.0001f) return;
-
-                    Target.localScale *= scaleFactor;
-                    OnScaleChanged?.Invoke(Target.localScale);
-                    UpdateBounds();
-                }
-            }
-            else if (handle.Type == BoundingBoxHandle.HandleType.Rotate)
-            {
-                 // Rotation logic
-                 // Handle Axis is the rotation axis.
-                 Vector3 axis = handle.Axis;
-                 
-                 // Handle Position relative to center
-                 Vector3 handlePos = handle.transform.localPosition - _boundsCenter;
-                 
-                 // Tangent vector: Cross(Axis, HandlePos) -> Direction of movement that causes positive rotation?
-                 // Let's check: rot around Y (0,1,0). Handle at (1,0,0). Tangent = Cross(Y, X) = -Z? (0,0,-1).
-                 // If we move along -Z, does it rotate +Y? 
-                 // Left hand rule? Unity is left handed? 
-                 // Let's just project local delta onto the tangent.
-                 
-                 Vector3 tangent = Vector3.Cross(axis, handlePos).normalized;
-                 Vector3 localDelta = transform.InverseTransformVector(delta);
-                 
-                 float dragAmount = Vector3.Dot(localDelta, tangent);
-                 
-                 if (Mathf.Abs(dragAmount) > 0.0001f)
-                 {
-                     float radius = Mathf.Max(handlePos.magnitude, 0.0001f);
-                     float angle = dragAmount / radius * Mathf.Rad2Deg;
-                     
-                     // Rotate around LOCAL axis
-                     Target.Rotate(axis, angle, Space.Self);
-                     
-                     OnRotationChanged?.Invoke(Target.rotation);
-                     UpdateBounds();
-                 }
-            }
         }
 
         private void OnHandleDown(BoundingBoxHandle handle)
@@ -465,6 +567,61 @@ namespace MirageXR
                 _parentGrabWasEnabled = _parentGrabInteractable.enabled;
                 _parentGrabInteractable.enabled = false;
             }
+
+            if (handle.Type == BoundingBoxHandle.HandleType.Scale)
+            {
+                ScaleStarted?.Invoke();
+                if (Target != null) OnScaleStarted?.Invoke(Target.localScale);
+            }
+            else if (handle.Type == BoundingBoxHandle.HandleType.Rotate)
+            {
+                RotateStarted?.Invoke();
+                if (Target != null) OnRotationStarted?.Invoke(Target.rotation);
+            }
+        }
+
+        private void OnHandleDrag(BoundingBoxHandle handle, Vector3 delta)
+        {
+            if (!_isHandleInteractionActive || Target == null) return;
+
+            if (handle.Type == BoundingBoxHandle.HandleType.Scale)
+            {
+                Vector3 handleOffset = handle.transform.localPosition - _boundsCenter;
+                Vector3 direction = handleOffset.normalized;
+
+                Vector3 localDelta = transform.InverseTransformVector(delta);
+                float dragAmount = Vector3.Dot(localDelta, direction);
+
+                if (Mathf.Abs(dragAmount) > 0.0001f)
+                {
+                    float radius = Mathf.Max(handleOffset.magnitude, 0.0001f);
+                    float scaleFactor = 1.0f + dragAmount / radius;
+                    if (scaleFactor <= 0.0001f) return;
+
+                    Target.localScale *= scaleFactor;
+                    OnScaleChanged?.Invoke(Target.localScale);
+                    UpdateBounds();
+                }
+            }
+            else if (handle.Type == BoundingBoxHandle.HandleType.Rotate)
+            {
+                Vector3 axis = handle.Axis;
+                Vector3 handlePos = handle.transform.localPosition - _boundsCenter;
+                Vector3 tangent = Vector3.Cross(axis, handlePos).normalized;
+                Vector3 localDelta = transform.InverseTransformVector(delta);
+
+                float dragAmount = Vector3.Dot(localDelta, tangent);
+
+                if (Mathf.Abs(dragAmount) > 0.0001f)
+                {
+                    float radius = Mathf.Max(handlePos.magnitude, 0.0001f);
+                    float angle = dragAmount / radius * Mathf.Rad2Deg;
+
+                    Target.Rotate(axis, angle, Space.Self);
+                    OnRotationChanged?.Invoke(Target.rotation);
+                    UpdateBounds();
+                }
+            }
         }
 
         private void OnHandleUp(BoundingBoxHandle handle)
@@ -477,10 +634,12 @@ namespace MirageXR
             {
                 if (handle.Type == BoundingBoxHandle.HandleType.Scale)
                 {
+                    ScaleStopped?.Invoke();
                     OnScaleEnded?.Invoke(Target.localScale);
                 }
                 else if (handle.Type == BoundingBoxHandle.HandleType.Rotate)
                 {
+                    RotateStopped?.Invoke();
                     OnRotationEnded?.Invoke(Target.rotation);
                 }
             }

@@ -585,7 +585,7 @@ namespace MirageXR
             Debug.LogInfo($"Creating Detectable Object:{detectable.id} created");
         }
 
-        public async Task CreatePlaceObject(Place place, LearningExperienceEngine.Action action)
+        public async Task CreatePlaceObject(LearningExperienceEngine.Place place, LearningExperienceEngine.Action action)
         {
             // Check for unique object name
             if (GameObject.Find(place.id))

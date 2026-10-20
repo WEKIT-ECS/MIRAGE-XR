@@ -10,7 +10,7 @@ namespace MirageXR
         [SerializeField] private string tooltipText;
 
         private ToolipsController toolipsController;
-        private const string tooltipPrefabPath = "Prefabs/UI/Hololens/VoiceCommandTooltip";
+        private const string tooltipPrefabPath = "Prefabs/UI/VoiceCommandTooltip";
 
         private GameObject _tooltipObject;
 

@@ -1,6 +1,4 @@
-﻿using LearningExperienceEngine;
-using Microsoft.MixedReality.Toolkit.UI;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
+using LearningExperienceEngine;
 using UnityEngine;
 
 namespace MirageXR
@@ -9,10 +7,8 @@ namespace MirageXR
     {
         private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
         private LearningExperienceEngine.ToggleObject _obj;
-        private ObjectManipulator _objectManipulator;
         
         [SerializeField] private GameObject icon;
-
 
         private void OnEnable()
         {
@@ -27,7 +23,6 @@ namespace MirageXR
 
         private void Start()
         {
-            _objectManipulator = GetComponent<ObjectManipulator>();
             SetEditorState(activityManager.EditModeActive);
         }
 
@@ -40,8 +35,10 @@ namespace MirageXR
 
             SetBoundsControl(editModeActive);
 
-            OnLock(_obj.poi, _obj.positionLock);
-
+            if (_obj != null)
+            {
+                OnLock(_obj.poi, _obj.positionLock);
+            }
         }
 
         public override bool Init(LearningExperienceEngine.ToggleObject obj)
@@ -67,30 +64,29 @@ namespace MirageXR
 
         private void OnLock(string id, bool locked)
         {
-            if (id == _obj.poi)
+            if (_obj != null && id == _obj.poi)
             {
                 _obj.positionLock = locked;
 
                 SetBoundsControl(!_obj.positionLock);
 
-                if (_objectManipulator)
+                var poiEditor = GetComponentInParent<PoiEditor>();
+                if (poiEditor != null)
                 {
-                    _objectManipulator.enabled = !_obj.positionLock;
+                    poiEditor.IsLocked(_obj.positionLock);
                 }
-
-                GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock);
             }
         }
 
         private void SetBoundsControl(bool bounds)
         {
-            var boundsControl = GetComponent<BoundsControl>();
-            if (boundsControl != null)
+            var simpleBoundingBox = GetComponent<SimpleBoundingBox>();
+            if (simpleBoundingBox != null)
             {
-                boundsControl.enabled = bounds;
-                boundsControl.RotationHandlesConfig.ShowHandleForX = bounds;
-                boundsControl.RotationHandlesConfig.ShowHandleForY = bounds;
-                boundsControl.RotationHandlesConfig.ShowHandleForZ = bounds;
+                simpleBoundingBox.SetEnabled(bounds);
+                simpleBoundingBox.RotationHandlesConfig.ShowHandleForX = bounds;
+                simpleBoundingBox.RotationHandlesConfig.ShowHandleForY = bounds;
+                simpleBoundingBox.RotationHandlesConfig.ShowHandleForZ = bounds;
             }
         }
     }

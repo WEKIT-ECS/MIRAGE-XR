@@ -82,10 +82,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1362828208906520}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2547b4dd088644d6aaf64f45df657c79, type: 3}
+  m_Script: {fileID: 11500000, guid: bc420da184314e98b57c340748f4e504, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pivotAxis: 0
+  _pivotAxis: 0
   targetTransform: {fileID: 0}
 --- !u!1 &586438261752616001
 GameObject:
@@ -695,8 +695,6 @@ GameObject:
   - component: {fileID: 8424323692386000048}
   - component: {fileID: 6434246945866868572}
   - component: {fileID: 7526384705348366369}
-  - component: {fileID: 6106595248712176202}
-  - component: {fileID: 4226662421726710168}
   m_Layer: 0
   m_Name: Canvas
   m_TagString: Untagged
@@ -787,32 +785,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &6106595248712176202
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6332395697879158002}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff4e3b9019304b5aaec5664de0778d21, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &4226662421726710168
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6332395697879158002}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2fcaf896491074042b7ed7684454a412, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  eventsToReceive: 0
-  debounceThreshold: 0.01
 --- !u!1 &6399433586936904754
 GameObject:
   m_ObjectHideFlags: 0

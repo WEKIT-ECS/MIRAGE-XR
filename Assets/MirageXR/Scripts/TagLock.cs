@@ -1,18 +1,25 @@
-﻿using Microsoft.MixedReality.Toolkit.Utilities.Solvers;
 using MirageXR;
 using UnityEngine;
 
-public class TagLock : MonoBehaviour {
-
+public class TagLock : MonoBehaviour 
+{
     public void LockPosition()
     {
-        GetComponent<RadialView>().enabled = false;
+        var radial = GetComponent<RadialView>();
+        if (radial != null)
+        {
+            radial.enabled = false;
+        }
         Maggie.Ok();
     }
 
     public void ReleasePosition()
     {
-        GetComponent<RadialView>().enabled = true;
+        var radial = GetComponent<RadialView>();
+        if (radial != null)
+        {
+            radial.enabled = true;
+        }
         Maggie.Ok();
     }
 }

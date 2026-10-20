@@ -1,7 +1,5 @@
-﻿using i5.Toolkit.Core.VerboseLogging;
+using i5.Toolkit.Core.VerboseLogging;
 using LearningExperienceEngine;
-using Microsoft.MixedReality.Toolkit.UI;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -213,9 +211,11 @@ namespace MirageXR
 
             Background = background;
 
-            var boundsControl = gameObject.GetComponent<BoundsControl>();
-            boundsControl.enabled = false;
-            boundsControl.enabled = true;
+            var boundsControl = gameObject.GetComponent<SimpleBoundingBox>();
+            if (boundsControl != null)
+            {
+                boundsControl.UpdateBounds();
+            }
             // required to reset the bounding boxes of the frame used so that it displays correctly
         }
 
@@ -277,9 +277,10 @@ namespace MirageXR
 
                 GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock);
 
-                if (gameObject.GetComponent<ObjectManipulator>())
+                var simpleBoundingBox = gameObject.GetComponent<SimpleBoundingBox>();
+                if (simpleBoundingBox != null)
                 {
-                    gameObject.GetComponent<ObjectManipulator>().enabled = !_obj.positionLock;
+                    simpleBoundingBox.SetEnabled(!_obj.positionLock);
                 }
             }
         }
