@@ -123,16 +123,24 @@ public class AddEditVirtualInstructor : EditorSpatialView   //TODO: rename to Vi
 
         if (IsContentUpdate && _instructorContentData != null)
         {
-            _voiceInstruction = _instructorContentData.ContentData.VoiceInstruction; 
+            _voiceInstruction = _instructorContentData.ContentData.VoiceInstruction ?? string.Empty; 
             UpdatePrompt(_instructorContentData.ContentData.Prompt);
-            SetAITextToSpeechModel(_instructorContentData.ContentData.TextToSpeechModel, _instructorContentData.ContentData.VoiceInstruction);
+            SetAITextToSpeechModel(_instructorContentData.ContentData.TextToSpeechModel, _voiceInstruction);
             SetAISpeechToTextModel(_instructorContentData.ContentData.SpeechToTextModel);
             SetAILanguageModel(_instructorContentData.ContentData.LanguageModel);
             UpdateName(_instructorContentData.ContentData.CharacterName);
             UpdateAnimationSetting(_instructorContentData.ContentData.AnimationClip);
             if (_instructorContentData.ContentData.UseReadyPlayerMe && !string.IsNullOrEmpty(_instructorContentData.ContentData.CharacterModelUrl))
             {
-                OnAvatarModelSelected(AvatarLoadUtils.GetId(_instructorContentData.ContentData.CharacterModelUrl));
+                string avatarId = AvatarLoadUtils.GetId(_instructorContentData.ContentData.CharacterModelUrl);
+                if (!string.IsNullOrEmpty(avatarId) && !avatarId.Equals("DefaultAvatar", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (RootObject.Instance?.AvatarLibraryManager != null && !RootObject.Instance.AvatarLibraryManager.Contains(avatarId))
+                    {
+                        RootObject.Instance.AvatarLibraryManager.Add(avatarId);
+                    }
+                }
+                OnAvatarModelSelected(avatarId);
             }
         }
     }
@@ -322,9 +330,21 @@ public class AddEditVirtualInstructor : EditorSpatialView   //TODO: rename to Vi
 
 	private void OnAvatarModelSelected(string characterModelId)
 	{
+        if (string.IsNullOrEmpty(characterModelId)) return;
         _useReadyPlayerMe = true;
         _characterModelUrl = AvatarLoadUtils.IdToModelUrl(characterModelId);
-        characterModelSelectionElement.Thumbnail.ElementId = characterModelId;
+        if (characterModelSelectionElement != null)
+        {
+            var thumbnail = characterModelSelectionElement.Thumbnail ?? characterModelSelectionElement.GetComponent<ThumbnailView>();
+            if (thumbnail != null)
+            {
+                if (thumbnail.ThumbnailProvider == null && RootObject.Instance != null)
+                {
+                    thumbnail.ThumbnailProvider = RootObject.Instance.AvatarLoadManager;
+                }
+                thumbnail.ElementId = characterModelId;
+            }
+        }
 	}
 
 	private void OpenCommunicationSettingPanel()

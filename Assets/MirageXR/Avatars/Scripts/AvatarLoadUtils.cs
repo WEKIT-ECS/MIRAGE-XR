@@ -86,9 +86,19 @@ namespace MirageXR
             if (Uri.TryCreate(avatarUrl, UriKind.Absolute, out Uri uri))
             {
                 Dictionary<string, string> queryParams = UriUtils.GetUriParameters(uri);
-                if (queryParams != null && queryParams.TryGetValue("avatar_name", out string name))
+                if (queryParams != null && queryParams.TryGetValue("avatar_name", out string name) && !string.IsNullOrEmpty(name))
                 {
                     return name;
+                }
+
+                var filename = Path.GetFileNameWithoutExtension(uri.AbsolutePath);
+                if (!string.IsNullOrEmpty(filename))
+                {
+                    var cleanId = Regex.Replace(filename, "[^a-zA-Z0-9]", "");
+                    if (!string.IsNullOrEmpty(cleanId))
+                    {
+                        return cleanId;
+                    }
                 }
                 return "";
             }

@@ -53,6 +53,19 @@ namespace MirageXR
         [Header("Toggles")]
         [SerializeField] private Toggle _toggleEditorMode;
 
+        private TabSwitcher _tabSwitcher;
+        public TabSwitcher TabSwitcher => _tabSwitcher != null ? _tabSwitcher : (_tabSwitcher = GetComponentInChildren<TabSwitcher>(true));
+
+        public void SwitchToStepsTab()
+        {
+            TabSwitcher?.SwitchTab(0);
+        }
+
+        public void SwitchToInfoTab()
+        {
+            TabSwitcher?.SwitchTab(1);
+        }
+
         public void SetActionOnToggleEditModeValueChanged(UnityAction<bool> action) => _editModeToggle.SafeSetListener(action);
         public void SetActionOnButtonBackClick(UnityAction action) => _buttonBack.SafeSetListener(action);
         public void SetActionOnButtonCloseClick(UnityAction action) => _buttonClose.SafeSetListener(action);

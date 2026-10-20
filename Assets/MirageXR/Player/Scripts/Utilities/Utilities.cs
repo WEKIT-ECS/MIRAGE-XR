@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -233,7 +233,20 @@ namespace MirageXR
                 return null;
             }
 
-            var fileData = File.ReadAllBytes(filePath);
+            byte[] fileData;
+            try
+            {
+                using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var ms = new MemoryStream();
+                fs.CopyTo(ms);
+                fileData = ms.ToArray();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[Utilities] Could not read texture file at {filePath}: {ex.Message}");
+                return null;
+            }
+
             var texture2D = new Texture2D(2, 2);
             return texture2D.LoadImage(fileData, !readable) ? texture2D : null;
         }

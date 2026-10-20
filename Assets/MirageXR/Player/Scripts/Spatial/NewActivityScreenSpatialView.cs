@@ -119,10 +119,39 @@ namespace MirageXR
             return _stepsItemPrefab;
         }
         
+        private TabSwitcher _tabSwitcher;
+        public TabSwitcher TabSwitcher => _tabSwitcher != null ? _tabSwitcher : (_tabSwitcher = GetComponentInChildren<TabSwitcher>(true));
+
+        public void SwitchToStepsTab()
+        {
+            TabSwitcher?.SwitchTab(0);
+        }
+
+        public void SwitchToInfoTab()
+        {
+            TabSwitcher?.SwitchTab(1);
+        }
+
         //#region Calibration tab
         public void SetActionOnButtonWireframeVignetteClick(UnityAction action) => _buttonWireframeVignette.SafeSetListener(action);
         public void SetActionOnButtonAssignRoomModelClick(UnityAction action) => _buttonAssignRoomModel.SafeSetListener(action);
         public void SetActionOnToggleShowRoomScanValueChanged(UnityAction<bool> action) => _toggleShowRoomScan.SafeSetListener(action);
         public void SetActionOnButtonRepositionClick(UnityAction action) => _buttonReposition.SafeSetListener(action);
+
+        public void SetAssignRoomModelInteractable(bool value)
+        {
+            if (_buttonAssignRoomModel != null)
+            {
+                _buttonAssignRoomModel.interactable = value;
+            }
+        }
+
+        public void SetRepositionInteractable(bool value)
+        {
+            if (_buttonReposition != null)
+            {
+                _buttonReposition.interactable = value;
+            }
+        }
     }
 }

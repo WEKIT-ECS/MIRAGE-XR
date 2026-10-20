@@ -118,8 +118,18 @@ namespace MirageXR
 
         private void OnPrefabClicked(AIModel objectData)
         {
-            _callback.Invoke(objectData, _voiceInstruction);
+            _aiModel = objectData;
+            _callback?.Invoke(objectData, _voiceInstruction);
             Close();
+        }
+
+        public override void Close()
+        {
+            if (_callback != null && _aiModel != null)
+            {
+                _callback.Invoke(_aiModel, _voiceInstruction);
+            }
+            base.Close();
         }
  
         private static void Play(AIModel objectData, string voiceInstruction, AudioSource audioSource, Button btnPlay, Button btnStop)
@@ -157,19 +167,19 @@ namespace MirageXR
 
         protected override bool TryToGetArguments(params object[] args)
         {
-            if (args is not { Length: 2 or 3 })
+            if (args == null || args.Length < 2)
             {
                 return false;
             }
 
-            if (args[0] is not AIModel aiModel || args[1] is not Action<AIModel, string> callback)
+            if (args[1] is not Action<AIModel, string> callback)
             {
                 return false;
             }
 
-            _voiceInstruction = args[2] as string;
-            _aiModel = aiModel;
+            _aiModel = args[0] as AIModel;
             _callback = callback;
+            _voiceInstruction = args.Length > 2 && args[2] is string vi ? vi : string.Empty;
             return true;
         }
     }
