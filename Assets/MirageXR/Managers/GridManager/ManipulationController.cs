@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ManipulationController : MonoBehaviour, IDisposable
 {
-    private static FloorManagerWrapper floorManager => RootObject.Instance.FloorManager;
+    private static FloorManagerWrapper floorManager => RootObject.Instance != null ? RootObject.Instance.FloorManager : null;
 
     private GridManager _gridManager;
     private GridLines _gridLines;

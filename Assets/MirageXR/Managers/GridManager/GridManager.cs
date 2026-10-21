@@ -7,9 +7,9 @@ using UnityEngine;
 
 public class GridManager : MonoBehaviour, IDisposable
 {
-    private static FloorManagerWrapper floorManager => RootObject.Instance.FloorManager;
+    private static FloorManagerWrapper floorManager => RootObject.Instance != null ? RootObject.Instance.FloorManager : null;
 
-    private static ICalibrationManager calibrationManager => RootObject.Instance.CalibrationManager;
+    private static ICalibrationManager calibrationManager => RootObject.Instance != null ? RootObject.Instance.CalibrationManager : null;
 
     [SerializeField] private Grid _gridPrefab;
     [SerializeField] private GridLines _gridLinesPrefab;
@@ -122,26 +122,51 @@ public class GridManager : MonoBehaviour, IDisposable
         _manipulationController = gameObject.AddComponent<ManipulationController>();
         _manipulationController.Initialization(this, _gridLinesPrefab);
 
+        UpdateAnchorFallbackFloorLevel();
+
+        if (floorManager != null)
+        {
+            floorManager.OnFloorLevelChanged += OnFloorLevelChanged;
+        }
+
         LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
         UnityEngine.Debug.Log("Initializing [GridManager] -->");
+    }
+
+    private void UpdateAnchorFallbackFloorLevel()
+    {
+        if (calibrationManager != null && !calibrationManager.IsCalibrated && calibrationManager.Anchor != null)
+        {
+            float floorY = floorManager != null ? floorManager.floorLevel : -1.6f;
+            calibrationManager.Anchor.position = new Vector3(0, floorY, 0);
+            calibrationManager.Anchor.rotation = Quaternion.identity;
+        }
+    }
+
+    private void OnFloorLevelChanged(float floorY)
+    {
+        UpdateAnchorFallbackFloorLevel();
+        if (_grid != null && _grid.gameObject.activeInHierarchy)
+        {
+            UpdateGridTransform();
+        }
+    }
+
+    private void UpdateGridTransform()
+    {
+        if (_grid == null) return;
+        var anchor = calibrationManager?.Anchor ?? transform;
+        _grid.transform.SetParent(anchor);
+        _grid.transform.localPosition = Vector3.zero;
+        _grid.transform.localRotation = Quaternion.identity;
     }
 
     public void ShowGrid()
     {
         if (_grid == null) return;
 
-        var anchor = calibrationManager?.Anchor ?? transform;
-        _grid.transform.SetParent(anchor);
-
-        _grid.transform.localPosition = Vector3.zero;
-        _grid.transform.localRotation = Quaternion.identity;
-
-        var position = _grid.transform.position;
-        if (floorManager != null && floorManager.isFloorDetected)
-        {
-            position.y = floorManager.floorLevel;
-        }
-        _grid.transform.position = position;
+        UpdateAnchorFallbackFloorLevel();
+        UpdateGridTransform();
 
         _grid.gameObject.SetActive(true);
     }
@@ -160,7 +185,7 @@ public class GridManager : MonoBehaviour, IDisposable
         LearningExperienceEngine.UserSettings.showGrid = _gridEnabled;
 
         var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
-        if (activityManager == null || activityManager.EditModeActive)
+        if (activityManager != null && activityManager.EditModeActive)
         {
             ShowGrid();
         }
@@ -220,14 +245,23 @@ public class GridManager : MonoBehaviour, IDisposable
     public void Dispose()
     {
         LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
-        _manipulationController.Dispose();
+        if (floorManager != null)
+        {
+            floorManager.OnFloorLevelChanged -= OnFloorLevelChanged;
+        }
+        _manipulationController?.Dispose();
+    }
+
+    private void OnDestroy()
+    {
+        Dispose();
     }
 
     private void OnEditModeChanged(bool value)
     {
         if (value)
         {
-            if (_gridEnabled && floorManager.isFloorDetected)
+            if (_gridEnabled)
             {
                 ShowGrid();
             }

@@ -1,4 +1,4 @@
-﻿using MirageXR;
+using MirageXR;
 using UnityEngine;
 
 [RequireComponent(typeof(MeshRenderer))]
@@ -30,10 +30,38 @@ public class GridPlane : MonoBehaviour
 
     public void Initialization()
     {
-        _cameraTransform = RootObject.Instance.BaseCamera.transform;
+        ResolveCamera();
         _renderer = GetComponent<MeshRenderer>();
         UpdateCellSize();
         _startLastPosition = transform.localPosition;
+        if (_cameraTransform != null && _renderer != null)
+        {
+            UpdateShaderPositionValue();
+        }
+    }
+
+    private void OnEnable()
+    {
+        ResolveCamera();
+        if (_cameraTransform != null && _renderer != null)
+        {
+            UpdateShaderPositionValue();
+        }
+    }
+
+    private void ResolveCamera()
+    {
+        if (_cameraTransform == null)
+        {
+            if (RootObject.Instance != null && RootObject.Instance.BaseCamera != null)
+            {
+                _cameraTransform = RootObject.Instance.BaseCamera.transform;
+            }
+            else if (Camera.main != null)
+            {
+                _cameraTransform = Camera.main.transform;
+            }
+        }
     }
 
     public void SetCellWidth(float width)
@@ -57,24 +85,20 @@ public class GridPlane : MonoBehaviour
 
     private bool IsPositionsUpdated()
     {
+        ResolveCamera();
         if (_cameraTransform != null) return _lastPosition != _cameraTransform.position;
-#if UNITY_EDITOR
-        Debug.LogWarning("CameraTransform ist null in Grid.IsPositionsUpdated!");
-#endif
         return false;
     }
 
     private bool IsScaleUpdated()
     {
-        if (transform != null)  return _lastScale != transform.localScale;
-#if UNITY_EDITOR
-        Debug.LogWarning("CameraTransform ist null in Grid.IsPositionsUpdated!");
-#endif 
+        if (transform != null) return _lastScale != transform.localScale;
         return false;
     }
 
     private void UpdateShaderPositionValue()
     {
+        if (_cameraTransform == null || _renderer == null || _renderer.material == null) return;
         var position = _cameraTransform.position;
         _renderer.material.SetVector(Position, position);
         _lastPosition = position;

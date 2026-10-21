@@ -36,6 +36,8 @@ public class FloorManagerWrapper : MonoBehaviour
             return;
         }
 
+        _floorManager.OnFloorLevelChanged += (level) => OnFloorLevelChanged?.Invoke(level);
+
         try
         {
             var result = await _floorManager.InitializationAsync(viewManager, planeManager);
@@ -51,9 +53,13 @@ public class FloorManagerWrapper : MonoBehaviour
         UnityEngine.Debug.Log("Initializing [FloorManagerWrapper] -->");
     }
 
-    public float floorLevel => _floorManager.floorLevel;
+    public event Action<float> OnFloorLevelChanged;
 
-    public bool isFloorDetected => _floorManager.isFloorDetected;
+    public float floorLevel => _floorManager != null ? _floorManager.floorLevel : -1.6f;
+
+    public bool isFloorDetected => _floorManager != null && _floorManager.isFloorDetected;
+
+    public bool isManualFloor => _floorManager != null && _floorManager.isManualFloor;
 
     public Task<bool> ResetAsync()
     {
