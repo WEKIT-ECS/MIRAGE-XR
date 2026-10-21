@@ -32,7 +32,7 @@ namespace MirageXR
             View.SetActionOnButtonServerPortClick(ShowChangeServerPortPanel);
             View.SetActionOnButtonWebsocketAddressClick(ShowChangeWebsocketAddressPanel);
             View.SetActionOnButtonWebsocketPortClick(ShowChangeWebsocketPortPanel);
-            View.SetActionOnButtonGridClick(OnGridButtonClicked);
+            View.SetActionOnButtonGridClick(ShowGridSettingsView);
 
             View.gameObject.SetActive(false);
 
@@ -114,20 +114,17 @@ namespace MirageXR
             }
 		}
 
-		private void OnGridButtonClicked()
+		private void ShowGridSettingsView()
 		{
-			var gridManager = RootObject.Instance ? RootObject.Instance.GridManager : null;
-			if (gridManager == null) return;
-
-			if (gridManager.gridEnabled)
+			if (GridSettingsSpatialView.IsOpen)
 			{
-				gridManager.DisableGrid();
-				gridManager.DisableSnapToGrid();
+				return;
 			}
-			else
+
+			var prefab = View.GetGridSettingsViewPrefab();
+			if (prefab is not null)
 			{
-				gridManager.EnableGrid();
-				gridManager.EnableSnapToGrid();
+				PopupsViewer.Instance.Show(prefab);
 			}
 		}
 
