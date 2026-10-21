@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.NewDataModel;
@@ -128,15 +128,19 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public void ShowGrid()
     {
-        var anchor = calibrationManager.Anchor;
+        if (_grid == null) return;
 
+        var anchor = calibrationManager?.Anchor ?? transform;
         _grid.transform.SetParent(anchor);
 
         _grid.transform.localPosition = Vector3.zero;
         _grid.transform.localRotation = Quaternion.identity;
 
         var position = _grid.transform.position;
-        position.y = floorManager.floorLevel;
+        if (floorManager != null && floorManager.isFloorDetected)
+        {
+            position.y = floorManager.floorLevel;
+        }
         _grid.transform.position = position;
 
         _grid.gameObject.SetActive(true);
@@ -144,7 +148,10 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public void HideGrid()
     {
-        _grid.gameObject.SetActive(false);
+        if (_grid != null)
+        {
+            _grid.gameObject.SetActive(false);
+        }
     }
 
     public void EnableGrid()
@@ -153,7 +160,7 @@ public class GridManager : MonoBehaviour, IDisposable
         LearningExperienceEngine.UserSettings.showGrid = _gridEnabled;
 
         var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
-        if (floorManager.isFloorDetected && activityManager.EditModeActive)
+        if (activityManager == null || activityManager.EditModeActive)
         {
             ShowGrid();
         }

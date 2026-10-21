@@ -1,7 +1,4 @@
 using LearningExperienceEngine;
-using Microsoft.MixedReality.Toolkit;
-using Microsoft.MixedReality.Toolkit.Input;
-using Microsoft.MixedReality.Toolkit.Utilities;
 using MirageXR;
 using System;
 using System.Collections.Generic;
@@ -10,14 +7,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using UnityEngine;
+using UnityEngine.XR.Hands;
 
 public class GhostRecorder
 {
     public bool IsRecording => _isRecording;
     public LearningExperienceEngine.GhostDataFrame LastFrame => _lastFrame;
 
-    private IMixedRealityHandJointService handJointService;
-
+    private HandTrackingManager _handTrackingManager;
     private readonly List<LearningExperienceEngine.GhostDataFrame> _ghostFrames = new List<LearningExperienceEngine.GhostDataFrame>();
 
     private LearningExperienceEngine.GhostDataFrame _lastFrame;
@@ -60,33 +57,29 @@ public class GhostRecorder
             return false;
         }
 
-        using (var file = File.Open(filePath, FileMode.Open))
-        using (TextReader textReader = new StreamReader(file))
+        using (var file = File.OpenRead(filePath))
         {
-            var serializer = new XmlSerializer(typeof(List<LearningExperienceEngine.GhostDataFrame>));
-            ghostDataFrames = (List<LearningExperienceEngine.GhostDataFrame>)serializer.Deserialize(textReader);
+            var xmlSerializer = new XmlSerializer(typeof(List<LearningExperienceEngine.GhostDataFrame>));
+            ghostDataFrames = (List<LearningExperienceEngine.GhostDataFrame>)xmlSerializer.Deserialize(file);
         }
 
-        return ghostDataFrames != null && ghostDataFrames.Count != 0;
+        return true;
     }
 
     /// <summary>
-    /// Start recording the position of the ghost
+    /// Call this function to start recording.
     /// </summary>
-    /// <param name="anchor">Record anchor</param>
-    /// <param name="camera">Main camera </param>
-    /// <param name="cooldown">Time between capturing ghost position. The default is 'Time.fixedDeltaTime'</param>
-    /// <exception cref="Exception">Throws an exception if called while recording is on.</exception>
-    public void Start(Transform anchor, Transform camera, float? cooldown = null)
+    /// <param name="camera">Target camera that is going to be recorded.</param>
+    /// <param name="anchor">The parent of the recorded object. Transform values of the record are going to be local to this object.</param>
+    /// <param name="cooldown">Cooldown between recording frames in milliseconds.</param>
+    public void Start(Transform camera, Transform anchor, int cooldown = 50)
     {
-        const int millisecondsInSecond = 1000;
-
         if (_isRecording)
         {
-            throw new Exception("A new recording cannot be started because the previous one has not been completed.");
+            throw new Exception("The recording cannot be started because the recording has already been started.");
         }
 
-        _cooldown = (int)((cooldown ?? Time.fixedDeltaTime) * millisecondsInSecond);
+        _cooldown = cooldown;
         _cancellationTokenSource = new CancellationTokenSource();
         _cameraTransform = camera;
         _anchor = anchor;
@@ -94,7 +87,7 @@ public class GhostRecorder
         _ghostFrames.Clear();
         _isRecording = true;
 
-        handJointService = CoreServices.GetInputSystemDataProvider<IMixedRealityHandJointService>();
+        _handTrackingManager = UnityEngine.Object.FindObjectOfType<HandTrackingManager>();
 
         StartAsync();
     }
@@ -110,7 +103,6 @@ public class GhostRecorder
         _cancellationTokenSource.Cancel();
         return _ghostFrames;
     }
-
 
     private async void StartAsync()
     {
@@ -143,55 +135,46 @@ public class GhostRecorder
             lowerSpine = CreateLocalPose(_anchor, GetLowerSpinPosition(_cameraTransform), cameraRotation),
         };
 
-        var zeroPose = new Pose{position = Vector3.zero,rotation = Quaternion.identity};
+        var zeroPose = new Pose { position = Vector3.zero, rotation = Quaternion.identity };
+        _lastFrame.rightThumbTip = zeroPose;
+        _lastFrame.rightIndexTip = zeroPose;
+        _lastFrame.rightMiddleTip = zeroPose;
+        _lastFrame.rightRingTip = zeroPose;
+        _lastFrame.rightPinkyTip = zeroPose;
+        _lastFrame.leftThumbTip = zeroPose;
+        _lastFrame.leftIndexTip = zeroPose;
+        _lastFrame.leftMiddleTip = zeroPose;
+        _lastFrame.leftRingTip = zeroPose;
+        _lastFrame.leftPinkyTip = zeroPose;
 
-        if (InputRayUtils.TryGetHandRay(Handedness.Right, out var rightHandRay))
+        if (_handTrackingManager != null)
         {
-            var rotation = Quaternion.LookRotation(rightHandRay.direction, Vector3.up);
-            _lastFrame.rightHand = CreateLocalPose(_anchor, rightHandRay.origin, rotation);
-
-            if (handJointService != null)
+            if (_handTrackingManager.RightHandData.IsTracked)
             {
-                _lastFrame.rightThumbTip = CreateLocalPose(_anchor, handJointService.RequestJointTransform(TrackedHandJoint.ThumbTip, Handedness.Right));
-                _lastFrame.rightIndexTip = CreateLocalPose(_anchor, handJointService.RequestJointTransform(TrackedHandJoint.IndexTip, Handedness.Right));
-                _lastFrame.rightMiddleTip = CreateLocalPose(_anchor, handJointService.RequestJointTransform(TrackedHandJoint.MiddleTip, Handedness.Right));
-                _lastFrame.rightRingTip = CreateLocalPose(_anchor, handJointService.RequestJointTransform(TrackedHandJoint.RingTip, Handedness.Right));
-                _lastFrame.rightPinkyTip = CreateLocalPose(_anchor, handJointService.RequestJointTransform(TrackedHandJoint.PinkyTip, Handedness.Right));
+                var joints = _handTrackingManager.RightHandData.JointPoses;
+                if (joints.TryGetValue(XRHandJointID.Palm, out var palmPose))
+                {
+                    _lastFrame.rightHand = CreateLocalPose(_anchor, palmPose.position, palmPose.rotation);
+                }
+                if (joints.TryGetValue(XRHandJointID.ThumbTip, out var tip)) _lastFrame.rightThumbTip = CreateLocalPose(_anchor, tip.position, tip.rotation);
+                if (joints.TryGetValue(XRHandJointID.IndexTip, out tip)) _lastFrame.rightIndexTip = CreateLocalPose(_anchor, tip.position, tip.rotation);
+                if (joints.TryGetValue(XRHandJointID.MiddleTip, out tip)) _lastFrame.rightMiddleTip = CreateLocalPose(_anchor, tip.position, tip.rotation);
+                if (joints.TryGetValue(XRHandJointID.RingTip, out tip)) _lastFrame.rightRingTip = CreateLocalPose(_anchor, tip.position, tip.rotation);
+                if (joints.TryGetValue(XRHandJointID.LittleTip, out tip)) _lastFrame.rightPinkyTip = CreateLocalPose(_anchor, tip.position, tip.rotation);
             }
-            else
-            {
-                _lastFrame.rightThumbTip = zeroPose;
-                _lastFrame.rightIndexTip = zeroPose;
-                _lastFrame.rightMiddleTip = zeroPose;
-                _lastFrame.rightRingTip = zeroPose;
-                _lastFrame.rightPinkyTip = zeroPose;
-            }
-        }
 
-        if (InputRayUtils.TryGetHandRay(Handedness.Left, out var leftHandRay))
-        {
-            var rotation = Quaternion.LookRotation(leftHandRay.direction, Vector3.up);
-            _lastFrame.leftHand = CreateLocalPose(_anchor, leftHandRay.origin, rotation);
-
-            if (handJointService != null)
+            if (_handTrackingManager.LeftHandData.IsTracked)
             {
-                _lastFrame.leftThumbTip = CreateLocalPose(_anchor, handJointService.RequestJointTransform(TrackedHandJoint.ThumbTip, Handedness.Left));
-                _lastFrame.leftIndexTip = CreateLocalPose(_anchor, handJointService.RequestJointTransform(TrackedHandJoint.IndexTip, Handedness.Left));
-                _lastFrame.leftMiddleTip = CreateLocalPose(_anchor, handJointService.RequestJointTransform(TrackedHandJoint.MiddleTip, Handedness.Left));
-                _lastFrame.leftRingTip = CreateLocalPose(_anchor, handJointService.RequestJointTransform(TrackedHandJoint.RingTip, Handedness.Left));
-                _lastFrame.leftPinkyTip = CreateLocalPose(_anchor, handJointService.RequestJointTransform(TrackedHandJoint.PinkyTip, Handedness.Left));
-
-                Debug.Log("Left index " + _lastFrame.leftIndexTip.position);
-                Debug.Log("Left thumb " + _lastFrame.leftThumbTip.position);
-                Debug.Log("Left Pinky " + _lastFrame.leftPinkyTip.position);
-            }
-            else
-            {
-                _lastFrame.leftThumbTip = zeroPose;
-                _lastFrame.leftIndexTip = zeroPose;
-                _lastFrame.leftMiddleTip = zeroPose;
-                _lastFrame.leftRingTip = zeroPose;
-                _lastFrame.leftPinkyTip = zeroPose;
+                var joints = _handTrackingManager.LeftHandData.JointPoses;
+                if (joints.TryGetValue(XRHandJointID.Palm, out var palmPose))
+                {
+                    _lastFrame.leftHand = CreateLocalPose(_anchor, palmPose.position, palmPose.rotation);
+                }
+                if (joints.TryGetValue(XRHandJointID.ThumbTip, out var tip)) _lastFrame.leftThumbTip = CreateLocalPose(_anchor, tip.position, tip.rotation);
+                if (joints.TryGetValue(XRHandJointID.IndexTip, out tip)) _lastFrame.leftIndexTip = CreateLocalPose(_anchor, tip.position, tip.rotation);
+                if (joints.TryGetValue(XRHandJointID.MiddleTip, out tip)) _lastFrame.leftMiddleTip = CreateLocalPose(_anchor, tip.position, tip.rotation);
+                if (joints.TryGetValue(XRHandJointID.RingTip, out tip)) _lastFrame.leftRingTip = CreateLocalPose(_anchor, tip.position, tip.rotation);
+                if (joints.TryGetValue(XRHandJointID.LittleTip, out tip)) _lastFrame.leftPinkyTip = CreateLocalPose(_anchor, tip.position, tip.rotation);
             }
         }
 
@@ -206,15 +189,6 @@ public class GhostRecorder
             rotation = Quaternion.Inverse(anchor.localRotation) * rotation,
         };
     }
-
-    private static Pose CreateLocalPose(Transform anchor, Transform transform)
-    {
-        return new Pose
-        {
-            position = anchor.InverseTransformPoint(transform.position),
-            rotation = Quaternion.Inverse(anchor.parent.localRotation) * transform.rotation,
-        };
-    }    
 
     private static Vector3 GetHeadPosition(Transform camera)
     {
@@ -240,5 +214,4 @@ public class GhostRecorder
     {
         return camera.position + (camera.up * -0.45f);
     }
-
 }

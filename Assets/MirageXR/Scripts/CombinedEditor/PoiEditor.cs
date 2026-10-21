@@ -1,13 +1,11 @@
-﻿using Microsoft.MixedReality.Toolkit.UI;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using MirageXR;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class PoiEditor : MonoBehaviour
 {
-    private ObjectManipulator _objectManipulator;
-
-    private BoundsControl _boundsControl;
+    private XRGrabInteractable _grabInteractable;
+    private SimpleBoundingBox _boundsControl;
     private LearningExperienceEngine.ToggleObject _obj;
     private bool isLocked = false;
     private bool _boundsControlActive = false;
@@ -49,103 +47,37 @@ public class PoiEditor : MonoBehaviour
         SetAugmentationSpecificManipulation(ObjectToUpdate);
     }
 
-    private void Start()
-    {
-        SetAllObjectManipulationOptions();
-        _objectManipulator.OnManipulationEnded.AddListener(OnChanged);
-
-        OnEditModeChanged(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive);
-        //SetPoiData();
-    }
-
-    private void OnEnable()
+    private void Awake()
     {
         LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
     }
 
-    private void OnEditModeChanged(bool editModeActive)
-    {
-        if (_boundsControl && _boundsControlActive)
-        {
-            if (isLocked)
-            {
-                _boundsControl.enabled = false;
-            }
-            else
-            {
-                _boundsControl.enabled = editModeActive;
-            }
-        }
-
-        if (_objectManipulator)
-        {
-            if (isLocked)
-            {
-                _objectManipulator.enabled = false;
-            }
-            else
-            {
-                _objectManipulator.enabled = editModeActive;
-            }
-        }
-    }
-
-    private void OnDisable()
+    private void OnDestroy()
     {
         LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
     }
 
-    private T GetOrAddComponent<T>() where T : Component
+    private void OnEditModeChanged(bool isEditMode)
     {
-        return gameObject.GetComponent<T>() ? gameObject.GetComponent<T>() : gameObject.AddComponent<T>();
+        EnableBoundsControl(_boundsControlActive && isEditMode);
+        if (_grabInteractable != null)
+        {
+            _grabInteractable.enabled = isEditMode && !isLocked;
+        }
     }
 
-    public void OnChanged(ManipulationEventData data)
+    public T GetOrAddComponent<T>() where T : Component
     {
-        OnChanged();
+        T component = GetComponent<T>();
+        if (component == null)
+        {
+            component = gameObject.AddComponent<T>();
+        }
+        return component;
     }
 
     public void OnChanged()
     {
-        SetPoiData();
-        activityManager.SaveData();
-        LearningExperienceEngine.EventManager.NotifyOnAugmentationPoiChanged();
-    }
-
-    private Vector3 GetOffset()
-    {
-        var taskStationId = transform.parent.name;
-        var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager;
-        var detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(taskStationId));
-        var annotationStartingPoint = ActionEditor.Instance.GetDefaultAugmentationStartingPoint();
-        var originT = GameObject.Find(detectable.id);   // TODO: replace by direct reference to the object
-        if (!originT)
-        {
-            Debug.LogError($"Can't find detectable {detectable.id}");
-            return annotationStartingPoint.transform.position;
-        }
-
-        var detectableBehaviour = originT.GetComponent<DetectableBehaviour>();
-
-        if (!detectableBehaviour)
-        {
-            Debug.LogError($"Can't find DetectableBehaviour");
-            return annotationStartingPoint.transform.position;
-        }
-
-        var attachedObject = detectableBehaviour.AttachedObject;
-        return attachedObject.transform.InverseTransformPoint(transform.position);
-    }
-
-    private void SetPoiData()
-    {
-        var offset = GetOffset();
-
-        _poi.offset = MirageXR.Utilities.Vector3ToString(offset);
-        _poi.x_offset = offset.x;
-        _poi.y_offset = offset.y;
-        _poi.z_offset = offset.z;
-
         if (canRotate)
         {
             _poi.rotation = MirageXR.Utilities.Vector3ToString(transform.localEulerAngles);
@@ -157,9 +89,6 @@ public class PoiEditor : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Optional orientation constraints and controls for each augmentation type
-    /// </summary>
     private void SetAllObjectManipulationOptions()
     {
         int numChildren = transform.childCount;
@@ -169,24 +98,25 @@ public class PoiEditor : MonoBehaviour
             SetAugmentationSpecificManipulation(child);
         }
 
-        // ensure default interaction is present
-        _objectManipulator = GetOrAddComponent<ObjectManipulator>();
+        SetupGrabInteractable();
     }
 
     private void SetAugmentationSpecificManipulation(GameObject prefabObject)
     {
-        // check type of augmentation
         string objectName = prefabObject.name.ToLower();
-
         if (objectName.Contains("video") || objectName.Contains("image"))
         {
-            Debug.Log("adding video prefab interaction options");
-            GetOrAddComponent<ObjectManipulator>();
+            SetupGrabInteractable();
         }
-        // add other augmentation types here
-        // ...
-        // ...
+    }
 
+    private void SetupGrabInteractable()
+    {
+        _grabInteractable = GetOrAddComponent<XRGrabInteractable>();
+        var rb = GetOrAddComponent<Rigidbody>();
+        rb.isKinematic = true;
+        rb.useGravity = false;
+        _grabInteractable.enabled = activityManager.EditModeActive && !isLocked;
     }
 
     public void EnableBoundsControl(bool enabled)
@@ -195,16 +125,22 @@ public class PoiEditor : MonoBehaviour
 
         if (_boundsControlActive)
         {
-            _boundsControl = GetOrAddComponent<BoundsControl>();
-
+            _boundsControl = GetOrAddComponent<SimpleBoundingBox>();
+            _boundsControl.Target = transform;
+            _boundsControl.RotateStopped.RemoveListener(OnChanged);
+            _boundsControl.ScaleStopped.RemoveListener(OnChanged);
             _boundsControl.RotateStopped.AddListener(OnChanged);
             _boundsControl.ScaleStopped.AddListener(OnChanged);
 
-            _boundsControl.enabled = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive;
+            _boundsControl.enabled = activityManager.EditModeActive;
         }
         else
         {
-            GetOrAddComponent<BoundsControl>().enabled = enabled;
+            var bb = GetComponent<SimpleBoundingBox>();
+            if (bb != null)
+            {
+                bb.enabled = enabled;
+            }
         }
     }
 
@@ -220,9 +156,13 @@ public class PoiEditor : MonoBehaviour
     public void IsLocked(bool locked)
     {
         isLocked = locked;
-        if (activityManager.EditModeActive)
+        if (_boundsControl != null)
         {
-            GetOrAddComponent<ObjectManipulator>().enabled = !locked;
+            _boundsControl.enabled = !locked && activityManager.EditModeActive;
+        }
+        if (_grabInteractable != null)
+        {
+            _grabInteractable.enabled = !locked && activityManager.EditModeActive;
         }
     }
 }

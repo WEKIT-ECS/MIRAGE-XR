@@ -358,8 +358,6 @@ GameObject:
   - component: {fileID: 3385234482925582843}
   - component: {fileID: 2295408484387761768}
   - component: {fileID: 5067276553469078129}
-  - component: {fileID: 7114314272665936258}
-  - component: {fileID: 7591541681866522317}
   - component: {fileID: 8342578387505331345}
   m_Layer: 5
   m_Name: WatsonResponseCanvas
@@ -450,32 +448,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &7114314272665936258
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7070552945345636491}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff4e3b9019304b5aaec5664de0778d21, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &7591541681866522317
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7070552945345636491}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2fcaf896491074042b7ed7684454a412, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  eventsToReceive: 0
-  debounceThreshold: 0.01
 --- !u!114 &8342578387505331345
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -485,8 +457,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 7070552945345636491}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2547b4dd088644d6aaf64f45df657c79, type: 3}
+  m_Script: {fileID: 11500000, guid: bc420da184314e98b57c340748f4e504, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pivotAxis: 0
+  _pivotAxis: 0
   targetTransform: {fileID: 0}

@@ -1,5 +1,4 @@
 using System.Globalization;
-using Microsoft.MixedReality.Toolkit.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

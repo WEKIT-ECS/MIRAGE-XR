@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 #if UNITY_ANDROID && !UNITY_EDITOR
 using i5.Toolkit.Core.VerboseLogging;
 #endif
@@ -34,17 +34,10 @@ namespace MirageXR
         private float offsetYFromCamera = 0.5f;
 
         private bool _worldSpaceUi;
-        private string _playerScene = "Player";
-        private string _recorderScene = "recorder";
-        private string _commonScene = "common";
-        private string _activitySelectionScene = "ActivitySelection";
         private Camera _mainCamera;
 
         public bool WorldSpaceUi => _worldSpaceUi;
 
-        public string PlayerSceneName => _playerScene;
-
-        public string ActivitySelectionScene => _activitySelectionScene;
 
         public Vector3 GetTaskStationPosition()
         {

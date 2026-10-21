@@ -373,10 +373,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 116997208405410915}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2547b4dd088644d6aaf64f45df657c79, type: 3}
+  m_Script: {fileID: 11500000, guid: bc420da184314e98b57c340748f4e504, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pivotAxis: 0
+  _pivotAxis: 0
   targetTransform: {fileID: 0}
 --- !u!1 &116997208833432028
 GameObject:
@@ -390,7 +390,6 @@ GameObject:
   - component: {fileID: 116997208833432025}
   - component: {fileID: 116997208833432024}
   - component: {fileID: 116997208833432027}
-  - component: {fileID: 116997208833432026}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -481,18 +480,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &116997208833432026
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 116997208833432028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff4e3b9019304b5aaec5664de0778d21, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &116997208944538511
 GameObject:
   m_ObjectHideFlags: 0
@@ -569,7 +556,6 @@ GameObject:
   - component: {fileID: 116997208990521403}
   - component: {fileID: 116997208990521402}
   - component: {fileID: 116997208990521405}
-  - component: {fileID: 743493213714702128}
   m_Layer: 5
   m_Name: OKButton
   m_TagString: Untagged
@@ -677,38 +663,5 @@ MonoBehaviour:
   m_Interactable: 1
   m_TargetGraphic: {fileID: 116997208990521402}
   m_OnClick:
-    m_PersistentCalls:
-      m_Calls: []
---- !u!114 &743493213714702128
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 116997208990521407}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63c897c097799da4a900032ad3471c47, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  movingButtonVisuals: {fileID: 0}
-  distanceSpaceMode: 1
-  startPushDistance: 0
-  maxPushDistance: 0.2
-  pressDistance: 0.02
-  releaseDistanceDelta: 0.01
-  returnSpeed: 25
-  releaseOnTouchEnd: 1
-  enforceFrontPush: 1
-  TouchBegin:
-    m_PersistentCalls:
-      m_Calls: []
-  TouchEnd:
-    m_PersistentCalls:
-      m_Calls: []
-  ButtonPressed:
-    m_PersistentCalls:
-      m_Calls: []
-  ButtonReleased:
     m_PersistentCalls:
       m_Calls: []
