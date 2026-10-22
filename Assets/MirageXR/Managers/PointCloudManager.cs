@@ -28,10 +28,12 @@ public class PointCloudManager : MonoBehaviour
         // if on Android, then add the pointcloud prefab (not supported on VisionOS)
         _arPointCloudManager = MirageXR.Utilities.FindOrCreateComponent<ARPointCloudManager>(_viewManager.BaseCamera.gameObject);
         _arPointCloudManager.pointCloudPrefab = _prefabPointCloud;
-/* #else 
-        // ar mesh manager is not working on the device build 
-        _arMeshManager = MirageXR.Utilities.FindOrCreateComponent<ARMeshManager>(cameraParent);
-        _arMeshManager.meshPrefab = _prefabSpatialMapMesh; */
+#else 
+        _arMeshManager = MirageXR.Utilities.FindOrCreateComponent<ARMeshManager>(_viewManager.BaseCamera.gameObject);
+        if (_prefabSpatialMapMesh != null)
+        {
+            _arMeshManager.meshPrefab = _prefabSpatialMapMesh;
+        }
 #endif
 
         await Task.Yield();
@@ -60,29 +62,27 @@ public class PointCloudManager : MonoBehaviour
 
 #if UNITY_ANDROID
 
-        if (!_arPointCloudManager)
+        if (_arPointCloudManager != null)
         {
-            Debug.LogError("ARPointCloudManager is null");
-            return false;
-        }
+            foreach (var arPointCloud in _arPointCloudManager.trackables)
+            {
+                if (arPointCloud != null)
+                {
+                    Destroy(arPointCloud.gameObject);
+                }
+            }
 
-        //_arPointCloudManager.enabled = false;
-        foreach (var arPointCloud in _arPointCloudManager.trackables)
-        {
-            Destroy(arPointCloud.gameObject);
+            Destroy(_arPointCloudManager);
+            _arPointCloudManager = null;
         }
-
-        Destroy(_arPointCloudManager);
 
 #elif UNITY_IOS || UNITY_VISIONOS
 
-        // TODO clean up the mesh
-        if (!_arMeshManager)
+        if (_arMeshManager != null)
         {
-            Debug.LogError("ARMeshManager is null");
-            return false;
+            Destroy(_arMeshManager);
+            _arMeshManager = null;
         }
-        Destroy(_arMeshManager);
 
 #endif
 
@@ -95,15 +95,60 @@ public class PointCloudManager : MonoBehaviour
         return true;
     }
 
-    private void SetAllPointCloudsActive(bool value)
+    public void SetMeshActive(bool active)
     {
 #if UNITY_ANDROID
-        foreach (var cloud in _arPointCloudManager.trackables)
+        if (_arPointCloudManager != null)
         {
-            cloud.gameObject.SetActive(value);
+            _arPointCloudManager.enabled = active;
+            foreach (var cloud in _arPointCloudManager.trackables)
+            {
+                if (cloud != null && cloud.gameObject != null)
+                {
+                    cloud.gameObject.SetActive(active);
+                }
+            }
         }
 #elif UNITY_IOS || UNITY_VISIONOS
-        _arMeshManager.enabled = value;
+        if (_arMeshManager != null)
+        {
+            _arMeshManager.enabled = active;
+            var origin = _arMeshManager.GetComponentInParent<Unity.XR.CoreUtils.XROrigin>();
+            var trackablesParent = origin != null ? origin.TrackablesParent : _arMeshManager.transform;
+            if (trackablesParent != null)
+            {
+                foreach (Transform child in trackablesParent)
+                {
+                    if (child != null)
+                    {
+                        var renderer = child.GetComponent<MeshRenderer>();
+                        if (renderer != null)
+                        {
+                            renderer.enabled = active;
+                        }
+                    }
+                }
+            }
+        }
 #endif
+    }
+
+    private void SetAllPointCloudsActive(bool isEditMode)
+    {
+        bool shouldDisplay = false;
+        if (isEditMode)
+        {
+            var gridManager = RootObject.Instance != null ? RootObject.Instance.GridManager : null;
+            if (gridManager != null)
+            {
+                shouldDisplay = gridManager.gridEnabled && gridManager.showMesh;
+            }
+            else
+            {
+                shouldDisplay = LearningExperienceEngine.UserSettings.showGrid && LearningExperienceEngine.UserSettings.showMesh;
+            }
+        }
+
+        SetMeshActive(shouldDisplay);
     }
 }

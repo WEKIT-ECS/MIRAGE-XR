@@ -1,5 +1,7 @@
 Shader "Mirage/Grid" {
     Properties {
+        [MainTexture] _BaseMap ("BaseMap", 2D) = "white" {}
+        [MainColor] _BaseColor ("BaseColor", Color) = (1, 1, 1, 1)
         _MainTex ("Texture", 2D) = "white" {}
         _SecondTex ("SecondTexture", 2D) = "white" {}
         _BorderTex ("BorderTexture", 2D) = "white" {}

@@ -73,7 +73,7 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void OnRotateStopped(GameObject source)
     {
-        OnManipulationEnded(source);
+        OnManipulationEnded(source, snap: false);
     }
 
     private void OnScaleStarted(GameObject source)
@@ -83,7 +83,7 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void OnScaleStopped(GameObject source)
     {
-        OnManipulationEnded(source);
+        OnManipulationEnded(source, snap: false);
     }
 
     private void OnTranslateStarted(GameObject source)
@@ -93,7 +93,7 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void OnTranslateStopped(GameObject source)
     {
-        OnManipulationEnded(source);
+        OnManipulationEnded(source, snap: true);
     }
 
     private void OnManipulationStarted(GameObject source)
@@ -131,6 +131,11 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void OnManipulationEnded(GameObject source)
     {
+        OnManipulationEnded(source, snap: true);
+    }
+
+    private void OnManipulationEnded(GameObject source, bool snap)
+    {
         if (!_manipulationStarted)
         {
             return;
@@ -138,7 +143,10 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
         ShowOriginalObject(source);
         StopObjectUpdateCoroutine();
-        SnapToGrid(source);
+        if (snap)
+        {
+            SnapToGrid(source);
+        }
         HideCopy();
         HideGridLines();
 

@@ -19,6 +19,7 @@ public class GridManager : MonoBehaviour, IDisposable
     private ManipulationController _manipulationController;
     private bool _gridEnabled = false;
     private bool _snapEnabled = false;
+    private bool _showMesh = true;
     private bool _showOriginalObject = false;
     private bool _useObjectCenter = false;
     private float _cellWidth = 10f;
@@ -67,6 +68,8 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public bool snapEnabled => _snapEnabled;
 
+    public bool showMesh => _showMesh;
+
     public bool showOriginalObject => _showOriginalObject;
 
     public bool useObjectCenter => _useObjectCenter;
@@ -98,6 +101,7 @@ public class GridManager : MonoBehaviour, IDisposable
         UnityEngine.Debug.Log("Initializing [GridManager] <--");
         _gridEnabled = LearningExperienceEngine.UserSettings.showGrid;
         _snapEnabled = LearningExperienceEngine.UserSettings.snapToGrid;
+        _showMesh = LearningExperienceEngine.UserSettings.showMesh;
         _cellWidth = LearningExperienceEngine.UserSettings.gridCellWidth;
         _angleStep = LearningExperienceEngine.UserSettings.gridAngleStep;
         _scaleStep = LearningExperienceEngine.UserSettings.gridScaleStep;
@@ -139,6 +143,8 @@ public class GridManager : MonoBehaviour, IDisposable
         {
             ShowGrid();
         }
+
+        UpdateMeshVisibility();
 
         UnityEngine.Debug.Log("Initializing [GridManager] -->");
     }
@@ -215,6 +221,7 @@ public class GridManager : MonoBehaviour, IDisposable
         {
             ShowGrid();
         }
+        UpdateMeshVisibility();
     }
 
     public void DisableGrid()
@@ -223,6 +230,24 @@ public class GridManager : MonoBehaviour, IDisposable
         LearningExperienceEngine.UserSettings.showGrid = _gridEnabled;
 
         HideGrid();
+        UpdateMeshVisibility();
+    }
+
+    public void SetShowMesh(bool value)
+    {
+        _showMesh = value;
+        LearningExperienceEngine.UserSettings.showMesh = _showMesh;
+        UpdateMeshVisibility();
+    }
+
+    public void UpdateMeshVisibility()
+    {
+        bool isEditMode = IsEditModeActive();
+        bool shouldDisplay = isEditMode && _gridEnabled && _showMesh;
+        if (RootObject.Instance?.PointCloudManager != null)
+        {
+            RootObject.Instance.PointCloudManager.SetMeshActive(shouldDisplay);
+        }
     }
 
     public void EnableSnapToGrid()
@@ -300,5 +325,6 @@ public class GridManager : MonoBehaviour, IDisposable
         {
             HideGrid();
         }
+        UpdateMeshVisibility();
     }
 }

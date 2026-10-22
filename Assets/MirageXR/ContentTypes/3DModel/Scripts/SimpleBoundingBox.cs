@@ -722,13 +722,13 @@ namespace MirageXR
             {
                 if (handle.Type == BoundingBoxHandle.HandleType.Scale)
                 {
-                    ScaleStopped?.Invoke();
                     OnScaleEnded?.Invoke(Target.localScale);
+                    ScaleStopped?.Invoke();
                 }
                 else if (handle.Type == BoundingBoxHandle.HandleType.Rotate)
                 {
-                    RotateStopped?.Invoke();
                     OnRotationEnded?.Invoke(Target.rotation);
+                    RotateStopped?.Invoke();
                 }
             }
         }

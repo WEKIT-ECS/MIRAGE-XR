@@ -15,6 +15,10 @@ public class GridPlane : MonoBehaviour
     private const float PLANE_WIDTH = 10f;
 
     private static readonly int MainTex = Shader.PropertyToID("_MainTex");
+    private static readonly int BaseMap = Shader.PropertyToID("_BaseMap");
+    private static readonly int ColorProperty = Shader.PropertyToID("_Color");
+    private static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
+    private static readonly int Surface = Shader.PropertyToID("_Surface");
     private static readonly int SecondTex = Shader.PropertyToID("_SecondTex");
     private static readonly int BorderTex = Shader.PropertyToID("_BorderTex");
     private static readonly int Position = Shader.PropertyToID("_Position");
@@ -32,6 +36,26 @@ public class GridPlane : MonoBehaviour
     {
         ResolveCamera();
         _renderer = GetComponent<MeshRenderer>();
+        if (_renderer != null && _renderer.material != null)
+        {
+            var mat = _renderer.material;
+            if (mat.HasProperty(Surface))
+            {
+                mat.SetFloat(Surface, 1.0f); // Ensure transparent
+            }
+            if (mat.HasProperty(BaseMap) && mat.HasProperty(MainTex))
+            {
+                var mainTex = mat.GetTexture(MainTex);
+                if (mainTex != null)
+                {
+                    mat.SetTexture(BaseMap, mainTex);
+                }
+            }
+            if (mat.HasProperty(BaseColor) && mat.HasProperty(ColorProperty))
+            {
+                mat.SetColor(BaseColor, mat.GetColor(ColorProperty));
+            }
+        }
         UpdateCellSize();
         _startLastPosition = transform.localPosition;
         if (_cameraTransform != null && _renderer != null)
@@ -136,6 +160,10 @@ public class GridPlane : MonoBehaviour
         var tilling = new Vector2(scale.x * planeInCm / _cellWidth, scale.z * planeInCm / _cellWidth);
         var borderTilling = new Vector2(scale.x * planeInCm / 10 / _cellWidth, scale.z * planeInCm / 10f / _cellWidth);
         _renderer.material.SetTextureScale(MainTex, tilling);
+        if (_renderer.material.HasProperty(BaseMap))
+        {
+            _renderer.material.SetTextureScale(BaseMap, tilling);
+        }
         _renderer.material.SetTextureScale(SecondTex, tilling);
         _renderer.material.SetTextureScale(BorderTex, borderTilling);
 
