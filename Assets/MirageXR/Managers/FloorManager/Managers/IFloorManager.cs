@@ -20,4 +20,6 @@ public interface IFloorManager
     public Transform CreateAnchor(Pose pose);
 
     public void SetFloor(PlaneId planeId, Vector3 position);
+
+    public void ForceDetectFloor();
 }

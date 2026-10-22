@@ -1,7 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 namespace MirageXR.View
 {
-    [RequireComponent(typeof(ContentView))]
+    [RequireComponent(typeof(StepView))]
     public class StepViewManipulationSynchronizer : MonoBehaviour
     {
         private StepView _stepView;

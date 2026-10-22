@@ -7,10 +7,23 @@ Shader "Mirage/Grid" {
         _MainThreshold ("MainThreshold", Range(0, 100)) = 10.0
         _SecondThreshold ("SecondThreshold", Range(0, 100)) = 10.0
         _Position ("Position", Vector) = (0, 0, 0, 0)
+
+        // URP & PolySpatial compatibility properties
+        [HideInInspector] _Surface ("__surface", Float) = 1.0
+        [HideInInspector] _Blend ("__blend", Float) = 0.0
+        [HideInInspector] _Cull ("__cull", Float) = 0.0
+        [HideInInspector] [ToggleUI] _AlphaClip ("__clip", Float) = 0.0
+        [HideInInspector] _QueueOffset ("Queue offset", Float) = 0.0
+
+        // PolySpatial SimpleLit/Specular Fallback Properties
+        [HideInInspector] [NoScaleOffset] _BumpMap ("Normal Map", 2D) = "bump" {}
+        [HideInInspector] _SpecColor ("Specular Color", Color) = (0, 0, 0, 0)
+        [HideInInspector] _Smoothness ("Smoothness", Range(0.0, 1.0)) = 0.0
+        [HideInInspector] _SpecularHighlights ("Specular Highlights", Float) = 0.0
     }
 
     SubShader {
-        Tags { "RenderPipeline" = "UniversalPipeline" "RenderType" = "Transparent" "Queue" = "Transparent" }
+        Tags { "RenderPipeline" = "UniversalPipeline" "RenderType" = "Transparent" "Queue" = "Transparent" "UniversalMaterialType" = "Unlit" }
         LOD 100
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off

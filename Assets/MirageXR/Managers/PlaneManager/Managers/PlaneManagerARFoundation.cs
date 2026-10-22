@@ -52,6 +52,10 @@ public class PlaneManagerARFoundation : PlaneManagerBase
         _arPlaneManager.trackablesChanged.AddListener(ArPlaneManagerOnPlanesChanged);
 
         LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
+        if (RootObject.Instance?.LEE?.ActivityManager != null)
+        {
+            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditModeChanged;
+        }
 
         return true;
     }
@@ -130,7 +134,9 @@ public class PlaneManagerARFoundation : PlaneManagerBase
         }
 
         _enableColliders = false;
-        _showPlanes = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive;
+        bool isEditMode = (LearningExperienceEngine.LearningExperienceEngine.Instance?.ActivityManagerOld?.EditModeActive ?? false)
+            || (RootObject.Instance?.LEE?.ActivityManager?.IsEditorMode ?? false);
+        _showPlanes = isEditMode;
         UpdatePlanes();
     }
 
@@ -176,6 +182,10 @@ public class PlaneManagerARFoundation : PlaneManagerBase
     public override void Dispose()
     {
         LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
+        if (RootObject.Instance?.LEE?.ActivityManager != null)
+        {
+            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged -= OnEditModeChanged;
+        }
     }
 
     private void OnEditModeChanged(bool value)

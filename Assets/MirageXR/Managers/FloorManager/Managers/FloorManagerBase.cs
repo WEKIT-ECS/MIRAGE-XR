@@ -22,4 +22,6 @@ public abstract class FloorManagerBase : MonoBehaviour, IFloorManager
     public abstract Transform CreateAnchor(Pose pose);
 
     public abstract void SetFloor(PlaneId planeId, Vector3 position);
+
+    public virtual void ForceDetectFloor() { }
 }

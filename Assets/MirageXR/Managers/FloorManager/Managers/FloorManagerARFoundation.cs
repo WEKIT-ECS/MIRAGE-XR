@@ -8,10 +8,24 @@ using UnityEngine.XR.ARSubsystems;
 
 public class FloorManagerARFoundation : FloorManagerBase
 {
-    private const float _DEFAULT_FLOOR_LEVEL = -1.6f;
-    private const float MIN_HEAD_HEIGHT = 0.5f;
-    private const float MAX_HEAD_HEIGHT = 2.3f;
+    private const float _DEFAULT_FLOOR_LEVEL = -1.25f;
     private const float DETECTION_INTERVAL = 1.2f;
+
+    private float DefaultHeadHeight
+    {
+        get
+        {
+            bool isSpatial = false;
+            if (RootObject.Instance?.PlatformManager != null)
+            {
+                isSpatial = RootObject.Instance.PlatformManager.GetUiType() == UiType.Spatial;
+            }
+#if VISION_OS || META_QUEST
+            isSpatial = true;
+#endif
+            return isSpatial ? 1.6f : 1.25f;
+        }
+    }
 
     public override event Action<float> OnFloorLevelChanged;
 
@@ -26,6 +40,7 @@ public class FloorManagerARFoundation : FloorManagerBase
     private PlaneManagerWrapper _planeManager;
     private bool _isManualFloor = false;
     private bool _isFloorDetected = false;
+    private bool _hasPhysicalSurfaceDetected = false;
     private Coroutine _detectFloorCoroutine;
 
     public override float floorLevel
@@ -66,6 +81,7 @@ public class FloorManagerARFoundation : FloorManagerBase
             StopCoroutine(_detectFloorCoroutine);
         }
         _detectFloorCoroutine = StartCoroutine(DetectFloorRoutine());
+        DetectFloorOnce();
 
         await Task.Yield();
 
@@ -86,6 +102,12 @@ public class FloorManagerARFoundation : FloorManagerBase
         }
     }
 
+    public override void ForceDetectFloor()
+    {
+        if (_isManualFloor) return;
+        DetectFloorOnce();
+    }
+
     private IEnumerator DetectFloorRoutine()
     {
         var wait = new WaitForSeconds(DETECTION_INTERVAL);
@@ -93,95 +115,114 @@ public class FloorManagerARFoundation : FloorManagerBase
         while (true)
         {
             yield return wait;
+            DetectFloorOnce();
+        }
+    }
 
-            if (_isManualFloor)
+    private void DetectFloorOnce()
+    {
+        if (_isManualFloor)
+        {
+            if (_floorPlane != null)
             {
-                if (_floorPlane != null)
-                {
-                    _floorLevel = _floorPlane.transform.position;
-                }
-                continue;
+                _floorLevel = _floorPlane.transform.position;
             }
+            return;
+        }
 
-            Transform camTransform = _viewManager?.BaseCamera != null ? _viewManager.BaseCamera.transform : (Camera.main != null ? Camera.main.transform : null);
-            if (camTransform == null)
+        Transform camTransform = _viewManager?.BaseCamera != null ? _viewManager.BaseCamera.transform : (Camera.main != null ? Camera.main.transform : null);
+        if (camTransform == null)
+        {
+            return;
+        }
+
+        Vector3 camPos = camTransform.position;
+        float expectedHeight = DefaultHeadHeight;
+        float minHeight = expectedHeight > 1.4f ? 0.5f : 0.4f;
+        float maxHeight = expectedHeight > 1.4f ? 2.3f : 2.0f;
+
+        ARPlane bestPlane = null;
+        bool foundClassifiedFloor = false;
+        float classifiedFloorY = float.MaxValue;
+        float bestPlaneScore = float.MinValue;
+
+        if (_arPlaneManager != null)
+        {
+            foreach (var plane in _arPlaneManager.trackables)
             {
-                continue;
-            }
+                if (plane == null || !plane.gameObject.activeInHierarchy) continue;
+                if (plane.alignment != PlaneAlignment.HorizontalUp) continue;
 
-            Vector3 camPos = camTransform.position;
-            ARPlane bestPlane = null;
-            bool foundClassifiedFloor = false;
-            float lowestY = float.MaxValue;
-            float classifiedFloorY = float.MaxValue;
+                float planeY = plane.transform.position.y;
+                float heightDiff = camPos.y - planeY;
 
-            if (_arPlaneManager != null)
-            {
-                foreach (var plane in _arPlaneManager.trackables)
+                if (heightDiff >= minHeight && heightDiff <= maxHeight)
                 {
-                    if (plane == null || !plane.gameObject.activeInHierarchy) continue;
-                    if (plane.alignment != PlaneAlignment.HorizontalUp) continue;
-
-                    float planeY = plane.transform.position.y;
-                    float heightDiff = camPos.y - planeY;
-
-                    if (heightDiff >= MIN_HEAD_HEIGHT && heightDiff <= MAX_HEAD_HEIGHT)
+                    if (plane.classification == PlaneClassification.Floor)
                     {
-                        if (plane.classification == PlaneClassification.Floor)
+                        if (!foundClassifiedFloor || planeY < classifiedFloorY)
                         {
-                            if (!foundClassifiedFloor || planeY < classifiedFloorY)
-                            {
-                                foundClassifiedFloor = true;
-                                bestPlane = plane;
-                                classifiedFloorY = planeY;
-                            }
+                            foundClassifiedFloor = true;
+                            bestPlane = plane;
+                            classifiedFloorY = planeY;
                         }
-                        else if (!foundClassifiedFloor)
+                    }
+                    else if (!foundClassifiedFloor)
+                    {
+                        // Score based on surface area and proximity to expected floor distance
+                        float planeArea = Mathf.Max(0.01f, plane.size.x * plane.size.y);
+                        float heightDist = Mathf.Abs(heightDiff - expectedHeight);
+                        float score = planeArea / (1.0f + heightDist * 2.5f);
+
+                        if (score > bestPlaneScore)
                         {
-                            if (planeY < lowestY)
-                            {
-                                lowestY = planeY;
-                                bestPlane = plane;
-                            }
+                            bestPlaneScore = score;
+                            bestPlane = plane;
                         }
                     }
                 }
             }
+        }
 
-            if (bestPlane != null)
+        if (bestPlane != null)
+        {
+            _hasPhysicalSurfaceDetected = true;
+            float newY = bestPlane.transform.position.y;
+            var trackableId = bestPlane.trackableId;
+            _planeId = new PlaneId(trackableId.subId1, trackableId.subId2);
+            _floorPlane = bestPlane.gameObject;
+
+            if (!_isFloorDetected || Mathf.Abs(newY - _floorLevel.y) > 0.03f)
             {
-                float newY = bestPlane.transform.position.y;
-                var trackableId = bestPlane.trackableId;
-                _planeId = new PlaneId(trackableId.subId1, trackableId.subId2);
-                _floorPlane = bestPlane.gameObject;
-
-                if (!_isFloorDetected || Mathf.Abs(newY - _floorLevel.y) > 0.03f)
-                {
-                    _floorLevel = new Vector3(bestPlane.transform.position.x, newY, bestPlane.transform.position.z);
-                    _isFloorDetected = true;
-                    OnFloorLevelChanged?.Invoke(_floorLevel.y);
-                }
+                _floorLevel = new Vector3(bestPlane.transform.position.x, newY, bestPlane.transform.position.z);
+                _isFloorDetected = true;
+                OnFloorLevelChanged?.Invoke(_floorLevel.y);
             }
-            else
+        }
+        else
+        {
+            // Fallback 1: Downward raycast against spatial mesh
+            if (Physics.Raycast(new Ray(camPos, Vector3.down), out RaycastHit hit, maxHeight))
             {
-                // Fallback 1: Downward raycast against spatial mesh
-                if (Physics.Raycast(new Ray(camPos, Vector3.down), out RaycastHit hit, MAX_HEAD_HEIGHT))
+                float hitDiff = camPos.y - hit.point.y;
+                if (hitDiff >= minHeight)
                 {
-                    float hitDiff = camPos.y - hit.point.y;
-                    if (hitDiff >= MIN_HEAD_HEIGHT)
+                    _hasPhysicalSurfaceDetected = true;
+                    if (!_isFloorDetected || Mathf.Abs(hit.point.y - _floorLevel.y) > 0.05f)
                     {
-                        if (!_isFloorDetected || Mathf.Abs(hit.point.y - _floorLevel.y) > 0.05f)
-                        {
-                            _floorLevel = hit.point;
-                            _isFloorDetected = true;
-                            OnFloorLevelChanged?.Invoke(_floorLevel.y);
-                        }
+                        _floorLevel = hit.point;
+                        _isFloorDetected = true;
+                        OnFloorLevelChanged?.Invoke(_floorLevel.y);
                     }
                 }
-                else if (!_isFloorDetected)
+            }
+            else if (!_hasPhysicalSurfaceDetected)
+            {
+                // Fallback 2: Camera holding/eye-height offset
+                float targetY = camPos.y - expectedHeight;
+                if (!_isFloorDetected || Mathf.Abs(targetY - _floorLevel.y) > 0.05f)
                 {
-                    // Fallback 2: Camera eye-height offset (-1.6m)
-                    _floorLevel = new Vector3(camPos.x, camPos.y - 1.6f, camPos.z);
+                    _floorLevel = new Vector3(camPos.x, targetY, camPos.z);
                     _isFloorDetected = true;
                     OnFloorLevelChanged?.Invoke(_floorLevel.y);
                 }
@@ -239,6 +280,7 @@ public class FloorManagerARFoundation : FloorManagerBase
         _planeId = PlaneId.InvalidId;
         _isManualFloor = false;
         _isFloorDetected = false;
+        _hasPhysicalSurfaceDetected = false;
         _floorPlane = null;
 
         await Task.Yield();
@@ -285,6 +327,7 @@ public class FloorManagerARFoundation : FloorManagerBase
     public override void SetFloor(PlaneId planeId, Vector3 position)
     {
         _isManualFloor = true;
+        _hasPhysicalSurfaceDetected = true;
         _planeId = planeId;
         _floorLevel = position;
         _isFloorDetected = true;

@@ -174,6 +174,13 @@ namespace MirageXR.View
         private void OnManipulationEnded()
         {
             _isSelected = false;
+
+            var gridManager = RootObject.Instance?.GridManager;
+            if (gridManager != null && gridManager.snapEnabled && gridManager.grid != null)
+            {
+                transform.position = gridManager.grid.GetNearestPointOnGrid(transform.position);
+            }
+
             _step.Location.Position = transform.localPosition;
             _onManipulationEndedEvent.Invoke(transform);
         }

@@ -11,11 +11,11 @@ public class GridManager : MonoBehaviour, IDisposable
 
     private static ICalibrationManager calibrationManager => RootObject.Instance != null ? RootObject.Instance.CalibrationManager : null;
 
-    [SerializeField] private Grid _gridPrefab;
+    [SerializeField] private PlacementGrid _gridPrefab;
     [SerializeField] private GridLines _gridLinesPrefab;
     [SerializeField] private Material _ghostMaterial;
 
-    private Grid _grid;
+    private PlacementGrid _grid;
     private ManipulationController _manipulationController;
     private bool _gridEnabled = false;
     private bool _snapEnabled = false;
@@ -57,7 +57,7 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public List<float> valuesScaleStep => _valuesScaleStep;
 
-    public Grid grid => _grid;
+    public PlacementGrid grid => _grid;
 
     public Material ghostMaterial => _ghostMaterial;
 
@@ -77,21 +77,21 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public float scaleStep => _scaleStep;
 
-    public Action<GameObject> onManipulationStarted => _manipulationController.onManipulationStarted;
+    public Action<GameObject> onManipulationStarted => _manipulationController?.onManipulationStarted;
 
-    public Action<GameObject> onManipulationEnded => _manipulationController.onManipulationEnded;
+    public Action<GameObject> onManipulationEnded => _manipulationController?.onManipulationEnded;
 
-    public Action<GameObject> onRotateStarted => _manipulationController.onRotateStarted;
+    public Action<GameObject> onRotateStarted => _manipulationController?.onRotateStarted;
 
-    public Action<GameObject> onRotateStopped => _manipulationController.onRotateStopped;
+    public Action<GameObject> onRotateStopped => _manipulationController?.onRotateStopped;
 
-    public Action<GameObject> onScaleStarted => _manipulationController.onScaleStarted;
+    public Action<GameObject> onScaleStarted => _manipulationController?.onScaleStarted;
 
-    public Action<GameObject> onScaleStopped => _manipulationController.onScaleStopped;
+    public Action<GameObject> onScaleStopped => _manipulationController?.onScaleStopped;
 
-    public Action<GameObject> onTranslateStarted => _manipulationController.onTranslateStarted;
+    public Action<GameObject> onTranslateStarted => _manipulationController?.onTranslateStarted;
 
-    public Action<GameObject> onTranslateStopped => _manipulationController.onTranslateStopped;
+    public Action<GameObject> onTranslateStopped => _manipulationController?.onTranslateStopped;
 
     public void Initialization()
     {
@@ -130,14 +130,40 @@ public class GridManager : MonoBehaviour, IDisposable
         }
 
         LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
+        if (RootObject.Instance?.LEE?.ActivityManager != null)
+        {
+            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditModeChanged;
+        }
+
+        if (_gridEnabled && IsEditModeActive())
+        {
+            ShowGrid();
+        }
+
         UnityEngine.Debug.Log("Initializing [GridManager] -->");
+    }
+
+    public bool IsEditModeActive()
+    {
+        bool editMode = false;
+        if (LearningExperienceEngine.LearningExperienceEngine.Instance?.ActivityManagerOld != null)
+        {
+            editMode = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive;
+        }
+
+        if (RootObject.Instance?.LEE?.ActivityManager != null)
+        {
+            editMode |= RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+        }
+
+        return editMode;
     }
 
     private void UpdateAnchorFallbackFloorLevel()
     {
         if (calibrationManager != null && !calibrationManager.IsCalibrated && calibrationManager.Anchor != null)
         {
-            float floorY = floorManager != null ? floorManager.floorLevel : -1.6f;
+            float floorY = floorManager != null ? floorManager.floorLevel : -1.25f;
             calibrationManager.Anchor.position = new Vector3(0, floorY, 0);
             calibrationManager.Anchor.rotation = Quaternion.identity;
         }
@@ -165,6 +191,7 @@ public class GridManager : MonoBehaviour, IDisposable
     {
         if (_grid == null) return;
 
+        floorManager?.ForceDetectFloor();
         UpdateAnchorFallbackFloorLevel();
         UpdateGridTransform();
 
@@ -184,8 +211,7 @@ public class GridManager : MonoBehaviour, IDisposable
         _gridEnabled = true;
         LearningExperienceEngine.UserSettings.showGrid = _gridEnabled;
 
-        var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
-        if (activityManager != null && activityManager.EditModeActive)
+        if (IsEditModeActive())
         {
             ShowGrid();
         }
@@ -245,6 +271,10 @@ public class GridManager : MonoBehaviour, IDisposable
     public void Dispose()
     {
         LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
+        if (RootObject.Instance?.LEE?.ActivityManager != null)
+        {
+            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged -= OnEditModeChanged;
+        }
         if (floorManager != null)
         {
             floorManager.OnFloorLevelChanged -= OnFloorLevelChanged;

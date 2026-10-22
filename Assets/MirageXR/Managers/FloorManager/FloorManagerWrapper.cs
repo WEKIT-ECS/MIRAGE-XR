@@ -77,6 +77,11 @@ public class FloorManagerWrapper : MonoBehaviour
         RootObject.Instance.PlaneManager.SelectPlane(planeId);
     }
 
+    public void ForceDetectFloor()
+    {
+        _floorManager?.ForceDetectFloor();
+    }
+
     private IFloorManager CreateFloorManager()
     {
         switch (_forceManagerType)

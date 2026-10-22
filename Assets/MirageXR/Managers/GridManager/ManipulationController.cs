@@ -60,6 +60,10 @@ public class ManipulationController : MonoBehaviour, IDisposable
         HideGridLines();
 
         LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
+        if (RootObject.Instance?.LEE?.ActivityManager != null)
+        {
+            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditModeChanged;
+        }
     }
 
     private void OnRotateStarted(GameObject source)
@@ -94,7 +98,7 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void OnManipulationStarted(GameObject source)
     {
-        if (!_gridManager.snapEnabled || !RootObject.Instance.FloorManager.isFloorDetected)
+        if (!_gridManager.snapEnabled || floorManager == null || !floorManager.isFloorDetected)
         {
             return;
         }
@@ -112,7 +116,7 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void OnManipulationUpdated(GameObject source)
     {
-        if (!_gridManager.snapEnabled || !RootObject.Instance.FloorManager.isFloorDetected)
+        if (!_gridManager.snapEnabled || floorManager == null || !floorManager.isFloorDetected)
         {
             return;
         }
@@ -238,6 +242,24 @@ public class ManipulationController : MonoBehaviour, IDisposable
                 Destroy(helpGameObject.gameObject);
             }
 
+            var boundingBoxes = _copy.GetComponentsInChildren<SimpleBoundingBox>(true);
+            foreach (var bb in boundingBoxes)
+            {
+                Destroy(bb);
+            }
+
+            var handles = _copy.GetComponentsInChildren<BoundingBoxHandle>(true);
+            foreach (var h in handles)
+            {
+                if (h != null) Destroy(h.gameObject);
+            }
+
+            var lineRenderers = _copy.GetComponentsInChildren<LineRenderer>(true);
+            foreach (var lr in lineRenderers)
+            {
+                if (lr != null) Destroy(lr);
+            }
+
             var monoBehaviour = _copy.GetComponentsInChildren<MonoBehaviour>(true);
             foreach (var behaviour in monoBehaviour)
             {
@@ -307,7 +329,62 @@ public class ManipulationController : MonoBehaviour, IDisposable
         {
             _copy.SetPose(source.GetPose());
             _copy.transform.localScale = source.transform.lossyScale;
+
+            var bb = source.GetComponentInChildren<SimpleBoundingBox>();
+            if (bb != null && bb.Target != null && bb.Target != source.transform)
+            {
+                var copyTarget = FindMatchingChild(source.transform, bb.Target, _copy.transform);
+                if (copyTarget != null)
+                {
+                    copyTarget.localScale = bb.Target.localScale;
+                    copyTarget.localRotation = bb.Target.localRotation;
+                }
+            }
         }
+    }
+
+    private static Transform FindMatchingChild(Transform sourceRoot, Transform target, Transform copyRoot)
+    {
+        if (target == null || copyRoot == null) return null;
+        if (target == sourceRoot) return copyRoot;
+
+        var stack = new System.Collections.Generic.Stack<int>();
+        var curr = target;
+        while (curr != null && curr != sourceRoot)
+        {
+            stack.Push(curr.GetSiblingIndex());
+            curr = curr.parent;
+        }
+
+        if (curr == sourceRoot)
+        {
+            var copyCurr = copyRoot;
+            while (stack.Count > 0)
+            {
+                var idx = stack.Pop();
+                if (idx >= 0 && idx < copyCurr.childCount)
+                {
+                    copyCurr = copyCurr.GetChild(idx);
+                }
+                else
+                {
+                    copyCurr = null;
+                    break;
+                }
+            }
+            if (copyCurr != null) return copyCurr;
+        }
+
+        var children = copyRoot.GetComponentsInChildren<Transform>(true);
+        foreach (var c in children)
+        {
+            if (c.name == target.name)
+            {
+                return c;
+            }
+        }
+
+        return null;
     }
 
     private void HideCopy()
@@ -347,8 +424,7 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private Vector3 CalculateSnapPosition(Vector3 position)
     {
-        var point = _gridManager.grid.transform.InverseTransformPoint(position);
-        return _gridManager.grid.transform.TransformPoint(MirageXR.Utilities.ToClosestToStepVector3(point, _gridManager.cellWidth / 100f));
+        return _gridManager.grid != null ? _gridManager.grid.GetNearestPointOnGrid(position) : position;
     }
 
     private Quaternion CalculateSnapRotation(Quaternion rotation)
@@ -367,6 +443,10 @@ public class ManipulationController : MonoBehaviour, IDisposable
     public void Dispose()
     {
         LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
+        if (RootObject.Instance?.LEE?.ActivityManager != null)
+        {
+            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged -= OnEditModeChanged;
+        }
     }
 
     private void OnEditModeChanged(bool value)
