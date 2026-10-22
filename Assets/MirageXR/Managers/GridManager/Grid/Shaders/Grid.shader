@@ -98,7 +98,7 @@ Shader "Mirage/Grid" {
                     col.a *= _Color.a;
                 }
                 else {
-                    col.a = 0.0;
+                    col = half4(0, 0, 0, 0);
                 }
                 return col;
             }
@@ -154,7 +154,7 @@ Shader "Mirage/Grid" {
             }
 
             fixed4 frag (const v2f i) : SV_Target {
-                fixed4 col;
+                fixed4 col = fixed4(0, 0, 0, 0);
                 const float dis = distance(_Position, i.world_position);
                 if (dis < _MainThreshold) {
                     col = tex2D(_MainTex, i.uv);
@@ -169,7 +169,7 @@ Shader "Mirage/Grid" {
                     col.a *= _Color.a;
                 }
                 else {
-                    col.a = 0.0;
+                    col = fixed4(0, 0, 0, 0);
                 }
                 return col;
             }

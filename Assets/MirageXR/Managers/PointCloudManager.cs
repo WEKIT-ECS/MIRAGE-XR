@@ -7,11 +7,14 @@ public class PointCloudManager : MonoBehaviour
 {
     [SerializeField] private GameObject _prefabPointCloud;
     [SerializeField] private MeshFilter _prefabSpatialMapMesh;
+    [SerializeField] private Material _occlusionMaterial;
+    [SerializeField] private Material _wireframeMaterial;
 
     private ARSession _arSession;
     private ARPointCloudManager _arPointCloudManager;
     private ARMeshManager _arMeshManager;
     private IViewManager _viewManager;
+    private bool _isMeshActive;
 
     public async Task InitializationAsync(IViewManager viewManager)
     {
@@ -29,11 +32,20 @@ public class PointCloudManager : MonoBehaviour
         _arPointCloudManager = MirageXR.Utilities.FindOrCreateComponent<ARPointCloudManager>(_viewManager.BaseCamera.gameObject);
         _arPointCloudManager.pointCloudPrefab = _prefabPointCloud;
 #else 
-        _arMeshManager = MirageXR.Utilities.FindOrCreateComponent<ARMeshManager>(_viewManager.BaseCamera.gameObject);
+        Transform baseCameraTransform = _viewManager.BaseCamera.transform;
+        Transform childHolder = baseCameraTransform.Find("ARMeshManager");
+        if (childHolder == null)
+        {
+            var go = new GameObject("ARMeshManager");
+            go.transform.SetParent(baseCameraTransform, false);
+            childHolder = go.transform;
+        }
+        _arMeshManager = MirageXR.Utilities.FindOrCreateComponent<ARMeshManager>(childHolder.gameObject);
         if (_prefabSpatialMapMesh != null)
         {
             _arMeshManager.meshPrefab = _prefabSpatialMapMesh;
         }
+        _arMeshManager.meshesChanged += OnMeshesChanged;
 #endif
 
         await Task.Yield();
@@ -46,6 +58,12 @@ public class PointCloudManager : MonoBehaviour
     {
 #if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS
         LearningExperienceEngine.EventManager.OnEditModeChanged -= SetAllPointCloudsActive;
+#endif
+#if UNITY_IOS || UNITY_VISIONOS
+        if (_arMeshManager != null)
+        {
+            _arMeshManager.meshesChanged -= OnMeshesChanged;
+        }
 #endif
     }
 
@@ -97,6 +115,7 @@ public class PointCloudManager : MonoBehaviour
 
     public void SetMeshActive(bool active)
     {
+        _isMeshActive = active;
 #if UNITY_ANDROID
         if (_arPointCloudManager != null)
         {
@@ -112,26 +131,52 @@ public class PointCloudManager : MonoBehaviour
 #elif UNITY_IOS || UNITY_VISIONOS
         if (_arMeshManager != null)
         {
-            _arMeshManager.enabled = active;
-            var origin = _arMeshManager.GetComponentInParent<Unity.XR.CoreUtils.XROrigin>();
-            var trackablesParent = origin != null ? origin.TrackablesParent : _arMeshManager.transform;
-            if (trackablesParent != null)
+            _arMeshManager.enabled = true; // Keep meshing active for occlusion
+            UpdateMeshRenderers();
+        }
+#endif
+    }
+
+#if UNITY_IOS || UNITY_VISIONOS
+    private void OnMeshesChanged(ARMeshesChangedEventArgs args)
+    {
+        UpdateMeshRenderers();
+    }
+
+    private void UpdateMeshRenderers()
+    {
+        if (_arMeshManager == null) return;
+        var origin = _arMeshManager.GetComponentInParent<Unity.XR.CoreUtils.XROrigin>();
+        var trackablesParent = origin != null ? origin.TrackablesParent : _arMeshManager.transform;
+        if (trackablesParent != null)
+        {
+            foreach (Transform child in trackablesParent)
             {
-                foreach (Transform child in trackablesParent)
+                if (child != null)
                 {
-                    if (child != null)
+                    var renderer = child.GetComponent<MeshRenderer>();
+                    if (renderer != null)
                     {
-                        var renderer = child.GetComponent<MeshRenderer>();
-                        if (renderer != null)
+                        if (_isMeshActive)
                         {
-                            renderer.enabled = active;
+                            renderer.enabled = true;
+                            if (_wireframeMaterial != null) renderer.material = _wireframeMaterial;
+                        }
+                        else if (_occlusionMaterial != null)
+                        {
+                            renderer.enabled = true;
+                            renderer.material = _occlusionMaterial;
+                        }
+                        else
+                        {
+                            renderer.enabled = false;
                         }
                     }
                 }
             }
         }
-#endif
     }
+#endif
 
     private void SetAllPointCloudsActive(bool isEditMode)
     {

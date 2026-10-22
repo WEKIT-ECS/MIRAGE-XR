@@ -43,6 +43,12 @@ public class GridPlane : MonoBehaviour
             {
                 mat.SetFloat(Surface, 1.0f); // Ensure transparent
             }
+            mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            mat.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+            if (mat.HasProperty("_Blend")) mat.SetFloat("_Blend", 0.0f);
+            if (mat.HasProperty("_ZWrite")) mat.SetFloat("_ZWrite", 0.0f);
+            if (mat.HasProperty("_SrcBlend")) mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            if (mat.HasProperty("_DstBlend")) mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
             if (mat.HasProperty(BaseMap) && mat.HasProperty(MainTex))
             {
                 var mainTex = mat.GetTexture(MainTex);

@@ -12,6 +12,13 @@ Shader "Unlit/FeatheredPlaneShader"
         [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("DstBlend", Float) = 10
         [Enum(Off, 0, On, 1)] _ZWrite ("ZWrite", Float) = 0
         _Surface ("_Surface", Float) = 1.0
+        _Blend ("_Blend", Float) = 0.0
+        _AlphaClip ("Alpha Clip", Float) = 0.0
+        _QueueOffset ("_QueueOffset", Float) = 0.0
+        _Smoothness ("Smoothness", Range(0.0, 1.0)) = 0.5
+        _SpecColor ("Specular", Color) = (0.5, 0.5, 0.5, 1)
+        _SpecularHighlights ("Specular Highlights", Float) = 0.0
+        [NoScaleOffset] _BumpMap ("Normal Map", 2D) = "bump" {}
     }
     SubShader
     {
