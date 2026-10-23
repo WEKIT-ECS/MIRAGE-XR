@@ -1,6 +1,7 @@
 using System;
 using LearningExperienceEngine.DataModel;
 using TMPro;
+using Unity.PolySpatial;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
@@ -85,6 +86,20 @@ namespace MirageXR.View
                 _infoScreenView = Instantiate(_infoPanelPrefab, transform, false);
                 _infoScreenView.Initialize(step);
             }
+
+            if (diamond != null)
+            {
+                var diamondCollider = diamond.GetComponent<Collider>();
+                if (diamondCollider == null)
+                {
+                    diamond.gameObject.AddComponent<SphereCollider>();
+                }
+                if (diamond.GetComponent<VisionOSHoverEffect>() == null)
+                {
+                    diamond.gameObject.AddComponent<VisionOSHoverEffect>();
+                }
+            }
+
             _isInitialized = true;
             UpdateView(step);
             
@@ -151,11 +166,19 @@ namespace MirageXR.View
             xrGrabInteractable.trackRotation = false;
             xrGrabInteractable.trackScale = false;
             xrGrabInteractable.throwOnDetach = false;
+            xrGrabInteractable.allowGazeInteraction = true;
+            xrGrabInteractable.allowGazeSelect = true;
+            xrGrabInteractable.allowGazeAssistance = true;
             xrGrabInteractable.selectEntered.AddListener(_ => OnManipulationStarted());
             xrGrabInteractable.selectExited.AddListener(_ => OnManipulationEnded());
             xrGrabInteractable.useDynamicAttach = true;
             xrGrabInteractable.reinitializeDynamicAttachEverySingleGrab = false;
             xrGrabInteractable.snapToColliderVolume = false;
+
+            if (gameObject.GetComponent<VisionOSHoverEffect>() == null)
+            {
+                gameObject.AddComponent<VisionOSHoverEffect>();
+            }
 
             SetInteractable(RootObject.Instance.LEE.ActivityManager.IsEditorMode);
         }

@@ -9,6 +9,7 @@ using UnityEngine.AddressableAssets;
 using Utilities;
 
 using MirageXR;
+using Unity.PolySpatial;
 
 namespace MirageXR.View
 {
@@ -247,6 +248,11 @@ namespace MirageXR.View
             var bb = _model.gameObject.AddComponent<SimpleBoundingBox>();
             bb.Target = _model.transform;
             bb.Setup(content.Id.ToString());
+
+            if (_model.GetComponent<VisionOSHoverEffect>() == null)
+            {
+                _model.gameObject.AddComponent<VisionOSHoverEffect>();
+            }
 
             bb.OnScaleEnded += scale =>
             {

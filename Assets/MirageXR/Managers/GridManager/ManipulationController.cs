@@ -68,7 +68,7 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void OnRotateStarted(GameObject source)
     {
-        OnManipulationStarted(source);
+        OnManipulationStarted(source, isHandleManipulation: true);
     }
 
     private void OnRotateStopped(GameObject source)
@@ -78,7 +78,7 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void OnScaleStarted(GameObject source)
     {
-        OnManipulationStarted(source);
+        OnManipulationStarted(source, isHandleManipulation: true);
     }
 
     private void OnScaleStopped(GameObject source)
@@ -88,7 +88,7 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void OnTranslateStarted(GameObject source)
     {
-       OnManipulationStarted(source);
+       OnManipulationStarted(source, isHandleManipulation: false);
     }
 
     private void OnTranslateStopped(GameObject source)
@@ -97,6 +97,11 @@ public class ManipulationController : MonoBehaviour, IDisposable
     }
 
     private void OnManipulationStarted(GameObject source)
+    {
+        OnManipulationStarted(source, isHandleManipulation: false);
+    }
+
+    private void OnManipulationStarted(GameObject source, bool isHandleManipulation)
     {
         if (!_gridManager.snapEnabled || floorManager == null || !floorManager.isFloorDetected)
         {
@@ -108,7 +113,7 @@ public class ManipulationController : MonoBehaviour, IDisposable
         RunCopyUpdateCoroutine(source);
         ShowGridLines(_copy);
 
-        if (!_gridManager.showOriginalObject)
+        if (isHandleManipulation || !_gridManager.showOriginalObject)
         {
             HideOriginalObject(source);
         }

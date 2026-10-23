@@ -142,14 +142,17 @@ public class PointCloudManager : MonoBehaviour
     {
         UpdateMeshRenderers();
     }
+#endif
 
-    private void UpdateMeshRenderers()
+    public void UpdateMeshRenderers()
     {
+#if UNITY_IOS || UNITY_VISIONOS
         if (_arMeshManager == null) return;
         var origin = _arMeshManager.GetComponentInParent<Unity.XR.CoreUtils.XROrigin>();
         var trackablesParent = origin != null ? origin.TrackablesParent : _arMeshManager.transform;
         if (trackablesParent != null)
         {
+            bool suppressOcclusion = ShouldSuppressOcclusion();
             foreach (Transform child in trackablesParent)
             {
                 if (child != null)
@@ -162,7 +165,7 @@ public class PointCloudManager : MonoBehaviour
                             renderer.enabled = true;
                             if (_wireframeMaterial != null) renderer.material = _wireframeMaterial;
                         }
-                        else if (_occlusionMaterial != null)
+                        else if (!suppressOcclusion && _occlusionMaterial != null)
                         {
                             renderer.enabled = true;
                             renderer.material = _occlusionMaterial;
@@ -175,8 +178,22 @@ public class PointCloudManager : MonoBehaviour
                 }
             }
         }
-    }
 #endif
+    }
+
+    private bool ShouldSuppressOcclusion()
+    {
+        var rtm = RootObject.Instance?.RoomTwinManager;
+        if (rtm != null && rtm.IsRoomShowing())
+        {
+            var style = rtm.GetRoomTwinStyle();
+            if (style == RoomTwinStyle.FullTwin || style == RoomTwinStyle.TwinVignette)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private void SetAllPointCloudsActive(bool isEditMode)
     {

@@ -148,6 +148,9 @@ namespace MirageXR.View
             xrGrabInteractable.throwOnDetach = false;
             xrGrabInteractable.reinitializeDynamicAttachEverySingleGrab = false;
             xrGrabInteractable.selectMode = InteractableSelectMode.Multiple;
+            xrGrabInteractable.allowGazeInteraction = true;
+            xrGrabInteractable.allowGazeSelect = true;
+            xrGrabInteractable.allowGazeAssistance = true;
             xrGrabInteractable.selectEntered.AddListener(_ => OnManipulationStarted());
             xrGrabInteractable.selectExited.AddListener(_ => OnManipulationEnded());
 

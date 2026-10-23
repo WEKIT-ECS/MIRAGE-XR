@@ -25,7 +25,7 @@ Shader "Mirage/Grid" {
     }
 
     SubShader {
-        Tags { "RenderPipeline" = "UniversalPipeline" "RenderType" = "Transparent" "Queue" = "Transparent" "UniversalMaterialType" = "Unlit" }
+        Tags { "RenderPipeline" = "UniversalPipeline" "RenderType" = "Transparent" "Queue" = "Transparent-10" "UniversalMaterialType" = "Unlit" }
         LOD 100
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
@@ -107,7 +107,7 @@ Shader "Mirage/Grid" {
     }
 
     SubShader {
-        Tags { "RenderType"="Transparent" "Queue"="Transparent" }
+        Tags { "RenderType"="Transparent" "Queue"="Transparent-10" }
         LOD 100
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
