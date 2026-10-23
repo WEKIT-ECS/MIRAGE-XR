@@ -51,6 +51,12 @@ public class PointCloudManager : MonoBehaviour
         await Task.Yield();
 
         LearningExperienceEngine.EventManager.OnEditModeChanged += SetAllPointCloudsActive;
+        LearningExperienceEngine.EventManager.OnWorkplaceLoaded += OnWorkplaceLoaded;
+        if (RootObject.Instance != null && RootObject.Instance.LEE != null && RootObject.Instance.LEE.ActivityManager != null)
+        {
+            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += SetAllPointCloudsActive;
+        }
+        SetAllPointCloudsActive(IsEditModeActive());
         UnityEngine.Debug.Log("Initializing [PointCloudManager] -->");
     }
 
@@ -58,6 +64,11 @@ public class PointCloudManager : MonoBehaviour
     {
 #if UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS
         LearningExperienceEngine.EventManager.OnEditModeChanged -= SetAllPointCloudsActive;
+        LearningExperienceEngine.EventManager.OnWorkplaceLoaded -= OnWorkplaceLoaded;
+        if (RootObject.Instance != null && RootObject.Instance.LEE != null && RootObject.Instance.LEE.ActivityManager != null)
+        {
+            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged -= SetAllPointCloudsActive;
+        }
 #endif
 #if UNITY_IOS || UNITY_VISIONOS
         if (_arMeshManager != null)
@@ -181,8 +192,37 @@ public class PointCloudManager : MonoBehaviour
 #endif
     }
 
+    private bool IsEditModeActive()
+    {
+        if (RootObject.Instance != null && RootObject.Instance.GridManager != null)
+        {
+            return RootObject.Instance.GridManager.IsEditModeActive();
+        }
+
+        bool editMode = false;
+        if (LearningExperienceEngine.LearningExperienceEngine.Instance != null && LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld != null)
+        {
+            editMode = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive;
+        }
+        if (RootObject.Instance != null && RootObject.Instance.LEE != null && RootObject.Instance.LEE.ActivityManager != null)
+        {
+            editMode |= RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+        }
+        return editMode;
+    }
+
+    private void OnWorkplaceLoaded()
+    {
+        SetAllPointCloudsActive(IsEditModeActive());
+    }
+
     private bool ShouldSuppressOcclusion()
     {
+        if (IsEditModeActive())
+        {
+            return true;
+        }
+
         var rtm = RootObject.Instance?.RoomTwinManager;
         if (rtm != null && rtm.IsRoomShowing())
         {
