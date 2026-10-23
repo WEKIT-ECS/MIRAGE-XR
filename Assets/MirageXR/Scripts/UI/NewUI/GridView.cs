@@ -14,6 +14,7 @@ public class GridView : PopupBase
     [SerializeField] private Button _btnClose;
     [SerializeField] private Toggle _activateGridToggle;
     [SerializeField] private Toggle _snapToGridToggle;
+    [SerializeField] private Toggle _showMeshToggle;
     [SerializeField] private Toggle _showOriginalObjectToggle;
     [SerializeField] private Toggle _useObjectCenterToggle;
     [SerializeField] private GameObject _templatePrefab;
@@ -31,6 +32,10 @@ public class GridView : PopupBase
 
         _activateGridToggle.isOn = gridManager.gridEnabled;
         _snapToGridToggle.isOn = gridManager.snapEnabled;
+        if (_showMeshToggle != null)
+        {
+            _showMeshToggle.isOn = gridManager.showMesh;
+        }
         _showOriginalObjectToggle.isOn = gridManager.showOriginalObject;
         _useObjectCenterToggle.isOn = gridManager.useObjectCenter;
 
@@ -41,6 +46,10 @@ public class GridView : PopupBase
         _btnClose.onClick.AddListener(Close);
         _activateGridToggle.onValueChanged.AddListener(OnActivateGridToggleValueChanged);
         _snapToGridToggle.onValueChanged.AddListener(OnSnapToGridToggleValueChanged);
+        if (_showMeshToggle != null)
+        {
+            _showMeshToggle.onValueChanged.AddListener(OnShowMeshValueChanged);
+        }
         _showOriginalObjectToggle.onValueChanged.AddListener(OnShowOriginalObjectValueChanged);
         _useObjectCenterToggle.onValueChanged.AddListener(OnUseObjectCenterValueChanged);
         _clampedScrollGridStep.onItemChanged.AddListener(OnItemGridStepChanged);
@@ -97,6 +106,11 @@ public class GridView : PopupBase
     private void OnShowOriginalObjectValueChanged(bool value)
     {
         gridManager.SetShowOriginalObject(value);
+    }
+
+    private void OnShowMeshValueChanged(bool value)
+    {
+        gridManager.SetShowMesh(value);
     }
 
     private void OnUseObjectCenterValueChanged(bool value)

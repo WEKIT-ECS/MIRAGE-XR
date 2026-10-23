@@ -7,18 +7,19 @@ using UnityEngine;
 
 public class GridManager : MonoBehaviour, IDisposable
 {
-    private static FloorManagerWrapper floorManager => RootObject.Instance.FloorManager;
+    private static FloorManagerWrapper floorManager => RootObject.Instance != null ? RootObject.Instance.FloorManager : null;
 
-    private static ICalibrationManager calibrationManager => RootObject.Instance.CalibrationManager;
+    private static ICalibrationManager calibrationManager => RootObject.Instance != null ? RootObject.Instance.CalibrationManager : null;
 
-    [SerializeField] private Grid _gridPrefab;
+    [SerializeField] private PlacementGrid _gridPrefab;
     [SerializeField] private GridLines _gridLinesPrefab;
     [SerializeField] private Material _ghostMaterial;
 
-    private Grid _grid;
+    private PlacementGrid _grid;
     private ManipulationController _manipulationController;
     private bool _gridEnabled = false;
     private bool _snapEnabled = false;
+    private bool _showMesh = true;
     private bool _showOriginalObject = false;
     private bool _useObjectCenter = false;
     private float _cellWidth = 10f;
@@ -57,7 +58,7 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public List<float> valuesScaleStep => _valuesScaleStep;
 
-    public Grid grid => _grid;
+    public PlacementGrid grid => _grid;
 
     public Material ghostMaterial => _ghostMaterial;
 
@@ -66,6 +67,8 @@ public class GridManager : MonoBehaviour, IDisposable
     public bool gridEnabled => _gridEnabled;
 
     public bool snapEnabled => _snapEnabled;
+
+    public bool showMesh => _showMesh;
 
     public bool showOriginalObject => _showOriginalObject;
 
@@ -77,27 +80,28 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public float scaleStep => _scaleStep;
 
-    public Action<GameObject> onManipulationStarted => _manipulationController.onManipulationStarted;
+    public Action<GameObject> onManipulationStarted => _manipulationController?.onManipulationStarted;
 
-    public Action<GameObject> onManipulationEnded => _manipulationController.onManipulationEnded;
+    public Action<GameObject> onManipulationEnded => _manipulationController?.onManipulationEnded;
 
-    public Action<GameObject> onRotateStarted => _manipulationController.onRotateStarted;
+    public Action<GameObject> onRotateStarted => _manipulationController?.onRotateStarted;
 
-    public Action<GameObject> onRotateStopped => _manipulationController.onRotateStopped;
+    public Action<GameObject> onRotateStopped => _manipulationController?.onRotateStopped;
 
-    public Action<GameObject> onScaleStarted => _manipulationController.onScaleStarted;
+    public Action<GameObject> onScaleStarted => _manipulationController?.onScaleStarted;
 
-    public Action<GameObject> onScaleStopped => _manipulationController.onScaleStopped;
+    public Action<GameObject> onScaleStopped => _manipulationController?.onScaleStopped;
 
-    public Action<GameObject> onTranslateStarted => _manipulationController.onTranslateStarted;
+    public Action<GameObject> onTranslateStarted => _manipulationController?.onTranslateStarted;
 
-    public Action<GameObject> onTranslateStopped => _manipulationController.onTranslateStopped;
+    public Action<GameObject> onTranslateStopped => _manipulationController?.onTranslateStopped;
 
     public void Initialization()
     {
         UnityEngine.Debug.Log("Initializing [GridManager] <--");
         _gridEnabled = LearningExperienceEngine.UserSettings.showGrid;
         _snapEnabled = LearningExperienceEngine.UserSettings.snapToGrid;
+        _showMesh = LearningExperienceEngine.UserSettings.showMesh;
         _cellWidth = LearningExperienceEngine.UserSettings.gridCellWidth;
         _angleStep = LearningExperienceEngine.UserSettings.gridAngleStep;
         _scaleStep = LearningExperienceEngine.UserSettings.gridScaleStep;
@@ -122,26 +126,80 @@ public class GridManager : MonoBehaviour, IDisposable
         _manipulationController = gameObject.AddComponent<ManipulationController>();
         _manipulationController.Initialization(this, _gridLinesPrefab);
 
+        UpdateAnchorFallbackFloorLevel();
+
+        if (floorManager != null)
+        {
+            floorManager.OnFloorLevelChanged += OnFloorLevelChanged;
+        }
+
         LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
+        if (RootObject.Instance?.LEE?.ActivityManager != null)
+        {
+            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditModeChanged;
+        }
+
+        if (_gridEnabled && IsEditModeActive())
+        {
+            ShowGrid();
+        }
+
+        UpdateMeshVisibility();
+
         UnityEngine.Debug.Log("Initializing [GridManager] -->");
+    }
+
+    public bool IsEditModeActive()
+    {
+        bool editMode = false;
+        if (LearningExperienceEngine.LearningExperienceEngine.Instance?.ActivityManagerOld != null)
+        {
+            editMode = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive;
+        }
+
+        if (RootObject.Instance?.LEE?.ActivityManager != null)
+        {
+            editMode |= RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+        }
+
+        return editMode;
+    }
+
+    private void UpdateAnchorFallbackFloorLevel()
+    {
+        if (calibrationManager != null && !calibrationManager.IsCalibrated && calibrationManager.Anchor != null)
+        {
+            float floorY = floorManager != null ? floorManager.floorLevel : -1.25f;
+            calibrationManager.Anchor.position = new Vector3(0, floorY, 0);
+            calibrationManager.Anchor.rotation = Quaternion.identity;
+        }
+    }
+
+    private void OnFloorLevelChanged(float floorY)
+    {
+        UpdateAnchorFallbackFloorLevel();
+        if (_grid != null && _grid.gameObject.activeInHierarchy)
+        {
+            UpdateGridTransform();
+        }
+    }
+
+    private void UpdateGridTransform()
+    {
+        if (_grid == null) return;
+        var anchor = calibrationManager?.Anchor ?? transform;
+        _grid.transform.SetParent(anchor);
+        _grid.transform.localPosition = Vector3.zero;
+        _grid.transform.localRotation = Quaternion.identity;
     }
 
     public void ShowGrid()
     {
         if (_grid == null) return;
 
-        var anchor = calibrationManager?.Anchor ?? transform;
-        _grid.transform.SetParent(anchor);
-
-        _grid.transform.localPosition = Vector3.zero;
-        _grid.transform.localRotation = Quaternion.identity;
-
-        var position = _grid.transform.position;
-        if (floorManager != null && floorManager.isFloorDetected)
-        {
-            position.y = floorManager.floorLevel;
-        }
-        _grid.transform.position = position;
+        floorManager?.ForceDetectFloor();
+        UpdateAnchorFallbackFloorLevel();
+        UpdateGridTransform();
 
         _grid.gameObject.SetActive(true);
     }
@@ -159,11 +217,11 @@ public class GridManager : MonoBehaviour, IDisposable
         _gridEnabled = true;
         LearningExperienceEngine.UserSettings.showGrid = _gridEnabled;
 
-        var activityManager = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
-        if (activityManager == null || activityManager.EditModeActive)
+        if (IsEditModeActive())
         {
             ShowGrid();
         }
+        UpdateMeshVisibility();
     }
 
     public void DisableGrid()
@@ -172,6 +230,24 @@ public class GridManager : MonoBehaviour, IDisposable
         LearningExperienceEngine.UserSettings.showGrid = _gridEnabled;
 
         HideGrid();
+        UpdateMeshVisibility();
+    }
+
+    public void SetShowMesh(bool value)
+    {
+        _showMesh = value;
+        LearningExperienceEngine.UserSettings.showMesh = _showMesh;
+        UpdateMeshVisibility();
+    }
+
+    public void UpdateMeshVisibility()
+    {
+        bool isEditMode = IsEditModeActive();
+        bool shouldDisplay = isEditMode && _gridEnabled && _showMesh;
+        if (RootObject.Instance?.PointCloudManager != null)
+        {
+            RootObject.Instance.PointCloudManager.SetMeshActive(shouldDisplay);
+        }
     }
 
     public void EnableSnapToGrid()
@@ -220,14 +296,27 @@ public class GridManager : MonoBehaviour, IDisposable
     public void Dispose()
     {
         LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
-        _manipulationController.Dispose();
+        if (RootObject.Instance?.LEE?.ActivityManager != null)
+        {
+            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged -= OnEditModeChanged;
+        }
+        if (floorManager != null)
+        {
+            floorManager.OnFloorLevelChanged -= OnFloorLevelChanged;
+        }
+        _manipulationController?.Dispose();
+    }
+
+    private void OnDestroy()
+    {
+        Dispose();
     }
 
     private void OnEditModeChanged(bool value)
     {
         if (value)
         {
-            if (_gridEnabled && floorManager.isFloorDetected)
+            if (_gridEnabled)
             {
                 ShowGrid();
             }
@@ -236,5 +325,6 @@ public class GridManager : MonoBehaviour, IDisposable
         {
             HideGrid();
         }
+        UpdateMeshVisibility();
     }
 }

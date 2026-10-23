@@ -80,6 +80,13 @@ namespace MirageXR
         private LineRenderer _lineRenderer;
         private BoxCollider _targetBoundsCollider;
 
+        private Material _scaleHandleMaterial;
+        private Material _rotationHandleMaterial;
+        private Vector3 _initialScale;
+        private Quaternion _initialRotation;
+        private float _accumulatedScaleRatio = 1.0f;
+        private float _accumulatedAngle = 0.0f;
+
         private LearningExperienceEngine.ToggleObject _obj;
         private string _targetId;
         private bool _isLocked;
@@ -268,6 +275,17 @@ namespace MirageXR
             {
                 RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged -= OnEditModeChanged;
             }
+
+            if (_scaleHandleMaterial != null)
+            {
+                Destroy(_scaleHandleMaterial);
+                _scaleHandleMaterial = null;
+            }
+            if (_rotationHandleMaterial != null)
+            {
+                Destroy(_rotationHandleMaterial);
+                _rotationHandleMaterial = null;
+            }
         }
 
         private void OnDisable()
@@ -297,8 +315,38 @@ namespace MirageXR
             _isInitialized = true;
         }
 
+        private Material CreateHandleMaterial(Color color)
+        {
+            var shader = Shader.Find("Universal Render Pipeline/Unlit");
+            if (shader == null)
+            {
+                shader = Shader.Find("Sprites/Default");
+            }
+            if (shader == null)
+            {
+                shader = Shader.Find("Unlit/Color");
+            }
+
+            var mat = new Material(shader);
+            mat.color = color;
+            if (mat.HasProperty("_BaseColor"))
+            {
+                mat.SetColor("_BaseColor", color);
+            }
+            if (mat.HasProperty("_Color"))
+            {
+                mat.SetColor("_Color", color);
+            }
+            return mat;
+        }
+
         private void CreateHandles()
         {
+            if (_scaleHandleMaterial == null)
+            {
+                _scaleHandleMaterial = CreateHandleMaterial(_handleColor);
+            }
+
             for (int i = 0; i < 8; i++)
             {
                 var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -306,7 +354,7 @@ namespace MirageXR
                 go.transform.SetParent(transform, false);
                 go.transform.localScale = Vector3.one * _handleSize;
                 var renderer = go.GetComponent<Renderer>();
-                if (renderer) renderer.material.color = _handleColor;
+                if (renderer) renderer.material = _scaleHandleMaterial;
 
                 var handle = go.AddComponent<BoundingBoxHandle>();
                 handle.Type = BoundingBoxHandle.HandleType.Scale;
@@ -328,6 +376,11 @@ namespace MirageXR
 
         private void CreateRotationHandles()
         {
+            if (_rotationHandleMaterial == null)
+            {
+                _rotationHandleMaterial = CreateHandleMaterial(Color.yellow);
+            }
+
             // 12 edges
             for (int i = 0; i < 12; i++)
             {
@@ -336,7 +389,7 @@ namespace MirageXR
                 go.transform.SetParent(transform, false);
                 go.transform.localScale = Vector3.one * _handleSize * 0.8f;
                 var renderer = go.GetComponent<Renderer>();
-                if (renderer) renderer.material.color = Color.yellow;
+                if (renderer) renderer.material = _rotationHandleMaterial;
 
                 var handle = go.AddComponent<BoundingBoxHandle>();
                 handle.Type = BoundingBoxHandle.HandleType.Rotate;
@@ -556,6 +609,13 @@ namespace MirageXR
         private void OnHandleDown(BoundingBoxHandle handle)
         {
             _isHandleInteractionActive = true;
+            if (Target != null)
+            {
+                _initialScale = Target.localScale;
+                _initialRotation = Target.localRotation;
+            }
+            _accumulatedScaleRatio = 1.0f;
+            _accumulatedAngle = 0.0f;
 
             if (_parentGrabInteractable == null)
             {
@@ -584,6 +644,9 @@ namespace MirageXR
         {
             if (!_isHandleInteractionActive || Target == null) return;
 
+            var gridManager = RootObject.Instance?.GridManager;
+            bool snap = gridManager != null && gridManager.snapEnabled;
+
             if (handle.Type == BoundingBoxHandle.HandleType.Scale)
             {
                 Vector3 handleOffset = handle.transform.localPosition - _boundsCenter;
@@ -595,10 +658,21 @@ namespace MirageXR
                 if (Mathf.Abs(dragAmount) > 0.0001f)
                 {
                     float radius = Mathf.Max(handleOffset.magnitude, 0.0001f);
-                    float scaleFactor = 1.0f + dragAmount / radius;
-                    if (scaleFactor <= 0.0001f) return;
+                    float deltaRatio = dragAmount / radius;
+                    _accumulatedScaleRatio += deltaRatio;
+                    _accumulatedScaleRatio = Mathf.Max(0.01f, _accumulatedScaleRatio);
 
-                    Target.localScale *= scaleFactor;
+                    if (snap)
+                    {
+                        float step = Mathf.Max(0.01f, gridManager.scaleStep / 100f);
+                        float snappedRatio = Mathf.Max(step, Mathf.Round(_accumulatedScaleRatio / step) * step);
+                        Target.localScale = _initialScale * snappedRatio;
+                    }
+                    else
+                    {
+                        Target.localScale = _initialScale * _accumulatedScaleRatio;
+                    }
+
                     OnScaleChanged?.Invoke(Target.localScale);
                     UpdateBounds();
                 }
@@ -615,9 +689,20 @@ namespace MirageXR
                 if (Mathf.Abs(dragAmount) > 0.0001f)
                 {
                     float radius = Mathf.Max(handlePos.magnitude, 0.0001f);
-                    float angle = dragAmount / radius * Mathf.Rad2Deg;
+                    float deltaAngle = dragAmount / radius * Mathf.Rad2Deg;
+                    _accumulatedAngle += deltaAngle;
 
-                    Target.Rotate(axis, angle, Space.Self);
+                    if (snap)
+                    {
+                        float step = Mathf.Max(1f, gridManager.angleStep);
+                        float snappedAngle = Mathf.Round(_accumulatedAngle / step) * step;
+                        Target.localRotation = _initialRotation * Quaternion.AngleAxis(snappedAngle, axis);
+                    }
+                    else
+                    {
+                        Target.localRotation = _initialRotation * Quaternion.AngleAxis(_accumulatedAngle, axis);
+                    }
+
                     OnRotationChanged?.Invoke(Target.rotation);
                     UpdateBounds();
                 }
@@ -628,19 +713,22 @@ namespace MirageXR
         {
             if (!_isHandleInteractionActive) return;
 
+            _accumulatedScaleRatio = 1.0f;
+            _accumulatedAngle = 0.0f;
+
             RestoreParentGrabInteractable();
 
             if (Target != null)
             {
                 if (handle.Type == BoundingBoxHandle.HandleType.Scale)
                 {
-                    ScaleStopped?.Invoke();
                     OnScaleEnded?.Invoke(Target.localScale);
+                    ScaleStopped?.Invoke();
                 }
                 else if (handle.Type == BoundingBoxHandle.HandleType.Rotate)
                 {
-                    RotateStopped?.Invoke();
                     OnRotationEnded?.Invoke(Target.rotation);
+                    RotateStopped?.Invoke();
                 }
             }
         }

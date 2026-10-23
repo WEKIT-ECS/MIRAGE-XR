@@ -85,9 +85,31 @@ namespace MirageXR
             }
 
             var interactor = _xrInteractable.interactorsSelecting[0];
-            Vector3 currentPosition = interactor.GetAttachTransform(_xrInteractable).position;
+            if (interactor == null || !interactor.isSelectActive)
+            {
+                _xrSelected = false;
+                EndInteractionIfNeeded();
+                return;
+            }
+
+            var attachTransform = interactor.GetAttachTransform(_xrInteractable);
+            if (attachTransform == null)
+            {
+                _xrSelected = false;
+                EndInteractionIfNeeded();
+                return;
+            }
+
+            Vector3 currentPosition = attachTransform.position;
             Vector3 worldDelta = currentPosition - _lastXRAttachPosition;
             _lastXRAttachPosition = currentPosition;
+
+            // Reject tracking teleport glitches (> 0.5m in single frame)
+            if (worldDelta.sqrMagnitude > 0.25f)
+            {
+                return;
+            }
+
             if (worldDelta.sqrMagnitude > Mathf.Epsilon)
             {
                 OnDragHandle?.Invoke(this, worldDelta);

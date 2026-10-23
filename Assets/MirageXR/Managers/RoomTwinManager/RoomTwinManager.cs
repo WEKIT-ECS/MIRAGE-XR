@@ -198,6 +198,7 @@ namespace MirageXR
             {
                 _roomModel.SetActive(_showRoom);
             }
+            RootObject.Instance?.PointCloudManager?.UpdateMeshRenderers();
         }
 
         /// <summary>
@@ -237,6 +238,13 @@ namespace MirageXR
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            RootObject.Instance?.PointCloudManager?.UpdateMeshRenderers();
+        }
+
+        public bool IsRoomShowing()
+        {
+            return _showRoom && _roomModel != null && _roomModel.activeInHierarchy;
         }
 
         public RoomTwinStyle GetRoomTwinStyle()
