@@ -7,9 +7,13 @@ public abstract class FloorManagerBase : MonoBehaviour, IFloorManager
 {
     protected const float _DEFAULT_FLOOR_LEVEL = -1.7f;
 
+    public abstract event Action<float> OnFloorLevelChanged;
+
     public abstract float floorLevel { get; }
 
     public abstract bool isFloorDetected { get; }
+
+    public abstract bool isManualFloor { get; }
 
     public abstract Task<bool> InitializationAsync(IViewManager viewManager, PlaneManagerWrapper planeManager);
 
@@ -18,4 +22,6 @@ public abstract class FloorManagerBase : MonoBehaviour, IFloorManager
     public abstract Transform CreateAnchor(Pose pose);
 
     public abstract void SetFloor(PlaneId planeId, Vector3 position);
+
+    public virtual void ForceDetectFloor() { }
 }

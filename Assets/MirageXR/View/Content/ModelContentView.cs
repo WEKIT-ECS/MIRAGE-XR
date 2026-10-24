@@ -9,6 +9,7 @@ using UnityEngine.AddressableAssets;
 using Utilities;
 
 using MirageXR;
+using Unity.PolySpatial;
 
 namespace MirageXR.View
 {
@@ -248,6 +249,11 @@ namespace MirageXR.View
             bb.Target = _model.transform;
             bb.Setup(content.Id.ToString());
 
+            if (_model.GetComponent<VisionOSHoverEffect>() == null)
+            {
+                _model.gameObject.AddComponent<VisionOSHoverEffect>();
+            }
+
             bb.OnScaleEnded += scale =>
             {
                 // We use the first component as uniform scale
@@ -270,7 +276,9 @@ namespace MirageXR.View
                 // Reset Child to its initial local rotation (preserving loader fix)
                 _model.transform.localRotation = initialChildRotation;
                 
-                content.Location.Rotation = transform.rotation.eulerAngles;
+                content.Location.Position = transform.localPosition;
+                content.Location.Rotation = transform.localEulerAngles;
+                content.Location.Scale = transform.localScale;
                 
                 content.ContentData.FitToScreen = false;
                 content.ContentData.ResetPosition = false;
@@ -329,7 +337,9 @@ namespace MirageXR.View
                 transform.rotation = rotation * Quaternion.Inverse(initialChildRotation);
                 item.transform.localRotation = initialChildRotation;
 
-                content.Location.Rotation = transform.rotation.eulerAngles;
+                content.Location.Position = transform.localPosition;
+                content.Location.Rotation = transform.localEulerAngles;
+                content.Location.Scale = transform.localScale;
                 
                 content.ContentData.FitToScreen = false;
                 content.ContentData.ResetPosition = false;

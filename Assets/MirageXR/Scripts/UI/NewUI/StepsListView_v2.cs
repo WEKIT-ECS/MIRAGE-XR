@@ -839,7 +839,8 @@ public class StepsListView_v2 : BaseView
 
     private void ShowFloorDetectionOnlyView()
     {
-        PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, false, true, true);
+        var isEditMode = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManager.IsEditorMode;
+        PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode, false, true, true);
     }
 
     private void OnCalibrationViewOpened()

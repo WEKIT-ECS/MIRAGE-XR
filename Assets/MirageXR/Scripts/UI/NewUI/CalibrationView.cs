@@ -296,12 +296,15 @@ public class CalibrationView : PopupBase
     {
         try
         {
-            _hideBaseView = (Action)args[0];
-            _showBaseView = (Action)args[1];
-            _isEditorMode = (bool)args[2];
-            _isMoveOrigin = (bool)args[3];
-            _isFloorOnly = (bool)args[4];
-            _isMarkerLess = (bool)args[5];
+            if (args != null)
+            {
+                if (args.Length > 0 && args[0] is Action hideAction) _hideBaseView = hideAction;
+                if (args.Length > 1 && args[1] is Action showAction) _showBaseView = showAction;
+                if (args.Length > 2 && args[2] is bool editorMode) _isEditorMode = editorMode;
+                if (args.Length > 3 && args[3] is bool moveOrigin) _isMoveOrigin = moveOrigin;
+                if (args.Length > 4 && args[4] is bool floorOnly) _isFloorOnly = floorOnly;
+                if (args.Length > 5 && args[5] is bool markerLess) _isMarkerLess = markerLess;
+            }
             return true;
         }
         catch (Exception)

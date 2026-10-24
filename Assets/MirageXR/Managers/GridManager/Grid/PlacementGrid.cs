@@ -1,7 +1,7 @@
 using MirageXR;
 using UnityEngine;
 
-public class Grid : MonoBehaviour
+public class PlacementGrid : MonoBehaviour
 {
     [SerializeField] private GridPlane[] _gridPlanes;
     [SerializeField] private float _cellWidth;
@@ -35,11 +35,18 @@ public class Grid : MonoBehaviour
         UpdateCellWidth();
     }
 
+    public Vector3 GetNearestPointOnGrid(Vector3 position)
+    {
+        if (_cellWidth <= 0f) return position;
+        var point = transform.InverseTransformPoint(position);
+        return transform.TransformPoint(MirageXR.Utilities.ToClosestToStepVector3(point, _cellWidth / 100f));
+    }
+
     private bool IsPositionsUpdated()
     {
         if (_cameraTransform != null) return _lastPostion != _cameraTransform.position;
 #if UNITY_EDITOR
-        Debug.LogWarning("CameraTransform ist null in Grid.IsPositionsUpdated!");
+        Debug.LogWarning("CameraTransform is null in PlacementGrid.IsPositionsUpdated!");
 #endif
         return false;
     }

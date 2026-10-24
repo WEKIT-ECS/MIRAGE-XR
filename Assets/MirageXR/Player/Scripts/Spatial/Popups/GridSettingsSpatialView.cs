@@ -18,6 +18,7 @@ namespace MirageXR
         [Header("Toggles")]
         [SerializeField] private Toggle _activateGridToggle;
         [SerializeField] private Toggle _snapToGridToggle;
+        [SerializeField] private Toggle _showMeshToggle;
         [SerializeField] private Toggle _showOriginalObjectToggle;
         [SerializeField] private Toggle _useObjectCenterToggle;
 
@@ -79,6 +80,12 @@ namespace MirageXR
             {
                 _snapToGridToggle.SetIsOnWithoutNotify(gridManager.snapEnabled);
                 _snapToGridToggle.onValueChanged.AddListener(OnSnapToGridToggleValueChanged);
+            }
+
+            if (_showMeshToggle != null)
+            {
+                _showMeshToggle.SetIsOnWithoutNotify(gridManager.showMesh);
+                _showMeshToggle.onValueChanged.AddListener(OnShowMeshValueChanged);
             }
 
             if (_showOriginalObjectToggle != null)
@@ -156,6 +163,11 @@ namespace MirageXR
         private void OnShowOriginalObjectValueChanged(bool value)
         {
             gridManager?.SetShowOriginalObject(value);
+        }
+
+        private void OnShowMeshValueChanged(bool value)
+        {
+            gridManager?.SetShowMesh(value);
         }
 
         private void OnUseObjectCenterValueChanged(bool value)

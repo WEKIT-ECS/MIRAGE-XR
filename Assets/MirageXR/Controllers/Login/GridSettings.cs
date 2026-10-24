@@ -9,6 +9,7 @@ public class GridSettings : MonoBehaviour
     [SerializeField] private Canvas _canvas;
     [SerializeField] private Toggle _activateGridToggle;
     [SerializeField] private Toggle _snapToGridToggle;
+    [SerializeField] private Toggle _showMeshToggle;
     [SerializeField] private Toggle _showOriginalObjectToggle;
     [SerializeField] private Toggle _useObjectCenterToggle;
     [SerializeField] private Dropdown _dropdownGridStep;
@@ -26,6 +27,11 @@ public class GridSettings : MonoBehaviour
 
         _activateGridToggle.isOn = gridManager.gridEnabled;
         _snapToGridToggle.isOn = gridManager.snapEnabled;
+        if (_showMeshToggle != null)
+        {
+            _showMeshToggle.isOn = gridManager.showMesh;
+            _showMeshToggle.onValueChanged.AddListener(OnShowMeshValueChanged);
+        }
         _showOriginalObjectToggle.isOn = gridManager.showOriginalObject;
         _useObjectCenterToggle.isOn = gridManager.useObjectCenter;
 
@@ -80,6 +86,11 @@ public class GridSettings : MonoBehaviour
     private void OnShowOriginalObjectValueChanged(bool value)
     {
         gridManager.SetShowOriginalObject(value);
+    }
+
+    private void OnShowMeshValueChanged(bool value)
+    {
+        gridManager.SetShowMesh(value);
     }
 
     private void OnUseObjectCenterValueChanged(bool value)
