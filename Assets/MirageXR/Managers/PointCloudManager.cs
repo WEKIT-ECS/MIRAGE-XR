@@ -55,6 +55,7 @@ public class PointCloudManager : MonoBehaviour
         if (RootObject.Instance != null && RootObject.Instance.LEE != null && RootObject.Instance.LEE.ActivityManager != null)
         {
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += SetAllPointCloudsActive;
+            RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityLoaded;
         }
         SetAllPointCloudsActive(IsEditModeActive());
         UnityEngine.Debug.Log("Initializing [PointCloudManager] -->");
@@ -68,6 +69,7 @@ public class PointCloudManager : MonoBehaviour
         if (RootObject.Instance != null && RootObject.Instance.LEE != null && RootObject.Instance.LEE.ActivityManager != null)
         {
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged -= SetAllPointCloudsActive;
+            RootObject.Instance.LEE.ActivityManager.OnActivityLoaded -= OnActivityLoaded;
         }
 #endif
 #if UNITY_IOS || UNITY_VISIONOS
@@ -164,10 +166,22 @@ public class PointCloudManager : MonoBehaviour
         if (trackablesParent != null)
         {
             bool suppressOcclusion = ShouldSuppressOcclusion();
+            bool isEditMode = IsEditModeActive();
+
             foreach (Transform child in trackablesParent)
             {
                 if (child != null)
                 {
+                    // Ensure the mesh chunk is on Layer 2 (Ignore Raycast)
+                    child.gameObject.layer = 2;
+
+                    // When in edit mode, disable colliders so floor objects are unobstructed
+                    var col = child.GetComponent<Collider>();
+                    if (col != null)
+                    {
+                        col.enabled = !isEditMode;
+                    }
+
                     var renderer = child.GetComponent<MeshRenderer>();
                     if (renderer != null)
                     {
@@ -212,6 +226,11 @@ public class PointCloudManager : MonoBehaviour
     }
 
     private void OnWorkplaceLoaded()
+    {
+        SetAllPointCloudsActive(IsEditModeActive());
+    }
+
+    private void OnActivityLoaded(LearningExperienceEngine.DataModel.Activity activity)
     {
         SetAllPointCloudsActive(IsEditModeActive());
     }
