@@ -10,6 +10,28 @@ namespace MirageXR
         [SerializeField] private GameObject placeholderForEmptyGallery;
         [SerializeField] private bool elementsDeleteable = false;
 
+        public Transform ThumbnailGrid => thumbnailGrid;
+        public GameObject ThumbnailPrefab => thumbnailPrefab;
+        public GameObject PlaceholderForEmptyGallery => placeholderForEmptyGallery;
+        public bool ElementsDeleteable => elementsDeleteable;
+
+        public void Configure(Transform grid, GameObject prefab, GameObject placeholder, bool deleteable)
+        {
+            thumbnailGrid = grid;
+            thumbnailPrefab = prefab;
+            placeholderForEmptyGallery = placeholder;
+            elementsDeleteable = deleteable;
+        }
+
+        public void CopyConfigFrom(GalleryBase other, bool? overrideDeleteable = null)
+        {
+            if (other == null) return;
+            thumbnailGrid = other.thumbnailGrid;
+            thumbnailPrefab = other.thumbnailPrefab;
+            placeholderForEmptyGallery = other.placeholderForEmptyGallery;
+            elementsDeleteable = overrideDeleteable ?? other.elementsDeleteable;
+        }
+
         private List<ThumbnailView> _thumbnails = new List<ThumbnailView>();
 
         public delegate void GalleryElementEventHandler(string elementId);

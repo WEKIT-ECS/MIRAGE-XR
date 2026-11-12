@@ -69,6 +69,8 @@ public class RootView_v2 : BaseView
 
     public Canvas canvas => _canvas;
 
+    public ProfileView profilePrefab => _profilePrefab;
+
     public PopupEditorBase[] editors => _editors;
 
     private void Awake()
