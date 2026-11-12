@@ -25,6 +25,7 @@ namespace MirageXR
         [SerializeField] private CollaborativeSessionPanelView _collabSessionPanel;
         [SerializeField] private CollaborativeSessionSettingsView _collabSessionSettingsPanel;
         [SerializeField] private RoomScanSettingsSpatialView _roomScanSettingsSpatialViewPrefab;
+        [SerializeField] private RoomScanRepositionSpatialView _roomScanRepositionSpatialViewPrefab;
         [SerializeField] private RoomScanGallerySpatialView _roomScanGallerySpatialViewPrefab;
         [SerializeField] private SelectAugmentationScreenSpatialView _selectAugmentationScreenSpatialView;
 
@@ -152,6 +153,41 @@ namespace MirageXR
         public void ShowRoomScanSettingsPanelView()
         {
             PopupsViewer.Instance.Show(_roomScanSettingsSpatialViewPrefab);
+        }
+
+        private static RoomScanRepositionSpatialView _generatedRepositionPrefab;
+
+        public void ShowRoomScanRepositionPanelView()
+        {
+            if (_roomScanRepositionSpatialViewPrefab != null)
+            {
+                PopupsViewer.Instance.Show(_roomScanRepositionSpatialViewPrefab);
+                return;
+            }
+
+            if (_roomScanSettingsSpatialViewPrefab != null)
+            {
+                if (_generatedRepositionPrefab == null)
+                {
+                    var clone = Instantiate(_roomScanSettingsSpatialViewPrefab.gameObject);
+                    clone.name = "RoomScanReposition_Spatial";
+                    DontDestroyOnLoad(clone);
+                    clone.SetActive(false);
+
+                    var oldSettings = clone.GetComponent<RoomScanSettingsSpatialView>();
+                    var closeBtn = oldSettings != null ? oldSettings.CloseButton : clone.GetComponentInChildren<Button>(true);
+                    if (oldSettings != null)
+                    {
+                        DestroyImmediate(oldSettings);
+                    }
+
+                    var repoView = clone.AddComponent<RoomScanRepositionSpatialView>();
+                    repoView.SetupCloseButton(closeBtn);
+                    _generatedRepositionPrefab = repoView;
+                }
+
+                PopupsViewer.Instance.Show(_generatedRepositionPrefab);
+            }
         }
 
         public void ShowRoomScanGalleryView()

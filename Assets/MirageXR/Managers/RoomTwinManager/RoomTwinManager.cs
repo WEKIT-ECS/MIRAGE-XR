@@ -43,6 +43,12 @@ namespace MirageXR
         [SerializeField] private Material RoomTwinShader;
         [SerializeField] public RoomTwinStyle _roomTwinStyle = RoomTwinStyle.FullTwin;
 
+        public event Action OnRoomTwinStateChanged;
+        private string _currentDigitalTwinId;
+        private LearningExperienceEngine.DataModel.Location _digitalTwinLocation = LearningExperienceEngine.DataModel.Location.GetIdentityLocation();
+
+        public string CurrentDigitalTwinId => _currentDigitalTwinId;
+
         private LearningExperienceEngine.IAuthorizationManager _authorizationManager;
         private Dictionary<string, Texture2D> thumbnailCache = new Dictionary<string, Texture2D>();
         private static readonly SemaphoreSlim _networkLock = new SemaphoreSlim(1, 1);
@@ -90,14 +96,195 @@ namespace MirageXR
 
             _authorizationManager = authorizationManager;
 
-            // load a local model first as the default
-            await LoadRoomTwinModelFromURLAsync(Path.Combine(Application.streamingAssetsPath, defaultScanName));
+            if (RootObject.Instance?.LEE?.ActivityManager != null)
+            {
+                RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityLoaded;
+                RootObject.Instance.LEE.ActivityManager.OnActivityClosed += OnActivityClosed;
+            }
+            if (RootObject.Instance?.CalibrationManager != null)
+            {
+                RootObject.Instance.CalibrationManager.OnCalibrated += OnCalibrated;
+            }
+
+            var activeActivity = RootObject.Instance?.LEE?.ActivityManager?.Activity;
+            if (activeActivity != null && !string.IsNullOrEmpty(activeActivity.DigitalTwin))
+            {
+                await ApplyActivityDigitalTwinAsync(activeActivity);
+            }
+            else
+            {
+                // load a local model first as the default
+                await LoadRoomTwinModelFromURLAsync(Path.Combine(Application.streamingAssetsPath, defaultScanName));
+            }
 
             UnityEngine.Debug.Log("[RoomTwinManager] registering ImmersionChanged event");
 #if UNITY_VISIONOS
             Unity.PolySpatial.VolumeCamera.ImmersionChanged += OnImmersionChanged;
 #endif
             UnityEngine.Debug.Log("Initializing [RoomTwinManager] -->");
+        }
+
+        private void OnDestroy()
+        {
+            if (RootObject.Instance?.LEE?.ActivityManager != null)
+            {
+                RootObject.Instance.LEE.ActivityManager.OnActivityLoaded -= OnActivityLoaded;
+                RootObject.Instance.LEE.ActivityManager.OnActivityClosed -= OnActivityClosed;
+            }
+            if (RootObject.Instance?.CalibrationManager != null)
+            {
+                RootObject.Instance.CalibrationManager.OnCalibrated -= OnCalibrated;
+            }
+#if UNITY_VISIONOS
+            Unity.PolySpatial.VolumeCamera.ImmersionChanged -= OnImmersionChanged;
+#endif
+        }
+
+        private void OnCalibrated(bool isCalibrated)
+        {
+            ApplyLocationTransform();
+        }
+
+        private void OnActivityLoaded(LearningExperienceEngine.DataModel.Activity activity)
+        {
+            ApplyActivityDigitalTwinAsync(activity).Forget();
+        }
+
+        private void OnActivityClosed()
+        {
+            SetRoomTwinVisibility(false);
+            _currentDigitalTwinId = null;
+            _digitalTwinLocation = LearningExperienceEngine.DataModel.Location.GetIdentityLocation();
+            _roomTwinStyle = RoomTwinStyle.FullTwin;
+            ApplyLocationTransform();
+            OnRoomTwinStateChanged?.Invoke();
+        }
+
+        public LearningExperienceEngine.DataModel.Location GetRoomTwinLocation()
+        {
+            return _digitalTwinLocation ?? LearningExperienceEngine.DataModel.Location.GetIdentityLocation();
+        }
+
+        public void SetRoomTwinLocation(LearningExperienceEngine.DataModel.Location location)
+        {
+            _digitalTwinLocation = location ?? LearningExperienceEngine.DataModel.Location.GetIdentityLocation();
+            ApplyLocationTransform();
+            OnRoomTwinStateChanged?.Invoke();
+        }
+
+        public void ApplyLocationTransform()
+        {
+            if (_roomModel == null) return;
+
+            var anchor = RootObject.Instance?.CalibrationManager?.Anchor;
+            if (anchor != null && _roomModel.transform.parent != anchor)
+            {
+                _roomModel.transform.SetParent(anchor, false);
+            }
+
+            var loc = GetRoomTwinLocation();
+            _roomModel.transform.localPosition = loc.Position;
+            _roomModel.transform.localEulerAngles = loc.Rotation;
+            _roomModel.transform.localScale = (loc.Scale == Vector3.zero) ? Vector3.one : loc.Scale;
+        }
+
+        public async UniTask<bool> AssignDigitalTwinAsync(string scanId, bool isDefaultUrl = false)
+        {
+            _currentDigitalTwinId = scanId;
+            _digitalTwinLocation = LearningExperienceEngine.DataModel.Location.GetIdentityLocation();
+            _roomTwinStyle = RoomTwinStyle.FullTwin;
+
+            bool success;
+            if (isDefaultUrl || (scanId != null && scanId.EndsWith(".glb", StringComparison.OrdinalIgnoreCase) && File.Exists(scanId)))
+            {
+                success = await LoadRoomTwinModelFromURLAsync(scanId);
+            }
+            else
+            {
+                RootObject.Instance?.RoomTwinLibraryManager?.Add(scanId);
+                success = await LoadRoomTwinModelFromId(scanId);
+            }
+
+            if (success)
+            {
+                ApplyLocationTransform();
+                SetRoomTwinStyle(_roomTwinStyle);
+                SetRoomTwinVisibility(true);
+
+                if (RootObject.Instance?.LEE?.ActivityManager?.Activity != null)
+                {
+                    RootObject.Instance.LEE.ActivityManager.SetDigitalTwin(scanId, _digitalTwinLocation, _roomTwinStyle.ToString());
+                }
+            }
+
+            OnRoomTwinStateChanged?.Invoke();
+            return success;
+        }
+
+        public void UpdateAndPersistStyle(RoomTwinStyle style)
+        {
+            SetRoomTwinStyle(style);
+            if (RootObject.Instance?.LEE?.ActivityManager?.Activity != null)
+            {
+                RootObject.Instance.LEE.ActivityManager.SetDigitalTwinStyle(style.ToString());
+            }
+            OnRoomTwinStateChanged?.Invoke();
+        }
+
+        public void UpdateAndPersistLocation(LearningExperienceEngine.DataModel.Location location)
+        {
+            SetRoomTwinLocation(location);
+            if (RootObject.Instance?.LEE?.ActivityManager?.Activity != null)
+            {
+                RootObject.Instance.LEE.ActivityManager.SetDigitalTwinLocation(location);
+            }
+            OnRoomTwinStateChanged?.Invoke();
+        }
+
+        public async UniTask ApplyActivityDigitalTwinAsync(LearningExperienceEngine.DataModel.Activity activity)
+        {
+            if (activity == null || string.IsNullOrEmpty(activity.DigitalTwin))
+            {
+                SetRoomTwinVisibility(false);
+                _currentDigitalTwinId = null;
+                _digitalTwinLocation = LearningExperienceEngine.DataModel.Location.GetIdentityLocation();
+                _roomTwinStyle = RoomTwinStyle.FullTwin;
+                ApplyLocationTransform();
+                OnRoomTwinStateChanged?.Invoke();
+                return;
+            }
+
+            if (Enum.TryParse<RoomTwinStyle>(activity.DigitalTwinStyle, true, out var parsedStyle))
+            {
+                _roomTwinStyle = parsedStyle;
+            }
+            else
+            {
+                _roomTwinStyle = RoomTwinStyle.FullTwin;
+            }
+
+            _digitalTwinLocation = activity.DigitalTwinLocation ?? LearningExperienceEngine.DataModel.Location.GetIdentityLocation();
+            if (_digitalTwinLocation.Scale == Vector3.zero)
+            {
+                _digitalTwinLocation.Scale = Vector3.one;
+            }
+
+            _currentDigitalTwinId = activity.DigitalTwin;
+            RootObject.Instance?.RoomTwinLibraryManager?.Add(_currentDigitalTwinId);
+
+            if (_currentDigitalTwinId == defaultScanName)
+            {
+                await LoadRoomTwinModelFromURLAsync(Path.Combine(Application.streamingAssetsPath, defaultScanName));
+            }
+            else
+            {
+                await LoadRoomTwinModelFromId(_currentDigitalTwinId);
+            }
+
+            ApplyLocationTransform();
+            SetRoomTwinStyle(_roomTwinStyle);
+            SetRoomTwinVisibility(true);
+            OnRoomTwinStateChanged?.Invoke();
         }
 
         // Update is called once per frame
@@ -199,6 +386,7 @@ namespace MirageXR
                 _WireframeBlendInCompleted = true;
             }
             RootObject.Instance?.PointCloudManager?.UpdateMeshRenderers();
+            OnRoomTwinStateChanged?.Invoke();
         }
 
         /// <summary>
@@ -211,6 +399,7 @@ namespace MirageXR
 
             if (_roomModel == null)
             {
+                OnRoomTwinStateChanged?.Invoke();
                 return;
             }
 
@@ -291,6 +480,8 @@ namespace MirageXR
 
                 var instantiator = new GameObjectInstantiator(_gltf, _roomModel.transform);
                 await _gltf.InstantiateMainSceneAsync(instantiator); // transform
+
+                ApplyLocationTransform();
 
                 // Cache original imported materials before any style is applied
                 CacheOriginalMaterials(_roomModel);

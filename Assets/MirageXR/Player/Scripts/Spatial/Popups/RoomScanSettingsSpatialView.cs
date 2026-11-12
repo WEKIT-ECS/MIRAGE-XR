@@ -10,6 +10,8 @@ namespace MirageXR
         [SerializeField] private Toggle _toggleTwinVignette;
         [SerializeField] private Toggle _toggleFullTwin;
         [SerializeField] private Toggle _toggleOcclusion;
+
+        public Button CloseButton => _btnClose;
         
         private static RoomTwinManager roomTwinManager => RootObject.Instance.RoomTwinManager;
         private bool _isUpdatingToggles;
@@ -58,7 +60,7 @@ namespace MirageXR
             if (_isUpdatingToggles) return;
             if (value)
             {
-                roomTwinManager.SetRoomTwinStyle(RoomTwinStyle.FullTwin);
+                roomTwinManager.UpdateAndPersistStyle(RoomTwinStyle.FullTwin);
                 UpdateToggleStates(RoomTwinStyle.FullTwin);
             }
             else
@@ -72,7 +74,7 @@ namespace MirageXR
             if (_isUpdatingToggles) return;
             if (value)
             {
-                roomTwinManager.SetRoomTwinStyle(RoomTwinStyle.TwinVignette);
+                roomTwinManager.UpdateAndPersistStyle(RoomTwinStyle.TwinVignette);
                 UpdateToggleStates(RoomTwinStyle.TwinVignette);
             }
             else
@@ -86,7 +88,7 @@ namespace MirageXR
             if (_isUpdatingToggles) return;
             if (value)
             {
-                roomTwinManager.SetRoomTwinStyle(RoomTwinStyle.Occlusion);
+                roomTwinManager.UpdateAndPersistStyle(RoomTwinStyle.Occlusion);
                 UpdateToggleStates(RoomTwinStyle.Occlusion);
             }
             else

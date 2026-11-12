@@ -136,6 +136,7 @@ namespace MirageXR
         public void SetActionOnButtonWireframeVignetteClick(UnityAction action) => _buttonWireframeVignette.SafeSetListener(action);
         public void SetActionOnButtonAssignRoomModelClick(UnityAction action) => _buttonAssignRoomModel.SafeSetListener(action);
         public void SetActionOnToggleShowRoomScanValueChanged(UnityAction<bool> action) => _toggleShowRoomScan.SafeSetListener(action);
+        public void SetIsToggleShowRoomScanOnWithoutNotify(bool value) => _toggleShowRoomScan.SafeSetIsOn(value);
         public void SetActionOnButtonRepositionClick(UnityAction action) => _buttonReposition.SafeSetListener(action);
 
         public void SetAssignRoomModelInteractable(bool value)
