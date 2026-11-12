@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -49,9 +49,6 @@ namespace MirageXR
         {
             // Makes no sense to use gaze guide with audio...
             UseGuide = false;
-
-            var actionEditor = FindObjectOfType<ActionEditor>();
-            audioEditor = (AudioEditor)actionEditor.CreateEditorView(LearningExperienceEngine.ContentType.AUDIO);
         }
 
         /// <summary>

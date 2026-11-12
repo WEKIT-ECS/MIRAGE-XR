@@ -1,19 +1,25 @@
+using System;
 using System.Threading.Tasks;
 using MirageXR;
 using UnityEngine;
 
 public class FloorManagerEditor : FloorManagerBase
 {
+    public override event Action<float> OnFloorLevelChanged;
+
     private GameObject _prefabAnchor;
     private EditorPlaneBehaviour _plane;
     private Vector3 _floorLevel;
     private bool _enableColliders;
     private PlaneId _planeId;
     private GameObject _anchor;
+    private bool _isManualFloor;
 
     public override float floorLevel => _floorLevel.y;
 
-    public override bool isFloorDetected => _planeId != PlaneId.InvalidId;
+    public override bool isFloorDetected => true;
+
+    public override bool isManualFloor => _isManualFloor;
 
     public GameObject prefabAnchor
     {
@@ -23,15 +29,19 @@ public class FloorManagerEditor : FloorManagerBase
 
     public override Task<bool> InitializationAsync(IViewManager viewManager, PlaneManagerWrapper planeManager)
     {
-        _planeId = PlaneId.InvalidId;
+        _planeId = new PlaneId(1, 1);
         _floorLevel = new Vector3(0, _DEFAULT_FLOOR_LEVEL, 0);
+        _isManualFloor = false;
+        OnFloorLevelChanged?.Invoke(_floorLevel.y);
         return Task.FromResult(true);
     }
 
     public override Task<bool> ResetAsync()
     {
         _floorLevel = new Vector3(0, _DEFAULT_FLOOR_LEVEL, 0);
-        _planeId = PlaneId.InvalidId;
+        _planeId = new PlaneId(1, 1);
+        _isManualFloor = false;
+        OnFloorLevelChanged?.Invoke(_floorLevel.y);
         return Task.FromResult(true);
     }
 
@@ -49,7 +59,9 @@ public class FloorManagerEditor : FloorManagerBase
 
     public override void SetFloor(PlaneId planeId, Vector3 position)
     {
+        _isManualFloor = true;
         _planeId = planeId;
         _floorLevel = position;
+        OnFloorLevelChanged?.Invoke(_floorLevel.y);
     }
 }

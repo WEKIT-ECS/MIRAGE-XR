@@ -1,5 +1,4 @@
-﻿using i5.Toolkit.Core.VerboseLogging;
-using Microsoft.MixedReality.Toolkit.UI;
+using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
 
 namespace MirageXR

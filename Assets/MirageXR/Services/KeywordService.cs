@@ -1,4 +1,4 @@
-﻿using i5.Toolkit.Core.ServiceCore;
+using i5.Toolkit.Core.ServiceCore;
 using System.Collections.Generic;
 using LearningExperienceEngine;
 
@@ -7,7 +7,6 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Windows.Speech;
-using Microsoft.MixedReality.Toolkit.Input;
 #endif
 
 namespace MirageXR
@@ -86,21 +85,6 @@ namespace MirageXR
             AddPromptsToKeyword("Save", () => LearningExperienceEngine.EventManager.SaveActivity());
             AddPromptsToKeyword("Upload", () => EventManager.UploadActivityByVoice());
             AddPromptsToKeyword("Turn on Edit Mode", () => {  ActivityEditor.Instance.OnEditToggleChanged(true); });
-            AddPromptsToKeyword("Turn off Edit Mode", () => {  ActivityEditor.Instance.OnEditToggleChanged(false); });
-            AddPromptsToKeyword("Add Image", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.IMAGE); });
-            AddPromptsToKeyword("Add Act", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.ACT); });
-            AddPromptsToKeyword("Add Glyph", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.ACT); });
-            AddPromptsToKeyword("Add Audio", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.AUDIO); });
-            AddPromptsToKeyword("Add Video", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.VIDEO); });
-            AddPromptsToKeyword("Add Visual effect", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.EFFECTS); });
-            AddPromptsToKeyword("Add Character", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.CHARACTER); });
-            AddPromptsToKeyword("Add Ghost", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.GHOST); });
-            AddPromptsToKeyword("Add Label", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.LABEL); });
-            AddPromptsToKeyword("Add Pick and Place", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.PICKANDPLACE); });
-            AddPromptsToKeyword("Add Image Marker", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.IMAGEMARKER); });
-            AddPromptsToKeyword("Add Model", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.MODEL); });
-            AddPromptsToKeyword("Add Plugin", () => { ActionEditor.Instance.OnAnnotationAddItemSelected(ContentType.PLUGIN); });
-
             // Tell the KeywordRecognizer about our keywords.
             Debug.Log("Registering keywords");
             keywordRecognizer = new KeywordRecognizer(keywords.Keys.ToArray());

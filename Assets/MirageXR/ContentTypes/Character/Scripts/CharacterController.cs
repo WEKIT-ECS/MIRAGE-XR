@@ -1,4 +1,4 @@
-﻿using LearningExperienceEngine;
+using LearningExperienceEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 using System;
 using System.IO;
 using System.Linq;
-using Microsoft.MixedReality.Toolkit.UI;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using i5.Toolkit.Core.VerboseLogging;
 
 namespace MirageXR
@@ -186,15 +184,10 @@ namespace MirageXR
                 UnityEngine.Random.Range(0f, 1f),
                 UnityEngine.Random.Range(0f, 1f));
 
-            var objectManipulator = transform.parent.GetComponent<ObjectManipulator>();
-            if (objectManipulator)
+            var simpleBoundingBox = transform.parent != null ? transform.parent.GetComponent<SimpleBoundingBox>() : null;
+            if (simpleBoundingBox)
             {
-                // disable fully one hand manipulation
-                objectManipulator.ManipulationType = Microsoft.MixedReality.Toolkit.Utilities.ManipulationHandFlags.TwoHanded;
-                // only scale on two hand manipulation
-                objectManipulator.TwoHandedManipulationType = Microsoft.MixedReality.Toolkit.Utilities.TransformFlags.Scale;
-
-                objectManipulator.OnManipulationEnded.AddListener(delegate { FitSpeedToSize(); });
+                simpleBoundingBox.ScaleStopped.AddListener(delegate { FitSpeedToSize(); });
             }
 
             // add NavMeshObstacle to the camera to avoid collision between the camera and the character
@@ -1090,7 +1083,7 @@ namespace MirageXR
                 _characterSetting.transform.GetChild(0).gameObject.SetActive(false); //child 0 is the background gameobject (the parent of all other settings)
 
                 //disable all bound box
-                Destinations.ForEach(d => d.GetComponent<BoundsControl>().Active = false);
+                Destinations.ForEach(d => { var bb = d.GetComponent<SimpleBoundingBox>(); if (bb != null) bb.Active = false; });
             }
             else
             {
@@ -1102,7 +1095,11 @@ namespace MirageXR
                 }
 
                 //enable boundbox of the last node
-                Destinations[Destinations.Count - 1].GetComponent<BoundsControl>().Active = true;
+                if (Destinations.Count > 0)
+                {
+                    var lastBb = Destinations[Destinations.Count - 1].GetComponent<SimpleBoundingBox>();
+                    if (lastBb != null) lastBb.Active = true;
+                }
             }
         }
 

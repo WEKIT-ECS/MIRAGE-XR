@@ -9,6 +9,7 @@ public class GridSettings : MonoBehaviour
     [SerializeField] private Canvas _canvas;
     [SerializeField] private Toggle _activateGridToggle;
     [SerializeField] private Toggle _snapToGridToggle;
+    [SerializeField] private Toggle _showMeshToggle;
     [SerializeField] private Toggle _showOriginalObjectToggle;
     [SerializeField] private Toggle _useObjectCenterToggle;
     [SerializeField] private Dropdown _dropdownGridStep;
@@ -24,8 +25,13 @@ public class GridSettings : MonoBehaviour
         _dropdownScaleStep.ClearOptions();
         _dropdownScaleStep.AddOptions(gridManager.optionsScaleStep);
 
-        _activateGridToggle.isOn = gridManager.gridEnabled;
+        _activateGridToggle.isOn = gridManager.snapToSurface;
         _snapToGridToggle.isOn = gridManager.snapEnabled;
+        if (_showMeshToggle != null)
+        {
+            _showMeshToggle.isOn = gridManager.showMesh;
+            _showMeshToggle.onValueChanged.AddListener(OnShowMeshValueChanged);
+        }
         _showOriginalObjectToggle.isOn = gridManager.showOriginalObject;
         _useObjectCenterToggle.isOn = gridManager.useObjectCenter;
 
@@ -33,7 +39,7 @@ public class GridSettings : MonoBehaviour
         _dropdownAngleStep.SetValueWithoutNotify(gridManager.valuesAngleStep.IndexOf(gridManager.angleStep));
         _dropdownScaleStep.SetValueWithoutNotify(gridManager.valuesScaleStep.IndexOf(gridManager.scaleStep));
 
-        _activateGridToggle.onValueChanged.AddListener(OnActivateGridToggleValueChanged);
+        _activateGridToggle.onValueChanged.AddListener(OnSnapToSurfaceToggleValueChanged);
         _snapToGridToggle.onValueChanged.AddListener(OnSnapToGridToggleValueChanged);
         _showOriginalObjectToggle.onValueChanged.AddListener(OnShowOriginalObjectValueChanged);
         _useObjectCenterToggle.onValueChanged.AddListener(OnUseObjectCenterValueChanged);
@@ -82,21 +88,19 @@ public class GridSettings : MonoBehaviour
         gridManager.SetShowOriginalObject(value);
     }
 
+    private void OnShowMeshValueChanged(bool value)
+    {
+        gridManager.SetShowMesh(value);
+    }
+
     private void OnUseObjectCenterValueChanged(bool value)
     {
         gridManager.SetUseObjectCenter(value);
     }
 
-    private void OnActivateGridToggleValueChanged(bool value)
+    private void OnSnapToSurfaceToggleValueChanged(bool value)
     {
-        if (value)
-        {
-            gridManager.EnableGrid();
-        }
-        else
-        {
-            gridManager.DisableGrid();
-        }
+        gridManager.SetSnapToSurface(value);
     }
 
     private void OnItemGridStepChanged(int item)

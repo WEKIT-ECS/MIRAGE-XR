@@ -1,5 +1,4 @@
-﻿using LearningExperienceEngine;
-using Microsoft.MixedReality.Toolkit.UI;
+using LearningExperienceEngine;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
@@ -99,8 +98,8 @@ namespace MirageXR
 
         private void MoveActivityList()
         {
-            var activityList = FindObjectOfType<ActivitySelectionMenu>().gameObject;
-            if (ActionList == null || !ActionList.activeInHierarchy) return;
+            var activityList = GameObject.Find("ActivitySelectionMenu");
+            if (activityList == null || ActionList == null || !ActionList.activeInHierarchy) return;
 
             SetPosition(activityList);
             LookAtCamera(activityList);
@@ -174,9 +173,9 @@ namespace MirageXR
         /// </summary>
         public void HideSelectionPanel()
         {
-            var ActivitySelectionPanel = FindObjectOfType<ActivitySelectionMenu>();
-            if (ActivitySelectionPanel != null)
-                ActivitySelectionPanel.gameObject.SetActive(false);
+            var activitySelectionPanel = GameObject.Find("ActivitySelectionMenu");
+            if (activitySelectionPanel != null)
+                activitySelectionPanel.SetActive(false);
         }
 
 
@@ -194,7 +193,6 @@ namespace MirageXR
         /// </summary>
         private void OpenAnnotationVoice()
         {
-            ActionEditor.Instance.OnAddButtonToggle();
         }
 
         private void CreateCalibrationGuide()
@@ -211,9 +209,6 @@ namespace MirageXR
                 guildeObject.name = "CalibrationGuide";
                 var okButton = guildeObject.transform.FindDeepChild("OKButton");
                 okButton.GetComponent<Button>().onClick.AddListener(() => { Destroy(guildeObject, 0.1f); });
-                okButton.GetComponent<PressableButton>().ButtonPressed.AddListener(() => { Destroy(guildeObject, 0.1f); });
-
-                guildeObject.transform.FindDeepChild("OKButton").GetComponent<Button>().onClick.AddListener(() => { Destroy(guildeObject, 0.1f); });
             }
         }
 
@@ -461,16 +456,22 @@ namespace MirageXR
 
         public void LockMenuVoice()
         {
-            var SpriteToggle = ActionList.GetComponent<WindowMovement>().SpriteToggle;
-            SpriteToggle.IsSelected = true;
-            SpriteToggle.ToggleValue();
+            var spriteToggle = ActionList != null ? ActionList.GetComponentInChildren<SpriteToggle>() : null;
+            if (spriteToggle != null)
+            {
+                spriteToggle.IsSelected = true;
+                spriteToggle.ToggleValue();
+            }
         }
 
         public void ReleaseMenuVoice()
         {
-            var SpriteToggle = ActionList.GetComponent<WindowMovement>().SpriteToggle;
-            SpriteToggle.IsSelected = false;
-            SpriteToggle.ToggleValue();
+            var spriteToggle = ActionList != null ? ActionList.GetComponentInChildren<SpriteToggle>() : null;
+            if (spriteToggle != null)
+            {
+                spriteToggle.IsSelected = false;
+                spriteToggle.ToggleValue();
+            }
         }
 
         public void ToggleFind()
@@ -521,11 +522,20 @@ namespace MirageXR
             LearningExperienceEngine.EventManager.ClearAll();
         }
 
-        public void StartActivityVoice()
+        public async void StartActivityVoice()
         {
-            var activitySelectionMenu = FindObjectOfType<ActivitySelectionMenu>();
-            if (activitySelectionMenu != null && !_inAction) // this should work only if no other activity is loaded.
-                activitySelectionMenu.OpenRecorder();
+            if (!_inAction)
+            {
+                Loading.Instance?.LoadingVisibility(true);
+                if (RootObject.Instance?.EditorSceneService != null)
+                {
+                    await RootObject.Instance.EditorSceneService.LoadEditorAsync();
+                }
+                if (LearningExperienceEngine.LearningExperienceEngine.Instance?.ActivityManagerOld != null)
+                {
+                    await LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.CreateNewActivity();
+                }
+            }
         }
 
         public void NextVoice()

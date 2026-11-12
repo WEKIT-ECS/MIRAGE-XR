@@ -52,26 +52,32 @@ public abstract class PopupEditorBase : PopupBase
 
     protected virtual Vector3 GetOffset()
     {
+        var mainCamera = Camera.main;
+        var startingPosition = mainCamera ? mainCamera.transform.position + mainCamera.transform.forward * 1.5f : Vector3.forward * 1.5f;
+
         var workplaceManager = LearningExperienceEngine.LearningExperienceEngine.Instance.WorkplaceManager;
         var detectable = workplaceManager.GetDetectable(workplaceManager.GetPlaceFromTaskStationId(_step.id));
-        var annotationStartingPoint = ActionEditor.Instance.GetDefaultAugmentationStartingPoint();
+        if (detectable == null)
+        {
+            return startingPosition;
+        }
+
         var originT = GameObject.Find(detectable.id);   // TODO: replace by direct reference to the object
         if (!originT)
         {
             Debug.LogError($"Can't find detectable {detectable.id}");
-            return annotationStartingPoint.transform.position;
+            return startingPosition;
         }
 
         var detectableBehaviour = originT.GetComponent<DetectableBehaviour>();
-
         if (!detectableBehaviour)
         {
             Debug.LogError($"Can't find DetectableBehaviour");
-            return annotationStartingPoint.transform.position;
+            return startingPosition;
         }
 
         var attachedObject = detectableBehaviour.AttachedObject;
-        return attachedObject.transform.InverseTransformPoint(annotationStartingPoint.transform.position);
+        return attachedObject ? attachedObject.transform.InverseTransformPoint(startingPosition) : startingPosition;
     }
 
     protected override bool TryToGetArguments(params object[] args)

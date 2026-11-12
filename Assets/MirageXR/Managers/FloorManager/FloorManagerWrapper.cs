@@ -11,7 +11,6 @@ public class FloorManagerWrapper : MonoBehaviour
         Default,
         Editor,
         ARFoundation,
-        MRTK,
     }
 
     [SerializeField] private ForceManagerType _forceManagerType = ForceManagerType.Default;
@@ -24,7 +23,7 @@ public class FloorManagerWrapper : MonoBehaviour
     {
         UnityEngine.Debug.Log("Initializing [FloorManagerWrapper] <--");
 #if UNITY_WSA
-        _forceManagerType = ForceManagerType.MRTK;
+        _forceManagerType = ForceManagerType.ARFoundation;
 #elif !UNITY_EDITOR && (UNITY_ANDROID || UNITY_IOS || UNITY_VISIONOS || VISION_OS)
         _forceManagerType = ForceManagerType.ARFoundation;
 #else
@@ -36,6 +35,8 @@ public class FloorManagerWrapper : MonoBehaviour
         {
             return;
         }
+
+        _floorManager.OnFloorLevelChanged += (level) => OnFloorLevelChanged?.Invoke(level);
 
         try
         {
@@ -52,9 +53,25 @@ public class FloorManagerWrapper : MonoBehaviour
         UnityEngine.Debug.Log("Initializing [FloorManagerWrapper] -->");
     }
 
-    public float floorLevel => _floorManager.floorLevel;
+    public event Action<float> OnFloorLevelChanged;
 
-    public bool isFloorDetected => _floorManager.isFloorDetected;
+    public float floorLevel => _floorManager != null ? _floorManager.floorLevel : -1.6f;
+
+    public bool isFloorDetected => _floorManager != null && _floorManager.isFloorDetected;
+
+    public bool isManualFloor => _floorManager != null && _floorManager.isManualFloor;
+
+    public GameObject PrefabAnchor
+    {
+        get
+        {
+#if UNITY_EDITOR
+            return _prefabEditorAnchor != null ? _prefabEditorAnchor : _prefabARFoundationAnchor;
+#else
+            return _prefabARFoundationAnchor != null ? _prefabARFoundationAnchor : _prefabEditorAnchor;
+#endif
+        }
+    }
 
     public Task<bool> ResetAsync()
     {
@@ -72,6 +89,11 @@ public class FloorManagerWrapper : MonoBehaviour
         RootObject.Instance.PlaneManager.SelectPlane(planeId);
     }
 
+    public void ForceDetectFloor()
+    {
+        _floorManager?.ForceDetectFloor();
+    }
+
     private IFloorManager CreateFloorManager()
     {
         switch (_forceManagerType)
@@ -86,8 +108,6 @@ public class FloorManagerWrapper : MonoBehaviour
                 var managerARFoundation = gameObject.AddComponent<FloorManagerARFoundation>();
                 managerARFoundation.prefabAnchor = _prefabARFoundationAnchor;
                 return managerARFoundation;
-            case ForceManagerType.MRTK:
-                return gameObject.AddComponent<FloorManagerMRTK>();
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -102,7 +122,8 @@ public class FloorManagerWrapper : MonoBehaviour
         var floorManager = gameObject.AddComponent<FloorManagerARFoundation>();
         floorManager.prefabAnchor = _prefabARFoundationAnchor;
 #else
-        var floorManager = gameObject.AddComponent<FloorManagerMRTK>();
+        var floorManager = gameObject.AddComponent<FloorManagerARFoundation>();
+        floorManager.prefabAnchor = _prefabARFoundationAnchor;
 #endif
         return floorManager;
     }

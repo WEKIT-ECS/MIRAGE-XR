@@ -39,6 +39,7 @@ namespace MirageXR
         [SerializeField] private AudioDeviceSpatialView _audioDevicePrefab;
         [SerializeField] private SketchfabSignInPopupView sketchfabSignInPopupViewPrefab;
         [SerializeField] private ChangeUserAvatarView _changeUserAvatarViewPrefab;
+        [SerializeField] private GridSettingsSpatialView _gridSettingsViewPrefab;
         public void SetActionOnButtonLoginClick(UnityAction action) => _buttonLogin.SafeSetListener(action);
         public void SetActionOnButtonServerAddressClick(UnityAction action) => _btnServerAddress.SafeSetListener(action);
         public void SetActionOnButtonServerPortClick(UnityAction action) => _btnServerPort.SafeSetListener(action);
@@ -62,6 +63,7 @@ namespace MirageXR
         public AudioDeviceSpatialView GetAudioDevicePrefab() => _audioDevicePrefab;
         public SketchfabSignInPopupView GetSketchfabSignInPopupViewPrefab() => sketchfabSignInPopupViewPrefab;
         public ChangeUserAvatarView GetChangeUserAvatarViewPrefab() => _changeUserAvatarViewPrefab;
+        public GridSettingsSpatialView GetGridSettingsViewPrefab() => _gridSettingsViewPrefab;
 
         public void ShowSignInPanel()
         {

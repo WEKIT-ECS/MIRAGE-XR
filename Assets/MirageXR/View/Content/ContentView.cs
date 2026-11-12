@@ -148,6 +148,9 @@ namespace MirageXR.View
             xrGrabInteractable.throwOnDetach = false;
             xrGrabInteractable.reinitializeDynamicAttachEverySingleGrab = false;
             xrGrabInteractable.selectMode = InteractableSelectMode.Multiple;
+            xrGrabInteractable.allowGazeInteraction = true;
+            xrGrabInteractable.allowGazeSelect = true;
+            xrGrabInteractable.allowGazeAssistance = true;
             xrGrabInteractable.selectEntered.AddListener(_ => OnManipulationStarted());
             xrGrabInteractable.selectExited.AddListener(_ => OnManipulationEnded());
 
@@ -165,7 +168,13 @@ namespace MirageXR.View
         protected virtual void OnManipulationStarted()
         {
             _isSelected = true;
-            _onManipulationStarted.Invoke(transform);   
+            _onManipulationStarted.Invoke(transform);
+
+            var gridManager = RootObject.Instance?.GridManager;
+            if (gridManager != null && (gridManager.snapEnabled || gridManager.snapToSurface))
+            {
+                gridManager.onManipulationStarted?.Invoke(gameObject);
+            }
         }
 
         protected virtual void OnManipulation()
@@ -176,6 +185,13 @@ namespace MirageXR.View
         protected virtual void OnManipulationEnded()
         {
             _isSelected = false;
+
+            var gridManager = RootObject.Instance?.GridManager;
+            if (gridManager != null && (gridManager.snapEnabled || gridManager.snapToSurface))
+            {
+                gridManager.onManipulationEnded?.Invoke(gameObject);
+            }
+
             Content.Location.Position = transform.localPosition;
             Content.Location.Rotation = transform.localEulerAngles;
             Content.Location.Scale = transform.localScale;

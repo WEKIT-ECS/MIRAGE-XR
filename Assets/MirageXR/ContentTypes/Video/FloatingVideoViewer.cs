@@ -1,7 +1,5 @@
-﻿using i5.Toolkit.Core.ServiceCore;
+using i5.Toolkit.Core.ServiceCore;
 using LearningExperienceEngine;
-using Microsoft.MixedReality.Toolkit.UI;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Collections;
 using System.IO;
 using UnityEngine;
@@ -578,14 +576,13 @@ namespace MirageXR
             {
                 _obj.positionLock = locked;
 
-                GetComponent<BoundsControl>().enabled = !_obj.positionLock;
+                var bb = GetComponent<SimpleBoundingBox>();
+                if (bb != null)
+                {
+                    bb.SetEnabled(!_obj.positionLock);
+                }
 
                 GetComponentInParent<PoiEditor>().IsLocked(_obj.positionLock);
-
-                if (gameObject.GetComponent<ObjectManipulator>())
-                {
-                    gameObject.GetComponent<ObjectManipulator>().enabled = !_obj.positionLock;
-                }
             }
         }
 

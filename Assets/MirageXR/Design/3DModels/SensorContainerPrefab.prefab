@@ -223,7 +223,6 @@ GameObject:
   - component: {fileID: 65466929096669338}
   - component: {fileID: 114754863987214994}
   - component: {fileID: 7614827921890466537}
-  - component: {fileID: 7816465576984543387}
   - component: {fileID: 3760193878306872664}
   m_Layer: 5
   m_Name: SensorContainerPrefab
@@ -361,30 +360,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1551928587495508}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2547b4dd088644d6aaf64f45df657c79, type: 3}
+  m_Script: {fileID: 11500000, guid: bc420da184314e98b57c340748f4e504, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pivotAxis: 6
+  _pivotAxis: 6
   targetTransform: {fileID: 0}
---- !u!114 &7816465576984543387
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1551928587495508}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b55691ad5b034fe6966763a6e23818d2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  trackedTargetType: 0
-  trackedHandness: 3
-  trackedHandJoint: 2
-  transformOverride: {fileID: 0}
-  additionalOffset: {x: 0, y: 0, z: 0}
-  additionalRotation: {x: 0, y: 0, z: 0}
-  updateSolvers: 1
 --- !u!114 &3760193878306872664
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -394,7 +374,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1551928587495508}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4684083f6dff4a1d8a790bccc354fcf4, type: 3}
+  m_Script: {fileID: 11500000, guid: de642fc3a65340b0d79e562960b6e706, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   updateLinkedTransform: 0

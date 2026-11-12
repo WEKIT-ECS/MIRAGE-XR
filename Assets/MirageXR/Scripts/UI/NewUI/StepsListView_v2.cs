@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
@@ -70,6 +71,18 @@ public class StepsListView_v2 : BaseView
     private Activity _activity;
     private ActivityStep _step;
 
+    private GameObject _panelDigitalTwinSettings;
+    private SwitchToggle _toggleDigitalTwin;
+    private Toggle _toggleDigitalTwinInner;
+    private TMP_Text _txtDigitalTwinToggleHeader;
+    private Button _btnDigitalTwinStyle;
+    private TMP_Text _txtDigitalTwinStyleHeader;
+    private Button _btnAssignRoomModel;
+    private TMP_Text _txtAssignRoomModelLink;
+    private Button _btnRepositionDigitalTwin;
+    private GameObject _digitalTwinGalleryOverlay;
+    private GameObject _digitalTwinRepositionOverlay;
+
     public override void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
@@ -94,6 +107,7 @@ public class StepsListView_v2 : BaseView
         _btnWithMarker.onClick.AddListener(ShowImageTargetCalibrationView);
         _btnMarkerLess.onClick.AddListener(ShowMarkerLessCalibrationView);
         _btnShareImageMarker.onClick.AddListener(ShareCalibrationImage);
+        InitDigitalTwinCalibrationButtons();
 
         _toggleSteps.onValueChanged.AddListener(OnToggleStepValueChanged);
         _toggleInfo.onValueChanged.AddListener(OnToggleInfoValueChanged);
@@ -118,6 +132,10 @@ public class StepsListView_v2 : BaseView
         RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityUpdated;
         RootObject.Instance.LEE.StepManager.OnStepChanged += OnStepChanged;
         RootObject.Instance.CalibrationManager.OnCalibrated += OnCalibrated;
+        if (RootObject.Instance?.RoomTwinManager != null)
+        {
+            RootObject.Instance.RoomTwinManager.OnRoomTwinStateChanged += UpdateDigitalTwinButtonsUI;
+        }
 
         if (_activity == null && activityManager?.Activity != null)
         {
@@ -155,6 +173,23 @@ public class StepsListView_v2 : BaseView
             Destroy(_imgQRCode.texture);
             _imgQRCode.texture = null;
         }
+
+        if (_digitalTwinGalleryOverlay != null)
+        {
+            Destroy(_digitalTwinGalleryOverlay);
+            _digitalTwinGalleryOverlay = null;
+        }
+
+        if (_digitalTwinRepositionOverlay != null)
+        {
+            Destroy(_digitalTwinRepositionOverlay);
+            _digitalTwinRepositionOverlay = null;
+        }
+
+        if (RootObject.Instance?.RoomTwinManager != null)
+        {
+            RootObject.Instance.RoomTwinManager.OnRoomTwinStateChanged -= UpdateDigitalTwinButtonsUI;
+        }
     }
 
     private void OnActivityUpdated(Activity activity)
@@ -164,6 +199,7 @@ public class StepsListView_v2 : BaseView
         UpdateView();
         UpdateInfoFields();
         UpdateQRCode();
+        UpdateDigitalTwinButtonsUI();
     }
 
     private void OnStepChanged(ActivityStep step)
@@ -411,6 +447,7 @@ public class StepsListView_v2 : BaseView
         _calibration.SetActive(value);
         if (value)
         {
+            UpdateDigitalTwinButtonsUI();
             MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivityCalibration);
         }
     }
@@ -607,7 +644,9 @@ public class StepsListView_v2 : BaseView
     {
         //var index = _addStep.GetSiblingIndex();
         var baseCamera = RootObject.Instance.BaseCamera;
-        var position = (baseCamera.transform.forward * 0.5f) + baseCamera.transform.position;
+        var worldPos = (baseCamera.transform.forward * 0.5f) + baseCamera.transform.position;
+        var anchor = RootObject.Instance.CalibrationManager?.Anchor;
+        var position = anchor != null ? anchor.InverseTransformPoint(worldPos) : worldPos;
         var stepManager = RootObject.Instance.LEE.StepManager;
         var step = stepManager.AddStep(new Location { Position = position, Rotation = Vector3.zero, Scale = Vector3.one });
         stepManager.GoToStep(step.Id);
@@ -637,6 +676,14 @@ public class StepsListView_v2 : BaseView
         _btnThumbnail.interactable = value;
         _inputFieldActivityName.interactable = value;
         _inputFieldActivityDescription.interactable = value;
+        if (_btnAssignRoomModel != null)
+        {
+            _btnAssignRoomModel.interactable = value;
+        }
+        if (_btnRepositionDigitalTwin != null)
+        {
+            _btnRepositionDigitalTwin.interactable = value;
+        }
 
         _stepsList.ForEach(t => t.OnEditModeChanged(value));
     }
@@ -839,7 +886,1082 @@ public class StepsListView_v2 : BaseView
 
     private void ShowFloorDetectionOnlyView()
     {
-        PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, false, true, true);
+        var isEditMode = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManager.IsEditorMode;
+        PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode, false, true, true);
+    }
+
+    private void InitDigitalTwinCalibrationButtons()
+    {
+        if (_btnFloorLevel == null || _btnFloorLevel.transform.parent == null)
+        {
+            return;
+        }
+
+        var parent = _btnFloorLevel.transform.parent;
+        var templateCard = _btnWithMarker != null ? _btnWithMarker.gameObject : _btnFloorLevel.gameObject;
+        _panelDigitalTwinSettings = Instantiate(templateCard, parent, false);
+        _panelDigitalTwinSettings.name = "Panel_DigitalTwinSettings";
+
+        var boxRect = _panelDigitalTwinSettings.GetComponent<RectTransform>();
+        if (boxRect != null)
+        {
+            boxRect.sizeDelta = new Vector2(boxRect.sizeDelta.x, 315f);
+        }
+
+        var rootBtn = _panelDigitalTwinSettings.GetComponent<Button>();
+        if (rootBtn != null)
+        {
+            rootBtn.onClick = new Button.ButtonClickedEvent();
+            Destroy(rootBtn);
+        }
+
+        Transform frameTransform = null;
+        Transform arrowTransform = null;
+        Transform linkTransform = null;
+        TMP_Text headerTemplate = null;
+
+        for (int i = 0; i < _panelDigitalTwinSettings.transform.childCount; i++)
+        {
+            var child = _panelDigitalTwinSettings.transform.GetChild(i);
+            if (child.name == "Image_Frame")
+            {
+                frameTransform = child;
+                var frameImg = child.GetComponent<Image>();
+                if (frameImg != null)
+                {
+                    frameImg.raycastTarget = false;
+                }
+            }
+            else if (child.name == "Image_Arrow")
+            {
+                arrowTransform = child;
+                var arrowImg = child.GetComponent<Image>();
+                if (arrowImg != null)
+                {
+                    arrowImg.raycastTarget = false;
+                }
+            }
+            else if (child.name == "Button_Link")
+            {
+                linkTransform = child;
+            }
+            else if (child.name == "Text_Header")
+            {
+                headerTemplate = child.GetComponent<TMP_Text>();
+            }
+            else if (child.name == "Text_Description" || child.name == "Image_Marker")
+            {
+                child.gameObject.SetActive(false);
+            }
+        }
+
+        // 1. Top Row: "Show Digital Twin" Toggle (like Profile > Caption)
+        SwitchToggle templateSwitch = null;
+        if (RootView_v2.Instance != null && RootView_v2.Instance.profilePrefab != null)
+        {
+            var switches = RootView_v2.Instance.profilePrefab.GetComponentsInChildren<SwitchToggle>(true);
+            foreach (var sw in switches)
+            {
+                if (sw != null && sw.transform.parent != null &&
+                    sw.transform.parent.name.IndexOf("Caption", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    templateSwitch = sw;
+                    break;
+                }
+            }
+            if (templateSwitch == null && switches.Length > 0)
+            {
+                templateSwitch = switches[0];
+            }
+        }
+        if (templateSwitch == null && _calibrationViewPrefab != null)
+        {
+            templateSwitch = _calibrationViewPrefab.GetComponentInChildren<SwitchToggle>(true);
+        }
+
+        if (templateSwitch != null && templateSwitch.transform.parent != null)
+        {
+            var toggleRowObj = Instantiate(templateSwitch.transform.parent.gameObject, _panelDigitalTwinSettings.transform, false);
+            toggleRowObj.name = "Row_ShowDigitalTwin";
+            toggleRowObj.SetActive(true);
+
+            var toggleRowRect = toggleRowObj.GetComponent<RectTransform>();
+            if (toggleRowRect != null)
+            {
+                toggleRowRect.anchorMin = new Vector2(0f, 1f);
+                toggleRowRect.anchorMax = new Vector2(1f, 1f);
+                toggleRowRect.pivot = new Vector2(0.5f, 0.5f);
+                toggleRowRect.anchoredPosition = new Vector2(0f, -45f);
+                toggleRowRect.sizeDelta = new Vector2(0f, 55f);
+            }
+
+            for (int i = 0; i < toggleRowObj.transform.childCount; i++)
+            {
+                var c = toggleRowObj.transform.GetChild(i);
+                if (c.name == "Background" || c.name == "Divider")
+                {
+                    c.gameObject.SetActive(false);
+                }
+            }
+
+            _txtDigitalTwinToggleHeader = toggleRowObj.GetComponentInChildren<TMP_Text>(true);
+            if (_txtDigitalTwinToggleHeader != null)
+            {
+                _txtDigitalTwinToggleHeader.gameObject.SetActive(true);
+                _txtDigitalTwinToggleHeader.text = "Show Digital Twin";
+                _txtDigitalTwinToggleHeader.fontSize = 34f;
+                _txtDigitalTwinToggleHeader.alignment = TextAlignmentOptions.MidlineLeft;
+                var labelRect = _txtDigitalTwinToggleHeader.GetComponent<RectTransform>();
+                if (labelRect != null)
+                {
+                    labelRect.anchorMin = Vector2.zero;
+                    labelRect.anchorMax = Vector2.one;
+                    labelRect.pivot = new Vector2(0.5f, 0.5f);
+                    labelRect.offsetMin = new Vector2(30f, 0f);
+                    labelRect.offsetMax = new Vector2(-130f, 0f);
+                }
+            }
+
+            _toggleDigitalTwin = toggleRowObj.GetComponentInChildren<SwitchToggle>(true);
+            if (_toggleDigitalTwin != null)
+            {
+                _toggleDigitalTwin.gameObject.SetActive(true);
+                var switchRect = _toggleDigitalTwin.GetComponent<RectTransform>();
+                if (switchRect != null)
+                {
+                    switchRect.anchorMin = new Vector2(1f, 0.5f);
+                    switchRect.anchorMax = new Vector2(1f, 0.5f);
+                    switchRect.pivot = new Vector2(1f, 0.5f);
+                    switchRect.anchoredPosition = new Vector2(-30f, 0f);
+                    switchRect.sizeDelta = new Vector2(80f, 50f);
+                }
+
+                _toggleDigitalTwinInner = _toggleDigitalTwin.GetComponent<Toggle>() ?? _toggleDigitalTwin.GetComponentInChildren<Toggle>(true);
+                if (_toggleDigitalTwinInner != null)
+                {
+                    int persistentCount = _toggleDigitalTwinInner.onValueChanged.GetPersistentEventCount();
+                    for (int i = 0; i < persistentCount; i++)
+                    {
+                        _toggleDigitalTwinInner.onValueChanged.SetPersistentListenerState(i, UnityEngine.Events.UnityEventCallState.Off);
+                    }
+                    _toggleDigitalTwinInner.onValueChanged.RemoveAllListeners();
+                }
+
+                _toggleDigitalTwin.EnsureInitialized();
+                _toggleDigitalTwin.onValueChanged.AddListener(OnToggleDigitalTwinValueChanged);
+            }
+        }
+
+        // 2. Row 2: "Digital Twin Style" Selector
+        var styleRowObj = new GameObject("Button_DigitalTwinStyle", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+        styleRowObj.transform.SetParent(_panelDigitalTwinSettings.transform, false);
+        var styleRowRect = styleRowObj.GetComponent<RectTransform>();
+        styleRowRect.anchorMin = new Vector2(0f, 1f);
+        styleRowRect.anchorMax = new Vector2(1f, 1f);
+        styleRowRect.pivot = new Vector2(0.5f, 0.5f);
+        styleRowRect.anchoredPosition = new Vector2(0f, -105f);
+        styleRowRect.sizeDelta = new Vector2(0f, 55f);
+
+        var styleRowImg = styleRowObj.GetComponent<Image>();
+        styleRowImg.color = Color.clear;
+        styleRowImg.raycastTarget = true;
+
+        _btnDigitalTwinStyle = styleRowObj.GetComponent<Button>();
+        _btnDigitalTwinStyle.targetGraphic = styleRowImg;
+        _btnDigitalTwinStyle.onClick.AddListener(OnSelectDigitalTwinStyleClicked);
+
+        GameObject repoHeaderObj = null;
+        if (headerTemplate != null)
+        {
+            repoHeaderObj = Instantiate(headerTemplate.gameObject);
+            headerTemplate.transform.SetParent(styleRowObj.transform, false);
+            headerTemplate.gameObject.SetActive(true);
+            headerTemplate.raycastTarget = false;
+            headerTemplate.fontSize = 34f;
+            headerTemplate.alignment = TextAlignmentOptions.MidlineLeft;
+            var headerRect = headerTemplate.GetComponent<RectTransform>();
+            if (headerRect != null)
+            {
+                headerRect.anchorMin = Vector2.zero;
+                headerRect.anchorMax = Vector2.one;
+                headerRect.pivot = new Vector2(0.5f, 0.5f);
+                headerRect.offsetMin = new Vector2(30f, 0f);
+                headerRect.offsetMax = new Vector2(-80f, 0f);
+            }
+            _txtDigitalTwinStyleHeader = headerTemplate;
+        }
+
+        GameObject repoArrowObj = null;
+        if (arrowTransform != null)
+        {
+            repoArrowObj = Instantiate(arrowTransform.gameObject);
+            arrowTransform.SetParent(styleRowObj.transform, false);
+            arrowTransform.gameObject.SetActive(true);
+            var arrowRect = arrowTransform.GetComponent<RectTransform>();
+            if (arrowRect != null)
+            {
+                arrowRect.anchorMin = new Vector2(1f, 0.5f);
+                arrowRect.anchorMax = new Vector2(1f, 0.5f);
+                arrowRect.pivot = new Vector2(0.5f, 0.5f);
+                arrowRect.anchoredPosition = new Vector2(-47f, 0f);
+                arrowRect.sizeDelta = new Vector2(35f, 35f);
+            }
+        }
+
+        // 3. Row 3: "Reposition Digital Twin" Row
+        var repoRowObj = new GameObject("Button_RepositionDigitalTwin", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+        repoRowObj.transform.SetParent(_panelDigitalTwinSettings.transform, false);
+        var repoRowRect = repoRowObj.GetComponent<RectTransform>();
+        repoRowRect.anchorMin = new Vector2(0f, 1f);
+        repoRowRect.anchorMax = new Vector2(1f, 1f);
+        repoRowRect.pivot = new Vector2(0.5f, 0.5f);
+        repoRowRect.anchoredPosition = new Vector2(0f, -165f);
+        repoRowRect.sizeDelta = new Vector2(0f, 55f);
+
+        var repoRowImg = repoRowObj.GetComponent<Image>();
+        repoRowImg.color = Color.clear;
+        repoRowImg.raycastTarget = true;
+
+        _btnRepositionDigitalTwin = repoRowObj.GetComponent<Button>();
+        _btnRepositionDigitalTwin.targetGraphic = repoRowImg;
+        _btnRepositionDigitalTwin.onClick.AddListener(OpenDigitalTwinRepositionOverlay);
+        _btnRepositionDigitalTwin.interactable = activityManager != null && activityManager.IsEditorMode;
+
+        if (repoHeaderObj != null)
+        {
+            repoHeaderObj.transform.SetParent(repoRowObj.transform, false);
+            repoHeaderObj.name = "Text_RepositionHeader";
+            repoHeaderObj.SetActive(true);
+            var repoHeaderTxt = repoHeaderObj.GetComponent<TMP_Text>();
+            if (repoHeaderTxt != null)
+            {
+                repoHeaderTxt.text = "Reposition Digital Twin";
+                repoHeaderTxt.fontSize = 34f;
+                repoHeaderTxt.alignment = TextAlignmentOptions.MidlineLeft;
+                repoHeaderTxt.raycastTarget = false;
+            }
+            var repoHeaderRect = repoHeaderObj.GetComponent<RectTransform>();
+            if (repoHeaderRect != null)
+            {
+                repoHeaderRect.anchorMin = Vector2.zero;
+                repoHeaderRect.anchorMax = Vector2.one;
+                repoHeaderRect.pivot = new Vector2(0.5f, 0.5f);
+                repoHeaderRect.offsetMin = new Vector2(30f, 0f);
+                repoHeaderRect.offsetMax = new Vector2(-80f, 0f);
+            }
+        }
+
+        if (repoArrowObj != null)
+        {
+            repoArrowObj.transform.SetParent(repoRowObj.transform, false);
+            repoArrowObj.name = "Image_Arrow_Reposition";
+            repoArrowObj.SetActive(true);
+            var repoArrowRect = repoArrowObj.GetComponent<RectTransform>();
+            if (repoArrowRect != null)
+            {
+                repoArrowRect.anchorMin = new Vector2(1f, 0.5f);
+                repoArrowRect.anchorMax = new Vector2(1f, 0.5f);
+                repoArrowRect.pivot = new Vector2(0.5f, 0.5f);
+                repoArrowRect.anchoredPosition = new Vector2(-47f, 0f);
+                repoArrowRect.sizeDelta = new Vector2(35f, 35f);
+            }
+        }
+
+        // 4. Bottom Row: "Add Digital Twin..." Link-Style Button (like "Get calibration image")
+        if (linkTransform == null && _btnShareImageMarker != null)
+        {
+            var clonedLink = Instantiate(_btnShareImageMarker.gameObject, _panelDigitalTwinSettings.transform, false);
+            clonedLink.name = "Button_Link";
+            linkTransform = clonedLink.transform;
+        }
+
+        if (linkTransform != null)
+        {
+            linkTransform.gameObject.SetActive(true);
+            var linkRect = linkTransform.GetComponent<RectTransform>();
+            if (linkRect != null)
+            {
+                linkRect.anchorMin = new Vector2(0f, 0f);
+                linkRect.anchorMax = new Vector2(1f, 0f);
+                linkRect.pivot = new Vector2(0.5f, 0.5f);
+                linkRect.anchoredPosition = new Vector2(-15f, 40f);
+                linkRect.sizeDelta = new Vector2(-90f, 44f);
+            }
+
+            _btnAssignRoomModel = linkTransform.GetComponent<Button>();
+            if (_btnAssignRoomModel != null)
+            {
+                _btnAssignRoomModel.onClick = new Button.ButtonClickedEvent();
+                _btnAssignRoomModel.onClick.AddListener(() => OnAssignRoomModelClickedAsync().Forget());
+                _btnAssignRoomModel.interactable = activityManager != null && activityManager.IsEditorMode;
+            }
+
+            _txtAssignRoomModelLink = linkTransform.GetComponentInChildren<TMP_Text>(true);
+            if (_txtAssignRoomModelLink != null)
+            {
+                _txtAssignRoomModelLink.text = "Add Digital Twin...";
+            }
+        }
+
+        if (frameTransform != null)
+        {
+            frameTransform.SetAsLastSibling();
+        }
+
+        UpdateDigitalTwinButtonsUI();
+    }
+
+    private void UpdateDigitalTwinButtonsUI()
+    {
+        var rtm = RootObject.Instance?.RoomTwinManager;
+        bool isShowing = rtm != null && rtm.IsRoomShowing();
+        var style = rtm != null ? rtm.GetRoomTwinStyle() : RoomTwinStyle.FullTwin;
+
+        if (_txtDigitalTwinToggleHeader != null)
+        {
+            _txtDigitalTwinToggleHeader.text = "Show Digital Twin";
+        }
+        if (_toggleDigitalTwin != null)
+        {
+            _toggleDigitalTwin.SetIsOnWithoutNotify(isShowing);
+            _toggleDigitalTwin.ForceUpdateView();
+        }
+        else if (_toggleDigitalTwinInner != null)
+        {
+            _toggleDigitalTwinInner.SetIsOnWithoutNotify(isShowing);
+        }
+
+        if (_txtDigitalTwinStyleHeader != null)
+        {
+            _txtDigitalTwinStyleHeader.text = $"Digital Twin Style: {FormatRoomTwinStyle(style)}";
+        }
+
+        if (_txtAssignRoomModelLink != null)
+        {
+            _txtAssignRoomModelLink.text = "Add Digital Twin...";
+        }
+    }
+
+    private static string FormatRoomTwinStyle(RoomTwinStyle style)
+    {
+        switch (style)
+        {
+            case RoomTwinStyle.TwinVignette:
+                return "Twin Vignette";
+            case RoomTwinStyle.FullTwin:
+                return "Full Twin";
+            case RoomTwinStyle.Occlusion:
+                return "Occlusion";
+            default:
+                return style.ToString();
+        }
+    }
+
+    private void OnToggleDigitalTwinValueChanged(bool isOn)
+    {
+        var rtm = RootObject.Instance?.RoomTwinManager;
+        if (rtm == null) return;
+
+        rtm.SetRoomTwinVisibility(isOn);
+        UpdateDigitalTwinButtonsUI();
+    }
+
+    private void OnSelectDigitalTwinStyleClicked()
+    {
+        var rtm = RootObject.Instance?.RoomTwinManager;
+        if (rtm == null || RootView_v2.Instance?.dialog == null) return;
+
+        RootView_v2.Instance.dialog.ShowMiddleMultiline(
+            "Digital Twin Style",
+            ("Twin Vignette", () =>
+            {
+                rtm.UpdateAndPersistStyle(RoomTwinStyle.TwinVignette);
+                UpdateDigitalTwinButtonsUI();
+            }, false),
+            ("Full Twin", () =>
+            {
+                rtm.UpdateAndPersistStyle(RoomTwinStyle.FullTwin);
+                UpdateDigitalTwinButtonsUI();
+            }, false),
+            ("Occlusion", () =>
+            {
+                rtm.UpdateAndPersistStyle(RoomTwinStyle.Occlusion);
+                UpdateDigitalTwinButtonsUI();
+            }, false),
+            ("Cancel", null, true));
+    }
+
+    private async UniTaskVoid OnAssignRoomModelClickedAsync()
+    {
+        var rtm = RootObject.Instance?.RoomTwinManager;
+        if (rtm == null) return;
+
+        if (_digitalTwinGalleryOverlay != null)
+        {
+            Destroy(_digitalTwinGalleryOverlay);
+            _digitalTwinGalleryOverlay = null;
+        }
+
+        VirtualInstructorViewMobile viTemplate = null;
+        if (RootView_v2.Instance != null && RootView_v2.Instance.editors != null)
+        {
+            foreach (var editor in RootView_v2.Instance.editors)
+            {
+                if (editor is VirtualInstructorViewMobile vi)
+                {
+                    viTemplate = vi;
+                    break;
+                }
+            }
+        }
+
+        var replaceModelTemplate = viTemplate != null ? viTemplate.GetComponentInChildren<ReplaceModel>(true) : null;
+        if (viTemplate != null && replaceModelTemplate != null && RootView_v2.Instance?.canvas != null)
+        {
+            await OpenDigitalTwinGalleryFromTemplateAsync(viTemplate, replaceModelTemplate);
+            return;
+        }
+
+        // Fallback if VirtualInstructorViewMobile template is unavailable
+        if (RootView_v2.Instance?.dialog == null) return;
+
+        LoadView.Instance?.Show();
+        string[] serverScans = Array.Empty<string>();
+        try
+        {
+            serverScans = await rtm.GetListOfRoomScansAsync();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+        }
+        finally
+        {
+            LoadView.Instance?.Hide();
+        }
+
+        var allScans = new List<string>();
+        var localScans = RootObject.Instance?.RoomTwinLibraryManager?.LibraryContent;
+        if (localScans != null)
+        {
+            foreach (var scan in localScans)
+            {
+                if (!string.IsNullOrEmpty(scan) && !allScans.Contains(scan))
+                {
+                    allScans.Add(scan);
+                }
+            }
+        }
+        if (serverScans != null)
+        {
+            foreach (var scan in serverScans)
+            {
+                if (!string.IsNullOrEmpty(scan) && !allScans.Contains(scan))
+                {
+                    allScans.Add(scan);
+                }
+            }
+        }
+
+        var options = new List<(string text, Action onClick, bool isWarning)>
+        {
+            ($"Default ({rtm.defaultScanName})", () => LoadDefaultRoomScanAsync().Forget(), false)
+        };
+
+        foreach (var scanId in allScans)
+        {
+            var capturedId = scanId;
+            options.Add((capturedId, () => LoadSelectedRoomScanAsync(capturedId).Forget(), false));
+        }
+
+        options.Add(("Cancel", null, true));
+        RootView_v2.Instance.dialog.ShowMiddleMultiline("Add Digital Twin...", options.ToArray());
+    }
+
+    private async UniTask OpenDigitalTwinGalleryFromTemplateAsync(VirtualInstructorViewMobile viTemplate, ReplaceModel replaceModelTemplate)
+    {
+        var rtm = RootObject.Instance?.RoomTwinManager;
+        if (rtm == null || RootView_v2.Instance?.canvas == null) return;
+
+        _digitalTwinGalleryOverlay = new GameObject("DigitalTwinGalleryOverlay", typeof(RectTransform));
+        _digitalTwinGalleryOverlay.transform.SetParent(RootView_v2.Instance.canvas.transform, false);
+        _digitalTwinGalleryOverlay.transform.SetAsLastSibling();
+
+        var overlayRect = _digitalTwinGalleryOverlay.GetComponent<RectTransform>();
+        overlayRect.anchorMin = Vector2.zero;
+        overlayRect.anchorMax = Vector2.one;
+        overlayRect.offsetMin = Vector2.zero;
+        overlayRect.offsetMax = Vector2.zero;
+        overlayRect.localScale = Vector3.one;
+
+        // Keep inactive while cloning so ReplaceModel.OnEnable / Start do not execute
+        _digitalTwinGalleryOverlay.SetActive(false);
+
+        var panelTemplate = viTemplate.transform.Find("Panel");
+        if (panelTemplate != null)
+        {
+            var panelClone = Instantiate(panelTemplate.gameObject, _digitalTwinGalleryOverlay.transform, false);
+            panelClone.name = "Panel";
+            panelClone.SetActive(true);
+
+            var settingsPanel = panelClone.transform.Find("SettingsPanel");
+            if (settingsPanel != null)
+            {
+                settingsPanel.gameObject.SetActive(false);
+            }
+
+            var header = panelClone.transform.Find("Header");
+            if (header != null)
+            {
+                var btnArrow = header.Find("ButtonArrow");
+                if (btnArrow != null)
+                {
+                    btnArrow.gameObject.SetActive(false);
+                }
+
+                var buttons = header.Find("Buttons");
+                if (buttons != null)
+                {
+                    var headerTexts = buttons.GetComponentsInChildren<TMP_Text>(true);
+                    if (headerTexts.Length > 0)
+                    {
+                        headerTexts[0].text = "Add Digital Twin";
+                    }
+
+                    var headerBtns = buttons.GetComponentsInChildren<Button>(true);
+                    for (int i = 0; i < headerBtns.Length; i++)
+                    {
+                        if (i == 0)
+                        {
+                            int persistentCount = headerBtns[i].onClick.GetPersistentEventCount();
+                            for (int p = 0; p < persistentCount; p++)
+                            {
+                                headerBtns[i].onClick.SetPersistentListenerState(p, UnityEngine.Events.UnityEventCallState.Off);
+                            }
+                            headerBtns[i].onClick = new Button.ButtonClickedEvent();
+                            headerBtns[i].onClick.AddListener(CloseDigitalTwinGalleryOverlay);
+                        }
+                        else
+                        {
+                            headerBtns[i].gameObject.SetActive(false);
+                        }
+                    }
+                }
+            }
+        }
+
+        var galleryClone = Instantiate(replaceModelTemplate.gameObject, _digitalTwinGalleryOverlay.transform, false);
+        galleryClone.name = "DigitalTwinSelectionGallery";
+        galleryClone.SetActive(true);
+
+        var clonedReplaceModel = galleryClone.GetComponent<ReplaceModel>();
+        if (clonedReplaceModel != null)
+        {
+            DestroyImmediate(clonedReplaceModel);
+        }
+
+        foreach (var selElem in galleryClone.GetComponentsInChildren<GallerySelectionElement>(true))
+        {
+            if (selElem != null)
+            {
+                selElem.gameObject.SetActive(false);
+            }
+        }
+
+        foreach (var addPanel in galleryClone.GetComponentsInChildren<AddModelPanel>(true))
+        {
+            if (addPanel != null)
+            {
+                addPanel.gameObject.SetActive(false);
+            }
+        }
+
+        var toggleGroup = galleryClone.transform.Find("ToggleGroup_Spatial");
+        if (toggleGroup != null)
+        {
+            foreach (var txt in toggleGroup.GetComponentsInChildren<TMP_Text>(true))
+            {
+                if (txt.text != null && txt.text.IndexOf("character", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    txt.text = "My Digital Twins";
+                }
+            }
+        }
+
+        RoomScanGallery localRoomGallery = null;
+        RoomScanGallery serverRoomGallery = null;
+
+        var avatarGalleries = galleryClone.GetComponentsInChildren<AvatarGallery>(true);
+        foreach (var avGallery in avatarGalleries)
+        {
+            if (avGallery == null) continue;
+            bool isLocal = avGallery.ElementsDeleteable || avGallery.gameObject.name.IndexOf("My", StringComparison.OrdinalIgnoreCase) >= 0;
+
+            if (avGallery.PlaceholderForEmptyGallery != null)
+            {
+                foreach (var pTxt in avGallery.PlaceholderForEmptyGallery.GetComponentsInChildren<TMP_Text>(true))
+                {
+                    if (!string.IsNullOrEmpty(pTxt.text))
+                    {
+                        pTxt.text = pTxt.text.Replace("characters", "Digital Twins").Replace("character", "Digital Twin").Replace("avatars", "Digital Twins").Replace("avatar", "Digital Twin");
+                    }
+                }
+            }
+
+            var roomGallery = avGallery.gameObject.AddComponent<RoomScanGallery>();
+            roomGallery.CopyConfigFrom(avGallery, isLocal);
+            DestroyImmediate(avGallery);
+
+            if (isLocal && localRoomGallery == null)
+            {
+                localRoomGallery = roomGallery;
+            }
+            else
+            {
+                serverRoomGallery = roomGallery;
+            }
+        }
+
+        if (localRoomGallery != null)
+        {
+            localRoomGallery.ElementSelected += OnLocalDigitalTwinSelected;
+        }
+        if (serverRoomGallery != null)
+        {
+            serverRoomGallery.ElementSelected += OnServerDigitalTwinSelected;
+        }
+
+        RootView_v2.Instance.HideBaseView();
+        _digitalTwinGalleryOverlay.SetActive(true);
+
+        if (localRoomGallery != null)
+        {
+            var localList = RootObject.Instance?.RoomTwinLibraryManager?.LibraryContent;
+            localRoomGallery.ElementIds = localList != null ? new List<string>(localList) : new List<string>();
+        }
+
+        if (serverRoomGallery != null)
+        {
+            try
+            {
+                var serverScans = await rtm.GetListOfRoomScansAsync();
+                if (_digitalTwinGalleryOverlay == null || serverRoomGallery == null) return;
+                serverRoomGallery.ElementIds = serverScans != null ? new List<string>(serverScans) : new List<string>();
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"Could not fetch server room scans: {e.Message}");
+                if (serverRoomGallery != null)
+                {
+                    serverRoomGallery.ElementIds = new List<string>();
+                }
+            }
+        }
+    }
+
+    private void OnLocalDigitalTwinSelected(string scanId)
+    {
+        CloseDigitalTwinGalleryOverlay();
+        LoadSelectedRoomScanAsync(scanId).Forget();
+    }
+
+    private void OnServerDigitalTwinSelected(string scanId)
+    {
+        RootObject.Instance?.RoomTwinLibraryManager?.Add(scanId);
+        CloseDigitalTwinGalleryOverlay();
+        LoadSelectedRoomScanAsync(scanId).Forget();
+    }
+
+    private void CloseDigitalTwinGalleryOverlay()
+    {
+        if (_digitalTwinGalleryOverlay != null)
+        {
+            Destroy(_digitalTwinGalleryOverlay);
+            _digitalTwinGalleryOverlay = null;
+        }
+        RootView_v2.Instance?.ShowBaseView();
+        UpdateDigitalTwinButtonsUI();
+    }
+
+    private async UniTaskVoid LoadDefaultRoomScanAsync()
+    {
+        var rtm = RootObject.Instance?.RoomTwinManager;
+        if (rtm == null) return;
+
+        LoadView.Instance?.Show();
+        try
+        {
+            await rtm.AssignDigitalTwinAsync(rtm.defaultScanName);
+            UpdateDigitalTwinButtonsUI();
+        }
+        finally
+        {
+            LoadView.Instance?.Hide();
+        }
+    }
+
+    private async UniTaskVoid LoadSelectedRoomScanAsync(string scanId)
+    {
+        var rtm = RootObject.Instance?.RoomTwinManager;
+        if (rtm == null) return;
+
+        LoadView.Instance?.Show();
+        try
+        {
+            RootObject.Instance?.RoomTwinLibraryManager?.Add(scanId);
+            await rtm.AssignDigitalTwinAsync(scanId);
+            UpdateDigitalTwinButtonsUI();
+        }
+        finally
+        {
+            LoadView.Instance?.Hide();
+        }
+    }
+
+    private void OpenDigitalTwinRepositionOverlay()
+    {
+        var rtm = RootObject.Instance?.RoomTwinManager;
+        if (rtm == null || RootView_v2.Instance?.canvas == null) return;
+
+        if (_digitalTwinRepositionOverlay != null)
+        {
+            Destroy(_digitalTwinRepositionOverlay);
+            _digitalTwinRepositionOverlay = null;
+        }
+
+        var loc = rtm.GetRoomTwinLocation();
+        float posXcm = loc.Position.x * 100f;
+        float posYcm = loc.Position.y * 100f;
+        float posZcm = loc.Position.z * 100f;
+        Vector3 rotEuler = loc.Rotation;
+        Vector3 scaleVec = loc.Scale == Vector3.zero ? Vector3.one : loc.Scale;
+
+        _digitalTwinRepositionOverlay = new GameObject("DigitalTwinRepositionOverlay", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        _digitalTwinRepositionOverlay.transform.SetParent(RootView_v2.Instance.canvas.transform, false);
+        _digitalTwinRepositionOverlay.transform.SetAsLastSibling();
+
+        var overlayRect = _digitalTwinRepositionOverlay.GetComponent<RectTransform>();
+        overlayRect.anchorMin = Vector2.zero;
+        overlayRect.anchorMax = Vector2.one;
+        overlayRect.offsetMin = Vector2.zero;
+        overlayRect.offsetMax = Vector2.zero;
+        overlayRect.localScale = Vector3.one;
+
+        var overlayImg = _digitalTwinRepositionOverlay.GetComponent<Image>();
+        overlayImg.color = new Color(0f, 0f, 0f, 0.6f);
+        overlayImg.raycastTarget = true;
+
+        // Modal card panel
+        var cardObj = new GameObject("CardPanel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(VerticalLayoutGroup));
+        cardObj.transform.SetParent(_digitalTwinRepositionOverlay.transform, false);
+
+        var cardImg = cardObj.GetComponent<Image>();
+        var settingsImg = _panelDigitalTwinSettings != null ? _panelDigitalTwinSettings.GetComponent<Image>() : null;
+        if (settingsImg != null && settingsImg.sprite != null)
+        {
+            cardImg.sprite = settingsImg.sprite;
+            cardImg.type = settingsImg.type;
+        }
+        cardImg.color = Color.white;
+        cardImg.raycastTarget = true;
+
+        var cardRect = cardObj.GetComponent<RectTransform>();
+        cardRect.anchorMin = new Vector2(0.5f, 0.5f);
+        cardRect.anchorMax = new Vector2(0.5f, 0.5f);
+        cardRect.pivot = new Vector2(0.5f, 0.5f);
+        cardRect.sizeDelta = new Vector2(620f, 750f);
+        cardRect.anchoredPosition = Vector2.zero;
+
+        var vLayout = cardObj.GetComponent<VerticalLayoutGroup>();
+        vLayout.padding = new RectOffset(30, 30, 25, 25);
+        vLayout.spacing = 14f;
+        vLayout.childControlWidth = true;
+        vLayout.childControlHeight = false;
+        vLayout.childForceExpandWidth = true;
+        vLayout.childForceExpandHeight = false;
+
+        TMP_Text textTemplate = _textActivityName;
+
+        // Title
+        var titleObj = new GameObject("Title", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+        titleObj.transform.SetParent(cardObj.transform, false);
+        var titleTxt = titleObj.GetComponent<TMP_Text>();
+        if (textTemplate != null)
+        {
+            titleTxt.font = textTemplate.font;
+        }
+        titleTxt.text = "Reposition Digital Twin";
+        titleTxt.fontSize = 34f;
+        titleTxt.fontStyle = FontStyles.Bold;
+        titleTxt.alignment = TextAlignmentOptions.Center;
+        titleTxt.color = new Color(0.15f, 0.15f, 0.15f, 1f);
+        titleObj.GetComponent<RectTransform>().sizeDelta = new Vector2(0f, 45f);
+
+        TMP_Text CreateSectionHeader(string title)
+        {
+            var headerObj = new GameObject($"Header_{title}", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+            headerObj.transform.SetParent(cardObj.transform, false);
+            var hTxt = headerObj.GetComponent<TMP_Text>();
+            if (textTemplate != null) hTxt.font = textTemplate.font;
+            hTxt.text = title;
+            hTxt.fontSize = 24f;
+            hTxt.fontStyle = FontStyles.Bold;
+            hTxt.alignment = TextAlignmentOptions.MidlineLeft;
+            hTxt.color = new Color(0.25f, 0.25f, 0.25f, 1f);
+            headerObj.GetComponent<RectTransform>().sizeDelta = new Vector2(0f, 32f);
+            return hTxt;
+        }
+
+        // Section 1: Position
+        CreateSectionHeader("Position Offset (cm)");
+        var posInputs = CreateMobileVector3Row(cardObj.transform, new Vector3(posXcm, posYcm, posZcm), textTemplate);
+
+        // Section 2: Rotation
+        CreateSectionHeader("Rotation (degrees)");
+        var rotInputs = CreateMobileVector3Row(cardObj.transform, rotEuler, textTemplate);
+
+        // Section 3: Scale
+        CreateSectionHeader("Scale");
+        var scaleInputs = CreateMobileVector3Row(cardObj.transform, scaleVec, textTemplate);
+
+        // Buttons Row
+        var btnRowObj = new GameObject("ButtonsRow", typeof(RectTransform), typeof(HorizontalLayoutGroup));
+        btnRowObj.transform.SetParent(cardObj.transform, false);
+        var btnRowRect = btnRowObj.GetComponent<RectTransform>();
+        btnRowRect.sizeDelta = new Vector2(0f, 65f);
+
+        var btnLayout = btnRowObj.GetComponent<HorizontalLayoutGroup>();
+        btnLayout.spacing = 15f;
+        btnLayout.childControlWidth = true;
+        btnLayout.childControlHeight = true;
+        btnLayout.childForceExpandWidth = true;
+        btnLayout.childForceExpandHeight = true;
+
+        // Reset
+        CreateMobileButton(btnRowObj.transform, "Reset", () =>
+        {
+            if (posInputs.x != null) posInputs.x.text = "0";
+            if (posInputs.y != null) posInputs.y.text = "0";
+            if (posInputs.z != null) posInputs.z.text = "0";
+
+            if (rotInputs.x != null) rotInputs.x.text = "0";
+            if (rotInputs.y != null) rotInputs.y.text = "0";
+            if (rotInputs.z != null) rotInputs.z.text = "0";
+
+            if (scaleInputs.x != null) scaleInputs.x.text = "1";
+            if (scaleInputs.y != null) scaleInputs.y.text = "1";
+            if (scaleInputs.z != null) scaleInputs.z.text = "1";
+        }, new Color(0.85f, 0.85f, 0.85f, 1f));
+
+        // Cancel
+        CreateMobileButton(btnRowObj.transform, "Cancel", CloseDigitalTwinRepositionOverlay, new Color(0.9f, 0.4f, 0.4f, 1f));
+
+        // Apply
+        CreateMobileButton(btnRowObj.transform, "Apply", () =>
+        {
+            float px = ParseInvariantFloat(posInputs.x?.text, 0f) * 0.01f;
+            float py = ParseInvariantFloat(posInputs.y?.text, 0f) * 0.01f;
+            float pz = ParseInvariantFloat(posInputs.z?.text, 0f) * 0.01f;
+
+            float rx = ParseInvariantFloat(rotInputs.x?.text, 0f);
+            float ry = ParseInvariantFloat(rotInputs.y?.text, 0f);
+            float rz = ParseInvariantFloat(rotInputs.z?.text, 0f);
+
+            float sx = ParseInvariantFloat(scaleInputs.x?.text, 1f);
+            float sy = ParseInvariantFloat(scaleInputs.y?.text, 1f);
+            float sz = ParseInvariantFloat(scaleInputs.z?.text, 1f);
+
+            Vector3 newPos = new Vector3(px, py, pz);
+            Vector3 newScale = new Vector3(sx, sy, sz);
+            if (newScale.sqrMagnitude < 0.0001f) newScale = Vector3.one;
+
+            var newLocation = new Location
+            {
+                Position = newPos,
+                Rotation = new Vector3(rx, ry, rz),
+                Scale = newScale
+            };
+            rtm.UpdateAndPersistLocation(newLocation);
+            CloseDigitalTwinRepositionOverlay();
+        }, new Color(0.2f, 0.6f, 1f, 1f));
+    }
+
+    private void CloseDigitalTwinRepositionOverlay()
+    {
+        if (_digitalTwinRepositionOverlay != null)
+        {
+            Destroy(_digitalTwinRepositionOverlay);
+            _digitalTwinRepositionOverlay = null;
+        }
+        UpdateDigitalTwinButtonsUI();
+    }
+
+    private (TMP_InputField x, TMP_InputField y, TMP_InputField z) CreateMobileVector3Row(
+        Transform parent,
+        Vector3 initialValues,
+        TMP_Text labelTemplate)
+    {
+        var rowObj = new GameObject("Vector3Row", typeof(RectTransform), typeof(HorizontalLayoutGroup));
+        rowObj.transform.SetParent(parent, false);
+        var rowRect = rowObj.GetComponent<RectTransform>();
+        rowRect.sizeDelta = new Vector2(0f, 60f);
+
+        var layout = rowObj.GetComponent<HorizontalLayoutGroup>();
+        layout.spacing = 12f;
+        layout.childControlWidth = true;
+        layout.childControlHeight = true;
+        layout.childForceExpandWidth = true;
+        layout.childForceExpandHeight = true;
+
+        TMP_InputField CreateCol(string axis, float val)
+        {
+            var colObj = new GameObject($"Col_{axis}", typeof(RectTransform), typeof(HorizontalLayoutGroup));
+            colObj.transform.SetParent(rowObj.transform, false);
+            var colLayout = colObj.GetComponent<HorizontalLayoutGroup>();
+            colLayout.spacing = 6f;
+            colLayout.childControlWidth = false;
+            colLayout.childControlHeight = true;
+            colLayout.childForceExpandWidth = false;
+            colLayout.childForceExpandHeight = true;
+
+            TMP_Text axisLabel;
+            if (labelTemplate != null)
+            {
+                var lblClone = Instantiate(labelTemplate.gameObject, colObj.transform, false);
+                lblClone.SetActive(true);
+                axisLabel = lblClone.GetComponent<TMP_Text>();
+            }
+            else
+            {
+                var lblObj = new GameObject($"Label_{axis}", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+                lblObj.transform.SetParent(colObj.transform, false);
+                axisLabel = lblObj.GetComponent<TMP_Text>();
+            }
+
+            if (axisLabel != null)
+            {
+                axisLabel.text = axis;
+                axisLabel.fontSize = 26f;
+                axisLabel.alignment = TextAlignmentOptions.Center;
+                axisLabel.color = new Color(0.2f, 0.2f, 0.2f, 1f);
+                var lblRect = axisLabel.GetComponent<RectTransform>();
+                if (lblRect != null) lblRect.sizeDelta = new Vector2(25f, 50f);
+                var layoutElem = axisLabel.gameObject.AddComponent<LayoutElement>();
+                layoutElem.preferredWidth = 25f;
+                layoutElem.flexibleWidth = 0f;
+            }
+
+            var input = CreateMobileInputField(colObj.transform, val.ToString("0.##", CultureInfo.InvariantCulture), axis);
+            if (input != null)
+            {
+                var layoutElem = input.gameObject.AddComponent<LayoutElement>();
+                layoutElem.flexibleWidth = 1f;
+                layoutElem.minWidth = 60f;
+            }
+            return input;
+        }
+
+        var inX = CreateCol("X", initialValues.x);
+        var inY = CreateCol("Y", initialValues.y);
+        var inZ = CreateCol("Z", initialValues.z);
+
+        return (inX, inY, inZ);
+    }
+
+    private TMP_InputField CreateMobileInputField(Transform parent, string initialValue, string placeholderText)
+    {
+        TMP_InputField inputField;
+        if (_inputFieldActivityName != null)
+        {
+            var clone = Instantiate(_inputFieldActivityName.gameObject, parent, false);
+            clone.name = $"InputField_{placeholderText}";
+            clone.SetActive(true);
+            inputField = clone.GetComponent<TMP_InputField>();
+        }
+        else
+        {
+            var obj = new GameObject($"InputField_{placeholderText}", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(TMP_InputField));
+            obj.transform.SetParent(parent, false);
+            inputField = obj.GetComponent<TMP_InputField>();
+        }
+
+        if (inputField != null)
+        {
+            inputField.onValueChanged.RemoveAllListeners();
+            inputField.onEndEdit.RemoveAllListeners();
+            inputField.contentType = TMP_InputField.ContentType.DecimalNumber;
+            inputField.lineType = TMP_InputField.LineType.SingleLine;
+            inputField.characterLimit = 15;
+            inputField.text = initialValue;
+            if (inputField.placeholder is TMP_Text placeholderTxt)
+            {
+                placeholderTxt.text = placeholderText;
+            }
+            var rect = inputField.GetComponent<RectTransform>();
+            if (rect != null)
+            {
+                rect.sizeDelta = new Vector2(0f, 55f);
+            }
+        }
+        return inputField;
+    }
+
+    private Button CreateMobileButton(Transform parent, string label, Action onClick, Color? bgColor = null)
+    {
+        Button btn;
+        if (_btnMarkerLess != null)
+        {
+            var clone = Instantiate(_btnMarkerLess.gameObject, parent, false);
+            clone.name = $"Button_{label}";
+            clone.SetActive(true);
+            btn = clone.GetComponent<Button>();
+        }
+        else
+        {
+            var obj = new GameObject($"Button_{label}", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+            obj.transform.SetParent(parent, false);
+            btn = obj.GetComponent<Button>();
+        }
+
+        if (btn != null)
+        {
+            btn.onClick = new Button.ButtonClickedEvent();
+            if (onClick != null)
+            {
+                btn.onClick.AddListener(() => onClick());
+            }
+
+            var btnText = btn.GetComponentInChildren<TMP_Text>(true);
+            if (btnText != null)
+            {
+                btnText.text = label;
+                btnText.fontSize = 28f;
+            }
+
+            var btnImg = btn.GetComponent<Image>();
+            if (btnImg != null && bgColor.HasValue)
+            {
+                btnImg.color = bgColor.Value;
+            }
+
+            var rect = btn.GetComponent<RectTransform>();
+            if (rect != null)
+            {
+                rect.sizeDelta = new Vector2(0f, 60f);
+            }
+        }
+        return btn;
+    }
+
+    private static float ParseInvariantFloat(string s, float fallback)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return fallback;
+        s = s.Trim();
+        if (float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out float val))
+        {
+            return val;
+        }
+        return fallback;
     }
 
     private void OnCalibrationViewOpened()

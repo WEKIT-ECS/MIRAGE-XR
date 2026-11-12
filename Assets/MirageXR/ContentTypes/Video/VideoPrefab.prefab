@@ -143,10 +143,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1600943330793774}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2547b4dd088644d6aaf64f45df657c79, type: 3}
+  m_Script: {fileID: 11500000, guid: bc420da184314e98b57c340748f4e504, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pivotAxis: 1
+  _pivotAxis: 1
   targetTransform: {fileID: 0}
 --- !u!1 &270389347624138360
 GameObject:
@@ -762,8 +762,6 @@ GameObject:
   - component: {fileID: 6516369197255566935}
   - component: {fileID: 6508340273931862934}
   - component: {fileID: 3822200583222997573}
-  - component: {fileID: 4607716711531650804}
-  - component: {fileID: 6082037153853825602}
   m_Layer: 0
   m_Name: VideoCanvasLandscape
   m_TagString: Untagged
@@ -855,32 +853,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &4607716711531650804
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3572178744976748102}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff4e3b9019304b5aaec5664de0778d21, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &6082037153853825602
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3572178744976748102}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2fcaf896491074042b7ed7684454a412, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  eventsToReceive: 0
-  debounceThreshold: 0.01
 --- !u!1 &3981107753822189839
 GameObject:
   m_ObjectHideFlags: 0
@@ -1025,8 +997,6 @@ GameObject:
   - component: {fileID: 6945817625746782042}
   - component: {fileID: 1460172453664960643}
   - component: {fileID: 9160587205185796958}
-  - component: {fileID: 3730621319795801088}
-  - component: {fileID: 7329919501346881937}
   m_Layer: 0
   m_Name: VideoCanvasPortrait
   m_TagString: Untagged
@@ -1118,32 +1088,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &3730621319795801088
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4715789289353266788}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff4e3b9019304b5aaec5664de0778d21, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &7329919501346881937
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4715789289353266788}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2fcaf896491074042b7ed7684454a412, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  eventsToReceive: 0
-  debounceThreshold: 0.01
 --- !u!1 &5257418643774877482
 GameObject:
   m_ObjectHideFlags: 0

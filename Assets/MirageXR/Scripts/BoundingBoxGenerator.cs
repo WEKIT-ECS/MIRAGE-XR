@@ -1,13 +1,12 @@
-using Microsoft.MixedReality.Toolkit.Experimental.Physics;
-using Microsoft.MixedReality.Toolkit.UI;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControlTypes;
 using System.Collections;
 using System.Threading.Tasks;
 using UnityEngine;
+using LearningExperienceEngine;
+using Utilities;
 
 namespace MirageXR
 {
+
     public enum BoundingRotationType
     {
         ALL,
@@ -22,16 +21,6 @@ namespace MirageXR
         [SerializeField] private bool manualEditModeHandling;
         private bool _isLocked = false;
 
-        public ScaleHandlesConfiguration CustomScaleHandlesConfiguration
-        {
-            get; set;
-        }
-
-        public RotationHandlesConfiguration CustomRotationHandlesConfiguration
-        {
-            get; set;
-        }
-
         private void OnEnable()
         {
             LearningExperienceEngine.EventManager.OnEditModeChanged += EditModeState;
@@ -40,11 +29,6 @@ namespace MirageXR
         private void OnDisable()
         {
             LearningExperienceEngine.EventManager.OnEditModeChanged -= EditModeState;
-        }
-
-        private void Start()
-        {
-            Invoke(nameof(ManipulationEvents), 0.2f);
         }
 
         /// <summary>
@@ -59,7 +43,7 @@ namespace MirageXR
         /// <returns>Task object for asynchronous execution</returns>
         public async Task AddBoundingBox(
             LearningExperienceEngine.ToggleObject annotationToggleObject,
-            BoundsCalculationMethod boundsCalculationMethod,
+            BoundsUtilities.BoundsCalculationMethod boundsCalculationMethod = BoundsUtilities.BoundsCalculationMethod.RendererOverCollider,
             bool hasConstraintManager = false,
             bool addListeners = true,
             BoundingRotationType boundingRotationType = BoundingRotationType.ALL,
@@ -67,168 +51,68 @@ namespace MirageXR
         {
             _isLocked = annotationToggleObject.positionLock;
 
-            if (!hasConstraintManager && !GetComponent<ConstraintManager>())
+            var simpleBoundingBox = gameObject.GetComponent<SimpleBoundingBox>();
+            if (!simpleBoundingBox)
             {
-                gameObject.AddComponent<ConstraintManager>();
+                simpleBoundingBox = gameObject.AddComponent<SimpleBoundingBox>();
             }
 
-            var elasticManager = GetComponent<ElasticsManager>();
-            if (!elasticManager)
-            {
-                elasticManager = gameObject.AddComponent<ElasticsManager>();
-            }
+            simpleBoundingBox.Target = transform;
+            simpleBoundingBox.Setup(annotationToggleObject);
 
-            var boundsControl = gameObject.GetComponent<BoundsControl>();
-            if (!boundsControl)
-            {
-                boundsControl = gameObject.AddComponent<BoundsControl>();
-            }
-
-            boundsControl.Target = gameObject;
-            boundsControl.ElasticsManager = elasticManager;
-
-            // if the transform changes should be apply to the target object, otherwise it should be added manually
             if (addListeners)
             {
-                boundsControl.ScaleStopped.AddListener(() => SaveTransform(annotationToggleObject));
-                boundsControl.RotateStopped.AddListener(() => SaveTransform(annotationToggleObject));
+                simpleBoundingBox.ScaleStopped.AddListener(() => SaveTransform(annotationToggleObject));
+                simpleBoundingBox.RotateStopped.AddListener(() => SaveTransform(annotationToggleObject));
+                simpleBoundingBox.TranslateStopped.AddListener(() => SaveTransform(annotationToggleObject));
             }
 
-            var minMaxScaleConstraint = GetComponent<MinMaxScaleConstraint>();
-            if (!minMaxScaleConstraint)
+            if (boundingRotationType != BoundingRotationType.ALL)
             {
-                minMaxScaleConstraint = gameObject.AddComponent<MinMaxScaleConstraint>(); // TODO: looks useless
+                OnlyRotateAround(simpleBoundingBox, boundingRotationType);
             }
 
-            if (boundsControl != null && boundingRotationType != BoundingRotationType.ALL)
+            var gridManager = RootObject.Instance ? RootObject.Instance.GridManager : null;
+            if (gridManager != null)
             {
-                OnlyRotateAround(boundsControl, boundingRotationType);
+                simpleBoundingBox.RotateStarted.AddListener(() => gridManager.onRotateStarted?.Invoke(simpleBoundingBox.Target.gameObject));
+                simpleBoundingBox.RotateStopped.AddListener(() => OnTranslateStopped(simpleBoundingBox));
+                simpleBoundingBox.ScaleStarted.AddListener(() => gridManager.onScaleStarted?.Invoke(simpleBoundingBox.Target.gameObject));
+                simpleBoundingBox.ScaleStopped.AddListener(() => OnTranslateStopped(simpleBoundingBox));
+                simpleBoundingBox.TranslateStarted.AddListener(() => gridManager.onTranslateStarted?.Invoke(simpleBoundingBox.Target.gameObject));
+                simpleBoundingBox.TranslateStopped.AddListener(() => OnTranslateStopped(simpleBoundingBox));
             }
 
-            boundsControl.CalculationMethod = boundsCalculationMethod;
-
-            if (AddManipulator && !GetComponent<ObjectManipulator>())
-            {
-                StartCoroutine(ManipulationEvents(annotationToggleObject));
-            }
-
-            if (CustomScaleHandlesConfiguration != null)
-            {
-                boundsControl.ScaleHandlesConfig = CustomScaleHandlesConfiguration;
-            }
-
-            if (CustomRotationHandlesConfiguration != null)
-            {
-                boundsControl.RotationHandlesConfig = CustomRotationHandlesConfiguration;
-            }
+            EditModeState(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive);
 
             await Task.Yield();
         }
 
-        public void OnlyRotateAround(BoundsControl boundsControl, BoundingRotationType boundingRotationType)
+        public void OnlyRotateAround(SimpleBoundingBox boundingBox, BoundingRotationType boundingRotationType)
         {
-            boundsControl.RotationHandlesConfig.ShowHandleForX = false;
-            boundsControl.RotationHandlesConfig.ShowHandleForY = false;
-            boundsControl.RotationHandlesConfig.ShowHandleForZ = false;
-
-            switch (boundingRotationType)
-            {
-                case BoundingRotationType.X:
-                    boundsControl.RotationHandlesConfig.ShowHandleForX = true;
-                    break;
-                case BoundingRotationType.Y:
-                    boundsControl.RotationHandlesConfig.ShowHandleForY = true;
-                    break;
-                case BoundingRotationType.Z:
-                    boundsControl.RotationHandlesConfig.ShowHandleForZ = true;
-                    break;
-            }
+            if (boundingBox == null) return;
+            boundingBox.OnlyRotateAround(boundingRotationType);
         }
 
         private void EditModeState(bool editMode)
         {
             if (!manualEditModeHandling)
             {
-                var boundsControl = GetComponent<BoundsControl>();
-                var objectManipulator = GetComponent<ObjectManipulator>();
-
-                if (boundsControl)
+                var simpleBoundingBox = GetComponent<SimpleBoundingBox>();
+                if (simpleBoundingBox)
                 {
-                    if (_isLocked)
-                    {
-                        boundsControl.enabled = false;
-                    }
-                    else
-                    {
-                        boundsControl.enabled = editMode;
-                    }
-                }
-
-                if (objectManipulator)
-                {
-                    if (_isLocked)
-                    {
-                        objectManipulator.enabled = false;
-                    }
-                    else
-                    {
-                        objectManipulator.enabled = editMode;
-                    }
+                    simpleBoundingBox.SetEnabled(!_isLocked && editMode);
                 }
             }
         }
 
-        /// <summary>
-        /// Add the event when every thing is parsed
-        /// </summary>
-        private IEnumerator ManipulationEvents(LearningExperienceEngine.ToggleObject annotation)
+        private void OnTranslateStopped(SimpleBoundingBox boundingBox)
         {
-            yield return new WaitWhile(() => transform.parent == null);
-
-            // Disable the parent manipulator and use mine
-            var parentManipulator = transform.parent.gameObject.GetComponent<ObjectManipulator>();
-            if (parentManipulator)
+            var gridManager = RootObject.Instance ? RootObject.Instance.GridManager : null;
+            if (gridManager != null && boundingBox != null)
             {
-                parentManipulator.enabled = false;
+                gridManager.onTranslateStopped?.Invoke(boundingBox.Target ? boundingBox.Target.gameObject : null);
             }
-
-            var objectManipulator = gameObject.AddComponent<ObjectManipulator>();
-            objectManipulator.HostTransform = transform;
-            objectManipulator.TwoHandedManipulationType = Microsoft.MixedReality.Toolkit.Utilities.TransformFlags.Move;
-
-            var gridManager = RootObject.Instance.GridManager;
-            objectManipulator.OnManipulationStarted.AddListener(eventData => gridManager.onManipulationStarted(eventData.ManipulationSource));
-            objectManipulator.OnManipulationEnded.AddListener(eventData => OnManipulationEnded(eventData, annotation));
-
-            var boundsControl = GetComponent<BoundsControl>();
-            if (boundsControl)
-            {
-                boundsControl.RotateStarted.AddListener(() => gridManager.onRotateStarted?.Invoke(boundsControl.Target));
-                boundsControl.RotateStopped.AddListener(OnTranslateStopped);
-                boundsControl.ScaleStarted.AddListener(() => gridManager.onScaleStarted?.Invoke(boundsControl.Target));
-                boundsControl.ScaleStopped.AddListener(OnTranslateStopped);
-                boundsControl.TranslateStarted.AddListener(() => gridManager.onTranslateStarted?.Invoke(boundsControl.Target));
-                boundsControl.TranslateStopped.AddListener(OnTranslateStopped);
-            }
-
-            EditModeState(LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive);
-        }
-
-        private void OnManipulationEnded(ManipulationEventData eventData, LearningExperienceEngine.ToggleObject annotation)
-        {
-            var gridManager = RootObject.Instance.GridManager;
-            gridManager.onManipulationEnded(eventData.ManipulationSource);
-
-            SaveTransform(annotation);
-
-            LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.SaveData();
-        }
-
-        private void OnTranslateStopped()
-        {
-            var boundsControl = GetComponent<BoundsControl>();
-            var gridManager = RootObject.Instance.GridManager;
-            gridManager.onTranslateStopped?.Invoke(boundsControl.Target);
 
             LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.SaveData();
         }

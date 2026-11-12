@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 using System.Collections;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
 using Newtonsoft.Json;
@@ -11,8 +10,6 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace MirageXR
 {
-    using BoundsCalculationMethod = Microsoft.MixedReality.Toolkit.UI.BoundsControlTypes.BoundsCalculationMethod;
-
     public class ObjectFactory : MonoBehaviour
     {
         private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
@@ -170,6 +167,19 @@ namespace MirageXR
                                 if (isActivating)
                                 {
                                     ActivatePrefab("LabelPrefab", obj);
+                                }
+                                else
+                                {
+                                    DestroyPrefab(obj);
+                                }
+
+                                break;
+
+                            // Handle postit type.
+                            case "postit":
+                                if (isActivating)
+                                {
+                                    ActivatePrefab("PostItPrefab", obj);
                                 }
                                 else
                                 {
@@ -374,7 +384,16 @@ namespace MirageXR
                 }
                 else
                 {
-                    Debug.LogError("FATAL ERROR: Could not instantiate ContentAugmentation prefab " + prefab);
+                    var res = Resources.Load<GameObject>(prefab) ?? Resources.Load<GameObject>($"Prefabs/{prefab}");
+                    if (res != null)
+                    {
+                        temp = UnityEngine.Object.Instantiate(res, Vector3.zero, Quaternion.identity);
+                        _ = AddExtraComponents(temp, obj);
+                    }
+                    else
+                    {
+                        Debug.LogError("FATAL ERROR: Could not instantiate ContentAugmentation prefab " + prefab);
+                    }
                 }
 
             }
@@ -434,17 +453,20 @@ namespace MirageXR
         /// <returns></returns>
         private static async Task AddBoundingBox(GameObject go, LearningExperienceEngine.ToggleObject annotationToggleObject)
         {
-            var boundingBox = go.AddComponent<BoundingBoxGenerator>();
-            boundingBox.CustomScaleHandlesConfiguration = Resources.Load<ScaleHandlesConfiguration>("Prefabs/CustomBoundingScaleHandlesConfiguration");
-            boundingBox.CustomRotationHandlesConfiguration = Resources.Load<RotationHandlesConfiguration>("Prefabs/CustomBoundingRotationHandlesConfiguration");
-            await boundingBox.AddBoundingBox(annotationToggleObject, BoundsCalculationMethod.RendererOverCollider, false, true, BoundingRotationType.ALL, true);
+            var bb = go.GetComponent<SimpleBoundingBox>();
+            if (bb == null)
+            {
+                bb = go.AddComponent<SimpleBoundingBox>();
+            }
+            bb.Target = go.transform;
+            bb.Setup(annotationToggleObject);
 
             // disable rotation for image
             if (DisableBoundingRotation(annotationToggleObject))
             {
-                boundingBox.CustomRotationHandlesConfiguration.ShowHandleForX = false;
-                boundingBox.CustomRotationHandlesConfiguration.ShowHandleForY = false;
-                boundingBox.CustomRotationHandlesConfiguration.ShowHandleForZ = false;
+                bb.RotationHandlesConfig.ShowHandleForX = false;
+                bb.RotationHandlesConfig.ShowHandleForY = false;
+                bb.RotationHandlesConfig.ShowHandleForZ = false;
             }
 
             await Task.CompletedTask;

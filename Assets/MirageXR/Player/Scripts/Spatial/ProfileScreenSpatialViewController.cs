@@ -32,6 +32,7 @@ namespace MirageXR
             View.SetActionOnButtonServerPortClick(ShowChangeServerPortPanel);
             View.SetActionOnButtonWebsocketAddressClick(ShowChangeWebsocketAddressPanel);
             View.SetActionOnButtonWebsocketPortClick(ShowChangeWebsocketPortPanel);
+            View.SetActionOnButtonGridClick(ShowGridSettingsView);
 
             View.gameObject.SetActive(false);
 
@@ -111,6 +112,20 @@ namespace MirageXR
             {
                 PopupsViewer.Instance.Show(prefab);
             }
+		}
+
+		private void ShowGridSettingsView()
+		{
+			if (GridSettingsSpatialView.IsOpen)
+			{
+				return;
+			}
+
+			var prefab = View.GetGridSettingsViewPrefab();
+			if (prefab is not null)
+			{
+				PopupsViewer.Instance.Show(prefab);
+			}
 		}
 
 		private void OnButtonLoginClicked()

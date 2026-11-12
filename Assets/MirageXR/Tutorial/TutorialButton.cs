@@ -1,4 +1,4 @@
-﻿using i5.Toolkit.Core.VerboseLogging;
+using i5.Toolkit.Core.VerboseLogging;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -37,15 +37,19 @@ namespace MirageXR
         private void StartTutorial()
         {
             TutorialManager tutorialManager = TutorialManager.Instance;
-            tutorialManager.TutorialButton = this;
-            tutorialManager.StartTutorial(TutorialManager.TutorialType.HOLOLENS);
+            if (tutorialManager != null)
+            {
+                tutorialManager.TutorialButton = this;
+            }
         }
 
         public void ToggleTutorial()
         {
             TutorialManager tutorialManager = TutorialManager.Instance;
-            tutorialManager.TutorialButton = this;
-            tutorialManager.ToggleTutorial(TutorialManager.TutorialType.HOLOLENS);
+            if (tutorialManager != null)
+            {
+                tutorialManager.TutorialButton = this;
+            }
         }
 
         public void SetIconActive()

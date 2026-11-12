@@ -286,6 +286,5 @@ public class ContentListView_v2 : BaseView
 
     private void OnAnnotationSelected(Content content)
     {
-        //ActionEditor.Instance.CapturePickArrowTarget(content, ActionEditor.Instance.pickArrowModelCapturing.Item2);
     }
 }

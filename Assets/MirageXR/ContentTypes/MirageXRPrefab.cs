@@ -1,8 +1,6 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using Microsoft.MixedReality.Toolkit.Input;
-using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
 
 namespace MirageXR
@@ -10,7 +8,7 @@ namespace MirageXR
     /// <summary>
     /// Base class for all the MirageXR prefabs.
     /// </summary>
-    public abstract class MirageXRPrefab : BaseFocusHandler
+    public abstract class MirageXRPrefab : MonoBehaviour
     {
         private static LearningExperienceEngine.ActivityManager activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
         private GameObject _center;
@@ -53,20 +51,14 @@ namespace MirageXR
             LearningExperienceEngine.EventManager.OnClearAll -= Delete;
         }
 
-        public override void OnFocusEnter(FocusEventData eventData)
+        public virtual void OnFocusEnter(string pointerName = "default", GameObject hitObject = null, Vector3 hitPoint = default)
         {
-            var pointerResult = eventData.Pointer.Result.Details;
-            GameObject hitObject = pointerResult.Object;
-            Vector3 hitPoint = pointerResult.Point;
-
-            //Debug.Log("Pointer:" + eventData.Pointer.PointerName + "\nObject: " + hitObject.name + "\nHit Point: " + hitPoint.ToString());
-
-            AugmentationGotFocus?.Invoke(eventData.Pointer.PointerName, hitObject, hitPoint);
+            AugmentationGotFocus?.Invoke(pointerName, hitObject ?? gameObject, hitPoint == default ? transform.position : hitPoint);
         }
 
-        public override void OnFocusExit(FocusEventData eventData)
+        public virtual void OnFocusExit(string pointerName = "default", GameObject oldFocusedObject = null, Vector3 hitPoint = default)
         {
-            AugmentationLostFocus?.Invoke(eventData.Pointer.PointerName, eventData.OldFocusedObject, eventData.Pointer.Result.Details.Point);
+            AugmentationLostFocus?.Invoke(pointerName, oldFocusedObject ?? gameObject, hitPoint == default ? transform.position : hitPoint);
         }
 
         private void Awake()

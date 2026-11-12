@@ -43,6 +43,10 @@ namespace MirageXR  //TODO: add Spatial namespace
             RootObject.Instance.LEE.ActivityManager.OnActivityClosed += OnActivityClosed;
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
             RootObject.Instance.LEE.StepManager.OnStepChanged += StepManagerOnStepChanged;
+            if (roomTwinManager != null)
+            {
+                roomTwinManager.OnRoomTwinStateChanged += UpdateRoomTwinToggle;
+            }
         }
 
         protected override void OnUnbind()
@@ -61,6 +65,11 @@ namespace MirageXR  //TODO: add Spatial namespace
                 {
                     RootObject.Instance.LEE.StepManager.OnStepChanged -= StepManagerOnStepChanged;
                 }
+            }
+
+            if (roomTwinManager != null)
+            {
+                roomTwinManager.OnRoomTwinStateChanged -= UpdateRoomTwinToggle;
             }
 
             _updateInfoCts?.Cancel();
@@ -211,7 +220,15 @@ namespace MirageXR  //TODO: add Spatial namespace
 
         private void OnButtonRepositionClicked()
         {
-            // TODO
+            MenuManager.Instance.ShowRoomScanRepositionPanelView();
+        }
+
+        private void UpdateRoomTwinToggle()
+        {
+            if (View != null && roomTwinManager != null)
+            {
+                View.SetIsToggleShowRoomScanOnWithoutNotify(roomTwinManager.IsRoomShowing());
+            }
         }
 
         private void OnButtonWireframeVignetteClicked()
@@ -241,6 +258,7 @@ namespace MirageXR  //TODO: add Spatial namespace
             var isEditorMode = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
             View.SetAssignRoomModelInteractable(isEditorMode);
             View.SetRepositionInteractable(isEditorMode);
+            UpdateRoomTwinToggle();
             if (!isEditorMode)
             {
                 View.SwitchToInfoTab();
@@ -397,7 +415,9 @@ namespace MirageXR  //TODO: add Spatial namespace
         private void OnButtonAddNewStepClicked()
         {
             var baseCamera = RootObject.Instance.BaseCamera;
-            var position = (baseCamera.transform.forward * 0.5f) + baseCamera.transform.position;
+            var worldPos = (baseCamera.transform.forward * 0.5f) + baseCamera.transform.position;
+            var anchor = RootObject.Instance.CalibrationManager?.Anchor;
+            var position = anchor != null ? anchor.InverseTransformPoint(worldPos) : worldPos;
             var stepManager = RootObject.Instance.LEE.StepManager;
             var step = stepManager.AddStep(new Location { Position = position, Rotation = Vector3.zero, Scale = Vector3.one });
             stepManager.GoToStep(step.Id);

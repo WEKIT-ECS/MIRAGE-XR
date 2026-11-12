@@ -59,7 +59,7 @@ namespace MirageXR
             await _dialogWindow.DOFade(1f, 0.3f).AsyncWaitForCompletion();
             _dialogWindow.interactable = true;
             _dialogWindow.blocksRaycasts = true;
-            await RootObject.Instance.RoomTwinManager.LoadRoomTwinModelFromId(elementId);
+            await RootObject.Instance.RoomTwinManager.AssignDigitalTwinAsync(elementId);
             _dialogWindow.interactable = false;
             _dialogWindow.blocksRaycasts = false;
             await _dialogWindow.DOFade(0f, 0.4f).AsyncWaitForCompletion();

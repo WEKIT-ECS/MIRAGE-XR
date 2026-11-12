@@ -151,74 +151,7 @@ namespace MirageXR
             InvokeEvent(TutorialEvent.ACTION_STEP_ACTIVATED);
         }
 
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////////////// MOSTLY LEGACY, WILL BE REMOVED WHEN REFACTORING HOLOLENS TUTORIAL /////////////////////////////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// Method that sets up and starts the tutorial.
-        /// Setup includes loading and ordering the list of steps.
-        /// The tutorial starts from the first step.
-        /// </summary>
-        /// <param name="type">The type of the tutorial.
-        /// Take care to give it the right type, based on the current platform
-        /// </param>
-        public void StartTutorial(TutorialType type)
-        {
-
-            if (type == TutorialType.HOLOLENS)
-            {
-                IsTutorialRunning = true;
-                if (TutorialButton != null)
-                {
-                    TutorialButton.SetIconActive();
-                }
-
-                PopulateStepListForHololens();
-                _currentStepNumber = -1;
-
-                NextStep();
-            }
-            else
-            {
-                Debug.LogError("Tried to start unknown tutorial type.");
-            }
-        }
-
-        private void PopulateStepListForHololens()
-        {
-            _steps.Clear();
-            _steps.Add(new StepUnlockActivityMenu());
-            _steps.Add(new StepDragActivityMenu());
-            _steps.Add(new StepLockActivityMenu());
-            _steps.Add(new StepCreateNewActivity());
-            _steps.Add(new StepDragActionEditor());
-            _steps.Add(new StepRenameActivity());
-            _steps.Add(new StepCreateNewActionStep());
-            _steps.Add(new StepAddActionStepTitle());
-            _steps.Add(new StepAddActionStepDescription());
-            //steps.Add(new StepCreateNewAugmentation());
-            _steps.Add(new StepSelectLabelAugmentation());
-            _steps.Add(new StepEnterLabelText());
-            _steps.Add(new StepAddLabelToScene());
-            _steps.Add(new StepMoveCreatedLabel());
-            _steps.Add(new StepDeleteActionStep());
-            _steps.Add(new StepSaveActivity());
-            _steps.Add(new StepUploadActivity());
-        }
-
-        private void PopulateStepListForMobileViewing()
-        {
-            _steps.Clear();
-            _steps.Add(new MVTSelectTutorialActivityStep());
-            _steps.Add(new MVTCalibrationGuideStep());
-            _steps.Add(new MVTSwitchTabsStep());
-            _steps.Add(new MVTLabelTriggerStep());
-            _steps.Add(new MVTGhostTrackStep());
-            _steps.Add(new MVTHighlightTriggerStep());
-            _steps.Add(new MVTPickAndPlaceStep());
-            _steps.Add(new MVTFinishTutorialStep());
-        }
 
         /// <summary>
         /// Method that initiates the next TutorialStep in the list.
@@ -273,26 +206,7 @@ namespace MirageXR
             }
         }
 
-        /// <summary>
-        /// Starts the tutorial if it is currently not running and
-        /// closes it otherwise.
-        /// </summary>
-        public void ToggleTutorial(TutorialType type)
-        {
-            if (IsTutorialRunning)
-            {
-                CloseTutorial();
-            }
-            else
-            {
-                StartTutorial(type);
-            }
 
-        }
-
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////////////////////////////// END OF LEGACY /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
         /// Shows the help selection popup, which is dynamically generated

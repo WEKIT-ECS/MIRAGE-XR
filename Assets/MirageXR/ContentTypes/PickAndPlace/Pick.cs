@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using Microsoft.MixedReality.Toolkit.UI;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,7 +11,7 @@ namespace MirageXR
         private static readonly int ColorProperty = Shader.PropertyToID("_Color");
 
         [SerializeField] private Transform _targetTransform;
-        [SerializeField] private ObjectManipulator _objectManipulator;
+        [SerializeField] private SimpleBoundingBox _simpleBoundingBox;
         [SerializeField] private Button _changeModelButton;
         [SerializeField] private Text _hoverGuide;
         [SerializeField] private AudioSource _audioSource;
@@ -70,8 +69,16 @@ namespace MirageXR
 
         private void Start()
         {
-            _objectManipulator.OnManipulationStarted.AddListener(OnManipulationStarted);
-            _objectManipulator.OnManipulationEnded.AddListener(OnManipulationEnded);
+            if (_simpleBoundingBox == null)
+            {
+                _simpleBoundingBox = GetComponent<SimpleBoundingBox>();
+            }
+
+            if (_simpleBoundingBox != null)
+            {
+                _simpleBoundingBox.TranslateStarted.AddListener(OnManipulationStarted);
+                _simpleBoundingBox.TranslateStopped.AddListener(OnManipulationEnded);
+            }
             _changeModelButton.onClick.AddListener(CapturePickModel);
 
             _moveMode = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive;
@@ -85,7 +92,11 @@ namespace MirageXR
         private void CapturePickModel()
         {
             _changeModelButton.GetComponent<Image>().color = Color.red;
-            ActionEditor.Instance.pickArrowModelCapturing = (true, this);
+            var controller = GetComponentInParent<PickAndPlaceController>();
+            if (controller)
+            {
+                controller.PickArrowModelCapturing = (true, this);
+            }
         }
 
         public void SetMoveMode(bool value)
@@ -99,12 +110,12 @@ namespace MirageXR
             }
         }
 
-        private void OnManipulationStarted(ManipulationEventData data)
+        public void OnManipulationStarted()
         {
             SetArrowWrongColor();
         }
 
-        private void OnManipulationEnded(ManipulationEventData data)
+        public void OnManipulationEnded()
         {
             if (_moveMode)
             {

@@ -1,5 +1,5 @@
-﻿using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace MirageXR
 {
@@ -15,7 +15,7 @@ namespace MirageXR
         [SerializeField] private Transform upperDisplay;
 
         [SerializeField] private Transform calibrationButton;
-        [SerializeField] private Interactable calibrationStartButton;
+        [SerializeField] private Button calibrationStartButton;
         [SerializeField] private CalibrationFlow calibrationFlowPrefab;
 
         public Transform startTransform;
@@ -55,7 +55,7 @@ namespace MirageXR
 
             if (calibrationStartButton)
             {
-                calibrationStartButton.OnClick.AddListener(StartCalibrationFlow);
+                calibrationStartButton.onClick.AddListener(StartCalibrationFlow);
             }
         }
 

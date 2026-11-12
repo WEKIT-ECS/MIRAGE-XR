@@ -47,6 +47,7 @@ namespace MirageXR
 		public FloorManagerWrapper FloorManager => _floorManager;
 		public FloorManagerWithFallback FloorManagerWithRaycastFallback => _floorManagerWithRaycastFallback;
 		public PlaneManagerWrapper PlaneManager => _planeManager;
+		public PointCloudManager PointCloudManager => _pointCloudManager;
 		public GridManager GridManager => _gridManager;
 		public WorkplaceController WorkplaceController => _workplaceController;
 		public ContentAugmentationController ContentController => _contentController;

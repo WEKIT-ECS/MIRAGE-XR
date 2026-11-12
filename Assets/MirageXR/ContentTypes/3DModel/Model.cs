@@ -1,12 +1,9 @@
 using LearningExperienceEngine;
 using System;
-using Microsoft.MixedReality.Toolkit.UI;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using GLTFast;
-using Microsoft.MixedReality.Toolkit.Utilities;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
@@ -18,6 +15,8 @@ namespace MirageXR
         private const float LIBRARY_MODEL_SCALE = 2f;
 
         private static LearningExperienceEngine.ActivityManager _activityManager => LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld;
+
+        private static GridManager gridManager => RootObject.Instance.GridManager;
 
         private LearningExperienceEngine.ToggleObject _obj;
         private Animation _animation;
@@ -220,7 +219,7 @@ namespace MirageXR
         {
             try
             {
-                var model = await Addressables.LoadAssetAsync<GameObject>(libraryModelPrefabName);
+                var model = await Addressables.LoadAssetAsync<GameObject>(libraryModelPrefabName).Task;
                 var instantiatedModel = Instantiate((GameObject)model, transform);
                 OnFinishLoading(instantiatedModel); // , null
             }
@@ -239,44 +238,27 @@ namespace MirageXR
                 poiEditor.EnableBoundsControl(!_obj.positionLock);
             }
             
-            var gridManager = RootObject.Instance.GridManager;
-            var objectManipulator = GetComponentInParent<ObjectManipulator>();
-            if (objectManipulator)
-            {
-                objectManipulator.OnManipulationStarted.RemoveAllListeners();
-                objectManipulator.OnManipulationEnded.RemoveAllListeners();
-                objectManipulator.OnManipulationStarted.AddListener(eventData => gridManager.onManipulationStarted(eventData.ManipulationSource));
-                objectManipulator.OnManipulationEnded.AddListener(eventData =>
-                {
-                    gridManager.onManipulationEnded(eventData.ManipulationSource);
-                    poiEditor.OnChanged();
-                });
-            }
-            
-            var boundsControl = GetComponentInParent<BoundsControl>();
+            var boundsControl = GetComponentInParent<SimpleBoundingBox>() ?? GetComponent<SimpleBoundingBox>();
             if (boundsControl)
             {
-                boundsControl.RotateStarted.AddListener(() => gridManager.onRotateStarted?.Invoke(boundsControl.Target));
+                boundsControl.RotateStarted.AddListener(() => gridManager.onRotateStarted?.Invoke(boundsControl.Target ? boundsControl.Target.gameObject : boundsControl.gameObject));
                 boundsControl.RotateStopped.AddListener(() =>
                 {
-                    gridManager.onRotateStopped?.Invoke(boundsControl.Target);
+                    gridManager.onRotateStopped?.Invoke(boundsControl.Target ? boundsControl.Target.gameObject : boundsControl.gameObject);
                     poiEditor.OnChanged();
                 });
-                boundsControl.ScaleStarted.AddListener(() => gridManager.onScaleStarted?.Invoke(boundsControl.Target));
+                boundsControl.ScaleStarted.AddListener(() => gridManager.onScaleStarted?.Invoke(boundsControl.Target ? boundsControl.Target.gameObject : boundsControl.gameObject));
                 boundsControl.ScaleStopped.AddListener(() =>
                 {
-                    gridManager.onScaleStopped?.Invoke(boundsControl.Target);
+                    gridManager.onScaleStopped?.Invoke(boundsControl.Target ? boundsControl.Target.gameObject : boundsControl.gameObject);
                     poiEditor.OnChanged();
                 });
-                boundsControl.TranslateStarted.AddListener(() => gridManager.onTranslateStarted?.Invoke(boundsControl.Target));
+                boundsControl.TranslateStarted.AddListener(() => gridManager.onTranslateStarted?.Invoke(boundsControl.Target ? boundsControl.Target.gameObject : boundsControl.gameObject));
                 boundsControl.TranslateStopped.AddListener(() =>
                 {
-                    gridManager.onTranslateStopped?.Invoke(boundsControl.Target);
+                    gridManager.onTranslateStopped?.Invoke(boundsControl.Target ? boundsControl.Target.gameObject : boundsControl.gameObject);
                     poiEditor.OnChanged();
                 });
-            } else
-            {
-                Debug.LogWarning("[Model] Could not find boundary box control of the model.");
             }
             /*
             */
@@ -450,15 +432,10 @@ namespace MirageXR
                 {
                     poiEditor.IsLocked(_obj.positionLock);
 
-                    if(poiEditor.transform.GetComponent<BoundsControl>() && _activityManager.EditModeActive)
+                    if (poiEditor.transform.GetComponent<SimpleBoundingBox>() && _activityManager.EditModeActive)
                     {
                         poiEditor.EnableBoundsControl(!_obj.positionLock);
                     }
-                }
-
-                if (gameObject.GetComponent<ObjectManipulator>())
-                {
-                    gameObject.GetComponent<ObjectManipulator>().enabled = !_obj.positionLock;
                 }
             }
         }

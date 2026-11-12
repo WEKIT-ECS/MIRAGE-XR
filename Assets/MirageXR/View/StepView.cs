@@ -1,6 +1,7 @@
 using System;
 using LearningExperienceEngine.DataModel;
 using TMPro;
+using Unity.PolySpatial;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
@@ -76,6 +77,27 @@ namespace MirageXR.View
         public void Initialize(ActivityStep step)
         {
             _camera = RootObject.Instance.BaseCamera;
+            _step = step;
+
+            if (step?.Location != null)
+            {
+                transform.SetLocalPositionAndRotation(step.Location.Position, Quaternion.Euler(step.Location.Rotation));
+                transform.localScale = step.Location.Scale;
+            }
+
+            if (diamond != null)
+            {
+                var diamondCollider = diamond.GetComponent<Collider>();
+                if (diamondCollider == null)
+                {
+                    diamond.gameObject.AddComponent<SphereCollider>();
+                }
+                if (diamond.GetComponent<VisionOSHoverEffect>() == null)
+                {
+                    diamond.gameObject.AddComponent<VisionOSHoverEffect>();
+                }
+            }
+
             InitializeManipulator();
 
             _isNeedToShowInfoScreen = RootObject.Instance.PlatformManager.GetUiType() == UiType.Spatial;
@@ -85,6 +107,7 @@ namespace MirageXR.View
                 _infoScreenView = Instantiate(_infoPanelPrefab, transform, false);
                 _infoScreenView.Initialize(step);
             }
+
             _isInitialized = true;
             UpdateView(step);
             
@@ -145,17 +168,28 @@ namespace MirageXR.View
             rigidBody.useGravity = false;
 
             var generalGrabTransformer = gameObject.AddComponent<XRGeneralGrabTransformer>();
+            generalGrabTransformer.enabled = false;
             generalGrabTransformer.allowTwoHandedScaling = true;
 
             var xrGrabInteractable = gameObject.AddComponent<XRGrabInteractable>();
+            xrGrabInteractable.enabled = false;
+            xrGrabInteractable.movementType = XRBaseInteractable.MovementType.Instantaneous;
             xrGrabInteractable.trackRotation = false;
             xrGrabInteractable.trackScale = false;
             xrGrabInteractable.throwOnDetach = false;
+            xrGrabInteractable.allowGazeInteraction = true;
+            xrGrabInteractable.allowGazeSelect = true;
+            xrGrabInteractable.allowGazeAssistance = true;
             xrGrabInteractable.selectEntered.AddListener(_ => OnManipulationStarted());
             xrGrabInteractable.selectExited.AddListener(_ => OnManipulationEnded());
             xrGrabInteractable.useDynamicAttach = true;
             xrGrabInteractable.reinitializeDynamicAttachEverySingleGrab = false;
             xrGrabInteractable.snapToColliderVolume = false;
+
+            if (gameObject.GetComponent<VisionOSHoverEffect>() == null)
+            {
+                gameObject.AddComponent<VisionOSHoverEffect>();
+            }
 
             SetInteractable(RootObject.Instance.LEE.ActivityManager.IsEditorMode);
         }
@@ -163,6 +197,11 @@ namespace MirageXR.View
         private void OnManipulationStarted()
         {
             _isSelected = true;
+            var gridManager = RootObject.Instance?.GridManager;
+            if (gridManager != null && (gridManager.snapEnabled || gridManager.snapToSurface))
+            {
+                gridManager.onManipulationStarted?.Invoke(gameObject);
+            }
             _onManipulationStartedEvent.Invoke(transform);
         }
 
@@ -174,6 +213,13 @@ namespace MirageXR.View
         private void OnManipulationEnded()
         {
             _isSelected = false;
+
+            var gridManager = RootObject.Instance?.GridManager;
+            if (gridManager != null && (gridManager.snapEnabled || gridManager.snapToSurface))
+            {
+                gridManager.onManipulationEnded?.Invoke(gameObject);
+            }
+
             _step.Location.Position = transform.localPosition;
             _onManipulationEndedEvent.Invoke(transform);
         }

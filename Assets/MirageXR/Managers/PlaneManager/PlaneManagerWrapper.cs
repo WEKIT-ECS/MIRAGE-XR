@@ -36,7 +36,6 @@ public class PlaneManagerWrapper : MonoBehaviour
         Default,
         Editor,
         ARFoundation,
-        MRTK,
     }
 
     [SerializeField] private ForceManagerType _forceManagerType = ForceManagerType.Default;
@@ -137,8 +136,6 @@ public class PlaneManagerWrapper : MonoBehaviour
                 var managerARFoundation = gameObject.AddComponent<PlaneManagerARFoundation>();
                 managerARFoundation.prefabPlane = _prefabARFoundationPlane;
                 return managerARFoundation;
-            case ForceManagerType.MRTK:
-                return gameObject.AddComponent<PlaneManagerMRTK>();
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -153,7 +150,8 @@ public class PlaneManagerWrapper : MonoBehaviour
         var manager = gameObject.AddComponent<PlaneManagerARFoundation>();
         manager.prefabPlane = _prefabARFoundationPlane;
 #else
-        var manager = gameObject.AddComponent<PlaneManagerMRTK>();
+        var manager = gameObject.AddComponent<PlaneManagerARFoundation>();
+        manager.prefabPlane = _prefabARFoundationPlane;
 #endif
         return manager;
     }

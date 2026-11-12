@@ -14,6 +14,7 @@ public class GridView : PopupBase
     [SerializeField] private Button _btnClose;
     [SerializeField] private Toggle _activateGridToggle;
     [SerializeField] private Toggle _snapToGridToggle;
+    [SerializeField] private Toggle _showMeshToggle;
     [SerializeField] private Toggle _showOriginalObjectToggle;
     [SerializeField] private Toggle _useObjectCenterToggle;
     [SerializeField] private GameObject _templatePrefab;
@@ -29,8 +30,12 @@ public class GridView : PopupBase
         InitClampedScrollRect(_clampedScrollAngleStep, _templatePrefab, gridManager.optionsAngleStep, gridManager.valuesAngleStep);
         InitClampedScrollRect(_clampedScrollScaleStep, _templatePrefab, gridManager.optionsScaleStep, gridManager.valuesScaleStep);
 
-        _activateGridToggle.isOn = gridManager.gridEnabled;
+        _activateGridToggle.isOn = gridManager.snapToSurface;
         _snapToGridToggle.isOn = gridManager.snapEnabled;
+        if (_showMeshToggle != null)
+        {
+            _showMeshToggle.isOn = gridManager.showMesh;
+        }
         _showOriginalObjectToggle.isOn = gridManager.showOriginalObject;
         _useObjectCenterToggle.isOn = gridManager.useObjectCenter;
 
@@ -39,8 +44,12 @@ public class GridView : PopupBase
         _clampedScrollScaleStep.currentItemIndex = gridManager.valuesScaleStep.IndexOf(gridManager.scaleStep);
 
         _btnClose.onClick.AddListener(Close);
-        _activateGridToggle.onValueChanged.AddListener(OnActivateGridToggleValueChanged);
+        _activateGridToggle.onValueChanged.AddListener(OnSnapToSurfaceToggleValueChanged);
         _snapToGridToggle.onValueChanged.AddListener(OnSnapToGridToggleValueChanged);
+        if (_showMeshToggle != null)
+        {
+            _showMeshToggle.onValueChanged.AddListener(OnShowMeshValueChanged);
+        }
         _showOriginalObjectToggle.onValueChanged.AddListener(OnShowOriginalObjectValueChanged);
         _useObjectCenterToggle.onValueChanged.AddListener(OnUseObjectCenterValueChanged);
         _clampedScrollGridStep.onItemChanged.AddListener(OnItemGridStepChanged);
@@ -82,21 +91,19 @@ public class GridView : PopupBase
         }
     }
 
-    private void OnActivateGridToggleValueChanged(bool value)
+    private void OnSnapToSurfaceToggleValueChanged(bool value)
     {
-        if (value)
-        {
-            gridManager.EnableGrid();
-        }
-        else
-        {
-            gridManager.DisableGrid();
-        }
+        gridManager.SetSnapToSurface(value);
     }
 
     private void OnShowOriginalObjectValueChanged(bool value)
     {
         gridManager.SetShowOriginalObject(value);
+    }
+
+    private void OnShowMeshValueChanged(bool value)
+    {
+        gridManager.SetShowMesh(value);
     }
 
     private void OnUseObjectCenterValueChanged(bool value)

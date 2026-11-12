@@ -52,6 +52,10 @@ public class PlaneManagerARFoundation : PlaneManagerBase
         _arPlaneManager.trackablesChanged.AddListener(ArPlaneManagerOnPlanesChanged);
 
         LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
+        if (RootObject.Instance?.LEE?.ActivityManager != null)
+        {
+            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditModeChanged;
+        }
 
         return true;
     }
@@ -69,6 +73,11 @@ public class PlaneManagerARFoundation : PlaneManagerBase
                 var subsumedById = arPlane.subsumedBy.trackableId;
                 _onPlaneRemoved.Invoke(new PlaneId(id.subId1, id.subId2), new PlaneId(subsumedById.subId1, subsumedById.subId2));
             }
+        }
+
+        if (eventArgs.added != null && eventArgs.added.Count > 0)
+        {
+            UpdatePlanes();
         }
     }
 
@@ -130,7 +139,7 @@ public class PlaneManagerARFoundation : PlaneManagerBase
         }
 
         _enableColliders = false;
-        _showPlanes = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive;
+        _showPlanes = ShouldShowPlanes();
         UpdatePlanes();
     }
 
@@ -148,6 +157,12 @@ public class PlaneManagerARFoundation : PlaneManagerBase
 
     public override void UpdatePlanes()
     {
+        if (_arPlaneManager == null)
+        {
+            return;
+        }
+
+        _showPlanes = ShouldShowPlanes();
         ARFoundationPlaneBehaviour.UpdatePlanesState(_showPlanes, _enableColliders, OnPlaneClicked);
 
         foreach (var plane in _arPlaneManager.trackables)
@@ -176,11 +191,48 @@ public class PlaneManagerARFoundation : PlaneManagerBase
     public override void Dispose()
     {
         LearningExperienceEngine.EventManager.OnEditModeChanged -= OnEditModeChanged;
+        if (RootObject.Instance?.LEE?.ActivityManager != null)
+        {
+            RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged -= OnEditModeChanged;
+        }
     }
 
     private void OnEditModeChanged(bool value)
     {
-        _showPlanes = value || _enableColliders;
+        _showPlanes = ShouldShowPlanes();
         UpdatePlanes();
+    }
+
+    private bool ShouldShowPlanes()
+    {
+        if (_enableColliders)
+        {
+            return true;
+        }
+#if UNITY_VISIONOS
+        return false;
+#else
+        bool isEditMode = (LearningExperienceEngine.LearningExperienceEngine.Instance?.ActivityManagerOld?.EditModeActive ?? false)
+            || (RootObject.Instance?.LEE?.ActivityManager?.IsEditorMode ?? false);
+        if (!isEditMode)
+        {
+            return false;
+        }
+
+        var gridManager = RootObject.Instance?.GridManager;
+        bool showMesh = gridManager != null ? gridManager.showMesh : LearningExperienceEngine.UserSettings.showMesh;
+        if (!showMesh)
+        {
+            return false;
+        }
+
+        var pointCloudManager = RootObject.Instance?.PointCloudManager;
+        if (pointCloudManager != null && pointCloudManager.HasSpatialMeshes)
+        {
+            return false;
+        }
+
+        return true;
+#endif
     }
 }

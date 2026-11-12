@@ -1,4 +1,3 @@
-﻿using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -60,20 +59,25 @@ namespace MirageXR
         private void DeleteButtonEvent()
         {
             var deleteButton = iconDelete.GetComponent<Button>();
+            if (deleteButton == null)
+            {
+                return;
+            }
+
             deleteButton.onClick.RemoveAllListeners();
-            deleteButton.GetComponent<PressableButton>().ButtonPressed.RemoveAllListeners();
 
             var sessionButton = GetComponent<SessionButton>();
 
             if (iconDownloaded.activeInHierarchy)
             {
-                deleteButton.onClick.AddListener(sessionButton.OnDeleteButtonPressed);
-                deleteButton.GetComponent<PressableButton>().ButtonPressed.AddListener(sessionButton.OnDeleteButtonPressed);
+                if (sessionButton != null)
+                {
+                    deleteButton.onClick.AddListener(sessionButton.OnDeleteButtonPressed);
+                }
             }
             else if (Content.userIsOwner)
             {
                 deleteButton.onClick.AddListener(() => DeleteActivityDialog(Content));
-                deleteButton.GetComponent<PressableButton>().ButtonPressed.AddListener(() => DeleteActivityDialog(Content));
             }
         }
 
