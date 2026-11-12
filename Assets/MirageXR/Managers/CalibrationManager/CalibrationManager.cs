@@ -52,6 +52,7 @@ namespace MirageXR
         private bool _isWaitingForImageTarget;
         private CalibrationTool _calibrationTool;
         private Transform _arAnchor;
+        private GameObject _anchorVisual;
         private GameObject _debugSphere;
         private bool _isCalibrated;
         private bool _isInitialized;
@@ -73,6 +74,7 @@ namespace MirageXR
             await _assetsManager.WaitForInitialization();
 
             _anchor = CreateAnchor();
+            EnsureAnchorVisual();
             _imageTargetModel = new ImageTargetModel
             {
                 name = "calibrationImageTarget",
@@ -83,8 +85,101 @@ namespace MirageXR
             };
 
             LearningExperienceEngine.EventManager.OnSetPoseSynchronizerTargetToCalibrationAnchor += OnSetCalibrationAnchor;
+            LearningExperienceEngine.EventManager.OnEditModeChanged += OnEditModeChanged;
+            if (floorManager != null)
+            {
+                floorManager.OnFloorLevelChanged += OnFloorLevelChanged;
+            }
+            if (RootObject.Instance?.LEE?.ActivityManager != null)
+            {
+                RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditModeChanged;
+                RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityChanged;
+                RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnActivityChanged;
+                RootObject.Instance.LEE.ActivityManager.OnActivityClosed += OnActivityClosed;
+            }
+            UpdateUncalibratedAnchorFloorLevel();
+            UpdateAnchorVisualVisibility();
             _isInitialized = true;
             UnityEngine.Debug.Log("Initializing [CalibrationManager] -->");
+        }
+
+        private void OnFloorLevelChanged(float floorY)
+        {
+            UpdateUncalibratedAnchorFloorLevel();
+        }
+
+        public void UpdateUncalibratedAnchorFloorLevel()
+        {
+            if (!_isCalibrated && _arAnchor == null && _anchor != null && floorManager != null)
+            {
+                float floorY = floorManager.floorLevel;
+                _anchor.position = new Vector3(_anchor.position.x, floorY, _anchor.position.z);
+            }
+        }
+
+        private void EnsureAnchorVisual()
+        {
+            if (_anchorVisual != null || _anchor == null)
+            {
+                return;
+            }
+
+            var prefab = floorManager != null ? floorManager.PrefabAnchor : null;
+            if (prefab != null)
+            {
+                _anchorVisual = Object.Instantiate(prefab, _anchor, false);
+                _anchorVisual.name = "CalibrationAnchorVisual";
+                _anchorVisual.transform.localPosition = Vector3.zero;
+                _anchorVisual.transform.localRotation = Quaternion.identity;
+
+                var arAnchorComp = _anchorVisual.GetComponent<UnityEngine.XR.ARFoundation.ARAnchor>();
+                if (arAnchorComp != null)
+                {
+                    Object.Destroy(arAnchorComp);
+                }
+            }
+        }
+
+        private void OnEditModeChanged(bool value)
+        {
+            UpdateAnchorVisualVisibility();
+        }
+
+        private void OnActivityChanged(LearningExperienceEngine.DataModel.Activity activity)
+        {
+            UpdateAnchorVisualVisibility();
+        }
+
+        private void OnActivityClosed()
+        {
+            UpdateAnchorVisualVisibility();
+        }
+
+        public void UpdateAnchorVisualVisibility()
+        {
+            UpdateUncalibratedAnchorFloorLevel();
+            EnsureAnchorVisual();
+            if (_anchorVisual == null)
+            {
+                return;
+            }
+
+            bool isEditMode = false;
+            bool hasActivity = false;
+
+            if (RootObject.Instance?.LEE?.ActivityManager != null)
+            {
+                isEditMode |= RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+                hasActivity |= RootObject.Instance.LEE.ActivityManager.Activity != null;
+            }
+
+            if (LearningExperienceEngine.LearningExperienceEngine.Instance?.ActivityManagerOld != null)
+            {
+                isEditMode |= LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.EditModeActive;
+                hasActivity |= LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManagerOld.Activity != null;
+            }
+
+            _anchorVisual.SetActive(isEditMode && hasActivity);
         }
 
         public void EnableCalibration(bool isRecalibration = false)
@@ -249,10 +344,19 @@ namespace MirageXR
             }
             else
             {
+                foreach (var r in arAnchor.GetComponentsInChildren<Renderer>(true))
+                {
+                    if (r != null && (_anchor == null || !r.transform.IsChildOf(_anchor)))
+                    {
+                        r.enabled = false;
+                    }
+                }
                 _anchor.SetParent(arAnchor.transform);
                 _anchor.localPosition = Vector3.zero;
                 _anchor.localRotation = Quaternion.identity;
             }
+
+            UpdateAnchorVisualVisibility();
 
             var activityView = RootObject.Instance.ViewManager.ActivityView;
             if (activityView == null)

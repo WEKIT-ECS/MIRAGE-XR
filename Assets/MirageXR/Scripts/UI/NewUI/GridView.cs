@@ -30,7 +30,7 @@ public class GridView : PopupBase
         InitClampedScrollRect(_clampedScrollAngleStep, _templatePrefab, gridManager.optionsAngleStep, gridManager.valuesAngleStep);
         InitClampedScrollRect(_clampedScrollScaleStep, _templatePrefab, gridManager.optionsScaleStep, gridManager.valuesScaleStep);
 
-        _activateGridToggle.isOn = gridManager.gridEnabled;
+        _activateGridToggle.isOn = gridManager.snapToSurface;
         _snapToGridToggle.isOn = gridManager.snapEnabled;
         if (_showMeshToggle != null)
         {
@@ -44,7 +44,7 @@ public class GridView : PopupBase
         _clampedScrollScaleStep.currentItemIndex = gridManager.valuesScaleStep.IndexOf(gridManager.scaleStep);
 
         _btnClose.onClick.AddListener(Close);
-        _activateGridToggle.onValueChanged.AddListener(OnActivateGridToggleValueChanged);
+        _activateGridToggle.onValueChanged.AddListener(OnSnapToSurfaceToggleValueChanged);
         _snapToGridToggle.onValueChanged.AddListener(OnSnapToGridToggleValueChanged);
         if (_showMeshToggle != null)
         {
@@ -91,16 +91,9 @@ public class GridView : PopupBase
         }
     }
 
-    private void OnActivateGridToggleValueChanged(bool value)
+    private void OnSnapToSurfaceToggleValueChanged(bool value)
     {
-        if (value)
-        {
-            gridManager.EnableGrid();
-        }
-        else
-        {
-            gridManager.DisableGrid();
-        }
+        gridManager.SetSnapToSurface(value);
     }
 
     private void OnShowOriginalObjectValueChanged(bool value)

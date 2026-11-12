@@ -167,7 +167,9 @@ namespace MirageXR
         private void OnAddNewActivityClick()
         {
             var baseCamera = RootObject.Instance.BaseCamera;
-            var position = (baseCamera.transform.forward * 0.5f) + baseCamera.transform.position;   //TODO: move to Manager
+            var worldPos = (baseCamera.transform.forward * 0.5f) + baseCamera.transform.position;   //TODO: move to Manager
+            var anchor = RootObject.Instance.CalibrationManager?.Anchor;
+            var position = anchor != null ? anchor.InverseTransformPoint(worldPos) : worldPos;
             RootObject.Instance.LEE.ActivityManager.CreateNewActivity(position);
         }
 

@@ -171,7 +171,7 @@ namespace MirageXR.View
             _onManipulationStarted.Invoke(transform);
 
             var gridManager = RootObject.Instance?.GridManager;
-            if (gridManager != null && gridManager.snapEnabled)
+            if (gridManager != null && (gridManager.snapEnabled || gridManager.snapToSurface))
             {
                 gridManager.onManipulationStarted?.Invoke(gameObject);
             }
@@ -187,7 +187,7 @@ namespace MirageXR.View
             _isSelected = false;
 
             var gridManager = RootObject.Instance?.GridManager;
-            if (gridManager != null && gridManager.snapEnabled)
+            if (gridManager != null && (gridManager.snapEnabled || gridManager.snapToSurface))
             {
                 gridManager.onManipulationEnded?.Invoke(gameObject);
             }

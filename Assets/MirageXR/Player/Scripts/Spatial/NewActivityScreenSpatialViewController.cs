@@ -397,7 +397,9 @@ namespace MirageXR  //TODO: add Spatial namespace
         private void OnButtonAddNewStepClicked()
         {
             var baseCamera = RootObject.Instance.BaseCamera;
-            var position = (baseCamera.transform.forward * 0.5f) + baseCamera.transform.position;
+            var worldPos = (baseCamera.transform.forward * 0.5f) + baseCamera.transform.position;
+            var anchor = RootObject.Instance.CalibrationManager?.Anchor;
+            var position = anchor != null ? anchor.InverseTransformPoint(worldPos) : worldPos;
             var stepManager = RootObject.Instance.LEE.StepManager;
             var step = stepManager.AddStep(new Location { Position = position, Rotation = Vector3.zero, Scale = Vector3.one });
             stepManager.GoToStep(step.Id);

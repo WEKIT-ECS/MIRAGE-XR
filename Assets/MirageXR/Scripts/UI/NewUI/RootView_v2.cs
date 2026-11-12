@@ -273,7 +273,10 @@ public class RootView_v2 : BaseView
     {
         LoadView.Instance.Show();
         var baseCamera = RootObject.Instance.BaseCamera;
-        RootObject.Instance.LEE.ActivityManager.CreateNewActivity((baseCamera.transform.forward * 0.5f) + baseCamera.transform.position);
+        var worldPos = (baseCamera.transform.forward * 0.5f) + baseCamera.transform.position;
+        var anchor = RootObject.Instance.CalibrationManager?.Anchor;
+        var position = anchor != null ? anchor.InverseTransformPoint(worldPos) : worldPos;
+        RootObject.Instance.LEE.ActivityManager.CreateNewActivity(position);
         _pageView.currentPageIndex = 1;
         LoadView.Instance.Hide();
     }

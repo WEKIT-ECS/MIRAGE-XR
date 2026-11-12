@@ -41,6 +41,19 @@ namespace MirageXR.View
 
         protected virtual async UniTask InitializeAsync()
         {
+            var calibrationManager = RootObject.Instance.CalibrationManager;
+            if (calibrationManager != null)
+            {
+                if (!calibrationManager.IsInitialized)
+                {
+                    await calibrationManager.WaitForInitialization();
+                }
+                if (calibrationManager.Anchor != null && transform.parent != calibrationManager.Anchor)
+                {
+                    transform.SetParent(calibrationManager.Anchor, false);
+                }
+            }
+
             RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityLoaded;
             RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnActivityUpdated;
             RootObject.Instance.LEE.StepManager.OnStepChanged += OnStepChanged;
@@ -53,25 +66,7 @@ namespace MirageXR.View
                 OnActivityLoaded(RootObject.Instance.LEE.ActivityManager.Activity);
             }
 
-            var calibrationManager = RootObject.Instance.CalibrationManager;
-            await calibrationManager.WaitForInitialization();
-            if (transform.parent != calibrationManager.Anchor)
-            {
-                transform.SetParent(calibrationManager.Anchor, false);
-            }
             UpdateLocation(_activity);
-
-#if UNITY_EDITOR
-            var tempObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            tempObject.transform.SetParent(transform);
-            tempObject.transform.SetLocalPose(Pose.identity);
-            var tempCollider = tempObject.GetComponent<Collider>();
-            if (tempCollider)
-            {
-                Destroy(tempCollider);
-            }
-            tempObject.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-#endif
         }
 
         protected virtual void OnSyncMessageReceived(SynchronizationDataModel data)

@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.NewDataModel;
 using MirageXR;
 using UnityEngine;
+using UnityEngine.XR.ARFoundation;
 
 public class GridManager : MonoBehaviour, IDisposable
 {
@@ -17,8 +18,9 @@ public class GridManager : MonoBehaviour, IDisposable
 
     private PlacementGrid _grid;
     private ManipulationController _manipulationController;
-    private bool _gridEnabled = false;
-    private bool _snapEnabled = false;
+    private bool _gridEnabled = true;
+    private bool _snapEnabled = true;
+    private bool _snapToSurface = false;
     private bool _showMesh = true;
     private bool _showOriginalObject = false;
     private bool _useObjectCenter = false;
@@ -62,11 +64,13 @@ public class GridManager : MonoBehaviour, IDisposable
 
     public Material ghostMaterial => _ghostMaterial;
 
-    public bool gridShown => _grid.gameObject.activeInHierarchy;
+    public bool gridShown => _grid != null && _grid.gameObject.activeInHierarchy;
 
     public bool gridEnabled => _gridEnabled;
 
     public bool snapEnabled => _snapEnabled;
+
+    public bool snapToSurface => _snapToSurface;
 
     public bool showMesh => _showMesh;
 
@@ -99,13 +103,15 @@ public class GridManager : MonoBehaviour, IDisposable
     public void Initialization()
     {
         UnityEngine.Debug.Log("Initializing [GridManager] <--");
-        _gridEnabled = LearningExperienceEngine.UserSettings.showGrid;
+        _gridEnabled = true;
         _snapEnabled = LearningExperienceEngine.UserSettings.snapToGrid;
+        _snapToSurface = LearningExperienceEngine.UserSettings.snapToSurface;
         _showMesh = LearningExperienceEngine.UserSettings.showMesh;
         _cellWidth = LearningExperienceEngine.UserSettings.gridCellWidth;
         _angleStep = LearningExperienceEngine.UserSettings.gridAngleStep;
         _scaleStep = LearningExperienceEngine.UserSettings.gridScaleStep;
         _showOriginalObject = LearningExperienceEngine.UserSettings.gridShowOriginalObject;
+        _useObjectCenter = LearningExperienceEngine.UserSettings.gridUseObjectCenter;
 
         if (!_gridPrefab)
         {
@@ -139,7 +145,7 @@ public class GridManager : MonoBehaviour, IDisposable
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditModeChanged;
         }
 
-        if (_gridEnabled && IsEditModeActive())
+        if (IsEditModeActive())
         {
             ShowGrid();
         }
@@ -169,9 +175,9 @@ public class GridManager : MonoBehaviour, IDisposable
     {
         if (calibrationManager != null && !calibrationManager.IsCalibrated && calibrationManager.Anchor != null)
         {
-            float floorY = floorManager != null ? floorManager.floorLevel : -1.25f;
-            calibrationManager.Anchor.position = new Vector3(0, floorY, 0);
-            calibrationManager.Anchor.rotation = Quaternion.identity;
+            float floorY = floorManager != null ? floorManager.floorLevel : 0f;
+            var pos = calibrationManager.Anchor.position;
+            calibrationManager.Anchor.position = new Vector3(pos.x, floorY, pos.z);
         }
     }
 
@@ -191,6 +197,13 @@ public class GridManager : MonoBehaviour, IDisposable
         _grid.transform.SetParent(anchor);
         _grid.transform.localPosition = Vector3.zero;
         _grid.transform.localRotation = Quaternion.identity;
+
+        if (floorManager != null)
+        {
+            var position = _grid.transform.position;
+            position.y = floorManager.floorLevel;
+            _grid.transform.position = position;
+        }
     }
 
     public void ShowGrid()
@@ -215,8 +228,6 @@ public class GridManager : MonoBehaviour, IDisposable
     public void EnableGrid()
     {
         _gridEnabled = true;
-        LearningExperienceEngine.UserSettings.showGrid = _gridEnabled;
-
         if (IsEditModeActive())
         {
             ShowGrid();
@@ -227,8 +238,6 @@ public class GridManager : MonoBehaviour, IDisposable
     public void DisableGrid()
     {
         _gridEnabled = false;
-        LearningExperienceEngine.UserSettings.showGrid = _gridEnabled;
-
         HideGrid();
         UpdateMeshVisibility();
     }
@@ -243,10 +252,14 @@ public class GridManager : MonoBehaviour, IDisposable
     public void UpdateMeshVisibility()
     {
         bool isEditMode = IsEditModeActive();
-        bool shouldDisplay = isEditMode && _gridEnabled && _showMesh;
+        bool shouldDisplay = isEditMode && _showMesh;
         if (RootObject.Instance?.PointCloudManager != null)
         {
             RootObject.Instance.PointCloudManager.SetMeshActive(shouldDisplay);
+        }
+        if (RootObject.Instance?.PlaneManager != null)
+        {
+            RootObject.Instance.PlaneManager.UpdatePlanes();
         }
     }
 
@@ -260,6 +273,167 @@ public class GridManager : MonoBehaviour, IDisposable
     {
         _snapEnabled = false;
         LearningExperienceEngine.UserSettings.snapToGrid = _snapEnabled;
+    }
+
+    public void SetSnapToSurface(bool value)
+    {
+        _snapToSurface = value;
+        LearningExperienceEngine.UserSettings.snapToSurface = _snapToSurface;
+    }
+
+    public void BeginSurfaceSnap()
+    {
+        if (!_snapToSurface) return;
+        RootObject.Instance?.PointCloudManager?.SetSurfaceCollidersActive(true);
+        ARFoundationPlaneBehaviour.SetSurfaceSnapCollidersActive(true);
+    }
+
+    public void EndSurfaceSnap()
+    {
+        RootObject.Instance?.PointCloudManager?.SetSurfaceCollidersActive(false);
+        ARFoundationPlaneBehaviour.SetSurfaceSnapCollidersActive(false);
+    }
+
+    private static readonly Vector3[] SurfaceSampleDirections = CreateSurfaceSampleDirections();
+
+    private static Vector3[] CreateSurfaceSampleDirections()
+    {
+        var dirs = new List<Vector3>(26);
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                for (int z = -1; z <= 1; z++)
+                {
+                    if (x == 0 && y == 0 && z == 0) continue;
+                    dirs.Add(new Vector3(x, y, z).normalized);
+                }
+            }
+        }
+        return dirs.ToArray();
+    }
+
+    public bool TryGetSurfaceSnapPosition(Vector3 targetWorldPos, Transform ignoreRoot, out Vector3 snappedWorldPos)
+    {
+        float defaultMaxDist = Mathf.Max(0.04f, (_cellWidth / 100f) * 0.5f);
+        return TryGetSurfaceSnapPosition(targetWorldPos, defaultMaxDist, ignoreRoot, out snappedWorldPos, out _);
+    }
+
+    public bool TryGetSurfaceSnapPosition(Vector3 targetWorldPos, float maxDistance, Transform ignoreRoot, out Vector3 snappedWorldPos, out float surfaceDistance)
+    {
+        snappedWorldPos = targetWorldPos;
+        surfaceDistance = float.MaxValue;
+        if (!_snapToSurface || maxDistance <= 0f)
+        {
+            return false;
+        }
+
+        const int surfaceLayerMask = (1 << 0) | (1 << 2) | (1 << 31);
+        float searchRayDist = maxDistance * 1.15f;
+        bool found = false;
+        float bestDistSq = maxDistance * maxDistance;
+        Vector3 bestPoint = targetWorldPos;
+        Vector3 bestNormal = Vector3.up;
+
+        // 1. Bilateral short-range 26-direction raycast fan centered on targetWorldPos
+        for (int i = 0; i < SurfaceSampleDirections.Length; i++)
+        {
+            Vector3 dir = SurfaceSampleDirections[i];
+            Vector3 rayOrigin = targetWorldPos - dir * searchRayDist;
+            if (Physics.Raycast(rayOrigin, dir, out RaycastHit hit, searchRayDist * 2f, surfaceLayerMask, QueryTriggerInteraction.Ignore))
+            {
+                if (IsValidSurfaceCollider(hit.collider, ignoreRoot))
+                {
+                    float dSq = (hit.point - targetWorldPos).sqrMagnitude;
+                    if (dSq <= bestDistSq)
+                    {
+                        bestDistSq = dSq;
+                        bestPoint = hit.point;
+                        bestNormal = hit.normal;
+                        found = true;
+                    }
+                }
+            }
+        }
+
+        // 2. Short segment along camera-to-target ray centered on targetWorldPos
+        var activeCamera = RootObject.Instance?.BaseCamera != null ? RootObject.Instance.BaseCamera : Camera.main;
+        if (activeCamera != null)
+        {
+            Vector3 camToTarget = targetWorldPos - activeCamera.transform.position;
+            float camDist = camToTarget.magnitude;
+            if (camDist > 0.01f)
+            {
+                Vector3 camDir = camToTarget / camDist;
+                Vector3 rayStart = targetWorldPos - camDir * maxDistance;
+                var hits = Physics.RaycastAll(rayStart, camDir, maxDistance * 2f, surfaceLayerMask, QueryTriggerInteraction.Ignore);
+                for (int i = 0; i < hits.Length; i++)
+                {
+                    if (IsValidSurfaceCollider(hits[i].collider, ignoreRoot))
+                    {
+                        float dSq = (hits[i].point - targetWorldPos).sqrMagnitude;
+                        if (dSq <= bestDistSq)
+                        {
+                            bestDistSq = dSq;
+                            bestPoint = hits[i].point;
+                            bestNormal = hits[i].normal;
+                            found = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3. Refine to orthogonal surface projection along the detected triangle normal
+        if (found && bestNormal.sqrMagnitude > 0.001f)
+        {
+            Vector3 normal = bestNormal.normalized;
+            Vector3 orthoOrigin = targetWorldPos + normal * searchRayDist;
+            if (Physics.Raycast(orthoOrigin, -normal, out RaycastHit orthoHit, searchRayDist * 2f, surfaceLayerMask, QueryTriggerInteraction.Ignore))
+            {
+                if (IsValidSurfaceCollider(orthoHit.collider, ignoreRoot))
+                {
+                    float dSq = (orthoHit.point - targetWorldPos).sqrMagnitude;
+                    if (dSq <= bestDistSq)
+                    {
+                        bestDistSq = dSq;
+                        bestPoint = orthoHit.point;
+                    }
+                }
+            }
+        }
+
+        if (found)
+        {
+            snappedWorldPos = bestPoint;
+            surfaceDistance = Mathf.Sqrt(bestDistSq);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsValidSurfaceCollider(Collider col, Transform ignoreRoot)
+    {
+        if (col == null) return false;
+        if (ignoreRoot != null && (col.transform == ignoreRoot || col.transform.IsChildOf(ignoreRoot)))
+        {
+            return false;
+        }
+
+        if (col.GetComponentInParent<MirageXR.View.ContentView>() != null ||
+            col.GetComponentInParent<MirageXR.View.StepView>() != null ||
+            col.GetComponentInParent<BoundingBoxHandle>() != null ||
+            col.gameObject.name == "CopyObject")
+        {
+            return false;
+        }
+
+        return col.GetComponent<ARPlane>() != null ||
+               col.GetComponent<ARFoundationPlaneBehaviour>() != null ||
+               col.GetComponentInParent<ARMeshManager>() != null ||
+               col.gameObject.layer == 2 ||
+               col.gameObject.layer == 31;
     }
 
     public void SetShowOriginalObject(bool value)
@@ -316,10 +490,7 @@ public class GridManager : MonoBehaviour, IDisposable
     {
         if (value)
         {
-            if (_gridEnabled)
-            {
-                ShowGrid();
-            }
+            ShowGrid();
         }
         else
         {

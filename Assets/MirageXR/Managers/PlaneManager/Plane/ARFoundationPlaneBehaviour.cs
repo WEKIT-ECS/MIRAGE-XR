@@ -9,6 +9,7 @@ public class ARFoundationPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IPoint
 {
     private static bool _isActive = false;
     private static bool _isCollidersEnabled = false;
+    private static bool _isSurfaceSnapCollidersEnabled = false;
     private static Action<PlaneId, Vector3> _onClicked;
     private static TrackableId _specialPlaneId = TrackableId.invalidId;
 
@@ -37,13 +38,46 @@ public class ARFoundationPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IPoint
         _onClicked = onClicked;
     }
 
+    public static void SetSurfaceSnapCollidersActive(bool active)
+    {
+        if (_isSurfaceSnapCollidersEnabled == active)
+        {
+            return;
+        }
+        _isSurfaceSnapCollidersEnabled = active;
+        var planes = FindObjectsByType<ARFoundationPlaneBehaviour>(FindObjectsSortMode.None);
+        foreach (var plane in planes)
+        {
+            if (plane != null && plane._meshCollider != null)
+            {
+                plane._meshCollider.enabled = _isCollidersEnabled || _isSurfaceSnapCollidersEnabled;
+            }
+        }
+    }
+
     public void UpdateState()
     {
-        _meshCollider.enabled = _isCollidersEnabled;
+        if (_meshCollider != null)
+        {
+            _meshCollider.enabled = _isCollidersEnabled || _isSurfaceSnapCollidersEnabled;
+        }
 
+        if (_meshRenderer == null)
+        {
+            return;
+        }
+
+        if (!_isActive)
+        {
+            _meshRenderer.sharedMaterials = Array.Empty<Material>();
+            _meshRenderer.enabled = false;
+            return;
+        }
+
+        _meshRenderer.enabled = true;
         if (TrackableId != _specialPlaneId || TrackableId == TrackableId.invalidId)
         {
-            _meshRenderer.sharedMaterials = _isActive ? _defaultMaterials : _shadowOnlyMaterials;
+            _meshRenderer.sharedMaterials = _defaultMaterials;
         }
         else
         {
@@ -61,6 +95,31 @@ public class ARFoundationPlaneBehaviour : MonoBehaviour, IPlaneBehaviour, IPoint
         _selectedMaterials[0] = _selectedMaterial;
         _selectedMaterials[1] = _shadowMaterial;
         _shadowOnlyMaterials[0] = _shadowMaterial;
+    }
+
+    private void OnEnable()
+    {
+        if (_arPlane != null)
+        {
+            _arPlane.boundaryChanged += OnBoundaryChanged;
+        }
+        UpdateState();
+    }
+
+    private void OnDisable()
+    {
+        if (_arPlane != null)
+        {
+            _arPlane.boundaryChanged -= OnBoundaryChanged;
+        }
+    }
+
+    private void OnBoundaryChanged(ARPlaneBoundaryChangedEventArgs args)
+    {
+        if (!_isActive && _meshRenderer != null)
+        {
+            _meshRenderer.enabled = false;
+        }
     }
 
     private void Start()

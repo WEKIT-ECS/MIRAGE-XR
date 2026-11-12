@@ -8,7 +8,7 @@ using UnityEngine.XR.ARSubsystems;
 
 public class FloorManagerARFoundation : FloorManagerBase
 {
-    private const float _DEFAULT_FLOOR_LEVEL = -1.25f;
+    private const float _DEFAULT_FLOOR_LEVEL = 0f;
     private const float DETECTION_INTERVAL = 1.2f;
 
     private float DefaultHeadHeight
@@ -23,7 +23,7 @@ public class FloorManagerARFoundation : FloorManagerBase
 #if VISION_OS || META_QUEST
             isSpatial = true;
 #endif
-            return isSpatial ? 1.6f : 1.25f;
+            return isSpatial ? 1.6f : 1.36144f;
         }
     }
 
@@ -41,6 +41,8 @@ public class FloorManagerARFoundation : FloorManagerBase
     private bool _isManualFloor = false;
     private bool _isFloorDetected = false;
     private bool _hasPhysicalSurfaceDetected = false;
+    private bool _hasPlaneFloorDetected = false;
+    private float _lastNotifiedFloorY = float.NaN;
     private Coroutine _detectFloorCoroutine;
 
     public override float floorLevel
@@ -49,7 +51,7 @@ public class FloorManagerARFoundation : FloorManagerBase
         {
             if (_floorPlane != null)
             {
-                _floorLevel = _floorPlane.transform.position;
+                return _floorPlane.transform.position.y;
             }
 
             return _floorLevel.y;
@@ -130,7 +132,9 @@ public class FloorManagerARFoundation : FloorManagerBase
             return;
         }
 
-        Transform camTransform = _viewManager?.BaseCamera != null ? _viewManager.BaseCamera.transform : (Camera.main != null ? Camera.main.transform : null);
+        Transform camTransform = _viewManager?.Camera != null
+            ? _viewManager.Camera.transform
+            : (_viewManager?.BaseCamera != null ? _viewManager.BaseCamera.transform : (Camera.main != null ? Camera.main.transform : null));
         if (camTransform == null)
         {
             return;
@@ -143,7 +147,7 @@ public class FloorManagerARFoundation : FloorManagerBase
 
         ARPlane bestPlane = null;
         bool foundClassifiedFloor = false;
-        float classifiedFloorY = float.MaxValue;
+        float bestClassifiedScore = float.MinValue;
         float bestPlaneScore = float.MinValue;
 
         if (_arPlaneManager != null)
@@ -158,22 +162,21 @@ public class FloorManagerARFoundation : FloorManagerBase
 
                 if (heightDiff >= minHeight && heightDiff <= maxHeight)
                 {
+                    float planeArea = Mathf.Max(0.01f, plane.size.x * plane.size.y);
+                    float heightDist = Mathf.Abs(heightDiff - expectedHeight);
+                    float score = planeArea / (1.0f + heightDist * 2.5f);
+
                     if (plane.classification == PlaneClassification.Floor)
                     {
-                        if (!foundClassifiedFloor || planeY < classifiedFloorY)
+                        if (!foundClassifiedFloor || score > bestClassifiedScore)
                         {
                             foundClassifiedFloor = true;
+                            bestClassifiedScore = score;
                             bestPlane = plane;
-                            classifiedFloorY = planeY;
                         }
                     }
                     else if (!foundClassifiedFloor)
                     {
-                        // Score based on surface area and proximity to expected floor distance
-                        float planeArea = Mathf.Max(0.01f, plane.size.x * plane.size.y);
-                        float heightDist = Mathf.Abs(heightDiff - expectedHeight);
-                        float score = planeArea / (1.0f + heightDist * 2.5f);
-
                         if (score > bestPlaneScore)
                         {
                             bestPlaneScore = score;
@@ -191,11 +194,13 @@ public class FloorManagerARFoundation : FloorManagerBase
             var trackableId = bestPlane.trackableId;
             _planeId = new PlaneId(trackableId.subId1, trackableId.subId2);
             _floorPlane = bestPlane.gameObject;
+            _floorLevel = new Vector3(bestPlane.transform.position.x, newY, bestPlane.transform.position.z);
 
-            if (!_isFloorDetected || Mathf.Abs(newY - _floorLevel.y) > 0.03f)
+            if (!_isFloorDetected || !_hasPlaneFloorDetected || float.IsNaN(_lastNotifiedFloorY) || Mathf.Abs(newY - _lastNotifiedFloorY) > 0.001f)
             {
-                _floorLevel = new Vector3(bestPlane.transform.position.x, newY, bestPlane.transform.position.z);
                 _isFloorDetected = true;
+                _hasPlaneFloorDetected = true;
+                _lastNotifiedFloorY = newY;
                 OnFloorLevelChanged?.Invoke(_floorLevel.y);
             }
         }
@@ -208,10 +213,11 @@ public class FloorManagerARFoundation : FloorManagerBase
                 if (hitDiff >= minHeight)
                 {
                     _hasPhysicalSurfaceDetected = true;
-                    if (!_isFloorDetected || Mathf.Abs(hit.point.y - _floorLevel.y) > 0.05f)
+                    _floorLevel = hit.point;
+                    if (!_isFloorDetected || float.IsNaN(_lastNotifiedFloorY) || Mathf.Abs(hit.point.y - _lastNotifiedFloorY) > 0.005f)
                     {
-                        _floorLevel = hit.point;
                         _isFloorDetected = true;
+                        _lastNotifiedFloorY = hit.point.y;
                         OnFloorLevelChanged?.Invoke(_floorLevel.y);
                     }
                 }
@@ -220,10 +226,11 @@ public class FloorManagerARFoundation : FloorManagerBase
             {
                 // Fallback 2: Camera holding/eye-height offset
                 float targetY = camPos.y - expectedHeight;
-                if (!_isFloorDetected || Mathf.Abs(targetY - _floorLevel.y) > 0.05f)
+                if (!_isFloorDetected || float.IsNaN(_lastNotifiedFloorY) || Mathf.Abs(targetY - _lastNotifiedFloorY) > 0.01f)
                 {
                     _floorLevel = new Vector3(camPos.x, targetY, camPos.z);
                     _isFloorDetected = true;
+                    _lastNotifiedFloorY = targetY;
                     OnFloorLevelChanged?.Invoke(_floorLevel.y);
                 }
             }
@@ -281,6 +288,8 @@ public class FloorManagerARFoundation : FloorManagerBase
         _isManualFloor = false;
         _isFloorDetected = false;
         _hasPhysicalSurfaceDetected = false;
+        _hasPlaneFloorDetected = false;
+        _lastNotifiedFloorY = float.NaN;
         _floorPlane = null;
 
         await Task.Yield();
@@ -328,8 +337,10 @@ public class FloorManagerARFoundation : FloorManagerBase
     {
         _isManualFloor = true;
         _hasPhysicalSurfaceDetected = true;
+        _hasPlaneFloorDetected = true;
         _planeId = planeId;
         _floorLevel = position;
+        _lastNotifiedFloorY = position.y;
         _isFloorDetected = true;
         var planeGameObject = RootObject.Instance.PlaneManager.GetPlane(_planeId);
         if (planeGameObject == null)

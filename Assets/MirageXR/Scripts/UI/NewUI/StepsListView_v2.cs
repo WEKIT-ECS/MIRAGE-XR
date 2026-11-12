@@ -70,6 +70,16 @@ public class StepsListView_v2 : BaseView
     private Activity _activity;
     private ActivityStep _step;
 
+    private Button _btnDigitalTwinToggle;
+    private TMP_Text _txtDigitalTwinToggleHeader;
+    private TMP_Text _txtDigitalTwinToggleDesc;
+    private Button _btnDigitalTwinStyle;
+    private TMP_Text _txtDigitalTwinStyleHeader;
+    private TMP_Text _txtDigitalTwinStyleDesc;
+    private Button _btnAssignRoomModel;
+    private TMP_Text _txtAssignRoomModelHeader;
+    private TMP_Text _txtAssignRoomModelDesc;
+
     public override void Initialization(BaseView parentView)
     {
         base.Initialization(parentView);
@@ -94,6 +104,7 @@ public class StepsListView_v2 : BaseView
         _btnWithMarker.onClick.AddListener(ShowImageTargetCalibrationView);
         _btnMarkerLess.onClick.AddListener(ShowMarkerLessCalibrationView);
         _btnShareImageMarker.onClick.AddListener(ShareCalibrationImage);
+        InitDigitalTwinCalibrationButtons();
 
         _toggleSteps.onValueChanged.AddListener(OnToggleStepValueChanged);
         _toggleInfo.onValueChanged.AddListener(OnToggleInfoValueChanged);
@@ -411,6 +422,7 @@ public class StepsListView_v2 : BaseView
         _calibration.SetActive(value);
         if (value)
         {
+            UpdateDigitalTwinButtonsUI();
             MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivityCalibration);
         }
     }
@@ -607,7 +619,9 @@ public class StepsListView_v2 : BaseView
     {
         //var index = _addStep.GetSiblingIndex();
         var baseCamera = RootObject.Instance.BaseCamera;
-        var position = (baseCamera.transform.forward * 0.5f) + baseCamera.transform.position;
+        var worldPos = (baseCamera.transform.forward * 0.5f) + baseCamera.transform.position;
+        var anchor = RootObject.Instance.CalibrationManager?.Anchor;
+        var position = anchor != null ? anchor.InverseTransformPoint(worldPos) : worldPos;
         var stepManager = RootObject.Instance.LEE.StepManager;
         var step = stepManager.AddStep(new Location { Position = position, Rotation = Vector3.zero, Scale = Vector3.one });
         stepManager.GoToStep(step.Id);
@@ -637,6 +651,10 @@ public class StepsListView_v2 : BaseView
         _btnThumbnail.interactable = value;
         _inputFieldActivityName.interactable = value;
         _inputFieldActivityDescription.interactable = value;
+        if (_btnAssignRoomModel != null)
+        {
+            _btnAssignRoomModel.interactable = value;
+        }
 
         _stepsList.ForEach(t => t.OnEditModeChanged(value));
     }
@@ -841,6 +859,249 @@ public class StepsListView_v2 : BaseView
     {
         var isEditMode = LearningExperienceEngine.LearningExperienceEngine.Instance.ActivityManager.IsEditorMode;
         PopupsViewer.Instance.Show(_calibrationViewPrefab, (Action)OnCalibrationViewOpened, (Action)OnCalibrationViewClosed, isEditMode, false, true, true);
+    }
+
+    private void InitDigitalTwinCalibrationButtons()
+    {
+        if (_btnFloorLevel == null || _btnFloorLevel.transform.parent == null)
+        {
+            return;
+        }
+
+        var parent = _btnFloorLevel.transform.parent;
+        _btnDigitalTwinToggle = CreateCalibrationCardButton(parent, "Button_DigitalTwinToggle", out _txtDigitalTwinToggleHeader, out _txtDigitalTwinToggleDesc);
+        _btnDigitalTwinStyle = CreateCalibrationCardButton(parent, "Button_DigitalTwinStyle", out _txtDigitalTwinStyleHeader, out _txtDigitalTwinStyleDesc);
+        _btnAssignRoomModel = CreateCalibrationCardButton(parent, "Button_AssignRoomModel", out _txtAssignRoomModelHeader, out _txtAssignRoomModelDesc);
+
+        if (_btnDigitalTwinToggle != null)
+        {
+            _btnDigitalTwinToggle.onClick.AddListener(OnToggleDigitalTwinClicked);
+        }
+        if (_btnDigitalTwinStyle != null)
+        {
+            _btnDigitalTwinStyle.onClick.AddListener(OnSelectDigitalTwinStyleClicked);
+        }
+        if (_btnAssignRoomModel != null)
+        {
+            _btnAssignRoomModel.onClick.AddListener(() => OnAssignRoomModelClickedAsync().Forget());
+            _btnAssignRoomModel.interactable = activityManager != null && activityManager.IsEditorMode;
+        }
+
+        UpdateDigitalTwinButtonsUI();
+    }
+
+    private Button CreateCalibrationCardButton(Transform parent, string name, out TMP_Text headerText, out TMP_Text descText)
+    {
+        headerText = null;
+        descText = null;
+
+        var cardObj = Instantiate(_btnFloorLevel.gameObject, parent, false);
+        cardObj.name = name;
+
+        var btn = cardObj.GetComponent<Button>();
+        if (btn != null)
+        {
+            btn.onClick = new Button.ButtonClickedEvent();
+        }
+
+        var texts = cardObj.GetComponentsInChildren<TMP_Text>(true);
+        foreach (var t in texts)
+        {
+            if (t.name == "Text_Header" || headerText == null)
+            {
+                if (headerText == null) headerText = t;
+            }
+            if (t.name == "Text_Description")
+            {
+                descText = t;
+            }
+        }
+        if (descText == null && texts.Length > 1)
+        {
+            descText = texts[1];
+        }
+
+        return btn;
+    }
+
+    private void UpdateDigitalTwinButtonsUI()
+    {
+        var rtm = RootObject.Instance?.RoomTwinManager;
+        bool isShowing = rtm != null && rtm.IsRoomShowing();
+        var style = rtm != null ? rtm.GetRoomTwinStyle() : RoomTwinStyle.FullTwin;
+
+        if (_txtDigitalTwinToggleHeader != null)
+        {
+            _txtDigitalTwinToggleHeader.text = isShowing ? "Show Digital Twin... (On)" : "Show Digital Twin... (Off)";
+        }
+        if (_txtDigitalTwinToggleDesc != null)
+        {
+            _txtDigitalTwinToggleDesc.text = "Tap to toggle Digital Twin visibility in the scene.";
+        }
+
+        if (_txtDigitalTwinStyleHeader != null)
+        {
+            _txtDigitalTwinStyleHeader.text = $"Digital Twin Style: {FormatRoomTwinStyle(style)}";
+        }
+        if (_txtDigitalTwinStyleDesc != null)
+        {
+            _txtDigitalTwinStyleDesc.text = "Select between Twin Vignette, Full Twin, or Occlusion.";
+        }
+
+        if (_txtAssignRoomModelHeader != null)
+        {
+            _txtAssignRoomModelHeader.text = "Add Digital Twin...";
+        }
+        if (_txtAssignRoomModelDesc != null)
+        {
+            _txtAssignRoomModelDesc.text = "Select and load a Digital Twin model.";
+        }
+    }
+
+    private static string FormatRoomTwinStyle(RoomTwinStyle style)
+    {
+        switch (style)
+        {
+            case RoomTwinStyle.TwinVignette:
+                return "Twin Vignette";
+            case RoomTwinStyle.FullTwin:
+                return "Full Twin";
+            case RoomTwinStyle.Occlusion:
+                return "Occlusion";
+            default:
+                return style.ToString();
+        }
+    }
+
+    private void OnToggleDigitalTwinClicked()
+    {
+        var rtm = RootObject.Instance?.RoomTwinManager;
+        if (rtm == null) return;
+
+        rtm.SetRoomTwinVisibility(!rtm.IsRoomShowing());
+        UpdateDigitalTwinButtonsUI();
+    }
+
+    private void OnSelectDigitalTwinStyleClicked()
+    {
+        var rtm = RootObject.Instance?.RoomTwinManager;
+        if (rtm == null || RootView_v2.Instance?.dialog == null) return;
+
+        RootView_v2.Instance.dialog.ShowMiddleMultiline(
+            "Digital Twin Style",
+            ("Twin Vignette", () =>
+            {
+                rtm.SetRoomTwinStyle(RoomTwinStyle.TwinVignette);
+                UpdateDigitalTwinButtonsUI();
+            }, false),
+            ("Full Twin", () =>
+            {
+                rtm.SetRoomTwinStyle(RoomTwinStyle.FullTwin);
+                UpdateDigitalTwinButtonsUI();
+            }, false),
+            ("Occlusion", () =>
+            {
+                rtm.SetRoomTwinStyle(RoomTwinStyle.Occlusion);
+                UpdateDigitalTwinButtonsUI();
+            }, false),
+            ("Cancel", null, true));
+    }
+
+    private async UniTaskVoid OnAssignRoomModelClickedAsync()
+    {
+        var rtm = RootObject.Instance?.RoomTwinManager;
+        if (rtm == null || RootView_v2.Instance?.dialog == null) return;
+
+        LoadView.Instance?.Show();
+        string[] serverScans = Array.Empty<string>();
+        try
+        {
+            serverScans = await rtm.GetListOfRoomScansAsync();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+        }
+        finally
+        {
+            LoadView.Instance?.Hide();
+        }
+
+        var allScans = new List<string>();
+        var localScans = RootObject.Instance?.RoomTwinLibraryManager?.LibraryContent;
+        if (localScans != null)
+        {
+            foreach (var scan in localScans)
+            {
+                if (!string.IsNullOrEmpty(scan) && !allScans.Contains(scan))
+                {
+                    allScans.Add(scan);
+                }
+            }
+        }
+        if (serverScans != null)
+        {
+            foreach (var scan in serverScans)
+            {
+                if (!string.IsNullOrEmpty(scan) && !allScans.Contains(scan))
+                {
+                    allScans.Add(scan);
+                }
+            }
+        }
+
+        var options = new List<(string text, Action onClick, bool isWarning)>
+        {
+            ($"Default ({rtm.defaultScanName})", () => LoadDefaultRoomScanAsync().Forget(), false)
+        };
+
+        foreach (var scanId in allScans)
+        {
+            var capturedId = scanId;
+            options.Add((capturedId, () => LoadSelectedRoomScanAsync(capturedId).Forget(), false));
+        }
+
+        options.Add(("Cancel", null, true));
+        RootView_v2.Instance.dialog.ShowMiddleMultiline("Add Digital Twin...", options.ToArray());
+    }
+
+    private async UniTaskVoid LoadDefaultRoomScanAsync()
+    {
+        var rtm = RootObject.Instance?.RoomTwinManager;
+        if (rtm == null) return;
+
+        LoadView.Instance?.Show();
+        try
+        {
+            await rtm.LoadRoomTwinModelFromURLAsync(Path.Combine(Application.streamingAssetsPath, rtm.defaultScanName));
+            UpdateDigitalTwinButtonsUI();
+        }
+        finally
+        {
+            LoadView.Instance?.Hide();
+        }
+    }
+
+    private async UniTaskVoid LoadSelectedRoomScanAsync(string scanId)
+    {
+        var rtm = RootObject.Instance?.RoomTwinManager;
+        if (rtm == null) return;
+
+        LoadView.Instance?.Show();
+        try
+        {
+            RootObject.Instance?.RoomTwinLibraryManager?.Add(scanId);
+            await rtm.LoadRoomTwinModelFromId(scanId);
+            if (_txtAssignRoomModelHeader != null)
+            {
+                _txtAssignRoomModelHeader.text = $"Add Digital Twin... ({scanId})";
+            }
+            UpdateDigitalTwinButtonsUI();
+        }
+        finally
+        {
+            LoadView.Instance?.Hide();
+        }
     }
 
     private void OnCalibrationViewOpened()

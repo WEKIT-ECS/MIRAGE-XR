@@ -72,8 +72,8 @@ namespace MirageXR
             // Initialize toggles without notifying
             if (_activateGridToggle != null)
             {
-                _activateGridToggle.SetIsOnWithoutNotify(gridManager.gridEnabled);
-                _activateGridToggle.onValueChanged.AddListener(OnActivateGridToggleValueChanged);
+                _activateGridToggle.SetIsOnWithoutNotify(gridManager.snapToSurface);
+                _activateGridToggle.onValueChanged.AddListener(OnSnapToSurfaceToggleValueChanged);
             }
 
             if (_snapToGridToggle != null)
@@ -134,17 +134,9 @@ namespace MirageXR
             updateText?.Invoke();
         }
 
-        private void OnActivateGridToggleValueChanged(bool value)
+        private void OnSnapToSurfaceToggleValueChanged(bool value)
         {
-            if (gridManager == null) return;
-            if (value)
-            {
-                gridManager.EnableGrid();
-            }
-            else
-            {
-                gridManager.DisableGrid();
-            }
+            gridManager?.SetSnapToSurface(value);
         }
 
         private void OnSnapToGridToggleValueChanged(bool value)

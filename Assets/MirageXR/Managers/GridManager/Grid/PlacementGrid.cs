@@ -21,7 +21,11 @@ public class PlacementGrid : MonoBehaviour
     {
         foreach (var gridPlane in _gridPlanes)
         {
-            gridPlane.Initialization();
+            if (gridPlane != null)
+            {
+                gridPlane.Initialization();
+                gridPlane.gameObject.SetActive(false);
+            }
         }
 
         _cellWidth = cellWidth;

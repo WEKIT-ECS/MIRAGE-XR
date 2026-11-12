@@ -21,6 +21,8 @@ public class ManipulationController : MonoBehaviour, IDisposable
     private Action<GameObject> _onTranslateStarted;
     private Action<GameObject> _onTranslateStopped;
     private bool _manipulationStarted = false;
+    private bool _isHandleManipulation = false;
+    private GameObject _currentSource;
 
     public Action<GameObject> onManipulationStarted => _onManipulationStarted;
 
@@ -103,25 +105,23 @@ public class ManipulationController : MonoBehaviour, IDisposable
 
     private void OnManipulationStarted(GameObject source, bool isHandleManipulation)
     {
-        if (!_gridManager.snapEnabled || floorManager == null || !floorManager.isFloorDetected)
+        if ((!_gridManager.snapEnabled && !_gridManager.snapToSurface) || floorManager == null || !floorManager.isFloorDetected)
         {
             return;
         }
 
         _manipulationStarted = true;
+        _isHandleManipulation = isHandleManipulation;
+        _currentSource = source;
+        _gridManager.BeginSurfaceSnap();
         CreateCopy(source);
+        OnManipulationUpdated(source);
         RunCopyUpdateCoroutine(source);
-        ShowGridLines(_copy);
-
-        if (isHandleManipulation || !_gridManager.showOriginalObject)
-        {
-            HideOriginalObject(source);
-        }
     }
 
     private void OnManipulationUpdated(GameObject source)
     {
-        if (!_gridManager.snapEnabled || floorManager == null || !floorManager.isFloorDetected)
+        if ((!_gridManager.snapEnabled && !_gridManager.snapToSurface) || floorManager == null || !floorManager.isFloorDetected)
         {
             return;
         }
@@ -129,8 +129,33 @@ public class ManipulationController : MonoBehaviour, IDisposable
         if (_copy)
         {
             UpdateCopyPosition(source);
-            SnapToGrid(_copy);
-            UpdateGridLines(_copy);
+            bool hasSnapTarget = SnapToGrid(_copy);
+            if (hasSnapTarget)
+            {
+                _copy.SetActive(true);
+                _gridLines.gameObject.SetActive(true);
+                UpdateGridLines(_copy.transform.position);
+                if (_isHandleManipulation || !_gridManager.showOriginalObject)
+                {
+                    HideOriginalObject(source);
+                }
+                else
+                {
+                    ShowOriginalObject(source);
+                }
+            }
+            else if (_isHandleManipulation)
+            {
+                _copy.SetActive(true);
+                HideGridLines();
+                HideOriginalObject(source);
+            }
+            else
+            {
+                HideCopy();
+                HideGridLines();
+                ShowOriginalObject(source);
+            }
         }
     }
 
@@ -154,8 +179,11 @@ public class ManipulationController : MonoBehaviour, IDisposable
         }
         HideCopy();
         HideGridLines();
+        _gridManager.EndSurfaceSnap();
 
         _manipulationStarted = false;
+        _isHandleManipulation = false;
+        _currentSource = null;
     }
 
     private IEnumerator OnManipulationUpdatedCoroutine(GameObject source)
@@ -195,15 +223,21 @@ public class ManipulationController : MonoBehaviour, IDisposable
             source = detectable.AttachedObject;
         }
 
+        bool isStepSource = source.GetComponent<MirageXR.View.StepView>() != null && source.GetComponent<MirageXR.View.ContentView>() == null;
+
         var renderers = source.GetComponentsInChildren<MeshRenderer>();
         foreach (var meshRenderer in renderers)
         {
+            if (meshRenderer.GetComponentInParent<Canvas>() != null) continue;
+            if (isStepSource && meshRenderer.GetComponentInParent<MirageXR.View.ContentView>() != null) continue;
             meshRenderer.enabled = true;
         }
 
         var skinnedRenderers = source.GetComponentsInChildren<SkinnedMeshRenderer>();
         foreach (var meshRenderer in skinnedRenderers)
         {
+            if (meshRenderer.GetComponentInParent<Canvas>() != null) continue;
+            if (isStepSource && meshRenderer.GetComponentInParent<MirageXR.View.ContentView>() != null) continue;
             meshRenderer.enabled = true;
         }
     }
@@ -216,15 +250,21 @@ public class ManipulationController : MonoBehaviour, IDisposable
             source = detectable.AttachedObject;
         }
 
+        bool isStepSource = source.GetComponent<MirageXR.View.StepView>() != null && source.GetComponent<MirageXR.View.ContentView>() == null;
+
         var renderers = source.GetComponentsInChildren<MeshRenderer>();
         foreach (var meshRenderer in renderers)
         {
+            if (meshRenderer.GetComponentInParent<Canvas>() != null) continue;
+            if (isStepSource && meshRenderer.GetComponentInParent<MirageXR.View.ContentView>() != null) continue;
             meshRenderer.enabled = false;
         }
 
         var skinnedRenderers = source.GetComponentsInChildren<SkinnedMeshRenderer>();
         foreach (var meshRenderer in skinnedRenderers)
         {
+            if (meshRenderer.GetComponentInParent<Canvas>() != null) continue;
+            if (isStepSource && meshRenderer.GetComponentInParent<MirageXR.View.ContentView>() != null) continue;
             meshRenderer.enabled = false;
         }
     }
@@ -240,6 +280,8 @@ public class ManipulationController : MonoBehaviour, IDisposable
             source = detectable.AttachedObject;
         }
 
+        bool isStepSource = source.GetComponent<MirageXR.View.StepView>() != null && source.GetComponent<MirageXR.View.ContentView>() == null;
+
         var copyID = source.gameObject.GetInstanceID();
         if (_copy == null || _copyID != copyID)
         {
@@ -248,6 +290,19 @@ public class ManipulationController : MonoBehaviour, IDisposable
             _copy.name = copyObjectName;
             _copy.SetPose(source.GetPose());
             _copyID = copyID;
+
+            if (isStepSource)
+            {
+                var childContents = _copy.GetComponentsInChildren<MirageXR.View.ContentView>(true);
+                foreach (var cv in childContents)
+                {
+                    if (cv != null)
+                    {
+                        cv.gameObject.SetActive(false);
+                        Destroy(cv.gameObject);
+                    }
+                }
+            }
 
             var helpGameObject = _copy.transform.Find(helpGameObjectName);
             if (helpGameObject)
@@ -273,6 +328,43 @@ public class ManipulationController : MonoBehaviour, IDisposable
                 if (lr != null) Destroy(lr);
             }
 
+            var canvases = _copy.GetComponentsInChildren<Canvas>(true);
+            foreach (var c in canvases)
+            {
+                if (c != null)
+                {
+                    c.gameObject.SetActive(false);
+                    Destroy(c.gameObject);
+                }
+            }
+
+            var tmpTexts = _copy.GetComponentsInChildren<TMPro.TMP_Text>(true);
+            foreach (var t in tmpTexts)
+            {
+                if (t != null)
+                {
+                    var r = t.GetComponent<Renderer>();
+                    if (r != null) r.enabled = false;
+                    Destroy(t);
+                }
+            }
+
+            var colliders = _copy.GetComponentsInChildren<Collider>(true);
+            foreach (var col in colliders)
+            {
+                if (col != null)
+                {
+                    col.enabled = false;
+                    Destroy(col);
+                }
+            }
+
+            var rigidbodies = _copy.GetComponentsInChildren<Rigidbody>(true);
+            foreach (var rb in rigidbodies)
+            {
+                if (rb != null) Destroy(rb);
+            }
+
             var monoBehaviour = _copy.GetComponentsInChildren<MonoBehaviour>(true);
             foreach (var behaviour in monoBehaviour)
             {
@@ -282,6 +374,13 @@ public class ManipulationController : MonoBehaviour, IDisposable
             var renderers = _copy.GetComponentsInChildren<MeshRenderer>(true);
             foreach (var render in renderers)
             {
+                if (render.GetComponent<TMPro.TMP_Text>() != null ||
+                    render.GetComponentInParent<Canvas>() != null ||
+                    (isStepSource && render.GetComponentInParent<MirageXR.View.ContentView>() != null))
+                {
+                    continue;
+                }
+
                 var materials = new Material[render.materials.Length];
 
                 for (var i = 0; i < materials.Length; i++)
@@ -295,6 +394,12 @@ public class ManipulationController : MonoBehaviour, IDisposable
             var skinnedRenderers = _copy.GetComponentsInChildren<SkinnedMeshRenderer>(true);
             foreach (var render in skinnedRenderers)
             {
+                if (render.GetComponentInParent<Canvas>() != null ||
+                    (isStepSource && render.GetComponentInParent<MirageXR.View.ContentView>() != null))
+                {
+                    continue;
+                }
+
                 var materials = new Material[render.materials.Length];
 
                 for (var i = 0; i < materials.Length; i++)
@@ -312,23 +417,12 @@ public class ManipulationController : MonoBehaviour, IDisposable
     private void ShowGridLines(GameObject source)
     {
         _gridLines.gameObject.SetActive(true);
-        UpdateGridLines(source);
+        UpdateGridLines(source.transform.position);
     }
 
-    private void UpdateGridLines(GameObject source)
+    private void UpdateGridLines(Vector3 snappedPosition)
     {
-        var bounds = source.GetComponent<SimpleBoundingBox>() ?? source.GetComponentInChildren<SimpleBoundingBox>();
-        var position = source.transform.position;
-
-        if (_gridManager.useObjectCenter)
-        {
-            if (bounds != null && bounds.TargetBounds != null)
-            {
-                position = bounds.transform.TransformPoint(bounds.TargetBounds.center);
-            }
-        }
-
-        _gridLines.DrawLines(CalculateSnapPosition(position));
+        _gridLines.DrawLines(snappedPosition);
     }
 
     private void HideGridLines()
@@ -408,31 +502,73 @@ public class ManipulationController : MonoBehaviour, IDisposable
         }
     }
 
-    private void SnapToGrid(GameObject source)
+    private bool SnapToGrid(GameObject source)
     {
-        source.transform.position = GetSnapPosition(source);
-        source.transform.rotation = CalculateSnapRotation(source.transform.rotation);
-        source.transform.localScale = CalculateSnapScale(source.transform.localScale);
+        bool hasSnapTarget = TryGetSnapPosition(source, out Vector3 snappedPos);
+        if (hasSnapTarget)
+        {
+            source.transform.position = snappedPos;
+        }
+
+        var refSource = _currentSource != null ? _currentSource : source;
+        bool isStepView = refSource != null && refSource.GetComponent<MirageXR.View.StepView>() != null;
+        if (_gridManager.snapEnabled && !isStepView)
+        {
+            source.transform.rotation = CalculateSnapRotation(source.transform.rotation);
+            source.transform.localScale = CalculateSnapScale(source.transform.localScale);
+        }
+
+        return hasSnapTarget;
     }
 
-    private Vector3 GetSnapPosition(GameObject source)
+    private bool TryGetSnapPosition(GameObject source, out Vector3 snappedPosition)
     {
         var delta = Vector3.zero;
         var position = source.transform.position;
+        var refSource = _currentSource != null ? _currentSource : source;
 
-        if (_gridManager.useObjectCenter)
+        if (_gridManager.useObjectCenter && refSource != null)
         {
-            var bounds = source.GetComponent<SimpleBoundingBox>() ?? source.GetComponentInChildren<SimpleBoundingBox>();
+            var bounds = refSource.GetComponent<SimpleBoundingBox>() ?? refSource.GetComponentInChildren<SimpleBoundingBox>();
             if (bounds != null && bounds.TargetBounds != null)
             {
-                position = bounds.transform.TransformPoint(bounds.TargetBounds.center);
-                delta = source.transform.position - position;
+                var centerWorld = bounds.transform.TransformPoint(bounds.TargetBounds.center);
+                delta = refSource.transform.position - centerWorld;
+                position = source.transform.position - delta;
             }
         }
 
-        position.y = Mathf.Clamp(position.y, floorManager.floorLevel, float.PositiveInfinity);
+        Vector3 clampedForGrid = position;
+        if (floorManager != null)
+        {
+            clampedForGrid.y = Mathf.Clamp(clampedForGrid.y, floorManager.floorLevel, float.PositiveInfinity);
+        }
 
-        return CalculateSnapPosition(position) + delta;
+        Vector3 gridPos = CalculateSnapPosition(clampedForGrid);
+        float distToGrid = Vector3.Distance(position, gridPos);
+        float cellWidthMeters = Mathf.Max(0.01f, _gridManager.cellWidth / 100f);
+
+        float maxSurfaceDist = _gridManager.snapEnabled
+            ? Mathf.Min(distToGrid, cellWidthMeters * 0.9f)
+            : Mathf.Max(0.04f, cellWidthMeters * 0.5f);
+
+        Transform ignoreRoot = refSource != null ? refSource.transform : source.transform;
+        if (_gridManager.snapToSurface &&
+            _gridManager.TryGetSurfaceSnapPosition(position, maxSurfaceDist, ignoreRoot, out var surfacePos, out var surfaceDist) &&
+            (!_gridManager.snapEnabled || surfaceDist <= distToGrid))
+        {
+            snappedPosition = surfacePos + delta;
+            return true;
+        }
+
+        if (_gridManager.snapEnabled)
+        {
+            snappedPosition = gridPos + delta;
+            return true;
+        }
+
+        snappedPosition = source.transform.position;
+        return false;
     }
 
     private Vector3 CalculateSnapPosition(Vector3 position)
@@ -467,6 +603,7 @@ public class ManipulationController : MonoBehaviour, IDisposable
         if (!value)
         {
             HideGridLines();
+            _gridManager?.EndSurfaceSnap();
             if (_copy)
             {
                 Destroy(_copy);

@@ -61,6 +61,18 @@ public class FloorManagerWrapper : MonoBehaviour
 
     public bool isManualFloor => _floorManager != null && _floorManager.isManualFloor;
 
+    public GameObject PrefabAnchor
+    {
+        get
+        {
+#if UNITY_EDITOR
+            return _prefabEditorAnchor != null ? _prefabEditorAnchor : _prefabARFoundationAnchor;
+#else
+            return _prefabARFoundationAnchor != null ? _prefabARFoundationAnchor : _prefabEditorAnchor;
+#endif
+        }
+    }
+
     public Task<bool> ResetAsync()
     {
         return _floorManager.ResetAsync();

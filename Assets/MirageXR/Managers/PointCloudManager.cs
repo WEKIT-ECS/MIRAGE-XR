@@ -15,6 +15,16 @@ public class PointCloudManager : MonoBehaviour
     private ARMeshManager _arMeshManager;
     private IViewManager _viewManager;
     private bool _isMeshActive;
+    private bool _surfaceCollidersActive;
+
+    public bool HasSpatialMeshes => _arMeshManager != null && _arMeshManager.meshes.Count > 0;
+
+    public void SetSurfaceCollidersActive(bool active)
+    {
+        if (_surfaceCollidersActive == active) return;
+        _surfaceCollidersActive = active;
+        UpdateMeshRenderers();
+    }
 
     public async Task InitializationAsync(IViewManager viewManager)
     {
@@ -154,6 +164,10 @@ public class PointCloudManager : MonoBehaviour
     private void OnMeshesChanged(ARMeshesChangedEventArgs args)
     {
         UpdateMeshRenderers();
+        if (args.added != null && args.added.Count > 0)
+        {
+            RootObject.Instance?.PlaneManager?.UpdatePlanes();
+        }
     }
 #endif
 
@@ -172,14 +186,22 @@ public class PointCloudManager : MonoBehaviour
             {
                 if (child != null)
                 {
+                    if (child.GetComponent<ARPlane>() != null ||
+                        child.GetComponent<ARFoundationPlaneBehaviour>() != null ||
+                        child.GetComponent<ARPointCloud>() != null ||
+                        child.GetComponent<ARAnchor>() != null)
+                    {
+                        continue;
+                    }
+
                     // Ensure the mesh chunk is on Layer 2 (Ignore Raycast)
                     child.gameObject.layer = 2;
 
-                    // When in edit mode, disable colliders so floor objects are unobstructed
+                    // When in edit mode, disable colliders unless surface snapping is active
                     var col = child.GetComponent<Collider>();
                     if (col != null)
                     {
-                        col.enabled = !isEditMode;
+                        col.enabled = !isEditMode || _surfaceCollidersActive;
                     }
 
                     var renderer = child.GetComponent<MeshRenderer>();
@@ -188,16 +210,17 @@ public class PointCloudManager : MonoBehaviour
                         if (_isMeshActive)
                         {
                             renderer.enabled = true;
-                            if (_wireframeMaterial != null) renderer.material = _wireframeMaterial;
+                            if (_wireframeMaterial != null) renderer.sharedMaterial = _wireframeMaterial;
                         }
                         else if (!suppressOcclusion && _occlusionMaterial != null)
                         {
                             renderer.enabled = true;
-                            renderer.material = _occlusionMaterial;
+                            renderer.sharedMaterial = _occlusionMaterial;
                         }
                         else
                         {
                             renderer.enabled = false;
+                            renderer.sharedMaterials = System.Array.Empty<Material>();
                         }
                     }
                 }
@@ -237,20 +260,17 @@ public class PointCloudManager : MonoBehaviour
 
     private bool ShouldSuppressOcclusion()
     {
+        var rtm = RootObject.Instance?.RoomTwinManager;
+        if (rtm != null && rtm.IsRoomShowing())
+        {
+            return rtm.GetRoomTwinStyle() != RoomTwinStyle.Occlusion;
+        }
+
         if (IsEditModeActive())
         {
             return true;
         }
 
-        var rtm = RootObject.Instance?.RoomTwinManager;
-        if (rtm != null && rtm.IsRoomShowing())
-        {
-            var style = rtm.GetRoomTwinStyle();
-            if (style == RoomTwinStyle.FullTwin || style == RoomTwinStyle.TwinVignette)
-            {
-                return true;
-            }
-        }
         return false;
     }
 
@@ -262,14 +282,15 @@ public class PointCloudManager : MonoBehaviour
             var gridManager = RootObject.Instance != null ? RootObject.Instance.GridManager : null;
             if (gridManager != null)
             {
-                shouldDisplay = gridManager.gridEnabled && gridManager.showMesh;
+                shouldDisplay = gridManager.showMesh;
             }
             else
             {
-                shouldDisplay = LearningExperienceEngine.UserSettings.showGrid && LearningExperienceEngine.UserSettings.showMesh;
+                shouldDisplay = LearningExperienceEngine.UserSettings.showMesh;
             }
         }
 
         SetMeshActive(shouldDisplay);
+        RootObject.Instance?.PlaneManager?.UpdatePlanes();
     }
 }

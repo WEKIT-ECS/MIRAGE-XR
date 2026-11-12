@@ -178,6 +178,10 @@ namespace MirageXR
         public void SetRoomTwinVisibility(bool show) //TODO: replace with two functions - ShowRoomTwin() and HideRoomTwin()
         {
             _showRoom = show;
+            if (_roomModel != null)
+            {
+                _roomModel.SetActive(_showRoom);
+            }
             if (show) // show
             {
                 //_loadingCompleted = false;
@@ -193,10 +197,6 @@ namespace MirageXR
                 _t = 0.0f;
                 _FullTwinBlendInCompleted = true;
                 _WireframeBlendInCompleted = true;
-            }
-            if (_roomModel != null)
-            {
-                _roomModel.SetActive(_showRoom);
             }
             RootObject.Instance?.PointCloudManager?.UpdateMeshRenderers();
         }
@@ -566,21 +566,29 @@ namespace MirageXR
 
             if (Math.Abs(newAmount.Value - 1.0) < 0.01d)
             {
-                SetRoomTwinStyle(RoomTwinStyle.FullTwin);
                 SetRoomTwinVisibility(true);
+                SetRoomTwinStyle(RoomTwinStyle.FullTwin);
             }
             else if (newAmount == 0.0d)
             {
-                SetRoomTwinStyle(RoomTwinStyle.TwinVignette);
                 SetRoomTwinVisibility(false);
+                SetRoomTwinStyle(RoomTwinStyle.TwinVignette);
             }
             else
             {
+                _showRoom = true;
+                if (_roomModel != null)
+                {
+                    _roomModel.SetActive(true);
+                }
                 if (_roomTwinStyle != RoomTwinStyle.TwinVignette)
                 {
                     SetRoomTwinStyle(RoomTwinStyle.TwinVignette);
                 }
-                _roomModel.SetActive(true);
+                else
+                {
+                    RootObject.Instance?.PointCloudManager?.UpdateMeshRenderers();
+                }
                 float angle = Mathf.Lerp(10f, 60f, (float)newAmount.Value);
                 GrowVignettesInChildRenderers(_roomModel, angle);
             }
