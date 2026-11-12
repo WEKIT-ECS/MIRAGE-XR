@@ -5,6 +5,7 @@ using IngameDebugConsole;
 using LearningExperienceEngine.DataModel;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 namespace MirageXR
 {

@@ -1842,7 +1842,7 @@ public class StepsListView_v2 : BaseView
             {
                 axisLabel.text = axis;
                 axisLabel.fontSize = 26f;
-                axisLabel.alignment = TextAlignmentOptions.MidlineCenter;
+                axisLabel.alignment = TextAlignmentOptions.Center;
                 axisLabel.color = new Color(0.2f, 0.2f, 0.2f, 1f);
                 var lblRect = axisLabel.GetComponent<RectTransform>();
                 if (lblRect != null) lblRect.sizeDelta = new Vector2(25f, 50f);
