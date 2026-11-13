@@ -196,6 +196,21 @@ namespace MirageXR
             PopupsViewer.Instance.Show(_roomScanGallerySpatialViewPrefab);
         }
 
+        public void CloseDigitalTwinPopups()
+        {
+            if (PopupsViewer.Instance == null) return;
+            var popups = PopupsViewer.Instance.GetComponentsInChildren<PopupBase>(true);
+            foreach (var popup in popups)
+            {
+                if (popup is RoomScanSettingsSpatialView ||
+                    popup is RoomScanRepositionSpatialView ||
+                    popup is RoomScanGallerySpatialView)
+                {
+                    popup.Close();
+                }
+            }
+        }
+
         public void ShowSelectAugmentationScreenSpatialView()
         {
             var types = editorPrefabs.Select(t => t.ContentType).ToList();

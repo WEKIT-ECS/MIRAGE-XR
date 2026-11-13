@@ -75,6 +75,12 @@ namespace MirageXR  //TODO: add Spatial namespace
             _updateInfoCts?.Cancel();
             _updateInfoCts?.Dispose();
             _updateInfoCts = null;
+
+            if (MenuManager.Instance != null)
+            {
+                MenuManager.Instance.CloseDigitalTwinPopups();
+            }
+            UpdateRoomTwinToggle();
         }
 
         private void OnInputFieldActivityNameEditEnd(string text)
@@ -410,6 +416,12 @@ namespace MirageXR  //TODO: add Spatial namespace
             _updateInfoCts?.Cancel();
             _updateInfoCts?.Dispose();
             _updateInfoCts = null;
+
+            if (MenuManager.Instance != null)
+            {
+                MenuManager.Instance.CloseDigitalTwinPopups();
+            }
+            UpdateRoomTwinToggle();
         }
 
         private void OnButtonAddNewStepClicked()

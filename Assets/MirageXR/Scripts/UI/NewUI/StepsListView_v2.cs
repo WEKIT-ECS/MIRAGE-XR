@@ -130,6 +130,7 @@ public class StepsListView_v2 : BaseView
 
         RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditModeChanged;
         RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityUpdated;
+        RootObject.Instance.LEE.ActivityManager.OnActivityClosed += OnActivityClosed;
         RootObject.Instance.LEE.StepManager.OnStepChanged += OnStepChanged;
         RootObject.Instance.CalibrationManager.OnCalibrated += OnCalibrated;
         if (RootObject.Instance?.RoomTwinManager != null)
@@ -190,6 +191,18 @@ public class StepsListView_v2 : BaseView
         {
             RootObject.Instance.RoomTwinManager.OnRoomTwinStateChanged -= UpdateDigitalTwinButtonsUI;
         }
+
+        if (RootObject.Instance?.LEE?.ActivityManager != null)
+        {
+            RootObject.Instance.LEE.ActivityManager.OnActivityClosed -= OnActivityClosed;
+        }
+    }
+
+    private void OnActivityClosed()
+    {
+        CloseDigitalTwinRepositionOverlay();
+        CloseDigitalTwinGalleryOverlay();
+        UpdateDigitalTwinButtonsUI();
     }
 
     private void OnActivityUpdated(Activity activity)
@@ -356,6 +369,8 @@ public class StepsListView_v2 : BaseView
 
     private void OnCloseActivityPressed()
     {
+        CloseDigitalTwinRepositionOverlay();
+        CloseDigitalTwinGalleryOverlay();
         LearningExperienceEngine.EventManager.ClearAll();
         RootObject.Instance?.LEE?.ActivityManager?.CloseActivity();
         _activityView.OnBackToHomePressed();

@@ -152,11 +152,28 @@ namespace MirageXR
 
         private void OnActivityClosed()
         {
+            UnloadDigitalTwin();
+        }
+
+        public void UnloadDigitalTwin()
+        {
             SetRoomTwinVisibility(false);
+            if (_roomModel != null)
+            {
+                Destroy(_roomModel);
+                _roomModel = null;
+            }
+            _originalMaterials.Clear();
+            _loadingCompleted = false;
+            _legacyAnimation = null;
+            if (_gltf is IDisposable disposableGltf)
+            {
+                disposableGltf.Dispose();
+            }
+            _gltf = null;
             _currentDigitalTwinId = null;
             _digitalTwinLocation = LearningExperienceEngine.DataModel.Location.GetIdentityLocation();
             _roomTwinStyle = RoomTwinStyle.FullTwin;
-            ApplyLocationTransform();
             OnRoomTwinStateChanged?.Invoke();
         }
 
@@ -245,12 +262,7 @@ namespace MirageXR
         {
             if (activity == null || string.IsNullOrEmpty(activity.DigitalTwin))
             {
-                SetRoomTwinVisibility(false);
-                _currentDigitalTwinId = null;
-                _digitalTwinLocation = LearningExperienceEngine.DataModel.Location.GetIdentityLocation();
-                _roomTwinStyle = RoomTwinStyle.FullTwin;
-                ApplyLocationTransform();
-                OnRoomTwinStateChanged?.Invoke();
+                UnloadDigitalTwin();
                 return;
             }
 
