@@ -59,6 +59,7 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private ThumbnailEditorView _thumbnailEditorPrefab;
     [SerializeField] private RawImage _imgQRCode;
     [SerializeField] private GameObject _qrCodeContainer;
+    [SerializeField] private MirageXR.DigitalTwinRepositionDialog _digitalTwinRepositionPrefab;
 
     private readonly List<StepsListItem_v2> _stepsList = new List<StepsListItem_v2>();
 
@@ -72,6 +73,7 @@ public class StepsListView_v2 : BaseView
     private ActivityStep _step;
 
     private GameObject _panelDigitalTwinSettings;
+    private RectTransform _panelDigitalTwinSettingsRect;
     private SwitchToggle _toggleDigitalTwin;
     private Toggle _toggleDigitalTwinInner;
     private TMP_Text _txtDigitalTwinToggleHeader;
@@ -80,6 +82,7 @@ public class StepsListView_v2 : BaseView
     private Button _btnAssignRoomModel;
     private TMP_Text _txtAssignRoomModelLink;
     private Button _btnRepositionDigitalTwin;
+    private GameObject _rowRepositionDigitalTwin;
     private GameObject _digitalTwinGalleryOverlay;
     private GameObject _digitalTwinRepositionOverlay;
 
@@ -694,10 +697,19 @@ public class StepsListView_v2 : BaseView
         if (_btnAssignRoomModel != null)
         {
             _btnAssignRoomModel.interactable = value;
+            _btnAssignRoomModel.gameObject.SetActive(value);
         }
         if (_btnRepositionDigitalTwin != null)
         {
             _btnRepositionDigitalTwin.interactable = value;
+        }
+        if (_rowRepositionDigitalTwin != null)
+        {
+            _rowRepositionDigitalTwin.SetActive(value);
+        }
+        if (_panelDigitalTwinSettingsRect != null)
+        {
+            _panelDigitalTwinSettingsRect.sizeDelta = new Vector2(_panelDigitalTwinSettingsRect.sizeDelta.x, value ? 315f : 175f);
         }
 
         _stepsList.ForEach(t => t.OnEditModeChanged(value));
@@ -918,6 +930,7 @@ public class StepsListView_v2 : BaseView
         _panelDigitalTwinSettings.name = "Panel_DigitalTwinSettings";
 
         var boxRect = _panelDigitalTwinSettings.GetComponent<RectTransform>();
+        _panelDigitalTwinSettingsRect = boxRect;
         if (boxRect != null)
         {
             boxRect.sizeDelta = new Vector2(boxRect.sizeDelta.x, 315f);
@@ -1125,6 +1138,7 @@ public class StepsListView_v2 : BaseView
 
         // 3. Row 3: "Reposition Digital Twin" Row
         var repoRowObj = new GameObject("Button_RepositionDigitalTwin", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+        _rowRepositionDigitalTwin = repoRowObj;
         repoRowObj.transform.SetParent(_panelDigitalTwinSettings.transform, false);
         var repoRowRect = repoRowObj.GetComponent<RectTransform>();
         repoRowRect.anchorMin = new Vector2(0f, 1f);
@@ -1223,6 +1237,20 @@ public class StepsListView_v2 : BaseView
             frameTransform.SetAsLastSibling();
         }
 
+        bool isEditor = activityManager != null && activityManager.IsEditorMode;
+        if (_rowRepositionDigitalTwin != null)
+        {
+            _rowRepositionDigitalTwin.SetActive(isEditor);
+        }
+        if (_btnAssignRoomModel != null)
+        {
+            _btnAssignRoomModel.gameObject.SetActive(isEditor);
+        }
+        if (_panelDigitalTwinSettingsRect != null)
+        {
+            _panelDigitalTwinSettingsRect.sizeDelta = new Vector2(_panelDigitalTwinSettingsRect.sizeDelta.x, isEditor ? 315f : 175f);
+        }
+
         UpdateDigitalTwinButtonsUI();
     }
 
@@ -1286,23 +1314,26 @@ public class StepsListView_v2 : BaseView
         var rtm = RootObject.Instance?.RoomTwinManager;
         if (rtm == null || RootView_v2.Instance?.dialog == null) return;
 
+        bool isEditor = activityManager != null && activityManager.IsEditorMode;
+
+        void ApplyStyle(RoomTwinStyle s)
+        {
+            if (isEditor)
+            {
+                rtm.UpdateAndPersistStyle(s);
+            }
+            else
+            {
+                rtm.SetRoomTwinStyle(s);
+            }
+            UpdateDigitalTwinButtonsUI();
+        }
+
         RootView_v2.Instance.dialog.ShowMiddleMultiline(
             "Digital Twin Style",
-            ("Twin Vignette", () =>
-            {
-                rtm.UpdateAndPersistStyle(RoomTwinStyle.TwinVignette);
-                UpdateDigitalTwinButtonsUI();
-            }, false),
-            ("Full Twin", () =>
-            {
-                rtm.UpdateAndPersistStyle(RoomTwinStyle.FullTwin);
-                UpdateDigitalTwinButtonsUI();
-            }, false),
-            ("Occlusion", () =>
-            {
-                rtm.UpdateAndPersistStyle(RoomTwinStyle.Occlusion);
-                UpdateDigitalTwinButtonsUI();
-            }, false),
+            ("Twin Vignette", () => ApplyStyle(RoomTwinStyle.TwinVignette), false),
+            ("Full Twin", () => ApplyStyle(RoomTwinStyle.FullTwin), false),
+            ("Occlusion", () => ApplyStyle(RoomTwinStyle.Occlusion), false),
             ("Cancel", null, true));
     }
 
@@ -1644,6 +1675,27 @@ public class StepsListView_v2 : BaseView
             _digitalTwinRepositionOverlay = null;
         }
 
+        var prefab = _digitalTwinRepositionPrefab;
+        if (prefab == null)
+        {
+            prefab = Resources.Load<MirageXR.DigitalTwinRepositionDialog>("Prefabs/UI/Mobile/DigitalTwinRepositionDialog");
+        }
+
+        if (prefab != null)
+        {
+            var dialogInstance = Instantiate(prefab, RootView_v2.Instance.canvas.transform, false);
+            dialogInstance.transform.SetAsLastSibling();
+            dialogInstance.gameObject.SetActive(true);
+            dialogInstance.Init(rtm, CloseDigitalTwinRepositionOverlay);
+            _digitalTwinRepositionOverlay = dialogInstance.gameObject;
+            return;
+        }
+
+        BuildDynamicDigitalTwinRepositionOverlay(rtm);
+    }
+
+    private void BuildDynamicDigitalTwinRepositionOverlay(RoomTwinManager rtm)
+    {
         var loc = rtm.GetRoomTwinLocation();
         float posXcm = loc.Position.x * 100f;
         float posYcm = loc.Position.y * 100f;
@@ -1677,7 +1729,7 @@ public class StepsListView_v2 : BaseView
             cardImg.sprite = settingsImg.sprite;
             cardImg.type = settingsImg.type;
         }
-        cardImg.color = Color.white;
+        cardImg.color = new Color(0.165f, 0.165f, 0.165f, 1f); // #2A2A2A grey scheme
         cardImg.raycastTarget = true;
 
         var cardRect = cardObj.GetComponent<RectTransform>();
@@ -1709,7 +1761,7 @@ public class StepsListView_v2 : BaseView
         titleTxt.fontSize = 34f;
         titleTxt.fontStyle = FontStyles.Bold;
         titleTxt.alignment = TextAlignmentOptions.Center;
-        titleTxt.color = new Color(0.15f, 0.15f, 0.15f, 1f);
+        titleTxt.color = Color.white;
         titleObj.GetComponent<RectTransform>().sizeDelta = new Vector2(0f, 45f);
 
         TMP_Text CreateSectionHeader(string title)
@@ -1722,7 +1774,7 @@ public class StepsListView_v2 : BaseView
             hTxt.fontSize = 24f;
             hTxt.fontStyle = FontStyles.Bold;
             hTxt.alignment = TextAlignmentOptions.MidlineLeft;
-            hTxt.color = new Color(0.25f, 0.25f, 0.25f, 1f);
+            hTxt.color = new Color(0.85f, 0.85f, 0.85f, 1f);
             headerObj.GetComponent<RectTransform>().sizeDelta = new Vector2(0f, 32f);
             return hTxt;
         }
@@ -1766,10 +1818,10 @@ public class StepsListView_v2 : BaseView
             if (scaleInputs.x != null) scaleInputs.x.text = "1";
             if (scaleInputs.y != null) scaleInputs.y.text = "1";
             if (scaleInputs.z != null) scaleInputs.z.text = "1";
-        }, new Color(0.85f, 0.85f, 0.85f, 1f));
+        }, new Color(0.23f, 0.23f, 0.23f, 1f));
 
         // Cancel
-        CreateMobileButton(btnRowObj.transform, "Cancel", CloseDigitalTwinRepositionOverlay, new Color(0.9f, 0.4f, 0.4f, 1f));
+        CreateMobileButton(btnRowObj.transform, "Cancel", CloseDigitalTwinRepositionOverlay, new Color(0.23f, 0.23f, 0.23f, 1f));
 
         // Apply
         CreateMobileButton(btnRowObj.transform, "Apply", () =>
@@ -1798,7 +1850,7 @@ public class StepsListView_v2 : BaseView
             };
             rtm.UpdateAndPersistLocation(newLocation);
             CloseDigitalTwinRepositionOverlay();
-        }, new Color(0.2f, 0.6f, 1f, 1f));
+        }, new Color(0.494f, 0.290f, 0.753f, 1f)); // #7E4AC0 purple primary
     }
 
     private void CloseDigitalTwinRepositionOverlay()
@@ -1834,35 +1886,25 @@ public class StepsListView_v2 : BaseView
             colObj.transform.SetParent(rowObj.transform, false);
             var colLayout = colObj.GetComponent<HorizontalLayoutGroup>();
             colLayout.spacing = 6f;
-            colLayout.childControlWidth = false;
+            colLayout.childControlWidth = true;
             colLayout.childControlHeight = true;
-            colLayout.childForceExpandWidth = false;
+            colLayout.childForceExpandWidth = true;
             colLayout.childForceExpandHeight = true;
 
-            TMP_Text axisLabel;
-            if (labelTemplate != null)
-            {
-                var lblClone = Instantiate(labelTemplate.gameObject, colObj.transform, false);
-                lblClone.SetActive(true);
-                axisLabel = lblClone.GetComponent<TMP_Text>();
-            }
-            else
-            {
-                var lblObj = new GameObject($"Label_{axis}", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
-                lblObj.transform.SetParent(colObj.transform, false);
-                axisLabel = lblObj.GetComponent<TMP_Text>();
-            }
+            var lblObj = new GameObject($"Label_{axis}", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+            lblObj.transform.SetParent(colObj.transform, false);
+            var axisLabel = lblObj.GetComponent<TMP_Text>();
+            if (labelTemplate != null) axisLabel.font = labelTemplate.font;
 
             if (axisLabel != null)
             {
                 axisLabel.text = axis;
                 axisLabel.fontSize = 26f;
                 axisLabel.alignment = TextAlignmentOptions.Center;
-                axisLabel.color = new Color(0.2f, 0.2f, 0.2f, 1f);
-                var lblRect = axisLabel.GetComponent<RectTransform>();
-                if (lblRect != null) lblRect.sizeDelta = new Vector2(25f, 50f);
+                axisLabel.color = Color.white;
                 var layoutElem = axisLabel.gameObject.AddComponent<LayoutElement>();
                 layoutElem.preferredWidth = 25f;
+                layoutElem.minWidth = 20f;
                 layoutElem.flexibleWidth = 0f;
             }
 
@@ -1871,7 +1913,7 @@ public class StepsListView_v2 : BaseView
             {
                 var layoutElem = input.gameObject.AddComponent<LayoutElement>();
                 layoutElem.flexibleWidth = 1f;
-                layoutElem.minWidth = 60f;
+                layoutElem.minWidth = 80f;
             }
             return input;
         }
@@ -1923,48 +1965,30 @@ public class StepsListView_v2 : BaseView
 
     private Button CreateMobileButton(Transform parent, string label, Action onClick, Color? bgColor = null)
     {
-        Button btn;
-        if (_btnMarkerLess != null)
-        {
-            var clone = Instantiate(_btnMarkerLess.gameObject, parent, false);
-            clone.name = $"Button_{label}";
-            clone.SetActive(true);
-            btn = clone.GetComponent<Button>();
-        }
-        else
-        {
-            var obj = new GameObject($"Button_{label}", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
-            obj.transform.SetParent(parent, false);
-            btn = obj.GetComponent<Button>();
-        }
+        var obj = new GameObject($"Button_{label}", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+        obj.transform.SetParent(parent, false);
+        var btn = obj.GetComponent<Button>();
+        var img = obj.GetComponent<Image>();
+        img.color = bgColor ?? new Color(0.23f, 0.23f, 0.23f, 1f);
+        img.raycastTarget = true;
 
-        if (btn != null)
-        {
-            btn.onClick = new Button.ButtonClickedEvent();
-            if (onClick != null)
-            {
-                btn.onClick.AddListener(() => onClick());
-            }
+        var txtObj = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+        txtObj.transform.SetParent(obj.transform, false);
+        var txt = txtObj.GetComponent<TMP_Text>();
+        if (_textActivityName != null) txt.font = _textActivityName.font;
+        txt.text = label;
+        txt.fontSize = 26f;
+        txt.fontStyle = FontStyles.Bold;
+        txt.alignment = TextAlignmentOptions.Center;
+        txt.color = Color.white;
+        var txtRect = txtObj.GetComponent<RectTransform>();
+        txtRect.anchorMin = Vector2.zero;
+        txtRect.anchorMax = Vector2.one;
+        txtRect.sizeDelta = Vector2.zero;
 
-            var btnText = btn.GetComponentInChildren<TMP_Text>(true);
-            if (btnText != null)
-            {
-                btnText.text = label;
-                btnText.fontSize = 28f;
-            }
-
-            var btnImg = btn.GetComponent<Image>();
-            if (btnImg != null && bgColor.HasValue)
-            {
-                btnImg.color = bgColor.Value;
-            }
-
-            var rect = btn.GetComponent<RectTransform>();
-            if (rect != null)
-            {
-                rect.sizeDelta = new Vector2(0f, 60f);
-            }
-        }
+        btn.onClick.AddListener(() => onClick?.Invoke());
+        var rect = obj.GetComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(0f, 60f);
         return btn;
     }
 
