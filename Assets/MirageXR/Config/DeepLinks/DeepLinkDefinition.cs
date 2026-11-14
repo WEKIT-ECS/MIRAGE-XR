@@ -1,4 +1,4 @@
-﻿using i5.Toolkit.Core.DeepLinkAPI;
+using i5.Toolkit.Core.DeepLinkAPI;
 using MirageXR;
 using System;
 using Cysharp.Threading.Tasks;
@@ -60,16 +60,21 @@ public class DeepLinkDefinition
     {
         if (Guid.TryParse(activityID, out var guid))
         {
+            var auth = RootObject.Instance.LEE.AuthorizationManager;
+            if (auth != null && !auth.LoggedIn())
+            {
+                auth.Login();
+                await UniTask.WaitUntil(() => auth.LoggedIn());
+            }
+
+            var loadView = LoadView.Instance;
             try
             {
-                var loadView = LoadView.Instance;
                 if (loadView)
                 {
                     loadView.Show();
                 }
-                //TODO: add ActivityLoadStartedEvent
                 await RootObject.Instance.LEE.ActivityManager.LoadActivityAsync(guid);
-                //TODO: add ActivityLoadStartedEvent
                 if (loadView)
                 {
                     loadView.Hide();
@@ -77,7 +82,19 @@ public class DeepLinkDefinition
             }
             catch (Exception e)
             {
+                if (loadView)
+                {
+                    loadView.Hide();
+                }
                 UnityEngine.Debug.LogError(e);
+                if (DialogWindow.Instance != null)
+                {
+                    DialogWindow.Instance.Show("Error", "This activity is unavailable or access has ended.", new DialogButtonContent("OK"));
+                }
+                else if (MenuManager.Instance?.Dialog != null)
+                {
+                    MenuManager.Instance.Dialog.ShowMiddle("Error", "This activity is unavailable or access has ended.", "OK", () => { });
+                }
             }
         }
     }

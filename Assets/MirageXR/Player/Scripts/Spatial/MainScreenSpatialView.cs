@@ -37,6 +37,7 @@ namespace MirageXR
         public void SetActionOnButtonCollaborativeSessionClick(UnityAction action) => _buttonCollaborativeSession.SafeSetListener(action);
         public void SetActionOnButtonQRCodeClick(UnityAction action) => _buttonQRCode.SafeSetListener(action);
         public void SetActionOnButtonAddNewActivityClick(UnityAction action) => _buttonAddNewActivity.SafeSetListener(action);
+        public void SetAddNewActivityButtonActive(bool value) => _buttonAddNewActivity.gameObject.SetActive(value);
         public void SetActionOnInputFieldSearchValueChanged(UnityAction<string> action) => _searchField.SafeSetListener(action);
         public void RemoveActionOnToggleEditorValueChanged(UnityAction<bool> action) => _toggleEditorMode.SafeRemoveListener(action);
         public void SetActionOnToggleEditorValueChanged(UnityAction<bool> action) => _toggleEditorMode.SafeAddListener(action);

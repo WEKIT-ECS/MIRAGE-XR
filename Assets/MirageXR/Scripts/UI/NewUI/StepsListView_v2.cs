@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
@@ -33,6 +34,19 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private TMP_Text _textActivityName;
     [SerializeField] private TMP_InputField _inputFieldActivityName;
     [SerializeField] private TMP_InputField _inputFieldActivityDescription;
+    [SerializeField] private TMP_InputField _inputFieldActivityTags;
+    [SerializeField] private TMP_Dropdown _dropdownVisibility;
+    [SerializeField] private TMP_Dropdown _dropdownPublicationStatus;
+    [SerializeField] private TMP_InputField _inputFieldCustomerScope;
+    [SerializeField] private Button _btnDuplicate;
+    [SerializeField] private Button _btnStartActivity;
+    [Header("Grants")]
+    [SerializeField] private Transform _grantsContainer;
+    [SerializeField] private GameObject _panelAddGrant;
+    [SerializeField] private TMP_Dropdown _dropdownGrantType;
+    [SerializeField] private TMP_InputField _inputFieldGranteeId;
+    [SerializeField] private TMP_Dropdown _dropdownGrantPrivileges;
+    [SerializeField] private Button _btnAddGrant;
     [SerializeField] private RectTransform _addStep;
     [SerializeField] private Button _btnAddStep;
     [SerializeField] private Button _btnBack;
@@ -101,6 +115,40 @@ public class StepsListView_v2 : BaseView
 
         _inputFieldActivityName.onEndEdit.AddListener(OnActivityNameEndEdit);
         _inputFieldActivityDescription.onEndEdit.AddListener(OnActivityDescriptionEndEdit);
+        if (_inputFieldActivityTags != null)
+        {
+            _inputFieldActivityTags.onEndEdit.AddListener(OnActivityTagsEndEdit);
+        }
+
+        if (_dropdownVisibility != null)
+        {
+            _dropdownVisibility.onValueChanged.AddListener(OnVisibilityDropdownValueChanged);
+        }
+
+        if (_dropdownPublicationStatus != null)
+        {
+            _dropdownPublicationStatus.onValueChanged.AddListener(OnPublicationStatusDropdownValueChanged);
+        }
+
+        if (_inputFieldCustomerScope != null)
+        {
+            _inputFieldCustomerScope.onEndEdit.AddListener(OnCustomerScopeEndEdit);
+        }
+
+        if (_btnAddGrant != null)
+        {
+            _btnAddGrant.onClick.AddListener(OnAddGrantPressed);
+        }
+
+        if (_btnDuplicate != null)
+        {
+            _btnDuplicate.onClick.AddListener(OnDuplicateButtonPressed);
+        }
+
+        if (_btnStartActivity != null)
+        {
+            _btnStartActivity.onClick.AddListener(OnStartActivityPressed);
+        }
 
         _btnAddStep.onClick.AddListener(OnAddStepClick);
         _btnThumbnail.onClick.AddListener(OnThumbnailButtonPressed);
@@ -211,6 +259,12 @@ public class StepsListView_v2 : BaseView
     private void OnActivityUpdated(Activity activity)
     {
         _activity = activity;
+
+        bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+        if (!isEditor)
+        {
+            _toggleInfo.isOn = true;
+        }
 
         UpdateView();
         UpdateInfoFields();
@@ -423,7 +477,229 @@ public class StepsListView_v2 : BaseView
                 _inputFieldActivityDescription.text = _activity.Description;
             }
 
+            if (_inputFieldActivityTags != null)
+            {
+                _inputFieldActivityTags.text = string.Join(", ", _activity.Tags ?? new List<string>());
+            }
+
+            if (_dropdownVisibility != null)
+            {
+                int visIndex = _activity.Visibility?.ToLower() switch
+                {
+                    "protected" => 1,
+                    "unlisted" => 2,
+                    "public" => 3,
+                    _ => 0
+                };
+                _dropdownVisibility.value = visIndex;
+                bool canShare = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Share;
+                _dropdownVisibility.gameObject.SetActive(canShare);
+                _dropdownVisibility.interactable = canShare && RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+            }
+
+            bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+            bool canUpdate = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Update;
+
+            if (_inputFieldActivityName != null) _inputFieldActivityName.interactable = isEditor && canUpdate;
+            if (_inputFieldActivityDescription != null) _inputFieldActivityDescription.interactable = isEditor && canUpdate;
+            if (_inputFieldActivityTags != null) _inputFieldActivityTags.interactable = isEditor && canUpdate;
+
+            if (_dropdownPublicationStatus != null)
+            {
+                int pubIndex = string.Equals(_activity.PublicationStatus, "published", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+                _dropdownPublicationStatus.value = pubIndex;
+                _dropdownPublicationStatus.interactable = isEditor && canUpdate;
+            }
+
+            if (_inputFieldCustomerScope != null)
+            {
+                _inputFieldCustomerScope.text = _activity.CustomerScope ?? "wekit";
+                _inputFieldCustomerScope.interactable = isEditor && canUpdate;
+            }
+
+            UpdateGrantsView();
+
+            if (_imgThumbnail != null) _imgThumbnail.gameObject.SetActive(isEditor);
+            if (_defaultThumbnail != null) _defaultThumbnail.SetActive(isEditor);
+            if (_btnThumbnail != null) _btnThumbnail.gameObject.SetActive(isEditor);
+
+            if (_btnStartActivity != null) _btnStartActivity.gameObject.SetActive(!isEditor);
+
+            bool canDuplicate = _activity.EffectivePermissions != null && _activity.EffectivePermissions.Duplicate && _activity.EffectivePermissions.Read;
+            if (_btnDuplicate != null) _btnDuplicate.gameObject.SetActive(isEditor && canDuplicate);
+
             LoadThumbnail();
+        }
+    }
+
+    private void OnActivityTagsEndEdit(string text)
+    {
+        var tags = text?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                       .Select(t => t.Trim())
+                       .Where(t => !string.IsNullOrEmpty(t))
+                       .ToList() ?? new List<string>();
+        activityManager.SetActivityTags(tags);
+    }
+
+    private void OnVisibilityDropdownValueChanged(int index)
+    {
+        string[] options = { "private", "protected", "unlisted", "public" };
+        if (index >= 0 && index < options.Length && _activity != null)
+        {
+            activityManager.SetActivityVisibility(options[index]);
+        }
+    }
+
+    private void OnPublicationStatusDropdownValueChanged(int index)
+    {
+        string[] options = { "draft", "published" };
+        if (index >= 0 && index < options.Length && _activity != null)
+        {
+            activityManager.SetActivityPublicationStatus(options[index]);
+        }
+    }
+
+    private void OnCustomerScopeEndEdit(string text)
+    {
+        if (_activity != null && !string.IsNullOrWhiteSpace(text))
+        {
+            activityManager.SetActivityCustomerScope(text.Trim());
+        }
+    }
+
+    private void OnAddGrantPressed()
+    {
+        if (_inputFieldGranteeId == null || string.IsNullOrWhiteSpace(_inputFieldGranteeId.text))
+        {
+            return;
+        }
+
+        string type = _dropdownGrantType != null && _dropdownGrantType.value == 1 ? "group" : "user";
+        string id = _inputFieldGranteeId.text.Trim();
+        var privs = new List<string> { "read" };
+        if (_dropdownGrantPrivileges != null && _dropdownGrantPrivileges.value == 1)
+        {
+            privs.Add("update");
+        }
+
+        var grant = new Grant
+        {
+            GranteeType = type,
+            GranteeId = id,
+            Privileges = privs
+        };
+
+        activityManager.AddActivityGrant(grant);
+        _inputFieldGranteeId.text = string.Empty;
+        UpdateGrantsView();
+    }
+
+    private void OnRemoveGrantPressed(int index)
+    {
+        activityManager.RemoveActivityGrant(index);
+        UpdateGrantsView();
+    }
+
+    private void UpdateGrantsView()
+    {
+        if (_grantsContainer == null) return;
+
+        foreach (Transform child in _grantsContainer)
+        {
+            Destroy(child.gameObject);
+        }
+
+        bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+        bool canShare = _activity?.EffectivePermissions == null || _activity.EffectivePermissions.Share;
+
+        if (_panelAddGrant != null)
+        {
+            _panelAddGrant.SetActive(isEditor && canShare);
+        }
+
+        var grants = _activity?.Grants;
+        if (grants == null || grants.Count == 0)
+        {
+            var emptyObj = new GameObject("EmptyGrantsNotice", typeof(RectTransform));
+            emptyObj.transform.SetParent(_grantsContainer, false);
+            var text = emptyObj.AddComponent<TextMeshProUGUI>();
+            text.text = "No additional grants";
+            text.fontSize = 14;
+            text.color = new Color(0.7f, 0.7f, 0.7f, 1f);
+            return;
+        }
+
+        for (int i = 0; i < grants.Count; i++)
+        {
+            int index = i;
+            var grant = grants[i];
+            var grantItemObj = new GameObject($"GrantItem_{i}", typeof(RectTransform));
+            grantItemObj.transform.SetParent(_grantsContainer, false);
+
+            var hLayout = grantItemObj.AddComponent<HorizontalLayoutGroup>();
+            hLayout.childControlWidth = false;
+            hLayout.childForceExpandWidth = false;
+            hLayout.childControlHeight = true;
+            hLayout.childForceExpandHeight = false;
+            hLayout.spacing = 8f;
+
+            var textObj = new GameObject("GrantText", typeof(RectTransform));
+            textObj.transform.SetParent(grantItemObj.transform, false);
+            var text = textObj.AddComponent<TextMeshProUGUI>();
+            string typeLabel = grant.GranteeType?.ToLower() == "group" ? "[GROUP]" : "[USER]";
+            string privsLabel = grant.Privileges != null ? string.Join(", ", grant.Privileges) : "read";
+            text.text = $"{typeLabel} {grant.GranteeId} ({privsLabel})";
+            text.fontSize = 14;
+
+            if (isEditor && canShare)
+            {
+                var removeBtnObj = new GameObject("RemoveBtn", typeof(RectTransform));
+                removeBtnObj.transform.SetParent(grantItemObj.transform, false);
+                var removeBtn = removeBtnObj.AddComponent<Button>();
+                var removeBtnText = new GameObject("Text", typeof(RectTransform)).AddComponent<TextMeshProUGUI>();
+                removeBtnText.transform.SetParent(removeBtnObj.transform, false);
+                removeBtnText.text = "✕";
+                removeBtnText.fontSize = 14;
+                removeBtnText.color = Color.red;
+                removeBtn.onClick.AddListener(() => OnRemoveGrantPressed(index));
+            }
+        }
+    }
+
+    private void OnStartActivityPressed()
+    {
+        if (_activity?.Steps != null && _activity.Steps.Count > 0)
+        {
+            RootObject.Instance.LEE.StepManager.GoToStep(_activity.Steps[0].Id);
+        }
+        _toggleSteps.isOn = true;
+    }
+
+    private void OnDuplicateButtonPressed()
+    {
+        OnDuplicateButtonPressedAsync().Forget();
+    }
+
+    private async UniTask OnDuplicateButtonPressedAsync()
+    {
+        if (_activity == null) return;
+        try
+        {
+            LoadView.Instance.Show();
+            var destinations = await RootObject.Instance.LEE.ActivityManager.GetDuplicationDestinationsAsync();
+            var targetScope = destinations.Count > 0 ? destinations[0] : (_activity.CustomerScope ?? "wekit");
+            var duplicateName = "Copy of " + _activity.Name;
+
+            await RootObject.Instance.LEE.ActivityManager.DuplicateActivityAsync(_activity.Id, targetScope, duplicateName);
+            OnCloseActivityPressed();
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to duplicate activity: {ex.Message}");
+        }
+        finally
+        {
+            LoadView.Instance.Hide();
         }
     }
 
@@ -694,6 +970,18 @@ public class StepsListView_v2 : BaseView
         _btnThumbnail.interactable = value;
         _inputFieldActivityName.interactable = value;
         _inputFieldActivityDescription.interactable = value;
+        if (_inputFieldActivityTags != null)
+        {
+            _inputFieldActivityTags.interactable = value;
+        }
+
+        if (!value)
+        {
+            _toggleInfo.isOn = true;
+        }
+
+        UpdateInfoFields();
+
         if (_btnAssignRoomModel != null)
         {
             _btnAssignRoomModel.interactable = value;
