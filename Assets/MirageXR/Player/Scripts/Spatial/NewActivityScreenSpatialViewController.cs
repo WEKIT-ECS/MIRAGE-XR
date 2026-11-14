@@ -17,7 +17,7 @@ namespace MirageXR  //TODO: add Spatial namespace
 
         public override ScreenName ScreenName => ScreenName.NewActivityScreen;
 
-        private static RoomTwinManager roomTwinManager => RootObject.Instance.RoomTwinManager;
+        private static RoomTwinManager roomTwinManager => RootObject.Instance != null ? RootObject.Instance.RoomTwinManager : null;
 
         protected override void OnBind()
         {
@@ -629,9 +629,9 @@ namespace MirageXR  //TODO: add Spatial namespace
         private void OnButtonCloseClicked()
         {
             LearningExperienceEngine.EventManager.ClearAll();
-            roomTwinManager.SetRoomTwinVisibility(false);
-            RootObject.Instance.LEE.ActivityManager.CloseActivity();
-            MenuManager.Instance.ShowScreen(ScreenName.MainScreen);
+            roomTwinManager?.SetRoomTwinVisibility(false);
+            RootObject.Instance?.LEE?.ActivityManager?.CloseActivity();
+            MenuManager.Instance?.ShowScreen(ScreenName.MainScreen);
         }
 
         private void OnActivityClosed()

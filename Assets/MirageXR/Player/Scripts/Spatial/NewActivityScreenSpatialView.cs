@@ -73,6 +73,12 @@ namespace MirageXR
 
         private void Awake()
         {
+            var blurredBg = transform.Find("Blurred Background");
+            if (blurredBg != null)
+            {
+                blurredBg.gameObject.SetActive(false);
+            }
+
             if (_buttonDuplicate == null)
             {
                 var dupTransform = transform.Find("InfoPanel/DuplicateButton") ?? transform.Find("DuplicateButton");
@@ -112,6 +118,36 @@ namespace MirageXR
             if (_grantsContainer == null)
             {
                 _grantsContainer = transform.Find("InfoPanel/GrantsContainer") ?? transform.Find("GrantsContainer");
+            }
+
+            if (textCreatorAttribution == null)
+            {
+                var t = transform.Find("Tabs/InfoPanel/TextCreatorAttribution") ?? transform.Find("NewActivityScreen_Spatial/Tabs/InfoPanel/TextCreatorAttribution");
+                if (t != null) textCreatorAttribution = t.GetComponent<TMP_Text>();
+            }
+
+            if (toggleLicenseBY == null)
+            {
+                var t = transform.Find("Tabs/InfoPanel/ToggleBY") ?? transform.Find("NewActivityScreen_Spatial/Tabs/InfoPanel/ToggleBY");
+                if (t != null) toggleLicenseBY = t.GetComponent<Toggle>();
+            }
+
+            if (toggleLicenseSA == null)
+            {
+                var t = transform.Find("Tabs/InfoPanel/ToggleSA") ?? transform.Find("NewActivityScreen_Spatial/Tabs/InfoPanel/ToggleSA");
+                if (t != null) toggleLicenseSA = t.GetComponent<Toggle>();
+            }
+
+            if (toggleLicenseND == null)
+            {
+                var t = transform.Find("Tabs/InfoPanel/ToggleND") ?? transform.Find("NewActivityScreen_Spatial/Tabs/InfoPanel/ToggleND");
+                if (t != null) toggleLicenseND = t.GetComponent<Toggle>();
+            }
+
+            if (toggleLicenseNC == null)
+            {
+                var t = transform.Find("Tabs/InfoPanel/ToggleNC") ?? transform.Find("NewActivityScreen_Spatial/Tabs/InfoPanel/ToggleNC");
+                if (t != null) toggleLicenseNC = t.GetComponent<Toggle>();
             }
         }
 
