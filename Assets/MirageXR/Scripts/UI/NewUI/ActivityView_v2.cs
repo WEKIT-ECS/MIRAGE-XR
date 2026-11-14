@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using MirageXR;
 using System.Collections;
@@ -68,6 +69,7 @@ public class ActivityView_v2 : BaseView
         RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditModeChanged;
         RootObject.Instance.LEE.ContentManager.OnContentActivated += OnContentActivated;
         RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityUpdated;
+        RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnActivityUpdated;
 
         _stepsVertical.SetActive(true);
         _stepsHorizontal.SetActive(false);
@@ -84,6 +86,39 @@ public class ActivityView_v2 : BaseView
     private void OnActivityUpdated(Activity activity)
     {
         _activity = activity;
+        UpdateEditToggleState();
+    }
+
+    private void UpdateEditToggleState()
+    {
+        if (_toggleEdit == null) return;
+        if (_activity == null)
+        {
+            _toggleEdit.gameObject.SetActive(true);
+            return;
+        }
+
+        var auth = RootObject.Instance.LEE.AuthorizationManager;
+        var userSub = auth.UserSub;
+
+        bool isOriginalCreator = (_activity.Creator != null && string.Equals(_activity.Creator.Id.ToString(), userSub, StringComparison.OrdinalIgnoreCase))
+                              || (!string.IsNullOrEmpty(_activity.Owner) && string.Equals(_activity.Owner, userSub, StringComparison.OrdinalIgnoreCase));
+        bool isSystemAdmin = auth.HasScopePrivilege("*", "update");
+
+        // ND restriction: If NoDerivatives is true, only original creator or system admin can edit.
+        bool blockedByND = (_activity.License != null && _activity.License.NoDerivatives) && !isOriginalCreator && !isSystemAdmin;
+
+        bool canUpdate = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Update;
+        bool canShare = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Share;
+        bool canCreate = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Create;
+
+        bool canEdit = (canUpdate || canShare || canCreate) && !blockedByND;
+
+        _toggleEdit.gameObject.SetActive(canEdit);
+        if (!canEdit && RootObject.Instance.LEE.ActivityManager.IsEditorMode)
+        {
+            RootObject.Instance.LEE.ActivityManager.IsEditorMode = false;
+        }
     }
 
     private void UpdateView()

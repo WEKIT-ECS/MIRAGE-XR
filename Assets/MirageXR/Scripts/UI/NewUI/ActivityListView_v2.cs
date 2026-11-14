@@ -73,8 +73,18 @@ public class ActivityListView_v2 : BaseView
         LearningExperienceEngine.EventManager.OnStartActivity += ShowBackButtons;
         RootObject.Instance.LEE.ActivityManager.OnActivitiesFetched += OnActivitiesFetched;
         RootObject.Instance.LEE.AuthorizationManager.OnLoginCompleted += OnLoginCompleted;
+        RootObject.Instance.LEE.AuthorizationManager.OnPrivilegesChanged += UpdateCreateButtonState;
+        UpdateCreateButtonState();
 
         //RootObject.Instance.ActivityManager.OnActivitiesFetched += OnActivitiesFetched;
+    }
+
+    private void UpdateCreateButtonState()
+    {
+        if (rootView?.bottomPanelView?.btnCreate != null)
+        {
+            rootView.bottomPanelView.btnCreate.gameObject.SetActive(RootObject.Instance.LEE.AuthorizationManager.CanCreateActivity);
+        }
     }
 
     private void OnLoginCompleted(string accessToken)
@@ -88,10 +98,7 @@ public class ActivityListView_v2 : BaseView
     private void OnActivitiesFetched(ActivityResponse activityResponse)
     {
         _lastResponse = activityResponse;
-        if (rootView?.bottomPanelView?.btnCreate != null)
-        {
-            rootView.bottomPanelView.btnCreate.gameObject.SetActive(activityResponse.CanCreate);
-        }
+        UpdateCreateButtonState();
 
         _items.ForEach(item => Destroy(item.gameObject));
         _items.Clear();

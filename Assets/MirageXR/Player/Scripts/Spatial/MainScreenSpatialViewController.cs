@@ -34,6 +34,8 @@ namespace MirageXR
             RootObject.Instance.LEE.ActivityManager.OnActivityClosed += OnActivityClosed;
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
             RootObject.Instance.LEE.AuthorizationManager.OnLoginCompleted += OnLoginCompleted;
+            RootObject.Instance.LEE.AuthorizationManager.OnPrivilegesChanged += UpdateAddNewActivityButtonState;
+            UpdateAddNewActivityButtonState();
         }
 
         protected override void OnUnbind()
@@ -51,6 +53,7 @@ namespace MirageXR
                 if (RootObject.Instance.LEE.AuthorizationManager != null)
                 {
                     RootObject.Instance.LEE.AuthorizationManager.OnLoginCompleted -= OnLoginCompleted;
+                    RootObject.Instance.LEE.AuthorizationManager.OnPrivilegesChanged -= UpdateAddNewActivityButtonState;
                 }
             }
         }
@@ -143,10 +146,15 @@ namespace MirageXR
         private string _activeTagFilter;
         private ActivityResponse _lastResponse;
 
+        private void UpdateAddNewActivityButtonState()
+        {
+            View.SetAddNewActivityButtonActive(RootObject.Instance.LEE.AuthorizationManager.CanCreateActivity);
+        }
+
         private void OnActivitiesFetched(ActivityResponse response)
         {
             _lastResponse = response;
-            View.SetAddNewActivityButtonActive(response.CanCreate);
+            UpdateAddNewActivityButtonState();
 
             var container = View.GetActivityContainer();
             var prefab = View.GetActivityListItemPrefab();

@@ -47,6 +47,12 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private TMP_InputField _inputFieldGranteeId;
     [SerializeField] private TMP_Dropdown _dropdownGrantPrivileges;
     [SerializeField] private Button _btnAddGrant;
+    [Header("License & Creator")]
+    [SerializeField] private TMP_Text _textCreatorAttribution;
+    [SerializeField] private Toggle _toggleLicenseBY;
+    [SerializeField] private Toggle _toggleLicenseSA;
+    [SerializeField] private Toggle _toggleLicenseND;
+    [SerializeField] private Toggle _toggleLicenseNC;
     [SerializeField] private RectTransform _addStep;
     [SerializeField] private Button _btnAddStep;
     [SerializeField] private Button _btnBack;
@@ -139,6 +145,11 @@ public class StepsListView_v2 : BaseView
         {
             _btnAddGrant.onClick.AddListener(OnAddGrantPressed);
         }
+
+        if (_toggleLicenseBY != null) _toggleLicenseBY.onValueChanged.AddListener(OnLicenseBYToggled);
+        if (_toggleLicenseSA != null) _toggleLicenseSA.onValueChanged.AddListener(OnLicenseSAToggled);
+        if (_toggleLicenseND != null) _toggleLicenseND.onValueChanged.AddListener(OnLicenseNDToggled);
+        if (_toggleLicenseNC != null) _toggleLicenseNC.onValueChanged.AddListener(OnLicenseNCToggled);
 
         if (_btnDuplicate != null)
         {
@@ -482,6 +493,10 @@ public class StepsListView_v2 : BaseView
                 _inputFieldActivityTags.text = string.Join(", ", _activity.Tags ?? new List<string>());
             }
 
+            bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+            bool canUpdate = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Update;
+            bool canShare = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Share;
+
             if (_dropdownVisibility != null)
             {
                 int visIndex = _activity.Visibility?.ToLower() switch
@@ -492,13 +507,9 @@ public class StepsListView_v2 : BaseView
                     _ => 0
                 };
                 _dropdownVisibility.value = visIndex;
-                bool canShare = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Share;
                 _dropdownVisibility.gameObject.SetActive(canShare);
-                _dropdownVisibility.interactable = canShare && RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+                _dropdownVisibility.interactable = canShare && isEditor;
             }
-
-            bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
-            bool canUpdate = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Update;
 
             if (_inputFieldActivityName != null) _inputFieldActivityName.interactable = isEditor && canUpdate;
             if (_inputFieldActivityDescription != null) _inputFieldActivityDescription.interactable = isEditor && canUpdate;
@@ -508,13 +519,49 @@ public class StepsListView_v2 : BaseView
             {
                 int pubIndex = string.Equals(_activity.PublicationStatus, "published", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
                 _dropdownPublicationStatus.value = pubIndex;
-                _dropdownPublicationStatus.interactable = isEditor && canUpdate;
+                _dropdownPublicationStatus.interactable = isEditor && canShare;
             }
 
             if (_inputFieldCustomerScope != null)
             {
                 _inputFieldCustomerScope.text = _activity.CustomerScope ?? "wekit";
                 _inputFieldCustomerScope.interactable = isEditor && canUpdate;
+            }
+
+            if (_textCreatorAttribution != null)
+            {
+                bool showBY = _activity.License == null || _activity.License.Attribution;
+                string creatorName = _activity.Creator?.Name;
+                if (showBY && !string.IsNullOrEmpty(creatorName))
+                {
+                    _textCreatorAttribution.gameObject.SetActive(true);
+                    _textCreatorAttribution.text = $"Created by: {creatorName}";
+                }
+                else
+                {
+                    _textCreatorAttribution.gameObject.SetActive(false);
+                }
+            }
+
+            if (_toggleLicenseBY != null)
+            {
+                _toggleLicenseBY.SetIsOnWithoutNotify(_activity.License == null || _activity.License.Attribution);
+                _toggleLicenseBY.interactable = isEditor && canUpdate;
+            }
+            if (_toggleLicenseSA != null)
+            {
+                _toggleLicenseSA.SetIsOnWithoutNotify(_activity.License == null || _activity.License.ShareAlike);
+                _toggleLicenseSA.interactable = isEditor && canUpdate;
+            }
+            if (_toggleLicenseND != null)
+            {
+                _toggleLicenseND.SetIsOnWithoutNotify(_activity.License != null && _activity.License.NoDerivatives);
+                _toggleLicenseND.interactable = isEditor && canUpdate;
+            }
+            if (_toggleLicenseNC != null)
+            {
+                _toggleLicenseNC.SetIsOnWithoutNotify(_activity.License != null && _activity.License.NonCommercial);
+                _toggleLicenseNC.interactable = isEditor && canUpdate;
             }
 
             UpdateGrantsView();
@@ -561,10 +608,58 @@ public class StepsListView_v2 : BaseView
 
     private void OnCustomerScopeEndEdit(string text)
     {
-        if (_activity != null && !string.IsNullOrWhiteSpace(text))
+        if (_activity == null || string.IsNullOrWhiteSpace(text)) return;
+        var trimmedScope = text.Trim();
+        var auth = RootObject.Instance.LEE.AuthorizationManager;
+        if (!auth.HasScopePrivilege(trimmedScope, "create"))
         {
-            activityManager.SetActivityCustomerScope(text.Trim());
+            if (DialogWindow.Instance != null)
+            {
+                DialogWindow.Instance.Show("Permission Denied", $"You do not have creator privileges for customer scope '{trimmedScope}'.", new DialogButtonContent("OK"));
+            }
+            if (_inputFieldCustomerScope != null)
+            {
+                _inputFieldCustomerScope.text = _activity.CustomerScope ?? "wekit";
+            }
+            return;
         }
+        activityManager.SetActivityCustomerScope(trimmedScope);
+    }
+
+    private void OnLicenseBYToggled(bool value)
+    {
+        if (_activity == null) return;
+        _activity.License ??= new ActivityLicense();
+        _activity.License.Attribution = value;
+        activityManager.SetActivityLicense(_activity.License);
+        if (_textCreatorAttribution != null)
+        {
+            _textCreatorAttribution.gameObject.SetActive(value && !string.IsNullOrEmpty(_activity.Creator?.Name));
+        }
+    }
+
+    private void OnLicenseSAToggled(bool value)
+    {
+        if (_activity == null) return;
+        _activity.License ??= new ActivityLicense();
+        _activity.License.ShareAlike = value;
+        activityManager.SetActivityLicense(_activity.License);
+    }
+
+    private void OnLicenseNDToggled(bool value)
+    {
+        if (_activity == null) return;
+        _activity.License ??= new ActivityLicense();
+        _activity.License.NoDerivatives = value;
+        activityManager.SetActivityLicense(_activity.License);
+    }
+
+    private void OnLicenseNCToggled(bool value)
+    {
+        if (_activity == null) return;
+        _activity.License ??= new ActivityLicense();
+        _activity.License.NonCommercial = value;
+        activityManager.SetActivityLicense(_activity.License);
     }
 
     private void OnAddGrantPressed()
@@ -683,11 +778,43 @@ public class StepsListView_v2 : BaseView
     private async UniTask OnDuplicateButtonPressedAsync()
     {
         if (_activity == null) return;
+        var auth = RootObject.Instance.LEE.AuthorizationManager;
+        var allowedDestinations = auth.DuplicationDestinationScopes;
+
+        if (allowedDestinations == null || allowedDestinations.Count == 0)
+        {
+            if (DialogWindow.Instance != null)
+            {
+                DialogWindow.Instance.Show("Duplication Not Allowed", "You do not have manager or creator privileges in any customer scope to duplicate activities.", new DialogButtonContent("OK"));
+            }
+            return;
+        }
+
+        bool isOriginalCreator = (_activity.Creator != null && string.Equals(_activity.Creator.Id.ToString(), auth.UserSub, StringComparison.OrdinalIgnoreCase))
+                              || (!string.IsNullOrEmpty(_activity.Owner) && string.Equals(_activity.Owner, auth.UserSub, StringComparison.OrdinalIgnoreCase));
+        bool isSystemAdmin = auth.HasScopePrivilege("*", "duplicate");
+        if (_activity.License != null && !_activity.License.ShareAlike && !isOriginalCreator && !isSystemAdmin)
+        {
+            if (DialogWindow.Instance != null)
+            {
+                DialogWindow.Instance.Show("Duplication Restricted", "This activity has Share-Alike disabled and cannot be duplicated by non-creators.", new DialogButtonContent("OK"));
+            }
+            return;
+        }
+
+        string targetScope;
+        if (!string.IsNullOrEmpty(_activity.CustomerScope) && allowedDestinations.Any(s => string.Equals(s, _activity.CustomerScope, StringComparison.OrdinalIgnoreCase)))
+        {
+            targetScope = _activity.CustomerScope;
+        }
+        else
+        {
+            targetScope = allowedDestinations[0];
+        }
+
         try
         {
             LoadView.Instance.Show();
-            var destinations = await RootObject.Instance.LEE.ActivityManager.GetDuplicationDestinationsAsync();
-            var targetScope = destinations.Count > 0 ? destinations[0] : (_activity.CustomerScope ?? "wekit");
             var duplicateName = "Copy of " + _activity.Name;
 
             await RootObject.Instance.LEE.ActivityManager.DuplicateActivityAsync(_activity.Id, targetScope, duplicateName);
@@ -696,6 +823,10 @@ public class StepsListView_v2 : BaseView
         catch (Exception ex)
         {
             Debug.LogError($"Failed to duplicate activity: {ex.Message}");
+            if (DialogWindow.Instance != null)
+            {
+                DialogWindow.Instance.Show("Error", $"Duplication failed: {ex.Message}", new DialogButtonContent("OK"));
+            }
         }
         finally
         {
@@ -779,6 +910,16 @@ public class StepsListView_v2 : BaseView
 
     private async UniTaskVoid LoadThumbnailAsync()
     {
+        bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+        if (!isEditor)
+        {
+            if (_defaultThumbnail != null) _defaultThumbnail.SetActive(false);
+            if (_imgThumbnail != null) _imgThumbnail.gameObject.SetActive(false);
+            SetButtonDeleteThumbnailActive(false);
+            if (_btnThumbnail != null) _btnThumbnail.gameObject.SetActive(false);
+            return;
+        }
+
         if (_activity == null)
         {
             _defaultThumbnail.SetActive(true);

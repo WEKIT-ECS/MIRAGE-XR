@@ -44,6 +44,12 @@ namespace MirageXR
         [SerializeField] private TMP_InputField _inputFieldGranteeId;
         [SerializeField] private TMP_Dropdown _dropdownGrantPrivileges;
         [SerializeField] private Button _buttonAddGrant;
+        [Header("License & Creator")]
+        [SerializeField] private TMP_Text textCreatorAttribution;
+        [SerializeField] private Toggle toggleLicenseBY;
+        [SerializeField] private Toggle toggleLicenseSA;
+        [SerializeField] private Toggle toggleLicenseND;
+        [SerializeField] private Toggle toggleLicenseNC;
         [Header("Containers")]
         [SerializeField] private RectTransform _thumbnaiContainer;
         [SerializeField] private Transform _stepsContainer;
@@ -294,6 +300,32 @@ namespace MirageXR
         public void RemoveActionOnToggleEditorValueChanged(UnityAction<bool> action) => _toggleEditorMode.SafeRemoveListener(action);
         public void SetActionOnToggleEditorValueChanged(UnityAction<bool> action) => _toggleEditorMode.SafeAddListener(action);
         public void SetIsToggleEditorOn(bool value) => _toggleEditorMode.SafeSetIsOn(value);
+        public void SetToggleEditorModeActive(bool active)
+        {
+            if (_toggleEditorMode != null) _toggleEditorMode.gameObject.SetActive(active);
+        }
+
+        public void SetCreatorAttributionText(string text, bool visible)
+        {
+            if (textCreatorAttribution != null)
+            {
+                textCreatorAttribution.text = text;
+                textCreatorAttribution.gameObject.SetActive(visible);
+            }
+        }
+
+        public void SetLicenseToggles(bool by, bool sa, bool nd, bool nc, bool interactable)
+        {
+            if (toggleLicenseBY != null) { toggleLicenseBY.SetIsOnWithoutNotify(by); toggleLicenseBY.interactable = interactable; }
+            if (toggleLicenseSA != null) { toggleLicenseSA.SetIsOnWithoutNotify(sa); toggleLicenseSA.interactable = interactable; }
+            if (toggleLicenseND != null) { toggleLicenseND.SetIsOnWithoutNotify(nd); toggleLicenseND.interactable = interactable; }
+            if (toggleLicenseNC != null) { toggleLicenseNC.SetIsOnWithoutNotify(nc); toggleLicenseNC.interactable = interactable; }
+        }
+
+        public void SetActionOnToggleLicenseBY(UnityAction<bool> action) => toggleLicenseBY?.SafeAddListener(action);
+        public void SetActionOnToggleLicenseSA(UnityAction<bool> action) => toggleLicenseSA?.SafeAddListener(action);
+        public void SetActionOnToggleLicenseND(UnityAction<bool> action) => toggleLicenseND?.SafeAddListener(action);
+        public void SetActionOnToggleLicenseNC(UnityAction<bool> action) => toggleLicenseNC?.SafeAddListener(action);
         public void SetPanelAddNewStepActive(bool value) => _panelAddNewStep.SetActive(value);
         public Vector2 GetImageThumbnailContainerSize() => _thumbnaiContainer.rect.size;
         public void SetImageThumbnailActive(bool value)
