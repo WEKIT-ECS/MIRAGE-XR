@@ -11,17 +11,24 @@ namespace MirageXR
     {
         [SerializeField] private Button _btnClose;
 
-        private TMP_InputField _inputOffsetX;
-        private TMP_InputField _inputOffsetY;
-        private TMP_InputField _inputOffsetZ;
+        [Header("Offset (cm)")]
+        [SerializeField] private TMP_InputField _inputOffsetX;
+        [SerializeField] private TMP_InputField _inputOffsetY;
+        [SerializeField] private TMP_InputField _inputOffsetZ;
 
-        private TMP_InputField _inputRotX;
-        private TMP_InputField _inputRotY;
-        private TMP_InputField _inputRotZ;
+        [Header("Rotation (deg)")]
+        [SerializeField] private TMP_InputField _inputRotX;
+        [SerializeField] private TMP_InputField _inputRotY;
+        [SerializeField] private TMP_InputField _inputRotZ;
 
-        private TMP_InputField _inputScaleX;
-        private TMP_InputField _inputScaleY;
-        private TMP_InputField _inputScaleZ;
+        [Header("Scale")]
+        [SerializeField] private TMP_InputField _inputScaleX;
+        [SerializeField] private TMP_InputField _inputScaleY;
+        [SerializeField] private TMP_InputField _inputScaleZ;
+
+        [Header("Buttons")]
+        [SerializeField] private Button _btnReset;
+        [SerializeField] private Button _btnApply;
 
         private bool _isInitializedUI = false;
         private static RoomTwinManager roomTwinManager => RootObject.Instance?.RoomTwinManager;
@@ -46,8 +53,56 @@ namespace MirageXR
                 _btnClose.onClick.AddListener(Close);
             }
 
-            BuildUIIfNeeded();
+            if (_inputOffsetX == null)
+            {
+                BuildUIIfNeeded();
+            }
+            else
+            {
+                BindUI();
+            }
+
             LoadCurrentValues();
+        }
+
+        private void BindUI()
+        {
+            if (_isInitializedUI) return;
+
+            if (_btnReset != null)
+            {
+                _btnReset.onClick.RemoveAllListeners();
+                _btnReset.onClick.AddListener(OnResetClicked);
+            }
+
+            if (_btnApply != null)
+            {
+                _btnApply.onClick.RemoveAllListeners();
+                _btnApply.onClick.AddListener(OnApplyClicked);
+            }
+
+            void HookAutoApply(TMP_InputField field)
+            {
+                if (field != null)
+                {
+                    field.onEndEdit.RemoveAllListeners();
+                    field.onEndEdit.AddListener(_ => OnApplyClicked());
+                }
+            }
+
+            HookAutoApply(_inputOffsetX);
+            HookAutoApply(_inputOffsetY);
+            HookAutoApply(_inputOffsetZ);
+
+            HookAutoApply(_inputRotX);
+            HookAutoApply(_inputRotY);
+            HookAutoApply(_inputRotZ);
+
+            HookAutoApply(_inputScaleX);
+            HookAutoApply(_inputScaleY);
+            HookAutoApply(_inputScaleZ);
+
+            _isInitializedUI = true;
         }
 
         private void BuildUIIfNeeded()
@@ -66,6 +121,17 @@ namespace MirageXR
             if (rootRect != null)
             {
                 rootRect.sizeDelta = new Vector2(480f, 440f);
+            }
+
+            // Also resize Screen card so the background frame contains the entire content
+            var screenTransform = transform.Find("Screen");
+            if (screenTransform != null)
+            {
+                var screenRect = screenTransform.GetComponent<RectTransform>();
+                if (screenRect != null)
+                {
+                    screenRect.sizeDelta = new Vector2(480f, 440f);
+                }
             }
 
             // Find Content container
@@ -88,11 +154,11 @@ namespace MirageXR
             var repoRect = repoContainer.GetComponent<RectTransform>();
             repoRect.anchorMin = new Vector2(0f, 0f);
             repoRect.anchorMax = new Vector2(1f, 1f);
-            repoRect.offsetMin = new Vector2(20f, 20f);
-            repoRect.offsetMax = new Vector2(-20f, -20f);
+            repoRect.offsetMin = new Vector2(20f, 15f);
+            repoRect.offsetMax = new Vector2(-20f, -15f);
 
             var vlg = repoContainer.GetComponent<VerticalLayoutGroup>();
-            vlg.spacing = 14f;
+            vlg.spacing = 10f;
             vlg.childControlWidth = true;
             vlg.childControlHeight = false;
             vlg.childForceExpandWidth = true;
@@ -125,29 +191,17 @@ namespace MirageXR
             hlgBtn.childForceExpandHeight = true;
             hlgBtn.childAlignment = TextAnchor.MiddleCenter;
 
-            CreateButton(buttonRow.transform, "Reset", OnResetClicked);
-            CreateButton(buttonRow.transform, "Apply", OnApplyClicked);
+            _btnReset = CreateButton(buttonRow.transform, "Reset", OnResetClicked);
+            _btnApply = CreateButton(buttonRow.transform, "Apply", OnApplyClicked);
 
-            // Hook up onEndEdit to auto-apply
-            _inputOffsetX.onEndEdit.AddListener(_ => OnApplyClicked());
-            _inputOffsetY.onEndEdit.AddListener(_ => OnApplyClicked());
-            _inputOffsetZ.onEndEdit.AddListener(_ => OnApplyClicked());
-
-            _inputRotX.onEndEdit.AddListener(_ => OnApplyClicked());
-            _inputRotY.onEndEdit.AddListener(_ => OnApplyClicked());
-            _inputRotZ.onEndEdit.AddListener(_ => OnApplyClicked());
-
-            _inputScaleX.onEndEdit.AddListener(_ => OnApplyClicked());
-            _inputScaleY.onEndEdit.AddListener(_ => OnApplyClicked());
-            _inputScaleZ.onEndEdit.AddListener(_ => OnApplyClicked());
-
-            _isInitializedUI = true;
+            BindUI();
         }
 
-        private void LoadCurrentValues()
+        public void LoadCurrentValues()
         {
             var rtm = roomTwinManager;
             var loc = rtm != null ? rtm.GetRoomTwinLocation() : Location.GetIdentityLocation();
+            if (loc == null) loc = Location.GetIdentityLocation();
 
             // Position in meters -> cm
             float cmX = loc.Position.x * 100f;
@@ -328,7 +382,8 @@ namespace MirageXR
             input.textViewport = rect;
             input.textComponent = textComp;
             input.placeholder = phComp;
-            input.contentType = TMP_InputField.ContentType.DecimalNumber;
+            input.contentType = TMP_InputField.ContentType.Standard;
+            input.keyboardType = TouchScreenKeyboardType.NumbersAndPunctuation;
             input.text = initialValue;
 
             return input;
@@ -366,4 +421,3 @@ namespace MirageXR
         }
     }
 }
-

@@ -166,6 +166,13 @@ namespace MirageXR
                 return;
             }
 
+            var resPrefab = Resources.Load<RoomScanRepositionSpatialView>("Screens/RoomScanReposition_Spatial");
+            if (resPrefab != null)
+            {
+                PopupsViewer.Instance.Show(resPrefab);
+                return;
+            }
+
             if (_roomScanSettingsSpatialViewPrefab != null)
             {
                 if (_generatedRepositionPrefab == null)
