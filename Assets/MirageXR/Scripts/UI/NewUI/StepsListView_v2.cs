@@ -175,6 +175,10 @@ public class StepsListView_v2 : BaseView
         _toggleInfo.onValueChanged.AddListener(OnToggleInfoValueChanged);
         _toggleCalibration.onValueChanged.AddListener(OnToggleCalibrationValueChanged);
 
+        _steps.SetActive(true);
+        _info.SetActive(false);
+        _calibration.SetActive(false);
+
         _btnBack.onClick.AddListener(OnBackPressed);
         if (_btnCloseActivity != null)
         {
@@ -203,6 +207,16 @@ public class StepsListView_v2 : BaseView
         if (_activity == null && activityManager?.Activity != null)
         {
             _activity = activityManager.Activity;
+        }
+
+        bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+        if (!isEditor)
+        {
+            _toggleInfo.isOn = true;
+        }
+        else
+        {
+            _toggleSteps.isOn = true;
         }
 
         UpdateView();
@@ -275,6 +289,10 @@ public class StepsListView_v2 : BaseView
         if (!isEditor)
         {
             _toggleInfo.isOn = true;
+        }
+        else
+        {
+            _toggleSteps.isOn = true;
         }
 
         UpdateView();
@@ -1119,6 +1137,10 @@ public class StepsListView_v2 : BaseView
         if (!value)
         {
             _toggleInfo.isOn = true;
+        }
+        else
+        {
+            _toggleSteps.isOn = true;
         }
 
         UpdateInfoFields();
