@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using LearningExperienceEngine.DTOs;
@@ -138,8 +140,14 @@ namespace MirageXR
             FetchActivitiesAsync().Forget();
         }
 
+        private string _activeTagFilter;
+        private ActivityResponse _lastResponse;
+
         private void OnActivitiesFetched(ActivityResponse response)
         {
+            _lastResponse = response;
+            View.SetAddNewActivityButtonActive(response.CanCreate);
+
             var container = View.GetActivityContainer();
             var prefab = View.GetActivityListItemPrefab();
             var selectedActivityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
@@ -149,12 +157,23 @@ namespace MirageXR
                 Destroy(child.gameObject);
             }
 
+            IEnumerable<LearningExperienceEngine.DTOs.Activity> activities = response.Activities;
+            if (!string.IsNullOrEmpty(_activeTagFilter))
+            {
+                activities = activities.Where(a => a.Tags != null && a.Tags.Contains(_activeTagFilter));
+            }
+
+            if (LearningExperienceEngine.UserSettings.groupByTags)
+            {
+                activities = activities.OrderBy(a => a.Tags != null && a.Tags.Count > 0 ? a.Tags[0] : "zzz_untagged");
+            }
+
             ActivitySpatialListItem selectedItem = null;
-            foreach (var activity in response.Activities)
+            foreach (var activity in activities)
             {
                 var isSelected = activity.Id == selectedActivityId;
                 var item = Instantiate(prefab, container);
-                item.Initialize(activity, OnActivityListItemClicked, OnActivityListItemDeleteClicked, isSelected);
+                item.Initialize(activity, OnActivityListItemClicked, OnActivityListItemDeleteClicked, isSelected, OnTagClicked);
                 if (isSelected)
                 {
                     selectedItem = item;
@@ -162,6 +181,23 @@ namespace MirageXR
             }
 
             selectedItem?.transform.SetAsFirstSibling();
+        }
+
+        private void OnTagClicked(string tag)
+        {
+            if (_activeTagFilter == tag)
+            {
+                _activeTagFilter = null; // Toggle off
+            }
+            else
+            {
+                _activeTagFilter = tag;
+            }
+
+            if (_lastResponse != null)
+            {
+                OnActivitiesFetched(_lastResponse);
+            }
         }
 
         private void OnAddNewActivityClick()

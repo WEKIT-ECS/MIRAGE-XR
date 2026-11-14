@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Cysharp.Threading.Tasks;
 using TMPro;
@@ -25,27 +26,42 @@ namespace MirageXR
         [SerializeField] private Button buttonDeleteCancel;
         [SerializeField] private Color selectedColor;
         [SerializeField] private Color defaultColor;
+        [SerializeField] private Transform tagsContainer;
+        [SerializeField] private Button tagChipPrefab;
 
         private Activity _activity;
         private bool _isSelected;
         private UnityAction<Activity> _onItemClicked;
         private UnityAction<Activity> _onItemDeleteClicked;
+        private UnityAction<string> _onTagClicked;
         private ButtonLongPress _deleteButtonLongPress;
 
-        public void Initialize(Activity activity, UnityAction<Activity> onItemClicked, UnityAction<Activity> onItemDeleteClicked, bool isSelected)
+        public void Initialize(Activity activity, UnityAction<Activity> onItemClicked, UnityAction<Activity> onItemDeleteClicked, bool isSelected, UnityAction<string> onTagClicked = null)
         {
             _isSelected = isSelected;
             _activity = activity;
             _onItemClicked = onItemClicked;
             _onItemDeleteClicked = onItemDeleteClicked;
+            _onTagClicked = onTagClicked;
             button.onClick.AddListener(OnItemClicked);
-            buttonDelete.onClick.AddListener(OnItemDeleteClicked);
-            buttonDeleteConfirmation.onClick.AddListener(DeleteActivity);
-            buttonDeleteCancel.onClick.AddListener(HideDeleteConfirmation);
-            deleteConfirmation.SetActive(false);
-            InitializeDeleteLongPress();
+
+            bool canDelete = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Delete;
+            buttonDelete.gameObject.SetActive(canDelete);
+            if (canDelete)
+            {
+                buttonDelete.onClick.AddListener(OnItemDeleteClicked);
+                buttonDeleteConfirmation.onClick.AddListener(DeleteActivity);
+                buttonDeleteCancel.onClick.AddListener(HideDeleteConfirmation);
+                deleteConfirmation.SetActive(false);
+                InitializeDeleteLongPress();
+            }
+            else
+            {
+                deleteConfirmation.SetActive(false);
+            }
 
             UpdateView();
+            UpdateTagsView();
         }
 
         private void OnDestroy()
@@ -143,6 +159,71 @@ namespace MirageXR
             author.text = _activity.Creator?.Name;
 
             UpdateThumbnailViewAsync().Forget();
+        }
+
+        private void UpdateTagsView()
+        {
+            if (tagsContainer == null)
+            {
+                var existingContainer = transform.Find("TagsContainer");
+                if (existingContainer != null)
+                {
+                    tagsContainer = existingContainer;
+                }
+                else
+                {
+                    var go = new GameObject("TagsContainer", typeof(RectTransform), typeof(HorizontalLayoutGroup));
+                    go.transform.SetParent(transform, false);
+                    var hlg = go.GetComponent<HorizontalLayoutGroup>();
+                    hlg.childControlWidth = false;
+                    hlg.childControlHeight = false;
+                    hlg.spacing = 8f;
+                    var rt = go.GetComponent<RectTransform>();
+                    rt.anchorMin = new Vector2(0f, 0f);
+                    rt.anchorMax = new Vector2(1f, 0f);
+                    rt.pivot = new Vector2(0f, 0f);
+                    rt.anchoredPosition = new Vector2(150f, 15f);
+                    rt.sizeDelta = new Vector2(-160f, 30f);
+                    tagsContainer = go.transform;
+                }
+            }
+
+            foreach (Transform child in tagsContainer)
+            {
+                Destroy(child.gameObject);
+            }
+
+            if (_activity?.Tags == null || _activity.Tags.Count == 0)
+            {
+                return;
+            }
+
+            var tagsToShow = _activity.Tags.Take(4);
+            foreach (var tag in tagsToShow)
+            {
+                var chipObj = new GameObject($"TagChip_{tag}", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+                chipObj.transform.SetParent(tagsContainer, false);
+                var img = chipObj.GetComponent<Image>();
+                img.color = new Color(0.2f, 0.25f, 0.35f, 0.85f);
+                var btn = chipObj.GetComponent<Button>();
+                var currentTag = tag;
+                btn.onClick.AddListener(() => _onTagClicked?.Invoke(currentTag));
+
+                var textObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+                textObj.transform.SetParent(chipObj.transform, false);
+                var tmp = textObj.GetComponent<TextMeshProUGUI>();
+                tmp.text = tag;
+                tmp.fontSize = 14;
+                tmp.alignment = TextAlignmentOptions.Center;
+                tmp.color = Color.white;
+                var textRt = textObj.GetComponent<RectTransform>();
+                textRt.anchorMin = Vector2.zero;
+                textRt.anchorMax = Vector2.one;
+                textRt.sizeDelta = Vector2.zero;
+
+                var chipRt = chipObj.GetComponent<RectTransform>();
+                chipRt.sizeDelta = new Vector2(Mathf.Max(60f, tag.Length * 10f + 20f), 26f);
+            }
         }
 
         private void SetDefaultThumbnailVisible(bool visible)

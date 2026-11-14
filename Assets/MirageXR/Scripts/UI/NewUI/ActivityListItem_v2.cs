@@ -24,6 +24,7 @@ namespace MirageXR
         [SerializeField] private Button _btnMain;
         [SerializeField] private Button _btnDelete;
         [SerializeField] private Sprite _deleteIcon;
+        [SerializeField] private Transform _tagsContainer;
 
         private const float SWIPE_LIMIT = 150f;
         private const float SWIPE_DURATION = 0.2f;
@@ -32,6 +33,7 @@ namespace MirageXR
         private Activity _activity;
         private UnityAction<Activity> _onClick;
         private UnityAction<Activity> _onDelete;
+        private UnityAction<string> _onTagClicked;
 
         private RectTransform _contentTransform;
         private ScrollRect _scrollRect;
@@ -162,16 +164,89 @@ namespace MirageXR
             iconImg.raycastTarget = false;
         }
 
-        public void Init(Activity activity, UnityAction<Activity> onClick, UnityAction<Activity> onDelete)
+        public void Init(Activity activity, UnityAction<Activity> onClick, UnityAction<Activity> onDelete, UnityAction<string> onTagClicked = null)
         {
             _onClick = onClick;
             _onDelete = onDelete;
+            _onTagClicked = onTagClicked;
             _activity = activity;
             _btnMain.onClick.RemoveAllListeners();
             _btnMain.onClick.AddListener(OnBtnMain);
 
+            bool canDelete = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Delete;
+            if (_btnDelete != null)
+            {
+                _btnDelete.gameObject.SetActive(canDelete);
+            }
+
             ResetSwipe(immediate: true);
             UpdateView();
+            UpdateTagsView();
+        }
+
+        private void UpdateTagsView()
+        {
+            if (_tagsContainer == null)
+            {
+                var existingContainer = transform.Find("TagsContainer");
+                if (existingContainer != null)
+                {
+                    _tagsContainer = existingContainer;
+                }
+                else
+                {
+                    var go = new GameObject("TagsContainer", typeof(RectTransform), typeof(HorizontalLayoutGroup));
+                    go.transform.SetParent(transform, false);
+                    var hlg = go.GetComponent<HorizontalLayoutGroup>();
+                    hlg.childControlWidth = false;
+                    hlg.childControlHeight = false;
+                    hlg.spacing = 6f;
+                    var rt = go.GetComponent<RectTransform>();
+                    rt.anchorMin = new Vector2(0f, 0f);
+                    rt.anchorMax = new Vector2(1f, 0f);
+                    rt.pivot = new Vector2(0f, 0f);
+                    rt.anchoredPosition = new Vector2(120f, 10f);
+                    rt.sizeDelta = new Vector2(-130f, 24f);
+                    _tagsContainer = go.transform;
+                }
+            }
+
+            foreach (Transform child in _tagsContainer)
+            {
+                Destroy(child.gameObject);
+            }
+
+            if (_activity?.Tags == null || _activity.Tags.Count == 0)
+            {
+                return;
+            }
+
+            var tagsToShow = System.Linq.Enumerable.Take(_activity.Tags, 4);
+            foreach (var tag in tagsToShow)
+            {
+                var chipObj = new GameObject($"TagChip_{tag}", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+                chipObj.transform.SetParent(_tagsContainer, false);
+                var img = chipObj.GetComponent<Image>();
+                img.color = new Color(0.25f, 0.35f, 0.5f, 0.85f);
+                var btn = chipObj.GetComponent<Button>();
+                var currentTag = tag;
+                btn.onClick.AddListener(() => _onTagClicked?.Invoke(currentTag));
+
+                var textObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+                textObj.transform.SetParent(chipObj.transform, false);
+                var tmp = textObj.GetComponent<TextMeshProUGUI>();
+                tmp.text = tag;
+                tmp.fontSize = 12;
+                tmp.alignment = TextAlignmentOptions.Center;
+                tmp.color = Color.white;
+                var textRt = textObj.GetComponent<RectTransform>();
+                textRt.anchorMin = Vector2.zero;
+                textRt.anchorMax = Vector2.one;
+                textRt.sizeDelta = Vector2.zero;
+
+                var chipRt = chipObj.GetComponent<RectTransform>();
+                chipRt.sizeDelta = new Vector2(Mathf.Max(50f, tag.Length * 8f + 16f), 22f);
+            }
         }
 
         private void UpdateView()
@@ -263,6 +338,14 @@ namespace MirageXR
             if (_scrollRect == null)
             {
                 _scrollRect = GetComponentInParent<ScrollRect>();
+            }
+
+            bool canDelete = _activity?.EffectivePermissions == null || _activity.EffectivePermissions.Delete;
+            if (!canDelete)
+            {
+                _isSwiping = false;
+                _scrollRect?.OnBeginDrag(eventData);
+                return;
             }
 
             Vector2 totalDelta = eventData.position - eventData.pressPosition;

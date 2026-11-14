@@ -225,6 +225,13 @@ namespace MirageXR
             var uprightPose = new Pose(result.WorldPose.position, result.WorldPose.rotation);
             Debug.Log($"[QRCodeScannerMobileView] Opening activity {result.ActivityId} with marker position: {uprightPose.position}");
 
+            var auth = RootObject.Instance.LEE.AuthorizationManager;
+            if (auth != null && !auth.LoggedIn())
+            {
+                auth.Login();
+                await UniTask.WaitUntil(() => auth.LoggedIn());
+            }
+
             var loadView = LoadView.Instance;
             if (loadView != null)
             {
@@ -240,6 +247,10 @@ namespace MirageXR
             catch (Exception ex)
             {
                 Debug.LogWarning($"[QRCodeScannerMobileView] Activity with id {result.ActivityId} not found or failed to load: {ex.Message}");
+                if (DialogWindow.Instance != null)
+                {
+                    DialogWindow.Instance.Show("Error", "This activity is unavailable or access has ended.", new DialogButtonContent("OK"));
+                }
             }
             finally
             {
@@ -279,7 +290,7 @@ namespace MirageXR
                 _isProcessingResult = false;
                 if (_textStatus != null)
                 {
-                    _textStatus.text = "Activity not found.\nPlease scan another QR code...";
+                    _textStatus.text = "This activity is unavailable or access has ended.\nPlease scan another QR code...";
                 }
 
                 StartScanningAsync().Forget();

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -26,9 +27,23 @@ namespace MirageXR
         [SerializeField] private TMP_Text textTitle;
         [Header("Input Fields")]
         [SerializeField] private TMP_InputField inputFieldActivityName;
+        [SerializeField] private TMP_InputField inputFieldActivityTags;
         [SerializeField] private TMP_InputField inputFieldActivityDescription;
+        [SerializeField] private TMP_Dropdown dropdownVisibility;
+        [SerializeField] private TMP_Dropdown dropdownPublicationStatus;
+        [SerializeField] private TMP_InputField inputFieldCustomerScope;
         [Header("Toggles")]
         [SerializeField] private Toggle _toggleEditorMode;
+        [Header("Action Buttons")]
+        [SerializeField] private Button _buttonDuplicate;
+        [SerializeField] private Button _buttonStartActivity;
+        [Header("Grants")]
+        [SerializeField] private Transform _grantsContainer;
+        [SerializeField] private GameObject _panelAddGrant;
+        [SerializeField] private TMP_Dropdown _dropdownGrantType;
+        [SerializeField] private TMP_InputField _inputFieldGranteeId;
+        [SerializeField] private TMP_Dropdown _dropdownGrantPrivileges;
+        [SerializeField] private Button _buttonAddGrant;
         [Header("Containers")]
         [SerializeField] private RectTransform _thumbnaiContainer;
         [SerializeField] private Transform _stepsContainer;
@@ -50,12 +65,212 @@ namespace MirageXR
         [SerializeField] private GameObject _panelHeightNotCalibrated;
         [SerializeField] private GameObject _panelAddNewStep;
 
+        private void Awake()
+        {
+            if (_buttonDuplicate == null)
+            {
+                var dupTransform = transform.Find("InfoPanel/DuplicateButton") ?? transform.Find("DuplicateButton");
+                if (dupTransform != null) _buttonDuplicate = dupTransform.GetComponent<Button>();
+            }
+
+            if (_buttonStartActivity == null)
+            {
+                var startTransform = transform.Find("InfoPanel/StartButton") ?? transform.Find("StartButton");
+                if (startTransform != null) _buttonStartActivity = startTransform.GetComponent<Button>();
+            }
+
+            if (inputFieldActivityTags == null)
+            {
+                var tagsTransform = transform.Find("InfoPanel/TagsInputField") ?? transform.Find("TagsInputField");
+                if (tagsTransform != null) inputFieldActivityTags = tagsTransform.GetComponent<TMP_InputField>();
+            }
+
+            if (dropdownVisibility == null)
+            {
+                var visTransform = transform.Find("InfoPanel/VisibilityDropdown") ?? transform.Find("VisibilityDropdown");
+                if (visTransform != null) dropdownVisibility = visTransform.GetComponent<TMP_Dropdown>();
+            }
+
+            if (dropdownPublicationStatus == null)
+            {
+                var pubTransform = transform.Find("InfoPanel/PublicationStatusDropdown") ?? transform.Find("PublicationStatusDropdown");
+                if (pubTransform != null) dropdownPublicationStatus = pubTransform.GetComponent<TMP_Dropdown>();
+            }
+
+            if (inputFieldCustomerScope == null)
+            {
+                var scopeTransform = transform.Find("InfoPanel/CustomerScopeInputField") ?? transform.Find("CustomerScopeInputField");
+                if (scopeTransform != null) inputFieldCustomerScope = scopeTransform.GetComponent<TMP_InputField>();
+            }
+
+            if (_grantsContainer == null)
+            {
+                _grantsContainer = transform.Find("InfoPanel/GrantsContainer") ?? transform.Find("GrantsContainer");
+            }
+        }
+
         public void SetActionOnInputFieldActivityNameEditEnd(UnityAction<string> action) => inputFieldActivityName.onEndEdit.AddListener(action);
+        public void SetActionOnInputFieldActivityTagsEditEnd(UnityAction<string> action) => inputFieldActivityTags?.onEndEdit.AddListener(action);
         public void SetActionOnInputFieldActivityDescriptionEditEnd(UnityAction<string> action) => inputFieldActivityDescription.onEndEdit.AddListener(action);
         public void SetInputFieldActivityNameText(string text) => inputFieldActivityName.text = text;
+        public void SetInputFieldActivityTagsText(string text)
+        {
+            if (inputFieldActivityTags != null) inputFieldActivityTags.text = text;
+        }
         public void SetInputFieldActivityDescriptionText(string text) => inputFieldActivityDescription.text = text;
         public void SetInputFieldActivityNameTextInteractable(bool value) => inputFieldActivityName.interactable = value;
+        public void SetInputFieldActivityTagsInteractable(bool value)
+        {
+            if (inputFieldActivityTags != null) inputFieldActivityTags.interactable = value;
+        }
         public void SetInputFieldActivityDescriptionInteractable(bool value) => inputFieldActivityDescription.interactable = value;
+
+        public void SetActionOnDropdownVisibilityChanged(UnityAction<int> action) => dropdownVisibility?.onValueChanged.AddListener(action);
+        public void SetDropdownVisibilityValue(int value)
+        {
+            if (dropdownVisibility != null) dropdownVisibility.value = value;
+        }
+        public void SetDropdownVisibilityInteractable(bool value)
+        {
+            if (dropdownVisibility != null) dropdownVisibility.interactable = value;
+        }
+        public void SetDropdownVisibilityActive(bool value)
+        {
+            if (dropdownVisibility != null) dropdownVisibility.gameObject.SetActive(value);
+        }
+
+        public void SetActionOnDropdownPublicationStatusChanged(UnityAction<int> action) => dropdownPublicationStatus?.onValueChanged.AddListener(action);
+        public void SetDropdownPublicationStatusValue(int value)
+        {
+            if (dropdownPublicationStatus != null) dropdownPublicationStatus.value = value;
+        }
+        public void SetDropdownPublicationStatusInteractable(bool value)
+        {
+            if (dropdownPublicationStatus != null) dropdownPublicationStatus.interactable = value;
+        }
+        public void SetDropdownPublicationStatusActive(bool value)
+        {
+            if (dropdownPublicationStatus != null) dropdownPublicationStatus.gameObject.SetActive(value);
+        }
+
+        public void SetActionOnInputFieldCustomerScopeEditEnd(UnityAction<string> action) => inputFieldCustomerScope?.onEndEdit.AddListener(action);
+        public void SetInputFieldCustomerScopeText(string text)
+        {
+            if (inputFieldCustomerScope != null) inputFieldCustomerScope.text = text;
+        }
+        public void SetInputFieldCustomerScopeInteractable(bool value)
+        {
+            if (inputFieldCustomerScope != null) inputFieldCustomerScope.interactable = value;
+        }
+        public void SetInputFieldCustomerScopeActive(bool value)
+        {
+            if (inputFieldCustomerScope != null) inputFieldCustomerScope.gameObject.SetActive(value);
+        }
+
+        public void SetActionOnButtonAddGrantClick(UnityAction action) => _buttonAddGrant?.SafeSetListener(action);
+        public void SetAddGrantPanelActive(bool value)
+        {
+            if (_panelAddGrant != null) _panelAddGrant.SetActive(value);
+        }
+
+        public bool TryGetNewGrantData(out LearningExperienceEngine.DataModel.Grant grant)
+        {
+            grant = null;
+            if (_inputFieldGranteeId == null || string.IsNullOrWhiteSpace(_inputFieldGranteeId.text))
+            {
+                return false;
+            }
+
+            string type = _dropdownGrantType != null && _dropdownGrantType.value == 1 ? "group" : "user";
+            string id = _inputFieldGranteeId.text.Trim();
+            var privs = new System.Collections.Generic.List<string> { "read" };
+            if (_dropdownGrantPrivileges != null && _dropdownGrantPrivileges.value == 1)
+            {
+                privs.Add("update");
+            }
+
+            grant = new LearningExperienceEngine.DataModel.Grant
+            {
+                GranteeType = type,
+                GranteeId = id,
+                Privileges = privs
+            };
+            return true;
+        }
+
+        public void ClearNewGrantInputs()
+        {
+            if (_inputFieldGranteeId != null) _inputFieldGranteeId.text = string.Empty;
+        }
+
+        public void SetGrantsList(System.Collections.Generic.List<LearningExperienceEngine.DataModel.Grant> grants, bool isEditor, bool canShare, UnityAction<int> onRemoveGrant)
+        {
+            if (_grantsContainer == null) return;
+
+            foreach (Transform child in _grantsContainer)
+            {
+                Destroy(child.gameObject);
+            }
+
+            if (grants == null || grants.Count == 0)
+            {
+                var emptyObj = new GameObject("EmptyGrantsNotice", typeof(RectTransform));
+                emptyObj.transform.SetParent(_grantsContainer, false);
+                var text = emptyObj.AddComponent<TextMeshProUGUI>();
+                text.text = "No additional grants";
+                text.fontSize = 14;
+                text.color = new Color(0.7f, 0.7f, 0.7f, 1f);
+                return;
+            }
+
+            for (int i = 0; i < grants.Count; i++)
+            {
+                int index = i;
+                var grant = grants[i];
+                var grantItemObj = new GameObject($"GrantItem_{i}", typeof(RectTransform));
+                grantItemObj.transform.SetParent(_grantsContainer, false);
+
+                var hLayout = grantItemObj.AddComponent<HorizontalLayoutGroup>();
+                hLayout.childControlWidth = false;
+                hLayout.childForceExpandWidth = false;
+                hLayout.childControlHeight = true;
+                hLayout.childForceExpandHeight = false;
+                hLayout.spacing = 8f;
+
+                var textObj = new GameObject("GrantText", typeof(RectTransform));
+                textObj.transform.SetParent(grantItemObj.transform, false);
+                var text = textObj.AddComponent<TextMeshProUGUI>();
+                string typeLabel = grant.GranteeType?.ToLower() == "group" ? "[GROUP]" : "[USER]";
+                string privsLabel = grant.Privileges != null ? string.Join(", ", grant.Privileges) : "read";
+                text.text = $"{typeLabel} {grant.GranteeId} ({privsLabel})";
+                text.fontSize = 14;
+
+                if (isEditor && canShare)
+                {
+                    var removeBtnObj = new GameObject("RemoveBtn", typeof(RectTransform));
+                    removeBtnObj.transform.SetParent(grantItemObj.transform, false);
+                    var removeBtn = removeBtnObj.AddComponent<Button>();
+                    var removeBtnText = new GameObject("Text", typeof(RectTransform)).AddComponent<TextMeshProUGUI>();
+                    removeBtnText.transform.SetParent(removeBtnObj.transform, false);
+                    removeBtnText.text = "✕";
+                    removeBtnText.fontSize = 14;
+                    removeBtnText.color = Color.red;
+                    removeBtn.onClick.AddListener(() => onRemoveGrant?.Invoke(index));
+                }
+            }
+        }
+
+        public void SetActionOnButtonDuplicateClick(UnityAction action) => _buttonDuplicate?.SafeSetListener(action);
+        public void SetButtonDuplicateActive(bool value)
+        {
+            if (_buttonDuplicate != null) _buttonDuplicate.gameObject.SetActive(value);
+        }
+
+        public void SetActionOnButtonStartActivityClick(UnityAction action) => _buttonStartActivity?.SafeSetListener(action);
+        public void SetButtonStartActivityActive(bool value)
+        {
+            if (_buttonStartActivity != null) _buttonStartActivity.gameObject.SetActive(value);
+        }
         public void SetActionOnButtonBackClick(UnityAction action) => _buttonBack.SafeSetListener(action);
         public void SetActionOnButtonCloseClick(UnityAction action) => _buttonClose.SafeSetListener(action);
         public void SetActionOnButtonSettingsClick(UnityAction action) => _buttonSettings.SafeSetListener(action);
