@@ -107,6 +107,7 @@ public class ActivityView_v2 : BaseView
         var auth = RootObject.Instance.LEE.AuthorizationManager;
         if (auth == null) return false;
         if (auth.HasScopePrivilege("*", privilege)) return true;
+        if (auth.UserPrivileges != null && (auth.UserPrivileges.Contains(privilege.ToLowerInvariant()) || auth.UserPrivileges.Contains("admin"))) return true;
         string scope = string.IsNullOrWhiteSpace(_activity?.CustomerScope) ? "wekit" : _activity.CustomerScope;
         return auth.HasScopePrivilege(scope, privilege);
     }
@@ -135,7 +136,7 @@ public class ActivityView_v2 : BaseView
         bool blockedByND = (_activity.License != null && _activity.License.NoDerivatives) && !isCreator && !isSystemAdmin && !hasCustomerUpdate;
 
         bool canUpdate = isCreator || hasCustomerUpdate || _activity.EffectivePermissions == null || _activity.EffectivePermissions.Update;
-        bool canShare = isCreator || HasScopePrivilege("share") || _activity.EffectivePermissions == null || _activity.EffectivePermissions.Share;
+        bool canShare = isCreator || HasScopePrivilege("share") || HasScopePrivilege("admin") || _activity.EffectivePermissions == null || _activity.EffectivePermissions.Share;
         bool canCreate = auth.CanCreateActivity || HasScopePrivilege("create") || _activity.EffectivePermissions == null || _activity.EffectivePermissions.Create;
 
         bool canEdit = (canUpdate || canShare || canCreate) && !blockedByND;

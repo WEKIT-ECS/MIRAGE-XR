@@ -192,15 +192,6 @@ namespace MirageXR
             SetupDropdown(dropdownPublicationStatus, new System.Collections.Generic.List<string> { "Draft", "Published" });
             SetupDropdown(_dropdownGrantType, new System.Collections.Generic.List<string> { "User", "Group" });
             SetupDropdown(_dropdownGrantPrivileges, new System.Collections.Generic.List<string> { "Read", "Read & Update" });
-
-            var dropdowns = GetComponentsInChildren<TMP_Dropdown>(true);
-            foreach (var d in dropdowns)
-            {
-                if (d.GetComponent<DropdownListFixer>() == null)
-                {
-                    d.gameObject.AddComponent<DropdownListFixer>();
-                }
-            }
         }
 
         private void OnTabSwitched(int index)
@@ -222,27 +213,8 @@ namespace MirageXR
         private void SetupDropdown(TMP_Dropdown dropdown, System.Collections.Generic.List<string> options)
         {
             if (dropdown == null) return;
-
-            if (dropdown.template != null)
-            {
-                var toggle = dropdown.template.GetComponentInChildren<Toggle>(true);
-                if (toggle != null)
-                {
-                    var itemText = toggle.GetComponentInChildren<TMP_Text>(true);
-                    if (itemText != null)
-                    {
-                        dropdown.itemText = itemText;
-                    }
-                }
-            }
-
             dropdown.ClearOptions();
             dropdown.AddOptions(options);
-
-            if (dropdown.gameObject.GetComponent<DropdownListFixer>() == null)
-            {
-                dropdown.gameObject.AddComponent<DropdownListFixer>();
-            }
         }
 
         public void SetActionOnInputFieldActivityNameEditEnd(UnityAction<string> action) => inputFieldActivityName.onEndEdit.AddListener(action);
@@ -430,7 +402,7 @@ namespace MirageXR
                 text.text = $"{typeLabel} {grant.GranteeId} ({privsLabel})";
                 text.fontSize = 14;
 
-                if (isEditor && canShare)
+                if (canShare)
                 {
                     var removeBtnObj = new GameObject("RemoveBtn", typeof(RectTransform));
                     removeBtnObj.transform.SetParent(grantItemObj.transform, false);
@@ -442,6 +414,12 @@ namespace MirageXR
                     removeBtnText.color = Color.red;
                     removeBtn.onClick.AddListener(() => onRemoveGrant?.Invoke(index));
                 }
+            }
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_grantsContainer as RectTransform);
+            if (_grantsContainer.parent is RectTransform parentRt)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(parentRt);
             }
         }
 
@@ -639,77 +617,6 @@ namespace MirageXR
             if (_buttonReposition != null)
             {
                 _buttonReposition.interactable = value;
-            }
-        }
-    }
-
-    public class DropdownListFixer : MonoBehaviour
-    {
-        private TMP_Dropdown _dropdown;
-
-        private void Awake()
-        {
-            _dropdown = GetComponent<TMP_Dropdown>();
-        }
-
-        private void OnEnable()
-        {
-            if (_dropdown == null) _dropdown = GetComponent<TMP_Dropdown>();
-        }
-
-        private void LateUpdate()
-        {
-            FixList();
-        }
-
-        public void FixList()
-        {
-            if (_dropdown == null)
-            {
-                _dropdown = GetComponent<TMP_Dropdown>();
-            }
-            if (_dropdown == null) return;
-
-            Transform dropdownList = transform.Find("Dropdown List");
-            if (dropdownList == null && transform.parent != null)
-            {
-                dropdownList = transform.parent.Find("Dropdown List");
-            }
-            if (dropdownList == null)
-            {
-                var canvas = GetComponentInParent<Canvas>();
-                if (canvas != null)
-                {
-                    dropdownList = canvas.transform.Find("Dropdown List");
-                    if (dropdownList == null)
-                    {
-                        for (int i = 0; i < canvas.transform.childCount; i++)
-                        {
-                            var child = canvas.transform.GetChild(i);
-                            if (child.name == "Dropdown List" && child.gameObject.activeInHierarchy)
-                            {
-                                dropdownList = child;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (dropdownList != null && dropdownList.gameObject.activeInHierarchy)
-            {
-                var toggles = dropdownList.GetComponentsInChildren<Toggle>(false);
-                for (int i = 0; i < toggles.Length; i++)
-                {
-                    if (i < _dropdown.options.Count)
-                    {
-                        var textComponent = toggles[i].GetComponentInChildren<TMP_Text>(true);
-                        if (textComponent != null && textComponent.text != _dropdown.options[i].text)
-                        {
-                            textComponent.text = _dropdown.options[i].text;
-                        }
-                    }
-                }
             }
         }
     }

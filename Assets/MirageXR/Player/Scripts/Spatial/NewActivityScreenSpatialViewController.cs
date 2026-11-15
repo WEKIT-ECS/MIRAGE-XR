@@ -204,13 +204,14 @@ namespace MirageXR  //TODO: add Spatial namespace
             var auth = RootObject.Instance.LEE.AuthorizationManager;
             if (auth == null) return false;
             if (auth.HasScopePrivilege("*", privilege)) return true;
+            if (auth.UserPrivileges != null && (auth.UserPrivileges.Contains(privilege.ToLowerInvariant()) || auth.UserPrivileges.Contains("admin"))) return true;
             string scope = string.IsNullOrWhiteSpace(_activity?.CustomerScope) ? "wekit" : _activity.CustomerScope;
             return auth.HasScopePrivilege(scope, privilege);
         }
 
-        private bool CanUpdate() => CheckIsCreator() || HasScopePrivilege("update") || _activity?.EffectivePermissions == null || _activity.EffectivePermissions.Update;
-        private bool CanShare() => CheckIsCreator() || HasScopePrivilege("share") || _activity?.EffectivePermissions == null || _activity.EffectivePermissions.Share;
-        private bool CanDuplicate() => CheckIsCreator() || HasScopePrivilege("duplicate") || _activity?.EffectivePermissions == null || (_activity.EffectivePermissions.Duplicate && _activity.EffectivePermissions.Read);
+        private bool CanUpdate() => CheckIsCreator() || HasScopePrivilege("update") || HasScopePrivilege("admin") || _activity?.EffectivePermissions == null || _activity.EffectivePermissions.Update;
+        private bool CanShare() => CheckIsCreator() || HasScopePrivilege("share") || HasScopePrivilege("admin") || _activity?.EffectivePermissions == null || _activity.EffectivePermissions.Share;
+        private bool CanDuplicate() => CheckIsCreator() || HasScopePrivilege("duplicate") || HasScopePrivilege("admin") || _activity?.EffectivePermissions == null || (_activity.EffectivePermissions.Duplicate && _activity.EffectivePermissions.Read);
 
         private void OnButtonAddGrantClicked()
         {
@@ -444,7 +445,7 @@ namespace MirageXR  //TODO: add Spatial namespace
 
             View.SetDropdownPublicationStatusInteractable(value && canShare);
             View.SetInputFieldCustomerScopeInteractable(value && canUpdate);
-            View.SetAddGrantPanelActive(value && canShare);
+            View.SetAddGrantPanelActive(canShare);
             View.SetGrantsList(_activity?.Grants, value, canShare, OnRemoveGrant);
 
             bool hasThumbnail = _texture != null || (_activity?.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty);
@@ -630,7 +631,7 @@ namespace MirageXR  //TODO: add Spatial namespace
 
             UpdateEditToggleState();
 
-            View.SetAddGrantPanelActive(isEditor && canShare);
+            View.SetAddGrantPanelActive(canShare);
             View.SetGrantsList(_activity.Grants, isEditor, canShare, OnRemoveGrant);
 
             View.SetImageThumbnailActive(isEditor);

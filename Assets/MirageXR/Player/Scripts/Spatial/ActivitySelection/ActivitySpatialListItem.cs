@@ -26,6 +26,8 @@ namespace MirageXR
         [SerializeField] private Button buttonDeleteCancel;
         [SerializeField] private Color selectedColor;
         [SerializeField] private Color defaultColor;
+        [SerializeField] private Color tagChipColor = new Color(0.49411765f, 0.2901961f, 0.7529412f, 1f);
+        [SerializeField] private Sprite tagChipSprite;
         [SerializeField] private Transform tagsContainer;
         [SerializeField] private Button tagChipPrefab;
 
@@ -208,14 +210,33 @@ namespace MirageXR
             }
 
             float targetRightEdge = buttonLeftEdge - 20f;
+
+            // Calculate top edge Y coordinate of the activity title (textLabel)
+            float titleTopY = 36f;
+            if (textLabel != null)
+            {
+                textLabel.ForceMeshUpdate();
+                if (textLabel.textBounds.size.y > 0)
+                {
+                    Vector3 textTopWorld = textLabel.transform.TransformPoint(new Vector3(0, textLabel.textBounds.max.y, 0));
+                    titleTopY = transform.InverseTransformPoint(textTopWorld).y;
+                }
+                else
+                {
+                    Vector3[] textCorners = new Vector3[4];
+                    textLabel.rectTransform.GetWorldCorners(textCorners);
+                    titleTopY = transform.InverseTransformPoint(textCorners[1]).y;
+                }
+            }
+
             var rt = tagsContainer.GetComponent<RectTransform>();
             if (rt != null)
             {
-                rt.pivot = new Vector2(1f, 0.5f);
+                rt.pivot = new Vector2(1f, 1f);
                 rt.anchorMin = new Vector2(0f, 0.5f);
                 rt.anchorMax = new Vector2(0f, 0.5f);
-                rt.anchoredPosition = new Vector2(targetRightEdge, 0f);
-                rt.sizeDelta = new Vector2(320f, 26f);
+                rt.anchoredPosition = new Vector2(targetRightEdge, titleTopY);
+                rt.sizeDelta = new Vector2(320f, 20f);
             }
 
             var hlg = tagsContainer.GetComponent<HorizontalLayoutGroup>();
@@ -225,8 +246,8 @@ namespace MirageXR
                 hlg.childControlHeight = false;
                 hlg.childForceExpandWidth = false;
                 hlg.childForceExpandHeight = false;
-                hlg.childAlignment = TextAnchor.MiddleRight;
-                hlg.spacing = 4f;
+                hlg.childAlignment = TextAnchor.UpperRight;
+                hlg.spacing = 2f;
             }
 
             if (deleteConfirmation != null && tagsContainer != null)
@@ -266,13 +287,15 @@ namespace MirageXR
                     commaTmp.alignment = TextAlignmentOptions.Center;
                     commaTmp.raycastTarget = false;
                     var commaRt = commaObj.GetComponent<RectTransform>();
-                    commaRt.sizeDelta = new Vector2(6f, 20f);
+                    commaRt.sizeDelta = new Vector2(3f, 20f);
                 }
 
                 var chipObj = new GameObject($"TagChip_{tag}", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
                 chipObj.transform.SetParent(tagsContainer, false);
                 var img = chipObj.GetComponent<Image>();
-                img.color = new Color(0.2f, 0.25f, 0.35f, 0.85f);
+                img.sprite = tagChipSprite != null ? tagChipSprite : (backgroundImage != null ? backgroundImage.sprite : null);
+                img.type = Image.Type.Sliced;
+                img.color = tagChipColor;
                 var btn = chipObj.GetComponent<Button>();
                 var currentTag = tag;
                 btn.onClick.AddListener(() => _onTagClicked?.Invoke(currentTag));
