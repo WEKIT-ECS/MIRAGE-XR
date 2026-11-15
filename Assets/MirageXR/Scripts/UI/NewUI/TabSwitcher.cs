@@ -7,6 +7,8 @@ public class TabSwitcher : MonoBehaviour
     [SerializeField] private List<Toggle> toggles;
     [SerializeField] private List<GameObject> tabs;
 
+    public event System.Action<int> OnTabSwitched;
+
     private int _currentTabIndex = -1;
     private bool _initialized;
     private bool _isSwitching;
@@ -120,6 +122,8 @@ public class TabSwitcher : MonoBehaviour
                     }
                 }
             }
+
+            OnTabSwitched?.Invoke(tabIndex);
         }
         finally
         {

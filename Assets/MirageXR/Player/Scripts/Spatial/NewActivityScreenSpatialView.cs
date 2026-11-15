@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -53,6 +54,28 @@ namespace MirageXR
         [Header("Containers")]
         [SerializeField] private RectTransform _thumbnaiContainer;
         [SerializeField] private Transform _stepsContainer;
+        [Header("Scroll")]
+        [SerializeField] private ScrollRect _infoScrollRect;
+
+        public ScrollRect InfoScrollRect
+        {
+            get
+            {
+                if (_infoScrollRect == null)
+                {
+                    var scrolls = GetComponentsInChildren<ScrollRect>(true);
+                    foreach (var s in scrolls)
+                    {
+                        if (s.name == "InfoScrollView")
+                        {
+                            _infoScrollRect = s;
+                            break;
+                        }
+                    }
+                }
+                return _infoScrollRect;
+            }
+        }
         [Header("Prefabs")]
         [SerializeField] private StepItemView _stepsItemPrefab;
         [SerializeField] private ImageEditorSpatialView _imageEditorPrefab;
@@ -128,6 +151,27 @@ namespace MirageXR
                     _buttonDeleteThumbnail = del.GetComponent<Button>();
                 }
             }
+
+            if (TabSwitcher != null)
+            {
+                TabSwitcher.OnTabSwitched += OnTabSwitched;
+            }
+        }
+
+        private void OnTabSwitched(int index)
+        {
+            if (index == 1)
+            {
+                ResetInfoScrollPosition();
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (_tabSwitcher != null)
+            {
+                _tabSwitcher.OnTabSwitched -= OnTabSwitched;
+            }
         }
 
         private void SetupDropdown(TMP_Dropdown dropdown, System.Collections.Generic.List<string> options)
@@ -143,6 +187,12 @@ namespace MirageXR
                     if (itemText != null)
                     {
                         dropdown.itemText = itemText;
+                        var dropdownItem = toggle.GetComponent<TMP_Dropdown.DropdownItem>();
+                        if (dropdownItem == null)
+                        {
+                            dropdownItem = toggle.gameObject.AddComponent<TMP_Dropdown.DropdownItem>();
+                        }
+                        dropdownItem.text = itemText;
                     }
                 }
             }
@@ -219,6 +269,31 @@ namespace MirageXR
         {
             if (_panelAddGrant != null) _panelAddGrant.SetActive(value);
         }
+        public bool IsAddGrantPanelActive() => _panelAddGrant != null && _panelAddGrant.activeSelf;
+        public void ToggleAddGrantPanel()
+        {
+            if (_panelAddGrant != null)
+            {
+                _panelAddGrant.SetActive(!_panelAddGrant.activeSelf);
+                if (_panelAddGrant.activeSelf && _inputFieldGranteeId != null)
+                {
+                    _inputFieldGranteeId.ActivateInputField();
+                }
+            }
+        }
+
+        public void HighlightGranteeInputError()
+        {
+            if (_inputFieldGranteeId != null)
+            {
+                _inputFieldGranteeId.ActivateInputField();
+                if (_inputFieldGranteeId.placeholder is TMP_Text placeholderText)
+                {
+                    placeholderText.text = "Enter User or Group ID...";
+                    placeholderText.color = new Color(1f, 0.4f, 0.4f, 0.9f);
+                }
+            }
+        }
 
         public bool TryGetNewGrantData(out LearningExperienceEngine.DataModel.Grant grant)
         {
@@ -247,7 +322,15 @@ namespace MirageXR
 
         public void ClearNewGrantInputs()
         {
-            if (_inputFieldGranteeId != null) _inputFieldGranteeId.text = string.Empty;
+            if (_inputFieldGranteeId != null)
+            {
+                _inputFieldGranteeId.text = string.Empty;
+                if (_inputFieldGranteeId.placeholder is TMP_Text placeholderText)
+                {
+                    placeholderText.text = "Grantee ID...";
+                    placeholderText.color = new Color(0.6f, 0.6f, 0.6f, 0.5f);
+                }
+            }
         }
 
         public void SetGrantsList(System.Collections.Generic.List<LearningExperienceEngine.DataModel.Grant> grants, bool isEditor, bool canShare, UnityAction<int> onRemoveGrant)
@@ -258,6 +341,14 @@ namespace MirageXR
             {
                 Destroy(child.gameObject);
             }
+
+            var headerObj = new GameObject("HeaderGrants", typeof(RectTransform));
+            headerObj.transform.SetParent(_grantsContainer, false);
+            var headerText = headerObj.AddComponent<TextMeshProUGUI>();
+            headerText.text = "Grants";
+            headerText.fontSize = 16;
+            headerText.fontStyle = FontStyles.Bold;
+            headerText.color = Color.white;
 
             if (grants == null || grants.Count == 0)
             {
@@ -441,6 +532,44 @@ namespace MirageXR
         public void SwitchToInfoTab()
         {
             TabSwitcher?.SwitchTab(1);
+            ResetInfoScrollPosition();
+        }
+
+        public void ResetInfoScrollPosition()
+        {
+            if (gameObject.activeInHierarchy)
+            {
+                StartCoroutine(ResetInfoScrollPositionCoroutine());
+            }
+            else
+            {
+                ApplyScrollToTop();
+            }
+        }
+
+        private IEnumerator ResetInfoScrollPositionCoroutine()
+        {
+            ApplyScrollToTop();
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            ApplyScrollToTop();
+        }
+
+        private void ApplyScrollToTop()
+        {
+            var scroll = InfoScrollRect;
+            if (scroll != null)
+            {
+                if (scroll.content != null)
+                {
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(scroll.content);
+                    var pos = scroll.content.anchoredPosition;
+                    pos.y = 0f;
+                    scroll.content.anchoredPosition = pos;
+                }
+                scroll.velocity = Vector2.zero;
+                scroll.verticalNormalizedPosition = 1f;
+            }
         }
 
         //#region Calibration tab
@@ -467,7 +596,7 @@ namespace MirageXR
         }
     }
 
-    public class DropdownListFixer : MonoBehaviour, UnityEngine.EventSystems.IPointerClickHandler
+    public class DropdownListFixer : MonoBehaviour
     {
         private TMP_Dropdown _dropdown;
 
@@ -476,15 +605,19 @@ namespace MirageXR
             _dropdown = GetComponent<TMP_Dropdown>();
         }
 
-        public void OnPointerClick(UnityEngine.EventSystems.PointerEventData eventData)
+        private void OnTransformChildrenChanged()
         {
-            StartCoroutine(FixListCoroutine());
+            FixList();
         }
 
-        private System.Collections.IEnumerator FixListCoroutine()
+        private void LateUpdate()
         {
-            yield return null;
-            if (_dropdown == null) yield break;
+            FixList();
+        }
+
+        public void FixList()
+        {
+            if (_dropdown == null) return;
 
             Transform dropdownList = transform.Find("Dropdown List");
             if (dropdownList == null)
@@ -495,23 +628,24 @@ namespace MirageXR
                     dropdownList = canvas.transform.Find("Dropdown List");
                 }
             }
-
-            if (dropdownList != null)
+            if (dropdownList == null && transform.parent != null)
             {
-                var toggles = dropdownList.GetComponentsInChildren<Toggle>(true);
-                int optIdx = 0;
-                foreach (var toggle in toggles)
-                {
-                    if (!toggle.gameObject.activeSelf) continue;
+                dropdownList = transform.parent.Find("Dropdown List");
+            }
 
-                    if (optIdx < _dropdown.options.Count)
+            if (dropdownList != null && dropdownList.gameObject.activeInHierarchy)
+            {
+                Transform content = dropdownList.Find("Viewport/Content") ?? dropdownList;
+                var toggles = content.GetComponentsInChildren<Toggle>(false);
+                for (int i = 0; i < toggles.Length; i++)
+                {
+                    if (i < _dropdown.options.Count)
                     {
-                        var textComponent = toggle.GetComponentInChildren<TMP_Text>(true);
-                        if (textComponent != null)
+                        var textComponent = toggles[i].GetComponentInChildren<TMP_Text>(true);
+                        if (textComponent != null && textComponent.text != _dropdown.options[i].text)
                         {
-                            textComponent.text = _dropdown.options[optIdx].text;
+                            textComponent.text = _dropdown.options[i].text;
                         }
-                        optIdx++;
                     }
                 }
             }

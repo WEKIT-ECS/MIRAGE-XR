@@ -14,6 +14,7 @@ namespace MirageXR  //TODO: add Spatial namespace
         private Activity _activity;
         private Texture2D _texture;
         private System.Threading.CancellationTokenSource _updateInfoCts;
+        private bool _hasStartedActivity;
 
         public override ScreenName ScreenName => ScreenName.NewActivityScreen;
 
@@ -51,7 +52,7 @@ namespace MirageXR  //TODO: add Spatial namespace
             View.SetActionOnToggleLicenseND(OnToggleLicenseNDChanged);
             View.SetActionOnToggleLicenseNC(OnToggleLicenseNCChanged);
 
-            RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityUpdated;
+            RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityLoaded;
             RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnActivityUpdated;
             RootObject.Instance.LEE.ActivityManager.OnActivityClosed += OnActivityClosed;
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
@@ -69,7 +70,7 @@ namespace MirageXR  //TODO: add Spatial namespace
             {
                 if (RootObject.Instance.LEE.ActivityManager != null)
                 {
-                    RootObject.Instance.LEE.ActivityManager.OnActivityLoaded -= OnActivityUpdated;
+                    RootObject.Instance.LEE.ActivityManager.OnActivityLoaded -= OnActivityLoaded;
                     RootObject.Instance.LEE.ActivityManager.OnActivityUpdated -= OnActivityUpdated;
                     RootObject.Instance.LEE.ActivityManager.OnActivityClosed -= OnActivityClosed;
                     RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged -= OnEditorModeChanged;
@@ -184,15 +185,42 @@ namespace MirageXR  //TODO: add Spatial namespace
             RootObject.Instance.LEE.ActivityManager.SetActivityLicense(_activity.License);
         }
 
+        private bool CheckIsCreator()
+        {
+            if (_activity == null) return false;
+            var auth = RootObject.Instance.LEE.AuthorizationManager;
+            if (auth == null) return false;
+
+            return (!string.IsNullOrEmpty(auth.UserSub) &&
+                ((_activity.Creator != null && string.Equals(_activity.Creator.Id.ToString(), auth.UserSub, StringComparison.OrdinalIgnoreCase)) ||
+                 (!string.IsNullOrEmpty(_activity.Owner) && string.Equals(_activity.Owner, auth.UserSub, StringComparison.OrdinalIgnoreCase)))) ||
+                (!string.IsNullOrEmpty(auth.UserName) && !string.IsNullOrEmpty(_activity.Owner) && string.Equals(_activity.Owner, auth.UserName, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrEmpty(auth.UserFullName) && _activity.Creator != null && string.Equals(_activity.Creator.Name, auth.UserFullName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private bool CanUpdate() => _activity?.EffectivePermissions == null || _activity.EffectivePermissions.Update || CheckIsCreator();
+        private bool CanShare() => _activity?.EffectivePermissions == null || _activity.EffectivePermissions.Share || CheckIsCreator();
+        private bool CanDuplicate() => _activity?.EffectivePermissions == null || (_activity.EffectivePermissions.Duplicate && _activity.EffectivePermissions.Read) || CheckIsCreator();
+
         private void OnButtonAddGrantClicked()
         {
+            if (!View.IsAddGrantPanelActive())
+            {
+                View.SetAddGrantPanelActive(true);
+                View.HighlightGranteeInputError();
+                return;
+            }
+
             if (View.TryGetNewGrantData(out var grant))
             {
                 RootObject.Instance.LEE.ActivityManager.AddActivityGrant(grant);
                 View.ClearNewGrantInputs();
+                bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+                View.SetGrantsList(_activity?.Grants, isEditor, CanShare(), OnRemoveGrant);
             }
             else
             {
+                View.HighlightGranteeInputError();
                 if (DialogWindow.Instance != null)
                 {
                     DialogWindow.Instance.Show("Grantee Required", "Please enter a valid user or group ID to add a grant.", new DialogButtonContent("OK"));
@@ -203,10 +231,15 @@ namespace MirageXR  //TODO: add Spatial namespace
         private void OnRemoveGrant(int index)
         {
             RootObject.Instance.LEE.ActivityManager.RemoveActivityGrant(index);
+            bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+            View.SetGrantsList(_activity?.Grants, isEditor, CanShare(), OnRemoveGrant);
         }
 
         private void OnButtonStartActivityClicked()
         {
+            _hasStartedActivity = true;
+            View.SetButtonStartActivityActive(false);
+
             if (_activity?.Steps != null && _activity.Steps.Count > 0)
             {
                 RootObject.Instance.LEE.StepManager.GoToStep(_activity.Steps[0].Id);
@@ -386,9 +419,9 @@ namespace MirageXR  //TODO: add Spatial namespace
                 View.SwitchToInfoTab();
             }
 
-            bool canUpdate = _activity?.EffectivePermissions == null || _activity.EffectivePermissions.Update;
-            bool canShare = _activity?.EffectivePermissions == null || _activity.EffectivePermissions.Share;
-            bool canDuplicate = _activity?.EffectivePermissions != null && _activity.EffectivePermissions.Duplicate && _activity.EffectivePermissions.Read;
+            bool canUpdate = CanUpdate();
+            bool canShare = CanShare();
+            bool canDuplicate = CanDuplicate();
 
             View.SetAssignRoomModelInteractable(value && canUpdate);
             View.SetRepositionInteractable(value && canUpdate);
@@ -407,7 +440,7 @@ namespace MirageXR  //TODO: add Spatial namespace
             View.SetImageThumbnailActive(value && (_texture != null || (_activity?.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty)));
             View.SetButtonThumbnailActive(value);
             View.SetThumbnailContainerActive(value || (_activity?.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty));
-            View.SetButtonStartActivityActive(!value);
+            View.SetButtonStartActivityActive(!value && !_hasStartedActivity);
             View.SetButtonDuplicateActive(value && canDuplicate);
 
             bool licBy = _activity?.License == null || _activity.License.Attribution;
@@ -421,6 +454,11 @@ namespace MirageXR  //TODO: add Spatial namespace
             View.RemoveActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
             View.SetIsToggleEditorOn(!value);
             View.SetActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
+
+            if (!value)
+            {
+                View.ResetInfoScrollPosition();
+            }
         }
 
         private void OnButtonPreviousStepClicked()
@@ -464,8 +502,19 @@ namespace MirageXR  //TODO: add Spatial namespace
             MenuManager.Instance.ShowRoomScanGalleryView();
         }
 
+        private void OnActivityLoaded(Activity activity)
+        {
+            _hasStartedActivity = false;
+            _activity = activity;
+            UpdateView();
+        }
+
         private void OnActivityUpdated(Activity activity)
         {
+            if (activity != null && (_activity == null || _activity.Id != activity.Id))
+            {
+                _hasStartedActivity = false;
+            }
             _activity = activity;
             UpdateView();
         }
@@ -537,14 +586,9 @@ namespace MirageXR  //TODO: add Spatial namespace
             };
             View.SetDropdownVisibilityValue(visIndex);
 
-            var auth = RootObject.Instance.LEE.AuthorizationManager;
-            bool isCreator = (!string.IsNullOrEmpty(auth.UserSub) &&
-                ((_activity.Creator != null && string.Equals(_activity.Creator.Id.ToString(), auth.UserSub, StringComparison.OrdinalIgnoreCase)) ||
-                 (!string.IsNullOrEmpty(_activity.Owner) && string.Equals(_activity.Owner, auth.UserSub, StringComparison.OrdinalIgnoreCase)))) ||
-                (!string.IsNullOrEmpty(auth.UserName) && !string.IsNullOrEmpty(_activity.Owner) && string.Equals(_activity.Owner, auth.UserName, StringComparison.OrdinalIgnoreCase)) ||
-                (!string.IsNullOrEmpty(auth.UserFullName) && _activity.Creator != null && string.Equals(_activity.Creator.Name, auth.UserFullName, StringComparison.OrdinalIgnoreCase));
-            bool canUpdate = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Update || isCreator;
-            bool canShare = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Share || isCreator;
+            bool canUpdate = CanUpdate();
+            bool canShare = CanShare();
+            bool canDuplicate = CanDuplicate();
             View.SetDropdownVisibilityActive(canShare);
 
             bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
@@ -579,9 +623,8 @@ namespace MirageXR  //TODO: add Spatial namespace
             View.SetImageThumbnailActive(isEditor);
             View.SetButtonThumbnailActive(isEditor);
             View.SetThumbnailContainerActive(isEditor || (_activity.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty));
-            View.SetButtonStartActivityActive(!isEditor);
+            View.SetButtonStartActivityActive(!isEditor && !_hasStartedActivity);
 
-            bool canDuplicate = _activity.EffectivePermissions == null || (_activity.EffectivePermissions.Duplicate && _activity.EffectivePermissions.Read) || isCreator;
             View.SetButtonDuplicateActive(isEditor && canDuplicate);
 
             if (_texture is not null)
@@ -689,6 +732,7 @@ namespace MirageXR  //TODO: add Spatial namespace
 
         private void OnActivityClosed()
         {
+            _hasStartedActivity = false;
             _activity = null;
             if (_texture != null)
             {
