@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Cysharp.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using LearningExperienceEngine.DTOs;
@@ -174,8 +175,26 @@ namespace MirageXR
 
             if (LearningExperienceEngine.UserSettings.groupByTags)
             {
-                var groups = activities.GroupBy(a => a.Tags != null && a.Tags.Count > 0 ? a.Tags[0] : "Untagged");
-                ActivitySpatialListItem selectedItem = null;
+                var taggedActivities = activities.SelectMany(a =>
+                {
+                    if (a.Tags == null || a.Tags.Count == 0)
+                    {
+                        return new[] { (Tag: "Untagged", Activity: a) };
+                    }
+
+                    var validTags = a.Tags.Where(t => !string.IsNullOrWhiteSpace(t)).Distinct().ToList();
+                    if (validTags.Count == 0)
+                    {
+                        return new[] { (Tag: "Untagged", Activity: a) };
+                    }
+
+                    return validTags.Select(t => (Tag: t.Trim(), Activity: a)).ToArray();
+                });
+
+                var groups = taggedActivities
+                    .GroupBy(pair => pair.Tag, pair => pair.Activity)
+                    .OrderBy(g => IsUntaggedOrUntitled(g.Key) ? 1 : 0)
+                    .ThenBy(g => g.Key, StringComparer.OrdinalIgnoreCase);
 
                 foreach (var group in groups)
                 {
@@ -186,14 +205,8 @@ namespace MirageXR
                         var isSelected = activity.Id == selectedActivityId;
                         var item = Instantiate(prefab, container);
                         item.Initialize(activity, OnActivityListItemClicked, OnActivityListItemDeleteClicked, isSelected, OnTagClicked);
-                        if (isSelected)
-                        {
-                            selectedItem = item;
-                        }
                     }
                 }
-
-                selectedItem?.transform.SetAsFirstSibling();
             }
             else
             {
@@ -213,6 +226,19 @@ namespace MirageXR
             }
         }
 
+        private static bool IsUntaggedOrUntitled(string tag)
+        {
+            return string.IsNullOrWhiteSpace(tag) ||
+                   string.Equals(tag, "Untagged", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(tag, "Untitled", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string SplitCamelCase(string input)
+        {
+            if (string.IsNullOrEmpty(input)) return input;
+            return Regex.Replace(input, @"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " ");
+        }
+
         private void CreateGroupHeader(Transform container, string title)
         {
             var headerGo = new GameObject($"GroupHeader_{title}", typeof(RectTransform));
@@ -229,7 +255,7 @@ namespace MirageXR
             textRt.offsetMax = new Vector2(-15, 0);
 
             var tmp = textGo.GetComponent<TextMeshProUGUI>();
-            tmp.text = title;
+            tmp.text = SplitCamelCase(title);
             tmp.fontSize = 17;
             tmp.fontStyle = FontStyles.Bold;
             tmp.color = new Color(0.85f, 0.85f, 0.85f, 1f);

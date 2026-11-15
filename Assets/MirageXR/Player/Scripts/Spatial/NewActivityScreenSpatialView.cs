@@ -94,18 +94,17 @@ namespace MirageXR
         [SerializeField] private GameObject _panelHeightNotCalibrated;
         [SerializeField] private GameObject _panelAddNewStep;
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
+
             var blurredBg = transform.Find("Blurred Background");
             if (blurredBg != null)
             {
                 blurredBg.gameObject.SetActive(false);
             }
 
-            SetupDropdown(dropdownVisibility, new System.Collections.Generic.List<string> { "Private", "Protected", "Unlisted", "Public" });
-            SetupDropdown(dropdownPublicationStatus, new System.Collections.Generic.List<string> { "Draft", "Published" });
-            SetupDropdown(_dropdownGrantType, new System.Collections.Generic.List<string> { "User", "Group" });
-            SetupDropdown(_dropdownGrantPrivileges, new System.Collections.Generic.List<string> { "Read", "Read & Update" });
+            InitializeDropdowns();
 
             if (inputFieldActivityDescription != null)
             {
@@ -158,6 +157,52 @@ namespace MirageXR
             }
         }
 
+        protected void Start()
+        {
+            InitializeDropdowns();
+        }
+
+        public void InitializeDropdowns()
+        {
+            if (dropdownVisibility == null || dropdownPublicationStatus == null)
+            {
+                var allDropdowns = GetComponentsInChildren<TMP_Dropdown>(true);
+                foreach (var d in allDropdowns)
+                {
+                    if (d.name == "DropdownVisibility" || d.name == "Dropdown_Visibility")
+                    {
+                        dropdownVisibility = d;
+                    }
+                    else if (d.name == "DropdownPublicationStatus" || d.name == "Dropdown_PublicationStatus")
+                    {
+                        dropdownPublicationStatus = d;
+                    }
+                    else if (d.name == "Dropdown_GrantType" || d.name == "DropdownGrantType")
+                    {
+                        _dropdownGrantType = d;
+                    }
+                    else if (d.name == "Dropdown_GrantPrivileges" || d.name == "DropdownGrantPrivileges")
+                    {
+                        _dropdownGrantPrivileges = d;
+                    }
+                }
+            }
+
+            SetupDropdown(dropdownVisibility, new System.Collections.Generic.List<string> { "Private", "Protected", "Unlisted", "Public" });
+            SetupDropdown(dropdownPublicationStatus, new System.Collections.Generic.List<string> { "Draft", "Published" });
+            SetupDropdown(_dropdownGrantType, new System.Collections.Generic.List<string> { "User", "Group" });
+            SetupDropdown(_dropdownGrantPrivileges, new System.Collections.Generic.List<string> { "Read", "Read & Update" });
+
+            var dropdowns = GetComponentsInChildren<TMP_Dropdown>(true);
+            foreach (var d in dropdowns)
+            {
+                if (d.GetComponent<DropdownListFixer>() == null)
+                {
+                    d.gameObject.AddComponent<DropdownListFixer>();
+                }
+            }
+        }
+
         private void OnTabSwitched(int index)
         {
             if (index == 1)
@@ -187,12 +232,6 @@ namespace MirageXR
                     if (itemText != null)
                     {
                         dropdown.itemText = itemText;
-                        var dropdownItem = toggle.GetComponent<TMP_Dropdown.DropdownItem>();
-                        if (dropdownItem == null)
-                        {
-                            dropdownItem = toggle.gameObject.AddComponent<TMP_Dropdown.DropdownItem>();
-                        }
-                        dropdownItem.text = itemText;
                     }
                 }
             }
@@ -225,7 +264,11 @@ namespace MirageXR
         public void SetActionOnDropdownVisibilityChanged(UnityAction<int> action) => dropdownVisibility?.onValueChanged.AddListener(action);
         public void SetDropdownVisibilityValue(int value)
         {
-            if (dropdownVisibility != null) dropdownVisibility.value = value;
+            if (dropdownVisibility != null)
+            {
+                dropdownVisibility.SetValueWithoutNotify(value);
+                dropdownVisibility.RefreshShownValue();
+            }
         }
         public void SetDropdownVisibilityInteractable(bool value)
         {
@@ -239,7 +282,11 @@ namespace MirageXR
         public void SetActionOnDropdownPublicationStatusChanged(UnityAction<int> action) => dropdownPublicationStatus?.onValueChanged.AddListener(action);
         public void SetDropdownPublicationStatusValue(int value)
         {
-            if (dropdownPublicationStatus != null) dropdownPublicationStatus.value = value;
+            if (dropdownPublicationStatus != null)
+            {
+                dropdownPublicationStatus.SetValueWithoutNotify(value);
+                dropdownPublicationStatus.RefreshShownValue();
+            }
         }
         public void SetDropdownPublicationStatusInteractable(bool value)
         {
@@ -605,9 +652,9 @@ namespace MirageXR
             _dropdown = GetComponent<TMP_Dropdown>();
         }
 
-        private void OnTransformChildrenChanged()
+        private void OnEnable()
         {
-            FixList();
+            if (_dropdown == null) _dropdown = GetComponent<TMP_Dropdown>();
         }
 
         private void LateUpdate()
@@ -617,26 +664,41 @@ namespace MirageXR
 
         public void FixList()
         {
+            if (_dropdown == null)
+            {
+                _dropdown = GetComponent<TMP_Dropdown>();
+            }
             if (_dropdown == null) return;
 
             Transform dropdownList = transform.Find("Dropdown List");
+            if (dropdownList == null && transform.parent != null)
+            {
+                dropdownList = transform.parent.Find("Dropdown List");
+            }
             if (dropdownList == null)
             {
                 var canvas = GetComponentInParent<Canvas>();
                 if (canvas != null)
                 {
                     dropdownList = canvas.transform.Find("Dropdown List");
+                    if (dropdownList == null)
+                    {
+                        for (int i = 0; i < canvas.transform.childCount; i++)
+                        {
+                            var child = canvas.transform.GetChild(i);
+                            if (child.name == "Dropdown List" && child.gameObject.activeInHierarchy)
+                            {
+                                dropdownList = child;
+                                break;
+                            }
+                        }
+                    }
                 }
-            }
-            if (dropdownList == null && transform.parent != null)
-            {
-                dropdownList = transform.parent.Find("Dropdown List");
             }
 
             if (dropdownList != null && dropdownList.gameObject.activeInHierarchy)
             {
-                Transform content = dropdownList.Find("Viewport/Content") ?? dropdownList;
-                var toggles = content.GetComponentsInChildren<Toggle>(false);
+                var toggles = dropdownList.GetComponentsInChildren<Toggle>(false);
                 for (int i = 0; i < toggles.Length; i++)
                 {
                     if (i < _dropdown.options.Count)

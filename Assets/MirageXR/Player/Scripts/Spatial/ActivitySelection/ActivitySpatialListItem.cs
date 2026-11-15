@@ -134,7 +134,11 @@ namespace MirageXR
 
         private void ShowDeleteConfirmation()
         {
-            deleteConfirmation.SetActive(true);
+            if (deleteConfirmation != null)
+            {
+                deleteConfirmation.transform.SetAsLastSibling();
+                deleteConfirmation.SetActive(true);
+            }
             backgroundImage.color = GetDeleteHoldColor();
         }
 
@@ -189,18 +193,48 @@ namespace MirageXR
                 {
                     var go = new GameObject("TagsContainer", typeof(RectTransform), typeof(HorizontalLayoutGroup));
                     go.transform.SetParent(transform, false);
-                    var hlg = go.GetComponent<HorizontalLayoutGroup>();
-                    hlg.childControlWidth = false;
-                    hlg.childControlHeight = false;
-                    hlg.childAlignment = TextAnchor.MiddleRight;
-                    hlg.spacing = 6f;
-                    var rt = go.GetComponent<RectTransform>();
-                    rt.anchorMin = new Vector2(0.4f, 0.2f);
-                    rt.anchorMax = new Vector2(0.92f, 0.8f);
-                    rt.pivot = new Vector2(1f, 0.5f);
-                    rt.anchoredPosition = Vector2.zero;
-                    rt.sizeDelta = Vector2.zero;
                     tagsContainer = go.transform;
+                }
+            }
+
+            float buttonLeftEdge = 466f;
+            if (button != null)
+            {
+                var buttonRt = button.GetComponent<RectTransform>();
+                if (buttonRt != null)
+                {
+                    buttonLeftEdge = buttonRt.anchoredPosition.x - (buttonRt.pivot.x * buttonRt.rect.width);
+                }
+            }
+
+            float targetRightEdge = buttonLeftEdge - 20f;
+            var rt = tagsContainer.GetComponent<RectTransform>();
+            if (rt != null)
+            {
+                rt.pivot = new Vector2(1f, 0.5f);
+                rt.anchorMin = new Vector2(0f, 0.5f);
+                rt.anchorMax = new Vector2(0f, 0.5f);
+                rt.anchoredPosition = new Vector2(targetRightEdge, 0f);
+                rt.sizeDelta = new Vector2(320f, 26f);
+            }
+
+            var hlg = tagsContainer.GetComponent<HorizontalLayoutGroup>();
+            if (hlg != null)
+            {
+                hlg.childControlWidth = false;
+                hlg.childControlHeight = false;
+                hlg.childForceExpandWidth = false;
+                hlg.childForceExpandHeight = false;
+                hlg.childAlignment = TextAnchor.MiddleRight;
+                hlg.spacing = 4f;
+            }
+
+            if (deleteConfirmation != null && tagsContainer != null)
+            {
+                int deleteIndex = deleteConfirmation.transform.GetSiblingIndex();
+                if (tagsContainer.GetSiblingIndex() > deleteIndex)
+                {
+                    tagsContainer.SetSiblingIndex(deleteIndex);
                 }
             }
 
@@ -215,9 +249,26 @@ namespace MirageXR
             }
 
             TMP_FontAsset sampleFont = textLabel != null ? textLabel.font : null;
-            var tagsToShow = _activity.Tags.Take(3);
-            foreach (var tag in tagsToShow)
+            var tagsToShow = _activity.Tags.Where(t => !string.IsNullOrWhiteSpace(t)).Take(3).ToList();
+            for (int i = 0; i < tagsToShow.Count; i++)
             {
+                var tag = tagsToShow[i].Trim();
+
+                if (i > 0)
+                {
+                    var commaObj = new GameObject("Comma", typeof(RectTransform), typeof(TextMeshProUGUI));
+                    commaObj.transform.SetParent(tagsContainer, false);
+                    var commaTmp = commaObj.GetComponent<TextMeshProUGUI>();
+                    if (sampleFont != null) commaTmp.font = sampleFont;
+                    commaTmp.text = ",";
+                    commaTmp.fontSize = 12;
+                    commaTmp.color = new Color(0.75f, 0.75f, 0.75f, 1f);
+                    commaTmp.alignment = TextAlignmentOptions.Center;
+                    commaTmp.raycastTarget = false;
+                    var commaRt = commaObj.GetComponent<RectTransform>();
+                    commaRt.sizeDelta = new Vector2(6f, 20f);
+                }
+
                 var chipObj = new GameObject($"TagChip_{tag}", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
                 chipObj.transform.SetParent(tagsContainer, false);
                 var img = chipObj.GetComponent<Image>();
@@ -230,17 +281,20 @@ namespace MirageXR
                 textObj.transform.SetParent(chipObj.transform, false);
                 var tmp = textObj.GetComponent<TextMeshProUGUI>();
                 if (sampleFont != null) tmp.font = sampleFont;
-                tmp.text = tag;
+                string displayText = tag.StartsWith("#") ? tag : $"#{tag}";
+                tmp.text = displayText;
                 tmp.fontSize = 11;
                 tmp.alignment = TextAlignmentOptions.Center;
                 tmp.color = Color.white;
+                tmp.raycastTarget = false;
                 var textRt = textObj.GetComponent<RectTransform>();
                 textRt.anchorMin = Vector2.zero;
                 textRt.anchorMax = Vector2.one;
                 textRt.sizeDelta = Vector2.zero;
 
                 var chipRt = chipObj.GetComponent<RectTransform>();
-                chipRt.sizeDelta = new Vector2(Mathf.Max(36f, tag.Length * 7f + 14f), 20f);
+                float preferredWidth = tmp.preferredWidth > 0 ? tmp.preferredWidth + 12f : (displayText.Length * 7.5f + 14f);
+                chipRt.sizeDelta = new Vector2(Mathf.Max(32f, preferredWidth), 20f);
             }
         }
 

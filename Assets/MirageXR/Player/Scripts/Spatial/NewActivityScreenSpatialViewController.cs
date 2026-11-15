@@ -23,6 +23,7 @@ namespace MirageXR  //TODO: add Spatial namespace
         protected override void OnBind()
         {
             base.OnBind();
+            View.InitializeDropdowns();
             View.SetActionOnButtonBackClick(OnButtonBackClicked);
             View.SetActionOnButtonCloseClick(OnButtonCloseClicked);
             View.SetActionOnButtonSettingsClick(OnButtonSettingsClicked);
@@ -198,9 +199,18 @@ namespace MirageXR  //TODO: add Spatial namespace
                 (!string.IsNullOrEmpty(auth.UserFullName) && _activity.Creator != null && string.Equals(_activity.Creator.Name, auth.UserFullName, StringComparison.OrdinalIgnoreCase));
         }
 
-        private bool CanUpdate() => _activity?.EffectivePermissions == null || _activity.EffectivePermissions.Update || CheckIsCreator();
-        private bool CanShare() => _activity?.EffectivePermissions == null || _activity.EffectivePermissions.Share || CheckIsCreator();
-        private bool CanDuplicate() => _activity?.EffectivePermissions == null || (_activity.EffectivePermissions.Duplicate && _activity.EffectivePermissions.Read) || CheckIsCreator();
+        private bool HasScopePrivilege(string privilege)
+        {
+            var auth = RootObject.Instance.LEE.AuthorizationManager;
+            if (auth == null) return false;
+            if (auth.HasScopePrivilege("*", privilege)) return true;
+            string scope = string.IsNullOrWhiteSpace(_activity?.CustomerScope) ? "wekit" : _activity.CustomerScope;
+            return auth.HasScopePrivilege(scope, privilege);
+        }
+
+        private bool CanUpdate() => CheckIsCreator() || HasScopePrivilege("update") || _activity?.EffectivePermissions == null || _activity.EffectivePermissions.Update;
+        private bool CanShare() => CheckIsCreator() || HasScopePrivilege("share") || _activity?.EffectivePermissions == null || _activity.EffectivePermissions.Share;
+        private bool CanDuplicate() => CheckIsCreator() || HasScopePrivilege("duplicate") || _activity?.EffectivePermissions == null || (_activity.EffectivePermissions.Duplicate && _activity.EffectivePermissions.Read);
 
         private void OnButtonAddGrantClicked()
         {
@@ -437,9 +447,11 @@ namespace MirageXR  //TODO: add Spatial namespace
             View.SetAddGrantPanelActive(value && canShare);
             View.SetGrantsList(_activity?.Grants, value, canShare, OnRemoveGrant);
 
-            View.SetImageThumbnailActive(value && (_texture != null || (_activity?.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty)));
+            bool hasThumbnail = _texture != null || (_activity?.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty);
+            View.SetImageThumbnailActive(hasThumbnail);
             View.SetButtonThumbnailActive(value);
-            View.SetThumbnailContainerActive(value || (_activity?.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty));
+            View.SetButtonDeleteThumbnailActive(value && hasThumbnail);
+            View.SetThumbnailContainerActive(value || hasThumbnail);
             View.SetButtonStartActivityActive(!value && !_hasStartedActivity);
             View.SetButtonDuplicateActive(value && canDuplicate);
 
@@ -576,6 +588,7 @@ namespace MirageXR  //TODO: add Spatial namespace
             View.SetInputFieldActivityNameText(_activity.Name);
             View.SetInputFieldActivityDescriptionText(_activity.Description);
             View.SetInputFieldActivityTagsText(string.Join(", ", _activity.Tags ?? new System.Collections.Generic.List<string>()));
+            View.InitializeDropdowns();
 
             int visIndex = _activity.Visibility?.ToLower() switch
             {
@@ -802,18 +815,18 @@ namespace MirageXR  //TODO: add Spatial namespace
         {
             if (_activity == null) return;
             var auth = RootObject.Instance.LEE.AuthorizationManager;
-            var userSub = auth.UserSub;
+            if (auth == null) return;
 
-            bool isOriginalCreator = (_activity.Creator != null && string.Equals(_activity.Creator.Id.ToString(), userSub, StringComparison.OrdinalIgnoreCase))
-                                  || (!string.IsNullOrEmpty(_activity.Owner) && string.Equals(_activity.Owner, userSub, StringComparison.OrdinalIgnoreCase));
+            bool isCreator = CheckIsCreator();
             bool isSystemAdmin = auth.HasScopePrivilege("*", "update");
+            bool hasCustomerUpdate = HasScopePrivilege("update");
 
-            // ND restriction: If NoDerivatives is true, only original creator or system admin can edit.
-            bool blockedByND = (_activity.License != null && _activity.License.NoDerivatives) && !isOriginalCreator && !isSystemAdmin;
+            // ND restriction: If NoDerivatives is true, only creator, system admin, or users with scope update privilege can edit.
+            bool blockedByND = (_activity.License != null && _activity.License.NoDerivatives) && !isCreator && !isSystemAdmin && !hasCustomerUpdate;
 
-            bool canUpdate = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Update;
-            bool canShare = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Share;
-            bool canCreate = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Create;
+            bool canUpdate = CanUpdate();
+            bool canShare = CanShare();
+            bool canCreate = auth.CanCreateActivity || HasScopePrivilege("create") || _activity.EffectivePermissions == null || _activity.EffectivePermissions.Create;
 
             bool canEdit = (canUpdate || canShare || canCreate) && !blockedByND;
 
