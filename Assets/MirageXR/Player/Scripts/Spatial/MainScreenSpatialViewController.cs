@@ -4,6 +4,7 @@ using System.Linq;
 using Cysharp.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using LearningExperienceEngine.DTOs;
+using TMPro;
 using UnityEngine;
 using Activity = LearningExperienceEngine.DataModel.Activity;
 
@@ -173,22 +174,67 @@ namespace MirageXR
 
             if (LearningExperienceEngine.UserSettings.groupByTags)
             {
-                activities = activities.OrderBy(a => a.Tags != null && a.Tags.Count > 0 ? a.Tags[0] : "zzz_untagged");
-            }
+                var groups = activities.GroupBy(a => a.Tags != null && a.Tags.Count > 0 ? a.Tags[0] : "Untagged");
+                ActivitySpatialListItem selectedItem = null;
 
-            ActivitySpatialListItem selectedItem = null;
-            foreach (var activity in activities)
-            {
-                var isSelected = activity.Id == selectedActivityId;
-                var item = Instantiate(prefab, container);
-                item.Initialize(activity, OnActivityListItemClicked, OnActivityListItemDeleteClicked, isSelected, OnTagClicked);
-                if (isSelected)
+                foreach (var group in groups)
                 {
-                    selectedItem = item;
-                }
-            }
+                    CreateGroupHeader(container, group.Key);
 
-            selectedItem?.transform.SetAsFirstSibling();
+                    foreach (var activity in group)
+                    {
+                        var isSelected = activity.Id == selectedActivityId;
+                        var item = Instantiate(prefab, container);
+                        item.Initialize(activity, OnActivityListItemClicked, OnActivityListItemDeleteClicked, isSelected, OnTagClicked);
+                        if (isSelected)
+                        {
+                            selectedItem = item;
+                        }
+                    }
+                }
+
+                selectedItem?.transform.SetAsFirstSibling();
+            }
+            else
+            {
+                ActivitySpatialListItem selectedItem = null;
+                foreach (var activity in activities)
+                {
+                    var isSelected = activity.Id == selectedActivityId;
+                    var item = Instantiate(prefab, container);
+                    item.Initialize(activity, OnActivityListItemClicked, OnActivityListItemDeleteClicked, isSelected, OnTagClicked);
+                    if (isSelected)
+                    {
+                        selectedItem = item;
+                    }
+                }
+
+                selectedItem?.transform.SetAsFirstSibling();
+            }
+        }
+
+        private void CreateGroupHeader(Transform container, string title)
+        {
+            var headerGo = new GameObject($"GroupHeader_{title}", typeof(RectTransform));
+            headerGo.transform.SetParent(container, false);
+            var rt = headerGo.GetComponent<RectTransform>();
+            rt.sizeDelta = new Vector2(0, 36);
+
+            var textGo = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+            textGo.transform.SetParent(headerGo.transform, false);
+            var textRt = textGo.GetComponent<RectTransform>();
+            textRt.anchorMin = new Vector2(0, 0);
+            textRt.anchorMax = new Vector2(1, 1);
+            textRt.offsetMin = new Vector2(15, 0);
+            textRt.offsetMax = new Vector2(-15, 0);
+
+            var tmp = textGo.GetComponent<TextMeshProUGUI>();
+            tmp.text = title;
+            tmp.fontSize = 17;
+            tmp.fontStyle = FontStyles.Bold;
+            tmp.color = new Color(0.85f, 0.85f, 0.85f, 1f);
+            tmp.alignment = TextAlignmentOptions.MidlineLeft;
+            tmp.raycastTarget = false;
         }
 
         private void OnTagClicked(string tag)

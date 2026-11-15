@@ -52,8 +52,13 @@ namespace MirageXR
             if (_refreshRoutine != null)
             {
                 StopCoroutine(_refreshRoutine);
+                _refreshRoutine = null;
             }
-            _refreshRoutine = StartCoroutine(RefreshAfterDeselectRoutine());
+
+            if (isActiveAndEnabled && gameObject.activeInHierarchy)
+            {
+                _refreshRoutine = StartCoroutine(RefreshAfterDeselectRoutine());
+            }
         }
 
         private IEnumerator RefreshAfterDeselectRoutine() //The first selected toggle has no hover effect unless it is refreshed
@@ -66,8 +71,20 @@ namespace MirageXR
         private void RefreshParentGameObject()
         {
             var parent = _toggle.transform.parent;
-            parent.gameObject.SetActive(false);
-            parent.gameObject.SetActive(true);
+            if (parent != null)
+            {
+                parent.gameObject.SetActive(false);
+                parent.gameObject.SetActive(true);
+            }
+        }
+
+        protected virtual void OnDisable()
+        {
+            if (_refreshRoutine != null)
+            {
+                StopCoroutine(_refreshRoutine);
+                _refreshRoutine = null;
+            }
         }
 
         protected virtual void OnDestroy()

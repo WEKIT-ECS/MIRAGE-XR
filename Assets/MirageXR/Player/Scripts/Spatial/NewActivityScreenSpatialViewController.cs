@@ -253,8 +253,16 @@ namespace MirageXR  //TODO: add Spatial namespace
             {
                 var duplicateName = "Copy of " + _activity.Name;
 
-                await RootObject.Instance.LEE.ActivityManager.DuplicateActivityAsync(_activity.Id, targetScope, duplicateName);
-                RootObject.Instance.LEE.ActivityManager.CloseActivity();
+                var duplicated = await RootObject.Instance.LEE.ActivityManager.DuplicateActivityAsync(_activity.Id, targetScope, duplicateName);
+                if (duplicated != null && duplicated.Id != Guid.Empty)
+                {
+                    await RootObject.Instance.LEE.ActivityManager.LoadActivityAsync(duplicated.Id);
+                    RootObject.Instance.LEE.ActivityManager.IsEditorMode = true;
+                }
+                else
+                {
+                    OnButtonCloseClicked();
+                }
             }
             catch (Exception ex)
             {
@@ -390,8 +398,18 @@ namespace MirageXR  //TODO: add Spatial namespace
             View.SetGrantsList(_activity?.Grants, value, canShare, OnRemoveGrant);
 
             View.SetImageThumbnailActive(value);
+            View.SetButtonThumbnailActive(value);
+            View.SetThumbnailContainerActive(value || (_activity?.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty));
             View.SetButtonStartActivityActive(!value);
             View.SetButtonDuplicateActive(value && canDuplicate);
+
+            bool licBy = _activity?.License == null || _activity.License.Attribution;
+            bool licSa = _activity?.License == null || _activity.License.ShareAlike;
+            bool licNd = _activity?.License != null && _activity.License.NoDerivatives;
+            bool licNc = _activity?.License != null && _activity.License.NonCommercial;
+            View.SetLicenseToggles(licBy, licSa, licNd, licNc, value && canUpdate);
+            string creator = _activity?.Creator?.Name;
+            View.SetCreatorAttributionText(licBy && !string.IsNullOrEmpty(creator) ? $"Created by: {creator}" : string.Empty, licBy && !string.IsNullOrEmpty(creator));
 
             View.RemoveActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
             View.SetIsToggleEditorOn(!value);
@@ -546,6 +564,8 @@ namespace MirageXR  //TODO: add Spatial namespace
             View.SetGrantsList(_activity.Grants, isEditor, canShare, OnRemoveGrant);
 
             View.SetImageThumbnailActive(isEditor);
+            View.SetButtonThumbnailActive(isEditor);
+            View.SetThumbnailContainerActive(isEditor || (_activity.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty));
             View.SetButtonStartActivityActive(!isEditor);
 
             bool canDuplicate = _activity.EffectivePermissions != null && _activity.EffectivePermissions.Duplicate && _activity.EffectivePermissions.Read;
@@ -559,8 +579,28 @@ namespace MirageXR  //TODO: add Spatial namespace
 
             if (!isEditor)
             {
-                View.SetImageThumbnailActive(false);
+                View.SetButtonThumbnailActive(false);
                 View.SetButtonDeleteThumbnailActive(false);
+                if (_activity.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty)
+                {
+                    var fileId = _activity.Thumbnail.Id;
+                    _texture = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(_activity.Id, fileId);
+                    if (_texture != null && !cancellationToken.IsCancellationRequested)
+                    {
+                        SetThumbnailView(_texture);
+                        View.SetThumbnailContainerActive(true);
+                    }
+                    else
+                    {
+                        View.SetImageThumbnailActive(false);
+                        View.SetThumbnailContainerActive(false);
+                    }
+                }
+                else
+                {
+                    View.SetImageThumbnailActive(false);
+                    View.SetThumbnailContainerActive(false);
+                }
                 return;
             }
 

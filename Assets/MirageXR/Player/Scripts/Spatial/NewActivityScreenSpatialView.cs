@@ -78,77 +78,6 @@ namespace MirageXR
             {
                 blurredBg.gameObject.SetActive(false);
             }
-
-            if (_buttonDuplicate == null)
-            {
-                var dupTransform = transform.Find("InfoPanel/DuplicateButton") ?? transform.Find("DuplicateButton");
-                if (dupTransform != null) _buttonDuplicate = dupTransform.GetComponent<Button>();
-            }
-
-            if (_buttonStartActivity == null)
-            {
-                var startTransform = transform.Find("InfoPanel/StartButton") ?? transform.Find("StartButton");
-                if (startTransform != null) _buttonStartActivity = startTransform.GetComponent<Button>();
-            }
-
-            if (inputFieldActivityTags == null)
-            {
-                var tagsTransform = transform.Find("InfoPanel/TagsInputField") ?? transform.Find("TagsInputField");
-                if (tagsTransform != null) inputFieldActivityTags = tagsTransform.GetComponent<TMP_InputField>();
-            }
-
-            if (dropdownVisibility == null)
-            {
-                var visTransform = transform.Find("InfoPanel/VisibilityDropdown") ?? transform.Find("VisibilityDropdown");
-                if (visTransform != null) dropdownVisibility = visTransform.GetComponent<TMP_Dropdown>();
-            }
-
-            if (dropdownPublicationStatus == null)
-            {
-                var pubTransform = transform.Find("InfoPanel/PublicationStatusDropdown") ?? transform.Find("PublicationStatusDropdown");
-                if (pubTransform != null) dropdownPublicationStatus = pubTransform.GetComponent<TMP_Dropdown>();
-            }
-
-            if (inputFieldCustomerScope == null)
-            {
-                var scopeTransform = transform.Find("InfoPanel/CustomerScopeInputField") ?? transform.Find("CustomerScopeInputField");
-                if (scopeTransform != null) inputFieldCustomerScope = scopeTransform.GetComponent<TMP_InputField>();
-            }
-
-            if (_grantsContainer == null)
-            {
-                _grantsContainer = transform.Find("InfoPanel/GrantsContainer") ?? transform.Find("GrantsContainer");
-            }
-
-            if (textCreatorAttribution == null)
-            {
-                var t = transform.Find("Tabs/InfoPanel/TextCreatorAttribution") ?? transform.Find("NewActivityScreen_Spatial/Tabs/InfoPanel/TextCreatorAttribution");
-                if (t != null) textCreatorAttribution = t.GetComponent<TMP_Text>();
-            }
-
-            if (toggleLicenseBY == null)
-            {
-                var t = transform.Find("Tabs/InfoPanel/ToggleBY") ?? transform.Find("NewActivityScreen_Spatial/Tabs/InfoPanel/ToggleBY");
-                if (t != null) toggleLicenseBY = t.GetComponent<Toggle>();
-            }
-
-            if (toggleLicenseSA == null)
-            {
-                var t = transform.Find("Tabs/InfoPanel/ToggleSA") ?? transform.Find("NewActivityScreen_Spatial/Tabs/InfoPanel/ToggleSA");
-                if (t != null) toggleLicenseSA = t.GetComponent<Toggle>();
-            }
-
-            if (toggleLicenseND == null)
-            {
-                var t = transform.Find("Tabs/InfoPanel/ToggleND") ?? transform.Find("NewActivityScreen_Spatial/Tabs/InfoPanel/ToggleND");
-                if (t != null) toggleLicenseND = t.GetComponent<Toggle>();
-            }
-
-            if (toggleLicenseNC == null)
-            {
-                var t = transform.Find("Tabs/InfoPanel/ToggleNC") ?? transform.Find("NewActivityScreen_Spatial/Tabs/InfoPanel/ToggleNC");
-                if (t != null) toggleLicenseNC = t.GetComponent<Toggle>();
-            }
         }
 
         public void SetActionOnInputFieldActivityNameEditEnd(UnityAction<string> action) => inputFieldActivityName.onEndEdit.AddListener(action);
@@ -329,6 +258,22 @@ namespace MirageXR
                 {
                     _buttonDeleteThumbnail.transform.SetAsLastSibling();
                 }
+            }
+        }
+
+        public void SetButtonThumbnailActive(bool active)
+        {
+            if (_buttonThumbnail != null)
+            {
+                _buttonThumbnail.gameObject.SetActive(active);
+            }
+        }
+
+        public void SetThumbnailContainerActive(bool active)
+        {
+            if (_thumbnaiContainer != null)
+            {
+                _thumbnaiContainer.gameObject.SetActive(active);
             }
         }
         public void SetActionOnButtonNextStepClick(UnityAction action) => _nextStep.SafeSetListener(action);
