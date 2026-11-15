@@ -303,8 +303,19 @@ namespace MirageXR
 
         private async UniTask DeleteActivityAsync(LearningExperienceEngine.DTOs.Activity activity)
         {
-            await RootObject.Instance.LEE.ActivityManager.DeleteActivityAsync(activity.Id);
-            await RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
+            try
+            {
+                await RootObject.Instance.LEE.ActivityManager.DeleteActivityAsync(activity.Id);
+                await RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to delete activity '{activity.Name}': {ex.Message}");
+                if (DialogWindow.Instance != null)
+                {
+                    DialogWindow.Instance.Show("Delete Failed", $"Failed to delete activity: {ex.Message}", new DialogButtonContent("OK"));
+                }
+            }
         }
     }
 }

@@ -144,7 +144,7 @@ namespace MirageXR  //TODO: add Spatial namespace
                 {
                     DialogWindow.Instance.Show("Permission Denied", $"You do not have creator privileges for customer scope '{trimmedScope}'.", new DialogButtonContent("OK"));
                 }
-                View.SetInputFieldCustomerScopeText(_activity.CustomerScope ?? "wekit");
+                View.SetInputFieldCustomerScopeText(string.IsNullOrWhiteSpace(_activity.CustomerScope) ? "wekit" : _activity.CustomerScope);
                 return;
             }
             RootObject.Instance.LEE.ActivityManager.SetActivityCustomerScope(trimmedScope);
@@ -190,6 +190,13 @@ namespace MirageXR  //TODO: add Spatial namespace
             {
                 RootObject.Instance.LEE.ActivityManager.AddActivityGrant(grant);
                 View.ClearNewGrantInputs();
+            }
+            else
+            {
+                if (DialogWindow.Instance != null)
+                {
+                    DialogWindow.Instance.Show("Grantee Required", "Please enter a valid user or group ID to add a grant.", new DialogButtonContent("OK"));
+                }
             }
         }
 
@@ -397,7 +404,7 @@ namespace MirageXR  //TODO: add Spatial namespace
             View.SetAddGrantPanelActive(value && canShare);
             View.SetGrantsList(_activity?.Grants, value, canShare, OnRemoveGrant);
 
-            View.SetImageThumbnailActive(value);
+            View.SetImageThumbnailActive(value && (_texture != null || (_activity?.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty)));
             View.SetButtonThumbnailActive(value);
             View.SetThumbnailContainerActive(value || (_activity?.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty));
             View.SetButtonStartActivityActive(!value);
@@ -530,8 +537,14 @@ namespace MirageXR  //TODO: add Spatial namespace
             };
             View.SetDropdownVisibilityValue(visIndex);
 
-            bool canUpdate = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Update;
-            bool canShare = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Share;
+            var auth = RootObject.Instance.LEE.AuthorizationManager;
+            bool isCreator = (!string.IsNullOrEmpty(auth.UserSub) &&
+                ((_activity.Creator != null && string.Equals(_activity.Creator.Id.ToString(), auth.UserSub, StringComparison.OrdinalIgnoreCase)) ||
+                 (!string.IsNullOrEmpty(_activity.Owner) && string.Equals(_activity.Owner, auth.UserSub, StringComparison.OrdinalIgnoreCase)))) ||
+                (!string.IsNullOrEmpty(auth.UserName) && !string.IsNullOrEmpty(_activity.Owner) && string.Equals(_activity.Owner, auth.UserName, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrEmpty(auth.UserFullName) && _activity.Creator != null && string.Equals(_activity.Creator.Name, auth.UserFullName, StringComparison.OrdinalIgnoreCase));
+            bool canUpdate = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Update || isCreator;
+            bool canShare = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Share || isCreator;
             View.SetDropdownVisibilityActive(canShare);
 
             bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
@@ -545,7 +558,7 @@ namespace MirageXR  //TODO: add Spatial namespace
             View.SetDropdownPublicationStatusValue(pubIndex);
             View.SetDropdownPublicationStatusInteractable(isEditor && canShare);
 
-            View.SetInputFieldCustomerScopeText(_activity.CustomerScope ?? "wekit");
+            View.SetInputFieldCustomerScopeText(string.IsNullOrWhiteSpace(_activity.CustomerScope) ? "wekit" : _activity.CustomerScope);
             View.SetInputFieldCustomerScopeInteractable(isEditor && canUpdate);
 
             bool showBY = _activity.License == null || _activity.License.Attribution;
@@ -568,7 +581,7 @@ namespace MirageXR  //TODO: add Spatial namespace
             View.SetThumbnailContainerActive(isEditor || (_activity.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty));
             View.SetButtonStartActivityActive(!isEditor);
 
-            bool canDuplicate = _activity.EffectivePermissions != null && _activity.EffectivePermissions.Duplicate && _activity.EffectivePermissions.Read;
+            bool canDuplicate = _activity.EffectivePermissions == null || (_activity.EffectivePermissions.Duplicate && _activity.EffectivePermissions.Read) || isCreator;
             View.SetButtonDuplicateActive(isEditor && canDuplicate);
 
             if (_texture is not null)

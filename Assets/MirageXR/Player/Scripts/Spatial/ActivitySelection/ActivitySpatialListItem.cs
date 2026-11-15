@@ -45,7 +45,17 @@ namespace MirageXR
             _onTagClicked = onTagClicked;
             button.onClick.AddListener(OnItemClicked);
 
-            bool canDelete = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Delete;
+            bool canDelete = _activity.EffectivePermissions != null && _activity.EffectivePermissions.Delete;
+            var auth = RootObject.Instance.LEE.AuthorizationManager;
+            if (!canDelete && auth != null)
+            {
+                string scope = string.IsNullOrWhiteSpace(_activity.CustomerScope) ? "wekit" : _activity.CustomerScope;
+                bool isOriginalCreator = !string.IsNullOrEmpty(auth.UserSub) &&
+                    ((_activity.Creator != null && string.Equals(_activity.Creator.Id.ToString(), auth.UserSub, StringComparison.OrdinalIgnoreCase)) ||
+                     (!string.IsNullOrEmpty(_activity.Owner) && string.Equals(_activity.Owner, auth.UserSub, StringComparison.OrdinalIgnoreCase)));
+
+                canDelete = isOriginalCreator || auth.HasScopePrivilege(scope, "delete") || auth.HasScopePrivilege("*", "delete");
+            }
             buttonDelete.gameObject.SetActive(canDelete);
             if (canDelete)
             {
@@ -163,6 +173,11 @@ namespace MirageXR
 
         private void UpdateTagsView()
         {
+            if (deadline != null)
+            {
+                deadline.gameObject.SetActive(false);
+            }
+
             if (tagsContainer == null)
             {
                 var existingContainer = transform.Find("TagsContainer");
@@ -177,13 +192,14 @@ namespace MirageXR
                     var hlg = go.GetComponent<HorizontalLayoutGroup>();
                     hlg.childControlWidth = false;
                     hlg.childControlHeight = false;
-                    hlg.spacing = 8f;
+                    hlg.childAlignment = TextAnchor.MiddleRight;
+                    hlg.spacing = 6f;
                     var rt = go.GetComponent<RectTransform>();
-                    rt.anchorMin = new Vector2(0f, 0f);
-                    rt.anchorMax = new Vector2(1f, 0f);
-                    rt.pivot = new Vector2(0f, 0f);
-                    rt.anchoredPosition = new Vector2(150f, 15f);
-                    rt.sizeDelta = new Vector2(-160f, 30f);
+                    rt.anchorMin = new Vector2(0.4f, 0.2f);
+                    rt.anchorMax = new Vector2(0.92f, 0.8f);
+                    rt.pivot = new Vector2(1f, 0.5f);
+                    rt.anchoredPosition = Vector2.zero;
+                    rt.sizeDelta = Vector2.zero;
                     tagsContainer = go.transform;
                 }
             }
@@ -198,7 +214,8 @@ namespace MirageXR
                 return;
             }
 
-            var tagsToShow = _activity.Tags.Take(4);
+            TMP_FontAsset sampleFont = textLabel != null ? textLabel.font : null;
+            var tagsToShow = _activity.Tags.Take(3);
             foreach (var tag in tagsToShow)
             {
                 var chipObj = new GameObject($"TagChip_{tag}", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
@@ -212,8 +229,9 @@ namespace MirageXR
                 var textObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
                 textObj.transform.SetParent(chipObj.transform, false);
                 var tmp = textObj.GetComponent<TextMeshProUGUI>();
+                if (sampleFont != null) tmp.font = sampleFont;
                 tmp.text = tag;
-                tmp.fontSize = 14;
+                tmp.fontSize = 11;
                 tmp.alignment = TextAlignmentOptions.Center;
                 tmp.color = Color.white;
                 var textRt = textObj.GetComponent<RectTransform>();
@@ -222,7 +240,7 @@ namespace MirageXR
                 textRt.sizeDelta = Vector2.zero;
 
                 var chipRt = chipObj.GetComponent<RectTransform>();
-                chipRt.sizeDelta = new Vector2(Mathf.Max(60f, tag.Length * 10f + 20f), 26f);
+                chipRt.sizeDelta = new Vector2(Mathf.Max(36f, tag.Length * 7f + 14f), 20f);
             }
         }
 

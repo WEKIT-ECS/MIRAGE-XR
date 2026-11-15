@@ -78,6 +78,82 @@ namespace MirageXR
             {
                 blurredBg.gameObject.SetActive(false);
             }
+
+            SetupDropdown(dropdownVisibility, new System.Collections.Generic.List<string> { "Private", "Protected", "Unlisted", "Public" });
+            SetupDropdown(dropdownPublicationStatus, new System.Collections.Generic.List<string> { "Draft", "Published" });
+            SetupDropdown(_dropdownGrantType, new System.Collections.Generic.List<string> { "User", "Group" });
+            SetupDropdown(_dropdownGrantPrivileges, new System.Collections.Generic.List<string> { "Read", "Read & Update" });
+
+            if (inputFieldActivityDescription != null)
+            {
+                inputFieldActivityDescription.lineType = TMP_InputField.LineType.MultiLineNewline;
+            }
+
+            if (_buttonThumbnail == null)
+            {
+                var btns = GetComponentsInChildren<Button>(true);
+                foreach (var b in btns)
+                {
+                    if (b.name == "AddPreviewButton_Spatial")
+                    {
+                        _buttonThumbnail = b;
+                        break;
+                    }
+                }
+            }
+
+            if (_imageThumbnailTemp == null)
+            {
+                var img = transform.Find("InfoScrollView/Viewport/Content/ImageContainer/Frame/Image");
+                if (img != null)
+                {
+                    _imageThumbnailTemp = img.GetComponent<Image>();
+                }
+            }
+
+            if (_thumbnaiContainer == null)
+            {
+                var frame = transform.Find("InfoScrollView/Viewport/Content/ImageContainer/Frame");
+                if (frame != null)
+                {
+                    _thumbnaiContainer = frame as RectTransform;
+                }
+            }
+
+            if (_buttonDeleteThumbnail == null)
+            {
+                var del = transform.Find("InfoScrollView/Viewport/Content/ImageContainer/Frame/Button");
+                if (del != null)
+                {
+                    _buttonDeleteThumbnail = del.GetComponent<Button>();
+                }
+            }
+        }
+
+        private void SetupDropdown(TMP_Dropdown dropdown, System.Collections.Generic.List<string> options)
+        {
+            if (dropdown == null) return;
+
+            if (dropdown.template != null)
+            {
+                var toggle = dropdown.template.GetComponentInChildren<Toggle>(true);
+                if (toggle != null)
+                {
+                    var itemText = toggle.GetComponentInChildren<TMP_Text>(true);
+                    if (itemText != null)
+                    {
+                        dropdown.itemText = itemText;
+                    }
+                }
+            }
+
+            dropdown.ClearOptions();
+            dropdown.AddOptions(options);
+
+            if (dropdown.gameObject.GetComponent<DropdownListFixer>() == null)
+            {
+                dropdown.gameObject.AddComponent<DropdownListFixer>();
+            }
         }
 
         public void SetActionOnInputFieldActivityNameEditEnd(UnityAction<string> action) => inputFieldActivityName.onEndEdit.AddListener(action);
@@ -317,11 +393,18 @@ namespace MirageXR
             }
             if (_imageThumbnailTemp != null)
             {
-                _imageThumbnailTemp.gameObject.SetActive(value);
+                _imageThumbnailTemp.gameObject.SetActive(value && _imageThumbnailTemp.sprite != null);
             }
         }
         //public void SetImageThumbnailTexture(Texture2D texture2D) => _imageThumbnailTemp.texture = texture2D;
-        public void SetImageThumbnailTexture(Sprite sprite) => _imageThumbnailTemp.sprite = sprite;
+        public void SetImageThumbnailTexture(Sprite sprite)
+        {
+            if (_imageThumbnailTemp != null)
+            {
+                _imageThumbnailTemp.sprite = sprite;
+                _imageThumbnailTemp.gameObject.SetActive(sprite != null);
+            }
+        }
         public void SetTitleText(string text) => textTitle.text = text;
         public void SetImageThumbnailSize(Vector2 size)
         {
@@ -380,6 +463,57 @@ namespace MirageXR
             if (_buttonReposition != null)
             {
                 _buttonReposition.interactable = value;
+            }
+        }
+    }
+
+    public class DropdownListFixer : MonoBehaviour, UnityEngine.EventSystems.IPointerClickHandler
+    {
+        private TMP_Dropdown _dropdown;
+
+        private void Awake()
+        {
+            _dropdown = GetComponent<TMP_Dropdown>();
+        }
+
+        public void OnPointerClick(UnityEngine.EventSystems.PointerEventData eventData)
+        {
+            StartCoroutine(FixListCoroutine());
+        }
+
+        private System.Collections.IEnumerator FixListCoroutine()
+        {
+            yield return null;
+            if (_dropdown == null) yield break;
+
+            Transform dropdownList = transform.Find("Dropdown List");
+            if (dropdownList == null)
+            {
+                var canvas = GetComponentInParent<Canvas>();
+                if (canvas != null)
+                {
+                    dropdownList = canvas.transform.Find("Dropdown List");
+                }
+            }
+
+            if (dropdownList != null)
+            {
+                var toggles = dropdownList.GetComponentsInChildren<Toggle>(true);
+                int optIdx = 0;
+                foreach (var toggle in toggles)
+                {
+                    if (!toggle.gameObject.activeSelf) continue;
+
+                    if (optIdx < _dropdown.options.Count)
+                    {
+                        var textComponent = toggle.GetComponentInChildren<TMP_Text>(true);
+                        if (textComponent != null)
+                        {
+                            textComponent.text = _dropdown.options[optIdx].text;
+                        }
+                        optIdx++;
+                    }
+                }
             }
         }
     }

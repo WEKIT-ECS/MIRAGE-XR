@@ -53,6 +53,7 @@ namespace MirageXR
 
             if (_toggleGroupByTags != null)
             {
+                _toggleGroupByTags.group = null;
                 _toggleGroupByTags.onValueChanged.RemoveListener(OnGroupByTagsChanged);
                 _toggleGroupByTags.isOn = LearningExperienceEngine.UserSettings.groupByTags;
                 _toggleGroupByTags.onValueChanged.AddListener(OnGroupByTagsChanged);

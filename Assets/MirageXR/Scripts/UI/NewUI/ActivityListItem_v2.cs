@@ -173,7 +173,17 @@ namespace MirageXR
             _btnMain.onClick.RemoveAllListeners();
             _btnMain.onClick.AddListener(OnBtnMain);
 
-            bool canDelete = _activity.EffectivePermissions == null || _activity.EffectivePermissions.Delete;
+            bool canDelete = _activity.EffectivePermissions != null && _activity.EffectivePermissions.Delete;
+            var auth = RootObject.Instance.LEE.AuthorizationManager;
+            if (!canDelete && auth != null)
+            {
+                string scope = string.IsNullOrWhiteSpace(_activity.CustomerScope) ? "wekit" : _activity.CustomerScope;
+                bool isOriginalCreator = !string.IsNullOrEmpty(auth.UserSub) &&
+                    ((_activity.Creator != null && string.Equals(_activity.Creator.Id.ToString(), auth.UserSub, StringComparison.OrdinalIgnoreCase)) ||
+                     (!string.IsNullOrEmpty(_activity.Owner) && string.Equals(_activity.Owner, auth.UserSub, StringComparison.OrdinalIgnoreCase)));
+
+                canDelete = isOriginalCreator || auth.HasScopePrivilege(scope, "delete") || auth.HasScopePrivilege("*", "delete");
+            }
             if (_btnDelete != null)
             {
                 _btnDelete.gameObject.SetActive(canDelete);
