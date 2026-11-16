@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
@@ -240,7 +242,7 @@ namespace MirageXR
             var tagsToShow = _activity.Tags.Where(t => !string.IsNullOrWhiteSpace(t)).Take(3).ToList();
             for (int i = 0; i < tagsToShow.Count; i++)
             {
-                var tag = tagsToShow[i].Trim();
+                string tag = tagsToShow[i].Trim().ToString();
 
                 if (i > 0)
                 {
@@ -267,7 +269,7 @@ namespace MirageXR
                 }
                 img.color = _tagChipColor;
                 var btn = chipObj.GetComponent<Button>();
-                var currentTag = tag;
+                string currentTag = tag;
                 btn.onClick.AddListener(() => _onTagClicked?.Invoke(currentTag));
 
                 var textObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
