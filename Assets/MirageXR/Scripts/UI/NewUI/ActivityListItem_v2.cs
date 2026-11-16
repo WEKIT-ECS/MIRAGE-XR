@@ -25,6 +25,8 @@ namespace MirageXR
         [SerializeField] private Button _btnDelete;
         [SerializeField] private Sprite _deleteIcon;
         [SerializeField] private Transform _tagsContainer;
+        [SerializeField] private Color _tagChipColor = new Color(0.49411765f, 0.2901961f, 0.7529412f, 1f);
+        [SerializeField] private Sprite _tagChipSprite;
 
         private const float SWIPE_LIMIT = 150f;
         private const float SWIPE_DURATION = 0.2f;
@@ -210,13 +212,16 @@ namespace MirageXR
                     var hlg = go.GetComponent<HorizontalLayoutGroup>();
                     hlg.childControlWidth = false;
                     hlg.childControlHeight = false;
-                    hlg.spacing = 6f;
+                    hlg.childForceExpandWidth = false;
+                    hlg.childForceExpandHeight = false;
+                    hlg.childAlignment = TextAnchor.MiddleLeft;
+                    hlg.spacing = 2f;
                     var rt = go.GetComponent<RectTransform>();
                     rt.anchorMin = new Vector2(0f, 0f);
                     rt.anchorMax = new Vector2(1f, 0f);
                     rt.pivot = new Vector2(0f, 0f);
-                    rt.anchoredPosition = new Vector2(120f, 10f);
-                    rt.sizeDelta = new Vector2(-130f, 24f);
+                    rt.anchoredPosition = new Vector2(120f, 8f);
+                    rt.sizeDelta = new Vector2(-130f, 22f);
                     _tagsContainer = go.transform;
                 }
             }
@@ -231,13 +236,36 @@ namespace MirageXR
                 return;
             }
 
-            var tagsToShow = System.Linq.Enumerable.Take(_activity.Tags, 4);
-            foreach (var tag in tagsToShow)
+            TMP_FontAsset sampleFont = _txtLabel != null ? _txtLabel.font : null;
+            var tagsToShow = _activity.Tags.Where(t => !string.IsNullOrWhiteSpace(t)).Take(3).ToList();
+            for (int i = 0; i < tagsToShow.Count; i++)
             {
+                var tag = tagsToShow[i].Trim();
+
+                if (i > 0)
+                {
+                    var commaObj = new GameObject("Comma", typeof(RectTransform), typeof(TextMeshProUGUI));
+                    commaObj.transform.SetParent(_tagsContainer, false);
+                    var commaTmp = commaObj.GetComponent<TextMeshProUGUI>();
+                    if (sampleFont != null) commaTmp.font = sampleFont;
+                    commaTmp.text = ",";
+                    commaTmp.fontSize = 12;
+                    commaTmp.color = new Color(0.75f, 0.75f, 0.75f, 1f);
+                    commaTmp.alignment = TextAlignmentOptions.Center;
+                    commaTmp.raycastTarget = false;
+                    var commaRt = commaObj.GetComponent<RectTransform>();
+                    commaRt.sizeDelta = new Vector2(4f, 20f);
+                }
+
                 var chipObj = new GameObject($"TagChip_{tag}", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
                 chipObj.transform.SetParent(_tagsContainer, false);
                 var img = chipObj.GetComponent<Image>();
-                img.color = new Color(0.25f, 0.35f, 0.5f, 0.85f);
+                img.sprite = _tagChipSprite;
+                if (img.sprite != null)
+                {
+                    img.type = Image.Type.Sliced;
+                }
+                img.color = _tagChipColor;
                 var btn = chipObj.GetComponent<Button>();
                 var currentTag = tag;
                 btn.onClick.AddListener(() => _onTagClicked?.Invoke(currentTag));
@@ -245,17 +273,21 @@ namespace MirageXR
                 var textObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
                 textObj.transform.SetParent(chipObj.transform, false);
                 var tmp = textObj.GetComponent<TextMeshProUGUI>();
-                tmp.text = tag;
-                tmp.fontSize = 12;
+                if (sampleFont != null) tmp.font = sampleFont;
+                string displayText = tag.StartsWith("#") ? tag : $"#{tag}";
+                tmp.text = displayText;
+                tmp.fontSize = 11;
                 tmp.alignment = TextAlignmentOptions.Center;
                 tmp.color = Color.white;
+                tmp.raycastTarget = false;
                 var textRt = textObj.GetComponent<RectTransform>();
                 textRt.anchorMin = Vector2.zero;
                 textRt.anchorMax = Vector2.one;
                 textRt.sizeDelta = Vector2.zero;
 
                 var chipRt = chipObj.GetComponent<RectTransform>();
-                chipRt.sizeDelta = new Vector2(Mathf.Max(50f, tag.Length * 8f + 16f), 22f);
+                float preferredWidth = tmp.preferredWidth > 0 ? tmp.preferredWidth + 12f : (displayText.Length * 7.5f + 14f);
+                chipRt.sizeDelta = new Vector2(Mathf.Max(32f, preferredWidth), 20f);
             }
         }
 
