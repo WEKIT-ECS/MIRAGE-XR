@@ -9,6 +9,7 @@ using Cysharp.Threading.Tasks;
 using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem.EnhancedTouch;
 using UnityEngine.Splines;
 using UnityEngine.UI;
@@ -94,6 +95,15 @@ namespace MirageXR
             if (_toggleAllUsers != null)
             {
                 _toggleAllUsers.onValueChanged.AddListener(OnToggleAllUsersValueChanged);
+            }
+
+            if (stepCompletedToggle != null)
+            {
+                stepCompletedToggle.onValueChanged.AddListener(OnStepCompleted);
+            }
+            if (stepCompletedToggle_Collapsed != null)
+            {
+                stepCompletedToggle_Collapsed.onValueChanged.AddListener(OnStepCompleted);
             }
             
             UpdateView(step); 
@@ -221,6 +231,8 @@ private void HandleClick()
         private void OnEditorModeChanged(bool value)
         {
             _windowContainer.SetActive(!value);
+            if (stepCompletedToggle != null) stepCompletedToggle.gameObject.SetActive(!value);
+            if (stepCompletedToggle_Collapsed != null) stepCompletedToggle_Collapsed.gameObject.SetActive(!value);
             UpdateSplinesBasedOnWindowState();
         }
 
@@ -581,6 +593,10 @@ private void HandleClick()
             
             var isEditorMode = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
             OnEditorModeChanged(isEditorMode);
+
+            bool isCompleted = _step != null && StepsListItem_v2.IsStepCompleted(_step.Id.ToString());
+            if (stepCompletedToggle != null) stepCompletedToggle.SetIsOnWithoutNotify(isCompleted);
+            if (stepCompletedToggle_Collapsed != null) stepCompletedToggle_Collapsed.SetIsOnWithoutNotify(isCompleted);
             
             foreach (var item in _mediaListItemViews)
             {
@@ -803,6 +819,47 @@ private void HandleClick()
             if (_toggleAllUsers != null)
             {
                 _toggleAllUsers.onValueChanged.RemoveAllListeners();
+            }
+            if (stepCompletedToggle != null)
+            {
+                stepCompletedToggle.onValueChanged.RemoveListener(OnStepCompleted);
+            }
+            if (stepCompletedToggle_Collapsed != null)
+            {
+                stepCompletedToggle_Collapsed.onValueChanged.RemoveListener(OnStepCompleted);
+            }
+        }
+
+        private void OnStepCompleted(bool isToggled)
+        {
+            if (stepCompletedToggle != null) stepCompletedToggle.SetIsOnWithoutNotify(isToggled);
+            if (stepCompletedToggle_Collapsed != null) stepCompletedToggle_Collapsed.SetIsOnWithoutNotify(isToggled);
+
+            if (isToggled)
+            {
+                if (stepCompletedToggle != null) stepCompletedToggle.SetIsOnWithoutNotify(false);
+                if (stepCompletedToggle_Collapsed != null) stepCompletedToggle_Collapsed.SetIsOnWithoutNotify(false);
+
+                StepVerificationController.CheckStepCompletedAsync(
+                    _step,
+                    isSpatial: true,
+                    onResult: (success) =>
+                    {
+                        if (stepCompletedToggle != null) stepCompletedToggle.SetIsOnWithoutNotify(success);
+                        if (stepCompletedToggle_Collapsed != null) stepCompletedToggle_Collapsed.SetIsOnWithoutNotify(success);
+                        if (_step != null)
+                        {
+                            LoadDetectImagesAsync(_step).Forget();
+                        }
+                    }
+                ).Forget();
+            }
+            else
+            {
+                if (_step != null)
+                {
+                    StepVerificationController.SetStepCompleted(_step.Id.ToString(), false);
+                }
             }
         }
 
