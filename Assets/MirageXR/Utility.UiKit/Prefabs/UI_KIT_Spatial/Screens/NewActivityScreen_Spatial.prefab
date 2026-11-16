@@ -19372,10 +19372,10 @@ RectTransform:
   - {fileID: 7855010000000000261}
   - {fileID: 7855010000000000311}
   - {fileID: 7855010000000000321}
+  - {fileID: 7855010000000000361}
   - {fileID: 8478824987816046566}
   - {fileID: 7855010000000000337}
   - {fileID: 7855010000000000339}
-  - {fileID: 7855010000000000361}
   m_Father: {fileID: 7855010000000000911}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
@@ -25263,6 +25263,7 @@ GameObject:
   - component: {fileID: 7855010000000000361}
   - component: {fileID: 7855010000000000362}
   - component: {fileID: 7855010000000000363}
+  - component: {fileID: 7855010000000000364}
   m_Layer: 5
   m_Name: GrantsSection
   m_TagString: Untagged
@@ -25289,7 +25290,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 180}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &7855010000000000362
 CanvasRenderer:
@@ -25325,6 +25326,20 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &7855010000000000364
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7855010000000000360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!1 &7855010000000000370
 GameObject:
   m_ObjectHideFlags: 0
@@ -25336,6 +25351,7 @@ GameObject:
   - component: {fileID: 7855010000000000371}
   - component: {fileID: 7855010000000000372}
   - component: {fileID: 7855010000000000373}
+  - component: {fileID: 7855010000000000374}
   m_Layer: 5
   m_Name: GrantsContainer
   m_TagString: Untagged
@@ -25358,11 +25374,11 @@ RectTransform:
   - {fileID: 7855010000000000376}
   m_Father: {fileID: 7855010000000000361}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 32}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &7855010000000000372
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -25397,6 +25413,20 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &7855010000000000374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7855010000000000370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!1 &7855010000000000375
 GameObject:
   m_ObjectHideFlags: 0
@@ -25542,6 +25572,7 @@ GameObject:
   - component: {fileID: 7855010000000000381}
   - component: {fileID: 7855010000000000382}
   - component: {fileID: 7855010000000000383}
+  - component: {fileID: 7855010000000000384}
   m_Layer: 5
   m_Name: PanelAddGrant
   m_TagString: Untagged
@@ -25567,11 +25598,11 @@ RectTransform:
   - {fileID: 7855010000000000541}
   m_Father: {fileID: 7855010000000000361}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 44}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &7855010000000000382
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -25589,7 +25620,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7855010000000000380}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
@@ -25597,15 +25628,29 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 3
-  m_Spacing: 6
-  m_ChildForceExpandWidth: 0
-  m_ChildForceExpandHeight: 1
-  m_ChildControlWidth: 0
-  m_ChildControlHeight: 1
+  m_ChildAlignment: 0
+  m_Spacing: 8
+  m_ChildForceExpandWidth: 1
+  m_ChildForceExpandHeight: 0
+  m_ChildControlWidth: 1
+  m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &7855010000000000384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7855010000000000380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 
 
 --- !u!1 &7855010000000000400
@@ -25647,7 +25692,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 95, y: 36}
+  m_SizeDelta: {x: 0, y: 36}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &7855010000000000402
 CanvasRenderer:
@@ -26671,7 +26716,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 155, y: 36}
+  m_SizeDelta: {x: 0, y: 36}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &7855010000000000462
 CanvasRenderer:
@@ -27160,7 +27205,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 120, y: 36}
+  m_SizeDelta: {x: 0, y: 36}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &7855010000000000482
 CanvasRenderer:
@@ -28186,7 +28231,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 45, y: 36}
+  m_SizeDelta: {x: 0, y: 36}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &7855010000000000542
 CanvasRenderer:
@@ -28335,7 +28380,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Add'
+  m_text: 'Add Grant'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f0a1b2c3d4e567890123456789abcdef, type: 2}
   m_sharedMaterial: {fileID: -7513635526780209487, guid: f0a1b2c3d4e567890123456789abcdef, type: 2}

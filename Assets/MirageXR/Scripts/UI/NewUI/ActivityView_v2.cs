@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using DG.Tweening;
 using MirageXR;
 using System.Collections;
@@ -107,7 +108,7 @@ public class ActivityView_v2 : BaseView
         var auth = RootObject.Instance.LEE.AuthorizationManager;
         if (auth == null) return false;
         if (auth.HasScopePrivilege("*", privilege)) return true;
-        if (auth.UserPrivileges != null && (auth.UserPrivileges.Contains(privilege.ToLowerInvariant()) || auth.UserPrivileges.Contains("admin"))) return true;
+        if (auth.UserPrivileges != null && auth.UserPrivileges.Any(p => string.Equals(p, privilege, StringComparison.OrdinalIgnoreCase) || string.Equals(p, "admin", StringComparison.OrdinalIgnoreCase))) return true;
         string scope = string.IsNullOrWhiteSpace(_activity?.CustomerScope) ? "wekit" : _activity.CustomerScope;
         return auth.HasScopePrivilege(scope, privilege);
     }
