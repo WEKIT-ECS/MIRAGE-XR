@@ -256,8 +256,16 @@ namespace MirageXR
             // 4. Submit setup call
             string taskTitle = string.IsNullOrEmpty(_step.Name) ? "Step Verification" : _step.Name;
             string instructions = $"title: {_step.Name}\ndescription: {_step.Description}";
+            string activityId = RootObject.Instance.LEE.ActivityManager.ActivityId.ToString();
+            string stepId = _step?.Id.ToString();
 
-            var setupResponse = await aiManager.passthroughFrameInterpretationSetup(taskTitle, instructions);
+            var setupResponse = await aiManager.PassthroughFrameInterpretationSetupAsync(
+                taskTitle,
+                instructions,
+                model: "gpt-4o",
+                userId: "anonymous",
+                activityId: activityId,
+                stepId: stepId);
             if (setupResponse == null || string.IsNullOrEmpty(setupResponse.ThreadId) || string.IsNullOrEmpty(setupResponse.TaskId))
             {
                 dialog?.ShowMiddle("Step Verification", "Failed to initialize step interpretation setup on the server.", "OK", () => { });
@@ -265,13 +273,15 @@ namespace MirageXR
                 return;
             }
 
-            var trackResponse = await aiManager.passthroughFrameInterpretationTrack(
+            var trackResponse = await aiManager.PassthroughFrameInterpretationTrackAsync(
                 setupResponse.ThreadId,
                 setupResponse.TaskId,
                 imageBytes,
-                0,
-                "gpt-4o",
-                setupResponse.AssistantId);
+                currentStep: 0,
+                model: "gpt-4o",
+                assistantId: setupResponse.AssistantId,
+                activityId: activityId,
+                stepId: stepId);
 
             if (thinkingIndicator != null)
             {

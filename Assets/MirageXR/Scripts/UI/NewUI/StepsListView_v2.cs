@@ -504,6 +504,7 @@ public class StepsListView_v2 : BaseView
         if (dropdown == null) return;
         dropdown.ClearOptions();
         dropdown.AddOptions(options);
+        dropdown.RefreshShownValue();
     }
 
     private bool CheckIsCreator()
@@ -572,7 +573,8 @@ public class StepsListView_v2 : BaseView
                     _ => 0
                 };
                 _dropdownVisibility.SetValueWithoutNotify(visIndex);
-                _dropdownVisibility.gameObject.SetActive(canShare);
+                _dropdownVisibility.RefreshShownValue();
+                _dropdownVisibility.gameObject.SetActive(true);
                 _dropdownVisibility.interactable = canShare && isEditor;
             }
 
@@ -584,7 +586,8 @@ public class StepsListView_v2 : BaseView
             {
                 int pubIndex = string.Equals(_activity.PublicationStatus, "published", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
                 _dropdownPublicationStatus.SetValueWithoutNotify(pubIndex);
-                _dropdownPublicationStatus.gameObject.SetActive(canShare);
+                _dropdownPublicationStatus.RefreshShownValue();
+                _dropdownPublicationStatus.gameObject.SetActive(true);
                 _dropdownPublicationStatus.interactable = isEditor && canShare;
             }
 
