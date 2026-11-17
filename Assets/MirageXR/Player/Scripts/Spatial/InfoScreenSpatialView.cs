@@ -634,11 +634,18 @@ private void HandleClick()
                 _toggleAllUsers.gameObject.SetActive(isManagerOrAdmin);
             }
 
-            if (_toggleAllUsers != null && !isManagerOrAdmin)
+            if (_toggleAllUsers != null)
             {
-                _toggleAllUsers.SetIsOnWithoutNotify(false);
+                if (!isManagerOrAdmin)
+                {
+                    _toggleAllUsers.SetIsOnWithoutNotify(false);
+                }
                 var switchToggle = _toggleAllUsers.GetComponent<SwitchToggle>();
-                if (switchToggle != null) switchToggle.ForceUpdateView();
+                if (switchToggle != null)
+                {
+                    switchToggle.EnsureInitialized();
+                    switchToggle.ForceUpdateView();
+                }
             }
 
             LoadDetectImagesAsync(_step).Forget();

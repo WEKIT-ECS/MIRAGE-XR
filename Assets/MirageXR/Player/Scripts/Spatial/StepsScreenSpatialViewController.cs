@@ -560,11 +560,18 @@ namespace MirageXR
                 _toggleAllUsers.gameObject.SetActive(isManagerOrAdmin);
             }
 
-            if (_toggleAllUsers != null && !isManagerOrAdmin)
+            if (_toggleAllUsers != null)
             {
-                _toggleAllUsers.SetIsOnWithoutNotify(false);
+                if (!isManagerOrAdmin)
+                {
+                    _toggleAllUsers.SetIsOnWithoutNotify(false);
+                }
                 var switchToggle = _toggleAllUsers.GetComponent<SwitchToggle>();
-                if (switchToggle != null) switchToggle.ForceUpdateView();
+                if (switchToggle != null)
+                {
+                    switchToggle.EnsureInitialized();
+                    switchToggle.ForceUpdateView();
+                }
             }
 
             LoadDetectImagesAsync(_step).Forget();
@@ -579,66 +586,7 @@ namespace MirageXR
                 _toggleAllUsers = View.GetToggleAllUsers();
                 _toggleAllUsersContainer = View.GetToggleAllUsersContainer();
                 _toggleAllUsers.onValueChanged.AddListener(OnToggleAllUsersValueChanged);
-                return;
             }
-
-            var container = View?.GetContainerMedia();
-            if (container == null) return;
-
-            var barObj = new GameObject("ToggleAllUsersContainer", typeof(RectTransform), typeof(HorizontalLayoutGroup));
-            barObj.transform.SetParent(container, false);
-            barObj.transform.SetAsFirstSibling();
-
-            var rect = barObj.GetComponent<RectTransform>();
-            rect.sizeDelta = new Vector2(0, 36);
-
-            var hlg = barObj.GetComponent<HorizontalLayoutGroup>();
-            hlg.padding = new RectOffset(10, 10, 4, 4);
-            hlg.spacing = 10;
-            hlg.childAlignment = TextAnchor.MiddleLeft;
-            hlg.childControlWidth = false;
-            hlg.childControlHeight = false;
-
-            var toggleObj = new GameObject("ToggleAllUsers", typeof(RectTransform), typeof(Toggle));
-            toggleObj.transform.SetParent(barObj.transform, false);
-            var toggleRect = toggleObj.GetComponent<RectTransform>();
-            toggleRect.sizeDelta = new Vector2(24, 24);
-
-            var bgObj = new GameObject("Background", typeof(RectTransform), typeof(Image));
-            bgObj.transform.SetParent(toggleObj.transform, false);
-            var bgImg = bgObj.GetComponent<Image>();
-            bgImg.color = new Color(0.2f, 0.2f, 0.25f, 1f);
-            var bgRect = bgObj.GetComponent<RectTransform>();
-            bgRect.anchorMin = Vector2.zero;
-            bgRect.anchorMax = Vector2.one;
-            bgRect.sizeDelta = Vector2.zero;
-
-            var checkObj = new GameObject("Checkmark", typeof(RectTransform), typeof(Image));
-            checkObj.transform.SetParent(bgObj.transform, false);
-            var checkImg = checkObj.GetComponent<Image>();
-            checkImg.color = new Color(0.6f, 0.5f, 0.95f, 1f);
-            var checkRect = checkObj.GetComponent<RectTransform>();
-            checkRect.anchorMin = new Vector2(0.2f, 0.2f);
-            checkRect.anchorMax = new Vector2(0.8f, 0.8f);
-            checkRect.sizeDelta = Vector2.zero;
-
-            var toggle = toggleObj.GetComponent<Toggle>();
-            toggle.targetGraphic = bgImg;
-            toggle.graphic = checkImg;
-            toggle.isOn = false;
-
-            var labelObj = new GameObject("Label", typeof(RectTransform), typeof(TMPro.TextMeshProUGUI));
-            labelObj.transform.SetParent(barObj.transform, false);
-            var labelTmp = labelObj.GetComponent<TMPro.TextMeshProUGUI>();
-            labelTmp.text = "All users";
-            labelTmp.fontSize = 14;
-            labelTmp.color = Color.white;
-            var labelRect = labelObj.GetComponent<RectTransform>();
-            labelRect.sizeDelta = new Vector2(100, 24);
-
-            _toggleAllUsers = toggle;
-            _toggleAllUsersContainer = barObj;
-            _toggleAllUsers.onValueChanged.AddListener(OnToggleAllUsersValueChanged);
         }
 
         private async UniTask LoadDetectImagesAsync(ActivityStep step)
