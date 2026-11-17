@@ -563,6 +563,8 @@ namespace MirageXR
             if (_toggleAllUsers != null && !isManagerOrAdmin)
             {
                 _toggleAllUsers.SetIsOnWithoutNotify(false);
+                var switchToggle = _toggleAllUsers.GetComponent<SwitchToggle>();
+                if (switchToggle != null) switchToggle.ForceUpdateView();
             }
 
             LoadDetectImagesAsync(_step).Forget();

@@ -149,12 +149,14 @@ namespace MirageXR
             string instructions = $"title: {step.Name}\ndescription: {step.Description}";
             string activityId = RootObject.Instance?.LEE?.ActivityManager?.ActivityId.ToString() ?? "";
             string stepId = step.Id.ToString();
+            string currentUserName = RootObject.Instance?.LEE?.AuthorizationManager?.UserName;
+            string userId = !string.IsNullOrEmpty(currentUserName) ? currentUserName : "anonymous";
 
             var setupResponse = await aiManager.PassthroughFrameInterpretationSetupAsync(
                 taskTitle,
                 instructions,
                 model: "gpt-4o",
-                userId: "anonymous",
+                userId: userId,
                 activityId: activityId,
                 stepId: stepId);
 

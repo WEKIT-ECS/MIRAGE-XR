@@ -211,32 +211,14 @@ namespace MirageXR
 
             float targetRightEdge = buttonLeftEdge - 20f;
 
-            // Calculate top edge Y coordinate of the activity title (textLabel)
-            float titleTopY = 36f;
-            if (textLabel != null)
-            {
-                textLabel.ForceMeshUpdate();
-                if (textLabel.textBounds.size.y > 0)
-                {
-                    Vector3 textTopWorld = textLabel.transform.TransformPoint(new Vector3(0, textLabel.textBounds.max.y, 0));
-                    titleTopY = transform.InverseTransformPoint(textTopWorld).y;
-                }
-                else
-                {
-                    Vector3[] textCorners = new Vector3[4];
-                    textLabel.rectTransform.GetWorldCorners(textCorners);
-                    titleTopY = transform.InverseTransformPoint(textCorners[1]).y;
-                }
-            }
-
             var rt = tagsContainer.GetComponent<RectTransform>();
             if (rt != null)
             {
-                rt.pivot = new Vector2(1f, 1f);
+                rt.pivot = new Vector2(1f, 0.5f);
                 rt.anchorMin = new Vector2(0f, 0.5f);
                 rt.anchorMax = new Vector2(0f, 0.5f);
-                rt.anchoredPosition = new Vector2(targetRightEdge, titleTopY);
-                rt.sizeDelta = new Vector2(320f, 20f);
+                rt.anchoredPosition = new Vector2(targetRightEdge, 10f);
+                rt.sizeDelta = new Vector2(320f, 24f);
             }
 
             var hlg = tagsContainer.GetComponent<HorizontalLayoutGroup>();
@@ -246,8 +228,8 @@ namespace MirageXR
                 hlg.childControlHeight = false;
                 hlg.childForceExpandWidth = false;
                 hlg.childForceExpandHeight = false;
-                hlg.childAlignment = TextAnchor.UpperRight;
-                hlg.spacing = 2f;
+                hlg.childAlignment = TextAnchor.MiddleRight;
+                hlg.spacing = 3f;
             }
 
             if (deleteConfirmation != null && tagsContainer != null)
