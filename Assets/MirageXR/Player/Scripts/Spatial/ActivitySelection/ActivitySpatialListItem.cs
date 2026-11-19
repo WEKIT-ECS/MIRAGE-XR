@@ -317,53 +317,60 @@ namespace MirageXR
 
         private async UniTask UpdateThumbnailViewAsync()
         {
-            if (_activity is { ThumbnailLink: not null } && !string.IsNullOrEmpty(_activity.ThumbnailLink))
+            if (_activity == null || !_activity.HasThumbnail)
             {
-                if (TryToGetGuids(_activity.ThumbnailLink, out var activityId, out var fileId))
+                SetDefaultThumbnailVisible(true);
+                if (imageThumbnail != null)
                 {
-                    var texture2D = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(activityId, fileId);
-                    if (texture2D == null)
-                    {
-                        await RootObject.Instance.LEE.MediaManager.DownloadMediaFileAsync(activityId, fileId);
-                        texture2D = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(activityId, fileId);
-                    }
-
-                    if (texture2D != null)
-                    {
-                        SetDefaultThumbnailVisible(false);
-#if VISION_OS  //TODO: temp
-                        var obj = imageThumbnail.gameObject;
-                        if (imageThumbnail != null)
-                        {
-                            DestroyImmediate(imageThumbnail);
-                        }
-                        var image = obj.GetComponent<Image>();
-                        if (image == null)
-                        {
-                            image = obj.AddComponent<Image>();
-                        }
-
-                        image.gameObject.SetActive(true);
-                        var sprite = Utilities.TextureToSprite(texture2D);
-                        image.sprite = sprite;
-                        await UniTask.NextFrame(PlayerLoopTiming.EarlyUpdate);
-                        var size = LearningExperienceEngine.Utilities.FitRectToRect(containerThumbnail.rect.size, new Vector2(texture2D.width, texture2D.height));
-                        image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
-                        image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
-#else
-                        if (imageThumbnail != null)
-                        {
-                            imageThumbnail.gameObject.SetActive(true);
-                            imageThumbnail.texture = texture2D;
-                            await UniTask.NextFrame(PlayerLoopTiming.EarlyUpdate);
-                            var size = LearningExperienceEngine.Utilities.FitRectToRect(containerThumbnail.rect.size, new Vector2(texture2D.width, texture2D.height));
-                            imageThumbnail.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
-                            imageThumbnail.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
-                        }
-#endif
-                        return;
-                    }
+                    imageThumbnail.gameObject.SetActive(false);
                 }
+                return;
+            }
+
+            var activityId = _activity.Id;
+            var fileId = _activity.Thumbnail.Id;
+
+            var texture2D = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(activityId, fileId);
+            if (texture2D == null)
+            {
+                await RootObject.Instance.LEE.MediaManager.DownloadMediaFileAsync(activityId, fileId);
+                texture2D = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(activityId, fileId);
+            }
+
+            if (texture2D != null)
+            {
+                SetDefaultThumbnailVisible(false);
+#if VISION_OS  //TODO: temp
+                var obj = imageThumbnail.gameObject;
+                if (imageThumbnail != null)
+                {
+                    DestroyImmediate(imageThumbnail);
+                }
+                var image = obj.GetComponent<Image>();
+                if (image == null)
+                {
+                    image = obj.AddComponent<Image>();
+                }
+
+                image.gameObject.SetActive(true);
+                var sprite = Utilities.TextureToSprite(texture2D);
+                image.sprite = sprite;
+                await UniTask.NextFrame(PlayerLoopTiming.EarlyUpdate);
+                var size = LearningExperienceEngine.Utilities.FitRectToRect(containerThumbnail.rect.size, new Vector2(texture2D.width, texture2D.height));
+                image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+                image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
+#else
+                if (imageThumbnail != null)
+                {
+                    imageThumbnail.gameObject.SetActive(true);
+                    imageThumbnail.texture = texture2D;
+                    await UniTask.NextFrame(PlayerLoopTiming.EarlyUpdate);
+                    var size = LearningExperienceEngine.Utilities.FitRectToRect(containerThumbnail.rect.size, new Vector2(texture2D.width, texture2D.height));
+                    imageThumbnail.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+                    imageThumbnail.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
+                }
+#endif
+                return;
             }
 
             SetDefaultThumbnailVisible(true);
@@ -388,7 +395,10 @@ namespace MirageXR
                 var matches = Regex.Matches(url, @"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
                 if (matches.Count >= 2)
                 {
-                    if (Guid.TryParse(matches[0].Value, out activityId) && Guid.TryParse(matches[1].Value, out fileId))
+                    if (Guid.TryParse(matches[0].Value, out activityId) &&
+                        Guid.TryParse(matches[1].Value, out fileId) &&
+                        activityId != Guid.Empty &&
+                        fileId != Guid.Empty)
                     {
                         return true;
                     }

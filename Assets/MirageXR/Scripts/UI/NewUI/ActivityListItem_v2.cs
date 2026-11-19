@@ -303,7 +303,7 @@ namespace MirageXR
 
         private async UniTaskVoid LoadThumbnailAsync()
         {
-            if (_activity == null || string.IsNullOrEmpty(_activity.ThumbnailLink))
+            if (_activity == null || !_activity.HasThumbnail)
             {
                 if (_image != null)
                 {
@@ -312,25 +312,25 @@ namespace MirageXR
                 return;
             }
 
-            if (TryToGetGuids(_activity.ThumbnailLink, out var activityId, out var fileId))
+            var activityId = _activity.Id;
+            var fileId = _activity.Thumbnail.Id;
+
+            var texture = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(activityId, fileId);
+            if (texture == null)
             {
-                var texture = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(activityId, fileId);
-                if (texture == null)
-                {
-                    await RootObject.Instance.LEE.MediaManager.DownloadMediaFileAsync(activityId, fileId);
-                    texture = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(activityId, fileId);
-                }
+                await RootObject.Instance.LEE.MediaManager.DownloadMediaFileAsync(activityId, fileId);
+                texture = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(activityId, fileId);
+            }
 
-                if (this == null)
-                {
-                    return;
-                }
+            if (this == null)
+            {
+                return;
+            }
 
-                if (texture != null && _image != null)
-                {
-                    _image.sprite = Utilities.TextureToSprite(texture);
-                    return;
-                }
+            if (texture != null && _image != null)
+            {
+                _image.sprite = Utilities.TextureToSprite(texture);
+                return;
             }
 
             if (_image != null)
@@ -354,7 +354,10 @@ namespace MirageXR
                 var matches = Regex.Matches(url, @"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
                 if (matches.Count >= 2)
                 {
-                    if (Guid.TryParse(matches[0].Value, out activityId) && Guid.TryParse(matches[1].Value, out fileId))
+                    if (Guid.TryParse(matches[0].Value, out activityId) &&
+                        Guid.TryParse(matches[1].Value, out fileId) &&
+                        activityId != Guid.Empty &&
+                        fileId != Guid.Empty)
                     {
                         return true;
                     }
