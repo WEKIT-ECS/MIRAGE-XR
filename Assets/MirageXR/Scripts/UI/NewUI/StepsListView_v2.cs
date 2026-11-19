@@ -102,6 +102,7 @@ public class StepsListView_v2 : BaseView
     private Button _btnAssignRoomModel;
     private TMP_Text _txtAssignRoomModelLink;
     private Button _btnRepositionDigitalTwin;
+    private Button _btnDeleteDigitalTwin;
     private GameObject _rowRepositionDigitalTwin;
     private GameObject _digitalTwinGalleryOverlay;
     private GameObject _digitalTwinRepositionOverlay;
@@ -1757,6 +1758,57 @@ public class StepsListView_v2 : BaseView
             }
         }
 
+        // 5. Delete Digital Twin button for editmode
+        if (_btnDeleteThumbnail != null && _panelDigitalTwinSettings != null)
+        {
+            var deleteObj = Instantiate(_btnDeleteThumbnail.gameObject, _panelDigitalTwinSettings.transform, false);
+            deleteObj.name = "Button_DeleteDigitalTwin";
+            var delRect = deleteObj.GetComponent<RectTransform>();
+            if (delRect != null)
+            {
+                delRect.anchorMin = new Vector2(1f, 0f);
+                delRect.anchorMax = new Vector2(1f, 0f);
+                delRect.pivot = new Vector2(1f, 0.5f);
+                delRect.anchoredPosition = new Vector2(-25f, 40f);
+                delRect.sizeDelta = new Vector2(40f, 40f);
+            }
+
+            var img = deleteObj.GetComponent<Image>();
+            if (img != null)
+            {
+                img.color = new Color(0.85f, 0.2f, 0.2f, 1f);
+            }
+            for (int i = deleteObj.transform.childCount - 1; i >= 0; i--)
+            {
+                Destroy(deleteObj.transform.GetChild(i).gameObject);
+            }
+
+            var textObj = new GameObject("Text_X", typeof(RectTransform));
+            textObj.transform.SetParent(deleteObj.transform, false);
+            var textRt = textObj.GetComponent<RectTransform>();
+            textRt.anchorMin = Vector2.zero;
+            textRt.anchorMax = Vector2.one;
+            textRt.pivot = new Vector2(0.5f, 0.5f);
+            textRt.anchoredPosition = Vector2.zero;
+            textRt.sizeDelta = Vector2.zero;
+
+            var tmpText = textObj.AddComponent<TextMeshProUGUI>();
+            tmpText.text = "X";
+            tmpText.fontSize = 20f;
+            tmpText.fontStyle = FontStyles.Bold;
+            tmpText.alignment = TextAlignmentOptions.Center;
+            tmpText.color = Color.white;
+            tmpText.raycastTarget = false;
+
+            _btnDeleteDigitalTwin = deleteObj.GetComponent<Button>();
+            if (_btnDeleteDigitalTwin != null)
+            {
+                _btnDeleteDigitalTwin.onClick = new Button.ButtonClickedEvent();
+                _btnDeleteDigitalTwin.onClick.AddListener(OnDeleteDigitalTwinClicked);
+            }
+            deleteObj.SetActive(false);
+        }
+
         if (frameTransform != null)
         {
             frameTransform.SetAsLastSibling();
@@ -1779,11 +1831,28 @@ public class StepsListView_v2 : BaseView
         UpdateDigitalTwinButtonsUI();
     }
 
+    private void OnDeleteDigitalTwinClicked()
+    {
+        var rtm = RootObject.Instance?.RoomTwinManager;
+        if (rtm == null || RootView_v2.Instance?.dialog == null) return;
+
+        RootView_v2.Instance.dialog.ShowMiddleMultiline(
+            "Clear Digital Twin",
+            ("Clear Digital Twin", () =>
+            {
+                rtm.ClearDigitalTwin();
+                UpdateDigitalTwinButtonsUI();
+            }, true),
+            ("Cancel", null, false));
+    }
+
     private void UpdateDigitalTwinButtonsUI()
     {
         var rtm = RootObject.Instance?.RoomTwinManager;
+        bool hasDigitalTwin = rtm != null && (!string.IsNullOrEmpty(rtm.CurrentDigitalTwinId) || !string.IsNullOrEmpty(activityManager?.Activity?.DigitalTwin));
         bool isShowing = rtm != null && rtm.IsRoomShowing();
         var style = rtm != null ? rtm.GetRoomTwinStyle() : RoomTwinStyle.FullTwin;
+        bool isEditor = activityManager != null && activityManager.IsEditorMode;
 
         if (_txtDigitalTwinToggleHeader != null)
         {
@@ -1791,22 +1860,42 @@ public class StepsListView_v2 : BaseView
         }
         if (_toggleDigitalTwin != null)
         {
-            _toggleDigitalTwin.SetIsOnWithoutNotify(isShowing);
+            _toggleDigitalTwin.SetIsOnWithoutNotify(hasDigitalTwin && isShowing);
             _toggleDigitalTwin.ForceUpdateView();
+            _toggleDigitalTwin.interactable = hasDigitalTwin;
         }
-        else if (_toggleDigitalTwinInner != null)
+        if (_toggleDigitalTwinInner != null)
         {
-            _toggleDigitalTwinInner.SetIsOnWithoutNotify(isShowing);
+            _toggleDigitalTwinInner.SetIsOnWithoutNotify(hasDigitalTwin && isShowing);
+            _toggleDigitalTwinInner.interactable = hasDigitalTwin;
         }
 
         if (_txtDigitalTwinStyleHeader != null)
         {
             _txtDigitalTwinStyleHeader.text = $"Digital Twin Style: {FormatRoomTwinStyle(style)}";
         }
+        if (_btnDigitalTwinStyle != null)
+        {
+            _btnDigitalTwinStyle.interactable = hasDigitalTwin;
+        }
+
+        if (_btnRepositionDigitalTwin != null)
+        {
+            _btnRepositionDigitalTwin.interactable = isEditor && hasDigitalTwin;
+        }
 
         if (_txtAssignRoomModelLink != null)
         {
-            _txtAssignRoomModelLink.text = "Add Digital Twin...";
+            _txtAssignRoomModelLink.text = hasDigitalTwin ? "Change Digital Twin..." : "Add Digital Twin...";
+        }
+
+        if (_btnDeleteDigitalTwin != null)
+        {
+            _btnDeleteDigitalTwin.gameObject.SetActive(isEditor && hasDigitalTwin);
+            if (isEditor && hasDigitalTwin)
+            {
+                _btnDeleteDigitalTwin.transform.SetAsLastSibling();
+            }
         }
     }
 
@@ -1834,8 +1923,13 @@ public class StepsListView_v2 : BaseView
         UpdateDigitalTwinButtonsUI();
     }
 
+    private float _lastDigitalTwinStyleClickTime;
+
     private void OnSelectDigitalTwinStyleClicked()
     {
+        if (Time.unscaledTime - _lastDigitalTwinStyleClickTime < 0.5f) return;
+        _lastDigitalTwinStyleClickTime = Time.unscaledTime;
+
         var rtm = RootObject.Instance?.RoomTwinManager;
         if (rtm == null || RootView_v2.Instance?.dialog == null) return;
 
@@ -1866,6 +1960,33 @@ public class StepsListView_v2 : BaseView
     {
         var rtm = RootObject.Instance?.RoomTwinManager;
         if (rtm == null) return;
+
+        bool hasDigitalTwin = !string.IsNullOrEmpty(rtm.CurrentDigitalTwinId) || !string.IsNullOrEmpty(activityManager?.Activity?.DigitalTwin);
+        bool isEditor = activityManager != null && activityManager.IsEditorMode;
+
+        if (hasDigitalTwin && isEditor && RootView_v2.Instance?.dialog != null)
+        {
+            RootView_v2.Instance.dialog.ShowMiddleMultiline(
+                "Digital Twin",
+                ("Change Digital Twin...", () => OpenDigitalTwinGalleryOrDialogAsync().Forget(), false),
+                ("Clear Digital Twin", () =>
+                {
+                    rtm.ClearDigitalTwin();
+                    UpdateDigitalTwinButtonsUI();
+                }, true),
+                ("Cancel", null, false));
+            return;
+        }
+
+        await OpenDigitalTwinGalleryOrDialogAsync();
+    }
+
+    private async UniTask OpenDigitalTwinGalleryOrDialogAsync()
+    {
+        var rtm = RootObject.Instance?.RoomTwinManager;
+        if (rtm == null) return;
+
+        bool hasDigitalTwin = !string.IsNullOrEmpty(rtm.CurrentDigitalTwinId) || !string.IsNullOrEmpty(activityManager?.Activity?.DigitalTwin);
 
         if (_digitalTwinGalleryOverlay != null)
         {
@@ -1945,8 +2066,17 @@ public class StepsListView_v2 : BaseView
             options.Add((capturedId, () => LoadSelectedRoomScanAsync(capturedId).Forget(), false));
         }
 
-        options.Add(("Cancel", null, true));
-        RootView_v2.Instance.dialog.ShowMiddleMultiline("Add Digital Twin...", options.ToArray());
+        if (hasDigitalTwin)
+        {
+            options.Add(("Clear Digital Twin", () =>
+            {
+                rtm.ClearDigitalTwin();
+                UpdateDigitalTwinButtonsUI();
+            }, true));
+        }
+
+        options.Add(("Cancel", null, false));
+        RootView_v2.Instance.dialog.ShowMiddleMultiline(hasDigitalTwin ? "Digital Twin..." : "Add Digital Twin...", options.ToArray());
     }
 
     private async UniTask OpenDigitalTwinGalleryFromTemplateAsync(VirtualInstructorViewMobile viTemplate, ReplaceModel replaceModelTemplate)

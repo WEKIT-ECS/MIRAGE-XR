@@ -186,6 +186,17 @@ namespace MirageXR
             OnRoomTwinStateChanged?.Invoke();
         }
 
+        public void ClearDigitalTwin()
+        {
+            UnloadDigitalTwin();
+            if (RootObject.Instance?.LEE?.ActivityManager?.Activity != null)
+            {
+                RootObject.Instance.LEE.ActivityManager.SetDigitalTwin(null, null, null);
+            }
+            MenuManager.Instance?.CloseDigitalTwinPopups();
+            OnRoomTwinStateChanged?.Invoke();
+        }
+
         public LearningExperienceEngine.DataModel.Location GetRoomTwinLocation()
         {
             return _digitalTwinLocation ?? LearningExperienceEngine.DataModel.Location.GetIdentityLocation();

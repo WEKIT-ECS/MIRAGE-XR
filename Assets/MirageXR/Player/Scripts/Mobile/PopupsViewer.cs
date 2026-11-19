@@ -34,6 +34,19 @@ public class PopupsViewer : MonoBehaviour
 
     public PopupBase Show(PopupBase popupPrefab, params object[] args)
     {
+        if (popupPrefab == null) return null;
+
+        foreach (var existing in _stack)
+        {
+            if (existing != null && existing.GetType() == popupPrefab.GetType() && !existing.isMarkedToDelete)
+            {
+                existing.gameObject.SetActive(true);
+                existing.transform.SetAsLastSibling();
+                UpdateView();
+                return existing;
+            }
+        }
+
         var popup = Instantiate(popupPrefab, transform);
         _stack.Push(popup);
         popup.gameObject.SetActive(false);

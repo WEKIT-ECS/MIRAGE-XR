@@ -35,6 +35,7 @@ namespace MirageXR  //TODO: add Spatial namespace
             View.SetActionOnButtonWireframeVignetteClick(OnButtonWireframeVignetteClicked);
             View.SetActionOnButtonAssignRoomModelClick(OnButtonAssignRoomModelClicked);
             View.SetActionOnButtonRepositionClick(OnButtonRepositionClicked);
+            View.SetActionOnButtonDeleteRoomScanClick(OnButtonDeleteRoomScanClicked);
             View.SetActionOnToggleShowRoomScanValueChanged(OnToggleShowRoomScanValueChanged);
             View.SetActionOnButtonThumbnailClick(OnButtonThumbnailClicked);
             View.SetActionOnButtonDeleteThumbnailClick(OnButtonDeleteThumbnailClicked);
@@ -471,6 +472,8 @@ namespace MirageXR  //TODO: add Spatial namespace
             View.SetIsToggleEditorOn(!value);
             View.SetActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
 
+            UpdateRoomTwinToggle();
+
             if (!value)
             {
                 View.ResetInfoScrollPosition();
@@ -497,16 +500,32 @@ namespace MirageXR  //TODO: add Spatial namespace
             MenuManager.Instance.ShowRoomScanRepositionPanelView();
         }
 
+        private void OnButtonDeleteRoomScanClicked()
+        {
+            roomTwinManager?.ClearDigitalTwin();
+        }
+
         private void UpdateRoomTwinToggle()
         {
-            if (View != null && roomTwinManager != null)
-            {
-                View.SetIsToggleShowRoomScanOnWithoutNotify(roomTwinManager.IsRoomShowing());
-            }
+            if (View == null || roomTwinManager == null) return;
+
+            bool hasDigitalTwin = !string.IsNullOrEmpty(_activity?.DigitalTwin) || !string.IsNullOrEmpty(roomTwinManager.CurrentDigitalTwinId);
+            bool isShowing = roomTwinManager.IsRoomShowing();
+            bool isEditorMode = RootObject.Instance?.LEE?.ActivityManager?.IsEditorMode ?? false;
+
+            View.SetIsToggleShowRoomScanOnWithoutNotify(hasDigitalTwin && isShowing);
+            View.SetShowRoomScanInteractable(hasDigitalTwin);
+            View.SetWireframeVignetteInteractable(hasDigitalTwin);
+            View.SetRepositionInteractable(isEditorMode && hasDigitalTwin);
+            View.SetButtonDeleteRoomScanActive(isEditorMode && hasDigitalTwin);
         }
+
+        private float _lastTwinStyleClickTime;
 
         private void OnButtonWireframeVignetteClicked()
         {
+            if (Time.unscaledTime - _lastTwinStyleClickTime < 0.5f) return;
+            _lastTwinStyleClickTime = Time.unscaledTime;
             MenuManager.Instance.ShowRoomScanSettingsPanelView();
         }
 

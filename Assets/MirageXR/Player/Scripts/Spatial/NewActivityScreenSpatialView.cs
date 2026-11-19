@@ -84,6 +84,7 @@ namespace MirageXR
         [Header("Buttons and Toggles")]
         [SerializeField] private Button _buttonWireframeVignette;
         [SerializeField] private Button _buttonAssignRoomModel;
+        [SerializeField] private Button _buttonDeleteRoomScan;
         [SerializeField] private Toggle _toggleShowRoomScan;
         [SerializeField] private Button _buttonReposition;
         [Header("Game Objects")]
@@ -148,6 +149,28 @@ namespace MirageXR
                 if (del != null)
                 {
                     _buttonDeleteThumbnail = del.GetComponent<Button>();
+                }
+            }
+
+            if (_buttonDeleteRoomScan == null)
+            {
+                var delScan = transform.Find("CalibrationScrollView/Viewport/Content/Panel_RoomScan_Added/TopContent/RoomScanNotAdded/Button_DeleteRoomScan")
+                           ?? transform.Find("CalibrationScrollView/Viewport/Content/Panel_RoomScan_Added/TopContent/Button_DeleteRoomScan")
+                           ?? transform.Find("CalibrationScrollView/Viewport/Content/Panel_RoomScan_Added/Button_DeleteRoomScan");
+                if (delScan != null)
+                {
+                    _buttonDeleteRoomScan = delScan.GetComponent<Button>();
+                }
+            }
+
+            if (_buttonDeleteRoomScan != null)
+            {
+                _buttonDeleteRoomScan.gameObject.SetActive(false);
+                var interactable = _buttonDeleteRoomScan.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRSimpleInteractable>();
+                if (interactable != null)
+                {
+                    interactable.selectEntered.RemoveAllListeners();
+                    interactable.selectEntered.AddListener(_ => _buttonDeleteRoomScan.onClick.Invoke());
                 }
             }
 
@@ -600,9 +623,38 @@ namespace MirageXR
         //#region Calibration tab
         public void SetActionOnButtonWireframeVignetteClick(UnityAction action) => _buttonWireframeVignette.SafeSetListener(action);
         public void SetActionOnButtonAssignRoomModelClick(UnityAction action) => _buttonAssignRoomModel.SafeSetListener(action);
+        public void SetActionOnButtonDeleteRoomScanClick(UnityAction action) => _buttonDeleteRoomScan?.SafeSetListener(action);
         public void SetActionOnToggleShowRoomScanValueChanged(UnityAction<bool> action) => _toggleShowRoomScan.SafeSetListener(action);
         public void SetIsToggleShowRoomScanOnWithoutNotify(bool value) => _toggleShowRoomScan.SafeSetIsOn(value);
         public void SetActionOnButtonRepositionClick(UnityAction action) => _buttonReposition.SafeSetListener(action);
+
+        public void SetButtonDeleteRoomScanActive(bool active)
+        {
+            if (_buttonDeleteRoomScan != null)
+            {
+                _buttonDeleteRoomScan.gameObject.SetActive(active);
+                if (active)
+                {
+                    _buttonDeleteRoomScan.transform.SetAsLastSibling();
+                }
+            }
+        }
+
+        public void SetWireframeVignetteInteractable(bool value)
+        {
+            if (_buttonWireframeVignette != null)
+            {
+                _buttonWireframeVignette.interactable = value;
+            }
+        }
+
+        public void SetShowRoomScanInteractable(bool value)
+        {
+            if (_toggleShowRoomScan != null)
+            {
+                _toggleShowRoomScan.interactable = value;
+            }
+        }
 
         public void SetAssignRoomModelInteractable(bool value)
         {

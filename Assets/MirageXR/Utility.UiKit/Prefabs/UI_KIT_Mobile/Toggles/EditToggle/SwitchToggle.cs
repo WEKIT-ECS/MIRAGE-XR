@@ -14,6 +14,18 @@ public class SwitchToggle : MonoBehaviour
 
     public UnityEvent<bool> onValueChanged => _toggle.onValueChanged;
 
+    public bool interactable
+    {
+        get => _toggle != null && _toggle.interactable;
+        set
+        {
+            if (_toggle != null)
+            {
+                _toggle.interactable = value;
+            }
+        }
+    }
+
     protected virtual void Start()
     {
         EnsureInitialized();
